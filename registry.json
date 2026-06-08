@@ -1,0 +1,55 @@
+{
+  "version": "0.1.0",
+  "note": "The organ registry — Cambium's machine-readable map of the constellation. Each organ is its OWN repo; Cambium does not contain organ code, it composes the organs as services. JSON (not YAML) on purpose: native zero-dep parse in both Node (the conductor) and Python (snow-gloves, brandmint), so the registry is language-neutral across the polyglot organs.",
+  "tiers": {
+    "free": "left brain — adoption flywheel (genesis + the build hands)",
+    "paid": "right brain — the moat (ongoing taste, the shared memory, the portfolio OS)"
+  },
+  "organs": {
+    "genesis": {
+      "name": "Brand brain (genesis)",
+      "role": "genesis",
+      "repo": "Sheshiyer/brandmint-oracle-aleph",
+      "summary": "idea → full brand system (persona, positioning, voice, logo, palette, copy, wiki) across waves 0–8",
+      "entrypoint": "brandmint launch --waves 0-8 (CLI: brandmint.cli.app:main) · buildable flow alias: skill-clusters taste/scripts/brandmint.mjs (runBrandKit)",
+      "tier": "free",
+      "language": "python (+ node flow)"
+    },
+    "hands": {
+      "name": "The hands + conductor",
+      "role": "hands",
+      "summary": "40 hub-and-spoke clusters + the conductor loop — build · maintain · market · operate; resolves any task to a real dev cluster",
+      "repo": "Sheshiyer/skill-clusters",
+      "entrypoint": "scripts/resolve-task.mjs (task → cluster) · scripts/ship-battery.mjs (fail-closed ship gate)",
+      "tier": "free",
+      "language": "node"
+    },
+    "taste": {
+      "name": "Taste cortex (conscience)",
+      "role": "conscience",
+      "summary": "the aesthetic conscience — on-brand QA, taste-resolve, reroll; keeps every artifact on-brand and learns the brand's taste over time",
+      "repo": "Sheshiyer/skill-clusters",
+      "entrypoint": "taste/scripts/taste-resolve.mjs (--brand <id> → injected on-brand brief)",
+      "tier": "paid",
+      "language": "node"
+    },
+    "will": {
+      "name": "The OS / will (business-ops)",
+      "role": "will",
+      "summary": "the business-ops organ — 7-agent C-suite, multi-tenant governance, GTM/distribution. ONE organ of the constellation, not the whole OS.",
+      "repo": "Sheshiyer/snow-gloves-os",
+      "entrypoint": "agents/dispatcher/ (agent spec; Hermes/Paperclip routing) · scripts/lib/gtm.py brand_to_gtm (brand-docs → Explee ICP, approval-gated)",
+      "tier": "paid",
+      "language": "python"
+    },
+    "cortex": {
+      "name": "Shared sensory cortex (NIM memory)",
+      "role": "cortex",
+      "summary": "the 1024-dim aesthetic memory shared by every organ — taste index + the brand's own assets + design-memory. The moat lives here. Currently duplicated across two Workers; I3 unifies.",
+      "repo": "Sheshiyer/taste-nim + brandmint DESIGN_MEMORY_WORKER",
+      "entrypoint": "NIM Worker endpoint (embed/search) — to be unified (see INTEGRATION.md I3)",
+      "tier": "paid",
+      "language": "worker"
+    }
+  }
+}
