@@ -12,7 +12,7 @@
 
 > In a tree, the **cambium** is the one thin living layer where *all* growth happens — it turns the seed's potential into bark, wood, and leaves. This is that layer for a business: it takes an idea (a *thoughtseed*) and grows it into a living company — branded, built, marketed, operated — and keeps it growing **on-brand, forever.**
 
-Cambium is **not a monorepo**. It is the **front door + nervous system** for a constellation of self-similar organ-repos. Each organ is *the same machine* (hub-and-spoke clusters + a conductor loop + a spec-kit + a 1024-dim memory) pointed at a different job. They compose.
+Cambium is **not a monorepo**. It is the **front door + nervous system** for a constellation of self-similar organ-repos. Each organ is *the same machine* (hub-and-spoke clusters + a conductor loop + a spec-kit + a 1024-dim memory) pointed at a different job. They compose — and the **composition layer** ([`registry.json`](./registry.json) + [`composition/`](./composition/) + the [`bin/compose.mjs`](./bin/compose.mjs) conductor) makes that wiring machine-readable and runnable: `node bin/compose.mjs plan <tenant>`.
 
 ## The four organs (+ the cortex)
 
@@ -22,7 +22,7 @@ Cambium is **not a monorepo**. It is the **front door + nervous system** for a c
 | 🛠️ **The hands** + 🧠 **the conductor** + 🎨 **the taste cortex** | *build · maintain · market · operate*, on-brand, closed-loop | [`skill-clusters`](https://github.com/Sheshiyer/skill-clusters) |
 | 📡 **Distribution / GTM** | *take it to market* | [`explee-skills`](https://github.com/Sheshiyer/explee-skills) |
 | 👔 **The OS / will / portfolio** | *the C-suite* — multi-tenant orchestration of the organs into a running business | [`snow-gloves-os`](https://github.com/Sheshiyer/snow-gloves-os) |
-| 🧠 **Shared sensory cortex** | the 1024-dim NIM aesthetic memory (taste + design-memory) — *to unify* | `taste-nim` (skill-clusters) + `DESIGN_MEMORY_WORKER` (brandmint) |
+| 🧠 **Shared sensory cortex** | the 1024-dim NIM aesthetic memory (taste + design-memory) — *to unify* | `taste-nim` (own repo) + `DESIGN_MEMORY_WORKER` (`brandmint/core/design_memory.py`) |
 
 ```mermaid
 graph LR
@@ -44,7 +44,9 @@ graph LR
 - **Paid** — *the ongoing taste*: the aesthetic conscience that keeps every artifact on-brand and **learns your brand's taste over time**. The moat. → see **[BUSINESS-MODEL.md](./BUSINESS-MODEL.md)**.
 
 ## Read next
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — the constellation, the self-similar pattern, the wiring audit (built vs stubbed), the integration roadmap.
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — the constellation, the self-similar pattern, the **composition layer**, the wiring audit.
+- **[INTEGRATION.md](./INTEGRATION.md)** — the wiring roadmap: **I1** (brand→GTM) ✅ shipped, **I2a/b/c** organs-as-services, **I3** unify the cortex.
+- **[`bin/compose.mjs`](./bin/compose.mjs)** — the dry-run **conductor**: `node bin/compose.mjs plan <tenant>` prints the per-tenant pipeline (each stage → organ, repo, entrypoint, free/paid tier).
 - **[BUSINESS-MODEL.md](./BUSINESS-MODEL.md)** — free left brain / paid right brain, why it compounds, the packaging.
 
 *Proven on the first tracer slice — Fitcheck (AI virtual try-on for fashion) — minted, built, and rendered end-to-end. Lessons: [`skill-clusters/docs/LESSONS-FITCHECK-RUN.md`](https://github.com/Sheshiyer/skill-clusters/blob/main/docs/LESSONS-FITCHECK-RUN.md).*

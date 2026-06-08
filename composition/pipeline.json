@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0",
+  "note": "The per-tenant composition pipeline. An idea enters at genesis; each stage is owned by exactly one organ (by registry id); the cortex is cross-cutting (it feeds every stage, it is not a stage). input/output are the contract tokens documented in composition/CONTRACTS.md. The conductor (bin/compose.mjs) resolves each stage.organ against registry.json and prints the plan; it is DRY-RUN ONLY — executing the organs end-to-end is I2.",
+  "stages": [
+    {
+      "id": "genesis",
+      "organ": "genesis",
+      "title": "Mint the brand",
+      "input": "idea",
+      "output": "brand-dna"
+    },
+    {
+      "id": "taste",
+      "organ": "taste",
+      "title": "Set the taste",
+      "input": "brand-dna",
+      "output": "taste-brief"
+    },
+    {
+      "id": "build",
+      "organ": "hands",
+      "title": "Build on-brand",
+      "input": "taste-brief",
+      "output": "artifact"
+    },
+    {
+      "id": "ops",
+      "organ": "will",
+      "title": "Operate + GTM",
+      "input": "artifact",
+      "output": "business"
+    }
+  ],
+  "crosscutting": [
+    {
+      "id": "cortex",
+      "organ": "cortex",
+      "title": "Aesthetic memory",
+      "feeds": ["genesis", "taste", "build", "ops"],
+      "note": "the 1024-dim NIM memory; learns across stages and across tenants"
+    }
+  ]
+}
