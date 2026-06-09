@@ -106,6 +106,20 @@ export function extractOutput(adapter, result) {
 }
 
 /**
+ * Drift detector at a hand-off seam (the first concrete piece of HOMEOSTASIS.md §5–§7).
+ * Does a stage's output satisfy its declared `output` contract? A `json:*` stage must
+ * emit parseable JSON; a failure is contract drift. Pure + non-fatal — it surfaces the
+ * signal (and is the seam the I4 why-handler will hook). Returns { ok, reason? }.
+ */
+export function verifyOutput(adapter, result) {
+  const raw = (result?.stdout ?? '').trim();
+  if (adapter?.output?.startsWith('json:') && tryJson(raw) === undefined) {
+    return { ok: false, reason: `contract drift: declares ${adapter.output} but output is not parseable JSON` };
+  }
+  return { ok: true };
+}
+
+/**
  * Run a pipeline of stages, threading each stage's output into the NEXT stage's
  * input (the hand-off). A stage that doesn't spawn (gated/refused/no-adapter) or
  * exits non-zero breaks the chain — the next stage falls back to its input_default.
@@ -129,6 +143,7 @@ export async function runPipeline({
     });
     res.stage = stage.id;
     res.inputFrom = inputFrom;
+    if (res.spawned) res.contract = verifyOutput(adapters[stage.organ], res.result); // drift check at the seam
     results.push(res);
     // only a stage that actually ran AND succeeded feeds the next; else the chain breaks
     prev = res.spawned && res.result && res.result.status === 0

@@ -60,6 +60,7 @@ spend-bearing chain still needs `--approve` on genesis + taste.
 | **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ✅ **wired** — resolve-task adapter (`spend: none`, **runs live**); the build *dispatch* is the gated extension | skill-clusters ← conductor |
 | **I2c** | taste **as a service** | `brand-dna` → `taste-brief` + on-brand verdict | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn `--approve`-gated | skill-clusters taste-resolve ← conductor |
 | **I3** | unify the NIM cortex | one aesthetic memory across all organs | ⏳ pending | merge `taste-nim` + `DESIGN_MEMORY_WORKER` |
+| **I4** | **self-healing / homeostasis** | drift-detect → ask-why → learn → re-converge ([HOMEOSTASIS.md](./HOMEOSTASIS.md) · [diagram](./docs/architecture.html)) | 🟡 **seam shipped** — `verifyOutput` drift-detector + `ops` adapter (**all 4 stages wired**); the why-handler loop is next | conductor + cortex + `AskUserQuestion` |
 | **B1** | name-validation gate | a name must be ownable before asset spend | ⏳ pending (Fitcheck lesson) | brandmint / skill-clusters |
 | **B2** | semantic visual-QA | gate renders on brief-match, not just palette | ⏳ pending (Fitcheck lesson) | skill-clusters reroll |
 | **B3** | reference-anchored campaigns | one brand character across the whole asset set | ⏳ pending (Fitcheck lesson) | skill-clusters / nanobanana |

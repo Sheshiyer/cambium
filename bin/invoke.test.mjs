@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveRoot, buildInvocation, gateStage, runStage, runPipeline, extractOutput } from './lib/invoke.mjs';
+import { resolveRoot, buildInvocation, gateStage, runStage, runPipeline, extractOutput, verifyOutput } from './lib/invoke.mjs';
 
 const registry = {
   organs: {
@@ -155,6 +155,28 @@ test('buildInvocation builds the hands resolve-task command (spend:none)', () =>
   const inv = buildInvocation(hands, { tenant: 'acme', input: 'plan.md', root: '/x/sc' });
   assert.deepEqual(inv.args, ['scripts/resolve-task.mjs', 'plan.md', '--json']);
   assert.equal(inv.spend, 'none');
+});
+
+test('buildInvocation builds the ops/will gtm command (spend:gated)', () => {
+  const will = { cmd: 'python3', args: ['scripts/gtm_cli.py', '{input}', '--json'], spend: 'gated', input_default: 'brief.md' };
+  const inv = buildInvocation(will, { tenant: 'acme', input: 'brief-partner.md', root: '/x/sg' });
+  assert.deepEqual(inv.args, ['scripts/gtm_cli.py', 'brief-partner.md', '--json']);
+  assert.equal(inv.spend, 'gated');
+});
+
+// ── verifyOutput: the drift-detector (contract violation at the seam) ──
+test('verifyOutput flags drift when a json: stage emits non-JSON', () => {
+  const v = verifyOutput({ output: 'json:dispatch-plan' }, { stdout: 'not json at all' });
+  assert.equal(v.ok, false);
+  assert.match(v.reason, /contract drift/);
+});
+
+test('verifyOutput passes when a json: stage emits valid JSON', () => {
+  assert.equal(verifyOutput({ output: 'json:x' }, { stdout: '{"a":1}' }).ok, true);
+});
+
+test('verifyOutput passes for a non-json output contract', () => {
+  assert.equal(verifyOutput({ output: 'brand-dna' }, { stdout: 'anything' }).ok, true);
 });
 
 test('hand-off: stage A output feeds stage B input', async () => {

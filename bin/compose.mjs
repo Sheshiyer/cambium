@@ -166,8 +166,11 @@ async function runCmd(root, { tenant, execute, approve, stage, input }) {
     const from = res.inputFrom === 'prev-stage' ? '  ⟸ input from prior stage' : '';
     lines.push(`  ${sdef.id.padEnd(8)} ${flow} · ${inv.spend === 'gated' ? '💲 spend-gated' : '○ free'}${from}`);
     lines.push(`     ↳ cd ${inv.cwd} && ${inv.cmd} ${inv.args.join(' ')}`);
-    if (res.spawned) { spawned++; lines.push(`     ▶ spawned (exit ${res.result.status})`); }
-    else { if (execute) refused++; lines.push(`     ⛔ ${res.gate.reason}`); }
+    if (res.spawned) {
+      spawned++;
+      lines.push(`     ▶ spawned (exit ${res.result.status})`);
+      if (res.contract && !res.contract.ok) lines.push(`     ⚠ drift — ${res.contract.reason}`);
+    } else { if (execute) refused++; lines.push(`     ⛔ ${res.gate.reason}`); }
   }
   lines.push('');
   lines.push(execute

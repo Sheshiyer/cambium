@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambium — the self-healing fractal engine</title>
+<style>
+  :root { --violet:#8b5cf6; --ink:#1a1a2e; --mut:#6b7280; --line:#e5e7eb; --gate:#ef4444; --free:#10b981; --bg:#fafafa; }
+  * { box-sizing: border-box; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink);
+         max-width: 1100px; margin: 0 auto; padding: 0 22px 80px; background: #fff; line-height: 1.5; }
+  header { background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); color: #fff; padding: 40px 36px; border-radius: 0 0 18px 18px; margin: 0 -22px 34px; }
+  header h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.5px; }
+  header p { margin: 0; opacity: .92; font-size: 15px; max-width: 760px; }
+  h2 { font-size: 20px; margin: 44px 0 6px; letter-spacing: -0.3px; }
+  h2 .n { color: var(--violet); font-variant-numeric: tabular-nums; margin-right: 10px; }
+  .sub { color: var(--mut); margin: 0 0 18px; font-size: 14px; }
+  .card { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: var(--bg); }
+  svg { max-width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--mut); margin-top: 12px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:middle; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--violet); font-weight: 600; }
+  code { background: #f3f0ff; color: #5b21b6; padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .pill { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; }
+  .pill.gate { background:#fee2e2; color:#b91c1c; } .pill.free { background:#d1fae5; color:#047857; }
+  .eq { font-family: ui-monospace, "SF Mono", Menlo, monospace; background:#0f0f1e; color:#c4b5fd; padding:14px 16px;
+        border-radius:10px; font-size:13px; overflow-x:auto; white-space:pre; }
+  @media (max-width:720px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌱 Cambium — the self-healing fractal engine</h1>
+  <p>An idea in → a self-running, on-brand business out. <b>Drift is not the cost of long autonomous runs —
+  it is the detectable signature of a non-contractive step or a contract violation.</b> Make every stage a
+  measured contraction toward the brand-DNA fixed point, gate the irreversible steps, and treat each
+  deviation as a one-bit “error-or-new-intent?” question. Then the engine converges by construction and
+  <i>learns</i> to stay on-brand. Full model: <code>HOMEOSTASIS.md</code>.</p>
+</header>
+
+<h2><span class="n">Φ</span>The math spine</h2>
+<p class="sub">Every diagram below is one of these objects made concrete.</p>
+<div class="eq">State space   (X, d) = NIM 1024-dim embedding,  d = cosine distance
+Setpoint      x*  = the brand-DNA  (the unique fixed point)
+Operator      Φ   = Φ_ops ∘ Φ_build ∘ Φ_taste ∘ Φ_genesis        (the pipeline)
+Convergence   Lᵢ < 1  ∀i   ⟹   L = ∏Lᵢ < 1   ⟹   d(xₙ, x*) ≤ Lⁿ·d(x₀, x*) → 0   (Banach)
+Drift         d(Φᵢ(x), x*) > d(x, x*)   i.e.  Lᵢ ≥ 1     ∥    Outputᵢ ⋢ Inputᵢ₊₁
+Lyapunov      V(x) = d(x, x*) ≥ 0 ;  self-healing ⟺ V strictly decreasing</div>
+
+<h2><span class="n">1</span>The pipeline — staged contraction toward x*, hand-off, fail-closed gate</h2>
+<p class="sub">Each stage is a typed morphism Φᵢ. The hand-off is valid iff <code>Outputᵢ ⊑ Inputᵢ₊₁</code>.
+The cortex (the metric space) feeds every stage; the gate stops irreversible spend off the convergence path.</p>
+<div class="card">
+<svg viewBox="0 0 980 360" role="img" aria-label="Cambium pipeline">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#6b7280"/></marker>
+    <marker id="arrv" markerWidth="9" markerHeight="9" refX="3" refY="7" orient="auto"><path d="M0,0 L6,0 L3,7 Z" fill="#a78bfa"/></marker>
+  </defs>
+  <!-- setpoint -->
+  <text x="20" y="28" font-size="13" fill="#5b21b6" font-weight="700">idea ▶</text>
+  <!-- stages -->
+  <g font-family="ui-sans-serif,system-ui">
+    <!-- genesis -->
+    <rect x="80" y="40" width="180" height="84" rx="12" fill="#ede9fe" stroke="#8b5cf6"/>
+    <text x="170" y="70" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a2e">genesis</text>
+    <text x="170" y="90" text-anchor="middle" font-size="11.5" fill="#6b7280">brandmint · mint the brand</text>
+    <rect x="120" y="100" width="100" height="17" rx="8" fill="#fee2e2"/><text x="170" y="112" text-anchor="middle" font-size="10.5" fill="#b91c1c">💲 gated</text>
+    <!-- taste -->
+    <rect x="300" y="40" width="180" height="84" rx="12" fill="#ede9fe" stroke="#8b5cf6"/>
+    <text x="390" y="70" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a2e">taste</text>
+    <text x="390" y="90" text-anchor="middle" font-size="11.5" fill="#6b7280">cortex · set the taste (Lᵢ&lt;1)</text>
+    <rect x="340" y="100" width="100" height="17" rx="8" fill="#fee2e2"/><text x="390" y="112" text-anchor="middle" font-size="10.5" fill="#b91c1c">💲 gated</text>
+    <!-- build -->
+    <rect x="520" y="40" width="180" height="84" rx="12" fill="#ede9fe" stroke="#8b5cf6"/>
+    <text x="610" y="70" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a2e">build (hands)</text>
+    <text x="610" y="90" text-anchor="middle" font-size="11.5" fill="#6b7280">resolve-task · 40 clusters</text>
+    <rect x="560" y="100" width="100" height="17" rx="8" fill="#d1fae5"/><text x="610" y="112" text-anchor="middle" font-size="10.5" fill="#047857">○ free · runs live</text>
+    <!-- ops -->
+    <rect x="740" y="40" width="180" height="84" rx="12" fill="#ede9fe" stroke="#8b5cf6"/>
+    <text x="830" y="70" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a2e">ops (will)</text>
+    <text x="830" y="90" text-anchor="middle" font-size="11.5" fill="#6b7280">snow-gloves · brand_to_gtm</text>
+    <rect x="780" y="100" width="100" height="17" rx="8" fill="#fee2e2"/><text x="830" y="112" text-anchor="middle" font-size="10.5" fill="#b91c1c">💲 gated</text>
+  </g>
+  <!-- hand-off arrows + contract tokens -->
+  <g font-size="11" fill="#5b21b6" font-style="italic">
+    <path d="M260,82 L300,82" stroke="#6b7280" stroke-width="1.6" marker-end="url(#arr)"/><text x="280" y="74" text-anchor="middle">brand-dna</text>
+    <path d="M480,82 L520,82" stroke="#6b7280" stroke-width="1.6" marker-end="url(#arr)"/><text x="500" y="74" text-anchor="middle">taste-brief</text>
+    <path d="M700,82 L740,82" stroke="#6b7280" stroke-width="1.6" marker-end="url(#arr)"/><text x="720" y="74" text-anchor="middle">artifact</text>
+  </g>
+  <text x="930" y="86" font-size="12.5" fill="#047857" font-weight="700">▶ business</text>
+  <!-- cortex band -->
+  <rect x="80" y="230" width="840" height="64" rx="12" fill="#1a1a2e"/>
+  <text x="500" y="258" text-anchor="middle" font-size="14" font-weight="700" fill="#c4b5fd">🧠 shared cortex — the metric space (X, d) · x* lives here · learns across stages + scales</text>
+  <text x="500" y="278" text-anchor="middle" font-size="11.5" fill="#9ca3af">taste-nim + DESIGN_MEMORY_WORKER  ·  every stage measured against x* here</text>
+  <!-- feeds up -->
+  <g stroke="#a78bfa" stroke-width="1.4" stroke-dasharray="4 3">
+    <path d="M170,230 L170,126" marker-end="url(#arrv)"/>
+    <path d="M390,230 L390,126" marker-end="url(#arrv)"/>
+    <path d="M610,230 L610,126" marker-end="url(#arrv)"/>
+    <path d="M830,230 L830,126" marker-end="url(#arrv)"/>
+  </g>
+</svg>
+<div class="legend">
+  <span><span class="dot" style="background:#fee2e2;border:1px solid #b91c1c"></span>gated (irreversible / paid) — needs <code>--approve</code></span>
+  <span><span class="dot" style="background:#d1fae5;border:1px solid #047857"></span>free (no-spend) — runs live</span>
+  <span><span class="dot" style="background:#a78bfa"></span>cortex feeds every stage (measures V = d(x, x*))</span>
+</div>
+</div>
+
+<h2><span class="n">2</span>The self-healing loop — Lyapunov check + the why-handler</h2>
+<p class="sub">After every stage: did V drop? Accept. Did V rise? It's a deviation — and the one-bit
+question <b>error or new-intent?</b> decides everything.</p>
+<div class="card">
+<svg viewBox="0 0 980 380" role="img" aria-label="Self-healing loop">
+  <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#6b7280"/></marker></defs>
+  <!-- run a stage -->
+  <rect x="40" y="30" width="150" height="58" rx="11" fill="#ede9fe" stroke="#8b5cf6"/><text x="115" y="56" text-anchor="middle" font-size="13" font-weight="700">run stage Φᵢ</text><text x="115" y="74" text-anchor="middle" font-size="11" fill="#6b7280">(gated → approve)</text>
+  <!-- measure V -->
+  <rect x="230" y="30" width="150" height="58" rx="11" fill="#1a1a2e"/><text x="305" y="54" text-anchor="middle" font-size="13" font-weight="700" fill="#c4b5fd">measure V = d(x, x*)</text><text x="305" y="72" text-anchor="middle" font-size="10.5" fill="#9ca3af">cortex · also verifyOutput</text>
+  <!-- decision -->
+  <polygon points="500,30 580,59 500,88 420,59" fill="#fff7ed" stroke="#ed8936"/><text x="500" y="56" text-anchor="middle" font-size="12.5" font-weight="700" fill="#9a3412">V dropped?</text><text x="500" y="72" text-anchor="middle" font-size="10" fill="#9a3412">Lyapunov</text>
+  <!-- accept -->
+  <rect x="640" y="30" width="150" height="58" rx="11" fill="#d1fae5" stroke="#047857"/><text x="715" y="54" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">accept → continue</text><text x="715" y="72" text-anchor="middle" font-size="10.5" fill="#047857">silent convergence</text>
+  <!-- classify -->
+  <polygon points="500,150 590,182 500,214 410,182" fill="#fff7ed" stroke="#ed8936"/><text x="500" y="178" text-anchor="middle" font-size="12" font-weight="700" fill="#9a3412">error or</text><text x="500" y="194" text-anchor="middle" font-size="12" font-weight="700" fill="#9a3412">new-intent?</text>
+  <!-- error path -->
+  <rect x="120" y="250" width="200" height="62" rx="11" fill="#fee2e2" stroke="#b91c1c"/><text x="220" y="274" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7f1d1d">ERROR → reject + reroll</text><text x="220" y="292" text-anchor="middle" font-size="10.5" fill="#b91c1c">toward same x* · automatic · fail-closed</text>
+  <!-- intent path -->
+  <rect x="660" y="250" width="240" height="62" rx="11" fill="#ede9fe" stroke="#8b5cf6"/><text x="780" y="270" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5b21b6">INTENT → ASK WHY</text><text x="780" y="287" text-anchor="middle" font-size="10.5" fill="#6b21a8">capture rationale → x*′←incorporate(Δ)</text><text x="780" y="302" text-anchor="middle" font-size="10.5" fill="#6b21a8">update contract/ISC → re-converge</text>
+  <!-- arrows -->
+  <g stroke="#6b7280" stroke-width="1.7" fill="none">
+    <path d="M190,59 L230,59" marker-end="url(#a2)"/>
+    <path d="M380,59 L420,59" marker-end="url(#a2)"/>
+    <path d="M580,59 L640,59" marker-end="url(#a2)"/>
+    <path d="M500,88 L500,150" marker-end="url(#a2)"/>
+    <path d="M410,182 L220,182 L220,250" marker-end="url(#a2)"/>
+    <path d="M590,182 L780,182 L780,250" marker-end="url(#a2)"/>
+  </g>
+  <text x="515" y="125" font-size="11" fill="#9a3412" font-style="italic">no → deviation Δ</text>
+  <text x="300" y="172" font-size="10.5" fill="#b91c1c">default</text>
+  <text x="660" y="172" font-size="10.5" fill="#6b21a8">user redirect / recognised attractor</text>
+  <!-- re-converge loops back -->
+  <path d="M220,312 L220,340 L115,340 L115,88" stroke="#b91c1c" stroke-width="1.5" fill="none" stroke-dasharray="5 3" marker-end="url(#a2)"/>
+  <path d="M780,312 L780,355 L115,355 L115,88" stroke="#8b5cf6" stroke-width="1.5" fill="none" stroke-dasharray="5 3" marker-end="url(#a2)"/>
+  <text x="360" y="335" font-size="10.5" fill="#b91c1c">reroll → re-run</text>
+  <text x="360" y="368" font-size="10.5" fill="#6b21a8">learned x*′ now part of the invariant → never reads as drift again</text>
+</svg>
+</div>
+
+<h2><span class="n">3</span>The fractal — one operator Φ, scale-invariant (homeostasis everywhere)</h2>
+<p class="sub">Φ has the <b>same form at every scale</b> (a renormalization fixed point). A drifting skill is
+corrected within its cluster; a drifting organ within the OS; a drifting venture within the portfolio.
+The shared cortex propagates each lesson across all scales.</p>
+<div class="card">
+<svg viewBox="0 0 980 150" role="img" aria-label="Fractal scales">
+  <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8b5cf6"/></marker></defs>
+  <g font-family="ui-sans-serif,system-ui" font-size="12.5" text-anchor="middle">
+    <g><rect x="20" y="50" width="130" height="50" rx="10" fill="#f5f3ff" stroke="#8b5cf6"/><text x="85" y="73" font-weight="700">skill</text><text x="85" y="90" font-size="10" fill="#6b7280">Φ</text></g>
+    <g><rect x="180" y="50" width="130" height="50" rx="10" fill="#f5f3ff" stroke="#8b5cf6"/><text x="245" y="73" font-weight="700">cluster</text><text x="245" y="90" font-size="10" fill="#6b7280">Φ</text></g>
+    <g><rect x="340" y="50" width="130" height="50" rx="10" fill="#f5f3ff" stroke="#8b5cf6"/><text x="405" y="73" font-weight="700">organ</text><text x="405" y="90" font-size="10" fill="#6b7280">Φ</text></g>
+    <g><rect x="500" y="50" width="130" height="50" rx="10" fill="#f5f3ff" stroke="#8b5cf6"/><text x="565" y="73" font-weight="700">venture</text><text x="565" y="90" font-size="10" fill="#6b7280">Φ</text></g>
+    <g><rect x="660" y="50" width="130" height="50" rx="10" fill="#f5f3ff" stroke="#8b5cf6"/><text x="725" y="73" font-weight="700">company</text><text x="725" y="90" font-size="10" fill="#6b7280">Φ</text></g>
+    <g><rect x="820" y="50" width="140" height="50" rx="10" fill="#ede9fe" stroke="#5b21b6"/><text x="890" y="73" font-weight="700">portfolio</text><text x="890" y="90" font-size="10" fill="#6b7280">Φ</text></g>
+  </g>
+  <g stroke="#8b5cf6" stroke-width="1.5" fill="none">
+    <path d="M150,75 L180,75" marker-end="url(#a3)"/><path d="M310,75 L340,75" marker-end="url(#a3)"/>
+    <path d="M470,75 L500,75" marker-end="url(#a3)"/><path d="M630,75 L660,75" marker-end="url(#a3)"/><path d="M790,75 L820,75" marker-end="url(#a3)"/>
+  </g>
+  <text x="490" y="28" text-anchor="middle" font-size="12" fill="#5b21b6" font-style="italic">same self-similar shape: genesis→taste→build→ops + cortex, converging to that scale's brand-DNA</text>
+  <text x="490" y="130" text-anchor="middle" font-size="11" fill="#6b7280">↑ each scale is a homeostat: it corrects drift in the scale below</text>
+</svg>
+</div>
+
+<h2><span class="n">4</span>Math ⇄ Cambium artifact</h2>
+<p class="sub">The model is load-bearing: each object is a file you can open.</p>
+<table>
+  <tr><th>Math object</th><th>Cambium artifact</th></tr>
+  <tr><td>State space (X, d) — NIM 1024-dim, cosine</td><td>the cortex (<code>taste-nim</code> + <code>DESIGN_MEMORY_WORKER</code>)</td></tr>
+  <tr><td>Setpoint x* — brand-DNA fixed point</td><td>genesis <code>brand-spec.json</code> + the ISC</td></tr>
+  <tr><td>Operator Φ — the staged pipeline</td><td><code>pipeline.json</code></td></tr>
+  <tr><td>Stage Φᵢ (typed morphism)</td><td><code>registry.json</code> organ + <code>adapters.json</code></td></tr>
+  <tr><td>Contract Outputᵢ ⊑ Inputᵢ₊₁</td><td><code>CONTRACTS.md</code> + pipeline tokens</td></tr>
+  <tr><td>Contraction Lᵢ &lt; 1 (on-brand re-projection)</td><td>the taste cortex</td></tr>
+  <tr><td>Drift Lᵢ ≥ 1 ∥ contract break</td><td><code>verifyOutput</code> (seam) + the verify gate</td></tr>
+  <tr><td>Lyapunov V = d(x, x*)</td><td>the ISC / on-brand score</td></tr>
+  <tr><td>Why-handler (error-vs-intent → update x*/θ)</td><td><b>I4</b> — <code>AskUserQuestion</code> + cortex write-back</td></tr>
+  <tr><td>Fail-closed gate</td><td><code>gateStage</code> (<code>bin/lib/invoke.mjs</code>)</td></tr>
+  <tr><td>Scale-invariance (renormalization)</td><td>the self-similar repo pattern</td></tr>
+</table>
+
+<p style="margin-top:40px;color:#6b7280;font-size:13px;border-top:1px solid #e5e7eb;padding-top:16px">
+Cambium · the company compiler. Model: <code>HOMEOSTASIS.md</code> · wiring: <code>INTEGRATION.md</code> ·
+contracts: <code>composition/CONTRACTS.md</code>. The self-healing why-loop is wire <b>I4</b>; its first
+seam (<code>verifyOutput</code>) ships with the conductor.</p>
+</body>
+</html>
