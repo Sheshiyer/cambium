@@ -15,7 +15,7 @@
     "genesis": {
       "root_id": "genesis",
       "cmd": "brandmint",
-      "args": ["launch", "--waves", "0-8", "--brand", "{tenant}"],
+      "args": ["launch", "--waves", "1-8", "--brand", "{tenant}"],
       "spend": "gated",
       "spend_reason": "runs the full brand-mint waves (visual + inference generation)",
       "input_default": "brand-config.yaml",

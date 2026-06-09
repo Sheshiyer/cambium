@@ -8,7 +8,9 @@ Every organ is **the same machine**: `hub-and-spoke clusters + a conductor (cond
 - **skill-clusters** = hub-and-spoke clusters + conducty + spec-kit, pointed at *running the business*.
 - **snow-gloves-os** = the same, pointed at *operating a portfolio of businesses*.
 
-They are not a stack glued together — they are **one organism expressed at different scales.**
+They are not a stack glued together — they are **one organism expressed at different scales.** See
+**[`docs/organs.html`](./docs/organs.html)** for each organ's internal structure rendered as that same Φ
+(the fractal claim, made literal — with each organ's real internals).
 
 ## Organs ↔ repos
 

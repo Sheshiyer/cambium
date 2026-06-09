@@ -10,8 +10,8 @@
       "name": "Brand brain (genesis)",
       "role": "genesis",
       "repo": "Sheshiyer/brandmint-oracle-aleph",
-      "summary": "idea → full brand system (persona, positioning, voice, logo, palette, copy, wiki) across waves 0–8",
-      "entrypoint": "brandmint launch --waves 0-8 (CLI: brandmint.cli.app:main) · buildable flow alias: skill-clusters taste/scripts/brandmint.mjs (runBrandKit)",
+      "summary": "idea → full brand system (persona, positioning, voice, logo, palette, copy, wiki) across waves 1–8",
+      "entrypoint": "brandmint launch --waves 1-8 (CLI: brandmint.cli.app:main) · buildable flow alias: skill-clusters taste/scripts/brandmint.mjs (runBrandKit)",
       "tier": "free",
       "language": "python (+ node flow)"
     },
