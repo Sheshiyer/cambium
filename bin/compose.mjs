@@ -12,12 +12,13 @@
 // no disk, no network) + a thin I/O shell (loadJson + main) that is the only place
 // the filesystem is touched. Importable for tests via the isMain guard at the end.
 
-import { readFileSync, appendFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { runPipeline } from './lib/invoke.mjs';
 import { handleDeviation } from './lib/whyhandler.mjs';
+import { defaultCortex } from './lib/cortex.mjs';
 
 // ───────────────────────── pure core (no I/O) ─────────────────────────
 
@@ -144,6 +145,7 @@ async function runCmd(root, { tenant, execute, approve, stage, input, intent }) 
   }
   const { registry, pipeline } = load(root);
   const adapters = loadJson(join(root, 'adapters.json')).adapters;
+  const cortex = defaultCortex(root); // I3: the why-handler writes through the unified cortex interface
   let stages = pipeline.stages;
   if (stage) {
     stages = stages.filter((s) => s.id === stage);
@@ -185,7 +187,7 @@ async function runCmd(root, { tenant, execute, approve, stage, input, intent }) 
           { stage: res.stage, reason: res.contract.reason },
           { intent, ts: new Date().toISOString() },
         );
-        try { appendFileSync(join(root, 'deviations.jsonl'), line + '\n'); } catch { /* ledger best-effort — drift-logging stays non-fatal */ } // cortex-write STUB (I3 → real Worker)
+        try { cortex.writeDeviation(line); } catch { /* ledger best-effort — drift-logging stays non-fatal */ } // I3: through the unified cortex (local transport now; the CF Worker swaps in)
         lines.push(`     ⚠ drift — ${res.contract.reason}`);
         lines.push(`     ↳ why-handler: ${classification.kind} → ${resolution.action}${resolution.rationale ? ` ("${resolution.rationale}")` : ''}`);
         if (classification.kind === 'error') lines.push(`     ↳ if intentional (a redirect, not an error): re-run with --intent ${res.stage} (then say why)`);
