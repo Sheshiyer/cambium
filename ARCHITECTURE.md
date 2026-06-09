@@ -10,7 +10,8 @@ Every organ is **the same machine**: `hub-and-spoke clusters + a conductor (cond
 
 They are not a stack glued together — they are **one organism expressed at different scales.** See
 **[`docs/organs.html`](./docs/organs.html)** for each organ's internal structure rendered as that same Φ
-(the fractal claim, made literal — with each organ's real internals).
+(the fractal claim, made literal — with each organ's real internals), plus a **dedicated full page per
+organ** in [`docs/organs/`](./docs/organs/) (genesis · hands · taste · will · cortex).
 
 ## Organs ↔ repos
 
