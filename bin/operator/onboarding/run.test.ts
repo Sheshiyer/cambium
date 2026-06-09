@@ -32,13 +32,32 @@ test('runner · renders the running drive count + the final Octalysis summary', 
   assert.equal(state.noesisMoments, 3);
 });
 
-test('runner · every step renders its routing class flag (micro/meso/macro/midbrain/heartbeat)', async () => {
+test('runner · every lane step renders its routing class flag (micro/meso/macro/heartbeat)', async () => {
   const { lines, out } = capture();
   await runOnboard({ auto: true, restart: true, stateDir: DIR, out, tenant: 'auto' });
   const text = lines.join('\n');
-  for (const c of ['[micro', '[meso', '[macro', '[midbrain · noesis]', '[heartbeat']) {
+  for (const c of ['[micro', '[meso', '[macro', '[heartbeat']) {
     assert.ok(text.includes(c), `runner never rendered ${c}`);
   }
+});
+
+test('noesis (A4) · the held frame renders at EXACTLY 3 beats — and noesis is no longer an inline tag', async () => {
+  const { lines, out } = capture();
+  await runOnboard({ auto: true, restart: true, stateDir: DIR, out, tenant: 'auto' });
+  const frames = lines.filter((l) => l.includes('◆ NOESIS')).length;
+  assert.equal(frames, 3, 'exactly three noesis held frames');
+  assert.ok(!lines.some((l) => l.includes('[midbrain · noesis]')), 'noesis must be a held frame, not an inline metric tag');
+});
+
+test('noesis (A4) · the held frame appears ONLY at #1, #18, #20 (ordinary steps never hold)', async () => {
+  const { lines, out } = capture();
+  await runOnboard({ auto: true, restart: true, stateDir: DIR, out, tenant: 'auto' });
+  const blocks = lines.join('\n').split(/#(\d+)\/20/);
+  const noesisSteps: number[] = [];
+  for (let i = 1; i < blocks.length; i += 2) {
+    if ((blocks[i + 1] ?? '').includes('◆ NOESIS')) noesisSteps.push(Number(blocks[i]));
+  }
+  assert.deepEqual(noesisSteps.sort((a, b) => a - b), [1, 18, 20]);
 });
 
 test('runner · injected input threads founder text into the scripted artifact (CTA at #14)', async () => {

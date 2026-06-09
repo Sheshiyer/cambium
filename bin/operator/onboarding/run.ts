@@ -79,6 +79,31 @@ function renderDecision(state: OnboardingState, step: OnboardingStep, decision: 
   out(`     margins: ${margins}  ·  drives ${state.drivesActivated.length}/8  ·  v${state.world.version}`);
 }
 
+/**
+ * The mid-brain → noesis HELD FRAME (A4). At the existential extremes (drive 1 Epic Meaning ·
+ * drive 8 Loss) the operator steps OUT of the routine micro/meso/macro tick and hands the moment
+ * to the human. Rendered distinctly — a set-apart block, not a compact metric line — so the beat
+ * lands as *meaning*, not mechanics (ONBOARDING-OCTALYSIS.md §0).
+ */
+function renderNoesisFrame(step: OnboardingStep, state: OnboardingState, decision: Decision, out: (s: string) => void): void {
+  const axis = step.drive === 1
+    ? 'meaning — the calling that pulls you in'
+    : step.drive === 8
+      ? 'survival — the dread of dropping out of the game'
+      : 'meaning ↕ survival';
+  const rail = '─'.repeat(58);
+  const margins = decision.viability.margins.map((m) => `${m.name} ${m.value.toFixed(2)}${m.warn ? '⚠' : ''}`).join(' · ');
+  out('');
+  out(`  ╭${rail}`);
+  out('  │  ◆ NOESIS — the mid-brain wakes. This is bigger than the task.');
+  out(`  │  the vertical axis: ${axis}`);
+  out(`  │  drive ${step.drive} (${DRIVE_NAMES[step.drive]})  ⟶  ${decision.action}`);
+  out('  │  The operator steps OUT of the routine micro/meso/macro tick and hands');
+  out('  │  this moment to you — reflect on the *why*, not the mechanics.');
+  out(`  ╰${rail}`);
+  out(`     margins: ${margins}  ·  drives ${state.drivesActivated.length}/8  ·  v${state.world.version}`);
+}
+
 function renderSummary(state: OnboardingState, out: (s: string) => void): void {
   const drives = [...state.drivesActivated].sort((a, b) => a - b).join(' ');
   out('');
@@ -137,11 +162,17 @@ export async function runOnboard(opts: RunnerOpts = {}): Promise<OnboardingState
   try {
     while (state.stepIndex < ONBOARDING_SCRIPT.length) {
       const step = ONBOARDING_SCRIPT[state.stepIndex];
+      const isNoesis = step.brain === 'mid';        // drive ∈ {1,8} → the mid-brain bypass
       renderStep(step, out);
-      const input = read ? parseInput(step, await read(promptFor(step))) : {};
+      const input = read && !isNoesis ? parseInput(step, await read(promptFor(step))) : {};
       const r = advance(state, input, opts.deps);
       state = r.state;
-      renderDecision(state, step, r.decision!, out);
+      if (r.decision!.noesis) {
+        renderNoesisFrame(step, state, r.decision!, out);
+        if (read) await read('     » (take a breath — Enter to continue) ');   // hold the moment for the human
+      } else {
+        renderDecision(state, step, r.decision!, out);
+      }
       saveState(dir, state);
       if (opts.auto && opts.delayMs) await new Promise((res) => setTimeout(res, opts.delayMs));
     }
