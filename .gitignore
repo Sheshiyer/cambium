@@ -4,3 +4,6 @@ node_modules/
 
 # the unified cortex local store (variable-contract store; runtime — I3 follow-up = the CF Worker)
 cortex/
+
+# the operator's event-sourced world-state (runtime; the replay log is deviations.jsonl)
+.operator/
