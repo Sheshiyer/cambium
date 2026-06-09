@@ -41,8 +41,10 @@ export async function wakeAsync(
   // B5 · RECALL — for meso/macro, search the cortex for similar PAST situations (before this one is written)
   let recall: Recall | undefined;
   if (opts.store?.ready() && (lane === 'meso' || lane === 'macro')) {
-    const [qv] = await e.embed([situationText(event, w0)]);
-    recall = buildRecall(await opts.store.search(qv, opts.recallK ?? 5, { tenant: w0.tenant }));
+    try {
+      const [qv] = await e.embed([situationText(event, w0)]);
+      recall = buildRecall(await opts.store.search(qv, opts.recallK ?? 5, { tenant: w0.tenant }));
+    } catch { /* recall is best-effort — a cortex/network hiccup must never crash the wake loop */ }
   }
 
   // meso · resolve the real ICP gradient + the Founder intent
@@ -64,7 +66,8 @@ export async function wakeAsync(
   // B4 · REMEMBER — persist this wake (after recall, so a search never matches the event writing it)
   let memory: MemoryRecord | undefined;
   if (opts.store?.ready() && opts.rememberMemory !== false) {
-    memory = await rememberWake(opts.store, e, next, event, decision, opts.now?.() ?? Date.now());
+    try { memory = await rememberWake(opts.store, e, next, event, decision, opts.now?.() ?? Date.now()); }
+    catch { /* memory write is best-effort — never fail the wake because the cortex hiccuped */ }
   }
 
   return { world: next, decision, icp, founder, recall, memory };
