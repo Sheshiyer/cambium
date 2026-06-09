@@ -270,7 +270,7 @@ test('runPipeline preserves direct single-stage scalar input compatibility', asy
   assert.equal(result.spawned, false);
 });
 
-test('runPipeline seeds the first stage contract state from its effective default input', async () => {
+test('runPipeline does not mark dry-run produced groups as available', async () => {
   const stages = [
     { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system'] },
     { id: 'build', organ: 'b', requires: ['brand_system'] },
@@ -279,21 +279,21 @@ test('runPipeline seeds the first stage contract state from its effective defaul
     a: { ...hoAdapters.a, input_default: 'brand-config.yaml', spend: 'gated' },
     b: { ...hoAdapters.b, input_default: 'DEF_B' },
   };
-  const [genesis, build] = await runPipeline({
-    stages,
-    registry: hoReg,
-    adapters,
-    cambiumRoot: '/x/cambium',
-    tenant: 't',
-    execute: false,
-    runner: () => ({ status: 0, stdout: 'ignored' }),
-  });
-  assert.ok(genesis.invocation.args.includes('brand-config.yaml'));
-  assert.equal(build.spawned, false);
-  assert.ok(build.invocation.args.includes('DEF_B'));
+  await assert.rejects(
+    () => runPipeline({
+      stages,
+      registry: hoReg,
+      adapters,
+      cambiumRoot: '/x/cambium',
+      tenant: 't',
+      execute: false,
+      runner: () => ({ status: 0, stdout: 'ignored' }),
+    }),
+    /brand_system.*should have been produced by upstream stage "genesis"/i,
+  );
 });
 
-test('runPipeline keeps the full pipeline gating path alive after an unapproved first stage', async () => {
+test('runPipeline does not mark refused produced groups as available', async () => {
   const stages = [
     { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system'] },
     { id: 'build', organ: 'b', requires: ['brand_system'] },
@@ -303,18 +303,43 @@ test('runPipeline keeps the full pipeline gating path alive after an unapproved 
     b: { ...hoAdapters.b, input_default: 'DEF_B', spend: 'none' },
   };
   let calls = 0;
-  const [genesis, build] = await runPipeline({
-    stages,
-    registry: hoReg,
-    adapters,
-    cambiumRoot: '/x/cambium',
-    tenant: 't',
-    execute: true,
-    runner: () => { calls++; return { status: 0, stdout: 'ok' }; },
-  });
-  assert.equal(genesis.spawned, false);
-  assert.equal(build.spawned, true);
-  assert.ok(build.invocation.args.includes('DEF_B'));
+  await assert.rejects(
+    () => runPipeline({
+      stages,
+      registry: hoReg,
+      adapters,
+      cambiumRoot: '/x/cambium',
+      tenant: 't',
+      execute: true,
+      runner: () => { calls++; return { status: 0, stdout: 'ok' }; },
+    }),
+    /brand_system.*should have been produced by upstream stage "genesis"/i,
+  );
+  assert.equal(calls, 0);
+});
+
+test('runPipeline does not mark failed produced groups as available', async () => {
+  const stages = [
+    { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system'] },
+    { id: 'build', organ: 'b', requires: ['brand_system'] },
+  ];
+  let calls = 0;
+  await assert.rejects(
+    () => runPipeline({
+      stages,
+      registry: hoReg,
+      adapters: hoAdapters,
+      cambiumRoot: '/x/cambium',
+      tenant: 't',
+      execute: true,
+      runner: () => {
+        calls++;
+        return { status: calls === 1 ? 1 : 0, stdout: calls === 1 ? 'boom' : 'ok' };
+      },
+      seedInput: { idea: 'brief.md' },
+    }),
+    /brand_system.*should have been produced by upstream stage "genesis"/i,
+  );
   assert.equal(calls, 1);
 });
 

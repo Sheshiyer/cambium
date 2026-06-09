@@ -210,12 +210,18 @@ export async function runPipeline({
     res.inputFrom = inputFrom;
     if (res.spawned) res.contract = verifyOutput(adapters[stage.organ], res.result); // drift check at the seam
     results.push(res);
+    const stageAvailable = res.spawned
+      && res.result
+      && res.result.status === 0
+      && (res.contract?.ok ?? true);
     // only a stage that actually ran AND succeeded feeds the next; else the chain breaks
-    prev = res.spawned && res.result && res.result.status === 0
+    prev = stageAvailable
       ? extractOutput(adapters[stage.organ], res.result)
       : null;
     contractState = { ...contractState };
-    for (const group of stage.produces || []) contractState[group] = true;
+    if (stageAvailable) {
+      for (const group of stage.produces || []) contractState[group] = true;
+    }
     for (const group of stage.produces || []) producerByGroup[group] = stage.id;
   }
   return results;
