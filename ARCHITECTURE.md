@@ -38,9 +38,10 @@ pipeline executable-as-a-plan:
 `node bin/compose.mjs plan acme` prints the per-tenant plan: each stage → its organ, repo, entrypoint,
 and free/paid tier, with the cortex feeding all four. It **plans + validates** the composition; it does
 not execute the organs end-to-end yet (that is **I2** — see [INTEGRATION.md](./INTEGRATION.md)). The
-composition layer governs not only stage order but also the **seeded variables with downstream
-consequences** (`brand_system`, `copy_slots`, `visual_system`, `asset_plan`, `section_plan`,
-`interaction_plan`, `acceptance_checks`) that each stage must pass forward intact.
+composition layer governs not only stage order but also the **canonical variable-contract vocabulary**
+for the seeded variables with downstream consequences (`brand_system`, `copy_slots`, `visual_system`,
+`asset_plan`, `section_plan`, `interaction_plan`, `acceptance_checks`) that downstream wiring will
+preserve and enforce in later tasks.
 
 **snow-gloves is one organ here (`will` = business-ops), not "the OS."** The composition lives in Cambium.
 
