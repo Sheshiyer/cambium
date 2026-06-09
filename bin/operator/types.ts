@@ -89,6 +89,11 @@ export interface Routing {
 
 export interface GateVerdict { allowed: boolean; reason: string; }
 
+/** A recalled past situation (cortex search) + its similarity to the present. */
+export interface RecallHit { id: string; score: number; eventKind: string; action: string; }
+/** What the cortex remembered about situations like this one (B5 — semantic cross-run memory). */
+export interface Recall { count: number; hits: RecallHit[]; nearest?: RecallHit; note: string; }
+
 /** The decision produced by one wake — what the operator did and why (the audit unit). */
 export interface Decision {
   event: string;
@@ -98,6 +103,7 @@ export interface Decision {
   noesis: boolean;
   gate?: GateVerdict;
   npc?: { icp?: IcpReading; founder?: FounderReading };
+  recall?: Recall;                    // similar past situations the cortex surfaced (meso/macro)
   viability: ViabilityReport;
   emergency: boolean;
 }
@@ -107,6 +113,7 @@ export interface WakeDeps {
   record: (line: string) => void;                 // the ledger write (cortex.writeDeviation)
   icp?: (positioning: string) => IcpReading;
   founder?: (event: GameEvent) => FounderReading;
+  recall?: () => Recall;                          // injected cortex recall (computed async in wakeAsync)
   alpha?: number;                                 // trust-region override
 }
 

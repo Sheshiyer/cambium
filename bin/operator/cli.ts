@@ -21,7 +21,9 @@ import { makeEmbedder, cosine } from './embed.ts';
 import { resolveIcp, ensureSetpoint } from './resonance.ts';
 import { wakeAsync } from './orchestrate.ts';
 import { runOnboard } from './onboarding/run.ts';
+import { sqliteCortex } from './cortex-sqlite.ts';
 import type { WorldState, GameEvent, Decision } from './types.ts';
+import type { CortexStore } from './cortex-memory.ts';
 import { defaultCortex } from '../lib/cortex.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -30,6 +32,11 @@ const statePath = (tenant: string) => join(STATE_DIR, `${tenant}.world.json`);
 const cortex = defaultCortex(ROOT);
 const record = (l: string) => cortex.writeDeviation(l);
 const embedder = makeEmbedder({ root: ROOT });           // real NIM if NVIDIA_API_KEY, else stub
+let _cortexStore: CortexStore | null = null;
+function cortexStore(): CortexStore {                     // the cross-run memory (node:sqlite · B2), lazy
+  if (!_cortexStore) { _cortexStore = sqliteCortex({ path: join(STATE_DIR, 'cortex.db') }); _cortexStore.init(); }
+  return _cortexStore;
+}
 
 function loadWorld(tenant: string): WorldState {
   const p = statePath(tenant);
@@ -46,14 +53,14 @@ function saveWorld(w: WorldState): void {
   writeFileSync(statePath(w.tenant), JSON.stringify(w, null, 2));
 }
 async function runEvent(tenant: string, event: GameEvent): Promise<Decision> {
-  const { world, decision } = await wakeAsync(loadWorld(tenant), event, { record, embedder });
+  const { world, decision } = await wakeAsync(loadWorld(tenant), event, { record, embedder, store: cortexStore() });
   saveWorld(world);
   return decision;
 }
 function fmt(d: Decision): string {
   const m = d.viability.margins.map((x) => `${x.name}:${x.value.toFixed(2)}${x.warn ? '⚠' : ''}`).join(' ');
   return `  [${d.routing.class}${d.noesis ? ' · noesis' : ''}] ${d.action}` +
-    `${d.setpointMoved ? ' ✓x*' : ''}${d.emergency ? ' 🛑' : ''}  margins{${m}}`;
+    `${d.setpointMoved ? ' ✓x*' : ''}${d.emergency ? ' 🛑' : ''}${d.recall ? ` ↺${d.recall.count}` : ''}  margins{${m}}`;
 }
 
 const SAMPLE: GameEvent[] = [

@@ -92,6 +92,11 @@ export function wake(world: WorldState, event: GameEvent, deps: WakeDeps): { wor
     action += ` — WARN ${report.warnings.join(', ')}`;
   }
 
+  // B5 · RECALL — similar past situations from the cortex (computed async in wakeAsync, injected
+  // here); attach to the decision + reference it in the ledger so the why-handler's record carries it.
+  const recall = deps.recall?.();
+  if (recall && !emergency) action += ` · ${recall.note}`;
+
   // 5 · LEARN  +  6 · PERSIST (version bump = event sourcing)
   next = commit(next, event.id, action);
   deps.record(recordDeviation({
@@ -101,7 +106,7 @@ export function wake(world: WorldState, event: GameEvent, deps: WakeDeps): { wor
 
   return {
     world: next,
-    decision: { event: event.id, routing, action, setpointMoved, noesis: routing.noesis, gate, npc, viability: report, emergency },
+    decision: { event: event.id, routing, action, setpointMoved, noesis: routing.noesis, gate, npc, recall, viability: report, emergency },
   };
 }
 
