@@ -70,7 +70,7 @@ test('missing pipeline.stages throws', () => {
 
 test('parseRunArgs parses tenant + execute + approve', () => {
   assert.deepEqual(parseRunArgs(['acme', '--execute', '--approve', 'taste']), {
-    tenant: 'acme', execute: true, approve: 'taste',
+    tenant: 'acme', execute: true, approve: 'taste', stage: null, input: null,
   });
 });
 

@@ -43,13 +43,21 @@ convention (the `local_dir`/env override matter on case-sensitive filesystems). 
 taste + genesis are `spend: gated` (taste embeds via the paid NIM; genesis runs the brand-mint waves),
 so **nothing spawns without an explicit per-stage approval.**
 
+**The pipeline hand-off (live).** `compose run` threads each stage's output → the next stage's `{input}`
+(`runPipeline`); a refused/gated stage breaks the chain (the next falls back to its `input_default`).
+Dry-run prints the declared contract flow `[idea → brand-dna → taste-brief → artifact → business]`. The
+**hands** stage (`resolve-task`, `spend: none`) **runs live with zero spend** —
+`compose run acme --stage build --execute --input examples/sample-tasks.md` executes a real organ
+end-to-end (exit 0). Flags: `--stage <id>` (one stage), `--input <value>` (seed stage 1). The full
+spend-bearing chain still needs `--approve` on genesis + taste.
+
 ## Wires
 
 | # | Wire | From → To | State | Where |
 |---|---|---|---|---|
 | **I1** | brand-docs → GTM ICP | genesis brand-docs → `ops` (Explee) | ✅ **shipped** — [snow-gloves PR #4](https://github.com/Sheshiyer/snow-gloves-os/pull/4) | snow-gloves `004` |
 | **I2a** | genesis **as a service** | `idea` → `brand-dna` on demand | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn `--approve`-gated | brandmint ← conductor |
-| **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ⏳ pending — one adapter away | skill-clusters ← conductor |
+| **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ✅ **wired** — resolve-task adapter (`spend: none`, **runs live**); the build *dispatch* is the gated extension | skill-clusters ← conductor |
 | **I2c** | taste **as a service** | `brand-dna` → `taste-brief` + on-brand verdict | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn `--approve`-gated | skill-clusters taste-resolve ← conductor |
 | **I3** | unify the NIM cortex | one aesthetic memory across all organs | ⏳ pending | merge `taste-nim` + `DESIGN_MEMORY_WORKER` |
 | **B1** | name-validation gate | a name must be ownable before asset spend | ⏳ pending (Fitcheck lesson) | brandmint / skill-clusters |

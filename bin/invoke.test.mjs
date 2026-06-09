@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveRoot, buildInvocation, gateStage, runStage } from './lib/invoke.mjs';
+import { resolveRoot, buildInvocation, gateStage, runStage, runPipeline, extractOutput } from './lib/invoke.mjs';
 
 const registry = {
   organs: {
@@ -126,4 +126,66 @@ test('resolveRoot env override still beats local_dir', () => {
   const a = { taste: { ...adapters.taste, local_dir: 'Skill-clusters' } };
   const env = { CAMBIUM_ORGAN_ROOTS: JSON.stringify({ taste: '/custom/sc' }) };
   assert.equal(resolveRoot('taste', { ...ctx, adapters: a, env }), '/custom/sc');
+});
+
+// ── the pipeline hand-off (stage N output → stage N+1 input) ──
+const hoReg = { organs: { a: { repo: 'x/a' }, b: { repo: 'x/b' } } };
+const hoAdapters = {
+  a: { root_id: 'a', cmd: 'echo', args: ['{input}'], spend: 'none', input_default: 'DEF_A' },
+  b: { root_id: 'b', cmd: 'echo', args: ['{input}'], spend: 'none', input_default: 'DEF_B' },
+};
+const hoStages = [{ id: 'sa', organ: 'a' }, { id: 'sb', organ: 'b' }];
+const hoBase = { stages: hoStages, registry: hoReg, adapters: hoAdapters, cambiumRoot: '/x/cambium', tenant: 't' };
+
+test('extractOutput returns the trimmed stdout', () => {
+  assert.equal(extractOutput({}, { stdout: '  hello\n' }), 'hello');
+});
+
+test('extractOutput honors a json: output contract (parsed JSON, not banner lines)', () => {
+  const out = extractOutput({ output: 'json:dispatch-plan' }, { stdout: 'banner line\n{"plan":[1,2]}\n' });
+  assert.equal(out, '{"plan":[1,2]}');
+});
+
+test('extractOutput falls back to trimmed stdout for a non-json output contract', () => {
+  assert.equal(extractOutput({ output: 'brand-dna' }, { stdout: '  hi\n' }), 'hi');
+});
+
+test('buildInvocation builds the hands resolve-task command (spend:none)', () => {
+  const hands = { cmd: 'node', args: ['scripts/resolve-task.mjs', '{input}', '--json'], spend: 'none', input_default: 'tasks.md' };
+  const inv = buildInvocation(hands, { tenant: 'acme', input: 'plan.md', root: '/x/sc' });
+  assert.deepEqual(inv.args, ['scripts/resolve-task.mjs', 'plan.md', '--json']);
+  assert.equal(inv.spend, 'none');
+});
+
+test('hand-off: stage A output feeds stage B input', async () => {
+  let n = 0;
+  const runner = () => ({ status: 0, stdout: n++ === 0 ? 'FROM_A' : 'FROM_B' });
+  const results = await runPipeline({ ...hoBase, execute: true, runner });
+  const bInv = results.find((r) => r.stage === 'sb').invocation;
+  assert.ok(bInv.args.includes('FROM_A'), `B should receive A's output; got ${JSON.stringify(bInv.args)}`);
+});
+
+test('hand-off: a refused stage breaks the chain (next uses input_default)', async () => {
+  const ad = { a: { ...hoAdapters.a, spend: 'gated' }, b: hoAdapters.b };
+  let calls = 0;
+  const runner = () => { calls++; return { status: 0, stdout: 'SHOULD_NOT_FEED' }; };
+  const results = await runPipeline({ ...hoBase, adapters: ad, execute: true, approve: null, runner });
+  const bInv = results.find((r) => r.stage === 'sb').invocation;
+  assert.ok(bInv.args.includes('DEF_B'), 'B uses its default when A is refused');
+  assert.equal(calls, 1, 'only B ran (A was refused, no spawn)');
+});
+
+test('runPipeline dry-run calls the runner zero times', async () => {
+  let calls = 0;
+  const runner = () => { calls++; return { status: 0, stdout: 'x' }; };
+  await runPipeline({ ...hoBase, execute: false, runner });
+  assert.equal(calls, 0);
+});
+
+test('runPipeline marks each stage input source (default vs prev-stage)', async () => {
+  let n = 0;
+  const runner = () => ({ status: 0, stdout: n++ === 0 ? 'FROM_A' : 'FROM_B' });
+  const results = await runPipeline({ ...hoBase, execute: true, runner });
+  assert.equal(results.find((r) => r.stage === 'sa').inputFrom, 'default');
+  assert.equal(results.find((r) => r.stage === 'sb').inputFrom, 'prev-stage');
 });

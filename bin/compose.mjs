@@ -16,7 +16,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { runStage } from './lib/invoke.mjs';
+import { runPipeline } from './lib/invoke.mjs';
 
 // ───────────────────────── pure core (no I/O) ─────────────────────────
 
@@ -105,15 +105,24 @@ function realRunner(inv) {
 }
 
 export function parseRunArgs(rest) {
-  const flags = { tenant: undefined, execute: false, approve: null };
+  const flags = { tenant: undefined, execute: false, approve: null, stage: null, input: null };
+  const valueOf = (rest, i) => {
+    const next = rest[i + 1];
+    return next !== undefined && !next.startsWith('--') ? next : undefined;
+  };
   for (let i = 0; i < rest.length; i++) {
     const a = rest[i];
     if (a === '--execute') {
       flags.execute = true;
     } else if (a === '--approve') {
-      const next = rest[i + 1];
-      // dangling --approve (no value, or followed by another flag) stays null — fail-safe
-      if (next && !next.startsWith('--')) { flags.approve = next; i++; }
+      const v = valueOf(rest, i); // dangling --approve stays null — fail-safe
+      if (v !== undefined) { flags.approve = v; i++; }
+    } else if (a === '--stage') {
+      const v = valueOf(rest, i);
+      if (v !== undefined) { flags.stage = v; i++; }
+    } else if (a === '--input') {
+      const v = rest[i + 1]; // input may legitimately be any string (e.g. a path)
+      if (v !== undefined) { flags.input = v; i++; }
     } else if (!a.startsWith('--') && flags.tenant === undefined) {
       flags.tenant = a;
     }
@@ -124,26 +133,38 @@ export function parseRunArgs(rest) {
 // `run` — call each organ adapter along the pipeline, FAIL-CLOSED on spend.
 // Dry-run (default) prints the exact command per stage; --execute spawns only stages
 // explicitly approved (--approve <stage>); spend-gated stages otherwise refuse.
-async function runCmd(root, { tenant, execute, approve }) {
+async function runCmd(root, { tenant, execute, approve, stage, input }) {
   if (execute && !tenant) {
     console.log('refused: --execute requires a tenant — compose run <tenant> --execute --approve <stage>');
     return 2;
   }
   const { registry, pipeline } = load(root);
   const adapters = loadJson(join(root, 'adapters.json')).adapters;
+  let stages = pipeline.stages;
+  if (stage) {
+    stages = stages.filter((s) => s.id === stage);
+    if (!stages.length) {
+      console.log(`unknown stage "${stage}" — stages: ${pipeline.stages.map((s) => s.id).join(', ')}`);
+      return 1;
+    }
+  }
+  // runPipeline threads each stage's output → the next stage's input (the hand-off)
+  const results = await runPipeline({
+    stages, registry, adapters, cambiumRoot: root, env: process.env,
+    tenant, execute, approve, runner: realRunner, seedInput: input,
+  });
+  const byStage = Object.fromEntries(results.map((r) => [r.stage, r]));
   const mode = execute ? (approve ? `--execute --approve ${approve}` : '--execute') : 'dry-run';
   const lines = [`Cambium run — tenant: ${tenant || '<tenant>'}  (${mode})`, ''];
   let spawned = 0;
   let refused = 0;
-  for (const stage of pipeline.stages) {
-    const adapter = adapters[stage.organ];
-    if (!adapter) { lines.push(`  ${stage.id.padEnd(8)} · no adapter yet (planned)`); continue; }
-    const res = await runStage(stage.organ, {
-      registry, adapters, cambiumRoot: root, env: process.env,
-      tenant, input: '', execute, approve, runner: realRunner,
-    });
+  for (const sdef of stages) {
+    const res = byStage[sdef.id];
+    const flow = `[${sdef.input} → ${sdef.output}]`; // the declared contract hand-off
+    if (res.adapter === false) { lines.push(`  ${sdef.id.padEnd(8)} ${flow} · no adapter yet (planned)`); continue; }
     const inv = res.invocation;
-    lines.push(`  ${stage.id.padEnd(8)} · ${inv.spend === 'gated' ? '💲 spend-gated' : '○ free'}`);
+    const from = res.inputFrom === 'prev-stage' ? '  ⟸ input from prior stage' : '';
+    lines.push(`  ${sdef.id.padEnd(8)} ${flow} · ${inv.spend === 'gated' ? '💲 spend-gated' : '○ free'}${from}`);
     lines.push(`     ↳ cd ${inv.cwd} && ${inv.cmd} ${inv.args.join(' ')}`);
     if (res.spawned) { spawned++; lines.push(`     ▶ spawned (exit ${res.result.status})`); }
     else { if (execute) refused++; lines.push(`     ⛔ ${res.gate.reason}`); }
@@ -151,7 +172,7 @@ async function runCmd(root, { tenant, execute, approve }) {
   lines.push('');
   lines.push(execute
     ? `${spawned} spawned · ${refused} refused (fail-closed).`
-    : `dry-run — nothing spawned. Run a stage: compose run ${tenant || '<tenant>'} --execute --approve <stage>`);
+    : `dry-run — the flow above is genesis→taste→build→ops; each stage's output feeds the next. Execute a stage: compose run ${tenant || '<tenant>'} --execute --approve <stage>`);
   console.log(lines.join('\n'));
   return execute && refused > 0 ? 2 : 0;
 }
