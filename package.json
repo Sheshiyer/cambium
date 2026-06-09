@@ -7,6 +7,8 @@
   "scripts": {
     "test": "node --test 'bin/*.test.mjs'",
     "plan": "node bin/compose.mjs plan",
-    "validate": "node bin/compose.mjs validate"
+    "validate": "node bin/compose.mjs validate",
+    "render-docs": "node bin/render-docs.mjs",
+    "render-docs:check": "node bin/render-docs.mjs --check"
   }
 }
