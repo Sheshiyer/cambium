@@ -1,0 +1,42 @@
+/* Cambium — shared per-organ page stylesheet. Editorial, violet accent. */
+:root {
+  --violet:#8b5cf6; --violet-d:#5b21b6; --ink:#1a1a2e; --mut:#6b7280; --line:#e5e7eb; --bg:#fafafa;
+  --gate:#b91c1c; --gate-bg:#fee2e2; --free:#047857; --free-bg:#d1fae5; --cross:#5b21b6; --cross-bg:#ede9fe;
+  --warn:#9a3412; --warn-bg:#fff7ed;
+}
+* { box-sizing: border-box; }
+body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink);
+       max-width: 1080px; margin: 0 auto; padding: 0 22px 80px; background: #fff; line-height: 1.55; }
+header.organ-hero { background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); color: #fff;
+       padding: 38px 34px; border-radius: 0 0 18px 18px; margin: 0 -22px 26px; }
+header.organ-hero .crumb { font-size: 12.5px; opacity: .85; margin: 0 0 10px; }
+header.organ-hero .crumb a { color: #ede9fe; }
+header.organ-hero h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: -0.5px; }
+header.organ-hero .tagline { margin: 0 0 14px; opacity: .94; font-size: 15px; max-width: 760px; }
+header.organ-hero .facts { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12.5px; }
+header.organ-hero .facts .chip { background: rgba(255,255,255,.16); padding: 3px 10px; border-radius: 999px; }
+header.organ-hero .facts .chip.mono { font-family: ui-monospace, Menlo, monospace; }
+h2 { font-size: 19px; margin: 38px 0 4px; letter-spacing: -0.3px; }
+h2 .n { color: var(--violet); margin-right: 9px; font-variant-numeric: tabular-nums; }
+.sub { color: var(--mut); margin: 0 0 16px; font-size: 13.5px; }
+.card { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: var(--bg); margin: 6px 0; }
+svg { max-width: 100%; height: auto; display: block; margin: 4px auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 7px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--violet); font-weight: 600; }
+td code, p code, li code, .internals code { background:#f3f0ff; color:#5b21b6; padding:1px 6px; border-radius:5px; font-size:12px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.comp { border:1px solid var(--line); border-radius:10px; padding:10px 12px; background:#fff; font-size:12.5px; }
+.comp b { color: var(--violet); }
+.pill { display:inline-block; font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; }
+.pill.gate { background:var(--gate-bg); color:var(--gate); }
+.pill.free { background:var(--free-bg); color:var(--free); }
+.pill.cross { background:var(--cross-bg); color:var(--cross); }
+.eq { font-family: ui-monospace, "SF Mono", Menlo, monospace; background:#0f0f1e; color:#c4b5fd;
+      padding:14px 16px; border-radius:10px; font-size:12.5px; overflow-x:auto; white-space:pre; margin:6px 0; }
+.note { font-size:13px; color:#374151; }
+.note b { color: var(--violet); font-weight:600; }
+footer { color:#6b7280; font-size:13px; border-top:1px solid var(--line); padding-top:16px; margin-top:44px; }
+footer a { color: var(--violet); }
+@media (max-width:720px){ .grid,.grid3{grid-template-columns:1fr;} }

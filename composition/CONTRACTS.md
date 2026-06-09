@@ -24,7 +24,7 @@ The `input`/`output` tokens below are the contract identifiers referenced by the
 - **in** `idea` — a `brand-config.yaml` (name, category, mission, audience) — the thoughtseed.
 - **out** `brand-dna` — `brand-spec.json` (validated) + `brand-docs/` (persona, positioning, voice,
   messaging) + `assets/` (logo, palette, hero). The canonical brand registration.
-- **fulfilled by** `brandmint launch --waves 0-8` (CLI: `brandmint.cli.app:main`) · buildable alias `skill-clusters taste/scripts/brandmint.mjs (runBrandKit)`.
+- **fulfilled by** `brandmint launch --waves 1-8` (CLI: `brandmint.cli.app:main`) · buildable alias `skill-clusters taste/scripts/brandmint.mjs (runBrandKit)`.
 
 ### 2. `taste` — Set the taste · organ: **taste** (`skill-clusters/taste`) · *paid*
 - **in** `brand-dna` (+ an artifact to check, on later passes).

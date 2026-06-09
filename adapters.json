@@ -15,7 +15,7 @@
     "genesis": {
       "root_id": "genesis",
       "cmd": "brandmint",
-      "args": ["launch", "--waves", "0-8", "--brand", "{tenant}"],
+      "args": ["launch", "--waves", "1-8", "--brand", "{tenant}"],
       "spend": "gated",
       "spend_reason": "runs the full brand-mint waves (visual + inference generation)",
       "input_default": "brand-config.yaml",
@@ -30,6 +30,16 @@
       "spend_reason": "resolve-task is a deterministic resolver (tasks.md → cluster dispatch plan); NO spend. The spend-bearing part is DISPATCHING the resolved cluster orchestrators — a gated extension, not this adapter.",
       "input_default": "",
       "output": "json:dispatch-plan"
+    },
+    "will": {
+      "root_id": "will",
+      "cmd": "python3",
+      "args": ["scripts/gtm_cli.py", "{input}", "--json"],
+      "spend": "gated",
+      "spend_reason": "brand_to_gtm drives PAID Explee search/enrich via the explee-proxy (needs an APPROVED Brief + EXPLEE_PROXY_TOKEN); constitution #4",
+      "input_default": "Content-Engine/_gtm/brief-partner.md",
+      "output": "json:gtm-candidates",
+      "note": "brand_to_gtm exists as a gated library fn (scripts/lib/gtm.py); the thin scripts/gtm_cli.py CLI wrapper is the snow-gloves follow-up — the function + the approval gate are already there."
     }
   }
 }

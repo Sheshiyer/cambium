@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambium — per-organ structure</title>
+<style>
+  :root { --violet:#8b5cf6; --ink:#1a1a2e; --mut:#6b7280; --line:#e5e7eb; --bg:#fafafa; }
+  * { box-sizing: border-box; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink);
+         max-width: 1080px; margin: 0 auto; padding: 0 22px 80px; background: #fff; line-height: 1.5; }
+  header { background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); color: #fff; padding: 38px 34px; border-radius: 0 0 18px 18px; margin: 0 -22px 30px; }
+  header h1 { margin: 0 0 6px; font-size: 28px; letter-spacing: -0.5px; }
+  header p { margin: 0; opacity: .92; font-size: 14.5px; max-width: 800px; }
+  header a { color: #ede9fe; }
+  .intro { color: var(--mut); font-size: 14px; margin: 0 0 26px; }
+  .organ { border: 1px solid var(--line); border-radius: 14px; padding: 0; margin: 22px 0; overflow: hidden; }
+  .ohead { background: var(--bg); border-bottom: 1px solid var(--line); padding: 14px 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .ohead h3 { margin: 0; font-size: 18px; letter-spacing: -0.3px; }
+  .ohead .repo { color: var(--violet); font-size: 12.5px; font-family: ui-monospace, Menlo, monospace; margin-left: 8px; }
+  .meta { font-size: 12.5px; color: var(--mut); display: flex; gap: 8px; align-items: center; }
+  .contract { font-family: ui-monospace, Menlo, monospace; background: #f3f0ff; color: #5b21b6; padding: 1px 8px; border-radius: 6px; }
+  .pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+  .pill.gate { background:#fee2e2; color:#b91c1c; } .pill.free { background:#d1fae5; color:#047857; } .pill.cross { background:#ede9fe; color:#5b21b6; }
+  svg { max-width: 100%; height: auto; display: block; margin: 6px auto; }
+  .internals { padding: 4px 18px 18px; font-size: 13px; color: #374151; }
+  .internals b { color: var(--violet); font-weight: 600; }
+  code { background:#f3f0ff; color:#5b21b6; padding:1px 6px; border-radius:5px; font-size:12px; }
+  .selfsim { background:#0f0f1e; color:#c4b5fd; border-radius:12px; padding:16px 18px; font-size:13px; margin:0 0 26px; }
+  .selfsim b { color:#ede9fe; }
+  footer { color:#6b7280; font-size:13px; border-top:1px solid var(--line); padding-top:16px; margin-top:40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌱 Cambium — per-organ structure</h1>
+  <p>Every organ is <b>the same machine</b> — a self-similar Φ: <b>hub-and-spoke clusters + a conductor
+  loop + a spec-kit + a link to the shared cortex</b>, converging to that scale's brand-DNA. This page is
+  the detail behind the <a href="./architecture.html">whole-tapestry diagram</a>; the math is in
+  <a href="../HOMEOSTASIS.md">HOMEOSTASIS.md</a>.</p>
+</header>
+
+<div class="selfsim">
+<b>The fractal claim, made literal.</b> Below, the identical shape recurs five times with different
+internals — that is why a lesson learned in one organ generalises, why the conductor composes them, and
+why drift in one is corrected by the scale above. Read each card as: <b>input ▸ conductor ▸ {spokes} ▸
+output</b>, with the <b>spec-kit</b> shaping the work and the <b>cortex</b> measuring it against x*.</p>
+<p style="margin-top:14px"><b>Dedicated full pages →</b> <a href="organs/genesis.html" style="color:#ede9fe">🧬 genesis</a> · <a href="organs/hands.html" style="color:#ede9fe">🛠️ hands</a> · <a href="organs/taste.html" style="color:#ede9fe">🎨 taste</a> · <a href="organs/will.html" style="color:#ede9fe">👔 will</a> · <a href="organs/cortex.html" style="color:#ede9fe">🧠 cortex</a></p>
+</div>
+
+<!-- ───────────── GENESIS ───────────── -->
+<div class="organ">
+  <div class="ohead">
+    <h3>🧬 genesis <span class="repo">brandmint-oracle-aleph</span></h3>
+    <div class="meta"><span class="contract">idea → brand-dna</span><span class="pill gate">💲 gated</span><span>python</span></div>
+  </div>
+  <svg viewBox="0 0 900 184" role="img" aria-label="genesis structure">
+    <defs><marker id="g1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#6b7280"/></marker></defs>
+    <text x="14" y="74" font-size="12" fill="#5b21b6" font-weight="700">idea ▸</text>
+    <rect x="70" y="48" width="150" height="56" rx="11" fill="#1a1a2e"/><text x="145" y="72" text-anchor="middle" font-size="12.5" font-weight="700" fill="#c4b5fd">conductor</text><text x="145" y="90" text-anchor="middle" font-size="10.5" fill="#9ca3af">wave_planner.py · waves 1-8</text>
+    <g font-size="10.5" text-anchor="middle">
+      <rect x="270" y="14" width="150" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="345" y="33">context_analyzer</text>
+      <rect x="440" y="14" width="150" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="515" y="33">scenario_recommender</text>
+      <rect x="270" y="56" width="150" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="345" y="75">compositor</text>
+      <rect x="440" y="56" width="150" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="515" y="75">asset_registry / provenance</text>
+      <rect x="270" y="98" width="150" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="345" y="117">hydrator</text>
+      <rect x="440" y="98" width="150" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="515" y="117">agent_scaffolder</text>
+    </g>
+    <text x="700" y="33" font-size="10.5" text-anchor="middle" fill="#6b7280">spec-kit ▾</text>
+    <rect x="630" y="42" width="150" height="30" rx="8" fill="#fff7ed" stroke="#ed8936"/><text x="705" y="61" text-anchor="middle" font-size="10.5" fill="#9a3412">kickstarter_blueprint</text>
+    <rect x="630" y="98" width="150" height="30" rx="8" fill="#1a1a2e"/><text x="705" y="112" text-anchor="middle" font-size="10" fill="#c4b5fd">↓ cortex</text><text x="705" y="124" text-anchor="middle" font-size="9" fill="#9ca3af">design_memory.py</text>
+    <text x="850" y="74" font-size="12" fill="#047857" font-weight="700">▸ brand-dna</text>
+    <path d="M220,76 L270,29" stroke="#6b7280" stroke-width="1.3" marker-end="url(#g1)"/><path d="M220,76 L270,71" stroke="#6b7280" stroke-width="1.3" marker-end="url(#g1)"/><path d="M220,80 L270,113" stroke="#6b7280" stroke-width="1.3" marker-end="url(#g1)"/>
+    <path d="M590,113 L630,113" stroke="#6b7280" stroke-width="1.3" marker-end="url(#g1)"/>
+  </svg>
+  <div class="internals"><b>conductor</b> <code>wave_planner.py</code> sequences <b>waves 1–8</b> (foundation → persona → positioning → voice → logo → palette → copy → wiki). <b>spokes</b> context_analyzer · scenario_recommender · compositor · asset_registry/provenance · hydrator · agent_scaffolder · skills_registry. <b>spec-kit</b> kickstarter_blueprint. <b>cortex</b> <code>design_memory.py</code> writes the brand's seed taste (the setpoint x*). <b>entry</b> <code>brandmint launch --waves 1-8</code>.</div>
+</div>
+
+<!-- ───────────── HANDS ───────────── -->
+<div class="organ">
+  <div class="ohead">
+    <h3>🛠️ hands + conductor <span class="repo">skill-clusters</span></h3>
+    <div class="meta"><span class="contract">taste-brief → artifact</span><span class="pill free">○ free</span><span>node</span></div>
+  </div>
+  <svg viewBox="0 0 900 184" role="img" aria-label="hands structure">
+    <defs><marker id="h1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#6b7280"/></marker></defs>
+    <text x="10" y="74" font-size="12" fill="#5b21b6" font-weight="700">taste-brief ▸</text>
+    <rect x="95" y="40" width="160" height="72" rx="11" fill="#1a1a2e"/><text x="175" y="62" text-anchor="middle" font-size="12" font-weight="700" fill="#c4b5fd">conductor</text><text x="175" y="79" text-anchor="middle" font-size="9.5" fill="#9ca3af">resolve-task →</text><text x="175" y="92" text-anchor="middle" font-size="9.5" fill="#9ca3af">conduct-execute →</text><text x="175" y="105" text-anchor="middle" font-size="9.5" fill="#9ca3af">ship-battery (gate)</text>
+    <text x="430" y="14" font-size="10.5" text-anchor="middle" fill="#6b7280">40 hub-and-spoke clusters · 720 skills</text>
+    <g font-size="10.5" text-anchor="middle">
+      <rect x="290" y="24" width="92" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="336" y="42">frontend</text>
+      <rect x="392" y="24" width="92" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="438" y="42">python</text>
+      <rect x="494" y="24" width="92" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="540" y="42">rust</text>
+      <rect x="290" y="58" width="92" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="336" y="76">devops</text>
+      <rect x="392" y="58" width="92" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="438" y="76">data</text>
+      <rect x="494" y="58" width="92" height="28" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="540" y="76">ai/ml</text>
+      <text x="438" y="104" font-size="10" fill="#6b7280">… 34 more (each: 1 hub + N spokes)</text>
+    </g>
+    <rect x="620" y="36" width="150" height="30" rx="8" fill="#fff7ed" stroke="#ed8936"/><text x="695" y="55" text-anchor="middle" font-size="10.5" fill="#9a3412">spec-kit · tasks.md + tier</text>
+    <rect x="620" y="80" width="150" height="30" rx="8" fill="#f0fdf4" stroke="#047857"/><text x="695" y="99" text-anchor="middle" font-size="10" fill="#065f46">health · visual-qa · loop-feedback</text>
+    <text x="850" y="74" font-size="12" fill="#047857" font-weight="700">▸ artifact</text>
+    <path d="M255,64 L290,38" stroke="#6b7280" stroke-width="1.3" marker-end="url(#h1)"/><path d="M255,76 L290,72" stroke="#6b7280" stroke-width="1.3" marker-end="url(#h1)"/>
+    <path d="M586,50 L620,50" stroke="#6b7280" stroke-width="1.3" marker-end="url(#h1)"/>
+  </svg>
+  <div class="internals"><b>conductor</b> <code>resolve-task.mjs</code> (task → cluster, TF-IDF over 720 skills) → <code>conduct-execute.mjs</code> (dispatch the cluster orchestrator) → <code>ship-battery.mjs</code> (fail-closed ship gate). <b>spokes</b> <b>40 clusters</b> (frontend · python · rust · devops · data · ai/ml · …), each a hub + spokes. <b>spec-kit</b> the spec-kit <code>tasks.md</code> grammar + <code>tier.mjs</code>/auto-tier. <b>health</b> cluster-health · visual-qa · loop-feedback. <b>entry</b> <code>scripts/resolve-task.mjs</code> · <code>scripts/ship-battery.mjs</code>.</div>
+</div>
+
+<!-- ───────────── TASTE ───────────── -->
+<div class="organ">
+  <div class="ohead">
+    <h3>🎨 taste cortex (conscience) <span class="repo">skill-clusters/taste</span></h3>
+    <div class="meta"><span class="contract">brand-dna → taste-brief</span><span class="pill gate">💲 gated (NIM)</span><span>node</span></div>
+  </div>
+  <svg viewBox="0 0 900 184" role="img" aria-label="taste structure">
+    <defs><marker id="t1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#6b7280"/></marker></defs>
+    <text x="12" y="74" font-size="12" fill="#5b21b6" font-weight="700">brand-dna ▸</text>
+    <rect x="95" y="48" width="150" height="56" rx="11" fill="#1a1a2e"/><text x="170" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#c4b5fd">conductor</text><text x="170" y="90" text-anchor="middle" font-size="10" fill="#9ca3af">taste-resolve --brand</text>
+    <g font-size="10.5" text-anchor="middle">
+      <rect x="290" y="14" width="120" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="350" y="33">gen-logo</text>
+      <rect x="420" y="14" width="120" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="480" y="33">gen-voice</text>
+      <rect x="290" y="54" width="120" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="350" y="73">gen-positioning</text>
+      <rect x="420" y="54" width="120" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="480" y="73">emit-brand-spec</text>
+      <rect x="290" y="94" width="120" height="30" rx="8" fill="#fff7ed" stroke="#ed8936"/><text x="350" y="113">kit-qa (verify)</text>
+      <rect x="420" y="94" width="120" height="30" rx="8" fill="#fff7ed" stroke="#ed8936"/><text x="480" y="113">reroll (heal)</text>
+    </g>
+    <rect x="575" y="30" width="170" height="30" rx="8" fill="#1a1a2e"/><text x="660" y="44" text-anchor="middle" font-size="10" fill="#c4b5fd">↑↓ cortex (NIM)</text><text x="660" y="55" text-anchor="middle" font-size="9" fill="#9ca3af">nim-probe · embed · crawl-codrops</text>
+    <rect x="575" y="80" width="170" height="30" rx="8" fill="#fff7ed" stroke="#ed8936"/><text x="660" y="99" text-anchor="middle" font-size="10" fill="#9a3412">backends: gpt-image-2 · nanobanana</text>
+    <text x="848" y="74" font-size="12" fill="#5b21b6" font-weight="700">▸ taste-brief</text>
+    <path d="M245,68 L290,29" stroke="#6b7280" stroke-width="1.3" marker-end="url(#t1)"/><path d="M245,76 L290,69" stroke="#6b7280" stroke-width="1.3" marker-end="url(#t1)"/><path d="M245,84 L290,109" stroke="#6b7280" stroke-width="1.3" marker-end="url(#t1)"/>
+    <path d="M540,109 L575,95" stroke="#6b7280" stroke-width="1.3" marker-end="url(#t1)"/>
+  </svg>
+  <div class="internals"><b>conductor</b> <code>taste-resolve.mjs --brand</code> emits the on-brand brief (the re-projection toward x* — the contraction Lᵢ&lt;1). <b>spokes</b> gen-logo · gen-voice · gen-positioning · emit-brand-spec · <b>kit-qa</b> (the verify gate — Lyapunov check) · <b>brandmint-reroll</b> (self-heal: reroll until V drops) · kit-register. <b>spec-kit</b> brand-spec schema (<code>validate-brand-spec</code>). <b>cortex</b> <code>nim-probe.mjs</code>/<code>embed.mjs</code> (the NIM client) + <code>crawl-codrops</code> (taste index). <b>backends</b> gpt-image-2 + nanobanana.</div>
+</div>
+
+<!-- ───────────── WILL ───────────── -->
+<div class="organ">
+  <div class="ohead">
+    <h3>👔 will / business-ops <span class="repo">snow-gloves-os</span></h3>
+    <div class="meta"><span class="contract">artifact → business</span><span class="pill gate">💲 gated (Explee)</span><span>python</span></div>
+  </div>
+  <svg viewBox="0 0 900 184" role="img" aria-label="will structure">
+    <defs><marker id="w1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#6b7280"/></marker></defs>
+    <text x="14" y="74" font-size="12" fill="#5b21b6" font-weight="700">artifact ▸</text>
+    <rect x="85" y="48" width="150" height="56" rx="11" fill="#1a1a2e"/><text x="160" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#c4b5fd">conductor</text><text x="160" y="90" text-anchor="middle" font-size="9.5" fill="#9ca3af">dispatcher + chief-of-staff</text>
+    <text x="430" y="14" font-size="10.5" text-anchor="middle" fill="#6b7280">7-agent C-suite · 60 skills (skill-hooks)</text>
+    <g font-size="10" text-anchor="middle">
+      <rect x="285" y="22" width="74" height="26" rx="7" fill="#ede9fe" stroke="#8b5cf6"/><text x="322" y="39">ceo</text>
+      <rect x="365" y="22" width="100" height="26" rx="7" fill="#ede9fe" stroke="#8b5cf6"/><text x="415" y="39">chief-of-staff</text>
+      <rect x="471" y="22" width="74" height="26" rx="7" fill="#ede9fe" stroke="#8b5cf6"/><text x="508" y="39">cto</text>
+      <rect x="285" y="54" width="90" height="26" rx="7" fill="#ede9fe" stroke="#8b5cf6"/><text x="330" y="71">dispatcher</text>
+      <rect x="381" y="54" width="92" height="26" rx="7" fill="#ede9fe" stroke="#8b5cf6"/><text x="427" y="71">interpreter</text>
+      <rect x="479" y="54" width="84" height="26" rx="7" fill="#ede9fe" stroke="#8b5cf6"/><text x="521" y="71">librarian</text>
+      <rect x="333" y="86" width="84" height="26" rx="7" fill="#ede9fe" stroke="#8b5cf6"/><text x="375" y="103">sentinel</text>
+      <rect x="423" y="86" width="140" height="26" rx="7" fill="#fff7ed" stroke="#ed8936"/><text x="493" y="103">gtm.py · brand_to_gtm</text>
+    </g>
+    <rect x="600" y="34" width="150" height="30" rx="8" fill="#fff7ed" stroke="#ed8936"/><text x="675" y="53" text-anchor="middle" font-size="10" fill="#9a3412">spec-kit · specs/001-004</text>
+    <rect x="600" y="78" width="150" height="30" rx="8" fill="#f0fdf4" stroke="#047857"/><text x="675" y="91" text-anchor="middle" font-size="9.5" fill="#065f46">Paperclip + Hermes</text><text x="675" y="103" text-anchor="middle" font-size="9" fill="#047857">tenants: _demo·acme·tryambakam</text>
+    <text x="848" y="74" font-size="12" fill="#047857" font-weight="700">▸ business</text>
+    <path d="M235,66 L285,36" stroke="#6b7280" stroke-width="1.3" marker-end="url(#w1)"/><path d="M235,76 L285,67" stroke="#6b7280" stroke-width="1.3" marker-end="url(#w1)"/>
+    <path d="M563,99 L600,93" stroke="#6b7280" stroke-width="1.3" marker-end="url(#w1)"/>
+  </svg>
+  <div class="internals"><b>conductor</b> the <code>dispatcher</code> + Chief-of-Staff route work via <code>skill-hooks.yaml</code> (60 skills → 7 agents). <b>spokes / C-suite</b> ceo · chief-of-staff · cto · dispatcher · interpreter · librarian · sentinel. <b>spec-kit</b> <code>specs/</code> (001-platform · 002-orchestration · 003-distribution · 004-brand-gtm). <b>infra</b> Paperclip (tasks) + Hermes (events) · multi-tenant (<code>_demo·acme·tryambakam-noesis</code>). <b>GTM</b> <code>scripts/lib/gtm.py</code> <code>brand_to_gtm</code> (approval-gated Explee). <b>entry</b> the dispatcher · <code>gtm.py</code>.</div>
+</div>
+
+<!-- ───────────── CORTEX ───────────── -->
+<div class="organ">
+  <div class="ohead">
+    <h3>🧠 shared cortex (NIM memory) <span class="repo">taste-nim + DESIGN_MEMORY_WORKER</span></h3>
+    <div class="meta"><span class="contract">feeds all stages</span><span class="pill cross">⟳ cross-cutting · gated</span><span>worker</span></div>
+  </div>
+  <svg viewBox="0 0 900 168" role="img" aria-label="cortex structure">
+    <defs><marker id="c1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#a78bfa"/></marker></defs>
+    <rect x="60" y="56" width="190" height="60" rx="12" fill="#1a1a2e"/><text x="155" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="#c4b5fd">the metric space (X, d)</text><text x="155" y="100" text-anchor="middle" font-size="10" fill="#9ca3af">1024-dim NIM · cosine distance</text>
+    <g font-size="10.5" text-anchor="middle">
+      <rect x="300" y="20" width="120" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="360" y="39">embed (x → vec)</text>
+      <rect x="430" y="20" width="120" height="30" rx="8" fill="#ede9fe" stroke="#8b5cf6"/><text x="490" y="39">search (kNN)</text>
+      <rect x="300" y="60" width="120" height="30" rx="8" fill="#f5f3ff" stroke="#8b5cf6"/><text x="360" y="79">taste index (Codrops)</text>
+      <rect x="430" y="60" width="120" height="30" rx="8" fill="#f5f3ff" stroke="#8b5cf6"/><text x="490" y="79">brand assets</text>
+      <rect x="300" y="100" width="250" height="30" rx="8" fill="#f5f3ff" stroke="#8b5cf6"/><text x="425" y="119">design-memory (x* = the brand-DNA setpoint)</text>
+    </g>
+    <text x="700" y="40" font-size="10.5" text-anchor="middle" fill="#6b7280">clients (every organ)</text>
+    <rect x="610" y="52" width="180" height="64" rx="10" fill="#f0fdf4" stroke="#047857"/><text x="700" y="72" text-anchor="middle" font-size="10" fill="#065f46">nim-probe · embed (skill-clusters)</text><text x="700" y="87" text-anchor="middle" font-size="10" fill="#065f46">design_memory.py (brandmint)</text><text x="700" y="102" text-anchor="middle" font-size="10" fill="#065f46">embed_worker (snow-gloves)</text>
+    <path d="M250,86 L300,40" stroke="#a78bfa" stroke-width="1.3" marker-end="url(#c1)"/><path d="M250,90 L300,75" stroke="#a78bfa" stroke-width="1.3" marker-end="url(#c1)"/><path d="M250,96 L300,115" stroke="#a78bfa" stroke-width="1.3" marker-end="url(#c1)"/>
+    <path d="M550,75 L610,80" stroke="#a78bfa" stroke-width="1.3" marker-end="url(#c1)"/>
+  </svg>
+  <div class="internals"><b>the substrate</b> the 1024-dim NIM embedding space — <b>this is (X, d)</b> from HOMEOSTASIS.md; cosine distance <i>is</i> on-brand-ness; <b>x\* (the brand-DNA setpoint) lives here.</b> <b>ops</b> embed (x → vector) · search (kNN). <b>stores</b> taste index (Codrops crawl) · the brand's own assets · design-memory. <b>clients</b> every organ: <code>nim-probe</code>/<code>embed</code> (skill-clusters) · <code>design_memory.py</code> (brandmint) · <code>embed_worker</code> (snow-gloves). <b>status</b> duplicated across two Workers — <b>I3</b> unifies them; that is the moat.</div>
+</div>
+
+<footer>
+Cambium · per-organ structure. The whole flow: <a href="./architecture.html">architecture.html</a> ·
+the math: <a href="../HOMEOSTASIS.md">HOMEOSTASIS.md</a> · the wiring: <a href="../INTEGRATION.md">INTEGRATION.md</a>.
+Each organ is one Φ; the conductor composes them; the cortex is the shared metric space they all converge in.
+</footer>
+</body>
+</html>
