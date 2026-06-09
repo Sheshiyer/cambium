@@ -4,6 +4,7 @@
 //   wake '{"id":"x","kind":"tweak"}'
 //   heartbeat                  one viability sweep
 //   run [ms] [maxTicks]        the heartbeat daemon
+//   onboard [--auto] [--restart]  the 20-step first session (ONBOARDING-OCTALYSIS.md)
 //   icp ["positioning"]        ask the (real-ish) ICP-NPC (pains)
 //   resonance ["positioning"]  the ICP gradient: pains + real cosine resonance (NIM embeddings)
 //   state
@@ -19,6 +20,7 @@ import { realIcp } from './npc.ts';
 import { makeEmbedder, cosine } from './embed.ts';
 import { resolveIcp, ensureSetpoint } from './resonance.ts';
 import { wakeAsync } from './orchestrate.ts';
+import { runOnboard } from './onboarding/run.ts';
 import type { WorldState, GameEvent, Decision } from './types.ts';
 import { defaultCortex } from '../lib/cortex.mjs';
 
@@ -98,6 +100,10 @@ if (cmd === 'wake') {
   console.log(`ICP resonance (${r.source}${r.via ? ' · ' + r.via : ''} · embeddings=${embedder.source}/${r.dims}d) on "${w.brand.label}":`);
   (r.painVectors ?? []).forEach((pv, i) => console.log(`  · [rel ${cosine(w.brand.setpoint, pv).toFixed(2)}] ${r.pains[i]}`));
   console.log(`  → target: "${r.directionLabel}"   ·   resonance(cosine): ${r.resonance.toFixed(3)}   ·   ‖gradient‖=${Math.hypot(...r.direction).toFixed(2)}`);
+} else if (cmd === 'onboard') {
+  const auto = rest.includes('--auto');
+  const restart = rest.includes('--restart');
+  await runOnboard({ auto, restart, tenant, stateDir: STATE_DIR });
 } else if (cmd === 'state') {
   const w = loadWorld(tenant);
   console.log(JSON.stringify({ ...w, brand: { ...w.brand, setpoint: `[${w.brand.setpoint.length}d vector]` } }, null, 2));
@@ -108,6 +114,7 @@ if (cmd === 'wake') {
   console.log("  node bin/operator/cli.ts wake '{\"id\":\"x\",\"kind\":\"tweak\"}'");
   console.log('  node bin/operator/cli.ts heartbeat              # one viability sweep');
   console.log('  node bin/operator/cli.ts run [ms] [maxTicks]    # the heartbeat daemon');
+  console.log('  node bin/operator/cli.ts onboard [--auto]       # the 20-step first session');
   console.log('  node bin/operator/cli.ts icp ["positioning"]    # the ICP-NPC (pains)');
   console.log('  node bin/operator/cli.ts resonance ["pos"]      # pains + real cosine gradient (NIM)');
   console.log('  node bin/operator/cli.ts state');
