@@ -38,6 +38,22 @@ export function validateStageContract(stage, payload) {
   );
 }
 
+function seedContractState(stages, seedInput) {
+  if (seedInput != null && typeof seedInput === 'object' && !Array.isArray(seedInput)) {
+    return { ...seedInput };
+  }
+  if (seedInput == null || seedInput === '') return {};
+  const first = stages?.[0];
+  const required = Array.isArray(first?.requires) ? first.requires.filter(Boolean) : [];
+  if (stages?.length === 1 && required.length) {
+    return Object.fromEntries(required.map((group) => [group, seedInput]));
+  }
+  if (required.length === 1) {
+    return { [required[0]]: seedInput };
+  }
+  return {};
+}
+
 /**
  * Resolve an organ id → the local repo path its command runs in.
  *   1. CAMBIUM_ORGAN_ROOTS env (JSON map keyed by organ id OR repo basename) — the reliable override
@@ -105,8 +121,11 @@ export async function runStage(organId, ctx = {}) {
     ctx = organId;
     organId = ctx.stage?.organ;
   }
-  const { registry, adapters, cambiumRoot, env = {}, tenant, input, execute = false, approve = null, runner } = ctx;
-  validateStageContract(ctx.stage, input);
+  const {
+    registry, adapters, cambiumRoot, env = {}, tenant, input, contractPayload = input,
+    execute = false, approve = null, runner,
+  } = ctx;
+  validateStageContract(ctx.stage, contractPayload);
   const adapter = adapters?.[organId];
   if (!adapter) throw new Error(`no adapter for organ "${organId}"`);
   const root = resolveRoot(organId, { registry, adapters, cambiumRoot, env });
@@ -170,6 +189,7 @@ export async function runPipeline({
 } = {}) {
   const results = [];
   let prev = seedInput; // the hand-off carry: the previous stage's output (or the seed for stage 1)
+  let contractState = seedContractState(stages, seedInput);
   const producerByGroup = {};
   for (const stage of stages) {
     if (!adapters?.[stage.organ]) {
@@ -180,6 +200,7 @@ export async function runPipeline({
     const inputFrom = prev != null && prev !== '' ? 'prev-stage' : 'default';
     const res = await runStage(stage.organ, {
       registry, adapters, cambiumRoot, env, tenant, input: prev, execute, approve, runner,
+      contractPayload: contractState,
       stage: { ...stage, producerByGroup },
     });
     res.stage = stage.id;
@@ -190,6 +211,10 @@ export async function runPipeline({
     prev = res.spawned && res.result && res.result.status === 0
       ? extractOutput(adapters[stage.organ], res.result)
       : null;
+    if (res.spawned && res.result && res.result.status === 0) {
+      contractState = { ...contractState };
+      for (const group of stage.produces || []) contractState[group] = true;
+    }
     for (const group of stage.produces || []) producerByGroup[group] = stage.id;
   }
   return results;

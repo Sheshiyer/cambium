@@ -230,6 +230,46 @@ test('runPipeline explains which upstream stage should have produced a missing g
   );
 });
 
+test('runPipeline validates against accumulated contract groups, not raw prior stdout', async () => {
+  const stages = [
+    { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system', 'copy_system'] },
+    { id: 'build', organ: 'b', requires: ['brand_system', 'copy_system'] },
+  ];
+  let n = 0;
+  const runner = () => ({ status: 0, stdout: n++ === 0 ? 'RAW_STAGE_ONE' : 'RAW_STAGE_TWO' });
+  const results = await runPipeline({
+    stages,
+    registry: hoReg,
+    adapters: hoAdapters,
+    cambiumRoot: '/x/cambium',
+    tenant: 't',
+    execute: true,
+    runner,
+    seedInput: { idea: 'brief.md' },
+  });
+  const bInv = results.find((r) => r.stage === 'build').invocation;
+  assert.ok(bInv.args.includes('RAW_STAGE_ONE'), `B should still receive raw stage output; got ${JSON.stringify(bInv.args)}`);
+  assert.equal(results.find((r) => r.stage === 'build').spawned, true);
+});
+
+test('runPipeline preserves direct single-stage scalar input compatibility', async () => {
+  const stages = [
+    { id: 'build', organ: 'b', requires: ['brand_system', 'asset_plan'] },
+  ];
+  const [result] = await runPipeline({
+    stages,
+    registry: hoReg,
+    adapters: hoAdapters,
+    cambiumRoot: '/x/cambium',
+    tenant: 't',
+    execute: false,
+    runner: () => ({ status: 0, stdout: 'ignored' }),
+    seedInput: 'plan.md',
+  });
+  assert.ok(result.invocation.args.includes('plan.md'));
+  assert.equal(result.spawned, false);
+});
+
 test('runPipeline dry-run calls the runner zero times', async () => {
   let calls = 0;
   const runner = () => { calls++; return { status: 0, stdout: 'x' }; };
