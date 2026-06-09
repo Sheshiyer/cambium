@@ -22,7 +22,13 @@
         "coverage_preflight": "pre-flight coverage checks", "asset_mode": "chooses the asset render mode",
         "cache": "prompt / asset cache", "image_utils": "image helpers",
         "design_memory": "writes the brand's seed taste = x* (cortex client)"
-      }
+      },
+      "agent_contracts": {
+        "produces": ["brand_system", "copy_system", "visual_system"],
+        "requires": ["idea"],
+        "consumption_note": "Emit the three brand groups as structured top-level keys. Agents must forward them verbatim to taste/build; do not flatten to prose. Missing brand_system is contract drift at first contraction."
+      },
+      "agent_notes": "First contraction toward x*. Seed the variable groups that make every downstream stage contractive. Use the prompt-reference-schema for any cortex writes. See docs/plans/assets/ for handoff matrix and retrieval schema."
     },
     {
       "id": "hands", "emoji": "🛠️", "name": "hands + conductor — build on-brand",

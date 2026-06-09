@@ -89,9 +89,13 @@ export function renderOrganPage(data) {
 <div class="card note"><code>${esc(data.contract.in)}</code> → <b>${esc(data.conductor.name)}</b> (${esc(data.conductor.desc)}) → <code>${esc(data.contract.out)}</code></div>
 <h2><span class="n">5</span>Homeostasis role</h2>
 <div class="card note">${esc(data.homeostasis)}</div>
-<h2><span class="n">6</span>Entrypoints + spend</h2>
+<h2><span class="n">6</span>Agent contracts (variable groups for orchestration)</h2>
+<div class="card note">${data.agent_notes ? esc(data.agent_notes) : 'See CONTRACTS.md + docs/plans/assets/ (handoff matrix, prompt-reference-schema) for the groups this organ must preserve or emit. Agents forward top-level structured keys; flattening to prose is contract drift.'}</div>
+${data.agent_contracts ? `<div class="card"><pre class="eq" style="font-size:11px">produces: ${JSON.stringify(data.agent_contracts.produces || [])}&#10;requires: ${JSON.stringify(data.agent_contracts.requires || [])}&#10;note: ${esc(data.agent_contracts.consumption_note || '')}</pre></div>` : ''}
+<p class="note" style="margin:4px 0 12px">This page + pipeline.json + registry.json + CONTRACTS.md + the assets schemas = the agent contract surface. Cortex queries use the prompt-reference-schema keys for retrieval.</p>
+<h2><span class="n">7</span>Entrypoints + spend</h2>
 <div class="card"><div class="eq">${esc(data.entrypoint)}</div><p class="note" style="margin-bottom:0">spend: <span class="pill ${sc}">${esc(data.spend.label)}</span> ${esc(data.spend.reason || '')}</p></div>
-<footer>${esc(BANNER)}. Source-of-truth: the live organ repos + <code>docs/organs/organs.meta.json</code>. · <a href="../organs.html">all organs</a> · <a href="../architecture.html">tapestry</a> · <a href="../../HOMEOSTASIS.md">HOMEOSTASIS.md</a></footer>
+<footer>${esc(BANNER)}. Source-of-truth: the live organ repos + <code>docs/organs/organs.meta.json</code>. · <a href="../organs.html">all organs</a> · <a href="../architecture.html">tapestry</a> · <a href="../../HOMEOSTASIS.md">HOMEOSTASIS.md</a> · <a href="../../composition/CONTRACTS.md">contracts</a> · <a href="../plans/assets/stage-handoff-matrix.json">handoff matrix</a></footer>
 </body></html>
 `;
 }
@@ -123,7 +127,7 @@ export function renderCatalog(all) {
 <header class="hero"><h1>🌱 Cambium — per-organ structure</h1><p>Every organ is the same self-similar Φ. Each has a <b>dedicated full page</b> below. <a href="architecture.html">tapestry</a> · <a href="../HOMEOSTASIS.md">math</a></p></header>
 <p class="sub">${esc(BANNER)}</p>
 ${cards}
-<footer>${esc(BANNER)}. · <a href="architecture.html">tapestry diagram</a> · <a href="../HOMEOSTASIS.md">HOMEOSTASIS.md</a> · <a href="../INTEGRATION.md">INTEGRATION.md</a></footer>
+<footer>${esc(BANNER)}. · <a href="architecture.html">tapestry diagram</a> · <a href="../HOMEOSTASIS.md">HOMEOSTASIS.md</a> · <a href="../INTEGRATION.md">INTEGRATION.md</a> · <a href="../../composition/CONTRACTS.md">variable contracts</a> · <a href="../plans/assets/stage-handoff-matrix.json">handoff matrix</a> (agent surface)</footer>
 </body></html>
 `;
 }
