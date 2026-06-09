@@ -12,19 +12,11 @@ import type { Decision, WakeDeps, OnboardingStep } from '../types.ts';
 import { ONBOARDING_SCRIPT } from './script.ts';
 import { initOnboarding, advance } from './session.ts';
 import type { OnboardingState, OnboardingInput, OnboardingSeed } from './session.ts';
+import { renderOctalysisPanel, DRIVE_NAMES } from './octalysis.ts';
 
 const DEFAULT_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
-const DRIVE_NAMES: Record<number, string> = {
-  1: 'Epic Meaning & Calling',
-  2: 'Development & Accomplishment',
-  3: 'Empowerment of Creativity & Feedback',
-  4: 'Ownership & Possession',
-  5: 'Social Influence & Relatedness',
-  6: 'Scarcity & Impatience',
-  7: 'Unpredictability & Curiosity',
-  8: 'Loss & Avoidance',
-};
+// DRIVE_NAMES is imported from ./octalysis.ts (the Octalysis source of truth, A5).
 const PHASE_NAMES: Record<string, string> = {
   A: 'Discovery / The Calling', B: 'First Mint', C: 'Meet the Players', D: 'The Loop', E: 'The Infinite Hook',
 };
@@ -104,15 +96,7 @@ function renderNoesisFrame(step: OnboardingStep, state: OnboardingState, decisio
   out(`     margins: ${margins}  ·  drives ${state.drivesActivated.length}/8  ·  v${state.world.version}`);
 }
 
-function renderSummary(state: OnboardingState, out: (s: string) => void): void {
-  const drives = [...state.drivesActivated].sort((a, b) => a - b).join(' ');
-  out('');
-  out('  ════════ the first session ════════');
-  out(`  drives activated:  ${drives}   (${state.drivesActivated.length}/8)`);
-  out(`  noesis moments:    ${state.noesisMoments}`);
-  out(`  world version:     ${state.world.version}`);
-  out('  the operator goes dormant — it will wake on your next move. The game continues.');
-}
+// The end-of-session summary now lives in renderOctalysisPanel (./octalysis.ts, A5).
 
 function promptFor(step: OnboardingStep): string {
   if (step.event.kind === 'redirect') return '     » error or intent? [e/i] (Enter = keep scripted) ';
@@ -148,7 +132,7 @@ export async function runOnboard(opts: RunnerOpts = {}): Promise<OnboardingState
 
   if (state.stepIndex >= ONBOARDING_SCRIPT.length) {
     out('  already complete — run `onboard --restart` to play again.');
-    renderSummary(state, out);
+    renderOctalysisPanel(state, out);
     return state;
   }
 
@@ -180,6 +164,6 @@ export async function runOnboard(opts: RunnerOpts = {}): Promise<OnboardingState
     rl?.close();
   }
 
-  renderSummary(state, out);
+  renderOctalysisPanel(state, out);
   return state;
 }
