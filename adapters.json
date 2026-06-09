@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "note": "Service-invocation specs (I2): HOW the conductor calls each organ. Specs, not code — the organ repos are untouched. `spend: gated` organs NEVER spawn without --approve <organ> (constitution #4 — fail-closed); any unknown spend value also fails closed. `root_id` = the registry organ whose repo the command runs in. Optional `local_dir` overrides the derived repo-basename directory when the local checkout's name/casing differs (e.g. repo skill-clusters → dir Skill-clusters), needed on case-sensitive filesystems; `CAMBIUM_ORGAN_ROOTS` env (JSON map) overrides both. {tenant}/{input} are substituted at build time; {input} falls back to input_default.",
+  "adapters": {
+    "taste": {
+      "root_id": "taste",
+      "local_dir": "Skill-clusters",
+      "cmd": "node",
+      "args": ["taste/scripts/taste-resolve.mjs", "{input}", "--brand", "{tenant}", "--json"],
+      "spend": "gated",
+      "spend_reason": "embeds the request via the paid NIM cortex (needs NVIDIA_API_KEY)",
+      "input_default": "brand system",
+      "output": "json:taste-brief"
+    },
+    "genesis": {
+      "root_id": "genesis",
+      "cmd": "brandmint",
+      "args": ["launch", "--waves", "0-8", "--brand", "{tenant}"],
+      "spend": "gated",
+      "spend_reason": "runs the full brand-mint waves (visual + inference generation)",
+      "input_default": "brand-config.yaml",
+      "output": "brand-dna"
+    }
+  }
+}

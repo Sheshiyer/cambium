@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { planPipeline, formatPlan, loadJson } from './compose.mjs';
+import { planPipeline, formatPlan, loadJson, parseRunArgs } from './compose.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
@@ -66,4 +66,15 @@ test('missing registry.organs throws', () => {
 
 test('missing pipeline.stages throws', () => {
   assert.throws(() => planPipeline({ registry, pipeline: {}, tenant: 't' }), /pipeline\.stages/);
+});
+
+test('parseRunArgs parses tenant + execute + approve', () => {
+  assert.deepEqual(parseRunArgs(['acme', '--execute', '--approve', 'taste']), {
+    tenant: 'acme', execute: true, approve: 'taste',
+  });
+});
+
+test('parseRunArgs treats a dangling --approve (followed by a flag) as no approval', () => {
+  // operator reorders flags: `--approve --execute` must NOT approve a stage named "--execute"
+  assert.equal(parseRunArgs(['acme', '--approve', '--execute']).approve, null);
 });

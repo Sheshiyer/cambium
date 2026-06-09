@@ -52,5 +52,8 @@ The `input`/`output` tokens below are the contract identifiers referenced by the
 - Currently duplicated across two Workers; **I3** unifies them into one shared aesthetic-memory Worker.
 
 ## Invariant
-Cambium **plans and validates** this composition (`bin/compose.mjs`); it does **not** execute the organs
-end-to-end yet (that is **I2**). The contract is executable-as-a-plan today, executable-as-a-runtime next.
+Cambium **plans + validates** (`compose plan/validate`) and now **calls** each organ along the contract
+(`compose run`, via [`../adapters.json`](../adapters.json) + `bin/lib/invoke.mjs`) — **fail-closed on
+spend**: a spend-gated stage (taste, genesis) never spawns without an explicit `--approve <stage>`
+(constitution #4). Executable-as-a-plan and as-gated-calls today; the live end-to-end hand-off (piping
+stage N's output → N+1's input) is the next step.
