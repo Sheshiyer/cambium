@@ -9,6 +9,20 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const registry = loadJson(join(root, 'registry.json'));
 const pipeline = loadJson(join(root, 'composition', 'pipeline.json'));
+const machineReadableContractGroups = new Set([
+  'idea',
+  'brand_system',
+  'copy_system',
+  'visual_system',
+  'taste_brief',
+  'asset_plan',
+  'section_plan',
+  'interaction_plan',
+  'acceptance_checks',
+  'artifact',
+  'brand_docs',
+  'business',
+]);
 
 test('registry resolves every pipeline organ (repo + entrypoint)', () => {
   const plan = planPipeline({ registry, pipeline, tenant: 't' });
@@ -107,6 +121,45 @@ test('contracts doc defines the variable contract vocabulary', async () => {
   assert.match(text, /section_plan/i);
   assert.match(text, /interaction_plan/i);
   assert.match(text, /acceptance_checks/i);
+});
+
+test('machine-readable contracts stay within the documented vocabulary', async () => {
+  const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
+  const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
+  const seen = [];
+
+  for (const stage of pipeline.stages) {
+    seen.push(...stage.requires, ...stage.produces);
+  }
+
+  for (const adapter of Object.values(adapters.adapters)) {
+    seen.push(...adapter.contract_requires, ...adapter.contract_produces);
+  }
+
+  for (const group of seen) {
+    assert.ok(
+      machineReadableContractGroups.has(group),
+      `undocumented machine-readable contract group: ${group}`,
+    );
+  }
+});
+
+test('stage requirements are satisfiable from prior stage hand-offs', async () => {
+  const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
+  const available = new Set(['idea']);
+
+  for (const stage of pipeline.stages) {
+    for (const requirement of stage.requires) {
+      assert.ok(
+        available.has(requirement),
+        `${stage.id} requires ${requirement}, but no prior stage produces it`,
+      );
+    }
+
+    for (const produced of stage.produces) {
+      available.add(produced);
+    }
+  }
 });
 
 test('parseRunArgs parses tenant + execute + approve', () => {

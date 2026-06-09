@@ -18,7 +18,7 @@
         "understands: idea briefs and brand-config inputs",
         "produces: brand_system",
         "produces: copy_system",
-        "produces: brand_docs_seed"
+        "produces: visual_system"
       ]
     },
     "hands": {
@@ -33,7 +33,7 @@
         "understands: taste_brief plus structured build plans",
         "understands: asset_plan, section_plan, interaction_plan, acceptance_checks",
         "produces: artifact",
-        "produces: brand_docs and proof_strategy"
+        "produces: brand_docs"
       ]
     },
     "taste": {
@@ -45,10 +45,10 @@
       "tier": "paid",
       "language": "node",
       "capabilities": [
-        "understands: brand_system, copy_system, brand_docs_seed",
+        "understands: brand_system, copy_system, visual_system",
         "reads/writes: shared cortex taste memory",
-        "produces: visual_system and taste_brief",
-        "produces: aesthetic_constraints, asset_plan, section_plan, interaction_plan, acceptance_checks"
+        "produces: taste_brief",
+        "produces: asset_plan, section_plan, interaction_plan, acceptance_checks"
       ]
     },
     "will": {
@@ -60,7 +60,8 @@
       "tier": "paid",
       "language": "python",
       "capabilities": [
-        "understands: artifact, brand_docs, proof_strategy, distribution_constraints",
+        "understands: artifact, brand_docs, brand_system, copy_system, visual_system",
+        "understands: asset_plan, section_plan, interaction_plan, acceptance_checks",
         "extends: approved copy_system variants for distribution",
         "produces: business operating state",
         "feeds: GTM and portfolio governance outcomes back into the system"

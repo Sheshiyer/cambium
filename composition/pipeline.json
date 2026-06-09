@@ -14,15 +14,16 @@
       "produces": [
         "brand_system",
         "copy_system",
-        "brand_docs_seed"
+        "visual_system"
       ],
       "blocking": [
         "brand_system",
-        "copy_system"
+        "copy_system",
+        "visual_system"
       ],
       "downstream_effects": [
         "Seeds the canonical brand vocabulary consumed by taste, build, and ops",
-        "Establishes the initial brand docs surface later stages refine"
+        "Establishes the visual system downstream stages preserve and refine"
       ]
     },
     {
@@ -34,22 +35,21 @@
       "requires": [
         "brand_system",
         "copy_system",
-        "brand_docs_seed"
+        "visual_system"
       ],
       "produces": [
-        "visual_system",
         "taste_brief",
-        "aesthetic_constraints",
         "asset_plan",
         "section_plan",
         "interaction_plan",
         "acceptance_checks"
       ],
       "blocking": [
-        "visual_system",
         "taste_brief",
         "asset_plan",
-        "section_plan"
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
       ],
       "downstream_effects": [
         "Turns brand intent into structured visual and build constraints",
@@ -73,8 +73,7 @@
       ],
       "produces": [
         "artifact",
-        "brand_docs",
-        "proof_strategy"
+        "brand_docs"
       ],
       "blocking": [
         "artifact",
@@ -94,8 +93,12 @@
       "requires": [
         "artifact",
         "brand_docs",
-        "proof_strategy",
-        "distribution_constraints",
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
         "acceptance_checks"
       ],
       "produces": [
@@ -103,8 +106,7 @@
       ],
       "blocking": [
         "artifact",
-        "brand_docs",
-        "proof_strategy"
+        "brand_docs"
       ],
       "downstream_effects": [
         "Feeds live distribution outcomes and market feedback back into the cortex",

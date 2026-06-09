@@ -20,12 +20,10 @@
       "contract_requires": [
         "brand_system",
         "copy_system",
-        "brand_docs_seed"
+        "visual_system"
       ],
       "contract_produces": [
-        "visual_system",
         "taste_brief",
-        "aesthetic_constraints",
         "asset_plan",
         "section_plan",
         "interaction_plan",
@@ -53,7 +51,7 @@
       "contract_produces": [
         "brand_system",
         "copy_system",
-        "brand_docs_seed"
+        "visual_system"
       ],
       "contract_version": "1.0.0"
     },
@@ -81,8 +79,7 @@
       ],
       "contract_produces": [
         "artifact",
-        "brand_docs",
-        "proof_strategy"
+        "brand_docs"
       ],
       "contract_version": "1.0.0"
     },
@@ -102,8 +99,12 @@
       "contract_requires": [
         "artifact",
         "brand_docs",
-        "proof_strategy",
-        "distribution_constraints",
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
         "acceptance_checks"
       ],
       "contract_produces": [
