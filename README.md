@@ -10,133 +10,200 @@
 
 ---
 
-> In a tree, the **cambium** is the thin living layer where *all* growth happens. This is that layer for business: take a raw idea and grow it into a living, branded, operating company — and keep it growing **on-brand, forever**, with almost no manual intervention.
+> In a tree, the **cambium** is the thin living layer where *all* growth happens. This is that layer for business: take a raw idea (a *thoughtseed*) and grow it into a living, branded, operating company — then keep it growing **on-brand, forever**, with almost no manual intervention.
 
-Cambium is the **product** that turns thoughtseeds into self-running companies.
+Cambium has **two halves**:
 
-It composes specialized organs (brand brain, creative execution, aesthetic conscience, operating system, and shared memory) into one reliable system. The result? A real business that stays true to your vision while the world moves — and that gets smarter every time it ships.
+1. **The composition layer** — *mints and ships* the business. It composes specialized organs (Genesis → Taste → Hands → Will) into one reliable, contract-driven pipeline: idea → brand system → on-brand surfaces → live go-to-market.
+2. **The operator** — *runs* the business as an **infinite game**. An event-sourced wake loop that routes every move through micro/meso/macro control, gates real changes, guards solvency, and **remembers across runs** through a shared cortex.
 
-Designed for founders who want to move fast, and for the AI agents and teams that will help run it.
+The composition layer makes the first launch. The operator keeps the venture alive and on-brand after the launch — which is the part that actually compounds.
 
-## Why Cambium (The Product Promise)
+---
 
-- **Ship real businesses from one idea** — Genesis mints the full brand system. Taste gives structured creative direction. Hands build on-brand surfaces. Will turns them into operating GTM and portfolio motion.
-- **On-brand by default, not by heroic effort** — The only composition system that treats staying on-brand as a built-in, self-healing property.
-- **Built for humans *and* agents** — Explicit contracts, handoff rules, and consumption guides mean AI orchestrators and modern teams can drive it reliably.
-- **Free to start. Moat that compounds.** — Genesis and build are free. The ongoing taste (that learns *your* specific brand) is the paid layer that creates the real defensibility.
+## What's real today
 
-**The left brain (build) is free. The right brain (taste + memory) is the subscription.**
+| Capability | Status | Where |
+|---|---|---|
+| **Composition pipeline** (Genesis/Taste/Hands/Will + variable contracts) | ✅ live | [`bin/compose.mjs`](./bin/compose.mjs) |
+| **The operator** — the infinite-game wake loop (micro/meso/macro + mid-brain→noesis, viability, NPC self-play) | ✅ live | [`bin/operator/`](./bin/operator/) |
+| **Onboarding** — the 20-interaction Octalysis first session | ✅ shipped (M1) | `operator onboard` |
+| **Cortex · semantic memory** — recall across runs (NIM 1024-d; node:sqlite local · **Cloudflare Vectorize** prod) | ✅ shipped (M2) | `cortex-memory.ts` · `cortex-sqlite.ts` · `vectorize-cortex.ts` |
+| **Cortex · structural memory** — CodeGraph code-recall lane | ✅ shipped (M2) | `operator coderecall` |
+| **Multi-tenancy** — one operator, many ventures | 🔜 next (M3) | [#20–#23](https://github.com/Sheshiyer/cambium/milestone/3) |
 
-## Quick Start — Launch Your First Autonomous Brand
+**171 tests green** (`npm test`). Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
+
+**The business model, in one line:** the **left brain (build) is free**; the **right brain (taste + memory) is the subscription** — because the memory that learns *your* specific brand is the moat that compounds.
+
+---
+
+## Quick start
 
 ```bash
-# See exactly what will happen
-node bin/compose.mjs plan acme
-
-# Run the free execution layer live
+# ── The composition layer: mint + ship a brand ───────────────────────────────
+node bin/compose.mjs plan acme                 # see exactly what will happen
 node bin/compose.mjs run acme --stage build --execute --input examples/sample-tasks.md
+node bin/compose.mjs run acme --execute --approve taste   # only spend on gated stages
 
-# Only spend when you're ready (explicit approval on gated stages)
-node bin/compose.mjs run acme --execute --approve taste
+# ── The operator: run the business as an infinite game ───────────────────────
+node bin/operator/cli.ts onboard               # play the 20-interaction first session
+node bin/operator/cli.ts demo                  # a sample stream of moves through the loop
+node bin/operator/cli.ts coderecall "wake"     # structural recall of code the operator ships
 ```
 
-Full product blueprint, agent guides, and examples:  
-**[Cambium Composition Layer Technical Reference →](./docs/cambium-composition-technical-reference.html)**
+Full product blueprint + agent guides: **[Cambium Composition Layer Technical Reference →](./docs/cambium-composition-technical-reference.html)**
 
-## Play the First Session — `operator onboard`
+---
 
-Cambium runs your business as an **infinite game**. The fastest way to *feel* the loop is to play the operator's onboarding — the first 20 interactions, each engineered against an Octalysis core drive, each teaching one part of the **micro / meso / macro** loop:
+## The operator — the infinite game
+
+> Finite games are played to win; the infinite game is played to keep playing. A business is infinite — so the operator doesn't optimize for a single outcome, it optimizes to **stay in the game** while staying **on-brand**. Full contract: **[INFINITE-GAME.md](./INFINITE-GAME.md)**.
+
+The operator wakes on one **move** at a time and folds it through a six-step loop:
+
+```
+ingest → route → act → viability → learn → persist
+```
+
+It's **event-sourced** — the world-state's version equals the number of events folded in, so any run replays deterministically. The core `wake` is a **pure function**; all the async work (LLM NPCs, NIM embeddings, the cortex) lives in `wakeAsync` around it.
+
+### The micro / meso / macro router (+ the mid-brain bypass)
+
+Every move is classified into one **lane** — or escalated past the lanes entirely:
+
+| Class | Trigger | What happens |
+|---|---|---|
+| **micro** | a `tweak` | reversible fine-tune, applied instantly, no setpoint move |
+| **meso** | a `redirect` / `objection` / `metric` | the **error-vs-intent** why-handler decides: reroll toward the same goal, or absorb a new intent (gated) |
+| **macro** | a `reposition` | a setpoint move — **fail-closed**: needs real evidence, clamped to the trust-region α (allostasis) |
+| **mid-brain → noesis** | drives **1 (Epic Meaning)** or **8 (Loss)**, or a `calling`/`drift` | bypasses the routine tick and invokes **noesis** — the operator's meaning-making layer, handing the existential moment to the human |
+| **heartbeat** | a `probe` | a self-scheduled **viability sweep** so the operator isn't blind while dormant |
+
+### Viability — staying in the game
+
+The operator guards two hard bounds and pulls itself back inside them on a breach (an **emergency override** that pre-empts the planned act):
+
+- **Solvency** — runway days above the floor (30); warns early inside a 15-day band.
+- **Mission-coherence** — the brand stays coherent above the floor (0.40).
+
+### NPC self-play — grounded by reality
+
+Two simulated characters keep the loop honest (NVIDIA **NIM** → **Kimi** → deterministic stub, never OpenRouter/OpenAI):
+
+- **ICP-NPC ("Mira")** — role-plays your Ideal Customer: surfaces real **pain-points** and the **resonance gradient** (the direction to move positioning so the pain resolves), grounded in real NIM embeddings.
+- **Founder-NPC** — the **intent oracle**: judges whether a deviation is a bad step to *reroll* or *your* new intent to move the goal. Fail-closed (defaults to "error").
+
+The math behind the loop — the Banach contraction toward a brand-DNA fixed point, the viability kernel, the why-handler — is in **[HOMEOSTASIS.md](./HOMEOSTASIS.md)**.
+
+---
+
+## The cortex — memory that compounds
+
+The operator **remembers**. Two complementary lanes, both behind one injected seam (so the backend swaps with zero call-site change):
+
+### Semantic memory — "have I seen this situation before?"
+
+Every wake embeds its *situation* (event + positioning) via **NIM** (1024-d `nv-embedqa-e5-v5`) and writes a `MemoryRecord`. Before acting on a meso/macro move, the operator searches the **k nearest past situations** and surfaces them on the decision — *"seen 3× before; last time → reroll"* — feeding the why-handler.
+
+| Transport | When | Properties |
+|---|---|---|
+| **node:sqlite** | local / offline / tests | persistent, WAL, instant recall, zero-dep (Node built-in) |
+| **Cloudflare Vectorize** | production | native kNN at scale, shared across organs, `tenant`/`kind` metadata filters |
+
+The operator **auto-selects Vectorize** when `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` (+ `NVIDIA_API_KEY` for 1024-d) are in its env; otherwise it uses node:sqlite. Provision the production index once:
 
 ```bash
-# Walk the 20 interactions, pausing at each (press Enter to advance)
-node bin/operator/cli.ts onboard
-
-# Autoplay the whole first session
-node bin/operator/cli.ts onboard --auto
-
-# Start over from the calling
-node bin/operator/cli.ts onboard --restart
+export CLOUDFLARE_API_TOKEN=…   CLOUDFLARE_ACCOUNT_ID=…   # never commit these
+node scripts/provision-vectorize.mjs                       # 1024-d cosine + tenant/kind metadata indexes
 ```
 
-Every step renders the live **Decision** — its routing class (micro / meso / macro / **mid-brain → noesis** / heartbeat), the action taken, and the **viability margins** (solvency, mission-coherence) — then persists the world so you can resume. The session opens and closes on Epic Meaning — the White-Hat bookends of an infinite game — and surfaces the **mid-brain → noesis** beats at the existential moments (the calling, drift, and the game continuing).
+Recall is **tenant-isolated** (no venture sees another's memory) and **best-effort** (a cortex hiccup never crashes a wake). Run `operator demo` twice and watch the `↺` markers — the second run recalls the first.
 
-- **The design** — [The First Session (Octalysis)](./ONBOARDING-OCTALYSIS.md)
-- **The contract** — [INFINITE-GAME.md](./INFINITE-GAME.md) · the operator lives in [`bin/operator/`](./bin/operator/)
+### Structural memory — "what did we build?"
 
-## Core Product Feature: Reliable Variable Contracts
+A separate lane: when the operator ships software, it remembers that code **structurally** by querying the venture's **CodeGraph** (symbols / call-graph). Different math — codegraph can't do cosine kNN; the cortex can't do call-graph traversal. Two lanes, one operator.
 
-Cambium doesn't pass fuzzy instructions between stages. It passes clear, structured variable groups so every downstream organ (and every agent) knows exactly what to expect and what to preserve.
+```bash
+node bin/operator/cli.ts coderecall "wake"     # → real symbols: method wake_up, function wakeAsync, …
+```
 
-**The seven groups that power the entire system:**
+---
 
-| Group              | What it carries                              | Why it matters for your business                  |
-|--------------------|----------------------------------------------|---------------------------------------------------|
-| brand_system       | Identity, positioning, voice principles      | Everything stays consistent with who you are     |
-| copy_system        | Headlines, CTAs, proof points, tone          | Messaging never drifts                           |
-| visual_system      | Palette, typography, motion language         | The look and feel is protected                   |
-| asset_plan         | Required media + priorities + specs          | No missing hero shots or inconsistent assets     |
-| section_plan       | Narrative structure + copy/asset bindings    | Pages and flows stay coherent                    |
-| interaction_plan   | States, triggers, validation rules           | UX patterns feel like *your* brand               |
-| acceptance_checks  | Brand-fit gates + launch criteria            | Nothing ships that breaks the promise            |
+## The onboarding — the first session
 
-These groups are seeded early, automatically threaded through the pipeline, and exposed in machine-readable form so agents and conductors can use them without guessing.
+If the operator is a game, the founder is the **player**, and every good game opens with a **tutorial** that teaches the loop while it hooks. `operator onboard` is that tutorial — the **first 20 interactions**, each engineered against one of Yu-kai Chou's **Octalysis** 8 core drives, each teaching one piece of the micro/meso/macro loop.
 
-This is what makes the system scalable and trustworthy for both humans and AI.
+```bash
+node bin/operator/cli.ts onboard            # walk it, pausing at each step
+node bin/operator/cli.ts onboard --auto     # autoplay the whole session
+```
 
-## How Cambium Actually Works (Product View)
+It opens and closes on **Epic Meaning** (the White-Hat bookends of an infinite game), holds a distinct **noesis frame** at the existential beats (the calling, drift, the game continuing), and ends on a full **Octalysis panel** (which of the 8 drives lit, the White/Black/mid-brain balance). Design: **[ONBOARDING-OCTALYSIS.md](./ONBOARDING-OCTALYSIS.md)**.
 
-1. **Genesis** turns your raw idea into a complete, validated brand system.
-2. **Taste** translates that brand DNA into precise creative direction (brief + plans) while scoring every artifact against your growing aesthetic memory.
-3. **Hands** execute real development work with taste injected at every step and hard gates before anything ships.
-4. **Will** converts finished artifacts into live operating businesses and go-to-market motion.
-5. A shared **cortex** learns from every outcome so the next project starts smarter.
+---
 
-The composition layer (this repo) is the conductor that makes it all reliable: it defines the contracts, runs the pipeline, enforces the gates, and hands off outputs cleanly.
+## The composition layer — reliable variable contracts
 
-You get the power of specialized organs without the chaos of hand-wiring them yourself.
+Cambium doesn't pass fuzzy instructions between stages. It passes structured **variable groups** so every downstream organ (and every agent) knows exactly what to preserve:
 
-## Built for Agents & Modern Orchestration (First-Class)
+| Group | Carries | Why it matters |
+|---|---|---|
+| `brand_system` | identity, positioning, voice | stays consistent with who you are |
+| `copy_system` | headlines, CTAs, proof, tone | messaging never drifts |
+| `visual_system` | palette, typography, motion | the look & feel is protected |
+| `asset_plan` | required media + specs | no missing or inconsistent assets |
+| `section_plan` | narrative + copy/asset bindings | pages stay coherent |
+| `interaction_plan` | states, triggers, validation | UX feels like *your* brand |
+| `acceptance_checks` | brand-fit gates + launch criteria | nothing ships that breaks the promise |
 
-Cambium was designed from the ground up to be consumed by AI agents and external systems as easily as by humans.
+The pipeline: **Genesis** mints the brand system → **Taste** turns it into creative direction (scored against the growing aesthetic memory) → **Hands** build on-brand with hard gates → **Will** ships live GTM. The composition layer is the conductor that defines the contracts, enforces the gates, and hands off cleanly.
 
-- Explicit "For Agents & Conductors" guidance on every major surface
-- Consumption checklists (preserve the groups, check viability before spend, record intent on deviations)
-- Machine-readable artifacts: handoff matrix, prompt reference schema, full example contracts
-- The same patterns work whether a human or an agent is driving the run
+**Built for agents & orchestration (first-class):** explicit "For Agents & Conductors" guidance, consumption checklists (preserve the groups, check viability before spend, record intent on deviations), and machine-readable artifacts — the same patterns work whether a human or an agent is driving.
 
-The **[Cambium Composition Layer Technical Reference](./docs/cambium-composition-technical-reference.html)** is the canonical guide for anyone building on or orchestrating with Cambium — including detailed agent consumption patterns.
+**Real proof:** *Fitcheck* (AI virtual try-on) was the first full end-to-end tracer — idea → brand system across 7+ waves → real generated imagery on two backends → on-brand scoring + intelligent reroll → packaged, registered, ready. The contracts and gates did the coordination, not heroic oversight.
 
-## Real Proof
+---
 
-**Fitcheck** (AI virtual try-on for fashion) was the first full end-to-end tracer.
+## CLI reference — `node bin/operator/cli.ts <cmd>`
 
-Idea → complete brand system across 7+ waves → real generated imagery on two different backends → on-brand scoring + intelligent reroll → packaged assets → registered and ready.
+| Command | What it does |
+|---|---|
+| `onboard [--auto] [--restart]` | the 20-interaction Octalysis first session |
+| `demo` | run a sample stream of moves through the loop |
+| `wake '{"id":"x","kind":"tweak"}'` | wake on a single event |
+| `heartbeat` | one viability sweep |
+| `run [ms] [maxTicks]` | the heartbeat daemon |
+| `icp ["positioning"]` | ask the ICP-NPC (pains + resonance) |
+| `resonance ["positioning"]` | the ICP gradient — pains + real cosine resonance (NIM) |
+| `coderecall "<query>" [--project <path>]` | structural code-recall (CodeGraph lane) |
+| `state` | dump the current world-state |
 
-It worked because the contracts and gates did the coordination work, not heroic manual oversight.
+---
 
-## Documentation That Serves the Product
+## Roadmap
 
-The docs are living and practical:
+| Milestone | Status |
+|---|---|
+| **M1 · Onboarding Loop** ([#9–#14](https://github.com/Sheshiyer/cambium/milestone/1)) | ✅ complete — `operator onboard`, held noesis frames, Octalysis panel |
+| **M2 · Cortex Search** ([#15–#19, #24](https://github.com/Sheshiyer/cambium/milestone/2)) | ✅ complete — semantic (sqlite/Vectorize) + structural (codegraph), Vectorize **live** |
+| **M3 · Multi-Tenancy** ([#20–#23](https://github.com/Sheshiyer/cambium/milestone/3)) | 🔜 next — one operator, many ventures (the cortex is already tenant-isolated) |
 
-- Organ pages are generated live from the actual source repos (always current)
-- Built-in drift detection keeps the documentation honest
-- Agent contracts and consumption notes are now part of the generated experience
+**Beyond M3** — the operator goes fully cloud-native on the same Cloudflare account that already hosts the cortex: the wake loop as a **Durable-Object agent** (persistent state + scheduled heartbeat), **DNS + Registrar** so the operator registers and configures domains for ventures it ships, **Email** delivery, and **Browser Rendering** for the Hands organ. Track it on the **[issues board](https://github.com/Sheshiyer/cambium/issues)**.
 
-The **Technical Reference** (linked above) is the best single product artifact for understanding what Cambium actually delivers and how to use it at any depth.
+---
 
-## Project Momentum
+## Documentation
 
-Early but the foundations that matter are already solid:
-- Explicit contracts and fail-closed execution
-- Living documentation with built-in quality guardrails
-- Real operator with NPC self-play and memory already in motion
-- First complete business tracer completed successfully
-
-## Get Started
-
-The fastest way to understand the product is to run the commands above and then open the Technical Reference.
-
-Everything else (deeper architecture, the mathematical model of self-sustaining growth, integration roadmaps) is available when you need it — linked from the technical reference and the conceptual docs.
+| Doc | What it covers |
+|---|---|
+| [INFINITE-GAME.md](./INFINITE-GAME.md) | the operator contract — wake loop, router, viability, NPCs, noesis |
+| [ONBOARDING-OCTALYSIS.md](./ONBOARDING-OCTALYSIS.md) | the 20-interaction first session, drive by drive |
+| [HOMEOSTASIS.md](./HOMEOSTASIS.md) | the math — Banach contraction, viability kernel, why-handler |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | the organ constellation + composition layer |
+| [BUSINESS-MODEL.md](./BUSINESS-MODEL.md) | free build, subscription taste + memory |
+| [INTEGRATION.md](./INTEGRATION.md) | how organs and agents wire together |
+| [Technical Reference](./docs/cambium-composition-technical-reference.html) | the canonical product + agent-consumption guide |
 
 ---
 

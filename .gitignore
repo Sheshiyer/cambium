@@ -7,3 +7,4 @@ cortex/
 
 # the operator's event-sourced world-state (runtime; the replay log is deviations.jsonl)
 .operator/
+.wrangler/
