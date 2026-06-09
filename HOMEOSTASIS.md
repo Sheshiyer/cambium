@@ -163,8 +163,9 @@ stage through it:
   (the operator's redirect; later, a cortex-recognised repeated attractor).
 - **resolve** (`resolveDeviation`) — error → **reroll** toward x*; intent → **absorb** Δ into x* and the
   contract (carrying the rationale) so it never reads as drift again.
-- **record** (`recordDeviation`) — every deviation is appended to `deviations.jsonl` — the **cortex-write
-  STUB**; **I3** swaps in the real NIM Worker so the learning is shared across organs and scales.
+- **record** (`recordDeviation`) — every deviation is written via **`cortex.writeDeviation`** (the unified
+  cortex interface, `bin/lib/cortex.mjs`) — a local transport (`deviations.jsonl`) today; the real NIM
+  Worker (**I3**) swaps in as a transport so the learning is shared across organs and scales.
 
 **The interactive "ask why" is the orchestration layer.** A CLI can't ask the operator; so when a run
 surfaces a drift, the agent driving it calls `AskUserQuestion` using `buildWhyPrompt(deviation)`
