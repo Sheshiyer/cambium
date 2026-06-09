@@ -42,7 +42,7 @@ export async function wakeAsync(
   let recall: Recall | undefined;
   if (opts.store?.ready() && (lane === 'meso' || lane === 'macro')) {
     const [qv] = await e.embed([situationText(event, w0)]);
-    recall = buildRecall(opts.store.search(qv, opts.recallK ?? 5, { tenant: w0.tenant }));
+    recall = buildRecall(await opts.store.search(qv, opts.recallK ?? 5, { tenant: w0.tenant }));
   }
 
   // meso · resolve the real ICP gradient + the Founder intent

@@ -62,6 +62,6 @@ export async function rememberWake(
     },
     ts,
   };
-  store.upsert(record);
+  await store.upsert(record);
   return record;
 }

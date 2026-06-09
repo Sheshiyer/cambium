@@ -39,13 +39,15 @@ export interface SearchOpts {
  * `init()` runs at operator boot; `ready()` is the fail-closed health gate (mirrors CodeGraph's
  * "not initialized" — never silently return empty on a dead store). `search` is kNN, desc by cosine.
  */
+// Methods return `T | Promise<T>` so ONE seam fits both transports: node:sqlite (B2) is sync,
+// Cloudflare Vectorize (B3) is async (HTTP). Callers `await` — a no-op on the sync local store.
 export interface CortexStore {
-  init(): void;                                                  // open/create the store (idempotent)
-  ready(): boolean;                                              // health check — false ⇒ fail closed
-  upsert(record: MemoryRecord): void;                            // write/replace by id
-  search(vector: number[], k?: number, opts?: SearchOpts): ScoredRecord[];  // kNN, desc by cosine
-  count(opts?: SearchOpts): number;
-  close(): void;
+  init(): void | Promise<void>;                                  // open/create the store (idempotent)
+  ready(): boolean;                                              // health check — false ⇒ fail closed (sync)
+  upsert(record: MemoryRecord): void | Promise<void>;            // write/replace by id
+  search(vector: number[], k?: number, opts?: SearchOpts): ScoredRecord[] | Promise<ScoredRecord[]>;  // kNN, desc cosine
+  count(opts?: SearchOpts): number | Promise<number>;
+  close(): void | Promise<void>;
 }
 
 /** Deterministic ordering: higher score first, then lexicographic id (stable across runs/engines). */

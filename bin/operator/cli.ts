@@ -22,6 +22,7 @@ import { resolveIcp, ensureSetpoint } from './resonance.ts';
 import { wakeAsync } from './orchestrate.ts';
 import { runOnboard } from './onboarding/run.ts';
 import { sqliteCortex } from './cortex-sqlite.ts';
+import { vectorizeCortex } from './vectorize-cortex.ts';
 import type { WorldState, GameEvent, Decision } from './types.ts';
 import type { CortexStore } from './cortex-memory.ts';
 import { defaultCortex } from '../lib/cortex.mjs';
@@ -33,8 +34,14 @@ const cortex = defaultCortex(ROOT);
 const record = (l: string) => cortex.writeDeviation(l);
 const embedder = makeEmbedder({ root: ROOT });           // real NIM if NVIDIA_API_KEY, else stub
 let _cortexStore: CortexStore | null = null;
-function cortexStore(): CortexStore {                     // the cross-run memory (node:sqlite · B2), lazy
-  if (!_cortexStore) { _cortexStore = sqliteCortex({ path: join(STATE_DIR, 'cortex.db') }); _cortexStore.init(); }
+async function cortexStore(): Promise<CortexStore> {     // node:sqlite (B2) local · Vectorize (B3) prod, lazy
+  if (_cortexStore) return _cortexStore;
+  if (process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID) {
+    try { const v = vectorizeCortex(); await v.init(); _cortexStore = v; return v; }       // production
+    catch (e) { console.error(`cortex: Vectorize unavailable (${(e as Error).message}) → node:sqlite fallback`); }
+  }
+  _cortexStore = sqliteCortex({ path: join(STATE_DIR, 'cortex.db') });
+  await _cortexStore.init();
   return _cortexStore;
 }
 
@@ -53,7 +60,7 @@ function saveWorld(w: WorldState): void {
   writeFileSync(statePath(w.tenant), JSON.stringify(w, null, 2));
 }
 async function runEvent(tenant: string, event: GameEvent): Promise<Decision> {
-  const { world, decision } = await wakeAsync(loadWorld(tenant), event, { record, embedder, store: cortexStore() });
+  const { world, decision } = await wakeAsync(loadWorld(tenant), event, { record, embedder, store: await cortexStore() });
   saveWorld(world);
   return decision;
 }
