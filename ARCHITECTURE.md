@@ -39,7 +39,8 @@ pipeline executable-as-a-plan:
 and free/paid tier, with the cortex feeding all four. It **plans + validates** the composition; it does
 not execute the organs end-to-end yet (that is **I2** — see [INTEGRATION.md](./INTEGRATION.md)). The
 composition layer governs not only stage order but also the **canonical variable-contract vocabulary**
-for the seeded variables with downstream consequences (`brand_system`, `copy_slots`, `visual_system`,
+for the seeded variables with downstream consequences (`brand_system`, `copy_system` with its
+`copy_slots` map, `visual_system`,
 `asset_plan`, `section_plan`, `interaction_plan`, `acceptance_checks`) that downstream wiring will
 preserve and enforce in later tasks.
 

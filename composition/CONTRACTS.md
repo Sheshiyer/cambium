@@ -66,8 +66,9 @@ not invent critical decisions ad hoc.
 - **If required fields are missing**: treat the hand-off as contract drift to repair; downstream stages
   should not infer the missing brand core from prose alone.
 
-### `copy_system` (`copy_slots`)
-- **Variables**: a `copy_slots` map for reusable messaging surfaces (`hero_headline`, `hero_subhead`,
+### `copy_system`
+- **Variables**: a top-level `copy_system` group containing a `copy_slots` map for reusable messaging
+  surfaces (`hero_headline`, `hero_subhead`,
   `cta_primary`, `cta_secondary`, proof points, offer text, and channel-specific variants) plus shared tone
   notes.
 - **Owned by**: `genesis` seeds it; `ops` may extend it with approved campaign variants.
