@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambium — The Wake Loop · Flowchart</title>
+<style>
+  :root{--bg:#0a0e1a;--panel2:#0e1422;--ink:#e7eaf3;--muted:#8a93a8;--blue:#6366f1;--teal:#2dd4bf;
+    --orange:#F59E0B;--green:#48bb78;--red:#ef4444;--line:#23304d}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 70% -10%,#16203a 0%,var(--bg) 60%);color:var(--ink);
+    max-width:1120px;margin:0 auto;padding:0 22px 80px;line-height:1.55}
+  h1{font-size:31px;letter-spacing:-.02em;margin:0 0 4px}
+  .hero{margin:36px 0 14px;padding:28px;border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(135deg,rgba(99,102,241,.14),rgba(45,212,191,.08))}
+  .kicker{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+  .lede{font-size:16px;color:#cfd5e6;max-width:880px}.lede b{color:#fff}
+  figure{margin:14px 0;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
+  svg{max-width:100%;height:auto;display:block;margin:0 auto}
+  figcaption{color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
+  .fl{font-family:ui-sans-serif,system-ui;font-size:12.5px;font-weight:600;fill:#fff}
+  .fls{font-family:"Fira Code",monospace;font-size:10px;fill:#aeb6cc}
+  .el{font-family:"Fira Code",monospace;font-size:10.5px;fill:#9aa3ba}
+  .lane{font-family:"Fira Code",monospace;font-size:11px;letter-spacing:.08em}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin:14px 2px 0;font-size:12.5px;color:var(--muted);justify-content:center}
+  .legend i{display:inline-block;width:24px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1px solid #2a3658}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="kicker">Cambium · the operator</div>
+  <h1>The Wake Loop — one move in the infinite game</h1>
+  <p class="lede">Event-driven: the operator is <b>dormant</b> until an interaction arrives, then runs <b>one tick</b> — ingest → route on the micro/meso/macro Venn → act → <b>viability check</b> → learn → persist → back to dormant. Every move is logged, so the venture's whole life is <b>deterministically replayable</b>. The game never ends; this is one move.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 1040 1120" role="img" aria-label="The wake loop decision flowchart">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7c89a8"/></marker>
+  </defs>
+
+  <!-- lane backgrounds -->
+  <rect x="18"  y="262" width="328" height="450" rx="12" fill="rgba(245,158,11,.05)" stroke="#3a3322"/>
+  <rect x="352" y="262" width="352" height="450" rx="12" fill="rgba(45,212,191,.05)" stroke="#1c3a38"/>
+  <rect x="710" y="262" width="312" height="450" rx="12" fill="rgba(99,102,241,.06)" stroke="#2a3360"/>
+  <text x="40"  y="286" class="lane" fill="#F59E0B">MICRO · fast · auto</text>
+  <text x="374" y="286" class="lane" fill="#2dd4bf">MESO · reactive</text>
+  <text x="732" y="286" class="lane" fill="#a5b4fc">MACRO · slow · gated</text>
+
+  <!-- START -->
+  <rect x="410" y="23" width="220" height="46" rx="23" fill="#163021" stroke="#48bb78" stroke-width="2"/>
+  <text x="520" y="51" text-anchor="middle" class="fl">● WAKE — an event arrives</text>
+  <line x1="520" y1="69" x2="520" y2="99" stroke="#7c89a8" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- INGEST -->
+  <rect x="388" y="101" width="264" height="50" rx="9" fill="#10182b" stroke="#64748b"/>
+  <text x="520" y="122" text-anchor="middle" class="fl">1 · INGEST</text>
+  <text x="520" y="140" text-anchor="middle" class="fls">parse · embed → cortex · upsert world-state</text>
+  <line x1="520" y1="151" x2="520" y2="174" stroke="#7c89a8" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- ROUTE diamond -->
+  <polygon points="520,176 596,216 520,256 444,216" fill="#10182b" stroke="#6366f1" stroke-width="1.8"/>
+  <text x="520" y="212" text-anchor="middle" class="fl">2 · ROUTE</text>
+  <text x="520" y="228" text-anchor="middle" class="fls">which class?</text>
+
+  <!-- route arrows -->
+  <path d="M444,216 L181,216 L181,316" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="300" y="208" class="el" fill="#F59E0B">micro</text>
+  <path d="M520,256 L527,316" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="534" y="290" class="el" fill="#2dd4bf">meso</text>
+  <path d="M596,216 L866,216 L866,316" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="720" y="208" class="el" fill="#a5b4fc">macro</text>
+
+  <!-- MICRO -->
+  <rect x="33" y="320" width="296" height="56" rx="9" fill="#10182b" stroke="#F59E0B"/>
+  <text x="181" y="343" text-anchor="middle" class="fl">apply tactical correction</text>
+  <text x="181" y="361" text-anchor="middle" class="fls">on-mission · reversible · no setpoint move</text>
+  <path d="M181,376 L181,704" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- MESO -->
+  <rect x="371" y="318" width="312" height="54" rx="9" fill="#10182b" stroke="#2dd4bf"/>
+  <text x="527" y="340" text-anchor="middle" class="fl">run ICP-NPC + Founder-NPC</text>
+  <text x="527" y="358" text-anchor="middle" class="fls">→ pain-vectors · resonance direction g</text>
+  <line x1="527" y1="372" x2="527" y2="400" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <!-- error/intent diamond -->
+  <polygon points="527,402 593,440 527,478 461,440" fill="#10182b" stroke="#2dd4bf" stroke-width="1.6"/>
+  <text x="527" y="445" text-anchor="middle" class="fl">error or intent?</text>
+  <!-- error -> reroll -->
+  <path d="M461,440 C405,462 430,492 430,512" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="398" y="455" class="el">error</text>
+  <rect x="350" y="514" width="160" height="52" rx="9" fill="#10182b" stroke="#7c89a8"/>
+  <text x="430" y="536" text-anchor="middle" class="fl" font-size="11.5">reroll toward same x*</text>
+  <text x="430" y="553" text-anchor="middle" class="fls">no setpoint move</text>
+  <path d="M430,566 L430,704" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <!-- intent -> evidence diamond -->
+  <path d="M593,440 C648,460 615,486 615,506" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="624" y="468" class="el">intent</text>
+  <polygon points="615,506 673,540 615,574 557,540" fill="#10182b" stroke="#2dd4bf" stroke-width="1.6"/>
+  <text x="615" y="544" text-anchor="middle" class="fl" font-size="11">real evidence?</text>
+  <!-- evidence no -> hold -->
+  <path d="M587,560 C560,585 560,592 560,608" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="540" y="595" class="el">no</text>
+  <rect x="475" y="610" width="172" height="50" rx="9" fill="#10182b" stroke="#7c89a8"/>
+  <text x="561" y="632" text-anchor="middle" class="fl" font-size="11.5">hold · escalate</text>
+  <text x="561" y="649" text-anchor="middle" class="fls">to the real founder</text>
+  <path d="M561,660 L561,704" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- MACRO -->
+  <rect x="716" y="318" width="300" height="54" rx="9" fill="#10182b" stroke="#6366f1"/>
+  <text x="866" y="340" text-anchor="middle" class="fl">macro intent</text>
+  <text x="866" y="358" text-anchor="middle" class="fls">direct event · or meso-approved proposal</text>
+  <!-- evidence yes -> into macro (cross-lane) -->
+  <path d="M673,540 C705,512 700,420 716,372" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#a)"/>
+  <text x="690" y="430" class="el" fill="#2dd4bf">yes · propose</text>
+  <line x1="866" y1="372" x2="866" y2="417" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="716" y="419" width="300" height="52" rx="9" fill="#10182b" stroke="#6366f1"/>
+  <text x="866" y="440" text-anchor="middle" class="fl">x* += α·g  (clamp to trust-region)</text>
+  <text x="866" y="458" text-anchor="middle" class="fls">update mission / goal</text>
+  <line x1="866" y1="471" x2="866" y2="503" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <!-- GATE -->
+  <polygon points="866,503 940,545 866,587 792,545" fill="#10182b" stroke="#F59E0B" stroke-width="1.8"/>
+  <text x="866" y="540" text-anchor="middle" class="fl" font-size="11">GATE</text>
+  <text x="866" y="556" text-anchor="middle" class="fls">approved+viable+evidence?</text>
+  <!-- gate no -> hold -->
+  <path d="M792,545 C752,560 775,594 775,614" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="742" y="560" class="el" fill="#ef4444">no</text>
+  <rect x="700" y="616" width="150" height="48" rx="9" fill="#241419" stroke="#ef4444"/>
+  <text x="775" y="645" text-anchor="middle" class="fl" font-size="11.5">HOLD — no spend</text>
+  <path d="M775,664 L775,704" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <!-- gate yes -> commit -->
+  <path d="M940,545 C980,560 955,594 955,614" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="966" y="560" class="el" fill="#48bb78">yes</text>
+  <rect x="880" y="616" width="150" height="48" rx="9" fill="#13251a" stroke="#48bb78"/>
+  <text x="955" y="638" text-anchor="middle" class="fl" font-size="11">move x* ·</text>
+  <text x="955" y="654" text-anchor="middle" class="fls">re-invoke finite organ</text>
+  <path d="M955,664 L955,704" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- MERGE BUS -->
+  <line x1="181" y1="706" x2="955" y2="706" stroke="#3a4a72" stroke-width="2"/>
+  <line x1="520" y1="706" x2="520" y2="730" stroke="#7c89a8" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- VIABILITY -->
+  <polygon points="520,730 606,772 520,814 434,772" fill="#10182b" stroke="#48bb78" stroke-width="1.8"/>
+  <text x="520" y="768" text-anchor="middle" class="fl" font-size="11.5">3 · VIABILITY</text>
+  <text x="520" y="784" text-anchor="middle" class="fls">all margins ≥ 0?</text>
+
+  <!-- viability no -> emergency -->
+  <path d="M434,772 L337,772" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="372" y="763" class="el" fill="#ef4444">no</text>
+  <rect x="45" y="743" width="292" height="58" rx="10" fill="#241419" stroke="#ef4444"/>
+  <text x="191" y="767" text-anchor="middle" class="fl" font-size="12">EMERGENCY</text>
+  <text x="191" y="785" text-anchor="middle" class="fls">defensive move into Viab(K) — overrides act</text>
+  <path d="M191,801 L191,884 L358,884" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- viability yes -> learn -->
+  <path d="M520,814 L520,857" fill="none" stroke="#7c89a8" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="528" y="840" class="el" fill="#48bb78">yes</text>
+
+  <!-- LEARN -->
+  <rect x="360" y="859" width="320" height="50" rx="9" fill="#10182b" stroke="#2dd4bf"/>
+  <text x="520" y="880" text-anchor="middle" class="fl">4 · LEARN</text>
+  <text x="520" y="898" text-anchor="middle" class="fls">carry resolution into cortex (cross-run)</text>
+  <line x1="520" y1="909" x2="520" y2="939" stroke="#7c89a8" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- PERSIST -->
+  <rect x="350" y="941" width="340" height="50" rx="9" fill="#10182b" stroke="#64748b"/>
+  <text x="520" y="962" text-anchor="middle" class="fl">5 · PERSIST</text>
+  <text x="520" y="980" text-anchor="middle" class="fls">append event+decision to replay log · checkpoint</text>
+  <line x1="520" y1="991" x2="520" y2="1023" stroke="#7c89a8" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <!-- DORMANT -->
+  <rect x="412" y="1025" width="216" height="46" rx="23" fill="#1a2030" stroke="#64748b" stroke-width="2"/>
+  <text x="520" y="1053" text-anchor="middle" class="fl">◦ DORMANT — sleep</text>
+
+  <!-- loop back -->
+  <path d="M628,1048 L1006,1048 L1006,46 L632,46" fill="none" stroke="#5b6b9a" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#a)"/>
+  <text x="1014" y="540" class="el" fill="#5b6b9a" transform="rotate(90 1014 540)">next event · the game never ends</text>
+</svg>
+<figcaption>Fig — One move. The three Venn classes (micro/meso/macro) flow to a merge bus, then a single <b>viability</b> gate that can override any planned act with an emergency move back into the keep-playing set. Setpoint moves are double-gated: <b>real evidence</b> (meso) <b>and</b> the fail-closed gate (macro).</figcaption>
+</figure>
+
+<div class="legend">
+  <span><i style="background:rgba(245,158,11,.18);border-color:#F59E0B"></i>micro lane</span>
+  <span><i style="background:rgba(45,212,191,.16);border-color:#2dd4bf"></i>meso lane</span>
+  <span><i style="background:rgba(99,102,241,.18);border-color:#6366f1"></i>macro lane</span>
+  <span><i style="background:#163021;border-color:#48bb78"></i>start / commit / viability</span>
+  <span><i style="background:#241419;border-color:#ef4444"></i>hold / emergency</span>
+</div>
+
+</body>
+</html>

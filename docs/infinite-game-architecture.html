@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambium — Infinite-Game Operator · Architecture</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --panel:#111728; --panel2:#0e1422; --ink:#e7eaf3; --muted:#8a93a8;
+    --blue:#6366f1; --quantum:#1A237E; --teal:#2dd4bf; --teal2:#00897B;
+    --orange:#F59E0B; --ignite:#F57C00; --green:#B8E986; --ok:#48bb78; --red:#ef4444;
+    --line:#23304d; --code:#0b1020;
+  }
+  *{box-sizing:border-box}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 70% -10%,#16203a 0%,var(--bg) 60%);
+    color:var(--ink);max-width:1180px;margin:0 auto;padding:0 22px 90px;line-height:1.55}
+  code,.mono{font-family:"Fira Code",ui-monospace,SFMono-Regular,Menlo,monospace}
+  h1{font-size:34px;letter-spacing:-.02em;margin:0 0 6px}
+  .hero{margin:38px 0 10px;padding:34px;border:1px solid var(--line);border-radius:18px;
+    background:linear-gradient(135deg,rgba(99,102,241,.16),rgba(45,212,191,.10));position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;inset:0;background:
+    radial-gradient(420px 200px at 90% 120%,rgba(245,124,0,.14),transparent 70%)}
+  .kicker{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal);margin-bottom:14px}
+  .lede{font-size:17px;color:#cfd5e6;max-width:880px}
+  .lede b{color:#fff}
+  h2{font-size:23px;margin:54px 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--teal);font-family:"Fira Code",monospace;font-size:15px;margin-right:10px}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:14.5px}
+  .section{margin:30px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);
+    color:var(--muted);margin:0 6px 6px 0}
+  .pill.t{color:var(--teal);border-color:rgba(45,212,191,.4)}
+  .pill.o{color:var(--orange);border-color:rgba(245,158,11,.4)}
+  .pill.g{color:var(--green);border-color:rgba(184,233,134,.4)}
+  .pill.b{color:#a5b4fc;border-color:rgba(99,102,241,.4)}
+  figure{margin:18px 0 6px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:18px}
+  figcaption{color:var(--muted);font-size:13px;margin-top:10px;text-align:center}
+  svg{max-width:100%;height:auto;display:block;margin:0 auto}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--teal);font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase}
+  td.k{color:#cfd5e6;font-weight:600;white-space:nowrap}
+  .must{border-left:3px solid var(--ok)}.mustnot{border-left:3px solid var(--red)}
+  .must li::marker{color:var(--ok)}.mustnot li::marker{color:var(--red)}
+  ul{margin:8px 0;padding-left:20px}li{margin:5px 0}
+  .eq{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+    font-family:"Fira Code",monospace;font-size:13px;color:#cfe3ff;overflow-x:auto;white-space:pre}
+  .tag{font-family:"Fira Code",monospace;font-size:11px;color:var(--muted)}
+  .lbl{font-family:"Fira Code",monospace;font-size:11.5px;fill:#cdd4e6}
+  .lbl-s{font-family:"Fira Code",monospace;font-size:10px;fill:#9aa3ba}
+  .lbl-t{font-family:ui-sans-serif,system-ui;font-size:13px;font-weight:600;fill:#fff}
+  .note{color:var(--muted);font-size:13.5px;margin-top:8px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 0;font-size:12.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  hr{border:0;border-top:1px solid var(--line);margin:46px 0}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="kicker">Cambium · the company operator</div>
+  <h1>The Infinite-Game Operator</h1>
+  <p class="lede">A business is an <b>infinite game</b> — no final whistle, the rules mutate, the only way to lose is to stop being able to play. Cambium's organs are correct as <b>finite-game players</b> (mint a brand, build a site — they should end). What was missing is the <b>operator above them</b>: it never terminates, keeps the venture inside the <b>viability kernel</b>, lets the brand-DNA setpoint <b>move</b> (allostasis), <b>co-evolves</b> strategy against a moving market, and optimizes the <b>vision→mission→goal</b> cascade so <b>revenue &amp; growth fall out downstream</b> — fuel, never finish line.</p>
+  <div style="margin-top:16px">
+    <span class="pill t">viability theory</span><span class="pill t">allostasis</span><span class="pill b">evolutionary co-evolution</span>
+    <span class="pill o">fail-closed gate</span><span class="pill g">solvency = a bound</span><span class="pill">event-sourced · replayable</span>
+  </div>
+</div>
+
+<!-- ============ BUSINESS CONTEXT ============ -->
+<h2><span class="n">01</span>Business context</h2>
+<p class="sub">What the operator is for, who it serves, and how we know it's working.</p>
+<div class="grid g4 section">
+  <div class="card"><div class="tag">OBJECTIVE</div><p>Keep a venture <b>alive and advancing</b> indefinitely — perpetuate the game, don't win-and-stop.</p></div>
+  <div class="card"><div class="tag">USERS</div><p>The <b>founder</b> (operating will) and, downstream, every <b>customer</b> the venture serves — both modelled as players.</p></div>
+  <div class="card"><div class="tag">VALUE</div><p>One meta-player that <b>carries the evolving vision</b>, re-plays finite games as the world moves, and never lets the venture drift out of viability.</p></div>
+  <div class="card"><div class="tag">METRIC</div><p><b>Time-in-game / viability margin</b> — not revenue. Revenue &amp; growth are <i>regulated downstream</i>; solvency is a <i>bound</i>.</p></div>
+</div>
+<div class="card section">
+  <b style="color:#fff">The diagnosis</b> — Cambium today is a <b>compiler</b>: <code>Φ = Φ_ops ∘ Φ_build ∘ Φ_taste ∘ Φ_genesis</code> runs <b>once</b>, left→right; each organ fires, emits a frozen artifact, and goes <b>dormant</b>. Feedback edges are drawn but cannot fire — you can't write into a dormant organ. The fix is not to make organs always-on; it is to add the <b>infinite layer</b> that re-invokes them and carries the evolving state.
+</div>
+
+<!-- ============ TWO-LAYER NESTING ============ -->
+<h2><span class="n">02</span>The structural move — finite games nested in an infinite one</h2>
+<p class="sub">Organs stay finite-game players (run → converge → dormant ✅). The operator is the unbounded layer above.</p>
+<figure>
+<svg viewBox="0 0 1000 470" role="img" aria-label="Finite organs nested inside the infinite operator">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7c89a8"/></marker>
+    <marker id="art" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2dd4bf"/></marker>
+    <marker id="aro" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#F59E0B"/></marker>
+  </defs>
+  <!-- infinite container -->
+  <rect x="20" y="20" width="960" height="430" rx="20" fill="rgba(99,102,241,.07)" stroke="#3b4a78" stroke-width="1.5"/>
+  <text x="44" y="52" class="lbl-t" font-size="15">∞  INFINITE GAME — the operator (never terminates)</text>
+  <text x="44" y="72" class="lbl-s">holds the evolving vision/mission/goal · watches viability · re-invokes finite games · carries learning</text>
+
+  <!-- macro band -->
+  <rect x="44" y="92" width="912" height="58" rx="10" fill="rgba(99,102,241,.12)" stroke="#4858a0"/>
+  <text x="60" y="118" class="lbl-t" font-size="13">MACRO ▸ vision → mission → goal (allostatic setpoint, trust-region α)</text>
+  <text x="60" y="138" class="lbl-s">slow · near-invariant vision is the anchor · moves x* only on real evidence (gated)</text>
+
+  <!-- meso band -->
+  <rect x="44" y="162" width="912" height="56" rx="10" fill="rgba(45,212,191,.10)" stroke="#1f7d72"/>
+  <text x="60" y="186" class="lbl-t" font-size="13">MESO ▸ co-evolution · read real + simulated players · error-vs-intent</text>
+  <text x="60" y="206" class="lbl-s">ICP-NPC → pain-vectors + resonance direction g · Founder-NPC → intent oracle · reality commits</text>
+
+  <!-- finite organs row -->
+  <text x="60" y="250" class="lbl-s">MICRO ▸ on-mission tactical moves, fast · the finite-game players below run → converge → dormant ✅</text>
+  <g>
+    <rect x="60" y="262" width="200" height="86" rx="10" fill="#16203a" stroke="#2dd4bf"/>
+    <text x="160" y="292" text-anchor="middle" class="lbl-t">🧬 genesis</text>
+    <text x="160" y="312" text-anchor="middle" class="lbl-s">meristem</text>
+    <text x="160" y="330" text-anchor="middle" class="lbl-s">idea → brand-DNA</text>
+
+    <rect x="284" y="262" width="200" height="86" rx="10" fill="#16203a" stroke="#2dd4bf"/>
+    <text x="384" y="292" text-anchor="middle" class="lbl-t">🎨 taste</text>
+    <text x="384" y="312" text-anchor="middle" class="lbl-s">cortex / conscience</text>
+    <text x="384" y="330" text-anchor="middle" class="lbl-s">on-brand re-projection</text>
+
+    <rect x="508" y="262" width="200" height="86" rx="10" fill="#16203a" stroke="#2dd4bf"/>
+    <text x="608" y="292" text-anchor="middle" class="lbl-t">🛠️ hands</text>
+    <text x="608" y="312" text-anchor="middle" class="lbl-s">40 skill-clusters</text>
+    <text x="608" y="330" text-anchor="middle" class="lbl-s">build · maintain · ops</text>
+
+    <rect x="732" y="262" width="200" height="86" rx="10" fill="#16203a" stroke="#2dd4bf"/>
+    <text x="832" y="292" text-anchor="middle" class="lbl-t">👔 will</text>
+    <text x="832" y="312" text-anchor="middle" class="lbl-s">snow-gloves-os</text>
+    <text x="832" y="330" text-anchor="middle" class="lbl-s">C-suite · GTM</text>
+  </g>
+  <text x="496" y="372" text-anchor="middle" class="lbl-s">▲ the operator re-invokes these finite games as the game evolves; their learning flows back up</text>
+
+  <!-- downstream fuel -->
+  <rect x="60" y="388" width="872" height="44" rx="10" fill="rgba(184,233,134,.08)" stroke="#5e7d3e"/>
+  <text x="76" y="415" class="lbl"><tspan fill="#B8E986" font-weight="700">REVENUE / GROWTH</tspan>  — regulated DOWNSTREAM output (fuel) · solvency is a viability BOUND, not the objective</text>
+</svg>
+<figcaption>Fig 1 — Finite organs (run→converge→dormant) nested inside the never-terminating infinite operator. Control flows down (macro→meso→micro); learning &amp; signal flow up.</figcaption>
+</figure>
+
+<!-- ============ OPERATOR ANATOMY / SYSTEM ARCHITECTURE LAYERS ============ -->
+<h2><span class="n">03</span>System architecture — the operator's anatomy</h2>
+<p class="sub">A single long-lived process (grown from <code>bin/compose.mjs</code>), layered.</p>
+<div class="grid g2 section">
+  <div class="card">
+    <div class="tag" style="color:var(--teal)">SENSE &amp; STATE</div>
+    <p class="k">World-state <span class="tag">(typed, event-sourced)</span></p>
+    <p class="note">Authoritative, mutable, replayable venture state — entities (Brand · Artifacts · Goals · NPCs · Business) with typed components. The embedding is <i>one derived field</i> on it, not the state.</p>
+    <p class="k" style="margin-top:12px">Cortex bridge <span class="tag">(NIM 1024-D)</span></p>
+    <p class="note">Projects artifacts/positions into <code>x ∈ X</code>; answers <code>d(x, x*)</code>. The metric substrate — not the world.</p>
+  </div>
+  <div class="card">
+    <div class="tag" style="color:var(--blue)">DECIDE</div>
+    <p class="k">Router <span class="tag">(micro/meso/macro)</span></p>
+    <p class="note">Classifies each event on the Venn → (subsystem, tick-rate, gate).</p>
+    <p class="k" style="margin-top:12px">Cascade controller</p>
+    <p class="note">Regulates vision→mission→goal; revenue/growth are its downstream outputs; solvency a bound.</p>
+    <p class="k" style="margin-top:12px">NPC sims <span class="tag">(Founder · ICP)</span></p>
+    <p class="note">Self-play exploration → pain-vectors, resonance direction, error-vs-intent. Propose; reality commits.</p>
+  </div>
+  <div class="card">
+    <div class="tag" style="color:var(--green)">STABILISE</div>
+    <p class="k">Viability monitor</p>
+    <p class="note">Approximate <code>Viab(K)</code>: hard bounds (solvency, mission-coherence) + a learned boundary in NIM. Margin-collapse pre-empts everything.</p>
+    <p class="k" style="margin-top:12px">Fail-closed gate</p>
+    <p class="note">No irreversible/paid move (a finite run, a setpoint move) off the approved, viable, evidenced trajectory.</p>
+  </div>
+  <div class="card">
+    <div class="tag" style="color:var(--orange)">ACT &amp; REMEMBER</div>
+    <p class="k">Organ invoker</p>
+    <p class="note">Calls the finite-game organs <i>as services</i> (Python/Node/Workers) — never ports them in-process.</p>
+    <p class="k" style="margin-top:12px">Replay log</p>
+    <p class="note"><code>deviations.jsonl</code> → unified cortex transport. Every event + decision logged → full deterministic replay.</p>
+  </div>
+</div>
+
+<!-- ============ CASCADE ============ -->
+<h2><span class="n">04</span>The cascade — optimize the source, regulate the output</h2>
+<p class="sub">Control flows down; signal flows up. The metric is never the target (Goodhart-safe).</p>
+<figure>
+<svg viewBox="0 0 920 360" role="img" aria-label="Vision to mission to goal to revenue cascade">
+  <defs>
+    <marker id="dn" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#6366f1"/></marker>
+    <marker id="up" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2dd4bf"/></marker>
+  </defs>
+  <!-- tiers -->
+  <rect x="250" y="20"  width="420" height="58" rx="10" fill="rgba(99,102,241,.18)" stroke="#6366f1"/>
+  <text x="460" y="45" text-anchor="middle" class="lbl-t">VISION — the Just Cause (near-invariant anchor)</text>
+  <text x="460" y="64" text-anchor="middle" class="lbl-s">changes on the order of years · the slow variable that keeps evolution coherent</text>
+
+  <rect x="220" y="98" width="480" height="56" rx="10" fill="rgba(99,102,241,.13)" stroke="#5160b0"/>
+  <text x="460" y="122" text-anchor="middle" class="lbl-t">MISSION — how we pursue it now (allostatic)</text>
+  <text x="460" y="141" text-anchor="middle" class="lbl-s">evolves quarter-to-quarter · setpoint moves within trust-region α</text>
+
+  <rect x="190" y="174" width="540" height="54" rx="10" fill="rgba(45,212,191,.12)" stroke="#1f7d72"/>
+  <text x="460" y="197" text-anchor="middle" class="lbl-t">GOALS — current finite games, nested (come &amp; go)</text>
+  <text x="460" y="216" text-anchor="middle" class="lbl-s">weeks–months · each is a finite game the organs play</text>
+
+  <rect x="160" y="248" width="600" height="58" rx="10" fill="rgba(184,233,134,.10)" stroke="#5e7d3e"/>
+  <text x="460" y="272" text-anchor="middle" class="lbl-t" fill="#B8E986">REVENUE / GROWTH — regulated downstream output (the fuel)</text>
+  <text x="460" y="291" text-anchor="middle" class="lbl-s">NEVER the optimization target · solvency is a viability BOUND (cross it = out of the game)</text>
+
+  <!-- control down (left) -->
+  <path d="M250,49 C150,60 150,120 220,126" fill="none" stroke="#6366f1" stroke-width="2" marker-end="url(#dn)"/>
+  <path d="M220,126 C120,140 120,196 190,201" fill="none" stroke="#6366f1" stroke-width="2" marker-end="url(#dn)"/>
+  <path d="M190,201 C95,218 95,272 160,277" fill="none" stroke="#6366f1" stroke-width="2" marker-end="url(#dn)"/>
+  <text x="70" y="170" class="lbl-s" fill="#a5b4fc" transform="rotate(-90 70 170)">CONTROL flows down</text>
+
+  <!-- signal up (right) -->
+  <path d="M760,277 C860,260 860,206 730,201" fill="none" stroke="#2dd4bf" stroke-width="2" marker-end="url(#up)"/>
+  <path d="M730,201 C840,184 840,130 700,126" fill="none" stroke="#2dd4bf" stroke-width="2" marker-end="url(#up)"/>
+  <path d="M700,126 C820,108 820,60 670,49"  fill="none" stroke="#2dd4bf" stroke-width="2" marker-end="url(#up)"/>
+  <text x="852" y="172" class="lbl-s" fill="#2dd4bf" transform="rotate(90 852 172)">SIGNAL flows up</text>
+
+  <text x="460" y="336" text-anchor="middle" class="lbl-s">Optimize mission-coherence (the source) → the metrics follow. Optimize the metric → you game it &amp; erode the game.</text>
+</svg>
+<figcaption>Fig 2 — The cascade. The vision regulates the mission regulates goals regulates tactics; real-world signal (adoption, revenue) flows back up to test viability — never to become the objective.</figcaption>
+</figure>
+
+<!-- ============ MICRO/MESO/MACRO VENN ============ -->
+<h2><span class="n">05</span>micro / meso / macro — the interaction router</h2>
+<p class="sub">Every event gets a position on the Venn; its position decides subsystem, tick-rate, and gate.</p>
+<figure>
+<svg viewBox="0 0 760 470" role="img" aria-label="Micro meso macro Venn diagram">
+  <circle cx="300" cy="190" r="170" fill="rgba(99,102,241,.16)" stroke="#6366f1" stroke-width="1.5"/>
+  <circle cx="460" cy="190" r="170" fill="rgba(45,212,191,.14)" stroke="#2dd4bf" stroke-width="1.5"/>
+  <circle cx="380" cy="320" r="170" fill="rgba(245,158,11,.13)" stroke="#F59E0B" stroke-width="1.5"/>
+
+  <text x="225" y="120" text-anchor="middle" class="lbl-t" fill="#a5b4fc">MACRO</text>
+  <text x="225" y="140" text-anchor="middle" class="lbl-s">goals · vision/mission</text>
+  <text x="225" y="156" text-anchor="middle" class="lbl-s">moves x* · slow · gated</text>
+
+  <text x="540" y="120" text-anchor="middle" class="lbl-t" fill="#2dd4bf">MESO</text>
+  <text x="540" y="140" text-anchor="middle" class="lbl-s">situational · psychology</text>
+  <text x="540" y="156" text-anchor="middle" class="lbl-s">co-evolution · reactive</text>
+
+  <text x="380" y="408" text-anchor="middle" class="lbl-t" fill="#F59E0B">MICRO</text>
+  <text x="380" y="426" text-anchor="middle" class="lbl-s">fine-tune · fast · auto</text>
+
+  <!-- overlaps -->
+  <text x="380" y="150" text-anchor="middle" class="lbl-s" fill="#cdd4e6">goal reframed by</text>
+  <text x="380" y="164" text-anchor="middle" class="lbl-s" fill="#cdd4e6">human reality</text>
+  <text x="270" y="270" text-anchor="middle" class="lbl-s" fill="#cdd4e6">goal-aligned</text>
+  <text x="270" y="284" text-anchor="middle" class="lbl-s" fill="#cdd4e6">autopilot</text>
+  <text x="495" y="270" text-anchor="middle" class="lbl-s" fill="#cdd4e6">situational</text>
+  <text x="495" y="284" text-anchor="middle" class="lbl-s" fill="#cdd4e6">fine-tune</text>
+
+  <!-- center -->
+  <circle cx="380" cy="232" r="34" fill="rgba(245,124,0,.30)" stroke="#F57C00" stroke-width="1.5"/>
+  <text x="380" y="228" text-anchor="middle" class="lbl-s" fill="#fff" font-weight="700">CENTER</text>
+  <text x="380" y="243" text-anchor="middle" class="lbl-s" fill="#fff">highest leverage</text>
+</svg>
+<figcaption>Fig 3 — The value lives in the overlaps. The <b>center</b> — a psychology-driven signal that adjusts the artifact <i>and</i> moves the goal <i>and</i> teaches the operator — is the rarest, highest-leverage move. Meso is the soul: the bridge between rigid vision and mechanical tweaks.</figcaption>
+</figure>
+<div class="grid g3 section">
+  <div class="card"><span class="pill o">MICRO</span><p class="note"><b>Fine-tune / update.</b> Tactical, on-mission. No setpoint effect. <span class="tag">fast · auto · reversible</span></p></div>
+  <div class="card"><span class="pill t">MESO</span><p class="note"><b>Situational · psychology.</b> Co-evolution: read players, decide error-vs-intent, propose direction <code>g</code>. <span class="tag">event-driven · reactive</span></p></div>
+  <div class="card"><span class="pill b">MACRO</span><p class="note"><b>Vision/mission/goal.</b> Viability + Just-Cause regulation; <i>moves</i> x* (allostasis, trust-region). <span class="tag">slow · gated</span></p></div>
+</div>
+
+<!-- ============ THE MATH ============ -->
+<h2><span class="n">06</span>The physics — from convergence to <em>staying in the game</em></h2>
+<p class="sub">Banach is retained but demoted to finite-run physics. The infinite layer needs viability, not convergence.</p>
+<div class="grid g2 section">
+  <div class="card">
+    <div class="tag" style="color:var(--teal)">FINITE RUN (per organ) — Banach</div>
+    <div class="eq">d(xₙ, x*_run) ≤ Lⁿ · d(x₀, x*_run) → 0     (L = ∏ Lᵢ &lt; 1)</div>
+    <p class="note">Each run is a contraction toward a <b>fixed</b> setpoint — converge &amp; stop. Correct, but only <i>inside</i> a finite game. (HOMEOSTASIS.md.)</p>
+  </div>
+  <div class="card">
+    <div class="tag" style="color:var(--blue)">INFINITE GAME (operator) — Viability</div>
+    <div class="eq">Viab(K) = { s₀∈K : ∃ u(·) keeping s(t)∈K  ∀ t ≥ 0 }
+stay inside Viab(K); on its boundary, steer back in</div>
+    <p class="note">Winning = never leaving the keep-playing set. Computed by <b>approximation</b> (hard bounds + learned boundary), never exactly.</p>
+  </div>
+  <div class="card">
+    <div class="tag" style="color:var(--orange)">ALLOSTASIS — moving setpoint</div>
+    <div class="eq">x*(t+1) = x*(t) + α · g(t)
+  g = evidence-gated resonance direction
+  α = trust-region (hard cap / wake)</div>
+    <p class="note">Stability <i>through change</i>: predictively re-aim the setpoint to stay viable. Every move bounded &amp; evidence-gated.</p>
+  </div>
+  <div class="card">
+    <div class="tag" style="color:var(--green)">OBJECTIVE — keep playing</div>
+    <div class="eq">maximize  ∫ (viability margin) dt
+subject to  s(t) ∈ Viab(K),  solvency ≥ 0
+while  advancing the Just-Cause vector v_vision</div>
+    <p class="note">Not revenue, not <code>−d(x,x*)</code>. Co-evolution (Red Queen): vary → test against reality → reweight, forever.</p>
+  </div>
+</div>
+
+<!-- ============ WAKE LOOP (compact) ============ -->
+<h2><span class="n">07</span>The wake loop — one move</h2>
+<p class="sub">Event-driven: dormant → one tick → persist → dormant. See the dedicated flowchart for the full decision logic.</p>
+<figure>
+<svg viewBox="0 0 980 150" role="img" aria-label="Wake loop stages">
+  <defs><marker id="w" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#7c89a8"/></marker></defs>
+  <g font-family="Fira Code,monospace">
+  <rect x="10"  y="48" width="120" height="54" rx="9" fill="#16203a" stroke="#64748b"/><text x="70"  y="72" text-anchor="middle" class="lbl">dormant</text><text x="70" y="90" text-anchor="middle" class="lbl-s">event arrives</text>
+  <rect x="150" y="48" width="120" height="54" rx="9" fill="#16203a" stroke="#2dd4bf"/><text x="210" y="72" text-anchor="middle" class="lbl">1·INGEST</text><text x="210" y="90" text-anchor="middle" class="lbl-s">embed → upsert</text>
+  <rect x="290" y="48" width="120" height="54" rx="9" fill="#16203a" stroke="#6366f1"/><text x="350" y="72" text-anchor="middle" class="lbl">2·ROUTE</text><text x="350" y="90" text-anchor="middle" class="lbl-s">micro/meso/macro</text>
+  <rect x="430" y="48" width="120" height="54" rx="9" fill="#16203a" stroke="#F59E0B"/><text x="490" y="72" text-anchor="middle" class="lbl">3·ACT</text><text x="490" y="90" text-anchor="middle" class="lbl-s">tick (by class)</text>
+  <rect x="570" y="48" width="120" height="54" rx="9" fill="#16203a" stroke="#48bb78"/><text x="630" y="72" text-anchor="middle" class="lbl">4·VIABILITY</text><text x="630" y="90" text-anchor="middle" class="lbl-s">margins ≥ 0?</text>
+  <rect x="710" y="48" width="120" height="54" rx="9" fill="#16203a" stroke="#2dd4bf"/><text x="770" y="72" text-anchor="middle" class="lbl">5·LEARN</text><text x="770" y="90" text-anchor="middle" class="lbl-s">cross-run</text>
+  <rect x="850" y="48" width="120" height="54" rx="9" fill="#16203a" stroke="#64748b"/><text x="910" y="72" text-anchor="middle" class="lbl">6·PERSIST</text><text x="910" y="90" text-anchor="middle" class="lbl-s">→ dormant</text>
+  <path d="M130,75 L150,75" stroke="#7c89a8" marker-end="url(#w)"/><path d="M270,75 L290,75" stroke="#7c89a8" marker-end="url(#w)"/>
+  <path d="M410,75 L430,75" stroke="#7c89a8" marker-end="url(#w)"/><path d="M550,75 L570,75" stroke="#7c89a8" marker-end="url(#w)"/>
+  <path d="M690,75 L710,75" stroke="#7c89a8" marker-end="url(#w)"/><path d="M830,75 L850,75" stroke="#7c89a8" marker-end="url(#w)"/>
+  <path d="M910,102 C910,135 70,135 70,102" fill="none" stroke="#7c89a8" stroke-dasharray="4 4" marker-end="url(#w)"/>
+  </g>
+</svg>
+<figcaption>Fig 4 — The game never ends; each wake is one move. Every move is logged → the venture's whole life is deterministically replayable.</figcaption>
+</figure>
+
+<!-- ============ MAPPING ============ -->
+<h2><span class="n">08</span>Map — infinite-game object ⇄ Cambium artifact</h2>
+<div class="card section" style="padding:6px 22px">
+<table>
+<tr><th>Infinite-game object</th><th>Definition</th><th>Cambium artifact</th></tr>
+<tr><td class="k">Finite-run physics</td><td>converge to x*_run</td><td>HOMEOSTASIS.md <span class="tag">(scoped to a run)</span></td></tr>
+<tr><td class="k">Viability kernel Viab(K)</td><td>the keep-playing set</td><td><b>new</b>: viability monitor (approx)</td></tr>
+<tr><td class="k">Setpoint x* (allostatic)</td><td>moving brand-DNA / mission</td><td>genesis brand-spec made mutable + cascade</td></tr>
+<tr><td class="k">Trust-region α</td><td>cap on setpoint motion</td><td><b>new</b>: operator config</td></tr>
+<tr><td class="k">State space (X,d)</td><td>NIM 1024-D, cosine</td><td>cortex (taste-nim + DESIGN_MEMORY_WORKER)</td></tr>
+<tr><td class="k">World-state</td><td>typed, event-sourced</td><td><b>new</b>: operator store (embedding = one field)</td></tr>
+<tr><td class="k">Organs Φᵢ</td><td>finite-game players</td><td>registry.json + adapters.json (services)</td></tr>
+<tr><td class="k">Router (micro/meso/macro)</td><td>event classifier</td><td><b>new</b>: extends bin/compose.mjs</td></tr>
+<tr><td class="k">Meso / NPCs</td><td>self-play + intent oracle</td><td><b>new</b>: extends whyhandler.mjs (1-bit → 2 NPCs)</td></tr>
+<tr><td class="k">Fail-closed gate</td><td>safety + spend</td><td>gateStage (bin/lib/invoke.mjs)</td></tr>
+<tr><td class="k">Replay log</td><td>event sourcing</td><td>deviations.jsonl → unified cortex transport</td></tr>
+</table>
+</div>
+
+<!-- ============ INVARIANTS / CONTRACT ============ -->
+<h2><span class="n">09</span>The contract — invariants before any code</h2>
+<div class="grid g2 section">
+  <div class="card must">
+    <div class="tag" style="color:var(--ok)">THE OPERATOR MUST</div>
+    <ul>
+      <li>Never terminate (dormant between events, never "done").</li>
+      <li>Keep state inside (the approximation of) <code>Viab(K)</code>; margin-collapse pre-empts any planned act.</li>
+      <li>Hold the <b>vision as a near-invariant</b> anchor.</li>
+      <li>Optimize the cascade <i>source</i> (vision→mission→goal), never a downstream metric.</li>
+      <li>Gate every setpoint move &amp; paid finite-run on fail-closed <b>and on real evidence</b>.</li>
+      <li>Bound every setpoint move by a trust-region α.</li>
+      <li>Log every event + decision (full replay); carry learning across runs.</li>
+    </ul>
+  </div>
+  <div class="card mustnot">
+    <div class="tag" style="color:var(--red)">THE OPERATOR MUST NOT</div>
+    <ul>
+      <li>Rewrite organs into always-on systems (they stay finite-game services).</li>
+      <li>Commit a setpoint move on simulated (NPC) signal alone (anti-echo-chamber).</li>
+      <li>Optimize revenue/growth directly (Goodhart).</li>
+      <li>Converge to and rest at a fixed point (that is finite-game death).</li>
+      <li>Claim to compute the exact viability kernel (it approximates, and says so).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ RISKS ============ -->
+<h2><span class="n">10</span>Open questions (kept honest)</h2>
+<div class="grid g3 section">
+  <div class="card"><span class="pill">heartbeat</span><p class="note">Event-driven = blind while asleep. Need scheduled <b>probe events</b> (a timed viability sweep) or it's reactive-only.</p></div>
+  <div class="card"><span class="pill">venn partition</span><p class="note">If most real interactions sit in the center, the router under-routes. Test on ~20 real interactions first.</p></div>
+  <div class="card"><span class="pill">multi-tenancy</span><p class="note">One operator / many ventures — one world per tenant, shared cortex/learning. Topology open.</p></div>
+  <div class="card"><span class="pill">viability cliff</span><p class="note">A learned boundary can be wrong near a real cliff → hard conservative bounds (solvency) dominate.</p></div>
+  <div class="card"><span class="pill">incoherence drift</span><p class="note">Allostasis can wander the brand into nonsense → vision anchor + trust-region α.</p></div>
+  <div class="card"><span class="pill">intent ownership</span><p class="note">Founder-NPC vs the real founder — escalation policy at scale, open.</p></div>
+</div>
+
+<hr>
+<p class="note" style="text-align:center">Architecture contract · pre-code · companion to <code>ARCHITECTURE.md</code>, <code>HOMEOSTASIS.md</code> (finite-run physics) &amp; <code>INTEGRATION.md</code>. The operator is the next organ Cambium grows — the one that keeps all the others playing.</p>
+<div class="legend" style="justify-content:center;margin-top:14px">
+  <span><i style="background:#6366f1"></i>macro / control</span>
+  <span><i style="background:#2dd4bf"></i>meso / signal</span>
+  <span><i style="background:#F59E0B"></i>micro / act</span>
+  <span><i style="background:#48bb78"></i>viability</span>
+  <span><i style="background:#B8E986"></i>downstream fuel</span>
+</div>
+
+</body>
+</html>

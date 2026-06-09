@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambium — First Session · Octalysis Onboarding</title>
+<style>
+  :root{
+    --bg:#0a0e1a;--panel:#111728;--panel2:#0e1422;--ink:#e7eaf3;--muted:#8a93a8;
+    --blue:#6366f1;--teal:#2dd4bf;--orange:#F59E0B;--ignite:#F57C00;--green:#B8E986;
+    --ok:#48bb78;--red:#ef4444;--gold:#f5c451;--line:#23304d;--code:#0b1020;
+    --macro:#6366f1;--meso:#2dd4bf;--micro:#F59E0B;--cross:#8a93a8;
+  }
+  *{box-sizing:border-box}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 70% -10%,#16203a 0%,var(--bg) 60%);
+    color:var(--ink);max-width:1180px;margin:0 auto;padding:0 22px 90px;line-height:1.55}
+  code,.mono{font-family:"Fira Code",ui-monospace,Menlo,monospace}
+  h1{font-size:33px;letter-spacing:-.02em;margin:0 0 6px}
+  .hero{margin:38px 0 10px;padding:32px;border:1px solid var(--line);border-radius:18px;
+    background:linear-gradient(135deg,rgba(245,196,81,.14),rgba(99,102,241,.10) 55%,rgba(239,68,68,.10));position:relative;overflow:hidden}
+  .kicker{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+  .lede{font-size:16.5px;color:#cfd5e6;max-width:900px}.lede b{color:#fff}
+  h2{font-size:23px;margin:52px 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--gold);font-family:"Fira Code",monospace;font-size:15px;margin-right:10px}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:14.5px}
+  figure{margin:18px 0 6px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:18px}
+  figcaption{color:var(--muted);font-size:13px;margin-top:10px;text-align:center}
+  svg{max-width:100%;height:auto;display:block;margin:0 auto}
+  .oct-lbl{font-family:ui-sans-serif,system-ui;font-size:12.5px;font-weight:700;fill:#fff}
+  .oct-sub{font-family:"Fira Code",monospace;font-size:10px;fill:#aeb6cc}
+  .axis{font-family:"Fira Code",monospace;font-size:11px;letter-spacing:.12em}
+  .grid{display:grid;gap:14px}.g2{grid-template-columns:1.05fr .95fr}
+  @media(max-width:880px){.g2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td,th{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+  th{color:var(--gold);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+  td.cd{font-weight:700;white-space:nowrap}
+  .hat-w{color:var(--ok)}.hat-b{color:var(--red)}
+  /* journey */
+  .phase{margin:16px 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel2)}
+  .phase-h{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);
+    background:linear-gradient(90deg,rgba(99,102,241,.10),transparent)}
+  .phase-h .tag{font-family:"Fira Code",monospace;font-size:12px;color:var(--gold)}
+  .phase-h .nm{font-weight:700}.phase-h .jb{color:var(--muted);font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:12px;padding:16px}
+  .chip{position:relative;flex:1 1 175px;min-width:165px;background:var(--panel);border:1px solid var(--line);
+    border-left-width:4px;border-radius:11px;padding:11px 13px}
+  .chip[data-layer="macro"]{border-left-color:var(--macro)}
+  .chip[data-layer="meso"]{border-left-color:var(--meso)}
+  .chip[data-layer="micro"]{border-left-color:var(--micro)}
+  .chip[data-layer="cross"]{border-left-color:var(--cross)}
+  .chip .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+  .chip .num{font-family:"Fira Code",monospace;font-size:13px;color:#fff;background:#1b2440;border:1px solid var(--line);
+    border-radius:7px;padding:1px 7px;font-weight:700}
+  .chip .ly{font-family:"Fira Code",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  .chip[data-layer="macro"] .ly{color:var(--macro)} .chip[data-layer="meso"] .ly{color:var(--meso)}
+  .chip[data-layer="micro"] .ly{color:var(--micro)} .chip[data-layer="cross"] .ly{color:var(--cross)}
+  .chip .nm{font-weight:700;font-size:14px;margin:2px 0 6px}
+  .chip .ds{color:var(--muted);font-size:12px;line-height:1.4}
+  .chip .cds{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap}
+  .cd-dot{font-family:"Fira Code",monospace;font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid var(--line)}
+  .cd-dot.w{color:var(--ok);border-color:rgba(72,187,120,.4)}
+  .cd-dot.b{color:var(--red);border-color:rgba(239,68,68,.4)}
+  .cd-dot.n{color:var(--muted)}
+  .hatbar{height:14px;border-radius:8px;margin:10px 0 2px;
+    background:linear-gradient(90deg,#3aa564 0%,#48bb78 28%,#f5c451 42%,#F57C00 58%,#ef4444 70%,#48bb78 90%,#3aa564 100%)}
+  .hatbar-l{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:"Fira Code",monospace}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .note{color:var(--muted);font-size:13.5px}
+  hr{border:0;border-top:1px solid var(--line);margin:44px 0}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="kicker">Cambium · the first session</div>
+  <h1>The 20-interaction onboarding tutorial</h1>
+  <p class="lede">The operator is an <b>infinite game</b>; the founder is the <b>player</b>; every good game opens with a tutorial that <b>teaches the loop while it hooks.</b> These first 20 interactions are engineered against the <b>Octalysis</b> 8 core drives — leading <b>White Hat</b> (intrinsic, sustainable) and using <b>Black Hat</b> only where grounded in something real (the solvency bound, the live market, actual drift). Each step also teaches one piece of the <b>micro/meso/macro</b> loop and reveals one operator capability.</p>
+</div>
+
+<!-- ====== THE OCTAGON ====== -->
+<h2><span class="n">01</span>The Octalysis octagon — mapped to the operator</h2>
+<p class="sub">White Hat (top) = sustainable, intrinsic. Black Hat (bottom) = urgent, can burn out. Left Brain = extrinsic/logic; Right Brain = intrinsic/emotion.</p>
+<div class="grid g2">
+  <figure>
+  <svg viewBox="0 0 660 640" role="img" aria-label="Octalysis octagon">
+    <!-- axes -->
+    <line x1="60" y1="320" x2="600" y2="320" stroke="#2a3658" stroke-dasharray="5 5"/>
+    <line x1="330" y1="60" x2="330" y2="585" stroke="#2a3658" stroke-dasharray="5 5"/>
+    <text x="70" y="312" class="axis" fill="#7c89a8">LEFT BRAIN · extrinsic</text>
+    <text x="470" y="312" class="axis" fill="#7c89a8">RIGHT BRAIN · intrinsic</text>
+    <text x="330" y="48" text-anchor="middle" class="axis" fill="#48bb78">▲ WHITE HAT · sustainable</text>
+    <text x="330" y="606" text-anchor="middle" class="axis" fill="#ef4444">▼ BLACK HAT · urgent</text>
+    <text x="348" y="320" text-anchor="middle" class="axis" fill="#f5c451" transform="rotate(90 348 320)">MID-BRAIN · meaning ↕ survival · → noesis</text>
+    <!-- octagon outline: CD1(330,110) CD3(485,172) CD5(550,320) CD7(485,468) CD8(330,530) CD6(175,468) CD4(110,320) CD2(175,172) -->
+    <polygon points="330,110 485,172 550,320 485,468 330,530 175,468 110,320 175,172"
+      fill="rgba(99,102,241,.05)" stroke="#3b4a78" stroke-width="1.5"/>
+    <!-- nodes -->
+    <g text-anchor="middle">
+      <!-- CD1 top WHITE apex -->
+      <circle cx="330" cy="110" r="30" fill="#1d2b1f" stroke="#48bb78" stroke-width="2"/>
+      <text x="330" y="116" class="oct-lbl" fill="#9be6b4">1</text>
+      <text x="330" y="86" class="oct-sub">Epic Meaning</text>
+      <!-- CD2 upper-left WHITE/LEFT -->
+      <circle cx="175" cy="172" r="28" fill="#1d2616" stroke="#cdd86a" stroke-width="2"/>
+      <text x="175" y="178" class="oct-lbl" fill="#e3ec8a">2</text>
+      <text x="110" y="150" class="oct-sub" text-anchor="start">Accomplish</text>
+      <!-- CD3 upper-right WHITE/RIGHT -->
+      <circle cx="485" cy="172" r="28" fill="#16261f" stroke="#5fe0b0" stroke-width="2"/>
+      <text x="485" y="178" class="oct-lbl" fill="#88ecca">3</text>
+      <text x="552" y="150" class="oct-sub" text-anchor="end">Creativity</text>
+      <!-- CD4 left -->
+      <circle cx="110" cy="320" r="28" fill="#1a2030" stroke="#a5b4fc" stroke-width="2"/>
+      <text x="110" y="326" class="oct-lbl" fill="#c4cdff">4</text>
+      <text x="110" y="368" class="oct-sub">Ownership</text>
+      <!-- CD5 right -->
+      <circle cx="550" cy="320" r="28" fill="#16242a" stroke="#5fd6e0" stroke-width="2"/>
+      <text x="550" y="326" class="oct-lbl" fill="#8fe6ee">5</text>
+      <text x="550" y="368" class="oct-sub">Social</text>
+      <!-- CD6 lower-left BLACK/LEFT -->
+      <circle cx="175" cy="468" r="28" fill="#2a1d16" stroke="#F59E0B" stroke-width="2"/>
+      <text x="175" y="474" class="oct-lbl" fill="#f6c067">6</text>
+      <text x="110" y="500" class="oct-sub" text-anchor="start">Scarcity</text>
+      <!-- CD7 lower-right BLACK/RIGHT -->
+      <circle cx="485" cy="468" r="28" fill="#2a1622" stroke="#e879c6" stroke-width="2"/>
+      <text x="485" y="474" class="oct-lbl" fill="#f0a0d6">7</text>
+      <text x="552" y="500" class="oct-sub" text-anchor="end">Unpredictab.</text>
+      <!-- CD8 bottom BLACK apex -->
+      <circle cx="330" cy="530" r="30" fill="#2a1517" stroke="#ef4444" stroke-width="2"/>
+      <text x="330" y="536" class="oct-lbl" fill="#f59a9a">8</text>
+      <text x="330" y="572" class="oct-sub">Loss &amp; Avoidance</text>
+    </g>
+  </svg>
+  <figcaption>Fig 1 — The 8 core drives. We open &amp; close on <b>1 · Epic Meaning</b> (White apex) and treat <b>8 · Loss</b> (Black apex) as the one real fear: dropping out of the game.</figcaption>
+  </figure>
+
+  <div class="card">
+    <table>
+      <tr><th>#</th><th>Drive</th><th>In the operator</th></tr>
+      <tr><td class="cd hat-w">1</td><td>Epic Meaning</td><td>You're starting an <i>infinite game</i> with a Just Cause.</td></tr>
+      <tr><td class="cd hat-w">2</td><td>Accomplishment</td><td>The mint completes; artifacts ship; the viability gauge fills.</td></tr>
+      <tr><td class="cd hat-w">3</td><td>Creativity</td><td>You shape it; the operator re-projects on-brand <i>instantly</i>.</td></tr>
+      <tr><td class="cd">4</td><td>Ownership</td><td>The vision, brand-DNA &amp; world-state are <b>yours</b>.</td></tr>
+      <tr><td class="cd">5</td><td>Social</td><td>You <i>meet</i> the ICP-NPC and the Founder-NPC as characters.</td></tr>
+      <tr><td class="cd hat-b">6</td><td>Scarcity</td><td>Runway is finite — <b>solvency is a real bound</b>, not a fake timer.</td></tr>
+      <tr><td class="cd hat-b">7</td><td>Unpredictability</td><td>Surprising pains; the market co-evolves (Red Queen).</td></tr>
+      <tr><td class="cd hat-b">8</td><td>Loss &amp; Avoidance</td><td>The real fear: <b>leaving the viability kernel</b> — drift is the enemy.</td></tr>
+    </table>
+    <div class="legend" style="margin-top:14px">
+      <span><i style="background:#48bb78"></i>White Hat (sustainable)</span>
+      <span><i style="background:#ef4444"></i>Black Hat (grounded only)</span>
+    </div>
+    <p class="note" style="margin-top:13px;border-top:1px solid var(--line);padding-top:12px">
+      <b style="color:#f5c451">Mid-brain → noesis.</b> The vertical axis — drives <b>1</b> (Epic Meaning) ↕ <b>8</b> (Loss &amp; Avoidance), i.e. <i>meaning ↔ survival</i> — is the <b>mid-brain</b>. Its activation <b>bypasses the routine tick and invokes noesis</b>, the operator's meaning/intuition layer: it reflects the <i>why</i>, speaks in the founder's deepest register, and escalates to the human when the stakes are real. Tutorial noesis peaks: <b>#1 · #13 · #16 · #17 · #18 · #20</b>.
+    </p>
+  </div>
+</div>
+
+<!-- ====== HAT ARC ====== -->
+<h2><span class="n">02</span>The arc — open White, dip into grounded Black, close White</h2>
+<p class="sub">The lasting feeling must be <b>calling &amp; ownership</b>, not anxiety — the correct shape for a game played for years.</p>
+<div class="card">
+  <div class="hatbar"></div>
+  <div class="hatbar-l"><span>1 · Calling</span><span>4–8 · first win</span><span>9–13 · players</span><span>14–17 · the loop ⚠ grounded black</span><span>18 · drift</span><span>19–20 · own the game</span></div>
+</div>
+
+<!-- ====== THE 20-STEP JOURNEY ====== -->
+<h2><span class="n">03</span>The first 20 interactions</h2>
+<p class="sub">Border colour = which loop layer it teaches · <span style="color:var(--macro)">macro</span> · <span style="color:var(--meso)">meso</span> · <span style="color:var(--micro)">micro</span>. Pills = the core drive(s) fired (<span class="hat-w">white</span> / <span class="hat-b">black</span>).</p>
+
+<div class="phase">
+  <div class="phase-h"><span class="tag">PHASE A</span><span class="nm">Discovery / The Calling</span><span class="jb">— why should I play?</span></div>
+  <div class="chips">
+    <div class="chip" data-layer="macro"><div class="top"><span class="num">1</span><span class="ly">macro</span></div><div class="nm">The Calling</div><div class="ds">"You're not building a product. You're starting an infinite game." → <i>Plant a thoughtseed.</i></div><div class="cds"><span class="cd-dot w">① Epic Meaning</span></div></div>
+    <div class="chip" data-layer="macro"><div class="top"><span class="num">2</span><span class="ly">macro</span></div><div class="nm">Name the Just Cause</div><div class="ds">Write the vision in one line; it's pinned as the near-invariant anchor.</div><div class="cds"><span class="cd-dot w">① Epic Meaning</span><span class="cd-dot n">④ Ownership</span></div></div>
+    <div class="chip" data-layer="macro"><div class="top"><span class="num">3</span><span class="ly">macro</span></div><div class="nm">Plant the seed</div><div class="ds">Drop a raw idea; the operator accepts the thoughtseed and says "watch."</div><div class="cds"><span class="cd-dot b">⑦ Curiosity</span><span class="cd-dot w">①</span></div></div>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-h"><span class="tag">PHASE B</span><span class="nm">First Mint / Accomplishment</span><span class="jb">— the first win</span></div>
+  <div class="chips">
+    <div class="chip" data-layer="micro"><div class="top"><span class="num">4</span><span class="ly">micro</span></div><div class="nm">Germination</div><div class="ds">Genesis runs; watch the 7 waves complete live (a real progress bar).</div><div class="cds"><span class="cd-dot w">② Accomplish</span><span class="cd-dot b">⑦</span></div></div>
+    <div class="chip" data-layer="micro"><div class="top"><span class="num">5</span><span class="ly">micro</span></div><div class="nm">First light</div><div class="ds">The brand-DNA appears — name, positioning, palette, voice. The first real win.</div><div class="cds"><span class="cd-dot w">② Accomplish</span><span class="cd-dot n">④ Own</span></div></div>
+    <div class="chip" data-layer="micro"><div class="top"><span class="num">6</span><span class="ly">micro</span></div><div class="nm">Claim it</div><div class="ds">Accept or edit one field — the world-state is now yours &amp; mutable.</div><div class="cds"><span class="cd-dot n">④ Ownership</span><span class="cd-dot w">③ Creativity</span></div></div>
+    <div class="chip" data-layer="micro"><div class="top"><span class="num">7</span><span class="ly">micro</span></div><div class="nm">On-brand meter</div><div class="ds">A live gauge: the on-brand score V = d(x, x*). Green = on-brand.</div><div class="cds"><span class="cd-dot w">② Accomplish</span><span class="cd-dot w">③ Feedback</span></div></div>
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">8</span><span class="ly">meso</span></div><div class="nm">First booster</div><div class="ds">Nudge the voice; the operator re-projects everything on-brand instantly.</div><div class="cds"><span class="cd-dot w">③ Empowerment &amp; Feedback</span></div></div>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-h"><span class="tag">PHASE C</span><span class="nm">Meet the Players</span><span class="jb">— who's in my game?</span></div>
+  <div class="chips">
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">9</span><span class="ly">meso</span></div><div class="nm">Meet your customer</div><div class="ds">The ICP-NPC ("Mira") arrives — a living character you can talk to.</div><div class="cds"><span class="cd-dot n">⑤ Social</span><span class="cd-dot b">⑦</span></div></div>
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">10</span><span class="ly">meso</span></div><div class="nm">Interrogate the ICP</div><div class="ds">Ask "what actually hurts?" — pain-point vectors light up.</div><div class="cds"><span class="cd-dot b">⑦ Unpredictab.</span><span class="cd-dot n">⑤</span></div></div>
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">11</span><span class="ly">meso→macro</span></div><div class="nm">Resonance arrow</div><div class="ds">The operator draws the direction g to move positioning so the pain resolves.</div><div class="cds"><span class="cd-dot w">③ Creativity</span><span class="cd-dot w">②</span></div></div>
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">12</span><span class="ly">meso</span></div><div class="nm">Meet your mirror</div><div class="ds">The Founder-NPC reflects your operating logic — the intent oracle.</div><div class="cds"><span class="cd-dot n">④ Ownership</span><span class="cd-dot n">⑤ Social</span></div></div>
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">13</span><span class="ly">meso</span></div><div class="nm">Surprising objection</div><div class="ds">Mira raises an objection you didn't expect — curiosity + a productive "uh-oh."</div><div class="cds"><span class="cd-dot b">⑦ Unpredictab.</span><span class="cd-dot b">⑧ Loss</span></div></div>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-h"><span class="tag">PHASE D</span><span class="nm">The Loop</span><span class="jb">— how do I play? (micro → meso → macro + the gates)</span></div>
+  <div class="chips">
+    <div class="chip" data-layer="micro"><div class="top"><span class="num">14</span><span class="ly">MICRO</span></div><div class="nm">First micro move</div><div class="ds">A tiny fine-tune (a CTA word) — auto-applied, instantly reversible.</div><div class="cds"><span class="cd-dot w">② Accomplish</span><span class="cd-dot w">③ Empower</span></div></div>
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">15</span><span class="ly">MESO</span></div><div class="nm">Error or intent?</div><div class="ds">You redirect; the operator asks — bad step (reroll) or new intent (move the goal)?</div><div class="cds"><span class="cd-dot w">③ Feedback</span><span class="cd-dot b">⑦ Curiosity</span></div></div>
+    <div class="chip" data-layer="macro"><div class="top"><span class="num">16</span><span class="ly">MACRO</span></div><div class="nm">Move the goal (gated)</div><div class="ds">Propose a reposition; the gate asks for real evidence &amp; shows the trust-region.</div><div class="cds"><span class="cd-dot n">④ Ownership</span><span class="cd-dot b">⑧ Loss-Avoid</span></div></div>
+    <div class="chip" data-layer="macro"><div class="top"><span class="num">17</span><span class="ly">macro</span></div><div class="nm">The viability board</div><div class="ds">Margins revealed — solvency, mission-coherence. Runway is finite &amp; visible.</div><div class="cds"><span class="cd-dot b">⑥ Scarcity</span><span class="cd-dot b">⑧ Loss</span></div></div>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-h"><span class="tag">PHASE E</span><span class="nm">The Infinite Hook</span><span class="jb">— why I'll come back</span></div>
+  <div class="chips">
+    <div class="chip" data-layer="meso"><div class="top"><span class="num">18</span><span class="ly">meso</span></div><div class="nm">Don't drop out</div><div class="ds">A real drift (V-spike): "this moves you toward leaving the game." You correct; relief.</div><div class="cds"><span class="cd-dot b">⑧ Loss &amp; Avoidance</span><span class="cd-dot w">②</span></div></div>
+    <div class="chip" data-layer="cross"><div class="top"><span class="num">19</span><span class="ly">cross-run</span></div><div class="nm">The replay</div><div class="ds">Scrub the replay log — the whole life of the venture so far; learning accumulating.</div><div class="cds"><span class="cd-dot n">④ Ownership</span><span class="cd-dot w">② Accomplish</span></div></div>
+    <div class="chip" data-layer="macro"><div class="top"><span class="num">20</span><span class="ly">macro</span></div><div class="nm">The game continues</div><div class="ds">Dormant: "the game never ends — I'll wake on your next move." You're now <i>in</i> it.</div><div class="cds"><span class="cd-dot w">① Epic Meaning</span><span class="cd-dot n">④ Own</span><span class="cd-dot b">⑥ Anticip.</span></div></div>
+  </div>
+</div>
+
+<!-- ====== BALANCE ====== -->
+<h2><span class="n">04</span>Coverage &amp; the anti-casino guardrails</h2>
+<div class="grid g2">
+  <div class="card">
+    <p class="note" style="margin-top:0"><b style="color:#fff">All 8 drives fire</b>, White-Hat-dominant:</p>
+    <table>
+      <tr><th>Drive</th><th>Fires at</th><th>Weight</th></tr>
+      <tr><td class="cd hat-w">1 Epic Meaning</td><td>1,2,3,20</td><td>bookends ✅</td></tr>
+      <tr><td class="cd hat-w">2 Accomplishment</td><td>4,5,7,11,14,18,19</td><td>spine</td></tr>
+      <tr><td class="cd hat-w">3 Creativity</td><td>6,7,8,11,14,15</td><td>spine</td></tr>
+      <tr><td class="cd">4 Ownership</td><td>2,5,6,12,16,19,20</td><td>sustains</td></tr>
+      <tr><td class="cd">5 Social</td><td>9,10,12</td><td>the NPCs</td></tr>
+      <tr><td class="cd hat-b">6 Scarcity</td><td>17,20</td><td>light · grounded</td></tr>
+      <tr><td class="cd hat-b">7 Unpredictability</td><td>3,4,9,10,13,15</td><td>curiosity</td></tr>
+      <tr><td class="cd hat-b">8 Loss</td><td>13,16,17,18</td><td>light · grounded</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <p class="note" style="margin-top:0"><b style="color:#fff">Guardrails — so the tutorial isn't a casino:</b></p>
+    <ul class="note">
+      <li><b>No fake scarcity.</b> Every "limited" is the <i>real</i> solvency runway / a <i>real</i> viability bound.</li>
+      <li><b>No manufactured loss.</b> #18 fires only on a <i>real</i> V-spike, never on a script.</li>
+      <li><b>No engagement for its own sake.</b> Every step teaches a real capability and advances the venture.</li>
+      <li><b>The last feeling is Calling, not anxiety.</b> #20 is deliberately White Hat — you leave owning an infinite game, not fearing a timer.</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+<p class="note" style="text-align:center">Onboarding design · pre-build · companion to <code>INFINITE-GAME.md</code> &amp; <code>docs/infinite-game-architecture.html</code>. Feeds the operator's <code>meso</code> UX and the first scaffolding phase.</p>
+
+</body>
+</html>
