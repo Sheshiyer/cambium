@@ -73,8 +73,11 @@ test('contracts doc defines the variable contract vocabulary', async () => {
   const text = await fs.readFile(join(root, 'composition', 'CONTRACTS.md'), 'utf8');
   assert.match(text, /Variable contract/i);
   assert.match(text, /brand_system/i);
+  assert.match(text, /copy_system/i);
   assert.match(text, /copy_slots/i);
+  assert.match(text, /visual_system/i);
   assert.match(text, /asset_plan/i);
+  assert.match(text, /section_plan/i);
   assert.match(text, /interaction_plan/i);
   assert.match(text, /acceptance_checks/i);
 });
