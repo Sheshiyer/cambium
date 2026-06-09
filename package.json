@@ -5,7 +5,7 @@
   "type": "module",
   "description": "The composition layer for the constellation — registry + pipeline + the dry-run conductor.",
   "scripts": {
-    "test": "node --test 'bin/*.test.mjs' 'bin/operator/*.test.ts'",
+    "test": "node --test 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts'",
     "operator": "node bin/operator/cli.ts",
     "plan": "node bin/compose.mjs plan",
     "validate": "node bin/compose.mjs validate",
