@@ -45,6 +45,85 @@ The `input`/`output` tokens below are the contract identifiers referenced by the
 - **fulfilled by** `agents/dispatcher/` (agent spec) + `scripts/lib/gtm.py brand_to_gtm` (brand-docs → Explee ICP,
   approval-gated). This is the **I1** wire — shipped (snow-gloves PR #4).
 
+## Variable contract vocabulary
+
+The stage tokens above say **which hand-off exists** (`idea` → `brand-dna` → `taste-brief` → `artifact` →
+`business`). The variable contract layer says **which seeded variables must survive those hand-offs**.
+Stages must pass these groups forward as structured data, not prose-only summaries, so downstream stages do
+not invent critical decisions ad hoc.
+
+### `brand_system`
+- **Variables**: `brand_id`, `brand_name`, `category`, `audience`, `positioning`, `promise`,
+  `differentiators`, `voice_principles`.
+- **Owned by**: `genesis`.
+- **Consumed by**: `taste`, `build`, `ops`, and `cortex`.
+- **Required**: `brand_name`, `audience`, `positioning`, `promise`, `voice_principles`.
+- **Optional**: `brand_id`, `category`, `differentiators`.
+- **If required fields are missing**: the contract fails closed at `genesis`; downstream stages must refuse
+  to infer the missing brand core and fall back to reroll / repair instead of improvising.
+
+### `copy_system` (`copy_slots`)
+- **Variables**: a `copy_slots` map for reusable messaging surfaces (`hero_headline`, `hero_subhead`,
+  `cta_primary`, `cta_secondary`, proof points, offer text, and channel-specific variants) plus shared tone
+  notes.
+- **Owned by**: `genesis` seeds it; `ops` may extend it with approved campaign variants.
+- **Consumed by**: `taste`, `build`, `ops`.
+- **Required**: `copy_slots.hero_headline`, `copy_slots.hero_subhead`, `copy_slots.cta_primary`.
+- **Optional**: secondary CTAs, campaign variants, channel notes, proof libraries.
+- **If required fields are missing**: `build` cannot ship page sections or campaigns as canonical output;
+  the stage must mark the seam incomplete rather than synthesizing new messaging from scratch.
+
+### `visual_system`
+- **Variables**: palette tokens, typography tokens, logo usage rules, composition motifs, imagery direction,
+  reference cues, and visual anti-patterns.
+- **Owned by**: `genesis`, with `taste` allowed to sharpen style constraints against the shared cortex.
+- **Consumed by**: `taste`, `build`, `ops`, and `cortex`.
+- **Required**: palette, typography direction, imagery direction, logo usage baseline.
+- **Optional**: component motifs, animation cues, anti-pattern lists, reference sets.
+- **If required fields are missing**: `taste` cannot score on-brandness reliably and `build` must not invent
+  the aesthetic system; the hand-off is treated as contract drift.
+
+### `asset_plan`
+- **Variables**: required assets, aspect ratios, formats, render priorities, ownership/source notes, and
+  approval state for each asset.
+- **Owned by**: `taste` seeds the on-brand asset intent; `build` updates execution status.
+- **Consumed by**: `build`, `ops`, and `cortex`.
+- **Required**: asset list, intended use, priority, and status per required asset.
+- **Optional**: format hints, source refs, production notes, budget notes.
+- **If required fields are missing**: `build` may not assume which assets exist or should be generated; it
+  must stop the asset branch and surface the missing plan.
+
+### `section_plan`
+- **Variables**: page/surface sections, section goals, required inputs per section, section-level owners,
+  and mapping from sections to assets + copy.
+- **Owned by**: `taste` seeds the narrative structure; `build` refines it into executable work.
+- **Consumed by**: `build` and `ops`.
+- **Required**: ordered sections, a goal per section, and bindings to the relevant `copy_slots` /
+  `asset_plan` entries.
+- **Optional**: layout hints, responsive notes, conditional sections, fallback sections.
+- **If required fields are missing**: `build` must not hallucinate IA or screen flow; it should fail the
+  section contract and request a seeded plan.
+
+### `interaction_plan`
+- **Variables**: interaction states, transitions, triggers, motion intent, validation rules, and explicit
+  user actions that matter to the experience.
+- **Owned by**: `taste` seeds experiential intent; `build` specifies implementation details.
+- **Consumed by**: `build`, `ops`, and `cortex`.
+- **Required**: primary interactions, trigger/state pairs, and any blocking validation or approval points.
+- **Optional**: micro-animation detail, advanced gestures, recovery states, instrumentation hooks.
+- **If required fields are missing**: downstream stages must default to safe static behavior or halt the
+  interaction-specific branch; they must not invent motion logic that changes product meaning.
+
+### `acceptance_checks`
+- **Variables**: contract assertions, brand-fit gates, content/asset completeness checks, and
+  launch-critical pass conditions.
+- **Owned by**: `taste` defines the brand-fit gates; `build` and `ops` append implementation/launch checks.
+- **Consumed by**: `build`, `ops`, `cortex`, and `I4` homeostasis flows.
+- **Required**: named checks, pass/fail criteria, owning stage, and the consequence of failure.
+- **Optional**: scoring thresholds, human-review notes, environment-specific checks.
+- **If required fields are missing**: the system cannot distinguish deliberate change from drift, so the
+  seam fails closed and routes to verification / reroll instead of release.
+
 ## Cross-cutting: `cortex` — Aesthetic memory · organ: **cortex** (`taste-nim` + `DESIGN_MEMORY_WORKER`) · *paid*
 - Not a stage — it **feeds all four**. The 1024-dim NIM memory: taste index + the brand's own assets +
   design-memory. Genesis writes the brand's seed taste; taste reads/scores against it; build pulls
@@ -57,4 +136,6 @@ Cambium **plans + validates** (`compose plan/validate`) and now **calls** each o
 spend**: a spend-gated stage (taste, genesis) never spawns without an explicit `--approve <stage>`
 (constitution #4). Executable-as-a-plan, as-gated-calls, and with the **live output→input hand-off**
 (`runPipeline` threads stage N's output → N+1's `{input}`): the no-spend **hands** stage runs end-to-end
-today; the full chain runs once the gated stages (genesis, taste) are approved.
+today; the full chain runs once the gated stages (genesis, taste) are approved. The invariant now covers
+both stage order **and** the variable contract vocabulary above: required seeded variables must either be
+present and passed forward, or the seam fails closed.

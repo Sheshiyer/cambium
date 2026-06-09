@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { planPipeline, formatPlan, loadJson, parseRunArgs } from './compose.mjs';
@@ -66,6 +67,16 @@ test('missing registry.organs throws', () => {
 
 test('missing pipeline.stages throws', () => {
   assert.throws(() => planPipeline({ registry, pipeline: {}, tenant: 't' }), /pipeline\.stages/);
+});
+
+test('contracts doc defines the variable contract vocabulary', async () => {
+  const text = await fs.readFile(join(root, 'composition', 'CONTRACTS.md'), 'utf8');
+  assert.match(text, /Variable contract/i);
+  assert.match(text, /brand_system/i);
+  assert.match(text, /copy_slots/i);
+  assert.match(text, /asset_plan/i);
+  assert.match(text, /interaction_plan/i);
+  assert.match(text, /acceptance_checks/i);
 });
 
 test('parseRunArgs parses tenant + execute + approve', () => {

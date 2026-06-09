@@ -32,12 +32,15 @@ pipeline executable-as-a-plan:
 |---|---|
 | [`registry.json`](./registry.json) | the 5 organs — repo · role · entrypoint · tier (free/paid) |
 | [`composition/pipeline.json`](./composition/pipeline.json) | the ordered stages `genesis→taste→build→ops` + cross-cutting `cortex` |
-| [`composition/CONTRACTS.md`](./composition/CONTRACTS.md) | the stage I/O interfaces every wire implements against |
+| [`composition/CONTRACTS.md`](./composition/CONTRACTS.md) | the stage I/O interfaces **and canonical variable contracts** every wire implements against |
 | [`bin/compose.mjs`](./bin/compose.mjs) | the zero-dep dry-run **conductor** — `compose plan <tenant>` / `compose validate` (8/8 tests) |
 
 `node bin/compose.mjs plan acme` prints the per-tenant plan: each stage → its organ, repo, entrypoint,
 and free/paid tier, with the cortex feeding all four. It **plans + validates** the composition; it does
-not execute the organs end-to-end yet (that is **I2** — see [INTEGRATION.md](./INTEGRATION.md)).
+not execute the organs end-to-end yet (that is **I2** — see [INTEGRATION.md](./INTEGRATION.md)). The
+composition layer governs not only stage order but also the **seeded variables with downstream
+consequences** (`brand_system`, `copy_slots`, `visual_system`, `asset_plan`, `section_plan`,
+`interaction_plan`, `acceptance_checks`) that each stage must pass forward intact.
 
 **snow-gloves is one organ here (`will` = business-ops), not "the OS."** The composition lives in Cambium.
 
