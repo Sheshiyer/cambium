@@ -153,10 +153,16 @@ async function runCmd(root, { tenant, execute, approve, stage, input, intent }) 
     }
   }
   // runPipeline threads each stage's output → the next stage's input (the hand-off)
-  const results = await runPipeline({
-    stages, registry, adapters, cambiumRoot: root, env: process.env,
-    tenant, execute, approve, runner: realRunner, seedInput: input,
-  });
+  let results;
+  try {
+    results = await runPipeline({
+      stages, registry, adapters, cambiumRoot: root, env: process.env,
+      tenant, execute, approve, runner: realRunner, seedInput: input,
+    });
+  } catch (error) {
+    console.log(`fail-closed: ${error.message}`);
+    return 1;
+  }
   const byStage = Object.fromEntries(results.map((r) => [r.stage, r]));
   const mode = execute ? (approve ? `--execute --approve ${approve}` : '--execute') : 'dry-run';
   const lines = [`Cambium run — tenant: ${tenant || '<tenant>'}  (${mode})`, ''];

@@ -7,6 +7,37 @@
 
 import { join } from 'node:path';
 
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+function formatProducerHint(stage, group) {
+  const producer = stage?.producerByGroup?.[group];
+  return producer
+    ? `"${group}" should have been produced by upstream stage "${producer}"`
+    : `"${group}" must be seeded before stage "${stage?.id || '<stage>'}"`;
+}
+
+/**
+ * Validate that a stage received every required variable group. Pure + fail-closed.
+ * A legacy scalar payload still satisfies a single required group so genesis-style
+ * callers that pass one blob/string keep working until they need structured groups.
+ */
+export function validateStageContract(stage, payload) {
+  const required = Array.isArray(stage?.requires) ? stage.requires.filter(Boolean) : [];
+  if (!required.length) return payload;
+  const isObjectPayload = payload != null && typeof payload === 'object' && !Array.isArray(payload);
+  const missing = required.filter((group) => {
+    if (isObjectPayload) return !hasOwn(payload, group);
+    return !(required.length === 1 && payload != null && payload !== '');
+  });
+  if (!missing.length) return payload;
+  const hints = missing.map((group) => formatProducerHint(stage, group));
+  throw new Error(
+    `missing required variable groups: ${missing.join(', ')}${hints.length ? `. ${hints.join('; ')}` : ''}`,
+  );
+}
+
 /**
  * Resolve an organ id → the local repo path its command runs in.
  *   1. CAMBIUM_ORGAN_ROOTS env (JSON map keyed by organ id OR repo basename) — the reliable override
@@ -34,7 +65,9 @@ export function resolveRoot(organId, { registry, adapters, cambiumRoot, env = {}
  * {tenant} and {input} are substituted; {input} falls back to adapter.input_default.
  */
 export function buildInvocation(adapter, { tenant, input, root } = {}) {
-  const value = input || adapter.input_default || '';
+  const value = input
+    ? (typeof input === 'string' ? input : JSON.stringify(input))
+    : adapter.input_default || '';
   const subst = (s) => s.replaceAll('{tenant}', tenant ?? '').replaceAll('{input}', value);
   return {
     cmd: adapter.cmd,
@@ -68,7 +101,12 @@ export function gateStage(organId, adapter, { execute = false, approve = null } 
  * Returns { organId, invocation, gate, spawned, result? } — never throws on a refusal.
  */
 export async function runStage(organId, ctx = {}) {
+  if (organId && typeof organId === 'object' && !Array.isArray(organId)) {
+    ctx = organId;
+    organId = ctx.stage?.organ;
+  }
   const { registry, adapters, cambiumRoot, env = {}, tenant, input, execute = false, approve = null, runner } = ctx;
+  validateStageContract(ctx.stage, input);
   const adapter = adapters?.[organId];
   if (!adapter) throw new Error(`no adapter for organ "${organId}"`);
   const root = resolveRoot(organId, { registry, adapters, cambiumRoot, env });
@@ -132,14 +170,17 @@ export async function runPipeline({
 } = {}) {
   const results = [];
   let prev = seedInput; // the hand-off carry: the previous stage's output (or the seed for stage 1)
+  const producerByGroup = {};
   for (const stage of stages) {
     if (!adapters?.[stage.organ]) {
       results.push({ stage: stage.id, organId: stage.organ, adapter: false });
+      for (const group of stage.produces || []) producerByGroup[group] = stage.id;
       continue; // no adapter → carry is unchanged
     }
     const inputFrom = prev != null && prev !== '' ? 'prev-stage' : 'default';
     const res = await runStage(stage.organ, {
       registry, adapters, cambiumRoot, env, tenant, input: prev, execute, approve, runner,
+      stage: { ...stage, producerByGroup },
     });
     res.stage = stage.id;
     res.inputFrom = inputFrom;
@@ -149,6 +190,7 @@ export async function runPipeline({
     prev = res.spawned && res.result && res.result.status === 0
       ? extractOutput(adapters[stage.organ], res.result)
       : null;
+    for (const group of stage.produces || []) producerByGroup[group] = stage.id;
   }
   return results;
 }

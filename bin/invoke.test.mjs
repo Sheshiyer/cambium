@@ -105,6 +105,18 @@ test('runStage approved-execute calls the runner exactly once', async () => {
   assert.equal(calls, 1);
 });
 
+test('runStage fails closed when required variable groups are missing', async () => {
+  const stage = {
+    id: 'build',
+    requires: ['brand_system', 'asset_plan'],
+    produces: ['artifact'],
+  };
+  await assert.rejects(
+    () => runStage({ stage, input: { brand_system: {} } }),
+    /missing required variable groups: asset_plan/i,
+  );
+});
+
 // ── hardening (defense-in-depth on the spend gate) ──
 test('gate: an UNKNOWN spend value fails closed even WITH a matching approval', () => {
   // a future tier like spend:"never" must NOT be spawnable just because it is not "none"
@@ -195,6 +207,27 @@ test('hand-off: a refused stage breaks the chain (next uses input_default)', asy
   const bInv = results.find((r) => r.stage === 'sb').invocation;
   assert.ok(bInv.args.includes('DEF_B'), 'B uses its default when A is refused');
   assert.equal(calls, 1, 'only B ran (A was refused, no spawn)');
+});
+
+test('runPipeline explains which upstream stage should have produced a missing group', async () => {
+  const stages = [
+    { id: 'taste', organ: 'b', requires: ['brand_system'], produces: ['asset_plan'] },
+    { id: 'build', organ: 'b', requires: ['brand_system', 'asset_plan'] },
+  ];
+  const runner = () => ({ status: 0, stdout: 'legacy-string-output' });
+  await assert.rejects(
+    () => runPipeline({
+      stages,
+      registry: hoReg,
+      adapters: hoAdapters,
+      cambiumRoot: '/x/cambium',
+      tenant: 't',
+      execute: false,
+      runner,
+      seedInput: { brand_system: {} },
+    }),
+    /asset_plan.*upstream stage "taste"/i,
+  );
 });
 
 test('runPipeline dry-run calls the runner zero times', async () => {
