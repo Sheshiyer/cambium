@@ -1,80 +1,62 @@
-# Quine Engine — the mycelial CLI
+# Quine — one command for everything your operator knows and does
 
-*Part of cambium (v0.2.0 · Thalia). Node v26 native TS, zero-dep.*
+*A builder & agent tool inside cambium (v0.2.0). **Founders never touch this** — they just get a
+self-running business. This is the control room that makes that possible.*
 
-One command surface threaded through **everything we have**. The **mycelium** is a network of
-**hyphae** — each a thread reaching into one subsystem, reading and (sometimes) writing it. And the
-quine knows itself: `quine self` outputs the network's own structure.
+## In one line
 
-## Why
+Instead of learning six different tools to reach your venture's **memory**, its **code**, its
+**work**, its **knowledge**, and its **cloud** — you use one. `quine` reads and writes across all of
+them with the same two words: **read** and **write**.
 
-We have many subsystems — the cortex (memory), the code graph, the operator (wake loop), the vault
-(knowledge), GitHub — each with its own access path. Quine threads them into **one** connective
-surface: the same verbs read/write across all of them, and you grow the network by adding one module.
+## Who it's for
 
-## Run
+- **Builders & AI agents** running the operator — your single surface to everything.
+- **Not founders.** Founders are sold the *outcome* (an idea goes in, a business comes out); they
+  never type a command. Quine is the machinery behind the curtain.
 
-```bash
-node bin/quine/quine.ts          # the map (default)
-npm run quine -- status          # or via npm
-./bin/quine/quine.ts self        # or directly (chmod +x)
-```
-
-## Verbs
-
-| Verb | Does |
-|---|---|
-| `quine [map]` | the network — every hypha + what it connects to |
-| `quine status` | reachability of every hypha (parallel) |
-| `quine self` | **the quine** — the network describes its own structure |
-| `quine read <hypha> <args>` | read through a hypha |
-| `quine write <hypha> <args>` | write through a hypha |
-| `quine <hypha> <args>` | shorthand for `read` |
-
-## Hyphae (the threads)
-
-| Hypha | Reads | Writes |
-|---|---|---|
-| **cortex** | semantic memory search (NIM · node:sqlite \| Vectorize) | remember a note |
-| **code** | CodeGraph symbols / call-graph | — (generated, read-only) |
-| **operator** | the wake-loop world-state | wake a move |
-| **vault** | grep the Obsidian notes | append to the guarded agent-outputs zone |
-| **gh** | issues / milestones / search | create an issue |
-
-## Examples
+## Use it
 
 ```bash
-quine read cortex "pricing pushback" --tenant heyzack --k 5
-quine write cortex "the founder prefers terse CTAs" --tenant heyzack
-quine read code "wakeAsync"
-quine read operator                          # the world-state (JSON)
-quine write operator '{"id":"x","kind":"tweak"}'
-quine read vault "onboarding" --limit 10
-quine read gh milestones
-quine write gh issue "Title" "Body"
+quine                                       # what's connected
+quine status                                # is everything reachable?
+
+quine read cortex "pricing pushback"        # what has the venture learned about this?
+quine read gh milestones                    # where's the work?
+quine read operator                         # the live state of the business
+
+quine write cortex "founder prefers terse CTAs"   # teach it something
+quine write operator '{"id":"x","kind":"tweak"}'  # make a move
 ```
 
-Everything is **JSON** to stdout (pipe to `jq`); errors → stderr, exit 1.
+Everything comes back as plain JSON, so you can pipe it anywhere (`| jq`). Errors go to stderr.
 
-## Config (env)
+## What it reaches today
 
-| Var | Effect |
+| Ask about… | Command |
 |---|---|
-| `QUINE_VAULT` | the vault root (default `../thoughtseed-labs`) |
-| `QUINE_GH_REPO` | the GitHub repo (default `Sheshiyer/cambium`) |
-| `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` | cortex → Vectorize (else node:sqlite) |
-| `NVIDIA_API_KEY` | cortex embeddings → real 1024-d NIM (else 64-d stub) |
+| **Memory** — what the venture learned, across runs | `quine read cortex "<question>"` |
+| **Work** — issues + milestones | `quine read gh milestones` |
+| **Code** — what we've built, by name | `quine read code "<symbol>"` |
+| **Knowledge** — the notes in the vault | `quine read vault "<term>"` |
+| **The operator** — the live business state | `quine read operator` |
+| **The cloud** — Cloudflare storage + search | `quine read cf vectorize` |
 
-## Growing the network
+Each is writable where it makes sense (`quine write …`). Run via `node bin/quine/quine.ts`,
+`npm run quine -- <args>`, or `./bin/quine/quine.ts`.
 
-Add a hypha: write `bin/quine/hyphae/<name>.ts` exporting a `Hypha`
-(`{ name, describe, help, status, read, write? }`), then register it in `quine.ts`'s `HYPHAE` map.
-`map` / `status` / `self` pick it up automatically. Candidate next threads: **cf** (R2/Workers),
-**teamforge**, **paperclip**, **huly**, **clockify**, **slack**.
+---
 
-## Philosophy
+<details>
+<summary><b>How it's built</b> (for the curious — skip if you just want to use it)</summary>
 
-- **Mycelial** — decentralized threads, one network; add a hypha, the network grows.
-- **Quine** — the network describes itself (`quine self`); self-knowledge is a first-class verb.
-- **Composable** — JSON out, same verbs across every subsystem.
-- **Zero-dep** — Node v26 native TS; imports the cambium operator directly, shells `gh`/`codegraph`.
+Each connector is a *hypha* — one thread of a **mycelial network**. The network knows itself
+(`quine self` prints its own structure), and you grow it by dropping one file in
+`hyphae/<name>.ts` (export a `Hypha`: `{ name, describe, help, status, read, write? }`) and
+registering it in `quine.ts`. Add a thread, the network grows — `map` / `status` / `self` pick it
+up automatically. Next threads: TeamForge, Paperclip, Huly, Clockify, Slack.
+
+Zero-dep, Node v26 native TS. Config (env): `QUINE_VAULT` · `QUINE_GH_REPO` ·
+`CLOUDFLARE_API_TOKEN`+`CLOUDFLARE_ACCOUNT_ID` (→ cloud cortex) · `NVIDIA_API_KEY` (→ smarter memory).
+
+</details>

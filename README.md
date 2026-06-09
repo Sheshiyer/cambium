@@ -19,6 +19,8 @@ Cambium has **two halves**:
 
 The composition layer makes the first launch. The operator keeps the venture alive and on-brand after the launch — which is the part that actually compounds.
 
+> **Who this is for.** If you're a **founder**, the promise *is* the product — an idea goes in, a self-running, on-brand business comes out, and you never touch the machinery. Everything from **"Under the hood"** onward is *how* that's true, written for the **builders and AI agents** who run it. Read as much or as little as you like.
+
 ---
 
 ## What's real today
@@ -55,6 +57,10 @@ node bin/operator/cli.ts coderecall "wake"     # structural recall of code the o
 Full product blueprint + agent guides: **[Cambium Composition Layer Technical Reference →](./docs/cambium-composition-technical-reference.html)**
 
 ---
+
+## Under the hood — for builders & agents
+
+*Founders never see any of this. It's the machinery that makes "an idea goes in, a business comes out" actually true — the part the abstraction exists to hide.*
 
 ## The operator — the infinite game
 
