@@ -1,55 +1,85 @@
 {
   "version": "0.1.0",
-  "note": "The organ registry — Cambium's machine-readable map of the constellation. Each organ is its OWN repo; Cambium does not contain organ code, it composes the organs as services. JSON (not YAML) on purpose: native zero-dep parse in both Node (the conductor) and Python (snow-gloves, brandmint), so the registry is language-neutral across the polyglot organs.",
+  "note": "The organ registry \u2014 Cambium's machine-readable map of the constellation. Each organ is its OWN repo; Cambium does not contain organ code, it composes the organs as services. JSON (not YAML) on purpose: native zero-dep parse in both Node (the conductor) and Python (snow-gloves, brandmint), so the registry is language-neutral across the polyglot organs.",
   "tiers": {
-    "free": "left brain — adoption flywheel (genesis + the build hands)",
-    "paid": "right brain — the moat (ongoing taste, the shared memory, the portfolio OS)"
+    "free": "left brain \u2014 adoption flywheel (genesis + the build hands)",
+    "paid": "right brain \u2014 the moat (ongoing taste, the shared memory, the portfolio OS)"
   },
   "organs": {
     "genesis": {
       "name": "Brand brain (genesis)",
       "role": "genesis",
       "repo": "Sheshiyer/brandmint-oracle-aleph",
-      "summary": "idea → full brand system (persona, positioning, voice, logo, palette, copy, wiki) across waves 1–8",
-      "entrypoint": "brandmint launch --waves 1-8 (CLI: brandmint.cli.app:main) · buildable flow alias: skill-clusters taste/scripts/brandmint.mjs (runBrandKit)",
+      "summary": "idea \u2192 full brand system (persona, positioning, voice, logo, palette, copy, wiki) across waves 1\u20138",
+      "entrypoint": "brandmint launch --waves 1-8 (CLI: brandmint.cli.app:main) \u00b7 buildable flow alias: skill-clusters taste/scripts/brandmint.mjs (runBrandKit)",
       "tier": "free",
-      "language": "python (+ node flow)"
+      "language": "python (+ node flow)",
+      "capabilities": [
+        "understands: idea briefs and brand-config inputs",
+        "produces: brand_system",
+        "produces: copy_system",
+        "produces: brand_docs_seed"
+      ]
     },
     "hands": {
       "name": "The hands + conductor",
       "role": "hands",
-      "summary": "40 hub-and-spoke clusters + the conductor loop — build · maintain · market · operate; resolves any task to a real dev cluster",
+      "summary": "40 hub-and-spoke clusters + the conductor loop \u2014 build \u00b7 maintain \u00b7 market \u00b7 operate; resolves any task to a real dev cluster",
       "repo": "Sheshiyer/skill-clusters",
-      "entrypoint": "scripts/resolve-task.mjs (task → cluster) · scripts/ship-battery.mjs (fail-closed ship gate)",
+      "entrypoint": "scripts/resolve-task.mjs (task \u2192 cluster) \u00b7 scripts/ship-battery.mjs (fail-closed ship gate)",
       "tier": "free",
-      "language": "node"
+      "language": "node",
+      "capabilities": [
+        "understands: taste_brief plus structured build plans",
+        "understands: asset_plan, section_plan, interaction_plan, acceptance_checks",
+        "produces: artifact",
+        "produces: brand_docs and proof_strategy"
+      ]
     },
     "taste": {
       "name": "Taste cortex (conscience)",
       "role": "conscience",
-      "summary": "the aesthetic conscience — on-brand QA, taste-resolve, reroll; keeps every artifact on-brand and learns the brand's taste over time",
+      "summary": "the aesthetic conscience \u2014 on-brand QA, taste-resolve, reroll; keeps every artifact on-brand and learns the brand's taste over time",
       "repo": "Sheshiyer/skill-clusters",
-      "entrypoint": "taste/scripts/taste-resolve.mjs (--brand <id> → injected on-brand brief)",
+      "entrypoint": "taste/scripts/taste-resolve.mjs (--brand <id> \u2192 injected on-brand brief)",
       "tier": "paid",
-      "language": "node"
+      "language": "node",
+      "capabilities": [
+        "understands: brand_system, copy_system, brand_docs_seed",
+        "reads/writes: shared cortex taste memory",
+        "produces: visual_system and taste_brief",
+        "produces: aesthetic_constraints, asset_plan, section_plan, interaction_plan, acceptance_checks"
+      ]
     },
     "will": {
       "name": "The OS / will (business-ops)",
       "role": "will",
-      "summary": "the business-ops organ — 7-agent C-suite, multi-tenant governance, GTM/distribution. ONE organ of the constellation, not the whole OS.",
+      "summary": "the business-ops organ \u2014 7-agent C-suite, multi-tenant governance, GTM/distribution. ONE organ of the constellation, not the whole OS.",
       "repo": "Sheshiyer/snow-gloves-os",
-      "entrypoint": "agents/dispatcher/ (agent spec; Hermes/Paperclip routing) · scripts/lib/gtm.py brand_to_gtm (brand-docs → Explee ICP, approval-gated)",
+      "entrypoint": "agents/dispatcher/ (agent spec; Hermes/Paperclip routing) \u00b7 scripts/lib/gtm.py brand_to_gtm (brand-docs \u2192 Explee ICP, approval-gated)",
       "tier": "paid",
-      "language": "python"
+      "language": "python",
+      "capabilities": [
+        "understands: artifact, brand_docs, proof_strategy, distribution_constraints",
+        "extends: approved copy_system variants for distribution",
+        "produces: business operating state",
+        "feeds: GTM and portfolio governance outcomes back into the system"
+      ]
     },
     "cortex": {
       "name": "Shared sensory cortex (NIM memory)",
       "role": "cortex",
-      "summary": "the 1024-dim aesthetic memory shared by every organ — taste index + the brand's own assets + design-memory. The moat lives here. Currently duplicated across two Workers; I3 unifies.",
+      "summary": "the 1024-dim aesthetic memory shared by every organ \u2014 taste index + the brand's own assets + design-memory. The moat lives here. Currently duplicated across two Workers; I3 unifies.",
       "repo": "Sheshiyer/taste-nim + brandmint DESIGN_MEMORY_WORKER",
-      "entrypoint": "NIM Worker endpoint (embed/search) — to be unified (see INTEGRATION.md I3)",
+      "entrypoint": "NIM Worker endpoint (embed/search) \u2014 to be unified (see INTEGRATION.md I3)",
       "tier": "paid",
-      "language": "worker"
+      "language": "worker",
+      "capabilities": [
+        "understands: brand_system and visual_system",
+        "understands: asset_plan, acceptance_checks, and deviation signals",
+        "stores: shared aesthetic memory across tenants and stages",
+        "feeds: genesis, taste, build, ops"
+      ]
     }
   }
 }

@@ -1,45 +1,115 @@
 {
   "version": "0.1.0",
-  "note": "Service-invocation specs (I2): HOW the conductor calls each organ. Specs, not code — the organ repos are untouched. `spend: gated` organs NEVER spawn without --approve <organ> (constitution #4 — fail-closed); any unknown spend value also fails closed. `root_id` = the registry organ whose repo the command runs in. Optional `local_dir` overrides the derived repo-basename directory when the local checkout's name/casing differs (e.g. repo skill-clusters → dir Skill-clusters), needed on case-sensitive filesystems; `CAMBIUM_ORGAN_ROOTS` env (JSON map) overrides both. {tenant}/{input} are substituted at build time; {input} falls back to input_default.",
+  "note": "Service-invocation specs (I2): HOW the conductor calls each organ. Specs, not code \u2014 the organ repos are untouched. `spend: gated` organs NEVER spawn without --approve <organ> (constitution #4 \u2014 fail-closed); any unknown spend value also fails closed. `root_id` = the registry organ whose repo the command runs in. Optional `local_dir` overrides the derived repo-basename directory when the local checkout's name/casing differs (e.g. repo skill-clusters \u2192 dir Skill-clusters), needed on case-sensitive filesystems; `CAMBIUM_ORGAN_ROOTS` env (JSON map) overrides both. {tenant}/{input} are substituted at build time; {input} falls back to input_default.",
   "adapters": {
     "taste": {
       "root_id": "taste",
       "local_dir": "Skill-clusters",
       "cmd": "node",
-      "args": ["taste/scripts/taste-resolve.mjs", "{input}", "--brand", "{tenant}", "--json"],
+      "args": [
+        "taste/scripts/taste-resolve.mjs",
+        "{input}",
+        "--brand",
+        "{tenant}",
+        "--json"
+      ],
       "spend": "gated",
       "spend_reason": "embeds the request via the paid NIM cortex (needs NVIDIA_API_KEY)",
       "input_default": "brand system",
-      "output": "json:taste-brief"
+      "output": "json:taste-brief",
+      "contract_requires": [
+        "brand_system",
+        "copy_system",
+        "brand_docs_seed"
+      ],
+      "contract_produces": [
+        "visual_system",
+        "taste_brief",
+        "aesthetic_constraints",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "contract_version": "1.0.0"
     },
     "genesis": {
       "root_id": "genesis",
       "cmd": "brandmint",
-      "args": ["launch", "--waves", "1-8", "--brand", "{tenant}"],
+      "args": [
+        "launch",
+        "--waves",
+        "1-8",
+        "--brand",
+        "{tenant}"
+      ],
       "spend": "gated",
       "spend_reason": "runs the full brand-mint waves (visual + inference generation)",
       "input_default": "brand-config.yaml",
-      "output": "brand-dna"
+      "output": "brand-dna",
+      "contract_requires": [
+        "idea"
+      ],
+      "contract_produces": [
+        "brand_system",
+        "copy_system",
+        "brand_docs_seed"
+      ],
+      "contract_version": "1.0.0"
     },
     "hands": {
       "root_id": "hands",
       "local_dir": "Skill-clusters",
       "cmd": "node",
-      "args": ["scripts/resolve-task.mjs", "{input}", "--json"],
+      "args": [
+        "scripts/resolve-task.mjs",
+        "{input}",
+        "--json"
+      ],
       "spend": "none",
-      "spend_reason": "resolve-task is a deterministic resolver (tasks.md → cluster dispatch plan); NO spend. The spend-bearing part is DISPATCHING the resolved cluster orchestrators — a gated extension, not this adapter.",
+      "spend_reason": "resolve-task is a deterministic resolver (tasks.md \u2192 cluster dispatch plan); NO spend. The spend-bearing part is DISPATCHING the resolved cluster orchestrators \u2014 a gated extension, not this adapter.",
       "input_default": "",
-      "output": "json:dispatch-plan"
+      "output": "json:dispatch-plan",
+      "contract_requires": [
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "contract_produces": [
+        "artifact",
+        "brand_docs",
+        "proof_strategy"
+      ],
+      "contract_version": "1.0.0"
     },
     "will": {
       "root_id": "will",
       "cmd": "python3",
-      "args": ["scripts/gtm_cli.py", "{input}", "--json"],
+      "args": [
+        "scripts/gtm_cli.py",
+        "{input}",
+        "--json"
+      ],
       "spend": "gated",
       "spend_reason": "brand_to_gtm drives PAID Explee search/enrich via the explee-proxy (needs an APPROVED Brief + EXPLEE_PROXY_TOKEN); constitution #4",
       "input_default": "Content-Engine/_gtm/brief-partner.md",
       "output": "json:gtm-candidates",
-      "note": "brand_to_gtm exists as a gated library fn (scripts/lib/gtm.py); the thin scripts/gtm_cli.py CLI wrapper is the snow-gloves follow-up — the function + the approval gate are already there."
+      "note": "brand_to_gtm exists as a gated library fn (scripts/lib/gtm.py); the thin scripts/gtm_cli.py CLI wrapper is the snow-gloves follow-up \u2014 the function + the approval gate are already there.",
+      "contract_requires": [
+        "artifact",
+        "brand_docs",
+        "proof_strategy",
+        "distribution_constraints",
+        "acceptance_checks"
+      ],
+      "contract_produces": [
+        "business"
+      ],
+      "contract_version": "1.0.0"
     }
   }
 }

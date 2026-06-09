@@ -69,6 +69,33 @@ test('missing pipeline.stages throws', () => {
   assert.throws(() => planPipeline({ registry, pipeline: {}, tenant: 't' }), /pipeline\.stages/);
 });
 
+test('pipeline stages declare required and produced variable groups', async () => {
+  const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
+  for (const stage of pipeline.stages) {
+    assert.ok(Array.isArray(stage.requires), `${stage.id} missing requires`);
+    assert.ok(Array.isArray(stage.produces), `${stage.id} missing produces`);
+    assert.ok(Array.isArray(stage.blocking), `${stage.id} missing blocking`);
+    assert.ok(Array.isArray(stage.downstream_effects), `${stage.id} missing downstream_effects`);
+  }
+});
+
+test('registry organs declare capability arrays', async () => {
+  const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
+  for (const [organId, organ] of Object.entries(registry.organs)) {
+    assert.ok(Array.isArray(organ.capabilities), `${organId} missing capabilities`);
+    assert.ok(organ.capabilities.length > 0, `${organId} capabilities empty`);
+  }
+});
+
+test('adapters declare contract metadata', async () => {
+  const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
+  for (const [adapterId, adapter] of Object.entries(adapters.adapters)) {
+    assert.ok(Array.isArray(adapter.contract_requires), `${adapterId} missing contract_requires`);
+    assert.ok(Array.isArray(adapter.contract_produces), `${adapterId} missing contract_produces`);
+    assert.equal(typeof adapter.contract_version, 'string', `${adapterId} missing contract_version`);
+  }
+});
+
 test('contracts doc defines the variable contract vocabulary', async () => {
   const text = await fs.readFile(join(root, 'composition', 'CONTRACTS.md'), 'utf8');
   assert.match(text, /Variable contract/i);
