@@ -152,5 +152,21 @@ to all. *(Artifact: the self-similar repo pattern — hub-and-spoke + conductor 
 
 `verifyOutput(adapter, result)` checks a stage's output against its **declared output contract** (a
 `json:*` stage must emit parseable JSON). A failure is **drift detected at the seam** — surfaced
-(non-fatal) and ready to feed the why-handler. It is the smallest honest piece of §5–§7 made real; the
-full classifier + why-loop is **I4**.
+(non-fatal) and ready to feed the why-handler. It is the smallest honest piece of §5–§7 made real.
+
+## 12. The why-handler (I4 — wired)
+
+`bin/lib/whyhandler.mjs` turns the §5 drift signal into the §7 loop. `compose run` routes every drifted
+stage through it:
+- **classify** (`classifyDeviation`) — the one-bit error-vs-intent question. Default **error**
+  (fail-closed → reroll toward the same x*); **intent** only when the stage is flagged `--intent <stage>`
+  (the operator's redirect; later, a cortex-recognised repeated attractor).
+- **resolve** (`resolveDeviation`) — error → **reroll** toward x*; intent → **absorb** Δ into x* and the
+  contract (carrying the rationale) so it never reads as drift again.
+- **record** (`recordDeviation`) — every deviation is appended to `deviations.jsonl` — the **cortex-write
+  STUB**; **I3** swaps in the real NIM Worker so the learning is shared across organs and scales.
+
+**The interactive "ask why" is the orchestration layer.** A CLI can't ask the operator; so when a run
+surfaces a drift, the agent driving it calls `AskUserQuestion` using `buildWhyPrompt(deviation)`
+(*error → reroll* vs *intent → new direction*), captures the rationale, and feeds it to
+`resolveDeviation`. The code ships the mechanism + the seam; the agent supplies the one bit + the why.
