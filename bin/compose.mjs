@@ -15,6 +15,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { runStage } from './lib/invoke.mjs';
 
 // ───────────────────────── pure core (no I/O) ─────────────────────────
 
@@ -96,22 +98,82 @@ function load(root) {
   };
 }
 
-export function main(argv, root) {
-  const [cmd, tenant] = argv;
-  if (cmd !== 'plan' && cmd !== 'validate') {
-    console.log('usage: compose <plan|validate> [tenant]');
-    return cmd ? 1 : 0; // unknown cmd → error; bare `compose` → 0
+// the ONLY real spawn in Cambium — reached solely when the fail-closed gate allows it
+function realRunner(inv) {
+  const r = spawnSync(inv.cmd, inv.args, { cwd: inv.cwd, encoding: 'utf8' });
+  return { status: r.status, stdout: r.stdout, stderr: r.stderr };
+}
+
+export function parseRunArgs(rest) {
+  const flags = { tenant: undefined, execute: false, approve: null };
+  for (let i = 0; i < rest.length; i++) {
+    const a = rest[i];
+    if (a === '--execute') {
+      flags.execute = true;
+    } else if (a === '--approve') {
+      const next = rest[i + 1];
+      // dangling --approve (no value, or followed by another flag) stays null — fail-safe
+      if (next && !next.startsWith('--')) { flags.approve = next; i++; }
+    } else if (!a.startsWith('--') && flags.tenant === undefined) {
+      flags.tenant = a;
+    }
+  }
+  return flags;
+}
+
+// `run` — call each organ adapter along the pipeline, FAIL-CLOSED on spend.
+// Dry-run (default) prints the exact command per stage; --execute spawns only stages
+// explicitly approved (--approve <stage>); spend-gated stages otherwise refuse.
+async function runCmd(root, { tenant, execute, approve }) {
+  if (execute && !tenant) {
+    console.log('refused: --execute requires a tenant — compose run <tenant> --execute --approve <stage>');
+    return 2;
   }
   const { registry, pipeline } = load(root);
-  // validate reuses planPipeline: resolving every stage IS the validation
-  const plan = planPipeline({ registry, pipeline, tenant: cmd === 'plan' ? tenant : '<validate>' });
-  if (cmd === 'plan') {
-    console.log(formatPlan(plan));
-  } else {
-    const nOrgans = Object.keys(registry.organs).length;
-    console.log(`✓ registry + pipeline valid — ${pipeline.stages.length} stages, ${nOrgans} organs, all resolve`);
+  const adapters = loadJson(join(root, 'adapters.json')).adapters;
+  const mode = execute ? (approve ? `--execute --approve ${approve}` : '--execute') : 'dry-run';
+  const lines = [`Cambium run — tenant: ${tenant || '<tenant>'}  (${mode})`, ''];
+  let spawned = 0;
+  let refused = 0;
+  for (const stage of pipeline.stages) {
+    const adapter = adapters[stage.organ];
+    if (!adapter) { lines.push(`  ${stage.id.padEnd(8)} · no adapter yet (planned)`); continue; }
+    const res = await runStage(stage.organ, {
+      registry, adapters, cambiumRoot: root, env: process.env,
+      tenant, input: '', execute, approve, runner: realRunner,
+    });
+    const inv = res.invocation;
+    lines.push(`  ${stage.id.padEnd(8)} · ${inv.spend === 'gated' ? '💲 spend-gated' : '○ free'}`);
+    lines.push(`     ↳ cd ${inv.cwd} && ${inv.cmd} ${inv.args.join(' ')}`);
+    if (res.spawned) { spawned++; lines.push(`     ▶ spawned (exit ${res.result.status})`); }
+    else { if (execute) refused++; lines.push(`     ⛔ ${res.gate.reason}`); }
   }
-  return 0;
+  lines.push('');
+  lines.push(execute
+    ? `${spawned} spawned · ${refused} refused (fail-closed).`
+    : `dry-run — nothing spawned. Run a stage: compose run ${tenant || '<tenant>'} --execute --approve <stage>`);
+  console.log(lines.join('\n'));
+  return execute && refused > 0 ? 2 : 0;
+}
+
+export async function main(argv, root) {
+  const [cmd, ...rest] = argv;
+  if (cmd === 'plan' || cmd === 'validate') {
+    const { registry, pipeline } = load(root);
+    const plan = planPipeline({ registry, pipeline, tenant: cmd === 'plan' ? rest[0] : '<validate>' });
+    if (cmd === 'plan') {
+      console.log(formatPlan(plan));
+    } else {
+      const nOrgans = Object.keys(registry.organs).length;
+      console.log(`✓ registry + pipeline valid — ${pipeline.stages.length} stages, ${nOrgans} organs, all resolve`);
+    }
+    return 0;
+  }
+  if (cmd === 'run') {
+    return runCmd(root, parseRunArgs(rest));
+  }
+  console.log('usage: compose <plan|validate|run> [tenant] [--execute] [--approve <stage>]');
+  return cmd ? 1 : 0;
 }
 
 // ───────────────────────── isMain CLI guard ─────────────────────────
@@ -120,5 +182,5 @@ const isMain =
   process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isMain) {
   const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-  process.exit(main(process.argv.slice(2), root));
+  main(process.argv.slice(2), root).then((code) => process.exit(code));
 }

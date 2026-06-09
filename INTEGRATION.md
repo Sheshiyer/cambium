@@ -21,14 +21,36 @@ end-to-end, on-brand, per tenant."*
 
 Run it: `node bin/compose.mjs plan acme`. Test it: `npm test` (or `node --test 'bin/*.test.mjs'`).
 
+### The invocation layer (I2 — live, fail-closed)
+
+`adapters.json` + `bin/lib/invoke.mjs` + `compose run` turn the *planned* stages into **calls the
+conductor actually makes** — gated on spend (constitution #4):
+
+| Artifact | Role |
+|---|---|
+| [`adapters.json`](./adapters.json) | per-organ invocation spec: `cmd` · `args` (with `{tenant}`/`{input}`) · `root_id` · `spend` (none/gated) |
+| [`bin/lib/invoke.mjs`](./bin/lib/invoke.mjs) | `resolveRoot` · `buildInvocation` (pure) · **`gateStage`** (the fail-closed gate) · `runStage` (injected runner — never spawns in tests) |
+| `compose run <tenant>` | dry-run prints the exact command per stage; **`--execute` spawns ONLY `--approve <stage>` stages**; gated stages otherwise refuse (exit ≠ 0) |
+
+```
+node bin/compose.mjs run acme                       # dry-run — prints, spawns nothing
+node bin/compose.mjs run acme --execute             # refuses every spend-gated stage (fail-closed)
+node bin/compose.mjs run acme --execute --approve taste   # the ONE path that spends (you, deliberately)
+```
+
+Roots resolve via `CAMBIUM_ORGAN_ROOTS` (JSON map override) → an adapter `local_dir` → the sibling-dir
+convention (the `local_dir`/env override matter on case-sensitive filesystems). Both
+taste + genesis are `spend: gated` (taste embeds via the paid NIM; genesis runs the brand-mint waves),
+so **nothing spawns without an explicit per-stage approval.**
+
 ## Wires
 
 | # | Wire | From → To | State | Where |
 |---|---|---|---|---|
 | **I1** | brand-docs → GTM ICP | genesis brand-docs → `ops` (Explee) | ✅ **shipped** — [snow-gloves PR #4](https://github.com/Sheshiyer/snow-gloves-os/pull/4) | snow-gloves `004` |
-| **I2a** | genesis **as a service** | `idea` → `brand-dna` on demand | ⏳ pending | brandmint endpoint ← conductor |
-| **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ⏳ pending | skill-clusters endpoint ← conductor |
-| **I2c** | taste **as a service** | `brand-dna` → `taste-brief` + on-brand verdict | ⏳ pending | skill-clusters taste-resolve ← conductor |
+| **I2a** | genesis **as a service** | `idea` → `brand-dna` on demand | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn `--approve`-gated | brandmint ← conductor |
+| **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ⏳ pending — one adapter away | skill-clusters ← conductor |
+| **I2c** | taste **as a service** | `brand-dna` → `taste-brief` + on-brand verdict | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn `--approve`-gated | skill-clusters taste-resolve ← conductor |
 | **I3** | unify the NIM cortex | one aesthetic memory across all organs | ⏳ pending | merge `taste-nim` + `DESIGN_MEMORY_WORKER` |
 | **B1** | name-validation gate | a name must be ownable before asset spend | ⏳ pending (Fitcheck lesson) | brandmint / skill-clusters |
 | **B2** | semantic visual-QA | gate renders on brief-match, not just palette | ⏳ pending (Fitcheck lesson) | skill-clusters reroll |

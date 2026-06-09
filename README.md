@@ -45,8 +45,8 @@ graph LR
 
 ## Read next
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** — the constellation, the self-similar pattern, the **composition layer**, the wiring audit.
-- **[INTEGRATION.md](./INTEGRATION.md)** — the wiring roadmap: **I1** (brand→GTM) ✅ shipped, **I2a/b/c** organs-as-services, **I3** unify the cortex.
-- **[`bin/compose.mjs`](./bin/compose.mjs)** — the dry-run **conductor**: `node bin/compose.mjs plan <tenant>` prints the per-tenant pipeline (each stage → organ, repo, entrypoint, free/paid tier).
+- **[INTEGRATION.md](./INTEGRATION.md)** — the wiring roadmap: **I1** (brand→GTM) ✅ shipped, **I2a/c** organs-as-services **wired (gated)**, **I3** unify the cortex.
+- **[`bin/compose.mjs`](./bin/compose.mjs)** — the **conductor**: `compose plan <tenant>` prints the pipeline; `compose run <tenant>` **calls** each organ — **fail-closed on spend** (`--execute --approve <stage>` is the only path that spends). `adapters.json` + `bin/lib/invoke.mjs` are the I2 invocation layer.
 - **[BUSINESS-MODEL.md](./BUSINESS-MODEL.md)** — free left brain / paid right brain, why it compounds, the packaging.
 
 *Proven on the first tracer slice — Fitcheck (AI virtual try-on for fashion) — minted, built, and rendered end-to-end. Lessons: [`skill-clusters/docs/LESSONS-FITCHECK-RUN.md`](https://github.com/Sheshiyer/skill-clusters/blob/main/docs/LESSONS-FITCHECK-RUN.md).*
