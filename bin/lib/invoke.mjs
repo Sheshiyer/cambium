@@ -43,12 +43,13 @@ function seedContractState(stages, adapters, seedInput) {
     return { ...seedInput };
   }
   const first = stages?.[0];
+  const firstAdapter = adapters?.[first?.organ];
   const required = Array.isArray(first?.requires) ? first.requires.filter(Boolean) : [];
   const initial = seedInput == null || seedInput === ''
-    ? adapters?.[first?.organ]?.input_default
+    ? firstAdapter?.input_default
     : seedInput;
   if (initial == null || initial === '') return {};
-  if (stages?.length === 1 && required.length) {
+  if (stages?.length === 1 && required.length && firstAdapter?.spend === 'none') {
     return Object.fromEntries(required.map((group) => [group, initial]));
   }
   if (required.length === 1) {
@@ -128,7 +129,6 @@ export async function runStage(organId, ctx = {}) {
     registry, adapters, cambiumRoot, env = {}, tenant, input, contractPayload = input,
     execute = false, approve = null, runner,
   } = ctx;
-  validateStageContract(ctx.stage, contractPayload);
   const adapter = adapters?.[organId];
   if (!adapter) throw new Error(`no adapter for organ "${organId}"`);
   const root = resolveRoot(organId, { registry, adapters, cambiumRoot, env });
@@ -137,6 +137,7 @@ export async function runStage(organId, ctx = {}) {
   if (!gate.allowed) {
     return { organId, invocation, gate, spawned: false };
   }
+  validateStageContract(ctx.stage, contractPayload);
   if (typeof runner !== 'function') throw new Error('runStage: allowed to run but no runner injected');
   const result = await runner(invocation);
   return { organId, invocation, gate, spawned: true, result };

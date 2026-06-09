@@ -105,14 +105,60 @@ test('runStage approved-execute calls the runner exactly once', async () => {
   assert.equal(calls, 1);
 });
 
+test('runStage dry-run skips contract validation until a stage may execute', async () => {
+  const stage = {
+    id: 'build',
+    organ: 'taste',
+    requires: ['brand_system', 'asset_plan'],
+    produces: ['artifact'],
+  };
+  const res = await runStage({
+    ...ctx,
+    stage,
+    tenant: 'acme',
+    execute: false,
+    runner: () => ({ status: 0, stdout: 'ok' }),
+  });
+  assert.equal(res.spawned, false);
+  assert.match(res.gate.reason, /dry-run/i);
+});
+
+test('runStage spend refusal skips contract validation until approval exists', async () => {
+  const stage = {
+    id: 'build',
+    organ: 'taste',
+    requires: ['brand_system', 'asset_plan'],
+    produces: ['artifact'],
+  };
+  const res = await runStage({
+    ...ctx,
+    stage,
+    tenant: 'acme',
+    execute: true,
+    approve: null,
+    runner: () => ({ status: 0, stdout: 'ok' }),
+  });
+  assert.equal(res.spawned, false);
+  assert.match(res.gate.reason, /needs --approve taste/i);
+});
+
 test('runStage fails closed when required variable groups are missing', async () => {
   const stage = {
     id: 'build',
+    organ: 'taste',
     requires: ['brand_system', 'asset_plan'],
     produces: ['artifact'],
   };
   await assert.rejects(
-    () => runStage({ stage, input: { brand_system: {} } }),
+    () => runStage({
+      ...ctx,
+      stage,
+      tenant: 'acme',
+      execute: true,
+      approve: 'taste',
+      runner: () => ({ status: 0, stdout: 'ok' }),
+      input: { brand_system: {} },
+    }),
     /missing required variable groups: asset_plan/i,
   );
 });
@@ -222,7 +268,7 @@ test('runPipeline explains when a required group was never seeded into the pipel
       adapters: hoAdapters,
       cambiumRoot: '/x/cambium',
       tenant: 't',
-      execute: false,
+      execute: true,
       runner,
       seedInput: { brand_system: {} },
     }),
@@ -262,15 +308,56 @@ test('runPipeline preserves direct single-stage scalar input compatibility', asy
     adapters: hoAdapters,
     cambiumRoot: '/x/cambium',
     tenant: 't',
-    execute: false,
+    execute: true,
     runner: () => ({ status: 0, stdout: 'ignored' }),
     seedInput: 'plan.md',
   });
   assert.ok(result.invocation.args.includes('plan.md'));
-  assert.equal(result.spawned, false);
+  assert.equal(result.spawned, true);
 });
 
-test('runPipeline does not mark dry-run produced groups as available', async () => {
+test('runPipeline does not widen single-stage scalar compatibility for spend-gated stages', async () => {
+  const stages = [
+    { id: 'taste', organ: 'taste', requires: ['brand_system', 'copy_system', 'visual_system'] },
+  ];
+  await assert.rejects(
+    () => runPipeline({
+      stages,
+      registry,
+      adapters,
+      cambiumRoot: '/x/cambium',
+      tenant: 'acme',
+      execute: true,
+      approve: 'taste',
+      runner: () => ({ status: 0, stdout: 'ok' }),
+      seedInput: 'plan.md',
+    }),
+    /missing required variable groups: brand_system, copy_system, visual_system/i,
+  );
+});
+
+test('runPipeline keeps dry-run as a full planning walk', async () => {
+  const stages = [
+    { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system'] },
+    { id: 'build', organ: 'b', requires: ['brand_system'] },
+  ];
+  const results = await runPipeline({
+    stages,
+    registry: hoReg,
+    adapters: {
+      a: { ...hoAdapters.a, spend: 'gated' },
+      b: { ...hoAdapters.b, spend: 'none' },
+    },
+    cambiumRoot: '/x/cambium',
+    tenant: 't',
+    execute: false,
+    runner: () => ({ status: 0, stdout: 'ignored' }),
+  });
+  assert.deepEqual(results.map((result) => result.stage), ['genesis', 'build']);
+  assert.ok(results.every((result) => result.spawned === false));
+});
+
+test('runPipeline dry-run keeps downstream stages on their defaults', async () => {
   const stages = [
     { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system'] },
     { id: 'build', organ: 'b', requires: ['brand_system'] },
@@ -279,18 +366,18 @@ test('runPipeline does not mark dry-run produced groups as available', async () 
     a: { ...hoAdapters.a, input_default: 'brand-config.yaml', spend: 'gated' },
     b: { ...hoAdapters.b, input_default: 'DEF_B' },
   };
-  await assert.rejects(
-    () => runPipeline({
-      stages,
-      registry: hoReg,
-      adapters,
-      cambiumRoot: '/x/cambium',
-      tenant: 't',
-      execute: false,
-      runner: () => ({ status: 0, stdout: 'ignored' }),
-    }),
-    /brand_system.*should have been produced by upstream stage "genesis"/i,
-  );
+  const results = await runPipeline({
+    stages,
+    registry: hoReg,
+    adapters,
+    cambiumRoot: '/x/cambium',
+    tenant: 't',
+    execute: false,
+    runner: () => ({ status: 0, stdout: 'ignored' }),
+  });
+  const build = results.find((result) => result.stage === 'build');
+  assert.ok(build.invocation.args.includes('DEF_B'));
+  assert.equal(build.inputFrom, 'default');
 });
 
 test('runPipeline does not mark refused produced groups as available', async () => {
