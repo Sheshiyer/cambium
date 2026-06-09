@@ -55,5 +55,6 @@ The `input`/`output` tokens below are the contract identifiers referenced by the
 Cambium **plans + validates** (`compose plan/validate`) and now **calls** each organ along the contract
 (`compose run`, via [`../adapters.json`](../adapters.json) + `bin/lib/invoke.mjs`) — **fail-closed on
 spend**: a spend-gated stage (taste, genesis) never spawns without an explicit `--approve <stage>`
-(constitution #4). Executable-as-a-plan and as-gated-calls today; the live end-to-end hand-off (piping
-stage N's output → N+1's input) is the next step.
+(constitution #4). Executable-as-a-plan, as-gated-calls, and with the **live output→input hand-off**
+(`runPipeline` threads stage N's output → N+1's `{input}`): the no-spend **hands** stage runs end-to-end
+today; the full chain runs once the gated stages (genesis, taste) are approved.

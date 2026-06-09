@@ -20,6 +20,16 @@
       "spend_reason": "runs the full brand-mint waves (visual + inference generation)",
       "input_default": "brand-config.yaml",
       "output": "brand-dna"
+    },
+    "hands": {
+      "root_id": "hands",
+      "local_dir": "Skill-clusters",
+      "cmd": "node",
+      "args": ["scripts/resolve-task.mjs", "{input}", "--json"],
+      "spend": "none",
+      "spend_reason": "resolve-task is a deterministic resolver (tasks.md → cluster dispatch plan); NO spend. The spend-bearing part is DISPATCHING the resolved cluster orchestrators — a gated extension, not this adapter.",
+      "input_default": "",
+      "output": "json:dispatch-plan"
     }
   }
 }

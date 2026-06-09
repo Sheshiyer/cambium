@@ -81,3 +81,59 @@ export async function runStage(organId, ctx = {}) {
   const result = await runner(invocation);
   return { organId, invocation, gate, spawned: true, result };
 }
+
+// parse JSON from a stdout blob — tolerant of leading banner/log lines. Pure.
+function tryJson(s) {
+  try { return JSON.parse(s); } catch { /* not pure JSON — retry from the first bracket */ }
+  const i = s.search(/[{[]/);
+  if (i >= 0) { try { return JSON.parse(s.slice(i)); } catch { /* give up, fall back to raw */ } }
+  return undefined;
+}
+
+/**
+ * The output a stage hands to the next stage along the pipeline. Pure.
+ * Honors the adapter's declared `output` contract: a `json:*` stage hands the parsed
+ * JSON payload (compacted) — not its banner/log lines — to the next stage; everything
+ * else hands its trimmed stdout.
+ */
+export function extractOutput(adapter, result) {
+  const raw = (result?.stdout ?? '').trim();
+  if (adapter?.output?.startsWith('json:')) {
+    const parsed = tryJson(raw);
+    if (parsed !== undefined) return JSON.stringify(parsed);
+  }
+  return raw;
+}
+
+/**
+ * Run a pipeline of stages, threading each stage's output into the NEXT stage's
+ * input (the hand-off). A stage that doesn't spawn (gated/refused/no-adapter) or
+ * exits non-zero breaks the chain — the next stage falls back to its input_default.
+ * The runner is injected, so this is fully testable and a refused stage cannot spawn.
+ * @returns per-stage results: { stage, organId, invocation?, gate?, spawned, result?, inputFrom }
+ */
+export async function runPipeline({
+  stages, registry, adapters, cambiumRoot, env = {},
+  tenant, execute = false, approve = null, runner, seedInput = null,
+} = {}) {
+  const results = [];
+  let prev = seedInput; // the hand-off carry: the previous stage's output (or the seed for stage 1)
+  for (const stage of stages) {
+    if (!adapters?.[stage.organ]) {
+      results.push({ stage: stage.id, organId: stage.organ, adapter: false });
+      continue; // no adapter → carry is unchanged
+    }
+    const inputFrom = prev != null && prev !== '' ? 'prev-stage' : 'default';
+    const res = await runStage(stage.organ, {
+      registry, adapters, cambiumRoot, env, tenant, input: prev, execute, approve, runner,
+    });
+    res.stage = stage.id;
+    res.inputFrom = inputFrom;
+    results.push(res);
+    // only a stage that actually ran AND succeeded feeds the next; else the chain breaks
+    prev = res.spawned && res.result && res.result.status === 0
+      ? extractOutput(adapters[stage.organ], res.result)
+      : null;
+  }
+  return results;
+}
