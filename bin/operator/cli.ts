@@ -7,6 +7,7 @@
 //   onboard [--auto] [--restart]  the 20-step first session (ONBOARDING-OCTALYSIS.md)
 //   icp ["positioning"]        ask the (real-ish) ICP-NPC (pains)
 //   resonance ["positioning"]  the ICP gradient: pains + real cosine resonance (NIM embeddings)
+//   coderecall "<q>" [--project <p>]  structural code-recall (CodeGraph lane · B6)
 //   state
 // Contract: INFINITE-GAME.md  ·  Onboarding: ONBOARDING-OCTALYSIS.md
 // Models: NVIDIA NIM (NVIDIA_API_KEY) → Kimi (KIMI_API_KEY); offline → deterministic stubs.
@@ -23,6 +24,7 @@ import { wakeAsync } from './orchestrate.ts';
 import { runOnboard } from './onboarding/run.ts';
 import { sqliteCortex } from './cortex-sqlite.ts';
 import { vectorizeCortex } from './vectorize-cortex.ts';
+import { codegraphRecall, cliCodegraphClient } from './codegraph-recall.ts';
 import type { WorldState, GameEvent, Decision } from './types.ts';
 import type { CortexStore } from './cortex-memory.ts';
 import { defaultCortex } from '../lib/cortex.mjs';
@@ -118,6 +120,19 @@ if (cmd === 'wake') {
   const auto = rest.includes('--auto');
   const restart = rest.includes('--restart');
   await runOnboard({ auto, restart, tenant, stateDir: STATE_DIR });
+} else if (cmd === 'coderecall') {
+  const args = rest.filter((a) => !a.startsWith('--'));
+  const query = args[0] ?? '';
+  const pIdx = rest.indexOf('--project');
+  const projectPath = pIdx >= 0 ? rest[pIdx + 1] : ROOT;
+  try {
+    const r = await codegraphRecall(cliCodegraphClient(), query, projectPath);
+    console.log(`code-recall (${projectPath}) on "${query}":`);
+    for (const n of r.neighbors) console.log(`  · ${n.kind} ${n.name}${n.file ? ` — ${n.file}` : ''}`);
+    console.log(`  ${r.note}`);
+  } catch (e) {
+    console.log(`  ${(e as Error).message}`);
+  }
 } else if (cmd === 'state') {
   const w = loadWorld(tenant);
   console.log(JSON.stringify({ ...w, brand: { ...w.brand, setpoint: `[${w.brand.setpoint.length}d vector]` } }, null, 2));
@@ -131,6 +146,7 @@ if (cmd === 'wake') {
   console.log('  node bin/operator/cli.ts onboard [--auto]       # the 20-step first session');
   console.log('  node bin/operator/cli.ts icp ["positioning"]    # the ICP-NPC (pains)');
   console.log('  node bin/operator/cli.ts resonance ["pos"]      # pains + real cosine gradient (NIM)');
+  console.log('  node bin/operator/cli.ts coderecall "<query>"  # structural code-recall (CodeGraph)');
   console.log('  node bin/operator/cli.ts state');
   console.log('\ncontract: INFINITE-GAME.md   ·   models: NVIDIA NIM → Kimi → stub');
 }
