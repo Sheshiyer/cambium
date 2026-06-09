@@ -1,0 +1,53 @@
+name: Release
+
+# Reusable release pipeline. Fires on any vX.Y.Z tag (or manual dispatch): runs the full suite as a
+# gate, then cuts a GitHub Release titled "vX.Y.Z · <Muse codename>" with auto-generated notes.
+# Codename is read from package.json (`codename`). Idempotent — skips if the release already exists.
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to release (e.g. v0.2.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 26
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+
+      - name: Test (release gate)
+        run: npm test
+
+      - name: Resolve version + codename
+        id: meta
+        run: |
+          echo "codename=$(node -p "require('./package.json').codename || 'Muse'")" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          [ "${{ github.event_name }}" = "workflow_dispatch" ] && TAG="${{ github.event.inputs.tag }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — skipping."
+          else
+            gh release create "$TAG" \
+              --title "$TAG · ${{ steps.meta.outputs.codename }}" \
+              --generate-notes
+          fi
