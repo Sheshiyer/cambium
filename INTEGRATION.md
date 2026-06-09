@@ -56,20 +56,23 @@ spend-bearing chain still needs `--approve` on genesis + taste.
 | # | Wire | From → To | State | Where |
 |---|---|---|---|---|
 | **I1** | brand-docs → GTM ICP | genesis brand-docs → `ops` (Explee) | ✅ **shipped** — [snow-gloves PR #4](https://github.com/Sheshiyer/snow-gloves-os/pull/4) | snow-gloves `004` |
-| **I2a** | genesis **as a service** | `idea` → `brand-dna` on demand | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn `--approve`-gated | brandmint ← conductor |
-| **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ✅ **wired** — resolve-task adapter (`spend: none`, **runs live**); the build *dispatch* is the gated extension | skill-clusters ← conductor |
-| **I2c** | taste **as a service** | `brand-dna` → `taste-brief` + on-brand verdict | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn `--approve`-gated | skill-clusters taste-resolve ← conductor |
-| **I3** | unify the NIM cortex | one aesthetic memory across all organs | ⏳ pending | merge `taste-nim` + `DESIGN_MEMORY_WORKER` |
-| **I4** | **self-healing / homeostasis** | drift-detect → ask-why → learn → re-converge ([HOMEOSTASIS.md](./HOMEOSTASIS.md) · [tapestry](./docs/architecture.html) · [per-organ](./docs/organs.html)) | 🟡 **seam shipped** — `verifyOutput` drift-detector + `ops` adapter (**all 4 stages wired**); the why-handler loop is next | conductor + cortex + `AskUserQuestion` |
+| **I2a** | genesis **as a service** | `idea` → `brand-dna` on demand | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn is `--approve`-gated, and the wiring should evolve to carry the documented variable contracts (`brand_system`, `copy_system` with its `copy_slots` map, `visual_system`) rather than prose-only output | brandmint ← conductor |
+| **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ✅ **wired** — resolve-task adapter (`spend: none`, **runs live**); the build *dispatch* is the gated extension, and it must consume / preserve `asset_plan`, `section_plan`, `interaction_plan`, `acceptance_checks` as structured variables | skill-clusters ← conductor |
+| **I2c** | taste **as a service** | `brand-dna` → `taste-brief` + on-brand verdict | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn is `--approve`-gated, and the wiring should evolve to emit the documented variable contracts for downstream build / ops, not just an English brief | skill-clusters taste-resolve ← conductor |
+| **I3** | unify the NIM cortex | one aesthetic memory across all organs | ⏳ pending — the shared memory must read/write the same variable contracts, not ad hoc prose notes | merge `taste-nim` + `DESIGN_MEMORY_WORKER` |
+| **I4** | **self-healing / homeostasis** | drift → classify error-vs-intent → reroll \| absorb → re-converge ([HOMEOSTASIS.md §12](./HOMEOSTASIS.md) · [tapestry](./docs/architecture.html) · [per-organ](./docs/organs.html)) | 🟢 **why-handler wired** — `verifyOutput` → `whyhandler.mjs` (classify/resolve/record) → ledger; `--intent <stage>` is the one-bit signal; the **cortex-write is stubbed** (deviations.jsonl) for **I3**. Today the runtime only checks JSON-shape drift for `json:*` outputs; full fail-closed variable-contract validation is planned for Task 3 / later work. | conductor + `whyhandler.mjs` + `AskUserQuestion` |
 | **B1** | name-validation gate | a name must be ownable before asset spend | ⏳ pending (Fitcheck lesson) | brandmint / skill-clusters |
 | **B2** | semantic visual-QA | gate renders on brief-match, not just palette | ⏳ pending (Fitcheck lesson) | skill-clusters reroll |
 | **B3** | reference-anchored campaigns | one brand character across the whole asset set | ⏳ pending (Fitcheck lesson) | skill-clusters / nanobanana |
 
 **I1** proved the pattern: a stage doesn't get crammed into snow-gloves — it stays its organ, and the
 wire is a thin contract (the Brief *is* the brand→GTM interface). **I2a/b/c** repeat that for genesis,
-the build hands, and the taste cortex: each becomes a callable service the conductor invokes, fulfilling
-its stage contract. **I3** unifies the memory the paid tier is built on. **B1–B3** are the engine
-lessons from the first real brand run ([Fitcheck](https://github.com/Sheshiyer/skill-clusters/blob/main/docs/LESSONS-FITCHECK-RUN.md)).
+the build hands, and the taste cortex: each becomes a callable service the conductor invokes, with wiring
+that should evolve to carry the canonical variable contracts forward as structured data. **I3** unifies
+the memory the paid tier is built on. **I4** currently catches `json:*` shape drift; fail-closed
+validation of required variable groups lands in Task 3 / later work. **B1–B3** are the engine lessons from
+the first real brand run
+([Fitcheck](https://github.com/Sheshiyer/skill-clusters/blob/main/docs/LESSONS-FITCHECK-RUN.md)).
 
 ## Why not "wire everything into snow-gloves"
 

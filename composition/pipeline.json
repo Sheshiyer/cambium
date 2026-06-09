@@ -1,34 +1,117 @@
 {
   "version": "0.1.0",
-  "note": "The per-tenant composition pipeline. An idea enters at genesis; each stage is owned by exactly one organ (by registry id); the cortex is cross-cutting (it feeds every stage, it is not a stage). input/output are the contract tokens documented in composition/CONTRACTS.md. The conductor (bin/compose.mjs) resolves each stage.organ against registry.json and prints the plan; it is DRY-RUN ONLY — executing the organs end-to-end is I2.",
+  "note": "The per-tenant composition pipeline. An idea enters at genesis; each stage is owned by exactly one organ (by registry id); the cortex is cross-cutting (it feeds every stage, it is not a stage). input/output are the contract tokens documented in composition/CONTRACTS.md. The conductor (bin/compose.mjs) resolves each stage.organ against registry.json and prints the plan; it is DRY-RUN ONLY \u2014 executing the organs end-to-end is I2.",
   "stages": [
     {
       "id": "genesis",
       "organ": "genesis",
       "title": "Mint the brand",
       "input": "idea",
-      "output": "brand-dna"
+      "output": "brand-dna",
+      "requires": [
+        "idea"
+      ],
+      "produces": [
+        "brand_system",
+        "copy_system",
+        "visual_system"
+      ],
+      "blocking": [
+        "brand_system",
+        "copy_system",
+        "visual_system"
+      ],
+      "downstream_effects": [
+        "Seeds the canonical brand vocabulary consumed by taste, build, and ops",
+        "Establishes the visual system downstream stages preserve and refine"
+      ]
     },
     {
       "id": "taste",
       "organ": "taste",
       "title": "Set the taste",
       "input": "brand-dna",
-      "output": "taste-brief"
+      "output": "taste-brief",
+      "requires": [
+        "brand_system",
+        "copy_system",
+        "visual_system"
+      ],
+      "produces": [
+        "taste_brief",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "blocking": [
+        "taste_brief",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "downstream_effects": [
+        "Turns brand intent into structured visual and build constraints",
+        "Seeds the reusable acceptance gates downstream stages should preserve"
+      ]
     },
     {
       "id": "build",
       "organ": "hands",
       "title": "Build on-brand",
       "input": "taste-brief",
-      "output": "artifact"
+      "output": "artifact",
+      "requires": [
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "produces": [
+        "artifact",
+        "brand_docs"
+      ],
+      "blocking": [
+        "artifact",
+        "brand_docs"
+      ],
+      "downstream_effects": [
+        "Materializes the artifact and proof surface ops carries into distribution",
+        "Promotes seeded plans into executable assets and implementation docs"
+      ]
     },
     {
       "id": "ops",
       "organ": "will",
       "title": "Operate + GTM",
       "input": "artifact",
-      "output": "business"
+      "output": "business",
+      "requires": [
+        "artifact",
+        "brand_docs",
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "produces": [
+        "business"
+      ],
+      "blocking": [
+        "artifact",
+        "brand_docs"
+      ],
+      "downstream_effects": [
+        "Feeds live distribution outcomes and market feedback back into the cortex",
+        "Converts the built artifact into a running business operating state"
+      ]
     }
   ],
   "crosscutting": [
@@ -36,7 +119,12 @@
       "id": "cortex",
       "organ": "cortex",
       "title": "Aesthetic memory",
-      "feeds": ["genesis", "taste", "build", "ops"],
+      "feeds": [
+        "genesis",
+        "taste",
+        "build",
+        "ops"
+      ],
       "note": "the 1024-dim NIM memory; learns across stages and across tenants"
     }
   ]

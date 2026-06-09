@@ -12,11 +12,12 @@
 // no disk, no network) + a thin I/O shell (loadJson + main) that is the only place
 // the filesystem is touched. Importable for tests via the isMain guard at the end.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, appendFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { runPipeline } from './lib/invoke.mjs';
+import { handleDeviation } from './lib/whyhandler.mjs';
 
 // ───────────────────────── pure core (no I/O) ─────────────────────────
 
@@ -105,7 +106,7 @@ function realRunner(inv) {
 }
 
 export function parseRunArgs(rest) {
-  const flags = { tenant: undefined, execute: false, approve: null, stage: null, input: null };
+  const flags = { tenant: undefined, execute: false, approve: null, stage: null, input: null, intent: null };
   const valueOf = (rest, i) => {
     const next = rest[i + 1];
     return next !== undefined && !next.startsWith('--') ? next : undefined;
@@ -120,6 +121,9 @@ export function parseRunArgs(rest) {
     } else if (a === '--stage') {
       const v = valueOf(rest, i);
       if (v !== undefined) { flags.stage = v; i++; }
+    } else if (a === '--intent') {
+      const v = valueOf(rest, i);
+      if (v !== undefined) { flags.intent = v; i++; }
     } else if (a === '--input') {
       const v = rest[i + 1]; // input may legitimately be any string (e.g. a path)
       if (v !== undefined) { flags.input = v; i++; }
@@ -133,7 +137,7 @@ export function parseRunArgs(rest) {
 // `run` — call each organ adapter along the pipeline, FAIL-CLOSED on spend.
 // Dry-run (default) prints the exact command per stage; --execute spawns only stages
 // explicitly approved (--approve <stage>); spend-gated stages otherwise refuse.
-async function runCmd(root, { tenant, execute, approve, stage, input }) {
+async function runCmd(root, { tenant, execute, approve, stage, input, intent }) {
   if (execute && !tenant) {
     console.log('refused: --execute requires a tenant — compose run <tenant> --execute --approve <stage>');
     return 2;
@@ -149,10 +153,16 @@ async function runCmd(root, { tenant, execute, approve, stage, input }) {
     }
   }
   // runPipeline threads each stage's output → the next stage's input (the hand-off)
-  const results = await runPipeline({
-    stages, registry, adapters, cambiumRoot: root, env: process.env,
-    tenant, execute, approve, runner: realRunner, seedInput: input,
-  });
+  let results;
+  try {
+    results = await runPipeline({
+      stages, registry, adapters, cambiumRoot: root, env: process.env,
+      tenant, execute, approve, runner: realRunner, seedInput: input,
+    });
+  } catch (error) {
+    console.log(`fail-closed: ${error.message}`);
+    return 1;
+  }
   const byStage = Object.fromEntries(results.map((r) => [r.stage, r]));
   const mode = execute ? (approve ? `--execute --approve ${approve}` : '--execute') : 'dry-run';
   const lines = [`Cambium run — tenant: ${tenant || '<tenant>'}  (${mode})`, ''];
@@ -169,7 +179,17 @@ async function runCmd(root, { tenant, execute, approve, stage, input }) {
     if (res.spawned) {
       spawned++;
       lines.push(`     ▶ spawned (exit ${res.result.status})`);
-      if (res.contract && !res.contract.ok) lines.push(`     ⚠ drift — ${res.contract.reason}`);
+      if (res.contract && !res.contract.ok) {
+        // I4: route the drift signal through the why-handler (classify → resolve → record)
+        const { classification, resolution, line } = handleDeviation(
+          { stage: res.stage, reason: res.contract.reason },
+          { intent, ts: new Date().toISOString() },
+        );
+        try { appendFileSync(join(root, 'deviations.jsonl'), line + '\n'); } catch { /* ledger best-effort — drift-logging stays non-fatal */ } // cortex-write STUB (I3 → real Worker)
+        lines.push(`     ⚠ drift — ${res.contract.reason}`);
+        lines.push(`     ↳ why-handler: ${classification.kind} → ${resolution.action}${resolution.rationale ? ` ("${resolution.rationale}")` : ''}`);
+        if (classification.kind === 'error') lines.push(`     ↳ if intentional (a redirect, not an error): re-run with --intent ${res.stage} (then say why)`);
+      }
     } else { if (execute) refused++; lines.push(`     ⛔ ${res.gate.reason}`); }
   }
   lines.push('');
@@ -196,7 +216,7 @@ export async function main(argv, root) {
   if (cmd === 'run') {
     return runCmd(root, parseRunArgs(rest));
   }
-  console.log('usage: compose <plan|validate|run> [tenant] [--execute] [--approve <stage>]');
+  console.log('usage: compose <plan|validate|run> [tenant] [--execute] [--approve <stage>] [--intent <stage>]');
   return cmd ? 1 : 0;
 }
 

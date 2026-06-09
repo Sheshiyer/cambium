@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { planPipeline, formatPlan, loadJson, parseRunArgs } from './compose.mjs';
@@ -8,6 +9,21 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const registry = loadJson(join(root, 'registry.json'));
 const pipeline = loadJson(join(root, 'composition', 'pipeline.json'));
+const machineReadableContractGroups = new Set([
+  'idea',
+  'brand_system',
+  'copy_system',
+  'visual_system',
+  'taste_brief',
+  'asset_plan',
+  'section_plan',
+  'interaction_plan',
+  'acceptance_checks',
+  'artifact',
+  'brand_docs',
+  'business',
+]);
+const dedupe = (values) => [...new Set(values)];
 
 test('registry resolves every pipeline organ (repo + entrypoint)', () => {
   const plan = planPipeline({ registry, pipeline, tenant: 't' });
@@ -68,9 +84,120 @@ test('missing pipeline.stages throws', () => {
   assert.throws(() => planPipeline({ registry, pipeline: {}, tenant: 't' }), /pipeline\.stages/);
 });
 
+test('pipeline stages declare required and produced variable groups', async () => {
+  const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
+  for (const stage of pipeline.stages) {
+    assert.ok(Array.isArray(stage.requires), `${stage.id} missing requires`);
+    assert.ok(Array.isArray(stage.produces), `${stage.id} missing produces`);
+    assert.ok(Array.isArray(stage.blocking), `${stage.id} missing blocking`);
+    assert.ok(Array.isArray(stage.downstream_effects), `${stage.id} missing downstream_effects`);
+  }
+});
+
+test('registry organs declare machine-readable contract metadata', async () => {
+  const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
+  for (const [organId, organ] of Object.entries(registry.organs)) {
+    assert.ok(Array.isArray(organ.capabilities), `${organId} missing capabilities`);
+    assert.ok(organ.capabilities.length > 0, `${organId} capabilities empty`);
+    assert.ok(Array.isArray(organ.contract_requires), `${organId} missing contract_requires`);
+    assert.ok(Array.isArray(organ.contract_produces), `${organId} missing contract_produces`);
+    assert.deepEqual(
+      organ.capabilities,
+      dedupe([...organ.contract_requires, ...organ.contract_produces]),
+      `${organId} capabilities must be the canonical union of requires + produces`,
+    );
+  }
+});
+
+test('adapters declare contract metadata', async () => {
+  const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
+  for (const [adapterId, adapter] of Object.entries(adapters.adapters)) {
+    assert.ok(Array.isArray(adapter.contract_requires), `${adapterId} missing contract_requires`);
+    assert.ok(Array.isArray(adapter.contract_produces), `${adapterId} missing contract_produces`);
+    assert.equal(typeof adapter.contract_version, 'string', `${adapterId} missing contract_version`);
+  }
+});
+
+test('contracts doc defines the variable contract vocabulary', async () => {
+  const text = await fs.readFile(join(root, 'composition', 'CONTRACTS.md'), 'utf8');
+  assert.match(text, /Variable contract/i);
+  assert.match(text, /brand_system/i);
+  assert.match(text, /copy_system/i);
+  assert.match(text, /copy_slots/i);
+  assert.match(text, /visual_system/i);
+  assert.match(text, /asset_plan/i);
+  assert.match(text, /section_plan/i);
+  assert.match(text, /interaction_plan/i);
+  assert.match(text, /acceptance_checks/i);
+});
+
+test('machine-readable contracts stay within the documented vocabulary', async () => {
+  const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
+  const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
+  const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
+  const seen = [];
+
+  for (const stage of pipeline.stages) {
+    seen.push(...stage.requires, ...stage.produces);
+  }
+
+  for (const adapter of Object.values(adapters.adapters)) {
+    seen.push(...adapter.contract_requires, ...adapter.contract_produces);
+  }
+
+  for (const organ of Object.values(registry.organs)) {
+    seen.push(...organ.capabilities, ...organ.contract_requires, ...organ.contract_produces);
+  }
+
+  for (const group of seen) {
+    assert.ok(
+      machineReadableContractGroups.has(group),
+      `undocumented machine-readable contract group: ${group}`,
+    );
+  }
+});
+
+test('registry stage-organ contracts align with adapter contracts', async () => {
+  const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
+  const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
+
+  for (const adapterId of Object.keys(adapters.adapters)) {
+    const organ = registry.organs[adapterId];
+    assert.ok(organ, `${adapterId} missing registry organ`);
+    assert.deepEqual(
+      organ.contract_requires,
+      adapters.adapters[adapterId].contract_requires,
+      `${adapterId} registry/adapters contract_requires drifted`,
+    );
+    assert.deepEqual(
+      organ.contract_produces,
+      adapters.adapters[adapterId].contract_produces,
+      `${adapterId} registry/adapters contract_produces drifted`,
+    );
+  }
+});
+
+test('stage requirements are satisfiable from prior stage hand-offs', async () => {
+  const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
+  const available = new Set(['idea']);
+
+  for (const stage of pipeline.stages) {
+    for (const requirement of stage.requires) {
+      assert.ok(
+        available.has(requirement),
+        `${stage.id} requires ${requirement}, but no prior stage produces it`,
+      );
+    }
+
+    for (const produced of stage.produces) {
+      available.add(produced);
+    }
+  }
+});
+
 test('parseRunArgs parses tenant + execute + approve', () => {
   assert.deepEqual(parseRunArgs(['acme', '--execute', '--approve', 'taste']), {
-    tenant: 'acme', execute: true, approve: 'taste', stage: null, input: null,
+    tenant: 'acme', execute: true, approve: 'taste', stage: null, input: null, intent: null,
   });
 });
 
