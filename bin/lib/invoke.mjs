@@ -38,18 +38,21 @@ export function validateStageContract(stage, payload) {
   );
 }
 
-function seedContractState(stages, seedInput) {
+function seedContractState(stages, adapters, seedInput) {
   if (seedInput != null && typeof seedInput === 'object' && !Array.isArray(seedInput)) {
     return { ...seedInput };
   }
-  if (seedInput == null || seedInput === '') return {};
   const first = stages?.[0];
   const required = Array.isArray(first?.requires) ? first.requires.filter(Boolean) : [];
+  const initial = seedInput == null || seedInput === ''
+    ? adapters?.[first?.organ]?.input_default
+    : seedInput;
+  if (initial == null || initial === '') return {};
   if (stages?.length === 1 && required.length) {
-    return Object.fromEntries(required.map((group) => [group, seedInput]));
+    return Object.fromEntries(required.map((group) => [group, initial]));
   }
   if (required.length === 1) {
-    return { [required[0]]: seedInput };
+    return { [required[0]]: initial };
   }
   return {};
 }
@@ -189,7 +192,7 @@ export async function runPipeline({
 } = {}) {
   const results = [];
   let prev = seedInput; // the hand-off carry: the previous stage's output (or the seed for stage 1)
-  let contractState = seedContractState(stages, seedInput);
+  let contractState = seedContractState(stages, adapters, seedInput);
   const producerByGroup = {};
   for (const stage of stages) {
     if (!adapters?.[stage.organ]) {
@@ -211,10 +214,8 @@ export async function runPipeline({
     prev = res.spawned && res.result && res.result.status === 0
       ? extractOutput(adapters[stage.organ], res.result)
       : null;
-    if (res.spawned && res.result && res.result.status === 0) {
-      contractState = { ...contractState };
-      for (const group of stage.produces || []) contractState[group] = true;
-    }
+    contractState = { ...contractState };
+    for (const group of stage.produces || []) contractState[group] = true;
     for (const group of stage.produces || []) producerByGroup[group] = stage.id;
   }
   return results;

@@ -209,9 +209,9 @@ test('hand-off: a refused stage breaks the chain (next uses input_default)', asy
   assert.equal(calls, 1, 'only B ran (A was refused, no spawn)');
 });
 
-test('runPipeline explains which upstream stage should have produced a missing group', async () => {
+test('runPipeline explains when a required group was never seeded into the pipeline', async () => {
   const stages = [
-    { id: 'taste', organ: 'b', requires: ['brand_system'], produces: ['asset_plan'] },
+    { id: 'taste', organ: 'b', requires: ['brand_system'], produces: ['taste_brief'] },
     { id: 'build', organ: 'b', requires: ['brand_system', 'asset_plan'] },
   ];
   const runner = () => ({ status: 0, stdout: 'legacy-string-output' });
@@ -226,7 +226,7 @@ test('runPipeline explains which upstream stage should have produced a missing g
       runner,
       seedInput: { brand_system: {} },
     }),
-    /asset_plan.*upstream stage "taste"/i,
+    /asset_plan.*must be seeded before stage "build"/i,
   );
 });
 
@@ -268,6 +268,54 @@ test('runPipeline preserves direct single-stage scalar input compatibility', asy
   });
   assert.ok(result.invocation.args.includes('plan.md'));
   assert.equal(result.spawned, false);
+});
+
+test('runPipeline seeds the first stage contract state from its effective default input', async () => {
+  const stages = [
+    { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system'] },
+    { id: 'build', organ: 'b', requires: ['brand_system'] },
+  ];
+  const adapters = {
+    a: { ...hoAdapters.a, input_default: 'brand-config.yaml', spend: 'gated' },
+    b: { ...hoAdapters.b, input_default: 'DEF_B' },
+  };
+  const [genesis, build] = await runPipeline({
+    stages,
+    registry: hoReg,
+    adapters,
+    cambiumRoot: '/x/cambium',
+    tenant: 't',
+    execute: false,
+    runner: () => ({ status: 0, stdout: 'ignored' }),
+  });
+  assert.ok(genesis.invocation.args.includes('brand-config.yaml'));
+  assert.equal(build.spawned, false);
+  assert.ok(build.invocation.args.includes('DEF_B'));
+});
+
+test('runPipeline keeps the full pipeline gating path alive after an unapproved first stage', async () => {
+  const stages = [
+    { id: 'genesis', organ: 'a', requires: ['idea'], produces: ['brand_system'] },
+    { id: 'build', organ: 'b', requires: ['brand_system'] },
+  ];
+  const adapters = {
+    a: { ...hoAdapters.a, input_default: 'brand-config.yaml', spend: 'gated' },
+    b: { ...hoAdapters.b, input_default: 'DEF_B', spend: 'none' },
+  };
+  let calls = 0;
+  const [genesis, build] = await runPipeline({
+    stages,
+    registry: hoReg,
+    adapters,
+    cambiumRoot: '/x/cambium',
+    tenant: 't',
+    execute: true,
+    runner: () => { calls++; return { status: 0, stdout: 'ok' }; },
+  });
+  assert.equal(genesis.spawned, false);
+  assert.equal(build.spawned, true);
+  assert.ok(build.invocation.args.includes('DEF_B'));
+  assert.equal(calls, 1);
 });
 
 test('runPipeline dry-run calls the runner zero times', async () => {
