@@ -40,6 +40,9 @@ export function wake(world: WorldState, event: GameEvent, deps: WakeDeps): { wor
     action = event.kind === 'calling'
       ? 'noesis · reaffirm the vision (calling)'
       : 'noesis · defensive (loss/drift) + escalate to the human';
+  } else if (routing.class === 'heartbeat') {
+    // a self-scheduled sweep — no act; the viability step (below) does the work + warns early
+    action = 'heartbeat · viability sweep';
   } else if (routing.lane === 'micro') {
     next = applyTweak(next, event);
     action = 'micro · tweak applied (reversible · no setpoint move)';
@@ -84,6 +87,9 @@ export function wake(world: WorldState, event: GameEvent, deps: WakeDeps): { wor
     setpointMoved = false;
     action = 'EMERGENCY · defensive move into Viab(K) — overrode the act';
     report = viability(next);
+  } else if (report.warnings.length) {
+    // inside the kernel but close to an edge — surface it early (the heartbeat's whole job)
+    action += ` — WARN ${report.warnings.join(', ')}`;
   }
 
   // 5 · LEARN  +  6 · PERSIST (version bump = event sourcing)

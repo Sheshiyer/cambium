@@ -7,6 +7,8 @@ import type { WorldState, GameEvent, Margin, ViabilityReport } from './types.ts'
 // Viability bounds (the hard ones that dominate the learned boundary — INFINITE-GAME.md §5.2).
 export const SOLVENCY_FLOOR_DAYS = 30;   // below this runway → out of the game
 export const COHERENCE_FLOOR = 0.40;     // below this mission-coherence → drifting out
+export const SOLVENCY_WARN = 15;         // margin (days) under which the heartbeat warns (approaching the floor)
+export const COHERENCE_WARN = 0.10;
 
 export function createWorld(seed: Partial<WorldState> & { tenant: string; vision: string }): WorldState {
   return {
@@ -58,13 +60,15 @@ export function moveSetpoint(world: WorldState, g: number[], alpha?: number): Wo
   return next;
 }
 
-/** The viability monitor (approx): hard bounds → margins. ≥ 0 = inside Viab(K). */
+/** The viability monitor (approx): hard bounds → margins. value ≥ 0 = inside Viab(K); warn = close to the edge. */
 export function viability(world: WorldState): ViabilityReport {
-  const margins: Margin[] = [
-    { name: 'solvency', value: world.business.runwayDays - SOLVENCY_FLOOR_DAYS },
-    { name: 'mission-coherence', value: world.brand.coherence - COHERENCE_FLOOR },
+  const raw = [
+    { name: 'solvency', value: world.business.runwayDays - SOLVENCY_FLOOR_DAYS, warnAt: SOLVENCY_WARN },
+    { name: 'mission-coherence', value: world.brand.coherence - COHERENCE_FLOOR, warnAt: COHERENCE_WARN },
   ];
-  return { margins, ok: margins.every((m) => m.value >= 0) };
+  const margins: Margin[] = raw.map((m) => ({ name: m.name, value: m.value, warn: m.value >= 0 && m.value < m.warnAt }));
+  const warnings = margins.filter((m) => m.warn || m.value < 0).map((m) => m.name);
+  return { margins, ok: margins.every((m) => m.value >= 0), warnings };
 }
 
 /** EMERGENCY — a defensive move back inside the keep-playing set; overrides the planned act. */

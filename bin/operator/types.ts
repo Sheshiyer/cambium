@@ -10,8 +10,8 @@ export type Drive = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 /** The three control lanes (the micro/meso/macro Venn). */
 export type Lane = 'micro' | 'meso' | 'macro';
 
-/** A routing class: a lane, or the mid-brain bypass that invokes noesis. */
-export type RouteClass = Lane | 'midbrain';
+/** A routing class: a lane, the mid-brain bypass (→ noesis), or a heartbeat sweep. */
+export type RouteClass = Lane | 'midbrain' | 'heartbeat';
 
 export type EventKind =
   | 'calling'      // mid-brain (drive 1) — Epic Meaning
@@ -56,10 +56,18 @@ export interface WorldState {
   log: string[];             // short human audit trail (the replay log is external)
 }
 
-export interface Margin { name: string; value: number; }       // ≥ 0 = inside the bound
-export interface ViabilityReport { margins: Margin[]; ok: boolean; }
+export interface Margin { name: string; value: number; warn: boolean; }   // value ≥ 0 = inside the bound; warn = close to it
+export interface ViabilityReport { margins: Margin[]; ok: boolean; warnings: string[]; }
 
-export interface IcpReading { simulated: true; pains: string[]; direction: number[]; resonance: number; }
+export interface IcpReading {
+  simulated: true;
+  source: 'llm' | 'stub';        // llm = a real model answered; stub = the offline deterministic fallback
+  via?: string;                  // provider:model when source === 'llm' (e.g. nvidia-nim:meta/llama-3.1-70b-instruct)
+  pains: string[];
+  direction: number[];           // a step g in brand-space (stub vector until the NIM wires in)
+  directionLabel?: string;       // the model's words for the direction (real even when the vector is stubbed)
+  resonance: number;             // 0..1
+}
 export interface FounderReading { simulated: true; intentBit: 'error' | 'intent'; confidence: number; }
 
 export interface Routing {

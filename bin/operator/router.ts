@@ -13,7 +13,6 @@ const LANE_BY_KIND: Record<string, Lane> = {
   redirect: 'meso',
   objection: 'meso',
   metric: 'meso',
-  probe: 'meso',
   reposition: 'macro',
 };
 
@@ -29,6 +28,11 @@ export function route(event: GameEvent): Routing {
       gated: true,                 // existential → escalate / deepest consideration
       why: `mid-brain (${event.kind}) — meaning↕survival → invoke noesis, bypass the routine tick`,
     };
+  }
+
+  if (event.kind === 'probe') {
+    // the heartbeat: a self-scheduled viability sweep so the operator isn't blind while dormant
+    return { class: 'heartbeat', lane: null, noesis: false, gated: false, why: 'heartbeat — scheduled viability sweep' };
   }
 
   const lane: Lane = LANE_BY_KIND[event.kind] ?? 'meso';

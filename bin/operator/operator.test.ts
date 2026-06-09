@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import { createWorld, viability, SOLVENCY_FLOOR_DAYS } from './world.ts';
 import { route } from './router.ts';
 import { wake, replay } from './operator.ts';
+import { probeEvent } from './heartbeat.ts';
+import { realIcp } from './npc.ts';
 import type { GameEvent, WakeDeps } from './types.ts';
 
 function harness() {
@@ -90,4 +92,49 @@ test('every wake writes exactly one ledger line', () => {
   wake(world, { id: 'z', kind: 'tweak' }, deps);
   assert.equal(ledger.length, 1);
   assert.match(ledger[0], /"stage":"z"/);
+});
+
+test('heartbeat · a probe is a viability sweep — no act, no setpoint move', () => {
+  const { world, deps } = harness();
+  const { decision } = wake(world, probeEvent(1), deps);
+  assert.equal(decision.routing.class, 'heartbeat');
+  assert.equal(decision.setpointMoved, false);
+  assert.equal(decision.emergency, false);
+  assert.match(decision.action, /viability sweep/);
+});
+
+test('heartbeat · warns BEFORE a breach (inside the kernel, close to the solvency floor)', () => {
+  const { deps } = harness();
+  // runway 40 → solvency margin 10: ≥0 (still in the game) but < the 15-day warn band
+  const tight = createWorld({ tenant: 't', vision: 'v', business: { runwayDays: 40 } });
+  assert.equal(viability(tight).ok, true);
+  assert.deepEqual(viability(tight).warnings, ['solvency']);
+  const { decision } = wake(tight, probeEvent(1), deps);
+  assert.equal(decision.emergency, false);                 // not a breach — a warning
+  assert.match(decision.action, /WARN.*solvency/);
+});
+
+test('realIcp · offline mode falls back to the deterministic stub', async () => {
+  const r = await realIcp('founder-led systems studio', { offline: true });
+  assert.equal(r.source, 'stub');
+  assert.equal(r.pains.length, 3);
+  assert.equal(r.direction.length, 2);
+});
+
+test('realIcp · uses the model when a key + fetch are present (injected fetch — no network)', async () => {
+  const fakeFetch = async () => ({
+    ok: true,
+    json: async () => ({ choices: [{ message: { content: '{"pains":["fragmented vendors","breaks at handoff"],"direction":"toward owned end-to-end delivery","resonance":0.62}' } }] }),
+  }) as any;
+  const r = await realIcp('founder-led systems studio', { apiKey: 'test-key', fetchImpl: fakeFetch });
+  assert.equal(r.source, 'llm');
+  assert.deepEqual(r.pains, ['fragmented vendors', 'breaks at handoff']);
+  assert.equal(r.directionLabel, 'toward owned end-to-end delivery');
+  assert.equal(r.resonance, 0.62);
+});
+
+test('realIcp · a failing fetch fails soft to the stub', async () => {
+  const boom = async () => { throw new Error('network'); };
+  const r = await realIcp('x', { apiKey: 'k', fetchImpl: boom as any });
+  assert.equal(r.source, 'stub');
 });
