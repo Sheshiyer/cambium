@@ -109,3 +109,42 @@ export interface WakeDeps {
   founder?: (event: GameEvent) => FounderReading;
   alpha?: number;                                 // trust-region override
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Onboarding (the first session) — the contract for the first-run tutorial (M1).
+// 1:1 with ONBOARDING-OCTALYSIS.md §2. Type-only, erasable (Node v26 type-stripping).
+
+/** The Octalysis hat. The source doc has THREE categories: White (drives 1·2·3),
+ *  Black (6·7·8), and the neutral vertical-adjacent axis '—' (4 Ownership · 5 Social). */
+export type Hat = 'white' | 'black' | 'neutral';
+
+/** The three brain regions. The vertical axis — drives 1 & 8 — is the mid-brain → noesis. */
+export type Brain = 'left' | 'right' | 'mid';
+
+/** Chou's player-journey phase across the first 20 interactions (Discovery → Infinite Hook). */
+export type OnboardingPhase = 'A' | 'B' | 'C' | 'D' | 'E';
+
+/**
+ * One onboarding interaction — the unit of the first-session tutorial.
+ * `drive` is the PRIMARY Octalysis drive (the meter + pedagogy); `event` is what the
+ * interaction folds through the wake loop; `expect` is the RouteClass `route(event)` MUST
+ * return — asserted in tests so the script can never drift from the real router.
+ *
+ * Invariants (checked in script.test.ts):
+ *   hat   === hatOf(drive)
+ *   brain === brainOf(drive)
+ *   brain === 'mid'  ⟺  drive ∈ {1,8}  ⟺  expect === 'midbrain'   (the mid-brain → noesis rule)
+ */
+export interface OnboardingStep {
+  n: number;                    // 1..20
+  title: string;                // the interaction name (doc §2)
+  phase: OnboardingPhase;       // A..E
+  drive: Drive;                 // the primary motivational drive
+  secondaryDrives?: Drive[];    // the other drives the doc lists (full-coverage meter)
+  hat: Hat;                     // = hatOf(drive)
+  brain: Brain;                 // = brainOf(drive)
+  narration: string;            // the on-screen line the founder sees
+  reveals: string;              // the operator capability this interaction unlocks
+  event: GameEvent;             // injected into the wake loop
+  expect: RouteClass;           // what route(event) must return
+}
