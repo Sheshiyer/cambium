@@ -174,8 +174,20 @@ export function extractOutput(adapter, result) {
  */
 export function verifyOutput(adapter, result) {
   const raw = (result?.stdout ?? '').trim();
-  if (adapter?.output?.startsWith('json:') && tryJson(raw) === undefined) {
-    return { ok: false, reason: `contract drift: declares ${adapter.output} but output is not parseable JSON` };
+  if (adapter?.output?.startsWith('json:')) {
+    const parsed = tryJson(raw);
+    if (parsed === undefined) {
+      return { ok: false, reason: `contract drift: declares ${adapter.output} but output is not parseable JSON` };
+    }
+    // judge against the declared variable contract: every produced group must be a key in the output
+    const produces = adapter.contract_produces || [];
+    if (produces.length) {
+      const obj = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+      const missing = produces.filter((g) => !(g in obj));
+      if (missing.length) {
+        return { ok: false, reason: `contract drift: declares it produces [${produces.join(', ')}] but the output is missing: ${missing.join(', ')}` };
+      }
+    }
   }
   return { ok: true };
 }

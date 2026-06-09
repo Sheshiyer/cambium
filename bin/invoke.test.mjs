@@ -237,6 +237,25 @@ test('verifyOutput passes for a non-json output contract', () => {
   assert.equal(verifyOutput({ output: 'brand-dna' }, { stdout: 'anything' }).ok, true);
 });
 
+// judging drift against the declared variable contract (contract_produces ⊆ output keys)
+test('verifyOutput passes when the output contains all declared contract_produces groups', () => {
+  const adapter = { output: 'json:taste-brief', contract_produces: ['taste_brief', 'asset_plan'] };
+  const result = { stdout: JSON.stringify({ taste_brief: 'feel modern', asset_plan: { primary: ['logo'] } }) };
+  assert.equal(verifyOutput(adapter, result).ok, true);
+});
+
+test('verifyOutput drifts when a declared produced group is missing from the output', () => {
+  const adapter = { output: 'json:taste-brief', contract_produces: ['taste_brief', 'asset_plan', 'section_plan'] };
+  const v = verifyOutput(adapter, { stdout: JSON.stringify({ taste_brief: 'feel modern' }) });
+  assert.equal(v.ok, false);
+  assert.match(v.reason, /asset_plan/);
+  assert.match(v.reason, /section_plan/);
+});
+
+test('verifyOutput drifts gracefully (no throw) when a produces-declaring stage emits non-object JSON', () => {
+  assert.equal(verifyOutput({ output: 'json:x', contract_produces: ['a'] }, { stdout: '[1,2,3]' }).ok, false);
+});
+
 test('hand-off: stage A output feeds stage B input', async () => {
   let n = 0;
   const runner = () => ({ status: 0, stdout: n++ === 0 ? 'FROM_A' : 'FROM_B' });
