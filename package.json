@@ -8,6 +8,7 @@
   "scripts": {
     "test": "node --test 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts'",
     "operator": "node bin/operator/cli.ts",
+    "quine": "node bin/quine/quine.ts",
     "plan": "node bin/compose.mjs plan",
     "validate": "node bin/compose.mjs validate",
     "render-docs": "node bin/render-docs.mjs",
