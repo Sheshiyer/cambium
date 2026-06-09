@@ -5,7 +5,10 @@ import { createWorld, viability, SOLVENCY_FLOOR_DAYS } from './world.ts';
 import { route } from './router.ts';
 import { wake, replay } from './operator.ts';
 import { probeEvent } from './heartbeat.ts';
-import { realIcp } from './npc.ts';
+import { realIcp, realFounder } from './npc.ts';
+import { makeEmbedder, cosine } from './embed.ts';
+import { resolveIcp } from './resonance.ts';
+import { wakeAsync } from './orchestrate.ts';
 import type { GameEvent, WakeDeps } from './types.ts';
 
 function harness() {
@@ -137,4 +140,55 @@ test('realIcp · a failing fetch fails soft to the stub', async () => {
   const boom = async () => { throw new Error('network'); };
   const r = await realIcp('x', { apiKey: 'k', fetchImpl: boom as any });
   assert.equal(r.source, 'stub');
+});
+
+test('embed · the offline embedder is deterministic, unit-norm, fixed-dim', async () => {
+  const e = makeEmbedder({ offline: true });
+  const [a1] = await e.embed(['founder-led systems studio']);
+  const [a2] = await e.embed(['founder-led systems studio']);
+  const [b] = await e.embed(['a totally different positioning']);
+  assert.equal(e.dims, 64);
+  assert.equal(a1.length, 64);
+  assert.deepEqual(a1, a2);                                  // deterministic
+  assert.ok(Math.abs(Math.hypot(...a1) - 1) < 1e-9);          // unit norm
+  assert.ok(cosine(a1, a1) > 0.999);
+  assert.ok(cosine(a1, b) < 0.999);                           // different text → different vector
+});
+
+test('resolveIcp · returns a real gradient + pain vectors + a [0,1] resonance', async () => {
+  const e = makeEmbedder({ offline: true });
+  const world = createWorld({ tenant: 't', vision: 'v', brand: { setpoint: [], label: 'founder-led systems studio', trustRegion: 0.25, coherence: 0.7 }, business: { runwayDays: 120 } });
+  const r = await resolveIcp(world, { embedder: e, icpOpts: { offline: true } });
+  assert.equal(r.dims, 64);
+  assert.equal(r.direction.length, 64);                       // the gradient lives in embedding space
+  assert.equal(r.painVectors?.length, 3);
+  assert.ok(r.resonance >= 0 && r.resonance <= 1);
+});
+
+test('realFounder · offline falls back to the stub; a flagged intent reads as intent', async () => {
+  const r = await realFounder({ id: 'e', kind: 'redirect', intent: true }, { vision: 'v', mission: 'm' }, { offline: true });
+  assert.equal(r.source, 'stub');
+  assert.equal(r.intentBit, 'intent');
+});
+
+test('realFounder · uses the model when a key + fetch are present (injected — no network)', async () => {
+  const fake = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: '{"intent":true,"confidence":0.8,"why":"a real new direction"}' } }] }) }) as any;
+  const r = await realFounder({ id: 'e', kind: 'redirect' }, { vision: 'v', mission: 'm' }, { apiKey: 'k', fetchImpl: fake });
+  assert.equal(r.source, 'llm');
+  assert.equal(r.intentBit, 'intent');
+  assert.equal(r.confidence, 0.8);
+  assert.equal(r.rationale, 'a real new direction');
+});
+
+test('wakeAsync · a meso intent+evidence event moves x* along the real gradient (offline)', async () => {
+  const ledger: string[] = [];
+  const e = makeEmbedder({ offline: true });
+  const world = createWorld({ tenant: 't', vision: 'v', brand: { setpoint: [], label: 'founder-led systems studio', trustRegion: 0.25, coherence: 0.7 }, business: { runwayDays: 120 } });
+  const { world: w, decision, icp } = await wakeAsync(world, { id: 'm', kind: 'redirect', intent: true, evidence: true }, {
+    record: (l) => ledger.push(l), embedder: e, icpOpts: { offline: true }, founderOpts: { offline: true },
+  });
+  assert.equal(decision.routing.lane, 'meso');
+  assert.equal(decision.setpointMoved, true);
+  assert.equal(w.brand.setpoint.length, e.dims);              // x* is now a real embedding
+  assert.equal(icp?.dims, e.dims);
 });

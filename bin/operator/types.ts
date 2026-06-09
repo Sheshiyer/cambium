@@ -64,11 +64,20 @@ export interface IcpReading {
   source: 'llm' | 'stub';        // llm = a real model answered; stub = the offline deterministic fallback
   via?: string;                  // provider:model when source === 'llm' (e.g. nvidia-nim:meta/llama-3.1-70b-instruct)
   pains: string[];
-  direction: number[];           // a step g in brand-space (stub vector until the NIM wires in)
-  directionLabel?: string;       // the model's words for the direction (real even when the vector is stubbed)
-  resonance: number;             // 0..1
+  direction: number[];           // the resonance gradient g = target − x* (real NIM vector, or stub)
+  directionLabel?: string;       // the model's words for the direction
+  painVectors?: number[][];      // each pain embedded in the same space (real NIM vectors when wired)
+  resonance: number;             // 0..1 — cosine(x*, target) when embeddings are real
+  dims?: number;                 // embedding dimensionality (1024 real NIM · 64 fallback)
 }
-export interface FounderReading { simulated: true; intentBit: 'error' | 'intent'; confidence: number; }
+export interface FounderReading {
+  simulated: true;
+  source: 'llm' | 'stub';
+  via?: string;
+  intentBit: 'error' | 'intent';
+  confidence: number;
+  rationale?: string;
+}
 
 export interface Routing {
   class: RouteClass;

@@ -52,3 +52,42 @@ export function localTransport({ root, fs = { appendFileSync, readFileSync, writ
 export function defaultCortex(root) {
   return makeCortex(localTransport({ root }));
 }
+
+/**
+ * NVIDIA NIM transport (I3 — embed). Real 1024-dim embeddings via the NIM endpoint
+ * (OpenAI-compatible); fs ops (contracts + the deviation ledger) delegate to the local transport.
+ * `embed` accepts a string OR an array of strings → one vector OR an array of vectors.
+ * `search` (a real kNN vector store) is the next I3 step — it stays the local throw for now.
+ */
+export function nimTransport({
+  root,
+  apiKey = process.env.NVIDIA_API_KEY,
+  model = process.env.NIM_EMBED_MODEL || 'nvidia/nv-embedqa-e5-v5',
+  url = 'https://integrate.api.nvidia.com/v1/embeddings',
+  inputType = 'query',
+  fetchImpl,
+} = {}) {
+  const local = localTransport({ root });
+  const f = fetchImpl || globalThis.fetch;
+  return {
+    ...local,
+    embed: async (input) => {
+      if (!apiKey) throw new Error('nimTransport.embed: no NVIDIA_API_KEY');
+      const texts = Array.isArray(input) ? input : [input];
+      const res = await f(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: texts, model, input_type: inputType, encoding_format: 'float', truncate: 'END' }),
+      });
+      if (!res.ok) throw new Error(`nim embed ${res.status}: ${(await res.text()).slice(0, 160)}`);
+      const data = await res.json();
+      const vecs = (data.data || []).slice().sort((a, b) => a.index - b.index).map((d) => d.embedding);
+      return Array.isArray(input) ? vecs : vecs[0];
+    },
+  };
+}
+
+/** The NIM-backed cortex (real embeddings; fs-backed contracts + ledger). */
+export function nimCortex(root, opts = {}) {
+  return makeCortex(nimTransport({ root, ...opts }));
+}

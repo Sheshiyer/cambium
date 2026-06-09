@@ -120,7 +120,48 @@ export async function realIcp(
 export function founderNpc(event: GameEvent): FounderReading {
   return {
     simulated: true,
+    source: 'stub',
     intentBit: event.intent ? 'intent' : 'error',
     confidence: event.intent ? 0.7 : 0.6,
   };
+}
+
+/**
+ * A real-ish Founder-NPC: a real model role-plays the founder's operating logic to judge a deviation —
+ * a bad step to REROLL, or the founder's new INTENT to move the goal. NVIDIA NIM → Kimi → stub. Fail-soft.
+ */
+export async function realFounder(
+  event: GameEvent,
+  context: { vision: string; mission: string },
+  opts: { model?: string; apiKey?: string; url?: string; fetchImpl?: typeof fetch; offline?: boolean } = {},
+): Promise<FounderReading> {
+  if (opts.offline) return founderNpc(event);
+  const provider = pickProvider(opts);
+  if (!provider) return founderNpc(event);
+  const f = opts.fetchImpl ?? fetch;
+  const system = 'You role-play the FOUNDER of a studio — its operating logic, taste, and risk appetite. Output ONLY one minified JSON object.';
+  const user =
+    `Vision: "${context.vision}". Mission: "${context.mission}".\n` +
+    `An event deviated from the current plan — kind="${event.kind}", note="${event.note ?? ''}", ` +
+    `founder-flagged-intent=${!!event.intent}.\n` +
+    `Is this a bad step to REROLL toward the same goal, or YOUR new INTENT to move the goal? ` +
+    `Return JSON: {"intent":true|false,"confidence":0.0,"why":"one short phrase"} (confidence 0..1).`;
+  try {
+    const res = await f(provider.url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${provider.key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: provider.model, temperature: 0.2, max_tokens: 200, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
+    });
+    if (!res.ok) return founderNpc(event);
+    const data: any = await res.json();
+    const json: any = parseLooseJson(data?.choices?.[0]?.message?.content ?? '');
+    return {
+      simulated: true, source: 'llm', via: `${provider.name}:${provider.model}`,
+      intentBit: json.intent ? 'intent' : 'error',
+      confidence: clamp01(Number(json.confidence)),
+      rationale: typeof json.why === 'string' ? json.why : undefined,
+    };
+  } catch {
+    return founderNpc(event);
+  }
 }
