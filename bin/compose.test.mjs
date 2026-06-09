@@ -23,6 +23,7 @@ const machineReadableContractGroups = new Set([
   'brand_docs',
   'business',
 ]);
+const dedupe = (values) => [...new Set(values)];
 
 test('registry resolves every pipeline organ (repo + entrypoint)', () => {
   const plan = planPipeline({ registry, pipeline, tenant: 't' });
@@ -93,11 +94,18 @@ test('pipeline stages declare required and produced variable groups', async () =
   }
 });
 
-test('registry organs declare capability arrays', async () => {
+test('registry organs declare machine-readable contract metadata', async () => {
   const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
   for (const [organId, organ] of Object.entries(registry.organs)) {
     assert.ok(Array.isArray(organ.capabilities), `${organId} missing capabilities`);
     assert.ok(organ.capabilities.length > 0, `${organId} capabilities empty`);
+    assert.ok(Array.isArray(organ.contract_requires), `${organId} missing contract_requires`);
+    assert.ok(Array.isArray(organ.contract_produces), `${organId} missing contract_produces`);
+    assert.deepEqual(
+      organ.capabilities,
+      dedupe([...organ.contract_requires, ...organ.contract_produces]),
+      `${organId} capabilities must be the canonical union of requires + produces`,
+    );
   }
 });
 
@@ -125,6 +133,7 @@ test('contracts doc defines the variable contract vocabulary', async () => {
 
 test('machine-readable contracts stay within the documented vocabulary', async () => {
   const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
+  const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
   const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
   const seen = [];
 
@@ -136,10 +145,34 @@ test('machine-readable contracts stay within the documented vocabulary', async (
     seen.push(...adapter.contract_requires, ...adapter.contract_produces);
   }
 
+  for (const organ of Object.values(registry.organs)) {
+    seen.push(...organ.capabilities, ...organ.contract_requires, ...organ.contract_produces);
+  }
+
   for (const group of seen) {
     assert.ok(
       machineReadableContractGroups.has(group),
       `undocumented machine-readable contract group: ${group}`,
+    );
+  }
+});
+
+test('registry stage-organ contracts align with adapter contracts', async () => {
+  const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
+  const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
+
+  for (const adapterId of Object.keys(adapters.adapters)) {
+    const organ = registry.organs[adapterId];
+    assert.ok(organ, `${adapterId} missing registry organ`);
+    assert.deepEqual(
+      organ.contract_requires,
+      adapters.adapters[adapterId].contract_requires,
+      `${adapterId} registry/adapters contract_requires drifted`,
+    );
+    assert.deepEqual(
+      organ.contract_produces,
+      adapters.adapters[adapterId].contract_produces,
+      `${adapterId} registry/adapters contract_produces drifted`,
     );
   }
 });

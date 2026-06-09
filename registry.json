@@ -15,10 +15,18 @@
       "tier": "free",
       "language": "python (+ node flow)",
       "capabilities": [
-        "understands: idea briefs and brand-config inputs",
-        "produces: brand_system",
-        "produces: copy_system",
-        "produces: visual_system"
+        "idea",
+        "brand_system",
+        "copy_system",
+        "visual_system"
+      ],
+      "contract_requires": [
+        "idea"
+      ],
+      "contract_produces": [
+        "brand_system",
+        "copy_system",
+        "visual_system"
       ]
     },
     "hands": {
@@ -30,10 +38,28 @@
       "tier": "free",
       "language": "node",
       "capabilities": [
-        "understands: taste_brief plus structured build plans",
-        "understands: asset_plan, section_plan, interaction_plan, acceptance_checks",
-        "produces: artifact",
-        "produces: brand_docs"
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks",
+        "artifact",
+        "brand_docs"
+      ],
+      "contract_requires": [
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "contract_produces": [
+        "artifact",
+        "brand_docs"
       ]
     },
     "taste": {
@@ -45,10 +71,26 @@
       "tier": "paid",
       "language": "node",
       "capabilities": [
-        "understands: brand_system, copy_system, visual_system",
-        "reads/writes: shared cortex taste memory",
-        "produces: taste_brief",
-        "produces: asset_plan, section_plan, interaction_plan, acceptance_checks"
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "taste_brief",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "contract_requires": [
+        "brand_system",
+        "copy_system",
+        "visual_system"
+      ],
+      "contract_produces": [
+        "taste_brief",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
       ]
     },
     "will": {
@@ -60,11 +102,30 @@
       "tier": "paid",
       "language": "python",
       "capabilities": [
-        "understands: artifact, brand_docs, brand_system, copy_system, visual_system",
-        "understands: asset_plan, section_plan, interaction_plan, acceptance_checks",
-        "extends: approved copy_system variants for distribution",
-        "produces: business operating state",
-        "feeds: GTM and portfolio governance outcomes back into the system"
+        "artifact",
+        "brand_docs",
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks",
+        "business"
+      ],
+      "contract_requires": [
+        "artifact",
+        "brand_docs",
+        "brand_system",
+        "copy_system",
+        "visual_system",
+        "asset_plan",
+        "section_plan",
+        "interaction_plan",
+        "acceptance_checks"
+      ],
+      "contract_produces": [
+        "business"
       ]
     },
     "cortex": {
@@ -76,11 +137,18 @@
       "tier": "paid",
       "language": "worker",
       "capabilities": [
-        "understands: brand_system and visual_system",
-        "understands: asset_plan, acceptance_checks, and deviation signals",
-        "stores: shared aesthetic memory across tenants and stages",
-        "feeds: genesis, taste, build, ops"
-      ]
+        "brand_system",
+        "visual_system",
+        "asset_plan",
+        "acceptance_checks"
+      ],
+      "contract_requires": [
+        "brand_system",
+        "visual_system",
+        "asset_plan",
+        "acceptance_checks"
+      ],
+      "contract_produces": []
     }
   }
 }
