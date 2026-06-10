@@ -11,6 +11,25 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.2.1 · **Thalia .1** — *the game becomes visible*
+
+The quest update: Thalia's game gets its surfaces — a quest log that cannot lie, a forge that
+learns from repetition, and the first living UI in the founders' pocket.
+
+- **M4 · Quest Log & Skill Forge** — `quine quests`: seven arcs derived purely from real
+  world-state (empty inputs ⇒ zero complete — the no-fake-progress invariant, under test);
+  `quine skills`: repetition in the operator's own logs minted into **self-improving skills**
+  (usage scenarios → gotchas → decline → ONE amendment per streak; lifecycle aligned with the
+  company skill registry, production stays founder-gated).
+- **The Thalia wing (W1+W2)** — the ledger goes live: `cambium-quests` Worker + KV at
+  **curious.thoughtseed.space**, fed by `quine write quests push` inside a freshness envelope
+  `{schema, derivedAt, source, beats}`; the **curios.self Telegram miniapp** (menu button) —
+  three scenes: Quests · the **tree-ring fractal map** ("cambium — you are here") · Story with
+  set-apart noesis frames. Liquid-glass sheets, haptics, reduced-motion.
+- **The real first session** — `scripts/onboard-live.ts`: cambium onboarded *itself* with live
+  NIM founder answers; the session and its cortex receipt live in production memory.
+- 209 tests green · Node v26 native TypeScript (zero build, zero deps).
+
 ### v0.2.0 · **Thalia** — *muse of comedy, festivity, and play*
 
 The operator comes alive and becomes **playable**. Thalia presides over the game.

@@ -196,6 +196,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | **M1 · Onboarding Loop** ([#9–#14](https://github.com/Sheshiyer/cambium/milestone/1)) | ✅ complete — `operator onboard`, held noesis frames, Octalysis panel |
 | **M2 · Cortex Search** ([#15–#19, #24](https://github.com/Sheshiyer/cambium/milestone/2)) | ✅ complete — semantic (sqlite/Vectorize) + structural (codegraph), Vectorize **live** |
 | **M3 · Multi-Tenancy** ([#20–#23](https://github.com/Sheshiyer/cambium/milestone/3)) | 🔜 next — one operator, many ventures (the cortex is already tenant-isolated) |
+| **M4 · Quest Log & Skill Forge** | ✅ complete — **v0.2.1 · Thalia .1**: `quine quests`/`skills`, the forge telemetry loop, and the **curios.self miniapp** live at [curious.thoughtseed.space](https://curious.thoughtseed.space) |
 
 **Beyond M3** — the operator goes fully cloud-native on the same Cloudflare account that already hosts the cortex: the wake loop as a **Durable-Object agent** (persistent state + scheduled heartbeat), **DNS + Registrar** so the operator registers and configures domains for ventures it ships, **Email** delivery, and **Browser Rendering** for the Hands organ. Track it on the **[issues board](https://github.com/Sheshiyer/cambium/issues)**.
 
