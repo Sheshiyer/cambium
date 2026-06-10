@@ -11,6 +11,8 @@ import { flag } from '../types.ts';
 import { questLedger } from '../../operator/quests/quests.ts';
 import type { QuestInputs } from '../../operator/quests/quests.ts';
 import { renderQuestLog } from '../../operator/quests/panel.ts';
+import { narrate } from '../../operator/narrative/narrative.ts';
+import { multicaActivityBeats, multicaOpenItems } from './multica.ts';
 
 const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
 
@@ -110,18 +112,23 @@ export const quests: Hypha = {
 
     const inputs = gatherQuestInputs(ctx, tenant);
     const L = questLedger(inputs);
-    // narrative beats v0.5 (full W3 mapper later): the last world-log lines, lane-tagged
-    const beats = (inputs.world?.log ?? []).slice(-40).map((line) => ({
-      text: line,
-      lane: line.match(/→\s*(\w+)/)?.[1] ?? 'beat',
-      noesis: line.includes('noesis'),
-    }));
+    // W3: the narrative mapper turns logs + deviations into PROSE beats; M5 Phase R
+    // appends the org's live activity (source:"multica") — fail-soft if unreachable.
+    const devLines: string[] = [];
+    for (const p of [join(ctx.root, 'cortex', tenant, 'deviations.jsonl'), join(ctx.root, 'deviations.jsonl')]) {
+      try { devLines.push(...readFileSync(p, 'utf8').split('\n')); } catch { /* absent */ }
+    }
+    const beats = narrate(inputs.world?.log ?? [], devLines, 40);
+    let openItems: Array<{ id: string; title: string; status: string }> = [];
+    try { beats.push(...await multicaActivityBeats(8)); openItems = await multicaOpenItems(12); }
+    catch { /* gateway unreachable — story stays local, gate stays empty */ }
     const envelope = {
       schema: 1,
       derivedAt: new Date().toISOString(),
-      source: 'push',
+      source: flag(args, '--source', 'push'),
       tenant,
       beats,
+      openItems,
       ledger: {
         completed: L.completed,
         total: L.total,

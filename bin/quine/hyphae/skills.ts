@@ -30,11 +30,14 @@ const readJson = (path: string): any | undefined => {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return undefined; }
 };
 
-/** All real repetition signals for a tenant: deviations.jsonl + both world logs. */
+/** All real repetition signals for a tenant: deviations (tenant-scoped per M3/C2,
+ *  plus the legacy root ledger as heritage) + both world logs. */
 function gatherSignals(ctx: QuineCtx, tenant: string) {
   const opDir = join(ctx.root, '.operator');
-  const devPath = join(ctx.root, 'deviations.jsonl');
-  const devLines = existsSync(devPath) ? readFileSync(devPath, 'utf8').split('\n') : [];
+  const devLines: string[] = [];
+  for (const devPath of [join(ctx.root, 'cortex', tenant, 'deviations.jsonl'), join(ctx.root, 'deviations.jsonl')]) {
+    if (existsSync(devPath)) devLines.push(...readFileSync(devPath, 'utf8').split('\n'));
+  }
   const onb = readJson(join(opDir, `${tenant}.onboarding.json`));
   const main = readJson(join(opDir, `${tenant}.world.json`));
   const log = [
