@@ -73,15 +73,39 @@ export function signaturesFromDeviations(lines: string[]): RepetitionSignal[] {
   return out;
 }
 
-/** world.log entries ("… → <lane> · <action…>") → signals, keyed by lane + action head. */
+/** ONE log grammar, two consumers (forge signatures + the narrative mapper — M4 second
+ *  pass F2). Parses "#n step-id → <lane> · <action…> (note)" world-log lines. */
+export interface ParsedLogLine {
+  n: number | null;        // step number when present
+  stepId: string | null;   // e.g. onb-08-booster
+  lane: string;            // micro | meso | macro | heartbeat | noesis | …
+  action: string;          // full action text (before any trailing parenthetical)
+  note: string | null;     // trailing parenthetical, if any
+  raw: string;
+}
+
+export function parseWorldLogLine(line: string): ParsedLogLine | null {
+  const m = line.match(/→\s*(\w+)\s*·\s*([^(]+)(?:\(([^)]*)\))?/);
+  if (!m) return null;
+  const head = line.match(/^#(\d+)\s+([\w·-]+)?/);
+  return {
+    n: head ? Number(head[1]) : null,
+    stepId: head?.[2] ?? null,
+    lane: m[1].trim(),
+    action: m[2].trim(),
+    note: m[3]?.trim() || null,
+    raw: line,
+  };
+}
+
+/** world.log entries → signals, keyed by lane + action head. */
 export function signaturesFromWorldLog(log: string[]): RepetitionSignal[] {
   const out: RepetitionSignal[] = [];
   for (const line of log) {
-    const m = line.match(/→\s*(\w+)\s*·\s*([^(]+)/);
-    if (!m) continue;
-    const lane = m[1].trim();
-    const action = m[2].trim().split(/\s+/).slice(0, 2).join(' ');   // action head, e.g. 'reroll', 'tweak applied'
-    out.push({ source: 'world-log', signature: `${lane}|${action}`, sample: line.slice(0, 160) });
+    const parsed = parseWorldLogLine(line);
+    if (!parsed) continue;
+    const action = parsed.action.split(/\s+/).slice(0, 2).join(' ');   // action head, e.g. 'reroll', 'tweak applied'
+    out.push({ source: 'world-log', signature: `${parsed.lane}|${action}`, sample: line.slice(0, 160) });
   }
   return out;
 }
