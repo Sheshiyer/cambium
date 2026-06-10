@@ -32,9 +32,9 @@ The composition layer makes the first launch. The operator keeps the venture ali
 | **Onboarding** — the 20-interaction Octalysis first session | ✅ shipped (M1) | `operator onboard` |
 | **Cortex · semantic memory** — recall across runs (NIM 1024-d; node:sqlite local · **Cloudflare Vectorize** prod) | ✅ shipped (M2) | `cortex-memory.ts` · `cortex-sqlite.ts` · `vectorize-cortex.ts` |
 | **Cortex · structural memory** — CodeGraph code-recall lane | ✅ shipped (M2) | `operator coderecall` |
-| **Multi-tenancy** — one operator, many ventures | 🔜 next (M3) | [#20–#23](https://github.com/Sheshiyer/cambium/milestone/3) |
+| **Multi-tenancy** — one operator, many ventures | ✅ shipped (M3) — slug registry · adversarial isolation · all-tenant heartbeat | [`tenant.ts`](./bin/operator/tenant.ts) + [#20–#23](https://github.com/Sheshiyer/cambium/milestone/3) |
 
-**171 tests green** (`npm test`). Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
+**236 tests green** (`npm test`). Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
 
 **The business model, in one line:** the **left brain (build) is free**; the **right brain (taste + memory) is the subscription** — because the memory that learns *your* specific brand is the moat that compounds.
 
@@ -195,7 +195,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 |---|---|
 | **M1 · Onboarding Loop** ([#9–#14](https://github.com/Sheshiyer/cambium/milestone/1)) | ✅ complete — `operator onboard`, held noesis frames, Octalysis panel |
 | **M2 · Cortex Search** ([#15–#19, #24](https://github.com/Sheshiyer/cambium/milestone/2)) | ✅ complete — semantic (sqlite/Vectorize) + structural (codegraph), Vectorize **live** |
-| **M3 · Multi-Tenancy** ([#20–#23](https://github.com/Sheshiyer/cambium/milestone/3)) | 🔜 next — one operator, many ventures (the cortex is already tenant-isolated) |
+| **M3 · Multi-Tenancy** ([#20–#23](https://github.com/Sheshiyer/cambium/milestone/3)) | ✅ complete — registry (TeamForge slugs) · per-tenant world+cortex isolation (adversarial suite) · multi-tenant router + all-tenant heartbeat |
 | **M4 · Quest Log & Skill Forge** | ✅ complete — **v0.2.1 · Thalia .1**: `quine quests`/`skills`, the forge telemetry loop, and the **curios.self miniapp** live at [curious.thoughtseed.space](https://curious.thoughtseed.space) |
 
 **Beyond M3** — the operator goes fully cloud-native on the same Cloudflare account that already hosts the cortex: the wake loop as a **Durable-Object agent** (persistent state + scheduled heartbeat), **DNS + Registrar** so the operator registers and configures domains for ventures it ships, **Email** delivery, and **Browser Rendering** for the Hands organ. Track it on the **[issues board](https://github.com/Sheshiyer/cambium/issues)**.
@@ -209,6 +209,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [INFINITE-GAME.md](./INFINITE-GAME.md) | the operator contract — wake loop, router, viability, NPCs, noesis |
 | [ONBOARDING-OCTALYSIS.md](./ONBOARDING-OCTALYSIS.md) | the 20-interaction first session, drive by drive |
 | [QUESTLOG.md](./QUESTLOG.md) | the quest line (you-are-here map) + the skill forge (repetition → self-improving skills) |
+| [INFINITE-GAME.md §Multi-tenancy](./INFINITE-GAME.md#multi-tenancy--one-operator-many-gardens-m3) | the tenancy contract: TeamForge-slug identity · adversarially-proven isolation · all-tenant heartbeat |
 | [HOMEOSTASIS.md](./HOMEOSTASIS.md) | the math — Banach contraction, viability kernel, why-handler |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | the organ constellation + composition layer |
 | [BUSINESS-MODEL.md](./BUSINESS-MODEL.md) | free build, subscription taste + memory |

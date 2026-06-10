@@ -11,6 +11,27 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.2.2 · **Thalia .2** — *the game becomes many, and writes back*
+
+The org update: the quest game gains a story it tells in prose, the venture becomes *many*
+ventures, and the founder can finally act from inside the map.
+
+- **M3 · Multi-tenancy** ([#20–23](https://github.com/Sheshiyer/cambium/milestone/3)) — one
+  operator, many gardens: a TeamForge-slug tenant registry (registration-from-reality), per-tenant
+  isolation of world-state AND cortex (adversarially proven — A ∩ B = ∅, incl. a filter-override
+  attack), `--tenant` routing + an all-tenant heartbeat. **Quest arc VII flipped: 7/7.**
+- **W3 · The narrative engine** — `bin/operator/narrative/`: the operator's life told as PROSE
+  beats (noesis set apart), sharing one log grammar with the forge. The Story scene reads like a
+  story.
+- **M5 · MultiCA hypha (Phase R)** — `quine multica`: the agent org's life (agents · issues ·
+  activity) joins the story feed as `source:"multica"` beats; open work items ride the envelope.
+- **W4 · The founder gate** — the curios.self miniapp's ONE write: approve/reroll an open item,
+  validated by Telegram **Ed25519 third-party signature** (zero secrets on the Worker, founder
+  allowlist, auth_date window), executed on MultiCA by the gate-consumer (approve → done, reroll →
+  rerun) with a Telegram audit + a forge skill-record. The fractal also grew **heartwood** (W2.5
+  taste pass).
+- 236 tests green · Node v26 native TypeScript (zero build, zero deps).
+
 ### v0.2.1 · **Thalia .1** — *the game becomes visible*
 
 The quest update: Thalia's game gets its surfaces — a quest log that cannot lie, a forge that
