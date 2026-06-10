@@ -25,6 +25,8 @@ import { operator } from './hyphae/operator.ts';
 import { vault } from './hyphae/vault.ts';
 import { github } from './hyphae/gh.ts';
 import { cf } from './hyphae/cf.ts';
+import { quests } from './hyphae/quests.ts';
+import { skills } from './hyphae/skills.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..');                                  // the cambium repo root
@@ -32,7 +34,7 @@ const VAULT = process.env.QUINE_VAULT || join(ROOT, '..', 'thoughtseed-labs');
 const ctx: QuineCtx = { root: ROOT, vaultRoot: VAULT };
 
 /** The mycelium — every hypha, keyed by name. Grow the network by adding a module here. */
-const HYPHAE: Record<string, Hypha> = { cortex, code, operator, vault, gh: github, cf };
+const HYPHAE: Record<string, Hypha> = { cortex, code, operator, vault, gh: github, cf, quests, skills };
 
 const out = (x: unknown) => console.log(typeof x === 'string' ? x : JSON.stringify(x, null, 2));
 
