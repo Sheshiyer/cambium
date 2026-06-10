@@ -1,36 +1,42 @@
-// cambium-quests · the miniapp page (Thalia wing W2 — the Living Blueprint).
-// One served file, zero build step, zero dependencies. AAA-feel within doctrine:
-// White-Hat juice only — glow means growth, never urgency. Taste directives:
-// transform/opacity animations exclusively, house easing cubic-bezier(.16,1,.3,1),
-// liquid-glass = inner border + inset highlight, stagger cascades, mono numerals,
-// skeleton/empty/error states, prefers-reduced-motion kills every loop.
+// cambium-quests · the miniapp page (Thalia wing W2 — the Living Blueprint, v2 "100%").
+// One served file, zero build step, zero dependencies. AAA mobile feel within doctrine:
+// White-Hat juice only — glow means growth, never urgency. Taste cortex rules applied:
+//   · transform/opacity animations exclusively (60fps, hardware-accelerated)
+//   · house easing cubic-bezier(.16,1,.3,1); overshoot pop cubic-bezier(.34,1.56,.64,1)
+//   · liquid-glass = 1px inner border + inset highlight; inner/tinted glow, never outer neon
+//   · mono numerals; staggered cascades; full skeleton/empty/error/offline states
+//   · prefers-reduced-motion kills every loop AND gesture inertia
+// v2 adds the interaction layer: finger-tracked scene swipe (axis-locked, momentum, snap,
+// rubber-band, live indicator), drag-to-dismiss sheet, pull-to-refresh, fractal arc
+// drill-down (tap ring → zoom + parsed evidence facets), count-up numerals, tactile haptics.
 
 export const PAGE = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>curios.self · quest log</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root{
     --bg:#00272B; --bg2:#012F34; --ink:#E0FF4F; --soft:#D6FFF6; --violet:#231651;
-    --line:rgba(214,255,246,.09); --glass:rgba(1,47,52,.72);
+    --line:rgba(214,255,246,.09); --line2:rgba(214,255,246,.16); --glass:rgba(1,47,52,.72);
+    --warn:#F8B560;
     --ease:cubic-bezier(.16,1,.3,1); --pop:cubic-bezier(.34,1.56,.64,1);
     --mono:ui-monospace,'JetBrains Mono',SFMono-Regular,Menlo,monospace;
+    --sat:env(safe-area-inset-top); --sab:env(safe-area-inset-bottom);
   }
   *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
   body{
-    background:var(--bg); color:var(--soft); overflow:hidden;
+    background:var(--bg); color:var(--soft); overflow:hidden; overscroll-behavior:none;
     font:15px/1.5 -apple-system,'Satoshi','Euclid Circular A',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
   }
-  /* mycelium substrate — fixed, non-scrolling, pointer-inert. Two slow-drifting
-     mesh blobs (transform-only) + a static grain veil. Taste brief: perpetual
-     micro-motion, dead under reduced-motion. */
-  .substrate{position:fixed;inset:0;pointer-events:none;overflow:hidden}
-  .blob{position:absolute;width:130vw;height:130vw;border-radius:50%;opacity:.55;
-    will-change:transform}
+  /* mycelium substrate — fixed, non-scrolling, pointer-inert. Slow mesh blobs
+     (transform-only) + static grain veil. Dead under reduced-motion. */
+  .substrate{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+  .blob{position:absolute;width:130vw;height:130vw;border-radius:50%;opacity:.55;will-change:transform}
   .blob.a{left:-40vw;top:-55vw;
     background:radial-gradient(circle at 60% 60%,rgba(224,255,79,.07),transparent 55%);
     animation:drift 46s var(--ease) infinite alternate}
@@ -40,53 +46,45 @@ export const PAGE = `<!doctype html>
   @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(7vw,5vw) scale(1.08)}}
   .grain{position:absolute;inset:0;opacity:.05;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
-  .app{position:relative;height:100dvh;display:flex;flex-direction:column}
+  .app{position:relative;height:100dvh;display:flex;flex-direction:column;z-index:1}
 
-  header{padding:18px 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
+  header{padding:calc(var(--sat) + 16px) 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
   .brand{font-size:21px;font-weight:750;letter-spacing:-.02em}
-  .brand small{display:block;font-size:11px;font-weight:400;opacity:.6;letter-spacing:.06em}
-  .chip{font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.35);
-    border-radius:999px;color:var(--ink)}
-  .chip.stale{border-color:#F87060;color:#F87060}
+  .brand small{display:block;font-size:11px;font-weight:400;opacity:.6;letter-spacing:.06em;margin-top:2px}
+  .chip{font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.32);
+    border-radius:999px;color:var(--ink);white-space:nowrap;transition:color .4s var(--ease),border-color .4s var(--ease)}
+  .chip.stale{border-color:var(--warn);color:var(--warn)}
 
-  nav{display:grid;grid-template-columns:repeat(3,1fr);position:relative;margin:6px 14px 0;
+  /* pull-to-refresh — liquid droplet, lives above the track */
+  .ptr{position:absolute;top:calc(var(--sat) + 56px);left:50%;z-index:3;pointer-events:none;
+    transform:translate(-50%,-30px) scale(.4);opacity:0;transition:opacity .25s var(--ease)}
+  .ptr.show{opacity:1}
+  .ptr .drop{width:26px;height:26px;border-radius:50%;
+    border:2px solid var(--ink);border-top-color:transparent}
+  .ptr.spin .drop{animation:spin .7s linear infinite}
+
+  nav{display:grid;grid-template-columns:repeat(4,1fr);position:relative;margin:6px 14px 0;
     border-bottom:1px solid var(--line)}
-  nav button{appearance:none;background:none;border:0;color:var(--soft);opacity:.55;
-    font:600 13px/1 inherit;letter-spacing:.04em;padding:12px 0;cursor:pointer;
-    transition:opacity .3s var(--ease)}
+  nav button{appearance:none;background:none;border:0;color:var(--soft);opacity:.5;
+    font:600 13px/1 inherit;letter-spacing:.03em;padding:12px 0;cursor:pointer;
+    transition:opacity .3s var(--ease),color .3s var(--ease)}
   nav button.on{opacity:1;color:var(--ink)}
-  nav button:active{transform:scale(.97)}
-  .ind{position:absolute;bottom:-1px;left:0;width:33.333%;height:2px;background:var(--ink);
-    transition:transform .45s var(--ease)}
+  nav button:active{transform:scale(.96)}
+  .ind{position:absolute;bottom:-1px;left:0;width:25%;height:2px;background:var(--ink);
+    border-radius:2px;transition:transform .45s var(--ease);box-shadow:0 0 8px rgba(224,255,79,.4)}
 
-  .track{flex:1;display:grid;grid-template-columns:repeat(4,100%);
-    transition:transform .5s var(--ease);will-change:transform}
-  nav{grid-template-columns:repeat(4,1fr)!important}
-  .ind{width:25%!important}
-  /* ── gate ──────────────────────────────────── */
-  .ghead{font-size:17px;font-weight:650;color:var(--ink);margin-bottom:2px}
-  .gsub{font-size:12px;opacity:.7;margin-bottom:16px}
-  .gitem{padding:13px;margin-bottom:12px;border:1px solid rgba(214,255,246,.16);border-radius:14px;
-    background:var(--glass);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-  .gitem .gid{font:11px var(--mono);color:var(--ink);opacity:.85}
-  .gitem .gtitle{font-weight:600;margin:3px 0 10px}
-  .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .gbtns button{appearance:none;border:0;border-radius:10px;padding:10px;font:600 13px inherit;cursor:pointer;
-    transition:transform .2s var(--ease)}
-  .gbtns button:active{transform:scale(.97)}
-  .gbtns .approve{background:var(--ink);color:var(--bg)}
-  .gbtns .reroll{background:none;border:1px solid rgba(214,255,246,.4);color:var(--soft)}
-  .gnote{font:11px var(--mono);opacity:.6;margin-top:12px}
-  .scene{overflow-y:auto;padding:18px 18px 96px;overscroll-behavior:contain}
+  .track{flex:1;display:flex;will-change:transform;touch-action:pan-y}
+  .scene{flex:0 0 100%;width:100%;overflow-y:auto;overflow-x:hidden;
+    padding:18px 18px calc(var(--sab) + 92px);overscroll-behavior:contain}
 
   /* ── quest line ─────────────────────────────── */
   .stem{position:relative;padding-left:34px}
   .stem::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;
     background:linear-gradient(var(--ink) 0 var(--grow,0%),var(--line) var(--grow,0%) 100%);
-    transition:--grow 1s var(--ease)}
+    transition:--grow 1.1s var(--ease)}
   .q{position:relative;padding:13px 4px 13px 10px;border-bottom:1px solid var(--line);
     opacity:0;transform:translateY(14px) scale(.97);
-    animation:rise .55s var(--pop) forwards;animation-delay:calc(var(--i)*75ms);cursor:pointer}
+    animation:rise .55s var(--pop) forwards;animation-delay:calc(var(--i)*70ms);cursor:pointer}
   .q:active{transform:scale(.985)}
   @keyframes rise{to{opacity:1;transform:none}}
   .node{position:absolute;left:-31px;top:15px;width:20px;height:20px;border-radius:50%;
@@ -98,64 +96,99 @@ export const PAGE = `<!doctype html>
   .q .arc{font:11px var(--mono);opacity:.5;margin-right:7px}
   .q .t{font-weight:650}
   .q.active .t{color:var(--ink)}
-  .q.locked{opacity:0;animation:rise .55s var(--pop) forwards;animation-delay:calc(var(--i)*75ms)}
   .q.locked .t,.q.locked .arc{opacity:.4}
   .ev{font:12px/1.45 var(--mono);opacity:.7;margin-top:3px}
-  .bar{height:8px;background:var(--line);border-radius:99px;margin:22px 0 8px;overflow:hidden;position:relative}
+  .bar{height:8px;background:var(--line);border-radius:99px;margin:24px 0 8px;overflow:hidden;position:relative}
   .fill{height:100%;width:0;background:var(--ink);border-radius:99px;position:relative;overflow:hidden;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.25);transition:width 1.1s var(--ease)}
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25);transition:width 1.2s var(--ease)}
   .fill::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
     background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);
     animation:shimmer 3.2s var(--ease) infinite}
-  .meta{display:flex;justify-content:space-between;font:12px var(--mono);opacity:.75}
+  .meta{display:flex;justify-content:space-between;gap:10px;font:12px var(--mono);opacity:.75}
+  .meta #here{text-align:right;color:var(--ink);opacity:.85}
 
   /* ── fractal ────────────────────────────────── */
-  .fwrap{display:grid;place-items:center;padding-top:6px}
-  .fcap{font:11px var(--mono);opacity:.6;text-align:left;width:100%;margin-top:14px;max-width:60ch}
-  #rings .ring{cursor:pointer;transition:opacity .3s var(--ease)}
+  .fwrap{display:grid;place-items:center;padding-top:6px;position:relative}
+  .fcap{font:11px var(--mono);opacity:.6;text-align:left;width:100%;margin-top:14px;max-width:60ch;
+    transition:opacity .35s var(--ease)}
+  #rings .ring{cursor:pointer}
   #rings .ring:active{opacity:.7}
+  #ringsG{transition:transform .6s var(--ease);transform-origin:center;transform-box:view-box}
   .orbit{animation:spin 90s linear infinite;transform-origin:center;transform-box:fill-box;will-change:transform}
   @keyframes spin{to{transform:rotate(360deg)}}
   .halo{animation:halo 2.8s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
   @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
   .seed{animation:breathe 2.6s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
+  /* drill-down detail panel */
+  .drill{position:absolute;inset:auto 0 0;padding:16px;border-radius:18px 18px 0 0;
+    background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--line2);border-bottom:0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+    transform:translateY(115%);transition:transform .5s var(--pop);will-change:transform}
+  .drill.on{transform:translateY(0)}
+  .drill .darc{font:12px var(--mono);color:var(--ink)}
+  .drill h3{font-size:18px;margin:3px 0 4px;letter-spacing:.01em}
+  .drill .dstat{font:11px var(--mono);text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:12px}
+  .facets{display:flex;flex-direction:column;gap:8px}
+  .facet{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:11px;font:12.5px var(--mono);
+    opacity:0;transform:translateX(10px);animation:rise .45s var(--ease) forwards;animation-delay:calc(var(--i)*55ms)}
+  .facet .dot{width:7px;height:7px;border-radius:50%;flex:none}
+  .facet.done .dot{background:var(--ink);box-shadow:0 0 6px rgba(224,255,79,.5)}
+  .facet.pend .dot{background:transparent;border:1.5px solid rgba(214,255,246,.4)}
+  .dback{appearance:none;background:none;border:1px solid var(--line2);color:var(--soft);
+    border-radius:10px;padding:9px 14px;margin-top:14px;font:600 12px inherit;cursor:pointer;
+    transition:transform .2s var(--ease)}
+  .dback:active{transform:scale(.96)}
 
   /* ── story ──────────────────────────────────── */
   #beats{position:relative;padding-left:18px}
   #beats::before{content:"";position:absolute;left:4px;top:10px;bottom:10px;width:1.5px;
     background:linear-gradient(rgba(224,255,79,.5),var(--line))}
   .beat{padding:12px 2px;border-bottom:1px solid var(--line);opacity:0;position:relative;
-    transform:translateY(10px);animation:rise .5s var(--ease) forwards;
-    animation-delay:calc(var(--i)*45ms)}
+    transform:translateY(10px);animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*40ms)}
   .beat::before{content:"";position:absolute;left:-17px;top:19px;width:5px;height:5px;
     border-radius:50%;background:rgba(214,255,246,.4)}
   .beat.noesis::before{background:var(--soft);box-shadow:inset 0 0 2px rgba(255,255,255,.5)}
-  .beat:active{transform:scale(.99)}
   .beat .lane{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;
     padding:2px 7px;border:1px solid var(--line);border-radius:99px;opacity:.75;margin-right:8px}
-  .beat.noesis{margin:14px 0;padding:14px;border:1px solid rgba(214,255,246,.35);border-radius:14px;
-    background:var(--glass);backdrop-filter:blur(8px);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+  .beat.noesis{margin:14px 0;padding:14px;border:1px solid var(--line2);border-radius:14px;
+    background:var(--glass);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
   .beat.noesis .lane{border-color:rgba(214,255,246,.5);color:var(--soft);opacity:1}
+
+  /* ── gate ───────────────────────────────────── */
+  .ghead{font-size:17px;font-weight:650;color:var(--ink);margin-bottom:2px}
+  .gsub{font-size:12px;opacity:.7;margin-bottom:16px;max-width:52ch}
+  .gitem{padding:13px;margin-bottom:12px;border:1px solid var(--line2);border-radius:14px;
+    background:var(--glass);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    opacity:0;transform:translateY(12px);animation:rise .5s var(--pop) forwards;animation-delay:calc(var(--i)*70ms)}
+  .gitem .gid{font:11px var(--mono);color:var(--ink);opacity:.85}
+  .gitem .gtitle{font-weight:600;margin:3px 0 10px}
+  .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .gbtns button{appearance:none;border:0;border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;
+    transition:transform .2s var(--ease)}
+  .gbtns button:active{transform:scale(.97)}
+  .gbtns .approve{background:var(--ink);color:var(--bg)}
+  .gbtns .reroll{background:none;border:1px solid rgba(214,255,246,.4);color:var(--soft)}
+  .gnote{font:11px var(--mono);opacity:.6;margin-top:12px;line-height:1.5}
 
   /* ── sheet ──────────────────────────────────── */
   .veil{position:fixed;inset:0;background:rgba(0,20,23,.55);opacity:0;pointer-events:none;
     transition:opacity .35s var(--ease);z-index:10}
   .veil.on{opacity:1;pointer-events:auto}
-  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;padding:20px 20px 30px;
-    background:var(--glass);backdrop-filter:blur(14px);
-    border:1px solid rgba(214,255,246,.16);border-bottom:0;border-radius:20px 20px 0 0;
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;padding:14px 20px calc(var(--sab) + 30px);
+    background:var(--glass);backdrop-filter:blur(16px);
+    border:1px solid var(--line2);border-bottom:0;border-radius:22px 22px 0 0;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 -18px 50px rgba(0,10,12,.45);
-    transform:translateY(105%);transition:transform .5s var(--pop);will-change:transform}
+    transform:translateY(105%);transition:transform .5s var(--pop);will-change:transform;touch-action:none}
   .sheet.on{transform:translateY(0)}
-  .grab{width:38px;height:4px;border-radius:99px;background:rgba(214,255,246,.25);margin:0 auto 14px}
+  .grab{width:38px;height:4px;border-radius:99px;background:rgba(214,255,246,.25);margin:2px auto 16px}
   .sheet .arc{font:12px var(--mono);color:var(--ink);opacity:.9}
   .sheet h2{font-size:19px;letter-spacing:.01em;margin:4px 0 8px}
-  .sheet .nar{opacity:.85;margin-bottom:12px}
-  .kv{display:grid;grid-template-columns:84px 1fr;gap:6px 10px;font-size:13px}
+  .sheet .nar{opacity:.85;margin-bottom:12px;line-height:1.55}
+  .kv{display:grid;grid-template-columns:84px 1fr;gap:7px 10px;font-size:13px}
   .kv b{font:11px var(--mono);opacity:.55;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
   .kv span{font-family:var(--mono);font-size:12.5px;line-height:1.5}
-  .status-complete{color:var(--ink)} .status-active{color:var(--ink)} .status-locked{opacity:.6}
+  .status-complete,.status-active{color:var(--ink)} .status-locked{opacity:.6}
 
   /* ── skeleton / states ──────────────────────── */
   .skel{height:54px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
@@ -163,12 +196,13 @@ export const PAGE = `<!doctype html>
     background:linear-gradient(90deg,transparent,rgba(214,255,246,.06),transparent);
     animation:shimmer 1.4s var(--ease) infinite}
   @keyframes shimmer{to{transform:translateX(100%)}}
-  .state{padding:46px 10px;text-align:left;opacity:.8}
+  .state{padding:46px 6px;text-align:left;opacity:.85}
   .state b{display:block;color:var(--ink);margin-bottom:6px;font-size:15px}
-  .state code{font:12px var(--mono);opacity:.8}
+  .state p{opacity:.8;margin-bottom:10px;line-height:1.5}
+  .state code{font:12px var(--mono);opacity:.85;background:rgba(214,255,246,.06);padding:3px 7px;border-radius:6px}
 
-  footer{position:fixed;left:0;right:0;bottom:0;padding:10px 18px 16px;font:10.5px var(--mono);
-    opacity:.5;background:linear-gradient(transparent,var(--bg) 45%)}
+  footer{position:fixed;left:0;right:0;bottom:0;padding:10px 18px calc(var(--sab) + 14px);
+    font:10.5px var(--mono);opacity:.5;background:linear-gradient(transparent,var(--bg) 45%);z-index:2;pointer-events:none}
 
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -179,9 +213,10 @@ export const PAGE = `<!doctype html>
 <div class="substrate"><div class="blob a"></div><div class="blob b"></div><div class="grain"></div></div>
 <div class="app">
   <header>
-    <div class="brand">Quest Log<small>the infinite game · tenant cambium</small></div>
+    <div class="brand">Quest Log<small>the infinite game · tenant <span id="ten">cambium</span></small></div>
     <span id="fresh" class="chip">syncing</span>
   </header>
+  <div class="ptr" id="ptr"><div class="drop"></div></div>
   <nav>
     <button id="tb0" class="on">Quests</button>
     <button id="tb1">Fractal</button>
@@ -212,8 +247,11 @@ export const PAGE = `<!doctype html>
 <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
 <script>
 'use strict';
+const $ = id => document.getElementById(id);
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const TG = window.Telegram && Telegram.WebApp;
 const buzz = k => { try { TG && TG.HapticFeedback.impactOccurred(k); } catch(_){} };
+const notify = k => { try { TG && TG.HapticFeedback.notificationOccurred(k); } catch(_){} };
 if (TG) { TG.ready(); TG.expand(); try { TG.setHeaderColor('#00272B'); TG.setBackgroundColor('#00272B'); } catch(_){} }
 
 const MARKS = {
@@ -222,54 +260,98 @@ const MARKS = {
   locked:   '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.4" fill="none" stroke="rgba(214,255,246,.45)" stroke-width="1.4"/></svg>'
 };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TENANT = (new URLSearchParams(location.search).get('tenant')
+  || (TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param) || 'cambium').replace(/[^a-z0-9-]/gi,'') || 'cambium';
+$('ten').textContent = TENANT;
+let LEDGER = null;
 
-/* scenes */
+/* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
+const track = $('track'), ind = $('ind'), SCN = 4;
 let scene = 0;
-const go = i => { scene = i;
-  document.getElementById('track').style.transform = 'translateX(' + (-100 * i) + '%)';
-  document.getElementById('ind').style.transform = 'translateX(' + (100 * i) + '%)';
-  [0,1,2,3].forEach(n => document.getElementById('tb'+n).classList.toggle('on', n === i));
-  if (i === 3) loadGate();
-  buzz('light');
-};
-[0,1,2,3].forEach(n => document.getElementById('tb'+n).onclick = () => go(n));
-
-/* gate — the one write. initData proves the founder; the Worker validates it (Ed25519). */
-const initData = (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) || '';
-function loadGate(){
-  const el = document.getElementById('gate');
-  fetch('/api/quests/cambium').then(r => r.ok ? r.json() : {}).then(d => {
-    const items = (d && d.openItems) || [];
-    if(!items.length){ el.innerHTML = '<div class="gnote">no open items waiting on you. The org is flowing.</div>'; return; }
-    el.innerHTML = items.map(it =>
-      '<div class="gitem" data-id="'+esc(it.id)+'"><div class="gid">'+esc(it.id)+'</div>'+
-      '<div class="gtitle">'+esc(it.title)+'</div><div class="gbtns">'+
-      '<button class="approve">Approve</button><button class="reroll">Reroll</button></div></div>').join('') +
-      '<div class="gnote">every action is signed by Telegram and executed by the org — no fake buttons.</div>';
-    el.querySelectorAll('.gitem').forEach(node => {
-      const subject = node.dataset.id;
-      node.querySelector('.approve').onclick = () => gateAct('approve', subject, node);
-      node.querySelector('.reroll').onclick = () => gateAct('reroll', subject, node);
-    });
-  }).catch(() => { el.innerHTML = '<div class="gnote">gate queue unreachable.</div>'; });
+const W = () => track.clientWidth || window.innerWidth;
+function place(x, animate){
+  track.style.transition = (animate && !RM) ? 'transform .5s var(--ease)' : 'none';
+  track.style.transform = 'translate3d(' + x + 'px,0,0)';
 }
-function gateAct(kind, subject, node){
-  buzz('medium');
-  node.style.opacity = '.5';
-  fetch('/api/gate/cambium', { method:'POST', headers:{'content-type':'application/json'},
-    body: JSON.stringify({ kind, subject, initData }) })
-    .then(r => r.json()).then(res => {
-      node.innerHTML = res.queued
-        ? '<div class="gnote">'+esc(kind)+' queued for '+esc(subject)+' — the org will act and confirm in chat.</div>'
-        : '<div class="gnote">refused: '+esc(res.error||'unknown')+'</div>';
-      if(window.Telegram&&Telegram.WebApp) Telegram.WebApp.HapticFeedback.notificationOccurred(res.queued?'success':'error');
-    }).catch(() => { node.innerHTML = '<div class="gnote">network error.</div>'; });
+function liveInd(x){ ind.style.transition='none';
+  ind.style.transform = 'translateX(' + (100 * Math.min(SCN-1, Math.max(0, -x / W()))) + '%)'; }
+function go(i, fromSwipe){
+  scene = Math.min(SCN-1, Math.max(0, i));
+  place(-scene * W(), true);
+  ind.style.transition = RM ? 'none' : 'transform .45s var(--ease)';
+  ind.style.transform = 'translateX(' + (100 * scene) + '%)';
+  [0,1,2,3].forEach(n => $('tb'+n).classList.toggle('on', n === scene));
+  if (scene === 3) loadGate();
+  if (!fromSwipe) buzz('light');
 }
+[0,1,2,3].forEach(n => $('tb'+n).onclick = () => go(n));
+window.addEventListener('resize', () => place(-scene * W(), false));
 
-/* sheet */
-const veil = document.getElementById('veil'), sheet = document.getElementById('sheet');
+// pointer drag: one handler set, decides axis on first move.
+let drag = null;
+track.addEventListener('pointerdown', e => {
+  if (sheetState.open || drillOpen) return;
+  drag = { sx:e.clientX, sy:e.clientY, base:-scene*W(), axis:null, lx:e.clientX, lt:e.timeStamp, v:0,
+           scn: track.children[scene], ptr:false };
+});
+track.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (!drag.axis){
+    if (Math.abs(dx) < 7 && Math.abs(dy) < 7) return;
+    if (Math.abs(dx) > Math.abs(dy)){ drag.axis = 'x'; try{ track.setPointerCapture(e.pointerId); }catch(_){} }
+    else { drag.axis = 'y';
+      // pull-to-refresh only at the very top, pulling down
+      if (dy > 0 && drag.scn && drag.scn.scrollTop <= 0){ drag.ptr = true; try{ track.setPointerCapture(e.pointerId); }catch(_){} }
+    }
+  }
+  if (drag.axis === 'x'){
+    e.preventDefault();
+    let x = drag.base + dx, min = -(SCN-1)*W(), max = 0;
+    if (x > max) x = max + (x-max)*0.35;
+    if (x < min) x = min + (x-min)*0.35;
+    place(x, false); liveInd(x);
+    drag.v = (e.clientX - drag.lx) / Math.max(1, e.timeStamp - drag.lt);
+    drag.lx = e.clientX; drag.lt = e.timeStamp;
+  } else if (drag.ptr){
+    e.preventDefault();
+    const pull = Math.min(90, dy * 0.5);
+    const p = $('ptr');
+    p.classList.add('show');
+    p.style.transition = 'none';
+    p.style.transform = 'translate(-50%,' + (pull - 30) + 'px) scale(' + (0.4 + pull/130) + ')';
+    p.style.opacity = Math.min(1, dy/110);
+    drag.pull = dy;
+  }
+});
+function endDrag(e){
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (d.axis === 'x'){
+    const dx = (e ? e.clientX : d.lx) - d.sx;
+    let t = scene;
+    if (d.v < -0.45 || dx < -W()*0.28) t = scene + 1;
+    else if (d.v > 0.45 || dx > W()*0.28) t = scene - 1;
+    if (t !== scene && t >= 0 && t < SCN) buzz('light');
+    go(t, true);
+  } else if (d.ptr){
+    const p = $('ptr');
+    p.style.transition = 'transform .4s var(--ease),opacity .3s var(--ease)';
+    if (d.pull > 70){ p.classList.add('spin'); buzz('medium');
+      p.style.transform = 'translate(-50%,8px) scale(1)';
+      refresh().finally(() => { p.classList.remove('spin','show'); p.style.opacity=0;
+        p.style.transform='translate(-50%,-30px) scale(.4)'; });
+    } else { p.classList.remove('show'); p.style.opacity=0; p.style.transform='translate(-50%,-30px) scale(.4)'; }
+  }
+}
+track.addEventListener('pointerup', endDrag);
+track.addEventListener('pointercancel', endDrag);
+
+/* ── bottom sheet (quest/ring detail) with drag-to-dismiss ── */
+const veil = $('veil'), sheet = $('sheet');
+const sheetState = { open:false };
 function openSheet(row){
-  document.getElementById('sheetBody').innerHTML =
+  $('sheetBody').innerHTML =
     '<div class="arc">arc ' + esc(row.arc) + ' · ' + esc(row.id) + '</div>' +
     '<h2>' + esc(row.title) + '</h2>' +
     (row.narration ? '<div class="nar">' + esc(row.narration) + '</div>' : '') +
@@ -278,14 +360,73 @@ function openSheet(row){
       '<b>evidence</b><span>' + esc(row.evidence) + '</span>' +
       (row.reveals ? '<b>reveals</b><span>' + esc(row.reveals) + '</span>' : '') +
     '</div>';
-  veil.classList.add('on'); sheet.classList.add('on'); buzz('medium');
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
-const closeSheet = () => { veil.classList.remove('on'); sheet.classList.remove('on'); buzz('light'); };
+function closeSheet(){ veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open=false;
+  sheet.style.transition=''; sheet.style.transform=''; buzz('light'); }
 veil.onclick = closeSheet;
+let sdrag = null;
+sheet.addEventListener('pointerdown', e => { sdrag = { sy:e.clientY, ly:e.clientY, lt:e.timeStamp, v:0 };
+  try{ sheet.setPointerCapture(e.pointerId); }catch(_){} });
+sheet.addEventListener('pointermove', e => {
+  if (!sdrag) return;
+  const dy = e.clientY - sdrag.sy; if (dy < 0) return;
+  e.preventDefault();
+  sheet.style.transition = 'none';
+  sheet.style.transform = 'translateY(' + dy + 'px)';
+  sdrag.v = (e.clientY - sdrag.ly) / Math.max(1, e.timeStamp - sdrag.lt);
+  sdrag.ly = e.clientY; sdrag.lt = e.timeStamp;
+});
+function endSheet(e){ if (!sdrag) return; const d = sdrag; sdrag = null;
+  const dy = (e ? e.clientY : d.ly) - d.sy;
+  sheet.style.transition = 'transform .45s var(--pop)';
+  if (dy > 90 || d.v > 0.5) closeSheet();
+  else sheet.style.transform = 'translateY(0)';
+}
+sheet.addEventListener('pointerup', endSheet);
+sheet.addEventListener('pointercancel', endSheet);
 
-/* quest scene */
+/* ── gate — the one write. initData proves the founder; the Worker validates (Ed25519). ── */
+const initData = (TG && TG.initData) || '';
+function loadGate(){
+  const el = $('gate');
+  fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
+    const items = (d && d.openItems) || [];
+    if(!items.length){ el.innerHTML = '<div class="gnote">no open items waiting on you. The org is flowing.</div>'; return; }
+    el.innerHTML = items.map((it,i) =>
+      '<div class="gitem" style="--i:'+i+'" data-id="'+esc(it.id)+'"><div class="gid">'+esc(it.id)+'</div>'+
+      '<div class="gtitle">'+esc(it.title)+'</div><div class="gbtns">'+
+      '<button class="approve">Approve</button><button class="reroll">Reroll</button></div></div>').join('') +
+      '<div class="gnote">every action is signed by Telegram and executed by the org — no fake buttons.</div>';
+    el.querySelectorAll('.gitem').forEach(node => {
+      node.querySelector('.approve').onclick = () => gateAct('approve', node.dataset.id, node);
+      node.querySelector('.reroll').onclick = () => gateAct('reroll', node.dataset.id, node);
+    });
+  }).catch(() => { el.innerHTML = '<div class="gnote">gate queue unreachable.</div>'; });
+}
+function gateAct(kind, subject, node){
+  buzz('medium'); node.style.opacity = '.5';
+  fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
+    body: JSON.stringify({ kind, subject, initData }) })
+    .then(r => r.json()).then(res => {
+      node.style.opacity='1';
+      node.innerHTML = res.queued
+        ? '<div class="gnote">'+esc(kind)+' queued for '+esc(subject)+' — the org will act and confirm in chat.</div>'
+        : '<div class="gnote">refused: '+esc(res.error||'unknown')+'</div>';
+      notify(res.queued ? 'success' : 'error');
+    }).catch(() => { node.style.opacity='1'; node.innerHTML = '<div class="gnote">network error.</div>'; });
+}
+
+/* ── quest scene + count-up ── */
+function countUp(node, to, suffix){
+  if (RM){ node.textContent = to + suffix; return; }
+  const dur = 900, t0 = performance.now();
+  (function tick(t){ const p = Math.min(1, (t-t0)/dur), e = 1-Math.pow(1-p,3);
+    node.textContent = Math.round(to*e) + suffix;
+    if (p < 1) requestAnimationFrame(tick); })(t0);
+}
 function renderQuests(L){
-  const stem = document.getElementById('stem');
+  const stem = $('stem');
   stem.innerHTML = L.rows.map((r, i) =>
     '<div class="q ' + r.status + '" style="--i:' + i + '" data-i="' + i + '">' +
       '<div class="node">' + MARKS[r.status] + '</div>' +
@@ -293,54 +434,51 @@ function renderQuests(L){
       '<div class="ev">' + esc(r.evidence) + '</div></div>' +
     '</div>').join('');
   stem.querySelectorAll('.q').forEach(el => el.onclick = () => openSheet(L.rows[+el.dataset.i]));
-  requestAnimationFrame(() => {
-    stem.style.setProperty('--grow', Math.round(100 * L.completed / L.total) + '%');
-    document.getElementById('fill').style.width = (100 * L.completed / L.total) + '%';
-  });
-  document.getElementById('progress').textContent = L.completed + '/' + L.total + ' quests';
-  if (L.current) document.getElementById('here').textContent = 'you are here → ' + L.current.arc + ' · ' + L.current.title;
+  const pct = Math.round(100 * L.completed / L.total);
+  requestAnimationFrame(() => { stem.style.setProperty('--grow', pct + '%'); $('fill').style.width = pct + '%'; });
+  const prog = $('progress'); prog.innerHTML = '<span id="cu">0</span>/' + L.total + ' quests';
+  countUp($('cu'), L.completed, '');
+  if (L.current) $('here').textContent = 'here → ' + L.current.arc + ' · ' + L.current.title;
 }
 
-/* fractal scene — the tree-ring cross-section, taste-brief lush: heartwood gradient,
-   cellular texture in the grown rings, a slow orbital drift, and the living edge
-   (the cambium) as a luminous band. Glow stays inner/tinted — no neon (acceptance). */
-function renderFractal(L){
+/* ── fractal scene — tree-ring cross-section, with tap-ring drill-down ── */
+let drillOpen = false;
+function ringGeom(L){
   const n = L.rows.length, C = 170, r0 = 26, step = (C - 40 - r0) / Math.max(1, n - 1);
+  return { n, C, r0, step };
+}
+function renderFractal(L){
+  const { C, r0, step } = ringGeom(L);
   const defs =
     '<defs>' +
       '<radialGradient id="heart" cx="50%" cy="50%">' +
         '<stop offset="0%" stop-color="rgba(224,255,79,.16)"/>' +
         '<stop offset="45%" stop-color="rgba(224,255,79,.05)"/>' +
-        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/>' +
-      '</radialGradient>' +
+        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/></radialGradient>' +
       '<radialGradient id="edge" cx="50%" cy="50%">' +
         '<stop offset="86%" stop-color="rgba(224,255,79,0)"/>' +
-        '<stop offset="96%" stop-color="rgba(224,255,79,.28)"/>' +
-        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/>' +
-      '</radialGradient>' +
+        '<stop offset="96%" stop-color="rgba(224,255,79,.30)"/>' +
+        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/></radialGradient>' +
       '<filter id="cells" x="-20%" y="-20%" width="140%" height="140%">' +
         '<feTurbulence type="fractalNoise" baseFrequency=".055" numOctaves="2" seed="7" result="n"/>' +
-        '<feComposite in="SourceGraphic" in2="n" operator="arithmetic" k1="0" k2=".92" k3=".22" k4="0"/>' +
-      '</filter>' +
+        '<feComposite in="SourceGraphic" in2="n" operator="arithmetic" k1="0" k2=".92" k3=".22" k4="0"/></filter>' +
     '</defs>';
   const grown = L.rows.filter(r => r.status === 'complete').length;
   const rGrown = grown > 0 ? r0 + (grown - 1) * step : 0;
   const heartwood = grown > 0
-    ? '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="url(#heart)" filter="url(#cells)"/>'
-    : '';
+    ? '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="url(#heart)" filter="url(#cells)"/>' : '';
   const rings = L.rows.map((row, i) => {
     const r = r0 + i * step, k = row.status;
     const col = k === 'complete' ? 'rgba(224,255,79,.75)' : k === 'active' ? '#E0FF4F' : 'rgba(120,98,200,.4)';
     const w = k === 'active' ? 2.4 : k === 'complete' ? 1.5 : 1.1;
     const band = k === 'active'
       ? '<circle cx="' + C + '" cy="' + C + '" r="' + (r + 2) + '" fill="none" stroke="url(#edge)" stroke-width="11"/>' +
-        '<circle class="halo" cx="' + C + '" cy="' + C + '" r="' + (r + 8) + '" fill="none" stroke="rgba(224,255,79,.3)" stroke-width="1"/>'
-      : '';
+        '<circle class="halo" cx="' + C + '" cy="' + C + '" r="' + (r + 8) + '" fill="none" stroke="rgba(224,255,79,.3)" stroke-width="1"/>' : '';
     const wobble = k === 'complete'
-      ? '<circle cx="' + C + '" cy="' + C + '" r="' + (r - 2.5) + '" fill="none" stroke="rgba(214,255,246,.10)" stroke-width=".7" stroke-dasharray="1 5"/>'
-      : '';
+      ? '<circle cx="' + C + '" cy="' + C + '" r="' + (r - 2.5) + '" fill="none" stroke="rgba(214,255,246,.10)" stroke-width=".7" stroke-dasharray="1 5"/>' : '';
     return band +
       '<g class="ring" data-i="' + i + '">' +
+        '<circle cx="' + C + '" cy="' + C + '" r="' + (r+7) + '" fill="none" stroke="transparent" stroke-width="16"/>' +
         '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="' + w + '"' +
         (k === 'locked' ? ' stroke-dasharray="3 7"' : '') + '/>' + wobble +
         '<circle cx="' + C + '" cy="' + (C - r) + '" r="9" fill="#012F34" stroke="' + col + '" stroke-width="1.2"/>' +
@@ -350,51 +488,91 @@ function renderFractal(L){
   const active = L.rows.findIndex(r => r.status === 'active');
   const rA = active >= 0 ? r0 + active * step : null;
   const label = rA !== null
-    ? '<line x1="' + (C + rA * 0.7071 + 6) + '" y1="' + (C - rA * 0.7071 - 6) + '" x2="' + (C + rA * 0.7071 + 26) + '" y2="' + (C - rA * 0.7071 - 26) + '" stroke="rgba(224,255,79,.6)" stroke-width="1"/>' +
-      '<text x="' + (C + rA * 0.7071 + 30) + '" y="' + (C - rA * 0.7071 - 30) + '" font-size="10" font-family="ui-monospace,monospace" fill="#E0FF4F">cambium — you are here</text>'
-    : '';
-  document.getElementById('fwrap').innerHTML =
+    ? '<line x1="' + (C + rA*0.7071 + 6) + '" y1="' + (C - rA*0.7071 - 6) + '" x2="' + (C + rA*0.7071 + 26) + '" y2="' + (C - rA*0.7071 - 26) + '" stroke="rgba(224,255,79,.6)" stroke-width="1"/>' +
+      '<text x="' + (C + rA*0.7071 + 30) + '" y="' + (C - rA*0.7071 - 30) + '" font-size="10" font-family="ui-monospace,monospace" fill="#E0FF4F">cambium — you are here</text>' : '';
+  $('fwrap').innerHTML =
     '<svg id="rings" viewBox="0 0 340 340" width="100%" style="max-width:380px">' + defs +
-      '<g class="orbit">' + heartwood + '</g>' + rings +
-      '<circle class="seed" cx="' + C + '" cy="' + C + '" r="5" fill="#E0FF4F"/>' + label +
+      '<g id="ringsG"><g class="orbit">' + heartwood + '</g>' + rings +
+      '<circle class="seed" cx="' + C + '" cy="' + C + '" r="5" fill="#E0FF4F"/>' + label + '</g>' +
     '</svg>' +
-    '<div class="fcap">the venture as a living trunk — grown arcs are rings in the heartwood; the glowing band is the cambium, the living edge where growth happens. tap a ring.</div>';
-  document.querySelectorAll('#rings .ring').forEach(g => g.onclick = () => openSheet(L.rows[+g.dataset.i]));
+    '<div class="fcap" id="fcap">the venture as a living trunk — grown arcs are rings in the heartwood; the glowing band is the cambium, the living edge where growth happens. tap a ring to drill in.</div>' +
+    '<div class="drill" id="drill"></div>';
+  document.querySelectorAll('#rings .ring').forEach(g => g.onclick = () => drillArc(L, +g.dataset.i));
+}
+// parse the evidence string into honest facets: "a · b · c" → chips, "done" if it
+// reads as a satisfied count (x/x) or lacks "pending", else "pending".
+function facetsFrom(ev){
+  return String(ev || '').split('·').map(s => s.trim()).filter(Boolean).map(s => {
+    const m = s.match(/(\\d+)\\s*\\/\\s*(\\d+)/);
+    const pend = /pending|todo|blocked|missing/i.test(s);
+    const done = (m && m[1] === m[2] && +m[2] > 0) || (!pend && !m && /\\b(yes|done|signed|received|true)\\b/i.test(s));
+    return { label: s, done: done && !pend };
+  });
+}
+function drillArc(L, i){
+  const row = L.rows[i], g = ringGeom(L), C = 170, r = g.r0 + i * g.step;
+  const k = Math.min(3.2, Math.max(1.6, 150 / (r + 18)));   // zoom so the ring fills the frame
+  const rg = $('ringsG');
+  rg.style.transform = 'translate(' + (C - C*k) + 'px,' + (C - C*k) + 'px) scale(' + k + ')';
+  const facets = facetsFrom(row.evidence);
+  const d = $('drill');
+  d.innerHTML =
+    '<div class="darc">arc ' + esc(row.arc) + ' · ' + esc(row.id) + '</div>' +
+    '<h3>' + esc(row.title) + '</h3>' +
+    '<div class="dstat status-' + esc(row.status) + '">' + esc(row.status) + '</div>' +
+    '<div class="facets">' + facets.map((f,j) =>
+      '<div class="facet ' + (f.done?'done':'pend') + '" style="--i:'+j+'"><span class="dot"></span>' + esc(f.label) + '</div>').join('') + '</div>' +
+    '<button class="dback" id="dback">← back to the trunk</button>';
+  d.classList.add('on'); drillOpen = true; buzz('medium');
+  $('fcap').style.opacity = '0';
+  $('dback').onclick = undrill;
+}
+function undrill(){
+  $('ringsG').style.transform = '';
+  $('drill').classList.remove('on'); drillOpen = false;
+  $('fcap').style.opacity = ''; buzz('light');
 }
 
-/* story scene */
+/* ── story scene ── */
 function renderStory(env){
   const beats = env.beats && env.beats.length ? env.beats :
     env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false }));
-  document.getElementById('beats').innerHTML = beats.map((b, i) =>
-    '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + i + '">' +
+  $('beats').innerHTML = beats.map((b, i) =>
+    '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i,18) + '">' +
       '<span class="lane">' + esc(b.lane || 'beat') + '</span>' +
       (b.noesis ? '<strong>◆ noesis</strong> · ' : '') + esc(b.text) +
     '</div>').join('');
 }
 
-/* freshness */
+/* ── freshness ── */
 function freshness(iso){
-  const f = document.getElementById('fresh');
+  const f = $('fresh');
   const mins = Math.round((Date.now() - new Date(iso)) / 60000);
   f.textContent = 'derived ' + (mins < 2 ? 'just now' : mins < 60 ? mins + 'm ago' : Math.round(mins / 60) + 'h ago');
-  if (mins > 360) f.classList.add('stale');
+  f.classList.toggle('stale', mins > 360);
 }
 
-fetch('/api/quests/cambium').then(r => r.json()).then(env => {
-  if (!env.ledger) {
-    document.getElementById('stem').innerHTML =
-      '<div class="state"><b>no ledger yet</b>the garden is unplanted.<br><code>quine write quests push --tenant cambium</code></div>';
-    document.getElementById('fresh').textContent = 'empty';
-    return;
-  }
+/* ── data ── */
+function paint(env){
+  LEDGER = env.ledger;
   renderQuests(env.ledger); renderFractal(env.ledger); renderStory(env); freshness(env.derivedAt);
-}).catch(() => {
-  document.getElementById('stem').innerHTML =
-    '<div class="state"><b>ledger unreachable</b>the mycelium is quiet — check the connection and pull down to retry.</div>';
-  document.getElementById('fresh').textContent = 'offline';
-  document.getElementById('fresh').classList.add('stale');
-});
+}
+function load(){
+  return fetch('/api/quests/' + TENANT).then(r => r.json()).then(env => {
+    if (!env.ledger){
+      $('stem').innerHTML =
+        '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
+      $('fresh').textContent = 'empty'; return;
+    }
+    paint(env);
+  }).catch(() => {
+    $('stem').innerHTML =
+      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry.</p></div>';
+    $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
+  });
+}
+function refresh(){ return load(); }
+load();
 </script>
 </body>
 </html>`;

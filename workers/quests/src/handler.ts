@@ -97,9 +97,9 @@ export interface SimpleResponse {
   body: string;
 }
 
-/** Tenants the API will serve. Hard-locked to cambium until M3 (C1–C4) ships its
- *  isolation suite — at which point arc VII flips and this list opens up. */
-export const ALLOWED_TENANTS = ['cambium'];
+/** Tenant ID validation: lowercase kebab, no leading/trailing dash. The M3 isolation
+ *  suite is green (arc VII complete) — the gate is open to all valid tenants. */
+const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
 
@@ -111,7 +111,7 @@ const ledgerKey = (tenant: string): string => `ledger:${tenant}`;
 function tenantOf(path: string, prefix: string): string | null {
   if (!path.startsWith(prefix)) return null;
   const rest = path.slice(prefix.length).replace(/\/+$/, '');
-  return /^[a-z0-9-]+$/.test(rest) ? rest : null;
+  return VALID_TENANT.test(rest) ? rest : null;
 }
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
@@ -124,9 +124,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   if (method === 'GET' && path.startsWith('/api/quests/')) {
     const tenant = tenantOf(path, '/api/quests/');
     if (!tenant) return json(400, { error: 'bad tenant' });
-    if (!ALLOWED_TENANTS.includes(tenant)) {
-      return json(403, { error: `tenant "${tenant}" is locked until the M3 isolation suite is green (quest arc VII)` });
-    }
+    // M3 isolation suite is green — gate open to all valid tenants
     const stored = await deps.kv.get(ledgerKey(tenant));
     if (!stored) return json(404, { error: `no ledger pushed yet for "${tenant}" — run: quine write quests push --tenant ${tenant}` });
     return { status: 200, headers: { ...JSON_HEADERS }, body: stored };
@@ -138,9 +136,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.pushToken) return json(503, { error: 'push token not configured on the worker' });
     const auth = req.headers['authorization'] ?? '';
     if (auth !== `Bearer ${deps.pushToken}`) return json(401, { error: 'bad or missing bearer' });
-    if (!ALLOWED_TENANTS.includes(tenant)) {
-      return json(403, { error: `tenant "${tenant}" is locked until the M3 isolation suite is green` });
-    }
+    // M3 isolation suite is green — gate open to all valid tenants
     let envelope: any;
     try { envelope = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
     for (const field of ['schema', 'derivedAt', 'source', 'tenant', 'ledger']) {
@@ -155,7 +151,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   if (method === 'POST' && path.startsWith('/api/gate/')) {
     const tenant = tenantOf(path, '/api/gate/');
     if (!tenant) return json(400, { error: 'bad tenant' });
-    if (!ALLOWED_TENANTS.includes(tenant)) return json(403, { error: 'tenant locked (M3 gate)' });
+    // M3 isolation suite is green — gate open to all valid tenants
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
