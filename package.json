@@ -1,10 +1,10 @@
 {
   "name": "cambium",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "codename": "Thalia",
   "private": true,
   "type": "module",
-  "description": "The composition layer for the constellation \u2014 registry + pipeline + the dry-run conductor.",
+  "description": "The composition layer for the constellation — registry + pipeline + the dry-run conductor.",
   "scripts": {
     "test": "node --test 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts' 'bin/operator/quests/*.test.ts' 'bin/operator/skills/*.test.ts' 'bin/operator/narrative/*.test.ts' 'workers/quests/src/*.test.ts'",
     "operator": "node bin/operator/cli.ts",

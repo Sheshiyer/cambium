@@ -11,6 +11,20 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.2.3 · **Thalia .3** — *the game sees the org live*
+
+The org update: the quest log now reads the real pulse of the agent plane — MultiCA-derived
+ evidence joins the fold, and every quest arc derives from actual operations.
+
+- **M5 Phase Q · Quest surface** — `bin/operator/quests/quests.ts` grows Arcs VIII–IX:
+  - **VIII · The Living Org** — derives from live MultiCA agent count + issue flow
+  - **IX · The Gate** — derives from real gate handoffs resolved through the founder approval lane
+  - `gatherQuestInputs()` now queries the MultiCA gateway fail-soft; unreachable → honest
+    "MultiCA gateway unreachable" evidence (no fake progress).
+- **M5 Phase R + G** (shipped in v0.2.2) — multica hypha reads the org; agent models wired to
+  the Nebius Token Factory via opencode.
+- 240 tests green · Node v26 native TypeScript (zero build, zero deps).
+
 ### v0.2.2 · **Thalia .2** — *the game becomes many, and writes back*
 
 The org update: the quest game gains a story it tells in prose, the venture becomes *many*
