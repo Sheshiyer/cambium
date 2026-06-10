@@ -8,7 +8,12 @@ import { PAGE } from './page.ts';
 
 function fakeKv(): KvLike & { store: Map<string, string> } {
   const store = new Map<string, string>();
-  return { store, async get(k) { return store.get(k) ?? null; }, async put(k, v) { store.set(k, v); } };
+  return {
+    store,
+    async get(k) { return store.get(k) ?? null; },
+    async put(k, v) { store.set(k, v); },
+    async list(prefix) { return [...store.keys()].filter((k) => k.startsWith(prefix)); },
+  };
 }
 
 const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): SimpleRequest =>
@@ -116,6 +121,12 @@ test('page · craft: skeleton, states, reduced motion, no pure black, no emoji i
   assert.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(PAGE), 'no emoji glyphs');
 });
 
+test('page · taste-brief lushness markers present (W2.5)', () => {
+  for (const m of ['feTurbulence', 'radialGradient id="heart"', 'url(#edge)', 'class="orbit"', 'blob a', 'class="grain"', '#beats::before']) {
+    assert.ok(PAGE.includes(m), `page has ${m}`);
+  }
+});
+
 test('page · animations ride transform and opacity only', () => {
   // keyframes must not animate layout properties
   const keyframeBodies = PAGE.match(/@keyframes[\s\S]*?\}\s*\}/g) ?? [];
@@ -123,4 +134,104 @@ test('page · animations ride transform and opacity only', () => {
     assert.ok(!/\b(top|left|width|height|margin)\s*:/.test(k), `layout prop animated in ${k.slice(0, 40)}`);
   }
   assert.ok(keyframeBodies.length >= 3, 'has the motion set');
+});
+
+
+// ── W4 · the founder gate (Ed25519 third-party validation) ──────────────
+
+import { webcrypto } from 'node:crypto';
+import { buildDataCheckString, validateInitData } from './handler.ts';
+import type { GateConfig } from './handler.ts';
+
+const subtle = (globalThis.crypto ?? webcrypto).subtle;
+
+async function makeSignedInitData(opts: {
+  botId: string; userId: string; authDate: number; tamper?: boolean;
+}): Promise<{ initData: string; pubKeyHex: string }> {
+  const pair = await subtle.generateKey('Ed25519', true, ['sign', 'verify']) as CryptoKeyPair;
+  const raw = new Uint8Array(await subtle.exportKey('raw', pair.publicKey));
+  const pubKeyHex = [...raw].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const fields = new URLSearchParams();
+  fields.set('auth_date', String(opts.authDate));
+  fields.set('user', JSON.stringify({ id: Number(opts.userId), first_name: 'Founder' }));
+  fields.set('query_id', 'AAtest');
+  const { dcs } = buildDataCheckString(fields.toString(), opts.botId);
+  const sig = new Uint8Array(await subtle.sign('Ed25519', pair.privateKey, new TextEncoder().encode(
+    opts.tamper ? dcs + 'tampered' : dcs,
+  )));
+  const b64url = Buffer.from(sig).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  fields.set('signature', b64url);
+  fields.set('hash', 'deadbeef');
+  return { initData: fields.toString(), pubKeyHex };
+}
+
+const NOW = 1_750_000_000_000;
+const gateCfg = (pubKeyHex: string): GateConfig => ({
+  botId: '1571615655', pubKeyHex, founderIds: ['1371522080', '926168615'], now: () => NOW,
+});
+
+test('gate · valid founder signature passes and identifies the founder', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '1371522080', authDate: NOW / 1000 - 30 });
+  const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
+  assert.deepEqual(verdict, { ok: true, userId: '1371522080' });
+});
+
+test('gate · tampered payload is rejected', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '1371522080', authDate: NOW / 1000 - 30, tamper: true });
+  const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
+  assert.equal(verdict.ok, false);
+  assert.match((verdict as any).reason, /bad signature/);
+});
+
+test('gate · stale auth_date is rejected', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '1371522080', authDate: NOW / 1000 - 4000 });
+  const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
+  assert.equal(verdict.ok, false);
+  assert.match((verdict as any).reason, /stale/);
+});
+
+test('gate · non-founder with a valid signature is rejected', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '555', authDate: NOW / 1000 - 30 });
+  const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
+  assert.equal(verdict.ok, false);
+  assert.match((verdict as any).reason, /not a founder/);
+});
+
+test('gate · queue → list → consume roundtrip over the worker routes', async () => {
+  const kv = fakeKv();
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '926168615', authDate: NOW / 1000 - 10 });
+  const deps = { kv, pushToken: 't', gate: gateCfg(pubKeyHex), uuid: () => 'fixed-uuid' };
+
+  const queued = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve', subject: 'THO-9', note: 'ship it', initData }),
+  }), deps);
+  assert.equal(queued.status, 200);
+  assert.match(queued.body, /fixed-uuid/);
+
+  const unauth = await handle(req('GET', '/internal/gate/cambium'), deps);
+  assert.equal(unauth.status, 401);
+
+  const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+  assert.equal(listed.status, 200);
+  const actions = JSON.parse(listed.body).actions;
+  assert.equal(actions.length, 1);
+  assert.equal(actions[0].founderId, '926168615');
+  assert.equal(actions[0].kind, 'approve');
+
+  const consumed = await handle(req('POST', '/internal/gate/cambium/consume', {
+    headers: { authorization: 'Bearer t' }, body: JSON.stringify({ id: 'fixed-uuid', result: 'done' }),
+  }), deps);
+  assert.equal(consumed.status, 200);
+
+  const relisted = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+  assert.equal(JSON.parse(relisted.body).actions.length, 0, 'consumed actions leave the queue');
+});
+
+test('gate · missing initData (outside Telegram) is a clean 401', async () => {
+  const kv = fakeKv();
+  const { pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '926168615', authDate: NOW / 1000 });
+  const r = await handle(req('POST', '/api/gate/cambium', { body: JSON.stringify({ kind: 'approve', subject: 'x' }) }),
+    { kv, pushToken: 't', gate: gateCfg(pubKeyHex) });
+  assert.equal(r.status, 401);
+  assert.match(r.body, /inside Telegram/);
 });

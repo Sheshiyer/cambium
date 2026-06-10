@@ -25,16 +25,25 @@ export const PAGE = `<!doctype html>
     background:var(--bg); color:var(--soft); overflow:hidden;
     font:15px/1.5 -apple-system,'Satoshi','Euclid Circular A',system-ui,sans-serif;
   }
-  /* mycelium substrate — fixed, non-scrolling, pointer-inert */
-  .substrate{position:fixed;inset:0;pointer-events:none;opacity:.5;
-    background:
-      radial-gradient(420px 300px at 85% -5%,rgba(224,255,79,.05),transparent 60%),
-      radial-gradient(520px 380px at -10% 100%,rgba(35,22,81,.5),transparent 65%),
-      radial-gradient(300px 220px at 50% 55%,rgba(214,255,246,.025),transparent 70%);}
+  /* mycelium substrate — fixed, non-scrolling, pointer-inert. Two slow-drifting
+     mesh blobs (transform-only) + a static grain veil. Taste brief: perpetual
+     micro-motion, dead under reduced-motion. */
+  .substrate{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+  .blob{position:absolute;width:130vw;height:130vw;border-radius:50%;opacity:.55;
+    will-change:transform}
+  .blob.a{left:-40vw;top:-55vw;
+    background:radial-gradient(circle at 60% 60%,rgba(224,255,79,.07),transparent 55%);
+    animation:drift 46s var(--ease) infinite alternate}
+  .blob.b{right:-55vw;bottom:-60vw;
+    background:radial-gradient(circle at 40% 35%,rgba(35,22,81,.55),transparent 60%);
+    animation:drift 61s var(--ease) infinite alternate-reverse}
+  @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(7vw,5vw) scale(1.08)}}
+  .grain{position:absolute;inset:0;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
   .app{position:relative;height:100dvh;display:flex;flex-direction:column}
 
   header{padding:18px 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
-  .brand{font-size:16px;font-weight:700;letter-spacing:.03em}
+  .brand{font-size:21px;font-weight:750;letter-spacing:-.02em}
   .brand small{display:block;font-size:11px;font-weight:400;opacity:.6;letter-spacing:.06em}
   .chip{font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.35);
     border-radius:999px;color:var(--ink)}
@@ -50,8 +59,24 @@ export const PAGE = `<!doctype html>
   .ind{position:absolute;bottom:-1px;left:0;width:33.333%;height:2px;background:var(--ink);
     transition:transform .45s var(--ease)}
 
-  .track{flex:1;display:grid;grid-template-columns:repeat(3,100%);
+  .track{flex:1;display:grid;grid-template-columns:repeat(4,100%);
     transition:transform .5s var(--ease);will-change:transform}
+  nav{grid-template-columns:repeat(4,1fr)!important}
+  .ind{width:25%!important}
+  /* ── gate ──────────────────────────────────── */
+  .ghead{font-size:17px;font-weight:650;color:var(--ink);margin-bottom:2px}
+  .gsub{font-size:12px;opacity:.7;margin-bottom:16px}
+  .gitem{padding:13px;margin-bottom:12px;border:1px solid rgba(214,255,246,.16);border-radius:14px;
+    background:var(--glass);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .gitem .gid{font:11px var(--mono);color:var(--ink);opacity:.85}
+  .gitem .gtitle{font-weight:600;margin:3px 0 10px}
+  .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .gbtns button{appearance:none;border:0;border-radius:10px;padding:10px;font:600 13px inherit;cursor:pointer;
+    transition:transform .2s var(--ease)}
+  .gbtns button:active{transform:scale(.97)}
+  .gbtns .approve{background:var(--ink);color:var(--bg)}
+  .gbtns .reroll{background:none;border:1px solid rgba(214,255,246,.4);color:var(--soft)}
+  .gnote{font:11px var(--mono);opacity:.6;margin-top:12px}
   .scene{overflow-y:auto;padding:18px 18px 96px;overscroll-behavior:contain}
 
   /* ── quest line ─────────────────────────────── */
@@ -76,24 +101,36 @@ export const PAGE = `<!doctype html>
   .q.locked{opacity:0;animation:rise .55s var(--pop) forwards;animation-delay:calc(var(--i)*75ms)}
   .q.locked .t,.q.locked .arc{opacity:.4}
   .ev{font:12px/1.45 var(--mono);opacity:.7;margin-top:3px}
-  .bar{height:8px;background:var(--line);border-radius:99px;margin:22px 0 8px;overflow:hidden}
-  .fill{height:100%;width:0;background:var(--ink);border-radius:99px;
+  .bar{height:8px;background:var(--line);border-radius:99px;margin:22px 0 8px;overflow:hidden;position:relative}
+  .fill{height:100%;width:0;background:var(--ink);border-radius:99px;position:relative;overflow:hidden;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.25);transition:width 1.1s var(--ease)}
+  .fill::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+    background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);
+    animation:shimmer 3.2s var(--ease) infinite}
   .meta{display:flex;justify-content:space-between;font:12px var(--mono);opacity:.75}
 
   /* ── fractal ────────────────────────────────── */
   .fwrap{display:grid;place-items:center;padding-top:6px}
-  .fcap{font:11px var(--mono);opacity:.6;text-align:left;width:100%;margin-top:14px}
+  .fcap{font:11px var(--mono);opacity:.6;text-align:left;width:100%;margin-top:14px;max-width:60ch}
   #rings .ring{cursor:pointer;transition:opacity .3s var(--ease)}
   #rings .ring:active{opacity:.7}
+  .orbit{animation:spin 90s linear infinite;transform-origin:center;transform-box:fill-box;will-change:transform}
+  @keyframes spin{to{transform:rotate(360deg)}}
   .halo{animation:halo 2.8s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
   @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
   .seed{animation:breathe 2.6s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
 
   /* ── story ──────────────────────────────────── */
-  .beat{padding:12px 2px;border-bottom:1px solid var(--line);opacity:0;
+  #beats{position:relative;padding-left:18px}
+  #beats::before{content:"";position:absolute;left:4px;top:10px;bottom:10px;width:1.5px;
+    background:linear-gradient(rgba(224,255,79,.5),var(--line))}
+  .beat{padding:12px 2px;border-bottom:1px solid var(--line);opacity:0;position:relative;
     transform:translateY(10px);animation:rise .5s var(--ease) forwards;
     animation-delay:calc(var(--i)*45ms)}
+  .beat::before{content:"";position:absolute;left:-17px;top:19px;width:5px;height:5px;
+    border-radius:50%;background:rgba(214,255,246,.4)}
+  .beat.noesis::before{background:var(--soft);box-shadow:inset 0 0 2px rgba(255,255,255,.5)}
+  .beat:active{transform:scale(.99)}
   .beat .lane{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;
     padding:2px 7px;border:1px solid var(--line);border-radius:99px;opacity:.75;margin-right:8px}
   .beat.noesis{margin:14px 0;padding:14px;border:1px solid rgba(214,255,246,.35);border-radius:14px;
@@ -139,7 +176,7 @@ export const PAGE = `<!doctype html>
 </style>
 </head>
 <body>
-<div class="substrate"></div>
+<div class="substrate"><div class="blob a"></div><div class="blob b"></div><div class="grain"></div></div>
 <div class="app">
   <header>
     <div class="brand">Quest Log<small>the infinite game · tenant cambium</small></div>
@@ -149,6 +186,7 @@ export const PAGE = `<!doctype html>
     <button id="tb0" class="on">Quests</button>
     <button id="tb1">Fractal</button>
     <button id="tb2">Story</button>
+    <button id="tb3">Gate</button>
     <div class="ind" id="ind"></div>
   </nav>
   <div class="track" id="track">
@@ -162,6 +200,11 @@ export const PAGE = `<!doctype html>
     </section>
     <section class="scene" id="sceneF"><div class="fwrap" id="fwrap"></div></section>
     <section class="scene" id="sceneS"><div id="beats"></div></section>
+    <section class="scene" id="sceneG">
+      <div class="ghead">The Gate · the one write</div>
+      <div class="gsub">approve or reroll an open work item — evidence-gated, founders only.</div>
+      <div id="gate">loading the queue…</div>
+    </section>
   </div>
   <footer>every status derives from real world-state — no fake progress.</footer>
 </div>
@@ -185,10 +228,43 @@ let scene = 0;
 const go = i => { scene = i;
   document.getElementById('track').style.transform = 'translateX(' + (-100 * i) + '%)';
   document.getElementById('ind').style.transform = 'translateX(' + (100 * i) + '%)';
-  [0,1,2].forEach(n => document.getElementById('tb'+n).classList.toggle('on', n === i));
+  [0,1,2,3].forEach(n => document.getElementById('tb'+n).classList.toggle('on', n === i));
+  if (i === 3) loadGate();
   buzz('light');
 };
-[0,1,2].forEach(n => document.getElementById('tb'+n).onclick = () => go(n));
+[0,1,2,3].forEach(n => document.getElementById('tb'+n).onclick = () => go(n));
+
+/* gate — the one write. initData proves the founder; the Worker validates it (Ed25519). */
+const initData = (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) || '';
+function loadGate(){
+  const el = document.getElementById('gate');
+  fetch('/api/quests/cambium').then(r => r.ok ? r.json() : {}).then(d => {
+    const items = (d && d.openItems) || [];
+    if(!items.length){ el.innerHTML = '<div class="gnote">no open items waiting on you. The org is flowing.</div>'; return; }
+    el.innerHTML = items.map(it =>
+      '<div class="gitem" data-id="'+esc(it.id)+'"><div class="gid">'+esc(it.id)+'</div>'+
+      '<div class="gtitle">'+esc(it.title)+'</div><div class="gbtns">'+
+      '<button class="approve">Approve</button><button class="reroll">Reroll</button></div></div>').join('') +
+      '<div class="gnote">every action is signed by Telegram and executed by the org — no fake buttons.</div>';
+    el.querySelectorAll('.gitem').forEach(node => {
+      const subject = node.dataset.id;
+      node.querySelector('.approve').onclick = () => gateAct('approve', subject, node);
+      node.querySelector('.reroll').onclick = () => gateAct('reroll', subject, node);
+    });
+  }).catch(() => { el.innerHTML = '<div class="gnote">gate queue unreachable.</div>'; });
+}
+function gateAct(kind, subject, node){
+  buzz('medium');
+  node.style.opacity = '.5';
+  fetch('/api/gate/cambium', { method:'POST', headers:{'content-type':'application/json'},
+    body: JSON.stringify({ kind, subject, initData }) })
+    .then(r => r.json()).then(res => {
+      node.innerHTML = res.queued
+        ? '<div class="gnote">'+esc(kind)+' queued for '+esc(subject)+' — the org will act and confirm in chat.</div>'
+        : '<div class="gnote">refused: '+esc(res.error||'unknown')+'</div>';
+      if(window.Telegram&&Telegram.WebApp) Telegram.WebApp.HapticFeedback.notificationOccurred(res.queued?'success':'error');
+    }).catch(() => { node.innerHTML = '<div class="gnote">network error.</div>'; });
+}
 
 /* sheet */
 const veil = document.getElementById('veil'), sheet = document.getElementById('sheet');
@@ -225,20 +301,48 @@ function renderQuests(L){
   if (L.current) document.getElementById('here').textContent = 'you are here → ' + L.current.arc + ' · ' + L.current.title;
 }
 
-/* fractal scene — the tree-ring cross-section: each arc one ring; the living edge is you */
+/* fractal scene — the tree-ring cross-section, taste-brief lush: heartwood gradient,
+   cellular texture in the grown rings, a slow orbital drift, and the living edge
+   (the cambium) as a luminous band. Glow stays inner/tinted — no neon (acceptance). */
 function renderFractal(L){
   const n = L.rows.length, C = 170, r0 = 26, step = (C - 40 - r0) / Math.max(1, n - 1);
+  const defs =
+    '<defs>' +
+      '<radialGradient id="heart" cx="50%" cy="50%">' +
+        '<stop offset="0%" stop-color="rgba(224,255,79,.16)"/>' +
+        '<stop offset="45%" stop-color="rgba(224,255,79,.05)"/>' +
+        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/>' +
+      '</radialGradient>' +
+      '<radialGradient id="edge" cx="50%" cy="50%">' +
+        '<stop offset="86%" stop-color="rgba(224,255,79,0)"/>' +
+        '<stop offset="96%" stop-color="rgba(224,255,79,.28)"/>' +
+        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/>' +
+      '</radialGradient>' +
+      '<filter id="cells" x="-20%" y="-20%" width="140%" height="140%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency=".055" numOctaves="2" seed="7" result="n"/>' +
+        '<feComposite in="SourceGraphic" in2="n" operator="arithmetic" k1="0" k2=".92" k3=".22" k4="0"/>' +
+      '</filter>' +
+    '</defs>';
+  const grown = L.rows.filter(r => r.status === 'complete').length;
+  const rGrown = grown > 0 ? r0 + (grown - 1) * step : 0;
+  const heartwood = grown > 0
+    ? '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="url(#heart)" filter="url(#cells)"/>'
+    : '';
   const rings = L.rows.map((row, i) => {
     const r = r0 + i * step, k = row.status;
-    const col = k === 'complete' ? 'rgba(224,255,79,.8)' : k === 'active' ? '#E0FF4F' : 'rgba(120,98,200,.45)';
-    const w = k === 'active' ? 2.6 : 1.4;
-    const fill = k === 'complete' ? 'rgba(224,255,79,.05)' : 'none';
-    const halo = k === 'active'
-      ? '<circle class="halo" cx="' + C + '" cy="' + C + '" r="' + (r + 7) + '" fill="none" stroke="rgba(224,255,79,.35)" stroke-width="1"/>' : '';
-    return halo +
+    const col = k === 'complete' ? 'rgba(224,255,79,.75)' : k === 'active' ? '#E0FF4F' : 'rgba(120,98,200,.4)';
+    const w = k === 'active' ? 2.4 : k === 'complete' ? 1.5 : 1.1;
+    const band = k === 'active'
+      ? '<circle cx="' + C + '" cy="' + C + '" r="' + (r + 2) + '" fill="none" stroke="url(#edge)" stroke-width="11"/>' +
+        '<circle class="halo" cx="' + C + '" cy="' + C + '" r="' + (r + 8) + '" fill="none" stroke="rgba(224,255,79,.3)" stroke-width="1"/>'
+      : '';
+    const wobble = k === 'complete'
+      ? '<circle cx="' + C + '" cy="' + C + '" r="' + (r - 2.5) + '" fill="none" stroke="rgba(214,255,246,.10)" stroke-width=".7" stroke-dasharray="1 5"/>'
+      : '';
+    return band +
       '<g class="ring" data-i="' + i + '">' +
-        '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="' + fill + '" stroke="' + col + '" stroke-width="' + w + '"' +
-        (k === 'locked' ? ' stroke-dasharray="3 7"' : k === 'complete' ? ' stroke-dasharray="0"' : '') + '/>' +
+        '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="' + w + '"' +
+        (k === 'locked' ? ' stroke-dasharray="3 7"' : '') + '/>' + wobble +
         '<circle cx="' + C + '" cy="' + (C - r) + '" r="9" fill="#012F34" stroke="' + col + '" stroke-width="1.2"/>' +
         '<text x="' + C + '" y="' + (C - r + 3.5) + '" text-anchor="middle" font-size="9" font-family="ui-monospace,monospace" fill="' + col + '">' + esc(row.arc) + '</text>' +
       '</g>';
@@ -250,10 +354,11 @@ function renderFractal(L){
       '<text x="' + (C + rA * 0.7071 + 30) + '" y="' + (C - rA * 0.7071 - 30) + '" font-size="10" font-family="ui-monospace,monospace" fill="#E0FF4F">cambium — you are here</text>'
     : '';
   document.getElementById('fwrap').innerHTML =
-    '<svg id="rings" viewBox="0 0 340 340" width="100%" style="max-width:380px">' +
-      '<circle class="seed" cx="' + C + '" cy="' + C + '" r="5" fill="#E0FF4F"/>' + rings + label +
+    '<svg id="rings" viewBox="0 0 340 340" width="100%" style="max-width:380px">' + defs +
+      '<g class="orbit">' + heartwood + '</g>' + rings +
+      '<circle class="seed" cx="' + C + '" cy="' + C + '" r="5" fill="#E0FF4F"/>' + label +
     '</svg>' +
-    '<div class="fcap">the venture as a living trunk — completed arcs are rings; the glowing edge is the cambium, where growth happens. tap a ring.</div>';
+    '<div class="fcap">the venture as a living trunk — grown arcs are rings in the heartwood; the glowing band is the cambium, the living edge where growth happens. tap a ring.</div>';
   document.querySelectorAll('#rings .ring').forEach(g => g.onclick = () => openSheet(L.rows[+g.dataset.i]));
 }
 
