@@ -147,6 +147,8 @@ node bin/operator/cli.ts onboard --auto     # autoplay the whole session
 
 It opens and closes on **Epic Meaning** (the White-Hat bookends of an infinite game), holds a distinct **noesis frame** at the existential beats (the calling, drift, the game continuing), and ends on a full **Octalysis panel** (which of the 8 drives lit, the White/Black/mid-brain balance). Design: **[ONBOARDING-OCTALYSIS.md](./ONBOARDING-OCTALYSIS.md)**.
 
+The onboarding is the tutorial; the rest of the game is the **quest log + skill forge** (`quine quests` · `quine skills` — the venture's "you are here" map, derived from real world-state, and repetitive processes minted as self-improving skills). Design: **[QUESTLOG.md](./QUESTLOG.md)**.
+
 ---
 
 ## The composition layer — reliable variable contracts
@@ -205,6 +207,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 |---|---|
 | [INFINITE-GAME.md](./INFINITE-GAME.md) | the operator contract — wake loop, router, viability, NPCs, noesis |
 | [ONBOARDING-OCTALYSIS.md](./ONBOARDING-OCTALYSIS.md) | the 20-interaction first session, drive by drive |
+| [QUESTLOG.md](./QUESTLOG.md) | the quest line (you-are-here map) + the skill forge (repetition → self-improving skills) |
 | [HOMEOSTASIS.md](./HOMEOSTASIS.md) | the math — Banach contraction, viability kernel, why-handler |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | the organ constellation + composition layer |
 | [BUSINESS-MODEL.md](./BUSINESS-MODEL.md) | free build, subscription taste + memory |
