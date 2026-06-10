@@ -16,7 +16,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createWorld } from './world.ts';
-import { probeEvent, runHeartbeat } from './heartbeat.ts';
+import { probeEvent, runHeartbeat, runHeartbeatMulti } from './heartbeat.ts';
 import { realIcp } from './npc.ts';
 import { makeEmbedder, cosine } from './embed.ts';
 import { resolveIcp, ensureSetpoint } from './resonance.ts';
@@ -27,12 +27,26 @@ import { vectorizeCortex } from './vectorize-cortex.ts';
 import { codegraphRecall, cliCodegraphClient } from './codegraph-recall.ts';
 import type { WorldState, GameEvent, Decision } from './types.ts';
 import type { CortexStore } from './cortex-memory.ts';
+import { tenantScopedStore } from './cortex-memory.ts';
+import { ensureRegistry, requireTenant, validateTenantId, listTenants } from './tenant.ts';
 import { defaultCortex } from '../lib/cortex.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const STATE_DIR = join(ROOT, '.operator');
 const statePath = (tenant: string) => join(STATE_DIR, `${tenant}.world.json`);
-const cortex = defaultCortex(ROOT);
+
+// M3/C3: tenant resolution — --tenant flag → $TENANT → house default; validated
+// against the registry (registration-from-reality; invented ids are rejected).
+const argvAll = process.argv.slice(2);
+const tIdx = argvAll.indexOf('--tenant');
+const tenantArg = tIdx >= 0 ? argvAll[tIdx + 1] : undefined;
+if (tIdx >= 0) argvAll.splice(tIdx, 2);
+const tenant = tenantArg || process.env.TENANT || 'thoughtseed';
+const registry = ensureRegistry(ROOT);
+if (registry.length > 0 && tenantArg) requireTenant(ROOT, tenant);
+else validateTenantId(tenant);
+
+const cortex = defaultCortex(ROOT, tenant);
 const record = (l: string) => cortex.writeDeviation(l);
 const embedder = makeEmbedder({ root: ROOT });           // real NIM if NVIDIA_API_KEY, else stub
 let _cortexStore: CortexStore | null = null;
@@ -62,7 +76,9 @@ function saveWorld(w: WorldState): void {
   writeFileSync(statePath(w.tenant), JSON.stringify(w, null, 2));
 }
 async function runEvent(tenant: string, event: GameEvent): Promise<Decision> {
-  const { world, decision } = await wakeAsync(loadWorld(tenant), event, { record, embedder, store: await cortexStore() });
+  const { world, decision } = await wakeAsync(loadWorld(tenant), event, {
+    record, embedder, store: tenantScopedStore(await cortexStore(), tenant),
+  });
   saveWorld(world);
   return decision;
 }
@@ -82,8 +98,7 @@ const SAMPLE: GameEvent[] = [
   { id: '♥·heartbeat', kind: 'probe' },
 ];
 
-const [cmd, ...rest] = process.argv.slice(2);
-const tenant = process.env.TENANT || 'thoughtseed';
+const [cmd, ...rest] = argvAll;
 
 if (cmd === 'wake') {
   const event = JSON.parse(rest[0] ?? '{}') as GameEvent;
@@ -94,13 +109,24 @@ if (cmd === 'wake') {
   for (const e of SAMPLE) { console.log(`#${e.id}`); console.log(fmt(await runEvent(tenant, e))); }
   console.log(`\nfinal version: ${loadWorld(tenant).version}`);
 } else if (cmd === 'heartbeat') {
-  console.log('heartbeat:');
-  console.log(fmt(await runEvent(tenant, probeEvent(1))));
+  const sweepTenants = listTenants(ROOT);
+  const targets = sweepTenants.length > 0 ? sweepTenants : [tenant];
+  console.log(`heartbeat · ${targets.length} tenant(s):`);
+  for (const sweepTenant of targets) {
+    console.log(`  ${sweepTenant}:` );
+    console.log(fmt(await runEvent(sweepTenant, probeEvent(1))));
+  }
 } else if (cmd === 'run') {
   const intervalMs = Number(rest[0] ?? 2000);
   const maxTicks = rest[1] ? Number(rest[1]) : undefined;
-  console.log(`operator running · tenant=${tenant} · every ${intervalMs}ms` + (maxTicks ? ` · ${maxTicks} ticks` : ' (Ctrl-C to stop)'));
-  runHeartbeat({ intervalMs, maxTicks, deps: { record }, load: () => loadWorld(tenant), step: (w, d) => { saveWorld(w); console.log(fmt(d)); } });
+  const daemonTenants = () => { const ids = listTenants(ROOT); return ids.length > 0 ? ids : [tenant]; };
+  console.log(`operator running · tenants=[${daemonTenants().join(', ')}] · every ${intervalMs}ms` + (maxTicks ? ` · ${maxTicks} ticks` : ' (Ctrl-C to stop)'));
+  runHeartbeatMulti({
+    intervalMs, maxTicks, deps: { record },
+    tenants: daemonTenants,
+    load: (sweepTenant) => loadWorld(sweepTenant),
+    step: (sweepTenant, w, d) => { saveWorld(w); console.log(`[${sweepTenant}] ${fmt(d)}`); },
+  });
 } else if (cmd === 'icp') {
   const positioning = rest[0] ?? loadWorld(tenant).brand.label;
   const r = await realIcp(positioning);
@@ -148,5 +174,6 @@ if (cmd === 'wake') {
   console.log('  node bin/operator/cli.ts resonance ["pos"]      # pains + real cosine gradient (NIM)');
   console.log('  node bin/operator/cli.ts coderecall "<query>"  # structural code-recall (CodeGraph)');
   console.log('  node bin/operator/cli.ts state');
+  console.log('  --tenant <id> on any command routes to that venture (registry-validated; ids are TeamForge slugs)');
   console.log('\ncontract: INFINITE-GAME.md   ·   models: NVIDIA NIM → Kimi → stub');
 }

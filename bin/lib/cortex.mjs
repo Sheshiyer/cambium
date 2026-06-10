@@ -24,9 +24,16 @@ export function makeCortex(transport) {
  * The LOCAL transport (today): the deviation ledger (jsonl) + a local variable-contract store (fs).
  * embed / search need the NIM — they throw until I3's Cloudflare Worker provides them. fs is injectable.
  */
-export function localTransport({ root, fs = { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } }) {
-  const contractDir = join(root, 'cortex', 'contracts');
-  const contractPath = (brand, group) => join(contractDir, `${brand}.${group}.json`);
+export function localTransport({ root, tenant = 'thoughtseed', fs = { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } }) {
+  // M3/C2 (issue #21): per-tenant namespacing. Contracts live under the BRAND's own
+  // namespace (the brand arg IS the tenant): cortex/<brand>/contracts/<group>.json.
+  // Deviations are path-isolated per transport tenant: cortex/<tenant>/deviations.jsonl.
+  // Legacy flat paths (cortex/contracts/<brand>.<group>.json · root deviations.jsonl)
+  // remain READ-fallbacks so pre-M3 state stays visible; all writes go tenant-scoped.
+  const legacyContractPath = (brand, group) => join(root, 'cortex', 'contracts', `${brand}.${group}.json`);
+  const contractDirFor = (brand) => join(root, 'cortex', brand, 'contracts');
+  const contractPath = (brand, group) => join(contractDirFor(brand), `${group}.json`);
+  const deviationsPath = join(root, 'cortex', tenant, 'deviations.jsonl');
   const needsWorker = (op) => () => {
     throw new Error(`cortex.${op}: needs the NIM Worker transport (I3 follow-up — taste-nim)`);
   };
@@ -34,23 +41,27 @@ export function localTransport({ root, fs = { appendFileSync, readFileSync, writ
     embed: needsWorker('embed'),
     search: needsWorker('search'),
     writeContract: (brand, group, data) => {
-      fs.mkdirSync(contractDir, { recursive: true });
+      fs.mkdirSync(contractDirFor(brand), { recursive: true });
       fs.writeFileSync(contractPath(brand, group), JSON.stringify(data));
     },
     readContract: (brand, group) => {
       const p = contractPath(brand, group);
-      return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : null;
+      if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+      const legacy = legacyContractPath(brand, group);
+      return fs.existsSync(legacy) ? JSON.parse(fs.readFileSync(legacy, 'utf8')) : null;
     },
     writeDeviation: (line) => {
       // `line` is the recordDeviation() jsonl string — whyhandler serializes, the cortex persists
-      fs.appendFileSync(join(root, 'deviations.jsonl'), line + '\n');
+      fs.mkdirSync(join(root, 'cortex', tenant), { recursive: true });
+      fs.appendFileSync(deviationsPath, line + '\n');
     },
   };
 }
 
-/** Convenience: the default cortex (local transport) rooted at the cambium repo. */
-export function defaultCortex(root) {
-  return makeCortex(localTransport({ root }));
+/** Convenience: the default cortex (local transport) rooted at the cambium repo.
+ *  M3: pass the tenant so deviations land in that tenant's namespace. */
+export function defaultCortex(root, tenant = 'thoughtseed') {
+  return makeCortex(localTransport({ root, tenant }));
 }
 
 /**

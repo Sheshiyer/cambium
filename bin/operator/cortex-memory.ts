@@ -85,3 +85,19 @@ export function isMemoryRecord(x: unknown): x is MemoryRecord {
     && typeof r.kind === 'string' && (MEMORY_KINDS as string[]).includes(r.kind)
     && typeof r.payload === 'object' && r.payload !== null;
 }
+
+/** M3/C2 (issue #21): a tenant-ENFORCED view of a store. Every upsert is stamped with
+ *  the tenant; every search is force-filtered to it — cross-tenant reads are impossible
+ *  through this wrapper. Operator runtime paths use this; raw stores stay available for
+ *  tooling that must see across tenants deliberately. */
+export function tenantScopedStore(store: CortexStore, tenant: string): CortexStore {
+  return {
+    init: () => store.init(),
+    ready: () => store.ready(),
+    upsert: (record: MemoryRecord) => store.upsert({ ...record, tenant }),
+    search: (vector: number[], k?: number, opts?: SearchOpts) =>
+      store.search(vector, k, { ...(opts ?? {}), tenant }),
+    count: (opts?: SearchOpts) => store.count({ ...(opts ?? {}), tenant }),
+    close: () => store.close(),
+  };
+}

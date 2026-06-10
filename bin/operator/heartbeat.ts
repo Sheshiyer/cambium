@@ -31,3 +31,28 @@ export function runHeartbeat(opts: {
   }, opts.intervalMs);
   return { stop: () => clearInterval(timer) };
 }
+
+/**
+ * M3/C3 (issue #22): the multi-tenant heartbeat — ONE tick sweeps EVERY registered
+ * tenant (not just $TENANT). `tenants` is injected (the registry lives with the CLI)
+ * so this stays decoupled from disk, like runHeartbeat above.
+ */
+export function runHeartbeatMulti(opts: {
+  intervalMs: number;
+  tenants: () => string[];
+  load: (tenant: string) => WorldState;
+  step: (tenant: string, world: WorldState, decision: Decision) => void;
+  deps: WakeDeps;
+  maxTicks?: number;
+}): { stop: () => void } {
+  let seq = 0;
+  const timer = setInterval(() => {
+    seq += 1;
+    for (const tenant of opts.tenants()) {
+      const { world, decision } = wake(opts.load(tenant), probeEvent(seq), opts.deps);
+      opts.step(tenant, world, decision);
+    }
+    if (opts.maxTicks && seq >= opts.maxTicks) clearInterval(timer);
+  }, opts.intervalMs);
+  return { stop: () => clearInterval(timer) };
+}

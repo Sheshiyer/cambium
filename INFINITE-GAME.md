@@ -410,3 +410,23 @@ layer that must stay fluid, and an ECS's cache-iteration win is irrelevant at th
 *Status: architecture contract, pre-code. Companion to ARCHITECTURE.md (the constellation), HOMEOSTASIS.md
 (the finite-run physics), and INTEGRATION.md (the wiring roadmap). The operator is the next organ Cambium
 grows — the one that keeps all the others playing.*
+
+## Multi-tenancy — one operator, many gardens (M3)
+
+The operator hosts MANY ventures. The contract, proven adversarially by
+`bin/operator/tenant.test.ts`:
+
+- **Identity** — tenant ids are **TeamForge slugs** (lowercase kebab). They are NEVER invented
+  ad-hoc (vault `CLAUDE.md`, anti-drift rule 1): the registry (`.operator/tenants.json`) derives
+  from worlds that already exist (*registration-from-reality*), and `registerTenant` rejects ids
+  with no world behind them.
+- **Isolation** — no event, vector, deviation, contract, or setpoint move crosses tenants:
+  worlds live at `.operator/<tenant>.*`; cortex contracts + deviation ledgers are path-namespaced
+  under `cortex/<tenant>/…`; vector search through `tenantScopedStore` is FORCE-filtered to the
+  active tenant (an explicit filter override is ignored — A ∩ B = ∅ by construction).
+- **Runtime** — `operator … --tenant <id>` routes a wake to that venture's world (registry-
+  validated); the heartbeat sweeps **every** registered tenant each tick (`runHeartbeatMulti`),
+  so no garden goes blind while another is tended.
+
+The quest log's arc VII (*Many Gardens*) flips on exactly this evidence — more than one garden
+AND the isolation suite green. No fake progress applies to tenancy too.
