@@ -1,0 +1,13 @@
+{
+  "name": "cambium-quests",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "routes": [
+    { "pattern": "curious.thoughtseed.space", "custom_domain": true }
+  ],
+  "kv_namespaces": [
+    { "binding": "QUESTS", "id": "10aaa6e0a8a545c1afb5ceee7ef61c14" }
+  ]
+}

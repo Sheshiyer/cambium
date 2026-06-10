@@ -6,7 +6,7 @@
   "type": "module",
   "description": "The composition layer for the constellation — registry + pipeline + the dry-run conductor.",
   "scripts": {
-    "test": "node --test 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts'",
+    "test": "node --test 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts' 'bin/operator/quests/*.test.ts' 'bin/operator/skills/*.test.ts' 'workers/quests/src/*.test.ts'",
     "operator": "node bin/operator/cli.ts",
     "quine": "node bin/quine/quine.ts",
     "plan": "node bin/compose.mjs plan",
