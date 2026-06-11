@@ -19,7 +19,9 @@ export interface HandlerDeps {
   kv: KvLike;
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
+  bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — gates /v1/bridge/* (unset → 503)
   uuid?: () => string;         // injectable for tests
+  now?: () => string;          // injectable clock (ISO) for the bridge
 }
 
 // ── W4 · the founder gate: Telegram initData THIRD-PARTY validation ─────
@@ -146,6 +148,80 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const body = JSON.stringify(envelope);
     await deps.kv.put(ledgerKey(tenant), body);
     return json(200, { ok: true, tenant, bytes: body.length, derivedAt: envelope.derivedAt });
+  }
+
+  // ── MultiCA ↔ Paperclip bridge ──────────────────────────────────────────
+  // Hosted here because MultiCA's AWS backend has no /v1/bridge/* API. LISTEN:
+  // Paperclip's upstream POSTs signed BridgeMessages to /ingest (stored in KV for
+  // cofounders/MultiCA to read at /inbox). WRITE: cofounders/MultiCA enqueue
+  // downstream directives at /directive; Paperclip's downstream polls /directives
+  // and /ack's them (anti-redeliver; seeds the G1 reconnect handshake). A shared
+  // BRIDGE_TOKEN gates every op; per-message HMAC (protocol.signature) is stored
+  // for the G10 verification follow-up.
+  if (path.startsWith('/v1/bridge/')) {
+    if (!deps.bridgeToken) return json(503, { error: 'bridge not configured on the worker' });
+    if ((req.headers['authorization'] ?? '') !== `Bearer ${deps.bridgeToken}`) {
+      return json(401, { error: 'bad or missing bridge bearer' });
+    }
+    const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
+
+    if (method === 'POST' && path === '/v1/bridge/ingest') {
+      let msg: any;
+      try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      for (const f of ['id', 'timestamp', 'direction', 'tenantId', 'memberId', 'payload']) {
+        if (msg[f] === undefined) return json(400, { error: `message missing "${f}"` });
+      }
+      if (msg.direction !== 'upstream') return json(400, { error: 'ingest expects direction=upstream' });
+      if (!VALID_TENANT.test(String(msg.tenantId))) return json(400, { error: 'bad tenantId' });
+      await deps.kv.put(`bridge:up:${msg.tenantId}:${msg.id}`, JSON.stringify({ ...msg, receivedAt: nowIso() }));
+      return json(200, { ok: true, id: msg.id, stored: true });
+    }
+
+    if (method === 'GET' && path.startsWith('/v1/bridge/inbox/')) {
+      const tenant = tenantOf(path, '/v1/bridge/inbox/');
+      if (!tenant) return json(400, { error: 'bad tenant' });
+      const keys = await deps.kv.list(`bridge:up:${tenant}:`);
+      const messages: any[] = [];
+      for (const k of keys.slice(-100)) { const v = await deps.kv.get(k); if (v) messages.push(JSON.parse(v)); }
+      return json(200, { tenant, count: messages.length, messages });
+    }
+
+    if (method === 'POST' && path === '/v1/bridge/directive') {
+      let msg: any;
+      try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const memberId = msg.memberId ?? msg.payload?.target?.memberId;
+      if (!memberId || !VALID_TENANT.test(String(memberId))) return json(400, { error: 'directive needs a valid memberId (top-level or payload.target.memberId)' });
+      if (!msg.payload) return json(400, { error: 'directive needs a payload' });
+      const id = msg.id ?? (deps.uuid ? deps.uuid() : `b_${memberId}_${nowIso()}`);
+      const stored = { ...msg, id, memberId, direction: 'downstream', delivered: false, enqueuedAt: nowIso() };
+      await deps.kv.put(`bridge:dir:${memberId}:${id}`, JSON.stringify(stored));
+      return json(200, { ok: true, id, memberId, queued: true });
+    }
+
+    if (method === 'GET' && path.startsWith('/v1/bridge/directives/')) {
+      const member = path.slice('/v1/bridge/directives/'.length).replace(/\/+$/, '');
+      if (!VALID_TENANT.test(member)) return json(400, { error: 'bad member' });
+      const keys = await deps.kv.list(`bridge:dir:${member}:`);
+      const pending: any[] = [];
+      for (const k of keys) { const v = await deps.kv.get(k); if (v) { const d = JSON.parse(v); if (!d.delivered) pending.push(d); } }
+      return json(200, { member, count: pending.length, directives: pending });
+    }
+
+    if (method === 'POST' && path === '/v1/bridge/ack') {
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const member = body.memberId; const ids = Array.isArray(body.ids) ? body.ids : [];
+      if (!member || !ids.length) return json(400, { error: 'ack needs memberId + ids[]' });
+      let acked = 0;
+      for (const id of ids) {
+        const key = `bridge:dir:${member}:${id}`;
+        const v = await deps.kv.get(key);
+        if (v) { const d = JSON.parse(v); d.delivered = true; d.deliveredAt = nowIso(); await deps.kv.put(key, JSON.stringify(d)); acked++; }
+      }
+      return json(200, { ok: true, acked });
+    }
+
+    return json(404, { error: `no bridge route for ${method} ${path}` });
   }
 
   if (method === 'POST' && path.startsWith('/api/gate/')) {

@@ -170,7 +170,9 @@ export const PAGE = `<!doctype html>
   .dback:active{transform:scale(.96)}
 
   /* ── story — the continuous narrative, as cards ── */
-  #beats{display:flex;flex-direction:column;gap:9px}
+  #beats{position:relative;display:flex;flex-direction:column;gap:9px}
+  #beats::before{content:"";position:absolute;left:-2px;top:8px;bottom:8px;width:1.5px;pointer-events:none;
+    background:linear-gradient(rgba(224,255,79,.32),var(--line));opacity:.55}
   .beat{position:relative;padding:12px 14px 12px 44px;border:1px solid var(--line);border-radius:13px;
     background:rgba(1,47,52,.38);opacity:0;transform:translateY(10px);font-size:13.5px;line-height:1.5;
     animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*38ms)}
