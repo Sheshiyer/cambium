@@ -19,9 +19,11 @@ export interface HandlerDeps {
   kv: KvLike;
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
-  bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — gates /v1/bridge/* (unset → 503)
+  bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
+  handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
   uuid?: () => string;         // injectable for tests
   now?: () => string;          // injectable clock (ISO) for the bridge
+  nowMs?: () => number;        // injectable epoch-ms clock for handoff TTLs
 }
 
 // ── W4 · the founder gate: Telegram initData THIRD-PARTY validation ─────
@@ -47,6 +49,41 @@ const b64urlToBytes = (s: string): Uint8Array => {
   const bin = atob(b64);
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 };
+
+// ── Secure member handoff — crypto helpers (Web Crypto; runs in Workers + node) ──
+const TEXT = new TextEncoder();
+const TOKEN_TTL_MS = 30 * 24 * 3600 * 1000;   // per-member token: 30d → monthly rotation
+const INVITE_TTL_MS = 7 * 24 * 3600 * 1000;   // invite link: 7d to redeem
+const b64urlFromBytes = (bytes: Uint8Array): string => {
+  let s = ''; for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+async function sha256hex(s: string): Promise<string> {
+  const d = await crypto.subtle.digest('SHA-256', TEXT.encode(s) as unknown as BufferSource);
+  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+async function hmacB64url(secret: string, msg: string): Promise<string> {
+  const key = await crypto.subtle.importKey('raw', TEXT.encode(secret) as unknown as BufferSource, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, TEXT.encode(msg) as unknown as BufferSource);
+  return b64urlFromBytes(new Uint8Array(sig));
+}
+function randomTokenHex(): string {
+  return [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+async function signInvite(secret: string, claims: Record<string, unknown>): Promise<string> {
+  const payload = b64urlFromBytes(TEXT.encode(JSON.stringify(claims)));
+  return `${payload}.${await hmacB64url(secret, payload)}`;
+}
+async function verifyInvite(secret: string, token: string): Promise<Record<string, any> | null> {
+  const dot = token.indexOf('.');
+  if (dot < 1) return null;
+  const payload = token.slice(0, dot), sig = token.slice(dot + 1);
+  if (sig !== (await hmacB64url(secret, payload))) return null;
+  try { return JSON.parse(new TextDecoder().decode(b64urlToBytes(payload))); } catch { return null; }
+}
+const memberKey = (id: string) => `member:${id}`;
+const tokenIndexKey = (hash: string) => `memtok:${hash}`;
+const inviteKey = (jti: string) => `invite:${jti}`;
 
 /** The data-check string for THIRD-PARTY validation: `<bot_id>:WebAppData\n` +
  *  sorted key=value lines, excluding `hash` and `signature`. */
@@ -160,9 +197,27 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   // for the G10 verification follow-up.
   if (path.startsWith('/v1/bridge/')) {
     if (!deps.bridgeToken) return json(503, { error: 'bridge not configured on the worker' });
-    if ((req.headers['authorization'] ?? '') !== `Bearer ${deps.bridgeToken}`) {
-      return json(401, { error: 'bad or missing bridge bearer' });
+    // Resolve the principal: the admin BRIDGE_TOKEN (cofounders/MultiCA, full access)
+    // or a per-member token (scoped to one member, active + unexpired). Member tokens
+    // are issued by the handoff invite flow and stored as SHA-256 in a memtok: index.
+    const _auth = req.headers['authorization'] ?? '';
+    const _tok = _auth.startsWith('Bearer ') ? _auth.slice(7) : '';
+    let principal: { admin: boolean; memberId?: string } | null = null;
+    if (_tok && _tok === deps.bridgeToken) {
+      principal = { admin: true };
+    } else if (_tok) {
+      const mid = await deps.kv.get(tokenIndexKey(await sha256hex(_tok)));
+      if (mid) {
+        const raw = await deps.kv.get(memberKey(mid));
+        if (raw) {
+          const m = JSON.parse(raw);
+          const nowMs = deps.nowMs ? deps.nowMs() : Date.now();
+          if (m.status === 'active' && m.tokenExp && m.tokenExp > nowMs) principal = { admin: false, memberId: mid };
+        }
+      }
     }
+    if (!principal) return json(401, { error: 'bad or missing bridge credential' });
+    const mayAct = (mid: string) => principal!.admin || principal!.memberId === mid;
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
 
     if (method === 'POST' && path === '/v1/bridge/ingest') {
@@ -173,11 +228,13 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       }
       if (msg.direction !== 'upstream') return json(400, { error: 'ingest expects direction=upstream' });
       if (!VALID_TENANT.test(String(msg.tenantId))) return json(400, { error: 'bad tenantId' });
+      if (!mayAct(String(msg.memberId))) return json(403, { error: 'token not scoped to this member' });
       await deps.kv.put(`bridge:up:${msg.tenantId}:${msg.id}`, JSON.stringify({ ...msg, receivedAt: nowIso() }));
       return json(200, { ok: true, id: msg.id, stored: true });
     }
 
     if (method === 'GET' && path.startsWith('/v1/bridge/inbox/')) {
+      if (!principal.admin) return json(403, { error: 'inbox is cofounder-only' });
       const tenant = tenantOf(path, '/v1/bridge/inbox/');
       if (!tenant) return json(400, { error: 'bad tenant' });
       const keys = await deps.kv.list(`bridge:up:${tenant}:`);
@@ -187,6 +244,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
 
     if (method === 'POST' && path === '/v1/bridge/directive') {
+      if (!principal.admin) return json(403, { error: 'only cofounders/MultiCA may enqueue directives' });
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       const memberId = msg.memberId ?? msg.payload?.target?.memberId;
@@ -201,6 +259,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (method === 'GET' && path.startsWith('/v1/bridge/directives/')) {
       const member = path.slice('/v1/bridge/directives/'.length).replace(/\/+$/, '');
       if (!VALID_TENANT.test(member)) return json(400, { error: 'bad member' });
+      if (!mayAct(member)) return json(403, { error: 'token not scoped to this member' });
       const keys = await deps.kv.list(`bridge:dir:${member}:`);
       const pending: any[] = [];
       for (const k of keys) { const v = await deps.kv.get(k); if (v) { const d = JSON.parse(v); if (!d.delivered) pending.push(d); } }
@@ -212,6 +271,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       const member = body.memberId; const ids = Array.isArray(body.ids) ? body.ids : [];
       if (!member || !ids.length) return json(400, { error: 'ack needs memberId + ids[]' });
+      if (!mayAct(member)) return json(403, { error: 'token not scoped to this member' });
       let acked = 0;
       for (const id of ids) {
         const key = `bridge:dir:${member}:${id}`;
@@ -222,6 +282,109 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
 
     return json(404, { error: `no bridge route for ${method} ${path}` });
+  }
+
+  // ── Secure member handoff: invites → per-member bridge tokens → rotation ──
+  // Admin ops (add/list/invite/revoke) need the BRIDGE_TOKEN; redeem/rotate are
+  // public (gated by the signed invite / the member's current token). The issued
+  // per-member token is what the member's Plexus uses for the scoped bridge auth.
+  if (path.startsWith('/v1/handoff/')) {
+    if (!deps.handoffSecret || !deps.bridgeToken) return json(503, { error: 'handoff not configured on the worker' });
+    const nowMs = deps.nowMs ? deps.nowMs() : Date.now();
+    const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
+    const isAdmin = (req.headers['authorization'] ?? '') === `Bearer ${deps.bridgeToken}`;
+    const readJson = (): any => { try { return JSON.parse(req.body ?? ''); } catch { return undefined; } };
+
+    if (method === 'POST' && path === '/v1/handoff/members') {
+      if (!isAdmin) return json(401, { error: 'admin token required' });
+      const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
+      const memberId = String(b.memberId ?? '').toLowerCase(), email = String(b.email ?? '').toLowerCase();
+      if (!VALID_TENANT.test(memberId)) return json(400, { error: 'memberId must be lowercase kebab' });
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json(400, { error: 'a valid email is required' });
+      const existing = await deps.kv.get(memberKey(memberId));
+      const member = { memberId, email, status: existing ? JSON.parse(existing).status : 'invited',
+        addedAt: existing ? JSON.parse(existing).addedAt : nowIso(), updatedAt: nowIso() };
+      await deps.kv.put(memberKey(memberId), JSON.stringify(member));
+      return json(200, { ok: true, member: { memberId, email, status: member.status } });
+    }
+
+    if (method === 'GET' && path === '/v1/handoff/members') {
+      if (!isAdmin) return json(401, { error: 'admin token required' });
+      const keys = await deps.kv.list('member:');
+      const members: any[] = [];
+      for (const k of keys) { const v = await deps.kv.get(k); if (v) { const m = JSON.parse(v);
+        members.push({ memberId: m.memberId, email: m.email, status: m.status, tokenExpiresAt: m.tokenExp ? new Date(m.tokenExp).toISOString() : null }); } }
+      return json(200, { count: members.length, members });
+    }
+
+    if (method === 'POST' && path === '/v1/handoff/invite') {
+      if (!isAdmin) return json(401, { error: 'admin token required' });
+      const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
+      const memberId = String(b.memberId ?? '').toLowerCase();
+      const raw = await deps.kv.get(memberKey(memberId));
+      if (!raw) return json(404, { error: 'member not in allowlist — POST /v1/handoff/members first' });
+      const member = JSON.parse(raw);
+      const jti = deps.uuid ? deps.uuid() : randomTokenHex().slice(0, 16);
+      const exp = nowMs + INVITE_TTL_MS;
+      const invite = await signInvite(deps.handoffSecret, { memberId, email: member.email, jti, exp });
+      await deps.kv.put(inviteKey(jti), JSON.stringify({ jti, memberId, email: member.email, exp, used: false, createdAt: nowIso() }));
+      const base = String(b.linkBase ?? 'https://curious.thoughtseed.space').replace(/\/+$/, '');
+      return json(200, { ok: true, memberId, email: member.email, expiresAt: new Date(exp).toISOString(), invite, link: `${base}/join?t=${invite}` });
+    }
+
+    if (method === 'POST' && path === '/v1/handoff/revoke') {
+      if (!isAdmin) return json(401, { error: 'admin token required' });
+      const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
+      const memberId = String(b.memberId ?? '').toLowerCase();
+      const raw = await deps.kv.get(memberKey(memberId));
+      if (!raw) return json(404, { error: 'member not found' });
+      const m = JSON.parse(raw);
+      if (m.tokenHash) await deps.kv.put(tokenIndexKey(m.tokenHash), ''); // tombstone the token index
+      m.status = 'revoked'; delete m.tokenHash; delete m.tokenExp; m.updatedAt = nowIso();
+      await deps.kv.put(memberKey(memberId), JSON.stringify(m));
+      return json(200, { ok: true, memberId, status: 'revoked' });
+    }
+
+    if (method === 'POST' && path === '/v1/handoff/redeem') {
+      const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
+      const claims = await verifyInvite(deps.handoffSecret, String(b.invite ?? ''));
+      if (!claims) return json(401, { error: 'invalid invite signature' });
+      if (!claims.exp || claims.exp < nowMs) return json(401, { error: 'invite expired' });
+      const invRaw = await deps.kv.get(inviteKey(claims.jti));
+      if (!invRaw) return json(401, { error: 'unknown invite' });
+      const inv = JSON.parse(invRaw);
+      if (inv.used) return json(409, { error: 'invite already redeemed' });
+      const raw = await deps.kv.get(memberKey(claims.memberId));
+      if (!raw) return json(404, { error: 'member not found' });
+      const m = JSON.parse(raw);
+      if (m.status === 'revoked') return json(403, { error: 'member revoked' });
+      const token = randomTokenHex(), tokenHash = await sha256hex(token), tokenExp = nowMs + TOKEN_TTL_MS;
+      m.status = 'active'; m.tokenHash = tokenHash; m.tokenExp = tokenExp; m.redeemedAt = nowIso(); m.updatedAt = nowIso();
+      await deps.kv.put(memberKey(claims.memberId), JSON.stringify(m));
+      await deps.kv.put(tokenIndexKey(tokenHash), claims.memberId);
+      inv.used = true; inv.usedAt = nowIso();
+      await deps.kv.put(inviteKey(claims.jti), JSON.stringify(inv));
+      return json(200, { ok: true, memberId: claims.memberId, bridgeApiUrl: 'https://curious.thoughtseed.space', token, expiresAt: new Date(tokenExp).toISOString() });
+    }
+
+    if (method === 'POST' && path === '/v1/handoff/rotate') {
+      const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
+      const cur = String(b.token ?? '');
+      const memberId = cur ? await deps.kv.get(tokenIndexKey(await sha256hex(cur))) : null;
+      if (!memberId) return json(401, { error: 'unknown or expired token' });
+      const raw = await deps.kv.get(memberKey(memberId));
+      if (!raw) return json(401, { error: 'member not found' });
+      const m = JSON.parse(raw);
+      if (m.status !== 'active') return json(403, { error: 'member not active' });
+      if (m.tokenHash) await deps.kv.put(tokenIndexKey(m.tokenHash), '');
+      const token = randomTokenHex(), tokenHash = await sha256hex(token), tokenExp = nowMs + TOKEN_TTL_MS;
+      m.tokenHash = tokenHash; m.tokenExp = tokenExp; m.rotatedAt = nowIso(); m.updatedAt = nowIso();
+      await deps.kv.put(memberKey(memberId), JSON.stringify(m));
+      await deps.kv.put(tokenIndexKey(tokenHash), memberId);
+      return json(200, { ok: true, memberId, token, expiresAt: new Date(tokenExp).toISOString() });
+    }
+
+    return json(404, { error: `no handoff route for ${method} ${path}` });
   }
 
   if (method === 'POST' && path.startsWith('/api/gate/')) {
