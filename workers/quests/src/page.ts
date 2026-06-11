@@ -115,7 +115,8 @@ export const PAGE = `<!doctype html>
     transition:opacity .35s var(--ease)}
   #rings .ring{cursor:pointer}
   #rings .ring:active{opacity:.7}
-  #ringsG{transition:transform .6s var(--ease);transform-origin:center;transform-box:view-box}
+  #ringsG{transition:transform .6s var(--ease);transform-box:view-box;transform-origin:0 0}
+  #rings .pulse{animation:breathe 2.6s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
   .orbit{animation:spin 90s linear infinite;transform-origin:center;transform-box:fill-box;will-change:transform}
   @keyframes spin{to{transform:rotate(360deg)}}
   .halo{animation:halo 2.8s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
@@ -446,60 +447,102 @@ function renderQuests(L){
 /* ── fractal scene — tree-ring cross-section, with tap-ring drill-down ── */
 let drillOpen = false;
 function ringGeom(L){
-  const n = L.rows.length, C = 170, r0 = 26, step = (C - 40 - r0) / Math.max(1, n - 1);
+  const n = L.rows.length, C = 170, r0 = 30, step = (C - 24 - r0) / Math.max(1, n - 1);
   return { n, C, r0, step };
 }
+const GOLD = 2.39996323;   // golden angle (rad) — phyllotaxis node distribution
+const N1 = (v) => (Math.round(v * 10) / 10);
+function nodeXY(C, r, i){ const a = -Math.PI / 2 + i * GOLD; return [C + r * Math.cos(a), C + r * Math.sin(a)]; }
 function renderFractal(L){
-  const { C, r0, step } = ringGeom(L);
+  const { n, C, r0, step } = ringGeom(L);
+  const TAU = Math.PI * 2;
+  const grown = L.rows.filter(r => r.status === 'complete').length;
+  const rOuter = r0 + (n - 1) * step;
+  const CHECK = (x, y) => '<path d="M' + N1(x-2.4) + ' ' + N1(y) + ' l1.7 1.8 l3.1 -3.6" fill="none" stroke="#00272B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+
   const defs =
     '<defs>' +
       '<radialGradient id="heart" cx="50%" cy="50%">' +
-        '<stop offset="0%" stop-color="rgba(224,255,79,.16)"/>' +
-        '<stop offset="45%" stop-color="rgba(224,255,79,.05)"/>' +
+        '<stop offset="0%" stop-color="rgba(224,255,79,.13)"/>' +
+        '<stop offset="55%" stop-color="rgba(35,22,81,.12)"/>' +
         '<stop offset="100%" stop-color="rgba(224,255,79,0)"/></radialGradient>' +
       '<radialGradient id="edge" cx="50%" cy="50%">' +
-        '<stop offset="86%" stop-color="rgba(224,255,79,0)"/>' +
+        '<stop offset="89%" stop-color="rgba(224,255,79,0)"/>' +
         '<stop offset="96%" stop-color="rgba(224,255,79,.30)"/>' +
         '<stop offset="100%" stop-color="rgba(224,255,79,0)"/></radialGradient>' +
-      '<filter id="cells" x="-20%" y="-20%" width="140%" height="140%">' +
-        '<feTurbulence type="fractalNoise" baseFrequency=".055" numOctaves="2" seed="7" result="n"/>' +
-        '<feComposite in="SourceGraphic" in2="n" operator="arithmetic" k1="0" k2=".92" k3=".22" k4="0"/></filter>' +
+      '<filter id="cells" x="-30%" y="-30%" width="160%" height="160%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="7" result="n"/>' +
+        '<feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>' +
     '</defs>';
-  const grown = L.rows.filter(r => r.status === 'complete').length;
-  const rGrown = grown > 0 ? r0 + (grown - 1) * step : 0;
-  const heartwood = grown > 0
-    ? '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="url(#heart)" filter="url(#cells)"/>' : '';
-  const rings = L.rows.map((row, i) => {
+
+  // faint radial spokes — divide the disc into sectors (Swiss-grid precision)
+  let spokes = '';
+  for (let s = 0; s < 12; s++){
+    const a = (s / 12) * TAU;
+    spokes += '<line x1="' + C + '" y1="' + C + '" x2="' + N1(C + (rOuter + 8) * Math.cos(a)) + '" y2="' + N1(C + (rOuter + 8) * Math.sin(a)) +
+      '" stroke="rgba(214,255,246,.07)" stroke-width=".6"/>';
+  }
+
+  // circular heartwood over the grown radius — soft field, subtle cells (no square)
+  const rGrown = grown > 0 ? r0 + (grown - 1) * step : r0;
+  const heartwood = '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="url(#heart)"/>' +
+    (grown > 0 ? '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="rgba(224,255,79,.05)" filter="url(#cells)"/>' : '');
+
+  // concentric rings — fine and layered; glow contained to the active cambium band
+  let ringLines = '';
+  L.rows.forEach((row, i) => {
     const r = r0 + i * step, k = row.status;
-    const col = k === 'complete' ? 'rgba(224,255,79,.75)' : k === 'active' ? '#E0FF4F' : 'rgba(120,98,200,.4)';
-    const w = k === 'active' ? 2.4 : k === 'complete' ? 1.5 : 1.1;
-    const band = k === 'active'
-      ? '<circle cx="' + C + '" cy="' + C + '" r="' + (r + 2) + '" fill="none" stroke="url(#edge)" stroke-width="11"/>' +
-        '<circle class="halo" cx="' + C + '" cy="' + C + '" r="' + (r + 8) + '" fill="none" stroke="rgba(224,255,79,.3)" stroke-width="1"/>' : '';
-    const wobble = k === 'complete'
-      ? '<circle cx="' + C + '" cy="' + C + '" r="' + (r - 2.5) + '" fill="none" stroke="rgba(214,255,246,.10)" stroke-width=".7" stroke-dasharray="1 5"/>' : '';
-    return band +
-      '<g class="ring" data-i="' + i + '">' +
-        '<circle cx="' + C + '" cy="' + C + '" r="' + (r+7) + '" fill="none" stroke="transparent" stroke-width="16"/>' +
-        '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="' + w + '"' +
-        (k === 'locked' ? ' stroke-dasharray="3 7"' : '') + '/>' + wobble +
-        '<circle cx="' + C + '" cy="' + (C - r) + '" r="9" fill="#012F34" stroke="' + col + '" stroke-width="1.2"/>' +
-        '<text x="' + C + '" y="' + (C - r + 3.5) + '" text-anchor="middle" font-size="9" font-family="ui-monospace,monospace" fill="' + col + '">' + esc(row.arc) + '</text>' +
+    if (k === 'active'){
+      ringLines += '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="url(#edge)" stroke-width="13"/>' +
+        '<circle class="halo" cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="rgba(224,255,79,.8)" stroke-width="1.6"/>';
+    } else if (k === 'complete'){
+      ringLines += '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="rgba(224,255,79,.4)" stroke-width="1"/>' +
+        '<circle cx="' + C + '" cy="' + C + '" r="' + N1(r - 2) + '" fill="none" stroke="rgba(214,255,246,.07)" stroke-width=".6" stroke-dasharray="1 6"/>';
+    } else {
+      ringLines += '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="rgba(140,118,210,.26)" stroke-width=".8" stroke-dasharray="2 9"/>';
+    }
+  });
+
+  // arc nodes — distributed AROUND the rings on a phyllotaxis spiral (not stacked)
+  const nodes = L.rows.map((row, i) => {
+    const r = r0 + i * step, k = row.status;
+    const [nx, ny] = nodeXY(C, r, i);
+    const stroke = k === 'locked' ? 'rgba(160,140,220,.6)' : '#E0FF4F';
+    const fill = k === 'locked' ? '#0B2024' : '#01343A';
+    const rad = k === 'active' ? 8 : 6;
+    const glow = k === 'active' ? '<circle class="halo" cx="' + N1(nx) + '" cy="' + N1(ny) + '" r="14" fill="rgba(224,255,79,.16)"/>' : '';
+    const mark = k === 'complete'
+      ? CHECK(nx, ny)
+      : '<text x="' + N1(nx) + '" y="' + N1(ny + 2.6) + '" text-anchor="middle" font-size="7" font-family="ui-monospace,monospace" fill="' + stroke + '">' + esc(row.arc) + '</text>';
+    return '<g class="ring" data-i="' + i + '" data-x="' + N1(nx) + '" data-y="' + N1(ny) + '">' +
+      '<circle cx="' + N1(nx) + '" cy="' + N1(ny) + '" r="15" fill="transparent"/>' + glow +
+      '<circle class="' + (k === 'active' ? 'pulse' : '') + '" cx="' + N1(nx) + '" cy="' + N1(ny) + '" r="' + rad +
+        '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (k === 'active' ? 1.8 : 1.2) + '"/>' + mark +
       '</g>';
   }).join('');
-  const active = L.rows.findIndex(r => r.status === 'active');
-  const rA = active >= 0 ? r0 + active * step : null;
-  const label = rA !== null
-    ? '<line x1="' + (C + rA*0.7071 + 6) + '" y1="' + (C - rA*0.7071 - 6) + '" x2="' + (C + rA*0.7071 + 26) + '" y2="' + (C - rA*0.7071 - 26) + '" stroke="rgba(224,255,79,.6)" stroke-width="1"/>' +
-      '<text x="' + (C + rA*0.7071 + 30) + '" y="' + (C - rA*0.7071 - 30) + '" font-size="10" font-family="ui-monospace,monospace" fill="#E0FF4F">cambium — you are here</text>' : '';
+
+  // "you are here" leader line to the active node
+  const ai = L.rows.findIndex(r => r.status === 'active');
+  let label = '';
+  if (ai >= 0){
+    const [ax, ay] = nodeXY(C, r0 + ai * step, ai);
+    // fixed top-right label with a leader to the active node — never clips the frame
+    label = '<line x1="' + N1(ax) + '" y1="' + N1(ay) + '" x2="300" y2="24" stroke="rgba(224,255,79,.5)" stroke-width="1"/>' +
+      '<circle cx="' + N1(ax) + '" cy="' + N1(ay) + '" r="2" fill="#E0FF4F"/>' +
+      '<text x="332" y="21" text-anchor="end" font-size="9.5" font-family="ui-monospace,monospace" fill="#E0FF4F">cambium — you are here</text>';
+  }
+
   $('fwrap').innerHTML =
-    '<svg id="rings" viewBox="0 0 340 340" width="100%" style="max-width:380px">' + defs +
-      '<g id="ringsG"><g class="orbit">' + heartwood + '</g>' + rings +
-      '<circle class="seed" cx="' + C + '" cy="' + C + '" r="5" fill="#E0FF4F"/>' + label + '</g>' +
+    '<svg id="rings" viewBox="0 0 340 340" width="100%" style="max-width:392px">' + defs +
+      '<g id="ringsG">' +
+        '<g class="orbit">' + heartwood + '</g>' + spokes + ringLines + nodes +
+        '<circle class="seed" cx="' + C + '" cy="' + C + '" r="4.5" fill="#E0FF4F"/>' +
+        '<circle cx="' + C + '" cy="' + C + '" r="9" fill="none" stroke="rgba(224,255,79,.3)" stroke-width=".7"/>' + label +
+      '</g>' +
     '</svg>' +
-    '<div class="fcap" id="fcap">the venture as a living trunk — grown arcs are rings in the heartwood; the glowing band is the cambium, the living edge where growth happens. tap a ring to drill in.</div>' +
+    '<div class="fcap" id="fcap">the venture as a living cross-section — each arc a ring from the heartwood out; nodes are the arcs themselves, and the glowing band is the cambium, the living edge where growth happens now. tap a node to drill in.</div>' +
     '<div class="drill" id="drill"></div>';
-  document.querySelectorAll('#rings .ring').forEach(g => g.onclick = () => drillArc(L, +g.dataset.i));
+  document.querySelectorAll('#rings .ring').forEach(g => g.onclick = () => drillArc(L, +g.dataset.i, +g.dataset.x, +g.dataset.y));
 }
 // parse the evidence string into honest facets: "a · b · c" → chips, "done" if it
 // reads as a satisfied count (x/x) or lacks "pending", else "pending".
@@ -511,11 +554,12 @@ function facetsFrom(ev){
     return { label: s, done: done && !pend };
   });
 }
-function drillArc(L, i){
-  const row = L.rows[i], g = ringGeom(L), C = 170, r = g.r0 + i * g.step;
-  const k = Math.min(3.2, Math.max(1.6, 150 / (r + 18)));   // zoom so the ring fills the frame
+function drillArc(L, i, nx, ny){
+  const row = L.rows[i], C = 170;
+  if (nx === undefined){ const g = ringGeom(L); [nx, ny] = nodeXY(C, g.r0 + i * g.step, i); }
+  const k = 2.3;                                  // zoom toward the tapped node
   const rg = $('ringsG');
-  rg.style.transform = 'translate(' + (C - C*k) + 'px,' + (C - C*k) + 'px) scale(' + k + ')';
+  rg.style.transform = 'translate(' + N1(C - k * nx) + 'px,' + N1(C - k * ny) + 'px) scale(' + k + ')';
   const facets = facetsFrom(row.evidence);
   const d = $('drill');
   d.innerHTML =
