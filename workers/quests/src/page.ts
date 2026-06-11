@@ -85,6 +85,14 @@ export const PAGE = `<!doctype html>
   .cmd.act .cname{color:var(--soft)}
   .cmd .cargs{font:11px var(--mono);opacity:.5;margin-left:6px}
   .cmd .cdesc{font-size:12.5px;opacity:.72;margin-top:2px;line-height:1.45}
+  .cmd.live{cursor:pointer;transition:transform .2s var(--ease),border-color .3s var(--ease)}
+  .cmd.live:active{transform:scale(.985)}
+  .cmd.live{border-color:rgba(224,255,79,.22)}
+  .cmd .cgo{margin-left:auto;align-self:center;font-size:20px;color:var(--ink);opacity:.6}
+  .li{padding:9px 0;border-bottom:1px solid var(--line)}
+  .li:last-child{border-bottom:0}
+  .li .cname{font:600 13px var(--mono);color:var(--soft)}
+  .li .cargs{font:10.5px var(--mono);color:var(--ink);opacity:.7;text-transform:uppercase}
 
   /* min-height:0 lets the flex track be constrained to its allocated height
      (not grow to content) so the scenes' overflow-y:auto actually scrolls. */
@@ -320,23 +328,26 @@ function go(i, fromSwipe){
 }
 [0,1,2,3,4].forEach(n => $('tb'+n).onclick = () => go(n));
 
-/* commands panel — the /ts-* co-founder interface, grouped reference */
+/* commands panel — the /ts-* co-founder interface.
+   4th tuple element: a live-data key (status/agents/work/handoffs) → tappable,
+   shows real org data in the sheet; 'act' → action (runs in chat); else reference. */
+let CMDDATA = null;
 const CMDS = [
-  ['Status', [
-    ['ts-status', '', 'Org health snapshot — agents, projects, drift'],
-    ['ts-agents', '', 'List all agents in the org'],
+  ['Status · live', [
+    ['ts-status', '', 'Org health — agents, work, arcs', 'status'],
+    ['ts-agents', '', 'The agent roster', 'agents'],
+    ['ts-projects', '', 'Active work in the org', 'work'],
+    ['ts-handoffs', '', 'Pending items awaiting a founder', 'handoffs'],
     ['ts-agent', '<name>', 'Show one agent\\'s detail'],
-    ['ts-projects', '', 'List active projects'],
     ['ts-project', '<slug>', 'Show one project\\'s detail'],
-    ['ts-handoffs', '', 'Pending agent stage-to-stage handoffs'],
     ['ts-vault', '<path>', 'Read a vault file or list a folder'],
   ]],
-  ['Actions', [
-    ['ts-run', '<agent> <task>', 'Assign a task to an agent', 1],
-    ['ts-approve', '<id>', 'Approve a pending handoff', 1],
-    ['ts-reject', '<id> <reason>', 'Reject a pending handoff', 1],
+  ['Actions · in chat', [
+    ['ts-run', '<agent> <task>', 'Assign a task to an agent', 'act'],
+    ['ts-approve', '<id>', 'Approve a pending handoff', 'act'],
+    ['ts-reject', '<id> <reason>', 'Reject a pending handoff', 'act'],
   ]],
-  ['Digests', [
+  ['Digests · in chat', [
     ['ts-standup', '', 'Generate the daily standup'],
     ['ts-digest', '', 'The weekly founder digest'],
     ['ts-help', '', 'Show command help in chat'],
@@ -345,17 +356,44 @@ const CMDS = [
 let cmdsDrawn = false;
 function renderCommands(){
   if (cmdsDrawn) return; cmdsDrawn = true;
+  const liveKeys = { status:1, agents:1, work:1, handoffs:1 };
   $('cmds').innerHTML = CMDS.map(([group, items]) =>
     '<div class="cmdgrp">' + esc(group) + '</div>' +
-    items.map(([name, args, desc, act]) =>
-      '<div class="cmd' + (act ? ' act' : '') + '">' +
+    items.map(([name, args, desc, kind]) => {
+      const live = kind && liveKeys[kind];
+      return '<div class="cmd' + (kind === 'act' ? ' act' : '') + (live ? ' live' : '') + '"' +
+        (live ? ' data-live="' + kind + '"' : '') + '>' +
         '<span class="cnode"></span>' +
-        '<div><div><span class="cname">/' + esc(name) + '</span>' +
+        '<div style="flex:1"><div><span class="cname">/' + esc(name) + '</span>' +
           (args ? '<span class="cargs">' + esc(args) + '</span>' : '') + '</div>' +
           '<div class="cdesc">' + esc(desc) + '</div></div>' +
-      '</div>').join('')
+        (live ? '<span class="cgo">›</span>' : '') +
+      '</div>';
+    }).join('')
   ).join('') +
-  '<div class="gnote" style="margin-top:18px">type a command to the curios.self bot in Telegram. founder-only; actions route through the org.</div>';
+  '<div class="gnote" style="margin-top:18px">live cards show real org state (refreshed with the ledger). actions &amp; digests run by typing the command to the curios.self bot.</div>';
+  $('cmds').querySelectorAll('.cmd.live').forEach(el => el.onclick = () => openCmdSheet(el.dataset.live));
+}
+function kvRows(pairs){ return '<div class="kv">' + pairs.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
+function openCmdSheet(key){
+  const d = CMDDATA;
+  let title = '', body = '';
+  if (!d){ title = 'commands'; body = '<div class="nar">org data unavailable — the gateway was unreachable at the last refresh. pull to refresh.</div>'; }
+  else if (key === 'status'){
+    title = '/ts-status';
+    body = kvRows([['agents', String(d.status.agents)], ['work open', String(d.status.issuesOpen)], ['work done', String(d.status.issuesDone)], ['arcs grown', d.status.arcs]]);
+  } else if (key === 'agents'){
+    title = '/ts-agents · ' + (d.agents||[]).length;
+    body = (d.agents||[]).length ? (d.agents||[]).map(a => '<div class="li"><span class="cname">'+esc(a.name)+'</span>'+(a.model?'<span class="cargs">'+esc(a.model)+'</span>':'')+'</div>').join('') : '<div class="nar">no agents.</div>';
+  } else if (key === 'work'){
+    title = '/ts-projects · active work';
+    body = (d.work||[]).length ? (d.work||[]).map(w => '<div class="li"><div><span class="cname">'+esc(w.id)+'</span> <span class="cargs">'+esc(w.status)+'</span><div class="cdesc">'+esc(w.title)+' · '+esc(w.who)+'</div></div></div>').join('') : '<div class="nar">no active work.</div>';
+  } else if (key === 'handoffs'){
+    title = '/ts-handoffs · ' + (d.handoffs||[]).length;
+    body = (d.handoffs||[]).length ? (d.handoffs||[]).map(h => '<div class="li"><span class="cname">'+esc(h.id)+'</span> <span class="cargs">'+esc(h.status)+'</span><div class="cdesc">'+esc(h.title)+'</div></div>').join('') : '<div class="nar">nothing waiting on you.</div>';
+  }
+  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 window.addEventListener('resize', () => place(-scene * W(), false));
 
@@ -705,6 +743,7 @@ function renderGauge(L){
 }
 function paint(env){
   LEDGER = env.ledger;
+  CMDDATA = env.commands || null;
   renderQuests(env.ledger); renderFractal(env.ledger); renderStory(env); renderGauge(env.ledger); freshness(env.derivedAt);
 }
 function load(){
