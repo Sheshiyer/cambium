@@ -63,15 +63,28 @@ export const PAGE = `<!doctype html>
     border:2px solid var(--ink);border-top-color:transparent}
   .ptr.spin .drop{animation:spin .7s linear infinite}
 
-  nav{display:grid;grid-template-columns:repeat(4,1fr);position:relative;margin:6px 14px 0;
+  nav{display:grid;grid-template-columns:repeat(5,1fr);position:relative;margin:6px 12px 0;
     border-bottom:1px solid var(--line)}
   nav button{appearance:none;background:none;border:0;color:var(--soft);opacity:.5;
-    font:600 13px/1 inherit;letter-spacing:.03em;padding:12px 0;cursor:pointer;
+    font:600 12px/1 inherit;letter-spacing:.01em;padding:12px 0;cursor:pointer;
     transition:opacity .3s var(--ease),color .3s var(--ease)}
   nav button.on{opacity:1;color:var(--ink)}
   nav button:active{transform:scale(.96)}
-  .ind{position:absolute;bottom:-1px;left:0;width:25%;height:2px;background:var(--ink);
+  .ind{position:absolute;bottom:-1px;left:0;width:20%;height:2px;background:var(--ink);
     border-radius:2px;transition:transform .45s var(--ease);box-shadow:0 0 8px rgba(224,255,79,.4)}
+
+  /* ── commands panel ─────────────────────────── */
+  .cmdgrp{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.45;margin:18px 0 9px}
+  .cmdgrp:first-child{margin-top:4px}
+  .cmd{display:flex;align-items:flex-start;gap:12px;padding:12px 13px;margin-bottom:8px;
+    border:1px solid var(--line);border-radius:12px;background:rgba(1,47,52,.34)}
+  .cmd .cnode{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px;
+    background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.4)}
+  .cmd.act .cnode{background:var(--soft);box-shadow:0 0 7px rgba(214,255,246,.3)}
+  .cmd .cname{font:600 13.5px var(--mono);color:var(--ink)}
+  .cmd.act .cname{color:var(--soft)}
+  .cmd .cargs{font:11px var(--mono);opacity:.5;margin-left:6px}
+  .cmd .cdesc{font-size:12.5px;opacity:.72;margin-top:2px;line-height:1.45}
 
   /* min-height:0 lets the flex track be constrained to its allocated height
      (not grow to content) so the scenes' overflow-y:auto actually scrolls. */
@@ -235,6 +248,7 @@ export const PAGE = `<!doctype html>
     <button id="tb1">Fractal</button>
     <button id="tb2">Story</button>
     <button id="tb3">Gate</button>
+    <button id="tb4">Commands</button>
     <div class="ind" id="ind"></div>
   </nav>
   <div class="track" id="track">
@@ -253,6 +267,11 @@ export const PAGE = `<!doctype html>
       <div class="gsub">approve or reroll an open work item — evidence-gated, founders only.</div>
       <div class="gauge" id="gauge"></div>
       <div id="gate">loading the queue…</div>
+    </section>
+    <section class="scene" id="sceneC">
+      <div class="ghead">Commands · the co-founder interface</div>
+      <div class="gsub">the /ts-* command surface, run through the curios.self bot in Telegram.</div>
+      <div id="cmds"></div>
     </section>
   </div>
   <footer>every status derives from real world-state — no fake progress.</footer>
@@ -280,7 +299,7 @@ $('ten').textContent = TENANT;
 let LEDGER = null;
 
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
-const track = $('track'), ind = $('ind'), SCN = 4;
+const track = $('track'), ind = $('ind'), SCN = 5;
 let scene = 0;
 const W = () => track.clientWidth || window.innerWidth;
 function place(x, animate){
@@ -294,11 +313,50 @@ function go(i, fromSwipe){
   place(-scene * W(), true);
   ind.style.transition = RM ? 'none' : 'transform .45s var(--ease)';
   ind.style.transform = 'translateX(' + (100 * scene) + '%)';
-  [0,1,2,3].forEach(n => $('tb'+n).classList.toggle('on', n === scene));
+  [0,1,2,3,4].forEach(n => $('tb'+n).classList.toggle('on', n === scene));
   if (scene === 3) loadGate();
+  if (scene === 4) renderCommands();
   if (!fromSwipe) buzz('light');
 }
-[0,1,2,3].forEach(n => $('tb'+n).onclick = () => go(n));
+[0,1,2,3,4].forEach(n => $('tb'+n).onclick = () => go(n));
+
+/* commands panel — the /ts-* co-founder interface, grouped reference */
+const CMDS = [
+  ['Status', [
+    ['ts-status', '', 'Org health snapshot — agents, projects, drift'],
+    ['ts-agents', '', 'List all agents in the org'],
+    ['ts-agent', '<name>', 'Show one agent\\'s detail'],
+    ['ts-projects', '', 'List active projects'],
+    ['ts-project', '<slug>', 'Show one project\\'s detail'],
+    ['ts-handoffs', '', 'Pending agent stage-to-stage handoffs'],
+    ['ts-vault', '<path>', 'Read a vault file or list a folder'],
+  ]],
+  ['Actions', [
+    ['ts-run', '<agent> <task>', 'Assign a task to an agent', 1],
+    ['ts-approve', '<id>', 'Approve a pending handoff', 1],
+    ['ts-reject', '<id> <reason>', 'Reject a pending handoff', 1],
+  ]],
+  ['Digests', [
+    ['ts-standup', '', 'Generate the daily standup'],
+    ['ts-digest', '', 'The weekly founder digest'],
+    ['ts-help', '', 'Show command help in chat'],
+  ]],
+];
+let cmdsDrawn = false;
+function renderCommands(){
+  if (cmdsDrawn) return; cmdsDrawn = true;
+  $('cmds').innerHTML = CMDS.map(([group, items]) =>
+    '<div class="cmdgrp">' + esc(group) + '</div>' +
+    items.map(([name, args, desc, act]) =>
+      '<div class="cmd' + (act ? ' act' : '') + '">' +
+        '<span class="cnode"></span>' +
+        '<div><div><span class="cname">/' + esc(name) + '</span>' +
+          (args ? '<span class="cargs">' + esc(args) + '</span>' : '') + '</div>' +
+          '<div class="cdesc">' + esc(desc) + '</div></div>' +
+      '</div>').join('')
+  ).join('') +
+  '<div class="gnote" style="margin-top:18px">type a command to the curios.self bot in Telegram. founder-only; actions route through the org.</div>';
+}
 window.addEventListener('resize', () => place(-scene * W(), false));
 
 // pointer drag: one handler set, decides axis on first move.
