@@ -73,8 +73,10 @@ export const PAGE = `<!doctype html>
   .ind{position:absolute;bottom:-1px;left:0;width:25%;height:2px;background:var(--ink);
     border-radius:2px;transition:transform .45s var(--ease);box-shadow:0 0 8px rgba(224,255,79,.4)}
 
-  .track{flex:1;display:flex;will-change:transform;touch-action:pan-y}
-  .scene{flex:0 0 100%;width:100%;overflow-y:auto;overflow-x:hidden;
+  /* min-height:0 lets the flex track be constrained to its allocated height
+     (not grow to content) so the scenes' overflow-y:auto actually scrolls. */
+  .track{flex:1;min-height:0;display:flex;will-change:transform;touch-action:pan-y}
+  .scene{flex:0 0 100%;width:100%;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;
     padding:18px 18px calc(var(--sab) + 92px);overscroll-behavior:contain}
 
   /* ── quest line ─────────────────────────────── */
