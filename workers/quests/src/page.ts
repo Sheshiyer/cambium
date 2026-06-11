@@ -79,27 +79,32 @@ export const PAGE = `<!doctype html>
   .scene{flex:0 0 100%;width:100%;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;
     padding:18px 18px calc(var(--sab) + 92px);overscroll-behavior:contain}
 
-  /* ── quest line ─────────────────────────────── */
-  .stem{position:relative;padding-left:34px}
-  .stem::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;
+  /* ── quest line — the living vine ─────────────── */
+  .stem{position:relative;padding-left:40px}
+  /* the grown vine: a glowing chartreuse stem up to --grow, faint beyond */
+  .stem::before{content:"";position:absolute;left:13px;top:10px;bottom:10px;width:3px;border-radius:3px;
     background:linear-gradient(var(--ink) 0 var(--grow,0%),var(--line) var(--grow,0%) 100%);
-    transition:--grow 1.1s var(--ease)}
-  .q{position:relative;padding:13px 4px 13px 10px;border-bottom:1px solid var(--line);
+    box-shadow:0 0 11px rgba(224,255,79,.32);transition:--grow 1.2s var(--ease)}
+  .q{position:relative;padding:15px 4px 15px 12px;border-bottom:1px solid var(--line);
     opacity:0;transform:translateY(14px) scale(.97);
     animation:rise .55s var(--pop) forwards;animation-delay:calc(var(--i)*70ms);cursor:pointer}
   .q:active{transform:scale(.985)}
   @keyframes rise{to{opacity:1;transform:none}}
-  .node{position:absolute;left:-31px;top:15px;width:20px;height:20px;border-radius:50%;
-    display:grid;place-items:center;background:var(--bg2);border:1.5px solid var(--line)}
-  .node svg{width:11px;height:11px}
-  .q.complete .node{border-color:var(--ink);box-shadow:inset 0 0 7px rgba(224,255,79,.45)}
-  .q.active .node{border-color:var(--ink);animation:breathe 2.6s var(--ease) infinite}
-  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+  .node{position:absolute;left:-38px;top:15px;width:25px;height:25px;border-radius:50%;
+    display:grid;place-items:center;background:var(--bg2);border:1.5px solid var(--line);z-index:1}
+  .node svg{width:13px;height:13px}
+  .q.complete .node{border-color:var(--ink);background:rgba(224,255,79,.12);
+    box-shadow:inset 0 0 9px rgba(224,255,79,.5),0 0 11px rgba(224,255,79,.22)}
+  .q.active .node{border-color:var(--ink);background:rgba(224,255,79,.06);
+    box-shadow:0 0 16px rgba(224,255,79,.5);animation:breathe 2.6s var(--ease) infinite}
+  .q.active .node::after{content:"";position:absolute;inset:-7px;border-radius:50%;
+    border:1px solid rgba(224,255,79,.45);animation:halo 2.6s var(--ease) infinite}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
   .q .arc{font:11px var(--mono);opacity:.5;margin-right:7px}
-  .q .t{font-weight:650}
-  .q.active .t{color:var(--ink)}
+  .q .t{font-weight:650;font-size:15.5px}
+  .q.active .t{color:var(--ink);text-shadow:0 0 12px rgba(224,255,79,.35)}
   .q.locked .t,.q.locked .arc{opacity:.4}
-  .ev{font:12px/1.45 var(--mono);opacity:.7;margin-top:3px}
+  .ev{font:12px/1.45 var(--mono);opacity:.7;margin-top:4px}
   .bar{height:8px;background:var(--line);border-radius:99px;margin:24px 0 8px;overflow:hidden;position:relative}
   .fill{height:100%;width:0;background:var(--ink);border-radius:99px;position:relative;overflow:hidden;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.25);transition:width 1.2s var(--ease)}
@@ -143,22 +148,27 @@ export const PAGE = `<!doctype html>
     transition:transform .2s var(--ease)}
   .dback:active{transform:scale(.96)}
 
-  /* ── story ──────────────────────────────────── */
-  #beats{position:relative;padding-left:18px}
-  #beats::before{content:"";position:absolute;left:4px;top:10px;bottom:10px;width:1.5px;
-    background:linear-gradient(rgba(224,255,79,.5),var(--line))}
-  .beat{padding:12px 2px;border-bottom:1px solid var(--line);opacity:0;position:relative;
-    transform:translateY(10px);animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*40ms)}
-  .beat::before{content:"";position:absolute;left:-17px;top:19px;width:5px;height:5px;
-    border-radius:50%;background:rgba(214,255,246,.4)}
-  .beat.noesis::before{background:var(--soft);box-shadow:inset 0 0 2px rgba(255,255,255,.5)}
-  .beat .lane{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;
-    padding:2px 7px;border:1px solid var(--line);border-radius:99px;opacity:.75;margin-right:8px}
-  .beat.noesis{margin:14px 0;padding:14px;border:1px solid var(--line2);border-radius:14px;
-    background:var(--glass);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
-  .beat.noesis .lane{border-color:rgba(214,255,246,.5);color:var(--soft);opacity:1}
+  /* ── story — the continuous narrative, as cards ── */
+  #beats{display:flex;flex-direction:column;gap:9px}
+  .beat{position:relative;padding:12px 14px 12px 44px;border:1px solid var(--line);border-radius:13px;
+    background:rgba(1,47,52,.38);opacity:0;transform:translateY(10px);font-size:13.5px;line-height:1.5;
+    animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*38ms)}
+  .beat .ico{position:absolute;left:12px;top:11px;width:21px;height:21px;display:grid;place-items:center;
+    border-radius:7px;background:var(--bg2);border:1px solid var(--line)}
+  .beat .ico svg{width:12px;height:12px;stroke:var(--soft);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+  .beat .lane{display:block;font:9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:3px}
+  .beat b{color:var(--soft)}
+  .beat.noesis{border-color:rgba(214,255,246,.4);background:var(--glass);backdrop-filter:blur(10px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 20px rgba(214,255,246,.05)}
+  .beat.noesis .ico{border-color:rgba(214,255,246,.5)}
+  .beat.noesis .ico svg{opacity:1}
+  .beat.noesis .lane{color:var(--soft);opacity:.85}
 
   /* ── gate ───────────────────────────────────── */
+  .gauge{display:grid;place-items:center;margin:6px 0 18px}
+  .gauge svg{width:168px;overflow:visible}
+  .gauge .gv{font:700 21px var(--mono);fill:var(--ink)}
+  .gauge .gl{font:9.5px var(--mono);fill:var(--soft);opacity:.55;letter-spacing:.08em}
   .ghead{font-size:17px;font-weight:650;color:var(--ink);margin-bottom:2px}
   .gsub{font-size:12px;opacity:.7;margin-bottom:16px;max-width:52ch}
   .gitem{padding:13px;margin-bottom:12px;border:1px solid var(--line2);border-radius:14px;
@@ -241,6 +251,7 @@ export const PAGE = `<!doctype html>
     <section class="scene" id="sceneG">
       <div class="ghead">The Gate · the one write</div>
       <div class="gsub">approve or reroll an open work item — evidence-gated, founders only.</div>
+      <div class="gauge" id="gauge"></div>
       <div id="gate">loading the queue…</div>
     </section>
   </div>
@@ -579,15 +590,28 @@ function undrill(){
   $('fcap').style.opacity = ''; buzz('light');
 }
 
-/* ── story scene ── */
+/* ── story scene — cards with per-lane icons ── */
+const LANE_ICON = {
+  heartbeat: '<svg viewBox="0 0 16 16"><path d="M1 8h3l2-4 3 8 2-4h4"/></svg>',
+  multica:   '<svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="2"/><path d="M6.5 6.5h3v3h-3z"/></svg>',
+  teamforge: '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
+  forge:     '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
+  noesis:    '<svg viewBox="0 0 16 16"><path d="M8 1.5l5.5 6.5L8 14.5 2.5 8z"/></svg>',
+  quest:     '<svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 6.5-7"/></svg>',
+  beat:      '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.6"/></svg>'
+};
 function renderStory(env){
   const beats = env.beats && env.beats.length ? env.beats :
     env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false }));
-  $('beats').innerHTML = beats.map((b, i) =>
-    '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i,18) + '">' +
-      '<span class="lane">' + esc(b.lane || 'beat') + '</span>' +
-      (b.noesis ? '<strong>◆ noesis</strong> · ' : '') + esc(b.text) +
-    '</div>').join('');
+  $('beats').innerHTML = beats.map((b, i) => {
+    const lane = b.lane || 'beat';
+    const ico = LANE_ICON[lane] || (b.noesis ? LANE_ICON.noesis : LANE_ICON.beat);
+    return '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i, 20) + '">' +
+      '<span class="ico">' + ico + '</span>' +
+      '<span class="lane">' + esc(lane) + '</span>' +
+      (b.noesis ? '<b>◆ noesis · </b>' : '') + esc(b.text) +
+    '</div>';
+  }).join('');
 }
 
 /* ── freshness ── */
@@ -599,9 +623,31 @@ function freshness(iso){
 }
 
 /* ── data ── */
+// radial 270deg gauge of real progress (arcs grown / total) — the gate's evidence dial
+function renderGauge(L){
+  const wrap = $('gauge'); if (!wrap) return;
+  const pct = L.total ? L.completed / L.total : 0;
+  const r = 46, CIRC = 2 * Math.PI * r, ARC = 0.75;       // 270deg sweep
+  const track = N1(ARC * CIRC), tgap = N1(CIRC - ARC * CIRC);
+  const val = N1(pct * ARC * CIRC), vgap = N1(CIRC - pct * ARC * CIRC);
+  const valCircle = RM
+    ? '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="var(--ink)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + val + ' ' + vgap + '"/>'
+    : '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="var(--ink)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 ' + N1(CIRC) + '">' +
+        '<animate attributeName="stroke-dasharray" dur="1s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1" keyTimes="0;1" values="0 ' + N1(CIRC) + ';' + val + ' ' + vgap + '"/>' +
+      '</circle>';
+  wrap.innerHTML =
+    '<svg viewBox="0 0 120 116">' +
+      '<g transform="rotate(135 60 60)">' +
+        '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="rgba(214,255,246,.12)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + track + ' ' + tgap + '"/>' +
+        valCircle +
+      '</g>' +
+      '<text class="gv" x="60" y="60" text-anchor="middle">' + L.completed + '/' + L.total + '</text>' +
+      '<text class="gl" x="60" y="76" text-anchor="middle">ARCS GROWN</text>' +
+    '</svg>';
+}
 function paint(env){
   LEDGER = env.ledger;
-  renderQuests(env.ledger); renderFractal(env.ledger); renderStory(env); freshness(env.derivedAt);
+  renderQuests(env.ledger); renderFractal(env.ledger); renderStory(env); renderGauge(env.ledger); freshness(env.derivedAt);
 }
 function load(){
   return fetch('/api/quests/' + TENANT).then(r => r.json()).then(env => {
