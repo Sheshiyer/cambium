@@ -2,7 +2,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { handle, ALLOWED_TENANTS } from './handler.ts';
+import { handle } from './handler.ts';
 import type { KvLike, SimpleRequest } from './handler.ts';
 import { PAGE } from './page.ts';
 
@@ -30,11 +30,10 @@ test('healthz · ok', async () => {
   assert.match(r.body, /cambium-quests/);
 });
 
-test('quests · tenant gate locks non-cambium until M3', async () => {
-  assert.deepEqual(ALLOWED_TENANTS, ['cambium']);
+test('quests · M3 isolation suite green — gate open to all valid tenants', async () => {
   const r = await handle(req('GET', '/api/quests/thoughtseed'), { kv: fakeKv() });
-  assert.equal(r.status, 403);
-  assert.match(r.body, /M3 isolation suite/);
+  assert.equal(r.status, 404);                       // open, just no ledger pushed yet
+  assert.match(r.body, /quine write quests push/);
 });
 
 test('quests · 404 with push hint before any ledger exists', async () => {

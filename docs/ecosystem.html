@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambium Ecosystem — Architecture at a Glance</title>
+<style>
+  :root{
+    --surface:#4299e1; --product:#48bb78; --engine:#9f7aea; --cortex:#ed8936; --svc:#64748b;
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc; --card:#fff;
+  }
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);
+       max-width:1280px;margin:0 auto;padding:0 20px 80px;line-height:1.5}
+  header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:34px 36px;border-radius:0 0 18px 18px;margin:0 -20px 28px}
+  header h1{margin:0 0 6px;font-size:30px;letter-spacing:-.02em}
+  header p{margin:0;opacity:.92;max-width:760px}
+  header .meta{margin-top:14px;font-size:13px;opacity:.85}
+  h2{font-size:20px;margin:40px 0 14px;letter-spacing:-.01em}
+  h2 .n{color:var(--muted);font-weight:500;font-size:14px;margin-left:8px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:6px 0 0;font-size:12.5px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+  /* layered map */
+  .band{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--svc);
+        border-radius:12px;padding:14px 16px;margin:0}
+  .band h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .band.surface{border-left-color:var(--surface)} .band.product{border-left-color:var(--product)}
+  .band.engine{border-left-color:var(--engine)} .band.cortex{border-left-color:var(--cortex)}
+  .band.svc{border-left-color:var(--svc)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .node{flex:1 1 200px;min-width:180px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .node b{display:block;font-size:14px}
+  .node small{color:var(--muted);font-size:12px;display:block;margin-top:2px}
+  .node code{font-size:11px;color:#475569;background:#eef2f7;padding:1px 5px;border-radius:4px}
+  .flowdown{text-align:center;color:var(--muted);font-size:12px;margin:7px 0;letter-spacing:.08em}
+  .grp{flex:1 1 150px;min-width:150px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+  .grp b{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);display:block;margin-bottom:5px}
+  .pill{display:inline-block;font-size:11.5px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:2px 9px;margin:2px 3px 2px 0}
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f1f5f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  td code{font-size:11.5px;color:#0f172a;background:#eef2f7;padding:1px 5px;border-radius:4px;white-space:nowrap}
+  .cat{font-weight:600}
+  .cat.inf{color:#9f7aea}.cat.infra{color:#ed8936}.cat.com{color:#4299e1}.cat.gtm{color:#48bb78}.cat.ops{color:#64748b}
+  /* repo cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+  .repo{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .repo h4{margin:0 0 2px;font-size:15px}
+  .repo .role{color:var(--muted);font-size:12.5px;margin-bottom:9px}
+  .repo .kv{font-size:12.5px;margin:4px 0}
+  .repo .kv b{color:var(--muted);font-weight:600;display:inline-block;min-width:62px}
+  .tag{display:inline-block;font-size:11px;border-radius:6px;padding:1px 7px;color:#fff;margin-left:4px;vertical-align:middle}
+  .t-engine{background:var(--engine)}.t-product{background:var(--product)}.t-surface{background:var(--surface)}.t-cortex{background:var(--cortex)}
+  .note{font-size:12.5px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin-top:14px}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Cambium Ecosystem — Architecture at a Glance</h1>
+  <p>One company-compiler (Cambium) and the ventures it builds, on top of a shared 1024-dim aesthetic cortex — and every third-party service each piece depends on, with its config surface.</p>
+  <div class="meta">Generated from the live repos · 2026-06-12 · 7 repos · 16 third-party services · configs shown as <b>env-var names only</b> (no secret values).</div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--surface)"></i>Surface</span>
+    <span><i class="dot" style="background:var(--product)"></i>Product backend</span>
+    <span><i class="dot" style="background:var(--engine)"></i>Cambium engine</span>
+    <span><i class="dot" style="background:var(--cortex)"></i>Shared cortex</span>
+    <span><i class="dot" style="background:var(--svc)"></i>3rd-party service</span>
+  </div>
+</header>
+
+<h2>The whole system in one look<span class="n">— top = where users are · down = "built on / uses"</span></h2>
+
+<div class="band surface">
+  <h3>① Surfaces — where users land</h3>
+  <div class="row">
+    <div class="node"><b>fitcheck-landing</b><small>FitCheck launch site · static · <code>public</code></small></div>
+    <div class="node"><b>FitCheck Widget</b><small>Shopify theme-app-extension (PDP try-on button)</small></div>
+    <div class="node"><b>Virtualtryon</b><small>Shopify app — 3D bridal try-on (R3F demo + landing)</small></div>
+  </div>
+</div>
+<div class="flowdown">▼ &nbsp; calls &nbsp; ▼</div>
+
+<div class="band product">
+  <h3>② Product backends — the ventures the engine ships</h3>
+  <div class="row">
+    <div class="node"><b>HDILINT-backend-aleph</b><small>FitCheck · 2D try-on · Node-stdlib server · <code>FASHN</code></small></div>
+    <div class="node"><b>virtualtryon</b><small>3D South-Indian bridal · <code>Gemini</code> render + <code>R2</code> storage</small></div>
+  </div>
+</div>
+<div class="flowdown">▲ &nbsp; built &amp; kept on-brand by &nbsp; ▲</div>
+
+<div class="band engine">
+  <h3>③ The Cambium engine — the company-compiler (Φ: idea → brand → taste → build → ops)</h3>
+  <div class="row">
+    <div class="node"><b>brandmint-oracle-aleph</b><small>Genesis — brand DNA + image gen</small></div>
+    <div class="node"><b>skill-clusters</b><small>Hands (40 clusters) + Taste cortex + conductor</small></div>
+    <div class="node"><b>snow-gloves-os</b><small>Will — business-ops + GTM</small></div>
+    <div class="node"><b>cambium</b><small>Conductor-of-conductors + cambium-cortex</small></div>
+  </div>
+</div>
+<div class="flowdown">▼ &nbsp; reads / writes the shared memory &nbsp; ▼</div>
+
+<div class="band cortex">
+  <h3>④ Shared cortex — one 1024-dim aesthetic memory (homeostasis setpoint)</h3>
+  <div class="row">
+    <div class="node"><b>NVIDIA NIM</b><small>1024-dim embeddings — "on-brand" = small cosine distance</small></div>
+    <div class="node"><b>Cloudflare Vectorize</b><small><code>cambium-cortex</code> — vector store + deviation ledger</small></div>
+  </div>
+</div>
+<div class="flowdown">▼ &nbsp; everything above runs on &nbsp; ▼</div>
+
+<div class="band svc">
+  <h3>⑤ Third-party services</h3>
+  <div class="row">
+    <div class="grp"><b>Try-on / Render</b><span class="pill">FASHN Try-On Max</span><span class="pill">Google Gemini</span><span class="pill">Nano Banana Pro</span></div>
+    <div class="grp"><b>Image / Model</b><span class="pill">fal.ai</span><span class="pill">Replicate</span><span class="pill">ComfyUI</span><span class="pill">Hugging Face</span></div>
+    <div class="grp"><b>LLM / Voice</b><span class="pill">Anthropic</span><span class="pill">OpenAI</span><span class="pill">OpenRouter</span><span class="pill">ElevenLabs</span></div>
+    <div class="grp"><b>Infra / Data</b><span class="pill">Cloudflare (Workers·Vectorize·R2)</span><span class="pill">NVIDIA NIM</span><span class="pill">Supabase</span></div>
+    <div class="grp"><b>Commerce</b><span class="pill">Shopify</span></div>
+    <div class="grp"><b>GTM &amp; Ops</b><span class="pill">Explee</span><span class="pill">PostHog</span><span class="pill">Resend</span></div>
+  </div>
+</div>
+
+<h2>Third-party services &amp; their configs<span class="n">— the env surface, names only</span></h2>
+<table>
+  <thead><tr><th>Service</th><th>Category</th><th>What it does</th><th>Used by</th><th>Key config (env)</th></tr></thead>
+  <tbody>
+    <tr><td><b>FASHN Try-On Max</b></td><td class="cat inf">Try-on</td><td>2D garment-on-body render (FitCheck)</td><td>HDILINT-backend-aleph</td><td><code>FASHN_API_KEY</code> <code>FASHN_BASE_URL</code> <code>FASHN_MODEL_NAME</code></td></tr>
+    <tr><td><b>Google Gemini</b> / Nano Banana Pro</td><td class="cat inf">Render/Image</td><td>3D bridal render; brand image gen</td><td>virtualtryon · brandmint · skill-clusters</td><td><code>GEMINI_API_KEY</code></td></tr>
+    <tr><td><b>NVIDIA NIM</b></td><td class="cat infra">Embeddings</td><td>1024-dim aesthetic embeddings (the cortex metric)</td><td>cambium · skill-clusters · snow-gloves · brandmint</td><td><code>NIM/NVIDIA_API_KEY</code></td></tr>
+    <tr><td><b>Cloudflare</b></td><td class="cat infra">Infra</td><td>Workers + Vectorize (cortex memory) + R2 (image storage)</td><td>cambium · skill-clusters · virtualtryon · brandmint</td><td><code>CLOUDFLARE_API_TOKEN</code> <code>R2_ACCOUNT_ID</code> <code>R2_ACCESS_KEY_ID</code> <code>R2_SECRET_ACCESS_KEY</code> <code>R2_BUCKET_NAME</code> · wrangler.toml</td></tr>
+    <tr><td><b>Shopify</b></td><td class="cat com">Commerce</td><td>Storefront surface — theme-app-extension + app</td><td>HDILINT (widget) · virtualtryon (app) · fitcheck-landing</td><td><code>SHOPIFY_API_KEY</code> <code>SHOPIFY_API_SECRET</code> <code>APP_URL</code> · shopify.app.toml</td></tr>
+    <tr><td><b>Explee</b></td><td class="cat gtm">GTM</td><td>ICP enrichment / lead generation</td><td>snow-gloves · cambium · skill-clusters</td><td><code>EXPLEE_API_KEY</code> / cookie</td></tr>
+    <tr><td><b>fal.ai</b></td><td class="cat inf">Image</td><td>Hosted image-gen models</td><td>brandmint · skill-clusters</td><td><code>FAL_KEY</code></td></tr>
+    <tr><td><b>OpenAI</b></td><td class="cat inf">LLM/Image</td><td>gpt-image + LLM</td><td>brandmint · skill-clusters</td><td><code>OPENAI_API_KEY</code></td></tr>
+    <tr><td><b>Replicate</b></td><td class="cat inf">Image</td><td>Hosted model inference</td><td>brandmint · skill-clusters</td><td><code>REPLICATE_API_TOKEN</code></td></tr>
+    <tr><td><b>OpenRouter</b></td><td class="cat inf">LLM</td><td>LLM routing</td><td>brandmint</td><td><code>OPENROUTER_API_KEY</code></td></tr>
+    <tr><td><b>Anthropic</b></td><td class="cat inf">LLM</td><td>Claude (reasoning / copy)</td><td>skill-clusters · brandmint</td><td><code>ANTHROPIC_API_KEY</code></td></tr>
+    <tr><td><b>ElevenLabs</b></td><td class="cat inf">Voice</td><td>Brand voice / TTS</td><td>brandmint</td><td><code>ELEVENLABS_API_KEY</code></td></tr>
+    <tr><td><b>Hugging Face</b></td><td class="cat inf">Models</td><td>Model hub</td><td>brandmint</td><td><code>HF_TOKEN</code></td></tr>
+    <tr><td><b>Supabase</b></td><td class="cat infra">Data</td><td>Postgres / auth</td><td>cambium · skill-clusters · brandmint</td><td><code>SUPABASE_URL</code> <code>SUPABASE_*_KEY</code></td></tr>
+    <tr><td><b>PostHog</b></td><td class="cat ops">Analytics</td><td>Product analytics</td><td>skill-clusters · HDILINT</td><td><code>POSTHOG_API_KEY</code> <code>POSTHOG_HOST</code></td></tr>
+    <tr><td><b>Resend</b></td><td class="cat ops">Email</td><td>Transactional email</td><td>skill-clusters</td><td><code>RESEND_API_KEY</code></td></tr>
+  </tbody>
+</table>
+
+<h2>The repos<span class="n">— role · services · config · deploy</span></h2>
+<div class="cards">
+  <div class="repo"><h4>cambium <span class="tag t-engine">engine</span></h4><div class="role">Conductor-of-conductors + cambium-cortex (Vectorize). Composes the organs into a pipeline; the why-handler / homeostasis loop.</div>
+    <div class="kv"><b>uses</b> Cloudflare Vectorize · NIM · Explee · (image providers via organs)</div>
+    <div class="kv"><b>config</b> <code>wrangler.toml</code> · <code>CLOUDFLARE_API_TOKEN</code> · NIM</div>
+    <div class="kv"><b>deploy</b> Cloudflare Worker</div></div>
+
+  <div class="repo"><h4>brandmint-oracle-aleph <span class="tag t-engine">engine</span></h4><div class="role">Genesis — brand DNA (persona, voice, palette) + wave-based image generation.</div>
+    <div class="kv"><b>uses</b> fal.ai · OpenAI · Replicate · Gemini/NanoBanana · Anthropic · ElevenLabs · HF · OpenRouter</div>
+    <div class="kv"><b>config</b> <code>FAL_KEY</code> <code>OPENAI_API_KEY</code> <code>REPLICATE_API_TOKEN</code> <code>ANTHROPIC_API_KEY</code> <code>ELEVENLABS_API_KEY</code> <code>HF_TOKEN</code> <code>OPENROUTER_API_KEY</code> <code>IMAGE_PROVIDER</code></div>
+    <div class="kv"><b>deploy</b> Dockerfile</div></div>
+
+  <div class="repo"><h4>skill-clusters <span class="tag t-engine">engine</span></h4><div class="role">Hands (40 build clusters / 720 skills) + Taste cortex + the conductor + spec-kit.</div>
+    <div class="kv"><b>uses</b> NIM · Cloudflare Vectorize · fal.ai · Gemini · OpenAI · Replicate · ComfyUI · Anthropic · Explee · Shopify · Supabase · PostHog · Resend</div>
+    <div class="kv"><b>config</b> per-cluster env + wrangler</div>
+    <div class="kv"><b>deploy</b> clusters + CF worker (taste-nim)</div></div>
+
+  <div class="repo"><h4>snow-gloves-os <span class="tag t-engine">engine</span></h4><div class="role">Will — C-suite + 61 business-advisory skills, GTM, multi-tenant ops.</div>
+    <div class="kv"><b>uses</b> Explee · NIM</div>
+    <div class="kv"><b>config</b> Explee</div>
+    <div class="kv"><b>deploy</b> ops service</div></div>
+
+  <div class="repo"><h4>HDILINT-backend-aleph <span class="tag t-product">product</span></h4><div class="role">FitCheck — 2D virtual try-on backend (signed upload, consent, retention) + Shopify widget + PDP demo.</div>
+    <div class="kv"><b>uses</b> FASHN (primary) · Shopify · PostHog</div>
+    <div class="kv"><b>config</b> <code>FASHN_API_KEY</code> <code>FITCHECK_UPLOAD_SIGNING_SECRET</code> <code>FITCHECK_PROVIDER</code> <code>FITCHECK_RETENTION_DAYS</code> …</div>
+    <div class="kv"><b>deploy</b> Node-stdlib HTTP server</div></div>
+
+  <div class="repo"><h4>virtualtryon <span class="tag t-product">product</span></h4><div class="role">3D South-Indian bridal try-on — R3F web demo + render worker + Shopify app.</div>
+    <div class="kv"><b>uses</b> Gemini (render) · Shopify (app) · Cloudflare R2 (storage)</div>
+    <div class="kv"><b>config</b> <code>GEMINI_API_KEY</code> <code>SHOPIFY_API_KEY</code> <code>SHOPIFY_API_SECRET</code> <code>R2_ACCOUNT_ID</code> <code>R2_ACCESS_KEY_ID</code> <code>R2_SECRET_ACCESS_KEY</code> <code>R2_BUCKET_NAME</code> <code>RENDER_PROVIDER</code></div>
+    <div class="kv"><b>deploy</b> shopify.app.toml · CF</div></div>
+
+  <div class="repo"><h4>fitcheck-landing <span class="tag t-surface">surface</span></h4><div class="role">FitCheck launch landing — zero-dep static, taste-injected, WCAG-AA.</div>
+    <div class="kv"><b>uses</b> Shopify (links)</div>
+    <div class="kv"><b>config</b> — (static)</div>
+    <div class="kv"><b>deploy</b> static host</div></div>
+</div>
+
+<h2>How it flows</h2>
+<div class="row">
+  <div class="grp" style="flex:1 1 100%"><b>Build-time — the Cambium pipeline (Φ)</b>
+    <div style="font-size:13px;margin-top:6px">
+      idea&nbsp;→&nbsp;<b style="color:var(--engine)">genesis</b> (brandmint: brand-DNA)&nbsp;→&nbsp;<b style="color:var(--engine)">taste</b> (skill-clusters: on-brand brief, NIM cortex)&nbsp;→&nbsp;<b style="color:var(--engine)">build</b> (hands)&nbsp;→&nbsp;<b style="color:var(--engine)">ops</b> (snow-gloves: GTM via Explee). The <b>cortex</b> (NIM + Vectorize) is read/written at every stage; drift → why-handler → reroll or absorb.
+    </div>
+  </div>
+  <div class="grp" style="flex:1 1 100%"><b>Run-time — a shopper try-on (FitCheck 2D)</b>
+    <div style="font-size:13px;margin-top:6px">
+      shopper photo&nbsp;→&nbsp;<b style="color:var(--surface)">Shopify widget</b>&nbsp;→&nbsp;signed upload&nbsp;→&nbsp;<b style="color:var(--product)">HDILINT backend</b>&nbsp;→&nbsp;<b style="color:var(--svc)">FASHN</b> render&nbsp;→&nbsp;garment-on-body result (consent-gated, retention-bounded). 3D bridal swaps FASHN→<b style="color:var(--svc)">Gemini</b> render + <b style="color:var(--svc)">R2</b> storage.
+    </div>
+  </div>
+</div>
+
+<div class="note"><b>Spend & safety.</b> Every paid service (FASHN, Gemini, NIM, fal/OpenAI/Replicate, Explee) sits behind the conductor's fail-closed gate — no paid organ spawns without explicit per-stage approval. Configs above are <b>env-var names only</b>; secret values live in gitignored <code>.env</code> files and the cortex Worker secrets, never in any repo.</div>
+
+<footer>
+  Cambium ecosystem map · generated from the live repos on 2026-06-12 · self-similar fractal: every organ = hub-and-spoke + conductor + spec-kit + 1024-dim cortex. See also <a href="architecture.html">the Cambium tapestry</a> and <a href="organs.html">the organ catalog</a>.
+</footer>
+</body>
+</html>
