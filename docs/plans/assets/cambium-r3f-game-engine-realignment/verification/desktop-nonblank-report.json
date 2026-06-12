@@ -1,0 +1,56 @@
+[
+  {
+    "route": "home",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/home.png",
+    "uniqueSamples": 3979,
+    "nonBackgroundSamples": 39619
+  },
+  {
+    "route": "island-genesis",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/island-genesis.png",
+    "uniqueSamples": 4730,
+    "nonBackgroundSamples": 40119
+  },
+  {
+    "route": "island-taste",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/island-taste.png",
+    "uniqueSamples": 5298,
+    "nonBackgroundSamples": 40550
+  },
+  {
+    "route": "island-build",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/island-build.png",
+    "uniqueSamples": 5679,
+    "nonBackgroundSamples": 40722
+  },
+  {
+    "route": "island-ops",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/island-ops.png",
+    "uniqueSamples": 4837,
+    "nonBackgroundSamples": 41806
+  },
+  {
+    "route": "island-cortex",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/island-cortex.png",
+    "uniqueSamples": 5095,
+    "nonBackgroundSamples": 40643
+  },
+  {
+    "route": "elements-settings",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/elements-settings.png",
+    "uniqueSamples": 4056,
+    "nonBackgroundSamples": 39711
+  },
+  {
+    "route": "visualizations",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/visualizations.png",
+    "uniqueSamples": 4425,
+    "nonBackgroundSamples": 39687
+  },
+  {
+    "route": "figma-components",
+    "file": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/figma-components.png",
+    "uniqueSamples": 5214,
+    "nonBackgroundSamples": 39719
+  }
+]

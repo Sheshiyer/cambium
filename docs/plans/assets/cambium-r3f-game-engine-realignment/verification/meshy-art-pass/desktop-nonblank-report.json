@@ -1,0 +1,108 @@
+{
+  "capturedAt": "2026-06-12T07:35:05Z",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "routes": [
+    {
+      "route": "home",
+      "url": "http://127.0.0.1:5174/",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/home.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 7129,
+      "sampleNonBackgroundRatio": 0.8536
+    },
+    {
+      "route": "island-genesis",
+      "url": "http://127.0.0.1:5174/#island-genesis",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/island-genesis.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 10685,
+      "sampleNonBackgroundRatio": 0.7505
+    },
+    {
+      "route": "island-taste",
+      "url": "http://127.0.0.1:5174/#island-taste",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/island-taste.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 12370,
+      "sampleNonBackgroundRatio": 0.6522
+    },
+    {
+      "route": "island-build",
+      "url": "http://127.0.0.1:5174/#island-build",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/island-build.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 12656,
+      "sampleNonBackgroundRatio": 0.6709
+    },
+    {
+      "route": "island-ops",
+      "url": "http://127.0.0.1:5174/#island-ops",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/island-ops.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 10927,
+      "sampleNonBackgroundRatio": 0.9989
+    },
+    {
+      "route": "island-cortex",
+      "url": "http://127.0.0.1:5174/#island-cortex",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/island-cortex.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 12825,
+      "sampleNonBackgroundRatio": 0.7354
+    },
+    {
+      "route": "elements-settings",
+      "url": "http://127.0.0.1:5174/#elements-settings",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/elements-settings.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 9314,
+      "sampleNonBackgroundRatio": 0.6322
+    },
+    {
+      "route": "visualizations",
+      "url": "http://127.0.0.1:5174/#visualizations",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/visualizations.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 7662,
+      "sampleNonBackgroundRatio": 0.8619
+    },
+    {
+      "route": "figma-components",
+      "url": "http://127.0.0.1:5174/#figma-components",
+      "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/meshy-art-pass/figma-components.png",
+      "width": 1440,
+      "height": 900,
+      "sampleUniqueColors": 11604,
+      "sampleNonBackgroundRatio": 0.6924
+    }
+  ],
+  "consoleIssues": [
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x10c001c8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x10c001c8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x10c001c8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x10c001c8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ]
+}
