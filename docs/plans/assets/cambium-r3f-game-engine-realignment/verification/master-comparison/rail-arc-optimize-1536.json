@@ -1,0 +1,54 @@
+{
+  "input": "apps/cambium-r3f/public/assets/meshy/image-to-3d/rail-arc/model.glb",
+  "output": "apps/cambium-r3f/public/assets/meshy/image-to-3d/rail-arc/optimized/model-1536.glb",
+  "maxTextureSize": 1536,
+  "jpegQuality": 84,
+  "inputBytes": 55987668,
+  "outputBytes": 15522024,
+  "images": [
+    {
+      "index": 0,
+      "bufferView": 4,
+      "mimeType": "image/jpeg",
+      "originalWidth": 4096,
+      "originalHeight": 4096,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 17312498,
+      "optimizedBytes": 694214
+    },
+    {
+      "index": 1,
+      "bufferView": 5,
+      "mimeType": "image/jpeg",
+      "originalWidth": 2048,
+      "originalHeight": 2048,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 2170355,
+      "optimizedBytes": 266218
+    },
+    {
+      "index": 2,
+      "bufferView": 6,
+      "mimeType": "image/jpeg",
+      "originalWidth": 4096,
+      "originalHeight": 4096,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 22493046,
+      "optimizedBytes": 809358
+    },
+    {
+      "index": 3,
+      "bufferView": 7,
+      "mimeType": "image/jpeg",
+      "originalWidth": 2048,
+      "originalHeight": 2048,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 314848,
+      "optimizedBytes": 55316
+    }
+  ]
+}

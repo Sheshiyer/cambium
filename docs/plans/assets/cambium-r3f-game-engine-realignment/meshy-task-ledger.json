@@ -1,0 +1,356 @@
+{
+  "provider": "meshy",
+  "entries": [
+    {
+      "command": "preview",
+      "island": "genesis",
+      "taskId": "019ebaa9-68ef-7220-813b-2f315b2c9412",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract floating seed-crystal island for a tactical strategy map, Cambium brand palette, dark green stone substrate, pale chartreuse crystalline core, topographic contour ridges, non-architectural, non-figurative, sculptural organ-like terrain, web game asset, centered origin, clean silhouette.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 18000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:08:47.731Z"
+    },
+    {
+      "command": "preview",
+      "island": "taste",
+      "taskId": "019ebaa9-ab47-7226-8623-0f1bfbc7c5bb",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract resonance island shaped like interlocking loops and taste-memory knots, floating tactical map terrain, dark teal base, pale ivory curved forms, chartreuse signal nodes, non-architectural, non-figurative, interface-free, sculptural game-engine asset.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 22000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:09:03.933Z"
+    },
+    {
+      "command": "preview",
+      "island": "build",
+      "taskId": "019ebaa9-d615-7229-9f12-3b4262ed8b3c",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract forge-anvil island for an isometric tactical map, faceted terrain slab, pale chartreuse artifact core, ivory validation plates, dark green-black base, non-industrial, non-architectural, non-figurative, sculptural organ-like game asset with strong silhouette.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 20000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:09:15.111Z"
+    },
+    {
+      "command": "preview",
+      "island": "ops",
+      "taskId": "019ebaaa-0065-722b-bba9-5888d260cc34",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract operating-loop island for a strategy game world map, circular heartbeat ring embedded in dark terrain, chartreuse loop form, signal nodes around perimeter, non-architectural, screenless, non-figurative, clean readable silhouette from isometric camera.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 18000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:09:25.638Z"
+    },
+    {
+      "command": "preview",
+      "island": "cortex",
+      "taskId": "019ebaaa-2840-7e1a-b3d0-c8fadb9033b4",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract memory-orbit island, central smooth dark sphere nested in orbital terrain rings, satellite nodes, tactical map asset, dark teal and deep violet substrate, pale chartreuse signals, non-urban, non-architectural, non-figurative, sculptural Cambium cortex organ.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 24000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:09:36.293Z"
+    },
+    {
+      "command": "download",
+      "island": "genesis",
+      "taskId": "019ebaa9-68ef-7220-813b-2f315b2c9412",
+      "model": "/assets/meshy/islands/genesis/model.glb",
+      "ts": "2026-06-12T07:12:15.780Z"
+    },
+    {
+      "command": "download",
+      "island": "taste",
+      "taskId": "019ebaa9-ab47-7226-8623-0f1bfbc7c5bb",
+      "model": "/assets/meshy/islands/taste/model.glb",
+      "ts": "2026-06-12T07:12:25.857Z"
+    },
+    {
+      "command": "download",
+      "island": "build",
+      "taskId": "019ebaa9-d615-7229-9f12-3b4262ed8b3c",
+      "model": "/assets/meshy/islands/build/model.glb",
+      "ts": "2026-06-12T07:12:35.167Z"
+    },
+    {
+      "command": "download",
+      "island": "ops",
+      "taskId": "019ebaaa-0065-722b-bba9-5888d260cc34",
+      "model": "/assets/meshy/islands/ops/model.glb",
+      "ts": "2026-06-12T07:12:44.835Z"
+    },
+    {
+      "command": "download",
+      "island": "cortex",
+      "taskId": "019ebaaa-2840-7e1a-b3d0-c8fadb9033b4",
+      "model": "/assets/meshy/islands/cortex/model.glb",
+      "ts": "2026-06-12T07:12:55.883Z"
+    },
+    {
+      "command": "preview",
+      "island": "build",
+      "taskId": "019ebaae-4563-7e79-842b-17ef705bca07",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract build-forge island for an isometric tactical map, asymmetric faceted terrain, twin ramped validation plates, pale chartreuse artifact core, dark green-black base, low-profile sculptural organ terrain, non-industrial, non-architectural, non-figurative, avoid literal tool silhouette, strong readable outline.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 20000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:14:05.747Z"
+    },
+    {
+      "command": "preview",
+      "island": "ops",
+      "taskId": "019ebaae-739d-7ea7-9d6a-8d37d2338659",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract operating-loop island for a strategy game world map, low horizontal circular torus terrain, heartbeat ring channels embedded flush in dark substrate, chartreuse perimeter signal nodes, flattened silhouette, screenless, non-architectural, non-figurative, clean readable isometric outline.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 18000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:14:17.132Z"
+    },
+    {
+      "command": "download",
+      "island": "build",
+      "taskId": "019ebaae-4563-7e79-842b-17ef705bca07",
+      "model": "/assets/meshy/islands/build/model.glb",
+      "ts": "2026-06-12T07:16:29.276Z"
+    },
+    {
+      "command": "download",
+      "island": "ops",
+      "taskId": "019ebaae-739d-7ea7-9d6a-8d37d2338659",
+      "model": "/assets/meshy/islands/ops/model.glb",
+      "ts": "2026-06-12T07:16:45.543Z"
+    },
+    {
+      "command": "preview",
+      "island": "build",
+      "taskId": "019ebab1-6aac-7f52-aabf-d33b0e985aea",
+      "request": {
+        "mode": "preview",
+        "prompt": "Abstract build-forge island for an isometric tactical map, organic faceted mineral terrain, clustered crystalline artifact core, low asymmetric molten-flow ridges, dark green-black base, pale chartreuse energy seams, no arches, no windows, no stairs, non-industrial, non-architectural, non-figurative, strong readable outline.",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 20000,
+        "target_formats": [
+          "glb"
+        ],
+        "moderation": true,
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:17:32.019Z"
+    },
+    {
+      "command": "refine",
+      "island": "genesis",
+      "previewTaskId": "019ebaa9-68ef-7220-813b-2f315b2c9412",
+      "taskId": "019ebab1-c1b1-7f5f-96c0-27cc305acdcd",
+      "request": {
+        "mode": "refine",
+        "preview_task_id": "019ebaa9-68ef-7220-813b-2f315b2c9412",
+        "enable_pbr": true,
+        "texture_prompt": "Dark Cambium green stone, pale chartreuse strata, subtle ivory contour lines, matte tactical-map material, no realistic dirt, no labels, no text.",
+        "ai_model": "latest",
+        "moderation": true,
+        "remove_lighting": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:17:56.784Z"
+    },
+    {
+      "command": "refine",
+      "island": "taste",
+      "previewTaskId": "019ebaa9-ab47-7226-8623-0f1bfbc7c5bb",
+      "taskId": "019ebab1-fae0-7f83-bd1c-fbe632c894d3",
+      "request": {
+        "mode": "refine",
+        "preview_task_id": "019ebaa9-ab47-7226-8623-0f1bfbc7c5bb",
+        "enable_pbr": true,
+        "texture_prompt": "Matte dark teal substrate, ivory loop forms, chartreuse signal accents, subtle contour-map bands, clean lighting-neutral PBR texture.",
+        "ai_model": "latest",
+        "moderation": true,
+        "remove_lighting": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:18:08.864Z"
+    },
+    {
+      "command": "refine",
+      "island": "ops",
+      "previewTaskId": "019ebaae-739d-7ea7-9d6a-8d37d2338659",
+      "taskId": "019ebab2-3666-73d3-822a-9b1796f2e454",
+      "request": {
+        "mode": "refine",
+        "preview_task_id": "019ebaae-739d-7ea7-9d6a-8d37d2338659",
+        "enable_pbr": true,
+        "texture_prompt": "Dark green tactical substrate, chartreuse loop channels, ivory edge bands, subtle telemetry-like contour texture without text.",
+        "ai_model": "latest",
+        "moderation": true,
+        "remove_lighting": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:18:24.076Z"
+    },
+    {
+      "command": "refine",
+      "island": "cortex",
+      "previewTaskId": "019ebaaa-2840-7e1a-b3d0-c8fadb9033b4",
+      "taskId": "019ebab2-64aa-73dc-96f2-4ef7b50702dc",
+      "request": {
+        "mode": "refine",
+        "preview_task_id": "019ebaaa-2840-7e1a-b3d0-c8fadb9033b4",
+        "enable_pbr": true,
+        "texture_prompt": "Deep teal-violet memory material, matte sphere, chartreuse orbit accents, pale contour linework, PBR maps suitable for custom scene lighting.",
+        "ai_model": "latest",
+        "moderation": true,
+        "remove_lighting": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:18:35.550Z"
+    },
+    {
+      "command": "download",
+      "island": "genesis",
+      "taskId": "019ebab1-c1b1-7f5f-96c0-27cc305acdcd",
+      "model": "/assets/meshy/islands/genesis/model.glb",
+      "ts": "2026-06-12T07:20:34.760Z"
+    },
+    {
+      "command": "download",
+      "island": "taste",
+      "taskId": "019ebab1-fae0-7f83-bd1c-fbe632c894d3",
+      "model": "/assets/meshy/islands/taste/model.glb",
+      "ts": "2026-06-12T07:20:49.791Z"
+    },
+    {
+      "command": "download",
+      "island": "ops",
+      "taskId": "019ebab2-3666-73d3-822a-9b1796f2e454",
+      "model": "/assets/meshy/islands/ops/model.glb",
+      "ts": "2026-06-12T07:21:01.869Z"
+    },
+    {
+      "command": "download",
+      "island": "cortex",
+      "taskId": "019ebab2-64aa-73dc-96f2-4ef7b50702dc",
+      "model": "/assets/meshy/islands/cortex/model.glb",
+      "ts": "2026-06-12T07:21:13.291Z"
+    },
+    {
+      "command": "download",
+      "island": "build",
+      "taskId": "019ebab1-6aac-7f52-aabf-d33b0e985aea",
+      "model": "/assets/meshy/islands/build/model.glb",
+      "ts": "2026-06-12T07:21:23.902Z"
+    },
+    {
+      "command": "refine",
+      "island": "build",
+      "previewTaskId": "019ebab1-6aac-7f52-aabf-d33b0e985aea",
+      "taskId": "019ebab5-51a1-7467-a7d0-cf062c789ff4",
+      "request": {
+        "mode": "refine",
+        "preview_task_id": "019ebab1-6aac-7f52-aabf-d33b0e985aea",
+        "enable_pbr": true,
+        "texture_prompt": "Dark mineral slab, desaturated ivory plates, chartreuse artifact core, thin topographic striations, matte PBR, remove baked lighting.",
+        "ai_model": "latest",
+        "moderation": true,
+        "remove_lighting": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom"
+      },
+      "ts": "2026-06-12T07:21:47.261Z"
+    },
+    {
+      "command": "download",
+      "island": "build",
+      "taskId": "019ebab5-51a1-7467-a7d0-cf062c789ff4",
+      "model": "/assets/meshy/islands/build/model.glb",
+      "ts": "2026-06-12T07:24:14.001Z"
+    }
+  ]
+}

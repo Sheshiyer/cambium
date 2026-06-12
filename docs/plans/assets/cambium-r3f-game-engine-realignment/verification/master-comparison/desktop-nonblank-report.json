@@ -1,0 +1,21 @@
+{
+  "route": "asset-comparison",
+  "url": "http://127.0.0.1:5174/#asset-comparison",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "screenshot": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/master-comparison/asset-comparison.png",
+  "canvasCount": 1,
+  "activeRoute": "ASSET QA",
+  "nonblank": {
+    "width": 1440,
+    "height": 900,
+    "sampleStep": 4,
+    "background": [5, 28, 26, 255],
+    "sampleCount": 81000,
+    "nonBackgroundRatio": 0.4445,
+    "uniqueSampledColors": 8378,
+    "brightSignalRatio": 0.0437
+  }
+}

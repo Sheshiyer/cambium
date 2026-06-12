@@ -1,0 +1,97 @@
+{
+  "initiative": "cambium-r3f-visual-engine",
+  "generatedAt": "2026-06-12",
+  "sourceDocs": {
+    "moodboard": "docs/plans/cambium-r3f-visual-moodboard.md",
+    "screenshotPack": "docs/plans/cambium-r3f-screenshot-pack.md",
+    "sharedStylePrompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/00-shared-style.md"
+  },
+  "globalReferences": [
+    {
+      "id": "moodboard",
+      "label": "Accepted R3F visual moodboard",
+      "image": "docs/plans/assets/cambium-r3f-visual-moodboard/cambium-r3f-visual-moodboard.png",
+      "prompt": "docs/plans/assets/cambium-r3f-visual-moodboard/prompt.md",
+      "sha256": "dd040a5c9a568832fcd75fe85ab838025afbdd102e11c805143efcabd57966f0"
+    },
+    {
+      "id": "contact-sheet",
+      "label": "Generated screenshot pack contact sheet",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/contact-sheet.png"
+    }
+  ],
+  "screenReferences": [
+    {
+      "taskId": "T005",
+      "screen": "home",
+      "label": "Home overview",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/home.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/01-home.md",
+      "sha256": "516167ad28184402e7ee074b50626a8175eaa47a53ee623d759f9055d857224a"
+    },
+    {
+      "taskId": "T006",
+      "screen": "island-genesis",
+      "label": "Genesis island",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-genesis.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/02-island-genesis.md",
+      "sha256": "7f679e562fe49aff8b9b97764b0e90bea7d4a3a5a2c657072adca54f61a0d7d6"
+    },
+    {
+      "taskId": "T007",
+      "screen": "island-taste",
+      "label": "Taste island",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-taste.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/03-island-taste.md",
+      "sha256": "22d04df88eebe88506979fd392ea9fc4c2ad9215a0a724695adadd47a779c8b5"
+    },
+    {
+      "taskId": "T008",
+      "screen": "island-build",
+      "label": "Build island",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-build.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/04-island-build.md",
+      "sha256": "9d0cb0c05ae6e2c7ce44b919229b0f0eee96bd1e9e34cfb08f1933e1ff6ebc14"
+    },
+    {
+      "taskId": "T009",
+      "screen": "island-ops",
+      "label": "Ops island",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-ops.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/05-island-ops.md",
+      "sha256": "cce1395f774a1730447b122d97d6186317edff6a3d102450c0cf9fc21b434f11"
+    },
+    {
+      "taskId": "T010",
+      "screen": "island-cortex",
+      "label": "Cortex island",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-cortex.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/06-island-cortex.md",
+      "sha256": "8713e27bda4914b49e0e72806566752f6113f93e94f46065a8c592b361ec12b9"
+    },
+    {
+      "taskId": "T011",
+      "screen": "elements-settings",
+      "label": "Elements and settings",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/elements-settings.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/07-elements-settings.md",
+      "sha256": "6e4eda932c87b435cd73d78ea624d1ea2575435c920b8afe6833ffa12a1c59cf"
+    },
+    {
+      "taskId": "T012",
+      "screen": "visualizations",
+      "label": "Visualizations",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/visualizations.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/08-visualizations.md",
+      "sha256": "dce39ebaad9fe1ab8df7032e90cb75b828a5725a4520cedd8f7a081397c9c804"
+    },
+    {
+      "taskId": "T013",
+      "screen": "figma-components",
+      "label": "Figma-style design components",
+      "image": "docs/plans/assets/cambium-r3f-screenshots/images/figma-components.png",
+      "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/09-figma-components.md",
+      "sha256": "aaef9b5a40b3da2a08069216306e0619ae920f3025aa951a7dabff25490a033f"
+    }
+  ]
+}

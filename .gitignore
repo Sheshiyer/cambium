@@ -1,6 +1,12 @@
 # the why-handler's deviation ledger (the cortex-write STUB — runtime data; I3 → the real NIM Worker)
 deviations.jsonl
 node_modules/
+dist/
+*.tsbuildinfo
+.playwright-mcp/
+__pycache__/
+*.pyc
+apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb
 
 # the unified cortex local store (variable-contract store; runtime — I3 follow-up = the CF Worker)
 cortex/

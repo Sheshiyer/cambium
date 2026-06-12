@@ -1,0 +1,26 @@
+{
+  "provider": "local-glb-texture-cluster-optimizer",
+  "pipeline": "image-to-3d-master-derivatives",
+  "status": "candidate",
+  "runtimeBudgetBytes": 15728640,
+  "assets": {
+    "genesis": {
+      "masterModel": "/assets/meshy/image-to-3d/genesis/model.glb",
+      "optimizedModel": "/assets/meshy/image-to-3d/genesis/optimized/model.glb",
+      "method": "texture-1536-grid256",
+      "report": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/master-comparison/genesis-optimize-1536-grid256.json",
+      "inputBytes": 71054312,
+      "outputBytes": 12317204,
+      "promotionStatus": "not-promoted"
+    },
+    "rail-arc": {
+      "masterModel": "/assets/meshy/image-to-3d/rail-arc/model.glb",
+      "optimizedModel": "/assets/meshy/image-to-3d/rail-arc/optimized/model.glb",
+      "method": "texture-1536",
+      "report": "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/master-comparison/rail-arc-optimize-1536.json",
+      "inputBytes": 55987668,
+      "outputBytes": 15522024,
+      "promotionStatus": "not-promoted"
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "repo": "Sheshiyer/cambium",
+  "milestone": "Cambium R3F Visual Engine",
+  "issues": [
+    {
+      "task_id": "T001",
+      "title": "[R3F P1][W1][r3f-contract] T001 — Freeze visual contract and issue graph",
+      "url": "https://github.com/Sheshiyer/cambium/issues/27",
+      "number": 27,
+      "existed": false
+    },
+    {
+      "task_id": "T002",
+      "title": "[R3F P1][W1][r3f-foundation] T002 — Add isolated Vite React R3F app scaffold",
+      "url": "https://github.com/Sheshiyer/cambium/issues/28",
+      "number": 28,
+      "existed": false
+    },
+    {
+      "task_id": "T003",
+      "title": "[R3F P1][W1][r3f-data] T003 — Implement scene data adapter",
+      "url": "https://github.com/Sheshiyer/cambium/issues/29",
+      "number": 29,
+      "existed": false
+    },
+    {
+      "task_id": "T004",
+      "title": "[R3F P1][W1][r3f-design-system] T004 — Implement visual tokens and materials",
+      "url": "https://github.com/Sheshiyer/cambium/issues/30",
+      "number": 30,
+      "existed": false
+    },
+    {
+      "task_id": "T005",
+      "title": "[R3F P2][W2][r3f-reference-parity] T005 — Build home overview reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/31",
+      "number": 31,
+      "existed": false
+    },
+    {
+      "task_id": "T006",
+      "title": "[R3F P2][W2][r3f-reference-parity] T006 — Build Genesis island reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/32",
+      "number": 32,
+      "existed": false
+    },
+    {
+      "task_id": "T007",
+      "title": "[R3F P2][W2][r3f-reference-parity] T007 — Build Taste island reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/33",
+      "number": 33,
+      "existed": false
+    },
+    {
+      "task_id": "T008",
+      "title": "[R3F P2][W2][r3f-reference-parity] T008 — Build Build island reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/34",
+      "number": 34,
+      "existed": false
+    },
+    {
+      "task_id": "T009",
+      "title": "[R3F P2][W2][r3f-reference-parity] T009 — Build Ops island reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/35",
+      "number": 35,
+      "existed": false
+    },
+    {
+      "task_id": "T010",
+      "title": "[R3F P2][W2][r3f-reference-parity] T010 — Build Cortex island reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/36",
+      "number": 36,
+      "existed": false
+    },
+    {
+      "task_id": "T011",
+      "title": "[R3F P2][W2][r3f-controls] T011 — Build elements/settings reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/37",
+      "number": 37,
+      "existed": false
+    },
+    {
+      "task_id": "T012",
+      "title": "[R3F P2][W2][r3f-visualizations] T012 — Build visualizations reference screen",
+      "url": "https://github.com/Sheshiyer/cambium/issues/38",
+      "number": 38,
+      "existed": false
+    },
+    {
+      "task_id": "T013",
+      "title": "[R3F P2][W2][r3f-components] T013 — Build Figma-style component board",
+      "url": "https://github.com/Sheshiyer/cambium/issues/39",
+      "number": 39,
+      "existed": false
+    },
+    {
+      "task_id": "T014",
+      "title": "[R3F P3][W3][r3f-interaction] T014 — Implement navigation and camera modes",
+      "url": "https://github.com/Sheshiyer/cambium/issues/40",
+      "number": 40,
+      "existed": false
+    },
+    {
+      "task_id": "T015",
+      "title": "[R3F P3][W3][r3f-qa] T015 — Build visual parity QA harness",
+      "url": "https://github.com/Sheshiyer/cambium/issues/41",
+      "number": 41,
+      "existed": false
+    },
+    {
+      "task_id": "T016",
+      "title": "[R3F P3][W3][r3f-hardening] T016 — Harden performance accessibility and CI",
+      "url": "https://github.com/Sheshiyer/cambium/issues/42",
+      "number": 42,
+      "existed": false
+    },
+    {
+      "task_id": "T017",
+      "title": "[R3F P3][W3][r3f-integration] T017 — Close integration wave and handoff",
+      "url": "https://github.com/Sheshiyer/cambium/issues/43",
+      "number": 43,
+      "existed": false
+    }
+  ]
+}

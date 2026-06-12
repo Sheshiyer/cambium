@@ -1,0 +1,20 @@
+# Lessons
+
+## Visual Moodboards
+
+- When a visual artifact is intended to guide an R3F/Three scene, do not flatten it into an HTML/SVG implementation prototype unless explicitly requested. Keep the output as a visual direction board with renderability constraints: abstract shape nodes, planes, rails, tokens, and camera language.
+
+## Cambium R3F Visual Engine
+
+- Do not treat a compiling R3F scaffold, nonblank canvas, route shell, or dashboard-like HUD as visual parity. The current implementation is only a rough technical scaffold, about 10% of the desired reference quality.
+- The target experience is closer to a desktop game-engine interface than a SaaS dashboard: think spatial systems, world navigation, camera language, environmental mood, material studies, lighting, interaction choreography, diegetic HUDs, and level/island design.
+- Use pre-tested game and AAA interaction patterns as references before inventing one-off primitives: hub worlds, node maps, tactical/strategy overlays, codex/map screens, mission-control HUDs, camera zoom states, minimap/overview/detail transitions, and readable spatial UI layering.
+- Cambium R3F is eventually a macOS/laptop Electron app. Do not spend design effort optimizing for mobile layouts unless explicitly requested; prioritize widescreen desktop composition, keyboard/mouse/trackpad interaction, Electron window ergonomics, and high-density but cinematic desktop framing.
+- Avoid SaaS-dashboard composition for the visual engine: stacked panels, generic cards, chart blocks, and responsive web layout are fallback scaffolding only. The experience should feel like an operable spatial system where organs are islands in an engine scene, not a dashboard describing those organs.
+- Before the next implementation pass, run a game-design/art-direction review against the inspiration and create a game-engine scene spec: camera rigs, world scale, island grammar, asset classes, material/lighting language, interaction states, HUD rules, and reference-derived acceptance criteria.
+- Correction after the first game-engine realignment pass: being "10% better than before" is still not accepted. Do not call the current tactical-map pass done as visual parity. The next pass needs a deeper art pipeline: authored island meshes or procedural mesh systems, shader/material studies, post-processing atmosphere, stronger scale/depth, in-world labels, cinematic camera choreography, and visual reference scoring beyond nonblank screenshots.
+- The real acceptance gate must be perceptual and comparative, not just technical. For each screenshot, compare against the reference pack for silhouette richness, world density, lighting/material depth, diegetic UI hierarchy, island distinctness, and game-map legibility. Nonblank canvas and thousands of sampled colors are necessary but nowhere near sufficient.
+- Text-to-3D is not producing enough authored Cambium island quality by itself. For paid 3D generation, prefer a controlled image-to-3D trial first: generate an isolated orthographic/three-quarter source plate with no UI text, no scenic background, clean silhouette, and Cambium material cues, then compare the mesh before replacing any runtime asset.
+- Treat image-to-3D source plates as texture maps, not just mood art. The prompt must put the intended material visibly on the object, use neutral studio lighting, avoid dramatic shadows that bake into textures, keep details physically thick enough to reconstruct, and preserve one centered object per image.
+- Do not confuse master-asset generation with runtime optimization. For Cambium image-to-3D, create the highest-quality master first; only after visual approval should polycount targets, decimation, texture compression, and file-size budgets enter as a separate derivative pipeline.
+- For Meshy image-to-3D masters, prefer `texture_prompt` over `texture_image_url` unless deliberately testing texture-image behavior. The source image still drives geometry and visual mapping through `image_url`; duplicating it as `texture_image_url` can fail moderation and is not required for a strong master pass.

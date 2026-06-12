@@ -1,0 +1,810 @@
+{
+  "milestone": "Cambium R3F Visual Engine",
+  "repo": "Sheshiyer/cambium",
+  "issues": [
+    {
+      "task_id": "T001",
+      "issue_title": "[R3F P1][W1][r3f-contract] T001 — Freeze visual contract and issue graph",
+      "phase": "p1",
+      "wave": "w1",
+      "swarm": "r3f-contract",
+      "area": "product",
+      "owner_agent": "claude",
+      "owner_role": "Planner / orchestrator",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p1",
+        "wave:r3f-w1",
+        "swarm:r3f-contract",
+        "area:product",
+        "agent:claude",
+        "priority:next"
+      ],
+      "dependencies": [],
+      "branch": "swarm/cambium-r3f/p1-w1/r3f-contract/T001-claude",
+      "worktree": ".worktrees/T001-claude",
+      "lock_zone_files": [],
+      "deliverable": "Frozen visual/data/issue contract for R3F implementation.",
+      "acceptance": "Reference manifest, shared contract packet, task queue, dispatch plan, and GitHub issue graph exist and are internally consistent.",
+      "validation": "Run skill-cluster resolver, JSON parse checks, and existing repo validation commands.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T001.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p1/w1/r3f-contract/T001",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T001-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T002",
+      "issue_title": "[R3F P1][W1][r3f-foundation] T002 — Add isolated Vite React R3F app scaffold",
+      "phase": "p1",
+      "wave": "w1",
+      "swarm": "r3f-foundation",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p1",
+        "wave:r3f-w1",
+        "swarm:r3f-foundation",
+        "area:frontend",
+        "agent:codex",
+        "priority:next"
+      ],
+      "dependencies": [
+        "T001"
+      ],
+      "branch": "swarm/cambium-r3f/p1-w1/r3f-foundation/T002-codex",
+      "worktree": ".worktrees/T002-codex",
+      "lock_zone_files": [
+        "package.json",
+        "lockfiles"
+      ],
+      "deliverable": "Isolated Vite React TypeScript R3F app scaffold with local preview route shell and root script integration.",
+      "acceptance": "App can install/build/run locally; root package changes are limited and documented; existing Cambium checks remain green.",
+      "validation": "Run app build/start smoke plus npm run validate, npm run render-docs:check, npm test.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T002.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p1/w1/r3f-foundation/T002",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T002-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T003",
+      "issue_title": "[R3F P1][W1][r3f-data] T003 — Implement scene data adapter",
+      "phase": "p1",
+      "wave": "w1",
+      "swarm": "r3f-data",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p1",
+        "wave:r3f-w1",
+        "swarm:r3f-data",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T001",
+        "T002"
+      ],
+      "branch": "swarm/cambium-r3f/p1-w1/r3f-data/T003-codex",
+      "worktree": ".worktrees/T003-codex",
+      "lock_zone_files": [],
+      "deliverable": "Scene data adapter for stages, nodes, rails, packets, rings, telemetry, current arc, and progress.",
+      "acceptance": "Home and screen routes can consume one typed data model without hardcoded ad hoc screen-only state.",
+      "validation": "Unit/data-shape tests plus route smoke once scaffold exists.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T003.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p1/w1/r3f-data/T003",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T003-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T004",
+      "issue_title": "[R3F P1][W1][r3f-design-system] T004 — Implement visual tokens and materials",
+      "phase": "p1",
+      "wave": "w1",
+      "swarm": "r3f-design-system",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p1",
+        "wave:r3f-w1",
+        "swarm:r3f-design-system",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T001",
+        "T002"
+      ],
+      "branch": "swarm/cambium-r3f/p1-w1/r3f-design-system/T004-codex",
+      "worktree": ".worktrees/T004-codex",
+      "lock_zone_files": [],
+      "deliverable": "Cambium palette, glyph metadata, R3F material tokens, ring states, packet styles, typography, reduced-motion constants.",
+      "acceptance": "Materials follow palette lock, no neon outer glow, readable labels, and are shared by every screen implementation.",
+      "validation": "Token snapshot/test plus visual review against moodboard and component board reference.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T004.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p1/w1/r3f-design-system/T004",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T004-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T005",
+      "issue_title": "[R3F P2][W2][r3f-reference-parity] T005 — Build home overview reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-reference-parity",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-reference-parity",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-reference-parity/T005-codex",
+      "worktree": ".worktrees/T005-codex",
+      "lock_zone_files": [],
+      "deliverable": "Home overview route matching frozen home reference.",
+      "acceptance": "2.5D organ map, route overview, flat node preview, current arc/progress, and telemetry are present and coherent.",
+      "validation": "Browser screenshot, canvas nonblank check, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T005.md",
+      "reference": {
+        "taskId": "T005",
+        "screen": "home",
+        "label": "Home overview",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/home.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/01-home.md",
+        "sha256": "516167ad28184402e7ee074b50626a8175eaa47a53ee623d759f9055d857224a"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-reference-parity/T005",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T005-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T006",
+      "issue_title": "[R3F P2][W2][r3f-reference-parity] T006 — Build Genesis island reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-reference-parity",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-reference-parity",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-reference-parity/T006-codex",
+      "worktree": ".worktrees/T006-codex",
+      "lock_zone_files": [],
+      "deliverable": "Genesis island route matching frozen reference.",
+      "acceptance": "Seed glyph, idea input, variable capsules, brand/copy/visual channels, and user-position ring are present.",
+      "validation": "Browser screenshot, canvas nonblank check, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T006.md",
+      "reference": {
+        "taskId": "T006",
+        "screen": "island-genesis",
+        "label": "Genesis island",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-genesis.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/02-island-genesis.md",
+        "sha256": "7f679e562fe49aff8b9b97764b0e90bea7d4a3a5a2c657072adca54f61a0d7d6"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-reference-parity/T006",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T006-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T007",
+      "issue_title": "[R3F P2][W2][r3f-reference-parity] T007 — Build Taste island reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-reference-parity",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-reference-parity",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-reference-parity/T007-codex",
+      "worktree": ".worktrees/T007-codex",
+      "lock_zone_files": [],
+      "deliverable": "Taste island route matching frozen reference.",
+      "acceptance": "Reference retrieval, taste brief, acceptance gate, reroll orbit, and palette checks are present.",
+      "validation": "Browser screenshot, canvas nonblank check, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T007.md",
+      "reference": {
+        "taskId": "T007",
+        "screen": "island-taste",
+        "label": "Taste island",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-taste.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/03-island-taste.md",
+        "sha256": "22d04df88eebe88506979fd392ea9fc4c2ad9215a0a724695adadd47a779c8b5"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-reference-parity/T007",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T007-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T008",
+      "issue_title": "[R3F P2][W2][r3f-reference-parity] T008 — Build Build island reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-reference-parity",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-reference-parity",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-reference-parity/T008-codex",
+      "worktree": ".worktrees/T008-codex",
+      "lock_zone_files": [],
+      "deliverable": "Build island route matching frozen reference.",
+      "acceptance": "Hands glyph, artifact route, pass gates, validation markers, and build surface are present.",
+      "validation": "Browser screenshot, canvas nonblank check, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T008.md",
+      "reference": {
+        "taskId": "T008",
+        "screen": "island-build",
+        "label": "Build island",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-build.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/04-island-build.md",
+        "sha256": "9d0cb0c05ae6e2c7ce44b919229b0f0eee96bd1e9e34cfb08f1933e1ff6ebc14"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-reference-parity/T008",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T008-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T009",
+      "issue_title": "[R3F P2][W2][r3f-reference-parity] T009 — Build Ops island reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-reference-parity",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-reference-parity",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-reference-parity/T009-codex",
+      "worktree": ".worktrees/T009-codex",
+      "lock_zone_files": [],
+      "deliverable": "Ops island route matching frozen reference.",
+      "acceptance": "Will glyph, run loop, viability, live heartbeat, and ops telemetry are present.",
+      "validation": "Browser screenshot, canvas nonblank check, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T009.md",
+      "reference": {
+        "taskId": "T009",
+        "screen": "island-ops",
+        "label": "Ops island",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-ops.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/05-island-ops.md",
+        "sha256": "cce1395f774a1730447b122d97d6186317edff6a3d102450c0cf9fc21b434f11"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-reference-parity/T009",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T009-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T010",
+      "issue_title": "[R3F P2][W2][r3f-reference-parity] T010 — Build Cortex island reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-reference-parity",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-reference-parity",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-reference-parity/T010-codex",
+      "worktree": ".worktrees/T010-codex",
+      "lock_zone_files": [],
+      "deliverable": "Cortex island route matching frozen reference.",
+      "acceptance": "Memory wheel, semantic/structural lanes, recall paths, and cross-stage links are present.",
+      "validation": "Browser screenshot, canvas nonblank check, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T010.md",
+      "reference": {
+        "taskId": "T010",
+        "screen": "island-cortex",
+        "label": "Cortex island",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/island-cortex.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/06-island-cortex.md",
+        "sha256": "8713e27bda4914b49e0e72806566752f6113f93e94f46065a8c592b361ec12b9"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-reference-parity/T010",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T010-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T011",
+      "issue_title": "[R3F P2][W2][r3f-controls] T011 — Build elements/settings reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-controls",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-controls",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-controls/T011-codex",
+      "worktree": ".worktrees/T011-codex",
+      "lock_zone_files": [],
+      "deliverable": "Elements/settings route matching frozen reference.",
+      "acceptance": "Palette controls, motion sliders, glyph picker, label density, reduced-motion toggle, and selected preview are present.",
+      "validation": "Browser screenshot, keyboard/focus pass, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T011.md",
+      "reference": {
+        "taskId": "T011",
+        "screen": "elements-settings",
+        "label": "Elements and settings",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/elements-settings.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/07-elements-settings.md",
+        "sha256": "6e4eda932c87b435cd73d78ea624d1ea2575435c920b8afe6833ffa12a1c59cf"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-controls/T011",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T011-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T012",
+      "issue_title": "[R3F P2][W2][r3f-visualizations] T012 — Build visualizations reference screen",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-visualizations",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-visualizations",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T003",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-visualizations/T012-codex",
+      "worktree": ".worktrees/T012-codex",
+      "lock_zone_files": [],
+      "deliverable": "Visualizations route matching frozen reference.",
+      "acceptance": "Spatial quest map, viability loop, memory graph, and flow rail density are present.",
+      "validation": "Browser screenshot, canvas nonblank check, reference checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T012.md",
+      "reference": {
+        "taskId": "T012",
+        "screen": "visualizations",
+        "label": "Visualizations",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/visualizations.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/08-visualizations.md",
+        "sha256": "dce39ebaad9fe1ab8df7032e90cb75b828a5725a4520cedd8f7a081397c9c804"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-visualizations/T012",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T012-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T013",
+      "issue_title": "[R3F P2][W2][r3f-components] T013 — Build Figma-style component board",
+      "phase": "p2",
+      "wave": "w2",
+      "swarm": "r3f-components",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p2",
+        "wave:r3f-w2",
+        "swarm:r3f-components",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T002",
+        "T004"
+      ],
+      "branch": "swarm/cambium-r3f/p2-w2/r3f-components/T013-codex",
+      "worktree": ".worktrees/T013-codex",
+      "lock_zone_files": [],
+      "deliverable": "Design-system component board matching frozen reference.",
+      "acceptance": "Tokens, glyphs, controls, states, panels, loading/empty/error examples are represented.",
+      "validation": "Browser screenshot and component inventory checklist.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T013.md",
+      "reference": {
+        "taskId": "T013",
+        "screen": "figma-components",
+        "label": "Figma-style design components",
+        "image": "docs/plans/assets/cambium-r3f-screenshots/images/figma-components.png",
+        "prompt": "docs/plans/assets/cambium-r3f-screenshots/prompts/09-figma-components.md",
+        "sha256": "aaef9b5a40b3da2a08069216306e0619ae920f3025aa951a7dabff25490a033f"
+      },
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p2/w2/r3f-components/T013",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T013-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T014",
+      "issue_title": "[R3F P3][W3][r3f-interaction] T014 — Implement navigation and camera modes",
+      "phase": "p3",
+      "wave": "w3",
+      "swarm": "r3f-interaction",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p3",
+        "wave:r3f-w3",
+        "swarm:r3f-interaction",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T005",
+        "T006",
+        "T007",
+        "T008",
+        "T009",
+        "T010",
+        "T011",
+        "T012",
+        "T013"
+      ],
+      "branch": "swarm/cambium-r3f/p3-w3/r3f-interaction/T014-codex",
+      "worktree": ".worktrees/T014-codex",
+      "lock_zone_files": [],
+      "deliverable": "Shared navigation, camera modes, zoom transitions, selected-node detail flow, and screen routing.",
+      "acceptance": "All routes can be reached; transitions preserve frozen contracts; reduced motion disables motion-heavy loops.",
+      "validation": "Route smoke, keyboard navigation, reduced-motion check.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T014.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p3/w3/r3f-interaction/T014",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T014-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T015",
+      "issue_title": "[R3F P3][W3][r3f-qa] T015 — Build visual parity QA harness",
+      "phase": "p3",
+      "wave": "w3",
+      "swarm": "r3f-qa",
+      "area": "qa",
+      "owner_agent": "gemini",
+      "owner_role": "Validation reviewer",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p3",
+        "wave:r3f-w3",
+        "swarm:r3f-qa",
+        "area:qa",
+        "agent:gemini"
+      ],
+      "dependencies": [
+        "T005",
+        "T006",
+        "T007",
+        "T008",
+        "T009",
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014"
+      ],
+      "branch": "swarm/cambium-r3f/p3-w3/r3f-qa/T015-gemini",
+      "worktree": ".worktrees/T015-gemini",
+      "lock_zone_files": [],
+      "deliverable": "Visual parity QA harness and evidence pack.",
+      "acceptance": "Every route has a screenshot, canvas nonblank proof, and checklist against its frozen reference.",
+      "validation": "Run browser automation, capture artifacts, summarize findings with pass/conditional/fail.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T015.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p3/w3/r3f-qa/T015",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T015-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T016",
+      "issue_title": "[R3F P3][W3][r3f-hardening] T016 — Harden performance accessibility and CI",
+      "phase": "p3",
+      "wave": "w3",
+      "swarm": "r3f-hardening",
+      "area": "frontend",
+      "owner_agent": "codex",
+      "owner_role": "Frontend executor",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p3",
+        "wave:r3f-w3",
+        "swarm:r3f-hardening",
+        "area:frontend",
+        "agent:codex"
+      ],
+      "dependencies": [
+        "T014",
+        "T015"
+      ],
+      "branch": "swarm/cambium-r3f/p3-w3/r3f-hardening/T016-codex",
+      "worktree": ".worktrees/T016-codex",
+      "lock_zone_files": [
+        ".github/workflows/**",
+        "package.json"
+      ],
+      "deliverable": "Performance, accessibility, responsive framing, reduced-motion, and CI hardening.",
+      "acceptance": "Existing Cambium checks and app checks pass; no route has obvious text overlap or blank canvas at desktop/mobile.",
+      "validation": "npm run validate, npm run render-docs:check, npm test, app build/test, browser QA.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T016.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p3/w3/r3f-hardening/T016",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T016-handoff.md"
+      ]
+    },
+    {
+      "task_id": "T017",
+      "issue_title": "[R3F P3][W3][r3f-integration] T017 — Close integration wave and handoff",
+      "phase": "p3",
+      "wave": "w3",
+      "swarm": "r3f-integration",
+      "area": "product",
+      "owner_agent": "claude",
+      "owner_role": "Planner / orchestrator",
+      "labels": [
+        "enhancement",
+        "initiative:r3f-visual-engine",
+        "status:planned",
+        "phase:r3f-p3",
+        "wave:r3f-w3",
+        "swarm:r3f-integration",
+        "area:product",
+        "agent:claude"
+      ],
+      "dependencies": [
+        "T015",
+        "T016"
+      ],
+      "branch": "swarm/cambium-r3f/p3-w3/r3f-integration/T017-claude",
+      "worktree": ".worktrees/T017-claude",
+      "lock_zone_files": [],
+      "deliverable": "Wave closeout with demo docs, issue updates, validation evidence, and next-wave risk summary.",
+      "acceptance": "All issues have completion/handoff notes or explicit blocked state; integration risks are documented.",
+      "validation": "Review GitHub issue state, validation evidence, and final local checks.",
+      "body_file": "docs/plans/assets/cambium-r3f-implementation/issue-bodies/T017.md",
+      "reference": null,
+      "status": "planned",
+      "memory_scope": "task",
+      "memory_uri": "viking://cambium/r3f/p3/w3/r3f-integration/T017",
+      "memory_inputs": [
+        "shared-contract-packet.md",
+        "reference-freeze.json"
+      ],
+      "memory_outputs": [
+        "T017-handoff.md"
+      ]
+    }
+  ]
+}
