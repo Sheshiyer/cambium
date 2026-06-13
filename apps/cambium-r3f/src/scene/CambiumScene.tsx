@@ -356,10 +356,50 @@ function EmptyComparisonCell({ label }: { label: string }) {
   );
 }
 
+function ReviewScoreBar({ index, score, tone }: { index: number; score: number; tone: string }) {
+  const width = 0.96;
+  const fill = Math.max(0.08, (score / 5) * width);
+
+  return (
+    <group position={[0, 0.88 - index * 0.14, 0.42]}>
+      <mesh scale={[width, 0.018, 0.018]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color={visualTokens.colors.mist} transparent opacity={0.18} />
+      </mesh>
+      <mesh position={[-(width - fill) / 2, 0.015, 0]} scale={[fill, 0.038, 0.038]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color={tone} transparent opacity={0.76} />
+      </mesh>
+    </group>
+  );
+}
+
+function ReviewInstrument({ asset }: { asset: ImageTo3dComparisonAsset }) {
+  const tone = asset.review.readiness === 'review-ready' ? visualTokens.colors.signal : visualTokens.colors.depth;
+  const blockerLabel = asset.review.blockers.length > 0 ? 'SCALE HOLD' : 'REFERENCE REVIEW';
+  const readinessLabel = asset.review.readiness.replace('-', ' ');
+
+  return (
+    <group>
+      <ComparisonCellFrame tone={tone} />
+      <WorldLabel title="REVIEW" detail={`${asset.review.score}/${asset.review.threshold} // HOLD`} position={[0, 2.28, 0]} tone={tone} />
+      <WorldLabel title={readinessLabel} detail={blockerLabel} position={[0.12, 1.66, 0.72]} tone={tone} />
+      {asset.review.criteria.map((criterion, index) => (
+        <ReviewScoreBar key={criterion.id} index={index} score={criterion.score} tone={tone} />
+      ))}
+      <mesh position={[0, 0.34, -0.28]} rotation={[0, 0, Math.PI / 4]}>
+        <octahedronGeometry args={[0.22, 1]} />
+        <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={0.18} roughness={0.62} />
+      </mesh>
+    </group>
+  );
+}
+
 function ComparisonRow({ asset, z }: { asset: ImageTo3dComparisonAsset; z: number }) {
   const sourceX = -4.08;
   const currentX = -0.2;
   const masterX = 3.68;
+  const reviewX = 6.12;
   const masterMb = Math.round(asset.master.modelBytes / (1024 * 1024));
   const optimizedMb = (asset.optimized.modelBytes / (1024 * 1024)).toFixed(1);
 
@@ -377,6 +417,8 @@ function ComparisonRow({ asset, z }: { asset: ImageTo3dComparisonAsset; z: numbe
           new THREE.Vector3(currentX - 0.95, 0.5, 0),
           new THREE.Vector3(currentX + 0.95, 0.5, 0),
           new THREE.Vector3(masterX - 0.95, 0.42, 0),
+          new THREE.Vector3(masterX + 0.95, 0.5, 0),
+          new THREE.Vector3(reviewX - 0.95, 0.42, 0),
         ]}
         color={visualTokens.colors.signal}
         opacity={0.34}
@@ -420,6 +462,10 @@ function ComparisonRow({ asset, z }: { asset: ImageTo3dComparisonAsset; z: numbe
         <WorldLabel title="MASTER" detail={`${masterMb}MB // PRESERVED`} position={[0, 2.28, 0]} tone={visualTokens.colors.depth} />
         <WorldLabel title="OPTIMIZED" detail={`${optimizedMb}MB // NOT PROMOTED`} position={[0.22, 1.78, 0.68]} tone={visualTokens.colors.signal} />
       </group>
+
+      <group position={[reviewX, 0, 0]}>
+        <ReviewInstrument asset={asset} />
+      </group>
     </group>
   );
 }
@@ -427,8 +473,8 @@ function ComparisonRow({ asset, z }: { asset: ImageTo3dComparisonAsset; z: numbe
 function AssetComparisonField() {
   return (
     <group>
-      <WorldLabel title="ASSET QA" detail="SOURCE // CURRENT // MASTER" position={[-5.74, 2.64, -2.82]} tone={visualTokens.colors.signal} />
-      <WorldLabel title="NOT PROMOTED" detail="MANUAL VISUAL APPROVAL REQUIRED" position={[4.95, 2.64, -2.82]} tone={visualTokens.colors.depth} />
+      <WorldLabel title="ASSET QA" detail="SOURCE // CURRENT // MASTER // REVIEW" position={[-5.74, 2.64, -2.82]} tone={visualTokens.colors.signal} />
+      <WorldLabel title="NOT PROMOTED" detail="MANUAL VISUAL APPROVAL REQUIRED" position={[5.18, 2.64, -2.82]} tone={visualTokens.colors.depth} />
       {imageTo3dComparisonAssets.map((asset, index) => (
         <ComparisonRow key={asset.id} asset={asset} z={-1.82 + index * 2.5} />
       ))}
