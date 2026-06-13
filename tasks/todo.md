@@ -14,6 +14,7 @@
 - [x] Create an image-first source-plate pass for every island plus reusable 3D scene props, using the Ops image-to-3D texture/silhouette lessons before any further Meshy spend.
 - [x] Add a side-by-side R3F asset comparison route for source/current/master candidate review without promoting image-to-3D assets.
 - [x] Optimize approved image-to-3D master candidates into separate runtime-budget derivatives while preserving full masters.
+- [x] Add an Asset Review Bay continuation pass with promotion-safe perceptual scoring, review instruments, and tests.
 
 ## Review
 
@@ -49,6 +50,9 @@
 - Added a local GLB optimizer at `apps/cambium-r3f/scripts/optimize-glb-textures.py`. It first downscales embedded textures and can apply vertex-cluster geometry reduction only for derivatives that cannot meet the runtime budget through texture optimization alone.
 - Optimized candidates remain separate from runtime promotion: `genesis` is `12,317,204` bytes via `texture-1536-grid256`; `rail-arc` is `15,522,024` bytes via `texture-1536`. Both pass the `15 MiB` budget and are tracked in `optimized-candidates.json`.
 - No image-to-3D optimized candidate is promoted into `src/world/meshy-assets.ts`; manual visual approval is still required before replacement.
+- Asset Review Bay continuation completed: `#asset-comparison` now shows source/current/master/review columns, weighted perceptual criteria, review score, readiness, blocker state, and a visible `HOLD` gate while keeping every candidate `not-promoted`.
+- Review status: `genesis` is `86/86` and `review-ready`; `rail-arc` is `80/86`, `needs-art-pass`, and blocked on connector scale approval. Both remain manual-approval-only.
+- Asset Review Bay verification passed: `npm run r3f:test`, `npm run r3f:build`, browser route load at `http://127.0.0.1:5176/#asset-comparison`, screenshot capture at `docs/plans/assets/cambium-r3f-game-engine-realignment/verification/master-comparison/asset-review-bay.png`, `npm run validate`, `npm run render-docs:check`, and `npm test`.
 
 # Cambium Isometric Moodboard
 

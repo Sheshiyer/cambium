@@ -42,3 +42,13 @@ test('route copy frames the app as a tactical engine rather than a SaaS dashboar
   assert.match(routeDrafts[0].description, /2\.5D organ map/);
   assert.match(routeDrafts.find((route) => route.id === 'asset-comparison')?.description ?? '', /Scene-native comparison bench/);
 });
+
+test('asset comparison route exposes review and hold language before promotion', () => {
+  const route = routeDrafts.find((candidate) => candidate.id === 'asset-comparison');
+  assert.ok(route);
+  assert.equal(route.eyebrow, 'SOURCE · CURRENT · MASTER · REVIEW');
+  assert.ok(route.exactLabels.includes('REVIEW'));
+  assert.ok(route.exactLabels.includes('HOLD'));
+  assert.ok(route.exactLabels.includes('NOT PROMOTED'));
+  assert.equal(route.panels.find((panel) => panel.title === 'REVIEW')?.value, 'manual');
+});

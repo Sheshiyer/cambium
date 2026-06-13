@@ -78,3 +78,30 @@ test('optimized image-to-3D candidates pass runtime budget without promotion', (
     assert.notEqual(asset.optimized.model, meshyIslandAssets[asset.id as keyof typeof meshyIslandAssets]?.model);
   }
 });
+
+test('image-to-3D review gate is perceptual and never auto-promotes runtime assets', () => {
+  const requiredCriteria = [
+    'source-fidelity',
+    'silhouette-richness',
+    'material-depth',
+    'scale-legibility',
+    'runtime-derivative',
+    'scene-fit',
+  ];
+
+  for (const asset of imageTo3dComparisonAssets) {
+    assert.equal(asset.review.gate, 'perceptual-reference-comparison');
+    assert.equal(asset.review.gateStatus, 'manual-approval-required');
+    assert.equal(asset.review.threshold, 86);
+    assert.deepEqual(asset.review.criteria.map((criterion) => criterion.id), requiredCriteria);
+    assert.ok(asset.review.criteria.every((criterion) => criterion.score >= 1 && criterion.score <= 5));
+    assert.ok(asset.review.score >= 75, `${asset.id} should be a serious candidate before review`);
+    assert.equal(asset.promotionStatus, 'not-promoted');
+    assert.equal(asset.optimized.promotionStatus, 'not-promoted');
+    assert.match(asset.review.nextAction, /approval|Review/i);
+  }
+
+  assert.equal(imageTo3dComparisonAssetFor('genesis')?.review.readiness, 'review-ready');
+  assert.equal(imageTo3dComparisonAssetFor('rail-arc')?.review.readiness, 'needs-art-pass');
+  assert.ok(imageTo3dComparisonAssetFor('rail-arc')?.review.blockers.includes('connector scale needs scene-side approval'));
+});

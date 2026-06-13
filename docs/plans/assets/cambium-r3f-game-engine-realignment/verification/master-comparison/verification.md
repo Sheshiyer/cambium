@@ -13,6 +13,7 @@ The route is a post-freeze QA surface, not part of the original nine screenshot-
 ## Screenshot Evidence
 
 - Screenshot: `asset-comparison.png`
+- Asset Review Bay screenshot: `asset-review-bay.png`
 - Pixel report: `desktop-nonblank-report.json`
 - Browser route: `http://127.0.0.1:5174/#asset-comparison`
 - Viewport: `1440x900`
@@ -39,6 +40,28 @@ Optimized candidates are separate files under `public/assets/meshy/image-to-3d/{
 No optimized candidate is promoted into `src/world/meshy-assets.ts`.
 
 The promoted runtime registry still points at `/assets/meshy/islands/*`. The optimized image-to-3D derivatives are QA/runtime candidates only until manual visual approval.
+
+## Asset Review Bay Continuation
+
+The `#asset-comparison` route now includes a fourth in-world review instrument beside `SOURCE`, `CURRENT`, and `MASTER`.
+
+Review is deliberately advisory, not automatic. Each candidate carries a weighted perceptual packet:
+
+- source fidelity
+- silhouette richness
+- material depth
+- scale legibility
+- runtime derivative status
+- scene fit
+
+The review threshold is `86`, but the gate state remains `manual-approval-required` for every asset. A candidate can be `review-ready` without being promoted.
+
+Current status:
+
+| Asset | Review Score | Readiness | Blocker | Promotion |
+| --- | ---: | --- | --- | --- |
+| `genesis` | `86` | `review-ready` | none | `not-promoted` |
+| `rail-arc` | `80` | `needs-art-pass` | connector scale needs scene-side approval | `not-promoted` |
 
 ## Verification Commands
 

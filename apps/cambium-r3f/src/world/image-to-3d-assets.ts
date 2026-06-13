@@ -31,6 +31,33 @@ export interface ImageTo3dOptimizedAsset {
   promotionStatus: 'not-promoted';
 }
 
+export type ImageTo3dReviewCriterionId =
+  | 'source-fidelity'
+  | 'silhouette-richness'
+  | 'material-depth'
+  | 'scale-legibility'
+  | 'runtime-derivative'
+  | 'scene-fit';
+
+export interface ImageTo3dReviewCriterion {
+  id: ImageTo3dReviewCriterionId;
+  label: string;
+  score: 1 | 2 | 3 | 4 | 5;
+  weight: number;
+  note: string;
+}
+
+export interface ImageTo3dReview {
+  gate: 'perceptual-reference-comparison';
+  gateStatus: 'manual-approval-required';
+  readiness: 'review-ready' | 'needs-art-pass';
+  score: number;
+  threshold: number;
+  blockers: readonly string[];
+  nextAction: string;
+  criteria: readonly ImageTo3dReviewCriterion[];
+}
+
 export interface ImageTo3dComparisonAsset {
   id: ImageTo3dComparisonId;
   label: string;
@@ -40,6 +67,7 @@ export interface ImageTo3dComparisonAsset {
   current?: ImageTo3dRuntimeAsset;
   master: ImageTo3dMasterAsset;
   optimized: ImageTo3dOptimizedAsset;
+  review: ImageTo3dReview;
   scene: {
     currentTargetSize: number;
     masterTargetSize: number;
@@ -48,6 +76,28 @@ export interface ImageTo3dComparisonAsset {
 }
 
 const genesisRuntime = meshyAssetFor('genesis');
+const reviewThreshold = 86;
+
+function buildReview(
+  criteria: readonly ImageTo3dReviewCriterion[],
+  blockers: readonly string[],
+  nextAction: string,
+): ImageTo3dReview {
+  const totalWeight = criteria.reduce((sum, criterion) => sum + criterion.weight, 0);
+  const weightedScore = criteria.reduce((sum, criterion) => sum + (criterion.score / 5) * criterion.weight, 0);
+  const score = Math.round((weightedScore / totalWeight) * 100);
+
+  return {
+    gate: 'perceptual-reference-comparison',
+    gateStatus: 'manual-approval-required',
+    readiness: score >= reviewThreshold && blockers.length === 0 ? 'review-ready' : 'needs-art-pass',
+    score,
+    threshold: reviewThreshold,
+    blockers,
+    nextAction,
+    criteria,
+  };
+}
 
 export const imageTo3dComparisonAssets: readonly ImageTo3dComparisonAsset[] = [
   {
@@ -83,6 +133,18 @@ export const imageTo3dComparisonAssets: readonly ImageTo3dComparisonAsset[] = [
       runtimeBudgetStatus: 'pass',
       promotionStatus: 'not-promoted',
     },
+    review: buildReview(
+      [
+        { id: 'source-fidelity', label: 'SOURCE FIT', score: 5, weight: 18, note: 'matches the seed plate silhouette and palette' },
+        { id: 'silhouette-richness', label: 'SILHOUETTE', score: 4, weight: 22, note: 'stronger than current runtime mesh' },
+        { id: 'material-depth', label: 'MATERIAL', score: 4, weight: 20, note: 'visible substrate ridges survive optimization' },
+        { id: 'scale-legibility', label: 'SCALE READ', score: 4, weight: 14, note: 'reads as an island from tactical camera height' },
+        { id: 'runtime-derivative', label: 'RUNTIME', score: 5, weight: 14, note: 'optimized candidate fits the runtime budget' },
+        { id: 'scene-fit', label: 'SCENE FIT', score: 4, weight: 12, note: 'fits the Cambium map language without literal architecture' },
+      ],
+      [],
+      'Human visual approval can compare Genesis against the reference pack before promotion.',
+    ),
     scene: {
       currentTargetSize: 1.34,
       masterTargetSize: 1.68,
@@ -114,6 +176,18 @@ export const imageTo3dComparisonAssets: readonly ImageTo3dComparisonAsset[] = [
       runtimeBudgetStatus: 'pass',
       promotionStatus: 'not-promoted',
     },
+    review: buildReview(
+      [
+        { id: 'source-fidelity', label: 'SOURCE FIT', score: 4, weight: 18, note: 'keeps the arc language but loses some plate thickness' },
+        { id: 'silhouette-richness', label: 'SILHOUETTE', score: 4, weight: 22, note: 'clear connector profile in isolation' },
+        { id: 'material-depth', label: 'MATERIAL', score: 4, weight: 20, note: 'texture survives but needs stronger edge contrast' },
+        { id: 'scale-legibility', label: 'SCALE READ', score: 3, weight: 14, note: 'can read too fine beside organ islands' },
+        { id: 'runtime-derivative', label: 'RUNTIME', score: 5, weight: 14, note: 'optimized candidate fits the runtime budget' },
+        { id: 'scene-fit', label: 'SCENE FIT', score: 4, weight: 12, note: 'works as a rail specimen but needs in-world spacing checks' },
+      ],
+      ['connector scale needs scene-side approval'],
+      'Review rail thickness and spacing in the full tactical overview before promotion.',
+    ),
     scene: {
       currentTargetSize: 1.16,
       masterTargetSize: 1.62,
