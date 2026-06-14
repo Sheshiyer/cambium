@@ -14,12 +14,67 @@ Correction after review: this pass is only a modest improvement over the prior s
 - Contact sheet: `docs/plans/assets/cambium-r3f-game-engine-realignment/verification/desktop-contact-sheet.png`
 - Nonblank report: `docs/plans/assets/cambium-r3f-game-engine-realignment/verification/desktop-nonblank-report.json`
 
-## Verification Commands
+## Historical Screenshot Verification
 
 - `npm run r3f:test` passed: 13 tests.
 - `npm run r3f:build` passed.
 - Local Vite server ran at `http://127.0.0.1:5175/`.
 - Playwright captured all nine desktop routes at `1440x900`.
+
+## Current QA Policy
+
+As of the continuation pass, browser visual e2e is not the acceptance path. The app now carries a typed desktop QA policy in `apps/cambium-r3f/src/scene/desktop-qa-policy.ts`:
+
+- target shell: macOS/laptop Electron
+- review viewports: `1440x900`, `1512x982`, and `1728x1117`
+- inputs: keyboard, mouse, and trackpad
+- out of scope: mobile layouts, touch-first navigation, and phone breakpoint QA
+- automated proof: unit tests, production build, root validation, and docs render check
+- final visual/flow approval: user perceptual feedback on the desktop scene
+
+Current continuation verification:
+
+- `npm run r3f:test` passed: 43 tests.
+- `npm run r3f:build` passed with named React, R3F, Three, Coolshapes, and vendor chunks.
+- `npm run validate` passed.
+- `npm run render-docs:check` passed.
+- `npm test` passed: 249 tests.
+- Browser visual e2e was deliberately skipped.
+
+## CambiumField + Connector Batch
+
+The next high-leverage visual batch replaces the scaffold-like checkerboard substrate with a living field and starts using the generated connector asset language between islands.
+
+Implemented:
+
+- `apps/cambium-r3f/src/world/cambium-field.ts` defines the dense vertex-colored CambiumField geometry, organic contour paths, and radial seam paths.
+- `apps/cambium-r3f/src/world/generated-connectors.ts` binds the generated `rail-arc` optimized candidate as a scene-preview connector contract while keeping `promotedRuntimeAsset: false`.
+- `CambiumScene` now renders `CambiumField` instead of the former flat plane plus `gridHelper`.
+- `RailNetwork` now renders physical rail bodies, visible signal lanes, endpoint collars, packet flow, and generated `rail-arc` preview specimens.
+- Tests assert the field is not checkerboard-based and that `gridHelper` does not return to the scene source.
+
+Boundary:
+
+- The `rail-arc` generated GLB is integrated as a preview connector language for visual flow review.
+- It is still not auto-promoted as a final runtime asset; connector scale remains user-review gated.
+
+## Living Flow + Visualization Batch
+
+The follow-on batch turns generated source-plate props into procedural scene mesh grammar without claiming GLB promotion.
+
+Implemented:
+
+- `apps/cambium-r3f/src/world/living-flow-assets.ts` records source-plate-backed mesh roles for `signal-packet`, `emitter-node`, `process-beacon`, and `visualization-lens`.
+- Rail packets are now faceted physical beads instead of plain spheres.
+- Every rail endpoint receives an island connection port so rails feel attached to organ objects.
+- The active process position is marked in world space by a physical `YOU ARE HERE` beacon.
+- Focused islands render terrain seams so zoom states feel connected to the shared substrate.
+- The visualization route renders flow, signal density, process heat, dependency graph, runner status, and emitter status as spatial overlay lenses instead of charts.
+
+Boundary:
+
+- These prop assets currently use procedural scene meshes guided by generated source plates.
+- Additional paid image-to-3D GLBs for `signal-packet`, `emitter-node`, `process-beacon`, and `visualization-lens` remain future gated work.
 
 ## Screenshot Set
 
@@ -43,7 +98,7 @@ Remaining follow-ups:
 
 - Build a deeper art pipeline for island meshes, shader materials, lighting, fog, and camera choreography.
 - Add reference-comparison review criteria beyond nonblank pixels and route coverage.
-- Split the large Three/R3F production chunk in a later performance-hardening issue.
+- Keep route flow open for user feedback instead of treating screenshots as final acceptance.
 
 ## Art Pass 02 Update
 

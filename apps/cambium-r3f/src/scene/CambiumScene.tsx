@@ -5,7 +5,18 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { TacticalCameraRig } from '../engine/camera-rig';
 import { fogPreset, materialPresets } from '../materials/cambium-materials';
 import { createAtmosphereMaterial, createIslandShaderMaterial } from '../materials/shader-studies';
+import { createCambiumFieldContours, createCambiumFieldGeometry, createCambiumFieldSeams } from '../world/cambium-field';
+import { generatedRailConnectorContract } from '../world/generated-connectors';
 import { imageTo3dComparisonAssets, type ImageTo3dComparisonAsset } from '../world/image-to-3d-assets';
+import {
+  activeProcessNode,
+  createIslandPorts,
+  createRailPacketMarkers,
+  createVisualizationOverlaySpecs,
+  type IslandPort,
+  type RailPacketMarker,
+  type VisualizationOverlaySpec,
+} from '../world/living-flow-assets';
 import { meshyAssetFor, type MeshyIslandAsset } from '../world/meshy-assets';
 import { createProceduralIslandGeometry } from '../world/procedural-islands';
 import type { CameraMode, CambiumSceneModel, SceneNode, SceneRail } from './types';
@@ -83,27 +94,40 @@ function AtmosphereStack() {
   );
 }
 
-function TacticalSubstrate({ mode }: { mode: CameraMode }) {
+function CambiumField({ mode }: { mode: CameraMode }) {
   const flat = mode === 'flat';
+  const fieldGeometry = useMemo(() => createCambiumFieldGeometry(mode), [mode]);
+  const contours = useMemo(() => createCambiumFieldContours(mode), [mode]);
+  const seams = useMemo(() => createCambiumFieldSeams(mode), [mode]);
 
   return (
-    <group position={[0, -0.08, 0]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[15.4, 10.2, 40, 28]} />
+    <group position={[0, -0.12, 0]}>
+      <mesh geometry={fieldGeometry} receiveShadow>
         <meshStandardMaterial
           color={materialPresets.substrate.color}
+          vertexColors
+          side={THREE.DoubleSide}
           transparent
-          opacity={flat ? 0.94 : materialPresets.substrate.opacity}
+          opacity={flat ? 0.96 : 0.92}
           roughness={materialPresets.substrate.roughness}
           metalness={materialPresets.substrate.metalness}
         />
       </mesh>
-      <gridHelper args={[15.4, 34, visualTokens.colors.signal, visualTokens.colors.mist]} position={[0, 0.012, 0]} />
-      {Array.from({ length: 9 }).map((_, index) => (
-        <mesh key={`contour-${index}`} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025 + index * 0.002, -0.35]}>
-          <torusGeometry args={[1.2 + index * 0.58, 0.006, 6, 128]} />
-          <meshBasicMaterial color={materialPresets.contour.color} transparent opacity={0.11 + index * 0.012} />
-        </mesh>
+      {contours.map((contour) => (
+        <LinePrimitive
+          key={contour.id}
+          points={contour.points}
+          color={materialPresets.contour.color}
+          opacity={contour.opacity}
+        />
+      ))}
+      {seams.map((seam) => (
+        <LinePrimitive
+          key={seam.id}
+          points={seam.points}
+          color={seam.id.endsWith('0') ? visualTokens.colors.signal : visualTokens.colors.depth}
+          opacity={seam.opacity}
+        />
       ))}
     </group>
   );
@@ -113,6 +137,144 @@ function railMaterial(rail: SceneRail) {
   if (rail.tone === 'primary') return materialPresets.railPrimary;
   if (rail.tone === 'memory') return materialPresets.railMemory;
   return materialPresets.railSecondary;
+}
+
+function RailConnectorPreview({
+  length,
+  position,
+  rotationY,
+  rail,
+}: {
+  length: number;
+  position: [number, number, number];
+  rotationY: number;
+  rail: SceneRail;
+}) {
+  const gltf = useLoader(GLTFLoader, generatedRailConnectorContract.model);
+  const normalized = useMemo(() => normalizeGltfScene(gltf.scene, 1), [gltf.scene]);
+  const connectorScale = rail.lane === 'background-emitter' ? 0.42 : Math.min(0.74, Math.max(0.42, length * 0.12));
+  const tone = rail.tone === 'memory' ? visualTokens.colors.depth : visualTokens.colors.signal;
+
+  return (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      <group position={[0, 0.16, 0]} scale={[connectorScale * normalized.scale, connectorScale * normalized.scale * 0.32, connectorScale * normalized.scale * 0.54]}>
+        <primitive object={normalized.model} />
+      </group>
+      <mesh position={[0, 0.34, 0]} scale={[connectorScale * 0.92, 0.014, 0.06]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color={tone} transparent opacity={rail.lane === 'background-emitter' ? 0.22 : 0.42} />
+      </mesh>
+    </group>
+  );
+}
+
+function RailBody({ rail, from, to }: { rail: SceneRail; from: SceneNode; to: SceneNode }) {
+  const dx = to.x - from.x;
+  const dz = to.z - from.z;
+  const length = Math.max(0.001, Math.hypot(dx, dz));
+  const midX = (from.x + to.x) / 2;
+  const midZ = (from.z + to.z) / 2;
+  const rotationY = Math.atan2(-dz, dx);
+  const material = railMaterial(rail);
+  const bodyOpacity = rail.lane === 'background-emitter' ? 0.28 : 0.46;
+  const laneOpacity = rail.lane === 'background-emitter' ? 0.2 : 0.72;
+
+  return (
+    <group position={[midX, 0.18, midZ]} rotation={[0, rotationY, 0]}>
+      <mesh scale={[length, 0.08, rail.lane === 'background-emitter' ? 0.08 : 0.16]} receiveShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial
+          color={visualTokens.colors.substrate}
+          transparent
+          opacity={bodyOpacity}
+          roughness={0.86}
+          metalness={0.08}
+        />
+      </mesh>
+      <mesh position={[0, 0.062, 0]} scale={[length * 0.92, 0.018, rail.lane === 'background-emitter' ? 0.022 : 0.044]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color={material.color} transparent opacity={laneOpacity} />
+      </mesh>
+      <mesh position={[-length / 2, 0.08, 0]} scale={[0.16, 0.04, 0.22]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color={material.color} transparent opacity={0.38} />
+      </mesh>
+      <mesh position={[length / 2, 0.08, 0]} scale={[0.16, 0.04, 0.22]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color={material.color} transparent opacity={0.38} />
+      </mesh>
+    </group>
+  );
+}
+
+function SignalPacket({ packet }: { packet: RailPacketMarker }) {
+  const tone = packet.lane === 'background-emitter' ? visualTokens.colors.mist : visualTokens.colors.signal;
+
+  return (
+    <group position={packet.position} rotation={[0.42, packet.t * Math.PI, 0.18]}>
+      <mesh scale={[packet.size * 1.55, packet.size * 0.82, packet.size * 0.82]}>
+        <octahedronGeometry args={[1, 1]} />
+        <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={0.3} roughness={0.52} />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0, 0]} scale={[packet.size * 1.95, packet.size * 1.95, packet.size * 0.22]}>
+        <torusGeometry args={[1, 0.09, 6, 24]} />
+        <meshBasicMaterial color={visualTokens.colors.mist} transparent opacity={0.28} />
+      </mesh>
+    </group>
+  );
+}
+
+function EmitterNode({ port }: { port: IslandPort }) {
+  const tone = port.kind === 'memory' ? visualTokens.colors.depth : visualTokens.colors.signal;
+
+  return (
+    <group position={port.position} rotation={[0, port.rotationY, 0]}>
+      <mesh position={[0, 0.06, 0]} scale={[0.18, 0.09, 0.18]}>
+        <cylinderGeometry args={[1, 1.12, 1, 8]} />
+        <meshStandardMaterial color={visualTokens.colors.substrate} emissive={tone} emissiveIntensity={0.07} roughness={0.74} />
+      </mesh>
+      <mesh position={[0, 0.17, 0]} scale={[0.1, 0.06, 0.1]}>
+        <cylinderGeometry args={[1, 0.72, 1, 8]} />
+        <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={0.24} roughness={0.58} />
+      </mesh>
+      <mesh position={[0, 0.26, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.16, 0.006, 6, 36]} />
+        <meshBasicMaterial color={tone} transparent opacity={0.44} />
+      </mesh>
+    </group>
+  );
+}
+
+function ProcessBeacon({ node }: { node: SceneNode }) {
+  return (
+    <group position={[node.x, 0.48, node.z]}>
+      <mesh rotation={[0, Math.PI / 4, 0]} scale={[0.48, 0.08, 0.48]}>
+        <cylinderGeometry args={[1, 1, 1, 6]} />
+        <meshStandardMaterial color={visualTokens.colors.ink} emissive={visualTokens.colors.signal} emissiveIntensity={0.08} roughness={0.7} />
+      </mesh>
+      <mesh position={[0, 0.16, 0]} rotation={[0, 0, -Math.PI / 4]} scale={[0.18, 0.18, 0.18]}>
+        <tetrahedronGeometry args={[1, 1]} />
+        <meshStandardMaterial color={visualTokens.colors.signal} emissive={visualTokens.colors.signal} emissiveIntensity={0.34} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.58, 0.012, 6, 72]} />
+        <meshBasicMaterial color={visualTokens.colors.signal} transparent opacity={0.58} />
+      </mesh>
+      <WorldLabel title="YOU ARE HERE" detail={`${node.title} // ${node.state}`} position={[0.24, 1.12, 0.22]} tone={visualTokens.colors.signal} />
+    </group>
+  );
+}
+
+function IslandConnectionPorts({ nodes, rails }: { nodes: SceneNode[]; rails: SceneRail[] }) {
+  const ports = useMemo(() => createIslandPorts(nodes, rails), [nodes, rails]);
+
+  return (
+    <group>
+      {ports.map((port) => (
+        <EmitterNode key={port.id} port={port} />
+      ))}
+    </group>
+  );
 }
 
 function RailNetwork({ rails, nodes }: { rails: SceneRail[]; nodes: SceneNode[] }) {
@@ -131,26 +293,25 @@ function RailNetwork({ rails, nodes }: { rails: SceneRail[]; nodes: SceneNode[] 
           middle,
           new THREE.Vector3(to.x, 0.28, to.z),
         ];
+        const dx = to.x - from.x;
+        const dz = to.z - from.z;
+        const length = Math.max(0.001, Math.hypot(dx, dz));
+        const rotationY = Math.atan2(-dz, dx);
+        const packets = createRailPacketMarkers(nodes, rail);
 
         return (
           <group key={rail.id}>
-            <LinePrimitive points={points} color={material.color} opacity={material.opacity} />
-            {Array.from({ length: rail.packetCount + 1 }).map((_, index) => {
-              const t = (index + 1) / (rail.packetCount + 2);
-              const x = THREE.MathUtils.lerp(from.x, to.x, t);
-              const z = THREE.MathUtils.lerp(from.z, to.z, t);
-              const y = 0.34 + Math.sin(t * Math.PI) * 0.16 + index * 0.012;
-              return (
-                <mesh key={`${rail.id}-packet-${index}`} position={[x, y, z]}>
-                  <sphereGeometry args={[rail.lane === 'background-emitter' ? 0.035 : 0.048, 14, 14]} />
-                  <meshStandardMaterial
-                    color={rail.lane === 'background-emitter' ? visualTokens.colors.mist : visualTokens.colors.signal}
-                    emissive={rail.lane === 'background-emitter' ? visualTokens.colors.mist : visualTokens.colors.signal}
-                    emissiveIntensity={0.24}
-                  />
-                </mesh>
-              );
-            })}
+            <RailBody rail={rail} from={from} to={to} />
+            <LinePrimitive points={points} color={material.color} opacity={material.opacity * 0.46} />
+            <Suspense fallback={null}>
+              <RailConnectorPreview
+                length={length}
+                position={[middle.x, 0.24, middle.z]}
+                rotationY={rotationY}
+                rail={rail}
+              />
+            </Suspense>
+            {packets.map((packet) => <SignalPacket key={packet.id} packet={packet} />)}
           </group>
         );
       })}
@@ -528,6 +689,22 @@ function OrganIsland({ node, focused = false }: { node: SceneNode; focused?: boo
           />
         </group>
       ) : null}
+      {Array.from({ length: selected ? 7 : 4 }).map((_, index) => {
+        const angle = (index / (selected ? 7 : 4)) * Math.PI * 2 + 0.18;
+        const inner = 0.28;
+        const outer = selected ? 1.5 : 1.16;
+        return (
+          <LinePrimitive
+            key={`${node.id}-terrain-seam-${index}`}
+            points={[
+              new THREE.Vector3(Math.cos(angle) * inner, 0.25, Math.sin(angle) * inner),
+              new THREE.Vector3(Math.cos(angle) * outer, 0.2, Math.sin(angle) * outer),
+            ]}
+            color={selected ? visualTokens.colors.signal : visualTokens.colors.mist}
+            opacity={selected ? 0.32 : 0.13}
+          />
+        );
+      })}
     </group>
   );
 }
@@ -599,23 +776,15 @@ function ControlBay({ scene }: { scene: CambiumSceneModel }) {
 }
 
 function VisualizationField({ scene }: { scene: CambiumSceneModel }) {
+  const overlays = useMemo(() => createVisualizationOverlaySpecs(scene.visualizationLayers), [scene.visualizationLayers]);
+
   return (
     <group>
-      {scene.visualizationLayers.map((layer, index) => {
-        const x = -4.1 + index * 1.62;
-        const z = 2.22 + Math.sin(index * 1.4) * 0.36;
+      {overlays.map((overlay, index) => {
+        const layer = scene.visualizationLayers.find((candidate) => candidate.id === overlay.layerId) ?? scene.visualizationLayers[index];
         const color = layer.tone === 'signal' ? visualTokens.colors.signal : layer.tone === 'depth' ? visualTokens.colors.depth : visualTokens.colors.mist;
         return (
-          <group key={layer.id} position={[x, 0.4, z]}>
-            <mesh scale={[0.58, 0.18 + index * 0.025, 0.58]} rotation={[0, index * 0.22, 0]}>
-              <octahedronGeometry args={[0.62, 1]} />
-              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={layer.tone === 'signal' ? 0.16 : 0.05} roughness={0.62} />
-            </mesh>
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.14, 0]}>
-              <torusGeometry args={[0.78 + index * 0.08, 0.008, 6, 72]} />
-              <meshBasicMaterial color={color} transparent opacity={0.34} />
-            </mesh>
-          </group>
+          <VisualizationLens key={overlay.id} overlay={overlay} color={color} />
         );
       })}
       {Array.from({ length: 26 }).map((_, index) => (
@@ -624,6 +793,44 @@ function VisualizationField({ scene }: { scene: CambiumSceneModel }) {
           <meshStandardMaterial color={index % 3 === 0 ? visualTokens.colors.signal : visualTokens.colors.mist} transparent opacity={0.64} />
         </mesh>
       ))}
+    </group>
+  );
+}
+
+function VisualizationLens({ overlay, color }: { overlay: VisualizationOverlaySpec; color: string }) {
+  const isGraph = overlay.role === 'dependency-graph';
+  const isHeat = overlay.role === 'process-heat';
+
+  return (
+    <group position={overlay.anchor}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} scale={[overlay.scale * 1.12, overlay.scale * 0.78, 1]}>
+        <torusGeometry args={[0.74, 0.018, 8, 72]} />
+        <meshBasicMaterial color={color} transparent opacity={0.44} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} scale={[overlay.scale * 1.3, overlay.scale * 0.88, 1]}>
+        <circleGeometry args={[0.66, 48]} />
+        <meshBasicMaterial color={color} transparent opacity={isHeat ? 0.16 : 0.08} />
+      </mesh>
+      <mesh scale={[0.58, 0.18, 0.58]} rotation={[0, overlay.scale * 0.4, 0]}>
+        <octahedronGeometry args={[0.62, 1]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={isHeat ? 0.2 : 0.08} roughness={0.62} />
+      </mesh>
+      {Array.from({ length: isGraph ? 5 : 3 }).map((_, index) => {
+        const angle = (index / (isGraph ? 5 : 3)) * Math.PI * 2;
+        return (
+          <group key={`${overlay.id}-pin-${index}`} position={[Math.cos(angle) * overlay.scale * 0.6, 0.06, Math.sin(angle) * overlay.scale * 0.4]}>
+            <mesh scale={[0.045, 0.045, 0.045]}>
+              <sphereGeometry args={[1, 8, 8]} />
+              <meshBasicMaterial color={color} transparent opacity={0.74} />
+            </mesh>
+            <LinePrimitive
+              points={[new THREE.Vector3(0, 0, 0), new THREE.Vector3(-Math.cos(angle) * overlay.scale * 0.3, 0.02, -Math.sin(angle) * overlay.scale * 0.2)]}
+              color={color}
+              opacity={0.22}
+            />
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -664,12 +871,14 @@ export function CambiumScene({ scene, cameraMode }: SceneProps) {
       <directionalLight position={[3.2, 7.4, 4.8]} intensity={1.28} />
       <pointLight position={[activeNode?.x ?? -1.5, 2.8, activeNode?.z ?? 0.4]} intensity={1.1} color={visualTokens.colors.signal} />
       <AtmosphereStack />
-      <TacticalSubstrate mode={cameraMode} />
+      <CambiumField mode={cameraMode} />
       {mode === 'asset-comparison' ? (
         <AssetComparisonField />
       ) : (
         <>
           <RailNetwork rails={scene.rails} nodes={scene.nodes} />
+          <IslandConnectionPorts rails={scene.rails} nodes={scene.nodes} />
+          <ProcessBeacon node={activeProcessNode(scene.nodes)} />
           {scene.nodes.map((node) => (
             <OrganIsland key={node.id} node={node} focused={mode === 'island' && node.id === scene.activeScreen.focusNode} />
           ))}

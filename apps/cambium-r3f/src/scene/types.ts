@@ -96,6 +96,37 @@ export interface ScreenSpec {
   reference?: SceneReference;
 }
 
+export interface DesktopViewport {
+  id: string;
+  label: string;
+  width: number;
+  height: number;
+  role: 'primary-review' | 'secondary-review';
+}
+
+export interface VisualFeedbackGate {
+  status: 'awaiting-user-flow-feedback';
+  reviewer: 'user';
+  browserVisualE2E: 'skipped-by-user-request';
+  acceptanceMode: 'human-perceptual-flow-review';
+  automatedProof: readonly string[];
+  explicitNonGoals: readonly string[];
+}
+
+export interface ElectronReadiness {
+  targetShell: 'electron-macos-laptop';
+  minWindow: { width: number; height: number };
+  routeMode: 'hash-route-scene-states';
+  inputs: readonly ('keyboard' | 'mouse' | 'trackpad')[];
+  outOfScope: readonly string[];
+}
+
+export interface CambiumQaPolicy {
+  desktopViewports: readonly DesktopViewport[];
+  visualFeedbackGate: VisualFeedbackGate;
+  electronReadiness: ElectronReadiness;
+}
+
 export interface EngineControl {
   id: string;
   label: string;
@@ -121,6 +152,7 @@ export interface CambiumSceneModel {
   activeScreen: ScreenSpec;
   cameraMode: CameraMode;
   telemetry: SceneTelemetry;
+  qaPolicy: CambiumQaPolicy;
   acceptanceChecks: readonly { name: string; pass: string; owner: string; consequence: string }[];
   interactionPlan: Record<string, unknown>;
 }
