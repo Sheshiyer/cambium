@@ -1,0 +1,64 @@
+{
+  "input": "apps/cambium-r3f/public/assets/meshy/image-to-3d/genesis/model.glb",
+  "output": "apps/cambium-r3f/public/assets/meshy/image-to-3d/genesis/optimized/model-1536-grid160.glb",
+  "maxTextureSize": 1536,
+  "jpegQuality": 84,
+  "inputBytes": 71054312,
+  "outputBytes": 7343436,
+  "geometry": {
+    "clusterGrid": 160,
+    "sourceVertices": 583332,
+    "optimizedVertices": 100777,
+    "sourceTriangles": 1079318,
+    "optimizedTriangles": 207900,
+    "droppedDegenerateTriangles": 863880,
+    "droppedDuplicateTriangles": 7538,
+    "indexComponentType": 5125
+  },
+  "images": [
+    {
+      "index": 0,
+      "bufferView": 4,
+      "mimeType": "image/jpeg",
+      "originalWidth": 4096,
+      "originalHeight": 4096,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 15917222,
+      "optimizedBytes": 603972
+    },
+    {
+      "index": 1,
+      "bufferView": 5,
+      "mimeType": "image/jpeg",
+      "originalWidth": 2048,
+      "originalHeight": 2048,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 2353860,
+      "optimizedBytes": 269836
+    },
+    {
+      "index": 2,
+      "bufferView": 6,
+      "mimeType": "image/jpeg",
+      "originalWidth": 4096,
+      "originalHeight": 4096,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 21090425,
+      "optimizedBytes": 732546
+    },
+    {
+      "index": 3,
+      "bufferView": 7,
+      "mimeType": "image/jpeg",
+      "originalWidth": 2048,
+      "originalHeight": 2048,
+      "optimizedWidth": 1536,
+      "optimizedHeight": 1536,
+      "originalBytes": 71801,
+      "optimizedBytes": 14848
+    }
+  ]
+}

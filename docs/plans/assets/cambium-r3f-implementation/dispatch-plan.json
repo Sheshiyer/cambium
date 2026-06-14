@@ -1,0 +1,514 @@
+{
+  "tasksFile": "docs/plans/assets/cambium-r3f-implementation/tasks.md",
+  "modality": {
+    "chosen": "github-delivery",
+    "proposed": "github-delivery",
+    "detected": "github-delivery",
+    "signals": 5,
+    "agreed": true,
+    "phantom": null,
+    "orchestrators": {
+      "plan": "swarm-architect",
+      "execute": "github-next-wave-orchestrator",
+      "available": true
+    }
+  },
+  "lanes": {
+    "human": 17,
+    "copilot": 0
+  },
+  "touched": [
+    "ai-agents-meta",
+    "frontend-web",
+    "design",
+    "creative-frontend",
+    "browser-automation",
+    "git-pr-ops"
+  ],
+  "activate": [],
+  "unresolved": [],
+  "phantoms": [],
+  "overrides": [
+    {
+      "id": "T003",
+      "classifier": "frontend-web",
+      "keyword": "databases-data"
+    },
+    {
+      "id": "T004",
+      "classifier": "design",
+      "keyword": "frontend-web"
+    },
+    {
+      "id": "T005",
+      "classifier": "creative-frontend",
+      "keyword": "growth-sales-cro"
+    },
+    {
+      "id": "T006",
+      "classifier": "creative-frontend",
+      "keyword": "growth-content"
+    },
+    {
+      "id": "T007",
+      "classifier": "creative-frontend",
+      "keyword": "growth-seo"
+    },
+    {
+      "id": "T008",
+      "classifier": "creative-frontend",
+      "keyword": "growth-sales-cro"
+    },
+    {
+      "id": "T009",
+      "classifier": "creative-frontend",
+      "keyword": "agentic-ops"
+    },
+    {
+      "id": "T010",
+      "classifier": "creative-frontend",
+      "keyword": "ai-agents-meta"
+    },
+    {
+      "id": "T012",
+      "classifier": "creative-frontend",
+      "keyword": "ai-agents-meta"
+    },
+    {
+      "id": "T015",
+      "classifier": "browser-automation",
+      "keyword": "frontend-web"
+    }
+  ],
+  "badSkills": [],
+  "plan": [
+    {
+      "id": "T001",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 1,
+      "desc": "Freeze the R3F visual contract, screenshot reference manifest, stage/node schema, UI integration boundaries, validation expectations, and GitHub issue graph for swarm execution.",
+      "paths": [],
+      "cluster": "ai-agents-meta",
+      "dispatch": "ai-agents-meta-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "swarm-architect",
+        "project-management-execution-coach"
+      ],
+      "source": "classifier",
+      "proposed": "ai-agents-meta",
+      "agreed": true,
+      "confidence": 0.9,
+      "score": 10.57,
+      "skill": "swarm-architect",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T002",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 1,
+      "desc": "Add an isolated Vite React TypeScript R3F app scaffold under apps/cambium-r3f, own package/package-lock changes, root script integration, and a static preview route shell.",
+      "paths": [],
+      "cluster": "frontend-web",
+      "dispatch": "frontend-web-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "react-patterns",
+        "react-performance",
+        "react-testing"
+      ],
+      "source": "classifier",
+      "proposed": "frontend-web",
+      "agreed": true,
+      "confidence": 0.9,
+      "score": 19.34,
+      "skill": "vite-patterns",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T003",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 1,
+      "desc": "Implement the Cambium scene data adapter using existing quine/operator/quest concepts for stage nodes, progress 9/17, Cortex memory lanes, rail packets, and telemetry state.",
+      "paths": [],
+      "cluster": "frontend-web",
+      "dispatch": "frontend-web-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "frontend-web",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 23.77,
+      "overrode": "databases-data",
+      "skill": "react-patterns",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T004",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 1,
+      "desc": "Implement the Cambium visual token and material system for palette, typography, glyph metadata, ring states, reduced motion, packet material, and shader-grain constraints.",
+      "paths": [],
+      "cluster": "design",
+      "dispatch": "design-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "design",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 10.94,
+      "overrode": "frontend-web",
+      "skill": "theme-factory",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T005",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the home overview R3F screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/home.png with 2.5D organ map, route overview, flat node preview, and telemetry.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/home.png"
+      ],
+      "cluster": "creative-frontend",
+      "dispatch": "creative-frontend-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "creative-frontend",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 6.14,
+      "overrode": "growth-sales-cro",
+      "skill": "web-motion-library",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T006",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the Genesis island screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/island-genesis.png with seed glyph, idea input, variable capsules, and brand/copy/visual channels.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/island-genesis.png"
+      ],
+      "cluster": "creative-frontend",
+      "dispatch": "creative-frontend-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "creative-frontend",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 20.32,
+      "overrode": "growth-content",
+      "skill": "web-motion-library",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T007",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the Taste island screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/island-taste.png with reference retrieval, taste brief, acceptance gate, and reroll orbit.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/island-taste.png"
+      ],
+      "cluster": "creative-frontend",
+      "dispatch": "creative-frontend-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "creative-frontend",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 10.57,
+      "overrode": "growth-seo",
+      "skill": "web-motion-library",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T008",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the Build island screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/island-build.png with Hands glyph, artifact route, pass gates, and validation markers.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/island-build.png"
+      ],
+      "cluster": "creative-frontend",
+      "dispatch": "creative-frontend-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "creative-frontend",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 6.14,
+      "overrode": "growth-sales-cro",
+      "skill": "web-motion-library",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T009",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the Ops island screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/island-ops.png with Will glyph, run loop, viability, live heartbeat, and ops telemetry.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/island-ops.png"
+      ],
+      "cluster": "creative-frontend",
+      "dispatch": "creative-frontend-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "creative-frontend",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 23.72,
+      "overrode": "agentic-ops",
+      "skill": "web-motion-library",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T010",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the Cortex island screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/island-cortex.png with memory wheel, semantic/structural lanes, recall paths, and cross-stage links.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/island-cortex.png"
+      ],
+      "cluster": "creative-frontend",
+      "dispatch": "creative-frontend-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "creative-frontend",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 11.82,
+      "overrode": "ai-agents-meta",
+      "skill": "web-motion-library",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T011",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the elements/settings screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/elements-settings.png with palette controls, motion sliders, glyph picker, and reduced-motion toggle.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/elements-settings.png"
+      ],
+      "cluster": "frontend-web",
+      "dispatch": "frontend-web-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "motion-foundations",
+        "motion-patterns",
+        "motion-advanced"
+      ],
+      "source": "classifier",
+      "proposed": "frontend-web",
+      "agreed": true,
+      "confidence": 0.9,
+      "score": 7.52,
+      "skill": "design-system",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T012",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the visualizations screen one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/visualizations.png with spatial quest map, viability loop, memory graph, and flow rail density.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/visualizations.png"
+      ],
+      "cluster": "creative-frontend",
+      "dispatch": "creative-frontend-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [],
+      "source": "classifier",
+      "proposed": "creative-frontend",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 15.62,
+      "overrode": "ai-agents-meta",
+      "skill": "web-motion-library",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T013",
+      "done": false,
+      "parallel": true,
+      "story": "",
+      "wave": 2,
+      "desc": "Build the Figma-style design component board one-to-one against docs/plans/assets/cambium-r3f-screenshots/images/figma-components.png with tokens, glyphs, controls, states, and panels.",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/images/figma-components.png"
+      ],
+      "cluster": "design",
+      "dispatch": "design-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "refero-design",
+        "swiss-design",
+        "stitch-design-taste"
+      ],
+      "source": "classifier",
+      "proposed": "design",
+      "agreed": true,
+      "confidence": 0.9,
+      "score": 16.47,
+      "skill": "refero-design",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T014",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 3,
+      "desc": "Implement shared navigation, camera modes, zoom transitions, selected-node detail flow, and screen routing without changing frozen visual contracts.",
+      "paths": [],
+      "cluster": "frontend-web",
+      "dispatch": "frontend-web-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "vercel-react-view-transitions"
+      ],
+      "source": "classifier",
+      "proposed": "frontend-web",
+      "agreed": true,
+      "confidence": 0.9,
+      "score": 5.29,
+      "skill": "motion-patterns",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T015",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 3,
+      "desc": "Build visual parity QA using browser screenshots, canvas nonblank checks, reference checklist review, and reduced-motion verification for every generated reference screen.",
+      "paths": [],
+      "cluster": "browser-automation",
+      "dispatch": "browser-automation-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "browser"
+      ],
+      "source": "classifier",
+      "proposed": "browser-automation",
+      "agreed": false,
+      "confidence": 0.8,
+      "score": 11.31,
+      "overrode": "frontend-web",
+      "skill": "webapp-testing",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T016",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 3,
+      "desc": "Harden performance, accessibility, keyboard/focus behavior, responsive framing, and package CI so the R3F app can run locally without degrading existing Cambium tests.",
+      "paths": [],
+      "cluster": "frontend-web",
+      "dispatch": "frontend-web-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "react-performance",
+        "accessibility",
+        "react-component-performance"
+      ],
+      "source": "classifier",
+      "proposed": "frontend-web",
+      "agreed": true,
+      "confidence": 0.9,
+      "score": 10.66,
+      "skill": "accessibility",
+      "skillReal": true,
+      "lane": "human"
+    },
+    {
+      "id": "T017",
+      "done": false,
+      "parallel": false,
+      "story": "",
+      "wave": 3,
+      "desc": "Close the integration wave with demo docs, worker handoff notes, GitHub issue updates, validation evidence, and next-wave risk summary.",
+      "paths": [],
+      "cluster": "git-pr-ops",
+      "dispatch": "git-pr-ops-orchestrator",
+      "tier": "active",
+      "activate": false,
+      "spokes": [
+        "github-next-wave-orchestrator",
+        "github"
+      ],
+      "source": "classifier",
+      "proposed": "git-pr-ops",
+      "agreed": true,
+      "confidence": 0.9,
+      "score": 15.94,
+      "skill": "github-next-wave-orchestrator",
+      "skillReal": true,
+      "lane": "human"
+    }
+  ]
+}

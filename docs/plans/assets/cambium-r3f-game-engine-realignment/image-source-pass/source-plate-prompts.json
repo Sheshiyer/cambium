@@ -1,0 +1,105 @@
+{
+  "model": "gpt-image-2",
+  "size": "1024x1024",
+  "styleReference": "../image-to-3d/ops-source.png",
+  "outputDirectory": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates",
+  "globalRules": [
+    "One centered object only, full object visible, no cropping.",
+    "Three-quarter isometric orthographic camera.",
+    "Neutral dark gray background with soft studio lighting.",
+    "No text, UI, labels, humans, buildings, trees, scenery, or decorative frame.",
+    "Surface details must be visible because they may become texture maps.",
+    "Avoid dramatic cast shadows, bloom haze, tiny wires, hair-thin rails, and floating dust.",
+    "Use Cambium material language: dark green-black basalt, deep teal substrate, pale chartreuse signals, ivory node caps, peach calibration seams, matte PBR finish."
+  ],
+  "plates": [
+    {
+      "id": "genesis",
+      "kind": "island",
+      "title": "Genesis seed island",
+      "output": "genesis.png",
+      "prompt": "Single isolated 3D game asset concept render for the Cambium Genesis seed island. A compact asymmetrical seed-crystal terrain slab with a low dark basalt base, one large pale chartreuse crystalline seed core rising from the center, smaller embedded crystal facets around it, terraced topographic stone ridges, ivory contour seams, and a few peach calibration cracks. Strong readable silhouette, sculptural organ-like origin object, full object visible, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no buildings, no trees, no background scenery, no dramatic perspective distortion.",
+      "meshRisk": "Tall crystals can become generic mountains; keep the base low and the seed core singular."
+    },
+    {
+      "id": "taste",
+      "kind": "island",
+      "title": "Taste resonance island",
+      "output": "taste.png",
+      "prompt": "Single isolated 3D game asset concept render for the Cambium Taste resonance island. A low interlocking knot terrain made from thick rounded loop ridges, like taste-memory paths braided into an organic island. Dark teal-black substrate, ivory smooth loop bands, chartreuse resonance pools nested inside the loops, small pearl-like node caps, peach micro seams, layered contour texture on every surface. The silhouette should read as a clover-knot or braided taste organ, not a flat disk. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no buildings, no trees, no background scenery.",
+      "meshRisk": "Thin loops may collapse; use thick bands and large negative spaces."
+    },
+    {
+      "id": "build",
+      "kind": "island",
+      "title": "Build forge island",
+      "output": "build.png",
+      "prompt": "Single isolated 3D game asset concept render for the Cambium Build forge island. A low faceted mineral anvil-like terrain slab with a broad asymmetric footprint, clustered artifact crystal plates in the center, chunky forge ridges flowing outward, dark green-black basalt base, desaturated ivory armored plates, pale chartreuse seams glowing from cracks, peach calibration cuts, visible layered strata on the sides. It should feel like a sculptural build organ and tactical game asset, not a factory, tool, house, machine, arch, window, or staircase. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no buildings, no trees, no background scenery.",
+      "meshRisk": "Industrial language drifts into buildings; explicitly avoid architecture and machines."
+    },
+    {
+      "id": "ops",
+      "kind": "island",
+      "title": "Ops loop island",
+      "output": "ops.png",
+      "prompt": "Single isolated 3D game asset concept render for the Cambium Ops loop island. A low horizontal broken torus terrain slab with a clear hollow center, irregular ring silhouette, chunky layered basalt sides, embedded chartreuse heartbeat channels flowing around the ring, ivory perimeter signal caps, peach calibration seams, and visible contour ridges on all top surfaces. It should preserve the proven ring-island language from the prior Ops source plate while making details slightly thicker for reconstruction. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no buildings, no trees, no background scenery.",
+      "meshRisk": "The ring worked well; keep the hollow center large and avoid a flat coin."
+    },
+    {
+      "id": "cortex",
+      "kind": "island",
+      "title": "Cortex memory island",
+      "output": "cortex.png",
+      "prompt": "Single isolated 3D game asset concept render for the Cambium Cortex memory island. A dark memory-orbit terrain object with a smooth central black-teal sphere partly nested into a crater, three thick orbital terrain rings around it, satellite memory nodes embedded on the rings, pale chartreuse signal veins, ivory contour bands, and subtle peach calibration seams. The silhouette should read as a memory organ with orbiting rings, not a planet scene or sci-fi building. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no buildings, no trees, no background scenery.",
+      "meshRisk": "Orbital elements can become too thin; make rings thick and attached to the terrain."
+    },
+    {
+      "id": "rail-arc",
+      "kind": "prop",
+      "title": "Curved rail connector",
+      "output": "rail-arc.png",
+      "prompt": "Single isolated 3D game asset concept render for a Cambium curved rail connector prop. One thick modular quarter-arc rail segment, low and heavy, made of dark basalt with an inset pale chartreuse signal lane, ivory bevel caps at both ends, peach calibration seams, and subtle topographic linework. It should be a physical connector that can sit between islands in a tactical map, with enough thickness for image-to-3D reconstruction. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no buildings, no scenery.",
+      "meshRisk": "Thin rails fail; make the rail a thick slab with beveled ends."
+    },
+    {
+      "id": "signal-packet",
+      "kind": "prop",
+      "title": "Signal packet bead",
+      "output": "signal-packet.png",
+      "prompt": "Single isolated 3D game asset concept render for a Cambium signal packet prop. One compact capsule-bead object shaped like a faceted data droplet, dark teal underside, pale chartreuse luminous core visible through inset channels, ivory cap ring, peach alignment seam, matte PBR material. It should feel like a small physical packet that travels along rails, not a UI icon. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, clean silhouette. No text, no UI, no labels, no humans, no buildings, no scenery.",
+      "meshRisk": "Small objects need exaggerated bevels and large channels."
+    },
+    {
+      "id": "emitter-node",
+      "kind": "prop",
+      "title": "Background emitter node",
+      "output": "emitter-node.png",
+      "prompt": "Single isolated 3D game asset concept render for a Cambium background emitter node. One squat beacon totem made of layered basalt disks, a central chartreuse signal aperture, ivory sensor caps around the rim, peach calibration slits, and engraved contour grooves. It should feel like an in-world emitter feeding background runner signals, not a tower, antenna mast, building, or dashboard widget. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no scenery.",
+      "meshRisk": "Do not make it tall; keep it squat and stable for tactical map scale."
+    },
+    {
+      "id": "process-beacon",
+      "kind": "prop",
+      "title": "Current process position beacon",
+      "output": "process-beacon.png",
+      "prompt": "Single isolated 3D game asset concept render for a Cambium current-position process beacon. A low circular selector marker with a chunky broken ring base, one raised angled glyph wedge in pale chartreuse, dark basalt underside, ivory rim caps, peach alignment seams, and subtle contour grooves. It should mark where the user or runner currently is in the world without using UI text. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR material cues. No text, no UI, no labels, no humans, no buildings, no scenery.",
+      "meshRisk": "Avoid flat iconography; make the marker a physical low object."
+    },
+    {
+      "id": "control-dial",
+      "kind": "prop",
+      "title": "Control bay renderer dial",
+      "output": "control-dial.png",
+      "prompt": "Single isolated 3D game asset concept render for a Cambium control bay renderer dial. A physical desktop/laptop app instrument: squat circular dial module with dark basalt housing, ivory knurled rim, pale chartreuse inset indicator path, peach calibration cuts, small raised mode tabs, matte PBR material, designed to live in a diegetic settings control bay. It must read as a tactile in-world control, not a web form, card, screen, or dashboard widget. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting. No text, no UI labels, no humans, no buildings, no scenery.",
+      "meshRisk": "Controls can become UI screenshots; keep it as one physical prop."
+    },
+    {
+      "id": "visualization-lens",
+      "kind": "prop",
+      "title": "Visualization overlay lens",
+      "output": "visualization-lens.png",
+      "prompt": "Single isolated 3D game asset concept render for a Cambium visualization overlay lens. One low transparent-but-solid tactical lens object: thick dark teal elliptical frame, layered translucent chartreuse heat-field membrane, ivory registration pins, peach calibration seams, and etched contour grooves. It should feel like a physical scene-native flow-map or dependency overlay module placed above islands, not a flat chart or HUD panel. Full object visible, centered, three-quarter isometric orthographic camera, neutral dark gray background, soft studio lighting, matte PBR frame with softly translucent inner material. No text, no UI labels, no humans, no buildings, no scenery.",
+      "meshRisk": "Transparency may not reconstruct cleanly; keep a thick frame and treat membrane as shallow solid material."
+    }
+  ]
+}

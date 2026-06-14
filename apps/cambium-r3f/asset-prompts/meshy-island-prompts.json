@@ -1,0 +1,45 @@
+{
+  "estimatedCredits": {
+    "previewMeshy6": 20,
+    "refineTexture": 10,
+    "fullAssetPerIsland": 30,
+    "fullSetOfFive": 150
+  },
+  "islands": [
+    {
+      "id": "genesis",
+      "title": "Genesis seed island",
+      "prompt": "Abstract floating seed-crystal island for a tactical strategy map, Cambium brand palette, dark green stone substrate, pale chartreuse crystalline core, topographic contour ridges, non-architectural, non-figurative, sculptural organ-like terrain, web game asset, centered origin, clean silhouette.",
+      "texturePrompt": "Dark Cambium green stone, pale chartreuse strata, subtle ivory contour lines, matte tactical-map material, no realistic dirt, no labels, no text.",
+      "targetPolycount": 18000
+    },
+    {
+      "id": "taste",
+      "title": "Taste resonance island",
+      "prompt": "Abstract resonance island shaped like interlocking loops and taste-memory knots, floating tactical map terrain, dark teal base, pale ivory curved forms, chartreuse signal nodes, non-architectural, non-figurative, interface-free, sculptural game-engine asset.",
+      "texturePrompt": "Matte dark teal substrate, ivory loop forms, chartreuse signal accents, subtle contour-map bands, clean lighting-neutral PBR texture.",
+      "targetPolycount": 22000
+    },
+    {
+      "id": "build",
+      "title": "Build forge island",
+      "prompt": "Abstract build-forge island for an isometric tactical map, organic faceted mineral terrain, clustered crystalline artifact core, low asymmetric molten-flow ridges, dark green-black base, pale chartreuse energy seams, no arches, no windows, no stairs, non-industrial, non-architectural, non-figurative, strong readable outline.",
+      "texturePrompt": "Dark mineral slab, desaturated ivory plates, chartreuse artifact core, thin topographic striations, matte PBR, remove baked lighting.",
+      "targetPolycount": 20000
+    },
+    {
+      "id": "ops",
+      "title": "Ops loop island",
+      "prompt": "Abstract operating-loop island for a strategy game world map, low horizontal circular torus terrain, heartbeat ring channels embedded flush in dark substrate, chartreuse perimeter signal nodes, flattened silhouette, screenless, non-architectural, non-figurative, clean readable isometric outline.",
+      "texturePrompt": "Dark green tactical substrate, chartreuse loop channels, ivory edge bands, subtle telemetry-like contour texture without text.",
+      "targetPolycount": 18000
+    },
+    {
+      "id": "cortex",
+      "title": "Cortex memory island",
+      "prompt": "Abstract memory-orbit island, central smooth dark sphere nested in orbital terrain rings, satellite nodes, tactical map asset, dark teal and deep violet substrate, pale chartreuse signals, non-urban, non-architectural, non-figurative, sculptural Cambium cortex organ.",
+      "texturePrompt": "Deep teal-violet memory material, matte sphere, chartreuse orbit accents, pale contour linework, PBR maps suitable for custom scene lighting.",
+      "targetPolycount": 24000
+    }
+  ]
+}
