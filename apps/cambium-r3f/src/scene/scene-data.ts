@@ -1,5 +1,6 @@
 import { sourceContract } from '../generated/source-contract.ts';
 import { engineControls, islandDefinitionFor, visualizationLayers } from '../world/island-registry.ts';
+import { cambiumQaPolicy } from './desktop-qa-policy.ts';
 import { defaultScreenId, routeDrafts } from './route-registry.ts';
 import type { CameraMode, CambiumSceneModel, EmitterLane, SceneNode, SceneRail, SceneReference, ScreenId, ScreenSpec } from './types.ts';
 import { visualTokens } from './visual-tokens.ts';
@@ -151,6 +152,7 @@ export function buildCambiumScene(activeScreenId: ScreenId = defaultScreenId, ca
       freshness: 'live',
       derivedAtLabel: 'source-backed static contract',
     },
+    qaPolicy: cambiumQaPolicy,
     acceptanceChecks: sourceContract.acceptanceChecks,
     interactionPlan: sourceContract.interactionPlan,
   };

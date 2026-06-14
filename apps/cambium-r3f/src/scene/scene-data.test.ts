@@ -44,3 +44,11 @@ test('game-engine model exposes emitters, controls, and scene-native visualizati
   assert.ok(scene.visualizationLayers.some((layer) => layer.id === 'deps'));
   assert.equal(scene.activeScreen.mode, 'visualizations');
 });
+
+test('scene model exposes desktop manual-feedback QA policy', () => {
+  const scene = buildCambiumScene();
+  assert.equal(scene.qaPolicy.visualFeedbackGate.browserVisualE2E, 'skipped-by-user-request');
+  assert.equal(scene.qaPolicy.visualFeedbackGate.reviewer, 'user');
+  assert.equal(scene.qaPolicy.electronReadiness.targetShell, 'electron-macos-laptop');
+  assert.ok(scene.qaPolicy.desktopViewports.some((viewport) => viewport.id === 'macbook-air-13'));
+});

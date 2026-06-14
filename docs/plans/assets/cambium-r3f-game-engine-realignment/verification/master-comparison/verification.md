@@ -63,10 +63,26 @@ Current status:
 | `genesis` | `86` | `review-ready` | none | `not-promoted` |
 | `rail-arc` | `80` | `needs-art-pass` | connector scale needs scene-side approval | `not-promoted` |
 
+## Connector Integration Update
+
+The `rail-arc` optimized candidate now drives the visual connector language in the tactical overview as a scene-preview specimen. This is not a final promotion: the generated connector remains `promotedRuntimeAsset: false`, and scale approval is still gated by user review.
+
+The main scene now combines:
+
+- organic CambiumField substrate instead of checkerboard/grid helper
+- physical basalt rail slabs
+- chartreuse signal lanes
+- endpoint collars
+- generated `rail-arc` connector previews at rail midpoints
+- packet markers riding above the physical connectors
+- island connection ports on every rail endpoint
+- a current-position process beacon in world space
+- source-plate-derived procedural signal packets and emitter nodes
+
 ## Verification Commands
 
 - `npm run r3f:test`
 - `npm run r3f:build`
-- Playwright route capture at `#asset-comparison`
+- browser visual e2e skipped by request; user feedback is the flow acceptance gate
 
-Known residual: Vite still emits the existing large Three/R3F chunk warning.
+Build hardening: Vite now splits React, R3F, Three, Coolshapes, and remaining vendor modules into named manual chunks so the R3F build warning does not stand in for visual acceptance work.

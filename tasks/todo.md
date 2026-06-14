@@ -15,6 +15,9 @@
 - [x] Add a side-by-side R3F asset comparison route for source/current/master candidate review without promoting image-to-3D assets.
 - [x] Optimize approved image-to-3D master candidates into separate runtime-budget derivatives while preserving full masters.
 - [x] Add an Asset Review Bay continuation pass with promotion-safe perceptual scoring, review instruments, and tests.
+- [x] Add a desktop/manual-feedback QA continuation pass and split the R3F production build into named vendor chunks.
+- [x] Add CambiumField and generated rail connector integration to replace the checkerboard substrate with a living tactical organism base.
+- [x] Add living flow layer, island ports, process beacon, and scene-native visualization overlays using generated source-plate mesh grammar.
 
 ## Review
 
@@ -53,6 +56,9 @@
 - Asset Review Bay continuation completed: `#asset-comparison` now shows source/current/master/review columns, weighted perceptual criteria, review score, readiness, blocker state, and a visible `HOLD` gate while keeping every candidate `not-promoted`.
 - Review status: `genesis` is `86/86` and `review-ready`; `rail-arc` is `80/86`, `needs-art-pass`, and blocked on connector scale approval. Both remain manual-approval-only.
 - Asset Review Bay verification passed: `npm run r3f:test`, `npm run r3f:build`, browser route load at `http://127.0.0.1:5176/#asset-comparison`, screenshot capture at `docs/plans/assets/cambium-r3f-game-engine-realignment/verification/master-comparison/asset-review-bay.png`, `npm run validate`, `npm run render-docs:check`, and `npm test`.
+- Desktop/manual-feedback QA pass added `desktop-qa-policy.ts`, tests for Electron/laptop viewport scope, explicit browser visual e2e skip, and user-led flow acceptance. Vite now splits React, R3F, Three, Coolshapes, and remaining vendor modules into named chunks.
+- CambiumField batch replaced the dominant `gridHelper`/checkerboard read with a dense organic vertex-colored substrate, contour paths, radial seam paths, physical rail slabs, generated `rail-arc` preview connectors, and tests that prevent the checkerboard from returning. The `rail-arc` GLB remains a scene-preview connector candidate, not an auto-promoted runtime asset.
+- Living flow batch added procedural scene meshes for generated `signal-packet`, `emitter-node`, `process-beacon`, and `visualization-lens` source plates; rail packets now use physical bead geometry, every rail endpoint gets an island port, the active process is marked by an in-world `YOU ARE HERE` beacon, and visualizations render flow/density/heat/dependency/runner/emitter layers as spatial lenses instead of charts.
 
 # Cambium Isometric Moodboard
 

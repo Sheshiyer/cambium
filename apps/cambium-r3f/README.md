@@ -63,3 +63,16 @@ Downloaded assets are written under `public/assets/meshy/islands/<island>/` and 
 - `/#elements-settings`
 - `/#visualizations`
 - `/#figma-components`
+- `/#asset-comparison`
+
+## Desktop QA Boundary
+
+This app targets a macOS/laptop Electron shell. Mobile acceptance is out of scope.
+
+Browser visual e2e and automated screenshot approval are skipped by request. Verification should use `npm run r3f:test`, `npm run r3f:build`, `npm run validate`, and `npm run render-docs:check`; final flow acceptance comes from user perceptual feedback on the desktop scene.
+
+## Current Visual Flow Direction
+
+The tactical overview uses `CambiumField` as the living substrate: dense organic geometry, contour paths, and radial seams instead of a checkerboard grid. Rail links use physical slabs, signal lanes, endpoint collars, packet markers, and the generated `rail-arc` connector candidate as a scene-preview specimen. The generated connector is still manual-review gated and is not marked as a promoted runtime asset.
+
+The living flow layer uses generated source-plate prop language as procedural meshes: `signal-packet` beads travel over rails, `emitter-node` ports attach rail endpoints to islands, `process-beacon` marks the current process position in world space, and `visualization-lens` overlays render flow, density, heat, dependency, runner, and emitter status spatially instead of as charts.
