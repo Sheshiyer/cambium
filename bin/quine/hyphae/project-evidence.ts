@@ -104,16 +104,14 @@ function readTenantSignals(ctx: QuineCtx, tenant: string): ProjectSignals['tenan
 }
 
 function readReviewSignals(ctx: QuineCtx, tenant: string): ProjectSignals['reviews'] {
-  for (const p of [
-    join(ctx.root, 'cortex', tenant, 'deviations.jsonl'),
-    join(ctx.root, 'deviations.jsonl'),
-  ]) {
-    try {
-      const lines = readFileSync(p, 'utf8').split('\n').filter(Boolean);
-      return { count: lines.length };
-    } catch { /* absent */ }
-  }
-  return { count: 0 };
+  // Tenant-scoped only — the root deviations.jsonl is cross-tenant noise and
+  // would bleed into per-tenant evidence (e.g. inflate arc XIII before any
+  // tenant build has begun). Honest zero when the tenant has no review log.
+  try {
+    const path = join(ctx.root, 'cortex', tenant, 'deviations.jsonl');
+    const lines = readFileSync(path, 'utf8').split('\n').filter(Boolean);
+    return { count: lines.length };
+  } catch { return { count: 0 }; }
 }
 
 function readGateSignals(_tenant: string): ProjectSignals['gate'] {
