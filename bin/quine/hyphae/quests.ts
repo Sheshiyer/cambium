@@ -22,6 +22,27 @@ const readJson = (path: string): any | undefined => {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return undefined; }
 };
 
+// Founder-inheritance reducer. Root tenants (cambium/thoughtseed) earn the I–IX
+// "founder tutorial" arcs once; every client tenant inherits those completions
+// via founder.json. Non-root tenants never write to founder.json — their
+// progress lives in ${tenant}.project.json instead.
+const ROOT_TENANTS = new Set(['cambium', 'thoughtseed']);
+
+export interface FounderState { completedArcs: string[]; derivedFrom: string; derivedAt: string }
+
+export function reconcileFounder(
+  prev: FounderState,
+  ledger: { rows: Array<{ quest: { id: string }; status: 'complete' | 'active' | 'locked' }> },
+  tenant: string,
+  nowIso?: string,
+): FounderState | null {
+  if (!ROOT_TENANTS.has(tenant)) return null;
+  const completed = ledger.rows.filter((r) => r.status === 'complete').map((r) => r.quest.id);
+  const merged = Array.from(new Set([...prev.completedArcs, ...completed]));
+  if (merged.length === prev.completedArcs.length) return prev;        // no change
+  return { completedArcs: merged, derivedFrom: tenant, derivedAt: nowIso ?? new Date().toISOString() };
+}
+
 function cortexCountFor(opDir: string, tenant: string): number | undefined {
   try {
     // node:sqlite is the local transport's engine (see ../../operator/cortex-sqlite.ts)
@@ -158,6 +179,18 @@ async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promis
     body: JSON.stringify(envelope),
   });
   const j: any = await res.json().catch(() => ({}));
+  if (res.ok) {
+    // Founder-inheritance side-effect (root tenants only). Only fires when the
+    // upstream push succeeded — we never let founder.json drift ahead of what
+    // the worker has accepted.
+    const founderPath = join(ctx.root, '.operator', 'founder.json');
+    const prevFounder: FounderState =
+      readJson(founderPath) ?? { completedArcs: [], derivedFrom: tenant, derivedAt: new Date().toISOString() };
+    const nextFounder = reconcileFounder(prevFounder, L, tenant);
+    if (nextFounder && nextFounder !== prevFounder) {
+      writeFileSync(founderPath, JSON.stringify(nextFounder, null, 2) + '\n');
+    }
+  }
   return {
     hypha: 'quests', pushed: res.ok, status: res.status, url: `${base}/api/quests/${tenant}`,
     tenant, derivedAt: envelope.derivedAt, completed: `${L.completed}/${L.total}`, bytes: j.bytes ?? null,
