@@ -282,3 +282,25 @@ test('quine write quests evidence refreshes the project.json file', async () => 
   assert.equal(written.tenantProvisioned, true);
   assert.equal(written.source, 'project-evidence@v1');
 });
+
+test('founder.json gains newly-completed arcs after a root-tenant push (pure reducer)', async () => {
+  const { reconcileFounder } = await import('../../quine/hyphae/quests.ts');
+  const before = { completedArcs: ['the-calling'], derivedFrom: 'cambium', derivedAt: '2026-06-10T00:00:00Z' };
+  const ledger = {
+    rows: [
+      { quest: { id: 'the-calling' }, status: 'complete' },
+      { quest: { id: 'first-mint' }, status: 'complete' },
+      { quest: { id: 'taste-resonance' }, status: 'active' },
+    ],
+  };
+  const after = reconcileFounder(before, ledger as any, 'cambium', '2026-06-16T00:00:00Z');
+  assert.deepEqual(after.completedArcs.sort(), ['first-mint', 'the-calling']);
+  assert.equal(after.derivedFrom, 'cambium');
+  assert.equal(after.derivedAt, '2026-06-16T00:00:00Z');
+});
+
+test('reconcileFounder leaves non-root tenants alone (returns null)', async () => {
+  const { reconcileFounder } = await import('../../quine/hyphae/quests.ts');
+  const out = reconcileFounder({ completedArcs: [], derivedFrom: 'cambium', derivedAt: 'x' }, { rows: [] } as any, 'mathis');
+  assert.equal(out, null);
+});
