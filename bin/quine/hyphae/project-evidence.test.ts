@@ -51,3 +51,26 @@ test('assembleProjectEvidence preserves the partial-signal honesty (vault unreac
   assert.equal(out.repoExists, true);
   assert.equal(out.buildCommits, 5);
 });
+
+test('gatherProjectSignals reviews are tenant-scoped (no global deviations bleed)', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-rev-');
+  // Global deviations.jsonl with 5 entries — should NOT count toward this tenant.
+  fs.writeFileSync(path.join(tmp, 'deviations.jsonl'), '{"a":1}\n{"a":2}\n{"a":3}\n{"a":4}\n{"a":5}\n');
+  // No cortex/foo/deviations.jsonl — tenant-scoped file absent.
+  const { gatherProjectSignals } = await import('./project-evidence.ts');
+  const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
+  assert.equal(signals.reviews?.count, 0, 'no tenant-scoped reviews ⇒ 0, NOT a leak from global deviations.jsonl');
+});
+
+test('gatherProjectSignals counts tenant-scoped reviews when present', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-rev-');
+  fs.mkdirSync(path.join(tmp, 'cortex', 'foo'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'cortex', 'foo', 'deviations.jsonl'), '{"r":1}\n{"r":2}\n{"r":3}\n');
+  const { gatherProjectSignals } = await import('./project-evidence.ts');
+  const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
+  assert.equal(signals.reviews?.count, 3);
+});
