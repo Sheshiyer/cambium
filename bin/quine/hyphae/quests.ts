@@ -12,7 +12,8 @@ import { questLedger } from '../../operator/quests/quests.ts';
 import type { QuestInputs } from '../../operator/quests/quests.ts';
 import { renderQuestLog } from '../../operator/quests/panel.ts';
 import { narrate } from '../../operator/narrative/narrative.ts';
-import { multicaActivityBeats, multicaOpenItems } from './multica.ts';
+import { multicaActivityBeats, multicaOpenItems, multicaAgentCount, multicaIssuesDone, multicaCommandsData } from './multica.ts';
+import { teamforgeActivityBeats } from './teamforge.ts';
 
 const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
 
@@ -63,7 +64,31 @@ export function gatherQuestInputs(ctx: QuineCtx, tenant: string): QuestInputs {
     inputs.isolationSuite = readdirSync(join(ctx.root, 'bin', 'operator'))
       .some((f) => /tenan/i.test(f) && /\.test\.ts$/.test(f));      // flips true when M3 C4 lands
   } catch { inputs.isolationSuite = false; }
+  // M5 Phase Q Bridge: founder-level completion (arcs I–IX inherited by all tenants)
+  const founder = readJson(join(opDir, 'founder.json'));
+  if (founder && Array.isArray(founder.completedArcs)) {
+    inputs.founder = { completedArcs: founder.completedArcs };
+  }
+  // M5 Phase Q Bridge: project/delivery evidence (arcs X+)
+  const proj = readJson(join(opDir, `${tenant}.project.json`));
+  if (proj && typeof proj === 'object') {
+    inputs.project = proj;
+  }
   return inputs;
+}
+
+/** Gather MultiCA-derived quest inputs — async because it calls the gateway. Fail-soft. */
+export async function gatherMulticaInputs(): Promise<QuestInputs['multica']> {
+  try {
+    const [agents, issuesDone, issuesOpen] = await Promise.all([
+      multicaAgentCount(),
+      multicaIssuesDone(),
+      multicaOpenItems(12).then((items) => items.length),
+    ]);
+    return { reachable: true, agents, issuesDone, issuesOpen };
+  } catch {
+    return { reachable: false, agents: 0, issuesDone: 0, issuesOpen: 0 };
+  }
 }
 
 // The push lane (Thalia wing W1): derive the ledger and POST it inside a freshness
@@ -96,7 +121,9 @@ export const quests: Hypha = {
 
   async read(args, ctx) {
     const tenant = tenantOf(args);
-    const ledger = questLedger(gatherQuestInputs(ctx, tenant));
+    const inputs = gatherQuestInputs(ctx, tenant);
+    inputs.multica = await gatherMulticaInputs();
+    const ledger = questLedger(inputs);
     const lines: string[] = [];
     renderQuestLog(ledger, tenant, (s) => lines.push(s));
     return lines.join('\n');
@@ -111,6 +138,7 @@ export const quests: Hypha = {
     if (!token) return 'quests push: no QUESTS_PUSH_TOKEN (env or ~/.claude/.env) — refusing.';
 
     const inputs = gatherQuestInputs(ctx, tenant);
+    inputs.multica = await gatherMulticaInputs();
     const L = questLedger(inputs);
     // W3: the narrative mapper turns logs + deviations into PROSE beats; M5 Phase R
     // appends the org's live activity (source:"multica") — fail-soft if unreachable.
@@ -122,6 +150,16 @@ export const quests: Hypha = {
     let openItems: Array<{ id: string; title: string; status: string }> = [];
     try { beats.push(...await multicaActivityBeats(8)); openItems = await multicaOpenItems(12); }
     catch { /* gateway unreachable — story stays local, gate stays empty */ }
+    // The TeamForge emitter (projects · sync journal · conflicts) joins the feed as
+    // the source:"teamforge" lane — fail-soft if the feed token/URL are unset.
+    try { beats.push(...await teamforgeActivityBeats(6)); }
+    catch { /* forge feed unreachable — story keeps its other lanes */ }
+    // Read-only command data for the miniapp Commands panel (status/agents/work/handoffs).
+    let commands: Record<string, unknown> | null = null;
+    try {
+      commands = await multicaCommandsData(`${L.completed}/${L.total}`);
+      commands.handoffs = openItems;
+    } catch { /* multica unreachable — commands cards show 'unavailable' */ }
     const envelope = {
       schema: 1,
       derivedAt: new Date().toISOString(),
@@ -129,6 +167,7 @@ export const quests: Hypha = {
       tenant,
       beats,
       openItems,
+      commands,
       ledger: {
         completed: L.completed,
         total: L.total,
