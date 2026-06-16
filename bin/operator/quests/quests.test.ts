@@ -267,3 +267,18 @@ test('quests · arc XVII stays active while project is still live', () => {
   assert.equal(L.rows[16].status, 'active');
   assert.match(L.rows[16].evidence, /2 lessons minted · project still active/);
 });
+
+test('quine write quests evidence refreshes the project.json file', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-test-');
+  fs.mkdirSync(path.join(tmp, '.operator'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '.operator', 'acme.world.json'), JSON.stringify({ version: 1, artifacts: {}, log: [] }));
+  const { refreshProjectEvidence } = await import('../../quine/hyphae/project-evidence.ts');
+  const ev = refreshProjectEvidence({ root: tmp } as any, 'acme');
+  assert.equal(ev.tenantProvisioned, true, 'world.json present ⇒ tenantProvisioned true');
+  assert.equal(ev.contractExists, false, 'no vault dir for acme ⇒ contract honestly false');
+  const written = JSON.parse(fs.readFileSync(path.join(tmp, '.operator', 'acme.project.json'), 'utf8'));
+  assert.equal(written.tenantProvisioned, true);
+  assert.equal(written.source, 'project-evidence@v1');
+});
