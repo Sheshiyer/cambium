@@ -3,7 +3,7 @@
 // quest fold (bin/operator/quests/quests.ts): it gathers inputs fail-soft (missing files
 // → honest "unplayed"/"unreachable" states) and NEVER writes world or onboarding state.
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import type { Hypha, QuineCtx } from '../types.ts';
@@ -14,6 +14,7 @@ import { renderQuestLog } from '../../operator/quests/panel.ts';
 import { narrate } from '../../operator/narrative/narrative.ts';
 import { multicaActivityBeats, multicaOpenItems, multicaAgentCount, multicaIssuesDone, multicaCommandsData } from './multica.ts';
 import { teamforgeActivityBeats } from './teamforge.ts';
+import { refreshProjectEvidence } from './project-evidence.ts';
 
 const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
 
@@ -106,11 +107,71 @@ function pushTokenFromEnvFile(): string | undefined {
   } catch { return undefined; }
 }
 
+// The push lane body, extracted from `write` so the dispatcher below can compose
+// it with the new `evidence` and `activate-tenant` subverbs. Behavior unchanged.
+async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promise<unknown> {
+  const base = flag(args, '--url', PUSH_URL_DEFAULT).replace(/\/+$/, '');
+  const token = pushTokenFromEnvFile();
+  if (!token) return 'quests push: no QUESTS_PUSH_TOKEN (env or ~/.claude/.env) — refusing.';
+
+  const inputs = gatherQuestInputs(ctx, tenant);
+  inputs.multica = await gatherMulticaInputs();
+  const L = questLedger(inputs);
+  // W3: the narrative mapper turns logs + deviations into PROSE beats; M5 Phase R
+  // appends the org's live activity (source:"multica") — fail-soft if unreachable.
+  const devLines: string[] = [];
+  for (const p of [join(ctx.root, 'cortex', tenant, 'deviations.jsonl'), join(ctx.root, 'deviations.jsonl')]) {
+    try { devLines.push(...readFileSync(p, 'utf8').split('\n')); } catch { /* absent */ }
+  }
+  const beats = narrate(inputs.world?.log ?? [], devLines, 40);
+  let openItems: Array<{ id: string; title: string; status: string }> = [];
+  try { beats.push(...await multicaActivityBeats(8)); openItems = await multicaOpenItems(12); }
+  catch { /* gateway unreachable — story stays local, gate stays empty */ }
+  // The TeamForge emitter (projects · sync journal · conflicts) joins the feed as
+  // the source:"teamforge" lane — fail-soft if the feed token/URL are unset.
+  try { beats.push(...await teamforgeActivityBeats(6)); }
+  catch { /* forge feed unreachable — story keeps its other lanes */ }
+  // Read-only command data for the miniapp Commands panel (status/agents/work/handoffs).
+  let commands: Record<string, unknown> | null = null;
+  try {
+    commands = await multicaCommandsData(`${L.completed}/${L.total}`);
+    commands.handoffs = openItems;
+  } catch { /* multica unreachable — commands cards show 'unavailable' */ }
+  const envelope = {
+    schema: 1,
+    derivedAt: new Date().toISOString(),
+    source: flag(args, '--source', 'push'),
+    tenant,
+    beats,
+    openItems,
+    commands,
+    ledger: {
+      completed: L.completed,
+      total: L.total,
+      current: L.current ? { arc: L.current.arc, id: L.current.id, title: L.current.title, narration: L.current.narration } : null,
+      rows: L.rows.map((r) => ({ arc: r.quest.arc, id: r.quest.id, title: r.quest.title, status: r.status, evidence: r.evidence })),
+    },
+  };
+  const res = await fetch(`${base}/internal/ledger/${tenant}`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body: JSON.stringify(envelope),
+  });
+  const j: any = await res.json().catch(() => ({}));
+  return {
+    hypha: 'quests', pushed: res.ok, status: res.status, url: `${base}/api/quests/${tenant}`,
+    tenant, derivedAt: envelope.derivedAt, completed: `${L.completed}/${L.total}`, bytes: j.bytes ?? null,
+    ...(res.ok ? {} : { error: j.error ?? 'push failed' }),
+  };
+}
+
 export const quests: Hypha = {
   name: 'quests',
   describe: 'the quest log — where this venture stands in the infinite game (derived, never stored)',
   help: 'quine quests [--tenant t]            the quest log panel\n' +
-        '       quine write quests push [--tenant t] [--url base]   derive + push the ledger envelope to the serving worker',
+        '       quine write quests push [--tenant t] [--url base]      derive + push the ledger envelope\n' +
+        '       quine write quests evidence [--tenant t]               refresh ${tenant}.project.json from real sources\n' +
+        '       quine write quests activate-tenant --tenant <id>       bootstrap a new tenant world + project',
 
   async status(ctx) {
     const opDir = join(ctx.root, '.operator');
@@ -131,60 +192,33 @@ export const quests: Hypha = {
 
   async write(args, ctx) {
     const sub = args.find((a) => !a.startsWith('--'));
-    if (sub !== 'push') return 'quests: unknown write. Try: quine write quests push [--tenant t]';
     const tenant = tenantOf(args);
-    const base = flag(args, '--url', PUSH_URL_DEFAULT).replace(/\/+$/, '');
-    const token = pushTokenFromEnvFile();
-    if (!token) return 'quests push: no QUESTS_PUSH_TOKEN (env or ~/.claude/.env) — refusing.';
 
-    const inputs = gatherQuestInputs(ctx, tenant);
-    inputs.multica = await gatherMulticaInputs();
-    const L = questLedger(inputs);
-    // W3: the narrative mapper turns logs + deviations into PROSE beats; M5 Phase R
-    // appends the org's live activity (source:"multica") — fail-soft if unreachable.
-    const devLines: string[] = [];
-    for (const p of [join(ctx.root, 'cortex', tenant, 'deviations.jsonl'), join(ctx.root, 'deviations.jsonl')]) {
-      try { devLines.push(...readFileSync(p, 'utf8').split('\n')); } catch { /* absent */ }
+    if (sub === 'push') {
+      return await pushLedger(args, ctx, tenant);
     }
-    const beats = narrate(inputs.world?.log ?? [], devLines, 40);
-    let openItems: Array<{ id: string; title: string; status: string }> = [];
-    try { beats.push(...await multicaActivityBeats(8)); openItems = await multicaOpenItems(12); }
-    catch { /* gateway unreachable — story stays local, gate stays empty */ }
-    // The TeamForge emitter (projects · sync journal · conflicts) joins the feed as
-    // the source:"teamforge" lane — fail-soft if the feed token/URL are unset.
-    try { beats.push(...await teamforgeActivityBeats(6)); }
-    catch { /* forge feed unreachable — story keeps its other lanes */ }
-    // Read-only command data for the miniapp Commands panel (status/agents/work/handoffs).
-    let commands: Record<string, unknown> | null = null;
-    try {
-      commands = await multicaCommandsData(`${L.completed}/${L.total}`);
-      commands.handoffs = openItems;
-    } catch { /* multica unreachable — commands cards show 'unavailable' */ }
-    const envelope = {
-      schema: 1,
-      derivedAt: new Date().toISOString(),
-      source: flag(args, '--source', 'push'),
-      tenant,
-      beats,
-      openItems,
-      commands,
-      ledger: {
-        completed: L.completed,
-        total: L.total,
-        current: L.current ? { arc: L.current.arc, id: L.current.id, title: L.current.title, narration: L.current.narration } : null,
-        rows: L.rows.map((r) => ({ arc: r.quest.arc, id: r.quest.id, title: r.quest.title, status: r.status, evidence: r.evidence })),
-      },
-    };
-    const res = await fetch(`${base}/internal/ledger/${tenant}`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: JSON.stringify(envelope),
-    });
-    const j: any = await res.json().catch(() => ({}));
-    return {
-      hypha: 'quests', pushed: res.ok, status: res.status, url: `${base}/api/quests/${tenant}`,
-      tenant, derivedAt: envelope.derivedAt, completed: `${L.completed}/${L.total}`, bytes: j.bytes ?? null,
-      ...(res.ok ? {} : { error: j.error ?? 'push failed' }),
-    };
+
+    if (sub === 'evidence') {
+      const evidence = refreshProjectEvidence(ctx, tenant);
+      return { hypha: 'quests', op: 'evidence', tenant, evidence };
+    }
+
+    if (sub === 'activate-tenant') {
+      const opDir = join(ctx.root, '.operator');
+      mkdirSync(opDir, { recursive: true });
+      const worldPath = join(opDir, `${tenant}.world.json`);
+      const worldAlreadyExisted = existsSync(worldPath);
+      if (!worldAlreadyExisted) {
+        writeFileSync(worldPath, JSON.stringify({
+          version: 1,
+          artifacts: { tenant },
+          log: [`${new Date().toISOString()} → tenant activated via quine write quests activate-tenant`],
+        }, null, 2) + '\n');
+      }
+      const evidence = refreshProjectEvidence(ctx, tenant);
+      return { hypha: 'quests', op: 'activate-tenant', tenant, worldCreated: !worldAlreadyExisted, evidence };
+    }
+
+    return 'quests: unknown write. Try: push | evidence | activate-tenant [--tenant t]';
   },
 };
