@@ -101,3 +101,34 @@ test('refreshProjectEvidence creates the operator directory before atomic write'
   assert.equal(evidence.source, 'project-evidence@v1');
   assert.equal(written.source, 'project-evidence@v1');
 });
+
+test('gatherProjectSignals reads Cloudflare Worker deployment count when credentials are present', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-cf-');
+  fs.mkdirSync(path.join(tmp, 'workers', 'quests'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'workers', 'quests', 'wrangler.jsonc'), '{ "name": "cambium-quests" }\n');
+
+  const bin = path.join(tmp, 'bin');
+  const calls = path.join(tmp, 'curl-args.txt');
+  fs.mkdirSync(bin);
+  fs.writeFileSync(path.join(bin, 'curl'), `#!/bin/sh\nprintf '%s\\n' "$*" > ${calls}\nprintf '%s\\n' '{"result":[{"id":"d1"},{"id":"d2"},{"id":"d3"}]}'\n`);
+  fs.chmodSync(path.join(bin, 'curl'), 0o755);
+
+  const prevPath = process.env.PATH;
+  const prevToken = process.env.CLOUDFLARE_API_TOKEN;
+  const prevAccount = process.env.CLOUDFLARE_ACCOUNT_ID;
+  try {
+    process.env.PATH = `${bin}:${prevPath ?? ''}`;
+    process.env.CLOUDFLARE_API_TOKEN = 'test-token';
+    process.env.CLOUDFLARE_ACCOUNT_ID = 'test-account';
+    const { gatherProjectSignals } = await import('./project-evidence.ts');
+    const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
+    assert.equal(signals.deploys?.count, 3);
+    assert.match(fs.readFileSync(calls, 'utf8'), /workers\/scripts\/cambium-quests\/deployments/);
+  } finally {
+    if (prevPath === undefined) delete process.env.PATH; else process.env.PATH = prevPath;
+    if (prevToken === undefined) delete process.env.CLOUDFLARE_API_TOKEN; else process.env.CLOUDFLARE_API_TOKEN = prevToken;
+    if (prevAccount === undefined) delete process.env.CLOUDFLARE_ACCOUNT_ID; else process.env.CLOUDFLARE_ACCOUNT_ID = prevAccount;
+  }
+});

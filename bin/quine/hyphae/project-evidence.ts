@@ -136,9 +136,39 @@ function readGateSignals(_tenant: string): ProjectSignals['gate'] {
   return { approvals: 0 };
 }
 
-function readDeploySignals(_tenant: string): ProjectSignals['deploys'] {
-  // Cloudflare deploy events via bin/quine/hyphae/cf.ts in a future task.
-  return { count: 0 };
+function stripJsonComments(s: string): string {
+  return s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+}
+
+function readWorkerScriptName(ctx: QuineCtx): string | undefined {
+  if (process.env.CAMBIUM_DEPLOY_SCRIPT) return process.env.CAMBIUM_DEPLOY_SCRIPT;
+  if (process.env.CLOUDFLARE_WORKER_SCRIPT) return process.env.CLOUDFLARE_WORKER_SCRIPT;
+  try {
+    const config = JSON.parse(stripJsonComments(readFileSync(join(ctx.root, 'workers', 'quests', 'wrangler.jsonc'), 'utf8')));
+    return typeof config.name === 'string' && config.name ? config.name : undefined;
+  } catch { return undefined; }
+}
+
+function readDeploySignals(ctx: QuineCtx): ProjectSignals['deploys'] {
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || '9d9d23b27f32e70ae3afb6a1aa2c0f10';
+  const scriptName = readWorkerScriptName(ctx);
+  if (!apiToken || !accountId || !scriptName) return { count: 0 };
+
+  try {
+    const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/workers/scripts/${encodeURIComponent(scriptName)}/deployments`;
+    const stdout = execFileSync('curl', ['-fsS', '-H', `Authorization: Bearer ${apiToken}`, '-H', 'Content-Type: application/json', url], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const json = JSON.parse(stdout);
+    const deployments = Array.isArray(json?.result)
+      ? json.result
+      : Array.isArray(json?.result?.deployments)
+        ? json.result.deployments
+        : [];
+    return { count: deployments.length };
+  } catch { return { count: 0 }; }
 }
 
 function readSkillSignals(ctx: QuineCtx, tenant: string): ProjectSignals['skills'] {
@@ -159,7 +189,7 @@ export function gatherProjectSignals(ctx: QuineCtx, tenant: string): ProjectSign
     tenant: readTenantSignals(ctx, tenant),
     reviews: readReviewSignals(ctx, tenant),
     gate: readGateSignals(tenant),
-    deploys: readDeploySignals(tenant),
+    deploys: readDeploySignals(ctx),
     skills: readSkillSignals(ctx, tenant),
   };
 }
