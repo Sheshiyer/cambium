@@ -25,16 +25,27 @@ Deferred to follow-on plans:
 
 - [x] Preserve the existing review evidence and scope this pass to the `home`/overview route first.
 - [x] Inspect the current R3F scene split, authored island primitives, rail network, and HUD chrome.
-- [ ] Recompose the overview so the Cambium map fills the frame with larger authored glyph islands.
-- [ ] Reduce fixed DOM chrome on overview and push route/status labels into the world composition.
-- [ ] Strengthen lighting/material hierarchy and make rail/particle flow the dominant visual signature.
-- [ ] Add structural tests that prevent the overview from regressing into small-map/dashboard chrome.
-- [ ] Run `npm run r3f:test`, `npm run r3f:build`, and capture fresh overview screenshot evidence.
-- [ ] Record the result, residual visual risk, and next route-by-route direction.
+- [x] Recompose the overview so the Cambium map fills the frame with larger authored glyph islands.
+- [x] Reduce fixed DOM chrome on overview and push route/status labels into the world composition.
+- [x] Strengthen lighting/material hierarchy and make rail/particle flow the dominant visual signature.
+- [x] Add structural tests that prevent the overview from regressing into small-map/dashboard chrome.
+- [x] Run `npm run r3f:test`, `npm run r3f:build`, and capture fresh overview screenshot evidence.
+- [x] Record the result, residual visual risk, and next route-by-route direction.
 
 ## Review
 
-- Pending.
+- Added an explicit `overviewArtDirection` contract to `apps/cambium-r3f/src/scene/scene-data.ts` and `types.ts`: home route, `0.74` map-occupancy target, `cameraZoom: 88`, `1.38` island glyph scale, `4x` rail particle multiplier, and `minimal-world-first` chrome.
+- Tightened the home camera in `engine/camera-rig.tsx` so the map occupies the frame instead of sitting small in the center.
+- Added overview-only authored glyph primitives in `CambiumScene.tsx`: seed-star, capsule oracle, triangular forge gate, folded current slab, and memory wheel.
+- Added overview-only spline/bead rail flow, world-space overview labels, stronger lights, and reduced the `YOU ARE HERE` label on the overview route to avoid occlusion.
+- Reduced fixed DOM chrome in `SceneHud.tsx` and `styles.css` for home: no camera stack, no lower readout card, no instrument panel; route dock and operator strip are lighter.
+- Made `App.tsx` apply `app-shell--overview` so the large `CAMBIUM` title treatment is overview-specific.
+- Added `overview-art-direction.test.ts` and expanded `scene-data.test.ts`; `npm run r3f:test` passed 46/46 tests.
+- Verification passed: `npm run r3f:build`.
+- Browser proof captured after a clean Vite restart at `docs/plans/assets/cambium-overview-reference-art-pass/overview-final.png` (`1904x898`, `10132` unique sampled colors, `0.5803` non-background ratio).
+- Added `docs/plans/cambium-overview-reference-art-pass.md`.
+- Honest residual: this is a meaningful reference-direction pass, not final parity. Next frontier is material richness, edge highlights, topographic surface texture, shadows, and typography refinement around the enlarged glyphs.
+
 
 # Cambium Current Visual Review
 

@@ -2,7 +2,7 @@ import { sourceContract } from '../generated/source-contract.ts';
 import { engineControls, islandDefinitionFor, visualizationLayers } from '../world/island-registry.ts';
 import { cambiumQaPolicy } from './desktop-qa-policy.ts';
 import { defaultScreenId, routeDrafts } from './route-registry.ts';
-import type { CameraMode, CambiumSceneModel, EmitterLane, SceneNode, SceneRail, SceneReference, ScreenId, ScreenSpec } from './types.ts';
+import type { CameraMode, CambiumSceneModel, EmitterLane, OverviewArtDirection, SceneNode, SceneRail, SceneReference, ScreenId, ScreenSpec } from './types.ts';
 import { visualTokens } from './visual-tokens.ts';
 
 type PipelineStage = (typeof sourceContract.pipeline.stages)[number];
@@ -21,6 +21,22 @@ const referenceByScreen = new Map(
     reference,
   ]),
 );
+
+export const overviewArtDirection: OverviewArtDirection = {
+  routeId: 'home',
+  mapOccupancyTarget: 0.74,
+  cameraZoom: 88,
+  islandGlyphScale: 1.38,
+  railParticleMultiplier: 4,
+  domChrome: 'minimal-world-first',
+  heroGlyphs: {
+    genesis: 'seed-star relic',
+    taste: 'capsule oracle',
+    build: 'triangular forge gate',
+    ops: 'folded current slab',
+    cortex: 'memory wheel instrument',
+  },
+};
 
 function stageState(id: string, selectedNode?: string) {
   if (id === selectedNode) return 'active' as const;
@@ -143,6 +159,7 @@ export function buildCambiumScene(activeScreenId: ScreenId = defaultScreenId, ca
     screens,
     activeScreen,
     cameraMode: cameraMode ?? activeScreen.defaultCamera,
+    overviewArtDirection,
     telemetry: {
       progressLabel: sourceContract.questSummary.label,
       completedQuests: sourceContract.questSummary.completed,

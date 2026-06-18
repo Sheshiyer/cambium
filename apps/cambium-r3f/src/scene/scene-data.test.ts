@@ -52,3 +52,17 @@ test('scene model exposes desktop manual-feedback QA policy', () => {
   assert.equal(scene.qaPolicy.electronReadiness.targetShell, 'electron-macos-laptop');
   assert.ok(scene.qaPolicy.desktopViewports.some((viewport) => viewport.id === 'macbook-air-13'));
 });
+
+test('overview art direction locks the reference-matched home pass', () => {
+  const scene = buildCambiumScene('home');
+  assert.equal(scene.overviewArtDirection.routeId, 'home');
+  assert.equal(scene.overviewArtDirection.domChrome, 'minimal-world-first');
+  assert.ok(scene.overviewArtDirection.mapOccupancyTarget >= 0.7);
+  assert.ok(scene.overviewArtDirection.cameraZoom >= 84);
+  assert.ok(scene.overviewArtDirection.islandGlyphScale >= 1.3);
+  assert.ok(scene.overviewArtDirection.railParticleMultiplier >= 4);
+  assert.deepEqual(Object.keys(scene.overviewArtDirection.heroGlyphs), ['genesis', 'taste', 'build', 'ops', 'cortex']);
+  assert.match(scene.overviewArtDirection.heroGlyphs.genesis, /star/);
+  assert.match(scene.overviewArtDirection.heroGlyphs.build, /triangular/);
+  assert.match(scene.overviewArtDirection.heroGlyphs.cortex, /wheel/);
+});

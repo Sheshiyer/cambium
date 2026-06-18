@@ -20,10 +20,11 @@ function instrumentTone(item: ScenePanel | EngineControl | VisualizationLayer) {
 
 export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange }: SceneHudProps) {
   const focusedNode = scene.nodes.find((node) => node.id === scene.activeScreen.focusNode) ?? scene.nodes.find((node) => node.state === 'active') ?? scene.nodes[0];
+  const isReferenceOverview = scene.activeScreen.id === scene.overviewArtDirection.routeId;
 
   return (
     <>
-      <header className="operator-strip" aria-label="Cambium tactical state">
+      <header className={`operator-strip${isReferenceOverview ? ' operator-strip--overview' : ''}`} aria-label="Cambium tactical state">
         <div className="operator-brand">
           <span>CAMBIUM</span>
           <strong>{scene.activeScreen.eyebrow}</strong>
@@ -35,7 +36,7 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
         </div>
       </header>
 
-      <nav className="route-dock" aria-label="Cambium islands">
+      <nav className={`route-dock${isReferenceOverview ? ' route-dock--overview' : ''}`} aria-label="Cambium islands">
         {scene.screens.map((screen) => (
           <button
             key={screen.id}
@@ -49,43 +50,49 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
         ))}
       </nav>
 
-      <aside className="diegetic-readout" aria-label="Current tactical target">
-        <div className="shape-specimen" aria-hidden="true">
-          <Coolshape
-            type={focusedNode.coolshape.shapeType}
-            index={focusedNode.coolshape.index}
-            size={58}
-            noise={false}
-          />
-        </div>
-        <div>
-          <span className="hud-kicker">{scene.activeScreen.mode.toUpperCase()} · {cameraMode.toUpperCase()}</span>
-          <h1>{scene.activeScreen.title}</h1>
-          <p>{scene.activeScreen.description}</p>
-        </div>
-      </aside>
-
-      <section className="camera-dial" aria-label="Camera mode">
-        {cameraModes.map((mode) => (
-          <button
-            key={mode}
-            type="button"
-            aria-pressed={cameraMode === mode}
-            onClick={() => onCameraModeChange(mode)}
-          >
-            {mode}
-          </button>
-        ))}
-      </section>
-
-      <section className="scene-instruments" aria-label="Scene instruments">
-        {(scene.activeScreen.mode === 'settings' ? scene.engineControls : scene.activeScreen.mode === 'visualizations' ? scene.visualizationLayers : scene.activeScreen.panels).map((item) => (
-          <div key={instrumentLabel(item)} className="instrument-line" data-tone={instrumentTone(item)}>
-            <span>{instrumentLabel(item)}</span>
-            <strong>{item.value}</strong>
+      {isReferenceOverview ? null : (
+        <aside className="diegetic-readout" aria-label="Current tactical target">
+          <div className="shape-specimen" aria-hidden="true">
+            <Coolshape
+              type={focusedNode.coolshape.shapeType}
+              index={focusedNode.coolshape.index}
+              size={58}
+              noise={false}
+            />
           </div>
-        ))}
-      </section>
+          <div>
+            <span className="hud-kicker">{scene.activeScreen.mode.toUpperCase()} · {cameraMode.toUpperCase()}</span>
+            <h1>{scene.activeScreen.title}</h1>
+            <p>{scene.activeScreen.description}</p>
+          </div>
+        </aside>
+      )}
+
+      {isReferenceOverview ? null : (
+        <section className="camera-dial" aria-label="Camera mode">
+          {cameraModes.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={cameraMode === mode}
+              onClick={() => onCameraModeChange(mode)}
+            >
+              {mode}
+            </button>
+          ))}
+        </section>
+      )}
+
+      {isReferenceOverview ? null : (
+        <section className="scene-instruments" aria-label="Scene instruments">
+          {(scene.activeScreen.mode === 'settings' ? scene.engineControls : scene.activeScreen.mode === 'visualizations' ? scene.visualizationLayers : scene.activeScreen.panels).map((item) => (
+            <div key={instrumentLabel(item)} className="instrument-line" data-tone={instrumentTone(item)}>
+              <span>{instrumentLabel(item)}</span>
+              <strong>{item.value}</strong>
+            </div>
+          ))}
+        </section>
+      )}
     </>
   );
 }
