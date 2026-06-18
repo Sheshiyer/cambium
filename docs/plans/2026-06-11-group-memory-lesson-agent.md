@@ -1,6 +1,7 @@
 # The Group as Memory + the daily Lesson-Miner agent
 
-> Status: SPEC (founder chose spec-first, 2026-06-11). Companion to the curios.self
+> Status: SPEC + local lesson mint primitive (founder chose spec-first, 2026-06-11;
+> `quine write lessons mint` added 2026-06-18). Companion to the curios.self
 > miniapp wing ([2026-06-10-thalia-wing-quest-miniapp.md](./2026-06-10-thalia-wing-quest-miniapp.md))
 > and the skill forge (M4) / quest arc XVII "The Garden" (lessons minted · project archived).
 
@@ -93,9 +94,25 @@ on-demand `/ts-lessons` trigger in the DM for ad-hoc runs.
 | L0 | Confirm the founder group (G1) + privacy mode (G2); add the bot; one-time `getUpdates` smoke test | governance + BotFather |
 | L1 | `@bot` pickup: Hermes handler captures `@thoughtseed_bot`-mentioned / replied messages to a pickup queue (JSON, like the gate queue) | reuse the gate-consumer queue pattern |
 | L2 | Daily read: Hermes skill reads the last 24h from the poller log + pickup queue | reuse poller stream (no second reader) |
-| L3 | The miner: cluster → detect repeatable/self-heal → mint lessons (`quine write lessons mint`) → daily DM digest | MultiCA model (G4); strict thresholds (G6) |
+| L3 | The miner: cluster → detect repeatable/self-heal → mint lessons (`quine write lessons mint`) → daily DM digest | `quine write lessons mint` exists as the local proposed-lesson ledger; MultiCA model (G4) and strict thresholds (G6) still gate the mining agent |
 | L4 | Lessons in the miniapp: a "Lessons" panel (or fold into Story/Gate) reading the forge; self-heal candidates flow to the existing gate | extends the shipped miniapp |
 | L5 | Approve → routine: an approved self-heal becomes a paperclip routine / skill spoke | reuse routines + skill forge |
+
+## Implemented groundwork - 2026-06-18
+
+Cambium now has the local lesson mint surface that the future Hermes Lesson-Miner can call:
+
+```sh
+npm run quine -- write lessons mint \
+  --tenant cambium \
+  --title "Archive Paperclip before shutdown" \
+  --kind repeatable \
+  --summary "the archive-and-receipt ceremony repeats before runtime retirement" \
+  --proposed "turn the ceremony into a reusable runbook" \
+  --evidence "digest://2026-06-18#paperclip"
+```
+
+The command writes a proposed lesson into `.operator/<tenant>.skills.json` using the existing skill forge registry shape, preserves evidence references instead of raw private group text, and feeds `project-evidence@v1.lessonsMinted` for arc XVII. This does **not** wire Telegram group pickup or daily reads; L0-L2 still require the founder group, bot membership/privacy, and Hermes poller decisions above.
 
 ## Definition of done
 
