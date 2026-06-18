@@ -4,10 +4,10 @@
 
 ## 1. Lesson-miner agent — arc XVII closure
 - **Spec**: `docs/plans/2026-06-11-group-memory-lesson-agent.md`
-- **Status**: SPEC complete, implementation not started
+- **Status**: SPEC complete; local `quine write lessons mint` groundwork implemented so proposed lessons can enter the skill registry and project evidence. Live group ingestion is not started.
 - **Gating decisions to resolve before build**: G1 (founder group chat_id), G2 (BotFather privacy mode), G3 (host: Hermes skill vs cambium agent), G4 (model via MultiCA gateway), G5 (privacy of group content), G6 (dedup threshold).
 - **Waves**: L0 (governance) → L1 (`@bot` pickup) → L2 (daily read) → L3 (the miner) → L4 (miniapp panel) → L5 (approve → routine).
-- **Reuse**: rides the existing Hermes poller, gate-consumer queue, skill forge, miniapp, launchd. New parts are the miner logic (L3) and `quine write lessons mint`.
+- **Reuse**: rides the existing Hermes poller, gate-consumer queue, skill forge, miniapp, launchd. New parts still needed are Telegram pickup/daily read, miner logic, and miniapp surfacing.
 
 ## 2. Variable-contracts runtime validation — composition layer hardening
 - **Spec**: `docs/plans/2026-06-09-capability-alignment-variable-contracts.md`
