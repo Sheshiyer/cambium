@@ -39,8 +39,15 @@ export function TacticalCameraRig({ scene, mode }: TacticalCameraRigProps) {
         zoom: activeNode.cameraTarget.zoom,
       };
     }
+    if (scene.activeScreen.id === scene.overviewArtDirection.routeId) {
+      return {
+        position: new THREE.Vector3(7.4, 6.35, 7.8),
+        target: new THREE.Vector3(-0.15, 0.18, -0.72),
+        zoom: scene.overviewArtDirection.cameraZoom,
+      };
+    }
     return overviewPose;
-  }, [activeNode, mode]);
+  }, [activeNode, mode, scene.activeScreen.id, scene.overviewArtDirection]);
 
   useFrame((state, delta) => {
     const time = state.clock.elapsedTime;

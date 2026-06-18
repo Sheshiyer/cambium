@@ -27,6 +27,8 @@ interface SceneProps {
   cameraMode: CameraMode;
 }
 
+type SceneVariant = 'standard' | 'reference-overview';
+
 function LinePrimitive({ points, color, opacity }: { points: THREE.Vector3[]; color: string; opacity: number }) {
   const line = useMemo(() => {
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -207,6 +209,17 @@ function RailBody({ rail, from, to }: { rail: SceneRail; from: SceneNode; to: Sc
   );
 }
 
+function quadraticRailPoint(from: SceneNode, to: SceneNode, t: number, lift: number) {
+  const mid = new THREE.Vector3((from.x + to.x) / 2, lift, (from.z + to.z) / 2);
+  const a = new THREE.Vector3(from.x, 0.34, from.z).lerp(mid, t);
+  const b = mid.clone().lerp(new THREE.Vector3(to.x, 0.34, to.z), t);
+  return a.lerp(b, t);
+}
+
+function quadraticRailPoints(from: SceneNode, to: SceneNode, lift: number, count: number) {
+  return Array.from({ length: count }, (_, index) => quadraticRailPoint(from, to, index / (count - 1), lift));
+}
+
 function SignalPacket({ packet }: { packet: RailPacketMarker }) {
   const tone = packet.lane === 'background-emitter' ? visualTokens.colors.mist : visualTokens.colors.signal;
 
@@ -245,7 +258,7 @@ function EmitterNode({ port }: { port: IslandPort }) {
   );
 }
 
-function ProcessBeacon({ node }: { node: SceneNode }) {
+function ProcessBeacon({ node, showLabel = true }: { node: SceneNode; showLabel?: boolean }) {
   return (
     <group position={[node.x, 0.48, node.z]}>
       <mesh rotation={[0, Math.PI / 4, 0]} scale={[0.48, 0.08, 0.48]}>
@@ -260,7 +273,9 @@ function ProcessBeacon({ node }: { node: SceneNode }) {
         <torusGeometry args={[0.58, 0.012, 6, 72]} />
         <meshBasicMaterial color={visualTokens.colors.signal} transparent opacity={0.58} />
       </mesh>
-      <WorldLabel title="YOU ARE HERE" detail={`${node.title} // ${node.state}`} position={[0.24, 1.12, 0.22]} tone={visualTokens.colors.signal} />
+      {showLabel ? (
+        <WorldLabel title="YOU ARE HERE" detail={`${node.title} // ${node.state}`} position={[0.24, 1.12, 0.22]} tone={visualTokens.colors.signal} />
+      ) : null}
     </group>
   );
 }
@@ -277,8 +292,81 @@ function IslandConnectionPorts({ nodes, rails }: { nodes: SceneNode[]; rails: Sc
   );
 }
 
-function RailNetwork({ rails, nodes }: { rails: SceneRail[]; nodes: SceneNode[] }) {
+function ReferenceRailNetwork({
+  rails,
+  nodes,
+  particleMultiplier,
+}: {
+  rails: SceneRail[];
+  nodes: SceneNode[];
+  particleMultiplier: number;
+}) {
   const nodesById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
+
+  return (
+    <group>
+      {rails.map((rail) => {
+        const from = nodesById.get(rail.from);
+        const to = nodesById.get(rail.to);
+        if (!from || !to) return null;
+        const material = railMaterial(rail);
+        const lift = rail.lane === 'background-emitter' ? 0.92 : 0.74;
+        const curvePoints = quadraticRailPoints(from, to, lift, 28);
+        const beadCount = rail.packetCount * particleMultiplier + (rail.lane === 'background-emitter' ? 8 : 5);
+        const ghostOffset = rail.tone === 'memory' ? 0.18 : -0.14;
+
+        return (
+          <group key={`${rail.id}-reference-flow`}>
+            <LinePrimitive points={curvePoints} color={material.color} opacity={rail.tone === 'memory' ? 0.34 : 0.72} />
+            <LinePrimitive
+              points={curvePoints.map((point) => point.clone().add(new THREE.Vector3(ghostOffset, 0.025, -ghostOffset * 0.42)))}
+              color={rail.tone === 'memory' ? visualTokens.colors.depth : visualTokens.colors.signal}
+              opacity={rail.tone === 'memory' ? 0.22 : 0.46}
+            />
+            {Array.from({ length: beadCount }).map((_, index) => {
+              const t = (index + 0.45) / (beadCount + 0.9);
+              const position = quadraticRailPoint(from, to, t, lift + Math.sin(index * 0.7) * 0.12);
+              const size = rail.lane === 'background-emitter' ? 0.035 : index % 4 === 0 ? 0.075 : 0.048;
+              const tone = rail.tone === 'memory' ? visualTokens.colors.depth : visualTokens.colors.signal;
+
+              return (
+                <group key={`${rail.id}-bead-${index}`} position={position}>
+                  <mesh>
+                    <sphereGeometry args={[size, 10, 10]} />
+                    <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={0.48} roughness={0.42} />
+                  </mesh>
+                  {index % 5 === 0 ? (
+                    <mesh rotation={[-Math.PI / 2, 0, 0]}>
+                      <torusGeometry args={[size * 2.8, size * 0.12, 5, 24]} />
+                      <meshBasicMaterial color={tone} transparent opacity={0.34} />
+                    </mesh>
+                  ) : null}
+                </group>
+              );
+            })}
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function RailNetwork({
+  rails,
+  nodes,
+  variant = 'standard',
+  particleMultiplier = 1,
+}: {
+  rails: SceneRail[];
+  nodes: SceneNode[];
+  variant?: SceneVariant;
+  particleMultiplier?: number;
+}) {
+  const nodesById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
+
+  if (variant === 'reference-overview') {
+    return <ReferenceRailNetwork rails={rails} nodes={nodes} particleMultiplier={particleMultiplier} />;
+  }
 
   return (
     <group>
@@ -395,6 +483,116 @@ function IslandCore({ node }: { node: SceneNode }) {
           </mesh>
         );
       })}
+    </group>
+  );
+}
+
+function ReferenceOverviewGlyph({ node, selected }: { node: SceneNode; selected: boolean }) {
+  const tone = selected ? visualTokens.colors.signal : visualTokens.colors.mist;
+  const baseMaterial = {
+    color: visualTokens.colors.substrate,
+    roughness: 0.48,
+    metalness: 0.28,
+    emissive: tone,
+    emissiveIntensity: selected ? 0.16 : 0.07,
+  };
+
+  if (node.id === 'genesis') {
+    return (
+      <group position={[0, 0.78, 0]}>
+        {Array.from({ length: 8 }).map((_, index) => {
+          const angle = (index / 8) * Math.PI * 2;
+          return (
+            <mesh key={`genesis-ray-${index}`} position={[Math.cos(angle) * 0.34, 0.02, Math.sin(angle) * 0.34]} rotation={[0, -angle, Math.PI / 2]} scale={[0.5, 1, 1]}>
+              <coneGeometry args={[0.18, 1.02, 3]} />
+              <meshStandardMaterial {...baseMaterial} />
+            </mesh>
+          );
+        })}
+        <mesh position={[0, 0.06, 0]}>
+          <sphereGeometry args={[0.24, 24, 16]} />
+          <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={0.55} roughness={0.38} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (node.id === 'taste') {
+    return (
+      <group position={[0, 0.72, 0]} rotation={[0.12, -0.28, -0.08]}>
+        <mesh rotation={[0, 0, Math.PI / 2]} scale={[1.16, 0.56, 0.56]}>
+          <cylinderGeometry args={[0.42, 0.42, 1.4, 32]} />
+          <meshStandardMaterial {...baseMaterial} />
+        </mesh>
+        <mesh position={[-0.82, 0, 0]} scale={[0.44, 0.44, 0.44]}>
+          <sphereGeometry args={[1, 24, 16]} />
+          <meshStandardMaterial {...baseMaterial} />
+        </mesh>
+        <mesh position={[0.82, 0, 0]} scale={[0.44, 0.44, 0.44]}>
+          <sphereGeometry args={[1, 24, 16]} />
+          <meshStandardMaterial {...baseMaterial} />
+        </mesh>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.62, 0.018, 8, 72]} />
+          <meshBasicMaterial color={tone} transparent opacity={0.7} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (node.id === 'build') {
+    return (
+      <group position={[0, 0.74, 0]} rotation={[0.08, -0.2, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, Math.PI / 6]}>
+          <ringGeometry args={[0.52, 0.84, 3]} />
+          <meshStandardMaterial {...baseMaterial} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 6]}>
+          <circleGeometry args={[0.38, 3]} />
+          <meshBasicMaterial color={tone} transparent opacity={0.36} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (node.id === 'ops') {
+    return (
+      <group position={[0, 0.7, 0]} rotation={[0.08, -0.56, 0.05]}>
+        <mesh position={[-0.22, 0.04, 0]} rotation={[0.16, 0, -0.24]} scale={[0.78, 0.18, 0.82]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial {...baseMaterial} />
+        </mesh>
+        <mesh position={[0.34, 0.13, 0]} rotation={[-0.18, 0, 0.3]} scale={[0.72, 0.18, 0.82]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial {...baseMaterial} />
+        </mesh>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.78, 0.03, 8, 96]} />
+          <meshBasicMaterial color={tone} transparent opacity={0.62} />
+        </mesh>
+      </group>
+    );
+  }
+
+  return (
+    <group position={[0, 0.72, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.82, 0.08, 12, 120]} />
+        <meshStandardMaterial {...baseMaterial} />
+      </mesh>
+      {Array.from({ length: 12 }).map((_, index) => {
+        const angle = (index / 12) * Math.PI * 2;
+        return (
+          <mesh key={`cortex-spoke-${index}`} position={[Math.cos(angle) * 0.38, 0, Math.sin(angle) * 0.38]} rotation={[0, -angle, 0]} scale={[0.46, 0.055, 0.035]}>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshBasicMaterial color={tone} transparent opacity={0.56} />
+          </mesh>
+        );
+      })}
+      <mesh position={[0, 0.08, 0]}>
+        <sphereGeometry args={[0.16, 18, 12]} />
+        <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={0.46} roughness={0.42} />
+      </mesh>
     </group>
   );
 }
@@ -643,8 +841,18 @@ function AssetComparisonField() {
   );
 }
 
-function OrganIsland({ node, focused = false }: { node: SceneNode; focused?: boolean }) {
-  const scale = node.worldScale * (focused ? 1.26 : 1);
+function OrganIsland({
+  node,
+  focused = false,
+  variant = 'standard',
+  glyphScale = 1,
+}: {
+  node: SceneNode;
+  focused?: boolean;
+  variant?: SceneVariant;
+  glyphScale?: number;
+}) {
+  const scale = node.worldScale * (focused ? 1.26 : 1) * (variant === 'reference-overview' ? glyphScale : 1);
   const selected = node.selected || focused;
   const authoredAsset = meshyAssetFor(node.id);
   const terrainGeometry = useMemo(() => createProceduralIslandGeometry(node), [node]);
@@ -663,7 +871,9 @@ function OrganIsland({ node, focused = false }: { node: SceneNode; focused?: boo
         <torusGeometry args={[1.42, 0.006, 6, 96]} />
         <meshBasicMaterial color={visualTokens.colors.mist} transparent opacity={0.18} />
       </mesh>
-      {authoredAsset ? (
+      {variant === 'reference-overview' ? (
+        <ReferenceOverviewGlyph node={node} selected={selected} />
+      ) : authoredAsset ? (
         <Suspense fallback={<IslandCore node={node} />}>
           <AuthoredIslandModel asset={authoredAsset} selected={selected} />
         </Suspense>
@@ -673,7 +883,7 @@ function OrganIsland({ node, focused = false }: { node: SceneNode; focused?: boo
       <WorldLabel
         title={node.title}
         detail={`${node.biome} // ${node.state}`}
-        position={[0.08, selected ? 2.15 : 1.72, 0.2]}
+        position={[0.08, variant === 'reference-overview' ? 2.28 : selected ? 2.15 : 1.72, 0.2]}
         tone={selected ? visualTokens.colors.signal : visualTokens.colors.mist}
       />
       {selected ? (
@@ -859,28 +1069,87 @@ function ComponentSpecimens({ scene }: { scene: CambiumSceneModel }) {
   );
 }
 
+function OverviewWorldStatus({ scene }: { scene: CambiumSceneModel }) {
+  return (
+    <group>
+      <WorldLabel
+        title="CAMBIUM"
+        detail={`${scene.activeScreen.eyebrow} // ARC ${scene.telemetry.activeArc} // ${scene.telemetry.completedQuests}/${scene.telemetry.totalQuests}`}
+        position={[-5.72, 2.72, -3.06]}
+        tone={visualTokens.colors.signal}
+      />
+      <WorldLabel
+        title="2.5D OVERVIEW"
+        detail="ORGAN MAP // RAIL FLOW // LIVE"
+        position={[2.82, 2.58, 1.86]}
+        tone={visualTokens.colors.signal}
+      />
+      <WorldLabel
+        title="FLAT NODE VIEW"
+        detail="CORTEX // GENESIS // TASTE // BUILD // OPS"
+        position={[5.28, 2.14, -1.98]}
+        tone={visualTokens.colors.mist}
+      />
+      {Array.from({ length: 42 }).map((_, index) => {
+        const column = index % 14;
+        const row = Math.floor(index / 14);
+        const x = -5.9 + column * 0.34;
+        const z = 2.4 + row * 0.28 + Math.sin(index * 1.7) * 0.08;
+        const y = 0.58 + Math.cos(index * 0.9) * 0.18;
+        const tone = index % 5 === 0 ? visualTokens.colors.signal : visualTokens.colors.mist;
+
+        return (
+          <mesh key={`overview-data-speck-${index}`} position={[x, y, z]}>
+            <sphereGeometry args={[index % 5 === 0 ? 0.032 : 0.018, 8, 8]} />
+            <meshBasicMaterial color={tone} transparent opacity={index % 5 === 0 ? 0.72 : 0.28} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
 export function CambiumScene({ scene, cameraMode }: SceneProps) {
   const mode = scene.activeScreen.mode;
   const activeNode = scene.nodes.find((node) => node.id === scene.activeScreen.focusNode);
+  const isReferenceOverview = scene.activeScreen.id === scene.overviewArtDirection.routeId;
 
   return (
     <>
       <TacticalCameraRig scene={scene} mode={cameraMode} />
       <fog attach="fog" args={[fogPreset.color, fogPreset.near, fogPreset.far]} />
-      <ambientLight intensity={0.48} />
-      <directionalLight position={[3.2, 7.4, 4.8]} intensity={1.28} />
-      <pointLight position={[activeNode?.x ?? -1.5, 2.8, activeNode?.z ?? 0.4]} intensity={1.1} color={visualTokens.colors.signal} />
+      <ambientLight intensity={isReferenceOverview ? 0.38 : 0.48} />
+      <directionalLight position={[3.2, 7.4, 4.8]} intensity={isReferenceOverview ? 1.76 : 1.28} />
+      <pointLight position={[activeNode?.x ?? -1.5, 2.8, activeNode?.z ?? 0.4]} intensity={isReferenceOverview ? 1.7 : 1.1} color={visualTokens.colors.signal} />
+      {isReferenceOverview ? (
+        <>
+          <pointLight position={[-4.8, 2.7, -1.2]} intensity={1.08} color={visualTokens.colors.signal} />
+          <pointLight position={[0.2, 2.6, -3.1]} intensity={0.88} color={visualTokens.colors.mist} />
+        </>
+      ) : null}
       <AtmosphereStack />
       <CambiumField mode={cameraMode} />
       {mode === 'asset-comparison' ? (
         <AssetComparisonField />
       ) : (
         <>
-          <RailNetwork rails={scene.rails} nodes={scene.nodes} />
+          {isReferenceOverview ? <OverviewWorldStatus scene={scene} /> : null}
+          <RailNetwork
+            rails={scene.rails}
+            nodes={scene.nodes}
+            variant={isReferenceOverview ? 'reference-overview' : 'standard'}
+            particleMultiplier={scene.overviewArtDirection.railParticleMultiplier}
+          />
           <IslandConnectionPorts rails={scene.rails} nodes={scene.nodes} />
-          <ProcessBeacon node={activeProcessNode(scene.nodes)} />
+          <ProcessBeacon node={activeProcessNode(scene.nodes)} showLabel={!isReferenceOverview} />
           {scene.nodes.map((node) => (
-            <OrganIsland key={node.id} node={node} focused={mode === 'island' && node.id === scene.activeScreen.focusNode} />
+            <OrganIsland
+              key={node.id}
+              node={node}
+              focused={mode === 'island' && node.id === scene.activeScreen.focusNode}
+              variant={isReferenceOverview ? 'reference-overview' : 'standard'}
+              glyphScale={scene.overviewArtDirection.islandGlyphScale}
+            />
           ))}
           {mode === 'island' ? <LocalIslandSystems scene={scene} /> : null}
           {mode === 'settings' ? <ControlBay scene={scene} /> : null}

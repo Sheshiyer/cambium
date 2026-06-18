@@ -78,6 +78,17 @@ button {
   transform-origin: left bottom;
 }
 
+.app-shell--overview::after {
+  top: 78px;
+  bottom: auto;
+  left: 28px;
+  color: rgba(224, 255, 79, 0.16);
+  font-size: 7.4rem;
+  line-height: 0.78;
+  transform: scaleX(0.72);
+  transform-origin: left top;
+}
+
 .scene-stage {
   position: absolute;
   inset: 0;
@@ -139,6 +150,21 @@ button {
   font-size: 1rem;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.operator-strip--overview {
+  right: 28px;
+  left: 28px;
+}
+
+.operator-strip--overview .operator-brand {
+  opacity: 0.72;
+}
+
+.operator-strip--overview .telemetry-line {
+  border-color: rgba(224, 255, 79, 0.28);
+  background: rgba(0, 39, 43, 0.28);
+  backdrop-filter: blur(8px);
 }
 
 .telemetry-line,
@@ -209,6 +235,25 @@ button {
   color: #00272b;
   background: #e0ff4f;
   font-weight: 800;
+}
+
+.route-dock--overview {
+  bottom: 18px;
+  border-color: rgba(214, 255, 246, 0.1);
+  background: rgba(0, 39, 43, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.route-dock--overview button {
+  min-width: 82px;
+  height: 34px;
+  color: rgba(214, 255, 246, 0.58);
+  font-size: 0.6rem;
+}
+
+.route-dock--overview button[aria-current="page"] {
+  color: #00272b;
+  background: rgba(224, 255, 79, 0.92);
 }
 
 .route-dock button:active,
