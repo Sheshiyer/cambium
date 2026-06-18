@@ -144,7 +144,7 @@ evidence strings, narrative beats). Brand vectors, tokens, and vault content nev
 |---|---|---|---|
 | 1 | Miniapp prerequisites on the bot: BotFather web-app domain, menu button, AND zero keyboard wiring exists today (§2) | HIGH | blocks W2 until configured |
 | 1b | Hermes has no inbound HTTP — gate writes must buffer in the Worker and be POLLED (house pattern) | HIGH | shapes W4 design (§6) |
-| 2 | `CF_API_TOKEN` expired (Vectorize REST falls back to sqlite) | MED | wrangler OAuth works; re-mint pending (40-char secret) |
+| 2 | `CF_API_TOKEN` re-minted ✅ Vectorize REST live | — | restored 2026-06-11 |
 | 3 | No `telegram-miniapp` capability in skill-clusters (40 clusters surveyed) | MED | add spoke under `frontend-web` (TMA SDK) |
 | 4 | Quest ledger currently local-only (`.operator/`) | MED | W1 serving store (§7) |
 | 5 | curios.self absent from entity-registry | LOW | one-line vault row when wing lands |

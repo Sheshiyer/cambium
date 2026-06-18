@@ -76,6 +76,18 @@ test('formatPlan renders the tenant and all four numbered stages in order', () =
   assert.ok(i1 >= 0 && i1 < i2 && i2 < i3 && i3 < i4, 'numbered stages appear in order');
 });
 
+test('compose plan surfaces variable contract metadata for each stage', () => {
+  const plan = planPipeline({ registry, pipeline, tenant: 'acme' });
+  const out = formatPlan(plan);
+
+  assert.match(out, /contract: requires \[idea\] → produces \[brand_system, copy_system, visual_system\]/);
+  assert.match(out, /brand_system/);
+  assert.match(out, /visual_system/);
+  assert.match(out, /asset_plan/);
+  assert.match(out, /blocking: taste_brief, asset_plan, section_plan, interaction_plan, acceptance_checks/);
+  assert.match(out, /downstream: Turns brand intent into structured visual and build constraints/);
+});
+
 test('missing registry.organs throws', () => {
   assert.throws(() => planPipeline({ registry: {}, pipeline, tenant: 't' }), /registry\.organs/);
 });
@@ -129,6 +141,17 @@ test('contracts doc defines the variable contract vocabulary', async () => {
   assert.match(text, /section_plan/i);
   assert.match(text, /interaction_plan/i);
   assert.match(text, /acceptance_checks/i);
+});
+
+test('sample variable contract includes brand, copy, asset, and section groups', async () => {
+  const sample = JSON.parse(await fs.readFile(join(root, 'examples', 'sample-variable-contract.json'), 'utf8'));
+  assert.ok(sample.brand_system);
+  assert.ok(sample.copy_system);
+  assert.ok(sample.visual_system);
+  assert.ok(sample.asset_plan);
+  assert.ok(sample.section_plan);
+  assert.ok(sample.interaction_plan);
+  assert.ok(sample.acceptance_checks);
 });
 
 test('machine-readable contracts stay within the documented vocabulary', async () => {
