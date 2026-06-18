@@ -23,6 +23,29 @@ test('skills archive writes a non-destructive archive receipt', async () => {
   assert.match(receipt.archives[0].ceremony.join('\n'), /Hermes channel layer/);
 });
 
+test('skills archive read falls back to the durable Paperclip archive directory', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-skills-archive-fallback-');
+  const archiveDir = path.join(tmp, '.paperclip', 'archives', '20260618T063755Z');
+  fs.mkdirSync(archiveDir, { recursive: true });
+  fs.writeFileSync(path.join(archiveDir, 'instances.tar.gz'), 'archive');
+  fs.writeFileSync(path.join(archiveDir, 'repo-state.txt'), 'repo=/tmp/thoughtseed-paperclip\n');
+  const prior = process.env.PAPERCLIP_ARCHIVES_ROOT;
+  process.env.PAPERCLIP_ARCHIVES_ROOT = path.join(tmp, '.paperclip', 'archives');
+  try {
+    const { skills } = await import('./skills.ts');
+    const out = await skills.read(['archive', 'paperclip', '--tenant', 'cambium'], { root: tmp, vaultRoot: tmp });
+
+    assert.match(String(out), /receipt: found/);
+    assert.match(String(out), /instances\.tar\.gz/);
+    assert.match(String(out), /repo: \/tmp\/thoughtseed-paperclip/);
+  } finally {
+    if (prior === undefined) delete process.env.PAPERCLIP_ARCHIVES_ROOT;
+    else process.env.PAPERCLIP_ARCHIVES_ROOT = prior;
+  }
+});
+
 test('skills archive runtime status blocks closure when Paperclip processes are active', async () => {
   const { assessArchiveRuntimeStatus } = await import('./skills.ts');
   const status = assessArchiveRuntimeStatus(
