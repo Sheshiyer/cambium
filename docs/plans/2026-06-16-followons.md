@@ -17,14 +17,14 @@
 
 ## 3. W6 Paperclip archive ceremony — issue #26
 - **Issue**: https://github.com/Sheshiyer/cambium/issues/26
-- **Status**: OPEN, no spec yet
-- **Scope (likely small)**: Document the closure ritual for completed Paperclip work; ties to the broader skill-cluster archive convention (`~/.agents/skill-clusters` archived spoke handling). May fold into `bin/quine/hyphae/skills.ts` as a `quine write skills archive --routine <id>` verb.
-- **First action**: read the issue body when GitHub access is live; draft a one-page spec before planning.
+- **Spec**: `docs/plans/2026-06-18-paperclip-archive-ceremony.md`
+- **Status**: OPEN, ceremony spec + non-destructive receipt verb implemented; archive artifact, repo state, checksum verification, receipt, and vault companion docs completed in the 2026-06-18 ops pass. Runtime retirement remains blocked while Paperclip-adjacent processes are still active.
+- **Scope**: Retire Paperclip server/postgres/loop-runner only after the soak is confirmed; archive `~/.paperclip/instances` + repo state; preserve/extract Hermes as the surviving channel layer; record the receipt with `quine write skills archive paperclip`.
 
 ## Recommended order
 
 1. **Run an end-to-end variable-contract rehearsal** across Cambium, Skill-clusters, Brandmint, and Snow Gloves once the stack is integrated.
-2. **W6 Paperclip archive (#26)** — small, clears the M5-adjacent open issue.
+2. **W6 Paperclip archive (#26)** — stop/migrate the remaining Paperclip-adjacent runtime, then verify with `quine read skills archive paperclip --tenant cambium` before closing the issue.
 3. **Lesson-miner L0–L1** — governance + `@bot` pickup. Defers L2+ until L0 is unblocked.
 4. **Promote/merge stacked branches** only after their base branches land cleanly.
 
@@ -35,4 +35,4 @@ Each becomes its own implementation plan when picked up. None should bundle.
 - **`readRepoSignals` in `bin/quine/hyphae/project-evidence.ts`** now derives repo existence and default-branch commit count from the current git worktree, so arc XII "The Build" can stand on live build evidence instead of honest zero.
 - **`readDeploySignals` in `bin/quine/hyphae/project-evidence.ts`** now counts Cloudflare Worker deployments for the configured `workers/quests/wrangler.jsonc` script when `CLOUDFLARE_API_TOKEN` is present, so arc XV "The Launch" can stand on live deploy evidence instead of honest zero.
 - **`readGateSignals` in `bin/quine/hyphae/project-evidence.ts`** now counts queued founder approvals from the Worker gate queue when `QUESTS_PUSH_TOKEN` is present, so arc XIV "The Gate" can stand on real approval evidence instead of honest zero.
-- **Remaining evidence gaps** are no longer the local project-evidence stubs; the next work is operational closure: W6 Paperclip archive (#26), cross-repo variable-contract adoption, and lesson-miner governance.
+- **Remaining evidence gaps** are no longer the local project-evidence stubs; the next work is operational closure: W6 runtime retirement (#26), end-to-end variable-contract rehearsal, and lesson-miner governance.
