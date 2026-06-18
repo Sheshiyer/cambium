@@ -62,4 +62,21 @@ This PR adds the receipt mechanism:
 - `.operator/<tenant>.skills.archive.json`
 - project evidence reads archive receipts into `projectArchived`
 
-The actual archive artifact and external vault edits remain separate operational steps because the vault repo already has unrelated dirty work in this session.
+## Operations Pass - 2026-06-18
+
+The non-destructive archive portion of the ceremony has been executed locally:
+
+- Archive artifact: `/Users/sheshnarayaniyer/.paperclip/archives/20260618T063755Z/instances.tar.gz`
+- Repo state: `/Users/sheshnarayaniyer/.paperclip/archives/20260618T063755Z/repo-state.txt`
+- Checksums: `/Users/sheshnarayaniyer/.paperclip/archives/20260618T063755Z/SHA256SUMS`
+- Verification: `shasum -a 256 -c SHA256SUMS` returned `OK` for the archive and repo-state files.
+- Receipt command: `npm run quine -- write skills archive paperclip --tenant cambium ...`
+- Project evidence refresh: `npm run quine -- write quests evidence --tenant cambium` reported `projectArchived: true`.
+
+Companion documentation was updated in the dirty external vault worktrees without staging unrelated edits:
+
+- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/CLAUDE.md`
+- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/00-meta/mocs/command-center-architecture.md`
+- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/docs/telegram-commands.md`
+
+Current blocker for closing issue #26: a process check still found active Paperclip-adjacent execution (`scripts/loop-runner.sh _run`) and Hermes services (`ai.hermes.*`, including `forge-aura`). Do not close the issue until the active runtime owner confirms these can be stopped or migrated without interrupting live work.
