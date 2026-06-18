@@ -34,4 +34,5 @@ Each becomes its own implementation plan when picked up. None should bundle.
 
 - **`readRepoSignals` in `bin/quine/hyphae/project-evidence.ts`** now derives repo existence and default-branch commit count from the current git worktree, so arc XII "The Build" can stand on live build evidence instead of honest zero.
 - **`readDeploySignals` in `bin/quine/hyphae/project-evidence.ts`** now counts Cloudflare Worker deployments for the configured `workers/quests/wrangler.jsonc` script when `CLOUDFLARE_API_TOKEN` is present, so arc XV "The Launch" can stand on live deploy evidence instead of honest zero.
-- **`readGateSignals` in `bin/quine/hyphae/project-evidence.ts`** remains an honest-zero stub. Wiring it to the Worker gate queue is the next small evidence follow-on for arc XIV.
+- **`readGateSignals` in `bin/quine/hyphae/project-evidence.ts`** now counts queued founder approvals from the Worker gate queue when `QUESTS_PUSH_TOKEN` is present, so arc XIV "The Gate" can stand on real approval evidence instead of honest zero.
+- **Remaining evidence gaps** are no longer the local project-evidence stubs; the next work is operational closure: W6 Paperclip archive (#26), cross-repo variable-contract adoption, and lesson-miner governance.

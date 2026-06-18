@@ -132,3 +132,32 @@ test('gatherProjectSignals reads Cloudflare Worker deployment count when credent
     if (prevAccount === undefined) delete process.env.CLOUDFLARE_ACCOUNT_ID; else process.env.CLOUDFLARE_ACCOUNT_ID = prevAccount;
   }
 });
+
+test('gatherProjectSignals counts queued founder gate approvals from the Worker', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-gate-');
+
+  const bin = path.join(tmp, 'bin');
+  const calls = path.join(tmp, 'curl-args.txt');
+  fs.mkdirSync(bin);
+  fs.writeFileSync(path.join(bin, 'curl'), `#!/bin/sh\nprintf '%s\\n' "$*" > ${calls}\nprintf '%s\\n' '{"tenant":"foo","actions":[{"kind":"approve","status":"queued"},{"kind":"approve","status":"queued"},{"kind":"reroll","status":"queued"},{"kind":"approve","status":"consumed"}]}'\n`);
+  fs.chmodSync(path.join(bin, 'curl'), 0o755);
+
+  const prevPath = process.env.PATH;
+  const prevToken = process.env.QUESTS_PUSH_TOKEN;
+  const prevUrl = process.env.QUESTS_PUSH_URL;
+  try {
+    process.env.PATH = `${bin}:${prevPath ?? ''}`;
+    process.env.QUESTS_PUSH_TOKEN = 'push-token';
+    process.env.QUESTS_PUSH_URL = 'https://quests.example.test/';
+    const { gatherProjectSignals } = await import('./project-evidence.ts');
+    const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
+    assert.equal(signals.gate?.approvals, 2);
+    assert.match(fs.readFileSync(calls, 'utf8'), /https:\/\/quests\.example\.test\/internal\/gate\/foo/);
+  } finally {
+    if (prevPath === undefined) delete process.env.PATH; else process.env.PATH = prevPath;
+    if (prevToken === undefined) delete process.env.QUESTS_PUSH_TOKEN; else process.env.QUESTS_PUSH_TOKEN = prevToken;
+    if (prevUrl === undefined) delete process.env.QUESTS_PUSH_URL; else process.env.QUESTS_PUSH_URL = prevUrl;
+  }
+});

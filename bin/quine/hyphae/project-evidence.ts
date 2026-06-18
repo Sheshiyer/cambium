@@ -131,9 +131,31 @@ function readReviewSignals(ctx: QuineCtx, tenant: string): ProjectSignals['revie
   } catch { return { count: 0 }; }
 }
 
-function readGateSignals(_tenant: string): ProjectSignals['gate'] {
-  // Gate approvals come from the worker's gate queue; for now honest-zero.
-  return { approvals: 0 };
+const QUESTS_PUSH_URL_DEFAULT = 'https://curious.thoughtseed.space';
+
+function questsPushToken(): string | undefined {
+  if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
+  try {
+    const txt = readFileSync(join(process.env.HOME ?? '', '.claude', '.env'), 'utf8');
+    const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
+    return line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim() || undefined;
+  } catch { return undefined; }
+}
+
+function readGateSignals(tenant: string): ProjectSignals['gate'] {
+  const token = questsPushToken();
+  if (!token) return { approvals: 0 };
+
+  try {
+    const base = (process.env.QUESTS_PUSH_URL || QUESTS_PUSH_URL_DEFAULT).replace(/\/+$/, '');
+    const stdout = execFileSync('curl', ['-fsS', '-H', `Authorization: Bearer ${token}`, `${base}/internal/gate/${tenant}`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const json = JSON.parse(stdout);
+    const actions = Array.isArray(json?.actions) ? json.actions : [];
+    return { approvals: actions.filter((a: any) => a?.status === 'queued' && a?.kind === 'approve').length };
+  } catch { return { approvals: 0 }; }
 }
 
 function stripJsonComments(s: string): string {
