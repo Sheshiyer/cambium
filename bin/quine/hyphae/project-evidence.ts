@@ -7,8 +7,9 @@
 // honest "not done" state, never invented. A gather error degrades to empty
 // signals — the arc shows `unreachable`, never `complete`.
 
-import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import type { QuineCtx } from '../types.ts';
 
 export interface ProjectSignals {
@@ -92,11 +93,27 @@ function readVaultSignals(tenant: string): ProjectSignals['vault'] {
   return undefined;
 }
 
-function readRepoSignals(_tenant: string): ProjectSignals['repo'] {
-  // TODO bridge to bin/quine/hyphae/gh.ts in a future task. For this plan, the
-  // gather defaults honestly: repo unverified ⇒ exists:false, commits:0.
-  // Wired here as a stub so the call-site is final and the test surface stable.
-  return { exists: false, commitsOnMain: 0 };
+function git(ctxRoot: string, args: string[]): string | undefined {
+  try {
+    return execFileSync('git', ['-C', ctxRoot, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch { return undefined; }
+}
+
+function readRepoSignals(ctx: QuineCtx): ProjectSignals['repo'] {
+  const insideWorktree = git(ctx.root, ['rev-parse', '--is-inside-work-tree']);
+  if (insideWorktree !== 'true') return { exists: false, commitsOnMain: 0 };
+
+  const defaultBranch =
+    git(ctx.root, ['symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD'])
+      ?.replace(/^origin\//, '') ||
+    git(ctx.root, ['branch', '--show-current']) ||
+    'main';
+  const candidateRefs = [`origin/${defaultBranch}`, defaultBranch, 'origin/main', 'main'];
+  const ref = candidateRefs.find((r) => git(ctx.root, ['rev-parse', '--verify', r]));
+  if (!ref) return { exists: true, commitsOnMain: 0 };
+
+  const count = Number(git(ctx.root, ['rev-list', '--count', ref]) ?? 0);
+  return { exists: true, commitsOnMain: Number.isFinite(count) ? count : 0 };
 }
 
 function readTenantSignals(ctx: QuineCtx, tenant: string): ProjectSignals['tenant'] {
@@ -138,7 +155,7 @@ function readSkillSignals(ctx: QuineCtx, tenant: string): ProjectSignals['skills
 export function gatherProjectSignals(ctx: QuineCtx, tenant: string): ProjectSignals {
   return {
     vault: readVaultSignals(tenant),
-    repo: readRepoSignals(tenant),
+    repo: readRepoSignals(ctx),
     tenant: readTenantSignals(ctx, tenant),
     reviews: readReviewSignals(ctx, tenant),
     gate: readGateSignals(tenant),
@@ -151,7 +168,9 @@ export function gatherProjectSignals(ctx: QuineCtx, tenant: string): ProjectSign
 export function refreshProjectEvidence(ctx: QuineCtx, tenant: string): ProjectEvidence {
   const signals = gatherProjectSignals(ctx, tenant);
   const evidence = assembleProjectEvidence(signals);
-  const path = join(ctx.root, '.operator', `${tenant}.project.json`);
+  const dir = join(ctx.root, '.operator');
+  mkdirSync(dir, { recursive: true });
+  const path = join(dir, `${tenant}.project.json`);
   const tmp = `${path}.tmp`;
   writeFileSync(tmp, JSON.stringify(evidence, null, 2) + '\n');
   renameSync(tmp, path);

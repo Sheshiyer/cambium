@@ -74,3 +74,30 @@ test('gatherProjectSignals counts tenant-scoped reviews when present', async () 
   const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
   assert.equal(signals.reviews?.count, 3);
 });
+
+test('gatherProjectSignals reads real git repo evidence when ctx root is a worktree', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const { execFileSync } = await import('node:child_process');
+  const tmp = fs.mkdtempSync('/tmp/cambium-repo-');
+  execFileSync('git', ['init', '--initial-branch=main'], { cwd: tmp, stdio: 'ignore' });
+  fs.writeFileSync(path.join(tmp, 'README.md'), 'fixture\n');
+  execFileSync('git', ['-c', 'user.name=Cambium Test', '-c', 'user.email=cambium@example.test', 'add', 'README.md'], { cwd: tmp, stdio: 'ignore' });
+  execFileSync('git', ['-c', 'user.name=Cambium Test', '-c', 'user.email=cambium@example.test', 'commit', '-m', 'fixture'], { cwd: tmp, stdio: 'ignore' });
+
+  const { gatherProjectSignals } = await import('./project-evidence.ts');
+  const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
+  assert.equal(signals.repo?.exists, true);
+  assert.equal(signals.repo?.commitsOnMain, 1);
+});
+
+test('refreshProjectEvidence creates the operator directory before atomic write', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-project-');
+  const { refreshProjectEvidence } = await import('./project-evidence.ts');
+  const evidence = refreshProjectEvidence({ root: tmp } as any, 'foo');
+  const written = JSON.parse(fs.readFileSync(path.join(tmp, '.operator', 'foo.project.json'), 'utf8'));
+  assert.equal(evidence.source, 'project-evidence@v1');
+  assert.equal(written.source, 'project-evidence@v1');
+});

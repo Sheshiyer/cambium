@@ -32,4 +32,5 @@ Each becomes its own implementation plan when picked up. None should bundle.
 
 ## Adjacent follow-on (caught at first-light, not requiring its own plan)
 
-- **`readRepoSignals` and `readDeploySignals` in `bin/quine/hyphae/project-evidence.ts`** are honest-zero stubs today. Wiring them via `bin/quine/hyphae/gh.ts` and `bin/quine/hyphae/cf.ts` is a small follow-on — once landed, arcs XII "The Build" and XV "The Launch" will derive from real GitHub commits and Cloudflare deploys instead of standing on honest zeros. ~1 task each.
+- **`readRepoSignals` in `bin/quine/hyphae/project-evidence.ts`** now derives repo existence and default-branch commit count from the current git worktree, so arc XII "The Build" can stand on live build evidence instead of honest zero.
+- **`readDeploySignals` in `bin/quine/hyphae/project-evidence.ts`** remains an honest-zero stub. Wiring it via `bin/quine/hyphae/cf.ts` is the next small follow-on so arc XV "The Launch" can derive from real Cloudflare deploys.
