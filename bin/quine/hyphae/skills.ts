@@ -4,9 +4,10 @@
 // telemetry → promotion / gotchas / amendment proposals). Registry persists tenant-keyed
 // at .operator/<tenant>.skills.json — its own file; world/onboarding are never written.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { homedir } from 'node:os';
 import type { Hypha, QuineCtx } from '../types.ts';
 import { flag } from '../types.ts';
 import {
@@ -51,7 +52,41 @@ function saveRegistry(ctx: QuineCtx, tenant: string, skills: SkillRecord[]): voi
 function loadArchive(ctx: QuineCtx, tenant: string): ArchiveReceipt {
   try {
     const data = JSON.parse(readFileSync(archivePath(ctx, tenant), 'utf8')) as ArchiveReceipt;
-    return { tenant, archives: Array.isArray(data.archives) ? data.archives : [] };
+    const receipt = { tenant, archives: Array.isArray(data.archives) ? data.archives : [] };
+    return receipt.archives.length > 0 ? receipt : loadPaperclipArchiveFallback(tenant);
+  } catch { return loadPaperclipArchiveFallback(tenant); }
+}
+
+function loadPaperclipArchiveFallback(tenant: string): ArchiveReceipt {
+  const archivesRoot = join(process.env.PAPERCLIP_ARCHIVES_ROOT || join(homedir(), '.paperclip', 'archives'));
+  try {
+    const dirs = readdirSync(archivesRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => join(archivesRoot, entry.name))
+      .filter((dir) => existsSync(join(dir, 'instances.tar.gz')) && existsSync(join(dir, 'repo-state.txt')))
+      .sort();
+    const latest = dirs.at(-1);
+    if (!latest) return { tenant, archives: [] };
+    const evidencePath = join(latest, 'instances.tar.gz');
+    const repoStatePath = join(latest, 'repo-state.txt');
+    const repoLine = readFileSync(repoStatePath, 'utf8').split('\n').find((line) => line.startsWith('repo='));
+    return {
+      tenant,
+      archives: [{
+        routineId: 'paperclip',
+        archived: true,
+        archivedAt: statSync(evidencePath).mtime.toISOString(),
+        evidencePath,
+        repoPath: repoLine?.slice('repo='.length),
+        note: 'W6 archive artifact discovered from ~/.paperclip/archives fallback',
+        ceremony: [
+          'Paperclip archive artifact exists in the durable local archive directory',
+          'repo-state.txt is stored beside the archive artifact',
+          'Hermes channel layer remains the live external interface',
+          'runtime retirement must still be verified before closing issue #26',
+        ],
+      }],
+    };
   } catch { return { tenant, archives: [] }; }
 }
 
