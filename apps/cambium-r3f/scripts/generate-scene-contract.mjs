@@ -8,10 +8,20 @@ const outFile = resolve(here, '../src/generated/source-contract.ts');
 
 const readJson = async (relativePath) => JSON.parse(await readFile(resolve(repoRoot, relativePath), 'utf8'));
 
+async function readJsonWithGeneratedFallback(relativePath, generatedKey) {
+  try {
+    return await readJson(relativePath);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+    const generated = await import(pathToFileURL(outFile).href);
+    return generated.sourceContract[generatedKey];
+  }
+}
+
 const [pipeline, acceptanceChecks, interactionPlan, referenceFreeze, questsModule] = await Promise.all([
   readJson('composition/pipeline.json'),
-  readJson('cortex/cambium/contracts/acceptance_checks.json'),
-  readJson('cortex/cambium/contracts/interaction_plan.json'),
+  readJsonWithGeneratedFallback('cortex/cambium/contracts/acceptance_checks.json', 'acceptanceChecks'),
+  readJsonWithGeneratedFallback('cortex/cambium/contracts/interaction_plan.json', 'interactionPlan'),
   readJson('docs/plans/assets/cambium-r3f-implementation/reference-freeze.json'),
   import(pathToFileURL(resolve(repoRoot, 'bin/operator/quests/quests.ts')).href),
 ]);
