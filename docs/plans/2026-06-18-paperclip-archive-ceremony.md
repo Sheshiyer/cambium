@@ -41,7 +41,13 @@ npm run quine -- write skills archive paperclip \
 npm run quine -- write quests evidence --tenant cambium
 ```
 
-7. Update companion vault docs:
+7. Check the runtime retirement gate:
+
+```sh
+npm run quine -- read skills archive paperclip --tenant cambium
+```
+
+8. Update companion vault docs:
    - `thoughtseed-labs/CLAUDE.md`
    - `thoughtseed-labs/00-meta/mocs/command-center-architecture.md`
    - `docs/telegram-commands.md`
@@ -59,6 +65,7 @@ npm run quine -- write quests evidence --tenant cambium
 This PR adds the receipt mechanism:
 
 - `quine write skills archive <routine-id>`
+- `quine read skills archive [routine-id]`
 - `.operator/<tenant>.skills.archive.json`
 - project evidence reads archive receipts into `projectArchived`
 
@@ -72,6 +79,7 @@ The non-destructive archive portion of the ceremony has been executed locally:
 - Verification: `shasum -a 256 -c SHA256SUMS` returned `OK` for the archive and repo-state files.
 - Receipt command: `npm run quine -- write skills archive paperclip --tenant cambium ...`
 - Project evidence refresh: `npm run quine -- write quests evidence --tenant cambium` reported `projectArchived: true`.
+- Runtime gate: `npm run quine -- read skills archive paperclip --tenant cambium` reports the archive receipt and whether Paperclip runtime is still active.
 
 Companion documentation was updated in the dirty external vault worktrees without staging unrelated edits:
 
@@ -79,4 +87,4 @@ Companion documentation was updated in the dirty external vault worktrees withou
 - `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/00-meta/mocs/command-center-architecture.md`
 - `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/docs/telegram-commands.md`
 
-Current blocker for closing issue #26: a process check still found active Paperclip-adjacent execution (`scripts/loop-runner.sh _run`) and Hermes services (`ai.hermes.*`, including `forge-aura`). Do not close the issue until the active runtime owner confirms these can be stopped or migrated without interrupting live work.
+Current blocker for closing issue #26: the runtime gate still found active Paperclip-adjacent execution, including `scripts/loop-runner.sh _run` and Paperclip-hosted adapter processes. Hermes services are reported separately because Hermes is the surviving external channel layer; do not close the issue until the active runtime owner confirms the Paperclip-hosted pieces can be stopped or migrated without interrupting live work.

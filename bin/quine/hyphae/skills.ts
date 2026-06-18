@@ -6,6 +6,7 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import type { Hypha, QuineCtx } from '../types.ts';
 import { flag } from '../types.ts';
 import {
@@ -31,6 +32,13 @@ interface ArchiveReceipt {
   }>;
 }
 
+interface ArchiveRuntimeStatus {
+  retired: boolean;
+  activeProcesses: string[];
+  activeServices: string[];
+  hermesServices: string[];
+}
+
 function loadRegistry(ctx: QuineCtx, tenant: string): SkillRecord[] {
   try { return JSON.parse(readFileSync(registryPath(ctx, tenant), 'utf8')) as SkillRecord[]; } catch { return []; }
 }
@@ -50,6 +58,78 @@ function loadArchive(ctx: QuineCtx, tenant: string): ArchiveReceipt {
 function saveArchive(ctx: QuineCtx, tenant: string, receipt: ArchiveReceipt): void {
   mkdirSync(join(ctx.root, '.operator'), { recursive: true });
   writeFileSync(archivePath(ctx, tenant), JSON.stringify(receipt, null, 2) + '\n');
+}
+
+function activeProcessLines(pattern = 'paperclip|loop-runner'): string[] {
+  try {
+    return execFileSync('pgrep', ['-fl', pattern], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .filter((line) => !line.includes('pgrep -fl'));
+  } catch { return []; }
+}
+
+function activeLaunchdServices(): string[] {
+  try {
+    return execFileSync('launchctl', ['list'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => /paperclip|ai\.hermes\./i.test(line));
+  } catch { return []; }
+}
+
+export function assessArchiveRuntimeStatus(processes: string[], services: string[]): ArchiveRuntimeStatus {
+  const activeProcesses = processes.filter((line) => /paperclip|loop-runner/i.test(line));
+  const activeServices = services.filter((line) => /paperclip/i.test(line));
+  const hermesServices = services.filter((line) => /ai\.hermes\./i.test(line));
+  return {
+    retired: activeProcesses.length === 0 && activeServices.length === 0,
+    activeProcesses,
+    activeServices,
+    hermesServices,
+  };
+}
+
+function renderArchiveStatus(ctx: QuineCtx, tenant: string, routineId?: string): string {
+  const receipt = loadArchive(ctx, tenant);
+  const archives = routineId ? receipt.archives.filter((a) => a.routineId === routineId) : receipt.archives;
+  const latest = archives.at(-1);
+  const runtime = assessArchiveRuntimeStatus(activeProcessLines(), activeLaunchdServices());
+  const lines = [
+    '',
+    '  ════════ Skill Archive · retirement evidence ════════',
+    '',
+    `  tenant: ${tenant}`,
+    `  routine: ${routineId ?? 'all'}`,
+    '',
+  ];
+  if (!latest) {
+    lines.push('  receipt: missing');
+  } else {
+    lines.push('  receipt: found');
+    lines.push(`  archivedAt: ${latest.archivedAt}`);
+    lines.push(`  evidence: ${latest.evidencePath ?? 'not attached'}`);
+    lines.push(`  repo: ${latest.repoPath ?? 'not attached'}`);
+    if (latest.note) lines.push(`  note: ${latest.note}`);
+  }
+  lines.push('');
+  lines.push(`  runtime retired: ${runtime.retired ? 'yes' : 'no'}`);
+  if (runtime.activeProcesses.length > 0) {
+    lines.push('  active processes:');
+    for (const line of runtime.activeProcesses) lines.push(`    ${line}`);
+  }
+  if (runtime.activeServices.length > 0) {
+    lines.push('  active services:');
+    for (const line of runtime.activeServices) lines.push(`    ${line}`);
+  }
+  if (runtime.hermesServices.length > 0) {
+    lines.push('  hermes services observed:');
+    for (const line of runtime.hermesServices) lines.push(`    ${line}`);
+  }
+  lines.push('');
+  lines.push(runtime.retired && latest ? '  issue #26 close gate: clear' : '  issue #26 close gate: blocked');
+  return lines.join('\n');
 }
 
 const readJson = (path: string): any | undefined => {
@@ -116,6 +196,7 @@ export const skills: Hypha = {
   describe: 'the skill forge — repetitive processes minted as self-improving skills',
   help: [
     'quine skills [--tenant t]                                the skill panel',
+    '       quine read skills archive [routine-id] [--tenant t]       archive receipt + runtime close gate',
     '       quine write skills forge [--tenant t]                    detect repetition + mint',
     '       quine write skills record <skill-id> ok|fail [--scenario "…"] [--tenant t]',
     '       quine write skills archive <routine-id> [--evidence path] [--repo path] [--note "…"] [--tenant t]',
@@ -129,6 +210,11 @@ export const skills: Hypha = {
 
   async read(args, ctx) {
     const tenant = tenantOf(args);
+    const sub = args.find((a) => !a.startsWith('--'));
+    if (sub === 'archive') {
+      const rest = args.filter((a) => !a.startsWith('--') && args.indexOf(a) > args.indexOf('archive'));
+      return renderArchiveStatus(ctx, tenant, rest[0]);
+    }
     return renderSkillPanel(loadRegistry(ctx, tenant), tenant);
   },
 
@@ -187,7 +273,7 @@ export const skills: Hypha = {
         repoPath: flag(args, '--repo', '') || undefined,
         note: flag(args, '--note', '') || undefined,
         ceremony: [
-          'Paperclip processes soaked off without regression',
+          'Paperclip process soak must be verified before issue closure',
           'instances and repo state archived or referenced by evidencePath/repoPath',
           'Hermes channel layer remains the live external interface',
           'quest evidence may now treat the project archive as complete',
