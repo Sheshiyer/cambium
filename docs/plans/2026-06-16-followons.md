@@ -33,4 +33,5 @@ Each becomes its own implementation plan when picked up. None should bundle.
 ## Adjacent follow-on (caught at first-light, not requiring its own plan)
 
 - **`readRepoSignals` in `bin/quine/hyphae/project-evidence.ts`** now derives repo existence and default-branch commit count from the current git worktree, so arc XII "The Build" can stand on live build evidence instead of honest zero.
-- **`readDeploySignals` in `bin/quine/hyphae/project-evidence.ts`** remains an honest-zero stub. Wiring it via `bin/quine/hyphae/cf.ts` is the next small follow-on so arc XV "The Launch" can derive from real Cloudflare deploys.
+- **`readDeploySignals` in `bin/quine/hyphae/project-evidence.ts`** now counts Cloudflare Worker deployments for the configured `workers/quests/wrangler.jsonc` script when `CLOUDFLARE_API_TOKEN` is present, so arc XV "The Launch" can stand on live deploy evidence instead of honest zero.
+- **`readGateSignals` in `bin/quine/hyphae/project-evidence.ts`** remains an honest-zero stub. Wiring it to the Worker gate queue is the next small evidence follow-on for arc XIV.
