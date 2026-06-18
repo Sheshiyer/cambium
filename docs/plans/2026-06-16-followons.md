@@ -11,9 +11,9 @@
 
 ## 2. Variable-contracts runtime validation — composition layer hardening
 - **Spec**: `docs/plans/2026-06-09-capability-alignment-variable-contracts.md`
-- **Status**: Tasks 1, 3, 4, 8, 9, 10 complete in Cambium. Task 5 is open as Skill-clusters PR #112 (`codex/rich-variable-contracts`). Task 6 is open as Brandmint PR #180 (`codex/downstream-variable-contracts`). Task **7 (Snow Gloves)** remains open.
-- **Scope of remaining work**: cross-repo organ changes in `../snow-gloves-os`. Out-of-repo touches require coordination.
-- **Risk**: Task 7 crosses repo boundaries and requires its own PR in the target repo.
+- **Status**: Tasks 1, 3, 4, 8, 9, 10 complete in Cambium. Task 5 is open as Skill-clusters PR #112 (`codex/rich-variable-contracts`). Task 6 is open as Brandmint PR #180 (`codex/downstream-variable-contracts`). Task 7 is open as Snow Gloves PR #5 (`codex/rich-variable-contract-routing`).
+- **Scope of remaining work**: review and merge the cross-repo organ PRs, then run the end-to-end contract handoff once downstream branches are integrated.
+- **Risk**: Tasks 5-7 cross repo boundaries and require coordinated merge order before they become baseline behavior.
 
 ## 3. W6 Paperclip archive ceremony — issue #26
 - **Issue**: https://github.com/Sheshiyer/cambium/issues/26
@@ -23,10 +23,10 @@
 
 ## Recommended order
 
-1. **Variable-contracts Task 7** — Snow Gloves/Paperclip orchestration adoption of the contract surface.
+1. **Review and merge variable-contract companion PRs** — Skill-clusters #112, Brandmint #180, and Snow Gloves #5.
 2. **W6 Paperclip archive (#26)** — small, clears the M5-adjacent open issue.
 3. **Lesson-miner L0–L1** — governance + `@bot` pickup. Defers L2+ until L0 is unblocked.
-4. **Merge Skill-clusters PR #112 and Brandmint PR #180** once reviewed; then continue Snow Gloves adoption.
+4. **Run an end-to-end variable-contract rehearsal** once companion PRs are merged into their target repos.
 
 Each becomes its own implementation plan when picked up. None should bundle.
 
