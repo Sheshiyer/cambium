@@ -131,6 +131,17 @@ test('contracts doc defines the variable contract vocabulary', async () => {
   assert.match(text, /acceptance_checks/i);
 });
 
+test('sample variable contract includes brand, copy, asset, and section groups', async () => {
+  const sample = JSON.parse(await fs.readFile(join(root, 'examples', 'sample-variable-contract.json'), 'utf8'));
+  assert.ok(sample.brand_system);
+  assert.ok(sample.copy_system);
+  assert.ok(sample.visual_system);
+  assert.ok(sample.asset_plan);
+  assert.ok(sample.section_plan);
+  assert.ok(sample.interaction_plan);
+  assert.ok(sample.acceptance_checks);
+});
+
 test('machine-readable contracts stay within the documented vocabulary', async () => {
   const pipeline = JSON.parse(await fs.readFile(join(root, 'composition', 'pipeline.json'), 'utf8'));
   const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));

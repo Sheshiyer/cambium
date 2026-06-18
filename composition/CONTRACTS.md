@@ -52,6 +52,11 @@ The stage tokens above say **which hand-off exists** (`idea` → `brand-dna` →
 Stages must pass these groups forward as structured data, not prose-only summaries, so downstream stages do
 not invent critical decisions ad hoc.
 
+See [`../examples/sample-variable-contract.json`](../examples/sample-variable-contract.json) for the
+canonical compact payload that carries these groups through a full hand-off. The sample is intentionally
+small enough for tests and agents to inspect, but complete enough to prove the downstream-sensitive seams:
+brand, copy, visuals, assets, sections, interactions, and acceptance checks.
+
 > **Task 1 scope:** this document defines the canonical vocabulary and expected hand-off shape at the
 > documentation layer today. Runtime fail-closed validation of these variable groups lands in a later task;
 > for now, these entries describe the contract downstream work will enforce.

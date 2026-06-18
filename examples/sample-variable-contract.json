@@ -1,0 +1,62 @@
+{
+  "note": "Canonical example of a full variable contract payload that must survive stage hand-offs. Used by compose plan/run, taste-resolve, resolve-task, ship-battery, and orchestration agents. See CONTRACTS.md for the vocabulary and the handoff matrix for per-stage expectations.",
+  "brand_system": {
+    "brand_id": "acme-demo",
+    "brand_name": "Acme",
+    "category": "developer-tools",
+    "audience": "founders and engineering leads at 5-50 person startups",
+    "positioning": "The invisible compiler that turns a thoughtseed into a living, on-brand company without the founder leaving the game.",
+    "promise": "One idea in. A self-running business that stays on-brand forever.",
+    "differentiators": ["fractal self-similar organs", "taste cortex that learns you", "viability-first infinite operator"],
+    "voice_principles": ["precise but warm", "systems thinker who has shipped", "no hype, only mechanism and proof"]
+  },
+  "copy_system": {
+    "copy_slots": {
+      "hero_headline": "An idea goes in. A self-running, on-brand business comes out.",
+      "hero_subhead": "The autonomous venture operator — the company compiler.",
+      "cta_primary": "Plant a thoughtseed",
+      "cta_secondary": "See the math",
+      "proof_points": ["Fitcheck tracer: brand → taste → real artifacts in one run", "Every organ is the same Φ"],
+      "offer_text": "Genesis free. Taste keeps it on-brand."
+    },
+    "tone_notes": "White-hat dominant; black hat only when grounded in real solvency or drift risk."
+  },
+  "visual_system": {
+    "palette": ["#8b5cf6", "#5b21b6", "#1a1a2e", "#c4b5fd", "#e5e7eb"],
+    "typography": "ui-sans + ui-mono; 600-700 for headers, 400-500 body",
+    "logo_usage": "wordmark + icon; never stretch; purple on dark or light on purple",
+    "composition_motifs": "hub-spoke cards, contraction arrows, viability gauges, fractal recursion",
+    "imagery_direction": "abstract growth (cambium layer, meristem, rings), precision tooling, living systems",
+    "motion_style": "micro-hover lift + scroll-reveal contraction + physics tilt on cards",
+    "anti_patterns": "no corporate gradients, no stock hero photos, no fake timers, no dark patterns"
+  },
+  "asset_plan": {
+    "required": [
+      {"type": "hero", "aspect": "16:9", "priority": 1, "status": "seeded", "notes": "use for landing + GTM"},
+      {"type": "logo", "aspect": "1:1", "priority": 1, "status": "seeded"},
+      {"type": "ui_shot", "aspect": "16:9", "priority": 2, "status": "planned", "notes": "for build tasks and proof"},
+      {"type": "avatar", "aspect": "1:1", "priority": 3, "status": "optional"}
+    ]
+  },
+  "section_plan": {
+    "ordered": [
+      {"id": "hero", "goal": "state the infinite game and plant the seed", "copy_slot": "hero_headline", "assets": ["hero", "logo"]},
+      {"id": "organs", "goal": "show the self-similar constellation", "copy_slot": "proof_points", "assets": ["ui_shot"]},
+      {"id": "math", "goal": "make viability and homeostasis feel real and actionable", "assets": []},
+      {"id": "cta", "goal": "convert to first mint with clear next step", "copy_slot": "cta_primary"}
+    ]
+  },
+  "interaction_plan": {
+    "primary": [
+      {"trigger": "click plant", "state": "idea-capture", "action": "ingest thoughtseed → genesis"},
+      {"trigger": "drag or edit brand field", "state": "allostatic-nudge", "action": "micro re-project; log as intent or error"},
+      {"trigger": "approve spend", "state": "gate-open", "action": "only if viability margin positive and --approve present"}
+    ],
+    "validation": ["idea present before genesis", "brand_system complete before taste", "taste_brief + plans complete before build dispatch"]
+  },
+  "acceptance_checks": {
+    "brand_fit": {"owner": "taste", "criteria": "V = d(x, x*) decreased", "consequence": "reroll or ask why"},
+    "contract_complete": {"owner": "build", "criteria": "all required variable groups present in payload", "consequence": "fail-closed before cluster spawn"},
+    "viability_margin": {"owner": "will", "criteria": "solvency > 0 and mission-coherence > threshold", "consequence": "emergency control; no new paid run"}
+  }
+}
