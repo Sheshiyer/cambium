@@ -161,3 +161,20 @@ test('gatherProjectSignals counts queued founder gate approvals from the Worker'
     if (prevUrl === undefined) delete process.env.QUESTS_PUSH_URL; else process.env.QUESTS_PUSH_URL = prevUrl;
   }
 });
+
+test('gatherProjectSignals treats an archive receipt as projectArchived evidence', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-archive-evidence-');
+  fs.mkdirSync(path.join(tmp, '.operator'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '.operator', 'foo.skills.json'), JSON.stringify([{ skill_id: 'lesson-one' }]));
+  fs.writeFileSync(path.join(tmp, '.operator', 'foo.skills.archive.json'), JSON.stringify({
+    tenant: 'foo',
+    archives: [{ routineId: 'paperclip', archived: true, archivedAt: '2026-06-18T00:00:00Z' }],
+  }));
+
+  const { refreshProjectEvidence } = await import('./project-evidence.ts');
+  const evidence = refreshProjectEvidence({ root: tmp } as any, 'foo');
+  assert.equal(evidence.lessonsMinted, 1);
+  assert.equal(evidence.projectArchived, true);
+});

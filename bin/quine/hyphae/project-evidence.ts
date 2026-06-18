@@ -194,14 +194,20 @@ function readDeploySignals(ctx: QuineCtx): ProjectSignals['deploys'] {
 }
 
 function readSkillSignals(ctx: QuineCtx, tenant: string): ProjectSignals['skills'] {
+  let lessonsMinted = 0;
+  let archived = false;
   try {
     const path = join(ctx.root, '.operator', `${tenant}.skills.json`);
     const data = JSON.parse(readFileSync(path, 'utf8'));
-    return {
-      lessonsMinted: Array.isArray(data.lessons) ? data.lessons.length : 0,
-      archived: data.archived === true,
-    };
-  } catch { return { lessonsMinted: 0, archived: false }; }
+    lessonsMinted = Array.isArray(data) ? data.length : Array.isArray(data.lessons) ? data.lessons.length : 0;
+    archived = data.archived === true;
+  } catch { /* no skill registry yet */ }
+  try {
+    const path = join(ctx.root, '.operator', `${tenant}.skills.archive.json`);
+    const data = JSON.parse(readFileSync(path, 'utf8'));
+    archived ||= Array.isArray(data.archives) && data.archives.some((a: any) => a?.archived === true);
+  } catch { /* no archive receipt yet */ }
+  return { lessonsMinted, archived };
 }
 
 export function gatherProjectSignals(ctx: QuineCtx, tenant: string): ProjectSignals {

@@ -17,14 +17,14 @@
 
 ## 3. W6 Paperclip archive ceremony — issue #26
 - **Issue**: https://github.com/Sheshiyer/cambium/issues/26
-- **Status**: OPEN, no spec yet
-- **Scope (likely small)**: Document the closure ritual for completed Paperclip work; ties to the broader skill-cluster archive convention (`~/.agents/skill-clusters` archived spoke handling). May fold into `bin/quine/hyphae/skills.ts` as a `quine write skills archive --routine <id>` verb.
-- **First action**: read the issue body when GitHub access is live; draft a one-page spec before planning.
+- **Spec**: `docs/plans/2026-06-18-paperclip-archive-ceremony.md`
+- **Status**: OPEN, ceremony spec + non-destructive receipt verb implemented; actual archive artifact and vault companion docs still need an ops pass.
+- **Scope**: Retire Paperclip server/postgres/loop-runner only after the soak is confirmed; archive `~/.paperclip/instances` + repo state; preserve/extract Hermes as the surviving channel layer; record the receipt with `quine write skills archive paperclip`.
 
 ## Recommended order
 
 1. **Run an end-to-end variable-contract rehearsal** across Cambium, Skill-clusters, Brandmint, and Snow Gloves once the stack is integrated.
-2. **W6 Paperclip archive (#26)** — small, clears the M5-adjacent open issue.
+2. **W6 Paperclip archive (#26)** — land the receipt/gate work, then close only after runtime retirement is proven.
 3. **Lesson-miner L0–L1** — governance + `@bot` pickup. Defers L2+ until L0 is unblocked.
 4. **Promote/merge stacked branches** only after their base branches land cleanly.
 

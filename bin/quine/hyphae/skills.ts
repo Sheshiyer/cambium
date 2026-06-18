@@ -16,6 +16,20 @@ import { recordUse, successRate, recentRate, isDeclining } from '../../operator/
 
 const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
 const registryPath = (ctx: QuineCtx, tenant: string): string => join(ctx.root, '.operator', `${tenant}.skills.json`);
+const archivePath = (ctx: QuineCtx, tenant: string): string => join(ctx.root, '.operator', `${tenant}.skills.archive.json`);
+
+interface ArchiveReceipt {
+  tenant: string;
+  archives: Array<{
+    routineId: string;
+    archived: true;
+    archivedAt: string;
+    evidencePath?: string;
+    repoPath?: string;
+    note?: string;
+    ceremony: string[];
+  }>;
+}
 
 function loadRegistry(ctx: QuineCtx, tenant: string): SkillRecord[] {
   try { return JSON.parse(readFileSync(registryPath(ctx, tenant), 'utf8')) as SkillRecord[]; } catch { return []; }
@@ -24,6 +38,18 @@ function loadRegistry(ctx: QuineCtx, tenant: string): SkillRecord[] {
 function saveRegistry(ctx: QuineCtx, tenant: string, skills: SkillRecord[]): void {
   mkdirSync(join(ctx.root, '.operator'), { recursive: true });
   writeFileSync(registryPath(ctx, tenant), JSON.stringify(skills, null, 2));
+}
+
+function loadArchive(ctx: QuineCtx, tenant: string): ArchiveReceipt {
+  try {
+    const data = JSON.parse(readFileSync(archivePath(ctx, tenant), 'utf8')) as ArchiveReceipt;
+    return { tenant, archives: Array.isArray(data.archives) ? data.archives : [] };
+  } catch { return { tenant, archives: [] }; }
+}
+
+function saveArchive(ctx: QuineCtx, tenant: string, receipt: ArchiveReceipt): void {
+  mkdirSync(join(ctx.root, '.operator'), { recursive: true });
+  writeFileSync(archivePath(ctx, tenant), JSON.stringify(receipt, null, 2) + '\n');
 }
 
 const readJson = (path: string): any | undefined => {
@@ -92,6 +118,7 @@ export const skills: Hypha = {
     'quine skills [--tenant t]                                the skill panel',
     '       quine write skills forge [--tenant t]                    detect repetition + mint',
     '       quine write skills record <skill-id> ok|fail [--scenario "…"] [--tenant t]',
+    '       quine write skills archive <routine-id> [--evidence path] [--repo path] [--note "…"] [--tenant t]',
   ].join('\n'),
 
   async status(ctx) {
@@ -145,6 +172,37 @@ export const skills: Hypha = {
       ].join('\n');
     }
 
-    return 'skills: unknown write. Try: forge · record <skill-id> ok|fail';
+    if (sub === 'archive') {
+      const rest = args.filter((a) => !a.startsWith('--') && args.indexOf(a) > args.indexOf('archive'));
+      const routineId = rest[0];
+      if (!routineId) {
+        return 'usage: quine write skills archive <routine-id> [--evidence path] [--repo path] [--note "…"] [--tenant t]';
+      }
+      const receipt = loadArchive(ctx, tenant);
+      const next = {
+        routineId,
+        archived: true as const,
+        archivedAt: new Date().toISOString(),
+        evidencePath: flag(args, '--evidence', '') || undefined,
+        repoPath: flag(args, '--repo', '') || undefined,
+        note: flag(args, '--note', '') || undefined,
+        ceremony: [
+          'Paperclip processes soaked off without regression',
+          'instances and repo state archived or referenced by evidencePath/repoPath',
+          'Hermes channel layer remains the live external interface',
+          'quest evidence may now treat the project archive as complete',
+        ],
+      };
+      receipt.archives = [...receipt.archives.filter((a) => a.routineId !== routineId), next];
+      saveArchive(ctx, tenant, receipt);
+      return [
+        `archived: ${routineId} for tenant ${tenant}`,
+        `receipt: .operator/${tenant}.skills.archive.json`,
+        next.evidencePath ? `evidence: ${next.evidencePath}` : 'evidence: not attached',
+        next.repoPath ? `repo: ${next.repoPath}` : 'repo: not attached',
+      ].join('\n');
+    }
+
+    return 'skills: unknown write. Try: forge · record <skill-id> ok|fail · archive <routine-id>';
   },
 };
