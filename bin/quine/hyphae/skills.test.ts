@@ -59,6 +59,24 @@ test('skills archive runtime status blocks closure when Paperclip processes are 
   assert.equal(status.hermesServices.length, 1);
 });
 
+test('skills archive runtime status ignores its own inspection commands', async () => {
+  const { assessArchiveRuntimeStatus } = await import('./skills.ts');
+  const status = assessArchiveRuntimeStatus(
+    [
+      '111 pgrep -fl paperclip|loop-runner',
+      '222 /bin/zsh -lc ps -axo pid=,command= | rg -i thoughtseed-paperclip',
+      '333 rg -i thoughtseed-paperclip|paperclip|loop-runner|forge-aura',
+      '444 npm run quine -- read skills archive paperclip --tenant cambium',
+      '555 node bin/quine/quine.ts read skills archive paperclip --tenant cambium',
+      '666 bash /path/to/thoughtseed-paperclip/scripts/loop-runner.sh _run',
+    ],
+    [],
+  );
+
+  assert.equal(status.retired, false);
+  assert.deepEqual(status.activeProcesses, ['666 bash /path/to/thoughtseed-paperclip/scripts/loop-runner.sh _run']);
+});
+
 test('skills archive runtime status clears when no Paperclip runtime is active', async () => {
   const { assessArchiveRuntimeStatus } = await import('./skills.ts');
   const status = assessArchiveRuntimeStatus(

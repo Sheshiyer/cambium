@@ -101,7 +101,7 @@ function activeProcessLines(pattern = 'paperclip|loop-runner'): string[] {
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
-      .filter((line) => !line.includes('pgrep -fl'));
+      .filter((line) => !isArchiveRuntimeInspector(line));
   } catch { return []; }
 }
 
@@ -115,7 +115,7 @@ function activeLaunchdServices(): string[] {
 }
 
 export function assessArchiveRuntimeStatus(processes: string[], services: string[]): ArchiveRuntimeStatus {
-  const activeProcesses = processes.filter((line) => /paperclip|loop-runner/i.test(line));
+  const activeProcesses = processes.filter((line) => /paperclip|loop-runner/i.test(line) && !isArchiveRuntimeInspector(line));
   const activeServices = services.filter((line) => /paperclip/i.test(line));
   const hermesServices = services.filter((line) => /ai\.hermes\./i.test(line));
   return {
@@ -124,6 +124,16 @@ export function assessArchiveRuntimeStatus(processes: string[], services: string
     activeServices,
     hermesServices,
   };
+}
+
+function isArchiveRuntimeInspector(line: string): boolean {
+  return [
+    /pgrep\s+-fl\s+/i,
+    /ps\s+-axo\s+/i,
+    /\brg\b.*(?:paperclip|loop-runner|forge-aura)/i,
+    /npm\s+run\s+quine\s+--\s+read\s+skills\s+archive/i,
+    /node\s+bin\/quine\/quine\.ts\s+read\s+skills\s+archive/i,
+  ].some((pattern) => pattern.test(line));
 }
 
 function renderArchiveStatus(ctx: QuineCtx, tenant: string, routineId?: string): string {
