@@ -11,8 +11,8 @@
 
 ## 2. Variable-contracts runtime validation — composition layer hardening
 - **Spec**: `docs/plans/2026-06-09-capability-alignment-variable-contracts.md`
-- **Status**: Tasks 1, 4, 8, 9, 10 (docs + render + sample artifact) ✅ landed in PRD 20260610-001804. Tasks **3 (fail-closed validation), 5 (skill-clusters), 6 (Brandmint), 7 (Snow Gloves)** open.
-- **Scope of remaining work**: runtime validation in `bin/compose.mjs`; cross-repo organ changes in `../Skill-clusters`, `../brandmint-oracle-aleph`, `../snow-gloves-os`. Out-of-repo touches require coordination.
+- **Status**: Tasks 1, 3, 4, 8, 9, 10 complete in Cambium. Tasks **5 (skill-clusters), 6 (Brandmint), 7 (Snow Gloves)** remain open.
+- **Scope of remaining work**: cross-repo organ changes in `../Skill-clusters`, `../brandmint-oracle-aleph`, `../snow-gloves-os`. Out-of-repo touches require coordination.
 - **Risk**: Tasks 5–7 cross repo boundaries — each requires its own PR in the target repo.
 
 ## 3. W6 Paperclip archive ceremony — issue #26
@@ -23,7 +23,7 @@
 
 ## Recommended order
 
-1. **Variable-contracts runtime (Task 3)** — local-only, hardens the composition layer, unblocks downstream organ work.
+1. **Variable-contracts Tasks 5–7** — cross-repo organ adoption of the contract surface.
 2. **W6 Paperclip archive (#26)** — small, clears the M5-adjacent open issue.
 3. **Lesson-miner L0–L1** — governance + `@bot` pickup. Defers L2+ until L0 is unblocked.
 4. **Variable-contracts Tasks 5–7** — cross-repo, requires coordination with the other organs.

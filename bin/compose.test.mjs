@@ -76,6 +76,18 @@ test('formatPlan renders the tenant and all four numbered stages in order', () =
   assert.ok(i1 >= 0 && i1 < i2 && i2 < i3 && i3 < i4, 'numbered stages appear in order');
 });
 
+test('compose plan surfaces variable contract metadata for each stage', () => {
+  const plan = planPipeline({ registry, pipeline, tenant: 'acme' });
+  const out = formatPlan(plan);
+
+  assert.match(out, /contract: requires \[idea\] → produces \[brand_system, copy_system, visual_system\]/);
+  assert.match(out, /brand_system/);
+  assert.match(out, /visual_system/);
+  assert.match(out, /asset_plan/);
+  assert.match(out, /blocking: taste_brief, asset_plan, section_plan, interaction_plan, acceptance_checks/);
+  assert.match(out, /downstream: Turns brand intent into structured visual and build constraints/);
+});
+
 test('missing registry.organs throws', () => {
   assert.throws(() => planPipeline({ registry: {}, pipeline, tenant: 't' }), /registry\.organs/);
 });
