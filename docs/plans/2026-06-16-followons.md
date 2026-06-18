@@ -11,9 +11,9 @@
 
 ## 2. Variable-contracts runtime validation — composition layer hardening
 - **Spec**: `docs/plans/2026-06-09-capability-alignment-variable-contracts.md`
-- **Status**: Tasks 1, 3, 4, 8, 9, 10 complete in Cambium. Task 5 merged via Skill-clusters PR #112 (`77303439`). Task 6 merged via Brandmint PR #180 (`80d7aa54`). Task 7 merged into the Snow Gloves dispatcher branch via PR #5 (`6f1fce39`).
-- **Scope of remaining work**: run the end-to-end contract handoff rehearsal once the Cambium stack lands on the target integration branch and Snow Gloves' dispatcher branch is promoted as intended.
-- **Risk**: the implementation now spans multiple repos and one non-main downstream base branch, so the next gate is integration-order verification rather than more local code.
+- **Status**: Tasks 1, 3, 4, 8, 9, 10 complete in Cambium. Task 5 merged via Skill-clusters PR #112 (`77303439`). Task 6 merged via Brandmint PR #180 (`80d7aa54`). Task 7 is mainline in Snow Gloves via PR #4 (`3353e52`) after PR #5 (`6f1fce39`) supplied the contract preservation layer.
+- **Verification**: end-to-end contract rehearsal passed on 2026-06-18: `npm run plan -- acme`; Skill-clusters variable-contract tests (7 pass); Brandmint downstream contract/hydrator/design-memory/template tests (56 pass); Snow Gloves contract/routing/Paperclip/GTM tests (17 pass), full tests (36 pass), and smoke (pass).
+- **Remaining work**: no implementation or rehearsal work remains for the variable-contract bridge; future changes should treat this as baseline behavior.
 
 ## 3. W6 Paperclip archive ceremony — issue #26
 - **Issue**: https://github.com/Sheshiyer/cambium/issues/26
@@ -23,10 +23,9 @@
 
 ## Recommended order
 
-1. **Run an end-to-end variable-contract rehearsal** across Cambium, Skill-clusters, Brandmint, and Snow Gloves once the stack is integrated.
-2. **W6 Paperclip archive (#26)** — stop/migrate the remaining Paperclip-adjacent runtime, then verify with `quine read skills archive paperclip --tenant cambium` before closing the issue.
-3. **Lesson-miner L0–L1** — governance + `@bot` pickup. Defers L2+ until L0 is unblocked.
-4. **Promote/merge stacked branches** only after their base branches land cleanly.
+1. **W6 Paperclip archive (#26)** — stop/migrate the remaining Paperclip-adjacent runtime, then verify with `quine read skills archive paperclip --tenant cambium` before closing the issue.
+2. **Lesson-miner L0–L1** — governance + `@bot` pickup. Defers L2+ until L0 is unblocked.
+3. **R3F Game Engine Realignment (#44-#52)** — continue in the separate visual branch/session and close via visual-QA evidence.
 
 Each becomes its own implementation plan when picked up. None should bundle.
 
@@ -35,4 +34,4 @@ Each becomes its own implementation plan when picked up. None should bundle.
 - **`readRepoSignals` in `bin/quine/hyphae/project-evidence.ts`** now derives repo existence and default-branch commit count from the current git worktree, so arc XII "The Build" can stand on live build evidence instead of honest zero.
 - **`readDeploySignals` in `bin/quine/hyphae/project-evidence.ts`** now counts Cloudflare Worker deployments for the configured `workers/quests/wrangler.jsonc` script when `CLOUDFLARE_API_TOKEN` is present, so arc XV "The Launch" can stand on live deploy evidence instead of honest zero.
 - **`readGateSignals` in `bin/quine/hyphae/project-evidence.ts`** now counts queued founder approvals from the Worker gate queue when `QUESTS_PUSH_TOKEN` is present, so arc XIV "The Gate" can stand on real approval evidence instead of honest zero.
-- **Remaining evidence gaps** are no longer the local project-evidence stubs; the next work is operational closure: W6 runtime retirement (#26), end-to-end variable-contract rehearsal, and lesson-miner governance.
+- **Remaining evidence gaps** are no longer the local project-evidence stubs or the variable-contract bridge; the next non-visual work is operational closure: W6 runtime retirement (#26) and lesson-miner governance.
