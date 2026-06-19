@@ -232,6 +232,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [INTEGRATION.md](./INTEGRATION.md) | how organs and agents wire together |
 | [New adopter runbook](./docs/adopters/new-adopter-30-minutes.md) | the 30-minute clean-clone path for standalone teams |
 | [Adapter boundary](./docs/adapters/README.md) | how optional providers feed evidence without becoming product identity |
+| [Approval lane](./docs/adapters/approval.md) | provider-neutral human gate with CLI, web, and Telegram adapters |
 | [Memory portability](./docs/memory/README.md) | export, import, reset, deletion, and tenant-isolation rules for cortex memory |
 | [Technical Reference](./docs/cambium-composition-technical-reference.html) | the canonical product + agent-consumption guide |
 

@@ -6,6 +6,8 @@ Telegram can be a chat and approval adapter for teams that already work there. I
 
 `chat` and `approval`
 
+Telegram implements the shared [approval lane](./approval.md). It should emit the same `cambium.approval.v1` event as the CLI and web adapters.
+
 ## Inputs
 
 - Founder approval commands.

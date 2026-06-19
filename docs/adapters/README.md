@@ -21,6 +21,9 @@ Every adapter should document:
 
 ## Current Adapter Docs
 
+- [Approval lane](./approval.md): provider-neutral human gate for irreversible moves.
+- [CLI approval](./cli-approval.md): local and CI-friendly approval input.
+- [Web approval](./web-approval.md): browser approval surface, including non-Telegram miniapps.
 - [Generic webhook](./generic-webhook.md): provider-neutral evidence ingress for local demos and first integrations.
 - [GitHub](./github.md): repository and issue events as project evidence.
 - [Cloudflare](./cloudflare.md): optional deployment and memory infrastructure.
