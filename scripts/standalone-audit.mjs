@@ -3,23 +3,52 @@
 // and live deployment defaults before they enter release-facing code.
 
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 
-const tracked = spawnSync('git', ['ls-files'], { encoding: 'utf8' });
-if (tracked.status !== 0) {
-  process.stderr.write(tracked.stderr || 'git ls-files failed\n');
-  process.exit(tracked.status || 1);
+const skipDirs = new Set([
+  '.git',
+  '.operator',
+  '.wrangler',
+  '.codegraph',
+  'cortex',
+  'dist',
+  'node_modules',
+  '__pycache__',
+  'motionsites-export',
+]);
+
+function walkFiles(dir = '.', prefix = '') {
+  const files = [];
+  for (const entry of readdirSync(dir)) {
+    if (prefix === '' && skipDirs.has(entry)) continue;
+    if (entry === '.DS_Store') continue;
+    const rel = prefix ? `${prefix}/${entry}` : entry;
+    const full = join(dir, entry);
+    const stat = statSync(full);
+    if (stat.isDirectory()) {
+      files.push(...walkFiles(full, rel));
+    } else if (stat.isFile()) {
+      files.push(rel);
+    }
+  }
+  return files;
 }
 
-const untracked = spawnSync('git', ['ls-files', '--others', '--exclude-standard'], { encoding: 'utf8' });
-if (untracked.status !== 0) {
-  process.stderr.write(untracked.stderr || 'git ls-files --others failed\n');
-  process.exit(untracked.status || 1);
+function candidateFiles() {
+  const tracked = spawnSync('git', ['ls-files'], { encoding: 'utf8' });
+  if (tracked.status !== 0) return walkFiles();
+
+  const untracked = spawnSync('git', ['ls-files', '--others', '--exclude-standard'], { encoding: 'utf8' });
+  if (untracked.status !== 0) {
+    process.stderr.write(untracked.stderr || 'git ls-files --others failed\n');
+    process.exit(untracked.status || 1);
+  }
+
+  return tracked.stdout.concat(untracked.stdout).split('\n').filter(Boolean);
 }
 
-const files = tracked.stdout
-  .concat(untracked.stdout)
-  .split('\n')
+const files = candidateFiles()
   .filter(Boolean)
   .filter((file) => !file.startsWith('docs/plans/assets/'))
   .filter((file) => !file.startsWith('apps/cambium-r3f/public/assets/'))

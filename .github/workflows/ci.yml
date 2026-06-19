@@ -29,3 +29,6 @@ jobs:
 
       - name: Standalone audit
         run: npm run standalone:audit
+
+      - name: Standalone smoke
+        run: npm run standalone:smoke
