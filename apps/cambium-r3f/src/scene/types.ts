@@ -96,6 +96,16 @@ export interface ScreenSpec {
   reference?: SceneReference;
 }
 
+export interface OverviewArtDirection {
+  routeId: 'home';
+  mapOccupancyTarget: number;
+  cameraZoom: number;
+  islandGlyphScale: number;
+  railParticleMultiplier: number;
+  domChrome: 'minimal-world-first';
+  heroGlyphs: Record<'genesis' | 'taste' | 'build' | 'ops' | 'cortex', string>;
+}
+
 export interface DesktopViewport {
   id: string;
   label: string;
@@ -151,6 +161,7 @@ export interface CambiumSceneModel {
   screens: ScreenSpec[];
   activeScreen: ScreenSpec;
   cameraMode: CameraMode;
+  overviewArtDirection: OverviewArtDirection;
   telemetry: SceneTelemetry;
   qaPolicy: CambiumQaPolicy;
   acceptanceChecks: readonly { name: string; pass: string; owner: string; consequence: string }[];

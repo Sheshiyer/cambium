@@ -16,6 +16,7 @@ export function App() {
   const [activeScreenId, setActiveScreenId] = useState<ScreenId>(routeFromHash);
   const [cameraMode, setCameraMode] = useState<CameraMode>('overview');
   const scene = useMemo(() => buildCambiumScene(activeScreenId, cameraMode), [activeScreenId, cameraMode]);
+  const isReferenceOverview = scene.activeScreen.id === scene.overviewArtDirection.routeId;
 
   useEffect(() => {
     const onHashChange = () => setActiveScreenId(routeFromHash());
@@ -51,7 +52,7 @@ export function App() {
   };
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell${isReferenceOverview ? ' app-shell--overview' : ''}`}>
       <SceneHud
         scene={scene}
         onScreenChange={setScreen}
