@@ -170,7 +170,7 @@ test('gatherProjectSignals treats an archive receipt as projectArchived evidence
   fs.writeFileSync(path.join(tmp, '.operator', 'foo.skills.json'), JSON.stringify([{ skill_id: 'lesson-one' }]));
   fs.writeFileSync(path.join(tmp, '.operator', 'foo.skills.archive.json'), JSON.stringify({
     tenant: 'foo',
-    archives: [{ routineId: 'paperclip', archived: true, archivedAt: '2026-06-18T00:00:00Z' }],
+    archives: [{ routineId: 'project-closeout', archived: true, archivedAt: '2026-06-18T00:00:00Z' }],
   }));
 
   const { refreshProjectEvidence } = await import('./project-evidence.ts');

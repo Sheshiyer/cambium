@@ -30,6 +30,7 @@ Every adapter should document:
 - [Telegram](./telegram.md): one approval/chat surface, not the default product identity.
 - [Project feed](./project-feed.md): issue/project evidence from a generic delivery system.
 - [Agent plane](./agent-plane.md): agent activity and archive ceremony evidence.
+- [Project archive ceremony](../archive/README.md): generic project closeout receipt; adapters may provide evidence.
 
 Start with zero adapters:
 
