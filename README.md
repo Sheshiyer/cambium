@@ -62,11 +62,12 @@ Cambium should boot without private company state or live provider credentials:
 
 ```bash
 npm run demo:tenant -- --tenant demo-org --force
+npm run demo:quests -- --tenant demo-org
 npm run tapestry:snapshot -- --tenant demo-org --out /tmp/demo-org.tapestry.json
 npm run standalone:smoke
 ```
 
-The demo tenant writes ignored runtime state under `.operator/`. The tapestry snapshot is bounded JSON for the six-scale map (`skill -> cluster -> organ -> venture -> company -> portfolio`) and uses synthetic `example.com` evidence only.
+The demo tenant writes ignored runtime state under `.operator/`. The demo quest ledger renders the synthetic "you are here" path without external providers. The tapestry snapshot is bounded JSON for the six-scale map (`skill -> cluster -> organ -> venture -> company -> portfolio`) and uses synthetic `example.com` evidence only.
 
 Full product blueprint + agent guides: **[Cambium Composition Layer Technical Reference →](./docs/cambium-composition-technical-reference.html)**
 
