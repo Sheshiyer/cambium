@@ -235,6 +235,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [Approval lane](./docs/adapters/approval.md) | provider-neutral human gate with CLI, web, and Telegram adapters |
 | [Project archive ceremony](./docs/archive/README.md) | generic project closeout receipt and no-fake-progress archive rules |
 | [Memory portability](./docs/memory/README.md) | export, import, reset, deletion, and tenant-isolation rules for cortex memory |
+| [Asset provenance and size policy](./docs/assets/README.md) | source, approval, and file-size rules for runtime and QA visual assets |
 | [Technical Reference](./docs/cambium-composition-technical-reference.html) | the canonical product + agent-consumption guide |
 
 ---
