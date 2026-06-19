@@ -11,7 +11,14 @@ if (tracked.status !== 0) {
   process.exit(tracked.status || 1);
 }
 
+const untracked = spawnSync('git', ['ls-files', '--others', '--exclude-standard'], { encoding: 'utf8' });
+if (untracked.status !== 0) {
+  process.stderr.write(untracked.stderr || 'git ls-files --others failed\n');
+  process.exit(untracked.status || 1);
+}
+
 const files = tracked.stdout
+  .concat(untracked.stdout)
   .split('\n')
   .filter(Boolean)
   .filter((file) => !file.startsWith('docs/plans/assets/'))
@@ -61,4 +68,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`standalone audit passed (${files.length} tracked files checked)`);
+console.log(`standalone audit passed (${files.length} publishable files checked)`);

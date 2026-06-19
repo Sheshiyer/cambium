@@ -14,6 +14,7 @@
     "render-docs": "node bin/render-docs.mjs",
     "render-docs:check": "node bin/render-docs.mjs --check",
     "standalone:audit": "node scripts/standalone-audit.mjs",
+    "demo:tenant": "node scripts/demo-tenant-fixture.mjs",
     "r3f:dev": "npm --prefix apps/cambium-r3f run dev",
     "r3f:build": "npm --prefix apps/cambium-r3f run build",
     "r3f:test": "npm --prefix apps/cambium-r3f run test",

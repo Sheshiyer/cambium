@@ -26,3 +26,6 @@ jobs:
       # to install — `npm test` runs `node --test` over the .mjs + native .ts suites directly.
       - name: Test
         run: npm test
+
+      - name: Standalone audit
+        run: npm run standalone:audit
