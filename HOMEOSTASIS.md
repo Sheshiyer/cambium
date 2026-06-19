@@ -63,6 +63,12 @@ this: `Φ_genesis` dropped the mission, so its output moved away from x\* — `L
 of drift is a **contract violation**: `Outputᵢ ⋢ Inputᵢ₊₁` — composition becomes undefined and garbage
 propagates. *(`verifyOutput` detects the contract-violation species at the seam.)*
 
+Concrete contract-violation examples live in the variable-contract layer, not in prose taste alone:
+missing `hero_media_type` or asset requirements means `build` cannot know what to produce; missing
+`proof_strategy` means `ops` cannot carry the offer honestly; missing `form_validation_rules` means an
+interaction branch can change product meaning without a seeded constraint. The compact example payload is
+tracked at [`examples/sample-variable-contract.json`](examples/sample-variable-contract.json).
+
 ## 6. The Lyapunov function — the engineering form of self-healing
 
 Let **V(x) = d(x, x\*) ≥ 0**, with `V = 0` only at x\*. Then:

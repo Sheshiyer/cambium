@@ -7,8 +7,9 @@
 // honest "not done" state, never invented. A gather error degrades to empty
 // signals — the arc shows `unreachable`, never `complete`.
 
-import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import type { QuineCtx } from '../types.ts';
 
 export interface ProjectSignals {
@@ -92,11 +93,27 @@ function readVaultSignals(tenant: string): ProjectSignals['vault'] {
   return undefined;
 }
 
-function readRepoSignals(_tenant: string): ProjectSignals['repo'] {
-  // TODO bridge to bin/quine/hyphae/gh.ts in a future task. For this plan, the
-  // gather defaults honestly: repo unverified ⇒ exists:false, commits:0.
-  // Wired here as a stub so the call-site is final and the test surface stable.
-  return { exists: false, commitsOnMain: 0 };
+function git(ctxRoot: string, args: string[]): string | undefined {
+  try {
+    return execFileSync('git', ['-C', ctxRoot, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch { return undefined; }
+}
+
+function readRepoSignals(ctx: QuineCtx): ProjectSignals['repo'] {
+  const insideWorktree = git(ctx.root, ['rev-parse', '--is-inside-work-tree']);
+  if (insideWorktree !== 'true') return { exists: false, commitsOnMain: 0 };
+
+  const defaultBranch =
+    git(ctx.root, ['symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD'])
+      ?.replace(/^origin\//, '') ||
+    git(ctx.root, ['branch', '--show-current']) ||
+    'main';
+  const candidateRefs = [`origin/${defaultBranch}`, defaultBranch, 'origin/main', 'main'];
+  const ref = candidateRefs.find((r) => git(ctx.root, ['rev-parse', '--verify', r]));
+  if (!ref) return { exists: true, commitsOnMain: 0 };
+
+  const count = Number(git(ctx.root, ['rev-list', '--count', ref]) ?? 0);
+  return { exists: true, commitsOnMain: Number.isFinite(count) ? count : 0 };
 }
 
 function readTenantSignals(ctx: QuineCtx, tenant: string): ProjectSignals['tenant'] {
@@ -114,35 +131,93 @@ function readReviewSignals(ctx: QuineCtx, tenant: string): ProjectSignals['revie
   } catch { return { count: 0 }; }
 }
 
-function readGateSignals(_tenant: string): ProjectSignals['gate'] {
-  // Gate approvals come from the worker's gate queue; for now honest-zero.
-  return { approvals: 0 };
+const QUESTS_PUSH_URL_DEFAULT = 'https://curious.thoughtseed.space';
+
+function questsPushToken(): string | undefined {
+  if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
+  try {
+    const txt = readFileSync(join(process.env.HOME ?? '', '.claude', '.env'), 'utf8');
+    const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
+    return line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim() || undefined;
+  } catch { return undefined; }
 }
 
-function readDeploySignals(_tenant: string): ProjectSignals['deploys'] {
-  // Cloudflare deploy events via bin/quine/hyphae/cf.ts in a future task.
-  return { count: 0 };
+function readGateSignals(tenant: string): ProjectSignals['gate'] {
+  const token = questsPushToken();
+  if (!token) return { approvals: 0 };
+
+  try {
+    const base = (process.env.QUESTS_PUSH_URL || QUESTS_PUSH_URL_DEFAULT).replace(/\/+$/, '');
+    const stdout = execFileSync('curl', ['-fsS', '-H', `Authorization: Bearer ${token}`, `${base}/internal/gate/${tenant}`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const json = JSON.parse(stdout);
+    const actions = Array.isArray(json?.actions) ? json.actions : [];
+    return { approvals: actions.filter((a: any) => a?.status === 'queued' && a?.kind === 'approve').length };
+  } catch { return { approvals: 0 }; }
+}
+
+function stripJsonComments(s: string): string {
+  return s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+}
+
+function readWorkerScriptName(ctx: QuineCtx): string | undefined {
+  if (process.env.CAMBIUM_DEPLOY_SCRIPT) return process.env.CAMBIUM_DEPLOY_SCRIPT;
+  if (process.env.CLOUDFLARE_WORKER_SCRIPT) return process.env.CLOUDFLARE_WORKER_SCRIPT;
+  try {
+    const config = JSON.parse(stripJsonComments(readFileSync(join(ctx.root, 'workers', 'quests', 'wrangler.jsonc'), 'utf8')));
+    return typeof config.name === 'string' && config.name ? config.name : undefined;
+  } catch { return undefined; }
+}
+
+function readDeploySignals(ctx: QuineCtx): ProjectSignals['deploys'] {
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || '9d9d23b27f32e70ae3afb6a1aa2c0f10';
+  const scriptName = readWorkerScriptName(ctx);
+  if (!apiToken || !accountId || !scriptName) return { count: 0 };
+
+  try {
+    const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/workers/scripts/${encodeURIComponent(scriptName)}/deployments`;
+    const stdout = execFileSync('curl', ['-fsS', '-H', `Authorization: Bearer ${apiToken}`, '-H', 'Content-Type: application/json', url], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const json = JSON.parse(stdout);
+    const deployments = Array.isArray(json?.result)
+      ? json.result
+      : Array.isArray(json?.result?.deployments)
+        ? json.result.deployments
+        : [];
+    return { count: deployments.length };
+  } catch { return { count: 0 }; }
 }
 
 function readSkillSignals(ctx: QuineCtx, tenant: string): ProjectSignals['skills'] {
+  let lessonsMinted = 0;
+  let archived = false;
   try {
     const path = join(ctx.root, '.operator', `${tenant}.skills.json`);
     const data = JSON.parse(readFileSync(path, 'utf8'));
-    return {
-      lessonsMinted: Array.isArray(data.lessons) ? data.lessons.length : 0,
-      archived: data.archived === true,
-    };
-  } catch { return { lessonsMinted: 0, archived: false }; }
+    lessonsMinted = Array.isArray(data) ? data.length : Array.isArray(data.lessons) ? data.lessons.length : 0;
+    archived = data.archived === true;
+  } catch { /* no skill registry yet */ }
+  try {
+    const path = join(ctx.root, '.operator', `${tenant}.skills.archive.json`);
+    const data = JSON.parse(readFileSync(path, 'utf8'));
+    archived ||= Array.isArray(data.archives) && data.archives.some((a: any) => a?.archived === true);
+  } catch { /* no archive receipt yet */ }
+  return { lessonsMinted, archived };
 }
 
 export function gatherProjectSignals(ctx: QuineCtx, tenant: string): ProjectSignals {
   return {
     vault: readVaultSignals(tenant),
-    repo: readRepoSignals(tenant),
+    repo: readRepoSignals(ctx),
     tenant: readTenantSignals(ctx, tenant),
     reviews: readReviewSignals(ctx, tenant),
     gate: readGateSignals(tenant),
-    deploys: readDeploySignals(tenant),
+    deploys: readDeploySignals(ctx),
     skills: readSkillSignals(ctx, tenant),
   };
 }
@@ -151,7 +226,9 @@ export function gatherProjectSignals(ctx: QuineCtx, tenant: string): ProjectSign
 export function refreshProjectEvidence(ctx: QuineCtx, tenant: string): ProjectEvidence {
   const signals = gatherProjectSignals(ctx, tenant);
   const evidence = assembleProjectEvidence(signals);
-  const path = join(ctx.root, '.operator', `${tenant}.project.json`);
+  const dir = join(ctx.root, '.operator');
+  mkdirSync(dir, { recursive: true });
+  const path = join(dir, `${tenant}.project.json`);
   const tmp = `${path}.tmp`;
   writeFileSync(tmp, JSON.stringify(evidence, null, 2) + '\n');
   renameSync(tmp, path);
