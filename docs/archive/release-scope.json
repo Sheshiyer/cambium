@@ -1,0 +1,29 @@
+{
+  "schema": "cambium.archive-release-scope.v1",
+  "updated": "2026-06-19",
+  "standaloneReleaseGate": {
+    "status": "satisfied",
+    "reason": "Cambium's release contract is the provider-neutral project archive receipt, not retirement proof for one optional adapter runtime.",
+    "requiredEvidence": [
+      "docs/archive/README.md defines project-closeout as the generic archive contract",
+      "docs/archive/fixtures/demo-archive-receipt.json provides a synthetic tenant-scoped receipt",
+      "bin/archive-ceremony-docs.test.mjs verifies the generic contract and privacy boundary",
+      "bin/quine/hyphae/project-evidence.test.ts verifies an archive receipt drives projectArchived evidence"
+    ]
+  },
+  "adapterRuntimeRetirement": {
+    "releaseBlocker": false,
+    "scope": "adapter-operations",
+    "reason": "An agent-plane or other worker-runtime soak is useful operational evidence for that adapter, but a clean standalone Cambium clone must not require that adapter to exist, run, or retire.",
+    "trackedBy": "adapter-specific evidence or a follow-up issue when a real adapter migration is in scope",
+    "mustNotEnterProductRepo": [
+      "raw runtime archives",
+      "private process lists",
+      "private workspace paths",
+      "customer transcripts",
+      "live account identifiers"
+    ]
+  },
+  "releaseDecision": "close the standalone archive blocker once the release-scope manifest and archive tests pass; keep any real adapter retirement as optional adapter evidence outside the product release gate"
+}
+
