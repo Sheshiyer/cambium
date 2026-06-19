@@ -51,7 +51,7 @@ Stored in the founder vault: `03-Resources/Design/Curios-Self-Quest-Miniapp/`
 | W1 | Quest ledger API: cambium Worker + KV serving `questLedger` JSON per tenant (`/api/quests/:tenant`, `/api/narrative/:tenant`); repo pushes derived JSON via a quine write verb; DO upgrade later (Beyond-M3) | `cloudflare` (active) | same CF account as cambium-cortex; vault R2 bucket is OUT OF BOUNDS (backup-only contract) |
 | W2 | Miniapp UI: quest line · fractal ring map · panels, per the reference set | `creative-frontend` (resolver pick) + `frontend-web` + `design` (taste · swiss · theme-factory spokes) + NEW `telegram-miniapp` spoke | Telegram WebApp SDK; hosted on Cloudflare Pages |
 | W3 | Narrative engine: pure mapper `bin/operator/narrative/` (world.log + deviations → story beats; noesis → set-apart frames), served on the same API; feed UI | cambium repo + `growth-content` (voice) | same fold-purity discipline as quests (tested, no fake beats) |
-| W4 | Founder gate: approve/reroll round-trip — miniapp POST (initData-auth) → cambium Worker buffers action + posts group audit message → paperclip poller consumes queue (closeout-poll pattern) → CEO INBOX / operator event | `agentic-ops` + Hermes plugin | Hermes has NO inbound HTTP — polling is the house style; v1 recommendation: handoff approvals (`/ts-approve` parity) |
+| W4 | Founder gate: approve/reroll round-trip — miniapp POST (initData-auth) → cambium Worker buffers action + posts group audit message → agent-plane poller consumes queue (closeout-poll pattern) → CEO INBOX / operator event | `agentic-ops` + Hermes plugin | Hermes has NO inbound HTTP — polling is the house style; v1 recommendation: handoff approvals (`/ts-approve` parity) |
 | W5 | In-app visual lane: generated imagery for narrative chapters | `media-gen` (activate deferred) → `nano-banana-2` spoke | the same model that made the references |
 
 ## Telegram architecture rules (must hold)
@@ -61,7 +61,7 @@ Stored in the founder vault: `03-Resources/Design/Curios-Self-Quest-Miniapp/`
 - `/ts-*` commands and the co-founder whitelist are untouched; the miniapp's founder actions
   (W4) route through Hermes → CEO INBOX like any external signal.
 - An end-user-facing curios.self bot (beyond founders) is a SEPARATE identity decided in W0 —
-  not the Thoughtseed co-founder group bot.
+  not the pilot org co-founder group bot.
 - Companion docs to update when W1+ lands: `00-meta/mocs/command-center-architecture.md`,
   `docs/telegram-commands.md` (vault), per the architecture contract.
 
@@ -87,22 +87,22 @@ operator's world reflects it — and every screen matches the Living Blueprint r
 
 ## Second pass (2026-06-10) — gaps closed, built tooling bound
 
-Adversarial review (RedTeam, five lenses) + a reuse sweep across cambium · paperclip ·
+Adversarial review (RedTeam, five lenses) + a reuse sweep across cambium · agent-plane ·
 team-forge-ts · ~/.hermes/skills. The first pass's ownership lines and R2 rules survived attack;
 what follows strengthens it. Severity-ranked findings with dispositions:
 
 | # | Sev | Finding | Disposition |
 |---|---|---|---|
-| F7 | HIGH | First-pass W4 put the bot token in the Worker (audit post + classic initData HMAC both need it) | **Fixed:** Worker validates initData via Telegram's **Ed25519 third-party signature** (public key + bot_id — zero secrets on the Worker); audit message is posted by the paperclip consumer, which already holds the token at home. Miniapp shows optimistic "queued" state; audit lands at poll latency. |
+| F7 | HIGH | First-pass W4 put the bot token in the Worker (audit post + classic initData HMAC both need it) | **Fixed:** Worker validates initData via Telegram's **Ed25519 third-party signature** (public key + bot_id — zero secrets on the Worker); audit message is posted by the agent-plane consumer, which already holds the token at home. Miniapp shows optimistic "queued" state; audit lands at poll latency. |
 | F1 | HIGH | W1 proposed new push/provision scripts — the `cf` hypha already has the authed `api()` helper + a `provision` write-verb pattern (`bin/quine/hyphae/cf.ts`) | **Fixed:** KV namespace provisioning joins `quine write cf provision`; ledger pushes ship as `quine write quests push` reusing the same helper. Zero new scripts. |
-| F10 | MED | KV snapshots go stale — serving yesterday's ledger as live violates no-fake-progress | **Fixed:** ledger envelope `{schema: 1, derivedAt, source: "push"\|"heartbeat", tenant}` + a freshness chip in the miniapp with staleness styling. House precedent: `teamforge-feed-sync.sh` already runs etag + 900s freshness. |
+| F10 | MED | KV snapshots go stale — serving yesterday's ledger as live violates no-fake-progress | **Fixed:** ledger envelope `{schema: 1, derivedAt, source: "push"\|"heartbeat", tenant}` + a freshness chip in the miniapp with staleness styling. House precedent: `project-feed-feed-sync.sh` already runs etag + 900s freshness. |
 | F2 | MED | W3 would re-write log parsing the forge already owns (`signaturesFromWorldLog`, `signaturesFromDeviations` in `bin/operator/skills/forge.ts`) | **Fixed:** one log grammar, two consumers — narrative mapper imports/extracts the forge parsers. |
 | F3 | MED | Gate outcomes had no recording path — while the skill forge telemetry shipped today | **Fixed:** the W4 consumer records every gate action via `quine write skills record <skill-id> ok\|fail --scenario …` — the self-improvement loop closes through the gate. |
-| F4 | MED | W1 ignored the deployed TeamForge worker scaffold | **Fixed:** scaffold the cambium worker FROM `team-forge-ts/cloudflare/worker/` — wrangler.jsonc binding style (+ add `kv_namespaces`), `src/lib/auth.ts` structured bearer middleware (wrap the Ed25519 check in its shape), `src/lib/db.ts` if D1 ever needed, `/healthz` + route layout, CI publish pattern from `.github/workflows/release.yml`. |
+| F4 | MED | W1 ignored the deployed project-feed worker scaffold | **Fixed:** scaffold the cambium worker FROM `team-forge-ts/cloudflare/worker/` — wrangler.jsonc binding style (+ add `kv_namespaces`), `src/lib/auth.ts` structured bearer middleware (wrap the Ed25519 check in its shape), `src/lib/db.ts` if D1 ever needed, `/healthz` + route layout, CI publish pattern from `.github/workflows/release.yml`. |
 | F8 | MED | Action queue lacked idempotency/anti-replay | **Fixed:** action `{id: uuid, ts, founderId, kind, payload}` + initData `auth_date` freshness window + consumer dedup by processed-id (etag-dedup precedent: `closeout-poll.sh`). |
 | F12 | MED | No execution lane — the plan names clusters but not WHO executes | **Fixed:** waves dispatch through the org itself — `/ts-run` → Cambium Bridge → conductor/skill-clusters; founder approvals ride the existing handoff flow. The org builds its own UI. |
 | F14 | MED | Tenant switcher only soft-sequenced after M3 | **Fixed (self-gating):** the API rejects `tenant ≠ cambium` until the quest log's own arc VII evidence reads isolation-green. The quest log gates its feature. |
-| F6 | LOW | Consumer scheduling unspecified | **Fixed:** launchd plist cloned from `com.thoughtseed.hermes-tg-poller.plist` (KeepAlive daemon, state-file offset pattern); `telegram-tenant-guard.py validate` runs before any send. |
+| F6 | LOW | Consumer scheduling unspecified | **Fixed:** launchd plist cloned from `com.pilot-org.hermes-tg-poller.plist` (KeepAlive daemon, state-file offset pattern); `telegram-tenant-guard.py validate` runs before any send. |
 | F9 | LOW | Founder allowlist enforced client-side only | **Fixed:** Worker re-checks `initData.user.id ∈ {FOUNDER_ID_1, FOUNDER_ID_2}` after signature validation. |
 | F13 | LOW | W5 activation unnamed | **Fixed:** `node scripts/tier.mjs --activate media-gen --apply` (skill-clusters). |
 | F5 | LOW | `render-docs.mjs` unused for narrative HTML | **Deferred:** noted as the template engine for future narrative chapter pages (pure render fns + esc()); not v1. |
@@ -110,12 +110,12 @@ what follows strengthens it. Severity-ranked findings with dispositions:
 
 **Event-bus note (W4 implementation time):** the existing skill
 `~/.hermes/skills/devops/telegram-channel-ops-connectors` documents the event-bus alignment
-(Hermes `:4100` · Paperclip `:3100` · TG layer) and warns *"do NOT build standalone — discover
+(Hermes `:4100` · agent-plane `:3100` · TG layer) and warns *"do NOT build standalone — discover
 the existing event bus first."* The consumer should land as a member of that bus (and the
 `devops/webhook-subscriptions` skill — `hermes webhook` CLI — is the evaluate-option for
 triggering agent runs off queue events instead of pure polling).
 
-**Net effect:** W1/W3/W4 build *almost nothing new* — one Worker (scaffolded from TeamForge's),
+**Net effect:** W1/W3/W4 build *almost nothing new* — one Worker (scaffolded from project-feed's),
 one KV namespace, one quine write verb, one launchd plist, one shared-parser refactor. Everything
 else is binding to tooling that already exists.
 
