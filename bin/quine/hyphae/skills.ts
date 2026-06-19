@@ -16,7 +16,9 @@ import {
 import type { SkillRecord } from '../../operator/skills/forge.ts';
 import { recordUse, successRate, recentRate, isDeclining } from '../../operator/skills/telemetry.ts';
 
-const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
+const DEFAULT_TENANT = 'demo-org';
+
+const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || DEFAULT_TENANT);
 const registryPath = (ctx: QuineCtx, tenant: string): string => join(ctx.root, '.operator', `${tenant}.skills.json`);
 const archivePath = (ctx: QuineCtx, tenant: string): string => join(ctx.root, '.operator', `${tenant}.skills.archive.json`);
 
@@ -248,7 +250,7 @@ export const skills: Hypha = {
   ].join('\n'),
 
   async status(ctx) {
-    const tenants = ['cambium', 'thoughtseed'].filter((t) => existsSync(registryPath(ctx, t)));
+    const tenants = ['cambium', DEFAULT_TENANT].filter((t) => existsSync(registryPath(ctx, t)));
     const total = tenants.reduce((n, t) => n + loadRegistry(ctx, t).length, 0);
     return { name: 'skills', reachable: true, detail: total > 0 ? `${total} skill(s) across ${tenants.length} registr(y/ies)` : 'forge ready — nothing minted yet' };
   },

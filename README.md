@@ -10,7 +10,9 @@
 
 ---
 
-> In a tree, the **cambium** is the thin living layer where *all* growth happens. This is that layer for business: take a raw idea (a *thoughtseed*) and grow it into a living, branded, operating company — then keep it growing **on-brand, forever**, with almost no manual intervention.
+> In a tree, the **cambium** is the thin living layer where *all* growth happens. This is that layer for business: take a raw idea and grow it into a living, branded, operating company — then keep it growing **on-brand, forever**, with almost no manual intervention.
+
+Cambium is designed as a **standalone fractal tapestry**: the same operating pattern can be emulated by a founder-led business, a small marketing team, or an AI-first product team. Prior live deployments are useful proof, but this repository should run from synthetic demo tenants and optional adapters, without private company data or host-specific assumptions.
 
 Cambium has **two halves**:
 
@@ -195,9 +197,9 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 |---|---|
 | **M1 · Onboarding Loop** ([#9–#14](https://github.com/Sheshiyer/cambium/milestone/1)) | ✅ complete — `operator onboard`, held noesis frames, Octalysis panel |
 | **M2 · Cortex Search** ([#15–#19, #24](https://github.com/Sheshiyer/cambium/milestone/2)) | ✅ complete — semantic (sqlite/Vectorize) + structural (codegraph), Vectorize **live** |
-| **M3 · Multi-Tenancy** ([#20–#23](https://github.com/Sheshiyer/cambium/milestone/3)) | ✅ complete — registry (TeamForge slugs) · per-tenant world+cortex isolation (adversarial suite) · multi-tenant router + all-tenant heartbeat |
-| **M4 · Quest Log & Skill Forge** ([#25+](https://github.com/Sheshiyer/cambium/milestone/4)) | ✅ complete — **v0.2.1 · Thalia .1**: `quine quests`/`skills`, the forge telemetry loop, and the **curios.self miniapp** live at [curious.thoughtseed.space](https://curious.thoughtseed.space) |
-| **M5 · MultiCA Wiring** ([#28+](https://github.com/Sheshiyer/cambium/milestone/5)) | ✅ complete — Phase R ✅ · Phase G ✅ · Phase Q ✅ · Bridge writers ✅. Mathis (Expert Property Asia) is the first live external tenant — quest line derived end-to-end from real signals (2026-06-16). |
+| **M3 · Multi-Tenancy** ([#20–#23](https://github.com/Sheshiyer/cambium/milestone/3)) | ✅ complete — portable org slugs · per-tenant world+cortex isolation (adversarial suite) · multi-tenant router + all-tenant heartbeat |
+| **M4 · Quest Log & Skill Forge** ([#25+](https://github.com/Sheshiyer/cambium/milestone/4)) | ✅ complete — **v0.2.1 · Thalia .1**: `quine quests`/`skills`, forge telemetry loop, and the Worker-backed quest miniapp |
+| **M5 · MultiCA Wiring** ([#28+](https://github.com/Sheshiyer/cambium/milestone/5)) | ✅ complete — Phase R ✅ · Phase G ✅ · Phase Q ✅ · Bridge writers ✅. The first live external-tenant rehearsal proved the quest line can derive from real signals; demo fixtures remain synthetic. |
 
 **Beyond M5** — the operator goes fully cloud-native on the same Cloudflare account that already hosts the cortex: the wake loop as a **Durable-Object agent** (persistent state + scheduled heartbeat), **DNS + Registrar** so the operator registers and configures domains for ventures it ships, **Email** delivery, and **Browser Rendering** for the Hands organ. Track it on the **[issues board](https://github.com/Sheshiyer/cambium/issues)**.
 
@@ -210,7 +212,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [INFINITE-GAME.md](./INFINITE-GAME.md) | the operator contract — wake loop, router, viability, NPCs, noesis |
 | [ONBOARDING-OCTALYSIS.md](./ONBOARDING-OCTALYSIS.md) | the 20-interaction first session, drive by drive |
 | [QUESTLOG.md](./QUESTLOG.md) | the quest line (you-are-here map) + the skill forge (repetition → self-improving skills) |
-| [INFINITE-GAME.md §Multi-tenancy](./INFINITE-GAME.md#multi-tenancy--one-operator-many-gardens-m3) | the tenancy contract: TeamForge-slug identity · adversarially-proven isolation · all-tenant heartbeat |
+| [INFINITE-GAME.md §Multi-tenancy](./INFINITE-GAME.md#multi-tenancy--one-operator-many-gardens-m3) | the tenancy contract: portable org-slug identity · adversarially-proven isolation · all-tenant heartbeat |
 | [HOMEOSTASIS.md](./HOMEOSTASIS.md) | the math — Banach contraction, viability kernel, why-handler |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | the organ constellation + composition layer |
 | [BUSINESS-MODEL.md](./BUSINESS-MODEL.md) | free build, subscription taste + memory |
@@ -225,6 +227,6 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 
 **For the businesses that never stop growing on-brand.**
 
-[Thoughtseed constellation](https://github.com/Sheshiyer)
+[Project repository](https://github.com/Sheshiyer/cambium)
 
 </div>

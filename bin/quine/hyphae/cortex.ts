@@ -9,6 +9,8 @@ import { sqliteCortex } from '../../operator/cortex-sqlite.ts';
 import { vectorizeCortex } from '../../operator/vectorize-cortex.ts';
 import type { CortexStore, MemoryRecord } from '../../operator/cortex-memory.ts';
 
+const DEFAULT_TENANT = 'demo-org';
+
 function pickStore(ctx: QuineCtx): { store: CortexStore; kind: string } {
   if (process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID) {
     return { store: vectorizeCortex(), kind: 'vectorize' };
@@ -34,7 +36,7 @@ export const cortex: Hypha = {
 
   async read(args, ctx) {
     const query = positional(args);
-    const tenant = flag(args, '--tenant', 'thoughtseed');
+    const tenant = flag(args, '--tenant', DEFAULT_TENANT);
     const k = Number(flag(args, '--k', '5'));
     const embedder = makeEmbedder({ root: ctx.root });
     const { store, kind } = pickStore(ctx);
@@ -49,7 +51,7 @@ export const cortex: Hypha = {
 
   async write(args, ctx) {
     const text = positional(args);
-    const tenant = flag(args, '--tenant', 'thoughtseed');
+    const tenant = flag(args, '--tenant', DEFAULT_TENANT);
     const recKind = flag(args, '--kind', 'decision');
     const embedder = makeEmbedder({ root: ctx.root });
     const { store, kind } = pickStore(ctx);

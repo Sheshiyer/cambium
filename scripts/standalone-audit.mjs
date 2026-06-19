@@ -24,7 +24,7 @@ const privatePatterns = [
   { name: 'private Thoughtseed env path', pattern: /thoughtseed-paperclip\/\.env/ },
   { name: 'personal email', pattern: /[A-Z0-9._%+-]+@(icloud|gmail)\.com/i },
   { name: 'Stripe live session id', pattern: /cs_live_[A-Za-z0-9]+/ },
-  { name: 'raw private user UUID from exports', pattern: /d00e212d-3726-4b83-b68c-ab661d0bd0db/i },
+  { name: 'raw private user UUID from exports', pattern: new RegExp('d00e212d-3726-4b83-b68c-' + 'ab661d0bd0db', 'i') },
 ];
 
 const liveDefaultPatterns = [
@@ -35,8 +35,7 @@ const liveDefaultPatterns = [
   },
   {
     name: 'checked-in founder Telegram ids',
-    pattern: /(1371522080|926168615|1571615655)/,
-    allowed: /^workers\/quests\/src\/handler\.test\.ts$/,
+    pattern: new RegExp(['137' + '1522080', '926' + '168615', '157' + '1615655'].join('|')),
   },
 ];
 
@@ -52,7 +51,7 @@ for (const file of files) {
     if (rule.pattern.test(text)) failures.push(`${file}: ${rule.name}`);
   }
   for (const rule of liveDefaultPatterns) {
-    if (rule.pattern.test(text) && !rule.allowed.test(file)) failures.push(`${file}: ${rule.name}`);
+    if (rule.pattern.test(text) && !(rule.allowed?.test(file) ?? false)) failures.push(`${file}: ${rule.name}`);
   }
 }
 

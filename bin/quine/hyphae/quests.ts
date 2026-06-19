@@ -16,17 +16,19 @@ import { multicaActivityBeats, multicaOpenItems, multicaAgentCount, multicaIssue
 import { teamforgeActivityBeats } from './teamforge.ts';
 import { refreshProjectEvidence } from './project-evidence.ts';
 
-const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
+const DEFAULT_TENANT = 'demo-org';
+const ROOT_TENANTS = new Set(['cambium', DEFAULT_TENANT]);
+
+const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || DEFAULT_TENANT);
 
 const readJson = (path: string): any | undefined => {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return undefined; }
 };
 
-// Founder-inheritance reducer. Root tenants (cambium/thoughtseed) earn the I–IX
+// Founder-inheritance reducer. Root tenants (cambium/demo-org) earn the I-IX
 // "founder tutorial" arcs once; every client tenant inherits those completions
 // via founder.json. Non-root tenants never write to founder.json — their
 // progress lives in ${tenant}.project.json instead.
-const ROOT_TENANTS = new Set(['cambium', 'thoughtseed']);
 
 export interface FounderState { completedArcs: string[]; derivedFrom: string; derivedAt: string }
 
@@ -132,7 +134,7 @@ function pushTokenFromEnvFile(): string | undefined {
 async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promise<unknown> {
   const base = flag(args, '--url', PUSH_URL_DEFAULT).replace(/\/+$/, '');
   const token = pushTokenFromEnvFile();
-  if (!token) return 'quests push: no QUESTS_PUSH_TOKEN (env or ~/.claude/.env) — refusing.';
+  if (!token) return 'quests push: no QUESTS_PUSH_TOKEN (env or ~/.config/cambium/.env) — refusing.';
 
   const inputs = gatherQuestInputs(ctx, tenant);
   inputs.multica = await gatherMulticaInputs();
@@ -147,8 +149,8 @@ async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promis
   let openItems: Array<{ id: string; title: string; status: string }> = [];
   try { beats.push(...await multicaActivityBeats(8)); openItems = await multicaOpenItems(12); }
   catch { /* gateway unreachable — story stays local, gate stays empty */ }
-  // The TeamForge emitter (projects · sync journal · conflicts) joins the feed as
-  // the source:"teamforge" lane — fail-soft if the feed token/URL are unset.
+  // Optional TeamForge-compatible emitters join the feed as source:"teamforge";
+  // fail-soft if that adapter is unset or unreachable.
   try { beats.push(...await teamforgeActivityBeats(6)); }
   catch { /* forge feed unreachable — story keeps its other lanes */ }
   // Read-only command data for the miniapp Commands panel (status/agents/work/handoffs).
@@ -208,7 +210,7 @@ export const quests: Hypha = {
   async status(ctx) {
     const opDir = join(ctx.root, '.operator');
     if (!existsSync(opDir)) return { name: 'quests', reachable: false, detail: 'no .operator state yet' };
-    const tenants = gatherQuestInputs(ctx, 'thoughtseed').tenants ?? [];
+    const tenants = gatherQuestInputs(ctx, DEFAULT_TENANT).tenants ?? [];
     return { name: 'quests', reachable: true, detail: `quest fold ready · ${tenants.length} tenant(s)` };
   },
 

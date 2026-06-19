@@ -1,21 +1,21 @@
-// Quine hypha · teamforge — the operator control plane emitter (live story lane).
-// TeamForge (forge.thoughtseed.space) emits project lifecycle: open projects, sync
+// Quine hypha · teamforge — optional project-control-plane emitter.
+// A TeamForge-compatible feed can emit project lifecycle: open projects, sync
 // conflicts, and the sync journal (operations as they happen). This hypha reads the
 // agent-feed export and turns recent activity into source:"teamforge" narrative beats
 // so the org's project plane joins the story alongside MultiCA agent activity.
 //
 // Auth: bearer token from env (TEAMFORGE_FEED_TOKEN, falling back to
-// TF_WEBHOOK_HMAC_SECRET) — the route's app secret. forge.thoughtseed.space is ALSO
-// behind Cloudflare Access, so a bearer-only call 302s; pass Access with a service
+// TF_WEBHOOK_HMAC_SECRET) — the route's app secret. If the feed is behind
+// Cloudflare Access, pass Access with a service
 // token via CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET (added as CF-Access-* headers
 // when present), OR point TEAMFORGE_FEED_URL at a reachable instance (e.g. a local
-// `wrangler dev` at http://127.0.0.1:8787/v1/agent-feed/export, the paperclip pattern).
+// `wrangler dev` at http://127.0.0.1:8787/v1/agent-feed/export).
 // Secrets never printed. Fail-soft: if unset/unreachable, the caller drops the forge
 // lane and the story keeps its other sources.
 
 import type { StoryBeat } from '../../operator/narrative/narrative.ts';
 
-const DEFAULT_FEED_URL = 'https://forge.thoughtseed.space/v1/agent-feed/export';
+const DEFAULT_FEED_URL = 'http://127.0.0.1:8787/v1/agent-feed/export';
 
 interface ForgeProject { id: string; slug: string | null; name: string; status: string; client_name: string | null; updated_at: string }
 interface ForgeConflict { id: string; project_id: string; conflict_type: string; detected_at: string; resolved_at: string | null }

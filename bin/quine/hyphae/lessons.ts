@@ -12,7 +12,9 @@ import { upsertSkills } from '../../operator/skills/forge.ts';
 
 type LessonKind = 'repeatable' | 'self-heal';
 
-const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
+const DEFAULT_TENANT = 'demo-org';
+
+const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || DEFAULT_TENANT);
 const registryPath = (ctx: QuineCtx, tenant: string): string => join(ctx.root, '.operator', `${tenant}.skills.json`);
 
 function loadRegistry(ctx: QuineCtx, tenant: string): SkillRecord[] {
@@ -114,7 +116,7 @@ export const lessons: Hypha = {
   ].join('\n'),
 
   async status(ctx) {
-    const tenants = ['cambium', 'thoughtseed'].filter((t) => existsSync(registryPath(ctx, t)));
+    const tenants = ['cambium', DEFAULT_TENANT].filter((t) => existsSync(registryPath(ctx, t)));
     const total = tenants.reduce((n, t) => n + loadRegistry(ctx, t).filter((s) => s.skill_id.startsWith('lesson-')).length, 0);
     return { name: 'lessons', reachable: true, detail: total > 0 ? `${total} lesson(s) minted` : 'lesson mint ready' };
   },

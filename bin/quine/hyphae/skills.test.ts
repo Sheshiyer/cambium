@@ -8,17 +8,17 @@ test('skills archive writes a non-destructive archive receipt', async () => {
   const { skills } = await import('./skills.ts');
 
   const out = await skills.write!(
-    ['archive', 'paperclip', '--tenant', 'mathis', '--evidence', '~/.paperclip/instances/archive.tar.zst', '--repo', 'thoughtseed-paperclip', '--note', 'one week soak complete'],
+    ['archive', 'paperclip', '--tenant', 'demo-org', '--evidence', '~/.paperclip/instances/archive.tar.zst', '--repo', 'sample-agent-plane', '--note', 'one week soak complete'],
     { root: tmp, vaultRoot: tmp },
   );
 
   assert.match(String(out), /archived: paperclip/);
-  const receipt = JSON.parse(fs.readFileSync(path.join(tmp, '.operator', 'mathis.skills.archive.json'), 'utf8'));
-  assert.equal(receipt.tenant, 'mathis');
+  const receipt = JSON.parse(fs.readFileSync(path.join(tmp, '.operator', 'demo-org.skills.archive.json'), 'utf8'));
+  assert.equal(receipt.tenant, 'demo-org');
   assert.equal(receipt.archives[0].routineId, 'paperclip');
   assert.equal(receipt.archives[0].archived, true);
   assert.equal(receipt.archives[0].evidencePath, '~/.paperclip/instances/archive.tar.zst');
-  assert.equal(receipt.archives[0].repoPath, 'thoughtseed-paperclip');
+  assert.equal(receipt.archives[0].repoPath, 'sample-agent-plane');
   assert.match(receipt.archives[0].ceremony.join('\n'), /process soak must be verified/);
   assert.match(receipt.archives[0].ceremony.join('\n'), /Hermes channel layer/);
 });
@@ -30,7 +30,7 @@ test('skills archive read falls back to the durable Paperclip archive directory'
   const archiveDir = path.join(tmp, '.paperclip', 'archives', '20260618T063755Z');
   fs.mkdirSync(archiveDir, { recursive: true });
   fs.writeFileSync(path.join(archiveDir, 'instances.tar.gz'), 'archive');
-  fs.writeFileSync(path.join(archiveDir, 'repo-state.txt'), 'repo=/tmp/thoughtseed-paperclip\n');
+  fs.writeFileSync(path.join(archiveDir, 'repo-state.txt'), 'repo=/tmp/sample-agent-plane\n');
   const prior = process.env.PAPERCLIP_ARCHIVES_ROOT;
   process.env.PAPERCLIP_ARCHIVES_ROOT = path.join(tmp, '.paperclip', 'archives');
   try {
@@ -39,7 +39,7 @@ test('skills archive read falls back to the durable Paperclip archive directory'
 
     assert.match(String(out), /receipt: found/);
     assert.match(String(out), /instances\.tar\.gz/);
-    assert.match(String(out), /repo: \/tmp\/thoughtseed-paperclip/);
+    assert.match(String(out), /repo: \/tmp\/sample-agent-plane/);
   } finally {
     if (prior === undefined) delete process.env.PAPERCLIP_ARCHIVES_ROOT;
     else process.env.PAPERCLIP_ARCHIVES_ROOT = prior;
@@ -49,7 +49,7 @@ test('skills archive read falls back to the durable Paperclip archive directory'
 test('skills archive runtime status blocks closure when Paperclip processes are active', async () => {
   const { assessArchiveRuntimeStatus } = await import('./skills.ts');
   const status = assessArchiveRuntimeStatus(
-    ['40145 bash /path/to/thoughtseed-paperclip/scripts/loop-runner.sh _run'],
+    ['40145 bash /path/to/sample-agent-plane/scripts/loop-runner.sh _run'],
     ['1571\t0\tai.hermes.forge-aura'],
   );
 
@@ -64,17 +64,17 @@ test('skills archive runtime status ignores its own inspection commands', async 
   const status = assessArchiveRuntimeStatus(
     [
       '111 pgrep -fl paperclip|loop-runner',
-      '222 /bin/zsh -lc ps -axo pid=,command= | rg -i thoughtseed-paperclip',
-      '333 rg -i thoughtseed-paperclip|paperclip|loop-runner|forge-aura',
+      '222 /bin/zsh -lc ps -axo pid=,command= | rg -i sample-agent-plane',
+      '333 rg -i sample-agent-plane|paperclip|loop-runner|forge-aura',
       '444 npm run quine -- read skills archive paperclip --tenant cambium',
       '555 node bin/quine/quine.ts read skills archive paperclip --tenant cambium',
-      '666 bash /path/to/thoughtseed-paperclip/scripts/loop-runner.sh _run',
+      '666 bash /path/to/sample-agent-plane/scripts/loop-runner.sh _run',
     ],
     [],
   );
 
   assert.equal(status.retired, false);
-  assert.deepEqual(status.activeProcesses, ['666 bash /path/to/thoughtseed-paperclip/scripts/loop-runner.sh _run']);
+  assert.deepEqual(status.activeProcesses, ['666 bash /path/to/sample-agent-plane/scripts/loop-runner.sh _run']);
 });
 
 test('skills archive runtime status clears when no Paperclip runtime is active', async () => {

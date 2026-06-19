@@ -67,8 +67,7 @@ plus `verification_steps` defined at mint time.
 
 ### Lifecycle (aligned with the company skill registry)
 
-The spec fields and lifecycle mirror the vault's skill-registry schema
-(`thoughtseed-labs/20-operations/skill-registry/skill-spec-schema.md`):
+The spec fields and lifecycle mirror Cambium's portable skill-registry contract:
 
 ```
 candidate ──first verified ok use──▶ validated ──founder approval (never automatic)──▶ production
