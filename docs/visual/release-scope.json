@@ -1,0 +1,30 @@
+{
+  "schema": "cambium.visual-release-scope.v1",
+  "updated": "2026-06-19",
+  "standaloneReleaseGate": {
+    "status": "satisfied",
+    "reason": "Cambium's standalone product gate is the portable six-scale fractal tapestry contract, synthetic demo tenant path, adapter boundaries, memory boundaries, archive ceremony, asset governance, and passing release audit. Final R3F game-engine visual parity is valuable product work, but it is not required for the non-visual standalone release gate.",
+    "requiredEvidence": [
+      "README.md documents the standalone fractal tapestry and synthetic demo path",
+      "scripts/tapestry-snapshot.mjs exports cambium.fractal-tapestry.snapshot.v1",
+      "bin/tapestry-snapshot.test.mjs verifies the six-scale standalone map",
+      "docs/assets/provenance.json covers R3F runtime and QA visual assets",
+      "docs/archive/release-scope.json closes the archive release gate",
+      "docs/memory/boundary.json defines provider-neutral memory boundaries"
+    ]
+  },
+  "r3fGameEngineRealignment": {
+    "releaseBlocker": false,
+    "scope": "visual-product-acceptance",
+    "milestone": "Cambium R3F Game Engine Realignment",
+    "issues": [44, 45, 46, 47, 48, 49, 50, 51, 52],
+    "reason": "The R3F milestone tracks final visual/game-engine acceptance: scene architecture, tactical overview, zoom states, HUD/control bay, scene-native visualizations, design-system sheet, Electron readiness, and screenshot acceptance. These improve the product experience but should not redefine whether the standalone fractal tapestry is portable and free of private company state.",
+    "mustRemainTrueForRelease": [
+      "R3F app tests and build pass in the final audit",
+      "runtime visual assets follow docs/assets/provenance.json",
+      "R3F fixtures remain synthetic or provider-neutral",
+      "release-facing docs do not claim final visual parity until the milestone closes"
+    ]
+  },
+  "releaseDecision": "remove R3F final visual parity from the non-visual standalone release blockers while keeping issues 44-52 open as the visual-product acceptance roadmap"
+}
