@@ -11,6 +11,24 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.2.4 · **Thalia .4** — *the bridge becomes release-testable*
+
+The org update: Cambium's post-Thalia bridge is now testable from a clean checkout. The quest
+surface, project evidence, archive gate, lesson-mint surface, and R3F tactical-map scaffold all
+have release-path evidence instead of relying on private local state.
+
+- **M5 Phase Q · Bridge evidence** — the quest fold now carries current project evidence from the
+  MultiCA bridge path, with issue/PR reality preserved as explicit evidence rather than inferred
+  status.
+- **W6 · Paperclip archive ceremony** — archive receipt discovery and runtime retirement checks are
+  wired into the release review so the ceremony can separate receipt presence from live-process
+  retirement.
+- **Lesson mint hypha** — operator learning now has a dedicated quine surface for minting repeatable
+  lessons back into the system.
+- **R3F release testability** — the visual engine contract sync fallback now works from a fresh
+  checkout, so R3F tests and builds can run in the release path.
+- 273 core tests green · 43 R3F tests green · Node v26 native TypeScript for the core operator.
+
 ### v0.2.3 · **Thalia .3** — *the game sees the org live*
 
 The org update: the quest log now reads the real pulse of the agent plane — MultiCA-derived
