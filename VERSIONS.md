@@ -20,7 +20,7 @@ have release-path evidence instead of relying on private local state.
 - **M5 Phase Q · Bridge evidence** — the quest fold now carries current project evidence from the
   MultiCA bridge path, with issue/PR reality preserved as explicit evidence rather than inferred
   status.
-- **W6 · Paperclip archive ceremony** — archive receipt discovery and runtime retirement checks are
+- **W6 · Agent-plane archive ceremony** — archive receipt discovery and runtime retirement checks are
   wired into the release review so the ceremony can separate receipt presence from live-process
   retirement.
 - **Lesson mint hypha** — operator learning now has a dedicated quine surface for minting repeatable

@@ -55,12 +55,12 @@ function loadArchive(ctx: QuineCtx, tenant: string): ArchiveReceipt {
   try {
     const data = JSON.parse(readFileSync(archivePath(ctx, tenant), 'utf8')) as ArchiveReceipt;
     const receipt = { tenant, archives: Array.isArray(data.archives) ? data.archives : [] };
-    return receipt.archives.length > 0 ? receipt : loadPaperclipArchiveFallback(tenant);
-  } catch { return loadPaperclipArchiveFallback(tenant); }
+    return receipt.archives.length > 0 ? receipt : loadAgentPlaneArchiveFallback(tenant);
+  } catch { return loadAgentPlaneArchiveFallback(tenant); }
 }
 
-function loadPaperclipArchiveFallback(tenant: string): ArchiveReceipt {
-  const archivesRoot = join(process.env.PAPERCLIP_ARCHIVES_ROOT || join(homedir(), '.paperclip', 'archives'));
+function loadAgentPlaneArchiveFallback(tenant: string): ArchiveReceipt {
+  const archivesRoot = join(process.env.AGENT_PLANE_ARCHIVES_ROOT || join(homedir(), '.config', 'cambium', 'agent-plane-archives'));
   try {
     const dirs = readdirSync(archivesRoot, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
@@ -75,17 +75,17 @@ function loadPaperclipArchiveFallback(tenant: string): ArchiveReceipt {
     return {
       tenant,
       archives: [{
-        routineId: 'paperclip',
+        routineId: 'agent-plane',
         archived: true,
         archivedAt: statSync(evidencePath).mtime.toISOString(),
         evidencePath,
         repoPath: repoLine?.slice('repo='.length),
-        note: 'W6 archive artifact discovered from ~/.paperclip/archives fallback',
+        note: 'archive artifact discovered from the configured agent-plane archive directory',
         ceremony: [
-          'Paperclip archive artifact exists in the durable local archive directory',
+          'agent-plane archive artifact exists in the durable local archive directory',
           'repo-state.txt is stored beside the archive artifact',
-          'Hermes channel layer remains the live external interface',
-          'runtime retirement must still be verified before closing issue #26',
+          'channel layer remains the live external interface',
+          'runtime retirement must still be verified before closing the archive issue',
         ],
       }],
     };
@@ -97,7 +97,7 @@ function saveArchive(ctx: QuineCtx, tenant: string, receipt: ArchiveReceipt): vo
   writeFileSync(archivePath(ctx, tenant), JSON.stringify(receipt, null, 2) + '\n');
 }
 
-function activeProcessLines(pattern = 'paperclip|loop-runner'): string[] {
+function activeProcessLines(pattern = 'agent-plane|loop-runner'): string[] {
   try {
     return execFileSync('pgrep', ['-fl', pattern], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
       .split('\n')
@@ -112,13 +112,13 @@ function activeLaunchdServices(): string[] {
     return execFileSync('launchctl', ['list'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
       .split('\n')
       .map((line) => line.trim())
-      .filter((line) => /paperclip|ai\.hermes\./i.test(line));
+      .filter((line) => /agent-plane|ai\.hermes\./i.test(line));
   } catch { return []; }
 }
 
 export function assessArchiveRuntimeStatus(processes: string[], services: string[]): ArchiveRuntimeStatus {
-  const activeProcesses = processes.filter((line) => /paperclip|loop-runner/i.test(line) && !isArchiveRuntimeInspector(line));
-  const activeServices = services.filter((line) => /paperclip/i.test(line));
+  const activeProcesses = processes.filter((line) => /agent-plane|loop-runner/i.test(line) && !isArchiveRuntimeInspector(line));
+  const activeServices = services.filter((line) => /agent-plane/i.test(line));
   const hermesServices = services.filter((line) => /ai\.hermes\./i.test(line));
   return {
     retired: activeProcesses.length === 0 && activeServices.length === 0,
@@ -132,7 +132,7 @@ function isArchiveRuntimeInspector(line: string): boolean {
   return [
     /pgrep\s+-fl\s+/i,
     /ps\s+-axo\s+/i,
-    /\brg\b.*(?:paperclip|loop-runner|forge-aura)/i,
+    /\brg\b.*(?:agent-plane|loop-runner|forge-aura)/i,
     /npm\s+run\s+quine\s+--\s+read\s+skills\s+archive/i,
     /node\s+bin\/quine\/quine\.ts\s+read\s+skills\s+archive/i,
   ].some((pattern) => pattern.test(line));
@@ -320,9 +320,9 @@ export const skills: Hypha = {
         repoPath: flag(args, '--repo', '') || undefined,
         note: flag(args, '--note', '') || undefined,
         ceremony: [
-          'Paperclip process soak must be verified before issue closure',
+          'agent-plane process soak must be verified before issue closure',
           'instances and repo state archived or referenced by evidencePath/repoPath',
-          'Hermes channel layer remains the live external interface',
+          'channel layer remains the live external interface',
           'quest evidence may now treat the project archive as complete',
         ],
       };

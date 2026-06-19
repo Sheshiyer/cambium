@@ -13,7 +13,7 @@ import type { QuestInputs } from '../../operator/quests/quests.ts';
 import { renderQuestLog } from '../../operator/quests/panel.ts';
 import { narrate } from '../../operator/narrative/narrative.ts';
 import { multicaActivityBeats, multicaOpenItems, multicaAgentCount, multicaIssuesDone, multicaCommandsData } from './multica.ts';
-import { teamforgeActivityBeats } from './teamforge.ts';
+import { projectFeedActivityBeats } from './project-feed.ts';
 import { refreshProjectEvidence } from './project-evidence.ts';
 
 const DEFAULT_TENANT = 'demo-org';
@@ -149,9 +149,9 @@ async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promis
   let openItems: Array<{ id: string; title: string; status: string }> = [];
   try { beats.push(...await multicaActivityBeats(8)); openItems = await multicaOpenItems(12); }
   catch { /* gateway unreachable — story stays local, gate stays empty */ }
-  // Optional TeamForge-compatible emitters join the feed as source:"teamforge";
+  // Optional project-control emitters join the feed as source:"project-feed";
   // fail-soft if that adapter is unset or unreachable.
-  try { beats.push(...await teamforgeActivityBeats(6)); }
+  try { beats.push(...await projectFeedActivityBeats(6)); }
   catch { /* forge feed unreachable — story keeps its other lanes */ }
   // Read-only command data for the miniapp Commands panel (status/agents/work/handoffs).
   let commands: Record<string, unknown> | null = null;

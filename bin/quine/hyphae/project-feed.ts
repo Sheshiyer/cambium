@@ -1,7 +1,7 @@
-// Quine hypha · teamforge — optional project-control-plane emitter.
-// A TeamForge-compatible feed can emit project lifecycle: open projects, sync
+// Quine hypha · project-feed — optional project-control-plane emitter.
+// A compatible feed can emit project lifecycle: open projects, sync
 // conflicts, and the sync journal (operations as they happen). This hypha reads the
-// agent-feed export and turns recent activity into source:"teamforge" narrative beats
+// agent-feed export and turns recent activity into source:"project-feed" narrative beats
 // so the org's project plane joins the story alongside MultiCA agent activity.
 //
 // Auth: bearer token from env (TEAMFORGE_FEED_TOKEN, falling back to
@@ -41,7 +41,7 @@ async function fetchFeed(): Promise<ForgeFeed> {
   const cfId = process.env.CF_ACCESS_CLIENT_ID, cfSecret = process.env.CF_ACCESS_CLIENT_SECRET;
   if (cfId && cfSecret) { headers['CF-Access-Client-Id'] = cfId; headers['CF-Access-Client-Secret'] = cfSecret; }
   const res = await fetch(cfg.url, { headers, signal: AbortSignal.timeout(10000) });
-  if (!res.ok) throw new Error(`teamforge agent-feed → ${res.status}`);
+  if (!res.ok) throw new Error(`project-feed agent-feed -> ${res.status}`);
   const body: any = await res.json();
   const data = body?.data ?? body;
   return {
@@ -53,11 +53,11 @@ async function fetchFeed(): Promise<ForgeFeed> {
 }
 
 /**
- * Recent TeamForge activity as narrative beats (source: "teamforge") — REAL records
+ * Recent project-control activity as narrative beats (source: "project-feed") — REAL records
  * only. Sync-journal operations are the live pulse; unresolved conflicts are the
  * attention beats (set apart as noesis). Project names resolve from open_projects.
  */
-export async function teamforgeActivityBeats(limit = 6): Promise<StoryBeat[]> {
+export async function projectFeedActivityBeats(limit = 6): Promise<StoryBeat[]> {
   const feed = await fetchFeed();
   const nameOf = new Map(feed.open_projects.map((p) => [p.id, p.name || p.slug || p.id]));
   const beats: Array<StoryBeat & { _t: number }> = [];
@@ -67,10 +67,10 @@ export async function teamforgeActivityBeats(limit = 6): Promise<StoryBeat[]> {
     const verb = j.status === 'ok' || j.status === 'success' ? 'synced' : j.status === 'error' ? 'failed' : j.status;
     beats.push({
       n: null,
-      text: `TeamForge ${verb} ${j.operation} for ${proj}.`,
+      text: `Project feed ${verb} ${j.operation} for ${proj}.`,
       lane: 'forge',
       noesis: false,
-      source: 'teamforge',
+      source: 'project-feed',
       raw: `${j.project_id} ${j.operation} ${j.status}`,
       _t: Date.parse(j.created_at) || 0,
     });
@@ -83,7 +83,7 @@ export async function teamforgeActivityBeats(limit = 6): Promise<StoryBeat[]> {
       text: `Sync conflict on ${proj}: ${c.conflict_type} — needs resolution.`,
       lane: 'forge',
       noesis: true,
-      source: 'teamforge',
+      source: 'project-feed',
       raw: `${c.project_id} ${c.conflict_type} unresolved`,
       _t: Date.parse(c.detected_at) || 0,
     });

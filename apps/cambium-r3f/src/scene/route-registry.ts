@@ -31,7 +31,7 @@ export const routeDrafts = [
     description: 'Zoomed seed island where idea fragments become brand, copy, and visual variable groups.',
     defaultCamera: 'node',
     panels: [
-      { title: 'IDEA IN', value: 'seed', detail: 'raw thoughtseed intake rail', tone: 'signal' },
+      { title: 'IDEA IN', value: 'seed', detail: 'raw seed idea intake rail', tone: 'signal' },
       { title: 'brand_system', value: 'ready', detail: 'identity, positioning, voice', tone: 'mist' },
       { title: 'copy_system', value: 'ready', detail: 'headlines, CTA, proof', tone: 'mist' },
       { title: 'visual_system', value: 'ready', detail: 'palette, type, motion', tone: 'depth' },

@@ -188,12 +188,12 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(200, { ok: true, tenant, bytes: body.length, derivedAt: envelope.derivedAt });
   }
 
-  // ── MultiCA ↔ Paperclip bridge ──────────────────────────────────────────
-  // Hosted here because MultiCA's AWS backend has no /v1/bridge/* API. LISTEN:
-  // Paperclip's upstream POSTs signed BridgeMessages to /ingest (stored in KV for
-  // cofounders/MultiCA to read at /inbox). WRITE: cofounders/MultiCA enqueue
-  // downstream directives at /directive; Paperclip's downstream polls /directives
-  // and /ack's them (anti-redeliver; seeds the G1 reconnect handshake). A shared
+  // ── Gateway ↔ agent-plane bridge ────────────────────────────────────────
+  // Hosted here for gateways that do not expose a native /v1/bridge/* API. LISTEN:
+  // the upstream agent plane POSTs signed BridgeMessages to /ingest (stored in KV
+  // for founders/gateways to read at /inbox). WRITE: founders/gateways enqueue
+  // downstream directives at /directive; the agent plane polls /directives
+  // and /ack's them (anti-redeliver; seeds the reconnect handshake). A shared
   // BRIDGE_TOKEN gates every op; per-message HMAC (protocol.signature) is stored
   // for the G10 verification follow-up.
   if (path.startsWith('/v1/bridge/')) {
