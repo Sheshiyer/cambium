@@ -1,0 +1,35 @@
+{
+  "schema": "cambium.memory-export.v1",
+  "tenant": "demo-org",
+  "generatedFrom": "synthetic-fixture",
+  "records": [
+    {
+      "id": "demo-org:v1:welcome-tweak",
+      "kind": "decision",
+      "tenant": "demo-org",
+      "vector": [1, 0, 0, 0],
+      "payload": {
+        "eventId": "welcome-tweak",
+        "eventKind": "tweak",
+        "action": "hold generic position",
+        "routing": "micro",
+        "text": "synthetic welcome tweak for example.com demo org"
+      },
+      "ts": 0
+    },
+    {
+      "id": "demo-org:v2:pricing-redirect",
+      "kind": "decision",
+      "tenant": "demo-org",
+      "vector": [0, 1, 0, 0],
+      "payload": {
+        "eventId": "pricing-redirect",
+        "eventKind": "redirect",
+        "action": "reroll toward the same generic promise",
+        "routing": "meso",
+        "text": "synthetic pricing redirect for example.com demo org"
+      },
+      "ts": 1
+    }
+  ]
+}
