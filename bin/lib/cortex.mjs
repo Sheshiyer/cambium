@@ -1,10 +1,10 @@
-// Cambium — the unified cortex client (I3). ONE interface to the shared aesthetic-memory NIM Worker:
-//   embed / search (1024-dim NIM)  ·  variable-contract read/write  ·  the why-handler deviation ledger.
+// Cambium — the unified cortex client (I3). ONE interface to provider-neutral memory:
+//   embed / search  ·  variable-contract read/write  ·  the why-handler deviation ledger.
 //
 // The transport is INJECTED. Today a working LOCAL transport (the deviation jsonl + a local
-// variable-contract store). The real Cloudflare Worker — unifying taste-nim + DESIGN_MEMORY_WORKER —
+// variable-contract store). A hosted memory worker, NIM-compatible embedder, or any future provider
 // swaps in as a transport with ZERO call-site changes. That is the whole point of I3: one interface,
-// one shared memory, so the why-handler's learning + the variable contracts are shared across organs.
+// one tenant-scoped memory seam, so the why-handler's learning + the variable contracts are shared across organs.
 
 import { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -37,7 +37,7 @@ export function localTransport({ root, tenant = DEFAULT_TENANT, fs = { appendFil
   const contractPath = (brand, group) => join(contractDirFor(brand), `${group}.json`);
   const deviationsPath = join(root, 'cortex', tenant, 'deviations.jsonl');
   const needsWorker = (op) => () => {
-    throw new Error(`cortex.${op}: needs the NIM Worker transport (I3 follow-up — taste-nim)`);
+    throw new Error(`cortex.${op}: needs an embedding/search transport (provider-neutral memory adapter)`);
   };
   return {
     embed: needsWorker('embed'),

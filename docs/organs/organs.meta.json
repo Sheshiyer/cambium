@@ -98,12 +98,12 @@
     {
       "id": "cortex", "emoji": "🧠", "name": "shared cortex — the aesthetic memory",
       "tagline": "the 1024-dim NIM metric space (X, d) the whole engine converges in — cosine distance IS on-brand-ness; x* lives here",
-      "repo": "Sheshiyer/taste-nim + DESIGN_MEMORY_WORKER", "role": "cortex / the metric space",
+      "repo": "provider-neutral memory adapter", "role": "cortex / the metric space",
       "contract": { "in": "any-artifact", "out": "d(x, x*)" },
       "spend": { "class": "cross", "label": "⟳ cross-cutting · gated", "reason": "(paid NVIDIA NIM embeddings)" },
-      "conductor": { "name": "the NIM Worker (embed / search)", "desc": "x → 1024-dim vector → nearest on-brand refs" },
-      "entrypoint": "NIM Worker endpoint (embed / search) · model nv-embedqa-e5-v5 @ dimension 1024",
-      "homeostasis": "This IS (X, d) from HOMEOSTASIS.md — the substrate where V = d(x, x*) is computed; without it there is no measurable drift and no self-healing. Currently DUPLICATED across two Workers; I3 unifies them — that unified memory is the moat.",
+      "conductor": { "name": "memory adapter (embed / search)", "desc": "x → vector → nearest on-brand refs" },
+      "entrypoint": "CortexStore or makeCortex transport (embed / search) · provider dimensions are adapter-specific",
+      "homeostasis": "This IS (X, d) from HOMEOSTASIS.md — the substrate where V = d(x, x*) is computed; without it there is no measurable drift and no self-healing. The product contract is the provider-neutral memory seam; taste/design workers are optional adapters behind it.",
       "counts": [{ "root": "snow-gloves", "path": "config/snowgloves.yaml", "grep": { "model": "model:\\s*(\\S+)", "dim": "dimension:\\s*(\\d+)" } }],
       "sources": [],
       "componentsLiteral": [
