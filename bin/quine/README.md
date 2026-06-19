@@ -54,7 +54,8 @@ Each connector is a *hypha* — one thread of a **mycelial network**. The networ
 (`quine self` prints its own structure), and you grow it by dropping one file in
 `hyphae/<name>.ts` (export a `Hypha`: `{ name, describe, help, status, read, write? }`) and
 registering it in `quine.ts`. Add a thread, the network grows — `map` / `status` / `self` pick it
-up automatically. Next threads: TeamForge, Paperclip, Huly, Clockify, Slack.
+up automatically. Next threads can be any adapter: project-control feeds, agent planes, time
+tracking, chat, or delivery systems.
 
 Zero-dep, Node v26 native TS. Config (env): `QUINE_VAULT` · `QUINE_GH_REPO` ·
 `CLOUDFLARE_API_TOKEN`+`CLOUDFLARE_ACCOUNT_ID` (→ cloud cortex) · `NVIDIA_API_KEY` (→ smarter memory).

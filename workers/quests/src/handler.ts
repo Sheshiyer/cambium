@@ -24,6 +24,7 @@ export interface HandlerDeps {
   uuid?: () => string;         // injectable for tests
   now?: () => string;          // injectable clock (ISO) for the bridge
   nowMs?: () => number;        // injectable epoch-ms clock for handoff TTLs
+  publicBaseUrl?: string;      // deployed Worker base URL for invite/deep links
 }
 
 // ── W4 · the founder gate: Telegram initData THIRD-PARTY validation ─────
@@ -187,12 +188,12 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(200, { ok: true, tenant, bytes: body.length, derivedAt: envelope.derivedAt });
   }
 
-  // ── MultiCA ↔ Paperclip bridge ──────────────────────────────────────────
-  // Hosted here because MultiCA's AWS backend has no /v1/bridge/* API. LISTEN:
-  // Paperclip's upstream POSTs signed BridgeMessages to /ingest (stored in KV for
-  // cofounders/MultiCA to read at /inbox). WRITE: cofounders/MultiCA enqueue
-  // downstream directives at /directive; Paperclip's downstream polls /directives
-  // and /ack's them (anti-redeliver; seeds the G1 reconnect handshake). A shared
+  // ── Gateway ↔ agent-plane bridge ────────────────────────────────────────
+  // Hosted here for gateways that do not expose a native /v1/bridge/* API. LISTEN:
+  // the upstream agent plane POSTs signed BridgeMessages to /ingest (stored in KV
+  // for founders/gateways to read at /inbox). WRITE: founders/gateways enqueue
+  // downstream directives at /directive; the agent plane polls /directives
+  // and /ack's them (anti-redeliver; seeds the reconnect handshake). A shared
   // BRIDGE_TOKEN gates every op; per-message HMAC (protocol.signature) is stored
   // for the G10 verification follow-up.
   if (path.startsWith('/v1/bridge/')) {
@@ -328,7 +329,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const exp = nowMs + INVITE_TTL_MS;
       const invite = await signInvite(deps.handoffSecret, { memberId, email: member.email, jti, exp });
       await deps.kv.put(inviteKey(jti), JSON.stringify({ jti, memberId, email: member.email, exp, used: false, createdAt: nowIso() }));
-      const base = String(b.linkBase ?? 'https://curious.thoughtseed.space').replace(/\/+$/, '');
+      const base = String(b.linkBase ?? deps.publicBaseUrl ?? 'https://cambium.example.com').replace(/\/+$/, '');
       return json(200, { ok: true, memberId, email: member.email, expiresAt: new Date(exp).toISOString(), invite, link: `${base}/join?t=${invite}` });
     }
 
@@ -364,7 +365,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       await deps.kv.put(tokenIndexKey(tokenHash), claims.memberId);
       inv.used = true; inv.usedAt = nowIso();
       await deps.kv.put(inviteKey(claims.jti), JSON.stringify(inv));
-      return json(200, { ok: true, memberId: claims.memberId, bridgeApiUrl: 'https://curious.thoughtseed.space', token, expiresAt: new Date(tokenExp).toISOString() });
+      return json(200, { ok: true, memberId: claims.memberId, bridgeApiUrl: deps.publicBaseUrl ?? 'https://cambium.example.com', token, expiresAt: new Date(tokenExp).toISOString() });
     }
 
     if (method === 'POST' && path === '/v1/handoff/rotate') {

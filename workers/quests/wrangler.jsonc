@@ -4,12 +4,9 @@
   "compatibility_date": "2026-05-01",
   "workers_dev": true,
   "observability": { "enabled": true },
-  "routes": [
-    { "pattern": "curious.thoughtseed.space", "custom_domain": true }
-  ],
+  "routes": [],
   "vars": {
-    "GATE_BOT_ID": "1571615655",
-    "GATE_FOUNDER_IDS": "1371522080,926168615"
+    "CAMBIUM_PUBLIC_BASE_URL": "https://cambium.example.com"
   },
   "kv_namespaces": [
     { "binding": "QUESTS", "id": "10aaa6e0a8a545c1afb5ceee7ef61c14" }

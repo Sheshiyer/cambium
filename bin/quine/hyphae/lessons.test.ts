@@ -11,7 +11,7 @@ test('lessons mint writes a proposed lesson into the skill registry', async () =
     [
       'mint',
       '--tenant', 'cambium',
-      '--title', 'Archive Paperclip before shutdown',
+      '--title', 'Archive agent plane before shutdown',
       '--kind', 'repeatable',
       '--summary', 'the archive-and-receipt ceremony repeats before runtime retirement',
       '--proposed', 'turn the ceremony into a reusable runbook',
@@ -20,13 +20,13 @@ test('lessons mint writes a proposed lesson into the skill registry', async () =
     { root: tmp, vaultRoot: tmp },
   );
 
-  assert.match(String(out), /lesson minted: lesson-archive-paperclip-before-shutdown/);
+  assert.match(String(out), /lesson minted: lesson-archive-agent-plane-before-shutdown/);
   const registry = JSON.parse(fs.readFileSync(path.join(tmp, '.operator', 'cambium.skills.json'), 'utf8'));
   assert.equal(registry.length, 1);
-  assert.equal(registry[0].skill_id, 'lesson-archive-paperclip-before-shutdown');
+  assert.equal(registry[0].skill_id, 'lesson-archive-agent-plane-before-shutdown');
   assert.equal(registry[0].status, 'candidate');
-  assert.equal(registry[0].source.signature, 'lesson|repeatable|archive-paperclip-before-shutdown');
-  assert.deepEqual(registry[0].trigger_signals.slice(0, 2), ['lesson|repeatable|archive-paperclip-before-shutdown', 'tg://message/123']);
+  assert.equal(registry[0].source.signature, 'lesson|repeatable|archive-agent-plane-before-shutdown');
+  assert.deepEqual(registry[0].trigger_signals.slice(0, 2), ['lesson|repeatable|archive-agent-plane-before-shutdown', 'tg://message/123']);
 });
 
 test('lessons mint dedupes by lesson id without resetting telemetry', async () => {

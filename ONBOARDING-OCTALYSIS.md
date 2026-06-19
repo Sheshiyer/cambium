@@ -71,9 +71,9 @@ goal-move · the viability board · drift), and #20 (the game continues)** — t
 
 | # | Interaction | What the founder sees / does | Core drive(s) | Layer | Reveals |
 |---|---|---|---|---|---|
-| 1 | **The Calling** | A spare opening line: *"You're not building a product. You're starting an infinite game."* One button: *Plant a thoughtseed.* | **1 Epic Meaning** | macro | the infinite-game frame |
+| 1 | **The Calling** | A spare opening line: *"You're not building a product. You're starting an infinite game."* One button: *Plant a seed idea.* | **1 Epic Meaning** | macro | the infinite-game frame |
 | 2 | **Name the Just Cause** | Founder writes their vision in one sentence; the operator pins it as the *near-invariant anchor* and shows it will barely move. | **1 Epic Meaning** + **4 Ownership** | macro | the vision anchor |
-| 3 | **Plant the seed** | Founder drops a raw idea (a sentence / brand-config). The operator accepts the *thoughtseed* and says "watch." | **7 Curiosity** + 1 | macro→ | idea ingestion |
+| 3 | **Plant the seed** | Founder drops a raw idea (a sentence / brand-config). The operator accepts the *seed idea* and says "watch." | **7 Curiosity** + 1 | macro→ | idea ingestion |
 
 ### Phase B — First Mint / Accomplishment
 

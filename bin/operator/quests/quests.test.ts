@@ -29,7 +29,7 @@ function cambiumLike(): QuestInputs {
       ],
     },
     cortexCount: 1,
-    tenants: ['cambium', 'thoughtseed'],
+    tenants: ['demo-org', 'sample-studio'],
     isolationSuite: false,
   };
 }

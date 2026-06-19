@@ -416,8 +416,8 @@ grows — the one that keeps all the others playing.*
 The operator hosts MANY ventures. The contract, proven adversarially by
 `bin/operator/tenant.test.ts`:
 
-- **Identity** — tenant ids are **TeamForge slugs** (lowercase kebab). They are NEVER invented
-  ad-hoc (vault `CLAUDE.md`, anti-drift rule 1): the registry (`.operator/tenants.json`) derives
+- **Identity** — tenant ids are **portable org slugs** (lowercase kebab). They are NEVER invented
+  ad-hoc: the registry (`.operator/tenants.json`) derives
   from worlds that already exist (*registration-from-reality*), and `registerTenant` rejects ids
   with no world behind them.
 - **Isolation** — no event, vector, deviation, contract, or setpoint move crosses tenants:

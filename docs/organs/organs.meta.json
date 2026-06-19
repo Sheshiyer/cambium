@@ -80,7 +80,7 @@
       "contract": { "in": "artifact", "out": "business" },
       "spend": { "class": "gate", "label": "💲 gated (Explee)", "reason": "(brand_to_gtm drives paid Explee via the explee-proxy — needs an approved Brief + EXPLEE_PROXY_TOKEN)" },
       "conductor": { "name": "dispatcher + chief-of-staff", "desc": "skill-hooks routes 60 skills → 7 agents" },
-      "entrypoint": "the dispatcher (Hermes/Paperclip) · scripts/lib/gtm.py brand_to_gtm (gated; a thin CLI wrapper is the follow-up)",
+      "entrypoint": "the dispatcher (channel/agent-plane adapters) · scripts/lib/gtm.py brand_to_gtm (gated; a thin CLI wrapper is the follow-up)",
       "homeostasis": "The will/OS keeps the business on-brand at the portfolio scale — a homeostat one level up; brand_to_gtm is approval-gated (constitution #4 — no unapproved spend off the convergence path).",
       "sources": [
         { "root": "snow-gloves", "dir": "agents", "type": "dirs", "kind": "C-suite agent" },
@@ -90,7 +90,7 @@
       "descriptions": {
         "ceo": "mission/vision/strategy", "chief-of-staff": "the skill-graph router", "cto": "architecture + execution",
         "dispatcher": "orchestration dispatch (GTM)", "interpreter": "synthesis / brand→ICP Briefs", "librarian": "retrieval / research",
-        "sentinel": "risk / approvals", "hermes": "the event bus", "paperclip_bridge": "the Paperclip task bridge",
+        "sentinel": "risk / approvals", "hermes": "the event bus", "paperclip_bridge": "the optional agent-plane task bridge",
         "embed_worker": "the tenant vector-index (cortex client)", "approvals": "the approval queue", "ingest": "source ingestion",
         "replay": "event replay", "sentinel_sweep": "risk sweep", "tn_seed": "community seeding (Reddit)"
       }

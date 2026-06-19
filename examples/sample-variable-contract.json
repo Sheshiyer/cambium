@@ -5,7 +5,7 @@
     "brand_name": "Acme",
     "category": "developer-tools",
     "audience": "founders and engineering leads at 5-50 person startups",
-    "positioning": "The invisible compiler that turns a thoughtseed into a living, on-brand company without the founder leaving the game.",
+    "positioning": "The invisible compiler that turns a seed idea into a living, on-brand company without the founder leaving the game.",
     "promise": "One idea in. A self-running business that stays on-brand forever.",
     "differentiators": ["fractal self-similar organs", "taste cortex that learns you", "viability-first infinite operator"],
     "voice_principles": ["precise but warm", "systems thinker who has shipped", "no hype, only mechanism and proof"]
@@ -14,7 +14,7 @@
     "copy_slots": {
       "hero_headline": "An idea goes in. A self-running, on-brand business comes out.",
       "hero_subhead": "The autonomous venture operator — the company compiler.",
-      "cta_primary": "Plant a thoughtseed",
+      "cta_primary": "Plant a seed idea",
       "cta_secondary": "See the math",
       "proof_points": ["Fitcheck tracer: brand → taste → real artifacts in one run", "Every organ is the same Φ"],
       "offer_text": "Genesis free. Taste keeps it on-brand."
@@ -48,7 +48,7 @@
   },
   "interaction_plan": {
     "primary": [
-      {"trigger": "click plant", "state": "idea-capture", "action": "ingest thoughtseed → genesis"},
+      {"trigger": "click plant", "state": "idea-capture", "action": "ingest seed idea → genesis"},
       {"trigger": "drag or edit brand field", "state": "allostatic-nudge", "action": "micro re-project; log as intent or error"},
       {"trigger": "approve spend", "state": "gate-open", "action": "only if viability margin positive and --approve present"}
     ],

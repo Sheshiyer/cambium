@@ -31,7 +31,7 @@ test('healthz · ok', async () => {
 });
 
 test('quests · M3 isolation suite green — gate open to all valid tenants', async () => {
-  const r = await handle(req('GET', '/api/quests/thoughtseed'), { kv: fakeKv() });
+  const r = await handle(req('GET', '/api/quests/demo-org'), { kv: fakeKv() });
   assert.equal(r.status, 404);                       // open, just no ledger pushed yet
   assert.match(r.body, /quine write quests push/);
 });
@@ -165,32 +165,36 @@ async function makeSignedInitData(opts: {
 }
 
 const NOW = 1_750_000_000_000;
+const TEST_BOT_ID = '900000001';
+const TEST_FOUNDER_A = '200000001';
+const TEST_FOUNDER_B = '200000002';
+
 const gateCfg = (pubKeyHex: string): GateConfig => ({
-  botId: '1571615655', pubKeyHex, founderIds: ['1371522080', '926168615'], now: () => NOW,
+  botId: TEST_BOT_ID, pubKeyHex, founderIds: [TEST_FOUNDER_A, TEST_FOUNDER_B], now: () => NOW,
 });
 
 test('gate · valid founder signature passes and identifies the founder', async () => {
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '1371522080', authDate: NOW / 1000 - 30 });
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 30 });
   const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
-  assert.deepEqual(verdict, { ok: true, userId: '1371522080' });
+  assert.deepEqual(verdict, { ok: true, userId: TEST_FOUNDER_A });
 });
 
 test('gate · tampered payload is rejected', async () => {
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '1371522080', authDate: NOW / 1000 - 30, tamper: true });
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 30, tamper: true });
   const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
   assert.equal(verdict.ok, false);
   assert.match((verdict as any).reason, /bad signature/);
 });
 
 test('gate · stale auth_date is rejected', async () => {
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '1371522080', authDate: NOW / 1000 - 4000 });
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 4000 });
   const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
   assert.equal(verdict.ok, false);
   assert.match((verdict as any).reason, /stale/);
 });
 
 test('gate · non-founder with a valid signature is rejected', async () => {
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '555', authDate: NOW / 1000 - 30 });
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: '555', authDate: NOW / 1000 - 30 });
   const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
   assert.equal(verdict.ok, false);
   assert.match((verdict as any).reason, /not a founder/);
@@ -198,7 +202,7 @@ test('gate · non-founder with a valid signature is rejected', async () => {
 
 test('gate · queue → list → consume roundtrip over the worker routes', async () => {
   const kv = fakeKv();
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '926168615', authDate: NOW / 1000 - 10 });
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_B, authDate: NOW / 1000 - 10 });
   const deps = { kv, pushToken: 't', gate: gateCfg(pubKeyHex), uuid: () => 'fixed-uuid' };
 
   const queued = await handle(req('POST', '/api/gate/cambium', {
@@ -214,7 +218,7 @@ test('gate · queue → list → consume roundtrip over the worker routes', asyn
   assert.equal(listed.status, 200);
   const actions = JSON.parse(listed.body).actions;
   assert.equal(actions.length, 1);
-  assert.equal(actions[0].founderId, '926168615');
+  assert.equal(actions[0].founderId, TEST_FOUNDER_B);
   assert.equal(actions[0].kind, 'approve');
 
   const consumed = await handle(req('POST', '/internal/gate/cambium/consume', {
@@ -228,7 +232,7 @@ test('gate · queue → list → consume roundtrip over the worker routes', asyn
 
 test('gate · missing initData (outside Telegram) is a clean 401', async () => {
   const kv = fakeKv();
-  const { pubKeyHex } = await makeSignedInitData({ botId: '1571615655', userId: '926168615', authDate: NOW / 1000 });
+  const { pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_B, authDate: NOW / 1000 });
   const r = await handle(req('POST', '/api/gate/cambium', { body: JSON.stringify({ kind: 'approve', subject: 'x' }) }),
     { kv, pushToken: 't', gate: gateCfg(pubKeyHex) });
   assert.equal(r.status, 401);

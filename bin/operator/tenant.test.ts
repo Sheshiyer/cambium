@@ -1,7 +1,7 @@
 // Cambium operator · tenancy — the ADVERSARIAL isolation suite (M3/C4, issue #23).
 // The wave gate for multi-tenancy: prove that NO event, vector, deviation, contract,
 // or setpoint move leaks across tenants — and that the identity contract rejects
-// invented ids (TeamForge slug discipline, vault CLAUDE.md anti-drift rule 1).
+// invented ids (portable org slug discipline).
 // This file's existence is also what flips quest arc VII's isolation evidence.
 
 import { test } from 'node:test';
@@ -39,8 +39,8 @@ function seedWorld(root: string, tenant: string): void {
 
 // ── C1 · identity contract ───────────────────────────────────────────────
 
-test('tenancy · slug rule accepts TeamForge-style ids', () => {
-  for (const ok of ['cambium', 'thoughtseed', 'heyzack-x', 'a1', 'park-area-2']) {
+test('tenancy · slug rule accepts portable org ids', () => {
+  for (const ok of ['demo-org', 'sample-studio', 'heyzack-x', 'a1', 'park-area-2']) {
     assert.equal(validateTenantId(ok), ok);
   }
 });
@@ -49,7 +49,7 @@ test('tenancy · uppercase, spaces, and malformed ids are rejected citing the ru
   for (const bad of ['Cambium', 'two words', 'UPPER', '-edge', 'edge-', 'a--b', '']) {
     assert.throws(() => validateTenantId(bad), (e: Error) => {
       assert.ok(e instanceof TenantIdError);
-      assert.match(e.message, /TeamForge slug rule/);
+      assert.match(e.message, /portable org slug rule/);
       assert.match(e.message, /NEVER invented/);
       return true;
     }, `expected rejection: "${bad}"`);

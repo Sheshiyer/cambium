@@ -21,7 +21,7 @@ Each stage is owned by one organ (`pipeline.json → stages[].organ`, resolved a
 The `input`/`output` tokens below are the contract identifiers referenced by the pipeline.
 
 ### 1. `genesis` — Mint the brand · organ: **genesis** (`brandmint-oracle-aleph`) · *free*
-- **in** `idea` — a `brand-config.yaml` (name, category, mission, audience) — the thoughtseed.
+- **in** `idea` — a `brand-config.yaml` (name, category, mission, audience) — the seed idea.
 - **out** `brand-dna` — `brand-spec.json` (validated) + `brand-docs/` (persona, positioning, voice,
   messaging) + `assets/` (logo, palette, hero). The canonical brand registration.
 - **fulfilled by** `brandmint launch --waves 1-8` (CLI: `brandmint.cli.app:main`) · buildable alias `skill-clusters taste/scripts/brandmint.mjs (runBrandKit)`.

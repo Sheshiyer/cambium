@@ -692,7 +692,7 @@ function undrill(){
 const LANE_ICON = {
   heartbeat: '<svg viewBox="0 0 16 16"><path d="M1 8h3l2-4 3 8 2-4h4"/></svg>',
   multica:   '<svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="2"/><path d="M6.5 6.5h3v3h-3z"/></svg>',
-  teamforge: '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
+  'project-feed': '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
   forge:     '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
   noesis:    '<svg viewBox="0 0 16 16"><path d="M8 1.5l5.5 6.5L8 14.5 2.5 8z"/></svg>',
   quest:     '<svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 6.5-7"/></svg>',

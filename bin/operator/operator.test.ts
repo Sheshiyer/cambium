@@ -15,7 +15,7 @@ function harness() {
   const ledger: string[] = [];
   const deps: WakeDeps = { record: (l) => ledger.push(l) };
   const world = createWorld({
-    tenant: 'thoughtseed', vision: 'turn complex requirements into coherent systems people can own',
+    tenant: 'demo-org', vision: 'turn complex requirements into coherent systems people can own',
     brand: { setpoint: [0, 0], label: 'founder-led systems studio', trustRegion: 0.25, coherence: 0.7 },
     business: { runwayDays: 120 },
   });

@@ -1,6 +1,6 @@
-// Quine hypha · multica — the org gateway (M5 Phase R: READ the new home; Phase G: model-gateway wiring).
-// MultiCA is where the Thoughtseed agent org lives (agents · issues · runs on a local
-// daemon). This hypha reads it: status, the agent roster, and recent ACTIVITY — which
+// Quine hypha · multica — optional org gateway adapter.
+// MultiCA-compatible gateways can expose agents, issues, and runs from a local
+// daemon. This hypha reads status, the agent roster, and recent ACTIVITY — which
 // the quests push turns into source:"multica" narrative beats (the org's life joins
 // the story feed). Config from ~/.multica/config.json, read in-process; token never
 // printed. Phase G wires each agent's `model` to the token factory configured in

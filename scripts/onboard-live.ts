@@ -75,7 +75,7 @@ async function founderContent(): Promise<{ seedIdea: string; positioningEdit: st
     `Your company: ${dna.label}.\n` +
     `Vision (the Just Cause): "${dna.vision}". Hero line: "${dna.hero}".\n` +
     'You are playing your own onboarding — answer as yourself. Return:\n' +
-    '{"seedIdea":"the raw thoughtseed — your company idea in ONE plain sentence (max 140 chars)",' +
+    '{"seedIdea":"the raw seed idea — your company idea in ONE plain sentence (max 140 chars)",' +
     '"positioningEdit":"ONE founder edit of your positioning — one sharp sentence in your voice",' +
     '"ctaWord":"exactly ONE word — the call-to-action verb on your site"}';
   const res = await fetch(url, {

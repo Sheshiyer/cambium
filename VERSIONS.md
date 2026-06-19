@@ -20,7 +20,7 @@ have release-path evidence instead of relying on private local state.
 - **M5 Phase Q · Bridge evidence** — the quest fold now carries current project evidence from the
   MultiCA bridge path, with issue/PR reality preserved as explicit evidence rather than inferred
   status.
-- **W6 · Paperclip archive ceremony** — archive receipt discovery and runtime retirement checks are
+- **W6 · Agent-plane archive ceremony** — archive receipt discovery and runtime retirement checks are
   wired into the release review so the ceremony can separate receipt presence from live-process
   retirement.
 - **Lesson mint hypha** — operator learning now has a dedicated quine surface for minting repeatable
@@ -49,7 +49,7 @@ The org update: the quest game gains a story it tells in prose, the venture beco
 ventures, and the founder can finally act from inside the map.
 
 - **M3 · Multi-tenancy** ([#20–23](https://github.com/Sheshiyer/cambium/milestone/3)) — one
-  operator, many gardens: a TeamForge-slug tenant registry (registration-from-reality), per-tenant
+  operator, many gardens: a portable org-slug tenant registry (registration-from-reality), per-tenant
   isolation of world-state AND cortex (adversarially proven — A ∩ B = ∅, incl. a filter-override
   attack), `--tenant` routing + an all-tenant heartbeat. **Quest arc VII flipped: 7/7.**
 - **W3 · The narrative engine** — `bin/operator/narrative/`: the operator's life told as PROSE
@@ -74,8 +74,8 @@ learns from repetition, and the first living UI in the founders' pocket.
   `quine skills`: repetition in the operator's own logs minted into **self-improving skills**
   (usage scenarios → gotchas → decline → ONE amendment per streak; lifecycle aligned with the
   company skill registry, production stays founder-gated).
-- **The Thalia wing (W1+W2)** — the ledger goes live: `cambium-quests` Worker + KV at
-  **curious.thoughtseed.space**, fed by `quine write quests push` inside a freshness envelope
+- **The Thalia wing (W1+W2)** — the ledger goes live: `cambium-quests` Worker + KV, fed by
+  `quine write quests push` inside a freshness envelope
   `{schema, derivedAt, source, beats}`; the **curios.self Telegram miniapp** (menu button) —
   three scenes: Quests · the **tree-ring fractal map** ("cambium — you are here") · Story with
   set-apart noesis frames. Liquid-glass sheets, haptics, reduced-motion.

@@ -13,20 +13,22 @@ import type { QuestInputs } from '../../operator/quests/quests.ts';
 import { renderQuestLog } from '../../operator/quests/panel.ts';
 import { narrate } from '../../operator/narrative/narrative.ts';
 import { multicaActivityBeats, multicaOpenItems, multicaAgentCount, multicaIssuesDone, multicaCommandsData } from './multica.ts';
-import { teamforgeActivityBeats } from './teamforge.ts';
+import { projectFeedActivityBeats } from './project-feed.ts';
 import { refreshProjectEvidence } from './project-evidence.ts';
 
-const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
+const DEFAULT_TENANT = 'demo-org';
+const ROOT_TENANTS = new Set(['cambium', DEFAULT_TENANT]);
+
+const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || DEFAULT_TENANT);
 
 const readJson = (path: string): any | undefined => {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return undefined; }
 };
 
-// Founder-inheritance reducer. Root tenants (cambium/thoughtseed) earn the I–IX
+// Founder-inheritance reducer. Root tenants (cambium/demo-org) earn the I-IX
 // "founder tutorial" arcs once; every client tenant inherits those completions
 // via founder.json. Non-root tenants never write to founder.json — their
 // progress lives in ${tenant}.project.json instead.
-const ROOT_TENANTS = new Set(['cambium', 'thoughtseed']);
 
 export interface FounderState { completedArcs: string[]; derivedFrom: string; derivedAt: string }
 
@@ -113,16 +115,15 @@ export async function gatherMulticaInputs(): Promise<QuestInputs['multica']> {
   }
 }
 
-// The push lane (Thalia wing W1): derive the ledger and POST it inside a freshness
-// envelope to the serving Worker (curious.thoughtseed.space). Token read IN-PROCESS
-// from the founder env file — never shell-sourced, never echoed (house pattern,
-// see scripts/onboard-live.ts). The vault R2 backup bucket is not involved.
-const PUSH_URL_DEFAULT = 'https://curious.thoughtseed.space';
+// The push lane: derive the ledger and POST it inside a freshness envelope to a
+// configured serving Worker. Token read IN-PROCESS from a Cambium env file —
+// never shell-sourced, never echoed. The vault R2 backup bucket is not involved.
+const PUSH_URL_DEFAULT = process.env.CAMBIUM_PUBLIC_BASE_URL || 'https://cambium.example.com';
 
 function pushTokenFromEnvFile(): string | undefined {
   if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
   try {
-    const txt = readFileSync(join(process.env.HOME ?? '', '.claude', '.env'), 'utf8');
+    const txt = readFileSync(process.env.CAMBIUM_ENV_FILE || join(process.env.HOME ?? '', '.config', 'cambium', '.env'), 'utf8');
     const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
     return line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim() || undefined;
   } catch { return undefined; }
@@ -133,7 +134,7 @@ function pushTokenFromEnvFile(): string | undefined {
 async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promise<unknown> {
   const base = flag(args, '--url', PUSH_URL_DEFAULT).replace(/\/+$/, '');
   const token = pushTokenFromEnvFile();
-  if (!token) return 'quests push: no QUESTS_PUSH_TOKEN (env or ~/.claude/.env) — refusing.';
+  if (!token) return 'quests push: no QUESTS_PUSH_TOKEN (env or ~/.config/cambium/.env) — refusing.';
 
   const inputs = gatherQuestInputs(ctx, tenant);
   inputs.multica = await gatherMulticaInputs();
@@ -148,9 +149,9 @@ async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promis
   let openItems: Array<{ id: string; title: string; status: string }> = [];
   try { beats.push(...await multicaActivityBeats(8)); openItems = await multicaOpenItems(12); }
   catch { /* gateway unreachable — story stays local, gate stays empty */ }
-  // The TeamForge emitter (projects · sync journal · conflicts) joins the feed as
-  // the source:"teamforge" lane — fail-soft if the feed token/URL are unset.
-  try { beats.push(...await teamforgeActivityBeats(6)); }
+  // Optional project-control emitters join the feed as source:"project-feed";
+  // fail-soft if that adapter is unset or unreachable.
+  try { beats.push(...await projectFeedActivityBeats(6)); }
   catch { /* forge feed unreachable — story keeps its other lanes */ }
   // Read-only command data for the miniapp Commands panel (status/agents/work/handoffs).
   let commands: Record<string, unknown> | null = null;
@@ -209,7 +210,7 @@ export const quests: Hypha = {
   async status(ctx) {
     const opDir = join(ctx.root, '.operator');
     if (!existsSync(opDir)) return { name: 'quests', reachable: false, detail: 'no .operator state yet' };
-    const tenants = gatherQuestInputs(ctx, 'thoughtseed').tenants ?? [];
+    const tenants = gatherQuestInputs(ctx, DEFAULT_TENANT).tenants ?? [];
     return { name: 'quests', reachable: true, detail: `quest fold ready · ${tenants.length} tenant(s)` };
   },
 

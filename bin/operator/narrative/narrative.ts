@@ -12,7 +12,7 @@ export interface StoryBeat {
   text: string;              // the prose
   lane: string;              // micro | meso | macro | heartbeat | noesis | multica | quest …
   noesis: boolean;
-  source: 'world-log' | 'deviations' | 'multica' | 'teamforge';
+  source: 'world-log' | 'deviations' | 'multica' | 'project-feed';
   raw?: string;              // the underlying record, for audit
 }
 

@@ -38,7 +38,7 @@ The first game-engine pass sampled roughly 4k-5.7k unique colors per route. Art 
 
 ## Meshy Bridge
 
-`MESHY_API_KEY` is available locally in `/Users/sheshnarayaniyer/.claude/.env`, so the next asset pass can generate authored island candidates through Meshy's Text-to-3D API. The repo now includes a credit-safe wrapper:
+`MESHY_API_KEY` is available locally in `~/.config/cambium/.env`, so the next asset pass can generate authored island candidates through Meshy's Text-to-3D API. The repo now includes a credit-safe wrapper:
 
 - Prompt specs: `apps/cambium-r3f/asset-prompts/meshy-island-prompts.json`
 - CLI wrapper: `apps/cambium-r3f/scripts/meshy-island-assets.mjs`
@@ -49,7 +49,7 @@ The wrapper defaults to `plan` and requires `--execute` for paid `preview`, `ref
 
 Verified without spending credits:
 
-- `grep -q '^MESHY_API_KEY=' /Users/sheshnarayaniyer/.claude/.env`: passed without printing the key.
+- `grep -q '^MESHY_API_KEY=' ~/.config/cambium/.env`: passed without printing the key.
 - `npm run r3f:meshy -- plan`: passed and printed five island prompt lengths plus the 30/150 credit estimate.
 - `npm run r3f:meshy -- preview --island genesis`: failed closed before any paid generation with `Preview generation would call the paid Meshy API. Re-run with --execute after confirming credit spend.`
 - `npm run r3f:test`: 20 tests passed, including Meshy prompt coverage, prompt limit, literal architecture rejection, and explicit credit-estimate checks.

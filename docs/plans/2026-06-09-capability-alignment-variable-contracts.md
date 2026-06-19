@@ -2,9 +2,9 @@
 
 > **For Codex:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Implementation status (2026-06-18):** The documentation + render + reference artifact portions of Tasks 1, 4, 8, 9, and 10 have been completed as part of the Cambium docs upgrade for agent viability (CONTRACTS vocabulary already present; pipeline/registry/adapters already declare groups; added handoff matrix, prompt-ref schema, enriched sample contract, agent sections via meta+render, cross-links, and render test guard). Task 3 is also complete in Cambium: `validateStageContract` fails closed on missing seeded variable groups, the pipeline tracks accumulated contract state, and `compose plan` now surfaces requires/produces/blocking/downstream metadata. Task 5 merged via Skill-clusters PR #112 (`77303439`): taste emits the canonical groups, resolve-task preserves task-level contract hints, and ship-battery can fail closed on a supplied contract pack. Task 6 merged via Brandmint PR #180 (`80d7aa54`): genesis hydration emits a downstream seed pack and Design Memory uses those fields as retrieval anchors. Task 7 is now mainline in Snow Gloves via PR #4 (`3353e52`), after PR #5 (`6f1fce39`) supplied the Hermes, Paperclip bridge, and GTM contract preservation layer. The end-to-end variable-contract rehearsal passed across Cambium, Skill-clusters, Brandmint, and Snow Gloves on 2026-06-18. See the PRD in ~/.claude/MEMORY/WORK/ for the 35 ISC and verification.
+**Implementation status (2026-06-18):** The documentation + render + reference artifact portions of Tasks 1, 4, 8, 9, and 10 have been completed as part of the Cambium docs upgrade for agent viability (CONTRACTS vocabulary already present; pipeline/registry/adapters already declare groups; added handoff matrix, prompt-ref schema, enriched sample contract, agent sections via meta+render, cross-links, and render test guard). Task 3 is also complete in Cambium: `validateStageContract` fails closed on missing seeded variable groups, the pipeline tracks accumulated contract state, and `compose plan` now surfaces requires/produces/blocking/downstream metadata. Task 5 merged via Skill-clusters PR #112 (`77303439`): taste emits the canonical groups, resolve-task preserves task-level contract hints, and ship-battery can fail closed on a supplied contract pack. Task 6 merged via Brandmint PR #180 (`80d7aa54`): genesis hydration emits a downstream seed pack and Design Memory uses those fields as retrieval anchors. Task 7 is now mainline in Snow Gloves via PR #4 (`3353e52`), after PR #5 (`6f1fce39`) supplied the Hermes, agent-plane bridge, and GTM contract preservation layer. The end-to-end variable-contract rehearsal passed across Cambium, Skill-clusters, Brandmint, and Snow Gloves on 2026-06-18. See the PRD in ~/.claude/MEMORY/WORK/ for the 35 ISC and verification.
 
-**Goal:** Upgrade Cambium and the connected organs so every stage emits and consumes a tracked variable contract that reflects the real downstream design/output capacity, especially for Brandmint, Taste, Paperclip, and whole-site prompt generation.
+**Goal:** Upgrade Cambium and the connected organs so every stage emits and consumes a tracked variable contract that reflects the real downstream design/output capacity, especially for Brandmint, Taste, agent-plane, and whole-site prompt generation.
 
 **Architecture:** Treat Cambium as the canonical contract layer and make it the source of truth for stage handoffs, required variables, and downstream implications. Then update each organ/skill to consume the richer contract instead of flattening outputs into legacy summaries, so upstream strategy, copy, asset planning, prompt assembly, and retrieval all stay aligned to the real implementation and aesthetic pipeline.
 
@@ -358,7 +358,7 @@ git add ../brandmint-oracle-aleph/brandmint/core/design_memory.py ../brandmint-o
 git commit -m "feat: seed downstream variable contracts from brandmint genesis"
 ```
 
-### Task 7: Upgrade Paperclip / Snow Gloves orchestration to consume the richer contract
+### Task 7: Upgrade agent-plane / Snow Gloves orchestration to consume the richer contract
 
 **Files:**
 - Modify: `../snow-gloves-os/agents/dispatcher/`
@@ -390,7 +390,7 @@ Expected: FAIL because routing likely drops these fields today.
 
 **Step 3: Write minimal implementation**
 
-Update the dispatcher/Paperclip-facing orchestration path so it:
+Update the dispatcher/agent-plane-facing orchestration path so it:
 - reads the full variable contract
 - routes based on `scope`, `section_type`, `brand_archetype`, and `asset_requirements`
 - keeps the variable pack attached to task payloads instead of rewriting them into plain-language summaries

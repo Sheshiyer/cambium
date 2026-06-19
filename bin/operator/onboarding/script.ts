@@ -49,7 +49,7 @@ function step(
 export const ONBOARDING_SCRIPT: OnboardingStep[] = [
   // ── Phase A · Discovery / The Calling ───────────────────────────────────────
   step(1, 'The Calling', 'A', 1, [],
-    "You're not building a product. You're starting an infinite game. — Plant a thoughtseed.",
+    "You're not building a product. You're starting an infinite game. — Plant a seed idea.",
     'the infinite-game frame',
     { id: 'onb-01-calling', kind: 'calling', drives: [1] },
     'midbrain'),
@@ -61,9 +61,9 @@ export const ONBOARDING_SCRIPT: OnboardingStep[] = [
     'macro'),
 
   step(3, 'Plant the seed', 'A', 7, [1],
-    'Drop a raw idea. The operator accepts the thoughtseed and says: watch.',
+    'Drop a raw idea. The operator accepts the seed idea and says: watch.',
     'idea ingestion',
-    { id: 'onb-03-seed', kind: 'tweak', drives: [7], artifact: { id: 'seed', text: 'a raw idea — one sentence or a brand-config' }, note: 'ingest the thoughtseed' },
+    { id: 'onb-03-seed', kind: 'tweak', drives: [7], artifact: { id: 'seed', text: 'a raw idea — one sentence or a brand-config' }, note: 'ingest the seed idea' },
     'micro'),
 
   // ── Phase B · First Mint / Accomplishment ───────────────────────────────────

@@ -32,7 +32,7 @@ import { lessons } from './hyphae/lessons.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..');                                  // the cambium repo root
-const VAULT = process.env.QUINE_VAULT || join(ROOT, '..', 'thoughtseed-labs');
+const VAULT = process.env.QUINE_VAULT || join(ROOT, '..', 'demo-vault');
 const ctx: QuineCtx = { root: ROOT, vaultRoot: VAULT };
 
 /** The mycelium — every hypha, keyed by name. Grow the network by adding a module here. */
