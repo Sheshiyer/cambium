@@ -8,6 +8,7 @@ Phase 1 app surface for the Cambium 2.5D process map.
 - Source contract generated from the root Cambium pipeline, Cortex contracts, frozen screenshot manifest, and quest line.
 - Initial overview scene with stage nodes, cortex rail links, packet markers, and HUD telemetry.
 - Visual tokens constrained to the Cambium/Cortex palette and motion rules.
+- Standalone `demo-org` tapestry fixture that mirrors `npm run tapestry:snapshot` output without live provider data or private tenant state.
 
 ## Commands
 
