@@ -11,6 +11,28 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.2.5 · **Thalia .5** — *the tapestry stands alone*
+
+The product update: Cambium's fractal tapestry is now release-safe as a standalone
+project. The repo keeps the reusable company-compiler/operator architecture while
+removing pilot-specific defaults, private topology, live tenant assumptions, and
+company-bound adapter names from active product surfaces.
+
+- **Standalone defaults** — local/operator/cortex/quine flows now default to `demo-org`,
+  example URLs, synthetic gate fixtures, and portable org slugs instead of live pilot
+  tenants or deployment hosts.
+- **Adapter boundary** — pilot-specific project-feed and agent-plane concepts now read
+  as optional adapters. The old named feed surface was generalized to `project-feed`;
+  the archive ceremony now targets a generic `agent-plane` routine.
+- **Leakage gate** — `npm run standalone:audit` checks tracked files for private paths,
+  live payment/session IDs, private export UUIDs, live deployment URLs, and checked-in
+  founder Telegram IDs.
+- **Sanitized planning history** — historical planning docs keep the lessons and runbooks
+  but no longer carry private pilot topology, local machine paths, bot handles, live
+  hostnames, or company-specific memory assumptions.
+- **Verified main** — post-merge release gates passed: 273 core tests, 46 R3F tests,
+  `validate`, `standalone:audit`, `render-docs:check`, and `r3f:build`.
+
 ### v0.2.4 · **Thalia .4** — *the bridge becomes release-testable*
 
 The org update: Cambium's post-Thalia bridge is now testable from a clean checkout. The quest
