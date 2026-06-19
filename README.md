@@ -36,7 +36,7 @@ The composition layer makes the first launch. The operator keeps the venture ali
 | **Cortex · structural memory** — CodeGraph code-recall lane | ✅ shipped (M2) | `operator coderecall` |
 | **Multi-tenancy** — one operator, many ventures | ✅ shipped (M3) — slug registry · adversarial isolation · all-tenant heartbeat | [`tenant.ts`](./bin/operator/tenant.ts) + [#20–#23](https://github.com/Sheshiyer/cambium/milestone/3) |
 
-**236 tests green** (`npm test`). Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
+The test suite is green under `npm test`. Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
 
 **The business model, in one line:** the **left brain (build) is free**; the **right brain (taste + memory) is the subscription** — because the memory that learns *your* specific brand is the moat that compounds.
 
@@ -230,6 +230,8 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | the organ constellation + composition layer |
 | [BUSINESS-MODEL.md](./BUSINESS-MODEL.md) | free build, subscription taste + memory |
 | [INTEGRATION.md](./INTEGRATION.md) | how organs and agents wire together |
+| [New adopter runbook](./docs/adopters/new-adopter-30-minutes.md) | the 30-minute clean-clone path for standalone teams |
+| [Adapter boundary](./docs/adapters/README.md) | how optional providers feed evidence without becoming product identity |
 | [Technical Reference](./docs/cambium-composition-technical-reference.html) | the canonical product + agent-consumption guide |
 
 ---
