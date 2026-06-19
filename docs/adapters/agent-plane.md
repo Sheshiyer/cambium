@@ -11,11 +11,12 @@ The agent-plane adapter records activity from AI or automation workers as operat
 - Agent started, completed, failed, or handed off.
 - Human approval requested or resolved.
 - Lesson or reusable skill minted.
-- Project archive ceremony completed.
+- Project archive ceremony completed through the neutral [project archive ceremony](../archive/README.md).
 
 ## Outputs
 
 - Evidence for living-org, gate, learning, and archive quest arcs.
+- Adapter-specific runtime retirement notes for worker processes and channel handoff.
 - Optional memory records describing lessons, failures, and reusable playbooks.
 
 ## Failure Mode

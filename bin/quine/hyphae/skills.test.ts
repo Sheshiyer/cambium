@@ -8,19 +8,20 @@ test('skills archive writes a non-destructive archive receipt', async () => {
   const { skills } = await import('./skills.ts');
 
   const out = await skills.write!(
-    ['archive', 'agent-plane', '--tenant', 'demo-org', '--evidence', '~/.config/cambium/agent-plane/archive.tar.zst', '--repo', 'sample-agent-plane', '--note', 'one week soak complete'],
+    ['archive', 'project-closeout', '--tenant', 'demo-org', '--evidence', '~/.config/cambium/archive/demo-org/project-closeout.tar.zst', '--repo', 'example-project', '--note', 'synthetic closeout complete'],
     { root: tmp, vaultRoot: tmp },
   );
 
-  assert.match(String(out), /archived: agent-plane/);
+  assert.match(String(out), /archived: project-closeout/);
   const receipt = JSON.parse(fs.readFileSync(path.join(tmp, '.operator', 'demo-org.skills.archive.json'), 'utf8'));
   assert.equal(receipt.tenant, 'demo-org');
-  assert.equal(receipt.archives[0].routineId, 'agent-plane');
+  assert.equal(receipt.archives[0].routineId, 'project-closeout');
   assert.equal(receipt.archives[0].archived, true);
-  assert.equal(receipt.archives[0].evidencePath, '~/.config/cambium/agent-plane/archive.tar.zst');
-  assert.equal(receipt.archives[0].repoPath, 'sample-agent-plane');
-  assert.match(receipt.archives[0].ceremony.join('\n'), /process soak must be verified/);
-  assert.match(receipt.archives[0].ceremony.join('\n'), /channel layer/);
+  assert.equal(receipt.archives[0].evidencePath, '~/.config/cambium/archive/demo-org/project-closeout.tar.zst');
+  assert.equal(receipt.archives[0].repoPath, 'example-project');
+  assert.match(receipt.archives[0].ceremony.join('\n'), /durable project evidence/);
+  assert.match(receipt.archives[0].ceremony.join('\n'), /surviving channel adapters/);
+  assert.doesNotMatch(receipt.archives[0].ceremony.join('\n'), /agent-plane|paperclip/i);
 });
 
 test('skills archive read falls back to the durable agent-plane archive directory', async () => {

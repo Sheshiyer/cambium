@@ -42,6 +42,15 @@ interface ArchiveRuntimeStatus {
   hermesServices: string[];
 }
 
+export function projectArchiveCeremony(): string[] {
+  return [
+    'archive artifact exists or evidencePath references durable project evidence',
+    'repo/runtime state is captured or repoPath references source state',
+    'surviving channel adapters are documented separately from retired runtime',
+    'quest evidence may now treat the project archive as complete',
+  ];
+}
+
 function loadRegistry(ctx: QuineCtx, tenant: string): SkillRecord[] {
   try { return JSON.parse(readFileSync(registryPath(ctx, tenant), 'utf8')) as SkillRecord[]; } catch { return []; }
 }
@@ -175,7 +184,7 @@ function renderArchiveStatus(ctx: QuineCtx, tenant: string, routineId?: string):
     for (const line of runtime.hermesServices) lines.push(`    ${line}`);
   }
   lines.push('');
-  lines.push(runtime.retired && latest ? '  issue #26 close gate: clear' : '  issue #26 close gate: blocked');
+  lines.push(runtime.retired && latest ? '  archive close gate: clear' : '  archive close gate: blocked');
   return lines.join('\n');
 }
 
@@ -319,12 +328,7 @@ export const skills: Hypha = {
         evidencePath: flag(args, '--evidence', '') || undefined,
         repoPath: flag(args, '--repo', '') || undefined,
         note: flag(args, '--note', '') || undefined,
-        ceremony: [
-          'agent-plane process soak must be verified before issue closure',
-          'instances and repo state archived or referenced by evidencePath/repoPath',
-          'channel layer remains the live external interface',
-          'quest evidence may now treat the project archive as complete',
-        ],
+        ceremony: projectArchiveCeremony(),
       };
       receipt.archives = [...receipt.archives.filter((a) => a.routineId !== routineId), next];
       saveArchive(ctx, tenant, receipt);
