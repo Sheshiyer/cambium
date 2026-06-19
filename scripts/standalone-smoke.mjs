@@ -36,6 +36,7 @@ export function runStandaloneSmoke({ sourceRoot = process.cwd(), tenant = 'demo-
       ['npm', ['run', 'validate']],
       ['npm', ['run', 'standalone:audit']],
       ['npm', ['run', 'demo:tenant', '--', '--tenant', tenant, '--force']],
+      ['npm', ['run', 'demo:quests', '--', '--tenant', tenant]],
       ['npm', ['run', 'tapestry:snapshot', '--', '--tenant', tenant, '--out', snapshot]],
     ];
 

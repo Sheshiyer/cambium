@@ -16,6 +16,7 @@
     "standalone:audit": "node scripts/standalone-audit.mjs",
     "standalone:smoke": "node scripts/standalone-smoke.mjs",
     "demo:tenant": "node scripts/demo-tenant-fixture.mjs",
+    "demo:quests": "node scripts/demo-quest-ledger.mjs",
     "tapestry:snapshot": "node scripts/tapestry-snapshot.mjs",
     "r3f:dev": "npm --prefix apps/cambium-r3f run dev",
     "r3f:build": "npm --prefix apps/cambium-r3f run build",
