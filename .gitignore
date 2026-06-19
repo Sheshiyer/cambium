@@ -3,6 +3,9 @@ deviations.jsonl
 node_modules/
 dist/
 *.tsbuildinfo
+.DS_Store
+.codegraph/
+.readme-gen.json
 .playwright-mcp/
 __pycache__/
 *.pyc
@@ -14,3 +17,6 @@ cortex/
 # the operator's event-sourced world-state (runtime; the replay log is deviations.jsonl)
 .operator/
 .wrangler/
+
+# local/private reference exports; never commit account, payment, or third-party prompt dumps
+motionsites-export/
