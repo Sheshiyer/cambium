@@ -32,7 +32,7 @@ Stored in the founder vault: `03-Resources/Design/Curios-Self-Quest-Miniapp/`
 
 - ~~curios.self is undefined~~ **CORRECTED (founder, 2026-06-10): curios.self IS the existing
   Telegram bot wired to the whole ecosystem** — the co-founder frontend touchpoint (Bridge D:
-  Hermes poller/dispatcher, group `-1003698657291`, the 13 `/ts-*` commands). Full wiring map +
+  Hermes poller/dispatcher, group `TELEGRAM_GROUP_ID`, the 13 `/ts-*` commands). Full wiring map +
   endpoint inventory: [2026-06-10-curios-self-ecosystem-map.md](./2026-06-10-curios-self-ecosystem-map.md).
   No new product, no new slug — the miniapp attaches to this identity. The bot currently has
   **zero** web_app/menu/keyboard wiring and Hermes has **no inbound HTTP** (long-polling only) —
@@ -103,7 +103,7 @@ what follows strengthens it. Severity-ranked findings with dispositions:
 | F12 | MED | No execution lane — the plan names clusters but not WHO executes | **Fixed:** waves dispatch through the org itself — `/ts-run` → Cambium Bridge → conductor/skill-clusters; founder approvals ride the existing handoff flow. The org builds its own UI. |
 | F14 | MED | Tenant switcher only soft-sequenced after M3 | **Fixed (self-gating):** the API rejects `tenant ≠ cambium` until the quest log's own arc VII evidence reads isolation-green. The quest log gates its feature. |
 | F6 | LOW | Consumer scheduling unspecified | **Fixed:** launchd plist cloned from `com.thoughtseed.hermes-tg-poller.plist` (KeepAlive daemon, state-file offset pattern); `telegram-tenant-guard.py validate` runs before any send. |
-| F9 | LOW | Founder allowlist enforced client-side only | **Fixed:** Worker re-checks `initData.user.id ∈ {1371522080, 926168615}` after signature validation. |
+| F9 | LOW | Founder allowlist enforced client-side only | **Fixed:** Worker re-checks `initData.user.id ∈ {FOUNDER_ID_1, FOUNDER_ID_2}` after signature validation. |
 | F13 | LOW | W5 activation unnamed | **Fixed:** `node scripts/tier.mjs --activate media-gen --apply` (skill-clusters). |
 | F5 | LOW | `render-docs.mjs` unused for narrative HTML | **Deferred:** noted as the template engine for future narrative chapter pages (pure render fns + esc()); not v1. |
 | F15 | LOW | Gate scope v1 | **Stands:** handoff approvals first (`/ts-approve` parity). |

@@ -31,7 +31,7 @@ Retire Paperclip as the active agent plane while preserving its operating memory
 npm run quine -- write skills archive paperclip \
   --tenant cambium \
   --evidence "~/.paperclip/archives/<timestamp>-instances.tar.zst" \
-  --repo "/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-paperclip" \
+  --repo "../external-private/thoughtseed-paperclip" \
   --note "W6 soak complete; Hermes layer extracted"
 ```
 
@@ -73,9 +73,9 @@ This PR adds the receipt mechanism:
 
 The non-destructive archive portion of the ceremony has been executed locally:
 
-- Archive artifact: `/Users/sheshnarayaniyer/.paperclip/archives/20260618T063755Z/instances.tar.gz`
-- Repo state: `/Users/sheshnarayaniyer/.paperclip/archives/20260618T063755Z/repo-state.txt`
-- Checksums: `/Users/sheshnarayaniyer/.paperclip/archives/20260618T063755Z/SHA256SUMS`
+- Archive artifact: `~/private/.paperclip/archives/20260618T063755Z/instances.tar.gz`
+- Repo state: `~/private/.paperclip/archives/20260618T063755Z/repo-state.txt`
+- Checksums: `~/private/.paperclip/archives/20260618T063755Z/SHA256SUMS`
 - Verification: `shasum -a 256 -c SHA256SUMS` returned `OK` for the archive and repo-state files.
 - Receipt command: `npm run quine -- write skills archive paperclip --tenant cambium ...`
 - Project evidence refresh: `npm run quine -- write quests evidence --tenant cambium` reported `projectArchived: true`.
@@ -83,8 +83,8 @@ The non-destructive archive portion of the ceremony has been executed locally:
 
 Companion documentation was updated in the dirty external vault worktrees without staging unrelated edits:
 
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/CLAUDE.md`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/00-meta/mocs/command-center-architecture.md`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/docs/telegram-commands.md`
+- `../external-private/thoughtseed-labs/CLAUDE.md`
+- `../external-private/thoughtseed-labs/00-meta/mocs/command-center-architecture.md`
+- `../external-private/docs/telegram-commands.md`
 
 Current blocker for closing issue #26: the runtime gate still found active Paperclip-adjacent execution, including `scripts/loop-runner.sh _run` and Paperclip-hosted adapter processes. Hermes services are reported separately because Hermes is the surviving external channel layer; do not close the issue until the active runtime owner confirms the Paperclip-hosted pieces can be stopped or migrated without interrupting live work.

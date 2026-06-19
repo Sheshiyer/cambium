@@ -15,8 +15,8 @@ Bridge D: Hermes (the comms agent) speaks through it; the 13 `/ts-*` commands ru
 standups, blockers, skill results and vault activity arrive through it. It is NOT a new product
 to define — the quest miniapp is a new *surface* attached to this existing identity.
 
-- Group chat (sole command channel): `-1003698657291`
-- Co-founders (equal approval authority): `1371522080` · `926168615`
+- Group chat (sole command channel): `TELEGRAM_GROUP_ID`
+- Co-founders (equal approval authority): `FOUNDER_ID_1` · `FOUNDER_ID_2`
 - Plugin: `~/.hermes/plugins/thoughtseed-telegram/` (13 namespaced commands, v1.0.0)
 - Bot runtime wiring: see §2 (Hermes sweep)
 - Note: the vault itself contains **no** "curios" entity yet — the name lives in founder intent +
@@ -38,7 +38,7 @@ to define — the quest miniapp is a new *surface* attached to this existing ide
   Bridge TypeScript runner + CEO INBOX write for approval).
 - **Already true:** cambium is wired into the bot today — the miniapp's gate actions can reuse
   the same bridge + INBOX pattern instead of inventing a path.
-- **Whitelists:** users `1371522080`/`926168615` + group `-1003698657291` (config.yaml:469-476),
+- **Whitelists:** users `FOUNDER_ID_1`/`FOUNDER_ID_2` + group `TELEGRAM_GROUP_ID` (config.yaml:469-476),
   enforced in the plugin layer.
 - **Miniapp readiness: NONE.** Zero matches for `web_app`/`menu_button`/`inline_keyboard` across
   the plugin + dispatcher. W0 adds: BotFather web-app domain, `setChatMenuButton`, and (optional)
@@ -62,7 +62,7 @@ to define — the quest miniapp is a new *surface* attached to this existing ide
 
 | Service | Role | Endpoint / id | Auth (names only) | Layer |
 |---|---|---|---|---|
-| Telegram Bot API | curios.self bot — co-founder touchpoint | group `-1003698657291`; founders `1371522080`/`926168615` | bot token (Hermes config; see §2) | Bridge D |
+| Telegram Bot API | curios.self bot — co-founder touchpoint | group `TELEGRAM_GROUP_ID`; founders `FOUNDER_ID_1`/`FOUNDER_ID_2` | bot token (Hermes config; see §2) | Bridge D |
 | Hermes runtime | comms agent: TG in/out, email, webhooks | local runtime `~/.hermes/` | local | Bridge D |
 | Paperclip | agent plane: CEO/Scientist/Engineer/Designer/Synthesist/Hermes | local repo + scripts | allowlisted scripts (fail-closed) | Bridge A/B/D |
 | TeamForge Worker | control plane: slugs, mapping, webhooks | `https://forge.thoughtseed.space` (HTTP `/v1` + HMAC) | CF Access service token `teamforge-multica-bridge-v2` | Bridge B/C |
@@ -122,7 +122,7 @@ founder taps menu button in curios.self (TG)
 ```
 
 Identity = Telegram initData Ed25519 third-party validation + the SAME founder-id whitelist the
-commands use (`1371522080`/`926168615`). No new auth system, no secrets on the Worker, no inbound
+commands use (`FOUNDER_ID_1`/`FOUNDER_ID_2`). No new auth system, no secrets on the Worker, no inbound
 HTTP added to Hermes. Second-pass hardening detail: wing plan §Second pass (F7, F8, F10, F3).
 
 ## 7 · Quest-data serving store — the decision
@@ -181,7 +181,7 @@ evidence strings, narrative beats). Brand vectors, tokens, and vault content nev
 | Transport | `scripts/hermes-tg-poller.sh` | long-poll `getUpdates`, 30s, raw curl |
 | Dispatcher | `scripts/hermes-tg-dispatcher.sh` | 13 `/ts-*` handlers; sends via raw `sendMessage` |
 | Webhook handler | `scripts/hermes-webhook-handler.sh` | consumes TeamForge events → TG + Slack + CEO INBOX (invoked by TeamForge side, not a public Hermes port) |
-| Whitelists | `~/.hermes/config.yaml:469-476` | users `1371522080`,`926168615` · group `-1003698657291` |
+| Whitelists | `~/.hermes/config.yaml:469-476` | users `FOUNDER_ID_1`,`FOUNDER_ID_2` · group `TELEGRAM_GROUP_ID` |
 | Cambium Bridge | dispatcher `_bridge()` | `/ts-run` + `/ts-project` route through a Cambium Bridge TS runner; `/ts-status` health-checks it |
 | Hermes model | config.yaml | `kimi-k2.6:cloud` via local Ollama (`127.0.0.1:11434/v1`) |
 | Vault write path | `obsidian-vault-write.sh` | fail-closed allowlist from agent CONTEXT.md (e.g. `20-operations/proposals/**`) |

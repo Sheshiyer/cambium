@@ -70,10 +70,11 @@ export function assembleProjectEvidence(s: ProjectSignals, nowIso?: string): Pro
 // I/O layer — gathers signals from existing hyphae. Each block try/catch'd.
 // ───────────────────────────────────────────────────────────────────────
 
-/** Vault project root convention (see PHASE-Q-BRIDGE.md). */
-const VAULT_PROJECT_ROOTS = [
-  '/Volumes/madara/2026/twc-vault/60-client-ecosystem',
-];
+/** Optional project-root convention (see PHASE-Q-BRIDGE.md). */
+const VAULT_PROJECT_ROOTS = (process.env.CAMBIUM_PROJECT_ROOTS ?? '')
+  .split(':')
+  .map((root) => root.trim())
+  .filter(Boolean);
 
 function readVaultSignals(tenant: string): ProjectSignals['vault'] {
   for (const root of VAULT_PROJECT_ROOTS) {
@@ -131,12 +132,12 @@ function readReviewSignals(ctx: QuineCtx, tenant: string): ProjectSignals['revie
   } catch { return { count: 0 }; }
 }
 
-const QUESTS_PUSH_URL_DEFAULT = 'https://curious.thoughtseed.space';
+const QUESTS_PUSH_URL_DEFAULT = process.env.CAMBIUM_PUBLIC_BASE_URL || 'https://cambium.example.com';
 
 function questsPushToken(): string | undefined {
   if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
   try {
-    const txt = readFileSync(join(process.env.HOME ?? '', '.claude', '.env'), 'utf8');
+    const txt = readFileSync(process.env.CAMBIUM_ENV_FILE || join(process.env.HOME ?? '', '.config', 'cambium', '.env'), 'utf8');
     const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
     return line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim() || undefined;
   } catch { return undefined; }

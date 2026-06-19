@@ -15,6 +15,7 @@ interface Env {
   GATE_TG_PUBKEY?: string;
   BRIDGE_TOKEN?: string;
   HANDOFF_SECRET?: string;
+  CAMBIUM_PUBLIC_BASE_URL?: string;
 }
 
 export default {
@@ -38,7 +39,14 @@ export default {
       pubKeyHex: env.GATE_TG_PUBKEY || TELEGRAM_PROD_PUBKEY,
       founderIds: env.GATE_FOUNDER_IDS.split(',').map((s) => s.trim()),
     } : undefined;
-    const res = await handle(simple, { kv, pushToken: env.QUESTS_PUSH_TOKEN, gate, bridgeToken: env.BRIDGE_TOKEN, handoffSecret: env.HANDOFF_SECRET });
+    const res = await handle(simple, {
+      kv,
+      pushToken: env.QUESTS_PUSH_TOKEN,
+      gate,
+      bridgeToken: env.BRIDGE_TOKEN,
+      handoffSecret: env.HANDOFF_SECRET,
+      publicBaseUrl: env.CAMBIUM_PUBLIC_BASE_URL,
+    });
     return new Response(res.body, { status: res.status, headers: res.headers });
   },
 };

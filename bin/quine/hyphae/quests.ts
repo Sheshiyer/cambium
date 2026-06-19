@@ -113,16 +113,15 @@ export async function gatherMulticaInputs(): Promise<QuestInputs['multica']> {
   }
 }
 
-// The push lane (Thalia wing W1): derive the ledger and POST it inside a freshness
-// envelope to the serving Worker (curious.thoughtseed.space). Token read IN-PROCESS
-// from the founder env file — never shell-sourced, never echoed (house pattern,
-// see scripts/onboard-live.ts). The vault R2 backup bucket is not involved.
-const PUSH_URL_DEFAULT = 'https://curious.thoughtseed.space';
+// The push lane: derive the ledger and POST it inside a freshness envelope to a
+// configured serving Worker. Token read IN-PROCESS from a Cambium env file —
+// never shell-sourced, never echoed. The vault R2 backup bucket is not involved.
+const PUSH_URL_DEFAULT = process.env.CAMBIUM_PUBLIC_BASE_URL || 'https://cambium.example.com';
 
 function pushTokenFromEnvFile(): string | undefined {
   if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
   try {
-    const txt = readFileSync(join(process.env.HOME ?? '', '.claude', '.env'), 'utf8');
+    const txt = readFileSync(process.env.CAMBIUM_ENV_FILE || join(process.env.HOME ?? '', '.config', 'cambium', '.env'), 'utf8');
     const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
     return line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim() || undefined;
   } catch { return undefined; }

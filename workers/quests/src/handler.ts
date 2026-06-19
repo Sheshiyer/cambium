@@ -24,6 +24,7 @@ export interface HandlerDeps {
   uuid?: () => string;         // injectable for tests
   now?: () => string;          // injectable clock (ISO) for the bridge
   nowMs?: () => number;        // injectable epoch-ms clock for handoff TTLs
+  publicBaseUrl?: string;      // deployed Worker base URL for invite/deep links
 }
 
 // ── W4 · the founder gate: Telegram initData THIRD-PARTY validation ─────
@@ -328,7 +329,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const exp = nowMs + INVITE_TTL_MS;
       const invite = await signInvite(deps.handoffSecret, { memberId, email: member.email, jti, exp });
       await deps.kv.put(inviteKey(jti), JSON.stringify({ jti, memberId, email: member.email, exp, used: false, createdAt: nowIso() }));
-      const base = String(b.linkBase ?? 'https://curious.thoughtseed.space').replace(/\/+$/, '');
+      const base = String(b.linkBase ?? deps.publicBaseUrl ?? 'https://cambium.example.com').replace(/\/+$/, '');
       return json(200, { ok: true, memberId, email: member.email, expiresAt: new Date(exp).toISOString(), invite, link: `${base}/join?t=${invite}` });
     }
 
@@ -364,7 +365,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       await deps.kv.put(tokenIndexKey(tokenHash), claims.memberId);
       inv.used = true; inv.usedAt = nowIso();
       await deps.kv.put(inviteKey(claims.jti), JSON.stringify(inv));
-      return json(200, { ok: true, memberId: claims.memberId, bridgeApiUrl: 'https://curious.thoughtseed.space', token, expiresAt: new Date(tokenExp).toISOString() });
+      return json(200, { ok: true, memberId: claims.memberId, bridgeApiUrl: deps.publicBaseUrl ?? 'https://cambium.example.com', token, expiresAt: new Date(tokenExp).toISOString() });
     }
 
     if (method === 'POST' && path === '/v1/handoff/rotate') {

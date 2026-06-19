@@ -35,13 +35,14 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const STATE_DIR = join(ROOT, '.operator');
 const statePath = (tenant: string) => join(STATE_DIR, `${tenant}.world.json`);
 
-// M3/C3: tenant resolution — --tenant flag → $TENANT → house default; validated
+// M3/C3: tenant resolution — --tenant flag → $TENANT → standalone demo default; validated
 // against the registry (registration-from-reality; invented ids are rejected).
+export const DEFAULT_TENANT = 'demo-org';
 const argvAll = process.argv.slice(2);
 const tIdx = argvAll.indexOf('--tenant');
 const tenantArg = tIdx >= 0 ? argvAll[tIdx + 1] : undefined;
 if (tIdx >= 0) argvAll.splice(tIdx, 2);
-const tenant = tenantArg || process.env.TENANT || 'thoughtseed';
+const tenant = tenantArg || process.env.TENANT || DEFAULT_TENANT;
 const registry = ensureRegistry(ROOT);
 if (registry.length > 0 && tenantArg) requireTenant(ROOT, tenant);
 else validateTenantId(tenant);
@@ -174,6 +175,6 @@ if (cmd === 'wake') {
   console.log('  node bin/operator/cli.ts resonance ["pos"]      # pains + real cosine gradient (NIM)');
   console.log('  node bin/operator/cli.ts coderecall "<query>"  # structural code-recall (CodeGraph)');
   console.log('  node bin/operator/cli.ts state');
-  console.log('  --tenant <id> on any command routes to that venture (registry-validated; ids are TeamForge slugs)');
+  console.log('  --tenant <id> on any command routes to that venture (registry-validated; ids are lowercase org slugs)');
   console.log('\ncontract: INFINITE-GAME.md   ·   models: NVIDIA NIM → Kimi → stub');
 }

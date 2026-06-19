@@ -1,7 +1,7 @@
 // Cambium operator · tenancy — the identity contract (M3/C1, issue #20).
-// One operator, many ventures starts with a clean identity contract. ANTI-DRIFT
-// (vault CLAUDE.md rule 1): tenant ids follow TeamForge slug discipline — kebab-case,
-// lowercase, NEVER minted ad-hoc. The registry derives from worlds that already exist
+// One operator, many ventures starts with a clean identity contract: tenant ids
+// are portable org slugs — kebab-case, lowercase, NEVER minted ad-hoc. The
+// registry derives from worlds that already exist
 // (registration-from-reality); inventing an id here is a contract violation by design.
 // This module is also the single PATH AUTHORITY for per-tenant state (C2 leans on it).
 
@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 
 import { join } from 'node:path';
 
 export interface Tenant {
-  id: string;            // TeamForge-disciplined slug — never invented here
+  id: string;            // portable org slug — never invented here
   vision: string;
   mission: string;
   brand?: { label: string };
@@ -17,15 +17,15 @@ export interface Tenant {
   createdAt: string;     // ISO — when the tenant entered the registry
 }
 
-/** TeamForge slug rule: lowercase kebab — letters/digits, single hyphens, no edges. */
+/** Portable org slug rule: lowercase kebab — letters/digits, single hyphens, no edges. */
 export const TENANT_ID_RULE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
 export class TenantIdError extends Error {
   constructor(id: string, reason: string) {
     super(
       `invalid tenant id "${id}": ${reason}. ` +
-      'Tenant ids follow the TeamForge slug rule (lowercase kebab-case, e.g. "cambium") ' +
-      'and are NEVER invented ad-hoc — TeamForge owns identity (vault CLAUDE.md, anti-drift rule 1).',
+      'Tenant ids follow the portable org slug rule (lowercase kebab-case, e.g. "demo-org") ' +
+      'and are NEVER invented ad-hoc — an identity adapter or existing world must mint them first.',
     );
     this.name = 'TenantIdError';
   }
@@ -79,7 +79,7 @@ export function getTenant(root: string, id: string): Tenant | null {
 }
 
 /** Register a tenant. The id must be slug-legal AND must correspond to a world that
- *  exists on disk unless `allowNew` is set by a caller that minted the slug in TeamForge. */
+ *  exists on disk unless `allowNew` is set by a caller that minted the slug through an identity adapter. */
 export function registerTenant(
   root: string,
   tenant: Omit<Tenant, 'createdAt'> & { createdAt?: string },
@@ -93,7 +93,7 @@ export function registerTenant(
   if (!opts.allowNew && !existsSync(worldPath(root, tenant.id))) {
     throw new TenantIdError(
       tenant.id,
-      'no world exists for this id and allowNew was not set — ids come from TeamForge, not from thin air',
+      'no world exists for this id and allowNew was not set — ids come from an identity adapter, not from thin air',
     );
   }
   const entry: Tenant = { createdAt: new Date().toISOString(), ...tenant } as Tenant;

@@ -29,7 +29,7 @@ Frozen references remain owned by `docs/plans/assets/cambium-r3f-implementation/
 
 ## Meshy Asset Pipeline
 
-The Meshy key is expected as `MESHY_API_KEY` in `/Users/sheshnarayaniyer/.claude/.env` or the process environment. The pipeline is credit-safe by default: planning and prompt validation do not call Meshy, and paid preview/refine calls require `--execute`.
+The Meshy key is expected as `MESHY_API_KEY` in the process environment or in `CAMBIUM_ENV_FILE` (`~/.config/cambium/.env` by default). The pipeline is credit-safe by default: planning and prompt validation do not call Meshy, and paid preview/refine calls require `--execute`.
 
 Prompt specs live at `asset-prompts/meshy-island-prompts.json`.
 

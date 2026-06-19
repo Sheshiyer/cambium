@@ -9,7 +9,7 @@
 
 The founders run two Telegram surfaces with different jobs:
 
-- **Private DM with the bot** (`@thoughtseed_bot`, "curious.self", id `1571615655`):
+- **Private DM with the bot** (`@thoughtseed_bot`, "curious.self", id `TELEGRAM_BOT_ID`):
   each founder, 1:1 — has the **Quest Log miniapp** menu button (shipped), runs
   `/ts-*` commands, approves gates. This is the *control* surface.
 - **The founder group**: shared, ambient, conversational — where ideas, decisions,
@@ -80,7 +80,7 @@ on-demand `/ts-lessons` trigger in the DM for ad-hoc runs.
 
 | # | Gap | Decision needed |
 |---|---|---|
-| G1 | **Which group is "the founder group"?** Telegram resolves `-1003698657291` (vault CLAUDE.md) to **"Klear Karma Central"**, and `@thoughtseed_bot` is **not** a member of it. The real Thoughtseed founder group ID + bot membership must be confirmed (`getUpdates` after a message). | Founder confirms the correct group chat_id and adds `@thoughtseed_bot` to it. |
+| G1 | **Which group is "the founder group"?** Telegram resolves `TELEGRAM_GROUP_ID` (vault CLAUDE.md) to **"Klear Karma Central"**, and `@thoughtseed_bot` is **not** a member of it. The real Thoughtseed founder group ID + bot membership must be confirmed (`getUpdates` after a message). | Founder confirms the correct group chat_id and adds `@thoughtseed_bot` to it. |
 | G2 | **Message access:** bots only receive group messages if **privacy mode is OFF** (BotFather `/setprivacy → Disable`) or they're admin. Today the bot has zero group wiring. | Disable privacy mode (or admin the bot) so the daily read sees all messages. |
 | G3 | **Where the miner runs:** a Hermes skill (lives on the event bus, reads the poller log) vs. a cambium operator agent (launchd cron calling an LLM) vs. a paperclip agent. The plan's reuse rule: prefer the Hermes poller's existing message stream over a second reader. | Pick the host; default recommendation: Hermes skill reading the existing poller log + a cambium `quine write lessons` verb for minting. |
 | G4 | **LLM for the mining:** clustering + pattern detection wants a model. Per memory, Thoughtseed model calls go through **MultiCA / NVIDIA NIM / Kimi**, not OpenRouter. | Confirm the model + that MultiCA gateway serves it. |

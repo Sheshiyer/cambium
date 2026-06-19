@@ -2,6 +2,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { homedir } from 'node:os';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const repoRoot = path.resolve(root, '../..');
@@ -65,7 +66,7 @@ async function writeJson(file, value) {
 }
 
 async function loadEnv() {
-  const envPath = '/Users/sheshnarayaniyer/.claude/.env';
+  const envPath = process.env.CAMBIUM_ENV_FILE || path.join(homedir(), '.config/cambium/.env');
   if (!existsSync(envPath)) return {};
   const env = {};
   const lines = (await readFile(envPath, 'utf8')).split(/\r?\n/);
@@ -81,7 +82,7 @@ async function loadEnv() {
 async function getApiKey() {
   const env = await loadEnv();
   const key = process.env.MESHY_API_KEY || env.MESHY_API_KEY;
-  if (!key) throw new Error('MESHY_API_KEY was not found in process env or /Users/sheshnarayaniyer/.claude/.env');
+  if (!key) throw new Error('MESHY_API_KEY was not found in process env or CAMBIUM_ENV_FILE (~/.config/cambium/.env by default)');
   return key;
 }
 
