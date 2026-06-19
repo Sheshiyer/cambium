@@ -19,6 +19,22 @@ The receipt is tenant-scoped and lives in ignored runtime state:
 
 Committed examples must be synthetic only.
 
+## Release Scope
+
+The standalone release gate is the neutral project archive receipt. It is not a
+requirement to prove that one optional adapter runtime has been shut down.
+
+`docs/archive/release-scope.json` records this decision in machine-readable
+form:
+
+- `standaloneReleaseGate.status = "satisfied"` means Cambium has the generic
+  project archive contract required for the standalone product.
+- `adapterRuntimeRetirement.releaseBlocker = false` means process retirement
+  or soak evidence belongs to an adapter migration, not to the product release
+  gate.
+- real adapter retirement evidence must stay outside the product repo unless it
+  is redacted into a synthetic fixture or neutral adapter doc.
+
 ## Command
 
 ```bash
