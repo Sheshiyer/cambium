@@ -10,8 +10,10 @@ import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 import {
   MINI_APP_ECOSYSTEM_TARGETS,
   MINI_APP_INTERACTION_KINDS,
+  MINI_APP_MAP_SUBSECTIONS,
   MINI_APP_MAP_SUBSECTION_IDS,
   MINI_APP_SCENE_IDS,
+  MINI_APP_SECTIONS,
   MINI_APP_SECTION_IDS,
 } from './mini-app-surface-contract.ts';
 import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_RAILS, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../shared/cambium-visual-contract.ts';
@@ -407,6 +409,48 @@ test('mini app surface contract · inventories operator map subsections', () => 
     'companions',
     'rails',
   ]);
+});
+
+test('mini app surface contract · records section interaction semantics', () => {
+  const byId = Object.fromEntries(MINI_APP_SECTIONS.map((section) => [section.id, section]));
+  assert.deepEqual(byId['command-center'], {
+    id: 'command-center',
+    scene: 'commands',
+    target: 'hermes',
+    interactions: {
+      primary: 'sheet',
+      secondary: ['chat-command'],
+      controls: [
+        { id: 'live-command-sheet', interaction: 'sheet', source: 'paperclipCommandsData' },
+        { id: 'typed-chat-command', interaction: 'chat-command', source: 'curios.self-chat-command' },
+      ],
+    },
+    source: 'paperclipCommandsData plus curios.self command surface',
+  });
+  assert.deepEqual(byId['founder-gate']?.interactions, { primary: 'signed-action' });
+  assert.deepEqual(byId['story-feed']?.interactions, { primary: 'read-only' });
+});
+
+test('mini app surface contract · records map subsection interaction semantics', () => {
+  const byId = Object.fromEntries(MINI_APP_MAP_SUBSECTIONS.map((section) => [section.id, section]));
+  assert.deepEqual(byId.skills, {
+    id: 'skills',
+    target: 'github',
+    interactions: {
+      primary: 'sheet',
+      controls: [
+        { id: 'promote-skill-review', interaction: 'signed-action', source: 'skill promotion review queue' },
+      ],
+    },
+    source: 'skill-registry visual envelope',
+  });
+  assert.deepEqual(byId['side-quests']?.interactions, {
+    primary: 'sheet',
+    controls: [
+      { id: 'queue-side-quest', interaction: 'signed-action', source: 'side-quest queue action' },
+    ],
+  });
+  assert.deepEqual(byId.rails?.interactions, { primary: 'read-only' });
 });
 
 test('page audit helper · detects inert pseudo-button cards', () => {
