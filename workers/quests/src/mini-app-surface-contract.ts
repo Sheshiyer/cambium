@@ -137,5 +137,5 @@ export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
     source: 'skill-registry visual envelope',
   },
   { id: 'companions', target: 'cortex', interactions: { primary: 'sheet' }, source: 'operator-npc-events@v1 and cortex memory' },
-  { id: 'rails', target: 'r3f', interactions: { primary: 'read-only' }, source: 'shared visual rail contract' },
+  { id: 'rails', target: 'r3f', interactions: { primary: 'sheet' }, source: 'shared visual rail contract' },
 ];

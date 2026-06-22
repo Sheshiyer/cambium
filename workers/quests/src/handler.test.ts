@@ -506,7 +506,7 @@ test('mini app surface contract · records map subsection interaction semantics'
       { id: 'queue-side-quest', interaction: 'signed-action', source: 'side-quest queue action' },
     ],
   });
-  assert.deepEqual(byId.rails?.interactions, { primary: 'read-only' });
+  assert.deepEqual(byId.rails?.interactions, { primary: 'sheet' });
 });
 
 test('page audit helper · detects inert pseudo-button cards', () => {
