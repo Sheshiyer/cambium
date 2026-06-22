@@ -55,6 +55,7 @@ export const PAGE = `<!doctype html>
   .brand small{display:block;font-size:11px;font-weight:400;opacity:.6;letter-spacing:.06em;margin-top:2px}
   .chip{font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.32);
     border-radius:999px;color:var(--ink);white-space:nowrap;transition:color .4s var(--ease),border-color .4s var(--ease)}
+  button.chip{appearance:none;background:transparent;cursor:pointer}
   .chip.stale{border-color:var(--warn);color:var(--warn)}
 
   /* pull-to-refresh — liquid droplet, lives above the track */
@@ -288,7 +289,7 @@ export const PAGE = `<!doctype html>
   <header>
     <div class="brand">Quest Log<small>the infinite game · tenant <span id="ten">cambium</span></small></div>
     <button id="sceneBadge" type="button" class="chip scene-chip" data-interaction-kind="sheet" data-source="tg-miniapp-scenes@v1">Quests</button>
-    <span id="fresh" class="chip" data-interaction-kind="sheet" data-source="missing">syncing</span>
+    <button id="fresh" type="button" class="chip" data-interaction-kind="sheet" data-source="missing">syncing</button>
   </header>
   <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="none"><div class="drop"></div><span id="ptrProof" class="sr">Pull to refresh re-fetches /api/quests/cambium and does not write operator state.</span></div>
   <nav>

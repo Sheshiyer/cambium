@@ -672,6 +672,7 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
 });
 
 test('page · freshness chip opens stale source proof sheet', async () => {
+  assert.match(PAGE, /<button id="fresh" type="button" class="chip" data-interaction-kind="sheet"/);
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const fresh = rendered.elements.get('fresh')!;
   assert.equal(fresh.classList.has('stale'), true);
@@ -752,6 +753,14 @@ test('visual fixtures · fresh ecosystem fixture has live source proofs', () => 
   assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.sourceProofs.some((proof) => proof.id === 'commands'));
 });
 
+test('visual fixtures · fresh ecosystem fixture renders command and story proof', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE);
+  (rendered.context.renderCommands as () => void)();
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /Hermes timers and Telegram brain/);
+  assert.match(rendered.elements.get('beats')!.innerHTML, /Hermes routed a fresh command snapshot/);
+  assert.equal(rendered.elements.get('fresh')!.classList.has('stale'), false);
+});
+
 test('visual fixtures · stale ecosystem fixture records explicit stale reasons', () => {
   const ageMinutes = Math.round((Date.now() - Date.parse(STALE_ECOSYSTEM_VISUAL_FIXTURE.derivedAt)) / 60000);
   assert.ok(ageMinutes > 360, `stale fixture should be older than six hours, got ${ageMinutes}m`);
@@ -760,12 +769,27 @@ test('visual fixtures · stale ecosystem fixture records explicit stale reasons'
   assert.ok(STALE_ECOSYSTEM_VISUAL_FIXTURE.stale.reasons.some((reason) => /quine write quests push --tenant cambium/.test(reason)));
 });
 
+test('visual fixtures · stale ecosystem fixture renders stale freshness', async () => {
+  const rendered = await renderPageFixtureContext(STALE_ECOSYSTEM_VISUAL_FIXTURE);
+  assert.equal(rendered.elements.get('fresh')!.classList.has('stale'), true);
+  (rendered.elements.get('fresh')!.onclick as () => void)();
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /stale data is not live proof/);
+});
+
 test('visual fixtures · offline ecosystem fixture keeps gaps explicit', () => {
   assert.equal(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.commands, null);
   assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.liveProof.gap, /live proof source offline/);
   assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.wake.gap, /commands, live proof, and Paperclip are unavailable/);
   assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.social.rows[0].detail, /Paperclip coordination evidence is unavailable/);
   assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.paperclip.gap, /Paperclip unavailable/);
+});
+
+test('visual fixtures · offline ecosystem fixture renders offline gaps', async () => {
+  const rendered = await renderPageFixtureContext(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+  assert.match(map, /PAPERCLIP OFFLINE/);
+  assert.match(map, /offline gap: missing source/);
+  assert.match(map, /live proof source offline/);
 });
 
 test('page · tapestry audit sheet maps completion requirements to source-backed proof', async () => {
