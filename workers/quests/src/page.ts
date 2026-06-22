@@ -10,6 +10,8 @@
 // rubber-band, live indicator), drag-to-dismiss sheet, pull-to-refresh, fractal arc
 // drill-down (tap ring → zoom + parsed evidence facets), count-up numerals, tactile haptics.
 
+import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_RAILS, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../shared/cambium-visual-contract.ts';
+
 export const PAGE = `<!doctype html>
 <html lang="en">
 <head>
@@ -135,28 +137,58 @@ export const PAGE = `<!doctype html>
   .meta{display:flex;justify-content:space-between;gap:10px;font:12px var(--mono);opacity:.75}
   .meta #here{text-align:right;color:var(--ink);opacity:.85}
 
-  /* ── fractal ────────────────────────────────── */
-  .fwrap{display:grid;place-items:center;padding-top:6px;position:relative}
-  .fcap{font:11px var(--mono);opacity:.6;text-align:left;width:100%;margin-top:14px;max-width:60ch;
-    transition:opacity .35s var(--ease)}
-  #rings .ring{cursor:pointer}
-  #rings .ring:active{opacity:.7}
-  #ringsG{transition:transform .6s var(--ease);transform-box:view-box;transform-origin:0 0}
-  #rings .pulse{animation:breathe 2.6s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
-  .orbit{animation:spin 90s linear infinite;transform-origin:center;transform-box:fill-box;will-change:transform}
+  /* ── operator map — R3F mechanics, Telegram density ───── */
   @keyframes spin{to{transform:rotate(360deg)}}
-  .halo{animation:halo 2.8s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
   @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
-  .seed{animation:breathe 2.6s var(--ease) infinite;transform-origin:center;transform-box:fill-box}
-  /* drill-down detail panel */
-  .drill{position:absolute;inset:auto 0 0;padding:16px;border-radius:18px 18px 0 0;
-    background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--line2);border-bottom:0;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
-    transform:translateY(115%);transition:transform .5s var(--pop);will-change:transform}
-  .drill.on{transform:translateY(0)}
-  .drill .darc{font:12px var(--mono);color:var(--ink)}
-  .drill h3{font-size:18px;margin:3px 0 4px;letter-spacing:.01em}
-  .drill .dstat{font:11px var(--mono);text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:12px}
+  .mapwrap{display:flex;flex-direction:column;gap:12px;padding-top:2px}
+  .maphead{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;padding-bottom:4px}
+  .maphead h2{font-size:18px;letter-spacing:.01em;color:var(--ink)}
+  .maphead p{font-size:12px;opacity:.68;max-width:48ch;margin-top:3px}
+  .mapbadge{font:11px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.28);
+    border-radius:999px;padding:6px 10px;white-space:nowrap}
+  .wakegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .wake-step{appearance:none;text-align:left;color:var(--soft);min-width:0;padding:9px 9px;border:1px solid var(--line);border-radius:11px;background:rgba(1,47,52,.28);cursor:pointer}
+  .wake-step b{display:block;font:10px var(--mono);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wake-step span{display:block;font-size:11px;opacity:.65;line-height:1.25;margin-top:3px;overflow-wrap:anywhere}
+  .wake-step.wait{border-style:dashed;opacity:.72}
+  .wake-step.done{background:rgba(224,255,79,.045)}
+  .sensegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .sense{appearance:none;text-align:left;color:var(--soft);padding:10px;border:1px solid var(--line);
+    border-radius:12px;background:rgba(1,47,52,.3);font:12px/1.35 inherit;cursor:pointer}
+  .sense b{display:block;font:11px var(--mono);color:var(--ink);margin-bottom:3px}
+  .sense.on{border-color:rgba(224,255,79,.32);background:rgba(224,255,79,.045)}
+  .boxgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .ibox{appearance:none;text-align:left;color:var(--soft);min-height:76px;padding:10px;border:1px solid var(--line);
+    border-radius:12px;background:rgba(1,47,52,.26);font:12px/1.35 inherit;cursor:pointer}
+  .ibox b{display:block;font:11px var(--mono);color:var(--ink);margin-bottom:4px}
+  .ibox span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.72}
+  .ibox.skill span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
+  .ibox.npc span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
+  .ibox.ready{border-color:rgba(224,255,79,.28);background:rgba(224,255,79,.04)}
+  .stagegrid{display:grid;grid-template-columns:1fr;gap:8px}
+  .stage-card{position:relative;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;
+    padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:rgba(1,47,52,.36);color:var(--soft);
+    cursor:pointer;opacity:0;transform:translateY(10px);animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*45ms)}
+  .stage-card:active{transform:scale(.985)}
+  .stage-card.active{border-color:rgba(224,255,79,.45);background:rgba(224,255,79,.06);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .stage-card.active::after{content:"";position:absolute;inset:-1px;border-radius:13px;
+    border:1px solid rgba(224,255,79,.26);animation:halo 2.8s var(--ease) infinite;pointer-events:none}
+  .stage-glyph{width:35px;height:35px;border-radius:12px;border:1px solid var(--line2);display:grid;place-items:center;
+    font:700 13px var(--mono);color:var(--ink);background:var(--bg2)}
+  .stage-card.done .stage-glyph{background:rgba(224,255,79,.12);box-shadow:inset 0 0 8px rgba(224,255,79,.22)}
+  .stage-title{display:block;font-weight:700;font-size:14px}
+  .stage-detail{display:block;font-size:12px;opacity:.68;line-height:1.35;margin-top:2px}
+  .stage-count{font:11px var(--mono);color:var(--ink);opacity:.82;white-space:nowrap}
+  .stagebar{display:block;height:4px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:7px}
+  .stagebar span{display:block;height:100%;background:var(--ink);border-radius:999px;transition:width .8s var(--ease)}
+  .railgrid{display:grid;gap:8px}
+  .rail{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:12px;background:rgba(1,47,52,.24);font:12px var(--mono);opacity:.9}
+  .rail b{font-weight:650;color:var(--soft)}
+  .rail span{color:var(--ink);opacity:.75}
+  .rail.hot{border-color:rgba(224,255,79,.34);background:rgba(224,255,79,.045)}
+  .mapnote{font:11px/1.5 var(--mono);opacity:.58}
   .facets{display:flex;flex-direction:column;gap:8px}
   .facet{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);
     border-radius:11px;font:12.5px var(--mono);
@@ -199,6 +231,9 @@ export const PAGE = `<!doctype html>
     opacity:0;transform:translateY(12px);animation:rise .5s var(--pop) forwards;animation-delay:calc(var(--i)*70ms)}
   .gitem .gid{font:11px var(--mono);color:var(--ink);opacity:.85}
   .gitem .gtitle{font-weight:600;margin:3px 0 10px}
+  .gmeta{display:grid;grid-template-columns:88px 1fr;gap:4px 9px;margin:8px 0 11px;font-size:11.5px;line-height:1.35}
+  .gmeta b{font:10px var(--mono);color:var(--ink);opacity:.72;text-transform:uppercase}
+  .gmeta span{opacity:.74;overflow-wrap:anywhere}
   .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .gbtns button{appearance:none;border:0;border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;
     transition:transform .2s var(--ease)}
@@ -255,7 +290,7 @@ export const PAGE = `<!doctype html>
   <div class="ptr" id="ptr"><div class="drop"></div></div>
   <nav>
     <button id="tb0" class="on">Quests</button>
-    <button id="tb1">Fractal</button>
+    <button id="tb1">Map</button>
     <button id="tb2">Story</button>
     <button id="tb3">Gate</button>
     <button id="tb4">Commands</button>
@@ -270,7 +305,7 @@ export const PAGE = `<!doctype html>
       <div class="bar"><div id="fill" class="fill"></div></div>
       <div class="meta"><span id="progress"></span><span id="here"></span></div>
     </section>
-    <section class="scene" id="sceneF"><div class="fwrap" id="fwrap"></div></section>
+    <section class="scene" id="sceneF"><div class="mapwrap" id="mapwrap"></div></section>
     <section class="scene" id="sceneS"><div id="beats"></div></section>
     <section class="scene" id="sceneG">
       <div class="ghead">The Gate · the one write</div>
@@ -303,14 +338,17 @@ const MARKS = {
   locked:   '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.4" fill="none" stroke="rgba(214,255,246,.45)" stroke-width="1.4"/></svg>'
 };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const TENANT = (new URLSearchParams(location.search).get('tenant')
+const PARAMS = new URLSearchParams(location.search);
+const TENANT = (PARAMS.get('tenant')
   || (TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param) || 'cambium').replace(/[^a-z0-9-]/gi,'') || 'cambium';
+const SCENE_PARAM = String(PARAMS.get('scene') || '').toLowerCase();
+const START_SCENE = ({ quests:0, quest:0, q:0, map:1, story:2, gate:3, commands:4 }[SCENE_PARAM] ?? 0);
 $('ten').textContent = TENANT;
 let LEDGER = null;
 
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
 const track = $('track'), ind = $('ind'), SCN = 5;
-let scene = 0;
+let scene = START_SCENE;
 const W = () => track.clientWidth || window.innerWidth;
 function place(x, animate){
   track.style.transition = (animate && !RM) ? 'transform .5s var(--ease)' : 'none';
@@ -331,12 +369,13 @@ function go(i, fromSwipe){
 [0,1,2,3,4].forEach(n => $('tb'+n).onclick = () => go(n));
 
 /* commands panel — the /ts-* co-founder interface.
-   4th tuple element: a live-data key (status/agents/work/handoffs) → tappable,
+   4th tuple element: a live-data key (status/agents/work/handoffs/hermes) → tappable,
    shows real org data in the sheet; 'act' → action (runs in chat); else reference. */
 let CMDDATA = null;
 const CMDS = [
   ['Status · live', [
     ['ts-status', '', 'Org health — agents, work, arcs', 'status'],
+    ['ts-hermes', '', 'Hermes timers and Telegram brain', 'hermes'],
     ['ts-agents', '', 'The agent roster', 'agents'],
     ['ts-projects', '', 'Active work in the org', 'work'],
     ['ts-handoffs', '', 'Pending items awaiting a founder', 'handoffs'],
@@ -358,7 +397,7 @@ const CMDS = [
 let cmdsDrawn = false;
 function renderCommands(){
   if (cmdsDrawn) return; cmdsDrawn = true;
-  const liveKeys = { status:1, agents:1, work:1, handoffs:1 };
+  const liveKeys = { status:1, hermes:1, agents:1, work:1, handoffs:1 };
   $('cmds').innerHTML = CMDS.map(([group, items]) =>
     '<div class="cmdgrp">' + esc(group) + '</div>' +
     items.map(([name, args, desc, kind]) => {
@@ -383,7 +422,10 @@ function openCmdSheet(key){
   if (!d){ title = 'commands'; body = '<div class="nar">org data unavailable — the gateway was unreachable at the last refresh. pull to refresh.</div>'; }
   else if (key === 'status'){
     title = '/ts-status';
-    body = kvRows([['agents', String(d.status.agents)], ['work open', String(d.status.issuesOpen)], ['work done', String(d.status.issuesDone)], ['arcs grown', d.status.arcs]]);
+    body = kvRows([['agents', String(d.status.agents)], ['work open', String(d.status.issuesOpen)], ['work done', String(d.status.issuesDone)], ['arcs grown', d.status.arcs], ['hermes', d.status.hermes || 'unknown']]);
+  } else if (key === 'hermes'){
+    title = '/ts-hermes · services';
+    body = (d.services||[]).length ? (d.services||[]).map(s => '<div class="li"><div><span class="cname">'+esc(s.name)+'</span> <span class="cargs">'+esc(s.status)+'</span><div class="cdesc">'+esc(s.detail || s.label)+'</div></div></div>').join('') : '<div class="nar">no Hermes service data.</div>';
   } else if (key === 'agents'){
     title = '/ts-agents · ' + (d.agents||[]).length;
     body = (d.agents||[]).length ? (d.agents||[]).map(a => '<div class="li"><span class="cname">'+esc(a.name)+'</span>'+(a.model?'<span class="cargs">'+esc(a.model)+'</span>':'')+'</div>').join('') : '<div class="nar">no agents.</div>';
@@ -402,7 +444,7 @@ window.addEventListener('resize', () => place(-scene * W(), false));
 // pointer drag: one handler set, decides axis on first move.
 let drag = null;
 track.addEventListener('pointerdown', e => {
-  if (sheetState.open || drillOpen) return;
+  if (sheetState.open) return;
   drag = { sx:e.clientX, sy:e.clientY, base:-scene*W(), axis:null, lx:e.clientX, lt:e.timeStamp, v:0,
            scn: track.children[scene], ptr:false };
 });
@@ -500,15 +542,37 @@ sheet.addEventListener('pointercancel', endSheet);
 
 /* ── gate — the one write. initData proves the founder; the Worker validates (Ed25519). ── */
 const initData = (TG && TG.initData) || '';
+let GATE_ITEMS = [];
+function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evidence missing from handoff'; }
+function gateReversibility(kind, it){ return (it && it.reversibility) || (kind === 'approve' ? 'reversible until consumed; supersede with a newer gate action' : 'reversible review request; no execution until the org consumes it'); }
+function gateConsequence(kind, it){
+  if (kind === 'approve') return (it && (it.approveConsequence || it.consequence)) || 'approve handoff for org execution';
+  return (it && (it.rerollConsequence || it.consequence)) || 'reroll handoff and request revision';
+}
+function gateIdempotency(kind, it){
+  const basis = it && typeof it === 'object' ? (it.idempotencyHint || it.id || 'unknown') : it;
+  return kind + ':' + TENANT + ':' + basis;
+}
 function loadGate(){
   const el = $('gate');
   fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
     const items = (d && d.openItems) || [];
+    GATE_ITEMS = items;
     if(!items.length){ el.innerHTML = '<div class="gnote">no open items waiting on you. The org is flowing.</div>'; return; }
-    el.innerHTML = items.map((it,i) =>
-      '<div class="gitem" style="--i:'+i+'" data-id="'+esc(it.id)+'"><div class="gid">'+esc(it.id)+'</div>'+
-      '<div class="gtitle">'+esc(it.title)+'</div><div class="gbtns">'+
-      '<button class="approve">Approve</button><button class="reroll">Reroll</button></div></div>').join('') +
+    el.innerHTML = items.map((it,i) => {
+      const evidence = gateEvidence(it);
+      const approveKey = gateIdempotency('approve', it);
+      const rerollKey = gateIdempotency('reroll', it);
+      return '<div class="gitem" style="--i:'+i+'" data-i="'+i+'" data-id="'+esc(it.id)+'"><div class="gid">'+esc(it.id)+'</div>'+
+      '<div class="gtitle">'+esc(it.title)+'</div><div class="gmeta">'+
+        '<b>evidence</b><span>'+esc(evidence)+'</span>'+
+        '<b>approve</b><span>'+esc(gateConsequence('approve', it))+'</span>'+
+        '<b>reroll</b><span>'+esc(gateConsequence('reroll', it))+'</span>'+
+        '<b>reversible</b><span>'+esc(gateReversibility('approve', it))+'</span>'+
+        '<b>keys</b><span>'+esc(approveKey)+' / '+esc(rerollKey)+'</span>'+
+      '</div><div class="gbtns">'+
+      '<button class="approve">Approve</button><button class="reroll">Reroll</button></div></div>';
+    }).join('') +
       '<div class="gnote">every action is signed by Telegram and executed by the org — no fake buttons.</div>';
     el.querySelectorAll('.gitem').forEach(node => {
       node.querySelector('.approve').onclick = () => gateAct('approve', node.dataset.id, node);
@@ -517,16 +581,83 @@ function loadGate(){
   }).catch(() => { el.innerHTML = '<div class="gnote">gate queue unreachable.</div>'; });
 }
 function gateAct(kind, subject, node){
+  const item = GATE_ITEMS[Number(node.dataset.i)] || {};
+  const evidence = gateEvidence(item);
+  const consequence = gateConsequence(kind, item);
+  const reversibility = gateReversibility(kind, item);
+  const idempotencyKey = gateIdempotency(kind, item.id ? item : subject);
   buzz('medium'); node.style.opacity = '.5';
   fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
-    body: JSON.stringify({ kind, subject, initData }) })
+    body: JSON.stringify({ kind, subject, initData, evidence, consequence, reversibility, idempotencyKey }) })
     .then(r => r.json()).then(res => {
       node.style.opacity='1';
       node.innerHTML = res.queued
-        ? '<div class="gnote">'+esc(kind)+' queued for '+esc(subject)+' — the org will act and confirm in chat.</div>'
+        ? '<div class="gnote">'+(res.duplicate ? 'already queued · ' : '')+esc(kind)+' queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+' · '+esc(res.consequence || consequence)+'</div>'
         : '<div class="gnote">refused: '+esc(res.error||'unknown')+'</div>';
       notify(res.queued ? 'success' : 'error');
     }).catch(() => { node.style.opacity='1'; node.innerHTML = '<div class="gnote">network error.</div>'; });
+}
+function skillPromotionEvidence(skill){
+  return skill.title + ' · ' + skill.detail;
+}
+function skillPromotionConsequence(skill){
+  return 'founder review may promote ' + skill.title + ' to production after operator consumption';
+}
+function skillPromotionReversibility(){
+  return 'queued promotion can be superseded until consumed; skill registry remains unchanged';
+}
+function skillPromotionIdempotency(skill){
+  return 'promote-skill:' + TENANT + ':' + skill.title;
+}
+function sideQuestQueueId(side){
+  return String(side.id || side.action.target || side.title || 'side-quest').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '') || 'side-quest';
+}
+function sideQuestQueueEvidence(side){
+  return side.proof || side.detail || 'side quest proof missing from visual envelope';
+}
+function sideQuestQueueConsequence(side){
+  return 'queue side quest ' + sideQuestQueueId(side) + ' for ' + (side.owner || 'operator') + ' follow-up; no browser-side completion';
+}
+function sideQuestQueueReversibility(){
+  return 'queued side quest can be superseded until consumed; side quest ledger remains unchanged';
+}
+function sideQuestQueueIdempotency(side){
+  return 'queue-side-quest:' + TENANT + ':' + sideQuestQueueId(side);
+}
+function sideQuestAct(side, node){
+  const initData = TG && TG.initData || '';
+  const subject = sideQuestQueueId(side);
+  const evidence = sideQuestQueueEvidence(side);
+  const consequence = sideQuestQueueConsequence(side);
+  const reversibility = sideQuestQueueReversibility();
+  const idempotencyKey = sideQuestQueueIdempotency(side);
+  buzz('medium'); node.style.opacity = '.5'; node.textContent = 'queuing...';
+  fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
+    body: JSON.stringify({ kind:'queue-side-quest', subject, initData, evidence, consequence, reversibility, idempotencyKey, note:side.detail || '' }) })
+    .then(r => r.json()).then(res => {
+      node.style.opacity = '1';
+      node.outerHTML = res.queued
+        ? '<div class="gnote">'+(res.duplicate ? 'already queued · ' : '')+'side quest queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>'
+        : '<div class="gnote">refused: '+esc(res.error || 'unknown')+'</div>';
+      notify(res.queued ? 'success' : 'error');
+    }).catch(() => { node.style.opacity='1'; node.outerHTML = '<div class="gnote">side quest queue unreachable.</div>'; });
+}
+function skillPromotionAct(skill, node){
+  const initData = TG && TG.initData || '';
+  const evidence = skillPromotionEvidence(skill);
+  const consequence = skillPromotionConsequence(skill);
+  const reversibility = skillPromotionReversibility();
+  const idempotencyKey = skillPromotionIdempotency(skill);
+  buzz('medium'); node.style.opacity = '.5'; node.textContent = 'queuing...';
+  fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
+    body: JSON.stringify({ kind:'promote-skill', subject:skill.title, initData, evidence, consequence, reversibility, idempotencyKey }) })
+    .then(r => r.json()).then(res => {
+      node.style.opacity = '1';
+      node.outerHTML = res.queued
+        ? '<div class="gnote">'+(res.duplicate ? 'already queued · ' : '')+'promotion queued for '+esc(skill.title)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>'
+        : '<div class="gnote">refused: '+esc(res.error || 'unknown')+'</div>';
+      notify(res.queued ? 'success' : 'error');
+    }).catch(() => { node.style.opacity='1'; node.outerHTML = '<div class="gnote">promotion queue unreachable.</div>'; });
 }
 
 /* ── quest scene + count-up ── */
@@ -553,107 +684,509 @@ function renderQuests(L){
   if (L.current) $('here').textContent = 'here → ' + L.current.arc + ' · ' + L.current.title;
 }
 
-/* ── fractal scene — tree-ring cross-section, with tap-ring drill-down ── */
-let drillOpen = false;
-function ringGeom(L){
-  const n = L.rows.length, C = 170, r0 = 30, step = (C - 24 - r0) / Math.max(1, n - 1);
-  return { n, C, r0, step };
-}
-const GOLD = 2.39996323;   // golden angle (rad) — phyllotaxis node distribution
+/* ── operator map — R3F mechanics ported as compact Telegram cards ── */
 const N1 = (v) => (Math.round(v * 10) / 10);
-function nodeXY(C, r, i){ const a = -Math.PI / 2 + i * GOLD; return [C + r * Math.cos(a), C + r * Math.sin(a)]; }
-function renderFractal(L){
-  const { n, C, r0, step } = ringGeom(L);
-  const TAU = Math.PI * 2;
-  const grown = L.rows.filter(r => r.status === 'complete').length;
-  const rOuter = r0 + (n - 1) * step;
-  const CHECK = (x, y) => '<path d="M' + N1(x-2.4) + ' ' + N1(y) + ' l1.7 1.8 l3.1 -3.6" fill="none" stroke="#00272B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
-
-  const defs =
-    '<defs>' +
-      '<radialGradient id="heart" cx="50%" cy="50%">' +
-        '<stop offset="0%" stop-color="rgba(224,255,79,.13)"/>' +
-        '<stop offset="55%" stop-color="rgba(35,22,81,.12)"/>' +
-        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/></radialGradient>' +
-      '<radialGradient id="edge" cx="50%" cy="50%">' +
-        '<stop offset="89%" stop-color="rgba(224,255,79,0)"/>' +
-        '<stop offset="96%" stop-color="rgba(224,255,79,.30)"/>' +
-        '<stop offset="100%" stop-color="rgba(224,255,79,0)"/></radialGradient>' +
-      '<filter id="cells" x="-30%" y="-30%" width="160%" height="160%">' +
-        '<feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="7" result="n"/>' +
-        '<feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>' +
-    '</defs>';
-
-  // faint radial spokes — divide the disc into sectors (Swiss-grid precision)
-  let spokes = '';
-  for (let s = 0; s < 12; s++){
-    const a = (s / 12) * TAU;
-    spokes += '<line x1="' + C + '" y1="' + C + '" x2="' + N1(C + (rOuter + 8) * Math.cos(a)) + '" y2="' + N1(C + (rOuter + 8) * Math.sin(a)) +
-      '" stroke="rgba(214,255,246,.07)" stroke-width=".6"/>';
-  }
-
-  // circular heartwood over the grown radius — soft field, subtle cells (no square)
-  const rGrown = grown > 0 ? r0 + (grown - 1) * step : r0;
-  const heartwood = '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="url(#heart)"/>' +
-    (grown > 0 ? '<circle cx="' + C + '" cy="' + C + '" r="' + rGrown + '" fill="rgba(224,255,79,.05)" filter="url(#cells)"/>' : '');
-
-  // concentric rings — fine and layered; glow contained to the active cambium band
-  let ringLines = '';
-  L.rows.forEach((row, i) => {
-    const r = r0 + i * step, k = row.status;
-    if (k === 'active'){
-      ringLines += '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="url(#edge)" stroke-width="13"/>' +
-        '<circle class="halo" cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="rgba(224,255,79,.8)" stroke-width="1.6"/>';
-    } else if (k === 'complete'){
-      ringLines += '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="rgba(224,255,79,.4)" stroke-width="1"/>' +
-        '<circle cx="' + C + '" cy="' + C + '" r="' + N1(r - 2) + '" fill="none" stroke="rgba(214,255,246,.07)" stroke-width=".6" stroke-dasharray="1 6"/>';
-    } else {
-      ringLines += '<circle cx="' + C + '" cy="' + C + '" r="' + r + '" fill="none" stroke="rgba(140,118,210,.26)" stroke-width=".8" stroke-dasharray="2 9"/>';
-    }
-  });
-
-  // arc nodes — distributed AROUND the rings on a phyllotaxis spiral (not stacked)
-  const nodes = L.rows.map((row, i) => {
-    const r = r0 + i * step, k = row.status;
-    const [nx, ny] = nodeXY(C, r, i);
-    const stroke = k === 'locked' ? 'rgba(160,140,220,.6)' : '#E0FF4F';
-    const fill = k === 'locked' ? '#0B2024' : '#01343A';
-    const rad = k === 'active' ? 8 : 6;
-    const glow = k === 'active' ? '<circle class="halo" cx="' + N1(nx) + '" cy="' + N1(ny) + '" r="14" fill="rgba(224,255,79,.16)"/>' : '';
-    const mark = k === 'complete'
-      ? CHECK(nx, ny)
-      : '<text x="' + N1(nx) + '" y="' + N1(ny + 2.6) + '" text-anchor="middle" font-size="7" font-family="ui-monospace,monospace" fill="' + stroke + '">' + esc(row.arc) + '</text>';
-    return '<g class="ring" data-i="' + i + '" data-x="' + N1(nx) + '" data-y="' + N1(ny) + '">' +
-      '<circle cx="' + N1(nx) + '" cy="' + N1(ny) + '" r="15" fill="transparent"/>' + glow +
-      '<circle class="' + (k === 'active' ? 'pulse' : '') + '" cx="' + N1(nx) + '" cy="' + N1(ny) + '" r="' + rad +
-        '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (k === 'active' ? 1.8 : 1.2) + '"/>' + mark +
-      '</g>';
-  }).join('');
-
-  // "you are here" leader line to the active node
-  const ai = L.rows.findIndex(r => r.status === 'active');
-  let label = '';
-  if (ai >= 0){
-    const [ax, ay] = nodeXY(C, r0 + ai * step, ai);
-    // fixed top-right label with a leader to the active node — never clips the frame
-    label = '<line x1="' + N1(ax) + '" y1="' + N1(ay) + '" x2="300" y2="24" stroke="rgba(224,255,79,.5)" stroke-width="1"/>' +
-      '<circle cx="' + N1(ax) + '" cy="' + N1(ay) + '" r="2" fill="#E0FF4F"/>' +
-      '<text x="332" y="21" text-anchor="end" font-size="9.5" font-family="ui-monospace,monospace" fill="#E0FF4F">cambium — you are here</text>';
-  }
-
-  $('fwrap').innerHTML =
-    '<svg id="rings" viewBox="0 0 340 340" width="100%" style="max-width:392px">' + defs +
-      '<g id="ringsG">' +
-        '<g class="orbit">' + heartwood + '</g>' + spokes + ringLines + nodes +
-        '<circle class="seed" cx="' + C + '" cy="' + C + '" r="4.5" fill="#E0FF4F"/>' +
-        '<circle cx="' + C + '" cy="' + C + '" r="9" fill="none" stroke="rgba(224,255,79,.3)" stroke-width=".7"/>' + label +
-      '</g>' +
-    '</svg>' +
-    '<div class="fcap" id="fcap">the venture as a living cross-section — each arc a ring from the heartwood out; nodes are the arcs themselves, and the glowing band is the cambium, the living edge where growth happens now. tap a node to drill in.</div>' +
-    '<div class="drill" id="drill"></div>';
-  document.querySelectorAll('#rings .ring').forEach(g => g.onclick = () => drillArc(L, +g.dataset.i, +g.dataset.x, +g.dataset.y));
+const STAGES = ${JSON.stringify(CAMBIUM_VISUAL_STAGES)};
+const RAILS = ${JSON.stringify(CAMBIUM_VISUAL_RAILS)};
+const WAKE_CONTRACT = ${JSON.stringify(CAMBIUM_WAKE_STEPS)};
+const SENSE_CONTRACT = ${JSON.stringify(CAMBIUM_SENSES)};
+const LANE_CONTRACT = ${JSON.stringify(CAMBIUM_LANES)};
+const hasText = (rows, rx) => rows.some(row => rx.test([row.title, row.evidence, row.id, row.arc].join(' ')));
+const rowLabel = row => row.arc + ' · ' + row.title;
+const stageTitle = id => (STAGES.find(stage => stage.id === id) || { title:id.toUpperCase() }).title;
+function completedRows(L){ return L.rows.filter(row => row.status === 'complete'); }
+function activeRow(L){ return L.rows.find(row => row.status === 'active'); }
+function stageForArc(arc){
+  const stage = STAGES.find(s => s.arcs.includes(String(arc)));
+  return stage ? stage.id : 'ops';
 }
-// parse the evidence string into honest facets: "a · b · c" → chips, "done" if it
+function stageRows(L, stage){
+  return L.rows.filter(row => stage.arcs.includes(String(row.arc)));
+}
+function minutesSince(iso){
+  const t = Date.parse(iso || '');
+  return Number.isFinite(t) ? Math.max(0, Math.round((Date.now() - t) / 60000)) : null;
+}
+function wakeSteps(env){
+  const L = env.ledger;
+  const served = env.wake && Array.isArray(env.wake.steps) ? env.wake.steps : null;
+  if (served) {
+    return WAKE_CONTRACT.map(step => {
+      const row = served.find(s => s && s.id === step.id) || {};
+      return {
+        ...step,
+        done:row.status === 'proved',
+        detail:row.detail || row.gap || step.missing,
+        proof:row.proof || row.gap || step.missing,
+        source:row.source || (env.wake && env.wake.source) || 'missing',
+        evidence:Array.isArray(row.evidence) ? row.evidence : [],
+        history:row.history || { source:'missing', total:0, status:'none', proof:'no operator wake events served', rows:[] },
+      };
+    });
+  }
+  const active = activeRow(L);
+  const rows = L.rows || [];
+  return WAKE_CONTRACT.map(step => {
+    const history = { source:'missing', total:0, status:'none', proof:'no operator wake events served', rows:[] };
+    if (step.id === 'ingest') return { ...step, done:!!env.source, detail:env.source || step.missing, proof:env.source ? 'legacy source ' + env.source : step.missing, source:'legacy-local', evidence:[], history };
+    if (step.id === 'route') return { ...step, done:!!active || L.completed === L.total, detail:active ? rowLabel(active) : 'all arcs complete', proof:active ? rowLabel(active) : L.completed + '/' + L.total + ' quests complete', source:'legacy-local', evidence:[], history };
+    if (step.id === 'act') return { ...step, done:rows.some(row => row.status !== 'locked'), detail:L.completed + '/' + L.total + ' quest rows', proof:rows.filter(row => row.status !== 'locked').length + '/' + L.total + ' active or complete rows', source:'legacy-local', evidence:[], history };
+    if (step.id === 'viability') return { ...step, done:hasText(rows, /viability|gate|approval|deposit|deploy|sign.?off|margin/i), detail:hasText(rows, /viability|gate|approval|deposit|deploy|sign.?off|margin/i) ? 'evidence present' : step.missing, proof:step.missing, source:'legacy-local', evidence:[], history };
+    if (step.id === 'learn') return { ...step, done:hasText(rows, /memory|cortex|lesson|learn|mint|archive/i), detail:hasText(rows, /memory|cortex|lesson|learn|mint|archive/i) ? 'memory trace' : step.missing, proof:step.missing, source:'legacy-local', evidence:[], history };
+    if (step.id === 'persist') return { ...step, done:!!env.derivedAt, detail:env.derivedAt ? 'ledger snapshot' : step.missing, proof:env.derivedAt ? 'derivedAt ' + env.derivedAt : step.missing, source:'legacy-local', evidence:[], history };
+    return { ...step, done:false, detail:step.missing, proof:step.missing, source:'legacy-local', evidence:[], history };
+  });
+}
+function renderWake(env){
+  return '<div class="wakegrid">' + wakeSteps(env).map((step, i) =>
+    '<button type="button" class="wake-step ' + (step.done ? 'done' : 'wait') + '" data-wake="' + i + '"><b>' + esc(step.label) + '</b><span>' + esc(step.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function senseCards(env){
+  const senseEnv = env.senses || {};
+  const served = Array.isArray(senseEnv.rows) ? senseEnv.rows : null;
+  if (served) {
+    return SENSE_CONTRACT.map(sense => {
+      const row = served.find(item => item && item.id === sense.id) || {};
+      const evidence = Array.isArray(row.evidence) ? row.evidence : [];
+      return {
+        ...sense,
+        on:!!row.on,
+        detail:row.detail || row.gap || sense.empty,
+        proof:row.proof || row.gap || sense.empty,
+        source:row.source || senseEnv.source || 'missing',
+        evidence,
+      };
+    });
+  }
+  const L = env.ledger;
+  const rows = L.rows || [];
+  const active = activeRow(L);
+  const cortexRows = rows.filter(row => stageForArc(row.arc) === 'cortex');
+  const riskRows = rows.filter(row => row.status === 'locked' || /pending|blocked|missing|unreachable|rejected/i.test(row.evidence || ''));
+  const age = minutesSince(env.derivedAt);
+  return SENSE_CONTRACT.map(sense => {
+    if (sense.id === 'signal') return { ...sense, on:!!active, detail:active ? rowLabel(active) : sense.empty, source:'legacy-local', evidence:[] };
+    if (sense.id === 'memory') return { ...sense, on:cortexRows.some(row => row.status !== 'locked'), detail:cortexRows.length ? cortexRows.filter(row => row.status !== 'locked').length + '/' + cortexRows.length + ' cortex rows' : sense.empty, source:'legacy-local', evidence:[] };
+    if (sense.id === 'risk') return { ...sense, on:riskRows.length > 0, detail:riskRows.length ? riskRows.length + ' locked or pending traces' : sense.empty, source:'legacy-local', evidence:[] };
+    if (sense.id === 'drift') return { ...sense, on:age === null || age > 360, detail:age === null ? 'freshness missing' : age > 360 ? Math.round(age / 60) + 'h stale' : sense.empty, source:'legacy-local', evidence:[] };
+    return { ...sense, on:false, detail:sense.empty, source:'legacy-local', evidence:[] };
+  });
+}
+function renderSenses(env){
+  return '<div class="sensegrid">' + senseCards(env).map(sense =>
+    '<button type="button" class="sense ' + (sense.on ? 'on' : '') + '" data-sense="' + sense.id + '"><b>' + esc(sense.title) + '</b>' + esc(sense.detail) + '</button>'
+  ).join('') + '</div>';
+}
+function laneCards(env){
+  const laneEnv = env.lanes || {};
+  const counts = laneEnv.counts || {};
+  return LANE_CONTRACT.map(lane => {
+    const n = Number(counts[lane.id] || 0);
+    return { ...lane, on:n > 0, detail:n > 0 ? n + ' move' + (n === 1 ? '' : 's') : (laneEnv.gap || lane.empty) };
+  });
+}
+function renderLanes(env){
+  return '<div class="sensegrid">' + laneCards(env).map(lane =>
+    '<button type="button" class="sense ' + (lane.on ? 'on' : '') + '" data-lane="' + lane.id + '"><b>' + esc(lane.title) + '</b>' + esc(lane.detail) + '</button>'
+  ).join('') + '</div>';
+}
+function stanceCard(env){
+  const stance = env.stance || {};
+  if (stance.status !== 'ready') {
+    return {
+      state:'wait',
+      title:'STANCE GAP',
+      detail:stance.gap || 'tenant lane-history rule not served',
+    };
+  }
+  const ratios = stance.ratios || {};
+  const ratioText = LANE_CONTRACT.map(lane => lane.title + ' ' + Math.round(Number(ratios[lane.id] || 0) * 100) + '%').join(' · ');
+  return {
+    state:'ready',
+    title:stance.label || 'BALANCED',
+    detail:(stance.sampleSize || 0) + '/' + (stance.window || 24) + ' tenant events · ' + ratioText,
+  };
+}
+function renderStance(env){
+  const stance = stanceCard(env);
+  return '<div class="boxgrid"><button type="button" class="ibox ' + (stance.state === 'ready' ? 'ready' : '') + '" data-stance="1"><b>' + esc(stance.title) + '</b><span>' + esc(stance.detail) + '</span></button></div>';
+}
+function policyCard(env){
+  const policy = env.policy || {};
+  const blockers = Array.isArray(policy.blockers) ? policy.blockers : [];
+  const cautions = Array.isArray(policy.cautions) ? policy.cautions : [];
+  if (policy.status === 'ready' && policy.action) {
+    return {
+      state:'ready',
+      title:policy.title || 'NEXT ACTION',
+      detail:String(policy.action) + (policy.detail ? ' · ' + String(policy.detail) : ''),
+      blockers,
+      cautions,
+    };
+  }
+  return {
+    state:'wait',
+    title:policy.title || 'POLICY GAP',
+    detail:policy.detail || policy.gap || blockers[0] || 'next-action recommendation policy missing',
+    blockers,
+    cautions,
+  };
+}
+function renderPolicy(env){
+  const policy = policyCard(env);
+  return '<div class="boxgrid"><button type="button" class="ibox ' + (policy.state === 'ready' ? 'ready' : '') + '" data-policy="1"><b>' + esc(policy.title) + '</b><span>' + esc(policy.detail) + '</span></button></div>';
+}
+function decisionContextCards(env){
+  const ctx = env.decisionContext || {};
+  const rows = Array.isArray(ctx.rows) ? ctx.rows : [];
+  if (!rows.length) {
+    return [{
+      title:'DECISION CONTEXT',
+      state:'wait',
+      detail:ctx.gap || 'advanced priority signals not served',
+      proof:'decisionContext.rows missing from visual envelope',
+      source:ctx.source || 'missing',
+      scope:'tenant-only',
+      evidence:[],
+    }];
+  }
+  return rows.slice(0, 6).map(row => ({
+    title:String(row.title || row.id || 'decision context').toUpperCase(),
+    state:row.state === 'served' ? 'ready' : 'wait',
+    detail:row.detail || row.gap || 'decision signal missing',
+    proof:row.proof || row.gap || 'proof missing from decision signal row',
+    source:row.source || ctx.source || 'missing',
+    scope:row.scope || 'tenant-only',
+    evidence:Array.isArray(row.evidence) ? row.evidence : [],
+  }));
+}
+function renderDecisionContext(env){
+  return '<div class="boxgrid">' + decisionContextCards(env).map((row, i) =>
+    '<button type="button" class="ibox decision ' + (row.state === 'ready' ? 'ready' : '') + '" data-decision="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function sideQuestCards(env){
+  const side = env.sideQuests || {};
+  const rows = Array.isArray(side.rows) ? side.rows : [];
+  if (!rows.length) {
+    return [{
+      title:'SIDE QUESTS',
+      state:'wait',
+      status:'triggered',
+      detail:side.gap || 'side quest triggers not served',
+      trigger:'sideQuests.empty',
+      proof:'no pure trigger rows served',
+      owner:'system',
+      action:{ label:'Wait for served triggers', kind:'inspect', target:'sideQuests' },
+      lifetime:{ detail:'empty until a fresh visual envelope serves side quest rows' },
+      completion:{ proof:'a sideQuests.rows entry is served from a pure trigger predicate' },
+      runtime:{ source:'missing', status:'triggered', total:0, proof:'no operator side-quest events served', rows:[] },
+    }];
+  }
+  return rows.slice(0, 6).map(row => {
+    const runtime = row.runtime || { source:'missing', status:row.status || 'triggered', total:0, proof:'no operator side-quest events served', rows:[] };
+    const status = runtime.status || row.status || 'triggered';
+    return {
+      id:row.id || row.action?.target || row.title || 'side-quest',
+      title:String(row.title || row.id || 'side quest').toUpperCase(),
+      state:status === 'expired' ? 'wait' : 'ready',
+      status,
+      detail:row.detail || 'side quest trigger active',
+      trigger:row.trigger || 'trigger missing',
+      proof:row.proof || 'proof missing from side quest row',
+      origin:row.origin || side.source || 'unknown',
+      owner:row.owner || 'system',
+      action:row.action || { label:'Inspect evidence', kind:'inspect', target:row.id || 'side quest' },
+      lifetime:row.lifetime || { detail:'lifetime not served' },
+      completion:row.completion || { proof:'completion proof not served' },
+      runtime,
+    };
+  });
+}
+function renderSideQuests(env){
+  return '<div class="boxgrid">' + sideQuestCards(env).map((quest, i) =>
+    '<button type="button" class="ibox side ' + (quest.state === 'ready' ? 'ready' : '') + '" data-side="' + i + '"><b>' + esc(quest.title) + '</b><span>' + esc(quest.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function socialCards(env){
+  const social = env.social || {};
+  const rows = Array.isArray(social.rows) ? social.rows : [];
+  if (!rows.length) {
+    return [{
+      title:'SOCIAL GAP',
+      state:'wait',
+      detail:social.gap || 'no tenant-scoped bridge or handoff evidence served',
+      proof:'no coordination rows served',
+      source:social.source || 'missing',
+      scope:social.scope || 'tenant-handoff-only',
+      evidence:[],
+    }];
+  }
+  return rows.slice(0, 5).map(row => ({
+    title:String(row.title || row.id || 'coordination').toUpperCase(),
+    state:row.state === 'ready' ? 'ready' : 'wait',
+    detail:row.detail || row.gap || 'coordination evidence missing',
+    proof:row.proof || row.gap || 'proof missing from coordination row',
+    source:row.source || social.source || 'missing',
+    scope:row.scope || social.scope || 'tenant-handoff-only',
+    evidence:Array.isArray(row.evidence) ? row.evidence : [],
+  }));
+}
+function renderSocial(env){
+  return '<div class="boxgrid">' + socialCards(env).map((row, i) =>
+    '<button type="button" class="ibox social ' + (row.state === 'ready' ? 'ready' : '') + '" data-social="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function liveProofCards(env){
+  const proof = env.liveProof || {};
+  const rows = Array.isArray(proof.rows) ? proof.rows : [];
+  const invariant = proof.invariant || 'Capture commands create redacted receipts; they are proof only after their artifacts validate ready.';
+  if (!rows.length) {
+    return [{
+      title:'LIVE PROOF GAP',
+      state:'wait',
+      rawState:'gap',
+      detail:proof.gap || 'live proof readiness not served',
+      proof:'liveProof.rows missing from visual envelope',
+      source:proof.source || 'missing',
+      writes:'docs/plans/assets/tg-miniapp-live-proof/readiness.json',
+      command:'npm run proof:tg-live-readiness',
+      prerequisites:[{ label:'readiness.json', status:'blocked', detail:'not served' }],
+      privacy:['capture plan is run guidance, not proof'],
+      invariant,
+    }];
+  }
+  return rows.slice(0, 3).map(row => {
+    const prereqs = Array.isArray(row.prerequisites) ? row.prerequisites : [];
+    const rawState = row.state || 'gap';
+    const state = rawState === 'complete' || rawState === 'ready' ? 'ready' : rawState === 'ready-to-capture' ? 'capture' : 'wait';
+    return {
+      title:String(row.title || row.id || 'live proof').toUpperCase(),
+      state,
+      rawState,
+      detail:row.detail || (prereqs.length ? prereqs.filter(item => item.status !== 'ready').length + '/' + prereqs.length + ' prerequisites blocked' : 'capture plan detail missing'),
+      proof:row.proof || invariant,
+      source:row.source || proof.source || 'missing',
+      writes:row.writes || '',
+      command:row.command || 'npm run proof:tg-live-readiness',
+      prerequisites:prereqs.map((item, i) => ({
+        label:item.label || item.id || ('prerequisite ' + (i + 1)),
+        status:item.status || item.state || 'blocked',
+        detail:item.detail || 'detail missing',
+      })),
+      privacy:Array.isArray(row.privacy) ? row.privacy : ['redacted receipt required'],
+      invariant,
+    };
+  });
+}
+function renderLiveProof(env){
+  return '<div class="boxgrid">' + liveProofCards(env).map((row, i) =>
+    '<button type="button" class="ibox liveproof ' + (row.state === 'ready' ? 'ready' : '') + '" data-live-proof="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function auditRow(id, title, state, detail, proof, source){
+  return { id, title, state, detail, proof, source };
+}
+function tapestryRows(env){
+  const L = env.ledger || env;
+  const current = L.current || activeRow(L);
+  const activeStage = stageForArc((current && current.arc) || 'XVII');
+  const wake = wakeSteps(env.ledger ? env : { ledger:L });
+  const wakeDone = wake.filter(step => step.done).length;
+  const boxes = insightBoxes(env.ledger ? env : { ledger:L });
+  const boxReady = boxes.filter(box => box.state === 'ready').length;
+  const skills = skillCards(env.ledger ? env : { ledger:L });
+  const skillReady = skills.filter(skill => skill.state === 'ready').length;
+  const stance = stanceCard(env.ledger ? env : { ledger:L });
+  const npcs = npcCards(env.ledger ? env : { ledger:L });
+  const mira = npcs.find(npc => String(npc.title || '').toUpperCase() === 'MIRA') || npcs[0];
+  const openItems = Array.isArray(env.openItems) ? env.openItems : [];
+  const gateReady = openItems.some(item => (item.evidence || item.detail) && (item.consequence || item.approveConsequence || item.rerollConsequence) && item.reversibility && item.idempotencyHint);
+  const commandReady = !!env.commands;
+  const memory = senseCards(env.ledger ? env : { ledger:L }).find(sense => sense.id === 'memory');
+  const decisions = decisionContextCards(env.ledger ? env : { ledger:L });
+  const servedDecisions = decisions.filter(row => row.state === 'ready').length;
+  const live = env.liveProof || {};
+  const liveRows = liveProofCards(env.ledger ? env : { ledger:L });
+  const liveReady = live.status === 'ready' || (live.summary && live.summary.liveProofReady === true);
+  const liveSummary = live.summary || {};
+  const liveBlocked = Number.isFinite(Number(liveSummary.blocked)) ? Number(liveSummary.blocked) : liveRows.filter(row => row.state !== 'ready').length;
+  const liveTotal = Number.isFinite(Number(liveSummary.total)) ? Number(liveSummary.total) : liveRows.length;
+  const age = minutesSince(env.derivedAt);
+  const fresh = age !== null && age <= 360;
+  return [
+    auditRow('active-organ', 'ACTIVE ORGAN', current ? 'ready' : 'wait', current ? stageTitle(activeStage) + ' · ' + (current.arc || 'arc') : 'no active quest frontier served', current ? 'stageForArc(' + (current.arc || 'unknown') + ')' : 'ledger.current missing', 'quest-ledger'),
+    auditRow('wake-health', 'WAKE HEALTH', wakeDone > 0 ? 'ready' : 'wait', wakeDone + '/' + wake.length + ' wake steps proved', wake.map(step => step.id + ':' + (step.done ? 'proved' : 'missing')).join(' · '), 'wake envelope'),
+    auditRow('quest-frontier', 'QUEST FRONTIER', current ? 'ready' : 'wait', current ? (current.arc || 'arc') + ' · ' + (current.title || 'active quest') : 'all arcs complete or frontier missing', current ? (current.id || current.title || 'frontier served') : 'frontier not served', 'quest-ledger'),
+    auditRow('evidence-boxes', 'EVIDENCE BOXES', boxReady > 0 ? 'ready' : 'wait', boxReady + '/' + boxes.length + ' boxes ready', boxes.map(box => (box.title || 'box') + ':' + (box.state || 'wait')).join(' · '), 'insights'),
+    auditRow('skill-mastery', 'SKILL MASTERY', skillReady > 0 ? 'ready' : 'wait', skillReady + '/' + skills.length + ' skills reliable or better', skills.map(skill => skill.title + ':' + skill.detail).join(' · '), 'skills'),
+    auditRow('founder-stance', 'FOUNDER STANCE', stance.state === 'ready' ? 'ready' : 'wait', stance.detail, stance.title, 'tenant stance'),
+    auditRow('mira-relationship', 'MIRA RELATIONSHIP', mira && mira.state === 'ready' ? 'ready' : 'wait', (mira && mira.detail) || 'Mira row missing', (mira && mira.proof) || 'relationship proof missing', 'npc'),
+    auditRow('gate-consequences', 'GATE CONSEQUENCES', gateReady ? 'ready' : 'wait', gateReady ? openItems.length + ' open item(s) with evidence, consequence, reversibility, and idempotency' : 'no consequence-complete open gate item served', openItems.length ? openItems.slice(0, 3).map(item => item.id + ':' + (item.status || 'open')).join(' · ') : 'openItems empty', 'gate'),
+    auditRow('command-state', 'COMMAND STATE', commandReady ? 'ready' : 'wait', commandReady ? 'live command data served' : 'org command data unavailable', commandReady ? 'commands envelope present' : 'env.commands missing', 'commands'),
+    auditRow('memory-sense', 'MEMORY SENSE', memory && memory.on ? 'ready' : 'wait', (memory && memory.detail) || 'memory sense missing', (memory && memory.proof) || 'memory proof missing', 'senses'),
+    auditRow('decision-context', 'DECISION CONTEXT', servedDecisions > 0 ? 'ready' : 'wait', servedDecisions + '/' + decisions.length + ' decision signals served', decisions.map(row => row.title + ':' + row.state).join(' · '), 'decisionContext'),
+    auditRow('live-proof', 'LIVE PROOF', liveReady ? 'ready' : 'wait', liveReady ? 'live-proof receipts validate ready' : liveBlocked + '/' + liveTotal + ' readiness checks blocked', live.invariant || 'capture plan is guidance, not proof', 'liveProof'),
+    auditRow('r3f-contract', 'R3F CONTRACT', 'ready', STAGES.length + ' organs · ' + RAILS.length + ' rails', 'shared visual contract loaded into Telegram map', 'shared/cambium-visual-contract'),
+    auditRow('freshness-gaps', 'FRESHNESS GAPS', fresh ? 'ready' : 'wait', age === null ? 'freshness missing' : fresh ? age + 'm since derivation' : Math.round(age / 60) + 'h stale', env.derivedAt || 'derivedAt missing', 'freshness'),
+  ];
+}
+function renderTapestryAudit(env){
+  return '<div class="boxgrid">' + tapestryRows(env).map((row, i) =>
+    '<button type="button" class="ibox tapestry ' + (row.state === 'ready' ? 'ready' : '') + '" data-tapestry="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function insightBoxes(env){
+  const insightEnv = env.insights || {};
+  const served = Array.isArray(insightEnv.rows) ? insightEnv.rows : null;
+  if (served) {
+    if (!served.length) return [{
+      title:'NO EVIDENCE BOXES',
+      state:'wait',
+      detail:insightEnv.gap || 'no quest evidence rows served for insight boxes',
+      proof:insightEnv.gap || 'no served insight rows',
+      source:insightEnv.source || 'missing',
+      evidence:[],
+    }];
+    return served.slice(0, 4).map(row => ({
+      title:row.title || row.id || 'evidence box',
+      state:row.state || 'wait',
+      detail:row.detail || row.gap || row.proof || 'evidence pending',
+      proof:row.proof || row.gap || 'proof missing from insight row',
+      source:row.source || insightEnv.source || 'missing',
+      origin:row.origin || 'unknown',
+      evidence:Array.isArray(row.evidence) ? row.evidence : [],
+    }));
+  }
+  const L = env.ledger;
+  const rows = [...completedRows(L).slice(-3), activeRow(L)].filter(Boolean).slice(-4);
+  if (!rows.length) return [{ title:'NO EVIDENCE BOXES', state:'wait', detail:'push a derived ledger before the map can reveal work', proof:'legacy-local inference found no rows', source:'legacy-local', evidence:[] }];
+  return rows.map(row => {
+    const facet = facetsFrom(row.evidence)[0];
+    return { title:rowLabel(row), state:row.status === 'complete' ? 'ready' : 'wait', detail:(facet && facet.label) || row.evidence || 'evidence pending', proof:row.evidence || 'evidence pending', source:'legacy-local', evidence:[] };
+  });
+}
+function renderInsightBoxes(env){
+  return '<div class="boxgrid">' + insightBoxes(env).map((box, i) =>
+    '<button type="button" class="ibox ' + (box.state === 'ready' ? 'ready' : '') + '" data-box="' + i + '"><b>' + esc(box.title) + '</b><span>' + esc(box.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function skillCards(env){
+  const skillEnv = env.skills || {};
+  const rows = Array.isArray(skillEnv.rows) ? skillEnv.rows : [];
+  if (!rows.length) return [{ title:'SKILL LABORS', state:'wait', detail:skillEnv.gap || 'skill registry missing' }];
+  return rows.slice(0, 4).map(skill => {
+    const pct = Math.round(Number(skill.successRate || 0) * 100);
+    const recent = Math.round(Number(skill.recentRate ?? skill.successRate ?? 0) * 100);
+    const sample = Number(skill.sampleSize ?? skill.uses ?? 0);
+    const minimum = Number(skill.minimum ?? 3);
+    const tier = String(skill.tier || (skill.declining ? 'declining' : sample < minimum ? 'unproven' : 'learning'));
+    const label = String(skill.tierLabel || (tier === 'declining' ? 'DECLINING' : tier === 'unproven' ? 'UNPROVEN' : tier.toUpperCase()));
+    const ready = !['unproven', 'declining'].includes(tier);
+    const promotion = skill.promotion || {};
+    const promotionDetail = promotion.label
+      ? ' · promotion: ' + String(promotion.label) + (promotion.detail ? ' · ' + String(promotion.detail) : '')
+      : '';
+    const detail = (skill.gap
+      ? label + ' · ' + skill.gap
+      : label + ' · ' + sample + ' uses · ' + pct + '% total · ' + recent + '% recent') + promotionDetail;
+    return {
+      title:skill.id,
+      state:ready ? 'ready' : 'wait',
+      detail:String(skill.status || 'unknown') + ' · ' + detail,
+      promotion,
+    };
+  });
+}
+function renderSkills(env){
+  return '<div class="boxgrid">' + skillCards(env).map((skill, i) =>
+    '<button type="button" class="ibox skill ' + (skill.state === 'ready' ? 'ready' : '') + '" data-skill="' + i + '"><b>' + esc(skill.title) + '</b><span>' + esc(skill.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function npcCards(env){
+  const npcEnv = env.npc || {};
+  const rows = Array.isArray(npcEnv.relationships) ? npcEnv.relationships : [];
+  const missingStage = { id:'missing', label:'MISSING', detail:'relationship stage not served', confidence:0 };
+  const missingAdvice = { status:'blocked', label:'NO ADVICE', detail:'no durable NPC advice event served', proof:'no durable NPC events served', action:{ kind:'collect-evidence', label:'Record NPC evidence', target:'quine write quests npc-event' } };
+  const missingHistory = { source:'missing', total:0, contradictions:0, rows:[] };
+  if (!rows.length) return [{ title:'MIRA', state:'wait', detail:'MISSING · npc relationship state not served yet', proof:'no relationship rows served', stage:missingStage, events:[], history:missingHistory, advice:missingAdvice, scope:'missing' }];
+  return rows.map(npc => {
+    const stage = npc.stage || missingStage;
+    const advice = npc.advice || missingAdvice;
+    const history = npc.history || missingHistory;
+    return {
+      title:String(npc.id || 'npc').toUpperCase(),
+      state:npc.status === 'inferred' ? 'ready' : 'wait',
+      detail:String(stage.label || 'MISSING') + ' · ' + (npc.detail || stage.detail || 'relationship signal missing'),
+      proof:npc.proof || npc.detail || 'relationship proof missing',
+      stage,
+      events:Array.isArray(npc.events) ? npc.events : [],
+      history,
+      advice,
+      scope:npc.scope || 'missing',
+    };
+  });
+}
+function renderNpc(env){
+  return '<div class="boxgrid">' + npcCards(env).map((npc, i) =>
+    '<button type="button" class="ibox npc ' + (npc.state === 'ready' ? 'ready' : '') + '" data-npc="' + i + '"><b>' + esc(npc.title) + '</b><span>' + esc(npc.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function renderOperatorMap(env){
+  const L = env.ledger || env;
+  const activeStageId = stageForArc((L.current && L.current.arc) || 'XVII');
+  const stageCards = STAGES.map((stage, i) => {
+    const rows = stageRows(L, stage);
+    const done = rows.filter(row => row.status === 'complete').length;
+    const active = stage.id === activeStageId;
+    const pct = rows.length ? Math.round(100 * done / rows.length) : 0;
+    return '<button type="button" class="stage-card ' + (active ? 'active ' : '') + (done === rows.length && rows.length ? 'done' : '') + '" style="--i:' + i + '" data-stage="' + stage.id + '">' +
+      '<span class="stage-glyph">' + esc(stage.glyph) + '</span>' +
+      '<span><span class="stage-title">' + esc(stage.title) + '</span><span class="stage-detail">' + esc(stage.detail) + '</span>' +
+        '<span class="stagebar"><span style="width:' + pct + '%"></span></span></span>' +
+      '<span class="stage-count">' + done + '/' + rows.length + '</span>' +
+    '</button>';
+  }).join('');
+  const railCards = RAILS.map(rail => {
+    const hot = rail.from === activeStageId || rail.to === activeStageId;
+    return '<div class="rail ' + (hot ? 'hot' : '') + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></div>';
+  }).join('');
+  $('mapwrap').innerHTML =
+    '<div class="maphead"><div><h2>Operator Map</h2><p>R3F island mechanics, reduced to Telegram-native cards and rails.</p></div>' +
+      '<span class="mapbadge">active · ' + esc((L.current && L.current.arc) || 'complete') + '</span></div>' +
+    '<div class="cmdgrp">tapestry audit</div>' + renderTapestryAudit(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">today wake</div>' + renderWake(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">lanes</div>' + renderLanes(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">stance</div>' + renderStance(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">next action</div>' + renderPolicy(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">decision context</div>' + renderDecisionContext(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">live proof</div>' + renderLiveProof(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">side quests</div>' + renderSideQuests(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">coordination</div>' + renderSocial(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">senses</div>' + renderSenses(env.ledger ? env : { ledger:L }) +
+    '<div class="stagegrid">' + stageCards + '</div>' +
+    '<div class="cmdgrp">evidence boxes</div>' + renderInsightBoxes(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">skill labors</div>' + renderSkills(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">companions</div>' + renderNpc(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>' +
+    '<div class="mapnote">same mechanics as the R3F scene: five organs, packet rails, memory feed, active frontier, and evidence gates. no canvas, no heavy scene.</div>';
+  $('mapwrap').querySelectorAll('.stage-card').forEach(el => el.onclick = () => openMapSheet(L, el.dataset.stage));
+  $('mapwrap').querySelectorAll('[data-wake]').forEach(el => el.onclick = () => openWakeBox(env.ledger ? env : { ledger:L }, +el.dataset.wake));
+  $('mapwrap').querySelectorAll('.sense').forEach(el => el.onclick = () => openSenseSheet(env.ledger ? env : { ledger:L }, el.dataset.sense));
+  $('mapwrap').querySelectorAll('[data-lane]').forEach(el => el.onclick = () => openLaneSheet(env.ledger ? env : { ledger:L }, el.dataset.lane));
+  $('mapwrap').querySelectorAll('[data-stance]').forEach(el => el.onclick = () => openStanceBox(env.ledger ? env : { ledger:L }));
+  $('mapwrap').querySelectorAll('[data-policy]').forEach(el => el.onclick = () => openPolicyBox(env.ledger ? env : { ledger:L }));
+  $('mapwrap').querySelectorAll('[data-decision]').forEach(el => el.onclick = () => openDecisionContextBox(env.ledger ? env : { ledger:L }, +el.dataset.decision));
+  $('mapwrap').querySelectorAll('[data-tapestry]').forEach(el => el.onclick = () => openTapestryBox(env.ledger ? env : { ledger:L }, +el.dataset.tapestry));
+  $('mapwrap').querySelectorAll('[data-live-proof]').forEach(el => el.onclick = () => openLiveProofBox(env.ledger ? env : { ledger:L }, +el.dataset.liveProof));
+  $('mapwrap').querySelectorAll('[data-side]').forEach(el => el.onclick = () => openSideQuestBox(env.ledger ? env : { ledger:L }, +el.dataset.side));
+  $('mapwrap').querySelectorAll('[data-social]').forEach(el => el.onclick = () => openSocialBox(env.ledger ? env : { ledger:L }, +el.dataset.social));
+  $('mapwrap').querySelectorAll('.ibox[data-box]').forEach(el => el.onclick = () => openInsightBox(env.ledger ? env : { ledger:L }, +el.dataset.box));
+  $('mapwrap').querySelectorAll('[data-skill]').forEach(el => el.onclick = () => openSkillBox(env.ledger ? env : { ledger:L }, +el.dataset.skill));
+  $('mapwrap').querySelectorAll('[data-npc]').forEach(el => el.onclick = () => openNpcBox(env.ledger ? env : { ledger:L }, +el.dataset.npc));
+}
+// parse the evidence string into honest facets: "a · b · c" -> chips, "done" if it
 // reads as a satisfied count (x/x) or lacks "pending", else "pending".
 function facetsFrom(ev){
   return String(ev || '').split('·').map(s => s.trim()).filter(Boolean).map(s => {
@@ -663,36 +1196,174 @@ function facetsFrom(ev){
     return { label: s, done: done && !pend };
   });
 }
-function drillArc(L, i, nx, ny){
-  const row = L.rows[i], C = 170;
-  if (nx === undefined){ const g = ringGeom(L); [nx, ny] = nodeXY(C, g.r0 + i * g.step, i); }
-  const k = 2.3;                                  // zoom toward the tapped node
-  const rg = $('ringsG');
-  rg.style.transform = 'translate(' + N1(C - k * nx) + 'px,' + N1(C - k * ny) + 'px) scale(' + k + ')';
-  const facets = facetsFrom(row.evidence);
-  const d = $('drill');
-  d.innerHTML =
-    '<div class="darc">arc ' + esc(row.arc) + ' · ' + esc(row.id) + '</div>' +
-    '<h3>' + esc(row.title) + '</h3>' +
-    '<div class="dstat status-' + esc(row.status) + '">' + esc(row.status) + '</div>' +
-    '<div class="facets">' + facets.map((f,j) =>
-      '<div class="facet ' + (f.done?'done':'pend') + '" style="--i:'+j+'"><span class="dot"></span>' + esc(f.label) + '</div>').join('') + '</div>' +
-    '<button class="dback" id="dback">← back to the trunk</button>';
-  d.classList.add('on'); drillOpen = true; buzz('medium');
-  $('fcap').style.opacity = '0';
-  $('dback').onclick = undrill;
+function openMapSheet(L, stageId){
+  const stage = STAGES.find(s => s.id === stageId) || STAGES[0];
+  const rows = stageRows(L, stage);
+  const body = rows.length ? rows.map((row, i) => {
+    const facets = facetsFrom(row.evidence);
+    return '<div class="li"><span class="cname">' + esc(row.arc) + ' · ' + esc(row.title) + '</span> <span class="cargs">' + esc(row.status) + '</span>' +
+      '<div class="facets" style="margin-top:8px">' + (facets.length ? facets.map((f,j) =>
+        '<div class="facet ' + (f.done?'done':'pend') + '" style="--i:' + (i + j) + '"><span class="dot"></span>' + esc(f.label) + '</div>').join('') : '<div class="cdesc">' + esc(row.evidence) + '</div>') +
+      '</div></div>';
+  }).join('') : '<div class="nar">no quest rows currently mapped to this organ.</div>';
+  $('sheetBody').innerHTML = '<div class="arc">operator map · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2>' +
+    '<div class="nar">' + esc(stage.detail) + '</div>' + body;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
-function undrill(){
-  $('ringsG').style.transform = '';
-  $('drill').classList.remove('on'); drillOpen = false;
-  $('fcap').style.opacity = ''; buzz('light');
+function openWakeBox(env, index){
+  const wake = wakeSteps(env)[index] || wakeSteps(env)[0];
+  const servedEvidence = Array.isArray(wake.evidence) ? wake.evidence : [];
+  const history = wake.history || { source:'missing', total:0, status:'none', proof:'no operator wake events served', rows:[] };
+  const evidence = servedEvidence.length
+    ? '<div class="kv">' + servedEvidence.slice(0, 4).map((item, i) => '<b>evidence ' + (i + 1) + '</b><span>' + esc((item.label || 'row') + ' · ' + (item.status || 'served') + ' · ' + (item.detail || '')) + '</span>').join('') + '</div>'
+    : '';
+  const historyRows = Array.isArray(history.rows) && history.rows.length
+    ? '<div class="kv">' + history.rows.slice(0, 4).map((row, i) => '<b>history ' + (i + 1) + '</b><span>' + esc((row.id || 'event') + ' · ' + (row.status || 'missing') + ' · ' + (row.source || history.source || 'missing') + ' · ' + (row.detail || row.proof || 'detail missing')) + '</span>').join('') + '</div>'
+    : '<div class="nar">no operator wake events served; this is the latest snapshot, not a historical trace.</div>';
+  $('sheetBody').innerHTML = '<div class="arc">wake step · ' + esc(wake.done ? 'proved' : 'missing') + '</div><h2>' + esc(wake.label) + '</h2>' +
+    '<div class="nar">' + esc(wake.detail) + '</div><div class="kv"><b>source</b><span>' + esc(wake.source || 'missing') + '</span><b>proof</b><span>' + esc(wake.proof || wake.detail) + '</span><b>wake history</b><span>' + esc((history.source || 'missing') + ' · ' + (history.status || 'none') + ' · ' + Number(history.total || 0) + ' event(s)') + '</span><b>history proof</b><span>' + esc(history.proof || 'history proof missing') + '</span></div>' + evidence + historyRows;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(wake.done ? 'medium' : 'light');
+}
+function openSenseSheet(env, senseId){
+  const L = env.ledger;
+  const cards = senseCards(env);
+  const sense = cards.find(card => card.id === senseId) || cards[0];
+  const servedEvidence = Array.isArray(sense.evidence) ? sense.evidence : [];
+  let rows = [];
+  if (sense.id === 'signal') rows = activeRow(L) ? [activeRow(L)] : [];
+  if (sense.id === 'memory') rows = L.rows.filter(row => stageForArc(row.arc) === 'cortex');
+  if (sense.id === 'risk') rows = L.rows.filter(row => row.status === 'locked' || /pending|blocked|missing|unreachable|rejected/i.test(row.evidence || ''));
+  if (sense.id === 'drift') rows = L.rows.filter(row => row.status === 'active').slice(0, 1);
+  const body = servedEvidence.length ? servedEvidence.map((item, i) =>
+    '<div class="li"><span class="cname">' + esc(item.label || 'evidence') + '</span> <span class="cargs">' + esc(item.status || sense.source || 'served') + '</span><div class="cdesc">' + esc(item.detail || sense.proof || 'proof missing') + '</div></div>'
+  ).join('') : rows.length ? rows.map((row, i) =>
+    '<div class="li"><span class="cname">' + esc(rowLabel(row)) + '</span> <span class="cargs">' + esc(row.status) + '</span><div class="cdesc">' + esc(row.evidence) + '</div></div>'
+  ).join('') : '<div class="nar">' + esc(sense.proof || 'no rows currently prove this sense; the map keeps this as an explicit gap.') + '</div>';
+  $('sheetBody').innerHTML = '<div class="arc">sense · ' + esc(sense.id) + '</div><h2>' + esc(sense.title) + '</h2>' +
+    '<div class="nar">' + esc(sense.detail) + '</div><div class="kv"><b>source</b><span>' + esc(sense.source || 'missing') + '</span><b>proof</b><span>' + esc(sense.proof || sense.detail) + '</span></div>' + body;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+function openLaneSheet(env, laneId){
+  const lane = laneCards(env).find(card => card.id === laneId) || laneCards(env)[0];
+  $('sheetBody').innerHTML = '<div class="arc">lane · ' + esc(lane.id) + '</div><h2>' + esc(lane.title) + '</h2>' +
+    '<div class="nar">' + esc(lane.detail) + '</div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane.on ? 'medium' : 'light');
+}
+function openStanceBox(env){
+  const stance = stanceCard(env);
+  $('sheetBody').innerHTML = '<div class="arc">tenant stance · ' + esc(stance.state) + '</div><h2>' + esc(stance.title) + '</h2>' +
+    '<div class="nar">' + esc(stance.detail) + '</div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(stance.state === 'ready' ? 'medium' : 'light');
+}
+function openPolicyBox(env){
+  const policy = policyCard(env);
+  const blockers = policy.blockers && policy.blockers.length
+    ? '<div class="kv">' + policy.blockers.slice(0, 4).map((blocker, i) => '<b>blocker ' + (i + 1) + '</b><span>' + esc(blocker) + '</span>').join('') + '</div>'
+    : '';
+  const cautions = policy.cautions && policy.cautions.length
+    ? '<div class="kv">' + policy.cautions.slice(0, 3).map((caution, i) => '<b>caution ' + (i + 1) + '</b><span>' + esc(caution) + '</span>').join('') + '</div>'
+    : '';
+  $('sheetBody').innerHTML = '<div class="arc">next action · ' + esc(policy.state) + '</div><h2>' + esc(policy.title) + '</h2>' +
+    '<div class="nar">' + esc(policy.detail) + '</div>' + blockers + cautions;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(policy.state === 'ready' ? 'medium' : 'light');
+}
+function openDecisionContextBox(env, index){
+  const row = decisionContextCards(env)[index] || decisionContextCards(env)[0];
+  const evidence = row.evidence.length
+    ? '<div class="kv">' + row.evidence.slice(0, 4).map((item, i) => '<b>evidence ' + (i + 1) + '</b><span>' + esc((item.label || 'row') + ' · ' + (item.status || 'served') + ' · ' + (item.detail || '')) + '</span>').join('') + '</div>'
+    : '<div class="nar">no served evidence rows for this decision signal; it remains context, not policy authority.</div>';
+  $('sheetBody').innerHTML = '<div class="arc">decision context · ' + esc(row.state) + '</div><h2>' + esc(row.title) + '</h2>' +
+    '<div class="nar">' + esc(row.detail) + '</div><div class="kv"><b>source</b><span>' + esc(row.source || 'missing') + '</span><b>scope</b><span>' + esc(row.scope || 'tenant-only') + '</span><b>proof</b><span>' + esc(row.proof || row.detail) + '</span></div>' + evidence;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row.state === 'ready' ? 'medium' : 'light');
+}
+function openTapestryBox(env, index){
+  const row = tapestryRows(env)[index] || tapestryRows(env)[0];
+  $('sheetBody').innerHTML = '<div class="arc">completion definition · ' + esc(row.state) + '</div><h2>' + esc(row.title) + '</h2>' +
+    '<div class="nar">' + esc(row.detail) + '</div><div class="kv"><b>source</b><span>' + esc(row.source || 'missing') + '</span><b>requirement</b><span>' + esc(row.id || 'tapestry-row') + '</span><b>proof</b><span>' + esc(row.proof || row.detail) + '</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row.state === 'ready' ? 'medium' : 'light');
+}
+function openSideQuestBox(env, index){
+  const side = sideQuestCards(env)[index] || sideQuestCards(env)[0];
+  const runtime = side.runtime || { source:'missing', status:side.status || 'triggered', total:0, proof:'no operator side-quest events served', rows:[] };
+  const canQueue = side.state === 'ready' && ['refresh', 'founder-review', 'collect-evidence'].includes(String(side.action.kind || ''));
+  const historyRows = Array.isArray(runtime.rows) && runtime.rows.length
+    ? '<div class="kv">' + runtime.rows.slice(0, 4).map((row, i) => '<b>history ' + (i + 1) + '</b><span>' + esc((row.id || 'event') + ' · ' + (row.status || 'queued') + ' · ' + (row.source || runtime.source || 'missing') + ' · ' + (row.detail || row.proof || 'detail missing')) + '</span>').join('') + '</div>'
+    : '<div class="nar">no operator side-quest events served; this branch is only a trigger predicate.</div>';
+  const action = canQueue
+    ? '<div class="gbtns sideq"><button type="button" class="approve" data-queue-side-quest="1">Queue side quest</button></div>'
+    : '';
+  $('sheetBody').innerHTML = '<div class="arc">side quest · ' + esc(side.state) + '</div><h2>' + esc(side.title) + '</h2>' +
+    '<div class="nar">' + esc(side.detail) + '</div>' +
+    '<div class="kv"><b>owner</b><span>' + esc(side.owner) + '</span><b>action</b><span>' + esc(side.action.label || side.action.kind || 'inspect') + '</span><b>target</b><span>' + esc(side.action.target || 'unknown') + '</span><b>lifetime</b><span>' + esc(side.lifetime.detail || 'lifetime not served') + '</span><b>completion</b><span>' + esc(side.completion.proof || 'completion proof not served') + '</span><b>trigger</b><span>' + esc(side.trigger) + '</span><b>origin</b><span>' + esc(side.origin || 'unknown') + '</span><b>proof</b><span>' + esc(side.proof) + '</span><b>side quest history</b><span>' + esc((runtime.source || 'missing') + ' · ' + (runtime.status || side.status || 'triggered') + ' · ' + Number(runtime.total || 0) + ' event(s)') + '</span><b>history proof</b><span>' + esc(runtime.proof || 'runtime proof missing') + '</span></div>' + action + historyRows;
+  const queue = $('sheetBody').querySelector('[data-queue-side-quest]');
+  if (queue) queue.onclick = () => sideQuestAct(side, queue);
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(side.state === 'ready' ? 'medium' : 'light');
+}
+function openSocialBox(env, index){
+  const row = socialCards(env)[index] || socialCards(env)[0];
+  const evidence = row.evidence.length
+    ? '<div class="kv">' + row.evidence.slice(0, 4).map((item, i) => '<b>evidence ' + (i + 1) + '</b><span>' + esc((item.label || 'row') + ' · ' + (item.status || 'served') + ' · ' + (item.detail || '')) + '</span>').join('') + '</div>'
+    : '<div class="nar">no coordination evidence rows served; the map keeps this as an explicit gap.</div>';
+  $('sheetBody').innerHTML = '<div class="arc">coordination · ' + esc(row.state) + '</div><h2>' + esc(row.title) + '</h2>' +
+    '<div class="nar">' + esc(row.detail) + '</div><div class="kv"><b>source</b><span>' + esc(row.source || 'missing') + '</span><b>scope</b><span>' + esc(row.scope || 'tenant-handoff-only') + '</span><b>proof</b><span>' + esc(row.proof || row.detail) + '</span></div>' + evidence;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row.state === 'ready' ? 'medium' : 'light');
+}
+function openLiveProofBox(env, index){
+  const row = liveProofCards(env)[index] || liveProofCards(env)[0];
+  const prereqs = row.prerequisites.length
+    ? '<div class="kv">' + row.prerequisites.slice(0, 14).map((item, i) => '<b>prereq ' + (i + 1) + '</b><span>' + esc((item.label || 'prerequisite') + ' · ' + (item.status || 'blocked') + ' · ' + (item.detail || 'detail missing')) + '</span>').join('') + '</div>'
+    : '<div class="nar">no prerequisites served; run the readiness command before capture.</div>';
+  const privacy = row.privacy.length
+    ? '<div class="kv">' + row.privacy.slice(0, 5).map((item, i) => '<b>privacy ' + (i + 1) + '</b><span>' + esc(item) + '</span>').join('') + '</div>'
+    : '';
+  $('sheetBody').innerHTML = '<div class="arc">capture plan · not proof · ' + esc(row.rawState || row.state) + '</div><h2>' + esc(row.title) + '</h2>' +
+    '<div class="nar">' + esc(row.detail) + '</div><div class="kv"><b>source</b><span>' + esc(row.source || 'missing') + '</span><b>writes</b><span>' + esc(row.writes || 'receipt path missing') + '</span><b>command</b><span>' + esc(row.command || 'npm run proof:tg-live-readiness') + '</span><b>invariant</b><span>' + esc(row.invariant || 'Capture commands create redacted receipts; they are proof only after their artifacts validate ready.') + '</span><b>proof rule</b><span>' + esc(row.proof || row.detail) + '</span></div>' + prereqs + privacy;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row.state === 'ready' ? 'medium' : 'light');
+}
+function openInsightBox(env, index){
+  const box = insightBoxes(env)[index] || insightBoxes(env)[0];
+  const servedEvidence = Array.isArray(box.evidence) ? box.evidence : [];
+  const evidence = servedEvidence.length
+    ? '<div class="kv">' + servedEvidence.slice(0, 4).map((item, i) => '<b>evidence ' + (i + 1) + '</b><span>' + esc((item.label || 'row') + ' · ' + (item.status || 'served') + ' · ' + (item.detail || '')) + '</span>').join('') + '</div>'
+    : '';
+  $('sheetBody').innerHTML = '<div class="arc">evidence box · ' + esc(box.state) + '</div><h2>' + esc(box.title) + '</h2>' +
+    '<div class="nar">' + esc(box.detail) + '</div><div class="kv"><b>source</b><span>' + esc(box.source || 'missing') + '</span><b>proof</b><span>' + esc(box.proof || box.detail) + '</span></div>' + evidence;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(box.state === 'ready' ? 'medium' : 'light');
+}
+function openSkillBox(env, index){
+  const skill = skillCards(env)[index] || skillCards(env)[0];
+  const canPromote = skill.promotion && skill.promotion.status === 'founder-review';
+  const action = canPromote
+    ? '<div class="gbtns promote"><button type="button" class="approve" data-promote-skill="1">Queue founder review</button></div>'
+    : '';
+  $('sheetBody').innerHTML = '<div class="arc">skill labor · ' + esc(skill.state) + '</div><h2>' + esc(skill.title) + '</h2>' +
+    '<div class="nar">' + esc(skill.detail) + '</div>' + action;
+  const promote = $('sheetBody').querySelector('[data-promote-skill]');
+  if (promote) promote.onclick = () => skillPromotionAct(skill, promote);
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(skill.state === 'ready' ? 'medium' : 'light');
+}
+function openNpcBox(env, index){
+  const npc = npcCards(env)[index] || npcCards(env)[0];
+  const stage = npc.stage || { id:'missing', label:'MISSING', detail:'relationship stage not served', confidence:0 };
+  const advice = npc.advice || { status:'blocked', label:'NO ADVICE', detail:'no durable NPC advice event served', proof:'no durable NPC events served', action:{ kind:'collect-evidence', label:'Record NPC evidence', target:'quine write quests npc-event' } };
+  const history = npc.history || { source:'missing', total:0, contradictions:0, rows:[] };
+  const confidence = Math.round(Number(stage.confidence || 0) * 100);
+  const events = Array.isArray(npc.events) && npc.events.length
+    ? '<div class="kv">' + npc.events.slice(0, 4).map((event, i) => '<b>event ' + (i + 1) + '</b><span>' + esc((event.id || 'event') + ' · ' + (event.kind || 'unknown') + ' · ' + (event.source || 'missing') + ' · ' + (event.detail || 'detail missing')) + '</span>').join('') + '</div>'
+    : '<div class="nar">no relationship events served; the companion remains an explicit evidence gap.</div>';
+  const adviceBlock = '<div class="kv"><b>advice</b><span>' + esc((advice.label || 'NO ADVICE') + ' · ' + (advice.detail || 'no durable NPC advice event served')) + '</span><b>advice proof</b><span>' + esc(advice.proof || 'advice proof missing') + '</span><b>advice action</b><span>' + esc(((advice.action && advice.action.label) || 'Review') + ' · ' + ((advice.action && advice.action.target) || 'npc')) + '</span></div>';
+  const historyRows = Array.isArray(history.rows) && history.rows.length
+    ? '<div class="kv">' + history.rows.slice(0, 4).map((row, i) => '<b>history ' + (i + 1) + '</b><span>' + esc((row.id || 'event') + ' · ' + (row.kind || 'note') + ' · ' + (row.source || history.source || 'missing') + ' · ' + (row.detail || row.evidence || 'detail missing')) + '</span>').join('') + '</div>'
+    : '';
+  $('sheetBody').innerHTML = '<div class="arc">companion · ' + esc(npc.state) + '</div><h2>' + esc(npc.title) + '</h2>' +
+    '<div class="nar">' + esc(npc.detail) + '</div><div class="kv"><b>stage</b><span>' + esc((stage.label || 'MISSING') + ' · ' + (stage.detail || 'relationship stage not served') + ' · ' + confidence + '% confidence') + '</span><b>scope</b><span>' + esc(npc.scope || 'missing') + '</span><b>proof</b><span>' + esc(npc.proof || npc.detail) + '</span><b>history</b><span>' + esc((history.source || 'missing') + ' · ' + Number(history.total || 0) + ' event(s) · ' + Number(history.contradictions || 0) + ' contradiction(s)') + '</span></div>' + adviceBlock + events + historyRows;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(npc.state === 'ready' ? 'medium' : 'light');
 }
 
 /* ── story scene — cards with per-lane icons ── */
 const LANE_ICON = {
   heartbeat: '<svg viewBox="0 0 16 16"><path d="M1 8h3l2-4 3 8 2-4h4"/></svg>',
-  multica:   '<svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="2"/><path d="M6.5 6.5h3v3h-3z"/></svg>',
-  teamforge: '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
+  paperclip: '<svg viewBox="0 0 16 16"><path d="M5.5 4.5v6a2.5 2.5 0 0 0 5 0V4a1.8 1.8 0 0 0-3.6 0v6.1"/></svg>',
   forge:     '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
   noesis:    '<svg viewBox="0 0 16 16"><path d="M8 1.5l5.5 6.5L8 14.5 2.5 8z"/></svg>',
   quest:     '<svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 6.5-7"/></svg>',
@@ -746,7 +1417,7 @@ function renderGauge(L){
 function paint(env){
   LEDGER = env.ledger;
   CMDDATA = env.commands || null;
-  renderQuests(env.ledger); renderFractal(env.ledger); renderStory(env); renderGauge(env.ledger); freshness(env.derivedAt);
+  renderQuests(env.ledger); renderOperatorMap(env); renderStory(env); renderGauge(env.ledger); freshness(env.derivedAt);
 }
 function load(){
   return fetch('/api/quests/' + TENANT).then(r => r.json()).then(env => {
@@ -763,6 +1434,7 @@ function load(){
   });
 }
 function refresh(){ return load(); }
+go(START_SCENE, true);
 load();
 </script>
 </body>

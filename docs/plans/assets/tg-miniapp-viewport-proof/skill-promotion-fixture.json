@@ -1,0 +1,858 @@
+{
+  "schema": 1,
+  "derivedAt": "2026-01-01T00:00:00.000Z",
+  "source": "visual-fixture:no-fake-progress",
+  "tenant": "cambium",
+  "beats": [],
+  "openItems": [],
+  "commands": null,
+  "wake": {
+    "source": "visual-fixture:no-fake-progress",
+    "steps": [
+      {
+        "id": "ingest",
+        "status": "missing",
+        "detail": "missing source",
+        "source": "missing",
+        "proof": "ingest: missing source",
+        "evidence": [],
+        "gap": "missing source",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "route",
+        "status": "missing",
+        "detail": "missing active route",
+        "source": "missing",
+        "proof": "route: missing active route",
+        "evidence": [],
+        "gap": "missing active route",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "act",
+        "status": "missing",
+        "detail": "no available quest rows",
+        "source": "missing",
+        "proof": "act: no available quest rows",
+        "evidence": [],
+        "gap": "no available quest rows",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "viability",
+        "status": "missing",
+        "detail": "awaiting signal",
+        "source": "missing",
+        "proof": "viability: awaiting signal",
+        "evidence": [],
+        "gap": "awaiting signal",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "learn",
+        "status": "missing",
+        "detail": "awaiting signal",
+        "source": "missing",
+        "proof": "learn: awaiting signal",
+        "evidence": [],
+        "gap": "awaiting signal",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "persist",
+        "status": "missing",
+        "detail": "missing derivedAt",
+        "source": "missing",
+        "proof": "persist: missing derivedAt",
+        "evidence": [],
+        "gap": "missing derivedAt",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      }
+    ]
+  },
+  "lanes": {
+    "source": "missing",
+    "total": 0,
+    "dominant": null,
+    "counts": {
+      "micro": 0,
+      "meso": 0,
+      "macro": 0,
+      "noesis": 0
+    },
+    "gap": "lane telemetry missing from world.log"
+  },
+  "senses": {
+    "source": "quest-ledger-envelope@v1",
+    "status": "ready",
+    "rows": [
+      {
+        "id": "signal",
+        "title": "SIGNAL",
+        "on": true,
+        "detail": "I · The Calling",
+        "proof": "I · The Calling: first session unplayed",
+        "source": "quest-ledger",
+        "evidence": [
+          {
+            "label": "I · The Calling",
+            "status": "active",
+            "detail": "first session unplayed"
+          }
+        ]
+      },
+      {
+        "id": "memory",
+        "title": "MEMORY",
+        "on": false,
+        "detail": "no cortex rows",
+        "proof": "no tenant cortex memory or open cortex quest rows served",
+        "source": "missing",
+        "evidence": [],
+        "gap": "memory sense has no served cortex evidence"
+      },
+      {
+        "id": "risk",
+        "title": "RISK",
+        "on": true,
+        "detail": "16 quest risk traces · 0 gate risks",
+        "proof": "II · First Mint: artifacts pending: seed, positioning, cta unclaimed · VI · Memory: cortex unreachable · XV · The Launch: deploy events missing",
+        "source": "quest-ledger",
+        "evidence": [
+          {
+            "label": "II · First Mint",
+            "status": "locked",
+            "detail": "artifacts pending: seed, positioning, cta unclaimed"
+          },
+          {
+            "label": "VI · Memory",
+            "status": "locked",
+            "detail": "cortex unreachable"
+          },
+          {
+            "label": "XV · The Launch",
+            "status": "locked",
+            "detail": "deploy events missing"
+          }
+        ]
+      },
+      {
+        "id": "drift",
+        "title": "DRIFT",
+        "on": true,
+        "detail": "ledger stale beyond 360m",
+        "proof": "derivedAt 2026-01-01T00:00:00.000Z",
+        "source": "freshness",
+        "evidence": [
+          {
+            "label": "derivedAt",
+            "status": "stale",
+            "detail": "2026-01-01T00:00:00.000Z"
+          }
+        ],
+        "gap": "ledger older than 360 minutes"
+      }
+    ]
+  },
+  "insights": {
+    "source": "quest-ledger-evidence@v1",
+    "status": "ready",
+    "rows": [
+      {
+        "id": "active-frontier:the-calling",
+        "title": "I · The Calling",
+        "state": "wait",
+        "detail": "first session unplayed",
+        "proof": "first session unplayed",
+        "source": "quest-ledger",
+        "origin": "active-frontier",
+        "quest": {
+          "arc": "I",
+          "id": "the-calling",
+          "status": "active"
+        },
+        "evidence": [
+          {
+            "label": "I · The Calling",
+            "status": "active",
+            "detail": "first session unplayed"
+          }
+        ],
+        "gap": "active frontier is not complete yet"
+      }
+    ]
+  },
+  "stance": {
+    "source": "missing",
+    "status": "insufficient",
+    "scope": "tenant-world-log-only",
+    "sampleSize": 0,
+    "minimum": 6,
+    "window": 24,
+    "dominant": null,
+    "label": null,
+    "confidence": 0,
+    "ratios": {
+      "micro": 0,
+      "meso": 0,
+      "macro": 0,
+      "noesis": 0
+    },
+    "counts": {
+      "micro": 0,
+      "meso": 0,
+      "macro": 0,
+      "noesis": 0
+    },
+    "gap": "need 6 tenant events; found 0"
+  },
+  "skills": {
+    "source": "skill-registry",
+    "total": 2,
+    "rows": [
+      {
+        "id": "cambium-founder-review",
+        "status": "validated",
+        "uses": 5,
+        "successes": 5,
+        "failures": 0,
+        "successRate": 1,
+        "declining": false,
+        "tier": "reliable",
+        "tierLabel": "RELIABLE",
+        "sampleSize": 5,
+        "minimum": 3,
+        "recentRate": 1,
+        "recentWindow": 5,
+        "promotion": {
+          "status": "founder-review",
+          "label": "FOUNDER REVIEW",
+          "detail": "eligible for production review; founder approval required",
+          "requiredApproval": true
+        },
+        "updated": 5
+      },
+      {
+        "id": "cambium-production-approved",
+        "status": "production",
+        "uses": 5,
+        "successes": 5,
+        "failures": 0,
+        "successRate": 1,
+        "declining": false,
+        "tier": "production",
+        "tierLabel": "PRODUCTION",
+        "sampleSize": 5,
+        "minimum": 3,
+        "recentRate": 1,
+        "recentWindow": 5,
+        "promotion": {
+          "status": "approved",
+          "label": "PRODUCTION",
+          "detail": "founder-approved production skill with healthy telemetry",
+          "requiredApproval": false
+        },
+        "updated": 4
+      }
+    ]
+  },
+  "policy": {
+    "source": "operator-policy",
+    "status": "blocked",
+    "action": null,
+    "title": "POLICY GAP",
+    "detail": "recommendation policy blocked",
+    "blockers": [
+      "need 6 tenant events; found 0"
+    ],
+    "cautions": [],
+    "requiredSignals": [
+      "active quest frontier",
+      "tenant stance sample",
+      "skill registry tier"
+    ],
+    "rulesVersion": "operator-policy@v1.4",
+    "gap": "need 6 tenant events; found 0"
+  },
+  "npc": {
+    "source": "missing",
+    "relationships": [
+      {
+        "id": "mira",
+        "status": "missing",
+        "detail": "npc relationship state not served yet",
+        "proof": "no tenant cortex memories served",
+        "stage": {
+          "id": "missing",
+          "label": "MISSING",
+          "detail": "no tenant-scoped Mira/ICP evidence served",
+          "confidence": 0
+        },
+        "events": [],
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "contradictions": 0,
+          "rows": []
+        },
+        "advice": {
+          "status": "blocked",
+          "label": "NO ADVICE",
+          "detail": "no durable NPC advice event served",
+          "proof": "no durable NPC events served",
+          "action": {
+            "kind": "collect-evidence",
+            "label": "Record NPC evidence",
+            "target": "quine write quests npc-event mira"
+          }
+        },
+        "sampleSize": 0,
+        "scope": "tenant-cortex-only"
+      },
+      {
+        "id": "founder-npc",
+        "status": "missing",
+        "detail": "founder memory not served yet",
+        "proof": "no inherited founder arcs served",
+        "stage": {
+          "id": "missing",
+          "label": "MISSING",
+          "detail": "no inherited founder arc memory served",
+          "confidence": 0
+        },
+        "events": [],
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "contradictions": 0,
+          "rows": []
+        },
+        "advice": {
+          "status": "blocked",
+          "label": "NO ADVICE",
+          "detail": "no durable NPC advice event served",
+          "proof": "no durable NPC events served",
+          "action": {
+            "kind": "collect-evidence",
+            "label": "Record NPC evidence",
+            "target": "quine write quests npc-event founder-npc"
+          }
+        },
+        "sampleSize": 0,
+        "scope": "founder-arcs"
+      }
+    ]
+  },
+  "social": {
+    "source": "coordination-evidence@v1",
+    "status": "gap",
+    "scope": "tenant-handoff-only",
+    "rows": [
+      {
+        "id": "social-gap",
+        "title": "SOCIAL GAP",
+        "state": "gap",
+        "detail": "no tenant-scoped bridge or handoff evidence served",
+        "proof": "Paperclip open items, founder gate, and client handoff signals are absent",
+        "source": "missing",
+        "scope": "tenant-handoff-only",
+        "evidence": [],
+        "gap": "coordination evidence missing"
+      }
+    ],
+    "gap": "no tenant-scoped bridge or handoff evidence served"
+  },
+  "decisionContext": {
+    "source": "decision-context@v1",
+    "status": "ready",
+    "served": 0,
+    "gaps": 6,
+    "rows": [
+      {
+        "id": "founder-preference",
+        "title": "FOUNDER PREFERENCE",
+        "state": "gap",
+        "detail": "founder preference signal not served",
+        "proof": "no founder preference row exists in the current visual envelope",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "founder preference missing"
+      },
+      {
+        "id": "owner-load",
+        "title": "OWNER LOAD",
+        "state": "gap",
+        "detail": "no owner load signal served",
+        "proof": "no Paperclip open items with owner fields were served",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "owner load missing"
+      },
+      {
+        "id": "economic-risk",
+        "title": "ECONOMIC RISK",
+        "state": "gap",
+        "detail": "economic commitment state not served",
+        "proof": "no project evidence object served for brief, contract, deposit, amount, or currency",
+        "source": "missing",
+        "scope": "project-only",
+        "evidence": [],
+        "gap": "economic risk missing"
+      },
+      {
+        "id": "team-availability",
+        "title": "TEAM AVAILABILITY",
+        "state": "gap",
+        "detail": "team availability signal not served",
+        "proof": "Paperclip owners are not availability or capacity signals",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "team availability missing"
+      },
+      {
+        "id": "member-revocation",
+        "title": "MEMBER REVOCATION",
+        "state": "gap",
+        "detail": "member revocation state not served",
+        "proof": "bridge/member token revocation state is not present in the visual envelope",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "member revocation missing"
+      },
+      {
+        "id": "cross-tenant-urgency",
+        "title": "CROSS-TENANT URGENCY",
+        "state": "gap",
+        "detail": "cross-tenant urgency signal not served",
+        "proof": "no tenant registry or urgency score served",
+        "source": "missing",
+        "scope": "cross-tenant",
+        "evidence": [],
+        "gap": "cross-tenant urgency missing"
+      }
+    ]
+  },
+  "liveProof": {
+    "source": "tg-live-proof-readiness@v1",
+    "status": "blocked",
+    "generatedAt": "2026-06-22T00:00:00.000Z",
+    "workerUrl": "https://curious.thoughtseed.space",
+    "summary": {
+      "ready": 7,
+      "blocked": 3,
+      "total": 10,
+      "liveProofReady": false
+    },
+    "invariant": "Capture commands create redacted receipts; they are proof only after their artifacts validate ready.",
+    "rows": [
+      {
+        "id": "device-webview-proof",
+        "title": "DEVICE WEBVIEW PROOF",
+        "state": "blocked",
+        "detail": "3/4 prerequisites blocked",
+        "proof": "docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json; capture plan is guidance, not proof",
+        "source": "tg-live-proof-capture-plan",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot docs/plans/assets/tg-miniapp-live-proof/<founder-device>.png --platform <ios|android|desktop> --webview-url <current Telegram WebView URL> --safe-area <notes> --write",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json",
+        "prerequisites": [
+          {
+            "label": "fresh-telegram-init-data",
+            "status": "blocked",
+            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+          },
+          {
+            "label": "screenshot-under-proof-dir",
+            "status": "blocked",
+            "detail": "founder-device screenshot path is required"
+          },
+          {
+            "label": "device-platform",
+            "status": "blocked",
+            "detail": "device platform is required"
+          },
+          {
+            "label": "webview-url",
+            "status": "ready",
+            "detail": "WebView URL is supplied"
+          }
+        ],
+        "privacy": [
+          "raw initData comes only from env",
+          "artifact stores user/initData/screenshot hashes only",
+          "WebView query and hash are omitted"
+        ]
+      },
+      {
+        "id": "worker-list-proof",
+        "title": "WORKER LIST PROOF",
+        "state": "complete",
+        "detail": "docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json validates ready as a redacted receipt",
+        "proof": "docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json; Capture commands create redacted receipts; they are proof only after their artifacts validate ready.",
+        "source": "tg-live-proof-capture-plan",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-worker-probe --allow-network --write",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json",
+        "prerequisites": [
+          {
+            "label": "worker-token",
+            "status": "ready",
+            "detail": "QUESTS_PUSH_TOKEN is available without printing it"
+          },
+          {
+            "label": "allow-network",
+            "status": "ready",
+            "detail": "--allow-network supplied"
+          }
+        ],
+        "privacy": [
+          "Worker credential is used only as an authorization header",
+          "artifact stores status, response shape, counts, and body digest only"
+        ]
+      },
+      {
+        "id": "signed-action-smoke",
+        "title": "SIGNED ACTION SMOKE",
+        "state": "blocked",
+        "detail": "12/14 prerequisites blocked",
+        "proof": "docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json; capture plan is guidance, not proof",
+        "source": "tg-live-proof-capture-plan",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-signed-smoke --allow-network --allow-mutation --action-kind <kind> --action-subject <subject> --action-idempotency-key <key> --operator-command \"<consumer command>\" --operator-audit <audit-file> --operator-checked <n> --operator-consumed <n> --operator-rejected <n> --miniapp-envelope <refreshed-envelope-file> --visible-marker <visible-card-marker> --write",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json",
+        "prerequisites": [
+          {
+            "label": "fresh-telegram-init-data",
+            "status": "blocked",
+            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+          },
+          {
+            "label": "worker-token",
+            "status": "ready",
+            "detail": "QUESTS_PUSH_TOKEN is available without printing it"
+          },
+          {
+            "label": "allow-network",
+            "status": "blocked",
+            "detail": "--allow-network is required for this capture"
+          },
+          {
+            "label": "allow-mutation",
+            "status": "blocked",
+            "detail": "--allow-mutation is required for this capture"
+          },
+          {
+            "label": "miniapp-envelope",
+            "status": "blocked",
+            "detail": "mini app envelope path is required"
+          },
+          {
+            "label": "visible-marker",
+            "status": "blocked",
+            "detail": "visible marker is required"
+          }
+        ],
+        "privacy": [
+          "raw initData is sent only in the Telegram submit body",
+          "proof tool does not consume the queue",
+          "artifact stores hashes, counts, status codes, and digests only"
+        ]
+      }
+    ],
+    "gap": "live Telegram WebView and Worker proof are not complete yet"
+  },
+  "sideQuests": {
+    "source": "pure-trigger-predicates",
+    "status": "ready",
+    "rows": [
+      {
+        "id": "wake-proof",
+        "title": "WAKE PROOF",
+        "status": "triggered",
+        "trigger": "wake.steps.missing",
+        "detail": "6 wake steps awaiting signal",
+        "proof": "ingest: missing source · route: missing active route · act: no available quest rows · viability: awaiting signal · learn: awaiting signal · persist: missing derivedAt",
+        "origin": "visual-fixture:no-fake-progress",
+        "owner": "operator",
+        "action": {
+          "kind": "refresh",
+          "label": "Refresh quest evidence",
+          "target": "quine write quests push"
+        },
+        "lifetime": {
+          "scope": "until-next-refresh",
+          "staleAfterMinutes": 360,
+          "detail": "expires when the next quest envelope is pushed or the envelope becomes stale"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "all wake steps referenced by this row become proved or explicitly absent"
+        }
+      },
+      {
+        "id": "stance-sample",
+        "title": "STANCE SAMPLE",
+        "status": "triggered",
+        "trigger": "stance.insufficient",
+        "detail": "need 6 tenant events; found 0",
+        "proof": "0/6 tenant lane events",
+        "origin": "missing",
+        "owner": "operator",
+        "action": {
+          "kind": "collect-evidence",
+          "label": "Record tenant lane events",
+          "target": "tenant world.log"
+        },
+        "lifetime": {
+          "scope": "until-evidence-arrives",
+          "staleAfterMinutes": 360,
+          "detail": "remains open until tenant lane sample reaches the minimum"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "tenant stance sample reaches 6 events"
+        }
+      },
+      {
+        "id": "skill-registry",
+        "title": "SKILL REGISTRY",
+        "status": "triggered",
+        "trigger": "skills.missing",
+        "detail": "skill registry missing",
+        "proof": "0/0 served skill telemetry rows",
+        "origin": "missing",
+        "owner": "operator",
+        "action": {
+          "kind": "refresh",
+          "label": "Refresh skill telemetry",
+          "target": ".operator/<tenant>.skills.json"
+        },
+        "lifetime": {
+          "scope": "until-next-refresh",
+          "staleAfterMinutes": 360,
+          "detail": "expires when the next quest envelope is pushed or the envelope becomes stale"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "skill registry serves at least one telemetry row"
+        }
+      },
+      {
+        "id": "policy-unblock",
+        "title": "POLICY UNBLOCK",
+        "status": "triggered",
+        "trigger": "policy.blocked",
+        "detail": "need 6 tenant events; found 0",
+        "proof": "need 6 tenant events; found 0 · skill registry missing",
+        "origin": "operator-policy",
+        "owner": "system",
+        "action": {
+          "kind": "inspect",
+          "label": "Inspect policy blockers",
+          "target": "operator-policy@v1.4"
+        },
+        "lifetime": {
+          "scope": "until-next-refresh",
+          "staleAfterMinutes": 360,
+          "detail": "expires when the next quest envelope is pushed or the envelope becomes stale"
+        },
+        "completion": {
+          "kind": "policy-ready",
+          "proof": "operator policy serves a ready next action or a narrower blocker"
+        }
+      },
+      {
+        "id": "mira-evidence",
+        "title": "MIRA EVIDENCE",
+        "status": "triggered",
+        "trigger": "npc.mira.missing",
+        "detail": "npc relationship state not served yet",
+        "proof": "0 tenant cortex matches",
+        "origin": "missing",
+        "owner": "operator",
+        "action": {
+          "kind": "collect-evidence",
+          "label": "Mint tenant cortex memory",
+          "target": "npc.mira"
+        },
+        "lifetime": {
+          "scope": "until-evidence-arrives",
+          "staleAfterMinutes": 1440,
+          "detail": "remains open until tenant cortex evidence mentions Mira or ICP signals"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "tenant-scoped cortex memory backs Mira relationship evidence"
+        }
+      }
+    ]
+  },
+  "ledger": {
+    "completed": 0,
+    "total": 17,
+    "current": {
+      "arc": "I",
+      "id": "the-calling",
+      "title": "The Calling"
+    },
+    "rows": [
+      {
+        "arc": "I",
+        "id": "the-calling",
+        "title": "The Calling",
+        "status": "active",
+        "evidence": "first session unplayed"
+      },
+      {
+        "arc": "II",
+        "id": "first-mint",
+        "title": "First Mint",
+        "status": "locked",
+        "evidence": "artifacts pending: seed, positioning, cta unclaimed"
+      },
+      {
+        "arc": "III",
+        "id": "taste-resonance",
+        "title": "Taste & Resonance",
+        "status": "locked",
+        "evidence": "no meso moves yet"
+      },
+      {
+        "arc": "IV",
+        "id": "the-loop",
+        "title": "The Loop",
+        "status": "locked",
+        "evidence": "micro x0, meso x0, macro x0"
+      },
+      {
+        "arc": "V",
+        "id": "viability",
+        "title": "Viability",
+        "status": "locked",
+        "evidence": "viability sweep unplayed"
+      },
+      {
+        "arc": "VI",
+        "id": "memory",
+        "title": "Memory",
+        "status": "locked",
+        "evidence": "cortex unreachable"
+      },
+      {
+        "arc": "VII",
+        "id": "many-gardens",
+        "title": "Many Gardens",
+        "status": "locked",
+        "evidence": "tenant garden evidence missing"
+      },
+      {
+        "arc": "VIII",
+        "id": "living-org",
+        "title": "Living Org",
+        "status": "locked",
+        "evidence": "Paperclip org unreachable"
+      },
+      {
+        "arc": "IX",
+        "id": "the-gate",
+        "title": "The Gate",
+        "status": "locked",
+        "evidence": "no founder handoff resolved"
+      },
+      {
+        "arc": "X",
+        "id": "the-brief",
+        "title": "The Brief",
+        "status": "locked",
+        "evidence": "brief, contract, and deposit missing"
+      },
+      {
+        "arc": "XI",
+        "id": "the-scaffold",
+        "title": "The Scaffold",
+        "status": "locked",
+        "evidence": "repo, tenant, and specs missing"
+      },
+      {
+        "arc": "XII",
+        "id": "the-build",
+        "title": "The Build",
+        "status": "locked",
+        "evidence": "build commits missing"
+      },
+      {
+        "arc": "XIII",
+        "id": "the-review",
+        "title": "The Review",
+        "status": "locked",
+        "evidence": "review events missing"
+      },
+      {
+        "arc": "XIV",
+        "id": "the-ship-gate",
+        "title": "The Ship Gate",
+        "status": "locked",
+        "evidence": "gate approvals missing"
+      },
+      {
+        "arc": "XV",
+        "id": "the-launch",
+        "title": "The Launch",
+        "status": "locked",
+        "evidence": "deploy events missing"
+      },
+      {
+        "arc": "XVI",
+        "id": "the-handoff",
+        "title": "The Handoff",
+        "status": "locked",
+        "evidence": "client sign-off missing"
+      },
+      {
+        "arc": "XVII",
+        "id": "the-garden",
+        "title": "The Garden",
+        "status": "locked",
+        "evidence": "lessons and archive missing"
+      }
+    ]
+  }
+}

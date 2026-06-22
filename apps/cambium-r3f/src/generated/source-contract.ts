@@ -304,12 +304,269 @@ export const sourceContract = {
       }
     ]
   },
+  "visual": {
+    "stages": [
+      {
+        "id": "genesis",
+        "glyph": "GE",
+        "title": "GENESIS",
+        "detail": "brand DNA, brief, scaffold",
+        "arcs": [
+          "I",
+          "II",
+          "X",
+          "XI"
+        ]
+      },
+      {
+        "id": "taste",
+        "glyph": "TA",
+        "title": "TASTE",
+        "detail": "ICP resonance, references, acceptance",
+        "arcs": [
+          "III"
+        ]
+      },
+      {
+        "id": "build",
+        "glyph": "BU",
+        "title": "BUILD",
+        "detail": "commits, review, ship gate",
+        "arcs": [
+          "XII",
+          "XIII",
+          "XIV"
+        ]
+      },
+      {
+        "id": "ops",
+        "glyph": "OP",
+        "title": "OPS",
+        "detail": "loop, viability, launch, handoff",
+        "arcs": [
+          "IV",
+          "V",
+          "IX",
+          "XV",
+          "XVI",
+          "XVII"
+        ]
+      },
+      {
+        "id": "cortex",
+        "glyph": "CX",
+        "title": "CORTEX",
+        "detail": "memory, tenants, live org recall",
+        "arcs": [
+          "VI",
+          "VII",
+          "VIII"
+        ]
+      }
+    ],
+    "rails": [
+      {
+        "id": "genesis-to-taste",
+        "from": "genesis",
+        "to": "taste",
+        "label": "intake -> resonance",
+        "lane": "handoff"
+      },
+      {
+        "id": "taste-to-build",
+        "from": "taste",
+        "to": "build",
+        "label": "taste gate -> artifact",
+        "lane": "handoff"
+      },
+      {
+        "id": "build-to-ops",
+        "from": "build",
+        "to": "ops",
+        "label": "ship gate -> live loop",
+        "lane": "runner"
+      },
+      {
+        "id": "cortex-to-genesis",
+        "from": "cortex",
+        "to": "genesis",
+        "label": "memory feed -> genesis",
+        "lane": "background-emitter"
+      },
+      {
+        "id": "cortex-to-taste",
+        "from": "cortex",
+        "to": "taste",
+        "label": "memory feed -> taste",
+        "lane": "background-emitter"
+      },
+      {
+        "id": "cortex-to-build",
+        "from": "cortex",
+        "to": "build",
+        "label": "memory feed -> build",
+        "lane": "background-emitter"
+      },
+      {
+        "id": "cortex-to-ops",
+        "from": "cortex",
+        "to": "ops",
+        "label": "memory feed -> ops",
+        "lane": "background-emitter"
+      }
+    ],
+    "stageMetadata": [
+      {
+        "id": "genesis",
+        "visualTitle": "GENESIS",
+        "visualDetail": "brand DNA, brief, scaffold",
+        "arcs": [
+          "I",
+          "II",
+          "X",
+          "XI"
+        ],
+        "source": "pipeline.stage",
+        "organ": "genesis",
+        "r3fTitle": "Mint the brand"
+      },
+      {
+        "id": "taste",
+        "visualTitle": "TASTE",
+        "visualDetail": "ICP resonance, references, acceptance",
+        "arcs": [
+          "III"
+        ],
+        "source": "pipeline.stage",
+        "organ": "taste",
+        "r3fTitle": "Set the taste"
+      },
+      {
+        "id": "build",
+        "visualTitle": "BUILD",
+        "visualDetail": "commits, review, ship gate",
+        "arcs": [
+          "XII",
+          "XIII",
+          "XIV"
+        ],
+        "source": "pipeline.stage",
+        "organ": "hands",
+        "r3fTitle": "Build on-brand"
+      },
+      {
+        "id": "ops",
+        "visualTitle": "OPS",
+        "visualDetail": "loop, viability, launch, handoff",
+        "arcs": [
+          "IV",
+          "V",
+          "IX",
+          "XV",
+          "XVI",
+          "XVII"
+        ],
+        "source": "pipeline.stage",
+        "organ": "will",
+        "r3fTitle": "Operate + GTM"
+      },
+      {
+        "id": "cortex",
+        "visualTitle": "CORTEX",
+        "visualDetail": "memory, tenants, live org recall",
+        "arcs": [
+          "VI",
+          "VII",
+          "VIII"
+        ],
+        "source": "pipeline.crosscutting",
+        "organ": "cortex",
+        "r3fTitle": "Aesthetic memory"
+      }
+    ],
+    "wakeSteps": [
+      {
+        "id": "ingest",
+        "label": "INGEST",
+        "missing": "missing source"
+      },
+      {
+        "id": "route",
+        "label": "ROUTE",
+        "missing": "missing active route"
+      },
+      {
+        "id": "act",
+        "label": "ACT",
+        "missing": "no available quest rows"
+      },
+      {
+        "id": "viability",
+        "label": "VIABILITY",
+        "missing": "awaiting signal"
+      },
+      {
+        "id": "learn",
+        "label": "LEARN",
+        "missing": "awaiting signal"
+      },
+      {
+        "id": "persist",
+        "label": "PERSIST",
+        "missing": "missing derivedAt"
+      }
+    ],
+    "senses": [
+      {
+        "id": "signal",
+        "title": "SIGNAL",
+        "empty": "frontier complete"
+      },
+      {
+        "id": "memory",
+        "title": "MEMORY",
+        "empty": "no cortex rows"
+      },
+      {
+        "id": "risk",
+        "title": "RISK",
+        "empty": "no locked traces"
+      },
+      {
+        "id": "drift",
+        "title": "DRIFT",
+        "empty": "fresh ledger"
+      }
+    ],
+    "lanes": [
+      {
+        "id": "micro",
+        "title": "MICRO",
+        "empty": "no micro moves"
+      },
+      {
+        "id": "meso",
+        "title": "MESO",
+        "empty": "no meso moves"
+      },
+      {
+        "id": "macro",
+        "title": "MACRO",
+        "empty": "no macro moves"
+      },
+      {
+        "id": "noesis",
+        "title": "NOESIS",
+        "empty": "no noesis moves"
+      }
+    ]
+  },
   "questSummary": {
-    "activeArc": "X",
-    "activeQuestId": "the-brief",
-    "completed": 9,
+    "activeArc": "complete",
+    "activeQuestId": "complete",
+    "completed": 17,
     "total": 17,
-    "label": "ARC X · The Brief · 9/17",
+    "label": "ALL QUESTS · 17/17",
     "questLine": [
       {
         "id": "the-calling",
@@ -364,15 +621,15 @@ export const sourceContract = {
         "id": "living-org",
         "arc": "VIII",
         "title": "The Living Org",
-        "narration": "The org breathes — agents wake, issues flow, the cycle turns (M5).",
-        "reveals": "MultiCA integration — real agent operations"
+        "narration": "The org breathes — Paperclip agents, issues, and Hermes handoffs move.",
+        "reveals": "Paperclip integration — real agent operations"
       },
       {
         "id": "the-gate",
         "arc": "IX",
         "title": "The Gate",
-        "narration": "The founder's hand reaches through — decisions land, the org responds.",
-        "reveals": "founder gate — real approvals drive real state"
+        "narration": "The founder's hand reaches through Hermes — decisions land, Paperclip responds.",
+        "reveals": "founder gate — Telegram actions drive real Paperclip state"
       },
       {
         "id": "the-brief",

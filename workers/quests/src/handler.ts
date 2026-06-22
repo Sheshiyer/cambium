@@ -21,9 +21,23 @@ export interface HandlerDeps {
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
   bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
+  providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
   uuid?: () => string;         // injectable for tests
   now?: () => string;          // injectable clock (ISO) for the bridge
   nowMs?: () => number;        // injectable epoch-ms clock for handoff TTLs
+}
+
+export interface ProviderConfig {
+  baseUrl: string;
+  apiKey: string;
+  defaultModel?: string;
+  models?: string[];
+}
+
+export interface ProviderBrokerConfig {
+  token: string;
+  providers: Record<string, ProviderConfig | undefined>;
+  fetch?: typeof fetch;
 }
 
 // ── W4 · the founder gate: Telegram initData THIRD-PARTY validation ─────
@@ -37,6 +51,8 @@ export interface GateConfig {
   maxAgeSec?: number;               // auth_date freshness window (default 600)
   now?: () => number;               // injectable clock
 }
+
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -66,6 +82,17 @@ async function hmacB64url(secret: string, msg: string): Promise<string> {
   const key = await crypto.subtle.importKey('raw', TEXT.encode(secret) as unknown as BufferSource, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const sig = await crypto.subtle.sign('HMAC', key, TEXT.encode(msg) as unknown as BufferSource);
   return b64urlFromBytes(new Uint8Array(sig));
+}
+function canonicalJson(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  const record = value as Record<string, unknown>;
+  return `{${Object.keys(record).sort().filter((k) => record[k] !== undefined)
+    .map((k) => `${JSON.stringify(k)}:${canonicalJson(record[k])}`).join(',')}}`;
+}
+async function bridgeSignature(secret: string, msg: Record<string, unknown>): Promise<string> {
+  const { signature: _signature, ...unsigned } = msg;
+  return hmacB64url(secret, canonicalJson(unsigned));
 }
 function randomTokenHex(): string {
   return [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -146,6 +173,10 @@ const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
 
 const ledgerKey = (tenant: string): string => `ledger:${tenant}`;
+const shortText = (value: unknown, fallback: string, max = 300): string => {
+  const text = String(value ?? '').trim();
+  return (text || fallback).slice(0, max);
+};
 
 function tenantOf(path: string, prefix: string): string | null {
   if (!path.startsWith(prefix)) return null;
@@ -158,6 +189,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (method === 'GET' && path === '/healthz') {
     return json(200, { ok: true, worker: 'cambium-quests' });
+  }
+
+  if (path === '/v1/providers' || path === '/v1/providers/health' || path.startsWith('/v1/providers/')) {
+    return handleProviderBroker(req, deps);
   }
 
   if (method === 'GET' && path.startsWith('/api/quests/')) {
@@ -187,32 +222,35 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(200, { ok: true, tenant, bytes: body.length, derivedAt: envelope.derivedAt });
   }
 
-  // ── MultiCA ↔ Paperclip bridge ──────────────────────────────────────────
-  // Hosted here because MultiCA's AWS backend has no /v1/bridge/* API. LISTEN:
+  // ── Founder ↔ Paperclip bridge ──────────────────────────────────────────
+  // Hosted here so the curios.self mini app has the same gate/handoff surface. LISTEN:
   // Paperclip's upstream POSTs signed BridgeMessages to /ingest (stored in KV for
-  // cofounders/MultiCA to read at /inbox). WRITE: cofounders/MultiCA enqueue
+  // cofounders/Hermes to read at /inbox). WRITE: cofounders/Hermes enqueue
   // downstream directives at /directive; Paperclip's downstream polls /directives
-  // and /ack's them (anti-redeliver; seeds the G1 reconnect handshake). A shared
-  // BRIDGE_TOKEN gates every op; per-message HMAC (protocol.signature) is stored
-  // for the G10 verification follow-up.
+  // and /ack's them (anti-redeliver; seeds the G1 reconnect handshake). The admin
+  // BRIDGE_TOKEN or scoped member token gates each op; upstream messages must also
+  // carry a per-message HMAC in protocol.signature so payload tampering fails shut.
   if (path.startsWith('/v1/bridge/')) {
     if (!deps.bridgeToken) return json(503, { error: 'bridge not configured on the worker' });
-    // Resolve the principal: the admin BRIDGE_TOKEN (cofounders/MultiCA, full access)
+    // Resolve the principal: the admin BRIDGE_TOKEN (cofounders/Hermes, full access)
     // or a per-member token (scoped to one member, active + unexpired). Member tokens
     // are issued by the handoff invite flow and stored as SHA-256 in a memtok: index.
     const _auth = req.headers['authorization'] ?? '';
     const _tok = _auth.startsWith('Bearer ') ? _auth.slice(7) : '';
-    let principal: { admin: boolean; memberId?: string } | null = null;
+    let principal: { admin: boolean; memberId?: string; tenantId?: string } | null = null;
     if (_tok && _tok === deps.bridgeToken) {
       principal = { admin: true };
     } else if (_tok) {
-      const mid = await deps.kv.get(tokenIndexKey(await sha256hex(_tok)));
+      const tokenHash = await sha256hex(_tok);
+      const mid = await deps.kv.get(tokenIndexKey(tokenHash));
       if (mid) {
         const raw = await deps.kv.get(memberKey(mid));
         if (raw) {
           const m = JSON.parse(raw);
           const nowMs = deps.nowMs ? deps.nowMs() : Date.now();
-          if (m.status === 'active' && m.tokenExp && m.tokenExp > nowMs) principal = { admin: false, memberId: mid };
+          if (m.status === 'active' && m.tokenHash === tokenHash && m.tokenExp && m.tokenExp > nowMs) {
+            principal = { admin: false, memberId: mid, tenantId: m.tenantId };
+          }
         }
       }
     }
@@ -229,6 +267,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (msg.direction !== 'upstream') return json(400, { error: 'ingest expects direction=upstream' });
       if (!VALID_TENANT.test(String(msg.tenantId))) return json(400, { error: 'bad tenantId' });
       if (!mayAct(String(msg.memberId))) return json(403, { error: 'token not scoped to this member' });
+      if (!principal.admin && principal.tenantId !== String(msg.tenantId)) return json(403, { error: 'token not scoped to this tenant' });
+      if (!msg.signature || msg.signature !== await bridgeSignature(_tok, msg)) return json(401, { error: 'bad or missing bridge signature' });
       await deps.kv.put(`bridge:up:${msg.tenantId}:${msg.id}`, JSON.stringify({ ...msg, receivedAt: nowIso() }));
       return json(200, { ok: true, id: msg.id, stored: true });
     }
@@ -244,7 +284,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
 
     if (method === 'POST' && path === '/v1/bridge/directive') {
-      if (!principal.admin) return json(403, { error: 'only cofounders/MultiCA may enqueue directives' });
+      if (!principal.admin) return json(403, { error: 'only cofounders/Hermes may enqueue directives' });
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       const memberId = msg.memberId ?? msg.payload?.target?.memberId;
@@ -299,13 +339,16 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!isAdmin) return json(401, { error: 'admin token required' });
       const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
       const memberId = String(b.memberId ?? '').toLowerCase(), email = String(b.email ?? '').toLowerCase();
+      const tenantId = String(b.tenantId ?? memberId).toLowerCase();
       if (!VALID_TENANT.test(memberId)) return json(400, { error: 'memberId must be lowercase kebab' });
+      if (!VALID_TENANT.test(tenantId)) return json(400, { error: 'tenantId must be lowercase kebab' });
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json(400, { error: 'a valid email is required' });
       const existing = await deps.kv.get(memberKey(memberId));
-      const member = { memberId, email, status: existing ? JSON.parse(existing).status : 'invited',
-        addedAt: existing ? JSON.parse(existing).addedAt : nowIso(), updatedAt: nowIso() };
+      const prev = existing ? JSON.parse(existing) : null;
+      const member = { ...prev, memberId, tenantId, email, status: prev ? prev.status : 'invited',
+        addedAt: prev ? prev.addedAt : nowIso(), updatedAt: nowIso() };
       await deps.kv.put(memberKey(memberId), JSON.stringify(member));
-      return json(200, { ok: true, member: { memberId, email, status: member.status } });
+      return json(200, { ok: true, member: { memberId, tenantId, email, status: member.status } });
     }
 
     if (method === 'GET' && path === '/v1/handoff/members') {
@@ -313,7 +356,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const keys = await deps.kv.list('member:');
       const members: any[] = [];
       for (const k of keys) { const v = await deps.kv.get(k); if (v) { const m = JSON.parse(v);
-        members.push({ memberId: m.memberId, email: m.email, status: m.status, tokenExpiresAt: m.tokenExp ? new Date(m.tokenExp).toISOString() : null }); } }
+        members.push({ memberId: m.memberId, tenantId: m.tenantId ?? m.memberId, email: m.email, status: m.status, tokenExpiresAt: m.tokenExp ? new Date(m.tokenExp).toISOString() : null }); } }
       return json(200, { count: members.length, members });
     }
 
@@ -326,7 +369,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const member = JSON.parse(raw);
       const jti = deps.uuid ? deps.uuid() : randomTokenHex().slice(0, 16);
       const exp = nowMs + INVITE_TTL_MS;
-      const invite = await signInvite(deps.handoffSecret, { memberId, email: member.email, jti, exp });
+      const invite = await signInvite(deps.handoffSecret, { memberId, tenantId: member.tenantId ?? memberId, email: member.email, jti, exp });
       await deps.kv.put(inviteKey(jti), JSON.stringify({ jti, memberId, email: member.email, exp, used: false, createdAt: nowIso() }));
       const base = String(b.linkBase ?? 'https://curious.thoughtseed.space').replace(/\/+$/, '');
       return json(200, { ok: true, memberId, email: member.email, expiresAt: new Date(exp).toISOString(), invite, link: `${base}/join?t=${invite}` });
@@ -358,13 +401,14 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!raw) return json(404, { error: 'member not found' });
       const m = JSON.parse(raw);
       if (m.status === 'revoked') return json(403, { error: 'member revoked' });
+      if (claims.tenantId && m.tenantId && claims.tenantId !== m.tenantId) return json(403, { error: 'invite tenant mismatch' });
       const token = randomTokenHex(), tokenHash = await sha256hex(token), tokenExp = nowMs + TOKEN_TTL_MS;
       m.status = 'active'; m.tokenHash = tokenHash; m.tokenExp = tokenExp; m.redeemedAt = nowIso(); m.updatedAt = nowIso();
       await deps.kv.put(memberKey(claims.memberId), JSON.stringify(m));
       await deps.kv.put(tokenIndexKey(tokenHash), claims.memberId);
       inv.used = true; inv.usedAt = nowIso();
       await deps.kv.put(inviteKey(claims.jti), JSON.stringify(inv));
-      return json(200, { ok: true, memberId: claims.memberId, bridgeApiUrl: 'https://curious.thoughtseed.space', token, expiresAt: new Date(tokenExp).toISOString() });
+      return json(200, { ok: true, memberId: claims.memberId, tenantId: m.tenantId ?? claims.memberId, bridgeApiUrl: 'https://curious.thoughtseed.space', token, expiresAt: new Date(tokenExp).toISOString() });
     }
 
     if (method === 'POST' && path === '/v1/handoff/rotate') {
@@ -394,19 +438,66 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll'].includes(body.kind) || !body.subject) {
-      return json(400, { error: 'need kind approve|reroll and subject' });
+    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest'].includes(body.kind) || !body.subject) {
+      return json(400, { error: 'need kind approve|reroll|promote-skill|queue-side-quest and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
     if (!verdict.ok) return json(401, { error: verdict.reason });
+    const kind = body.kind as GateActionKind;
+    const subject = shortText(body.subject, 'unknown subject', 160);
+    const idempotencyKey = shortText(body.idempotencyKey, `${kind}:${subject}`, 240);
+    const existingKeys = await deps.kv.list(`gate:${tenant}:`);
+    for (const key of existingKeys) {
+      const stored = await deps.kv.get(key);
+      if (!stored) continue;
+      const existing = JSON.parse(stored);
+      if (existing.status === 'queued' && existing.idempotencyKey === idempotencyKey) {
+        return json(200, {
+          queued: existing.id,
+          duplicate: true,
+          kind: existing.kind,
+          subject: existing.subject,
+          idempotencyKey,
+          consequence: existing.consequence,
+          reversibility: existing.reversibility,
+        });
+      }
+    }
     const id = (deps.uuid ?? (() => crypto.randomUUID()))();
+    const ts = deps.now ? deps.now() : new Date().toISOString();
     const action = {
-      id, ts: new Date().toISOString(), founderId: verdict.userId,
-      kind: body.kind, subject: String(body.subject), note: body.note ? String(body.note).slice(0, 300) : null,
+      id, ts, founderId: verdict.userId,
+      kind,
+      subject,
+      evidence: shortText(body.evidence, 'evidence not provided by gate item'),
+      consequence: shortText(body.consequence, kind === 'approve'
+        ? `approve ${subject}`
+        : kind === 'promote-skill'
+          ? `queue founder review to promote ${subject} to production`
+          : kind === 'queue-side-quest'
+            ? `queue side quest ${subject} for operator review`
+          : `reroll ${subject}`),
+      reversibility: shortText(body.reversibility, kind === 'approve'
+        ? 'queued approval can be superseded until consumed'
+        : kind === 'promote-skill'
+          ? 'queued promotion can be superseded until consumed; registry remains unchanged until operator applies it'
+          : kind === 'queue-side-quest'
+            ? 'queued side quest can be superseded until consumed; side quest ledger remains unchanged until operator applies it'
+          : 'reroll asks for revision before execution'),
+      idempotencyKey,
+      note: body.note ? String(body.note).slice(0, 300) : null,
       status: 'queued',
     };
     await deps.kv.put(`gate:${tenant}:${id}`, JSON.stringify(action));
-    return json(200, { queued: id, kind: action.kind, subject: action.subject });
+    return json(200, {
+      queued: id,
+      duplicate: false,
+      kind: action.kind,
+      subject: action.subject,
+      idempotencyKey,
+      consequence: action.consequence,
+      reversibility: action.reversibility,
+    });
   }
 
   if (method === 'GET' && path.startsWith('/internal/gate/') && !path.endsWith('/consume')) {
@@ -445,4 +536,67 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   }
 
   return json(404, { error: 'not found' });
+}
+
+function providerAuth(req: SimpleRequest, token: string): boolean {
+  const auth = req.headers['authorization'] ?? '';
+  return auth === `Bearer ${token}`;
+}
+
+function configuredProviders(cfg: ProviderBrokerConfig): Array<Record<string, unknown>> {
+  return Object.entries(cfg.providers)
+    .filter(([, provider]) => provider?.apiKey && provider.baseUrl)
+    .map(([id, provider]) => ({
+      id,
+      baseUrl: provider!.baseUrl.replace(/\/+$/, ''),
+      defaultModel: provider!.defaultModel ?? null,
+      models: provider!.models ?? [],
+    }));
+}
+
+async function handleProviderBroker(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  const cfg = deps.providerBroker;
+  if (!cfg?.token) return json(503, { error: 'provider broker not configured on the worker' });
+  if (!providerAuth(req, cfg.token)) return json(401, { error: 'bad or missing provider broker credential' });
+
+  if (req.method === 'GET' && (req.path === '/v1/providers' || req.path === '/v1/providers/health')) {
+    const providers = configuredProviders(cfg);
+    return json(200, {
+      ok: true,
+      broker: 'cambium-provider-broker',
+      providers,
+      count: providers.length,
+    });
+  }
+
+  const match = req.path.match(/^\/v1\/providers\/([a-z0-9-]+)(?:\/(.*))?$/);
+  if (!match) return json(404, { error: `no provider route for ${req.method} ${req.path}` });
+  const providerId = match[1];
+  const provider = cfg.providers[providerId];
+  if (!provider?.apiKey || !provider.baseUrl) return json(404, { error: `unknown or unconfigured provider "${providerId}"` });
+
+  const upstreamPath = match[2] || 'models';
+  if (!/^[A-Za-z0-9_./:-]+$/.test(upstreamPath) || upstreamPath.includes('..')) {
+    return json(400, { error: 'bad upstream provider path' });
+  }
+  if (!['GET', 'POST'].includes(req.method)) return json(405, { error: 'provider broker supports GET and POST only' });
+
+  const baseUrl = provider.baseUrl.replace(/\/+$/, '');
+  const upstreamUrl = `${baseUrl}/${upstreamPath.replace(/^\/+/, '')}`;
+  const f = cfg.fetch ?? fetch;
+  const upstream = await f(upstreamUrl, {
+    method: req.method,
+    headers: {
+      authorization: `Bearer ${provider.apiKey}`,
+      ...(req.method === 'POST' ? { 'content-type': req.headers['content-type'] ?? 'application/json' } : {}),
+    },
+    body: req.method === 'POST' ? req.body : undefined,
+  });
+  const contentType = upstream.headers.get('content-type') ?? 'application/json; charset=utf-8';
+  const body = await upstream.text();
+  return {
+    status: upstream.status,
+    headers: { 'content-type': contentType, 'cache-control': 'no-store' },
+    body,
+  };
 }

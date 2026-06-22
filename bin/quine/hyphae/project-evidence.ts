@@ -7,7 +7,8 @@
 // honest "not done" state, never invented. A gather error degrades to empty
 // signals — the arc shows `unreachable`, never `complete`.
 
-import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, readdirSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import type { QuineCtx } from '../types.ts';
 
@@ -18,6 +19,7 @@ export interface ProjectSignals {
     depositRecorded?: boolean;
     specFound?: boolean;
     signOffRecorded?: boolean;
+    projectArchived?: boolean;
   };
   repo?: { exists: boolean; commitsOnMain: number };
   tenant?: { worldExists: boolean };
@@ -59,7 +61,7 @@ export function assembleProjectEvidence(s: ProjectSignals, nowIso?: string): Pro
     deployEvents: s.deploys?.count ?? 0,
     clientSignOff: s.vault?.signOffRecorded ?? false,
     lessonsMinted: s.skills?.lessonsMinted ?? 0,
-    projectArchived: s.skills?.archived ?? false,
+    projectArchived: s.skills?.archived === true || s.vault?.projectArchived === true,
     source: 'project-evidence@v1',
     updatedAt: nowIso ?? new Date().toISOString(),
   };
@@ -74,28 +76,111 @@ const VAULT_PROJECT_ROOTS = [
   '/Volumes/madara/2026/twc-vault/60-client-ecosystem',
 ];
 
-function readVaultSignals(tenant: string): ProjectSignals['vault'] {
-  for (const root of VAULT_PROJECT_ROOTS) {
-    for (const name of [tenant, `${tenant}-portal-reskin`]) {
-      const dir = join(root, name);
-      if (!existsSync(dir)) continue;
-      const has = (rel: string): boolean => existsSync(join(dir, rel));
-      return {
-        briefStatus: has('proposal.md') || has('brief.md') ? 'accepted' : 'draft',
-        contractFound: has('contract.md') || has('agreement.md'),
-        depositRecorded: has('deposit-received.flag') || has('payments/deposit.json'),
-        specFound: has('tech-spec.md') || has('spec.md'),
-        signOffRecorded: has('signoff.md') || has('handoff.md'),
-      };
-    }
+const TENANT_REPO_ROOTS: Record<string, string[]> = {
+  cambium: [],
+};
+
+const CAMBIUM_SPEC_PROOFS = [
+  'cortex/cambium/contracts/acceptance_checks.json',
+  'cortex/cambium/contracts/interaction_plan.json',
+  'docs/plans/assets/cambium-r3f-implementation/shared-contract-packet.md',
+  'docs/plans/assets/cambium-r3f-implementation/validation-gate.md',
+];
+
+const CAMBIUM_REVIEW_PROOF_DIRS = [
+  'docs/plans/assets/cambium-r3f-implementation',
+  'docs/plans/assets/cambium-r3f-game-engine-realignment',
+];
+
+const CAMBIUM_GATE_PROOFS = [
+  'docs/plans/assets/cambium-r3f-game-engine-realignment/art-pass-02-verification.md',
+];
+
+function countExisting(ctx: QuineCtx, rels: string[]): number {
+  return rels.filter((rel) => existsSync(join(ctx.root, rel))).length;
+}
+
+function countNamedFiles(dir: string, pattern: RegExp): number {
+  try {
+    return readdirSync(dir, { withFileTypes: true }).filter((entry) => entry.isFile() && pattern.test(entry.name)).length;
+  } catch { return 0; }
+}
+
+function countJsonl(path: string): number {
+  try {
+    return readFileSync(path, 'utf8').split('\n').filter(Boolean).length;
+  } catch { return 0; }
+}
+
+function unique<T>(items: T[]): T[] {
+  return [...new Set(items)];
+}
+
+function vaultProjectRoots(ctx: QuineCtx): string[] {
+  return unique([
+    ctx.vaultRoot ? join(ctx.vaultRoot, '60-client-ecosystem') : '',
+    ...VAULT_PROJECT_ROOTS,
+  ].filter(Boolean));
+}
+
+function projectDirs(ctx: QuineCtx, tenant: string): string[] {
+  return vaultProjectRoots(ctx).flatMap((root) => [join(root, tenant), join(root, `${tenant}-portal-reskin`)]);
+}
+
+function firstProjectDir(ctx: QuineCtx, tenant: string): string | undefined {
+  return projectDirs(ctx, tenant).find((dir) => existsSync(dir));
+}
+
+function readVaultSignals(ctx: QuineCtx, tenant: string): ProjectSignals['vault'] {
+  const dir = firstProjectDir(ctx, tenant);
+  if (dir) {
+    const has = (rel: string): boolean => existsSync(join(dir, rel));
+    return {
+      briefStatus: has('proposal.md') || has('brief.md') ? 'accepted' : 'draft',
+      contractFound: has('contract.md') || has('agreement.md'),
+      depositRecorded: has('deposit-received.flag') || has('payments/deposit.json') || has('commitment.json'),
+      specFound: has('tech-spec.md') || has('spec.md') || (tenant === 'cambium' && countExisting(ctx, CAMBIUM_SPEC_PROOFS) > 0),
+      signOffRecorded: has('signoff.md') || has('handoff.md'),
+      projectArchived: has('archive.md') || has('closeouts/archive.md'),
+    };
+  }
+  if (tenant === 'cambium' && countExisting(ctx, CAMBIUM_SPEC_PROOFS) > 0) {
+    return { briefStatus: 'draft', specFound: true };
   }
   return undefined;
 }
 
-function readRepoSignals(_tenant: string): ProjectSignals['repo'] {
-  // TODO bridge to bin/quine/hyphae/gh.ts in a future task. For this plan, the
-  // gather defaults honestly: repo unverified ⇒ exists:false, commits:0.
-  // Wired here as a stub so the call-site is final and the test surface stable.
+function git(root: string, args: string[]): string | undefined {
+  try {
+    return execFileSync('git', ['-C', root, ...args], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      timeout: 3000,
+    }).trim();
+  } catch { return undefined; }
+}
+
+function gitCommitCount(root: string): number {
+  for (const ref of ['origin/main', 'main', 'HEAD']) {
+    const raw = git(root, ['rev-list', '--count', ref]);
+    const n = Number(raw);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return 0;
+}
+
+function candidateRepoRoots(ctx: QuineCtx, tenant: string): string[] {
+  const fromTable = TENANT_REPO_ROOTS[tenant] ?? [];
+  const localTenantRoot = tenant === 'cambium' ? [ctx.root] : [];
+  const vaultRoots = projectDirs(ctx, tenant);
+  return [...localTenantRoot, ...fromTable, ...vaultRoots];
+}
+
+function readRepoSignals(ctx: QuineCtx, tenant: string): ProjectSignals['repo'] {
+  for (const root of candidateRepoRoots(ctx, tenant)) {
+    if (git(root, ['rev-parse', '--is-inside-work-tree']) !== 'true') continue;
+    return { exists: true, commitsOnMain: gitCommitCount(root) };
+  }
   return { exists: false, commitsOnMain: 0 };
 }
 
@@ -107,27 +192,52 @@ function readReviewSignals(ctx: QuineCtx, tenant: string): ProjectSignals['revie
   // Tenant-scoped only — the root deviations.jsonl is cross-tenant noise and
   // would bleed into per-tenant evidence (e.g. inflate arc XIII before any
   // tenant build has begun). Honest zero when the tenant has no review log.
+  const tenantReviews = countJsonl(join(ctx.root, 'cortex', tenant, 'deviations.jsonl'));
+  if (tenant !== 'cambium') return { count: tenantReviews };
+  const proofReviews = CAMBIUM_REVIEW_PROOF_DIRS.reduce(
+    (sum, rel) => sum + countNamedFiles(join(ctx.root, rel), /(?:verification|review).*\.md$/i),
+    0,
+  );
+  return { count: tenantReviews + proofReviews };
+}
+
+function readGateSignals(ctx: QuineCtx, tenant: string): ProjectSignals['gate'] {
+  let approvals = 0;
+  if (tenant === 'cambium') {
+    for (const rel of CAMBIUM_GATE_PROOFS) {
+      try {
+        const text = readFileSync(join(ctx.root, rel), 'utf8');
+        if (/explicit approval|founder approval|approved/i.test(text)) approvals++;
+      } catch { /* absent proof means no approval signal */ }
+    }
+  }
   try {
-    const path = join(ctx.root, 'cortex', tenant, 'deviations.jsonl');
-    const lines = readFileSync(path, 'utf8').split('\n').filter(Boolean);
-    return { count: lines.length };
-  } catch { return { count: 0 }; }
+    const data = JSON.parse(readFileSync(join(ctx.root, '.operator', `${tenant}.skills.json`), 'utf8'));
+    const skills = Array.isArray(data) ? data : Array.isArray(data.skills) ? data.skills : [];
+    const scenarios = skills.flatMap((skill: any) => skill?.telemetry?.scenarios ?? []);
+    approvals += scenarios.filter((scenario: any) =>
+      scenario?.ok === true && /founder|approve|approval|gate/i.test(String(scenario.note ?? '')),
+    ).length;
+  } catch { /* no skill-forge telemetry yet */ }
+  return { approvals };
 }
 
-function readGateSignals(_tenant: string): ProjectSignals['gate'] {
-  // Gate approvals come from the worker's gate queue; for now honest-zero.
-  return { approvals: 0 };
-}
-
-function readDeploySignals(_tenant: string): ProjectSignals['deploys'] {
-  // Cloudflare deploy events via bin/quine/hyphae/cf.ts in a future task.
-  return { count: 0 };
+function readDeploySignals(ctx: QuineCtx, tenant: string): ProjectSignals['deploys'] {
+  const dir = firstProjectDir(ctx, tenant);
+  if (!dir) return { count: 0 };
+  return { count: countNamedFiles(join(dir, 'deploys'), /\.json$/i) };
 }
 
 function readSkillSignals(ctx: QuineCtx, tenant: string): ProjectSignals['skills'] {
   try {
     const path = join(ctx.root, '.operator', `${tenant}.skills.json`);
     const data = JSON.parse(readFileSync(path, 'utf8'));
+    if (Array.isArray(data)) {
+      return {
+        lessonsMinted: data.filter((skill) => ['validated', 'production'].includes(String(skill?.status ?? ''))).length,
+        archived: false,
+      };
+    }
     return {
       lessonsMinted: Array.isArray(data.lessons) ? data.lessons.length : 0,
       archived: data.archived === true,
@@ -137,12 +247,12 @@ function readSkillSignals(ctx: QuineCtx, tenant: string): ProjectSignals['skills
 
 export function gatherProjectSignals(ctx: QuineCtx, tenant: string): ProjectSignals {
   return {
-    vault: readVaultSignals(tenant),
-    repo: readRepoSignals(tenant),
+    vault: readVaultSignals(ctx, tenant),
+    repo: readRepoSignals(ctx, tenant),
     tenant: readTenantSignals(ctx, tenant),
     reviews: readReviewSignals(ctx, tenant),
-    gate: readGateSignals(tenant),
-    deploys: readDeploySignals(tenant),
+    gate: readGateSignals(ctx, tenant),
+    deploys: readDeploySignals(ctx, tenant),
     skills: readSkillSignals(ctx, tenant),
   };
 }

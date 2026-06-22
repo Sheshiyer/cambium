@@ -174,6 +174,6 @@ if (cmd === 'wake') {
   console.log('  node bin/operator/cli.ts resonance ["pos"]      # pains + real cosine gradient (NIM)');
   console.log('  node bin/operator/cli.ts coderecall "<query>"  # structural code-recall (CodeGraph)');
   console.log('  node bin/operator/cli.ts state');
-  console.log('  --tenant <id> on any command routes to that venture (registry-validated; ids are TeamForge slugs)');
+  console.log('  --tenant <id> on any command routes to that venture (registry-validated slugs)');
   console.log('\ncontract: INFINITE-GAME.md   ·   models: NVIDIA NIM → Kimi → stub');
 }
