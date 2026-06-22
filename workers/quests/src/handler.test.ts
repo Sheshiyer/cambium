@@ -512,7 +512,7 @@ test('mini app surface contract · records map subsection interaction semantics'
 test('page audit helper · detects inert pseudo-button cards', () => {
   assertNoInertPseudoButtons([
     '<div class="cmd" data-interaction-kind="read-only" data-source="curios.self-chat-command"></div>',
-    '<div class="rail hot" data-interaction-kind="read-only" data-source="shared/cambium-visual-contract" data-rail="handoff"></div>',
+    '<button class="rail hot" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-rail="handoff"></button>',
     '<div class="beat noesis" data-interaction-kind="read-only" data-source="operator-narrative" data-beat="0"></div>',
   ].join(''));
   assert.throws(
@@ -538,7 +538,7 @@ test('page audit helper · real rendered pseudo-button rows declare interaction 
   ].join('');
 
   assertNoInertPseudoButtons(html);
-  assert.match(html, /class="rail [^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
+  assert.match(html, /class="rail [^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
   assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="operator-narrative")/);
   assert.match(html, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="paperclipCommandsData")/);
   assert.match(html, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")(?=[^>]*data-source="curios\.self-chat-command")/);
@@ -671,6 +671,108 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   assert.match(map, /first session unplayed/);
   assert.equal(elements.get('fresh')!.classList.has('stale'), true);
   assert.doesNotMatch(map, /100% success|founder affinity|relationship level|recommended next|live proof ready|verified founder device|reward unlocked|level up|leaderboard|social proof/i);
+});
+
+test('page · quest progress summary opens source-backed sheet', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const progress = rendered.elements.get('progress')!;
+
+  assert.equal(progress.dataset.interactionKind, 'sheet');
+  assert.equal(progress.dataset.source, 'visual-fixture:no-fake-progress');
+  (progress.onclick as () => void)();
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /quest progress · quine/);
+  assert.match(sheet, /completed count<\/b><span>0/);
+  assert.match(sheet, /total count<\/b><span>17/);
+  assert.match(sheet, /source<\/b><span>visual-fixture:no-fake-progress/);
+  assert.match(sheet, /active quest id<\/b><span>the-calling/);
+});
+
+test('page · frontier summary opens active quest evidence sheet', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const here = rendered.elements.get('here')!;
+
+  assert.equal(here.dataset.interactionKind, 'sheet');
+  assert.equal(here.dataset.source, 'visual-fixture:no-fake-progress');
+  (here.onclick as () => void)();
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /quest frontier · quine/);
+  assert.match(sheet, /current arc<\/b><span>I/);
+  assert.match(sheet, /quest title<\/b><span>The Calling/);
+  assert.match(sheet, /evidence<\/b><span>first session unplayed/);
+});
+
+test('page · quest rows and quest sheet expose Quine provenance', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const stem = rendered.elements.get('stem')!.innerHTML;
+  const questRows = stem.match(/class="q /g) ?? [];
+  const quineTargets = stem.match(/data-ecosystem-target="quine"/g) ?? [];
+
+  assert.equal(questRows.length, NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger.rows.length);
+  assert.equal(quineTargets.length, questRows.length);
+
+  (rendered.context.openSheet as (row: unknown) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger.rows[0]);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /source<\/b><span>visual-fixture:no-fake-progress/);
+  assert.match(sheet, /status<\/b><span class="status-active">active/);
+  assert.match(sheet, /arc<\/b><span>I/);
+  assert.match(sheet, /quest id<\/b><span>the-calling/);
+  assert.match(sheet, /evidence<\/b><span>first session unplayed/);
+  assert.match(sheet, /next action source<\/b><span>policy gap:/);
+});
+
+test('page · empty ledger state shows push command without quest rows', async () => {
+  const rendered = await renderPageFixtureContext({ schema: 1, tenant: 'cambium' });
+  const stem = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(stem, /no ledger yet/);
+  assert.match(stem, /quine write quests push --tenant cambium/);
+  assert.match(stem, /No quest rows are rendered until a real ledger arrives/);
+  assert.doesNotMatch(stem, /class="q /);
+});
+
+test('page · unreachable ledger state names retry route and no local write', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { rejectFetch: true });
+  const stem = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(stem, /ledger unreachable/);
+  assert.match(stem, /retry/);
+  assert.match(stem, /\/api\/quests\/cambium/);
+  assert.match(stem, /performs no local write/);
+});
+
+test('page · map header opens shared visual contract sheet', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+
+  assert.match(map, /class="mapbadge"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
+  (rendered.context.openMapHeaderSheet as (ledger: unknown) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /operator map · active frontier/);
+  assert.match(sheet, /active arc<\/b><span>I/);
+  assert.match(sheet, /active organ<\/b><span>GENESIS/);
+  assert.match(sheet, /source<\/b><span>shared\/cambium-visual-contract/);
+});
+
+test('page · rail rows carry data-rail and open rail sheets', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+
+  for (const rail of CAMBIUM_VISUAL_RAILS) {
+    assert.match(map, new RegExp(`data-rail="${rail.id}"`));
+  }
+  assert.match(map, /class="rail [^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
+
+  (rendered.context.openRailSheet as (railId: string, ledger: unknown) => void)(CAMBIUM_VISUAL_RAILS[0].id, NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /rail · genesis-to-taste/);
+  assert.match(sheet, /data rail<\/b><span>genesis-to-taste/);
+  assert.match(sheet, /source<\/b><span>shared\/cambium-visual-contract/);
+  assert.match(sheet, /from organ<\/b><span>GENESIS/);
+  assert.match(sheet, /to organ<\/b><span>TASTE/);
 });
 
 test('page · freshness chip opens stale source proof sheet', async () => {

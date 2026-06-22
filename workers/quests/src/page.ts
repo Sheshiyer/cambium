@@ -139,6 +139,8 @@ export const PAGE = `<!doctype html>
     background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);
     animation:shimmer 3.2s var(--ease) infinite}
   .meta{display:flex;justify-content:space-between;gap:10px;font:12px var(--mono);opacity:.75}
+  .meta span{cursor:pointer}
+  .meta span:active{transform:scale(.97)}
   .meta #here{text-align:right;color:var(--ink);opacity:.85}
 
   /* ── operator map — R3F mechanics, Telegram density ───── */
@@ -149,7 +151,8 @@ export const PAGE = `<!doctype html>
   .maphead h2{font-size:18px;letter-spacing:.01em;color:var(--ink)}
   .maphead p{font-size:12px;opacity:.68;max-width:48ch;margin-top:3px}
   .mapbadge{font:11px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.28);
-    border-radius:999px;padding:6px 10px;white-space:nowrap}
+    border-radius:999px;padding:6px 10px;white-space:nowrap;appearance:none;background:transparent;cursor:pointer}
+  .mapbadge:active{transform:scale(.96)}
   .wakegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
   .wake-step{appearance:none;text-align:left;color:var(--soft);min-width:0;padding:9px 9px;border:1px solid var(--line);border-radius:11px;background:rgba(1,47,52,.28);cursor:pointer}
   .wake-step b{display:block;font:10px var(--mono);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -187,8 +190,9 @@ export const PAGE = `<!doctype html>
   .stagebar{display:block;height:4px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:7px}
   .stagebar span{display:block;height:100%;background:var(--ink);border-radius:999px;transition:width .8s var(--ease)}
   .railgrid{display:grid;gap:8px}
-  .rail{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border:1px solid var(--line);
-    border-radius:12px;background:rgba(1,47,52,.24);font:12px var(--mono);opacity:.9}
+  .rail{appearance:none;color:var(--soft);text-align:left;display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:12px;background:rgba(1,47,52,.24);font:12px var(--mono);opacity:.9;cursor:pointer}
+  .rail:active{transform:scale(.985)}
   .rail b{font-weight:650;color:var(--soft)}
   .rail span{color:var(--ink);opacity:.75}
   .rail.hot{border-color:rgba(224,255,79,.34);background:rgba(224,255,79,.045)}
@@ -356,6 +360,7 @@ const SCENE_PARAM = String(PARAMS.get('scene') || '').toLowerCase();
 const START_SCENE = ({ quests:0, quest:0, q:0, map:1, story:2, gate:3, commands:4 }[SCENE_PARAM] ?? 0);
 $('ten').textContent = TENANT;
 let LEDGER = null;
+let ECOSYSTEM_ENV = null;
 let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'freshness missing' };
 
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
@@ -562,16 +567,60 @@ track.addEventListener('pointercancel', endDrag);
 const veil = $('veil'), sheet = $('sheet');
 const sheetState = { open:false };
 function openSheet(row){
+  const env = ECOSYSTEM_ENV || {};
+  const policy = policyCard(env.ledger ? env : { ledger: LEDGER || { rows: [] } });
+  const rawPolicy = env.policy || {};
+  const nextActionSource = policy.state === 'ready' && rawPolicy.source
+    ? rawPolicy.source
+    : 'policy gap: ' + (rawPolicy.gap || rawPolicy.detail || (policy.blockers && policy.blockers[0]) || policy.detail || 'next-action recommendation policy missing');
+  const nextActionRows = row.status === 'active'
+    ? '<b>next action source</b><span>' + esc(nextActionSource) + '</span><b>next action</b><span>' + esc(policy.detail || 'policy action not served') + '</span>'
+    : '';
   $('sheetBody').innerHTML =
     '<div class="arc">arc ' + esc(row.arc) + ' · ' + esc(row.id) + '</div>' +
     '<h2>' + esc(row.title) + '</h2>' +
     (row.narration ? '<div class="nar">' + esc(row.narration) + '</div>' : '') +
     '<div class="kv">' +
+      '<b>source</b><span>' + esc(questSource(row)) + '</span>' +
       '<b>status</b><span class="status-' + esc(row.status) + '">' + esc(row.status) + '</span>' +
+      '<b>arc</b><span>' + esc(row.arc || 'missing') + '</span>' +
+      '<b>quest id</b><span>' + esc(row.id || 'missing') + '</span>' +
       '<b>evidence</b><span>' + esc(row.evidence) + '</span>' +
+      nextActionRows +
       (row.reveals ? '<b>reveals</b><span>' + esc(row.reveals) + '</span>' : '') +
     '</div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+function questSource(row){
+  const env = ECOSYSTEM_ENV || {};
+  return row.source || row.origin || (env.ledger && env.ledger.source) || env.source || 'missing';
+}
+function currentQuestRow(L){
+  const rows = L && Array.isArray(L.rows) ? L.rows : [];
+  const current = L && L.current;
+  if (!current) return activeRow(L || { rows: [] }) || null;
+  return rows.find(row => (current.id && row.id === current.id) || (row.arc === current.arc && row.title === current.title))
+    || activeRow(L || { rows: [] })
+    || current;
+}
+function currentQuestId(L){
+  const row = currentQuestRow(L);
+  const current = L && L.current;
+  return (row && row.id) || (current && current.id) || 'not served';
+}
+function openProgressSheet(L){
+  $('sheetBody').innerHTML = '<div class="arc">quest progress · quine</div><h2>Quest Progress</h2>' +
+    '<div class="nar">Progress is derived from the served quest ledger, not browser-local completion.</div>' +
+    '<div class="kv"><b>completed count</b><span>' + esc(L.completed) + '</span><b>total count</b><span>' + esc(L.total) + '</span><b>source</b><span>' + esc(questSource({})) + '</span><b>active quest id</b><span>' + esc(currentQuestId(L)) + '</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+function openFrontierSheet(L){
+  const row = currentQuestRow(L);
+  const current = L && L.current;
+  $('sheetBody').innerHTML = '<div class="arc">quest frontier · quine</div><h2>Current Frontier</h2>' +
+    '<div class="nar">' + esc(row ? 'The frontier points at the current active ledger row.' : 'No active frontier is currently served by the ledger.') + '</div>' +
+    '<div class="kv"><b>current arc</b><span>' + esc((row && row.arc) || (current && current.arc) || 'complete') + '</span><b>quest title</b><span>' + esc((row && row.title) || (current && current.title) || 'no active quest') + '</span><b>evidence</b><span>' + esc((row && row.evidence) || (current && current.evidence) || 'frontier evidence not served') + '</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row ? 'medium' : 'light');
 }
 function closeSheet(){ veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open=false;
   sheet.style.transition=''; sheet.style.transform=''; buzz('light'); }
@@ -728,7 +777,7 @@ function countUp(node, to, suffix){
 function renderQuests(L){
   const stem = $('stem');
   stem.innerHTML = L.rows.map((r, i) =>
-    '<div class="q ' + r.status + '" style="--i:' + i + '" data-i="' + i + '">' +
+    '<div class="q ' + r.status + '" style="--i:' + i + '" data-i="' + i + '" data-ecosystem-target="quine" data-interaction-kind="sheet" data-source="' + esc(questSource(r)) + '">' +
       '<div class="node">' + MARKS[r.status] + '</div>' +
       '<div><span class="arc">' + esc(r.arc) + '</span><span class="t">' + esc(r.title) + '</span>' +
       '<div class="ev">' + esc(r.evidence) + '</div></div>' +
@@ -737,8 +786,16 @@ function renderQuests(L){
   const pct = Math.round(100 * L.completed / L.total);
   requestAnimationFrame(() => { stem.style.setProperty('--grow', pct + '%'); $('fill').style.width = pct + '%'; });
   const prog = $('progress'); prog.innerHTML = '<span id="cu">0</span>/' + L.total + ' quests';
+  prog.dataset.interactionKind = 'sheet';
+  prog.dataset.source = questSource({});
+  prog.onclick = () => openProgressSheet(L);
   countUp($('cu'), L.completed, '');
-  if (L.current) $('here').textContent = 'here → ' + L.current.arc + ' · ' + L.current.title;
+  const here = $('here');
+  here.dataset.interactionKind = 'sheet';
+  here.dataset.source = questSource({});
+  here.onclick = () => openFrontierSheet(L);
+  if (L.current) here.textContent = 'here → ' + L.current.arc + ' · ' + L.current.title;
+  else here.textContent = 'frontier clear';
 }
 
 /* ── operator map — R3F mechanics ported as compact Telegram cards ── */
@@ -1207,11 +1264,11 @@ function renderOperatorMap(env){
   }).join('');
   const railCards = RAILS.map(rail => {
     const hot = rail.from === activeStageId || rail.to === activeStageId;
-    return '<div class="rail ' + (hot ? 'hot' : '') + '" data-interaction-kind="read-only" data-source="shared/cambium-visual-contract" data-rail="' + esc(rail.from + '-' + rail.to) + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></div>';
+    return '<button type="button" class="rail ' + (hot ? 'hot' : '') + '" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-rail="' + esc(rail.id || (rail.from + '-' + rail.to)) + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></button>';
   }).join('');
   $('mapwrap').innerHTML =
     '<div class="maphead"><div><h2>Operator Map</h2><p>R3F island mechanics, reduced to Telegram-native cards and rails.</p></div>' +
-      '<span class="mapbadge">active · ' + esc((L.current && L.current.arc) || 'complete') + '</span></div>' +
+      '<button type="button" class="mapbadge" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-ecosystem-target="r3f">active · ' + esc((L.current && L.current.arc) || 'complete') + '</button></div>' +
     '<div class="cmdgrp">tapestry audit</div>' + renderTapestryAudit(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">today wake</div>' + renderWake(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">lanes</div>' + renderLanes(env.ledger ? env : { ledger:L }) +
@@ -1228,6 +1285,8 @@ function renderOperatorMap(env){
     '<div class="cmdgrp">companions</div>' + renderNpc(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>' +
     '<div class="mapnote">same mechanics as the R3F scene: five organs, packet rails, memory feed, active frontier, and evidence gates. no canvas, no heavy scene.</div>';
+  $('mapwrap').querySelectorAll('.mapbadge').forEach(el => el.onclick = () => openMapHeaderSheet(L));
+  $('mapwrap').querySelectorAll('.rail').forEach(el => el.onclick = () => openRailSheet(el.dataset.rail, L));
   $('mapwrap').querySelectorAll('.stage-card').forEach(el => el.onclick = () => openMapSheet(L, el.dataset.stage));
   $('mapwrap').querySelectorAll('[data-wake]').forEach(el => el.onclick = () => openWakeBox(env.ledger ? env : { ledger:L }, +el.dataset.wake));
   $('mapwrap').querySelectorAll('.sense').forEach(el => el.onclick = () => openSenseSheet(env.ledger ? env : { ledger:L }, el.dataset.sense));
@@ -1242,6 +1301,24 @@ function renderOperatorMap(env){
   $('mapwrap').querySelectorAll('.ibox[data-box]').forEach(el => el.onclick = () => openInsightBox(env.ledger ? env : { ledger:L }, +el.dataset.box));
   $('mapwrap').querySelectorAll('[data-skill]').forEach(el => el.onclick = () => openSkillBox(env.ledger ? env : { ledger:L }, +el.dataset.skill));
   $('mapwrap').querySelectorAll('[data-npc]').forEach(el => el.onclick = () => openNpcBox(env.ledger ? env : { ledger:L }, +el.dataset.npc));
+}
+function openMapHeaderSheet(L){
+  const row = currentQuestRow(L);
+  const arc = (row && row.arc) || (L.current && L.current.arc) || 'complete';
+  const organId = row ? stageForArc(arc) : 'complete';
+  $('sheetBody').innerHTML = '<div class="arc">operator map · active frontier</div><h2>Map Header</h2>' +
+    '<div class="nar">The map header follows the same shared visual contract as the R3F scene.</div>' +
+    '<div class="kv"><b>active arc</b><span>' + esc(arc) + '</span><b>active organ</b><span>' + esc(row ? stageTitle(organId) : 'all organs complete') + '</span><b>source</b><span>shared/cambium-visual-contract</span><b>quest title</b><span>' + esc((row && row.title) || (L.current && L.current.title) || 'no active quest') + '</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row ? 'medium' : 'light');
+}
+function openRailSheet(railId, L){
+  const rail = RAILS.find(item => item.id === railId) || RAILS.find(item => (item.from + '-' + item.to) === railId) || RAILS[0];
+  const row = currentQuestRow(L);
+  const hot = row && (rail.from === stageForArc(row.arc) || rail.to === stageForArc(row.arc));
+  $('sheetBody').innerHTML = '<div class="arc">rail · ' + esc(rail.id) + '</div><h2>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</h2>' +
+    '<div class="nar">' + esc(rail.label) + '</div>' +
+    '<div class="kv"><b>data rail</b><span>' + esc(rail.id) + '</span><b>source</b><span>shared/cambium-visual-contract</span><b>from organ</b><span>' + esc(stageTitle(rail.from)) + '</span><b>to organ</b><span>' + esc(stageTitle(rail.to)) + '</span><b>lane</b><span>' + esc(rail.lane || 'missing') + '</span><b>active arc</b><span>' + esc((row && row.arc) || 'complete') + '</span><b>active rail</b><span>' + esc(hot ? 'yes' : 'no') + '</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(hot ? 'medium' : 'light');
 }
 // parse the evidence string into honest facets: "a · b · c" -> chips, "done" if it
 // reads as a satisfied count (x/x) or lacks "pending", else "pending".
@@ -1496,6 +1573,7 @@ function renderGauge(L){
     '</svg>';
 }
 function paint(env){
+  ECOSYSTEM_ENV = env;
   LEDGER = env.ledger;
   CMDDATA = env.commands || null;
   renderQuests(env.ledger); renderOperatorMap(env); renderStory(env); renderGauge(env.ledger); freshness(env);
@@ -1503,18 +1581,26 @@ function paint(env){
 function load(){
   return fetch(REFRESH_ROUTE).then(r => r.json()).then(env => {
     if (!env.ledger){
+      ECOSYSTEM_ENV = env;
+      LEDGER = null;
       $('stem').innerHTML =
-        '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
+        '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>. No quest rows are rendered until a real ledger arrives.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
       FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'empty ledger' };
       markFreshnessChip('missing');
+      $('progress').textContent = 'empty ledger';
+      $('here').textContent = 'push required';
       $('fresh').textContent = 'empty'; $('fresh').classList.add('stale'); return;
     }
     paint(env);
   }).catch(() => {
+    ECOSYSTEM_ENV = null;
+    LEDGER = null;
     $('stem').innerHTML =
-      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Pull-to-refresh re-fetches ' + esc(REFRESH_ROUTE) + ' and does not write operator state.</p></div>';
+      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Retry re-fetches ' + esc(REFRESH_ROUTE) + ' and performs no local write.</p></div>';
     FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'offline' };
     markFreshnessChip(REFRESH_ROUTE);
+    $('progress').textContent = 'ledger offline';
+    $('here').textContent = 'retry fetch';
     $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
   });
 }

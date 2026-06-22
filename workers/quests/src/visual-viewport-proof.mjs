@@ -702,6 +702,7 @@ writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(mir
 const proofs = [];
 await withServer(async (base) => {
   for (const proof of [
+    { scene: 'quests', path: 'quests-line-mobile.png', intent: 'layout-proof', sceneIndex: 0, scrollSelector: '#progress' },
     { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')" },
     { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
     { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
