@@ -397,11 +397,11 @@ function updateSceneBadge(){
   badge.dataset.ecosystemTarget = meta.target;
 }
 function interactionInventory(){
-  const html = [$('mapwrap'), $('cmds'), $('beats'), $('gate'), $('sheetBody'), $('sceneBadge'), $('fresh')]
+  const html = [$('mapwrap'), $('cmds'), $('beats'), $('gate'), $('sceneBadge'), $('fresh')]
     .map(el => el ? (el.outerHTML || el.innerHTML || '') : '').join('');
   return {
     sheet: /data-interaction-kind="sheet"|data-live=|data-tapestry=|data-wake=|data-skill=|data-npc=|data-live-proof=|data-policy=|data-decision=|data-social=|data-box=/.test(html),
-    signedAction: /data-promote-skill|data-queue-side-quest|data-kind="approve"|data-kind="reroll"/.test(html),
+    signedAction: /data-signed-action-entrypoint=|data-kind="approve"|data-kind="reroll"/.test(html),
     chatCommand: /data-interaction-kind="chat-command"/.test(html),
     readOnly: /data-interaction-kind="read-only"/.test(html),
   };
@@ -963,7 +963,7 @@ function sideQuestCards(env){
 }
 function renderSideQuests(env){
   return '<div class="boxgrid">' + sideQuestCards(env).map((quest, i) =>
-    '<button type="button" class="ibox side ' + (quest.state === 'ready' ? 'ready' : '') + '" data-side="' + i + '"><b>' + esc(quest.title) + '</b><span>' + esc(quest.detail) + '</span></button>'
+    '<button type="button" class="ibox side ' + (quest.state === 'ready' ? 'ready' : '') + '" data-side="' + i + '"' + (quest.state === 'ready' && ['refresh', 'founder-review', 'collect-evidence'].includes(String(quest.action.kind || '')) ? ' data-signed-action-entrypoint="queue-side-quest"' : '') + '><b>' + esc(quest.title) + '</b><span>' + esc(quest.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function socialCards(env){
@@ -1158,7 +1158,7 @@ function skillCards(env){
 }
 function renderSkills(env){
   return '<div class="boxgrid">' + skillCards(env).map((skill, i) =>
-    '<button type="button" class="ibox skill ' + (skill.state === 'ready' ? 'ready' : '') + '" data-skill="' + i + '"><b>' + esc(skill.title) + '</b><span>' + esc(skill.detail) + '</span></button>'
+    '<button type="button" class="ibox skill ' + (skill.state === 'ready' ? 'ready' : '') + '" data-skill="' + i + '"' + (skill.promotion && skill.promotion.status === 'founder-review' ? ' data-signed-action-entrypoint="promote-skill"' : '') + '><b>' + esc(skill.title) + '</b><span>' + esc(skill.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function npcCards(env){

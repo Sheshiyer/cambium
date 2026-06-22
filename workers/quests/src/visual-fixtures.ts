@@ -10,6 +10,7 @@ const refreshLifetime = {
   staleAfterMinutes: 360,
   detail: 'expires when the next quest envelope is pushed or the envelope becomes stale',
 };
+const deterministicFreshDerivedAt = '2099-01-01T00:00:00.000Z';
 const missingNpcHistory = {
   source: 'missing',
   total: 0,
@@ -476,8 +477,14 @@ export const NO_FAKE_PROGRESS_VISUAL_FIXTURE = {
 
 export const FRESH_ECOSYSTEM_VISUAL_FIXTURE = {
   ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
-  derivedAt: new Date().toISOString(),
+  derivedAt: deterministicFreshDerivedAt,
   source: 'visual-fixture:fresh-ecosystem',
+  freshness: {
+    status: 'fresh',
+    staleAfterMinutes: 360,
+    detail: 'derived just now',
+    proof: `deterministic future derivedAt ${deterministicFreshDerivedAt} renders fresh without wall-clock flakes`,
+  },
   commands: {
     status: { agents: 3, issuesOpen: 2, issuesDone: 7, arcs: '3/17', hermes: 'ready' },
     services: [

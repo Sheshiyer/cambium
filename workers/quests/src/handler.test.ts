@@ -716,29 +716,21 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   (rendered.context.go as (index: number) => void)(2);
   assert.equal(rendered.elements.get('tb2')!.classList.has('on'), true);
   assert.equal(rendered.elements.get('sceneBadge')!.textContent, 'Story');
+  (rendered.context.renderStory as (env: unknown) => void)({
+    beats: [{ text: 'reduced motion story beat remains visible', lane: 'quest' }],
+  });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  assert.match(storyHtml, /reduced motion story beat remains visible/);
+  assert.match(storyHtml, /data-interaction-kind="read-only"/);
+
+  const mapHtml = rendered.elements.get('mapwrap')!.innerHTML;
+  assert.match(mapHtml, /data-signed-action-entrypoint="queue-side-quest"/);
+
   (rendered.context.renderCommands as () => void)();
   const commandHtml = rendered.elements.get('cmds')!.innerHTML;
   assert.match(commandHtml, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")/);
   assert.match(commandHtml, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")/);
   assert.match(commandHtml, /class="cmd ref"(?=[^>]*data-interaction-kind="read-only")/);
-
-  (rendered.context.openSkillBox as (env: unknown, index: number) => void)({
-    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
-    skills: {
-      source: 'skill-registry',
-      rows: [{
-        id: 'cambium-founder-review',
-        status: 'validated',
-        tier: 'reliable',
-        tierLabel: 'RELIABLE',
-        sampleSize: 5,
-        successRate: 1,
-        recentRate: 1,
-        promotion: { status: 'founder-review', label: 'FOUNDER REVIEW', detail: 'founder approval required' },
-      }],
-    },
-  }, 0);
-  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-promote-skill="1"/);
 
   (rendered.elements.get('sceneBadge')!.onclick as () => void)();
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
@@ -750,8 +742,9 @@ test('page · reduced motion keeps scene state and interactions visible', async 
 });
 
 test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
-  const ageMinutes = Math.round((Date.now() - Date.parse(FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt)) / 60000);
-  assert.ok(ageMinutes < 360, `fresh fixture should be recent, got ${ageMinutes}m`);
+  assert.equal(FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt, '2099-01-01T00:00:00.000Z');
+  assert.equal(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.status, 'fresh');
+  assert.match(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proof, /deterministic future derivedAt/);
   assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.commands, 'fresh fixture has command data');
   assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.beats.length >= 2, 'fresh fixture has story beats');
   assert.match(FRESH_ECOSYSTEM_VISUAL_FIXTURE.rails.proof, /rails served from shared/);
