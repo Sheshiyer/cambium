@@ -397,16 +397,15 @@ function updateSceneBadge(){
   badge.dataset.ecosystemTarget = meta.target;
 }
 function interactionInventory(){
-  const html = [$('mapwrap'), $('cmds'), $('beats'), $('gate'), $('sceneBadge'), $('fresh')]
+  const html = [$('mapwrap'), $('cmds'), $('beats'), $('gate'), $('sheetBody'), $('sceneBadge'), $('fresh')]
     .map(el => el ? (el.outerHTML || el.innerHTML || '') : '').join('');
   return {
     sheet: /data-interaction-kind="sheet"|data-live=|data-tapestry=|data-wake=|data-skill=|data-npc=|data-live-proof=|data-policy=|data-decision=|data-social=|data-box=/.test(html),
-    signedAction: /data-promote-skill|data-queue-side-quest|data-kind="approve"|data-kind="reroll"/.test(html) || PAGE_SIGNED_ACTIONS,
+    signedAction: /data-promote-skill|data-queue-side-quest|data-kind="approve"|data-kind="reroll"/.test(html),
     chatCommand: /data-interaction-kind="chat-command"/.test(html),
     readOnly: /data-interaction-kind="read-only"/.test(html),
   };
 }
-const PAGE_SIGNED_ACTIONS = true;
 function reducedMotionProofRow(){
   const inv = interactionInventory();
   return '<b>reduced motion proof</b><span data-reduced-motion-proof="1" data-sheet="' + inv.sheet + '" data-signed-action="' + inv.signedAction + '" data-chat-command="' + inv.chatCommand + '" data-read-only="' + inv.readOnly + '">scene state changes remain visible; sheet=' + inv.sheet + ' · signed action=' + inv.signedAction + ' · chat command=' + inv.chatCommand + ' · read-only=' + inv.readOnly + '</span>';

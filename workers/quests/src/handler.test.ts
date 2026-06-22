@@ -716,14 +716,6 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   (rendered.context.go as (index: number) => void)(2);
   assert.equal(rendered.elements.get('tb2')!.classList.has('on'), true);
   assert.equal(rendered.elements.get('sceneBadge')!.textContent, 'Story');
-  (rendered.elements.get('sceneBadge')!.onclick as () => void)();
-  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
-  assert.match(sheet, /data-sheet="true"/);
-  assert.match(sheet, /data-signed-action="true"/);
-  assert.match(sheet, /data-chat-command="true"/);
-  assert.match(sheet, /data-read-only="true"/);
-
   (rendered.context.renderCommands as () => void)();
   const commandHtml = rendered.elements.get('cmds')!.innerHTML;
   assert.match(commandHtml, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")/);
@@ -747,6 +739,14 @@ test('page · reduced motion keeps scene state and interactions visible', async 
     },
   }, 0);
   assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-promote-skill="1"/);
+
+  (rendered.elements.get('sceneBadge')!.onclick as () => void)();
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
+  assert.match(sheet, /data-sheet="true"/);
+  assert.match(sheet, /data-signed-action="true"/);
+  assert.match(sheet, /data-chat-command="true"/);
+  assert.match(sheet, /data-read-only="true"/);
 });
 
 test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
