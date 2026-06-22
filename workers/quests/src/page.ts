@@ -288,9 +288,9 @@ export const PAGE = `<!doctype html>
   <header>
     <div class="brand">Quest Log<small>the infinite game · tenant <span id="ten">cambium</span></small></div>
     <button id="sceneBadge" type="button" class="chip scene-chip" data-interaction-kind="sheet" data-source="tg-miniapp-scenes@v1">Quests</button>
-    <span id="fresh" class="chip">syncing</span>
+    <span id="fresh" class="chip" data-interaction-kind="sheet" data-source="missing">syncing</span>
   </header>
-  <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="none"><div class="drop"></div><span class="sr">Pull to refresh re-fetches /api/quests/cambium and does not write operator state.</span></div>
+  <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="none"><div class="drop"></div><span id="ptrProof" class="sr">Pull to refresh re-fetches /api/quests/cambium and does not write operator state.</span></div>
   <nav>
     <button id="tb0" class="on" data-scene-source="tg-miniapp-scenes@v1">Quests</button>
     <button id="tb1" data-scene-source="tg-miniapp-scenes@v1">Map</button>
@@ -347,6 +347,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 const PARAMS = new URLSearchParams(location.search);
 const TENANT = (PARAMS.get('tenant')
   || (TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param) || 'cambium').replace(/[^a-z0-9-]/gi,'') || 'cambium';
+const REFRESH_ROUTE = '/api/quests/' + TENANT;
 const SCENE_PARAM = String(PARAMS.get('scene') || '').toLowerCase();
 const START_SCENE = ({ quests:0, quest:0, q:0, map:1, story:2, gate:3, commands:4 }[SCENE_PARAM] ?? 0);
 $('ten').textContent = TENANT;
@@ -357,12 +358,14 @@ let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:t
 const track = $('track'), ind = $('ind'), SCN = 5;
 let scene = START_SCENE;
 const SCENE_META = [
-  { label:'Quests', source:'tg-miniapp-scenes@v1', target:'quine', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
-  { label:'Map', source:'tg-miniapp-scenes@v1', target:'r3f', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
-  { label:'Story', source:'tg-miniapp-scenes@v1', target:'paperclip', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
-  { label:'Gate', source:'tg-miniapp-scenes@v1', target:'telegram', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state; writes require signed founder action' },
-  { label:'Commands', source:'tg-miniapp-scenes@v1', target:'hermes', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
+  { label:'Quests', source:'tg-miniapp-scenes@v1', target:'quine', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
+  { label:'Map', source:'tg-miniapp-scenes@v1', target:'r3f', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
+  { label:'Story', source:'tg-miniapp-scenes@v1', target:'paperclip', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
+  { label:'Gate', source:'tg-miniapp-scenes@v1', target:'telegram', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state; writes require signed founder action' },
+  { label:'Commands', source:'tg-miniapp-scenes@v1', target:'hermes', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
 ];
+$('ptr').dataset.refreshRoute = REFRESH_ROUTE;
+$('ptrProof').textContent = 'Pull to refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state.';
 const W = () => track.clientWidth || window.innerWidth;
 function place(x, animate){
   track.style.transition = (animate && !RM) ? 'transform .5s var(--ease)' : 'none';
@@ -1420,6 +1423,11 @@ function renderStory(env){
 }
 
 /* ── freshness ── */
+function markFreshnessChip(source){
+  const f = $('fresh');
+  f.dataset.interactionKind = 'sheet';
+  f.dataset.source = source || 'missing';
+}
 function freshness(env){
   const f = $('fresh');
   const iso = env && env.derivedAt;
@@ -1434,15 +1442,14 @@ function freshness(env){
     detail: mins === null ? 'freshness missing' : mins < 2 ? 'derived just now' : mins < 60 ? 'derived ' + mins + 'm ago' : 'derived ' + Math.round(mins / 60) + 'h ago',
   };
   f.textContent = FRESHNESS_STATE.detail;
-  f.dataset.interactionKind = 'sheet';
-  f.dataset.source = source;
+  markFreshnessChip(source);
   f.classList.toggle('stale', stale);
 }
 function openFreshnessSheet(){
   const s = FRESHNESS_STATE;
   $('sheetBody').innerHTML = '<div class="arc">freshness · ' + (s.stale ? 'stale' : 'fresh') + '</div><h2>Freshness</h2>' +
     '<div class="nar">' + (s.stale ? 'stale data is not live proof' : 'fresh envelope data can support the current read-only view') + '</div>' +
-    '<div class="kv"><b>derivedAt</b><span>' + esc(s.derivedAt) + '</span><b>source</b><span>' + esc(s.source) + '</span><b>stale threshold</b><span>360 minutes</span><b>refresh command</b><span>quine write quests push --tenant cambium</span><b>pull refresh</b><span>re-fetches /api/quests/' + esc(TENANT) + ' and does not write operator state</span></div>';
+    '<div class="kv"><b>derivedAt</b><span>' + esc(s.derivedAt) + '</span><b>source</b><span>' + esc(s.source) + '</span><b>stale threshold</b><span>360 minutes</span><b>refresh command</b><span>quine write quests push --tenant cambium</span><b>pull refresh</b><span>re-fetches ' + esc(REFRESH_ROUTE) + ' and does not write operator state</span></div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 $('fresh').onclick = openFreshnessSheet;
@@ -1476,18 +1483,20 @@ function paint(env){
   renderQuests(env.ledger); renderOperatorMap(env); renderStory(env); renderGauge(env.ledger); freshness(env);
 }
 function load(){
-  return fetch('/api/quests/' + TENANT).then(r => r.json()).then(env => {
+  return fetch(REFRESH_ROUTE).then(r => r.json()).then(env => {
     if (!env.ledger){
       $('stem').innerHTML =
         '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
       FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'empty ledger' };
+      markFreshnessChip('missing');
       $('fresh').textContent = 'empty'; $('fresh').classList.add('stale'); return;
     }
     paint(env);
   }).catch(() => {
     $('stem').innerHTML =
-      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Pull-to-refresh re-fetches /api/quests/' + esc(TENANT) + ' and does not write operator state.</p></div>';
-    FRESHNESS_STATE = { derivedAt:'missing', source:'/api/quests/' + TENANT, age:null, stale:true, detail:'offline' };
+      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Pull-to-refresh re-fetches ' + esc(REFRESH_ROUTE) + ' and does not write operator state.</p></div>';
+    FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'offline' };
+    markFreshnessChip(REFRESH_ROUTE);
     $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
   });
 }

@@ -149,7 +149,10 @@ function makeElement(id: string) {
   };
 }
 
-async function renderPageFixtureContext(envelope: unknown) {
+async function renderPageFixtureContext(
+  envelope: unknown,
+  options: { search?: string; rejectFetch?: boolean } = {},
+) {
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
     .filter((script) => script.trim() && !script.includes('telegram-web-app'));
@@ -160,17 +163,22 @@ async function renderPageFixtureContext(envelope: unknown) {
     if (!elements.has(id)) elements.set(id, makeElement(id));
     return elements.get(id)!;
   };
-  for (const id of ['ten', 'fresh', 'sceneBadge', 'ptr', 'track', 'ind', 'tb0', 'tb1', 'tb2', 'tb3', 'tb4',
+  for (const id of ['ten', 'fresh', 'sceneBadge', 'ptr', 'ptrProof', 'track', 'ind', 'tb0', 'tb1', 'tb2', 'tb3', 'tb4',
     'stem', 'fill', 'progress', 'here', 'mapwrap', 'beats', 'gauge', 'gate', 'cmds', 'veil', 'sheet', 'sheetBody']) {
     getElementById(id);
   }
 
+  const fetchCalls: string[] = [];
   const context: Record<string, unknown> = {
     document: { getElementById, querySelectorAll: () => [] },
     window: { Telegram: undefined, addEventListener() {}, innerWidth: 390 },
-    location: { search: '' },
+    location: { search: options.search ?? '' },
     matchMedia: () => ({ matches: true }),
-    fetch: async () => ({ ok: true, json: async () => envelope }),
+    fetch: async (url: string) => {
+      fetchCalls.push(String(url));
+      if (options.rejectFetch) throw new Error('fixture fetch failed');
+      return { ok: true, json: async () => envelope };
+    },
     requestAnimationFrame: (fn: (time: number) => void) => { fn(0); return 0; },
     performance: { now: () => 0 },
     URLSearchParams,
@@ -182,7 +190,7 @@ async function renderPageFixtureContext(envelope: unknown) {
   vm.runInContext(scripts[0], vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
-  return { elements, context };
+  return { elements, context, fetchCalls };
 }
 
 async function renderPageFixture(envelope: unknown) {
@@ -406,6 +414,16 @@ test('page · active scene badge opens provenance sheet', async () => {
   assert.match(sheet, /scene source<\/b><span>tg-miniapp-scenes@v1/);
   assert.match(sheet, /ecosystem target<\/b><span>r3f/);
   assert.match(sheet, /refresh rule<\/b><span>pull-to-refresh re-fetches \/api\/quests\/cambium and does not write operator state/);
+});
+
+test('page · scene and refresh provenance follow the active tenant', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { search: '?tenant=acme' });
+  assert.equal(rendered.elements.get('ten')!.textContent, 'acme');
+  assert.equal(rendered.elements.get('ptr')!.dataset.refreshRoute, '/api/quests/acme');
+  assert.match(rendered.elements.get('ptrProof')!.textContent, /\/api\/quests\/acme/);
+  assert.deepEqual(rendered.fetchCalls.slice(-1), ['/api/quests/acme']);
+  (rendered.elements.get('sceneBadge')!.onclick as () => void)();
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /re-fetches \/api\/quests\/acme and does not write operator state/);
 });
 
 test('mini app surface contract · exports current scene ids', () => {
@@ -657,6 +675,8 @@ test('page · freshness chip opens stale source proof sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const fresh = rendered.elements.get('fresh')!;
   assert.equal(fresh.classList.has('stale'), true);
+  assert.equal(fresh.dataset.interactionKind, 'sheet');
+  assert.equal(fresh.dataset.source, 'visual-fixture:no-fake-progress');
   (fresh.onclick as () => void)();
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /stale data is not live proof/);
@@ -664,6 +684,22 @@ test('page · freshness chip opens stale source proof sheet', async () => {
   assert.match(sheet, /source<\/b><span>visual-fixture:no-fake-progress/);
   assert.match(sheet, /stale threshold<\/b><span>360 minutes/);
   assert.match(sheet, /refresh command<\/b><span>quine write quests push --tenant cambium/);
+});
+
+test('page · freshness chip keeps interaction metadata for empty and offline states', async () => {
+  const empty = await renderPageFixtureContext({ schema: 1, tenant: 'cambium' });
+  assert.equal(empty.elements.get('fresh')!.textContent, 'empty');
+  assert.equal(empty.elements.get('fresh')!.dataset.interactionKind, 'sheet');
+  assert.equal(empty.elements.get('fresh')!.dataset.source, 'missing');
+  (empty.elements.get('fresh')!.onclick as () => void)();
+  assert.match(empty.elements.get('sheetBody')!.innerHTML, /stale data is not live proof/);
+
+  const offline = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { rejectFetch: true });
+  assert.equal(offline.elements.get('fresh')!.textContent, 'offline');
+  assert.equal(offline.elements.get('fresh')!.dataset.interactionKind, 'sheet');
+  assert.equal(offline.elements.get('fresh')!.dataset.source, '/api/quests/cambium');
+  (offline.elements.get('fresh')!.onclick as () => void)();
+  assert.match(offline.elements.get('sheetBody')!.innerHTML, /source<\/b><span>\/api\/quests\/cambium/);
 });
 
 test('page · pull-to-refresh provenance is read-only fetch', () => {
@@ -681,6 +717,30 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /reduced motion<\/b><span>scene state changes remain visible/);
   assert.match(sheet, /sheet, signed action, chat command, and read-only interactions remain available/);
+
+  (rendered.context.renderCommands as () => void)();
+  const commandHtml = rendered.elements.get('cmds')!.innerHTML;
+  assert.match(commandHtml, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")/);
+  assert.match(commandHtml, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")/);
+  assert.match(commandHtml, /class="cmd ref"(?=[^>]*data-interaction-kind="read-only")/);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)({
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      rows: [{
+        id: 'cambium-founder-review',
+        status: 'validated',
+        tier: 'reliable',
+        tierLabel: 'RELIABLE',
+        sampleSize: 5,
+        successRate: 1,
+        recentRate: 1,
+        promotion: { status: 'founder-review', label: 'FOUNDER REVIEW', detail: 'founder approval required' },
+      }],
+    },
+  }, 0);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-promote-skill="1"/);
 });
 
 test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
