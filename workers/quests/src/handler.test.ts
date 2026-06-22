@@ -49,8 +49,10 @@ function assertNoInertPseudoButtons(html: string) {
   for (const match of html.matchAll(pseudoButton)) {
     const attrs = match.groups?.attrs ?? '';
     const className = attrs.match(/\bclass="([^"]*)"/)?.[1] ?? 'unknown';
-    const hasMarker = /\bdata-(?:interaction-kind|live|command-kind|rail|beat)="[^"]*"/.test(attrs);
-    if (!hasMarker) missing.push(className);
+    const interactionKind = attrs.match(/\bdata-interaction-kind="([^"]*)"/)?.[1] ?? '';
+    const hasSource = /\bdata-(?:source|proof)="[^"]*"/.test(attrs);
+    if (!interactionKind) missing.push(`${className}:missing-kind`);
+    if (interactionKind === 'read-only' && !hasSource) missing.push(`${className}:missing-source`);
   }
   assert.deepEqual(missing, [], `inert pseudo-buttons missing data interaction markers: ${missing.join(', ')}`);
 }
@@ -409,14 +411,37 @@ test('mini app surface contract · inventories operator map subsections', () => 
 
 test('page audit helper · detects inert pseudo-button cards', () => {
   assertNoInertPseudoButtons([
-    '<div class="cmd" data-interaction-kind="read-only"></div>',
-    '<div class="rail hot" data-rail="handoff"></div>',
-    '<div class="beat noesis" data-beat="0"></div>',
+    '<div class="cmd" data-interaction-kind="read-only" data-source="curios.self-chat-command"></div>',
+    '<div class="rail hot" data-interaction-kind="read-only" data-source="shared/cambium-visual-contract" data-rail="handoff"></div>',
+    '<div class="beat noesis" data-interaction-kind="read-only" data-source="operator-narrative" data-beat="0"></div>',
   ].join(''));
   assert.throws(
     () => assertNoInertPseudoButtons('<div class="cmd"></div><div class="rail"></div><div class="beat"></div>'),
-    /cmd.*rail.*beat/,
+    /missing-kind/,
   );
+  assert.throws(
+    () => assertNoInertPseudoButtons('<div class="rail" data-interaction-kind="read-only" data-rail="handoff"></div>'),
+    /missing-source/,
+  );
+});
+
+test('page audit helper · real rendered pseudo-button rows declare interaction semantics', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.renderCommands as () => void)();
+  (rendered.context.renderStory as (env: unknown) => void)({
+    beats: [{ text: 'fixture beat', lane: 'quest' }],
+  });
+  const html = [
+    rendered.elements.get('mapwrap')!.innerHTML,
+    rendered.elements.get('beats')!.innerHTML,
+    rendered.elements.get('cmds')!.innerHTML,
+  ].join('');
+
+  assertNoInertPseudoButtons(html);
+  assert.match(html, /class="rail [^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
+  assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="operator-narrative")/);
+  assert.match(html, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="paperclipCommandsData")/);
+  assert.match(html, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")(?=[^>]*data-source="curios\.self-chat-command")/);
 });
 
 test('page audit helper · mini app shell does not expose secret markers', () => {

@@ -402,7 +402,11 @@ function renderCommands(){
     '<div class="cmdgrp">' + esc(group) + '</div>' +
     items.map(([name, args, desc, kind]) => {
       const live = kind && liveKeys[kind];
+      const interaction = live ? 'sheet' : 'chat-command';
+      const source = live ? 'paperclipCommandsData' : 'curios.self-chat-command';
       return '<div class="cmd' + (kind === 'act' ? ' act' : '') + (live ? ' live' : '') + '"' +
+        ' data-interaction-kind="' + interaction + '" data-source="' + source + '"' +
+        ' data-command-kind="' + (kind || 'chat') + '"' +
         (live ? ' data-live="' + kind + '"' : '') + '>' +
         '<span class="cnode"></span>' +
         '<div style="flex:1"><div><span class="cname">/' + esc(name) + '</span>' +
@@ -1150,7 +1154,7 @@ function renderOperatorMap(env){
   }).join('');
   const railCards = RAILS.map(rail => {
     const hot = rail.from === activeStageId || rail.to === activeStageId;
-    return '<div class="rail ' + (hot ? 'hot' : '') + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></div>';
+    return '<div class="rail ' + (hot ? 'hot' : '') + '" data-interaction-kind="read-only" data-source="shared/cambium-visual-contract" data-rail="' + esc(rail.from + '-' + rail.to) + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></div>';
   }).join('');
   $('mapwrap').innerHTML =
     '<div class="maphead"><div><h2>Operator Map</h2><p>R3F island mechanics, reduced to Telegram-native cards and rails.</p></div>' +
@@ -1375,7 +1379,7 @@ function renderStory(env){
   $('beats').innerHTML = beats.map((b, i) => {
     const lane = b.lane || 'beat';
     const ico = LANE_ICON[lane] || (b.noesis ? LANE_ICON.noesis : LANE_ICON.beat);
-    return '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i, 20) + '">' +
+    return '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i, 20) + '" data-interaction-kind="read-only" data-source="operator-narrative" data-beat="' + i + '" data-lane="' + esc(lane) + '">' +
       '<span class="ico">' + ico + '</span>' +
       '<span class="lane">' + esc(lane) + '</span>' +
       (b.noesis ? '<b>◆ noesis · </b>' : '') + esc(b.text) +
