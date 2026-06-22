@@ -706,18 +706,23 @@ test('page · freshness chip keeps interaction metadata for empty and offline st
 test('page · pull-to-refresh provenance is read-only fetch', () => {
   assert.match(PAGE, /data-refresh-route="\/api\/quests\/cambium"/);
   assert.match(PAGE, /data-refresh-writes="none"/);
+  assert.match(PAGE, /id="ptrProof" class="ptr-proof"/);
   assert.match(PAGE, /Pull to refresh re-fetches \/api\/quests\/cambium and does not write operator state/);
 });
 
 test('page · reduced motion keeps scene state and interactions visible', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.go as (index: number) => void)(4);
   (rendered.context.go as (index: number) => void)(2);
   assert.equal(rendered.elements.get('tb2')!.classList.has('on'), true);
   assert.equal(rendered.elements.get('sceneBadge')!.textContent, 'Story');
   (rendered.elements.get('sceneBadge')!.onclick as () => void)();
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /reduced motion<\/b><span>scene state changes remain visible/);
-  assert.match(sheet, /sheet, signed action, chat command, and read-only interactions remain available/);
+  assert.match(sheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
+  assert.match(sheet, /data-sheet="true"/);
+  assert.match(sheet, /data-signed-action="true"/);
+  assert.match(sheet, /data-chat-command="true"/);
+  assert.match(sheet, /data-read-only="true"/);
 
   (rendered.context.renderCommands as () => void)();
   const commandHtml = rendered.elements.get('cmds')!.innerHTML;

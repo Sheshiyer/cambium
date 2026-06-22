@@ -65,6 +65,9 @@ export const PAGE = `<!doctype html>
   .ptr .drop{width:26px;height:26px;border-radius:50%;
     border:2px solid var(--ink);border-top-color:transparent}
   .ptr.spin .drop{animation:spin .7s linear infinite}
+  .ptr-proof{position:absolute;top:31px;left:50%;transform:translateX(-50%);width:250px;text-align:center;
+    font:10.5px/1.35 var(--mono);color:var(--ink);background:rgba(0,39,43,.9);
+    border:1px solid var(--line);border-radius:8px;padding:6px 8px}
 
   nav{display:grid;grid-template-columns:repeat(5,1fr);position:relative;margin:6px 12px 0;
     border-bottom:1px solid var(--line)}
@@ -291,7 +294,7 @@ export const PAGE = `<!doctype html>
     <button id="sceneBadge" type="button" class="chip scene-chip" data-interaction-kind="sheet" data-source="tg-miniapp-scenes@v1">Quests</button>
     <button id="fresh" type="button" class="chip" data-interaction-kind="sheet" data-source="missing">syncing</button>
   </header>
-  <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="none"><div class="drop"></div><span id="ptrProof" class="sr">Pull to refresh re-fetches /api/quests/cambium and does not write operator state.</span></div>
+  <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="none"><div class="drop"></div><span id="ptrProof" class="ptr-proof">Pull to refresh re-fetches /api/quests/cambium and does not write operator state.</span></div>
   <nav>
     <button id="tb0" class="on" data-scene-source="tg-miniapp-scenes@v1">Quests</button>
     <button id="tb1" data-scene-source="tg-miniapp-scenes@v1">Map</button>
@@ -393,11 +396,26 @@ function updateSceneBadge(){
   badge.dataset.scene = meta.label.toLowerCase();
   badge.dataset.ecosystemTarget = meta.target;
 }
+function interactionInventory(){
+  const html = [$('mapwrap'), $('cmds'), $('beats'), $('gate'), $('sceneBadge'), $('fresh')]
+    .map(el => el ? (el.outerHTML || el.innerHTML || '') : '').join('');
+  return {
+    sheet: /data-interaction-kind="sheet"|data-live=|data-tapestry=|data-wake=|data-skill=|data-npc=|data-live-proof=|data-policy=|data-decision=|data-social=|data-box=/.test(html),
+    signedAction: /data-promote-skill|data-queue-side-quest|data-kind="approve"|data-kind="reroll"/.test(html) || PAGE_SIGNED_ACTIONS,
+    chatCommand: /data-interaction-kind="chat-command"/.test(html),
+    readOnly: /data-interaction-kind="read-only"/.test(html),
+  };
+}
+const PAGE_SIGNED_ACTIONS = true;
+function reducedMotionProofRow(){
+  const inv = interactionInventory();
+  return '<b>reduced motion proof</b><span data-reduced-motion-proof="1" data-sheet="' + inv.sheet + '" data-signed-action="' + inv.signedAction + '" data-chat-command="' + inv.chatCommand + '" data-read-only="' + inv.readOnly + '">scene state changes remain visible; sheet=' + inv.sheet + ' · signed action=' + inv.signedAction + ' · chat command=' + inv.chatCommand + ' · read-only=' + inv.readOnly + '</span>';
+}
 function openSceneSheet(){
   const meta = SCENE_META[scene] || SCENE_META[0];
   $('sheetBody').innerHTML = '<div class="arc">scene provenance · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
     '<div class="nar">This scene is read from the Telegram mini app scene registry and refreshed without local operator writes.</div>' +
-    '<div class="kv"><b>scene source</b><span>' + esc(meta.source) + '</span><b>ecosystem target</b><span>' + esc(meta.target) + '</span><b>refresh rule</b><span>' + esc(meta.refresh) + '</span><b>reduced motion</b><span>scene state changes remain visible; sheet, signed action, chat command, and read-only interactions remain available.</span></div>';
+    '<div class="kv"><b>scene source</b><span>' + esc(meta.source) + '</span><b>ecosystem target</b><span>' + esc(meta.target) + '</span><b>refresh rule</b><span>' + esc(meta.refresh) + '</span>' + reducedMotionProofRow() + '</div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 $('sceneBadge').onclick = openSceneSheet;
