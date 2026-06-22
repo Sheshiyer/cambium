@@ -151,7 +151,7 @@ function makeElement(id: string) {
 
 async function renderPageFixtureContext(
   envelope: unknown,
-  options: { search?: string; rejectFetch?: boolean } = {},
+  options: { search?: string; rejectFetch?: boolean; now?: string } = {},
 ) {
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
@@ -169,6 +169,7 @@ async function renderPageFixtureContext(
   }
 
   const fetchCalls: string[] = [];
+  const fixedNow = options.now ? Date.parse(options.now) : null;
   const context: Record<string, unknown> = {
     document: { getElementById, querySelectorAll: () => [] },
     window: { Telegram: undefined, addEventListener() {}, innerWidth: 390 },
@@ -181,6 +182,7 @@ async function renderPageFixtureContext(
     },
     requestAnimationFrame: (fn: (time: number) => void) => { fn(0); return 0; },
     performance: { now: () => 0 },
+    Date: fixedNow === null ? Date : { parse: Date.parse, now: () => fixedNow },
     URLSearchParams,
     console,
     setTimeout,
@@ -742,9 +744,13 @@ test('page · reduced motion keeps scene state and interactions visible', async 
 });
 
 test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
-  assert.equal(FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt, '2099-01-01T00:00:00.000Z');
+  assert.equal(FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt, '2026-06-22T09:00:00.000Z');
   assert.equal(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.status, 'fresh');
-  assert.match(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proof, /deterministic future derivedAt/);
+  assert.equal(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock, '2026-06-22T10:00:00.000Z');
+  const ageMinutes = Math.round((Date.parse(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock) - Date.parse(FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt)) / 60000);
+  assert.equal(ageMinutes, 60);
+  assert.ok(ageMinutes < FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.staleAfterMinutes);
+  assert.match(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proof, /60 minutes before fixture proof clock/);
   assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.commands, 'fresh fixture has command data');
   assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.beats.length >= 2, 'fresh fixture has story beats');
   assert.match(FRESH_ECOSYSTEM_VISUAL_FIXTURE.rails.proof, /rails served from shared/);
@@ -752,7 +758,9 @@ test('visual fixtures · fresh ecosystem fixture has live source proofs', () => 
 });
 
 test('visual fixtures · fresh ecosystem fixture renders command and story proof', async () => {
-  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE);
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+  });
   (rendered.context.renderCommands as () => void)();
   assert.match(rendered.elements.get('cmds')!.innerHTML, /Hermes timers and Telegram brain/);
   assert.match(rendered.elements.get('beats')!.innerHTML, /Hermes routed a fresh command snapshot/);
