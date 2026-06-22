@@ -7,6 +7,13 @@ import { handle } from './handler.ts';
 import type { KvLike, SimpleRequest } from './handler.ts';
 import { PAGE } from './page.ts';
 import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
+import {
+  MINI_APP_ECOSYSTEM_TARGETS,
+  MINI_APP_INTERACTION_KINDS,
+  MINI_APP_MAP_SUBSECTION_IDS,
+  MINI_APP_SCENE_IDS,
+  MINI_APP_SECTION_IDS,
+} from './mini-app-surface-contract.ts';
 import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_RAILS, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../shared/cambium-visual-contract.ts';
 
 function fakeKv(): KvLike & { store: Map<string, string> } {
@@ -30,6 +37,32 @@ function canonicalJson(value: unknown): string {
   const record = value as Record<string, unknown>;
   return `{${Object.keys(record).sort().filter((k) => record[k] !== undefined)
     .map((k) => `${JSON.stringify(k)}:${canonicalJson(record[k])}`).join(',')}}`;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function assertNoInertPseudoButtons(html: string) {
+  const missing: string[] = [];
+  const pseudoButton = /<(?<tag>[a-z][a-z0-9-]*)\b(?<attrs>[^>]*\bclass="[^"]*(?:\bcmd\b|\brail\b|\bbeat\b)[^"]*"[^>]*)>/gi;
+  for (const match of html.matchAll(pseudoButton)) {
+    const attrs = match.groups?.attrs ?? '';
+    const className = attrs.match(/\bclass="([^"]*)"/)?.[1] ?? 'unknown';
+    const hasMarker = /\bdata-(?:interaction-kind|live|command-kind|rail|beat)="[^"]*"/.test(attrs);
+    if (!hasMarker) missing.push(className);
+  }
+  assert.deepEqual(missing, [], `inert pseudo-buttons missing data interaction markers: ${missing.join(', ')}`);
+}
+
+function assertSheetHasSource(sheet: string, source: string) {
+  assert.match(sheet, new RegExp(`<b>source<\\/b><span>${escapeRegExp(source)}`));
+}
+
+function assertNoSecretLeak(html: string) {
+  for (const marker of ['TELEGRAM_INIT_DATA=', 'TG_INIT_DATA=', 'QUESTS_PUSH_TOKEN=', 'Bearer ', 'hash=']) {
+    assert.doesNotMatch(html, new RegExp(escapeRegExp(marker)), `secret marker leaked: ${marker}`);
+  }
 }
 
 function b64urlFromBytes(bytes: Uint8Array): string {
@@ -336,6 +369,60 @@ test('page · five scenes with map tab and sliding indicator', () => {
   }
 });
 
+test('mini app surface contract · exports current scene ids', () => {
+  assert.deepEqual(MINI_APP_SCENE_IDS, ['quests', 'map', 'story', 'gate', 'commands']);
+});
+
+test('mini app surface contract · maps ecosystem targets', () => {
+  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'operator-policy', 'cortex', 'r3f', 'github', 'vault-via-paperclip', 'live-proof']) {
+    assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(target as never), `target ${target} is inventoried`);
+  }
+});
+
+test('mini app surface contract · exports interaction kind ids', () => {
+  assert.deepEqual(MINI_APP_INTERACTION_KINDS, ['sheet', 'signed-action', 'chat-command', 'read-only', 'external-proof']);
+});
+
+test('mini app surface contract · inventories current page sections', () => {
+  assert.deepEqual(MINI_APP_SECTION_IDS, ['quest-line', 'operator-map', 'story-feed', 'founder-gate', 'command-center']);
+});
+
+test('mini app surface contract · inventories operator map subsections', () => {
+  assert.deepEqual(MINI_APP_MAP_SUBSECTION_IDS, [
+    'tapestry',
+    'wake',
+    'lanes',
+    'stance',
+    'policy',
+    'decision-context',
+    'live-proof',
+    'side-quests',
+    'coordination',
+    'senses',
+    'stages',
+    'evidence-boxes',
+    'skills',
+    'companions',
+    'rails',
+  ]);
+});
+
+test('page audit helper · detects inert pseudo-button cards', () => {
+  assertNoInertPseudoButtons([
+    '<div class="cmd" data-interaction-kind="read-only"></div>',
+    '<div class="rail hot" data-rail="handoff"></div>',
+    '<div class="beat noesis" data-beat="0"></div>',
+  ].join(''));
+  assert.throws(
+    () => assertNoInertPseudoButtons('<div class="cmd"></div><div class="rail"></div><div class="beat"></div>'),
+    /cmd.*rail.*beat/,
+  );
+});
+
+test('page audit helper · mini app shell does not expose secret markers', () => {
+  assertNoSecretLeak(PAGE);
+});
+
 test('page · supports scene deep links for viewport proofs', () => {
   for (const m of ["PARAMS.get('scene')", 'START_SCENE', 'map:1', 'gate:3', 'commands:4', 'go(START_SCENE, true)']) {
     assert.ok(PAGE.includes(m), `page has scene deep link ${m}`);
@@ -469,7 +556,7 @@ test('page · tapestry audit sheet maps completion requirements to source-backed
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /completion definition · wait/);
   assert.match(sheet, /LIVE PROOF/);
-  assert.match(sheet, /source<\/b><span>liveProof/);
+  assertSheetHasSource(sheet, 'liveProof');
   assert.match(sheet, /proof only after their artifacts validate ready/);
   assert.doesNotMatch(sheet, /all requirements complete|production verified|live proof ready/i);
 });

@@ -17,6 +17,18 @@ The mini app may visualize only one of two things:
 
 It must not invent progress, rewards, wake events, NPC affinity, founder stance, or social proof.
 
+## 2026-06-23 ecosystem clickability review
+
+The reviewed top-level mini app scenes are:
+
+- `Quests`: quest ledger rows open detail sheets today, while the progress header, current frontier summary, and freshness chip still need explicit source/provenance affordances in the next slice.
+- `Map`: the operator map is the main ecosystem surface; tapestry, wake, lanes, stance, policy, decision context, live proof, side quests, coordination, senses, stages, evidence boxes, skill labors, and companions already have sheet-backed card patterns, while packet rails remain read-only until the rail behavior tasks.
+- `Story`: story beats are card-like but read-only, so narrative, noesis, Paperclip, and forge events need explicit inspection behavior before they can be treated as clickable.
+- `Gate`: approve and reroll are real Telegram-signed actions, but empty, unreachable, duplicate, and post-queue states must keep naming their Worker and policy provenance.
+- `Commands`: live status, Hermes, agents, work, and handoff cards open sheets; reference commands, chat actions, and digest commands stay read-only/chat-command rows rather than inert pseudo-buttons.
+
+Stale or weakly-mapped findings from this audit: stale freshness must not imply live proof, fixture-derived screenshots must remain layout evidence only, capture plans are not proof, read-only rows need visible interaction/provenance markers, and no row may claim readiness from templates, stale screenshots, diagnostics, or missing ecosystem data.
+
 ## Slice shipped first
 
 The first implementation slice extends the existing Operator Map with:

@@ -264,6 +264,14 @@ test('live proof readiness does not count a Chrome binary as viewport proof', ()
   assert.deepEqual(viewport?.missing, ['run npm run proof:tg-viewport with CHROME_BIN pointing at a browser with CDP support to generate manifest.json']);
 });
 
+test('viewport proof manifest distinguishes layout and clickability proof intent', () => {
+  const source = readFileSync(new URL('./visual-viewport-proof.mjs', import.meta.url), 'utf8');
+  assert.match(source, /intent: 'layout-proof'/);
+  assert.match(source, /intent: 'clickability-proof'/);
+  assert.match(source, /proofIntentSummary/);
+  assert.match(source, /intent: proof\.intent/);
+});
+
 test('live proof readiness marks capture steps ready-to-capture when prerequisites are supplied', () => {
   const cwd = fixtureRepo();
   const screenshot = writeScreenshotFixture(cwd);

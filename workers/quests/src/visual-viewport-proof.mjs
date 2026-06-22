@@ -676,15 +676,16 @@ writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(mir
 const proofs = [];
 await withServer(async (base) => {
   for (const proof of [
-    { scene: 'map', path: 'map-tapestry-audit-mobile.png', waitFor: "document.querySelector('[data-tapestry=\"0\"]')" },
-    { scene: 'map', path: 'map-no-fake-progress-mobile.png', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
-    { scene: 'map', path: 'map-policy-gap-mobile.png', sceneIndex: 1, scrollSelector: '[data-policy]' },
-    { scene: 'map', fixture: 'gate', path: 'map-gate-priority-mobile.png', sceneIndex: 1, scrollSelector: '[data-policy]' },
-    { scene: 'map', fixture: 'skill', path: 'map-skill-promotion-mobile.png', sceneIndex: 1, scrollSelector: '[data-skill="0"]' },
+    { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')" },
+    { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
+    { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
+    { scene: 'map', fixture: 'gate', path: 'map-gate-priority-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
+    { scene: 'map', fixture: 'skill', path: 'map-skill-promotion-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-skill="0"]' },
     {
       scene: 'map',
       fixture: 'skill',
       path: 'sheet-skill-promotion-mobile.png',
+      intent: 'clickability-proof',
       sceneIndex: 1,
       scrollSelector: '[data-skill="0"]',
       waitFor: "document.querySelector('[data-skill=\"0\"]')",
@@ -692,16 +693,21 @@ await withServer(async (base) => {
       waitAfterExpression: "document.querySelector('#sheet.on [data-promote-skill]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
       clipSelector: '#sheet',
     },
-    { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
-    { scene: 'gate', path: 'gate-consequence-mobile.png' },
+    { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
+    { scene: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof' },
   ]) {
     const file = join(outDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
     await capture(url, file, proof);
-    proofs.push({ scene: proof.scene, url, path: proof.path, ...pngSize(file) });
+    proofs.push({ scene: proof.scene, url, path: proof.path, intent: proof.intent, ...pngSize(file) });
   }
 });
+
+const proofIntentSummary = proofs.reduce((summary, proof) => {
+  summary[proof.intent] = (summary[proof.intent] || 0) + 1;
+  return summary;
+}, {});
 
 const manifest = {
   generatedAt: new Date().toISOString(),
@@ -709,6 +715,7 @@ const manifest = {
   browserMode: activeBrowserMode,
   browserCandidates: BROWSER_CANDIDATES,
   viewport,
+  proofIntentSummary,
   proofs,
   invariant: 'Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions.',
 };
