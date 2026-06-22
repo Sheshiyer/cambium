@@ -774,6 +774,18 @@ function countUp(node, to, suffix){
     node.textContent = Math.round(to*e) + suffix;
     if (p < 1) requestAnimationFrame(tick); })(t0);
 }
+function resetQuestSummary(text, frontier){
+  const prog = $('progress');
+  const here = $('here');
+  prog.textContent = text;
+  here.textContent = frontier;
+  prog.onclick = null;
+  here.onclick = null;
+  delete prog.dataset.interactionKind;
+  delete prog.dataset.source;
+  delete here.dataset.interactionKind;
+  delete here.dataset.source;
+}
 function renderQuests(L){
   const stem = $('stem');
   stem.innerHTML = L.rows.map((r, i) =>
@@ -1587,8 +1599,7 @@ function load(){
         '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>. No quest rows are rendered until a real ledger arrives.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
       FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'empty ledger' };
       markFreshnessChip('missing');
-      $('progress').textContent = 'empty ledger';
-      $('here').textContent = 'push required';
+      resetQuestSummary('empty ledger', 'push required');
       $('fresh').textContent = 'empty'; $('fresh').classList.add('stale'); return;
     }
     paint(env);
@@ -1599,8 +1610,7 @@ function load(){
       '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Retry re-fetches ' + esc(REFRESH_ROUTE) + ' and performs no local write.</p></div>';
     FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'offline' };
     markFreshnessChip(REFRESH_ROUTE);
-    $('progress').textContent = 'ledger offline';
-    $('here').textContent = 'retry fetch';
+    resetQuestSummary('ledger offline', 'retry fetch');
     $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
   });
 }

@@ -151,7 +151,7 @@ function makeElement(id: string) {
 
 async function renderPageFixtureContext(
   envelope: unknown,
-  options: { search?: string; rejectFetch?: boolean; now?: string } = {},
+  options: { search?: string; rejectFetch?: boolean; now?: string; fetchSequence?: unknown[] } = {},
 ) {
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
@@ -169,6 +169,7 @@ async function renderPageFixtureContext(
   }
 
   const fetchCalls: string[] = [];
+  const fetchSequence = [...(options.fetchSequence ?? [])];
   const fixedNow = options.now ? Date.parse(options.now) : null;
   const context: Record<string, unknown> = {
     document: { getElementById, querySelectorAll: () => [] },
@@ -178,7 +179,9 @@ async function renderPageFixtureContext(
     fetch: async (url: string) => {
       fetchCalls.push(String(url));
       if (options.rejectFetch) throw new Error('fixture fetch failed');
-      return { ok: true, json: async () => envelope };
+      const next = fetchSequence.length ? fetchSequence.shift() : envelope;
+      if (next instanceof Error) throw next;
+      return { ok: true, json: async () => next };
     },
     requestAnimationFrame: (fn: (time: number) => void) => { fn(0); return 0; },
     performance: { now: () => 0 },
@@ -733,6 +736,28 @@ test('page · empty ledger state shows push command without quest rows', async (
   assert.doesNotMatch(stem, /class="q /);
 });
 
+test('page · empty ledger refresh clears stale quest summary handlers', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    fetchSequence: [NO_FAKE_PROGRESS_VISUAL_FIXTURE, { schema: 1, tenant: 'cambium' }],
+  });
+  const progress = rendered.elements.get('progress')!;
+  const here = rendered.elements.get('here')!;
+
+  assert.equal(progress.dataset.interactionKind, 'sheet');
+  assert.equal(here.dataset.interactionKind, 'sheet');
+
+  await (rendered.context.load as () => Promise<void>)();
+
+  assert.equal(progress.textContent, 'empty ledger');
+  assert.equal(here.textContent, 'push required');
+  assert.equal(progress.onclick, null);
+  assert.equal(here.onclick, null);
+  assert.equal(progress.dataset.interactionKind, undefined);
+  assert.equal(progress.dataset.source, undefined);
+  assert.equal(here.dataset.interactionKind, undefined);
+  assert.equal(here.dataset.source, undefined);
+});
+
 test('page · unreachable ledger state names retry route and no local write', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { rejectFetch: true });
   const stem = rendered.elements.get('stem')!.innerHTML;
@@ -741,6 +766,28 @@ test('page · unreachable ledger state names retry route and no local write', as
   assert.match(stem, /retry/);
   assert.match(stem, /\/api\/quests\/cambium/);
   assert.match(stem, /performs no local write/);
+});
+
+test('page · offline refresh clears stale quest summary handlers', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    fetchSequence: [NO_FAKE_PROGRESS_VISUAL_FIXTURE, new Error('offline')],
+  });
+  const progress = rendered.elements.get('progress')!;
+  const here = rendered.elements.get('here')!;
+
+  assert.equal(progress.dataset.interactionKind, 'sheet');
+  assert.equal(here.dataset.interactionKind, 'sheet');
+
+  await (rendered.context.load as () => Promise<void>)();
+
+  assert.equal(progress.textContent, 'ledger offline');
+  assert.equal(here.textContent, 'retry fetch');
+  assert.equal(progress.onclick, null);
+  assert.equal(here.onclick, null);
+  assert.equal(progress.dataset.interactionKind, undefined);
+  assert.equal(progress.dataset.source, undefined);
+  assert.equal(here.dataset.interactionKind, undefined);
+  assert.equal(here.dataset.source, undefined);
 });
 
 test('page · map header opens shared visual contract sheet', async () => {
