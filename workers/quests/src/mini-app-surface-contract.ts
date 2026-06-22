@@ -91,13 +91,14 @@ export const MINI_APP_SECTIONS: readonly MiniAppSurfaceSection[] = [
     target: 'hermes',
     interactions: {
       primary: 'sheet',
-      secondary: ['chat-command'],
+      secondary: ['chat-command', 'read-only'],
       controls: [
         { id: 'live-command-sheet', interaction: 'sheet', source: 'paperclipCommandsData' },
-        { id: 'typed-chat-command', interaction: 'chat-command', source: 'curios.self-chat-command' },
+        { id: 'typed-chat-action', interaction: 'chat-command', source: 'curios.self-chat-command' },
+        { id: 'command-reference', interaction: 'read-only', source: 'curios.self-command-reference' },
       ],
     },
-    source: 'paperclipCommandsData plus curios.self command surface',
+    source: 'paperclipCommandsData plus curios.self command reference/action surface',
   },
 ];
 

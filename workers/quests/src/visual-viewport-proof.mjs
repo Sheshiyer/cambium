@@ -7,6 +7,7 @@ import { createServer } from 'node:http';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
 import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 
@@ -48,6 +49,31 @@ let activeBrowserMode = 'headless-new';
 const outDir = resolve('docs/plans/assets/tg-miniapp-viewport-proof');
 const viewport = { width: 390, height: 844 };
 const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/telegram-web-app.js');
+
+export function buildViewportProofManifest({
+  generatedAt = new Date().toISOString(),
+  chrome,
+  browserMode,
+  browserCandidates,
+  viewport,
+  proofs,
+}) {
+  const proofIntentSummary = proofs.reduce((summary, proof) => {
+    summary[proof.intent] = (summary[proof.intent] || 0) + 1;
+    return summary;
+  }, {});
+
+  return {
+    generatedAt,
+    chrome,
+    browserMode,
+    browserCandidates,
+    viewport,
+    proofIntentSummary,
+    proofs,
+    invariant: 'Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions.',
+  };
+}
 
 const gateFixture = {
   ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -704,28 +730,22 @@ await withServer(async (base) => {
   }
 });
 
-const proofIntentSummary = proofs.reduce((summary, proof) => {
-  summary[proof.intent] = (summary[proof.intent] || 0) + 1;
-  return summary;
-}, {});
-
-const manifest = {
-  generatedAt: new Date().toISOString(),
+const manifest = buildViewportProofManifest({
   chrome: activeBrowser,
   browserMode: activeBrowserMode,
   browserCandidates: BROWSER_CANDIDATES,
   viewport,
-  proofIntentSummary,
   proofs,
-  invariant: 'Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions.',
-};
+});
 
 writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 console.log(JSON.stringify(manifest, null, 2));
 }
 
-main().catch((error) => {
-  writeFailureArtifact(error);
-  console.error(error instanceof Error ? error.stack : String(error));
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    writeFailureArtifact(error);
+    console.error(error instanceof Error ? error.stack : String(error));
+    process.exitCode = 1;
+  });
+}

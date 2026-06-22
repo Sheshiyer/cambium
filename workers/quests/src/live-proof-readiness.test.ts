@@ -23,6 +23,7 @@ import {
   writeWorkerProbeArtifact,
   writeWorkerProbeTemplate,
 } from './live-proof-readiness.mjs';
+import { buildViewportProofManifest } from './visual-viewport-proof.mjs';
 
 function fixtureRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'cambium-live-proof-'));
@@ -265,11 +266,23 @@ test('live proof readiness does not count a Chrome binary as viewport proof', ()
 });
 
 test('viewport proof manifest distinguishes layout and clickability proof intent', () => {
-  const source = readFileSync(new URL('./visual-viewport-proof.mjs', import.meta.url), 'utf8');
-  assert.match(source, /intent: 'layout-proof'/);
-  assert.match(source, /intent: 'clickability-proof'/);
-  assert.match(source, /proofIntentSummary/);
-  assert.match(source, /intent: proof\.intent/);
+  const manifest = buildViewportProofManifest({
+    generatedAt: '2026-06-22T00:01:00.000Z',
+    chrome: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    browserMode: 'headless-new',
+    browserCandidates: ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'],
+    viewport: { width: 390, height: 844 },
+    proofs: [
+      { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1000 },
+      { scene: 'map', path: 'sheet-skill-promotion-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2000 },
+    ],
+  });
+  const artifact = JSON.parse(JSON.stringify(manifest));
+
+  assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 1, 'clickability-proof': 1 });
+  assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'clickability-proof']);
+  assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.path, 'sheet-skill-promotion-mobile.png');
+  assert.match(artifact.invariant, /clipped real sheet proof/);
 });
 
 test('live proof readiness marks capture steps ready-to-capture when prerequisites are supplied', () => {

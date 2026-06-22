@@ -402,11 +402,13 @@ function renderCommands(){
     '<div class="cmdgrp">' + esc(group) + '</div>' +
     items.map(([name, args, desc, kind]) => {
       const live = kind && liveKeys[kind];
-      const interaction = live ? 'sheet' : 'chat-command';
-      const source = live ? 'paperclipCommandsData' : 'curios.self-chat-command';
-      return '<div class="cmd' + (kind === 'act' ? ' act' : '') + (live ? ' live' : '') + '"' +
+      const action = kind === 'act';
+      const reference = !live && !action;
+      const interaction = live ? 'sheet' : action ? 'chat-command' : 'read-only';
+      const source = live ? 'paperclipCommandsData' : action ? 'curios.self-chat-command' : 'curios.self-command-reference';
+      return '<div class="cmd' + (action ? ' act' : '') + (live ? ' live' : '') + (reference ? ' ref' : '') + '"' +
         ' data-interaction-kind="' + interaction + '" data-source="' + source + '"' +
-        ' data-command-kind="' + (kind || 'chat') + '"' +
+        ' data-command-kind="' + (kind || 'reference') + '"' +
         (live ? ' data-live="' + kind + '"' : '') + '>' +
         '<span class="cnode"></span>' +
         '<div style="flex:1"><div><span class="cname">/' + esc(name) + '</span>' +

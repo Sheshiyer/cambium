@@ -419,13 +419,14 @@ test('mini app surface contract · records section interaction semantics', () =>
     target: 'hermes',
     interactions: {
       primary: 'sheet',
-      secondary: ['chat-command'],
+      secondary: ['chat-command', 'read-only'],
       controls: [
         { id: 'live-command-sheet', interaction: 'sheet', source: 'paperclipCommandsData' },
-        { id: 'typed-chat-command', interaction: 'chat-command', source: 'curios.self-chat-command' },
+        { id: 'typed-chat-action', interaction: 'chat-command', source: 'curios.self-chat-command' },
+        { id: 'command-reference', interaction: 'read-only', source: 'curios.self-command-reference' },
       ],
     },
-    source: 'paperclipCommandsData plus curios.self command surface',
+    source: 'paperclipCommandsData plus curios.self command reference/action surface',
   });
   assert.deepEqual(byId['founder-gate']?.interactions, { primary: 'signed-action' });
   assert.deepEqual(byId['story-feed']?.interactions, { primary: 'read-only' });
@@ -486,6 +487,7 @@ test('page audit helper · real rendered pseudo-button rows declare interaction 
   assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="operator-narrative")/);
   assert.match(html, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="paperclipCommandsData")/);
   assert.match(html, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")(?=[^>]*data-source="curios\.self-chat-command")/);
+  assert.match(html, /class="cmd ref"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="curios\.self-command-reference")/);
 });
 
 test('page audit helper · mini app shell does not expose secret markers', () => {
