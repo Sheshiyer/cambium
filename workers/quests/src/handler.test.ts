@@ -6,7 +6,12 @@ import vm from 'node:vm';
 import { handle } from './handler.ts';
 import type { KvLike, SimpleRequest } from './handler.ts';
 import { PAGE } from './page.ts';
-import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
+import {
+  FRESH_ECOSYSTEM_VISUAL_FIXTURE,
+  NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+  OFFLINE_ECOSYSTEM_VISUAL_FIXTURE,
+  STALE_ECOSYSTEM_VISUAL_FIXTURE,
+} from './visual-fixtures.ts';
 import {
   MINI_APP_ECOSYSTEM_TARGETS,
   MINI_APP_INTERACTION_KINDS,
@@ -155,7 +160,7 @@ async function renderPageFixtureContext(envelope: unknown) {
     if (!elements.has(id)) elements.set(id, makeElement(id));
     return elements.get(id)!;
   };
-  for (const id of ['ten', 'fresh', 'ptr', 'track', 'ind', 'tb0', 'tb1', 'tb2', 'tb3', 'tb4',
+  for (const id of ['ten', 'fresh', 'sceneBadge', 'ptr', 'track', 'ind', 'tb0', 'tb1', 'tb2', 'tb3', 'tb4',
     'stem', 'fill', 'progress', 'here', 'mapwrap', 'beats', 'gauge', 'gate', 'cmds', 'veil', 'sheet', 'sheetBody']) {
     getElementById(id);
   }
@@ -371,6 +376,36 @@ test('page · five scenes with map tab and sliding indicator', () => {
   for (const m of ['>Quests<', '>Map<', '>Story<', '>Gate<', '>Commands<', 'class="ind"', 'translateX']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
   }
+});
+
+test('page · scene tabs expose source labels', () => {
+  assert.equal(PAGE.match(/data-scene-source="tg-miniapp-scenes@v1"/g)?.length, 5);
+});
+
+test('page · scenes expose accessible titles', () => {
+  for (const [sceneId, titleId] of [
+    ['sceneQ', 'sceneQTitle'],
+    ['sceneF', 'sceneFTitle'],
+    ['sceneS', 'sceneSTitle'],
+    ['sceneG', 'sceneGTitle'],
+    ['sceneC', 'sceneCTitle'],
+  ]) {
+    assert.match(PAGE, new RegExp(`id="${sceneId}" aria-labelledby="${titleId}"`));
+    assert.match(PAGE, new RegExp(`id="${titleId}" class="sr"`));
+  }
+});
+
+test('page · active scene badge opens provenance sheet', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.go as (index: number) => void)(1);
+  const badge = rendered.elements.get('sceneBadge')!;
+  assert.equal(badge.textContent, 'Map');
+  (badge.onclick as () => void)();
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /scene provenance · map/);
+  assert.match(sheet, /scene source<\/b><span>tg-miniapp-scenes@v1/);
+  assert.match(sheet, /ecosystem target<\/b><span>r3f/);
+  assert.match(sheet, /refresh rule<\/b><span>pull-to-refresh re-fetches \/api\/quests\/cambium and does not write operator state/);
 });
 
 test('mini app surface contract · exports current scene ids', () => {
@@ -616,6 +651,61 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   assert.match(map, /first session unplayed/);
   assert.equal(elements.get('fresh')!.classList.has('stale'), true);
   assert.doesNotMatch(map, /100% success|founder affinity|relationship level|recommended next|live proof ready|verified founder device|reward unlocked|level up|leaderboard|social proof/i);
+});
+
+test('page · freshness chip opens stale source proof sheet', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const fresh = rendered.elements.get('fresh')!;
+  assert.equal(fresh.classList.has('stale'), true);
+  (fresh.onclick as () => void)();
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /stale data is not live proof/);
+  assert.match(sheet, /derivedAt<\/b><span>2026-01-01T00:00:00.000Z/);
+  assert.match(sheet, /source<\/b><span>visual-fixture:no-fake-progress/);
+  assert.match(sheet, /stale threshold<\/b><span>360 minutes/);
+  assert.match(sheet, /refresh command<\/b><span>quine write quests push --tenant cambium/);
+});
+
+test('page · pull-to-refresh provenance is read-only fetch', () => {
+  assert.match(PAGE, /data-refresh-route="\/api\/quests\/cambium"/);
+  assert.match(PAGE, /data-refresh-writes="none"/);
+  assert.match(PAGE, /Pull to refresh re-fetches \/api\/quests\/cambium and does not write operator state/);
+});
+
+test('page · reduced motion keeps scene state and interactions visible', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.go as (index: number) => void)(2);
+  assert.equal(rendered.elements.get('tb2')!.classList.has('on'), true);
+  assert.equal(rendered.elements.get('sceneBadge')!.textContent, 'Story');
+  (rendered.elements.get('sceneBadge')!.onclick as () => void)();
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /reduced motion<\/b><span>scene state changes remain visible/);
+  assert.match(sheet, /sheet, signed action, chat command, and read-only interactions remain available/);
+});
+
+test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
+  const ageMinutes = Math.round((Date.now() - Date.parse(FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt)) / 60000);
+  assert.ok(ageMinutes < 360, `fresh fixture should be recent, got ${ageMinutes}m`);
+  assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.commands, 'fresh fixture has command data');
+  assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.beats.length >= 2, 'fresh fixture has story beats');
+  assert.match(FRESH_ECOSYSTEM_VISUAL_FIXTURE.rails.proof, /rails served from shared/);
+  assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.sourceProofs.some((proof) => proof.id === 'commands'));
+});
+
+test('visual fixtures · stale ecosystem fixture records explicit stale reasons', () => {
+  const ageMinutes = Math.round((Date.now() - Date.parse(STALE_ECOSYSTEM_VISUAL_FIXTURE.derivedAt)) / 60000);
+  assert.ok(ageMinutes > 360, `stale fixture should be older than six hours, got ${ageMinutes}m`);
+  assert.equal(STALE_ECOSYSTEM_VISUAL_FIXTURE.stale.staleAfterMinutes, 360);
+  assert.ok(STALE_ECOSYSTEM_VISUAL_FIXTURE.stale.reasons.some((reason) => /stale data is not live proof/.test(reason)));
+  assert.ok(STALE_ECOSYSTEM_VISUAL_FIXTURE.stale.reasons.some((reason) => /quine write quests push --tenant cambium/.test(reason)));
+});
+
+test('visual fixtures · offline ecosystem fixture keeps gaps explicit', () => {
+  assert.equal(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.commands, null);
+  assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.liveProof.gap, /live proof source offline/);
+  assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.wake.gap, /commands, live proof, and Paperclip are unavailable/);
+  assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.social.rows[0].detail, /Paperclip coordination evidence is unavailable/);
+  assert.match(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE.paperclip.gap, /Paperclip unavailable/);
 });
 
 test('page · tapestry audit sheet maps completion requirements to source-backed proof', async () => {

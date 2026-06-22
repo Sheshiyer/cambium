@@ -271,6 +271,8 @@ export const PAGE = `<!doctype html>
   .state b{display:block;color:var(--ink);margin-bottom:6px;font-size:15px}
   .state p{opacity:.8;margin-bottom:10px;line-height:1.5}
   .state code{font:12px var(--mono);opacity:.85;background:rgba(214,255,246,.06);padding:3px 7px;border-radius:6px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .scene-chip{border:1px solid var(--line);background:rgba(224,255,79,.08);color:var(--ink);font:11px var(--mono);cursor:pointer}
 
   footer{position:fixed;left:0;right:0;bottom:0;padding:10px 18px calc(var(--sab) + 14px);
     font:10.5px var(--mono);opacity:.5;background:linear-gradient(transparent,var(--bg) 45%);z-index:2;pointer-events:none}
@@ -285,19 +287,21 @@ export const PAGE = `<!doctype html>
 <div class="app">
   <header>
     <div class="brand">Quest Log<small>the infinite game · tenant <span id="ten">cambium</span></small></div>
+    <button id="sceneBadge" type="button" class="chip scene-chip" data-interaction-kind="sheet" data-source="tg-miniapp-scenes@v1">Quests</button>
     <span id="fresh" class="chip">syncing</span>
   </header>
-  <div class="ptr" id="ptr"><div class="drop"></div></div>
+  <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="none"><div class="drop"></div><span class="sr">Pull to refresh re-fetches /api/quests/cambium and does not write operator state.</span></div>
   <nav>
-    <button id="tb0" class="on">Quests</button>
-    <button id="tb1">Map</button>
-    <button id="tb2">Story</button>
-    <button id="tb3">Gate</button>
-    <button id="tb4">Commands</button>
+    <button id="tb0" class="on" data-scene-source="tg-miniapp-scenes@v1">Quests</button>
+    <button id="tb1" data-scene-source="tg-miniapp-scenes@v1">Map</button>
+    <button id="tb2" data-scene-source="tg-miniapp-scenes@v1">Story</button>
+    <button id="tb3" data-scene-source="tg-miniapp-scenes@v1">Gate</button>
+    <button id="tb4" data-scene-source="tg-miniapp-scenes@v1">Commands</button>
     <div class="ind" id="ind"></div>
   </nav>
   <div class="track" id="track">
-    <section class="scene" id="sceneQ">
+    <section class="scene" id="sceneQ" aria-labelledby="sceneQTitle">
+      <h2 id="sceneQTitle" class="sr">Quests</h2>
       <div class="stem" id="stem">
         <div class="skel"></div><div class="skel"></div><div class="skel"></div>
         <div class="skel"></div><div class="skel"></div>
@@ -305,15 +309,17 @@ export const PAGE = `<!doctype html>
       <div class="bar"><div id="fill" class="fill"></div></div>
       <div class="meta"><span id="progress"></span><span id="here"></span></div>
     </section>
-    <section class="scene" id="sceneF"><div class="mapwrap" id="mapwrap"></div></section>
-    <section class="scene" id="sceneS"><div id="beats"></div></section>
-    <section class="scene" id="sceneG">
+    <section class="scene" id="sceneF" aria-labelledby="sceneFTitle"><h2 id="sceneFTitle" class="sr">Map</h2><div class="mapwrap" id="mapwrap"></div></section>
+    <section class="scene" id="sceneS" aria-labelledby="sceneSTitle"><h2 id="sceneSTitle" class="sr">Story</h2><div id="beats"></div></section>
+    <section class="scene" id="sceneG" aria-labelledby="sceneGTitle">
+      <h2 id="sceneGTitle" class="sr">Gate</h2>
       <div class="ghead">The Gate · the one write</div>
       <div class="gsub">approve or reroll an open work item — evidence-gated, founders only.</div>
       <div class="gauge" id="gauge"></div>
       <div id="gate">loading the queue…</div>
     </section>
-    <section class="scene" id="sceneC">
+    <section class="scene" id="sceneC" aria-labelledby="sceneCTitle">
+      <h2 id="sceneCTitle" class="sr">Commands</h2>
       <div class="ghead">Commands · the co-founder interface</div>
       <div class="gsub">the /ts-* command surface, run through the curios.self bot in Telegram.</div>
       <div id="cmds"></div>
@@ -345,10 +351,18 @@ const SCENE_PARAM = String(PARAMS.get('scene') || '').toLowerCase();
 const START_SCENE = ({ quests:0, quest:0, q:0, map:1, story:2, gate:3, commands:4 }[SCENE_PARAM] ?? 0);
 $('ten').textContent = TENANT;
 let LEDGER = null;
+let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'freshness missing' };
 
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
 const track = $('track'), ind = $('ind'), SCN = 5;
 let scene = START_SCENE;
+const SCENE_META = [
+  { label:'Quests', source:'tg-miniapp-scenes@v1', target:'quine', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
+  { label:'Map', source:'tg-miniapp-scenes@v1', target:'r3f', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
+  { label:'Story', source:'tg-miniapp-scenes@v1', target:'paperclip', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
+  { label:'Gate', source:'tg-miniapp-scenes@v1', target:'telegram', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state; writes require signed founder action' },
+  { label:'Commands', source:'tg-miniapp-scenes@v1', target:'hermes', refresh:'pull-to-refresh re-fetches /api/quests/' + TENANT + ' and does not write operator state' },
+];
 const W = () => track.clientWidth || window.innerWidth;
 function place(x, animate){
   track.style.transition = (animate && !RM) ? 'transform .5s var(--ease)' : 'none';
@@ -361,12 +375,28 @@ function go(i, fromSwipe){
   place(-scene * W(), true);
   ind.style.transition = RM ? 'none' : 'transform .45s var(--ease)';
   ind.style.transform = 'translateX(' + (100 * scene) + '%)';
-  [0,1,2,3,4].forEach(n => $('tb'+n).classList.toggle('on', n === scene));
+  [0,1,2,3,4].forEach(n => { $('tb'+n).classList.toggle('on', n === scene); $('tb'+n).setAttribute && $('tb'+n).setAttribute('aria-selected', n === scene ? 'true' : 'false'); });
+  updateSceneBadge();
   if (scene === 3) loadGate();
   if (scene === 4) renderCommands();
   if (!fromSwipe) buzz('light');
 }
 [0,1,2,3,4].forEach(n => $('tb'+n).onclick = () => go(n));
+function updateSceneBadge(){
+  const meta = SCENE_META[scene] || SCENE_META[0];
+  const badge = $('sceneBadge');
+  badge.textContent = meta.label;
+  badge.dataset.scene = meta.label.toLowerCase();
+  badge.dataset.ecosystemTarget = meta.target;
+}
+function openSceneSheet(){
+  const meta = SCENE_META[scene] || SCENE_META[0];
+  $('sheetBody').innerHTML = '<div class="arc">scene provenance · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
+    '<div class="nar">This scene is read from the Telegram mini app scene registry and refreshed without local operator writes.</div>' +
+    '<div class="kv"><b>scene source</b><span>' + esc(meta.source) + '</span><b>ecosystem target</b><span>' + esc(meta.target) + '</span><b>refresh rule</b><span>' + esc(meta.refresh) + '</span><b>reduced motion</b><span>scene state changes remain visible; sheet, signed action, chat command, and read-only interactions remain available.</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+$('sceneBadge').onclick = openSceneSheet;
 
 /* commands panel — the /ts-* co-founder interface.
    4th tuple element: a live-data key (status/agents/work/handoffs/hermes) → tappable,
@@ -1390,12 +1420,32 @@ function renderStory(env){
 }
 
 /* ── freshness ── */
-function freshness(iso){
+function freshness(env){
   const f = $('fresh');
-  const mins = Math.round((Date.now() - new Date(iso)) / 60000);
-  f.textContent = 'derived ' + (mins < 2 ? 'just now' : mins < 60 ? mins + 'm ago' : Math.round(mins / 60) + 'h ago');
-  f.classList.toggle('stale', mins > 360);
+  const iso = env && env.derivedAt;
+  const mins = minutesSince(iso);
+  const stale = mins === null || mins > 360;
+  const source = (env && env.source) || 'missing';
+  FRESHNESS_STATE = {
+    derivedAt: iso || 'missing',
+    source,
+    age: mins,
+    stale,
+    detail: mins === null ? 'freshness missing' : mins < 2 ? 'derived just now' : mins < 60 ? 'derived ' + mins + 'm ago' : 'derived ' + Math.round(mins / 60) + 'h ago',
+  };
+  f.textContent = FRESHNESS_STATE.detail;
+  f.dataset.interactionKind = 'sheet';
+  f.dataset.source = source;
+  f.classList.toggle('stale', stale);
 }
+function openFreshnessSheet(){
+  const s = FRESHNESS_STATE;
+  $('sheetBody').innerHTML = '<div class="arc">freshness · ' + (s.stale ? 'stale' : 'fresh') + '</div><h2>Freshness</h2>' +
+    '<div class="nar">' + (s.stale ? 'stale data is not live proof' : 'fresh envelope data can support the current read-only view') + '</div>' +
+    '<div class="kv"><b>derivedAt</b><span>' + esc(s.derivedAt) + '</span><b>source</b><span>' + esc(s.source) + '</span><b>stale threshold</b><span>360 minutes</span><b>refresh command</b><span>quine write quests push --tenant cambium</span><b>pull refresh</b><span>re-fetches /api/quests/' + esc(TENANT) + ' and does not write operator state</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+$('fresh').onclick = openFreshnessSheet;
 
 /* ── data ── */
 // radial 270deg gauge of real progress (arcs grown / total) — the gate's evidence dial
@@ -1423,19 +1473,21 @@ function renderGauge(L){
 function paint(env){
   LEDGER = env.ledger;
   CMDDATA = env.commands || null;
-  renderQuests(env.ledger); renderOperatorMap(env); renderStory(env); renderGauge(env.ledger); freshness(env.derivedAt);
+  renderQuests(env.ledger); renderOperatorMap(env); renderStory(env); renderGauge(env.ledger); freshness(env);
 }
 function load(){
   return fetch('/api/quests/' + TENANT).then(r => r.json()).then(env => {
     if (!env.ledger){
       $('stem').innerHTML =
         '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
-      $('fresh').textContent = 'empty'; return;
+      FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'empty ledger' };
+      $('fresh').textContent = 'empty'; $('fresh').classList.add('stale'); return;
     }
     paint(env);
   }).catch(() => {
     $('stem').innerHTML =
-      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry.</p></div>';
+      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Pull-to-refresh re-fetches /api/quests/' + esc(TENANT) + ' and does not write operator state.</p></div>';
+    FRESHNESS_STATE = { derivedAt:'missing', source:'/api/quests/' + TENANT, age:null, stale:true, detail:'offline' };
     $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
   });
 }

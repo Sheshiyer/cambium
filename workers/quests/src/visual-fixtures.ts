@@ -473,3 +473,101 @@ export const NO_FAKE_PROGRESS_VISUAL_FIXTURE = {
     ],
   },
 } as const;
+
+export const FRESH_ECOSYSTEM_VISUAL_FIXTURE = {
+  ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+  derivedAt: new Date().toISOString(),
+  source: 'visual-fixture:fresh-ecosystem',
+  commands: {
+    status: { agents: 3, issuesOpen: 2, issuesDone: 7, arcs: '3/17', hermes: 'ready' },
+    services: [
+      { name: 'Hermes Telegram brain', status: 'ready', detail: 'curios.self command bridge reachable' },
+      { name: 'Cambium Worker', status: 'ready', detail: 'quest envelope route responding for cambium' },
+    ],
+    agents: [
+      { name: 'Mira', model: 'operator-npc-events@v1' },
+      { name: 'Paperclip', model: 'vault-via-paperclip' },
+    ],
+    work: [
+      { id: 'THO-42', status: 'active', title: 'Refresh mini app proof surface', who: 'operator' },
+    ],
+    handoffs: [
+      { id: 'HND-7', status: 'waiting-founder', title: 'Approve fresh viewport capture' },
+    ],
+  },
+  beats: [
+    { text: 'Hermes routed a fresh command snapshot into the mini app', lane: 'paperclip', noesis: false },
+    { text: 'NOESIS check kept stale screenshots out of readiness', lane: 'noesis', noesis: true },
+  ],
+  rails: {
+    source: 'shared/cambium-visual-contract',
+    proof: '5 organs and 7 rails served from shared/cambium-visual-contract.ts',
+    rows: CAMBIUM_LANES.map((lane) => ({ id: lane.id, source: 'shared/cambium-visual-contract', proof: `${lane.title} lane is mapped` })),
+  },
+  sourceProofs: [
+    { id: 'commands', source: 'paperclipCommandsData', proof: 'live command sheet rows have source metadata' },
+    { id: 'beats', source: 'operator-narrative', proof: 'story beats carry lane and narrative source' },
+    { id: 'rails', source: 'shared/cambium-visual-contract', proof: 'rail rows are read-only contract evidence' },
+  ],
+} as const;
+
+export const STALE_ECOSYSTEM_VISUAL_FIXTURE = {
+  ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+  derivedAt: '2026-01-01T00:00:00.000Z',
+  source: 'visual-fixture:stale-ecosystem',
+  stale: {
+    status: 'stale',
+    staleAfterMinutes: 360,
+    reasons: [
+      'derivedAt is older than six hours',
+      'stale data is not live proof',
+      'refresh command: quine write quests push --tenant cambium',
+    ],
+  },
+} as const;
+
+export const OFFLINE_ECOSYSTEM_VISUAL_FIXTURE = {
+  ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+  derivedAt: '2026-01-01T00:00:00.000Z',
+  source: 'visual-fixture:offline-ecosystem',
+  commands: null,
+  wake: {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE.wake,
+    source: 'missing',
+    gap: 'wake source offline; commands, live proof, and Paperclip are unavailable',
+    steps: NO_FAKE_PROGRESS_VISUAL_FIXTURE.wake.steps.map((step) => ({
+      ...step,
+      status: 'missing',
+      source: 'missing',
+      detail: `offline gap: ${step.detail}`,
+      proof: 'offline fixture does not serve wake proof',
+    })),
+  },
+  liveProof: {
+    source: 'missing',
+    status: 'blocked',
+    rows: [],
+    gap: 'live proof source offline; no Telegram WebView, Worker, or signed smoke receipt served',
+  },
+  social: {
+    source: 'missing',
+    status: 'gap',
+    scope: 'tenant-handoff-only',
+    rows: [
+      {
+        id: 'paperclip-offline',
+        title: 'PAPERCLIP OFFLINE',
+        state: 'gap',
+        detail: 'Paperclip coordination evidence is unavailable',
+        proof: 'offline fixture intentionally omits Paperclip handoff rows',
+        source: 'missing',
+        scope: 'tenant-handoff-only',
+        evidence: [],
+      },
+    ],
+  },
+  paperclip: {
+    source: 'missing',
+    gap: 'Paperclip unavailable in offline ecosystem fixture',
+  },
+} as const;
