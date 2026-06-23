@@ -817,9 +817,69 @@ test('page · rail rows carry data-rail and open rail sheets', async () => {
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /rail · genesis-to-taste/);
   assert.match(sheet, /data rail<\/b><span>genesis-to-taste/);
-  assert.match(sheet, /source<\/b><span>shared\/cambium-visual-contract/);
+  assert.match(sheet, /source<\/b><span>shared\/cambium-visual-contract\.ts/);
+  assert.match(sheet, /proof<\/b><span>shared\/cambium-visual-contract\.ts/);
   assert.match(sheet, /from organ<\/b><span>GENESIS/);
   assert.match(sheet, /to organ<\/b><span>TASTE/);
+});
+
+test('page · rail sheets map lanes to ecosystem targets and active frontier', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+
+  (rendered.context.openRailSheet as (railId: string, ledger: unknown) => void)('genesis-to-taste', NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
+  let sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /ecosystem target<\/b><span>paperclip/);
+  assert.match(sheet, /lane<\/b><span>handoff/);
+  assert.match(sheet, /active organ<\/b><span>GENESIS/);
+  assert.match(sheet, /active rail<\/b><span>yes · touches active organ/);
+
+  (rendered.context.openRailSheet as (railId: string, ledger: unknown) => void)('build-to-ops', NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /ecosystem target<\/b><span>quine/);
+  assert.match(sheet, /lane<\/b><span>runner/);
+  assert.match(sheet, /active rail<\/b><span>no · does not touch active organ/);
+
+  (rendered.context.openRailSheet as (railId: string, ledger: unknown) => void)('cortex-to-genesis', NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /ecosystem target<\/b><span>cortex/);
+  assert.match(sheet, /lane<\/b><span>background-emitter/);
+  assert.match(sheet, /active rail<\/b><span>yes · touches active organ/);
+});
+
+test('page · stage sheets map organs to ecosystem targets and stay read-only', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const expected = new Map([
+    ['genesis', 'genesis'],
+    ['taste', 'taste'],
+    ['build', 'build'],
+    ['ops', 'ops'],
+    ['cortex', 'cortex'],
+  ]);
+
+  for (const [stageId, target] of expected) {
+    (rendered.context.openMapSheet as (ledger: unknown, stageId: string) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger, stageId);
+    const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+    assert.match(sheet, new RegExp(`operator map · ${stageId}`));
+    assert.match(sheet, new RegExp(`organ target<\\/b><span>${target}`));
+    assert.match(sheet, /source<\/b><span>shared\/cambium-visual-contract\.ts/);
+    assert.match(sheet, /interaction<\/b><span>read-only stage inspection; no signed action is queued from this sheet/);
+    assert.doesNotMatch(sheet, /data-kind="approve"|data-kind="reroll"|data-promote-skill|data-queue-side-quest/);
+  }
+});
+
+test('page · empty stage sheets name the shared contract source', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.openMapSheet as (ledger: unknown, stageId: string) => void)({
+    rows: [],
+    current: null,
+    completed: 0,
+    total: 0,
+  }, 'taste');
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /no quest rows currently mapped to this organ/);
+  assert.match(sheet, /shared\/cambium-visual-contract\.ts/);
+  assert.match(sheet, /organ target<\/b><span>taste/);
 });
 
 test('page · freshness chip opens stale source proof sheet', async () => {

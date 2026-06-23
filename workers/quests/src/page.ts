@@ -1323,13 +1323,29 @@ function openMapHeaderSheet(L){
     '<div class="kv"><b>active arc</b><span>' + esc(arc) + '</span><b>active organ</b><span>' + esc(row ? stageTitle(organId) : 'all organs complete') + '</span><b>source</b><span>shared/cambium-visual-contract</span><b>quest title</b><span>' + esc((row && row.title) || (L.current && L.current.title) || 'no active quest') + '</span></div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row ? 'medium' : 'light');
 }
+function railEcosystemTarget(rail){
+  if (rail.lane === 'handoff') return 'paperclip';
+  if (rail.lane === 'runner') return 'quine';
+  if (rail.lane === 'background-emitter') return 'cortex';
+  return 'r3f';
+}
+function stageEcosystemTarget(stageId){
+  if (stageId === 'genesis') return 'genesis';
+  if (stageId === 'taste') return 'taste';
+  if (stageId === 'build') return 'build';
+  if (stageId === 'ops') return 'ops';
+  if (stageId === 'cortex') return 'cortex';
+  return 'r3f';
+}
 function openRailSheet(railId, L){
   const rail = RAILS.find(item => item.id === railId) || RAILS.find(item => (item.from + '-' + item.to) === railId) || RAILS[0];
   const row = currentQuestRow(L);
-  const hot = row && (rail.from === stageForArc(row.arc) || rail.to === stageForArc(row.arc));
+  const activeOrgan = row ? stageForArc(row.arc) : 'complete';
+  const hot = row && (rail.from === activeOrgan || rail.to === activeOrgan);
+  const target = railEcosystemTarget(rail);
   $('sheetBody').innerHTML = '<div class="arc">rail · ' + esc(rail.id) + '</div><h2>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</h2>' +
     '<div class="nar">' + esc(rail.label) + '</div>' +
-    '<div class="kv"><b>data rail</b><span>' + esc(rail.id) + '</span><b>source</b><span>shared/cambium-visual-contract</span><b>from organ</b><span>' + esc(stageTitle(rail.from)) + '</span><b>to organ</b><span>' + esc(stageTitle(rail.to)) + '</span><b>lane</b><span>' + esc(rail.lane || 'missing') + '</span><b>active arc</b><span>' + esc((row && row.arc) || 'complete') + '</span><b>active rail</b><span>' + esc(hot ? 'yes' : 'no') + '</span></div>';
+    '<div class="kv"><b>data rail</b><span>' + esc(rail.id) + '</span><b>source</b><span>shared/cambium-visual-contract.ts</span><b>proof</b><span>shared/cambium-visual-contract.ts</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>from organ</b><span>' + esc(stageTitle(rail.from)) + '</span><b>to organ</b><span>' + esc(stageTitle(rail.to)) + '</span><b>lane</b><span>' + esc(rail.lane || 'missing') + '</span><b>active arc</b><span>' + esc((row && row.arc) || 'complete') + '</span><b>active organ</b><span>' + esc(activeOrgan === 'complete' ? 'complete' : stageTitle(activeOrgan)) + '</span><b>active rail</b><span>' + esc(hot ? 'yes · touches active organ' : 'no · does not touch active organ') + '</span></div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(hot ? 'medium' : 'light');
 }
 // parse the evidence string into honest facets: "a · b · c" -> chips, "done" if it
@@ -1345,15 +1361,17 @@ function facetsFrom(ev){
 function openMapSheet(L, stageId){
   const stage = STAGES.find(s => s.id === stageId) || STAGES[0];
   const rows = stageRows(L, stage);
+  const target = stageEcosystemTarget(stage.id);
+  const stageMeta = '<div class="kv"><b>organ target</b><span>' + esc(target) + '</span><b>source</b><span>shared/cambium-visual-contract.ts</span><b>interaction</b><span>read-only stage inspection; no signed action is queued from this sheet</span></div>';
   const body = rows.length ? rows.map((row, i) => {
     const facets = facetsFrom(row.evidence);
     return '<div class="li"><span class="cname">' + esc(row.arc) + ' · ' + esc(row.title) + '</span> <span class="cargs">' + esc(row.status) + '</span>' +
       '<div class="facets" style="margin-top:8px">' + (facets.length ? facets.map((f,j) =>
         '<div class="facet ' + (f.done?'done':'pend') + '" style="--i:' + (i + j) + '"><span class="dot"></span>' + esc(f.label) + '</div>').join('') : '<div class="cdesc">' + esc(row.evidence) + '</div>') +
       '</div></div>';
-  }).join('') : '<div class="nar">no quest rows currently mapped to this organ.</div>';
+  }).join('') : '<div class="nar">no quest rows currently mapped to this organ. Source: shared/cambium-visual-contract.ts.</div>';
   $('sheetBody').innerHTML = '<div class="arc">operator map · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2>' +
-    '<div class="nar">' + esc(stage.detail) + '</div>' + body;
+    '<div class="nar">' + esc(stage.detail) + '</div>' + stageMeta + body;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function openWakeBox(env, index){
