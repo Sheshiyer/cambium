@@ -169,7 +169,7 @@ const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
-const PUBLIC_SECRET_RE = /\b(?:Bearer\s+|TELEGRAM_INIT_DATA=|TG_INIT_DATA=|QUESTS_PUSH_TOKEN=|rawInitData|initData|query_id|auth_date)|hash=/i;
+const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|rawInitData|initData|query_id|auth_date)\b=?|\b(?:token|user|id)=|hash=)/i;
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
 
 const json = (status: number, value: unknown): SimpleResponse =>
@@ -212,7 +212,13 @@ function socialText(value: unknown): string {
   if (typeof value === 'string') return value;
   if (Array.isArray(value)) return value.map(socialText).join(' ');
   if (!value || typeof value !== 'object') return '';
-  return Object.values(value as Record<string, unknown>).map(socialText).join(' ');
+  return Object.entries(value as Record<string, unknown>)
+    .flatMap(([key, item]) => [rawSocialKeyMarker(key), socialText(item)])
+    .join(' ');
+}
+
+function rawSocialKeyMarker(key: string): string {
+  return /^(rawInitData|initData|query_id|auth_date|token|user|userId|hash)$/i.test(key) ? `${key}=` : '';
 }
 
 function socialString(value: unknown, fallback: string, max = 300): string {
