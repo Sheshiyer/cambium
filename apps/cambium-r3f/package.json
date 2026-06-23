@@ -1,0 +1,34 @@
+{
+  "name": "@cambium/r3f-visual-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated React Three Fiber visual engine for the Cambium process map.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "sync:contracts": "node scripts/generate-scene-contract.mjs",
+    "prebuild": "npm run sync:contracts",
+    "build": "tsc -b && vite build",
+    "pretest": "npm run sync:contracts",
+    "test": "node --test 'src/**/*.test.ts'",
+    "meshy:assets": "node scripts/meshy-island-assets.mjs",
+    "meshy:image-to-3d": "node scripts/meshy-image-to-3d.mjs",
+    "source-plates": "node scripts/generate-source-plates.mjs",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^8.17.10",
+    "coolshapes-react": "^1.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.170.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "typescript": "^5.7.2",
+    "vite": "^8.0.16"
+  }
+}

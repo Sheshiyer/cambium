@@ -1,0 +1,279 @@
+{
+  "schema": "cambium.tg-live-proof-readiness.v1",
+  "generatedAt": "2026-06-23T12:12:52.803Z",
+  "tenant": "cambium",
+  "workerUrl": "https://curious.thoughtseed.space",
+  "status": "blocked",
+  "summary": {
+    "ready": 7,
+    "blocked": 3,
+    "total": 10,
+    "liveProofReady": false
+  },
+  "invariant": "Local deterministic smokes and Chrome viewport screenshots do not prove live Telegram WebView or production Worker KV behavior.",
+  "items": [
+    {
+      "id": "telegram-init-data",
+      "label": "Real Telegram initData available",
+      "state": "blocked",
+      "detail": "No real Telegram WebView initData is present, so signed founder actions cannot be proven live.",
+      "evidence": [],
+      "missing": [
+        "TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView session"
+      ]
+    },
+    {
+      "id": "telegram-device-artifact",
+      "label": "Founder device WebView artifact captured",
+      "state": "blocked",
+      "detail": "No live Telegram WebView proof artifact exists; local Chrome screenshots remain layout-only evidence.",
+      "evidence": [],
+      "missing": [
+        "capture redacted cambium.tg-device-proof.v1 from a founder Telegram WebView session"
+      ]
+    },
+    {
+      "id": "worker-token",
+      "label": "Production Worker internal token available",
+      "state": "ready",
+      "detail": "QUESTS_PUSH_TOKEN is available without printing the secret.",
+      "evidence": [
+        "QUESTS_PUSH_TOKEN present in env or ~/.claude/.env"
+      ],
+      "missing": []
+    },
+    {
+      "id": "worker-network-probe",
+      "label": "Production Worker network probe captured",
+      "state": "blocked",
+      "detail": "The production Worker probe artifact is missing, stale, mismatched, or unsafe to trust. Network probing is disabled or lacks token in this run.",
+      "evidence": [],
+      "missing": [
+        "capturedAt must be within 86400 seconds",
+        "rerun with --allow-network and a valid QUESTS_PUSH_TOKEN when capturing the probe"
+      ]
+    },
+    {
+      "id": "page-initdata-path",
+      "label": "Mini app sends Telegram initData to signed actions",
+      "state": "ready",
+      "detail": "The page reads Telegram WebApp initData before posting gate actions.",
+      "evidence": [
+        "workers/quests/src/page.ts contains TG initData usage"
+      ],
+      "missing": []
+    },
+    {
+      "id": "worker-initdata-validation",
+      "label": "Worker validates Telegram initData",
+      "state": "ready",
+      "detail": "The Worker route still validates Telegram initData before queueing gate actions.",
+      "evidence": [
+        "workers/quests/src/handler.ts contains validateInitData"
+      ],
+      "missing": []
+    },
+    {
+      "id": "promotion-consumer",
+      "label": "Skill promotion operator consumer exists",
+      "state": "ready",
+      "detail": "Skill promotions have an operator-owned queue consumer.",
+      "evidence": [
+        "bin/quine/hyphae/skills.ts applySkillPromotionDecisions"
+      ],
+      "missing": []
+    },
+    {
+      "id": "side-quest-consumer",
+      "label": "Side-quest operator consumer exists",
+      "state": "ready",
+      "detail": "Side quests have an operator-owned queue consumer with current-envelope re-checks.",
+      "evidence": [
+        "bin/quine/hyphae/quests.ts applySideQuestQueueDecisions"
+      ],
+      "missing": []
+    },
+    {
+      "id": "npc-local-smoke",
+      "label": "NPC local smoke remains deterministic-only",
+      "state": "ready",
+      "detail": "A local NPC history smoke exists; live device provenance still depends on Telegram and Worker proof items.",
+      "evidence": [
+        "workers/quests/src/handler.test.ts NPC history smoke"
+      ],
+      "missing": []
+    },
+    {
+      "id": "viewport-layout-proof",
+      "label": "Local mobile viewport proof available",
+      "state": "ready",
+      "detail": "A fresh-enough viewport manifest exists and no newer failure receipt supersedes it.",
+      "evidence": [
+        "chrome:/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+        "docs/plans/assets/tg-miniapp-viewport-proof/failure.json",
+        "docs/plans/assets/tg-miniapp-viewport-proof/browser-diagnostics.json"
+      ],
+      "missing": []
+    }
+  ],
+  "capturePlan": {
+    "schema": "cambium.tg-live-proof-capture-plan.v1",
+    "invariant": "Capture commands create redacted receipts; they are proof only after their artifacts validate ready.",
+    "workerUrl": "https://curious.thoughtseed.space",
+    "steps": [
+      {
+        "id": "device-webview-proof",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json",
+        "state": "blocked",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot docs/plans/assets/tg-miniapp-live-proof/<founder-device>.png --platform <ios|android|desktop> --webview-url <current Telegram WebView URL> --safe-area <notes> --write",
+        "prerequisites": [
+          {
+            "id": "fresh-telegram-init-data",
+            "state": "blocked",
+            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+          },
+          {
+            "id": "screenshot-under-proof-dir",
+            "state": "blocked",
+            "detail": "founder-device screenshot path is required"
+          },
+          {
+            "id": "device-platform",
+            "state": "blocked",
+            "detail": "device platform is required"
+          },
+          {
+            "id": "webview-url",
+            "state": "ready",
+            "detail": "WebView URL is supplied"
+          }
+        ],
+        "privacy": [
+          "raw initData comes only from env",
+          "artifact stores user/initData/screenshot hashes only",
+          "WebView query and hash are omitted"
+        ]
+      },
+      {
+        "id": "worker-list-proof",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json",
+        "state": "blocked",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-worker-probe --allow-network --write",
+        "prerequisites": [
+          {
+            "id": "worker-token",
+            "state": "ready",
+            "detail": "QUESTS_PUSH_TOKEN is available without printing it"
+          },
+          {
+            "id": "allow-network",
+            "state": "blocked",
+            "detail": "--allow-network is required for this capture"
+          }
+        ],
+        "privacy": [
+          "Worker credential is used only as an authorization header",
+          "artifact stores status, response shape, counts, and body digest only"
+        ]
+      },
+      {
+        "id": "signed-action-smoke",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json",
+        "state": "blocked",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-signed-smoke --allow-network --allow-mutation --action-kind <kind> --action-subject <subject> --action-idempotency-key <key> --operator-command \"<consumer command>\" --operator-audit <audit-file> --operator-checked <n> --operator-consumed <n> --operator-rejected <n> --miniapp-envelope <refreshed-envelope-file> --visible-marker <visible-card-marker> --write",
+        "prerequisites": [
+          {
+            "id": "fresh-telegram-init-data",
+            "state": "blocked",
+            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+          },
+          {
+            "id": "worker-token",
+            "state": "ready",
+            "detail": "QUESTS_PUSH_TOKEN is available without printing it"
+          },
+          {
+            "id": "allow-network",
+            "state": "blocked",
+            "detail": "--allow-network is required for this capture"
+          },
+          {
+            "id": "allow-mutation",
+            "state": "blocked",
+            "detail": "--allow-mutation is required for this capture"
+          },
+          {
+            "id": "action-kind",
+            "state": "blocked",
+            "detail": "action kind is required"
+          },
+          {
+            "id": "action-subject",
+            "state": "blocked",
+            "detail": "action subject is required"
+          },
+          {
+            "id": "action-idempotency-key",
+            "state": "blocked",
+            "detail": "action idempotency key is required"
+          },
+          {
+            "id": "operator-command",
+            "state": "blocked",
+            "detail": "operator command is required"
+          },
+          {
+            "id": "operator-audit",
+            "state": "blocked",
+            "detail": "operator audit path is required"
+          },
+          {
+            "id": "operator-checked",
+            "state": "blocked",
+            "detail": "operator checked must be supplied"
+          },
+          {
+            "id": "operator-consumed",
+            "state": "blocked",
+            "detail": "operator consumed must be supplied"
+          },
+          {
+            "id": "operator-rejected",
+            "state": "blocked",
+            "detail": "operator rejected must be supplied"
+          },
+          {
+            "id": "miniapp-envelope",
+            "state": "blocked",
+            "detail": "mini app envelope path is required"
+          },
+          {
+            "id": "visible-marker",
+            "state": "blocked",
+            "detail": "visible marker is required"
+          }
+        ],
+        "privacy": [
+          "raw initData is sent only in the Telegram submit body",
+          "Worker credential is used only for the internal list request",
+          "proof tool does not consume the queue",
+          "artifact stores hashes, counts, status codes, and digests only"
+        ]
+      }
+    ]
+  },
+  "followups": {
+    "signedActionSmoke": {
+      "schema": "cambium.signed-action-smoke-readiness.v1",
+      "path": "docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json",
+      "state": "blocked",
+      "detail": "No redacted signed-action smoke receipt exists; queue/consume/refresh proof remains a live follow-up.",
+      "evidence": [],
+      "missing": [
+        "capture redacted cambium.signed-action-smoke.v1 after Telegram signed action, Worker queue/list, operator consume, and mini app refresh"
+      ],
+      "invariant": "Signed action smoke receipts prove mutating Telegram queue/consume/refresh paths and are tracked separately from the base live WebView/Worker readiness gate."
+    }
+  }
+}

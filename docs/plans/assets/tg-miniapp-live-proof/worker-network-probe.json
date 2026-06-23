@@ -1,0 +1,25 @@
+{
+  "schema": "cambium.worker-network-probe.v1",
+  "tenant": "cambium",
+  "capturedAt": "2026-06-22T09:21:58.956Z",
+  "source": "production-worker",
+  "workerUrl": "https://curious.thoughtseed.space",
+  "probes": [
+    {
+      "name": "internal-gate-list",
+      "method": "GET",
+      "path": "/internal/gate/cambium",
+      "status": 200,
+      "ok": true,
+      "responseShape": {
+        "tenantMatches": true,
+        "actionsArray": true
+      },
+      "queuedActionCount": 0,
+      "bodySha256": "sha256:ff4c6f2e183d36620f5daf1049111f7a154558bb65c3ecfb5539690b446742e5"
+    }
+  ],
+  "notes": [
+    "Captured by live-proof-readiness --capture-worker-probe; credentials and raw response body omitted."
+  ]
+}

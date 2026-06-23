@@ -1,0 +1,19 @@
+{
+  "tenant": "demo-org",
+  "archives": [
+    {
+      "routineId": "project-closeout",
+      "archived": true,
+      "archivedAt": "2026-06-19T00:00:00.000Z",
+      "evidencePath": "~/.config/cambium/archive/demo-org/project-closeout.tar.zst",
+      "repoPath": "example-project",
+      "note": "synthetic archive receipt for docs",
+      "ceremony": [
+        "archive artifact exists or evidencePath references durable project evidence",
+        "repo/runtime state is captured or repoPath references source state",
+        "surviving channel adapters are documented separately from retired runtime",
+        "quest evidence may now treat the project archive as complete"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "cambium.memory-boundary.v1",
+  "updated": "2026-06-19",
+  "principle": "Cambium product memory is a provider-neutral tenant-scoped interface; taste/design memory is an adapter capability, not committed product state.",
+  "surfaces": [
+    {
+      "id": "operator-semantic-runtime",
+      "scope": "product-runtime",
+      "interface": "CortexStore",
+      "record": "MemoryRecord",
+      "adapters": ["sqliteCortex", "vectorizeCortex"],
+      "defaultLocation": ".operator/cortex.db",
+      "commitPolicy": "never commit real records",
+      "exportPolicy": "tenant-scoped cambium.memory-export.v1 only"
+    },
+    {
+      "id": "composition-contract-runtime",
+      "scope": "product-runtime",
+      "interface": "makeCortex transport",
+      "record": "variable contracts and deviation jsonl",
+      "adapters": ["localTransport", "embedding-provider transport"],
+      "defaultLocation": "cortex/<tenant>/contracts and cortex/<tenant>/deviations.jsonl",
+      "commitPolicy": "never commit real tenant state",
+      "exportPolicy": "convert reusable examples to synthetic fixtures"
+    },
+    {
+      "id": "taste-design-memory",
+      "scope": "adapter",
+      "interface": "embedding/search provider behind CortexStore or makeCortex transport",
+      "record": "brand references, taste anchors, and design-review memories",
+      "adapters": ["NIM-compatible embedding provider", "design-memory worker", "future hosted memory service"],
+      "defaultLocation": "outside this repository",
+      "commitPolicy": "adapter implementation and credentials stay outside the product repo",
+      "exportPolicy": "redacted tenant export or synthetic lesson only"
+    },
+    {
+      "id": "structural-code-memory",
+      "scope": "regenerated-structural-lane",
+      "interface": "CodeGraph/code-recall",
+      "record": "repository symbol graph",
+      "adapters": ["local CodeGraph index"],
+      "defaultLocation": ".codegraph/",
+      "commitPolicy": "never commit generated index",
+      "exportPolicy": "regenerate from adopter repository"
+    },
+    {
+      "id": "synthetic-fixtures",
+      "scope": "docs-and-tests",
+      "interface": "cambium.memory-export.v1",
+      "record": "fake MemoryRecord examples",
+      "adapters": ["docs/memory/fixtures"],
+      "defaultLocation": "docs/memory/fixtures/*.json",
+      "commitPolicy": "commit only synthetic records",
+      "exportPolicy": "safe to publish when audit passes"
+    }
+  ],
+  "forbiddenInProductRepo": [
+    "raw customer memory exports",
+    "live tenant Vectorize payload dumps",
+    "private embedding-provider credentials",
+    "private host paths",
+    "company-specific taste/design worker state",
+    "raw chat transcripts",
+    "generated structural indexes"
+  ],
+  "releaseChecks": [
+    "npm test",
+    "npm run standalone:audit",
+    "memory portability docs mention the boundary manifest",
+    "synthetic fixtures validate as MemoryRecord records"
+  ]
+}
+

@@ -1,0 +1,152 @@
+{
+  "provider": "meshy",
+  "pipeline": "image-to-3d",
+  "entries": [
+    {
+      "command": "submit",
+      "island": "ops",
+      "taskId": "019ebbbf-8657-7368-a8bd-46fcb514ae11",
+      "sourceImage": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/ops-source.png",
+      "imageBytes": 1678868,
+      "request": {
+        "image_url": "<base64 data URI omitted>",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_texture": true,
+        "enable_pbr": true,
+        "texture_prompt": "Cambium operations island material: dark basalt substrate, chartreuse signal veins, ivory node caps, peach calibration seams, matte PBR finish, no labels or scenery.",
+        "should_remesh": true,
+        "topology": "quad",
+        "target_polycount": 60000,
+        "image_enhancement": true,
+        "remove_lighting": true,
+        "moderation": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom"
+      },
+      "estimatedCredits": 30,
+      "ts": "2026-06-12T12:12:38.174Z"
+    },
+    {
+      "command": "download",
+      "island": "ops",
+      "taskId": "019ebbbf-8657-7368-a8bd-46fcb514ae11",
+      "model": "/assets/meshy/image-to-3d/ops/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/ops/thumbnail.png",
+      "taskCredits": 30,
+      "ts": "2026-06-12T12:15:37.908Z"
+    },
+    {
+      "command": "submit",
+      "island": "genesis",
+      "profile": "master",
+      "taskId": "019ebc10-4745-7225-912e-a304d8ef2425",
+      "sourceImage": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/genesis.png",
+      "imageBytes": 1746224,
+      "request": {
+        "image_url": "<base64 data URI omitted>",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_texture": true,
+        "enable_pbr": true,
+        "image_enhancement": true,
+        "remove_lighting": true,
+        "moderation": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom",
+        "alpha_thumbnail": true,
+        "multi_view_thumbnails": true,
+        "texture_prompt": "Genesis seed island material from the provided Cambium source plate. Preserve visible basalt strata, chartreuse channels, ivory caps, peach seams, matte PBR finish, and no labels or scenery.",
+        "should_remesh": false,
+        "hd_texture": true
+      },
+      "estimatedCredits": 30,
+      "ts": "2026-06-12T13:40:49.717Z"
+    },
+    {
+      "command": "submit",
+      "island": "rail-arc",
+      "profile": "master",
+      "taskId": "019ebc10-9ca7-7a9f-a599-12fd4e4952ef",
+      "sourceImage": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/rail-arc.png",
+      "imageBytes": 1421944,
+      "request": {
+        "image_url": "<base64 data URI omitted>",
+        "model_type": "standard",
+        "ai_model": "latest",
+        "should_texture": true,
+        "enable_pbr": true,
+        "image_enhancement": true,
+        "remove_lighting": true,
+        "moderation": true,
+        "target_formats": [
+          "glb"
+        ],
+        "origin_at": "bottom",
+        "alpha_thumbnail": true,
+        "multi_view_thumbnails": true,
+        "texture_prompt": "Curved rail connector material from the provided Cambium source plate. Preserve visible basalt strata, chartreuse channels, ivory caps, peach seams, matte PBR finish, and no labels or scenery.",
+        "should_remesh": false,
+        "hd_texture": true
+      },
+      "estimatedCredits": 30,
+      "ts": "2026-06-12T13:41:12.342Z"
+    },
+    {
+      "command": "download",
+      "island": "rail-arc",
+      "taskId": "019ebc10-9ca7-7a9f-a599-12fd4e4952ef",
+      "model": "/assets/meshy/image-to-3d/rail-arc/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/rail-arc/thumbnail.png",
+      "taskCredits": 30,
+      "ts": "2026-06-12T13:45:19.567Z"
+    },
+    {
+      "command": "download",
+      "island": "genesis",
+      "taskId": "019ebc10-4745-7225-912e-a304d8ef2425",
+      "model": "/assets/meshy/image-to-3d/genesis/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/genesis/thumbnail.png",
+      "taskCredits": 30,
+      "ts": "2026-06-12T13:47:24.168Z"
+    },
+    {
+      "command": "download",
+      "island": "rail-arc",
+      "taskId": "019ebc10-9ca7-7a9f-a599-12fd4e4952ef",
+      "model": "/assets/meshy/image-to-3d/rail-arc/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/rail-arc/thumbnail.png",
+      "alphaThumbnail": "/assets/meshy/image-to-3d/rail-arc/thumbnail-alpha.png",
+      "thumbnailViews": {
+        "back": "/assets/meshy/image-to-3d/rail-arc/thumbnail-back.png",
+        "front": "/assets/meshy/image-to-3d/rail-arc/thumbnail-front.png",
+        "left": "/assets/meshy/image-to-3d/rail-arc/thumbnail-left.png",
+        "right": "/assets/meshy/image-to-3d/rail-arc/thumbnail-right.png"
+      },
+      "modelBytes": 55987668,
+      "taskCredits": 30,
+      "ts": "2026-06-12T13:53:16.445Z"
+    },
+    {
+      "command": "download",
+      "island": "genesis",
+      "taskId": "019ebc10-4745-7225-912e-a304d8ef2425",
+      "model": "/assets/meshy/image-to-3d/genesis/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/genesis/thumbnail.png",
+      "alphaThumbnail": "/assets/meshy/image-to-3d/genesis/thumbnail-alpha.png",
+      "thumbnailViews": {
+        "back": "/assets/meshy/image-to-3d/genesis/thumbnail-back.png",
+        "front": "/assets/meshy/image-to-3d/genesis/thumbnail-front.png",
+        "left": "/assets/meshy/image-to-3d/genesis/thumbnail-left.png",
+        "right": "/assets/meshy/image-to-3d/genesis/thumbnail-right.png"
+      },
+      "modelBytes": 71054312,
+      "taskCredits": 30,
+      "ts": "2026-06-12T13:53:19.379Z"
+    }
+  ]
+}

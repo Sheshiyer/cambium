@@ -80,7 +80,7 @@
       "contract": { "in": "artifact", "out": "business" },
       "spend": { "class": "gate", "label": "💲 gated (Explee)", "reason": "(brand_to_gtm drives paid Explee via the explee-proxy — needs an approved Brief + EXPLEE_PROXY_TOKEN)" },
       "conductor": { "name": "dispatcher + chief-of-staff", "desc": "skill-hooks routes 60 skills → 7 agents" },
-      "entrypoint": "the dispatcher (Hermes/Paperclip) · scripts/lib/gtm.py brand_to_gtm (gated; a thin CLI wrapper is the follow-up)",
+      "entrypoint": "the dispatcher (channel/agent-plane adapters) · scripts/lib/gtm.py brand_to_gtm (gated; a thin CLI wrapper is the follow-up)",
       "homeostasis": "The will/OS keeps the business on-brand at the portfolio scale — a homeostat one level up; brand_to_gtm is approval-gated (constitution #4 — no unapproved spend off the convergence path).",
       "sources": [
         { "root": "snow-gloves", "dir": "agents", "type": "dirs", "kind": "C-suite agent" },
@@ -90,7 +90,7 @@
       "descriptions": {
         "ceo": "mission/vision/strategy", "chief-of-staff": "the skill-graph router", "cto": "architecture + execution",
         "dispatcher": "orchestration dispatch (GTM)", "interpreter": "synthesis / brand→ICP Briefs", "librarian": "retrieval / research",
-        "sentinel": "risk / approvals", "hermes": "the event bus", "paperclip_bridge": "the Paperclip task bridge",
+        "sentinel": "risk / approvals", "hermes": "the event bus", "paperclip_bridge": "the optional agent-plane task bridge",
         "embed_worker": "the tenant vector-index (cortex client)", "approvals": "the approval queue", "ingest": "source ingestion",
         "replay": "event replay", "sentinel_sweep": "risk sweep", "tn_seed": "community seeding (Reddit)"
       }
@@ -98,12 +98,12 @@
     {
       "id": "cortex", "emoji": "🧠", "name": "shared cortex — the aesthetic memory",
       "tagline": "the 1024-dim NIM metric space (X, d) the whole engine converges in — cosine distance IS on-brand-ness; x* lives here",
-      "repo": "Sheshiyer/taste-nim + DESIGN_MEMORY_WORKER", "role": "cortex / the metric space",
+      "repo": "provider-neutral memory adapter", "role": "cortex / the metric space",
       "contract": { "in": "any-artifact", "out": "d(x, x*)" },
       "spend": { "class": "cross", "label": "⟳ cross-cutting · gated", "reason": "(paid NVIDIA NIM embeddings)" },
-      "conductor": { "name": "the NIM Worker (embed / search)", "desc": "x → 1024-dim vector → nearest on-brand refs" },
-      "entrypoint": "NIM Worker endpoint (embed / search) · model nv-embedqa-e5-v5 @ dimension 1024",
-      "homeostasis": "This IS (X, d) from HOMEOSTASIS.md — the substrate where V = d(x, x*) is computed; without it there is no measurable drift and no self-healing. Currently DUPLICATED across two Workers; I3 unifies them — that unified memory is the moat.",
+      "conductor": { "name": "memory adapter (embed / search)", "desc": "x → vector → nearest on-brand refs" },
+      "entrypoint": "CortexStore or makeCortex transport (embed / search) · provider dimensions are adapter-specific",
+      "homeostasis": "This IS (X, d) from HOMEOSTASIS.md — the substrate where V = d(x, x*) is computed; without it there is no measurable drift and no self-healing. The product contract is the provider-neutral memory seam; taste/design workers are optional adapters behind it.",
       "counts": [{ "root": "snow-gloves", "path": "config/snowgloves.yaml", "grep": { "model": "model:\\s*(\\S+)", "dim": "dimension:\\s*(\\d+)" } }],
       "sources": [],
       "componentsLiteral": [

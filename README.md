@@ -10,7 +10,9 @@
 
 ---
 
-> In a tree, the **cambium** is the thin living layer where *all* growth happens. This is that layer for business: take a raw idea (a *thoughtseed*) and grow it into a living, branded, operating company — then keep it growing **on-brand, forever**, with almost no manual intervention.
+> In a tree, the **cambium** is the thin living layer where *all* growth happens. This is that layer for business: take a raw idea and grow it into a living, branded, operating company — then keep it growing **on-brand, forever**, with almost no manual intervention.
+
+Cambium is designed as a **standalone fractal tapestry**: the same operating pattern can be emulated by a founder-led business, a small marketing team, or an AI-first product team. Prior live deployments are useful proof, but this repository should run from synthetic demo tenants and optional adapters, without private company data or host-specific assumptions.
 
 Cambium has **two halves**:
 
@@ -34,7 +36,7 @@ The composition layer makes the first launch. The operator keeps the venture ali
 | **Cortex · structural memory** — CodeGraph code-recall lane | ✅ shipped (M2) | `operator coderecall` |
 | **Multi-tenancy** — one operator, many ventures | ✅ shipped (M3) — slug registry · adversarial isolation · all-tenant heartbeat | [`tenant.ts`](./bin/operator/tenant.ts) + [#20–#23](https://github.com/Sheshiyer/cambium/milestone/3) |
 
-**236 tests green** (`npm test`). Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
+The test suite is green under `npm test`. Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
 
 **The business model, in one line:** the **left brain (build) is free**; the **right brain (taste + memory) is the subscription** — because the memory that learns *your* specific brand is the moat that compounds.
 
@@ -53,6 +55,19 @@ node bin/operator/cli.ts onboard               # play the 20-interaction first s
 node bin/operator/cli.ts demo                  # a sample stream of moves through the loop
 node bin/operator/cli.ts coderecall "wake"     # structural recall of code the operator ships
 ```
+
+## Standalone demo path
+
+Cambium should boot without private company state or live provider credentials:
+
+```bash
+npm run demo:tenant -- --tenant demo-org --force
+npm run demo:quests -- --tenant demo-org
+npm run tapestry:snapshot -- --tenant demo-org --out /tmp/demo-org.tapestry.json
+npm run standalone:smoke
+```
+
+The demo tenant writes ignored runtime state under `.operator/`. The demo quest ledger renders the synthetic "you are here" path without external providers. The tapestry snapshot is bounded JSON for the six-scale map (`skill -> cluster -> organ -> venture -> company -> portfolio`) and uses synthetic `example.com` evidence only.
 
 Full product blueprint + agent guides: **[Cambium Composition Layer Technical Reference →](./docs/cambium-composition-technical-reference.html)**
 
@@ -210,11 +225,17 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [INFINITE-GAME.md](./INFINITE-GAME.md) | the operator contract — wake loop, router, viability, NPCs, noesis |
 | [ONBOARDING-OCTALYSIS.md](./ONBOARDING-OCTALYSIS.md) | the 20-interaction first session, drive by drive |
 | [QUESTLOG.md](./QUESTLOG.md) | the quest line (you-are-here map) + the skill forge (repetition → self-improving skills) |
-| [INFINITE-GAME.md §Multi-tenancy](./INFINITE-GAME.md#multi-tenancy--one-operator-many-gardens-m3) | the tenancy contract: TeamForge-slug identity · adversarially-proven isolation · all-tenant heartbeat |
+| [INFINITE-GAME.md §Multi-tenancy](./INFINITE-GAME.md#multi-tenancy--one-operator-many-gardens-m3) | the tenancy contract: portable org-slug identity · adversarially-proven isolation · all-tenant heartbeat |
 | [HOMEOSTASIS.md](./HOMEOSTASIS.md) | the math — Banach contraction, viability kernel, why-handler |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | the organ constellation + composition layer |
 | [BUSINESS-MODEL.md](./BUSINESS-MODEL.md) | free build, subscription taste + memory |
 | [INTEGRATION.md](./INTEGRATION.md) | how organs and agents wire together |
+| [New adopter runbook](./docs/adopters/new-adopter-30-minutes.md) | the 30-minute clean-clone path for standalone teams |
+| [Adapter boundary](./docs/adapters/README.md) | how optional providers feed evidence without becoming product identity |
+| [Approval lane](./docs/adapters/approval.md) | provider-neutral human gate with CLI, web, and Telegram adapters |
+| [Project archive ceremony](./docs/archive/README.md) | generic project closeout receipt and no-fake-progress archive rules |
+| [Memory portability](./docs/memory/README.md) | export, import, reset, deletion, and tenant-isolation rules for cortex memory |
+| [Asset provenance and size policy](./docs/assets/README.md) | source, approval, and file-size rules for runtime and QA visual assets |
 | [Technical Reference](./docs/cambium-composition-technical-reference.html) | the canonical product + agent-consumption guide |
 
 ---
@@ -225,6 +246,6 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 
 **For the businesses that never stop growing on-brand.**
 
-[Thoughtseed constellation](https://github.com/Sheshiyer)
+[Project repository](https://github.com/Sheshiyer/cambium)
 
 </div>

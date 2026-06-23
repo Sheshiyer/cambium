@@ -1,0 +1,32 @@
+{
+  "schema": "cambium.worker-network-probe-template.v1",
+  "generatedAt": "2026-06-22T08:59:38.685Z",
+  "tenant": "cambium",
+  "writesAuthority": false,
+  "instruction": "Copy sourceDocument to worker-network-probe.json only after an authorized production Worker list probe. Store status, counts, and response digests only; never store bearer headers, tokens, cookies, or raw response bodies.",
+  "sourceDocument": {
+    "schema": "cambium.worker-network-probe.v1",
+    "tenant": "cambium",
+    "capturedAt": "TODO-ISO-8601",
+    "source": "production-worker",
+    "workerUrl": "https://curious.thoughtseed.space",
+    "probes": [
+      {
+        "name": "internal-gate-list",
+        "method": "GET",
+        "path": "/internal/gate/cambium",
+        "status": 200,
+        "ok": true,
+        "responseShape": {
+          "tenantMatches": true,
+          "actionsArray": true
+        },
+        "queuedActionCount": 0,
+        "bodySha256": "sha256:TODO_SHA256_OF_REDACTED_RESPONSE_BODY"
+      }
+    ],
+    "notes": [
+      "TODO capture command timestamp and whether the probe used production Worker URL. Do not store credentials or raw queued action payloads here."
+    ]
+  }
+}

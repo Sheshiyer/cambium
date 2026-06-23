@@ -1,0 +1,19 @@
+{
+  "T001": { "cluster": "ai-agents-meta", "skill": "swarm-architect" },
+  "T002": { "cluster": "frontend-web", "skill": "vite-patterns" },
+  "T003": { "cluster": "frontend-web", "skill": "react-patterns" },
+  "T004": { "cluster": "design", "skill": "theme-factory" },
+  "T005": { "cluster": "creative-frontend", "skill": "web-motion-library" },
+  "T006": { "cluster": "creative-frontend", "skill": "web-motion-library" },
+  "T007": { "cluster": "creative-frontend", "skill": "web-motion-library" },
+  "T008": { "cluster": "creative-frontend", "skill": "web-motion-library" },
+  "T009": { "cluster": "creative-frontend", "skill": "web-motion-library" },
+  "T010": { "cluster": "creative-frontend", "skill": "web-motion-library" },
+  "T011": { "cluster": "frontend-web", "skill": "design-system" },
+  "T012": { "cluster": "creative-frontend", "skill": "web-motion-library" },
+  "T013": { "cluster": "design", "skill": "refero-design" },
+  "T014": { "cluster": "frontend-web", "skill": "motion-patterns" },
+  "T015": { "cluster": "browser-automation", "skill": "webapp-testing" },
+  "T016": { "cluster": "frontend-web", "skill": "accessibility" },
+  "T017": { "cluster": "git-pr-ops", "skill": "github-next-wave-orchestrator" }
+}

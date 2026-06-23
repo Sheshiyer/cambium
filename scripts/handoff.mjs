@@ -2,10 +2,10 @@
 /**
  * handoff — founder CLI for the secure member-handoff system.
  *
- * Adds team members to the allowlist (by email, e.g. from Clockify), mints
+ * Adds team members to the allowlist, mints
  * single-use invite LINKS, lists/revokes members. Members redeem the link in
  * Plexus to get a per-member bridge token (scoped to only their memberId, expires
- * monthly, rotatable). Endpoints live on the cambium worker (curious.thoughtseed.space).
+ * monthly, rotatable). Endpoints live on any deployed Cambium worker.
  *
  * Admin auth = BRIDGE_TOKEN (the cofounder bridge token). Read from env or
  * ~/.claude/.env. Never printed.
@@ -16,13 +16,14 @@
  *   handoff list                       list members + status + token expiry
  *   handoff revoke <memberId>          revoke a member's access
  *
- * Flags: --base <url> (default https://curious.thoughtseed.space)
+ * Flags: --base <url> (default $CAMBIUM_PUBLIC_BASE_URL or http://127.0.0.1:8787)
  */
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-const BASE = (() => { const i = process.argv.indexOf('--base'); return i > -1 ? process.argv[i + 1] : 'https://curious.thoughtseed.space'; })();
+const DEFAULT_BASE = process.env.CAMBIUM_PUBLIC_BASE_URL || 'http://127.0.0.1:8787';
+const BASE = (() => { const i = process.argv.indexOf('--base'); return i > -1 ? process.argv[i + 1] : DEFAULT_BASE; })();
 
 function adminToken() {
   if (process.env.BRIDGE_TOKEN) return process.env.BRIDGE_TOKEN;

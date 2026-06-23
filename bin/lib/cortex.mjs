@@ -1,10 +1,10 @@
-// Cambium — the unified cortex client (I3). ONE interface to the shared aesthetic-memory NIM Worker:
-//   embed / search (1024-dim NIM)  ·  variable-contract read/write  ·  the why-handler deviation ledger.
+// Cambium — the unified cortex client (I3). ONE interface to provider-neutral memory:
+//   embed / search  ·  variable-contract read/write  ·  the why-handler deviation ledger.
 //
 // The transport is INJECTED. Today a working LOCAL transport (the deviation jsonl + a local
-// variable-contract store). The real Cloudflare Worker — unifying taste-nim + DESIGN_MEMORY_WORKER —
+// variable-contract store). A hosted memory worker, NIM-compatible embedder, or any future provider
 // swaps in as a transport with ZERO call-site changes. That is the whole point of I3: one interface,
-// one shared memory, so the why-handler's learning + the variable contracts are shared across organs.
+// one tenant-scoped memory seam, so the why-handler's learning + the variable contracts are shared across organs.
 
 import { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -24,7 +24,9 @@ export function makeCortex(transport) {
  * The LOCAL transport (today): the deviation ledger (jsonl) + a local variable-contract store (fs).
  * embed / search need the NIM — they throw until I3's Cloudflare Worker provides them. fs is injectable.
  */
-export function localTransport({ root, tenant = 'thoughtseed', fs = { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } }) {
+export const DEFAULT_TENANT = 'demo-org';
+
+export function localTransport({ root, tenant = DEFAULT_TENANT, fs = { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } }) {
   // M3/C2 (issue #21): per-tenant namespacing. Contracts live under the BRAND's own
   // namespace (the brand arg IS the tenant): cortex/<brand>/contracts/<group>.json.
   // Deviations are path-isolated per transport tenant: cortex/<tenant>/deviations.jsonl.
@@ -35,7 +37,7 @@ export function localTransport({ root, tenant = 'thoughtseed', fs = { appendFile
   const contractPath = (brand, group) => join(contractDirFor(brand), `${group}.json`);
   const deviationsPath = join(root, 'cortex', tenant, 'deviations.jsonl');
   const needsWorker = (op) => () => {
-    throw new Error(`cortex.${op}: needs the NIM Worker transport (I3 follow-up — taste-nim)`);
+    throw new Error(`cortex.${op}: needs an embedding/search transport (provider-neutral memory adapter)`);
   };
   return {
     embed: needsWorker('embed'),
@@ -60,7 +62,7 @@ export function localTransport({ root, tenant = 'thoughtseed', fs = { appendFile
 
 /** Convenience: the default cortex (local transport) rooted at the cambium repo.
  *  M3: pass the tenant so deviations land in that tenant's namespace. */
-export function defaultCortex(root, tenant = 'thoughtseed') {
+export function defaultCortex(root, tenant = DEFAULT_TENANT) {
   return makeCortex(localTransport({ root, tenant }));
 }
 

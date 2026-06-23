@@ -4,8 +4,10 @@
 // telemetry → promotion / gotchas / amendment proposals). Registry persists tenant-keyed
 // at .operator/<tenant>.skills.json — its own file; world/onboarding are never written.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { homedir } from 'node:os';
 import type { Hypha, QuineCtx } from '../types.ts';
 import { flag } from '../types.ts';
 import {
@@ -13,9 +15,55 @@ import {
 } from '../../operator/skills/forge.ts';
 import type { SkillRecord } from '../../operator/skills/forge.ts';
 import { recordUse, successRate, recentRate, isDeclining } from '../../operator/skills/telemetry.ts';
+import { skillProductionReadiness } from '../../operator/skills/promotion.ts';
+import { skillsPath } from '../../operator/tenant.ts';
 
 const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.TENANT || 'thoughtseed');
-const registryPath = (ctx: QuineCtx, tenant: string): string => join(ctx.root, '.operator', `${tenant}.skills.json`);
+const registryPath = (ctx: QuineCtx, tenant: string): string => skillsPath(ctx.root, tenant);
+const promotionAuditPath = (ctx: QuineCtx, tenant: string): string =>
+  join(ctx.root, '.operator', `${tenant}.skill-promotions.jsonl`);
+const GATE_URL_DEFAULT = 'https://curious.thoughtseed.space';
+
+export interface GatePromotionAction {
+  id: string;
+  kind: string;
+  subject: string;
+  ts?: string;
+  founderId?: string;
+  evidence?: string;
+  consequence?: string;
+  reversibility?: string;
+  idempotencyKey?: string;
+  status?: string;
+}
+
+export interface SkillPromotionApplyOptions {
+  baseUrl?: string;
+  token?: string;
+  dryRun?: boolean;
+  fetchImpl?: typeof fetch;
+  now?: () => number;
+  nowIso?: () => string;
+}
+
+export interface SkillPromotionAudit {
+  schema: 'cambium.skill-promotion.v1';
+  actionId: string;
+  actionTs: string | null;
+  appliedAt: string;
+  tenant: string;
+  subject: string;
+  founderId: string | null;
+  idempotencyKey: string | null;
+  result: 'promoted' | 'already-production' | 'rejected';
+  reason: string;
+  previousStatus: string | null;
+  nextStatus: string | null;
+  evidence: string | null;
+  consequence: string | null;
+  reversibility: string | null;
+  dryRun: boolean;
+}
 
 function loadRegistry(ctx: QuineCtx, tenant: string): SkillRecord[] {
   try { return JSON.parse(readFileSync(registryPath(ctx, tenant), 'utf8')) as SkillRecord[]; } catch { return []; }
@@ -23,7 +71,281 @@ function loadRegistry(ctx: QuineCtx, tenant: string): SkillRecord[] {
 
 function saveRegistry(ctx: QuineCtx, tenant: string, skills: SkillRecord[]): void {
   mkdirSync(join(ctx.root, '.operator'), { recursive: true });
-  writeFileSync(registryPath(ctx, tenant), JSON.stringify(skills, null, 2));
+  writeFileSync(registryPath(ctx, tenant), JSON.stringify(skills, null, 2) + '\n');
+}
+
+function tokenFromEnvFile(explicit?: string): string | undefined {
+  if (explicit) return explicit;
+  if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
+  try {
+    const txt = readFileSync(join(process.env.HOME ?? '', '.claude', '.env'), 'utf8');
+    const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
+    return line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim() || undefined;
+  } catch { return undefined; }
+}
+
+async function gateJson(
+  fetchImpl: typeof fetch,
+  url: string,
+  token: string,
+  init: RequestInit = {},
+): Promise<{ ok: boolean; status: number; body: any }> {
+  const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json', ...(init.headers as Record<string, string> | undefined) };
+  const res = await fetchImpl(url, { ...init, headers });
+  return { ok: res.ok, status: res.status, body: await res.json().catch(() => ({})) };
+}
+
+function promotionAuditFor(
+  tenant: string,
+  action: GatePromotionAction,
+  registry: SkillRecord[],
+  opts: { now: number; nowIso: string; dryRun: boolean },
+): { audit: SkillPromotionAudit; nextRegistry: SkillRecord[]; changed: boolean } {
+  const subject = String(action.subject ?? '');
+  const idx = registry.findIndex((skill) => skill.skill_id === subject);
+  const common = {
+    schema: 'cambium.skill-promotion.v1' as const,
+    actionId: String(action.id ?? ''),
+    actionTs: action.ts ?? null,
+    appliedAt: opts.nowIso,
+    tenant,
+    subject,
+    founderId: action.founderId ?? null,
+    idempotencyKey: action.idempotencyKey ?? null,
+    evidence: action.evidence ?? null,
+    consequence: action.consequence ?? null,
+    reversibility: action.reversibility ?? null,
+    dryRun: opts.dryRun,
+  };
+  if (action.kind !== 'promote-skill') {
+    return {
+      audit: { ...common, result: 'rejected', reason: `unsupported action kind ${action.kind}`, previousStatus: null, nextStatus: null },
+      nextRegistry: registry,
+      changed: false,
+    };
+  }
+  if (!subject || idx < 0) {
+    return {
+      audit: { ...common, result: 'rejected', reason: `unknown skill ${subject || '(empty)'}`, previousStatus: null, nextStatus: null },
+      nextRegistry: registry,
+      changed: false,
+    };
+  }
+  const skill = registry[idx];
+  if (skill.status === 'production') {
+    return {
+      audit: { ...common, result: 'already-production', reason: 'skill already has founder-approved production status', previousStatus: 'production', nextStatus: 'production' },
+      nextRegistry: registry,
+      changed: false,
+    };
+  }
+  const readiness = skillProductionReadiness(skill);
+  if (!readiness.ready) {
+    return {
+      audit: { ...common, result: 'rejected', reason: readiness.reason, previousStatus: skill.status, nextStatus: skill.status },
+      nextRegistry: registry,
+      changed: false,
+    };
+  }
+  const promoted: SkillRecord = { ...skill, status: 'production', updated: opts.now };
+  const nextRegistry = registry.map((entry, i) => (i === idx ? promoted : entry));
+  return {
+    audit: { ...common, result: 'promoted', reason: readiness.reason, previousStatus: skill.status, nextStatus: 'production' },
+    nextRegistry,
+    changed: true,
+  };
+}
+
+function appendPromotionAudit(ctx: QuineCtx, tenant: string, audit: SkillPromotionAudit): string {
+  mkdirSync(join(ctx.root, '.operator'), { recursive: true });
+  const path = promotionAuditPath(ctx, tenant);
+  appendFileSync(path, JSON.stringify(audit) + '\n');
+  return path;
+}
+
+export async function applySkillPromotionDecisions(
+  ctx: QuineCtx,
+  tenant: string,
+  options: SkillPromotionApplyOptions = {},
+): Promise<unknown> {
+  const base = (options.baseUrl ?? GATE_URL_DEFAULT).replace(/\/+$/, '');
+  const token = tokenFromEnvFile(options.token);
+  if (!token) {
+    return { hypha: 'skills', op: 'apply-promotions', tenant, applied: 0, rejected: 0, consumed: 0, error: 'no QUESTS_PUSH_TOKEN (env, --token, or ~/.claude/.env) — refusing' };
+  }
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const list = await gateJson(fetchImpl, `${base}/internal/gate/${tenant}`, token);
+  if (!list.ok) {
+    return { hypha: 'skills', op: 'apply-promotions', tenant, applied: 0, rejected: 0, consumed: 0, status: list.status, error: list.body?.error ?? 'gate list failed' };
+  }
+
+  const actions = Array.isArray(list.body?.actions)
+    ? (list.body.actions as GatePromotionAction[]).filter((action) => action.kind === 'promote-skill')
+    : [];
+  let registry = loadRegistry(ctx, tenant);
+  const results: SkillPromotionAudit[] = [];
+  let changed = false;
+  let consumed = 0;
+  const now = options.now ? options.now() : Date.now();
+  const nowIso = options.nowIso ? options.nowIso() : new Date(now).toISOString();
+
+  for (const action of actions) {
+    const result = promotionAuditFor(tenant, action, registry, { now, nowIso, dryRun: !!options.dryRun });
+    registry = result.nextRegistry;
+    changed = changed || result.changed;
+    results.push(result.audit);
+    if (!options.dryRun) {
+      if (result.changed) saveRegistry(ctx, tenant, registry);
+      appendPromotionAudit(ctx, tenant, result.audit);
+      const consume = await gateJson(fetchImpl, `${base}/internal/gate/${tenant}/consume`, token, {
+        method: 'POST',
+        body: JSON.stringify({ id: action.id, result: result.audit }),
+      });
+      if (consume.ok) consumed += 1;
+    }
+  }
+
+  return {
+    hypha: 'skills',
+    op: 'apply-promotions',
+    tenant,
+    checked: actions.length,
+    applied: results.filter((r) => r.result === 'promoted').length,
+    rejected: results.filter((r) => r.result === 'rejected').length,
+    alreadyProduction: results.filter((r) => r.result === 'already-production').length,
+    consumed,
+    dryRun: !!options.dryRun,
+    audit: options.dryRun ? null : `.operator/${tenant}.skill-promotions.jsonl`,
+    results,
+  };
+}
+
+function loadArchive(ctx: QuineCtx, tenant: string): ArchiveReceipt {
+  try {
+    const data = JSON.parse(readFileSync(archivePath(ctx, tenant), 'utf8')) as ArchiveReceipt;
+    const receipt = { tenant, archives: Array.isArray(data.archives) ? data.archives : [] };
+    return receipt.archives.length > 0 ? receipt : loadAgentPlaneArchiveFallback(tenant);
+  } catch { return loadAgentPlaneArchiveFallback(tenant); }
+}
+
+function loadAgentPlaneArchiveFallback(tenant: string): ArchiveReceipt {
+  const archivesRoot = join(process.env.AGENT_PLANE_ARCHIVES_ROOT || join(homedir(), '.config', 'cambium', 'agent-plane-archives'));
+  try {
+    const dirs = readdirSync(archivesRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => join(archivesRoot, entry.name))
+      .filter((dir) => existsSync(join(dir, 'instances.tar.gz')) && existsSync(join(dir, 'repo-state.txt')))
+      .sort();
+    const latest = dirs.at(-1);
+    if (!latest) return { tenant, archives: [] };
+    const evidencePath = join(latest, 'instances.tar.gz');
+    const repoStatePath = join(latest, 'repo-state.txt');
+    const repoLine = readFileSync(repoStatePath, 'utf8').split('\n').find((line) => line.startsWith('repo='));
+    return {
+      tenant,
+      archives: [{
+        routineId: 'agent-plane',
+        archived: true,
+        archivedAt: statSync(evidencePath).mtime.toISOString(),
+        evidencePath,
+        repoPath: repoLine?.slice('repo='.length),
+        note: 'archive artifact discovered from the configured agent-plane archive directory',
+        ceremony: [
+          'agent-plane archive artifact exists in the durable local archive directory',
+          'repo-state.txt is stored beside the archive artifact',
+          'channel layer remains the live external interface',
+          'runtime retirement must still be verified before closing the archive issue',
+        ],
+      }],
+    };
+  } catch { return { tenant, archives: [] }; }
+}
+
+function saveArchive(ctx: QuineCtx, tenant: string, receipt: ArchiveReceipt): void {
+  mkdirSync(join(ctx.root, '.operator'), { recursive: true });
+  writeFileSync(archivePath(ctx, tenant), JSON.stringify(receipt, null, 2) + '\n');
+}
+
+function activeProcessLines(pattern = 'agent-plane|loop-runner'): string[] {
+  try {
+    return execFileSync('pgrep', ['-fl', pattern], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .filter((line) => !isArchiveRuntimeInspector(line));
+  } catch { return []; }
+}
+
+function activeLaunchdServices(): string[] {
+  try {
+    return execFileSync('launchctl', ['list'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => /agent-plane|ai\.hermes\./i.test(line));
+  } catch { return []; }
+}
+
+export function assessArchiveRuntimeStatus(processes: string[], services: string[]): ArchiveRuntimeStatus {
+  const activeProcesses = processes.filter((line) => /agent-plane|loop-runner/i.test(line) && !isArchiveRuntimeInspector(line));
+  const activeServices = services.filter((line) => /agent-plane/i.test(line));
+  const hermesServices = services.filter((line) => /ai\.hermes\./i.test(line));
+  return {
+    retired: activeProcesses.length === 0 && activeServices.length === 0,
+    activeProcesses,
+    activeServices,
+    hermesServices,
+  };
+}
+
+function isArchiveRuntimeInspector(line: string): boolean {
+  return [
+    /pgrep\s+-fl\s+/i,
+    /ps\s+-axo\s+/i,
+    /\brg\b.*(?:agent-plane|loop-runner|forge-aura)/i,
+    /npm\s+run\s+quine\s+--\s+read\s+skills\s+archive/i,
+    /node\s+bin\/quine\/quine\.ts\s+read\s+skills\s+archive/i,
+  ].some((pattern) => pattern.test(line));
+}
+
+function renderArchiveStatus(ctx: QuineCtx, tenant: string, routineId?: string): string {
+  const receipt = loadArchive(ctx, tenant);
+  const archives = routineId ? receipt.archives.filter((a) => a.routineId === routineId) : receipt.archives;
+  const latest = archives.at(-1);
+  const runtime = assessArchiveRuntimeStatus(activeProcessLines(), activeLaunchdServices());
+  const lines = [
+    '',
+    '  ════════ Skill Archive · retirement evidence ════════',
+    '',
+    `  tenant: ${tenant}`,
+    `  routine: ${routineId ?? 'all'}`,
+    '',
+  ];
+  if (!latest) {
+    lines.push('  receipt: missing');
+  } else {
+    lines.push('  receipt: found');
+    lines.push(`  archivedAt: ${latest.archivedAt}`);
+    lines.push(`  evidence: ${latest.evidencePath ?? 'not attached'}`);
+    lines.push(`  repo: ${latest.repoPath ?? 'not attached'}`);
+    if (latest.note) lines.push(`  note: ${latest.note}`);
+  }
+  lines.push('');
+  lines.push(`  runtime retired: ${runtime.retired ? 'yes' : 'no'}`);
+  if (runtime.activeProcesses.length > 0) {
+    lines.push('  active processes:');
+    for (const line of runtime.activeProcesses) lines.push(`    ${line}`);
+  }
+  if (runtime.activeServices.length > 0) {
+    lines.push('  active services:');
+    for (const line of runtime.activeServices) lines.push(`    ${line}`);
+  }
+  if (runtime.hermesServices.length > 0) {
+    lines.push('  hermes services observed:');
+    for (const line of runtime.hermesServices) lines.push(`    ${line}`);
+  }
+  lines.push('');
+  lines.push(runtime.retired && latest ? '  archive close gate: clear' : '  archive close gate: blocked');
+  return lines.join('\n');
 }
 
 const readJson = (path: string): any | undefined => {
@@ -90,18 +412,25 @@ export const skills: Hypha = {
   describe: 'the skill forge — repetitive processes minted as self-improving skills',
   help: [
     'quine skills [--tenant t]                                the skill panel',
+    '       quine read skills archive [routine-id] [--tenant t]       archive receipt + runtime close gate',
     '       quine write skills forge [--tenant t]                    detect repetition + mint',
     '       quine write skills record <skill-id> ok|fail [--scenario "…"] [--tenant t]',
+    '       quine write skills apply-promotions [--tenant t] [--url base] [--token t] [--dry-run]',
   ].join('\n'),
 
   async status(ctx) {
-    const tenants = ['cambium', 'thoughtseed'].filter((t) => existsSync(registryPath(ctx, t)));
+    const tenants = ['cambium', DEFAULT_TENANT].filter((t) => existsSync(registryPath(ctx, t)));
     const total = tenants.reduce((n, t) => n + loadRegistry(ctx, t).length, 0);
     return { name: 'skills', reachable: true, detail: total > 0 ? `${total} skill(s) across ${tenants.length} registr(y/ies)` : 'forge ready — nothing minted yet' };
   },
 
   async read(args, ctx) {
     const tenant = tenantOf(args);
+    const sub = args.find((a) => !a.startsWith('--'));
+    if (sub === 'archive') {
+      const rest = args.filter((a) => !a.startsWith('--') && args.indexOf(a) > args.indexOf('archive'));
+      return renderArchiveStatus(ctx, tenant, rest[0]);
+    }
     return renderSkillPanel(loadRegistry(ctx, tenant), tenant);
   },
 
@@ -145,6 +474,14 @@ export const skills: Hypha = {
       ].join('\n');
     }
 
-    return 'skills: unknown write. Try: forge · record <skill-id> ok|fail';
+    if (sub === 'apply-promotions') {
+      return applySkillPromotionDecisions(ctx, tenant, {
+        baseUrl: flag(args, '--url', GATE_URL_DEFAULT),
+        token: flag(args, '--token', ''),
+        dryRun: args.includes('--dry-run'),
+      });
+    }
+
+    return 'skills: unknown write. Try: forge · record <skill-id> ok|fail · apply-promotions';
   },
 };

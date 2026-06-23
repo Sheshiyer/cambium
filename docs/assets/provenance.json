@@ -1,0 +1,117 @@
+{
+  "schema": "cambium.asset-provenance.v1",
+  "updated": "2026-06-19",
+  "policy": {
+    "runtimeGlbMaxBytes": 15728640,
+    "qaReferenceGlbMaxBytes": 78643200,
+    "oversizedRuntimeAction": "move-to-release-asset-or-lfs-before-public-release",
+    "privateDataRule": "assets must be synthetic Cambium reference material with no private org, account, host, credential, transcript, or customer data"
+  },
+  "groups": [
+    {
+      "id": "runtime-meshy-island-glbs",
+      "kind": "runtime",
+      "paths": [
+        "apps/cambium-r3f/public/assets/meshy/islands/*/model.glb"
+      ],
+      "source": "Meshy text-to-3D refine tasks recorded in apps/cambium-r3f/public/assets/meshy/islands/manifest.json",
+      "licenseStatus": "generated-review-required",
+      "approvalStatus": "approved-runtime",
+      "sizePolicy": "under-runtime-glb-budget",
+      "notes": "Promoted organ island assets used by the R3F scene."
+    },
+    {
+      "id": "runtime-meshy-island-thumbnails",
+      "kind": "runtime",
+      "paths": [
+        "apps/cambium-r3f/public/assets/meshy/islands/*/thumbnail.png"
+      ],
+      "source": "Meshy task thumbnails paired with runtime island GLBs",
+      "licenseStatus": "generated-review-required",
+      "approvalStatus": "approved-runtime",
+      "sizePolicy": "small-web-texture",
+      "notes": "Preview thumbnails only; no private workspace content."
+    },
+    {
+      "id": "qa-image-to-3d-master-glbs",
+      "kind": "qa-reference",
+      "paths": [
+        "apps/cambium-r3f/public/assets/meshy/image-to-3d/*/model.glb"
+      ],
+      "source": "Meshy image-to-3D master tasks recorded in apps/cambium-r3f/public/assets/meshy/image-to-3d/manifest.json",
+      "licenseStatus": "generated-review-required",
+      "approvalStatus": "qa-only-not-promoted",
+      "sizePolicy": "oversized-qa-reference-with-optimized-candidate",
+      "notes": "Reference candidates for visual review; not runtime defaults."
+    },
+    {
+      "id": "qa-image-to-3d-optimized-glbs",
+      "kind": "qa-reference",
+      "paths": [
+        "apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model.glb"
+      ],
+      "source": "Optimized derivatives recorded in apps/cambium-r3f/public/assets/meshy/image-to-3d/optimized-candidates.json",
+      "licenseStatus": "generated-review-required",
+      "approvalStatus": "qa-only-not-promoted",
+      "sizePolicy": "under-runtime-glb-budget-but-not-promoted",
+      "notes": "Candidate runtime derivatives awaiting perceptual approval."
+    },
+    {
+      "id": "qa-image-to-3d-thumbnails",
+      "kind": "qa-reference",
+      "paths": [
+        "apps/cambium-r3f/public/assets/meshy/image-to-3d/*/thumbnail*.png"
+      ],
+      "source": "Meshy image-to-3D task thumbnails and alpha/view thumbnails",
+      "licenseStatus": "generated-review-required",
+      "approvalStatus": "qa-only-not-promoted",
+      "sizePolicy": "small-web-texture",
+      "notes": "Review thumbnails for candidate comparison."
+    },
+    {
+      "id": "synthetic-source-plates",
+      "kind": "qa-reference",
+      "paths": [
+        "apps/cambium-r3f/public/assets/meshy/image-to-3d/source-plates/*.png",
+        "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/*.png",
+        "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/contact-sheet.png",
+        "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/*.png"
+      ],
+      "source": "Synthetic Cambium source-plate prompts in docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-prompts.json",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "qa-only-not-promoted",
+      "sizePolicy": "docs-reference-texture",
+      "notes": "Generated reference plates for organ islands, rails, and UI motifs."
+    },
+    {
+      "id": "r3f-screenshot-packs",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/cambium-r3f-screenshots/*.png",
+        "docs/plans/assets/cambium-r3f-screenshots/**/*.png",
+        "docs/plans/assets/cambium-r3f-implementation/verification/*.png",
+        "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/*.png",
+        "docs/plans/assets/cambium-r3f-game-engine-realignment/verification/**/*.png",
+        "docs/plans/assets/cambium-overview-reference-art-pass/*.png",
+        "docs/plans/assets/cambium-r3f-visual-moodboard/*.png"
+      ],
+      "source": "Synthetic screenshot, reference, and visual QA packs generated for Cambium R3F planning",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Evidence for visual acceptance and comparison, not runtime data."
+    },
+    {
+      "id": "tg-miniapp-viewport-proof-screenshots",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/tg-miniapp-viewport-proof/*.png"
+      ],
+      "source": "Synthetic TG mini app viewport proof screenshots generated from local Worker PAGE fixtures",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Viewport evidence for layout and clickability proof; no raw credentials, user ids, or Telegram initData."
+    }
+  ]
+}

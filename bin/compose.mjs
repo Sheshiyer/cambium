@@ -55,6 +55,10 @@ export function planPipeline({ registry, pipeline, tenant } = {}) {
     ...organOf(stage.organ, `stage "${stage.id}"`),
     input: stage.input,
     output: stage.output,
+    requires: stage.requires || [],
+    produces: stage.produces || [],
+    blocking: stage.blocking || [],
+    downstreamEffects: stage.downstream_effects || [],
   }));
   const crosscutting = (pipeline.crosscutting || []).map((c) => ({
     id: c.id,
@@ -76,6 +80,15 @@ export function formatPlan(plan) {
   for (const s of plan.steps) {
     lines.push(`  ${s.order}. ${s.stage.padEnd(8)} → ${s.organName}  [${tierTag(s.tier)}]`);
     lines.push(`     ${s.input} → ${s.output}   ·   ${s.repo}`);
+    if (s.requires.length || s.produces.length) {
+      lines.push(`     contract: requires [${s.requires.join(', ') || 'none'}] → produces [${s.produces.join(', ') || 'none'}]`);
+    }
+    if (s.blocking.length) {
+      lines.push(`     blocking: ${s.blocking.join(', ')}`);
+    }
+    for (const effect of s.downstreamEffects) {
+      lines.push(`     downstream: ${effect}`);
+    }
     lines.push(`     ↳ ${s.entrypoint}`);
     lines.push('');
   }

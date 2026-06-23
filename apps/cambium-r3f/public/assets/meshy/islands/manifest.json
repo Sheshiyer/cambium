@@ -1,0 +1,52 @@
+{
+  "provider": "meshy",
+  "status": "complete",
+  "generatedAt": "2026-06-12T07:24:13.998Z",
+  "assets": {
+    "genesis": {
+      "taskId": "019ebab1-c1b1-7f5f-96c0-27cc305acdcd",
+      "stage": "refined",
+      "taskType": "text-to-3d-refine",
+      "title": "Genesis seed island",
+      "model": "/assets/meshy/islands/genesis/model.glb",
+      "thumbnail": "/assets/meshy/islands/genesis/thumbnail.png",
+      "taskCredits": 10
+    },
+    "taste": {
+      "taskId": "019ebab1-fae0-7f83-bd1c-fbe632c894d3",
+      "stage": "refined",
+      "taskType": "text-to-3d-refine",
+      "title": "Taste resonance island",
+      "model": "/assets/meshy/islands/taste/model.glb",
+      "thumbnail": "/assets/meshy/islands/taste/thumbnail.png",
+      "taskCredits": 10
+    },
+    "build": {
+      "taskId": "019ebab5-51a1-7467-a7d0-cf062c789ff4",
+      "stage": "refined",
+      "taskType": "text-to-3d-refine",
+      "title": "Build forge island",
+      "model": "/assets/meshy/islands/build/model.glb",
+      "thumbnail": "/assets/meshy/islands/build/thumbnail.png",
+      "taskCredits": 10
+    },
+    "ops": {
+      "taskId": "019ebab2-3666-73d3-822a-9b1796f2e454",
+      "stage": "refined",
+      "taskType": "text-to-3d-refine",
+      "title": "Ops loop island",
+      "model": "/assets/meshy/islands/ops/model.glb",
+      "thumbnail": "/assets/meshy/islands/ops/thumbnail.png",
+      "taskCredits": 10
+    },
+    "cortex": {
+      "taskId": "019ebab2-64aa-73dc-96f2-4ef7b50702dc",
+      "stage": "refined",
+      "taskType": "text-to-3d-refine",
+      "title": "Cortex memory island",
+      "model": "/assets/meshy/islands/cortex/model.glb",
+      "thumbnail": "/assets/meshy/islands/cortex/thumbnail.png",
+      "taskCredits": 10
+    }
+  }
+}

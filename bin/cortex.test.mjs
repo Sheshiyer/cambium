@@ -49,7 +49,7 @@ test('localTransport.readContract returns null for an absent group', () => {
   assert.equal(localTransport({ root: '/x', fs }).readContract('acme', 'nope'), null);
 });
 
-test('localTransport.embed throws — embeddings need the NIM Worker transport (I3 follow-up)', () => {
+test('localTransport.embed throws — embeddings need a provider-neutral memory adapter', () => {
   const fs = { appendFileSync: () => {}, writeFileSync: () => {}, readFileSync: () => '', existsSync: () => false, mkdirSync: () => {} };
-  assert.throws(() => localTransport({ root: '/x', fs }).embed('x'), /NIM Worker/);
+  assert.throws(() => localTransport({ root: '/x', fs }).embed('x'), /provider-neutral memory adapter/);
 });

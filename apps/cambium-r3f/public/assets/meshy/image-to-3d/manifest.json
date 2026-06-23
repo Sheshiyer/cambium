@@ -1,0 +1,55 @@
+{
+  "provider": "meshy",
+  "pipeline": "image-to-3d",
+  "status": "trial",
+  "generatedAt": "2026-06-12T13:53:19.378Z",
+  "assets": {
+    "ops": {
+      "taskId": "019ebbbf-8657-7368-a8bd-46fcb514ae11",
+      "taskType": "image-to-3d",
+      "title": "Ops loop island image-to-3D trial",
+      "sourceImage": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/ops-source.png",
+      "model": "/assets/meshy/image-to-3d/ops/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/ops/thumbnail.png",
+      "taskCredits": 30
+    },
+    "rail-arc": {
+      "taskId": "019ebc10-9ca7-7a9f-a599-12fd4e4952ef",
+      "taskType": "image-to-3d",
+      "profile": "master",
+      "title": "Curved rail connector",
+      "sourceImage": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/rail-arc.png",
+      "model": "/assets/meshy/image-to-3d/rail-arc/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/rail-arc/thumbnail.png",
+      "alphaThumbnail": "/assets/meshy/image-to-3d/rail-arc/thumbnail-alpha.png",
+      "thumbnailViews": {
+        "back": "/assets/meshy/image-to-3d/rail-arc/thumbnail-back.png",
+        "front": "/assets/meshy/image-to-3d/rail-arc/thumbnail-front.png",
+        "left": "/assets/meshy/image-to-3d/rail-arc/thumbnail-left.png",
+        "right": "/assets/meshy/image-to-3d/rail-arc/thumbnail-right.png"
+      },
+      "modelBytes": 55987668,
+      "thumbnailBytes": 54976,
+      "taskCredits": 30
+    },
+    "genesis": {
+      "taskId": "019ebc10-4745-7225-912e-a304d8ef2425",
+      "taskType": "image-to-3d",
+      "profile": "master",
+      "title": "Genesis seed island",
+      "sourceImage": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/genesis.png",
+      "model": "/assets/meshy/image-to-3d/genesis/model.glb",
+      "thumbnail": "/assets/meshy/image-to-3d/genesis/thumbnail.png",
+      "alphaThumbnail": "/assets/meshy/image-to-3d/genesis/thumbnail-alpha.png",
+      "thumbnailViews": {
+        "back": "/assets/meshy/image-to-3d/genesis/thumbnail-back.png",
+        "front": "/assets/meshy/image-to-3d/genesis/thumbnail-front.png",
+        "left": "/assets/meshy/image-to-3d/genesis/thumbnail-left.png",
+        "right": "/assets/meshy/image-to-3d/genesis/thumbnail-right.png"
+      },
+      "modelBytes": 71054312,
+      "thumbnailBytes": 170133,
+      "taskCredits": 30
+    }
+  }
+}

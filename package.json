@@ -1,7 +1,7 @@
 {
   "name": "cambium",
-  "version": "0.2.3",
-  "codename": "Thalia",
+  "version": "0.2.5",
+  "codename": "Thalia .5",
   "private": true,
   "type": "module",
   "description": "The composition layer for the constellation — registry + pipeline + the dry-run conductor.",
@@ -12,6 +12,17 @@
     "plan": "node bin/compose.mjs plan",
     "validate": "node bin/compose.mjs validate",
     "render-docs": "node bin/render-docs.mjs",
-    "render-docs:check": "node bin/render-docs.mjs --check"
+    "render-docs:check": "node bin/render-docs.mjs --check",
+    "proof:tg-viewport": "node workers/quests/src/visual-viewport-proof.mjs",
+    "proof:tg-viewport:diagnose": "node workers/quests/src/visual-viewport-proof.mjs --diagnose-browser",
+    "proof:tg-live-readiness": "node workers/quests/src/live-proof-readiness.mjs --write",
+    "proof:tg-live-readiness:strict": "node workers/quests/src/live-proof-readiness.mjs --write --strict",
+    "r3f:dev": "npm --prefix apps/cambium-r3f run dev",
+    "r3f:build": "npm --prefix apps/cambium-r3f run build",
+    "r3f:test": "npm --prefix apps/cambium-r3f run test",
+    "r3f:sync": "npm --prefix apps/cambium-r3f run sync:contracts",
+    "r3f:meshy": "npm --prefix apps/cambium-r3f run meshy:assets --",
+    "r3f:meshy:image": "npm --prefix apps/cambium-r3f run meshy:image-to-3d --",
+    "r3f:source-plates": "npm --prefix apps/cambium-r3f run source-plates --"
   }
 }

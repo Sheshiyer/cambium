@@ -10,8 +10,8 @@
 ## 1. The state space (X, d)
 
 A business, projected onto what matters for *brand*, is a point **x ∈ X** — a vector in the **1024-dim
-NIM embedding space** (the cortex). The metric is **cosine distance d(a, b) = 1 − cos(a, b)**. "On-brand"
-is not a vibe; it is **small d**. *(Artifact: the shared cortex — `taste-nim` + `DESIGN_MEMORY_WORKER`.)*
+embedding space** (the cortex). The metric is **cosine distance d(a, b) = 1 − cos(a, b)**. "On-brand"
+is not a vibe; it is **small d**. *(Artifact: the provider-neutral cortex — `CortexStore` / `makeCortex` transports.)*
 
 ## 2. The setpoint x\* (the brand-DNA)
 
@@ -62,6 +62,12 @@ the stage pushed the state **away** from the brand-DNA. (The "Fitcheck reads as 
 this: `Φ_genesis` dropped the mission, so its output moved away from x\* — `L ≥ 1`.) The second species
 of drift is a **contract violation**: `Outputᵢ ⋢ Inputᵢ₊₁` — composition becomes undefined and garbage
 propagates. *(`verifyOutput` detects the contract-violation species at the seam.)*
+
+Concrete contract-violation examples live in the variable-contract layer, not in prose taste alone:
+missing `hero_media_type` or asset requirements means `build` cannot know what to produce; missing
+`proof_strategy` means `ops` cannot carry the offer honestly; missing `form_validation_rules` means an
+interaction branch can change product meaning without a seeded constraint. The compact example payload is
+tracked at [`examples/sample-variable-contract.json`](examples/sample-variable-contract.json).
 
 ## 6. The Lyapunov function — the engineering form of self-healing
 
@@ -136,7 +142,7 @@ to all. *(Artifact: the self-similar repo pattern — hub-and-spoke + conductor 
 
 | Math object | Definition | Cambium artifact |
 |---|---|---|
-| State space (X, d) | NIM 1024-dim, cosine distance | the cortex (`taste-nim` + `DESIGN_MEMORY_WORKER`) |
+| State space (X, d) | embedding vector space, cosine distance | the cortex (`CortexStore` / `makeCortex` transport) |
 | Setpoint x\* | the brand-DNA fixed point | genesis `brand-spec.json` + ISC |
 | Operator Φ | the staged pipeline | `pipeline.json` |
 | Stage Φᵢ (typed morphism) | one organ's transform | `registry.json` organ + `adapters.json` |
@@ -164,7 +170,7 @@ stage through it:
 - **resolve** (`resolveDeviation`) — error → **reroll** toward x*; intent → **absorb** Δ into x* and the
   contract (carrying the rationale) so it never reads as drift again.
 - **record** (`recordDeviation`) — every deviation is written via **`cortex.writeDeviation`** (the unified
-  cortex interface, `bin/lib/cortex.mjs`) — a local transport (`deviations.jsonl`) today; the real NIM
+  cortex interface, `bin/lib/cortex.mjs`) — a local transport (`deviations.jsonl`) today; a hosted memory
   Worker (**I3**) swaps in as a transport so the learning is shared across organs and scales.
 
 **The interactive "ask why" is the orchestration layer.** A CLI can't ask the operator; so when a run

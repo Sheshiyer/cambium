@@ -21,7 +21,7 @@ Each stage is owned by one organ (`pipeline.json → stages[].organ`, resolved a
 The `input`/`output` tokens below are the contract identifiers referenced by the pipeline.
 
 ### 1. `genesis` — Mint the brand · organ: **genesis** (`brandmint-oracle-aleph`) · *free*
-- **in** `idea` — a `brand-config.yaml` (name, category, mission, audience) — the thoughtseed.
+- **in** `idea` — a `brand-config.yaml` (name, category, mission, audience) — the seed idea.
 - **out** `brand-dna` — `brand-spec.json` (validated) + `brand-docs/` (persona, positioning, voice,
   messaging) + `assets/` (logo, palette, hero). The canonical brand registration.
 - **fulfilled by** `brandmint launch --waves 1-8` (CLI: `brandmint.cli.app:main`) · buildable alias `skill-clusters taste/scripts/brandmint.mjs (runBrandKit)`.
@@ -51,6 +51,11 @@ The stage tokens above say **which hand-off exists** (`idea` → `brand-dna` →
 `business`). The variable contract layer says **which seeded variables must survive those hand-offs**.
 Stages must pass these groups forward as structured data, not prose-only summaries, so downstream stages do
 not invent critical decisions ad hoc.
+
+See [`../examples/sample-variable-contract.json`](../examples/sample-variable-contract.json) for the
+canonical compact payload that carries these groups through a full hand-off. The sample is intentionally
+small enough for tests and agents to inspect, but complete enough to prove the downstream-sensitive seams:
+brand, copy, visuals, assets, sections, interactions, and acceptance checks.
 
 > **Task 1 scope:** this document defines the canonical vocabulary and expected hand-off shape at the
 > documentation layer today. Runtime fail-closed validation of these variable groups lands in a later task;

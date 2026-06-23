@@ -98,7 +98,7 @@
       "role": "will",
       "summary": "the business-ops organ \u2014 7-agent C-suite, multi-tenant governance, GTM/distribution. ONE organ of the constellation, not the whole OS.",
       "repo": "Sheshiyer/snow-gloves-os",
-      "entrypoint": "agents/dispatcher/ (agent spec; Hermes/Paperclip routing) \u00b7 scripts/lib/gtm.py brand_to_gtm (brand-docs \u2192 Explee ICP, approval-gated)",
+      "entrypoint": "agents/dispatcher/ (agent spec; channel/agent-plane routing) \u00b7 scripts/lib/gtm.py brand_to_gtm (brand-docs \u2192 Explee ICP, approval-gated)",
       "tier": "paid",
       "language": "python",
       "capabilities": [

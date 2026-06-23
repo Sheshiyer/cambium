@@ -344,7 +344,7 @@ move is logged, the venture's entire life is **deterministically replayable** �
 | Viability kernel `Viab(K)` | the keep-playing set | **new**: viability monitor (approx: hard bounds + learned boundary in NIM) |
 | Setpoint `x*` (allostatic) | moving brand-DNA / mission | genesis `brand-spec.json` made *mutable* + the cascade |
 | Trust-region `α` | cap on setpoint motion / wake | **new**: operator config |
-| State space `(X,d)` | NIM 1024-D, cosine | the cortex (`taste-nim` + `DESIGN_MEMORY_WORKER`) |
+| State space `(X,d)` | embedding vector space, cosine | the cortex (`CortexStore` / `makeCortex` transport) |
 | World-state | typed, event-sourced venture state | **new**: operator store (embedding is one derived field) |
 | Organs Φᵢ | finite-game players | `registry.json` + `adapters.json` (invoked as services) |
 | Router (micro/meso/macro) | event classifier | **new**: extends `bin/compose.mjs` |
@@ -416,8 +416,8 @@ grows — the one that keeps all the others playing.*
 The operator hosts MANY ventures. The contract, proven adversarially by
 `bin/operator/tenant.test.ts`:
 
-- **Identity** — tenant ids are **TeamForge slugs** (lowercase kebab). They are NEVER invented
-  ad-hoc (vault `CLAUDE.md`, anti-drift rule 1): the registry (`.operator/tenants.json`) derives
+- **Identity** — tenant ids are **portable org slugs** (lowercase kebab). They are NEVER invented
+  ad-hoc: the registry (`.operator/tenants.json`) derives
   from worlds that already exist (*registration-from-reality*), and `registerTenant` rejects ids
   with no world behind them.
 - **Isolation** — no event, vector, deviation, contract, or setpoint move crosses tenants:

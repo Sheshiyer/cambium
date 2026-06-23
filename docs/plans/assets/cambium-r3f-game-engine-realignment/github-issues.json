@@ -1,0 +1,63 @@
+{
+  "milestone": {
+    "number": 7,
+    "title": "Cambium R3F Game Engine Realignment",
+    "url": "https://github.com/Sheshiyer/cambium/milestone/7"
+  },
+  "issues": [
+    {
+      "id": "R3F-GE-01",
+      "number": 44,
+      "title": "Triage/spec freeze and reference parity gate",
+      "url": "https://github.com/Sheshiyer/cambium/issues/44"
+    },
+    {
+      "id": "R3F-GE-02",
+      "number": 45,
+      "title": "Engine scene architecture",
+      "url": "https://github.com/Sheshiyer/cambium/issues/45"
+    },
+    {
+      "id": "R3F-GE-03",
+      "number": 46,
+      "title": "Tactical world overview",
+      "url": "https://github.com/Sheshiyer/cambium/issues/46"
+    },
+    {
+      "id": "R3F-GE-04",
+      "number": 49,
+      "title": "Island zoom state",
+      "url": "https://github.com/Sheshiyer/cambium/issues/49"
+    },
+    {
+      "id": "R3F-GE-05",
+      "number": 47,
+      "title": "Diegetic HUD and settings control bay",
+      "url": "https://github.com/Sheshiyer/cambium/issues/47"
+    },
+    {
+      "id": "R3F-GE-06",
+      "number": 48,
+      "title": "Scene-native visualizations",
+      "url": "https://github.com/Sheshiyer/cambium/issues/48"
+    },
+    {
+      "id": "R3F-GE-07",
+      "number": 50,
+      "title": "Figma-style design system sheet",
+      "url": "https://github.com/Sheshiyer/cambium/issues/50"
+    },
+    {
+      "id": "R3F-GE-08",
+      "number": 51,
+      "title": "Electron desktop readiness",
+      "url": "https://github.com/Sheshiyer/cambium/issues/51"
+    },
+    {
+      "id": "R3F-GE-09",
+      "number": 52,
+      "title": "Visual QA screenshot acceptance",
+      "url": "https://github.com/Sheshiyer/cambium/issues/52"
+    }
+  ]
+}

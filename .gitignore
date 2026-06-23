@@ -1,10 +1,22 @@
 # the why-handler's deviation ledger (the cortex-write STUB — runtime data; I3 → the real NIM Worker)
 deviations.jsonl
 node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+.codegraph/
+.readme-gen.json
+.playwright-mcp/
+__pycache__/
+*.pyc
+apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb
 
-# the unified cortex local store (variable-contract store; runtime — I3 follow-up = the CF Worker)
-cortex/
+# the unified cortex local store (variable-contract store; runtime - I3 follow-up = the CF Worker)
+/cortex/
 
 # the operator's event-sourced world-state (runtime; the replay log is deviations.jsonl)
 .operator/
 .wrangler/
+
+# local/private reference exports; never commit account, payment, or third-party prompt dumps
+motionsites-export/
