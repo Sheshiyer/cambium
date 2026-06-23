@@ -8,7 +8,6 @@ Phase 1 app surface for the Cambium 2.5D process map.
 - Source contract generated from the root Cambium pipeline, Cortex contracts, frozen screenshot manifest, and quest line.
 - Initial overview scene with stage nodes, cortex rail links, packet markers, and HUD telemetry.
 - Visual tokens constrained to the Cambium/Cortex palette and motion rules.
-- Standalone `demo-org` tapestry fixture that mirrors `npm run tapestry:snapshot` output without live provider data or private tenant state.
 
 ## Commands
 
@@ -30,7 +29,7 @@ Frozen references remain owned by `docs/plans/assets/cambium-r3f-implementation/
 
 ## Meshy Asset Pipeline
 
-The Meshy key is expected as `MESHY_API_KEY` in the process environment or in `CAMBIUM_ENV_FILE` (`~/.config/cambium/.env` by default). The pipeline is credit-safe by default: planning and prompt validation do not call Meshy, and paid preview/refine calls require `--execute`.
+The Meshy key is expected as `MESHY_API_KEY` in `/Users/sheshnarayaniyer/.claude/.env` or the process environment. The pipeline is credit-safe by default: planning and prompt validation do not call Meshy, and paid preview/refine calls require `--execute`.
 
 Prompt specs live at `asset-prompts/meshy-island-prompts.json`.
 

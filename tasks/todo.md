@@ -1,3 +1,74 @@
+## M5 Phase Q Bridge — non-visual session (2026-06-16)
+
+- [x] Land in-flight Phase Q (arcs VIII–IX MultiCA evidence) — committed (7a063da)
+- [x] Add project-evidence assembler + gather layer — pure fold, 3 tests (29a43fc)
+- [x] Wire `quine write quests evidence` and `activate-tenant` verbs — 1 test (46ec055)
+- [x] Founder-inheritance auto-reconciler on root-tenant push — 2 tests (ec8889d)
+- [x] Refresh `.operator/mathis.project.json` from real sources — first-light
+- [x] Fix readReviewSignals cross-tenant bleed — tenant-scoped reviews (3c58d6e)
+- [x] Push Mathis ledger and verify miniapp shows live evidence — 9/17 honest
+- [x] Reconcile `.planning/PHASE-Q-BRIDGE.md` to shipped reality (this commit)
+- [ ] Close #25 (M5 Phase Q) — Task 8
+- [ ] Spawn follow-on plans index — Task 9
+
+Deferred to follow-on plans:
+- Lesson-miner agent (`docs/plans/2026-06-11-group-memory-lesson-agent.md`)
+- Variable-contracts runtime validation (`docs/plans/2026-06-09-capability-alignment-variable-contracts.md` Tasks 3,5,6,7)
+- W6 Paperclip archive ceremony (#26)
+- GitHub + Cloudflare signal sources for project-evidence (today: honest-zero stubs)
+
+---
+
+# Cambium Overview Reference Art Pass
+
+## Plan
+
+- [x] Preserve the existing review evidence and scope this pass to the `home`/overview route first.
+- [x] Inspect the current R3F scene split, authored island primitives, rail network, and HUD chrome.
+- [x] Recompose the overview so the Cambium map fills the frame with larger authored glyph islands.
+- [x] Reduce fixed DOM chrome on overview and push route/status labels into the world composition.
+- [x] Strengthen lighting/material hierarchy and make rail/particle flow the dominant visual signature.
+- [x] Add structural tests that prevent the overview from regressing into small-map/dashboard chrome.
+- [x] Run `npm run r3f:test`, `npm run r3f:build`, and capture fresh overview screenshot evidence.
+- [x] Record the result, residual visual risk, and next route-by-route direction.
+
+## Review
+
+- Added an explicit `overviewArtDirection` contract to `apps/cambium-r3f/src/scene/scene-data.ts` and `types.ts`: home route, `0.74` map-occupancy target, `cameraZoom: 88`, `1.38` island glyph scale, `4x` rail particle multiplier, and `minimal-world-first` chrome.
+- Tightened the home camera in `engine/camera-rig.tsx` so the map occupies the frame instead of sitting small in the center.
+- Added overview-only authored glyph primitives in `CambiumScene.tsx`: seed-star, capsule oracle, triangular forge gate, folded current slab, and memory wheel.
+- Added overview-only spline/bead rail flow, world-space overview labels, stronger lights, and reduced the `YOU ARE HERE` label on the overview route to avoid occlusion.
+- Reduced fixed DOM chrome in `SceneHud.tsx` and `styles.css` for home: no camera stack, no lower readout card, no instrument panel; route dock and operator strip are lighter.
+- Made `App.tsx` apply `app-shell--overview` so the large `CAMBIUM` title treatment is overview-specific.
+- Added `overview-art-direction.test.ts` and expanded `scene-data.test.ts`; `npm run r3f:test` passed 46/46 tests.
+- Verification passed: `npm run r3f:build`.
+- Browser proof captured after a clean Vite restart at `docs/plans/assets/cambium-overview-reference-art-pass/overview-final.png` (`1904x898`, `10132` unique sampled colors, `0.5803` non-background ratio).
+- Added `docs/plans/cambium-overview-reference-art-pass.md`.
+- Honest residual: this is a meaningful reference-direction pass, not final parity. Next frontier is material richness, edge highlights, topographic surface texture, shadows, and typography refinement around the enlarged glyphs.
+
+
+# Cambium Current Visual Review
+
+## Plan
+
+- [x] Inspect current R3F app structure, route set, and previous visual-evidence artifacts.
+- [x] Verify the app still builds/tests before judging the runtime.
+- [x] Run the local R3F app and capture current desktop evidence for the main routes.
+- [x] Compare current runtime against the attached Cambium tactical-map inspiration.
+- [x] Record review findings, residual risks, and next implementation direction.
+
+## Review
+
+- Used Conducty-style review flow locally; the Conducty MCP tools were not exposed in this thread, so the plan/evidence was recorded in repo artifacts.
+- Reviewed the attached reference pack and the current live app at `http://127.0.0.1:5173/`.
+- Verified current technical health: `npm run r3f:test` passed 43/43 tests, and `npm run r3f:build` completed successfully.
+- Broader repo checks passed: `npm run validate` and `npm run render-docs:check`.
+- Captured fresh current screenshots under `docs/plans/assets/cambium-current-visual-review/`: `overview.png`, `island-taste.png`, `visualizations.png`, and `asset-qa.png`.
+- Added `docs/plans/cambium-current-visual-review.md` with the full design assessment.
+- Advisor-style verification was attempted but blocked by local inference auth: `401 Invalid authentication credentials`.
+- Verdict: technically green, visually yellow/red. The app has a real R3F route engine, organic field, procedural islands, and asset QA, but still reads as a WebGL scene under conventional web HUD chrome rather than the authored cinematic tactical-map surface in the attached references.
+- Highest-priority next pass: rebuild the overview as a reference-matched art pass with larger authored glyph islands, world-integrated labels/status, stronger material lighting, and rail/particle flow as the dominant visual signature.
+
 # Cambium R3F Game-Engine Realignment
 
 ## Plan

@@ -1,0 +1,55 @@
+{
+  "schema": "cambium.signed-action-smoke-template.v1",
+  "generatedAt": "2026-06-22T08:59:38.685Z",
+  "tenant": "cambium",
+  "writesAuthority": false,
+  "instruction": "Copy sourceDocument to signed-action-smoke.json only after a real Telegram signed action runs through Worker queue, operator consume, and mini app refresh. Store hashes and counts only; never store initData, bearer tokens, raw subjects, founder ids, queued ids, or response bodies.",
+  "sourceDocument": {
+    "schema": "cambium.signed-action-smoke.v1",
+    "tenant": "cambium",
+    "capturedAt": "TODO-ISO-8601",
+    "source": "telegram-worker-operator-smoke",
+    "workerUrl": "https://curious.thoughtseed.space",
+    "smokeKind": "TODO-skill-promotion-or-side-quest-or-npc-history-or-gate-approval",
+    "telegram": {
+      "userIdHash": "sha256:TODO_SHA256_OF_TELEGRAM_USER_ID",
+      "initDataHash": "sha256:TODO_SHA256_OF_RAW_INITDATA",
+      "initDataAgeSeconds": 0
+    },
+    "action": {
+      "kind": "TODO-promote-skill-or-queue-side-quest-or-approve-or-reroll",
+      "subjectHash": "sha256:TODO_SHA256_OF_REDACTED_SUBJECT",
+      "idempotencyKeyHash": "sha256:TODO_SHA256_OF_IDEMPOTENCY_KEY"
+    },
+    "phases": {
+      "telegramSubmit": {
+        "status": 200,
+        "queued": true,
+        "duplicate": false,
+        "queuedIdHash": "sha256:TODO_SHA256_OF_WORKER_QUEUED_ID",
+        "responseSha256": "sha256:TODO_SHA256_OF_REDACTED_TELEGRAM_SUBMIT_RESPONSE"
+      },
+      "workerList": {
+        "status": 200,
+        "sawQueuedAction": true,
+        "queuedActionCount": 0,
+        "bodySha256": "sha256:TODO_SHA256_OF_REDACTED_WORKER_LIST_RESPONSE"
+      },
+      "operatorConsume": {
+        "command": "TODO-quine-write-skills-apply-promotions-or-quine-write-quests-apply-side-quests",
+        "checked": 1,
+        "consumed": 1,
+        "rejected": 0,
+        "auditSha256": "sha256:TODO_SHA256_OF_REDACTED_OPERATOR_AUDIT"
+      },
+      "miniAppRefresh": {
+        "refreshed": true,
+        "envelopeSha256": "sha256:TODO_SHA256_OF_REFRESHED_VISUAL_ENVELOPE",
+        "visibleMarkerHash": "sha256:TODO_SHA256_OF_VISIBLE_CARD_MARKER"
+      }
+    },
+    "notes": [
+      "TODO identify the user-facing card that changed without storing private action payloads."
+    ]
+  }
+}

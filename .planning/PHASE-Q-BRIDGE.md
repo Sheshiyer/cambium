@@ -13,15 +13,15 @@
 
 The pre-ship draft proposed `mode: 'tutorial' | 'operations' | 'portfolio'`. In practice, founder inheritance + per-tenant project state achieves the same per-tenant separation without changing the fold's signature. The 26 existing tests stay valid; no refactor of the gather/push layers needed.
 
-## Demo tenant as first-light
+## Mathis as first-light
 
-`.operator/demo-org.world.json` and `.operator/demo-org.project.json` are now derived from `project-evidence@v1`. The demo quest line shows arcs I–IX inherited via founder.json and arcs X–XVII reflecting repo state (honest zeros where progress has not yet happened — no fake progress).
+`.operator/mathis.world.json` and `.operator/mathis.project.json` are now derived from `project-evidence@v1`. The Mathis quest line on the miniapp shows arcs I–IX inherited via founder.json and arcs X–XVII reflecting real vault + repo state (honest zeros where progress has not yet happened — no fake progress).
 
-First demo envelope at `https://cambium.example.com/api/quests/demo-org` (`completed: 9/17`): I–IX complete via founder inheritance, X "The Brief" the active frontier, XI–XVII locked with honest evidence (e.g. "no review rounds yet", "no build activity yet", "awaiting ship approval").
+First live envelope at https://curious.thoughtseed.space/api/quests/mathis (`completed: 9/17`): I–IX complete via founder inheritance, X "The Brief" the active frontier, XI–XVII locked with honest evidence (e.g. "no review rounds yet", "no build activity yet", "awaiting ship approval").
 
 ## A bug caught at first-light
 
-The plan's original `readReviewSignals` (bin/quine/hyphae/project-evidence.ts) fell back to the root `deviations.jsonl` when the tenant-scoped one was missing — that file is cross-tenant noise, and a tenant's arc XIII "Review" could falsely close with unrelated entries. The fix (commit 3c58d6e): tenant-scoped only, honest zero when absent. Caught and fixed before issue #25 closed — the kind of inversion the no-fake-progress invariant exists to expose.
+The plan's original `readReviewSignals` (bin/quine/hyphae/project-evidence.ts) fell back to the root `deviations.jsonl` when the tenant-scoped one was missing — that file is cross-tenant noise, and Mathis's arc XIII "Review" was falsely closing with 62 entries that weren't Mathis reviews. The fix (commit 3c58d6e): tenant-scoped only, honest zero when absent. Caught and fixed before issue #25 closed — the kind of inversion the no-fake-progress invariant exists to expose.
 
 ## Deferred wings
 
