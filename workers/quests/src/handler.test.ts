@@ -387,7 +387,9 @@ test('push then get · redacts generic social proof from public quest JSON', asy
   const stored = JSON.parse(get.body);
   assert.equal(stored.social.status, 'gap');
   assert.equal(stored.social.rows[0].id, 'social-gap');
-  assert.doesNotMatch(get.body, /LEADERBOARD RANK|viral follower proof|generic social proof|popularity signal/i);
+  assert.match(stored.social.rows[0].detail, /not tenant handoff evidence/);
+  assert.match(stored.social.rows[0].proof, /explicit bridge, handoff, or founder gate sources/);
+  assert.doesNotMatch(get.body, /leaderboard|rank|follower|viral|popularity|social proof|social-proof/i);
 });
 
 test('push · accepts stale partial visual envelopes without inventing missing sections', async () => {

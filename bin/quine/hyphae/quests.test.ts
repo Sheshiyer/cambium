@@ -627,7 +627,7 @@ test('quests visual envelope deduplicates Mira cortex rows and isolates NPC tena
     const acmePayload = JSON.stringify({ note: 'Mira ICP resonance from tenant review' });
     insert.run('acme', 'acme:mira:1', 'positioning', acmePayload, 3);
     insert.run('acme', 'acme:mira:duplicate', 'positioning', acmePayload, 2);
-    for (let i = 0; i < 20; i += 1) {
+    for (let i = 0; i < 70; i += 1) {
       insert.run('acme', `acme:noise:${i}`, 'note', JSON.stringify({ note: 'duplicate operating note' }), 100 + i);
     }
     insert.run('beta', 'beta:mira:leak', 'positioning', JSON.stringify({ note: 'Mira beta-only evidence must not leak' }), 4);

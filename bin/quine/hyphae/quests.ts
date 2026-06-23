@@ -644,8 +644,8 @@ function cortexMemoryRowsFor(
     const db = new DatabaseSync(join(opDir, 'cortex.db'), { readOnly: true });
     try {
       const rows = db.prepare(
-        'SELECT id, kind, payload, ts FROM memory WHERE tenant = ? ORDER BY ts DESC LIMIT ?',
-      ).all(tenant, Math.max(limit * 5, 60)) as Array<{ id: string; kind: string; payload: string; ts: number }>;
+        'SELECT id, kind, payload, ts FROM memory WHERE tenant = ? ORDER BY ts DESC',
+      ).all(tenant) as Array<{ id: string; kind: string; payload: string; ts: number }>;
       const seen = new Set<string>();
       return rows.map((row) => {
         let payload: Record<string, unknown> = {};
