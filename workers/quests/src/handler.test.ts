@@ -1145,9 +1145,190 @@ test('page · visual layer guards stale and partial envelopes', () => {
 });
 
 test('page · gate chamber previews consequence, reversibility, evidence, and idempotency', () => {
-  for (const m of ['gateEvidence', 'gateReversibility', 'gateConsequence', 'gateIdempotency', 'approveConsequence', 'rerollConsequence', 'idempotencyHint', 'idempotencyKey', 'reversible until consumed']) {
+  for (const m of ['gateSource', 'gateOwner', 'gateUpdatedAt', 'gateEvidence', 'gateReversibility', 'gateQueueConsequence', 'isGateAuthFailure', 'gateConsequence', 'gateIdempotency', 'approveConsequence', 'rerollConsequence', 'idempotencyHint', 'idempotencyKey', 'reversible until consumed']) {
     assert.ok(PAGE.includes(m), `page has gate preview ${m}`);
   }
+  assert.match(PAGE, /data-signed-action-entrypoint="approve"/);
+  assert.match(PAGE, /data-signed-action-entrypoint="reroll"/);
+  assert.match(PAGE, /openGatePreflight\('approve'/);
+  assert.match(PAGE, /openGatePreflight\('reroll'/);
+});
+
+test('page · empty gate names internal source and no open items', async () => {
+  const rendered = await renderPageFixtureContext({ ...NO_FAKE_PROGRESS_VISUAL_FIXTURE, openItems: [] }, { search: '?tenant=cambium&scene=gate' });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+
+  assert.match(gate, /data-gate-state="empty"/);
+  assert.match(gate, /source route \/internal\/gate\/cambium/);
+  assert.match(gate, /no open items waiting/);
+});
+
+test('page · unreachable gate names network failure and no local queue write', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { search: '?tenant=cambium&scene=gate', rejectFetch: true });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+
+  assert.match(gate, /data-gate-state="unreachable"/);
+  assert.match(gate, /network failure/);
+  assert.match(gate, /\/internal\/gate\/cambium unreachable/);
+  assert.match(gate, /no local queue write/);
+});
+
+test('page · gate item cards show Paperclip source and queue-only fields', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [{
+      id: 'THO-9',
+      title: 'Review launch copy',
+      source: 'Paperclip · paperclip-open-items',
+      owner: 'Mathis',
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      evidence: 'THO-9 blocked by launch copy review',
+      approveConsequence: 'approve THO-9 for Paperclip execution',
+      rerollConsequence: 'reroll THO-9 and request revision before execution',
+      reversibility: 'queued action can be superseded until consumed',
+      idempotencyHint: 'THO-9:blocked:2026-06-22T00:00:00.000Z',
+    }],
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+
+  assert.match(gate, /Paperclip source<\/b><span>Paperclip · paperclip-open-items/);
+  assert.match(gate, /owner<\/b><span>Mathis/);
+  assert.match(gate, /updatedAt<\/b><span>2026-06-22T00:00:00.000Z/);
+  assert.match(gate, /evidence<\/b><span>THO-9 blocked by launch copy review/);
+  assert.match(gate, /consequence<\/b><span>approve: queue founder approval for THO-9/);
+  assert.match(gate, /reversibility<\/b><span>queued action can be superseded until consumed/);
+  assert.match(gate, /idempotency<\/b><span>approve:cambium:THO-9:blocked:2026-06-22T00:00:00.000Z/);
+  assert.doesNotMatch(gate, /Paperclip execution|before execution|executed by the org/);
+});
+
+test('page · gate consequence sanitizer rewrites direct Paperclip mutation wording', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [{
+      id: 'THO-9',
+      title: 'Review launch copy',
+      source: 'Paperclip · paperclip-open-items',
+      owner: 'Mathis',
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      evidence: 'THO-9 blocked by launch copy review',
+      consequence: 'queue founder decision changes Paperclip handling for THO-9; no org mutation until operator consumes queue',
+      reversibility: 'queued action can be superseded until consumed',
+      idempotencyHint: 'THO-9:blocked',
+    }],
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+  const node = { dataset: { i: '0', id: 'THO-9' }, style: {} };
+
+  assert.match(gate, /approve: queue founder approval for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
+  assert.match(gate, /reroll: queue founder reroll request for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
+  assert.doesNotMatch(gate, /changes Paperclip handling/);
+  assert.doesNotMatch(gate, /queue founder decision changes/);
+
+  (rendered.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('approve', 'THO-9', node);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /queue founder approval for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
+  assert.doesNotMatch(sheet, /changes Paperclip handling/);
+  assert.doesNotMatch(sheet, /queue founder decision changes/);
+});
+
+test('page · approve and reroll gate preflight sheets do not POST before confirmation', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [{
+      id: 'THO-9',
+      title: 'Review launch copy',
+      source: 'Paperclip · paperclip-open-items',
+      owner: 'Mathis',
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      evidence: 'THO-9 blocked by launch copy review',
+      consequence: 'queue founder decision for THO-9',
+      reversibility: 'queued action can be superseded until consumed',
+      idempotencyHint: 'THO-9:blocked',
+    }],
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
+  const fetchCount = rendered.fetchCalls.length;
+  const node = { dataset: { i: '0', id: 'THO-9' }, style: {} };
+
+  (rendered.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('approve', 'THO-9', node);
+  const approveSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(approveSheet, /gate preflight · explicit confirmation/);
+  assert.match(approveSheet, /<h2>Approve Gate Item<\/h2>/);
+  assert.match(approveSheet, /action kind<\/b><span>approve/);
+  assert.match(approveSheet, /subject<\/b><span>THO-9/);
+  assert.match(approveSheet, /evidence<\/b><span>THO-9 blocked by launch copy review/);
+  assert.match(approveSheet, /consequence<\/b><span>queue founder approval for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
+  assert.match(approveSheet, /reversibility<\/b><span>queued action can be superseded until consumed/);
+  assert.match(approveSheet, /idempotency<\/b><span>approve:cambium:THO-9:blocked/);
+  assert.match(approveSheet, /data-gate-confirm="approve"/);
+  assert.equal(rendered.fetchCalls.length, fetchCount);
+
+  (rendered.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('reroll', 'THO-9', node);
+  const rerollSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(rerollSheet, /<h2>Reroll Gate Item<\/h2>/);
+  assert.match(rerollSheet, /action kind<\/b><span>reroll/);
+  assert.match(rerollSheet, /idempotency<\/b><span>reroll:cambium:THO-9:blocked/);
+  assert.match(rerollSheet, /data-gate-confirm="reroll"/);
+  assert.equal(rendered.fetchCalls.length, fetchCount);
+});
+
+test('page · gate auth and duplicate results open explicit sheets', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+
+  (rendered.context.openGateTelegramAuthFailure as (error: string) => void)('missing initData (the gate opens inside Telegram)');
+  const authSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(authSheet, /Telegram auth · blocked/);
+  assert.match(authSheet, /Open inside Telegram/);
+  assert.match(authSheet, /must run inside Telegram/);
+  assert.match(authSheet, /queue write<\/b><span>none/);
+
+  (rendered.context.openGateResultSheet as (kind: string, subject: string, res: unknown, fallback: unknown) => void)('approve', 'THO-9', {
+    queued: 'fixed-uuid',
+    duplicate: true,
+    idempotencyKey: 'approve:cambium:THO-9',
+    consequence: 'queue founder approval for THO-9',
+    reversibility: 'queued action can be superseded until consumed',
+  }, { idempotencyKey: 'approve:cambium:THO-9', consequence: 'fallback', reversibility: 'fallback' });
+  const duplicateSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(duplicateSheet, /Original Queued Action Reused/);
+  assert.match(duplicateSheet, /does not imply a new write/);
+  assert.match(duplicateSheet, /queued action<\/b><span>fixed-uuid/);
+  assert.match(duplicateSheet, /idempotency<\/b><span>approve:cambium:THO-9/);
+});
+
+test('page · signed gate auth failures from Worker open Telegram sheet', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [{
+      id: 'THO-9',
+      title: 'Review launch copy',
+      source: 'Paperclip · paperclip-open-items',
+      owner: 'Mathis',
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      evidence: 'THO-9 blocked by launch copy review',
+      consequence: 'queue founder decision for THO-9; no Paperclip mutation until consumed',
+      reversibility: 'queued action can be superseded until consumed',
+      idempotencyHint: 'THO-9:blocked',
+    }],
+  };
+  const rendered = await renderPageFixtureContext(envelope, {
+    search: '?tenant=cambium&scene=gate',
+    fetchSequence: [envelope, envelope, { error: 'stale auth_date' }],
+  });
+  const node = { dataset: { i: '0', id: 'THO-9' }, style: {}, innerHTML: '' };
+
+  (rendered.context.gateAct as (kind: string, subject: string, node: unknown) => void)('approve', 'THO-9', node);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /Telegram auth · blocked/);
+  assert.match(sheet, /valid founder auth/);
+  assert.match(sheet, /response<\/b><span>stale auth_date/);
+  assert.match(sheet, /queue write<\/b><span>none/);
+  assert.match(String(node.innerHTML), /refused: stale auth_date · no local queue write/);
 });
 
 test('page · no-fake-progress visual fixture renders explicit gaps', async () => {

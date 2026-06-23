@@ -280,12 +280,15 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
       { scene: 'map', path: 'map-skill-promotion-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1400 },
       { scene: 'map', path: 'map-companions-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1500 },
       { scene: 'map', path: 'sheet-skill-promotion-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2000 },
+      { scene: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1600 },
+      { scene: 'gate', path: 'sheet-gate-approve-preflight-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2100 },
+      { scene: 'gate', path: 'sheet-gate-reroll-preflight-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2200 },
     ],
   });
   const artifact = JSON.parse(JSON.stringify(manifest));
 
-  assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 6, 'clickability-proof': 1 });
-  assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof']);
+  assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 7, 'clickability-proof': 3 });
+  assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'layout-proof', 'clickability-proof', 'clickability-proof']);
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.path, 'quests-line-mobile.png');
   assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.url ?? '', /\?tenant=cambium&scene=quests/);
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'story')?.path, 'story-feed-mobile.png');
@@ -299,6 +302,11 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'map-skill-promotion-mobile.png')?.scene, 'map');
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'map-companions-mobile.png' && proof.scene === 'map' && proof.fixture === 'mira'));
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'map-companions-mobile.png')?.scene, 'map');
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'gate-consequence-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-gate-approve-preflight-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate' && proof.intent === 'clickability-proof'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-gate-reroll-preflight-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate' && proof.intent === 'clickability-proof'));
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-gate-approve-preflight-mobile.png')?.scene, 'gate');
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-gate-reroll-preflight-mobile.png')?.scene, 'gate');
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.path, 'sheet-skill-promotion-mobile.png');
   assert.match(artifact.invariant, /clipped real sheet proof/);
 });

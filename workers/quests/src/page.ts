@@ -268,6 +268,7 @@ export const PAGE = `<!doctype html>
   .kv{display:grid;grid-template-columns:84px 1fr;gap:7px 10px;font-size:13px}
   .kv b{font:11px var(--mono);opacity:.55;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
   .kv span{font-family:var(--mono);font-size:12.5px;line-height:1.5}
+  .gatekv{grid-template-columns:124px minmax(0,1fr)}
   .status-complete,.status-active{color:var(--ink)} .status-locked{opacity:.6}
 
   /* ── skeleton / states ──────────────────────── */
@@ -322,7 +323,7 @@ export const PAGE = `<!doctype html>
     <section class="scene" id="sceneS" aria-labelledby="sceneSTitle"><h2 id="sceneSTitle" class="sr">Story</h2><div id="beats"></div></section>
     <section class="scene" id="sceneG" aria-labelledby="sceneGTitle">
       <h2 id="sceneGTitle" class="sr">Gate</h2>
-      <div class="ghead">The Gate · the one write</div>
+      <div class="ghead">The Gate · signed queue</div>
       <div class="gsub">approve or reroll an open work item — evidence-gated, founders only.</div>
       <div class="gauge" id="gauge"></div>
       <div id="gate">loading the queue…</div>
@@ -647,45 +648,102 @@ function endSheet(e){ if (!sdrag) return; const d = sdrag; sdrag = null;
 sheet.addEventListener('pointerup', endSheet);
 sheet.addEventListener('pointercancel', endSheet);
 
-/* ── gate — the one write. initData proves the founder; the Worker validates (Ed25519). ── */
+/* ── gate — one queued founder decision. initData proves the founder; the Worker validates (Ed25519). ── */
 const initData = (TG && TG.initData) || '';
 let GATE_ITEMS = [];
+function gateSource(it){ return (it && (it.paperclipSource || it.source || it.sourcePath || it.origin || (it.priority && it.priority.source))) || 'Paperclip · /internal/gate/' + TENANT; }
+function gateOwner(it){ return (it && (it.owner || it.assignee || it.founder || it.operator)) || 'owner not served'; }
+function gateUpdatedAt(it){ return (it && (it.updatedAt || it.updated || it.ts || it.createdAt)) || 'updatedAt not served'; }
+function gateSubject(it){ return (it && (it.id || it.title)) || 'handoff'; }
 function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evidence missing from handoff'; }
-function gateReversibility(kind, it){ return (it && it.reversibility) || (kind === 'approve' ? 'reversible until consumed; supersede with a newer gate action' : 'reversible review request; no execution until the org consumes it'); }
+function gateReversibility(kind, it){ return (it && it.reversibility) || (kind === 'approve' ? 'reversible until consumed; supersede with a newer gate action' : 'reversible review request; no mutation until the org consumes it'); }
+function gateQueueConsequence(raw, kind, subject){
+  const fallback = kind === 'approve'
+    ? 'queue founder approval for ' + subject + '; no Paperclip/org mutation until the operator consumes the queue'
+    : 'queue founder reroll request for ' + subject + '; no Paperclip/org mutation until the operator consumes the queue';
+  if (!raw) return fallback;
+  const text = String(raw);
+  const lower = String(text).toLowerCase();
+  const explicitlyQueued = /\bqueu(?:e|ed|eing)\b/.test(lower);
+  const explicitlyNonMutating = /(no|not|without)[^.;]*(paperclip|org|state|mutation|write|handling)/.test(lower) && /(consume|consumed|operator)/.test(lower);
+  const directChangeVerb = /\b(changes?|changed|changing|updates?|updated|updating|mutates?|mutated|mutating|writes?|wrote|writing|executes?|executed|executing|applies?|applied|applying)\b/.test(lower);
+  return explicitlyQueued && explicitlyNonMutating && !directChangeVerb ? text : fallback;
+}
 function gateConsequence(kind, it){
-  if (kind === 'approve') return (it && (it.approveConsequence || it.consequence)) || 'approve handoff for org execution';
-  return (it && (it.rerollConsequence || it.consequence)) || 'reroll handoff and request revision';
+  const subject = gateSubject(it);
+  if (kind === 'approve') return gateQueueConsequence(it && (it.approveConsequence || it.consequence), kind, subject);
+  return gateQueueConsequence(it && (it.rerollConsequence || it.consequence), kind, subject);
 }
 function gateIdempotency(kind, it){
   const basis = it && typeof it === 'object' ? (it.idempotencyHint || it.id || 'unknown') : it;
   return kind + ':' + TENANT + ':' + basis;
+}
+function gateRows(rows){ return '<div class="kv gatekv">' + rows.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
+function openGateSheet(arc, title, narrative, rows){
+  $('sheetBody').innerHTML = '<div class="arc">' + esc(arc) + '</div><h2>' + esc(title) + '</h2>' +
+    '<div class="nar">' + esc(narrative) + '</div>' + gateRows(rows);
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+function openGateTelegramAuthFailure(error){
+  openGateSheet('Telegram auth · blocked', 'Open inside Telegram',
+    'This signed action must run inside Telegram with valid founder auth so initData can prove the founder. No local queue write was created.',
+    [['source route','/api/gate/' + TENANT], ['response', error || 'missing initData (the gate opens inside Telegram)'], ['queue write','none']]);
+}
+function isGateAuthFailure(error){
+  return /initData|Telegram|signature|auth_date|founder|verification unavailable/i.test(String(error || ''));
+}
+function openGateResultSheet(kind, subject, res, fallback){
+  const duplicate = !!(res && res.duplicate);
+  openGateSheet('gate result · ' + (duplicate ? 'duplicate' : 'queued'), duplicate ? 'Original Queued Action Reused' : 'Founder Decision Queued',
+    duplicate
+      ? 'Duplicate response reused the original queued action. This does not imply a new write.'
+      : 'Signed action queued a founder decision only. Paperclip and org state do not mutate until an operator consumes the queue.',
+    [['action kind', kind], ['subject', subject], ['queued action', (res && res.queued) || 'missing'], ['idempotency', (res && res.idempotencyKey) || fallback.idempotencyKey], ['consequence', (res && res.consequence) || fallback.consequence], ['reversibility', (res && res.reversibility) || fallback.reversibility]]);
+}
+function openGatePreflight(kind, subject, node){
+  const item = GATE_ITEMS[Number(node.dataset.i)] || {};
+  const evidence = gateEvidence(item);
+  const consequence = gateConsequence(kind, item);
+  const reversibility = gateReversibility(kind, item);
+  const idempotencyKey = gateIdempotency(kind, item.id ? item : subject);
+  $('sheetBody').innerHTML = '<div class="arc">gate preflight · explicit confirmation</div><h2>' + esc(kind === 'approve' ? 'Approve Gate Item' : 'Reroll Gate Item') + '</h2>' +
+    '<div class="nar">Review this signed action before queueing it. Confirmation queues a founder decision only; it does not mutate Paperclip or org state.</div>' +
+    gateRows([['action kind',kind], ['subject',subject], ['evidence',evidence], ['consequence',consequence], ['reversibility',reversibility], ['idempotency',idempotencyKey]]) +
+    '<div class="gbtns"><button type="button" class="approve" data-gate-confirm="' + esc(kind) + '">Confirm ' + esc(kind) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
+  const confirm = $('sheetBody').querySelector('[data-gate-confirm]');
+  if (confirm) confirm.onclick = () => { closeSheet(); gateAct(kind, subject, node); };
+  const cancel = $('sheetBody').querySelector('[data-gate-cancel]');
+  if (cancel) cancel.onclick = closeSheet;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function loadGate(){
   const el = $('gate');
   fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
     const items = (d && d.openItems) || [];
     GATE_ITEMS = items;
-    if(!items.length){ el.innerHTML = '<div class="gnote">no open items waiting on you. The org is flowing.</div>'; return; }
+    if(!items.length){ el.innerHTML = '<div class="gnote" data-gate-state="empty" data-source="/internal/gate/'+esc(TENANT)+'">source route /internal/gate/'+esc(TENANT)+' · no open items waiting.</div>'; return; }
     el.innerHTML = items.map((it,i) => {
       const evidence = gateEvidence(it);
       const approveKey = gateIdempotency('approve', it);
       const rerollKey = gateIdempotency('reroll', it);
-      return '<div class="gitem" style="--i:'+i+'" data-i="'+i+'" data-id="'+esc(it.id)+'"><div class="gid">'+esc(it.id)+'</div>'+
+      return '<div class="gitem" style="--i:'+i+'" data-i="'+i+'" data-id="'+esc(it.id)+'" data-source="'+esc(gateSource(it))+'"><div class="gid">'+esc(it.id)+'</div>'+
       '<div class="gtitle">'+esc(it.title)+'</div><div class="gmeta">'+
+        '<b>Paperclip source</b><span>'+esc(gateSource(it))+'</span>'+
+        '<b>owner</b><span>'+esc(gateOwner(it))+'</span>'+
+        '<b>updatedAt</b><span>'+esc(gateUpdatedAt(it))+'</span>'+
         '<b>evidence</b><span>'+esc(evidence)+'</span>'+
-        '<b>approve</b><span>'+esc(gateConsequence('approve', it))+'</span>'+
-        '<b>reroll</b><span>'+esc(gateConsequence('reroll', it))+'</span>'+
-        '<b>reversible</b><span>'+esc(gateReversibility('approve', it))+'</span>'+
-        '<b>keys</b><span>'+esc(approveKey)+' / '+esc(rerollKey)+'</span>'+
+        '<b>consequence</b><span>approve: '+esc(gateConsequence('approve', it))+' · reroll: '+esc(gateConsequence('reroll', it))+'</span>'+
+        '<b>reversibility</b><span>'+esc(gateReversibility('approve', it))+'</span>'+
+        '<b>idempotency</b><span>'+esc(approveKey)+' / '+esc(rerollKey)+'</span>'+
       '</div><div class="gbtns">'+
-      '<button class="approve">Approve</button><button class="reroll">Reroll</button></div></div>';
+      '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve">Approve</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll">Reroll</button></div></div>';
     }).join('') +
-      '<div class="gnote">every action is signed by Telegram and executed by the org — no fake buttons.</div>';
+      '<div class="gnote">every action is signed by Telegram and queues a founder decision only; Paperclip/org state changes only after operator consumption.</div>';
     el.querySelectorAll('.gitem').forEach(node => {
-      node.querySelector('.approve').onclick = () => gateAct('approve', node.dataset.id, node);
-      node.querySelector('.reroll').onclick = () => gateAct('reroll', node.dataset.id, node);
+      node.querySelector('.approve').onclick = () => openGatePreflight('approve', node.dataset.id, node);
+      node.querySelector('.reroll').onclick = () => openGatePreflight('reroll', node.dataset.id, node);
     });
-  }).catch(() => { el.innerHTML = '<div class="gnote">gate queue unreachable.</div>'; });
+  }).catch(() => { el.innerHTML = '<div class="gnote" data-gate-state="unreachable" data-source="/internal/gate/'+esc(TENANT)+'">network failure — /internal/gate/'+esc(TENANT)+' unreachable; no local queue write.</div>'; });
 }
 function gateAct(kind, subject, node){
   const item = GATE_ITEMS[Number(node.dataset.i)] || {};
@@ -698,11 +756,16 @@ function gateAct(kind, subject, node){
     body: JSON.stringify({ kind, subject, initData, evidence, consequence, reversibility, idempotencyKey }) })
     .then(r => r.json()).then(res => {
       node.style.opacity='1';
-      node.innerHTML = res.queued
-        ? '<div class="gnote">'+(res.duplicate ? 'already queued · ' : '')+esc(kind)+' queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+' · '+esc(res.consequence || consequence)+'</div>'
-        : '<div class="gnote">refused: '+esc(res.error||'unknown')+'</div>';
+      if (res.queued) {
+        node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind)+' founder decision queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
+        openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility });
+      } else {
+        const error = res.error || 'unknown';
+        node.innerHTML = '<div class="gnote">refused: '+esc(error)+' · no local queue write.</div>';
+        if (isGateAuthFailure(error)) openGateTelegramAuthFailure(error);
+      }
       notify(res.queued ? 'success' : 'error');
-    }).catch(() => { node.style.opacity='1'; node.innerHTML = '<div class="gnote">network error.</div>'; });
+    }).catch(() => { node.style.opacity='1'; node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>'; });
 }
 function skillPromotionEvidence(skill){
   return skill.title + ' · ' + skill.detail;

@@ -98,7 +98,27 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   },
   { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
   { scene: 'map', fixture: 'mira', path: 'map-companions-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
-  { scene: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof' },
+  { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-signed-action-entrypoint=\"approve\"]')" },
+  {
+    scene: 'gate',
+    fixture: 'gate',
+    path: 'sheet-gate-approve-preflight-mobile.png',
+    intent: 'clickability-proof',
+    waitFor: "document.querySelector('[data-signed-action-entrypoint=\"approve\"]')",
+    expression: "(() => { const el = document.querySelector('[data-signed-action-entrypoint=\"approve\"]'); if (!el) throw new Error('missing approve gate action'); el.click(); })()",
+    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"approve\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'gate',
+    fixture: 'gate',
+    path: 'sheet-gate-reroll-preflight-mobile.png',
+    intent: 'clickability-proof',
+    waitFor: "document.querySelector('[data-signed-action-entrypoint=\"reroll\"]')",
+    expression: "(() => { const el = document.querySelector('[data-signed-action-entrypoint=\"reroll\"]'); if (!el) throw new Error('missing reroll gate action'); el.click(); })()",
+    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"reroll\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clipSelector: '#sheet',
+  },
 ];
 
 const gateFixture = {
@@ -107,13 +127,14 @@ const gateFixture = {
     {
       id: 'THO-9',
       title: 'Review launch copy',
+      source: 'Paperclip · paperclip-open-items',
       status: 'blocked',
       owner: 'Mathis',
       updatedAt: '2026-06-22T00:00:00.000Z',
       evidence: 'THO-9 is blocked · owner Mathis · updated 2026-06-22T00:00:00.000Z',
-      consequence: 'founder decision changes Paperclip handling for THO-9',
-      approveConsequence: 'approve THO-9 for Paperclip execution',
-      rerollConsequence: 'reroll THO-9 and request revision before execution',
+      consequence: 'queue founder decision for THO-9; no Paperclip mutation until consumed',
+      approveConsequence: 'queue founder approval for THO-9; no Paperclip mutation until consumed',
+      rerollConsequence: 'queue founder reroll request for THO-9; no Paperclip mutation until consumed',
       reversibility: 'queued action can be superseded until consumed; reroll keeps the item open',
       idempotencyHint: 'THO-9:blocked:2026-06-22T00:00:00.000Z',
       priority: {
