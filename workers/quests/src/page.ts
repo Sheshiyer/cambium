@@ -1114,6 +1114,16 @@ function renderLiveProof(env){
 function auditRow(id, title, state, detail, proof, source){
   return { id, title, state, detail, proof, source };
 }
+function tapestryTarget(row){
+  if (row.id === 'active-organ' || row.id === 'r3f-contract') return 'r3f';
+  if (row.id === 'wake-health' || row.id === 'quest-frontier' || row.id === 'freshness-gaps') return 'quine';
+  if (row.id === 'skill-mastery') return 'operator-policy';
+  if (row.id === 'mira-relationship' || row.id === 'memory-sense') return 'cortex';
+  if (row.id === 'command-state') return 'hermes';
+  if (row.id === 'live-proof') return 'live-proof';
+  if (row.id === 'decision-context' || row.id === 'founder-stance') return 'operator-policy';
+  return 'cambium-worker';
+}
 function tapestryRows(env){
   const L = env.ledger || env;
   const current = L.current || activeRow(L);
@@ -1160,7 +1170,7 @@ function tapestryRows(env){
 }
 function renderTapestryAudit(env){
   return '<div class="boxgrid">' + tapestryRows(env).map((row, i) =>
-    '<button type="button" class="ibox tapestry ' + (row.state === 'ready' ? 'ready' : '') + '" data-tapestry="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+    '<button type="button" class="ibox tapestry ' + (row.state === 'ready' ? 'ready' : '') + '" data-tapestry="' + i + '" data-ecosystem-target="' + esc(tapestryTarget(row)) + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function insightBoxes(env){
@@ -1442,8 +1452,11 @@ function openDecisionContextBox(env, index){
 }
 function openTapestryBox(env, index){
   const row = tapestryRows(env)[index] || tapestryRows(env)[0];
+  const freshness = row.id === 'freshness-gaps'
+    ? '<b>derivedAt</b><span>' + esc(env.derivedAt || 'missing') + '</span><b>stale threshold</b><span>360 minutes</span><b>refresh command</b><span>quine write quests push --tenant ' + esc(TENANT) + '</span>'
+    : '';
   $('sheetBody').innerHTML = '<div class="arc">completion definition · ' + esc(row.state) + '</div><h2>' + esc(row.title) + '</h2>' +
-    '<div class="nar">' + esc(row.detail) + '</div><div class="kv"><b>source</b><span>' + esc(row.source || 'missing') + '</span><b>requirement</b><span>' + esc(row.id || 'tapestry-row') + '</span><b>proof</b><span>' + esc(row.proof || row.detail) + '</span></div>';
+    '<div class="nar">' + esc(row.detail) + '</div><div class="kv"><b>source</b><span>' + esc(row.source || 'missing') + '</span><b>ecosystem target</b><span>' + esc(tapestryTarget(row)) + '</span><b>requirement</b><span>' + esc(row.id || 'tapestry-row') + '</span><b>proof</b><span>' + esc(row.proof || row.detail) + '</span>' + freshness + '</div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row.state === 'ready' ? 'medium' : 'light');
 }
 function openSideQuestBox(env, index){

@@ -1021,6 +1021,44 @@ test('page · tapestry audit sheet maps completion requirements to source-backed
   assert.doesNotMatch(sheet, /all requirements complete|production verified|live proof ready/i);
 });
 
+test('page · tapestry audit renders every row as a target-backed sheet', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+  const targets = [
+    ['active-organ', 'r3f'],
+    ['wake-health', 'quine'],
+    ['skill-mastery', 'operator-policy'],
+    ['mira-relationship', 'cortex'],
+    ['command-state', 'hermes'],
+    ['live-proof', 'live-proof'],
+  ] as const;
+
+  assert.equal((map.match(/data-tapestry="/g) ?? []).length, rows.length);
+  for (const [id, target] of targets) {
+    const index = rows.findIndex((row) => row.id === id);
+    assert.ok(index >= 0, `${id} tapestry row exists`);
+    assert.match(map, new RegExp(`data-tapestry="${index}"(?=[^>]*data-ecosystem-target="${target}")`));
+    (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
+    assert.match(rendered.elements.get('sheetBody')!.innerHTML, new RegExp(`ecosystem target<\\/b><span>${target}`));
+  }
+});
+
+test('page · freshness tapestry gap shows derivation and push command', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const index = rows.findIndex((row) => row.id === 'freshness-gaps');
+
+  assert.ok(index >= 0, 'freshness gap row exists');
+  (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /FRESHNESS GAPS/);
+  assert.match(sheet, /derivedAt<\/b><span>2026-01-01T00:00:00.000Z/);
+  assert.match(sheet, /stale threshold<\/b><span>360 minutes/);
+  assert.match(sheet, /refresh command<\/b><span>quine write quests push --tenant cambium/);
+});
+
 test('page · live proof capture plan renders as guidance, not evidence', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const map = rendered.elements.get('mapwrap')!.innerHTML;
