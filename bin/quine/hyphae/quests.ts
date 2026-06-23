@@ -72,7 +72,7 @@ const SIDE_QUEST_EVENT_STATUSES: readonly SideQuestEventStatus[] = ['queued', 'c
 const SIDE_QUEST_EVENT_SOURCES: readonly SideQuestEventSource[] = ['operator-note', 'founder-gate', 'system'];
 const SIDE_QUEST_OVERCLAIM_RE = /\b(reward|bonus|level up|hidden quest|leaderboard|social proof|popularity|rank)\b/i;
 const INSIGHT_OVERCLAIM_RE = /\b(reward|bonus|level up|hidden quest|leaderboard|social proof|popularity|rank|random reward)\b/i;
-const INSIGHT_SECRET_RE = /\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN)=|Bearer\s+|(?:^|[?&])(?:hash|query_id|auth_date)=|\brawInitData\b/i;
+const INSIGHT_SECRET_RE = /\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN)=|Bearer\s+|\b(?:hash|query_id|auth_date)=|\brawInitData\b/i;
 const LIVE_PROOF_READINESS_PATH = 'docs/plans/assets/tg-miniapp-live-proof/readiness.json';
 const LIVE_PROOF_CAPTURE_INVARIANT = 'Capture commands create redacted receipts; they are proof only after their artifacts validate ready.';
 
