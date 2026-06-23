@@ -563,6 +563,9 @@ test('page · interaction layer: sheet, haptics, operator map cards', () => {
   assert.match(PAGE, /HapticFeedback/);
   assert.match(PAGE, /openSheet/);
   assert.match(PAGE, /openMapSheet/);
+  assert.match(PAGE, /querySelectorAll\('\.sense'\)\.forEach\(el => el\.onclick = \(\) => openSenseSheet/);
+  assert.match(PAGE, /querySelectorAll\('\[data-lane\]'\)\.forEach\(el => el\.onclick = \(\) => openLaneSheet/);
+  assert.match(PAGE, /data-sense=\|data-lane=/);
   assert.match(PAGE, /renderOperatorMap/);
   assert.match(PAGE, /Operator Map/);
   assert.match(PAGE, /stage-card/);
@@ -1220,6 +1223,7 @@ test('page · missing wake sheet maps to wake-proof quine command without crowdi
   assert.match(sheet, /history count<\/b><span>0/);
   assert.match(sheet, /side quest target<\/b><span>wake-proof/);
   assert.match(sheet, /quine command<\/b><span>quine write quests wake-event ingest missing/);
+  assert.match(sheet, /--detail &quot;[^"]+&quot; --proof &quot;[^"]+&quot; --target &quot;wake:ingest&quot;/);
   assert.doesNotMatch(sheet, /raw initData|browser wrote|current step proved by history/i);
 });
 
@@ -1266,6 +1270,7 @@ test('page · proved wake sheet keeps current proof separate from operator histo
   assert.match(sheet, /current status<\/b><span>proved/);
   assert.match(sheet, /source<\/b><span>quest-ledger-envelope@v1/);
   assert.match(sheet, /proof<\/b><span>current wake proof came from quest-ledger-envelope@v1/);
+  assert.match(sheet, /event command<\/b><span>quine write quests wake-event ingest proved --detail &quot;current envelope confirms quest ingestion&quot; --proof &quot;current wake proof came from quest-ledger-envelope@v1&quot; --target &quot;wake:ingest&quot;/);
   assert.match(sheet, /wake event source<\/b><span>operator-wake-events@v1/);
   assert.match(sheet, /history count<\/b><span>1/);
   assert.match(sheet, /history relation<\/b><span>operator wake history is shown separately from the current served status/);
@@ -1390,6 +1395,8 @@ test('page · lane sheets expose world log counts, ratios, stance, and gaps', as
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  const laneHtml = (rendered.context.renderLanes as (env: unknown) => string)(envelope);
+  assert.match(laneHtml, /data-interaction-kind="sheet" data-source="world\.log" data-lane="micro" data-ecosystem-target="operator-policy"/);
   (rendered.context.openLaneSheet as (env: unknown, laneId: string) => void)(envelope, 'micro');
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
 
@@ -1426,6 +1433,8 @@ test('page · missing lane sheet has missing source, zero sample, no recommendat
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  const laneHtml = (rendered.context.renderLanes as (env: unknown) => string)(envelope);
+  assert.match(laneHtml, /data-interaction-kind="sheet" data-source="missing" data-lane="micro" data-ecosystem-target="operator-policy"/);
   (rendered.context.openLaneSheet as (env: unknown, laneId: string) => void)(envelope, 'micro');
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
 
@@ -1463,6 +1472,7 @@ test('page · sense sheets map ecosystem targets and clarify memory empty state'
   ] as const;
 
   for (const [id, target] of mappings) {
+    assert.match(senseHtml, new RegExp(`data-interaction-kind="sheet" data-source="missing" data-sense="${id}"`));
     assert.match(senseHtml, new RegExp(`data-sense="${id}" data-ecosystem-target="${target}"`));
     (rendered.context.openSenseSheet as (env: unknown, senseId: string) => void)(envelope, id);
     const sheet = rendered.elements.get('sheetBody')!.innerHTML;

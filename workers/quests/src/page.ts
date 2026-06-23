@@ -405,7 +405,7 @@ function interactionInventory(){
   const html = [$('mapwrap'), $('cmds'), $('beats'), $('gate'), $('sceneBadge'), $('fresh')]
     .map(el => el ? (el.outerHTML || el.innerHTML || '') : '').join('');
   return {
-    sheet: /data-interaction-kind="sheet"|data-live=|data-tapestry=|data-wake=|data-skill=|data-npc=|data-live-proof=|data-policy=|data-decision=|data-social=|data-box=/.test(html),
+    sheet: /data-interaction-kind="sheet"|data-live=|data-tapestry=|data-wake=|data-sense=|data-lane=|data-skill=|data-npc=|data-live-proof=|data-policy=|data-decision=|data-social=|data-box=/.test(html),
     signedAction: /data-signed-action-entrypoint=|data-kind="approve"|data-kind="reroll"/.test(html),
     chatCommand: /data-interaction-kind="chat-command"/.test(html),
     readOnly: /data-interaction-kind="read-only"/.test(html),
@@ -914,7 +914,7 @@ function senseCards(env){
 }
 function renderSenses(env){
   return '<div class="sensegrid">' + senseCards(env).map(sense =>
-    '<button type="button" class="sense ' + (sense.on ? 'on' : '') + '" data-sense="' + sense.id + '" data-ecosystem-target="' + esc(sense.target || senseEcosystemTarget(sense.id)) + '"><b>' + esc(sense.title) + '</b>' + esc(sense.detail) + '</button>'
+    '<button type="button" class="sense ' + (sense.on ? 'on' : '') + '" data-interaction-kind="sheet" data-source="' + esc(sense.source || 'missing') + '" data-sense="' + sense.id + '" data-ecosystem-target="' + esc(sense.target || senseEcosystemTarget(sense.id)) + '"><b>' + esc(sense.title) + '</b>' + esc(sense.detail) + '</button>'
   ).join('') + '</div>';
 }
 function laneCards(env){
@@ -947,7 +947,7 @@ function laneCards(env){
 }
 function renderLanes(env){
   return '<div class="sensegrid">' + laneCards(env).map(lane =>
-    '<button type="button" class="sense ' + (lane.on ? 'on' : '') + '" data-lane="' + lane.id + '"><b>' + esc(lane.title) + '</b>' + esc(lane.detail) + '</button>'
+    '<button type="button" class="sense ' + (lane.on ? 'on' : '') + '" data-interaction-kind="sheet" data-source="' + esc(lane.source || 'missing') + '" data-lane="' + lane.id + '" data-ecosystem-target="operator-policy"><b>' + esc(lane.title) + '</b>' + esc(lane.detail) + '</button>'
   ).join('') + '</div>';
 }
 function stanceCard(env){
@@ -1421,6 +1421,15 @@ function openMapSheet(L, stageId){
     '<div class="nar">' + esc(stage.detail) + '</div>' + stageMeta + body;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
+function qarg(value){
+  return JSON.stringify(String(value || '').replace(/\\s+/g, ' ').trim());
+}
+function wakeEventCommand(wake, status){
+  const step = wake.id || 'step';
+  const detail = wake.detail || (status === 'proved' ? 'wake step proved' : 'wake step missing');
+  const proof = wake.proof || detail;
+  return 'quine write quests wake-event ' + step + ' ' + status + ' --detail ' + qarg(detail) + ' --proof ' + qarg(proof) + ' --target ' + qarg('wake:' + step);
+}
 function openWakeBox(env, index){
   const wake = wakeSteps(env)[index] || wakeSteps(env)[0];
   const currentStatus = wake.done ? 'proved' : 'missing';
@@ -1430,8 +1439,8 @@ function openWakeBox(env, index){
     ? '<div class="kv">' + servedEvidence.slice(0, 4).map((item, i) => '<b>evidence ' + (i + 1) + '</b><span>' + esc((item.label || 'row') + ' · ' + (item.status || 'served') + ' · ' + (item.detail || '')) + '</span>').join('') + '</div>'
     : '';
   const wakeActionRows = wake.done
-    ? '<b>event command</b><span>quine write quests wake-event ' + esc(wake.id || 'step') + ' proved</span>'
-    : '<b>side quest target</b><span>wake-proof</span><b>quine command</b><span>quine write quests wake-event ' + esc(wake.id || 'step') + ' missing</span>';
+    ? '<b>event command</b><span>' + esc(wakeEventCommand(wake, 'proved')) + '</span>'
+    : '<b>side quest target</b><span>wake-proof</span><b>quine command</b><span>' + esc(wakeEventCommand(wake, 'missing')) + '</span>';
   const historyRows = Array.isArray(history.rows) && history.rows.length
     ? '<div class="kv">' + history.rows.slice(0, 4).map((row, i) => '<b>history ' + (i + 1) + '</b><span>' + esc((row.id || 'event') + ' · ' + (row.status || 'missing') + ' · ' + (row.source || history.source || 'missing') + ' · ' + (row.detail || row.proof || 'detail missing')) + '</span>').join('') + '</div>'
     : '<div class="nar">no operator wake events served; this is the latest snapshot, not a historical trace.</div>';

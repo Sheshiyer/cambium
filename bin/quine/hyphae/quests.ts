@@ -72,6 +72,7 @@ const SIDE_QUEST_EVENT_STATUSES: readonly SideQuestEventStatus[] = ['queued', 'c
 const SIDE_QUEST_EVENT_SOURCES: readonly SideQuestEventSource[] = ['operator-note', 'founder-gate', 'system'];
 const SIDE_QUEST_OVERCLAIM_RE = /\b(reward|bonus|level up|hidden quest|leaderboard|social proof|popularity|rank)\b/i;
 const INSIGHT_OVERCLAIM_RE = /\b(reward|bonus|level up|hidden quest|leaderboard|social proof|popularity|rank|random reward)\b/i;
+const INSIGHT_SECRET_RE = /\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN)=|Bearer\s+|(?:^|[?&])(?:hash|query_id|auth_date)=|\brawInitData\b/i;
 const LIVE_PROOF_READINESS_PATH = 'docs/plans/assets/tg-miniapp-live-proof/readiness.json';
 const LIVE_PROOF_CAPTURE_INVARIANT = 'Capture commands create redacted receipts; they are proof only after their artifacts validate ready.';
 
@@ -833,9 +834,9 @@ function insightFromQuestRow(
   };
 }
 
-function insightTextOverclaims(row: Record<string, unknown>): boolean {
+function insightRowText(row: Record<string, unknown>): string {
   const evidence = Array.isArray(row.evidence) ? row.evidence : [];
-  const text = [
+  return [
     row.id,
     row.title,
     row.detail,
@@ -847,7 +848,14 @@ function insightTextOverclaims(row: Record<string, unknown>): boolean {
       return [ev.label, ev.status, ev.detail];
     }),
   ].filter((item) => typeof item === 'string').join(' ');
-  return INSIGHT_OVERCLAIM_RE.test(text);
+}
+
+function insightTextOverclaims(row: Record<string, unknown>): boolean {
+  return INSIGHT_OVERCLAIM_RE.test(insightRowText(row));
+}
+
+function insightTextLeaksSecret(row: Record<string, unknown>): boolean {
+  return INSIGHT_SECRET_RE.test(insightRowText(row));
 }
 
 function operatorInsightsPath(ctx: QuineCtx, tenant: string): string {
@@ -860,6 +868,7 @@ function readOperatorInsightRows(ctx: QuineCtx, tenant: string): VisualInsightRo
   return envelope.rows
     .filter((row: unknown): row is Record<string, unknown> => !!row && typeof row === 'object' && !Array.isArray(row))
     .filter((row) => !insightTextOverclaims(row))
+    .filter((row) => !insightTextLeaksSecret(row))
     .map((row): VisualInsightRow | null => {
       const id = typeof row.id === 'string' && row.id.trim() ? row.id.trim() : '';
       const title = typeof row.title === 'string' && row.title.trim() ? row.title.trim() : '';

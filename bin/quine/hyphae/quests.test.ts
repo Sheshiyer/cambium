@@ -522,6 +522,44 @@ test('quests visual envelope rejects operator insight rows that look like random
   assert.doesNotMatch(JSON.stringify(visual.insights), /random reward|leaderboard rank|Hidden quest bonus/i);
 });
 
+test('quests visual envelope rejects operator insight rows with secret markers', () => {
+  const ctx = tmpCtx();
+  writeFileSync(join(ctx.root, '.operator', 'acme.insights.json'), JSON.stringify({
+    source: 'operator-insights@v1',
+    rows: [
+      {
+        id: 'secret-row',
+        title: 'leaky evidence',
+        state: 'ready',
+        detail: 'Bearer super-secret-token',
+        proof: 'QUESTS_PUSH_TOKEN=super-secret-token',
+        evidence: [{ label: 'telegram', status: 'ready', detail: 'hash=abc123&auth_date=123' }],
+      },
+      {
+        id: 'safe-row',
+        title: 'Safe evidence',
+        state: 'ready',
+        detail: 'operator served reusable evidence',
+        proof: 'operator proof links to a redacted receipt',
+        evidence: [{ label: 'redacted receipt', status: 'ready', detail: 'hashes only' }],
+      },
+    ],
+  }, null, 2));
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-22T00:06:00.000Z' },
+  );
+
+  assert.equal(visual.insights.source, 'operator-insights@v1');
+  assert.equal(visual.insights.rows.length, 1);
+  assert.equal(visual.insights.rows[0]?.id, 'safe-row');
+  assert.doesNotMatch(JSON.stringify(visual.insights), /Bearer |QUESTS_PUSH_TOKEN=|hash=|auth_date=|rawInitData/i);
+});
+
 test('quests apply-side-quests consumes stale side-quest actions as rejected without ledger writes', async () => {
   const ctx = tmpCtx();
   const consumed: any[] = [];
