@@ -1223,8 +1223,19 @@ test('page · missing wake sheet maps to wake-proof quine command without crowdi
   assert.match(sheet, /history count<\/b><span>0/);
   assert.match(sheet, /side quest target<\/b><span>wake-proof/);
   assert.match(sheet, /quine command<\/b><span>quine write quests wake-event ingest missing/);
-  assert.match(sheet, /--detail &quot;[^"]+&quot; --proof &quot;[^"]+&quot; --target &quot;wake:ingest&quot;/);
+  assert.match(sheet, /--detail &quot;[^"]+&quot; --proof &quot;[^"]+&quot; --target &quot;wake:ingest&quot; --tenant &quot;cambium&quot;/);
   assert.doesNotMatch(sheet, /raw initData|browser wrote|current step proved by history/i);
+});
+
+test('page · wake event command follows current tenant parameter', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { search: '?tenant=acme' });
+  const ingestIndex = CAMBIUM_WAKE_STEPS.findIndex((step) => step.id === 'ingest');
+
+  (rendered.context.openWakeBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, ingestIndex);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /quine write quests wake-event ingest missing/);
+  assert.match(sheet, /--target &quot;wake:ingest&quot; --tenant &quot;acme&quot;/);
 });
 
 test('page · proved wake sheet keeps current proof separate from operator history', async () => {
@@ -1270,7 +1281,7 @@ test('page · proved wake sheet keeps current proof separate from operator histo
   assert.match(sheet, /current status<\/b><span>proved/);
   assert.match(sheet, /source<\/b><span>quest-ledger-envelope@v1/);
   assert.match(sheet, /proof<\/b><span>current wake proof came from quest-ledger-envelope@v1/);
-  assert.match(sheet, /event command<\/b><span>quine write quests wake-event ingest proved --detail &quot;current envelope confirms quest ingestion&quot; --proof &quot;current wake proof came from quest-ledger-envelope@v1&quot; --target &quot;wake:ingest&quot;/);
+  assert.match(sheet, /event command<\/b><span>quine write quests wake-event ingest proved --detail &quot;current envelope confirms quest ingestion&quot; --proof &quot;current wake proof came from quest-ledger-envelope@v1&quot; --target &quot;wake:ingest&quot; --tenant &quot;cambium&quot;/);
   assert.match(sheet, /wake event source<\/b><span>operator-wake-events@v1/);
   assert.match(sheet, /history count<\/b><span>1/);
   assert.match(sheet, /history relation<\/b><span>operator wake history is shown separately from the current served status/);

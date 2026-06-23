@@ -1428,7 +1428,7 @@ function wakeEventCommand(wake, status){
   const step = wake.id || 'step';
   const detail = wake.detail || (status === 'proved' ? 'wake step proved' : 'wake step missing');
   const proof = wake.proof || detail;
-  return 'quine write quests wake-event ' + step + ' ' + status + ' --detail ' + qarg(detail) + ' --proof ' + qarg(proof) + ' --target ' + qarg('wake:' + step);
+  return 'quine write quests wake-event ' + step + ' ' + status + ' --detail ' + qarg(detail) + ' --proof ' + qarg(proof) + ' --target ' + qarg('wake:' + step) + ' --tenant ' + qarg(TENANT);
 }
 function openWakeBox(env, index){
   const wake = wakeSteps(env)[index] || wakeSteps(env)[0];
