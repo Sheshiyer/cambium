@@ -179,6 +179,32 @@ const shortText = (value: unknown, fallback: string, max = 300): string => {
   return (text || fallback).slice(0, max);
 };
 
+function fallbackSocialRow() {
+  return {
+    id: 'social-gap',
+    title: 'SOCIAL GAP',
+    state: 'gap',
+    detail: 'coordination rows rejected because they were not tenant handoff evidence',
+    proof: 'tenant handoff evidence must come from explicit bridge, handoff, or founder gate sources',
+    source: 'missing',
+    scope: 'tenant-handoff-only',
+    evidence: [],
+    gap: 'coordination evidence rejected',
+  };
+}
+
+function sanitizedEvidence(value: unknown): Array<Record<string, string>> {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
+    .map((item) => item as Record<string, unknown>)
+    .map((item) => ({
+      label: String(item.label ?? 'row').slice(0, 120),
+      status: String(item.status ?? 'served').slice(0, 80),
+      detail: String(item.detail ?? '').slice(0, 300),
+    }));
+}
+
 function socialRowText(row: Record<string, unknown>): string {
   const evidence = Array.isArray(row.evidence) ? row.evidence : [];
   return [
@@ -189,19 +215,20 @@ function socialRowText(row: Record<string, unknown>): string {
     ...evidence.flatMap((item) => {
       if (!item || typeof item !== 'object') return [];
       const ev = item as Record<string, unknown>;
-      return [ev.label, ev.status, ev.detail];
+      return Object.values(ev);
     }),
   ].filter((item) => typeof item === 'string').join(' ');
 }
 
 function sanitizeQuestEnvelope(envelope: any): any {
-  const rows = envelope?.social?.rows;
-  if (!Array.isArray(rows)) return envelope;
+  const social = envelope?.social;
+  if (!social || typeof social !== 'object' || Array.isArray(social)) return envelope;
+  const rows = Array.isArray(social.rows) ? social.rows : [];
   const socialMetadataText = [
-    envelope.social.source,
-    envelope.social.scope,
-    envelope.social.status,
-    envelope.social.gap,
+    social.source,
+    social.scope,
+    social.status,
+    social.gap,
   ].filter((item) => typeof item === 'string').join(' ');
   const safeRows = rows.filter((row) =>
     row && typeof row === 'object' && !Array.isArray(row) && !SOCIAL_OVERCLAIM_RE.test(socialRowText(row as Record<string, unknown>)),
@@ -210,6 +237,7 @@ function sanitizeQuestEnvelope(envelope: any): any {
     source: 'coordination-evidence@v1',
     scope: 'tenant-handoff-only',
     gap: row.gap && !SOCIAL_OVERCLAIM_RE.test(String(row.gap)) ? row.gap : undefined,
+    evidence: sanitizedEvidence(row.evidence),
   }));
   const metadataRejected = SOCIAL_OVERCLAIM_RE.test(socialMetadataText);
   const rowMetadataRejected = rows.some((row) => {
@@ -223,24 +251,22 @@ function sanitizeQuestEnvelope(envelope: any): any {
   return {
     ...envelope,
     social: {
-      ...envelope.social,
+      ...social,
       source: 'coordination-evidence@v1',
       scope: 'tenant-handoff-only',
       status: safeRows.some((row: any) => row.state === 'ready') ? 'ready' : 'gap',
-      rows: safeRows.length ? safeRows : [{
-        id: 'social-gap',
-        title: 'SOCIAL GAP',
-        state: 'gap',
-        detail: 'coordination rows rejected because they were not tenant handoff evidence',
-        proof: 'tenant handoff evidence must come from explicit bridge, handoff, or founder gate sources',
-        source: 'missing',
-        scope: 'tenant-handoff-only',
-        evidence: [],
-        gap: 'coordination evidence rejected',
-      }],
+      rows: safeRows.length ? safeRows : [fallbackSocialRow()],
       gap: 'coordination evidence sanitized',
     },
   };
+}
+
+function publicQuestBody(stored: string): string {
+  try {
+    return JSON.stringify(sanitizeQuestEnvelope(JSON.parse(stored)));
+  } catch {
+    return stored;
+  }
 }
 
 function tenantOf(path: string, prefix: string): string | null {
@@ -266,7 +292,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     // M3 isolation suite is green — gate open to all valid tenants
     const stored = await deps.kv.get(ledgerKey(tenant));
     if (!stored) return json(404, { error: `no ledger pushed yet for "${tenant}" — run: quine write quests push --tenant ${tenant}` });
-    return { status: 200, headers: { ...JSON_HEADERS }, body: stored };
+    return { status: 200, headers: { ...JSON_HEADERS }, body: publicQuestBody(stored) };
   }
 
   if (method === 'POST' && path.startsWith('/internal/ledger/')) {

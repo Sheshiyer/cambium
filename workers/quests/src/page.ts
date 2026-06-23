@@ -1071,32 +1071,41 @@ function renderSideQuests(env){
 function socialCards(env){
   const social = env.social || {};
   const rows = Array.isArray(social.rows) ? social.rows : [];
-  const overclaim = row => /\\b(leaderboard|social proof|popularity|rank|follower|viral)\\b/i.test([
+  const overclaimText = value => /\\b(leaderboard|social[-\\s]proof|popularity|rank|follower|viral)\\b/i.test(String(value || ''));
+  const safeMeta = (value, fallback) => overclaimText(value) ? fallback : (value || fallback);
+  const overclaim = row => overclaimText([
     row && row.title,
     row && row.detail,
     row && row.proof,
-    ...(Array.isArray(row && row.evidence) ? row.evidence.flatMap(item => [item && item.label, item && item.status, item && item.detail]) : []),
+    ...(Array.isArray(row && row.evidence) ? row.evidence.flatMap(item => item && typeof item === 'object' ? Object.values(item) : []) : []),
   ].filter(Boolean).join(' '));
+  const safeEvidence = row => Array.isArray(row && row.evidence)
+    ? row.evidence.filter(item => item && typeof item === 'object' && !overclaimText(Object.values(item).filter(Boolean).join(' '))).map(item => ({
+      label:safeMeta(item.label, 'row'),
+      status:safeMeta(item.status, 'served'),
+      detail:safeMeta(item.detail, ''),
+    }))
+    : [];
   const safeRows = rows.filter(row => !overclaim(row));
   if (!safeRows.length) {
     return [{
       title:'SOCIAL GAP',
       state:'wait',
-      detail:rows.length ? 'coordination rows rejected because they used generic social-proof language' : (social.gap || 'no tenant-scoped bridge or handoff evidence served'),
-      proof:rows.length ? 'tenant handoff evidence must not be leaderboard, popularity, follower, rank, or social-proof copy' : 'no coordination rows served',
-      source:social.source || 'missing',
-      scope:social.scope || 'tenant-handoff-only',
+      detail:rows.length ? 'coordination rows rejected because they were not tenant handoff evidence' : safeMeta(social.gap, 'no tenant-scoped bridge or handoff evidence served'),
+      proof:rows.length ? 'tenant handoff evidence must come from explicit bridge, handoff, or founder gate sources' : 'no coordination rows served',
+      source:safeMeta(social.source, 'missing'),
+      scope:safeMeta(social.scope, 'tenant-handoff-only'),
       evidence:[],
     }];
   }
   return safeRows.slice(0, 5).map(row => ({
     title:String(row.title || row.id || 'coordination').toUpperCase(),
     state:row.state === 'ready' ? 'ready' : 'wait',
-    detail:row.detail || row.gap || 'coordination evidence missing',
-    proof:row.proof || row.gap || 'proof missing from coordination row',
-    source:row.source || social.source || 'missing',
-    scope:row.scope || social.scope || 'tenant-handoff-only',
-    evidence:Array.isArray(row.evidence) ? row.evidence : [],
+    detail:safeMeta(row.detail || row.gap, 'coordination evidence missing'),
+    proof:safeMeta(row.proof || row.gap, 'proof missing from coordination row'),
+    source:safeMeta(row.source || social.source, 'coordination-evidence@v1'),
+    scope:safeMeta(row.scope || social.scope, 'tenant-handoff-only'),
+    evidence:safeEvidence(row),
   }));
 }
 function renderSocial(env){

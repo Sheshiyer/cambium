@@ -494,6 +494,102 @@ test('push then get · canonicalizes unsafe row metadata even when top-level met
   assert.doesNotMatch(get.body, /social proof|social-proof/i);
 });
 
+test('push then get · sanitizes rowless social metadata before public read', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const envelope = JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'social-proof',
+      status: 'ready',
+      scope: 'tenant-handoff-only',
+      gap: 'social-proof metadata gap',
+    },
+  });
+
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: envelope, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'gap');
+  assert.equal(stored.social.source, 'coordination-evidence@v1');
+  assert.equal(stored.social.rows[0].id, 'social-gap');
+  assert.doesNotMatch(get.body, /social proof|social-proof/i);
+});
+
+test('get · sanitizes stale KV social metadata before public read', async () => {
+  const kv = fakeKv();
+  kv.store.set('ledger:cambium', JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'social-proof',
+      status: 'ready',
+      scope: 'social-proof',
+      gap: 'social-proof metadata gap',
+    },
+  }));
+
+  const get = await handle(req('GET', '/api/quests/cambium'), { kv });
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'gap');
+  assert.equal(stored.social.source, 'coordination-evidence@v1');
+  assert.equal(stored.social.scope, 'tenant-handoff-only');
+  assert.equal(stored.social.rows[0].id, 'social-gap');
+  assert.doesNotMatch(get.body, /social proof|social-proof/i);
+});
+
+test('push then get · rejects unsafe nonstandard evidence fields', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const envelope = JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'coordination-evidence@v1',
+      status: 'ready',
+      scope: 'tenant-handoff-only',
+      rows: [
+        {
+          id: 'handoff-queue',
+          title: 'HANDOFF QUEUE',
+          state: 'ready',
+          detail: '1 open tenant handoff awaiting founder review',
+          proof: 'THO-9: blocked owner served',
+          source: 'paperclip-open-items',
+          scope: 'tenant-handoff-only',
+          evidence: [{ label: 'THO-9', status: 'blocked', detail: 'Review launch copy', proof: 'viral follower count' }],
+        },
+      ],
+    },
+  });
+
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: envelope, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'gap');
+  assert.equal(stored.social.rows[0].id, 'social-gap');
+  assert.doesNotMatch(get.body, /follower|viral/i);
+});
+
 test('push · accepts stale partial visual envelopes without inventing missing sections', async () => {
   const kv = fakeKv();
   const deps = { kv, pushToken: 't' };
@@ -1824,7 +1920,7 @@ test('page · social cards reject leaderboard and generic social-proof copy', as
           title: 'LEADERBOARD RANK',
           state: 'ready',
           detail: 'follower popularity increased',
-          proof: 'generic social proof is not tenant handoff evidence',
+          proof: 'generic social-proof copy is not tenant handoff evidence',
           source: 'paperclip-open-items',
           scope: 'tenant-handoff-only',
           evidence: [{ label: 'rank', status: 'ready', detail: 'popularity signal' }],
@@ -1835,14 +1931,14 @@ test('page · social cards reject leaderboard and generic social-proof copy', as
   const rendered = await renderPageFixtureContext(envelope);
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /SOCIAL GAP/);
-  assert.match(map, /coordination rows rejected because they used generic social-proof language/);
-  assert.doesNotMatch(map, /LEADERBOARD RANK|follower popularity|generic social proof/i);
+  assert.match(map, /coordination rows rejected because they were not tenant handoff evidence/);
+  assert.doesNotMatch(map, /LEADERBOARD RANK|follower popularity|generic social proof|social-proof|leaderboard|rank|follower|popularity/i);
 
   (rendered.context.openSocialBox as (env: unknown, index: number) => void)(envelope, 0);
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /coordination · wait/);
-  assert.match(sheet, /tenant handoff evidence must not be leaderboard, popularity, follower, rank, or social-proof copy/);
-  assert.doesNotMatch(sheet, /LEADERBOARD RANK|follower popularity|rank · ready/i);
+  assert.match(sheet, /tenant handoff evidence must come from explicit bridge, handoff, or founder gate sources/);
+  assert.doesNotMatch(sheet, /LEADERBOARD RANK|follower popularity|generic social proof|social-proof|leaderboard|rank|follower|popularity|rank · ready/i);
 });
 
 test('page · decision context renders served and gap rows without changing policy', async () => {
