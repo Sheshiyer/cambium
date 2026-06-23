@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { DatabaseSync } from 'node:sqlite';
 import { questLedger } from '../../operator/quests/quests.ts';
-import { applySideQuestQueueDecisions, buildVisualEnvelope } from './quests.ts';
+import { applySideQuestQueueDecisions, buildVisualEnvelope, gatherQuestInputs } from './quests.ts';
 import { auditPrioritySource, capturePrioritySource, prioritySourceTemplate, refreshPrioritySignals } from './priority-signals.ts';
 import type { QuineCtx } from '../types.ts';
 
@@ -337,6 +338,40 @@ test('quests priority-signals writes complete operator priority policy from expl
   assert.equal(signals.crossTenantUrgency.score, 5);
 });
 
+test('quests visual decision context serves availability and revocation only from priority signals', () => {
+  const ctx = tmpCtx();
+  writeFileSync(join(ctx.root, '.operator', 'acme.priority-source.json'), JSON.stringify({
+    source: 'operator-priority-source@v1',
+    founderPreference: { targetId: 'THO-10', weight: 10, proof: 'founder ranked THO-10 first' },
+    ownerCapacity: { owner: 'Mathis', capacity: 2, proof: 'Mathis capacity roster served' },
+    economicRisk: { amount: 12000, currency: 'USD', risk: 'high', proof: 'contract amount and currency served' },
+    teamAvailability: { available: 1, required: 2, proof: 'one reviewer available for two-reviewer gate' },
+    memberRevocation: { revoked: true, proof: 'member revocation ledger served' },
+    crossTenantUrgency: { score: 4, proof: 'active queues across tenants scored' },
+  }, null, 2));
+  refreshPrioritySignals(ctx, 'acme', {
+    tenantIds: ['acme', 'cambium'],
+    openItems: [openItem(), openItem({ id: 'THO-11', owner: 'Mathis' })] as any,
+    nowIso: '2026-06-22T01:03:00.000Z',
+  });
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    gatherQuestInputs(ctx, 'acme'),
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-22T00:06:00.000Z', openItems: [openItem()] as any },
+  );
+  const byId = Object.fromEntries(visual.decisionContext.rows.map((row) => [row.id, row]));
+
+  assert.equal(byId['team-availability']?.state, 'served');
+  assert.equal(byId['team-availability']?.source, 'operator-priority-signals');
+  assert.match(byId['team-availability']?.proof ?? '', /one reviewer available/);
+  assert.equal(byId['member-revocation']?.state, 'served');
+  assert.equal(byId['member-revocation']?.source, 'operator-priority-signals');
+  assert.match(byId['member-revocation']?.detail ?? '', /member revocation active/);
+});
+
 test('quests priority-signals overwrites stale authority with blockers when source becomes incomplete', () => {
   const ctx = tmpCtx();
   writeFileSync(join(ctx.root, '.operator', 'acme.priority-signals.json'), JSON.stringify({
@@ -581,6 +616,46 @@ test('quests visual envelope rejects operator insight rows with secret markers',
   assert.equal(visual.insights.rows.length, 1);
   assert.equal(visual.insights.rows[0]?.id, 'safe-row');
   assert.doesNotMatch(JSON.stringify(visual.insights), /Bearer\b|QUESTS_PUSH_TOKEN=|TELEGRAM_INIT_DATA=|TG_INIT_DATA=|hash=|auth_date=|query_id=|rawInitData/i);
+});
+
+test('quests visual envelope deduplicates Mira cortex rows and isolates NPC tenants', () => {
+  const ctx = tmpCtx();
+  const db = new DatabaseSync(join(ctx.root, '.operator', 'cortex.db'));
+  try {
+    db.exec('CREATE TABLE memory (tenant TEXT, id TEXT, kind TEXT, payload TEXT, ts INTEGER)');
+    const insert = db.prepare('INSERT INTO memory (tenant, id, kind, payload, ts) VALUES (?, ?, ?, ?, ?)');
+    const acmePayload = JSON.stringify({ note: 'Mira ICP resonance from tenant review' });
+    insert.run('acme', 'acme:mira:1', 'positioning', acmePayload, 3);
+    insert.run('acme', 'acme:mira:duplicate', 'positioning', acmePayload, 2);
+    insert.run('beta', 'beta:mira:leak', 'positioning', JSON.stringify({ note: 'Mira beta-only evidence must not leak' }), 4);
+  } finally {
+    db.close();
+  }
+  writeFileSync(join(ctx.root, '.operator', 'beta.npc-events.jsonl'), JSON.stringify({
+    schema: 'cambium.npc-event.v1',
+    id: 'beta:mira:note:1',
+    tenant: 'beta',
+    npcId: 'mira',
+    kind: 'note',
+    source: 'operator-note',
+    detail: 'beta-only Mira event',
+    evidence: 'beta evidence must not leak',
+    createdAt: '2026-06-22T00:00:00.000Z',
+  }) + '\n');
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-22T00:06:00.000Z' },
+  );
+  const mira = visual.npc.relationships.find((row) => row.id === 'mira');
+
+  assert.equal(visual.npc.source, 'cortex-memory');
+  assert.equal(mira?.sampleSize, 1);
+  assert.match(mira?.detail ?? '', /1\/1 tenant cortex memories/);
+  assert.doesNotMatch(JSON.stringify(visual.npc), /duplicate|beta-only|beta evidence|beta:mira/i);
 });
 
 test('quests apply-side-quests consumes stale side-quest actions as rejected without ledger writes', async () => {

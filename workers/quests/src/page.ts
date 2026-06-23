@@ -1071,18 +1071,25 @@ function renderSideQuests(env){
 function socialCards(env){
   const social = env.social || {};
   const rows = Array.isArray(social.rows) ? social.rows : [];
-  if (!rows.length) {
+  const overclaim = row => /\\b(leaderboard|social proof|popularity|rank|follower|viral)\\b/i.test([
+    row && row.title,
+    row && row.detail,
+    row && row.proof,
+    ...(Array.isArray(row && row.evidence) ? row.evidence.flatMap(item => [item && item.label, item && item.status, item && item.detail]) : []),
+  ].filter(Boolean).join(' '));
+  const safeRows = rows.filter(row => !overclaim(row));
+  if (!safeRows.length) {
     return [{
       title:'SOCIAL GAP',
       state:'wait',
-      detail:social.gap || 'no tenant-scoped bridge or handoff evidence served',
-      proof:'no coordination rows served',
+      detail:rows.length ? 'coordination rows rejected because they used generic social-proof language' : (social.gap || 'no tenant-scoped bridge or handoff evidence served'),
+      proof:rows.length ? 'tenant handoff evidence must not be leaderboard, popularity, follower, rank, or social-proof copy' : 'no coordination rows served',
       source:social.source || 'missing',
       scope:social.scope || 'tenant-handoff-only',
       evidence:[],
     }];
   }
-  return rows.slice(0, 5).map(row => ({
+  return safeRows.slice(0, 5).map(row => ({
     title:String(row.title || row.id || 'coordination').toUpperCase(),
     state:row.state === 'ready' ? 'ready' : 'wait',
     detail:row.detail || row.gap || 'coordination evidence missing',
@@ -1150,10 +1157,11 @@ function auditRow(id, title, state, detail, proof, source){
 function tapestryTarget(row){
   if (row.id === 'active-organ' || row.id === 'r3f-contract') return 'r3f';
   if (row.id === 'wake-health' || row.id === 'quest-frontier' || row.id === 'freshness-gaps') return 'quine';
-  if (row.id === 'skill-mastery') return 'operator-policy';
-  if (row.id === 'mira-relationship' || row.id === 'memory-sense') return 'cortex';
+  if (row.id === 'skill-mastery' || row.id === 'priority-signals') return 'operator-policy';
+  if (row.id === 'mira-relationship' || row.id === 'npc-history' || row.id === 'memory-sense') return 'cortex';
   if (row.id === 'command-state') return 'hermes';
   if (row.id === 'live-proof') return 'live-proof';
+  if (row.id === 'coordination-source') return 'paperclip';
   if (row.id === 'decision-context' || row.id === 'founder-stance') return 'operator-policy';
   return 'cambium-worker';
 }
@@ -1176,6 +1184,11 @@ function tapestryRows(env){
   const memory = senseCards(env.ledger ? env : { ledger:L }).find(sense => sense.id === 'memory');
   const decisions = decisionContextCards(env.ledger ? env : { ledger:L });
   const servedDecisions = decisions.filter(row => row.state === 'ready').length;
+  const priorityDecisions = decisions.filter(row => row.state === 'ready' && row.source === 'operator-priority-signals');
+  const socials = socialCards(env.ledger ? env : { ledger:L });
+  const socialReady = socials.filter(row => row.state === 'ready').length;
+  const npcHistory = (mira && mira.history) || {};
+  const npcHistoryTotal = Number(npcHistory.total || 0);
   const live = env.liveProof || {};
   const liveRows = liveProofCards(env.ledger ? env : { ledger:L });
   const liveReady = live.status === 'ready' || (live.summary && live.summary.liveProofReady === true);
@@ -1196,6 +1209,9 @@ function tapestryRows(env){
     auditRow('command-state', 'COMMAND STATE', commandReady ? 'ready' : 'wait', commandReady ? 'live command data served' : 'org command data unavailable', commandReady ? 'commands envelope present' : 'env.commands missing', 'commands'),
     auditRow('memory-sense', 'MEMORY SENSE', memory && memory.on ? 'ready' : 'wait', (memory && memory.detail) || 'memory sense missing', (memory && memory.proof) || 'memory proof missing', 'senses'),
     auditRow('decision-context', 'DECISION CONTEXT', servedDecisions > 0 ? 'ready' : 'wait', servedDecisions + '/' + decisions.length + ' decision signals served', decisions.map(row => row.title + ':' + row.state).join(' · '), 'decisionContext'),
+    auditRow('priority-signals', 'PRIORITY SIGNALS', priorityDecisions.length > 0 ? 'ready' : 'wait', priorityDecisions.length + '/6 explicit priority signals served', priorityDecisions.length ? priorityDecisions.map(row => row.title + ':' + row.detail).join(' · ') : 'operator-priority-signals@v1 missing or incomplete', 'decisionContext'),
+    auditRow('coordination-source', 'COORDINATION SOURCE', socialReady > 0 ? 'ready' : 'wait', socialReady + '/' + socials.length + ' tenant coordination rows ready', socials.map(row => row.title + ':' + row.state).join(' · '), 'social'),
+    auditRow('npc-history', 'NPC HISTORY', npcHistoryTotal > 0 ? 'ready' : 'wait', npcHistoryTotal + ' durable Mira/NPC event(s) served', npcHistoryTotal > 0 ? (npcHistory.source || 'operator-npc-events@v1') + ' · ' + Number(npcHistory.contradictions || 0) + ' contradiction(s)' : 'operator-npc-events@v1 missing', 'npc'),
     auditRow('live-proof', 'LIVE PROOF', liveReady ? 'ready' : 'wait', liveReady ? 'live-proof receipts validate ready' : liveBlocked + '/' + liveTotal + ' readiness checks blocked', live.invariant || 'capture plan is guidance, not proof', 'liveProof'),
     auditRow('r3f-contract', 'R3F CONTRACT', 'ready', STAGES.length + ' organs · ' + RAILS.length + ' rails', 'shared visual contract loaded into Telegram map', 'shared/cambium-visual-contract'),
     auditRow('freshness-gaps', 'FRESHNESS GAPS', fresh ? 'ready' : 'wait', age === null ? 'freshness missing' : fresh ? age + 'm since derivation' : Math.round(age / 60) + 'h stale', env.derivedAt || 'derivedAt missing', 'freshness'),
@@ -1519,6 +1535,36 @@ function openLiveProofSummaryBox(env){
 }
 function openTapestryBox(env, index){
   const row = tapestryRows(env)[index] || tapestryRows(env)[0];
+  if (row.id === 'wake-health') {
+    const wake = wakeSteps(env);
+    const firstMissing = wake.findIndex(step => !step.done);
+    openWakeBox(env, firstMissing >= 0 ? firstMissing : 0);
+    return;
+  }
+  if (row.id === 'evidence-boxes') {
+    const boxes = insightBoxes(env);
+    const firstWait = boxes.findIndex(box => box.state !== 'ready');
+    openInsightBox(env, firstWait >= 0 ? firstWait : 0);
+    return;
+  }
+  if (row.id === 'priority-signals') {
+    const decisions = decisionContextCards(env);
+    const firstPriority = decisions.findIndex(item => item.source === 'operator-priority-signals');
+    openDecisionContextBox(env, firstPriority >= 0 ? firstPriority : 0);
+    return;
+  }
+  if (row.id === 'coordination-source') {
+    const socials = socialCards(env);
+    const firstReady = socials.findIndex(item => item.state === 'ready');
+    openSocialBox(env, firstReady >= 0 ? firstReady : 0);
+    return;
+  }
+  if (row.id === 'npc-history' || row.id === 'mira-relationship') {
+    const npcs = npcCards(env);
+    const miraIndex = npcs.findIndex(npc => String(npc.title || '').toUpperCase() === 'MIRA');
+    openNpcBox(env, miraIndex >= 0 ? miraIndex : 0);
+    return;
+  }
   if (row.id === 'command-state' && !env.commands) { openCmdSheet('status'); return; }
   if (row.id === 'live-proof') { openLiveProofSummaryBox(env); return; }
   if (row.id === 'decision-context') {

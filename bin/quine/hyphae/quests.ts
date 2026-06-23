@@ -646,6 +646,7 @@ function cortexMemoryRowsFor(
       const rows = db.prepare(
         'SELECT id, kind, payload, ts FROM memory WHERE tenant = ? ORDER BY ts DESC LIMIT ?',
       ).all(tenant, limit) as Array<{ id: string; kind: string; payload: string; ts: number }>;
+      const seen = new Set<string>();
       return rows.map((row) => {
         let payload: Record<string, unknown> = {};
         try {
@@ -655,6 +656,11 @@ function cortexMemoryRowsFor(
           payload = {};
         }
         return { id: row.id, kind: row.kind, payload, ts: row.ts };
+      }).filter((row) => {
+        const key = `${row.kind}:${JSON.stringify(row.payload)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
       });
     } finally { db.close(); }
   } catch {

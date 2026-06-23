@@ -1037,6 +1037,9 @@ test('page · tapestry audit renders every row as a target-backed sheet', async 
     ['wake-health', 'quine'],
     ['skill-mastery', 'operator-policy'],
     ['mira-relationship', 'cortex'],
+    ['priority-signals', 'operator-policy'],
+    ['coordination-source', 'paperclip'],
+    ['npc-history', 'cortex'],
     ['command-state', 'hermes'],
     ['live-proof', 'live-proof'],
   ] as const;
@@ -1046,10 +1049,47 @@ test('page · tapestry audit renders every row as a target-backed sheet', async 
     const index = rows.findIndex((row) => row.id === id);
     assert.ok(index >= 0, `${id} tapestry row exists`);
     assert.match(map, new RegExp(`data-tapestry="${index}"(?=[^>]*data-ecosystem-target="${target}")`));
-    if (!['command-state', 'live-proof'].includes(id)) {
+    if (!['wake-health', 'mira-relationship', 'priority-signals', 'coordination-source', 'npc-history', 'command-state', 'live-proof'].includes(id)) {
       (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
       assert.match(rendered.elements.get('sheetBody')!.innerHTML, new RegExp(`ecosystem target<\\/b><span>${target}`));
     }
+  }
+});
+
+test('page · source-backed tapestry rows stay wait-state when proof is blocked', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string; state: string; detail: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+  const blockedRows = [
+    ['priority-signals', 'PRIORITY SIGNALS', 'operator-priority-signals@v1 missing or incomplete'],
+    ['coordination-source', 'COORDINATION SOURCE', 'SOCIAL GAP:wait'],
+    ['npc-history', 'NPC HISTORY', 'operator-npc-events@v1 missing'],
+  ] as const;
+
+  for (const [id, title, proof] of blockedRows) {
+    const row = rows.find((item) => item.id === id);
+    assert.equal(row?.state, 'wait', `${id} remains wait without proof`);
+    assert.match(map, new RegExp(title));
+    assert.match(JSON.stringify(row), new RegExp(escapeRegExp(proof)));
+  }
+});
+
+test('page · source-backed tapestry rows route to proof sheets', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const expectations = [
+    ['wake-health', /wake step · missing/],
+    ['evidence-boxes', /evidence box · wait/],
+    ['priority-signals', /decision context · wait/],
+    ['coordination-source', /coordination · wait/],
+    ['npc-history', /companion · wait/],
+  ] as const;
+
+  for (const [id, pattern] of expectations) {
+    const index = rows.findIndex((row) => row.id === id);
+    assert.ok(index >= 0, `${id} row exists`);
+    (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
+    assert.match(rendered.elements.get('sheetBody')!.innerHTML, pattern);
   }
 });
 
@@ -1625,6 +1665,40 @@ test('page · social cards render only served tenant coordination evidence', asy
   assert.match(sheet, /tenant-handoff-only/);
   assert.match(sheet, /THO-9: blocked · owner Mathis/);
   assert.doesNotMatch(map + sheet, /leaderboard|rank|follower|social proof|popularity/i);
+});
+
+test('page · social cards reject leaderboard and generic social-proof copy', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    social: {
+      source: 'coordination-evidence@v1',
+      status: 'ready',
+      scope: 'tenant-handoff-only',
+      rows: [
+        {
+          id: 'generic-social-proof',
+          title: 'LEADERBOARD RANK',
+          state: 'ready',
+          detail: 'follower popularity increased',
+          proof: 'generic social proof is not tenant handoff evidence',
+          source: 'paperclip-open-items',
+          scope: 'tenant-handoff-only',
+          evidence: [{ label: 'rank', status: 'ready', detail: 'popularity signal' }],
+        },
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+  assert.match(map, /SOCIAL GAP/);
+  assert.match(map, /coordination rows rejected because they used generic social-proof language/);
+  assert.doesNotMatch(map, /LEADERBOARD RANK|follower popularity|generic social proof/i);
+
+  (rendered.context.openSocialBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /coordination · wait/);
+  assert.match(sheet, /tenant handoff evidence must not be leaderboard, popularity, follower, rank, or social-proof copy/);
+  assert.doesNotMatch(sheet, /LEADERBOARD RANK|follower popularity|rank · ready/i);
 });
 
 test('page · decision context renders served and gap rows without changing policy', async () => {
