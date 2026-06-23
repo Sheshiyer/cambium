@@ -674,6 +674,46 @@ test('push then get · rejects raw secret markers inside social rows', async () 
   assert.doesNotMatch(get.body, /Bearer|secret-token|rawInitData|query_id|auth_date|hash=/i);
 });
 
+test('push then get · rejects bare initData and hash markers inside social rows', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const envelope = JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'coordination-evidence@v1',
+      status: 'ready',
+      scope: 'tenant-handoff-only',
+      rows: [
+        {
+          id: 'handoff-queue',
+          title: 'HANDOFF QUEUE',
+          state: 'ready',
+          detail: 'initData stored in row',
+          proof: 'hash=',
+          source: 'paperclip-open-items',
+          scope: 'tenant-handoff-only',
+          evidence: [],
+        },
+      ],
+    },
+  });
+
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: envelope, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'gap');
+  assert.equal(stored.social.rows[0].id, 'social-gap');
+  assert.doesNotMatch(get.body, /initData|hash=/i);
+});
+
 test('get · sanitizes stale KV social gap fallback before public read', async () => {
   const kv = fakeKv();
   kv.store.set('ledger:cambium', JSON.stringify({

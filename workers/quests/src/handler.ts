@@ -169,7 +169,7 @@ const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
-const PUBLIC_SECRET_RE = /\b(Bearer\s+|TELEGRAM_INIT_DATA=|TG_INIT_DATA=|QUESTS_PUSH_TOKEN=|rawInitData|query_id|auth_date|hash=)\b/i;
+const PUBLIC_SECRET_RE = /\b(?:Bearer\s+|TELEGRAM_INIT_DATA=|TG_INIT_DATA=|QUESTS_PUSH_TOKEN=|rawInitData|initData|query_id|auth_date)|hash=/i;
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
 
 const json = (status: number, value: unknown): SimpleResponse =>
