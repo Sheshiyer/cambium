@@ -50,6 +50,22 @@ test('scene adapter stays aligned with the shared TG visual contract', () => {
   }
 });
 
+test('R3F source contract preserves every shared TG rail label', () => {
+  const scene = buildCambiumScene();
+  const sceneRailIds = new Set(scene.rails.map((rail) => rail.id));
+  const r3fLabelsByRail = new Map(sourceContract.visual.rails.map((rail) => [rail.id, rail.label]));
+
+  assert.deepEqual(
+    sourceContract.visual.rails.filter((rail) => sceneRailIds.has(rail.id)).map((rail) => rail.label),
+    CAMBIUM_VISUAL_RAILS.map((rail) => rail.label),
+  );
+
+  for (const rail of CAMBIUM_VISUAL_RAILS) {
+    assert.equal(sceneRailIds.has(rail.id), true, `missing R3F rail ${rail.id} for TG label ${rail.label}`);
+    assert.equal(r3fLabelsByRail.get(rail.id), rail.label, `missing R3F TG rail label ${rail.label}`);
+  }
+});
+
 test('scene adapter preserves quest progress and frozen references', () => {
   const scene = buildCambiumScene();
   assert.equal(scene.telemetry.activeArc, 'complete');
