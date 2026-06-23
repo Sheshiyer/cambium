@@ -17,17 +17,28 @@ The mini app may visualize only one of two things:
 
 It must not invent progress, rewards, wake events, NPC affinity, founder stance, or social proof.
 
+Authoritative ecosystem contract: [TG mini app ecosystem contract](../architecture/contracts/tg-miniapp-ecosystem-contract.md).
+
 ## 2026-06-23 ecosystem clickability review
 
 The reviewed top-level mini app scenes are:
 
-- `Quests`: quest ledger rows open detail sheets today, while the progress header, current frontier summary, and freshness chip still need explicit source/provenance affordances in the next slice.
-- `Map`: the operator map is the main ecosystem surface; tapestry, wake, lanes, stance, policy, decision context, live proof, side quests, coordination, senses, stages, evidence boxes, skill labors, and companions already have sheet-backed card patterns, while packet rails remain read-only until the rail behavior tasks.
-- `Story`: story beats are card-like but read-only, so narrative, noesis, Paperclip, and forge events need explicit inspection behavior before they can be treated as clickable.
+- `Quests`: quest ledger rows, progress, current frontier, and freshness markers expose source/provenance sheets while stale and empty states stay explicit.
+- `Map`: the operator map is the main ecosystem surface; tapestry, wake, lanes, stance, policy, decision context, live proof, side quests, coordination, senses, stages, evidence boxes, skill labors, companions, and packet rails already have sheet-backed inspection patterns, while scripted rail viewport clickability proof remains future work.
+- `Story`: story beats are sheet-backed with lane/source/target provenance; the current viewport manifest captures story layout only, so a scripted story-beat sheet capture remains future proof work.
 - `Gate`: approve and reroll are real Telegram-signed actions, but empty, unreachable, duplicate, and post-queue states must keep naming their Worker and policy provenance.
-- `Commands`: live status, Hermes, agents, work, and handoff cards open sheets; reference commands, chat actions, and digest commands stay read-only/chat-command rows rather than inert pseudo-buttons.
+- `Commands`: live status, Hermes, agents, work, and handoff cards open sourced sheets; reference commands, chat actions, and digest commands are inspectable copy-only chat-command/read-only rows rather than signed mini app writes.
 
 Stale or weakly-mapped findings from this audit: stale freshness must not imply live proof, fixture-derived screenshots must remain layout evidence only, capture plans are not proof, read-only rows need visible interaction/provenance markers, and no row may claim readiness from templates, stale screenshots, diagnostics, or missing ecosystem data.
+
+Reviewed stale surfaces and evidence paths:
+
+- `docs/plans/assets/tg-miniapp-viewport-proof/manifest.json` plus listed PNGs are local mobile layout/clickability evidence only.
+- `docs/plans/assets/tg-miniapp-viewport-proof/failure.json` and `browser-diagnostics.json` are diagnostic history only; they explain a blocked or repaired browser path but never replace screenshots.
+- `docs/plans/assets/tg-miniapp-live-proof/readiness.json` is a redacted readiness audit and capture plan, not a live Telegram receipt.
+- `docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json` proves non-mutating Worker list reachability only.
+- `docs/plans/assets/tg-miniapp-live-proof/telegram-webview.template.json`, `worker-network-probe.template.json`, and `signed-action-smoke.template.json` are scaffolds and must never be counted as proof.
+- `docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json` and `signed-action-smoke.json` remain the evidence paths for future real founder-device and signed-action receipts.
 
 ## Slice shipped first
 
@@ -713,11 +724,11 @@ The fifty-first implementation slice captures the non-mutating production Worker
 - The response shape validated with `tenantMatches: true` and `actionsArray: true`.
 - The current queued action count is `0`.
 - The artifact stores only status, response shape, count, and `bodySha256`; credentials and raw response body are omitted.
-- The readiness artifact now marks `worker-network-probe` ready and `capturePlan.steps.worker-list-proof` complete.
-- The current readiness packet reports `ready: 7`, `blocked: 3`, and `liveProofReady: false`.
-- The remaining blocked base rows are real Telegram initData, founder device WebView artifact, and stale viewport layout proof. The signed-action smoke remains a separate follow-up lane.
+- That run temporarily marked `worker-network-probe` ready and `capturePlan.steps.worker-list-proof` complete.
+- The current 2026-06-23 readiness packet supersedes that row: it reports `ready: 7`, `blocked: 3`, and `liveProofReady: false`, with `worker-network-probe` blocked until a fresh receipt validates ready.
+- The remaining blocked base rows are real Telegram initData, founder device WebView artifact, and fresh Worker network proof. The signed-action smoke remains a separate follow-up lane.
 
-The gap exposed by this slice is sharper: production Worker queue/list reachability is proven, but there is still no founder Telegram WebView proof and no mutating signed-action queue/consume/refresh receipt.
+The gap exposed by this slice was sharper: production Worker queue/list reachability was proven for that receipt, but proof freshness is time-bound; there is still no founder Telegram WebView proof and no mutating signed-action queue/consume/refresh receipt.
 
 ## Slice shipped fifty-second
 
@@ -757,10 +768,24 @@ The fifty-fourth implementation slice closes the local viewport proof blocker wi
 - `workers/quests/src/live-proof-readiness.mjs` now treats a Chrome binary as only an attempt path; the viewport row is ready only when `manifest.json` exists and no newer `failure.json` supersedes it.
 - `workers/quests/src/live-proof-readiness.test.ts` proves that Chrome-without-manifest remains blocked, while a real manifest is required for readiness.
 - `npm run proof:tg-viewport:diagnose` now reports `cdpReady: true` on this machine, with Google Chrome `headless-old` as a valid CDP path.
-- `npm run proof:tg-viewport` regenerated eight mobile proof screenshots from the real `PAGE` export: tapestry audit, no-fake-progress map, policy gap, gate priority, skill promotion map, skill promotion sheet, Mira relationship, and gate consequence.
-- `npm run proof:tg-live-readiness` now reports `ready: 8`, `blocked: 2`, `total: 10`, and `liveProofReady: false`.
+- `npm run proof:tg-viewport` regenerated sixteen mobile proof rows from the real `PAGE` export: twelve layout captures plus four clickability captures for command chat, skill promotion, approve preflight, and reroll preflight sheets.
+- `npm run proof:tg-live-readiness` now reports `ready: 7`, `blocked: 3`, `total: 10`, and `liveProofReady: false`.
 
-The gap exposed by this slice is now strictly live-device provenance: local viewport layout proof is fresh, but no real founder Telegram WebView artifact or fresh Telegram `initData` exists in this environment, so signed action smoke and live proof remain blocked.
+The gap exposed by this slice is live provenance: local viewport layout and scripted clickability proof are fresh, but no real founder Telegram WebView artifact, fresh Telegram `initData`, or currently trusted Worker network probe exists in this environment, so signed action smoke and live proof remain blocked.
+
+## Slice shipped fifty-fifth
+
+The fifty-fifth implementation slice records the ecosystem clickability contract and tightens viewport proof metadata:
+
+- `docs/architecture/contracts/tg-miniapp-ecosystem-contract.md` now owns the scene boundary, ecosystem targets, interaction kinds, no-fake-progress rules, and evidence paths for the Telegram mini app.
+- The visual ledger links to that contract and names stale/non-authoritative proof surfaces reviewed in the clickability audit.
+- The viewport proof manifest schema is now `cambium.tg-viewport-proof-manifest.v1`.
+- Every manifest proof row must name its scene, fixture, proof intent, and path.
+- Clickability proof rows must name a click target selector, positive click target count, and sheet/clip selector metadata.
+- The manifest validator rejects raw Telegram initData, WebView query data, Worker bearer tokens, and proof-secret strings.
+- The viewport README now carries a scene-by-scene matrix that separates layout proof, clickability proof, read-only rows, and future live Telegram proof.
+
+The gap exposed by this slice is viewport interaction breadth: current captures prove Commands, Gate, and Skill Labor sheets plus layout coverage across Quests, Map, Story, Gate, and Commands. They do not yet prove Story beat sheets, packet rail sheet captures, live-proof sheet captures, Telegram safe-area chrome, or any real founder-device WebView session.
 
 ## Feature gaps and edge cases
 
@@ -775,7 +800,7 @@ The gap exposed by this slice is now strictly live-device provenance: local view
 | Mira relationship | Mira now has tenant-scoped cortex evidence plus durable NPC event history/advice/contradiction handling and deterministic mini app sheet smoke, and live-proof readiness records that Telegram device provenance is still missing | Stateless responses, private memory, tenant isolation, emotional overclaiming, non-Mira memory accidentally matching, stale cortex, duplicate memories, contradictory profile notes, unresolved advice after contradiction, fake-WebView parity drift, readiness artifact mistaken for live proof | Stages must be served from tenant cortex, founder arcs, or `.operator/<tenant>.npc-events.jsonl`; contradiction blocks advice; deterministic smoke and readiness packets must not be described as live Telegram proof |
 | Gate chamber | Consequence preview, idempotency, and Paperclip-enriched open items now exist; real WebView layout still needs a viewport proof | Missing initData, non-founder user, duplicate action, stale queue item, reroll ambiguity, older thin open-item payloads | Every approval/reroll card must show evidence and reversibility, even when the evidence is an explicit missing-proof gap |
 | Live Telegram proof | The mini app now visualizes the redacted live-proof capture plan, and the readiness audit can validate, scaffold, safely capture, and plan a redacted device-proof artifact, but no real founder WebView capture is present yet | Template mistaken for evidence, capture-plan `ready-to-capture` mistaken for evidence, mini app row styled as proof instead of guidance, raw initData pasted into artifacts, raw initData passed as CLI history, missing `TELEGRAM_INIT_DATA`/`TG_INIT_DATA`, tenant mismatch, stale capture, initData age exceeding Worker maxAge, direct Telegram user id exposure, WebView query/hash copied into proof, screenshot path outside proof directory, screenshot file missing, screenshot hash mismatch, local screenshot mistaken for WebView proof, network probe disabled | Only a complete `cambium.tg-device-proof.v1` artifact produced from fresh env initData with a matching local screenshot digest can mark the device row ready; templates, readiness manifests, capture plans, mini app guidance cards, and Chrome screenshots remain non-authoritative |
-| Worker live proof | A redacted production Worker list-probe receipt now exists and validates ready, but it proves only non-mutating queue/list reachability | `--allow-network` mistaken for mutating evidence, missing token, bearer token stored in artifact, wrong Worker URL, wrong tenant, stale probe, template mistaken for proof, raw response bodies copied into docs, `/consume` accidentally used as a readiness probe, zero queued actions mistaken for a signed-action lifecycle proof, action payload privacy leakage | Only a complete `cambium.worker-network-probe.v1` receipt for `GET /internal/gate/<tenant>` can mark the Worker row ready; it proves status/shape/count/digest only; mutation routes stay reserved for explicit signed live smokes |
+| Worker live proof | A prior redacted production Worker list-probe receipt exists, but the current readiness packet blocks it as missing, stale, mismatched, or unsafe to trust until recaptured with `--allow-network` and a valid token | `--allow-network` mistaken for mutating evidence, missing token, bearer token stored in artifact, wrong Worker URL, wrong tenant, stale probe, template mistaken for proof, raw response bodies copied into docs, `/consume` accidentally used as a readiness probe, zero queued actions mistaken for a signed-action lifecycle proof, action payload privacy leakage | Only a complete current `cambium.worker-network-probe.v1` receipt for `GET /internal/gate/<tenant>` can mark the Worker row ready; it proves status/shape/count/digest only; mutation routes stay reserved for explicit signed live smokes |
 | Signed action smoke | The readiness audit can validate, scaffold, safely capture, and plan a redacted queue/list/consume/refresh receipt, but no live signed action has been captured end to end yet | Template mistaken for evidence, capture-plan `ready-to-capture` mistaken for evidence, capture run without `--allow-network`, capture run without `--allow-mutation`, raw subject stored, raw idempotency key stored, raw queued id stored, founder id stored, raw Worker response stored, token-like wording stored in notes, consume audit copied with private payload, duplicate queue treated as fresh proof, proof tool consuming the queue instead of the operator consumer, operator consume succeeds but refresh is stale, refresh marker missing from the mini app envelope, refresh marker does not correspond to the consumed action | Only a complete `cambium.signed-action-smoke.v1` receipt can mark the follow-up lane ready; the capture command may submit and list but must not consume; capture plans are run guidance, not evidence; base live readiness remains separate from mutating promotion/side-quest/NPC/gate smokes |
 | Mobile viewport | Fresh Chrome mobile screenshots now exist and the readiness audit marks layout proof ready from a regenerated `manifest.json`; old `failure.json` and `browser-diagnostics.json` remain diagnostic history only | Browser default button styles, text wrapping, scene deep-link drift, Telegram chrome/safe-area differences, fixed bottom sheets that exist in DOM but are missed by full-surface capture, local Chrome/Arc CLI mode drift, diagnostic receipt mistaken for proof, direct Chrome probes starting a process without a listener, sandbox loopback `EPERM`, stale manifest newer/older ordering, readiness status confused with screenshots | Layout proof must use the real page export, real fixture API, selector-based scroll targets, saved artifacts, visible-geometry assertions for scripted interactions, and explicit CDP listener diagnostics when blocked; a newer failure receipt overrides an older manifest; diagnostics can explain blocked state but cannot replace screenshots; live readiness cannot substitute for screenshots |
 | R3F sync | Runtime R3F now generates visual topology from `shared/cambium-visual-contract.ts`, and the generator reconciles shared stages against R3F metadata plus quest arc ownership | R3F route changes, arc remap, contract generator drift, old cache, shared contract forgotten in generator, new shared stage without pipeline metadata, duplicate quest arc ownership, pipeline title drift vs TG label | Keep drift tests green; shared contract owns visual topology and arc grouping; R3F may enrich but must not duplicate or silently orphan stages/arcs |
@@ -797,6 +822,43 @@ The gap exposed by this slice is now strictly live-device provenance: local view
 9. Add a live signed side-quest smoke: Telegram tap -> Worker queue -> `quine write quests apply-side-quests` -> `.operator/<tenant>.side-quests.jsonl` event -> refreshed mini app history.
 10. Promote local wake-event history into a production event stream only after signed Worker ingest and tenant-scoped retention rules are explicit.
 11. Extend the tapestry audit only after adding a new source-backed section; never add audit rows that cannot point to a source/proof pair.
+
+## Final Evidence Block - Tasks 073-130
+
+Completed commits in this wave:
+
+- `4ab900d` - `feat: make story beats inspectable`
+- `2a92acb` - `feat: add gate action preflight sheets`
+- `96ba367` - `feat: inspect command center sheets`
+- `2ba351f` - `docs: record tg ecosystem evidence`
+
+Current proof artifacts:
+
+- Viewport manifest: `docs/plans/assets/tg-miniapp-viewport-proof/manifest.json`, generated `2026-06-23T12:03:46.879Z` from Google Chrome `headless-new`, with `12` layout proofs and `4` clickability proofs.
+- Clickability captures: `sheet-command-chat-mobile.png`, `sheet-skill-promotion-mobile.png`, `sheet-gate-approve-preflight-mobile.png`, and `sheet-gate-reroll-preflight-mobile.png`.
+- Live readiness: `docs/plans/assets/tg-miniapp-live-proof/readiness.json`, generated `2026-06-23T12:04:59.554Z`, status `blocked`, summary `ready: 7`, `blocked: 3`, `total: 10`, `liveProofReady: false`.
+- Blocked live rows: `telegram-init-data`, `telegram-device-artifact`, and `worker-network-probe`.
+- Worker proof note: `docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json` exists as a prior receipt, but current readiness blocks it until a fresh non-mutating list probe validates ready.
+
+Verification commands from the final gate:
+
+- `npm run proof:tg-viewport` passed and regenerated the viewport manifest plus screenshots.
+- `npm run proof:tg-live-readiness` passed and wrote the redacted readiness packet.
+- `npm run proof:tg-live-readiness:strict` exited blocked as expected because real Telegram initData, a founder device artifact, and a fresh Worker probe are absent.
+- `node --test workers/quests/src/handler.test.ts workers/quests/src/live-proof-readiness.test.ts` passed (`161` tests).
+- `npm test` passed (`468` tests).
+- `npm run render-docs:check` passed.
+- `npm run r3f:test` passed (`48` tests).
+- `npm run r3f:build` passed.
+
+Review closure:
+
+- Final subagent review found no raw secret, raw Telegram initData, or raw user-id leakage in the changed docs and artifacts.
+- Review findings about stale Worker readiness, packet rail wording, and viewport proof scope were fixed before the final gate.
+
+Deploy decision:
+
+- No Worker deploy was performed in this run. The branch is locally gated and proof-documented, but live release proof remains blocked until a fresh founder Telegram WebView session and Worker list probe are captured.
 
 ## Completion definition
 

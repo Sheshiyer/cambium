@@ -338,15 +338,15 @@ export const NO_FAKE_PROGRESS_VISUAL_FIXTURE = {
       {
         id: 'worker-list-proof',
         title: 'WORKER LIST PROOF',
-        state: 'complete',
-        detail: 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json validates ready as a redacted receipt',
-        proof: 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json; Capture commands create redacted receipts; they are proof only after their artifacts validate ready.',
+        state: 'blocked',
+        detail: 'worker-network-probe.json is stale or not trusted by the current readiness packet',
+        proof: 'current readiness blocks worker-network-probe until a fresh cambium.worker-network-probe.v1 receipt validates ready',
         source: 'tg-live-proof-capture-plan',
         command: 'node workers/quests/src/live-proof-readiness.mjs --capture-worker-probe --allow-network --write',
         writes: 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json',
         prerequisites: [
           { label: 'worker-token', status: 'ready', detail: 'QUESTS_PUSH_TOKEN is available without printing it' },
-          { label: 'allow-network', status: 'ready', detail: '--allow-network supplied' },
+          { label: 'allow-network', status: 'blocked', detail: '--allow-network is required for recapture' },
         ],
         privacy: [
           'Worker credential is used only as an authorization header',

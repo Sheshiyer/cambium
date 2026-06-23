@@ -49,6 +49,79 @@ let activeBrowserMode = 'headless-new';
 const outDir = resolve('docs/plans/assets/tg-miniapp-viewport-proof');
 const viewport = { width: 390, height: 844 };
 const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/telegram-web-app.js');
+const VIEWPORT_PROOF_MANIFEST_SCHEMA = 'cambium.tg-viewport-proof-manifest.v1';
+const REDACTED_PROOF_SECRET_PATTERN = /(query_id=|auth_date=|tgWebAppData|QUESTS_PUSH_TOKEN|Bearer\s+|secret-hash|secret-signature)/i;
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isNonEmptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function normalizedClickTargetCount(proof) {
+  const value = proof.clickTargetCount ?? proof.clickabilityTargetCount;
+  if (value === undefined) return undefined;
+  const count = Number(value);
+  return Number.isFinite(count) ? count : value;
+}
+
+function fixtureForCaptureStep(proof) {
+  if (proof.fixture) return proof.fixture;
+  if (proof.scene === 'gate') return 'gate';
+  return 'no-fake-progress';
+}
+
+export function validateViewportProofManifest(manifest) {
+  const issues = [];
+  if (!isPlainObject(manifest)) return ['manifest must be an object'];
+  if (manifest.schema !== VIEWPORT_PROOF_MANIFEST_SCHEMA) issues.push(`manifest.schema must be ${VIEWPORT_PROOF_MANIFEST_SCHEMA}`);
+  if (!isNonEmptyString(manifest.generatedAt)) issues.push('manifest.generatedAt must be present');
+  if (!isNonEmptyString(manifest.browserMode)) issues.push('manifest.browserMode must be present');
+  if (!isNonEmptyString(manifest.invariant)) issues.push('manifest.invariant must be present');
+  if (!Array.isArray(manifest.proofs) || manifest.proofs.length === 0) issues.push('manifest.proofs must include at least one proof');
+
+  const manifestText = JSON.stringify(manifest);
+  if (REDACTED_PROOF_SECRET_PATTERN.test(manifestText)) {
+    issues.push('manifest must not contain raw Telegram initData, WebView query data, bearer tokens, or proof secrets');
+  }
+
+  for (const [index, proof] of Array.isArray(manifest.proofs) ? manifest.proofs.entries() : []) {
+    const prefix = `manifest.proofs[${index}]`;
+    if (!isPlainObject(proof)) {
+      issues.push(`${prefix} must be an object`);
+      continue;
+    }
+    if (!isNonEmptyString(proof.scene)) issues.push(`${prefix}.scene must be present`);
+    if (!isNonEmptyString(proof.path)) issues.push(`${prefix}.path must be present`);
+    if (!isNonEmptyString(proof.intent)) issues.push(`${prefix}.intent must be present`);
+    if (!isNonEmptyString(proof.fixture)) issues.push(`${prefix}.fixture must be present`);
+
+    const clickTargetCount = normalizedClickTargetCount(proof);
+    if (clickTargetCount !== undefined && (!Number.isInteger(clickTargetCount) || clickTargetCount < 1)) {
+      issues.push(`${prefix}.clickTargetCount must be a positive integer when present`);
+    }
+
+    if (proof.intent === 'clickability-proof') {
+      const sheet = isPlainObject(proof.sheet) ? proof.sheet : {};
+      if (!isNonEmptyString(proof.clickTargetSelector)) issues.push(`${prefix}.clickTargetSelector must be present for clickability proofs`);
+      if (!isNonEmptyString(proof.clipSelector) && !isNonEmptyString(sheet.clipSelector)) {
+        issues.push(`${prefix}.clipSelector or sheet.clipSelector must be present for clickability proofs`);
+      }
+      if (clickTargetCount === undefined) issues.push(`${prefix}.clickTargetCount must be present for clickability proofs`);
+    }
+  }
+
+  return issues;
+}
+
+export function assertViewportProofManifestSchema(manifest) {
+  const issues = validateViewportProofManifest(manifest);
+  if (issues.length > 0) {
+    throw new Error(`Viewport proof manifest schema failed:\n- ${issues.join('\n- ')}`);
+  }
+}
 
 export function buildViewportProofManifest({
   generatedAt = new Date().toISOString(),
@@ -63,7 +136,8 @@ export function buildViewportProofManifest({
     return summary;
   }, {});
 
-  return {
+  const manifest = {
+    schema: VIEWPORT_PROOF_MANIFEST_SCHEMA,
     generatedAt,
     chrome,
     browserMode,
@@ -73,6 +147,8 @@ export function buildViewportProofManifest({
     proofs,
     invariant: 'Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions.',
   };
+  assertViewportProofManifestSchema(manifest);
+  return manifest;
 }
 
 export const VIEWPORT_PROOF_CAPTURE_STEPS = [
@@ -88,9 +164,11 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     waitFor: "document.querySelector('[data-command-name=\"ts-run\"]')",
     expression: "(() => { const el = document.querySelector('[data-command-name=\"ts-run\"]'); if (!el) throw new Error('missing /ts-run command card'); el.click(); })()",
     waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('/ts-run') && document.querySelector('#sheet').textContent.includes('chat-command')",
+    clickTargetSelector: '[data-command-name="ts-run"]',
+    clickTargetCount: 1,
     clipSelector: '#sheet',
   },
-  { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')", clickabilityTargetCount: 14 },
+  { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')", clickTargetCount: 14 },
   { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
   { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
   { scene: 'map', path: 'map-live-proof-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-live-proof="0"]', waitFor: "document.querySelector('[data-live-proof=\"0\"]')" },
@@ -106,6 +184,8 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     waitFor: "document.querySelector('[data-skill=\"0\"]')",
     expression: "(() => { const el = document.querySelector('[data-skill=\"0\"]'); if (!el) throw new Error('missing founder-review skill card'); el.click(); })()",
     waitAfterExpression: "document.querySelector('#sheet.on [data-promote-skill]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clickTargetSelector: '[data-skill="0"]',
+    clickTargetCount: 1,
     clipSelector: '#sheet',
   },
   { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
@@ -119,6 +199,8 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     waitFor: "document.querySelector('[data-signed-action-entrypoint=\"approve\"]')",
     expression: "(() => { const el = document.querySelector('[data-signed-action-entrypoint=\"approve\"]'); if (!el) throw new Error('missing approve gate action'); el.click(); })()",
     waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"approve\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clickTargetSelector: '[data-signed-action-entrypoint="approve"]',
+    clickTargetCount: 1,
     clipSelector: '#sheet',
   },
   {
@@ -129,6 +211,8 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     waitFor: "document.querySelector('[data-signed-action-entrypoint=\"reroll\"]')",
     expression: "(() => { const el = document.querySelector('[data-signed-action-entrypoint=\"reroll\"]'); if (!el) throw new Error('missing reroll gate action'); el.click(); })()",
     waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"reroll\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clickTargetSelector: '[data-signed-action-entrypoint="reroll"]',
+    clickTargetCount: 1,
     clipSelector: '#sheet',
   },
 ];
@@ -770,10 +854,18 @@ await withServer(async (base) => {
     await capture(url, file, proof);
     proofs.push({
       scene: proof.scene,
+      fixture: fixtureForCaptureStep(proof),
       url,
       path: proof.path,
       intent: proof.intent,
-      ...(Number.isFinite(Number(proof.clickabilityTargetCount)) ? { clickabilityTargetCount: Number(proof.clickabilityTargetCount) } : {}),
+      ...(isNonEmptyString(proof.clickTargetSelector) ? { clickTargetSelector: proof.clickTargetSelector } : {}),
+      ...(Number.isFinite(Number(normalizedClickTargetCount(proof))) ? { clickTargetCount: Number(normalizedClickTargetCount(proof)) } : {}),
+      ...(isNonEmptyString(proof.clipSelector)
+        ? {
+            clipSelector: proof.clipSelector,
+            sheet: { clipSelector: proof.clipSelector },
+          }
+        : {}),
       ...pngSize(file),
     });
   }

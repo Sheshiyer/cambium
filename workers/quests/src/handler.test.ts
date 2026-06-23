@@ -1857,7 +1857,8 @@ test('page · tapestry audit sheet maps completion requirements to source-backed
   assert.match(sheet, /total<\/b><span>10/);
   assert.match(sheet, /liveProofReady<\/b><span>false/);
   assert.match(sheet, /blocked row 1<\/b><span>DEVICE WEBVIEW PROOF/);
-  assert.match(sheet, /blocked row 2<\/b><span>SIGNED ACTION SMOKE/);
+  assert.match(sheet, /blocked row 2<\/b><span>WORKER LIST PROOF/);
+  assert.match(sheet, /blocked row 3<\/b><span>SIGNED ACTION SMOKE/);
   assert.match(sheet, /proof only after their artifacts validate ready/);
   assert.doesNotMatch(sheet, /all requirements complete|production verified|live proof ready/i);
 });

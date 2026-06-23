@@ -509,7 +509,7 @@ npm run r3f:test
 **Task detail:** Files: modify `workers/quests/src/live-proof-readiness.test.ts`, `workers/quests/src/visual-viewport-proof.mjs`. Assert proof manifest includes scene, sheet selector, click target count, browser mode, and invariant. Command: `node --test workers/quests/src/live-proof-readiness.test.ts`. Commit: `test: validate viewport manifest schema`.
 ### Task 127: Regenerate all viewport proofs
 
-**Task detail:** Files: update `docs/plans/assets/tg-miniapp-viewport-proof/*`; source `workers/quests/src/visual-viewport-proof.mjs`. Command: `npm run proof:tg-viewport`. Expected: manifest contains Quests, Map, Story, Gate, Commands, rails sheet, story sheet, command sheet, skill sheet, live proof sheet, and gate action sheet captures. Commit: `test: refresh tg mini app viewport proofs`.
+**Task detail:** Files: update `docs/plans/assets/tg-miniapp-viewport-proof/*`; source `workers/quests/src/visual-viewport-proof.mjs`. Command: `npm run proof:tg-viewport`. Expected: manifest contains Quests, Map, Story, Gate, and Commands layout proof plus command, skill, approve, and reroll clickability captures; rails, story, live-proof, and Telegram safe-area sheet captures remain explicit follow-up proof work unless implemented before capture. Commit: `test: refresh tg mini app viewport proofs`.
 ### Task 128: Run live readiness non-strict
 
 **Task detail:** Files: update `docs/plans/assets/tg-miniapp-live-proof/readiness.json`; source `workers/quests/src/live-proof-readiness.mjs`. Command: `npm run proof:tg-live-readiness`. Expected: liveProofReady remains false unless real Telegram proof exists; no raw secrets in JSON. Commit: `test: refresh tg live readiness`.
