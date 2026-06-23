@@ -2011,6 +2011,56 @@ test('page · side quest cards render only served pure-trigger predicates', asyn
   assert.doesNotMatch(map, /side quest complete|bonus|reward|hidden quest/i);
 });
 
+test('page · served side quest rows strip overclaim terms from row and sheet', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    sideQuests: {
+      source: 'pure-trigger-predicates',
+      status: 'ready',
+      rows: [
+        {
+          id: 'rank-reward-row',
+          title: 'HIDDEN QUEST REWARD RANK',
+          status: 'triggered',
+          trigger: 'bonus.leaderboard',
+          detail: 'bonus leaderboard social proof',
+          proof: 'reward unlocked by social proof rank',
+          origin: 'leaderboard',
+          owner: 'rank watcher',
+          action: { kind: 'refresh', label: 'Collect bonus reward', target: 'hidden quest leaderboard' },
+          lifetime: { scope: 'until-consumed', staleAfterMinutes: 1440, detail: 'bonus remains until hidden quest reward is consumed' },
+          completion: { kind: 'queue-consumed', proof: 'leaderboard rank reward consumed' },
+          runtime: {
+            source: 'operator-side-quests@v1',
+            status: 'queued',
+            total: 1,
+            proof: 'social proof rank event queued',
+            rows: [
+              {
+                id: 'hidden-quest-event',
+                status: 'rank',
+                source: 'leaderboard',
+                detail: 'bonus reward queued from social proof',
+                proof: 'rank proof',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+  assert.match(map, /SERVED TRIGGER/);
+  assert.match(map, /side quest trigger active/);
+
+  (rendered.context.openSideQuestBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /queue effect/);
+  assert.match(sheet, /queued action only; side quest ledger and registry remain unchanged until the operator consumes the queued action/);
+  assert.doesNotMatch(map + sheet, /reward|bonus|hidden quest|leaderboard|rank|social proof/i);
+});
+
 test('page · side quest sheet renders operator ledger history without browser writes', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -2069,6 +2119,7 @@ test('page · side quest sheet renders operator ledger history without browser w
   assert.match(sheet, /side quest history/);
   assert.match(sheet, /operator-side-quests@v1 · queued · 1 event/);
   assert.match(sheet, /wake-proof branch assigned from current visual envelope/);
+  assert.match(sheet, /queued action only; side quest ledger and registry remain unchanged until the operator consumes the queued action/);
   assert.match(sheet, /Queue side quest/);
   assert.match(sheet, /history 1/);
   assert.doesNotMatch(map + sheet, /browser wrote|side quest complete|reward unlocked|hidden quest|leaderboard|social proof/i);

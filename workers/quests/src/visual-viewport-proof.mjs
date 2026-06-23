@@ -75,6 +75,30 @@ export function buildViewportProofManifest({
   };
 }
 
+export const VIEWPORT_PROOF_CAPTURE_STEPS = [
+  { scene: 'quests', path: 'quests-line-mobile.png', intent: 'layout-proof', sceneIndex: 0, scrollSelector: '#progress' },
+  { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')", clickabilityTargetCount: 14 },
+  { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
+  { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
+  { scene: 'map', path: 'map-live-proof-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-live-proof="0"]', waitFor: "document.querySelector('[data-live-proof=\"0\"]')" },
+  { scene: 'map', fixture: 'gate', path: 'map-gate-priority-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
+  { scene: 'map', fixture: 'skill', path: 'map-skill-promotion-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-skill="0"]' },
+  {
+    scene: 'map',
+    fixture: 'skill',
+    path: 'sheet-skill-promotion-mobile.png',
+    intent: 'clickability-proof',
+    sceneIndex: 1,
+    scrollSelector: '[data-skill="0"]',
+    waitFor: "document.querySelector('[data-skill=\"0\"]')",
+    expression: "(() => { const el = document.querySelector('[data-skill=\"0\"]'); if (!el) throw new Error('missing founder-review skill card'); el.click(); })()",
+    waitAfterExpression: "document.querySelector('#sheet.on [data-promote-skill]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clipSelector: '#sheet',
+  },
+  { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
+  { scene: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof' },
+];
+
 const gateFixture = {
   ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
   openItems: [
@@ -701,28 +725,7 @@ writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(mir
 
 const proofs = [];
 await withServer(async (base) => {
-  for (const proof of [
-    { scene: 'quests', path: 'quests-line-mobile.png', intent: 'layout-proof', sceneIndex: 0, scrollSelector: '#progress' },
-    { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')", clickabilityTargetCount: 14 },
-    { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
-    { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
-    { scene: 'map', fixture: 'gate', path: 'map-gate-priority-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
-    { scene: 'map', fixture: 'skill', path: 'map-skill-promotion-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-skill="0"]' },
-    {
-      scene: 'map',
-      fixture: 'skill',
-      path: 'sheet-skill-promotion-mobile.png',
-      intent: 'clickability-proof',
-      sceneIndex: 1,
-      scrollSelector: '[data-skill="0"]',
-      waitFor: "document.querySelector('[data-skill=\"0\"]')",
-      expression: "(() => { const el = document.querySelector('[data-skill=\"0\"]'); if (!el) throw new Error('missing founder-review skill card'); el.click(); })()",
-      waitAfterExpression: "document.querySelector('#sheet.on [data-promote-skill]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
-      clipSelector: '#sheet',
-    },
-    { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
-    { scene: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof' },
-  ]) {
+  for (const proof of VIEWPORT_PROOF_CAPTURE_STEPS) {
     const file = join(outDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;

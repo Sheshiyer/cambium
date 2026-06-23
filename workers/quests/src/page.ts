@@ -1025,6 +1025,39 @@ function renderDecisionContext(env){
     '<button type="button" class="ibox decision ' + (row.state === 'ready' ? 'ready' : '') + '" data-decision="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
   ).join('') + '</div>';
 }
+function sideQuestOverclaimText(value){
+  return /\\b(reward|bonus|hidden\\s+quest|leaderboard|rank|social[-\\s]proof)\\b/i.test(String(value || ''));
+}
+function sideQuestSafeText(value, fallback){
+  const text = String(value || '');
+  const fallbackText = String(fallback || '');
+  const safeFallback = sideQuestOverclaimText(fallbackText) ? 'served side quest field omitted' : fallbackText;
+  return sideQuestOverclaimText(text) ? safeFallback : (text || safeFallback);
+}
+function sideQuestSafeAction(action, fallbackTarget){
+  const safe = action || {};
+  return {
+    kind:safe.kind || 'inspect',
+    label:sideQuestSafeText(safe.label, 'Inspect evidence'),
+    target:sideQuestSafeText(safe.target, fallbackTarget || 'side quest'),
+  };
+}
+function sideQuestSafeRuntime(runtime, fallbackStatus){
+  const safe = runtime || {};
+  return {
+    source:sideQuestSafeText(safe.source, 'missing'),
+    status:sideQuestSafeText(safe.status, fallbackStatus || 'triggered'),
+    total:Number(safe.total || 0),
+    proof:sideQuestSafeText(safe.proof, 'operator side-quest event proof omitted'),
+    rows:Array.isArray(safe.rows) ? safe.rows.map(row => ({
+      id:sideQuestSafeText(row && row.id, 'event'),
+      status:sideQuestSafeText(row && row.status, 'queued'),
+      source:sideQuestSafeText(row && row.source, safe.source || 'missing'),
+      detail:sideQuestSafeText(row && row.detail, 'operator event detail omitted'),
+      proof:sideQuestSafeText(row && row.proof, 'operator event proof omitted'),
+    })) : [],
+  };
+}
 function sideQuestCards(env){
   const side = env.sideQuests || {};
   const rows = Array.isArray(side.rows) ? side.rows : [];
@@ -1046,20 +1079,21 @@ function sideQuestCards(env){
   return rows.slice(0, 6).map(row => {
     const runtime = row.runtime || { source:'missing', status:row.status || 'triggered', total:0, proof:'no operator side-quest events served', rows:[] };
     const status = runtime.status || row.status || 'triggered';
+    const id = row.id || row.action?.target || row.title || 'side-quest';
     return {
-      id:row.id || row.action?.target || row.title || 'side-quest',
-      title:String(row.title || row.id || 'side quest').toUpperCase(),
+      id:sideQuestSafeText(id, 'side-quest'),
+      title:sideQuestSafeText(String(row.title || row.id || 'side quest').toUpperCase(), 'SERVED TRIGGER'),
       state:status === 'expired' ? 'wait' : 'ready',
-      status,
-      detail:row.detail || 'side quest trigger active',
-      trigger:row.trigger || 'trigger missing',
-      proof:row.proof || 'proof missing from side quest row',
-      origin:row.origin || side.source || 'unknown',
-      owner:row.owner || 'system',
-      action:row.action || { label:'Inspect evidence', kind:'inspect', target:row.id || 'side quest' },
-      lifetime:row.lifetime || { detail:'lifetime not served' },
-      completion:row.completion || { proof:'completion proof not served' },
-      runtime,
+      status:sideQuestSafeText(status, 'triggered'),
+      detail:sideQuestSafeText(row.detail, 'side quest trigger active'),
+      trigger:sideQuestSafeText(row.trigger, 'trigger missing'),
+      proof:sideQuestSafeText(row.proof, 'proof missing from side quest row'),
+      origin:sideQuestSafeText(row.origin || side.source, 'unknown'),
+      owner:sideQuestSafeText(row.owner, 'system'),
+      action:sideQuestSafeAction(row.action, 'side-quest'),
+      lifetime:{ ...(row.lifetime || {}), detail:sideQuestSafeText(row.lifetime && row.lifetime.detail, 'lifetime not served') },
+      completion:{ ...(row.completion || {}), proof:sideQuestSafeText(row.completion && row.completion.proof, 'completion proof not served') },
+      runtime:sideQuestSafeRuntime(runtime, status),
     };
   });
 }
@@ -1600,7 +1634,7 @@ function openSideQuestBox(env, index){
     : '';
   $('sheetBody').innerHTML = '<div class="arc">side quest · ' + esc(side.state) + '</div><h2>' + esc(side.title) + '</h2>' +
     '<div class="nar">' + esc(side.detail) + '</div>' +
-    '<div class="kv"><b>owner</b><span>' + esc(side.owner) + '</span><b>action</b><span>' + esc(side.action.label || side.action.kind || 'inspect') + '</span><b>target</b><span>' + esc(side.action.target || 'unknown') + '</span><b>lifetime</b><span>' + esc(side.lifetime.detail || 'lifetime not served') + '</span><b>completion</b><span>' + esc(side.completion.proof || 'completion proof not served') + '</span><b>trigger</b><span>' + esc(side.trigger) + '</span><b>origin</b><span>' + esc(side.origin || 'unknown') + '</span><b>proof</b><span>' + esc(side.proof) + '</span><b>side quest history</b><span>' + esc((runtime.source || 'missing') + ' · ' + (runtime.status || side.status || 'triggered') + ' · ' + Number(runtime.total || 0) + ' event(s)') + '</span><b>history proof</b><span>' + esc(runtime.proof || 'runtime proof missing') + '</span></div>' + action + historyRows;
+    '<div class="kv"><b>owner</b><span>' + esc(side.owner) + '</span><b>action</b><span>' + esc(side.action.label || side.action.kind || 'inspect') + '</span><b>target</b><span>' + esc(side.action.target || 'unknown') + '</span><b>lifetime</b><span>' + esc(side.lifetime.detail || 'lifetime not served') + '</span><b>completion</b><span>' + esc(side.completion.proof || 'completion proof not served') + '</span><b>queue effect</b><span>queued action only; side quest ledger and registry remain unchanged until the operator consumes the queued action</span><b>trigger</b><span>' + esc(side.trigger) + '</span><b>origin</b><span>' + esc(side.origin || 'unknown') + '</span><b>proof</b><span>' + esc(side.proof) + '</span><b>side quest history</b><span>' + esc((runtime.source || 'missing') + ' · ' + (runtime.status || side.status || 'triggered') + ' · ' + Number(runtime.total || 0) + ' event(s)') + '</span><b>history proof</b><span>' + esc(runtime.proof || 'runtime proof missing') + '</span></div>' + action + historyRows;
   const queue = $('sheetBody').querySelector('[data-queue-side-quest]');
   if (queue) queue.onclick = () => sideQuestAct(side, queue);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(side.state === 'ready' ? 'medium' : 'light');
