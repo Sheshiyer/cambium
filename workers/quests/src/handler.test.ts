@@ -1204,6 +1204,74 @@ test('page · wake sheet renders operator wake history without changing latest s
   assert.doesNotMatch(map + sheet, /browser wrote|current step proved by history/i);
 });
 
+test('page · missing wake sheet maps to wake-proof quine command without crowding cards', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const wakeHtml = (rendered.context.renderWake as (env: unknown) => string)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const ingestIndex = CAMBIUM_WAKE_STEPS.findIndex((step) => step.id === 'ingest');
+
+  assert.ok(ingestIndex >= 0, 'ingest wake step exists');
+  assert.match(wakeHtml, /missing source/);
+  assert.doesNotMatch(wakeHtml, /current status|history count|wake-proof|quine write quests wake-event/);
+
+  (rendered.context.openWakeBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, ingestIndex);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /wake step · missing/);
+  assert.match(sheet, /current status<\/b><span>missing/);
+  assert.match(sheet, /history count<\/b><span>0/);
+  assert.match(sheet, /side quest target<\/b><span>wake-proof/);
+  assert.match(sheet, /quine command<\/b><span>quine write quests wake-event ingest missing/);
+  assert.doesNotMatch(sheet, /raw initData|browser wrote|current step proved by history/i);
+});
+
+test('page · proved wake sheet keeps current proof separate from operator history', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    wake: {
+      source: 'quest-ledger-envelope@v1',
+      steps: [
+        {
+          id: 'ingest',
+          status: 'proved',
+          detail: 'current envelope confirms quest ingestion',
+          source: 'quest-ledger-envelope@v1',
+          proof: 'current wake proof came from quest-ledger-envelope@v1',
+          evidence: [{ label: 'ingest proof', status: 'proved', detail: 'served from current envelope' }],
+          history: {
+            source: 'operator-wake-events@v1',
+            total: 1,
+            status: 'proved',
+            proof: 'operator history recorded an earlier ingest refresh',
+            rows: [
+              {
+                id: 'acme:ingest:proved:1',
+                stepId: 'ingest',
+                status: 'proved',
+                source: 'operator-note',
+                detail: 'operator observed an ingest refresh',
+                proof: 'refresh log included ingest row',
+                createdAt: '2026-06-22T00:00:00.000Z',
+                target: 'wake:ingest',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  (rendered.context.openWakeBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /wake step · proved/);
+  assert.match(sheet, /current status<\/b><span>proved/);
+  assert.match(sheet, /source<\/b><span>quest-ledger-envelope@v1/);
+  assert.match(sheet, /proof<\/b><span>current wake proof came from quest-ledger-envelope@v1/);
+  assert.match(sheet, /wake event source<\/b><span>operator-wake-events@v1/);
+  assert.match(sheet, /history count<\/b><span>1/);
+  assert.match(sheet, /history relation<\/b><span>operator wake history is shown separately from the current served status/);
+  assert.doesNotMatch(sheet, /current proof came from history|current step proved by history|history proves current/i);
+});
+
 test('page · evidence boxes prefer served visual-envelope insights over local inference', async () => {
   const elements = await renderPageFixture({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -1229,6 +1297,39 @@ test('page · evidence boxes prefer served visual-envelope insights over local i
   assert.match(map, /SERVED INSIGHT/);
   assert.match(map, /served insight from fixture/);
   assert.doesNotMatch(map, /first session unplayed/);
+});
+
+test('page · insight sheet exposes durable source, proof, origin, and evidence rows', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    insights: {
+      source: 'operator-insights@v1',
+      status: 'ready',
+      rows: [
+        {
+          id: 'operator-insight-1',
+          title: 'OPERATOR INSIGHT',
+          state: 'ready',
+          detail: 'durable insight from operator source',
+          proof: 'operator proof linked to reusable evidence fragment',
+          source: 'operator-insights@v1',
+          origin: 'operator-insight',
+          evidence: [{ label: 'operator note', status: 'ready', detail: 'source row served' }],
+        },
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  (rendered.context.openInsightBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /evidence box · ready/);
+  assert.match(sheet, /OPERATOR INSIGHT/);
+  assert.match(sheet, /source<\/b><span>operator-insights@v1/);
+  assert.match(sheet, /origin<\/b><span>operator-insight/);
+  assert.match(sheet, /proof<\/b><span>operator proof linked to reusable evidence fragment/);
+  assert.match(sheet, /evidence 1<\/b><span>operator note · ready · source row served/);
+  assert.doesNotMatch(sheet, /missing insight source|random reward|leaderboard/i);
 });
 
 test('page · sense cards prefer served visual-envelope signals over local inference', async () => {
@@ -1264,6 +1365,115 @@ test('page · sense cards prefer served visual-envelope signals over local infer
   assert.match(map, /served signal gap from fixture/);
   assert.match(map, /served cortex proof from fixture/);
   assert.doesNotMatch(map, /I · The Calling<\/button>/);
+});
+
+test('page · lane sheets expose world log counts, ratios, stance, and gaps', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    lanes: {
+      source: 'world.log',
+      total: 4,
+      dominant: 'micro',
+      counts: { micro: 3, meso: 1, macro: 0, noesis: 0 },
+      gap: null,
+    },
+    stance: {
+      source: 'world.log',
+      status: 'ready',
+      sampleSize: 4,
+      window: 24,
+      dominant: 'micro',
+      label: 'MICRO',
+      confidence: 0.75,
+      ratios: { micro: 0.75, meso: 0.25, macro: 0, noesis: 0 },
+      counts: { micro: 3, meso: 1, macro: 0, noesis: 0 },
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  (rendered.context.openLaneSheet as (env: unknown, laneId: string) => void)(envelope, 'micro');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /lane · micro/);
+  assert.match(sheet, /source<\/b><span>world\.log/);
+  assert.match(sheet, /world\.log<\/b><span>3 world\.log lane rows/);
+  assert.match(sheet, /count<\/b><span>3/);
+  assert.match(sheet, /ratio<\/b><span>75%/);
+  assert.match(sheet, /sample size<\/b><span>4/);
+  assert.match(sheet, /stance contribution<\/b><span>75% of tenant stance sample/);
+  assert.match(sheet, /recommendation<\/b><span>read-only lane evidence; no browser action/);
+});
+
+test('page · missing lane sheet has missing source, zero sample, no recommendation', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    lanes: {
+      source: 'world.log',
+      total: 2,
+      dominant: 'meso',
+      counts: { micro: 0, meso: 2, macro: 0, noesis: 0 },
+      gap: null,
+    },
+    stance: {
+      source: 'world.log',
+      status: 'ready',
+      sampleSize: 2,
+      window: 24,
+      dominant: 'meso',
+      label: 'MESO',
+      confidence: 1,
+      ratios: { micro: 0, meso: 1, macro: 0, noesis: 0 },
+      counts: { micro: 0, meso: 2, macro: 0, noesis: 0 },
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  (rendered.context.openLaneSheet as (env: unknown, laneId: string) => void)(envelope, 'micro');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /lane · micro/);
+  assert.match(sheet, /source<\/b><span>missing/);
+  assert.match(sheet, /world\.log<\/b><span>missing/);
+  assert.match(sheet, /count<\/b><span>0/);
+  assert.match(sheet, /ratio<\/b><span>0%/);
+  assert.match(sheet, /sample size<\/b><span>0/);
+  assert.match(sheet, /stance contribution<\/b><span>no stance contribution/);
+  assert.match(sheet, /recommendation<\/b><span>no recommendation/);
+});
+
+test('page · sense sheets map ecosystem targets and clarify memory empty state', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    ledger: {
+      ...NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger,
+      current: null,
+      rows: [],
+    },
+    senses: {
+      source: 'missing',
+      status: 'blocked',
+      rows: [],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const senseHtml = (rendered.context.renderSenses as (env: unknown) => string)(envelope);
+  const mappings = [
+    ['signal', 'quine'],
+    ['memory', 'cortex'],
+    ['risk', 'operator-policy'],
+    ['drift', 'operator-policy'],
+  ] as const;
+
+  for (const [id, target] of mappings) {
+    assert.match(senseHtml, new RegExp(`data-sense="${id}" data-ecosystem-target="${target}"`));
+    (rendered.context.openSenseSheet as (env: unknown, senseId: string) => void)(envelope, id);
+    const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+    assert.match(sheet, new RegExp(`sense · ${id}`));
+    assert.match(sheet, new RegExp(`ecosystem target<\\/b><span>${target}`));
+  }
+
+  (rendered.context.openSenseSheet as (env: unknown, senseId: string) => void)(envelope, 'memory');
+  const memorySheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(memorySheet, /no tenant cortex rows served/);
+  assert.doesNotMatch(memorySheet, /generic unavailable|unavailable|no cortex rows<\/span>/i);
 });
 
 test('page · side quest cards render only served pure-trigger predicates', async () => {

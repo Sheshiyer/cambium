@@ -41,6 +41,8 @@ type NpcEventSource = 'operator-note' | 'founder-gate' | 'system';
 type NpcAdviceStatus = 'ready' | 'blocked';
 type NpcAdviceActionKind = 'review' | 'ask-founder' | 'collect-evidence';
 type VisualInsightStatus = 'ready' | 'wait';
+type VisualInsightSource = 'quest-ledger' | 'operator-insights@v1' | 'missing';
+type VisualInsightOrigin = 'completed-quest' | 'active-frontier' | 'empty-ledger' | 'operator-insight';
 type VisualSocialState = 'ready' | 'gap';
 type DecisionSignalState = 'served' | 'gap';
 type DecisionSignalId = 'founder-preference' | 'owner-load' | 'economic-risk' | 'team-availability' | 'member-revocation' | 'cross-tenant-urgency';
@@ -69,6 +71,7 @@ const NPC_OVERCLAIM_RE = /\b(affinity|trusted advisor|partner|partnership|loyalt
 const SIDE_QUEST_EVENT_STATUSES: readonly SideQuestEventStatus[] = ['queued', 'completed', 'expired'];
 const SIDE_QUEST_EVENT_SOURCES: readonly SideQuestEventSource[] = ['operator-note', 'founder-gate', 'system'];
 const SIDE_QUEST_OVERCLAIM_RE = /\b(reward|bonus|level up|hidden quest|leaderboard|social proof|popularity|rank)\b/i;
+const INSIGHT_OVERCLAIM_RE = /\b(reward|bonus|level up|hidden quest|leaderboard|social proof|popularity|rank|random reward)\b/i;
 const LIVE_PROOF_READINESS_PATH = 'docs/plans/assets/tg-miniapp-live-proof/readiness.json';
 const LIVE_PROOF_CAPTURE_INVARIANT = 'Capture commands create redacted receipts; they are proof only after their artifacts validate ready.';
 
@@ -106,8 +109,8 @@ export interface VisualInsightRow {
   state: VisualInsightStatus;
   detail: string;
   proof: string;
-  source: 'quest-ledger' | 'missing';
-  origin: 'completed-quest' | 'active-frontier' | 'empty-ledger';
+  source: VisualInsightSource;
+  origin: VisualInsightOrigin;
   quest?: {
     arc: string;
     id: string;
@@ -307,7 +310,7 @@ export interface VisualEnvelope {
     rows: VisualSenseRow[];
   };
   insights: {
-    source: 'quest-ledger-evidence@v1';
+    source: 'quest-ledger-evidence@v1' | 'operator-insights@v1';
     status: 'ready' | 'empty';
     rows: VisualInsightRow[];
     gap?: string;
@@ -830,7 +833,77 @@ function insightFromQuestRow(
   };
 }
 
-function deriveInsightEnvelope(ledger: QuestLedger): VisualEnvelope['insights'] {
+function insightTextOverclaims(row: Record<string, unknown>): boolean {
+  const evidence = Array.isArray(row.evidence) ? row.evidence : [];
+  const text = [
+    row.id,
+    row.title,
+    row.detail,
+    row.proof,
+    row.gap,
+    ...evidence.flatMap((item) => {
+      if (!item || typeof item !== 'object') return [];
+      const ev = item as Record<string, unknown>;
+      return [ev.label, ev.status, ev.detail];
+    }),
+  ].filter((item) => typeof item === 'string').join(' ');
+  return INSIGHT_OVERCLAIM_RE.test(text);
+}
+
+function operatorInsightsPath(ctx: QuineCtx, tenant: string): string {
+  return join(ctx.root, '.operator', `${tenant}.insights.json`);
+}
+
+function readOperatorInsightRows(ctx: QuineCtx, tenant: string): VisualInsightRow[] {
+  const envelope = readJson(operatorInsightsPath(ctx, tenant));
+  if (!envelope || typeof envelope !== 'object' || envelope.source !== 'operator-insights@v1' || !Array.isArray(envelope.rows)) return [];
+  return envelope.rows
+    .filter((row: unknown): row is Record<string, unknown> => !!row && typeof row === 'object' && !Array.isArray(row))
+    .filter((row) => !insightTextOverclaims(row))
+    .map((row): VisualInsightRow | null => {
+      const id = typeof row.id === 'string' && row.id.trim() ? row.id.trim() : '';
+      const title = typeof row.title === 'string' && row.title.trim() ? row.title.trim() : '';
+      const detail = typeof row.detail === 'string' && row.detail.trim() ? row.detail.trim() : '';
+      const proof = typeof row.proof === 'string' && row.proof.trim() ? row.proof.trim() : '';
+      if (!id || !title || !detail || !proof) return null;
+      const state = row.state === 'wait' ? 'wait' : 'ready';
+      const evidence = Array.isArray(row.evidence)
+        ? row.evidence.flatMap((item): VisualSenseEvidence[] => {
+            if (!item || typeof item !== 'object') return [];
+            const ev = item as Record<string, unknown>;
+            return [{
+              label: typeof ev.label === 'string' && ev.label ? ev.label : title,
+              status: typeof ev.status === 'string' && ev.status ? ev.status : state,
+              detail: typeof ev.detail === 'string' && ev.detail ? ev.detail : proof,
+            }];
+          })
+        : [{ label: title, status: state, detail: proof }];
+      return {
+        id,
+        title,
+        state,
+        detail,
+        proof,
+        source: 'operator-insights@v1',
+        origin: 'operator-insight',
+        evidence,
+        ...(state === 'ready' ? {} : { gap: typeof row.gap === 'string' ? row.gap : detail }),
+      };
+    })
+    .filter((row): row is VisualInsightRow => !!row)
+    .slice(0, 4);
+}
+
+function deriveInsightEnvelope(ctx: QuineCtx, tenant: string, ledger: QuestLedger): VisualEnvelope['insights'] {
+  const operatorRows = readOperatorInsightRows(ctx, tenant);
+  if (operatorRows.length > 0) {
+    return {
+      source: 'operator-insights@v1',
+      status: 'ready',
+      rows: operatorRows,
+    };
+  }
+
   const completed = ledger.rows.filter((row) => row.status === 'complete').slice(-3);
   const active = ledger.current
     ? ledger.rows.find((row) => row.quest.id === ledger.current?.id || row.quest.arc === ledger.current?.arc)
@@ -2353,7 +2426,7 @@ export function buildVisualEnvelope(
   const wake = deriveWakeEnvelope(meta.source, meta.derivedAt, ledger, wakeEvents);
   const lanes = deriveLaneEnvelope(inputs);
   const senses = deriveSenseEnvelope(inputs, ledger, meta.derivedAt, meta.openItems);
-  const insights = deriveInsightEnvelope(ledger);
+  const insights = deriveInsightEnvelope(ctx, tenant, ledger);
   const stance = deriveStanceEnvelope(inputs);
   const skills = deriveSkillsEnvelope(ctx, tenant);
   const policy = derivePolicyEnvelope(stance, skills, ledger, meta.openItems, inputs.prioritySignals);

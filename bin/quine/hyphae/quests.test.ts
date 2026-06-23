@@ -461,6 +461,67 @@ test('quests visual envelope surfaces redacted live-proof capture plan', () => {
   assert.doesNotMatch(JSON.stringify(visual.liveProof), /query_id=|auth_date=|Bearer|QUESTS_PUSH_TOKEN=|rawInitData/i);
 });
 
+test('quests visual envelope prefers durable operator insight rows over ledger-derived boxes', () => {
+  const ctx = tmpCtx();
+  writeFileSync(join(ctx.root, '.operator', 'acme.insights.json'), JSON.stringify({
+    source: 'operator-insights@v1',
+    rows: [
+      {
+        id: 'insight-mira-handoff',
+        title: 'Mira handoff evidence',
+        state: 'ready',
+        detail: 'operator served reusable evidence box',
+        proof: 'operator reviewed handoff transcript and linked proof',
+        evidence: [{ label: 'handoff transcript', status: 'ready', detail: 'linked proof reviewed' }],
+      },
+    ],
+  }, null, 2));
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({ current: { arc: 'I', id: 'calling' } }),
+    { source: 'test', derivedAt: '2026-06-22T00:06:00.000Z' },
+  );
+
+  assert.equal(visual.insights.source, 'operator-insights@v1');
+  assert.equal(visual.insights.status, 'ready');
+  assert.equal(visual.insights.rows.length, 1);
+  assert.equal(visual.insights.rows[0]?.id, 'insight-mira-handoff');
+  assert.equal(visual.insights.rows[0]?.source, 'operator-insights@v1');
+  assert.equal(visual.insights.rows[0]?.origin, 'operator-insight');
+  assert.match(visual.insights.rows[0]?.proof ?? '', /linked proof/);
+});
+
+test('quests visual envelope rejects operator insight rows that look like random rewards', () => {
+  const ctx = tmpCtx();
+  writeFileSync(join(ctx.root, '.operator', 'acme.insights.json'), JSON.stringify({
+    source: 'operator-insights@v1',
+    rows: [
+      {
+        id: 'reward-box',
+        title: 'Hidden quest bonus',
+        state: 'ready',
+        detail: 'random reward unlocked',
+        proof: 'leaderboard rank improved',
+      },
+    ],
+  }, null, 2));
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-22T00:06:00.000Z' },
+  );
+
+  assert.equal(visual.insights.source, 'quest-ledger-evidence@v1');
+  assert.notEqual(visual.insights.source, 'operator-insights@v1');
+  assert.doesNotMatch(JSON.stringify(visual.insights), /random reward|leaderboard rank|Hidden quest bonus/i);
+});
+
 test('quests apply-side-quests consumes stale side-quest actions as rejected without ledger writes', async () => {
   const ctx = tmpCtx();
   const consumed: any[] = [];

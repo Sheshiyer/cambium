@@ -868,6 +868,15 @@ function renderWake(env){
     '<button type="button" class="wake-step ' + (step.done ? 'done' : 'wait') + '" data-wake="' + i + '"><b>' + esc(step.label) + '</b><span>' + esc(step.detail) + '</span></button>'
   ).join('') + '</div>';
 }
+function senseEcosystemTarget(id){
+  if (id === 'signal') return 'quine';
+  if (id === 'memory') return 'cortex';
+  if (id === 'risk' || id === 'drift') return 'operator-policy';
+  return 'cambium-worker';
+}
+function senseEmptyDetail(sense){
+  return sense.id === 'memory' ? 'no tenant cortex rows served' : sense.empty;
+}
 function senseCards(env){
   const senseEnv = env.senses || {};
   const served = Array.isArray(senseEnv.rows) ? senseEnv.rows : null;
@@ -875,12 +884,14 @@ function senseCards(env){
     return SENSE_CONTRACT.map(sense => {
       const row = served.find(item => item && item.id === sense.id) || {};
       const evidence = Array.isArray(row.evidence) ? row.evidence : [];
+      const empty = senseEmptyDetail(sense);
       return {
         ...sense,
         on:!!row.on,
-        detail:row.detail || row.gap || sense.empty,
-        proof:row.proof || row.gap || sense.empty,
+        detail:row.detail || row.gap || empty,
+        proof:row.proof || row.gap || empty,
         source:row.source || senseEnv.source || 'missing',
+        target:senseEcosystemTarget(sense.id),
         evidence,
       };
     });
@@ -892,24 +903,46 @@ function senseCards(env){
   const riskRows = rows.filter(row => row.status === 'locked' || /pending|blocked|missing|unreachable|rejected/i.test(row.evidence || ''));
   const age = minutesSince(env.derivedAt);
   return SENSE_CONTRACT.map(sense => {
-    if (sense.id === 'signal') return { ...sense, on:!!active, detail:active ? rowLabel(active) : sense.empty, source:'legacy-local', evidence:[] };
-    if (sense.id === 'memory') return { ...sense, on:cortexRows.some(row => row.status !== 'locked'), detail:cortexRows.length ? cortexRows.filter(row => row.status !== 'locked').length + '/' + cortexRows.length + ' cortex rows' : sense.empty, source:'legacy-local', evidence:[] };
-    if (sense.id === 'risk') return { ...sense, on:riskRows.length > 0, detail:riskRows.length ? riskRows.length + ' locked or pending traces' : sense.empty, source:'legacy-local', evidence:[] };
-    if (sense.id === 'drift') return { ...sense, on:age === null || age > 360, detail:age === null ? 'freshness missing' : age > 360 ? Math.round(age / 60) + 'h stale' : sense.empty, source:'legacy-local', evidence:[] };
-    return { ...sense, on:false, detail:sense.empty, source:'legacy-local', evidence:[] };
+    const target = senseEcosystemTarget(sense.id);
+    const empty = senseEmptyDetail(sense);
+    if (sense.id === 'signal') return { ...sense, on:!!active, detail:active ? rowLabel(active) : empty, source:'legacy-local', target, evidence:[] };
+    if (sense.id === 'memory') return { ...sense, on:cortexRows.some(row => row.status !== 'locked'), detail:cortexRows.length ? cortexRows.filter(row => row.status !== 'locked').length + '/' + cortexRows.length + ' cortex rows' : empty, source:'legacy-local', target, evidence:[] };
+    if (sense.id === 'risk') return { ...sense, on:riskRows.length > 0, detail:riskRows.length ? riskRows.length + ' locked or pending traces' : empty, source:'legacy-local', target, evidence:[] };
+    if (sense.id === 'drift') return { ...sense, on:age === null || age > 360, detail:age === null ? 'freshness missing' : age > 360 ? Math.round(age / 60) + 'h stale' : empty, source:'legacy-local', target, evidence:[] };
+    return { ...sense, on:false, detail:empty, source:'legacy-local', target, evidence:[] };
   });
 }
 function renderSenses(env){
   return '<div class="sensegrid">' + senseCards(env).map(sense =>
-    '<button type="button" class="sense ' + (sense.on ? 'on' : '') + '" data-sense="' + sense.id + '"><b>' + esc(sense.title) + '</b>' + esc(sense.detail) + '</button>'
+    '<button type="button" class="sense ' + (sense.on ? 'on' : '') + '" data-sense="' + sense.id + '" data-ecosystem-target="' + esc(sense.target || senseEcosystemTarget(sense.id)) + '"><b>' + esc(sense.title) + '</b>' + esc(sense.detail) + '</button>'
   ).join('') + '</div>';
 }
 function laneCards(env){
   const laneEnv = env.lanes || {};
+  const stance = env.stance || {};
   const counts = laneEnv.counts || {};
+  const total = Number(laneEnv.total ?? Object.values(counts).reduce((sum, n) => sum + Number(n || 0), 0));
+  const sampleSize = Number(stance.sampleSize ?? total ?? 0);
+  const ratios = stance.ratios || {};
   return LANE_CONTRACT.map(lane => {
     const n = Number(counts[lane.id] || 0);
-    return { ...lane, on:n > 0, detail:n > 0 ? n + ' move' + (n === 1 ? '' : 's') : (laneEnv.gap || lane.empty) };
+    const ratio = n > 0 ? Number(ratios[lane.id] ?? (total ? n / total : 0)) : 0;
+    const source = n > 0 ? (laneEnv.source || 'world.log') : 'missing';
+    const laneSampleSize = n > 0 ? sampleSize : 0;
+    return {
+      ...lane,
+      on:n > 0,
+      detail:n > 0 ? n + ' move' + (n === 1 ? '' : 's') : (laneEnv.gap || lane.empty),
+      source,
+      count:n,
+      ratio,
+      sampleSize:laneSampleSize,
+      worldLog:n > 0 ? n + ' world.log lane row' + (n === 1 ? '' : 's') : 'missing',
+      stanceContribution:n > 0 && stance.status === 'ready'
+        ? (Math.round(ratio * 100) + '% of tenant stance sample')
+        : 'no stance contribution',
+      recommendation:n > 0 ? 'read-only lane evidence; no browser action' : 'no recommendation',
+    };
   });
 }
 function renderLanes(env){
@@ -1175,6 +1208,7 @@ function renderTapestryAudit(env){
 }
 function insightBoxes(env){
   const insightEnv = env.insights || {};
+  const insightSource = insightEnv.source || 'missing';
   const served = Array.isArray(insightEnv.rows) ? insightEnv.rows : null;
   if (served) {
     if (!served.length) return [{
@@ -1182,7 +1216,9 @@ function insightBoxes(env){
       state:'wait',
       detail:insightEnv.gap || 'no quest evidence rows served for insight boxes',
       proof:insightEnv.gap || 'no served insight rows',
-      source:insightEnv.source || 'missing',
+      source:insightSource,
+      insightSource,
+      missingSource:insightSource,
       evidence:[],
     }];
     return served.slice(0, 4).map(row => ({
@@ -1190,17 +1226,18 @@ function insightBoxes(env){
       state:row.state || 'wait',
       detail:row.detail || row.gap || row.proof || 'evidence pending',
       proof:row.proof || row.gap || 'proof missing from insight row',
-      source:row.source || insightEnv.source || 'missing',
+      source:row.source || insightSource,
+      insightSource,
       origin:row.origin || 'unknown',
       evidence:Array.isArray(row.evidence) ? row.evidence : [],
     }));
   }
   const L = env.ledger;
   const rows = [...completedRows(L).slice(-3), activeRow(L)].filter(Boolean).slice(-4);
-  if (!rows.length) return [{ title:'NO EVIDENCE BOXES', state:'wait', detail:'push a derived ledger before the map can reveal work', proof:'legacy-local inference found no rows', source:'legacy-local', evidence:[] }];
+  if (!rows.length) return [{ title:'NO EVIDENCE BOXES', state:'wait', detail:'push a derived ledger before the map can reveal work', proof:'legacy-local inference found no rows', source:'legacy-local', insightSource:'legacy-local', missingSource:'legacy-local', evidence:[] }];
   return rows.map(row => {
     const facet = facetsFrom(row.evidence)[0];
-    return { title:rowLabel(row), state:row.status === 'complete' ? 'ready' : 'wait', detail:(facet && facet.label) || row.evidence || 'evidence pending', proof:row.evidence || 'evidence pending', source:'legacy-local', evidence:[] };
+    return { title:rowLabel(row), state:row.status === 'complete' ? 'ready' : 'wait', detail:(facet && facet.label) || row.evidence || 'evidence pending', proof:row.evidence || 'evidence pending', source:'legacy-local', insightSource:'legacy-local', evidence:[] };
   });
 }
 function renderInsightBoxes(env){
@@ -1386,16 +1423,20 @@ function openMapSheet(L, stageId){
 }
 function openWakeBox(env, index){
   const wake = wakeSteps(env)[index] || wakeSteps(env)[0];
+  const currentStatus = wake.done ? 'proved' : 'missing';
   const servedEvidence = Array.isArray(wake.evidence) ? wake.evidence : [];
   const history = wake.history || { source:'missing', total:0, status:'none', proof:'no operator wake events served', rows:[] };
   const evidence = servedEvidence.length
     ? '<div class="kv">' + servedEvidence.slice(0, 4).map((item, i) => '<b>evidence ' + (i + 1) + '</b><span>' + esc((item.label || 'row') + ' · ' + (item.status || 'served') + ' · ' + (item.detail || '')) + '</span>').join('') + '</div>'
     : '';
+  const wakeActionRows = wake.done
+    ? '<b>event command</b><span>quine write quests wake-event ' + esc(wake.id || 'step') + ' proved</span>'
+    : '<b>side quest target</b><span>wake-proof</span><b>quine command</b><span>quine write quests wake-event ' + esc(wake.id || 'step') + ' missing</span>';
   const historyRows = Array.isArray(history.rows) && history.rows.length
     ? '<div class="kv">' + history.rows.slice(0, 4).map((row, i) => '<b>history ' + (i + 1) + '</b><span>' + esc((row.id || 'event') + ' · ' + (row.status || 'missing') + ' · ' + (row.source || history.source || 'missing') + ' · ' + (row.detail || row.proof || 'detail missing')) + '</span>').join('') + '</div>'
     : '<div class="nar">no operator wake events served; this is the latest snapshot, not a historical trace.</div>';
-  $('sheetBody').innerHTML = '<div class="arc">wake step · ' + esc(wake.done ? 'proved' : 'missing') + '</div><h2>' + esc(wake.label) + '</h2>' +
-    '<div class="nar">' + esc(wake.detail) + '</div><div class="kv"><b>source</b><span>' + esc(wake.source || 'missing') + '</span><b>proof</b><span>' + esc(wake.proof || wake.detail) + '</span><b>wake history</b><span>' + esc((history.source || 'missing') + ' · ' + (history.status || 'none') + ' · ' + Number(history.total || 0) + ' event(s)') + '</span><b>history proof</b><span>' + esc(history.proof || 'history proof missing') + '</span></div>' + evidence + historyRows;
+  $('sheetBody').innerHTML = '<div class="arc">wake step · ' + esc(currentStatus) + '</div><h2>' + esc(wake.label) + '</h2>' +
+    '<div class="nar">' + esc(wake.detail) + '</div><div class="kv"><b>current status</b><span>' + esc(currentStatus) + '</span><b>source</b><span>' + esc(wake.source || 'missing') + '</span><b>proof</b><span>' + esc(wake.proof || wake.detail) + '</span><b>wake event source</b><span>' + esc(history.source || 'missing') + '</span><b>history count</b><span>' + Number(history.total || 0) + '</span><b>wake history</b><span>' + esc((history.source || 'missing') + ' · ' + (history.status || 'none') + ' · ' + Number(history.total || 0) + ' event(s)') + '</span><b>history proof</b><span>' + esc(history.proof || 'history proof missing') + '</span><b>history relation</b><span>operator wake history is shown separately from the current served status</span>' + wakeActionRows + '</div>' + evidence + historyRows;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(wake.done ? 'medium' : 'light');
 }
 function openSenseSheet(env, senseId){
@@ -1414,13 +1455,13 @@ function openSenseSheet(env, senseId){
     '<div class="li"><span class="cname">' + esc(rowLabel(row)) + '</span> <span class="cargs">' + esc(row.status) + '</span><div class="cdesc">' + esc(row.evidence) + '</div></div>'
   ).join('') : '<div class="nar">' + esc(sense.proof || 'no rows currently prove this sense; the map keeps this as an explicit gap.') + '</div>';
   $('sheetBody').innerHTML = '<div class="arc">sense · ' + esc(sense.id) + '</div><h2>' + esc(sense.title) + '</h2>' +
-    '<div class="nar">' + esc(sense.detail) + '</div><div class="kv"><b>source</b><span>' + esc(sense.source || 'missing') + '</span><b>proof</b><span>' + esc(sense.proof || sense.detail) + '</span></div>' + body;
+    '<div class="nar">' + esc(sense.detail) + '</div><div class="kv"><b>source</b><span>' + esc(sense.source || 'missing') + '</span><b>ecosystem target</b><span>' + esc(sense.target || senseEcosystemTarget(sense.id)) + '</span><b>proof</b><span>' + esc(sense.proof || sense.detail) + '</span></div>' + body;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function openLaneSheet(env, laneId){
   const lane = laneCards(env).find(card => card.id === laneId) || laneCards(env)[0];
   $('sheetBody').innerHTML = '<div class="arc">lane · ' + esc(lane.id) + '</div><h2>' + esc(lane.title) + '</h2>' +
-    '<div class="nar">' + esc(lane.detail) + '</div>';
+    '<div class="nar">' + esc(lane.detail) + '</div><div class="kv"><b>source</b><span>' + esc(lane.source || 'missing') + '</span><b>world.log</b><span>' + esc(lane.worldLog || 'missing') + '</span><b>count</b><span>' + Number(lane.count || 0) + '</span><b>ratio</b><span>' + Math.round(Number(lane.ratio || 0) * 100) + '%</span><b>sample size</b><span>' + Number(lane.sampleSize || 0) + '</span><b>stance contribution</b><span>' + esc(lane.stanceContribution || 'no stance contribution') + '</span><b>recommendation</b><span>' + esc(lane.recommendation || 'no recommendation') + '</span></div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane.on ? 'medium' : 'light');
 }
 function openStanceBox(env){
@@ -1527,8 +1568,14 @@ function openInsightBox(env, index){
   const evidence = servedEvidence.length
     ? '<div class="kv">' + servedEvidence.slice(0, 4).map((item, i) => '<b>evidence ' + (i + 1) + '</b><span>' + esc((item.label || 'row') + ' · ' + (item.status || 'served') + ' · ' + (item.detail || '')) + '</span>').join('') + '</div>'
     : '';
+  const rowSource = box.source && box.source !== box.insightSource
+    ? '<b>row source</b><span>' + esc(box.source) + '</span>'
+    : '';
+  const missingSource = box.state === 'ready'
+    ? ''
+    : '<b>missing insight source</b><span>' + esc(box.missingSource || box.insightSource || box.source || 'missing') + '</span>';
   $('sheetBody').innerHTML = '<div class="arc">evidence box · ' + esc(box.state) + '</div><h2>' + esc(box.title) + '</h2>' +
-    '<div class="nar">' + esc(box.detail) + '</div><div class="kv"><b>source</b><span>' + esc(box.source || 'missing') + '</span><b>proof</b><span>' + esc(box.proof || box.detail) + '</span></div>' + evidence;
+    '<div class="nar">' + esc(box.detail) + '</div><div class="kv"><b>source</b><span>' + esc(box.insightSource || box.source || 'missing') + '</span>' + rowSource + '<b>origin</b><span>' + esc(box.origin || 'unknown') + '</span><b>proof</b><span>' + esc(box.proof || box.detail) + '</span>' + missingSource + '</div>' + evidence;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(box.state === 'ready' ? 'medium' : 'light');
 }
 function openSkillBox(env, index){
