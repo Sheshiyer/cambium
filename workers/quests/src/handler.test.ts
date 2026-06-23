@@ -878,7 +878,7 @@ test('mini app surface contract · exports current scene ids', () => {
 });
 
 test('mini app surface contract · maps ecosystem targets', () => {
-  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'operator-policy', 'cortex', 'r3f', 'github', 'vault-via-paperclip', 'live-proof']) {
+  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'vault-via-paperclip', 'live-proof']) {
     assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(target as never), `target ${target} is inventoried`);
   }
 });
@@ -929,7 +929,23 @@ test('mini app surface contract · records section interaction semantics', () =>
     source: 'paperclipCommandsData plus curios.self command reference/action surface',
   });
   assert.deepEqual(byId['founder-gate']?.interactions, { primary: 'signed-action' });
-  assert.deepEqual(byId['story-feed']?.interactions, { primary: 'read-only' });
+  assert.deepEqual(byId['story-feed'], {
+    id: 'story-feed',
+    scene: 'story',
+    target: 'operator-narrative',
+    interactions: {
+      primary: 'sheet',
+      secondary: ['read-only'],
+      controls: [
+        { id: 'heartbeat-story-beat', interaction: 'sheet', source: 'world.log', target: 'quine' },
+        { id: 'paperclip-story-beat', interaction: 'sheet', source: 'paperclipActivityBeats', target: 'paperclip' },
+        { id: 'forge-story-beat', interaction: 'sheet', source: 'deviations', target: 'operator-skills' },
+        { id: 'noesis-story-beat', interaction: 'sheet', source: 'operator-narrative', target: 'operator-narrative' },
+        { id: 'quest-story-fallback', interaction: 'sheet', source: 'quest-ledger', target: 'quest-ledger' },
+      ],
+    },
+    source: 'served beats or complete quest rows',
+  });
 });
 
 test('mini app surface contract · records map subsection interaction semantics', () => {
@@ -958,7 +974,7 @@ test('page audit helper · detects inert pseudo-button cards', () => {
   assertNoInertPseudoButtons([
     '<div class="cmd" data-interaction-kind="read-only" data-source="curios.self-chat-command"></div>',
     '<button class="rail hot" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-rail="handoff"></button>',
-    '<div class="beat noesis" data-interaction-kind="read-only" data-source="operator-narrative" data-beat="0"></div>',
+    '<div class="beat noesis" data-interaction-kind="sheet" data-source="operator-narrative" data-beat="0"></div>',
   ].join(''));
   assert.throws(
     () => assertNoInertPseudoButtons('<div class="cmd"></div><div class="rail"></div><div class="beat"></div>'),
@@ -984,10 +1000,82 @@ test('page audit helper · real rendered pseudo-button rows declare interaction 
 
   assertNoInertPseudoButtons(html);
   assert.match(html, /class="rail [^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
-  assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="operator-narrative")/);
+  assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="quest-ledger")/);
   assert.match(html, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="paperclipCommandsData")/);
   assert.match(html, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")(?=[^>]*data-source="curios\.self-chat-command")/);
   assert.match(html, /class="cmd ref"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="curios\.self-command-reference")/);
+});
+
+test('page · story beats are clickable sheets with ecosystem provenance', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      { text: 'Heartbeat swept the board', lane: 'heartbeat', source: 'world.log', noesis: false },
+      { text: 'Paperclip carried THO-9', lane: 'paperclip', source: 'paperclipActivityBeats', noesis: false },
+      { text: 'Forge skill telemetry changed', lane: 'forge', source: 'skill-registry', noesis: false },
+      { text: 'The mid-brain woke', lane: 'noesis', source: 'deviations', noesis: true },
+      { text: 'Quest evidence landed', lane: 'quest', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const rows = [...storyHtml.matchAll(/<div class="beat[^"]*"[^>]*>/g)].map((match) => match[0]);
+
+  assert.equal(rows.length, envelope.beats.length);
+  for (const [index, row] of rows.entries()) {
+    assert.match(row, new RegExp(`data-beat="${index}"`));
+    assert.match(row, /data-interaction-kind="sheet"/);
+  }
+  for (const [lane, target] of [
+    ['heartbeat', 'quine'],
+    ['paperclip', 'paperclip'],
+    ['forge', 'operator-skills'],
+    ['noesis', 'operator-narrative'],
+    ['quest', 'quest-ledger'],
+  ]) {
+    assert.match(storyHtml, new RegExp(`data-lane="${lane}"(?=[^>]*data-ecosystem-target="${target}")`));
+  }
+
+  (rendered.context.openStoryBeat as (index: number) => void)(3);
+  const noesisSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(noesisSheet, /story beat · noesis/);
+  assert.match(noesisSheet, /lane<\/b><span>noesis/);
+  assert.match(noesisSheet, /text<\/b><span>The mid-brain woke/);
+  assert.match(noesisSheet, /source<\/b><span>deviations/);
+  assert.match(noesisSheet, /action<\/b><span>read-only story row; no execution action/);
+  assert.doesNotMatch(noesisSheet, /data-kind="approve"|data-kind="reroll"|data-promote-skill|data-queue-side-quest/);
+
+  (rendered.context.openStoryBeat as (index: number) => void)(1);
+  const paperclipSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(paperclipSheet, /source<\/b><span>paperclipActivityBeats/);
+  assert.match(paperclipSheet, /vault write<\/b><span>no direct vault write/);
+  assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
+});
+
+test('page · empty story names complete quest fallback source', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    beats: [],
+    ledger: {
+      completed: 0,
+      total: 1,
+      current: null,
+      rows: [{ arc: 'I', id: 'q1', title: 'Wait for evidence', status: 'active', evidence: 'not complete yet' }],
+    },
+  });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /Story waiting for complete quest rows/);
+  assert.match(storyHtml, /falls back to complete quest rows from quest-ledger/);
+  assert.match(storyHtml, /data-source="quest-ledger"/);
+  assert.doesNotMatch(storyHtml, /class="beat/);
 });
 
 test('page audit helper · mini app shell does not expose secret markers', () => {
@@ -1377,7 +1465,7 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   assert.match(storyHtml, /reduced motion story beat remains visible/);
-  assert.match(storyHtml, /data-interaction-kind="read-only"/);
+  assert.match(storyHtml, /data-interaction-kind="sheet"/);
 
   const mapHtml = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(mapHtml, /data-signed-action-entrypoint="queue-side-quest"/);

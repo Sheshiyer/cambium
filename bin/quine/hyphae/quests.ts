@@ -12,6 +12,7 @@ import { questLedger } from '../../operator/quests/quests.ts';
 import type { QuestInputs, QuestLedger, QuestLedgerRow } from '../../operator/quests/quests.ts';
 import { renderQuestLog } from '../../operator/quests/panel.ts';
 import { narrate } from '../../operator/narrative/narrative.ts';
+import type { StoryBeat } from '../../operator/narrative/narrative.ts';
 import { parseWorldLogLine } from '../../operator/skills/forge.ts';
 import type { SkillRecord } from '../../operator/skills/forge.ts';
 import { DECLINE_MIN_USES, DECLINE_RATE, DECLINE_WINDOW, isDeclining, recentRate, successRate } from '../../operator/skills/telemetry.ts';
@@ -29,6 +30,22 @@ const tenantOf = (args: string[]): string => flag(args, '--tenant', process.env.
 const readJson = (path: string): any | undefined => {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return undefined; }
 };
+
+export type EnvelopeStoryBeat = Omit<StoryBeat, 'source'> & { source: string };
+
+function normalizeStoryBeatSource(source: unknown, fallback: string): string {
+  if (source === 'world-log') return 'world.log';
+  if (source === 'paperclip') return 'paperclipActivityBeats';
+  if (typeof source === 'string' && source.trim()) return source;
+  return fallback;
+}
+
+export function storyBeatsWithSources(beats: Array<Partial<StoryBeat> & Record<string, unknown>>, fallback = 'operator-narrative'): EnvelopeStoryBeat[] {
+  return beats.map((beat) => ({
+    ...beat,
+    source: normalizeStoryBeatSource(beat.source, fallback),
+  } as EnvelopeStoryBeat));
+}
 
 type WakeStatus = 'proved' | 'missing';
 type StanceStatus = 'ready' | 'insufficient';
@@ -2734,9 +2751,9 @@ async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promis
   for (const p of [join(ctx.root, 'cortex', tenant, 'deviations.jsonl'), join(ctx.root, 'deviations.jsonl')]) {
     try { devLines.push(...readFileSync(p, 'utf8').split('\n')); } catch { /* absent */ }
   }
-  const beats = narrate(inputs.world?.log ?? [], devLines, 40);
+  const beats = storyBeatsWithSources(narrate(inputs.world?.log ?? [], devLines, 40));
   let openItems: PaperclipOpenItem[] = [];
-  try { beats.push(...await paperclipActivityBeats(8)); openItems = await paperclipOpenItems(12); }
+  try { beats.push(...storyBeatsWithSources(await paperclipActivityBeats(8), 'paperclipActivityBeats')); openItems = await paperclipOpenItems(12); }
   catch { /* Paperclip unreachable — story stays local, gate stays empty */ }
   // Read-only command data for the miniapp Commands panel (status/agents/work/handoffs).
   let commands: Record<string, unknown> | null = null;

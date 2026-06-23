@@ -9,7 +9,7 @@ import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
-import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
+import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 
 function playwrightHeadlessShellCandidates() {
   const cacheDir = join(homedir(), 'Library', 'Caches', 'ms-playwright');
@@ -77,6 +77,7 @@ export function buildViewportProofManifest({
 
 export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   { scene: 'quests', path: 'quests-line-mobile.png', intent: 'layout-proof', sceneIndex: 0, scrollSelector: '#progress' },
+  { scene: 'story', fixture: 'fresh', path: 'story-feed-mobile.png', intent: 'layout-proof', sceneIndex: 2, scrollSelector: '#beats', waitFor: "document.querySelector('[data-beat=\"0\"]')" },
   { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')", clickabilityTargetCount: 14 },
   { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
   { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
@@ -319,7 +320,9 @@ async function withServer(fn) {
           ? skillFixture
           : fixture === 'mira'
             ? miraFixture
-          : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
+            : fixture === 'fresh'
+              ? FRESH_ECOSYSTEM_VISUAL_FIXTURE
+              : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
       res.end(proofPage);
       return;
@@ -723,6 +726,7 @@ writeFileSync(join(outDir, 'no-fake-progress-fixture.json'), JSON.stringify(NO_F
 writeFileSync(join(outDir, 'gate-fixture.json'), JSON.stringify(gateFixture, null, 2) + '\n');
 writeFileSync(join(outDir, 'skill-promotion-fixture.json'), JSON.stringify(skillFixture, null, 2) + '\n');
 writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(miraFixture, null, 2) + '\n');
+writeFileSync(join(outDir, 'fresh-ecosystem-fixture.json'), JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE, null, 2) + '\n');
 
 const proofs = [];
 await withServer(async (base) => {

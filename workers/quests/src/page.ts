@@ -215,7 +215,8 @@ export const PAGE = `<!doctype html>
     background:linear-gradient(rgba(224,255,79,.32),var(--line));opacity:.55}
   .beat{position:relative;padding:12px 14px 12px 44px;border:1px solid var(--line);border-radius:13px;
     background:rgba(1,47,52,.38);opacity:0;transform:translateY(10px);font-size:13.5px;line-height:1.5;
-    animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*38ms)}
+    animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*38ms);cursor:pointer}
+  .beat:active{transform:scale(.985)}
   .beat .ico{position:absolute;left:12px;top:11px;width:21px;height:21px;display:grid;place-items:center;
     border-radius:7px;background:var(--bg2);border:1px solid var(--line)}
   .beat .ico svg{width:12px;height:12px;stroke:var(--soft);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
@@ -1779,18 +1780,57 @@ const LANE_ICON = {
   quest:     '<svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 6.5-7"/></svg>',
   beat:      '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.6"/></svg>'
 };
+let STORY_BEATS = [];
+function storyBeatTarget(lane){
+  if (lane === 'heartbeat') return 'quine';
+  if (lane === 'paperclip') return 'paperclip';
+  if (lane === 'forge') return 'operator-skills';
+  if (lane === 'noesis') return 'operator-narrative';
+  if (lane === 'quest') return 'quest-ledger';
+  return 'operator-narrative';
+}
+function storyBeatSource(beat, lane){
+  if (beat && beat.source) return beat.source;
+  if (lane === 'paperclip') return 'paperclipActivityBeats';
+  if (lane === 'quest') return 'quest-ledger';
+  if (lane === 'heartbeat') return 'world.log';
+  return 'operator-narrative';
+}
+function openStoryBeat(index){
+  const beat = STORY_BEATS[index] || STORY_BEATS[0];
+  if (!beat) return;
+  const lane = beat.lane || (beat.noesis ? 'noesis' : 'beat');
+  const source = storyBeatSource(beat, lane);
+  const target = storyBeatTarget(lane);
+  const paperclipRows = lane === 'paperclip'
+    ? '<b>vault write</b><span>no direct vault write; Paperclip activity is read-only in this sheet</span>'
+    : '';
+  $('sheetBody').innerHTML = '<div class="arc">story beat · ' + esc(lane) + '</div><h2>Story Beat</h2>' +
+    '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
+    '<div class="kv"><b>lane</b><span>' + esc(lane) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>action</b><span>read-only story row; no execution action</span>' + paperclipRows + '</div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' || lane === 'paperclip' ? 'medium' : 'light');
+}
 function renderStory(env){
-  const beats = env.beats && env.beats.length ? env.beats :
-    env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false }));
+  const served = env.beats && env.beats.length;
+  const beats = served ? env.beats :
+    env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
+  STORY_BEATS = beats;
+  if (!beats.length) {
+    $('beats').innerHTML = '<div class="state" data-interaction-kind="read-only" data-source="quest-ledger" data-ecosystem-target="quest-ledger"><b>Story waiting for complete quest rows</b><p>Story falls back to complete quest rows from quest-ledger when narrative beats are not served.</p></div>';
+    return;
+  }
   $('beats').innerHTML = beats.map((b, i) => {
     const lane = b.lane || 'beat';
     const ico = LANE_ICON[lane] || (b.noesis ? LANE_ICON.noesis : LANE_ICON.beat);
-    return '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i, 20) + '" data-interaction-kind="read-only" data-source="operator-narrative" data-beat="' + i + '" data-lane="' + esc(lane) + '">' +
+    const source = storyBeatSource(b, lane);
+    const target = storyBeatTarget(lane);
+    return '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i, 20) + '" data-interaction-kind="sheet" data-source="' + esc(source) + '" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-ecosystem-target="' + esc(target) + '">' +
       '<span class="ico">' + ico + '</span>' +
       '<span class="lane">' + esc(lane) + '</span>' +
       (b.noesis ? '<b>◆ noesis · </b>' : '') + esc(b.text) +
     '</div>';
   }).join('');
+  $('beats').querySelectorAll('.beat').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.beat));
 }
 
 /* ── freshness ── */

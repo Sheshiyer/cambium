@@ -7,7 +7,10 @@ export const MINI_APP_ECOSYSTEM_TARGETS = [
   'paperclip',
   'cambium-worker',
   'quine',
+  'quest-ledger',
   'operator-policy',
+  'operator-skills',
+  'operator-narrative',
   'cortex',
   'r3f',
   'github',
@@ -57,6 +60,7 @@ export type MiniAppInteractionControl = {
   id: string;
   interaction: MiniAppInteractionKind;
   source: string;
+  target?: MiniAppEcosystemTarget;
 };
 
 export type MiniAppInteractionProfile = {
@@ -83,7 +87,23 @@ export type MiniAppMapSubsection = {
 export const MINI_APP_SECTIONS: readonly MiniAppSurfaceSection[] = [
   { id: 'quest-line', scene: 'quests', target: 'quine', interactions: { primary: 'sheet' }, source: 'quest-ledger-envelope@v1' },
   { id: 'operator-map', scene: 'map', target: 'r3f', interactions: { primary: 'sheet' }, source: 'shared/cambium-visual-contract.ts' },
-  { id: 'story-feed', scene: 'story', target: 'paperclip', interactions: { primary: 'read-only' }, source: 'served beats or completed quest rows' },
+  {
+    id: 'story-feed',
+    scene: 'story',
+    target: 'operator-narrative',
+    interactions: {
+      primary: 'sheet',
+      secondary: ['read-only'],
+      controls: [
+        { id: 'heartbeat-story-beat', interaction: 'sheet', source: 'world.log', target: 'quine' },
+        { id: 'paperclip-story-beat', interaction: 'sheet', source: 'paperclipActivityBeats', target: 'paperclip' },
+        { id: 'forge-story-beat', interaction: 'sheet', source: 'deviations', target: 'operator-skills' },
+        { id: 'noesis-story-beat', interaction: 'sheet', source: 'operator-narrative', target: 'operator-narrative' },
+        { id: 'quest-story-fallback', interaction: 'sheet', source: 'quest-ledger', target: 'quest-ledger' },
+      ],
+    },
+    source: 'served beats or complete quest rows',
+  },
   { id: 'founder-gate', scene: 'gate', target: 'telegram', interactions: { primary: 'signed-action' }, source: 'telegram initData plus Worker gate queue' },
   {
     id: 'command-center',

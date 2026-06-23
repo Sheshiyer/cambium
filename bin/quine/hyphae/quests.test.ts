@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 import { questLedger } from '../../operator/quests/quests.ts';
-import { applySideQuestQueueDecisions, buildVisualEnvelope, gatherQuestInputs } from './quests.ts';
+import { applySideQuestQueueDecisions, buildVisualEnvelope, gatherQuestInputs, storyBeatsWithSources } from './quests.ts';
 import { auditPrioritySource, capturePrioritySource, prioritySourceTemplate, refreshPrioritySignals } from './priority-signals.ts';
 import type { QuineCtx } from '../types.ts';
 
@@ -106,6 +106,19 @@ test('quests priority-source captures explicit operator source and refreshes pol
   assert.equal(signals.founderPreference.targetId, 'THO-10');
   assert.equal(signals.ownerLoad.openItems, 2);
   assert.equal(signals.economicRisk.currency, 'USD');
+});
+
+test('quests story envelope beats carry normalized source fields', () => {
+  const beats = storyBeatsWithSources([
+    { n: 1, text: 'world log heartbeat', lane: 'heartbeat', noesis: false, source: 'world-log', raw: '#1 heartbeat' },
+    { n: null, text: 'deviation noesis', lane: 'noesis', noesis: true, source: 'deviations', raw: '{"kind":"probe"}' },
+    { n: null, text: 'Paperclip carried THO-9', lane: 'paperclip', noesis: false, source: 'paperclip', raw: 'THO-9 blocked' },
+  ]);
+
+  assert.deepEqual(beats.map((beat) => beat.source), ['world.log', 'deviations', 'paperclipActivityBeats']);
+  assert.equal(beats[0].lane, 'heartbeat');
+  assert.equal(beats[1].noesis, true);
+  assert.equal(beats[2].lane, 'paperclip');
 });
 
 test('quests priority-audit reports missing source without writing policy authority', () => {

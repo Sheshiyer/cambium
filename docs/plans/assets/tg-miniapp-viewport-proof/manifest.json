@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T10:35:10.134Z",
+  "generatedAt": "2026-06-23T10:52:08.133Z",
   "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   "browserMode": "headless-new",
   "browserCandidates": [
@@ -14,32 +14,41 @@
     "height": 844
   },
   "proofIntentSummary": {
-    "layout-proof": 10,
+    "layout-proof": 11,
     "clickability-proof": 1
   },
   "proofs": [
     {
       "scene": "quests",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=quests",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=quests",
       "path": "quests-line-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 813867
+      "bytes": 815358
+    },
+    {
+      "scene": "story",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=story&fixture=fresh",
+      "path": "story-feed-mobile.png",
+      "intent": "layout-proof",
+      "width": 780,
+      "height": 1688,
+      "bytes": 650541
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map",
       "path": "map-tapestry-audit-mobile.png",
       "intent": "layout-proof",
       "clickabilityTargetCount": 14,
       "width": 780,
       "height": 1688,
-      "bytes": 946362
+      "bytes": 945924
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map",
       "path": "map-no-fake-progress-mobile.png",
       "intent": "layout-proof",
       "width": 780,
@@ -48,52 +57,52 @@
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map",
       "path": "map-policy-gap-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 906295
+      "bytes": 909798
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map",
       "path": "map-live-proof-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 879352
+      "bytes": 879703
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map&fixture=gate",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map&fixture=gate",
       "path": "map-gate-priority-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 904938
+      "bytes": 904400
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map&fixture=skill",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map&fixture=skill",
       "path": "map-skill-promotion-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 881442
+      "bytes": 880883
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map&fixture=skill",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map&fixture=skill",
       "path": "sheet-skill-promotion-mobile.png",
       "intent": "clickability-proof",
       "width": 3120,
       "height": 1140,
-      "bytes": 202931
+      "bytes": 204396
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map&fixture=mira",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map&fixture=mira",
       "path": "map-mira-relationship-mobile.png",
       "intent": "layout-proof",
       "width": 780,
@@ -102,21 +111,21 @@
     },
     {
       "scene": "map",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=map&fixture=mira",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=map&fixture=mira",
       "path": "map-companions-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 844467
+      "bytes": 844186
     },
     {
       "scene": "gate",
-      "url": "http://127.0.0.1:54604/?tenant=cambium&scene=gate",
+      "url": "http://127.0.0.1:61269/?tenant=cambium&scene=gate",
       "path": "gate-consequence-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 685805
+      "bytes": 685099
     }
   ],
   "invariant": "Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions."
