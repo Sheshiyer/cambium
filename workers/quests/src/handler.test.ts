@@ -590,6 +590,50 @@ test('push then get · rejects unsafe nonstandard evidence fields', async () => 
   assert.doesNotMatch(get.body, /follower|viral/i);
 });
 
+test('push then get · strips arbitrary unsafe social metadata fields', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const envelope = JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'coordination-evidence@v1',
+      status: 'ready',
+      scope: 'tenant-handoff-only',
+      title: 'LEADERBOARD RANK',
+      rows: [
+        {
+          id: 'handoff-queue',
+          title: 'HANDOFF QUEUE',
+          state: 'ready',
+          detail: '1 open tenant handoff awaiting founder review',
+          proof: 'THO-9: blocked owner served',
+          source: 'paperclip-open-items',
+          scope: 'tenant-handoff-only',
+          metadata: 'viral follower count',
+          evidence: [{ label: 'THO-9', status: 'blocked', detail: 'Review launch copy' }],
+        },
+      ],
+    },
+  });
+
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: envelope, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'ready');
+  assert.equal(stored.social.title, undefined);
+  assert.equal(stored.social.rows[0].metadata, undefined);
+  assert.equal(stored.social.rows[0].source, 'coordination-evidence@v1');
+  assert.doesNotMatch(get.body, /leaderboard|rank|follower|viral/i);
+});
+
 test('push · accepts stale partial visual envelopes without inventing missing sections', async () => {
   const kv = fakeKv();
   const deps = { kv, pushToken: 't' };

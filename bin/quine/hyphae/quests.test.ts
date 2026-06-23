@@ -645,7 +645,10 @@ test('quests visual envelope deduplicates Mira cortex rows and isolates NPC tena
     evidence: 'operator note references Mira safely',
     createdAt: '2026-06-22T00:01:00.000Z',
   };
-  writeFileSync(join(ctx.root, '.operator', 'acme.npc-events.jsonl'), `${JSON.stringify(duplicateEvent)}\n${JSON.stringify(duplicateEvent)}\n`);
+  writeFileSync(join(ctx.root, '.operator', 'acme.npc-events.jsonl'), [
+    duplicateEvent,
+    { ...duplicateEvent, id: 'acme:mira:note:duplicate-2', createdAt: '2026-06-22T00:02:00.000Z' },
+  ].map((event) => JSON.stringify(event)).join('\n') + '\n');
   writeFileSync(join(ctx.root, '.operator', 'beta.npc-events.jsonl'), JSON.stringify({
     schema: 'cambium.npc-event.v1',
     id: 'beta:mira:note:1',

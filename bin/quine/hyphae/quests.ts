@@ -1318,6 +1318,19 @@ function rejectNpcOverclaim(...values: string[]): string | undefined {
   return hit ? `npc event rejected: relationship overclaiming language is not allowed (${hit.match(NPC_OVERCLAIM_RE)?.[0]})` : undefined;
 }
 
+function npcEventSignature(row: NpcEventRecord): string {
+  return JSON.stringify({
+    tenant: row.tenant,
+    npcId: row.npcId,
+    kind: row.kind,
+    source: row.source,
+    detail: row.detail,
+    evidence: row.evidence,
+    contradicts: row.contradicts ?? '',
+    advice: row.advice ?? null,
+  });
+}
+
 function readNpcEvents(ctx: QuineCtx, tenant: string): NpcEventRecord[] {
   let text = '';
   try { text = readFileSync(npcEventsPath(ctx, tenant), 'utf8'); } catch { return []; }
@@ -1339,7 +1352,9 @@ function readNpcEvents(ctx: QuineCtx, tenant: string): NpcEventRecord[] {
         typeof event.evidence === 'string' &&
         typeof event.createdAt === 'string';
     })
-    .filter((row, index, rows) => rows.findIndex((candidate) => candidate.id === row.id) === index)
+    .filter((row, index, rows) => rows.findIndex((candidate) =>
+      candidate.id === row.id || npcEventSignature(candidate) === npcEventSignature(row),
+    ) === index)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
 }
 

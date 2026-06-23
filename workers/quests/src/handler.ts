@@ -205,6 +205,13 @@ function sanitizedEvidence(value: unknown): Array<Record<string, string>> {
     }));
 }
 
+function socialText(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.map(socialText).join(' ');
+  if (!value || typeof value !== 'object') return '';
+  return Object.values(value as Record<string, unknown>).map(socialText).join(' ');
+}
+
 function socialRowText(row: Record<string, unknown>): string {
   const evidence = Array.isArray(row.evidence) ? row.evidence : [];
   return [
@@ -224,22 +231,23 @@ function sanitizeQuestEnvelope(envelope: any): any {
   const social = envelope?.social;
   if (!social || typeof social !== 'object' || Array.isArray(social)) return envelope;
   const rows = Array.isArray(social.rows) ? social.rows : [];
-  const socialMetadataText = [
-    social.source,
-    social.scope,
-    social.status,
-    social.gap,
-  ].filter((item) => typeof item === 'string').join(' ');
   const safeRows = rows.filter((row) =>
     row && typeof row === 'object' && !Array.isArray(row) && !SOCIAL_OVERCLAIM_RE.test(socialRowText(row as Record<string, unknown>)),
-  ).map((row) => ({
-    ...row,
-    source: 'coordination-evidence@v1',
-    scope: 'tenant-handoff-only',
-    gap: row.gap && !SOCIAL_OVERCLAIM_RE.test(String(row.gap)) ? row.gap : undefined,
-    evidence: sanitizedEvidence(row.evidence),
-  }));
-  const metadataRejected = SOCIAL_OVERCLAIM_RE.test(socialMetadataText);
+  ).map((row) => {
+    const item = row as Record<string, unknown>;
+    return {
+      id: String(item.id ?? 'coordination-row').slice(0, 120),
+      title: String(item.title ?? item.id ?? 'coordination').slice(0, 160),
+      state: item.state === 'ready' ? 'ready' : 'wait',
+      detail: String(item.detail ?? item.gap ?? 'coordination evidence missing').slice(0, 300),
+      proof: String(item.proof ?? item.gap ?? 'proof missing from coordination row').slice(0, 300),
+      source: 'coordination-evidence@v1',
+      scope: 'tenant-handoff-only',
+      gap: item.gap && !SOCIAL_OVERCLAIM_RE.test(String(item.gap)) ? String(item.gap).slice(0, 300) : undefined,
+      evidence: sanitizedEvidence(item.evidence),
+    };
+  });
+  const metadataRejected = SOCIAL_OVERCLAIM_RE.test(socialText(social));
   const rowMetadataRejected = rows.some((row) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
     const item = row as Record<string, unknown>;
@@ -251,7 +259,6 @@ function sanitizeQuestEnvelope(envelope: any): any {
   return {
     ...envelope,
     social: {
-      ...social,
       source: 'coordination-evidence@v1',
       scope: 'tenant-handoff-only',
       status: safeRows.some((row: any) => row.state === 'ready') ? 'ready' : 'gap',
