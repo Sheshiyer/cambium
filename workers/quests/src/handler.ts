@@ -187,6 +187,8 @@ function socialRowText(row: Record<string, unknown>): string {
     row.detail,
     row.proof,
     row.gap,
+    row.source,
+    row.scope,
     ...evidence.flatMap((item) => {
       if (!item || typeof item !== 'object') return [];
       const ev = item as Record<string, unknown>;
@@ -198,14 +200,23 @@ function socialRowText(row: Record<string, unknown>): string {
 function sanitizeQuestEnvelope(envelope: any): any {
   const rows = envelope?.social?.rows;
   if (!Array.isArray(rows)) return envelope;
+  const socialMetadataText = [
+    envelope.social.source,
+    envelope.social.scope,
+    envelope.social.status,
+    envelope.social.gap,
+  ].filter((item) => typeof item === 'string').join(' ');
   const safeRows = rows.filter((row) =>
     row && typeof row === 'object' && !Array.isArray(row) && !SOCIAL_OVERCLAIM_RE.test(socialRowText(row as Record<string, unknown>)),
   );
-  if (safeRows.length === rows.length) return envelope;
+  const metadataRejected = SOCIAL_OVERCLAIM_RE.test(socialMetadataText);
+  if (safeRows.length === rows.length && !metadataRejected) return envelope;
   return {
     ...envelope,
     social: {
       ...envelope.social,
+      source: 'coordination-evidence@v1',
+      scope: 'tenant-handoff-only',
       status: safeRows.some((row: any) => row.state === 'ready') ? 'ready' : 'gap',
       rows: safeRows.length ? safeRows : [{
         id: 'social-gap',

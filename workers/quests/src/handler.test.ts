@@ -360,7 +360,7 @@ test('push then get · redacts generic social proof from public quest JSON', asy
     tenant: 'cambium',
     ledger: { rows: [], completed: 0, total: 0, current: null },
     social: {
-      source: 'coordination-evidence@v1',
+      source: 'social-proof',
       status: 'ready',
       scope: 'tenant-handoff-only',
       rows: [
@@ -384,6 +384,16 @@ test('push then get · redacts generic social proof from public quest JSON', asy
           scope: 'tenant-handoff-only',
           evidence: [],
         },
+        {
+          id: 'metadata-only',
+          title: 'COORDINATION CLAIM',
+          state: 'ready',
+          detail: 'tenant handoff row with unsafe metadata only',
+          proof: 'explicit handoff proof',
+          source: 'social-proof',
+          scope: 'social-proof',
+          evidence: [],
+        },
       ],
     },
   });
@@ -396,6 +406,8 @@ test('push then get · redacts generic social proof from public quest JSON', asy
   assert.equal(get.status, 200);
   const stored = JSON.parse(get.body);
   assert.equal(stored.social.status, 'gap');
+  assert.equal(stored.social.source, 'coordination-evidence@v1');
+  assert.equal(stored.social.scope, 'tenant-handoff-only');
   assert.equal(stored.social.rows[0].id, 'social-gap');
   assert.match(stored.social.rows[0].detail, /not tenant handoff evidence/);
   assert.match(stored.social.rows[0].proof, /explicit bridge, handoff, or founder gate sources/);
