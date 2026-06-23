@@ -100,6 +100,18 @@
       "approvalStatus": "docs-only",
       "sizePolicy": "docs-reference-image",
       "notes": "Evidence for visual acceptance and comparison, not runtime data."
+    },
+    {
+      "id": "tg-miniapp-viewport-proof-screenshots",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/tg-miniapp-viewport-proof/*.png"
+      ],
+      "source": "Synthetic TG mini app viewport proof screenshots generated from local Worker PAGE fixtures",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Viewport evidence for layout and clickability proof; no raw credentials, user ids, or Telegram initData."
     }
   ]
 }

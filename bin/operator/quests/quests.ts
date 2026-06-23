@@ -5,10 +5,12 @@
 // stored quest tracker to drift; this module is a pure fold (inputs → ledger), mirroring
 // octalysisLedger (../onboarding/octalysis.ts). All I/O lives in the quine hypha.
 //
-// M5 Phase Q adds MultiCA-derived evidence: agent activity, issue flow, gate handoffs.
+// M5 Phase Q adds Paperclip-derived evidence: agent activity, issue flow, gate handoffs.
 // M5 Phase Q Bridge extends the line: arcs I–IX are the operator tutorial (founder-level
 // completion inherited by all tenants). Arcs X+ are the real project/delivery phases —
 // each tenant tracks its own journey from brief → garden.
+
+import type { PolicyPrioritySignals } from './operator-policy.ts';
 
 export type QuestStatus = 'complete' | 'active' | 'locked';
 
@@ -28,12 +30,14 @@ export interface QuestInputs {
   cortexCount?: number;     // memory records for this tenant (undefined = cortex unreachable)
   tenants?: string[];       // tenants with a world on disk
   isolationSuite?: boolean; // M3 C4 isolation suite present in the repo
-  /** M5 Phase Q — MultiCA org gateway (real activity, never decoration). */
-  multica?: {
+  /** M5 Phase Q — Paperclip org plane (real activity, never decoration). */
+  paperclip?: {
     reachable: boolean;
-    agents: number;           // agents in the workspace
+    agents: number;           // agents in the Thoughtseed Paperclip company
     issuesDone: number;       // issues completed
-    issuesOpen: number;       // open agent-assigned issues (the gate's worklist)
+    issuesOpen: number;       // open work/handoffs
+    agentErrors?: number;     // dashboard-visible agent error count
+    pendingApprovals?: number;
   };
   /** M5 Phase Q Bridge — founder-level completion (arcs I–IX inherited by all tenants). */
   founder?: {
@@ -55,6 +59,8 @@ export interface QuestInputs {
     lessonsMinted?: number;
     projectArchived?: boolean;
   };
+  /** Explicit policy-facing priority contract. Visual decisionContext rows never substitute for this. */
+  prioritySignals?: PolicyPrioritySignals;
 }
 
 export interface Quest {
@@ -73,6 +79,9 @@ const placeholderFree = (s: string | undefined): boolean => !!s && !s.includes('
 
 const founderCompleted = (i: QuestInputs, id: string): boolean =>
   i.founder?.completedArcs?.includes(id) ?? false;
+
+const liveOrg = (i: QuestInputs): NonNullable<QuestInputs['paperclip']> | undefined =>
+  i.paperclip;
 
 /** The quest line — seventeen arcs.
  *  I–IX : the operator tutorial (founder-level; inherited by all tenants).
@@ -169,34 +178,35 @@ export const QUEST_LINE: Quest[] = [
   },
   {
     id: 'living-org', arc: 'VIII', title: 'The Living Org',
-    narration: 'The org breathes — agents wake, issues flow, the cycle turns (M5).',
-    reveals: 'MultiCA integration — real agent operations',
+    narration: 'The org breathes — Paperclip agents, issues, and Hermes handoffs move.',
+    reveals: 'Paperclip integration — real agent operations',
     doneWhen: (i) => {
-      const m = i.multica;
+      const m = liveOrg(i);
       if (!m || !m.reachable) {
         if (founderCompleted(i, 'living-org')) return { done: true, evidence: 'founder completed on root tenant' };
-        return { done: false, evidence: 'MultiCA gateway unreachable' };
+        return { done: false, evidence: 'Paperclip org unreachable' };
       }
       const done = m.agents >= 1;
       if (!done && founderCompleted(i, 'living-org')) return { done: true, evidence: 'founder completed on root tenant' };
-      const evidence = `${m.agents} agent${m.agents === 1 ? '' : 's'} · ${m.issuesDone} done · ${m.issuesOpen} open`;
+      const errors = 'agentErrors' in m && m.agentErrors ? ` · ${m.agentErrors} error${m.agentErrors === 1 ? '' : 's'}` : '';
+      const evidence = `${m.agents} agent${m.agents === 1 ? '' : 's'} · ${m.issuesDone} done · ${m.issuesOpen} open${errors}`;
       return { done, evidence };
     },
   },
   {
     id: 'the-gate', arc: 'IX', title: 'The Gate',
-    narration: "The founder's hand reaches through — decisions land, the org responds.",
-    reveals: 'founder gate — real approvals drive real state',
+    narration: "The founder's hand reaches through Hermes — decisions land, Paperclip responds.",
+    reveals: 'founder gate — Telegram actions drive real Paperclip state',
     doneWhen: (i) => {
-      const m = i.multica;
+      const m = liveOrg(i);
       if (!m || !m.reachable) {
         if (founderCompleted(i, 'the-gate')) return { done: true, evidence: 'founder completed on root tenant' };
-        return { done: false, evidence: 'MultiCA gateway unreachable' };
+        return { done: false, evidence: 'Paperclip org unreachable' };
       }
       const done = m.issuesDone >= 1;
       if (!done && founderCompleted(i, 'the-gate')) return { done: true, evidence: 'founder completed on root tenant' };
       const evidence = done
-        ? `${m.issuesDone} handoff${m.issuesDone === 1 ? '' : 's'} resolved through the gate`
+        ? `${m.issuesDone} handoff${m.issuesDone === 1 ? '' : 's'} resolved through Hermes/Paperclip`
         : `${m.issuesOpen} item${m.issuesOpen === 1 ? '' : 's'} awaiting first founder decision`;
       return { done, evidence };
     },

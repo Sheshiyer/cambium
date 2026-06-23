@@ -3,7 +3,6 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { homedir } from 'node:os';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const repoRoot = path.resolve(root, '../..');
@@ -11,8 +10,7 @@ const manifestPath = path.join(
   repoRoot,
   'docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-prompts.json',
 );
-const codexImageCli = process.env.CODEX_IMAGE_CLI ||
-  path.join(homedir(), '.agents/skills/codex-gpt-image/scripts/codex_gpt_image.py');
+const codexImageCli = '/Users/sheshnarayaniyer/.agents/skills/codex-gpt-image/scripts/codex_gpt_image.py';
 
 function parseArgs(argv) {
   const args = { _: [] };
@@ -105,9 +103,6 @@ async function generate(args) {
   if (!args.execute) {
     await plan(args);
     throw new Error('Generation is dry-run by default. Re-run with --execute to create source plates.');
-  }
-  if (!existsSync(codexImageCli)) {
-    throw new Error(`CODEX_IMAGE_CLI not found at ${codexImageCli}. Set CODEX_IMAGE_CLI to your image-generation CLI path.`);
   }
   for (const plate of plates) {
     const outputPath = path.join(outputDirectory, plate.output);

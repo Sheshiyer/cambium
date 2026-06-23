@@ -75,106 +75,95 @@ test('gatherProjectSignals counts tenant-scoped reviews when present', async () 
   assert.equal(signals.reviews?.count, 3);
 });
 
-test('gatherProjectSignals reads real git repo evidence when ctx root is a worktree', async () => {
+test('gatherProjectSignals reads cambium repo build activity from git', async () => {
   const fs = await import('node:fs');
   const path = await import('node:path');
   const { execFileSync } = await import('node:child_process');
-  const tmp = fs.mkdtempSync('/tmp/cambium-repo-');
-  execFileSync('git', ['init', '--initial-branch=main'], { cwd: tmp, stdio: 'ignore' });
+  const tmp = fs.mkdtempSync('/tmp/cambium-git-');
+  execFileSync('git', ['init', tmp], { stdio: 'ignore' });
   fs.writeFileSync(path.join(tmp, 'README.md'), 'fixture\n');
-  execFileSync('git', ['-c', 'user.name=Cambium Test', '-c', 'user.email=cambium@example.test', 'add', 'README.md'], { cwd: tmp, stdio: 'ignore' });
-  execFileSync('git', ['-c', 'user.name=Cambium Test', '-c', 'user.email=cambium@example.test', 'commit', '-m', 'fixture'], { cwd: tmp, stdio: 'ignore' });
-
+  execFileSync('git', ['-C', tmp, 'add', 'README.md'], { stdio: 'ignore' });
+  execFileSync('git', ['-C', tmp, '-c', 'user.email=test@example.com', '-c', 'user.name=Test', 'commit', '-m', 'init'], { stdio: 'ignore' });
   const { gatherProjectSignals } = await import('./project-evidence.ts');
-  const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
+  const signals = gatherProjectSignals({ root: tmp } as any, 'cambium');
   assert.equal(signals.repo?.exists, true);
   assert.equal(signals.repo?.commitsOnMain, 1);
 });
 
-test('refreshProjectEvidence creates the operator directory before atomic write', async () => {
+test('gatherProjectSignals reads array-shaped skill forge lessons and gate approvals', async () => {
   const fs = await import('node:fs');
   const path = await import('node:path');
-  const tmp = fs.mkdtempSync('/tmp/cambium-project-');
-  const { refreshProjectEvidence } = await import('./project-evidence.ts');
-  const evidence = refreshProjectEvidence({ root: tmp } as any, 'foo');
-  const written = JSON.parse(fs.readFileSync(path.join(tmp, '.operator', 'foo.project.json'), 'utf8'));
-  assert.equal(evidence.source, 'project-evidence@v1');
-  assert.equal(written.source, 'project-evidence@v1');
-});
-
-test('gatherProjectSignals reads Cloudflare Worker deployment count when credentials are present', async () => {
-  const fs = await import('node:fs');
-  const path = await import('node:path');
-  const tmp = fs.mkdtempSync('/tmp/cambium-cf-');
-  fs.mkdirSync(path.join(tmp, 'workers', 'quests'), { recursive: true });
-  fs.writeFileSync(path.join(tmp, 'workers', 'quests', 'wrangler.jsonc'), '{ "name": "cambium-quests" }\n');
-
-  const bin = path.join(tmp, 'bin');
-  const calls = path.join(tmp, 'curl-args.txt');
-  fs.mkdirSync(bin);
-  fs.writeFileSync(path.join(bin, 'curl'), `#!/bin/sh\nprintf '%s\\n' "$*" > ${calls}\nprintf '%s\\n' '{"result":[{"id":"d1"},{"id":"d2"},{"id":"d3"}]}'\n`);
-  fs.chmodSync(path.join(bin, 'curl'), 0o755);
-
-  const prevPath = process.env.PATH;
-  const prevToken = process.env.CLOUDFLARE_API_TOKEN;
-  const prevAccount = process.env.CLOUDFLARE_ACCOUNT_ID;
-  try {
-    process.env.PATH = `${bin}:${prevPath ?? ''}`;
-    process.env.CLOUDFLARE_API_TOKEN = 'test-token';
-    process.env.CLOUDFLARE_ACCOUNT_ID = 'test-account';
-    const { gatherProjectSignals } = await import('./project-evidence.ts');
-    const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
-    assert.equal(signals.deploys?.count, 3);
-    assert.match(fs.readFileSync(calls, 'utf8'), /workers\/scripts\/cambium-quests\/deployments/);
-  } finally {
-    if (prevPath === undefined) delete process.env.PATH; else process.env.PATH = prevPath;
-    if (prevToken === undefined) delete process.env.CLOUDFLARE_API_TOKEN; else process.env.CLOUDFLARE_API_TOKEN = prevToken;
-    if (prevAccount === undefined) delete process.env.CLOUDFLARE_ACCOUNT_ID; else process.env.CLOUDFLARE_ACCOUNT_ID = prevAccount;
-  }
-});
-
-test('gatherProjectSignals counts queued founder gate approvals from the Worker', async () => {
-  const fs = await import('node:fs');
-  const path = await import('node:path');
-  const tmp = fs.mkdtempSync('/tmp/cambium-gate-');
-
-  const bin = path.join(tmp, 'bin');
-  const calls = path.join(tmp, 'curl-args.txt');
-  fs.mkdirSync(bin);
-  fs.writeFileSync(path.join(bin, 'curl'), `#!/bin/sh\nprintf '%s\\n' "$*" > ${calls}\nprintf '%s\\n' '{"tenant":"foo","actions":[{"kind":"approve","status":"queued"},{"kind":"approve","status":"queued"},{"kind":"reroll","status":"queued"},{"kind":"approve","status":"consumed"}]}'\n`);
-  fs.chmodSync(path.join(bin, 'curl'), 0o755);
-
-  const prevPath = process.env.PATH;
-  const prevToken = process.env.QUESTS_PUSH_TOKEN;
-  const prevUrl = process.env.QUESTS_PUSH_URL;
-  try {
-    process.env.PATH = `${bin}:${prevPath ?? ''}`;
-    process.env.QUESTS_PUSH_TOKEN = 'push-token';
-    process.env.QUESTS_PUSH_URL = 'https://quests.example.test/';
-    const { gatherProjectSignals } = await import('./project-evidence.ts');
-    const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
-    assert.equal(signals.gate?.approvals, 2);
-    assert.match(fs.readFileSync(calls, 'utf8'), /https:\/\/quests\.example\.test\/internal\/gate\/foo/);
-  } finally {
-    if (prevPath === undefined) delete process.env.PATH; else process.env.PATH = prevPath;
-    if (prevToken === undefined) delete process.env.QUESTS_PUSH_TOKEN; else process.env.QUESTS_PUSH_TOKEN = prevToken;
-    if (prevUrl === undefined) delete process.env.QUESTS_PUSH_URL; else process.env.QUESTS_PUSH_URL = prevUrl;
-  }
-});
-
-test('gatherProjectSignals treats an archive receipt as projectArchived evidence', async () => {
-  const fs = await import('node:fs');
-  const path = await import('node:path');
-  const tmp = fs.mkdtempSync('/tmp/cambium-archive-evidence-');
+  const tmp = fs.mkdtempSync('/tmp/cambium-skills-');
   fs.mkdirSync(path.join(tmp, '.operator'), { recursive: true });
-  fs.writeFileSync(path.join(tmp, '.operator', 'foo.skills.json'), JSON.stringify([{ skill_id: 'lesson-one' }]));
-  fs.writeFileSync(path.join(tmp, '.operator', 'foo.skills.archive.json'), JSON.stringify({
-    tenant: 'foo',
-    archives: [{ routineId: 'project-closeout', archived: true, archivedAt: '2026-06-18T00:00:00Z' }],
-  }));
+  fs.writeFileSync(path.join(tmp, '.operator', 'foo.skills.json'), JSON.stringify([
+    { status: 'candidate', telemetry: { scenarios: [] } },
+    { status: 'validated', telemetry: { scenarios: [{ ok: true, note: 'founder approve via gate' }] } },
+    { status: 'production', telemetry: { scenarios: [{ ok: true, note: 'routine verified' }] } },
+  ]));
+  const { gatherProjectSignals } = await import('./project-evidence.ts');
+  const signals = gatherProjectSignals({ root: tmp } as any, 'foo');
+  assert.equal(signals.skills?.lessonsMinted, 2);
+  assert.equal(signals.skills?.archived, false);
+  assert.equal(signals.gate?.approvals, 1);
+});
 
-  const { refreshProjectEvidence } = await import('./project-evidence.ts');
-  const evidence = refreshProjectEvidence({ root: tmp } as any, 'foo');
-  assert.equal(evidence.lessonsMinted, 1);
+test('gatherProjectSignals reads cambium spec, review, and gate proof files', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-proof-');
+  fs.mkdirSync(path.join(tmp, 'cortex', 'cambium', 'contracts'), { recursive: true });
+  fs.mkdirSync(path.join(tmp, 'docs', 'plans', 'assets', 'cambium-r3f-implementation'), { recursive: true });
+  fs.mkdirSync(path.join(tmp, 'docs', 'plans', 'assets', 'cambium-r3f-game-engine-realignment'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'cortex', 'cambium', 'contracts', 'acceptance_checks.json'), '{}\n');
+  fs.writeFileSync(path.join(tmp, 'docs', 'plans', 'assets', 'cambium-r3f-implementation', 'phase1-verification.md'), '# ok\n');
+  fs.writeFileSync(path.join(tmp, 'docs', 'plans', 'assets', 'cambium-r3f-game-engine-realignment', 'art-pass-02-verification.md'), 'After explicit approval, generated assets were reviewed.\n');
+  const { gatherProjectSignals } = await import('./project-evidence.ts');
+  const signals = gatherProjectSignals({ root: tmp } as any, 'cambium');
+  assert.equal(signals.vault?.specFound, true);
+  assert.equal(signals.reviews?.count, 2);
+  assert.equal(signals.gate?.approvals, 1);
+});
+
+test('gatherProjectSignals reads project proofs from ctx.vaultRoot first', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-vaultroot-');
+  const vaultRoot = path.join(tmp, 'thoughtseed-labs');
+  const projectDir = path.join(vaultRoot, '60-client-ecosystem', 'cambium');
+  fs.mkdirSync(path.join(projectDir, 'deploys'), { recursive: true });
+  fs.writeFileSync(path.join(projectDir, 'brief.md'), '# Cambium self-launch brief\n');
+  fs.writeFileSync(path.join(projectDir, 'agreement.md'), '# Founder mandate\n');
+  fs.writeFileSync(path.join(projectDir, 'commitment.json'), '{"status":"committed"}\n');
+  fs.writeFileSync(path.join(projectDir, 'handoff.md'), '# Handoff\n');
+  fs.writeFileSync(path.join(projectDir, 'archive.md'), '# Archive\n');
+  fs.writeFileSync(path.join(projectDir, 'deploys', '2026-06-21-cambium-self-launch.json'), '{"ok":true}\n');
+  fs.mkdirSync(path.join(tmp, '.operator'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '.operator', 'cambium.world.json'), '{}\n');
+
+  const { gatherProjectSignals, assembleProjectEvidence } = await import('./project-evidence.ts');
+  const signals = gatherProjectSignals({ root: tmp, vaultRoot }, 'cambium');
+  const evidence = assembleProjectEvidence(signals);
+
+  assert.equal(evidence.briefStatus, 'accepted');
+  assert.equal(evidence.contractExists, true);
+  assert.equal(evidence.depositReceived, true, 'commitment.json satisfies the self-launch commitment gate');
+  assert.equal(evidence.deployEvents, 1);
+  assert.equal(evidence.clientSignOff, true);
   assert.equal(evidence.projectArchived, true);
+});
+
+test('gatherProjectSignals counts only JSON deploy proof files', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-deploys-');
+  const vaultRoot = path.join(tmp, 'vault');
+  const deployDir = path.join(vaultRoot, '60-client-ecosystem', 'acme', 'deploys');
+  fs.mkdirSync(deployDir, { recursive: true });
+  fs.writeFileSync(path.join(deployDir, '2026-06-21-one.json'), '{}\n');
+  fs.writeFileSync(path.join(deployDir, 'notes.md'), 'not counted\n');
+
+  const { gatherProjectSignals } = await import('./project-evidence.ts');
+  const signals = gatherProjectSignals({ root: tmp, vaultRoot }, 'acme');
+
+  assert.equal(signals.deploys?.count, 1);
 });

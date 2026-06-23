@@ -1,0 +1,31 @@
+{
+  "schema": "cambium.tg-device-proof-template.v1",
+  "generatedAt": "2026-06-22T08:59:38.685Z",
+  "tenant": "cambium",
+  "writesAuthority": false,
+  "instruction": "Copy sourceDocument to telegram-webview.json only after a real Telegram WebView capture. Store hashes only; never paste raw initData, query strings, or tokens.",
+  "sourceDocument": {
+    "schema": "cambium.tg-device-proof.v1",
+    "tenant": "cambium",
+    "capturedAt": "TODO-ISO-8601",
+    "source": "telegram-webview",
+    "telegram": {
+      "userIdHash": "sha256:TODO_SHA256_OF_TELEGRAM_USER_ID",
+      "initDataHash": "sha256:TODO_SHA256_OF_RAW_INITDATA",
+      "initDataAgeSeconds": 0
+    },
+    "webView": {
+      "platform": "TODO-ios-android-desktop",
+      "urlOrigin": "https://curious.thoughtseed.space",
+      "urlPath": "/",
+      "safeArea": "TODO-top-right-bottom-left-or-notes"
+    },
+    "screenshot": {
+      "sha256": "sha256:TODO_SHA256_OF_SCREENSHOT",
+      "path": "docs/plans/assets/tg-miniapp-live-proof/TODO-founder-device.png"
+    },
+    "notes": [
+      "TODO capture Telegram client, device class, and any shell/chrome anomaly without raw initData."
+    ]
+  }
+}

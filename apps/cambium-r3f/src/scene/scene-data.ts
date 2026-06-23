@@ -106,20 +106,19 @@ function cortexNode(selectedNode?: string): SceneNode {
 
 function buildRails(nodes: SceneNode[]): SceneRail[] {
   const ids = new Set(nodes.map((node) => node.id));
-  const rails: Array<Omit<SceneRail, 'lane'>> = [
-    { id: 'genesis-to-taste', from: 'genesis', to: 'taste', packetCount: 3, tone: 'primary' },
-    { id: 'taste-to-build', from: 'taste', to: 'build', packetCount: 4, tone: 'primary' },
-    { id: 'build-to-ops', from: 'build', to: 'ops', packetCount: 3, tone: 'secondary' },
-    { id: 'cortex-to-genesis', from: 'cortex', to: 'genesis', packetCount: 2, tone: 'memory' },
-    { id: 'cortex-to-taste', from: 'cortex', to: 'taste', packetCount: 2, tone: 'memory' },
-    { id: 'cortex-to-build', from: 'cortex', to: 'build', packetCount: 2, tone: 'memory' },
-    { id: 'cortex-to-ops', from: 'cortex', to: 'ops', packetCount: 2, tone: 'memory' },
-  ];
+  const packetCount = (railId: string, lane: SceneRail['lane']): number =>
+    lane === 'background-emitter' ? 2 : railId === 'taste-to-build' ? 4 : 3;
+  const tone = (lane: SceneRail['lane']): SceneRail['tone'] =>
+    lane === 'background-emitter' ? 'memory' : lane === 'runner' ? 'secondary' : 'primary';
 
-  return rails
+  return sourceContract.visual.rails
     .map((rail) => ({
-      ...rail,
-      lane: rail.tone === 'memory' ? 'background-emitter' as const : rail.id === 'build-to-ops' ? 'runner' as const : 'handoff' as const,
+      id: rail.id,
+      from: rail.from,
+      to: rail.to,
+      lane: rail.lane,
+      packetCount: packetCount(rail.id, rail.lane),
+      tone: tone(rail.lane),
     }))
     .filter((rail) => ids.has(rail.from) && ids.has(rail.to));
 }

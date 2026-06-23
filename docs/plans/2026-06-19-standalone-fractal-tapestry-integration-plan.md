@@ -4,18 +4,18 @@ Date: 2026-06-19
 
 ## Goal
 
-Make Cambium a standalone, organization-emulable fractal tapestry: a portable company compiler and operator that can be adopted by founder-led businesses, small marketing teams, and AI-first dev teams without carrying pilot org-specific data, credentials, tenants, URLs, customer artifacts, or private operational assumptions.
+Make Cambium a standalone, organization-emulable fractal tapestry: a portable company compiler and operator that can be adopted by founder-led businesses, small marketing teams, and AI-first dev teams without carrying Thoughtseed-specific data, credentials, tenants, URLs, customer artifacts, or private operational assumptions.
 
 ## Operating Rule
 
-pilot org usage may remain as case-study evidence outside the product core, but the Cambium repository should ship as neutral product infrastructure. Demo fixtures must be synthetic, provider-neutral, and safe to publish.
+Thoughtseed usage may remain as case-study evidence outside the product core, but the Cambium repository should ship as neutral product infrastructure. Demo fixtures must be synthetic, provider-neutral, and safe to publish.
 
 ## 90 Touchpoints
 
 ### Product Boundary
 
-1. Define Cambium as a standalone product in `README.md`, not an internal pilot org system.
-2. Replace repo-wide "pilot-org" nouns with neutral examples unless describing historical evidence.
+1. Define Cambium as a standalone product in `README.md`, not an internal Thoughtseed system.
+2. Replace repo-wide "thoughtseed" nouns with neutral examples unless describing historical evidence.
 3. Separate public product docs from private implementation notes.
 4. Add a `docs/case-studies/` boundary for optional non-core usage narratives.
 5. Add a `docs/private/` ignore rule if private reviews need to live locally.
@@ -28,13 +28,13 @@ pilot org usage may remain as case-study evidence outside the product core, but 
 ### Data Hygiene
 
 11. Add a repository privacy checklist before every release.
-12. Add a `rg`-based leakage check for pilot org, personal emails, Stripe IDs, tokens, and local paths.
+12. Add a `rg`-based leakage check for Thoughtseed, personal emails, Stripe IDs, tokens, and local paths.
 13. Ignore `.codegraph/` as local index state.
 14. Ignore `.readme-gen.json` as generated local state.
 15. Ignore `.DS_Store`.
 16. Ignore `motionsites-export/` because it can contain private account and payment exports.
 17. Move generated screenshots into committed docs only after review.
-18. Remove absolute `/Volumes/.../pilot-org/...` links from committed markdown.
+18. Remove absolute `/Volumes/.../thoughtseed/...` links from committed markdown.
 19. Replace local filesystem links with repo-relative paths.
 20. Add a sample redaction policy for third-party exports.
 
@@ -47,7 +47,7 @@ pilot org usage may remain as case-study evidence outside the product core, but 
 25. Add a "delete org fixture" cleanup command.
 26. Keep tenant state out of source control.
 27. Add tests proving tenant fixtures are synthetic.
-28. Add docs showing multiple orgs without pilot org assumptions.
+28. Add docs showing multiple orgs without Thoughtseed assumptions.
 29. Make founder inheritance optional and configurable.
 30. Document tenant isolation as a product feature.
 
@@ -93,15 +93,15 @@ pilot org usage may remain as case-study evidence outside the product core, but 
 ### Operator and Quest Surface
 
 61. Rename live quest examples to generic organization milestones.
-62. Keep pilot org onboarding as external evidence, not default sample data.
+62. Keep Thoughtseed onboarding as external evidence, not default sample data.
 63. Add generic arcs for brief, build, review, approval, launch, learning, and archive.
 64. Make founder gate an abstract approval lane.
 65. Provide Telegram, web, and CLI approval adapters.
 66. Add tests for no-fake-progress on generic fixture data.
 67. Add a local demo quest ledger.
 68. Add project-evidence docs that do not assume one company workflow.
-69. Add archive ceremony docs for any project, not agent-plane-specific by default.
-70. Keep agent-plane references as adapter examples only.
+69. Add archive ceremony docs for any project, not Paperclip-specific by default.
+70. Keep Paperclip references as adapter examples only.
 
 ### R3F Visual Engine
 
@@ -139,11 +139,11 @@ pilot org usage may remain as case-study evidence outside the product core, but 
 ## Immediate Review Candidates
 
 - `docs/plans/cambium-cortex-renderable-map.md`: useful, but must remove absolute local paths before commit.
-- `docs/plans/cambium-isometric-moodboard.md`: useful, but currently names MultiCA, project-feed, live tenant state, and local paths.
+- `docs/plans/cambium-isometric-moodboard.md`: useful, but currently names MultiCA, TeamForge, live tenant state, and local paths.
 - `docs/plans/cambium-current-visual-review.md`: useful as R3F evidence, but mentions local PAI tooling and local runtime URLs.
 - `docs/cambium-composition-technical-reference.html`: likely publishable after visual/style review and leakage scan.
 - `docs/plans/assets/*`: commit only reviewed screenshots/assets that support standalone docs.
 
 ## Definition of Done
 
-Cambium is standalone-ready when a clean clone can run the core tests, launch a synthetic demo org, render the fractal tapestry, complete a generic quest flow, and explain integrations as optional adapters without requiring pilot org, private exports, live credentials, or company-specific memory.
+Cambium is standalone-ready when a clean clone can run the core tests, launch a synthetic demo org, render the fractal tapestry, complete a generic quest flow, and explain integrations as optional adapters without requiring Thoughtseed, private exports, live credentials, or company-specific memory.
