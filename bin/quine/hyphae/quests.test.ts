@@ -551,6 +551,14 @@ test('quests visual envelope rejects operator insight rows with secret markers',
         proof: 'header value was accidentally copied',
       },
       {
+        id: 'init-data-row',
+        title: 'raw init data evidence',
+        state: 'ready',
+        detail: 'TELEGRAM_INIT_DATA=query_id=aa',
+        proof: 'TG_INIT_DATA=auth_date=123',
+        evidence: [{ label: 'raw', status: 'ready', detail: 'rawInitData copied from WebView' }],
+      },
+      {
         id: 'safe-row',
         title: 'Safe evidence',
         state: 'ready',
@@ -572,7 +580,7 @@ test('quests visual envelope rejects operator insight rows with secret markers',
   assert.equal(visual.insights.source, 'operator-insights@v1');
   assert.equal(visual.insights.rows.length, 1);
   assert.equal(visual.insights.rows[0]?.id, 'safe-row');
-  assert.doesNotMatch(JSON.stringify(visual.insights), /Bearer\b|QUESTS_PUSH_TOKEN=|hash=|auth_date=|query_id=|rawInitData/i);
+  assert.doesNotMatch(JSON.stringify(visual.insights), /Bearer\b|QUESTS_PUSH_TOKEN=|TELEGRAM_INIT_DATA=|TG_INIT_DATA=|hash=|auth_date=|query_id=|rawInitData/i);
 });
 
 test('quests apply-side-quests consumes stale side-quest actions as rejected without ledger writes', async () => {
