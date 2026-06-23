@@ -2432,6 +2432,256 @@ test('page · skill promotion sheet exposes signed founder review queue action',
   }
 });
 
+test('page · skill labor sheet exposes full telemetry and source path', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 1,
+      rows: [{
+        id: 'cambium-founder-review',
+        status: 'validated',
+        uses: 5,
+        successes: 5,
+        failures: 0,
+        successRate: 1,
+        declining: false,
+        tier: 'reliable',
+        tierLabel: 'RELIABLE',
+        sampleSize: 5,
+        minimum: 3,
+        recentRate: 0.8,
+        recentWindow: 5,
+        promotion: {
+          status: 'founder-review',
+          label: 'FOUNDER REVIEW',
+          detail: 'eligible for production review; founder approval required',
+          requiredApproval: true,
+        },
+        updated: 5,
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /status<\/b><span>validated/);
+  assert.match(sheet, /tier<\/b><span>RELIABLE/);
+  assert.match(sheet, /uses<\/b><span>5/);
+  assert.match(sheet, /success rate<\/b><span>100%/);
+  assert.match(sheet, /recent rate<\/b><span>80%/);
+  assert.match(sheet, /sample minimum<\/b><span>5\/3 uses/);
+  assert.match(sheet, /promotion status<\/b><span>founder-review · FOUNDER REVIEW · founder approval required/);
+  assert.match(sheet, /source path<\/b><span>\.operator\/cambium\.skills\.json/);
+});
+
+test('page · missing skill sheet maps gaps to operator store and quine write skills', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'missing',
+      total: 0,
+      rows: [],
+      gap: 'skill registry missing',
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /skill registry missing/);
+  assert.match(sheet, /source path<\/b><span>\.operator\/cambium\.skills\.json/);
+  assert.match(sheet, /registry proof<\/b><span>missing registry proof; source path is a gap target only/);
+  assert.match(sheet, /gap action · \.operator\/cambium\.skills\.json · quine write skills forge --tenant cambium/);
+  assert.doesNotMatch(sheet, /data-promote-skill/);
+});
+
+test('page · skill promotion sheet explains consequence reversibility and founder approval', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 1,
+      rows: [{
+        id: 'cambium-founder-review',
+        status: 'validated',
+        uses: 5,
+        successes: 5,
+        failures: 0,
+        successRate: 1,
+        declining: false,
+        tier: 'reliable',
+        tierLabel: 'RELIABLE',
+        sampleSize: 5,
+        minimum: 3,
+        recentRate: 1,
+        recentWindow: 5,
+        promotion: {
+          status: 'founder-review',
+          label: 'FOUNDER REVIEW',
+          detail: 'eligible for production review; founder approval required',
+          requiredApproval: true,
+        },
+        updated: 5,
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /consequence<\/b><span>founder review may promote cambium-founder-review to production after operator consumption/);
+  assert.match(sheet, /reversibility<\/b><span>queued promotion can be superseded until consumed; skill registry remains unchanged/);
+  assert.match(sheet, /idempotency key<\/b><span>promote-skill:cambium:cambium-founder-review/);
+  assert.match(sheet, /founder approval<\/b><span>required before production; operator consumer re-checks telemetry/);
+  assert.match(sheet, /data-promote-skill="1"/);
+});
+
+test('page · production and declining skill sheets stay read-only', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 2,
+      rows: [
+        {
+          id: 'cambium-production-approved',
+          status: 'production',
+          uses: 8,
+          successes: 8,
+          failures: 0,
+          successRate: 1,
+          declining: false,
+          tier: 'production',
+          tierLabel: 'PRODUCTION',
+          sampleSize: 8,
+          minimum: 3,
+          recentRate: 1,
+          recentWindow: 5,
+          promotion: {
+            status: 'approved',
+            label: 'PRODUCTION',
+            detail: 'founder-approved production skill with healthy telemetry',
+            requiredApproval: false,
+          },
+          updated: 6,
+        },
+        {
+          id: 'cambium-declining-proof',
+          status: 'validated',
+          uses: 4,
+          successes: 1,
+          failures: 3,
+          successRate: 0.25,
+          declining: true,
+          tier: 'declining',
+          tierLabel: 'DECLINING',
+          sampleSize: 4,
+          minimum: 3,
+          recentRate: 0.25,
+          recentWindow: 4,
+          promotion: {
+            status: 'blocked',
+            label: 'NO PROMOTION',
+            detail: 'recent success 25% below 50% over 4 uses',
+            requiredApproval: true,
+          },
+          gap: 'recent success 25% below 50% over 4 uses',
+          updated: 5,
+        },
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const productionSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(productionSheet, /registry proof<\/b><span>\.operator\/cambium\.skills\.json/);
+  assert.match(productionSheet, /read-only · skill registry remains the authority/);
+  assert.doesNotMatch(productionSheet, /data-promote-skill/);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 1);
+  const decliningSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(decliningSheet, /caution · declining skills cannot be promoted from the mini app/);
+  assert.match(decliningSheet, /promotion status<\/b><span>blocked · NO PROMOTION · founder approval required/);
+  assert.doesNotMatch(decliningSheet, /data-promote-skill/);
+});
+
+test('page · contradictory skill promotion markers stay read-only on cards and sheets', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 2,
+      rows: [
+        {
+          id: 'cambium-production-stale-review',
+          status: 'production',
+          uses: 8,
+          successes: 8,
+          failures: 0,
+          successRate: 1,
+          declining: false,
+          tier: 'production',
+          tierLabel: 'PRODUCTION',
+          sampleSize: 8,
+          minimum: 3,
+          recentRate: 1,
+          recentWindow: 5,
+          promotion: {
+            status: 'founder-review',
+            label: 'FOUNDER REVIEW',
+            detail: 'stale review marker should not reopen production action',
+            requiredApproval: true,
+          },
+          updated: 6,
+        },
+        {
+          id: 'cambium-declining-stale-review',
+          status: 'validated',
+          uses: 5,
+          successes: 1,
+          failures: 4,
+          successRate: 0.2,
+          declining: true,
+          tier: 'declining',
+          tierLabel: 'DECLINING',
+          sampleSize: 5,
+          minimum: 3,
+          recentRate: 0.2,
+          recentWindow: 5,
+          promotion: {
+            status: 'founder-review',
+            label: 'FOUNDER REVIEW',
+            detail: 'stale review marker should not override decline',
+            requiredApproval: true,
+          },
+          gap: 'recent success 20% below 50% over 5 uses',
+          updated: 6,
+        },
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+
+  assert.doesNotMatch(map, /data-signed-action-entrypoint="promote-skill"/);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const productionSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(productionSheet, /read-only · skill registry remains the authority/);
+  assert.doesNotMatch(productionSheet, /data-promote-skill/);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 1);
+  const decliningSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(decliningSheet, /caution · declining skills cannot be promoted from the mini app/);
+  assert.doesNotMatch(decliningSheet, /data-promote-skill/);
+});
+
 test('page · Mira companion card renders only served relationship evidence', async () => {
   const elements = await renderPageFixture({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,

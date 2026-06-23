@@ -1307,11 +1307,33 @@ function renderInsightBoxes(env){
 function skillCards(env){
   const skillEnv = env.skills || {};
   const rows = Array.isArray(skillEnv.rows) ? skillEnv.rows : [];
-  if (!rows.length) return [{ title:'SKILL LABORS', state:'wait', detail:skillEnv.gap || 'skill registry missing' }];
+  const sourcePath = skillEnv.path || skillEnv.sourcePath || ('.operator/' + TENANT + '.skills.json');
+  const source = skillEnv.source || 'missing';
+  const gapCommand = 'quine write skills forge --tenant ' + TENANT;
+  if (!rows.length) return [{
+    title:'SKILL LABORS',
+    state:'wait',
+    detail:skillEnv.gap || 'skill registry missing',
+    status:'missing',
+    tier:'missing',
+    tierLabel:'MISSING',
+    uses:0,
+    successRateText:'0%',
+    recentRateText:'0%',
+    sampleMinimum:'0/3 uses',
+    promotionStatus:'blocked · NO PROMOTION · skill telemetry missing',
+    promotion:{ status:'blocked', label:'NO PROMOTION', detail:'skill telemetry missing', requiredApproval:true },
+    source,
+    sourcePath,
+    registryProof:'missing registry proof; source path is a gap target only',
+    gapAction:sourcePath + ' · ' + gapCommand,
+    gap:skillEnv.gap || 'skill registry missing',
+  }];
   return rows.slice(0, 4).map(skill => {
     const pct = Math.round(Number(skill.successRate || 0) * 100);
     const recent = Math.round(Number(skill.recentRate ?? skill.successRate ?? 0) * 100);
-    const sample = Number(skill.sampleSize ?? skill.uses ?? 0);
+    const uses = Number(skill.uses ?? skill.sampleSize ?? 0);
+    const sample = Number(skill.sampleSize ?? uses);
     const minimum = Number(skill.minimum ?? 3);
     const tier = String(skill.tier || (skill.declining ? 'declining' : sample < minimum ? 'unproven' : 'learning'));
     const label = String(skill.tierLabel || (tier === 'declining' ? 'DECLINING' : tier === 'unproven' ? 'UNPROVEN' : tier.toUpperCase()));
@@ -1327,13 +1349,29 @@ function skillCards(env){
       title:skill.id,
       state:ready ? 'ready' : 'wait',
       detail:String(skill.status || 'unknown') + ' · ' + detail,
+      status:String(skill.status || 'unknown'),
+      tier,
+      tierLabel:label,
+      uses,
+      successRateText:pct + '%',
+      recentRateText:recent + '%',
+      sampleMinimum:sample + '/' + minimum + ' uses',
+      promotionStatus:String(promotion.status || 'blocked') + (promotion.label ? ' · ' + String(promotion.label) : '') + (promotion.requiredApproval ? ' · founder approval required' : ''),
       promotion,
+      source,
+      sourcePath,
+      registryProof:skill.registryProof || sourcePath,
+      gapAction:sourcePath + ' · ' + gapCommand,
+      gap:skill.gap || '',
     };
   });
 }
+function canQueueSkillPromotion(skill){
+  return !!(skill && skill.promotion && skill.promotion.status === 'founder-review' && skill.tier !== 'declining' && skill.status !== 'production');
+}
 function renderSkills(env){
   return '<div class="boxgrid">' + skillCards(env).map((skill, i) =>
-    '<button type="button" class="ibox skill ' + (skill.state === 'ready' ? 'ready' : '') + '" data-skill="' + i + '"' + (skill.promotion && skill.promotion.status === 'founder-review' ? ' data-signed-action-entrypoint="promote-skill"' : '') + '><b>' + esc(skill.title) + '</b><span>' + esc(skill.detail) + '</span></button>'
+    '<button type="button" class="ibox skill ' + (skill.state === 'ready' ? 'ready' : '') + '" data-skill="' + i + '"' + (canQueueSkillPromotion(skill) ? ' data-signed-action-entrypoint="promote-skill"' : '') + '><b>' + esc(skill.title) + '</b><span>' + esc(skill.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function npcCards(env){
@@ -1678,12 +1716,27 @@ function openInsightBox(env, index){
 }
 function openSkillBox(env, index){
   const skill = skillCards(env)[index] || skillCards(env)[0];
-  const canPromote = skill.promotion && skill.promotion.status === 'founder-review';
+  const canPromote = canQueueSkillPromotion(skill);
+  const consequence = canPromote ? skillPromotionConsequence(skill) : 'no production change from this sheet; skill registry remains the authority';
+  const reversibility = canPromote ? skillPromotionReversibility() : 'no queued action is created; refresh the registry through quine write skills';
+  const idempotencyKey = canPromote ? skillPromotionIdempotency(skill) : 'not queued';
+  const founderApproval = canPromote
+    ? 'required before production; operator consumer re-checks telemetry'
+    : (skill.promotion && skill.promotion.requiredApproval ? 'blocked until telemetry is production-ready; founder approval is still required before production' : 'not required for this read-only state');
+  const gap = skill.state === 'wait'
+    ? '<div class="nar">gap action · ' + esc(skill.gapAction || ('.operator/' + TENANT + '.skills.json · quine write skills forge --tenant ' + TENANT)) + '</div>'
+    : '';
+  const caution = skill.tier === 'declining'
+    ? '<div class="nar">caution · declining skills cannot be promoted from the mini app; record new successful uses before founder review.</div>'
+    : '';
+  const readOnly = !canPromote
+    ? '<div class="nar">read-only · skill registry remains the authority; no founder review is queued from this state.</div>'
+    : '';
   const action = canPromote
     ? '<div class="gbtns promote"><button type="button" class="approve" data-promote-skill="1">Queue founder review</button></div>'
     : '';
   $('sheetBody').innerHTML = '<div class="arc">skill labor · ' + esc(skill.state) + '</div><h2>' + esc(skill.title) + '</h2>' +
-    '<div class="nar">' + esc(skill.detail) + '</div>' + action;
+    '<div class="nar">' + esc(skill.detail) + '</div><div class="kv"><b>status</b><span>' + esc(skill.status || 'unknown') + '</span><b>tier</b><span>' + esc(skill.tierLabel || skill.tier || 'missing') + '</span><b>uses</b><span>' + esc(skill.uses ?? 0) + '</span><b>success rate</b><span>' + esc(skill.successRateText || '0%') + '</span><b>recent rate</b><span>' + esc(skill.recentRateText || '0%') + '</span><b>sample minimum</b><span>' + esc(skill.sampleMinimum || '0/3 uses') + '</span><b>promotion status</b><span>' + esc(skill.promotionStatus || 'blocked') + '</span><b>source path</b><span>' + esc(skill.sourcePath || ('.operator/' + TENANT + '.skills.json')) + '</span><b>registry proof</b><span>' + esc(skill.registryProof || skill.sourcePath || ('.operator/' + TENANT + '.skills.json')) + '</span></div><div class="kv"><b>consequence</b><span>' + esc(consequence) + '</span><b>reversibility</b><span>' + esc(reversibility) + '</span><b>idempotency key</b><span>' + esc(idempotencyKey) + '</span><b>founder approval</b><span>' + esc(founderApproval) + '</span></div>' + gap + caution + readOnly + action;
   const promote = $('sheetBody').querySelector('[data-promote-skill]');
   if (promote) promote.onclick = () => skillPromotionAct(skill, promote);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(skill.state === 'ready' ? 'medium' : 'light');
