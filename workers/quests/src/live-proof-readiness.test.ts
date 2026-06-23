@@ -274,7 +274,7 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
     viewport: { width: 390, height: 844 },
     proofs: [
       { scene: 'quests', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=quests', path: 'quests-line-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 900 },
-      { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1000 },
+      { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', clickabilityTargetCount: 14, width: 780, height: 1688, bytes: 1000 },
       { scene: 'map', path: 'sheet-skill-promotion-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2000 },
     ],
   });
@@ -284,6 +284,7 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'clickability-proof']);
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.path, 'quests-line-mobile.png');
   assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.url ?? '', /\?tenant=cambium&scene=quests/);
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'map-tapestry-audit-mobile.png')?.clickabilityTargetCount, 14);
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.path, 'sheet-skill-promotion-mobile.png');
   assert.match(artifact.invariant, /clipped real sheet proof/);
 });

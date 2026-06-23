@@ -1450,8 +1450,32 @@ function openDecisionContextBox(env, index){
     '<div class="nar">' + esc(row.detail) + '</div><div class="kv"><b>source</b><span>' + esc(row.source || 'missing') + '</span><b>scope</b><span>' + esc(row.scope || 'tenant-only') + '</span><b>proof</b><span>' + esc(row.proof || row.detail) + '</span></div>' + evidence;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row.state === 'ready' ? 'medium' : 'light');
 }
+function openLiveProofSummaryBox(env){
+  const live = env.liveProof || {};
+  const rows = liveProofCards(env);
+  const summary = live.summary || {};
+  const total = Number.isFinite(Number(summary.total)) ? Number(summary.total) : rows.length;
+  const ready = Number.isFinite(Number(summary.ready)) ? Number(summary.ready) : rows.filter(row => row.state === 'ready').length;
+  const blocked = Number.isFinite(Number(summary.blocked)) ? Number(summary.blocked) : rows.filter(row => row.state !== 'ready').length;
+  const liveProofReady = live.status === 'ready' || summary.liveProofReady === true;
+  const blockedRows = rows.filter(row => row.state !== 'ready').slice(0, 6);
+  const blockedBlock = blockedRows.length
+    ? '<div class="kv">' + blockedRows.map((row, i) => '<b>blocked row ' + (i + 1) + '</b><span>' + esc(row.title + ' · ' + row.detail) + '</span>').join('') + '</div>'
+    : '<div class="nar">no blocked live-proof rows served.</div>';
+  $('sheetBody').innerHTML = '<div class="arc">live proof summary · ' + esc(liveProofReady ? 'ready' : 'blocked') + '</div><h2>Live Proof Summary</h2>' +
+    '<div class="nar">' + esc(live.invariant || 'capture plan is guidance, not proof') + '</div>' +
+    '<div class="kv"><b>ready</b><span>' + ready + '</span><b>blocked</b><span>' + blocked + '</span><b>total</b><span>' + total + '</span><b>liveProofReady</b><span>' + esc(String(liveProofReady)) + '</span><b>source</b><span>' + esc(live.source || 'missing') + '</span></div>' + blockedBlock;
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(liveProofReady ? 'medium' : 'light');
+}
 function openTapestryBox(env, index){
   const row = tapestryRows(env)[index] || tapestryRows(env)[0];
+  if (row.id === 'command-state' && !env.commands) { openCmdSheet('status'); return; }
+  if (row.id === 'live-proof') { openLiveProofSummaryBox(env); return; }
+  if (row.id === 'decision-context') {
+    const firstMissing = decisionContextCards(env).findIndex(item => item.state !== 'ready');
+    openDecisionContextBox(env, firstMissing >= 0 ? firstMissing : 0);
+    return;
+  }
   const freshness = row.id === 'freshness-gaps'
     ? '<b>derivedAt</b><span>' + esc(env.derivedAt || 'missing') + '</span><b>stale threshold</b><span>360 minutes</span><b>refresh command</b><span>quine write quests push --tenant ' + esc(TENANT) + '</span>'
     : '';

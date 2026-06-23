@@ -1014,9 +1014,13 @@ test('page · tapestry audit sheet maps completion requirements to source-backed
   assert.ok(liveProofIndex >= 0, 'live-proof audit row exists');
   (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, liveProofIndex);
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /completion definition · wait/);
-  assert.match(sheet, /LIVE PROOF/);
-  assertSheetHasSource(sheet, 'liveProof');
+  assert.match(sheet, /live proof summary · blocked/);
+  assert.match(sheet, /ready<\/b><span>7/);
+  assert.match(sheet, /blocked<\/b><span>3/);
+  assert.match(sheet, /total<\/b><span>10/);
+  assert.match(sheet, /liveProofReady<\/b><span>false/);
+  assert.match(sheet, /blocked row 1<\/b><span>DEVICE WEBVIEW PROOF/);
+  assert.match(sheet, /blocked row 2<\/b><span>SIGNED ACTION SMOKE/);
   assert.match(sheet, /proof only after their artifacts validate ready/);
   assert.doesNotMatch(sheet, /all requirements complete|production verified|live proof ready/i);
 });
@@ -1039,8 +1043,10 @@ test('page · tapestry audit renders every row as a target-backed sheet', async 
     const index = rows.findIndex((row) => row.id === id);
     assert.ok(index >= 0, `${id} tapestry row exists`);
     assert.match(map, new RegExp(`data-tapestry="${index}"(?=[^>]*data-ecosystem-target="${target}")`));
-    (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
-    assert.match(rendered.elements.get('sheetBody')!.innerHTML, new RegExp(`ecosystem target<\\/b><span>${target}`));
+    if (!['command-state', 'live-proof'].includes(id)) {
+      (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
+      assert.match(rendered.elements.get('sheetBody')!.innerHTML, new RegExp(`ecosystem target<\\/b><span>${target}`));
+    }
   }
 });
 
@@ -1057,6 +1063,35 @@ test('page · freshness tapestry gap shows derivation and push command', async (
   assert.match(sheet, /derivedAt<\/b><span>2026-01-01T00:00:00.000Z/);
   assert.match(sheet, /stale threshold<\/b><span>360 minutes/);
   assert.match(sheet, /refresh command<\/b><span>quine write quests push --tenant cambium/);
+});
+
+test('page · command-state tapestry row opens missing Commands source sheet', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const index = rows.findIndex((row) => row.id === 'command-state');
+
+  assert.ok(index >= 0, 'command-state row exists');
+  (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /<h2>commands<\/h2>/);
+  assert.match(sheet, /org data unavailable/);
+  assert.match(sheet, /gateway was unreachable at the last refresh/);
+});
+
+test('page · decision-context tapestry row opens first missing decision signal', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const index = rows.findIndex((row) => row.id === 'decision-context');
+
+  assert.ok(index >= 0, 'decision-context row exists');
+  (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /decision context · wait/);
+  assert.match(sheet, /FOUNDER PREFERENCE/);
+  assert.match(sheet, /founder preference signal not served/);
+  assert.match(sheet, /no served evidence rows for this decision signal; it remains context, not policy authority/);
 });
 
 test('page · live proof capture plan renders as guidance, not evidence', async () => {
