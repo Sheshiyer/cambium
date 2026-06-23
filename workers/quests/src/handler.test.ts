@@ -384,16 +384,6 @@ test('push then get · redacts generic social proof from public quest JSON', asy
           scope: 'tenant-handoff-only',
           evidence: [],
         },
-        {
-          id: 'metadata-only',
-          title: 'COORDINATION CLAIM',
-          state: 'ready',
-          detail: 'tenant handoff row with unsafe metadata only',
-          proof: 'explicit handoff proof',
-          source: 'social-proof',
-          scope: 'social-proof',
-          evidence: [],
-        },
       ],
     },
   });
@@ -412,6 +402,96 @@ test('push then get · redacts generic social proof from public quest JSON', asy
   assert.match(stored.social.rows[0].detail, /not tenant handoff evidence/);
   assert.match(stored.social.rows[0].proof, /explicit bridge, handoff, or founder gate sources/);
   assert.doesNotMatch(get.body, /leaderboard|rank|follower|viral|popularity|social proof|social-proof/i);
+});
+
+test('push then get · canonicalizes social metadata when safe rows survive', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const envelope = JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'social-proof',
+      status: 'ready',
+      scope: 'social-proof',
+      gap: 'social-proof metadata gap',
+      rows: [
+        {
+          id: 'handoff-queue',
+          title: 'HANDOFF QUEUE',
+          state: 'ready',
+          detail: '1 open tenant handoff awaiting founder review',
+          proof: 'THO-9: blocked owner served',
+          source: 'social-proof',
+          scope: 'social-proof',
+          gap: 'social-proof row gap',
+          evidence: [{ label: 'THO-9', status: 'blocked', detail: 'Review launch copy' }],
+        },
+      ],
+    },
+  });
+
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: envelope, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'ready');
+  assert.equal(stored.social.source, 'coordination-evidence@v1');
+  assert.equal(stored.social.scope, 'tenant-handoff-only');
+  assert.equal(stored.social.rows[0].source, 'coordination-evidence@v1');
+  assert.equal(stored.social.rows[0].scope, 'tenant-handoff-only');
+  assert.equal(stored.social.rows[0].gap, undefined);
+  assert.match(stored.social.rows[0].detail, /tenant handoff/);
+  assert.doesNotMatch(get.body, /social proof|social-proof/i);
+});
+
+test('push then get · canonicalizes unsafe row metadata even when top-level metadata is safe', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const envelope = JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'coordination-evidence@v1',
+      status: 'ready',
+      scope: 'tenant-handoff-only',
+      rows: [
+        {
+          id: 'handoff-queue',
+          title: 'HANDOFF QUEUE',
+          state: 'ready',
+          detail: '1 open tenant handoff awaiting founder review',
+          proof: 'THO-9: blocked owner served',
+          source: 'social-proof',
+          scope: 'social-proof',
+          gap: 'social-proof row gap',
+          evidence: [{ label: 'THO-9', status: 'blocked', detail: 'Review launch copy' }],
+        },
+      ],
+    },
+  });
+
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: envelope, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'ready');
+  assert.equal(stored.social.rows[0].source, 'coordination-evidence@v1');
+  assert.equal(stored.social.rows[0].scope, 'tenant-handoff-only');
+  assert.equal(stored.social.rows[0].gap, undefined);
+  assert.doesNotMatch(get.body, /social proof|social-proof/i);
 });
 
 test('push · accepts stale partial visual envelopes without inventing missing sections', async () => {

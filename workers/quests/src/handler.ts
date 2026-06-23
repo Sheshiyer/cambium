@@ -186,9 +186,6 @@ function socialRowText(row: Record<string, unknown>): string {
     row.title,
     row.detail,
     row.proof,
-    row.gap,
-    row.source,
-    row.scope,
     ...evidence.flatMap((item) => {
       if (!item || typeof item !== 'object') return [];
       const ev = item as Record<string, unknown>;
@@ -208,9 +205,21 @@ function sanitizeQuestEnvelope(envelope: any): any {
   ].filter((item) => typeof item === 'string').join(' ');
   const safeRows = rows.filter((row) =>
     row && typeof row === 'object' && !Array.isArray(row) && !SOCIAL_OVERCLAIM_RE.test(socialRowText(row as Record<string, unknown>)),
-  );
+  ).map((row) => ({
+    ...row,
+    source: 'coordination-evidence@v1',
+    scope: 'tenant-handoff-only',
+    gap: row.gap && !SOCIAL_OVERCLAIM_RE.test(String(row.gap)) ? row.gap : undefined,
+  }));
   const metadataRejected = SOCIAL_OVERCLAIM_RE.test(socialMetadataText);
-  if (safeRows.length === rows.length && !metadataRejected) return envelope;
+  const rowMetadataRejected = rows.some((row) => {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
+    const item = row as Record<string, unknown>;
+    return [item.source, item.scope, item.gap].some((value) =>
+      typeof value === 'string' && SOCIAL_OVERCLAIM_RE.test(value),
+    );
+  });
+  if (safeRows.length === rows.length && !metadataRejected && !rowMetadataRejected) return envelope;
   return {
     ...envelope,
     social: {
@@ -225,11 +234,11 @@ function sanitizeQuestEnvelope(envelope: any): any {
         detail: 'coordination rows rejected because they were not tenant handoff evidence',
         proof: 'tenant handoff evidence must come from explicit bridge, handoff, or founder gate sources',
         source: 'missing',
-        scope: envelope.social.scope || 'tenant-handoff-only',
+        scope: 'tenant-handoff-only',
         evidence: [],
         gap: 'coordination evidence rejected',
       }],
-      gap: safeRows.length ? envelope.social.gap : 'coordination evidence rejected',
+      gap: 'coordination evidence sanitized',
     },
   };
 }
