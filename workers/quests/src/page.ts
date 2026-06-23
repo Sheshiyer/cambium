@@ -91,8 +91,8 @@ export const PAGE = `<!doctype html>
   .cmd.act .cname{color:var(--soft)}
   .cmd .cargs{font:11px var(--mono);opacity:.5;margin-left:6px}
   .cmd .cdesc{font-size:12.5px;opacity:.72;margin-top:2px;line-height:1.45}
-  .cmd.live{cursor:pointer;transition:transform .2s var(--ease),border-color .3s var(--ease)}
-  .cmd.live:active{transform:scale(.985)}
+  .cmd{cursor:pointer;transition:transform .2s var(--ease),border-color .3s var(--ease)}
+  .cmd:active{transform:scale(.985)}
   .cmd.live{border-color:rgba(224,255,79,.22)}
   .cmd .cgo{margin-left:auto;align-self:center;font-size:20px;color:var(--ink);opacity:.6}
   .li{padding:9px 0;border-bottom:1px solid var(--line)}
@@ -249,6 +249,8 @@ export const PAGE = `<!doctype html>
   .gbtns button:active{transform:scale(.97)}
   .gbtns .approve{background:var(--ink);color:var(--bg)}
   .gbtns .reroll{background:none;border:1px solid rgba(214,255,246,.4);color:var(--soft)}
+  .gbtns.command-copy{grid-template-columns:1fr;margin:12px 0}
+  .gbtns.command-copy button{background:var(--ink);color:var(--bg)}
   .gnote{font:11px var(--mono);opacity:.6;margin-top:12px;line-height:1.5}
 
   /* ── sheet ──────────────────────────────────── */
@@ -284,7 +286,7 @@ export const PAGE = `<!doctype html>
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .scene-chip{border:1px solid var(--line);background:rgba(224,255,79,.08);color:var(--ink);font:11px var(--mono);cursor:pointer}
 
-  footer{position:fixed;left:0;right:0;bottom:0;padding:10px 18px calc(var(--sab) + 14px);
+  footer{flex:none;padding:8px 18px calc(var(--sab) + 12px);
     font:10.5px var(--mono);opacity:.5;background:linear-gradient(transparent,var(--bg) 45%);z-index:2;pointer-events:none}
 
   @media (prefers-reduced-motion: reduce){
@@ -427,8 +429,8 @@ function openSceneSheet(){
 $('sceneBadge').onclick = openSceneSheet;
 
 /* commands panel — the /ts-* co-founder interface.
-   4th tuple element: a live-data key (status/agents/work/handoffs/hermes) → tappable,
-   shows real org data in the sheet; 'act' → action (runs in chat); else reference. */
+   4th tuple element: live-data keys open sourced sheets; act/digest open
+   chat-command guidance sheets; omitted kind is a read-only command reference. */
 let CMDDATA = null;
 const CMDS = [
   ['Status · live', [
@@ -447,60 +449,120 @@ const CMDS = [
     ['ts-reject', '<id> <reason>', 'Reject a pending handoff', 'act'],
   ]],
   ['Digests · in chat', [
-    ['ts-standup', '', 'Generate the daily standup'],
-    ['ts-digest', '', 'The weekly founder digest'],
-    ['ts-help', '', 'Show command help in chat'],
+    ['ts-standup', '', 'Generate the daily standup', 'digest'],
+    ['ts-digest', '', 'The weekly founder digest', 'digest'],
+    ['ts-help', '', 'Show command help in chat', 'digest'],
   ]],
 ];
+const LIVE_CMD_KEYS = { status:1, hermes:1, agents:1, work:1, handoffs:1 };
+const LIVE_CMD_NAMES = { status:'ts-status', hermes:'ts-hermes', agents:'ts-agents', work:'ts-projects', handoffs:'ts-handoffs' };
+const COMMANDS_BY_NAME = {};
+CMDS.forEach(([group, items]) => items.forEach(([name, args, desc, kind]) => {
+  COMMANDS_BY_NAME[name] = { group, name, args, desc, kind:kind || 'reference' };
+}));
 let cmdsDrawn = false;
+function commandInteraction(kind){
+  if (LIVE_CMD_KEYS[kind]) return 'sheet';
+  if (kind === 'act' || kind === 'digest') return 'chat-command';
+  return 'read-only';
+}
+function commandSource(kind){
+  if (LIVE_CMD_KEYS[kind]) return 'paperclipCommandsData';
+  if (kind === 'act' || kind === 'digest') return 'curios.self-chat-command';
+  return 'curios.self-command-reference';
+}
+function commandUsage(cmd){ return '/' + cmd.name + (cmd.args ? ' ' + cmd.args : ''); }
+function hasClipboardApi(){
+  const nav = globalThis.navigator;
+  return !!(nav && nav.clipboard && typeof nav.clipboard.writeText === 'function');
+}
+async function copyCommandToClipboard(text, node){
+  const nav = globalThis.navigator;
+  if (!nav || !nav.clipboard || typeof nav.clipboard.writeText !== 'function') return { ok:false, reason:'clipboard unavailable' };
+  await nav.clipboard.writeText(text);
+  if (node) node.textContent = 'Copied command text';
+  return { ok:true, copied:text };
+}
+function commandCopyControl(text){
+  return hasClipboardApi()
+    ? '<div class="gbtns command-copy"><button type="button" data-copy-command="' + esc(text) + '">Copy command text</button></div>'
+    : '<div class="kv"><b>command text</b><span>' + esc(text) + '</span><b>copy</b><span>clipboard unavailable; select and copy this read-only command text</span></div>';
+}
+function wireCommandCopy(text){
+  const btn = $('sheetBody').querySelector('[data-copy-command]');
+  if (btn) btn.onclick = () => copyCommandToClipboard(text, btn).catch(() => { btn.textContent = 'Copy unavailable'; });
+}
+function openCommandCardSheet(name){
+  const cmd = COMMANDS_BY_NAME[name];
+  if (!cmd) return;
+  const interaction = commandInteraction(cmd.kind);
+  const source = commandSource(cmd.kind);
+  const text = commandUsage(cmd);
+  const guidance = interaction === 'chat-command'
+    ? 'Type this command in the curios.self bot chat. The mini app only copies command text; it does not send data, write Paperclip, or fabricate chat output.'
+    : 'Reference command sheet. Type this command in the curios.self bot chat when you want this inspection.';
+  $('sheetBody').innerHTML = '<div class="arc">command · ' + esc(interaction) + '</div><h2>' + esc('/' + cmd.name) + '</h2>' +
+    '<div class="nar">' + esc(guidance) + '</div>' +
+    '<div class="kv"><b>interaction</b><span>' + esc(interaction) + '</span><b>chat syntax</b><span>' + esc(text) + '</span><b>source</b><span>' + esc(source) + '</span><b>card group</b><span>' + esc(cmd.group) + '</span><b>description</b><span>' + esc(cmd.desc) + '</span><b>mini app writes</b><span>none; copy only, no signed gate endpoint</span><b>signed action button</b><span>not rendered for command sheets</span></div>' +
+    commandCopyControl(text);
+  wireCommandCopy(text);
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(interaction === 'chat-command' ? 'medium' : 'light');
+}
 function renderCommands(){
   if (cmdsDrawn) return; cmdsDrawn = true;
-  const liveKeys = { status:1, hermes:1, agents:1, work:1, handoffs:1 };
   $('cmds').innerHTML = CMDS.map(([group, items]) =>
     '<div class="cmdgrp">' + esc(group) + '</div>' +
     items.map(([name, args, desc, kind]) => {
-      const live = kind && liveKeys[kind];
+      const live = kind && LIVE_CMD_KEYS[kind];
       const action = kind === 'act';
-      const reference = !live && !action;
-      const interaction = live ? 'sheet' : action ? 'chat-command' : 'read-only';
-      const source = live ? 'paperclipCommandsData' : action ? 'curios.self-chat-command' : 'curios.self-command-reference';
+      const digest = kind === 'digest';
+      const reference = !live && !action && !digest;
+      const interaction = commandInteraction(kind || 'reference');
+      const source = commandSource(kind || 'reference');
       return '<div class="cmd' + (action ? ' act' : '') + (live ? ' live' : '') + (reference ? ' ref' : '') + '"' +
         ' data-interaction-kind="' + interaction + '" data-source="' + source + '"' +
         ' data-command-kind="' + (kind || 'reference') + '"' +
+        ' data-command-name="' + esc(name) + '"' +
         (live ? ' data-live="' + kind + '"' : '') + '>' +
         '<span class="cnode"></span>' +
         '<div style="flex:1"><div><span class="cname">/' + esc(name) + '</span>' +
           (args ? '<span class="cargs">' + esc(args) + '</span>' : '') + '</div>' +
           '<div class="cdesc">' + esc(desc) + '</div></div>' +
-        (live ? '<span class="cgo">›</span>' : '') +
+        '<span class="cgo">›</span>' +
       '</div>';
     }).join('')
   ).join('') +
   '<div class="gnote" style="margin-top:18px">live cards show real org state (refreshed with the ledger). actions &amp; digests run by typing the command to the curios.self bot.</div>';
-  $('cmds').querySelectorAll('.cmd.live').forEach(el => el.onclick = () => openCmdSheet(el.dataset.live));
+  $('cmds').querySelectorAll('.cmd').forEach(el => el.onclick = () => el.dataset.live ? openCmdSheet(el.dataset.live) : openCommandCardSheet(el.dataset.commandName));
 }
 function kvRows(pairs){ return '<div class="kv">' + pairs.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
 function openCmdSheet(key){
   const d = CMDDATA;
   let title = '', body = '';
-  if (!d){ title = 'commands'; body = '<div class="nar">org data unavailable — the gateway was unreachable at the last refresh. pull to refresh.</div>'; }
+  const liveCommandText = '/' + (LIVE_CMD_NAMES[key] || 'ts-status');
+  if (!d){ title = 'commands'; body = '<div class="nar">org data unavailable: Paperclip gateway unreachable; gateway was unreachable at the last refresh. Pull-to-refresh only; this sheet does not write local state, call signed gate endpoints, or synthesize command results.</div>'; }
   else if (key === 'status'){
     title = '/ts-status';
-    body = kvRows([['agents', String(d.status.agents)], ['work open', String(d.status.issuesOpen)], ['work done', String(d.status.issuesDone)], ['arcs grown', d.status.arcs], ['hermes', d.status.hermes || 'unknown']]);
+    body = kvRows([['source', 'Paperclip command data · paperclipCommandsData'], ['agents', String(d.status.agents)], ['work open', String(d.status.issuesOpen)], ['work done', String(d.status.issuesDone)], ['arcs', d.status.arcs], ['Hermes', d.status.hermes || 'unknown']]);
   } else if (key === 'hermes'){
     title = '/ts-hermes · services';
-    body = (d.services||[]).length ? (d.services||[]).map(s => '<div class="li"><div><span class="cname">'+esc(s.name)+'</span> <span class="cargs">'+esc(s.status)+'</span><div class="cdesc">'+esc(s.detail || s.label)+'</div></div></div>').join('') : '<div class="nar">no Hermes service data.</div>';
+    body = kvRows([['source', 'Hermes runtime · paperclipCommandsData'], ['service statuses', String((d.services||[]).length)]]) +
+      ((d.services||[]).length ? (d.services||[]).map(s => '<div class="li"><div><span class="cname">'+esc(s.name)+'</span> <span class="cargs">'+esc(s.status)+'</span><div class="cdesc">'+esc(s.detail || s.label)+'</div></div></div>').join('') : '<div class="nar">no Hermes service data.</div>');
   } else if (key === 'agents'){
     title = '/ts-agents · ' + (d.agents||[]).length;
-    body = (d.agents||[]).length ? (d.agents||[]).map(a => '<div class="li"><span class="cname">'+esc(a.name)+'</span>'+(a.model?'<span class="cargs">'+esc(a.model)+'</span>':'')+'</div>').join('') : '<div class="nar">no agents.</div>';
+    body = kvRows([['source', 'paperclipCommandsData']]) +
+      ((d.agents||[]).length ? (d.agents||[]).map(a => '<div class="li"><div><span class="cname">'+esc(a.name)+'</span>'+(a.model?'<span class="cargs">'+esc(a.model)+'</span>':'')+'<div class="cdesc">model · '+esc(a.model || 'missing')+' · source paperclipCommandsData</div></div></div>').join('') : '<div class="nar">no agents.</div>');
   } else if (key === 'work'){
     title = '/ts-projects · active work';
-    body = (d.work||[]).length ? (d.work||[]).map(w => '<div class="li"><div><span class="cname">'+esc(w.id)+'</span> <span class="cargs">'+esc(w.status)+'</span><div class="cdesc">'+esc(w.title)+' · '+esc(w.who)+'</div></div></div>').join('') : '<div class="nar">no active work.</div>';
+    body = kvRows([['source', 'paperclipCommandsData']]) +
+      ((d.work||[]).length ? (d.work||[]).map(w => '<div class="li"><div><span class="cname">'+esc(w.id)+'</span> <span class="cargs">'+esc(w.status)+'</span><div class="cdesc">title '+esc(w.title)+' · owner '+esc(w.who || w.owner || 'missing')+' · source '+esc(w.source || 'paperclipCommandsData')+'</div></div></div>').join('') : '<div class="nar">no active work.</div>');
   } else if (key === 'handoffs'){
     title = '/ts-handoffs · ' + (d.handoffs||[]).length;
-    body = (d.handoffs||[]).length ? (d.handoffs||[]).map(h => '<div class="li"><span class="cname">'+esc(h.id)+'</span> <span class="cargs">'+esc(h.status)+'</span><div class="cdesc">'+esc(h.title)+'</div></div>').join('') : '<div class="nar">nothing waiting on you.</div>';
+    body = kvRows([['source', 'paperclipCommandsData'], ['gate relation', 'handoff rows are review context; signed gate actions stay in the Gate scene']]) +
+      ((d.handoffs||[]).length ? (d.handoffs||[]).map(h => '<div class="li"><span class="cname">'+esc(h.id)+'</span> <span class="cargs">'+esc(h.status)+'</span><div class="cdesc">title '+esc(h.title)+' · source '+esc(h.source || 'paperclipCommandsData')+' · gate relation '+esc(h.gateRelation || 'founder gate review context only')+'</div></div>').join('') : '<div class="nar">nothing waiting on you.</div>');
   }
-  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body;
+  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body + commandCopyControl(liveCommandText);
+  wireCommandCopy(liveCommandText);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 window.addEventListener('resize', () => place(-scene * W(), false));

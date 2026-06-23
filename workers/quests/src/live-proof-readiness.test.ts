@@ -283,12 +283,14 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
       { scene: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1600 },
       { scene: 'gate', path: 'sheet-gate-approve-preflight-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2100 },
       { scene: 'gate', path: 'sheet-gate-reroll-preflight-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2200 },
+      { scene: 'commands', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=commands&fixture=fresh', path: 'commands-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1700 },
+      { scene: 'commands', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=commands&fixture=fresh', path: 'sheet-command-chat-mobile.png', intent: 'clickability-proof', width: 780, height: 844, bytes: 2300 },
     ],
   });
   const artifact = JSON.parse(JSON.stringify(manifest));
 
-  assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 7, 'clickability-proof': 3 });
-  assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'layout-proof', 'clickability-proof', 'clickability-proof']);
+  assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 8, 'clickability-proof': 4 });
+  assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'layout-proof', 'clickability-proof', 'clickability-proof', 'layout-proof', 'clickability-proof']);
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.path, 'quests-line-mobile.png');
   assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.url ?? '', /\?tenant=cambium&scene=quests/);
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'story')?.path, 'story-feed-mobile.png');
@@ -307,6 +309,11 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-gate-reroll-preflight-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate' && proof.intent === 'clickability-proof'));
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-gate-approve-preflight-mobile.png')?.scene, 'gate');
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-gate-reroll-preflight-mobile.png')?.scene, 'gate');
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'commands-mobile.png')?.scene, 'commands');
+  assert.match(artifact.proofs.find((proof: { path: string }) => proof.path === 'commands-mobile.png')?.url ?? '', /\?tenant=cambium&scene=commands&fixture=fresh/);
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-command-chat-mobile.png')?.scene, 'commands');
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'commands-mobile.png' && proof.scene === 'commands' && proof.fixture === 'fresh'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-command-chat-mobile.png' && proof.scene === 'commands' && proof.fixture === 'fresh' && proof.intent === 'clickability-proof'));
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.path, 'sheet-skill-promotion-mobile.png');
   assert.match(artifact.invariant, /clipped real sheet proof/);
 });

@@ -151,7 +151,7 @@ function makeElement(id: string) {
 
 async function renderPageFixtureContext(
   envelope: unknown,
-  options: { search?: string; rejectFetch?: boolean; now?: string; fetchSequence?: unknown[] } = {},
+  options: { search?: string; rejectFetch?: boolean; now?: string; fetchSequence?: unknown[]; clipboard?: boolean } = {},
 ) {
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
@@ -169,6 +169,7 @@ async function renderPageFixtureContext(
   }
 
   const fetchCalls: string[] = [];
+  const clipboardWrites: string[] = [];
   const fetchSequence = [...(options.fetchSequence ?? [])];
   const fixedNow = options.now ? Date.parse(options.now) : null;
   const context: Record<string, unknown> = {
@@ -176,6 +177,7 @@ async function renderPageFixtureContext(
     window: { Telegram: undefined, addEventListener() {}, innerWidth: 390 },
     location: { search: options.search ?? '' },
     matchMedia: () => ({ matches: true }),
+    navigator: options.clipboard ? { clipboard: { writeText: async (text: string) => { clipboardWrites.push(String(text)); } } } : {},
     fetch: async (url: string) => {
       fetchCalls.push(String(url));
       if (options.rejectFetch) throw new Error('fixture fetch failed');
@@ -195,7 +197,7 @@ async function renderPageFixtureContext(
   vm.runInContext(scripts[0], vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
-  return { elements, context, fetchCalls };
+  return { elements, context, fetchCalls, clipboardWrites };
 }
 
 async function renderPageFixture(envelope: unknown) {
@@ -1105,6 +1107,127 @@ test('page · commands track Hermes services in the mini app', () => {
   assert.match(PAGE, /ts-hermes/);
   assert.match(PAGE, /Hermes timers and Telegram brain/);
   assert.match(PAGE, /services/);
+});
+
+test('page · command reference, action, and digest cards open inspectable copy sheets', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+    clipboard: true,
+  });
+  const openCommandCardSheet = rendered.context.openCommandCardSheet as (name: string) => void;
+
+  openCommandCardSheet('ts-agent');
+  let sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /command · read-only/);
+  assert.match(sheet, /chat syntax<\/b><span>\/ts-agent &lt;name&gt;/);
+  assert.match(sheet, /source<\/b><span>curios\.self-command-reference/);
+  assert.match(sheet, /Copy command text/);
+  assert.doesNotMatch(sheet, /data-gate-confirm|data-signed-action-entrypoint|\/api\/gate|bot response|sent to bot/i);
+
+  for (const name of ['ts-project', 'ts-vault']) {
+    openCommandCardSheet(name);
+    sheet = rendered.elements.get('sheetBody')!.innerHTML;
+    assert.match(sheet, /command · read-only/);
+    assert.match(sheet, new RegExp(`chat syntax<\\/b><span>\\/${name}`));
+    assert.match(sheet, /source<\/b><span>curios\.self-command-reference/);
+  }
+
+  for (const name of ['ts-run', 'ts-approve', 'ts-reject']) {
+    openCommandCardSheet(name);
+    sheet = rendered.elements.get('sheetBody')!.innerHTML;
+    assert.match(sheet, /interaction<\/b><span>chat-command/);
+    assert.match(sheet, /source<\/b><span>curios\.self-chat-command/);
+    assert.match(sheet, /mini app writes<\/b><span>none; copy only, no signed gate endpoint/);
+    assert.doesNotMatch(sheet, /data-gate-confirm|data-signed-action-entrypoint|\/api\/gate|bot response|sent to bot/i);
+  }
+
+  for (const name of ['ts-standup', 'ts-digest', 'ts-help']) {
+    openCommandCardSheet(name);
+    sheet = rendered.elements.get('sheetBody')!.innerHTML;
+    assert.match(sheet, /interaction<\/b><span>chat-command/);
+    assert.match(sheet, /signed action button<\/b><span>not rendered for command sheets/);
+    assert.doesNotMatch(sheet, /data-gate-confirm|data-signed-action-entrypoint|data-promote-skill|data-queue-side-quest/i);
+  }
+
+  const beforeCopyFetches = rendered.fetchCalls.length;
+  const copyCommandToClipboard = rendered.context.copyCommandToClipboard as (text: string) => Promise<{ ok: boolean; copied?: string }>;
+  const result = await copyCommandToClipboard('/ts-run Mira refresh proof');
+  assert.equal(result.ok, true);
+  assert.deepEqual(rendered.clipboardWrites, ['/ts-run Mira refresh proof']);
+  assert.equal(rendered.fetchCalls.length, beforeCopyFetches);
+  assert.ok(!rendered.fetchCalls.some((url) => /\/api\/gate/.test(url)));
+});
+
+test('page · command copy falls back to read-only text without clipboard API', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+  });
+  (rendered.context.openCommandCardSheet as (name: string) => void)('ts-vault');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /command text<\/b><span>\/ts-vault &lt;path&gt;/);
+  assert.match(sheet, /clipboard unavailable; select and copy this read-only command text/);
+  assert.doesNotMatch(sheet, /Copy command text|data-copy-command/);
+});
+
+test('page · command live sheets name Paperclip and Hermes data sources', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+    clipboard: true,
+  });
+  const openCmdSheet = rendered.context.openCmdSheet as (key: string) => void;
+
+  openCmdSheet('status');
+  let sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /source<\/b><span>Paperclip command data · paperclipCommandsData/);
+  assert.match(sheet, /agents<\/b><span>3/);
+  assert.match(sheet, /work open<\/b><span>2/);
+  assert.match(sheet, /work done<\/b><span>7/);
+  assert.match(sheet, /arcs<\/b><span>3\/17/);
+  assert.match(sheet, /Hermes<\/b><span>ready/);
+  assert.match(sheet, /Copy command text/);
+  assert.match(sheet, /data-copy-command="\/ts-status"/);
+
+  openCmdSheet('hermes');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /source<\/b><span>Hermes runtime · paperclipCommandsData/);
+  assert.match(sheet, /service statuses<\/b><span>2/);
+  assert.match(sheet, /Hermes Telegram brain/);
+  assert.match(sheet, /curios\.self command bridge reachable/);
+  assert.match(sheet, /data-copy-command="\/ts-hermes"/);
+
+  openCmdSheet('agents');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /source<\/b><span>paperclipCommandsData/);
+  assert.match(sheet, /Mira/);
+  assert.match(sheet, /model · operator-npc-events@v1 · source paperclipCommandsData/);
+  assert.match(sheet, /data-copy-command="\/ts-agents"/);
+
+  openCmdSheet('work');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /THO-42/);
+  assert.match(sheet, /active/);
+  assert.match(sheet, /title Refresh mini app proof surface · owner operator · source paperclipCommandsData/);
+  assert.match(sheet, /data-copy-command="\/ts-projects"/);
+
+  openCmdSheet('handoffs');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /HND-7/);
+  assert.match(sheet, /waiting-founder/);
+  assert.match(sheet, /title Approve fresh viewport capture · source paperclipCommandsData · gate relation founder gate review context only/);
+  assert.match(sheet, /data-copy-command="\/ts-handoffs"/);
+});
+
+test('page · unavailable command sheet names Paperclip gateway and refresh-only recovery', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.openCmdSheet as (key: string) => void)('status');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /Paperclip gateway unreachable/);
+  assert.match(sheet, /Pull-to-refresh only/);
+  assert.match(sheet, /does not write local state/);
+  assert.match(sheet, /synthesize command results/);
+  assert.match(sheet, /command text<\/b><span>\/ts-status/);
+  assert.doesNotMatch(sheet, /\/api\/gate/);
+  assertNoSecretLeak(sheet);
 });
 
 test('page · craft: skeleton, states, reduced motion, no pure black, no emoji icons', () => {

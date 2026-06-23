@@ -78,6 +78,18 @@ export function buildViewportProofManifest({
 export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   { scene: 'quests', path: 'quests-line-mobile.png', intent: 'layout-proof', sceneIndex: 0, scrollSelector: '#progress' },
   { scene: 'story', fixture: 'fresh', path: 'story-feed-mobile.png', intent: 'layout-proof', sceneIndex: 2, scrollSelector: '#beats', waitFor: "document.querySelector('[data-beat=\"0\"]')" },
+  { scene: 'commands', fixture: 'fresh', path: 'commands-mobile.png', intent: 'layout-proof', sceneIndex: 4, waitFor: "document.querySelector('[data-command-name=\"ts-status\"]')" },
+  {
+    scene: 'commands',
+    fixture: 'fresh',
+    path: 'sheet-command-chat-mobile.png',
+    intent: 'clickability-proof',
+    sceneIndex: 4,
+    waitFor: "document.querySelector('[data-command-name=\"ts-run\"]')",
+    expression: "(() => { const el = document.querySelector('[data-command-name=\"ts-run\"]'); if (!el) throw new Error('missing /ts-run command card'); el.click(); })()",
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('/ts-run') && document.querySelector('#sheet').textContent.includes('chat-command')",
+    clipSelector: '#sheet',
+  },
   { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')", clickabilityTargetCount: 14 },
   { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
   { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
