@@ -350,6 +350,46 @@ test('push then get · round-trips the envelope verbatim', async () => {
   assert.equal(get.headers['cache-control'], 'no-store');
 });
 
+test('push then get · redacts generic social proof from public quest JSON', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const envelope = JSON.stringify({
+    schema: 1,
+    derivedAt: '2026-06-10T18:00:00Z',
+    source: 'test',
+    tenant: 'cambium',
+    ledger: { rows: [], completed: 0, total: 0, current: null },
+    social: {
+      source: 'coordination-evidence@v1',
+      status: 'ready',
+      scope: 'tenant-handoff-only',
+      rows: [
+        {
+          id: 'generic-social-proof',
+          title: 'LEADERBOARD RANK',
+          state: 'ready',
+          detail: 'viral follower proof',
+          proof: 'generic social proof',
+          source: 'paperclip-open-items',
+          scope: 'tenant-handoff-only',
+          evidence: [{ label: 'rank', status: 'ready', detail: 'popularity signal' }],
+        },
+      ],
+    },
+  });
+
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: envelope, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const stored = JSON.parse(get.body);
+  assert.equal(stored.social.status, 'gap');
+  assert.equal(stored.social.rows[0].id, 'social-gap');
+  assert.doesNotMatch(get.body, /LEADERBOARD RANK|viral follower proof|generic social proof|popularity signal/i);
+});
+
 test('push · accepts stale partial visual envelopes without inventing missing sections', async () => {
   const kv = fakeKv();
   const deps = { kv, pushToken: 't' };

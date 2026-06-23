@@ -645,7 +645,7 @@ function cortexMemoryRowsFor(
     try {
       const rows = db.prepare(
         'SELECT id, kind, payload, ts FROM memory WHERE tenant = ? ORDER BY ts DESC LIMIT ?',
-      ).all(tenant, limit) as Array<{ id: string; kind: string; payload: string; ts: number }>;
+      ).all(tenant, Math.max(limit * 5, 60)) as Array<{ id: string; kind: string; payload: string; ts: number }>;
       const seen = new Set<string>();
       return rows.map((row) => {
         let payload: Record<string, unknown> = {};
@@ -661,7 +661,7 @@ function cortexMemoryRowsFor(
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
-      });
+      }).slice(0, limit);
     } finally { db.close(); }
   } catch {
     return [];
@@ -1339,6 +1339,7 @@ function readNpcEvents(ctx: QuineCtx, tenant: string): NpcEventRecord[] {
         typeof event.evidence === 'string' &&
         typeof event.createdAt === 'string';
     })
+    .filter((row, index, rows) => rows.findIndex((candidate) => candidate.id === row.id) === index)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
 }
 

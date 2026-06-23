@@ -168,6 +168,7 @@ export interface SimpleResponse {
 const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
+const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social proof|popularity|rank|follower|viral)\b/i;
 
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
@@ -177,6 +178,50 @@ const shortText = (value: unknown, fallback: string, max = 300): string => {
   const text = String(value ?? '').trim();
   return (text || fallback).slice(0, max);
 };
+
+function socialRowText(row: Record<string, unknown>): string {
+  const evidence = Array.isArray(row.evidence) ? row.evidence : [];
+  return [
+    row.id,
+    row.title,
+    row.detail,
+    row.proof,
+    row.gap,
+    ...evidence.flatMap((item) => {
+      if (!item || typeof item !== 'object') return [];
+      const ev = item as Record<string, unknown>;
+      return [ev.label, ev.status, ev.detail];
+    }),
+  ].filter((item) => typeof item === 'string').join(' ');
+}
+
+function sanitizeQuestEnvelope(envelope: any): any {
+  const rows = envelope?.social?.rows;
+  if (!Array.isArray(rows)) return envelope;
+  const safeRows = rows.filter((row) =>
+    row && typeof row === 'object' && !Array.isArray(row) && !SOCIAL_OVERCLAIM_RE.test(socialRowText(row as Record<string, unknown>)),
+  );
+  if (safeRows.length === rows.length) return envelope;
+  return {
+    ...envelope,
+    social: {
+      ...envelope.social,
+      status: safeRows.some((row: any) => row.state === 'ready') ? 'ready' : 'gap',
+      rows: safeRows.length ? safeRows : [{
+        id: 'social-gap',
+        title: 'SOCIAL GAP',
+        state: 'gap',
+        detail: 'coordination rows rejected because they used generic social-proof language',
+        proof: 'tenant handoff evidence must not be leaderboard, popularity, follower, rank, or social-proof copy',
+        source: 'missing',
+        scope: envelope.social.scope || 'tenant-handoff-only',
+        evidence: [],
+        gap: 'coordination evidence rejected',
+      }],
+      gap: safeRows.length ? envelope.social.gap : 'coordination evidence rejected',
+    },
+  };
+}
 
 function tenantOf(path: string, prefix: string): string | null {
   if (!path.startsWith(prefix)) return null;
@@ -217,6 +262,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (envelope[field] === undefined) return json(400, { error: `envelope missing "${field}"` });
     }
     if (envelope.tenant !== tenant) return json(400, { error: 'envelope tenant mismatch' });
+    envelope = sanitizeQuestEnvelope(envelope);
     const body = JSON.stringify(envelope);
     await deps.kv.put(ledgerKey(tenant), body);
     return json(200, { ok: true, tenant, bytes: body.length, derivedAt: envelope.derivedAt });

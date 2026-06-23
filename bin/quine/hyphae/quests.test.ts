@@ -627,10 +627,25 @@ test('quests visual envelope deduplicates Mira cortex rows and isolates NPC tena
     const acmePayload = JSON.stringify({ note: 'Mira ICP resonance from tenant review' });
     insert.run('acme', 'acme:mira:1', 'positioning', acmePayload, 3);
     insert.run('acme', 'acme:mira:duplicate', 'positioning', acmePayload, 2);
+    for (let i = 0; i < 20; i += 1) {
+      insert.run('acme', `acme:noise:${i}`, 'note', JSON.stringify({ note: 'duplicate operating note' }), 100 + i);
+    }
     insert.run('beta', 'beta:mira:leak', 'positioning', JSON.stringify({ note: 'Mira beta-only evidence must not leak' }), 4);
   } finally {
     db.close();
   }
+  const duplicateEvent = {
+    schema: 'cambium.npc-event.v1',
+    id: 'acme:mira:note:duplicate',
+    tenant: 'acme',
+    npcId: 'mira',
+    kind: 'note',
+    source: 'operator-note',
+    detail: 'Mira durable event from operator note',
+    evidence: 'operator note references Mira safely',
+    createdAt: '2026-06-22T00:01:00.000Z',
+  };
+  writeFileSync(join(ctx.root, '.operator', 'acme.npc-events.jsonl'), `${JSON.stringify(duplicateEvent)}\n${JSON.stringify(duplicateEvent)}\n`);
   writeFileSync(join(ctx.root, '.operator', 'beta.npc-events.jsonl'), JSON.stringify({
     schema: 'cambium.npc-event.v1',
     id: 'beta:mira:note:1',
@@ -652,10 +667,11 @@ test('quests visual envelope deduplicates Mira cortex rows and isolates NPC tena
   );
   const mira = visual.npc.relationships.find((row) => row.id === 'mira');
 
-  assert.equal(visual.npc.source, 'cortex-memory');
-  assert.equal(mira?.sampleSize, 1);
-  assert.match(mira?.detail ?? '', /1\/1 tenant cortex memories/);
-  assert.doesNotMatch(JSON.stringify(visual.npc), /duplicate|beta-only|beta evidence|beta:mira/i);
+  assert.equal(visual.npc.source, 'mixed');
+  assert.equal(mira?.history?.total, 1);
+  assert.equal(mira?.sampleSize, 2);
+  assert.match(mira?.detail ?? '', /1\/2 tenant cortex memories and 1 durable NPC events/);
+  assert.doesNotMatch(JSON.stringify(visual.npc), /acme:mira:duplicate|beta-only|beta evidence|beta:mira/i);
 });
 
 test('quests apply-side-quests consumes stale side-quest actions as rejected without ledger writes', async () => {
