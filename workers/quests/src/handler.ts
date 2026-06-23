@@ -168,7 +168,7 @@ export interface SimpleResponse {
 const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
-const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social proof|popularity|rank|follower|viral)\b/i;
+const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
 
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });

@@ -374,6 +374,16 @@ test('push then get · redacts generic social proof from public quest JSON', asy
           scope: 'tenant-handoff-only',
           evidence: [{ label: 'rank', status: 'ready', detail: 'popularity signal' }],
         },
+        {
+          id: 'hyphenated-proof',
+          title: 'COORDINATION CLAIM',
+          state: 'ready',
+          detail: 'coordination claim without explicit handoff source',
+          proof: 'generic social-proof copy',
+          source: 'paperclip-open-items',
+          scope: 'tenant-handoff-only',
+          evidence: [],
+        },
       ],
     },
   });
