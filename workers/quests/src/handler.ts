@@ -169,6 +169,8 @@ const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
+const PUBLIC_SECRET_RE = /\b(Bearer\s+|TELEGRAM_INIT_DATA=|TG_INIT_DATA=|QUESTS_PUSH_TOKEN=|rawInitData|query_id|auth_date|hash=)\b/i;
+const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
 
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
@@ -198,10 +200,11 @@ function sanitizedEvidence(value: unknown): Array<Record<string, string>> {
   return value
     .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
     .map((item) => item as Record<string, unknown>)
+    .filter((item) => !SOCIAL_UNSAFE_RE.test(socialText(item)))
     .map((item) => ({
-      label: String(item.label ?? 'row').slice(0, 120),
-      status: String(item.status ?? 'served').slice(0, 80),
-      detail: String(item.detail ?? '').slice(0, 300),
+      label: socialString(item.label, 'row', 120),
+      status: socialString(item.status, 'served', 80),
+      detail: socialString(item.detail, '', 300),
     }));
 }
 
@@ -210,6 +213,12 @@ function socialText(value: unknown): string {
   if (Array.isArray(value)) return value.map(socialText).join(' ');
   if (!value || typeof value !== 'object') return '';
   return Object.values(value as Record<string, unknown>).map(socialText).join(' ');
+}
+
+function socialString(value: unknown, fallback: string, max = 300): string {
+  const text = String(value ?? '').trim();
+  if (!text || SOCIAL_UNSAFE_RE.test(text)) return fallback;
+  return text.slice(0, max);
 }
 
 function socialRowText(row: Record<string, unknown>): string {
@@ -231,28 +240,32 @@ function sanitizeQuestEnvelope(envelope: any): any {
   const social = envelope?.social;
   if (!social || typeof social !== 'object' || Array.isArray(social)) return envelope;
   const rows = Array.isArray(social.rows) ? social.rows : [];
-  const safeRows = rows.filter((row) =>
-    row && typeof row === 'object' && !Array.isArray(row) && !SOCIAL_OVERCLAIM_RE.test(socialRowText(row as Record<string, unknown>)),
-  ).map((row) => {
+  const safeRows = rows.filter((row) => {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
+    const item = row as Record<string, unknown>;
+    const unsafeVisibleText = SOCIAL_UNSAFE_RE.test(socialRowText(item));
+    const unsafeGapFallback = !item.detail && !item.proof && typeof item.gap === 'string' && SOCIAL_UNSAFE_RE.test(item.gap);
+    return !unsafeVisibleText && !unsafeGapFallback;
+  }).map((row) => {
     const item = row as Record<string, unknown>;
     return {
-      id: String(item.id ?? 'coordination-row').slice(0, 120),
-      title: String(item.title ?? item.id ?? 'coordination').slice(0, 160),
+      id: socialString(item.id, 'coordination-row', 120),
+      title: socialString(item.title ?? item.id, 'coordination', 160),
       state: item.state === 'ready' ? 'ready' : 'wait',
-      detail: String(item.detail ?? item.gap ?? 'coordination evidence missing').slice(0, 300),
-      proof: String(item.proof ?? item.gap ?? 'proof missing from coordination row').slice(0, 300),
+      detail: socialString(item.detail, 'coordination evidence missing', 300),
+      proof: socialString(item.proof, 'proof missing from coordination row', 300),
       source: 'coordination-evidence@v1',
       scope: 'tenant-handoff-only',
-      gap: item.gap && !SOCIAL_OVERCLAIM_RE.test(String(item.gap)) ? String(item.gap).slice(0, 300) : undefined,
+      gap: item.gap && !SOCIAL_UNSAFE_RE.test(String(item.gap)) ? String(item.gap).slice(0, 300) : undefined,
       evidence: sanitizedEvidence(item.evidence),
     };
   });
-  const metadataRejected = SOCIAL_OVERCLAIM_RE.test(socialText(social));
+  const metadataRejected = SOCIAL_UNSAFE_RE.test(socialText(social));
   const rowMetadataRejected = rows.some((row) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
     const item = row as Record<string, unknown>;
     return [item.source, item.scope, item.gap].some((value) =>
-      typeof value === 'string' && SOCIAL_OVERCLAIM_RE.test(value),
+      typeof value === 'string' && SOCIAL_UNSAFE_RE.test(value),
     );
   });
   if (safeRows.length === rows.length && !metadataRejected && !rowMetadataRejected) return envelope;
