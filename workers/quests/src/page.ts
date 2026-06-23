@@ -1380,13 +1380,19 @@ function npcCards(env){
   const missingStage = { id:'missing', label:'MISSING', detail:'relationship stage not served', confidence:0 };
   const missingAdvice = { status:'blocked', label:'NO ADVICE', detail:'no durable NPC advice event served', proof:'no durable NPC events served', action:{ kind:'collect-evidence', label:'Record NPC evidence', target:'quine write quests npc-event' } };
   const missingHistory = { source:'missing', total:0, contradictions:0, rows:[] };
-  if (!rows.length) return [{ title:'MIRA', state:'wait', detail:'MISSING · npc relationship state not served yet', proof:'no relationship rows served', stage:missingStage, events:[], history:missingHistory, advice:missingAdvice, scope:'missing' }];
+  if (!rows.length) return [{ title:'MIRA', state:'wait', detail:'MISSING · npc relationship state not served yet', proof:'no relationship rows served', stage:missingStage, events:[], history:missingHistory, advice:missingAdvice, scope:'missing', ecosystemTargets:['cortex', 'operator-npc-events'] }];
   return rows.map(npc => {
     const stage = npc.stage || missingStage;
     const advice = npc.advice || missingAdvice;
     const history = npc.history || missingHistory;
+    const id = String(npc.id || 'npc');
+    const ecosystemTargets = id === 'founder-npc'
+      ? ['quest-ledger', 'operator-npc-events']
+      : id === 'mira'
+        ? ['cortex', 'operator-npc-events']
+        : ['operator-npc-events'];
     return {
-      title:String(npc.id || 'npc').toUpperCase(),
+      title:id.toUpperCase(),
       state:npc.status === 'inferred' ? 'ready' : 'wait',
       detail:String(stage.label || 'MISSING') + ' · ' + (npc.detail || stage.detail || 'relationship signal missing'),
       proof:npc.proof || npc.detail || 'relationship proof missing',
@@ -1395,6 +1401,7 @@ function npcCards(env){
       history,
       advice,
       scope:npc.scope || 'missing',
+      ecosystemTargets,
     };
   });
 }
@@ -1747,15 +1754,19 @@ function openNpcBox(env, index){
   const advice = npc.advice || { status:'blocked', label:'NO ADVICE', detail:'no durable NPC advice event served', proof:'no durable NPC events served', action:{ kind:'collect-evidence', label:'Record NPC evidence', target:'quine write quests npc-event' } };
   const history = npc.history || { source:'missing', total:0, contradictions:0, rows:[] };
   const confidence = Math.round(Number(stage.confidence || 0) * 100);
+  const adviceAction = advice.action || { kind:'collect-evidence', label:'Record NPC evidence', target:'quine write quests npc-event' };
   const events = Array.isArray(npc.events) && npc.events.length
     ? '<div class="kv">' + npc.events.slice(0, 4).map((event, i) => '<b>event ' + (i + 1) + '</b><span>' + esc((event.id || 'event') + ' · ' + (event.kind || 'unknown') + ' · ' + (event.source || 'missing') + ' · ' + (event.detail || 'detail missing')) + '</span>').join('') + '</div>'
     : '<div class="nar">no relationship events served; the companion remains an explicit evidence gap.</div>';
-  const adviceBlock = '<div class="kv"><b>advice</b><span>' + esc((advice.label || 'NO ADVICE') + ' · ' + (advice.detail || 'no durable NPC advice event served')) + '</span><b>advice proof</b><span>' + esc(advice.proof || 'advice proof missing') + '</span><b>advice action</b><span>' + esc(((advice.action && advice.action.label) || 'Review') + ' · ' + ((advice.action && advice.action.target) || 'npc')) + '</span></div>';
+  const contradictionBlock = Number(history.contradictions || 0) > 0
+    ? '<div class="nar">advice is blocked by contradiction; review target ' + esc(adviceAction.target || 'npc') + '</div>'
+    : '';
+  const adviceBlock = '<div class="kv"><b>advice</b><span>' + esc((advice.label || 'NO ADVICE') + ' · ' + (advice.detail || 'no durable NPC advice event served')) + '</span><b>advice proof</b><span>' + esc(advice.proof || 'advice proof missing') + '</span><b>advice action</b><span>' + esc((adviceAction.kind || 'review') + ' · ' + (adviceAction.label || 'Review') + ' · ' + (adviceAction.target || 'npc')) + '</span><b>review target</b><span>' + esc(adviceAction.target || 'npc') + '</span></div>';
   const historyRows = Array.isArray(history.rows) && history.rows.length
     ? '<div class="kv">' + history.rows.slice(0, 4).map((row, i) => '<b>history ' + (i + 1) + '</b><span>' + esc((row.id || 'event') + ' · ' + (row.kind || 'note') + ' · ' + (row.source || history.source || 'missing') + ' · ' + (row.detail || row.evidence || 'detail missing')) + '</span>').join('') + '</div>'
     : '';
   $('sheetBody').innerHTML = '<div class="arc">companion · ' + esc(npc.state) + '</div><h2>' + esc(npc.title) + '</h2>' +
-    '<div class="nar">' + esc(npc.detail) + '</div><div class="kv"><b>stage</b><span>' + esc((stage.label || 'MISSING') + ' · ' + (stage.detail || 'relationship stage not served') + ' · ' + confidence + '% confidence') + '</span><b>scope</b><span>' + esc(npc.scope || 'missing') + '</span><b>proof</b><span>' + esc(npc.proof || npc.detail) + '</span><b>history</b><span>' + esc((history.source || 'missing') + ' · ' + Number(history.total || 0) + ' event(s) · ' + Number(history.contradictions || 0) + ' contradiction(s)') + '</span></div>' + adviceBlock + events + historyRows;
+    '<div class="nar">' + esc(npc.detail) + '</div><div class="kv"><b>stage</b><span>' + esc((stage.label || 'MISSING') + ' · ' + (stage.detail || 'relationship stage not served') + ' · ' + confidence + '% confidence') + '</span><b>ecosystem targets</b><span>' + esc((npc.ecosystemTargets || ['operator-npc-events']).join(' · ')) + '</span><b>scope</b><span>' + esc(npc.scope || 'missing') + '</span><b>proof</b><span>' + esc(npc.proof || npc.detail) + '</span><b>event count</b><span>' + esc(Number(history.total || 0)) + '</span><b>contradiction count</b><span>' + esc(Number(history.contradictions || 0)) + '</span><b>history</b><span>' + esc((history.source || 'missing') + ' · ' + Number(history.total || 0) + ' event(s) · ' + Number(history.contradictions || 0) + ' contradiction(s)') + '</span></div>' + adviceBlock + contradictionBlock + events + historyRows;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(npc.state === 'ready' ? 'medium' : 'light');
 }
 

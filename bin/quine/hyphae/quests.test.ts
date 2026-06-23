@@ -677,6 +677,66 @@ test('quests visual envelope deduplicates Mira cortex rows and isolates NPC tena
   assert.doesNotMatch(JSON.stringify(visual.npc), /acme:mira:duplicate|beta-only|beta evidence|beta:mira/i);
 });
 
+test('quests visual envelope does not inflate Mira confidence from duplicate cortex memories', () => {
+  const ctx = tmpCtx();
+  const db = new DatabaseSync(join(ctx.root, '.operator', 'cortex.db'));
+  try {
+    db.exec('CREATE TABLE memory (tenant TEXT, id TEXT, kind TEXT, payload TEXT, ts INTEGER)');
+    const insert = db.prepare('INSERT INTO memory (tenant, id, kind, payload, ts) VALUES (?, ?, ?, ?, ?)');
+    const miraPayload = JSON.stringify({ note: 'Mira ICP resonance from tenant review' });
+    insert.run('cambium', 'cambium:noise:1', 'note', JSON.stringify({ note: 'ordinary tenant note' }), 4);
+    insert.run('cambium', 'cambium:mira:1', 'positioning', miraPayload, 3);
+    insert.run('cambium', 'cambium:mira:duplicate', 'positioning', miraPayload, 2);
+  } finally {
+    db.close();
+  }
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'cambium',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-22T00:07:00.000Z' },
+  );
+  const mira = visual.npc.relationships.find((row) => row.id === 'mira');
+
+  assert.equal(mira?.sampleSize, 1);
+  assert.equal(mira?.stage.id, 'sighted');
+  assert.equal(mira?.stage.confidence, 0.5);
+  assert.match(mira?.detail ?? '', /1\/2 tenant cortex memories and 0 durable NPC events/);
+  assert.doesNotMatch(JSON.stringify(visual.npc), /cambium:mira:duplicate/);
+});
+
+test('quests visual envelope does not render another tenant NPC events in cambium', () => {
+  const ctx = tmpCtx();
+  writeFileSync(join(ctx.root, '.operator', 'beta.npc-events.jsonl'), JSON.stringify({
+    schema: 'cambium.npc-event.v1',
+    id: 'beta:mira:note:1',
+    tenant: 'beta',
+    npcId: 'mira',
+    kind: 'note',
+    source: 'operator-note',
+    detail: 'beta-only Mira event',
+    evidence: 'beta evidence must not leak',
+    createdAt: '2026-06-22T00:00:00.000Z',
+  }) + '\n');
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'cambium',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-22T00:08:00.000Z' },
+  );
+  const mira = visual.npc.relationships.find((row) => row.id === 'mira');
+  const founderNpc = visual.npc.relationships.find((row) => row.id === 'founder-npc');
+
+  assert.equal(visual.npc.source, 'missing');
+  assert.equal(mira?.status, 'missing');
+  assert.equal(founderNpc?.status, 'missing');
+  assert.doesNotMatch(JSON.stringify(visual.npc), /beta-only|beta evidence|beta:mira|operator-npc-events@v1/i);
+});
+
 test('quests apply-side-quests consumes stale side-quest actions as rejected without ledger writes', async () => {
   const ctx = tmpCtx();
   const consumed: any[] = [];

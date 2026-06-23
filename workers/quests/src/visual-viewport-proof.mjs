@@ -96,6 +96,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clipSelector: '#sheet',
   },
   { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
+  { scene: 'map', fixture: 'mira', path: 'map-companions-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
   { scene: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof' },
 ];
 

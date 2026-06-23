@@ -2683,7 +2683,7 @@ test('page · contradictory skill promotion markers stay read-only on cards and 
 });
 
 test('page · Mira companion card renders only served relationship evidence', async () => {
-  const elements = await renderPageFixture({
+  const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     npc: {
       source: 'cortex-memory',
@@ -2693,6 +2693,26 @@ test('page · Mira companion card renders only served relationship evidence', as
           status: 'inferred',
           detail: '1/1 tenant cortex memories mention Mira or ICP signals',
           proof: 'acme:mira:resonance-1: positioning · mira',
+          advice: {
+            status: 'ready',
+            label: 'REVIEW ADVICE',
+            detail: 'review Mira positioning evidence',
+            proof: 'operator note references Mira safely',
+            action: { kind: 'review', label: 'Review Mira positioning', target: 'npc:mira' },
+          },
+          history: {
+            source: 'operator-npc-events@v1',
+            total: 1,
+            contradictions: 0,
+            rows: [{
+              id: 'acme:mira:advice:1',
+              kind: 'advice',
+              source: 'operator-note',
+              detail: 'Mira profile signal from founder positioning review',
+              evidence: 'operator note references Mira safely',
+              createdAt: '2026-06-22T00:00:00.000Z',
+            }],
+          },
           stage: {
             id: 'sighted',
             label: 'SIGHTED',
@@ -2717,6 +2737,19 @@ test('page · Mira companion card renders only served relationship evidence', as
           status: 'missing',
           detail: 'founder memory not served yet',
           proof: 'no inherited founder arcs served',
+          advice: {
+            status: 'blocked',
+            label: 'NO ADVICE',
+            detail: 'no durable founder NPC advice event served',
+            proof: 'no durable founder NPC events served',
+            action: { kind: 'collect-evidence', label: 'Record NPC evidence', target: 'quine write quests npc-event founder-npc' },
+          },
+          history: {
+            source: 'missing',
+            total: 0,
+            contradictions: 0,
+            rows: [],
+          },
           stage: {
             id: 'missing',
             label: 'MISSING',
@@ -2728,14 +2761,73 @@ test('page · Mira companion card renders only served relationship evidence', as
         },
       ],
     },
-  });
-  const map = elements.get('mapwrap')!.innerHTML;
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /MIRA/);
   assert.match(map, /SIGHTED/);
   assert.match(map, /1\/1 tenant cortex memories mention Mira or ICP signals/);
   assert.match(PAGE, /stage/);
   assert.match(PAGE, /proof/);
   assert.doesNotMatch(map, /relationship level|trusted advisor|partner|affinity/i);
+
+  (rendered.context.openNpcBox as (env: unknown, index: number) => void)(envelope, 0);
+  const miraSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(miraSheet, /ecosystem targets<\/b><span>cortex · operator-npc-events/);
+  assert.match(miraSheet, /event count<\/b><span>1/);
+  assert.match(miraSheet, /contradiction count<\/b><span>0/);
+  assert.match(miraSheet, /scope<\/b><span>tenant-cortex-only/);
+  assert.match(miraSheet, /proof<\/b><span>acme:mira:resonance-1: positioning · mira/);
+  assert.match(miraSheet, /advice action<\/b><span>review · Review Mira positioning · npc:mira/);
+  assert.match(miraSheet, /advice proof<\/b><span>operator note references Mira safely/);
+
+  (rendered.context.openNpcBox as (env: unknown, index: number) => void)(envelope, 1);
+  const founderSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(founderSheet, /ecosystem targets<\/b><span>quest-ledger · operator-npc-events/);
+  assert.match(founderSheet, /advice action<\/b><span>collect-evidence · Record NPC evidence · quine write quests npc-event founder-npc/);
+});
+
+test('page · companion advice sheet renders served hold action with target and proof', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    npc: {
+      source: 'operator-npc-events',
+      relationships: [{
+        id: 'mira',
+        status: 'inferred',
+        detail: 'durable NPC events ask the operator to hold advice',
+        proof: 'operator hold note served',
+        stage: {
+          id: 'needs-review',
+          label: 'NEEDS REVIEW',
+          detail: 'operator hold event exists',
+          confidence: 0,
+        },
+        events: [],
+        history: {
+          source: 'operator-npc-events@v1',
+          total: 1,
+          contradictions: 0,
+          rows: [],
+        },
+        advice: {
+          status: 'blocked',
+          label: 'HOLD ADVICE',
+          detail: 'hold advice until founder resolves missing evidence',
+          proof: 'operator hold note served',
+          action: { kind: 'hold', label: 'Hold advice', target: 'npc:mira' },
+        },
+        scope: 'tenant-cortex-only',
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  (rendered.context.openNpcBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /advice action<\/b><span>hold · Hold advice · npc:mira/);
+  assert.match(sheet, /advice proof<\/b><span>operator hold note served/);
+  assert.match(sheet, /review target<\/b><span>npc:mira/);
 });
 
 test('page · NPC history smoke flows from quine write to companion sheet', async () => {
@@ -2785,6 +2877,12 @@ test('page · NPC history smoke flows from quine write to companion sheet', asyn
   const adviceSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(adviceSheet, /REVIEW ADVICE/);
   assert.match(adviceSheet, /operator-npc-events@v1/);
+  assert.match(adviceSheet, /event count<\/b><span>1/);
+  assert.match(adviceSheet, /contradiction count<\/b><span>0/);
+  assert.match(adviceSheet, /scope<\/b><span>tenant-cortex-only/);
+  assert.match(adviceSheet, /proof<\/b><span>acme:mira:advice:/);
+  assert.match(adviceSheet, /advice action<\/b><span>review · Review advice · npc:mira/);
+  assert.match(adviceSheet, /review target<\/b><span>npc:mira/);
   assert.match(adviceSheet, /history 1/);
   assert.match(adviceSheet, /review Mira positioning before the next founder handoff/);
   assert.doesNotMatch(adviceSheet, /relationship level|trusted advisor|partner|partnership|affinity/i);
@@ -2811,6 +2909,9 @@ test('page · NPC history smoke flows from quine write to companion sheet', asyn
   const blockedSheet = contradictionRendered.elements.get('sheetBody')!.innerHTML;
   assert.match(blockedSheet, /ADVICE BLOCKED/);
   assert.match(blockedSheet, /1 contradiction/);
+  assert.match(blockedSheet, /contradiction count<\/b><span>1/);
+  assert.match(blockedSheet, /advice is blocked by contradiction; review target npc:mira/);
+  assert.match(blockedSheet, /advice action<\/b><span>review · Review NPC contradiction · npc:mira/);
   assert.match(blockedSheet, /newer founder note rejects the previous ICP assumption/);
 });
 
