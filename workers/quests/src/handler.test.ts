@@ -3599,6 +3599,88 @@ test('bridge · admin queues and Paperclip acknowledges directives', async () =>
   assert.equal(body(afterAck).count, 0);
 });
 
+test('bridge · Cambium emits live project task assignment directives', async () => {
+  const kv = fakeKv();
+  let uuidIndex = 0;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    now: () => '2026-06-22T08:00:00.000Z',
+    uuid: () => `assign-${++uuidIndex}`,
+  };
+  const assignment = {
+    memberId: 'mathis',
+    task: {
+      taskId: 'task-fitcheck-brief',
+      projectId: 'fitcheck-product',
+      projectName: 'FitCheck Product',
+      questId: 'quest-77',
+      clientId: 'fitcheck',
+      clientName: 'FitCheck',
+      title: 'Prepare branch proof packet',
+      description: 'Collect branch, PR, and preview evidence before final report.',
+      priority: 'high',
+      taskType: 'engineering',
+    },
+  };
+
+  const denied = await handle(req('POST', '/v1/bridge/assign-task', {
+    body: JSON.stringify(assignment),
+  }), deps);
+  assert.equal(denied.status, 401);
+
+  const queued = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(assignment),
+  }), deps);
+  assert.equal(queued.status, 200);
+  assert.equal(body(queued).id, 'assign-1');
+  assert.equal(body(queued).eventId, 'cambium:fitcheck-product:task-fitcheck-brief:assigned');
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/mathis', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const pendingBody = body(pending);
+  assert.equal(pendingBody.count, 1);
+  const directive = pendingBody.directives[0];
+  assert.equal(directive.direction, 'downstream');
+  assert.equal(directive.memberId, 'mathis');
+  assert.equal(directive.payload.type, 'project_task_assignment');
+  assert.equal(directive.payload.schema, 'thoughtseed.project_task_assignment.v1');
+  assert.equal(directive.payload.source, 'cambium');
+  assert.equal(directive.payload.target.memberId, 'mathis');
+  assert.equal(directive.payload.task.taskId, 'task-fitcheck-brief');
+  assert.equal(directive.payload.task.projectId, 'fitcheck-product');
+  assert.equal(directive.payload.task.assigneeMemberId, 'mathis');
+  assert.equal(directive.payload.task.priority, 'high');
+  assert.equal(directive.payload.task.taskType, 'engineering');
+  assert.equal(directive.payload.task.eventId, body(queued).eventId);
+  assert.ok(directive.payloadHash);
+
+  const duplicate = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(assignment),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).id, 'assign-1');
+  assert.equal(body(duplicate).duplicate, true);
+
+  kv.store.set('bridge:dir:mathis:corrupt', '<!DOCTYPE html>');
+  const withCorruptRecord = await handle(req('GET', '/v1/bridge/directives/mathis', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(withCorruptRecord.status, 200);
+  assert.equal(body(withCorruptRecord).count, 1);
+  assert.equal(body(withCorruptRecord).skipped, 1);
+
+  const conflict = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ ...assignment, task: { ...assignment.task, title: 'Changed assignment title' } }),
+  }), deps);
+  assert.equal(conflict.status, 409);
+  assert.equal(body(conflict).eventId, 'cambium:fitcheck-product:task-fitcheck-brief:assigned');
+});
+
 test('handoff · invite redemption issues a scoped bridge token', async () => {
   const kv = fakeKv();
   const deps = {

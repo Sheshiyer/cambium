@@ -15,11 +15,34 @@ export interface KvLike {
   list(prefix: string): Promise<string[]>;   // key names under a prefix (gate queue)
 }
 
+export interface BridgeAssignmentRecord {
+  id: string;
+  memberId: string;
+  taskId: string;
+  projectId: string;
+  eventId: string;
+  correlationId?: string;
+  payloadHash: string;
+  enqueuedAt: string;
+}
+
+export interface BridgeStoreLike {
+  putUpstream(tenantId: string, id: string, message: Record<string, unknown>): Promise<void>;
+  listUpstream(tenantId: string, limit: number): Promise<any[]>;
+  putDirective(memberId: string, id: string, directive: Record<string, unknown>): Promise<void>;
+  listPendingDirectives(memberId: string, limit: number): Promise<{ directives: any[]; skipped: number }>;
+  markDirectiveDelivered(memberId: string, id: string, deliveredAt: string): Promise<boolean>;
+  getAssignment(memberId: string, eventId: string): Promise<BridgeAssignmentRecord | null>;
+  putAssignment(record: BridgeAssignmentRecord): Promise<void>;
+}
+
 export interface HandlerDeps {
   kv: KvLike;
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
   bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
+  assignmentToken?: string;    // Scoped Hermes token — may enqueue project_task_assignment only
+  bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
   uuid?: () => string;         // injectable for tests
@@ -181,6 +204,102 @@ const shortText = (value: unknown, fallback: string, max = 300): string => {
   const text = String(value ?? '').trim();
   return (text || fallback).slice(0, max);
 };
+const optionalText = (value: unknown, max = 300): string | undefined => {
+  const text = String(value ?? '').trim();
+  return text ? text.slice(0, max) : undefined;
+};
+
+const FABRIC_TASK_PRIORITIES = new Set(['low', 'normal', 'high', 'urgent']);
+const FABRIC_TASK_TYPES = new Set(['engineering', 'design', 'marketing', 'operations', 'research', 'general']);
+
+function assignmentEventId(projectId: string, taskId: string): string {
+  return `cambium:${projectId}:${taskId}:assigned`;
+}
+
+function kvBridgeStore(kv: KvLike): BridgeStoreLike {
+  return {
+    async putUpstream(tenantId, id, message) {
+      await kv.put(`bridge:up:${tenantId}:${id}`, JSON.stringify(message));
+    },
+    async listUpstream(tenantId, limit) {
+      const keys = await kv.list(`bridge:up:${tenantId}:`);
+      const messages: any[] = [];
+      for (const k of keys.slice(-limit)) {
+        const v = await kv.get(k);
+        if (!v) continue;
+        try { messages.push(JSON.parse(v)); } catch { /* skip corrupt bridge inbox records */ }
+      }
+      return messages;
+    },
+    async putDirective(memberId, id, directive) {
+      await kv.put(`bridge:dir:${memberId}:${id}`, JSON.stringify(directive));
+    },
+    async listPendingDirectives(memberId, limit) {
+      const keys = await kv.list(`bridge:dir:${memberId}:`);
+      const directives: any[] = [];
+      let skipped = 0;
+      for (const k of keys.slice(0, limit)) {
+        const v = await kv.get(k);
+        if (!v) continue;
+        try {
+          const d = JSON.parse(v);
+          if (!d.delivered) directives.push(d);
+        } catch {
+          skipped++;
+        }
+      }
+      return { directives, skipped };
+    },
+    async markDirectiveDelivered(memberId, id, deliveredAt) {
+      const key = `bridge:dir:${memberId}:${id}`;
+      const v = await kv.get(key);
+      if (!v) return false;
+      try {
+        const d = JSON.parse(v);
+        d.delivered = true;
+        d.deliveredAt = deliveredAt;
+        await kv.put(key, JSON.stringify(d));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    async getAssignment(memberId, eventId) {
+      const raw = await kv.get(`bridge:assignment:${memberId}:${eventId}`);
+      if (!raw) return null;
+      try { return JSON.parse(raw) as BridgeAssignmentRecord; } catch { return null; }
+    },
+    async putAssignment(record) {
+      await kv.put(`bridge:assignment:${record.memberId}:${record.eventId}`, JSON.stringify(record));
+    },
+  };
+}
+
+function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string): Record<string, unknown> | { error: string } {
+  const taskId = optionalText(raw.taskId ?? raw.id, 120);
+  const projectId = optionalText(raw.projectId, 120);
+  const title = optionalText(raw.title, 180);
+  if (!taskId) return { error: 'assignment task needs taskId' };
+  if (!projectId) return { error: 'assignment task needs projectId' };
+  if (!title) return { error: 'assignment task needs title' };
+  const priority = optionalText(raw.priority, 24);
+  const taskType = optionalText(raw.taskType ?? raw.type, 24);
+  return {
+    taskId,
+    projectId,
+    projectName: optionalText(raw.projectName, 180),
+    questId: optionalText(raw.questId, 120),
+    clientId: optionalText(raw.clientId, 120),
+    clientName: optionalText(raw.clientName, 180),
+    title,
+    description: optionalText(raw.description, 1200),
+    priority: priority && FABRIC_TASK_PRIORITIES.has(priority) ? priority : 'normal',
+    taskType: taskType && FABRIC_TASK_TYPES.has(taskType) ? taskType : 'general',
+    assigneeMemberId: memberId,
+    assignedBy: optionalText(raw.assignedBy, 80) ?? 'cambium',
+    source: 'cambium',
+  };
+}
 
 function fallbackSocialRow() {
   return {
@@ -350,15 +469,18 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   // BRIDGE_TOKEN or scoped member token gates each op; upstream messages must also
   // carry a per-message HMAC in protocol.signature so payload tampering fails shut.
   if (path.startsWith('/v1/bridge/')) {
-    if (!deps.bridgeToken) return json(503, { error: 'bridge not configured on the worker' });
+    if (!deps.bridgeToken && !deps.assignmentToken) return json(503, { error: 'bridge not configured on the worker' });
     // Resolve the principal: the admin BRIDGE_TOKEN (cofounders/Hermes, full access)
-    // or a per-member token (scoped to one member, active + unexpired). Member tokens
-    // are issued by the handoff invite flow and stored as SHA-256 in a memtok: index.
+    // a scoped Hermes assignment token, or a per-member token (scoped to one member,
+    // active + unexpired). Member tokens are issued by the handoff invite flow and
+    // stored as SHA-256 in a memtok: index.
     const _auth = req.headers['authorization'] ?? '';
     const _tok = _auth.startsWith('Bearer ') ? _auth.slice(7) : '';
-    let principal: { admin: boolean; memberId?: string; tenantId?: string } | null = null;
-    if (_tok && _tok === deps.bridgeToken) {
+    let principal: { admin: boolean; assignmentOnly?: boolean; memberId?: string; tenantId?: string } | null = null;
+    if (_tok && deps.bridgeToken && _tok === deps.bridgeToken) {
       principal = { admin: true };
+    } else if (_tok && deps.assignmentToken && _tok === deps.assignmentToken) {
+      principal = { admin: false, assignmentOnly: true };
     } else if (_tok) {
       const tokenHash = await sha256hex(_tok);
       const mid = await deps.kv.get(tokenIndexKey(tokenHash));
@@ -376,6 +498,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!principal) return json(401, { error: 'bad or missing bridge credential' });
     const mayAct = (mid: string) => principal!.admin || principal!.memberId === mid;
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
+    const bridgeStore = deps.bridgeStore ?? kvBridgeStore(deps.kv);
 
     if (method === 'POST' && path === '/v1/bridge/ingest') {
       let msg: any;
@@ -388,7 +511,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!mayAct(String(msg.memberId))) return json(403, { error: 'token not scoped to this member' });
       if (!principal.admin && principal.tenantId !== String(msg.tenantId)) return json(403, { error: 'token not scoped to this tenant' });
       if (!msg.signature || msg.signature !== await bridgeSignature(_tok, msg)) return json(401, { error: 'bad or missing bridge signature' });
-      await deps.kv.put(`bridge:up:${msg.tenantId}:${msg.id}`, JSON.stringify({ ...msg, receivedAt: nowIso() }));
+      await bridgeStore.putUpstream(String(msg.tenantId), String(msg.id), { ...msg, receivedAt: nowIso() });
       return json(200, { ok: true, id: msg.id, stored: true });
     }
 
@@ -396,10 +519,60 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!principal.admin) return json(403, { error: 'inbox is cofounder-only' });
       const tenant = tenantOf(path, '/v1/bridge/inbox/');
       if (!tenant) return json(400, { error: 'bad tenant' });
-      const keys = await deps.kv.list(`bridge:up:${tenant}:`);
-      const messages: any[] = [];
-      for (const k of keys.slice(-100)) { const v = await deps.kv.get(k); if (v) messages.push(JSON.parse(v)); }
+      const messages = await bridgeStore.listUpstream(tenant, 100);
       return json(200, { tenant, count: messages.length, messages });
+    }
+
+    if (method === 'POST' && path === '/v1/bridge/assign-task') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may enqueue task assignments' });
+      let msg: any;
+      try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const rawTask = msg && typeof msg.task === 'object' && msg.task && !Array.isArray(msg.task) ? msg.task as Record<string, unknown> : null;
+      if (!rawTask) return json(400, { error: 'assignment needs a task object' });
+      const memberId = String(msg.memberId ?? rawTask.assigneeMemberId ?? '').trim().toLowerCase();
+      if (!memberId || !VALID_TENANT.test(memberId)) return json(400, { error: 'assignment needs a valid memberId' });
+      const task = normalizeAssignmentTask(rawTask, memberId);
+      if ('error' in task) return json(400, { error: task.error });
+
+      const issuedAt = nowIso();
+      const taskId = String(task.taskId);
+      const projectId = String(task.projectId);
+      const eventId = optionalText(msg.eventId ?? rawTask.eventId, 160) ?? assignmentEventId(projectId, taskId);
+      const correlationId = optionalText(msg.correlationId ?? rawTask.correlationId, 160) ?? eventId;
+      const directiveId = optionalText(msg.id, 160) ?? (deps.uuid ? deps.uuid() : `task_${memberId}_${issuedAt}`);
+      const payload = {
+        type: 'project_task_assignment',
+        kind: 'project_task_assignment',
+        schema: 'thoughtseed.project_task_assignment.v1',
+        source: 'cambium',
+        eventId,
+        correlationId,
+        issuedAt,
+        target: { memberId, surface: 'plexus-agent-fabric' },
+        task: { ...task, eventId, correlationId },
+      };
+      const payloadHash = await sha256hex(canonicalJson(payload));
+      const existing = await bridgeStore.getAssignment(memberId, eventId);
+      if (existing) {
+        if (existing.payloadHash !== payloadHash) {
+          return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: existing.id });
+        }
+        return json(200, { ok: true, id: existing.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
+      }
+
+      const stored = {
+        id: directiveId,
+        memberId,
+        direction: 'downstream',
+        payload,
+        payloadHash,
+        delivered: false,
+        issuedAt,
+        enqueuedAt: issuedAt,
+      };
+      await bridgeStore.putDirective(memberId, directiveId, stored);
+      await bridgeStore.putAssignment({ id: directiveId, memberId, taskId, projectId, eventId, correlationId, payloadHash, enqueuedAt: issuedAt });
+      return json(200, { ok: true, id: directiveId, memberId, taskId, projectId, eventId, correlationId, queued: true });
     }
 
     if (method === 'POST' && path === '/v1/bridge/directive') {
@@ -411,7 +584,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!msg.payload) return json(400, { error: 'directive needs a payload' });
       const id = msg.id ?? (deps.uuid ? deps.uuid() : `b_${memberId}_${nowIso()}`);
       const stored = { ...msg, id, memberId, direction: 'downstream', delivered: false, enqueuedAt: nowIso() };
-      await deps.kv.put(`bridge:dir:${memberId}:${id}`, JSON.stringify(stored));
+      await bridgeStore.putDirective(String(memberId), String(id), stored);
       return json(200, { ok: true, id, memberId, queued: true });
     }
 
@@ -419,10 +592,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const member = path.slice('/v1/bridge/directives/'.length).replace(/\/+$/, '');
       if (!VALID_TENANT.test(member)) return json(400, { error: 'bad member' });
       if (!mayAct(member)) return json(403, { error: 'token not scoped to this member' });
-      const keys = await deps.kv.list(`bridge:dir:${member}:`);
-      const pending: any[] = [];
-      for (const k of keys) { const v = await deps.kv.get(k); if (v) { const d = JSON.parse(v); if (!d.delivered) pending.push(d); } }
-      return json(200, { member, count: pending.length, directives: pending });
+      const pending = await bridgeStore.listPendingDirectives(member, 100);
+      return json(200, { member, count: pending.directives.length, skipped: pending.skipped, directives: pending.directives });
     }
 
     if (method === 'POST' && path === '/v1/bridge/ack') {
@@ -433,9 +604,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!mayAct(member)) return json(403, { error: 'token not scoped to this member' });
       let acked = 0;
       for (const id of ids) {
-        const key = `bridge:dir:${member}:${id}`;
-        const v = await deps.kv.get(key);
-        if (v) { const d = JSON.parse(v); d.delivered = true; d.deliveredAt = nowIso(); await deps.kv.put(key, JSON.stringify(d)); acked++; }
+        if (await bridgeStore.markDirectiveDelivered(String(member), String(id), nowIso())) acked++;
       }
       return json(200, { ok: true, acked });
     }
