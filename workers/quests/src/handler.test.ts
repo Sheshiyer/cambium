@@ -3865,7 +3865,9 @@ test('fabric ledger · consumes Plexus task reports idempotently', async () => {
   assert.equal(consumed.status, 200);
   assert.equal(body(consumed).consumed, 1);
   assert.equal(body(consumed).upgraded, 1);
-  assert.equal(fabricLedger.events.get('plexus-done-1')?.payloadHash, 'hash-done-1');
+  assert.equal(fabricLedger.events.get('plexus-done-1')?.upstreamPayloadHash, 'hash-done-1');
+  assert.ok(fabricLedger.events.get('plexus-done-1')?.payloadHash);
+  assert.notEqual(fabricLedger.events.get('plexus-done-1')?.payloadHash, 'hash-done-1');
   assert.equal(fabricLedger.tasks.get('task-fitcheck-brief')?.evidenceStrength, 'verified_evidence');
 
   const duplicate = await handle(req('POST', '/v1/fabric/consume', {
@@ -3880,6 +3882,139 @@ test('fabric ledger · consumes Plexus task reports idempotently', async () => {
   }), deps);
   assert.equal(scopedConsumer.status, 200);
   assert.equal(body(scopedConsumer).duplicates, 1);
+});
+
+test('fabric ledger · rejects forged verified evidence claims without strong proof', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    fabricLedger,
+    now: () => '2026-06-23T10:00:00.000Z',
+  };
+
+  const reports = [
+    {
+      id: 'up-note',
+      payload: {
+        taskId: 'task-note-only',
+        projectId: 'fitcheck-product',
+        title: 'Note-only completion',
+        note: 'I am done',
+      },
+    },
+    {
+      id: 'up-manual',
+      payload: {
+        taskId: 'task-manual-note',
+        projectId: 'fitcheck-product',
+        title: 'Manual note completion',
+        evidence: { type: 'manual_note', value: 'Done manually' },
+      },
+    },
+    {
+      id: 'up-unknown',
+      payload: {
+        taskId: 'task-unknown-proof',
+        projectId: 'fitcheck-product',
+        title: 'Unknown proof completion',
+        evidence: { type: 'trust_me', value: 'Looks good' },
+      },
+    },
+  ];
+
+  for (const report of reports) {
+    const upstream = await signBridge('bridge', {
+      id: report.id,
+      timestamp: '2026-06-23T10:00:00.000Z',
+      direction: 'upstream',
+      tenantId: 'cambium',
+      memberId: 'mathis',
+      payload: {
+        type: 'fabric_task_report',
+        schema: 'thoughtseed.fabric_task_report.v1',
+        status: 'done',
+        workMode: 'manual',
+        evidenceStrength: 'verified_evidence',
+        historyEventId: `event-${report.id}`,
+        ...report.payload,
+      },
+    });
+    const ingest = await handle(req('POST', '/v1/bridge/ingest', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify(upstream),
+    }), deps);
+    assert.equal(ingest.status, 200);
+  }
+
+  const consumed = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'cambium' }),
+  }), deps);
+  assert.equal(consumed.status, 200);
+  assert.equal(body(consumed).consumed, 3);
+  assert.equal(body(consumed).upgraded, 0);
+  assert.equal(fabricLedger.tasks.get('task-note-only')?.evidenceStrength, 'weak_evidence');
+  assert.equal(fabricLedger.tasks.get('task-manual-note')?.evidenceStrength, 'weak_evidence');
+  assert.equal(fabricLedger.tasks.get('task-unknown-proof')?.evidenceStrength, 'weak_evidence');
+  assert.deepEqual(
+    [...fabricLedger.candidates.values()].map((candidate) => candidate.status),
+    ['review_pending', 'review_pending', 'review_pending'],
+  );
+});
+
+test('fabric ledger · detects conflicts with server-side payload hash', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    fabricLedger,
+    now: () => '2026-06-23T10:00:00.000Z',
+  };
+
+  for (const report of [
+    { id: 'up-conflict-1', title: 'First payload', evidence: { type: 'github_pr', value: 'https://github.com/thoughtseed/fitcheck/pull/7' } },
+    { id: 'up-conflict-2', title: 'Changed payload', evidence: { type: 'github_pr', value: 'https://github.com/thoughtseed/fitcheck/pull/8' } },
+  ]) {
+    const upstream = await signBridge('bridge', {
+      id: report.id,
+      timestamp: '2026-06-23T10:00:00.000Z',
+      direction: 'upstream',
+      tenantId: 'cambium',
+      memberId: 'mathis',
+      payload: {
+        type: 'fabric_task_report',
+        schema: 'thoughtseed.fabric_task_report.v1',
+        taskId: 'task-conflict-proof',
+        projectId: 'fitcheck-product',
+        title: report.title,
+        status: 'done',
+        workMode: 'manual',
+        evidenceStrength: 'weak_evidence',
+        evidence: report.evidence,
+        historyEventId: 'plexus-conflict-1',
+        historyPayloadHash: 'client-claimed-same-hash',
+      },
+    });
+    const ingest = await handle(req('POST', '/v1/bridge/ingest', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify(upstream),
+    }), deps);
+    assert.equal(ingest.status, 200);
+  }
+
+  const consumed = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'cambium' }),
+  }), deps);
+  assert.equal(consumed.status, 200);
+  assert.equal(body(consumed).consumed, 1);
+  assert.equal(body(consumed).duplicates, 0);
+  assert.equal(body(consumed).conflicts, 1);
+  assert.equal(fabricLedger.events.get('plexus-conflict-1')?.upstreamPayloadHash, 'client-claimed-same-hash');
+  assert.notEqual(fabricLedger.events.get('plexus-conflict-1')?.payloadHash, 'client-claimed-same-hash');
 });
 
 test('handoff · invite redemption issues a scoped bridge token', async () => {

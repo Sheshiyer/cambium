@@ -58,6 +58,7 @@ export interface FabricLedgerEventRecord {
   type: string;
   source: string;
   payloadHash: string;
+  upstreamPayloadHash?: string | null;
   payload: Record<string, unknown>;
   correlationId?: string | null;
   receivedAt: string;
@@ -393,8 +394,17 @@ function fabricEventId(message: any, payload: Record<string, unknown>): string {
     ?? `fabric_event_${Date.now()}`;
 }
 
+function fabricHashPayload(payload: Record<string, unknown>): Record<string, unknown> {
+  const { historyPayloadHash: _historyPayloadHash, ...serverHashPayload } = payload;
+  return serverHashPayload;
+}
+
 async function fabricPayloadHash(payload: Record<string, unknown>): Promise<string> {
-  return optionalText(payload.historyPayloadHash, 180) ?? sha256hex(canonicalJson(payload));
+  return sha256hex(canonicalJson(fabricHashPayload(payload)));
+}
+
+function fabricUpstreamPayloadHash(payload: Record<string, unknown>): string | null {
+  return optionalText(payload.historyPayloadHash, 180) ?? null;
 }
 
 function taskRecordFromFabricPayload(message: any, payload: Record<string, unknown>, receivedAt: string): FabricLedgerTaskRecord | null {
@@ -402,14 +412,13 @@ function taskRecordFromFabricPayload(message: any, payload: Record<string, unkno
   const projectId = optionalText(payload.projectId, 160);
   const memberId = optionalText(message?.memberId ?? payload.assigneeMemberId ?? payload.memberId, 120);
   if (!taskId || !projectId || !memberId) return null;
-  const evidenceStrength = payload.evidenceStrength === 'verified_evidence' ? 'verified_evidence' : 'weak_evidence';
   return {
     taskId,
     projectId,
     memberId,
     status: optionalText(payload.status, 40) ?? 'seen',
     workMode: optionalText(payload.workMode, 40) ?? null,
-    evidenceStrength,
+    evidenceStrength: 'weak_evidence',
     title: optionalText(payload.title, 180) ?? taskId,
     payload,
     updatedAt: receivedAt,
@@ -424,7 +433,96 @@ function evidenceFromFabricPayload(payload: Record<string, unknown>): Record<str
 }
 
 function evidenceType(evidence: Record<string, unknown> | null): string {
-  return String(evidence?.type ?? '').trim();
+  return String(evidence?.type ?? '').trim().toLowerCase().replace(/[-\s]+/g, '_');
+}
+
+function evidenceText(evidence: Record<string, unknown>, keys: string[], max = 500): string | undefined {
+  for (const key of keys) {
+    const text = optionalText(evidence[key], max);
+    if (text) return text;
+  }
+  return undefined;
+}
+
+function evidenceUrl(evidence: Record<string, unknown>): URL | null {
+  const value = evidenceText(evidence, ['url', 'value', 'href', 'link'], 1000);
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+function hostIs(url: URL, domain: string): boolean {
+  return url.hostname === domain || url.hostname.endsWith(`.${domain}`);
+}
+
+function hasGithubPullProof(evidence: Record<string, unknown>): boolean {
+  const url = evidenceUrl(evidence);
+  return !!url && hostIs(url, 'github.com') && /^\/[^/\s]+\/[^/\s]+\/pull\/\d+(?:\/)?$/i.test(url.pathname);
+}
+
+function hasGithubCommitProof(evidence: Record<string, unknown>): boolean {
+  const sha = evidenceText(evidence, ['sha', 'commit', 'commitSha', 'value'], 120);
+  if (sha && /^[a-f0-9]{7,40}$/i.test(sha)) return true;
+  const url = evidenceUrl(evidence);
+  return !!url && hostIs(url, 'github.com') && /^\/[^/\s]+\/[^/\s]+\/commit\/[a-f0-9]{7,40}$/i.test(url.pathname);
+}
+
+function hasGitBranchProof(evidence: Record<string, unknown>): boolean {
+  const repo = evidenceText(evidence, ['repo', 'repository'], 240);
+  const branch = evidenceText(evidence, ['branch', 'ref'], 240);
+  if (repo && branch) return true;
+  const url = evidenceUrl(evidence);
+  return !!url && hostIs(url, 'github.com') && /^\/[^/\s]+\/[^/\s]+\/tree\/[^/\s]+/i.test(url.pathname);
+}
+
+function hasDeploymentProof(evidence: Record<string, unknown>): boolean {
+  return !!evidenceUrl(evidence);
+}
+
+function hasDesignProof(evidence: Record<string, unknown>, domain: string): boolean {
+  const url = evidenceUrl(evidence);
+  return !!url && hostIs(url, domain);
+}
+
+function hasFilePathProof(evidence: Record<string, unknown>): boolean {
+  const value = evidenceText(evidence, ['path', 'filePath', 'value'], 1000);
+  return !!value && !/[\0\r\n]/.test(value) && !/^[a-z][a-z0-9+.-]*:/i.test(value) && (value.startsWith('/') || value.includes('/'));
+}
+
+function isStrongFabricEvidence(evidence: Record<string, unknown>): boolean {
+  switch (evidenceType(evidence)) {
+    case 'github_pr':
+    case 'pull_request':
+      return hasGithubPullProof(evidence);
+    case 'github_commit':
+    case 'git_commit':
+    case 'commit':
+      return hasGithubCommitProof(evidence);
+    case 'github_branch':
+    case 'git_branch':
+    case 'branch':
+      return hasGitBranchProof(evidence);
+    case 'deployment':
+    case 'deploy':
+    case 'deploy_preview':
+    case 'preview_url':
+      return hasDeploymentProof(evidence);
+    case 'figma':
+    case 'figma_file':
+      return hasDesignProof(evidence, 'figma.com');
+    case 'canva':
+    case 'canva_design':
+      return hasDesignProof(evidence, 'canva.com');
+    case 'file_path':
+    case 'file':
+      return hasFilePathProof(evidence);
+    default:
+      return false;
+  }
 }
 
 function fabricCandidateForEvent(
@@ -436,7 +534,7 @@ function fabricCandidateForEvent(
   const evidence = evidenceFromFabricPayload(payload);
   if (!evidence) return null;
   const type = evidenceType(evidence);
-  const verified = !!task.taskId && !!task.projectId && !!type && type !== 'note';
+  const verified = isStrongFabricEvidence(evidence);
   return {
     candidateId: fabricCleanId(`${eventId}:${task.taskId}:${type || 'note'}`, 'cand'),
     taskId: task.taskId,
@@ -444,11 +542,11 @@ function fabricCandidateForEvent(
     memberId: task.memberId,
     status: verified ? 'verified_evidence' : 'review_pending',
     confidence: verified ? 'high' : 'low',
-    matchKind: verified ? 'explicit' : 'note_only',
+    matchKind: verified ? 'explicit' : (type === 'note' || type.startsWith('manual') ? 'note_only' : 'inferred'),
     evidence,
     reason: verified
-      ? 'explicit taskId/projectId evidence attached to Fabric report'
-      : 'note-only or weak evidence requires founder/admin review',
+      ? 'validated strong evidence attached to explicit Fabric task report'
+      : 'unvalidated, note-only, or weak evidence requires founder/admin review',
     createdAt: receivedAt,
   };
 }
@@ -498,6 +596,7 @@ async function consumeFabricBridgeMessages(
       type: optionalText(payload.type ?? payload.kind, 80) ?? 'fabric_task_event',
       source: 'plexus',
       payloadHash,
+      upstreamPayloadHash: fabricUpstreamPayloadHash(payload),
       payload,
       correlationId: optionalText(payload.correlationId, 180) ?? null,
       receivedAt,
