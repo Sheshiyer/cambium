@@ -50,11 +50,12 @@ class FakeFabricLedger implements FabricLedgerStoreLike {
   tenantId(record: { tenantId?: string; payload?: Record<string, unknown> } | null | undefined) {
     return String(record?.tenantId ?? record?.payload?.tenantId ?? 'cambium');
   }
+  eventKey(eventId: string, tenantId = 'cambium') { return tenantId === 'cambium' ? eventId : `${tenantId}:${eventId}`; }
   taskKey(taskId: string, tenantId = 'cambium') { return tenantId === 'cambium' ? taskId : `${tenantId}:${taskId}`; }
   candidateKey(candidateId: string, tenantId = 'cambium') { return tenantId === 'cambium' ? candidateId : `${tenantId}:${candidateId}`; }
 
-  async getEvent(eventId: string) { return this.events.get(eventId) ?? null; }
-  async putEvent(record: FabricLedgerEventRecord) { this.events.set(record.eventId, record); }
+  async getEvent(eventId: string, tenantId = 'cambium') { return this.events.get(this.eventKey(eventId, tenantId)) ?? null; }
+  async putEvent(record: FabricLedgerEventRecord) { this.events.set(this.eventKey(record.eventId, this.tenantId(record)), record); }
   async getTask(taskId: string, tenantId = 'cambium') { return this.tasks.get(this.taskKey(taskId, tenantId)) ?? null; }
   async findTasks(tenantId = 'cambium') { return [...this.tasks.values()].filter((task) => this.tenantId(task) === tenantId); }
   async upsertTask(record: FabricLedgerTaskRecord) { this.tasks.set(this.taskKey(record.taskId, this.tenantId(record)), record); }
@@ -3888,6 +3889,69 @@ test('fabric ledger · consumes Plexus task reports idempotently', async () => {
   }), deps);
   assert.equal(scopedConsumer.status, 200);
   assert.equal(body(scopedConsumer).duplicates, 1);
+});
+
+test('fabric ledger · isolates event ids by tenant during consume', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    fabricLedger,
+    now: () => '2026-06-23T10:00:00.000Z',
+  };
+
+  for (const tenantId of ['tenant-a', 'tenant-b']) {
+    const upstream = await signBridge('bridge', {
+      id: `up-${tenantId}`,
+      timestamp: '2026-06-23T10:00:00.000Z',
+      direction: 'upstream',
+      tenantId,
+      memberId: 'mathis',
+      payload: {
+        type: 'fabric_task_report',
+        schema: 'thoughtseed.fabric_task_report.v1',
+        tenantId,
+        taskId: `task-${tenantId}`,
+        projectId: `project-${tenantId}`,
+        title: `Prepare ${tenantId} packet`,
+        status: 'done',
+        workMode: 'manual',
+        evidence: { type: 'github_pr', value: 'https://github.com/thoughtseed/fitcheck/pull/7' },
+        historyEventId: 'shared-history-event',
+        historyPayloadHash: `hash-${tenantId}`,
+      },
+    });
+    const ingest = await handle(req('POST', '/v1/bridge/ingest', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify(upstream),
+    }), deps);
+    assert.equal(ingest.status, 200);
+  }
+
+  const tenantA = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'tenant-a' }),
+  }), deps);
+  assert.equal(tenantA.status, 200);
+  assert.equal(body(tenantA).consumed, 1);
+  assert.equal(body(tenantA).duplicates, 0);
+  assert.equal(body(tenantA).conflicts, 0);
+
+  const tenantB = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'tenant-b' }),
+  }), deps);
+  assert.equal(tenantB.status, 200);
+  assert.equal(body(tenantB).consumed, 1);
+  assert.equal(body(tenantB).duplicates, 0);
+  assert.equal(body(tenantB).conflicts, 0);
+
+  assert.equal(fabricLedger.events.size, 2);
+  assert.equal(fabricLedger.events.get('tenant-a:shared-history-event')?.tenantId, 'tenant-a');
+  assert.equal(fabricLedger.events.get('tenant-b:shared-history-event')?.tenantId, 'tenant-b');
+  assert.equal(fabricLedger.tasks.get('tenant-a:task-tenant-a')?.tenantId, 'tenant-a');
+  assert.equal(fabricLedger.tasks.get('tenant-b:task-tenant-b')?.tenantId, 'tenant-b');
 });
 
 test('fabric ledger · reviews weak evidence candidates and emits task history directives', async () => {

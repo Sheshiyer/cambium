@@ -94,7 +94,7 @@ export interface FabricEvidenceReviewRecord {
 }
 
 export interface FabricLedgerStoreLike {
-  getEvent(eventId: string): Promise<FabricLedgerEventRecord | null>;
+  getEvent(eventId: string, tenantId?: string): Promise<FabricLedgerEventRecord | null>;
   putEvent(record: FabricLedgerEventRecord): Promise<void>;
   getTask(taskId: string, tenantId?: string): Promise<FabricLedgerTaskRecord | null>;
   findTasks(tenantId?: string): Promise<FabricLedgerTaskRecord[]>;
@@ -571,7 +571,7 @@ async function consumeFabricBridgeMessages(
     const receivedAt = optionalText(message.receivedAt, 80) ?? nowIso();
     const eventId = fabricEventId(message, payload);
     const payloadHash = await fabricPayloadHash(payload);
-    const existing = await fabricLedger.getEvent(eventId);
+    const existing = await fabricLedger.getEvent(eventId, tenantId);
     if (existing) {
       if (existing.payloadHash === payloadHash) duplicates++;
       else conflicts++;
