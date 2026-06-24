@@ -3964,6 +3964,103 @@ test('fabric ledger · rejects forged verified evidence claims without strong pr
   );
 });
 
+test('fabric ledger · treats ignored evidence strength changes as duplicates', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    fabricLedger,
+    now: () => '2026-06-23T10:00:00.000Z',
+  };
+
+  for (const evidenceStrength of ['weak_evidence', 'verified_evidence']) {
+    const upstream = await signBridge('bridge', {
+      id: `up-strength-${evidenceStrength}`,
+      timestamp: '2026-06-23T10:00:00.000Z',
+      direction: 'upstream',
+      tenantId: 'cambium',
+      memberId: 'mathis',
+      payload: {
+        type: 'fabric_task_report',
+        schema: 'thoughtseed.fabric_task_report.v1',
+        taskId: 'task-strength-proof',
+        projectId: 'fitcheck-product',
+        title: 'Prepare branch proof packet',
+        status: 'done',
+        workMode: 'manual',
+        evidenceStrength,
+        evidence: { type: 'github_pr', value: 'https://github.com/thoughtseed/fitcheck/pull/7' },
+        historyEventId: 'plexus-strength-1',
+        historyPayloadHash: 'client-claimed-strength',
+      },
+    });
+    const ingest = await handle(req('POST', '/v1/bridge/ingest', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify(upstream),
+    }), deps);
+    assert.equal(ingest.status, 200);
+  }
+
+  const consumed = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'cambium' }),
+  }), deps);
+  assert.equal(consumed.status, 200);
+  assert.equal(body(consumed).consumed, 1);
+  assert.equal(body(consumed).duplicates, 1);
+  assert.equal(body(consumed).conflicts, 0);
+});
+
+test('fabric ledger · keeps local file path evidence pending review', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    fabricLedger,
+    now: () => '2026-06-23T10:00:00.000Z',
+  };
+
+  const upstream = await signBridge('bridge', {
+    id: 'up-file-path',
+    timestamp: '2026-06-23T10:00:00.000Z',
+    direction: 'upstream',
+    tenantId: 'cambium',
+    memberId: 'mathis',
+    payload: {
+      type: 'fabric_task_report',
+      schema: 'thoughtseed.fabric_task_report.v1',
+      taskId: 'task-file-proof',
+      projectId: 'fitcheck-product',
+      title: 'Claimed local proof',
+      status: 'done',
+      workMode: 'manual',
+      evidenceStrength: 'verified_evidence',
+      evidence: { type: 'file_path', value: '/tmp/claimed-proof' },
+      historyEventId: 'plexus-file-path-1',
+      historyPayloadHash: 'client-claimed-file-path',
+    },
+  });
+  const ingest = await handle(req('POST', '/v1/bridge/ingest', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(upstream),
+  }), deps);
+  assert.equal(ingest.status, 200);
+
+  const consumed = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'cambium' }),
+  }), deps);
+  assert.equal(consumed.status, 200);
+  assert.equal(body(consumed).consumed, 1);
+  assert.equal(body(consumed).upgraded, 0);
+  assert.equal(fabricLedger.tasks.get('task-file-proof')?.evidenceStrength, 'weak_evidence');
+  const candidate = [...fabricLedger.candidates.values()][0];
+  assert.equal(candidate.status, 'review_pending');
+  assert.equal(candidate.confidence, 'low');
+});
+
 test('fabric ledger · detects conflicts with server-side payload hash', async () => {
   const kv = fakeKv();
   const fabricLedger = new FakeFabricLedger();

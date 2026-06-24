@@ -395,7 +395,11 @@ function fabricEventId(message: any, payload: Record<string, unknown>): string {
 }
 
 function fabricHashPayload(payload: Record<string, unknown>): Record<string, unknown> {
-  const { historyPayloadHash: _historyPayloadHash, ...serverHashPayload } = payload;
+  const {
+    historyPayloadHash: _historyPayloadHash,
+    evidenceStrength: _evidenceStrength,
+    ...serverHashPayload
+  } = payload;
   return serverHashPayload;
 }
 
@@ -471,26 +475,9 @@ function hasGithubCommitProof(evidence: Record<string, unknown>): boolean {
   return !!url && hostIs(url, 'github.com') && /^\/[^/\s]+\/[^/\s]+\/commit\/[a-f0-9]{7,40}$/i.test(url.pathname);
 }
 
-function hasGitBranchProof(evidence: Record<string, unknown>): boolean {
-  const repo = evidenceText(evidence, ['repo', 'repository'], 240);
-  const branch = evidenceText(evidence, ['branch', 'ref'], 240);
-  if (repo && branch) return true;
-  const url = evidenceUrl(evidence);
-  return !!url && hostIs(url, 'github.com') && /^\/[^/\s]+\/[^/\s]+\/tree\/[^/\s]+/i.test(url.pathname);
-}
-
-function hasDeploymentProof(evidence: Record<string, unknown>): boolean {
-  return !!evidenceUrl(evidence);
-}
-
 function hasDesignProof(evidence: Record<string, unknown>, domain: string): boolean {
   const url = evidenceUrl(evidence);
   return !!url && hostIs(url, domain);
-}
-
-function hasFilePathProof(evidence: Record<string, unknown>): boolean {
-  const value = evidenceText(evidence, ['path', 'filePath', 'value'], 1000);
-  return !!value && !/[\0\r\n]/.test(value) && !/^[a-z][a-z0-9+.-]*:/i.test(value) && (value.startsWith('/') || value.includes('/'));
 }
 
 function isStrongFabricEvidence(evidence: Record<string, unknown>): boolean {
@@ -505,12 +492,12 @@ function isStrongFabricEvidence(evidence: Record<string, unknown>): boolean {
     case 'github_branch':
     case 'git_branch':
     case 'branch':
-      return hasGitBranchProof(evidence);
+      return false;
     case 'deployment':
     case 'deploy':
     case 'deploy_preview':
     case 'preview_url':
-      return hasDeploymentProof(evidence);
+      return false;
     case 'figma':
     case 'figma_file':
       return hasDesignProof(evidence, 'figma.com');
@@ -519,7 +506,7 @@ function isStrongFabricEvidence(evidence: Record<string, unknown>): boolean {
       return hasDesignProof(evidence, 'canva.com');
     case 'file_path':
     case 'file':
-      return hasFilePathProof(evidence);
+      return false;
     default:
       return false;
   }
