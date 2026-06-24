@@ -47,15 +47,21 @@ class FakeFabricLedger implements FabricLedgerStoreLike {
   readonly candidates = new Map<string, FabricEvidenceCandidateRecord>();
   readonly reviews = new Map<string, FabricEvidenceReviewRecord>();
 
+  tenantId(record: { tenantId?: string; payload?: Record<string, unknown> } | null | undefined) {
+    return String(record?.tenantId ?? record?.payload?.tenantId ?? 'cambium');
+  }
+  taskKey(taskId: string, tenantId = 'cambium') { return tenantId === 'cambium' ? taskId : `${tenantId}:${taskId}`; }
+  candidateKey(candidateId: string, tenantId = 'cambium') { return tenantId === 'cambium' ? candidateId : `${tenantId}:${candidateId}`; }
+
   async getEvent(eventId: string) { return this.events.get(eventId) ?? null; }
   async putEvent(record: FabricLedgerEventRecord) { this.events.set(record.eventId, record); }
-  async getTask(taskId: string) { return this.tasks.get(taskId) ?? null; }
-  async findTasks() { return [...this.tasks.values()]; }
-  async upsertTask(record: FabricLedgerTaskRecord) { this.tasks.set(record.taskId, record); }
-  async putEvidenceCandidate(record: FabricEvidenceCandidateRecord) { this.candidates.set(record.candidateId, record); }
-  async getEvidenceCandidate(candidateId: string) { return this.candidates.get(candidateId) ?? null; }
-  async listReviewItems() { return [...this.candidates.values()].filter((candidate) => candidate.status === 'review_pending'); }
-  async updateEvidenceCandidate(record: FabricEvidenceCandidateRecord) { this.candidates.set(record.candidateId, record); }
+  async getTask(taskId: string, tenantId = 'cambium') { return this.tasks.get(this.taskKey(taskId, tenantId)) ?? null; }
+  async findTasks(tenantId = 'cambium') { return [...this.tasks.values()].filter((task) => this.tenantId(task) === tenantId); }
+  async upsertTask(record: FabricLedgerTaskRecord) { this.tasks.set(this.taskKey(record.taskId, this.tenantId(record)), record); }
+  async putEvidenceCandidate(record: FabricEvidenceCandidateRecord) { this.candidates.set(this.candidateKey(record.candidateId, this.tenantId(record)), record); }
+  async getEvidenceCandidate(candidateId: string, tenantId = 'cambium') { return this.candidates.get(this.candidateKey(candidateId, tenantId)) ?? null; }
+  async listReviewItems(tenantId = 'cambium') { return [...this.candidates.values()].filter((candidate) => candidate.status === 'review_pending' && this.tenantId(candidate) === tenantId); }
+  async updateEvidenceCandidate(record: FabricEvidenceCandidateRecord) { this.candidates.set(this.candidateKey(record.candidateId, this.tenantId(record)), record); }
   async putEvidenceReview(record: FabricEvidenceReviewRecord) { this.reviews.set(record.reviewId, record); }
 }
 
@@ -3969,6 +3975,195 @@ test('fabric ledger · reviews weak evidence candidates and emits task history d
   assert.equal(task.status, 200);
   assert.equal(body(task).task.evidenceStrength, 'weak_evidence');
   assert.equal(body(task).candidates[0].status, 'rejected_candidate');
+});
+
+test('fabric ledger · isolates review data by tenant for list attach review and detail', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  await fabricLedger.upsertTask({
+    tenantId: 'tenant-a',
+    taskId: 'task-shared',
+    projectId: 'project-a',
+    memberId: 'mathis',
+    status: 'done',
+    workMode: 'manual',
+    evidenceStrength: 'weak_evidence',
+    title: 'Tenant A task',
+    payload: { tenantId: 'tenant-a', clientName: 'Tenant A' },
+    updatedAt: '2026-06-23T10:00:00.000Z',
+  });
+  const deps = {
+    kv,
+    fabricLedger,
+    bridgeToken: 'bridge',
+    now: () => '2026-06-23T10:05:00.000Z',
+    uuid: () => 'candidate-a',
+  };
+
+  const tenantACandidate = await handle(req('POST', '/v1/fabric/evidence-candidates', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'tenant-a',
+      taskId: 'task-shared',
+      evidence: { type: 'github_branch', branch: 'tenant-a-proof', clientName: 'Tenant A' },
+    }),
+  }), deps);
+  assert.equal(tenantACandidate.status, 200);
+
+  const tenantBList = await handle(req('GET', '/v1/fabric/review-items?tenantId=tenant-b', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(tenantBList.status, 200);
+  assert.equal(body(tenantBList).count, 0);
+
+  const tenantBDetail = await handle(req('GET', '/v1/fabric/tasks/task-shared?tenantId=tenant-b', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(tenantBDetail.status, 404);
+
+  const tenantBAttach = await handle(req('POST', '/v1/fabric/evidence-candidates', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'tenant-b',
+      taskId: 'task-shared',
+      evidence: { type: 'github_branch', branch: 'tenant-b-escape', clientName: 'Tenant A' },
+    }),
+  }), deps);
+  assert.equal(tenantBAttach.status, 404);
+  assert.equal(fabricLedger.candidates.size, 1);
+
+  const tenantBReview = await handle(req('POST', '/v1/fabric/evidence-candidates/review', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'tenant-b', candidateId: 'candidate-a', outcome: 'accepted' }),
+  }), deps);
+  assert.equal(tenantBReview.status, 404);
+  assert.equal(fabricLedger.candidates.get('tenant-a:candidate-a')?.status, 'review_pending');
+  assert.equal(fabricLedger.reviews.size, 0);
+
+  const tenantAList = await handle(req('GET', '/v1/fabric/review-items?tenantId=tenant-a', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(body(tenantAList).count, 1);
+  assert.equal(body(tenantAList).candidates[0].tenantId, 'tenant-a');
+});
+
+test('fabric ledger · makes review replay idempotent and rejects opposite outcomes', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  await fabricLedger.upsertTask({
+    taskId: 'task-fitcheck-review',
+    projectId: 'fitcheck-product',
+    memberId: 'mathis',
+    status: 'done',
+    workMode: 'manual',
+    evidenceStrength: 'weak_evidence',
+    title: 'Prepare review replay packet',
+    payload: { clientName: 'FitCheck' },
+    updatedAt: '2026-06-23T10:00:00.000Z',
+  });
+  const deps = {
+    kv,
+    fabricLedger,
+    bridgeToken: 'bridge',
+    now: () => '2026-06-23T10:05:00.000Z',
+    uuid: () => 'candidate-replay',
+  };
+
+  const candidate = await handle(req('POST', '/v1/fabric/evidence-candidates', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      taskId: 'task-fitcheck-review',
+      evidence: { type: 'github_branch', branch: 'replay-proof', clientName: 'FitCheck' },
+    }),
+  }), deps);
+  assert.equal(candidate.status, 200);
+
+  const firstReject = await handle(req('POST', '/v1/fabric/evidence-candidates/review', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ candidateId: 'candidate-replay', outcome: 'rejected', actor: 'founder' }),
+  }), deps);
+  assert.equal(firstReject.status, 200);
+  assert.equal(body(firstReject).candidate.status, 'rejected_candidate');
+
+  const replayReject = await handle(req('POST', '/v1/fabric/evidence-candidates/review', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ candidateId: 'candidate-replay', outcome: 'rejected', actor: 'founder' }),
+  }), deps);
+  assert.equal(replayReject.status, 200);
+  assert.equal(body(replayReject).duplicate, true);
+  assert.equal(body(replayReject).directiveId, 'candidate-review:candidate-replay:rejected');
+
+  const oppositeAccept = await handle(req('POST', '/v1/fabric/evidence-candidates/review', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ candidateId: 'candidate-replay', outcome: 'accepted', actor: 'founder' }),
+  }), deps);
+  assert.equal(oppositeAccept.status, 409);
+  assert.equal(fabricLedger.candidates.get('candidate-replay')?.status, 'rejected_candidate');
+  assert.equal(fabricLedger.reviews.size, 1);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/mathis', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(body(pending).count, 1);
+  assert.equal(body(pending).directives[0].payload.event.type, 'candidate_rejected');
+});
+
+test('fabric ledger · redacts review DTOs and hides forged raw payload strength', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  await fabricLedger.upsertTask({
+    taskId: 'task-secret-proof',
+    projectId: 'fitcheck-product',
+    memberId: 'mathis',
+    status: 'done',
+    workMode: 'manual',
+    evidenceStrength: 'weak_evidence',
+    title: 'Handle secret evidence',
+    payload: {
+      clientName: 'FitCheck',
+      description: 'Bearer task-secret',
+      token: 'raw-task-token',
+      evidenceStrength: 'verified_evidence',
+    },
+    updatedAt: '2026-06-23T10:00:00.000Z',
+  });
+  const deps = {
+    kv,
+    fabricLedger,
+    bridgeToken: 'bridge',
+    now: () => '2026-06-23T10:05:00.000Z',
+    uuid: () => 'candidate-secret',
+  };
+
+  const candidate = await handle(req('POST', '/v1/fabric/evidence-candidates', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      taskId: 'task-secret-proof',
+      evidence: {
+        type: 'manual_note',
+        value: 'Bearer candidate-secret',
+        token: 'raw-candidate-token',
+        clientName: 'FitCheck',
+      },
+    }),
+  }), deps);
+  assert.equal(candidate.status, 200);
+
+  const reviewItems = await handle(req('GET', '/v1/fabric/review-items', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const reviewJson = reviewItems.body;
+  assert.doesNotMatch(reviewJson, /Bearer candidate-secret|raw-candidate-token|token/i);
+  assert.equal(body(reviewItems).candidates[0].evidence.value, '[redacted]');
+
+  const task = await handle(req('GET', '/v1/fabric/tasks/task-secret-proof', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const taskJson = task.body;
+  assert.doesNotMatch(taskJson, /Bearer task-secret|raw-task-token|Bearer candidate-secret|raw-candidate-token|payload|verified_evidence/i);
+  assert.equal(body(task).task.evidenceStrength, 'weak_evidence');
+  assert.equal(body(task).task.details.clientName, 'FitCheck');
+  assert.equal(body(task).task.details.description, '[redacted]');
 });
 
 test('fabric ledger · rejects forged verified evidence claims without strong proof', async () => {
