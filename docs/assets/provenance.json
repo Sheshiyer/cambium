@@ -112,6 +112,20 @@
       "approvalStatus": "docs-only",
       "sizePolicy": "docs-reference-image",
       "notes": "Viewport evidence for layout and clickability proof; no raw credentials, user ids, or Telegram initData."
+    },
+    {
+      "id": "architecture-and-visual-proof-packs",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/cambium-cortex-renderable-map/qa/*.png",
+        "docs/plans/assets/cambium-current-visual-review/*.png",
+        "docs/plans/assets/cambium-isometric-moodboard/*.png"
+      ],
+      "source": "Synthetic architecture, moodboard, and visual review captures generated for Cambium planning",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Planning and QA evidence for visual review; not runtime data."
     }
   ]
 }

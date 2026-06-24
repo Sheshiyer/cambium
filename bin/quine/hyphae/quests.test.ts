@@ -16,6 +16,7 @@ function tmpCtx(): QuineCtx {
 }
 
 const quietPaperclip = { reachable: false, agents: 0, issuesDone: 0, issuesOpen: 0, agentErrors: 0, pendingApprovals: 0 };
+const TEST_TELEGRAM_USER_ID = '1000000001';
 
 const openItem = (overrides: Record<string, unknown> = {}) => ({
   id: 'THO-10',
@@ -36,7 +37,7 @@ const openItem = (overrides: Record<string, unknown> = {}) => ({
 const action = (overrides: Record<string, unknown> = {}) => ({
   id: 'gate-side-1',
   ts: '2026-06-22T00:00:00.000Z',
-  founderId: '1371522080',
+  founderId: TEST_TELEGRAM_USER_ID,
   kind: 'queue-side-quest',
   subject: 'wake-proof',
   evidence: 'wake-proof: ingest missing · viability missing',

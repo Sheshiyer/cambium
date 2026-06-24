@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-06-12T04:50:00+05:30",
+  "tenant": "cambium",
+  "source": {
+    "plan": "composition/pipeline.json + registry.json",
+    "quest": "quine quests --tenant cambium",
+    "cortexContracts": "cortex/cambium/contracts/*.json",
+    "taste": "../Skill-clusters/taste/scripts/taste-resolve.mjs + visual QA/reroll lessons"
+  },
+  "quest": {
+    "completed": 9,
+    "total": 17,
+    "current": {
+      "arc": "X",
+      "title": "The Brief",
+      "evidence": "brief pending · contract pending · deposit pending",
+      "reveals": "venture definition + commercial commitment"
+    }
+  },
+  "stages": [
+    {
+      "id": "genesis",
+      "title": "Mint the brand",
+      "organ": "Brand brain",
+      "tier": "free",
+      "input": "idea",
+      "output": "brand-dna",
+      "requires": ["idea"],
+      "produces": ["brand_system", "copy_system", "visual_system"],
+      "state": "ready",
+      "render": {
+        "x": 8,
+        "y": 60,
+        "w": 17,
+        "h": 20
+      }
+    },
+    {
+      "id": "taste",
+      "title": "Set the taste",
+      "organ": "Taste cortex",
+      "tier": "paid",
+      "input": "brand-dna",
+      "output": "taste-brief",
+      "requires": ["brand_system", "copy_system", "visual_system"],
+      "produces": ["taste_brief", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"],
+      "state": "gated",
+      "render": {
+        "x": 33,
+        "y": 50,
+        "w": 17,
+        "h": 20
+      }
+    },
+    {
+      "id": "build",
+      "title": "Build on-brand",
+      "organ": "Hands conductor",
+      "tier": "free",
+      "input": "taste-brief",
+      "output": "artifact",
+      "requires": ["brand_system", "copy_system", "visual_system", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"],
+      "produces": ["artifact", "brand_docs"],
+      "state": "ready",
+      "render": {
+        "x": 58,
+        "y": 60,
+        "w": 17,
+        "h": 20
+      }
+    },
+    {
+      "id": "ops",
+      "title": "Operate + GTM",
+      "organ": "Will",
+      "tier": "paid",
+      "input": "artifact",
+      "output": "business",
+      "requires": ["artifact", "brand_docs", "brand_system", "copy_system", "visual_system", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"],
+      "produces": ["business"],
+      "state": "gated",
+      "render": {
+        "x": 83,
+        "y": 50,
+        "w": 17,
+        "h": 20
+      }
+    }
+  ],
+  "cortex": {
+    "title": "Aesthetic memory",
+    "feeds": ["genesis", "taste", "build", "ops"],
+    "transport": "local contracts + sqlite memory; NIM Worker for live embedding/search",
+    "rules": [
+      "palette-lock",
+      "no-neon-outer-glow",
+      "opacity-hierarchy",
+      "motion-substrate",
+      "honest-freshness",
+      "reduced-motion",
+      "readability"
+    ]
+  },
+  "tasteSkills": [
+    {
+      "id": "taste-resolve",
+      "label": "Taste resolve",
+      "purpose": "request + brand -> aesthetic brief and variable contract"
+    },
+    {
+      "id": "visual-qa",
+      "label": "Visual QA",
+      "purpose": "browser screenshots, contrast, and rendered-state checks"
+    },
+    {
+      "id": "kit-qa",
+      "label": "Kit QA",
+      "purpose": "palette coverage and on-brand raster scoring"
+    },
+    {
+      "id": "reroll",
+      "label": "Reroll loop",
+      "purpose": "regenerate until the asset clears the brand gate"
+    }
+  ],
+  "runner": {
+    "commands": [
+      "npm run validate",
+      "npm run quine -- quests --tenant cambium",
+      "node bin/compose.mjs run cambium",
+      "node ../Skill-clusters/scripts/visual-qa.mjs docs/plans/assets/cambium-cortex-renderable-map/index.html"
+    ],
+    "gates": ["dry-run default", "spend-gated taste", "no-spend hands", "spend-gated ops"]
+  }
+}

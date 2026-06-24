@@ -7,7 +7,7 @@
 # Runs on the founder Mac via launchd (ai.hermes.cambium-quests-refresh, 5-min cycle).
 # Secrets are sourced from the founder's existing .env files — never embedded here:
 #   ~/.claude/.env                 → QUESTS_PUSH_TOKEN (push to the serving Worker)
-#   thoughtseed-paperclip/.env     → PAPERCLIP_* / local org runtime settings
+#   $PAPERCLIP_ROOT/.env           → PAPERCLIP_* / local org runtime settings
 # The push verb also reads ~/.claude/.env in-process; sourcing here keeps the local
 # Paperclip lane aligned with the scheduled refresh job.
 

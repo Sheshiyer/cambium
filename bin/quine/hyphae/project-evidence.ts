@@ -9,6 +9,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, writeFileSync, renameSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { QuineCtx } from '../types.ts';
 
@@ -72,9 +73,10 @@ export function assembleProjectEvidence(s: ProjectSignals, nowIso?: string): Pro
 // ───────────────────────────────────────────────────────────────────────
 
 /** Vault project root convention (see PHASE-Q-BRIDGE.md). */
-const VAULT_PROJECT_ROOTS = [
-  '/Volumes/madara/2026/twc-vault/60-client-ecosystem',
-];
+const VAULT_PROJECT_ROOTS = (process.env.CAMBIUM_VAULT_PROJECT_ROOTS || join(homedir(), 'client-ecosystem'))
+  .split(':')
+  .map((root) => root.trim())
+  .filter(Boolean);
 
 const TENANT_REPO_ROOTS: Record<string, string[]> = {
   cambium: [],

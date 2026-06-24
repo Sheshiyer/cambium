@@ -35,7 +35,7 @@ Cambium's quest miniapp can attach to any founder-approved command surface:
 
 | Service | Role | Endpoint / id | Auth (names only) | Layer |
 |---|---|---|---|---|
-| Telegram Bot API | curios.self bot — co-founder touchpoint | group `-1003698657291`; founders `1371522080`/`926168615` | bot token (Hermes config; see §2) | Bridge D |
+| Telegram Bot API | founder-approved bot touchpoint | group `<telegram-group-id>`; founders `<founder-id-1>`/`<founder-id-2>` | bot token (runtime config; see §2) | Bridge D |
 | Hermes runtime | comms agent: TG in/out, email, webhooks | local runtime `~/.hermes/` | local | Bridge D |
 | Paperclip | agent plane: CEO/Scientist/Engineer/Designer/Synthesist/Hermes | local repo + scripts | allowlisted scripts (fail-closed) | Bridge A/B/D |
 | TeamForge Worker | control plane: slugs, mapping, webhooks | `https://forge.thoughtseed.space` (HTTP `/v1` + HMAC) | CF Access service token `teamforge-multica-bridge-v2` | Bridge B/C |
@@ -95,7 +95,7 @@ founder taps menu button in curios.self (TG)
 ```
 
 Identity = Telegram initData Ed25519 third-party validation + the SAME founder-id whitelist the
-commands use (`1371522080`/`926168615`). No new auth system, no secrets on the Worker, no inbound
+commands use (`<founder-id-1>`/`<founder-id-2>`). No new auth system, no secrets on the Worker, no inbound
 HTTP added to Hermes. Second-pass hardening detail: wing plan §Second pass (F7, F8, F10, F3).
 
 ## 7 · Quest-data serving store — the decision
