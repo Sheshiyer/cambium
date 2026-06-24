@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cambium — Composition Layer Technical Reference</title>
+  <style>
+    /* ===== Core styles from enhanced technical-doc-creator base + components ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      color: #2d3748;
+      font-size: 2.4em;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      font-size: 1.1em;
+      margin-bottom: 30px;
+    }
+    h2.section-title {
+      font-size: 1.55em;
+      color: #2d3748;
+      margin: 50px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid #667eea;
+    }
+    h3 { font-size: 1.2em; color: #2d3748; margin: 18px 0 8px; }
+    .section { margin-bottom: 42px; }
+    pre, code {
+      font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    }
+    .code-block {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      overflow-x: auto;
+      margin: 12px 0;
+      line-height: 1.5;
+    }
+    .endpoint {
+      background: #f7fafc;
+      padding: 16px;
+      margin: 14px 0;
+      border-left: 5px solid #4299e1;
+      border-radius: 8px;
+    }
+    .schema-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 12px 0;
+    }
+    .agent-callout {
+      background: #f3e6ff;
+      border-left: 5px solid #9f7aea;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 14px 0;
+      font-size: 0.95em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 10px 0;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #edf2f7; color: #4a5568; font-weight: 600; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin: 22px 0;
+    }
+    .metric-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .metric-value { font-size: 1.9em; font-weight: 700; }
+    .metric-label { font-size: 0.85em; opacity: 0.92; }
+    .pill {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+      margin-left: 6px;
+    }
+    .pill.gate { background: #fee2e2; color: #b91c1c; }
+    .pill.free { background: #d1fae5; color: #047857; }
+    .pill.cross { background: #ede9fe; color: #5b21b6; }
+    .footer {
+      margin-top: 60px;
+      padding: 22px;
+      background: #f7fafc;
+      border-radius: 10px;
+      font-size: 0.9em;
+      color: #718096;
+      text-align: center;
+    }
+    .highlight { color: #fbbf24; font-weight: 600; }
+    .small { font-size: 0.85em; color: #718096; }
+    svg { width: 100%; height: auto; background: white; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cambium — Composition Layer</h1>
+    <p class="subtitle">The conductor-of-conductors. Machine-readable contracts, fail-closed gates, and agent-consumable handoffs for a fractal, self-healing business engine.</p>
+
+    <!-- Metrics -->
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value">5</div>
+        <div class="metric-label">Organs (self-similar Φ)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">4 + cortex</div>
+        <div class="metric-label">Stages per tenant</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">7</div>
+        <div class="metric-label">Canonical Variable Groups</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">gated</div>
+        <div class="metric-label">Spend model (constitution #4)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">1. Overview</h2>
+      <p>Cambium is the <strong>composition layer</strong> that turns a constellation of specialized organs (genesis, taste, hands, will, cortex) into a single executable pipeline per tenant. It does not contain organ implementation — it plans, validates, invokes, and wires them using explicit, machine-readable contracts.</p>
+      <p style="margin-top:10px;"><strong>Core guarantee:</strong> every stage is a typed morphism. Output of stage N must satisfy the input contract of stage N+1, or the run fails closed before any irreversible spend.</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">2. The Pipeline (genesis → taste → build → ops + cortex)</h2>
+      <p>The same self-similar shape recurs at every scale. The cross-cutting cortex (1024-dim NIM aesthetic memory) feeds every stage and receives outcomes for learning.</p>
+
+      <div class="code-block">
+        <span class="highlight">Live artifacts (source of truth):</span><br>
+        composition/pipeline.json — ordered stages + requires/produces/blocking/downstream_effects<br>
+        registry.json — organ metadata, capabilities, contract surface<br>
+        adapters.json — how to actually invoke each organ (cmd, args, spend gate)<br>
+        composition/CONTRACTS.md — the 7 variable groups with ownership &amp; failure modes
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">3. Stage Reference &amp; Variable Contracts</h2>
+
+      <!-- GENESIS -->
+      <div class="endpoint">
+        <h3><span style="color:#48bb78; font-weight:700;">GENESIS</span> — brand brain (free)</h3>
+        <p><strong>idea</strong> (brand-config.yaml) → <strong>brand-dna</strong></p>
+        <div style="margin:8px 0;">
+          <strong>Produces (must survive downstream):</strong>
+          <span class="pill free">brand_system</span>
+          <span class="pill free">copy_system</span>
+          <span class="pill free">visual_system</span>
+        </div>
+        <div class="schema-card">
+          <strong>brand_system</strong> (required by taste, build, ops, cortex)<br>
+          <span class="small">brand_name, audience, positioning, promise, voice_principles (required). differentiators optional.</span><br>
+          <span class="small" style="color:#c53030;">If missing → downstream infers from prose. First contraction becomes expansive (L ≥ 1).</span>
+        </div>
+        <div class="small">Entrypoint: brandmint launch --waves 1-8 (or the skill-clusters flow alias). Spend: gated (image + inference).</div>
+      </div>
+
+      <!-- TASTE -->
+      <div class="endpoint">
+        <h3><span style="color:#9f7aea; font-weight:700;">TASTE</span> — aesthetic conscience (paid)</h3>
+        <p><strong>brand-dna</strong> → <strong>taste-brief + structured plans</strong></p>
+        <div style="margin:8px 0;">
+          <strong>Produces:</strong>
+          <span class="pill gate">taste_brief</span>
+          <span class="pill gate">asset_plan</span>
+          <span class="pill gate">section_plan</span>
+          <span class="pill gate">interaction_plan</span>
+          <span class="pill gate">acceptance_checks</span>
+        </div>
+        <div class="agent-callout">
+          <strong>For Agents &amp; Conductors:</strong> Never return only the English brief. The five plan groups are the actual execution contract for build. Missing asset_plan or acceptance_checks is a contract violation — fail closed before dispatching clusters.
+        </div>
+        <div class="small">Entrypoint: taste/scripts/taste-resolve.mjs. Spend: gated (NVIDIA NIM embeddings).</div>
+      </div>
+
+      <!-- BUILD / HANDS -->
+      <div class="endpoint">
+        <h3><span style="color:#4299e1; font-weight:700;">BUILD / HANDS</span> (free resolution, gated dispatch)</h3>
+        <p><strong>taste-brief + plans</strong> → <strong>artifact + brand_docs</strong></p>
+        <div class="small">resolve-task (no-spend) produces dispatch plan. Actual cluster orchestrators + ship-battery are the spend-bearing part and must receive the full contract.</div>
+      </div>
+
+      <!-- OPS / WILL -->
+      <div class="endpoint">
+        <h3><span style="color:#ed8936; font-weight:700;">OPS / WILL</span> (portfolio OS — paid)</h3>
+        <p><strong>artifact + brand_docs + full upstream contracts</strong> → <strong>business</strong> (GTM candidates, operating state, distribution)</p>
+        <div class="agent-callout">
+          <strong>Agent note:</strong> brand_to_gtm and the C-suite dispatcher must preserve the original brand/copy/visual context. Flattening here breaks reference-anchored campaigns and the feedback loop into the cortex.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">4. Error Codes, Drift &amp; Viability</h2>
+      <table>
+        <thead>
+          <tr><th>Signal</th><th>Meaning</th><th>Agent Action</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>422 Contract Violation</strong></td>
+            <td>Required variable group missing in payload</td>
+            <td>Re-invoke upstream or supply complete contract via --input. Do not proceed.</td>
+          </tr>
+          <tr>
+            <td><strong>409 Drift (V increased)</strong></td>
+            <td>Stage pushed state away from brand-DNA fixed point</td>
+            <td>Default: reroll. With --intent &lt;stage&gt;: capture rationale and allostatically move x*.</td>
+          </tr>
+          <tr>
+            <td><strong>402 Spend Gate</strong></td>
+            <td>Attempt to fire gated organ without explicit approval</td>
+            <td>Re-run with --approve genesis or --approve taste. Constitution #4 is non-negotiable.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="small" style="margin-top:6px;">Full matrix and recovery examples live in the enhanced technical components pattern and in HOMEOSTASIS.md + the whyhandler.</div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">5. Spend Model &amp; Fail-Closed Gates (Simplified Flow)</h2>
+      <svg viewBox="0 0 1100 180" style="background:#f7fafc; border-radius:8px; padding:8px;">
+        <defs>
+          <marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#2d3748"/></marker>
+          <marker id="as" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#48bb78"/></marker>
+          <marker id="ae" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#f56565"/></marker>
+        </defs>
+        <!-- Nodes -->
+        <rect x="30" y="50" width="150" height="60" rx="8" fill="#4299e1" stroke="#2b6cb0" stroke-width="2"/>
+        <text x="105" y="78" text-anchor="middle" fill="white" font-size="12" font-weight="700">1. Ingest (idea)</text>
+        <text x="105" y="94" text-anchor="middle" fill="#e2e8f0" font-size="10">free</text>
+
+        <path d="M190 80 L 230 80" stroke="#2d3748" stroke-width="2" marker-end="url(#a)"/>
+
+        <rect x="240" y="50" width="150" height="60" rx="8" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+        <text x="315" y="75" text-anchor="middle" fill="white" font-size="12" font-weight="700">2. Genesis</text>
+        <text x="315" y="92" text-anchor="middle" fill="#fffbeb" font-size="10">gated — --approve</text>
+
+        <path d="M400 80 L 440 80" stroke="#2d3748" stroke-width="2" marker-end="url(#a)"/>
+
+        <rect x="450" y="50" width="150" height="60" rx="8" fill="#9f7aea" stroke="#6b46c1" stroke-width="2"/>
+        <text x="525" y="75" text-anchor="middle" fill="white" font-size="12" font-weight="700">3. Taste (NIM)</text>
+        <text x="525" y="92" text-anchor="middle" fill="#f3e6ff" font-size="10">gated — --approve</text>
+
+        <path d="M610 80 L 650 80" stroke="#2d3748" stroke-width="2" marker-end="url(#as)"/>
+
+        <rect x="660" y="50" width="150" height="60" rx="8" fill="#48bb78" stroke="#2f855a" stroke-width="2"/>
+        <text x="735" y="78" text-anchor="middle" fill="white" font-size="12" font-weight="700">4. Hands (build)</text>
+        <text x="735" y="94" text-anchor="middle" fill="#e6f4ea" font-size="10">resolution free</text>
+
+        <!-- Fail path -->
+        <path d="M315 115 L 315 145 L 735 145" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3" fill="none" marker-end="url(#ae)"/>
+        <text x="530" y="162" text-anchor="middle" fill="#c53030" font-size="10">V-spike / missing contract → why-handler (error vs intent)</text>
+      </svg>
+      <p class="small" style="margin-top:6px;">Only the explicit --approve path on a gated stage is allowed to spend. The hands stage resolution itself is free; dispatching real clusters is the gated extension.</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">6. For Agents, Conductors &amp; Orchestrators (Critical)</h2>
+      <div class="agent-callout">
+        <strong>Golden Rule:</strong> Forward the structured variable groups exactly as received. The handoff matrix (docs/plans/assets/stage-handoff-matrix.json) and prompt-reference-schema.json are the authoritative shapes for retrieval and execution.
+      </div>
+
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:14px; margin:12px 0;">
+        <strong>Agent Consumption Checklist (every stage)</strong>
+        <ul style="margin:8px 0 0 18px; font-size:0.95em;">
+          <li>All required groups from the previous stage are present as top-level keys</li>
+          <li>No lossy summarization of brand_system, asset_plan, or acceptance_checks</li>
+          <li>Viability margin (solvency + mission-coherence) is positive before any new gated action</li>
+          <li>Any deviation (V increase) is recorded with the one-bit error-vs-intent signal and rationale</li>
+          <li>Output of this stage is a valid input for the declared downstream consumers</li>
+        </ul>
+      </div>
+      <p class="small">See also: the 10-task capability alignment plan (docs/plans/2026-06-09-...), INTEGRATION.md (I2/I3/I4), HOMEOSTASIS.md, and INFINITE-GAME.md.</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">7. Conductor Usage (bin/compose.mjs)</h2>
+      <div class="code-block">
+        <span class="highlight"># Dry-run (never spends)</span><br>
+        node bin/compose.mjs plan acme<br><br>
+        <span class="highlight"># Execute only the free hands stage with a tasks file</span><br>
+        node bin/compose.mjs run acme --stage build --execute --input examples/sample-tasks.md<br><br>
+        <span class="highlight"># The only way to spend (explicit per-stage approval)</span><br>
+        node bin/compose.mjs run acme --execute --approve taste
+      </div>
+      <p class="small">The conductor threads stage output → next stage input automatically. A refused gate breaks the chain and falls back to the declared input_default.</p>
+    </div>
+
+    <div class="footer">
+      <p><strong>Source of truth:</strong> composition/pipeline.json • registry.json • adapters.json • composition/CONTRACTS.md • docs/plans/assets/stage-handoff-matrix.json</p>
+      <p class="small">Related: ARCHITECTURE.md • INTEGRATION.md • HOMEOSTASIS.md • INFINITE-GAME.md • ONBOARDING-OCTALYSIS.md • bin/render-docs.mjs (the docs themselves are under the same homeostasis regime)</p>
+      <p class="small" style="margin-top:10px;">Generated with the enhanced technical-doc-creator skill (added error matrices, schema cards, agent consumption notes, security flows, and first-class variable contract patterns).</p>
+    </div>
+  </div>
+</body>
+</html>

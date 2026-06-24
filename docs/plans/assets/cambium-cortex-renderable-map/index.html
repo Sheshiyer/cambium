@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cambium Cortex Renderable Map</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #071414;
+    --panel: #0d1b1a;
+    --panel-2: #13211f;
+    --ink: #eff8a8;
+    --soft: #e7e0d5;
+    --muted: rgba(231, 224, 213, .78);
+    --line: rgba(239, 248, 168, .23);
+    --line-soft: rgba(239, 248, 168, .11);
+    --warning: #e7c8b8;
+    --deep: #0a2625;
+    --good: #d9f57a;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: "Arial Narrow", "Roboto Condensed", "Satoshi", system-ui, sans-serif;
+    --ease: cubic-bezier(.16, 1, .3, 1);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px),
+      radial-gradient(circle at 42% 36%, rgba(239, 248, 168, .09), transparent 30%),
+      var(--bg);
+    background-size: 44px 44px, 44px 44px, 100% 100%, auto;
+    color: var(--soft);
+    font: 14px/1.45 var(--sans);
+    letter-spacing: 0;
+  }
+
+  .page {
+    width: min(1500px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 16px 0;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: end;
+    padding: 12px 0 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .title {
+    display: inline-block;
+    margin: 0;
+    padding: 2px 12px 6px 0;
+    background: rgba(7, 20, 20, .88);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(48px, 8vw, 118px);
+    line-height: .82;
+    font-stretch: condensed;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    display: block;
+    margin: 10px 0 0;
+    padding: 6px 8px 6px 0;
+    background: rgba(7, 20, 20, .82);
+    max-width: 74ch;
+    color: var(--muted);
+    font: 12px/1.55 var(--mono);
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(82px, 1fr));
+    gap: 8px;
+    min-width: min(510px, 100%);
+  }
+
+  .metric {
+    min-height: 58px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: rgba(13, 27, 26, .82);
+  }
+
+  .metric strong {
+    display: block;
+    color: var(--ink);
+    font: 700 20px/1 var(--mono);
+  }
+
+  .metric span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font: 9px/1 var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .metric.warning span,
+  .metric.warning strong {
+    color: #171211;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .map-panel,
+  .side-panel,
+  .console {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(19, 33, 31, .86), rgba(8, 19, 18, .9));
+    box-shadow: inset 0 1px 0 rgba(239, 248, 168, .08);
+  }
+
+  .map-panel {
+    position: relative;
+    min-height: 640px;
+    overflow: hidden;
+  }
+
+  .map-head {
+    position: absolute;
+    inset: 18px 18px auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .map-head b {
+    color: var(--ink);
+    font: 11px/1 var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+  }
+
+  .map-head small {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+    font: 10px/1.3 var(--mono);
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 640px;
+  }
+
+  .cortex-ring {
+    fill: none;
+    stroke: rgba(239, 248, 168, .28);
+    stroke-width: .34;
+    stroke-dasharray: 2.4 1.8;
+    animation: orbit 22s linear infinite;
+    transform-origin: 50% 50%;
+  }
+
+  .cortex-current {
+    fill: none;
+    stroke: rgba(239, 248, 168, .42);
+    stroke-width: .55;
+    stroke-linecap: round;
+    stroke-dasharray: 4 3;
+    animation: dash 8s linear infinite;
+  }
+
+  .rail {
+    stroke: rgba(239, 248, 168, .34);
+    stroke-width: .5;
+    stroke-dasharray: 1.3 1.1;
+  }
+
+  .packet {
+    fill: var(--ink);
+    opacity: .84;
+    animation: pulse 2.8s var(--ease) infinite;
+  }
+
+  .slab-top { fill: #122321; stroke: rgba(239, 248, 168, .55); stroke-width: .35; }
+  .slab-side { fill: #0a1716; stroke: rgba(239, 248, 168, .24); stroke-width: .25; }
+  .slab-accent { fill: rgba(239, 248, 168, .1); stroke: rgba(239, 248, 168, .28); stroke-width: .18; }
+  .slab.gated .slab-top { fill: #1c1918; stroke: rgba(231, 200, 184, .64); }
+  .slab.gated .tag { fill: var(--warning); }
+  .slab.ready .tag { fill: var(--ink); }
+
+  .stage-id {
+    fill: var(--ink);
+    font: 700 4px/1 var(--sans);
+    text-transform: uppercase;
+  }
+
+  .stage-copy,
+  .stage-mono,
+  .flow-label {
+    fill: var(--soft);
+    font-family: var(--mono);
+  }
+
+  .stage-copy { font-size: 1.7px; opacity: .76; }
+  .stage-mono { font-size: 1.45px; opacity: .7; }
+  .flow-label { font-size: 1.35px; fill: var(--ink); opacity: .82; }
+
+  .quest-beacon circle {
+    fill: none;
+    stroke: rgba(239, 248, 168, .5);
+    stroke-width: .42;
+    animation: beacon 3s var(--ease) infinite;
+  }
+
+  .quest-beacon path,
+  .quest-beacon rect {
+    fill: var(--ink);
+  }
+
+  .side-panel {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .module {
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    padding: 13px;
+    background: rgba(7, 20, 20, .48);
+  }
+
+  .module h2 {
+    margin: 0 0 9px;
+    color: var(--ink);
+    font: 700 18px/1 var(--sans);
+    text-transform: uppercase;
+  }
+
+  .module p {
+    margin: 0;
+    color: var(--muted);
+    font: 12px/1.55 var(--mono);
+  }
+
+  .progress {
+    height: 10px;
+    margin: 14px 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress i {
+    display: block;
+    width: calc(9 / 17 * 100%);
+    height: 100%;
+    background: repeating-linear-gradient(90deg, var(--ink), var(--ink) 8px, rgba(239, 248, 168, .28) 8px, rgba(239, 248, 168, .28) 12px);
+  }
+
+  .rule-list,
+  .skill-list {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rule-list li,
+  .skill-list li {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    min-height: 28px;
+    color: var(--soft);
+    font: 11px/1.35 var(--mono);
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+
+  .skill-list small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+  }
+
+  .console {
+    grid-column: 1 / -1;
+    margin-top: 14px;
+    padding: 14px;
+  }
+
+  .console-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .console h2 {
+    margin: 0 0 10px;
+    color: var(--ink);
+    font: 700 15px/1 var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+  }
+
+  .console code,
+  .pill {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    border: 1px solid var(--line-soft);
+    border-radius: 999px;
+    padding: 5px 8px;
+    color: var(--soft);
+    background: rgba(239, 248, 168, .04);
+    font: 10px/1 var(--mono);
+  }
+
+  .warning {
+    background: rgba(231, 200, 184, .88);
+    color: #151211;
+    border-color: rgba(231, 200, 184, .8);
+  }
+
+  @keyframes dash { to { stroke-dashoffset: -24; } }
+  @keyframes orbit { to { transform: rotate(360deg); } }
+  @keyframes pulse { 50% { opacity: .35; transform: scale(.82); } }
+  @keyframes beacon { 50% { opacity: .42; transform: scale(1.16); } }
+
+  @media (max-width: 980px) {
+    .topbar,
+    .shell,
+    .console-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .status-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      min-width: 0;
+    }
+
+    .map-panel {
+      min-height: 520px;
+    }
+
+    svg {
+      height: 520px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .page {
+      width: min(100% - 18px, 1500px);
+    }
+
+    .title {
+      font-size: 50px;
+    }
+
+    .status-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .map-head {
+      position: static;
+      padding: 14px 14px 0;
+    }
+
+    .map-panel {
+      min-height: 470px;
+    }
+
+    svg {
+      height: 430px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<script type="application/json" id="snapshot-data">
+{
+  "schema": 1,
+  "tenant": "cambium",
+  "quest": {
+    "completed": 9,
+    "total": 17,
+    "current": {
+      "arc": "X",
+      "title": "The Brief",
+      "evidence": "brief pending · contract pending · deposit pending",
+      "reveals": "venture definition + commercial commitment"
+    }
+  },
+  "stages": [
+    { "id": "genesis", "title": "Mint the brand", "organ": "Brand brain", "tier": "free", "input": "idea", "output": "brand-dna", "produces": ["brand_system", "copy_system", "visual_system"], "state": "ready", "render": { "x": 8, "y": 60, "w": 17, "h": 20 } },
+    { "id": "taste", "title": "Set the taste", "organ": "Taste cortex", "tier": "paid", "input": "brand-dna", "output": "taste-brief", "produces": ["taste_brief", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"], "state": "gated", "render": { "x": 33, "y": 50, "w": 17, "h": 20 } },
+    { "id": "build", "title": "Build on-brand", "organ": "Hands conductor", "tier": "free", "input": "taste-brief", "output": "artifact", "produces": ["artifact", "brand_docs"], "state": "ready", "render": { "x": 58, "y": 60, "w": 17, "h": 20 } },
+    { "id": "ops", "title": "Operate + GTM", "organ": "Will", "tier": "paid", "input": "artifact", "output": "business", "produces": ["business"], "state": "gated", "render": { "x": 83, "y": 50, "w": 17, "h": 20 } }
+  ],
+  "cortex": {
+    "rules": ["palette-lock", "no-neon-outer-glow", "opacity-hierarchy", "motion-substrate", "honest-freshness", "reduced-motion", "readability"]
+  },
+  "tasteSkills": [
+    { "id": "taste-resolve", "label": "Taste resolve", "purpose": "request + brand -> aesthetic brief and variable contract" },
+    { "id": "visual-qa", "label": "Visual QA", "purpose": "browser screenshots, contrast, and rendered-state checks" },
+    { "id": "kit-qa", "label": "Kit QA", "purpose": "palette coverage and on-brand raster scoring" },
+    { "id": "reroll", "label": "Reroll loop", "purpose": "regenerate until the asset clears the brand gate" }
+  ],
+  "runner": {
+    "commands": ["npm run validate", "npm run quine -- quests --tenant cambium", "node bin/compose.mjs run cambium", "node ../Skill-clusters/scripts/visual-qa.mjs docs/plans/assets/cambium-cortex-renderable-map/index.html"],
+    "gates": ["dry-run default", "spend-gated taste", "no-spend hands", "spend-gated ops"]
+  }
+}
+</script>
+
+<main class="page">
+  <header class="topbar">
+    <div>
+      <h1 class="title">Cambium</h1>
+      <p class="subtitle">Cortex-renderable operating map. The old moodboard tried to draw impossible buildings; this version renders stage primitives, packet rails, quest state, and Taste/Cortex gates from bounded data.</p>
+    </div>
+    <section class="status-grid" aria-label="Current status">
+      <div class="metric"><span>Tenant</span><strong id="metricTenant">--</strong></div>
+      <div class="metric"><span>Quest</span><strong id="metricQuest">--</strong></div>
+      <div class="metric"><span>Progress</span><strong id="metricProgress">--</strong></div>
+      <div class="metric warning"><span>Render mode</span><strong>SVG</strong></div>
+    </section>
+  </header>
+
+  <section class="shell">
+    <section class="map-panel" aria-label="Cortex map">
+      <div class="map-head">
+        <div><b>Composition field</b><small>stage islands are service primitives</small></div>
+        <div><b>Cortex current</b><small>feeds all organs, not a fifth stage</small></div>
+      </div>
+      <svg viewBox="0 0 110 82" role="img" aria-labelledby="mapTitle mapDesc">
+        <title id="mapTitle">Cambium cortex renderable map</title>
+        <desc id="mapDesc">Four stage slabs connected by contract rails, with a cortex orbit and the active quest beacon.</desc>
+        <defs>
+          <filter id="inner-soft">
+            <feDropShadow dx="0" dy=".4" stdDeviation=".3" flood-color="#eff8a8" flood-opacity=".16"/>
+          </filter>
+        </defs>
+        <ellipse class="cortex-ring" cx="55" cy="49" rx="48" ry="25"/>
+        <path class="cortex-current" d="M8 48 C22 22, 36 68, 52 38 S83 30, 101 50"/>
+        <path class="cortex-current" d="M6 63 C27 54, 33 24, 52 31 S73 73, 103 38"/>
+        <g id="rails"></g>
+        <g id="packets"></g>
+        <g id="stages"></g>
+        <g class="quest-beacon" transform="translate(55 14)">
+          <circle r="7"/>
+          <circle r="11"/>
+          <path d="M-2.6 -2.6h5.2v5.2h-5.2z"/>
+          <rect x="-15" y="11" width="30" height="7" rx="1.2"/>
+          <text x="0" y="16" text-anchor="middle" class="flow-label" style="font-size:1.7px;fill:#071414;font-weight:700">ARC X | BRIEF | 9/17</text>
+        </g>
+      </svg>
+    </section>
+
+    <aside class="side-panel">
+      <section class="module">
+        <h2 id="questTitle">Quest</h2>
+        <p id="questText"></p>
+        <div class="progress" aria-hidden="true"><i></i></div>
+        <p id="questEvidence"></p>
+      </section>
+      <section class="module">
+        <h2>Cortex Rules</h2>
+        <ul class="rule-list" id="rules"></ul>
+      </section>
+      <section class="module">
+        <h2>Taste Skills</h2>
+        <ul class="skill-list" id="skills"></ul>
+      </section>
+    </aside>
+  </section>
+
+  <section class="console">
+    <div class="console-grid">
+      <div>
+        <h2>Runner Console</h2>
+        <div id="commands"></div>
+      </div>
+      <div>
+        <h2>Gate States</h2>
+        <div id="gates"></div>
+      </div>
+      <div>
+        <h2>Contract Packets</h2>
+        <div id="contracts"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const data = JSON.parse(document.getElementById('snapshot-data').textContent);
+  const qs = (selector) => document.querySelector(selector);
+  const el = (name, attrs = {}, text = '') => {
+    const n = document.createElementNS('http://www.w3.org/2000/svg', name);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+    if (text) n.textContent = text;
+    return n;
+  };
+  const h = (tag, className, text = '') => {
+    const n = document.createElement(tag);
+    if (className) n.className = className;
+    if (text) n.textContent = text;
+    return n;
+  };
+  const center = (stage) => ({ x: stage.render.x + stage.render.w / 2 + 4, y: stage.render.y + stage.render.h / 2 });
+  const topPoints = (r) => `${r.x},${r.y} ${r.x + r.w},${r.y - 5} ${r.x + r.w + 8},${r.y} ${r.x + 8},${r.y + 5}`;
+  const sidePoints = (r) => `${r.x + 8},${r.y + 5} ${r.x + r.w + 8},${r.y} ${r.x + r.w + 8},${r.y + 9} ${r.x + 8},${r.y + 14}`;
+
+  qs('#metricTenant').textContent = data.tenant;
+  qs('#metricQuest').textContent = `${data.quest.current.arc}`;
+  qs('#metricProgress').textContent = `${data.quest.completed}/${data.quest.total}`;
+  qs('#questTitle').textContent = `Arc ${data.quest.current.arc} · ${data.quest.current.title}`;
+  qs('#questText').textContent = data.quest.current.reveals;
+  qs('#questEvidence').textContent = data.quest.current.evidence;
+
+  const rails = qs('#rails');
+  const packets = qs('#packets');
+  const stages = qs('#stages');
+  data.stages.slice(0, -1).forEach((stage, i) => {
+    const a = center(stage);
+    const b = center(data.stages[i + 1]);
+    rails.appendChild(el('line', { class: 'rail', x1: a.x, y1: a.y, x2: b.x, y2: b.y }));
+    packets.appendChild(el('circle', { class: 'packet', cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, r: 1.1, style: `animation-delay:${i * .45}s` }));
+  });
+
+  data.stages.forEach((stage, i) => {
+    const r = stage.render;
+    const g = el('g', { class: `slab ${stage.state}`, filter: 'url(#inner-soft)' });
+    g.appendChild(el('polygon', { class: 'slab-side', points: sidePoints(r) }));
+    g.appendChild(el('polygon', { class: 'slab-top', points: topPoints(r) }));
+    g.appendChild(el('rect', { class: 'slab-accent', x: r.x + 4.5, y: r.y + .8, width: r.w - 2, height: 4.2, rx: .8, transform: `skewY(-16)` }));
+    g.appendChild(el('circle', { class: 'tag', cx: r.x + r.w + 4, cy: r.y + 1.6, r: 1.8 }));
+    g.appendChild(el('text', { class: 'stage-id', x: r.x + 5, y: r.y + 1.8 }, stage.id.toUpperCase()));
+    g.appendChild(el('text', { class: 'stage-copy', x: r.x + 5, y: r.y + 5.4 }, stage.title));
+    g.appendChild(el('text', { class: 'stage-mono', x: r.x + 5, y: r.y + 9.2 }, `${stage.input} -> ${stage.output}`));
+    g.appendChild(el('text', { class: 'stage-mono', x: r.x + 5, y: r.y + 12.5 }, `${stage.tier} / ${stage.state}`));
+    g.appendChild(el('text', { class: 'stage-mono', x: r.x + 5, y: r.y + 15.8 }, stage.produces.slice(0, 2).join(' + ')));
+    stages.appendChild(g);
+  });
+
+  data.cortex.rules.forEach((rule) => {
+    const li = h('li');
+    li.appendChild(h('i', 'dot'));
+    li.appendChild(h('span', '', rule));
+    qs('#rules').appendChild(li);
+  });
+
+  data.tasteSkills.forEach((skill) => {
+    const li = h('li');
+    li.appendChild(h('i', 'dot'));
+    const body = h('span', '', skill.label);
+    body.appendChild(h('small', '', skill.purpose));
+    li.appendChild(body);
+    qs('#skills').appendChild(li);
+  });
+
+  data.runner.commands.forEach((cmd) => qs('#commands').appendChild(h('code', '', cmd)));
+  data.runner.gates.forEach((gate) => qs('#gates').appendChild(h('span', gate.includes('gated') ? 'pill warning' : 'pill', gate)));
+  data.stages.flatMap((s) => s.produces).forEach((packet) => qs('#contracts').appendChild(h('span', 'pill', packet)));
+</script>
+</body>
+</html>

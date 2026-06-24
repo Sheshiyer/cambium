@@ -2,6 +2,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { homedir } from 'node:os';
 import path from 'node:path';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
@@ -10,7 +11,9 @@ const manifestPath = path.join(
   repoRoot,
   'docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-prompts.json',
 );
-const codexImageCli = '/Users/sheshnarayaniyer/.agents/skills/codex-gpt-image/scripts/codex_gpt_image.py';
+const codexImageCli =
+  process.env.CODEX_IMAGE_CLI ||
+  path.join(homedir(), '.agents/skills/codex-gpt-image/scripts/codex_gpt_image.py');
 
 function parseArgs(argv) {
   const args = { _: [] };

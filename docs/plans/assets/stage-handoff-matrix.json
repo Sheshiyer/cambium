@@ -1,0 +1,49 @@
+{
+  "note": "Cross-repo stage handoff matrix for agents and the conductor. Source of truth for what each stage must receive and emit as structured variable groups (see CONTRACTS.md + pipeline.json). Agents must preserve required groups across the seam or fail-closed.",
+  "version": "0.1.0",
+  "stages": [
+    {
+      "stage": "genesis",
+      "owner": "genesis (brandmint-oracle-aleph)",
+      "required_inputs": ["idea"],
+      "produced_outputs": ["brand_system", "copy_system", "visual_system"],
+      "blocking_variables": ["brand_system", "copy_system", "visual_system"],
+      "downstream_consumers": ["taste", "build", "ops", "cortex"],
+      "failure_if_omitted": "downstream stages infer brand core from prose; drift; L >= 1 on first contraction"
+    },
+    {
+      "stage": "taste",
+      "owner": "taste (skill-clusters/taste)",
+      "required_inputs": ["brand_system", "copy_system", "visual_system"],
+      "produced_outputs": ["taste_brief", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"],
+      "blocking_variables": ["taste_brief", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"],
+      "downstream_consumers": ["build", "ops", "cortex"],
+      "failure_if_omitted": "build hallucinates IA/assets/motion; ship-battery cannot gate on real criteria; no cortex learning anchors"
+    },
+    {
+      "stage": "build",
+      "owner": "hands (skill-clusters)",
+      "required_inputs": ["brand_system", "copy_system", "visual_system", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"],
+      "produced_outputs": ["artifact", "brand_docs"],
+      "blocking_variables": ["artifact", "brand_docs"],
+      "downstream_consumers": ["ops", "cortex"],
+      "failure_if_omitted": "ops receives incomplete brand context; GTM ICP and distribution lose on-brand proof; no replayable artifact for homeostasis"
+    },
+    {
+      "stage": "ops",
+      "owner": "will (snow-gloves-os)",
+      "required_inputs": ["artifact", "brand_docs", "brand_system", "copy_system", "visual_system", "asset_plan", "section_plan", "interaction_plan", "acceptance_checks"],
+      "produced_outputs": ["business"],
+      "blocking_variables": ["artifact", "brand_docs"],
+      "downstream_consumers": ["cortex (feedback)"],
+      "failure_if_omitted": "portfolio C-suite and GTM operate on stale or incomplete brand; no learning loop back to taste/genesis"
+    }
+  ],
+  "cross_cutting": {
+    "cortex": {
+      "feeds": ["genesis", "taste", "build", "ops"],
+      "key_variables": ["brand_system", "visual_system", "asset_plan", "acceptance_checks"],
+      "role_for_agents": "embed/search anchor for on-brand references and deviation classification; write deviations with rationale for allostasis"
+    }
+  }
+}

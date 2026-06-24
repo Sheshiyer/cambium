@@ -1,0 +1,29 @@
+{
+  "note": "Retrieval-ready shape for Taste Cortex / NIM embeddings and prompt assembly. Ingest prompts, assets, and decisions with these keys so the 1024-dim index supports precise agent queries for on-brand references, reroll candidates, and co-evolution signals. Declared in CONTRACTS.md as the surface for I3 cortex.",
+  "version": "0.1.0",
+  "required_for_ingest": [
+    "scope",
+    "category",
+    "brand_archetype",
+    "visual_treatment",
+    "motion_style",
+    "dependencies",
+    "asset_types",
+    "section_types",
+    "copy_slots",
+    "implementation_patterns"
+  ],
+  "fields": {
+    "scope": "page | section | component | asset | campaign | global",
+    "category": "hero | pricing | feature | cta | testimonial | footer | navigation | email | ad | onboarding",
+    "brand_archetype": "e.g. luxury-editorial | playful-saaS | mythic-naturecore | tech-noir | data-driven-minimal",
+    "visual_treatment": "surface | depth | glass | grain | liquid | pixel | brutal | cinematic | botanical-shadow",
+    "motion_style": "micro-hover | scroll-reveal | physics-tilt | cinematic-pan | data-driven | none | staggered",
+    "dependencies": "array of prior section/component ids this depends on for copy or assets",
+    "asset_types": ["hero", "logo", "ui_shot", "avatar", "poster", "illustration", "photo", "3d"],
+    "section_types": ["hero", "benefits", "pricing", "faq", "cta", "testimonials", "process", "footer"],
+    "copy_slots": "object map of slot_name -> { tone, length, proof_type, cta_variant }",
+    "implementation_patterns": "array of cluster or component patterns used (e.g. 'react-tailwind-bento', 'framer-motion-scroll')"
+  },
+  "agent_usage": "Query cortex with {brand_archetype, scope, section_type, visual_treatment} to retrieve nearest on-brand refs before generation. Store every emitted artifact + decision with this schema for future rerank and allostatic setpoint moves."
+}

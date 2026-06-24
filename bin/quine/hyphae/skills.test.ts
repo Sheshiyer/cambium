@@ -73,10 +73,12 @@ function gateFetch(actions: any[], consumed: any[]): typeof fetch {
   }) as typeof fetch;
 }
 
+const TEST_TELEGRAM_USER_ID = '1000000001';
+
 const action = (overrides: Record<string, unknown> = {}) => ({
   id: 'gate-1',
   ts: '2026-06-22T00:00:00.000Z',
-  founderId: '1371522080',
+  founderId: TEST_TELEGRAM_USER_ID,
   kind: 'promote-skill',
   subject: 'cambium-founder-review',
   evidence: 'validated · RELIABLE · 5 uses · 100% total · 100% recent · promotion: FOUNDER REVIEW',

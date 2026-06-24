@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thoughtseed Hermes Cambium Cloudflare Architecture</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --panel: #0f172a;
+      --panel-2: #111827;
+      --line: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --cyan: #22d3ee;
+      --emerald: #34d399;
+      --violet: #a78bfa;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --orange: #fb923c;
+      --slate: #94a3b8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(30, 41, 59, 0.32) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 41, 59, 0.32) 1px, transparent 1px),
+        radial-gradient(circle at 18% 8%, rgba(34, 211, 238, 0.14), transparent 28%),
+        radial-gradient(circle at 82% 12%, rgba(167, 139, 250, 0.12), transparent 26%),
+        #020617;
+      background-size: 40px 40px, 40px 40px, auto, auto;
+      color: var(--text);
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
+
+    main {
+      width: min(1480px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 32px 0 28px;
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .pulse {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--emerald);
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55);
+      animation: pulse 2.1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+      70% { box-shadow: 0 0 0 12px rgba(52, 211, 153, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 42px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 960px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .stamp {
+      flex: 0 0 auto;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.72);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+      text-align: right;
+    }
+
+    .diagram-card {
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(2, 6, 23, 0.76);
+      border-radius: 10px;
+      overflow-x: auto;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+    }
+
+    svg {
+      display: block;
+      width: 1440px;
+      height: 2240px;
+    }
+
+    .boundary {
+      fill: rgba(15, 23, 42, 0.42);
+      stroke: rgba(148, 163, 184, 0.32);
+      stroke-width: 1.2;
+      stroke-dasharray: 8 5;
+    }
+
+    .boundary.cf {
+      stroke: rgba(251, 191, 36, 0.72);
+      fill: rgba(120, 53, 15, 0.12);
+    }
+
+    .boundary.truth {
+      stroke: rgba(167, 139, 250, 0.72);
+      fill: rgba(76, 29, 149, 0.13);
+    }
+
+    .label {
+      fill: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .node-bg { fill: #0f172a; rx: 6; }
+    .node { stroke-width: 1.5; rx: 6; }
+    .frontend { fill: rgba(8, 51, 68, 0.45); stroke: var(--cyan); }
+    .backend { fill: rgba(6, 78, 59, 0.42); stroke: var(--emerald); }
+    .database { fill: rgba(76, 29, 149, 0.42); stroke: var(--violet); }
+    .cloud { fill: rgba(120, 53, 15, 0.32); stroke: var(--amber); }
+    .security { fill: rgba(136, 19, 55, 0.38); stroke: var(--rose); }
+    .bus { fill: rgba(251, 146, 60, 0.28); stroke: var(--orange); }
+    .external { fill: rgba(30, 41, 59, 0.58); stroke: var(--slate); }
+
+    .node-title {
+      fill: #f8fafc;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .node-sub {
+      fill: #cbd5e1;
+      font-size: 9px;
+    }
+
+    .node-tiny {
+      fill: #94a3b8;
+      font-size: 8px;
+    }
+
+    .flow {
+      fill: none;
+      stroke: #64748b;
+      stroke-width: 1.6;
+      marker-end: url(#arrow);
+    }
+
+    .flow.strong { stroke: var(--cyan); stroke-width: 2; marker-end: url(#arrow-cyan); }
+    .flow.truth { stroke: var(--violet); marker-end: url(#arrow-violet); }
+    .flow.mem { stroke: var(--emerald); marker-end: url(#arrow-emerald); }
+    .flow.sec { stroke: var(--rose); stroke-dasharray: 6 5; marker-end: url(#arrow-rose); }
+    .flow.backup { stroke: var(--amber); stroke-dasharray: 4 5; marker-end: url(#arrow-amber); }
+    .flow.third { stroke: var(--orange); marker-end: url(#arrow-orange); }
+
+    .flow-label {
+      fill: #cbd5e1;
+      font-size: 8px;
+      paint-order: stroke;
+      stroke: #020617;
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .card {
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.82);
+      padding: 14px 14px 13px;
+      min-height: 132px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: var(--cyan);
+    }
+
+    .card-dot.emerald { background: var(--emerald); }
+    .card-dot.violet { background: var(--violet); }
+    .card-dot.amber { background: var(--amber); }
+
+    h3 {
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    footer {
+      color: #64748b;
+      font-size: 10px;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 860px) {
+      main { width: calc(100vw - 24px); padding-top: 20px; }
+      .header { flex-direction: column; }
+      .stamp { text-align: left; }
+      .legend { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="header">
+      <div>
+        <div class="title-row"><span class="pulse"></span><h1>Thoughtseed Hermes Cambium Architecture</h1></div>
+        <div class="subtitle">
+          Policy-aware company compiler map: founders and curious.self route intent into Hermes,
+          Cambium composes Genesis -> Taste -> Hands -> Will, Cortex measures drift against x*,
+          Paperclip supplies the org contract, skill clusters provide labor, Cloudflare hosts the
+          control/data plane, Vectorize carries semantic memory, and R2 remains encrypted backup.
+        </div>
+      </div>
+      <div class="stamp">
+        Current boundary: Cloudflare-first<br>
+        Organ spine: Genesis / Taste / Hands / Will<br>
+        Cortex: Vectorize + local sqlite<br>
+        Generated: 2026-06-22
+      </div>
+    </header>
+
+    <section class="diagram-card" aria-label="Thoughtseed Hermes Cloudflare architecture diagram">
+      <svg viewBox="0 0 1440 2240" role="img" aria-labelledby="diagramTitle diagramDesc">
+        <title id="diagramTitle">Thoughtseed Hermes Cambium Architecture</title>
+        <desc id="diagramDesc">Connected architecture diagram for Hermes, Cambium organs, Paperclip, skill clusters, Cloudflare, Vectorize, R2, Composio, Telegram, Plexus, and provider services.</desc>
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker>
+          <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#22d3ee"/></marker>
+          <marker id="arrow-violet" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a78bfa"/></marker>
+          <marker id="arrow-emerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399"/></marker>
+          <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fb7185"/></marker>
+          <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"/></marker>
+          <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fb923c"/></marker>
+        </defs>
+
+        <rect width="1440" height="2240" fill="#020617"/>
+        <rect width="1440" height="2240" fill="url(#grid)" opacity="0.9"/>
+
+        <!-- boundaries -->
+        <rect class="boundary" x="30" y="48" width="240" height="780" rx="12"/>
+        <text class="label" x="48" y="72">Operator Surfaces</text>
+
+        <rect class="boundary" x="302" y="48" width="300" height="780" rx="12"/>
+        <text class="label" x="320" y="72">Hermes / Paperclip Runtime</text>
+
+        <rect class="boundary cf" x="634" y="48" width="456" height="780" rx="12"/>
+        <text class="label" x="652" y="72">Cloudflare Control + Data Plane</text>
+
+        <rect class="boundary truth" x="1122" y="48" width="288" height="780" rx="12"/>
+        <text class="label" x="1140" y="72">Third-Party Services</text>
+
+        <rect class="boundary truth" x="302" y="850" width="788" height="104" rx="12"/>
+        <text class="label" x="320" y="875">Source-of-Truth + Memory Contract</text>
+
+        <!-- flows behind boxes -->
+        <path class="flow strong" d="M 248 155 C 302 155, 304 155, 360 155"/>
+        <text class="flow-label" x="272" y="144">intent / commands</text>
+
+        <path class="flow strong" d="M 248 280 C 316 280, 320 255, 360 255"/>
+        <text class="flow-label" x="264" y="270">signed gate actions</text>
+
+        <path class="flow mem" d="M 522 165 C 600 165, 602 154, 674 154"/>
+        <text class="flow-label" x="548" y="151">heartbeat / poll / ack</text>
+
+        <path class="flow sec" d="M 522 255 C 600 255, 602 252, 674 252"/>
+        <text class="flow-label" x="548" y="240">bridge HMAC + bearer</text>
+
+        <path class="flow mem" d="M 522 374 C 610 374, 614 366, 674 366"/>
+        <text class="flow-label" x="548" y="360">org mirror summaries</text>
+
+        <path class="flow truth" d="M 818 160 C 818 224, 818 246, 818 300"/>
+        <text class="flow-label" x="834" y="232">quest envelope</text>
+
+        <path class="flow truth" d="M 818 430 C 818 500, 818 518, 818 580"/>
+        <text class="flow-label" x="834" y="510">policy + gates</text>
+
+        <path class="flow mem" d="M 718 664 C 636 740, 572 805, 490 875"/>
+        <text class="flow-label" x="602" y="792">semantic recall</text>
+
+        <path class="flow mem" d="M 490 875 C 574 794, 646 725, 754 663"/>
+        <text class="flow-label" x="514" y="835">memory upserts</text>
+
+        <path class="flow backup" d="M 510 908 C 610 914, 742 914, 865 875"/>
+        <text class="flow-label" x="650" y="902">daily encrypted backup</text>
+
+        <path class="flow third" d="M 1030 155 C 1074 155, 1085 154, 1144 154"/>
+        <text class="flow-label" x="1044" y="143">models via broker</text>
+
+        <path class="flow third" d="M 522 486 C 650 486, 1010 486, 1144 486"/>
+        <text class="flow-label" x="696" y="474">connected app actions</text>
+
+        <path class="flow sec" d="M 978 254 C 1074 254, 1084 252, 1144 252"/>
+        <text class="flow-label" x="1032" y="240">member bridge</text>
+
+        <path class="flow backup" d="M 978 708 C 1070 708, 1090 708, 1144 708"/>
+        <text class="flow-label" x="1030" y="694">artifacts / repos</text>
+
+        <path class="flow" d="M 210 585 C 275 650, 320 710, 392 710"/>
+        <text class="flow-label" x="226" y="654">visible status</text>
+
+        <path class="flow truth" d="M 440 908 C 440 770, 440 596, 440 486"/>
+        <text class="flow-label" x="456" y="742">company context</text>
+
+        <path class="flow mem" d="M 818 664 C 896 740, 932 805, 932 875"/>
+        <text class="flow-label" x="842" y="792">proof snapshots</text>
+
+        <!-- operator surfaces -->
+        <g>
+          <rect class="node-bg" x="64" y="116" width="150" height="78"/>
+          <rect class="node frontend" x="64" y="116" width="150" height="78"/>
+          <text class="node-title" x="82" y="140">Founders</text>
+          <text class="node-sub" x="82" y="158">Shesh + Mohan</text>
+          <text class="node-tiny" x="82" y="176">intent, approval, seed packets</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="242" width="150" height="82"/>
+          <rect class="node frontend" x="64" y="242" width="150" height="82"/>
+          <text class="node-title" x="82" y="266">curious.self</text>
+          <text class="node-sub" x="82" y="284">Telegram mini app</text>
+          <text class="node-tiny" x="82" y="302">lanes, gates, skill labor</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="368" width="150" height="76"/>
+          <rect class="node external" x="64" y="368" width="150" height="76"/>
+          <text class="node-title" x="82" y="392">Plexus</text>
+          <text class="node-sub" x="82" y="410">scoped member client</text>
+          <text class="node-tiny" x="82" y="428">tokens, standups, pulses</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="548" width="150" height="82"/>
+          <rect class="node frontend" x="64" y="548" width="150" height="82"/>
+          <text class="node-title" x="82" y="572">TG Topics</text>
+          <text class="node-sub" x="82" y="590">Hermes, Digests, Dev</text>
+          <text class="node-tiny" x="82" y="608">Inbox, Calendar, Agent Ops</text>
+        </g>
+
+        <!-- runtime -->
+        <g>
+          <rect class="node-bg" x="360" y="118" width="162" height="94"/>
+          <rect class="node backend" x="360" y="118" width="162" height="94"/>
+          <text class="node-title" x="380" y="142">Hermes EC2</text>
+          <text class="node-sub" x="380" y="160">gateway + runner timer</text>
+          <text class="node-tiny" x="380" y="178">runner-only, Cloudflare-first</text>
+          <text class="node-tiny" x="380" y="194">no direct provider keys</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="360" y="246" width="162" height="92"/>
+          <rect class="node backend" x="360" y="246" width="162" height="92"/>
+          <text class="node-title" x="380" y="270">Hermes Bridge</text>
+          <text class="node-sub" x="380" y="288">poll, ingest, directive ack</text>
+          <text class="node-tiny" x="380" y="306">member token scoped to tenant</text>
+          <text class="node-tiny" x="380" y="322">redacted heartbeat proof</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="360" y="366" width="162" height="96"/>
+          <rect class="node backend" x="360" y="366" width="162" height="96"/>
+          <text class="node-title" x="380" y="390">Paperclip Org</text>
+          <text class="node-sub" x="380" y="408">CEO, Scientist, Engineer</text>
+          <text class="node-tiny" x="380" y="426">Designer, Synthesist, Hermes</text>
+          <text class="node-tiny" x="380" y="442">agent docs + skill routing</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="360" y="486" width="162" height="88"/>
+          <rect class="node backend" x="360" y="486" width="162" height="88"/>
+          <text class="node-title" x="380" y="510">Composio MCP/API</text>
+          <text class="node-sub" x="380" y="528">capability substrate</text>
+          <text class="node-tiny" x="380" y="546">GitHub, Gmail, Calendar...</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="392" y="674" width="132" height="80"/>
+          <rect class="node bus" x="392" y="674" width="132" height="80"/>
+          <text class="node-title" x="410" y="698">Launchd</text>
+          <text class="node-sub" x="410" y="716">Mac routines</text>
+          <text class="node-tiny" x="410" y="734">quest refresh, gate consumer</text>
+        </g>
+
+        <!-- Cloudflare -->
+        <g>
+          <rect class="node-bg" x="674" y="116" width="304" height="96"/>
+          <rect class="node cloud" x="674" y="116" width="304" height="96"/>
+          <text class="node-title" x="696" y="140">Worker: cambium-quests</text>
+          <text class="node-sub" x="696" y="158">curious.thoughtseed.space</text>
+          <text class="node-tiny" x="696" y="176">/api/quests · /api/gate · /v1/bridge</text>
+          <text class="node-tiny" x="696" y="194">/v1/providers broker</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="674" y="244" width="140" height="86"/>
+          <rect class="node database" x="674" y="244" width="140" height="86"/>
+          <text class="node-title" x="694" y="268">KV QUESTS</text>
+          <text class="node-sub" x="694" y="286">quest envelopes</text>
+          <text class="node-tiny" x="694" y="304">bridge inbox/directives</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="838" y="244" width="140" height="86"/>
+          <rect class="node security" x="838" y="244" width="140" height="86"/>
+          <text class="node-title" x="856" y="268">Founder Gate</text>
+          <text class="node-sub" x="856" y="286">Telegram initData</text>
+          <text class="node-tiny" x="856" y="304">approve, reroll, promote</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="674" y="366" width="304" height="96"/>
+          <rect class="node cloud" x="674" y="366" width="304" height="96"/>
+          <text class="node-title" x="696" y="390">Provider Broker</text>
+          <text class="node-sub" x="696" y="408">Cloudflare secrets boundary</text>
+          <text class="node-tiny" x="696" y="426">Ollama · NVIDIA · Nebius adapters</text>
+          <text class="node-tiny" x="696" y="444">EC2 sees broker token only</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="674" y="518" width="140" height="92"/>
+          <rect class="node database" x="674" y="518" width="140" height="92"/>
+          <text class="node-title" x="692" y="542">Vectorize</text>
+          <text class="node-sub" x="692" y="560">cambium-cortex</text>
+          <text class="node-tiny" x="692" y="578">1024-d cosine memory</text>
+          <text class="node-tiny" x="692" y="594">tenant + kind filters</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="838" y="518" width="140" height="92"/>
+          <rect class="node database" x="838" y="518" width="140" height="92"/>
+          <text class="node-title" x="856" y="542">D1 / KV</text>
+          <text class="node-sub" x="856" y="560">bridge projections</text>
+          <text class="node-tiny" x="856" y="578">teamforge-primary legacy</text>
+          <text class="node-tiny" x="856" y="594">reuse before new DB</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="674" y="656" width="140" height="90"/>
+          <rect class="node database" x="674" y="656" width="140" height="90"/>
+          <text class="node-title" x="692" y="680">Local Cortex</text>
+          <text class="node-sub" x="692" y="698">node:sqlite fallback</text>
+          <text class="node-tiny" x="692" y="716">.operator/cortex.db</text>
+          <text class="node-tiny" x="692" y="732">same store contract</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="838" y="656" width="140" height="90"/>
+          <rect class="node database" x="838" y="656" width="140" height="90"/>
+          <text class="node-title" x="856" y="680">R2 Buckets</text>
+          <text class="node-sub" x="856" y="698">thoughtseed-vault</text>
+          <text class="node-tiny" x="856" y="716">current/ + archive/</text>
+          <text class="node-tiny" x="856" y="732">backup, not live sync</text>
+        </g>
+
+        <!-- third party -->
+        <g>
+          <rect class="node-bg" x="1144" y="118" width="210" height="88"/>
+          <rect class="node external" x="1144" y="118" width="210" height="88"/>
+          <text class="node-title" x="1164" y="142">Hosted Inference</text>
+          <text class="node-sub" x="1164" y="160">Ollama Cloud</text>
+          <text class="node-tiny" x="1164" y="178">NVIDIA NIM · Nebius</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1144" y="244" width="210" height="92"/>
+          <rect class="node external" x="1144" y="244" width="210" height="92"/>
+          <text class="node-title" x="1164" y="268">Plexus / Member Clients</text>
+          <text class="node-sub" x="1164" y="286">safeStorage token custody</text>
+          <text class="node-tiny" x="1164" y="304">scoped bridge auth</text>
+          <text class="node-tiny" x="1164" y="320">standup + member pulses</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1144" y="374" width="210" height="142"/>
+          <rect class="node external" x="1144" y="374" width="210" height="142"/>
+          <text class="node-title" x="1164" y="398">Connected Apps</text>
+          <text class="node-sub" x="1164" y="416">via Composio</text>
+          <text class="node-tiny" x="1164" y="436">GitHub · Gmail</text>
+          <text class="node-tiny" x="1164" y="454">Google Calendar · Outlook</text>
+          <text class="node-tiny" x="1164" y="472">Cal.com · Analytics</text>
+          <text class="node-tiny" x="1164" y="490">Zoho Mail</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1144" y="548" width="210" height="88"/>
+          <rect class="node external" x="1144" y="548" width="210" height="88"/>
+          <text class="node-title" x="1164" y="572">Telegram</text>
+          <text class="node-sub" x="1164" y="590">THOUGHTSEED LABS</text>
+          <text class="node-tiny" x="1164" y="608">Hermes topic + mini app</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1144" y="674" width="210" height="92"/>
+          <rect class="node external" x="1144" y="674" width="210" height="92"/>
+          <text class="node-title" x="1164" y="698">GitHub + Vault Repo</text>
+          <text class="node-sub" x="1164" y="716">private transport</text>
+          <text class="node-tiny" x="1164" y="734">tracked notes + code repos</text>
+          <text class="node-tiny" x="1164" y="750">R2 covers binaries/archive</text>
+        </g>
+
+        <!-- source-of-truth bottom -->
+        <g>
+          <rect class="node-bg" x="336" y="888" width="174" height="46"/>
+          <rect class="node database" x="336" y="888" width="174" height="46"/>
+          <text class="node-title" x="354" y="912">Thoughtseed Vault</text>
+          <text class="node-tiny" x="354" y="928">company docs, skill registry</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="548" y="888" width="174" height="46"/>
+          <rect class="node backend" x="548" y="888" width="174" height="46"/>
+          <text class="node-title" x="566" y="912">Paperclip Contract</text>
+          <text class="node-tiny" x="566" y="928">org, agents, skills, routines</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="760" y="888" width="174" height="46"/>
+          <rect class="node cloud" x="760" y="888" width="174" height="46"/>
+          <text class="node-title" x="778" y="912">Cambium Ledger</text>
+          <text class="node-tiny" x="778" y="928">quests, proofs, gates</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="972" y="888" width="84" height="46"/>
+          <rect class="node security" x="972" y="888" width="84" height="46"/>
+          <text class="node-title" x="990" y="912">Policy</text>
+          <text class="node-tiny" x="990" y="928">approval boundary</text>
+        </g>
+
+        <!-- Cambium organ and skill-cluster deep structure -->
+        <rect class="boundary cf" x="30" y="980" width="1380" height="300" rx="12"/>
+        <text class="label" x="48" y="1005">Cambium Native Architecture: Phi Organ Spine + Skill Cluster Conductor</text>
+
+        <path class="flow strong" d="M 284 1078 C 296 1078, 300 1078, 312 1078"/>
+        <path class="flow strong" d="M 532 1078 C 544 1078, 548 1078, 560 1078"/>
+        <path class="flow strong" d="M 780 1078 C 792 1078, 796 1078, 808 1078"/>
+        <path class="flow mem" d="M 920 1130 C 930 1150, 1058 1150, 1082 1130"/>
+        <path class="flow mem" d="M 1166 1126 C 1128 1174, 1012 1194, 804 1194"/>
+        <path class="flow mem" d="M 1166 1126 C 1074 1214, 594 1208, 212 1126"/>
+        <text class="flow-label" x="950" y="1166">memory feed / proof upserts</text>
+
+        <g>
+          <rect class="node-bg" x="64" y="1030" width="220" height="96"/>
+          <rect class="node frontend" x="64" y="1030" width="220" height="96"/>
+          <text class="node-title" x="84" y="1054">Genesis</text>
+          <text class="node-sub" x="84" y="1072">idea -> brand-dna</text>
+          <text class="node-tiny" x="84" y="1090">context analyzer + wave planner</text>
+          <text class="node-tiny" x="84" y="1106">brandmint waves 1-8 set x*</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="312" y="1030" width="220" height="96"/>
+          <rect class="node security" x="312" y="1030" width="220" height="96"/>
+          <text class="node-title" x="332" y="1054">Taste</text>
+          <text class="node-sub" x="332" y="1072">brand-dna -> taste-brief</text>
+          <text class="node-tiny" x="332" y="1090">aesthetic conscience, NIM-gated</text>
+          <text class="node-tiny" x="332" y="1106">taste-resolve, kit-qa, reroll</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="560" y="1030" width="220" height="96"/>
+          <rect class="node backend" x="560" y="1030" width="220" height="96"/>
+          <text class="node-title" x="580" y="1054">Hands / Build</text>
+          <text class="node-sub" x="580" y="1072">taste-brief -> artifact</text>
+          <text class="node-tiny" x="580" y="1090">41 clusters, 791 skill surfaces</text>
+          <text class="node-tiny" x="580" y="1106">resolve -> execute -> ship</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="808" y="1030" width="220" height="96"/>
+          <rect class="node cloud" x="808" y="1030" width="220" height="96"/>
+          <text class="node-title" x="828" y="1054">Will / Ops</text>
+          <text class="node-sub" x="828" y="1072">artifact -> business</text>
+          <text class="node-tiny" x="828" y="1090">7-agent C-suite, GTM, replay</text>
+          <text class="node-tiny" x="828" y="1106">skill-hooks route 60 skills</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1056" y="1030" width="220" height="96"/>
+          <rect class="node database" x="1056" y="1030" width="220" height="96"/>
+          <text class="node-title" x="1076" y="1054">Cortex Current</text>
+          <text class="node-sub" x="1076" y="1072">any-artifact -> d(x,x*)</text>
+          <text class="node-tiny" x="1076" y="1090">Vectorize + local sqlite contract</text>
+          <text class="node-tiny" x="1076" y="1106">semantic recall feeds every organ</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="1160" width="190" height="44"/>
+          <rect class="node bus" x="64" y="1160" width="190" height="44"/>
+          <text class="node-title" x="82" y="1184">skill-index.json</text>
+          <text class="node-tiny" x="82" y="1200">canonical cluster registry</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="276" y="1160" width="150" height="44"/>
+          <rect class="node bus" x="276" y="1160" width="150" height="44"/>
+          <text class="node-title" x="294" y="1184">tier.mjs --apply</text>
+          <text class="node-tiny" x="294" y="1200">active hubs symlink</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="448" y="1160" width="144" height="44"/>
+          <rect class="node bus" x="448" y="1160" width="144" height="44"/>
+          <text class="node-title" x="466" y="1184">resolve-task</text>
+          <text class="node-tiny" x="466" y="1200">task -> cluster route</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="614" y="1160" width="158" height="44"/>
+          <rect class="node bus" x="614" y="1160" width="158" height="44"/>
+          <text class="node-title" x="632" y="1184">conduct-execute</text>
+          <text class="node-tiny" x="632" y="1200">dispatch plan + build</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="794" y="1160" width="144" height="44"/>
+          <rect class="node security" x="794" y="1160" width="144" height="44"/>
+          <text class="node-title" x="812" y="1184">ship-battery</text>
+          <text class="node-tiny" x="812" y="1200">fail-closed gate</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="960" y="1160" width="126" height="44"/>
+          <rect class="node security" x="960" y="1160" width="126" height="44"/>
+          <text class="node-title" x="978" y="1184">visual-qa</text>
+          <text class="node-tiny" x="978" y="1200">screens + taste</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1108" y="1160" width="168" height="44"/>
+          <rect class="node security" x="1108" y="1160" width="168" height="44"/>
+          <text class="node-title" x="1126" y="1184">cluster-health</text>
+          <text class="node-tiny" x="1126" y="1200">audit-refs + tier proof</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="1226" width="1212" height="34"/>
+          <rect class="node database" x="64" y="1226" width="1212" height="34"/>
+          <text class="node-title" x="86" y="1248">Phi scale recursion: skill -> cluster -> organ -> venture -> company -> portfolio</text>
+          <text class="node-tiny" x="640" y="1248">Variable contracts: brand_system · copy_system · visual_system · asset_plan · section_plan · interaction_plan · acceptance_checks</text>
+        </g>
+
+        <text class="node-tiny" x="1302" y="1058">Quine hyphae</text>
+        <text class="node-tiny" x="1302" y="1076">cortex</text>
+        <text class="node-tiny" x="1302" y="1092">vault</text>
+        <text class="node-tiny" x="1302" y="1108">cloud</text>
+        <text class="node-tiny" x="1302" y="1124">quests</text>
+        <text class="node-tiny" x="1302" y="1140">skills</text>
+
+        <!-- Cambium app route inventory -->
+        <rect class="boundary" x="30" y="1302" width="1380" height="246" rx="12"/>
+        <text class="label" x="48" y="1327">Cambium App Surface: Worker Routes, Miniapp Scenes, Trust Boundaries</text>
+
+        <g>
+          <rect class="node-bg" x="64" y="1360" width="208" height="62"/>
+          <rect class="node frontend" x="64" y="1360" width="208" height="62"/>
+          <text class="node-title" x="84" y="1384">GET /</text>
+          <text class="node-sub" x="84" y="1402">curious.self miniapp</text>
+          <text class="node-tiny" x="84" y="1418">quests, story, map, gate, commands</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="298" y="1360" width="208" height="62"/>
+          <rect class="node cloud" x="298" y="1360" width="208" height="62"/>
+          <text class="node-title" x="318" y="1384">GET /api/quests/:tenant</text>
+          <text class="node-sub" x="318" y="1402">derived ledger envelope</text>
+          <text class="node-tiny" x="318" y="1418">schema, source, tenant, freshness</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="532" y="1360" width="208" height="62"/>
+          <rect class="node security" x="532" y="1360" width="208" height="62"/>
+          <text class="node-title" x="552" y="1384">POST /api/gate/:tenant</text>
+          <text class="node-sub" x="552" y="1402">founder action queue</text>
+          <text class="node-tiny" x="552" y="1418">approve, reroll, promote-skill</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="766" y="1360" width="208" height="62"/>
+          <rect class="node security" x="766" y="1360" width="208" height="62"/>
+          <text class="node-title" x="786" y="1384">Telegram initData</text>
+          <text class="node-sub" x="786" y="1402">Ed25519 validation</text>
+          <text class="node-tiny" x="786" y="1418">bot id, public key, founder ids</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1000" y="1360" width="208" height="62"/>
+          <rect class="node bus" x="1000" y="1360" width="208" height="62"/>
+          <text class="node-title" x="1020" y="1384">POST /internal/ledger</text>
+          <text class="node-sub" x="1020" y="1402">Quine push lane</text>
+          <text class="node-tiny" x="1020" y="1418">QUESTS_PUSH_TOKEN bearer</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="1452" width="208" height="62"/>
+          <rect class="node backend" x="64" y="1452" width="208" height="62"/>
+          <text class="node-title" x="84" y="1476">/v1/bridge/*</text>
+          <text class="node-sub" x="84" y="1494">ingest, inbox, directive, ack</text>
+          <text class="node-tiny" x="84" y="1510">bearer + per-message HMAC</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="298" y="1452" width="208" height="62"/>
+          <rect class="node backend" x="298" y="1452" width="208" height="62"/>
+          <text class="node-title" x="318" y="1476">/v1/handoff/*</text>
+          <text class="node-sub" x="318" y="1494">members, invite, redeem</text>
+          <text class="node-tiny" x="318" y="1510">rotate, revoke, scoped tokens</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="532" y="1452" width="208" height="62"/>
+          <rect class="node cloud" x="532" y="1452" width="208" height="62"/>
+          <text class="node-title" x="552" y="1476">/v1/providers/*</text>
+          <text class="node-sub" x="552" y="1494">model-provider broker</text>
+          <text class="node-tiny" x="552" y="1510">Worker-held upstream keys</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="766" y="1452" width="208" height="62"/>
+          <rect class="node bus" x="766" y="1452" width="208" height="62"/>
+          <text class="node-title" x="786" y="1476">/internal/gate/*</text>
+          <text class="node-sub" x="786" y="1494">org consumes queue</text>
+          <text class="node-tiny" x="786" y="1510">list queued, consume result</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1000" y="1452" width="208" height="62"/>
+          <rect class="node frontend" x="1000" y="1452" width="208" height="62"/>
+          <text class="node-title" x="1020" y="1476">Command Panel</text>
+          <text class="node-sub" x="1020" y="1494">/ts-* Telegram surface</text>
+          <text class="node-tiny" x="1020" y="1510">status, agents, work, handoffs</text>
+        </g>
+
+        <text class="node-tiny" x="1238" y="1384">health: /healthz</text>
+        <text class="node-tiny" x="1238" y="1402">public data is derived</text>
+        <text class="node-tiny" x="1238" y="1420">writes are bearer/gated</text>
+        <text class="node-tiny" x="1238" y="1438">all tenants are kebab IDs</text>
+        <text class="node-tiny" x="1238" y="1456">tokens never rendered</text>
+
+        <!-- Cloudflare and state inventory -->
+        <rect class="boundary cf" x="30" y="1572" width="1380" height="248" rx="12"/>
+        <text class="label" x="48" y="1597">Cloudflare + State Inventory: Source-Of-Truth, Memory, Proof, Backup</text>
+
+        <g>
+          <rect class="node-bg" x="64" y="1630" width="214" height="70"/>
+          <rect class="node database" x="64" y="1630" width="214" height="70"/>
+          <text class="node-title" x="84" y="1654">KV: QUESTS</text>
+          <text class="node-sub" x="84" y="1672">ledger, gate, bridge, handoff</text>
+          <text class="node-tiny" x="84" y="1688">ledger: · gate: · bridge: · member:</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="304" y="1630" width="214" height="70"/>
+          <rect class="node database" x="304" y="1630" width="214" height="70"/>
+          <text class="node-title" x="324" y="1654">Vectorize: cambium-cortex</text>
+          <text class="node-sub" x="324" y="1672">1024-d cosine semantic memory</text>
+          <text class="node-tiny" x="324" y="1688">metadata indexes: tenant, kind</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="544" y="1630" width="214" height="70"/>
+          <rect class="node database" x="544" y="1630" width="214" height="70"/>
+          <text class="node-title" x="564" y="1654">node:sqlite Cortex</text>
+          <text class="node-sub" x="564" y="1672">local/offline same contract</text>
+          <text class="node-tiny" x="564" y="1688">.operator/cortex.db, WAL</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="784" y="1630" width="214" height="70"/>
+          <rect class="node database" x="784" y="1630" width="214" height="70"/>
+          <text class="node-title" x="804" y="1654">R2: thoughtseed-vault</text>
+          <text class="node-sub" x="804" y="1672">encrypted one-way backup</text>
+          <text class="node-tiny" x="804" y="1688">current/ + archive/, not live query</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1024" y="1630" width="214" height="70"/>
+          <rect class="node external" x="1024" y="1630" width="214" height="70"/>
+          <text class="node-title" x="1044" y="1654">Existing CF Assets</text>
+          <text class="node-sub" x="1044" y="1672">poll-first reuse guard</text>
+          <text class="node-tiny" x="1044" y="1688">teamforge-primary, sync, artifacts</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="1726" width="214" height="58"/>
+          <rect class="node bus" x="64" y="1726" width="214" height="58"/>
+          <text class="node-title" x="84" y="1750">Quine Hyphae</text>
+          <text class="node-sub" x="84" y="1768">cortex, cf, gh, vault, code</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="304" y="1726" width="214" height="58"/>
+          <rect class="node bus" x="304" y="1726" width="214" height="58"/>
+          <text class="node-title" x="324" y="1750">Quest/Skill Hyphae</text>
+          <text class="node-sub" x="324" y="1768">quests, skills, paperclip, operator</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="544" y="1726" width="214" height="58"/>
+          <rect class="node external" x="544" y="1726" width="214" height="58"/>
+          <text class="node-title" x="564" y="1750">GitHub Repo</text>
+          <text class="node-sub" x="564" y="1768">Sheshiyer/cambium issues + milestones</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="784" y="1726" width="214" height="58"/>
+          <rect class="node external" x="784" y="1726" width="214" height="58"/>
+          <text class="node-title" x="804" y="1750">Thoughtseed Vault</text>
+          <text class="node-sub" x="804" y="1768">docs, registry, proof packets</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1024" y="1726" width="214" height="58"/>
+          <rect class="node security" x="1024" y="1726" width="214" height="58"/>
+          <text class="node-title" x="1044" y="1750">Policy Contract</text>
+          <text class="node-sub" x="1044" y="1768">gate decisions, audit, redaction</text>
+        </g>
+
+        <text class="node-tiny" x="1262" y="1654">do not create new CF state</text>
+        <text class="node-tiny" x="1262" y="1672">until existing assets are ruled out</text>
+        <text class="node-tiny" x="1262" y="1690">witness-wisdom-corpus stays separate</text>
+        <text class="node-tiny" x="1262" y="1708">R2 is archive, not memory cortex</text>
+
+        <!-- Runtime, apps, and repository ecosystem -->
+        <rect class="boundary truth" x="30" y="1844" width="1380" height="248" rx="12"/>
+        <text class="label" x="48" y="1869">Runtime + Apps + Repo Ecosystem: AWS Runner, Paperclip Org, Composio, Providers, GitHub</text>
+
+        <g>
+          <rect class="node-bg" x="64" y="1902" width="214" height="72"/>
+          <rect class="node backend" x="64" y="1902" width="214" height="72"/>
+          <text class="node-title" x="84" y="1926">AWS EC2 Hermes Runner</text>
+          <text class="node-sub" x="84" y="1944">hermes-runner-01, us-east-1</text>
+          <text class="node-tiny" x="84" y="1960">systemd timer, outbound poll only</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="304" y="1902" width="214" height="72"/>
+          <rect class="node backend" x="304" y="1902" width="214" height="72"/>
+          <text class="node-title" x="324" y="1926">Hermes Gateway</text>
+          <text class="node-sub" x="324" y="1944">Telegram poller + Agent runtime</text>
+          <text class="node-tiny" x="324" y="1960">THOUGHTSEED LABS topic 797</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="544" y="1902" width="214" height="72"/>
+          <rect class="node backend" x="544" y="1902" width="214" height="72"/>
+          <text class="node-title" x="564" y="1926">Paperclip Org Mirror</text>
+          <text class="node-sub" x="564" y="1944">6 agents, docs, routines</text>
+          <text class="node-tiny" x="564" y="1960">CEO routes; Synthesist executes</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="784" y="1902" width="214" height="72"/>
+          <rect class="node external" x="784" y="1902" width="214" height="72"/>
+          <text class="node-title" x="804" y="1926">Composio MCP/API</text>
+          <text class="node-sub" x="804" y="1944">founder-connected app layer</text>
+          <text class="node-tiny" x="804" y="1960">no OAuth/connect flow for agents</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1024" y="1902" width="214" height="72"/>
+          <rect class="node external" x="1024" y="1902" width="214" height="72"/>
+          <text class="node-title" x="1044" y="1926">Hosted Providers</text>
+          <text class="node-sub" x="1044" y="1944">Ollama, NVIDIA NIM, Nebius</text>
+          <text class="node-tiny" x="1044" y="1960">accessed through Worker broker</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="64" y="1998" width="214" height="58"/>
+          <rect class="node external" x="64" y="1998" width="214" height="58"/>
+          <text class="node-title" x="84" y="2022">Connected Apps</text>
+          <text class="node-sub" x="84" y="2040">GitHub, Gmail, Calendar, Outlook</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="304" y="1998" width="214" height="58"/>
+          <rect class="node external" x="304" y="1998" width="214" height="58"/>
+          <text class="node-title" x="324" y="2022">More Apps</text>
+          <text class="node-sub" x="324" y="2040">Cal.com, Analytics, Zoho Mail</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="544" y="1998" width="214" height="58"/>
+          <rect class="node external" x="544" y="1998" width="214" height="58"/>
+          <text class="node-title" x="564" y="2022">Plexus Client</text>
+          <text class="node-sub" x="564" y="2040">safeStorage member token custody</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="784" y="1998" width="214" height="58"/>
+          <rect class="node external" x="784" y="1998" width="214" height="58"/>
+          <text class="node-title" x="804" y="2022">Repo Map</text>
+          <text class="node-sub" x="804" y="2040">cambium, hermes-aws-ts, paperclip</text>
+        </g>
+
+        <g>
+          <rect class="node-bg" x="1024" y="1998" width="214" height="58"/>
+          <rect class="node external" x="1024" y="1998" width="214" height="58"/>
+          <text class="node-title" x="1044" y="2022">Legacy Audit Sources</text>
+          <text class="node-sub" x="1044" y="2040">TeamForge assets reused or drained</text>
+        </g>
+
+        <text class="node-tiny" x="1262" y="1926">AWS owns execution body only</text>
+        <text class="node-tiny" x="1262" y="1944">Cloudflare owns policy/state</text>
+        <text class="node-tiny" x="1262" y="1962">EC2 active env has broker access</text>
+        <text class="node-tiny" x="1262" y="1980">direct provider keys stay off EC2</text>
+
+        <!-- Legend in SVG -->
+        <g transform="translate(48 2130)">
+          <text class="label" x="0" y="0">Flow Legend</text>
+          <line class="flow strong" x1="0" y1="24" x2="62" y2="24"/>
+          <text class="node-tiny" x="74" y="27">operator control</text>
+          <line class="flow mem" x1="0" y1="44" x2="62" y2="44"/>
+          <text class="node-tiny" x="74" y="47">memory / proof</text>
+          <line class="flow sec" x1="0" y1="64" x2="62" y2="64"/>
+          <text class="node-tiny" x="74" y="67">signed auth / gate</text>
+          <line class="flow backup" x1="0" y1="84" x2="62" y2="84"/>
+          <text class="node-tiny" x="74" y="87">backup / archive</text>
+        </g>
+      </svg>
+    </section>
+
+    <section class="legend">
+      <div class="card">
+        <div class="card-header"><div class="card-dot"></div><h3>Live Control Plane</h3></div>
+        <ul>
+          <li>cambium-quests owns quests, gate queue, bridge, handoffs.</li>
+          <li>curious.self renders the operator map and founder approvals.</li>
+          <li>Hermes EC2 polls and acks through scoped bridge credentials.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot emerald"></div><h3>Memory Plane</h3></div>
+        <ul>
+          <li>cambium-cortex is the production semantic memory index.</li>
+          <li>Local cortex.db is the same contract as offline fallback.</li>
+          <li>Tenant and kind filters preserve memory boundaries.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot violet"></div><h3>Source Of Truth</h3></div>
+        <ul>
+          <li>Vault holds durable company docs and skill registry.</li>
+          <li>Paperclip supplies the inherited org/source contract.</li>
+          <li>Cambium records proof, quests, gates, and branch state.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot amber"></div><h3>External Boundaries</h3></div>
+        <ul>
+          <li>Composio supplies connected app tools, not policy.</li>
+          <li>Hosted providers sit behind the Cloudflare broker.</li>
+          <li>R2 thoughtseed-vault is encrypted backup, not live query.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot"></div><h3>Organ Spine</h3></div>
+        <ul>
+          <li>Genesis mints brand DNA and the x* setpoint.</li>
+          <li>Taste turns brand DNA into a gated taste brief.</li>
+          <li>Hands builds artifacts; Will turns artifacts into business.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot emerald"></div><h3>Skill Clusters</h3></div>
+        <ul>
+          <li>skill-index.json is the registry of cluster capability.</li>
+          <li>resolve-task selects the cluster; conduct-execute dispatches work.</li>
+          <li>ship-battery, visual-qa, and cluster-health close the proof loop.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot amber"></div><h3>Route Inventory</h3></div>
+        <ul>
+          <li>The Worker exposes miniapp, ledger, gate, bridge, handoff, and provider broker routes.</li>
+          <li>Public reads are derived; writes require Telegram proof, bearer tokens, or HMAC envelopes.</li>
+          <li>The command panel shows status, agents, work, handoffs, and Hermes state.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot violet"></div><h3>Cloudflare State</h3></div>
+        <ul>
+          <li>QUESTS KV holds ledgers, gate queue, bridge messages, handoff tokens, and member indexes.</li>
+          <li>cambium-cortex is the shared Vectorize memory; sqlite remains the local contract twin.</li>
+          <li>Existing TeamForge D1/R2/Queue assets are audit or reuse candidates, not new authority.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot"></div><h3>AWS Boundary</h3></div>
+        <ul>
+          <li>EC2 is the always-on Hermes execution body, gateway, and runner timer.</li>
+          <li>Cloudflare keeps canonical state, gates, provider broker secrets, and public routes.</li>
+          <li>Direct provider keys stay out of the active EC2 runtime after broker cutover.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot emerald"></div><h3>App Actions</h3></div>
+        <ul>
+          <li>Composio is the founder-connected app-action layer, not the policy authority.</li>
+          <li>Connected app surface includes GitHub, Gmail, Google Calendar, Outlook, Cal.com, Analytics, and Zoho Mail.</li>
+          <li>Agents should discover/execute through MCP/API or the CLI session, without starting OAuth flows.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot amber"></div><h3>Repo Ecosystem</h3></div>
+        <ul>
+          <li>Cambium owns quests, operator, quine, miniapp, and composition contracts.</li>
+          <li>Hermes AWS TS owns EC2 runner evidence and Cloudflare-first runtime proof packets.</li>
+          <li>Paperclip owns inherited org docs, routines, agent manifests, and skill routing.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      Evidence basis: Cambium Worker routes, organ docs, cortex Vectorize implementation,
+      Cloudflare asset poll, provider broker cutover proof, Hermes EC2 runner proof,
+      Paperclip org contract, Composio connected-app notes, GitHub/Quine hyphae,
+      skill-cluster router/conductor scripts, and R2 persistence runbook.
+      No secrets or raw credentials are embedded in this diagram.
+    </footer>
+  </main>
+</body>
+</html>
