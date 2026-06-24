@@ -611,6 +611,143 @@ async function consumeFabricBridgeMessages(
   return { tenantId, checked: messages.length, consumed, duplicates, conflicts, upgraded };
 }
 
+function matchesInferredTask(task: FabricLedgerTaskRecord, evidence: Record<string, unknown>): boolean {
+  const haystack = [
+    evidence.repo,
+    evidence.branch,
+    evidence.clientName,
+    evidence.client,
+    evidence.title,
+    evidence.value,
+  ].map((v) => String(v ?? '').toLowerCase()).join(' ');
+  return [task.taskId, task.projectId, task.title, task.payload.clientName, task.payload.clientId]
+    .map((v) => String(v ?? '').toLowerCase())
+    .filter((v) => v.length >= 4)
+    .some((needle) => haystack.includes(needle));
+}
+
+function candidateTaskProjection(candidate: FabricEvidenceCandidateRecord): Record<string, unknown> {
+  return {
+    candidateId: candidate.candidateId,
+    taskId: candidate.taskId,
+    projectId: candidate.projectId,
+    memberId: candidate.memberId,
+    status: candidate.status,
+    reviewStatus: candidate.status,
+    confidence: candidate.confidence,
+    matchKind: candidate.matchKind,
+    evidence: candidate.evidence,
+    reason: candidate.reason,
+    createdAt: candidate.createdAt,
+    reviewedAt: candidate.reviewedAt ?? null,
+    reviewActor: candidate.reviewActor ?? null,
+    reviewReason: candidate.reviewReason ?? null,
+  };
+}
+
+async function upsertTaskCandidateProjection(
+  fabricLedger: FabricLedgerStoreLike,
+  task: FabricLedgerTaskRecord,
+  candidate: FabricEvidenceCandidateRecord,
+  updatedAt: string,
+  evidenceStrength: FabricLedgerTaskRecord['evidenceStrength'] = task.evidenceStrength,
+): Promise<void> {
+  const existing = Array.isArray(task.payload.evidenceCandidates)
+    ? task.payload.evidenceCandidates.filter((item) => isRecord(item) && item.candidateId !== candidate.candidateId)
+    : [];
+  await fabricLedger.upsertTask({
+    ...task,
+    evidenceStrength,
+    updatedAt,
+    payload: {
+      ...task.payload,
+      evidenceCandidates: [...existing, candidateTaskProjection(candidate)],
+    },
+  });
+}
+
+async function createEvidenceCandidate(
+  fabricLedger: FabricLedgerStoreLike,
+  raw: Record<string, unknown>,
+  nowIso: () => string,
+  createId: () => string,
+): Promise<{ candidate: FabricEvidenceCandidateRecord; task: FabricLedgerTaskRecord; verified: boolean } | { error: string }> {
+  const evidence = isRecord(raw.evidence) ? raw.evidence : raw;
+  const taskId = optionalText(raw.taskId ?? evidence.taskId, 160);
+  const projectId = optionalText(raw.projectId ?? evidence.projectId, 160);
+  const tasks = await fabricLedger.findTasks();
+  const explicitTask = taskId
+    ? tasks.find((task) => task.taskId === taskId && (!projectId || task.projectId === projectId))
+    : null;
+  const task = explicitTask ?? tasks.find((candidate) => matchesInferredTask(candidate, evidence));
+  if (!task) return { error: 'no matching Fabric task for evidence candidate' };
+
+  const explicit = !!explicitTask;
+  const verified = explicit && isStrongFabricEvidence(evidence);
+  const createdAt = nowIso();
+  const rawCandidateId = optionalText(raw.candidateId, 180);
+  const candidateId = rawCandidateId ?? optionalText(createId(), 180)
+    ?? fabricCleanId(`${task.taskId}:${evidenceType(evidence) || 'evidence'}:${String(evidence.value ?? evidence.url ?? createdAt)}`, 'cand');
+  const candidate: FabricEvidenceCandidateRecord = {
+    candidateId,
+    taskId: task.taskId,
+    projectId: task.projectId,
+    memberId: task.memberId,
+    status: verified ? 'verified_evidence' : 'review_pending',
+    confidence: verified ? 'high' : (explicit ? 'medium' : 'low'),
+    matchKind: explicit ? 'explicit' : (evidenceType(evidence) === 'note' ? 'note_only' : 'inferred'),
+    evidence,
+    reason: explicit
+      ? 'explicit taskId/projectId evidence candidate'
+      : 'inferred match from repo/client/branch/title evidence',
+    createdAt,
+  };
+  await fabricLedger.putEvidenceCandidate(candidate);
+  await upsertTaskCandidateProjection(
+    fabricLedger,
+    task,
+    candidate,
+    createdAt,
+    verified ? 'verified_evidence' : task.evidenceStrength,
+  );
+  return { candidate, task, verified };
+}
+
+function reviewDirective(candidate: FabricEvidenceCandidateRecord, outcome: 'accepted' | 'rejected', reviewedAt: string): Record<string, unknown> {
+  const accepted = outcome === 'accepted';
+  const eventId = `candidate-review:${candidate.candidateId}:${outcome}`;
+  return {
+    id: eventId,
+    memberId: candidate.memberId,
+    direction: 'downstream',
+    delivered: false,
+    enqueuedAt: reviewedAt,
+    payload: {
+      type: 'fabric_task_history_event',
+      kind: 'fabric_task_history_event',
+      schema: 'thoughtseed.fabric_task_history_event.v1',
+      source: 'cambium',
+      event: {
+        eventId,
+        timestamp: reviewedAt,
+        actor: candidate.reviewActor ?? 'cambium-admin',
+        source: 'cambium',
+        type: accepted ? 'candidate_accepted' : 'candidate_rejected',
+        correlationId: candidate.candidateId,
+        payload: {
+          taskId: candidate.taskId,
+          projectId: candidate.projectId,
+          evidenceCandidateId: candidate.candidateId,
+          evidence: candidate.evidence,
+          evidenceStrength: accepted ? 'verified_evidence' : 'weak_evidence',
+          status: accepted ? 'verified_evidence' : 'rejected_candidate',
+          reason: candidate.reviewReason ?? candidate.reason,
+        },
+      },
+    },
+  };
+}
+
 function fallbackSocialRow() {
   return {
     id: 'social-gap',
@@ -742,22 +879,102 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return handleProviderBroker(req, deps);
   }
 
-  if (method === 'POST' && path === '/v1/fabric/consume') {
+  if (path === '/v1/fabric/consume'
+    || path === '/v1/fabric/evidence-candidates'
+    || path === '/v1/fabric/evidence-candidates/review'
+    || path === '/v1/fabric/review-items'
+    || path.startsWith('/v1/fabric/tasks/')) {
     if (!deps.bridgeToken && !deps.assignmentToken) return json(503, { error: 'Fabric ledger auth token not configured' });
     const auth = req.headers['authorization'] ?? '';
     const isAdmin = !!deps.bridgeToken && auth === `Bearer ${deps.bridgeToken}`;
-    const isScopedConsumer = !!deps.assignmentToken && auth === `Bearer ${deps.assignmentToken}`;
-    if (!isAdmin && !isScopedConsumer) return json(401, { error: 'admin or assignment token required' });
+    const isScopedConsumer = method === 'POST' && path === '/v1/fabric/consume'
+      && !!deps.assignmentToken && auth === `Bearer ${deps.assignmentToken}`;
+    if (!isAdmin && !isScopedConsumer) return json(401, { error: 'admin token required' });
     if (!deps.fabricLedger) return json(503, { error: 'Fabric ledger not configured' });
-
-    let body: any = {};
-    try { body = req.body ? JSON.parse(req.body) : {}; } catch { return json(400, { error: 'body is not JSON' }); }
-    const tenantId = optionalText(body.tenantId, 80) ?? 'cambium';
-    if (!VALID_TENANT.test(tenantId)) return json(400, { error: 'bad tenantId' });
 
     const bridgeStore = deps.bridgeStore ?? kvBridgeStore(deps.kv);
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
-    return json(200, await consumeFabricBridgeMessages(bridgeStore, deps.fabricLedger, tenantId, nowIso));
+
+    if (method === 'POST' && path === '/v1/fabric/consume') {
+      let body: any = {};
+      try { body = req.body ? JSON.parse(req.body) : {}; } catch { return json(400, { error: 'body is not JSON' }); }
+      const tenantId = optionalText(body.tenantId, 80) ?? 'cambium';
+      if (!VALID_TENANT.test(tenantId)) return json(400, { error: 'bad tenantId' });
+      return json(200, await consumeFabricBridgeMessages(bridgeStore, deps.fabricLedger, tenantId, nowIso));
+    }
+
+    if (method === 'POST' && path === '/v1/fabric/evidence-candidates') {
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      if (!isRecord(body)) return json(400, { error: 'candidate body must be an object' });
+      const result = await createEvidenceCandidate(
+        deps.fabricLedger,
+        body,
+        nowIso,
+        () => (deps.uuid ? deps.uuid() : ''),
+      );
+      if ('error' in result) return json(404, { error: result.error });
+      return json(200, { ok: true, candidate: result.candidate, verified: result.verified });
+    }
+
+    if (method === 'POST' && path === '/v1/fabric/evidence-candidates/review') {
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const candidateId = optionalText(body.candidateId, 180);
+      const outcome = body.outcome === 'accepted' || body.outcome === 'rejected' ? body.outcome : null;
+      if (!candidateId || !outcome) return json(400, { error: 'review needs candidateId and outcome accepted|rejected' });
+      const candidate = await deps.fabricLedger.getEvidenceCandidate(candidateId);
+      if (!candidate) return json(404, { error: 'candidate not found' });
+      const reviewedAt = nowIso();
+      const reviewed: FabricEvidenceCandidateRecord = {
+        ...candidate,
+        status: outcome === 'accepted' ? 'verified_evidence' : 'rejected_candidate',
+        reviewedAt,
+        reviewActor: optionalText(body.actor, 80) ?? 'cambium-admin',
+        reviewReason: optionalText(body.reason, 300) ?? null,
+      };
+      await deps.fabricLedger.updateEvidenceCandidate(reviewed);
+      await deps.fabricLedger.putEvidenceReview({
+        reviewId: fabricCleanId(`${candidateId}:${outcome}:${reviewedAt}`, 'review'),
+        candidateId,
+        outcome,
+        actor: reviewed.reviewActor ?? 'cambium-admin',
+        reason: reviewed.reviewReason ?? null,
+        reviewedAt,
+      });
+
+      const task = await deps.fabricLedger.getTask(candidate.taskId);
+      if (task) {
+        await upsertTaskCandidateProjection(
+          deps.fabricLedger,
+          task,
+          reviewed,
+          reviewedAt,
+          outcome === 'accepted' ? 'verified_evidence' : task.evidenceStrength,
+        );
+      }
+      const directive = reviewDirective(reviewed, outcome, reviewedAt);
+      await bridgeStore.putDirective(reviewed.memberId, String(directive.id), directive);
+      return json(200, { ok: true, candidate: reviewed, directiveId: directive.id });
+    }
+
+    if (method === 'GET' && path === '/v1/fabric/review-items') {
+      const candidates = await deps.fabricLedger.listReviewItems();
+      const visible = candidates.filter((candidate) => candidate.status === 'review_pending');
+      return json(200, { ok: true, count: visible.length, candidates: visible });
+    }
+
+    if (method === 'GET' && path.startsWith('/v1/fabric/tasks/')) {
+      const taskId = decodeURIComponent(path.slice('/v1/fabric/tasks/'.length).replace(/\/+$/, ''));
+      const task = await deps.fabricLedger.getTask(taskId);
+      if (!task) return json(404, { error: 'task not found' });
+      const candidates = Array.isArray(task.payload.evidenceCandidates)
+        ? task.payload.evidenceCandidates.filter(isRecord)
+        : [];
+      return json(200, { ok: true, task, candidates });
+    }
+
+    return json(404, { error: `no Fabric route for ${method} ${path}` });
   }
 
   if (method === 'GET' && path.startsWith('/api/quests/')) {

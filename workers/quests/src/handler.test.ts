@@ -3884,6 +3884,93 @@ test('fabric ledger · consumes Plexus task reports idempotently', async () => {
   assert.equal(body(scopedConsumer).duplicates, 1);
 });
 
+test('fabric ledger · reviews weak evidence candidates and emits task history directives', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  await fabricLedger.upsertTask({
+    taskId: 'task-fitcheck-brief',
+    projectId: 'fitcheck-product',
+    memberId: 'mathis',
+    status: 'done',
+    workMode: 'manual',
+    evidenceStrength: 'weak_evidence',
+    title: 'Prepare branch proof packet',
+    payload: { clientName: 'FitCheck' },
+    updatedAt: '2026-06-23T10:00:00.000Z',
+  });
+  const deps = {
+    kv,
+    fabricLedger,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-23T10:05:00.000Z',
+    uuid: () => 'candidate-1',
+  };
+
+  const candidate = await handle(req('POST', '/v1/fabric/evidence-candidates', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      evidence: {
+        type: 'github_branch',
+        value: 'fitcheck-product/prepare-branch-proof-packet',
+        branch: 'prepare-branch-proof-packet',
+        clientName: 'FitCheck',
+      },
+    }),
+  }), deps);
+  assert.equal(candidate.status, 200);
+  assert.equal(body(candidate).verified, false);
+  assert.equal(body(candidate).candidate.candidateId, 'candidate-1');
+  assert.equal(body(candidate).candidate.status, 'review_pending');
+
+  const scopedReviewItems = await handle(req('GET', '/v1/fabric/review-items', {
+    headers: { authorization: 'Bearer assign-only' },
+  }), deps);
+  assert.equal(scopedReviewItems.status, 401);
+
+  const reviewItems = await handle(req('GET', '/v1/fabric/review-items', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(reviewItems.status, 200);
+  assert.equal(body(reviewItems).count, 1);
+
+  const review = await handle(req('POST', '/v1/fabric/evidence-candidates/review', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      candidateId: 'candidate-1',
+      outcome: 'rejected',
+      actor: 'founder',
+      reason: 'branch belongs to a different proof packet',
+    }),
+  }), deps);
+  assert.equal(review.status, 200);
+  assert.equal(body(review).candidate.status, 'rejected_candidate');
+  assert.equal(body(review).directiveId, 'candidate-review:candidate-1:rejected');
+  assert.equal(fabricLedger.reviews.size, 1);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/mathis', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(pending.status, 200);
+  assert.equal(body(pending).count, 1);
+  assert.equal(body(pending).directives[0].payload.type, 'fabric_task_history_event');
+  assert.equal(body(pending).directives[0].payload.event.type, 'candidate_rejected');
+  assert.equal(body(pending).directives[0].payload.event.payload.status, 'rejected_candidate');
+
+  const afterReviewItems = await handle(req('GET', '/v1/fabric/review-items', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(afterReviewItems.status, 200);
+  assert.equal(body(afterReviewItems).count, 0);
+
+  const task = await handle(req('GET', '/v1/fabric/tasks/task-fitcheck-brief', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(task.status, 200);
+  assert.equal(body(task).task.evidenceStrength, 'weak_evidence');
+  assert.equal(body(task).candidates[0].status, 'rejected_candidate');
+});
+
 test('fabric ledger · rejects forged verified evidence claims without strong proof', async () => {
   const kv = fakeKv();
   const fabricLedger = new FakeFabricLedger();
