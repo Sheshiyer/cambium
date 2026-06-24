@@ -3681,6 +3681,38 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   assert.equal(body(conflict).eventId, 'cambium:fitcheck-product:task-fitcheck-brief:assigned');
 });
 
+test('bridge · scoped Hermes assignment token only enqueues task assignments', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-22T08:00:00.000Z',
+    uuid: () => 'assign-1',
+  };
+
+  const queued = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({
+      memberId: 'mathis',
+      task: { taskId: 'task-1', projectId: 'project-1', title: 'Scoped assignment proof' },
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+  assert.equal(body(queued).id, 'assign-1');
+
+  const genericDirective = await handle(req('POST', '/v1/bridge/directive', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ memberId: 'mathis', payload: { type: 'manual' } }),
+  }), deps);
+  assert.equal(genericDirective.status, 403);
+
+  const inbox = await handle(req('GET', '/v1/bridge/inbox/cambium', {
+    headers: { authorization: 'Bearer assign-only' },
+  }), deps);
+  assert.equal(inbox.status, 403);
+});
+
 test('bridge · assignment idempotency ignores volatile issuedAt', async () => {
   const kv = fakeKv();
   const timestamps = [
