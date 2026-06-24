@@ -6,6 +6,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { Hypha } from '../types.ts';
 import { flag } from '../types.ts';
@@ -83,7 +84,7 @@ const doneStatuses = new Set(['done', 'completed', 'succeeded']);
 const closedStatuses = new Set([...doneStatuses, 'cancelled', 'canceled', 'archived']);
 const paperclipRoot =
   process.env.PAPERCLIP_ROOT ||
-  '/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-paperclip';
+  join(homedir(), 'Projects', 'thoughtseed-paperclip');
 const archiveNotes = [
   join(paperclipRoot, 'tasks', '2026-06-21-tho-1-mathis-archive-note.md'),
 ];

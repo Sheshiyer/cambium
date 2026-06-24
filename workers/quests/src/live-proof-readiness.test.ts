@@ -25,6 +25,8 @@ import {
 } from './live-proof-readiness.mjs';
 import { assertViewportProofManifestSchema, buildViewportProofManifest, VIEWPORT_PROOF_CAPTURE_STEPS } from './visual-viewport-proof.mjs';
 
+const TEST_TELEGRAM_USER_ID = '1000000001';
+
 function fixtureRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'cambium-live-proof-'));
   mkdirSync(join(root, 'workers/quests/src'), { recursive: true });
@@ -77,7 +79,7 @@ function signedInitData(capturedAt = '2026-06-22T00:01:00.000Z', ageSeconds = 30
   const authDate = Math.floor(Date.parse(capturedAt) / 1000) - ageSeconds;
   return [
     'query_id=real-query',
-    `user=${encodeURIComponent(JSON.stringify({ id: '1371522080' }))}`,
+    `user=${encodeURIComponent(JSON.stringify({ id: TEST_TELEGRAM_USER_ID }))}`,
     `auth_date=${authDate}`,
     'hash=secret-hash',
     'signature=secret-signature',
@@ -379,7 +381,7 @@ test('live proof readiness marks capture steps ready-to-capture when prerequisit
   assert.equal(report.capturePlan.steps.find((step) => step.id === 'worker-list-proof')?.state, 'ready-to-capture');
   assert.equal(report.capturePlan.steps.find((step) => step.id === 'signed-action-smoke')?.state, 'ready-to-capture');
   const text = JSON.stringify(report);
-  assert.doesNotMatch(text, /query_id=|auth_date=|secret-hash|secret-signature|1371522080|tgWebAppData|QUESTS_PUSH_TOKEN=/);
+  assert.doesNotMatch(text, new RegExp(`query_id=|auth_date=|secret-hash|secret-signature|${TEST_TELEGRAM_USER_ID}|tgWebAppData|QUESTS_PUSH_TOKEN=`));
 });
 
 test('live proof readiness does not count a device proof template as live evidence', () => {
@@ -520,7 +522,7 @@ test('device proof capture writes a valid redacted artifact from env initData an
 
   const path = writeDeviceProofArtifact(artifact, 'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json', cwd);
   const text = readFileSync(path, 'utf8');
-  assert.doesNotMatch(text, /query_id=|auth_date=|secret-hash|secret-signature|1371522080|tgWebAppData/);
+  assert.doesNotMatch(text, new RegExp(`query_id=|auth_date=|secret-hash|secret-signature|${TEST_TELEGRAM_USER_ID}|tgWebAppData`));
 
   const verdict = validateDeviceProofArtifact(artifact, {
     cwd,
@@ -680,7 +682,7 @@ test('signed-action smoke capture writes only redacted queue, consume, and refre
         id: 'queued-id',
         kind: 'promote-skill',
         subject: 'cambium-founder-review',
-        founderId: '1371522080',
+        founderId: TEST_TELEGRAM_USER_ID,
         idempotencyKey: 'promote-skill:cambium:cambium-founder-review',
       },
     ],
@@ -724,7 +726,7 @@ test('signed-action smoke capture writes only redacted queue, consume, and refre
 
   const path = writeSignedActionSmokeArtifact(artifact, 'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json', cwd);
   const text = readFileSync(path, 'utf8');
-  assert.doesNotMatch(text, /secret-token|query_id=|auth_date=|secret-hash|secret-signature|1371522080|cambium-founder-review|queued-id|founderId|tgWebAppData/);
+  assert.doesNotMatch(text, new RegExp(`secret-token|query_id=|auth_date=|secret-hash|secret-signature|${TEST_TELEGRAM_USER_ID}|cambium-founder-review|queued-id|founderId|tgWebAppData`));
 
   const verdict = validateSignedActionSmokeArtifact(artifact, {
     tenant: 'cambium',
@@ -875,7 +877,7 @@ test('live proof readiness becomes ready only when live-proof prerequisites are 
     cwd,
     home: join(cwd, 'home'),
     env: {
-      TELEGRAM_INIT_DATA: 'query_id=real&user=%7B%22id%22%3A1371522080%7D&auth_date=1782080000&hash=redacted',
+      TELEGRAM_INIT_DATA: `query_id=real&user=${encodeURIComponent(JSON.stringify({ id: TEST_TELEGRAM_USER_ID }))}&auth_date=1782080000&hash=redacted`,
       QUESTS_PUSH_TOKEN: 'redacted',
       CHROME_BIN: chrome,
     },

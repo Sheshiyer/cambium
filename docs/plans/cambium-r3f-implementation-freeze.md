@@ -117,7 +117,7 @@ This is the execution freeze for turning the accepted Cambium R3F moodboard and 
 Validated with:
 
 ```bash
-node /Users/sheshnarayaniyer/.agents/skill-clusters/scripts/resolve-task.mjs \
+node "$HOME/.agents/skill-clusters/scripts/resolve-task.mjs" \
   docs/plans/assets/cambium-r3f-implementation/tasks.md \
   docs/plans/cambium-r3f-screenshot-pack.md \
   --json \

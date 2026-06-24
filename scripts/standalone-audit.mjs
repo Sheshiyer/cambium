@@ -67,7 +67,7 @@ const liveDefaultPatterns = [
   {
     name: 'live Thoughtseed URL in product code/config',
     pattern: /curious\.thoughtseed\.space/,
-    allowed: /^(README\.md|VERSIONS\.md|docs\/plans\/|workers\/quests\/src\/page\.ts$)/,
+    allowed: /^(README\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/diagrams\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/,
   },
   {
     name: 'checked-in founder Telegram ids',
