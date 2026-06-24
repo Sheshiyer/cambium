@@ -60,7 +60,8 @@ CREATE INDEX IF NOT EXISTS idx_handoff_invites_used
   ON handoff_invites (used, created_at);
 
 CREATE TABLE IF NOT EXISTS fabric_tasks (
-  task_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  task_id TEXT NOT NULL,
   project_id TEXT NOT NULL,
   member_id TEXT NOT NULL,
   status TEXT NOT NULL,
@@ -68,30 +69,35 @@ CREATE TABLE IF NOT EXISTS fabric_tasks (
   evidence_strength TEXT NOT NULL DEFAULT 'weak_evidence',
   title TEXT,
   payload_json TEXT NOT NULL DEFAULT '{}',
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, task_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_fabric_tasks_project_member
-  ON fabric_tasks (project_id, member_id, updated_at);
+  ON fabric_tasks (tenant_id, project_id, member_id, updated_at);
 
 CREATE TABLE IF NOT EXISTS fabric_task_events (
-  event_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  event_id TEXT NOT NULL,
   task_id TEXT NOT NULL,
   project_id TEXT NOT NULL,
   member_id TEXT NOT NULL,
   type TEXT NOT NULL,
   source TEXT NOT NULL,
   payload_hash TEXT NOT NULL,
+  upstream_payload_hash TEXT,
   payload_json TEXT NOT NULL,
   correlation_id TEXT,
-  received_at TEXT NOT NULL
+  received_at TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, event_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_fabric_task_events_task_received
-  ON fabric_task_events (task_id, received_at);
+  ON fabric_task_events (tenant_id, task_id, received_at);
 
 CREATE TABLE IF NOT EXISTS fabric_evidence_candidates (
-  candidate_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  candidate_id TEXT NOT NULL,
   task_id TEXT NOT NULL,
   project_id TEXT NOT NULL,
   member_id TEXT NOT NULL,
@@ -103,17 +109,23 @@ CREATE TABLE IF NOT EXISTS fabric_evidence_candidates (
   created_at TEXT NOT NULL,
   reviewed_at TEXT,
   review_actor TEXT,
-  review_reason TEXT
+  review_reason TEXT,
+  PRIMARY KEY (tenant_id, candidate_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_fabric_evidence_candidates_review
-  ON fabric_evidence_candidates (status, created_at);
+  ON fabric_evidence_candidates (tenant_id, status, created_at);
 
 CREATE TABLE IF NOT EXISTS fabric_evidence_reviews (
-  review_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  review_id TEXT NOT NULL,
   candidate_id TEXT NOT NULL,
   outcome TEXT NOT NULL,
   actor TEXT NOT NULL,
   reason TEXT,
-  reviewed_at TEXT NOT NULL
+  reviewed_at TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, review_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_fabric_evidence_reviews_candidate
+  ON fabric_evidence_reviews (tenant_id, candidate_id, reviewed_at);
