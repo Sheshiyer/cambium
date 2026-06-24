@@ -4,7 +4,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { handle } from './handler.ts';
-import type { KvLike, SimpleRequest } from './handler.ts';
+import type {
+  FabricEvidenceCandidateRecord,
+  FabricEvidenceReviewRecord,
+  FabricLedgerEventRecord,
+  FabricLedgerStoreLike,
+  FabricLedgerTaskRecord,
+  KvLike,
+  SimpleRequest,
+} from './handler.ts';
 import { PAGE } from './page.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -31,6 +39,24 @@ function fakeKv(): KvLike & { store: Map<string, string> } {
     async put(k, v) { store.set(k, v); },
     async list(prefix) { return [...store.keys()].filter((k) => k.startsWith(prefix)); },
   };
+}
+
+class FakeFabricLedger implements FabricLedgerStoreLike {
+  readonly events = new Map<string, FabricLedgerEventRecord>();
+  readonly tasks = new Map<string, FabricLedgerTaskRecord>();
+  readonly candidates = new Map<string, FabricEvidenceCandidateRecord>();
+  readonly reviews = new Map<string, FabricEvidenceReviewRecord>();
+
+  async getEvent(eventId: string) { return this.events.get(eventId) ?? null; }
+  async putEvent(record: FabricLedgerEventRecord) { this.events.set(record.eventId, record); }
+  async getTask(taskId: string) { return this.tasks.get(taskId) ?? null; }
+  async findTasks() { return [...this.tasks.values()]; }
+  async upsertTask(record: FabricLedgerTaskRecord) { this.tasks.set(record.taskId, record); }
+  async putEvidenceCandidate(record: FabricEvidenceCandidateRecord) { this.candidates.set(record.candidateId, record); }
+  async getEvidenceCandidate(candidateId: string) { return this.candidates.get(candidateId) ?? null; }
+  async listReviewItems() { return [...this.candidates.values()].filter((candidate) => candidate.status === 'review_pending'); }
+  async updateEvidenceCandidate(record: FabricEvidenceCandidateRecord) { this.candidates.set(record.candidateId, record); }
+  async putEvidenceReview(record: FabricEvidenceReviewRecord) { this.reviews.set(record.reviewId, record); }
 }
 
 const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): SimpleRequest =>
@@ -3792,6 +3818,68 @@ test('bridge · pending directives limit after delivered backlog filtering', asy
   assert.equal(pending.status, 200);
   assert.equal(body(pending).count, 1);
   assert.equal(body(pending).directives[0].id, 'assign-backlog-1');
+});
+
+test('fabric ledger · consumes Plexus task reports idempotently', async () => {
+  const kv = fakeKv();
+  const fabricLedger = new FakeFabricLedger();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    fabricLedger,
+    now: () => '2026-06-23T10:00:00.000Z',
+  };
+  const upstream = await signBridge('bridge', {
+    id: 'up-1',
+    timestamp: '2026-06-23T10:00:00.000Z',
+    direction: 'upstream',
+    tenantId: 'cambium',
+    memberId: 'mathis',
+    payload: {
+      type: 'fabric_task_report',
+      schema: 'thoughtseed.fabric_task_report.v1',
+      taskId: 'task-fitcheck-brief',
+      projectId: 'fitcheck-product',
+      title: 'Prepare branch proof packet',
+      status: 'done',
+      workMode: 'manual',
+      evidenceStrength: 'weak_evidence',
+      evidence: { type: 'github_pr', value: 'https://github.com/thoughtseed/fitcheck/pull/7' },
+      historyEventId: 'plexus-done-1',
+      historyPayloadHash: 'hash-done-1',
+      correlationId: 'cambium:fitcheck-product:task-fitcheck-brief:assigned',
+    },
+  });
+
+  const ingest = await handle(req('POST', '/v1/bridge/ingest', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(upstream),
+  }), deps);
+  assert.equal(ingest.status, 200);
+
+  const consumed = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'cambium' }),
+  }), deps);
+  assert.equal(consumed.status, 200);
+  assert.equal(body(consumed).consumed, 1);
+  assert.equal(body(consumed).upgraded, 1);
+  assert.equal(fabricLedger.events.get('plexus-done-1')?.payloadHash, 'hash-done-1');
+  assert.equal(fabricLedger.tasks.get('task-fitcheck-brief')?.evidenceStrength, 'verified_evidence');
+
+  const duplicate = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ tenantId: 'cambium' }),
+  }), deps);
+  assert.equal(body(duplicate).duplicates, 1);
+
+  const scopedConsumer = await handle(req('POST', '/v1/fabric/consume', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ tenantId: 'cambium' }),
+  }), deps);
+  assert.equal(scopedConsumer.status, 200);
+  assert.equal(body(scopedConsumer).duplicates, 1);
 });
 
 test('handoff · invite redemption issues a scoped bridge token', async () => {
