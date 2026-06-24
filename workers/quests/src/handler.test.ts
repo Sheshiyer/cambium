@@ -2,6 +2,8 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import { handle } from './handler.ts';
 import { d1BridgeStore, d1FabricLedgerStore } from './index.ts';
@@ -57,7 +59,12 @@ class FakeFabricLedger implements FabricLedgerStoreLike {
   candidateKey(candidateId: string, tenantId = 'cambium') { return tenantId === 'cambium' ? candidateId : `${tenantId}:${candidateId}`; }
 
   async getEvent(eventId: string, tenantId = 'cambium') { return this.events.get(this.eventKey(eventId, tenantId)) ?? null; }
-  async putEvent(record: FabricLedgerEventRecord) { this.events.set(this.eventKey(record.eventId, this.tenantId(record)), record); }
+  async putEvent(record: FabricLedgerEventRecord) {
+    const key = this.eventKey(record.eventId, this.tenantId(record));
+    if (this.events.has(key)) return false;
+    this.events.set(key, record);
+    return true;
+  }
   async getTask(taskId: string, tenantId = 'cambium') { return this.tasks.get(this.taskKey(taskId, tenantId)) ?? null; }
   async findTasks(tenantId = 'cambium') { return [...this.tasks.values()].filter((task) => this.tenantId(task) === tenantId); }
   async upsertTask(record: FabricLedgerTaskRecord) { this.tasks.set(this.taskKey(record.taskId, this.tenantId(record)), record); }
@@ -94,6 +101,14 @@ class FakeD1Database implements D1DatabaseLike {
   prepare(sql: string) { return new FakeD1Statement(this, sql); }
   private norm(sql: string) { return sql.replace(/\s+/g, ' ').trim().toLowerCase(); }
   private key(...parts: unknown[]) { return parts.map((part) => String(part)).join('\u0000'); }
+  private insertUnique(rows: Map<string, any>, key: string, row: any, ignore: boolean): number {
+    if (rows.has(key)) {
+      if (ignore) return 0;
+      throw new Error(`UNIQUE constraint failed for fake D1 key ${key}`);
+    }
+    rows.set(key, row);
+    return 1;
+  }
 
   all(sql: string, values: unknown[]): any[] {
     const q = this.norm(sql);
@@ -183,15 +198,23 @@ class FakeD1Database implements D1DatabaseLike {
       this.directives.set(key, { ...row, delivered: 1, delivered_at, directive_json });
       return 1;
     }
-    if (q.startsWith('insert into bridge_assignments')) {
+    if (q.startsWith('insert into bridge_assignments') || q.startsWith('insert or ignore into bridge_assignments')) {
       const [member_id, event_id, directive_id, task_id, project_id, correlation_id, payload_hash, enqueued_at] = values;
-      this.assignments.set(this.key(member_id, event_id), { member_id, event_id, directive_id, task_id, project_id, correlation_id, payload_hash, enqueued_at });
-      return 1;
+      return this.insertUnique(
+        this.assignments,
+        this.key(member_id, event_id),
+        { member_id, event_id, directive_id, task_id, project_id, correlation_id, payload_hash, enqueued_at },
+        q.startsWith('insert or ignore'),
+      );
     }
-    if (q.startsWith('insert into fabric_task_events')) {
+    if (q.startsWith('insert into fabric_task_events') || q.startsWith('insert or ignore into fabric_task_events')) {
       const [tenant_id, event_id, task_id, project_id, member_id, type, source, payload_hash, upstream_payload_hash, payload_json, correlation_id, received_at] = values;
-      this.events.set(this.key(tenant_id, event_id), { tenant_id, event_id, task_id, project_id, member_id, type, source, payload_hash, upstream_payload_hash, payload_json, correlation_id, received_at });
-      return 1;
+      return this.insertUnique(
+        this.events,
+        this.key(tenant_id, event_id),
+        { tenant_id, event_id, task_id, project_id, member_id, type, source, payload_hash, upstream_payload_hash, payload_json, correlation_id, received_at },
+        q.startsWith('insert or ignore'),
+      );
     }
     if (q.startsWith('insert into fabric_tasks')) {
       const [tenant_id, task_id, project_id, member_id, status, work_mode, evidence_strength, title, payload_json, updated_at] = values;
@@ -211,13 +234,43 @@ class FakeD1Database implements D1DatabaseLike {
       this.candidates.set(key, { ...row, status, confidence, match_kind, evidence_json, reason, reviewed_at, review_actor, review_reason });
       return 1;
     }
-    if (q.startsWith('insert into fabric_evidence_reviews')) {
+    if (q.startsWith('insert into fabric_evidence_reviews') || q.startsWith('insert or ignore into fabric_evidence_reviews')) {
       const [tenant_id, review_id, candidate_id, outcome, actor, reason, reviewed_at] = values;
-      this.reviews.set(this.key(tenant_id, review_id), { tenant_id, review_id, candidate_id, outcome, actor, reason, reviewed_at });
-      return 1;
+      return this.insertUnique(
+        this.reviews,
+        this.key(tenant_id, review_id),
+        { tenant_id, review_id, candidate_id, outcome, actor, reason, reviewed_at },
+        q.startsWith('insert or ignore'),
+      );
     }
     throw new Error(`FakeD1 run() missing SQL: ${q}`);
   }
+}
+
+class SqliteD1Statement implements D1StatementLike {
+  private values: unknown[] = [];
+  private readonly statement: any;
+  constructor(statement: any) {
+    this.statement = statement;
+  }
+  bind(...values: unknown[]) { this.values = values; return this; }
+  async first<T = unknown>() {
+    const row = this.statement.get(...this.values) as T | undefined;
+    return row ?? null;
+  }
+  async all<T = unknown>() { return { results: this.statement.all(...this.values) as T[] }; }
+  async run() {
+    const result = this.statement.run(...this.values);
+    return { meta: { changes: Number(result.changes ?? 0) } };
+  }
+}
+
+class SqliteD1Database implements D1DatabaseLike {
+  private readonly db: DatabaseSync;
+  constructor(db: DatabaseSync) {
+    this.db = db;
+  }
+  prepare(sql: string) { return new SqliteD1Statement(this.db.prepare(sql)); }
 }
 
 const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): SimpleRequest =>
@@ -3938,6 +3991,204 @@ test('fabric bridge · handler accepts external bridge and ledger stores', async
   const pending = await bridgeStore.listPendingDirectives('mathis', 10);
   assert.equal(pending.directives.length, 1);
   assert.equal(pending.directives[0].payload.task.taskId, 'task-d1');
+});
+
+test('fabric bridge · D1 migration preserves legacy Fabric rows under cambium tenant', async () => {
+  const db = new DatabaseSync(':memory:');
+  db.exec(`
+    CREATE TABLE fabric_tasks (
+      task_id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      member_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      work_mode TEXT,
+      evidence_strength TEXT NOT NULL DEFAULT 'weak_evidence',
+      title TEXT,
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX idx_fabric_tasks_project_member
+      ON fabric_tasks (project_id, member_id, updated_at);
+    CREATE TABLE fabric_task_events (
+      event_id TEXT PRIMARY KEY,
+      task_id TEXT NOT NULL,
+      project_id TEXT NOT NULL,
+      member_id TEXT NOT NULL,
+      type TEXT NOT NULL,
+      source TEXT NOT NULL,
+      payload_hash TEXT NOT NULL,
+      payload_json TEXT NOT NULL,
+      correlation_id TEXT,
+      received_at TEXT NOT NULL
+    );
+    CREATE INDEX idx_fabric_task_events_task_received
+      ON fabric_task_events (task_id, received_at);
+    CREATE TABLE fabric_evidence_candidates (
+      candidate_id TEXT PRIMARY KEY,
+      task_id TEXT NOT NULL,
+      project_id TEXT NOT NULL,
+      member_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      confidence TEXT NOT NULL,
+      match_kind TEXT NOT NULL,
+      evidence_json TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      reviewed_at TEXT,
+      review_actor TEXT,
+      review_reason TEXT
+    );
+    CREATE INDEX idx_fabric_evidence_candidates_review
+      ON fabric_evidence_candidates (status, created_at);
+    CREATE TABLE fabric_evidence_reviews (
+      review_id TEXT PRIMARY KEY,
+      candidate_id TEXT NOT NULL,
+      outcome TEXT NOT NULL,
+      actor TEXT NOT NULL,
+      reason TEXT,
+      reviewed_at TEXT NOT NULL
+    );
+    INSERT INTO fabric_tasks VALUES (
+      'legacy-task', 'legacy-project', 'mathis', 'done', 'manual', 'weak_evidence',
+      'Legacy task', '{"clientName":"Legacy"}', '2026-06-23T10:00:00.000Z'
+    );
+    INSERT INTO fabric_task_events VALUES (
+      'legacy-event', 'legacy-task', 'legacy-project', 'mathis', 'fabric_task_report',
+      'plexus', 'hash-legacy', '{"tenantId":"cambium","taskId":"legacy-task"}',
+      'corr-legacy', '2026-06-23T10:01:00.000Z'
+    );
+    INSERT INTO fabric_evidence_candidates VALUES (
+      'legacy-candidate', 'legacy-task', 'legacy-project', 'mathis', 'review_pending',
+      'low', 'note_only', '{"type":"manual_note"}', 'legacy note',
+      '2026-06-23T10:02:00.000Z', NULL, NULL, NULL
+    );
+    INSERT INTO fabric_evidence_reviews VALUES (
+      'legacy-review', 'legacy-candidate', 'rejected', 'founder', 'stale',
+      '2026-06-23T10:03:00.000Z'
+    );
+  `);
+  const migration = readFileSync(new URL('../migrations/0001_fabric_tenant_bridge.sql', import.meta.url), 'utf8');
+  db.exec(migration);
+
+  const tableInfo = (table: string) => db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string; pk: number }>;
+  assert.deepEqual(tableInfo('fabric_tasks').filter((col) => col.pk > 0).map((col) => col.name), ['tenant_id', 'task_id']);
+  assert.deepEqual(tableInfo('fabric_task_events').filter((col) => col.pk > 0).map((col) => col.name), ['tenant_id', 'event_id']);
+  assert.ok(tableInfo('fabric_task_events').some((col) => col.name === 'upstream_payload_hash'));
+  assert.deepEqual(tableInfo('fabric_evidence_candidates').filter((col) => col.pk > 0).map((col) => col.name), ['tenant_id', 'candidate_id']);
+  assert.deepEqual(tableInfo('fabric_evidence_reviews').filter((col) => col.pk > 0).map((col) => col.name), ['tenant_id', 'review_id']);
+
+  const fabricLedger = d1FabricLedgerStore(new SqliteD1Database(db));
+  assert.equal((await fabricLedger.getTask('legacy-task', 'cambium'))?.tenantId, 'cambium');
+  assert.equal((await fabricLedger.getEvent('legacy-event', 'cambium'))?.upstreamPayloadHash, null);
+  assert.equal((await fabricLedger.listReviewItems('cambium')).length, 1);
+  assert.equal((await fabricLedger.getEvidenceCandidate('legacy-candidate', 'cambium'))?.tenantId, 'cambium');
+  assert.equal(await fabricLedger.getTask('legacy-task', 'tenant-b'), null);
+  db.close();
+});
+
+test('bridge · D1 pending directives over-fetches past corrupt rows', async () => {
+  const db = new FakeD1Database();
+  const bridgeStore = d1BridgeStore(db);
+  db.directives.set('mathis\u0000corrupt', {
+    member_id: 'mathis',
+    id: 'corrupt',
+    directive_json: '<!DOCTYPE html>',
+    delivered: 0,
+    enqueued_at: '2026-06-24T08:00:00.000Z',
+    delivered_at: null,
+  });
+  await bridgeStore.putDirective('mathis', 'valid', { id: 'valid', memberId: 'mathis', enqueuedAt: '2026-06-24T08:01:00.000Z' });
+
+  const pending = await bridgeStore.listPendingDirectives('mathis', 1);
+  assert.equal(pending.skipped, 1);
+  assert.deepEqual(pending.directives.map((directive) => directive.id), ['valid']);
+});
+
+test('bridge · assignment race does not enqueue orphan D1 directives', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const inner = d1BridgeStore(db);
+  let firstAssignmentRead = true;
+  let directiveWrites = 0;
+  const bridgeStore = {
+    ...inner,
+    async getAssignment(memberId: string, eventId: string) {
+      if (firstAssignmentRead) {
+        firstAssignmentRead = false;
+        return null;
+      }
+      return inner.getAssignment(memberId, eventId);
+    },
+    async putAssignment(record: any) {
+      await inner.putAssignment({ ...record, id: 'assign-race-winner' });
+      await inner.putAssignment(record);
+    },
+    async putDirective(memberId: string, id: string, directive: Record<string, unknown>) {
+      directiveWrites++;
+      await inner.putDirective(memberId, id, directive);
+    },
+  };
+
+  const queued = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      memberId: 'mathis',
+      task: { taskId: 'task-race', projectId: 'project-race', title: 'Race-proof assignment' },
+    }),
+  }), {
+    kv,
+    bridgeToken: 'bridge',
+    bridgeStore,
+    now: () => '2026-06-24T08:02:00.000Z',
+    uuid: () => 'assign-race-loser',
+  });
+
+  assert.equal(queued.status, 200);
+  assert.equal(body(queued).duplicate, true);
+  assert.equal(body(queued).id, 'assign-race-winner');
+  assert.equal(directiveWrites, 0);
+  assert.equal(db.directives.size, 0);
+});
+
+test('fabric bridge · D1 duplicate events and reviews are ignored intentionally', async () => {
+  const db = new FakeD1Database();
+  const fabricLedger = d1FabricLedgerStore(db);
+  const event: FabricLedgerEventRecord = {
+    tenantId: 'cambium',
+    eventId: 'event-replay',
+    taskId: 'task-replay',
+    projectId: 'project-replay',
+    memberId: 'mathis',
+    type: 'fabric_task_report',
+    source: 'plexus',
+    payloadHash: 'hash-replay',
+    upstreamPayloadHash: 'upstream-hash',
+    payload: { tenantId: 'cambium', taskId: 'task-replay' },
+    correlationId: 'corr-replay',
+    receivedAt: '2026-06-24T08:03:00.000Z',
+  };
+  assert.equal(await fabricLedger.putEvent(event), true);
+  assert.equal(await fabricLedger.putEvent(event), false);
+  assert.equal(await fabricLedger.putEvent({ ...event, payloadHash: 'hash-conflict' }), false);
+  assert.equal(db.events.size, 1);
+  assert.equal((await fabricLedger.getEvent('event-replay', 'cambium'))?.payloadHash, 'hash-replay');
+
+  const review: FabricEvidenceReviewRecord = {
+    tenantId: 'cambium',
+    reviewId: 'review-replay',
+    candidateId: 'candidate-replay',
+    outcome: 'rejected',
+    actor: 'founder',
+    reason: 'duplicate review should be ignored',
+    reviewedAt: '2026-06-24T08:04:00.000Z',
+  };
+  await fabricLedger.putEvidenceReview(review);
+  await fabricLedger.putEvidenceReview(review);
+  assert.equal(db.reviews.size, 1);
+  assert.deepEqual(
+    [...db.reviews.values()].map((row) => [row.tenant_id, row.review_id, row.outcome]),
+    [['cambium', 'review-replay', 'rejected']],
+  );
 });
 
 test('bridge · assignment idempotency ignores volatile issuedAt', async () => {

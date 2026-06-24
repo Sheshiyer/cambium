@@ -95,7 +95,7 @@ export interface FabricEvidenceReviewRecord {
 
 export interface FabricLedgerStoreLike {
   getEvent(eventId: string, tenantId?: string): Promise<FabricLedgerEventRecord | null>;
-  putEvent(record: FabricLedgerEventRecord): Promise<void>;
+  putEvent(record: FabricLedgerEventRecord): Promise<boolean>;
   getTask(taskId: string, tenantId?: string): Promise<FabricLedgerTaskRecord | null>;
   findTasks(tenantId?: string): Promise<FabricLedgerTaskRecord[]>;
   upsertTask(record: FabricLedgerTaskRecord): Promise<void>;
@@ -583,7 +583,7 @@ async function consumeFabricBridgeMessages(
     const candidate = fabricCandidateForEvent(task, eventId, payload, receivedAt);
     if (candidate?.status === 'verified_evidence') task.evidenceStrength = 'verified_evidence';
 
-    await fabricLedger.putEvent({
+    const inserted = await fabricLedger.putEvent({
       tenantId,
       eventId,
       taskId: task.taskId,
@@ -597,6 +597,12 @@ async function consumeFabricBridgeMessages(
       correlationId: optionalText(payload.correlationId, 180) ?? null,
       receivedAt,
     });
+    if (!inserted) {
+      const raced = await fabricLedger.getEvent(eventId, tenantId);
+      if (raced?.payloadHash === payloadHash) duplicates++;
+      else conflicts++;
+      continue;
+    }
 
     const existingTask = await fabricLedger.getTask(task.taskId, tenantId);
     const previousStrength = existingTask?.evidenceStrength ?? 'weak_evidence';
@@ -1260,8 +1266,16 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         issuedAt,
         enqueuedAt: issuedAt,
       };
-      await bridgeStore.putDirective(memberId, directiveId, stored);
       await bridgeStore.putAssignment({ id: directiveId, memberId, taskId, projectId, eventId, correlationId, payloadHash, enqueuedAt: issuedAt });
+      const persisted = await bridgeStore.getAssignment(memberId, eventId);
+      if (!persisted) return json(500, { error: 'assignment persistence failed', eventId, memberId });
+      if (persisted.payloadHash !== payloadHash) {
+        return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: persisted.id });
+      }
+      if (persisted.id !== directiveId) {
+        return json(200, { ok: true, id: persisted.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
+      }
+      await bridgeStore.putDirective(memberId, directiveId, stored);
       return json(200, { ok: true, id: directiveId, memberId, taskId, projectId, eventId, correlationId, queued: true });
     }
 

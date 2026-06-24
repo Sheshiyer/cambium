@@ -90,16 +90,18 @@ export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
       `).bind(memberId, id, JSON.stringify(directive), enqueuedAt).run();
     },
     async listPendingDirectives(memberId, limit) {
+      const scanLimit = Math.max(limit * 4, limit + 25);
       const rows = (await db.prepare(`
         SELECT directive_json
         FROM bridge_directives
         WHERE member_id = ? AND delivered = 0
         ORDER BY enqueued_at ASC
         LIMIT ?
-      `).bind(memberId, limit).all<{ directive_json: string }>()).results ?? [];
+      `).bind(memberId, scanLimit).all<{ directive_json: string }>()).results ?? [];
       const directives: any[] = [];
       let skipped = 0;
       for (const row of rows) {
+        if (directives.length >= limit) break;
         try { directives.push(JSON.parse(row.directive_json)); } catch { skipped++; }
       }
       return { directives, skipped };
@@ -149,7 +151,7 @@ export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
     },
     async putAssignment(record: BridgeAssignmentRecord) {
       await db.prepare(`
-        INSERT INTO bridge_assignments (
+        INSERT OR IGNORE INTO bridge_assignments (
           member_id, event_id, directive_id, task_id, project_id, correlation_id, payload_hash, enqueued_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(
@@ -226,8 +228,8 @@ export function d1FabricLedgerStore(db: D1DatabaseLike): FabricLedgerStoreLike {
     },
     async putEvent(record) {
       const tenantId = fabricTenant(record);
-      await db.prepare(`
-        INSERT INTO fabric_task_events (
+      const result = await db.prepare(`
+        INSERT OR IGNORE INTO fabric_task_events (
           tenant_id, event_id, task_id, project_id, member_id, type, source, payload_hash,
           upstream_payload_hash, payload_json, correlation_id, received_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -245,6 +247,7 @@ export function d1FabricLedgerStore(db: D1DatabaseLike): FabricLedgerStoreLike {
         record.correlationId ?? null,
         record.receivedAt,
       ).run();
+      return (result.meta?.changes ?? 0) > 0;
     },
     async getTask(taskId, tenantId = 'cambium') {
       const row = await db.prepare(`
@@ -359,7 +362,7 @@ export function d1FabricLedgerStore(db: D1DatabaseLike): FabricLedgerStoreLike {
     async putEvidenceReview(record: FabricEvidenceReviewRecord) {
       const tenantId = record.tenantId ?? 'cambium';
       await db.prepare(`
-        INSERT INTO fabric_evidence_reviews (tenant_id, review_id, candidate_id, outcome, actor, reason, reviewed_at)
+        INSERT OR IGNORE INTO fabric_evidence_reviews (tenant_id, review_id, candidate_id, outcome, actor, reason, reviewed_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `).bind(
         tenantId,
