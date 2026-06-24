@@ -3681,6 +3681,87 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   assert.equal(body(conflict).eventId, 'cambium:fitcheck-product:task-fitcheck-brief:assigned');
 });
 
+test('bridge · assignment idempotency ignores volatile issuedAt', async () => {
+  const kv = fakeKv();
+  const timestamps = [
+    '2026-06-22T08:00:00.000Z',
+    '2026-06-22T08:05:00.000Z',
+  ];
+  let nowIndex = 0;
+  let uuidIndex = 0;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    now: () => timestamps[nowIndex++] ?? timestamps[timestamps.length - 1],
+    uuid: () => `assign-clock-${++uuidIndex}`,
+  };
+  const assignment = {
+    memberId: 'mathis',
+    task: {
+      taskId: 'task-clock-stable',
+      projectId: 'fitcheck-product',
+      title: 'Prepare stable assignment packet',
+      priority: 'high',
+      taskType: 'engineering',
+    },
+  };
+
+  const first = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(assignment),
+  }), deps);
+  assert.equal(first.status, 200);
+  assert.equal(body(first).id, 'assign-clock-1');
+
+  const duplicate = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(assignment),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).id, 'assign-clock-1');
+  assert.equal(body(duplicate).duplicate, true);
+});
+
+test('bridge · pending directives limit after delivered backlog filtering', async () => {
+  const kv = fakeKv();
+  let uuidIndex = 0;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    now: () => '2026-06-22T08:00:00.000Z',
+    uuid: () => `assign-backlog-${++uuidIndex}`,
+  };
+  for (let i = 0; i < 100; i++) {
+    kv.store.set(`bridge:dir:mathis:delivered-${String(i).padStart(3, '0')}`, JSON.stringify({
+      id: `delivered-${i}`,
+      memberId: 'mathis',
+      direction: 'downstream',
+      payload: { kind: 'old' },
+      delivered: true,
+    }));
+  }
+
+  const queued = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      memberId: 'mathis',
+      task: {
+        taskId: 'task-after-backlog',
+        projectId: 'fitcheck-product',
+        title: 'Handle visible pending assignment',
+      },
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/mathis', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(pending.status, 200);
+  assert.equal(body(pending).count, 1);
+  assert.equal(body(pending).directives[0].id, 'assign-backlog-1');
+});
+
 test('handoff · invite redemption issues a scoped bridge token', async () => {
   const kv = fakeKv();
   const deps = {

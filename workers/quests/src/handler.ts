@@ -238,12 +238,12 @@ function kvBridgeStore(kv: KvLike): BridgeStoreLike {
       const keys = await kv.list(`bridge:dir:${memberId}:`);
       const directives: any[] = [];
       let skipped = 0;
-      for (const k of keys.slice(0, limit)) {
+      for (const k of keys) {
         const v = await kv.get(k);
         if (!v) continue;
         try {
           const d = JSON.parse(v);
-          if (!d.delivered) directives.push(d);
+          if (!d.delivered && directives.length < limit) directives.push(d);
         } catch {
           skipped++;
         }
@@ -540,18 +540,18 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const eventId = optionalText(msg.eventId ?? rawTask.eventId, 160) ?? assignmentEventId(projectId, taskId);
       const correlationId = optionalText(msg.correlationId ?? rawTask.correlationId, 160) ?? eventId;
       const directiveId = optionalText(msg.id, 160) ?? (deps.uuid ? deps.uuid() : `task_${memberId}_${issuedAt}`);
-      const payload = {
+      const semanticPayload = {
         type: 'project_task_assignment',
         kind: 'project_task_assignment',
         schema: 'thoughtseed.project_task_assignment.v1',
         source: 'cambium',
         eventId,
         correlationId,
-        issuedAt,
         target: { memberId, surface: 'plexus-agent-fabric' },
         task: { ...task, eventId, correlationId },
       };
-      const payloadHash = await sha256hex(canonicalJson(payload));
+      const payload = { ...semanticPayload, issuedAt };
+      const payloadHash = await sha256hex(canonicalJson(semanticPayload));
       const existing = await bridgeStore.getAssignment(memberId, eventId);
       if (existing) {
         if (existing.payloadHash !== payloadHash) {
