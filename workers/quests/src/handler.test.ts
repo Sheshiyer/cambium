@@ -2,7 +2,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import { handle } from './handler.ts';
@@ -271,6 +271,21 @@ class SqliteD1Database implements D1DatabaseLike {
     this.db = db;
   }
   prepare(sql: string) { return new SqliteD1Statement(this.db.prepare(sql)); }
+}
+
+const questsMigrationDir = new URL('../migrations/', import.meta.url);
+const legacyFabricTenantUpgradeSql = new URL('../schema/legacy/2026-06-24-fabric-tenant-upgrade.sql', import.meta.url);
+
+function normalMigrationFiles() {
+  return readdirSync(questsMigrationDir)
+    .filter((name) => name.endsWith('.sql'))
+    .sort();
+}
+
+function applyNormalMigrations(db: DatabaseSync) {
+  for (const file of normalMigrationFiles()) {
+    db.exec(readFileSync(new URL(file, questsMigrationDir), 'utf8'));
+  }
 }
 
 const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): SimpleRequest =>
@@ -3993,7 +4008,121 @@ test('fabric bridge · handler accepts external bridge and ledger stores', async
   assert.equal(pending.directives[0].payload.task.taskId, 'task-d1');
 });
 
-test('fabric bridge · D1 migration preserves legacy Fabric rows under cambium tenant', async () => {
+test('fabric bridge · normal D1 migrations apply to an empty database and back D1 stores', async () => {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+
+  const sqliteD1 = new SqliteD1Database(db);
+  const bridgeStore = d1BridgeStore(sqliteD1);
+  const fabricLedger = d1FabricLedgerStore(sqliteD1);
+
+  await bridgeStore.putUpstream('cambium', 'up-1', { id: 'up-1', receivedAt: '2026-06-24T09:00:00.000Z' });
+  await bridgeStore.putDirective('mathis', 'directive-1', {
+    id: 'directive-1',
+    memberId: 'mathis',
+    enqueuedAt: '2026-06-24T09:01:00.000Z',
+    payload: { taskId: 'task-empty-db' },
+  });
+  await bridgeStore.putAssignment({
+    id: 'directive-1',
+    memberId: 'mathis',
+    eventId: 'event-empty-db',
+    taskId: 'task-empty-db',
+    projectId: 'project-empty-db',
+    payloadHash: 'hash-empty-db',
+    enqueuedAt: '2026-06-24T09:01:00.000Z',
+  });
+  await fabricLedger.upsertTask({
+    tenantId: 'tenant-b',
+    taskId: 'task-empty-db',
+    projectId: 'project-empty-db',
+    memberId: 'mathis',
+    status: 'assigned',
+    workMode: 'manual',
+    evidenceStrength: 'weak_evidence',
+    title: 'Fresh migration proof',
+    payload: { tenantId: 'tenant-b' },
+    updatedAt: '2026-06-24T09:02:00.000Z',
+  });
+  assert.equal(await fabricLedger.putEvent({
+    tenantId: 'tenant-b',
+    eventId: 'event-empty-db',
+    taskId: 'task-empty-db',
+    projectId: 'project-empty-db',
+    memberId: 'mathis',
+    type: 'fabric_task_report',
+    source: 'plexus',
+    payloadHash: 'hash-event-empty-db',
+    upstreamPayloadHash: 'upstream-empty-db',
+    payload: { tenantId: 'tenant-b', taskId: 'task-empty-db' },
+    correlationId: 'corr-empty-db',
+    receivedAt: '2026-06-24T09:03:00.000Z',
+  }), true);
+  await fabricLedger.putEvidenceCandidate({
+    tenantId: 'tenant-b',
+    candidateId: 'candidate-empty-db',
+    taskId: 'task-empty-db',
+    projectId: 'project-empty-db',
+    memberId: 'mathis',
+    status: 'review_pending',
+    confidence: 'low',
+    matchKind: 'note_only',
+    evidence: { type: 'manual_note' },
+    reason: 'fresh migration proof',
+    createdAt: '2026-06-24T09:04:00.000Z',
+  });
+  await fabricLedger.putEvidenceReview({
+    tenantId: 'tenant-b',
+    reviewId: 'review-empty-db',
+    candidateId: 'candidate-empty-db',
+    outcome: 'accepted',
+    actor: 'founder',
+    reason: 'fresh migration proof',
+    reviewedAt: '2026-06-24T09:05:00.000Z',
+  });
+
+  assert.deepEqual((await bridgeStore.listUpstream('cambium', 10)).map((message) => message.id), ['up-1']);
+  assert.equal((await bridgeStore.listPendingDirectives('mathis', 10)).directives.length, 1);
+  assert.equal((await bridgeStore.getAssignment('mathis', 'event-empty-db'))?.taskId, 'task-empty-db');
+  assert.equal((await fabricLedger.getTask('task-empty-db', 'tenant-b'))?.tenantId, 'tenant-b');
+  assert.equal((await fabricLedger.getEvent('event-empty-db', 'tenant-b'))?.upstreamPayloadHash, 'upstream-empty-db');
+  assert.equal((await fabricLedger.listReviewItems('tenant-b')).length, 1);
+  assert.equal((await fabricLedger.getEvidenceCandidate('candidate-empty-db', 'tenant-b'))?.tenantId, 'tenant-b');
+  db.close();
+});
+
+test('fabric bridge · normal D1 migrations do not collapse current tenant-aware rows', async () => {
+  const db = new DatabaseSync(':memory:');
+  db.exec(readFileSync(new URL('../schema/bridge.sql', import.meta.url), 'utf8'));
+  db.exec(`
+    INSERT INTO fabric_tasks (
+      tenant_id, task_id, project_id, member_id, status, work_mode,
+      evidence_strength, title, payload_json, updated_at
+    ) VALUES (
+      'tenant-b', 'tenant-task', 'tenant-project', 'mathis', 'done', 'manual',
+      'strong_evidence', 'Tenant task', '{"tenantId":"tenant-b"}', '2026-06-24T09:10:00.000Z'
+    );
+    INSERT INTO fabric_task_events (
+      tenant_id, event_id, task_id, project_id, member_id, type, source,
+      payload_hash, upstream_payload_hash, payload_json, correlation_id, received_at
+    ) VALUES (
+      'tenant-b', 'tenant-event', 'tenant-task', 'tenant-project', 'mathis',
+      'fabric_task_report', 'plexus', 'tenant-hash', 'tenant-upstream-hash',
+      '{"tenantId":"tenant-b","taskId":"tenant-task"}', 'tenant-corr',
+      '2026-06-24T09:11:00.000Z'
+    );
+  `);
+  applyNormalMigrations(db);
+
+  const fabricLedger = d1FabricLedgerStore(new SqliteD1Database(db));
+  assert.equal((await fabricLedger.getTask('tenant-task', 'tenant-b'))?.tenantId, 'tenant-b');
+  assert.equal((await fabricLedger.getTask('tenant-task', 'cambium')), null);
+  assert.equal((await fabricLedger.getEvent('tenant-event', 'tenant-b'))?.upstreamPayloadHash, 'tenant-upstream-hash');
+  assert.equal((await fabricLedger.getEvent('tenant-event', 'cambium')), null);
+  db.close();
+});
+
+test('fabric bridge · manual legacy D1 upgrade preserves legacy Fabric rows under cambium tenant', async () => {
   const db = new DatabaseSync(':memory:');
   db.exec(`
     CREATE TABLE fabric_tasks (
@@ -4067,7 +4196,8 @@ test('fabric bridge · D1 migration preserves legacy Fabric rows under cambium t
       '2026-06-23T10:03:00.000Z'
     );
   `);
-  const migration = readFileSync(new URL('../migrations/0001_fabric_tenant_bridge.sql', import.meta.url), 'utf8');
+  assert.ok(!normalMigrationFiles().includes('2026-06-24-fabric-tenant-upgrade.sql'));
+  const migration = readFileSync(legacyFabricTenantUpgradeSql, 'utf8');
   db.exec(migration);
 
   const tableInfo = (table: string) => db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string; pk: number }>;

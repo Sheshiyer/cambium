@@ -1,10 +1,70 @@
--- Migrate pre-tenant Fabric D1 tables to the tenant-aware Fabric bridge schema.
--- This migration is for existing databases created from the legacy bridge.sql
--- where Fabric tables used single-column primary keys and had no tenant_id.
+-- Fresh D1 baseline for the Cambium/Hermes Fabric bridge.
+-- Wrangler applies files in workers/quests/migrations to new databases, so this
+-- file must be safe on an empty D1 database and must not rewrite existing
+-- tenant-aware Fabric rows.
 
-DROP INDEX IF EXISTS idx_fabric_tasks_project_member;
-ALTER TABLE fabric_tasks RENAME TO fabric_tasks_legacy_0001;
-CREATE TABLE fabric_tasks (
+CREATE TABLE IF NOT EXISTS bridge_up (
+  tenant_id TEXT NOT NULL,
+  id TEXT NOT NULL,
+  message_json TEXT NOT NULL,
+  received_at TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_bridge_up_tenant_received
+  ON bridge_up (tenant_id, received_at);
+
+CREATE TABLE IF NOT EXISTS bridge_directives (
+  member_id TEXT NOT NULL,
+  id TEXT NOT NULL,
+  directive_json TEXT NOT NULL,
+  delivered INTEGER NOT NULL DEFAULT 0,
+  enqueued_at TEXT NOT NULL,
+  delivered_at TEXT,
+  PRIMARY KEY (member_id, id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_bridge_directives_member_pending
+  ON bridge_directives (member_id, delivered, enqueued_at);
+
+CREATE TABLE IF NOT EXISTS bridge_assignments (
+  member_id TEXT NOT NULL,
+  event_id TEXT NOT NULL,
+  directive_id TEXT NOT NULL,
+  task_id TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  correlation_id TEXT,
+  payload_hash TEXT NOT NULL,
+  enqueued_at TEXT NOT NULL,
+  PRIMARY KEY (member_id, event_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_bridge_assignments_project_task
+  ON bridge_assignments (project_id, task_id);
+
+CREATE TABLE IF NOT EXISTS handoff_members (
+  member_id TEXT PRIMARY KEY,
+  member_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS handoff_token_index (
+  token_hash TEXT PRIMARY KEY,
+  member_id TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS handoff_invites (
+  jti TEXT PRIMARY KEY,
+  invite_json TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  used INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_handoff_invites_used
+  ON handoff_invites (used, created_at);
+
+CREATE TABLE IF NOT EXISTS fabric_tasks (
   tenant_id TEXT NOT NULL,
   task_id TEXT NOT NULL,
   project_id TEXT NOT NULL,
@@ -17,19 +77,11 @@ CREATE TABLE fabric_tasks (
   updated_at TEXT NOT NULL,
   PRIMARY KEY (tenant_id, task_id)
 );
-INSERT OR IGNORE INTO fabric_tasks (
-  tenant_id, task_id, project_id, member_id, status, work_mode, evidence_strength, title, payload_json, updated_at
-)
-SELECT
-  'cambium', task_id, project_id, member_id, status, work_mode, evidence_strength, title, payload_json, updated_at
-FROM fabric_tasks_legacy_0001;
-DROP TABLE fabric_tasks_legacy_0001;
+
 CREATE INDEX IF NOT EXISTS idx_fabric_tasks_project_member
   ON fabric_tasks (tenant_id, project_id, member_id, updated_at);
 
-DROP INDEX IF EXISTS idx_fabric_task_events_task_received;
-ALTER TABLE fabric_task_events RENAME TO fabric_task_events_legacy_0001;
-CREATE TABLE fabric_task_events (
+CREATE TABLE IF NOT EXISTS fabric_task_events (
   tenant_id TEXT NOT NULL,
   event_id TEXT NOT NULL,
   task_id TEXT NOT NULL,
@@ -44,21 +96,11 @@ CREATE TABLE fabric_task_events (
   received_at TEXT NOT NULL,
   PRIMARY KEY (tenant_id, event_id)
 );
-INSERT OR IGNORE INTO fabric_task_events (
-  tenant_id, event_id, task_id, project_id, member_id, type, source, payload_hash,
-  upstream_payload_hash, payload_json, correlation_id, received_at
-)
-SELECT
-  'cambium', event_id, task_id, project_id, member_id, type, source, payload_hash,
-  NULL, payload_json, correlation_id, received_at
-FROM fabric_task_events_legacy_0001;
-DROP TABLE fabric_task_events_legacy_0001;
+
 CREATE INDEX IF NOT EXISTS idx_fabric_task_events_task_received
   ON fabric_task_events (tenant_id, task_id, received_at);
 
-DROP INDEX IF EXISTS idx_fabric_evidence_candidates_review;
-ALTER TABLE fabric_evidence_candidates RENAME TO fabric_evidence_candidates_legacy_0001;
-CREATE TABLE fabric_evidence_candidates (
+CREATE TABLE IF NOT EXISTS fabric_evidence_candidates (
   tenant_id TEXT NOT NULL,
   candidate_id TEXT NOT NULL,
   task_id TEXT NOT NULL,
@@ -75,21 +117,11 @@ CREATE TABLE fabric_evidence_candidates (
   review_reason TEXT,
   PRIMARY KEY (tenant_id, candidate_id)
 );
-INSERT OR IGNORE INTO fabric_evidence_candidates (
-  tenant_id, candidate_id, task_id, project_id, member_id, status, confidence, match_kind,
-  evidence_json, reason, created_at, reviewed_at, review_actor, review_reason
-)
-SELECT
-  'cambium', candidate_id, task_id, project_id, member_id, status, confidence, match_kind,
-  evidence_json, reason, created_at, reviewed_at, review_actor, review_reason
-FROM fabric_evidence_candidates_legacy_0001;
-DROP TABLE fabric_evidence_candidates_legacy_0001;
+
 CREATE INDEX IF NOT EXISTS idx_fabric_evidence_candidates_review
   ON fabric_evidence_candidates (tenant_id, status, created_at);
 
-DROP INDEX IF EXISTS idx_fabric_evidence_reviews_candidate;
-ALTER TABLE fabric_evidence_reviews RENAME TO fabric_evidence_reviews_legacy_0001;
-CREATE TABLE fabric_evidence_reviews (
+CREATE TABLE IF NOT EXISTS fabric_evidence_reviews (
   tenant_id TEXT NOT NULL,
   review_id TEXT NOT NULL,
   candidate_id TEXT NOT NULL,
@@ -99,12 +131,6 @@ CREATE TABLE fabric_evidence_reviews (
   reviewed_at TEXT NOT NULL,
   PRIMARY KEY (tenant_id, review_id)
 );
-INSERT OR IGNORE INTO fabric_evidence_reviews (
-  tenant_id, review_id, candidate_id, outcome, actor, reason, reviewed_at
-)
-SELECT
-  'cambium', review_id, candidate_id, outcome, actor, reason, reviewed_at
-FROM fabric_evidence_reviews_legacy_0001;
-DROP TABLE fabric_evidence_reviews_legacy_0001;
+
 CREATE INDEX IF NOT EXISTS idx_fabric_evidence_reviews_candidate
   ON fabric_evidence_reviews (tenant_id, candidate_id, reviewed_at);
