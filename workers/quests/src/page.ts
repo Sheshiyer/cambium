@@ -1430,6 +1430,21 @@ function renderInsightBoxes(env){
     '<button type="button" class="ibox ' + (box.state === 'ready' ? 'ready' : '') + '" data-box="' + i + '"><b>' + esc(box.title) + '</b><span>' + esc(box.detail) + '</span></button>'
   ).join('') + '</div>';
 }
+function agentSkillRoles(agent){
+  const subsets = agent && agent.roleSubsets && typeof agent.roleSubsets === 'object' ? agent.roleSubsets : {};
+  return Object.entries(subsets).map(([roleId, subset]) => {
+    const permissions = Array.isArray(subset.permissions) ? subset.permissions.join(', ') : '';
+    const commands = Array.isArray(subset.commands) ? subset.commands.join(', ') : '';
+    return { roleId, version: subset.version || '', permissions, commands };
+  });
+}
+function agentSkillDetail(agent){
+  if (!agent) return '';
+  const roles = agentSkillRoles(agent);
+  const writeCount = Array.isArray(agent.writeCommands) ? agent.writeCommands.length : 0;
+  const readCount = Array.isArray(agent.readCommands) ? agent.readCommands.length : 0;
+  return 'loadout v' + (agent.version || 'unknown') + ' · ' + roles.length + ' roles · ' + readCount + ' read · ' + writeCount + ' write gated';
+}
 function skillCards(env){
   const skillEnv = env.skills || {};
   const rows = Array.isArray(skillEnv.rows) ? skillEnv.rows : [];
@@ -1456,6 +1471,7 @@ function skillCards(env){
     gap:skillEnv.gap || 'skill registry missing',
   }];
   return rows.slice(0, 4).map(skill => {
+    const agent = skill.agentSkill || null;
     const pct = Math.round(Number(skill.successRate || 0) * 100);
     const recent = Math.round(Number(skill.recentRate ?? skill.successRate ?? 0) * 100);
     const uses = Number(skill.uses ?? skill.sampleSize ?? 0);
@@ -1471,10 +1487,11 @@ function skillCards(env){
     const detail = (skill.gap
       ? label + ' · ' + skill.gap
       : label + ' · ' + sample + ' uses · ' + pct + '% total · ' + recent + '% recent') + promotionDetail;
+    const agentDetail = agent ? agentSkillDetail(agent) : '';
     return {
       title:skill.id,
       state:ready ? 'ready' : 'wait',
-      detail:String(skill.status || 'unknown') + ' · ' + detail,
+      detail:String(skill.status || 'unknown') + ' · ' + (agentDetail || detail),
       status:String(skill.status || 'unknown'),
       tier,
       tierLabel:label,
@@ -1489,6 +1506,7 @@ function skillCards(env){
       registryProof:skill.registryProof || sourcePath,
       gapAction:sourcePath + ' · ' + gapCommand,
       gap:skill.gap || '',
+      agentSkill:agent,
     };
   });
 }
@@ -1849,6 +1867,7 @@ function openInsightBox(env, index){
 }
 function openSkillBox(env, index){
   const skill = skillCards(env)[index] || skillCards(env)[0];
+  const agent = skill.agentSkill || null;
   const canPromote = canQueueSkillPromotion(skill);
   const consequence = canPromote ? skillPromotionConsequence(skill) : 'no production change from this sheet; skill registry remains the authority';
   const reversibility = canPromote ? skillPromotionReversibility() : 'no queued action is created; refresh the registry through quine write skills';
@@ -1868,11 +1887,22 @@ function openSkillBox(env, index){
   const action = canPromote
     ? '<div class="gbtns promote"><button type="button" class="approve" data-promote-skill="1">Queue founder review</button></div>'
     : '';
+  const loadout = agent ? renderAgentSkillLoadout(agent) : '';
   $('sheetBody').innerHTML = '<div class="arc">skill labor · ' + esc(skill.state) + '</div><h2>' + esc(skill.title) + '</h2>' +
-    '<div class="nar">' + esc(skill.detail) + '</div><div class="kv"><b>status</b><span>' + esc(skill.status || 'unknown') + '</span><b>tier</b><span>' + esc(skill.tierLabel || skill.tier || 'missing') + '</span><b>uses</b><span>' + esc(skill.uses ?? 0) + '</span><b>success rate</b><span>' + esc(skill.successRateText || '0%') + '</span><b>recent rate</b><span>' + esc(skill.recentRateText || '0%') + '</span><b>sample minimum</b><span>' + esc(skill.sampleMinimum || '0/3 uses') + '</span><b>promotion status</b><span>' + esc(skill.promotionStatus || 'blocked') + '</span><b>source path</b><span>' + esc(skill.sourcePath || ('.operator/' + TENANT + '.skills.json')) + '</span><b>registry proof</b><span>' + esc(skill.registryProof || skill.sourcePath || ('.operator/' + TENANT + '.skills.json')) + '</span></div><div class="kv"><b>consequence</b><span>' + esc(consequence) + '</span><b>reversibility</b><span>' + esc(reversibility) + '</span><b>idempotency key</b><span>' + esc(idempotencyKey) + '</span><b>founder approval</b><span>' + esc(founderApproval) + '</span></div>' + gap + caution + readOnly + action;
+    '<div class="nar">' + esc(skill.detail) + '</div><div class="kv"><b>status</b><span>' + esc(skill.status || 'unknown') + '</span><b>tier</b><span>' + esc(skill.tierLabel || skill.tier || 'missing') + '</span><b>uses</b><span>' + esc(skill.uses ?? 0) + '</span><b>success rate</b><span>' + esc(skill.successRateText || '0%') + '</span><b>recent rate</b><span>' + esc(skill.recentRateText || '0%') + '</span><b>sample minimum</b><span>' + esc(skill.sampleMinimum || '0/3 uses') + '</span><b>promotion status</b><span>' + esc(skill.promotionStatus || 'blocked') + '</span><b>source path</b><span>' + esc(skill.sourcePath || ('.operator/' + TENANT + '.skills.json')) + '</span><b>registry proof</b><span>' + esc(skill.registryProof || skill.sourcePath || ('.operator/' + TENANT + '.skills.json')) + '</span></div>' + loadout + '<div class="kv"><b>consequence</b><span>' + esc(consequence) + '</span><b>reversibility</b><span>' + esc(reversibility) + '</span><b>idempotency key</b><span>' + esc(idempotencyKey) + '</span><b>founder approval</b><span>' + esc(founderApproval) + '</span></div>' + gap + caution + readOnly + action;
   const promote = $('sheetBody').querySelector('[data-promote-skill]');
   if (promote) promote.onclick = () => skillPromotionAct(skill, promote);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(skill.state === 'ready' ? 'medium' : 'light');
+}
+function renderAgentSkillLoadout(agent){
+  const roles = agentSkillRoles(agent);
+  const roleRows = roles.length
+    ? '<div class="kv">' + roles.slice(0, 8).map(role => '<b>' + esc(role.roleId) + '</b><span>v' + esc(role.version || 'unknown') + ' · ' + esc(role.permissions || 'no permissions') + ' · ' + esc(role.commands || 'no commands') + '</span>').join('') + '</div>'
+    : '<div class="nar">no role subsets served for this agent skill.</div>';
+  const boundaries = Array.isArray(agent.boundaries) && agent.boundaries.length
+    ? '<div class="kv">' + agent.boundaries.slice(0, 5).map((boundary, i) => '<b>boundary ' + (i + 1) + '</b><span>' + esc(boundary) + '</span>').join('') + '</div>'
+    : '';
+  return '<div class="kv"><b>loadout version</b><span>' + esc(agent.version || 'unknown') + '</span><b>skill id</b><span>' + esc(agent.skillId || 'unknown') + '</span><b>mini app area</b><span>' + esc(agent.miniAppArea || 'skills') + '</span><b>registry target</b><span>' + esc(agent.registryTarget || '.operator/<tenant>.skills.json') + '</span><b>read commands</b><span>' + esc(Array.isArray(agent.readCommands) ? agent.readCommands.join(', ') : 'none') + '</span><b>write commands</b><span>' + esc(Array.isArray(agent.writeCommands) ? agent.writeCommands.join(', ') : 'none') + '</span></div>' + roleRows + boundaries;
 }
 function openNpcBox(env, index){
   const npc = npcCards(env)[index] || npcCards(env)[0];

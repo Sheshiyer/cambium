@@ -10,6 +10,8 @@
 import { PAGE } from './page.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
+import type { GithubCommandExecutor } from './github-command.ts';
+import { validateGithubCommand } from './github-command.ts';
 
 export interface KvLike {
   get(key: string): Promise<string | null>;
@@ -119,6 +121,8 @@ export interface HandlerDeps {
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
   contextRoutes?: ContextRouteDeps; // Optional bounded context route providers (unset → context lane 503s)
+  githubCommand?: GithubCommandExecutor; // Optional GitHub repo/issue command executor for Hermes manual commands.
+  githubAllowedRepos?: string[]; // Same allowlist used by the GitHub command executor.
   uuid?: () => string;         // injectable for tests
   now?: () => string;          // injectable clock (ISO) for the bridge
   nowMs?: () => number;        // injectable epoch-ms clock for handoff TTLs
@@ -1362,6 +1366,30 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ...parsed,
         topic: { topicKey, threadId: route.threadId, questId: route.questId },
       });
+    }
+
+    if (method === 'POST' && path === '/v1/bridge/github-command') {
+      if (!principal.admin) return json(403, { error: 'only cofounders/Hermes may execute GitHub commands' });
+      if (!deps.githubCommand) return json(503, { error: 'GitHub command executor not configured' });
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const command = validateGithubCommand(body, deps.githubAllowedRepos);
+      if ('error' in command) return json(400, command);
+      let result;
+      try {
+        result = await deps.githubCommand(command);
+      } catch {
+        return json(502, {
+          ok: false,
+          commandId: command.commandId,
+          repo: command.repo,
+          issueNumber: command.issueNumber,
+          dryRun: command.dryRun,
+          error: 'GitHub command executor unreachable',
+        });
+      }
+      if (!result.ok) return json(result.status && result.status >= 400 ? result.status : 400, result);
+      return json(200, result);
     }
 
     if (method === 'POST' && path === '/v1/bridge/directive') {

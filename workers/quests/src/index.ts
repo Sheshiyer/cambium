@@ -8,6 +8,7 @@ import {
   createSemanticRecall,
   parseRoutineAllowlistJson,
 } from './context-bindings.ts';
+import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import type {
   BridgeAssignmentRecord,
   BridgeStoreLike,
@@ -55,6 +56,8 @@ interface Env {
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
   CONTEXT_ROUTINE_ALLOWLIST_JSON?: string;
+  GITHUB_AGENT_TOKEN?: string;
+  GITHUB_AGENT_ALLOWED_REPOS?: string;
   OLLAMA_API_KEY?: string;
   OLLAMA_BASE_URL?: string;
   OLLAMA_DEFAULT_MODEL?: string;
@@ -469,6 +472,7 @@ export default {
           : undefined,
       };
     }
+    const githubAllowedRepos = parseAllowedRepos(env.GITHUB_AGENT_ALLOWED_REPOS);
     const res = await handle(simple, {
       kv,
       pushToken: env.QUESTS_PUSH_TOKEN,
@@ -480,6 +484,12 @@ export default {
       handoffSecret: env.HANDOFF_SECRET,
       providerBroker,
       contextRoutes,
+      githubCommand: env.GITHUB_AGENT_TOKEN ? createGithubCommandExecutor({
+        token: env.GITHUB_AGENT_TOKEN,
+        allowedRepos: githubAllowedRepos,
+        fetch: workerFetch,
+      }) : undefined,
+      githubAllowedRepos,
     });
     return new Response(res.body, { status: res.status, headers: res.headers });
   },

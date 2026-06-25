@@ -820,6 +820,58 @@ test('quests visual envelope only marks production promotion when registry appro
   assert.equal(production?.promotion.requiredApproval, false);
 });
 
+test('quests visual envelope preserves Hermes agent skill loadout details', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-test-');
+  fs.mkdirSync(path.join(tmp, '.operator'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '.operator', 'acme.skills.json'), JSON.stringify([
+    {
+      skill_id: 'hermes-github-repo-issue-ops',
+      status: 'candidate',
+      category: 'governance',
+      description: 'USE WHEN manual GitHub issue work is requested. NOT FOR direct branch mutation.',
+      trigger_signals: ['/ts-github issue create'],
+      required_inputs: [{ name: 'manual command', source: 'telegram', required: true }],
+      output_contract: {
+        format: 'cambium.skill-registry.agent-skill.v1',
+        location: '.operator/<tenant>.skills.json',
+        skillId: 'github-repo-issue-ops',
+        version: '0.1.0',
+        miniAppArea: 'skills',
+        registryTarget: '.operator/<tenant>.skills.json',
+        readCommands: ['github.repo.inspect', 'github.issue.read'],
+        writeCommands: ['github.issue.create', 'github.issue.comment'],
+        roleSubsets: {
+          engineer: { version: '0.1.0', permissions: ['read', 'write'], commands: ['github.issue.create'] },
+          hermes: { version: '0.1.0', permissions: ['read', 'dispatch'], commands: ['github.repo.inspect'] },
+        },
+        boundaries: ['Write operations require manual command context and audit receipt.'],
+      },
+      source: { signature: 'github:github-repo-issue-ops:0.1.0', from: 'world-log', occurrences: 1 },
+      telemetry: { uses: 0, successes: 0, failures: 0, scenarios: [], gotchas: [], amendments: [] },
+      created: 1,
+      updated: 1,
+    },
+  ]));
+
+  const { buildVisualEnvelope } = await import('../../quine/hyphae/quests.ts');
+  const visual = buildVisualEnvelope(
+    { root: tmp } as any,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-25T00:00:00.000Z' },
+  );
+  const skill = visual.skills.rows.find((row) => row.id === 'hermes-github-repo-issue-ops');
+
+  assert.ok(skill?.agentSkill);
+  assert.equal(skill?.agentSkill?.version, '0.1.0');
+  assert.deepEqual(skill?.agentSkill?.writeCommands, ['github.issue.create', 'github.issue.comment']);
+  assert.deepEqual(skill?.agentSkill?.roleSubsets.engineer.permissions, ['read', 'write']);
+  assert.match(skill?.agentSkill?.boundaries[0] ?? '', /manual command context/);
+});
+
 test('quests visual envelope labels stance only from sufficient tenant lane history', async () => {
   const fs = await import('node:fs');
   const tmp = fs.mkdtempSync('/tmp/cambium-test-');

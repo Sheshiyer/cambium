@@ -3144,6 +3144,65 @@ test('page · skill labor sheet exposes full telemetry and source path', async (
   assert.match(sheet, /source path<\/b><span>\.operator\/cambium\.skills\.json/);
 });
 
+test('page · agent skill sheet exposes versioned role loadout details', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 1,
+      rows: [{
+        id: 'hermes-github-repo-issue-ops',
+        status: 'candidate',
+        uses: 0,
+        successes: 0,
+        failures: 0,
+        successRate: 0,
+        declining: false,
+        tier: 'unproven',
+        tierLabel: 'UNPROVEN',
+        sampleSize: 0,
+        minimum: 3,
+        recentRate: 0,
+        recentWindow: 0,
+        promotion: {
+          status: 'blocked',
+          label: 'NO PROMOTION',
+          detail: 'need 3 uses for tier; found 0',
+          requiredApproval: true,
+        },
+        agentSkill: {
+          format: 'cambium.skill-registry.agent-skill.v1',
+          skillId: 'github-repo-issue-ops',
+          version: '0.1.0',
+          miniAppArea: 'skills',
+          registryTarget: '.operator/<tenant>.skills.json',
+          readCommands: ['github.repo.inspect', 'github.issue.read'],
+          writeCommands: ['github.issue.create', 'github.issue.comment'],
+          roleSubsets: {
+            engineer: { version: '0.1.0', permissions: ['read', 'write'], commands: ['github.issue.create'] },
+            hermes: { version: '0.1.0', permissions: ['read', 'dispatch'], commands: ['github.repo.inspect'] },
+          },
+          boundaries: ['Write operations require manual command context and audit receipt.'],
+        },
+        gap: 'need 3 uses for tier; found 0',
+        updated: 1,
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /loadout version<\/b><span>0\.1\.0/);
+  assert.match(sheet, /skill id<\/b><span>github-repo-issue-ops/);
+  assert.match(sheet, /read commands<\/b><span>github\.repo\.inspect, github\.issue\.read/);
+  assert.match(sheet, /write commands<\/b><span>github\.issue\.create, github\.issue\.comment/);
+  assert.match(sheet, /engineer<\/b><span>v0\.1\.0 · read, write · github\.issue\.create/);
+  assert.match(sheet, /hermes<\/b><span>v0\.1\.0 · read, dispatch · github\.repo\.inspect/);
+  assert.match(sheet, /boundary 1<\/b><span>Write operations require manual command context and audit receipt\./);
+});
+
 test('page · missing skill sheet maps gaps to operator store and quine write skills', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -3985,6 +4044,153 @@ test('bridge · scoped Hermes assignment token only enqueues task assignments', 
     headers: { authorization: 'Bearer assign-only' },
   }), deps);
   assert.equal(inbox.status, 403);
+});
+
+test('bridge · GitHub command route executes only through admin bridge token', async () => {
+  const kv = fakeKv();
+  const calls: any[] = [];
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    githubCommand: async (command: any) => {
+      calls.push(command);
+      return {
+        ok: true,
+        commandId: command.commandId,
+        repo: command.repo,
+        dryRun: command.dryRun === true,
+        url: null,
+        result: { wouldCall: '/repos/Sheshiyer/hermes-aws-ts/issues' },
+      };
+    },
+  };
+  const bodyJson = JSON.stringify({
+    schema: 'hermes.github-agent-command.v1',
+    skillId: 'github-repo-issue-ops',
+    commandId: 'github.issue.create',
+    source: 'telegram-manual',
+    actorId: 'shesh',
+    topicKey: 'dev',
+    threadId: 862,
+    repo: 'Sheshiyer/hermes-aws-ts',
+    title: 'Manual command proof',
+    body: 'Create the audit route',
+    dryRun: true,
+    approvalRequired: true,
+    idempotencyKey: 'github.issue.create:sheshiyer/hermes-aws-ts:manual-command-proof',
+  });
+
+  const scopedDenied = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: bodyJson,
+  }), deps);
+  assert.equal(scopedDenied.status, 403);
+
+  const executed = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: bodyJson,
+  }), deps);
+  assert.equal(executed.status, 200);
+  assert.equal(body(executed).ok, true);
+  assert.equal(body(executed).commandId, 'github.issue.create');
+  assert.equal(body(executed).repo, 'Sheshiyer/hermes-aws-ts');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].approvalRequired, true);
+  assert.equal(calls[0].topicKey, 'dev');
+});
+
+test('bridge · GitHub command route rejects bad command envelopes before execution', async () => {
+  const kv = fakeKv();
+  let called = false;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    githubCommand: async () => {
+      called = true;
+      return { ok: true, commandId: 'github.repo.inspect', repo: 'Other/repo', dryRun: true };
+    },
+  };
+
+  const rejected = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.repo.inspect',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'Other/repo',
+      dryRun: true,
+      approvalRequired: false,
+      idempotencyKey: 'github.repo.inspect:other/repo',
+    }),
+  }), deps);
+  assert.equal(rejected.status, 400);
+  assert.match(body(rejected).error, /allowlisted/);
+  assert.equal(called, false);
+});
+
+test('bridge · GitHub command route honors injected repo allowlist and bounds executor errors', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    githubAllowedRepos: ['ThoughtseedLabs/*'],
+    githubCommand: async () => {
+      throw new Error('network unavailable');
+    },
+  };
+
+  const response = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.repo.inspect',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'ThoughtseedLabs/hermes',
+      dryRun: false,
+      approvalRequired: false,
+      idempotencyKey: 'github.repo.inspect:thoughtseedlabs/hermes',
+    }),
+  }), deps);
+
+  assert.equal(response.status, 502);
+  assert.equal(body(response).ok, false);
+  assert.equal(body(response).repo, 'ThoughtseedLabs/hermes');
+  assert.equal(body(response).error, 'GitHub command executor unreachable');
+});
+
+test('bridge · GitHub command route rejects repos outside injected allowlist', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    githubAllowedRepos: ['ThoughtseedLabs/*'],
+    githubCommand: async () => {
+      throw new Error('must not execute');
+    },
+  };
+
+  const response = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.repo.inspect',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'Sheshiyer/hermes-aws-ts',
+      dryRun: true,
+      approvalRequired: false,
+      idempotencyKey: 'github.repo.inspect:sheshiyer/hermes-aws-ts',
+    }),
+  }), deps);
+
+  assert.equal(response.status, 400);
+  assert.match(body(response).error, /allowlisted/);
 });
 
 test('bridge · scoped Hermes topic routing creates quest-linked assignments', async () => {
