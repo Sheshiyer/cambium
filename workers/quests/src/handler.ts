@@ -269,6 +269,17 @@ const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
 const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|rawInitData|initData|query_id|auth_date)\b=?|\b(?:token|user|id)=|hash=)/i;
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
+const THOUGHTSEED_TELEGRAM_CHAT_ID = '-1002691202808';
+const TOPIC_QUEST_ROUTES = {
+  hermes: { topicName: 'Hermes', threadId: 797, questId: 'the-gate', priority: 'normal', taskType: 'operations', title: 'Coordinate Hermes topic signal' },
+  digests: { topicName: 'Digests', threadId: 798, questId: 'the-review', priority: 'normal', taskType: 'research', title: 'Synthesize digest topic signal' },
+  dev: { topicName: 'Dev', threadId: 799, questId: 'the-build', priority: 'high', taskType: 'engineering', title: 'Act on Dev topic signal' },
+  inbox: { topicName: 'Inbox', threadId: 800, questId: 'the-brief', priority: 'normal', taskType: 'general', title: 'Triage Inbox topic signal' },
+  calendar: { topicName: 'Calendar', threadId: 801, questId: 'the-brief', priority: 'normal', taskType: 'operations', title: 'Prepare Calendar topic signal' },
+  agent_ops: { topicName: 'Agent Ops', threadId: 802, questId: 'living-org', priority: 'high', taskType: 'operations', title: 'Investigate Agent Ops topic signal' },
+  alerts: { topicName: 'Alerts', threadId: 803, questId: 'the-ship-gate', priority: 'urgent', taskType: 'operations', title: 'Escalate Alerts topic signal' },
+  clients: { topicName: 'Clients', threadId: 804, questId: 'the-handoff', priority: 'high', taskType: 'general', title: 'Prepare Clients topic signal' },
+} as const;
 
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
@@ -371,7 +382,109 @@ function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string)
     taskType: taskType && FABRIC_TASK_TYPES.has(taskType) ? taskType : 'general',
     assigneeMemberId: memberId,
     assignedBy: optionalText(raw.assignedBy, 80) ?? 'cambium',
+    source: optionalText(raw.source, 80) ?? 'cambium',
+  };
+}
+
+async function queueProjectTaskAssignment(
+  bridgeStore: BridgeStoreLike,
+  msg: Record<string, unknown>,
+  nowIso: () => string,
+  createId?: () => string,
+): Promise<SimpleResponse> {
+  const rawTask = msg && typeof msg.task === 'object' && msg.task && !Array.isArray(msg.task) ? msg.task as Record<string, unknown> : null;
+  if (!rawTask) return json(400, { error: 'assignment needs a task object' });
+  const memberId = String(msg.memberId ?? rawTask.assigneeMemberId ?? '').trim().toLowerCase();
+  if (!memberId || !VALID_TENANT.test(memberId)) return json(400, { error: 'assignment needs a valid memberId' });
+  const task = normalizeAssignmentTask(rawTask, memberId);
+  if ('error' in task) return json(400, { error: task.error });
+
+  const issuedAt = nowIso();
+  const taskId = String(task.taskId);
+  const projectId = String(task.projectId);
+  const eventId = optionalText(msg.eventId ?? rawTask.eventId, 160) ?? assignmentEventId(projectId, taskId);
+  const correlationId = optionalText(msg.correlationId ?? rawTask.correlationId, 160) ?? eventId;
+  const directiveId = optionalText(msg.id, 160) ?? (createId ? createId() : `task_${memberId}_${issuedAt}`);
+  const semanticPayload = {
+    type: 'project_task_assignment',
+    kind: 'project_task_assignment',
+    schema: 'thoughtseed.project_task_assignment.v1',
     source: 'cambium',
+    eventId,
+    correlationId,
+    target: { memberId, surface: 'plexus-agent-fabric' },
+    task: { ...task, eventId, correlationId },
+  };
+  const payload = { ...semanticPayload, issuedAt };
+  const payloadHash = await sha256hex(canonicalJson(semanticPayload));
+  const existing = await bridgeStore.getAssignment(memberId, eventId);
+  if (existing) {
+    if (existing.payloadHash !== payloadHash) {
+      return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: existing.id });
+    }
+    return json(200, { ok: true, id: existing.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
+  }
+
+  const stored = {
+    id: directiveId,
+    memberId,
+    direction: 'downstream',
+    payload,
+    payloadHash,
+    delivered: false,
+    issuedAt,
+    enqueuedAt: issuedAt,
+  };
+  await bridgeStore.putAssignment({ id: directiveId, memberId, taskId, projectId, eventId, correlationId, payloadHash, enqueuedAt: issuedAt });
+  const persisted = await bridgeStore.getAssignment(memberId, eventId);
+  if (!persisted) return json(500, { error: 'assignment persistence failed', eventId, memberId });
+  if (persisted.payloadHash !== payloadHash) {
+    return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: persisted.id });
+  }
+  if (persisted.id !== directiveId) {
+    return json(200, { ok: true, id: persisted.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
+  }
+  await bridgeStore.putDirective(memberId, directiveId, stored);
+  return json(200, { ok: true, id: directiveId, memberId, taskId, projectId, eventId, correlationId, queued: true });
+}
+
+function topicQuestAssignment(raw: Record<string, unknown>, createId: () => string): Record<string, unknown> | { error: string } {
+  const topicKey = optionalText(raw.topicKey ?? raw.topic, 80);
+  if (!topicKey || !(topicKey in TOPIC_QUEST_ROUTES)) return { error: 'topicKey must be one of hermes|digests|dev|inbox|calendar|agent_ops|alerts|clients' };
+  const route = TOPIC_QUEST_ROUTES[topicKey as keyof typeof TOPIC_QUEST_ROUTES];
+  const chatId = optionalText(raw.chatId, 80);
+  if (chatId && chatId !== THOUGHTSEED_TELEGRAM_CHAT_ID) return { error: 'topic signal chatId is not THOUGHTSEED LABS' };
+  const threadId = raw.threadId ?? raw.topicThreadId ?? raw.messageThreadId;
+  if (threadId !== undefined && Number(threadId) !== route.threadId) return { error: `topic thread mismatch for ${topicKey}` };
+
+  const signalId = optionalText(raw.signalId ?? raw.sourceMessageId ?? raw.messageId ?? raw.id, 120) ?? createId();
+  const memberId = optionalText(raw.memberId ?? raw.assigneeMemberId, 80) ?? 'shesh';
+  const projectId = optionalText(raw.projectId, 120) ?? 'thoughtseed-ops';
+  const title = safeFabricText(raw.title, route.title, 180);
+  const summary = safeFabricText(raw.summary ?? raw.text ?? raw.note, 'topic signal summary withheld or unavailable', 900);
+  const priority = optionalText(raw.priority, 24);
+  const taskType = optionalText(raw.taskType ?? raw.type, 24);
+  const taskId = optionalText(raw.taskId, 160) ?? fabricCleanId(`topic-${topicKey}-${signalId}`, 'task');
+  const eventId = optionalText(raw.eventId, 180) ?? `topic:${projectId}:${topicKey}:${signalId}:assigned`;
+  const correlationId = optionalText(raw.correlationId, 180) ?? eventId;
+  return {
+    memberId,
+    eventId,
+    correlationId,
+    task: {
+      taskId,
+      projectId,
+      projectName: optionalText(raw.projectName, 180) ?? 'Thoughtseed Ops',
+      questId: optionalText(raw.questId, 120) ?? route.questId,
+      clientId: optionalText(raw.clientId, 120),
+      clientName: optionalText(raw.clientName, 180),
+      title,
+      description: `Telegram ${route.topicName} topic signal (${topicKey}/${route.threadId}) -> ${summary}`,
+      priority: priority && FABRIC_TASK_PRIORITIES.has(priority) ? priority : route.priority,
+      taskType: taskType && FABRIC_TASK_TYPES.has(taskType) ? taskType : route.taskType,
+      assignedBy: optionalText(raw.assignedBy, 80) ?? 'hermes-topic-router',
+      source: 'cambium-topic-routing',
+    },
   };
 }
 
@@ -1230,60 +1343,25 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may enqueue task assignments' });
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-      const rawTask = msg && typeof msg.task === 'object' && msg.task && !Array.isArray(msg.task) ? msg.task as Record<string, unknown> : null;
-      if (!rawTask) return json(400, { error: 'assignment needs a task object' });
-      const memberId = String(msg.memberId ?? rawTask.assigneeMemberId ?? '').trim().toLowerCase();
-      if (!memberId || !VALID_TENANT.test(memberId)) return json(400, { error: 'assignment needs a valid memberId' });
-      const task = normalizeAssignmentTask(rawTask, memberId);
-      if ('error' in task) return json(400, { error: task.error });
+      return queueProjectTaskAssignment(bridgeStore, msg, nowIso, deps.uuid);
+    }
 
-      const issuedAt = nowIso();
-      const taskId = String(task.taskId);
-      const projectId = String(task.projectId);
-      const eventId = optionalText(msg.eventId ?? rawTask.eventId, 160) ?? assignmentEventId(projectId, taskId);
-      const correlationId = optionalText(msg.correlationId ?? rawTask.correlationId, 160) ?? eventId;
-      const directiveId = optionalText(msg.id, 160) ?? (deps.uuid ? deps.uuid() : `task_${memberId}_${issuedAt}`);
-      const semanticPayload = {
-        type: 'project_task_assignment',
-        kind: 'project_task_assignment',
-        schema: 'thoughtseed.project_task_assignment.v1',
-        source: 'cambium',
-        eventId,
-        correlationId,
-        target: { memberId, surface: 'plexus-agent-fabric' },
-        task: { ...task, eventId, correlationId },
-      };
-      const payload = { ...semanticPayload, issuedAt };
-      const payloadHash = await sha256hex(canonicalJson(semanticPayload));
-      const existing = await bridgeStore.getAssignment(memberId, eventId);
-      if (existing) {
-        if (existing.payloadHash !== payloadHash) {
-          return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: existing.id });
-        }
-        return json(200, { ok: true, id: existing.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
-      }
-
-      const stored = {
-        id: directiveId,
-        memberId,
-        direction: 'downstream',
-        payload,
-        payloadHash,
-        delivered: false,
-        issuedAt,
-        enqueuedAt: issuedAt,
-      };
-      await bridgeStore.putAssignment({ id: directiveId, memberId, taskId, projectId, eventId, correlationId, payloadHash, enqueuedAt: issuedAt });
-      const persisted = await bridgeStore.getAssignment(memberId, eventId);
-      if (!persisted) return json(500, { error: 'assignment persistence failed', eventId, memberId });
-      if (persisted.payloadHash !== payloadHash) {
-        return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: persisted.id });
-      }
-      if (persisted.id !== directiveId) {
-        return json(200, { ok: true, id: persisted.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
-      }
-      await bridgeStore.putDirective(memberId, directiveId, stored);
-      return json(200, { ok: true, id: directiveId, memberId, taskId, projectId, eventId, correlationId, queued: true });
+    if (method === 'POST' && path === '/v1/bridge/topic-assignment') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may enqueue topic assignments' });
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      if (!isRecord(body)) return json(400, { error: 'topic signal body must be an object' });
+      const msg = topicQuestAssignment(body, () => (deps.uuid ? deps.uuid() : `topic_${nowIso()}`));
+      if ('error' in msg) return json(400, msg);
+      const response = await queueProjectTaskAssignment(bridgeStore, msg, nowIso, deps.uuid);
+      if (response.status !== 200) return response;
+      const parsed = JSON.parse(response.body);
+      const topicKey = String(body.topicKey ?? body.topic);
+      const route = TOPIC_QUEST_ROUTES[topicKey as keyof typeof TOPIC_QUEST_ROUTES];
+      return json(200, {
+        ...parsed,
+        topic: { topicKey, threadId: route.threadId, questId: route.questId },
+      });
     }
 
     if (method === 'POST' && path === '/v1/bridge/directive') {

@@ -3987,6 +3987,100 @@ test('bridge · scoped Hermes assignment token only enqueues task assignments', 
   assert.equal(inbox.status, 403);
 });
 
+test('bridge · scoped Hermes topic routing creates quest-linked assignments', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-25T13:00:00.000Z',
+    uuid: () => 'assign-topic-dev-1',
+  };
+
+  const queued = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({
+      chatId: '-1002691202808',
+      topicKey: 'dev',
+      threadId: 799,
+      sourceMessageId: '852',
+      memberId: 'shesh',
+      summary: 'Build route proof is stale and needs a fresh worker probe.',
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+  assert.equal(body(queued).id, 'assign-topic-dev-1');
+  assert.equal(body(queued).eventId, 'topic:thoughtseed-ops:dev:852:assigned');
+  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 799, questId: 'the-build' });
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const directive = body(pending).directives[0];
+  assert.equal(directive.payload.type, 'project_task_assignment');
+  assert.equal(directive.payload.task.questId, 'the-build');
+  assert.equal(directive.payload.task.priority, 'high');
+  assert.equal(directive.payload.task.taskType, 'engineering');
+  assert.equal(directive.payload.task.assignedBy, 'hermes-topic-router');
+  assert.equal(directive.payload.task.source, 'cambium-topic-routing');
+  assert.match(directive.payload.task.description, /Telegram Dev topic signal/);
+});
+
+test('bridge · topic routing validates the live Thoughtseed topic map', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-25T13:00:00.000Z',
+    uuid: () => 'assign-topic-1',
+  };
+
+  const wrongThread = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ topicKey: 'dev', threadId: 804, sourceMessageId: 'wrong-thread' }),
+  }), deps);
+  assert.equal(wrongThread.status, 400);
+  assert.match(body(wrongThread).error, /topic thread mismatch/);
+
+  const wrongChat = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ topicKey: 'dev', chatId: '-1001', sourceMessageId: 'wrong-chat' }),
+  }), deps);
+  assert.equal(wrongChat.status, 400);
+  assert.match(body(wrongChat).error, /not THOUGHTSEED LABS/);
+});
+
+test('bridge · Alerts topic signals become urgent operations assignments', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-25T13:00:00.000Z',
+    uuid: () => 'assign-alerts-1',
+  };
+
+  const queued = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({
+      topicKey: 'alerts',
+      threadId: 803,
+      sourceMessageId: '856',
+      summary: 'Cron delivery failed and needs acknowledgement.',
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const task = body(pending).directives[0].payload.task;
+  assert.equal(task.questId, 'the-ship-gate');
+  assert.equal(task.priority, 'urgent');
+  assert.equal(task.taskType, 'operations');
+});
+
 test('fabric bridge · handler accepts external bridge and ledger stores', async () => {
   const kv = fakeKv();
   const db = new FakeD1Database();
