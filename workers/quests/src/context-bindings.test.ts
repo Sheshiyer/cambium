@@ -176,6 +176,28 @@ test('semantic recall requires kind before embedding or querying Vectorize', asy
   assert.equal(result.metadata.index, 'cambium-cortex');
 });
 
+test('semantic recall returns no-signal metadata on provider failures', async () => {
+  let queried = false;
+  const recall = createSemanticRecall({
+    embed: async () => {
+      throw new Error('provider rejected query');
+    },
+    vectorIndex: {
+      async query() {
+        queried = true;
+        return { matches: [] };
+      },
+    },
+  });
+
+  const result = await recall.recall({ tenant: 'cambium', query: 'memory', kind: 'decision', topK: 3 }) as any;
+
+  assert.equal(queried, false);
+  assert.deepEqual(result.hits, []);
+  assert.equal(result.metadata.provider, 'cloudflare-vectorize');
+  assert.equal(result.metadata.mode, 'provider-error');
+});
+
 test('semantic recall returns adapter metadata without raw vectors or payload dumps', async () => {
   const vectorIndex: VectorizeIndexLike = {
     async query() {
@@ -230,7 +252,9 @@ test('provider embedder posts to /embeddings with existing provider key and pars
   assert.equal((requestInit?.headers as Record<string, string>).authorization, 'Bearer provider-key');
   assert.deepEqual(JSON.parse(String(requestInit?.body)), {
     model: 'nvidia/nv-embedqa-e5-v5',
-    input: 'bounded context query',
+    input: ['bounded context query'],
+    input_type: 'query',
+    encoding_format: 'float',
   });
   assert.deepEqual(embedding, [0.4, 0.5, 0.6]);
 });

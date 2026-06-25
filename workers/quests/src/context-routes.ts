@@ -222,6 +222,7 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
       tenant,
       provider: metadata.provider,
       ...(metadata.index ? { index: metadata.index } : {}),
+      ...(metadata.mode ? { mode: metadata.mode } : {}),
       query: { kind: kind ?? null, topK },
       hits: result.hits.slice(0, topK).map((hit) => boundedHit(hit, providerSource, payloadType)),
       omitted: { rawVectors: true, rawPayload: true },

@@ -293,27 +293,37 @@ export function createSemanticRecall({
   return {
     async recall(input): Promise<SemanticRecallResult> {
       if (!input.kind) return { hits: [], metadata: providerMetadata };
-      const vector = await embed(input.query);
-      const filter: Record<string, unknown> = { tenant: input.tenant };
-      filter.kind = input.kind;
-      const result = await vectorIndex.query(vector, {
-        topK: input.topK,
-        returnMetadata: 'all',
-        returnValues: false,
-        filter,
-      });
-      const hits: SemanticRecallHit[] = (result.matches ?? []).slice(0, input.topK).map((match) => {
-        const matchMetadata = parseRecord(match.metadata);
-        const kind = safeString(matchMetadata.kind ?? input.kind ?? 'memory', 40) || 'memory';
+      try {
+        const vector = await embed(input.query);
+        const filter: Record<string, unknown> = { tenant: input.tenant };
+        filter.kind = input.kind;
+        const result = await vectorIndex.query(vector, {
+          topK: input.topK,
+          returnMetadata: 'all',
+          returnValues: false,
+          filter,
+        });
+        const hits: SemanticRecallHit[] = (result.matches ?? []).slice(0, input.topK).map((match) => {
+          const matchMetadata = parseRecord(match.metadata);
+          const kind = safeString(matchMetadata.kind ?? input.kind ?? 'memory', 40) || 'memory';
+          return {
+            id: safeString(match.id, MAX_KEY_LENGTH),
+            kind,
+            score: Number.isFinite(match.score) ? match.score : 0,
+            ts: numberFromMetadata(matchMetadata.ts ?? matchMetadata.timestamp ?? matchMetadata.createdAt),
+            payload: payloadFromMetadata(matchMetadata),
+          };
+        });
+        return { hits, metadata: providerMetadata };
+      } catch {
         return {
-          id: safeString(match.id, MAX_KEY_LENGTH),
-          kind,
-          score: Number.isFinite(match.score) ? match.score : 0,
-          ts: numberFromMetadata(matchMetadata.ts ?? matchMetadata.timestamp ?? matchMetadata.createdAt),
-          payload: payloadFromMetadata(matchMetadata),
+          hits: [],
+          metadata: {
+            ...providerMetadata,
+            mode: 'provider-error',
+          },
         };
-      });
-      return { hits, metadata: providerMetadata };
+      }
     },
   };
 }
@@ -334,7 +344,12 @@ export function createProviderEmbedder({
         authorization: `Bearer ${provider.apiKey}`,
         'content-type': 'application/json',
       },
-      body: JSON.stringify({ model: selectedModel, input: text }),
+      body: JSON.stringify({
+        model: selectedModel,
+        input: [text],
+        input_type: 'query',
+        encoding_format: 'float',
+      }),
     });
     if (!response.ok) throw new Error(`embedding provider returned ${response.status}`);
     const body = await response.json() as { data?: Array<{ embedding?: unknown }> };
