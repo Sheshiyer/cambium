@@ -466,6 +466,25 @@ test('healthz · ok', async () => {
   assert.match(r.body, /cambium-quests/);
 });
 
+test('context routes · handler delegates context health to bounded module', async () => {
+  const r = await handle(req('GET', '/v1/context/health', {
+    headers: { authorization: 'Bearer context-token' },
+  }), {
+    kv: fakeKv(),
+    contextRoutes: {
+      token: 'context-token',
+      now: () => '2026-06-25T12:00:00.000Z',
+      routineContext: { getSnapshot: async () => ({ sections: [] }) },
+      semanticRecall: { recall: async () => [] },
+    },
+  });
+  assert.equal(r.status, 200);
+  assert.match(r.body, /thoughtseed\.context-health\.v1/);
+  const payload = body(r);
+  assert.equal(payload.capabilities.routineSnapshot, true);
+  assert.equal(payload.capabilities.semanticRecall, true);
+});
+
 test('provider broker · requires configured broker token', async () => {
   const r = await handle(req('GET', '/v1/providers'), { kv: fakeKv() });
   assert.equal(r.status, 503);

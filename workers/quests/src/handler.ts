@@ -8,6 +8,8 @@
 // green (the quest log's own arc VII — the feature gates itself).
 
 import { PAGE } from './page.ts';
+import { handleContextRoute } from './context-routes.ts';
+import type { ContextRouteDeps } from './context-routes.ts';
 
 export interface KvLike {
   get(key: string): Promise<string | null>;
@@ -116,6 +118,7 @@ export interface HandlerDeps {
   fabricLedger?: FabricLedgerStoreLike; // Cambium-owned interpreted Fabric task/event ledger
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
+  contextRoutes?: ContextRouteDeps; // Optional bounded context route providers (unset → context lane 503s)
   uuid?: () => string;         // injectable for tests
   now?: () => string;          // injectable clock (ISO) for the bridge
   nowMs?: () => number;        // injectable epoch-ms clock for handoff TTLs
@@ -999,6 +1002,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (method === 'GET' && routePath === '/healthz') {
     return json(200, { ok: true, worker: 'cambium-quests' });
+  }
+
+  if (routePath.startsWith('/v1/context/')) {
+    return handleContextRoute(req, deps.contextRoutes ?? {});
   }
 
   if (routePath === '/v1/providers' || routePath === '/v1/providers/health' || routePath.startsWith('/v1/providers/')) {
