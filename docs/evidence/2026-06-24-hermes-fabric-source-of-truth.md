@@ -6,10 +6,10 @@ This evidence file follows the 2026-06-24 source-restoration plan. The resumed v
 
 - Repo: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium`
 - Branch/code-restoration commit: `codex/hermes-fabric-source-restoration` at `0436be3f8278d19583eae23befa5a2528390b039` (`fix: split fabric d1 baseline and legacy migration`).
-- Evidence commit: `8d635cbd8dc515b7b908669e791a6139cfc02903` (`docs: record hermes fabric source restoration proof`).
+- Evidence capture commit: `8d635cbd8dc515b7b908669e791a6139cfc02903` (`docs: record hermes fabric source restoration proof`). Later docs-only clarification commits may update this file; use `git log` for the current branch tip.
 - Restored from backup patch: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch`
 - Backup integrity: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/SHA256SUMS.checked.txt` was present and listed `OK` for `tracked-working-tree.patch`, `staged-index.patch`, `untracked-files.tar.gz`, `status.porcelain.txt`, `untracked-origin-compare.tsv`, each split patch, and `README.txt`.
-- Commit range summary: `origin/main` is an ancestor of this branch; this branch is 14 commits ahead of `origin/main`, from `be893ff docs: add hermes fabric restoration plan` through `8d635cb docs: record hermes fabric source restoration proof`.
+- Commit range summary: `origin/main` is an ancestor of this branch. The restoration range starts at `be893ff docs: add hermes fabric restoration plan`, reaches code restoration at `0436be3 fix: split fabric d1 baseline and legacy migration`, and records evidence at `8d635cb docs: record hermes fabric source restoration proof`.
 
 ## Local Verification
 
