@@ -4,11 +4,11 @@ This evidence file follows the 2026-06-24 source-restoration plan. The resumed v
 
 ## Source State
 
-- Repo: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium`
+- Repo: active Cambium checkout for `codex/hermes-fabric-source-restoration`
 - Branch/code-restoration commit: `codex/hermes-fabric-source-restoration` at `0436be3f8278d19583eae23befa5a2528390b039` (`fix: split fabric d1 baseline and legacy migration`).
 - Evidence capture commit: `8d635cbd8dc515b7b908669e791a6139cfc02903` (`docs: record hermes fabric source restoration proof`). Later docs-only clarification commits may update this file; use `git log` for the current branch tip.
-- Restored from backup patch: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch`
-- Backup integrity: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/SHA256SUMS.checked.txt` was present and listed `OK` for `tracked-working-tree.patch`, `staged-index.patch`, `untracked-files.tar.gz`, `status.porcelain.txt`, `untracked-origin-compare.tsv`, each split patch, and `README.txt`.
+- Restored from the verified local backup patch recorded in the source-restoration plan. The private workstation path is intentionally redacted so this evidence remains standalone-safe.
+- Backup integrity: the local SHA256SUMS check was present and listed `OK` for `tracked-working-tree.patch`, `staged-index.patch`, `untracked-files.tar.gz`, `status.porcelain.txt`, `untracked-origin-compare.tsv`, each split patch, and `README.txt`.
 - Commit range summary: `origin/main` is an ancestor of this branch. The restoration range starts at `be893ff docs: add hermes fabric restoration plan`, reaches code restoration at `0436be3 fix: split fabric d1 baseline and legacy migration`, and records evidence at `8d635cb docs: record hermes fabric source restoration proof`.
 
 ## Local Verification
@@ -20,21 +20,21 @@ This evidence file follows the 2026-06-24 source-restoration plan. The resumed v
 - `npm test`: PASS on 2026-06-25 IST.
   - Summary: `tests 527`, `pass 527`, `fail 0`, `duration_ms 2087.496791`.
 - `git diff --check`: PASS before and after writing this file.
-- `npm run smoke:thoughtseed-bridge` in `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/plexus-ts`: PASS on 2026-06-25 IST.
+- `npm run smoke:thoughtseed-bridge` in the sibling Plexus checkout: PASS on 2026-06-25 IST.
   - Summary: `thoughtseed bridge smoke passed: signing, expiry, Cambium assignment, override, and rejected candidate parsing are deterministic`.
 
 ## Live Route Probes
 
 Only unauthenticated and public probes were run. No bearer tokens, signed bridge payloads, raw secrets, or private identifiers were used or recorded.
 
-- `GET https://curious.thoughtseed.space/healthz`:
+- `GET <thoughtseed-bridge-base-url>/healthz`:
   - Status: `HTTP/2 200`
   - Body: `{"ok":true,"worker":"cambium-quests"}`
-- `POST https://curious.thoughtseed.space/v1/bridge/assign-task` without auth:
+- `POST <thoughtseed-bridge-base-url>/v1/bridge/assign-task` without auth:
   - Request body: `{"memberId":"mathis","task":{"taskId":"probe","projectId":"probe","title":"probe"}}`
   - Status: `HTTP/2 401`
   - Body: `{"error":"bad or missing bridge credential"}`
-- `POST https://curious.thoughtseed.space/v1/fabric/consume` without auth:
+- `POST <thoughtseed-bridge-base-url>/v1/fabric/consume` without auth:
   - Request body: `{"tenantId":"cambium"}`
   - Status: `HTTP/2 401`
   - Body: `{"error":"admin token required"}`

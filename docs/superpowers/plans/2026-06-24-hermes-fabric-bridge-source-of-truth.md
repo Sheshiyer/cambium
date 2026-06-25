@@ -6,7 +6,7 @@
 
 **Architecture:** Keep `workers/quests/src/handler.ts` as the pure, Node-testable Worker handler. Rehydrate the bridge routes and storage abstractions from the verified backup patch into the active `origin/main` checkout, then wire Cloudflare D1 through `workers/quests/src/index.ts` while preserving KV fallback for tests and local bridge handoff flows. Hermes and Plexus remain verification surfaces only in this plan; this pass does not redesign the Fabric contract.
 
-**Tech Stack:** TypeScript, Cloudflare Worker-style pure handler, `node:test`, Cloudflare KV, Cloudflare D1 binding `BRIDGE_DB`, scoped Worker secret `HERMES_ASSIGNMENT_TOKEN`, existing bridge HMAC helpers, preserved backup patch artifacts under `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/`.
+**Tech Stack:** TypeScript, Cloudflare Worker-style pure handler, `node:test`, Cloudflare KV, Cloudflare D1 binding `BRIDGE_DB`, scoped Worker secret `HERMES_ASSIGNMENT_TOKEN`, existing bridge HMAC helpers, and preserved local backup patch artifacts with private workstation paths redacted for standalone portability.
 
 ## Global Constraints
 
@@ -29,13 +29,13 @@ This is one Cambium-centered source-of-truth repair plan. Hermes and Plexus are 
 
 ## Current State Evidence
 
-- Active repo: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium`
+- Active repo: active Cambium checkout
 - Current `HEAD`: detached at `origin/main` commit `a6c39cd`.
 - Active handler has `/v1/bridge/ingest`, `/v1/bridge/directive`, `/v1/bridge/directives/:memberId`, `/v1/bridge/ack`, and handoff token flow.
 - Active schema already includes `bridge_assignments`, `fabric_tasks`, `fabric_task_events`, `fabric_evidence_candidates`, and `fabric_evidence_reviews`.
 - Active handler does not currently expose `/v1/bridge/assign-task`, `/v1/fabric/consume`, Fabric review routes, D1 bridge store abstractions, `BRIDGE_DB`, or `HERMES_ASSIGNMENT_TOKEN` runtime wiring.
-- Verified backup patch source: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch`
-- Backup integrity proof: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/SHA256SUMS.checked.txt`
+- Verified backup patch source: local verified backup patch (`CAMBIUM_RESTORATION_PATCH`; private path redacted)
+- Backup integrity proof: local SHA256SUMS check (`CAMBIUM_RESTORATION_SHA256SUMS`; private path redacted)
 - Backup README says the dirty state is preserved and current main was kept because split lanes were reviewed separately.
 - Live proof memory says deployed Cambium consumed `3`, conflicted `0`, upgraded `1`, and Worker version was `f51bbb48-f73b-482a-a8fe-fcaa5efcad34`.
 
@@ -52,9 +52,10 @@ This is one Cambium-centered source-of-truth repair plan. Hermes and Plexus are 
 Use the backup patch as the exact implementation source, not as loose inspiration:
 
 ```bash
-sed -n '7794,8275p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
-sed -n '8316,8640p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
-sed -n '8933,9385p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
+CAMBIUM_RESTORATION_PATCH=<verified-backup-patch>
+sed -n '7794,8275p' "$CAMBIUM_RESTORATION_PATCH"
+sed -n '8316,8640p' "$CAMBIUM_RESTORATION_PATCH"
+sed -n '8933,9385p' "$CAMBIUM_RESTORATION_PATCH"
 ```
 
 The restored source must keep these names stable because tests and sibling handoff docs rely on them:
@@ -181,9 +182,9 @@ Expected: FAIL with `no bridge route for POST /v1/bridge/assign-task` or missing
 Port the exact implementation blocks from the verified backup patch:
 
 ```bash
-sed -n '7794,8050p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
-sed -n '8461,8535p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
-sed -n '8621,8633p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
+sed -n '7794,8050p' "$CAMBIUM_RESTORATION_PATCH"
+sed -n '8461,8535p' "$CAMBIUM_RESTORATION_PATCH"
+sed -n '8621,8633p' "$CAMBIUM_RESTORATION_PATCH"
 ```
 
 Required code shapes in `workers/quests/src/handler.ts`:
@@ -361,7 +362,7 @@ git commit -m "feat: scope Hermes fabric assignment token"
 Port the in-memory ledger from backup patch lines `5928,5944` into `workers/quests/src/handler.test.ts`:
 
 ```bash
-sed -n '5909,5944p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
+sed -n '5909,5944p' "$CAMBIUM_RESTORATION_PATCH"
 ```
 
 Then add this focused consume test:
@@ -445,8 +446,8 @@ Expected: FAIL with `no Fabric route for POST /v1/fabric/consume` or missing `fa
 Port these exact implementation blocks into `workers/quests/src/handler.ts`:
 
 ```bash
-sed -n '7794,8275p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
-sed -n '8316,8388p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
+sed -n '7794,8275p' "$CAMBIUM_RESTORATION_PATCH"
+sed -n '8316,8388p' "$CAMBIUM_RESTORATION_PATCH"
 ```
 
 The consume route must return this result shape:
@@ -494,7 +495,7 @@ git commit -m "feat: restore fabric consume ledger"
 Port the complete test from backup patch lines `7546,7790`:
 
 ```bash
-sed -n '7546,7790p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
+sed -n '7546,7790p' "$CAMBIUM_RESTORATION_PATCH"
 ```
 
 Keep these core assertions in the restored test:
@@ -520,8 +521,8 @@ Expected: FAIL because candidate routes are missing.
 Port these exact implementation blocks into `workers/quests/src/handler.ts`:
 
 ```bash
-sed -n '8133,8275p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
-sed -n '8338,8388p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
+sed -n '8133,8275p' "$CAMBIUM_RESTORATION_PATCH"
+sed -n '8338,8388p' "$CAMBIUM_RESTORATION_PATCH"
 ```
 
 `reviewDirective` must produce payload type `fabric_task_history_event` and must keep rejected candidates visible as `rejected_candidate`.
@@ -608,7 +609,7 @@ Expected: FAIL until `bridgeStore`, `fabricLedger`, and `assignmentToken` exist 
 Port these exact implementation blocks from the backup patch:
 
 ```bash
-sed -n '8933,9385p' /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-backups/20260624T021305Z-feat-m5-phase-q-bridge-retirement-final/tracked-working-tree.patch
+sed -n '8933,9385p' "$CAMBIUM_RESTORATION_PATCH"
 ```
 
 The final `handle(simple, ...)` call must pass:
@@ -656,7 +657,7 @@ Create `docs/evidence/2026-06-24-hermes-fabric-source-of-truth.md` with this str
 
 ## Source State
 
-- Repo: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium`
+- Repo: active Cambium checkout
 - Branch/commit:
 - Restored from backup patch:
 - Backup integrity:
@@ -668,9 +669,9 @@ Create `docs/evidence/2026-06-24-hermes-fabric-source-of-truth.md` with this str
 
 ## Live Route Probes
 
-- `GET https://curious.thoughtseed.space/healthz`:
-- `POST https://curious.thoughtseed.space/v1/bridge/assign-task` without auth:
-- `POST https://curious.thoughtseed.space/v1/fabric/consume` without auth:
+- `GET <thoughtseed-bridge-base-url>/healthz`:
+- `POST <thoughtseed-bridge-base-url>/v1/bridge/assign-task` without auth:
+- `POST <thoughtseed-bridge-base-url>/v1/fabric/consume` without auth:
 
 ## Handoff Boundary
 
@@ -701,9 +702,10 @@ Expected: handler tests PASS, `git diff --check` exits 0, and `npm test` either 
 Run:
 
 ```bash
-curl -s -i https://curious.thoughtseed.space/healthz
-curl -s -i -X POST https://curious.thoughtseed.space/v1/bridge/assign-task -H 'content-type: application/json' -d '{"memberId":"mathis","task":{"taskId":"probe","projectId":"probe","title":"probe"}}'
-curl -s -i -X POST https://curious.thoughtseed.space/v1/fabric/consume -H 'content-type: application/json' -d '{"tenantId":"cambium"}'
+THOUGHTSEED_BRIDGE_BASE_URL=<thoughtseed-bridge-base-url>
+curl -s -i "$THOUGHTSEED_BRIDGE_BASE_URL/healthz"
+curl -s -i -X POST "$THOUGHTSEED_BRIDGE_BASE_URL/v1/bridge/assign-task" -H 'content-type: application/json' -d '{"memberId":"mathis","task":{"taskId":"probe","projectId":"probe","title":"probe"}}'
+curl -s -i -X POST "$THOUGHTSEED_BRIDGE_BASE_URL/v1/fabric/consume" -H 'content-type: application/json' -d '{"tenantId":"cambium"}'
 ```
 
 Expected:
@@ -728,11 +730,11 @@ git commit -m "docs: record hermes fabric source restoration proof"
 ## Task 7: Cross-Repo Handoff Check
 
 **Files:**
-- Read only: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/plexus-ts/src/main/thoughtseed-bridge.ts`
-- Read only: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/plexus-ts/src/renderer/components/AgentFabricPanel.tsx`
-- Read only: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/handlers.ts`
-- Read only: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/service.ts`
-- Read only: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/docs/evidence/2026-06-23-hermes-cambium-assignment-proof.md`
+- Read only: sibling Plexus checkout `src/main/thoughtseed-bridge.ts`
+- Read only: sibling Plexus checkout `src/renderer/components/AgentFabricPanel.tsx`
+- Read only: sibling Hermes checkout `src/handlers.ts`
+- Read only: sibling Hermes checkout `src/service.ts`
+- Read only: sibling Hermes checkout `docs/evidence/2026-06-23-hermes-cambium-assignment-proof.md`
 
 **Interfaces:**
 - Consumes: restored Cambium route shapes.
@@ -743,7 +745,7 @@ git commit -m "docs: record hermes fabric source restoration proof"
 Run:
 
 ```bash
-rg -n "project_task_assignment|fabric_task_report|workModeLocked|evidenceStrength|/v1/bridge/ingest|/v1/bridge/directives" /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/plexus-ts/src
+rg -n "project_task_assignment|fabric_task_report|workModeLocked|evidenceStrength|/v1/bridge/ingest|/v1/bridge/directives" <plexus-checkout>/src
 ```
 
 Expected: Plexus parser and report code still name `project_task_assignment`, `fabric_task_report`, `workModeLocked`, and `evidenceStrength`.
@@ -753,7 +755,7 @@ Expected: Plexus parser and report code still name `project_task_assignment`, `f
 Run:
 
 ```bash
-rg -n "/v1/fabric/tasks/assign|/v1/bridge/assign-task|override-work-mode|/v1/fabric/consume" /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/docs/evidence/2026-06-23-hermes-cambium-assignment-proof.md
+rg -n "/v1/fabric/tasks/assign|/v1/bridge/assign-task|override-work-mode|/v1/fabric/consume" <hermes-checkout>/src <hermes-checkout>/docs/evidence/2026-06-23-hermes-cambium-assignment-proof.md
 ```
 
 Expected: Hermes source still forwards assignment/override to Cambium and the evidence doc still records `consumed=3`, `conflicts=0`, `upgraded=1`.
@@ -763,7 +765,7 @@ Expected: Hermes source still forwards assignment/override to Cambium and the ev
 Run:
 
 ```bash
-npm --prefix /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/plexus-ts run smoke:thoughtseed-bridge
+npm --prefix <plexus-checkout> run smoke:thoughtseed-bridge
 ```
 
 Expected: PASS. If the Plexus repo has unrelated dirty worktree issues, record the exact blocker in the Cambium evidence doc and stop short of changing Plexus.
