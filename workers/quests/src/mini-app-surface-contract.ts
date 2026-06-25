@@ -14,6 +14,9 @@ export const MINI_APP_ECOSYSTEM_TARGETS = [
   'cortex',
   'r3f',
   'github',
+  'skills',
+  'gtm',
+  'distribution',
   'vault-via-paperclip',
   'live-proof',
 ] as const;
@@ -147,11 +150,11 @@ export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
   { id: 'evidence-boxes', target: 'quine', interactions: { primary: 'sheet' }, source: 'quest-ledger-evidence@v1' },
   {
     id: 'skills',
-    target: 'github',
+    target: 'skills',
     interactions: {
       primary: 'sheet',
       controls: [
-        { id: 'promote-skill-review', interaction: 'signed-action', source: 'skill promotion review queue' },
+        { id: 'promote-skill-review', interaction: 'signed-action', source: 'skill promotion review queue', target: 'skills' },
       ],
     },
     source: 'skill-registry visual envelope',

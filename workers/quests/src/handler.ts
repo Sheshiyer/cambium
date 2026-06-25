@@ -305,6 +305,24 @@ function assignmentEventId(projectId: string, taskId: string): string {
   return `cambium:${projectId}:${taskId}:assigned`;
 }
 
+function topicSkillHints(value: unknown): Array<Record<string, unknown>> {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 8).flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    const skillId = safeFabricText(raw.skillId, '', 120);
+    const actionId = safeFabricText(raw.actionId, '', 120);
+    if (!skillId || !actionId) return [];
+    return [{
+      skillId,
+      domain: safeFabricText(raw.domain, 'unknown', 80),
+      roleId: safeFabricText(raw.roleId, 'hermes', 80),
+      actionId,
+      approvalRequired: raw.approvalRequired === true,
+      reason: safeFabricText(raw.reason, 'Hermes routed this topic through a skill loadout.', 300),
+    }];
+  });
+}
+
 function kvBridgeStore(kv: KvLike): BridgeStoreLike {
   return {
     async putUpstream(tenantId, id, message) {
@@ -373,6 +391,7 @@ function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string)
   if (!title) return { error: 'assignment task needs title' };
   const priority = optionalText(raw.priority, 24);
   const taskType = optionalText(raw.taskType ?? raw.type, 24);
+  const skillHints = topicSkillHints(raw.skillHints);
   return {
     taskId,
     projectId,
@@ -387,6 +406,7 @@ function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string)
     assigneeMemberId: memberId,
     assignedBy: optionalText(raw.assignedBy, 80) ?? 'cambium',
     source: optionalText(raw.source, 80) ?? 'cambium',
+    ...(skillHints.length ? { skillHints } : {}),
   };
 }
 
@@ -471,6 +491,7 @@ function topicQuestAssignment(raw: Record<string, unknown>, createId: () => stri
   const taskId = optionalText(raw.taskId, 160) ?? fabricCleanId(`topic-${topicKey}-${signalId}`, 'task');
   const eventId = optionalText(raw.eventId, 180) ?? `topic:${projectId}:${topicKey}:${signalId}:assigned`;
   const correlationId = optionalText(raw.correlationId, 180) ?? eventId;
+  const skillHints = topicSkillHints(raw.skillHints);
   return {
     memberId,
     eventId,
@@ -488,6 +509,7 @@ function topicQuestAssignment(raw: Record<string, unknown>, createId: () => stri
       taskType: taskType && FABRIC_TASK_TYPES.has(taskType) ? taskType : route.taskType,
       assignedBy: optionalText(raw.assignedBy, 80) ?? 'hermes-topic-router',
       source: 'cambium-topic-routing',
+      ...(skillHints.length ? { skillHints } : {}),
     },
   };
 }

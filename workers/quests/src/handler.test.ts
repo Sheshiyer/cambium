@@ -1154,7 +1154,7 @@ test('mini app surface contract · exports current scene ids', () => {
 });
 
 test('mini app surface contract · maps ecosystem targets', () => {
-  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'vault-via-paperclip', 'live-proof']) {
+  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'skills', 'gtm', 'distribution', 'vault-via-paperclip', 'live-proof']) {
     assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(target as never), `target ${target} is inventoried`);
   }
 });
@@ -1228,11 +1228,11 @@ test('mini app surface contract · records map subsection interaction semantics'
   const byId = Object.fromEntries(MINI_APP_MAP_SUBSECTIONS.map((section) => [section.id, section]));
   assert.deepEqual(byId.skills, {
     id: 'skills',
-    target: 'github',
+    target: 'skills',
     interactions: {
       primary: 'sheet',
       controls: [
-        { id: 'promote-skill-review', interaction: 'signed-action', source: 'skill promotion review queue' },
+        { id: 'promote-skill-review', interaction: 'signed-action', source: 'skill promotion review queue', target: 'skills' },
       ],
     },
     source: 'skill-registry visual envelope',
@@ -3203,6 +3203,64 @@ test('page · agent skill sheet exposes versioned role loadout details', async (
   assert.match(sheet, /boundary 1<\/b><span>Write operations require manual command context and audit receipt\./);
 });
 
+test('page · skill cards show domain, game layer, and action groups', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 1,
+      rows: [{
+        id: 'hermes-gtm-distribution-ops',
+        status: 'candidate',
+        uses: 1,
+        successes: 1,
+        failures: 0,
+        successRate: 1,
+        declining: false,
+        tier: 'learning',
+        tierLabel: 'LEARNING',
+        sampleSize: 1,
+        minimum: 3,
+        recentRate: 1,
+        recentWindow: 1,
+        promotion: { status: 'observe', label: 'OBSERVE', detail: 'needs more proof', requiredApproval: true },
+        agentSkill: {
+          format: 'cambium.skill-registry.agent-skill.v1',
+          skillId: 'gtm-distribution-ops',
+          version: '0.1.0',
+          domain: 'gtm',
+          gameLayer: 'delivery',
+          iconKey: 'megaphone',
+          invocationKinds: ['topic-signal', 'approval-gate'],
+          branches: ['fitcheck', 'client-delivery'],
+          actionGroups: [{ id: 'distribution-loop', label: 'Distribution loop', purpose: 'Move proof into channel actions.', actionIds: ['gtm.channel.inspect', 'gtm.outreach.draft'], state: 'gated' }],
+          miniAppArea: 'skills',
+          registryTarget: '.operator/<tenant>.skills.json',
+          readCommands: ['gtm.channel.inspect'],
+          writeCommands: ['gtm.outreach.draft'],
+          roleSubsets: {
+            hermes: { version: '0.1.0', permissions: ['read', 'dispatch'], commands: ['gtm.channel.inspect'], purpose: 'Route GTM signals.' },
+            synthesist: { version: '0.1.0', permissions: ['read', 'write'], commands: ['gtm.outreach.draft'], purpose: 'Draft supervised GTM handoffs.' },
+          },
+          boundaries: ['Public GTM publication requires founder approval.'],
+        },
+        updated: 1,
+      }],
+    },
+  };
+
+  const rendered = await renderPageFixtureContext(envelope);
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /domain<\/b><span>gtm/);
+  assert.match(sheet, /game layer<\/b><span>delivery/);
+  assert.match(sheet, /invocations<\/b><span>topic-signal, approval-gate/);
+  assert.match(sheet, /branches<\/b><span>fitcheck, client-delivery/);
+  assert.match(sheet, /Distribution loop<\/b><span>gated · gtm\.channel\.inspect, gtm\.outreach\.draft/);
+  assert.match(sheet, /hermes<\/b><span>v0\.1\.0 · read, dispatch · gtm\.channel\.inspect · Route GTM signals\./);
+});
+
 test('page · missing skill sheet maps gaps to operator store and quine write skills', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -4212,6 +4270,14 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
       sourceMessageId: '852',
       memberId: 'shesh',
       summary: 'Build route proof is stale and needs a fresh worker probe.',
+      skillHints: [{
+        skillId: 'engineering-delivery-proof',
+        domain: 'engineering',
+        roleId: 'engineer',
+        actionId: 'engineering.deploy.probe',
+        approvalRequired: false,
+        reason: 'engineering proof signal should route through delivery proof skill',
+      }],
     }),
   }), deps);
   assert.equal(queued.status, 200);
@@ -4230,6 +4296,14 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
   assert.equal(directive.payload.task.assignedBy, 'hermes-topic-router');
   assert.equal(directive.payload.task.source, 'cambium-topic-routing');
   assert.match(directive.payload.task.description, /Telegram Dev topic signal/);
+  assert.deepEqual(directive.payload.task.skillHints, [{
+    skillId: 'engineering-delivery-proof',
+    domain: 'engineering',
+    roleId: 'engineer',
+    actionId: 'engineering.deploy.probe',
+    approvalRequired: false,
+    reason: 'engineering proof signal should route through delivery proof skill',
+  }]);
 });
 
 test('bridge · topic routing validates the live Thoughtseed topic map', async () => {

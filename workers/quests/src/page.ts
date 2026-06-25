@@ -1435,7 +1435,8 @@ function agentSkillRoles(agent){
   return Object.entries(subsets).map(([roleId, subset]) => {
     const permissions = Array.isArray(subset.permissions) ? subset.permissions.join(', ') : '';
     const commands = Array.isArray(subset.commands) ? subset.commands.join(', ') : '';
-    return { roleId, version: subset.version || '', permissions, commands };
+    const purpose = subset.purpose || '';
+    return { roleId, version: subset.version || '', permissions, commands, purpose };
   });
 }
 function agentSkillDetail(agent){
@@ -1443,7 +1444,7 @@ function agentSkillDetail(agent){
   const roles = agentSkillRoles(agent);
   const writeCount = Array.isArray(agent.writeCommands) ? agent.writeCommands.length : 0;
   const readCount = Array.isArray(agent.readCommands) ? agent.readCommands.length : 0;
-  return 'loadout v' + (agent.version || 'unknown') + ' · ' + roles.length + ' roles · ' + readCount + ' read · ' + writeCount + ' write gated';
+  return (agent.domain || 'skill') + ' · ' + (agent.gameLayer || 'layer') + ' · loadout v' + (agent.version || 'unknown') + ' · ' + roles.length + ' roles · ' + readCount + ' read · ' + writeCount + ' write gated';
 }
 function skillCards(env){
   const skillEnv = env.skills || {};
@@ -1896,13 +1897,16 @@ function openSkillBox(env, index){
 }
 function renderAgentSkillLoadout(agent){
   const roles = agentSkillRoles(agent);
+  const actionGroups = Array.isArray(agent.actionGroups) && agent.actionGroups.length
+    ? '<div class="kv">' + agent.actionGroups.slice(0, 6).map(group => '<b>' + esc(group.label || group.id) + '</b><span>' + esc((group.state || 'future') + ' · ' + (Array.isArray(group.actionIds) ? group.actionIds.join(', ') : '') + (group.purpose ? ' · ' + group.purpose : '')) + '</span>').join('') + '</div>'
+    : '';
   const roleRows = roles.length
-    ? '<div class="kv">' + roles.slice(0, 8).map(role => '<b>' + esc(role.roleId) + '</b><span>v' + esc(role.version || 'unknown') + ' · ' + esc(role.permissions || 'no permissions') + ' · ' + esc(role.commands || 'no commands') + '</span>').join('') + '</div>'
+    ? '<div class="kv">' + roles.slice(0, 8).map(role => '<b>' + esc(role.roleId) + '</b><span>v' + esc(role.version || 'unknown') + ' · ' + esc(role.permissions || 'no permissions') + ' · ' + esc(role.commands || 'no commands') + (role.purpose ? ' · ' + esc(role.purpose) : '') + '</span>').join('') + '</div>'
     : '<div class="nar">no role subsets served for this agent skill.</div>';
   const boundaries = Array.isArray(agent.boundaries) && agent.boundaries.length
     ? '<div class="kv">' + agent.boundaries.slice(0, 5).map((boundary, i) => '<b>boundary ' + (i + 1) + '</b><span>' + esc(boundary) + '</span>').join('') + '</div>'
     : '';
-  return '<div class="kv"><b>loadout version</b><span>' + esc(agent.version || 'unknown') + '</span><b>skill id</b><span>' + esc(agent.skillId || 'unknown') + '</span><b>mini app area</b><span>' + esc(agent.miniAppArea || 'skills') + '</span><b>registry target</b><span>' + esc(agent.registryTarget || '.operator/<tenant>.skills.json') + '</span><b>read commands</b><span>' + esc(Array.isArray(agent.readCommands) ? agent.readCommands.join(', ') : 'none') + '</span><b>write commands</b><span>' + esc(Array.isArray(agent.writeCommands) ? agent.writeCommands.join(', ') : 'none') + '</span></div>' + roleRows + boundaries;
+  return '<div class="kv"><b>domain</b><span>' + esc(agent.domain || 'unknown') + '</span><b>game layer</b><span>' + esc(agent.gameLayer || 'unknown') + '</span><b>loadout version</b><span>' + esc(agent.version || 'unknown') + '</span><b>skill id</b><span>' + esc(agent.skillId || 'unknown') + '</span><b>mini app area</b><span>' + esc(agent.miniAppArea || 'skills') + '</span><b>registry target</b><span>' + esc(agent.registryTarget || '.operator/<tenant>.skills.json') + '</span><b>invocations</b><span>' + esc(Array.isArray(agent.invocationKinds) ? agent.invocationKinds.join(', ') : 'none') + '</span><b>branches</b><span>' + esc(Array.isArray(agent.branches) ? agent.branches.join(', ') : 'none') + '</span><b>read commands</b><span>' + esc(Array.isArray(agent.readCommands) ? agent.readCommands.join(', ') : 'none') + '</span><b>write commands</b><span>' + esc(Array.isArray(agent.writeCommands) ? agent.writeCommands.join(', ') : 'none') + '</span></div>' + actionGroups + roleRows + boundaries;
 }
 function openNpcBox(env, index){
   const npc = npcCards(env)[index] || npcCards(env)[0];
