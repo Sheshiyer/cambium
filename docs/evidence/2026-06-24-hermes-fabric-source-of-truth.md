@@ -1,6 +1,6 @@
 # Hermes Fabric Bridge Source Of Truth Evidence - 2026-06-24
 
-This evidence file follows the 2026-06-24 source-restoration plan. The resumed verification run recorded here happened on 2026-06-25 in Asia/Kolkata, with live probe response headers dated 2026-06-25 02:52:06 GMT.
+This evidence file follows the 2026-06-24 source-restoration plan. The resumed verification run recorded here happened on 2026-06-25 in Asia/Kolkata, with live probe response headers dated 2026-06-25 03:13:27-03:13:28 GMT.
 
 ## Source State
 
@@ -14,18 +14,14 @@ This evidence file follows the 2026-06-24 source-restoration plan. The resumed v
 ## Local Verification
 
 - `node --test workers/quests/src/handler.test.ts`: PASS on 2026-06-25 IST.
-  - Summary: `tests 155`, `pass 155`, `fail 0`, `duration_ms 536.805167`.
-- `npm test`: FAIL on 2026-06-25 IST because of the known unrelated asset-governance coverage gap.
-  - Summary: `tests 527`, `pass 526`, `fail 1`, `duration_ms 1893.983792`.
-  - Failing test: `bin/asset-governance.test.mjs` `tracked visual assets are covered by provenance groups`.
-  - Uncovered tracked assets:
-    - `apps/cambium-r3f/public/assets/meshy/image-to-3d/genesis/optimized/model-1536-grid160.glb`
-    - `apps/cambium-r3f/public/assets/meshy/image-to-3d/genesis/optimized/model-1536-grid192.glb`
-    - `apps/cambium-r3f/public/assets/meshy/image-to-3d/genesis/optimized/model-1536-grid256.glb`
-    - `apps/cambium-r3f/public/assets/meshy/image-to-3d/genesis/optimized/model-1536-grid96.glb`
-    - `apps/cambium-r3f/public/assets/meshy/image-to-3d/genesis/optimized/model-1536.glb`
-    - `apps/cambium-r3f/public/assets/meshy/image-to-3d/rail-arc/optimized/model-1536.glb`
+  - Summary: `tests 155`, `pass 155`, `fail 0`, `duration_ms 2005.583375`.
+- `node --test bin/asset-governance.test.mjs`: PASS on 2026-06-25 IST after adding QA comparison provenance for `apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb`.
+  - Summary: `tests 4`, `pass 4`, `fail 0`, `duration_ms 163.193875`.
+- `npm test`: PASS on 2026-06-25 IST.
+  - Summary: `tests 527`, `pass 527`, `fail 0`, `duration_ms 2087.496791`.
 - `git diff --check`: PASS before and after writing this file.
+- `npm run smoke:thoughtseed-bridge` in `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/plexus-ts`: PASS on 2026-06-25 IST.
+  - Summary: `thoughtseed bridge smoke passed: signing, expiry, Cambium assignment, override, and rejected candidate parsing are deterministic`.
 
 ## Live Route Probes
 

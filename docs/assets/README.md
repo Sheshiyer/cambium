@@ -30,6 +30,8 @@ For the v0.2.x standalone-release track:
 - Image-to-3D master GLBs remain in git only as QA evidence while the R3F
   milestone is open. They are not runtime defaults and must keep matching
   optimized candidates under the runtime budget.
+- Additional image-to-3D optimized variants may remain only as QA comparison
+  evidence when they stay below the QA reference cap and are not promoted.
 - Screenshot packs remain in git as synthetic visual QA evidence.
 - No asset in this policy may depend on any specific company, chat provider,
   founder account, or live client workspace to render.
