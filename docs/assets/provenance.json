@@ -1,6 +1,6 @@
 {
   "schema": "cambium.asset-provenance.v1",
-  "updated": "2026-06-19",
+  "updated": "2026-06-25",
   "policy": {
     "runtimeGlbMaxBytes": 15728640,
     "qaReferenceGlbMaxBytes": 78643200,
@@ -55,6 +55,18 @@
       "approvalStatus": "qa-only-not-promoted",
       "sizePolicy": "under-runtime-glb-budget-but-not-promoted",
       "notes": "Candidate runtime derivatives awaiting perceptual approval."
+    },
+    {
+      "id": "qa-image-to-3d-optimized-comparison-glbs",
+      "kind": "qa-reference",
+      "paths": [
+        "apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb"
+      ],
+      "source": "Optimized comparison derivatives recorded in docs/plans/assets/cambium-r3f-game-engine-realignment/verification/master-comparison/*.json",
+      "licenseStatus": "generated-review-required",
+      "approvalStatus": "qa-only-not-promoted",
+      "sizePolicy": "under-qa-reference-cap-not-promoted",
+      "notes": "Named optimization variants kept for QA comparison; not runtime defaults."
     },
     {
       "id": "qa-image-to-3d-thumbnails",

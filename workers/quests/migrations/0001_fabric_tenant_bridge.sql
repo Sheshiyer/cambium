@@ -1,3 +1,8 @@
+-- Fresh D1 baseline for the Cambium/Hermes Fabric bridge.
+-- Wrangler applies files in workers/quests/migrations to new databases, so this
+-- file must be safe on an empty D1 database and must not rewrite existing
+-- tenant-aware Fabric rows.
+
 CREATE TABLE IF NOT EXISTS bridge_up (
   tenant_id TEXT NOT NULL,
   id TEXT NOT NULL,

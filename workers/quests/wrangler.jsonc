@@ -10,5 +10,13 @@
   },
   "kv_namespaces": [
     { "binding": "QUESTS", "id": "10aaa6e0a8a545c1afb5ceee7ef61c14" }
+  ],
+  "d1_databases": [
+    {
+      "binding": "BRIDGE_DB",
+      "database_name": "cambium-bridge",
+      "database_id": "f6b950ac-2480-4a7d-9dac-1ff7e951d936",
+      "migrations_dir": "migrations"
+    }
   ]
 }

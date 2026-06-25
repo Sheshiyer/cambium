@@ -1,0 +1,51 @@
+# Hermes Fabric Bridge Source Of Truth Evidence - 2026-06-24
+
+This evidence file follows the 2026-06-24 source-restoration plan. The resumed verification run recorded here happened on 2026-06-25 in Asia/Kolkata, with live probe response headers dated 2026-06-25 03:13:27-03:13:28 GMT.
+
+## Source State
+
+- Repo: active Cambium checkout for `codex/hermes-fabric-source-restoration`
+- Branch/code-restoration commit: `codex/hermes-fabric-source-restoration` at `0436be3f8278d19583eae23befa5a2528390b039` (`fix: split fabric d1 baseline and legacy migration`).
+- Evidence capture commit: `8d635cbd8dc515b7b908669e791a6139cfc02903` (`docs: record hermes fabric source restoration proof`). Later docs-only clarification commits may update this file; use `git log` for the current branch tip.
+- Restored from the verified local backup patch recorded in the source-restoration plan. The private workstation path is intentionally redacted so this evidence remains standalone-safe.
+- Backup integrity: the local SHA256SUMS check was present and listed `OK` for `tracked-working-tree.patch`, `staged-index.patch`, `untracked-files.tar.gz`, `status.porcelain.txt`, `untracked-origin-compare.tsv`, each split patch, and `README.txt`.
+- Commit range summary: `origin/main` is an ancestor of this branch. The restoration range starts at `be893ff docs: add hermes fabric restoration plan`, reaches code restoration at `0436be3 fix: split fabric d1 baseline and legacy migration`, and records evidence at `8d635cb docs: record hermes fabric source restoration proof`.
+
+## Local Verification
+
+- `node --test workers/quests/src/handler.test.ts`: PASS on 2026-06-25 IST.
+  - Summary: `tests 155`, `pass 155`, `fail 0`, `duration_ms 2005.583375`.
+- `node --test bin/asset-governance.test.mjs`: PASS on 2026-06-25 IST after adding QA comparison provenance for `apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb`.
+  - Summary: `tests 4`, `pass 4`, `fail 0`, `duration_ms 163.193875`.
+- `npm test`: PASS on 2026-06-25 IST.
+  - Summary: `tests 527`, `pass 527`, `fail 0`, `duration_ms 2087.496791`.
+- `git diff --check`: PASS before and after writing this file.
+- `npm run smoke:thoughtseed-bridge` in the sibling Plexus checkout: PASS on 2026-06-25 IST.
+  - Summary: `thoughtseed bridge smoke passed: signing, expiry, Cambium assignment, override, and rejected candidate parsing are deterministic`.
+
+## Live Route Probes
+
+Only unauthenticated and public probes were run. No bearer tokens, signed bridge payloads, raw secrets, or private identifiers were used or recorded.
+
+- `GET <thoughtseed-bridge-base-url>/healthz`:
+  - Status: `HTTP/2 200`
+  - Body: `{"ok":true,"worker":"cambium-quests"}`
+- `POST <thoughtseed-bridge-base-url>/v1/bridge/assign-task` without auth:
+  - Request body: `{"memberId":"mathis","task":{"taskId":"probe","projectId":"probe","title":"probe"}}`
+  - Status: `HTTP/2 401`
+  - Body: `{"error":"bad or missing bridge credential"}`
+- `POST <thoughtseed-bridge-base-url>/v1/fabric/consume` without auth:
+  - Request body: `{"tenantId":"cambium"}`
+  - Status: `HTTP/2 401`
+  - Body: `{"error":"admin token required"}`
+
+## Handoff Boundary
+
+- Remote Thoughtseed/Hermes bridge: Public health and unauthenticated denial behavior were live-probed on 2026-06-25. The remote Worker is reachable and exposes the expected credential gates, but this run did not use a scoped Hermes assignment credential or full admin credential.
+- Local Paperclip runtime: Kept separate from remote Thoughtseed/Hermes bridge status. This task did not probe local Paperclip runtime health, mutate local Paperclip state, or treat Paperclip state as proof of remote bridge consumption.
+- Plexus credential custody: Kept out of Cambium source and evidence. This task did not inspect, paste, or move Plexus member tokens, Worker admin `BRIDGE_TOKEN`, `HERMES_ASSIGNMENT_TOKEN`, signed handoff payloads, or local secure-storage material.
+
+## Remaining Gated Proof
+
+- Scoped `HERMES_ASSIGNMENT_TOKEN` live consume: Still gated. This evidence proves source restoration locally and remote route availability/credential boundaries, not a live scoped consume with Hermes credentials.
+- Admin review routes: Still gated. Review/admin routes require the full admin token and were intentionally not probed in this unauthenticated evidence pass.
