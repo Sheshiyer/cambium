@@ -9,39 +9,45 @@ import { buildGenesisContract } from '../scripts/meristem-genesis-contract.mjs';
 
 const SCRIPT = fileURLToPath(new URL('../scripts/meristem-genesis-contract.mjs', import.meta.url));
 
-const EXPECTED_BRAND_SYSTEM_KEYS = [
-  'foundation',
-  'buyer_persona',
-  'competitor_analysis',
-  'value_proposition',
-  'product_positioning',
-  'voice_and_tone',
-  'brand_story'
+const EXPECTED_BRAND_SYSTEM_BINDINGS = [
+  ['foundation', 'brand-foundation'],
+  ['buyer_persona', 'buyer-persona'],
+  ['competitor_analysis', 'competitor-analysis'],
+  ['value_proposition', 'value-proposition'],
+  ['product_positioning', 'product-positioning'],
+  ['voice_and_tone', 'voice-and-tone'],
+  ['brand_story', 'brand-story']
 ];
 
-const EXPECTED_COPY_SYSTEM_KEYS = [
-  'messaging_framework',
-  'landing_page',
-  'welcome_email_sequence',
-  'prelaunch_email_sequence',
-  'launch_email_sequence',
-  'ad_creative',
-  'press_release',
-  'product_description'
+const EXPECTED_COPY_SYSTEM_BINDINGS = [
+  ['messaging_framework', 'messaging-framework'],
+  ['landing_page', 'landing-page-copy'],
+  ['welcome_email_sequence', 'welcome-email-sequence'],
+  ['prelaunch_email_sequence', 'prelaunch-email-sequence'],
+  ['launch_email_sequence', 'launch-email-sequence'],
+  ['ad_creative', 'ad-creative-copy'],
+  ['press_release', 'press-release'],
+  ['product_description', 'product-description']
 ];
 
+const EXPECTED_VISUAL_SYSTEM_BINDINGS = [
+  ['color_palette', 'color-palette'],
+  ['typography', 'typography'],
+  ['logo_concept', 'logo-concept'],
+  ['visual_language', 'visual-language'],
+  ['lifestyle_photography', 'lifestyle-photography'],
+  ['product_photography', 'product-photography'],
+  ['hero_images', 'hero-images'],
+  ['brand_illustrations', 'brand-illustrations'],
+  ['icon_system', 'icon-system'],
+  ['pattern_library', 'pattern-library'],
+  ['social_media_assets', 'social-media-assets']
+];
+
+const EXPECTED_BRAND_SYSTEM_KEYS = EXPECTED_BRAND_SYSTEM_BINDINGS.map(([key]) => key);
+const EXPECTED_COPY_SYSTEM_KEYS = EXPECTED_COPY_SYSTEM_BINDINGS.map(([key]) => key);
 const EXPECTED_VISUAL_SYSTEM_KEYS = [
-  'color_palette',
-  'typography',
-  'logo_concept',
-  'visual_language',
-  'lifestyle_photography',
-  'product_photography',
-  'hero_images',
-  'brand_illustrations',
-  'icon_system',
-  'pattern_library',
-  'social_media_assets',
+  ...EXPECTED_VISUAL_SYSTEM_BINDINGS.map(([key]) => key),
   'asset_manifest'
 ];
 
@@ -79,6 +85,20 @@ const EXPECTED_CONSUMED_SKILLS = Object.keys(OUTPUTS);
 function writeJson(file, value) {
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function assertPayloadSkillBindings(payload) {
+  const expectedBindingsByGroup = {
+    brand_system: EXPECTED_BRAND_SYSTEM_BINDINGS,
+    copy_system: EXPECTED_COPY_SYSTEM_BINDINGS,
+    visual_system: EXPECTED_VISUAL_SYSTEM_BINDINGS
+  };
+
+  for (const [group, bindings] of Object.entries(expectedBindingsByGroup)) {
+    for (const [slot, skill] of bindings) {
+      assert.equal(payload[group][slot].skill, skill, `${group}.${slot}`);
+    }
+  }
 }
 
 function createMeristemFixture({ missingOutput, statusOverride, manifestValid = true } = {}) {
@@ -122,6 +142,7 @@ test('buildGenesisContract maps meristem outputs into Cambium Genesis groups', (
     assert.deepEqual(Object.keys(payload.brand_system), EXPECTED_BRAND_SYSTEM_KEYS);
     assert.deepEqual(Object.keys(payload.copy_system), EXPECTED_COPY_SYSTEM_KEYS);
     assert.deepEqual(Object.keys(payload.visual_system), EXPECTED_VISUAL_SYSTEM_KEYS);
+    assertPayloadSkillBindings(payload);
     assert.equal(payload.brand_system.foundation.data.brand_essence, 'coherent system');
     assert.equal(payload.copy_system.landing_page.data.hero.headline, 'Digital Wilderness');
     assert.equal(payload.visual_system.asset_manifest.validation.all_paths_exist, true);
