@@ -4285,6 +4285,146 @@ test('bridge · GitHub command route rejects repos outside injected allowlist', 
   assert.match(body(response).error, /allowlisted/);
 });
 
+const githubReadBody = JSON.stringify({
+  schema: 'hermes.github-agent-command.v1',
+  skillId: 'github-repo-issue-ops',
+  commandId: 'github.repo.inspect',
+  source: 'telegram-manual',
+  actorId: 'shesh',
+  repo: 'Sheshiyer/hermes-aws-ts',
+  dryRun: true,
+  idempotencyKey: 'github.repo.inspect:sheshiyer/hermes-aws-ts',
+});
+
+test('bridge · GitHub command route rejects missing or bad bridge credential', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    githubCommand: async () => ({ ok: true, commandId: 'github.repo.inspect', repo: 'Sheshiyer/hermes-aws-ts', dryRun: true }),
+  };
+
+  const noAuth = await handle(req('POST', '/v1/bridge/github-command', { body: githubReadBody }), deps);
+  assert.equal(noAuth.status, 401);
+  assert.match(body(noAuth).error, /credential/);
+
+  const badAuth = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer not-the-bridge-token' },
+    body: githubReadBody,
+  }), deps);
+  assert.equal(badAuth.status, 401);
+});
+
+test('bridge · GitHub command route returns 503 when no executor is configured', async () => {
+  const deps = { kv: fakeKv(), bridgeToken: 'bridge' };
+  const res = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: githubReadBody,
+  }), deps);
+  assert.equal(res.status, 503);
+  assert.match(body(res).error, /executor not configured/);
+});
+
+test('bridge · GitHub command route 400s on a non-JSON body', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    githubCommand: async () => ({ ok: true, commandId: 'github.repo.inspect', repo: 'Sheshiyer/hermes-aws-ts', dryRun: true }),
+  };
+  const res = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: 'this is not json {',
+  }), deps);
+  assert.equal(res.status, 400);
+  assert.equal(body(res).error, 'body is not JSON');
+});
+
+test('bridge · GitHub write command is idempotent across replays', async () => {
+  const kv = fakeKv();
+  let calls = 0;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    githubCommand: async (c: any) => {
+      calls++;
+      return {
+        ok: true,
+        commandId: c.commandId,
+        repo: c.repo,
+        dryRun: false,
+        status: 201,
+        url: 'https://github.com/Sheshiyer/hermes-aws-ts/issues/7',
+        result: { number: 7 },
+      };
+    },
+  };
+  const payload = {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.issue.create',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'Sheshiyer/hermes-aws-ts',
+      title: 'Replay proof',
+      body: 'create once',
+      dryRun: false,
+      approvalRequired: true,
+      idempotencyKey: 'github.issue.create:replay-proof',
+    }),
+  };
+
+  const first = await handle(req('POST', '/v1/bridge/github-command', payload), deps);
+  assert.equal(first.status, 200);
+  assert.equal(body(first).ok, true);
+  assert.equal(body(first).duplicate, undefined);
+
+  const second = await handle(req('POST', '/v1/bridge/github-command', payload), deps);
+  assert.equal(second.status, 200);
+  assert.equal(body(second).duplicate, true);
+  assert.equal(body(second).url, 'https://github.com/Sheshiyer/hermes-aws-ts/issues/7');
+  assert.equal(calls, 1); // executor fired once; the replay was served from KV
+});
+
+test('bridge · GitHub writes are rate-limited per actor and repo', async () => {
+  const kv = fakeKv();
+  let calls = 0;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    nowMs: () => 1_000, // pin the window so the counter is deterministic
+    githubCommand: async (c: any) => {
+      calls++;
+      return { ok: true, commandId: c.commandId, repo: c.repo, dryRun: false, status: 201, result: { count: calls } };
+    },
+  };
+  const send = (idempotencyKey: string) => handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.issue.comment',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'Sheshiyer/hermes-aws-ts',
+      issueNumber: 3,
+      body: 'rate proof',
+      dryRun: false,
+      approvalRequired: true,
+      idempotencyKey,
+    }),
+  }), deps);
+
+  for (let i = 0; i < 10; i++) {
+    const res = await send(`rate-${i}`);
+    assert.equal(res.status, 200, `write ${i} should pass under the limit`);
+  }
+  const limited = await send('rate-over-limit');
+  assert.equal(limited.status, 429);
+  assert.match(body(limited).error, /rate limit/);
+  assert.equal(calls, 10); // the over-limit write never reached the executor
+});
+
 test('bridge · scoped Hermes topic routing creates quest-linked assignments', async () => {
   const kv = fakeKv();
   const deps = {
