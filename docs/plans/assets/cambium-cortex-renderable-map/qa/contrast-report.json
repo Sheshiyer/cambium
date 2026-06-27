@@ -1,5 +1,5 @@
 {
-  "target": "file:///Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/docs/plans/assets/cambium-cortex-renderable-map/index.html",
+  "target": "file://<cambium-repo>/docs/plans/assets/cambium-cortex-renderable-map/index.html",
   "generatedAt": "2026-06-11T23:14:40.319Z",
   "invocation": "playwright library (/Users/sheshnarayaniyer/.npm/_npx/9833c18b2d85bc59/node_modules/playwright/index.js) + executablePath /Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1226/chrome-headless-shell-mac-arm64/chrome-headless-shell",
   "auditWidth": 1440,
@@ -11,17 +11,17 @@
   "screenshots": [
     {
       "width": 390,
-      "path": "/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/docs/plans/assets/cambium-cortex-renderable-map/qa/shot-390.png",
+      "path": "<cambium-repo>/docs/plans/assets/cambium-cortex-renderable-map/qa/shot-390.png",
       "bytes": 267947
     },
     {
       "width": 768,
-      "path": "/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/docs/plans/assets/cambium-cortex-renderable-map/qa/shot-768.png",
+      "path": "<cambium-repo>/docs/plans/assets/cambium-cortex-renderable-map/qa/shot-768.png",
       "bytes": 352338
     },
     {
       "width": 1440,
-      "path": "/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/docs/plans/assets/cambium-cortex-renderable-map/qa/shot-1440.png",
+      "path": "<cambium-repo>/docs/plans/assets/cambium-cortex-renderable-map/qa/shot-1440.png",
       "bytes": 403227
     }
   ],
