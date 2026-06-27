@@ -112,5 +112,35 @@
       ],
       "contract_version": "1.0.0"
     }
+  },
+  "candidate_adapters": {
+    "genesis_meristem_candidate": {
+      "disabled": true,
+      "root_id": "genesis",
+      "cmd": "node",
+      "args": [
+        "scripts/meristem-genesis-contract.mjs",
+        "--meristem-root",
+        "{input}",
+        "--brand-dir",
+        "brands/thoughtseed",
+        "--out",
+        "-"
+      ],
+      "spend": "none",
+      "spend_reason": "proof-only sidecar mapping; does not run paid generation",
+      "input_default": "../meristem",
+      "output": "json:brand-dna",
+      "contract_requires": [
+        "idea"
+      ],
+      "contract_produces": [
+        "brand_system",
+        "copy_system",
+        "visual_system"
+      ],
+      "contract_version": "0.1.0",
+      "note": "Disabled proof-only Genesis candidate for Sheshiyer/meristem. It must not be routed by compose run until a separate replacement plan promotes it."
+    }
   }
 }
