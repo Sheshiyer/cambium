@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const BRAND_SYSTEM_OUTPUTS = [
@@ -106,11 +106,24 @@ function assertCambiumPayload(payload) {
   }
 }
 
+function resolveContainedPath(root, input, optionName) {
+  if (!input) {
+    throw new Error(`missing required option: ${optionName}`);
+  }
+  const resolved = resolve(root, input);
+  const relativePath = relative(root, resolved);
+  const contained = relativePath === '' || (!relativePath.startsWith('..') && !isAbsolute(relativePath));
+  if (!contained) {
+    throw new Error(`${optionName} escapes meristem root: ${input}`);
+  }
+  return resolved;
+}
+
 export function buildGenesisContract({ meristemRoot, brandDir = 'brands/thoughtseed' } = {}) {
   if (!meristemRoot) throw new Error('missing required option: meristemRoot');
 
   const root = resolve(meristemRoot);
-  const brandRoot = join(root, brandDir);
+  const brandRoot = resolveContainedPath(root, brandDir, 'brandDir');
   const outputsDir = join(brandRoot, '.brandmint', 'outputs');
   if (!existsSync(outputsDir)) {
     throw new Error(`missing meristem outputs directory: ${outputsDir}`);
@@ -161,14 +174,22 @@ function parseArgs(argv) {
   };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--meristem-root') args.meristemRoot = argv[++i] || '';
-    else if (arg === '--brand-dir') args.brandDir = argv[++i] || '';
-    else if (arg === '--out') args.out = argv[++i] || '';
-    else if (arg === '--evidence-out') args.evidenceOut = argv[++i] || '';
+    if (arg === '--meristem-root') args.meristemRoot = readFlagValue(argv, ++i, arg);
+    else if (arg === '--brand-dir') args.brandDir = readFlagValue(argv, ++i, arg);
+    else if (arg === '--out') args.out = readFlagValue(argv, ++i, arg);
+    else if (arg === '--evidence-out') args.evidenceOut = readFlagValue(argv, ++i, arg);
     else if (arg === '--help' || arg === '-h') args.help = true;
     else throw new Error(`unknown option: ${arg}`);
   }
   return args;
+}
+
+function readFlagValue(argv, index, flag) {
+  const value = argv[index];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`${flag} expects a value\n\n${usage()}`);
+  }
+  return value;
 }
 
 function usage() {

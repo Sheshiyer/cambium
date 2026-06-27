@@ -1,9 +1,49 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { buildGenesisContract } from '../scripts/meristem-genesis-contract.mjs';
+
+const SCRIPT = fileURLToPath(new URL('../scripts/meristem-genesis-contract.mjs', import.meta.url));
+
+const EXPECTED_BRAND_SYSTEM_KEYS = [
+  'foundation',
+  'buyer_persona',
+  'competitor_analysis',
+  'value_proposition',
+  'product_positioning',
+  'voice_and_tone',
+  'brand_story'
+];
+
+const EXPECTED_COPY_SYSTEM_KEYS = [
+  'messaging_framework',
+  'landing_page',
+  'welcome_email_sequence',
+  'prelaunch_email_sequence',
+  'launch_email_sequence',
+  'ad_creative',
+  'press_release',
+  'product_description'
+];
+
+const EXPECTED_VISUAL_SYSTEM_KEYS = [
+  'color_palette',
+  'typography',
+  'logo_concept',
+  'visual_language',
+  'lifestyle_photography',
+  'product_photography',
+  'hero_images',
+  'brand_illustrations',
+  'icon_system',
+  'pattern_library',
+  'social_media_assets',
+  'asset_manifest'
+];
 
 const OUTPUTS = {
   'brand-foundation': { brand_essence: 'coherent system' },
@@ -33,6 +73,8 @@ const OUTPUTS = {
   'pattern-library': { patterns: 2 },
   'social-media-assets': { assets: 3 }
 };
+
+const EXPECTED_CONSUMED_SKILLS = Object.keys(OUTPUTS);
 
 function writeJson(file, value) {
   mkdirSync(dirname(file), { recursive: true });
@@ -77,11 +119,47 @@ test('buildGenesisContract maps meristem outputs into Cambium Genesis groups', (
     const { payload, evidence } = buildGenesisContract({ meristemRoot: root });
 
     assert.deepEqual(Object.keys(payload), ['brand_system', 'copy_system', 'visual_system']);
+    assert.deepEqual(Object.keys(payload.brand_system), EXPECTED_BRAND_SYSTEM_KEYS);
+    assert.deepEqual(Object.keys(payload.copy_system), EXPECTED_COPY_SYSTEM_KEYS);
+    assert.deepEqual(Object.keys(payload.visual_system), EXPECTED_VISUAL_SYSTEM_KEYS);
     assert.equal(payload.brand_system.foundation.data.brand_essence, 'coherent system');
     assert.equal(payload.copy_system.landing_page.data.hero.headline, 'Digital Wilderness');
     assert.equal(payload.visual_system.asset_manifest.validation.all_paths_exist, true);
     assert.equal(evidence.status, 'pass');
     assert.equal(evidence.requiredGroups.join(','), 'brand_system,copy_system,visual_system');
+    assert.equal(evidence.consumedSkillCount, EXPECTED_CONSUMED_SKILLS.length);
+    assert.deepEqual(evidence.consumedSkills, EXPECTED_CONSUMED_SKILLS);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract accepts normal brands/thoughtseed brandDir', () => {
+  const root = createMeristemFixture();
+  try {
+    const { payload, evidence } = buildGenesisContract({
+      meristemRoot: root,
+      brandDir: 'brands/thoughtseed'
+    });
+
+    assert.deepEqual(Object.keys(payload), ['brand_system', 'copy_system', 'visual_system']);
+    assert.equal(evidence.brandDir, 'brands/thoughtseed');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract rejects brandDir that escapes meristemRoot', () => {
+  const root = createMeristemFixture();
+  try {
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root, brandDir: '../thoughtseed' }),
+      /brandDir escapes meristem root: \.\.\/thoughtseed/
+    );
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root, brandDir: tmpdir() }),
+      /brandDir escapes meristem root: /
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -113,6 +191,37 @@ test('buildGenesisContract fails closed when an output status is incomplete', ()
   }
 });
 
+test('buildGenesisContract fails closed when an output JSON file is malformed', () => {
+  const root = createMeristemFixture();
+  try {
+    writeFileSync(
+      join(root, 'brands', 'thoughtseed', '.brandmint', 'outputs', 'brand-foundation.json'),
+      '{not-json\n'
+    );
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root }),
+      /invalid JSON in .*brand-foundation\.json/
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract fails closed when the asset manifest is missing', () => {
+  const root = createMeristemFixture();
+  try {
+    rmSync(join(root, 'brands', 'thoughtseed', '.brandmint', 'asset-manifest.json'), {
+      force: true
+    });
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root }),
+      /missing required meristem asset manifest: \.brandmint\/asset-manifest\.json/
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('buildGenesisContract fails closed when asset manifest paths are missing', () => {
   const root = createMeristemFixture({ manifestValid: false });
   try {
@@ -120,6 +229,55 @@ test('buildGenesisContract fails closed when asset manifest paths are missing', 
       () => buildGenesisContract({ meristemRoot: root }),
       /asset manifest reports missing paths: \.\/generated\/missing\.png/
     );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CLI writes payload and evidence files with --out and --evidence-out', () => {
+  const root = createMeristemFixture();
+  const runDir = mkdtempSync(join(tmpdir(), 'meristem-contract-cli-'));
+  try {
+    const out = join(runDir, 'nested', 'payload.json');
+    const evidenceOut = join(runDir, 'evidence', 'contract.json');
+    const result = spawnSync(process.execPath, [
+      SCRIPT,
+      '--meristem-root',
+      root,
+      '--out',
+      out,
+      '--evidence-out',
+      evidenceOut
+    ], { encoding: 'utf8' });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, '');
+    const payload = JSON.parse(readFileSync(out, 'utf8'));
+    const evidence = JSON.parse(readFileSync(evidenceOut, 'utf8'));
+    assert.deepEqual(Object.keys(payload), ['brand_system', 'copy_system', 'visual_system']);
+    assert.equal(payload.visual_system.asset_manifest.validation.all_paths_exist, true);
+    assert.equal(evidence.status, 'pass');
+    assert.equal(evidence.consumedSkillCount, EXPECTED_CONSUMED_SKILLS.length);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(runDir, { recursive: true, force: true });
+  }
+});
+
+test('CLI rejects value flags without values with usage-style errors', () => {
+  const root = createMeristemFixture();
+  try {
+    for (const flag of ['--meristem-root', '--brand-dir', '--out', '--evidence-out']) {
+      const argv = flag === '--meristem-root'
+        ? [SCRIPT, flag]
+        : [SCRIPT, '--meristem-root', root, flag];
+      const result = spawnSync(process.execPath, argv, { encoding: 'utf8' });
+
+      assert.notEqual(result.status, 0, flag);
+      assert.equal(result.stdout, '', flag);
+      assert.match(result.stderr, new RegExp(`${flag} expects a value`), flag);
+      assert.match(result.stderr, /usage: node scripts\/meristem-genesis-contract\.mjs/, flag);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
