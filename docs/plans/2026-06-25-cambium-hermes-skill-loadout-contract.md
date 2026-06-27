@@ -14,18 +14,18 @@
 
 Run this in a dedicated worktree or branch stacked after the current bridge work:
 
-- Hermes repo: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts`
-- Cambium repo: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium`
+- Hermes repo: `<hermes-repo>`
+- Cambium repo: `<cambium-repo>`
 - Prefer base: after Hermes PR `#13` and Cambium PR `#90`, or explicitly stack on `codex/github-command-bridge`.
 
 Recommended setup:
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts
+cd <hermes-repo>
 git status --short --branch
 git switch -c codex/skill-loadout-contract
 
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+cd <cambium-repo>
 git status --short --branch
 git switch -c codex/skill-loadout-contract
 ```
@@ -49,22 +49,22 @@ Relevant skills:
 
 Hermes:
 
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.test.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/branch-brain.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/branch-brain.test.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/org-topology.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/scripts/agent-skill-registry-smoke.mjs`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/scripts/install-agent-skills-to-cambium.mjs`
+- `<hermes-repo>/src/agent-skills.ts`
+- `<hermes-repo>/src/agent-skills.test.ts`
+- `<hermes-repo>/src/branch-brain.ts`
+- `<hermes-repo>/src/branch-brain.test.ts`
+- `<hermes-repo>/src/org-topology.ts`
+- `<hermes-repo>/scripts/agent-skill-registry-smoke.mjs`
+- `<hermes-repo>/scripts/install-agent-skills-to-cambium.mjs`
 
 Cambium:
 
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/bin/operator/skills/forge.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/bin/operator/quests/quests.test.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/bin/quine/hyphae/quests.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/workers/quests/src/mini-app-surface-contract.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/workers/quests/src/page.ts`
-- `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/workers/quests/src/handler.test.ts`
+- `<cambium-repo>/bin/operator/skills/forge.ts`
+- `<cambium-repo>/bin/operator/quests/quests.test.ts`
+- `<cambium-repo>/bin/quine/hyphae/quests.ts`
+- `<cambium-repo>/workers/quests/src/mini-app-surface-contract.ts`
+- `<cambium-repo>/workers/quests/src/page.ts`
+- `<cambium-repo>/workers/quests/src/handler.test.ts`
 
 ## Target Contract Shape
 
@@ -157,8 +157,8 @@ Projected Cambium `output_contract` keeps current fields:
 
 **Files:**
 
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.test.ts`
+- Modify: `<hermes-repo>/src/agent-skills.ts`
+- Modify: `<hermes-repo>/src/agent-skills.test.ts`
 
 **Step 1: Write the failing test**
 
@@ -181,7 +181,7 @@ test("Agent skills expose reusable loadout metadata for the game-master surface"
 Run:
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts
+cd <hermes-repo>
 node --test src/agent-skills.test.ts
 ```
 
@@ -279,8 +279,8 @@ git commit -m "feat: add Hermes skill loadout metadata"
 
 **Files:**
 
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.test.ts`
+- Modify: `<hermes-repo>/src/agent-skills.ts`
+- Modify: `<hermes-repo>/src/agent-skills.test.ts`
 
 **Step 1: Write the failing test**
 
@@ -460,9 +460,9 @@ git commit -m "feat: seed Hermes loadout skill set"
 
 **Files:**
 
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/agent-skills.test.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/scripts/agent-skill-registry-smoke.mjs`
+- Modify: `<hermes-repo>/src/agent-skills.ts`
+- Modify: `<hermes-repo>/src/agent-skills.test.ts`
+- Modify: `<hermes-repo>/scripts/agent-skill-registry-smoke.mjs`
 
 **Step 1: Write the failing test**
 
@@ -562,9 +562,9 @@ git commit -m "feat: project loadout metadata to Cambium"
 
 **Files:**
 
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/branch-brain.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/branch-brain.test.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/src/service.test.ts`
+- Modify: `<hermes-repo>/src/branch-brain.ts`
+- Modify: `<hermes-repo>/src/branch-brain.test.ts`
+- Modify: `<hermes-repo>/src/service.test.ts`
 
 **Step 1: Write the failing test**
 
@@ -721,9 +721,9 @@ git commit -m "feat: add Hermes game-master skill hints"
 
 **Files:**
 
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/bin/operator/skills/forge.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/bin/quine/hyphae/quests.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/bin/operator/quests/quests.test.ts`
+- Modify: `<cambium-repo>/bin/operator/skills/forge.ts`
+- Modify: `<cambium-repo>/bin/quine/hyphae/quests.ts`
+- Modify: `<cambium-repo>/bin/operator/quests/quests.test.ts`
 
 **Step 1: Write the failing test**
 
@@ -769,7 +769,7 @@ roleSubsets: {
 Run:
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+cd <cambium-repo>
 node --test bin/operator/quests/quests.test.ts
 ```
 
@@ -873,9 +873,9 @@ git commit -m "feat: preserve expanded skill loadouts"
 
 **Files:**
 
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/workers/quests/src/page.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/workers/quests/src/mini-app-surface-contract.ts`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/workers/quests/src/handler.test.ts`
+- Modify: `<cambium-repo>/workers/quests/src/page.ts`
+- Modify: `<cambium-repo>/workers/quests/src/mini-app-surface-contract.ts`
+- Modify: `<cambium-repo>/workers/quests/src/handler.test.ts`
 
 **Step 1: Write the failing tests**
 
@@ -1037,9 +1037,9 @@ git commit -m "feat: render agent skill trees in mini app"
 
 **Files:**
 
-- Create: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/docs/contracts/skill-loadout-contract.md`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/docs/contracts/github-agent-skill-contract.md`
-- Modify: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts/docs/evidence/2026-06-25-github-agent-skill-map.md`
+- Create: `<hermes-repo>/docs/contracts/skill-loadout-contract.md`
+- Modify: `<hermes-repo>/docs/contracts/github-agent-skill-contract.md`
+- Modify: `<hermes-repo>/docs/evidence/2026-06-25-github-agent-skill-map.md`
 
 **Step 1: Write the docs**
 
@@ -1097,7 +1097,7 @@ Expected: no raw secrets; smoke passes.
 Run from Hermes:
 
 ```bash
-npm run agent-skills:install -- --registry /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/.operator/cambium.skills.json --tenant cambium --dry-run --generated-at 2026-06-25T00:00:00.000Z
+npm run agent-skills:install -- --registry <cambium-repo>/.operator/cambium.skills.json --tenant cambium --dry-run --generated-at 2026-06-25T00:00:00.000Z
 ```
 
 Expected: JSON output with `ok: true`, `dryRun: true`, six `hermes-*` skills, and no token values.
@@ -1114,14 +1114,14 @@ git commit -m "docs: define reusable skill loadout contract"
 **Files:**
 
 - No new code files unless a previous test exposes a real gap.
-- Optional evidence: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/docs/plans/assets/skill-loadout-contract/local-proof.json`
+- Optional evidence: `<cambium-repo>/docs/plans/assets/skill-loadout-contract/local-proof.json`
 
 **Step 1: Run Hermes full suite**
 
 Run:
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts
+cd <hermes-repo>
 npm test
 npm run smoke:agent-skills
 ```
@@ -1136,7 +1136,7 @@ Expected:
 Run:
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+cd <cambium-repo>
 npm test
 ```
 
@@ -1147,7 +1147,7 @@ Expected: all tests pass.
 Run:
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts
+cd <hermes-repo>
 npm run agent-skills:install -- --registry /tmp/cambium.skills.json --tenant cambium --generated-at 2026-06-25T00:00:00.000Z
 node -e 'const skills=require("/tmp/cambium.skills.json"); console.log(JSON.stringify({total:skills.length, ids:skills.map(s=>s.skill_id), domains:skills.map(s=>s.output_contract.domain)}, null, 2))'
 ```
@@ -1183,11 +1183,11 @@ git commit -m "docs: record skill loadout local proof"
 Open stacked PRs:
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/hermes-aws-ts
+cd <hermes-repo>
 git push -u origin codex/skill-loadout-contract
 gh pr create --draft --base codex/github-command-bridge --head codex/skill-loadout-contract --title "Generalize Hermes skill loadouts" --body "Adds reusable skill loadout metadata, seed skills, and game-master skill hints. Tests: npm test; npm run smoke:agent-skills."
 
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+cd <cambium-repo>
 git push -u origin codex/skill-loadout-contract
 gh pr create --draft --base codex/github-command-bridge --head codex/skill-loadout-contract --title "Render Cambium agent skill loadouts" --body "Preserves expanded skill loadout metadata and renders per-agent/domain/action groups in the TG mini app. Tests: npm test."
 ```
