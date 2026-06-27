@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const BRAND_SYSTEM_OUTPUTS = [
@@ -41,6 +41,21 @@ const VISUAL_SYSTEM_OUTPUTS = [
 
 const REQUIRED_GROUPS = ['brand_system', 'copy_system', 'visual_system'];
 
+const REQUIRED_CAMBIUM_FIELDS = [
+  'brand_system.brand_name',
+  'brand_system.audience',
+  'brand_system.positioning',
+  'brand_system.promise',
+  'brand_system.voice_principles',
+  'copy_system.copy_slots.hero_headline',
+  'copy_system.copy_slots.hero_subhead',
+  'copy_system.copy_slots.cta_primary',
+  'visual_system.palette',
+  'visual_system.typography',
+  'visual_system.imagery_direction',
+  'visual_system.logo_usage'
+];
+
 function readJson(file) {
   try {
     return JSON.parse(readFileSync(file, 'utf8'));
@@ -61,8 +76,8 @@ function readCompleteOutput(outputsDir, skill) {
   return json;
 }
 
-function readOutputGroup(outputsDir, specs) {
-  return Object.fromEntries(specs.map(([key, skill]) => [key, readCompleteOutput(outputsDir, skill)]));
+function readOutputsBySkill(outputsDir, specs) {
+  return Object.fromEntries(specs.map(([, skill]) => [skill, readCompleteOutput(outputsDir, skill)]));
 }
 
 function readAssetManifest(brandRoot) {
@@ -104,6 +119,160 @@ function assertCambiumPayload(payload) {
       throw new Error(`${group} must be a non-array object`);
     }
   }
+  for (const field of REQUIRED_CAMBIUM_FIELDS) {
+    if (!isMeaningful(getPath(payload, field))) {
+      throw new Error(`missing required Cambium Genesis field: ${field}`);
+    }
+  }
+}
+
+function getPath(value, path) {
+  return path.split('.').reduce((current, key) => {
+    if (!current || typeof current !== 'object') return undefined;
+    return current[key];
+  }, value);
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isMeaningful(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  if (Array.isArray(value)) return value.some((item) => isMeaningful(item));
+  if (isPlainObject(value)) return Object.values(value).some((item) => isMeaningful(item));
+  return true;
+}
+
+function firstMeaningful(...values) {
+  return values.find((value) => isMeaningful(value));
+}
+
+function compactObject(object) {
+  return Object.fromEntries(Object.entries(object).filter(([, value]) => isMeaningful(value)));
+}
+
+function asTextList(value) {
+  if (Array.isArray(value)) return value.filter((item) => isMeaningful(item));
+  if (isPlainObject(value)) return Object.values(value).filter((item) => isMeaningful(item));
+  return isMeaningful(value) ? [value] : undefined;
+}
+
+function data(outputs, skill) {
+  return outputs[skill]?.data || {};
+}
+
+function source(outputs, skill, path) {
+  return getPath(data(outputs, skill), path);
+}
+
+function brandNameFromBrandDir(brandDir) {
+  const slug = basename(brandDir);
+  return slug
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(' ');
+}
+
+function buildBrandSystem(outputs, brandDir) {
+  const brandId = basename(brandDir);
+  return {
+    brand_id: brandId,
+    brand_name: firstMeaningful(
+      source(outputs, 'brand-foundation', 'brand_name'),
+      source(outputs, 'brand-foundation', 'name'),
+      brandNameFromBrandDir(brandDir)
+    ),
+    category: firstMeaningful(
+      source(outputs, 'product-positioning', 'cbbe.salience.product_category'),
+      source(outputs, 'buyer-persona', 'cbbe.salience.product_category')
+    ),
+    audience: firstMeaningful(
+      source(outputs, 'brand-foundation', 'mission.breakdown.audience'),
+      source(outputs, 'buyer-persona', 'demographics.occupation')
+    ),
+    positioning: source(outputs, 'product-positioning', 'positioning_statement'),
+    promise: firstMeaningful(
+      source(outputs, 'messaging-framework', 'brand_promise'),
+      source(outputs, 'value-proposition', 'statements.core')
+    ),
+    differentiators: firstMeaningful(
+      source(outputs, 'value-proposition', 'differentiators'),
+      source(outputs, 'product-positioning', 'points_of_difference')
+    ),
+    voice_principles: firstMeaningful(
+      asTextList(source(outputs, 'voice-and-tone', 'language_guidelines.use')),
+      asTextList(source(outputs, 'voice-and-tone', 'voice_attributes')),
+      asTextList(source(outputs, 'voice-and-tone', 'tone_words'))
+    )
+  };
+}
+
+function buildCopySystem(outputs) {
+  const copySlots = {
+    hero_headline: firstMeaningful(
+      source(outputs, 'landing-page-copy', 'hero.headline'),
+      source(outputs, 'messaging-framework', 'headline')
+    ),
+    hero_subhead: source(outputs, 'landing-page-copy', 'hero.subhead'),
+    cta_primary: source(outputs, 'landing-page-copy', 'hero.cta_button'),
+    cta_secondary: firstMeaningful(
+      source(outputs, 'landing-page-copy', 'final_cta.cta_button'),
+      source(outputs, 'landing-page-copy', 'final_cta.button'),
+      source(outputs, 'landing-page-copy', 'cta.secondary')
+    ),
+    proof_points: firstMeaningful(
+      source(outputs, 'messaging-framework', 'proof_points'),
+      source(outputs, 'landing-page-copy', 'proof.proof_points')
+    ),
+    offer_text: firstMeaningful(
+      source(outputs, 'messaging-framework', 'brand_promise'),
+      source(outputs, 'landing-page-copy', 'hero.product_pitch')
+    )
+  };
+
+  return {
+    copy_slots: compactObject(copySlots),
+    tone_notes: compactObject({
+      channel_calibration: source(outputs, 'voice-and-tone', 'channel_calibration'),
+      tone_variations: source(outputs, 'voice-and-tone', 'tone_variations'),
+      voice_prompt_template: source(outputs, 'voice-and-tone', 'voice_prompt_template')
+    })
+  };
+}
+
+function buildVisualSystem(outputs, assetManifest) {
+  return {
+    palette: source(outputs, 'color-palette', 'palette'),
+    typography: compactObject({
+      typefaces: source(outputs, 'typography', 'typefaces'),
+      type_direction: source(outputs, 'typography', 'rationale.type_direction'),
+      rationale: source(outputs, 'typography', 'rationale'),
+      hierarchy: source(outputs, 'typography', 'hierarchy'),
+      type_scale: source(outputs, 'typography', 'type_scale'),
+      implementation: source(outputs, 'typography', 'implementation')
+    }),
+    imagery_direction: compactObject({
+      photography: firstMeaningful(
+        source(outputs, 'visual-language', 'photography.style'),
+        source(outputs, 'visual-language', 'photography')
+      ),
+      essence: source(outputs, 'visual-language', 'essence'),
+      visual_principles: source(outputs, 'visual-language', 'visual_principles')
+    }),
+    logo_usage: firstMeaningful(
+      source(outputs, 'logo-concept', 'usage_specs'),
+      source(outputs, 'logo-concept', 'logo_type')
+    ),
+    composition_motifs: firstMeaningful(
+      source(outputs, 'visual-language', 'composition_bias.principles'),
+      source(outputs, 'visual-language', 'patterns.type')
+    ),
+    anti_patterns: source(outputs, 'visual-language', 'forbidden_visuals'),
+    asset_manifest: assetManifest
+  };
 }
 
 function resolveContainedPath(root, input, optionName) {
@@ -130,21 +299,20 @@ export function buildGenesisContract({ meristemRoot, brandDir = 'brands/thoughts
   }
 
   const assetManifest = readAssetManifest(brandRoot);
-  const payload = {
-    brand_system: readOutputGroup(outputsDir, BRAND_SYSTEM_OUTPUTS),
-    copy_system: readOutputGroup(outputsDir, COPY_SYSTEM_OUTPUTS),
-    visual_system: {
-      ...readOutputGroup(outputsDir, VISUAL_SYSTEM_OUTPUTS),
-      asset_manifest: assetManifest
-    }
-  };
-  assertCambiumPayload(payload);
-
-  const consumedSkills = [
+  const outputSpecs = [
     ...BRAND_SYSTEM_OUTPUTS,
     ...COPY_SYSTEM_OUTPUTS,
     ...VISUAL_SYSTEM_OUTPUTS
-  ].map(([, skill]) => skill);
+  ];
+  const outputs = readOutputsBySkill(outputsDir, outputSpecs);
+  const payload = {
+    brand_system: buildBrandSystem(outputs, brandDir),
+    copy_system: buildCopySystem(outputs),
+    visual_system: buildVisualSystem(outputs, assetManifest)
+  };
+  assertCambiumPayload(payload);
+
+  const consumedSkills = outputSpecs.map(([, skill]) => skill);
 
   return {
     payload,

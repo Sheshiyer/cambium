@@ -9,68 +9,110 @@ import { buildGenesisContract } from '../scripts/meristem-genesis-contract.mjs';
 
 const SCRIPT = fileURLToPath(new URL('../scripts/meristem-genesis-contract.mjs', import.meta.url));
 
-const EXPECTED_BRAND_SYSTEM_BINDINGS = [
-  ['foundation', 'brand-foundation'],
-  ['buyer_persona', 'buyer-persona'],
-  ['competitor_analysis', 'competitor-analysis'],
-  ['value_proposition', 'value-proposition'],
-  ['product_positioning', 'product-positioning'],
-  ['voice_and_tone', 'voice-and-tone'],
-  ['brand_story', 'brand-story']
+const EXPECTED_BRAND_SYSTEM_KEYS = [
+  'brand_id',
+  'brand_name',
+  'category',
+  'audience',
+  'positioning',
+  'promise',
+  'differentiators',
+  'voice_principles'
 ];
 
-const EXPECTED_COPY_SYSTEM_BINDINGS = [
-  ['messaging_framework', 'messaging-framework'],
-  ['landing_page', 'landing-page-copy'],
-  ['welcome_email_sequence', 'welcome-email-sequence'],
-  ['prelaunch_email_sequence', 'prelaunch-email-sequence'],
-  ['launch_email_sequence', 'launch-email-sequence'],
-  ['ad_creative', 'ad-creative-copy'],
-  ['press_release', 'press-release'],
-  ['product_description', 'product-description']
+const EXPECTED_COPY_SYSTEM_KEYS = ['copy_slots', 'tone_notes'];
+const EXPECTED_COPY_SLOT_KEYS = [
+  'hero_headline',
+  'hero_subhead',
+  'cta_primary',
+  'cta_secondary',
+  'proof_points',
+  'offer_text'
 ];
-
-const EXPECTED_VISUAL_SYSTEM_BINDINGS = [
-  ['color_palette', 'color-palette'],
-  ['typography', 'typography'],
-  ['logo_concept', 'logo-concept'],
-  ['visual_language', 'visual-language'],
-  ['lifestyle_photography', 'lifestyle-photography'],
-  ['product_photography', 'product-photography'],
-  ['hero_images', 'hero-images'],
-  ['brand_illustrations', 'brand-illustrations'],
-  ['icon_system', 'icon-system'],
-  ['pattern_library', 'pattern-library'],
-  ['social_media_assets', 'social-media-assets']
-];
-
-const EXPECTED_BRAND_SYSTEM_KEYS = EXPECTED_BRAND_SYSTEM_BINDINGS.map(([key]) => key);
-const EXPECTED_COPY_SYSTEM_KEYS = EXPECTED_COPY_SYSTEM_BINDINGS.map(([key]) => key);
 const EXPECTED_VISUAL_SYSTEM_KEYS = [
-  ...EXPECTED_VISUAL_SYSTEM_BINDINGS.map(([key]) => key),
+  'palette',
+  'typography',
+  'imagery_direction',
+  'logo_usage',
+  'composition_motifs',
+  'anti_patterns',
   'asset_manifest'
 ];
 
 const OUTPUTS = {
-  'brand-foundation': { brand_essence: 'coherent system' },
-  'buyer-persona': { primary_persona: 'system-carrying founder' },
+  'brand-foundation': {
+    brand_essence: 'coherent system',
+    mission: {
+      breakdown: {
+        audience: 'system-carrying founders'
+      }
+    }
+  },
+  'buyer-persona': {
+    cbbe: { salience: { product_category: 'systems studio' } },
+    demographics: { occupation: 'founder-operator' }
+  },
   'competitor-analysis': { wedge: 'handoff-first studio' },
-  'value-proposition': { promise: 'one coherent loop' },
-  'product-positioning': { position: 'systems studio' },
-  'voice-and-tone': { tone_words: ['clear', 'calm'] },
+  'value-proposition': {
+    differentiators: ['one coherent loop', 'handoff-first proof'],
+    statements: { core: 'one coherent system' }
+  },
+  'product-positioning': {
+    cbbe: { salience: { product_category: 'systems studio' } },
+    positioning_statement: 'Thoughtseed turns requirements into coherent systems.',
+    points_of_difference: ['requirement-to-handoff loop']
+  },
+  'voice-and-tone': {
+    language_guidelines: { use: ['clear', 'calm'] },
+    channel_calibration: { website_hero: 'spare and concrete' },
+    tone_variations: { sales: { adjustment: 'lead with the requirement' } },
+    voice_prompt_template: 'Use grounded, exact language.'
+  },
   'brand-story': { arc: 'requirement to handoff' },
-  'messaging-framework': { pillars: ['coherence', 'handoff'] },
-  'landing-page-copy': { hero: { headline: 'Digital Wilderness' } },
+  'messaging-framework': {
+    brand_promise: 'One coherent system from requirement to handoff.',
+    headline: 'Digital Wilderness',
+    proof_points: ['Proof stays close to the claim.']
+  },
+  'landing-page-copy': {
+    hero: {
+      headline: 'Digital Wilderness',
+      subhead: 'Build the system, not just the story.',
+      cta_button: 'Bring the requirement.',
+      product_pitch: 'One studio carries the loop.'
+    },
+    final_cta: { cta_button: 'Start the handoff.' },
+    proof: { proof_points: ['Shipped systems across disciplines.'] }
+  },
   'welcome-email-sequence': { emails: 5 },
   'prelaunch-email-sequence': { emails: 4 },
   'launch-email-sequence': { emails: 4 },
   'ad-creative-copy': { variants: 12 },
   'press-release': { title: 'Thoughtseed launches' },
   'product-description': { description: 'systems studio package' },
-  'color-palette': { colors: ['#1A237E', '#00897B'] },
-  'typography': { display: 'Tyros Pro' },
-  'logo-concept': { guidance: 'use existing mark' },
-  'visual-language': { theme: 'Digital Wilderness' },
+  'color-palette': {
+    palette: {
+      primary: { hex: '#1A237E' },
+      accent: { hex: '#00897B' }
+    }
+  },
+  'typography': {
+    typefaces: {
+      display: { name: 'Tyros Pro' },
+      body: { name: 'SubjectivitySerif' }
+    },
+    rationale: { type_direction: 'editorial systems studio' }
+  },
+  'logo-concept': {
+    usage_specs: { do: ['Use the canonical asset files.'] },
+    logo_type: { primary: 'wordmark + symbol' }
+  },
+  'visual-language': {
+    essence: 'Disciplined engineering meets organic emergence.',
+    photography: { style: 'editorial documentary' },
+    composition_bias: { principles: ['asymmetric, grid-aware layouts'] },
+    forbidden_visuals: ['generic SaaS gradients']
+  },
   'lifestyle-photography': { shots: 2 },
   'product-photography': { shots: 2 },
   'hero-images': { shots: 3 },
@@ -82,32 +124,36 @@ const OUTPUTS = {
 
 const EXPECTED_CONSUMED_SKILLS = Object.keys(OUTPUTS);
 
+function mergeOutputData(base, override) {
+  if (override === undefined) return base;
+  if (!base || typeof base !== 'object' || Array.isArray(base)) return override;
+  if (!override || typeof override !== 'object' || Array.isArray(override)) return override;
+  return Object.fromEntries(
+    Object.keys({ ...base, ...override }).map((key) => [
+      key,
+      mergeOutputData(base[key], override[key])
+    ])
+  );
+}
+
 function writeJson(file, value) {
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-function assertPayloadSkillBindings(payload) {
-  const expectedBindingsByGroup = {
-    brand_system: EXPECTED_BRAND_SYSTEM_BINDINGS,
-    copy_system: EXPECTED_COPY_SYSTEM_BINDINGS,
-    visual_system: EXPECTED_VISUAL_SYSTEM_BINDINGS
-  };
-
-  for (const [group, bindings] of Object.entries(expectedBindingsByGroup)) {
-    for (const [slot, skill] of bindings) {
-      assert.equal(payload[group][slot].skill, skill, `${group}.${slot}`);
-    }
-  }
-}
-
-function createMeristemFixture({ missingOutput, statusOverride, manifestValid = true } = {}) {
+function createMeristemFixture({
+  missingOutput,
+  outputOverrides = {},
+  statusOverride,
+  manifestValid = true
+} = {}) {
   const root = mkdtempSync(join(tmpdir(), 'meristem-contract-'));
   const brandDir = join(root, 'brands', 'thoughtseed');
   const outputsDir = join(brandDir, '.brandmint', 'outputs');
 
   for (const [skill, data] of Object.entries(OUTPUTS)) {
     if (skill === missingOutput) continue;
+    const outputData = mergeOutputData(data, outputOverrides[skill]);
     writeJson(join(outputsDir, `${skill}.json`), {
       skill,
       cluster: 'fixture',
@@ -115,7 +161,7 @@ function createMeristemFixture({ missingOutput, statusOverride, manifestValid = 
       timestamp: '2026-06-27T00:00:00Z',
       status: statusOverride?.skill === skill ? statusOverride.status : 'complete',
       version: '1.0.0',
-      data
+      data: outputData
     });
   }
 
@@ -141,11 +187,46 @@ test('buildGenesisContract maps meristem outputs into Cambium Genesis groups', (
     assert.deepEqual(Object.keys(payload), ['brand_system', 'copy_system', 'visual_system']);
     assert.deepEqual(Object.keys(payload.brand_system), EXPECTED_BRAND_SYSTEM_KEYS);
     assert.deepEqual(Object.keys(payload.copy_system), EXPECTED_COPY_SYSTEM_KEYS);
+    assert.deepEqual(Object.keys(payload.copy_system.copy_slots), EXPECTED_COPY_SLOT_KEYS);
     assert.deepEqual(Object.keys(payload.visual_system), EXPECTED_VISUAL_SYSTEM_KEYS);
-    assertPayloadSkillBindings(payload);
-    assert.equal(payload.brand_system.foundation.data.brand_essence, 'coherent system');
-    assert.equal(payload.copy_system.landing_page.data.hero.headline, 'Digital Wilderness');
+    assert.equal(payload.brand_system.brand_id, 'thoughtseed');
+    assert.equal(payload.brand_system.brand_name, 'Thoughtseed');
+    assert.equal(payload.brand_system.category, 'systems studio');
+    assert.equal(payload.brand_system.audience, 'system-carrying founders');
+    assert.equal(
+      payload.brand_system.positioning,
+      'Thoughtseed turns requirements into coherent systems.'
+    );
+    assert.equal(payload.brand_system.promise, 'One coherent system from requirement to handoff.');
+    assert.deepEqual(payload.brand_system.differentiators, [
+      'one coherent loop',
+      'handoff-first proof'
+    ]);
+    assert.deepEqual(payload.brand_system.voice_principles, ['clear', 'calm']);
+    assert.equal(payload.copy_system.copy_slots.hero_headline, 'Digital Wilderness');
+    assert.equal(payload.copy_system.copy_slots.hero_subhead, 'Build the system, not just the story.');
+    assert.equal(payload.copy_system.copy_slots.cta_primary, 'Bring the requirement.');
+    assert.equal(payload.copy_system.copy_slots.cta_secondary, 'Start the handoff.');
+    assert.deepEqual(payload.copy_system.copy_slots.proof_points, [
+      'Proof stays close to the claim.'
+    ]);
+    assert.equal(
+      payload.copy_system.copy_slots.offer_text,
+      'One coherent system from requirement to handoff.'
+    );
+    assert.equal(payload.copy_system.tone_notes.channel_calibration.website_hero, 'spare and concrete');
+    assert.deepEqual(payload.visual_system.palette.primary, { hex: '#1A237E' });
+    assert.equal(payload.visual_system.typography.typefaces.display.name, 'Tyros Pro');
+    assert.equal(payload.visual_system.imagery_direction.photography, 'editorial documentary');
+    assert.deepEqual(payload.visual_system.logo_usage.do, ['Use the canonical asset files.']);
+    assert.deepEqual(payload.visual_system.composition_motifs, [
+      'asymmetric, grid-aware layouts'
+    ]);
+    assert.deepEqual(payload.visual_system.anti_patterns, ['generic SaaS gradients']);
     assert.equal(payload.visual_system.asset_manifest.validation.all_paths_exist, true);
+    assert.equal(payload.brand_system.foundation, undefined);
+    assert.equal(payload.copy_system.landing_page, undefined);
+    assert.equal(payload.visual_system.color_palette, undefined);
     assert.equal(evidence.status, 'pass');
     assert.equal(evidence.requiredGroups.join(','), 'brand_system,copy_system,visual_system');
     assert.equal(evidence.consumedSkillCount, EXPECTED_CONSUMED_SKILLS.length);
@@ -164,6 +245,7 @@ test('buildGenesisContract accepts normal brands/thoughtseed brandDir', () => {
     });
 
     assert.deepEqual(Object.keys(payload), ['brand_system', 'copy_system', 'visual_system']);
+    assert.equal(payload.brand_system.brand_name, 'Thoughtseed');
     assert.equal(evidence.brandDir, 'brands/thoughtseed');
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -206,6 +288,39 @@ test('buildGenesisContract fails closed when an output status is incomplete', ()
     assert.throws(
       () => buildGenesisContract({ meristemRoot: root }),
       /voice-and-tone\.json status is "partial"; expected "complete"/
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract fails closed when required mapped positioning is empty', () => {
+  const root = createMeristemFixture({
+    outputOverrides: {
+      'product-positioning': { positioning_statement: '' }
+    }
+  });
+  try {
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root }),
+      /missing required Cambium Genesis field: brand_system\.positioning/
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract fails closed when required mapped hero headline is empty', () => {
+  const root = createMeristemFixture({
+    outputOverrides: {
+      'messaging-framework': { headline: '' },
+      'landing-page-copy': { hero: { headline: '   ' } }
+    }
+  });
+  try {
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root }),
+      /missing required Cambium Genesis field: copy_system\.copy_slots\.hero_headline/
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -276,6 +391,12 @@ test('CLI writes payload and evidence files with --out and --evidence-out', () =
     const payload = JSON.parse(readFileSync(out, 'utf8'));
     const evidence = JSON.parse(readFileSync(evidenceOut, 'utf8'));
     assert.deepEqual(Object.keys(payload), ['brand_system', 'copy_system', 'visual_system']);
+    assert.equal(payload.brand_system.brand_name, 'Thoughtseed');
+    assert.equal(payload.copy_system.copy_slots.hero_headline, 'Digital Wilderness');
+    assert.equal(payload.visual_system.imagery_direction.photography, 'editorial documentary');
+    assert.equal(payload.brand_system.foundation, undefined);
+    assert.equal(payload.copy_system.landing_page, undefined);
+    assert.equal(payload.visual_system.color_palette, undefined);
     assert.equal(payload.visual_system.asset_manifest.validation.all_paths_exist, true);
     assert.equal(evidence.status, 'pass');
     assert.equal(evidence.consumedSkillCount, EXPECTED_CONSUMED_SKILLS.length);

@@ -8,7 +8,7 @@ test('meristem Genesis candidate is recorded but not active', () => {
   const config = JSON.parse(readFileSync(adaptersFile, 'utf8'));
 
   assert.equal(config.adapters.genesis.cmd, 'brandmint');
-  assert.equal(config.adapters.genesis.args[0], 'launch');
+  assert.deepEqual(config.adapters.genesis.args, ['launch', '--waves', '1-8', '--brand', '{tenant}']);
   assert.equal(config.adapters.genesis_meristem_candidate, undefined);
 
   const candidate = config.candidate_adapters?.genesis_meristem_candidate;

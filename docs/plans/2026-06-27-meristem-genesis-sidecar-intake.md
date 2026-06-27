@@ -57,6 +57,20 @@ node scripts/meristem-genesis-contract.mjs \
   --out /tmp/meristem-brand-dna.json \
   --evidence-out /tmp/meristem-genesis-evidence.json
 jq 'keys' /tmp/meristem-brand-dna.json
+jq -e '
+  (.brand_system.brand_name | strings | length > 0) and
+  (.brand_system.audience | strings | length > 0) and
+  (.brand_system.positioning | strings | length > 0) and
+  (.brand_system.promise | strings | length > 0) and
+  (.brand_system.voice_principles | type == "array" and length > 0) and
+  (.copy_system.copy_slots.hero_headline | strings | length > 0) and
+  (.copy_system.copy_slots.hero_subhead | strings | length > 0) and
+  (.copy_system.copy_slots.cta_primary | strings | length > 0) and
+  (.visual_system.palette | type == "object" and length > 0) and
+  (.visual_system.typography | type == "object" and length > 0) and
+  (.visual_system.imagery_direction | type == "object" and length > 0) and
+  (.visual_system.logo_usage | ((type == "object" and length > 0) or (type == "string" and length > 0)))
+' /tmp/meristem-brand-dna.json
 jq '.status, .requiredGroups, .consumedSkillCount, .assetManifest' /tmp/meristem-genesis-evidence.json
 ```
 
@@ -69,6 +83,21 @@ The generated Cambium payload emits exactly these top-level groups:
   "visual_system"
 ]
 ```
+
+The required Cambium Genesis schema probe above passed for:
+
+- `brand_system.brand_name`
+- `brand_system.audience`
+- `brand_system.positioning`
+- `brand_system.promise`
+- `brand_system.voice_principles`
+- `copy_system.copy_slots.hero_headline`
+- `copy_system.copy_slots.hero_subhead`
+- `copy_system.copy_slots.cta_primary`
+- `visual_system.palette`
+- `visual_system.typography`
+- `visual_system.imagery_direction`
+- `visual_system.logo_usage`
 
 The stdout form was also checked by redirecting `--out -` to `/tmp/meristem-brand-dna-stdout.json` and running `jq 'keys'`.
 It returned the same three top-level groups.
