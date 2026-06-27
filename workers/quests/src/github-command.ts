@@ -20,9 +20,12 @@ export interface GithubAgentCommandRequest {
   body?: string;
   label?: string;
   dryRun?: boolean;
+  // `approvalRequired` is a non-authoritative client intent flag: the caller must
+  // acknowledge that a mutating verb is intended. It is NOT an authorization control —
+  // the real authorization boundary is the admin BRIDGE_TOKEN gate on the route.
+  // (The former `approvedBy`/`approvalReason` free-text fields were removed: they were
+  // unvalidated and could be mistaken for a dual-control sign-off that was never enforced.)
   approvalRequired?: boolean;
-  approvedBy?: string;
-  approvalReason?: string;
   idempotencyKey: string;
 }
 
@@ -46,12 +49,21 @@ export interface GithubCommandExecutorOptions {
   fetch?: typeof fetch;
 }
 
-const REPO_RE = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+// A repo segment must start and end with [A-Za-z0-9_-]; dots are allowed only internally.
+// This rejects dot-only segments (".", "..") and leading/trailing-dot names (".x", "x."),
+// which would otherwise smuggle path traversal into the GitHub API path (e.g. `owner/..`
+// → `/repos/owner/../issues`).
+const REPO_SEGMENT = '[A-Za-z0-9_-](?:[A-Za-z0-9_.-]*[A-Za-z0-9_-])?';
+const REPO_RE = new RegExp(`^${REPO_SEGMENT}\\/${REPO_SEGMENT}$`);
 const WRITE_COMMANDS = new Set<GithubAgentCommandId>([
   'github.issue.create',
   'github.issue.comment',
   'github.issue.label',
 ]);
+
+export function isGithubWriteCommand(commandId: GithubAgentCommandId): boolean {
+  return WRITE_COMMANDS.has(commandId);
+}
 
 export function parseAllowedRepos(raw: string | undefined): string[] {
   return (raw ?? 'Sheshiyer/*')
@@ -78,6 +90,8 @@ export function validateGithubCommand(value: unknown, allowedRepos: string[] = [
   if (command.commandId === 'github.issue.create' && !text(command.title)) return { error: 'GitHub issue create needs title' };
   if ((command.commandId === 'github.issue.create' || command.commandId === 'github.issue.comment') && !text(command.body)) return { error: 'GitHub issue write needs body' };
   if (command.commandId === 'github.issue.label' && !text(command.label)) return { error: 'GitHub issue label needs label' };
+  // Mutating verbs must carry the explicit intent flag. This is a confirm-intent guard,
+  // not authorization — the admin BRIDGE_TOKEN gate is the actual authorization boundary.
   if (WRITE_COMMANDS.has(command.commandId) && command.approvalRequired !== true) return { error: 'GitHub write commands must be approval-gated' };
   return {
     schema: 'hermes.github-agent-command.v1',
@@ -95,8 +109,6 @@ export function validateGithubCommand(value: unknown, allowedRepos: string[] = [
     label: optionalText(command.label, 120),
     dryRun: command.dryRun === true,
     approvalRequired: command.approvalRequired === true,
-    approvedBy: optionalText(command.approvedBy, 80),
-    approvalReason: optionalText(command.approvalReason, 300),
     idempotencyKey: text(command.idempotencyKey, 240),
   };
 }
@@ -155,10 +167,17 @@ export function createGithubCommandExecutor(options: GithubCommandExecutorOption
 }
 
 export function repoAllowed(repo: string, allowedRepos: string[]): boolean {
+  // Split on '/' and match the owner segment EXACTLY (case-insensitive). Whole-string
+  // prefix matching let `owner/*` leak adjacent owners; exact owner comparison denies
+  // `owner-evil/repo` while still honoring `owner/*` wildcards and exact `owner/name`.
+  const [repoOwner, repoName, ...rest] = repo.toLowerCase().split('/');
+  if (!repoOwner || !repoName || rest.length) return false;
   return allowedRepos.some((pattern) => {
     if (pattern === '*') return true;
-    if (pattern.endsWith('/*')) return repo.toLowerCase().startsWith(`${pattern.slice(0, -1).toLowerCase()}`);
-    return repo.toLowerCase() === pattern.toLowerCase();
+    const [owner, name, ...patternRest] = pattern.toLowerCase().split('/');
+    if (!owner || !name || patternRest.length) return false;
+    if (name === '*') return owner === repoOwner;
+    return owner === repoOwner && name === repoName;
   });
 }
 

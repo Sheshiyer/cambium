@@ -10,8 +10,8 @@
 import { PAGE } from './page.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
-import type { GithubCommandExecutor } from './github-command.ts';
-import { validateGithubCommand } from './github-command.ts';
+import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
+import { isGithubWriteCommand, validateGithubCommand } from './github-command.ts';
 
 export interface KvLike {
   get(key: string): Promise<string | null>;
@@ -380,6 +380,59 @@ function kvBridgeStore(kv: KvLike): BridgeStoreLike {
       await kv.put(`bridge:assignment:${record.memberId}:${record.eventId}`, JSON.stringify(record));
     },
   };
+}
+
+// ── GitHub command bridge: replay protection + write rate limiting ──────────────
+// KvLike has no native expirationTtl, so both records embed their own expiry/window and
+// are validated against an injectable clock on read (same pattern as member-token tokenExp).
+// NOTE: KV is eventually consistent with no atomic increment/CAS, so — exactly like the
+// /api/gate idempotency check — these are best-effort under the sequential single-admin
+// caller model (Hermes behind BRIDGE_TOKEN). Concurrent same-key requests could race the
+// read-modify-write; tightening that further would require Durable Objects.
+// `actorId` is caller-supplied free text, so it is reduced to a safe KV-key segment.
+const kvKeySegment = (value: string): string => value.toLowerCase().replace(/[^a-z0-9_.-]/g, '_').slice(0, 160);
+const GH_CMD_IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000;   // a key fences duplicate writes for 24h
+const GH_WRITE_RATE_LIMIT = 10;                          // writes per actor+repo per window
+const GH_WRITE_RATE_WINDOW_MS = 60 * 1000;               // rolling 1-minute window
+
+// Returns the stored result for a previously-executed write, or null if absent/expired.
+async function readGithubIdempotent(kv: KvLike, idempotencyKey: string, nowMs: number): Promise<GithubCommandResult | null> {
+  const raw = await kv.get(`gh-cmd:${idempotencyKey}`);
+  if (!raw) return null;
+  try {
+    const rec = JSON.parse(raw);
+    if (typeof rec.expiresAt === 'number' && rec.expiresAt <= nowMs) return null;
+    return (rec.result ?? null) as GithubCommandResult | null;
+  } catch {
+    return null; // corrupt record → treat as no prior write
+  }
+}
+
+async function storeGithubIdempotent(kv: KvLike, idempotencyKey: string, result: GithubCommandResult, nowMs: number): Promise<void> {
+  await kv.put(`gh-cmd:${idempotencyKey}`, JSON.stringify({ result, storedAt: nowMs, expiresAt: nowMs + GH_CMD_IDEMPOTENCY_TTL_MS }));
+}
+
+// Increments the per-actor+repo window counter and reports whether this write is allowed.
+// The window resets once it ages past GH_WRITE_RATE_WINDOW_MS; over-limit writes are not counted.
+async function touchGithubWriteRate(kv: KvLike, actorId: string, repo: string, nowMs: number): Promise<{ allowed: boolean; retryAfterMs: number }> {
+  const key = `gh-rate:${kvKeySegment(actorId)}:${repo.toLowerCase()}`;
+  let windowStart = nowMs;
+  let count = 0;
+  const raw = await kv.get(key);
+  if (raw) {
+    try {
+      const rec = JSON.parse(raw);
+      if (typeof rec.windowStart === 'number' && nowMs - rec.windowStart < GH_WRITE_RATE_WINDOW_MS) {
+        windowStart = rec.windowStart;
+        count = typeof rec.count === 'number' ? rec.count : 0;
+      }
+    } catch { /* corrupt counter → start a fresh window */ }
+  }
+  if (count >= GH_WRITE_RATE_LIMIT) {
+    return { allowed: false, retryAfterMs: Math.max(0, windowStart + GH_WRITE_RATE_WINDOW_MS - nowMs) };
+  }
+  await kv.put(key, JSON.stringify({ windowStart, count: count + 1 }));
+  return { allowed: true, retryAfterMs: 0 };
 }
 
 function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string): Record<string, unknown> | { error: string } {
@@ -1397,6 +1450,18 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       const command = validateGithubCommand(body, deps.githubAllowedRepos);
       if ('error' in command) return json(400, command);
+      // Replay protection + write rate limiting apply only to real (non-dry-run) mutating
+      // verbs. idempotencyKey is validated upstream but must be CONSULTED before the write,
+      // mirroring the /api/gate idempotency pattern. KvLike has no native TTL, so expiry is
+      // embedded in the stored record (same shape as the member-token tokenExp pattern).
+      const isWrite = isGithubWriteCommand(command.commandId) && !command.dryRun;
+      const ghNowMs = deps.nowMs ? deps.nowMs() : Date.now();
+      if (isWrite) {
+        const replayed = await readGithubIdempotent(deps.kv, command.idempotencyKey, ghNowMs);
+        if (replayed) return json(200, { ...replayed, duplicate: true });
+        const rate = await touchGithubWriteRate(deps.kv, command.actorId, command.repo, ghNowMs);
+        if (!rate.allowed) return json(429, { error: 'GitHub write rate limit exceeded', retryAfterMs: rate.retryAfterMs });
+      }
       let result;
       try {
         result = await deps.githubCommand(command);
@@ -1410,6 +1475,9 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           error: 'GitHub command executor unreachable',
         });
       }
+      // Store the result for replay only on success: a failed/transient write leaves the
+      // idempotencyKey free to retry, while a duplicate successful write is fenced out.
+      if (isWrite && result.ok) await storeGithubIdempotent(deps.kv, command.idempotencyKey, result, ghNowMs);
       if (!result.ok) return json(result.status && result.status >= 400 ? result.status : 400, result);
       return json(200, result);
     }
