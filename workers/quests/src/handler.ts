@@ -1686,7 +1686,12 @@ async function handleProviderBroker(req: SimpleRequest, deps: HandlerDeps): Prom
   if (!cfg?.token) return json(503, { error: 'provider broker not configured on the worker' });
   if (!providerAuth(req, cfg.token)) return json(401, { error: 'bad or missing provider broker credential' });
 
-  if (req.method === 'GET' && (req.path === '/v1/providers' || req.path === '/v1/providers/health')) {
+  // req.path may carry a query string (context routes parse it via new URL); match provider
+  // routes on the pathname only so calls like /v1/providers/<id>/chat/completions?stream=true
+  // route correctly instead of failing the upstream-path validator below.
+  const path = fabricRoutePath(req.path);
+
+  if (req.method === 'GET' && (path === '/v1/providers' || path === '/v1/providers/health')) {
     const providers = configuredProviders(cfg);
     return json(200, {
       ok: true,
@@ -1696,8 +1701,8 @@ async function handleProviderBroker(req: SimpleRequest, deps: HandlerDeps): Prom
     });
   }
 
-  const match = req.path.match(/^\/v1\/providers\/([a-z0-9-]+)(?:\/(.*))?$/);
-  if (!match) return json(404, { error: `no provider route for ${req.method} ${req.path}` });
+  const match = path.match(/^\/v1\/providers\/([a-z0-9-]+)(?:\/(.*))?$/);
+  if (!match) return json(404, { error: `no provider route for ${req.method} ${path}` });
   const providerId = match[1];
   const provider = cfg.providers[providerId];
   if (!provider?.apiKey || !provider.baseUrl) return json(404, { error: `unknown or unconfigured provider "${providerId}"` });

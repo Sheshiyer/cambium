@@ -559,6 +559,40 @@ test('provider broker · proxies OpenAI-compatible calls with upstream provider 
   assert.equal(calls[0].init.body, bodyJson);
 });
 
+test('provider broker · proxies calls that carry a query string (e.g. ?stream=true)', async () => {
+  const calls: Array<{ url: string; init: RequestInit }> = [];
+  const fakeFetch: typeof fetch = async (url, init = {}) => {
+    calls.push({ url: String(url), init });
+    return new Response(JSON.stringify({ id: 'chatcmpl-stream', choices: [{ message: { content: 'OK' } }] }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+  const bodyJson = JSON.stringify({ model: 'Qwen/Qwen3-235B-A22B-Instruct-2507', stream: true, messages: [{ role: 'user', content: 'ping' }] });
+  const r = await handle(req('POST', '/v1/providers/nebius/chat/completions?stream=true', {
+    headers: { authorization: 'Bearer broker', 'content-type': 'application/json' },
+    body: bodyJson,
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: {
+        nebius: {
+          baseUrl: 'https://api.tokenfactory.nebius.com/v1',
+          apiKey: 'secret-nebius-key',
+        },
+      },
+    },
+  });
+  // Must route to the provider (200), not reject the query string with 400 'bad upstream provider path'.
+  assert.equal(r.status, 200);
+  assert.equal(body(r).choices[0].message.content, 'OK');
+  assert.equal(calls.length, 1);
+  // The query string is stripped for upstream-path matching (parity with origin/main behaviour).
+  assert.equal(calls[0].url, 'https://api.tokenfactory.nebius.com/v1/chat/completions');
+});
+
 test('provider broker · rejects unknown providers and path traversal', async () => {
   const deps = {
     kv: fakeKv(),
