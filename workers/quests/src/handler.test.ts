@@ -466,6 +466,25 @@ test('healthz · ok', async () => {
   assert.match(r.body, /cambium-quests/);
 });
 
+test('context routes · handler delegates context health to bounded module', async () => {
+  const r = await handle(req('GET', '/v1/context/health', {
+    headers: { authorization: 'Bearer context-token' },
+  }), {
+    kv: fakeKv(),
+    contextRoutes: {
+      token: 'context-token',
+      now: () => '2026-06-25T12:00:00.000Z',
+      routineContext: { getSnapshot: async () => ({ sections: [] }) },
+      semanticRecall: { recall: async () => [] },
+    },
+  });
+  assert.equal(r.status, 200);
+  assert.match(r.body, /thoughtseed\.context-health\.v1/);
+  const payload = body(r);
+  assert.equal(payload.capabilities.routineSnapshot, true);
+  assert.equal(payload.capabilities.semanticRecall, true);
+});
+
 test('provider broker · requires configured broker token', async () => {
   const r = await handle(req('GET', '/v1/providers'), { kv: fakeKv() });
   assert.equal(r.status, 503);
@@ -538,6 +557,40 @@ test('provider broker · proxies OpenAI-compatible calls with upstream provider 
   assert.equal(calls[0].url, 'https://api.tokenfactory.nebius.com/v1/chat/completions');
   assert.equal((calls[0].init.headers as Record<string, string>).authorization, 'Bearer secret-nebius-key');
   assert.equal(calls[0].init.body, bodyJson);
+});
+
+test('provider broker · proxies calls that carry a query string (e.g. ?stream=true)', async () => {
+  const calls: Array<{ url: string; init: RequestInit }> = [];
+  const fakeFetch: typeof fetch = async (url, init = {}) => {
+    calls.push({ url: String(url), init });
+    return new Response(JSON.stringify({ id: 'chatcmpl-stream', choices: [{ message: { content: 'OK' } }] }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+  const bodyJson = JSON.stringify({ model: 'Qwen/Qwen3-235B-A22B-Instruct-2507', stream: true, messages: [{ role: 'user', content: 'ping' }] });
+  const r = await handle(req('POST', '/v1/providers/nebius/chat/completions?stream=true', {
+    headers: { authorization: 'Bearer broker', 'content-type': 'application/json' },
+    body: bodyJson,
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: {
+        nebius: {
+          baseUrl: 'https://api.tokenfactory.nebius.com/v1',
+          apiKey: 'secret-nebius-key',
+        },
+      },
+    },
+  });
+  // Must route to the provider (200), not reject the query string with 400 'bad upstream provider path'.
+  assert.equal(r.status, 200);
+  assert.equal(body(r).choices[0].message.content, 'OK');
+  assert.equal(calls.length, 1);
+  // The query string is stripped for upstream-path matching (parity with origin/main behaviour).
+  assert.equal(calls[0].url, 'https://api.tokenfactory.nebius.com/v1/chat/completions');
 });
 
 test('provider broker · rejects unknown providers and path traversal', async () => {
@@ -1135,7 +1188,7 @@ test('mini app surface contract · exports current scene ids', () => {
 });
 
 test('mini app surface contract · maps ecosystem targets', () => {
-  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'vault-via-paperclip', 'live-proof']) {
+  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'skills', 'gtm', 'distribution', 'vault-via-paperclip', 'live-proof']) {
     assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(target as never), `target ${target} is inventoried`);
   }
 });
@@ -1209,11 +1262,11 @@ test('mini app surface contract · records map subsection interaction semantics'
   const byId = Object.fromEntries(MINI_APP_MAP_SUBSECTIONS.map((section) => [section.id, section]));
   assert.deepEqual(byId.skills, {
     id: 'skills',
-    target: 'github',
+    target: 'skills',
     interactions: {
       primary: 'sheet',
       controls: [
-        { id: 'promote-skill-review', interaction: 'signed-action', source: 'skill promotion review queue' },
+        { id: 'promote-skill-review', interaction: 'signed-action', source: 'skill promotion review queue', target: 'skills' },
       ],
     },
     source: 'skill-registry visual envelope',
@@ -3125,6 +3178,123 @@ test('page · skill labor sheet exposes full telemetry and source path', async (
   assert.match(sheet, /source path<\/b><span>\.operator\/cambium\.skills\.json/);
 });
 
+test('page · agent skill sheet exposes versioned role loadout details', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 1,
+      rows: [{
+        id: 'hermes-github-repo-issue-ops',
+        status: 'candidate',
+        uses: 0,
+        successes: 0,
+        failures: 0,
+        successRate: 0,
+        declining: false,
+        tier: 'unproven',
+        tierLabel: 'UNPROVEN',
+        sampleSize: 0,
+        minimum: 3,
+        recentRate: 0,
+        recentWindow: 0,
+        promotion: {
+          status: 'blocked',
+          label: 'NO PROMOTION',
+          detail: 'need 3 uses for tier; found 0',
+          requiredApproval: true,
+        },
+        agentSkill: {
+          format: 'cambium.skill-registry.agent-skill.v1',
+          skillId: 'github-repo-issue-ops',
+          version: '0.1.0',
+          miniAppArea: 'skills',
+          registryTarget: '.operator/<tenant>.skills.json',
+          readCommands: ['github.repo.inspect', 'github.issue.read'],
+          writeCommands: ['github.issue.create', 'github.issue.comment'],
+          roleSubsets: {
+            engineer: { version: '0.1.0', permissions: ['read', 'write'], commands: ['github.issue.create'] },
+            hermes: { version: '0.1.0', permissions: ['read', 'dispatch'], commands: ['github.repo.inspect'] },
+          },
+          boundaries: ['Write operations require manual command context and audit receipt.'],
+        },
+        gap: 'need 3 uses for tier; found 0',
+        updated: 1,
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /loadout version<\/b><span>0\.1\.0/);
+  assert.match(sheet, /skill id<\/b><span>github-repo-issue-ops/);
+  assert.match(sheet, /read commands<\/b><span>github\.repo\.inspect, github\.issue\.read/);
+  assert.match(sheet, /write commands<\/b><span>github\.issue\.create, github\.issue\.comment/);
+  assert.match(sheet, /engineer<\/b><span>v0\.1\.0 · read, write · github\.issue\.create/);
+  assert.match(sheet, /hermes<\/b><span>v0\.1\.0 · read, dispatch · github\.repo\.inspect/);
+  assert.match(sheet, /boundary 1<\/b><span>Write operations require manual command context and audit receipt\./);
+});
+
+test('page · skill cards show domain, game layer, and action groups', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    skills: {
+      source: 'skill-registry',
+      total: 1,
+      rows: [{
+        id: 'hermes-gtm-distribution-ops',
+        status: 'candidate',
+        uses: 1,
+        successes: 1,
+        failures: 0,
+        successRate: 1,
+        declining: false,
+        tier: 'learning',
+        tierLabel: 'LEARNING',
+        sampleSize: 1,
+        minimum: 3,
+        recentRate: 1,
+        recentWindow: 1,
+        promotion: { status: 'observe', label: 'OBSERVE', detail: 'needs more proof', requiredApproval: true },
+        agentSkill: {
+          format: 'cambium.skill-registry.agent-skill.v1',
+          skillId: 'gtm-distribution-ops',
+          version: '0.1.0',
+          domain: 'gtm',
+          gameLayer: 'delivery',
+          iconKey: 'megaphone',
+          invocationKinds: ['topic-signal', 'approval-gate'],
+          branches: ['fitcheck', 'client-delivery'],
+          actionGroups: [{ id: 'distribution-loop', label: 'Distribution loop', purpose: 'Move proof into channel actions.', actionIds: ['gtm.channel.inspect', 'gtm.outreach.draft'], state: 'gated' }],
+          miniAppArea: 'skills',
+          registryTarget: '.operator/<tenant>.skills.json',
+          readCommands: ['gtm.channel.inspect'],
+          writeCommands: ['gtm.outreach.draft'],
+          roleSubsets: {
+            hermes: { version: '0.1.0', permissions: ['read', 'dispatch'], commands: ['gtm.channel.inspect'], purpose: 'Route GTM signals.' },
+            synthesist: { version: '0.1.0', permissions: ['read', 'write'], commands: ['gtm.outreach.draft'], purpose: 'Draft supervised GTM handoffs.' },
+          },
+          boundaries: ['Public GTM publication requires founder approval.'],
+        },
+        updated: 1,
+      }],
+    },
+  };
+
+  const rendered = await renderPageFixtureContext(envelope);
+  (rendered.context.openSkillBox as (env: unknown, index: number) => void)(envelope, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+
+  assert.match(sheet, /domain<\/b><span>gtm/);
+  assert.match(sheet, /game layer<\/b><span>delivery/);
+  assert.match(sheet, /invocations<\/b><span>topic-signal, approval-gate/);
+  assert.match(sheet, /branches<\/b><span>fitcheck, client-delivery/);
+  assert.match(sheet, /Distribution loop<\/b><span>gated · gtm\.channel\.inspect, gtm\.outreach\.draft/);
+  assert.match(sheet, /hermes<\/b><span>v0\.1\.0 · read, dispatch · gtm\.channel\.inspect · Route GTM signals\./);
+});
+
 test('page · missing skill sheet maps gaps to operator store and quine write skills', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -3966,6 +4136,263 @@ test('bridge · scoped Hermes assignment token only enqueues task assignments', 
     headers: { authorization: 'Bearer assign-only' },
   }), deps);
   assert.equal(inbox.status, 403);
+});
+
+test('bridge · GitHub command route executes only through admin bridge token', async () => {
+  const kv = fakeKv();
+  const calls: any[] = [];
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    githubCommand: async (command: any) => {
+      calls.push(command);
+      return {
+        ok: true,
+        commandId: command.commandId,
+        repo: command.repo,
+        dryRun: command.dryRun === true,
+        url: null,
+        result: { wouldCall: '/repos/Sheshiyer/hermes-aws-ts/issues' },
+      };
+    },
+  };
+  const bodyJson = JSON.stringify({
+    schema: 'hermes.github-agent-command.v1',
+    skillId: 'github-repo-issue-ops',
+    commandId: 'github.issue.create',
+    source: 'telegram-manual',
+    actorId: 'shesh',
+    topicKey: 'dev',
+    threadId: 862,
+    repo: 'Sheshiyer/hermes-aws-ts',
+    title: 'Manual command proof',
+    body: 'Create the audit route',
+    dryRun: true,
+    approvalRequired: true,
+    idempotencyKey: 'github.issue.create:sheshiyer/hermes-aws-ts:manual-command-proof',
+  });
+
+  const scopedDenied = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: bodyJson,
+  }), deps);
+  assert.equal(scopedDenied.status, 403);
+
+  const executed = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: bodyJson,
+  }), deps);
+  assert.equal(executed.status, 200);
+  assert.equal(body(executed).ok, true);
+  assert.equal(body(executed).commandId, 'github.issue.create');
+  assert.equal(body(executed).repo, 'Sheshiyer/hermes-aws-ts');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].approvalRequired, true);
+  assert.equal(calls[0].topicKey, 'dev');
+});
+
+test('bridge · GitHub command route rejects bad command envelopes before execution', async () => {
+  const kv = fakeKv();
+  let called = false;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    githubCommand: async () => {
+      called = true;
+      return { ok: true, commandId: 'github.repo.inspect', repo: 'Other/repo', dryRun: true };
+    },
+  };
+
+  const rejected = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.repo.inspect',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'Other/repo',
+      dryRun: true,
+      approvalRequired: false,
+      idempotencyKey: 'github.repo.inspect:other/repo',
+    }),
+  }), deps);
+  assert.equal(rejected.status, 400);
+  assert.match(body(rejected).error, /allowlisted/);
+  assert.equal(called, false);
+});
+
+test('bridge · GitHub command route honors injected repo allowlist and bounds executor errors', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    githubAllowedRepos: ['ThoughtseedLabs/*'],
+    githubCommand: async () => {
+      throw new Error('network unavailable');
+    },
+  };
+
+  const response = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.repo.inspect',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'ThoughtseedLabs/hermes',
+      dryRun: false,
+      approvalRequired: false,
+      idempotencyKey: 'github.repo.inspect:thoughtseedlabs/hermes',
+    }),
+  }), deps);
+
+  assert.equal(response.status, 502);
+  assert.equal(body(response).ok, false);
+  assert.equal(body(response).repo, 'ThoughtseedLabs/hermes');
+  assert.equal(body(response).error, 'GitHub command executor unreachable');
+});
+
+test('bridge · GitHub command route rejects repos outside injected allowlist', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    githubAllowedRepos: ['ThoughtseedLabs/*'],
+    githubCommand: async () => {
+      throw new Error('must not execute');
+    },
+  };
+
+  const response = await handle(req('POST', '/v1/bridge/github-command', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'hermes.github-agent-command.v1',
+      skillId: 'github-repo-issue-ops',
+      commandId: 'github.repo.inspect',
+      source: 'telegram-manual',
+      actorId: 'shesh',
+      repo: 'Sheshiyer/hermes-aws-ts',
+      dryRun: true,
+      approvalRequired: false,
+      idempotencyKey: 'github.repo.inspect:sheshiyer/hermes-aws-ts',
+    }),
+  }), deps);
+
+  assert.equal(response.status, 400);
+  assert.match(body(response).error, /allowlisted/);
+});
+
+test('bridge · scoped Hermes topic routing creates quest-linked assignments', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-25T13:00:00.000Z',
+    uuid: () => 'assign-topic-dev-1',
+  };
+
+  const queued = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({
+      chatId: '-1002691202808',
+      topicKey: 'dev',
+      threadId: 799,
+      sourceMessageId: '852',
+      memberId: 'shesh',
+      summary: 'Build route proof is stale and needs a fresh worker probe.',
+      skillHints: [{
+        skillId: 'engineering-delivery-proof',
+        domain: 'engineering',
+        roleId: 'engineer',
+        actionId: 'engineering.deploy.probe',
+        approvalRequired: false,
+        reason: 'engineering proof signal should route through delivery proof skill',
+      }],
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+  assert.equal(body(queued).id, 'assign-topic-dev-1');
+  assert.equal(body(queued).eventId, 'topic:thoughtseed-ops:dev:852:assigned');
+  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 799, questId: 'the-build' });
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const directive = body(pending).directives[0];
+  assert.equal(directive.payload.type, 'project_task_assignment');
+  assert.equal(directive.payload.task.questId, 'the-build');
+  assert.equal(directive.payload.task.priority, 'high');
+  assert.equal(directive.payload.task.taskType, 'engineering');
+  assert.equal(directive.payload.task.assignedBy, 'hermes-topic-router');
+  assert.equal(directive.payload.task.source, 'cambium-topic-routing');
+  assert.match(directive.payload.task.description, /Telegram Dev topic signal/);
+  assert.deepEqual(directive.payload.task.skillHints, [{
+    skillId: 'engineering-delivery-proof',
+    domain: 'engineering',
+    roleId: 'engineer',
+    actionId: 'engineering.deploy.probe',
+    approvalRequired: false,
+    reason: 'engineering proof signal should route through delivery proof skill',
+  }]);
+});
+
+test('bridge · topic routing validates the live Thoughtseed topic map', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-25T13:00:00.000Z',
+    uuid: () => 'assign-topic-1',
+  };
+
+  const wrongThread = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ topicKey: 'dev', threadId: 804, sourceMessageId: 'wrong-thread' }),
+  }), deps);
+  assert.equal(wrongThread.status, 400);
+  assert.match(body(wrongThread).error, /topic thread mismatch/);
+
+  const wrongChat = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ topicKey: 'dev', chatId: '-1001', sourceMessageId: 'wrong-chat' }),
+  }), deps);
+  assert.equal(wrongChat.status, 400);
+  assert.match(body(wrongChat).error, /not THOUGHTSEED LABS/);
+});
+
+test('bridge · Alerts topic signals become urgent operations assignments', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-06-25T13:00:00.000Z',
+    uuid: () => 'assign-alerts-1',
+  };
+
+  const queued = await handle(req('POST', '/v1/bridge/topic-assignment', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({
+      topicKey: 'alerts',
+      threadId: 803,
+      sourceMessageId: '856',
+      summary: 'Cron delivery failed and needs acknowledgement.',
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const task = body(pending).directives[0].payload.task;
+  assert.equal(task.questId, 'the-ship-gate');
+  assert.equal(task.priority, 'urgent');
+  assert.equal(task.taskType, 'operations');
 });
 
 test('fabric bridge · handler accepts external bridge and ledger stores', async () => {

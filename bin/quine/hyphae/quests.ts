@@ -373,6 +373,34 @@ export interface VisualEnvelope {
         detail: string;
         requiredApproval: boolean;
       };
+      agentSkill?: {
+        format: string;
+        skillId: string;
+        version: string;
+        domain?: string;
+        gameLayer?: string;
+        iconKey?: string;
+        invocationKinds: string[];
+        branches: string[];
+        actionGroups: Array<{
+          id: string;
+          label: string;
+          purpose: string;
+          actionIds: string[];
+          state: string;
+        }>;
+        miniAppArea?: string;
+        registryTarget?: string;
+        readCommands: string[];
+        writeCommands: string[];
+        roleSubsets: Record<string, {
+          version: string;
+          permissions: string[];
+          commands: string[];
+          purpose: string;
+        }>;
+        boundaries: string[];
+      };
       gap?: string;
       updated: number | null;
     }>;
@@ -1224,6 +1252,59 @@ function skillPromotion(skill: SkillRecord, tier: ReturnType<typeof skillTier>):
   };
 }
 
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
+}
+
+function actionGroups(value: unknown): Array<{ id: string; label: string; purpose: string; actionIds: string[]; state: string }> {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    const id = typeof raw.id === 'string' ? raw.id : '';
+    if (!id) return [];
+    return [{
+      id,
+      label: typeof raw.label === 'string' ? raw.label : id,
+      purpose: typeof raw.purpose === 'string' ? raw.purpose : '',
+      actionIds: stringArray(raw.actionIds),
+      state: typeof raw.state === 'string' ? raw.state : 'future',
+    }];
+  });
+}
+
+function agentSkillLoadout(skill: SkillRecord): VisualEnvelope['skills']['rows'][number]['agentSkill'] | undefined {
+  const contract = isRecord((skill as any).output_contract) ? (skill as any).output_contract : {};
+  if (contract.format !== 'cambium.skill-registry.agent-skill.v1') return undefined;
+  const roleSubsetsRaw = isRecord(contract.roleSubsets) ? contract.roleSubsets : {};
+  const roleSubsets: Record<string, { version: string; permissions: string[]; commands: string[]; purpose: string }> = {};
+  for (const [roleId, rawSubset] of Object.entries(roleSubsetsRaw)) {
+    if (!isRecord(rawSubset)) continue;
+    roleSubsets[roleId] = {
+      version: String(rawSubset.version ?? ''),
+      permissions: stringArray(rawSubset.permissions),
+      commands: stringArray(rawSubset.commands),
+      purpose: typeof rawSubset.purpose === 'string' ? rawSubset.purpose : '',
+    };
+  }
+  return {
+    format: String(contract.format),
+    skillId: String(contract.skillId ?? skill.skill_id),
+    version: String(contract.version ?? ''),
+    domain: typeof contract.domain === 'string' ? contract.domain : undefined,
+    gameLayer: typeof contract.gameLayer === 'string' ? contract.gameLayer : undefined,
+    iconKey: typeof contract.iconKey === 'string' ? contract.iconKey : undefined,
+    invocationKinds: stringArray(contract.invocationKinds),
+    branches: stringArray(contract.branches),
+    actionGroups: actionGroups(contract.actionGroups),
+    miniAppArea: typeof contract.miniAppArea === 'string' ? contract.miniAppArea : undefined,
+    registryTarget: typeof contract.registryTarget === 'string' ? contract.registryTarget : undefined,
+    readCommands: stringArray(contract.readCommands),
+    writeCommands: stringArray(contract.writeCommands),
+    roleSubsets,
+    boundaries: stringArray(contract.boundaries),
+  };
+}
+
 function deriveSkillsEnvelope(ctx: QuineCtx, tenant: string): VisualEnvelope['skills'] {
   const raw = readJson(skillRegistryPath(ctx, tenant));
   if (!Array.isArray(raw)) {
@@ -1231,8 +1312,6 @@ function deriveSkillsEnvelope(ctx: QuineCtx, tenant: string): VisualEnvelope['sk
   }
   const rows = raw
     .filter(validSkillTelemetry)
-    .sort((a, b) => b.telemetry.uses - a.telemetry.uses || Number(b.updated ?? 0) - Number(a.updated ?? 0))
-    .slice(0, 5)
     .map((skill) => {
       const tier = skillTier(skill);
       return {
@@ -1245,9 +1324,16 @@ function deriveSkillsEnvelope(ctx: QuineCtx, tenant: string): VisualEnvelope['sk
         declining: isDeclining(skill),
         ...tier,
         promotion: skillPromotion(skill, tier),
+        agentSkill: agentSkillLoadout(skill),
         updated: Number.isFinite(skill.updated) ? skill.updated : null,
       };
-    });
+    })
+    .sort((a, b) =>
+      Number(Boolean(b.agentSkill)) - Number(Boolean(a.agentSkill))
+      || b.uses - a.uses
+      || Number(b.updated ?? 0) - Number(a.updated ?? 0),
+    )
+    .slice(0, 5);
   return {
     source: rows.length ? 'skill-registry' : 'missing',
     total: raw.length,

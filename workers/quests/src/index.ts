@@ -1,6 +1,14 @@
 // cambium-quests · Workers runtime glue. All logic lives in handler.ts (pure, node:test-covered).
 
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
+import {
+  DEFAULT_ROUTINE_CONTEXT_SLICES,
+  createProviderEmbedder,
+  createRoutineContext,
+  createSemanticRecall,
+  parseRoutineAllowlistJson,
+} from './context-bindings.ts';
+import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import type {
   BridgeAssignmentRecord,
   BridgeStoreLike,
@@ -9,8 +17,11 @@ import type {
   FabricLedgerEventRecord,
   FabricLedgerStoreLike,
   FabricLedgerTaskRecord,
+  ProviderConfig,
   SimpleRequest,
 } from './handler.ts';
+import type { ContextRouteDeps } from './context-routes.ts';
+import type { R2BucketLike, VectorizeIndexLike } from './context-bindings.ts';
 
 export interface D1StatementLike {
   bind(...values: unknown[]): D1StatementLike;
@@ -30,6 +41,8 @@ interface Env {
     list(opts: { prefix: string }): Promise<{ keys: Array<{ name: string }> }>;
   };
   BRIDGE_DB?: D1DatabaseLike;
+  THOUGHTSEED_VAULT?: R2BucketLike;
+  CAMBIUM_CORTEX?: VectorizeIndexLike;
   QUESTS_PUSH_TOKEN?: string;
   GATE_BOT_ID?: string;
   GATE_FOUNDER_IDS?: string;
@@ -38,6 +51,13 @@ interface Env {
   HERMES_ASSIGNMENT_TOKEN?: string;
   HANDOFF_SECRET?: string;
   PROVIDER_BROKER_TOKEN?: string;
+  CONTEXT_ROUTE_TOKEN?: string;
+  CONTEXT_ALLOWED_TENANTS?: string;
+  CONTEXT_EMBEDDING_PROVIDER?: string;
+  CONTEXT_EMBEDDING_MODEL?: string;
+  CONTEXT_ROUTINE_ALLOWLIST_JSON?: string;
+  GITHUB_AGENT_TOKEN?: string;
+  GITHUB_AGENT_ALLOWED_REPOS?: string;
   OLLAMA_API_KEY?: string;
   OLLAMA_BASE_URL?: string;
   OLLAMA_DEFAULT_MODEL?: string;
@@ -57,6 +77,13 @@ function parseJsonRecord(raw: string | null | undefined): Record<string, unknown
   } catch {
     return {};
   }
+}
+
+function parseAllowedTenants(raw: string | undefined): string[] {
+  return (raw ?? '')
+    .split(',')
+    .map((tenant) => tenant.trim())
+    .filter((tenant) => /^[a-z0-9][a-z0-9_-]{1,79}$/.test(tenant));
 }
 
 export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
@@ -384,7 +411,7 @@ export default {
     request.headers.forEach((v, k) => { headers[k.toLowerCase()] = v; });
     const simple: SimpleRequest = {
       method: request.method,
-      path: url.pathname,
+      path: `${url.pathname}${url.search}`,
       headers,
       body: ['POST', 'PUT'].includes(request.method) ? await request.text() : undefined,
     };
@@ -398,30 +425,54 @@ export default {
       pubKeyHex: env.GATE_TG_PUBKEY || TELEGRAM_PROD_PUBKEY,
       founderIds: env.GATE_FOUNDER_IDS.split(',').map((s) => s.trim()),
     } : undefined;
+    const providers: Record<string, ProviderConfig | undefined> = {
+      ollama: env.OLLAMA_API_KEY ? {
+        apiKey: env.OLLAMA_API_KEY,
+        baseUrl: env.OLLAMA_BASE_URL || 'https://ollama.com/v1',
+        defaultModel: env.OLLAMA_DEFAULT_MODEL || 'kimi-k2.7-code:cloud',
+        models: env.OLLAMA_DEFAULT_MODEL ? [env.OLLAMA_DEFAULT_MODEL] : ['kimi-k2.7-code:cloud'],
+      } : undefined,
+      nvidia: env.NVIDIA_API_KEY ? {
+        apiKey: env.NVIDIA_API_KEY,
+        baseUrl: env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1',
+        defaultModel: env.NVIDIA_DEFAULT_MODEL || 'meta/llama-3.1-70b-instruct',
+        models: env.NVIDIA_DEFAULT_MODEL ? [env.NVIDIA_DEFAULT_MODEL] : ['meta/llama-3.1-70b-instruct'],
+      } : undefined,
+      nebius: env.NEBIUS_API_KEY ? {
+        apiKey: env.NEBIUS_API_KEY,
+        baseUrl: env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.com/v1',
+        defaultModel: env.NEBIUS_DEFAULT_MODEL || 'Qwen/Qwen3-235B-A22B-Instruct-2507',
+        models: env.NEBIUS_DEFAULT_MODEL ? [env.NEBIUS_DEFAULT_MODEL] : ['Qwen/Qwen3-235B-A22B-Instruct-2507'],
+      } : undefined,
+    };
+    const workerFetch = fetch.bind(globalThis);
     const providerBroker = env.PROVIDER_BROKER_TOKEN ? {
       token: env.PROVIDER_BROKER_TOKEN,
-      providers: {
-        ollama: env.OLLAMA_API_KEY ? {
-          apiKey: env.OLLAMA_API_KEY,
-          baseUrl: env.OLLAMA_BASE_URL || 'https://ollama.com/v1',
-          defaultModel: env.OLLAMA_DEFAULT_MODEL || 'kimi-k2.7-code:cloud',
-          models: env.OLLAMA_DEFAULT_MODEL ? [env.OLLAMA_DEFAULT_MODEL] : ['kimi-k2.7-code:cloud'],
-        } : undefined,
-        nvidia: env.NVIDIA_API_KEY ? {
-          apiKey: env.NVIDIA_API_KEY,
-          baseUrl: env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1',
-          defaultModel: env.NVIDIA_DEFAULT_MODEL || 'meta/llama-3.1-70b-instruct',
-          models: env.NVIDIA_DEFAULT_MODEL ? [env.NVIDIA_DEFAULT_MODEL] : ['meta/llama-3.1-70b-instruct'],
-        } : undefined,
-        nebius: env.NEBIUS_API_KEY ? {
-          apiKey: env.NEBIUS_API_KEY,
-          baseUrl: env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.com/v1',
-          defaultModel: env.NEBIUS_DEFAULT_MODEL || 'Qwen/Qwen3-235B-A22B-Instruct-2507',
-          models: env.NEBIUS_DEFAULT_MODEL ? [env.NEBIUS_DEFAULT_MODEL] : ['Qwen/Qwen3-235B-A22B-Instruct-2507'],
-        } : undefined,
-      },
+      providers,
       fetch: fetch.bind(globalThis),
     } : undefined;
+    let contextRoutes: ContextRouteDeps | undefined;
+    if (env.CONTEXT_ROUTE_TOKEN) {
+      const embeddingProviderId = env.CONTEXT_EMBEDDING_PROVIDER?.trim() || 'nvidia';
+      const embeddingProvider = providers[embeddingProviderId];
+      const embed = createProviderEmbedder({
+        provider: embeddingProvider,
+        model: env.CONTEXT_EMBEDDING_MODEL?.trim() || embeddingProvider?.defaultModel,
+        fetchImpl: workerFetch,
+      });
+      contextRoutes = {
+        token: env.CONTEXT_ROUTE_TOKEN,
+        allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
+        routineContext: env.THOUGHTSEED_VAULT ? createRoutineContext({
+          bucket: env.THOUGHTSEED_VAULT,
+          allowlist: parseRoutineAllowlistJson(env.CONTEXT_ROUTINE_ALLOWLIST_JSON) ?? DEFAULT_ROUTINE_CONTEXT_SLICES,
+        }) : undefined,
+        semanticRecall: embed && env.CAMBIUM_CORTEX
+          ? createSemanticRecall({ embed, vectorIndex: env.CAMBIUM_CORTEX })
+          : undefined,
+      };
+    }
+    const githubAllowedRepos = parseAllowedRepos(env.GITHUB_AGENT_ALLOWED_REPOS);
     const res = await handle(simple, {
       kv,
       pushToken: env.QUESTS_PUSH_TOKEN,
@@ -432,6 +483,13 @@ export default {
       fabricLedger: env.BRIDGE_DB ? d1FabricLedgerStore(env.BRIDGE_DB) : undefined,
       handoffSecret: env.HANDOFF_SECRET,
       providerBroker,
+      contextRoutes,
+      githubCommand: env.GITHUB_AGENT_TOKEN ? createGithubCommandExecutor({
+        token: env.GITHUB_AGENT_TOKEN,
+        allowedRepos: githubAllowedRepos,
+        fetch: workerFetch,
+      }) : undefined,
+      githubAllowedRepos,
     });
     return new Response(res.body, { status: res.status, headers: res.headers });
   },

@@ -6,10 +6,19 @@
   "observability": { "enabled": true },
   "routes": [],
   "vars": {
-    "CAMBIUM_PUBLIC_BASE_URL": "https://cambium.example.com"
+    "CAMBIUM_PUBLIC_BASE_URL": "https://cambium.example.com",
+    "CONTEXT_ALLOWED_TENANTS": "cambium",
+    "CONTEXT_EMBEDDING_PROVIDER": "nvidia",
+    "CONTEXT_EMBEDDING_MODEL": "nvidia/nv-embedqa-e5-v5"
   },
   "kv_namespaces": [
     { "binding": "QUESTS", "id": "10aaa6e0a8a545c1afb5ceee7ef61c14" }
+  ],
+  "r2_buckets": [
+    { "binding": "THOUGHTSEED_VAULT", "bucket_name": "thoughtseed-vault" }
+  ],
+  "vectorize": [
+    { "binding": "CAMBIUM_CORTEX", "index_name": "cambium-cortex" }
   ],
   "d1_databases": [
     {

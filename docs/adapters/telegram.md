@@ -19,6 +19,15 @@ Telegram implements the shared [approval lane](./approval.md). It should emit th
 - Approval events for the operator.
 - Quest evidence for gate and review arcs.
 - Optional memory records after redaction.
+- Topic-derived Fabric assignments through
+  [`/v1/bridge/topic-assignment`](../architecture/contracts/hermes-topic-routing-to-quests.md).
+
+## Proactive Topic Routing
+
+A hosted Hermes worker may classify a runtime Telegram topic signal and ask
+Cambium to queue a quest-linked Fabric assignment. Cambium validates the live
+topic/thread map before creating the assignment, and Telegram remains signal
+intake rather than execution authority.
 
 ## Failure Mode
 

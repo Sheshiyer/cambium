@@ -33,7 +33,7 @@ export interface SkillRecord {
   description: string;                 // USE WHEN … NOT FOR … (for the routing model)
   trigger_signals: string[];
   required_inputs: Array<{ name: string; source: string; required: boolean }>;
-  output_contract: { format: string; location: string };
+  output_contract: { format: string; location: string; [key: string]: unknown };
   verification_steps: string[];
   promotion_rule: string;
   source: { signature: string; from: RepetitionSignal['source']; occurrences: number };

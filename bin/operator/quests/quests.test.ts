@@ -820,6 +820,81 @@ test('quests visual envelope only marks production promotion when registry appro
   assert.equal(production?.promotion.requiredApproval, false);
 });
 
+test('quests visual envelope preserves Hermes agent skill loadout details', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const tmp = fs.mkdtempSync('/tmp/cambium-test-');
+  fs.mkdirSync(path.join(tmp, '.operator'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '.operator', 'acme.skills.json'), JSON.stringify([
+    {
+      skill_id: 'hermes-gtm-distribution-ops',
+      status: 'candidate',
+      category: 'delivery',
+      description: 'USE WHEN GTM distribution work is requested. NOT FOR public sends without approval.',
+      trigger_signals: ['topic-signal:gtm'],
+      required_inputs: [{ name: 'manual command', source: 'telegram', required: true }],
+      output_contract: {
+        format: 'cambium.skill-registry.agent-skill.v1',
+        location: '.operator/<tenant>.skills.json',
+        skillId: 'gtm-distribution-ops',
+        version: '0.1.0',
+        domain: 'gtm',
+        gameLayer: 'delivery',
+        iconKey: 'megaphone',
+        invocationKinds: ['topic-signal', 'approval-gate'],
+        branches: ['fitcheck', 'client-delivery'],
+        actionGroups: [{
+          id: 'distribution-loop',
+          label: 'Distribution loop',
+          purpose: 'Move proof into channel-specific next actions.',
+          actionIds: ['gtm.channel.inspect', 'gtm.outreach.draft'],
+          state: 'gated',
+        }],
+        miniAppArea: 'skills',
+        registryTarget: '.operator/<tenant>.skills.json',
+        readCommands: ['gtm.channel.inspect'],
+        writeCommands: ['gtm.outreach.draft'],
+        roleSubsets: {
+          hermes: {
+            version: '0.1.0',
+            permissions: ['read', 'dispatch'],
+            commands: ['gtm.channel.inspect'],
+            purpose: 'Route GTM signals into supervised next actions.',
+          },
+        },
+        boundaries: ['Public GTM publication requires founder approval.'],
+      },
+      source: { signature: 'gtm:gtm-distribution-ops:0.1.0', from: 'world-log', occurrences: 1 },
+      telemetry: { uses: 0, successes: 0, failures: 0, scenarios: [], gotchas: [], amendments: [] },
+      created: 1,
+      updated: 1,
+    },
+  ]));
+
+  const { buildVisualEnvelope } = await import('../../quine/hyphae/quests.ts');
+  const visual = buildVisualEnvelope(
+    { root: tmp } as any,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-25T00:00:00.000Z' },
+  );
+  const skill = visual.skills.rows.find((row) => row.id === 'hermes-gtm-distribution-ops');
+
+  assert.ok(skill?.agentSkill);
+  assert.equal(skill?.agentSkill?.version, '0.1.0');
+  assert.equal(skill?.agentSkill?.domain, 'gtm');
+  assert.equal(skill?.agentSkill?.gameLayer, 'delivery');
+  assert.equal(skill?.agentSkill?.iconKey, 'megaphone');
+  assert.deepEqual(skill?.agentSkill?.invocationKinds, ['topic-signal', 'approval-gate']);
+  assert.deepEqual(skill?.agentSkill?.branches, ['fitcheck', 'client-delivery']);
+  assert.equal(skill?.agentSkill?.actionGroups[0].id, 'distribution-loop');
+  assert.deepEqual(skill?.agentSkill?.writeCommands, ['gtm.outreach.draft']);
+  assert.deepEqual(skill?.agentSkill?.roleSubsets.hermes.permissions, ['read', 'dispatch']);
+  assert.equal(skill?.agentSkill?.roleSubsets.hermes.purpose, 'Route GTM signals into supervised next actions.');
+  assert.match(skill?.agentSkill?.boundaries[0] ?? '', /founder approval/);
+});
+
 test('quests visual envelope labels stance only from sufficient tenant lane history', async () => {
   const fs = await import('node:fs');
   const tmp = fs.mkdtempSync('/tmp/cambium-test-');
