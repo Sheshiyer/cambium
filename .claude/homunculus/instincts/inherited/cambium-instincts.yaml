@@ -1,0 +1,480 @@
+# Instincts generated from https://github.com/Sheshiyer/cambium
+# Generated: 2026-06-22T19:58:14.254Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: cambium-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, docs, fix
+
+## Evidence
+
+- 14 commits analyzed
+- Detected conventional commit pattern
+- Examples: feat: add cambium r3f visual engine, fix(quine): scope project-evidence reviews per-tenant (no global deviations bleed)
+
+---
+id: cambium-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Commit Length
+
+## Action
+
+Write moderate-length commit messages (~61 characters)
+
+## Evidence
+
+- Average commit message length: 61 chars
+- Based on 14 commits
+
+---
+id: cambium-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Naming Files
+
+## Action
+
+Use kebab-case naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: kebab-case
+
+---
+id: cambium-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: cambium-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: cambium-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: cambium-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~21x per month
+- Files: apps/cambium-r3f/src/*, apps/cambium-r3f/src/engine/*, apps/cambium-r3f/src/generated/*
+
+---
+id: cambium-workflow-add-or-upgrade-r3f-feature
+trigger: "when doing add or upgrade r3f feature"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Workflow Add Or Upgrade R3f Feature
+
+## Action
+
+Follow the add-or-upgrade-r3f-feature workflow:
+1. Edit or add implementation files in apps/cambium-r3f/src/scene/ and/or apps/cambium-r3f/src/world/
+2. Add or update corresponding test files (*.test.ts) in the same directories
+3. Update or add documentation or verification artifacts in docs/plans/assets/cambium-r3f-game-engine-realignment/verification/
+4. Update tasks/todo.md or tasks/lessons.md as needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: apps/cambium-r3f/src/scene/*.tsx, apps/cambium-r3f/src/scene/*.ts, apps/cambium-r3f/src/scene/*.test.ts
+
+---
+id: cambium-workflow-add-or-update-project-evidence-quests
+trigger: "when doing add or update project evidence quests"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Workflow Add Or Update Project Evidence Quests
+
+## Action
+
+Follow the add-or-update-project-evidence-quests workflow:
+1. Edit or add implementation files in bin/quine/hyphae/ (e.g., project-evidence.ts, quests.ts)
+2. Add or update corresponding test files (*.test.ts) in the same directories
+3. Edit or add bin/operator/quests/quests.ts and its tests
+4. Update package.json if needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: bin/quine/hyphae/project-evidence.ts, bin/quine/hyphae/project-evidence.test.ts, bin/quine/hyphae/quests.ts
+
+---
+id: cambium-workflow-document-feature-or-phase
+trigger: "when doing document feature or phase"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Sheshiyer/cambium
+---
+
+# Cambium Workflow Document Feature Or Phase
+
+## Action
+
+Follow the document-feature-or-phase workflow:
+1. Add or update markdown documentation in docs/plans/ or docs/plans/assets/
+2. Add or update verification images or JSON artifacts in docs/plans/assets/...
+3. Update tasks/todo.md as needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: docs/plans/*.md, docs/plans/assets/**/*.md, docs/plans/assets/**/*.png
+
+---
+id: cambium-instinct-file-naming
+trigger: "When creating a new file"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct File Naming
+
+## Action
+
+Name the file using kebab-case (e.g., my-component.ts)
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.files
+- apps/cambium-r3f/src/scene/*.ts
+
+---
+id: cambium-instinct-function-naming
+trigger: "When defining a function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Function Naming
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.functions
+
+---
+id: cambium-instinct-class-naming
+trigger: "When defining a class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Class Naming
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.classes
+
+---
+id: cambium-instinct-constant-naming
+trigger: "When defining a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.constants
+
+---
+id: cambium-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Import Style
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+
+---
+id: cambium-instinct-export-style
+trigger: "When exporting modules or functions"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+
+---
+id: cambium-instinct-test-location
+trigger: "When adding tests for a module"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Test Location
+
+## Action
+
+Place test files (*.test.ts) in the same directory as the module
+
+## Evidence
+
+- Pattern in testing.filePattern
+- apps/cambium-r3f/src/scene/*.test.ts
+
+---
+id: cambium-instinct-unit-test-type
+trigger: "When writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Unit Test Type
+
+## Action
+
+Write unit tests
+
+## Evidence
+
+- Pattern in testing.testTypes
+- apps/cambium-r3f/src/world/*.test.ts
+
+---
+id: cambium-instinct-commit-format
+trigger: "When making a git commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Commit Format
+
+## Action
+
+Use conventional commit prefixes: feat, fix, or docs (optionally with scope in parentheses)
+
+## Evidence
+
+- Seen in commit: feat: add cambium r3f visual engine
+- Seen in commit: fix(quine): scope project-evidence reviews per-tenant
+- Seen in commit: docs: reconcile Phase Q Bridge spec + next-map + README to shipped reality
+
+---
+id: cambium-instinct-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Commit Length
+
+## Action
+
+Keep commit messages concise (~60 characters on average)
+
+## Evidence
+
+- Pattern in commits.averageLength
+
+---
+id: cambium-instinct-add-or-upgrade-r3f-feature
+trigger: "When adding or upgrading a visual feature in cambium-r3f"
+confidence: 0.92
+domain: workflow
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Add Or Upgrade R3f Feature
+
+## Action
+
+Edit/add implementation files in apps/cambium-r3f/src/scene/ or apps/cambium-r3f/src/world/, add/update corresponding *.test.ts files, update/add docs/plans/assets/cambium-r3f-game-engine-realignment/verification/, and update tasks/todo.md or tasks/lessons.md as needed
+
+## Evidence
+
+- Workflow: add-or-upgrade-r3f-feature
+- Files: apps/cambium-r3f/src/scene/*.tsx, *.ts, *.test.ts, docs/plans/assets/cambium-r3f-game-engine-realignment/verification/*
+
+---
+id: cambium-instinct-add-or-update-project-evidence-quests
+trigger: "When updating project evidence or quests logic"
+confidence: 0.88
+domain: workflow
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Add Or Update Project Evidence Quests
+
+## Action
+
+Edit/add implementation files in bin/quine/hyphae/ (e.g., project-evidence.ts, quests.ts), add/update corresponding *.test.ts files, edit/add bin/operator/quests/quests.ts and its tests, and update package.json if needed
+
+## Evidence
+
+- Workflow: add-or-update-project-evidence-quests
+- Files: bin/quine/hyphae/project-evidence.ts, quests.ts, *.test.ts, bin/operator/quests/quests.ts
+
+---
+id: cambium-instinct-document-feature-or-phase
+trigger: "When documenting a new feature, phase, or verification pass"
+confidence: 0.86
+domain: workflow
+source: repo-analysis
+source_repo: Sheshiyer/cambium
+---
+
+# Cambium Instinct Document Feature Or Phase
+
+## Action
+
+Add or update markdown docs in docs/plans/ or docs/plans/assets/, add/update verification images or JSON artifacts in docs/plans/assets/, and update tasks/todo.md as needed
+
+## Evidence
+
+- Workflow: document-feature-or-phase
+- Files: docs/plans/*.md, docs/plans/assets/**/*.md, *.png, *.json, tasks/todo.md
+
