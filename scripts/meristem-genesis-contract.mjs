@@ -189,10 +189,7 @@ function buildBrandSystem(outputs, brandDir) {
       source(outputs, 'product-positioning', 'cbbe.salience.product_category'),
       source(outputs, 'buyer-persona', 'cbbe.salience.product_category')
     ),
-    audience: firstMeaningful(
-      source(outputs, 'brand-foundation', 'mission.breakdown.audience'),
-      source(outputs, 'buyer-persona', 'demographics.occupation')
-    ),
+    audience: source(outputs, 'brand-foundation', 'mission.breakdown.audience'),
     positioning: source(outputs, 'product-positioning', 'positioning_statement'),
     promise: firstMeaningful(
       source(outputs, 'messaging-framework', 'brand_promise'),
@@ -262,10 +259,7 @@ function buildVisualSystem(outputs, assetManifest) {
       essence: source(outputs, 'visual-language', 'essence'),
       visual_principles: source(outputs, 'visual-language', 'visual_principles')
     }),
-    logo_usage: firstMeaningful(
-      source(outputs, 'logo-concept', 'usage_specs'),
-      source(outputs, 'logo-concept', 'logo_type')
-    ),
+    logo_usage: source(outputs, 'logo-concept', 'usage_specs'),
     composition_motifs: firstMeaningful(
       source(outputs, 'visual-language', 'composition_bias.principles'),
       source(outputs, 'visual-language', 'patterns.type')

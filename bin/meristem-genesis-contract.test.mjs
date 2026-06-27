@@ -310,6 +310,30 @@ test('buildGenesisContract fails closed when required mapped positioning is empt
   }
 });
 
+test('buildGenesisContract fails closed when required mapped audience is missing or empty', () => {
+  const cases = [
+    ['missing', { mission: null }],
+    ['empty', { mission: { breakdown: { audience: '   ' } } }]
+  ];
+
+  for (const [caseName, brandFoundation] of cases) {
+    const root = createMeristemFixture({
+      outputOverrides: {
+        'brand-foundation': brandFoundation
+      }
+    });
+    try {
+      assert.throws(
+        () => buildGenesisContract({ meristemRoot: root }),
+        /missing required Cambium Genesis field: brand_system\.audience/,
+        caseName
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
 test('buildGenesisContract fails closed when required mapped hero headline is empty', () => {
   const root = createMeristemFixture({
     outputOverrides: {
@@ -324,6 +348,30 @@ test('buildGenesisContract fails closed when required mapped hero headline is em
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract fails closed when required mapped logo usage is missing or empty', () => {
+  const cases = [
+    ['missing', { usage_specs: null }],
+    ['empty', { usage_specs: { do: [] } }]
+  ];
+
+  for (const [caseName, logoConcept] of cases) {
+    const root = createMeristemFixture({
+      outputOverrides: {
+        'logo-concept': logoConcept
+      }
+    });
+    try {
+      assert.throws(
+        () => buildGenesisContract({ meristemRoot: root }),
+        /missing required Cambium Genesis field: visual_system\.logo_usage/,
+        caseName
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   }
 });
 
