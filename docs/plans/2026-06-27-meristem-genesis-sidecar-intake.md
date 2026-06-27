@@ -47,14 +47,17 @@ Wave 2: strategy
 
 ## Contract Proof
 
-Task 3 ran the Cambium shim against the meristem sidecar:
+Task 3 ran the Cambium shim and the contract-proof verification probes against the meristem sidecar:
 
 ```bash
+MERISTEM_ROOT="${MERISTEM_ROOT:-/tmp/meristem-sidecar-proof}"
 node scripts/meristem-genesis-contract.mjs \
-  --meristem-root /tmp/meristem-sidecar-proof \
+  --meristem-root "$MERISTEM_ROOT" \
   --brand-dir brands/thoughtseed \
   --out /tmp/meristem-brand-dna.json \
   --evidence-out /tmp/meristem-genesis-evidence.json
+jq 'keys' /tmp/meristem-brand-dna.json
+jq '.status, .requiredGroups, .consumedSkillCount, .assetManifest' /tmp/meristem-genesis-evidence.json
 ```
 
 The generated Cambium payload emits exactly these top-level groups:
@@ -89,7 +92,8 @@ Proof evidence reports:
 ## Asset Manifest State
 
 - `.brandmint/asset-manifest.json` exists under the meristem `brands/thoughtseed` sidecar output.
-- `validation.all_paths_exist` is `true`.
+- Source manifest `validation.all_paths_exist` is `true`.
+- Contract evidence preserves that state as `assetManifest.allPathsExist: true`.
 - User-provided asset count is `4`.
 - Generated asset count is `16`.
 
