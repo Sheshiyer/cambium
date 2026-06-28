@@ -105,6 +105,21 @@ function detectGitSha(meristemRoot) {
   }
 }
 
+// Repo Gate: the evidence must distinguish reproducible committed data from uncommitted
+// local data. Returns the porcelain status lines (capped) when the Meristem checkout is
+// dirty, [] when clean, or null when the path is not a git checkout.
+function detectGitDirty(meristemRoot) {
+  try {
+    const out = execFileSync('git', ['-C', meristemRoot, 'status', '--porcelain'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+    return out.split('\n').map((line) => line.trimEnd()).filter(Boolean).slice(0, 50);
+  } catch {
+    return null;
+  }
+}
+
 function assertCambiumPayload(payload) {
   const missing = REQUIRED_GROUPS.filter((group) => !Object.prototype.hasOwnProperty.call(payload, group));
   if (missing.length) {
@@ -307,6 +322,7 @@ export function buildGenesisContract({ meristemRoot, brandDir = 'brands/thoughts
   assertCambiumPayload(payload);
 
   const consumedSkills = outputSpecs.map(([, skill]) => skill);
+  const meristemDirtyPaths = detectGitDirty(root);
 
   return {
     payload,
@@ -315,6 +331,10 @@ export function buildGenesisContract({ meristemRoot, brandDir = 'brands/thoughts
       meristemRoot: root,
       brandDir,
       meristemSha: detectGitSha(root),
+      // Explicit dirty record: true/false when root is a git checkout, null otherwise.
+      // A dirty tree means the proof reflects uncommitted local data, not the SHA alone.
+      meristemDirty: meristemDirtyPaths == null ? null : meristemDirtyPaths.length > 0,
+      meristemDirtyPaths: meristemDirtyPaths ?? [],
       requiredGroups: REQUIRED_GROUPS,
       consumedSkillCount: consumedSkills.length,
       consumedSkills,

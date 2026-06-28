@@ -231,6 +231,11 @@ test('buildGenesisContract maps meristem outputs into Cambium Genesis groups', (
     assert.equal(evidence.requiredGroups.join(','), 'brand_system,copy_system,visual_system');
     assert.equal(evidence.consumedSkillCount, EXPECTED_CONSUMED_SKILLS.length);
     assert.deepEqual(evidence.consumedSkills, EXPECTED_CONSUMED_SKILLS);
+    // Repo Gate: evidence carries an explicit dirty record. The tmpdir fixture is not a
+    // git checkout, so dirty state is unknown (null) with no recorded dirty paths.
+    assert.ok('meristemDirty' in evidence);
+    assert.equal(evidence.meristemDirty, null);
+    assert.deepEqual(evidence.meristemDirtyPaths, []);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -119,7 +119,7 @@
       "root_id": "genesis",
       "cmd": "node",
       "args": [
-        "scripts/meristem-genesis-contract.mjs",
+        "../cambium/scripts/meristem-genesis-contract.mjs",
         "--meristem-root",
         "{input}",
         "--brand-dir",
@@ -140,7 +140,7 @@
         "visual_system"
       ],
       "contract_version": "0.1.0",
-      "note": "Disabled proof-only Genesis candidate for Sheshiyer/meristem. It must not be routed by compose run until a separate replacement plan promotes it."
+      "note": "Disabled proof-only Genesis candidate for Sheshiyer/meristem. The mapping script lives in Cambium, not the genesis organ checkout, so args[0] points at it sibling-relative (../cambium/scripts/...) from the root_id:genesis cwd. It must not be routed by compose run until a separate replacement plan promotes it (which should also give it a proper Cambium root)."
     }
   }
 }
