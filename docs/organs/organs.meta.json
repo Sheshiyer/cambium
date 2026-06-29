@@ -1,27 +1,25 @@
 {
   "note": "Editorial metadata + SOURCE manifests for the per-organ pages. bin/render-docs.mjs merges this with the LIVE component lists + counts read from the organ repos, then emits docs/organs/*.html + docs/organs.html. Component LISTS come from source (can't drift); the descriptions here are best-effort (a new component still appears, name-only). roots resolve relative to the cambium repo's parent dir.",
-  "roots": { "skill-clusters": "Skill-clusters", "brandmint": "brandmint-oracle-aleph", "snow-gloves": "snow-gloves-os" },
+  "roots": { "skill-clusters": "Skill-clusters", "snow-gloves": "snow-gloves-os" },
   "organs": [
     {
       "id": "genesis", "emoji": "🧬", "name": "genesis — mint the brand",
-      "tagline": "an idea becomes a full brand system across waves 1-8 — and it sets the setpoint x*",
-      "repo": "Sheshiyer/brandmint-oracle-aleph", "role": "genesis / brand brain",
+      "tagline": "Meristem outputs become Cambium brand_system, copy_system, and visual_system — and set the setpoint x*",
+      "repo": "Sheshiyer/meristem", "role": "genesis / brand brain",
       "contract": { "in": "idea", "out": "brand-dna" },
-      "spend": { "class": "gate", "label": "💲 gated", "reason": "(paid image / inference generation in the waves)" },
-      "conductor": { "name": "wave_planner.py", "desc": "sequences waves 1-8" },
-      "entrypoint": "brandmint launch --waves 1-8   (CLI: brandmint.cli.app:main) · alias: skill-clusters taste/scripts/brandmint.mjs (runBrandKit)",
-      "homeostasis": "The FIRST contraction: genesis establishes x* (the brand-DNA fixed point everything else converges to) and writes the seed taste to the cortex. A non-contractive genesis — dropping the mission — is the classic drift (the 'Fitcheck reads as fitness' miss).",
-      "facts": [{ "label": "subpackages", "value": "automation·cli·core·installer·models·pipeline·publishing·vision" }],
-      "sources": [{ "root": "brandmint", "dir": "brandmint/core", "ext": ".py", "kind": "core module", "exclude": ["__init__"] }],
+      "spend": { "class": "free", "label": "○ free", "reason": "(maps existing Meristem outputs; no paid generation)" },
+      "conductor": { "name": "meristem-genesis-contract.mjs", "desc": "maps Meristem sidecar outputs into Cambium brand-dna JSON" },
+      "entrypoint": "node scripts/meristem-genesis-contract.mjs --meristem-root <meristem-root> --brand-dir brands/thoughtseed --out -",
+      "homeostasis": "The FIRST contraction: genesis establishes x* (the brand-DNA fixed point everything else converges to) by preserving Meristem's emitted brand, copy, visual, and asset-manifest groups. A non-contractive genesis — dropping canonical fields or fabricating fallbacks — is contract drift.",
+      "facts": [{ "label": "sidecar", "value": "brands/thoughtseed/.brandmint outputs" }],
+      "sources": [],
+      "componentsLiteral": [
+        { "name": "meristem-genesis-contract.mjs", "kind": "contract shim", "desc": "maps Meristem output envelopes into Cambium's active Genesis contract" },
+        { "name": "brand-config.yaml", "kind": "identity source", "desc": "canonical brand slug, name, and category" },
+        { "name": ".brandmint/outputs", "kind": "sidecar output", "desc": "26 consumed Meristem skill outputs" },
+        { "name": "asset-manifest.json", "kind": "asset proof", "desc": "validates user and generated asset paths before handoff" }
+      ],
       "descriptions": {
-        "wave_planner": "sequences the brand-mint waves 1-8", "context_analyzer": "reads the idea/brief into context",
-        "scenario_recommender": "picks the scenario / blueprint", "compositor": "composes asset layouts",
-        "asset_registry": "tracks generated assets", "asset_provenance": "records each asset's origin",
-        "hydrator": "hydrates templates with brand data", "agent_scaffolder": "scaffolds sub-agents per wave",
-        "skills_registry": "the wave → skill registry", "kickstarter_blueprint": "the wave plan / blueprint (spec-kit)",
-        "coverage_preflight": "pre-flight coverage checks", "asset_mode": "chooses the asset render mode",
-        "cache": "prompt / asset cache", "image_utils": "image helpers",
-        "design_memory": "writes the brand's seed taste = x* (cortex client)"
       },
       "agent_contracts": {
         "produces": ["brand_system", "copy_system", "visual_system"],

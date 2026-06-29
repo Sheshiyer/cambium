@@ -10,7 +10,7 @@ company → portfolio*): **genesis → taste → build → ops**, with the **cor
 
 ## Why JSON (not YAML) for `registry.json` / `pipeline.json`
 
-The organs are polyglot — Node (skill-clusters), Python (brandmint, snow-gloves), Workers. JSON parses
+The organs are polyglot — Node (skill-clusters), shell/Node shims (Meristem), Python (snow-gloves), Workers. JSON parses
 **zero-dep and natively** in all of them (`JSON.parse`, `json.load`), so the registry is one source of
 truth no organ needs a dependency to read. The human-readable rationale lives here in Markdown; the
 machine-readable wiring lives in JSON. (YAML would force a parser dependency into the zero-dep conductor.)
@@ -20,11 +20,14 @@ machine-readable wiring lives in JSON. (YAML would force a parser dependency int
 Each stage is owned by one organ (`pipeline.json → stages[].organ`, resolved against `registry.json`).
 The `input`/`output` tokens below are the contract identifiers referenced by the pipeline.
 
-### 1. `genesis` — Mint the brand · organ: **genesis** (`brandmint-oracle-aleph`) · *free*
-- **in** `idea` — a `brand-config.yaml` (name, category, mission, audience) — the seed idea.
-- **out** `brand-dna` — `brand-spec.json` (validated) + `brand-docs/` (persona, positioning, voice,
-  messaging) + `assets/` (logo, palette, hero). The canonical brand registration.
-- **fulfilled by** `brandmint launch --waves 1-8` (CLI: `brandmint.cli.app:main`) · buildable alias `skill-clusters taste/scripts/brandmint.mjs (runBrandKit)`.
+### 1. `genesis` — Mint the brand · organ: **genesis** (`meristem`) · *free*
+- **in** `idea` — a Meristem checkout path whose `brands/thoughtseed/brand-config.yaml` and `.brandmint`
+  outputs carry the seed idea.
+- **out** `brand-dna` — structured Cambium JSON containing `brand_system`, `copy_system`, and
+  `visual_system`. The canonical brand registration.
+- **fulfilled by** Cambium's Meristem contract shim:
+  `node scripts/meristem-genesis-contract.mjs --meristem-root <meristem-root> --brand-dir brands/thoughtseed --out -`.
+  The shim maps existing Meristem `.brandmint` outputs rather than running paid generation.
 
 ### 2. `taste` — Set the taste · organ: **taste** (`skill-clusters/taste`) · *paid*
 - **in** `brand-dna` (+ an artifact to check, on later passes).
@@ -143,9 +146,10 @@ brand, copy, visuals, assets, sections, interactions, and acceptance checks.
 ## Invariant
 Cambium **plans + validates** (`compose plan/validate`) and now **calls** each organ along the contract
 (`compose run`, via [`../adapters.json`](../adapters.json) + `bin/lib/invoke.mjs`) — **fail-closed on
-spend**: a spend-gated stage (taste, genesis) never spawns without an explicit `--approve <stage>`
+spend**: a spend-gated stage (such as `taste`) never spawns without an explicit `--approve <stage>`
 (constitution #4). Executable-as-a-plan, as-gated-calls, and with the **live output→input hand-off**
-(`runPipeline` threads stage N's output → N+1's `{input}`): the no-spend **hands** stage runs end-to-end
-today; the full chain runs once the gated stages (genesis, taste) are approved. For the variable contract
-vocabulary above, Cambium currently defines and documents the canonical groups those stages should pass
-forward. Runtime enforcement of those groups is a later step; today this file is the canonical reference.
+(`runPipeline` threads stage N's output → N+1's `{input}`): the no-spend **genesis** Meristem shim and
+the no-spend **hands** stage can run end-to-end today; the full chain still requires approval for gated
+stages such as `taste`. For the variable contract vocabulary above, Cambium defines and documents the
+canonical groups those stages should pass forward, and `json:*` stages are checked for declared produced
+groups at runtime.

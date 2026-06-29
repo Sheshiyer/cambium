@@ -121,6 +121,15 @@ test('registry organs declare machine-readable contract metadata', async () => {
   }
 });
 
+test('registry identifies Meristem as the active genesis implementation', async () => {
+  const registry = JSON.parse(await fs.readFile(join(root, 'registry.json'), 'utf8'));
+  const genesis = registry.organs.genesis;
+
+  assert.match(genesis.repo, /meristem/i);
+  assert.match(genesis.entrypoint, /meristem-genesis-contract\.mjs/);
+  assert.match(genesis.summary, /Meristem/i);
+});
+
 test('adapters declare contract metadata', async () => {
   const adapters = JSON.parse(await fs.readFile(join(root, 'adapters.json'), 'utf8'));
   for (const [adapterId, adapter] of Object.entries(adapters.adapters)) {

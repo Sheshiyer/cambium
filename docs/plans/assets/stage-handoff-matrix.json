@@ -4,7 +4,7 @@
   "stages": [
     {
       "stage": "genesis",
-      "owner": "genesis (brandmint-oracle-aleph)",
+      "owner": "genesis (meristem via Cambium contract shim)",
       "required_inputs": ["idea"],
       "produced_outputs": ["brand_system", "copy_system", "visual_system"],
       "blocking_variables": ["brand_system", "copy_system", "visual_system"],

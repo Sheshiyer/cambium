@@ -10,14 +10,15 @@ Status: proof packet for sidecar implementation
 - Role: external Genesis candidate for Cambium
 - Approved design: `docs/superpowers/specs/2026-06-27-meristem-genesis-sidecar-design.md`
 - Approved implementation plan: `docs/superpowers/plans/2026-06-27-meristem-genesis-sidecar-implementation.md`
+- Promotion plan: `docs/plans/2026-06-29-meristem-active-genesis-flow.md`
 - Meristem SHA observed during design: `d447fb9c8dd3a5c1c4846f271b20bea6e421ce7f`
 - Meristem SHA observed during Task 3 proof: `d447fb9c8dd3a5c1c4846f271b20bea6e421ce7f`
 
 ## Intake Decision
 
-Meristem is ingested as a sidecar contract source, not as vendored Cambium source.
-Cambium keeps its active Genesis adapter unchanged until the sidecar proof and review pass.
-This packet is proof-only and does not replace active Genesis.
+Meristem was ingested as a sidecar contract source, not as vendored Cambium source.
+This packet records the proof-only boundary that existed before promotion.
+On 2026-06-29, the approved promotion plan moved Meristem into the active Cambium Genesis adapter while keeping Brandmint as disabled rollback metadata.
 
 ## Runner Evidence
 
@@ -134,7 +135,7 @@ Proof evidence reports:
 | `copy_system` | messaging, landing page, email sequences, ad copy, press release, product description |
 | `visual_system` | palette, typography, logo, visual language, photography, illustration, social assets, asset manifest |
 
-## Replacement Gate
+## Promotion Follow-up
 
-Do not replace the active Genesis adapter yet.
-Replacement requires a separate approved plan that proves the disabled candidate adapter is safe under `compose validate`, stage-contract validation, and normal Cambium tests.
+The replacement gate was satisfied by `docs/plans/2026-06-29-meristem-active-genesis-flow.md`.
+That plan promotes Meristem through `adapters.genesis`, preserves Brandmint as `candidate_adapters.genesis_brandmint_legacy.disabled`, and requires `compose run` proof plus focused and full Cambium tests before handoff.
