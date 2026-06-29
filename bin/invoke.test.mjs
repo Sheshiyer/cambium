@@ -5,7 +5,7 @@ import { resolveRoot, buildInvocation, gateStage, runStage, runPipeline, extract
 const registry = {
   organs: {
     taste: { repo: 'Sheshiyer/skill-clusters' },
-    genesis: { repo: 'Sheshiyer/brandmint-oracle-aleph' },
+    genesis: { repo: 'Sheshiyer/meristem' },
   },
 };
 const adapters = {
@@ -18,9 +18,21 @@ const adapters = {
   },
   genesis: {
     root_id: 'genesis',
-    cmd: 'brandmint',
-    args: ['launch', '--waves', '0-8', '--brand', '{tenant}'],
-    spend: 'gated',
+    local_dir: 'cambium',
+    cmd: 'node',
+    args: [
+      'scripts/meristem-genesis-contract.mjs',
+      '--meristem-root',
+      '{input}',
+      '--brand-dir',
+      'brands/thoughtseed',
+      '--out',
+      '-',
+    ],
+    spend: 'none',
+    input_default: '../meristem',
+    output: 'json:brand-dna',
+    contract_produces: ['brand_system', 'copy_system', 'visual_system'],
   },
 };
 const ctx = { registry, adapters, cambiumRoot: '/x/cambium', env: {} };
@@ -39,6 +51,10 @@ test('resolveRoot fails loud on an organ with no adapter', () => {
   assert.throws(() => resolveRoot('nope', ctx), /no adapter/);
 });
 
+test('resolveRoot runs active genesis through the Cambium wrapper checkout', () => {
+  assert.equal(resolveRoot('genesis', ctx), '/x/cambium');
+});
+
 // ── buildInvocation (pure) ──
 test('buildInvocation injects tenant + input for taste', () => {
   const inv = buildInvocation(adapters.taste, { tenant: 'acme', input: 'landing page', root: '/x/skill-clusters' });
@@ -52,9 +68,25 @@ test('buildInvocation falls back to input_default when input is empty', () => {
   assert.ok(inv.args.includes('brand system'));
 });
 
-test('buildInvocation builds the genesis waves command', () => {
-  const inv = buildInvocation(adapters.genesis, { tenant: 'acme', input: '', root: '/x/bm' });
-  assert.deepEqual(inv.args, ['launch', '--waves', '0-8', '--brand', 'acme']);
+test('buildInvocation builds the active Meristem genesis shim command', () => {
+  const inv = buildInvocation(adapters.genesis, {
+    tenant: 'thoughtseed',
+    input: '/tmp/meristem-sidecar-proof',
+    root: '/x/cambium',
+  });
+
+  assert.equal(inv.cmd, 'node');
+  assert.deepEqual(inv.args, [
+    'scripts/meristem-genesis-contract.mjs',
+    '--meristem-root',
+    '/tmp/meristem-sidecar-proof',
+    '--brand-dir',
+    'brands/thoughtseed',
+    '--out',
+    '-',
+  ]);
+  assert.equal(inv.cwd, '/x/cambium');
+  assert.equal(inv.spend, 'none');
 });
 
 // ── gateStage (the fail-closed spend gate) ──
@@ -315,6 +347,43 @@ test('runPipeline validates against accumulated contract groups, not raw prior s
   const bInv = results.find((r) => r.stage === 'build').invocation;
   assert.ok(bInv.args.includes('RAW_STAGE_ONE'), `B should still receive raw stage output; got ${JSON.stringify(bInv.args)}`);
   assert.equal(results.find((r) => r.stage === 'build').spawned, true);
+});
+
+test('runPipeline executes active Meristem genesis without approval and verifies produced groups', async () => {
+  const stages = [
+    {
+      id: 'genesis',
+      organ: 'genesis',
+      requires: ['idea'],
+      produces: ['brand_system', 'copy_system', 'visual_system'],
+    },
+  ];
+
+  const runner = () => ({
+    status: 0,
+    stdout: JSON.stringify({
+      brand_system: { brand_name: 'Thoughtseed' },
+      copy_system: { copy_slots: { hero_headline: 'Build living systems' } },
+      visual_system: { palette: { primary: '#111111' } },
+    }),
+  });
+
+  const [result] = await runPipeline({
+    stages,
+    registry,
+    adapters,
+    cambiumRoot: '/x/cambium',
+    tenant: 'thoughtseed',
+    execute: true,
+    approve: null,
+    runner,
+    seedInput: '/tmp/meristem-sidecar-proof',
+  });
+
+  assert.equal(result.spawned, true);
+  assert.equal(result.gate.reason, 'no-spend stage');
+  assert.equal(result.contract.ok, true);
+  assert.ok(result.invocation.args.includes('/tmp/meristem-sidecar-proof'));
 });
 
 test('runPipeline preserves direct single-stage scalar input compatibility', async () => {
