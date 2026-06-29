@@ -58,7 +58,7 @@ Observed output:
 Cambium run - tenant: thoughtseed  (--execute)
 
   genesis  [idea -> brand-dna] . free  input from prior stage
-     -> cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium && node scripts/meristem-genesis-contract.mjs --meristem-root /tmp/meristem-sidecar-proof --brand-dir brands/thoughtseed --out -
+     -> cd <cambium-root> && node scripts/meristem-genesis-contract.mjs --meristem-root /tmp/meristem-sidecar-proof --brand-dir brands/thoughtseed --out -
      spawned (exit 0)
 
 1 spawned . 0 refused (fail-closed).

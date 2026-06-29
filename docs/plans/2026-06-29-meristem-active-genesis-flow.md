@@ -575,7 +575,7 @@ Expected output includes:
 ```text
 Cambium run - tenant: thoughtseed
 genesis
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium && node scripts/meristem-genesis-contract.mjs --meristem-root /tmp/meristem-sidecar-proof --brand-dir brands/thoughtseed --out -
+cd <cambium-root> && node scripts/meristem-genesis-contract.mjs --meristem-root /tmp/meristem-sidecar-proof --brand-dir brands/thoughtseed --out -
 spawned (exit 0)
 1 spawned
 ```
@@ -708,4 +708,3 @@ npm test
 ```bash
 git commit -am "revert: restore brandmint as active genesis adapter"
 ```
-
