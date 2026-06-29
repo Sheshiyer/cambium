@@ -4,17 +4,33 @@ import test from 'node:test';
 
 const adaptersFile = new URL('../adapters.json', import.meta.url);
 
-test('meristem Genesis candidate is recorded but not active', () => {
+test('meristem Genesis adapter is active and brandmint is rollback-only', () => {
   const config = JSON.parse(readFileSync(adaptersFile, 'utf8'));
 
-  assert.equal(config.adapters.genesis.cmd, 'brandmint');
-  assert.deepEqual(config.adapters.genesis.args, ['launch', '--waves', '1-8', '--brand', '{tenant}']);
-  assert.equal(config.adapters.genesis_meristem_candidate, undefined);
+  const genesis = config.adapters.genesis;
+  assert.equal(genesis.root_id, 'genesis');
+  assert.equal(genesis.local_dir, 'cambium');
+  assert.equal(genesis.cmd, 'node');
+  assert.deepEqual(genesis.args, [
+    'scripts/meristem-genesis-contract.mjs',
+    '--meristem-root',
+    '{input}',
+    '--brand-dir',
+    'brands/thoughtseed',
+    '--out',
+    '-',
+  ]);
+  assert.equal(genesis.spend, 'none');
+  assert.equal(genesis.input_default, '../meristem');
+  assert.equal(genesis.output, 'json:brand-dna');
+  assert.deepEqual(genesis.contract_requires, ['idea']);
+  assert.deepEqual(genesis.contract_produces, ['brand_system', 'copy_system', 'visual_system']);
 
-  const candidate = config.candidate_adapters?.genesis_meristem_candidate;
-  assert.ok(candidate, 'candidate adapter missing');
-  assert.equal(candidate.disabled, true);
-  assert.equal(candidate.cmd, 'node');
-  assert.deepEqual(candidate.contract_produces, ['brand_system', 'copy_system', 'visual_system']);
-  assert.match(candidate.note, /proof-only/i);
+  assert.equal(config.candidate_adapters?.genesis_meristem_candidate, undefined);
+
+  const legacy = config.candidate_adapters?.genesis_brandmint_legacy;
+  assert.ok(legacy, 'legacy brandmint rollback adapter missing');
+  assert.equal(legacy.disabled, true);
+  assert.equal(legacy.cmd, 'brandmint');
+  assert.deepEqual(legacy.args, ['launch', '--waves', '1-8', '--brand', '{tenant}']);
 });
