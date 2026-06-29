@@ -1,7 +1,7 @@
 {
   "name": "cambium",
-  "version": "0.2.5",
-  "codename": "Thalia .5",
+  "version": "0.2.7",
+  "codename": "Thalia .7",
   "private": true,
   "type": "module",
   "description": "The composition layer for the constellation — registry + pipeline + the dry-run conductor.",

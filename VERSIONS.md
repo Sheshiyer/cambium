@@ -11,6 +11,29 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.2.7 · **Thalia .7** — *the root takes Meristem*
+
+The composition update: Cambium's active Genesis stage now runs through Meristem.
+The conductor calls a no-spend Cambium contract shim that maps Meristem sidecar
+outputs into the structured `brand_system`, `copy_system`, and `visual_system`
+groups the downstream stages consume.
+
+- **Meristem as active Genesis** — `adapters.genesis` now runs
+  `scripts/meristem-genesis-contract.mjs` from the Cambium checkout and accepts
+  a Meristem checkout path as the stage input.
+- **Rollback preserved** — the legacy Brandmint command remains in
+  `candidate_adapters.genesis_brandmint_legacy.disabled`, so rollback is explicit
+  and review-gated instead of hidden in the active path.
+- **Contract provenance** — the shim sources brand identity from Meristem
+  `brands/thoughtseed/brand-config.yaml`, consumes 26 Meristem skill outputs, and
+  fails closed on missing outputs, incomplete status, malformed JSON, missing
+  asset manifest paths, or empty required Cambium fields.
+- **Active-flow proof** — `compose run thoughtseed --stage genesis --execute
+  --input /tmp/meristem-sidecar-proof` spawned the Meristem shim with exit 0
+  against Meristem SHA `d447fb9c8dd3a5c1c4846f271b20bea6e421ce7f`.
+- **Verified main** — PR #94 passed CI, local release gates passed
+  `npm test` (600 tests), `validate`, `standalone:audit`, and `standalone:smoke`.
+
 ### v0.2.5 · **Thalia .5** — *the tapestry stands alone*
 
 The product update: Cambium's fractal tapestry is now release-safe as a standalone
