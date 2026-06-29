@@ -42,18 +42,28 @@ const VISUAL_SYSTEM_OUTPUTS = [
 const REQUIRED_GROUPS = ['brand_system', 'copy_system', 'visual_system'];
 
 const REQUIRED_CAMBIUM_FIELDS = [
+  'brand_system.brand_id',
   'brand_system.brand_name',
+  'brand_system.category',
   'brand_system.audience',
   'brand_system.positioning',
   'brand_system.promise',
+  'brand_system.differentiators',
   'brand_system.voice_principles',
   'copy_system.copy_slots.hero_headline',
   'copy_system.copy_slots.hero_subhead',
   'copy_system.copy_slots.cta_primary',
+  'copy_system.copy_slots.cta_secondary',
+  'copy_system.copy_slots.proof_points',
+  'copy_system.copy_slots.offer_text',
+  'copy_system.tone_notes',
   'visual_system.palette',
   'visual_system.typography',
   'visual_system.imagery_direction',
-  'visual_system.logo_usage'
+  'visual_system.logo_usage',
+  'visual_system.composition_motifs',
+  'visual_system.anti_patterns',
+  'visual_system.asset_manifest'
 ];
 
 function readJson(file) {
@@ -92,6 +102,64 @@ function readAssetManifest(brandRoot) {
     throw new Error(`asset manifest reports missing paths: ${missing.join(', ') || 'unknown paths'}`);
   }
   return manifest;
+}
+
+function readBrandConfig(brandRoot) {
+  const configFile = join(brandRoot, 'brand-config.yaml');
+  if (!existsSync(configFile)) {
+    throw new Error('missing required meristem brand config: brand-config.yaml');
+  }
+  return parseBrandConfig(readFileSync(configFile, 'utf8'));
+}
+
+function parseBrandConfig(sourceText) {
+  const brand = {};
+  const lines = sourceText.split(/\r?\n/);
+  let brandIndent = null;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const indent = leadingSpaceCount(line);
+    if (brandIndent === null) {
+      if (/^brand\s*:\s*(?:#.*)?$/.test(trimmed)) brandIndent = indent;
+      continue;
+    }
+    if (indent <= brandIndent) break;
+    const fieldMatch = line.match(/^\s{2,}([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
+    if (!fieldMatch) continue;
+    const [, key, rawValue] = fieldMatch;
+    const value = parseYamlScalar(rawValue);
+    if (value !== undefined) brand[key] = value;
+  }
+  return brand;
+}
+
+function leadingSpaceCount(line) {
+  return line.match(/^\s*/)[0].length;
+}
+
+function parseYamlScalar(rawValue) {
+  const value = stripYamlInlineComment(rawValue).trim();
+  if (!value) return undefined;
+  const quoted = value.match(/^(['"])(.*)\1$/);
+  if (quoted) return quoted[2].trim();
+  if (/^(?:true|false)$/i.test(value)) return value.toLowerCase() === 'true';
+  if (/^-?\d+(?:\.\d+)?$/.test(value)) return Number(value);
+  return value.trim();
+}
+
+function stripYamlInlineComment(rawValue) {
+  let quote = null;
+  for (let index = 0; index < rawValue.length; index += 1) {
+    const char = rawValue[index];
+    if ((char === '"' || char === "'") && rawValue[index - 1] !== '\\') {
+      quote = quote === char ? null : quote || char;
+    }
+    if (char === '#' && quote === null && (index === 0 || /\s/.test(rawValue[index - 1]))) {
+      return rawValue.slice(0, index);
+    }
+  }
+  return rawValue;
 }
 
 function detectGitSha(meristemRoot) {
@@ -182,28 +250,11 @@ function source(outputs, skill, path) {
   return getPath(data(outputs, skill), path);
 }
 
-function brandNameFromBrandDir(brandDir) {
-  const slug = basename(brandDir);
-  return slug
-    .split(/[-_\s]+/)
-    .filter(Boolean)
-    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(' ');
-}
-
-function buildBrandSystem(outputs, brandDir) {
-  const brandId = basename(brandDir);
+function buildBrandSystem(outputs, brandConfig) {
   return {
-    brand_id: brandId,
-    brand_name: firstMeaningful(
-      source(outputs, 'brand-foundation', 'brand_name'),
-      source(outputs, 'brand-foundation', 'name'),
-      brandNameFromBrandDir(brandDir)
-    ),
-    category: firstMeaningful(
-      source(outputs, 'product-positioning', 'cbbe.salience.product_category'),
-      source(outputs, 'buyer-persona', 'cbbe.salience.product_category')
-    ),
+    brand_id: brandConfig.slug,
+    brand_name: brandConfig.name,
+    category: brandConfig.category,
     audience: source(outputs, 'brand-foundation', 'mission.breakdown.audience'),
     positioning: source(outputs, 'product-positioning', 'positioning_statement'),
     promise: firstMeaningful(
@@ -308,6 +359,7 @@ export function buildGenesisContract({ meristemRoot, brandDir = 'brands/thoughts
   }
 
   const assetManifest = readAssetManifest(brandRoot);
+  const brandConfig = readBrandConfig(brandRoot);
   const outputSpecs = [
     ...BRAND_SYSTEM_OUTPUTS,
     ...COPY_SYSTEM_OUTPUTS,
@@ -315,7 +367,7 @@ export function buildGenesisContract({ meristemRoot, brandDir = 'brands/thoughts
   ];
   const outputs = readOutputsBySkill(outputsDir, outputSpecs);
   const payload = {
-    brand_system: buildBrandSystem(outputs, brandDir),
+    brand_system: buildBrandSystem(outputs, brandConfig),
     copy_system: buildCopySystem(outputs),
     visual_system: buildVisualSystem(outputs, assetManifest)
   };

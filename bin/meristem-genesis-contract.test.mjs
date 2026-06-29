@@ -142,6 +142,7 @@ function writeJson(file, value) {
 }
 
 function createMeristemFixture({
+  brandConfig = true,
   missingOutput,
   outputOverrides = {},
   statusOverride,
@@ -163,6 +164,17 @@ function createMeristemFixture({
       version: '1.0.0',
       data: outputData
     });
+  }
+
+  if (brandConfig) {
+    mkdirSync(brandDir, { recursive: true });
+    writeFileSync(join(brandDir, 'brand-config.yaml'), [
+      'brand:',
+      '  slug: thoughtseed',
+      '  name: Thoughtseed',
+      '  category: systems studio',
+      ''
+    ].join('\n'));
   }
 
   writeJson(join(brandDir, '.brandmint', 'asset-manifest.json'), {
@@ -267,6 +279,18 @@ test('buildGenesisContract rejects brandDir that escapes meristemRoot', () => {
     assert.throws(
       () => buildGenesisContract({ meristemRoot: root, brandDir: tmpdir() }),
       /brandDir escapes meristem root: /
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract fails closed when the brand config is missing', () => {
+  const root = createMeristemFixture({ brandConfig: false });
+  try {
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root }),
+      /missing required meristem brand config: brand-config\.yaml/
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
