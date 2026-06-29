@@ -9,11 +9,11 @@
     "genesis": {
       "name": "Brand brain (genesis)",
       "role": "genesis",
-      "repo": "Sheshiyer/brandmint-oracle-aleph",
-      "summary": "idea \u2192 full brand system (persona, positioning, voice, logo, palette, copy, wiki) across waves 1\u20138",
-      "entrypoint": "brandmint launch --waves 1-8 (CLI: brandmint.cli.app:main) \u00b7 buildable flow alias: skill-clusters taste/scripts/brandmint.mjs (runBrandKit)",
+      "repo": "Sheshiyer/meristem",
+      "summary": "Meristem Genesis pipeline mapped into Cambium brand_system, copy_system, and visual_system contracts",
+      "entrypoint": "node scripts/meristem-genesis-contract.mjs --meristem-root <meristem-root> --brand-dir brands/thoughtseed --out -",
       "tier": "free",
-      "language": "python (+ node flow)",
+      "language": "shell + node shim",
       "capabilities": [
         "idea",
         "brand_system",

@@ -33,18 +33,21 @@
     },
     "genesis": {
       "root_id": "genesis",
-      "cmd": "brandmint",
+      "local_dir": "cambium",
+      "cmd": "node",
       "args": [
-        "launch",
-        "--waves",
-        "1-8",
-        "--brand",
-        "{tenant}"
+        "scripts/meristem-genesis-contract.mjs",
+        "--meristem-root",
+        "{input}",
+        "--brand-dir",
+        "brands/thoughtseed",
+        "--out",
+        "-"
       ],
-      "spend": "gated",
-      "spend_reason": "runs the full brand-mint waves (visual + inference generation)",
-      "input_default": "brand-config.yaml",
-      "output": "brand-dna",
+      "spend": "none",
+      "spend_reason": "maps existing Meristem brand outputs into the Cambium Genesis contract; does not run paid generation",
+      "input_default": "../meristem",
+      "output": "json:brand-dna",
       "contract_requires": [
         "idea"
       ],
@@ -53,7 +56,8 @@
         "copy_system",
         "visual_system"
       ],
-      "contract_version": "1.0.0"
+      "contract_version": "1.0.0",
+      "note": "Active Genesis flow: runs the Cambium Meristem contract shim from the Cambium checkout. The Meristem checkout path is the stage input and defaults to ../meristem."
     },
     "hands": {
       "root_id": "hands",
@@ -111,6 +115,34 @@
         "business"
       ],
       "contract_version": "1.0.0"
+    }
+  },
+  "candidate_adapters": {
+    "genesis_brandmint_legacy": {
+      "disabled": true,
+      "root_id": "genesis",
+      "cmd": "brandmint",
+      "args": [
+        "launch",
+        "--waves",
+        "1-8",
+        "--brand",
+        "{tenant}"
+      ],
+      "spend": "gated",
+      "spend_reason": "legacy Brandmint Genesis path retained only for rollback after Meristem promotion",
+      "input_default": "brand-config.yaml",
+      "output": "brand-dna",
+      "contract_requires": [
+        "idea"
+      ],
+      "contract_produces": [
+        "brand_system",
+        "copy_system",
+        "visual_system"
+      ],
+      "contract_version": "1.0.0",
+      "note": "Disabled rollback-only Genesis adapter. Do not route compose run through this unless a separate rollback plan promotes it."
     }
   }
 }
