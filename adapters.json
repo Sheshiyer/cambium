@@ -33,18 +33,21 @@
     },
     "genesis": {
       "root_id": "genesis",
-      "cmd": "brandmint",
+      "local_dir": "cambium",
+      "cmd": "node",
       "args": [
-        "launch",
-        "--waves",
-        "1-8",
-        "--brand",
-        "{tenant}"
+        "scripts/meristem-genesis-contract.mjs",
+        "--meristem-root",
+        "{input}",
+        "--brand-dir",
+        "brands/thoughtseed",
+        "--out",
+        "-"
       ],
-      "spend": "gated",
-      "spend_reason": "runs the full brand-mint waves (visual + inference generation)",
-      "input_default": "brand-config.yaml",
-      "output": "brand-dna",
+      "spend": "none",
+      "spend_reason": "maps existing Meristem brand outputs into the Cambium Genesis contract; does not run paid generation",
+      "input_default": "../meristem",
+      "output": "json:brand-dna",
       "contract_requires": [
         "idea"
       ],
@@ -53,7 +56,8 @@
         "copy_system",
         "visual_system"
       ],
-      "contract_version": "1.0.0"
+      "contract_version": "1.0.0",
+      "note": "Active Genesis flow: runs the Cambium Meristem contract shim from the Cambium checkout. The Meristem checkout path is the stage input and defaults to ../meristem."
     },
     "hands": {
       "root_id": "hands",
@@ -114,23 +118,21 @@
     }
   },
   "candidate_adapters": {
-    "genesis_meristem_candidate": {
+    "genesis_brandmint_legacy": {
       "disabled": true,
       "root_id": "genesis",
-      "cmd": "node",
+      "cmd": "brandmint",
       "args": [
-        "../cambium/scripts/meristem-genesis-contract.mjs",
-        "--meristem-root",
-        "{input}",
-        "--brand-dir",
-        "brands/thoughtseed",
-        "--out",
-        "-"
+        "launch",
+        "--waves",
+        "1-8",
+        "--brand",
+        "{tenant}"
       ],
-      "spend": "none",
-      "spend_reason": "proof-only sidecar mapping; does not run paid generation",
-      "input_default": "../meristem",
-      "output": "json:brand-dna",
+      "spend": "gated",
+      "spend_reason": "legacy Brandmint Genesis path retained only for rollback after Meristem promotion",
+      "input_default": "brand-config.yaml",
+      "output": "brand-dna",
       "contract_requires": [
         "idea"
       ],
@@ -139,8 +141,8 @@
         "copy_system",
         "visual_system"
       ],
-      "contract_version": "0.1.0",
-      "note": "Disabled proof-only Genesis candidate for Sheshiyer/meristem. The mapping script lives in Cambium, not the genesis organ checkout, so args[0] points at it sibling-relative (../cambium/scripts/...) from the root_id:genesis cwd. It must not be routed by compose run until a separate replacement plan promotes it (which should also give it a proper Cambium root)."
+      "contract_version": "1.0.0",
+      "note": "Disabled rollback-only Genesis adapter. Do not route compose run through this unless a separate rollback plan promotes it."
     }
   }
 }
