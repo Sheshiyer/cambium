@@ -18,6 +18,8 @@ Purpose: build the reusable Mission Control component code before page execution
 
 The current UI has improved flow, but many visual primitives still live as page-local `mc*` helpers or placeholder treatments inside `workers/quests/src/page.ts`. That is why Mission can improve while Gate, Tools, Story, and Inspect still feel like older surfaces. The component foundation gate moves the design vocabulary into shared code first, then page issues consume those primitives.
 
+For the working definition of "extraction" that governs closure of issues #200-#219, see the `Extraction definition (declared 2026-06-30)` subsection under Code Extraction Targets below. That subsection supersedes the implicit "moves the design vocabulary into shared code first" framing for those issues only.
+
 Page issues #100-#199 remain valid feature/integration work. If a page child issue currently names a primitive, treat it as page consumption and composition. The primitive implementation itself belongs to #200-#219.
 
 ## Code Extraction Targets
@@ -48,6 +50,16 @@ Allowed refinement: extract a focused mini app component module if it reduces th
 | `warningAttention` | blocked/Gate warning attention | #217 | Gate, ProofList, State Stack |
 | Reduced motion/accessibility | `RM` conditionals and state labels | #218 | all primitives |
 | Component gallery/proof fixture | no dedicated primitive proof surface yet | #219 | all page implementers |
+
+### Extraction definition (declared 2026-06-30)
+
+For the purpose of closing issues #200-#219, "extraction" means three concrete things, ALL required:
+
+1. `data-component="<PrimitiveName>"` markers present in the rendered page output for the primitive.
+2. A `handler.test.ts` assertion that pins the primitive's contract (selector exists, props/state behavior verified).
+3. For animated primitives (`orbitSweep` / `packetDrift` / `glyphBreathe` / `warningAttention`), inclusion in the reduced-motion CSS selector list pinned by `page · Mission Control visual primitives are named and reduced-motion safe`.
+
+This definition supersedes the implicit "moves the design vocabulary into shared code first" framing for #200-#219 only. Option 2 — an extracted module under `workers/quests/src/mission-control/` that `page.ts` imports at render time — is filed as **TG-MC-407**, a deferred unlock for when Gate, Tools, or Story need independent rewrites without locking `page.ts`.
 
 ## GitHub Issues
 

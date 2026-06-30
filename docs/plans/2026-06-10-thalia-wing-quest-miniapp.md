@@ -19,6 +19,34 @@ completed arcs are inner rings and the glowing outer growth edge is literally *c
 here*. Palette from the design library: gunmetal `#00272B` · chartreuse `#E0FF4F` · mint
 `#D6FFF6` · violet `#231651`; Euclid/Sprig-class geometric sans.
 
+## Scope evolution (added 2026-06-30)
+
+> This wing was reframed into **Mission Control** on 2026-06-29 via the
+> [TG Mini App Mission Control UI Upgrade plan](./2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md).
+> This is a product pivot, named here for the audit trail — the data plane, gate, and narrative
+> shipped; the surface shape and the eponymous fractal ring map did not ship as originally drawn.
+
+| Wave | Original deliverable | Outcome | Where it landed |
+|---|---|---|---|
+| W0 | BotFather wiring, menu button, entity registry, gate-scope v1 decision | Shipped | curios.self bot menu button + `web_app` keyboard; Worker route published; founder allowlist live |
+| W1 | Quest ledger API (`/api/quests/:tenant`, `/api/narrative/:tenant`) on a Cambium Worker + KV, with freshness envelope | Shipped (reshaped) | `workers/quests/` (handler + page); `quest-ledger-envelope@v1` with `derivedAt`/`source`; freshness chip + stale-overwrite guard ([contract](../architecture/contracts/tg-miniapp-ecosystem-contract.md)) |
+| W2 | Miniapp UI: quest line · **fractal ring map** · panels (Living Blueprint reference set) | Quest line shipped under Mission; fractal ring map **deferred pending founder decision** (see TG-MC-404 follow-up) | Mission scene renders branch arcs / next mission / blockers / proof / KPIs; the tree-ring "cambium — you are here" rendering is not a v1 scene |
+| W3 | Narrative engine: deterministic story beats from `world.log` + deviations, noesis frames set apart | Shipped | `paperclipActivityBeats`, `operator-narrative`, served `branchStories`, rendered under the Story scene |
+| W4 | Founder gate: signed-action approve/reroll round-trip (initData → Worker buffer → agent-plane consumer → audit) | Shipped | Worker gate queue + Ed25519 initData validation; Gate scene owns signed-action preflight; idempotent action ids per the contract |
+| W5 | In-app visual lane: generated imagery for narrative chapters via `media-gen` / `nano-banana-2` | Not in v1 | Reserved for a later wing; Story scene currently renders text beats only |
+
+The five v1 scenes are **Mission / Gate / Tools / Story / Inspect** — not the original
+quest-line + fractal-map + narrative + gate quartet. Branch arcs, missions, KPIs, gates, and
+proof are owned by Mission; the Map ecosystem language (tapestry, wake, lanes, stance, policy,
+decision context, rails) was moved under **Inspect** as inspection-only subsections. The Living
+Blueprint visual identity (Swiss-grid + bioluminescent palette, chartreuse/mint/violet on
+gunmetal, Euclid/Sprig geometry) remains the design language; the fractal-ring rendering itself
+is held back from v1.
+
+Cross-links:
+- [TG Mini App Mission Control UI Upgrade Plan (2026-06-29)](./2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md)
+- [Cambium TG Mini App Ecosystem Contract](../architecture/contracts/tg-miniapp-ecosystem-contract.md)
+
 ## Reference images (nano-banana · generated 2026-06-10)
 
 Stored in the founder vault: `03-Resources/Design/Curios-Self-Quest-Miniapp/`
