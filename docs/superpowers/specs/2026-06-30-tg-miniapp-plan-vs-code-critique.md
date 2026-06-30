@@ -313,8 +313,12 @@ The
 All three require:
 
 1. A real Telegram WebView session on a founder device.
-2. Access to production Worker `curious.thoughtseed.space` with
-   `QUESTS_PUSH_TOKEN`.
+2. Access to the production Cambium Worker host with
+   `QUESTS_PUSH_TOKEN`. (Host is configured in
+   [workers/quests/wrangler.jsonc](../../../workers/quests/wrangler.jsonc)
+   and [live-proof-readiness.mjs](../../../workers/quests/src/live-proof-readiness.mjs);
+   it is intentionally not inlined here so this spec stays clean of
+   live URLs per `scripts/standalone-audit.mjs`.)
 3. Willingness to mutate production state through a signed action.
 
 These are not engineering blockers — the schema, capture flow, and

@@ -126,6 +126,21 @@
       "notes": "Viewport evidence for layout and clickability proof; no raw credentials, user ids, or Telegram initData."
     },
     {
+      "id": "tg-miniapp-live-proof-device-screenshots",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/tg-miniapp-live-proof/*.png",
+        "docs/plans/assets/tg-miniapp-live-proof/*.jpg",
+        "docs/plans/assets/tg-miniapp-live-proof/*.jpeg",
+        "docs/plans/assets/tg-miniapp-live-proof/*.webp"
+      ],
+      "source": "Founder-device Telegram WebView screenshots captured for TG-MC-406 live-proof readiness (paired with redacted cambium.tg-device-proof.v1 hashes in telegram-webview.json)",
+      "licenseStatus": "project-owned-device-capture",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Real Telegram WebView screenshots for the device-artifact proof gate; the JSON artifact stores only SHA256 hashes of user id, initData, and the screenshot file — no raw credentials, raw user ids, or raw Telegram initData are committed."
+    },
+    {
       "id": "tg-miniapp-mission-control-reference-pack",
       "kind": "docs-only",
       "paths": [

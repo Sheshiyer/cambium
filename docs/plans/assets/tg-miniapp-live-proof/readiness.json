@@ -1,36 +1,40 @@
 {
   "schema": "cambium.tg-live-proof-readiness.v1",
-  "generatedAt": "2026-06-30T11:08:32.250Z",
+  "generatedAt": "2026-06-30T12:01:25.070Z",
   "tenant": "cambium",
   "workerUrl": "https://curious.thoughtseed.space",
-  "status": "blocked",
+  "status": "ready",
   "summary": {
-    "ready": 8,
-    "blocked": 2,
+    "ready": 10,
+    "blocked": 0,
     "total": 10,
-    "liveProofReady": false
+    "liveProofReady": true
   },
   "invariant": "Local deterministic smokes and Chrome viewport screenshots do not prove live Telegram WebView or production Worker KV behavior.",
   "items": [
     {
       "id": "telegram-init-data",
       "label": "Real Telegram initData available",
-      "state": "blocked",
-      "detail": "No real Telegram WebView initData is present, so signed founder actions cannot be proven live.",
-      "evidence": [],
-      "missing": [
-        "TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView session"
-      ]
+      "state": "ready",
+      "detail": "A real Telegram WebView initData value is present in the environment; value is redacted.",
+      "evidence": [
+        "env:TELEGRAM_INIT_DATA or env:TG_INIT_DATA present"
+      ],
+      "missing": []
     },
     {
       "id": "telegram-device-artifact",
       "label": "Founder device WebView artifact captured",
-      "state": "blocked",
-      "detail": "No live Telegram WebView proof artifact exists; local Chrome screenshots remain layout-only evidence.",
-      "evidence": [],
-      "missing": [
-        "capture redacted cambium.tg-device-proof.v1 from a founder Telegram WebView session"
-      ]
+      "state": "ready",
+      "detail": "A redacted founder Telegram WebView proof artifact is present and fresh enough for the Worker initData gate.",
+      "evidence": [
+        "docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json",
+        "capturedAt:2026-06-30T12:01:25.068Z",
+        "telegram.initDataAgeSeconds:235",
+        "screenshot.path:docs/plans/assets/tg-miniapp-live-proof/founder-device-2026-06-30.jpeg",
+        "screenshot:sha256:e4e6a2ca8dd00c88a3a152d7ec402b23f8d8cf5b5557b44e026489382305bd86"
+      ],
+      "missing": []
     },
     {
       "id": "worker-token",
@@ -129,23 +133,23 @@
       {
         "id": "device-webview-proof",
         "writes": "docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json",
-        "state": "blocked",
+        "state": "complete",
         "command": "node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot docs/plans/assets/tg-miniapp-live-proof/<founder-device>.png --platform <ios|android|desktop> --webview-url <current Telegram WebView URL> --safe-area <notes> --write",
         "prerequisites": [
           {
             "id": "fresh-telegram-init-data",
-            "state": "blocked",
-            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+            "state": "ready",
+            "detail": "TELEGRAM_INIT_DATA or TG_INIT_DATA is present"
           },
           {
             "id": "screenshot-under-proof-dir",
-            "state": "blocked",
-            "detail": "founder-device screenshot path is required"
+            "state": "ready",
+            "detail": "docs/plans/assets/tg-miniapp-live-proof/founder-device-2026-06-30.jpeg exists under docs/plans/assets/tg-miniapp-live-proof"
           },
           {
             "id": "device-platform",
-            "state": "blocked",
-            "detail": "device platform is required"
+            "state": "ready",
+            "detail": "device platform is supplied"
           },
           {
             "id": "webview-url",
@@ -172,8 +176,8 @@
           },
           {
             "id": "allow-network",
-            "state": "ready",
-            "detail": "--allow-network supplied"
+            "state": "blocked",
+            "detail": "--allow-network is required for this capture"
           }
         ],
         "privacy": [
@@ -189,8 +193,8 @@
         "prerequisites": [
           {
             "id": "fresh-telegram-init-data",
-            "state": "blocked",
-            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+            "state": "ready",
+            "detail": "TELEGRAM_INIT_DATA or TG_INIT_DATA is present"
           },
           {
             "id": "worker-token",
@@ -199,8 +203,8 @@
           },
           {
             "id": "allow-network",
-            "state": "ready",
-            "detail": "--allow-network supplied"
+            "state": "blocked",
+            "detail": "--allow-network is required for this capture"
           },
           {
             "id": "allow-mutation",

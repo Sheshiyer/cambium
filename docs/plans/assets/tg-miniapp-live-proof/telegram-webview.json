@@ -1,0 +1,24 @@
+{
+  "schema": "cambium.tg-device-proof.v1",
+  "tenant": "cambium",
+  "capturedAt": "2026-06-30T12:01:25.068Z",
+  "source": "telegram-webview",
+  "telegram": {
+    "userIdHash": "sha256:2cb7e80533f49bac75e7e7e70368acb7df7003e1a7ca90062718beecdc1dbc26",
+    "initDataHash": "sha256:64f50866c0cb821abc5911a42e0ce01b13b600745cdf03bd312e34af069b7eee",
+    "initDataAgeSeconds": 235
+  },
+  "webView": {
+    "platform": "ios",
+    "urlOrigin": "https://curious.thoughtseed.space",
+    "urlPath": "/",
+    "safeArea": "47-0-34-0"
+  },
+  "screenshot": {
+    "sha256": "sha256:e4e6a2ca8dd00c88a3a152d7ec402b23f8d8cf5b5557b44e026489382305bd86",
+    "path": "docs/plans/assets/tg-miniapp-live-proof/founder-device-2026-06-30.jpeg"
+  },
+  "notes": [
+    "Captured by live-proof-readiness --capture-device-proof; raw initData, raw Telegram user id, and WebView query string omitted."
+  ]
+}
