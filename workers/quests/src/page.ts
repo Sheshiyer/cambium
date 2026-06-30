@@ -228,8 +228,8 @@ export const PAGE = `<!doctype html>
 	  @keyframes spin{to{transform:rotate(360deg)}}
 	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
 	  @keyframes orbitSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-	  @keyframes packetDrift{0%{transform:translateX(-10%);opacity:.25}50%{opacity:1}100%{transform:translateX(10%);opacity:.25}}
-	  @keyframes glyphBreathe{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.08);opacity:1}}
+	  @keyframes packetDrift{0%{transform:translateX(-8%);opacity:.42}50%{opacity:.95}100%{transform:translateX(8%);opacity:.5}}
+	  @keyframes glyphBreathe{0%,100%{transform:scale(1);opacity:.86}50%{transform:scale(1.035);opacity:1}}
 	  @keyframes warningAttention{0%{border-color:rgba(248,181,96,.42)}45%{border-color:rgba(248,181,96,.86)}100%{border-color:rgba(248,181,96,.5)}}
 	  .mapwrap{display:flex;flex-direction:column;gap:12px;padding-top:2px}
 	  .maphead{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;padding-bottom:4px}
@@ -282,14 +282,30 @@ export const PAGE = `<!doctype html>
 	  .mc-state-token.is-stale{border-color:rgba(248,181,96,.36);color:var(--mc-warn)}
 	  .mc-state-token.is-locked{opacity:.66}
 	  .mc-orbit{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--mc-line-strong);display:grid;place-items:center;color:var(--mc-chartreuse);font:10px var(--mono);background:radial-gradient(circle,rgba(1,47,52,.96) 0 52%,transparent 53%),conic-gradient(currentColor calc(var(--mc-progress,0) * 1%),rgba(214,255,246,.08) 0)}
-	  .mc-orbit::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(224,255,79,.36);border-left-color:transparent;animation:orbitSweep 4.2s linear infinite}
-	  .mc-selected-halo{box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
-	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden}
-	  .mc-packet-dots{display:flex;gap:5px;align-items:center;min-height:20px;animation:packetDrift 3s var(--ease) infinite alternate}
-	  .mc-packet{width:4px;height:4px;border-radius:50%;background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.34)}
+	  .mc-orbit::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(224,255,79,.24);border-left-color:transparent;pointer-events:none}
+	  .mc-orbit[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.4);border-left-color:transparent;animation:orbitSweep 4.8s var(--ease) infinite}
+	  .mc-orbit.is-complete::after{border-color:rgba(224,255,79,.48)}
+	  .mc-orbit.is-blocked,.mc-orbit.is-proof-needed,.mc-orbit.is-stale{color:var(--mc-warn);border-color:rgba(248,181,96,.44);background:radial-gradient(circle,rgba(1,47,52,.96) 0 52%,transparent 53%),conic-gradient(currentColor calc(var(--mc-progress,0) * 1%),rgba(248,181,96,.11) 0)}
+	  .mc-orbit.is-proof-needed::after{border-style:dotted;border-color:rgba(248,181,96,.5)}
+	  .mc-orbit.is-locked{color:rgba(214,255,246,.48);border-style:dashed}
+	  .mc-orbit-label{position:relative;z-index:1;text-align:center;max-width:34px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+	  .mc-orbit .mc-packet-dots{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);min-height:6px;gap:3px;animation:none}
+	  .mc-selected-halo{position:relative;box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
+	  .mc-selected-halo::after{content:"";position:absolute;inset:3px;border-radius:inherit;border:1px solid rgba(224,255,79,.22);pointer-events:none}
+	  .mc-selected-halo[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.42);border-left-color:transparent;animation:orbitSweep 5.6s var(--ease) infinite}
+	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
+	  .mc-signal-rail.is-active{border-color:rgba(224,255,79,.34)}
+	  .mc-signal-rail.is-blocked,.mc-signal-rail.is-proof-needed{border-color:rgba(248,181,96,.42);border-style:dashed}
+	  .mc-signal-rail.is-locked{border-style:dashed;opacity:.62}
+	  .mc-signal-rail .mc-rail-end{position:absolute;right:2px;top:50%;width:7px;height:7px;border:1px solid var(--mc-warn);transform:translateY(-50%) rotate(45deg);background:rgba(248,181,96,.1)}
+	  .mc-packet-dots{display:flex;gap:5px;align-items:center;justify-content:center;min-height:20px;max-width:100%;overflow:hidden}
+	  .mc-packet-dots[data-motion="packetDrift"]{animation:packetDrift 3.6s var(--ease) infinite alternate}
+	  .mc-packet{width:4px;height:4px;border-radius:50%;background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.34);flex:0 0 auto}
+	  .mc-packet-dots.is-blocked .mc-packet,.mc-packet-dots.is-proof-needed .mc-packet,.mc-packet-dots.is-stale .mc-packet{background:var(--mc-warn);box-shadow:0 0 7px rgba(248,181,96,.2)}
+	  .mc-glyph[data-motion="glyphBreathe"] svg{transform-origin:center;animation:glyphBreathe 3.4s var(--ease) infinite}
   .mc-questline{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:0;border:1px solid var(--line);border-radius:8px;padding:9px;background:rgba(1,47,52,.26)}
   .mc-proof-list{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;font:11px var(--mono);color:var(--soft);background:rgba(1,47,52,.24)}
-	  .mc-kpi-pulse{display:inline-grid;place-items:center;min-width:38px;min-height:38px;border-radius:50%;border:1px solid rgba(224,255,79,.34);color:var(--ink);animation:glyphBreathe 2.8s var(--ease) infinite}
+	  .mc-kpi-pulse{display:inline-grid;place-items:center;min-width:38px;min-height:38px;border-radius:50%;border:1px solid rgba(224,255,79,.34);color:var(--ink)}
 	  .mc-state-stack{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:rgba(1,47,52,.26)}
 	  .mc-state-row{appearance:none;text-align:left;color:var(--soft);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;
 	    min-height:56px;padding:9px 10px;border:0;border-bottom:1px solid var(--line);background:transparent;font:12px/1.35 inherit}
@@ -556,13 +572,14 @@ export const PAGE = `<!doctype html>
 
 	  @media (prefers-reduced-motion: reduce){
 	    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-	    .mc-orbit::after,.mc-packet-dots,.mc-kpi-pulse,.mc-state-token{animation:none!important}
+	    .mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-selected-halo[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
 	  }
 </style>
 </head>
 <body>
 <div class="substrate"><div class="blob a"></div><div class="blob b"></div><div class="grain"></div></div>
 <div class="app" data-component="MissionControlShell">
+  <span class="sr" data-component="ComponentRegistry" data-source="docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/component-map.md">Mission Control component registry</span>
   <header class="root-status" data-component="RootStatusStack">
     <div class="root-brand">
       <span class="root-brand-glyph" data-component="RootBrandGlyph" data-glyph-kind="genesis" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 3.8 19.5 11.2 27.4 8.8 23.8 16 27.4 23.2 19.5 20.8 16 28.2 12.5 20.8 4.6 23.2 8.2 16 4.6 8.8 12.5 11.2Z"/><path d="M16 6.8 18.1 12.6 24.2 12.1 19.4 16 24.2 19.9 18.1 19.4 16 25.2 13.9 19.4 7.8 19.9 12.6 16 7.8 12.1 13.9 12.6Z"/><circle class="mc-core" cx="16" cy="16" r="2.1"/><path class="mc-soft" d="M7 27c4.2-.6 6.8-.6 9.2.1 2.8.8 5.2.7 8.8-.4"/></svg></span>
@@ -640,7 +657,23 @@ const MARKS = {
   active:   '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="#E0FF4F"/></svg>',
   locked:   '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.4" fill="none" stroke="rgba(214,255,246,.45)" stroke-width="1.4"/></svg>'
 };
+const MC_COMPONENT_SOURCE_REFS = Object.freeze([
+  'docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/component-map.md',
+  'docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/prompts/01-component-glyph-state-board.md',
+  'docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/prompts/02-mission-control-state-stack-mobile.md',
+  'docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/prompts/03-motion-storyboard-mobile.md'
+]);
+const MC_COMPONENT_PROPS = Object.freeze({
+  OrbitProgress:['value','state','label','showPacketDots','ariaLabel'],
+  SignalRail:['state','packetCount','label'],
+  PacketFlow:['count','state','mode'],
+  KpiPulse:['label','currentState','survival','betterThanSurvival'],
+  SelectedHalo:['selected','surface'],
+  Motion:['motion','state','reducedMotion']
+});
 const MC_COMPONENT_REGISTRY = Object.freeze({
+  sourceRefs:MC_COMPONENT_SOURCE_REFS,
+  propShapes:MC_COMPONENT_PROPS,
   MissionGlyph:['genesis','taste','build','ops','cortex','arc','proof','gate'],
   StateToken:['idle','active','selected','complete','blocked','locked','stale','proof-needed','reduced-motion'],
   OrbitProgress:['idle','active','complete','blocked','stale','proof-needed'],
@@ -682,26 +715,53 @@ function mcClass(base, state, extra){
   const kind = mcStateKind(state);
   return [base, 'is-' + kind, extra || ''].filter(Boolean).join(' ');
 }
-function mcGlyphSvg(kind, state){
+function mcGlyphSvg(kind, state, opts){
   const glyph = MC_COMPONENT_REGISTRY.MissionGlyph.includes(kind) ? kind : 'arc';
   const tone = mcStateKind(state);
-  return '<span class="' + mcClass('mc-glyph', tone) + '" data-component="MissionGlyph" data-glyph-kind="' + esc(glyph) + '" data-state="' + esc(tone) + '" aria-hidden="true">' + MC_GLYPH_SVG[glyph] + '</span>';
+  const motion = opts && opts.motion === 'glyphBreathe' && tone === 'active' && !RM ? ' data-motion="glyphBreathe" data-motion-primitive="glyphBreathe"' : '';
+  return '<span class="' + mcClass('mc-glyph', tone) + '" data-component="MissionGlyph" data-glyph-kind="' + esc(glyph) + '" data-state="' + esc(tone) + '"' + motion + ' aria-hidden="true">' + MC_GLYPH_SVG[glyph] + '</span>';
 }
 function mcStateToken(state, label){
   const kind = mcStateKind(state);
-  return '<span class="' + mcClass('mc-state-token', kind) + '" data-component="StateToken" data-state="' + esc(kind) + '">' + esc(label || kind) + '</span>';
+  return '<span class="' + mcClass('mc-state-token', kind) + '" data-component="StateToken" data-state="' + esc(kind) + '" aria-label="state: ' + esc(label || kind) + '">' + esc(label || kind) + '</span>';
 }
-function mcPacketDots(count, state){
-  const n = Math.max(1, Math.min(9, Number(count) || 1));
-  return '<span class="' + mcClass('mc-packet-dots', state) + '" data-component="PacketFlow">' + Array.from({ length:n }, () => '<i class="mc-packet"></i>').join('') + '</span>';
+function mcPacketDots(count, state, opts){
+  const kind = mcStateKind(state);
+  const n = Math.max(1, Math.min(7, Number(count) || 1));
+  const mode = (opts && opts.mode) || 'rail';
+  const motion = kind === 'active' && !RM ? ' data-motion="packetDrift" data-motion-primitive="packetDrift"' : '';
+  return '<span class="' + mcClass('mc-packet-dots', kind) + '" data-component="PacketFlow" data-state="' + esc(kind) + '" data-packet-count="' + n + '" data-packet-mode="' + esc(mode) + '"' + motion + ' aria-hidden="true">' + Array.from({ length:n }, () => '<i class="mc-packet"></i>').join('') + '</span>';
 }
 function mcOrbitProgress(opts){
   const value = Math.max(0, Math.min(100, Number(opts && opts.value) || 0));
   const label = opts && opts.label ? opts.label : value + '%';
-  return '<span class="' + mcClass('mc-orbit', opts && opts.state) + '" data-component="OrbitProgress" data-state="' + esc(mcStateKind(opts && opts.state)) + '" style="--mc-progress:' + value + '">' + esc(label) + '</span>';
+  const kind = mcStateKind(opts && opts.state);
+  const motion = kind === 'active' && !RM ? ' data-motion="orbitSweep" data-motion-primitive="orbitSweep"' : '';
+  const packets = opts && opts.showPacketDots ? mcPacketDots(opts.packetCount || 3, kind, { mode:'orbit' }) : '';
+  const aria = (opts && opts.ariaLabel) || ('progress ' + label + ' · ' + kind);
+  return '<span class="' + mcClass('mc-orbit', kind) + '" data-component="OrbitProgress" data-state="' + esc(kind) + '" data-value="' + value + '"' + motion + ' role="img" aria-label="' + esc(aria) + '" style="--mc-progress:' + value + '"><span class="mc-orbit-label">' + esc(label) + '</span>' + packets + '</span>';
 }
 function mcSignalRail(opts){
-  return '<span class="' + mcClass('mc-signal-rail', opts && opts.state) + '" data-component="SignalRail">' + mcPacketDots(opts && opts.packetCount, opts && opts.state) + '</span>';
+  const kind = mcStateKind(opts && opts.state);
+  const label = (opts && opts.label) || ('signal rail ' + kind);
+  const end = kind === 'blocked' || kind === 'proof-needed' ? '<i class="mc-rail-end" aria-hidden="true"></i>' : '';
+  return '<span class="' + mcClass('mc-signal-rail', kind) + '" data-component="SignalRail" data-state="' + esc(kind) + '" aria-label="' + esc(label) + '">' + mcPacketDots(opts && opts.packetCount, kind) + end + '</span>';
+}
+function mcKpiBars(progress, state){
+  const kind = mcStateKind(state);
+  const depth = Math.max(1, Math.min(3, Math.ceil((Number(progress) || 0) / 34)));
+  return '<span class="mc-kpi-bars" data-component="PacketFlow" data-packet-mode="packet-bar" data-state="' + esc(kind) + '" data-signal-depth="' + depth + '" aria-label="signal depth ' + depth + ' of 3">' +
+    [1, 2, 3].map(i => '<i data-active="' + (i <= depth ? 'true' : 'false') + '"></i>').join('') +
+  '</span>';
+}
+function mcKpiPulse(row, index){
+  const progress = mcKpiProgress(row);
+  const state = mcKpiState(row);
+  const kind = index === 0 ? 'survival' : 'better-than-survival';
+  return '<div class="mc-kpi-row" data-component="KpiPulse" data-kpi-kind="' + kind + '" data-state="' + esc(mcStateKind(state)) + '">' +
+    mcOrbitProgress({ value:progress, state, label:'KPI', ariaLabel:'KPI ' + (index + 1) + ' progress ' + progress + '%' }) +
+    '<span class="mc-kpi-copy"><b>' + esc(row.label || ('KPI ' + (index + 1))) + '</b><span>' + esc((row.currentState || 'not proven') + ' · survival: ' + (row.survival || 'missing')) + '</span><small>' + esc(row.betterThanSurvival ? 'better: ' + row.betterThanSurvival : 'better-than-survival proof pending') + '</small>' + mcKpiBars(progress, state) + '</span>' +
+  '</div>';
 }
 const MC_BOARD_GLYPHS = Object.freeze([
   ['genesis','Genesis','seed star'],
@@ -785,7 +845,7 @@ function renderComponentMissionComponentsBoard(){
     '<span>' + mcGlyphSvg('proof', 'proof-needed') + '<span><b>ProofList</b>receipt required before claim</span>' + mcStateToken('proof-needed', 'proof') + '</span>' +
     '<span>' + mcGlyphSvg('build', 'blocked') + '<span><b>Blocked proof</b>missing live route or artifact</span>' + mcStateToken('blocked', 'blocked') + '</span>' +
   '</div>';
-  const kpiPulse = '<div class="mc-kpi-row" data-component="KpiPulse"><span class="mc-kpi-pulse">KPI</span><span><b>KpiPulse</b>survival signal, not decorative progress</span></div>';
+  const kpiPulse = mcKpiPulse({ label:'KpiPulse', currentState:'signal depth served', survival:'survival threshold', betterThanSurvival:'better-than-survival evidence' }, 0);
   const gateRow = '<div class="mc-action-row" data-component="GateActionRow">' +
     '<button type="button" data-component="GateAction" data-mission-action="gate">Review Gate</button>' +
     '<button type="button" class="secondary" data-component="ProofAction" data-mission-action="proof">Open Proof</button>' +
@@ -805,7 +865,7 @@ function renderComponentMotionBoard(){
   const motions = [
     ['orbitSweep','Orbit Sweep', [mcOrbitProgress({ value: 25, state: 'active', label: '25' }), mcOrbitProgress({ value: 50, state: 'active', label: '50' }), mcOrbitProgress({ value: 75, state: 'proof-needed', label: '75' })]],
     ['packetDrift','Packet Drift', [mcSignalRail({ state: 'idle', packetCount: 4 }), mcSignalRail({ state: 'active', packetCount: 6 }), mcSignalRail({ state: 'blocked', packetCount: 3 })]],
-    ['glyphBreathe','Glyph Breathe', [mcGlyphSvg('genesis', 'active'), mcGlyphSvg('taste', 'selected'), mcGlyphSvg('cortex', 'complete')]],
+    ['glyphBreathe','Glyph Breathe', [mcGlyphSvg('genesis', 'active', { motion:'glyphBreathe' }), mcGlyphSvg('taste', 'selected'), mcGlyphSvg('gate', 'blocked')]],
     ['warningAttention','Warning Attention', [mcStateToken('proof-needed', 'proof'), mcStateToken('blocked', 'blocked'), mcStateToken('stale', 'stale')]],
     ['reducedMotion','Reduced Motion', [mcGlyphSvg('arc', 'reduced-motion'), mcStateToken('reduced-motion', 'static'), mcOrbitProgress({ value: 50, state: 'reduced-motion', label: 'RM' })]],
   ];
@@ -2283,8 +2343,8 @@ function buildMissionControlView(env){
 function renderBranchArcRail(view){
   if (!view.branches.length) return '';
   return '<div class="mc-branch-rail">' + view.branches.map((branch, index) =>
-    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
-      mcGlyphSvg(branch.organ.glyph, branch.state) +
+    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '"' + (branch.selected && !RM ? ' data-motion="orbitSweep" data-motion-primitive="orbitSweep"' : '') + '>' +
+      mcGlyphSvg(branch.organ.glyph, branch.state, { motion: branch.selected ? 'glyphBreathe' : '' }) +
       '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b><small>' + esc(branch.organ.label + ' organ · ' + branch.nextMission) + '</small></span>' + mcStateToken(branch.state, branch.state) +
     '</button>'
   ).join('') + '</div>';
@@ -2298,7 +2358,7 @@ function renderMissionCard(view){
     '<div class="mc-card-meta"><span><b>Owner</b>' + esc(mission.owner) + '</span><span><b>Gate</b>' + esc(mission.gate) + '</span><span><b>Dispatch</b>' + esc(mission.dispatchTarget) + '</span><span><b>Promotion</b>' + esc(view.promotion.state) + '</span></div>' +
     '<div class="mc-branch-texture" data-component="MissionOrganSignal" data-organ-route="' + esc(view.activeOrgan.glyph) + '">' +
       '<span>' + mcGlyphSvg(view.activeOrgan.glyph, mission.state) + '<span><b>Active organ</b><small>' + esc(view.activeOrgan.label + ' · ' + view.activeOrgan.detail) + '</small></span></span>' +
-      mcPacketDots(Math.max(3, view.questline.length), mission.state) +
+      mcPacketDots(Math.max(3, view.questline.length), mission.state, { mode:'texture' }) +
     '</div>' +
     mcSignalRail({ state:mission.state, packetCount:Math.max(3, view.questline.length) }) +
   '</section>';
@@ -2320,7 +2380,7 @@ function renderMissionStateStack(view){
     { glyph:'ops', state:locked.state || locked.status || 'locked', title:'Locked', detail:(locked.title || 'next stage') + ' · waiting unlock', token:mcStateKind(locked.state || locked.status || 'locked') },
   ];
   return '<div data-component="MissionStateStack"><div class="mc-section-title">State Stack</div><div class="mc-state-stack">' + rows.map(row =>
-    '<div class="' + mcClass('mc-state-row', row.state, row.state === 'selected' ? 'is-selected mc-selected-halo' : '') + '">' +
+    '<div class="' + mcClass('mc-state-row', row.state, row.state === 'selected' ? 'is-selected mc-selected-halo' : '') + '" data-selected-surface="' + (row.state === 'selected' ? 'mission-state-row' : 'none') + '">' +
       mcGlyphSvg(row.glyph, row.state) +
       '<span><b>' + esc(row.title) + '</b><small>' + esc(row.detail) + '</small></span>' +
       mcStateToken(row.state, row.token) +
@@ -2340,12 +2400,7 @@ function renderMissionProofNeeded(view){
 }
 function renderMissionKpis(view){
   const rows = view.kpis.length ? view.kpis.slice(0, 4) : [{ label:'KPI missing', currentState:'not proven', survival:'survival threshold missing' }];
-  return '<div data-component="KpiPulse"><div class="mc-section-title">KPIs</div><div class="mc-kpis">' + rows.map(row =>
-    '<div class="mc-kpi-row">' +
-      mcOrbitProgress({ value:mcKpiProgress(row), state:mcKpiState(row), label:'KPI' }) +
-      '<span class="mc-kpi-copy"><b>' + esc(row.label) + '</b><span>' + esc((row.currentState || 'not proven') + ' · survival: ' + (row.survival || 'missing')) + '</span><small>' + esc(row.betterThanSurvival ? 'better: ' + row.betterThanSurvival : 'better-than-survival proof pending') + '</small><span class="mc-kpi-bars" data-component="PacketFlow"><i></i><i></i><i></i></span></span>' +
-    '</div>'
-  ).join('') + '</div></div>';
+  return '<div data-component="KpiPulse"><div class="mc-section-title">KPIs</div><div class="mc-kpis">' + rows.map((row, index) => mcKpiPulse(row, index)).join('') + '</div></div>';
 }
 function renderMissionActions(view){
   return '<div class="mc-action-row" data-component="GateActionRow">' +
@@ -2528,10 +2583,10 @@ function branchSheetTimeline(branch){
 function branchSheetKpis(kpis){
   if (!kpis.length) return '';
   return '<div class="branch-kpi-grid" data-component="KpiPulse">' + kpis.slice(0, 4).map((kpi, i) =>
-    '<div class="branch-kpi">' +
+    '<div class="branch-kpi" data-component="KpiPulse" data-kpi-kind="' + (i === 0 ? 'survival' : 'better-than-survival') + '" data-state="' + esc(mcStateKind(mcKpiState(kpi))) + '">' +
       mcOrbitProgress({ value:mcKpiProgress(kpi), state:mcKpiState(kpi), label:'KPI ' + (i + 1) }) +
       '<span><b>KPI ' + (i + 1) + ' · ' + esc(kpi.label || kpi.kpiId || 'KPI') + '</b>' +
-      '<span>' + esc((kpi.currentState || 'state missing') + ' · survival: ' + (kpi.survival || 'missing') + (kpi.betterThanSurvival ? ' · better: ' + kpi.betterThanSurvival : '')) + '</span><span class="mc-kpi-bars" data-component="PacketFlow"><i></i><i></i><i></i></span></span>' +
+      '<span>' + esc((kpi.currentState || 'state missing') + ' · survival: ' + (kpi.survival || 'missing') + (kpi.betterThanSurvival ? ' · better: ' + kpi.betterThanSurvival : '')) + '</span>' + mcKpiBars(mcKpiProgress(kpi), mcKpiState(kpi)) + '</span>' +
     '</div>'
   ).join('') + '</div>';
 }
@@ -2591,7 +2646,7 @@ function openBranchMissionSheet(env, branchIndex, missionIndex, focus){
   const guardCopy = controls.blockedCopy || 'no unsupported launch, approval, or autonomy claim from this sheet';
   $('sheetBody').innerHTML = '<div class="branch-sheet" data-component="BranchMissionSheet">' +
     '<section class="branch-sheet-hero" data-component="MissionCard">' +
-      '<div class="branch-sheet-head">' + mcGlyphSvg(focus === 'gate' ? 'build' : focus === 'proof' ? 'proof' : 'arc', focusState) +
+      '<div class="branch-sheet-head mc-selected-halo" data-component="SelectedHalo" data-selected-surface="detail-sheet">' + mcGlyphSvg(focus === 'gate' ? 'build' : focus === 'proof' ? 'proof' : 'arc', focusState) +
         '<div><div class="arc">' + esc(focusLabel) + ' · ' + esc(branch.branchId || branch.productId || 'branch') + '</div><h2>' + esc(branch.name || branch.productId || 'Product Branch') + '</h2></div>' +
         mcStateToken(focusState, focus === 'gate' ? 'Review gate' : focus === 'proof' ? 'Proof needed' : 'Selected') + '</div>' +
       '<div class="nar">' + esc(branchMissionFocusNarrative(branch, mission, gate, controls, focus)) + '</div>' +
@@ -3458,7 +3513,7 @@ function renderStoryDigest(beats){
 function storyPacketTrail(beat){
   const group = storyBeatGroup(beat);
   const count = group === 'Mission wins' ? 4 : group === 'Drift' ? 2 : 3;
-  return '<span class="mc-packet-dots" data-component="StoryPacketTrail">' + Array.from({ length: count }, () => '<i class="mc-packet"></i>').join('') + '</span>';
+  return '<span data-component="StoryPacketTrail">' + mcPacketDots(count, storyBeatState(beat), { mode:'rail' }) + '</span>';
 }
 function openStoryBeat(index){
   const beat = STORY_BEATS[index] || STORY_BEATS[0];
@@ -3598,7 +3653,7 @@ function renderGauge(L){
         '<animate attributeName="stroke-dasharray" dur="1s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1" keyTimes="0;1" values="0 ' + N1(CIRC) + ';' + val + ' ' + vgap + '"/>' +
       '</circle>';
   wrap.innerHTML =
-    '<div class="' + mcClass('gate-orbit', state) + '" data-component="GateOrbitProgress" data-gate-orbit-state="' + esc(state) + '">' +
+    '<div class="' + mcClass('gate-orbit', state) + '" data-component="GateOrbitProgress" data-shared-component="OrbitProgress" data-gate-orbit-state="' + esc(state) + '" data-state="' + esc(mcStateKind(state)) + '" data-value="' + Math.round(pct * 100) + '">' +
       '<svg viewBox="0 0 120 126" role="img" aria-label="' + esc(completed + ' of ' + total + ' arcs grown') + '">' +
         '<g transform="rotate(135 60 60)">' +
           '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="rgba(214,255,246,.12)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + track + ' ' + tgap + '"/>' +

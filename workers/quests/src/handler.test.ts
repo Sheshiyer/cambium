@@ -1821,8 +1821,15 @@ test('page · Mission Control visual primitives are named and reduced-motion saf
     'packetDrift',
     'glyphBreathe',
     'warningAttention',
-    '.mc-orbit::after,.mc-packet-dots,.mc-kpi-pulse,.mc-state-token{animation:none!important}',
+    '.mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-selected-halo[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
   ]) assert.ok(PAGE.includes(marker), `PAGE has ${marker}`);
+
+  for (const key of ['sourceRefs', 'propShapes', 'MissionGlyph', 'StateToken', 'OrbitProgress', 'SelectedHalo', 'SignalRail', 'PacketFlow', 'BranchArcChip', 'MissionCard', 'QuestlineTimeline', 'ProofList', 'KpiPulse', 'GateActionRow', 'Motion']) {
+    assert.match(PAGE, new RegExp(`${key}:`), `registry has ${key}`);
+  }
+  for (const ref of ['component-map.md', '01-component-glyph-state-board.md', '02-mission-control-state-stack-mobile.md', '03-motion-storyboard-mobile.md']) {
+    assert.match(PAGE, new RegExp(ref.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `registry source ref ${ref}`);
+  }
 
   const glyphHelper = PAGE.slice(PAGE.indexOf('function mcGlyphSvg'), PAGE.indexOf('function mcStateToken'));
   assert.match(glyphHelper, /MC_GLYPH_SVG\[glyph\]/);
@@ -1831,6 +1838,32 @@ test('page · Mission Control visual primitives are named and reduced-motion saf
   for (const glyph of ['genesis', 'taste', 'build', 'ops', 'cortex', 'arc', 'proof', 'gate']) {
     assert.match(PAGE, new RegExp(`${glyph}:'<svg viewBox="0 0 32 32"`));
   }
+});
+
+test('page · component registry helpers enforce orbit rail packet KPI contracts', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=components',
+  });
+  const orbit = rendered.context.mcOrbitProgress as (opts: Record<string, unknown>) => string;
+  const rail = rendered.context.mcSignalRail as (opts: Record<string, unknown>) => string;
+  const packets = rendered.context.mcPacketDots as (count: number, state: string, opts?: Record<string, unknown>) => string;
+  const kpi = rendered.context.mcKpiPulse as (row: Record<string, unknown>, index: number) => string;
+
+  assert.match(orbit({ value: -5, state: 'active' }), /data-value="0"[^>]*--mc-progress:0/);
+  assert.match(orbit({ value: 140, state: 'complete' }), /data-value="100"[^>]*--mc-progress:100/);
+  assert.match(orbit({ value: 35, state: 'proof-needed', label: 'proof', showPacketDots: true }), /data-state="proof-needed"[\s\S]*data-component="PacketFlow"/);
+  assert.match(orbit({ value: 50, state: 'reduced-motion', label: 'RM' }), /data-state="reduced-motion"[\s\S]*>RM<\/span>/);
+
+  assert.match(rail({ state: 'blocked', packetCount: 3 }), /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*mc-rail-end/);
+  assert.equal((packets(99, 'active').match(/class="mc-packet"/g) || []).length, 7);
+  assert.equal((packets(0, 'active').match(/class="mc-packet"/g) || []).length, 1);
+  assert.match(packets(3, 'blocked', { mode: 'rail' }), /is-blocked[\s\S]*data-packet-mode="rail"/);
+
+  const renderedKpi = kpi({ label: 'Qualified demo', currentState: 'blocked proof', survival: 'merchant demo', betterThanSurvival: 'paid pilot' }, 1);
+  assert.match(renderedKpi, /data-component="KpiPulse"[^>]*data-kpi-kind="better-than-survival"/);
+  assert.match(renderedKpi, /data-component="OrbitProgress"/);
+  assert.match(renderedKpi, /class="mc-kpi-bars" data-component="PacketFlow"/);
+  assert.doesNotMatch(renderedKpi, /mc-kpi-pulse/);
 });
 
 test('page · component route renders the reference glyph state board as components', async () => {
@@ -2464,8 +2497,14 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-component="MissionOrganSignal"/);
   assert.match(html, /data-organ-route="taste"/);
   assert.match(html, /data-glyph-kind="taste"/);
-  assert.match(html, /data-component="OrbitProgress"[^>]*>KPI<\/span>/);
+  assert.match(html, /data-selected-surface="branch-chip"/);
+  assert.match(html, /data-selected-surface="mission-state-row"/);
+  assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);
+  assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
+  assert.match(html, /data-packet-mode="texture"/);
+  assert.match(html, /data-component="OrbitProgress"[^>]*>[\s\S]*<span class="mc-orbit-label">KPI<\/span>/);
   assert.match(html, /class="mc-kpi-bars" data-component="PacketFlow"/);
+  assert.match(html, /data-component="KpiPulse"[^>]*data-kpi-kind="survival"/);
   assert.doesNotMatch(html, /mc-kpi-pulse/);
   assert.doesNotMatch(PAGE, /\.mc-action-row\{[^}]*position:sticky/);
   assert.doesNotMatch(PAGE, /data-mission-action="gate"[^;]+=> go\(1\)/);
@@ -2477,12 +2516,15 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(gateSheet, /branch gate · fitcheck/);
   assert.match(gateSheet, /Review the active gate before this branch can advance/);
   assert.match(gateSheet, /Founder review/);
+  assert.match(gateSheet, /data-component="SelectedHalo"[^>]*data-selected-surface="detail-sheet"/);
 
   (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'proof');
   const proofSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(proofSheet, /branch proof · fitcheck/);
   assert.match(proofSheet, /Open the proof requirement for the next branch mission/);
   assert.match(proofSheet, /Viewport capture/);
+  assert.match(proofSheet, /data-component="KpiPulse"[^>]*data-kpi-kind="survival"[\s\S]*data-component="OrbitProgress"[\s\S]*class="mc-kpi-bars" data-component="PacketFlow"/);
+  assert.doesNotMatch(proofSheet, /mc-kpi-pulse/);
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
 });
 
