@@ -11,6 +11,7 @@
 // each tenant tracks its own journey from brief → garden.
 
 import type { PolicyPrioritySignals } from './operator-policy.ts';
+import type { BranchStoryArc } from './branch-stories.ts';
 
 export type QuestStatus = 'complete' | 'active' | 'locked';
 
@@ -61,6 +62,8 @@ export interface QuestInputs {
   };
   /** Explicit policy-facing priority contract. Visual decisionContext rows never substitute for this. */
   prioritySignals?: PolicyPrioritySignals;
+  /** Product/service branch arcs parsed from proof-bound product packets. The global quest ledger never derives completion from these rows. */
+  branchStories?: BranchStoryArc[];
 }
 
 export interface Quest {

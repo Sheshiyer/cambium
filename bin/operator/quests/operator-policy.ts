@@ -3,7 +3,7 @@ import type { QuestLedger } from './quests.ts';
 export type OperatorPolicyStatus = 'ready' | 'blocked';
 export type OperatorPolicySource = 'operator-policy';
 
-export const OPERATOR_POLICY_RULES_VERSION = 'operator-policy@v1.4';
+export const OPERATOR_POLICY_RULES_VERSION = 'operator-policy@v1.5';
 
 export interface PolicyStance {
   status: string;
@@ -46,6 +46,25 @@ export interface PolicyGateItem {
     score?: number;
     reasons?: string[];
   };
+}
+
+export type PolicyBranchMissionGateStatus = 'ready' | 'blocked' | 'pending' | 'complete';
+export type PolicyBranchMissionProofStatus = 'verified' | 'blocked' | 'pending' | 'no-signal';
+
+export interface PolicyBranchMissionCandidate {
+  missionId: string;
+  branchId: string;
+  title: string;
+  gateStatus: PolicyBranchMissionGateStatus;
+  proofRequired: string;
+  risk?: string;
+  dependency?: string;
+  dispatchTarget?: string;
+  permissionStatus?: PolicyBranchMissionProofStatus;
+  proofStatus?: PolicyBranchMissionProofStatus;
+  autonomyBoundary?: string;
+  approvalsRequired?: string[];
+  dispatchAllowed?: boolean;
 }
 
 export interface PolicyPrioritySignals {
@@ -102,6 +121,7 @@ export interface OperatorPolicyInput {
   skills: PolicySkills;
   gateItems?: PolicyGateItem[];
   prioritySignals?: PolicyPrioritySignals;
+  branchMissions?: PolicyBranchMissionCandidate[];
 }
 
 const requiredSignals = [
@@ -126,6 +146,14 @@ const priorityRequiredSignals = [
   'team availability signal',
   'member revocation signal',
   'cross-tenant urgency score',
+] as const;
+
+const branchMissionRequiredSignals = [
+  'branch mission gate status',
+  'branch mission proof requirement',
+  'branch mission permission status',
+  'branch mission autonomy boundary',
+  'branch mission dispatch target',
 ] as const;
 
 function rankedSkills(skills: PolicySkills): PolicySkillRow[] {
@@ -276,10 +304,69 @@ function rankedGateItems(items: PolicyGateItem[], signals?: PolicyPrioritySignal
     );
 }
 
+function branchMissionGateRank(status: PolicyBranchMissionGateStatus): number {
+  if (status === 'ready') return 3;
+  if (status === 'pending') return 2;
+  if (status === 'blocked') return 1;
+  return 0;
+}
+
+function branchMissionBlockers(mission: PolicyBranchMissionCandidate): string[] {
+  const blockers: string[] = [];
+  const label = mission.missionId || 'unknown';
+  if (!mission.missionId || !mission.branchId || !mission.title) {
+    blockers.push(`branch mission ${label} missing missionId, branchId, or title`);
+  }
+  if (mission.gateStatus !== 'ready') {
+    blockers.push(`branch mission ${label} gate is ${mission.gateStatus}`);
+  }
+  if (!mission.proofRequired) {
+    blockers.push(`branch mission ${label} missing required proof`);
+  }
+  if (!mission.proofStatus) {
+    blockers.push(`branch mission ${label} proof status missing`);
+  } else if (mission.proofStatus !== 'verified') {
+    blockers.push(`branch mission ${label} proof status is ${mission.proofStatus}`);
+  }
+  if (!mission.permissionStatus) {
+    blockers.push(`branch mission ${label} permission status missing`);
+  } else if (mission.permissionStatus !== 'verified') {
+    blockers.push(`branch mission ${label} permission status is ${mission.permissionStatus}`);
+  }
+  const approvalsRequired = mission.approvalsRequired?.filter(Boolean) ?? [];
+  const autonomyRequiresFounder = /\bfounder\b.*\bapproval\b|\bapproval\b.*\bfounder\b/i.test(mission.autonomyBoundary ?? '');
+  if (approvalsRequired.length > 0 || autonomyRequiresFounder) {
+    blockers.push(`branch mission ${label} founder approval required${approvalsRequired.length ? `: ${approvalsRequired.join(', ')}` : ''}`);
+  }
+  if (!mission.dispatchTarget) {
+    blockers.push(`branch mission ${label} dispatch target missing`);
+  } else if (mission.dispatchAllowed === false) {
+    blockers.push(`branch mission ${label} dispatch target ${mission.dispatchTarget} is not allowed`);
+  }
+  return blockers;
+}
+
+function rankedBranchMissions(missions: PolicyBranchMissionCandidate[]): PolicyBranchMissionCandidate[] {
+  return missions
+    .filter((mission) => branchMissionBlockers(mission).length === 0)
+    .sort((a, b) =>
+      branchMissionGateRank(b.gateStatus) - branchMissionGateRank(a.gateStatus) ||
+      gateDependencyRank(b.dependency) - gateDependencyRank(a.dependency) ||
+      gateRiskRank(b.risk) - gateRiskRank(a.risk) ||
+      a.branchId.localeCompare(b.branchId) ||
+      a.missionId.localeCompare(b.missionId)
+    );
+}
+
+function branchMissionCandidateBlockers(missions: PolicyBranchMissionCandidate[]): string[] {
+  return missions.flatMap((mission) => branchMissionBlockers(mission)).slice(0, 8);
+}
+
 export function evaluateOperatorPolicy(input: OperatorPolicyInput): OperatorPolicyEnvelope {
   const blockers: string[] = [];
   const priorityBlockers = prioritySignalBlockers(input.prioritySignals);
   const gateItems = input.gateItems ?? [];
+  const branchMissions = input.branchMissions ?? [];
   const malformedGateItem = gateItems.find((item) => !gateItemReady(item));
   const prioritizedGateItems = malformedGateItem || priorityBlockers.length > 0
     ? []
@@ -304,10 +391,34 @@ export function evaluateOperatorPolicy(input: OperatorPolicyInput): OperatorPoli
       rulesVersion: OPERATOR_POLICY_RULES_VERSION,
     };
   }
+  const prioritizedBranchMissions = malformedGateItem || priorityBlockers.length > 0
+    ? []
+    : rankedBranchMissions(branchMissions);
+  const branchMission = prioritizedBranchMissions[0];
+  if (branchMission) {
+    const riskDetail = branchMission.risk || branchMission.dependency
+      ? ` · ${branchMission.risk ?? 'unknown'} risk · ${branchMission.dependency ?? 'unknown'} dependency`
+      : '';
+    return {
+      source: 'operator-policy',
+      status: 'ready',
+      action: `Advance branch mission ${branchMission.missionId}: ${branchMission.title}`,
+      title: 'BRANCH MISSION',
+      detail: `${branchMission.branchId} · ${branchMission.gateStatus} gate · ${branchMission.dispatchTarget} dispatch · proof ${branchMission.proofRequired}${riskDetail}`,
+      blockers: [],
+      cautions: [
+        'branch mission recommendation preserves the global quest ledger; proof still folds back through branch gates',
+      ],
+      requiredSignals: [...branchMissionRequiredSignals],
+      rulesVersion: OPERATOR_POLICY_RULES_VERSION,
+    };
+  }
   if (malformedGateItem) {
     blockers.push(`gate item ${malformedGateItem.id || 'unknown'} missing evidence, consequences, reversibility, idempotency, risk, or dependency`);
   }
   blockers.push(...priorityBlockers);
+  const blockedBranchMissions = branchMissions.length > 0 ? branchMissionCandidateBlockers(branchMissions) : [];
+  blockers.push(...blockedBranchMissions);
 
   const current = input.ledger.current;
   if (!current) blockers.push('quest frontier missing; all arcs may be complete');
@@ -336,6 +447,8 @@ export function evaluateOperatorPolicy(input: OperatorPolicyInput): OperatorPoli
       cautions: [],
       requiredSignals: malformedGateItem || priorityBlockers.length > 0
         ? [...gateRequiredSignals, ...(input.prioritySignals ? [...priorityRequiredSignals] : [])]
+        : blockedBranchMissions.length > 0
+          ? [...branchMissionRequiredSignals]
         : [...requiredSignals],
       rulesVersion: OPERATOR_POLICY_RULES_VERSION,
       gap: blockers[0],

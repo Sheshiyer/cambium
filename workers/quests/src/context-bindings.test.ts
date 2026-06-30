@@ -21,6 +21,18 @@ const fakeWorkerEnv = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+test('worker adapter serves the mini app shell when root URL carries Telegram query params', async () => {
+  const response = await worker.fetch(
+    new Request('https://worker.test/?tenant=cambium&scene=map'),
+    fakeWorkerEnv() as any,
+  );
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type') ?? '', /text\/html/);
+  const html = await response.text();
+  assert.match(html, /START_SCENE/);
+  assert.match(html, /renderBranches/);
+});
+
 test('routine adapter reads only explicit safe exact keys and summarizes markdown', async () => {
   const calls: string[] = [];
   const objects = new Map([

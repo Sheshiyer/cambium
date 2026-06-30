@@ -1,11 +1,10 @@
 {
   "schema": "cambium.tg-viewport-browser-diagnostics.v1",
-  "generatedAt": "2026-06-22T19:53:19.219Z",
+  "generatedAt": "2026-06-29T10:17:47.062Z",
   "browserCandidates": [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Arc.app/Contents/MacOS/Arc",
     "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
-    "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1226/chrome-headless-shell-mac-arm64/chrome-headless-shell",
     "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
     "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-mac-arm64/chrome-headless-shell",
     "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell"
@@ -16,9 +15,9 @@
   ],
   "probeTimeoutMs": 3500,
   "summary": {
-    "ready": 12,
+    "ready": 10,
     "blocked": 2,
-    "total": 14,
+    "total": 12,
     "cdpReady": true
   },
   "results": [
@@ -28,24 +27,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nGoogle    60700 sheshnarayaniyer   51u  IPv4 0xb4db8d461747c9b0      0t0  TCP 127.0.0.1:55273 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nGoogle    70440 sheshnarayaniyer   54u  IPv4 0xbf9c3f1b57fcb810      0t0  TCP 127.0.0.1:65347 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55273/json/list",
+          "endpoint": "http://127.0.0.1:65347/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55273/json/list",
+          "endpoint": "http://localhost:65347/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55273/json/list",
+          "endpoint": "http://[::1]:65347/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "[60700:276477:0623/012229.786879:INFO:components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc:239] No machine level policy manager exists.\n[60700:277033:0623/012230.088389:WARNING:chrome/browser/extensions/external_pref_loader.cc:294] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/docs/extensions/how-to/distribute/install-extensions)\n\nDevTools listening on ws://127.0.0.1:55273/devtools/browser/4e5225ea-8a41-445c-af99-809b4b26bbd8"
+      "stderr": "[70440:4280359:0629/154704.405432:INFO:components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc:239] No machine level policy manager exists.\n[70440:4280478:0629/154704.535857:WARNING:chrome/browser/extensions/external_pref_loader.cc:294] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/docs/extensions/how-to/distribute/install-extensions)\n\nDevTools listening on ws://127.0.0.1:65347/devtools/browser/b17aa78f-3f27-4b2d-9e92-f2b8eeece2db"
     },
     {
       "browser": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -53,24 +52,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nGoogle    62789 sheshnarayaniyer   46u  IPv4 0x5ddfc6ab401d43f9      0t0  TCP 127.0.0.1:55305 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nGoogle    70589 sheshnarayaniyer   49u  IPv4 0xc8041a795e7870c3      0t0  TCP 127.0.0.1:65374 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55305/json/list",
+          "endpoint": "http://127.0.0.1:65374/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55305/json/list",
+          "endpoint": "http://localhost:65374/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55305/json/list",
+          "endpoint": "http://[::1]:65374/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "[62789:279412:0623/012232.948121:INFO:components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc:239] No machine level policy manager exists.\n\nDevTools listening on ws://127.0.0.1:55305/devtools/browser/f78a1bfe-daea-4d9a-acb8-b8176457b22b\n[62789:279610:0623/012233.077629:WARNING:chrome/browser/extensions/external_pref_loader.cc:294] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/docs/extensions/how-to/distribute/install-extensions)"
+      "stderr": "[70589:4281136:0629/154707.763871:INFO:components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc:239] No machine level policy manager exists.\n\nDevTools listening on ws://127.0.0.1:65374/devtools/browser/b91aeb9d-40c6-4ad3-a963-3bb35c29c8fb\n[70589:4281176:0629/154707.823597:WARNING:chrome/browser/extensions/external_pref_loader.cc:294] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/docs/extensions/how-to/distribute/install-extensions)"
     },
     {
       "browser": "/Applications/Arc.app/Contents/MacOS/Arc",
@@ -78,18 +77,18 @@
       "state": "blocked",
       "exitCode": null,
       "listenerReady": false,
-      "listener": "cdp listener check: no process is listening on TCP 55333",
+      "listener": "cdp listener check: no process is listening on TCP 65388",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55333/json/list",
+          "endpoint": "http://127.0.0.1:65388/json/list",
           "error": "fetch failed"
         },
         {
-          "endpoint": "http://localhost:55333/json/list",
+          "endpoint": "http://localhost:65388/json/list",
           "error": "fetch failed"
         },
         {
-          "endpoint": "http://[::1]:55333/json/list",
+          "endpoint": "http://[::1]:65388/json/list",
           "error": "fetch failed"
         }
       ],
@@ -101,18 +100,18 @@
       "state": "blocked",
       "exitCode": null,
       "listenerReady": false,
-      "listener": "cdp listener check: no process is listening on TCP 55348",
+      "listener": "cdp listener check: no process is listening on TCP 65400",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55348/json/list",
+          "endpoint": "http://127.0.0.1:65400/json/list",
           "error": "fetch failed"
         },
         {
-          "endpoint": "http://localhost:55348/json/list",
+          "endpoint": "http://localhost:65400/json/list",
           "error": "fetch failed"
         },
         {
-          "endpoint": "http://[::1]:55348/json/list",
+          "endpoint": "http://[::1]:65400/json/list",
           "error": "fetch failed"
         }
       ],
@@ -124,24 +123,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 64944 sheshnarayaniyer   40u  IPv4 0x5ddfc6ab401d43f9      0t0  TCP 127.0.0.1:55377 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 70838 sheshnarayaniyer   40u  IPv4 0x782edbba95e85979      0t0  TCP 127.0.0.1:65410 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55377/json/list",
+          "endpoint": "http://127.0.0.1:65410/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55377/json/list",
+          "endpoint": "http://localhost:65410/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55377/json/list",
+          "endpoint": "http://[::1]:65410/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55377/devtools/browser/4588372a-aa5a-471d-b036-b851ce9fda6e"
+      "stderr": "DevTools listening on ws://127.0.0.1:65410/devtools/browser/7e6a9a34-3416-4c01-83b1-04d171955eb2"
     },
     {
       "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
@@ -149,74 +148,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 65778 sheshnarayaniyer   40u  IPv4 0x81b4aa87f4137554      0t0  TCP 127.0.0.1:55397 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 70973 sheshnarayaniyer   40u  IPv4 0x48eaecfddf307189      0t0  TCP 127.0.0.1:65422 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55397/json/list",
+          "endpoint": "http://127.0.0.1:65422/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55397/json/list",
+          "endpoint": "http://localhost:65422/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55397/json/list",
+          "endpoint": "http://[::1]:65422/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55397/devtools/browser/05c1c60e-c147-426d-9360-ab5215801e92"
-    },
-    {
-      "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1226/chrome-headless-shell-mac-arm64/chrome-headless-shell",
-      "mode": "headless-new",
-      "state": "ready",
-      "exitCode": null,
-      "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 65817 sheshnarayaniyer   40u  IPv4 0x2e72458aa65c4e84      0t0  TCP 127.0.0.1:55413 (LISTEN)",
-      "endpointProbes": [
-        {
-          "endpoint": "http://127.0.0.1:55413/json/list",
-          "status": 200,
-          "ok": true
-        },
-        {
-          "endpoint": "http://localhost:55413/json/list",
-          "status": 200,
-          "ok": true
-        },
-        {
-          "endpoint": "http://[::1]:55413/json/list",
-          "error": "fetch failed"
-        }
-      ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55413/devtools/browser/ac31a640-624c-430c-9209-55e53c1c2c2d"
-    },
-    {
-      "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1226/chrome-headless-shell-mac-arm64/chrome-headless-shell",
-      "mode": "headless-old",
-      "state": "ready",
-      "exitCode": null,
-      "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 65849 sheshnarayaniyer   39u  IPv4 0xaff581711df978fb      0t0  TCP 127.0.0.1:55432 (LISTEN)",
-      "endpointProbes": [
-        {
-          "endpoint": "http://127.0.0.1:55432/json/list",
-          "status": 200,
-          "ok": true
-        },
-        {
-          "endpoint": "http://localhost:55432/json/list",
-          "status": 200,
-          "ok": true
-        },
-        {
-          "endpoint": "http://[::1]:55432/json/list",
-          "error": "fetch failed"
-        }
-      ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55432/devtools/browser/b68f35de-33f3-4aa1-9d3e-99d69e93c7e5"
+      "stderr": "DevTools listening on ws://127.0.0.1:65422/devtools/browser/a7d97131-59b4-4ec7-94be-08c1187ff48e"
     },
     {
       "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
@@ -224,24 +173,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 66569 sheshnarayaniyer   40u  IPv4 0x81b226f9c506364f      0t0  TCP 127.0.0.1:55450 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 71075 sheshnarayaniyer   40u  IPv4 0xf50c292e40f7f01b      0t0  TCP 127.0.0.1:65435 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55450/json/list",
+          "endpoint": "http://127.0.0.1:65435/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55450/json/list",
+          "endpoint": "http://localhost:65435/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55450/json/list",
+          "endpoint": "http://[::1]:65435/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55450/devtools/browser/0852eacf-b94f-4435-a96c-143c3f3c74bf"
+      "stderr": "DevTools listening on ws://127.0.0.1:65435/devtools/browser/afd666da-0f16-4530-97d1-c32198f5e2a4"
     },
     {
       "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
@@ -249,24 +198,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 66589 sheshnarayaniyer   24u  IPv4 0xd105177053a1d26f      0t0  TCP 127.0.0.1:55537 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 71133 sheshnarayaniyer   37u  IPv4 0xb63e612f7ab181fa      0t0  TCP 127.0.0.1:65444 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55537/json/list",
+          "endpoint": "http://127.0.0.1:65444/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55537/json/list",
+          "endpoint": "http://localhost:65444/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55537/json/list",
+          "endpoint": "http://[::1]:65444/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55537/devtools/browser/91a96dd7-5cac-4a80-9835-b73262ededee"
+      "stderr": "DevTools listening on ws://127.0.0.1:65444/devtools/browser/cea424c4-63bd-46d7-8d23-1cd786be46e4"
     },
     {
       "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-mac-arm64/chrome-headless-shell",
@@ -274,24 +223,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 66763 sheshnarayaniyer   40u  IPv4 0x6f88d46114b2d43c      0t0  TCP 127.0.0.1:55559 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 71315 sheshnarayaniyer   40u  IPv4 0xaf7712c944a22d06      0t0  TCP 127.0.0.1:65469 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55559/json/list",
+          "endpoint": "http://127.0.0.1:65469/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55559/json/list",
+          "endpoint": "http://localhost:65469/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55559/json/list",
+          "endpoint": "http://[::1]:65469/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55559/devtools/browser/66d0e312-58a9-4984-bfad-d480cffba413"
+      "stderr": "DevTools listening on ws://127.0.0.1:65469/devtools/browser/bd78e6c7-f100-448c-8ce9-010362ce759c"
     },
     {
       "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-mac-arm64/chrome-headless-shell",
@@ -299,24 +248,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE            DEVICE SIZE/OFF NODE NAME\nchrome-he 67356 sheshnarayaniyer   35u  IPv4 0xbaf413a7b06e9c4      0t0  TCP 127.0.0.1:55582 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 71361 sheshnarayaniyer   36u  IPv4 0x2d361e447f736730      0t0  TCP 127.0.0.1:65494 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55582/json/list",
+          "endpoint": "http://127.0.0.1:65494/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55582/json/list",
+          "endpoint": "http://localhost:65494/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55582/json/list",
+          "endpoint": "http://[::1]:65494/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55582/devtools/browser/e0feaad7-22e9-4be3-b949-9b113e45b309"
+      "stderr": "DevTools listening on ws://127.0.0.1:65494/devtools/browser/ecf035e0-9ecf-4e0e-ba72-bd55e3d13817"
     },
     {
       "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell",
@@ -324,24 +273,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 67860 sheshnarayaniyer   43u  IPv4 0x21a70daa81b3b2d6      0t0  TCP 127.0.0.1:55604 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 71511 sheshnarayaniyer   43u  IPv4 0x7a11c6c4d63428f2      0t0  TCP 127.0.0.1:65504 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55604/json/list",
+          "endpoint": "http://127.0.0.1:65504/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55604/json/list",
+          "endpoint": "http://localhost:65504/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55604/json/list",
+          "endpoint": "http://[::1]:65504/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55604/devtools/browser/c2d34558-6764-4eb9-ac52-2f8c6b678e05"
+      "stderr": "DevTools listening on ws://127.0.0.1:65504/devtools/browser/7bdf46c7-0edc-4b0a-9f2c-56c0d9d43576"
     },
     {
       "browser": "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell",
@@ -349,24 +298,24 @@
       "state": "ready",
       "exitCode": null,
       "listenerReady": true,
-      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 68920 sheshnarayaniyer   38u  IPv4 0x762c9f63d3a16c11      0t0  TCP 127.0.0.1:55645 (LISTEN)",
+      "listener": "cdp listener check:\nCOMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nchrome-he 71590 sheshnarayaniyer   40u  IPv4 0x2d361e447f736730      0t0  TCP 127.0.0.1:49159 (LISTEN)",
       "endpointProbes": [
         {
-          "endpoint": "http://127.0.0.1:55645/json/list",
+          "endpoint": "http://127.0.0.1:49159/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://localhost:55645/json/list",
+          "endpoint": "http://localhost:49159/json/list",
           "status": 200,
           "ok": true
         },
         {
-          "endpoint": "http://[::1]:55645/json/list",
+          "endpoint": "http://[::1]:49159/json/list",
           "error": "fetch failed"
         }
       ],
-      "stderr": "DevTools listening on ws://127.0.0.1:55645/devtools/browser/0346349b-1439-4712-bfe5-27bd5ec3ed1d"
+      "stderr": "DevTools listening on ws://127.0.0.1:49159/devtools/browser/340dc833-5da1-463f-83a7-880794a036cd"
     }
   ],
   "invariant": "Browser diagnostics are not layout proof; viewport proof remains blocked until manifest.json is regenerated by a passing screenshot run."

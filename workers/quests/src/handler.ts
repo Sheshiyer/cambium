@@ -445,6 +445,26 @@ function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string)
   const priority = optionalText(raw.priority, 24);
   const taskType = optionalText(raw.taskType ?? raw.type, 24);
   const skillHints = topicSkillHints(raw.skillHints);
+  const branchMission = isRecord(raw.branchMission) ? raw.branchMission : {};
+  const rawKpiIds = Array.isArray(raw.kpiIds) ? raw.kpiIds : Array.isArray(branchMission.kpiIds) ? branchMission.kpiIds : [];
+  const kpiIds = rawKpiIds.map((value) => optionalText(value, 120)).filter((value): value is string => !!value);
+  const rawApprovalsRequired = Array.isArray(raw.approvalsRequired) ? raw.approvalsRequired : Array.isArray(branchMission.approvalsRequired) ? branchMission.approvalsRequired : [];
+  const approvalsRequired = rawApprovalsRequired.map((value) => optionalText(value, 240)).filter((value): value is string => !!value);
+  const branchMissionMeta = {
+    branchId: optionalText(raw.branchId ?? branchMission.branchId, 120),
+    arcId: optionalText(raw.arcId ?? branchMission.arcId, 160),
+    missionId: optionalText(raw.missionId ?? branchMission.missionId, 160),
+    ...(kpiIds.length ? { kpiIds } : {}),
+    proofRequired: optionalText(raw.proofRequired ?? branchMission.proofRequired, 500),
+    gateId: optionalText(raw.gateId ?? branchMission.gateId, 160),
+    promotionState: optionalText(raw.promotionState ?? branchMission.promotionState, 120),
+    proofFoldback: optionalText(raw.proofFoldback ?? branchMission.proofFoldback, 500),
+    autonomyBoundary: optionalText(raw.autonomyBoundary ?? branchMission.autonomyBoundary, 500),
+    ...(approvalsRequired.length ? { approvalsRequired } : {}),
+  };
+  const branchMissionRecord = Object.fromEntries(Object.entries(branchMissionMeta).filter(([, value]) =>
+    Array.isArray(value) ? value.length > 0 : !!value
+  ));
   return {
     taskId,
     projectId,
@@ -460,6 +480,7 @@ function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string)
     assignedBy: optionalText(raw.assignedBy, 80) ?? 'cambium',
     source: optionalText(raw.source, 80) ?? 'cambium',
     ...(skillHints.length ? { skillHints } : {}),
+    ...branchMissionRecord,
   };
 }
 
@@ -545,6 +566,12 @@ function topicQuestAssignment(raw: Record<string, unknown>, createId: () => stri
   const eventId = optionalText(raw.eventId, 180) ?? `topic:${projectId}:${topicKey}:${signalId}:assigned`;
   const correlationId = optionalText(raw.correlationId, 180) ?? eventId;
   const skillHints = topicSkillHints(raw.skillHints);
+  const kpiIds = Array.isArray(raw.kpiIds)
+    ? raw.kpiIds.map((value) => optionalText(value, 120)).filter((value): value is string => !!value)
+    : [];
+  const approvalsRequired = Array.isArray(raw.approvalsRequired)
+    ? raw.approvalsRequired.map((value) => optionalText(value, 240)).filter((value): value is string => !!value)
+    : [];
   return {
     memberId,
     eventId,
@@ -563,6 +590,16 @@ function topicQuestAssignment(raw: Record<string, unknown>, createId: () => stri
       assignedBy: optionalText(raw.assignedBy, 80) ?? 'hermes-topic-router',
       source: 'cambium-topic-routing',
       ...(skillHints.length ? { skillHints } : {}),
+      ...(optionalText(raw.branchId, 120) ? { branchId: optionalText(raw.branchId, 120) } : {}),
+      ...(optionalText(raw.arcId, 160) ? { arcId: optionalText(raw.arcId, 160) } : {}),
+      ...(optionalText(raw.missionId, 160) ? { missionId: optionalText(raw.missionId, 160) } : {}),
+      ...(kpiIds.length ? { kpiIds } : {}),
+      ...(optionalText(raw.gateId, 160) ? { gateId: optionalText(raw.gateId, 160) } : {}),
+      ...(optionalText(raw.proofRequired, 500) ? { proofRequired: optionalText(raw.proofRequired, 500) } : {}),
+      ...(optionalText(raw.proofFoldback, 500) ? { proofFoldback: optionalText(raw.proofFoldback, 500) } : {}),
+      ...(optionalText(raw.promotionState, 120) ? { promotionState: optionalText(raw.promotionState, 120) } : {}),
+      ...(optionalText(raw.autonomyBoundary, 500) ? { autonomyBoundary: optionalText(raw.autonomyBoundary, 500) } : {}),
+      ...(approvalsRequired.length ? { approvalsRequired } : {}),
     },
   };
 }
@@ -1182,9 +1219,46 @@ function publicQuestBody(stored: string): string {
   }
 }
 
+function parsedTime(value: unknown): number | null {
+  if (typeof value !== 'string' && typeof value !== 'number') return null;
+  const parsed = Date.parse(String(value));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseStoredEnvelope(stored: string | null): any | null {
+  if (!stored) return null;
+  try {
+    const parsed = JSON.parse(stored);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function hasBranchStoryRows(envelope: unknown): boolean {
+  if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope)) return false;
+  const branchStories = (envelope as Record<string, unknown>).branchStories;
+  if (!branchStories || typeof branchStories !== 'object' || Array.isArray(branchStories)) return false;
+  const rows = (branchStories as Record<string, unknown>).rows;
+  return Array.isArray(rows) && rows.length > 0;
+}
+
+function staleLedgerPush(existing: unknown, incoming: unknown): boolean {
+  if (!existing || typeof existing !== 'object' || Array.isArray(existing)) return false;
+  if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) return false;
+  const existingDerivedAt = parsedTime((existing as Record<string, unknown>).derivedAt);
+  const incomingDerivedAt = parsedTime((incoming as Record<string, unknown>).derivedAt);
+  return existingDerivedAt !== null && incomingDerivedAt !== null && incomingDerivedAt < existingDerivedAt;
+}
+
+function wouldRegressBranchStories(existing: unknown, incoming: unknown): boolean {
+  return hasBranchStoryRows(existing) && !hasBranchStoryRows(incoming);
+}
+
 function tenantOf(path: string, prefix: string): string | null {
-  if (!path.startsWith(prefix)) return null;
-  const rest = path.slice(prefix.length).replace(/\/+$/, '');
+  const routePath = fabricRoutePath(path);
+  if (!routePath.startsWith(prefix)) return null;
+  const rest = routePath.slice(prefix.length).replace(/\/+$/, '');
   return VALID_TENANT.test(rest) ? rest : null;
 }
 
@@ -1327,7 +1401,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(404, { error: `no Fabric route for ${method} ${path}` });
   }
 
-  if (method === 'GET' && path.startsWith('/api/quests/')) {
+  if (method === 'GET' && routePath.startsWith('/api/quests/')) {
     const tenant = tenantOf(path, '/api/quests/');
     if (!tenant) return json(400, { error: 'bad tenant' });
     // M3 isolation suite is green — gate open to all valid tenants
@@ -1336,7 +1410,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return { status: 200, headers: { ...JSON_HEADERS }, body: publicQuestBody(stored) };
   }
 
-  if (method === 'POST' && path.startsWith('/internal/ledger/')) {
+  if (method === 'POST' && routePath.startsWith('/internal/ledger/')) {
     const tenant = tenantOf(path, '/internal/ledger/');
     if (!tenant) return json(400, { error: 'bad tenant' });
     if (!deps.pushToken) return json(503, { error: 'push token not configured on the worker' });
@@ -1350,8 +1424,28 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
     if (envelope.tenant !== tenant) return json(400, { error: 'envelope tenant mismatch' });
     envelope = sanitizeQuestEnvelope(envelope);
+    const key = ledgerKey(tenant);
+    const existingEnvelope = parseStoredEnvelope(await deps.kv.get(key));
+    if (staleLedgerPush(existingEnvelope, envelope)) {
+      return json(409, {
+        ok: false,
+        tenant,
+        error: 'stale ledger push rejected',
+        existingDerivedAt: existingEnvelope?.derivedAt,
+        incomingDerivedAt: envelope.derivedAt,
+      });
+    }
+    if (wouldRegressBranchStories(existingEnvelope, envelope)) {
+      return json(409, {
+        ok: false,
+        tenant,
+        error: 'branchStories regression rejected',
+        existingDerivedAt: existingEnvelope?.derivedAt,
+        incomingDerivedAt: envelope.derivedAt,
+      });
+    }
     const body = JSON.stringify(envelope);
-    await deps.kv.put(ledgerKey(tenant), body);
+    await deps.kv.put(key, body);
     return json(200, { ok: true, tenant, bytes: body.length, derivedAt: envelope.derivedAt });
   }
 
@@ -1363,7 +1457,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   // and /ack's them (anti-redeliver; seeds the G1 reconnect handshake). The admin
   // BRIDGE_TOKEN or scoped member token gates each op; upstream messages must also
   // carry a per-message HMAC in protocol.signature so payload tampering fails shut.
-  if (path.startsWith('/v1/bridge/')) {
+  if (routePath.startsWith('/v1/bridge/')) {
     if (!deps.bridgeToken && !deps.assignmentToken) return json(503, { error: 'bridge not configured on the worker' });
     // Resolve the principal: the admin BRIDGE_TOKEN (cofounders/Hermes, full access)
     // a scoped Hermes assignment token, or a per-member token (scoped to one member,
@@ -1395,7 +1489,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
     const bridgeStore = deps.bridgeStore ?? kvBridgeStore(deps.kv);
 
-    if (method === 'POST' && path === '/v1/bridge/ingest') {
+    if (method === 'POST' && routePath === '/v1/bridge/ingest') {
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       for (const f of ['id', 'timestamp', 'direction', 'tenantId', 'memberId', 'payload']) {
@@ -1410,7 +1504,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { ok: true, id: msg.id, stored: true });
     }
 
-    if (method === 'GET' && path.startsWith('/v1/bridge/inbox/')) {
+    if (method === 'GET' && routePath.startsWith('/v1/bridge/inbox/')) {
       if (!principal.admin) return json(403, { error: 'inbox is cofounder-only' });
       const tenant = tenantOf(path, '/v1/bridge/inbox/');
       if (!tenant) return json(400, { error: 'bad tenant' });
@@ -1418,14 +1512,14 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { tenant, count: messages.length, messages });
     }
 
-    if (method === 'POST' && path === '/v1/bridge/assign-task') {
+    if (method === 'POST' && routePath === '/v1/bridge/assign-task') {
       if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may enqueue task assignments' });
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       return queueProjectTaskAssignment(bridgeStore, msg, nowIso, deps.uuid);
     }
 
-    if (method === 'POST' && path === '/v1/bridge/topic-assignment') {
+    if (method === 'POST' && routePath === '/v1/bridge/topic-assignment') {
       if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may enqueue topic assignments' });
       let body: any;
       try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
@@ -1443,7 +1537,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       });
     }
 
-    if (method === 'POST' && path === '/v1/bridge/github-command') {
+    if (method === 'POST' && routePath === '/v1/bridge/github-command') {
       if (!principal.admin) return json(403, { error: 'only cofounders/Hermes may execute GitHub commands' });
       if (!deps.githubCommand) return json(503, { error: 'GitHub command executor not configured' });
       let body: any;
@@ -1482,7 +1576,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, result);
     }
 
-    if (method === 'POST' && path === '/v1/bridge/directive') {
+    if (method === 'POST' && routePath === '/v1/bridge/directive') {
       if (!principal.admin) return json(403, { error: 'only cofounders/Hermes may enqueue directives' });
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
@@ -1495,15 +1589,15 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { ok: true, id, memberId, queued: true });
     }
 
-    if (method === 'GET' && path.startsWith('/v1/bridge/directives/')) {
-      const member = path.slice('/v1/bridge/directives/'.length).replace(/\/+$/, '');
+    if (method === 'GET' && routePath.startsWith('/v1/bridge/directives/')) {
+      const member = routePath.slice('/v1/bridge/directives/'.length).replace(/\/+$/, '');
       if (!VALID_TENANT.test(member)) return json(400, { error: 'bad member' });
       if (!mayAct(member)) return json(403, { error: 'token not scoped to this member' });
       const pending = await bridgeStore.listPendingDirectives(member, 100);
       return json(200, { member, count: pending.directives.length, skipped: pending.skipped, directives: pending.directives });
     }
 
-    if (method === 'POST' && path === '/v1/bridge/ack') {
+    if (method === 'POST' && routePath === '/v1/bridge/ack') {
       let body: any;
       try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       const member = body.memberId; const ids = Array.isArray(body.ids) ? body.ids : [];
@@ -1523,14 +1617,14 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   // Admin ops (add/list/invite/revoke) need the BRIDGE_TOKEN; redeem/rotate are
   // public (gated by the signed invite / the member's current token). The issued
   // per-member token is what the member's Plexus uses for the scoped bridge auth.
-  if (path.startsWith('/v1/handoff/')) {
+  if (routePath.startsWith('/v1/handoff/')) {
     if (!deps.handoffSecret || !deps.bridgeToken) return json(503, { error: 'handoff not configured on the worker' });
     const nowMs = deps.nowMs ? deps.nowMs() : Date.now();
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
     const isAdmin = (req.headers['authorization'] ?? '') === `Bearer ${deps.bridgeToken}`;
     const readJson = (): any => { try { return JSON.parse(req.body ?? ''); } catch { return undefined; } };
 
-    if (method === 'POST' && path === '/v1/handoff/members') {
+    if (method === 'POST' && routePath === '/v1/handoff/members') {
       if (!isAdmin) return json(401, { error: 'admin token required' });
       const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
       const memberId = String(b.memberId ?? '').toLowerCase(), email = String(b.email ?? '').toLowerCase();
@@ -1546,7 +1640,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { ok: true, member: { memberId, tenantId, email, status: member.status } });
     }
 
-    if (method === 'GET' && path === '/v1/handoff/members') {
+    if (method === 'GET' && routePath === '/v1/handoff/members') {
       if (!isAdmin) return json(401, { error: 'admin token required' });
       const keys = await deps.kv.list('member:');
       const members: any[] = [];
@@ -1555,7 +1649,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { count: members.length, members });
     }
 
-    if (method === 'POST' && path === '/v1/handoff/invite') {
+    if (method === 'POST' && routePath === '/v1/handoff/invite') {
       if (!isAdmin) return json(401, { error: 'admin token required' });
       const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
       const memberId = String(b.memberId ?? '').toLowerCase();
@@ -1570,7 +1664,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { ok: true, memberId, email: member.email, expiresAt: new Date(exp).toISOString(), invite, link: `${base}/join?t=${invite}` });
     }
 
-    if (method === 'POST' && path === '/v1/handoff/revoke') {
+    if (method === 'POST' && routePath === '/v1/handoff/revoke') {
       if (!isAdmin) return json(401, { error: 'admin token required' });
       const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
       const memberId = String(b.memberId ?? '').toLowerCase();
@@ -1583,7 +1677,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { ok: true, memberId, status: 'revoked' });
     }
 
-    if (method === 'POST' && path === '/v1/handoff/redeem') {
+    if (method === 'POST' && routePath === '/v1/handoff/redeem') {
       const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
       const claims = await verifyInvite(deps.handoffSecret, String(b.invite ?? ''));
       if (!claims) return json(401, { error: 'invalid invite signature' });
@@ -1606,7 +1700,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, { ok: true, memberId: claims.memberId, tenantId: m.tenantId ?? claims.memberId, bridgeApiUrl: 'https://curious.thoughtseed.space', token, expiresAt: new Date(tokenExp).toISOString() });
     }
 
-    if (method === 'POST' && path === '/v1/handoff/rotate') {
+    if (method === 'POST' && routePath === '/v1/handoff/rotate') {
       const b = readJson(); if (!b) return json(400, { error: 'body is not JSON' });
       const cur = String(b.token ?? '');
       const memberId = cur ? await deps.kv.get(tokenIndexKey(await sha256hex(cur))) : null;
@@ -1626,7 +1720,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(404, { error: `no handoff route for ${method} ${path}` });
   }
 
-  if (method === 'POST' && path.startsWith('/api/gate/')) {
+  if (method === 'POST' && routePath.startsWith('/api/gate/')) {
     const tenant = tenantOf(path, '/api/gate/');
     if (!tenant) return json(400, { error: 'bad tenant' });
     // M3 isolation suite is green — gate open to all valid tenants
@@ -1695,7 +1789,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     });
   }
 
-  if (method === 'GET' && path.startsWith('/internal/gate/') && !path.endsWith('/consume')) {
+  if (method === 'GET' && routePath.startsWith('/internal/gate/') && !routePath.endsWith('/consume')) {
     const tenant = tenantOf(path, '/internal/gate/');
     if (!tenant) return json(400, { error: 'bad tenant' });
     if (!deps.pushToken) return json(503, { error: 'push token not configured on the worker' });
@@ -1711,8 +1805,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(200, { tenant, actions });
   }
 
-  if (method === 'POST' && path.startsWith('/internal/gate/') && path.endsWith('/consume')) {
-    const tenant = tenantOf(path.slice(0, -'/consume'.length), '/internal/gate/');
+  if (method === 'POST' && routePath.startsWith('/internal/gate/') && routePath.endsWith('/consume')) {
+    const tenant = tenantOf(routePath.slice(0, -'/consume'.length), '/internal/gate/');
     if (!tenant) return json(400, { error: 'bad tenant' });
     if (!deps.pushToken) return json(503, { error: 'push token not configured on the worker' });
     if ((req.headers['authorization'] ?? '') !== `Bearer ${deps.pushToken}`) return json(401, { error: 'bad or missing bearer' });
@@ -1726,7 +1820,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(200, { consumed: body.id });
   }
 
-  if (method === 'GET' && (path === '/' || path === '/index.html')) {
+  if (method === 'GET' && (routePath === '/' || routePath === '/index.html')) {
     return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body: PAGE };
   }
 

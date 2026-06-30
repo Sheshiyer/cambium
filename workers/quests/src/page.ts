@@ -17,13 +17,18 @@ export const PAGE = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<title>curios.self · quest log</title>
+<title>Cambium · Mission Control</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root{
     --bg:#00272B; --bg2:#012F34; --ink:#E0FF4F; --soft:#D6FFF6; --violet:#231651;
     --line:rgba(214,255,246,.09); --line2:rgba(214,255,246,.16); --glass:rgba(1,47,52,.72);
     --warn:#F8B560;
+    --mc-bg:#00272B; --mc-panel:#012F34; --mc-panel-glass:rgba(1,47,52,.72);
+    --mc-chartreuse:#E0FF4F; --mc-mint:#D6FFF6; --mc-warn:#F8B560;
+    --mc-line:rgba(214,255,246,.09); --mc-line-strong:rgba(214,255,246,.16);
+    --mc-active-fill:rgba(224,255,79,.08); --mc-warning-fill:rgba(248,181,96,.055);
+    --mc-radius:8px; --mc-radius-compact:7px; --mc-safe-top:var(--sat); --mc-safe-bottom:var(--sab);
     --ease:cubic-bezier(.16,1,.3,1); --pop:cubic-bezier(.34,1.56,.64,1);
     --mono:ui-monospace,'JetBrains Mono',SFMono-Regular,Menlo,monospace;
     --sat:env(safe-area-inset-top); --sab:env(safe-area-inset-bottom);
@@ -35,24 +40,29 @@ export const PAGE = `<!doctype html>
     font:15px/1.5 -apple-system,'Satoshi','Euclid Circular A',system-ui,sans-serif;
     -webkit-font-smoothing:antialiased;
   }
-  /* mycelium substrate — fixed, non-scrolling, pointer-inert. Slow mesh blobs
-     (transform-only) + static grain veil. Dead under reduced-motion. */
-  .substrate{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-  .blob{position:absolute;width:130vw;height:130vw;border-radius:50%;opacity:.55;will-change:transform}
-  .blob.a{left:-40vw;top:-55vw;
-    background:radial-gradient(circle at 60% 60%,rgba(224,255,79,.07),transparent 55%);
-    animation:drift 46s var(--ease) infinite alternate}
-  .blob.b{right:-55vw;bottom:-60vw;
-    background:radial-gradient(circle at 40% 35%,rgba(35,22,81,.55),transparent 60%);
-    animation:drift 61s var(--ease) infinite alternate-reverse}
-  @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(7vw,5vw) scale(1.08)}}
+  /* mycelium substrate — fixed, non-scrolling, pointer-inert contour field. */
+  .substrate{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;
+    background:
+      linear-gradient(90deg,rgba(214,255,246,.035) 1px,transparent 1px) 0 0/24px 24px,
+      linear-gradient(0deg,rgba(214,255,246,.026) 1px,transparent 1px) 0 0/24px 24px,
+      repeating-radial-gradient(ellipse at 62% 38%,rgba(214,255,246,.045) 0 1px,transparent 1px 18px)}
+  .substrate::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,39,43,.08),rgba(0,39,43,.88));opacity:.82}
+  .blob{display:none}
   .grain{position:absolute;inset:0;opacity:.05;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
   .app{position:relative;height:100dvh;display:flex;flex-direction:column;z-index:1}
 
-  header{padding:calc(var(--sat) + 16px) 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
-  .brand{font-size:21px;font-weight:750;letter-spacing:-.02em}
-  .brand small{display:block;font-size:11px;font-weight:400;opacity:.6;letter-spacing:.06em;margin-top:2px}
+  header.root-status{padding:calc(var(--sat) + 14px) 18px 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+  .root-brand{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+  .root-brand-glyph{width:38px;height:38px;border:1px solid rgba(224,255,79,.32);border-radius:12px;display:grid;place-items:center;color:var(--ink);
+    background:rgba(224,255,79,.055);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .root-brand-glyph svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .root-brand-glyph .mc-fill{fill:currentColor;opacity:.16;stroke:currentColor}
+  .root-brand-glyph .mc-core{fill:currentColor;stroke:none;opacity:.86}
+  .root-brand-glyph .mc-soft{opacity:.42}
+  .brand{min-width:0;font-size:21px;font-weight:750;letter-spacing:0;line-height:1.05}
+  .brand small{display:block;font-size:11px;font-weight:400;opacity:.66;letter-spacing:.06em;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .root-chip-stack{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}
   .chip{font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.32);
     border-radius:999px;color:var(--ink);white-space:nowrap;transition:color .4s var(--ease),border-color .4s var(--ease)}
   button.chip{appearance:none;background:transparent;cursor:pointer}
@@ -69,32 +79,53 @@ export const PAGE = `<!doctype html>
     font:10.5px/1.35 var(--mono);color:var(--ink);background:rgba(0,39,43,.9);
     border:1px solid var(--line);border-radius:8px;padding:6px 8px}
 
-  nav{display:grid;grid-template-columns:repeat(5,1fr);position:relative;margin:6px 12px 0;
-    border-bottom:1px solid var(--line)}
-  nav button{appearance:none;background:none;border:0;color:var(--soft);opacity:.5;
-    font:600 12px/1 inherit;letter-spacing:.01em;padding:12px 0;cursor:pointer;
-    transition:opacity .3s var(--ease),color .3s var(--ease)}
-  nav button.on{opacity:1;color:var(--ink)}
-  nav button:active{transform:scale(.96)}
-  .ind{position:absolute;bottom:-1px;left:0;width:20%;height:2px;background:var(--ink);
+  .root-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:relative;margin:4px 16px 0;
+    border-bottom:1px solid var(--line);gap:0;background:transparent}
+  .root-tab{appearance:none;min-width:0;min-height:54px;background:none;border:0;color:var(--soft);opacity:.62;
+    display:grid;grid-template-rows:auto auto auto;justify-items:center;align-content:center;gap:2px;
+    font:650 11px/1 inherit;letter-spacing:0;padding:7px 2px 9px;cursor:pointer;
+    transition:opacity .3s var(--ease),color .3s var(--ease),transform .2s var(--ease)}
+  .root-tab-glyph{width:21px;height:21px;border:1px solid var(--line2);border-radius:50%;display:grid;place-items:center;
+    color:var(--soft);background:rgba(1,47,52,.28);font:12px var(--mono)}
+  .root-tab-glyph svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+  .root-tab-glyph .mc-fill{fill:currentColor;opacity:.12;stroke:currentColor}
+  .root-tab-glyph .mc-core{fill:currentColor;stroke:none;opacity:.88}
+  .root-tab-glyph .mc-soft,.root-tab-glyph .mc-dash{opacity:.42}
+  .root-tab-label{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .root-tab small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:8.5px/1.1 var(--mono);opacity:.55;text-transform:uppercase}
+  .root-tab.on{opacity:1;color:var(--ink)}
+  .root-tab.on .root-tab-glyph{color:var(--ink);border-color:rgba(224,255,79,.52);box-shadow:0 0 0 1px rgba(224,255,79,.18)}
+  .root-tab:active{transform:scale(.97)}
+  .ind.root-nav-indicator{position:absolute;bottom:-1px;left:0;width:20%;height:2px;background:var(--ink);
     border-radius:2px;transition:transform .45s var(--ease);box-shadow:0 0 8px rgba(224,255,79,.4)}
 
   /* ── commands panel ─────────────────────────── */
   .cmdgrp{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.45;margin:18px 0 9px}
   .cmdgrp:first-child{margin-top:4px}
-  .cmd{display:flex;align-items:flex-start;gap:12px;padding:12px 13px;margin-bottom:8px;
+  .tool-recommend{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px;border-color:rgba(224,255,79,.22)}
+  .tool-context-strip,.tool-recent-strip,.story-filter-strip,.gate-filter-strip{display:flex;gap:7px;overflow-x:auto;padding:8px;margin-bottom:10px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28);scrollbar-width:none}
+  .tool-context-strip span,.tool-context-strip button,.tool-recent-strip button,.story-filter-strip button,.gate-filter-strip button{flex:0 0 auto;border:1px solid var(--line2);border-radius:999px;background:rgba(1,47,52,.36);color:var(--soft);padding:6px 9px;font:10.5px/1 var(--mono)}
+  .tool-context-strip button,.tool-recent-strip button,.story-filter-strip button,.gate-filter-strip button{appearance:none;cursor:pointer}
+  .tool-context-strip button.is-selected,.story-filter-strip button.is-selected,.gate-filter-strip button.is-selected{border-color:rgba(224,255,79,.48);color:var(--ink);background:rgba(224,255,79,.08)}
+  .tool-safety-row{font:11px/1.45 var(--mono);opacity:.72;margin-top:10px;border-top:1px solid var(--line);padding-top:9px}
+  .cmd{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:flex-start;gap:10px;padding:12px 13px;margin-bottom:8px;
+    text-align:left;
+    color:var(--soft);font:inherit;
     border:1px solid var(--line);border-radius:12px;background:rgba(1,47,52,.34)}
-  .cmd .cnode{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px;
-    background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.4)}
-  .cmd.act .cnode{background:var(--soft);box-shadow:0 0 7px rgba(214,255,246,.3)}
+  .cmd .mc-glyph{width:31px;height:31px;margin-top:1px}
+  .cmd .tool-body{min-width:0}
   .cmd .cname{font:600 13.5px var(--mono);color:var(--ink)}
   .cmd.act .cname{color:var(--soft)}
   .cmd .cargs{font:11px var(--mono);opacity:.5;margin-left:6px}
-  .cmd .cdesc{font-size:12.5px;opacity:.72;margin-top:2px;line-height:1.45}
+  .cmd .cdesc{color:var(--soft);font-size:12.5px;opacity:.78;line-height:1.45}
+  .cmd .cdesc b{display:block;color:var(--soft);font-weight:650;margin-bottom:2px}
+  .tool-syntax{margin-top:5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cmd{cursor:pointer;transition:transform .2s var(--ease),border-color .3s var(--ease)}
   .cmd:active{transform:scale(.985)}
   .cmd.live{border-color:rgba(224,255,79,.22)}
-  .cmd .cgo{margin-left:auto;align-self:center;font-size:20px;color:var(--ink);opacity:.6}
+  .cmd.is-stale{border-color:rgba(248,181,96,.35)}
+  .cmd .mc-state-token{align-self:center}
+  .cmd .cgo{align-self:center;font-size:20px;color:var(--ink);opacity:.6}
   .li{padding:9px 0;border-bottom:1px solid var(--line)}
   .li:last-child{border-bottom:0}
   .li .cname{font:600 13px var(--mono);color:var(--soft)}
@@ -104,7 +135,7 @@ export const PAGE = `<!doctype html>
      (not grow to content) so the scenes' overflow-y:auto actually scrolls. */
   .track{flex:1;min-height:0;display:flex;will-change:transform;touch-action:pan-y}
   .scene{flex:0 0 100%;width:100%;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;
-    padding:18px 18px calc(var(--sab) + 92px);overscroll-behavior:contain}
+    padding:18px 18px calc(var(--sab) + 118px);overscroll-behavior:contain}
 
   /* ── quest line — the living vine ─────────────── */
   .stem{position:relative;padding-left:40px}
@@ -142,13 +173,67 @@ export const PAGE = `<!doctype html>
   .meta span{cursor:pointer}
   .meta span:active{transform:scale(.97)}
   .meta #here{text-align:right;color:var(--ink);opacity:.85}
+  .stem.mission-control{padding-left:0;display:grid;gap:12px;--grow:0%}
+  .stem.mission-control::before{display:none}
+  .mission-empty{border:1px dashed rgba(248,181,96,.42);border-radius:8px;padding:14px;background:rgba(1,47,52,.34)}
+  .mission-empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+  .mission-empty p{font-size:13px;opacity:.76;margin-bottom:12px}
+  .mc-branch-chip{appearance:none;text-align:left;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+  .mc-branch-copy{display:block;min-width:0}
+  .mc-branch-copy b{display:block;color:var(--ink);font-size:11px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc-branch-copy small{display:block;max-width:132px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.72;font:10px/1.2 var(--mono)}
+  .mc-branch-chip .mc-glyph{width:25px;height:25px;border-radius:7px}
+  .mc-branch-chip .mc-state-token{min-height:20px;padding:3px 6px}
+  .mc-branch-chip.is-selected{border-color:rgba(224,255,79,.55);background:rgba(224,255,79,.065)}
+  .mc-section-title{font:11px var(--mono);color:var(--ink);text-transform:uppercase;letter-spacing:.08em;margin:3px 0}
+  .mc-mission-card{position:relative;overflow:hidden;border:1px solid rgba(224,255,79,.36);background:rgba(1,47,52,.42);padding:14px;border-radius:8px;display:grid;gap:10px}
+  .mc-mission-card::before{content:"";position:absolute;inset:0 0 30% 38%;opacity:.32;pointer-events:none;
+    background:
+      repeating-radial-gradient(ellipse at 62% 44%,rgba(214,255,246,.2) 0 1px,transparent 1px 12px),
+      linear-gradient(135deg,transparent,rgba(224,255,79,.08))}
+  .mc-mission-card>*{position:relative;z-index:1}
+  .mc-mission-card h3{font-size:20px;line-height:1.12;color:var(--ink)}
+  .mc-mission-card p{font-size:13px;opacity:.78}
+  .mc-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .mc-card-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mc-card-meta span,.mc-blocker-row,.mc-kpi-row{border:1px solid var(--line);border-radius:8px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono)}
+  .mc-branch-texture{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px;background:linear-gradient(90deg,rgba(224,255,79,.09),rgba(1,47,52,.2))}
+  .mc-branch-texture>span{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;min-width:0;font:11px/1.3 var(--mono)}
+  .mc-branch-texture b{display:block;color:var(--ink);font-weight:650}
+  .mc-branch-texture small{display:block;min-width:0;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mc-proof-list>span{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;min-height:48px;border-bottom:1px solid var(--line);padding:8px 10px;background:transparent;font:11px/1.35 var(--mono)}
+  .mc-proof-list>span:last-child{border-bottom:0}
+  .mc-proof-list>span>span{display:block;min-width:0}
+  .mc-card-meta b,.mc-proof-list b,.mc-blocker-row b,.mc-kpi-row b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px}
+  .mc-questline-row{position:relative;display:grid;grid-template-rows:auto auto auto;gap:6px;justify-items:center;text-align:center;align-items:start;min-height:74px;padding:4px 3px}
+  .mc-questline-row:not(:last-child)::after{content:"";position:absolute;left:calc(50% + 18px);right:-50%;top:18px;border-top:1px dashed var(--line2)}
+  .mc-questline-row b{font-size:10.5px;line-height:1.15;max-width:76px;min-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .mc-questline-row .mc-state-token{max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mc-blockers,.mc-kpis{display:grid;gap:8px}
+  .mc-kpi-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
+  .mc-kpi-copy{display:grid;gap:3px;min-width:0}
+  .mc-kpi-copy small{color:var(--muted)}
+  .mc-kpi-bars{display:flex;gap:4px;align-items:end;min-height:14px;margin-top:3px}
+  .mc-kpi-bars i{width:12px;border-radius:5px 5px 2px 2px;background:rgba(224,255,79,.62);box-shadow:0 0 8px rgba(224,255,79,.18)}
+  .mc-kpi-bars i:nth-child(1){height:6px}.mc-kpi-bars i:nth-child(2){height:10px}.mc-kpi-bars i:nth-child(3){height:14px}
+  .mc-action-row button{appearance:none;min-height:60px;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:#00272B;font-weight:800;cursor:pointer;touch-action:manipulation}
+  .mc-action-row button.secondary{border-color:var(--line2);background:rgba(1,47,52,.55);color:var(--soft)}
+  .mission-tool-link,.tool-recommend,.story-hero,.inspect-proof-summary{border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28);padding:12px 13px}
+  .mission-tool-link{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+  .mission-tool-link b,.tool-recommend b,.story-hero b,.inspect-proof-summary b{display:block;color:var(--ink);font-size:13px;line-height:1.25}
+  .mission-tool-link small,.tool-recommend small,.story-hero small,.inspect-proof-summary small{display:block;font:11px/1.35 var(--mono);opacity:.68;margin-top:3px}
+  .mission-tool-link button,.tool-recommend button{appearance:none;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:var(--bg);font:800 12px inherit;padding:9px 10px;cursor:pointer}
 
   /* ── operator map — R3F mechanics, Telegram density ───── */
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
-  .mapwrap{display:flex;flex-direction:column;gap:12px;padding-top:2px}
-  .maphead{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;padding-bottom:4px}
-  .maphead h2{font-size:18px;letter-spacing:.01em;color:var(--ink)}
+	  @keyframes spin{to{transform:rotate(360deg)}}
+	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
+	  @keyframes orbitSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+	  @keyframes packetDrift{0%{transform:translateX(-10%);opacity:.25}50%{opacity:1}100%{transform:translateX(10%);opacity:.25}}
+	  @keyframes glyphBreathe{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.08);opacity:1}}
+	  @keyframes warningAttention{0%{border-color:rgba(248,181,96,.42)}45%{border-color:rgba(248,181,96,.86)}100%{border-color:rgba(248,181,96,.5)}}
+	  .mapwrap{display:flex;flex-direction:column;gap:12px;padding-top:2px}
+	  .maphead{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;padding-bottom:4px}
+	  .maphead h2{font-size:18px;letter-spacing:.01em;color:var(--ink)}
   .maphead p{font-size:12px;opacity:.68;max-width:48ch;margin-top:3px}
   .mapbadge{font:11px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.28);
     border-radius:999px;padding:6px 10px;white-space:nowrap;appearance:none;background:transparent;cursor:pointer}
@@ -170,9 +255,87 @@ export const PAGE = `<!doctype html>
   .ibox b{display:block;font:11px var(--mono);color:var(--ink);margin-bottom:4px}
   .ibox span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.72}
   .ibox.skill span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
-  .ibox.npc span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
-  .ibox.ready{border-color:rgba(224,255,79,.28);background:rgba(224,255,79,.04)}
-  .stagegrid{display:grid;grid-template-columns:1fr;gap:8px}
+	  .ibox.npc span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
+	  .ibox.ready{border-color:rgba(224,255,79,.28);background:rgba(224,255,79,.04)}
+	  .mc-branch-rail{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+  .mc-branch-chip{flex:0 0 auto;min-width:178px;min-height:52px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);background:rgba(1,47,52,.38);color:var(--mc-mint);padding:8px 10px;font:11px var(--mono)}
+	  .mc-glyph{width:28px;height:28px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);display:inline-grid;place-items:center;color:var(--mc-chartreuse);background:var(--mc-panel);position:relative;overflow:hidden;flex:none}
+	  .mc-glyph svg{width:80%;height:80%;display:block;stroke:currentColor;fill:none;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+	  .mc-glyph .mc-fill{fill:currentColor;opacity:.16;stroke:currentColor}
+	  .mc-glyph .mc-core{fill:currentColor;stroke:none;opacity:.86}
+	  .mc-glyph .mc-soft{opacity:.42}
+	  .mc-glyph .mc-dash{stroke-dasharray:1.4 2.5}
+	  .mc-glyph.is-active,.mc-glyph.is-selected,.mc-glyph.is-complete{border-color:rgba(224,255,79,.42);background:var(--mc-active-fill)}
+	  .mc-glyph.is-active::after,.mc-glyph.is-selected::after{content:"";position:absolute;inset:2px;border-radius:inherit;border:1px solid rgba(224,255,79,.24);pointer-events:none}
+	  .mc-glyph.is-blocked,.mc-glyph.is-proof-needed{color:var(--mc-warn);border-color:rgba(248,181,96,.5);background:var(--mc-warning-fill)}
+	  .mc-glyph.is-locked{color:rgba(214,255,246,.46);border-color:rgba(214,255,246,.1);opacity:.72}
+	  .mc-glyph.is-stale{color:var(--mc-warn);border-color:rgba(248,181,96,.34)}
+	  .mc-state-token{display:inline-flex;align-items:center;gap:6px;min-height:24px;border:1px solid var(--mc-line);border-radius:999px;padding:4px 8px;font:10px var(--mono);color:var(--mc-mint)}
+	  .mc-state-token::before{content:"";width:6px;height:6px;border-radius:50%;border:1px solid currentColor;opacity:.75}
+	  .mc-state-token.is-active::before,.mc-state-token.is-selected::before{background:currentColor}
+	  .mc-state-token.is-complete::before{border-radius:50%;background:var(--mc-chartreuse);box-shadow:inset 0 0 0 2px var(--mc-panel)}
+	  .mc-state-token.is-blocked::before,.mc-state-token.is-proof-needed::before{border-radius:2px;transform:rotate(45deg);background:transparent}
+	  .mc-state-token.is-locked::before{border-radius:2px;opacity:.5}
+	  .mc-state-token.is-stale::before{background:transparent;border-style:dashed}
+	  .mc-state-token.is-active,.mc-state-token.is-selected,.mc-state-token.is-complete{border-color:rgba(224,255,79,.38);color:var(--mc-chartreuse)}
+	  .mc-state-token.is-blocked,.mc-state-token.is-proof-needed{border-color:rgba(248,181,96,.5);color:var(--mc-warn);animation:warningAttention 2.4s var(--ease) 1 both}
+	  .mc-state-token.is-stale{border-color:rgba(248,181,96,.36);color:var(--mc-warn)}
+	  .mc-state-token.is-locked{opacity:.66}
+	  .mc-orbit{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--mc-line-strong);display:grid;place-items:center;color:var(--mc-chartreuse);font:10px var(--mono);background:radial-gradient(circle,rgba(1,47,52,.96) 0 52%,transparent 53%),conic-gradient(currentColor calc(var(--mc-progress,0) * 1%),rgba(214,255,246,.08) 0)}
+	  .mc-orbit::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(224,255,79,.36);border-left-color:transparent;animation:orbitSweep 4.2s linear infinite}
+	  .mc-selected-halo{box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
+	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden}
+	  .mc-packet-dots{display:flex;gap:5px;align-items:center;min-height:20px;animation:packetDrift 3s var(--ease) infinite alternate}
+	  .mc-packet{width:4px;height:4px;border-radius:50%;background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.34)}
+  .mc-questline{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:0;border:1px solid var(--line);border-radius:8px;padding:9px;background:rgba(1,47,52,.26)}
+  .mc-proof-list{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;font:11px var(--mono);color:var(--soft);background:rgba(1,47,52,.24)}
+	  .mc-kpi-pulse{display:inline-grid;place-items:center;min-width:38px;min-height:38px;border-radius:50%;border:1px solid rgba(224,255,79,.34);color:var(--ink);animation:glyphBreathe 2.8s var(--ease) infinite}
+	  .mc-state-stack{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:rgba(1,47,52,.26)}
+	  .mc-state-row{appearance:none;text-align:left;color:var(--soft);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;
+	    min-height:56px;padding:9px 10px;border:0;border-bottom:1px solid var(--line);background:transparent;font:12px/1.35 inherit}
+	  .mc-state-row:last-child{border-bottom:0}
+	  .mc-state-row b{display:block;color:var(--soft);font-size:13px;line-height:1.2;margin-bottom:2px}
+	  .mc-state-row small{display:block;font:10.5px/1.25 var(--mono);opacity:.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+	  .mc-state-row .mc-glyph{width:34px;height:34px}
+	  .mc-state-row.is-selected{border-color:rgba(224,255,79,.36);background:rgba(224,255,79,.035)}
+	  .mc-state-row.is-blocked{box-shadow:inset 2px 0 0 rgba(248,181,96,.7)}
+	  .mc-action-row{position:static;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 0 2px}
+	  .mc-action-row[data-component="GateActionRow"]{border-top:1px solid var(--line);margin-top:2px}
+	  .mc-inspect-only{opacity:.72}
+	  .component-board{display:grid;gap:12px;padding-bottom:18px}
+	  .component-board-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;border:1px solid rgba(224,255,79,.24);border-radius:8px;padding:12px;background:rgba(1,47,52,.34)}
+	  .component-board-head h2{font-size:19px;line-height:1.1;color:var(--ink)}
+	  .component-board-head p{font-size:12px;opacity:.68;max-width:48ch;margin-top:4px}
+	  .component-board-head span{font:10px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.34);border-radius:999px;padding:4px 8px;white-space:nowrap}
+	  .component-panel{border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.26);padding:11px;overflow:hidden}
+	  .component-panel h3{font:11px var(--mono);color:var(--ink);letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px}
+	  .component-grid{display:grid;gap:8px}
+	  .component-glyph-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+	  .component-state-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+	  .component-orbit-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+	  .component-mission-grid,.component-motion-grid,.component-legend-grid{grid-template-columns:1fr}
+	  .component-glyph-cell,.component-state-cell,.component-frame,.component-legend-item{min-width:0;border:1px solid var(--line);border-radius:8px;background:rgba(0,39,43,.28);padding:8px}
+	  .component-glyph-cell{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
+	  .component-glyph-cell b,.component-state-cell b,.component-frame b,.component-legend-item b{display:block;color:var(--soft);font-size:12px;line-height:1.2;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+	  .component-glyph-cell small,.component-state-cell small,.component-frame small,.component-legend-item small{display:block;font:10.5px/1.35 var(--mono);opacity:.62;overflow-wrap:anywhere}
+	  .component-state-cell{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+	  .component-orbit-grid .component-frame{text-align:center;display:grid;justify-items:center;gap:6px}
+	  .component-sample{border:1px solid var(--line);border-radius:8px;background:rgba(0,39,43,.24);padding:9px;min-width:0}
+	  .component-branch-chip-sample{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+	  .component-sample-title{font:11px var(--mono);color:var(--ink);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+	  .component-motion-frames{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:7px}
+	  .component-motion-frames .mc-glyph,.component-motion-frames .mc-orbit{margin:auto}
+	  .component-motion-frame{min-height:58px;display:grid;place-items:center;border:1px dashed var(--line2);border-radius:7px;background:rgba(1,47,52,.22)}
+	  .component-legend-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
+	  .component-legend-node{width:18px;height:18px;border-radius:50%;border:1px solid var(--line2);background:rgba(1,47,52,.45)}
+	  .component-legend-node.is-rail{width:32px;height:2px;border-radius:2px;background:var(--line2)}
+	  .component-legend-node.is-packet{width:7px;height:7px;background:var(--ink);box-shadow:0 0 8px rgba(224,255,79,.38)}
+	  .component-legend-node.is-orbit{border-color:rgba(224,255,79,.46);background:conic-gradient(var(--ink) 70%,rgba(214,255,246,.1) 0)}
+	  .component-legend-node.is-active{background:var(--ink);border-color:var(--ink)}
+	  .component-legend-node.is-warning{background:var(--warn);border-color:var(--warn)}
+	  .component-legend-node.is-locked{opacity:.46;border-style:dashed}
+	  .component-legend-node.is-stale{border-color:var(--warn);border-style:dashed}
+	  .stagegrid{display:grid;grid-template-columns:1fr;gap:8px}
   .stage-card{position:relative;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;
     padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:rgba(1,47,52,.36);color:var(--soft);
     cursor:pointer;opacity:0;transform:translateY(10px);animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*45ms)}
@@ -189,14 +352,20 @@ export const PAGE = `<!doctype html>
   .stage-count{font:11px var(--mono);color:var(--ink);opacity:.82;white-space:nowrap}
   .stagebar{display:block;height:4px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:7px}
   .stagebar span{display:block;height:100%;background:var(--ink);border-radius:999px;transition:width .8s var(--ease)}
-  .railgrid{display:grid;gap:8px}
-  .rail{appearance:none;color:var(--soft);text-align:left;display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border:1px solid var(--line);
+	  .railgrid{display:grid;gap:8px}
+	  .rail{appearance:none;color:var(--soft);text-align:left;display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border:1px solid var(--line);
     border-radius:12px;background:rgba(1,47,52,.24);font:12px var(--mono);opacity:.9;cursor:pointer}
   .rail:active{transform:scale(.985)}
   .rail b{font-weight:650;color:var(--soft)}
   .rail span{color:var(--ink);opacity:.75}
   .rail.hot{border-color:rgba(224,255,79,.34);background:rgba(224,255,79,.045)}
   .mapnote{font:11px/1.5 var(--mono);opacity:.58}
+  .inspect-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .inspect-group{appearance:none;text-align:left;color:var(--soft);display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;
+    min-width:0;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.3);padding:9px;cursor:pointer}
+  .inspect-group b{display:block;color:var(--soft);font-size:12.5px;line-height:1.2;margin-bottom:2px;text-transform:capitalize}
+  .inspect-group small{display:block;font:10.5px/1.35 var(--mono);opacity:.62;overflow-wrap:anywhere}
+  .inspect-group .mc-state-token{grid-column:1 / -1;width:max-content}
   .facets{display:flex;flex-direction:column;gap:8px}
   .facet{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);
     border-radius:11px;font:12.5px var(--mono);
@@ -210,18 +379,30 @@ export const PAGE = `<!doctype html>
   .dback:active{transform:scale(.96)}
 
   /* ── story — the continuous narrative, as cards ── */
-  #beats{position:relative;display:flex;flex-direction:column;gap:9px}
+  #beats{position:relative;display:flex;flex-direction:column;gap:12px}
   #beats::before{content:"";position:absolute;left:-2px;top:8px;bottom:8px;width:1.5px;pointer-events:none;
     background:linear-gradient(rgba(224,255,79,.32),var(--line));opacity:.55}
-  .beat{position:relative;padding:12px 14px 12px 44px;border:1px solid var(--line);border-radius:13px;
+  .story-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+  .story-hero .mc-glyph{width:32px;height:32px}
+  .story-timeline{display:flex;gap:6px;padding:8px;margin-bottom:2px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28)}
+  .story-timeline i{height:5px;flex:1;border-radius:999px;background:rgba(214,255,246,.16)}
+  .story-timeline i.is-complete{background:rgba(224,255,79,.55)}
+  .story-timeline i.is-blocked,.story-timeline i.is-stale{background:rgba(248,181,96,.55)}
+  .story-group{display:grid;gap:8px}
+  .story-group .cmdgrp{margin:4px 0 0}
+  .story-group-body{display:grid;gap:8px}
+  .beat{appearance:none;text-align:left;color:var(--soft);position:relative;padding:12px 14px 12px 46px;border:1px solid var(--line);border-radius:13px;
     background:rgba(1,47,52,.38);opacity:0;transform:translateY(10px);font-size:13.5px;line-height:1.5;
     animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*38ms);cursor:pointer}
   .beat:active{transform:scale(.985)}
   .beat .ico{position:absolute;left:12px;top:11px;width:21px;height:21px;display:grid;place-items:center;
     border-radius:7px;background:var(--bg2);border:1px solid var(--line)}
+  .beat .ico .mc-glyph{width:21px;height:21px;border:0;background:transparent}
   .beat .ico svg{width:12px;height:12px;stroke:var(--soft);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
   .beat .lane{display:block;font:9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:3px}
   .beat b{color:var(--soft)}
+  .beat .mc-state-token{margin-top:8px}
+  .beat.is-stale,.beat.is-blocked{border-color:rgba(248,181,96,.34)}
   .beat.noesis{border-color:rgba(214,255,246,.4);background:var(--glass);backdrop-filter:blur(10px);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 20px rgba(214,255,246,.05)}
   .beat.noesis .ico{border-color:rgba(214,255,246,.5)}
@@ -229,26 +410,66 @@ export const PAGE = `<!doctype html>
   .beat.noesis .lane{color:var(--soft);opacity:.85}
 
   /* ── gate ───────────────────────────────────── */
-  .gauge{display:grid;place-items:center;margin:6px 0 18px}
-  .gauge svg{width:168px;overflow:visible}
+  .gate-shell{display:grid;gap:12px}
+  .gate-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:12px;align-items:center;
+    border:1px solid rgba(224,255,79,.28);border-radius:14px;padding:14px;background:linear-gradient(145deg,rgba(224,255,79,.06),rgba(1,47,52,.38) 60%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .gate-hero::after{content:"";position:absolute;right:-34px;top:-34px;width:124px;height:124px;border-radius:50%;
+    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none;animation:orbitSweep 8s linear infinite}
+  .gate-title-row{position:relative;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start}
+  .gate-title-row h3{font-size:20px;line-height:1.1;color:var(--ink);margin:0 0 6px}
+  .gate-title-row p{font-size:12.5px;line-height:1.45;opacity:.78;max-width:46ch}
+  .gate-hero .mc-glyph{width:34px;height:34px;border-radius:11px}
+  .gauge{position:relative;z-index:1;display:grid;place-items:center;margin:0;min-height:116px}
+  .gauge .gate-orbit{width:128px;display:grid;place-items:center;gap:5px}
+  .gauge svg{width:128px;max-width:100%;overflow:visible;filter:drop-shadow(0 0 10px rgba(224,255,79,.12))}
   .gauge .gv{font:700 21px var(--mono);fill:var(--ink)}
   .gauge .gl{font:9.5px var(--mono);fill:var(--soft);opacity:.55;letter-spacing:.08em}
+  .gauge .gstate{font:9px var(--mono);fill:var(--warn);letter-spacing:.08em;text-transform:uppercase}
+  .gate-orbit .gate-orbit-node{fill:var(--bg2);stroke:rgba(224,255,79,.38);stroke-width:1.5}
+  .gate-orbit.is-active .gate-orbit-node,.gate-orbit.is-complete .gate-orbit-node{fill:var(--ink);stroke:rgba(224,255,79,.7)}
+  .gate-orbit.is-blocked .gate-orbit-node,.gate-orbit.is-proof-needed .gate-orbit-node{fill:var(--warn);stroke:rgba(248,181,96,.58)}
+  .gate-orbit .gate-orbit-caption{display:flex;justify-content:center;width:100%}
+  .gate-orbit .mc-state-token{min-height:20px;padding:3px 7px;max-width:116px;text-align:center;justify-content:center}
+  .gate-state-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .gate-state-strip span{min-width:0;border:1px solid var(--line);border-radius:9px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono)}
+  .gate-state-strip b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+  .gate-state-strip small{display:block;opacity:.76;overflow-wrap:anywhere}
+  .gate-queue{display:grid;gap:10px}
+  .gate-filter-strip{margin-bottom:2px}
+  .gate-empty,.gate-error{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px dashed rgba(224,255,79,.28);
+    border-radius:13px;padding:12px;background:rgba(1,47,52,.28);font:12.5px/1.48 var(--mono)}
+  .gate-error{border-color:rgba(248,181,96,.44);background:rgba(248,181,96,.045)}
+  .gate-empty b,.gate-error b{display:block;color:var(--soft);font-weight:650;margin-bottom:3px}
+  .gate-empty span,.gate-error span{display:block;opacity:.76;overflow-wrap:anywhere}
   .ghead{font-size:17px;font-weight:650;color:var(--ink);margin-bottom:2px}
   .gsub{font-size:12px;opacity:.7;margin-bottom:16px;max-width:52ch}
-  .gitem{padding:13px;margin-bottom:12px;border:1px solid var(--line2);border-radius:14px;
+  .gitem{position:relative;overflow:hidden;padding:12px;border:1px solid var(--line2);border-radius:14px;
     background:var(--glass);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
     opacity:0;transform:translateY(12px);animation:rise .5s var(--pop) forwards;animation-delay:calc(var(--i)*70ms)}
+  .gitem::after{content:"";position:absolute;inset:auto 12px 0;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);opacity:.7}
+  .gitem.is-active,.gitem.is-complete{border-color:rgba(224,255,79,.3);background:linear-gradient(145deg,rgba(224,255,79,.055),rgba(1,47,52,.36))}
+  .gitem.is-blocked,.gitem.is-proof-needed{border-color:rgba(248,181,96,.42);background:linear-gradient(145deg,rgba(248,181,96,.055),rgba(1,47,52,.34))}
+  .gcard-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;margin-bottom:10px}
   .gitem .gid{font:11px var(--mono);color:var(--ink);opacity:.85}
-  .gitem .gtitle{font-weight:600;margin:3px 0 10px}
-  .gmeta{display:grid;grid-template-columns:88px 1fr;gap:4px 9px;margin:8px 0 11px;font-size:11.5px;line-height:1.35}
+  .gitem .gtitle{font-weight:650;margin:3px 0 0;color:var(--soft);overflow-wrap:anywhere}
+  .gmeta{display:grid;grid-template-columns:96px 1fr;gap:5px 9px;margin:9px 0 11px;font-size:11.5px;line-height:1.35}
   .gmeta b{font:10px var(--mono);color:var(--ink);opacity:.72;text-transform:uppercase}
   .gmeta span{opacity:.74;overflow-wrap:anywhere}
+  .gitem-details{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+  .gitem-details span{border:1px solid var(--line);border-radius:8px;padding:7px;font:10.5px/1.35 var(--mono);opacity:.76}
+  .gitem-details b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+  .gitem .mc-signal-rail{margin:8px 0 10px}
+  .gpriority{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+  .gpriority span{border:1px solid rgba(248,181,96,.36);border-radius:999px;padding:4px 8px;color:var(--warn);font:10px var(--mono);background:rgba(248,181,96,.04)}
+  .gate-empty .mc-signal-rail,.gate-error .mc-signal-rail{margin-top:9px}
   .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .gbtns button{appearance:none;border:0;border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;
     transition:transform .2s var(--ease)}
   .gbtns button:active{transform:scale(.97)}
   .gbtns .approve{background:var(--ink);color:var(--bg)}
   .gbtns .reroll{background:none;border:1px solid rgba(214,255,246,.4);color:var(--soft)}
+  .gbtns .detail{background:rgba(1,47,52,.5);border:1px solid var(--line2);color:var(--ink)}
   .gbtns.command-copy{grid-template-columns:1fr;margin:12px 0}
   .gbtns.command-copy button{background:var(--ink);color:var(--bg)}
   .gnote{font:11px var(--mono);opacity:.6;margin-top:12px;line-height:1.5}
@@ -257,13 +478,16 @@ export const PAGE = `<!doctype html>
   .veil{position:fixed;inset:0;background:rgba(0,20,23,.55);opacity:0;pointer-events:none;
     transition:opacity .35s var(--ease);z-index:10}
   .veil.on{opacity:1;pointer-events:auto}
-  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;padding:14px 20px calc(var(--sab) + 30px);
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;padding:14px 20px calc(var(--sab) + 24px);
     background:var(--glass);backdrop-filter:blur(16px);
     border:1px solid var(--line2);border-bottom:0;border-radius:22px 22px 0 0;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 -18px 50px rgba(0,10,12,.45);
-    transform:translateY(105%);transition:transform .5s var(--pop);will-change:transform;touch-action:none}
+    max-height:calc(100dvh - var(--sat) - 10px);overflow:hidden;
+    transform:translateY(105%);transition:transform .5s var(--pop);will-change:transform;touch-action:pan-y}
   .sheet.on{transform:translateY(0)}
   .grab{width:38px;height:4px;border-radius:99px;background:rgba(214,255,246,.25);margin:2px auto 16px}
+  #sheetBody{max-height:calc(100dvh - var(--sat) - var(--sab) - 70px);overflow-y:auto;overscroll-behavior:contain;padding:0 1px 6px;scrollbar-width:none}
+  #sheetBody::-webkit-scrollbar{display:none}
   .sheet .arc{font:12px var(--mono);color:var(--ink);opacity:.9}
   .sheet h2{font-size:19px;letter-spacing:.01em;margin:4px 0 8px}
   .sheet .nar{opacity:.85;margin-bottom:12px;line-height:1.55}
@@ -272,6 +496,47 @@ export const PAGE = `<!doctype html>
   .kv span{font-family:var(--mono);font-size:12.5px;line-height:1.5}
   .gatekv{grid-template-columns:124px minmax(0,1fr)}
   .status-complete,.status-active{color:var(--ink)} .status-locked{opacity:.6}
+  .branch-sheet{display:grid;gap:11px;min-width:0}
+  .branch-sheet-hero{position:relative;overflow:hidden;border:1px solid rgba(224,255,79,.27);border-radius:12px;padding:13px;
+    background:linear-gradient(145deg,rgba(224,255,79,.055),rgba(1,47,52,.4) 62%);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .branch-sheet-hero::after{content:"";position:absolute;right:-28px;top:-24px;width:120px;height:120px;border-radius:50%;
+    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none;animation:orbitSweep 8s linear infinite}
+  .branch-sheet-head{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;z-index:1}
+  .branch-sheet-head h2{margin:2px 0 1px;font-size:20px;line-height:1.12;color:var(--soft)}
+  .branch-sheet-head .arc{opacity:.72;font-size:11px}
+  .branch-sheet-hero .nar{position:relative;margin:10px 0 0;max-width:60ch;font-size:13.5px;z-index:1}
+  .branch-sheet-glance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+  .branch-sheet-glance span{min-width:0;border:1px solid var(--line);border-radius:9px;padding:8px;background:rgba(1,47,52,.28);
+    font:11px/1.35 var(--mono);overflow-wrap:anywhere}
+  .branch-sheet-glance b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+  .branch-claim-guard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:start;margin-top:10px;padding:9px;
+    border:1px dashed rgba(248,181,96,.38);border-radius:10px;background:rgba(248,181,96,.045);font:12px/1.45 var(--mono)}
+  .branch-claim-guard b{display:block;color:var(--warn);font-weight:650;margin-bottom:2px}
+  .branch-claim-guard span{display:block;overflow-wrap:anywhere;opacity:.82}
+  .branch-sheet-section{display:grid;gap:7px}
+  .branch-sheet-section h3{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin:0}
+  .branch-sheet-timeline{display:grid;gap:7px;border-left:1px solid var(--line2);padding-left:10px}
+  .branch-stage{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;min-height:42px}
+  .branch-stage b{display:block;font-size:13px;overflow-wrap:anywhere}
+  .branch-stage small{display:block;font:10.5px var(--mono);opacity:.58;margin-top:2px;overflow-wrap:anywhere}
+  .branch-row-list{display:grid;gap:7px}
+  .branch-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--line);border-radius:10px;
+    padding:9px;background:rgba(1,47,52,.28);font:12px/1.42 var(--mono);overflow:hidden}
+  .branch-row.is-blocked{border-color:rgba(248,181,96,.42);background:rgba(248,181,96,.045)}
+  .branch-row.is-proof-needed{border-color:rgba(248,181,96,.34)}
+  .branch-row b{display:block;color:var(--soft);font-weight:650;margin-bottom:2px;overflow-wrap:anywhere}
+  .branch-row span{display:block;opacity:.76;overflow-wrap:anywhere}
+  .branch-row small{display:block;color:var(--ink);opacity:.58;margin-top:4px;overflow-wrap:anywhere}
+  .branch-row .mc-state-token{min-height:22px;padding:3px 7px}
+  .branch-kpi-grid{display:grid;grid-template-columns:1fr;gap:7px}
+  .branch-kpi{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:center;border:1px solid var(--line);
+    border-radius:10px;padding:9px;background:rgba(1,47,52,.28);font:12px/1.4 var(--mono)}
+  .branch-kpi b{display:block;color:var(--soft);font-weight:650;overflow-wrap:anywhere}
+  .branch-kpi span:last-child{display:block;opacity:.75;overflow-wrap:anywhere}
+  .branch-inspect{display:grid;grid-template-columns:96px minmax(0,1fr);gap:6px 9px;border-top:1px solid var(--line);padding-top:10px;
+    font:11px/1.45 var(--mono);opacity:.72}
+  .branch-inspect b{color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.06em}
+  .branch-inspect span{overflow-wrap:anywhere}
 
   /* ── skeleton / states ──────────────────────── */
   .skel{height:54px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
@@ -289,31 +554,37 @@ export const PAGE = `<!doctype html>
   footer{flex:none;padding:8px 18px calc(var(--sab) + 12px);
     font:10.5px var(--mono);opacity:.5;background:linear-gradient(transparent,var(--bg) 45%);z-index:2;pointer-events:none}
 
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-  }
+	  @media (prefers-reduced-motion: reduce){
+	    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+	    .mc-orbit::after,.mc-packet-dots,.mc-kpi-pulse,.mc-state-token{animation:none!important}
+	  }
 </style>
 </head>
 <body>
 <div class="substrate"><div class="blob a"></div><div class="blob b"></div><div class="grain"></div></div>
-<div class="app">
-  <header>
-    <div class="brand">Quest Log<small>the infinite game · tenant <span id="ten">cambium</span></small></div>
-    <button id="sceneBadge" type="button" class="chip scene-chip" data-interaction-kind="sheet" data-source="tg-miniapp-scenes@v1">Quests</button>
-    <button id="fresh" type="button" class="chip" data-interaction-kind="sheet" data-source="missing">syncing</button>
+<div class="app" data-component="MissionControlShell">
+  <header class="root-status" data-component="RootStatusStack">
+    <div class="root-brand">
+      <span class="root-brand-glyph" data-component="RootBrandGlyph" data-glyph-kind="genesis" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 3.8 19.5 11.2 27.4 8.8 23.8 16 27.4 23.2 19.5 20.8 16 28.2 12.5 20.8 4.6 23.2 8.2 16 4.6 8.8 12.5 11.2Z"/><path d="M16 6.8 18.1 12.6 24.2 12.1 19.4 16 24.2 19.9 18.1 19.4 16 25.2 13.9 19.4 7.8 19.9 12.6 16 7.8 12.1 13.9 12.6Z"/><circle class="mc-core" cx="16" cy="16" r="2.1"/><path class="mc-soft" d="M7 27c4.2-.6 6.8-.6 9.2.1 2.8.8 5.2.7 8.8-.4"/></svg></span>
+      <div class="brand">Mission Control<small>tenant <span id="ten">cambium</span> · branch arcs</small></div>
+    </div>
+    <div class="root-chip-stack">
+      <button id="sceneBadge" type="button" class="chip scene-chip" data-interaction-kind="sheet" data-source="tg-miniapp-scenes@v1">Mission</button>
+      <button id="fresh" type="button" class="chip" data-interaction-kind="sheet" data-source="missing">syncing</button>
+    </div>
   </header>
-  <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="none"><div class="drop"></div><span id="ptrProof" class="ptr-proof">Pull to refresh re-fetches /api/quests/cambium and does not write operator state.</span></div>
-  <nav>
-    <button id="tb0" class="on" data-scene-source="tg-miniapp-scenes@v1">Quests</button>
-    <button id="tb1" data-scene-source="tg-miniapp-scenes@v1">Map</button>
-    <button id="tb2" data-scene-source="tg-miniapp-scenes@v1">Story</button>
-    <button id="tb3" data-scene-source="tg-miniapp-scenes@v1">Gate</button>
-    <button id="tb4" data-scene-source="tg-miniapp-scenes@v1">Commands</button>
-    <div class="ind" id="ind"></div>
+  <div class="ptr" id="ptr" data-refresh-route="/api/quests/cambium" data-refresh-writes="signed-actions-only"><div class="drop"></div><span id="ptrProof" class="ptr-proof">Pull to refresh updates /api/quests/cambium; decisions stay behind signed actions.</span></div>
+  <nav class="root-nav" data-component="RootNav" aria-label="Mission Control scenes">
+    <button id="tb0" class="root-tab on" data-component="RootSceneTab" data-root-scene="mission" data-nav-glyph="genesis" data-scene-source="tg-miniapp-scenes@v1" aria-selected="true"><span class="root-tab-glyph" data-component="RootNavGlyph" data-glyph-kind="genesis" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 3.8 19.5 11.2 27.4 8.8 23.8 16 27.4 23.2 19.5 20.8 16 28.2 12.5 20.8 4.6 23.2 8.2 16 4.6 8.8 12.5 11.2Z"/><path d="M16 6.8 18.1 12.6 24.2 12.1 19.4 16 24.2 19.9 18.1 19.4 16 25.2 13.9 19.4 7.8 19.9 12.6 16 7.8 12.1 13.9 12.6Z"/><circle class="mc-core" cx="16" cy="16" r="2.1"/></svg></span><span class="root-tab-label">Mission</span><small>next move</small></button>
+    <button id="tb1" class="root-tab" data-component="RootSceneTab" data-root-scene="gate" data-nav-glyph="gate" data-scene-source="tg-miniapp-scenes@v1" aria-selected="false"><span class="root-tab-glyph" data-component="RootNavGlyph" data-glyph-kind="gate" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 4.8 27 24.8H5Z"/><path d="M16 6.8 24.7 23H7.3Z"/><path d="M16 12.8 20.8 20.8H11.2Z"/><path class="mc-core" d="M15.9 17.2 17.9 20.2H13.9Z"/></svg></span><span class="root-tab-label">Gate</span><small>review</small></button>
+    <button id="tb2" class="root-tab" data-component="RootSceneTab" data-root-scene="tools" data-nav-glyph="ops" data-scene-source="tg-miniapp-scenes@v1" aria-selected="false"><span class="root-tab-glyph" data-component="RootNavGlyph" data-glyph-kind="ops" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M7.2 13.4 21.8 6.7 27.6 13.3 20.1 24.7 5.4 20.3Z"/><path d="M8.2 14.2 21.5 8.2 26 13.6 19.3 23 6.8 19.4Z"/><path d="m10.1 15.3 9.5 3.7 4.6-4.9M19.6 19l1.9-10.8"/></svg></span><span class="root-tab-label">Tools</span><small>act</small></button>
+    <button id="tb3" class="root-tab" data-component="RootSceneTab" data-root-scene="story" data-nav-glyph="proof" data-scene-source="tg-miniapp-scenes@v1" aria-selected="false"><span class="root-tab-glyph" data-component="RootNavGlyph" data-glyph-kind="proof" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M10.2 5.4c3.6 1.7 6.7 1.8 9.8.4 1.7-.7 3.3.5 3.2 2.3l-1 14.7c-.1 1.9-1.9 3-3.6 2.1-3.1-1.6-6.2-1.8-9.5-.5Z"/><path d="M10.2 5.4c3.6 1.7 6.7 1.8 9.8.4 1.7-.7 3.3.5 3.2 2.3l-1 14.7c-.1 1.9-1.9 3-3.6 2.1-3.1-1.6-6.2-1.8-9.5-.5Z"/><path class="mc-dash" d="M12.4 11.4c2.3.8 4.6.8 7.1.1M12.1 15.4c2.8.9 5.5.9 8.2 0"/></svg></span><span class="root-tab-label">Story</span><small>signals</small></button>
+    <button id="tb4" class="root-tab" data-component="RootSceneTab" data-root-scene="inspect" data-nav-glyph="cortex" data-scene-source="tg-miniapp-scenes@v1" aria-selected="false"><span class="root-tab-glyph" data-component="RootNavGlyph" data-glyph-kind="cortex" aria-hidden="true"><svg viewBox="0 0 32 32"><circle class="mc-fill" cx="16" cy="16" r="10.8"/><circle cx="16" cy="16" r="10.3"/><circle cx="16" cy="16" r="4.1"/><circle class="mc-core" cx="16" cy="16" r="1.6"/><path d="M16 5.7v6.1M16 20.2v6.1M5.7 16h6.1M20.2 16h6.1"/></svg></span><span class="root-tab-label">Inspect</span><small>proof</small></button>
+    <div class="ind root-nav-indicator" id="ind"></div>
   </nav>
   <div class="track" id="track">
     <section class="scene" id="sceneQ" aria-labelledby="sceneQTitle">
-      <h2 id="sceneQTitle" class="sr">Quests</h2>
+      <h2 id="sceneQTitle" class="sr">Mission</h2>
       <div class="stem" id="stem">
         <div class="skel"></div><div class="skel"></div><div class="skel"></div>
         <div class="skel"></div><div class="skel"></div>
@@ -321,21 +592,35 @@ export const PAGE = `<!doctype html>
       <div class="bar"><div id="fill" class="fill"></div></div>
       <div class="meta"><span id="progress"></span><span id="here"></span></div>
     </section>
-    <section class="scene" id="sceneF" aria-labelledby="sceneFTitle"><h2 id="sceneFTitle" class="sr">Map</h2><div class="mapwrap" id="mapwrap"></div></section>
-    <section class="scene" id="sceneS" aria-labelledby="sceneSTitle"><h2 id="sceneSTitle" class="sr">Story</h2><div id="beats"></div></section>
     <section class="scene" id="sceneG" aria-labelledby="sceneGTitle">
       <h2 id="sceneGTitle" class="sr">Gate</h2>
-      <div class="ghead">The Gate · signed queue</div>
-      <div class="gsub">approve or reroll an open work item — evidence-gated, founders only.</div>
-      <div class="gauge" id="gauge"></div>
-      <div id="gate">loading the queue…</div>
+      <div class="gate-shell" data-component="GateChamber">
+        <section class="gate-hero" data-component="GateMissionCard">
+          <div class="gate-title-row">
+            <span class="mc-glyph is-proof-needed" data-component="MissionGlyph" data-glyph-kind="gate" data-state="proof-needed" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 4.8 27 24.8H5Z"/><path d="M16 6.8 24.7 23H7.3Z"/><path d="M16 12.8 20.8 20.8H11.2Z"/><path class="mc-core" d="M15.9 17.2 17.9 20.2H13.9Z"/><path class="mc-soft" d="M8.2 27.2c2.2-2.8 4.6-3.2 7.8-1.2 3.2-2 5.6-1.6 7.8 1.2"/></svg></span>
+            <div>
+              <h3>Gate · decisions</h3>
+              <p>Review founder decisions tied to branches, missions, proof, consequence, and reversibility.</p>
+            </div>
+          </div>
+          <div class="gauge" id="gauge" data-component="OrbitProgress"></div>
+        </section>
+        <div class="gate-state-strip" data-component="GateStateStack">
+          <span><b>Decision</b><small>founder confirmation</small></span>
+          <span><b>Effect</b><small>held for operator consumption</small></span>
+          <span><b>Proof</b><small>evidence before action</small></span>
+        </div>
+        <div id="gate" class="gate-queue">loading the queue…</div>
+      </div>
     </section>
     <section class="scene" id="sceneC" aria-labelledby="sceneCTitle">
-      <h2 id="sceneCTitle" class="sr">Commands</h2>
-      <div class="ghead">Commands · the co-founder interface</div>
+      <h2 id="sceneCTitle" class="sr">Tools</h2>
+      <div class="ghead">Tools · the operator toolbelt</div>
       <div class="gsub">the /ts-* command surface, run through the curios.self bot in Telegram.</div>
       <div id="cmds"></div>
     </section>
+    <section class="scene" id="sceneS" aria-labelledby="sceneSTitle"><h2 id="sceneSTitle" class="sr">Story</h2><div id="beats"></div></section>
+    <section class="scene" id="sceneF" aria-labelledby="sceneFTitle"><h2 id="sceneFTitle" class="sr">Inspect</h2><div class="mapwrap" id="mapwrap"></div></section>
   </div>
   <footer>every status derives from real world-state — no fake progress.</footer>
 </div>
@@ -355,13 +640,219 @@ const MARKS = {
   active:   '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="#E0FF4F"/></svg>',
   locked:   '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.4" fill="none" stroke="rgba(214,255,246,.45)" stroke-width="1.4"/></svg>'
 };
+const MC_COMPONENT_REGISTRY = Object.freeze({
+  MissionGlyph:['genesis','taste','build','ops','cortex','arc','proof','gate'],
+  StateToken:['idle','active','selected','complete','blocked','locked','stale','proof-needed','reduced-motion'],
+  OrbitProgress:['idle','active','complete','blocked','stale','proof-needed'],
+  SelectedHalo:['branch-chip','mission-node','detail-sheet'],
+  SignalRail:['idle','active','blocked','locked'],
+  PacketFlow:['rail','texture','packet-bar'],
+  BranchArcChip:['selected','active','stale','blocked','locked'],
+  MissionCard:['next-mission','branch-sheet'],
+  QuestlineTimeline:['seed','packet','proof','launch'],
+  ProofList:['proof-needed','blocked','stale'],
+  KpiPulse:['survival','better-than-survival'],
+  GateActionRow:['review-gate','open-proof'],
+  Motion:['orbitSweep','packetDrift','glyphBreathe','warningAttention','reducedMotion']
+});
+const MC_GLYPH_SVG = {
+  genesis:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 3.8 19.5 11.2 27.4 8.8 23.8 16 27.4 23.2 19.5 20.8 16 28.2 12.5 20.8 4.6 23.2 8.2 16 4.6 8.8 12.5 11.2Z"/><path d="M16 6.8 18.1 12.6 24.2 12.1 19.4 16 24.2 19.9 18.1 19.4 16 25.2 13.9 19.4 7.8 19.9 12.6 16 7.8 12.1 13.9 12.6Z"/><circle class="mc-core" cx="16" cy="16" r="2.1"/><path class="mc-soft" d="M7 27c4.2-.6 6.8-.6 9.2.1 2.8.8 5.2.7 8.8-.4"/></svg>',
+  taste:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M9.4 12.4 20.2 8.5a6.6 6.6 0 0 1 5 12.2L14.4 24.6a6.6 6.6 0 0 1-5-12.2Z"/><path d="M10.6 13.5 20.9 9.9a5 5 0 0 1 3.5 9.4L14.1 23a5 5 0 0 1-3.5-9.5Z"/><path class="mc-soft" d="m13 16.3 9.8-3.6M10.2 26.4c3.6.5 6.8-.2 9.4-1.3"/></svg>',
+  build:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 4.7 27.5 25.2H4.5Z"/><path d="M16 6.8 25 23.4H7Z"/><path d="M16 13.2 20.6 21H11.4Z"/><path class="mc-soft" d="M9.2 25.2h13.6M12 22.9h8"/></svg>',
+  ops:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M7.2 13.4 21.8 6.7 27.6 13.3 20.1 24.7 5.4 20.3Z"/><path d="M8.2 14.2 21.5 8.2 26 13.6 19.3 23 6.8 19.4Z"/><path d="m10.1 15.3 9.5 3.7 4.6-4.9M19.6 19l1.9-10.8"/><path class="mc-soft" d="M6.2 25.1c3.9-1.2 6.9-1.2 9.8.2"/></svg>',
+  cortex:'<svg viewBox="0 0 32 32"><circle class="mc-fill" cx="16" cy="16" r="10.8"/><circle cx="16" cy="16" r="10.3"/><circle cx="16" cy="16" r="4.1"/><circle class="mc-core" cx="16" cy="16" r="1.6"/><path d="M16 5.7v6.1M16 20.2v6.1M5.7 16h6.1M20.2 16h6.1M8.7 8.7l4.3 4.3M19 19l4.3 4.3M23.3 8.7 19 13M13 19l-4.3 4.3"/></svg>',
+  arc:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M24 7.2a9.8 9.8 0 1 0 0 17.6 11.6 11.6 0 1 1 0-17.6Z"/><path d="M24 7.2a9.8 9.8 0 1 0 0 17.6"/><path d="M22.1 11.7a5.7 5.7 0 1 0 0 8.6"/><path class="mc-soft" d="M6.8 27.1c2.4-.8 4.8-.8 7.3 0 2 .6 4 .5 6.4-.4"/></svg>',
+  proof:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M10.2 5.4c3.6 1.7 6.7 1.8 9.8.4 1.7-.7 3.3.5 3.2 2.3l-1 14.7c-.1 1.9-1.9 3-3.6 2.1-3.1-1.6-6.2-1.8-9.5-.5Z"/><path d="M10.2 5.4c3.6 1.7 6.7 1.8 9.8.4 1.7-.7 3.3.5 3.2 2.3l-1 14.7c-.1 1.9-1.9 3-3.6 2.1-3.1-1.6-6.2-1.8-9.5-.5Z"/><path class="mc-dash" d="M12.4 11.4c2.3.8 4.6.8 7.1.1M12.1 15.4c2.8.9 5.5.9 8.2 0M11.8 19.3c2.1.7 4.4.8 6.8.2"/><path class="mc-soft" d="M7.2 27.2c5.9-2 11.8-1.9 17.6.1"/></svg>',
+  gate:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 4.8 27 24.8H5Z"/><path d="M16 6.8 24.7 23H7.3Z"/><path d="M16 12.8 20.8 20.8H11.2Z"/><path class="mc-core" d="M15.9 17.2 17.9 20.2H13.9Z"/><path class="mc-soft" d="M8.2 27.2c2.2-2.8 4.6-3.2 7.8-1.2 3.2-2 5.6-1.6 7.8 1.2"/></svg>'
+};
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function mcStateKind(raw){
+  const state = String(raw || '').toLowerCase();
+  if (/reduced/.test(state)) return 'reduced-motion';
+  if (/selected|focus/.test(state)) return 'selected';
+  if (/verified|complete|ready|done/.test(state)) return 'complete';
+  if (/stale/.test(state)) return 'stale';
+  if (/blocked|warning|gap|missing/.test(state)) return 'blocked';
+  if (/proof|review|pending/.test(state)) return 'proof-needed';
+  if (/active|current|queued|running/.test(state)) return 'active';
+  if (/locked|disabled/.test(state)) return 'locked';
+  return 'idle';
+}
+function mcClass(base, state, extra){
+  const kind = mcStateKind(state);
+  return [base, 'is-' + kind, extra || ''].filter(Boolean).join(' ');
+}
+function mcGlyphSvg(kind, state){
+  const glyph = MC_COMPONENT_REGISTRY.MissionGlyph.includes(kind) ? kind : 'arc';
+  const tone = mcStateKind(state);
+  return '<span class="' + mcClass('mc-glyph', tone) + '" data-component="MissionGlyph" data-glyph-kind="' + esc(glyph) + '" data-state="' + esc(tone) + '" aria-hidden="true">' + MC_GLYPH_SVG[glyph] + '</span>';
+}
+function mcStateToken(state, label){
+  const kind = mcStateKind(state);
+  return '<span class="' + mcClass('mc-state-token', kind) + '" data-component="StateToken" data-state="' + esc(kind) + '">' + esc(label || kind) + '</span>';
+}
+function mcPacketDots(count, state){
+  const n = Math.max(1, Math.min(9, Number(count) || 1));
+  return '<span class="' + mcClass('mc-packet-dots', state) + '" data-component="PacketFlow">' + Array.from({ length:n }, () => '<i class="mc-packet"></i>').join('') + '</span>';
+}
+function mcOrbitProgress(opts){
+  const value = Math.max(0, Math.min(100, Number(opts && opts.value) || 0));
+  const label = opts && opts.label ? opts.label : value + '%';
+  return '<span class="' + mcClass('mc-orbit', opts && opts.state) + '" data-component="OrbitProgress" data-state="' + esc(mcStateKind(opts && opts.state)) + '" style="--mc-progress:' + value + '">' + esc(label) + '</span>';
+}
+function mcSignalRail(opts){
+  return '<span class="' + mcClass('mc-signal-rail', opts && opts.state) + '" data-component="SignalRail">' + mcPacketDots(opts && opts.packetCount, opts && opts.state) + '</span>';
+}
+const MC_BOARD_GLYPHS = Object.freeze([
+  ['genesis','Genesis','seed star'],
+  ['taste','Taste','capsule proof'],
+  ['build','Build','triangle scaffold'],
+  ['ops','Ops','folded slab'],
+  ['cortex','Cortex','radial ring'],
+  ['arc','Arc','crescent path'],
+  ['proof','Proof','curled receipt'],
+  ['gate','Gate','triangle aperture'],
+]);
+const MC_BOARD_STATES = Object.freeze([
+  ['idle','Idle','quiet rail'],
+  ['active','Active','current work'],
+  ['selected','Selected','focused branch'],
+  ['complete','Complete','verified growth'],
+  ['blocked','Blocked','hard stop'],
+  ['locked','Locked','permission held'],
+  ['stale','Stale','old proof'],
+  ['reduced-motion','Reduced motion','static equivalent'],
+]);
+const MC_BOARD_ORBITS = Object.freeze([
+  [0,'idle','0'],
+  [25,'active','25'],
+  [50,'active','50'],
+  [75,'proof-needed','75'],
+  [100,'complete','100'],
+  [36,'blocked','blocked'],
+  [18,'stale','stale'],
+]);
+const MC_BOARD_LEGEND = Object.freeze([
+  ['node','Node','branch or proof point'],
+  ['rail','Rail','path between points'],
+  ['packet','Packet','moving proof unit'],
+  ['orbit','Orbit','progress ring'],
+  ['active','Active','current work'],
+  ['warning','Warning','blocked or proof needed'],
+  ['locked','Locked','permission gate'],
+  ['stale','Stale','old evidence'],
+]);
+function mcBoardPanel(title, component, body){
+  return '<section class="component-panel" data-component="' + esc(component) + '"><h3>' + esc(title) + '</h3>' + body + '</section>';
+}
+function renderComponentGlyphStateBoard(){
+  return mcBoardPanel('1. Glyphs', 'ComponentGlyphStateBoard',
+    '<div class="component-grid component-glyph-grid">' + MC_BOARD_GLYPHS.map(([kind, name, note]) =>
+      '<div class="component-glyph-cell" data-component="GlyphAsset" data-glyph-kind="' + esc(kind) + '">' +
+        mcGlyphSvg(kind, kind === 'gate' || kind === 'proof' ? 'proof-needed' : 'active') +
+        '<span><b>' + esc(name) + '</b><small>' + esc(note) + '</small></span>' +
+      '</div>'
+    ).join('') + '</div>'
+  );
+}
+function renderComponentStateBoard(){
+  return mcBoardPanel('2. States', 'ComponentStateBoard',
+    '<div class="component-grid component-state-grid">' + MC_BOARD_STATES.map(([state, name, note]) =>
+      '<div class="component-state-cell" data-component="StateAsset" data-state="' + esc(state) + '">' +
+        '<span><b>' + esc(name) + '</b><small>' + esc(note) + '</small></span>' +
+        mcStateToken(state, state) +
+      '</div>'
+    ).join('') + '</div>'
+  );
+}
+function renderComponentOrbitBoard(){
+  return mcBoardPanel('3. Orbit Progress', 'ComponentOrbitProgressBoard',
+    '<div class="component-grid component-orbit-grid">' + MC_BOARD_ORBITS.map(([value, state, label]) =>
+      '<div class="component-frame" data-component="OrbitProgressAsset" data-state="' + esc(state) + '">' +
+        mcOrbitProgress({ value, state, label: String(label) }) +
+        '<small>' + esc(state) + '</small>' +
+      '</div>'
+    ).join('') + '</div>'
+  );
+}
+function renderComponentMissionComponentsBoard(){
+  const questline = '<div class="mc-questline" data-component="QuestlineTimeline">' +
+    [['genesis','seed','complete'],['ops','packet','active'],['proof','proof','proof-needed'],['gate','launch','locked']].map(([glyph, label, state]) =>
+      '<div class="mc-questline-row">' + mcGlyphSvg(glyph, state) + '<b>' + esc(label) + '</b>' + mcStateToken(state, state === 'proof-needed' ? 'proof' : state) + '</div>'
+    ).join('') +
+  '</div>';
+  const proofList = '<div class="mc-proof-list" data-component="ProofList">' +
+    '<span>' + mcGlyphSvg('proof', 'proof-needed') + '<span><b>ProofList</b>receipt required before claim</span>' + mcStateToken('proof-needed', 'proof') + '</span>' +
+    '<span>' + mcGlyphSvg('build', 'blocked') + '<span><b>Blocked proof</b>missing live route or artifact</span>' + mcStateToken('blocked', 'blocked') + '</span>' +
+  '</div>';
+  const kpiPulse = '<div class="mc-kpi-row" data-component="KpiPulse"><span class="mc-kpi-pulse">KPI</span><span><b>KpiPulse</b>survival signal, not decorative progress</span></div>';
+  const gateRow = '<div class="mc-action-row" data-component="GateActionRow">' +
+    '<button type="button" data-component="GateAction" data-mission-action="gate">Review Gate</button>' +
+    '<button type="button" class="secondary" data-component="ProofAction" data-mission-action="proof">Open Proof</button>' +
+  '</div>';
+  return mcBoardPanel('4. Mission Components', 'ComponentMissionComponentsBoard',
+    '<div class="component-grid component-mission-grid">' +
+      '<div class="component-sample component-branch-chip-sample mc-branch-chip is-selected" data-component="BranchArcChip">' + mcGlyphSvg('genesis', 'selected') + '<span class="mc-branch-copy"><b>BranchArcChip</b><small>selected glyph</small></span>' + mcStateToken('selected', 'selected') + '</div>' +
+      '<section class="component-sample mc-mission-card" data-component="MissionCard"><div class="mc-card-head"><span>' + mcStateToken('active', 'Next Mission') + '</span>' + mcOrbitProgress({ value: 42, state: 'active', label: '42%' }) + '</div><h3>MissionCard</h3><p>hero branch objective with proof-bound progress.</p></section>' +
+      '<div class="component-sample"><div class="component-sample-title">QuestlineTimeline</div>' + questline + '</div>' +
+      '<div class="component-sample"><div class="component-sample-title">ProofList</div>' + proofList + '</div>' +
+      '<div class="component-sample"><div class="component-sample-title">KpiPulse</div>' + kpiPulse + '</div>' +
+      '<div class="component-sample"><div class="component-sample-title">GateActionRow</div>' + gateRow + '</div>' +
+    '</div>'
+  );
+}
+function renderComponentMotionBoard(){
+  const motions = [
+    ['orbitSweep','Orbit Sweep', [mcOrbitProgress({ value: 25, state: 'active', label: '25' }), mcOrbitProgress({ value: 50, state: 'active', label: '50' }), mcOrbitProgress({ value: 75, state: 'proof-needed', label: '75' })]],
+    ['packetDrift','Packet Drift', [mcSignalRail({ state: 'idle', packetCount: 4 }), mcSignalRail({ state: 'active', packetCount: 6 }), mcSignalRail({ state: 'blocked', packetCount: 3 })]],
+    ['glyphBreathe','Glyph Breathe', [mcGlyphSvg('genesis', 'active'), mcGlyphSvg('taste', 'selected'), mcGlyphSvg('cortex', 'complete')]],
+    ['warningAttention','Warning Attention', [mcStateToken('proof-needed', 'proof'), mcStateToken('blocked', 'blocked'), mcStateToken('stale', 'stale')]],
+    ['reducedMotion','Reduced Motion', [mcGlyphSvg('arc', 'reduced-motion'), mcStateToken('reduced-motion', 'static'), mcOrbitProgress({ value: 50, state: 'reduced-motion', label: 'RM' })]],
+  ];
+  return mcBoardPanel('5. Motion Primitives', 'ComponentMotionPrimitives',
+    '<div class="component-grid component-motion-grid">' + motions.map(([motion, name, frames]) =>
+      '<div class="component-frame" data-component="MotionPrimitive" data-motion="' + esc(motion) + '">' +
+        '<b>' + esc(name) + '</b><small>' + esc(motion) + '</small>' +
+        '<div class="component-motion-frames">' + frames.map(frame => '<span class="component-motion-frame">' + frame + '</span>').join('') + '</div>' +
+      '</div>'
+    ).join('') + '</div>'
+  );
+}
+function renderComponentLegendBoard(){
+  return mcBoardPanel('6. Legend', 'ComponentLegend',
+    '<div class="component-grid component-legend-grid">' + MC_BOARD_LEGEND.map(([key, name, note]) =>
+      '<div class="component-legend-item" data-component="LegendAsset" data-legend-kind="' + esc(key) + '">' +
+        '<i class="component-legend-node is-' + esc(key) + '"></i>' +
+        '<span><b>' + esc(name) + '</b><small>' + esc(note) + '</small></span>' +
+      '</div>'
+    ).join('') + '</div>'
+  );
+}
+function renderComponentGallery(env){
+  const wrap = $('mapwrap'); if (!wrap) return;
+  const badge = $('sceneBadge');
+  if (badge) {
+    badge.textContent = 'Components';
+    badge.dataset.scene = 'components';
+    badge.dataset.ecosystemTarget = 'mission-control-components';
+  }
+  wrap.innerHTML =
+    '<section class="component-board" data-component="ComponentGallery" data-source="01-component-glyph-state-board.png" data-fixture="' + esc((env && env.source) || 'unknown') + '">' +
+      '<header class="component-board-head" data-component="ComponentBoardHeader"><div><h2>Glyph State Board</h2><p>Runtime extraction of the modular-components reference: glyphs, states, orbit progress, mission samples, motion primitives, and legend assets.</p></div><span>component proof</span></header>' +
+      renderComponentGlyphStateBoard() +
+      renderComponentStateBoard() +
+      renderComponentOrbitBoard() +
+      renderComponentMissionComponentsBoard() +
+      renderComponentMotionBoard() +
+      renderComponentLegendBoard() +
+    '</section>';
+}
 const PARAMS = new URLSearchParams(location.search);
 const TENANT = (PARAMS.get('tenant')
   || (TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param) || 'cambium').replace(/[^a-z0-9-]/gi,'') || 'cambium';
 const REFRESH_ROUTE = '/api/quests/' + TENANT;
 const SCENE_PARAM = String(PARAMS.get('scene') || '').toLowerCase();
-const START_SCENE = ({ quests:0, quest:0, q:0, map:1, story:2, gate:3, commands:4 }[SCENE_PARAM] ?? 0);
+const START_SCENE = ({ mission:0, quests:0, quest:0, q:0, gate:1, tools:2, commands:2, story:3, inspect:4, map:4, components:4, component:4, board:4 }[SCENE_PARAM] ?? 0);
 $('ten').textContent = TENANT;
 let LEDGER = null;
 let ECOSYSTEM_ENV = null;
@@ -371,14 +862,14 @@ let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:t
 const track = $('track'), ind = $('ind'), SCN = 5;
 let scene = START_SCENE;
 const SCENE_META = [
-  { label:'Quests', source:'tg-miniapp-scenes@v1', target:'quine', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
-  { label:'Map', source:'tg-miniapp-scenes@v1', target:'r3f', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
-  { label:'Story', source:'tg-miniapp-scenes@v1', target:'paperclip', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
-  { label:'Gate', source:'tg-miniapp-scenes@v1', target:'telegram', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state; writes require signed founder action' },
-  { label:'Commands', source:'tg-miniapp-scenes@v1', target:'hermes', refresh:'pull-to-refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state' },
+  { label:'Mission', source:'tg-miniapp-scenes@v1', target:'product-branches', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions' },
+  { label:'Gate', source:'tg-miniapp-scenes@v1', target:'telegram', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; founder decisions require confirmation' },
+  { label:'Tools', source:'tg-miniapp-scenes@v1', target:'hermes', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; tool actions remain explicit' },
+  { label:'Story', source:'tg-miniapp-scenes@v1', target:'operator-narrative', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; story rows stay evidence-backed' },
+  { label:'Inspect', source:'tg-miniapp-scenes@v1', target:'cambium-worker', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; proof detail stays inspectable' },
 ];
 $('ptr').dataset.refreshRoute = REFRESH_ROUTE;
-$('ptrProof').textContent = 'Pull to refresh re-fetches ' + REFRESH_ROUTE + ' and does not write operator state.';
+$('ptrProof').textContent = 'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions.';
 const W = () => track.clientWidth || window.innerWidth;
 function place(x, animate){
   track.style.transition = (animate && !RM) ? 'transform .5s var(--ease)' : 'none';
@@ -393,8 +884,8 @@ function go(i, fromSwipe){
   ind.style.transform = 'translateX(' + (100 * scene) + '%)';
   [0,1,2,3,4].forEach(n => { $('tb'+n).classList.toggle('on', n === scene); $('tb'+n).setAttribute && $('tb'+n).setAttribute('aria-selected', n === scene ? 'true' : 'false'); });
   updateSceneBadge();
-  if (scene === 3) loadGate();
-  if (scene === 4) renderCommands();
+  if (scene === 1) loadGate();
+  if (scene === 2) renderCommands();
   if (!fromSwipe) buzz('light');
 }
 [0,1,2,3,4].forEach(n => $('tb'+n).onclick = () => go(n));
@@ -421,37 +912,44 @@ function reducedMotionProofRow(){
 }
 function openSceneSheet(){
   const meta = SCENE_META[scene] || SCENE_META[0];
-  $('sheetBody').innerHTML = '<div class="arc">scene provenance · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
-    '<div class="nar">This scene is read from the Telegram mini app scene registry and refreshed without local operator writes.</div>' +
-    '<div class="kv"><b>scene source</b><span>' + esc(meta.source) + '</span><b>ecosystem target</b><span>' + esc(meta.target) + '</span><b>refresh rule</b><span>' + esc(meta.refresh) + '</span>' + reducedMotionProofRow() + '</div>';
+  $('sheetBody').innerHTML = '<div class="arc">view details · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
+    '<div class="nar">Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow.</div>' +
+    '<div class="kv"><b>view</b><span>' + esc(meta.source) + '</span><b>target</b><span>' + esc(meta.target) + '</span><b>refresh</b><span>' + esc(meta.refresh) + '</span>' + reducedMotionProofRow() + '</div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 $('sceneBadge').onclick = openSceneSheet;
+
+function isInteractiveSceneTarget(target){
+  return Boolean(target && target.closest && target.closest('button,a,input,textarea,select,label,[role="button"],[data-no-scene-drag]'));
+}
 
 /* commands panel — the /ts-* co-founder interface.
    4th tuple element: live-data keys open sourced sheets; act/digest open
    chat-command guidance sheets; omitted kind is a read-only command reference. */
 let CMDDATA = null;
+let TOOL_GROUP_FILTER = 'all';
 const CMDS = [
-  ['Status · live', [
-    ['ts-status', '', 'Org health — agents, work, arcs', 'status'],
-    ['ts-hermes', '', 'Hermes timers and Telegram brain', 'hermes'],
-    ['ts-agents', '', 'The agent roster', 'agents'],
-    ['ts-projects', '', 'Active work in the org', 'work'],
-    ['ts-handoffs', '', 'Pending items awaiting a founder', 'handoffs'],
-    ['ts-agent', '<name>', 'Show one agent\\'s detail'],
-    ['ts-project', '<slug>', 'Show one project\\'s detail'],
-    ['ts-vault', '<path>', 'Read a vault file or list a folder'],
+  ['Act', [
+    ['ts-run', '<agent> <task>', 'Assign the next mission step', 'act'],
+    ['ts-approve', '<id>', 'Approve a waiting decision', 'act'],
+    ['ts-reject', '<id> <reason>', 'Send a decision back with reason', 'act'],
   ]],
-  ['Actions · in chat', [
-    ['ts-run', '<agent> <task>', 'Assign a task to an agent', 'act'],
-    ['ts-approve', '<id>', 'Approve a pending handoff', 'act'],
-    ['ts-reject', '<id> <reason>', 'Reject a pending handoff', 'act'],
+  ['Ask', [
+    ['ts-status', '', 'Check active arcs, agents, and work health', 'status'],
+    ['ts-hermes', '', 'Check timers and service health', 'hermes'],
+    ['ts-agents', '', 'Inspect who can take the next mission', 'agents'],
+    ['ts-projects', '', 'Review active work tied to branches', 'work'],
+    ['ts-agent', '<name>', 'Inspect one agent before dispatch'],
+    ['ts-project', '<slug>', 'Inspect one project before action'],
   ]],
-  ['Digests · in chat', [
-    ['ts-standup', '', 'Generate the daily standup', 'digest'],
-    ['ts-digest', '', 'The weekly founder digest', 'digest'],
-    ['ts-help', '', 'Show command help in chat', 'digest'],
+  ['Report', [
+    ['ts-standup', '', 'Summarize today\\'s mission movement', 'digest'],
+    ['ts-digest', '', 'Prepare the founder progress digest', 'digest'],
+    ['ts-help', '', 'List available toolbelt commands', 'digest'],
+  ]],
+  ['Coordinate', [
+    ['ts-handoffs', '', 'See decisions waiting on a founder', 'handoffs'],
+    ['ts-vault', '<path>', 'Read supporting context by path'],
   ]],
 ];
 const LIVE_CMD_KEYS = { status:1, hermes:1, agents:1, work:1, handoffs:1 };
@@ -461,6 +959,12 @@ CMDS.forEach(([group, items]) => items.forEach(([name, args, desc, kind]) => {
   COMMANDS_BY_NAME[name] = { group, name, args, desc, kind:kind || 'reference' };
 }));
 let cmdsDrawn = false;
+function toolGroupControls(){
+  const groups = ['all'].concat(CMDS.map(([group]) => group));
+  return '<div class="tool-context-strip" data-component="ToolGroupSegmentedControl">' + groups.map(group =>
+    '<button type="button" class="' + (TOOL_GROUP_FILTER === group ? 'is-selected' : '') + '" data-tool-group="' + esc(group) + '">' + esc(group) + '</button>'
+  ).join('') + '</div>';
+}
 function commandInteraction(kind){
   if (LIVE_CMD_KEYS[kind]) return 'sheet';
   if (kind === 'act' || kind === 'digest') return 'chat-command';
@@ -468,6 +972,11 @@ function commandInteraction(kind){
 }
 function commandSource(kind){
   if (LIVE_CMD_KEYS[kind]) return 'paperclipCommandsData';
+  if (kind === 'act' || kind === 'digest') return 'curios.self-chat-command';
+  return 'curios.self-command-reference';
+}
+function commandPrimarySource(kind){
+  if (LIVE_CMD_KEYS[kind]) return 'mission-toolbelt-live@v1';
   if (kind === 'act' || kind === 'digest') return 'curios.self-chat-command';
   return 'curios.self-command-reference';
 }
@@ -492,6 +1001,46 @@ function wireCommandCopy(text){
   const btn = $('sheetBody').querySelector('[data-copy-command]');
   if (btn) btn.onclick = () => copyCommandToClipboard(text, btn).catch(() => { btn.textContent = 'Copy unavailable'; });
 }
+function commandGlyphKind(cmd){
+  if (cmd.group === 'Act') return 'gate';
+  if (cmd.group === 'Ask') return 'cortex';
+  if (cmd.group === 'Report') return 'proof';
+  if (cmd.group === 'Coordinate') return 'ops';
+  return 'arc';
+}
+function commandAvailability(cmd){
+  if (LIVE_CMD_KEYS[cmd.kind]) return CMDDATA ? 'active' : 'stale';
+  if (cmd.kind === 'act' || cmd.kind === 'digest') return 'active';
+  return 'idle';
+}
+function commandAvailabilityLabel(state){
+  if (state === 'stale') return 'stale';
+  if (state === 'active') return 'usable';
+  return 'reference';
+}
+function toolRecommendationCard(){
+  return '<section class="tool-recommend" data-component="ToolRecommendationPanel">' +
+    mcGlyphSvg('ops', CMDDATA ? 'active' : 'stale') +
+    '<span><b>Recommended next tool</b><small>Start with /ts-status before acting; it checks active arcs, agents, and work health.</small></span>' +
+    '<button type="button" data-tool-recommend="ts-status">Open</button>' +
+  '</section>';
+}
+function toolContextStrip(){
+  const liveState = CMDDATA ? 'live data available' : 'live data stale';
+  return '<div class="tool-context-strip" data-component="ToolContextChips">' +
+    '<span>mission branch context</span><span>' + esc(liveState) + '</span><span>copy-only commands</span><span>signed decisions stay in Gate</span>' +
+  '</div>';
+}
+function toolRecentStrip(){
+  const recents = ['ts-status', 'ts-hermes', 'ts-standup'];
+  return '<div class="tool-recent-strip" data-component="ToolRecentStrip">' + recents.map(name =>
+    '<button type="button" data-tool-recent="' + esc(name) + '">/' + esc(name) + '</button>'
+  ).join('') + '</div>';
+}
+function toolSafetyRow(kind){
+  const label = LIVE_CMD_KEYS[kind] ? 'opens a live detail sheet' : kind === 'act' || kind === 'digest' ? 'copies command text for chat' : 'reference only';
+  return '<div class="tool-safety-row" data-component="ToolSafetyRow">Safety: ' + esc(label) + '; the mini app does not send bot messages or mutate Paperclip from Tools.</div>';
+}
 function openCommandCardSheet(name){
   const cmd = COMMANDS_BY_NAME[name];
   if (!cmd) return;
@@ -503,14 +1052,15 @@ function openCommandCardSheet(name){
     : 'Reference command sheet. Type this command in the curios.self bot chat when you want this inspection.';
   $('sheetBody').innerHTML = '<div class="arc">command · ' + esc(interaction) + '</div><h2>' + esc('/' + cmd.name) + '</h2>' +
     '<div class="nar">' + esc(guidance) + '</div>' +
-    '<div class="kv"><b>interaction</b><span>' + esc(interaction) + '</span><b>chat syntax</b><span>' + esc(text) + '</span><b>source</b><span>' + esc(source) + '</span><b>card group</b><span>' + esc(cmd.group) + '</span><b>description</b><span>' + esc(cmd.desc) + '</span><b>mini app writes</b><span>none; copy only, no signed gate endpoint</span><b>signed action button</b><span>not rendered for command sheets</span></div>' +
-    commandCopyControl(text);
+    '<div class="kv"><b>interaction</b><span>' + esc(interaction) + '</span><b>chat syntax</b><span>' + esc(text) + '</span><b>source</b><span>' + esc(source) + '</span><b>card group</b><span>' + esc(cmd.group) + '</span><b>description</b><span>' + esc(cmd.desc) + '</span><b>payload preview</b><span>' + esc(text) + '</span><b>mini app writes</b><span>none; copy only, no signed gate endpoint</span><b>signed action button</b><span>not rendered for command sheets</span></div>' +
+    toolSafetyRow(cmd.kind) + commandCopyControl(text);
   wireCommandCopy(text);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(interaction === 'chat-command' ? 'medium' : 'light');
 }
 function renderCommands(){
   if (cmdsDrawn) return; cmdsDrawn = true;
-  $('cmds').innerHTML = CMDS.map(([group, items]) =>
+  const groups = TOOL_GROUP_FILTER === 'all' ? CMDS : CMDS.filter(([group]) => group === TOOL_GROUP_FILTER);
+  $('cmds').innerHTML = toolRecommendationCard() + toolGroupControls() + toolContextStrip() + toolRecentStrip() + groups.map(([group, items]) =>
     '<div class="cmdgrp">' + esc(group) + '</div>' +
     items.map(([name, args, desc, kind]) => {
       const live = kind && LIVE_CMD_KEYS[kind];
@@ -518,21 +1068,33 @@ function renderCommands(){
       const digest = kind === 'digest';
       const reference = !live && !action && !digest;
       const interaction = commandInteraction(kind || 'reference');
-      const source = commandSource(kind || 'reference');
-      return '<div class="cmd' + (action ? ' act' : '') + (live ? ' live' : '') + (reference ? ' ref' : '') + '"' +
+      const source = commandPrimarySource(kind || 'reference');
+      const cmd = { group, name, args, desc, kind:kind || 'reference' };
+      const state = commandAvailability(cmd);
+      const classKind = live ? ' live' : action ? ' act' : reference ? ' ref' : digest ? ' report' : '';
+      return '<button type="button" class="' + mcClass('cmd' + classKind, state) + '" data-component="ToolActionCard"' +
         ' data-interaction-kind="' + interaction + '" data-source="' + source + '"' +
+        ' data-inspect-target="tools"' +
         ' data-command-kind="' + (kind || 'reference') + '"' +
         ' data-command-name="' + esc(name) + '"' +
+        (state === 'stale' ? ' data-disabled-reason="live command data unavailable"' : '') +
         (live ? ' data-live="' + kind + '"' : '') + '>' +
-        '<span class="cnode"></span>' +
-        '<div style="flex:1"><div><span class="cname">/' + esc(name) + '</span>' +
-          (args ? '<span class="cargs">' + esc(args) + '</span>' : '') + '</div>' +
-          '<div class="cdesc">' + esc(desc) + '</div></div>' +
+        mcGlyphSvg(commandGlyphKind(cmd), state) +
+        '<span class="tool-body"><span class="cdesc"><b>Mission effect</b>' + esc(desc) + '</span>' +
+          '<span class="tool-syntax"><span class="cname">/' + esc(name) + '</span>' +
+          (args ? '<span class="cargs">' + esc(args) + '</span>' : '') + '</span></span>' +
+        mcStateToken(state, commandAvailabilityLabel(state)) +
         '<span class="cgo">›</span>' +
-      '</div>';
+      '</button>';
     }).join('')
   ).join('') +
-  '<div class="gnote" style="margin-top:18px">live cards show real org state (refreshed with the ledger). actions &amp; digests run by typing the command to the curios.self bot.</div>';
+  '<div class="gnote" style="margin-top:18px">Use Tools to inspect, assign, coordinate, and report from the operator chat.</div>';
+  $('cmds').querySelectorAll('[data-tool-group]').forEach(el => el.onclick = () => {
+    TOOL_GROUP_FILTER = el.dataset.toolGroup || 'all';
+    cmdsDrawn = false;
+    renderCommands();
+  });
+  $('cmds').querySelectorAll('[data-tool-recommend],[data-tool-recent]').forEach(el => el.onclick = () => openCommandCardSheet(el.dataset.toolRecommend || el.dataset.toolRecent));
   $('cmds').querySelectorAll('.cmd').forEach(el => el.onclick = () => el.dataset.live ? openCmdSheet(el.dataset.live) : openCommandCardSheet(el.dataset.commandName));
 }
 function kvRows(pairs){ return '<div class="kv">' + pairs.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
@@ -561,7 +1123,7 @@ function openCmdSheet(key){
     body = kvRows([['source', 'paperclipCommandsData'], ['gate relation', 'handoff rows are review context; signed gate actions stay in the Gate scene']]) +
       ((d.handoffs||[]).length ? (d.handoffs||[]).map(h => '<div class="li"><span class="cname">'+esc(h.id)+'</span> <span class="cargs">'+esc(h.status)+'</span><div class="cdesc">title '+esc(h.title)+' · source '+esc(h.source || 'paperclipCommandsData')+' · gate relation '+esc(h.gateRelation || 'founder gate review context only')+'</div></div>').join('') : '<div class="nar">nothing waiting on you.</div>');
   }
-  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body + commandCopyControl(liveCommandText);
+  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body + toolSafetyRow(key) + commandCopyControl(liveCommandText);
   wireCommandCopy(liveCommandText);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
@@ -571,6 +1133,7 @@ window.addEventListener('resize', () => place(-scene * W(), false));
 let drag = null;
 track.addEventListener('pointerdown', e => {
   if (sheetState.open) return;
+  if (isInteractiveSceneTarget(e.target)) return;
   drag = { sx:e.clientX, sy:e.clientY, base:-scene*W(), axis:null, lx:e.clientX, lt:e.timeStamp, v:0,
            scn: track.children[scene], ptr:false };
 });
@@ -713,11 +1276,21 @@ sheet.addEventListener('pointercancel', endSheet);
 /* ── gate — one queued founder decision. initData proves the founder; the Worker validates (Ed25519). ── */
 const initData = (TG && TG.initData) || '';
 let GATE_ITEMS = [];
+let GATE_FILTER = 'all';
 function gateSource(it){ return (it && (it.paperclipSource || it.source || it.sourcePath || it.origin || (it.priority && it.priority.source))) || 'Paperclip · /internal/gate/' + TENANT; }
+function gateOriginLabel(it){
+  const raw = String(gateSource(it) || 'Paperclip');
+  return raw.split(' · ')[0] || 'Paperclip';
+}
 function gateOwner(it){ return (it && (it.owner || it.assignee || it.founder || it.operator)) || 'owner not served'; }
 function gateUpdatedAt(it){ return (it && (it.updatedAt || it.updated || it.ts || it.createdAt)) || 'updatedAt not served'; }
 function gateSubject(it){ return (it && (it.id || it.title)) || 'handoff'; }
 function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evidence missing from handoff'; }
+function gateBranchMission(it){
+  const branch = it && (it.branchId || it.branch || it.productId || it.clientName);
+  const mission = it && (it.missionId || it.mission || it.questId || it.title);
+  return mcText(branch, 'branch not served') + ' · ' + mcText(mission, 'mission not served');
+}
 function gateReversibility(kind, it){ return (it && it.reversibility) || (kind === 'approve' ? 'reversible until consumed; supersede with a newer gate action' : 'reversible review request; no mutation until the org consumes it'); }
 function gateQueueConsequence(raw, kind, subject){
   const fallback = kind === 'approve'
@@ -740,6 +1313,89 @@ function gateIdempotency(kind, it){
   const basis = it && typeof it === 'object' ? (it.idempotencyHint || it.id || 'unknown') : it;
   return kind + ':' + TENANT + ':' + basis;
 }
+function gatePriorityChips(it){
+  const priority = it && it.priority ? it.priority : {};
+  const chips = [];
+  if (priority.risk) chips.push('risk · ' + priority.risk);
+  if (priority.dependency) chips.push('dependency · ' + priority.dependency);
+  if (priority.score != null) chips.push('score · ' + priority.score);
+  return chips.length ? '<div class="gpriority">' + chips.slice(0, 4).map(chip => '<span>' + esc(chip) + '</span>').join('') + '</div>' : '';
+}
+function gateFilterKey(it){
+  const state = mcStateKind((it && it.status) || 'proof-needed');
+  if (state === 'blocked' || state === 'stale') return 'blocked';
+  if (state === 'proof-needed' || state === 'active') return 'review';
+  return 'all';
+}
+function renderGateFilters(items){
+  const counts = {
+    all:items.length,
+    review:items.filter(item => gateFilterKey(item) === 'review').length,
+    blocked:items.filter(item => gateFilterKey(item) === 'blocked').length,
+  };
+  return '<div class="gate-filter-strip" data-component="GateBranchFilterChips">' +
+    Object.entries(counts).map(([id, count]) =>
+      '<button type="button" class="' + (GATE_FILTER === id ? 'is-selected' : '') + '" data-gate-filter="' + esc(id) + '">' + esc(id) + ' · ' + count + '</button>'
+    ).join('') +
+  '</div>';
+}
+function renderGateQueue(items, source){
+  if (!items.length) return renderGateEmpty(source);
+  const filtered = items.map((item, index) => ({ item, index })).filter(row => GATE_FILTER === 'all' || gateFilterKey(row.item) === GATE_FILTER);
+  return renderGateFilters(items) +
+    (filtered.length ? filtered.map(row => renderGateItem(row.item, row.index)).join('') : '<div class="gnote">No Gate items match this branch filter.</div>') +
+    '<div class="gnote">signed actions queue founder decisions; detail sheets carry audit proof.</div>';
+}
+function gateFact(label, value){
+  return '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>';
+}
+function renderGateEmpty(source){
+  return '<div class="gate-empty" data-component="GateEmptyState" data-gate-state="empty" data-source="' + esc(source) + '">' +
+    mcGlyphSvg('gate', 'locked') +
+    '<div><b>no founder decisions waiting.</b><span>Gate is quiet. Evidence-backed approve and reroll choices appear here only after Cambium serves an open item.</span>' +
+      mcSignalRail({ state:'locked', packetCount:3 }) +
+      '<div class="gmeta gate-empty-meta">' +
+        gateFact('Decision lane', 'waiting for open work') +
+        gateFact('Founder action', 'confirmation appears with the next decision') +
+      '</div>' +
+      '<div class="gbtns"><button type="button" class="detail" data-gate-empty-nav="mission">Mission</button><button type="button" class="reroll" data-gate-empty-nav="inspect">Inspect</button></div>' +
+    '</div>' +
+  '</div>';
+}
+function renderGateError(source){
+  return '<div class="gate-error" data-component="GateErrorState" data-gate-state="unreachable" data-source="' + esc(source) + '">' +
+    mcGlyphSvg('gate', 'blocked') +
+    '<div><b>network failure</b><span>' + esc(source) + ' unreachable; no local queue write.</span></div>' +
+  '</div>';
+}
+function renderGateItem(it, i){
+  const evidence = gateEvidence(it);
+  const approveConsequence = gateConsequence('approve', it);
+  const rerollConsequence = gateConsequence('reroll', it);
+  const state = mcStateKind((it && it.status) || 'proof-needed');
+  return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '">' +
+    '<div class="gcard-head">' +
+      mcGlyphSvg('gate', state) +
+      '<div><div class="gid">' + esc(it.id) + '</div><div class="gtitle">' + esc(it.title) + '</div></div>' +
+      mcStateToken(state, (it && it.status) || 'Gate review') +
+    '</div>' +
+    gatePriorityChips(it) +
+    mcSignalRail({ state, packetCount:4 }) +
+    '<div class="gbtns gate-actions">' +
+    '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve">Approve</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll">Reroll</button><button type="button" class="detail" data-gate-detail="1">Details</button></div>' +
+    '<div class="gmeta">' +
+      gateFact('Decision waiting', gateSubject(it)) +
+      gateFact('Branch / mission', gateBranchMission(it)) +
+      gateFact('Proof attached', evidence) +
+      gateFact('Approve consequence', approveConsequence) +
+      gateFact('Reroll consequence', rerollConsequence) +
+      gateFact('Reversibility', gateReversibility('approve', it)) +
+    '</div>' +
+    '<div class="gitem-details" data-component="GateRowExpansionDetails">' +
+      '<span><b>State</b>' + esc(state) + '</span>' +
+      '<span><b>Sync</b>' + esc(gateFilterKey(it) === 'blocked' ? 'needs proof before action' : 'ready for founder review') + '</span>' +
+    '</div></div>';
+}
 function gateRows(rows){ return '<div class="kv gatekv">' + rows.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
 function openGateSheet(arc, title, narrative, rows){
   $('sheetBody').innerHTML = '<div class="arc">' + esc(arc) + '</div><h2>' + esc(title) + '</h2>' +
@@ -756,11 +1412,39 @@ function isGateAuthFailure(error){
 }
 function openGateResultSheet(kind, subject, res, fallback){
   const duplicate = !!(res && res.duplicate);
-  openGateSheet('gate result · ' + (duplicate ? 'duplicate' : 'queued'), duplicate ? 'Original Queued Action Reused' : 'Founder Decision Queued',
-    duplicate
+  $('sheetBody').innerHTML = '<div class="arc">gate result · ' + esc(duplicate ? 'duplicate' : 'queued') + '</div><h2>' + esc(duplicate ? 'Original Queued Action Reused' : 'Founder Decision Queued') + '</h2>' +
+    '<div class="nar">' + esc(duplicate
       ? 'Duplicate response reused the original queued action. This does not imply a new write.'
-      : 'Signed action queued a founder decision only. Paperclip and org state do not mutate until an operator consumes the queue.',
-    [['action kind', kind], ['subject', subject], ['queued action', (res && res.queued) || 'missing'], ['idempotency', (res && res.idempotencyKey) || fallback.idempotencyKey], ['consequence', (res && res.consequence) || fallback.consequence], ['reversibility', (res && res.reversibility) || fallback.reversibility]]);
+      : 'Signed action queued a founder decision only. Paperclip and org state do not mutate until an operator consumes the queue.') + '</div>' +
+    gateRows([['action kind', kind], ['subject', subject], ['queued action', (res && res.queued) || 'missing'], ['idempotency', (res && res.idempotencyKey) || fallback.idempotencyKey], ['consequence', (res && res.consequence) || fallback.consequence], ['reversibility', (res && res.reversibility) || fallback.reversibility]]) +
+    '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
+  $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
+    closeSheet();
+    go(el.dataset.gateResultNav === 'mission' ? 0 : 4);
+  });
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+function openGateDetailSheet(node){
+  const item = GATE_ITEMS[Number(node.dataset.i)] || {};
+  const evidence = gateEvidence(item);
+  $('sheetBody').innerHTML = '<div class="arc">gate detail · proof</div><h2>' + esc(item.title || node.dataset.id || 'Gate item') + '</h2>' +
+    '<div class="nar">Proof, consequence, reversibility, source, and sync state for this Gate row. Approve and reroll still require signed preflight.</div>' +
+    gateRows([
+      ['subject', gateSubject(item)],
+      ['branch / mission', gateBranchMission(item)],
+      ['proof attached', evidence],
+      ['approve consequence', gateConsequence('approve', item)],
+      ['reroll consequence', gateConsequence('reroll', item)],
+      ['reversibility', gateReversibility('approve', item)],
+      ['source', gateOriginLabel(item)],
+      ['sync state', gateFilterKey(item) === 'blocked' ? 'blocked until proof resolves' : 'ready for founder review'],
+    ]) +
+    '<div class="gbtns"><button type="button" class="detail" data-gate-detail-nav="mission">Mission</button><button type="button" class="reroll" data-gate-detail-nav="inspect">Inspect</button></div>';
+  $('sheetBody').querySelectorAll('[data-gate-detail-nav]').forEach(el => el.onclick = () => {
+    closeSheet();
+    go(el.dataset.gateDetailNav === 'mission' ? 0 : 4);
+  });
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
 function openGatePreflight(kind, subject, node){
   const item = GATE_ITEMS[Number(node.dataset.i)] || {};
@@ -770,7 +1454,7 @@ function openGatePreflight(kind, subject, node){
   const idempotencyKey = gateIdempotency(kind, item.id ? item : subject);
   $('sheetBody').innerHTML = '<div class="arc">gate preflight · explicit confirmation</div><h2>' + esc(kind === 'approve' ? 'Approve Gate Item' : 'Reroll Gate Item') + '</h2>' +
     '<div class="nar">Review this signed action before queueing it. Confirmation queues a founder decision only; it does not mutate Paperclip or org state.</div>' +
-    gateRows([['action kind',kind], ['subject',subject], ['evidence',evidence], ['consequence',consequence], ['reversibility',reversibility], ['idempotency',idempotencyKey]]) +
+    gateRows([['action kind',kind], ['subject',subject], ['evidence',evidence], ['consequence',consequence], ['reversibility',reversibility], ['source',gateOriginLabel(item)], ['source route','/api/gate/' + TENANT], ['initData status',initData ? 'present for Worker verification' : 'missing until opened inside Telegram'], ['idempotency',idempotencyKey]]) +
     '<div class="gbtns"><button type="button" class="approve" data-gate-confirm="' + esc(kind) + '">Confirm ' + esc(kind) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
   const confirm = $('sheetBody').querySelector('[data-gate-confirm]');
   if (confirm) confirm.onclick = () => { closeSheet(); gateAct(kind, subject, node); };
@@ -783,29 +1467,26 @@ function loadGate(){
   fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
     const items = (d && d.openItems) || [];
     GATE_ITEMS = items;
-    if(!items.length){ el.innerHTML = '<div class="gnote" data-gate-state="empty" data-source="/internal/gate/'+esc(TENANT)+'">source route /internal/gate/'+esc(TENANT)+' · no open items waiting.</div>'; return; }
-    el.innerHTML = items.map((it,i) => {
-      const evidence = gateEvidence(it);
-      const approveKey = gateIdempotency('approve', it);
-      const rerollKey = gateIdempotency('reroll', it);
-      return '<div class="gitem" style="--i:'+i+'" data-i="'+i+'" data-id="'+esc(it.id)+'" data-source="'+esc(gateSource(it))+'"><div class="gid">'+esc(it.id)+'</div>'+
-      '<div class="gtitle">'+esc(it.title)+'</div><div class="gmeta">'+
-        '<b>Paperclip source</b><span>'+esc(gateSource(it))+'</span>'+
-        '<b>owner</b><span>'+esc(gateOwner(it))+'</span>'+
-        '<b>updatedAt</b><span>'+esc(gateUpdatedAt(it))+'</span>'+
-        '<b>evidence</b><span>'+esc(evidence)+'</span>'+
-        '<b>consequence</b><span>approve: '+esc(gateConsequence('approve', it))+' · reroll: '+esc(gateConsequence('reroll', it))+'</span>'+
-        '<b>reversibility</b><span>'+esc(gateReversibility('approve', it))+'</span>'+
-        '<b>idempotency</b><span>'+esc(approveKey)+' / '+esc(rerollKey)+'</span>'+
-      '</div><div class="gbtns">'+
-      '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve">Approve</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll">Reroll</button></div></div>';
-    }).join('') +
-      '<div class="gnote">every action is signed by Telegram and queues a founder decision only; Paperclip/org state changes only after operator consumption.</div>';
+    const source = '/internal/gate/' + TENANT;
+    el.innerHTML = renderGateQueue(items, source);
+    loadGateWire(el, source);
+  }).catch(() => {
+    const source = '/internal/gate/' + TENANT;
+    el.innerHTML = renderGateError(source);
+  });
+}
+function loadGateWire(el, source){
+  el.querySelectorAll('[data-gate-filter]').forEach(node => node.onclick = () => {
+    GATE_FILTER = node.dataset.gateFilter || 'all';
+    el.innerHTML = renderGateQueue(GATE_ITEMS, source);
+    loadGateWire(el, source);
+  });
+  el.querySelectorAll('[data-gate-empty-nav]').forEach(node => node.onclick = () => go(node.dataset.gateEmptyNav === 'mission' ? 0 : 4));
     el.querySelectorAll('.gitem').forEach(node => {
       node.querySelector('.approve').onclick = () => openGatePreflight('approve', node.dataset.id, node);
       node.querySelector('.reroll').onclick = () => openGatePreflight('reroll', node.dataset.id, node);
+      node.querySelector('[data-gate-detail]').onclick = () => openGateDetailSheet(node);
     });
-  }).catch(() => { el.innerHTML = '<div class="gnote" data-gate-state="unreachable" data-source="/internal/gate/'+esc(TENANT)+'">network failure — /internal/gate/'+esc(TENANT)+' unreachable; no local queue write.</div>'; });
 }
 function gateAct(kind, subject, node){
   const item = GATE_ITEMS[Number(node.dataset.i)] || {};
@@ -914,6 +1595,7 @@ function resetQuestSummary(text, frontier){
 }
 function renderQuests(L){
   const stem = $('stem');
+  stem.classList.remove('mission-control');
   stem.innerHTML = L.rows.map((r, i) =>
     '<div class="q ' + r.status + '" style="--i:' + i + '" data-i="' + i + '" data-ecosystem-target="quine" data-interaction-kind="sheet" data-source="' + esc(questSource(r)) + '">' +
       '<div class="node">' + MARKS[r.status] + '</div>' +
@@ -936,7 +1618,7 @@ function renderQuests(L){
   else here.textContent = 'frontier clear';
 }
 
-/* ── operator map — R3F mechanics ported as compact Telegram cards ── */
+/* ── inspect — proof, packet, freshness, and system detail ── */
 const N1 = (v) => (Math.round(v * 10) / 10);
 const STAGES = ${JSON.stringify(CAMBIUM_VISUAL_STAGES)};
 const RAILS = ${JSON.stringify(CAMBIUM_VISUAL_RAILS)};
@@ -1320,6 +2002,618 @@ function renderLiveProof(env){
     '<button type="button" class="ibox liveproof ' + (row.state === 'ready' ? 'ready' : '') + '" data-live-proof="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
   ).join('') + '</div>';
 }
+function branchEnvelope(env){
+  return env.branchStories || {};
+}
+function branchRows(env){
+  const branchEnv = branchEnvelope(env);
+  return Array.isArray(branchEnv.rows) ? branchEnv.rows : [];
+}
+function branchGaps(branch){
+  return Array.isArray(branch && branch.gaps) ? branch.gaps : [];
+}
+function branchGateForMission(branch, mission){
+  const gates = Array.isArray(branch && branch.gates) ? branch.gates : [];
+  return gates.find(gate => String(gate.gate || '').toLowerCase() === String(mission && mission.gate || '').toLowerCase()) || null;
+}
+function branchActiveMission(branch){
+  const missions = Array.isArray(branch && branch.missions) ? branch.missions : [];
+  return missions.find(mission => {
+    const gate = branchGateForMission(branch, mission);
+    return !gate || gate.status !== 'verified';
+  }) || missions[0] || null;
+}
+function mcList(value){
+  return Array.isArray(value) ? value : [];
+}
+function mcText(value, fallback){
+  const text = String(value == null ? '' : value).trim();
+  return text || fallback;
+}
+function mcShortLabel(value, fallback){
+  const text = mcText(value, fallback).replace(/\s+/g, ' ');
+  if (text.length <= 18) return text;
+  const words = text.split(' ').filter(Boolean);
+  return (words.length >= 2 ? words.slice(0, 2).join(' ') : text.slice(0, 17)).replace(/[.,;:]+$/,'') + '…';
+}
+function mcBranchId(branch, index){
+  return mcText(branch && (branch.branchId || branch.productId || branch.arcId), 'branch-' + (index + 1));
+}
+function mcMissionState(branch, mission){
+  const gate = branchGateForMission(branch, mission);
+  const status = mcText((gate && gate.status) || (mission && mission.status), 'pending');
+  return mcStateKind(status);
+}
+function mcOrganSlug(value){
+  const text = String(value || '').toLowerCase();
+  if (!text) return '';
+  if (/genesis|seed|brand|brief|intake/.test(text)) return 'genesis';
+  if (/taste|resonance|copy|visual|acceptance|privacy|review/.test(text)) return 'taste';
+  if (/build|hands|code|qa|repo|widget|route|claim table|proof table|scaffold/.test(text)) return 'build';
+  if (/cortex|memory|lesson|learn|recall/.test(text)) return 'cortex';
+  if (/ops|will|hermes|garden|launch|gtm|tenant|publish|rollback|service|outreach|operate/.test(text)) return 'ops';
+  return MC_COMPONENT_REGISTRY.MissionGlyph.includes(text) ? text : '';
+}
+function mcVisualStageFromArc(value){
+  const arc = String(value || '').trim();
+  if (!/^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII)$/.test(arc)) return '';
+  return stageForArc(arc);
+}
+function mcOrganMetaForBranch(branch, mission){
+  const routes = mcList(branch && branch.controls && branch.controls.organRouting);
+  const route = routes.find(row => !/verified|complete|done/i.test(String((row && (row.currentGate || row.status)) || ''))) || routes[0] || null;
+  const routed = route && mcOrganSlug(route.organ || route.owner || route.output || route.currentGate);
+  const candidates = [
+    routed,
+    mcOrganSlug(branch && (branch.organ || branch.visualStage || branch.stage)),
+    mcOrganSlug(mission && (mission.owner || mission.gate || mission.dispatchTarget || mission.title)),
+    mcVisualStageFromArc(branch && branch.arc),
+    mcOrganSlug(branch && (branch.arcTitle || branch.role || branch.productId || branch.branchId)),
+  ].filter(Boolean);
+  const glyph = candidates.find(kind => MC_COMPONENT_REGISTRY.MissionGlyph.includes(kind)) || 'arc';
+  const label = route && route.organ ? route.organ : stageTitle(glyph);
+  const source = route ? 'organRouting' : (branch && branch.arc ? 'shared visual arc' : 'mission data');
+  return {
+    glyph,
+    label:mcText(label, stageTitle(glyph)),
+    source,
+    detail:route ? mcText(route.currentGate || route.proofPath || route.owner, 'organ route pending') : mcText(branch && (branch.arcTitle || branch.role), 'branch organ inferred'),
+  };
+}
+function mcGlyphForQuestStage(stage, index, total){
+  const text = [stage && stage.glyph, stage && stage.organ, stage && stage.title, stage && stage.id, stage && stage.status].filter(Boolean).join(' ');
+  if (/proof|receipt|evidence/i.test(text)) return 'proof';
+  if (/gate|approval|review/i.test(text)) return 'gate';
+  const organ = mcOrganSlug(text);
+  if (organ) return organ;
+  if (index === 0) return 'genesis';
+  if (index === total - 1) return 'ops';
+  return 'build';
+}
+function mcKpiState(row){
+  const text = [row && row.currentState, row && row.survival, row && row.betterThanSurvival].filter(Boolean).join(' ');
+  if (/blocked|missing|not proven|no signal|gap/i.test(text)) return 'proof-needed';
+  return mcStateKind(text || 'active');
+}
+function mcKpiProgress(row){
+  const state = mcKpiState(row);
+  if (state === 'complete') return 100;
+  if (state === 'blocked') return 28;
+  if (state === 'proof-needed' || state === 'stale') return 42;
+  return 64;
+}
+function mcUniqueRows(rows){
+  const seen = {};
+  return rows.filter(row => {
+    const key = [row.label, row.source, row.detail].map(item => String(item || '')).join('|');
+    if (seen[key]) return false;
+    seen[key] = true;
+    return true;
+  });
+}
+function mcQuestline(branch){
+  const served = mcList(branch && branch.questline);
+  if (served.length) return served.map((stage, index) => ({
+    id:mcText(stage && stage.id, 'stage-' + (index + 1)),
+    title:mcText(stage && stage.title, 'Stage ' + (index + 1)),
+    status:mcText(stage && stage.status, 'pending'),
+    state:mcStateKind(stage && stage.status),
+  }));
+  const missions = mcList(branch && branch.missions);
+  if (missions.length) return missions.map((mission, index) => ({
+    id:mcText(mission && mission.missionId, 'mission-' + (index + 1)),
+    title:mcText(mission && mission.title, 'Mission ' + (index + 1)),
+    status:mcText((branchGateForMission(branch, mission) || {}).status, 'pending'),
+    state:mcMissionState(branch, mission),
+  }));
+  const gates = mcList(branch && branch.gates);
+  if (gates.length) return gates.map((gate, index) => ({
+    id:mcText(gate && gate.gate, 'gate-' + (index + 1)),
+    title:mcText(gate && gate.gate, 'Gate ' + (index + 1)),
+    status:mcText(gate && gate.status, 'pending'),
+    state:mcStateKind(gate && gate.status),
+  }));
+  return [{ id:'mission-gap', title:'Mission queue missing', status:'blocked', state:'blocked' }];
+}
+function mcBlockers(env, branch){
+  const rows = [];
+  mcList(branch && branch.gaps).forEach((gap, index) => {
+    if (mcStateKind(gap && gap.status) !== 'complete') rows.push({
+      id:mcText(gap && gap.id, 'gap-' + (index + 1)),
+      label:mcText(gap && gap.detail, 'Branch gap'),
+      state:mcStateKind(gap && gap.status),
+      source:mcText(gap && gap.source, 'branchStories.gaps'),
+    });
+  });
+  mcList(branch && branch.gates).forEach((gate, index) => {
+    if (mcStateKind(gate && gate.status) !== 'complete') rows.push({
+      id:'gate-' + (index + 1),
+      label:mcText(gate && gate.gate, 'Gate') + ' · ' + mcText(gate && gate.requiredProof, 'required proof missing'),
+      state:mcStateKind(gate && gate.status),
+      source:'branchStories.gates',
+    });
+  });
+  const approvals = branch && branch.controls ? mcList(branch.controls.approvals) : [];
+  approvals.forEach((approval, index) => {
+    if (mcStateKind(approval && approval.status) !== 'complete') rows.push({
+      id:'approval-' + (index + 1),
+      label:mcText((approval && (approval.requiredApproval || approval.failureMode || approval.permission)), 'Founder approval missing'),
+      state:mcStateKind(approval && approval.status),
+      source:'branch.controls.approvals',
+    });
+  });
+  const policy = policyCard(env);
+  if (policy.state !== 'ready') rows.push({
+    id:'policy',
+    label:policy.detail,
+    state:'blocked',
+    source:'policy',
+  });
+  liveProofCards(env).filter(row => row.state !== 'ready').forEach((row, index) => rows.push({
+    id:'live-proof-' + (index + 1),
+    label:row.title + ' · ' + row.detail,
+    state:row.state === 'capture' ? 'proof-needed' : 'blocked',
+    source:row.source || 'liveProof',
+  }));
+  return mcUniqueRows(rows);
+}
+function mcProofNeeded(branch, mission){
+  const gate = branchGateForMission(branch, mission);
+  const rows = [];
+  const add = (label, source, detail) => {
+    const safe = mcText(label, '');
+    if (safe) rows.push({ label:safe, source, detail:mcText(detail, safe), state:'proof-needed' });
+  };
+  add(mission && mission.proofRequired, 'branchStories.missions', mission && mission.title);
+  add(gate && gate.requiredProof, 'branchStories.gates', gate && gate.gate);
+  mcList(branch && branch.proofPaths).forEach(proof => add(proof && proof.validates, 'branchStories.proofPaths', (proof && (proof.proofId || proof.promotes))));
+  return mcUniqueRows(rows.length ? rows : [{ label:'proof requirement missing', source:'branchStories', detail:'mission proof requirement missing', state:'blocked' }]);
+}
+function mcKpis(branch){
+  return mcList(branch && branch.kpis).map((kpi, index) => ({
+    id:mcText(kpi && kpi.kpiId, 'kpi-' + (index + 1)),
+    label:mcText(kpi && kpi.label, 'KPI ' + (index + 1)),
+    currentState:mcText(kpi && kpi.currentState, 'not proven'),
+    survival:mcText(kpi && kpi.survival, 'survival threshold missing'),
+    betterThanSurvival:mcText(kpi && kpi.betterThanSurvival, 'better-than-survival threshold missing'),
+    source:mcText(kpi && kpi.source, 'branchStories.kpis'),
+  }));
+}
+function mcControls(branch){
+  const controls = branch && branch.controls ? branch.controls : {};
+  return {
+    ui:controls.ui || {},
+    approvals:mcList(controls.approvals),
+    dispatchHints:mcList(controls.dispatchHints),
+    policySignals:mcList(controls.policySignals),
+    organRouting:mcList(controls.organRouting),
+    variableContractPayloads:mcList(controls.variableContractPayloads),
+    adapterServiceMap:mcList(controls.adapterServiceMap),
+    evidenceLedger:mcList(controls.evidenceLedger),
+    autonomyBoundary:mcText(controls.autonomyBoundary, 'proof must fold back before autonomy claims'),
+  };
+}
+function buildMissionControlView(env){
+  const branchEnv = branchEnvelope(env || {});
+  const rows = branchRows(env || {});
+  const requested = mcText(PARAMS.get('branch'), '');
+  const selectedIndex = Math.max(0, rows.findIndex((branch, index) => requested && mcBranchId(branch, index) === requested));
+  const branch = rows[selectedIndex] || rows[0] || null;
+  const mission = branchActiveMission(branch);
+  const promotion = branch && branch.promotion ? branch.promotion : {};
+  const controls = mcControls(branch);
+  const source = branch && branch.source ? branch.source : {};
+  const nextMission = mission ? {
+    id:mcText(mission.missionId, 'mission'),
+    title:mcText(mission.title, 'Mission title missing'),
+    owner:mcText(mission.owner, 'owner missing'),
+    gate:mcText(mission.gate, 'gate missing'),
+    proofRequired:mcText(mission.proofRequired, 'proof requirement missing'),
+    dispatchTarget:mcText(mission.dispatchTarget, 'dispatch target missing'),
+    state:mcMissionState(branch, mission),
+  } : {
+    id:'mission-gap',
+    title:'Mission queue missing',
+    owner:'operator',
+    gate:'branch packet',
+    proofRequired:'mission proof requirement missing',
+    dispatchTarget:'inspect',
+    state:'blocked',
+  };
+  return {
+    source:mcText(branchEnv.source, 'product-branch-packets@v1'),
+    selectedBranchId:branch ? mcBranchId(branch, selectedIndex) : requested,
+    selectedBranch:branch,
+    branches:rows.slice(0, 12).map((row, index) => {
+      const active = branchActiveMission(row);
+      return {
+        id:mcBranchId(row, index),
+        name:mcText(row && (row.name || row.productId), 'Product Branch'),
+        arcTitle:mcText(row && row.arcTitle, 'branch arc'),
+        state:branchCardState(row),
+        organ:mcOrganMetaForBranch(row, active),
+        nextMission:active ? mcText(active.title, 'Mission title missing') : 'mission queue missing',
+        selected:row === branch,
+      };
+    }),
+    vision:mcText(branch && branch.vision && branch.vision.statement, 'vision statement missing'),
+    icp:mcText(branch && branch.icp && branch.icp.primary, 'ICP missing'),
+    nextMission,
+    questline:branch ? mcQuestline(branch) : [{ id:'branch-gap', title:'Branch packet missing', status:'blocked', state:'blocked' }],
+    blockers:mcBlockers(env || {}, branch),
+    proofNeeded:mcProofNeeded(branch, mission),
+    kpis:mcKpis(branch),
+    promotion:{
+      state:mcText(promotion.state, 'proof-only'),
+      currentGate:mcText(promotion.currentGate, nextMission.gate || 'proof gate missing'),
+      rule:mcText(promotion.rule, 'proof first; no promotion without foldback evidence'),
+    },
+    activeOrgan:mcOrganMetaForBranch(branch, mission),
+    controls,
+    inspect:{
+      source:mcText(branchEnv.source, 'product-branch-packets@v1'),
+      packetFile:mcText(source.packetFile, 'source packet missing'),
+      indexFile:mcText(source.indexFile, 'source index missing'),
+      schema:mcText(source.schema, 'cambium.product_branch_packet.v1'),
+      tenant:mcText(source.tenant, TENANT),
+      derivedAt:mcText(env && env.derivedAt, 'derivedAt missing'),
+    },
+  };
+}
+function renderBranchArcRail(view){
+  if (!view.branches.length) return '';
+  return '<div class="mc-branch-rail">' + view.branches.map((branch, index) =>
+    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
+      mcGlyphSvg(branch.organ.glyph, branch.state) +
+      '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b><small>' + esc(branch.organ.label + ' organ · ' + branch.nextMission) + '</small></span>' + mcStateToken(branch.state, branch.state) +
+    '</button>'
+  ).join('') + '</div>';
+}
+function renderMissionCard(view){
+  const mission = view.nextMission;
+  const progress = view.questline.length ? Math.round(100 * view.questline.filter(row => row.state === 'complete').length / view.questline.length) : 0;
+  return '<section class="' + mcClass('mc-mission-card', mission.state) + '" data-component="MissionCard" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
+    '<div class="mc-card-head"><div>' + mcStateToken(mission.state, 'Next Mission') + '<h3>' + esc(mission.title) + '</h3></div>' + mcOrbitProgress({ value:progress, state:mission.state, label:progress + '%' }) + '</div>' +
+    '<p>' + esc(view.vision) + '</p>' +
+    '<div class="mc-card-meta"><span><b>Owner</b>' + esc(mission.owner) + '</span><span><b>Gate</b>' + esc(mission.gate) + '</span><span><b>Dispatch</b>' + esc(mission.dispatchTarget) + '</span><span><b>Promotion</b>' + esc(view.promotion.state) + '</span></div>' +
+    '<div class="mc-branch-texture" data-component="MissionOrganSignal" data-organ-route="' + esc(view.activeOrgan.glyph) + '">' +
+      '<span>' + mcGlyphSvg(view.activeOrgan.glyph, mission.state) + '<span><b>Active organ</b><small>' + esc(view.activeOrgan.label + ' · ' + view.activeOrgan.detail) + '</small></span></span>' +
+      mcPacketDots(Math.max(3, view.questline.length), mission.state) +
+    '</div>' +
+    mcSignalRail({ state:mission.state, packetCount:Math.max(3, view.questline.length) }) +
+  '</section>';
+}
+function renderQuestlineTimeline(view){
+  return '<div data-component="QuestlineTimeline"><div class="mc-section-title">Questline</div><div class="mc-questline">' + view.questline.map((stage, index) =>
+    '<div class="mc-questline-row"><span>' + mcGlyphSvg(mcGlyphForQuestStage(stage, index, view.questline.length), stage.state) + '</span><b title="' + esc(stage.title) + '">' + esc(mcShortLabel(stage.title, 'Stage')) + '</b>' + mcStateToken(stage.state, stage.status) + '</div>'
+  ).join('') + '</div></div>';
+}
+function renderMissionStateStack(view){
+  const selected = view.selectedBranch ? view.selectedBranch.name || view.selectedBranchId || 'Selected branch' : 'Selected branch';
+  const blocker = view.blockers[0] || { label:'No blockers served for this branch packet', state:'idle', source:view.source };
+  const proof = view.proofNeeded[0] || { label:'Proof requirement missing', state:'proof-needed', detail:view.nextMission.proofRequired };
+  const locked = view.questline.find(row => mcStateKind(row.state || row.status) === 'locked') || view.questline[view.questline.length - 1] || { title:'Launch lock', status:'locked', state:'locked' };
+  const rows = [
+    { glyph:'cortex', state:'selected', title:'Selected', detail:selected + ' · current focus', token:'selected' },
+    { glyph:'gate', state:blocker.state || 'blocked', title:'Blocked by', detail:blocker.label || 'blocker detail missing', token:mcStateKind(blocker.state || 'blocked') },
+    { glyph:'proof', state:proof.state || 'proof-needed', title:'Proof needed', detail:proof.label || proof.detail || 'evidence missing', token:'receipt' },
+    { glyph:'ops', state:locked.state || locked.status || 'locked', title:'Locked', detail:(locked.title || 'next stage') + ' · waiting unlock', token:mcStateKind(locked.state || locked.status || 'locked') },
+  ];
+  return '<div data-component="MissionStateStack"><div class="mc-section-title">State Stack</div><div class="mc-state-stack">' + rows.map(row =>
+    '<div class="' + mcClass('mc-state-row', row.state, row.state === 'selected' ? 'is-selected mc-selected-halo' : '') + '">' +
+      mcGlyphSvg(row.glyph, row.state) +
+      '<span><b>' + esc(row.title) + '</b><small>' + esc(row.detail) + '</small></span>' +
+      mcStateToken(row.state, row.token) +
+    '</div>'
+  ).join('') + '</div></div>';
+}
+function renderMissionBlockers(view){
+  const rows = view.blockers.length ? view.blockers.slice(0, 5) : [{ label:'No blockers served for this branch packet', state:'idle', source:view.source }];
+  return '<div><div class="mc-section-title">Blocked by</div><div class="mc-blockers">' + rows.map(row =>
+    '<div class="' + mcClass('mc-blocker-row', row.state) + '"><b>' + esc(row.state || 'state') + '</b>' + esc(row.label || 'blocker detail missing') + '</div>'
+  ).join('') + '</div></div>';
+}
+function renderMissionProofNeeded(view){
+  return '<div data-component="ProofList"><div class="mc-section-title">Proof needed</div><div class="mc-proof-list">' + view.proofNeeded.slice(0, 5).map(row =>
+    '<span class="' + mcClass('mc-proof-row', row.state) + '" data-mission-proof-row="1" data-interaction-kind="sheet">' + mcGlyphSvg('proof', row.state) + '<span><b>' + esc(row.label) + '</b>' + esc(row.detail || row.source || 'proof detail missing') + '</span><i aria-hidden="true">›</i></span>'
+  ).join('') + '</div></div>';
+}
+function renderMissionKpis(view){
+  const rows = view.kpis.length ? view.kpis.slice(0, 4) : [{ label:'KPI missing', currentState:'not proven', survival:'survival threshold missing' }];
+  return '<div data-component="KpiPulse"><div class="mc-section-title">KPIs</div><div class="mc-kpis">' + rows.map(row =>
+    '<div class="mc-kpi-row">' +
+      mcOrbitProgress({ value:mcKpiProgress(row), state:mcKpiState(row), label:'KPI' }) +
+      '<span class="mc-kpi-copy"><b>' + esc(row.label) + '</b><span>' + esc((row.currentState || 'not proven') + ' · survival: ' + (row.survival || 'missing')) + '</span><small>' + esc(row.betterThanSurvival ? 'better: ' + row.betterThanSurvival : 'better-than-survival proof pending') + '</small><span class="mc-kpi-bars" data-component="PacketFlow"><i></i><i></i><i></i></span></span>' +
+    '</div>'
+  ).join('') + '</div></div>';
+}
+function renderMissionActions(view){
+  return '<div class="mc-action-row" data-component="GateActionRow">' +
+    '<button type="button" data-no-scene-drag="1" data-mission-action="gate" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="product-branches" aria-label="Review current branch gate">Review Gate</button>' +
+    '<button type="button" class="secondary" data-no-scene-drag="1" data-mission-action="proof" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="product-branches" aria-label="Open current branch proof">Open Proof</button>' +
+  '</div>';
+}
+function renderMissionToolLink(view){
+  return '<section class="mission-tool-link" data-component="MissionToolLink" data-source="' + esc(view.source) + '">' +
+    '<span><b>Suggested tool</b><small>/ts-status checks the branch before you assign or report the next mission step.</small></span>' +
+    '<button type="button" data-mission-action="tools" data-no-scene-drag="1">Open Tools</button>' +
+  '</section>';
+}
+function renderMissionControl(env){
+  const stem = $('stem');
+  const view = buildMissionControlView(env);
+  stem.classList.add('mission-control');
+  if (!view.selectedBranch) {
+    stem.innerHTML = '<div class="mission-empty"><b>Mission control is waiting for branch packets.</b><p>No fake progress: branch arcs appear only after product packets reach the visual envelope.</p><div class="mc-action-row" data-component="GateActionRow"><button type="button" data-mission-action="refresh">Refresh</button><button type="button" class="secondary" data-mission-action="inspect">Inspect</button></div></div>';
+    resetQuestSummary('branch packets waiting', 'inspect source');
+    stem.querySelectorAll('[data-mission-action="refresh"]').forEach(el => el.onclick = () => refresh());
+    stem.querySelectorAll('[data-mission-action="inspect"]').forEach(el => el.onclick = () => go(4));
+    $('fill').style.width = '0%';
+    return;
+  }
+  stem.innerHTML = [
+    renderBranchArcRail(view),
+    renderMissionCard(view),
+    renderQuestlineTimeline(view),
+    renderMissionStateStack(view),
+    renderMissionProofNeeded(view),
+    renderMissionToolLink(view),
+    renderMissionActions(view),
+    renderMissionKpis(view),
+  ].join('');
+  const branchIndex = Math.max(0, branchRows(env).findIndex(branch => branch === view.selectedBranch));
+  const pct = view.questline.length ? Math.round(100 * view.questline.filter(row => row.state === 'complete').length / view.questline.length) : 0;
+  $('fill').style.width = pct + '%';
+  const prog = $('progress');
+  prog.textContent = view.branches.length + ' branch arc' + (view.branches.length === 1 ? '' : 's');
+  prog.dataset.interactionKind = 'sheet';
+  prog.dataset.source = view.source;
+  prog.onclick = () => openBranchMissionSheet(env, branchIndex, -1);
+  const here = $('here');
+  here.textContent = 'next: ' + view.nextMission.title;
+  here.dataset.interactionKind = 'sheet';
+  here.dataset.source = view.source;
+  here.onclick = () => openBranchMissionSheet(env, branchIndex, 0);
+  stem.querySelectorAll('[data-mission-branch]').forEach(el => el.onclick = () => openBranchMissionSheet(env, +el.dataset.missionBranch, -1));
+  stem.querySelectorAll('.mc-mission-card').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0));
+  stem.querySelectorAll('[data-mission-action="gate"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'gate'));
+  stem.querySelectorAll('[data-mission-action="proof"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));
+  stem.querySelectorAll('[data-mission-proof-row]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));
+  stem.querySelectorAll('[data-mission-action="tools"]').forEach(el => el.onclick = () => { go(2); renderCommands(); });
+}
+function branchCardState(branch){
+  const gaps = branchGaps(branch);
+  if (gaps.some(gap => gap.status === 'blocked')) return 'blocked';
+  if (gaps.length) return 'proof-needed';
+  const gates = mcList(branch && branch.gates);
+  if (gates.some(gate => mcStateKind(gate && gate.status) !== 'complete')) return 'proof-needed';
+  const promotion = mcText(branch && branch.promotion && branch.promotion.state, '');
+  if (/proof-only|organ-service/i.test(promotion)) return 'proof-needed';
+  return 'active';
+}
+function branchCards(env){
+  const branchEnv = branchEnvelope(env);
+  const rows = branchRows(env);
+  if (!rows.length) return [{
+    title:'BRANCH GAP',
+    state:'wait',
+    detail:branchEnv.gap || 'product branch packets missing or empty',
+    proof:'branchStories.rows missing from visual envelope',
+    source:branchEnv.source || 'missing',
+    branch:null,
+  }];
+  return rows.slice(0, 6).map(branch => {
+    const mission = branchActiveMission(branch);
+    const gaps = branchGaps(branch);
+    const blocked = gaps.filter(gap => gap.status === 'blocked').length;
+    const current = branch.controls && branch.controls.ui ? branch.controls.ui.currentFrontier : '';
+    return {
+      title:branch.name || branch.productId || branch.branchId || 'Product Branch',
+      state:branchCardState(branch),
+      detail:(branch.arcTitle || branch.role || 'branch arc') + (mission ? ' · next move ' + mission.title : '') + (blocked ? ' · ' + blocked + ' blocked gate(s)' : ''),
+      proof:gaps.length ? gaps.slice(0, 3).map(gap => gap.detail).join(' · ') : 'branch packet has no reported gaps',
+      source:(branch.source && branch.source.packetFile) || branchEnv.source || 'product-branch-packets@v1',
+      frontier:current || (branch.promotion && branch.promotion.currentGate) || 'frontier not served',
+      branch,
+    };
+  });
+}
+function renderBranchArcCard(branch, index){
+  const state = branchCardState(branch);
+  const mission = branchActiveMission(branch);
+  const detail = (branch.arcTitle || branch.role || 'branch arc') + (mission ? ' · ' + mission.title : '');
+  return '<button type="button" class="ibox branch ' + (state === 'ready' ? 'ready' : '') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + index + '" data-ecosystem-target="product-branches"><b>' + esc(branch.name || branch.branchId || 'Branch') + '</b><span>' + esc(detail) + '</span></button>';
+}
+function renderBranchMissionCard(mission, branch, branchIndex, missionIndex){
+  const gate = branchGateForMission(branch, mission);
+  const status = (gate && gate.status) || 'no-signal';
+  const ready = status === 'verified';
+  const proof = mission.proofRequired || (gate && gate.requiredProof) || 'proof requirement missing';
+  return '<button type="button" class="ibox branch-mission ' + (ready ? 'ready' : '') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-mission="' + missionIndex + '" data-ecosystem-target="product-branches"><b>' + esc(mission.title || mission.missionId || 'Mission') + '</b><span>' + esc(status + ' gate · ' + proof) + '</span></button>';
+}
+function renderBranches(env){
+  const cards = branchCards(env);
+  return '<div class="boxgrid">' + cards.map((card, i) => card.branch
+    ? renderBranchArcCard(card.branch, i)
+    : '<button type="button" class="ibox branch" data-interaction-kind="sheet" data-source="' + esc(card.source || 'missing') + '" data-branch-gap="1" data-ecosystem-target="product-branches"><b>' + esc(card.title) + '</b><span>' + esc(card.detail) + '</span></button>'
+  ).join('') + '</div>';
+}
+function renderBranchMissions(env){
+  const rows = branchRows(env);
+  if (!rows.length) return renderBranches(env);
+  const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.missions) ? branch.missions : []).slice(0, 3).map((mission, missionIndex) => renderBranchMissionCard(mission, branch, branchIndex, missionIndex)));
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>MISSION GAP</b><span>branch mission queue missing</span></button>') + '</div>';
+}
+function renderBranchKpis(env){
+  const rows = branchRows(env);
+  if (!rows.length) return renderBranches(env);
+  const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.kpis) ? branch.kpis : []).slice(0, 2).map((kpi, kpiIndex) =>
+    '<button type="button" class="ibox branch-kpi" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-kpi="' + kpiIndex + '" data-ecosystem-target="product-branches"><b>' + esc(kpi.label || kpi.kpiId || 'KPI') + '</b><span>' + esc((kpi.currentState || 'state missing') + ' · survival ' + (kpi.survival || 'missing')) + '</span></button>'
+  ));
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>KPI GAP</b><span>branch KPI controls missing</span></button>') + '</div>';
+}
+function renderBranchGates(env){
+  const rows = branchRows(env);
+  if (!rows.length) return renderBranches(env);
+  const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.gates) ? branch.gates : []).slice(0, 3).map((gate, gateIndex) =>
+    '<button type="button" class="ibox branch-gate ' + (gate.status === 'verified' ? 'ready' : '') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-gate="' + gateIndex + '" data-ecosystem-target="product-branches"><b>' + esc(gate.gate || 'Gate') + '</b><span>' + esc((gate.status || 'no-signal') + ' · ' + (gate.requiredProof || 'required proof missing')) + '</span></button>'
+  ));
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>GATE GAP</b><span>branch gate ledger missing</span></button>') + '</div>';
+}
+function renderBranchProof(env){
+  const rows = branchRows(env);
+  if (!rows.length) return renderBranches(env);
+  const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.proofPaths) ? branch.proofPaths : []).slice(0, 3).map((proof, proofIndex) =>
+    '<button type="button" class="ibox branch-proof" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-proof="' + proofIndex + '" data-ecosystem-target="product-branches"><b>' + esc(proof.proofId || 'Proof') + '</b><span>' + esc((proof.validates || 'validation missing') + ' · ' + (proof.promotes || 'promotion rule missing')) + '</span></button>'
+  ));
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>PROOF GAP</b><span>branch proof foldback missing</span></button>') + '</div>';
+}
+function branchMissionFocusLabel(focus){
+  if (focus === 'gate') return 'branch gate';
+  if (focus === 'proof') return 'branch proof';
+  return 'branch mission';
+}
+function branchMissionFocusNarrative(branch, mission, gate, controls, focus){
+  if (focus === 'gate') {
+    return 'Review the active gate before this branch can advance: ' + (gate ? ((gate.gate || 'gate') + ' · ' + (gate.status || 'pending') + ' · ' + (gate.requiredProof || 'proof required')) : ((mission && mission.gate) || 'gate missing'));
+  }
+  if (focus === 'proof') {
+    return 'Open the proof requirement for the next branch mission: ' + ((mission && mission.proofRequired) || (gate && gate.requiredProof) || 'proof requirement missing');
+  }
+  return controls.currentFrontier || (branch.vision && branch.vision.statement) || branch.arcTitle || 'branch frontier missing';
+}
+function branchSheetGlance(label, value){
+  return '<span><b>' + esc(label) + '</b>' + esc(value || 'missing') + '</span>';
+}
+function branchSheetSection(title, body, fallback){
+  const safeBody = body || (fallback ? '<div class="nar">' + esc(fallback) + '</div>' : '');
+  return '<section class="branch-sheet-section"><h3>' + esc(title) + '</h3>' + safeBody + '</section>';
+}
+function branchSheetRow(title, detail, state, source){
+  return '<div class="' + mcClass('branch-row', state) + '">' +
+    mcStateToken(state, mcStateKind(state)) +
+    '<div><b>' + esc(title || 'Item') + '</b><span>' + esc(detail || 'detail missing') + '</span>' +
+    (source ? '<small>' + esc(source) + '</small>' : '') + '</div></div>';
+}
+function branchSheetTimeline(branch){
+  const stages = mcQuestline(branch).slice(0, 6);
+  return '<div class="branch-sheet-timeline" data-component="QuestlineTimeline">' + stages.map((stage, index) =>
+    '<div class="' + mcClass('branch-stage', stage.state) + '">' +
+      mcGlyphSvg(mcGlyphForQuestStage(stage, index, stages.length), stage.state) +
+      '<div><b>' + esc(stage.title) + '</b><small>' + esc(stage.id || ('stage-' + (index + 1))) + '</small></div>' +
+      mcStateToken(stage.state, stage.status) +
+    '</div>'
+  ).join('') + '</div>';
+}
+function branchSheetKpis(kpis){
+  if (!kpis.length) return '';
+  return '<div class="branch-kpi-grid" data-component="KpiPulse">' + kpis.slice(0, 4).map((kpi, i) =>
+    '<div class="branch-kpi">' +
+      mcOrbitProgress({ value:mcKpiProgress(kpi), state:mcKpiState(kpi), label:'KPI ' + (i + 1) }) +
+      '<span><b>KPI ' + (i + 1) + ' · ' + esc(kpi.label || kpi.kpiId || 'KPI') + '</b>' +
+      '<span>' + esc((kpi.currentState || 'state missing') + ' · survival: ' + (kpi.survival || 'missing') + (kpi.betterThanSurvival ? ' · better: ' + kpi.betterThanSurvival : '')) + '</span><span class="mc-kpi-bars" data-component="PacketFlow"><i></i><i></i><i></i></span></span>' +
+    '</div>'
+  ).join('') + '</div>';
+}
+function branchSheetProofList(branch, mission, proofPaths){
+  const proofNeeded = mcProofNeeded(branch, mission).slice(0, 4).map((row, i) =>
+    branchSheetRow('Proof ' + (i + 1) + ' · ' + row.label, row.detail, row.state, row.source)
+  );
+  const proofPathRows = proofPaths.slice(0, 4).map((proof, i) =>
+    branchSheetRow('Proof path ' + (i + 1) + ' · ' + (proof.proofId || 'proof'), 'validates ' + (proof.validates || 'missing') + ' · promotes ' + (proof.promotes || 'missing'), 'proof-needed', 'branchStories.proofPaths')
+  );
+  return '<div class="branch-row-list" data-component="ProofList">' + proofNeeded.concat(proofPathRows).join('') + '</div>';
+}
+function branchSheetApprovalList(approvals){
+  if (!approvals.length) return '';
+  return '<div class="branch-row-list">' + approvals.slice(0, 5).map((approval, i) =>
+    branchSheetRow('Permission ' + (i + 1) + ' · ' + (approval.permission || 'permission'), (approval.status || 'pending') + ' · ' + (approval.requiredApproval || approval.failureMode || 'approval proof missing'), approval.status || 'proof-needed', 'branch.controls.approvals')
+  ).join('') + '</div>';
+}
+function branchSheetGapList(gaps){
+  if (!gaps.length) return '';
+  return '<div class="branch-row-list">' + gaps.slice(0, 6).map((gap, i) =>
+    branchSheetRow('Gap ' + (i + 1) + ' · ' + (gap.status || 'pending'), gap.detail || 'gap detail missing', gap.status || 'blocked', gap.source || 'branchStories.gaps')
+  ).join('') + '</div>';
+}
+function branchSheetInspect(branch, branchEnv){
+  const source = branch && branch.source ? branch.source : {};
+  return '<div class="branch-inspect" data-component="Inspect">' +
+    '<b>Branch source</b><span>' + esc(source.packetFile || 'source packet missing') + '</span>' +
+    '<b>Index</b><span>' + esc(source.indexFile || 'source index missing') + '</span>' +
+    '<b>Schema</b><span>' + esc(source.schema || 'cambium.product_branch_packet.v1') + '</span>' +
+    '<b>Envelope</b><span>' + esc((branchEnv && branchEnv.source) || 'product-branch-packets@v1') + '</span>' +
+  '</div>';
+}
+function openBranchMissionSheet(env, branchIndex, missionIndex, focus){
+  const branch = branchRows(env)[branchIndex] || branchRows(env)[0];
+  if (!branch) {
+    const branchEnv = branchEnvelope(env);
+    $('sheetBody').innerHTML = '<div class="branch-sheet"><section class="branch-sheet-hero">' +
+      '<div class="branch-sheet-head">' + mcGlyphSvg('gate', 'blocked') + '<div><div class="arc">branch gap · missing</div><h2>Branch Gap</h2></div>' + mcStateToken('blocked', 'Missing') + '</div>' +
+      '<div class="nar">' + esc(branchEnv.gap || 'product branch packets missing or empty') + '</div>' +
+      '<div class="branch-claim-guard">' + mcStateToken('blocked', 'Guard') + '<span><b>Proof rule</b>missing branch data cannot render ready work</span></div>' +
+      '</section>' + branchSheetInspect({}, branchEnv) + '</div>';
+    veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light'); return;
+  }
+  const branchEnv = branchEnvelope(env);
+  const mission = missionIndex >= 0 && Array.isArray(branch.missions) ? branch.missions[missionIndex] : branchActiveMission(branch);
+  const gate = mission ? branchGateForMission(branch, mission) : null;
+  const gaps = branchGaps(branch);
+  const kpis = Array.isArray(branch.kpis) ? branch.kpis : [];
+  const proofPaths = Array.isArray(branch.proofPaths) ? branch.proofPaths : [];
+  const approvals = branch.controls && Array.isArray(branch.controls.approvals) ? branch.controls.approvals : [];
+  const controls = branch.controls && branch.controls.ui ? branch.controls.ui : {};
+  const focusLabel = branchMissionFocusLabel(focus);
+  const missionState = mcMissionState(branch, mission);
+  const gateState = gate ? mcStateKind(gate.status) : missionState;
+  const focusState = focus === 'gate' ? gateState : focus === 'proof' ? 'proof-needed' : missionState;
+  const guardCopy = controls.blockedCopy || 'no unsupported launch, approval, or autonomy claim from this sheet';
+  $('sheetBody').innerHTML = '<div class="branch-sheet" data-component="BranchMissionSheet">' +
+    '<section class="branch-sheet-hero" data-component="MissionCard">' +
+      '<div class="branch-sheet-head">' + mcGlyphSvg(focus === 'gate' ? 'build' : focus === 'proof' ? 'proof' : 'arc', focusState) +
+        '<div><div class="arc">' + esc(focusLabel) + ' · ' + esc(branch.branchId || branch.productId || 'branch') + '</div><h2>' + esc(branch.name || branch.productId || 'Product Branch') + '</h2></div>' +
+        mcStateToken(focusState, focus === 'gate' ? 'Review gate' : focus === 'proof' ? 'Proof needed' : 'Selected') + '</div>' +
+      '<div class="nar">' + esc(branchMissionFocusNarrative(branch, mission, gate, controls, focus)) + '</div>' +
+      '<div class="branch-sheet-glance">' +
+        branchSheetGlance('Arc', branch.arcTitle || branch.arcId || 'arc missing') +
+        branchSheetGlance('Mission', mission ? ((mission.missionId || 'mission') + ' · ' + (mission.title || 'mission title missing')) : 'mission queue missing') +
+        branchSheetGlance('Gate', gate ? ((gate.gate || 'gate') + ' · ' + (gate.status || 'pending')) : ((mission && mission.gate) || 'gate missing')) +
+        branchSheetGlance('Dispatch', (mission && mission.dispatchTarget) || 'dispatch target missing') +
+        branchSheetGlance('Promotion', (branch.promotion && branch.promotion.state) || 'promotion state missing') +
+        branchSheetGlance('Proof required', (mission && mission.proofRequired) || (gate && gate.requiredProof) || 'proof requirement missing') +
+      '</div>' +
+      '<div class="branch-claim-guard">' + mcStateToken('blocked', 'Claim guard') + '<span><b>Claim guard</b>' + esc(guardCopy) + '</span></div>' +
+    '</section>' +
+    branchSheetSection('Questline', branchSheetTimeline(branch)) +
+    branchSheetSection('Proof needed', branchSheetProofList(branch, mission, proofPaths)) +
+    branchSheetSection('KPI pulse', branchSheetKpis(kpis), 'No KPI controls served for this packet yet.') +
+    branchSheetSection('Permissions', branchSheetApprovalList(approvals), 'No extra founder permission rows served for this branch.') +
+    branchSheetSection('Gaps', branchSheetGapList(gaps), 'No branch packet gaps served; proof still has to fold back through the listed paths.') +
+    branchSheetInspect(branch, branchEnv) +
+  '</div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(gaps.length ? 'light' : 'medium');
+}
 function auditRow(id, title, state, detail, proof, source){
   return { id, title, state, detail, proof, source };
 }
@@ -1555,6 +2849,122 @@ function renderNpc(env){
     '<button type="button" class="ibox npc ' + (npc.state === 'ready' ? 'ready' : '') + '" data-npc="' + i + '"><b>' + esc(npc.title) + '</b><span>' + esc(npc.detail) + '</span></button>'
   ).join('') + '</div>';
 }
+function inspectGroupSummaries(env, L){
+  const minutes = minutesSince(env && env.derivedAt);
+  const stale = minutes === null || minutes > 360;
+  const branchRows = (env && env.branchStories && Array.isArray(env.branchStories.rows)) ? env.branchStories.rows : [];
+  const gateRows = Array.isArray(env && env.openItems) ? env.openItems : [];
+  const policyRows = [policyCard(env || { ledger:L })];
+  const proofRows = liveProofCards(env || { ledger:L });
+  const evidenceRows = insightBoxes(env || { ledger:L });
+  const toolCount = CMDS.reduce((sum, group) => sum + group[1].length, 0);
+  return [
+    { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'Envelope is stale or missing; refresh proof before trusting movement.' : 'Envelope age is inside the current proof window.' },
+    { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:String(policyRows.length) + ' policy checks keep operator action bounded.' },
+    { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:String(proofRows.length) + ' live readiness rows stay honest about blockers.' },
+    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? String(branchRows.length) + ' branch packet(s) feed Mission.' : 'No branch packet rows; Mission must not fake progress.' },
+    { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder decision(s) waiting.' : 'No founder decisions are waiting.' },
+    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:toolCount + ' toolbelt commands; live command data is ' + (env && env.commands ? 'available.' : 'not available.') },
+    { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' visual contract rails remain inspectable here.' },
+    { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence rows can open proof sheets.' : 'Evidence detail is missing from this envelope.' },
+  ];
+}
+function renderInspectGroups(env, L){
+  return '<section class="inspect-groups" data-component="InspectGroupStack">' + inspectGroupSummaries(env, L).map(group =>
+    '<button type="button" class="' + mcClass('inspect-group', group.state) + '" data-component="InspectGroup" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
+      mcGlyphSvg(group.glyph, group.state) +
+      '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
+      mcStateToken(group.state, mcStateKind(group.state)) +
+    '</button>'
+  ).join('') + '</section>';
+}
+function inspectGroupDetailRows(id, env, L){
+  const live = (env && env.liveProof) || {};
+  const branchEnv = branchEnvelope(env || { ledger:L });
+  const rows = {
+    freshness:[
+      ['stale envelope', FRESHNESS_STATE.stale ? 'yes · refresh before trusting movement' : 'no · current proof window'],
+      ['derived at', (env && env.derivedAt) || 'missing'],
+      ['ignored stale refresh', 'older envelopes never repaint Mission state'],
+    ],
+    policy:[
+      ['policy authority', 'operator policy gates actions; primary pages do not expose debug rules'],
+      ['copy containment', 'Mission, Gate, Tools, and Story keep source/schema words out of primary cards'],
+      ['proof rule', 'blocked rows keep warning state until evidence resolves'],
+    ],
+    'live-proof':[
+      ['ready count', String((live.summary && live.summary.ready) || 0)],
+      ['blocked count', String((live.summary && live.summary.blocked) || liveProofCards(env || { ledger:L }).filter(row => row.state !== 'ready').length)],
+      ['blockers', live.blockers && live.blockers.length ? live.blockers.join(' · ') : 'Telegram initData and device artifact may still be required'],
+      ['secret redaction', 'receipts must stay redacted; no raw initData or bearer token belongs in screenshots'],
+    ],
+    'branch-packets':[
+      ['packet source', branchEnv.source || 'missing'],
+      ['schema', (branchEnv.schema || (branchEnv.rows && branchEnv.rows[0] && branchEnv.rows[0].source && branchEnv.rows[0].source.schema)) || 'cambium.product_branch_packet.v1'],
+      ['missing diagnostics', branchRows(env || { ledger:L }).length ? 'branch rows served' : (branchEnv.gap || 'branch stories missing')],
+    ],
+    gates:[
+      ['signed route', '/api/gate/' + TENANT],
+      ['queue state', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' open item(s)'],
+      ['auth boundary', 'initData checked by Worker before queue write'],
+    ],
+    tools:[
+      ['tool source', CMDDATA ? 'live command envelope available' : 'live command envelope stale'],
+      ['command semantics', 'Tools copy command text or open sheets; signed decisions stay in Gate'],
+      ['recent strip', '/ts-status · /ts-hermes · /ts-standup'],
+    ],
+    rails:[
+      ['visual envelope', 'shared/cambium-visual-contract.ts'],
+      ['organs', String(STAGES.length)],
+      ['rails', String(RAILS.length)],
+    ],
+    evidence:[
+      ['evidence rows', String(insightBoxes(env || { ledger:L }).length)],
+      ['source containment', 'sources and proof paths are Inspect/sheet detail, not primary app copy'],
+      ['mini app surface', 'workers/quests/src/page.ts'],
+    ],
+  };
+  return rows[id] || [['detail', 'no specific detail rows served']];
+}
+function renderInspectProofSummary(env, L){
+  const liveRows = liveProofCards(env || { ledger:L });
+  const blocked = liveRows.filter(row => row.state !== 'ready').length;
+  const branchCount = branchRows(env || { ledger:L }).length;
+  return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction">' +
+    '<b>Proof summary</b><small>' + branchCount + ' branch packet(s) · ' + blocked + ' live readiness blocker(s) · redacted receipts required.</small>' +
+    '<div class="gbtns command-copy"><button type="button" data-inspect-summary="1">Open proof summary</button></div>' +
+  '</section>';
+}
+function openInspectGroupSheet(id, env){
+  const L = (env && env.ledger) || env || {};
+  const group = inspectGroupSummaries(env || { ledger:L }, L).find(row => row.id === id) || inspectGroupSummaries(env || { ledger:L }, L)[0];
+  $('sheetBody').innerHTML = '<div class="arc">inspect · ' + esc(group.id) + '</div><h2>' + esc(group.title) + '</h2>' +
+    '<div class="nar">' + esc(group.detail) + '</div>' +
+    '<div class="kv"><b>debug layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>source</b><span>inspect-proof-layer@v1</span>' +
+    inspectGroupDetailRows(group.id, env || { ledger:L }, L).map(([label, value]) => '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>').join('') +
+    '<b>related page</b><span>' + esc(group.id === 'tools' ? 'Tools' : group.id === 'gates' ? 'Gate' : group.id === 'branch-packets' ? 'Mission' : 'Inspect') + '</span><b>trace action</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
+    '<div class="gbtns"><button type="button" data-inspect-page-link="' + esc(group.id === 'tools' ? 'tools' : group.id === 'gates' ? 'gate' : group.id === 'branch-packets' ? 'mission' : 'inspect') + '">Open related page</button></div>';
+  $('sheetBody').querySelectorAll('[data-inspect-page-link]').forEach(el => el.onclick = () => {
+    closeSheet();
+    const target = el.dataset.inspectPageLink;
+    go(target === 'mission' ? 0 : target === 'gate' ? 1 : target === 'tools' ? 2 : 4);
+    if (target === 'tools') renderCommands();
+  });
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(group.state === 'blocked' || group.state === 'stale' ? 'medium' : 'light');
+}
+function openInspectSummarySheet(env){
+  const L = (env && env.ledger) || env || {};
+  const liveRows = liveProofCards(env || { ledger:L });
+  const blockedRows = liveRows.filter(row => row.state !== 'ready');
+  const summary = 'Cambium mini app proof summary: ' + branchRows(env || { ledger:L }).length + ' branch packet(s), ' + blockedRows.length + ' live readiness blocker(s), sources stay in Inspect, receipts stay redacted.';
+  $('sheetBody').innerHTML = '<div class="arc">inspect · proof summary</div><h2>Proof Summary</h2>' +
+    '<div class="nar">' + esc(summary) + '</div>' +
+    '<div class="kv"><b>copy text</b><span>' + esc(summary) + '</span><b>surface</b><span>workers/quests/src/page.ts</span><b>redaction rule</b><span>no raw initData, bearer token, or secret value in proof artifacts</span></div>' +
+    '<div class="gbtns command-copy"><button type="button" data-copy-proof-summary="' + esc(summary) + '">Copy proof summary</button></div>';
+  const proofCopy = $('sheetBody').querySelector('[data-copy-proof-summary]');
+  if (proofCopy) proofCopy.onclick = () => copyCommandToClipboard(summary, proofCopy).catch(() => { proofCopy.textContent = 'Copy unavailable'; });
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
+}
 function renderOperatorMap(env){
   const L = env.ledger || env;
   const activeStageId = stageForArc((L.current && L.current.arc) || 'XVII');
@@ -1575,25 +2985,34 @@ function renderOperatorMap(env){
     return '<button type="button" class="rail ' + (hot ? 'hot' : '') + '" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-rail="' + esc(rail.id || (rail.from + '-' + rail.to)) + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></button>';
   }).join('');
   $('mapwrap').innerHTML =
-    '<div class="maphead"><div><h2>Operator Map</h2><p>R3F island mechanics, reduced to Telegram-native cards and rails.</p></div>' +
-      '<button type="button" class="mapbadge" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-ecosystem-target="r3f">active · ' + esc((L.current && L.current.arc) || 'complete') + '</button></div>' +
-    '<div class="cmdgrp">tapestry audit</div>' + renderTapestryAudit(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">today wake</div>' + renderWake(env.ledger ? env : { ledger:L }) +
+    '<div class="maphead"><div><h2>Inspect</h2><p>Proof, packet, freshness, and system detail.</p></div>' +
+      '<button type="button" class="mapbadge" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-ecosystem-target="r3f">frontier · ' + esc((L.current && L.current.arc) || 'complete') + '</button></div>' +
+    renderInspectGroups(env.ledger ? env : { ledger:L }, L) +
+    renderInspectProofSummary(env.ledger ? env : { ledger:L }, L) +
+    '<div class="cmdgrp">freshness</div>' + renderTapestryAudit(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">wake</div>' + renderWake(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">lanes</div>' + renderLanes(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">stance</div>' + renderStance(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">next action</div>' + renderPolicy(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">policy</div>' + renderPolicy(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">decision context</div>' + renderDecisionContext(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">live proof</div>' + renderLiveProof(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">branch packets</div>' + renderBranches(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">missions</div>' + renderBranchMissions(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">KPIs</div>' + renderBranchKpis(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">gates</div>' + renderBranchGates(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">proof paths</div>' + renderBranchProof(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">side quests</div>' + renderSideQuests(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">coordination</div>' + renderSocial(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">senses</div>' + renderSenses(env.ledger ? env : { ledger:L }) +
     '<div class="stagegrid">' + stageCards + '</div>' +
-    '<div class="cmdgrp">evidence boxes</div>' + renderInsightBoxes(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">evidence</div>' + renderInsightBoxes(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">skill labors</div>' + renderSkills(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">companions</div>' + renderNpc(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>' +
-    '<div class="mapnote">same mechanics as the R3F scene: five organs, packet rails, memory feed, active frontier, and evidence gates. no canvas, no heavy scene.</div>';
+    '<div class="mapnote">Inspect keeps the low-level proof rows out of Mission, Gate, Tools, and Story.</div>';
   $('mapwrap').querySelectorAll('.mapbadge').forEach(el => el.onclick = () => openMapHeaderSheet(L));
+  $('mapwrap').querySelectorAll('[data-inspect-group]').forEach(el => el.onclick = () => openInspectGroupSheet(el.dataset.inspectGroup, env.ledger ? env : { ledger:L }));
+  $('mapwrap').querySelectorAll('[data-inspect-summary]').forEach(el => el.onclick = () => openInspectSummarySheet(env.ledger ? env : { ledger:L }));
   $('mapwrap').querySelectorAll('.rail').forEach(el => el.onclick = () => openRailSheet(el.dataset.rail, L));
   $('mapwrap').querySelectorAll('.stage-card').forEach(el => el.onclick = () => openMapSheet(L, el.dataset.stage));
   $('mapwrap').querySelectorAll('[data-wake]').forEach(el => el.onclick = () => openWakeBox(env.ledger ? env : { ledger:L }, +el.dataset.wake));
@@ -1604,6 +3023,10 @@ function renderOperatorMap(env){
   $('mapwrap').querySelectorAll('[data-decision]').forEach(el => el.onclick = () => openDecisionContextBox(env.ledger ? env : { ledger:L }, +el.dataset.decision));
   $('mapwrap').querySelectorAll('[data-tapestry]').forEach(el => el.onclick = () => openTapestryBox(env.ledger ? env : { ledger:L }, +el.dataset.tapestry));
   $('mapwrap').querySelectorAll('[data-live-proof]').forEach(el => el.onclick = () => openLiveProofBox(env.ledger ? env : { ledger:L }, +el.dataset.liveProof));
+  $('mapwrap').querySelectorAll('[data-branch-gap]').forEach(el => el.onclick = () => openBranchMissionSheet(env.ledger ? env : { ledger:L }, 0, -1));
+  $('mapwrap').querySelectorAll('.ibox.branch[data-branch]').forEach(el => el.onclick = () => openBranchMissionSheet(env.ledger ? env : { ledger:L }, +el.dataset.branch, -1));
+  $('mapwrap').querySelectorAll('[data-branch-mission]').forEach(el => el.onclick = () => openBranchMissionSheet(env.ledger ? env : { ledger:L }, +el.dataset.branch, +el.dataset.branchMission));
+  $('mapwrap').querySelectorAll('[data-branch-kpi],[data-branch-gate],[data-branch-proof]').forEach(el => el.onclick = () => openBranchMissionSheet(env.ledger ? env : { ledger:L }, +el.dataset.branch, -1));
   $('mapwrap').querySelectorAll('[data-side]').forEach(el => el.onclick = () => openSideQuestBox(env.ledger ? env : { ledger:L }, +el.dataset.side));
   $('mapwrap').querySelectorAll('[data-social]').forEach(el => el.onclick = () => openSocialBox(env.ledger ? env : { ledger:L }, +el.dataset.social));
   $('mapwrap').querySelectorAll('.ibox[data-box]').forEach(el => el.onclick = () => openInsightBox(env.ledger ? env : { ledger:L }, +el.dataset.box));
@@ -1614,8 +3037,8 @@ function openMapHeaderSheet(L){
   const row = currentQuestRow(L);
   const arc = (row && row.arc) || (L.current && L.current.arc) || 'complete';
   const organId = row ? stageForArc(arc) : 'complete';
-  $('sheetBody').innerHTML = '<div class="arc">operator map · active frontier</div><h2>Map Header</h2>' +
-    '<div class="nar">The map header follows the same shared visual contract as the R3F scene.</div>' +
+  $('sheetBody').innerHTML = '<div class="arc">inspect · active frontier</div><h2>Inspect Header</h2>' +
+    '<div class="nar">Inspect exposes source contracts, provenance, and low-level proof detail for the current frontier.</div>' +
     '<div class="kv"><b>active arc</b><span>' + esc(arc) + '</span><b>active organ</b><span>' + esc(row ? stageTitle(organId) : 'all organs complete') + '</span><b>source</b><span>shared/cambium-visual-contract</span><b>quest title</b><span>' + esc((row && row.title) || (L.current && L.current.title) || 'no active quest') + '</span></div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(row ? 'medium' : 'light');
 }
@@ -1940,6 +3363,7 @@ const LANE_ICON = {
   beat:      '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.6"/></svg>'
 };
 let STORY_BEATS = [];
+let STORY_GROUP_FILTER = 'all';
 function storyBeatTarget(lane){
   if (lane === 'heartbeat') return 'quine';
   if (lane === 'paperclip') return 'paperclip';
@@ -1955,18 +3379,109 @@ function storyBeatSource(beat, lane){
   if (lane === 'heartbeat') return 'world.log';
   return 'operator-narrative';
 }
+function storyLaneLabel(lane, beat){
+  if (beat && beat.noesis) return 'Drift';
+  if (lane === 'quest') return 'Mission wins';
+  if (lane === 'heartbeat' || lane === 'paperclip') return 'New signals';
+  if (lane === 'forge') return 'Lessons';
+  if (lane === 'noesis') return 'Drift';
+  return 'New signals';
+}
+function storyBeatGroup(beat){
+  const text = String((beat && beat.text) || '');
+  const lane = (beat && beat.lane) || (beat && beat.noesis ? 'noesis' : 'beat');
+  if ((beat && beat.noesis) || /stale|missing|contradict|blocked|drift/i.test(text)) return 'Drift';
+  return storyLaneLabel(lane, beat);
+}
+function storyBeatState(beat){
+  const group = storyBeatGroup(beat);
+  if (group === 'Mission wins') return 'complete';
+  if (group === 'Drift') return /blocked|contradict/i.test(String((beat && beat.text) || '')) ? 'blocked' : 'stale';
+  if (group === 'Lessons') return 'active';
+  return 'proof-needed';
+}
+function storyBeatGlyph(group){
+  if (group === 'Mission wins') return 'proof';
+  if (group === 'Lessons') return 'cortex';
+  if (group === 'Drift') return 'gate';
+  return 'arc';
+}
+function storyBeatContext(group, lane, beat){
+  const text = String((beat && beat.text) || '');
+  if (/gate|approve|reroll|decision/i.test(text)) return 'gate';
+  if (/tool|command|\\/ts-|ts-/i.test(text)) return 'tools';
+  if (group === 'Mission wins') return 'mission';
+  if (group === 'Drift') return 'inspect';
+  if (lane === 'quest') return 'mission';
+  return 'inspect';
+}
+function storyContextScene(context){
+  if (context === 'mission') return 0;
+  if (context === 'gate') return 1;
+  if (context === 'tools') return 2;
+  if (context === 'story') return 3;
+  return 4;
+}
+function renderStoryHero(beats){
+  const latest = beats[0] || { text:'Story is waiting for mission movement', lane:'beat' };
+  const group = storyBeatGroup(latest);
+  return '<section class="story-hero" data-component="StoryLatestChangeHero">' +
+    mcGlyphSvg(storyBeatGlyph(group), storyBeatState(latest)) +
+    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + '</small></span>' +
+  '</section>';
+}
+function renderStoryGroupControls(groups){
+  const labels = ['all'].concat(groups);
+  return '<div class="story-filter-strip" data-component="StoryGroupControls">' + labels.map(label =>
+    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + '</button>'
+  ).join('') + '</div>';
+}
+function renderStoryTimeline(beats){
+  return '<div class="story-timeline" data-component="StoryTimelineRail">' + beats.slice(0, 12).map(beat =>
+    '<i class="is-' + esc(mcStateKind(storyBeatState(beat))) + '"></i>'
+  ).join('') + '</div>';
+}
+function renderStoryBranchFilters(env){
+  const branches = branchRows(env || {});
+  if (!branches.length) return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="is-selected" data-story-branch-filter="all">all branches</button><button type="button" data-story-branch-filter="missing">branch packets pending</button></div>';
+  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="is-selected" data-story-branch-filter="all">all branches</button>' + branches.slice(0, 5).map(branch =>
+    '<button type="button" data-story-branch-filter="' + esc(branch.branchId || branch.productId || branch.name || 'branch') + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>'
+  ).join('') + '</div>';
+}
+function renderStoryDigest(beats){
+  const counts = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => [group, beats.filter(beat => storyBeatGroup(beat) === group).length]);
+  return '<section class="story-hero" data-component="StoryDigestCards">' +
+    mcGlyphSvg('proof', 'active') +
+    '<span><b>Digest</b><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
+  '</section>';
+}
+function storyPacketTrail(beat){
+  const group = storyBeatGroup(beat);
+  const count = group === 'Mission wins' ? 4 : group === 'Drift' ? 2 : 3;
+  return '<span class="mc-packet-dots" data-component="StoryPacketTrail">' + Array.from({ length: count }, () => '<i class="mc-packet"></i>').join('') + '</span>';
+}
 function openStoryBeat(index){
   const beat = STORY_BEATS[index] || STORY_BEATS[0];
   if (!beat) return;
   const lane = beat.lane || (beat.noesis ? 'noesis' : 'beat');
   const source = storyBeatSource(beat, lane);
   const target = storyBeatTarget(lane);
+  const group = storyBeatGroup(beat);
+  const context = storyBeatContext(group, lane, beat);
+  const warning = /contradict/i.test(String(beat.text || ''))
+    ? '<b>warning</b><span>contradiction requires Inspect review before this becomes a win</span>'
+    : '';
   const paperclipRows = lane === 'paperclip'
     ? '<b>vault write</b><span>no direct vault write; Paperclip activity is read-only in this sheet</span>'
     : '';
-  $('sheetBody').innerHTML = '<div class="arc">story beat · ' + esc(lane) + '</div><h2>Story Beat</h2>' +
+  $('sheetBody').innerHTML = '<div class="arc">story beat · ' + esc(group.toLowerCase()) + '</div><h2>Story Beat</h2>' +
     '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
-    '<div class="kv"><b>lane</b><span>' + esc(lane) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>action</b><span>read-only story row; no execution action</span>' + paperclipRows + '</div>';
+    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>context link</b><span>' + esc(context) + '</span><b>action</b><span>read-only story row; no execution action</span>' + warning + paperclipRows + '</div>' +
+    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Inspect') + '</button></div>';
+  $('sheetBody').querySelectorAll('[data-story-target]').forEach(el => el.onclick = () => {
+    veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open = false;
+    go(storyContextScene(el.dataset.storyTarget), true);
+  });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' || lane === 'paperclip' ? 'medium' : 'light');
 }
 function renderStory(env){
@@ -1975,20 +3490,36 @@ function renderStory(env){
     env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
   STORY_BEATS = beats;
   if (!beats.length) {
-    $('beats').innerHTML = '<div class="state" data-interaction-kind="read-only" data-source="quest-ledger" data-ecosystem-target="quest-ledger"><b>Story waiting for complete quest rows</b><p>Story falls back to complete quest rows from quest-ledger when narrative beats are not served.</p></div>';
+    $('beats').innerHTML = '<div class="state" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>Story is waiting for mission movement.</b><p>New wins, signals, lessons, and drift appear here after evidence lands.</p><div class="gbtns"><button type="button" data-story-empty-action="mission">Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Inspect</button></div></div>';
+    $('beats').querySelectorAll('[data-story-empty-action]').forEach(el => el.onclick = () => go(el.dataset.storyEmptyAction === 'mission' ? 0 : 4));
     return;
   }
-  $('beats').innerHTML = beats.map((b, i) => {
+  const groups = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => ({
+    group,
+    beats: beats.map((beat, index) => ({ beat, index })).filter(row => storyBeatGroup(row.beat) === group),
+  })).filter(row => row.beats.length && (STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group));
+  const allGroups = ['Mission wins', 'New signals', 'Lessons', 'Drift'].filter(group => beats.some(beat => storyBeatGroup(beat) === group));
+  $('beats').innerHTML = renderStoryHero(beats) + renderStoryGroupControls(allGroups) + renderStoryBranchFilters(env) + renderStoryDigest(beats) + renderStoryTimeline(beats) + (groups.length ? groups.map(({ group, beats: groupBeats }) =>
+    '<section class="story-group" data-component="StoryGroup" data-story-group="' + esc(group.toLowerCase().replace(/\\s+/g, '-')) + '">' +
+    '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' +
+    groupBeats.map(({ beat:b, index:i }) => {
     const lane = b.lane || 'beat';
-    const ico = LANE_ICON[lane] || (b.noesis ? LANE_ICON.noesis : LANE_ICON.beat);
-    const source = storyBeatSource(b, lane);
-    const target = storyBeatTarget(lane);
-    return '<div class="beat' + (b.noesis ? ' noesis' : '') + '" style="--i:' + Math.min(i, 20) + '" data-interaction-kind="sheet" data-source="' + esc(source) + '" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-ecosystem-target="' + esc(target) + '">' +
-      '<span class="ico">' + ico + '</span>' +
-      '<span class="lane">' + esc(lane) + '</span>' +
-      (b.noesis ? '<b>◆ noesis · </b>' : '') + esc(b.text) +
-    '</div>';
-  }).join('');
+    const state = storyBeatState(b);
+    const context = storyBeatContext(group, lane, b);
+    const contradiction = /contradict/i.test(String(b.text || ''));
+    return '<button type="button" class="' + mcClass('beat' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="mission-story@v1" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="operator-narrative"' + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
+      '<span class="ico">' + mcGlyphSvg(storyBeatGlyph(group), state) + '</span>' +
+      '<span class="lane">' + esc(group) + '</span>' +
+      '<b>' + esc(b.text || 'Story beat') + '</b>' +
+      storyPacketTrail(b) +
+      mcStateToken(state, group === 'Drift' ? 'drift' : group === 'Mission wins' ? 'win' : group === 'Lessons' ? 'lesson' : 'signal') +
+    '</button>';
+    }).join('') + '</div></section>'
+  ).join('') : '<div class="state"><b>No story beats in this group.</b><p>Switch groups or refresh after new branch evidence lands.</p></div>');
+  $('beats').querySelectorAll('[data-story-filter]').forEach(el => el.onclick = () => {
+    STORY_GROUP_FILTER = el.dataset.storyFilter || 'all';
+    renderStory(env);
+  });
   $('beats').querySelectorAll('.beat').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.beat));
 }
 
@@ -2015,6 +3546,31 @@ function freshness(env){
   markFreshnessChip(source);
   f.classList.toggle('stale', stale);
 }
+function envelopeTime(env){
+  const value = env && env.derivedAt;
+  if (typeof value !== 'string' && typeof value !== 'number') return null;
+  const parsed = Date.parse(String(value));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+function shouldPaintEnvelope(nextEnv){
+  const currentTime = envelopeTime(ECOSYSTEM_ENV);
+  const nextTime = envelopeTime(nextEnv);
+  return currentTime === null || nextTime === null || nextTime >= currentTime;
+}
+function markStaleRefreshIgnored(nextEnv){
+  const current = ECOSYSTEM_ENV || {};
+  const f = $('fresh');
+  FRESHNESS_STATE = {
+    derivedAt: current.derivedAt || 'missing',
+    source: (nextEnv && nextEnv.source) || (current && current.source) || REFRESH_ROUTE,
+    age: minutesSince(current.derivedAt),
+    stale: true,
+    detail: 'stale refresh ignored',
+  };
+  f.textContent = FRESHNESS_STATE.detail;
+  markFreshnessChip(FRESHNESS_STATE.source);
+  f.classList.add('stale');
+}
 function openFreshnessSheet(){
   const s = FRESHNESS_STATE;
   $('sheetBody').innerHTML = '<div class="arc">freshness · ' + (s.stale ? 'stale' : 'fresh') + '</div><h2>Freshness</h2>' +
@@ -2028,7 +3584,11 @@ $('fresh').onclick = openFreshnessSheet;
 // radial 270deg gauge of real progress (arcs grown / total) — the gate's evidence dial
 function renderGauge(L){
   const wrap = $('gauge'); if (!wrap) return;
-  const pct = L.total ? L.completed / L.total : 0;
+  const completed = Math.max(0, Number(L && L.completed) || 0);
+  const total = Math.max(0, Number(L && L.total) || 0);
+  const pct = total ? Math.min(1, completed / total) : 0;
+  const state = total && completed >= total ? 'complete' : completed ? 'active' : 'locked';
+  const label = state === 'complete' ? 'Queue clear' : state === 'active' ? 'Evidence growing' : 'Awaiting ledger';
   const r = 46, CIRC = 2 * Math.PI * r, ARC = 0.75;       // 270deg sweep
   const track = N1(ARC * CIRC), tgap = N1(CIRC - ARC * CIRC);
   const val = N1(pct * ARC * CIRC), vgap = N1(CIRC - pct * ARC * CIRC);
@@ -2038,23 +3598,36 @@ function renderGauge(L){
         '<animate attributeName="stroke-dasharray" dur="1s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1" keyTimes="0;1" values="0 ' + N1(CIRC) + ';' + val + ' ' + vgap + '"/>' +
       '</circle>';
   wrap.innerHTML =
-    '<svg viewBox="0 0 120 116">' +
-      '<g transform="rotate(135 60 60)">' +
-        '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="rgba(214,255,246,.12)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + track + ' ' + tgap + '"/>' +
-        valCircle +
-      '</g>' +
-      '<text class="gv" x="60" y="60" text-anchor="middle">' + L.completed + '/' + L.total + '</text>' +
-      '<text class="gl" x="60" y="76" text-anchor="middle">ARCS GROWN</text>' +
-    '</svg>';
+    '<div class="' + mcClass('gate-orbit', state) + '" data-component="GateOrbitProgress" data-gate-orbit-state="' + esc(state) + '">' +
+      '<svg viewBox="0 0 120 126" role="img" aria-label="' + esc(completed + ' of ' + total + ' arcs grown') + '">' +
+        '<g transform="rotate(135 60 60)">' +
+          '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="rgba(214,255,246,.12)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + track + ' ' + tgap + '"/>' +
+          valCircle +
+        '</g>' +
+        '<circle class="gate-orbit-node" cx="22" cy="94" r="4"/>' +
+        '<circle class="gate-orbit-node" cx="60" cy="14" r="4"/>' +
+        '<circle class="gate-orbit-node" cx="98" cy="94" r="4"/>' +
+        '<text class="gv" x="60" y="60" text-anchor="middle">' + completed + '/' + total + '</text>' +
+        '<text class="gl" x="60" y="76" text-anchor="middle">ARCS GROWN</text>' +
+      '</svg>' +
+      '<div class="gate-orbit-caption">' + mcStateToken(state, label) + '</div>' +
+    '</div>';
 }
 function paint(env){
   ECOSYSTEM_ENV = env;
   LEDGER = env.ledger;
   CMDDATA = env.commands || null;
-  renderQuests(env.ledger); renderOperatorMap(env); renderStory(env); renderGauge(env.ledger); freshness(env);
+  renderMissionControl(env);
+  if (SCENE_PARAM === 'components' || SCENE_PARAM === 'component' || SCENE_PARAM === 'board') renderComponentGallery(env);
+  else renderOperatorMap(env);
+  renderStory(env); renderGauge(env.ledger); freshness(env);
 }
 function load(){
   return fetch(REFRESH_ROUTE).then(r => r.json()).then(env => {
+    if (!shouldPaintEnvelope(env)){
+      markStaleRefreshIgnored(env);
+      return;
+    }
     if (!env.ledger){
       ECOSYSTEM_ENV = env;
       LEDGER = null;

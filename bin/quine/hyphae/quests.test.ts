@@ -267,6 +267,56 @@ test('quests priority-source rejects partial capture without creating policy aut
   assert.equal(readiness.status, 'rejected');
 });
 
+test('gatherQuestInputs loads product branch stories beside project evidence', () => {
+  const inputs = gatherQuestInputs({ root: process.cwd(), vaultRoot: join(process.cwd(), 'vault') }, 'cambium');
+  const fitcheck = inputs.branchStories?.find((story) => story.productId === 'fitcheck');
+
+  assert.ok(inputs.branchStories);
+  assert.equal(inputs.branchStories.length, 4);
+  assert.ok(fitcheck);
+  assert.equal(fitcheck.missions[0].missionId, 'fitcheck-shopify-qa');
+  assert.equal(fitcheck.promotion.state, 'supervised-branch');
+});
+
+test('quests visual envelope exposes branchStories without changing quest ledger completion', () => {
+  const inputs = gatherQuestInputs({ root: process.cwd(), vaultRoot: join(process.cwd(), 'vault') }, 'cambium');
+  const ledgerWithoutBranches = questLedger({});
+  const ledgerWithBranches = questLedger({ branchStories: inputs.branchStories });
+  const visual = buildVisualEnvelope(
+    { root: process.cwd(), vaultRoot: join(process.cwd(), 'vault') },
+    'cambium',
+    { branchStories: inputs.branchStories },
+    ledgerWithBranches,
+    { source: 'test', derivedAt: '2026-06-29T00:00:00.000Z' },
+  );
+
+  assert.equal(ledgerWithBranches.completed, ledgerWithoutBranches.completed);
+  assert.equal(ledgerWithBranches.current?.id, ledgerWithoutBranches.current?.id);
+  assert.equal(visual.branchStories.source, 'product-branch-packets@v1');
+  assert.equal(visual.branchStories.status, 'partial');
+  assert.equal(visual.branchStories.total, 4);
+  assert.equal(visual.branchStories.activeBranchId, 'fitcheck');
+  assert.equal(visual.branchStories.rows.find((story) => story.productId === 'fitcheck')?.arcId, 'fitcheck-supervised-launch-hardening');
+  assert.ok(visual.branchStories.gaps.some((gap) => gap.status === 'blocked'));
+});
+
+test('quests visual envelope treats missing branch stories as an explicit empty source', () => {
+  const ctx = tmpCtx();
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-06-29T00:00:00.000Z' },
+  );
+
+  assert.equal(visual.branchStories.source, 'missing');
+  assert.equal(visual.branchStories.status, 'empty');
+  assert.equal(visual.branchStories.total, 0);
+  assert.deepEqual(visual.branchStories.rows, []);
+  assert.match(visual.branchStories.gap ?? '', /product branch packets missing/);
+});
+
 test('quests priority-source rejection neutralizes stale policy authority', () => {
   const ctx = tmpCtx();
   writeFileSync(join(ctx.root, '.operator', 'acme.priority-signals.json'), JSON.stringify({

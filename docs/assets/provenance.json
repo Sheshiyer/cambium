@@ -126,6 +126,19 @@
       "notes": "Viewport evidence for layout and clickability proof; no raw credentials, user ids, or Telegram initData."
     },
     {
+      "id": "tg-miniapp-mission-control-reference-pack",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/tg-miniapp-mission-control-reference/*.png",
+        "docs/plans/assets/tg-miniapp-mission-control-reference/**/*.png"
+      ],
+      "source": "Synthetic Mission Control mobile UI, component, and motion references generated through Codex OAuth prompts recorded beside the assets",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Reference-only TG mini app Mission Control design packet; no raw credentials, user ids, Telegram initData, or live tenant payloads."
+    },
+    {
       "id": "architecture-and-visual-proof-packs",
       "kind": "docs-only",
       "paths": [

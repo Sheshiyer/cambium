@@ -10,6 +10,7 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
 import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
+import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
 
 function playwrightHeadlessShellCandidates() {
   const cacheDir = join(homedir(), 'Library', 'Caches', 'ms-playwright');
@@ -69,7 +70,6 @@ function normalizedClickTargetCount(proof) {
 
 function fixtureForCaptureStep(proof) {
   if (proof.fixture) return proof.fixture;
-  if (proof.scene === 'gate') return 'gate';
   return 'no-fake-progress';
 }
 
@@ -152,15 +152,107 @@ export function buildViewportProofManifest({
 }
 
 export const VIEWPORT_PROOF_CAPTURE_STEPS = [
-  { scene: 'quests', path: 'quests-line-mobile.png', intent: 'layout-proof', sceneIndex: 0, scrollSelector: '#progress' },
-  { scene: 'story', fixture: 'fresh', path: 'story-feed-mobile.png', intent: 'layout-proof', sceneIndex: 2, scrollSelector: '#beats', waitFor: "document.querySelector('[data-beat=\"0\"]')" },
-  { scene: 'commands', fixture: 'fresh', path: 'commands-mobile.png', intent: 'layout-proof', sceneIndex: 4, waitFor: "document.querySelector('[data-command-name=\"ts-status\"]')" },
   {
-    scene: 'commands',
-    fixture: 'fresh',
-    path: 'sheet-command-chat-mobile.png',
-    intent: 'clickability-proof',
+    scene: 'mission',
+    fixture: 'branch-stories',
+    path: 'mission-control-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 0,
+    waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('.mc-mission-card') && document.body.textContent.includes('Fitcheck') && document.body.textContent.includes('Run authenticated Shopify widget QA')",
+  },
+  {
+    scene: 'mission',
+    fixture: 'branch-stories',
+    path: 'mission-actions-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 0,
+    scrollSelector: '[data-component="ProofList"]',
+    waitFor: "document.querySelector('[data-component=\"MissionStateStack\"]') && document.querySelector('[data-component=\"ProofList\"]') && document.querySelector('[data-component=\"GateActionRow\"]') && document.querySelector('[data-mission-action=\"gate\"]') && document.querySelector('[data-mission-action=\"proof\"]')",
+  },
+  {
+    scene: 'components',
+    fixture: 'branch-stories',
+    path: 'component-glyph-state-board-mobile.png',
+    intent: 'layout-proof',
     sceneIndex: 4,
+    waitFor: "document.querySelector('[data-component=\"ComponentGallery\"]') && document.querySelector('[data-component=\"ComponentGlyphStateBoard\"]') && document.querySelector('[data-component=\"ComponentStateBoard\"]') && document.querySelector('[data-component=\"ComponentOrbitProgressBoard\"]') && document.querySelector('[data-component=\"ComponentMissionComponentsBoard\"]') && document.querySelector('[data-component=\"ComponentMotionPrimitives\"]') && document.querySelector('[data-component=\"ComponentLegend\"]') && document.body.textContent.includes('Glyph State Board') && document.body.textContent.includes('Orbit Progress')",
+  },
+  {
+    scene: 'components',
+    fixture: 'branch-stories',
+    path: 'component-mission-components-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 4,
+    scrollSelector: '[data-component="ComponentMissionComponentsBoard"]',
+    waitFor: "document.querySelector('[data-component=\"ComponentMissionComponentsBoard\"]') && document.body.textContent.includes('Mission Components') && document.body.textContent.includes('GateActionRow')",
+  },
+  {
+    scene: 'components',
+    fixture: 'branch-stories',
+    path: 'component-motion-legend-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 4,
+    scrollSelector: '[data-component="ComponentMotionPrimitives"]',
+    waitFor: "document.querySelector('[data-component=\"ComponentMotionPrimitives\"]') && document.querySelector('[data-component=\"ComponentLegend\"]') && document.body.textContent.includes('Motion Primitives') && document.body.textContent.includes('Legend')",
+  },
+  {
+    scene: 'components',
+    fixture: 'branch-stories',
+    path: 'component-legend-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 4,
+    scrollSelector: '[data-component="ComponentLegend"]',
+    waitFor: "document.querySelector('[data-component=\"ComponentLegend\"]') && document.body.textContent.includes('Node') && document.body.textContent.includes('Stale')",
+  },
+  {
+    scene: 'mission',
+    fixture: 'branch-stories',
+    path: 'sheet-mission-review-gate-mobile.png',
+    intent: 'clickability-proof',
+    sceneIndex: 0,
+    waitFor: "document.querySelector('[data-mission-action=\"gate\"]')",
+    scrollSelector: '[data-mission-action="gate"]',
+    tapTargetSelector: '[data-mission-action="gate"]',
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('branch gate') && document.querySelector('#sheet').textContent.includes('Fitcheck') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clickTargetSelector: '[data-mission-action="gate"]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'mission',
+    fixture: 'branch-stories',
+    path: 'sheet-mission-open-proof-mobile.png',
+    intent: 'clickability-proof',
+    sceneIndex: 0,
+    waitFor: "document.querySelector('[data-mission-action=\"proof\"]')",
+    scrollSelector: '[data-mission-action="proof"]',
+    tapTargetSelector: '[data-mission-action="proof"]',
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('branch proof') && document.querySelector('#sheet').textContent.includes('Proof required') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    clickTargetSelector: '[data-mission-action="proof"]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'mission',
+    fixture: 'branch-stories',
+    path: 'sheet-mission-vantyx-mobile.png',
+    intent: 'clickability-proof',
+    sceneIndex: 0,
+    waitFor: "document.querySelector('[data-mission-branch=\"1\"]') && document.body.textContent.includes('Vantyx')",
+    expression: "(() => { const el = [...document.querySelectorAll('[data-mission-branch]')].find(node => node.textContent.includes('Vantyx')); if (!el) throw new Error('missing Vantyx branch chip'); el.click(); })()",
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('branch mission · vantyx') && document.querySelector('#sheet').textContent.includes('Second Tenant Publish Proof') && document.querySelector('#sheet').textContent.includes('Branch source')",
+    clickTargetSelector: '[data-mission-branch="1"]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  { scene: 'story', fixture: 'fresh', path: 'story-feed-mobile.png', intent: 'layout-proof', sceneIndex: 3, scrollSelector: '#beats', waitFor: "document.querySelector('[data-component=\"StoryGroup\"]') && document.querySelector('[data-component=\"StoryBeatCard\"]') && document.body.textContent.includes('Mission wins') && document.body.textContent.includes('New signals')" },
+  { scene: 'tools', fixture: 'fresh', path: 'tools-mobile.png', intent: 'layout-proof', sceneIndex: 2, waitFor: "document.querySelector('[data-component=\"ToolActionCard\"]') && document.querySelector('[data-command-name=\"ts-status\"]') && document.body.textContent.includes('Mission effect')" },
+  {
+    scene: 'tools',
+    fixture: 'fresh',
+    path: 'sheet-tools-command-chat-mobile.png',
+    intent: 'clickability-proof',
+    sceneIndex: 2,
     waitFor: "document.querySelector('[data-command-name=\"ts-run\"]')",
     expression: "(() => { const el = document.querySelector('[data-command-name=\"ts-run\"]'); if (!el) throw new Error('missing /ts-run command card'); el.click(); })()",
     waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('/ts-run') && document.querySelector('#sheet').textContent.includes('chat-command')",
@@ -168,18 +260,18 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clickTargetCount: 1,
     clipSelector: '#sheet',
   },
-  { scene: 'map', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-tapestry=\"0\"]')", clickTargetCount: 14 },
-  { scene: 'map', path: 'map-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-wake="0"]' },
-  { scene: 'map', path: 'map-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
-  { scene: 'map', path: 'map-live-proof-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-live-proof="0"]', waitFor: "document.querySelector('[data-live-proof=\"0\"]')" },
-  { scene: 'map', fixture: 'gate', path: 'map-gate-priority-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-policy]' },
-  { scene: 'map', fixture: 'skill', path: 'map-skill-promotion-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-skill="0"]' },
+  { scene: 'inspect', path: 'inspect-tapestry-audit-mobile.png', intent: 'layout-proof', sceneIndex: 4, waitFor: "document.querySelector('[data-component=\"InspectGroupStack\"]') && document.querySelector('[data-inspect-group=\"freshness\"]') && document.querySelector('[data-tapestry=\"0\"]')", clickTargetCount: 14 },
+  { scene: 'inspect', path: 'inspect-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-wake="0"]' },
+  { scene: 'inspect', path: 'inspect-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-policy]' },
+  { scene: 'inspect', path: 'inspect-live-proof-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-live-proof="0"]', waitFor: "document.querySelector('[data-live-proof=\"0\"]')" },
+  { scene: 'inspect', fixture: 'gate', path: 'inspect-gate-priority-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-policy]' },
+  { scene: 'inspect', fixture: 'skill', path: 'inspect-skill-promotion-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-skill="0"]' },
   {
-    scene: 'map',
+    scene: 'inspect',
     fixture: 'skill',
-    path: 'sheet-skill-promotion-mobile.png',
+    path: 'sheet-inspect-skill-promotion-mobile.png',
     intent: 'clickability-proof',
-    sceneIndex: 1,
+    sceneIndex: 4,
     scrollSelector: '[data-skill="0"]',
     waitFor: "document.querySelector('[data-skill=\"0\"]')",
     expression: "(() => { const el = document.querySelector('[data-skill=\"0\"]'); if (!el) throw new Error('missing founder-review skill card'); el.click(); })()",
@@ -188,9 +280,10 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clickTargetCount: 1,
     clipSelector: '#sheet',
   },
-  { scene: 'map', fixture: 'mira', path: 'map-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
-  { scene: 'map', fixture: 'mira', path: 'map-companions-mobile.png', intent: 'layout-proof', sceneIndex: 1, scrollSelector: '[data-npc="0"]' },
-  { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-signed-action-entrypoint=\"approve\"]')" },
+  { scene: 'inspect', fixture: 'mira', path: 'inspect-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-npc="0"]' },
+  { scene: 'inspect', fixture: 'mira', path: 'inspect-companions-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-npc="0"]' },
+  { scene: 'gate', path: 'gate-empty-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-component=\"GateEmptyState\"]') && document.body.textContent.includes('no founder decisions waiting')" },
+  { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-signed-action-entrypoint=\"approve\"]')" },
   {
     scene: 'gate',
     fixture: 'gate',
@@ -412,6 +505,29 @@ const miraFixture = {
   },
 };
 
+function buildBranchStoriesFixture() {
+  const rows = loadBranchStories({ root: process.cwd() }, 'cambium');
+  const gaps = rows.flatMap((row) => Array.isArray(row.gaps) ? row.gaps : []);
+  const activeRow = rows.find((row) => row.promotion.state === 'supervised-branch' || row.promotion.state === 'organ-service') ?? rows[0];
+  return {
+    ...FRESH_ECOSYSTEM_VISUAL_FIXTURE,
+    source: 'visual-fixture:branch-stories',
+    derivedAt: new Date().toISOString(),
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      status: gaps.length > 0 ? 'partial' : 'ready',
+      total: rows.length,
+      active: rows.filter((row) => row.promotion.state !== 'proof-only').length,
+      blocked: gaps.filter((gap) => gap.status === 'blocked').length,
+      activeBranchId: activeRow?.branchId,
+      rows,
+      gaps,
+    },
+  };
+}
+
+const branchStoriesFixture = buildBranchStoriesFixture();
+
 function assertBrowserAvailable() {
   if (BROWSER_CANDIDATES.length === 0) {
     throw new Error(`No Chromium-family browser found. Set CHROME_BIN to run this proof. Checked: ${DEFAULT_BROWSER_CANDIDATES.join(', ')}`);
@@ -431,15 +547,17 @@ async function withServer(fn) {
     const url = new URL(req.url ?? '/', 'http://127.0.0.1');
     if (url.pathname === '/' || url.pathname === '/index.html') {
       const fixture = url.searchParams.get('fixture');
-      activeFixture = url.searchParams.get('scene') === 'gate' || fixture === 'gate'
+      activeFixture = fixture === 'gate'
         ? gateFixture
         : fixture === 'skill'
           ? skillFixture
           : fixture === 'mira'
             ? miraFixture
-            : fixture === 'fresh'
-              ? FRESH_ECOSYSTEM_VISUAL_FIXTURE
-              : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
+            : fixture === 'branch-stories'
+              ? branchStoriesFixture
+              : fixture === 'fresh'
+                ? FRESH_ECOSYSTEM_VISUAL_FIXTURE
+                : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
       res.end(proofPage);
       return;
@@ -674,6 +792,19 @@ async function waitForExpression(cdp, expression, timeoutMs = 5_000) {
   throw new Error(`Timed out waiting for browser expression: ${expression}`);
 }
 
+async function tapSelector(cdp, selector) {
+  const point = await evaluate(cdp, `(() => {
+    const node = document.querySelector(${JSON.stringify(selector)});
+    if (!node) throw new Error('missing tap selector ${selector}');
+    const rect = node.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) throw new Error('tap selector has empty rect ${selector}');
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: point.x, y: point.y, button: 'none' });
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 });
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 });
+}
+
 async function screenshotParams(cdp, options = {}) {
   const params = {
     format: 'png',
@@ -778,6 +909,10 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
         await evaluate(cdp, `${options.expression}; undefined`);
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
+      if (options.tapTargetSelector) {
+        await tapSelector(cdp, options.tapTargetSelector);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
       if (options.waitAfterExpression) {
         await waitForExpression(cdp, options.waitAfterExpression);
       }
@@ -844,6 +979,7 @@ writeFileSync(join(outDir, 'gate-fixture.json'), JSON.stringify(gateFixture, nul
 writeFileSync(join(outDir, 'skill-promotion-fixture.json'), JSON.stringify(skillFixture, null, 2) + '\n');
 writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(miraFixture, null, 2) + '\n');
 writeFileSync(join(outDir, 'fresh-ecosystem-fixture.json'), JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE, null, 2) + '\n');
+writeFileSync(join(outDir, 'branch-stories-fixture.json'), JSON.stringify(branchStoriesFixture, null, 2) + '\n');
 
 const proofs = [];
 await withServer(async (base) => {

@@ -1,4 +1,4 @@
-export const MINI_APP_SCENE_IDS = ['quests', 'map', 'story', 'gate', 'commands'] as const;
+export const MINI_APP_SCENE_IDS = ['mission', 'gate', 'tools', 'story', 'inspect'] as const;
 export type MiniAppSceneId = typeof MINI_APP_SCENE_IDS[number];
 
 export const MINI_APP_ECOSYSTEM_TARGETS = [
@@ -19,6 +19,7 @@ export const MINI_APP_ECOSYSTEM_TARGETS = [
   'distribution',
   'vault-via-paperclip',
   'live-proof',
+  'product-branches',
 ] as const;
 export type MiniAppEcosystemTarget = typeof MINI_APP_ECOSYSTEM_TARGETS[number];
 
@@ -32,11 +33,11 @@ export const MINI_APP_INTERACTION_KINDS = [
 export type MiniAppInteractionKind = typeof MINI_APP_INTERACTION_KINDS[number];
 
 export const MINI_APP_SECTION_IDS = [
-  'quest-line',
-  'operator-map',
-  'story-feed',
+  'mission-control',
   'founder-gate',
-  'command-center',
+  'operator-toolbelt',
+  'story-feed',
+  'inspect',
 ] as const;
 export type MiniAppSectionId = typeof MINI_APP_SECTION_IDS[number];
 
@@ -48,6 +49,12 @@ export const MINI_APP_MAP_SUBSECTION_IDS = [
   'policy',
   'decision-context',
   'live-proof',
+  'branches',
+  'branch-arcs',
+  'branch-missions',
+  'branch-kpis',
+  'branch-gates',
+  'branch-proof',
   'side-quests',
   'coordination',
   'senses',
@@ -88,8 +95,23 @@ export type MiniAppMapSubsection = {
 };
 
 export const MINI_APP_SECTIONS: readonly MiniAppSurfaceSection[] = [
-  { id: 'quest-line', scene: 'quests', target: 'quine', interactions: { primary: 'sheet' }, source: 'quest-ledger-envelope@v1' },
-  { id: 'operator-map', scene: 'map', target: 'r3f', interactions: { primary: 'sheet' }, source: 'shared/cambium-visual-contract.ts' },
+  { id: 'mission-control', scene: 'mission', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'product-branch-packets@v1 plus quest-ledger-envelope@v1' },
+  { id: 'founder-gate', scene: 'gate', target: 'telegram', interactions: { primary: 'signed-action' }, source: 'telegram initData plus Worker gate queue' },
+  {
+    id: 'operator-toolbelt',
+    scene: 'tools',
+    target: 'hermes',
+    interactions: {
+      primary: 'sheet',
+      secondary: ['chat-command', 'read-only'],
+      controls: [
+        { id: 'live-command-sheet', interaction: 'sheet', source: 'paperclipCommandsData' },
+        { id: 'typed-chat-action', interaction: 'chat-command', source: 'curios.self-chat-command' },
+        { id: 'command-reference', interaction: 'read-only', source: 'curios.self-command-reference' },
+      ],
+    },
+    source: 'paperclipCommandsData plus curios.self command reference/action surface',
+  },
   {
     id: 'story-feed',
     scene: 'story',
@@ -107,22 +129,7 @@ export const MINI_APP_SECTIONS: readonly MiniAppSurfaceSection[] = [
     },
     source: 'served beats or complete quest rows',
   },
-  { id: 'founder-gate', scene: 'gate', target: 'telegram', interactions: { primary: 'signed-action' }, source: 'telegram initData plus Worker gate queue' },
-  {
-    id: 'command-center',
-    scene: 'commands',
-    target: 'hermes',
-    interactions: {
-      primary: 'sheet',
-      secondary: ['chat-command', 'read-only'],
-      controls: [
-        { id: 'live-command-sheet', interaction: 'sheet', source: 'paperclipCommandsData' },
-        { id: 'typed-chat-action', interaction: 'chat-command', source: 'curios.self-chat-command' },
-        { id: 'command-reference', interaction: 'read-only', source: 'curios.self-command-reference' },
-      ],
-    },
-    source: 'paperclipCommandsData plus curios.self command reference/action surface',
-  },
+  { id: 'inspect', scene: 'inspect', target: 'cambium-worker', interactions: { primary: 'sheet' }, source: 'shared/cambium-visual-contract.ts and served visual envelope proofs' },
 ];
 
 export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
@@ -133,6 +140,12 @@ export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
   { id: 'policy', target: 'operator-policy', interactions: { primary: 'sheet' }, source: 'operator-policy contract' },
   { id: 'decision-context', target: 'operator-policy', interactions: { primary: 'sheet' }, source: 'decision-context@v1' },
   { id: 'live-proof', target: 'live-proof', interactions: { primary: 'external-proof' }, source: 'tg-live-proof-readiness audit' },
+  { id: 'branches', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'product-branch-packets@v1 branch stories' },
+  { id: 'branch-arcs', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc arc metadata' },
+  { id: 'branch-missions', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc mission queue' },
+  { id: 'branch-kpis', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc KPI controls' },
+  { id: 'branch-gates', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc gate ledger' },
+  { id: 'branch-proof', target: 'product-branches', interactions: { primary: 'external-proof' }, source: 'BranchStoryArc proof foldback' },
   {
     id: 'side-quests',
     target: 'quine',

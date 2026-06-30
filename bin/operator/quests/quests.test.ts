@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { QUEST_LINE, questLedger } from './quests.ts';
 import type { QuestInputs } from './quests.ts';
+import { OPERATOR_POLICY_RULES_VERSION } from './operator-policy.ts';
 import { renderQuestLog } from './panel.ts';
 
 /** Inputs shaped like the REAL cambium tenant after its live first session. */
@@ -379,7 +380,7 @@ test('quests visual envelope derives wake, lanes, skills, and npc gaps from real
   assert.equal(visual.policy.status, 'blocked');
   assert.equal(visual.policy.action, null);
   assert.equal(visual.policy.title, 'POLICY GAP');
-  assert.equal(visual.policy.rulesVersion, 'operator-policy@v1.4');
+  assert.equal(visual.policy.rulesVersion, OPERATOR_POLICY_RULES_VERSION);
   assert.match(visual.policy.gap ?? '', /need 6 tenant events/);
   assert.doesNotMatch(visual.policy.blockers.join(' · '), /founder approval policy/);
   const miraGap = visual.npc.relationships.find((rel) => rel.id === 'mira');
@@ -512,7 +513,7 @@ test('quests visual envelope lets evidence-complete gate review outrank generic 
   );
 
   assert.equal(visual.policy.status, 'ready');
-  assert.equal(visual.policy.rulesVersion, 'operator-policy@v1.4');
+  assert.equal(visual.policy.rulesVersion, OPERATOR_POLICY_RULES_VERSION);
   assert.match(visual.policy.action ?? '', /Review gate item THO-9: Review launch copy/);
   assert.match(visual.policy.detail, /critical risk · blocks-delivery dependency/);
   assert.match(visual.policy.detail, /2 gate items ranked/);
@@ -672,7 +673,7 @@ test('quests visual envelope promotes only explicit priority signals into operat
     },
   );
 
-  assert.equal(visual.policy.rulesVersion, 'operator-policy@v1.4');
+  assert.equal(visual.policy.rulesVersion, OPERATOR_POLICY_RULES_VERSION);
   assert.equal(visual.policy.status, 'ready');
   assert.match(visual.policy.action ?? '', /THO-10: Founder preferred delivery gate/);
   assert.match(visual.policy.detail, /priority signals/);

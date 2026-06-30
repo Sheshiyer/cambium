@@ -1,0 +1,144 @@
+{
+  "schema_id": "cambium.product_branch_packet.v1",
+  "version": 1,
+  "description": "Machine-checkable contract for Cambium product-branch proof packets.",
+  "packet_dir": "docs/plans/product-branches",
+  "index_file": "docs/plans/product-branches/index.md",
+  "required_index_columns": [
+    "product_id",
+    "name",
+    "role",
+    "promotion_state",
+    "current_gate",
+    "packet"
+  ],
+  "required_metadata_fields": [
+    "schema",
+    "product_id",
+    "name",
+    "role",
+    "promotion_state",
+    "current_gate",
+    "packet_owner"
+  ],
+  "promotion_states": [
+    "proof-only",
+    "supervised-branch",
+    "autonomous-branch",
+    "organ-service"
+  ],
+  "proof_statuses": [
+    "verified",
+    "blocked",
+    "pending",
+    "no-signal"
+  ],
+  "required_sections": [
+    "Product Seed",
+    "Organ Routing",
+    "Variable Contract Payload",
+    "Adapter / Service Map",
+    "Evidence Ledger",
+    "Gate Ledger",
+    "Quest Queue",
+    "Branch Story Controls",
+    "Mission Control Inputs",
+    "KPI Control Inputs",
+    "Policy / Permission Inputs",
+    "Dispatch Inputs",
+    "Proof Foldback",
+    "Promotion Rule"
+  ],
+  "required_control_tables": [
+    {
+      "section": "Branch Story Controls",
+      "min_rows": 6,
+      "required_columns": [
+        "control",
+        "value"
+      ],
+      "required_control_values": [
+        "arc_title",
+        "vision",
+        "icp",
+        "current_frontier",
+        "narrative_voice",
+        "anti_claims"
+      ]
+    },
+    {
+      "section": "Mission Control Inputs",
+      "min_rows": 1,
+      "required_columns": [
+        "mission_id",
+        "title",
+        "type",
+        "owner",
+        "gate",
+        "proof_required",
+        "dispatch_target"
+      ]
+    },
+    {
+      "section": "KPI Control Inputs",
+      "min_rows": 1,
+      "required_columns": [
+        "kpi_id",
+        "label",
+        "survival",
+        "better_than_survival",
+        "source",
+        "current_state"
+      ]
+    },
+    {
+      "section": "Policy / Permission Inputs",
+      "min_rows": 1,
+      "required_columns": [
+        "permission",
+        "status",
+        "required_approval",
+        "failure_mode"
+      ]
+    },
+    {
+      "section": "Dispatch Inputs",
+      "min_rows": 1,
+      "required_columns": [
+        "route",
+        "payload_hint",
+        "allowed_when",
+        "blocked_when"
+      ]
+    },
+    {
+      "section": "Proof Foldback",
+      "min_rows": 1,
+      "required_columns": [
+        "proof_id",
+        "source_path",
+        "validates",
+        "promotes"
+      ]
+    }
+  ],
+  "required_products": [
+    {
+      "product_id": "fitcheck",
+      "packet": "fitcheck.md"
+    },
+    {
+      "product_id": "vantyx",
+      "packet": "vantyx.md"
+    },
+    {
+      "product_id": "snow-gloves-os",
+      "packet": "snow-gloves-os.md"
+    },
+    {
+      "product_id": "iverif",
+      "packet": "iverif.md"
+    }
+  ],
+  "promotion_ladder_phrase": "proof-only -> supervised branch -> autonomous branch"
+}

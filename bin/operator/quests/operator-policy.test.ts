@@ -108,6 +108,91 @@ test('operator policy emits a ready action only from frontier, ready stance, and
   assert.match(policy.cautions.join(' · '), /production promotion still requires founder approval policy/);
 });
 
+test('operator policy lets evidence-complete branch missions outrank generic frontier work', () => {
+  const policy = evaluateOperatorPolicy({
+    ledger: ledgerWithFrontier,
+    stance: {
+      status: 'ready',
+      label: 'MICRO-LED',
+      dominant: 'micro',
+      sampleSize: 8,
+      minimum: 6,
+    },
+    skills: {
+      source: 'skill-registry',
+      rows: [{ id: 'cambium-ship-gate', tier: 'production', tierLabel: 'PRODUCTION', sampleSize: 8 }],
+    },
+    branchMissions: [{
+      missionId: 'fitcheck-shopify-qa',
+      branchId: 'fitcheck',
+      title: 'Run authenticated Shopify widget QA',
+      gateStatus: 'ready',
+      proofRequired: 'screenshot plus widget event log',
+      risk: 'medium',
+      dependency: 'blocks-delivery',
+      dispatchTarget: 'hermes',
+      permissionStatus: 'verified',
+      proofStatus: 'verified',
+      dispatchAllowed: true,
+    }],
+  });
+
+  assert.equal(policy.status, 'ready');
+  assert.equal(policy.title, 'BRANCH MISSION');
+  assert.match(policy.action ?? '', /Advance branch mission fitcheck-shopify-qa: Run authenticated Shopify widget QA/);
+  assert.match(policy.detail, /fitcheck · ready gate · hermes dispatch/);
+  assert.match(policy.detail, /proof screenshot plus widget event log/);
+  assert.doesNotMatch(policy.action ?? '', /Advance V · Viability/);
+  assert.deepEqual(policy.requiredSignals, [
+    'branch mission gate status',
+    'branch mission proof requirement',
+    'branch mission permission status',
+    'branch mission autonomy boundary',
+    'branch mission dispatch target',
+  ]);
+});
+
+test('operator policy blocks branch missions with missing permission proof or disallowed dispatch', () => {
+  const policy = evaluateOperatorPolicy({
+    ledger: ledgerWithFrontier,
+    stance: {
+      status: 'ready',
+      label: 'MICRO-LED',
+      dominant: 'micro',
+      sampleSize: 8,
+      minimum: 6,
+    },
+    skills: {
+      source: 'skill-registry',
+      rows: [{ id: 'cambium-ship-gate', tier: 'production', tierLabel: 'PRODUCTION', sampleSize: 8 }],
+    },
+    branchMissions: [{
+      missionId: 'fitcheck-outreach-approval',
+      branchId: 'fitcheck',
+      title: 'Approve first merchant outreach packet',
+      gateStatus: 'blocked',
+      proofRequired: '',
+      risk: 'high',
+      dependency: 'blocked-by-external',
+      dispatchTarget: 'plexus-agent-fabric',
+      permissionStatus: 'blocked',
+      proofStatus: 'blocked',
+      dispatchAllowed: false,
+      autonomyBoundary: 'founder approval gates remain required for customer contact',
+      approvalsRequired: ['founder approves copy and recipient list'],
+    }],
+  });
+
+  assert.equal(policy.status, 'blocked');
+  assert.equal(policy.action, null);
+  assert.match(policy.blockers.join(' · '), /branch mission fitcheck-outreach-approval gate is blocked/);
+  assert.match(policy.blockers.join(' · '), /missing required proof/);
+  assert.match(policy.blockers.join(' · '), /permission status is blocked/);
+  assert.match(policy.blockers.join(' · '), /founder approval required/);
+  assert.match(policy.blockers.join(' · '), /dispatch target plexus-agent-fabric is not allowed/);
+  assert.doesNotMatch(policy.blockers.join(' · '), /quest frontier missing/);
+});
+
 test('operator policy prioritizes evidence-complete gate review over generic frontier work', () => {
   const policy = evaluateOperatorPolicy({
     ledger: ledgerWithFrontier,
@@ -260,7 +345,7 @@ test('operator policy blocks gate items missing risk or dependency priority sign
   assert.match(policy.blockers.join(' · '), /risk, or dependency/);
 });
 
-test('operator policy v1.4 ranks gate items with complete explicit priority signals', () => {
+test('operator policy ranks gate items with complete explicit priority signals', () => {
   const policy = evaluateOperatorPolicy({
     ledger: ledgerWithFrontier,
     stance: {
@@ -306,7 +391,7 @@ test('operator policy v1.4 ranks gate items with complete explicit priority sign
   });
 
   assert.equal(policy.status, 'ready');
-  assert.equal(policy.rulesVersion, 'operator-policy@v1.4');
+  assert.equal(policy.rulesVersion, OPERATOR_POLICY_RULES_VERSION);
   assert.match(policy.action ?? '', /THO-10: Founder preferred delivery gate/);
   assert.match(policy.detail, /priority signals/);
   assert.match(policy.cautions.join(' · '), /founder preference THO-10/);

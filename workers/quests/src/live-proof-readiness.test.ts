@@ -275,50 +275,56 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
     browserCandidates: ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'],
     viewport: { width: 390, height: 844 },
     proofs: [
-      { scene: 'quests', fixture: 'no-fake-progress', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=quests', path: 'quests-line-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 900 },
+      { scene: 'mission', fixture: 'no-fake-progress', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=mission', path: 'mission-control-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 900 },
       { scene: 'story', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=story', path: 'story-feed-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 950 },
-      { scene: 'map', fixture: 'no-fake-progress', path: 'map-tapestry-audit-mobile.png', intent: 'layout-proof', clickTargetCount: 14, width: 780, height: 1688, bytes: 1000 },
-      { scene: 'map', fixture: 'no-fake-progress', path: 'map-live-proof-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1200 },
-      { scene: 'map', fixture: 'skill', path: 'map-skill-promotion-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1400 },
-      { scene: 'map', fixture: 'mira', path: 'map-companions-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1500 },
-      { scene: 'map', fixture: 'skill', path: 'sheet-skill-promotion-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-skill="0"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2000 },
+      { scene: 'inspect', fixture: 'no-fake-progress', path: 'inspect-tapestry-audit-mobile.png', intent: 'layout-proof', clickTargetCount: 14, width: 780, height: 1688, bytes: 1000 },
+      { scene: 'inspect', fixture: 'no-fake-progress', path: 'inspect-live-proof-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1200 },
+      { scene: 'inspect', fixture: 'skill', path: 'inspect-skill-promotion-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1400 },
+      { scene: 'inspect', fixture: 'mira', path: 'inspect-companions-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1500 },
+      { scene: 'inspect', fixture: 'skill', path: 'sheet-inspect-skill-promotion-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-skill="0"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2000 },
+      { scene: 'gate', fixture: 'no-fake-progress', path: 'gate-empty-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1550 },
       { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1600 },
       { scene: 'gate', fixture: 'gate', path: 'sheet-gate-approve-preflight-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-signed-action-entrypoint="approve"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2100 },
       { scene: 'gate', fixture: 'gate', path: 'sheet-gate-reroll-preflight-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-signed-action-entrypoint="reroll"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2200 },
-      { scene: 'commands', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=commands&fixture=fresh', path: 'commands-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1700 },
-      { scene: 'commands', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=commands&fixture=fresh', path: 'sheet-command-chat-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-command-name="ts-run"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2300 },
+      { scene: 'tools', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=tools&fixture=fresh', path: 'tools-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1700 },
+      { scene: 'tools', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=tools&fixture=fresh', path: 'sheet-tools-command-chat-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-command-name="ts-run"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2300 },
     ],
   });
   const artifact = JSON.parse(JSON.stringify(manifest));
 
   assert.equal(artifact.schema, 'cambium.tg-viewport-proof-manifest.v1');
   assert.equal(artifact.browserMode, 'headless-new');
-  assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 8, 'clickability-proof': 4 });
-  assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'layout-proof', 'clickability-proof', 'clickability-proof', 'layout-proof', 'clickability-proof']);
-  assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.path, 'quests-line-mobile.png');
-  assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'quests')?.url ?? '', /\?tenant=cambium&scene=quests/);
+  assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 9, 'clickability-proof': 4 });
+  assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'clickability-proof', 'layout-proof', 'clickability-proof']);
+  assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'mission')?.path, 'mission-control-mobile.png');
+  assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'mission')?.url ?? '', /\?tenant=cambium&scene=mission/);
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-actions-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'layout-proof' && proof.scrollSelector === '[data-component="ProofList"]'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-review-gate-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-action="gate"]'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-open-proof-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-action="proof"]'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-vantyx-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-branch="1"]'));
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'story')?.path, 'story-feed-mobile.png');
   assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'story')?.url ?? '', /\?tenant=cambium&scene=story/);
-  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'map-tapestry-audit-mobile.png')?.clickTargetCount, 14);
-  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'map-live-proof-mobile.png')?.scene, 'map');
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'map-live-proof-mobile.png' && proof.scene === 'map'));
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-tapestry-audit-mobile.png')?.clickTargetCount, 14);
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-live-proof-mobile.png')?.scene, 'inspect');
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'inspect-live-proof-mobile.png' && proof.scene === 'inspect'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'story-feed-mobile.png' && proof.scene === 'story' && proof.fixture === 'fresh'));
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'map-skill-promotion-mobile.png' && proof.scene === 'map' && proof.fixture === 'skill'));
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-skill-promotion-mobile.png' && proof.scene === 'map' && proof.fixture === 'skill' && proof.intent === 'clickability-proof' && proof.clipSelector === '#sheet'));
-  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'map-skill-promotion-mobile.png')?.scene, 'map');
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'map-companions-mobile.png' && proof.scene === 'map' && proof.fixture === 'mira'));
-  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'map-companions-mobile.png')?.scene, 'map');
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'inspect-skill-promotion-mobile.png' && proof.scene === 'inspect' && proof.fixture === 'skill'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-inspect-skill-promotion-mobile.png' && proof.scene === 'inspect' && proof.fixture === 'skill' && proof.intent === 'clickability-proof' && proof.clipSelector === '#sheet'));
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-skill-promotion-mobile.png')?.scene, 'inspect');
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'inspect-companions-mobile.png' && proof.scene === 'inspect' && proof.fixture === 'mira'));
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-companions-mobile.png')?.scene, 'inspect');
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'gate-empty-mobile.png' && proof.scene === 'gate' && proof.fixture === undefined && proof.intent === 'layout-proof'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'gate-consequence-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-gate-approve-preflight-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-signed-action-entrypoint="approve"]'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-gate-reroll-preflight-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-signed-action-entrypoint="reroll"]'));
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-gate-approve-preflight-mobile.png')?.scene, 'gate');
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-gate-reroll-preflight-mobile.png')?.scene, 'gate');
-  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'commands-mobile.png')?.scene, 'commands');
-  assert.match(artifact.proofs.find((proof: { path: string }) => proof.path === 'commands-mobile.png')?.url ?? '', /\?tenant=cambium&scene=commands&fixture=fresh/);
-  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-command-chat-mobile.png')?.scene, 'commands');
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'commands-mobile.png' && proof.scene === 'commands' && proof.fixture === 'fresh'));
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-command-chat-mobile.png' && proof.scene === 'commands' && proof.fixture === 'fresh' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-command-name="ts-run"]'));
-  assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.path, 'sheet-skill-promotion-mobile.png');
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'tools-mobile.png')?.scene, 'tools');
+  assert.match(artifact.proofs.find((proof: { path: string }) => proof.path === 'tools-mobile.png')?.url ?? '', /\?tenant=cambium&scene=tools&fixture=fresh/);
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-tools-command-chat-mobile.png')?.scene, 'tools');
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'tools-mobile.png' && proof.scene === 'tools' && proof.fixture === 'fresh'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-tools-command-chat-mobile.png' && proof.scene === 'tools' && proof.fixture === 'fresh' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-command-name="ts-run"]'));
+  assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.path, 'sheet-inspect-skill-promotion-mobile.png');
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.clipSelector, '#sheet');
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.clickTargetCount, 1);
   assert.match(artifact.invariant, /clipped real sheet proof/);
@@ -861,7 +867,7 @@ test('live proof readiness becomes ready only when live-proof prerequisites are 
   mkdirSync(viewportDir, { recursive: true });
   writeFileSync(join(viewportDir, 'manifest.json'), JSON.stringify({
     generatedAt: '2026-06-22T00:01:00.000Z',
-    proofs: [{ path: 'map-tapestry-audit-mobile.png', width: 780, height: 1688, bytes: 1000 }],
+    proofs: [{ path: 'inspect-tapestry-audit-mobile.png', width: 780, height: 1688, bytes: 1000 }],
   }));
   const screenshot = writeScreenshotFixture(cwd);
   writeFileSync(

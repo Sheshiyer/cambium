@@ -1,7 +1,7 @@
 name: Release
 
-# Reusable release pipeline. Fires on any vX.Y.Z tag (or manual dispatch): runs the full suite as a
-# gate, then cuts a GitHub Release titled "vX.Y.Z · <Muse codename>" with auto-generated notes.
+# Reusable release pipeline. Fires on any vX.Y.Z tag (or manual dispatch): runs the release gates,
+# records TG mini app readiness, then cuts a GitHub Release titled "vX.Y.Z · <Muse codename>".
 # Codename is read from package.json (`codename`). Idempotent — skips if the release already exists.
 
 on:
@@ -32,6 +32,15 @@ jobs:
 
       - name: Test (release gate)
         run: npm test
+
+      - name: Standalone audit (release gate)
+        run: npm run standalone:audit
+
+      - name: Standalone smoke (release gate)
+        run: npm run standalone:smoke
+
+      - name: TG mini app readiness proof (non-strict)
+        run: npm run proof:tg-live-readiness
 
       - name: Resolve version + codename
         id: meta

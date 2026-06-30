@@ -1,11 +1,12 @@
 {
   "schema": "cambium.tg-viewport-proof-manifest.v1",
-  "generatedAt": "2026-06-23T12:03:46.879Z",
+  "generatedAt": "2026-06-30T06:26:00.922Z",
   "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   "browserMode": "headless-new",
   "browserCandidates": [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Arc.app/Contents/MacOS/Arc",
+    "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
     "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
     "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-mac-arm64/chrome-headless-shell",
     "/Users/sheshnarayaniyer/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell"
@@ -15,45 +16,143 @@
     "height": 844
   },
   "proofIntentSummary": {
-    "layout-proof": 12,
-    "clickability-proof": 4
+    "layout-proof": 18,
+    "clickability-proof": 7
   },
   "proofs": [
     {
-      "scene": "quests",
-      "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=quests",
-      "path": "quests-line-mobile.png",
+      "scene": "mission",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "path": "mission-control-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 812869
+      "bytes": 1281027
+    },
+    {
+      "scene": "mission",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "path": "mission-actions-mobile.png",
+      "intent": "layout-proof",
+      "width": 780,
+      "height": 1688,
+      "bytes": 1246558
+    },
+    {
+      "scene": "components",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=components&fixture=branch-stories",
+      "path": "component-glyph-state-board-mobile.png",
+      "intent": "layout-proof",
+      "width": 780,
+      "height": 1688,
+      "bytes": 1086892
+    },
+    {
+      "scene": "components",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=components&fixture=branch-stories",
+      "path": "component-mission-components-mobile.png",
+      "intent": "layout-proof",
+      "width": 780,
+      "height": 1688,
+      "bytes": 1039425
+    },
+    {
+      "scene": "components",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=components&fixture=branch-stories",
+      "path": "component-motion-legend-mobile.png",
+      "intent": "layout-proof",
+      "width": 780,
+      "height": 1688,
+      "bytes": 1044542
+    },
+    {
+      "scene": "components",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=components&fixture=branch-stories",
+      "path": "component-legend-mobile.png",
+      "intent": "layout-proof",
+      "width": 780,
+      "height": 1688,
+      "bytes": 1022648
+    },
+    {
+      "scene": "mission",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "path": "sheet-mission-review-gate-mobile.png",
+      "intent": "clickability-proof",
+      "clickTargetSelector": "[data-mission-action=\"gate\"]",
+      "clickTargetCount": 1,
+      "clipSelector": "#sheet",
+      "sheet": {
+        "clipSelector": "#sheet"
+      },
+      "width": 3120,
+      "height": 1668,
+      "bytes": 708192
+    },
+    {
+      "scene": "mission",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "path": "sheet-mission-open-proof-mobile.png",
+      "intent": "clickability-proof",
+      "clickTargetSelector": "[data-mission-action=\"proof\"]",
+      "clickTargetCount": 1,
+      "clipSelector": "#sheet",
+      "sheet": {
+        "clipSelector": "#sheet"
+      },
+      "width": 3120,
+      "height": 1668,
+      "bytes": 713584
+    },
+    {
+      "scene": "mission",
+      "fixture": "branch-stories",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "path": "sheet-mission-vantyx-mobile.png",
+      "intent": "clickability-proof",
+      "clickTargetSelector": "[data-mission-branch=\"1\"]",
+      "clickTargetCount": 1,
+      "clipSelector": "#sheet",
+      "sheet": {
+        "clipSelector": "#sheet"
+      },
+      "width": 3120,
+      "height": 1668,
+      "bytes": 687871
     },
     {
       "scene": "story",
       "fixture": "fresh",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=story&fixture=fresh",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=story&fixture=fresh",
       "path": "story-feed-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 662504
+      "bytes": 1085742
     },
     {
-      "scene": "commands",
+      "scene": "tools",
       "fixture": "fresh",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=commands&fixture=fresh",
-      "path": "commands-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=tools&fixture=fresh",
+      "path": "tools-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 947562
+      "bytes": 1239432
     },
     {
-      "scene": "commands",
+      "scene": "tools",
       "fixture": "fresh",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=commands&fixture=fresh",
-      "path": "sheet-command-chat-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=tools&fixture=fresh",
+      "path": "sheet-tools-command-chat-mobile.png",
       "intent": "clickability-proof",
       "clickTargetSelector": "[data-command-name=\"ts-run\"]",
       "clickTargetCount": 1,
@@ -61,76 +160,76 @@
       "sheet": {
         "clipSelector": "#sheet"
       },
-      "width": 780,
-      "height": 1002,
-      "bytes": 147985
+      "width": 2340,
+      "height": 986,
+      "bytes": 133994
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map",
-      "path": "map-tapestry-audit-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect",
+      "path": "inspect-tapestry-audit-mobile.png",
       "intent": "layout-proof",
       "clickTargetCount": 14,
       "width": 780,
       "height": 1688,
-      "bytes": 933777
+      "bytes": 1145681
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map",
-      "path": "map-no-fake-progress-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect",
+      "path": "inspect-no-fake-progress-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 870508
+      "bytes": 1139617
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map",
-      "path": "map-policy-gap-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect",
+      "path": "inspect-policy-gap-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 892238
+      "bytes": 1118147
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map",
-      "path": "map-live-proof-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect",
+      "path": "inspect-live-proof-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 870680
+      "bytes": 1138109
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map&fixture=gate",
-      "path": "map-gate-priority-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect&fixture=gate",
+      "path": "inspect-gate-priority-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 890999
+      "bytes": 1120920
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "skill",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map&fixture=skill",
-      "path": "map-skill-promotion-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect&fixture=skill",
+      "path": "inspect-skill-promotion-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 881760
+      "bytes": 1196148
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "skill",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map&fixture=skill",
-      "path": "sheet-skill-promotion-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect&fixture=skill",
+      "path": "sheet-inspect-skill-promotion-mobile.png",
       "intent": "clickability-proof",
       "clickTargetSelector": "[data-skill=\"0\"]",
       "clickTargetCount": 1,
@@ -138,44 +237,54 @@
       "sheet": {
         "clipSelector": "#sheet"
       },
-      "width": 3120,
-      "height": 1140,
-      "bytes": 199949
+      "width": 780,
+      "height": 1514,
+      "bytes": 251558
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "mira",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map&fixture=mira",
-      "path": "map-mira-relationship-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect&fixture=mira",
+      "path": "inspect-mira-relationship-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 837448
+      "bytes": 1159362
     },
     {
-      "scene": "map",
+      "scene": "inspect",
       "fixture": "mira",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=map&fixture=mira",
-      "path": "map-companions-mobile.png",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=inspect&fixture=mira",
+      "path": "inspect-companions-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 839067
+      "bytes": 1159648
+    },
+    {
+      "scene": "gate",
+      "fixture": "no-fake-progress",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=gate",
+      "path": "gate-empty-mobile.png",
+      "intent": "layout-proof",
+      "width": 780,
+      "height": 1688,
+      "bytes": 1309077
     },
     {
       "scene": "gate",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=gate&fixture=gate",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=gate&fixture=gate",
       "path": "gate-consequence-mobile.png",
       "intent": "layout-proof",
       "width": 780,
       "height": 1688,
-      "bytes": 680549
+      "bytes": 1139407
     },
     {
       "scene": "gate",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=gate&fixture=gate",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=gate&fixture=gate",
       "path": "sheet-gate-approve-preflight-mobile.png",
       "intent": "clickability-proof",
       "clickTargetSelector": "[data-signed-action-entrypoint=\"approve\"]",
@@ -184,14 +293,14 @@
       "sheet": {
         "clipSelector": "#sheet"
       },
-      "width": 1560,
-      "height": 770,
-      "bytes": 143883
+      "width": 3120,
+      "height": 840,
+      "bytes": 157494
     },
     {
       "scene": "gate",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62525/?tenant=cambium&scene=gate&fixture=gate",
+      "url": "http://127.0.0.1:65044/?tenant=cambium&scene=gate&fixture=gate",
       "path": "sheet-gate-reroll-preflight-mobile.png",
       "intent": "clickability-proof",
       "clickTargetSelector": "[data-signed-action-entrypoint=\"reroll\"]",
@@ -200,9 +309,9 @@
       "sheet": {
         "clipSelector": "#sheet"
       },
-      "width": 1560,
-      "height": 770,
-      "bytes": 138355
+      "width": 3120,
+      "height": 840,
+      "bytes": 153459
     }
   ],
   "invariant": "Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions."

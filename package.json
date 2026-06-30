@@ -11,6 +11,7 @@
     "quine": "node bin/quine/quine.ts",
     "plan": "node bin/compose.mjs plan",
     "validate": "node bin/compose.mjs validate",
+    "validate:product-branches": "node scripts/validate-product-branch-packets.mjs",
     "demo:tenant": "node scripts/demo-tenant-fixture.mjs",
     "demo:quests": "node scripts/demo-quest-ledger.mjs",
     "tapestry:snapshot": "node scripts/tapestry-snapshot.mjs",

@@ -18,10 +18,18 @@ import type { SkillRecord } from '../../operator/skills/forge.ts';
 import { DECLINE_MIN_USES, DECLINE_RATE, DECLINE_WINDOW, isDeclining, recentRate, successRate } from '../../operator/skills/telemetry.ts';
 import { SKILL_PRODUCTION_RATE, hasProductionGradeTelemetry, skillProductionReadiness } from '../../operator/skills/promotion.ts';
 import { evaluateOperatorPolicy } from '../../operator/quests/operator-policy.ts';
-import type { OperatorPolicyEnvelope, PolicyPrioritySignals } from '../../operator/quests/operator-policy.ts';
+import type {
+  OperatorPolicyEnvelope,
+  PolicyBranchMissionCandidate,
+  PolicyBranchMissionGateStatus,
+  PolicyBranchMissionProofStatus,
+  PolicyPrioritySignals,
+} from '../../operator/quests/operator-policy.ts';
 import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../shared/cambium-visual-contract.ts';
 import { paperclipActivityBeats, paperclipOpenItems, paperclipQuestInputs, paperclipCommandsData } from './paperclip.ts';
 import type { PaperclipOpenItem } from './paperclip.ts';
+import { loadBranchStories } from './branch-stories.ts';
+import type { BranchStoryArc, BranchStoryGap } from '../../operator/quests/branch-stories.ts';
 import { refreshProjectEvidence } from './project-evidence.ts';
 import { auditPrioritySource, capturePrioritySource, prioritySignalsPath, prioritySourceTemplate, refreshPrioritySignals } from './priority-signals.ts';
 
@@ -522,6 +530,17 @@ export interface VisualEnvelope {
       };
       runtime?: VisualSideQuestRuntime;
     }>;
+    gap?: string;
+  };
+  branchStories: {
+    source: 'product-branch-packets@v1' | 'missing';
+    status: 'ready' | 'partial' | 'empty';
+    total: number;
+    active: number;
+    blocked: number;
+    activeBranchId?: string;
+    rows: BranchStoryArc[];
+    gaps: BranchStoryGap[];
     gap?: string;
   };
 }
@@ -1342,14 +1361,91 @@ function deriveSkillsEnvelope(ctx: QuineCtx, tenant: string): VisualEnvelope['sk
   };
 }
 
+function branchMissionGateStatus(status: string | undefined): PolicyBranchMissionGateStatus {
+  if (status === 'verified') return 'ready';
+  if (status === 'blocked') return 'blocked';
+  return 'pending';
+}
+
+function branchMissionProofStatus(status: string | undefined): PolicyBranchMissionProofStatus {
+  if (status === 'verified' || status === 'blocked' || status === 'pending' || status === 'no-signal') return status;
+  return 'no-signal';
+}
+
+function branchStatusWeight(status: PolicyBranchMissionProofStatus): number {
+  if (status === 'blocked') return 3;
+  if (status === 'no-signal') return 2;
+  if (status === 'pending') return 1;
+  return 0;
+}
+
+function worstBranchStatus(statuses: PolicyBranchMissionProofStatus[]): PolicyBranchMissionProofStatus {
+  return statuses.sort((a, b) => branchStatusWeight(b) - branchStatusWeight(a))[0] ?? 'no-signal';
+}
+
+function branchMissionTokens(story: BranchStoryArc, mission: BranchStoryArc['missions'][number]): string[] {
+  const stop = new Set(['with', 'plus', 'proof', 'mission', 'branch', 'first', 'into', 'from', 'that', 'this']);
+  return [
+    story.branchId,
+    mission.missionId,
+    mission.title,
+    mission.gate,
+    mission.dispatchTarget,
+  ].join(' ')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/g)
+    .filter((token) => token.length > 3 && !stop.has(token));
+}
+
+function branchMissionCandidates(branchStories: BranchStoryArc[] | undefined): PolicyBranchMissionCandidate[] {
+  return (branchStories ?? []).flatMap((story) => story.missions.map((mission) => {
+    const gate = story.gates.find((row) => row.gate.toLowerCase() === mission.gate.toLowerCase());
+    const tokens = branchMissionTokens(story, mission);
+    const approvals = story.controls.approvals.filter((approval) => {
+      const haystack = `${approval.permission} ${approval.requiredApproval} ${approval.failureMode}`.toLowerCase();
+      return tokens.some((token) => haystack.includes(token));
+    });
+    const permissionStatus = approvals.length > 0
+      ? worstBranchStatus(approvals.map((approval) => branchMissionProofStatus(approval.status)))
+      : 'no-signal';
+    const dispatch = story.controls.dispatchHints.find((hint) => {
+      const haystack = `${hint.route} ${hint.payloadHint} ${hint.allowedWhen} ${hint.blockedWhen}`.toLowerCase();
+      return haystack.includes(mission.missionId.toLowerCase()) ||
+        haystack.includes(mission.dispatchTarget.toLowerCase()) ||
+        mission.dispatchTarget.toLowerCase().includes(hint.route.toLowerCase());
+    });
+    const proofStatus = branchMissionProofStatus(gate?.status);
+    const approvalsRequired = approvals
+      .filter((approval) => approval.status !== 'verified')
+      .map((approval) => approval.requiredApproval || approval.permission)
+      .filter(Boolean);
+    return {
+      missionId: mission.missionId,
+      branchId: story.branchId,
+      title: mission.title,
+      gateStatus: branchMissionGateStatus(gate?.status),
+      proofRequired: mission.proofRequired || gate?.requiredProof || '',
+      risk: proofStatus === 'blocked' || permissionStatus === 'blocked' ? 'high' : proofStatus === 'verified' && permissionStatus === 'verified' ? 'low' : 'medium',
+      dependency: proofStatus === 'verified' && permissionStatus === 'verified' ? 'none' : 'blocked-by-external',
+      dispatchTarget: mission.dispatchTarget,
+      permissionStatus,
+      proofStatus,
+      dispatchAllowed: Boolean(dispatch),
+      autonomyBoundary: approvalsRequired.length > 0 ? story.controls.autonomyBoundary : '',
+      approvalsRequired,
+    };
+  }));
+}
+
 function derivePolicyEnvelope(
   stance: VisualEnvelope['stance'],
   skills: VisualEnvelope['skills'],
   ledger: QuestLedger,
   gateItems: PaperclipOpenItem[] = [],
   prioritySignals?: PolicyPrioritySignals,
+  branchStories?: BranchStoryArc[],
 ): VisualEnvelope['policy'] {
-  return evaluateOperatorPolicy({ ledger, stance, skills, gateItems, prioritySignals });
+  return evaluateOperatorPolicy({ ledger, stance, skills, gateItems, prioritySignals, branchMissions: branchMissionCandidates(branchStories) });
 }
 
 function flagValue(args: string[], name: string, def = ''): string {
@@ -2397,6 +2493,39 @@ function applySideQuestRuntime(
   };
 }
 
+function deriveBranchStoriesEnvelope(branchStories: BranchStoryArc[] | undefined): VisualEnvelope['branchStories'] {
+  const rows = branchStories ?? [];
+  if (rows.length === 0) {
+    return {
+      source: 'missing',
+      status: 'empty',
+      total: 0,
+      active: 0,
+      blocked: 0,
+      rows: [],
+      gaps: [{
+        id: 'product-branch-packets-missing',
+        status: 'pending',
+        detail: 'no product branch packets were loaded into QuestInputs',
+        source: 'QuestInputs.branchStories',
+      }],
+      gap: 'product branch packets missing or empty',
+    };
+  }
+  const gaps = rows.flatMap((row) => row.gaps);
+  const activeRow = rows.find((row) => row.promotion.state === 'supervised-branch' || row.promotion.state === 'organ-service') ?? rows[0];
+  return {
+    source: 'product-branch-packets@v1',
+    status: gaps.length > 0 ? 'partial' : 'ready',
+    total: rows.length,
+    active: rows.filter((row) => row.promotion.state !== 'proof-only').length,
+    blocked: gaps.filter((gap) => gap.status === 'blocked').length,
+    activeBranchId: activeRow.branchId,
+    rows,
+    gaps,
+  };
+}
+
 function deriveSideQuestEnvelope(
   wake: VisualEnvelope['wake'],
   stance: VisualEnvelope['stance'],
@@ -2565,12 +2694,13 @@ export function buildVisualEnvelope(
   const insights = deriveInsightEnvelope(ctx, tenant, ledger);
   const stance = deriveStanceEnvelope(inputs);
   const skills = deriveSkillsEnvelope(ctx, tenant);
-  const policy = derivePolicyEnvelope(stance, skills, ledger, meta.openItems, inputs.prioritySignals);
+  const policy = derivePolicyEnvelope(stance, skills, ledger, meta.openItems, inputs.prioritySignals, inputs.branchStories);
   const npc = deriveNpcEnvelope(ctx, tenant, inputs);
   const social = deriveSocialEnvelope(tenant, inputs, ledger, meta.openItems);
   const decisionContext = deriveDecisionContextEnvelope(inputs, meta.openItems);
   const liveProof = deriveLiveProofEnvelope(ctx, tenant);
   const sideQuestEvents = readSideQuestEvents(ctx, tenant);
+  const branchStories = deriveBranchStoriesEnvelope(inputs.branchStories);
   return {
     wake,
     lanes,
@@ -2584,6 +2714,7 @@ export function buildVisualEnvelope(
     decisionContext,
     liveProof,
     sideQuests: deriveSideQuestEnvelope(wake, stance, skills, policy, npc, ledger, meta.openItems, sideQuestEvents, meta.derivedAt),
+    branchStories,
   };
 }
 
@@ -2633,6 +2764,7 @@ export function gatherQuestInputs(ctx: QuineCtx, tenant: string): QuestInputs {
   if (prioritySignals && typeof prioritySignals === 'object' && prioritySignals.source === 'operator-priority-signals@v1') {
     inputs.prioritySignals = prioritySignals as PolicyPrioritySignals;
   }
+  inputs.branchStories = loadBranchStories(ctx, tenant);
   return inputs;
 }
 
@@ -2650,11 +2782,21 @@ const PUSH_URL_DEFAULT = 'https://curious.thoughtseed.space';
 function pushTokenFromEnvFile(explicit = ''): string | undefined {
   if (explicit) return explicit;
   if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
-  try {
-    const txt = readFileSync(process.env.CAMBIUM_ENV_FILE || join(process.env.HOME ?? '', '.config', 'cambium', '.env'), 'utf8');
-    const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
-    return line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim() || undefined;
-  } catch { return undefined; }
+  const home = process.env.HOME ?? '';
+  const envPaths = [
+    process.env.CAMBIUM_ENV_FILE,
+    join(home, '.config', 'cambium', '.env'),
+    join(home, '.claude', '.env'),
+  ].filter((path): path is string => !!path);
+  for (const envPath of envPaths) {
+    try {
+      const txt = readFileSync(envPath, 'utf8');
+      const line = txt.split('\n').find((l) => l.startsWith('QUESTS_PUSH_TOKEN='));
+      const token = line?.slice('QUESTS_PUSH_TOKEN='.length).replace(/^["']|["']$/g, '').trim();
+      if (token) return token;
+    } catch { /* try the next configured env file */ }
+  }
+  return undefined;
 }
 
 async function gateJson(

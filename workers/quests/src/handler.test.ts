@@ -329,6 +329,29 @@ function assertNoSecretLeak(html: string) {
   }
 }
 
+const PRIMARY_MISSION_COPY_DENYLIST = [
+  'scene provenance',
+  'ecosystem target',
+  'R3F',
+  'operator map',
+  'tapestry audit',
+  'contract',
+  'schema',
+  'envelope',
+  'quest-ledger',
+  'paperclipCommandsData',
+  'signed queue',
+  'no local state write',
+  'source route',
+  'no local operator writes',
+];
+
+function assertNoPrimaryMetaCopy(html: string) {
+  for (const term of PRIMARY_MISSION_COPY_DENYLIST) {
+    assert.doesNotMatch(html, new RegExp(escapeRegExp(term), 'i'), `primary copy leaked meta term: ${term}`);
+  }
+}
+
 function b64urlFromBytes(bytes: Uint8Array): string {
   let s = '';
   for (const b of bytes) s += String.fromCharCode(b);
@@ -1102,6 +1125,84 @@ test('get · sanitizes stale KV social gap fallback before public read', async (
   assert.doesNotMatch(get.body, /social proof|social-proof/i);
 });
 
+test('push · stale envelope cannot erase branchStories', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const fresh = JSON.stringify({
+    ...JSON.parse(ENVELOPE),
+    derivedAt: '2026-06-29T07:15:00.000Z',
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [
+        {
+          branchId: 'fitcheck',
+          name: 'Fitcheck',
+          arcTitle: 'Launch arc',
+          missions: [{ title: 'Launch proof packet', gate: 'Founder review', proofRequired: 'Viewport capture' }],
+        },
+      ],
+    },
+  });
+  const stale = JSON.stringify({
+    ...JSON.parse(PARTIAL_VISUAL_ENVELOPE),
+    derivedAt: '2026-06-29T07:10:00.000Z',
+  });
+
+  const freshPut = await handle(
+    req('POST', '/internal/ledger/cambium', { body: fresh, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(freshPut.status, 200);
+  const stalePut = await handle(
+    req('POST', '/internal/ledger/cambium', { body: stale, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(stalePut.status, 409);
+  assert.match(stalePut.body, /stale ledger push rejected/);
+
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  assert.match(get.body, /"branchId":"fitcheck"/);
+  assert.match(get.body, /"derivedAt":"2026-06-29T07:15:00.000Z"/);
+});
+
+test('push · branchStories cannot regress to missing rows', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const withBranchStories = JSON.stringify({
+    ...JSON.parse(ENVELOPE),
+    derivedAt: '2026-06-29T07:15:00.000Z',
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [
+        {
+          branchId: 'vantyx',
+          name: 'Vantyx',
+          arcTitle: 'Commerce intelligence arc',
+          missions: [{ title: 'Proof packet normalization', gate: 'Founder review', proofRequired: 'Packet validation' }],
+        },
+      ],
+    },
+  });
+  const newerWithoutBranchStories = JSON.stringify({
+    ...JSON.parse(ENVELOPE),
+    derivedAt: '2026-06-29T07:20:00.000Z',
+  });
+
+  const branchPut = await handle(
+    req('POST', '/internal/ledger/cambium', { body: withBranchStories, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(branchPut.status, 200);
+  const regressionPut = await handle(
+    req('POST', '/internal/ledger/cambium', { body: newerWithoutBranchStories, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(regressionPut.status, 409);
+  assert.match(regressionPut.body, /branchStories regression rejected/);
+
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  assert.match(get.body, /"branchId":"vantyx"/);
+  assert.match(get.body, /"derivedAt":"2026-06-29T07:15:00.000Z"/);
+});
+
 test('push · accepts stale partial visual envelopes without inventing missing sections', async () => {
   const kv = fakeKv();
   const deps = { kv, pushToken: 't' };
@@ -1137,10 +1238,37 @@ test('page · serves the Living Blueprint shell at /', async () => {
   assert.match(PAGE, /telegram-web-app\.js/);
 });
 
-test('page · five scenes with map tab and sliding indicator', () => {
-  for (const m of ['>Quests<', '>Map<', '>Story<', '>Gate<', '>Commands<', 'class="ind"', 'translateX']) {
+test('page · five scenes with Mission-first tabs and sliding indicator', () => {
+  for (const m of ['Mission Control', 'root-tab-label">Mission<', 'root-tab-label">Gate<', 'root-tab-label">Tools<', 'root-tab-label">Story<', 'root-tab-label">Inspect<', 'class="ind root-nav-indicator"', 'translateX']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
   }
+});
+
+test('page · root shell uses Mission Control component-system nav', () => {
+  for (const m of [
+    'data-component="MissionControlShell"',
+    'data-component="RootStatusStack"',
+    'data-component="RootNav"',
+    'data-component="RootSceneTab"',
+    'data-root-scene="mission"',
+    'data-root-scene="gate"',
+    'data-root-scene="tools"',
+    'data-root-scene="story"',
+    'data-root-scene="inspect"',
+    'data-nav-glyph="genesis"',
+    'data-nav-glyph="gate"',
+    'data-nav-glyph="ops"',
+    'data-nav-glyph="proof"',
+    'data-nav-glyph="cortex"',
+    'data-component="RootBrandGlyph"',
+    'root-tab-glyph',
+    'mc-signal-rail',
+    'data-component="MissionStateStack"',
+    'data-component="GateActionRow"',
+  ]) {
+    assert.ok(PAGE.includes(m), `page has root nav component ${m}`);
+  }
+  assert.doesNotMatch(PAGE, /<title>[^<]*quest log/i);
 });
 
 test('page · scene tabs expose source labels', () => {
@@ -1160,17 +1288,19 @@ test('page · scenes expose accessible titles', () => {
   }
 });
 
-test('page · active scene badge opens provenance sheet', async () => {
+test('page · active scene badge opens view details sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
-  (rendered.context.go as (index: number) => void)(1);
+  (rendered.context.go as (index: number) => void)(4);
   const badge = rendered.elements.get('sceneBadge')!;
-  assert.equal(badge.textContent, 'Map');
+  assert.equal(badge.textContent, 'Inspect');
   (badge.onclick as () => void)();
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /scene provenance · map/);
-  assert.match(sheet, /scene source<\/b><span>tg-miniapp-scenes@v1/);
-  assert.match(sheet, /ecosystem target<\/b><span>r3f/);
-  assert.match(sheet, /refresh rule<\/b><span>pull-to-refresh re-fetches \/api\/quests\/cambium and does not write operator state/);
+  assert.match(sheet, /view details · inspect/);
+  assert.match(sheet, /Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow/);
+  assert.match(sheet, /view<\/b><span>tg-miniapp-scenes@v1/);
+  assert.match(sheet, /target<\/b><span>cambium-worker/);
+  assert.match(sheet, /refresh<\/b><span>Pull to refresh updates \/api\/quests\/cambium/);
+  assert.doesNotMatch(sheet, /scene provenance|ecosystem target|local operator writes/);
 });
 
 test('page · scene and refresh provenance follow the active tenant', async () => {
@@ -1180,15 +1310,15 @@ test('page · scene and refresh provenance follow the active tenant', async () =
   assert.match(rendered.elements.get('ptrProof')!.textContent, /\/api\/quests\/acme/);
   assert.deepEqual(rendered.fetchCalls.slice(-1), ['/api/quests/acme']);
   (rendered.elements.get('sceneBadge')!.onclick as () => void)();
-  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /re-fetches \/api\/quests\/acme and does not write operator state/);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /Pull to refresh updates \/api\/quests\/acme/);
 });
 
 test('mini app surface contract · exports current scene ids', () => {
-  assert.deepEqual(MINI_APP_SCENE_IDS, ['quests', 'map', 'story', 'gate', 'commands']);
+  assert.deepEqual(MINI_APP_SCENE_IDS, ['mission', 'gate', 'tools', 'story', 'inspect']);
 });
 
 test('mini app surface contract · maps ecosystem targets', () => {
-  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'skills', 'gtm', 'distribution', 'vault-via-paperclip', 'live-proof']) {
+  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'skills', 'gtm', 'distribution', 'vault-via-paperclip', 'live-proof', 'product-branches']) {
     assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(target as never), `target ${target} is inventoried`);
   }
 });
@@ -1198,7 +1328,7 @@ test('mini app surface contract · exports interaction kind ids', () => {
 });
 
 test('mini app surface contract · inventories current page sections', () => {
-  assert.deepEqual(MINI_APP_SECTION_IDS, ['quest-line', 'operator-map', 'story-feed', 'founder-gate', 'command-center']);
+  assert.deepEqual(MINI_APP_SECTION_IDS, ['mission-control', 'founder-gate', 'operator-toolbelt', 'story-feed', 'inspect']);
 });
 
 test('mini app surface contract · inventories operator map subsections', () => {
@@ -1210,6 +1340,12 @@ test('mini app surface contract · inventories operator map subsections', () => 
     'policy',
     'decision-context',
     'live-proof',
+    'branches',
+    'branch-arcs',
+    'branch-missions',
+    'branch-kpis',
+    'branch-gates',
+    'branch-proof',
     'side-quests',
     'coordination',
     'senses',
@@ -1223,9 +1359,16 @@ test('mini app surface contract · inventories operator map subsections', () => 
 
 test('mini app surface contract · records section interaction semantics', () => {
   const byId = Object.fromEntries(MINI_APP_SECTIONS.map((section) => [section.id, section]));
-  assert.deepEqual(byId['command-center'], {
-    id: 'command-center',
-    scene: 'commands',
+  assert.deepEqual(byId['mission-control'], {
+    id: 'mission-control',
+    scene: 'mission',
+    target: 'product-branches',
+    interactions: { primary: 'sheet' },
+    source: 'product-branch-packets@v1 plus quest-ledger-envelope@v1',
+  });
+  assert.deepEqual(byId['operator-toolbelt'], {
+    id: 'operator-toolbelt',
+    scene: 'tools',
     target: 'hermes',
     interactions: {
       primary: 'sheet',
@@ -1256,10 +1399,29 @@ test('mini app surface contract · records section interaction semantics', () =>
     },
     source: 'served beats or complete quest rows',
   });
+  assert.deepEqual(byId.inspect, {
+    id: 'inspect',
+    scene: 'inspect',
+    target: 'cambium-worker',
+    interactions: { primary: 'sheet' },
+    source: 'shared/cambium-visual-contract.ts and served visual envelope proofs',
+  });
 });
 
 test('mini app surface contract · records map subsection interaction semantics', () => {
   const byId = Object.fromEntries(MINI_APP_MAP_SUBSECTIONS.map((section) => [section.id, section]));
+  assert.deepEqual(byId.branches, {
+    id: 'branches',
+    target: 'product-branches',
+    interactions: { primary: 'sheet' },
+    source: 'product-branch-packets@v1 branch stories',
+  });
+  assert.deepEqual(byId['branch-proof'], {
+    id: 'branch-proof',
+    target: 'product-branches',
+    interactions: { primary: 'external-proof' },
+    source: 'BranchStoryArc proof foldback',
+  });
   assert.deepEqual(byId.skills, {
     id: 'skills',
     target: 'skills',
@@ -1310,10 +1472,10 @@ test('page audit helper · real rendered pseudo-button rows declare interaction 
 
   assertNoInertPseudoButtons(html);
   assert.match(html, /class="rail [^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
-  assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="quest-ledger")/);
-  assert.match(html, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="paperclipCommandsData")/);
-  assert.match(html, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")(?=[^>]*data-source="curios\.self-chat-command")/);
-  assert.match(html, /class="cmd ref"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="curios\.self-command-reference")/);
+  assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="mission-story@v1")/);
+  assert.match(html, /class="cmd live[^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="mission-toolbelt-live@v1")/);
+  assert.match(html, /class="cmd act[^"]*"(?=[^>]*data-interaction-kind="chat-command")(?=[^>]*data-source="curios\.self-chat-command")/);
+  assert.match(html, /class="cmd ref[^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="curios\.self-command-reference")/);
 });
 
 test('page · story beats are clickable sheets with ecosystem provenance', async () => {
@@ -1333,29 +1495,40 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   };
   const rendered = await renderPageFixtureContext(envelope);
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
-  const rows = [...storyHtml.matchAll(/<div class="beat[^"]*"[^>]*>/g)].map((match) => match[0]);
+  const rows = [...storyHtml.matchAll(/<button type="button" class="beat[^"]*"[^>]*>/g)].map((match) => match[0]);
 
   assert.equal(rows.length, envelope.beats.length);
-  for (const [index, row] of rows.entries()) {
-    assert.match(row, new RegExp(`data-beat="${index}"`));
+  for (const group of ['mission-wins', 'new-signals', 'lessons', 'drift']) {
+    assert.match(storyHtml, new RegExp(`data-component="StoryGroup"[^>]*data-story-group="${group}"`));
+  }
+  assert.match(storyHtml, /data-component="StoryBeatCard"/);
+  assert.match(storyHtml, /data-component="StoryLatestChangeHero"/);
+  assert.match(storyHtml, /data-component="StoryGroupControls"/);
+  assert.match(storyHtml, /data-component="StoryBranchFilterChips"/);
+  assert.match(storyHtml, /data-component="StoryDigestCards"/);
+  assert.match(storyHtml, /data-component="StoryTimelineRail"/);
+  assert.match(storyHtml, /data-component="StoryPacketTrail"/);
+  assert.match(PAGE, /data-story-warning="contradiction"/);
+  assert.match(storyHtml, /data-component="MissionGlyph"/);
+  assert.match(storyHtml, /data-component="StateToken"/);
+  const beatIndexes = rows.map((row) => row.match(/data-beat="(\d+)"/)?.[1]).sort();
+  assert.deepEqual(beatIndexes, ['0', '1', '2', '3', '4']);
+  for (const row of rows) {
     assert.match(row, /data-interaction-kind="sheet"/);
   }
-  for (const [lane, target] of [
-    ['heartbeat', 'quine'],
-    ['paperclip', 'paperclip'],
-    ['forge', 'operator-skills'],
-    ['noesis', 'operator-narrative'],
-    ['quest', 'quest-ledger'],
-  ]) {
-    assert.match(storyHtml, new RegExp(`data-lane="${lane}"(?=[^>]*data-ecosystem-target="${target}")`));
+  for (const lane of ['heartbeat', 'paperclip', 'forge', 'noesis', 'quest']) {
+    assert.match(storyHtml, new RegExp(`data-lane="${lane}"(?=[^>]*data-ecosystem-target="operator-narrative")`));
   }
 
   (rendered.context.openStoryBeat as (index: number) => void)(3);
   const noesisSheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(noesisSheet, /story beat · noesis/);
+  assert.match(noesisSheet, /story beat · drift/);
+  assert.match(noesisSheet, /group<\/b><span>Drift/);
   assert.match(noesisSheet, /lane<\/b><span>noesis/);
   assert.match(noesisSheet, /text<\/b><span>The mid-brain woke/);
   assert.match(noesisSheet, /source<\/b><span>deviations/);
+  assert.match(noesisSheet, /context link<\/b><span>inspect/);
+  assert.match(noesisSheet, /Open Inspect/);
   assert.match(noesisSheet, /action<\/b><span>read-only story row; no execution action/);
   assert.doesNotMatch(noesisSheet, /data-kind="approve"|data-kind="reroll"|data-promote-skill|data-queue-side-quest/);
 
@@ -1366,7 +1539,7 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
 });
 
-test('page · empty story names complete quest fallback source', async () => {
+test('page · empty story names mission movement wait state', async () => {
   const rendered = await renderPageFixtureContext({
     schema: 1,
     tenant: 'cambium',
@@ -1382,9 +1555,11 @@ test('page · empty story names complete quest fallback source', async () => {
   });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
 
-  assert.match(storyHtml, /Story waiting for complete quest rows/);
-  assert.match(storyHtml, /falls back to complete quest rows from quest-ledger/);
-  assert.match(storyHtml, /data-source="quest-ledger"/);
+  assert.match(storyHtml, /Story is waiting for mission movement/);
+  assert.match(storyHtml, /New wins, signals, lessons, and drift/);
+  assert.match(storyHtml, /data-source="mission-story@v1"/);
+  assert.match(storyHtml, /data-story-empty-action="mission"/);
+  assert.match(storyHtml, /data-story-empty-action="inspect"/);
   assert.doesNotMatch(storyHtml, /class="beat/);
 });
 
@@ -1393,28 +1568,62 @@ test('page audit helper · mini app shell does not expose secret markers', () =>
 });
 
 test('page · supports scene deep links for viewport proofs', () => {
-  for (const m of ["PARAMS.get('scene')", 'START_SCENE', 'map:1', 'gate:3', 'commands:4', 'go(START_SCENE, true)']) {
+  for (const m of ["PARAMS.get('scene')", 'START_SCENE', 'mission:0', 'gate:1', 'tools:2', 'commands:2', 'story:3', 'inspect:4', 'map:4', 'components:4', 'go(START_SCENE, true)']) {
     assert.ok(PAGE.includes(m), `page has scene deep link ${m}`);
   }
 });
 
-test('page · interaction layer: sheet, haptics, operator map cards', () => {
+test('page · interaction layer: sheet, haptics, inspect cards', () => {
   assert.match(PAGE, /class="sheet"/);
   assert.match(PAGE, /HapticFeedback/);
   assert.match(PAGE, /openSheet/);
   assert.match(PAGE, /openMapSheet/);
   assert.match(PAGE, /querySelectorAll\('\.sense'\)\.forEach\(el => el\.onclick = \(\) => openSenseSheet/);
   assert.match(PAGE, /querySelectorAll\('\[data-lane\]'\)\.forEach\(el => el\.onclick = \(\) => openLaneSheet/);
+  assert.match(PAGE, /function isInteractiveSceneTarget/);
+  assert.match(PAGE, /if \(isInteractiveSceneTarget\(e\.target\)\) return;/);
+  assert.match(PAGE, /\.mc-action-row\{position:static;/);
+  assert.match(PAGE, /data-component="GateActionRow"/);
+  assert.doesNotMatch(PAGE, /\.mc-action-row\{position:sticky/);
   assert.match(PAGE, /data-sense=\|data-lane=/);
   assert.match(PAGE, /renderOperatorMap/);
-  assert.match(PAGE, /Operator Map/);
+  assert.match(PAGE, /Inspect/);
   assert.match(PAGE, /stage-card/);
 });
 
 test('page · commands track Hermes services in the mini app', () => {
   assert.match(PAGE, /ts-hermes/);
-  assert.match(PAGE, /Hermes timers and Telegram brain/);
-  assert.match(PAGE, /services/);
+  assert.match(PAGE, /Check timers and service health/);
+  assert.match(PAGE, /Ask/);
+  assert.match(PAGE, /Act/);
+  assert.match(PAGE, /Coordinate/);
+  assert.match(PAGE, /Report/);
+});
+
+test('page · Tools renders mission-effect cards before command syntax', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+  });
+  (rendered.context.renderCommands as () => void)();
+  const toolsHtml = rendered.elements.get('cmds')!.innerHTML;
+
+  for (const group of ['Act', 'Ask', 'Report', 'Coordinate']) {
+    assert.match(toolsHtml, new RegExp(`<div class="cmdgrp">${group}<\\/div>`));
+  }
+  assert.match(toolsHtml, /data-component="ToolActionCard"/);
+  assert.match(toolsHtml, /data-component="ToolRecommendationPanel"/);
+  assert.match(toolsHtml, /data-component="ToolGroupSegmentedControl"/);
+  assert.match(toolsHtml, /data-component="ToolContextChips"/);
+  assert.match(toolsHtml, /data-component="ToolRecentStrip"/);
+  assert.match(toolsHtml, /data-tool-group="Act"/);
+  assert.match(PAGE, /data-disabled-reason="live command data unavailable"/);
+  assert.match(toolsHtml, /data-inspect-target="tools"/);
+  assert.match(toolsHtml, /data-component="MissionGlyph"/);
+  assert.match(toolsHtml, /data-component="StateToken"/);
+  assert.match(toolsHtml, /Mission effect<\/b>Assign the next mission step[\s\S]*<span class="cname">\/ts-run<\/span>/);
+  assert.match(toolsHtml, /Mission effect<\/b>Check timers and service health[\s\S]*<span class="cname">\/ts-hermes<\/span>/);
+  assertNoPrimaryMetaCopy(toolsHtml);
+  assert.doesNotMatch(toolsHtml, /paperclipCommandsData|gateway|debug/i);
 });
 
 test('page · command reference, action, and digest cards open inspectable copy sheets', async () => {
@@ -1429,6 +1638,8 @@ test('page · command reference, action, and digest cards open inspectable copy 
   assert.match(sheet, /command · read-only/);
   assert.match(sheet, /chat syntax<\/b><span>\/ts-agent &lt;name&gt;/);
   assert.match(sheet, /source<\/b><span>curios\.self-command-reference/);
+  assert.match(sheet, /payload preview<\/b><span>\/ts-agent &lt;name&gt;/);
+  assert.match(sheet, /data-component="ToolSafetyRow"/);
   assert.match(sheet, /Copy command text/);
   assert.doesNotMatch(sheet, /data-gate-confirm|data-signed-action-entrypoint|\/api\/gate|bot response|sent to bot/i);
 
@@ -1547,8 +1758,161 @@ test('page · craft: skeleton, states, reduced motion, no pure black, no emoji i
   assert.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(PAGE), 'no emoji glyphs');
 });
 
-test('page · R3F mechanics ported as lightweight operator map', () => {
-  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'memory feed', 'no canvas, no heavy scene']) {
+test('page · Mission Control visual primitives are named and reduced-motion safe', () => {
+  for (const marker of [
+    'data-component="RootNavGlyph"',
+    'data-component="MissionGlyph"',
+    'data-component="StateToken"',
+    'data-component="OrbitProgress"',
+    'data-component="SignalRail"',
+    'data-component="PacketFlow"',
+    'data-component="ComponentGallery"',
+    'ComponentGlyphStateBoard',
+    'ComponentStateBoard',
+    'ComponentOrbitProgressBoard',
+    'ComponentMissionComponentsBoard',
+    'ComponentMotionPrimitives',
+    'ComponentLegend',
+    'data-component="GlyphAsset"',
+    'data-component="StateAsset"',
+    'data-component="OrbitProgressAsset"',
+    'data-component="MotionPrimitive"',
+    'data-component="LegendAsset"',
+    'data-component="BranchArcChip"',
+    'data-component="MissionCard"',
+    'data-component="QuestlineTimeline"',
+	    'data-component="ProofList"',
+	    'data-component="KpiPulse"',
+	    'data-component="ToolActionCard"',
+	    'data-component="StoryGroup"',
+	    'data-component="StoryBeatCard"',
+	    'data-component="InspectGroupStack"',
+	    'data-component="InspectGroup"',
+	    'mc-branch-chip',
+    'mc-glyph',
+    'mc-state-token',
+    'mc-orbit',
+    'mc-signal-rail',
+    'mc-packet-dots',
+    'mc-mission-card',
+    'mc-proof-list',
+    'mc-kpi-pulse',
+    'mc-action-row',
+    'mc-inspect-only',
+    'MC_COMPONENT_REGISTRY',
+    'MC_GLYPH_SVG',
+    'data-glyph-kind',
+    'mcStateKind',
+    'mcClass',
+    'mcGlyphSvg',
+    'mcStateToken',
+    'mcOrbitProgress',
+    'mcSignalRail',
+    'mcPacketDots',
+    'mcBoardPanel',
+    'renderComponentGallery',
+    'renderComponentGlyphStateBoard',
+    'renderComponentStateBoard',
+    'renderComponentOrbitBoard',
+    'renderComponentMissionComponentsBoard',
+    'renderComponentMotionBoard',
+    'renderComponentLegendBoard',
+    'orbitSweep',
+    'packetDrift',
+    'glyphBreathe',
+    'warningAttention',
+    '.mc-orbit::after,.mc-packet-dots,.mc-kpi-pulse,.mc-state-token{animation:none!important}',
+  ]) assert.ok(PAGE.includes(marker), `PAGE has ${marker}`);
+
+  const glyphHelper = PAGE.slice(PAGE.indexOf('function mcGlyphSvg'), PAGE.indexOf('function mcStateToken'));
+  assert.match(glyphHelper, /MC_GLYPH_SVG\[glyph\]/);
+  assert.doesNotMatch(glyphHelper, />[✦⊂△▱◖◌◎○]</);
+  assert.doesNotMatch(PAGE, />[✦◇▱◌○]</);
+  for (const glyph of ['genesis', 'taste', 'build', 'ops', 'cortex', 'arc', 'proof', 'gate']) {
+    assert.match(PAGE, new RegExp(`${glyph}:'<svg viewBox="0 0 32 32"`));
+  }
+});
+
+test('page · component route renders the reference glyph state board as components', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=components',
+  });
+  const html = rendered.elements.get('mapwrap')!.innerHTML;
+
+  assert.equal(rendered.elements.get('sceneBadge')!.textContent, 'Components');
+  assert.equal(rendered.elements.get('sceneBadge')!.dataset.scene, 'components');
+  for (const marker of [
+    'data-component="ComponentGallery"',
+    'data-source="01-component-glyph-state-board.png"',
+    'data-component="ComponentGlyphStateBoard"',
+    'data-component="ComponentStateBoard"',
+    'data-component="ComponentOrbitProgressBoard"',
+    'data-component="ComponentMissionComponentsBoard"',
+    'data-component="ComponentMotionPrimitives"',
+    'data-component="ComponentLegend"',
+    'data-glyph-kind="genesis"',
+    'data-glyph-kind="taste"',
+    'data-glyph-kind="build"',
+    'data-glyph-kind="ops"',
+    'data-glyph-kind="cortex"',
+    'data-glyph-kind="arc"',
+    'data-glyph-kind="proof"',
+    'data-glyph-kind="gate"',
+    'data-state="reduced-motion"',
+    'data-motion="orbitSweep"',
+    'data-motion="packetDrift"',
+    'data-motion="glyphBreathe"',
+    'data-motion="warningAttention"',
+    'data-motion="reducedMotion"',
+    'data-component="BranchArcChip"',
+    'data-component="MissionCard"',
+    'data-component="QuestlineTimeline"',
+    'data-component="ProofList"',
+    'data-component="KpiPulse"',
+    'data-component="GateActionRow"',
+    'data-component="LegendAsset"',
+  ]) assert.ok(html.includes(marker), `component board rendered ${marker}`);
+
+  for (const label of ['Glyph State Board', 'Orbit Progress', 'Mission Components', 'Motion Primitives', 'Legend', 'Triangle aperture', 'Curled receipt']) {
+    assert.match(html, new RegExp(label, 'i'));
+  }
+});
+
+test('page · primary flow does not render the hidden component gallery as the app', async () => {
+  const rendered = await renderPageFixtureContext({
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        questline: [{ id: 'proof', title: 'Collect proof', status: 'active' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [{ kpiId: 'proof', label: 'Proof', survival: 'viewport proof', currentState: 'pending' }],
+        proofPaths: [{ proofId: 'viewport', validates: 'Viewport capture', promotes: 'supervised branch' }],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+        gaps: [{ id: 'proof-gap', status: 'blocked', detail: 'Viewport capture missing', source: 'packet' }],
+      }],
+    },
+    beats: [{ text: 'Launch proof packet moved forward', lane: 'quest', source: 'quest-ledger' }],
+  });
+  const primaryHtml = [
+    rendered.elements.get('stem')!.innerHTML,
+    rendered.elements.get('mapwrap')!.innerHTML,
+    rendered.elements.get('beats')!.innerHTML,
+  ].join('');
+
+  assert.doesNotMatch(primaryHtml, /data-component="ComponentGallery"/);
+  assert.doesNotMatch(primaryHtml, /Glyph State Board|ComponentGlyphStateBoard|Motion Primitives|ComponentLegend/);
+  assert.match(primaryHtml, /data-component="MissionCard"/);
+  assert.match(primaryHtml, /data-component="StoryGroup"/);
+  assert.match(primaryHtml, /data-component="InspectGroup"/);
+});
+
+test('page · shared visual mechanics remain available inside Inspect', () => {
+  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'Proof, packet, freshness, and system detail', 'Inspect keeps the low-level proof rows']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
   }
   for (const stage of CAMBIUM_VISUAL_STAGES) {
@@ -1560,8 +1924,36 @@ test('page · R3F mechanics ported as lightweight operator map', () => {
   }
 });
 
-test('page · visual tapestry layer exposes wake, lanes, stance, policy, decision context, live proof, side quests, social, skills, companions, evidence boxes, and gaps', () => {
-  for (const m of ['renderTapestryAudit', 'tapestry audit', 'data-tapestry', 'completion definition · ', 'ACTIVE ORGAN', 'R3F CONTRACT', 'wakeSteps', 'today wake', 'data-wake', 'wake step · ', 'wake history', 'operator wake events', 'latest snapshot, not a historical trace', 'renderLanes', 'lane · ', 'renderStance', 'tenant stance · ', 'renderPolicy', 'next action', 'POLICY GAP', 'caution ', 'renderDecisionContext', 'decision context', 'decision context · ', 'policy authority', 'renderLiveProof', 'live proof', 'data-live-proof', 'capture plan · not proof', 'proof only after', 'renderSideQuests', 'side quests', 'side quest · ', 'Queue side quest', 'queue-side-quest', 'side quest ledger remains unchanged', 'owner', 'action', 'target', 'lifetime', 'completion', 'trigger', 'proof', 'renderSocial', 'coordination', 'coordination · ', 'SOCIAL GAP', 'tenant-handoff-only', 'renderSenses', 'sense · ', 'senseEnv', 'renderInsightBoxes', 'evidence boxes', 'insightEnv', 'no quest evidence rows served', 'source', 'skill labors', 'tierLabel', 'UNPROVEN', 'recentRate', 'promotion:', 'companions', 'companion · ', 'stage', 'scope', 'advice proof', 'history', 'no relationship events served', 'awaiting signal', 'explicit gap']) {
+test('page · Inspect groups proof detail without becoming primary flow', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+  });
+  const inspectHtml = rendered.elements.get('mapwrap')!.innerHTML;
+
+  assert.match(inspectHtml, /data-component="InspectGroupStack"/);
+  for (const group of ['freshness', 'policy', 'live-proof', 'branch-packets', 'gates', 'tools', 'rails', 'evidence']) {
+    assert.match(inspectHtml, new RegExp(`data-component="InspectGroup"[^>]*data-inspect-group="${group}"`));
+  }
+  assert.match(inspectHtml, /data-inspect-target="tools"/);
+  assert.match(inspectHtml, /data-component="InspectProofSummaryAction"/);
+  assert.match(inspectHtml, /data-inspect-summary="1"/);
+  assert.match(inspectHtml, /Inspect keeps the low-level proof rows out of Mission, Gate, Tools, and Story/);
+  (rendered.context.openInspectGroupSheet as (id: string, env: unknown) => void)('tools', FRESH_ECOSYSTEM_VISUAL_FIXTURE);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /inspect · tools/);
+  assert.match(sheet, /debug layer<\/b><span>Inspect keeps proof and architecture details behind the main app flow/);
+  assert.match(sheet, /related page<\/b><span>Tools/);
+  assert.match(sheet, /data-inspect-page-link="tools"/);
+
+  (rendered.context.openInspectSummarySheet as (env: unknown) => void)(FRESH_ECOSYSTEM_VISUAL_FIXTURE);
+  const summarySheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(summarySheet, /Proof Summary/);
+  assert.match(summarySheet, /redaction rule<\/b><span>no raw initData, bearer token, or secret value/);
+  assert.match(summarySheet, /data-copy-proof-summary=/);
+});
+
+test('page · visual tapestry layer exposes wake, lanes, stance, policy, decision context, live proof, branch stories, side quests, social, skills, companions, evidence boxes, and gaps', () => {
+  for (const m of ['renderTapestryAudit', 'data-tapestry', 'completion definition · ', 'ACTIVE ORGAN', 'R3F CONTRACT', 'wakeSteps', 'wake', 'data-wake', 'wake step · ', 'wake history', 'operator wake events', 'latest snapshot, not a historical trace', 'renderLanes', 'lane · ', 'renderStance', 'tenant stance · ', 'renderPolicy', 'policy', 'POLICY GAP', 'caution ', 'renderDecisionContext', 'decision context', 'decision context · ', 'policy authority', 'renderLiveProof', 'live proof', 'data-live-proof', 'capture plan · not proof', 'proof only after', 'renderBranches', 'branch packets', 'missions', 'KPIs', 'gates', 'proof paths', 'openBranchMissionSheet', 'product-branch-packets@v1', 'product-branches', 'renderSideQuests', 'side quests', 'side quest · ', 'Queue side quest', 'queue-side-quest', 'side quest ledger remains unchanged', 'owner', 'action', 'target', 'lifetime', 'completion', 'trigger', 'proof', 'renderSocial', 'coordination', 'coordination · ', 'SOCIAL GAP', 'tenant-handoff-only', 'renderSenses', 'sense · ', 'senseEnv', 'renderInsightBoxes', 'evidence', 'insightEnv', 'no quest evidence rows served', 'source', 'skill labors', 'tierLabel', 'UNPROVEN', 'recentRate', 'promotion:', 'companions', 'companion · ', 'stage', 'scope', 'advice proof', 'history', 'no relationship events served', 'awaiting signal', 'explicit gap']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
   }
   for (const step of CAMBIUM_WAKE_STEPS) assert.match(PAGE, new RegExp(`"id":"${step.id}"`));
@@ -1570,13 +1962,13 @@ test('page · visual tapestry layer exposes wake, lanes, stance, policy, decisio
 });
 
 test('page · visual layer guards stale and partial envelopes', () => {
-  for (const m of ['env.wake && Array.isArray', 'env.lanes || {}', 'env.senses || {}', 'env.insights || {}', 'env.stance || {}', 'env.policy || {}', 'env.decisionContext || {}', 'env.liveProof || {}', 'env.sideQuests || {}', 'env.social || {}', 'env.skills || {}', 'env.npc || {}', 'age > 360', 'freshness missing']) {
+  for (const m of ['env.wake && Array.isArray', 'env.lanes || {}', 'env.senses || {}', 'env.insights || {}', 'env.stance || {}', 'env.policy || {}', 'env.decisionContext || {}', 'env.liveProof || {}', 'env.branchStories || {}', 'env.sideQuests || {}', 'env.social || {}', 'env.skills || {}', 'env.npc || {}', 'age > 360', 'freshness missing']) {
     assert.ok(PAGE.includes(m), `page has partial/stale guard ${m}`);
   }
 });
 
 test('page · gate chamber previews consequence, reversibility, evidence, and idempotency', () => {
-  for (const m of ['gateSource', 'gateOwner', 'gateUpdatedAt', 'gateEvidence', 'gateReversibility', 'gateQueueConsequence', 'isGateAuthFailure', 'gateConsequence', 'gateIdempotency', 'approveConsequence', 'rerollConsequence', 'idempotencyHint', 'idempotencyKey', 'reversible until consumed']) {
+  for (const m of ['GateChamber', 'GateMissionCard', 'GateStateStack', 'GateOrbitProgress', 'GateActionCard', 'GateEmptyState', 'GateBranchFilterChips', 'GateRowExpansionDetails', 'gateSource', 'gateOwner', 'gateUpdatedAt', 'gateEvidence', 'gateReversibility', 'gateQueueConsequence', 'renderGateItem', 'renderGateEmpty', 'renderGateFilters', 'openGateDetailSheet', 'isGateAuthFailure', 'gateConsequence', 'gateIdempotency', 'approveConsequence', 'rerollConsequence', 'idempotencyHint', 'idempotencyKey', 'reversible until consumed']) {
     assert.ok(PAGE.includes(m), `page has gate preview ${m}`);
   }
   assert.match(PAGE, /data-signed-action-entrypoint="approve"/);
@@ -1590,8 +1982,10 @@ test('page · empty gate names internal source and no open items', async () => {
   const gate = rendered.elements.get('gate')!.innerHTML;
 
   assert.match(gate, /data-gate-state="empty"/);
-  assert.match(gate, /source route \/internal\/gate\/cambium/);
-  assert.match(gate, /no open items waiting/);
+  assert.match(gate, /no founder decisions waiting/);
+  assert.match(gate, /data-gate-empty-nav="mission"/);
+  assert.match(gate, /data-gate-empty-nav="inspect"/);
+  assert.doesNotMatch(gate, /source route/);
 });
 
 test('page · unreachable gate names network failure and no local queue write', async () => {
@@ -1604,7 +1998,7 @@ test('page · unreachable gate names network failure and no local queue write', 
   assert.match(gate, /no local queue write/);
 });
 
-test('page · gate item cards show Paperclip source and queue-only fields', async () => {
+test('page · gate item cards show decision mission proof and queue-only fields', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     openItems: [{
@@ -1623,14 +2017,26 @@ test('page · gate item cards show Paperclip source and queue-only fields', asyn
   const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
   const gate = rendered.elements.get('gate')!.innerHTML;
 
-  assert.match(gate, /Paperclip source<\/b><span>Paperclip · paperclip-open-items/);
-  assert.match(gate, /owner<\/b><span>Mathis/);
-  assert.match(gate, /updatedAt<\/b><span>2026-06-22T00:00:00.000Z/);
-  assert.match(gate, /evidence<\/b><span>THO-9 blocked by launch copy review/);
-  assert.match(gate, /consequence<\/b><span>approve: queue founder approval for THO-9/);
-  assert.match(gate, /reversibility<\/b><span>queued action can be superseded until consumed/);
-  assert.match(gate, /idempotency<\/b><span>approve:cambium:THO-9:blocked:2026-06-22T00:00:00.000Z/);
-  assert.doesNotMatch(gate, /Paperclip execution|before execution|executed by the org/);
+  assert.match(gate, /Decision waiting<\/b><span>THO-9/);
+  assert.match(gate, /Branch \/ mission<\/b><span>branch not served · Review launch copy/);
+  assert.match(gate, /Proof attached<\/b><span>THO-9 blocked by launch copy review/);
+  assert.match(gate, /Approve consequence<\/b><span>queue founder approval for THO-9/);
+  assert.match(gate, /Reroll consequence<\/b><span>queue founder reroll request for THO-9/);
+  assert.match(gate, /Reversibility<\/b><span>queued action can be superseded until consumed/);
+  assert.match(gate, /detail sheets carry audit proof/);
+  assert.match(gate, /data-component="GateBranchFilterChips"/);
+  assert.match(gate, /data-component="GateRowExpansionDetails"/);
+  assert.match(gate, /data-gate-detail="1"/);
+  assert.match(gate, /data-interaction-kind="signed-action"/);
+  assert.doesNotMatch(gate, /origin ·|Paperclip execution|before execution|executed by the org|source route|initData|\/api\/gate/);
+
+  (rendered.context.openGateDetailSheet as (node: unknown) => void)({ dataset: { i: '0', id: 'THO-9' } });
+  const detailSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(detailSheet, /gate detail · proof/);
+  assert.match(detailSheet, /proof attached<\/b><span>THO-9 blocked by launch copy review/);
+  assert.match(detailSheet, /sync state<\/b><span>ready for founder review|sync state<\/b><span>blocked until proof resolves/);
+  assert.match(detailSheet, /data-gate-detail-nav="mission"/);
+  assert.match(detailSheet, /data-gate-detail-nav="inspect"/);
 });
 
 test('page · gate consequence sanitizer rewrites direct Paperclip mutation wording', async () => {
@@ -1652,8 +2058,7 @@ test('page · gate consequence sanitizer rewrites direct Paperclip mutation word
   const gate = rendered.elements.get('gate')!.innerHTML;
   const node = { dataset: { i: '0', id: 'THO-9' }, style: {} };
 
-  assert.match(gate, /approve: queue founder approval for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
-  assert.match(gate, /reroll: queue founder reroll request for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
+  assert.match(gate, /queue founder approval for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
   assert.doesNotMatch(gate, /changes Paperclip handling/);
   assert.doesNotMatch(gate, /queue founder decision changes/);
 
@@ -1692,6 +2097,9 @@ test('page · approve and reroll gate preflight sheets do not POST before confir
   assert.match(approveSheet, /evidence<\/b><span>THO-9 blocked by launch copy review/);
   assert.match(approveSheet, /consequence<\/b><span>queue founder approval for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
   assert.match(approveSheet, /reversibility<\/b><span>queued action can be superseded until consumed/);
+  assert.match(approveSheet, /source<\/b><span>Paperclip/);
+  assert.match(approveSheet, /source route<\/b><span>\/api\/gate\/cambium/);
+  assert.match(approveSheet, /initData status<\/b><span>missing until opened inside Telegram/);
   assert.match(approveSheet, /idempotency<\/b><span>approve:cambium:THO-9:blocked/);
   assert.match(approveSheet, /data-gate-confirm="approve"/);
   assert.equal(rendered.fetchCalls.length, fetchCount);
@@ -1700,9 +2108,15 @@ test('page · approve and reroll gate preflight sheets do not POST before confir
   const rerollSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(rerollSheet, /<h2>Reroll Gate Item<\/h2>/);
   assert.match(rerollSheet, /action kind<\/b><span>reroll/);
+  assert.match(rerollSheet, /consequence<\/b><span>queue founder reroll request for THO-9; no Paperclip\/org mutation until the operator consumes the queue/);
   assert.match(rerollSheet, /idempotency<\/b><span>reroll:cambium:THO-9:blocked/);
   assert.match(rerollSheet, /data-gate-confirm="reroll"/);
   assert.equal(rendered.fetchCalls.length, fetchCount);
+});
+
+test('page · Gate warning attention rests after one pass', () => {
+  assert.match(PAGE, /warningAttention 2\.4s var\(--ease\) 1 both/);
+  assert.doesNotMatch(PAGE, /warningAttention 2\.4s var\(--ease\) infinite/);
 });
 
 test('page · gate auth and duplicate results open explicit sheets', async () => {
@@ -1727,6 +2141,8 @@ test('page · gate auth and duplicate results open explicit sheets', async () =>
   assert.match(duplicateSheet, /does not imply a new write/);
   assert.match(duplicateSheet, /queued action<\/b><span>fixed-uuid/);
   assert.match(duplicateSheet, /idempotency<\/b><span>approve:cambium:THO-9/);
+  assert.match(duplicateSheet, /data-gate-result-nav="mission"/);
+  assert.match(duplicateSheet, /data-gate-result-nav="inspect"/);
 });
 
 test('page · signed gate auth failures from Worker open Telegram sheet', async () => {
@@ -1766,10 +2182,12 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   const elements = await renderPageFixture(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const map = elements.get('mapwrap')!.innerHTML;
   const stem = elements.get('stem')!.innerHTML;
-  const progress = elements.get('progress')!.innerHTML;
-  assert.match(stem, /first session unplayed/);
-  assert.match(progress, /0<\/span>\/17 quests/);
-  assert.match(map, /tapestry audit/);
+  const progress = elements.get('progress')!.textContent;
+  assert.match(stem, /Mission control is waiting for branch packets/);
+  assert.match(stem, /No fake progress/);
+  assert.match(progress, /branch packets waiting/);
+  assert.match(map, /Inspect/);
+  assert.match(map, /Proof, packet, freshness, and system detail/);
   assert.match(map, /ACTIVE ORGAN/);
   assert.match(map, /GENESIS · I/);
   assert.match(map, /WAKE HEALTH/);
@@ -1823,6 +2241,7 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
 
 test('page · quest progress summary opens source-backed sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.renderQuests as (ledger: unknown) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
   const progress = rendered.elements.get('progress')!;
 
   assert.equal(progress.dataset.interactionKind, 'sheet');
@@ -1839,6 +2258,7 @@ test('page · quest progress summary opens source-backed sheet', async () => {
 
 test('page · frontier summary opens active quest evidence sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.renderQuests as (ledger: unknown) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
   const here = rendered.elements.get('here')!;
 
   assert.equal(here.dataset.interactionKind, 'sheet');
@@ -1852,8 +2272,9 @@ test('page · frontier summary opens active quest evidence sheet', async () => {
   assert.match(sheet, /evidence<\/b><span>first session unplayed/);
 });
 
-test('page · quest rows and quest sheet expose Quine provenance', async () => {
+test('page · legacy quest rows and quest sheet expose Quine provenance', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  (rendered.context.renderQuests as (ledger: unknown) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
   const stem = rendered.elements.get('stem')!.innerHTML;
   const questRows = stem.match(/class="q /g) ?? [];
   const quineTargets = stem.match(/data-ecosystem-target="quine"/g) ?? [];
@@ -1882,8 +2303,24 @@ test('page · empty ledger state shows push command without quest rows', async (
 });
 
 test('page · empty ledger refresh clears stale quest summary handlers', async () => {
-  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
-    fetchSequence: [NO_FAKE_PROGRESS_VISUAL_FIXTURE, { schema: 1, tenant: 'cambium' }],
+  const activeMissionFixture = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        missions: [{ title: 'Launch proof packet', gate: 'Founder review', proofRequired: 'Viewport capture' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(activeMissionFixture, {
+    fetchSequence: [activeMissionFixture, { schema: 1, tenant: 'cambium' }],
   });
   const progress = rendered.elements.get('progress')!;
   const here = rendered.elements.get('here')!;
@@ -1903,6 +2340,221 @@ test('page · empty ledger refresh clears stale quest summary handlers', async (
   assert.equal(here.dataset.source, undefined);
 });
 
+test('page · pull refresh keeps current branch story view when a stale envelope arrives', async () => {
+  const fresh = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    derivedAt: '2026-06-29T07:15:00.000Z',
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        missions: [{ title: 'Launch proof packet', gate: 'Founder review', proofRequired: 'Viewport capture' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        gaps: [],
+      }],
+    },
+  };
+  const stale = { ...NO_FAKE_PROGRESS_VISUAL_FIXTURE, derivedAt: '2026-06-29T07:10:00.000Z' };
+  const rendered = await renderPageFixtureContext(fresh, { fetchSequence: [fresh, stale] });
+
+  assert.match(rendered.elements.get('mapwrap')!.innerHTML, /Launch proof packet/);
+  await (rendered.context.refresh as () => Promise<void>)();
+
+  assert.match(rendered.elements.get('mapwrap')!.innerHTML, /Launch proof packet/);
+  assert.equal(rendered.elements.get('fresh')!.textContent, 'stale refresh ignored');
+  assert.match(rendered.elements.get('mapwrap')!.innerHTML, /data-source="product-branch-packets@v1"/);
+});
+
+test('page · builds Mission Control view from branchStories without promoting missing proof', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [
+          { id: 'seed', title: 'Seed', status: 'verified' },
+          { id: 'packet', title: 'Packet', status: 'pending' },
+          { id: 'proof', title: 'Proof', status: 'blocked' },
+          { id: 'launch', title: 'Launch', status: 'queued' },
+        ],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [{ kpiId: 'waitlist', label: 'Waitlist', survival: 'qualified waitlist', betterThanSurvival: 'paid pilot', currentState: 'not proven' }],
+        proofPaths: [{ proofId: 'viewport', validates: 'Viewport capture', promotes: 'supervised branch' }],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: {
+          approvals: [{ permission: 'Founder approval', status: 'blocked', requiredApproval: 'Founder approval missing', failureMode: 'claim cannot advance' }],
+          dispatchHints: [{ route: 'plexus.branchProof', payloadHint: 'branchId + missionId', allowedWhen: 'proof packet ready', blockedWhen: 'Founder approval missing' }],
+          organRouting: [{ organ: 'Taste', owner: 'Cambium taste loop', currentGate: 'pending visual/copy proof', proofPath: 'future Taste packet' }],
+          ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' },
+        },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [{ id: 'approval', status: 'blocked', detail: 'Founder approval missing', source: 'packet' }],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const view = (rendered.context.buildMissionControlView as (env: unknown) => any)(envelope);
+
+  assert.equal(view.selectedBranchId, 'fitcheck');
+  assert.equal(view.nextMission.title, 'Launch proof packet');
+  assert.equal(view.nextMission.state, 'blocked');
+  assert.equal(view.promotion.state, 'supervised-branch');
+  assert.ok(view.blockers.some((row: any) => /Founder approval/.test(row.label)));
+  assert.ok(view.proofNeeded.some((row: any) => row.label === 'Viewport capture'));
+  assert.equal(view.kpis[0].label, 'Waitlist');
+  assert.equal(view.controls.dispatchHints[0].route, 'plexus.branchProof');
+  assert.equal(view.activeOrgan.glyph, 'taste');
+  assert.equal(view.branches[0].organ.glyph, 'taste');
+  assert.equal(view.branches[0].state, 'blocked');
+  assert.match(view.inspect.packetFile, /fitcheck\.md/);
+  assert.notEqual(view.nextMission.state, 'complete');
+});
+
+test('page · Mission scene renders branch arcs, next mission, blockers, proof, KPIs, and actions', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [
+          { id: 'seed', title: 'Seed', status: 'verified' },
+          { id: 'packet', title: 'Packet', status: 'pending' },
+          { id: 'proof', title: 'Proof', status: 'blocked' },
+        ],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [{ kpiId: 'waitlist', label: 'Waitlist', survival: 'qualified waitlist', betterThanSurvival: 'paid pilot', currentState: 'not proven' }],
+        proofPaths: [{ proofId: 'viewport', validates: 'Viewport capture', promotes: 'supervised branch' }],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+        controls: {
+          organRouting: [{ organ: 'Taste', owner: 'Cambium taste loop', currentGate: 'pending visual/copy proof', proofPath: 'future Taste packet' }],
+        },
+        gaps: [{ id: 'approval', status: 'blocked', detail: 'Founder approval missing', source: 'packet' }],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  for (const text of ['Fitcheck', 'Next Mission', 'Launch proof packet', 'State Stack', 'Blocked by', 'Proof needed', 'Waitlist', 'Review Gate', 'Open Proof']) {
+    assert.match(html, new RegExp(text));
+  }
+  assert.match(html, /data-no-scene-drag="1" data-mission-action="gate" data-interaction-kind="sheet"/);
+  assert.match(html, /data-no-scene-drag="1" data-mission-action="proof" data-interaction-kind="sheet"/);
+  assert.match(html, /data-component="MissionStateStack"/);
+  assert.match(html, /data-component="GateActionRow"/);
+  assert.match(html, /data-component="MissionToolLink"/);
+  assert.match(html, /data-mission-action="tools"/);
+  assert.match(html, /data-mission-proof-row="1"/);
+  assert.match(html, /data-component="MissionOrganSignal"/);
+  assert.match(html, /data-organ-route="taste"/);
+  assert.match(html, /data-glyph-kind="taste"/);
+  assert.match(html, /data-component="OrbitProgress"[^>]*>KPI<\/span>/);
+  assert.match(html, /class="mc-kpi-bars" data-component="PacketFlow"/);
+  assert.doesNotMatch(html, /mc-kpi-pulse/);
+  assert.doesNotMatch(PAGE, /\.mc-action-row\{[^}]*position:sticky/);
+  assert.doesNotMatch(PAGE, /data-mission-action="gate"[^;]+=> go\(1\)/);
+  assert.ok(PAGE.includes("stem.querySelectorAll('[data-mission-action=\"gate\"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'gate'));"));
+  assert.ok(PAGE.includes("stem.querySelectorAll('[data-mission-proof-row]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));"));
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'gate');
+  const gateSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(gateSheet, /branch gate · fitcheck/);
+  assert.match(gateSheet, /Review the active gate before this branch can advance/);
+  assert.match(gateSheet, /Founder review/);
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'proof');
+  const proofSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(proofSheet, /branch proof · fitcheck/);
+  assert.match(proofSheet, /Open the proof requirement for the next branch mission/);
+  assert.match(proofSheet, /Viewport capture/);
+  assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
+});
+
+test('page · primary Mission Gate Tools and Story copy denylist keeps meta language in Inspect', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [{ kpiId: 'waitlist', label: 'Waitlist', survival: 'qualified waitlist', betterThanSurvival: 'paid pilot', currentState: 'not proven' }],
+        proofPaths: [{ proofId: 'viewport', validates: 'Viewport capture', promotes: 'supervised branch' }],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+        gaps: [{ id: 'approval', status: 'blocked', detail: 'Founder approval missing', source: 'packet' }],
+      }],
+    },
+    beats: [{ text: 'Proof moved forward', lane: 'quest', source: 'quest-ledger' }],
+    openItems: [{
+      id: 'THO-9',
+      title: 'Review launch copy',
+      source: 'Paperclip · paperclip-open-items',
+      evidence: 'THO-9 blocked by launch copy review',
+      consequence: 'queue founder approval for THO-9; no Paperclip/org mutation until the operator consumes the queue',
+      reversibility: 'queued action can be superseded until consumed',
+    }],
+  };
+  const rendered = await renderPageFixtureContext(envelope, { fetchSequence: [envelope, envelope, envelope] });
+  assertNoPrimaryMetaCopy(rendered.elements.get('stem')!.innerHTML);
+  assertNoPrimaryMetaCopy(rendered.elements.get('beats')!.innerHTML);
+
+  (rendered.context.renderCommands as () => void)();
+  assertNoPrimaryMetaCopy(rendered.elements.get('cmds')!.innerHTML);
+
+  (rendered.context.go as (index: number) => void)(1);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assertNoPrimaryMetaCopy(rendered.elements.get('gate')!.innerHTML);
+});
+
+test('page · proof-only blocked branch primary UI does not overclaim readiness', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'iverif',
+        name: 'IVerif',
+        arcTitle: 'Verification arc',
+        questline: [{ id: 'proof', title: 'Proof packet', status: 'blocked' }],
+        missions: [{ missionId: 'proof', title: 'Collect verification proof', owner: 'Build', gate: 'Founder review', proofRequired: 'Signed viewport receipt', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Signed viewport receipt' }],
+        kpis: [{ kpiId: 'pilot', label: 'Pilot proof', survival: 'one supervised pilot proof', betterThanSurvival: 'repeatable paid pilot', currentState: 'missing proof' }],
+        proofPaths: [{ proofId: 'signed-viewport', validates: 'Signed viewport receipt', promotes: 'supervised branch only' }],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+        gaps: [{ id: 'proof-missing', status: 'blocked', detail: 'Signed viewport receipt missing', source: 'packet' }],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /proof-only/);
+  assert.match(html, /Signed viewport receipt/);
+  assert.match(html, /Blocked by/);
+  assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
+});
+
 test('page · unreachable ledger state names retry route and no local write', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { rejectFetch: true });
   const stem = rendered.elements.get('stem')!.innerHTML;
@@ -1914,8 +2566,24 @@ test('page · unreachable ledger state names retry route and no local write', as
 });
 
 test('page · offline refresh clears stale quest summary handlers', async () => {
-  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
-    fetchSequence: [NO_FAKE_PROGRESS_VISUAL_FIXTURE, new Error('offline')],
+  const activeMissionFixture = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        missions: [{ title: 'Launch proof packet', gate: 'Founder review', proofRequired: 'Viewport capture' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(activeMissionFixture, {
+    fetchSequence: [activeMissionFixture, new Error('offline')],
   });
   const progress = rendered.elements.get('progress')!;
   const here = rendered.elements.get('here')!;
@@ -1935,7 +2603,7 @@ test('page · offline refresh clears stale quest summary handlers', async () => 
   assert.equal(here.dataset.source, undefined);
 });
 
-test('page · map header opens shared visual contract sheet', async () => {
+test('page · inspect header opens shared visual contract sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const map = rendered.elements.get('mapwrap')!.innerHTML;
 
@@ -1943,7 +2611,8 @@ test('page · map header opens shared visual contract sheet', async () => {
   (rendered.context.openMapHeaderSheet as (ledger: unknown) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger);
 
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /operator map · active frontier/);
+  assert.match(sheet, /inspect · active frontier/);
+  assert.match(sheet, /Inspect Header/);
   assert.match(sheet, /active arc<\/b><span>I/);
   assert.match(sheet, /active organ<\/b><span>GENESIS/);
   assert.match(sheet, /source<\/b><span>shared\/cambium-visual-contract/);
@@ -2061,16 +2730,16 @@ test('page · freshness chip keeps interaction metadata for empty and offline st
 
 test('page · pull-to-refresh provenance is read-only fetch', () => {
   assert.match(PAGE, /data-refresh-route="\/api\/quests\/cambium"/);
-  assert.match(PAGE, /data-refresh-writes="none"/);
+  assert.match(PAGE, /data-refresh-writes="signed-actions-only"/);
   assert.match(PAGE, /id="ptrProof" class="ptr-proof"/);
-  assert.match(PAGE, /Pull to refresh re-fetches \/api\/quests\/cambium and does not write operator state/);
+  assert.match(PAGE, /Pull to refresh updates \/api\/quests\/cambium; decisions stay behind signed actions/);
 });
 
 test('page · reduced motion keeps scene state and interactions visible', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   (rendered.context.go as (index: number) => void)(4);
-  (rendered.context.go as (index: number) => void)(2);
-  assert.equal(rendered.elements.get('tb2')!.classList.has('on'), true);
+  (rendered.context.go as (index: number) => void)(3);
+  assert.equal(rendered.elements.get('tb3')!.classList.has('on'), true);
   assert.equal(rendered.elements.get('sceneBadge')!.textContent, 'Story');
   (rendered.context.renderStory as (env: unknown) => void)({
     beats: [{ text: 'reduced motion story beat remains visible', lane: 'quest' }],
@@ -2084,9 +2753,9 @@ test('page · reduced motion keeps scene state and interactions visible', async 
 
   (rendered.context.renderCommands as () => void)();
   const commandHtml = rendered.elements.get('cmds')!.innerHTML;
-  assert.match(commandHtml, /class="cmd live"(?=[^>]*data-interaction-kind="sheet")/);
-  assert.match(commandHtml, /class="cmd act"(?=[^>]*data-interaction-kind="chat-command")/);
-  assert.match(commandHtml, /class="cmd ref"(?=[^>]*data-interaction-kind="read-only")/);
+  assert.match(commandHtml, /class="cmd live[^"]*"(?=[^>]*data-interaction-kind="sheet")/);
+  assert.match(commandHtml, /class="cmd act[^"]*"(?=[^>]*data-interaction-kind="chat-command")/);
+  assert.match(commandHtml, /class="cmd ref[^"]*"(?=[^>]*data-interaction-kind="read-only")/);
 
   (rendered.elements.get('sceneBadge')!.onclick as () => void)();
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
@@ -2116,7 +2785,7 @@ test('visual fixtures · fresh ecosystem fixture renders command and story proof
     now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
   });
   (rendered.context.renderCommands as () => void)();
-  assert.match(rendered.elements.get('cmds')!.innerHTML, /Hermes timers and Telegram brain/);
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /Check timers and service health/);
   assert.match(rendered.elements.get('beats')!.innerHTML, /Hermes routed a fresh command snapshot/);
   assert.equal(rendered.elements.get('fresh')!.classList.has('stale'), false);
 });
@@ -2976,6 +3645,125 @@ test('page · decision context renders served and gap rows without changing poli
   const policySheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(policySheet, /Review gate item THO-9: Review launch copy/);
   assert.doesNotMatch(policySheet, /Mathis 2|brief accepted|founder preference|economic risk/i);
+});
+
+test('page · branch stories render branches, arcs, missions, KPIs, gates, and proof without fake readiness', async () => {
+  const branchGap = {
+    id: 'credentials-blocked',
+    status: 'blocked',
+    detail: 'Credentials: Shopify storefront/admin access required',
+    source: 'gate-ledger',
+  };
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      status: 'partial',
+      total: 1,
+      active: 1,
+      blocked: 1,
+      activeBranchId: 'fitcheck',
+      rows: [{
+        branchId: 'fitcheck',
+        productId: 'fitcheck',
+        name: 'Fitcheck',
+        role: 'Supervised product branch',
+        arcId: 'fitcheck-supervised-launch-hardening',
+        arcTitle: 'Supervised Launch Hardening',
+        vision: { statement: 'Move a Shopify fashion merchant from demo interest to supervised pilot.' },
+        icp: { primary: 'Shopify fashion brand founder' },
+        kpis: [{
+          kpiId: 'fitcheck-qualified-demo',
+          label: 'Qualified merchant demo',
+          survival: 'one qualified merchant completes demo or reservation flow',
+          betterThanSurvival: 'one merchant schedules supervised pilot from the flow',
+          source: 'lead handler and founder note',
+          currentState: 'pending',
+        }],
+        questline: [{ id: 'quest-1', title: 'Run authenticated Shopify widget QA', status: 'queued' }],
+        missions: [{
+          missionId: 'fitcheck-shopify-qa',
+          title: 'Run authenticated Shopify widget QA',
+          type: 'proof',
+          owner: 'founder/codex',
+          gate: 'Credentials',
+          proofRequired: 'screenshot plus widget event log',
+          dispatchTarget: 'hermes',
+        }],
+        gates: [{ gate: 'Credentials', status: 'blocked', requiredProof: 'Shopify storefront/admin access and approved runtime action route' }],
+        proofPaths: [{
+          proofId: 'fitcheck-shopify-widget-proof',
+          sourcePath: 'future Shopify QA screenshot and event receipt',
+          validates: 'product-page try-on works under authenticated conditions',
+          promotes: 'keeps supervised branch active; no autonomy promotion',
+        }],
+        promotion: {
+          state: 'supervised-branch',
+          currentGate: 'Shopify Dodo privacy QA outreach and first merchant proof',
+          rule: 'Do not call Fitcheck autonomous until proof packet is complete.',
+        },
+        controls: {
+          ui: {
+            headline: 'Fitcheck',
+            currentFrontier: 'Supervised launch hardening: Shopify, Dodo, privacy, QA, outreach, and first merchant proof remain the live gates.',
+            missionVerb: 'Run authenticated Shopify widget QA',
+            narrativeVoice: 'Precise operator voice',
+            blockedCopy: 'Do not claim app-store approval, conversion lift, unattended operation, or real merchant outcome until evidenced.',
+          },
+          approvals: [{
+            permission: 'Shopify storefront/admin access',
+            status: 'blocked',
+            requiredApproval: 'founder provides authenticated route/session',
+            failureMode: 'widget QA cannot be verified live',
+          }],
+        },
+        source: {
+          tenant: 'cambium',
+          schema: 'cambium.product_branch_packet.v1',
+          indexFile: 'docs/plans/product-branches/index.md',
+          packetFile: 'docs/plans/product-branches/fitcheck.md',
+        },
+        gaps: [branchGap],
+      }],
+      gaps: [branchGap],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const map = rendered.elements.get('mapwrap')!.innerHTML;
+
+  assert.match(map, /branch packets/);
+  assert.match(map, /missions/);
+  assert.match(map, /KPIs/);
+  assert.match(map, /gates/);
+  assert.match(map, /proof paths/);
+  assert.match(map, /Fitcheck/);
+  assert.match(map, /Run authenticated Shopify widget QA/);
+  assert.match(map, /Qualified merchant demo/);
+  assert.match(map, /Credentials/);
+  assert.match(map, /fitcheck-shopify-widget-proof/);
+  assert.match(map, /data-interaction-kind="sheet"/);
+  assert.match(map, /data-source="product-branch-packets@v1"/);
+  assert.match(map, /data-ecosystem-target="product-branches"/);
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number) => void)(envelope, 0, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /branch mission · fitcheck/);
+  assert.match(sheet, /data-component="BranchMissionSheet"/);
+  assert.match(sheet, /data-component="MissionCard"/);
+  assert.match(sheet, /data-component="QuestlineTimeline"/);
+  assert.match(sheet, /data-component="ProofList"/);
+  assert.match(sheet, /data-component="KpiPulse"/);
+  assert.match(sheet, /branch-sheet-glance/);
+  assert.match(sheet, /Arc<\/b>Supervised Launch Hardening/);
+  assert.match(sheet, /Mission<\/b>fitcheck-shopify-qa · Run authenticated Shopify widget QA/);
+  assert.match(sheet, /KPI 1 · Qualified merchant demo/);
+  assert.match(sheet, /Gate<\/b>Credentials · blocked/);
+  assert.match(sheet, /Proof required<\/b>screenshot plus widget event log/);
+  assert.match(sheet, /Promotion<\/b>supervised-branch/);
+  assert.match(sheet, /Branch source<\/b><span>docs\/plans\/product-branches\/fitcheck\.md/);
+  assert.match(sheet, /Gap 1 · blocked/);
+  assert.match(sheet, /Credentials: Shopify storefront\/admin access required/);
+  assert.doesNotMatch(map + sheet, /autonomous ready|organ service ready|production verified|live proof ready|all branches complete|100% success|shipped|launched/i);
 });
 
 test('page · gate priority renders as review-only next action', async () => {
@@ -4046,6 +4834,16 @@ test('bridge · Cambium emits live project task assignment directives', async ()
       description: 'Collect branch, PR, and preview evidence before final report.',
       priority: 'high',
       taskType: 'engineering',
+      branchId: 'fitcheck',
+      arcId: 'fitcheck-supervised-launch-hardening',
+      missionId: 'fitcheck-shopify-qa',
+      kpiIds: ['fitcheck-qualified-demo'],
+      proofRequired: 'screenshot plus widget event log',
+      gateId: 'credentials',
+      promotionState: 'supervised-branch',
+      proofFoldback: 'docs/plans/product-branches/fitcheck.md#proof-foldback',
+      autonomyBoundary: 'founder approval gates remain required',
+      approvalsRequired: ['founder provides authenticated route/session'],
     },
   };
 
@@ -4079,6 +4877,16 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   assert.equal(directive.payload.task.assigneeMemberId, 'mathis');
   assert.equal(directive.payload.task.priority, 'high');
   assert.equal(directive.payload.task.taskType, 'engineering');
+  assert.equal(directive.payload.task.branchId, 'fitcheck');
+  assert.equal(directive.payload.task.arcId, 'fitcheck-supervised-launch-hardening');
+  assert.equal(directive.payload.task.missionId, 'fitcheck-shopify-qa');
+  assert.deepEqual(directive.payload.task.kpiIds, ['fitcheck-qualified-demo']);
+  assert.equal(directive.payload.task.proofRequired, 'screenshot plus widget event log');
+  assert.equal(directive.payload.task.gateId, 'credentials');
+  assert.equal(directive.payload.task.promotionState, 'supervised-branch');
+  assert.equal(directive.payload.task.proofFoldback, 'docs/plans/product-branches/fitcheck.md#proof-foldback');
+  assert.equal(directive.payload.task.autonomyBoundary, 'founder approval gates remain required');
+  assert.deepEqual(directive.payload.task.approvalsRequired, ['founder provides authenticated route/session']);
   assert.equal(directive.payload.task.eventId, body(queued).eventId);
   assert.ok(directive.payloadHash);
 
@@ -4089,6 +4897,13 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   assert.equal(duplicate.status, 200);
   assert.equal(body(duplicate).id, 'assign-1');
   assert.equal(body(duplicate).duplicate, true);
+
+  const missionConflict = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ ...assignment, task: { ...assignment.task, missionId: 'fitcheck-dodo-reservation' } }),
+  }), deps);
+  assert.equal(missionConflict.status, 409);
+  assert.equal(body(missionConflict).eventId, 'cambium:fitcheck-product:task-fitcheck-brief:assigned');
 
   kv.store.set('bridge:dir:mathis:corrupt', '<!DOCTYPE html>');
   const withCorruptRecord = await handle(req('GET', '/v1/bridge/directives/mathis', {

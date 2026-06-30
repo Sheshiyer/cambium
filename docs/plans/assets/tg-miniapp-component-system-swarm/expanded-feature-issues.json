@@ -1,0 +1,2361 @@
+{
+  "generatedAt": "2026-06-30T04:10:23.301Z",
+  "repo": "Sheshiyer/cambium",
+  "parentIssues": [
+    {
+      "page": "mission",
+      "issueNumber": 95,
+      "parentTask": "TG-MC-101"
+    },
+    {
+      "page": "gate",
+      "issueNumber": 96,
+      "parentTask": "TG-MC-102"
+    },
+    {
+      "page": "tools",
+      "issueNumber": 97,
+      "parentTask": "TG-MC-103"
+    },
+    {
+      "page": "story",
+      "issueNumber": 98,
+      "parentTask": "TG-MC-104"
+    },
+    {
+      "page": "inspect",
+      "issueNumber": 99,
+      "parentTask": "TG-MC-105"
+    }
+  ],
+  "count": 100,
+  "perPage": {
+    "mission": 20,
+    "gate": 20,
+    "tools": 20,
+    "story": 20,
+    "inspect": 20
+  },
+  "issues": [
+    {
+      "taskId": "TG-MC-111",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "MissionGlyph primitive library",
+      "issueNumber": 100,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/100",
+      "deliverable": "Replace character placeholders with reusable inline glyph primitives for genesis, taste, build, ops, cortex, arc, proof, and gate.",
+      "acceptance": [
+        "Every glyph variant has a distinct silhouette.",
+        "Glyphs are ornamental and text labels remain primary.",
+        "Active, warning, locked, and idle treatments are supported."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-111-codex",
+      "worktree": ".worktrees/TG-MC-111-codex"
+    },
+    {
+      "taskId": "TG-MC-112",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Arc-to-organ visual adapter",
+      "issueNumber": 101,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/101",
+      "deliverable": "Add a presentation adapter that maps branch arc and mission stage data through shared Cambium visual stages before rendering.",
+      "acceptance": [
+        "Branch chips no longer choose glyphs by array index.",
+        "Questline stages inherit organ identity consistently.",
+        "Unknown arcs fail to a neutral idle organ state."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-112-codex",
+      "worktree": ".worktrees/TG-MC-112-codex"
+    },
+    {
+      "taskId": "TG-MC-113",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Branch rail chip state system",
+      "issueNumber": 102,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/102",
+      "deliverable": "Rebuild branch chips so selected, active, stale, blocked, and locked branches match the state-stack reference.",
+      "acceptance": [
+        "Fitcheck selected active, Vantyx stale, Snow Gloves blocked, and IVerif locked states are visually distinct.",
+        "Each chip remains thumb-friendly and text-readable.",
+        "State token and glyph never rely on color alone."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-113-codex",
+      "worktree": ".worktrees/TG-MC-113-codex"
+    },
+    {
+      "taskId": "TG-MC-114",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Selected branch halo interaction",
+      "issueNumber": 103,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/103",
+      "deliverable": "Implement the selected halo behavior for branch chips using one clear orbit or underline treatment.",
+      "acceptance": [
+        "Only one branch chip shows selected state.",
+        "Selected state is visible without motion.",
+        "Tap target and active feedback remain stable on mobile."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-114-codex",
+      "worktree": ".worktrees/TG-MC-114-codex"
+    },
+    {
+      "taskId": "TG-MC-115",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Mission hero map texture",
+      "issueNumber": 104,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/104",
+      "deliverable": "Upgrade the MissionCard background into a compact branch map with contour texture, active node, rail paths, and packet dots.",
+      "acceptance": [
+        "Mission hero visually echoes the reference map texture.",
+        "Map texture never covers the mission title or metadata.",
+        "Active node maps to the selected branch/mission context."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-115-codex",
+      "worktree": ".worktrees/TG-MC-115-codex"
+    },
+    {
+      "taskId": "TG-MC-116",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Mission metadata grid polish",
+      "issueNumber": 105,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/105",
+      "deliverable": "Rework Owner, Gate, Dispatch, and Promotion metadata into compact founder-readable cells.",
+      "acceptance": [
+        "Metadata cells fit on mobile without overflow.",
+        "Promotion state is cautious when proof is missing.",
+        "Raw source/schema copy is absent from MissionCard."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-116-codex",
+      "worktree": ".worktrees/TG-MC-116-codex"
+    },
+    {
+      "taskId": "TG-MC-117",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Questline stage composer",
+      "issueNumber": 106,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/106",
+      "deliverable": "Render a four-to-six stage questline that prioritizes founder-readable stages like Seed, Packet, Proof, and Launch.",
+      "acceptance": [
+        "Stages are readable without long truncation.",
+        "Status tokens show complete, active, blocked, and locked.",
+        "Overflowing raw task lists do not dominate the questline."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-117-codex",
+      "worktree": ".worktrees/TG-MC-117-codex"
+    },
+    {
+      "taskId": "TG-MC-118",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Questline rail states",
+      "issueNumber": 107,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/107",
+      "deliverable": "Add rail segments between questline nodes with active packets, blocked warning endpoint, and locked low-opacity continuation.",
+      "acceptance": [
+        "Active rail shows packet drift or static dots in reduced motion.",
+        "Blocked rail ends in a peach warning marker.",
+        "Locked continuation is visibly muted."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-118-codex",
+      "worktree": ".worktrees/TG-MC-118-codex"
+    },
+    {
+      "taskId": "TG-MC-119",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Selected row in State Stack",
+      "issueNumber": 108,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/108",
+      "deliverable": "Implement the State Stack selected row with orbit halo, current focus copy, and selected token.",
+      "acceptance": [
+        "Selected row matches the mobile reference hierarchy.",
+        "Current focus is branch/mission-readable.",
+        "Row can open the selected branch sheet."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-119-codex",
+      "worktree": ".worktrees/TG-MC-119-codex"
+    },
+    {
+      "taskId": "TG-MC-120",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Blocked row in State Stack",
+      "issueNumber": 109,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/109",
+      "deliverable": "Implement the blocked row with peach warning glyph, blocker reason, and action affordance.",
+      "acceptance": [
+        "Blocked row never looks complete.",
+        "Reason explains the actual gate or proof blocker.",
+        "Row opens Gate or proof detail as appropriate."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-120-codex",
+      "worktree": ".worktrees/TG-MC-120-codex"
+    },
+    {
+      "taskId": "TG-MC-121",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Proof-needed row in State Stack",
+      "issueNumber": 110,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/110",
+      "deliverable": "Implement the proof-needed row with dotted receipt ring and evidence-missing copy.",
+      "acceptance": [
+        "Proof-needed row uses dotted proof orbit.",
+        "Copy names the founder-understandable proof item.",
+        "Row opens proof details without raw architecture copy."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-121-codex",
+      "worktree": ".worktrees/TG-MC-121-codex"
+    },
+    {
+      "taskId": "TG-MC-122",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Locked row in State Stack",
+      "issueNumber": 111,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/111",
+      "deliverable": "Implement the locked row with muted lock token and next-stage explanation.",
+      "acceptance": [
+        "Locked row uses low-opacity mint treatment.",
+        "Text explains what unlocks next.",
+        "Locked state has no success glow."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-122-codex",
+      "worktree": ".worktrees/TG-MC-122-codex"
+    },
+    {
+      "taskId": "TG-MC-123",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "ProofList content rewrite",
+      "issueNumber": 112,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/112",
+      "deliverable": "Rewrite Mission proof rows around proof outcomes rather than source paths or technical identifiers.",
+      "acceptance": [
+        "Proof row labels are founder-readable.",
+        "Route/source/schema values move to Inspect or detail sheet.",
+        "Rows preserve access to proof detail."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-123-codex",
+      "worktree": ".worktrees/TG-MC-123-codex"
+    },
+    {
+      "taskId": "TG-MC-124",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Proof row affordance and sheets",
+      "issueNumber": 113,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/113",
+      "deliverable": "Add clear chevrons, tap affordances, and proof-detail sheet routing for each proof row.",
+      "acceptance": [
+        "Every proof row can open a detail sheet.",
+        "Sheet header uses proof glyph and state token.",
+        "Back navigation returns to the Mission flow."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-124-codex",
+      "worktree": ".worktrees/TG-MC-124-codex"
+    },
+    {
+      "taskId": "TG-MC-125",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "KPI orbit pulse rows",
+      "issueNumber": 114,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/114",
+      "deliverable": "Replace two-letter KPI circles with orbit progress rings for survival and better-than-survival signals.",
+      "acceptance": [
+        "KPI rows show orbit ring and label.",
+        "Pending or blocked KPI states are not colored as success.",
+        "KPI copy stays compact and readable."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-125-codex",
+      "worktree": ".worktrees/TG-MC-125-codex"
+    },
+    {
+      "taskId": "TG-MC-126",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "KPI packet bars",
+      "issueNumber": 115,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/115",
+      "deliverable": "Add small packet bars to KPI rows to show signal depth without implying fake progress.",
+      "acceptance": [
+        "Bars are visually subtle and non-overlapping.",
+        "Bars are tied to served KPI state where available.",
+        "Reduced motion displays static bars."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-126-codex",
+      "worktree": ".worktrees/TG-MC-126-codex"
+    },
+    {
+      "taskId": "TG-MC-127",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "GateActionRow polish",
+      "issueNumber": 116,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/116",
+      "deliverable": "Finalize non-floating Review Gate and Open Proof buttons with native mini app spacing and state-aware treatment.",
+      "acceptance": [
+        "Buttons remain in document flow.",
+        "Buttons do not cover KPIs or proof rows.",
+        "Disabled states remain visible and explanatory."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-127-codex",
+      "worktree": ".worktrees/TG-MC-127-codex"
+    },
+    {
+      "taskId": "TG-MC-128",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Mission empty and stale states",
+      "issueNumber": 117,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/117",
+      "deliverable": "Design Mission empty/stale states for missing branch packets or stale envelope without reverting to generic copy.",
+      "acceptance": [
+        "Missing branch packets state names the packet gap.",
+        "Stale state prompts refresh before decisions.",
+        "Inspect link exposes technical details."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-128-codex",
+      "worktree": ".worktrees/TG-MC-128-codex"
+    },
+    {
+      "taskId": "TG-MC-129",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Branch mission sheet header polish",
+      "issueNumber": 118,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/118",
+      "deliverable": "Upgrade branch mission sheets with glyph header, claim guard, questline, proof, KPI, and inspect sections.",
+      "acceptance": [
+        "Sheet header reflects focus: selected, gate, or proof.",
+        "Claim guard remains prominent for blocked proof.",
+        "Sheet layout matches component-system language."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-129-codex",
+      "worktree": ".worktrees/TG-MC-129-codex"
+    },
+    {
+      "taskId": "TG-MC-130",
+      "page": "mission",
+      "parent": 95,
+      "parentTask": "TG-MC-101",
+      "phase": "p2",
+      "wave": "w2",
+      "title": "Mission reduced motion and accessibility pass",
+      "issueNumber": 119,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/119",
+      "deliverable": "Ensure Mission component states remain legible with reduced motion and text-first accessibility.",
+      "acceptance": [
+        "Motion primitives freeze into visible state.",
+        "Labels remain available for every glyph-only element.",
+        "Focus and tap states do not resize layout."
+      ],
+      "refs": [
+        "02-mission-control-state-stack-mobile.png",
+        "01-component-glyph-state-board.png",
+        "03-motion-storyboard-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w2/ui/TG-MC-130-codex",
+      "worktree": ".worktrees/TG-MC-130-codex"
+    },
+    {
+      "taskId": "TG-MC-211",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate chamber shell",
+      "issueNumber": 120,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/120",
+      "deliverable": "Rebuild the Gate page shell as a decision chamber with Gate aperture, state strip, and branch-aware context.",
+      "acceptance": [
+        "Gate page no longer reads as a generic signed queue.",
+        "The first viewport explains founder decision state.",
+        "Gate glyph and state token are visible."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-211-codex",
+      "worktree": ".worktrees/TG-MC-211-codex"
+    },
+    {
+      "taskId": "TG-MC-212",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate empty state experience",
+      "issueNumber": 121,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/121",
+      "deliverable": "Replace the current empty state with an honest no-decision chamber that still shows branch readiness context.",
+      "acceptance": [
+        "No waiting decisions is clear without celebratory overclaim.",
+        "Empty state offers Mission and Inspect routes.",
+        "Empty state uses locked/idle visual language."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-212-codex",
+      "worktree": ".worktrees/TG-MC-212-codex"
+    },
+    {
+      "taskId": "TG-MC-213",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate decision hero card",
+      "issueNumber": 122,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/122",
+      "deliverable": "Add a hero card for the selected/open decision with branch, mission, proof, and consequence summary.",
+      "acceptance": [
+        "Hero answers what decision is waiting.",
+        "Branch and mission are visible before technical details.",
+        "Card uses warning/active state honestly."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-213-codex",
+      "worktree": ".worktrees/TG-MC-213-codex"
+    },
+    {
+      "taskId": "TG-MC-214",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate queue card layout",
+      "issueNumber": 123,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/123",
+      "deliverable": "Rebuild queue rows as compact branch decision cards with glyph, status token, and consequence preview.",
+      "acceptance": [
+        "Each row has branch/mission context.",
+        "Rows are thumb-friendly and dense.",
+        "Rows avoid route/idempotency copy."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-214-codex",
+      "worktree": ".worktrees/TG-MC-214-codex"
+    },
+    {
+      "taskId": "TG-MC-215",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Proof attached row",
+      "issueNumber": 124,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/124",
+      "deliverable": "Add a proof-attached row pattern for each decision, showing what evidence is available or missing.",
+      "acceptance": [
+        "Proof row uses proof glyph or dotted receipt ring.",
+        "Missing proof stays warning/pending.",
+        "Proof row opens proof detail."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-215-codex",
+      "worktree": ".worktrees/TG-MC-215-codex"
+    },
+    {
+      "taskId": "TG-MC-216",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Approve consequence display",
+      "issueNumber": 125,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/125",
+      "deliverable": "Show approve consequence in founder language before any action is queued.",
+      "acceptance": [
+        "Approve effect is visible on primary card or preflight.",
+        "Consequence copy avoids endpoint jargon.",
+        "Risk/irreversibility is not hidden."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-216-codex",
+      "worktree": ".worktrees/TG-MC-216-codex"
+    },
+    {
+      "taskId": "TG-MC-217",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Reroll consequence display",
+      "issueNumber": 126,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/126",
+      "deliverable": "Show reroll consequence with same prominence as approve consequence.",
+      "acceptance": [
+        "Reroll effect is visible before action.",
+        "Reroll copy names what changes next.",
+        "Reroll does not appear as a failure state by default."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-217-codex",
+      "worktree": ".worktrees/TG-MC-217-codex"
+    },
+    {
+      "taskId": "TG-MC-218",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Reversibility summary",
+      "issueNumber": 127,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/127",
+      "deliverable": "Add a concise reversibility/idempotency summary to Gate cards and preflight sheets.",
+      "acceptance": [
+        "Primary copy states whether action can be reversed.",
+        "Technical idempotency key remains in audit detail.",
+        "Unsafe or unknown reversibility uses warning state."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-218-codex",
+      "worktree": ".worktrees/TG-MC-218-codex"
+    },
+    {
+      "taskId": "TG-MC-219",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate aperture glyph",
+      "issueNumber": 128,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/128",
+      "deliverable": "Implement the Gate warning aperture glyph as its own reusable visual primitive.",
+      "acceptance": [
+        "Gate glyph differs from generic build triangle.",
+        "Warning version uses peach stroke without glow bloom.",
+        "Locked version desaturates to soft mint."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-219-codex",
+      "worktree": ".worktrees/TG-MC-219-codex"
+    },
+    {
+      "taskId": "TG-MC-220",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate warningAttention primitive",
+      "issueNumber": 129,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/129",
+      "deliverable": "Apply the warningAttention motion primitive to blocked Gate rows once, then rest.",
+      "acceptance": [
+        "No flashing loop.",
+        "Reduced motion shows static warning state.",
+        "Attention does not compete with selected branch halo."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-220-codex",
+      "worktree": ".worktrees/TG-MC-220-codex"
+    },
+    {
+      "taskId": "TG-MC-221",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Decision state stack",
+      "issueNumber": 130,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/130",
+      "deliverable": "Add Gate state stack rows for Decision, Proof, Effect, and Reversible.",
+      "acceptance": [
+        "Rows map to real open item data.",
+        "Each row has glyph/token treatment.",
+        "Rows can open related detail sheets."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-221-codex",
+      "worktree": ".worktrees/TG-MC-221-codex"
+    },
+    {
+      "taskId": "TG-MC-222",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Signed preflight sheet layout",
+      "issueNumber": 131,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/131",
+      "deliverable": "Redesign approve/reroll preflight sheets to lead with decision, proof, consequence, and reversibility.",
+      "acceptance": [
+        "Preflight is founder-readable first.",
+        "Telegram auth details move to audit rows.",
+        "Approve and reroll buttons stay distinct."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-222-codex",
+      "worktree": ".worktrees/TG-MC-222-codex"
+    },
+    {
+      "taskId": "TG-MC-223",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Signed result sheet layout",
+      "issueNumber": 132,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/132",
+      "deliverable": "Redesign result sheets after approve/reroll so outcome, queued effect, and next step are clear.",
+      "acceptance": [
+        "Success does not imply branch proof completion.",
+        "Failure state names exact reason.",
+        "Next step links to Mission or Inspect."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-223-codex",
+      "worktree": ".worktrees/TG-MC-223-codex"
+    },
+    {
+      "taskId": "TG-MC-224",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Telegram unavailable state",
+      "issueNumber": 133,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/133",
+      "deliverable": "Add a clear state for trying to approve outside founder Telegram context.",
+      "acceptance": [
+        "Primary copy says open in Telegram to approve.",
+        "No action button appears enabled when auth is missing.",
+        "Inspect detail can show auth route info."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-224-codex",
+      "worktree": ".worktrees/TG-MC-224-codex"
+    },
+    {
+      "taskId": "TG-MC-225",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate branch filter chips",
+      "issueNumber": 134,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/134",
+      "deliverable": "Add optional branch filter chips when multiple branch decisions exist.",
+      "acceptance": [
+        "Filter chips use BranchArcChip language.",
+        "Selected filter has one halo.",
+        "Filtering does not hide urgent blockers silently."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-225-codex",
+      "worktree": ".worktrees/TG-MC-225-codex"
+    },
+    {
+      "taskId": "TG-MC-226",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate row expansion details",
+      "issueNumber": 135,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/135",
+      "deliverable": "Add expandable details for proof, consequence, actor, updated time, and audit trail.",
+      "acceptance": [
+        "Expansion is accessible from each row.",
+        "Details are visually secondary.",
+        "Architecture terms stay in expanded/audit area."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-226-codex",
+      "worktree": ".worktrees/TG-MC-226-codex"
+    },
+    {
+      "taskId": "TG-MC-227",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate action safety copy",
+      "issueNumber": 136,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/136",
+      "deliverable": "Rewrite Gate action copy so it names decision safety rather than queue mechanics.",
+      "acceptance": [
+        "Primary buttons avoid signed queue jargon.",
+        "Dangerous or irreversible actions use warning tone.",
+        "Copy stays short enough for mobile buttons."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-227-codex",
+      "worktree": ".worktrees/TG-MC-227-codex"
+    },
+    {
+      "taskId": "TG-MC-228",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate-to-Mission return path",
+      "issueNumber": 137,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/137",
+      "deliverable": "Add a clear path from Gate decisions back to the affected Mission branch/card.",
+      "acceptance": [
+        "Decision card links to relevant Mission context.",
+        "Back path preserves selected branch where possible.",
+        "No forced scene jump on accidental taps."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-228-codex",
+      "worktree": ".worktrees/TG-MC-228-codex"
+    },
+    {
+      "taskId": "TG-MC-229",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate stale and sync states",
+      "issueNumber": 138,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/138",
+      "deliverable": "Show stale Gate data and refresh status without hiding queued decisions.",
+      "acceptance": [
+        "Stale chip appears when derived data is old.",
+        "Refresh does not erase visible decisions prematurely.",
+        "Inspect link exposes timestamp/source details."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-229-codex",
+      "worktree": ".worktrees/TG-MC-229-codex"
+    },
+    {
+      "taskId": "TG-MC-230",
+      "page": "gate",
+      "parent": 96,
+      "parentTask": "TG-MC-102",
+      "phase": "p2",
+      "wave": "w3",
+      "title": "Gate reduced motion and safe spacing",
+      "issueNumber": 139,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/139",
+      "deliverable": "Ensure Gate animations, rows, and action sheets remain stable under reduced motion and mobile safe areas.",
+      "acceptance": [
+        "No layout shift on warning attention.",
+        "Buttons fit inside viewport and safe area.",
+        "State is visible without animation."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "01-component-glyph-state-board.png"
+      ],
+      "branch": "swarm/tg-miniapp/p2-w3/ui/TG-MC-230-codex",
+      "worktree": ".worktrees/TG-MC-230-codex"
+    },
+    {
+      "taskId": "TG-MC-311",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tools page shell",
+      "issueNumber": 140,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/140",
+      "deliverable": "Rebuild Tools as a mission-aware toolbelt page with header, freshness, and branch context.",
+      "acceptance": [
+        "Visible page says Tools, not Commands.",
+        "Current branch/mission context appears near top.",
+        "Shell follows component-system spacing."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-311-codex",
+      "worktree": ".worktrees/TG-MC-311-codex"
+    },
+    {
+      "taskId": "TG-MC-312",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tool group segmented control",
+      "issueNumber": 141,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/141",
+      "deliverable": "Add Act, Ask, Report, and Coordinate group controls for scanning tools by job.",
+      "acceptance": [
+        "Groups are visible and thumb-friendly.",
+        "Selected group uses one state highlight.",
+        "No group causes layout jump."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-312-codex",
+      "worktree": ".worktrees/TG-MC-312-codex"
+    },
+    {
+      "taskId": "TG-MC-313",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Mission recommendation panel",
+      "issueNumber": 142,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/142",
+      "deliverable": "Add a suggested-tool panel based on current branch mission, blocker, or proof requirement.",
+      "acceptance": [
+        "Suggested tool explains why it matters now.",
+        "Panel can link to command detail.",
+        "Missing recommendation has honest empty state."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-313-codex",
+      "worktree": ".worktrees/TG-MC-313-codex"
+    },
+    {
+      "taskId": "TG-MC-314",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tool card glyph taxonomy",
+      "issueNumber": 143,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/143",
+      "deliverable": "Assign glyphs to tool actions using act, ask, report, coordinate, proof, and gate visual language.",
+      "acceptance": [
+        "Each card has a meaningful glyph.",
+        "Glyphs are not generic SaaS icons.",
+        "Text label remains primary."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-314-codex",
+      "worktree": ".worktrees/TG-MC-314-codex"
+    },
+    {
+      "taskId": "TG-MC-315",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tool availability states",
+      "issueNumber": 144,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/144",
+      "deliverable": "Render ready, locked, stale, blocked, and unavailable tools with state tokens.",
+      "acceptance": [
+        "Unavailable tools cannot look ready.",
+        "Disabled reason is visible.",
+        "State uses icon/label, not color alone."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-315-codex",
+      "worktree": ".worktrees/TG-MC-315-codex"
+    },
+    {
+      "taskId": "TG-MC-316",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Command syntax drawer",
+      "issueNumber": 145,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/145",
+      "deliverable": "Move exact slash command syntax into an expandable drawer or sheet below the mission-facing explanation.",
+      "acceptance": [
+        "Primary card says what the tool does.",
+        "Syntax remains copyable.",
+        "Source/debug copy stays secondary."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-316-codex",
+      "worktree": ".worktrees/TG-MC-316-codex"
+    },
+    {
+      "taskId": "TG-MC-317",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Copy command feedback",
+      "issueNumber": 146,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/146",
+      "deliverable": "Improve copy interaction with copied state, haptic feedback, and fallback copy text.",
+      "acceptance": [
+        "Copied state appears after tap.",
+        "Error state explains clipboard failure.",
+        "Feedback does not resize the row."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-317-codex",
+      "worktree": ".worktrees/TG-MC-317-codex"
+    },
+    {
+      "taskId": "TG-MC-318",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Act group tool cards",
+      "issueNumber": 147,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/147",
+      "deliverable": "Design Act group cards for commands that move current mission work forward.",
+      "acceptance": [
+        "Act group prioritizes current blocker actions.",
+        "Cards show consequence or next step.",
+        "Dangerous actions are warning-gated."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-318-codex",
+      "worktree": ".worktrees/TG-MC-318-codex"
+    },
+    {
+      "taskId": "TG-MC-319",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Ask group tool cards",
+      "issueNumber": 148,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/148",
+      "deliverable": "Design Ask group cards for status, freshness, and branch questions.",
+      "acceptance": [
+        "Ask group answers what can be queried.",
+        "Cards route to status/detail sheets.",
+        "Query tools are not presented as action tools."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-319-codex",
+      "worktree": ".worktrees/TG-MC-319-codex"
+    },
+    {
+      "taskId": "TG-MC-320",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Report group tool cards",
+      "issueNumber": 149,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/149",
+      "deliverable": "Design Report group cards for proof capture, evidence foldback, and branch receipts.",
+      "acceptance": [
+        "Report group ties tools to proof-needed rows.",
+        "Cards show expected output receipt.",
+        "Report actions link to Open Proof where relevant."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-320-codex",
+      "worktree": ".worktrees/TG-MC-320-codex"
+    },
+    {
+      "taskId": "TG-MC-321",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Coordinate group tool cards",
+      "issueNumber": 150,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/150",
+      "deliverable": "Design Coordinate group cards for Hermes, Plexus, Fabric, and handoff routines.",
+      "acceptance": [
+        "Coordinate group names target system in plain language.",
+        "Internal routing names stay secondary.",
+        "Cards show current availability."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-321-codex",
+      "worktree": ".worktrees/TG-MC-321-codex"
+    },
+    {
+      "taskId": "TG-MC-322",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tool context chips",
+      "issueNumber": 151,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/151",
+      "deliverable": "Add branch, gate, proof, and dispatch context chips to relevant tool cards.",
+      "acceptance": [
+        "Context chips use StateToken style.",
+        "Chips stay compact on mobile.",
+        "Chips do not duplicate card title."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-322-codex",
+      "worktree": ".worktrees/TG-MC-322-codex"
+    },
+    {
+      "taskId": "TG-MC-323",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tool safety sheet",
+      "issueNumber": 152,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/152",
+      "deliverable": "Add a safety/detail sheet for tools with consequence, required proof, and expected result.",
+      "acceptance": [
+        "Sheet explains action before syntax.",
+        "Risk state is clear.",
+        "Audit/source details are secondary."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-323-codex",
+      "worktree": ".worktrees/TG-MC-323-codex"
+    },
+    {
+      "taskId": "TG-MC-324",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Disabled tool reason rows",
+      "issueNumber": 153,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/153",
+      "deliverable": "Add clear disabled reasons for unavailable tools, including missing proof, auth, or stale data.",
+      "acceptance": [
+        "Disabled card is not tappable as if ready.",
+        "Reason is visible without opening Inspect.",
+        "Inspect link provides technical details."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-324-codex",
+      "worktree": ".worktrees/TG-MC-324-codex"
+    },
+    {
+      "taskId": "TG-MC-325",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Mission deep links to Tools",
+      "issueNumber": 154,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/154",
+      "deliverable": "Allow Mission proof/blocker rows to deep-link to the most relevant tool card.",
+      "acceptance": [
+        "Deep link selects Tools and relevant group/card.",
+        "Selected card gets a temporary focus treatment.",
+        "Back path returns to Mission context."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-325-codex",
+      "worktree": ".worktrees/TG-MC-325-codex"
+    },
+    {
+      "taskId": "TG-MC-326",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tool payload preview",
+      "issueNumber": 155,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/155",
+      "deliverable": "Show a compact preview of what a command will send or request, without exposing secrets.",
+      "acceptance": [
+        "Preview is redaction-safe.",
+        "Payload preview is visually secondary.",
+        "No auth/token data appears."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-326-codex",
+      "worktree": ".worktrees/TG-MC-326-codex"
+    },
+    {
+      "taskId": "TG-MC-327",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tool audit links",
+      "issueNumber": 156,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/156",
+      "deliverable": "Add Inspect links for command source, bridge route, and tool proof details.",
+      "acceptance": [
+        "Audit link appears in detail sheet.",
+        "Primary Tools page stays founder-facing.",
+        "Inspect target opens the right detail section."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-327-codex",
+      "worktree": ".worktrees/TG-MC-327-codex"
+    },
+    {
+      "taskId": "TG-MC-328",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tools empty and error states",
+      "issueNumber": 157,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/157",
+      "deliverable": "Design empty/error states for missing command data or unavailable tool source.",
+      "acceptance": [
+        "Empty state offers refresh and Inspect.",
+        "Error state does not imply broken branch mission.",
+        "Copy names the missing surface plainly."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-328-codex",
+      "worktree": ".worktrees/TG-MC-328-codex"
+    },
+    {
+      "taskId": "TG-MC-329",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tools recent/suggested strip",
+      "issueNumber": 158,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/158",
+      "deliverable": "Add a small recent or suggested tools strip derived from current mission needs, not persisted user tracking.",
+      "acceptance": [
+        "Strip is derived from current envelope only.",
+        "Items remain relevant to Mission state.",
+        "No new backend persistence is required."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-329-codex",
+      "worktree": ".worktrees/TG-MC-329-codex"
+    },
+    {
+      "taskId": "TG-MC-330",
+      "page": "tools",
+      "parent": 97,
+      "parentTask": "TG-MC-103",
+      "phase": "p3",
+      "wave": "w1",
+      "title": "Tools mobile density polish",
+      "issueNumber": 159,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/159",
+      "deliverable": "Tune card density, scroll rhythm, and safe-area spacing for repeat tool use.",
+      "acceptance": [
+        "Cards scan well on mobile.",
+        "Long command text does not overflow.",
+        "Tap targets remain at least 48px."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w1/ui/TG-MC-330-codex",
+      "worktree": ".worktrees/TG-MC-330-codex"
+    },
+    {
+      "taskId": "TG-MC-411",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story page shell",
+      "issueNumber": 160,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/160",
+      "deliverable": "Rebuild Story as a branch progress feed with clear page header, branch context, and state-aware grouping.",
+      "acceptance": [
+        "Visible page says Story.",
+        "Current branch context is visible.",
+        "Primary copy avoids ledger fallback language."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-411-codex",
+      "worktree": ".worktrees/TG-MC-411-codex"
+    },
+    {
+      "taskId": "TG-MC-412",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story group controls",
+      "issueNumber": 161,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/161",
+      "deliverable": "Add Mission wins, New signals, Lessons, and Drift group controls.",
+      "acceptance": [
+        "Groups are visible and scannable.",
+        "Selected group uses component state treatment.",
+        "All groups have useful empty states."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-412-codex",
+      "worktree": ".worktrees/TG-MC-412-codex"
+    },
+    {
+      "taskId": "TG-MC-413",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Mission wins cards",
+      "issueNumber": 162,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/162",
+      "deliverable": "Design Mission wins cards for completed branch mission evidence and meaningful progress.",
+      "acceptance": [
+        "Cards show mission, outcome, and proof cue.",
+        "Wins do not imply unrelated live readiness.",
+        "Cards link to proof or Mission detail."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-413-codex",
+      "worktree": ".worktrees/TG-MC-413-codex"
+    },
+    {
+      "taskId": "TG-MC-414",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "New signals cards",
+      "issueNumber": 163,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/163",
+      "deliverable": "Design New signals cards for fresh branch-relevant inputs from Hermes, Paperclip, Fabric, or packets.",
+      "acceptance": [
+        "Signal source is summarized in plain language.",
+        "Technical source moves to detail sheet.",
+        "Freshness state is visible."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-414-codex",
+      "worktree": ".worktrees/TG-MC-414-codex"
+    },
+    {
+      "taskId": "TG-MC-415",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Lessons cards",
+      "issueNumber": 164,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/164",
+      "deliverable": "Design Lessons cards for durable learning or packet changes that affect branch execution.",
+      "acceptance": [
+        "Lesson card states what changed.",
+        "Lesson links to branch packet or proof detail.",
+        "Copy stays product-facing."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-415-codex",
+      "worktree": ".worktrees/TG-MC-415-codex"
+    },
+    {
+      "taskId": "TG-MC-416",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Drift cards",
+      "issueNumber": 165,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/165",
+      "deliverable": "Design Drift cards for stale, missing, contradictory, or blocked signals.",
+      "acceptance": [
+        "Drift uses warning/stale treatment.",
+        "Drift never renders as a win.",
+        "Card names needed follow-up."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-416-codex",
+      "worktree": ".worktrees/TG-MC-416-codex"
+    },
+    {
+      "taskId": "TG-MC-417",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Beat glyph taxonomy",
+      "issueNumber": 166,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/166",
+      "deliverable": "Assign glyphs and state tokens for win, signal, lesson, drift, proof, and gate beats.",
+      "acceptance": [
+        "Every beat has a meaningful glyph.",
+        "Text remains primary.",
+        "Reduced motion stays legible."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-417-codex",
+      "worktree": ".worktrees/TG-MC-417-codex"
+    },
+    {
+      "taskId": "TG-MC-418",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story timeline rail",
+      "issueNumber": 167,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/167",
+      "deliverable": "Add a subtle timeline/rail treatment connecting beats without creating a decorative card stack.",
+      "acceptance": [
+        "Rail does not cover text.",
+        "Packet dots imply movement only where helpful.",
+        "Reduced motion freezes packet dots."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-418-codex",
+      "worktree": ".worktrees/TG-MC-418-codex"
+    },
+    {
+      "taskId": "TG-MC-419",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Branch filter chips",
+      "issueNumber": 168,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/168",
+      "deliverable": "Add branch filter chips so Story can focus on Fitcheck, Vantyx, Snow Gloves, or IVerif.",
+      "acceptance": [
+        "Filter chips use BranchArcChip/state grammar.",
+        "Selected branch has one halo.",
+        "All branch mode is available."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-419-codex",
+      "worktree": ".worktrees/TG-MC-419-codex"
+    },
+    {
+      "taskId": "TG-MC-420",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Latest change hero",
+      "issueNumber": 169,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/169",
+      "deliverable": "Add a compact latest-change hero summarizing the newest meaningful branch update.",
+      "acceptance": [
+        "Hero is concise and founder-facing.",
+        "Hero links to full beat detail.",
+        "Stale latest data shows stale state."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-420-codex",
+      "worktree": ".worktrees/TG-MC-420-codex"
+    },
+    {
+      "taskId": "TG-MC-421",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Beat detail sheet",
+      "issueNumber": 170,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/170",
+      "deliverable": "Design beat detail sheets with summary, proof, source, related mission, and next action.",
+      "acceptance": [
+        "Sheet keeps source/proof detail available.",
+        "Primary feed stays clean.",
+        "Sheet can link to Mission/Gate/Inspect."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-421-codex",
+      "worktree": ".worktrees/TG-MC-421-codex"
+    },
+    {
+      "taskId": "TG-MC-422",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Evidence linkouts",
+      "issueNumber": 171,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/171",
+      "deliverable": "Add proof/evidence linkouts from Story beats to relevant ProofList or Inspect sections.",
+      "acceptance": [
+        "Evidence link label is clear.",
+        "Missing evidence uses proof-needed state.",
+        "Links do not leak raw schema copy in feed."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-422-codex",
+      "worktree": ".worktrees/TG-MC-422-codex"
+    },
+    {
+      "taskId": "TG-MC-423",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Contradiction warning treatment",
+      "issueNumber": 172,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/172",
+      "deliverable": "Add specific visual and copy treatment for contradictory or stale story data.",
+      "acceptance": [
+        "Contradictions are not hidden in generic drift.",
+        "Warning copy names the conflict plainly.",
+        "Inspect link exposes detailed source rows."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-423-codex",
+      "worktree": ".worktrees/TG-MC-423-codex"
+    },
+    {
+      "taskId": "TG-MC-424",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story empty state",
+      "issueNumber": 173,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/173",
+      "deliverable": "Design an empty Story state for no branch beats served yet.",
+      "acceptance": [
+        "Empty state explains what will appear.",
+        "Refresh and Inspect actions are available.",
+        "No fake progress language."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-424-codex",
+      "worktree": ".worktrees/TG-MC-424-codex"
+    },
+    {
+      "taskId": "TG-MC-425",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story digest cards",
+      "issueNumber": 174,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/174",
+      "deliverable": "Add digest cards that summarize a set of related beats into one compact scan surface.",
+      "acceptance": [
+        "Digest card shows count and theme.",
+        "Expanded sheet lists individual beats.",
+        "Digest does not hide blockers."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-425-codex",
+      "worktree": ".worktrees/TG-MC-425-codex"
+    },
+    {
+      "taskId": "TG-MC-426",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Packet trail visuals",
+      "issueNumber": 175,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/175",
+      "deliverable": "Add small packet trail visuals between related beats where they represent actual sequence.",
+      "acceptance": [
+        "Packet trail is subtle.",
+        "Trail is not used on every row.",
+        "Reduced motion uses static dots."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-426-codex",
+      "worktree": ".worktrees/TG-MC-426-codex"
+    },
+    {
+      "taskId": "TG-MC-427",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Source containment links",
+      "issueNumber": 176,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/176",
+      "deliverable": "Move source, schema, and operator narrative details into detail sheets or Inspect.",
+      "acceptance": [
+        "Primary cards pass copy containment.",
+        "Detail sheets preserve auditability.",
+        "Inspect link targets the right detail."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-427-codex",
+      "worktree": ".worktrees/TG-MC-427-codex"
+    },
+    {
+      "taskId": "TG-MC-428",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story action links",
+      "issueNumber": 177,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/177",
+      "deliverable": "Add action links from beats to Mission, Gate, Tools, or Inspect depending on beat type.",
+      "acceptance": [
+        "Links are type-aware.",
+        "Links preserve branch context.",
+        "No accidental destructive action from Story."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-428-codex",
+      "worktree": ".worktrees/TG-MC-428-codex"
+    },
+    {
+      "taskId": "TG-MC-429",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story freshness state",
+      "issueNumber": 178,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/178",
+      "deliverable": "Add freshness and sync state to Story so old beats are not mistaken for current state.",
+      "acceptance": [
+        "Freshness chip appears in page context.",
+        "Stale beats are visually marked.",
+        "Refresh does not erase visible context abruptly."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-429-codex",
+      "worktree": ".worktrees/TG-MC-429-codex"
+    },
+    {
+      "taskId": "TG-MC-430",
+      "page": "story",
+      "parent": 98,
+      "parentTask": "TG-MC-104",
+      "phase": "p3",
+      "wave": "w2",
+      "title": "Story mobile readability polish",
+      "issueNumber": 179,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/179",
+      "deliverable": "Tune typography, spacing, truncation, and row rhythm for long narrative text.",
+      "acceptance": [
+        "Long titles wrap cleanly.",
+        "No card text overlaps controls.",
+        "Feed remains comfortable on narrow viewports."
+      ],
+      "refs": [
+        "03-motion-storyboard-mobile.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w2/ui/TG-MC-430-codex",
+      "worktree": ".worktrees/TG-MC-430-codex"
+    },
+    {
+      "taskId": "TG-MC-511",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Inspect page shell",
+      "issueNumber": 180,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/180",
+      "deliverable": "Rebuild Inspect as a deliberate proof/debug page with clear title, scope, and grouped sections.",
+      "acceptance": [
+        "Visible page says Inspect.",
+        "Page explains it contains proof/debug detail.",
+        "Old Map/Operator Map primary copy is gone."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-511-codex",
+      "worktree": ".worktrees/TG-MC-511-codex"
+    },
+    {
+      "taskId": "TG-MC-512",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Inspect overview grid",
+      "issueNumber": 181,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/181",
+      "deliverable": "Add an overview grid for freshness, policy, live proof, branch packets, gates, tools, rails, and evidence.",
+      "acceptance": [
+        "All groups are visible as entry points.",
+        "Each group has state token and count/status.",
+        "Blocked groups are not success-colored."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-512-codex",
+      "worktree": ".worktrees/TG-MC-512-codex"
+    },
+    {
+      "taskId": "TG-MC-513",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Freshness panel",
+      "issueNumber": 182,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/182",
+      "deliverable": "Build a freshness panel showing derivedAt, age, source, refresh route, and stale state.",
+      "acceptance": [
+        "Freshness is understandable without code knowledge.",
+        "Stale state is visually distinct.",
+        "Refresh route stays in Inspect, not primary pages."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-513-codex",
+      "worktree": ".worktrees/TG-MC-513-codex"
+    },
+    {
+      "taskId": "TG-MC-514",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Branch packets panel",
+      "issueNumber": 183,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/183",
+      "deliverable": "Build a branch packet panel for branchStories source, rows, selected branch, missing packet diagnostics, and packet links.",
+      "acceptance": [
+        "Panel shows branch count and missing rows clearly.",
+        "Packet source/schema remains inspect-only.",
+        "Missing branchStories has a guided diagnosis."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-514-codex",
+      "worktree": ".worktrees/TG-MC-514-codex"
+    },
+    {
+      "taskId": "TG-MC-515",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Live proof panel",
+      "issueNumber": 184,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/184",
+      "deliverable": "Build a live proof panel with readiness summary, blockers, receipts, and honest 8/10 boundary.",
+      "acceptance": [
+        "Telegram initData blocker remains visible.",
+        "Device artifact blocker remains visible.",
+        "Ready rows do not imply all live proof is complete."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-515-codex",
+      "worktree": ".worktrees/TG-MC-515-codex"
+    },
+    {
+      "taskId": "TG-MC-516",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Policy panel",
+      "issueNumber": 185,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/185",
+      "deliverable": "Build a policy panel for operator policy state, claim guard, proof boundaries, and promotion rules.",
+      "acceptance": [
+        "Policy blockers are easy to scan.",
+        "Promotion ladder is clear.",
+        "No autonomous overclaim."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-516-codex",
+      "worktree": ".worktrees/TG-MC-516-codex"
+    },
+    {
+      "taskId": "TG-MC-517",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Gate audit panel",
+      "issueNumber": 186,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/186",
+      "deliverable": "Build a Gate audit panel for open items, decision context, signed-action evidence, consequences, and reversibility.",
+      "acceptance": [
+        "Gate audit preserves route/idempotency details.",
+        "Primary Gate page can link here.",
+        "Sensitive auth values remain redacted."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-517-codex",
+      "worktree": ".worktrees/TG-MC-517-codex"
+    },
+    {
+      "taskId": "TG-MC-518",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Tools audit panel",
+      "issueNumber": 187,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/187",
+      "deliverable": "Build a Tools audit panel for command sources, bridge routes, command availability, and payload proof.",
+      "acceptance": [
+        "Command source details are inspect-only.",
+        "Tool availability is summarized.",
+        "Payload previews stay redaction-safe."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-518-codex",
+      "worktree": ".worktrees/TG-MC-518-codex"
+    },
+    {
+      "taskId": "TG-MC-519",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Organ and rail contract panel",
+      "issueNumber": 188,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/188",
+      "deliverable": "Preserve Cambium visual stages and rails as an Inspect contract panel.",
+      "acceptance": [
+        "GENESIS/TASTE/BUILD/OPS/CORTEX remain visible.",
+        "Rail sheets show from/to/lane/active status.",
+        "This panel is not the primary page experience."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-519-codex",
+      "worktree": ".worktrees/TG-MC-519-codex"
+    },
+    {
+      "taskId": "TG-MC-520",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Evidence list panel",
+      "issueNumber": 189,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/189",
+      "deliverable": "Build an evidence panel that aggregates proof paths, receipts, screenshots, and branch evidence rows.",
+      "acceptance": [
+        "Evidence rows are grouped and searchable/scannable.",
+        "Missing evidence uses proof-needed state.",
+        "Rows link back to related page context."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-520-codex",
+      "worktree": ".worktrees/TG-MC-520-codex"
+    },
+    {
+      "taskId": "TG-MC-521",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Mini app surface contract panel",
+      "issueNumber": 190,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/190",
+      "deliverable": "Add a panel showing Mission, Gate, Tools, Story, Inspect contract coverage and page readiness.",
+      "acceptance": [
+        "Five scenes are listed.",
+        "Each scene has state and proof link.",
+        "Coverage does not imply live Telegram readiness."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-521-codex",
+      "worktree": ".worktrees/TG-MC-521-codex"
+    },
+    {
+      "taskId": "TG-MC-522",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Inspect detail sheet template",
+      "issueNumber": 191,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/191",
+      "deliverable": "Create a consistent detail sheet template for all Inspect panels.",
+      "acceptance": [
+        "Template has summary, source, proof, related page, and action links.",
+        "Long technical values wrap safely.",
+        "Sensitive values are redacted."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-522-codex",
+      "worktree": ".worktrees/TG-MC-522-codex"
+    },
+    {
+      "taskId": "TG-MC-523",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Primary page trace links",
+      "issueNumber": 192,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/192",
+      "deliverable": "Implement trace links from Mission/Gate/Tools/Story into the relevant Inspect detail section.",
+      "acceptance": [
+        "Links land on the correct section/sheet.",
+        "Trace link labels are clear.",
+        "Back path returns to originating page."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-523-codex",
+      "worktree": ".worktrees/TG-MC-523-codex"
+    },
+    {
+      "taskId": "TG-MC-524",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Stale and missing diagnostics",
+      "issueNumber": 193,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/193",
+      "deliverable": "Add dedicated diagnostics for stale envelope, missing branchStories, missing live proof, and unavailable command data.",
+      "acceptance": [
+        "Each diagnostic states symptom and likely next action.",
+        "Diagnostics do not hide current UI context.",
+        "No false success language."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-524-codex",
+      "worktree": ".worktrees/TG-MC-524-codex"
+    },
+    {
+      "taskId": "TG-MC-525",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Secret redaction display",
+      "issueNumber": 194,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/194",
+      "deliverable": "Add redaction-safe rendering for auth/initData/token-like values in Inspect details.",
+      "acceptance": [
+        "Secret-like strings are never shown raw.",
+        "Redacted values still explain what proof is missing.",
+        "Secret scan remains clean."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-525-codex",
+      "worktree": ".worktrees/TG-MC-525-codex"
+    },
+    {
+      "taskId": "TG-MC-526",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Readiness blocker hierarchy",
+      "issueNumber": 195,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/195",
+      "deliverable": "Group blockers by founder action, live proof, packet, policy, command, and visual proof.",
+      "acceptance": [
+        "Most important blockers appear first.",
+        "Each blocker has owner/next action when known.",
+        "Ready rows are visually secondary to blockers."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-526-codex",
+      "worktree": ".worktrees/TG-MC-526-codex"
+    },
+    {
+      "taskId": "TG-MC-527",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Branch fixture inspector",
+      "issueNumber": 196,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/196",
+      "deliverable": "Add a fixture inspector for the branch-stories proof fixture used by viewport captures.",
+      "acceptance": [
+        "Fixture rows are visible in Inspect.",
+        "Fixture source is inspect-only.",
+        "Fixture does not masquerade as live proof."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-527-codex",
+      "worktree": ".worktrees/TG-MC-527-codex"
+    },
+    {
+      "taskId": "TG-MC-528",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Visual stage sheets",
+      "issueNumber": 197,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/197",
+      "deliverable": "Polish stage sheets for each Cambium organ with glyph, routes, active arc, and related branch rows.",
+      "acceptance": [
+        "Each organ sheet has glyph/state header.",
+        "Rows map back to branch/quest data.",
+        "Read-only nature is clear."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-528-codex",
+      "worktree": ".worktrees/TG-MC-528-codex"
+    },
+    {
+      "taskId": "TG-MC-529",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Rail sheet containment",
+      "issueNumber": 198,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/198",
+      "deliverable": "Polish rail sheets with from/to, lane, active status, proof source, and related pages.",
+      "acceptance": [
+        "Rail technical copy stays in rail sheet.",
+        "Active rail uses component state language.",
+        "Rail sheets do not leak into primary page copy."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-529-codex",
+      "worktree": ".worktrees/TG-MC-529-codex"
+    },
+    {
+      "taskId": "TG-MC-530",
+      "page": "inspect",
+      "parent": 99,
+      "parentTask": "TG-MC-105",
+      "phase": "p3",
+      "wave": "w3",
+      "title": "Copy proof summary action",
+      "issueNumber": 199,
+      "issueUrl": "https://github.com/Sheshiyer/cambium/issues/199",
+      "deliverable": "Add a safe copy/share proof summary action that summarizes current Inspect state without secrets.",
+      "acceptance": [
+        "Summary excludes tokens and auth data.",
+        "Summary names remaining blockers.",
+        "Copy feedback is visible and non-disruptive."
+      ],
+      "refs": [
+        "01-component-glyph-state-board.png",
+        "02-mission-control-state-stack-mobile.png"
+      ],
+      "branch": "swarm/tg-miniapp/p3-w3/ui/TG-MC-530-codex",
+      "worktree": ".worktrees/TG-MC-530-codex"
+    }
+  ]
+}

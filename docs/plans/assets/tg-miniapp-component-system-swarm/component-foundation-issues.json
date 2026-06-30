@@ -1,0 +1,322 @@
+[
+  {
+    "id": "TG-MC-C001",
+    "name": "Component extraction seam and registry",
+    "component": "ComponentRegistry",
+    "summary": "Create the shared code seam that every Mission Control page consumes before page-specific work begins.",
+    "deliverable": "Introduce a stable component registry/contract for the mini app primitives currently scattered across `workers/quests/src/page.ts`, with named helpers, shared prop shapes, data-component attributes, and source-reference comments that point back to the modular component map.",
+    "acceptance": [
+      "Pages can render primitives only through named component helpers or a deliberate registry wrapper.",
+      "The registry covers MissionGlyph, StateToken, OrbitProgress, SelectedHalo, SignalRail, PacketFlow, BranchArcChip, MissionCard, QuestlineTimeline, ProofList, KpiPulse, GateActionRow, and the motion primitives.",
+      "The contract keeps raw architecture/source/schema wording out of primary page primitives and leaves Inspect/detail sheets as the allowed debug surface."
+    ],
+    "number": 200,
+    "url": "https://github.com/Sheshiyer/cambium/issues/200",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C002",
+    "name": "Cambium visual token layer",
+    "component": "VisualTokens",
+    "summary": "Build reusable CSS tokens for the extracted component system.",
+    "deliverable": "Extract the deep teal shell, chartreuse active accent, soft mint copy, peach warning accent, contour texture, safe-area spacing, radius, border, and density rules into a reusable mini app token layer consumed by every component primitive.",
+    "acceptance": [
+      "Component CSS uses shared token names rather than page-local one-off colors.",
+      "8px-or-smaller component radius, Telegram safe-area spacing, and thumb-safe action sizing are available as reusable rules.",
+      "The palette stays Cambium-native and does not drift into purple/blue AI gradients, generic SaaS cards, or single-hue surfaces."
+    ],
+    "number": 201,
+    "url": "https://github.com/Sheshiyer/cambium/issues/201",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C003",
+    "name": "MissionGlyph inline SVG variants",
+    "component": "MissionGlyph",
+    "summary": "Replace Unicode placeholder glyphs with real reusable inline SVG glyphs.",
+    "deliverable": "Build `MissionGlyph` as a text-accessible ornamental primitive with inline SVG variants for genesis, taste, build, ops, cortex, arc, proof, and gate, mapped to the component board and Cambium visual stage contract.",
+    "acceptance": [
+      "No glyph variant renders as a bare text character such as star, triangle, circle, or crescent placeholder.",
+      "Active glyphs can receive a chartreuse halo and one orbit ring; warning glyphs use peach stroke with no glow bloom; locked glyphs desaturate at low opacity.",
+      "Glyphs remain ornamental identity only and do not become standalone buttons without adjacent accessible labels."
+    ],
+    "number": 202,
+    "url": "https://github.com/Sheshiyer/cambium/issues/202",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C004",
+    "name": "StateToken taxonomy and renderer",
+    "component": "StateToken",
+    "summary": "Build the compact state token primitive used by every page.",
+    "deliverable": "Implement `StateToken` with explicit idle, active, selected, complete, blocked, locked, stale, proof-needed, and reducedMotion states, including icon/label support so color is never the only state cue.",
+    "acceptance": [
+      "State mapping is centralized and pages do not invent extra token classes ad hoc.",
+      "Blocked and stale states are visually distinct from complete/ready states.",
+      "Reduced-motion state renders as a static visible label instead of removing the state treatment."
+    ],
+    "number": 203,
+    "url": "https://github.com/Sheshiyer/cambium/issues/203",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C005",
+    "name": "OrbitProgress primitive",
+    "component": "OrbitProgress",
+    "summary": "Build the reusable circular progress indicator for questlines and KPI pulse.",
+    "deliverable": "Implement `OrbitProgress` with value, state, label, optional packet dots, active partial arc, complete full ring, blocked peach segment, stale treatment, and dotted pending proof ring.",
+    "acceptance": [
+      "Progress values clamp to 0..100 and always render a readable label.",
+      "Blocked/proof-needed progress cannot look like successful completion.",
+      "MissionCard, KpiPulse, Gate orbit, and proof states can share the primitive rather than maintaining separate ring implementations."
+    ],
+    "number": 204,
+    "url": "https://github.com/Sheshiyer/cambium/issues/204",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C006",
+    "name": "SelectedHalo primitive",
+    "component": "SelectedHalo",
+    "summary": "Build one reusable selected-state treatment for chips, nodes, and sheets.",
+    "deliverable": "Implement a `SelectedHalo` primitive or CSS wrapper that supports one clean orbit/underline selection treatment, transform/opacity-only animation, and static reduced-motion rendering.",
+    "acceptance": [
+      "Only one selected item per rail receives the selected halo at a time.",
+      "The selected treatment is not duplicated through competing borders, glows, and underlines in the same component.",
+      "BranchArcChip, MissionStateStack rows, and detail-sheet headers can share the same selected visual language."
+    ],
+    "number": 205,
+    "url": "https://github.com/Sheshiyer/cambium/issues/205",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C007",
+    "name": "SignalRail component states",
+    "component": "SignalRail",
+    "summary": "Build the rail primitive that connects mission nodes and branch states.",
+    "deliverable": "Implement `SignalRail` with idle, active, blocked, and locked states, including muted mint line, chartreuse active rail, dashed blocked/locked variants, warning endpoint, and page-safe sizing.",
+    "acceptance": [
+      "Packet dots travel only along rails and never cover text.",
+      "Blocked rails terminate in a warning token rather than a success marker.",
+      "QuestlineTimeline, MissionCard texture, Story timeline, and Inspect rail panels can consume the same rail contract."
+    ],
+    "number": 206,
+    "url": "https://github.com/Sheshiyer/cambium/issues/206",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C008",
+    "name": "PacketFlow dot stream",
+    "component": "PacketFlow",
+    "summary": "Build the tiny packet-dot primitive used sparingly for live movement.",
+    "deliverable": "Implement `PacketFlow` as a bounded dot stream with count limits, state-aware opacity/color, static reduced-motion trail, and no text overlap.",
+    "acceptance": [
+      "Packet dots appear only inside rails, map texture, or explicit packet bars.",
+      "Reduced motion freezes the dots into a static trail without removing evidence of flow.",
+      "Dot count, spacing, and state are reusable inputs rather than hard-coded per page."
+    ],
+    "number": 207,
+    "url": "https://github.com/Sheshiyer/cambium/issues/207",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C009",
+    "name": "BranchArcChip primitive",
+    "component": "BranchArcChip",
+    "summary": "Build the branch selector chip as a reusable component.",
+    "deliverable": "Implement `BranchArcChip` with MissionGlyph, branch name, short mission copy, optional StateToken, selected halo support, stale/blocked/locked treatment, and tap-safe sheet routing hooks.",
+    "acceptance": [
+      "Fitcheck selected active, Vantyx stale, Snow Gloves blocked, and IVerif locked can all render from the same component API.",
+      "Long branch/mission names truncate cleanly without shifting chip height or clipping the state token.",
+      "The chip exposes stable data attributes for click handlers and viewport proof selectors."
+    ],
+    "number": 208,
+    "url": "https://github.com/Sheshiyer/cambium/issues/208",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C010",
+    "name": "MissionCard composite primitive",
+    "component": "MissionCard",
+    "summary": "Build the dominant next-mission card as a reusable composite.",
+    "deliverable": "Implement `MissionCard` with Next Mission eyebrow, title, owner, gate, dispatch target, promotion state, OrbitProgress, branch map/rail texture, and product-facing summary copy.",
+    "acceptance": [
+      "MissionCard copy remains founder-readable and avoids raw source/schema/envelope/quest-ledger language.",
+      "The rail/map texture uses real SignalRail and PacketFlow primitives rather than decorative one-off styling.",
+      "The card can be consumed by Mission and branch detail sheets with consistent state styling."
+    ],
+    "number": 209,
+    "url": "https://github.com/Sheshiyer/cambium/issues/209",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C011",
+    "name": "QuestlineTimeline primitive",
+    "component": "QuestlineTimeline",
+    "summary": "Build the four-to-six stage mission timeline component.",
+    "deliverable": "Implement `QuestlineTimeline` with stage labels, MissionGlyph, StateToken, SignalRail connectors, packet-active state, blocked warning endpoint, and locked continuation.",
+    "acceptance": [
+      "Seed complete, Packet active, Proof blocked, and Launch locked can render as the canonical four-stage phone reference.",
+      "The timeline accepts four to six stages without layout overflow on mobile.",
+      "Stage labels are product-facing and raw architecture detail moves to Inspect or sheets."
+    ],
+    "number": 210,
+    "url": "https://github.com/Sheshiyer/cambium/issues/210",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C012",
+    "name": "ProofList primitive",
+    "component": "ProofList",
+    "summary": "Build proof-needed rows as a reusable founder-facing list.",
+    "deliverable": "Implement `ProofList` rows with proof glyph/orbit state, proof-needed/blocked/stale distinctions, concise outcome copy, chevron/tap affordance, and detail-sheet hooks.",
+    "acceptance": [
+      "Rows describe founder-understandable proof needs instead of raw paths, routes, or schema IDs.",
+      "Proof-needed rows use dotted receipt/orbit treatment and cannot appear complete until evidence exists.",
+      "Mission, Gate, Story, and Inspect linkouts can reuse the row API with appropriate copy containment."
+    ],
+    "number": 211,
+    "url": "https://github.com/Sheshiyer/cambium/issues/211",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C013",
+    "name": "KpiPulse primitive",
+    "component": "KpiPulse",
+    "summary": "Build KPI pulse rows with orbit rings and packet bars.",
+    "deliverable": "Implement `KpiPulse` with compact KPI label, OrbitProgress ring, packet-bar signal depth, survival/better-than-survival copy, stale/blocked treatment, and reduced-motion stability.",
+    "acceptance": [
+      "KPI rows no longer use two-letter placeholder circles as the primary visual.",
+      "Signal depth is represented without implying fake progress or success.",
+      "Mission and branch sheets can share the same KPI primitive."
+    ],
+    "number": 212,
+    "url": "https://github.com/Sheshiyer/cambium/issues/212",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C014",
+    "name": "GateActionRow primitive",
+    "component": "GateActionRow",
+    "summary": "Build non-floating action rows for Review Gate and Open Proof.",
+    "deliverable": "Implement `GateActionRow` with stable in-flow layout, thumb-friendly buttons, state-aware disabled/pending styling, haptic/tap-safe attributes, and sheet-routing integration.",
+    "acceptance": [
+      "Review Gate and Open Proof never float over content or block scroll/swipe flow.",
+      "Buttons retain current click handlers and open the correct gate/proof sheets.",
+      "The action row can appear in Mission empty states and detail sheets without changing its interaction contract."
+    ],
+    "number": 213,
+    "url": "https://github.com/Sheshiyer/cambium/issues/213",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C015",
+    "name": "orbitSweep motion primitive",
+    "component": "orbitSweep",
+    "summary": "Build the calm selected/progress orbit animation primitive.",
+    "deliverable": "Implement `orbitSweep` as reusable CSS animation or class contract for active OrbitProgress and selected branch chips, with slow cubic easing and static reduced-motion fallback.",
+    "acceptance": [
+      "Only the current focal component uses orbitSweep at a time.",
+      "Reduced motion renders a static partial ring with the same state label.",
+      "The animation does not trigger aggressive pulse, sparkle, or layout movement."
+    ],
+    "number": 214,
+    "url": "https://github.com/Sheshiyer/cambium/issues/214",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C016",
+    "name": "packetDrift motion primitive",
+    "component": "packetDrift",
+    "summary": "Build the rail-confined packet movement primitive.",
+    "deliverable": "Implement `packetDrift` for PacketFlow inside SignalRail and branch textures, with bounded speed, sparse dots, and reduced-motion static trail.",
+    "acceptance": [
+      "Packet motion stays confined to rail paths and does not cross text or buttons.",
+      "The effect is subtle enough for Telegram mini app use and repeat sessions.",
+      "Story, Mission, and Inspect can share the same motion class without page-local animation definitions."
+    ],
+    "number": 215,
+    "url": "https://github.com/Sheshiyer/cambium/issues/215",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C017",
+    "name": "glyphBreathe motion primitive",
+    "component": "glyphBreathe",
+    "summary": "Build the subtle current-glyph emphasis primitive.",
+    "deliverable": "Implement `glyphBreathe` for the current branch/stage glyph only, with a small scale range, no warning pulse, and reduced-motion static treatment.",
+    "acceptance": [
+      "Blocked, warning, stale, and locked glyphs do not breathe or pulse.",
+      "The current glyph emphasis is subtle and does not compete with selected halo/orbitSweep.",
+      "The primitive is opt-in by state and cannot be accidentally applied to every glyph on a page."
+    ],
+    "number": 216,
+    "url": "https://github.com/Sheshiyer/cambium/issues/216",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C018",
+    "name": "warningAttention motion primitive",
+    "component": "warningAttention",
+    "summary": "Build the single-pass Gate/proof warning attention treatment.",
+    "deliverable": "Implement `warningAttention` for blocked proof or Gate review rows, with peach stroke appearing once and resting in a readable review state.",
+    "acceptance": [
+      "Warnings do not flash, loop aggressively, or masquerade as success accents.",
+      "Reduced motion renders the resting review state immediately.",
+      "Gate, ProofList, State Stack, and Gate decision cards can reuse the same warning treatment."
+    ],
+    "number": 217,
+    "url": "https://github.com/Sheshiyer/cambium/issues/217",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C019",
+    "name": "Reduced motion and accessibility contract",
+    "component": "reducedMotion",
+    "summary": "Build the accessibility contract every primitive must honor.",
+    "deliverable": "Implement a shared reduced-motion/static-state contract, text-first labels, aria labels where needed, non-color-only state cues, and stable dimensions for component primitives.",
+    "acceptance": [
+      "Every primitive remains readable with reduced motion enabled.",
+      "State is communicated by label/icon/shape, not color alone.",
+      "Long labels and mobile widths do not cause text overlap or layout jumps."
+    ],
+    "number": 218,
+    "url": "https://github.com/Sheshiyer/cambium/issues/218",
+    "state": "OPEN",
+    "existed": false
+  },
+  {
+    "id": "TG-MC-C020",
+    "name": "Component gallery proof surface",
+    "component": "ComponentGalleryProof",
+    "summary": "Build a proofable component gallery/fixture before page execution starts.",
+    "deliverable": "Add a lightweight component gallery or proof fixture that renders all extracted primitives, canonical states, and motion-static frames from the modular component references, using stable selectors for viewport proof.",
+    "acceptance": [
+      "Gallery/proof includes glyph variants, state tokens, orbit progress states, mission composites, and motion storyboard static states.",
+      "Page work #100-#199 can reference the gallery as the visual lock before integrating primitives into Mission, Gate, Tools, Story, and Inspect.",
+      "The proof surface is implementation-facing and does not create a new production page unless routed behind an explicit proof/debug flag."
+    ],
+    "number": 219,
+    "url": "https://github.com/Sheshiyer/cambium/issues/219",
+    "state": "OPEN",
+    "existed": false
+  }
+]

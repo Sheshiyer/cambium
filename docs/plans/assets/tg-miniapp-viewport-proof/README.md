@@ -18,7 +18,8 @@ The capture runner tries Chromium-family app bundles and cached Playwright headl
 - Manifest schema: `cambium.tg-viewport-proof-manifest.v1`
 - Browser: Google Chrome
 - Browser mode: recorded in `manifest.json`
-- Captured scenes: Quests, Map, Story, Gate, and Commands.
+- Captured scenes: Mission, Story, Tools, Inspect, and Gate.
+- Root shell proof: every current scene capture includes the component-system `MissionControlShell` and glyph-backed `RootNav`.
 
 These screenshots prove local layout only. They do not prove live Telegram WebView chrome, safe-area behavior, real `initData`, or production signed actions.
 
@@ -26,20 +27,25 @@ These screenshots prove local layout only. They do not prove live Telegram WebVi
 
 | Scene | Fixture | Artifact | Interaction kind | Clickability proof status |
 |---|---|---|---|---|
-| Quests | `no-fake-progress` | `quests-line-mobile.png` | `layout-proof` | Layout only; quest row sheets are reviewed product behavior, not captured in this manifest. |
+| Mission | `branch-stories` | `mission-control-mobile.png` | `layout-proof` | Layout proof for the packet-backed Mission Control first screen: glyph root nav, active branch arcs, next mission, blockers, proof needed, KPIs, and actions. |
+| Mission | `branch-stories` | `mission-actions-mobile.png` | `layout-proof` | Layout proof for the componentized state stack, proof rows, and non-floating `GateActionRow` so Review Gate/Open Proof do not cover the flow. |
+| Mission | `branch-stories` | `sheet-mission-review-gate-mobile.png` | `clickability-proof` | Captures tapping Review Gate and the componentized branch-gate sheet. |
+| Mission | `branch-stories` | `sheet-mission-open-proof-mobile.png` | `clickability-proof` | Captures tapping Open Proof and the componentized branch-proof sheet. |
+| Mission | `branch-stories` | `sheet-mission-vantyx-mobile.png` | `clickability-proof` | Captures tapping the Vantyx branch chip and the componentized branch-mission sheet. |
 | Story | `fresh` | `story-feed-mobile.png` | `layout-proof` | Layout only for this manifest; product story beats are sheet-backed, but a scripted story-beat sheet capture is still future proof work. |
-| Commands | `fresh` | `commands-mobile.png` | `layout-proof` | Layout only for the Commands scene. |
-| Commands | `fresh` | `sheet-command-chat-mobile.png` | `clickability-proof` | Captures tapping `/ts-run` and the resulting `#sheet` command metadata. |
-| Map | `no-fake-progress` | `map-tapestry-audit-mobile.png` | `layout-proof` | Layout proof with `clickTargetCount: 14`; not a scripted sheet click. |
-| Map | `no-fake-progress` | `map-no-fake-progress-mobile.png` | `layout-proof` | Layout proof for explicit gaps and no invented progress. |
-| Map | `no-fake-progress` | `map-policy-gap-mobile.png` | `layout-proof` | Layout proof for blocked policy guidance. |
-| Map | `no-fake-progress` | `map-live-proof-mobile.png` | `layout-proof` | Layout proof for live-proof capture guidance; not live Telegram proof. |
-| Map | `gate` | `map-gate-priority-mobile.png` | `layout-proof` | Layout proof for gate priority card; signed choice remains in Gate sheet captures. |
-| Map | `skill` | `map-skill-promotion-mobile.png` | `layout-proof` | Layout proof for skill promotion cards. |
-| Map | `skill` | `sheet-skill-promotion-mobile.png` | `clickability-proof` | Captures tapping `[data-skill="0"]` and the clipped founder-review sheet. |
-| Map | `mira` | `map-mira-relationship-mobile.png` | `layout-proof` | Layout proof for tenant-scoped Mira evidence. |
-| Map | `mira` | `map-companions-mobile.png` | `layout-proof` | Layout proof for companion rows; no relationship overclaim. |
-| Gate | `gate` | `gate-consequence-mobile.png` | `layout-proof` | Layout proof for consequence and idempotency copy. |
+| Tools | `fresh` | `tools-mobile.png` | `layout-proof` | Layout proof for the operator toolbelt scene. |
+| Tools | `fresh` | `sheet-tools-command-chat-mobile.png` | `clickability-proof` | Captures tapping `/ts-run` and the resulting `#sheet` command metadata. |
+| Inspect | `no-fake-progress` | `inspect-tapestry-audit-mobile.png` | `layout-proof` | Layout proof with `clickTargetCount: 14`; not a scripted sheet click. |
+| Inspect | `no-fake-progress` | `inspect-no-fake-progress-mobile.png` | `layout-proof` | Layout proof for explicit gaps and no invented progress. |
+| Inspect | `no-fake-progress` | `inspect-policy-gap-mobile.png` | `layout-proof` | Layout proof for blocked policy guidance. |
+| Inspect | `no-fake-progress` | `inspect-live-proof-mobile.png` | `layout-proof` | Layout proof for live-proof capture guidance; not live Telegram proof. |
+| Inspect | `gate` | `inspect-gate-priority-mobile.png` | `layout-proof` | Layout proof for gate priority card; signed choice remains in Gate sheet captures. |
+| Inspect | `skill` | `inspect-skill-promotion-mobile.png` | `layout-proof` | Layout proof for skill promotion cards. |
+| Inspect | `skill` | `sheet-inspect-skill-promotion-mobile.png` | `clickability-proof` | Captures tapping `[data-skill="0"]` and the clipped founder-review sheet. |
+| Inspect | `mira` | `inspect-mira-relationship-mobile.png` | `layout-proof` | Layout proof for tenant-scoped Mira evidence. |
+| Inspect | `mira` | `inspect-companions-mobile.png` | `layout-proof` | Layout proof for companion rows; no relationship overclaim. |
+| Gate | `no-fake-progress` | `gate-empty-mobile.png` | `layout-proof` | Layout proof for the componentized empty decision lane: glyph root nav, state rail, decision lane, and founder action copy. |
+| Gate | `gate` | `gate-consequence-mobile.png` | `layout-proof` | Layout proof for the componentized signed-action cards, visible approve/reroll controls, consequence, and idempotency copy. |
 | Gate | `gate` | `sheet-gate-approve-preflight-mobile.png` | `clickability-proof` | Captures tapping approve and the clipped signed-action preflight sheet. |
 | Gate | `gate` | `sheet-gate-reroll-preflight-mobile.png` | `clickability-proof` | Captures tapping reroll and the clipped signed-action preflight sheet. |
 

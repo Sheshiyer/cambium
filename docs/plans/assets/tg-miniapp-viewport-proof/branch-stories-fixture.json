@@ -1,0 +1,3353 @@
+{
+  "schema": 1,
+  "derivedAt": "2026-06-30T06:24:08.332Z",
+  "source": "visual-fixture:branch-stories",
+  "tenant": "cambium",
+  "beats": [
+    {
+      "text": "Hermes routed a fresh command snapshot into the mini app",
+      "lane": "paperclip",
+      "noesis": false
+    },
+    {
+      "text": "NOESIS check kept stale screenshots out of readiness",
+      "lane": "noesis",
+      "noesis": true
+    }
+  ],
+  "openItems": [],
+  "commands": {
+    "status": {
+      "agents": 3,
+      "issuesOpen": 2,
+      "issuesDone": 7,
+      "arcs": "3/17",
+      "hermes": "ready"
+    },
+    "services": [
+      {
+        "name": "Hermes Telegram brain",
+        "status": "ready",
+        "detail": "curios.self command bridge reachable"
+      },
+      {
+        "name": "Cambium Worker",
+        "status": "ready",
+        "detail": "quest envelope route responding for cambium"
+      }
+    ],
+    "agents": [
+      {
+        "name": "Mira",
+        "model": "operator-npc-events@v1"
+      },
+      {
+        "name": "Paperclip",
+        "model": "vault-via-paperclip"
+      }
+    ],
+    "work": [
+      {
+        "id": "THO-42",
+        "status": "active",
+        "title": "Refresh mini app proof surface",
+        "who": "operator"
+      }
+    ],
+    "handoffs": [
+      {
+        "id": "HND-7",
+        "status": "waiting-founder",
+        "title": "Approve fresh viewport capture"
+      }
+    ]
+  },
+  "wake": {
+    "source": "visual-fixture:no-fake-progress",
+    "steps": [
+      {
+        "id": "ingest",
+        "status": "missing",
+        "detail": "missing source",
+        "source": "missing",
+        "proof": "ingest: missing source",
+        "evidence": [],
+        "gap": "missing source",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "route",
+        "status": "missing",
+        "detail": "missing active route",
+        "source": "missing",
+        "proof": "route: missing active route",
+        "evidence": [],
+        "gap": "missing active route",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "act",
+        "status": "missing",
+        "detail": "no available quest rows",
+        "source": "missing",
+        "proof": "act: no available quest rows",
+        "evidence": [],
+        "gap": "no available quest rows",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "viability",
+        "status": "missing",
+        "detail": "awaiting signal",
+        "source": "missing",
+        "proof": "viability: awaiting signal",
+        "evidence": [],
+        "gap": "awaiting signal",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "learn",
+        "status": "missing",
+        "detail": "awaiting signal",
+        "source": "missing",
+        "proof": "learn: awaiting signal",
+        "evidence": [],
+        "gap": "awaiting signal",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      },
+      {
+        "id": "persist",
+        "status": "missing",
+        "detail": "missing derivedAt",
+        "source": "missing",
+        "proof": "persist: missing derivedAt",
+        "evidence": [],
+        "gap": "missing derivedAt",
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "status": "none",
+          "proof": "no operator wake events served",
+          "rows": []
+        }
+      }
+    ]
+  },
+  "lanes": {
+    "source": "missing",
+    "total": 0,
+    "dominant": null,
+    "counts": {
+      "micro": 0,
+      "meso": 0,
+      "macro": 0,
+      "noesis": 0
+    },
+    "gap": "lane telemetry missing from world.log"
+  },
+  "senses": {
+    "source": "quest-ledger-envelope@v1",
+    "status": "ready",
+    "rows": [
+      {
+        "id": "signal",
+        "title": "SIGNAL",
+        "on": true,
+        "detail": "I · The Calling",
+        "proof": "I · The Calling: first session unplayed",
+        "source": "quest-ledger",
+        "evidence": [
+          {
+            "label": "I · The Calling",
+            "status": "active",
+            "detail": "first session unplayed"
+          }
+        ]
+      },
+      {
+        "id": "memory",
+        "title": "MEMORY",
+        "on": false,
+        "detail": "no cortex rows",
+        "proof": "no tenant cortex memory or open cortex quest rows served",
+        "source": "missing",
+        "evidence": [],
+        "gap": "memory sense has no served cortex evidence"
+      },
+      {
+        "id": "risk",
+        "title": "RISK",
+        "on": true,
+        "detail": "16 quest risk traces · 0 gate risks",
+        "proof": "II · First Mint: artifacts pending: seed, positioning, cta unclaimed · VI · Memory: cortex unreachable · XV · The Launch: deploy events missing",
+        "source": "quest-ledger",
+        "evidence": [
+          {
+            "label": "II · First Mint",
+            "status": "locked",
+            "detail": "artifacts pending: seed, positioning, cta unclaimed"
+          },
+          {
+            "label": "VI · Memory",
+            "status": "locked",
+            "detail": "cortex unreachable"
+          },
+          {
+            "label": "XV · The Launch",
+            "status": "locked",
+            "detail": "deploy events missing"
+          }
+        ]
+      },
+      {
+        "id": "drift",
+        "title": "DRIFT",
+        "on": true,
+        "detail": "ledger stale beyond 360m",
+        "proof": "derivedAt 2026-01-01T00:00:00.000Z",
+        "source": "freshness",
+        "evidence": [
+          {
+            "label": "derivedAt",
+            "status": "stale",
+            "detail": "2026-01-01T00:00:00.000Z"
+          }
+        ],
+        "gap": "ledger older than 360 minutes"
+      }
+    ]
+  },
+  "insights": {
+    "source": "quest-ledger-evidence@v1",
+    "status": "ready",
+    "rows": [
+      {
+        "id": "active-frontier:the-calling",
+        "title": "I · The Calling",
+        "state": "wait",
+        "detail": "first session unplayed",
+        "proof": "first session unplayed",
+        "source": "quest-ledger",
+        "origin": "active-frontier",
+        "quest": {
+          "arc": "I",
+          "id": "the-calling",
+          "status": "active"
+        },
+        "evidence": [
+          {
+            "label": "I · The Calling",
+            "status": "active",
+            "detail": "first session unplayed"
+          }
+        ],
+        "gap": "active frontier is not complete yet"
+      }
+    ]
+  },
+  "stance": {
+    "source": "missing",
+    "status": "insufficient",
+    "scope": "tenant-world-log-only",
+    "sampleSize": 0,
+    "minimum": 6,
+    "window": 24,
+    "dominant": null,
+    "label": null,
+    "confidence": 0,
+    "ratios": {
+      "micro": 0,
+      "meso": 0,
+      "macro": 0,
+      "noesis": 0
+    },
+    "counts": {
+      "micro": 0,
+      "meso": 0,
+      "macro": 0,
+      "noesis": 0
+    },
+    "gap": "need 6 tenant events; found 0"
+  },
+  "skills": {
+    "source": "missing",
+    "total": 0,
+    "rows": [],
+    "gap": "skill registry missing"
+  },
+  "policy": {
+    "source": "operator-policy",
+    "status": "blocked",
+    "action": null,
+    "title": "POLICY GAP",
+    "detail": "recommendation policy blocked",
+    "blockers": [
+      "need 6 tenant events; found 0",
+      "skill registry missing"
+    ],
+    "cautions": [],
+    "requiredSignals": [
+      "active quest frontier",
+      "tenant stance sample",
+      "skill registry tier"
+    ],
+    "rulesVersion": "operator-policy@v1.4",
+    "gap": "need 6 tenant events; found 0"
+  },
+  "npc": {
+    "source": "missing",
+    "relationships": [
+      {
+        "id": "mira",
+        "status": "missing",
+        "detail": "npc relationship state not served yet",
+        "proof": "no tenant cortex memories served",
+        "stage": {
+          "id": "missing",
+          "label": "MISSING",
+          "detail": "no tenant-scoped Mira/ICP evidence served",
+          "confidence": 0
+        },
+        "events": [],
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "contradictions": 0,
+          "rows": []
+        },
+        "advice": {
+          "status": "blocked",
+          "label": "NO ADVICE",
+          "detail": "no durable NPC advice event served",
+          "proof": "no durable NPC events served",
+          "action": {
+            "kind": "collect-evidence",
+            "label": "Record NPC evidence",
+            "target": "quine write quests npc-event mira"
+          }
+        },
+        "sampleSize": 0,
+        "scope": "tenant-cortex-only"
+      },
+      {
+        "id": "founder-npc",
+        "status": "missing",
+        "detail": "founder memory not served yet",
+        "proof": "no inherited founder arcs served",
+        "stage": {
+          "id": "missing",
+          "label": "MISSING",
+          "detail": "no inherited founder arc memory served",
+          "confidence": 0
+        },
+        "events": [],
+        "history": {
+          "source": "missing",
+          "total": 0,
+          "contradictions": 0,
+          "rows": []
+        },
+        "advice": {
+          "status": "blocked",
+          "label": "NO ADVICE",
+          "detail": "no durable NPC advice event served",
+          "proof": "no durable NPC events served",
+          "action": {
+            "kind": "collect-evidence",
+            "label": "Record NPC evidence",
+            "target": "quine write quests npc-event founder-npc"
+          }
+        },
+        "sampleSize": 0,
+        "scope": "founder-arcs"
+      }
+    ]
+  },
+  "social": {
+    "source": "coordination-evidence@v1",
+    "status": "gap",
+    "scope": "tenant-handoff-only",
+    "rows": [
+      {
+        "id": "social-gap",
+        "title": "SOCIAL GAP",
+        "state": "gap",
+        "detail": "no tenant-scoped bridge or handoff evidence served",
+        "proof": "Paperclip open items, founder gate, and client handoff signals are absent",
+        "source": "missing",
+        "scope": "tenant-handoff-only",
+        "evidence": [],
+        "gap": "coordination evidence missing"
+      }
+    ],
+    "gap": "no tenant-scoped bridge or handoff evidence served"
+  },
+  "decisionContext": {
+    "source": "decision-context@v1",
+    "status": "ready",
+    "served": 0,
+    "gaps": 6,
+    "rows": [
+      {
+        "id": "founder-preference",
+        "title": "FOUNDER PREFERENCE",
+        "state": "gap",
+        "detail": "founder preference signal not served",
+        "proof": "no founder preference row exists in the current visual envelope",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "founder preference missing"
+      },
+      {
+        "id": "owner-load",
+        "title": "OWNER LOAD",
+        "state": "gap",
+        "detail": "no owner load signal served",
+        "proof": "no Paperclip open items with owner fields were served",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "owner load missing"
+      },
+      {
+        "id": "economic-risk",
+        "title": "ECONOMIC RISK",
+        "state": "gap",
+        "detail": "economic commitment state not served",
+        "proof": "no project evidence object served for brief, contract, deposit, amount, or currency",
+        "source": "missing",
+        "scope": "project-only",
+        "evidence": [],
+        "gap": "economic risk missing"
+      },
+      {
+        "id": "team-availability",
+        "title": "TEAM AVAILABILITY",
+        "state": "gap",
+        "detail": "team availability signal not served",
+        "proof": "Paperclip owners are not availability or capacity signals",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "team availability missing"
+      },
+      {
+        "id": "member-revocation",
+        "title": "MEMBER REVOCATION",
+        "state": "gap",
+        "detail": "member revocation state not served",
+        "proof": "bridge/member token revocation state is not present in the visual envelope",
+        "source": "missing",
+        "scope": "tenant-only",
+        "evidence": [],
+        "gap": "member revocation missing"
+      },
+      {
+        "id": "cross-tenant-urgency",
+        "title": "CROSS-TENANT URGENCY",
+        "state": "gap",
+        "detail": "cross-tenant urgency signal not served",
+        "proof": "no tenant registry or urgency score served",
+        "source": "missing",
+        "scope": "cross-tenant",
+        "evidence": [],
+        "gap": "cross-tenant urgency missing"
+      }
+    ]
+  },
+  "liveProof": {
+    "source": "tg-live-proof-readiness@v1",
+    "status": "blocked",
+    "generatedAt": "2026-06-22T00:00:00.000Z",
+    "workerUrl": "https://curious.thoughtseed.space",
+    "summary": {
+      "ready": 7,
+      "blocked": 3,
+      "total": 10,
+      "liveProofReady": false
+    },
+    "invariant": "Capture commands create redacted receipts; they are proof only after their artifacts validate ready.",
+    "rows": [
+      {
+        "id": "device-webview-proof",
+        "title": "DEVICE WEBVIEW PROOF",
+        "state": "blocked",
+        "detail": "3/4 prerequisites blocked",
+        "proof": "docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json; capture plan is guidance, not proof",
+        "source": "tg-live-proof-capture-plan",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot docs/plans/assets/tg-miniapp-live-proof/<founder-device>.png --platform <ios|android|desktop> --webview-url <current Telegram WebView URL> --safe-area <notes> --write",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json",
+        "prerequisites": [
+          {
+            "label": "fresh-telegram-init-data",
+            "status": "blocked",
+            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+          },
+          {
+            "label": "screenshot-under-proof-dir",
+            "status": "blocked",
+            "detail": "founder-device screenshot path is required"
+          },
+          {
+            "label": "device-platform",
+            "status": "blocked",
+            "detail": "device platform is required"
+          },
+          {
+            "label": "webview-url",
+            "status": "ready",
+            "detail": "WebView URL is supplied"
+          }
+        ],
+        "privacy": [
+          "raw initData comes only from env",
+          "artifact stores user/initData/screenshot hashes only",
+          "WebView query and hash are omitted"
+        ]
+      },
+      {
+        "id": "worker-list-proof",
+        "title": "WORKER LIST PROOF",
+        "state": "blocked",
+        "detail": "worker-network-probe.json is stale or not trusted by the current readiness packet",
+        "proof": "current readiness blocks worker-network-probe until a fresh cambium.worker-network-probe.v1 receipt validates ready",
+        "source": "tg-live-proof-capture-plan",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-worker-probe --allow-network --write",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json",
+        "prerequisites": [
+          {
+            "label": "worker-token",
+            "status": "ready",
+            "detail": "QUESTS_PUSH_TOKEN is available without printing it"
+          },
+          {
+            "label": "allow-network",
+            "status": "blocked",
+            "detail": "--allow-network is required for recapture"
+          }
+        ],
+        "privacy": [
+          "Worker credential is used only as an authorization header",
+          "artifact stores status, response shape, counts, and body digest only"
+        ]
+      },
+      {
+        "id": "signed-action-smoke",
+        "title": "SIGNED ACTION SMOKE",
+        "state": "blocked",
+        "detail": "12/14 prerequisites blocked",
+        "proof": "docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json; capture plan is guidance, not proof",
+        "source": "tg-live-proof-capture-plan",
+        "command": "node workers/quests/src/live-proof-readiness.mjs --capture-signed-smoke --allow-network --allow-mutation --action-kind <kind> --action-subject <subject> --action-idempotency-key <key> --operator-command \"<consumer command>\" --operator-audit <audit-file> --operator-checked <n> --operator-consumed <n> --operator-rejected <n> --miniapp-envelope <refreshed-envelope-file> --visible-marker <visible-card-marker> --write",
+        "writes": "docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json",
+        "prerequisites": [
+          {
+            "label": "fresh-telegram-init-data",
+            "status": "blocked",
+            "detail": "capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView"
+          },
+          {
+            "label": "worker-token",
+            "status": "ready",
+            "detail": "QUESTS_PUSH_TOKEN is available without printing it"
+          },
+          {
+            "label": "allow-network",
+            "status": "blocked",
+            "detail": "--allow-network is required for this capture"
+          },
+          {
+            "label": "allow-mutation",
+            "status": "blocked",
+            "detail": "--allow-mutation is required for this capture"
+          },
+          {
+            "label": "miniapp-envelope",
+            "status": "blocked",
+            "detail": "mini app envelope path is required"
+          },
+          {
+            "label": "visible-marker",
+            "status": "blocked",
+            "detail": "visible marker is required"
+          }
+        ],
+        "privacy": [
+          "raw initData is sent only in the Telegram submit body",
+          "proof tool does not consume the queue",
+          "artifact stores hashes, counts, status codes, and digests only"
+        ]
+      }
+    ],
+    "gap": "live Telegram WebView and Worker proof are not complete yet"
+  },
+  "sideQuests": {
+    "source": "pure-trigger-predicates",
+    "status": "ready",
+    "rows": [
+      {
+        "id": "wake-proof",
+        "title": "WAKE PROOF",
+        "status": "triggered",
+        "trigger": "wake.steps.missing",
+        "detail": "6 wake steps awaiting signal",
+        "proof": "ingest: missing source · route: missing active route · act: no available quest rows · viability: awaiting signal · learn: awaiting signal · persist: missing derivedAt",
+        "origin": "visual-fixture:no-fake-progress",
+        "owner": "operator",
+        "action": {
+          "kind": "refresh",
+          "label": "Refresh quest evidence",
+          "target": "quine write quests push"
+        },
+        "lifetime": {
+          "scope": "until-next-refresh",
+          "staleAfterMinutes": 360,
+          "detail": "expires when the next quest envelope is pushed or the envelope becomes stale"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "all wake steps referenced by this row become proved or explicitly absent"
+        }
+      },
+      {
+        "id": "stance-sample",
+        "title": "STANCE SAMPLE",
+        "status": "triggered",
+        "trigger": "stance.insufficient",
+        "detail": "need 6 tenant events; found 0",
+        "proof": "0/6 tenant lane events",
+        "origin": "missing",
+        "owner": "operator",
+        "action": {
+          "kind": "collect-evidence",
+          "label": "Record tenant lane events",
+          "target": "tenant world.log"
+        },
+        "lifetime": {
+          "scope": "until-evidence-arrives",
+          "staleAfterMinutes": 360,
+          "detail": "remains open until tenant lane sample reaches the minimum"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "tenant stance sample reaches 6 events"
+        }
+      },
+      {
+        "id": "skill-registry",
+        "title": "SKILL REGISTRY",
+        "status": "triggered",
+        "trigger": "skills.missing",
+        "detail": "skill registry missing",
+        "proof": "0/0 served skill telemetry rows",
+        "origin": "missing",
+        "owner": "operator",
+        "action": {
+          "kind": "refresh",
+          "label": "Refresh skill telemetry",
+          "target": ".operator/<tenant>.skills.json"
+        },
+        "lifetime": {
+          "scope": "until-next-refresh",
+          "staleAfterMinutes": 360,
+          "detail": "expires when the next quest envelope is pushed or the envelope becomes stale"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "skill registry serves at least one telemetry row"
+        }
+      },
+      {
+        "id": "policy-unblock",
+        "title": "POLICY UNBLOCK",
+        "status": "triggered",
+        "trigger": "policy.blocked",
+        "detail": "need 6 tenant events; found 0",
+        "proof": "need 6 tenant events; found 0 · skill registry missing",
+        "origin": "operator-policy",
+        "owner": "system",
+        "action": {
+          "kind": "inspect",
+          "label": "Inspect policy blockers",
+          "target": "operator-policy@v1.4"
+        },
+        "lifetime": {
+          "scope": "until-next-refresh",
+          "staleAfterMinutes": 360,
+          "detail": "expires when the next quest envelope is pushed or the envelope becomes stale"
+        },
+        "completion": {
+          "kind": "policy-ready",
+          "proof": "operator policy serves a ready next action or a narrower blocker"
+        }
+      },
+      {
+        "id": "mira-evidence",
+        "title": "MIRA EVIDENCE",
+        "status": "triggered",
+        "trigger": "npc.mira.missing",
+        "detail": "npc relationship state not served yet",
+        "proof": "0 tenant cortex matches",
+        "origin": "missing",
+        "owner": "operator",
+        "action": {
+          "kind": "collect-evidence",
+          "label": "Mint tenant cortex memory",
+          "target": "npc.mira"
+        },
+        "lifetime": {
+          "scope": "until-evidence-arrives",
+          "staleAfterMinutes": 1440,
+          "detail": "remains open until tenant cortex evidence mentions Mira or ICP signals"
+        },
+        "completion": {
+          "kind": "proof-arrives",
+          "proof": "tenant-scoped cortex memory backs Mira relationship evidence"
+        }
+      }
+    ]
+  },
+  "ledger": {
+    "completed": 0,
+    "total": 17,
+    "current": {
+      "arc": "I",
+      "id": "the-calling",
+      "title": "The Calling"
+    },
+    "rows": [
+      {
+        "arc": "I",
+        "id": "the-calling",
+        "title": "The Calling",
+        "status": "active",
+        "evidence": "first session unplayed"
+      },
+      {
+        "arc": "II",
+        "id": "first-mint",
+        "title": "First Mint",
+        "status": "locked",
+        "evidence": "artifacts pending: seed, positioning, cta unclaimed"
+      },
+      {
+        "arc": "III",
+        "id": "taste-resonance",
+        "title": "Taste & Resonance",
+        "status": "locked",
+        "evidence": "no meso moves yet"
+      },
+      {
+        "arc": "IV",
+        "id": "the-loop",
+        "title": "The Loop",
+        "status": "locked",
+        "evidence": "micro x0, meso x0, macro x0"
+      },
+      {
+        "arc": "V",
+        "id": "viability",
+        "title": "Viability",
+        "status": "locked",
+        "evidence": "viability sweep unplayed"
+      },
+      {
+        "arc": "VI",
+        "id": "memory",
+        "title": "Memory",
+        "status": "locked",
+        "evidence": "cortex unreachable"
+      },
+      {
+        "arc": "VII",
+        "id": "many-gardens",
+        "title": "Many Gardens",
+        "status": "locked",
+        "evidence": "tenant garden evidence missing"
+      },
+      {
+        "arc": "VIII",
+        "id": "living-org",
+        "title": "Living Org",
+        "status": "locked",
+        "evidence": "Paperclip org unreachable"
+      },
+      {
+        "arc": "IX",
+        "id": "the-gate",
+        "title": "The Gate",
+        "status": "locked",
+        "evidence": "no founder handoff resolved"
+      },
+      {
+        "arc": "X",
+        "id": "the-brief",
+        "title": "The Brief",
+        "status": "locked",
+        "evidence": "brief, contract, and deposit missing"
+      },
+      {
+        "arc": "XI",
+        "id": "the-scaffold",
+        "title": "The Scaffold",
+        "status": "locked",
+        "evidence": "repo, tenant, and specs missing"
+      },
+      {
+        "arc": "XII",
+        "id": "the-build",
+        "title": "The Build",
+        "status": "locked",
+        "evidence": "build commits missing"
+      },
+      {
+        "arc": "XIII",
+        "id": "the-review",
+        "title": "The Review",
+        "status": "locked",
+        "evidence": "review events missing"
+      },
+      {
+        "arc": "XIV",
+        "id": "the-ship-gate",
+        "title": "The Ship Gate",
+        "status": "locked",
+        "evidence": "gate approvals missing"
+      },
+      {
+        "arc": "XV",
+        "id": "the-launch",
+        "title": "The Launch",
+        "status": "locked",
+        "evidence": "deploy events missing"
+      },
+      {
+        "arc": "XVI",
+        "id": "the-handoff",
+        "title": "The Handoff",
+        "status": "locked",
+        "evidence": "client sign-off missing"
+      },
+      {
+        "arc": "XVII",
+        "id": "the-garden",
+        "title": "The Garden",
+        "status": "locked",
+        "evidence": "lessons and archive missing"
+      }
+    ]
+  },
+  "freshness": {
+    "status": "fresh",
+    "staleAfterMinutes": 360,
+    "detail": "derived just now",
+    "proofClock": "2026-06-22T10:00:00.000Z",
+    "proof": "deterministic derivedAt 2026-06-22T09:00:00.000Z is 60 minutes before fixture proof clock 2026-06-22T10:00:00.000Z"
+  },
+  "rails": {
+    "source": "shared/cambium-visual-contract",
+    "proof": "5 organs and 7 rails served from shared/cambium-visual-contract.ts",
+    "rows": [
+      {
+        "id": "micro",
+        "source": "shared/cambium-visual-contract",
+        "proof": "MICRO lane is mapped"
+      },
+      {
+        "id": "meso",
+        "source": "shared/cambium-visual-contract",
+        "proof": "MESO lane is mapped"
+      },
+      {
+        "id": "macro",
+        "source": "shared/cambium-visual-contract",
+        "proof": "MACRO lane is mapped"
+      },
+      {
+        "id": "noesis",
+        "source": "shared/cambium-visual-contract",
+        "proof": "NOESIS lane is mapped"
+      }
+    ]
+  },
+  "sourceProofs": [
+    {
+      "id": "commands",
+      "source": "paperclipCommandsData",
+      "proof": "live command sheet rows have source metadata"
+    },
+    {
+      "id": "beats",
+      "source": "operator-narrative",
+      "proof": "story beats carry lane and narrative source"
+    },
+    {
+      "id": "rails",
+      "source": "shared/cambium-visual-contract",
+      "proof": "rail rows are read-only contract evidence"
+    }
+  ],
+  "branchStories": {
+    "source": "product-branch-packets@v1",
+    "status": "partial",
+    "total": 4,
+    "active": 3,
+    "blocked": 34,
+    "activeBranchId": "fitcheck",
+    "rows": [
+      {
+        "branchId": "fitcheck",
+        "productId": "fitcheck",
+        "name": "Fitcheck",
+        "role": "Supervised product branch",
+        "arcId": "fitcheck-supervised-launch-hardening",
+        "arcTitle": "Supervised Launch Hardening",
+        "vision": {
+          "statement": "Fitcheck becomes the first proof-bound Cambium product branch that can move a Shopify fashion merchant from demo interest to supervised pilot."
+        },
+        "icp": {
+          "primary": "Shopify fashion brand founder or ecommerce operator who needs visual fit confidence before committing to a pilot."
+        },
+        "kpis": [
+          {
+            "kpiId": "fitcheck-qualified-demo",
+            "label": "Qualified merchant demo",
+            "survival": "one qualified merchant completes demo or reservation flow",
+            "betterThanSurvival": "one merchant schedules supervised pilot from the flow",
+            "source": "lead handler and founder note",
+            "currentState": "pending"
+          },
+          {
+            "kpiId": "fitcheck-first-merchant-proof",
+            "label": "First merchant pilot proof",
+            "survival": "pilot proof packet exists",
+            "betterThanSurvival": "tracked widget events and customer proof fold into Cambium",
+            "source": "Shopify widget QA and pilot packet",
+            "currentState": "blocked by access and approvals"
+          }
+        ],
+        "questline": [
+          {
+            "id": "quest-1",
+            "title": "Confirm Shopify submission status and capture reviewer outcome.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-2",
+            "title": "Run Taste audit on landing, Shopify widget, copy, privacy wording, and demo renders.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-3",
+            "title": "Patch only issues found by Taste and QA.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-4",
+            "title": "Wire Dodo payment/reservation link into production env.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-5",
+            "title": "Run authenticated Shopify product-page widget QA.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-6",
+            "title": "Ingest branch packet, HDILINT source map, and launch lessons into Cortex.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-7",
+            "title": "Schedule Garden branch health pulse after the first pilot begins.",
+            "status": "queued"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "fitcheck-shopify-qa",
+            "title": "Run authenticated Shopify widget QA",
+            "type": "proof",
+            "owner": "founder/codex",
+            "gate": "Credentials",
+            "proofRequired": "screenshot plus widget event log",
+            "dispatchTarget": "hermes"
+          },
+          {
+            "missionId": "fitcheck-dodo-reservation",
+            "title": "Wire Dodo reservation URL into production env",
+            "type": "implementation",
+            "owner": "founder/codex",
+            "gate": "Payment",
+            "proofRequired": "env receipt plus checkout smoke",
+            "dispatchTarget": "cambium"
+          },
+          {
+            "missionId": "fitcheck-outreach-approval",
+            "title": "Approve first merchant outreach packet",
+            "type": "approval",
+            "owner": "founder",
+            "gate": "Customer contact",
+            "proofRequired": "approved copy plus target list note",
+            "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "gates": [
+          {
+            "gate": "Human approvals",
+            "status": "pending",
+            "requiredProof": "Founder approval for Shopify submission, privacy/refund wording, real outreach, and public claims."
+          },
+          {
+            "gate": "Spend approvals",
+            "status": "blocked",
+            "requiredProof": "Explicit approval before live metered try-on generation."
+          },
+          {
+            "gate": "Privacy/legal",
+            "status": "pending",
+            "requiredProof": "Approved retention, deletion, no-training, consent, and refund language."
+          },
+          {
+            "gate": "Payment",
+            "status": "blocked",
+            "requiredProof": "Dodo payment/reservation link and production env proof."
+          },
+          {
+            "gate": "Customer contact",
+            "status": "blocked",
+            "requiredProof": "Approved outbound copy and first merchant target list."
+          },
+          {
+            "gate": "Public claims",
+            "status": "blocked",
+            "requiredProof": "No app-store approval or conversion lift claim until evidenced."
+          },
+          {
+            "gate": "Credentials",
+            "status": "blocked",
+            "requiredProof": "Shopify storefront/admin access and approved runtime action route."
+          }
+        ],
+        "proofPaths": [
+          {
+            "proofId": "fitcheck-shopify-widget-proof",
+            "sourcePath": "future Shopify QA screenshot and event receipt",
+            "validates": "product-page try-on works under authenticated conditions",
+            "promotes": "keeps supervised branch active; no autonomy promotion"
+          },
+          {
+            "proofId": "fitcheck-payment-proof",
+            "sourcePath": "Dodo/Vercel env receipt plus checkout smoke",
+            "validates": "reservation/payment path is live enough for supervised pilot",
+            "promotes": "unlocks customer-contact gate only after approval"
+          },
+          {
+            "proofId": "fitcheck-first-merchant-packet",
+            "sourcePath": "future first merchant proof packet",
+            "validates": "real merchant pilot outcome",
+            "promotes": "candidate for later autonomous review after app-action portability"
+          }
+        ],
+        "promotion": {
+          "state": "supervised-branch",
+          "currentGate": "Shopify Dodo privacy QA outreach and first merchant proof",
+          "rule": "Fitcheck is currently `supervised-branch`. The ladder remains `proof-only -> supervised branch -> autonomous branch`. Do not call Fitcheck autonomous until Shopify review, QA, privacy/payment/onboarding, branch routines, app-action portability, and one real merchant proof packet are complete."
+        },
+        "controls": {
+          "productSeed": {
+            "product_id": "fitcheck",
+            "one_sentence_seed": "Done-for-you AI virtual try-on launch service for Shopify fashion brands.",
+            "founder_intent": "Use the Thoughtseed growth engine to run Fitcheck as the first supervised product branch.",
+            "target_customer": "Shopify fashion brands that need shoppers to visualize fit before purchase.",
+            "pain_or_desire": "Product pages lose conversion because shoppers cannot picture garments on their own body.",
+            "offer": "Managed virtual try-on pilot with personalized renders, Shopify widget, credits, and launch support.",
+            "survival_metric": "One qualified merchant completes a demo or reservation flow.",
+            "better_than_survival_metric": "One merchant pilot goes live with tracked widget events and branch proof packet.",
+            "GTM_channel": "Shopify-first outbound, founder-led demo renders, cofounder-operated pilot sales.",
+            "constraints": "ROI-first, privacy-aware, no fake lift claims, no app-store approval claim until approved.",
+            "third_party_apps": "Shopify, Vercel, GitHub, AWS App Runner, Cloudflare/R2/Cortex, Dodo Payments, Composio when brokered or portable.",
+            "autonomy_boundary": "Semi-autonomous routines can recommend and draft; founder approval gates remain required for submission, payments, customer contact, spend, and public claims.",
+            "approvals": "Shopify submission, privacy/legal wording, Dodo activation/refunds, customer outreach, live merchant install, public proof/case-study claims."
+          },
+          "organRouting": [
+            {
+              "organ": "Genesis",
+              "owner": "Fitcheck/HDILINT source docs",
+              "input": "Existing brand DNA and service promise",
+              "output": "brand_system`, `copy_system`, `visual_system",
+              "proofPath": "Existing dated packet plus HDILINT source material",
+              "currentGate": "verified, do not regenerate unless Taste fails current assets"
+            },
+            {
+              "organ": "Taste",
+              "owner": "Cambium taste/audit loop",
+              "input": "Landing, widget, copy, privacy wording, demo renders",
+              "output": "Taste verdict and reroll list",
+              "proofPath": "Future visual/copy/privacy audit packet",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hands",
+              "owner": "Fitcheck landing/widget/backend repos",
+              "input": "Scoped gates from Taste and QA",
+              "output": "Code/docs patches with proof",
+              "proofPath": "Fitcheck PRs and command receipts",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Will",
+              "owner": "Snow Gloves OS / GTM routines",
+              "input": "Approved product and proof bundle",
+              "output": "Outreach, CRM, payment, pilot reporting",
+              "proofPath": "Founder-approved action logs",
+              "currentGate": "blocked until outreach/payment approvals"
+            },
+            {
+              "organ": "Cortex",
+              "owner": "Cambium/Cortex memory",
+              "input": "Branch lessons and proof summaries",
+              "output": "Searchable branch memory",
+              "proofPath": "Cortex ingestion targets",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hermes",
+              "owner": "Hermes/Paperclip routes",
+              "input": "Founder-facing actions",
+              "output": "Telegram/Plexus reports",
+              "proofPath": "Hermes/Paperclip proof receipts",
+              "currentGate": "pending, policy-aware recommendation only"
+            },
+            {
+              "organ": "Garden",
+              "owner": "Branch health cadence",
+              "input": "Branch evidence and outcomes",
+              "output": "Daily/weekly pulses",
+              "proofPath": "Routine proof packet",
+              "currentGate": "blocked until pilot begins"
+            }
+          ],
+          "variableContractPayloads": [
+            {
+              "group": "brand_system",
+              "currentSource": "Existing Fitcheck brand DNA and HDILINT brand/GTM docs",
+              "status": "verified"
+            },
+            {
+              "group": "copy_system",
+              "currentSource": "Fitcheck landing copy and HDILINT product spec",
+              "status": "verified"
+            },
+            {
+              "group": "visual_system",
+              "currentSource": "Landing, Shopify widget, demo render assets",
+              "status": "pending"
+            },
+            {
+              "group": "asset_plan",
+              "currentSource": "Shopify widget assets, demo images, product screenshots",
+              "status": "pending"
+            },
+            {
+              "group": "section_plan",
+              "currentSource": "Landing/product-page flow from current Fitcheck packet",
+              "status": "pending"
+            },
+            {
+              "group": "interaction_plan",
+              "currentSource": "Lead capture, reservation CTA, widget upload/consent/result events",
+              "status": "pending"
+            },
+            {
+              "group": "acceptance_checks",
+              "currentSource": "Existing QA checklist, App Runner health, landing tests",
+              "status": "pending"
+            }
+          ],
+          "adapterServiceMap": [
+            {
+              "providerRoute": "Vercel landing",
+              "inputs": "Fitcheck source and env values",
+              "outputs": "Public landing and serverless lead handler",
+              "failureModes": "Artifact drift, protected preview, missing reservation env",
+              "tenantMapping": "fitcheck",
+              "privacyBoundary": "No provider secrets in packet"
+            },
+            {
+              "providerRoute": "Shopify demo store",
+              "inputs": "Product page, widget assets, storefront access",
+              "outputs": "Product-page try-on proof",
+              "failureModes": "Password page, App Store review pending",
+              "tenantMapping": "fitcheck",
+              "privacyBoundary": "Customer media/consent wording requires approval"
+            },
+            {
+              "providerRoute": "AWS App Runner API",
+              "inputs": "Upload intent and demo wrapper calls",
+              "outputs": "Health, signed upload, demo API wrapper",
+              "failureModes": "Live generation cost or provider failure",
+              "tenantMapping": "fitcheck",
+              "privacyBoundary": "Retention/deletion/no-training wording remains approval-gated"
+            },
+            {
+              "providerRoute": "Dodo Payments",
+              "inputs": "Reservation or pilot payment link",
+              "outputs": "Paid pilot intent",
+              "failureModes": "Missing production env/payment link/refund policy",
+              "tenantMapping": "fitcheck",
+              "privacyBoundary": "Payment activation and refund language require approval"
+            },
+            {
+              "providerRoute": "Composio",
+              "inputs": "GitHub/Gmail/Google Calendar actions",
+              "outputs": "Branch action portability",
+              "failureModes": "Local-only auth or missing EC2/broker route",
+              "tenantMapping": "fitcheck",
+              "privacyBoundary": "App actions require approved runtime sessioning"
+            }
+          ],
+          "evidenceLedger": [
+            {
+              "status": "verified",
+              "evidence": "Existing dated packet: `docs/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`."
+            },
+            {
+              "status": "verified",
+              "evidence": "Local packet recorded Fitcheck landing repo HEAD `f1b8d88`, `npm test` passing `7/7`, live landing HTTP `200`, and App Runner health `ok: true`."
+            },
+            {
+              "status": "verified",
+              "evidence": "Launch hardening pass recorded lead handler, local browser proof, Vercel preview readiness, App Runner signed-upload proof, and widget harness events."
+            },
+            {
+              "status": "blocked",
+              "evidence": "Live production Vercel artifact drift and missing Dodo/Fitcheck reservation URL env."
+            },
+            {
+              "status": "blocked",
+              "evidence": "Shopify demo product route requires storefront password/session/admin access for live widget QA."
+            },
+            {
+              "status": "pending",
+              "evidence": "Shopify App Store approval, privacy/legal wording, refund wording, and customer outreach approval."
+            },
+            {
+              "status": "no-signal",
+              "evidence": "No real merchant pilot proof packet exists yet."
+            }
+          ],
+          "approvals": [
+            {
+              "permission": "Shopify storefront/admin access",
+              "status": "blocked",
+              "requiredApproval": "founder provides authenticated route/session",
+              "failureMode": "widget QA cannot be verified live"
+            },
+            {
+              "permission": "Dodo production payment link",
+              "status": "blocked",
+              "requiredApproval": "founder approves reservation/payment activation",
+              "failureMode": "payment mission cannot dispatch"
+            },
+            {
+              "permission": "customer outreach",
+              "status": "blocked",
+              "requiredApproval": "founder approves copy and recipient list",
+              "failureMode": "no live merchant contact"
+            },
+            {
+              "permission": "public claims",
+              "status": "blocked",
+              "requiredApproval": "founder approves claim after proof packet",
+              "failureMode": "mini app must show supervised state only"
+            }
+          ],
+          "autonomyBoundary": "Semi-autonomous routines can recommend and draft; founder approval gates remain required for submission, payments, customer contact, spend, and public claims.",
+          "dispatchHints": [
+            {
+              "route": "hermes-topic-assignment",
+              "payloadHint": "fitcheck-shopify-qa` with branchMission metadata",
+              "allowedWhen": "Shopify access and QA scope are approved",
+              "blockedWhen": "credentials or privacy wording missing"
+            },
+            {
+              "route": "cambium-bridge-assignment",
+              "payloadHint": "fitcheck-dodo-reservation` as supervised implementation task",
+              "allowedWhen": "Dodo URL/env target is approved",
+              "blockedWhen": "payment activation remains unapproved"
+            },
+            {
+              "route": "plexus-agent-fabric",
+              "payloadHint": "fitcheck-outreach-approval` for member approval workflow",
+              "allowedWhen": "outreach copy exists and founder review is requested",
+              "blockedWhen": "public claim proof is missing"
+            }
+          ],
+          "policySignals": [
+            {
+              "permission": "Shopify storefront/admin access",
+              "status": "blocked",
+              "requiredApproval": "founder provides authenticated route/session",
+              "failureMode": "widget QA cannot be verified live"
+            },
+            {
+              "permission": "Dodo production payment link",
+              "status": "blocked",
+              "requiredApproval": "founder approves reservation/payment activation",
+              "failureMode": "payment mission cannot dispatch"
+            },
+            {
+              "permission": "customer outreach",
+              "status": "blocked",
+              "requiredApproval": "founder approves copy and recipient list",
+              "failureMode": "no live merchant contact"
+            },
+            {
+              "permission": "public claims",
+              "status": "blocked",
+              "requiredApproval": "founder approves claim after proof packet",
+              "failureMode": "mini app must show supervised state only"
+            }
+          ],
+          "ui": {
+            "headline": "Fitcheck",
+            "currentFrontier": "Supervised launch hardening: Shopify, Dodo, privacy, QA, outreach, and first merchant proof remain the live gates.",
+            "missionVerb": "Run authenticated Shopify widget QA",
+            "narrativeVoice": "Precise operator voice: launch pilot, prove every claim, and keep approvals visible.",
+            "blockedCopy": "Do not claim app-store approval, conversion lift, unattended operation, or real merchant outcome until evidenced."
+          }
+        },
+        "source": {
+          "tenant": "cambium",
+          "schema": "cambium.product_branch_packet.v1",
+          "indexFile": "docs/plans/product-branches/index.md",
+          "packetFile": "docs/plans/product-branches/fitcheck.md"
+        },
+        "gaps": [
+          {
+            "id": "evidence-ledger-4",
+            "status": "blocked",
+            "detail": "Live production Vercel artifact drift and missing Dodo/Fitcheck reservation URL env.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-5",
+            "status": "blocked",
+            "detail": "Shopify demo product route requires storefront password/session/admin access for live widget QA.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-6",
+            "status": "pending",
+            "detail": "Shopify App Store approval, privacy/legal wording, refund wording, and customer outreach approval.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-7",
+            "status": "no-signal",
+            "detail": "No real merchant pilot proof packet exists yet.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "gate-ledger-1",
+            "status": "pending",
+            "detail": "Human approvals: Founder approval for Shopify submission, privacy/refund wording, real outreach, and public claims.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-2",
+            "status": "blocked",
+            "detail": "Spend approvals: Explicit approval before live metered try-on generation.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-3",
+            "status": "pending",
+            "detail": "Privacy/legal: Approved retention, deletion, no-training, consent, and refund language.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-4",
+            "status": "blocked",
+            "detail": "Payment: Dodo payment/reservation link and production env proof.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-5",
+            "status": "blocked",
+            "detail": "Customer contact: Approved outbound copy and first merchant target list.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-6",
+            "status": "blocked",
+            "detail": "Public claims: No app-store approval or conversion lift claim until evidenced.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-7",
+            "status": "blocked",
+            "detail": "Credentials: Shopify storefront/admin access and approved runtime action route.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "policy-permission-inputs-1",
+            "status": "blocked",
+            "detail": "Shopify storefront/admin access: widget QA cannot be verified live",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-2",
+            "status": "blocked",
+            "detail": "Dodo production payment link: payment mission cannot dispatch",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-3",
+            "status": "blocked",
+            "detail": "customer outreach: no live merchant contact",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-4",
+            "status": "blocked",
+            "detail": "public claims: mini app must show supervised state only",
+            "source": "policy-permission-inputs"
+          }
+        ]
+      },
+      {
+        "branchId": "vantyx",
+        "productId": "vantyx",
+        "name": "Vantyx",
+        "role": "Tenant onboarding and publishing branch",
+        "arcId": "vantyx-second-tenant-publish-proof",
+        "arcTitle": "Second Tenant Publish Proof",
+        "vision": {
+          "statement": "Vantyx becomes a repeatable supervised tenant branch that can onboard, publish, roll back, and report proof for immersive real-estate tours."
+        },
+        "icp": {
+          "primary": "View-led developer or agency operator who needs a branded tour live under a tenant slug with safe updates."
+        },
+        "kpis": [
+          {
+            "kpiId": "vantyx-second-tenant-live",
+            "label": "Second tenant public health",
+            "survival": "one real second tenant serves `/api/config` successfully",
+            "betterThanSurvival": "tenant has publish and rollback receipts",
+            "source": "Worker route probe and config receipt",
+            "currentState": "pending"
+          },
+          {
+            "kpiId": "vantyx-repeatable-deploy-proof",
+            "label": "Repeatable deploy proof",
+            "survival": "documented tenant creation works once",
+            "betterThanSurvival": "deploy, rollback, analytics, and proof report all close",
+            "source": "product repo commands and Cambium proof packet",
+            "currentState": "blocked by second-client proof"
+          }
+        ],
+        "questline": [
+          {
+            "id": "quest-1",
+            "title": "Create a second-tenant candidate and approval note.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-2",
+            "title": "Run `bun run new-client ...` in the product repo with proof capture.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-3",
+            "title": "Deploy or stage the second tenant and capture `/api/config` health.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-4",
+            "title": "Prove publish and rollback on a non-destructive tenant update.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-5",
+            "title": "Confirm PostHog event capture for the tenant.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-6",
+            "title": "Confirm Resend domain/email readiness if email is part of the tenant flow.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-7",
+            "title": "Wire tour/deployment health into Cambium/Plexus proof reporting.",
+            "status": "queued"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "vantyx-second-tenant",
+            "title": "Create and health-check second tenant",
+            "type": "proof",
+            "owner": "founder/codex",
+            "gate": "Tenant proof",
+            "proofRequired": "new-client` receipt plus `/api/config` health",
+            "dispatchTarget": "cambium"
+          },
+          {
+            "missionId": "vantyx-rollback-proof",
+            "title": "Prove non-destructive publish and rollback",
+            "type": "proof",
+            "owner": "codex",
+            "gate": "Rollback proof",
+            "proofRequired": "deploy log plus before/after health receipt",
+            "dispatchTarget": "hermes"
+          },
+          {
+            "missionId": "vantyx-analytics-proof",
+            "title": "Confirm tenant analytics event capture",
+            "type": "proof",
+            "owner": "founder/codex",
+            "gate": "Analytics consent",
+            "proofRequired": "PostHog event receipt without secret values",
+            "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "gates": [
+          {
+            "gate": "Human approvals",
+            "status": "pending",
+            "requiredProof": "Approve target second tenant and public claims."
+          },
+          {
+            "gate": "Spend approvals",
+            "status": "pending",
+            "requiredProof": "Approve any paid Cloudflare/domain/email actions beyond existing config."
+          },
+          {
+            "gate": "Privacy/legal",
+            "status": "pending",
+            "requiredProof": "Confirm analytics/email consent language for tenant operators and visitors."
+          },
+          {
+            "gate": "Payment",
+            "status": "no-signal",
+            "requiredProof": "No payment flow evidenced in this packet."
+          },
+          {
+            "gate": "Customer contact",
+            "status": "pending",
+            "requiredProof": "Approve developer/agency outreach and tenant onboarding copy."
+          },
+          {
+            "gate": "Public claims",
+            "status": "blocked",
+            "requiredProof": "Do not claim repeatable multi-tenant readiness until second tenant proof and rollback proof pass."
+          },
+          {
+            "gate": "Credentials",
+            "status": "blocked",
+            "requiredProof": "Production secrets remain Wrangler-managed; no local env file was read for this packet."
+          }
+        ],
+        "proofPaths": [
+          {
+            "proofId": "vantyx-tenant-health-proof",
+            "sourcePath": "future route probe and `/api/config` receipt",
+            "validates": "second tenant serves correct config",
+            "promotes": "keeps supervised branch active"
+          },
+          {
+            "proofId": "vantyx-rollback-proof",
+            "sourcePath": "future publish/rollback command receipts",
+            "validates": "tenant updates can be reversed safely",
+            "promotes": "unlocks repeatability review"
+          },
+          {
+            "proofId": "vantyx-analytics-proof",
+            "sourcePath": "future analytics receipt",
+            "validates": "tenant events are captured without leaking secrets",
+            "promotes": "supports later GTM/reporting gate"
+          }
+        ],
+        "promotion": {
+          "state": "supervised-branch",
+          "currentGate": "Tenant proof and rollback proof",
+          "rule": "Vantyx is currently `supervised-branch`. The ladder remains `proof-only -> supervised branch -> autonomous branch`. Do not call Vantyx autonomous until second-client dogfood, tenant proof, live admin/login checks, analytics/email proof, and Cambium/Plexus foldback are complete."
+        },
+        "controls": {
+          "productSeed": {
+            "product_id": "vantyx",
+            "one_sentence_seed": "Living 360 degree tour platform for view-led real-estate developers selling floor-by-floor views before and during construction.",
+            "founder_intent": "Turn Vantyx into a repeatable tenant onboarding and publish/rollback branch inside Cambium.",
+            "target_customer": "View-led property developers and sales or marketing teams; secondary users are visualization and digital marketing agencies serving developers.",
+            "pain_or_desire": "Development teams need immersive sales tours that can be updated without downtime as views, plans, or content change.",
+            "offer": "Premium branded tour per project on `<slug>.tryvantyx.space`, with public viewer, per-tenant admin, operator console, upload/draft/publish/rollback, and Cloudflare edge hosting.",
+            "survival_metric": "One real second tenant is onboarded through the documented tenant flow and served publicly.",
+            "better_than_survival_metric": "Second tenant deploys with health proof, rollback proof, analytics confirmation, and Cambium/Plexus proof reporting.",
+            "GTM_channel": "Developer-led demos, project-specific immersive references, and agency/developer partnerships.",
+            "constraints": "Keep tenant config scoped; do not read local env files into packets; treat production secrets as Wrangler secrets only.",
+            "third_party_apps": "Cloudflare Workers, KV, R2, Access, Custom Domains, Turnstile, Wrangler, PostHog, Resend, GitHub Actions, Bun, React/Vite/Tailwind/Zod, Pannellum.",
+            "autonomy_boundary": "Supervised SaaS branch until second-client dogfood, live login checks, and proof reporting exist.",
+            "approvals": "New tenant creation, custom domain changes, production deploy, analytics/email activation, customer-facing claims."
+          },
+          "organRouting": [
+            {
+              "organ": "Genesis",
+              "owner": "Vantyx brand source",
+              "input": "Brand brief and product positioning",
+              "output": "brand_system`, `copy_system`, `visual_system",
+              "proofPath": "brandmint-v2/brands/vantyx/BRAND-BRIEF.md",
+              "currentGate": "verified for seed"
+            },
+            {
+              "organ": "Taste",
+              "owner": "Cambium taste loop",
+              "input": "Tour viewer, admin flow, developer-facing copy",
+              "output": "Visual/copy QA and reroll list",
+              "proofPath": "Future Taste review",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hands",
+              "owner": "Panaroma-Webapp",
+              "input": "Tenant onboarding and publish/rollback tasks",
+              "output": "Code/config changes and deploy receipts",
+              "proofPath": "Product repo PRs and command receipts",
+              "currentGate": "pending second tenant proof"
+            },
+            {
+              "organ": "Will",
+              "owner": "GTM/operator routines",
+              "input": "Approved sales/demo packet",
+              "output": "Outreach and follow-up tasks",
+              "proofPath": "Founder-approved action log",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Cortex",
+              "owner": "Cambium/Cortex memory",
+              "input": "Tenant proof, deploy health, rollback lessons",
+              "output": "Searchable branch memory",
+              "proofPath": "Cortex ingestion target",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hermes",
+              "owner": "Hermes/Plexus reports",
+              "input": "Health and next actions",
+              "output": "Founder-visible recommendation and proof report",
+              "proofPath": "Future report packet",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Garden",
+              "owner": "Branch cadence",
+              "input": "Tenant health and proof outcomes",
+              "output": "Branch health pulse",
+              "proofPath": "Future Garden routine",
+              "currentGate": "blocked until second tenant exists"
+            }
+          ],
+          "variableContractPayloads": [
+            {
+              "group": "brand_system",
+              "currentSource": "Vantyx brand brief and product docs",
+              "status": "verified"
+            },
+            {
+              "group": "copy_system",
+              "currentSource": "README/development docs and product positioning",
+              "status": "pending"
+            },
+            {
+              "group": "visual_system",
+              "currentSource": "Existing tour UI and brand source",
+              "status": "pending"
+            },
+            {
+              "group": "asset_plan",
+              "currentSource": "360 tour slots, floor/time/view media, tenant assets",
+              "status": "pending"
+            },
+            {
+              "group": "section_plan",
+              "currentSource": "Public viewer, per-tenant admin, operator console",
+              "status": "pending"
+            },
+            {
+              "group": "interaction_plan",
+              "currentSource": "Upload, draft, publish, rollback, public viewer navigation",
+              "status": "pending"
+            },
+            {
+              "group": "acceptance_checks",
+              "currentSource": "Typecheck/test/deploy/new-client commands from docs plus live public route probe",
+              "status": "pending"
+            }
+          ],
+          "adapterServiceMap": [
+            {
+              "providerRoute": "Cloudflare Worker `vantyx",
+              "inputs": "Tenant config and deploy bundle",
+              "outputs": "Public viewer and APIs",
+              "failureModes": "Broken deploy, wrong tenant binding, route mismatch",
+              "tenantMapping": "tenant slug, e.g. `marina-one-ka",
+              "privacyBoundary": "Secrets remain in Wrangler, not packet files"
+            },
+            {
+              "providerRoute": "Cloudflare KV/R2",
+              "inputs": "Tour config and panoramic media",
+              "outputs": "Tenant data and assets",
+              "failureModes": "Missing assets, stale config, wrong bucket binding",
+              "tenantMapping": "per-tenant keys/assets",
+              "privacyBoundary": "Do not expose source media beyond intended public assets"
+            },
+            {
+              "providerRoute": "Cloudflare Access/Turnstile",
+              "inputs": "Admin login and bot protection",
+              "outputs": "Protected admin path",
+              "failureModes": "Login or Turnstile not verified live",
+              "tenantMapping": "tenant admin context",
+              "privacyBoundary": "Admin credentials not recorded in packet"
+            },
+            {
+              "providerRoute": "PostHog",
+              "inputs": "Product analytics",
+              "outputs": "Event proof and usage reports",
+              "failureModes": "Not configured or unverified",
+              "tenantMapping": "tenant/project events",
+              "privacyBoundary": "Analytics activation needs consent boundary"
+            },
+            {
+              "providerRoute": "Resend",
+              "inputs": "Email notifications",
+              "outputs": "Tenant/admin emails",
+              "failureModes": "Domain not ready or mail not verified",
+              "tenantMapping": "tenant/project messages",
+              "privacyBoundary": "Production sender setup remains approval-gated"
+            }
+          ],
+          "evidenceLedger": [
+            {
+              "status": "verified",
+              "evidence": "INFRA_STATUS.md` maps GetVantyx/Vantyx to `Panaroma-Webapp`."
+            },
+            {
+              "status": "verified",
+              "evidence": "Panaroma-Webapp/README.md` names Vantyx and the Marina One live reference."
+            },
+            {
+              "status": "verified",
+              "evidence": "Panaroma-Webapp/docs/DEVELOPMENT.md` documents stack, commands, architecture, deploy, and secrets boundaries."
+            },
+            {
+              "status": "verified",
+              "evidence": "Panaroma-Webapp/worker/wrangler.toml` names Worker `vantyx`."
+            },
+            {
+              "status": "verified",
+              "evidence": "Public probe reported `https://marina-one-ka.tryvantyx.space/` returned HTTP 200 and `/api/config` returned JSON with `schemaVersion: 1`, `version: 1`, and tenant `marina-one-ka`."
+            },
+            {
+              "status": "pending",
+              "evidence": "Local `bun run typecheck`, `bun test`, deploy, and `bun run new-client ...` were documented but not run in this Cambium packet pass."
+            },
+            {
+              "status": "blocked",
+              "evidence": "Second-client dogfood, PostHog confirmation, Resend domain readiness, and Turnstile live-login checks remain unproven."
+            },
+            {
+              "status": "no-signal",
+              "evidence": "No Cambium/Plexus proof reporting integration is present in this packet yet."
+            }
+          ],
+          "approvals": [
+            {
+              "permission": "target second tenant",
+              "status": "pending",
+              "requiredApproval": "founder approves tenant/project candidate",
+              "failureMode": "no real onboarding mission dispatch"
+            },
+            {
+              "permission": "production deploy/custom domain",
+              "status": "pending",
+              "requiredApproval": "founder approves Cloudflare route/domain change",
+              "failureMode": "no public proof claim"
+            },
+            {
+              "permission": "analytics/email activation",
+              "status": "pending",
+              "requiredApproval": "founder approves consent boundary",
+              "failureMode": "analytics and email proof stay blocked"
+            },
+            {
+              "permission": "public SaaS readiness claims",
+              "status": "blocked",
+              "requiredApproval": "second-tenant, login, rollback, analytics proof accepted",
+              "failureMode": "mini app must show supervised branch only"
+            }
+          ],
+          "autonomyBoundary": "Supervised SaaS branch until second-client dogfood, live login checks, and proof reporting exist.",
+          "dispatchHints": [
+            {
+              "route": "cambium-bridge-assignment",
+              "payloadHint": "vantyx-second-tenant` with branchMission metadata",
+              "allowedWhen": "target tenant and proof scope are approved",
+              "blockedWhen": "no tenant candidate or route approval"
+            },
+            {
+              "route": "hermes-topic-assignment",
+              "payloadHint": "vantyx-rollback-proof` as supervised proof task",
+              "allowedWhen": "staging or production target is named",
+              "blockedWhen": "deploy permissions are missing"
+            },
+            {
+              "route": "plexus-agent-fabric",
+              "payloadHint": "vantyx-analytics-proof` for member proof report",
+              "allowedWhen": "analytics boundary is approved",
+              "blockedWhen": "consent or PostHog access is missing"
+            }
+          ],
+          "policySignals": [
+            {
+              "permission": "target second tenant",
+              "status": "pending",
+              "requiredApproval": "founder approves tenant/project candidate",
+              "failureMode": "no real onboarding mission dispatch"
+            },
+            {
+              "permission": "production deploy/custom domain",
+              "status": "pending",
+              "requiredApproval": "founder approves Cloudflare route/domain change",
+              "failureMode": "no public proof claim"
+            },
+            {
+              "permission": "analytics/email activation",
+              "status": "pending",
+              "requiredApproval": "founder approves consent boundary",
+              "failureMode": "analytics and email proof stay blocked"
+            },
+            {
+              "permission": "public SaaS readiness claims",
+              "status": "blocked",
+              "requiredApproval": "second-tenant, login, rollback, analytics proof accepted",
+              "failureMode": "mini app must show supervised branch only"
+            }
+          ],
+          "ui": {
+            "headline": "Vantyx",
+            "currentFrontier": "Second-tenant onboarding, publish health, rollback proof, analytics confirmation, and customer-claim approval.",
+            "missionVerb": "Create and health-check second tenant",
+            "narrativeVoice": "Deployment operator voice: create tenant, prove route health, prove rollback, then report evidence.",
+            "blockedCopy": "Do not claim repeatable SaaS readiness, live admin readiness, or analytics proof until the second tenant path is evidenced."
+          }
+        },
+        "source": {
+          "tenant": "cambium",
+          "schema": "cambium.product_branch_packet.v1",
+          "indexFile": "docs/plans/product-branches/index.md",
+          "packetFile": "docs/plans/product-branches/vantyx.md"
+        },
+        "gaps": [
+          {
+            "id": "evidence-ledger-6",
+            "status": "pending",
+            "detail": "Local `bun run typecheck`, `bun test`, deploy, and `bun run new-client ...` were documented but not run in this Cambium packet pass.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-7",
+            "status": "blocked",
+            "detail": "Second-client dogfood, PostHog confirmation, Resend domain readiness, and Turnstile live-login checks remain unproven.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-8",
+            "status": "no-signal",
+            "detail": "No Cambium/Plexus proof reporting integration is present in this packet yet.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "gate-ledger-1",
+            "status": "pending",
+            "detail": "Human approvals: Approve target second tenant and public claims.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-2",
+            "status": "pending",
+            "detail": "Spend approvals: Approve any paid Cloudflare/domain/email actions beyond existing config.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-3",
+            "status": "pending",
+            "detail": "Privacy/legal: Confirm analytics/email consent language for tenant operators and visitors.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-4",
+            "status": "no-signal",
+            "detail": "Payment: No payment flow evidenced in this packet.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-5",
+            "status": "pending",
+            "detail": "Customer contact: Approve developer/agency outreach and tenant onboarding copy.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-6",
+            "status": "blocked",
+            "detail": "Public claims: Do not claim repeatable multi-tenant readiness until second tenant proof and rollback proof pass.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-7",
+            "status": "blocked",
+            "detail": "Credentials: Production secrets remain Wrangler-managed; no local env file was read for this packet.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "policy-permission-inputs-1",
+            "status": "pending",
+            "detail": "target second tenant: no real onboarding mission dispatch",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-2",
+            "status": "pending",
+            "detail": "production deploy/custom domain: no public proof claim",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-3",
+            "status": "pending",
+            "detail": "analytics/email activation: analytics and email proof stay blocked",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-4",
+            "status": "blocked",
+            "detail": "public SaaS readiness claims: mini app must show supervised branch only",
+            "source": "policy-permission-inputs"
+          }
+        ]
+      },
+      {
+        "branchId": "snow-gloves-os",
+        "productId": "snow-gloves-os",
+        "name": "Snow Gloves OS",
+        "role": "Will-organ service",
+        "arcId": "snow-gloves-os-will-organ-service-binding",
+        "arcTitle": "Will Organ Service Binding",
+        "vision": {
+          "statement": "Snow Gloves OS becomes the approval-gated Will-organ service that routes tenant operations with auditable proof and no standalone autonomy claim."
+        },
+        "icp": {
+          "primary": "Internal founder/operator or tenant operations lead who needs scoped connectors and approval-backed GTM or service actions."
+        },
+        "kpis": [
+          {
+            "kpiId": "snow-gloves-os-approval-proof",
+            "label": "Approval-gated operation proof",
+            "survival": "one high-risk action is blocked until approval",
+            "betterThanSurvival": "approved action runs and emits redacted audit evidence",
+            "source": "service smoke and audit log",
+            "currentState": "blocked"
+          },
+          {
+            "kpiId": "snow-gloves-os-tenant-foldback",
+            "label": "Tenant operation foldback",
+            "survival": "one tenant operation reports through Paperclip/Hermes",
+            "betterThanSurvival": "queue fallback and recovery are proven",
+            "source": "Paperclip/Hermes receipts",
+            "currentState": "pending"
+          }
+        ],
+        "questline": [
+          {
+            "id": "quest-1",
+            "title": "Clean or isolate the Snow Gloves OS checkout for proof.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-2",
+            "title": "Run `pytest`, `make smoke`, and relevant service checks with receipts.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-3",
+            "title": "Prove runtime secret binding with redacted output.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-4",
+            "title": "Run a live approval-gate test for a high-risk capability.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-5",
+            "title": "Bind the Will-organ tenant/source contract explicitly in Cambium.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-6",
+            "title": "Prove Paperclip queue fallback and recovery.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-7",
+            "title": "Archive the first tenant GTM proof with Hermes/Paperclip foldback.",
+            "status": "queued"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "snow-gloves-os-clean-smoke",
+            "title": "Run clean service smoke and tests",
+            "type": "proof",
+            "owner": "codex",
+            "gate": "Clean checkout proof",
+            "proofRequired": "make smoke` and test receipts with generated dirt isolated",
+            "dispatchTarget": "cambium"
+          },
+          {
+            "missionId": "snow-gloves-os-approval-gate",
+            "title": "Prove live high-risk approval gate",
+            "type": "proof",
+            "owner": "founder/codex",
+            "gate": "Human approvals",
+            "proofRequired": "redacted audit log plus approval decision",
+            "dispatchTarget": "hermes"
+          },
+          {
+            "missionId": "snow-gloves-os-paperclip-foldback",
+            "title": "Prove Paperclip queue and recovery foldback",
+            "type": "proof",
+            "owner": "codex",
+            "gate": "Foldback proof",
+            "proofRequired": "task queue receipt plus Hermes/Paperclip report",
+            "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "gates": [
+          {
+            "gate": "Human approvals",
+            "status": "blocked",
+            "requiredProof": "Live approval-gate test for high-risk capabilities."
+          },
+          {
+            "gate": "Spend approvals",
+            "status": "pending",
+            "requiredProof": "Approval before paid provider or distribution actions."
+          },
+          {
+            "gate": "Privacy/legal",
+            "status": "pending",
+            "requiredProof": "Tenant isolation, redaction, and source-retention proof."
+          },
+          {
+            "gate": "Payment",
+            "status": "no-signal",
+            "requiredProof": "No payment flow evidenced for this service packet."
+          },
+          {
+            "gate": "Customer contact",
+            "status": "blocked",
+            "requiredProof": "Approved tenant GTM send and audit trail."
+          },
+          {
+            "gate": "Public claims",
+            "status": "blocked",
+            "requiredProof": "Do not claim production OS readiness until clean test, smoke, connector, and approval evidence exist."
+          },
+          {
+            "gate": "Credentials",
+            "status": "blocked",
+            "requiredProof": "Runtime secret binding must be proven without exposing secret values."
+          }
+        ],
+        "proofPaths": [
+          {
+            "proofId": "snow-gloves-os-smoke-proof",
+            "sourcePath": "future smoke/test receipt",
+            "validates": "service can run checks in clean state",
+            "promotes": "keeps organ-service candidate active"
+          },
+          {
+            "proofId": "snow-gloves-os-approval-proof",
+            "sourcePath": "future redacted approval audit",
+            "validates": "high-risk actions require approval",
+            "promotes": "unlocks Will-organ service confidence, not standalone autonomy"
+          },
+          {
+            "proofId": "snow-gloves-os-foldback-proof",
+            "sourcePath": "future Paperclip/Hermes report",
+            "validates": "task/report events survive queue and recovery",
+            "promotes": "supports branch service proof ledger"
+          }
+        ],
+        "promotion": {
+          "state": "organ-service",
+          "currentGate": "Service contract and GTM approval gate",
+          "rule": "Snow Gloves OS is currently `organ-service`. The product ladder remains `proof-only -> supervised branch -> autonomous branch`, but this packet is an internal Will-organ service and should not be promoted as standalone app autonomy. Do not promote Snow Gloves OS beyond organ-service until clean test/smoke proof, runtime secret bind, live approval enforcement, and tenant/source binding are complete."
+        },
+        "controls": {
+          "productSeed": {
+            "product_id": "snow-gloves-os",
+            "one_sentence_seed": "Tenant-scoped business-operations layer that routes apps, knowledge, judgment, and orchestration through auditable approval-gated flows.",
+            "founder_intent": "Bind Snow Gloves OS into Cambium as the Will-organ service for tenant operations and GTM routines.",
+            "target_customer": "Internal operator/founder plus tenant businesses; inspected tenant surfaces include `tryambakam-noesis` and a provisioned `mathis` property-listing use case.",
+            "pain_or_desire": "Tenant operations need scoped connectors, audit logs, task routing, and human approval before high-risk actions.",
+            "offer": "Onboard a tenant, bind scoped connectors, ingest sources, route events through agents, create Paperclip tasks, queue when Paperclip is down, redact audit logs, and require approvals.",
+            "survival_metric": "One tenant runs through a clean smoke with approval-gated task creation and redacted audit evidence.",
+            "better_than_survival_metric": "One tenant runs a live approved GTM routine with Paperclip/Hermes proof foldback.",
+            "GTM_channel": "Internal Will-organ enablement first, then tenant-specific GTM operation after approval.",
+            "constraints": "Treat as organ-service; no standalone app autonomy claim; tenant isolation and approvals remain non-negotiable.",
+            "third_party_apps": "Gmail, Google Calendar, Google Drive, Slack, PMS, accounting, HRIS, Explee proxy, NVIDIA NIM embeddings, Paperclip, Hermes local bus, GitHub Actions/Releases, Tauri updater/signing.",
+            "autonomy_boundary": "Agents can route and queue work; high-risk capabilities require human approval and runtime proof.",
+            "approvals": "Connector activation, tenant source binding, high-risk actions, live GTM sends, spend, and production release."
+          },
+          "organRouting": [
+            {
+              "organ": "Genesis",
+              "owner": "Tenant manifests and source maps",
+              "input": "Tenant/service seed",
+              "output": "Tenant operating context",
+              "proofPath": "Tenant manifest and config docs",
+              "currentGate": "pending explicit Will binding"
+            },
+            {
+              "organ": "Taste",
+              "owner": "Cambium taste/operator review",
+              "input": "Tenant-facing messages and GTM assets",
+              "output": "Fit/reroll verdict",
+              "proofPath": "Future review packet",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hands",
+              "owner": "Snow Gloves OS repo",
+              "input": "Service wiring and connector tasks",
+              "output": "Code/tests/release changes",
+              "proofPath": "Repo tests and CI",
+              "currentGate": "pending clean test proof"
+            },
+            {
+              "organ": "Will",
+              "owner": "Snow Gloves OS",
+              "input": "Events, sources, approvals, tenant capabilities",
+              "output": "Routed operations and GTM actions",
+              "proofPath": "Smoke, audit logs, approval proof",
+              "currentGate": "blocked by live approval proof"
+            },
+            {
+              "organ": "Cortex",
+              "owner": "Cambium/Cortex memory",
+              "input": "Tenant lessons and operational proof",
+              "output": "Searchable operations memory",
+              "proofPath": "Future ingestion receipt",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hermes",
+              "owner": "Hermes local bus",
+              "input": "Task/report events",
+              "output": "Founder-facing proof and route summaries",
+              "proofPath": "Hermes/Paperclip receipts",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Garden",
+              "owner": "Operating cadence",
+              "input": "Tenant health and GTM outcomes",
+              "output": "Follow-up routines",
+              "proofPath": "Future pulse log",
+              "currentGate": "pending"
+            }
+          ],
+          "variableContractPayloads": [
+            {
+              "group": "brand_system",
+              "currentSource": "Tenant manifests and brand-enriched AutoGTM specs",
+              "status": "pending"
+            },
+            {
+              "group": "copy_system",
+              "currentSource": "AutoGTM and tenant messaging docs",
+              "status": "pending"
+            },
+            {
+              "group": "visual_system",
+              "currentSource": "Not primary for Will-organ service",
+              "status": "no-signal"
+            },
+            {
+              "group": "asset_plan",
+              "currentSource": "Tenant source artifacts and GTM collateral",
+              "status": "pending"
+            },
+            {
+              "group": "section_plan",
+              "currentSource": "Service flow, event routing, Paperclip task creation",
+              "status": "pending"
+            },
+            {
+              "group": "interaction_plan",
+              "currentSource": "Approval gates, event routing, queue fallback, redacted audit logs",
+              "status": "pending"
+            },
+            {
+              "group": "acceptance_checks",
+              "currentSource": "make doctor`, `make smoke`, `make test`, CI smoke/test references",
+              "status": "pending"
+            }
+          ],
+          "adapterServiceMap": [
+            {
+              "providerRoute": "Capability registry",
+              "inputs": "OAuth/API-key refs and tenant config",
+              "outputs": "Scoped connector access",
+              "failureModes": "Missing runtime secret bind, overbroad capability",
+              "tenantMapping": "tenant manifest and capability scope",
+              "privacyBoundary": "Secret values stay in vault refs"
+            },
+            {
+              "providerRoute": "Paperclip",
+              "inputs": "Approved task payloads",
+              "outputs": "Tasks and reports",
+              "failureModes": "Paperclip down, queue fallback needed",
+              "tenantMapping": "tenant and task id",
+              "privacyBoundary": "PII and tokens redacted in audit logs"
+            },
+            {
+              "providerRoute": "Hermes local bus",
+              "inputs": "Events and branch reports",
+              "outputs": "Founder delivery and proof summaries",
+              "failureModes": "Bus unavailable or stale routing",
+              "tenantMapping": "tenant/service topic",
+              "privacyBoundary": "Approval policy must survive routing"
+            },
+            {
+              "providerRoute": "Explee proxy / AutoGTM",
+              "inputs": "Brand docs and GTM input",
+              "outputs": "GTM candidates and outputs",
+              "failureModes": "Unapproved live sends, stale tenant source",
+              "tenantMapping": "tenant-specific sources",
+              "privacyBoundary": "High-risk actions require approval"
+            },
+            {
+              "providerRoute": "NVIDIA NIM embeddings",
+              "inputs": "Source text and retrieval requests",
+              "outputs": "Semantic retrieval",
+              "failureModes": "Missing provider config or privacy mismatch",
+              "tenantMapping": "tenant index",
+              "privacyBoundary": "Tenant isolation required"
+            }
+          ],
+          "evidenceLedger": [
+            {
+              "status": "verified",
+              "evidence": "snow-gloves-os/README.md`, `docs/explainer.md`, `config/snowgloves.yaml`, orchestration specs, AutoGTM specs, and tenant manifest were inspected read-only by the product-context agent."
+            },
+            {
+              "status": "verified",
+              "evidence": "Docs define `make doctor`, `make smoke`, `make test`, `make app-build`; CI references `pytest -q tests/` and `make smoke` with stub embeddings."
+            },
+            {
+              "status": "verified",
+              "evidence": "Specs show AutoGTM deterministic wiring has evidence, but not full live tenant operations."
+            },
+            {
+              "status": "pending",
+              "evidence": "The commands were not run in this Cambium packet pass because the checkout reportedly had runtime/generated dirt."
+            },
+            {
+              "status": "blocked",
+              "evidence": "Runtime secret bind, live approval enforcement, clean smoke/test proof, and distribution OS proof remain open."
+            },
+            {
+              "status": "no-signal",
+              "evidence": "No proof supports autonomous standalone product readiness."
+            }
+          ],
+          "approvals": [
+            {
+              "permission": "connector activation",
+              "status": "blocked",
+              "requiredApproval": "founder approves scoped connector capability",
+              "failureMode": "no live connector action dispatch"
+            },
+            {
+              "permission": "high-risk action",
+              "status": "blocked",
+              "requiredApproval": "founder approves exact action and tenant scope",
+              "failureMode": "operation must remain queued/blocked"
+            },
+            {
+              "permission": "tenant source binding",
+              "status": "pending",
+              "requiredApproval": "founder approves source map and retention boundary",
+              "failureMode": "context ingestion stays incomplete"
+            },
+            {
+              "permission": "public OS claims",
+              "status": "blocked",
+              "requiredApproval": "clean proof and approval enforcement accepted",
+              "failureMode": "packet remains organ-service only"
+            }
+          ],
+          "autonomyBoundary": "Agents can route and queue work; high-risk capabilities require human approval and runtime proof.",
+          "dispatchHints": [
+            {
+              "route": "cambium-bridge-assignment",
+              "payloadHint": "snow-gloves-os-clean-smoke` as organ-service proof task",
+              "allowedWhen": "clean checkout or isolated worktree exists",
+              "blockedWhen": "runtime/generated dirt cannot be isolated"
+            },
+            {
+              "route": "hermes-topic-assignment",
+              "payloadHint": "snow-gloves-os-approval-gate` with approval boundary",
+              "allowedWhen": "high-risk action scope is explicit",
+              "blockedWhen": "approval policy is not available"
+            },
+            {
+              "route": "plexus-agent-fabric",
+              "payloadHint": "snow-gloves-os-paperclip-foldback` for report workflow",
+              "allowedWhen": "Paperclip route and recovery target are named",
+              "blockedWhen": "Paperclip is unavailable without queue proof"
+            }
+          ],
+          "policySignals": [
+            {
+              "permission": "connector activation",
+              "status": "blocked",
+              "requiredApproval": "founder approves scoped connector capability",
+              "failureMode": "no live connector action dispatch"
+            },
+            {
+              "permission": "high-risk action",
+              "status": "blocked",
+              "requiredApproval": "founder approves exact action and tenant scope",
+              "failureMode": "operation must remain queued/blocked"
+            },
+            {
+              "permission": "tenant source binding",
+              "status": "pending",
+              "requiredApproval": "founder approves source map and retention boundary",
+              "failureMode": "context ingestion stays incomplete"
+            },
+            {
+              "permission": "public OS claims",
+              "status": "blocked",
+              "requiredApproval": "clean proof and approval enforcement accepted",
+              "failureMode": "packet remains organ-service only"
+            }
+          ],
+          "ui": {
+            "headline": "Snow Gloves OS",
+            "currentFrontier": "Clean smoke/test proof, runtime secret binding, approval-gate proof, Paperclip/Hermes foldback, and tenant source binding.",
+            "missionVerb": "Run clean service smoke and tests",
+            "narrativeVoice": "Operations controller voice: bind capabilities, request approval, run the route, redact the evidence.",
+            "blockedCopy": "Do not claim production OS readiness, autonomous GTM, or connector safety until clean proof and approval enforcement exist."
+          }
+        },
+        "source": {
+          "tenant": "cambium",
+          "schema": "cambium.product_branch_packet.v1",
+          "indexFile": "docs/plans/product-branches/index.md",
+          "packetFile": "docs/plans/product-branches/snow-gloves-os.md"
+        },
+        "gaps": [
+          {
+            "id": "evidence-ledger-4",
+            "status": "pending",
+            "detail": "The commands were not run in this Cambium packet pass because the checkout reportedly had runtime/generated dirt.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-5",
+            "status": "blocked",
+            "detail": "Runtime secret bind, live approval enforcement, clean smoke/test proof, and distribution OS proof remain open.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-6",
+            "status": "no-signal",
+            "detail": "No proof supports autonomous standalone product readiness.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "gate-ledger-1",
+            "status": "blocked",
+            "detail": "Human approvals: Live approval-gate test for high-risk capabilities.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-2",
+            "status": "pending",
+            "detail": "Spend approvals: Approval before paid provider or distribution actions.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-3",
+            "status": "pending",
+            "detail": "Privacy/legal: Tenant isolation, redaction, and source-retention proof.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-4",
+            "status": "no-signal",
+            "detail": "Payment: No payment flow evidenced for this service packet.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-5",
+            "status": "blocked",
+            "detail": "Customer contact: Approved tenant GTM send and audit trail.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-6",
+            "status": "blocked",
+            "detail": "Public claims: Do not claim production OS readiness until clean test, smoke, connector, and approval evidence exist.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-7",
+            "status": "blocked",
+            "detail": "Credentials: Runtime secret binding must be proven without exposing secret values.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "policy-permission-inputs-1",
+            "status": "blocked",
+            "detail": "connector activation: no live connector action dispatch",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-2",
+            "status": "blocked",
+            "detail": "high-risk action: operation must remain queued/blocked",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-3",
+            "status": "pending",
+            "detail": "tenant source binding: context ingestion stays incomplete",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-4",
+            "status": "blocked",
+            "detail": "public OS claims: packet remains organ-service only",
+            "source": "policy-permission-inputs"
+          }
+        ]
+      },
+      {
+        "branchId": "iverif",
+        "productId": "iverif",
+        "name": "IVerif",
+        "role": "Compliance and proof product candidate",
+        "arcId": "iverif-claim-proof-separation",
+        "arcTitle": "Claim Proof Separation",
+        "vision": {
+          "statement": "IVerif becomes a proof-only compliance candidate whose public claims, build routes, and privacy statements are separated before any automation."
+        },
+        "icp": {
+          "primary": "Compliance operator or subsidy workflow owner who needs source-linked validation claims and auditable dossier checks."
+        },
+        "kpis": [
+          {
+            "kpiId": "iverif-claim-map-complete",
+            "label": "Source-linked claim map",
+            "survival": "every public claim is marked verified, blocked, pending, or no-signal",
+            "betterThanSurvival": "unsupported claims are removed or rewritten",
+            "source": "claim table",
+            "currentState": "blocked"
+          },
+          {
+            "kpiId": "iverif-build-route-proof",
+            "label": "Wiki build and route proof",
+            "survival": "wiki route builds without missing script errors",
+            "betterThanSurvival": "product route plus claim-safe copy are ready for review",
+            "source": "wiki-site commands",
+            "currentState": "blocked"
+          }
+        ],
+        "questline": [
+          {
+            "id": "quest-1",
+            "title": "Create a source-linked claim table for every public/compliance/performance claim.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-2",
+            "title": "Mark each claim verified, blocked, pending, or no-signal.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-3",
+            "title": "Repair or replace missing wiki-site verification scripts.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-4",
+            "title": "Run wiki build and route proof.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-5",
+            "title": "Produce privacy/security evidence for any compliance statement.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-6",
+            "title": "Get explicit operator approval before any product-branch promotion.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-7",
+            "title": "Keep Cambium sidecar disabled/proof-only until the above gates close.",
+            "status": "queued"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "iverif-claim-table",
+            "title": "Build source-linked claim table",
+            "type": "proof",
+            "owner": "founder/codex",
+            "gate": "Public claims",
+            "proofRequired": "claim table with status per claim",
+            "dispatchTarget": "cambium"
+          },
+          {
+            "missionId": "iverif-wiki-proof",
+            "title": "Repair and run wiki build/route proof",
+            "type": "implementation",
+            "owner": "codex",
+            "gate": "Build proof",
+            "proofRequired": "verify:data`, `verify:routes`, and build receipt",
+            "dispatchTarget": "hermes"
+          },
+          {
+            "missionId": "iverif-privacy-evidence",
+            "title": "Produce privacy/security evidence map",
+            "type": "proof",
+            "owner": "founder/codex",
+            "gate": "Privacy/legal",
+            "proofRequired": "evidence map or blocked-control list",
+            "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "gates": [
+          {
+            "gate": "Human approvals",
+            "status": "blocked",
+            "requiredProof": "Operator approval before promotion, outreach, or public proof claims."
+          },
+          {
+            "gate": "Spend approvals",
+            "status": "pending",
+            "requiredProof": "Approval before provider-backed generation or validation runs."
+          },
+          {
+            "gate": "Privacy/legal",
+            "status": "blocked",
+            "requiredProof": "GDPR, residency, encryption, DPA, audit trail, and source-sanitization evidence."
+          },
+          {
+            "gate": "Payment",
+            "status": "no-signal",
+            "requiredProof": "No payment or billing route evidenced."
+          },
+          {
+            "gate": "Customer contact",
+            "status": "blocked",
+            "requiredProof": "No outreach until claim/proof review is complete."
+          },
+          {
+            "gate": "Public claims",
+            "status": "blocked",
+            "requiredProof": "Separate claims such as only AI platform, leading operators, 90 percent error reduction, <5 min processing, <200ms API, 99.9 percent uptime, <2 percent rejection, compliance certifications, and market-volume numbers."
+          },
+          {
+            "gate": "Credentials",
+            "status": "blocked",
+            "requiredProof": "Config references external env/provider token surfaces; no key values belong in packets."
+          }
+        ],
+        "proofPaths": [
+          {
+            "proofId": "iverif-claim-proof",
+            "sourcePath": "future claim table",
+            "validates": "public claims are separated by evidence state",
+            "promotes": "remains proof-only until operator approval"
+          },
+          {
+            "proofId": "iverif-wiki-route-proof",
+            "sourcePath": "future wiki build and route receipt",
+            "validates": "site can build and routes can verify",
+            "promotes": "unlocks review, not automation"
+          },
+          {
+            "proofId": "iverif-privacy-proof",
+            "sourcePath": "future privacy/security evidence map",
+            "validates": "compliance statements have supporting evidence or are blocked",
+            "promotes": "supports supervised-branch review only after approval"
+          }
+        ],
+        "promotion": {
+          "state": "proof-only",
+          "currentGate": "Claim/proof separation before automation",
+          "rule": "IVerif is currently `proof-only`. The ladder remains `proof-only -> supervised branch -> autonomous branch`. Do not promote or automate IVerif until claim/proof separation, privacy/security evidence, successful wiki build/route proof, and explicit operator approval are complete."
+        },
+        "controls": {
+          "productSeed": {
+            "product_id": "iverif",
+            "one_sentence_seed": "AI document validation for EU energy subsidy operators, focused on catching dossier errors before subsidy submission.",
+            "founder_intent": "Preserve IVerif as a proof-only candidate until public claims, compliance evidence, and route/build proof are separated and verified.",
+            "target_customer": "Energy subsidy operators, compliance teams, and regulatory auditors handling CEE, BEG, ECO4, and related EU subsidy dossiers.",
+            "pain_or_desire": "Operators need to reduce dossier errors and produce auditable validation before subsidy submission.",
+            "offer": "SaaS/API dossier validation with AI document checks, programme-rule validation, audit trails, managed onboarding, and reporting/export workflows.",
+            "survival_metric": "One source-linked claim review identifies which claims are supportable, blocked, or no-signal.",
+            "better_than_survival_metric": "Wiki/product route builds cleanly and one operator-approved validation workflow is evidenced without compliance overclaim.",
+            "GTM_channel": "Compliance/operator research and proof-led pilot conversations only after claim review.",
+            "constraints": "No automation before claim/proof separation; no compliance/security/performance claim without direct evidence.",
+            "third_party_apps": "Brandmint, NotebookLM, Vercel/GitHub, Astro/MDX/GSAP, fal.ai/nano-banana-pro, GPT Image, OpenAI, OpenRouter, Replicate, inference providers mentioned by config/scripts.",
+            "autonomy_boundary": "Proof-only sidecar; Cambium may record evidence but must not automate outreach or validation claims.",
+            "approvals": "Source-linked claim review, privacy/security evidence, operator approval, build/route proof, and compliance wording approval."
+          },
+          "organRouting": [
+            {
+              "organ": "Genesis",
+              "owner": "Brandmint/IVerif source",
+              "input": "Brand, wiki, and research assets",
+              "output": "brand_system`, `copy_system`, `visual_system",
+              "proofPath": "Brandmint outputs and wiki artifacts",
+              "currentGate": "verified for packet only"
+            },
+            {
+              "organ": "Taste",
+              "owner": "Cambium taste/compliance review",
+              "input": "Public claims and product copy",
+              "output": "Claim/reroll verdict",
+              "proofPath": "Future source-linked review",
+              "currentGate": "blocked"
+            },
+            {
+              "organ": "Hands",
+              "owner": "IVerif repo/wiki site",
+              "input": "Build/route verification tasks",
+              "output": "Build proof and route proof",
+              "proofPath": "Future wiki commands",
+              "currentGate": "blocked"
+            },
+            {
+              "organ": "Will",
+              "owner": "GTM/operator routines",
+              "input": "Approved claims and operator targets",
+              "output": "Pilot outreach/tasking",
+              "proofPath": "Future approval log",
+              "currentGate": "blocked"
+            },
+            {
+              "organ": "Cortex",
+              "owner": "Cambium/Cortex memory",
+              "input": "Claim map and evidence ledger",
+              "output": "Searchable proof memory",
+              "proofPath": "Future ingestion",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hermes",
+              "owner": "Hermes reports",
+              "input": "Review tasks only",
+              "output": "Founder-facing proof summary",
+              "proofPath": "Future report",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Garden",
+              "owner": "Proof cadence",
+              "input": "Claim review and build proof outcomes",
+              "output": "Follow-up routine",
+              "proofPath": "Future pulse",
+              "currentGate": "pending"
+            }
+          ],
+          "variableContractPayloads": [
+            {
+              "group": "brand_system",
+              "currentSource": "brand-config.yaml`, `.brandmint-state.json`, `.brandmint/outputs/*.json",
+              "status": "pending"
+            },
+            {
+              "group": "copy_system",
+              "currentSource": "Wiki output, brand outputs, NotebookLM artifacts",
+              "status": "pending"
+            },
+            {
+              "group": "visual_system",
+              "currentSource": "Website assets guide, generated/publish manifests, image provider references",
+              "status": "pending"
+            },
+            {
+              "group": "asset_plan",
+              "currentSource": "NotebookLM artifacts and website assets",
+              "status": "pending"
+            },
+            {
+              "group": "section_plan",
+              "currentSource": "Astro wiki-site source and wiki-output docs",
+              "status": "pending"
+            },
+            {
+              "group": "interaction_plan",
+              "currentSource": "SaaS/API validation flow appears as copy/spec, not proven runtime",
+              "status": "no-signal"
+            },
+            {
+              "group": "acceptance_checks",
+              "currentSource": "wiki-site/package.json` commands are present, but route/build proof is missing",
+              "status": "blocked"
+            }
+          ],
+          "adapterServiceMap": [
+            {
+              "providerRoute": "Brandmint",
+              "inputs": "Brand config and generation state",
+              "outputs": "Brand/copy/visual outputs",
+              "failureModes": "Generated claims outpace evidence",
+              "tenantMapping": "iverif` brand seed",
+              "privacyBoundary": "Source sanitization required"
+            },
+            {
+              "providerRoute": "NotebookLM artifacts",
+              "inputs": "Research/source material",
+              "outputs": "Explainer and knowledge artifacts",
+              "failureModes": "Unsourced or stale claims",
+              "tenantMapping": "proof packet source",
+              "privacyBoundary": "Sanitize source material before publication"
+            },
+            {
+              "providerRoute": "Astro wiki-site",
+              "inputs": "Wiki source",
+              "outputs": "Static site/routes",
+              "failureModes": "dist` missing, verify scripts missing",
+              "tenantMapping": "iverif` docs site",
+              "privacyBoundary": "No sensitive source leakage"
+            },
+            {
+              "providerRoute": "Inference/image providers",
+              "inputs": "Prompt/config inputs",
+              "outputs": "Images or generated content",
+              "failureModes": "Missing API tokens, unverified provider output",
+              "tenantMapping": "brand/wiki artifacts",
+              "privacyBoundary": "Do not record provider keys"
+            },
+            {
+              "providerRoute": "Future SaaS/API",
+              "inputs": "Dossier documents and rules",
+              "outputs": "Validation results and audit trail",
+              "failureModes": "Compliance/security/performance overclaim",
+              "tenantMapping": "future tenant/account",
+              "privacyBoundary": "GDPR, residency, encryption, DPA, and audit evidence required"
+            }
+          ],
+          "evidenceLedger": [
+            {
+              "status": "verified",
+              "evidence": "Product-context agent found `brand-config.yaml`, `.brandmint-state.json`, seven `.brandmint/outputs/*.json` outputs, `wiki-output/*.md`, `deliverables/notebooklm/artifacts/*`, `wiki-site` Astro source, `WEBSITE_ASSETS_GUIDE.md`, and generation/publish manifests."
+            },
+            {
+              "status": "verified",
+              "evidence": "wiki-site/package.json` declares `dev`, `build`, `preview`, `verify:data`, and `verify:routes`."
+            },
+            {
+              "status": "blocked",
+              "evidence": "wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established."
+            },
+            {
+              "status": "blocked",
+              "evidence": "GDPR, ISO 27001, SOC 2, EU residency, encryption, SAML/OAuth, SLA, and DPA claims are copy/spec claims unless separately evidenced."
+            },
+            {
+              "status": "blocked",
+              "evidence": "Performance and market claims need source-linked review before public use."
+            },
+            {
+              "status": "no-signal",
+              "evidence": "No live SaaS/API validation workflow proof was found in this packet pass."
+            }
+          ],
+          "approvals": [
+            {
+              "permission": "public/compliance claims",
+              "status": "blocked",
+              "requiredApproval": "founder approves source-linked claim table",
+              "failureMode": "no public route or outreach automation"
+            },
+            {
+              "permission": "provider-backed generation",
+              "status": "pending",
+              "requiredApproval": "founder approves spend and source sanitation",
+              "failureMode": "generation remains disabled"
+            },
+            {
+              "permission": "privacy/security wording",
+              "status": "blocked",
+              "requiredApproval": "evidence exists for each claim",
+              "failureMode": "mini app must show proof-only state"
+            },
+            {
+              "permission": "operator outreach",
+              "status": "blocked",
+              "requiredApproval": "operator approval after proof separation",
+              "failureMode": "no GTM dispatch"
+            }
+          ],
+          "autonomyBoundary": "Proof-only sidecar; Cambium may record evidence but must not automate outreach or validation claims.",
+          "dispatchHints": [
+            {
+              "route": "cambium-bridge-assignment",
+              "payloadHint": "iverif-claim-table` as proof-only review task",
+              "allowedWhen": "source list is available and claim scope is defined",
+              "blockedWhen": "claims remain unsourced"
+            },
+            {
+              "route": "hermes-topic-assignment",
+              "payloadHint": "iverif-wiki-proof` for repair/build proof",
+              "allowedWhen": "repo path and missing scripts are confirmed",
+              "blockedWhen": "provider secrets or publication claims are needed"
+            },
+            {
+              "route": "plexus-agent-fabric",
+              "payloadHint": "iverif-privacy-evidence` as member review task",
+              "allowedWhen": "privacy/security claims are enumerated",
+              "blockedWhen": "legal/compliance evidence is missing"
+            }
+          ],
+          "policySignals": [
+            {
+              "permission": "public/compliance claims",
+              "status": "blocked",
+              "requiredApproval": "founder approves source-linked claim table",
+              "failureMode": "no public route or outreach automation"
+            },
+            {
+              "permission": "provider-backed generation",
+              "status": "pending",
+              "requiredApproval": "founder approves spend and source sanitation",
+              "failureMode": "generation remains disabled"
+            },
+            {
+              "permission": "privacy/security wording",
+              "status": "blocked",
+              "requiredApproval": "evidence exists for each claim",
+              "failureMode": "mini app must show proof-only state"
+            },
+            {
+              "permission": "operator outreach",
+              "status": "blocked",
+              "requiredApproval": "operator approval after proof separation",
+              "failureMode": "no GTM dispatch"
+            }
+          ],
+          "ui": {
+            "headline": "IVerif",
+            "currentFrontier": "Claim table, wiki build/route proof, privacy/security evidence, and explicit operator approval.",
+            "missionVerb": "Build source-linked claim table",
+            "narrativeVoice": "Compliance reviewer voice: cite the claim, prove the route, block unsupported automation.",
+            "blockedCopy": "Do not claim compliance certification, performance, uptime, market leadership, or live SaaS validation before direct evidence."
+          }
+        },
+        "source": {
+          "tenant": "cambium",
+          "schema": "cambium.product_branch_packet.v1",
+          "indexFile": "docs/plans/product-branches/index.md",
+          "packetFile": "docs/plans/product-branches/iverif.md"
+        },
+        "gaps": [
+          {
+            "id": "evidence-ledger-3",
+            "status": "blocked",
+            "detail": "wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-4",
+            "status": "blocked",
+            "detail": "GDPR, ISO 27001, SOC 2, EU residency, encryption, SAML/OAuth, SLA, and DPA claims are copy/spec claims unless separately evidenced.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-5",
+            "status": "blocked",
+            "detail": "Performance and market claims need source-linked review before public use.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-6",
+            "status": "no-signal",
+            "detail": "No live SaaS/API validation workflow proof was found in this packet pass.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "gate-ledger-1",
+            "status": "blocked",
+            "detail": "Human approvals: Operator approval before promotion, outreach, or public proof claims.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-2",
+            "status": "pending",
+            "detail": "Spend approvals: Approval before provider-backed generation or validation runs.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-3",
+            "status": "blocked",
+            "detail": "Privacy/legal: GDPR, residency, encryption, DPA, audit trail, and source-sanitization evidence.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-4",
+            "status": "no-signal",
+            "detail": "Payment: No payment or billing route evidenced.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-5",
+            "status": "blocked",
+            "detail": "Customer contact: No outreach until claim/proof review is complete.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-6",
+            "status": "blocked",
+            "detail": "Public claims: Separate claims such as only AI platform, leading operators, 90 percent error reduction, <5 min processing, <200ms API, 99.9 percent uptime, <2 percent rejection, compliance certifications, and market-volume numbers.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-7",
+            "status": "blocked",
+            "detail": "Credentials: Config references external env/provider token surfaces; no key values belong in packets.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "policy-permission-inputs-1",
+            "status": "blocked",
+            "detail": "public/compliance claims: no public route or outreach automation",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-2",
+            "status": "pending",
+            "detail": "provider-backed generation: generation remains disabled",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-3",
+            "status": "blocked",
+            "detail": "privacy/security wording: mini app must show proof-only state",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-4",
+            "status": "blocked",
+            "detail": "operator outreach: no GTM dispatch",
+            "source": "policy-permission-inputs"
+          }
+        ]
+      }
+    ],
+    "gaps": [
+      {
+        "id": "evidence-ledger-4",
+        "status": "blocked",
+        "detail": "Live production Vercel artifact drift and missing Dodo/Fitcheck reservation URL env.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-5",
+        "status": "blocked",
+        "detail": "Shopify demo product route requires storefront password/session/admin access for live widget QA.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-6",
+        "status": "pending",
+        "detail": "Shopify App Store approval, privacy/legal wording, refund wording, and customer outreach approval.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-7",
+        "status": "no-signal",
+        "detail": "No real merchant pilot proof packet exists yet.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "gate-ledger-1",
+        "status": "pending",
+        "detail": "Human approvals: Founder approval for Shopify submission, privacy/refund wording, real outreach, and public claims.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-2",
+        "status": "blocked",
+        "detail": "Spend approvals: Explicit approval before live metered try-on generation.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-3",
+        "status": "pending",
+        "detail": "Privacy/legal: Approved retention, deletion, no-training, consent, and refund language.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-4",
+        "status": "blocked",
+        "detail": "Payment: Dodo payment/reservation link and production env proof.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-5",
+        "status": "blocked",
+        "detail": "Customer contact: Approved outbound copy and first merchant target list.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-6",
+        "status": "blocked",
+        "detail": "Public claims: No app-store approval or conversion lift claim until evidenced.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-7",
+        "status": "blocked",
+        "detail": "Credentials: Shopify storefront/admin access and approved runtime action route.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "policy-permission-inputs-1",
+        "status": "blocked",
+        "detail": "Shopify storefront/admin access: widget QA cannot be verified live",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-2",
+        "status": "blocked",
+        "detail": "Dodo production payment link: payment mission cannot dispatch",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-3",
+        "status": "blocked",
+        "detail": "customer outreach: no live merchant contact",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-4",
+        "status": "blocked",
+        "detail": "public claims: mini app must show supervised state only",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "evidence-ledger-6",
+        "status": "pending",
+        "detail": "Local `bun run typecheck`, `bun test`, deploy, and `bun run new-client ...` were documented but not run in this Cambium packet pass.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-7",
+        "status": "blocked",
+        "detail": "Second-client dogfood, PostHog confirmation, Resend domain readiness, and Turnstile live-login checks remain unproven.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-8",
+        "status": "no-signal",
+        "detail": "No Cambium/Plexus proof reporting integration is present in this packet yet.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "gate-ledger-1",
+        "status": "pending",
+        "detail": "Human approvals: Approve target second tenant and public claims.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-2",
+        "status": "pending",
+        "detail": "Spend approvals: Approve any paid Cloudflare/domain/email actions beyond existing config.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-3",
+        "status": "pending",
+        "detail": "Privacy/legal: Confirm analytics/email consent language for tenant operators and visitors.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-4",
+        "status": "no-signal",
+        "detail": "Payment: No payment flow evidenced in this packet.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-5",
+        "status": "pending",
+        "detail": "Customer contact: Approve developer/agency outreach and tenant onboarding copy.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-6",
+        "status": "blocked",
+        "detail": "Public claims: Do not claim repeatable multi-tenant readiness until second tenant proof and rollback proof pass.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-7",
+        "status": "blocked",
+        "detail": "Credentials: Production secrets remain Wrangler-managed; no local env file was read for this packet.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "policy-permission-inputs-1",
+        "status": "pending",
+        "detail": "target second tenant: no real onboarding mission dispatch",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-2",
+        "status": "pending",
+        "detail": "production deploy/custom domain: no public proof claim",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-3",
+        "status": "pending",
+        "detail": "analytics/email activation: analytics and email proof stay blocked",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-4",
+        "status": "blocked",
+        "detail": "public SaaS readiness claims: mini app must show supervised branch only",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "evidence-ledger-4",
+        "status": "pending",
+        "detail": "The commands were not run in this Cambium packet pass because the checkout reportedly had runtime/generated dirt.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-5",
+        "status": "blocked",
+        "detail": "Runtime secret bind, live approval enforcement, clean smoke/test proof, and distribution OS proof remain open.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-6",
+        "status": "no-signal",
+        "detail": "No proof supports autonomous standalone product readiness.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "gate-ledger-1",
+        "status": "blocked",
+        "detail": "Human approvals: Live approval-gate test for high-risk capabilities.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-2",
+        "status": "pending",
+        "detail": "Spend approvals: Approval before paid provider or distribution actions.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-3",
+        "status": "pending",
+        "detail": "Privacy/legal: Tenant isolation, redaction, and source-retention proof.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-4",
+        "status": "no-signal",
+        "detail": "Payment: No payment flow evidenced for this service packet.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-5",
+        "status": "blocked",
+        "detail": "Customer contact: Approved tenant GTM send and audit trail.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-6",
+        "status": "blocked",
+        "detail": "Public claims: Do not claim production OS readiness until clean test, smoke, connector, and approval evidence exist.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-7",
+        "status": "blocked",
+        "detail": "Credentials: Runtime secret binding must be proven without exposing secret values.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "policy-permission-inputs-1",
+        "status": "blocked",
+        "detail": "connector activation: no live connector action dispatch",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-2",
+        "status": "blocked",
+        "detail": "high-risk action: operation must remain queued/blocked",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-3",
+        "status": "pending",
+        "detail": "tenant source binding: context ingestion stays incomplete",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-4",
+        "status": "blocked",
+        "detail": "public OS claims: packet remains organ-service only",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "evidence-ledger-3",
+        "status": "blocked",
+        "detail": "wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-4",
+        "status": "blocked",
+        "detail": "GDPR, ISO 27001, SOC 2, EU residency, encryption, SAML/OAuth, SLA, and DPA claims are copy/spec claims unless separately evidenced.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-5",
+        "status": "blocked",
+        "detail": "Performance and market claims need source-linked review before public use.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-6",
+        "status": "no-signal",
+        "detail": "No live SaaS/API validation workflow proof was found in this packet pass.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "gate-ledger-1",
+        "status": "blocked",
+        "detail": "Human approvals: Operator approval before promotion, outreach, or public proof claims.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-2",
+        "status": "pending",
+        "detail": "Spend approvals: Approval before provider-backed generation or validation runs.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-3",
+        "status": "blocked",
+        "detail": "Privacy/legal: GDPR, residency, encryption, DPA, audit trail, and source-sanitization evidence.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-4",
+        "status": "no-signal",
+        "detail": "Payment: No payment or billing route evidenced.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-5",
+        "status": "blocked",
+        "detail": "Customer contact: No outreach until claim/proof review is complete.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-6",
+        "status": "blocked",
+        "detail": "Public claims: Separate claims such as only AI platform, leading operators, 90 percent error reduction, <5 min processing, <200ms API, 99.9 percent uptime, <2 percent rejection, compliance certifications, and market-volume numbers.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-7",
+        "status": "blocked",
+        "detail": "Credentials: Config references external env/provider token surfaces; no key values belong in packets.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "policy-permission-inputs-1",
+        "status": "blocked",
+        "detail": "public/compliance claims: no public route or outreach automation",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-2",
+        "status": "pending",
+        "detail": "provider-backed generation: generation remains disabled",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-3",
+        "status": "blocked",
+        "detail": "privacy/security wording: mini app must show proof-only state",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-4",
+        "status": "blocked",
+        "detail": "operator outreach: no GTM dispatch",
+        "source": "policy-permission-inputs"
+      }
+    ]
+  }
+}
