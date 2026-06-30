@@ -24,7 +24,7 @@ Make the release path at least as strong as CI, preserve honest TG readiness bou
 
 ## Foundation Bookkeeping Contract
 
-Close or mark done after verification:
+Close or mark done after verification (first refinement wave, landed in `89a4719 feat: harden tg mini app release readiness` and closed 2026-06-30T08:34-08:35Z):
 
 - `#201` VisualTokens
 - `#202` MissionGlyph
@@ -37,18 +37,20 @@ Close or mark done after verification:
 - `#217` warningAttention
 - `#219` ComponentGalleryProof
 
-Keep open for refinement:
+Close or mark done after refinement (second refinement wave, landed in `bf98d42 feat: complete tg component foundation refinements` and closed 2026-06-30T08:54-08:55Z):
 
-- `#200` ComponentRegistry
-- `#204` OrbitProgress
-- `#205` SelectedHalo
-- `#206` SignalRail
-- `#207` PacketFlow
-- `#212` KpiPulse
-- `#214` orbitSweep
-- `#215` packetDrift
-- `#216` glyphBreathe
-- `#218` reducedMotion
+- `#200` ComponentRegistry — covered by `page · component registry helpers enforce orbit rail packet KPI contracts` in `workers/quests/src/handler.test.ts` plus the `sourceRefs`/`propShapes` registry assertions
+- `#204` OrbitProgress — orbit clamp, state, label, and packet-dot assertions in the same registry-helper test
+- `#205` SelectedHalo — `mc-selected-halo` surface count and `data-selected-surface` markers asserted in the Mission scene test
+- `#206` SignalRail — `data-component="SignalRail"` state and packet contract asserted in the registry-helper test and Mission scene test
+- `#207` PacketFlow — packet count clamp, blocked-rail mode, and `data-packet-mode` assertions in both tests
+- `#212` KpiPulse — `data-component="KpiPulse"` with `data-kpi-kind` survival and better-than-survival assertions in both tests
+- `#214` orbitSweep — reduced-motion CSS selector list pinned in `page · Mission Control visual primitives are named and reduced-motion safe`
+- `#215` packetDrift — same reduced-motion selector list
+- `#216` glyphBreathe — same reduced-motion selector list (plus the `mc-glyph[data-motion="glyphBreathe"] svg` selector specifically)
+- `#218` reducedMotion — same reduced-motion test asserts the full primitive list and the consolidated `animation:none!important` selector
+
+Reconciled on 2026-06-30: the original spec reserved the second group for further refinement, but the `bf98d42` commit landed real handler-test coverage and CSS contracts for every primitive in that group, so all ten were closed as COMPLETED rather than left open. The two-wave structure above preserves the audit trail of why each group closed.
 
 ## Page Execution Order
 

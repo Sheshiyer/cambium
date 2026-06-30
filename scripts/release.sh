@@ -30,6 +30,22 @@ run_gate "standalone audit" npm run standalone:audit
 run_gate "standalone smoke" npm run standalone:smoke
 run_gate "TG mini app readiness proof (non-strict)" npm run proof:tg-live-readiness
 
+# guard: readiness ledger must not be older than the HEAD commit we are about to tag
+READINESS_LEDGER="docs/plans/assets/tg-miniapp-live-proof/readiness.json"
+if [ ! -f "${READINESS_LEDGER}" ]; then
+  echo "✘ release blocked: ${READINESS_LEDGER} is missing; run 'npm run proof:tg-live-readiness' first."
+  git checkout -- package.json
+  exit 1
+fi
+HEAD_TS="$(git log -1 --format=%ct HEAD)"
+LEDGER_TS="$(stat -f %m "${READINESS_LEDGER}" 2>/dev/null || stat -c %Y "${READINESS_LEDGER}")"
+if [ "${LEDGER_TS}" -lt "${HEAD_TS}" ]; then
+  echo "✘ release blocked: ${READINESS_LEDGER} is older than HEAD; run 'npm run proof:tg-live-readiness' first."
+  git checkout -- package.json
+  exit 1
+fi
+echo "✓ readiness ledger is fresh (mtime ≥ HEAD commit time)"
+
 git add package.json VERSIONS.md 2>/dev/null || git add package.json
 git commit -m "release: v${VERSION} · ${CODENAME}"
 git tag -a "${TAG}" -m "v${VERSION} · ${CODENAME}"

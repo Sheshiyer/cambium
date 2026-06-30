@@ -137,20 +137,23 @@ contradict — but the surface tension is real:
   is a 1511-line schema validator. It emits a `readiness.json` artifact
   with per-step `state: 'ready' | 'blocked'`, `missing[]`, and `evidence[]`
   arrays. In non-strict mode the script exits 0 even when blockers exist.
-- Three live-proof items remain `blocked` by design pending real founder
-  artifacts: device-proof
-  ([live-proof-readiness.mjs:921-946](../../../workers/quests/src/live-proof-readiness.mjs)),
-  worker-network-probe (lines 948-973), signed-action-smoke (lines
-  975-1000).
+- Two live-proof items remain `blocked` in the top-level ledger:
+  `telegram-init-data` and `telegram-device-artifact` (per
+  `readiness.json` 2026-06-30T14:48 capture). A third —
+  `signed-action-smoke` — is tracked as a followup, not as a top-level
+  blocker. The validators are at
+  [live-proof-readiness.mjs:921-946](../../../workers/quests/src/live-proof-readiness.mjs)
+  (device-proof), lines 948-973 (worker-network-probe), and lines
+  975-1000 (signed-action-smoke).
 - The release script and CI both run non-strict readiness as a gate
   ([release-readiness spec:20](../../plans/2026-06-30-tg-miniapp-release-readiness-architecture-spec.md)).
 
 **Why it matters.** A reader scanning CI sees three green runs on `main`
-and a v0.2.7 tag. The readiness ledger reports three live-proof items
-blocked. The contract is *honest at the artifact layer* but *not loud at
-the release layer*. There is currently no place a non-engineer reads
-"v0.2.7 ships with three live-proof items blocked" — that information
-lives only in the readiness JSON, not in
+and a v0.2.7 tag. The readiness ledger reports 8 ready / 2 blocked
+(plus a signed-action-smoke followup). The contract is *honest at the
+artifact layer* but *not loud at the release layer*. There is currently
+no place a non-engineer reads "v0.2.7 ships with two live-proof items
+blocked" — that information lives only in the readiness JSON, not in
 [VERSIONS.md](../../../VERSIONS.md) or the release tag annotation.
 
 The no-fake-progress invariant is not violated by the code. It risks being
@@ -319,7 +322,8 @@ redaction discipline all work. They are **scheduling blockers**.
 
 **Why it matters.** Honest reporting without a schedule means the
 blockers can persist indefinitely. v0.2.0 → v0.2.7 has shipped seven
-Thalia point releases with the same three live-proof items blocked. At
+Thalia point releases with the same two top-level live-proof items
+blocked (and the signed-action-smoke followup still uncaptured). At
 some point the boundary stops being "we haven't proven it yet" and
 becomes "we don't intend to prove it."
 
@@ -328,10 +332,11 @@ becomes "we don't intend to prove it."
 - *Schedule the capture.* Block out an explicit founder-device session
   (target date) to walk through `--capture-device-proof`, then
   `--capture-worker-probe`, then a single low-stakes signed action via
-  `--capture-signed-smoke`. The three blockers clear in one founder hour.
+  `--capture-signed-smoke`. The two top-level blockers (plus the
+  signed-action-smoke followup) clear in one founder hour.
 - *Demote the blockers.* If founder-device proof is not a near-term goal,
-  rename `state: 'blocked'` to `state: 'deferred-by-policy'` for these
-  three items so the readiness ledger stops implying they are work in
+  rename `state: 'blocked'` to `state: 'deferred-by-policy'` for the two
+  top-level items so the readiness ledger stops implying they are work in
   flight.
 
 Recommend the first. The unblock cost is small; the credibility win is
@@ -350,7 +355,7 @@ vocabulary where possible.
 | **Page contract** | A− | `data-component=` markers, `mc-*` CSS, `MissionControlShell` / `RootNav` / `RootSceneTab` all present in [page.ts](../../../workers/quests/src/page.ts); 89 component markers; surface contract in [mini-app-surface-contract.ts](../../../workers/quests/src/mini-app-surface-contract.ts) is lean and complete. | Monolith size (4046 lines) means any Gate-only or Tools-only rewrite still locks the whole file. |
 | **Component foundation** | B+ | All 20 named primitives present as markers + CSS; 10 closed, 10 named for refinement; handler.test.ts asserts primitive grammar. | "Closed" without module separation is debatable as the plan reads (see T1). |
 | **Viewport proof** | A | [Viewport proof README](../../plans/assets/tg-miniapp-viewport-proof/README.md) lists 16+ scene/sheet PNGs covering Mission, Gate, Tools, Story, Inspect plus clickability sheets; `manifest.json` schema enforced. | Layout-only by explicit contract; safe-area / WebView behavior unproven. |
-| **Live proof** | C+ | Three blockers honestly reported; full capture flow built; redaction discipline strong. | Indefinite schedule (see T5). |
+| **Live proof** | C+ | Two top-level blockers + one followup honestly reported (8 ready / 2 blocked per `readiness.json`); full capture flow built; redaction discipline strong. | Indefinite schedule (see T5). |
 | **Release pipeline** | A− | [release-readiness spec](../../plans/2026-06-30-tg-miniapp-release-readiness-architecture-spec.md) raises release gates to CI parity; `release.yml` runs npm test + standalone:audit + standalone:smoke + non-strict readiness; local `release.sh` mirrors. | No release-note hook for live-proof status (see T2). |
 | **GH issue hygiene** | C | `gh issue list --label tg-miniapp --state open` returns **`[]`**, yet [release-readiness spec:39-51](../../plans/2026-06-30-tg-miniapp-release-readiness-architecture-spec.md) explicitly keeps 10 issues open for refinement (`#200, #204, #205, #206, #207, #212, #214, #215, #216, #218`). | Either the 10 "refinement" issues were closed against spec, or the label query is wrong. Either way the spec and the issue tracker disagree. **Investigate.** |
 | **Plan stack coherence** | B | Eight TG plans + one Mission Control design spec + one ecosystem contract. Plans cross-reference each other. | Origin Wing Quest scope unreconciled (T3); ecosystem contract uses old scene names (T4). |
@@ -411,10 +416,11 @@ planning issues.
    Schedule one founder-device session for
    `proof:tg-live-readiness --capture-device-proof` →
    `--capture-worker-probe` → `--capture-signed-smoke`. Target: clear
-   all three live-proof blockers in `readiness.json`. If unscheduled,
-   demote `state: 'blocked'` to `state: 'deferred-by-policy'` for these
-   three items. Labels: `area:live-proof`, `tg-miniapp`,
-   `no-fake-progress`.
+   the two top-level live-proof blockers (`telegram-init-data`,
+   `telegram-device-artifact`) plus the `signed-action-smoke` followup
+   in `readiness.json`. If unscheduled, demote `state: 'blocked'` to
+   `state: 'deferred-by-policy'` for the two top-level items. Labels:
+   `area:live-proof`, `tg-miniapp`, `no-fake-progress`.
 
 ### P3 — backlog, when convenient
 
@@ -449,10 +455,11 @@ These cannot be resolved by reading code or plans. They need a call.
    tells next contributors whether to budget for it.
 
 2. **What unblocks live proof?** The capture flow works. What's the actual
-   reason the three live-proof items remain blocked at v0.2.7 — founder
-   bandwidth, production environment readiness, intentional reserve for a
-   "go live" moment? Knowing the cause shapes whether to schedule a
-   session (T5) or change the language to "deferred-by-policy."
+   reason the two top-level live-proof items (and the signed-action-smoke
+   followup) remain unproven at v0.2.7 — founder bandwidth, production
+   environment readiness, intentional reserve for a "go live" moment?
+   Knowing the cause shapes whether to schedule a session (T5) or change
+   the language to "deferred-by-policy."
 
 3. **Is the issue tracker a planning surface or a work surface?** Closing
    30 issues with `status:planned` in one day suggests the former. If so,

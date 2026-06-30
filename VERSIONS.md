@@ -13,6 +13,8 @@ alphabetical march, but a chosen patron for each chapter.
 
 ### v0.2.7 · **Thalia .7** — *the root takes Meristem*
 
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
+
 The composition update: Cambium's active Genesis stage now runs through Meristem.
 The conductor calls a no-spend Cambium contract shim that maps Meristem sidecar
 outputs into the structured `brand_system`, `copy_system`, and `visual_system`
@@ -36,6 +38,8 @@ groups the downstream stages consume.
 
 ### v0.2.5 · **Thalia .5** — *the tapestry stands alone*
 
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
+
 The product update: Cambium's fractal tapestry is now release-safe as a standalone
 project. The repo keeps the reusable company-compiler/operator architecture while
 removing pilot-specific defaults, private topology, live tenant assumptions, and
@@ -58,6 +62,8 @@ company-bound adapter names from active product surfaces.
 
 ### v0.2.4 · **Thalia .4** — *the bridge becomes release-testable*
 
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
+
 The org update: Cambium's post-Thalia bridge is now testable from a clean checkout. The quest
 surface, project evidence, archive gate, lesson-mint surface, and R3F tactical-map scaffold all
 have release-path evidence instead of relying on private local state.
@@ -76,6 +82,8 @@ have release-path evidence instead of relying on private local state.
 
 ### v0.2.3 · **Thalia .3** — *the game sees the org live*
 
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
+
 The org update: the quest log now reads the real pulse of the agent plane — MultiCA-derived
  evidence joins the fold, and every quest arc derives from actual operations.
 
@@ -89,6 +97,8 @@ The org update: the quest log now reads the real pulse of the agent plane — Mu
 - 240 tests green · Node v26 native TypeScript (zero build, zero deps).
 
 ### v0.2.2 · **Thalia .2** — *the game becomes many, and writes back*
+
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The org update: the quest game gains a story it tells in prose, the venture becomes *many*
 ventures, and the founder can finally act from inside the map.
@@ -111,6 +121,8 @@ ventures, and the founder can finally act from inside the map.
 
 ### v0.2.1 · **Thalia .1** — *the game becomes visible*
 
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
+
 The quest update: Thalia's game gets its surfaces — a quest log that cannot lie, a forge that
 learns from repetition, and the first living UI in the founders' pocket.
 
@@ -129,6 +141,8 @@ learns from repetition, and the first living UI in the founders' pocket.
 - 209 tests green · Node v26 native TypeScript (zero build, zero deps).
 
 ### v0.2.0 · **Thalia** — *muse of comedy, festivity, and play*
+
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The operator comes alive and becomes **playable**. Thalia presides over the game.
 
