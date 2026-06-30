@@ -1,6 +1,6 @@
 {
   "schema": "cambium.tg-live-proof-readiness.v1",
-  "generatedAt": "2026-06-30T08:51:08.667Z",
+  "generatedAt": "2026-06-30T11:08:32.250Z",
   "tenant": "cambium",
   "workerUrl": "https://curious.thoughtseed.space",
   "status": "blocked",
@@ -49,7 +49,7 @@
       "detail": "A redacted production Worker internal gate-list probe artifact is present and fresh.",
       "evidence": [
         "docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json",
-        "capturedAt:2026-06-29T10:37:48.386Z",
+        "capturedAt:2026-06-30T11:08:31.166Z",
         "worker:https://curious.thoughtseed.space",
         "probe:GET /internal/gate/cambium -> 200",
         "queuedActionCount:0",
@@ -172,8 +172,8 @@
           },
           {
             "id": "allow-network",
-            "state": "blocked",
-            "detail": "--allow-network is required for this capture"
+            "state": "ready",
+            "detail": "--allow-network supplied"
           }
         ],
         "privacy": [
@@ -199,8 +199,8 @@
           },
           {
             "id": "allow-network",
-            "state": "blocked",
-            "detail": "--allow-network is required for this capture"
+            "state": "ready",
+            "detail": "--allow-network supplied"
           },
           {
             "id": "allow-mutation",

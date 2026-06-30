@@ -449,10 +449,11 @@ planning issues.
 
 These cannot be resolved by reading code or plans. They need a call.
 
-1. **Is the fractal ring map deferred or dropped?** The Wing Quest origin
-   plan made it the eponymous Living Blueprint visual. Mission Control
-   doesn't render it. Picking one (deferred vs dropped) unlocks T3 and
-   tells next contributors whether to budget for it.
+1. ~~**Is the fractal ring map deferred or dropped?**~~ **Resolved 2026-06-30: dropped from v1.** The
+   Wing Quest origin plan made it the eponymous Living Blueprint visual; Mission Control doesn't
+   render it. Founder call: not pursued in any planned wing. Recorded in
+   [docs/plans/2026-06-10-thalia-wing-quest-miniapp.md](../../plans/2026-06-10-thalia-wing-quest-miniapp.md)
+   W2 row.
 
 2. **What unblocks live proof?** The capture flow works. What's the actual
    reason the two top-level live-proof items (and the signed-action-smoke

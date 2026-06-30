@@ -30,7 +30,7 @@ here*. Palette from the design library: gunmetal `#00272B` · chartreuse `#E0FF4
 |---|---|---|---|
 | W0 | BotFather wiring, menu button, entity registry, gate-scope v1 decision | Shipped | curios.self bot menu button + `web_app` keyboard; Worker route published; founder allowlist live |
 | W1 | Quest ledger API (`/api/quests/:tenant`, `/api/narrative/:tenant`) on a Cambium Worker + KV, with freshness envelope | Shipped (reshaped) | `workers/quests/` (handler + page); `quest-ledger-envelope@v1` with `derivedAt`/`source`; freshness chip + stale-overwrite guard ([contract](../architecture/contracts/tg-miniapp-ecosystem-contract.md)) |
-| W2 | Miniapp UI: quest line · **fractal ring map** · panels (Living Blueprint reference set) | Quest line shipped under Mission; fractal ring map **deferred pending founder decision** (see TG-MC-404 follow-up) | Mission scene renders branch arcs / next mission / blockers / proof / KPIs; the tree-ring "cambium — you are here" rendering is not a v1 scene |
+| W2 | Miniapp UI: quest line · **fractal ring map** · panels (Living Blueprint reference set) | Quest line shipped under Mission; fractal ring map **dropped from v1 (2026-06-30 founder call)** — not pursued | Mission scene renders branch arcs / next mission / blockers / proof / KPIs; the tree-ring "cambium — you are here" rendering is not a v1 scene |
 | W3 | Narrative engine: deterministic story beats from `world.log` + deviations, noesis frames set apart | Shipped | `paperclipActivityBeats`, `operator-narrative`, served `branchStories`, rendered under the Story scene |
 | W4 | Founder gate: signed-action approve/reroll round-trip (initData → Worker buffer → agent-plane consumer → audit) | Shipped | Worker gate queue + Ed25519 initData validation; Gate scene owns signed-action preflight; idempotent action ids per the contract |
 | W5 | In-app visual lane: generated imagery for narrative chapters via `media-gen` / `nano-banana-2` | Not in v1 | Reserved for a later wing; Story scene currently renders text beats only |
@@ -41,7 +41,8 @@ proof are owned by Mission; the Map ecosystem language (tapestry, wake, lanes, s
 decision context, rails) was moved under **Inspect** as inspection-only subsections. The Living
 Blueprint visual identity (Swiss-grid + bioluminescent palette, chartreuse/mint/violet on
 gunmetal, Euclid/Sprig geometry) remains the design language; the fractal-ring rendering itself
-is held back from v1.
+is dropped from v1 (2026-06-30 founder call) — not pursued. A future surface may revisit the
+tree-ring metaphor, but it is not on any planned wing.
 
 Cross-links:
 - [TG Mini App Mission Control UI Upgrade Plan (2026-06-29)](./2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md)
