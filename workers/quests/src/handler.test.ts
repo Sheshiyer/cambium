@@ -1511,6 +1511,7 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(PAGE, /data-story-warning="contradiction"/);
   assert.match(storyHtml, /data-component="MissionGlyph"/);
   assert.match(storyHtml, /data-component="StateToken"/);
+  assert.doesNotMatch(storyHtml, /quest-ledger|paperclipActivityBeats|deviations/);
   const beatIndexes = rows.map((row) => row.match(/data-beat="(\d+)"/)?.[1]).sort();
   assert.deepEqual(beatIndexes, ['0', '1', '2', '3', '4']);
   for (const row of rows) {
@@ -1531,6 +1532,11 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(noesisSheet, /Open Inspect/);
   assert.match(noesisSheet, /action<\/b><span>read-only story row; no execution action/);
   assert.doesNotMatch(noesisSheet, /data-kind="approve"|data-kind="reroll"|data-promote-skill|data-queue-side-quest/);
+
+  (rendered.context.openStoryDigest as () => void)();
+  const digestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(digestSheet, /Story Digest/);
+  assert.match(digestSheet, /data-story-digest-beat="0"/);
 
   (rendered.context.openStoryBeat as (index: number) => void)(1);
   const paperclipSheet = rendered.elements.get('sheetBody')!.innerHTML;
@@ -1616,7 +1622,10 @@ test('page · Tools renders mission-effect cards before command syntax', async (
   assert.match(toolsHtml, /data-component="ToolContextChips"/);
   assert.match(toolsHtml, /data-component="ToolRecentStrip"/);
   assert.match(toolsHtml, /data-tool-group="Act"/);
-  assert.match(PAGE, /data-disabled-reason="live command data unavailable"/);
+  assert.match(PAGE, /commandDisabledReason/);
+  assert.match(PAGE, /data-disabled-reason=/);
+  assert.match(toolsHtml, /class="tool-card-meta"/);
+  assert.match(toolsHtml, /chat command copied|live detail sheet/);
   assert.match(toolsHtml, /data-inspect-target="tools"/);
   assert.match(toolsHtml, /data-component="MissionGlyph"/);
   assert.match(toolsHtml, /data-component="StateToken"/);
@@ -1964,7 +1973,7 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   const inspectHtml = rendered.elements.get('mapwrap')!.innerHTML;
 
   assert.match(inspectHtml, /data-component="InspectGroupStack"/);
-  for (const group of ['freshness', 'policy', 'live-proof', 'branch-packets', 'gates', 'tools', 'rails', 'evidence']) {
+  for (const group of ['freshness', 'policy', 'live-proof', 'branch-packets', 'branch-fixtures', 'gates', 'tools', 'rails', 'evidence', 'surface-contract']) {
     assert.match(inspectHtml, new RegExp(`data-component="InspectGroup"[^>]*data-inspect-group="${group}"`));
   }
   assert.match(inspectHtml, /data-inspect-target="tools"/);
@@ -1975,12 +1984,20 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /inspect · tools/);
   assert.match(sheet, /debug layer<\/b><span>Inspect keeps proof and architecture details behind the main app flow/);
+  assert.match(sheet, /back path<\/b><span>Tools -> Inspect/);
   assert.match(sheet, /related page<\/b><span>Tools/);
   assert.match(sheet, /data-inspect-page-link="tools"/);
+
+  (rendered.context.openInspectGroupSheet as (id: string, env: unknown) => void)('surface-contract', FRESH_ECOSYSTEM_VISUAL_FIXTURE);
+  const contractSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(contractSheet, /surface contract/);
+  assert.match(contractSheet, /Mission<\/b><span>branch packet state/);
+  assert.match(contractSheet, /Tools<\/b><span>mission-effect commands/);
 
   (rendered.context.openInspectSummarySheet as (env: unknown) => void)(FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const summarySheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(summarySheet, /Proof Summary/);
+  assert.match(summarySheet, /blocker names<\/b><span>/);
   assert.match(summarySheet, /redaction rule<\/b><span>no raw initData, bearer token, or secret value/);
   assert.match(summarySheet, /data-copy-proof-summary=/);
 });
@@ -2049,7 +2066,13 @@ test('page · gate item cards show decision mission proof and queue-only fields'
   };
   const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
   const gate = rendered.elements.get('gate')!.innerHTML;
+  (rendered.context.renderGateHeroDecision as (items: unknown[], source: string) => void)(envelope.openItems, 'paperclip-open-items');
+  const heroEl = rendered.elements.get('gateHeroDecision')!;
+  const hero = heroEl.innerHTML;
 
+  assert.match(PAGE, /id="gateHeroDecision"[^>]*data-component="GateDecisionHeroCard"/);
+  assert.equal(heroEl.dataset.gateHeroState, 'proof-needed');
+  assert.match(hero, /<b>THO-9<\/b><span>branch not served · Review launch copy/);
   assert.match(gate, /Decision waiting<\/b><span>THO-9/);
   assert.match(gate, /Branch \/ mission<\/b><span>branch not served · Review launch copy/);
   assert.match(gate, /Proof attached<\/b><span>THO-9 blocked by launch copy review/);
@@ -2059,6 +2082,9 @@ test('page · gate item cards show decision mission proof and queue-only fields'
   assert.match(gate, /detail sheets carry audit proof/);
   assert.match(gate, /data-component="GateBranchFilterChips"/);
   assert.match(gate, /data-component="GateRowExpansionDetails"/);
+  assert.match(gate, /data-gate-proof="1"/);
+  assert.match(gate, /data-risk-state="active"/);
+  assert.match(gate, /Reversibility state<\/b>active/);
   assert.match(gate, /data-gate-detail="1"/);
   assert.match(gate, /data-interaction-kind="signed-action"/);
   assert.doesNotMatch(gate, /origin ·|Paperclip execution|before execution|executed by the org|source route|initData|\/api\/gate/);
@@ -2502,6 +2528,9 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);
   assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
   assert.match(html, /data-packet-mode="texture"/);
+  assert.match(html, /data-mission-state-action="proof"/);
+  assert.match(html, /data-mission-state-action="gate"/);
+  assert.match(html, /data-component="OrbitProgress"[^>]*>[\s\S]*<span class="mc-orbit-label">Proof<\/span>/);
   assert.match(html, /data-component="OrbitProgress"[^>]*>[\s\S]*<span class="mc-orbit-label">KPI<\/span>/);
   assert.match(html, /class="mc-kpi-bars" data-component="PacketFlow"/);
   assert.match(html, /data-component="KpiPulse"[^>]*data-kpi-kind="survival"/);
@@ -2716,6 +2745,9 @@ test('page · stage sheets map organs to ecosystem targets and stay read-only', 
     (rendered.context.openMapSheet as (ledger: unknown, stageId: string) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger, stageId);
     const sheet = rendered.elements.get('sheetBody')!.innerHTML;
     assert.match(sheet, new RegExp(`operator map · ${stageId}`));
+    assert.match(sheet, /data-component="VisualStageSheetHeader"/);
+    assert.match(sheet, /data-component="MissionGlyph"/);
+    assert.match(sheet, /data-component="StateToken"/);
     assert.match(sheet, new RegExp(`organ target<\\/b><span>${target}`));
     assert.match(sheet, /source<\/b><span>shared\/cambium-visual-contract\.ts/);
     assert.match(sheet, /interaction<\/b><span>read-only stage inspection; no signed action is queued from this sheet/);

@@ -103,6 +103,7 @@ export const PAGE = `<!doctype html>
   .cmdgrp{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.45;margin:18px 0 9px}
   .cmdgrp:first-child{margin-top:4px}
   .tool-recommend{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px;border-color:rgba(224,255,79,.22)}
+  .tool-recommend.is-idle{border-style:dashed;opacity:.78}
   .tool-context-strip,.tool-recent-strip,.story-filter-strip,.gate-filter-strip{display:flex;gap:7px;overflow-x:auto;padding:8px;margin-bottom:10px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28);scrollbar-width:none}
   .tool-context-strip span,.tool-context-strip button,.tool-recent-strip button,.story-filter-strip button,.gate-filter-strip button{flex:0 0 auto;border:1px solid var(--line2);border-radius:999px;background:rgba(1,47,52,.36);color:var(--soft);padding:6px 9px;font:10.5px/1 var(--mono)}
   .tool-context-strip button,.tool-recent-strip button,.story-filter-strip button,.gate-filter-strip button{appearance:none;cursor:pointer}
@@ -124,8 +125,13 @@ export const PAGE = `<!doctype html>
   .cmd:active{transform:scale(.985)}
   .cmd.live{border-color:rgba(224,255,79,.22)}
   .cmd.is-stale{border-color:rgba(248,181,96,.35)}
+  .cmd.is-blocked,.cmd.is-locked{border-color:rgba(248,181,96,.42);border-style:dashed}
+  .cmd[data-tool-focus="1"]{box-shadow:0 0 0 1px rgba(224,255,79,.45),inset 0 1px 0 rgba(255,255,255,.08)}
   .cmd .mc-state-token{align-self:center}
   .cmd .cgo{align-self:center;font-size:20px;color:var(--ink);opacity:.6}
+  .tool-card-meta{grid-column:2 / -1;display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+  .tool-card-meta span{border:1px solid var(--line);border-radius:999px;padding:3px 7px;font:9.5px var(--mono);opacity:.7}
+  .tool-disabled-reason{grid-column:2 / -1;color:var(--warn);font:10.5px/1.35 var(--mono);margin-top:3px}
   .li{padding:9px 0;border-bottom:1px solid var(--line)}
   .li:last-child{border-bottom:0}
   .li .cname{font:600 13px var(--mono);color:var(--soft)}
@@ -207,6 +213,7 @@ export const PAGE = `<!doctype html>
   .mc-card-meta b,.mc-proof-list b,.mc-blocker-row b,.mc-kpi-row b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px}
   .mc-questline-row{position:relative;display:grid;grid-template-rows:auto auto auto;gap:6px;justify-items:center;text-align:center;align-items:start;min-height:74px;padding:4px 3px}
   .mc-questline-row:not(:last-child)::after{content:"";position:absolute;left:calc(50% + 18px);right:-50%;top:18px;border-top:1px dashed var(--line2)}
+  .mc-questline-row .mc-signal-rail{position:absolute;left:calc(50% + 18px);right:-50%;top:14px;min-height:10px;border-bottom:0;background:rgba(1,47,52,.45)}
   .mc-questline-row b{font-size:10.5px;line-height:1.15;max-width:76px;min-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .mc-questline-row .mc-state-token{max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mc-blockers,.mc-kpis{display:grid;gap:8px}
@@ -313,8 +320,13 @@ export const PAGE = `<!doctype html>
 	  .mc-state-row b{display:block;color:var(--soft);font-size:13px;line-height:1.2;margin-bottom:2px}
 	  .mc-state-row small{display:block;font:10.5px/1.25 var(--mono);opacity:.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 	  .mc-state-row .mc-glyph{width:34px;height:34px}
+	  .mc-state-row .mc-orbit{width:34px;height:34px}
 	  .mc-state-row.is-selected{border-color:rgba(224,255,79,.36);background:rgba(224,255,79,.035)}
 	  .mc-state-row.is-blocked{box-shadow:inset 2px 0 0 rgba(248,181,96,.7)}
+	  .mc-state-row.is-proof-needed{box-shadow:inset 2px 0 0 rgba(248,181,96,.45)}
+	  .mc-state-row:active{transform:scale(.99)}
+	  .mission-stale-notice{border:1px dashed rgba(248,181,96,.42);border-radius:8px;padding:10px;background:rgba(248,181,96,.045);font:11.5px/1.45 var(--mono)}
+	  .mission-stale-notice b{display:block;color:var(--warn);font-weight:650;margin-bottom:3px}
 	  .mc-action-row{position:static;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 0 2px}
 	  .mc-action-row[data-component="GateActionRow"]{border-top:1px solid var(--line);margin-top:2px}
 	  .mc-inspect-only{opacity:.72}
@@ -399,7 +411,9 @@ export const PAGE = `<!doctype html>
   #beats::before{content:"";position:absolute;left:-2px;top:8px;bottom:8px;width:1.5px;pointer-events:none;
     background:linear-gradient(rgba(224,255,79,.32),var(--line));opacity:.55}
   .story-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+  button.story-hero{appearance:none;text-align:left;color:var(--soft);cursor:pointer}
   .story-hero .mc-glyph{width:32px;height:32px}
+  .story-hero[data-component="StoryDigestCards"]{grid-template-columns:auto minmax(0,1fr) auto}
   .story-timeline{display:flex;gap:6px;padding:8px;margin-bottom:2px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28)}
   .story-timeline i{height:5px;flex:1;border-radius:999px;background:rgba(214,255,246,.16)}
   .story-timeline i.is-complete{background:rgba(224,255,79,.55)}
@@ -417,6 +431,7 @@ export const PAGE = `<!doctype html>
   .beat .ico svg{width:12px;height:12px;stroke:var(--soft);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
   .beat .lane{display:block;font:9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:3px}
   .beat b{color:var(--soft)}
+  .beat small{display:block;font:10.5px/1.35 var(--mono);opacity:.64;margin-top:4px;overflow-wrap:anywhere}
   .beat .mc-state-token{margin-top:8px}
   .beat.is-stale,.beat.is-blocked{border-color:rgba(248,181,96,.34)}
   .beat.noesis{border-color:rgba(214,255,246,.4);background:var(--glass);backdrop-filter:blur(10px);
@@ -451,6 +466,8 @@ export const PAGE = `<!doctype html>
   .gate-state-strip span{min-width:0;border:1px solid var(--line);border-radius:9px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono)}
   .gate-state-strip b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
   .gate-state-strip small{display:block;opacity:.76;overflow-wrap:anywhere}
+  .gate-hero-decision{border:1px solid var(--line);border-radius:9px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono);margin-top:9px}
+  .gate-hero-decision b{display:block;color:var(--ink);font-weight:650;margin-bottom:2px}
   .gate-queue{display:grid;gap:10px}
   .gate-filter-strip{margin-bottom:2px}
   .gate-empty,.gate-error{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px dashed rgba(224,255,79,.28);
@@ -475,6 +492,9 @@ export const PAGE = `<!doctype html>
   .gitem-details{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
   .gitem-details span{border:1px solid var(--line);border-radius:8px;padding:7px;font:10.5px/1.35 var(--mono);opacity:.76}
   .gitem-details b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+  .gate-proof-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:7px;margin:8px 0;background:rgba(1,47,52,.24);font:11px/1.35 var(--mono)}
+  .gate-proof-row b{display:block;color:var(--ink);font-weight:650}
+  .gate-stale-chip{display:inline-flex;align-items:center;width:max-content;border:1px dashed rgba(248,181,96,.42);border-radius:999px;color:var(--warn);padding:3px 7px;font:10px var(--mono);margin-top:7px}
   .gitem .mc-signal-rail{margin:8px 0 10px}
   .gpriority{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
   .gpriority span{border:1px solid rgba(248,181,96,.36);border-radius:999px;padding:4px 8px;color:var(--warn);font:10px var(--mono);background:rgba(248,181,96,.04)}
@@ -618,6 +638,7 @@ export const PAGE = `<!doctype html>
             <div>
               <h3>Gate · decisions</h3>
               <p>Review founder decisions tied to branches, missions, proof, consequence, and reversibility.</p>
+              <div id="gateHeroDecision" class="gate-hero-decision" data-component="GateDecisionHeroCard"><b>Decision waiting</b><span>Loading Gate queue…</span></div>
             </div>
           </div>
           <div class="gauge" id="gauge" data-component="OrbitProgress"></div>
@@ -917,6 +938,7 @@ $('ten').textContent = TENANT;
 let LEDGER = null;
 let ECOSYSTEM_ENV = null;
 let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'freshness missing' };
+let MISSION_BRANCH_FOCUS = '';
 
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
 const track = $('track'), ind = $('ind'), SCN = 5;
@@ -988,6 +1010,8 @@ function isInteractiveSceneTarget(target){
    chat-command guidance sheets; omitted kind is a read-only command reference. */
 let CMDDATA = null;
 let TOOL_GROUP_FILTER = 'all';
+let TOOL_FOCUS = '';
+let TOOL_CONTEXT_BRANCH = '';
 const CMDS = [
   ['Act', [
     ['ts-run', '<agent> <task>', 'Assign the next mission step', 'act'],
@@ -1041,15 +1065,30 @@ function commandPrimarySource(kind){
   return 'curios.self-command-reference';
 }
 function commandUsage(cmd){ return '/' + cmd.name + (cmd.args ? ' ' + cmd.args : ''); }
+function toolEnv(){
+  return ECOSYSTEM_ENV || { ledger: LEDGER || { rows: [] } };
+}
+function toolMissionContext(){
+  const env = toolEnv();
+  const view = buildMissionControlView(env);
+  return {
+    branchId:TOOL_CONTEXT_BRANCH || view.selectedBranchId || 'branch pending',
+    branchName:view.selectedBranch ? mcText(view.selectedBranch.name || view.selectedBranch.productId, view.selectedBranchId || 'Branch') : 'Branch packets pending',
+    mission:view.nextMission || { title:'Mission queue missing', gate:'branch packet', proofRequired:'mission proof requirement missing', dispatchTarget:'inspect', state:'blocked' },
+    proofRows:view.proofNeeded || [],
+    blockers:view.blockers || [],
+    stale:view.stale,
+  };
+}
 function hasClipboardApi(){
   const nav = globalThis.navigator;
   return !!(nav && nav.clipboard && typeof nav.clipboard.writeText === 'function');
 }
-async function copyCommandToClipboard(text, node){
+async function copyCommandToClipboard(text, node, doneLabel){
   const nav = globalThis.navigator;
   if (!nav || !nav.clipboard || typeof nav.clipboard.writeText !== 'function') return { ok:false, reason:'clipboard unavailable' };
   await nav.clipboard.writeText(text);
-  if (node) node.textContent = 'Copied command text';
+  if (node) node.textContent = doneLabel || 'Copied command text';
   return { ok:true, copied:text };
 }
 function commandCopyControl(text){
@@ -1061,6 +1100,17 @@ function wireCommandCopy(text){
   const btn = $('sheetBody').querySelector('[data-copy-command]');
   if (btn) btn.onclick = () => copyCommandToClipboard(text, btn).catch(() => { btn.textContent = 'Copy unavailable'; });
 }
+function wireToolSheetNav(){
+  $('sheetBody').querySelectorAll('[data-tool-audit-link]').forEach(el => el.onclick = () => {
+    closeSheet();
+    go(4);
+    openInspectGroupSheet('tools', toolEnv());
+  });
+  $('sheetBody').querySelectorAll('[data-tool-back]').forEach(el => el.onclick = () => {
+    closeSheet();
+    go(el.dataset.toolBack === 'mission' ? 0 : 2);
+  });
+}
 function commandGlyphKind(cmd){
   if (cmd.group === 'Act') return 'gate';
   if (cmd.group === 'Ask') return 'cortex';
@@ -1069,37 +1119,89 @@ function commandGlyphKind(cmd){
   return 'arc';
 }
 function commandAvailability(cmd){
+  const ctx = toolMissionContext();
+  const openItems = Array.isArray(toolEnv().openItems) ? toolEnv().openItems.length : GATE_ITEMS.length;
   if (LIVE_CMD_KEYS[cmd.kind]) return CMDDATA ? 'active' : 'stale';
-  if (cmd.kind === 'act' || cmd.kind === 'digest') return 'active';
+  if (cmd.name === 'ts-approve' || cmd.name === 'ts-reject') return openItems ? 'proof-needed' : 'locked';
+  if (cmd.name === 'ts-run') return ctx.mission && ctx.mission.state !== 'blocked' ? 'active' : 'proof-needed';
+  if (cmd.kind === 'digest') return ctx.proofRows.length ? 'proof-needed' : 'active';
+  if (cmd.kind === 'act') return 'active';
   return 'idle';
 }
 function commandAvailabilityLabel(state){
+  if (state === 'locked') return 'locked';
+  if (state === 'blocked') return 'blocked';
+  if (state === 'proof-needed') return 'needs proof';
   if (state === 'stale') return 'stale';
   if (state === 'active') return 'usable';
   return 'reference';
 }
+function commandDisabledReason(cmd, state){
+  if (state === 'stale') return 'live command data unavailable; pull to refresh or inspect Tools audit';
+  if (state === 'locked') return 'no waiting founder decision is served for this command';
+  if (state === 'blocked') return 'blocked until proof resolves';
+  if (state === 'proof-needed' && (cmd.name === 'ts-run' || cmd.name === 'ts-approve' || cmd.name === 'ts-reject')) return 'use Gate or Open Proof before acting';
+  return '';
+}
+function commandExpectedReceipt(cmd){
+  if (cmd.group === 'Report') return 'digest receipt or proof summary';
+  if (cmd.group === 'Coordinate') return 'handoff/status receipt';
+  if (cmd.group === 'Act') return 'chat command copied; operator consumes separately';
+  if (LIVE_CMD_KEYS[cmd.kind]) return 'live detail sheet';
+  return 'read-only command reference';
+}
+function commandTargetSystem(cmd){
+  if (cmd.name === 'ts-hermes') return 'Hermes services';
+  if (cmd.name === 'ts-handoffs') return 'Paperclip handoffs';
+  if (cmd.name === 'ts-vault') return 'Vault context';
+  if (cmd.group === 'Act') return 'curios.self operator chat';
+  if (cmd.group === 'Report') return 'founder report';
+  return 'Cambium operator context';
+}
+function recommendedToolName(){
+  const ctx = toolMissionContext();
+  if (!ctx.branchId || ctx.branchId === 'branch pending') return '';
+  if (ctx.blockers.some(row => /gate|approval|founder/i.test(row.label || row.source || ''))) return 'ts-handoffs';
+  if (ctx.proofRows.length) return 'ts-standup';
+  if (ctx.stale || !CMDDATA) return 'ts-status';
+  return 'ts-run';
+}
 function toolRecommendationCard(){
-  return '<section class="tool-recommend" data-component="ToolRecommendationPanel">' +
-    mcGlyphSvg('ops', CMDDATA ? 'active' : 'stale') +
-    '<span><b>Recommended next tool</b><small>Start with /ts-status before acting; it checks active arcs, agents, and work health.</small></span>' +
-    '<button type="button" data-tool-recommend="ts-status">Open</button>' +
+  const ctx = toolMissionContext();
+  const name = recommendedToolName();
+  if (!name) return '<section class="tool-recommend is-idle" data-component="ToolRecommendationPanel" data-tool-recommend-state="empty">' +
+    mcGlyphSvg('ops', 'idle') +
+    '<span><b>No mission recommendation yet</b><small>Tools will suggest a command after branch packets reach Mission.</small></span>' +
+  '</section>';
+  const cmd = COMMANDS_BY_NAME[name];
+  const reason = name === 'ts-handoffs' ? 'Founder decision context is the current blocker.' : name === 'ts-standup' ? 'Proof-needed rows should become a progress receipt.' : name === 'ts-run' ? 'Mission context is ready for assignment.' : 'Refresh status before acting on ' + ctx.branchName + '.';
+  return '<section class="tool-recommend" data-component="ToolRecommendationPanel" data-tool-recommend-command="' + esc(name) + '">' +
+    mcGlyphSvg(commandGlyphKind(cmd), commandAvailability(cmd)) +
+    '<span><b>Recommended next tool</b><small>/' + esc(name) + ' · ' + esc(reason) + '</small></span>' +
+    '<button type="button" data-tool-recommend="' + esc(name) + '">Open</button>' +
   '</section>';
 }
 function toolContextStrip(){
-  const liveState = CMDDATA ? 'live data available' : 'live data stale';
+  const ctx = toolMissionContext();
   return '<div class="tool-context-strip" data-component="ToolContextChips">' +
-    '<span>mission branch context</span><span>' + esc(liveState) + '</span><span>copy-only commands</span><span>signed decisions stay in Gate</span>' +
+    mcStateToken(ctx.stale ? 'stale' : 'active', ctx.branchName) +
+    mcStateToken(ctx.mission.state || 'proof-needed', ctx.mission.gate || 'mission gate') +
+    mcStateToken(CMDDATA ? 'active' : 'stale', CMDDATA ? 'live tools' : 'tools stale') +
+    '<span>signed decisions stay in Gate</span>' +
   '</div>';
 }
 function toolRecentStrip(){
-  const recents = ['ts-status', 'ts-hermes', 'ts-standup'];
-  return '<div class="tool-recent-strip" data-component="ToolRecentStrip">' + recents.map(name =>
+  const ctx = toolMissionContext();
+  const recents = (ctx.blockers.length ? ['ts-handoffs', 'ts-status', 'ts-standup'] : ctx.proofRows.length ? ['ts-standup', 'ts-status', 'ts-help'] : ['ts-status', 'ts-hermes', 'ts-standup']);
+  return '<div class="tool-recent-strip" data-component="ToolRecentStrip" data-derived-from="current-state">' + recents.map(name =>
     '<button type="button" data-tool-recent="' + esc(name) + '">/' + esc(name) + '</button>'
   ).join('') + '</div>';
 }
-function toolSafetyRow(kind){
+function toolSafetyRow(kind, cmd){
   const label = LIVE_CMD_KEYS[kind] ? 'opens a live detail sheet' : kind === 'act' || kind === 'digest' ? 'copies command text for chat' : 'reference only';
-  return '<div class="tool-safety-row" data-component="ToolSafetyRow">Safety: ' + esc(label) + '; the mini app does not send bot messages or mutate Paperclip from Tools.</div>';
+  const expected = cmd ? commandExpectedReceipt(cmd) : label;
+  const proof = toolMissionContext().proofRows[0];
+  return '<div class="tool-safety-row" data-component="ToolSafetyRow"><b>Safety before syntax</b>: ' + esc(label) + '; expected result: ' + esc(expected) + '; required proof: ' + esc((proof && proof.label) || 'none served') + '. Tools does not send bot messages or mutate Paperclip.</div>';
 }
 function openCommandCardSheet(name){
   const cmd = COMMANDS_BY_NAME[name];
@@ -1112,13 +1214,17 @@ function openCommandCardSheet(name){
     : 'Reference command sheet. Type this command in the curios.self bot chat when you want this inspection.';
   $('sheetBody').innerHTML = '<div class="arc">command · ' + esc(interaction) + '</div><h2>' + esc('/' + cmd.name) + '</h2>' +
     '<div class="nar">' + esc(guidance) + '</div>' +
-    '<div class="kv"><b>interaction</b><span>' + esc(interaction) + '</span><b>chat syntax</b><span>' + esc(text) + '</span><b>source</b><span>' + esc(source) + '</span><b>card group</b><span>' + esc(cmd.group) + '</span><b>description</b><span>' + esc(cmd.desc) + '</span><b>payload preview</b><span>' + esc(text) + '</span><b>mini app writes</b><span>none; copy only, no signed gate endpoint</span><b>signed action button</b><span>not rendered for command sheets</span></div>' +
-    toolSafetyRow(cmd.kind) + commandCopyControl(text);
+    toolSafetyRow(cmd.kind, cmd) +
+    '<div class="kv"><b>interaction</b><span>' + esc(interaction) + '</span><b>chat syntax</b><span>' + esc(text) + '</span><b>source</b><span>' + esc(source) + '</span><b>card group</b><span>' + esc(cmd.group) + '</span><b>target system</b><span>' + esc(commandTargetSystem(cmd)) + '</span><b>description</b><span>' + esc(cmd.desc) + '</span><b>payload preview</b><span>' + esc(text) + '</span><b>expected receipt</b><span>' + esc(commandExpectedReceipt(cmd)) + '</span><b>mini app writes</b><span>none; copy only, no signed gate endpoint</span><b>signed action button</b><span>not rendered for command sheets</span></div>' +
+    '<div class="gbtns"><button type="button" class="detail" data-tool-audit-link="tools">Inspect audit</button><button type="button" class="reroll" data-tool-back="mission">Mission</button></div>' +
+    commandCopyControl(text);
   wireCommandCopy(text);
+  wireToolSheetNav();
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(interaction === 'chat-command' ? 'medium' : 'light');
 }
 function renderCommands(){
   if (cmdsDrawn) return; cmdsDrawn = true;
+  if (TOOL_FOCUS && COMMANDS_BY_NAME[TOOL_FOCUS]) TOOL_GROUP_FILTER = COMMANDS_BY_NAME[TOOL_FOCUS].group;
   const groups = TOOL_GROUP_FILTER === 'all' ? CMDS : CMDS.filter(([group]) => group === TOOL_GROUP_FILTER);
   $('cmds').innerHTML = toolRecommendationCard() + toolGroupControls() + toolContextStrip() + toolRecentStrip() + groups.map(([group, items]) =>
     '<div class="cmdgrp">' + esc(group) + '</div>' +
@@ -1131,19 +1237,23 @@ function renderCommands(){
       const source = commandPrimarySource(kind || 'reference');
       const cmd = { group, name, args, desc, kind:kind || 'reference' };
       const state = commandAvailability(cmd);
+      const disabledReason = commandDisabledReason(cmd, state);
       const classKind = live ? ' live' : action ? ' act' : reference ? ' ref' : digest ? ' report' : '';
       return '<button type="button" class="' + mcClass('cmd' + classKind, state) + '" data-component="ToolActionCard"' +
         ' data-interaction-kind="' + interaction + '" data-source="' + source + '"' +
         ' data-inspect-target="tools"' +
         ' data-command-kind="' + (kind || 'reference') + '"' +
         ' data-command-name="' + esc(name) + '"' +
-        (state === 'stale' ? ' data-disabled-reason="live command data unavailable"' : '') +
+        (TOOL_FOCUS === name ? ' data-tool-focus="1"' : '') +
+        (disabledReason ? ' data-disabled-reason="' + esc(disabledReason) + '"' : '') +
         (live ? ' data-live="' + kind + '"' : '') + '>' +
         mcGlyphSvg(commandGlyphKind(cmd), state) +
         '<span class="tool-body"><span class="cdesc"><b>Mission effect</b>' + esc(desc) + '</span>' +
           '<span class="tool-syntax"><span class="cname">/' + esc(name) + '</span>' +
           (args ? '<span class="cargs">' + esc(args) + '</span>' : '') + '</span></span>' +
         mcStateToken(state, commandAvailabilityLabel(state)) +
+        '<span class="tool-card-meta"><span>' + esc(commandTargetSystem(cmd)) + '</span><span>' + esc(commandExpectedReceipt(cmd)) + '</span></span>' +
+        (disabledReason ? '<span class="tool-disabled-reason">' + esc(disabledReason) + ' · Inspect details</span>' : '') +
         '<span class="cgo">›</span>' +
       '</button>';
     }).join('')
@@ -1183,8 +1293,10 @@ function openCmdSheet(key){
     body = kvRows([['source', 'paperclipCommandsData'], ['gate relation', 'handoff rows are review context; signed gate actions stay in the Gate scene']]) +
       ((d.handoffs||[]).length ? (d.handoffs||[]).map(h => '<div class="li"><span class="cname">'+esc(h.id)+'</span> <span class="cargs">'+esc(h.status)+'</span><div class="cdesc">title '+esc(h.title)+' · source '+esc(h.source || 'paperclipCommandsData')+' · gate relation '+esc(h.gateRelation || 'founder gate review context only')+'</div></div>').join('') : '<div class="nar">nothing waiting on you.</div>');
   }
-  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body + toolSafetyRow(key) + commandCopyControl(liveCommandText);
+  const cmd = COMMANDS_BY_NAME[LIVE_CMD_NAMES[key] || 'ts-status'] || { group:'Ask', name:LIVE_CMD_NAMES[key] || 'ts-status', args:'', desc:'live command', kind:key };
+  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body + toolSafetyRow(key, cmd) + '<div class="gbtns"><button type="button" class="detail" data-tool-audit-link="tools">Inspect audit</button><button type="button" class="reroll" data-tool-back="mission">Mission</button></div>' + commandCopyControl(liveCommandText);
   wireCommandCopy(liveCommandText);
+  wireToolSheetNav();
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 window.addEventListener('resize', () => place(-scene * W(), false));
@@ -1346,12 +1458,20 @@ function gateOwner(it){ return (it && (it.owner || it.assignee || it.founder || 
 function gateUpdatedAt(it){ return (it && (it.updatedAt || it.updated || it.ts || it.createdAt)) || 'updatedAt not served'; }
 function gateSubject(it){ return (it && (it.id || it.title)) || 'handoff'; }
 function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evidence missing from handoff'; }
+function gateBranchId(it){ return mcText(it && (it.branchId || it.branch || it.productId || it.clientName), 'branch-not-served').toLowerCase().replace(/[^a-z0-9-]+/g, '-'); }
+function gateBranchFocus(it){ return gateBranchId(it); }
 function gateBranchMission(it){
   const branch = it && (it.branchId || it.branch || it.productId || it.clientName);
   const mission = it && (it.missionId || it.mission || it.questId || it.title);
   return mcText(branch, 'branch not served') + ' · ' + mcText(mission, 'mission not served');
 }
 function gateReversibility(kind, it){ return (it && it.reversibility) || (kind === 'approve' ? 'reversible until consumed; supersede with a newer gate action' : 'reversible review request; no mutation until the org consumes it'); }
+function gateReversibilityState(text){
+  const value = String(text || '');
+  if (/irreversible|cannot|unsafe|unknown|not reversible/i.test(value)) return 'blocked';
+  if (/supersede|reversible|queued|until consumed/i.test(value)) return 'active';
+  return 'proof-needed';
+}
 function gateQueueConsequence(raw, kind, subject){
   const fallback = kind === 'approve'
     ? 'queue founder approval for ' + subject + '; no Paperclip/org mutation until the operator consumes the queue'
@@ -1387,24 +1507,53 @@ function gateFilterKey(it){
   if (state === 'proof-needed' || state === 'active') return 'review';
   return 'all';
 }
+function gateFilterMatch(item){
+  if (GATE_FILTER === 'all') return true;
+  if (GATE_FILTER.indexOf('branch:') === 0) return gateBranchId(item) === GATE_FILTER.slice(7);
+  return gateFilterKey(item) === GATE_FILTER;
+}
+function gateFilterLabel(id){
+  if (id.indexOf('branch:') === 0) return id.slice(7).replace(/-/g, ' ');
+  return id;
+}
 function renderGateFilters(items){
   const counts = {
     all:items.length,
     review:items.filter(item => gateFilterKey(item) === 'review').length,
     blocked:items.filter(item => gateFilterKey(item) === 'blocked').length,
   };
+  const branches = [];
+  items.forEach(item => {
+    const id = gateBranchId(item);
+    if (!branches.some(row => row.id === id)) branches.push({ id, label:mcText(item && (item.branchId || item.branch || item.productId || item.clientName), 'branch not served'), count:items.filter(candidate => gateBranchId(candidate) === id).length });
+  });
   return '<div class="gate-filter-strip" data-component="GateBranchFilterChips">' +
     Object.entries(counts).map(([id, count]) =>
-      '<button type="button" class="' + (GATE_FILTER === id ? 'is-selected' : '') + '" data-gate-filter="' + esc(id) + '">' + esc(id) + ' · ' + count + '</button>'
+      '<button type="button" class="' + (GATE_FILTER === id ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-filter-kind="' + esc(id) + '" data-gate-filter="' + esc(id) + '">' + esc(id) + ' · ' + count + '</button>'
+    ).join('') + branches.map(branch =>
+      '<button type="button" class="' + (GATE_FILTER === 'branch:' + branch.id ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-filter-kind="branch" data-gate-filter="branch:' + esc(branch.id) + '">' + esc(branch.label) + ' · ' + branch.count + '</button>'
     ).join('') +
   '</div>';
 }
 function renderGateQueue(items, source){
   if (!items.length) return renderGateEmpty(source);
-  const filtered = items.map((item, index) => ({ item, index })).filter(row => GATE_FILTER === 'all' || gateFilterKey(row.item) === GATE_FILTER);
+  const filtered = items.map((item, index) => ({ item, index })).filter(row => gateFilterMatch(row.item));
   return renderGateFilters(items) +
-    (filtered.length ? filtered.map(row => renderGateItem(row.item, row.index)).join('') : '<div class="gnote">No Gate items match this branch filter.</div>') +
+    (filtered.length ? filtered.map(row => renderGateItem(row.item, row.index)).join('') : '<div class="gnote">No Gate items match ' + esc(gateFilterLabel(GATE_FILTER)) + '; urgent blockers stay visible under all.</div>') +
     '<div class="gnote">signed actions queue founder decisions; detail sheets carry audit proof.</div>';
+}
+function renderGateHeroDecision(items, source){
+  const first = items[0] || null;
+  const el = $('gateHeroDecision');
+  if (!el) return;
+  if (!first) {
+    el.innerHTML = '<b>Decision waiting</b><span>No founder decision is waiting; Mission and Inspect stay available.</span>';
+    el.dataset.gateHeroState = 'idle';
+    return;
+  }
+  el.innerHTML = '<b>' + esc(gateSubject(first)) + '</b><span>' + esc(gateBranchMission(first)) + ' · proof: ' + esc(gateEvidence(first)) + '</span>';
+  el.dataset.gateHeroState = mcStateKind(first.status || 'proof-needed');
+  el.dataset.source = gateSource(first) || source;
 }
 function gateFact(label, value){
   return '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>';
@@ -1433,6 +1582,9 @@ function renderGateItem(it, i){
   const approveConsequence = gateConsequence('approve', it);
   const rerollConsequence = gateConsequence('reroll', it);
   const state = mcStateKind((it && it.status) || 'proof-needed');
+  const reversibility = gateReversibility('approve', it);
+  const reversibilityState = gateReversibilityState(reversibility);
+  const stale = state === 'stale' || /not served|stale|old|expired/i.test(gateUpdatedAt(it));
   return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '">' +
     '<div class="gcard-head">' +
       mcGlyphSvg('gate', state) +
@@ -1441,19 +1593,26 @@ function renderGateItem(it, i){
     '</div>' +
     gatePriorityChips(it) +
     mcSignalRail({ state, packetCount:4 }) +
+    (stale ? '<span class="gate-stale-chip" data-component="GateStaleSyncState" data-gate-stale-chip="1">' + esc(gateUpdatedAt(it)) + ' · refresh before deciding</span>' : '') +
+    '<button type="button" class="gate-proof-row" data-gate-proof="1" data-interaction-kind="sheet">' +
+      mcOrbitProgress({ value:state === 'complete' ? 100 : 42, state:state === 'blocked' ? 'proof-needed' : state, label:'Proof' }) +
+      '<span><b>Proof attached</b>' + esc(evidence) + '</span><i aria-hidden="true">›</i>' +
+    '</button>' +
     '<div class="gbtns gate-actions">' +
-    '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve">Approve</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll">Reroll</button><button type="button" class="detail" data-gate-detail="1">Details</button></div>' +
+    '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve" data-risk-state="' + esc(reversibilityState) + '">Approve safely</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll" data-risk-state="' + esc(reversibilityState) + '">Reroll safely</button><button type="button" class="detail" data-gate-detail="1">Details</button></div>' +
     '<div class="gmeta">' +
       gateFact('Decision waiting', gateSubject(it)) +
       gateFact('Branch / mission', gateBranchMission(it)) +
       gateFact('Proof attached', evidence) +
       gateFact('Approve consequence', approveConsequence) +
       gateFact('Reroll consequence', rerollConsequence) +
-      gateFact('Reversibility', gateReversibility('approve', it)) +
+      gateFact('Reversibility', reversibility) +
     '</div>' +
     '<div class="gitem-details" data-component="GateRowExpansionDetails">' +
       '<span><b>State</b>' + esc(state) + '</span>' +
-      '<span><b>Sync</b>' + esc(gateFilterKey(it) === 'blocked' ? 'needs proof before action' : 'ready for founder review') + '</span>' +
+      '<span><b>Sync</b>' + esc(stale ? 'stale; refresh before decisions' : gateFilterKey(it) === 'blocked' ? 'needs proof before action' : 'ready for founder review') + '</span>' +
+      '<span><b>Updated</b>' + esc(gateUpdatedAt(it)) + '</span>' +
+      '<span><b>Reversibility state</b>' + esc(reversibilityState) + '</span>' +
     '</div></div>';
 }
 function gateRows(rows){ return '<div class="kv gatekv">' + rows.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
@@ -1470,7 +1629,12 @@ function openGateTelegramAuthFailure(error){
 function isGateAuthFailure(error){
   return /initData|Telegram|signature|auth_date|founder|verification unavailable/i.test(String(error || ''));
 }
-function openGateResultSheet(kind, subject, res, fallback){
+function returnFromGate(target, item){
+  if (target === 'mission') MISSION_BRANCH_FOCUS = gateBranchFocus(item);
+  closeSheet();
+  go(target === 'mission' ? 0 : 4);
+}
+function openGateResultSheet(kind, subject, res, fallback, item){
   const duplicate = !!(res && res.duplicate);
   $('sheetBody').innerHTML = '<div class="arc">gate result · ' + esc(duplicate ? 'duplicate' : 'queued') + '</div><h2>' + esc(duplicate ? 'Original Queued Action Reused' : 'Founder Decision Queued') + '</h2>' +
     '<div class="nar">' + esc(duplicate
@@ -1479,14 +1643,25 @@ function openGateResultSheet(kind, subject, res, fallback){
     gateRows([['action kind', kind], ['subject', subject], ['queued action', (res && res.queued) || 'missing'], ['idempotency', (res && res.idempotencyKey) || fallback.idempotencyKey], ['consequence', (res && res.consequence) || fallback.consequence], ['reversibility', (res && res.reversibility) || fallback.reversibility]]) +
     '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
   $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
-    closeSheet();
-    go(el.dataset.gateResultNav === 'mission' ? 0 : 4);
+    returnFromGate(el.dataset.gateResultNav, item);
+  });
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+function openGateFailureSheet(kind, subject, error, fallback, item){
+  $('sheetBody').innerHTML = '<div class="arc">gate result · refused</div><h2>Decision Not Queued</h2>' +
+    '<div class="nar">The Worker refused this signed action. No local queue write was created, and branch proof is unchanged.</div>' +
+    gateRows([['action kind', kind], ['subject', subject], ['reason', error || 'unknown'], ['idempotency', fallback.idempotencyKey], ['consequence', fallback.consequence], ['reversibility', fallback.reversibility], ['next step', 'Refresh Gate, then inspect source detail or return to Mission']]) +
+    '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
+  $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
+    returnFromGate(el.dataset.gateResultNav, item);
   });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function openGateDetailSheet(node){
   const item = GATE_ITEMS[Number(node.dataset.i)] || {};
   const evidence = gateEvidence(item);
+  const reversibility = gateReversibility('approve', item);
+  const reversibilityState = gateReversibilityState(reversibility);
   $('sheetBody').innerHTML = '<div class="arc">gate detail · proof</div><h2>' + esc(item.title || node.dataset.id || 'Gate item') + '</h2>' +
     '<div class="nar">Proof, consequence, reversibility, source, and sync state for this Gate row. Approve and reroll still require signed preflight.</div>' +
     gateRows([
@@ -1495,14 +1670,16 @@ function openGateDetailSheet(node){
       ['proof attached', evidence],
       ['approve consequence', gateConsequence('approve', item)],
       ['reroll consequence', gateConsequence('reroll', item)],
-      ['reversibility', gateReversibility('approve', item)],
+      ['reversibility', reversibility],
+      ['reversibility state', reversibilityState],
       ['source', gateOriginLabel(item)],
+      ['updated at', gateUpdatedAt(item)],
+      ['idempotency', gateIdempotency('approve', item)],
       ['sync state', gateFilterKey(item) === 'blocked' ? 'blocked until proof resolves' : 'ready for founder review'],
     ]) +
     '<div class="gbtns"><button type="button" class="detail" data-gate-detail-nav="mission">Mission</button><button type="button" class="reroll" data-gate-detail-nav="inspect">Inspect</button></div>';
   $('sheetBody').querySelectorAll('[data-gate-detail-nav]').forEach(el => el.onclick = () => {
-    closeSheet();
-    go(el.dataset.gateDetailNav === 'mission' ? 0 : 4);
+    returnFromGate(el.dataset.gateDetailNav, item);
   });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
@@ -1528,10 +1705,12 @@ function loadGate(){
     const items = (d && d.openItems) || [];
     GATE_ITEMS = items;
     const source = '/internal/gate/' + TENANT;
+    renderGateHeroDecision(items, source);
     el.innerHTML = renderGateQueue(items, source);
     loadGateWire(el, source);
   }).catch(() => {
     const source = '/internal/gate/' + TENANT;
+    renderGateHeroDecision([], source);
     el.innerHTML = renderGateError(source);
   });
 }
@@ -1546,6 +1725,8 @@ function loadGateWire(el, source){
       node.querySelector('.approve').onclick = () => openGatePreflight('approve', node.dataset.id, node);
       node.querySelector('.reroll').onclick = () => openGatePreflight('reroll', node.dataset.id, node);
       node.querySelector('[data-gate-detail]').onclick = () => openGateDetailSheet(node);
+      const proof = node.querySelector('[data-gate-proof]');
+      if (proof) proof.onclick = () => openGateDetailSheet(node);
     });
 }
 function gateAct(kind, subject, node){
@@ -1561,14 +1742,15 @@ function gateAct(kind, subject, node){
       node.style.opacity='1';
       if (res.queued) {
         node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind)+' founder decision queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
-        openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility });
+        openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
       } else {
         const error = res.error || 'unknown';
         node.innerHTML = '<div class="gnote">refused: '+esc(error)+' · no local queue write.</div>';
         if (isGateAuthFailure(error)) openGateTelegramAuthFailure(error);
+        else openGateFailureSheet(kind, subject, error, { idempotencyKey, consequence, reversibility }, item);
       }
       notify(res.queued ? 'success' : 'error');
-    }).catch(() => { node.style.opacity='1'; node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>'; });
+    }).catch(() => { node.style.opacity='1'; node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>'; openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey, consequence, reversibility }, item); });
 }
 function skillPromotionEvidence(skill){
   return skill.title + ' · ' + skill.detail;
@@ -2119,6 +2301,31 @@ function mcVisualStageFromArc(value){
   if (!/^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII)$/.test(arc)) return '';
   return stageForArc(arc);
 }
+function mcBranchStatusText(branch){
+  const source = branch && branch.source ? branch.source : {};
+  const freshness = branch && branch.freshness ? branch.freshness : {};
+  const promotion = branch && branch.promotion ? branch.promotion : {};
+  const controls = branch && branch.controls ? branch.controls : {};
+  const ui = controls.ui || {};
+  return [
+    branch && branch.status,
+    branch && branch.currentState,
+    source.status,
+    source.freshness,
+    source.staleReason,
+    freshness.status,
+    freshness.state,
+    freshness.detail,
+    promotion.state,
+    promotion.currentGate,
+    ui.currentFrontier,
+  ].filter(Boolean).join(' ');
+}
+function mcBranchEnvelopeStale(env, branchEnv){
+  const text = [branchEnv && branchEnv.status, branchEnv && branchEnv.state, branchEnv && branchEnv.freshness, branchEnv && branchEnv.staleReason, env && env.freshness && env.freshness.state, env && env.freshness && env.freshness.detail].filter(Boolean).join(' ');
+  const minutes = minutesSince(env && env.derivedAt);
+  return /stale|expired|old|refresh/i.test(text) || (minutes !== null && minutes > 360);
+}
 function mcOrganMetaForBranch(branch, mission){
   const routes = mcList(branch && branch.controls && branch.controls.organRouting);
   const route = routes.find(row => !/verified|complete|done/i.test(String((row && (row.currentGate || row.status)) || ''))) || routes[0] || null;
@@ -2130,14 +2337,17 @@ function mcOrganMetaForBranch(branch, mission){
     mcVisualStageFromArc(branch && branch.arc),
     mcOrganSlug(branch && (branch.arcTitle || branch.role || branch.productId || branch.branchId)),
   ].filter(Boolean);
+  const neutral = !candidates.length;
   const glyph = candidates.find(kind => MC_COMPONENT_REGISTRY.MissionGlyph.includes(kind)) || 'arc';
-  const label = route && route.organ ? route.organ : stageTitle(glyph);
-  const source = route ? 'organRouting' : (branch && branch.arc ? 'shared visual arc' : 'mission data');
+  const label = neutral ? 'Neutral organ' : (route && route.organ ? route.organ : stageTitle(glyph));
+  const source = neutral ? 'neutral organ fallback' : (route ? 'organRouting' : (branch && branch.arc ? 'shared visual arc' : 'mission data'));
   return {
     glyph,
     label:mcText(label, stageTitle(glyph)),
     source,
-    detail:route ? mcText(route.currentGate || route.proofPath || route.owner, 'organ route pending') : mcText(branch && (branch.arcTitle || branch.role), 'branch organ inferred'),
+    neutral,
+    state:neutral ? 'idle' : 'active',
+    detail:neutral ? 'unknown arc; idle visual fallback' : (route ? mcText(route.currentGate || route.proofPath || route.owner, 'organ route pending') : mcText(branch && (branch.arcTitle || branch.role), 'branch organ inferred')),
   };
 }
 function mcGlyphForQuestStage(stage, index, total){
@@ -2194,6 +2404,15 @@ function mcQuestline(branch){
     state:mcStateKind(gate && gate.status),
   }));
   return [{ id:'mission-gap', title:'Mission queue missing', status:'blocked', state:'blocked' }];
+}
+function mcQuestlineRailState(stage, next){
+  const state = mcStateKind((stage && (stage.state || stage.status)) || 'idle');
+  const nextState = mcStateKind((next && (next.state || next.status)) || 'idle');
+  if (state === 'blocked' || state === 'proof-needed' || state === 'stale') return state;
+  if (nextState === 'blocked' || nextState === 'proof-needed' || nextState === 'stale') return nextState;
+  if (nextState === 'locked') return 'locked';
+  if (state === 'complete' || state === 'active' || state === 'selected') return 'active';
+  return nextState || state;
 }
 function mcBlockers(env, branch){
   const rows = [];
@@ -2276,7 +2495,7 @@ function mcControls(branch){
 function buildMissionControlView(env){
   const branchEnv = branchEnvelope(env || {});
   const rows = branchRows(env || {});
-  const requested = mcText(PARAMS.get('branch'), '');
+  const requested = mcText(MISSION_BRANCH_FOCUS || PARAMS.get('branch'), '');
   const selectedIndex = Math.max(0, rows.findIndex((branch, index) => requested && mcBranchId(branch, index) === requested));
   const branch = rows[selectedIndex] || rows[0] || null;
   const mission = branchActiveMission(branch);
@@ -2302,16 +2521,20 @@ function buildMissionControlView(env){
   };
   return {
     source:mcText(branchEnv.source, 'product-branch-packets@v1'),
+    stale:mcBranchEnvelopeStale(env || {}, branchEnv),
+    staleDetail:mcText(branchEnv.staleReason || (env && env.freshness && env.freshness.detail), 'refresh before decisions; Inspect keeps timestamp/source detail'),
     selectedBranchId:branch ? mcBranchId(branch, selectedIndex) : requested,
     selectedBranch:branch,
     branches:rows.slice(0, 12).map((row, index) => {
       const active = branchActiveMission(row);
+      const organ = mcOrganMetaForBranch(row, active);
+      const rawState = branchCardState(row);
       return {
         id:mcBranchId(row, index),
         name:mcText(row && (row.name || row.productId), 'Product Branch'),
         arcTitle:mcText(row && row.arcTitle, 'branch arc'),
-        state:branchCardState(row),
-        organ:mcOrganMetaForBranch(row, active),
+        state:organ.neutral ? 'idle' : rawState,
+        organ,
         nextMission:active ? mcText(active.title, 'Mission title missing') : 'mission queue missing',
         selected:row === branch,
       };
@@ -2365,7 +2588,7 @@ function renderMissionCard(view){
 }
 function renderQuestlineTimeline(view){
   return '<div data-component="QuestlineTimeline"><div class="mc-section-title">Questline</div><div class="mc-questline">' + view.questline.map((stage, index) =>
-    '<div class="mc-questline-row"><span>' + mcGlyphSvg(mcGlyphForQuestStage(stage, index, view.questline.length), stage.state) + '</span><b title="' + esc(stage.title) + '">' + esc(mcShortLabel(stage.title, 'Stage')) + '</b>' + mcStateToken(stage.state, stage.status) + '</div>'
+    '<div class="mc-questline-row" data-questline-stage-state="' + esc(mcStateKind(stage.state || stage.status)) + '"><span>' + mcGlyphSvg(mcGlyphForQuestStage(stage, index, view.questline.length), stage.state) + '</span><b title="' + esc(stage.title) + '">' + esc(mcShortLabel(stage.title, 'Stage')) + '</b>' + mcStateToken(stage.state, stage.status) + (index < view.questline.length - 1 ? mcSignalRail({ state:mcQuestlineRailState(stage, view.questline[index + 1]), packetCount:3 }) : '') + '</div>'
   ).join('') + '</div></div>';
 }
 function renderMissionStateStack(view){
@@ -2374,18 +2597,22 @@ function renderMissionStateStack(view){
   const proof = view.proofNeeded[0] || { label:'Proof requirement missing', state:'proof-needed', detail:view.nextMission.proofRequired };
   const locked = view.questline.find(row => mcStateKind(row.state || row.status) === 'locked') || view.questline[view.questline.length - 1] || { title:'Launch lock', status:'locked', state:'locked' };
   const rows = [
-    { glyph:'cortex', state:'selected', title:'Selected', detail:selected + ' · current focus', token:'selected' },
-    { glyph:'gate', state:blocker.state || 'blocked', title:'Blocked by', detail:blocker.label || 'blocker detail missing', token:mcStateKind(blocker.state || 'blocked') },
-    { glyph:'proof', state:proof.state || 'proof-needed', title:'Proof needed', detail:proof.label || proof.detail || 'evidence missing', token:'receipt' },
-    { glyph:'ops', state:locked.state || locked.status || 'locked', title:'Locked', detail:(locked.title || 'next stage') + ' · waiting unlock', token:mcStateKind(locked.state || locked.status || 'locked') },
+    { glyph:'cortex', state:'selected', title:'Selected', detail:selected + ' · current focus', token:'selected', focus:'selected' },
+    { glyph:'gate', state:blocker.state || 'blocked', title:'Blocked by', detail:blocker.label || 'blocker detail missing', token:mcStateKind(blocker.state || 'blocked'), focus:/proof/i.test(blocker.source || blocker.label || '') ? 'proof' : 'gate' },
+    { glyph:'proof', state:proof.state || 'proof-needed', title:'Proof needed', detail:proof.label || proof.detail || 'evidence missing', token:'receipt', focus:'proof', orbit:true },
+    { glyph:'ops', state:locked.state || locked.status || 'locked', title:'Locked', detail:(locked.title || 'next stage') + ' · waiting unlock', token:mcStateKind(locked.state || locked.status || 'locked'), focus:'selected' },
   ];
   return '<div data-component="MissionStateStack"><div class="mc-section-title">State Stack</div><div class="mc-state-stack">' + rows.map(row =>
-    '<div class="' + mcClass('mc-state-row', row.state, row.state === 'selected' ? 'is-selected mc-selected-halo' : '') + '" data-selected-surface="' + (row.state === 'selected' ? 'mission-state-row' : 'none') + '">' +
+    '<button type="button" class="' + mcClass('mc-state-row', row.state, row.state === 'selected' ? 'is-selected mc-selected-halo' : '') + '" data-selected-surface="' + (row.state === 'selected' ? 'mission-state-row' : 'none') + '" data-mission-state-action="' + esc(row.focus) + '" data-interaction-kind="sheet">' +
       mcGlyphSvg(row.glyph, row.state) +
       '<span><b>' + esc(row.title) + '</b><small>' + esc(row.detail) + '</small></span>' +
-      mcStateToken(row.state, row.token) +
-    '</div>'
+      (row.orbit ? mcOrbitProgress({ value:42, state:'proof-needed', label:'Proof' }) : mcStateToken(row.state, row.token)) +
+    '</button>'
   ).join('') + '</div></div>';
+}
+function renderMissionStaleNotice(view){
+  if (!view.stale) return '';
+  return '<section class="mission-stale-notice" data-component="MissionStalePacketState" data-mission-stale="1"><b>Refresh before decisions</b><span>' + esc(view.staleDetail) + '</span></section>';
 }
 function renderMissionBlockers(view){
   const rows = view.blockers.length ? view.blockers.slice(0, 5) : [{ label:'No blockers served for this branch packet', state:'idle', source:view.source }];
@@ -2427,6 +2654,7 @@ function renderMissionControl(env){
     return;
   }
   stem.innerHTML = [
+    renderMissionStaleNotice(view),
     renderBranchArcRail(view),
     renderMissionCard(view),
     renderQuestlineTimeline(view),
@@ -2454,9 +2682,13 @@ function renderMissionControl(env){
   stem.querySelectorAll('[data-mission-action="gate"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'gate'));
   stem.querySelectorAll('[data-mission-action="proof"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));
   stem.querySelectorAll('[data-mission-proof-row]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));
-  stem.querySelectorAll('[data-mission-action="tools"]').forEach(el => el.onclick = () => { go(2); renderCommands(); });
+  stem.querySelectorAll('[data-mission-state-action]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, el.dataset.missionStateAction === 'selected' ? undefined : el.dataset.missionStateAction));
+  stem.querySelectorAll('[data-mission-action="tools"]').forEach(el => el.onclick = () => { TOOL_FOCUS = 'ts-status'; TOOL_CONTEXT_BRANCH = view.selectedBranchId || ''; go(2); cmdsDrawn = false; renderCommands(); });
 }
 function branchCardState(branch){
+  const text = mcBranchStatusText(branch);
+  if (/stale|expired|old|refresh/i.test(text)) return 'stale';
+  if (/locked|waiting unlock|not unlocked|future/i.test(text)) return 'locked';
   const gaps = branchGaps(branch);
   if (gaps.some(gap => gap.status === 'blocked')) return 'blocked';
   if (gaps.length) return 'proof-needed';
@@ -2918,10 +3150,12 @@ function inspectGroupSummaries(env, L){
     { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:String(policyRows.length) + ' policy checks keep operator action bounded.' },
     { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:String(proofRows.length) + ' live readiness rows stay honest about blockers.' },
     { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? String(branchRows.length) + ' branch packet(s) feed Mission.' : 'No branch packet rows; Mission must not fake progress.' },
+    { id:'branch-fixtures', title:'branch fixtures', glyph:'arc', state:branchRows.length ? 'active' : 'proof-needed', detail:'Fixture rows remain inspect-only and never masquerade as live proof.' },
     { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder decision(s) waiting.' : 'No founder decisions are waiting.' },
     { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:toolCount + ' toolbelt commands; live command data is ' + (env && env.commands ? 'available.' : 'not available.') },
     { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' visual contract rails remain inspectable here.' },
     { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence rows can open proof sheets.' : 'Evidence detail is missing from this envelope.' },
+    { id:'surface-contract', title:'surface contract', glyph:'cortex', state:'active', detail:'Five scenes are listed with state and proof links; this does not prove live Telegram readiness.' },
   ];
 }
 function renderInspectGroups(env, L){
@@ -2946,11 +3180,14 @@ function inspectGroupDetailRows(id, env, L){
       ['policy authority', 'operator policy gates actions; primary pages do not expose debug rules'],
       ['copy containment', 'Mission, Gate, Tools, and Story keep source/schema words out of primary cards'],
       ['proof rule', 'blocked rows keep warning state until evidence resolves'],
+      ['promotion ladder', 'prototype -> proof-only -> supervised branch -> founder-approved release'],
     ],
     'live-proof':[
       ['ready count', String((live.summary && live.summary.ready) || 0)],
       ['blocked count', String((live.summary && live.summary.blocked) || liveProofCards(env || { ledger:L }).filter(row => row.state !== 'ready').length)],
       ['blockers', live.blockers && live.blockers.length ? live.blockers.join(' · ') : 'Telegram initData and device artifact may still be required'],
+      ['blocker owner', 'operator captures redacted receipts; Worker validates before any release claim'],
+      ['next action', 'rerun npm run proof:tg-live-readiness after final release SHA and device capture exist'],
       ['secret redaction', 'receipts must stay redacted; no raw initData or bearer token belongs in screenshots'],
     ],
     'branch-packets':[
@@ -2958,10 +3195,17 @@ function inspectGroupDetailRows(id, env, L){
       ['schema', (branchEnv.schema || (branchEnv.rows && branchEnv.rows[0] && branchEnv.rows[0].source && branchEnv.rows[0].source.schema)) || 'cambium.product_branch_packet.v1'],
       ['missing diagnostics', branchRows(env || { ledger:L }).length ? 'branch rows served' : (branchEnv.gap || 'branch stories missing')],
     ],
+    'branch-fixtures':[
+      ['fixture count', String(branchRows(env || { ledger:L }).length)],
+      ['fixture boundary', 'fixtures can calibrate Mission layout but cannot satisfy live proof rows'],
+      ['proof handoff', 'Mission links to branch packet sheets; Inspect preserves raw source detail'],
+    ],
     gates:[
       ['signed route', '/api/gate/' + TENANT],
       ['queue state', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' open item(s)'],
       ['auth boundary', 'initData checked by Worker before queue write'],
+      ['idempotency audit', 'Gate sheets show idempotency hints before approve or reroll action'],
+      ['redacted auth', 'auth failures describe missing Telegram proof without exposing initData'],
     ],
     tools:[
       ['tool source', CMDDATA ? 'live command envelope available' : 'live command envelope stale'],
@@ -2977,6 +3221,16 @@ function inspectGroupDetailRows(id, env, L){
       ['evidence rows', String(insightBoxes(env || { ledger:L }).length)],
       ['source containment', 'sources and proof paths are Inspect/sheet detail, not primary app copy'],
       ['mini app surface', 'workers/quests/src/page.ts'],
+      ['grouping', 'evidence sheets group source, origin, row source, proof, and served evidence'],
+      ['search affordance', 'open the related page first, then return here for proof detail'],
+      ['related page trace', 'Story and Tools sheets can route back to Inspect evidence rows'],
+    ],
+    'surface-contract':[
+      ['Mission', 'branch packet state, selected mission, proof, KPIs, Gate, and Tools links'],
+      ['Gate', 'founder decision queue, proof rows, safe action sheets, and auth failure handling'],
+      ['Tools', 'mission-effect commands, disabled reasons, expected receipts, and Inspect audit links'],
+      ['Story', 'digest cards, branch filters, grouped beats, and proof follow-up links'],
+      ['Inspect', 'read-only proof taxonomy, surface contract rows, and redacted release evidence'],
     ],
   };
   return rows[id] || [['detail', 'no specific detail rows served']];
@@ -2985,20 +3239,38 @@ function renderInspectProofSummary(env, L){
   const liveRows = liveProofCards(env || { ledger:L });
   const blocked = liveRows.filter(row => row.state !== 'ready').length;
   const branchCount = branchRows(env || { ledger:L }).length;
+  const blockedNames = liveRows.filter(row => row.state !== 'ready').slice(0, 3).map(row => row.title || row.id || 'readiness row');
+  const blockerText = blockedNames.length ? ' · blocked: ' + blockedNames.join(', ') : '';
   return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction">' +
-    '<b>Proof summary</b><small>' + branchCount + ' branch packet(s) · ' + blocked + ' live readiness blocker(s) · redacted receipts required.</small>' +
+    '<b>Proof summary</b><small>' + branchCount + ' branch packet(s) · ' + blocked + ' live readiness blocker(s) · redacted receipts required' + esc(blockerText) + '.</small>' +
     '<div class="gbtns command-copy"><button type="button" data-inspect-summary="1">Open proof summary</button></div>' +
   '</section>';
+}
+function inspectRelatedPage(id){
+  if (id === 'tools') return 'Tools';
+  if (id === 'gates') return 'Gate';
+  if (id === 'branch-packets' || id === 'branch-fixtures') return 'Mission';
+  if (id === 'evidence' || id === 'live-proof' || id === 'surface-contract') return 'Inspect';
+  return 'Inspect';
+}
+function inspectRelatedScene(id){
+  const page = inspectRelatedPage(id);
+  if (page === 'Mission') return 'mission';
+  if (page === 'Gate') return 'gate';
+  if (page === 'Tools') return 'tools';
+  return 'inspect';
 }
 function openInspectGroupSheet(id, env){
   const L = (env && env.ledger) || env || {};
   const group = inspectGroupSummaries(env || { ledger:L }, L).find(row => row.id === id) || inspectGroupSummaries(env || { ledger:L }, L)[0];
+  const related = inspectRelatedPage(group.id);
+  const scene = inspectRelatedScene(group.id);
   $('sheetBody').innerHTML = '<div class="arc">inspect · ' + esc(group.id) + '</div><h2>' + esc(group.title) + '</h2>' +
     '<div class="nar">' + esc(group.detail) + '</div>' +
-    '<div class="kv"><b>debug layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>source</b><span>inspect-proof-layer@v1</span>' +
+    '<div class="kv"><b>debug layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>summary</b><span>' + esc(group.detail) + '</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>proof</b><span>read-only Inspect sheet; primary pages link back here for evidence</span><b>back path</b><span>' + esc(related) + ' -> Inspect</span><b>source</b><span>inspect-proof-layer@v1</span>' +
     inspectGroupDetailRows(group.id, env || { ledger:L }, L).map(([label, value]) => '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>').join('') +
-    '<b>related page</b><span>' + esc(group.id === 'tools' ? 'Tools' : group.id === 'gates' ? 'Gate' : group.id === 'branch-packets' ? 'Mission' : 'Inspect') + '</span><b>trace action</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
-    '<div class="gbtns"><button type="button" data-inspect-page-link="' + esc(group.id === 'tools' ? 'tools' : group.id === 'gates' ? 'gate' : group.id === 'branch-packets' ? 'mission' : 'inspect') + '">Open related page</button></div>';
+    '<b>related page</b><span>' + esc(related) + '</span><b>trace action</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
+    '<div class="gbtns"><button type="button" data-inspect-page-link="' + esc(scene) + '">Open related page</button></div>';
   $('sheetBody').querySelectorAll('[data-inspect-page-link]').forEach(el => el.onclick = () => {
     closeSheet();
     const target = el.dataset.inspectPageLink;
@@ -3011,13 +3283,16 @@ function openInspectSummarySheet(env){
   const L = (env && env.ledger) || env || {};
   const liveRows = liveProofCards(env || { ledger:L });
   const blockedRows = liveRows.filter(row => row.state !== 'ready');
+  const blockedBlock = blockedRows.length
+    ? '<div class="kv">' + blockedRows.slice(0, 6).map((row, i) => '<b>blocker ' + (i + 1) + '</b><span>' + esc((row.title || row.id || 'readiness row') + ' · ' + (row.detail || row.proof || 'detail missing')) + '</span>').join('') + '</div>'
+    : '<div class="nar">no blocked live readiness rows served.</div>';
   const summary = 'Cambium mini app proof summary: ' + branchRows(env || { ledger:L }).length + ' branch packet(s), ' + blockedRows.length + ' live readiness blocker(s), sources stay in Inspect, receipts stay redacted.';
   $('sheetBody').innerHTML = '<div class="arc">inspect · proof summary</div><h2>Proof Summary</h2>' +
     '<div class="nar">' + esc(summary) + '</div>' +
-    '<div class="kv"><b>copy text</b><span>' + esc(summary) + '</span><b>surface</b><span>workers/quests/src/page.ts</span><b>redaction rule</b><span>no raw initData, bearer token, or secret value in proof artifacts</span></div>' +
+    '<div class="kv"><b>copy text</b><span>' + esc(summary) + '</span><b>surface</b><span>workers/quests/src/page.ts</span><b>blocker names</b><span>' + esc(blockedRows.length ? blockedRows.slice(0, 4).map(row => row.title || row.id || 'readiness row').join(' · ') : 'none') + '</span><b>redaction rule</b><span>no raw initData, bearer token, or secret value in proof artifacts</span></div>' + blockedBlock +
     '<div class="gbtns command-copy"><button type="button" data-copy-proof-summary="' + esc(summary) + '">Copy proof summary</button></div>';
   const proofCopy = $('sheetBody').querySelector('[data-copy-proof-summary]');
-  if (proofCopy) proofCopy.onclick = () => copyCommandToClipboard(summary, proofCopy).catch(() => { proofCopy.textContent = 'Copy unavailable'; });
+  if (proofCopy) proofCopy.onclick = () => copyCommandToClipboard(summary, proofCopy, 'Copied proof summary').catch(() => { proofCopy.textContent = 'Copy unavailable'; });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
 function renderOperatorMap(env){
@@ -3136,6 +3411,8 @@ function openMapSheet(L, stageId){
   const stage = STAGES.find(s => s.id === stageId) || STAGES[0];
   const rows = stageRows(L, stage);
   const target = stageEcosystemTarget(stage.id);
+  const stageState = rows.length ? (rows.some(row => row.status !== 'complete') ? 'active' : 'complete') : 'idle';
+  const stageHeader = '<div class="branch-sheet-head" data-component="VisualStageSheetHeader" data-stage-state="' + esc(stageState) + '">' + mcGlyphSvg(stage.id, stageState) + '<div><div class="arc">operator map · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2></div>' + mcStateToken(stageState, rows.length ? 'Read-only' : 'No rows') + '</div>';
   const stageMeta = '<div class="kv"><b>organ target</b><span>' + esc(target) + '</span><b>source</b><span>shared/cambium-visual-contract.ts</span><b>interaction</b><span>read-only stage inspection; no signed action is queued from this sheet</span></div>';
   const body = rows.length ? rows.map((row, i) => {
     const facets = facetsFrom(row.evidence);
@@ -3144,8 +3421,7 @@ function openMapSheet(L, stageId){
         '<div class="facet ' + (f.done?'done':'pend') + '" style="--i:' + (i + j) + '"><span class="dot"></span>' + esc(f.label) + '</div>').join('') : '<div class="cdesc">' + esc(row.evidence) + '</div>') +
       '</div></div>';
   }).join('') : '<div class="nar">no quest rows currently mapped to this organ. Source: shared/cambium-visual-contract.ts.</div>';
-  $('sheetBody').innerHTML = '<div class="arc">operator map · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2>' +
-    '<div class="nar">' + esc(stage.detail) + '</div>' + stageMeta + body;
+  $('sheetBody').innerHTML = stageHeader + '<div class="nar">' + esc(stage.detail) + '</div>' + stageMeta + body;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function qarg(value){
@@ -3214,8 +3490,9 @@ function openPolicyBox(env){
   const cautions = policy.cautions && policy.cautions.length
     ? '<div class="kv">' + policy.cautions.slice(0, 3).map((caution, i) => '<b>caution ' + (i + 1) + '</b><span>' + esc(caution) + '</span>').join('') + '</div>'
     : '';
+  const ladder = '<div class="kv"><b>promotion ladder</b><span>prototype -> proof-only -> supervised branch -> founder-approved release</span><b>release rule</b><span>live-proof blockers must clear before broad release claims</span></div>';
   $('sheetBody').innerHTML = '<div class="arc">next action · ' + esc(policy.state) + '</div><h2>' + esc(policy.title) + '</h2>' +
-    '<div class="nar">' + esc(policy.detail) + '</div>' + blockers + cautions;
+    '<div class="nar">' + esc(policy.detail) + '</div>' + ladder + blockers + cautions;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(policy.state === 'ready' ? 'medium' : 'light');
 }
 function openDecisionContextBox(env, index){
@@ -3340,8 +3617,9 @@ function openInsightBox(env, index){
   const missingSource = box.state === 'ready'
     ? ''
     : '<b>missing insight source</b><span>' + esc(box.missingSource || box.insightSource || box.source || 'missing') + '</span>';
+  const relatedTrace = '<b>related page trace</b><span>Story beat -> Inspect evidence sheet -> source row</span><b>search affordance</b><span>Use the evidence title and source label to find this row in the release packet</span>';
   $('sheetBody').innerHTML = '<div class="arc">evidence box · ' + esc(box.state) + '</div><h2>' + esc(box.title) + '</h2>' +
-    '<div class="nar">' + esc(box.detail) + '</div><div class="kv"><b>source</b><span>' + esc(box.insightSource || box.source || 'missing') + '</span>' + rowSource + '<b>origin</b><span>' + esc(box.origin || 'unknown') + '</span><b>proof</b><span>' + esc(box.proof || box.detail) + '</span>' + missingSource + '</div>' + evidence;
+    '<div class="nar">' + esc(box.detail) + '</div><div class="kv"><b>source</b><span>' + esc(box.insightSource || box.source || 'missing') + '</span>' + rowSource + '<b>origin</b><span>' + esc(box.origin || 'unknown') + '</span><b>proof</b><span>' + esc(box.proof || box.detail) + '</span>' + relatedTrace + missingSource + '</div>' + evidence;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(box.state === 'ready' ? 'medium' : 'light');
 }
 function openSkillBox(env, index){
@@ -3419,6 +3697,7 @@ const LANE_ICON = {
 };
 let STORY_BEATS = [];
 let STORY_GROUP_FILTER = 'all';
+let STORY_BRANCH_FILTER = 'all';
 function storyBeatTarget(lane){
   if (lane === 'heartbeat') return 'quine';
   if (lane === 'paperclip') return 'paperclip';
@@ -3461,6 +3740,34 @@ function storyBeatGlyph(group){
   if (group === 'Drift') return 'gate';
   return 'arc';
 }
+function storyBeatBranch(beat){
+  return mcText(beat && (beat.branchId || beat.branch || beat.productId || beat.clientName), '');
+}
+function storyBeatOutcome(beat, group){
+  const text = mcText(beat && (beat.outcome || beat.result || beat.detail), '');
+  if (text) return text;
+  if (group === 'Mission wins') return 'mission moved with served proof';
+  if (group === 'Lessons') return 'operator lesson recorded for the branch packet';
+  if (group === 'Drift') return 'follow-up required before this can become a win';
+  return 'new signal requires source review';
+}
+function storyBeatProofCue(beat, group){
+  return mcText(beat && (beat.proof || beat.evidence), group === 'Drift' ? 'proof needed' : 'proof detail available in sheet');
+}
+function storyBeatSourceSummary(beat, lane){
+  const source = storyBeatSource(beat, lane);
+  if (/paperclip/i.test(source)) return 'Paperclip activity';
+  if (/quest|ledger/i.test(source)) return 'Quest ledger';
+  if (/world|heartbeat/i.test(source)) return 'World signal';
+  return 'Operator narrative';
+}
+function storyBeatFollowup(beat, group){
+  if (beat && beat.followup) return beat.followup;
+  if (group === 'Drift') return 'Inspect source rows before promoting this story beat';
+  if (group === 'Mission wins') return 'Open Mission or proof detail';
+  if (group === 'Lessons') return 'Link lesson back to branch packet';
+  return 'Review source detail';
+}
 function storyBeatContext(group, lane, beat){
   const text = String((beat && beat.text) || '');
   if (/gate|approve|reroll|decision/i.test(text)) return 'gate';
@@ -3480,15 +3787,15 @@ function storyContextScene(context){
 function renderStoryHero(beats){
   const latest = beats[0] || { text:'Story is waiting for mission movement', lane:'beat' };
   const group = storyBeatGroup(latest);
-  return '<section class="story-hero" data-component="StoryLatestChangeHero">' +
+  return '<button type="button" class="story-hero" data-component="StoryLatestChangeHero" data-story-hero="0" data-interaction-kind="sheet">' +
     mcGlyphSvg(storyBeatGlyph(group), storyBeatState(latest)) +
-    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + '</small></span>' +
-  '</section>';
+    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + ' · open full beat detail</small></span>' +
+  '</button>';
 }
-function renderStoryGroupControls(groups){
-  const labels = ['all'].concat(groups);
+function renderStoryGroupControls(groups, beats){
+  const labels = ['all', 'Mission wins', 'New signals', 'Lessons', 'Drift'];
   return '<div class="story-filter-strip" data-component="StoryGroupControls">' + labels.map(label =>
-    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + '</button>'
+    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' · ' + (label === 'all' ? beats.length : beats.filter(beat => storyBeatGroup(beat) === label).length) + '</button>'
   ).join('') + '</div>';
 }
 function renderStoryTimeline(beats){
@@ -3498,22 +3805,35 @@ function renderStoryTimeline(beats){
 }
 function renderStoryBranchFilters(env){
   const branches = branchRows(env || {});
-  if (!branches.length) return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="is-selected" data-story-branch-filter="all">all branches</button><button type="button" data-story-branch-filter="missing">branch packets pending</button></div>';
-  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="is-selected" data-story-branch-filter="all">all branches</button>' + branches.slice(0, 5).map(branch =>
-    '<button type="button" data-story-branch-filter="' + esc(branch.branchId || branch.productId || branch.name || 'branch') + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>'
+  if (!branches.length) return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button><button type="button" data-component="BranchArcChip" data-story-branch-filter="missing">branch packets pending</button></div>';
+  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (STORY_BRANCH_FILTER === 'all' ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + branches.slice(0, 5).map(branch => {
+    const id = mcText(branch.branchId || branch.productId || branch.name, 'branch');
+    return '<button type="button" class="' + (STORY_BRANCH_FILTER === id ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="' + esc(id) + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>';
+  }
   ).join('') + '</div>';
 }
 function renderStoryDigest(beats){
   const counts = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => [group, beats.filter(beat => storyBeatGroup(beat) === group).length]);
-  return '<section class="story-hero" data-component="StoryDigestCards">' +
+  return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-interaction-kind="sheet">' +
     mcGlyphSvg('proof', 'active') +
     '<span><b>Digest</b><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
-  '</section>';
+    '<i aria-hidden="true">›</i>' +
+  '</button>';
 }
 function storyPacketTrail(beat){
   const group = storyBeatGroup(beat);
+  if (!(group === 'Mission wins' || group === 'Drift')) return '';
   const count = group === 'Mission wins' ? 4 : group === 'Drift' ? 2 : 3;
   return '<span data-component="StoryPacketTrail">' + mcPacketDots(count, storyBeatState(beat), { mode:'rail' }) + '</span>';
+}
+function openStoryDigest(){
+  const rows = STORY_BEATS.slice(0, 12).map((beat, index) => {
+    const group = storyBeatGroup(beat);
+    return '<button type="button" class="li" data-story-digest-beat="' + index + '"><span class="cname">' + esc(group) + '</span><div class="cdesc">' + esc(beat.text || 'story beat') + '</div></button>';
+  }).join('');
+  $('sheetBody').innerHTML = '<div class="arc">story · digest</div><h2>Story Digest</h2><div class="nar">Digest lists individual beats without hiding blockers.</div>' + (rows || '<div class="nar">No story beats served.</div>');
+  $('sheetBody').querySelectorAll('[data-story-digest-beat]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyDigestBeat));
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
 function openStoryBeat(index){
   const beat = STORY_BEATS[index] || STORY_BEATS[0];
@@ -3523,6 +3843,7 @@ function openStoryBeat(index){
   const target = storyBeatTarget(lane);
   const group = storyBeatGroup(beat);
   const context = storyBeatContext(group, lane, beat);
+  const branchFocus = storyBeatBranch(beat) || (branchRows(ECOSYSTEM_ENV || {})[0] && mcBranchId(branchRows(ECOSYSTEM_ENV || {})[0], 0)) || '';
   const warning = /contradict/i.test(String(beat.text || ''))
     ? '<b>warning</b><span>contradiction requires Inspect review before this becomes a win</span>'
     : '';
@@ -3531,11 +3852,13 @@ function openStoryBeat(index){
     : '';
   $('sheetBody').innerHTML = '<div class="arc">story beat · ' + esc(group.toLowerCase()) + '</div><h2>Story Beat</h2>' +
     '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
-    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>context link</b><span>' + esc(context) + '</span><b>action</b><span>read-only story row; no execution action</span>' + warning + paperclipRows + '</div>' +
-    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Inspect') + '</button></div>';
+    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>mission</b><span>' + esc(branchFocus || 'branch context not served') + '</span><b>outcome</b><span>' + esc(storyBeatOutcome(beat, group)) + '</span><b>proof cue</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>source summary</b><span>' + esc(storyBeatSourceSummary(beat, lane)) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>evidence link</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>follow-up</b><span>' + esc(storyBeatFollowup(beat, group)) + '</span><b>context link</b><span>' + esc(context) + '</span><b>action</b><span>read-only story row; no execution action</span>' + warning + paperclipRows + '</div>' +
+    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Inspect') + '</button><button type="button" class="reroll" data-story-target="inspect">Inspect evidence</button></div>';
   $('sheetBody').querySelectorAll('[data-story-target]').forEach(el => el.onclick = () => {
     veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open = false;
+    if (el.dataset.storyTarget === 'mission') MISSION_BRANCH_FOCUS = el.dataset.storyBranchContext || '';
     go(storyContextScene(el.dataset.storyTarget), true);
+    if (el.dataset.storyTarget === 'tools') { TOOL_FOCUS = 'ts-status'; cmdsDrawn = false; renderCommands(); }
   });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' || lane === 'paperclip' ? 'medium' : 'light');
 }
@@ -3545,19 +3868,21 @@ function renderStory(env){
     env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
   STORY_BEATS = beats;
   if (!beats.length) {
-    $('beats').innerHTML = '<div class="state" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>Story is waiting for mission movement.</b><p>New wins, signals, lessons, and drift appear here after evidence lands.</p><div class="gbtns"><button type="button" data-story-empty-action="mission">Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Inspect</button></div></div>';
-    $('beats').querySelectorAll('[data-story-empty-action]').forEach(el => el.onclick = () => go(el.dataset.storyEmptyAction === 'mission' ? 0 : 4));
+    $('beats').innerHTML = '<div class="state" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>Story is waiting for mission movement.</b><p>New wins, signals, lessons, and drift appear here after evidence lands.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Inspect</button></div></div>';
+    $('beats').querySelectorAll('[data-story-empty-action]').forEach(el => el.onclick = () => el.dataset.storyEmptyAction === 'refresh' ? refresh() : go(el.dataset.storyEmptyAction === 'mission' ? 0 : 4));
     return;
   }
+  const visibleBeats = STORY_BRANCH_FILTER === 'all'
+    ? beats
+    : beats.filter(beat => storyBeatBranch(beat) === STORY_BRANCH_FILTER || !storyBeatBranch(beat));
   const groups = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => ({
     group,
-    beats: beats.map((beat, index) => ({ beat, index })).filter(row => storyBeatGroup(row.beat) === group),
-  })).filter(row => row.beats.length && (STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group));
-  const allGroups = ['Mission wins', 'New signals', 'Lessons', 'Drift'].filter(group => beats.some(beat => storyBeatGroup(beat) === group));
-  $('beats').innerHTML = renderStoryHero(beats) + renderStoryGroupControls(allGroups) + renderStoryBranchFilters(env) + renderStoryDigest(beats) + renderStoryTimeline(beats) + (groups.length ? groups.map(({ group, beats: groupBeats }) =>
+    beats: visibleBeats.map((beat, index) => ({ beat, index:beats.indexOf(beat) })).filter(row => storyBeatGroup(row.beat) === group),
+  })).filter(row => STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group);
+  const allGroups = ['Mission wins', 'New signals', 'Lessons', 'Drift'];
+  $('beats').innerHTML = renderStoryHero(beats) + renderStoryGroupControls(allGroups, beats) + renderStoryBranchFilters(env) + renderStoryDigest(beats) + renderStoryTimeline(beats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
     '<section class="story-group" data-component="StoryGroup" data-story-group="' + esc(group.toLowerCase().replace(/\\s+/g, '-')) + '">' +
-    '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' +
-    groupBeats.map(({ beat:b, index:i }) => {
+    '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + (groupBeats.length ? groupBeats.map(({ beat:b, index:i }) => {
     const lane = b.lane || 'beat';
     const state = storyBeatState(b);
     const context = storyBeatContext(group, lane, b);
@@ -3566,13 +3891,21 @@ function renderStory(env){
       '<span class="ico">' + mcGlyphSvg(storyBeatGlyph(group), state) + '</span>' +
       '<span class="lane">' + esc(group) + '</span>' +
       '<b>' + esc(b.text || 'Story beat') + '</b>' +
+      '<small>' + esc(storyBeatOutcome(b, group) + ' · ' + storyBeatProofCue(b, group)) + '</small>' +
       storyPacketTrail(b) +
       mcStateToken(state, group === 'Drift' ? 'drift' : group === 'Mission wins' ? 'win' : group === 'Lessons' ? 'lesson' : 'signal') +
     '</button>';
-    }).join('') + '</div></section>'
+    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Refresh or inspect source detail; no fake story progress is shown.</p></div>') + '</div></section>'
   ).join('') : '<div class="state"><b>No story beats in this group.</b><p>Switch groups or refresh after new branch evidence lands.</p></div>');
+  $('beats').querySelectorAll('[data-story-hero]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyHero));
+  $('beats').querySelectorAll('[data-story-digest]').forEach(el => el.onclick = () => openStoryDigest());
   $('beats').querySelectorAll('[data-story-filter]').forEach(el => el.onclick = () => {
     STORY_GROUP_FILTER = el.dataset.storyFilter || 'all';
+    renderStory(env);
+  });
+  $('beats').querySelectorAll('[data-story-branch-filter]').forEach(el => el.onclick = () => {
+    STORY_BRANCH_FILTER = el.dataset.storyBranchFilter || 'all';
+    if (STORY_BRANCH_FILTER !== 'all' && STORY_BRANCH_FILTER !== 'missing') MISSION_BRANCH_FOCUS = STORY_BRANCH_FILTER;
     renderStory(env);
   });
   $('beats').querySelectorAll('.beat').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.beat));
