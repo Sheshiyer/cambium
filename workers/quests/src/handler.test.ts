@@ -1234,7 +1234,8 @@ test('page · serves the Living Blueprint shell at /', async () => {
   assert.match(r.headers['content-type'], /text\/html/);
   assert.match(PAGE, /#00272B/);
   assert.match(PAGE, /#E0FF4F/);
-  assert.match(PAGE, /no fake progress/);
+  assert.doesNotMatch(PAGE, /every status derives|real world-state|no fake progress/i);
+  assert.match(JSON.stringify(NO_FAKE_PROGRESS_VISUAL_FIXTURE), /visual-fixture:no-fake-progress/);
   assert.match(PAGE, /telegram-web-app\.js/);
 });
 
@@ -2243,7 +2244,8 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   const stem = elements.get('stem')!.innerHTML;
   const progress = elements.get('progress')!.textContent;
   assert.match(stem, /Mission control is waiting for branch packets/);
-  assert.match(stem, /No fake progress/);
+  assert.match(stem, /Branch arcs appear only after product packets reach the visual envelope/);
+  assert.doesNotMatch(stem, /mc-mission-card/);
   assert.match(progress, /branch packets waiting/);
   assert.match(map, /Inspect/);
   assert.match(map, /Proof, packet, freshness, and system detail/);

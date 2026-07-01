@@ -660,7 +660,6 @@ export const PAGE = `<!doctype html>
     <section class="scene" id="sceneS" aria-labelledby="sceneSTitle"><h2 id="sceneSTitle" class="sr">Story</h2><div id="beats"></div></section>
     <section class="scene" id="sceneF" aria-labelledby="sceneFTitle"><h2 id="sceneFTitle" class="sr">Inspect</h2><div class="mapwrap" id="mapwrap"></div></section>
   </div>
-  <footer>every status derives from real world-state — no fake progress.</footer>
 </div>
 <div class="veil" id="veil"></div>
 <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
@@ -2646,7 +2645,7 @@ function renderMissionControl(env){
   const view = buildMissionControlView(env);
   stem.classList.add('mission-control');
   if (!view.selectedBranch) {
-    stem.innerHTML = '<div class="mission-empty"><b>Mission control is waiting for branch packets.</b><p>No fake progress: branch arcs appear only after product packets reach the visual envelope.</p><div class="mc-action-row" data-component="GateActionRow"><button type="button" data-mission-action="refresh">Refresh</button><button type="button" class="secondary" data-mission-action="inspect">Inspect</button></div></div>';
+    stem.innerHTML = '<div class="mission-empty"><b>Mission control is waiting for branch packets.</b><p>Branch arcs appear only after product packets reach the visual envelope.</p><div class="mc-action-row" data-component="GateActionRow"><button type="button" data-mission-action="refresh">Refresh</button><button type="button" class="secondary" data-mission-action="inspect">Inspect</button></div></div>';
     resetQuestSummary('branch packets waiting', 'inspect source');
     stem.querySelectorAll('[data-mission-action="refresh"]').forEach(el => el.onclick = () => refresh());
     stem.querySelectorAll('[data-mission-action="inspect"]').forEach(el => el.onclick = () => go(4));
