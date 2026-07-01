@@ -11,6 +11,11 @@
 // drill-down (tap ring → zoom + parsed evidence facets), count-up numerals, tactile haptics.
 
 import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_RAILS, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../shared/cambium-visual-contract.ts';
+import { MINI_APP_SECTIONS } from './mini-app-surface-contract.ts';
+
+const SCENE_TARGET_BY_SCENE = Object.fromEntries(
+  MINI_APP_SECTIONS.map((section) => [section.scene, section.target]),
+);
 
 export const PAGE = `<!doctype html>
 <html lang="en">
@@ -942,12 +947,13 @@ let MISSION_BRANCH_FOCUS = '';
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
 const track = $('track'), ind = $('ind'), SCN = 5;
 let scene = START_SCENE;
+const SCENE_TARGET_BY_SCENE = ${JSON.stringify(SCENE_TARGET_BY_SCENE)};
 const SCENE_META = [
-  { label:'Mission', source:'tg-miniapp-scenes@v1', target:'product-branches', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions' },
-  { label:'Gate', source:'tg-miniapp-scenes@v1', target:'telegram', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; founder decisions require confirmation' },
-  { label:'Tools', source:'tg-miniapp-scenes@v1', target:'hermes', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; tool actions remain explicit' },
-  { label:'Story', source:'tg-miniapp-scenes@v1', target:'operator-narrative', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; story rows stay evidence-backed' },
-  { label:'Inspect', source:'tg-miniapp-scenes@v1', target:'cambium-worker', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; proof detail stays inspectable' },
+  { kind:'primary', label:'Mission', target:SCENE_TARGET_BY_SCENE.mission, summary:'Next branch move, gate, and proof cue stay together for founder review.', next:'Open the active mission card or send blocked choices to Gate.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions' },
+  { kind:'primary', label:'Gate', target:SCENE_TARGET_BY_SCENE.gate, summary:'Founder decisions stay explicit, reversible, and separated from read-only review.', next:'Review the queued choice, then approve or reroll with confirmation.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; founder decisions require confirmation' },
+  { kind:'primary', label:'Tools', target:SCENE_TARGET_BY_SCENE.tools, summary:'Operator commands are available as copyable chat actions and live read-only sheets.', next:'Choose a command, copy it, or inspect the live tool sheet.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; tool actions remain explicit' },
+  { kind:'primary', label:'Story', target:SCENE_TARGET_BY_SCENE.story, summary:'Story rows summarize wins, signals, lessons, and drift after evidence lands.', next:'Open a beat for context or return to Mission, Gate, or Tools.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; story rows stay evidence-backed' },
+  { kind:'inspect', label:'Inspect', source:'tg-miniapp-scenes@v1', target:SCENE_TARGET_BY_SCENE.inspect, refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; proof detail stays inspectable' },
 ];
 $('ptr').dataset.refreshRoute = REFRESH_ROUTE;
 $('ptrProof').textContent = 'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions.';
@@ -993,9 +999,15 @@ function reducedMotionProofRow(){
 }
 function openSceneSheet(){
   const meta = SCENE_META[scene] || SCENE_META[0];
-  $('sheetBody').innerHTML = '<div class="arc">view details · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
-    '<div class="nar">Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow.</div>' +
-    '<div class="kv"><b>view</b><span>' + esc(meta.source) + '</span><b>target</b><span>' + esc(meta.target) + '</span><b>refresh</b><span>' + esc(meta.refresh) + '</span>' + reducedMotionProofRow() + '</div>';
+  if (meta.kind === 'inspect') {
+    $('sheetBody').innerHTML = '<div class="arc">view details · inspect</div><h2>Inspect</h2>' +
+      '<div class="nar">Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow.</div>' +
+      '<div class="kv"><b>view</b><span>' + esc(meta.source) + '</span><b>target</b><span>' + esc(meta.target) + '</span><b>refresh</b><span>' + esc(meta.refresh) + '</span>' + reducedMotionProofRow() + '</div>';
+  } else {
+    $('sheetBody').innerHTML = '<div class="arc">mission control · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
+      '<div class="nar">' + esc(meta.summary) + '</div>' +
+      '<div class="kv"><b>summary</b><span>' + esc(meta.summary) + '</span><b>next</b><span>' + esc(meta.next) + '</span><b>refresh</b><span>' + esc(meta.refresh) + '</span></div>';
+  }
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 $('sceneBadge').onclick = openSceneSheet;
@@ -2521,7 +2533,7 @@ function buildMissionControlView(env){
   return {
     source:mcText(branchEnv.source, 'product-branch-packets@v1'),
     stale:mcBranchEnvelopeStale(env || {}, branchEnv),
-    staleDetail:mcText(branchEnv.staleReason || (env && env.freshness && env.freshness.detail), 'refresh before decisions; Inspect keeps timestamp/source detail'),
+    staleDetail:mcText(branchEnv.staleReason || (env && env.freshness && env.freshness.detail), 'refresh before decisions; Inspect keeps timestamp and proof detail'),
     selectedBranchId:branch ? mcBranchId(branch, selectedIndex) : requested,
     selectedBranch:branch,
     branches:rows.slice(0, 12).map((row, index) => {
@@ -3894,7 +3906,7 @@ function renderStory(env){
       storyPacketTrail(b) +
       mcStateToken(state, group === 'Drift' ? 'drift' : group === 'Mission wins' ? 'win' : group === 'Lessons' ? 'lesson' : 'signal') +
     '</button>';
-    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Refresh or inspect source detail; no fake story progress is shown.</p></div>') + '</div></section>'
+    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Refresh or open Inspect; story waits for evidence.</p></div>') + '</div></section>'
   ).join('') : '<div class="state"><b>No story beats in this group.</b><p>Switch groups or refresh after new branch evidence lands.</p></div>');
   $('beats').querySelectorAll('[data-story-hero]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyHero));
   $('beats').querySelectorAll('[data-story-digest]').forEach(el => el.onclick = () => openStoryDigest());

@@ -344,11 +344,41 @@ const PRIMARY_MISSION_COPY_DENYLIST = [
   'no local state write',
   'source route',
   'no local operator writes',
+  'real world-state',
+  'no fake progress',
+  'served beats',
+  'operator narrative',
+  'source detail',
+  'debug layer',
+  'back path',
+  'trace action',
+];
+
+const PRIMARY_SCENE_SHEET_TELEMETRY_DENYLIST = [
+  'reduced motion proof',
+  'data-reduced-motion-proof',
+  'data-sheet',
+  'data-signed-action',
+  'data-chat-command',
+  'data-read-only',
+  'scene state changes remain visible',
+  'sheet=',
+  'signed action=',
+  'chat command=',
+  'read-only=',
+  'proof, packet, freshness, and system detail',
+  'system detail behind the main Mission Control flow',
 ];
 
 function assertNoPrimaryMetaCopy(html: string) {
   for (const term of PRIMARY_MISSION_COPY_DENYLIST) {
     assert.doesNotMatch(html, new RegExp(escapeRegExp(term), 'i'), `primary copy leaked meta term: ${term}`);
+  }
+}
+
+function assertNoPrimarySceneSheetTelemetry(html: string) {
+  for (const term of PRIMARY_SCENE_SHEET_TELEMETRY_DENYLIST) {
+    assert.doesNotMatch(html, new RegExp(escapeRegExp(term), 'i'), `primary sheet leaked telemetry term: ${term}`);
   }
 }
 
@@ -1289,7 +1319,58 @@ test('page · scenes expose accessible titles', () => {
   }
 });
 
-test('page · active scene badge opens view details sheet', async () => {
+test('page · active scene badge opens founder summary sheet for primary scenes', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const badge = rendered.elements.get('sceneBadge')!;
+  const scenes: Array<[number, string]> = [
+    [0, 'Mission'],
+    [1, 'Gate'],
+    [2, 'Tools'],
+    [3, 'Story'],
+  ];
+
+  for (const [index, label] of scenes) {
+    (rendered.context.go as (index: number) => void)(index);
+    assert.equal(badge.textContent, label);
+    (badge.onclick as () => void)();
+    const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+    assert.match(sheet, new RegExp(`mission control · ${label.toLowerCase()}`));
+    assert.match(sheet, /next<\/b><span>/);
+    assert.match(sheet, /refresh<\/b><span>Pull to refresh updates \/api\/quests\/cambium/);
+    assert.doesNotMatch(sheet, /Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow/);
+    assertNoPrimarySceneSheetTelemetry(sheet);
+    assert.doesNotMatch(sheet, /view<\/b>|target<\/b>|source<\/b>/);
+    assert.doesNotMatch(sheet, /tg-miniapp-scenes@v1|product-branches|operator-narrative|cambium-worker/);
+    assert.doesNotMatch(sheet, /scene provenance|ecosystem target|local operator writes/);
+  }
+});
+
+test('page · scene badge keeps canonical ecosystem target dataset values', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const badge = rendered.elements.get('sceneBadge')!;
+
+  for (const [index, section] of MINI_APP_SECTIONS.entries()) {
+    (rendered.context.go as (index: number) => void)(index);
+    assert.equal(badge.textContent?.toLowerCase(), section.scene);
+    assert.equal(badge.dataset.ecosystemTarget, section.target);
+    assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(section.target), `target ${section.target} is canonical`);
+  }
+});
+
+test('page · scene badge Inspect behavior survives display label rename', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  vm.runInContext("SCENE_META[4].label = 'Proof Detail';", rendered.context as vm.Context);
+  (rendered.context.go as (index: number) => void)(4);
+  const badge = rendered.elements.get('sceneBadge')!;
+  assert.equal(badge.textContent, 'Proof Detail');
+  (badge.onclick as () => void)();
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /view details · inspect/);
+  assert.match(sheet, /reduced motion proof<\/b><span data-reduced-motion-proof="1"/);
+  assert.doesNotMatch(sheet, /mission control · proof detail/);
+});
+
+test('page · Inspect scene badge opens proof detail metadata sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   (rendered.context.go as (index: number) => void)(4);
   const badge = rendered.elements.get('sceneBadge')!;
@@ -1301,6 +1382,7 @@ test('page · active scene badge opens view details sheet', async () => {
   assert.match(sheet, /view<\/b><span>tg-miniapp-scenes@v1/);
   assert.match(sheet, /target<\/b><span>cambium-worker/);
   assert.match(sheet, /refresh<\/b><span>Pull to refresh updates \/api\/quests\/cambium/);
+  assert.match(sheet, /reduced motion proof<\/b><span data-reduced-motion-proof="1"/);
   assert.doesNotMatch(sheet, /scene provenance|ecosystem target|local operator writes/);
 });
 
@@ -2834,12 +2916,17 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   assert.match(commandHtml, /class="cmd ref[^"]*"(?=[^>]*data-interaction-kind="read-only")/);
 
   (rendered.elements.get('sceneBadge')!.onclick as () => void)();
-  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
-  assert.match(sheet, /data-sheet="true"/);
-  assert.match(sheet, /data-signed-action="true"/);
-  assert.match(sheet, /data-chat-command="true"/);
-  assert.match(sheet, /data-read-only="true"/);
+  const storySheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assertNoPrimarySceneSheetTelemetry(storySheet);
+
+  (rendered.context.go as (index: number) => void)(4);
+  (rendered.elements.get('sceneBadge')!.onclick as () => void)();
+  const inspectSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(inspectSheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
+  assert.match(inspectSheet, /data-sheet="true"/);
+  assert.match(inspectSheet, /data-signed-action="true"/);
+  assert.match(inspectSheet, /data-chat-command="true"/);
+  assert.match(inspectSheet, /data-read-only="true"/);
 });
 
 test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
