@@ -236,7 +236,7 @@ export const PAGE = `<!doctype html>
   .mission-tool-link small,.tool-recommend small,.story-hero small,.inspect-proof-summary small{display:block;font:11px/1.35 var(--mono);opacity:.68;margin-top:3px}
   .mission-tool-link button,.tool-recommend button{appearance:none;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:var(--bg);font:800 12px inherit;padding:9px 10px;cursor:pointer}
 
-  /* ── operator map — R3F mechanics, Telegram density ───── */
+  /* ── inspect proof map — Telegram density ───── */
 	  @keyframes spin{to{transform:rotate(360deg)}}
 	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
 	  @keyframes orbitSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -1661,7 +1661,7 @@ function openGateResultSheet(kind, subject, res, fallback, item){
 function openGateFailureSheet(kind, subject, error, fallback, item){
   $('sheetBody').innerHTML = '<div class="arc">gate result · refused</div><h2>Decision Not Queued</h2>' +
     '<div class="nar">The Worker refused this signed action. No local queue write was created, and branch proof is unchanged.</div>' +
-    gateRows([['action kind', kind], ['subject', subject], ['reason', error || 'unknown'], ['idempotency', fallback.idempotencyKey], ['consequence', fallback.consequence], ['reversibility', fallback.reversibility], ['next step', 'Refresh Gate, then inspect source detail or return to Mission']]) +
+    gateRows([['action kind', kind], ['subject', subject], ['reason', error || 'unknown'], ['idempotency', fallback.idempotencyKey], ['consequence', fallback.consequence], ['reversibility', fallback.reversibility], ['next step', 'Refresh Gate, then open proof details or return to Mission']]) +
     '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
   $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
     returnFromGate(el.dataset.gateResultNav, item);
@@ -3157,21 +3157,38 @@ function inspectGroupSummaries(env, L){
   const evidenceRows = insightBoxes(env || { ledger:L });
   const toolCount = CMDS.reduce((sum, group) => sum + group[1].length, 0);
   return [
-    { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'Envelope is stale or missing; refresh proof before trusting movement.' : 'Envelope age is inside the current proof window.' },
-    { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:String(policyRows.length) + ' policy checks keep operator action bounded.' },
-    { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:String(proofRows.length) + ' live readiness rows stay honest about blockers.' },
-    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? String(branchRows.length) + ' branch packet(s) feed Mission.' : 'No branch packet rows; Mission must not fake progress.' },
-    { id:'branch-fixtures', title:'branch fixtures', glyph:'arc', state:branchRows.length ? 'active' : 'proof-needed', detail:'Fixture rows remain inspect-only and never masquerade as live proof.' },
-    { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder decision(s) waiting.' : 'No founder decisions are waiting.' },
-    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:toolCount + ' toolbelt commands; live command data is ' + (env && env.commands ? 'available.' : 'not available.') },
-    { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' visual contract rails remain inspectable here.' },
-    { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence rows can open proof sheets.' : 'Evidence detail is missing from this envelope.' },
-    { id:'surface-contract', title:'surface contract', glyph:'cortex', state:'active', detail:'Five scenes are listed with state and proof links; this does not prove live Telegram readiness.' },
+    { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'Refresh before trusting decisions; this story and proof map may be old.' : 'Current proof window is fresh; refresh before trusting decisions after new movement.' },
+    { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:proofRows.some(row => row.state !== 'ready') ? String(proofRows.filter(row => row.state !== 'ready').length) + ' blocker(s) still need proof before release claims.' : 'No live blockers are served.' },
+    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? 'Mission can trust ' + String(branchRows.length) + ' branch packet(s).' : 'Mission cannot trust branch state until packet rows arrive.' },
+    { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder approval item(s) waiting.' : 'No founder approval is waiting.' },
+    { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:'Blocked or bounded action is explained before policy internals.' },
+    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:env && env.commands ? String(toolCount) + ' toolbelt commands available for safe use.' : String(toolCount) + ' toolbelt commands unavailable until live data refreshes.' },
+    { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' proof rails remain inspectable after critical blockers.' },
+    { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence row(s) can open proof sheets.' : 'Evidence detail is missing from this proof map.' },
   ];
+}
+function inspectSecondaryGroupSummaries(env, L){
+  const branchRows = (env && env.branchStories && Array.isArray(env.branchStories.rows)) ? env.branchStories.rows : [];
+  return [
+    { id:'branch-fixtures', title:'branch fixtures', glyph:'arc', state:branchRows.length ? 'active' : 'proof-needed', detail:'Fixture rows calibrate layout only; they never satisfy live proof.' },
+    { id:'surface-contract', title:'surface contract', glyph:'cortex', state:'active', detail:'Scene coverage and proof links stay available as secondary detail.' },
+  ];
+}
+function inspectAllGroupSummaries(env, L){
+  return inspectGroupSummaries(env, L).concat(inspectSecondaryGroupSummaries(env, L));
 }
 function renderInspectGroups(env, L){
   return '<section class="inspect-groups" data-component="InspectGroupStack">' + inspectGroupSummaries(env, L).map(group =>
     '<button type="button" class="' + mcClass('inspect-group', group.state) + '" data-component="InspectGroup" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
+      mcGlyphSvg(group.glyph, group.state) +
+      '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
+      mcStateToken(group.state, mcStateKind(group.state)) +
+    '</button>'
+  ).join('') + '</section>';
+}
+function renderInspectSecondaryLinks(env, L){
+  return '<section class="inspect-secondary" data-component="InspectSecondaryLinks"><div class="cmdgrp">Tapestry proof links</div>' + inspectSecondaryGroupSummaries(env, L).map(group =>
+    '<button type="button" class="' + mcClass('inspect-group', group.state, 'is-secondary') + '" data-component="InspectSecondaryLink" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
       mcGlyphSvg(group.glyph, group.state) +
       '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
       mcStateToken(group.state, mcStateKind(group.state)) +
@@ -3185,6 +3202,9 @@ function inspectGroupDetailRows(id, env, L){
     freshness:[
       ['stale envelope', FRESHNESS_STATE.stale ? 'yes · refresh before trusting movement' : 'no · current proof window'],
       ['derived at', (env && env.derivedAt) || 'missing'],
+      ['threshold', '360 minutes'],
+      ['refresh route', REFRESH_ROUTE],
+      ['provenance', FRESHNESS_STATE.source || 'missing'],
       ['ignored stale refresh', 'older envelopes never repaint Mission state'],
     ],
     policy:[
@@ -3194,31 +3214,35 @@ function inspectGroupDetailRows(id, env, L){
       ['promotion ladder', 'prototype -> proof-only -> supervised branch -> founder-approved release'],
     ],
     'live-proof':[
-      ['ready count', String((live.summary && live.summary.ready) || 0)],
       ['blocked count', String((live.summary && live.summary.blocked) || liveProofCards(env || { ledger:L }).filter(row => row.state !== 'ready').length)],
+      ['next action', 'rerun npm run proof:tg-live-readiness after final release SHA and device capture exist'],
+      ['ready count', String((live.summary && live.summary.ready) || 0)],
       ['blockers', live.blockers && live.blockers.length ? live.blockers.join(' · ') : 'Telegram initData and device artifact may still be required'],
       ['blocker owner', 'operator captures redacted receipts; Worker validates before any release claim'],
-      ['next action', 'rerun npm run proof:tg-live-readiness after final release SHA and device capture exist'],
       ['secret redaction', 'receipts must stay redacted; no raw initData or bearer token belongs in screenshots'],
     ],
     'branch-packets':[
+      ['Mission readiness', branchRows(env || { ledger:L }).length ? 'Mission has branch packet rows to compare.' : 'Mission lacks branch packet rows and must stay in wait state.'],
+      ['missing diagnostics', branchRows(env || { ledger:L }).length ? 'branch rows served' : (branchEnv.gap || 'branch stories missing')],
       ['packet source', branchEnv.source || 'missing'],
       ['schema', (branchEnv.schema || (branchEnv.rows && branchEnv.rows[0] && branchEnv.rows[0].source && branchEnv.rows[0].source.schema)) || 'cambium.product_branch_packet.v1'],
-      ['missing diagnostics', branchRows(env || { ledger:L }).length ? 'branch rows served' : (branchEnv.gap || 'branch stories missing')],
     ],
     'branch-fixtures':[
       ['fixture count', String(branchRows(env || { ledger:L }).length)],
       ['fixture boundary', 'fixtures can calibrate Mission layout but cannot satisfy live proof rows'],
-      ['proof handoff', 'Mission links to branch packet sheets; Inspect preserves raw source detail'],
+      ['proof handoff', 'Mission links to branch packet sheets; Inspect keeps raw proof available'],
     ],
     gates:[
-      ['signed route', '/api/gate/' + TENANT],
-      ['queue state', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' open item(s)'],
       ['auth boundary', 'initData checked by Worker before queue write'],
+      ['founder approval', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' founder approval item(s)'],
+      ['queue state', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' open item(s)'],
+      ['signed route', '/api/gate/' + TENANT],
       ['idempotency audit', 'Gate sheets show idempotency hints before approve or reroll action'],
       ['redacted auth', 'auth failures describe missing Telegram proof without exposing initData'],
     ],
     tools:[
+      ['command availability', CMDDATA ? 'toolbelt commands available from live data' : 'toolbelt commands unavailable until refresh'],
+      ['safe use', 'Tools copy command text or open sheets; signed decisions stay in Gate'],
       ['tool source', CMDDATA ? 'live command envelope available' : 'live command envelope stale'],
       ['command semantics', 'Tools copy command text or open sheets; signed decisions stay in Gate'],
       ['recent strip', '/ts-status · /ts-hermes · /ts-standup'],
@@ -3237,11 +3261,10 @@ function inspectGroupDetailRows(id, env, L){
       ['related page trace', 'Story and Tools sheets can route back to Inspect evidence rows'],
     ],
     'surface-contract':[
-      ['Mission', 'branch packet state, selected mission, proof, KPIs, Gate, and Tools links'],
-      ['Gate', 'founder decision queue, proof rows, safe action sheets, and auth failure handling'],
-      ['Tools', 'mission-effect commands, disabled reasons, expected receipts, and Inspect audit links'],
-      ['Story', 'digest cards, branch filters, grouped beats, and proof follow-up links'],
-      ['Inspect', 'read-only proof taxonomy, surface contract rows, and redacted release evidence'],
+      ['scene', 'Mission · Gate · Tools · Story · Inspect'],
+      ['role', 'five-scene surface contract for the Telegram mini app'],
+      ['proof link', 'primary pages route here for packet, blocker, and evidence detail'],
+      ['status summary', 'coverage exists; live Telegram readiness still depends on redacted proof receipts'],
     ],
   };
   return rows[id] || [['detail', 'no specific detail rows served']];
@@ -3252,9 +3275,10 @@ function renderInspectProofSummary(env, L){
   const branchCount = branchRows(env || { ledger:L }).length;
   const blockedNames = liveRows.filter(row => row.state !== 'ready').slice(0, 3).map(row => row.title || row.id || 'readiness row');
   const blockerText = blockedNames.length ? ' · blocked: ' + blockedNames.join(', ') : '';
+  const lead = blocked ? blocked + ' live blocker(s)' : 'No live blockers';
   return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction">' +
-    '<b>Proof summary</b><small>' + branchCount + ' branch packet(s) · ' + blocked + ' live readiness blocker(s) · redacted receipts required' + esc(blockerText) + '.</small>' +
-    '<div class="gbtns command-copy"><button type="button" data-inspect-summary="1">Open proof summary</button></div>' +
+    '<b>Proof summary</b><small>' + esc(lead) + ' · ' + branchCount + ' branch packet(s) · redacted receipts required' + esc(blockerText) + '.</small>' +
+    '<div class="gbtns command-copy"><button type="button" data-inspect-summary="1">Open proof details</button></div>' +
   '</section>';
 }
 function inspectRelatedPage(id){
@@ -3273,14 +3297,14 @@ function inspectRelatedScene(id){
 }
 function openInspectGroupSheet(id, env){
   const L = (env && env.ledger) || env || {};
-  const group = inspectGroupSummaries(env || { ledger:L }, L).find(row => row.id === id) || inspectGroupSummaries(env || { ledger:L }, L)[0];
+  const group = inspectAllGroupSummaries(env || { ledger:L }, L).find(row => row.id === id) || inspectGroupSummaries(env || { ledger:L }, L)[0];
   const related = inspectRelatedPage(group.id);
   const scene = inspectRelatedScene(group.id);
   $('sheetBody').innerHTML = '<div class="arc">inspect · ' + esc(group.id) + '</div><h2>' + esc(group.title) + '</h2>' +
     '<div class="nar">' + esc(group.detail) + '</div>' +
-    '<div class="kv"><b>debug layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>summary</b><span>' + esc(group.detail) + '</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>proof</b><span>read-only Inspect sheet; primary pages link back here for evidence</span><b>back path</b><span>' + esc(related) + ' -> Inspect</span><b>source</b><span>inspect-proof-layer@v1</span>' +
+    '<div class="kv"><b>proof layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>summary</b><span>' + esc(group.detail) + '</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>proof</b><span>read-only Inspect sheet; primary pages link back here for evidence</span><b>related page</b><span>' + esc(related) + ' -> Inspect</span>' +
     inspectGroupDetailRows(group.id, env || { ledger:L }, L).map(([label, value]) => '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>').join('') +
-    '<b>related page</b><span>' + esc(related) + '</span><b>trace action</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
+    '<b>source</b><span>inspect-proof-layer@v1</span><b>return path</b><span>' + esc(related) + '</span><b>how to use this</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
     '<div class="gbtns"><button type="button" data-inspect-page-link="' + esc(scene) + '">Open related page</button></div>';
   $('sheetBody').querySelectorAll('[data-inspect-page-link]').forEach(el => el.onclick = () => {
     closeSheet();
@@ -3306,7 +3330,7 @@ function openInspectSummarySheet(env){
   if (proofCopy) proofCopy.onclick = () => copyCommandToClipboard(summary, proofCopy, 'Copied proof summary').catch(() => { proofCopy.textContent = 'Copy unavailable'; });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
-function renderOperatorMap(env){
+function renderInspect(env){
   const L = env.ledger || env;
   const activeStageId = stageForArc((L.current && L.current.arc) || 'XVII');
   const stageCards = STAGES.map((stage, i) => {
@@ -3326,10 +3350,11 @@ function renderOperatorMap(env){
     return '<button type="button" class="rail ' + (hot ? 'hot' : '') + '" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-rail="' + esc(rail.id || (rail.from + '-' + rail.to)) + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></button>';
   }).join('');
   $('mapwrap').innerHTML =
-    '<div class="maphead"><div><h2>Inspect</h2><p>Proof, packet, freshness, and system detail.</p></div>' +
+    '<div class="maphead"><div><h2>Inspect</h2><p>Proof map for blockers, packets, freshness, and evidence.</p></div>' +
       '<button type="button" class="mapbadge" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-ecosystem-target="r3f">frontier · ' + esc((L.current && L.current.arc) || 'complete') + '</button></div>' +
-    renderInspectGroups(env.ledger ? env : { ledger:L }, L) +
     renderInspectProofSummary(env.ledger ? env : { ledger:L }, L) +
+    renderInspectGroups(env.ledger ? env : { ledger:L }, L) +
+    renderInspectSecondaryLinks(env.ledger ? env : { ledger:L }, L) +
     '<div class="cmdgrp">freshness</div>' + renderTapestryAudit(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">wake</div>' + renderWake(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">lanes</div>' + renderLanes(env.ledger ? env : { ledger:L }) +
@@ -3345,8 +3370,8 @@ function renderOperatorMap(env){
     '<div class="cmdgrp">side quests</div>' + renderSideQuests(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">coordination</div>' + renderSocial(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">senses</div>' + renderSenses(env.ledger ? env : { ledger:L }) +
-    '<div class="stagegrid">' + stageCards + '</div>' +
     '<div class="cmdgrp">evidence</div>' + renderInsightBoxes(env.ledger ? env : { ledger:L }) +
+    '<div class="stagegrid">' + stageCards + '</div>' +
     '<div class="cmdgrp">skill labors</div>' + renderSkills(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">companions</div>' + renderNpc(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>' +
@@ -3423,7 +3448,7 @@ function openMapSheet(L, stageId){
   const rows = stageRows(L, stage);
   const target = stageEcosystemTarget(stage.id);
   const stageState = rows.length ? (rows.some(row => row.status !== 'complete') ? 'active' : 'complete') : 'idle';
-  const stageHeader = '<div class="branch-sheet-head" data-component="VisualStageSheetHeader" data-stage-state="' + esc(stageState) + '">' + mcGlyphSvg(stage.id, stageState) + '<div><div class="arc">operator map · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2></div>' + mcStateToken(stageState, rows.length ? 'Read-only' : 'No rows') + '</div>';
+  const stageHeader = '<div class="branch-sheet-head" data-component="VisualStageSheetHeader" data-stage-state="' + esc(stageState) + '">' + mcGlyphSvg(stage.id, stageState) + '<div><div class="arc">inspect stage · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2></div>' + mcStateToken(stageState, rows.length ? 'Read-only' : 'No rows') + '</div>';
   const stageMeta = '<div class="kv"><b>organ target</b><span>' + esc(target) + '</span><b>source</b><span>shared/cambium-visual-contract.ts</span><b>interaction</b><span>read-only stage inspection; no signed action is queued from this sheet</span></div>';
   const body = rows.length ? rows.map((row, i) => {
     const facets = facetsFrom(row.evidence);
@@ -3736,6 +3761,12 @@ function storyLaneLabel(lane, beat){
 function storyBeatGroup(beat){
   const text = String((beat && beat.text) || '');
   const lane = (beat && beat.lane) || (beat && beat.noesis ? 'noesis' : 'beat');
+  const explicit = mcText(beat && (beat.group || beat.storyGroup || beat.kind), '');
+  if (/mission|win|complete/i.test(explicit)) return 'Mission wins';
+  if (/signal|new/i.test(explicit)) return 'New signals';
+  if (/lesson|learn/i.test(explicit)) return 'Lessons';
+  if (/drift|stale|blocked|missing|contradict/i.test(explicit)) return 'Drift';
+  if (lane === 'forge' && /lesson|learn/i.test(text)) return 'Lessons';
   if ((beat && beat.noesis) || /stale|missing|contradict|blocked|drift/i.test(text)) return 'Drift';
   return storyLaneLabel(lane, beat);
 }
@@ -3744,7 +3775,7 @@ function storyBeatState(beat){
   if (group === 'Mission wins') return 'complete';
   if (group === 'Drift') return /blocked|contradict/i.test(String((beat && beat.text) || '')) ? 'blocked' : 'stale';
   if (group === 'Lessons') return 'active';
-  return 'proof-needed';
+  return mcText(beat && (beat.proof || beat.evidence), '') ? 'active' : 'proof-needed';
 }
 function storyBeatGlyph(group){
   if (group === 'Mission wins') return 'proof';
@@ -3761,13 +3792,16 @@ function hasUnassignedStoryBeats(beats){
 function storyBeatOutcome(beat, group){
   const text = mcText(beat && (beat.outcome || beat.result || beat.detail), '');
   if (text) return text;
-  if (group === 'Mission wins') return 'mission moved with served proof';
-  if (group === 'Lessons') return 'operator lesson recorded for the branch packet';
-  if (group === 'Drift') return 'follow-up required before this can become a win';
-  return 'new signal requires source review';
+  if (group === 'Mission wins') return 'Mission moved';
+  if (group === 'Lessons') return 'Lesson captured';
+  if (group === 'Drift') return 'Needs follow-up';
+  return 'New signal';
 }
 function storyBeatProofCue(beat, group){
-  return mcText(beat && (beat.proof || beat.evidence), group === 'Drift' ? 'proof needed' : 'proof detail available in sheet');
+  if (beat && (beat.proof || beat.evidence)) return mcText(beat.proof || beat.evidence, '');
+  if (group === 'Mission wins') return 'Proof ready';
+  if (group === 'Drift') return 'Proof needed';
+  return 'Review evidence';
 }
 function storyBeatSourceSummary(beat, lane){
   const source = storyBeatSource(beat, lane);
@@ -3778,15 +3812,22 @@ function storyBeatSourceSummary(beat, lane){
 }
 function storyBeatFollowup(beat, group){
   if (beat && beat.followup) return beat.followup;
-  if (group === 'Drift') return 'Inspect source rows before promoting this story beat';
-  if (group === 'Mission wins') return 'Open Mission or proof detail';
-  if (group === 'Lessons') return 'Link lesson back to branch packet';
-  return 'Review source detail';
+  if (group === 'Drift') return 'Review the blocker before calling it a win';
+  if (group === 'Mission wins') return 'Open Mission with this branch';
+  if (group === 'Lessons') return 'Carry the lesson into the branch plan';
+  return 'Decide whether this signal changes the next move';
 }
 function storyBeatContext(group, lane, beat){
+  const explicit = mcText(beat && (beat.context || beat.relatedPage || beat.targetPage || beat.actionTarget), '').toLowerCase();
+  if (/mission/.test(explicit)) return 'mission';
+  if (/gate|approve|decision/.test(explicit)) return 'gate';
+  if (/tool|command/.test(explicit)) return 'tools';
+  if (/story/.test(explicit)) return 'story';
+  if (/inspect|proof|evidence/.test(explicit)) return 'inspect';
   const text = String((beat && beat.text) || '');
   if (/gate|approve|reroll|decision/i.test(text)) return 'gate';
   if (/tool|command|\\/ts-|ts-/i.test(text)) return 'tools';
+  if (/proof|evidence/i.test(text) && group !== 'Mission wins') return 'inspect';
   if (group === 'Mission wins') return 'mission';
   if (group === 'Drift') return 'inspect';
   if (lane === 'quest') return 'mission';
@@ -3803,7 +3844,7 @@ function renderStoryHero(rows){
   if (!rows.length) {
     return '<button type="button" class="story-hero is-empty" data-component="StoryLatestChangeHero" data-interaction-kind="read-only">' +
       mcGlyphSvg('signal', 'dormant') +
-      '<span><b>Latest change</b><small>Story is waiting for mission movement · switch filters or refresh after evidence lands</small></span>' +
+      '<span><b>Latest change</b><small>No branch story yet · switch filters or refresh after evidence lands</small></span>' +
     '</button>';
   }
   const latestRow = rows[0];
@@ -3811,7 +3852,7 @@ function renderStoryHero(rows){
   const group = storyBeatGroup(latest);
   return '<button type="button" class="story-hero" data-component="StoryLatestChangeHero" data-story-hero="' + latestRow.index + '" data-interaction-kind="sheet">' +
     mcGlyphSvg(storyBeatGlyph(group), storyBeatState(latest)) +
-    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + ' · open full beat detail</small></span>' +
+    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + ' · Open branch beat</small></span>' +
   '</button>';
 }
 function renderStoryGroupControls(groups, rows){
@@ -3836,14 +3877,24 @@ function renderStoryBranchFilters(env){
   }
   return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (allSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + unassignedChip + branches.slice(0, 5).map(branch => {
     const id = mcText(branch.branchId || branch.productId || branch.name, 'branch');
-    return '<button type="button" class="' + (STORY_BRANCH_FILTER === id ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="' + esc(id) + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>';
+    const state = mcStateKind(mcBranchStatusText(branch));
+    const stateClass = state === 'idle' ? '' : ' is-' + state;
+    return '<button type="button" class="' + (STORY_BRANCH_FILTER === id ? 'is-selected mc-selected-halo' : '') + stateClass + '" data-component="BranchArcChip" data-story-branch-filter="' + esc(id) + '" data-story-branch-state="' + esc(state) + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>';
   }
   ).join('') + '</div>';
 }
+function storyDigestState(rows){
+  if (!rows.length) return 'idle';
+  if (rows.some(row => storyBeatState(row.beat) === 'blocked')) return 'blocked';
+  if (rows.some(row => storyBeatGroup(row.beat) === 'Drift')) return 'stale';
+  if (rows.some(row => storyBeatState(row.beat) === 'proof-needed')) return 'proof-needed';
+  return 'active';
+}
 function renderStoryDigest(rows){
   const counts = STORY_GROUPS.map(group => [group, rows.filter(row => storyBeatGroup(row.beat) === group).length]);
-  return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-interaction-kind="sheet">' +
-    mcGlyphSvg('proof', 'active') +
+  const state = storyDigestState(rows);
+  return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-story-digest-state="' + esc(state) + '" data-interaction-kind="sheet">' +
+    mcGlyphSvg('proof', state) +
     '<span><b>Digest</b><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
     '<i aria-hidden="true">›</i>' +
   '</button>';
@@ -3890,8 +3941,8 @@ function openStoryBeat(index){
     : '';
   $('sheetBody').innerHTML = '<div class="arc">story beat · ' + esc(group.toLowerCase()) + '</div><h2>Story Beat</h2>' +
     '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
-    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>mission</b><span>' + esc(branchFocus || 'branch context not served') + '</span><b>outcome</b><span>' + esc(storyBeatOutcome(beat, group)) + '</span><b>proof cue</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>source summary</b><span>' + esc(storyBeatSourceSummary(beat, lane)) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>evidence link</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>follow-up</b><span>' + esc(storyBeatFollowup(beat, group)) + '</span><b>context link</b><span>' + esc(context) + '</span><b>action</b><span>read-only story row; no execution action</span>' + warning + paperclipRows + '</div>' +
-    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Inspect') + '</button><button type="button" class="reroll" data-story-target="inspect">Inspect evidence</button></div>';
+    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>mission</b><span>' + esc(branchFocus || 'branch context not served') + '</span><b>outcome</b><span>' + esc(storyBeatOutcome(beat, group)) + '</span><b>proof</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>from</b><span>' + esc(storyBeatSourceSummary(beat, lane)) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>proof path</b><span>' + esc(target) + '</span><b>next</b><span>' + esc(storyBeatFollowup(beat, group)) + '</span><b>related page</b><span>' + esc(context) + '</span>' + warning + paperclipRows + '</div>' +
+    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Proof') + '</button><button type="button" class="reroll" data-story-target="inspect">Open Proof</button></div>';
   $('sheetBody').querySelectorAll('[data-story-target]').forEach(el => el.onclick = () => {
     veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open = false;
     if (el.dataset.storyTarget === 'mission') MISSION_BRANCH_FOCUS = el.dataset.storyBranchContext || '';
@@ -3900,13 +3951,25 @@ function openStoryBeat(index){
   });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' || lane === 'paperclip' ? 'medium' : 'light');
 }
+function storyEnvStale(env){
+  const minutes = minutesSince(env && env.derivedAt);
+  const text = [env && env.freshness && env.freshness.state, env && env.freshness && env.freshness.detail].filter(Boolean).join(' ');
+  return FRESHNESS_STATE.stale || minutes === null || minutes > 360 || /stale|expired|old|refresh/i.test(text);
+}
+function renderStoryStaleBanner(env){
+  if (!storyEnvStale(env || {})) return '';
+  return '<section class="mission-stale-notice story-stale-notice" data-component="StoryStaleBanner" data-story-stale="1"><b>Last story check is stale.</b><span>Refresh before using these beats for a decision.</span></section>';
+}
+function renderStoryEmptyState(env){
+  return renderStoryStaleBanner(env || {}) + '<div class="state" data-component="StoryEmptyState" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>No branch story yet.</b><p>Wins, signals, lessons, and drift appear here after a branch has evidence.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Open Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Open Proof</button></div></div>';
+}
 function renderStory(env){
   const served = env.beats && env.beats.length;
   const beats = served ? env.beats :
     env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
   STORY_BEATS = beats;
   if (!beats.length) {
-    $('beats').innerHTML = '<div class="state" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>Story is waiting for mission movement.</b><p>New wins, signals, lessons, and drift appear here after evidence lands.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Inspect</button></div></div>';
+    $('beats').innerHTML = renderStoryEmptyState(env);
     $('beats').querySelectorAll('[data-story-empty-action]').forEach(el => el.onclick = () => el.dataset.storyEmptyAction === 'refresh' ? refresh() : go(el.dataset.storyEmptyAction === 'mission' ? 0 : 4));
     return;
   }
@@ -3915,7 +3978,7 @@ function renderStory(env){
     group,
     beats: visibleBeats.filter(row => storyBeatGroup(row.beat) === group),
   })).filter(row => STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group);
-  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
+  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
     '<section class="story-group" data-component="StoryGroup" data-story-group="' + esc(group.toLowerCase().replace(/\\s+/g, '-')) + '">' +
     '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + (groupBeats.length ? groupBeats.map(({ beat:b, index:i }) => {
     const lane = b.lane || 'beat';
@@ -3930,7 +3993,7 @@ function renderStory(env){
       storyPacketTrail(b) +
       mcStateToken(state, group === 'Drift' ? 'drift' : group === 'Mission wins' ? 'win' : group === 'Lessons' ? 'lesson' : 'signal') +
     '</button>';
-    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Refresh or open Inspect; story waits for evidence.</p></div>') + '</div></section>'
+    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Nothing in this lane yet. Refresh after branch evidence changes.</p></div>') + '</div></section>'
   ).join('') : '<div class="state"><b>No story beats in this group.</b><p>Switch groups or refresh after new branch evidence lands.</p></div>');
   $('beats').querySelectorAll('[data-story-hero]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyHero));
   $('beats').querySelectorAll('[data-story-digest]').forEach(el => el.onclick = () => openStoryDigest());
@@ -4041,7 +4104,7 @@ function paint(env){
   CMDDATA = env.commands || null;
   renderMissionControl(env);
   if (SCENE_PARAM === 'components' || SCENE_PARAM === 'component' || SCENE_PARAM === 'board') renderComponentGallery(env);
-  else renderOperatorMap(env);
+  else renderInspect(env);
   renderStory(env); renderGauge(env.ledger); freshness(env);
 }
 function load(){

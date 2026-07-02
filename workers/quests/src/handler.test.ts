@@ -384,6 +384,18 @@ const CHROME_COPY_DENYLIST = [
   'local operator writes',
 ];
 
+const STORY_PRIMARY_COPY_DENYLIST = [
+  'story fallback',
+  'served beats',
+  'quest-ledger',
+  'operator narrative',
+  'source detail',
+  'no fake story progress',
+  'served proof',
+  'operator lesson',
+  'proof detail available in sheet',
+];
+
 function decodeHtmlText(value: string): string {
   return value
     .replace(/&nbsp;/g, ' ')
@@ -482,6 +494,13 @@ function pageFragment(name: string, pattern: RegExp): string {
 function assertNoPrimaryMetaCopy(html: string) {
   for (const term of PRIMARY_MISSION_COPY_DENYLIST) {
     assert.doesNotMatch(html, new RegExp(escapeRegExp(term), 'i'), `primary copy leaked meta term: ${term}`);
+  }
+}
+
+function assertNoStoryPrimaryCopyLeak(html: string) {
+  const text = visibleTextFromHtml(html);
+  for (const term of STORY_PRIMARY_COPY_DENYLIST) {
+    assert.doesNotMatch(text, new RegExp(escapeRegExp(term), 'i'), `Story primary copy leaked: ${term}`);
   }
 }
 
@@ -1804,6 +1823,7 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(storyHtml, /data-component="MissionGlyph"/);
   assert.match(storyHtml, /data-component="StateToken"/);
   assert.doesNotMatch(storyHtml, /quest-ledger|paperclipActivityBeats|deviations/);
+  assertNoStoryPrimaryCopyLeak(storyHtml);
   const beatIndexes = rows.map((row) => row.match(/data-beat="(\d+)"/)?.[1]).sort();
   assert.deepEqual(beatIndexes, ['0', '1', '2', '3', '4']);
   for (const row of rows) {
@@ -1820,9 +1840,11 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(noesisSheet, /lane<\/b><span>noesis/);
   assert.match(noesisSheet, /text<\/b><span>The mid-brain woke/);
   assert.match(noesisSheet, /source<\/b><span>deviations/);
-  assert.match(noesisSheet, /context link<\/b><span>inspect/);
-  assert.match(noesisSheet, /Open Inspect/);
-  assert.match(noesisSheet, /action<\/b><span>read-only story row; no execution action/);
+  assert.match(noesisSheet, /proof<\/b><span>Proof needed/);
+  assert.match(noesisSheet, /from<\/b><span>Operator narrative/);
+  assert.match(noesisSheet, /related page<\/b><span>inspect/);
+  assert.match(noesisSheet, /Open Proof/);
+  assert.doesNotMatch(noesisSheet, /source summary|ecosystem target|context link|action<\/b>|Inspect source rows|Review source detail/);
   assert.doesNotMatch(noesisSheet, /data-kind="approve"|data-kind="reroll"|data-promote-skill|data-queue-side-quest/);
 
   (rendered.context.openStoryDigest as () => void)();
@@ -1859,6 +1881,43 @@ test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () 
   }
 });
 
+test('page · Story semantics handle ambiguous copy, signal proof, and explicit routing', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      { text: 'blocked by copy', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'lesson blocked earlier', lane: 'forge', branchId: 'branch-a', source: 'skill-registry', noesis: false },
+      { text: 'Signal with receipt', lane: 'heartbeat', branchId: 'branch-a', proof: 'Receipt ready', source: 'world.log', noesis: false },
+      { text: 'Gate approval phrasing variant', lane: 'beat', context: 'gate', branchId: 'branch-a', source: 'manual-story', noesis: false },
+      { text: 'Use ts-status command phrasing variant', lane: 'beat', context: 'tools', branchId: 'branch-a', source: 'manual-story', noesis: false },
+      { text: 'Proof receipt phrasing variant', lane: 'beat', context: 'proof', branchId: 'branch-a', source: 'manual-story', noesis: false },
+    ],
+  });
+  const context = rendered.context as vm.Context;
+
+  assert.equal(vm.runInContext("storyBeatGroup({ text:'blocked by copy', lane:'quest' })", context), 'Drift');
+  assert.equal(vm.runInContext("storyBeatGroup({ text:'lesson blocked earlier', lane:'forge' })", context), 'Lessons');
+  assert.equal(vm.runInContext("storyBeatState({ text:'Signal with receipt', lane:'heartbeat', proof:'Receipt ready' })", context), 'active');
+  assert.equal(vm.runInContext("storyBeatContext('New signals', 'heartbeat', { context:'gate' })", context), 'gate');
+  assert.equal(vm.runInContext("storyBeatContext('New signals', 'heartbeat', { context:'tools' })", context), 'tools');
+  assert.equal(vm.runInContext("storyBeatContext('New signals', 'heartbeat', { context:'proof' })", context), 'inspect');
+
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  assert.match(storyHtml, /data-story-digest-state="blocked"/);
+  assertNoStoryPrimaryCopyLeak(storyHtml);
+
+  (rendered.context.openStoryBeat as (index: number) => void)(3);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-story-target="gate"/);
+  (rendered.context.openStoryBeat as (index: number) => void)(4);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-story-target="tools"/);
+  (rendered.context.openStoryBeat as (index: number) => void)(5);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-story-target="inspect"/);
+});
+
 test('page · story filter scopes hero digest and timeline while preserving beat indexes', async () => {
   const envelope = {
     schema: 1,
@@ -1869,7 +1928,7 @@ test('page · story filter scopes hero digest and timeline while preserving beat
     branchStories: {
       rows: [
         { branchId: 'branch-a', name: 'Branch A' },
-        { branchId: 'branch-b', name: 'Branch B' },
+        { branchId: 'branch-b', name: 'Branch B', freshness: { state: 'stale', detail: 'old packet' } },
       ],
     },
     beats: [
@@ -1884,6 +1943,8 @@ test('page · story filter scopes hero digest and timeline while preserving beat
 
   const branchBChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === renderedFilter);
   assert.ok(branchBChip);
+  assert.equal(branchBChip.dataset.storyBranchState, 'stale');
+  assert.match(rendered.elements.get('beats')!.innerHTML, /is-stale" data-component="BranchArcChip" data-story-branch-filter="branch-b" data-story-branch-state="stale"/);
   assert.equal(typeof branchBChip.onclick, 'function');
   vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
   (branchBChip.onclick as () => void)();
@@ -1903,6 +1964,7 @@ test('page · story filter scopes hero digest and timeline while preserving beat
   const digest = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryDigestCards"[\s\S]*?<\/button>/)?.[0] ?? '';
   assert.match(digest, /Mission wins 0/);
   assert.match(digest, /Lessons 1/);
+  assert.match(digest, /data-story-digest-state="active"/);
   assert.doesNotMatch(digest, /Mission wins 1/);
   assert.match(storyHtml, /data-story-filter="all">all · 1/);
   assert.match(storyHtml, /data-story-filter="Mission wins">Mission wins · 0/);
@@ -2144,7 +2206,7 @@ test('page · story hero empty branch filter has no beat index', async () => {
   (branchBChip.onclick as () => void)();
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   const hero = storyHtml.match(/<button type="button" class="story-hero is-empty" data-component="StoryLatestChangeHero"[\s\S]*?<\/button>/)?.[0] ?? '';
-  assert.match(hero, /Story is waiting for mission movement/);
+  assert.match(hero, /No branch story yet/);
   assert.doesNotMatch(hero, /data-story-hero=/);
   assert.doesNotMatch(storyHtml, /Only Branch A has a story beat/);
   assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-story-hero]').length, 0);
@@ -2165,7 +2227,7 @@ test('page · story hero empty branch filter has no beat index', async () => {
   assert.doesNotMatch(digestSheet, /Only Branch A has a story beat/);
 });
 
-test('page · empty story names mission movement wait state', async () => {
+test('page · empty story names branch story wait state', async () => {
   const rendered = await renderPageFixtureContext({
     schema: 1,
     tenant: 'cambium',
@@ -2181,12 +2243,36 @@ test('page · empty story names mission movement wait state', async () => {
   });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
 
-  assert.match(storyHtml, /Story is waiting for mission movement/);
-  assert.match(storyHtml, /New wins, signals, lessons, and drift/);
+  assert.match(storyHtml, /No branch story yet/);
+  assert.match(storyHtml, /Wins, signals, lessons, and drift appear here after a branch has evidence/);
+  assert.match(storyHtml, />Open Mission</);
+  assert.match(storyHtml, />Open Proof</);
   assert.match(storyHtml, /data-source="mission-story@v1"/);
   assert.match(storyHtml, /data-story-empty-action="mission"/);
   assert.match(storyHtml, /data-story-empty-action="inspect"/);
+  assertNoStoryPrimaryCopyLeak(storyHtml);
   assert.doesNotMatch(storyHtml, /class="beat/);
+});
+
+test('page · stale Story banner is human copy above filters', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-01-01T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      { text: 'Stale branch signal landed', lane: 'heartbeat', branchId: 'branch-a', source: 'world.log', noesis: false },
+    ],
+  });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /data-component="StoryStaleBanner"/);
+  assert.match(storyHtml, /Last story check is stale/);
+  assert.match(storyHtml, /Refresh before using these beats for a decision/);
+  assert.ok(storyHtml.indexOf('data-component="StoryStaleBanner"') < storyHtml.indexOf('data-component="StoryGroupControls"'));
+  const banner = storyHtml.match(/<section class="mission-stale-notice story-stale-notice"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.doesNotMatch(visibleTextFromHtml(banner), /source|envelope|no fake progress/i);
 });
 
 test('page audit helper · mini app shell does not expose secret markers', () => {
@@ -2212,7 +2298,7 @@ test('page · interaction layer: sheet, haptics, inspect cards', () => {
   assert.match(PAGE, /data-component="GateActionRow"/);
   assert.doesNotMatch(PAGE, /\.mc-action-row\{position:sticky/);
   assert.match(PAGE, /data-sense=\|data-lane=/);
-  assert.match(PAGE, /renderOperatorMap/);
+  assert.match(PAGE, /renderInspect/);
   assert.match(PAGE, /Inspect/);
   assert.match(PAGE, /stage-card/);
 });
@@ -2574,7 +2660,7 @@ test('page · primary flow does not render the hidden component gallery as the a
 });
 
 test('page · shared visual mechanics remain available inside Inspect', () => {
-  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'Proof, packet, freshness, and system detail', 'Inspect keeps the low-level proof rows']) {
+  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'Proof map for blockers, packets, freshness, and evidence', 'Inspect keeps the low-level proof rows']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
   }
   for (const stage of CAMBIUM_VISUAL_STAGES) {
@@ -2593,26 +2679,61 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   const inspectHtml = rendered.elements.get('mapwrap')!.innerHTML;
 
   assert.match(inspectHtml, /data-component="InspectGroupStack"/);
-  for (const group of ['freshness', 'policy', 'live-proof', 'branch-packets', 'branch-fixtures', 'gates', 'tools', 'rails', 'evidence', 'surface-contract']) {
+  for (const group of ['freshness', 'live-proof', 'branch-packets', 'gates', 'policy', 'tools', 'rails', 'evidence']) {
     assert.match(inspectHtml, new RegExp(`data-component="InspectGroup"[^>]*data-inspect-group="${group}"`));
   }
+  assert.doesNotMatch(inspectHtml.match(/data-component="InspectGroupStack"[\s\S]*?<\/section>/)?.[0] ?? '', /branch-fixtures|surface-contract/);
+  assert.match(inspectHtml, /data-component="InspectSecondaryLinks"/);
+  assert.match(inspectHtml, /data-component="InspectSecondaryLink"[^>]*data-inspect-group="branch-fixtures"/);
+  assert.match(inspectHtml, /data-component="InspectSecondaryLink"[^>]*data-inspect-group="surface-contract"/);
+  assert.ok(inspectHtml.indexOf('data-component="InspectProofSummaryAction"') < inspectHtml.indexOf('data-component="InspectGroupStack"'));
+  assert.ok(inspectHtml.indexOf('data-component="InspectGroupStack"') < inspectHtml.indexOf('data-component="InspectSecondaryLinks"'));
+  assert.ok(inspectHtml.indexOf('data-component="InspectSecondaryLinks"') < inspectHtml.indexOf('<div class="cmdgrp">freshness</div>'));
+  assert.ok(inspectHtml.indexOf('<div class="cmdgrp">evidence</div>') < inspectHtml.indexOf('<div class="stagegrid">'));
+  assert.match(inspectHtml, /data-inspect-group="freshness"[\s\S]*data-inspect-group="live-proof"[\s\S]*data-inspect-group="branch-packets"[\s\S]*data-inspect-group="gates"[\s\S]*data-inspect-group="policy"/);
+  const firstViewportText = visibleTextFromHtml(inspectHtml.slice(0, inspectHtml.indexOf('data-component="InspectSecondaryLinks"')));
+  assert.doesNotMatch(firstViewportText, /operator map|R3F|schema|envelope|contract/i);
+  assert.match(firstViewportText, /Proof map for blockers, packets, freshness, and evidence/i);
+  assert.match(firstViewportText, /live blocker|No live blockers/i);
   assert.match(inspectHtml, /data-inspect-target="tools"/);
   assert.match(inspectHtml, /data-component="InspectProofSummaryAction"/);
   assert.match(inspectHtml, /data-inspect-summary="1"/);
+  assert.match(inspectHtml, /Open proof details/);
   assert.match(inspectHtml, /Inspect keeps the low-level proof rows out of Mission, Gate, Tools, and Story/);
+  assert.doesNotMatch(inspectHtml.match(/data-component="InspectGroupStack"[\s\S]*data-component="InspectSecondaryLinks"/)?.[0] ?? '', /Envelope|readiness rows|feed Mission/);
+  assert.match(inspectHtml, /refresh before trusting decisions/i);
+  assert.match(inspectHtml, /blocker\(s\) still need proof|No live blockers/i);
+  assert.match(inspectHtml, /Mission can trust|Mission cannot trust/i);
+  assert.match(inspectHtml, /founder approval/i);
+  assert.match(inspectHtml, /Blocked or bounded action/i);
+  assert.match(inspectHtml, /toolbelt commands available|toolbelt commands unavailable/i);
+
+  const proofSummary = rendered.elements.get('mapwrap')!.querySelectorAll('[data-inspect-summary]')[0];
+  assert.ok(proofSummary);
+  assert.equal(typeof proofSummary.onclick, 'function');
+  (proofSummary.onclick as () => void)();
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /<h2>Proof Summary<\/h2>/);
+
   (rendered.context.openInspectGroupSheet as (id: string, env: unknown) => void)('tools', FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /inspect · tools/);
-  assert.match(sheet, /debug layer<\/b><span>Inspect keeps proof and architecture details behind the main app flow/);
-  assert.match(sheet, /back path<\/b><span>Tools -> Inspect/);
+  assert.match(sheet, /proof layer<\/b><span>Inspect keeps proof and architecture details behind the main app flow/);
+  assert.match(sheet, /related page<\/b><span>Tools -> Inspect/);
+  assert.match(sheet, /command availability<\/b><span>toolbelt commands/);
+  assert.match(sheet, /safe use<\/b><span>Tools copy command text/);
+  assert.match(sheet, /how to use this<\/b><span>Open the primary page/);
+  assert.ok(sheet.indexOf('summary</b>') < sheet.indexOf('source</b><span>inspect-proof-layer@v1'));
+  assert.doesNotMatch(sheet, /debug layer|back path|trace action/);
   assert.match(sheet, /related page<\/b><span>Tools/);
   assert.match(sheet, /data-inspect-page-link="tools"/);
 
   (rendered.context.openInspectGroupSheet as (id: string, env: unknown) => void)('surface-contract', FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const contractSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(contractSheet, /surface contract/);
-  assert.match(contractSheet, /Mission<\/b><span>branch packet state/);
-  assert.match(contractSheet, /Tools<\/b><span>mission-effect commands/);
+  assert.match(contractSheet, /scene<\/b><span>Mission · Gate · Tools · Story · Inspect/);
+  assert.match(contractSheet, /role<\/b><span>five-scene surface contract/);
+  assert.match(contractSheet, /proof link<\/b><span>primary pages route here/);
+  assert.match(contractSheet, /status summary<\/b><span>coverage exists/);
 
   (rendered.context.openInspectSummarySheet as (env: unknown) => void)(FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const summarySheet = rendered.elements.get('sheetBody')!.innerHTML;
@@ -2867,7 +2988,7 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   assert.doesNotMatch(stem, /mc-mission-card/);
   assert.match(progress, /branch packets waiting/);
   assert.match(map, /Inspect/);
-  assert.match(map, /Proof, packet, freshness, and system detail/);
+  assert.match(map, /Proof map for blockers, packets, freshness, and evidence/);
   assert.match(map, /ACTIVE ORGAN/);
   assert.match(map, /GENESIS · I/);
   assert.match(map, /WAKE HEALTH/);
@@ -3365,7 +3486,7 @@ test('page · stage sheets map organs to ecosystem targets and stay read-only', 
   for (const [stageId, target] of expected) {
     (rendered.context.openMapSheet as (ledger: unknown, stageId: string) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger, stageId);
     const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-    assert.match(sheet, new RegExp(`operator map · ${stageId}`));
+    assert.match(sheet, new RegExp(`inspect stage · ${stageId}`));
     assert.match(sheet, /data-component="VisualStageSheetHeader"/);
     assert.match(sheet, /data-component="MissionGlyph"/);
     assert.match(sheet, /data-component="StateToken"/);
