@@ -3268,6 +3268,10 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-selected-surface="branch-chip"/);
   assert.match(html, /data-selected-surface="mission-state-row"/);
   assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);
+  const selectedBranchChip = html.match(/<button type="button" class="mc-branch-chip[^"]*mc-selected-halo[^"]*"[^>]*data-selected-surface="branch-chip"[^>]*>/)?.[0] ?? '';
+  assert.match(selectedBranchChip, /data-component="BranchArcChip"/);
+  assert.doesNotMatch(selectedBranchChip, /data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
+  assert.match(PAGE, /\.mc-branch-chip\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:none/);
   assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
   assert.match(html, /data-packet-mode="texture"/);
   assert.match(html, /data-mission-state-action="proof"/);

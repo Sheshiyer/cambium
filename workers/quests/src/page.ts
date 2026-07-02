@@ -305,6 +305,7 @@ export const PAGE = `<!doctype html>
 	  .mc-selected-halo{position:relative;box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
 	  .mc-selected-halo::after{content:"";position:absolute;inset:3px;border-radius:inherit;border:1px solid rgba(224,255,79,.22);pointer-events:none}
 	  .mc-selected-halo[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.42);border-left-color:transparent;animation:orbitSweep 5.6s var(--ease) infinite}
+	  .mc-branch-chip.mc-selected-halo[data-motion="orbitSweep"]::after{border-left-color:rgba(224,255,79,.22);animation:none}
 	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
 	  .mc-signal-rail.is-active{border-color:rgba(224,255,79,.34)}
 	  .mc-signal-rail.is-blocked,.mc-signal-rail.is-proof-needed{border-color:rgba(248,181,96,.42);border-style:dashed}
@@ -2577,7 +2578,7 @@ function buildMissionControlView(env){
 function renderBranchArcRail(view){
   if (!view.branches.length) return '';
   return '<div class="mc-branch-rail">' + view.branches.map((branch, index) =>
-    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '"' + (branch.selected && !RM ? ' data-motion="orbitSweep" data-motion-primitive="orbitSweep"' : '') + '>' +
+    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
       mcGlyphSvg(branch.organ.glyph, branch.state, { motion: branch.selected ? 'glyphBreathe' : '' }) +
       '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b><small>' + esc(branch.organ.label + ' organ · ' + branch.nextMission) + '</small></span>' + mcStateToken(branch.state, branch.state) +
     '</button>'
