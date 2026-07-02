@@ -1837,6 +1837,28 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
 });
 
+test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      { text: 'Mission win shipped', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'Signal heartbeat received', lane: 'heartbeat', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'Forge lesson captured', lane: 'forge', branchId: 'branch-a', source: 'skill-registry', noesis: false },
+      { text: 'Drift contradiction noted', lane: 'noesis', branchId: 'branch-a', source: 'noesis', noesis: true },
+    ],
+  });
+  assert.deepEqual(Array.from(vm.runInContext('STORY_GROUPS', rendered.context as vm.Context) as string[]), ['Mission wins', 'New signals', 'Lessons', 'Drift']);
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  for (const group of ['Mission wins', 'New signals', 'Lessons', 'Drift']) {
+    assert.match(storyHtml, new RegExp(`data-story-filter="${group}">${group} · 1`));
+    assert.match(storyHtml, new RegExp(`<div class="cmdgrp">${group}</div>`));
+  }
+});
+
 test('page · story filter scopes hero digest and timeline while preserving beat indexes', async () => {
   const envelope = {
     schema: 1,
@@ -1858,8 +1880,14 @@ test('page · story filter scopes hero digest and timeline while preserving beat
   const rendered = await renderPageFixtureContext(envelope);
   const renderedFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(branch-b)"/)?.[1] ?? '';
   assert.equal(renderedFilter, 'branch-b');
+  assert.doesNotMatch(rendered.elements.get('beats')!.innerHTML, /data-story-branch-filter="unassigned"/);
 
-  vm.runInContext(`STORY_BRANCH_FILTER = ${JSON.stringify(renderedFilter)}; renderStory(ECOSYSTEM_ENV);`, rendered.context as vm.Context);
+  const branchBChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === renderedFilter);
+  assert.ok(branchBChip);
+  assert.equal(typeof branchBChip.onclick, 'function');
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
+  (branchBChip.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'branch-a');
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   const hero = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryLatestChangeHero"[\s\S]*?<\/button>/)?.[0] ?? '';
   assert.match(hero, /Branch B recorded cortex lesson/);
@@ -1924,7 +1952,7 @@ test('page · story filter scopes hero digest and timeline while preserving beat
   assert.doesNotMatch(clickedDigestRowSheet, /Branch A shipped intake win/);
 });
 
-test('page · story filter pending branch chips show unassigned beats', async () => {
+test('page · story filter unassigned BranchArcChip shows unassigned beats', async () => {
   const envelope = {
     schema: 1,
     tenant: 'cambium',
@@ -1938,40 +1966,60 @@ test('page · story filter pending branch chips show unassigned beats', async ()
     ],
   };
   const rendered = await renderPageFixtureContext(envelope);
-  const missingFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(missing)"/)?.[1] ?? '';
-  assert.equal(missingFilter, 'missing');
+  const unassignedFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(unassigned)"/)?.[1] ?? '';
+  assert.equal(unassignedFilter, 'unassigned');
+  assert.doesNotMatch(rendered.elements.get('beats')!.innerHTML, /data-story-branch-filter="missing"/);
 
-  const missingChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === missingFilter);
-  assert.ok(missingChip);
-  assert.equal(typeof missingChip.onclick, 'function');
-  (missingChip.onclick as () => void)();
-  const missingHtml = rendered.elements.get('beats')!.innerHTML;
-  const selectedBranchChips = missingHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
-  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['missing']);
-  assert.match(missingHtml, /Unassigned signal reached story/);
-  assert.doesNotMatch(missingHtml, /Assigned branch should stay hidden/);
-  assert.match(missingHtml, /data-story-hero="0"/);
-  assert.match(missingHtml, /data-beat="0"/);
-  assert.match(missingHtml, /data-story-filter="all">all · 1/);
-  assert.match(missingHtml, /New signals 1/);
-  assert.doesNotMatch(missingHtml, /Mission wins 1/);
+  const unassignedChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === unassignedFilter);
+  assert.ok(unassignedChip);
+  assert.equal(typeof unassignedChip.onclick, 'function');
+  (unassignedChip.onclick as () => void)();
+  const unassignedChipHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedBranchChips = unassignedChipHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
+  assert.match(unassignedChipHtml, /Unassigned signal reached story/);
+  assert.doesNotMatch(unassignedChipHtml, /Assigned branch should stay hidden/);
+  assert.match(unassignedChipHtml, /data-story-hero="0"/);
+  assert.match(unassignedChipHtml, /data-beat="0"/);
+  assert.match(unassignedChipHtml, /data-story-filter="all">all · 1/);
+  assert.match(unassignedChipHtml, /New signals 1/);
+  assert.doesNotMatch(unassignedChipHtml, /Mission wins 1/);
 
-  const missingDigestNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-digest]')[0];
-  assert.equal(typeof missingDigestNode.onclick, 'function');
-  (missingDigestNode.onclick as () => void)();
-  const missingDigestSheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(missingDigestSheet, /Unassigned signal reached story/);
-  assert.doesNotMatch(missingDigestSheet, /Assigned branch should stay hidden/);
-  assert.match(missingDigestSheet, /data-story-digest-beat="0"/);
+  const unassignedDigestNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-digest]')[0];
+  assert.equal(typeof unassignedDigestNode.onclick, 'function');
+  (unassignedDigestNode.onclick as () => void)();
+  const unassignedDigestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(unassignedDigestSheet, /Unassigned signal reached story/);
+  assert.doesNotMatch(unassignedDigestSheet, /Assigned branch should stay hidden/);
+  assert.match(unassignedDigestSheet, /data-story-digest-beat="0"/);
 
   vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
   const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
   assert.match(unassignedHtml, /Unassigned signal reached story/);
   assert.doesNotMatch(unassignedHtml, /Assigned branch should stay hidden/);
   assert.match(unassignedHtml, /data-story-hero="0"/);
+
+  vm.runInContext("STORY_BRANCH_FILTER = 'missing'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
+  const legacyMissingHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedLegacyChips = legacyMissingHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedLegacyChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
+  assert.match(legacyMissingHtml, /Unassigned signal reached story/);
+
+  const assignedOnly = await renderPageFixtureContext({
+    ...envelope,
+    beats: [{ text: 'Assigned-only story beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false }],
+  });
+  const assignedOnlyHtml = assignedOnly.elements.get('beats')!.innerHTML;
+  assert.doesNotMatch(assignedOnlyHtml, /data-story-branch-filter="unassigned"/);
+  assert.doesNotMatch(assignedOnlyHtml, /data-story-branch-filter="missing"/);
+  vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", assignedOnly.context as vm.Context);
+  const staleUnassignedHtml = assignedOnly.elements.get('beats')!.innerHTML;
+  assert.match(staleUnassignedHtml, /data-story-branch-filter="all">all branches/);
+  assert.match(staleUnassignedHtml, /Assigned-only story beat/);
+  assert.match(staleUnassignedHtml, /data-story-filter="all">all · 1/);
 });
 
-test('page · story filter keeps pending chip visible when branches arrive', async () => {
+test('page · story filter keeps unassigned chip visible when branches arrive', async () => {
   const branchlessEnvelope = {
     schema: 1,
     tenant: 'cambium',
@@ -1985,11 +2033,11 @@ test('page · story filter keeps pending chip visible when branches arrive', asy
     ],
   };
   const rendered = await renderPageFixtureContext(branchlessEnvelope);
-  const missingChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === 'missing');
-  assert.ok(missingChip);
+  const unassignedChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === 'unassigned');
+  assert.ok(unassignedChip);
   vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
-  (missingChip.onclick as () => void)();
-  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+  (unassignedChip.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'branch-a');
 
   const branchedEnvelope = {
     ...branchlessEnvelope,
@@ -2000,8 +2048,8 @@ test('page · story filter keeps pending chip visible when branches arrive', asy
   vm.runInContext(`ECOSYSTEM_ENV = ${JSON.stringify(branchedEnvelope)}; renderStory(ECOSYSTEM_ENV);`, rendered.context as vm.Context);
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   const selectedBranchChips = storyHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
-  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['missing']);
-  assert.match(storyHtml, /branch packets pending/);
+  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
+  assert.match(storyHtml, /data-story-branch-filter="unassigned">unassigned/);
   assert.match(storyHtml, /Branch A/);
   assert.match(storyHtml, /Unassigned carry-forward beat/);
   assert.doesNotMatch(storyHtml, /Branched carry-forward beat/);
@@ -2022,9 +2070,51 @@ test('page · story filter keeps pending chip visible when branches arrive', asy
   vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
   const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
   const selectedUnassignedChips = unassignedHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
-  assert.deepEqual(selectedUnassignedChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['missing']);
+  assert.deepEqual(selectedUnassignedChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
   assert.match(unassignedHtml, /Unassigned carry-forward beat/);
   assert.doesNotMatch(unassignedHtml, /Branched carry-forward beat/);
+});
+
+test('page · Story-to-Mission MISSION_BRANCH_FOCUS sync only follows branch-scoped beats', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: {
+      rows: [
+        { branchId: 'branch-a', name: 'Branch A' },
+        { branchId: 'branch-b', name: 'Branch B' },
+      ],
+    },
+    beats: [
+      { text: 'Unassigned mission beat', lane: 'quest', source: 'manual-story', noesis: false },
+      { text: 'Branch A mission beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  const branchBChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === 'branch-b');
+  assert.ok(branchBChip);
+  vm.runInContext("MISSION_BRANCH_FOCUS = '';", rendered.context as vm.Context);
+  (branchBChip.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+
+  (rendered.context.openStoryBeat as (index: number) => void)(0);
+  const unassignedMissionTarget = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-target]').find((node) => node.dataset.storyTarget === 'mission');
+  assert.ok(unassignedMissionTarget);
+  assert.equal(unassignedMissionTarget.dataset.storyBranchContext, '');
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-b';", rendered.context as vm.Context);
+  (unassignedMissionTarget.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+
+  (rendered.context.openStoryBeat as (index: number) => void)(1);
+  const branchMissionTarget = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-target]').find((node) => node.dataset.storyTarget === 'mission');
+  assert.ok(branchMissionTarget);
+  assert.equal(branchMissionTarget.dataset.storyBranchContext, 'branch-a');
+  (branchMissionTarget.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'branch-a');
 });
 
 test('page · story hero empty branch filter has no beat index', async () => {

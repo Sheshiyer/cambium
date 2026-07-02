@@ -3709,6 +3709,7 @@ const LANE_ICON = {
 let STORY_BEATS = [];
 let STORY_GROUP_FILTER = 'all';
 let STORY_BRANCH_FILTER = 'all';
+const STORY_GROUPS = ['Mission wins','New signals','Lessons','Drift'];
 function storyBeatTarget(lane){
   if (lane === 'heartbeat') return 'quine';
   if (lane === 'paperclip') return 'paperclip';
@@ -3753,6 +3754,9 @@ function storyBeatGlyph(group){
 }
 function storyBeatBranch(beat){
   return mcText(beat && (beat.branchId || beat.branch || beat.productId || beat.clientName), '');
+}
+function hasUnassignedStoryBeats(beats){
+  return mcList(beats).some(beat => !storyBeatBranch(beat));
 }
 function storyBeatOutcome(beat, group){
   const text = mcText(beat && (beat.outcome || beat.result || beat.detail), '');
@@ -3811,7 +3815,7 @@ function renderStoryHero(rows){
   '</button>';
 }
 function renderStoryGroupControls(groups, rows){
-  const labels = ['all', 'Mission wins', 'New signals', 'Lessons', 'Drift'];
+  const labels = ['all'].concat(groups);
   return '<div class="story-filter-strip" data-component="StoryGroupControls">' + labels.map(label =>
     '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' · ' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</button>'
   ).join('') + '</div>';
@@ -3823,18 +3827,21 @@ function renderStoryTimeline(rows){
 }
 function renderStoryBranchFilters(env){
   const branches = branchRows(env || {});
-  const pendingSelected = STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned';
+  const hasUnassigned = hasUnassignedStoryBeats(STORY_BEATS);
+  const unassignedSelected = hasUnassigned && (STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned');
+  const allSelected = STORY_BRANCH_FILTER === 'all' || (!hasUnassigned && (STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned'));
+  const unassignedChip = hasUnassigned ? '<button type="button" class="' + (unassignedSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="unassigned">unassigned</button>' : '';
   if (!branches.length) {
-    return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (!pendingSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button><button type="button" class="' + (pendingSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="missing">branch packets pending</button></div>';
+    return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (allSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + unassignedChip + '</div>';
   }
-  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (STORY_BRANCH_FILTER === 'all' ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + (pendingSelected ? '<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="missing">branch packets pending</button>' : '') + branches.slice(0, 5).map(branch => {
+  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (allSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + unassignedChip + branches.slice(0, 5).map(branch => {
     const id = mcText(branch.branchId || branch.productId || branch.name, 'branch');
     return '<button type="button" class="' + (STORY_BRANCH_FILTER === id ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="' + esc(id) + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>';
   }
   ).join('') + '</div>';
 }
 function renderStoryDigest(rows){
-  const counts = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => [group, rows.filter(row => storyBeatGroup(row.beat) === group).length]);
+  const counts = STORY_GROUPS.map(group => [group, rows.filter(row => storyBeatGroup(row.beat) === group).length]);
   return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-interaction-kind="sheet">' +
     mcGlyphSvg('proof', 'active') +
     '<span><b>Digest</b><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
@@ -3844,7 +3851,10 @@ function renderStoryDigest(rows){
 function visibleStoryBeats(beats){
   const rows = beats.map((beat, index) => ({ beat, index }));
   if (STORY_BRANCH_FILTER === 'all') return rows;
-  if (STORY_BRANCH_FILTER === 'unassigned' || STORY_BRANCH_FILTER === 'missing') return rows.filter(row => !storyBeatBranch(row.beat));
+  if (STORY_BRANCH_FILTER === 'unassigned' || STORY_BRANCH_FILTER === 'missing') {
+    const unassignedRows = rows.filter(row => !storyBeatBranch(row.beat));
+    return unassignedRows.length ? unassignedRows : rows;
+  }
   return rows.filter(row => storyBeatBranch(row.beat) === STORY_BRANCH_FILTER);
 }
 function storyPacketTrail(beat){
@@ -3871,9 +3881,7 @@ function openStoryBeat(index){
   const group = storyBeatGroup(beat);
   const context = storyBeatContext(group, lane, beat);
   const beatBranch = storyBeatBranch(beat);
-  const pendingStoryFilter = STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned';
-  const firstBranch = branchRows(ECOSYSTEM_ENV || {})[0];
-  const branchFocus = beatBranch || (pendingStoryFilter ? '' : ((firstBranch && mcBranchId(firstBranch, 0)) || ''));
+  const branchFocus = beatBranch;
   const warning = /contradict/i.test(String(beat.text || ''))
     ? '<b>warning</b><span>contradiction requires Inspect review before this becomes a win</span>'
     : '';
@@ -3903,12 +3911,11 @@ function renderStory(env){
     return;
   }
   const visibleBeats = visibleStoryBeats(beats);
-  const groups = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => ({
+  const groups = STORY_GROUPS.map(group => ({
     group,
     beats: visibleBeats.filter(row => storyBeatGroup(row.beat) === group),
   })).filter(row => STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group);
-  const allGroups = ['Mission wins', 'New signals', 'Lessons', 'Drift'];
-  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryGroupControls(allGroups, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
+  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
     '<section class="story-group" data-component="StoryGroup" data-story-group="' + esc(group.toLowerCase().replace(/\\s+/g, '-')) + '">' +
     '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + (groupBeats.length ? groupBeats.map(({ beat:b, index:i }) => {
     const lane = b.lane || 'beat';
@@ -3933,7 +3940,6 @@ function renderStory(env){
   });
   $('beats').querySelectorAll('[data-story-branch-filter]').forEach(el => el.onclick = () => {
     STORY_BRANCH_FILTER = el.dataset.storyBranchFilter || 'all';
-    MISSION_BRANCH_FOCUS = (STORY_BRANCH_FILTER !== 'all' && STORY_BRANCH_FILTER !== 'missing') ? STORY_BRANCH_FILTER : '';
     renderStory(env);
   });
   $('beats').querySelectorAll('.beat').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.beat));
