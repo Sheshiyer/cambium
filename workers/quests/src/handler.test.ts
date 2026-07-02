@@ -370,6 +370,115 @@ const PRIMARY_SCENE_SHEET_TELEMETRY_DENYLIST = [
   'system detail behind the main Mission Control flow',
 ];
 
+const CHROME_COPY_DENYLIST = [
+  'real world-state',
+  'no fake progress',
+  'scene provenance',
+  'ecosystem target',
+  'source detail',
+  'debug layer',
+  'back path',
+  'trace action',
+  'operator narrative',
+  'served beats',
+  'local operator writes',
+];
+
+function decodeHtmlText(value: string): string {
+  return value
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+const NON_TEXT_TAGS = new Set(['script', 'style', 'svg']);
+const VOID_HTML_TAGS = new Set([
+  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta',
+  'param', 'source', 'track', 'wbr',
+]);
+
+function htmlAttributeValue(tag: string, attr: string): string | null {
+  const match = tag.match(new RegExp(`\\b${attr}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i'));
+  return match ? (match[1] ?? match[2] ?? match[3] ?? '') : null;
+}
+
+function htmlTagName(tag: string): string | null {
+  const match = tag.match(/^<\/?\s*([a-z][\w:-]*)/i);
+  return match ? match[1].toLowerCase() : null;
+}
+
+function openingTagHidesText(tag: string, tagName: string): boolean {
+  if (NON_TEXT_TAGS.has(tagName)) return true;
+  if (/(?:^|[\s<])hidden(?:[\s=/>]|$)/i.test(tag)) return true;
+  if ((htmlAttributeValue(tag, 'aria-hidden') ?? '').toLowerCase() === 'true') return true;
+
+  const className = htmlAttributeValue(tag, 'class');
+  if (className?.split(/\s+/).includes('sr')) return true;
+
+  const style = htmlAttributeValue(tag, 'style') ?? '';
+  return /\bdisplay\s*:\s*none\b/i.test(style) || /\bvisibility\s*:\s*hidden\b/i.test(style);
+}
+
+function stripNonRenderedTextNodes(html: string): string {
+  const stack: Array<{ tagName: string; hidden: boolean }> = [];
+  let hiddenDepth = 0;
+  let stripped = '';
+  let offset = 0;
+
+  for (const match of html.matchAll(/<!--[\s\S]*?-->|<\/?[a-z][^>]*>|<[^>]+>/gi)) {
+    if (hiddenDepth === 0) stripped += html.slice(offset, match.index);
+
+    const token = match[0];
+    const tagName = htmlTagName(token);
+    if (token.startsWith('<!--')) {
+      if (hiddenDepth === 0) stripped += ' ';
+    } else if (!tagName) {
+      if (hiddenDepth === 0) stripped += token;
+    } else if (/^<\s*\//.test(token)) {
+      let closedHidden = false;
+      while (stack.length > 0) {
+        const frame = stack.pop()!;
+        if (frame.hidden) {
+          closedHidden = true;
+          hiddenDepth = Math.max(0, hiddenDepth - 1);
+        }
+        if (frame.tagName === tagName) break;
+      }
+      if (!closedHidden && hiddenDepth === 0) stripped += token;
+    } else {
+      const hidden = hiddenDepth > 0 || openingTagHidesText(token, tagName);
+      const selfClosing = /\/\s*>$/.test(token) || VOID_HTML_TAGS.has(tagName);
+      if (!hidden) stripped += token;
+      else if (hiddenDepth === 0) stripped += ' ';
+      if (!selfClosing) {
+        stack.push({ tagName, hidden });
+        if (hidden) hiddenDepth += 1;
+      }
+    }
+
+    offset = match.index + token.length;
+  }
+
+  if (hiddenDepth === 0) stripped += html.slice(offset);
+  return stripped;
+}
+
+function visibleTextFromHtml(html: string): string {
+  return decodeHtmlText(stripNonRenderedTextNodes(html)
+    .replace(/<[^>]+>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function pageFragment(name: string, pattern: RegExp): string {
+  const match = PAGE.match(pattern);
+  assert.ok(match, `PAGE has ${name}`);
+  return match[0];
+}
+
 function assertNoPrimaryMetaCopy(html: string) {
   for (const term of PRIMARY_MISSION_COPY_DENYLIST) {
     assert.doesNotMatch(html, new RegExp(escapeRegExp(term), 'i'), `primary copy leaked meta term: ${term}`);
@@ -1267,6 +1376,48 @@ test('page · serves the Living Blueprint shell at /', async () => {
   assert.doesNotMatch(PAGE, /every status derives|real world-state|no fake progress/i);
   assert.match(JSON.stringify(NO_FAKE_PROGRESS_VISUAL_FIXTURE), /visual-fixture:no-fake-progress/);
   assert.match(PAGE, /telegram-web-app\.js/);
+});
+
+test('page · chrome copy scan keeps infrastructure terms out of visible shell copy', () => {
+  const chromeFragments = [
+    ['root status', pageFragment('root status header', /<header\b[^>]*class="[^"]*\broot-status\b[^"]*"[\s\S]*?<\/header>/i)],
+    ['root nav', pageFragment('root nav', /<nav\b[^>]*class="[^"]*\broot-nav\b[^"]*"[\s\S]*?<\/nav>/i)],
+    ['scene badge', pageFragment('scene badge', /<button\b[^>]*id="sceneBadge"[\s\S]*?<\/button>/i)],
+    ['freshness chip', pageFragment('freshness chip', /<button\b[^>]*id="fresh"[\s\S]*?<\/button>/i)],
+  ];
+  const footer = PAGE.match(/<footer\b[\s\S]*?<\/footer>/i);
+  if (footer) chromeFragments.push(['footer', footer[0]]);
+
+  const visibleChromeCopy = chromeFragments
+    .map(([name, html]) => `${name}: ${visibleTextFromHtml(html)}`)
+    .join('\n');
+
+  assert.match(visibleChromeCopy, /root status: Mission Control tenant cambium · branch arcs Mission syncing/);
+  assert.match(visibleChromeCopy, /root nav: Mission next move Gate review Tools act Story signals Inspect proof/);
+  assert.match(visibleChromeCopy, /scene badge: Mission/);
+  assert.match(visibleChromeCopy, /freshness chip: syncing/);
+  for (const term of CHROME_COPY_DENYLIST) {
+    assert.doesNotMatch(visibleChromeCopy, new RegExp(escapeRegExp(term), 'i'), `chrome copy leaked meta term: ${term}`);
+  }
+});
+
+test('page · chrome copy scan ignores hidden helper copy', () => {
+  const visibleCopy = visibleTextFromHtml(`
+    <header data-debug="served beats">
+      <strong>Mission visible</strong>
+      <span class="sr">real world-state</span>
+      <span hidden>no fake progress</span>
+      <span aria-hidden="true">scene provenance</span>
+      <span style="display:none">debug layer</span>
+      <span style="visibility: hidden">operator narrative</span>
+      <span title="source detail">Gate visible</span>
+    </header>
+  `);
+
+  assert.equal(visibleCopy, 'Mission visible Gate visible');
+  for (const term of CHROME_COPY_DENYLIST) {
+    assert.doesNotMatch(visibleCopy, new RegExp(escapeRegExp(term), 'i'), `hidden chrome copy leaked meta term: ${term}`);
+  }
 });
 
 test('page · five scenes with Mission-first tabs and sliding indicator', () => {
@@ -2641,7 +2792,7 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
 });
 
-test('page · primary Mission Gate Tools and Story copy denylist keeps meta language in Inspect', async () => {
+test('page · primary copy Mission Gate Tools and Story denylist keeps meta language in Inspect', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     branchStories: {
@@ -2927,6 +3078,24 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   assert.match(inspectSheet, /data-signed-action="true"/);
   assert.match(inspectSheet, /data-chat-command="true"/);
   assert.match(inspectSheet, /data-read-only="true"/);
+});
+
+test('visual fixtures · no-fake-progress visual fixture stays honest about missing proof', () => {
+  assert.deepEqual(NO_FAKE_PROGRESS_VISUAL_FIXTURE.beats, []);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.derivedAt, '2026-01-01T00:00:00.000Z');
+  assert.ok(
+    Date.now() - Date.parse(NO_FAKE_PROGRESS_VISUAL_FIXTURE.derivedAt) > 360 * 60 * 1000,
+    'no-fake-progress fixture remains stale by the six-hour proof window',
+  );
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.commands, null);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.status, 'blocked');
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.liveProofReady, false);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.blocked, 3);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.rows.length, NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.blocked);
+  for (const row of NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.rows) {
+    assert.equal(row.state, 'blocked', `${row.id} remains blocked`);
+    assert.match(row.proof, /guidance, not proof|current readiness blocks/, `${row.id} proof does not overclaim readiness`);
+  }
 });
 
 test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
