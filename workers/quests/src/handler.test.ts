@@ -547,10 +547,49 @@ function fakeStyle(): Record<string, string | ((name: string, value: string) => 
   return style;
 }
 
+function decodeHtmlAttribute(value: string) {
+  return value
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+}
+
+function dataKey(name: string) {
+  return name.replace(/^data-/, '').replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+}
+
+function htmlAttributes(tag: string) {
+  const attrs = new Map<string, string>();
+  for (const match of tag.matchAll(/\s([a-zA-Z0-9_:-]+)(?:="([^"]*)")?/g)) {
+    attrs.set(match[1], decodeHtmlAttribute(match[2] ?? ''));
+  }
+  return attrs;
+}
+
+function htmlMatchesSelector(attrs: Map<string, string>, selector: string) {
+  const classMatch = selector.match(/^\.([a-zA-Z0-9_-]+)$/);
+  if (classMatch) return (attrs.get('class') || '').split(/\s+/).includes(classMatch[1]);
+  const attrMatch = selector.match(/^\[([a-zA-Z0-9_:-]+)(?:="([^"]*)")?\]$/);
+  if (!attrMatch) return false;
+  const [, name, value] = attrMatch;
+  if (!attrs.has(name)) return false;
+  return value === undefined || attrs.get(name) === value;
+}
+
 function makeElement(id: string) {
-  return {
+  let html = '';
+  let htmlVersion = 0;
+  const queryCache = new Map<string, ReturnType<typeof makeElement>[]>();
+  const element = {
     id,
-    innerHTML: '',
+    get innerHTML() { return html; },
+    set innerHTML(value: string) {
+      html = String(value);
+      htmlVersion += 1;
+      queryCache.clear();
+    },
     textContent: '',
     style: fakeStyle(),
     classList: new FakeClassList(),
@@ -561,9 +600,28 @@ function makeElement(id: string) {
     onclick: null as unknown,
     addEventListener() {},
     setPointerCapture() {},
-    querySelectorAll() { return []; },
-    querySelector() { return makeElement(`${id}:query`); },
+    querySelectorAll(selector: string) {
+      const key = `${htmlVersion}\u0000${selector}`;
+      if (!queryCache.has(key)) {
+        const nodes: ReturnType<typeof makeElement>[] = [];
+        for (const match of this.innerHTML.matchAll(/<([a-z0-9-]+)\b([^>]*)>/gi)) {
+          const attrs = htmlAttributes(match[0]);
+          if (!htmlMatchesSelector(attrs, selector)) continue;
+          const node = makeElement(`${id}:query:${nodes.length}`);
+          node.innerHTML = match[0];
+          node.textContent = match[0];
+          for (const [name, value] of attrs) {
+            if (name.startsWith('data-')) node.dataset[dataKey(name)] = value;
+          }
+          nodes.push(node);
+        }
+        queryCache.set(key, nodes);
+      }
+      return queryCache.get(key)!;
+    },
+    querySelector(selector: string) { return this.querySelectorAll(selector)[0] ?? makeElement(`${id}:query`); },
   };
+  return element;
 }
 
 async function renderPageFixtureContext(
@@ -1777,6 +1835,244 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(paperclipSheet, /source<\/b><span>paperclipActivityBeats/);
   assert.match(paperclipSheet, /vault write<\/b><span>no direct vault write/);
   assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
+});
+
+test('page · story filter scopes hero digest and timeline while preserving beat indexes', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: {
+      rows: [
+        { branchId: 'branch-a', name: 'Branch A' },
+        { branchId: 'branch-b', name: 'Branch B' },
+      ],
+    },
+    beats: [
+      { text: 'Branch A shipped intake win', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'Branch B recorded cortex lesson', lane: 'forge', branchId: 'branch-b', source: 'skill-registry', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const renderedFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(branch-b)"/)?.[1] ?? '';
+  assert.equal(renderedFilter, 'branch-b');
+
+  vm.runInContext(`STORY_BRANCH_FILTER = ${JSON.stringify(renderedFilter)}; renderStory(ECOSYSTEM_ENV);`, rendered.context as vm.Context);
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const hero = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryLatestChangeHero"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(hero, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(hero, /Branch A shipped intake win/);
+  assert.match(hero, /data-story-hero="1"/);
+
+  const heroIndex = Number(hero.match(/data-story-hero="(\d+)"/)?.[1] ?? -1);
+  (rendered.context.openStoryBeat as (index: number) => void)(heroIndex);
+  const heroSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(heroSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(heroSheet, /Branch A shipped intake win/);
+
+  const digest = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryDigestCards"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(digest, /Mission wins 0/);
+  assert.match(digest, /Lessons 1/);
+  assert.doesNotMatch(digest, /Mission wins 1/);
+  assert.match(storyHtml, /data-story-filter="all">all · 1/);
+  assert.match(storyHtml, /data-story-filter="Mission wins">Mission wins · 0/);
+  assert.match(storyHtml, /data-story-filter="Lessons">Lessons · 1/);
+
+  const timeline = storyHtml.match(/<div class="story-timeline"[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.equal((timeline.match(/<i /g) ?? []).length, 1);
+
+  const beatsElement = rendered.elements.get('beats')!;
+  const heroNode = beatsElement.querySelectorAll('[data-story-hero]')[0];
+  assert.equal(heroNode.dataset.storyHero, '1');
+  assert.equal(typeof heroNode.onclick, 'function');
+  (heroNode.onclick as () => void)();
+  const clickedHeroSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(clickedHeroSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(clickedHeroSheet, /Branch A shipped intake win/);
+
+  const beatCards = storyHtml.match(/<button type="button" class="[^"]*beat[\s\S]*?<\/button>/g) ?? [];
+  assert.equal(beatCards.length, 1);
+  assert.match(beatCards[0], /data-component="StoryBeatCard"/);
+  assert.match(beatCards[0], /data-beat="1"/);
+  assert.match(beatCards[0], /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(beatCards[0], /Branch A shipped intake win/);
+  const beatNode = beatsElement.querySelectorAll('.beat')[0];
+  assert.equal(beatNode.dataset.beat, '1');
+  assert.equal(typeof beatNode.onclick, 'function');
+  (beatNode.onclick as () => void)();
+  const clickedBeatSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(clickedBeatSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(clickedBeatSheet, /Branch A shipped intake win/);
+
+  const digestNode = beatsElement.querySelectorAll('[data-story-digest]')[0];
+  assert.equal(digestNode.dataset.storyDigest, '1');
+  assert.equal(typeof digestNode.onclick, 'function');
+  (digestNode.onclick as () => void)();
+  const digestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(digestSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(digestSheet, /Branch A shipped intake win/);
+  assert.match(digestSheet, /data-story-digest-beat="1"/);
+  assert.doesNotMatch(digestSheet, /data-story-digest-beat="0"/);
+  const digestBeatNode = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-digest-beat]')[0];
+  assert.equal(digestBeatNode.dataset.storyDigestBeat, '1');
+  assert.equal(typeof digestBeatNode.onclick, 'function');
+  (digestBeatNode.onclick as () => void)();
+  const clickedDigestRowSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(clickedDigestRowSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(clickedDigestRowSheet, /Branch A shipped intake win/);
+});
+
+test('page · story filter pending branch chips show unassigned beats', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: { rows: [] },
+    beats: [
+      { text: 'Unassigned signal reached story', lane: 'beat', source: 'manual-story', noesis: false },
+      { text: 'Assigned branch should stay hidden', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const missingFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(missing)"/)?.[1] ?? '';
+  assert.equal(missingFilter, 'missing');
+
+  const missingChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === missingFilter);
+  assert.ok(missingChip);
+  assert.equal(typeof missingChip.onclick, 'function');
+  (missingChip.onclick as () => void)();
+  const missingHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedBranchChips = missingHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['missing']);
+  assert.match(missingHtml, /Unassigned signal reached story/);
+  assert.doesNotMatch(missingHtml, /Assigned branch should stay hidden/);
+  assert.match(missingHtml, /data-story-hero="0"/);
+  assert.match(missingHtml, /data-beat="0"/);
+  assert.match(missingHtml, /data-story-filter="all">all · 1/);
+  assert.match(missingHtml, /New signals 1/);
+  assert.doesNotMatch(missingHtml, /Mission wins 1/);
+
+  const missingDigestNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-digest]')[0];
+  assert.equal(typeof missingDigestNode.onclick, 'function');
+  (missingDigestNode.onclick as () => void)();
+  const missingDigestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(missingDigestSheet, /Unassigned signal reached story/);
+  assert.doesNotMatch(missingDigestSheet, /Assigned branch should stay hidden/);
+  assert.match(missingDigestSheet, /data-story-digest-beat="0"/);
+
+  vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
+  const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
+  assert.match(unassignedHtml, /Unassigned signal reached story/);
+  assert.doesNotMatch(unassignedHtml, /Assigned branch should stay hidden/);
+  assert.match(unassignedHtml, /data-story-hero="0"/);
+});
+
+test('page · story filter keeps pending chip visible when branches arrive', async () => {
+  const branchlessEnvelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: { rows: [] },
+    beats: [
+      { text: 'Unassigned carry-forward beat', lane: 'quest', source: 'manual-story', noesis: false },
+      { text: 'Branched carry-forward beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(branchlessEnvelope);
+  const missingChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === 'missing');
+  assert.ok(missingChip);
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
+  (missingChip.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+
+  const branchedEnvelope = {
+    ...branchlessEnvelope,
+    branchStories: {
+      rows: [{ branchId: 'branch-a', name: 'Branch A' }],
+    },
+  };
+  vm.runInContext(`ECOSYSTEM_ENV = ${JSON.stringify(branchedEnvelope)}; renderStory(ECOSYSTEM_ENV);`, rendered.context as vm.Context);
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedBranchChips = storyHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['missing']);
+  assert.match(storyHtml, /branch packets pending/);
+  assert.match(storyHtml, /Branch A/);
+  assert.match(storyHtml, /Unassigned carry-forward beat/);
+  assert.doesNotMatch(storyHtml, /Branched carry-forward beat/);
+  assert.match(storyHtml, /data-story-filter="all">all · 1/);
+  assert.match(storyHtml, /data-story-hero="0"/);
+  const heroNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-hero]')[0];
+  assert.equal(typeof heroNode.onclick, 'function');
+  (heroNode.onclick as () => void)();
+  const beatSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(beatSheet, /mission<\/b><span>branch context not served/);
+  const missionTarget = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-target]').find((node) => node.dataset.storyTarget === 'mission');
+  assert.ok(missionTarget);
+  assert.equal(missionTarget.dataset.storyBranchContext, '');
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
+  (missionTarget.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+
+  vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
+  const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedUnassignedChips = unassignedHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedUnassignedChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['missing']);
+  assert.match(unassignedHtml, /Unassigned carry-forward beat/);
+  assert.doesNotMatch(unassignedHtml, /Branched carry-forward beat/);
+});
+
+test('page · story hero empty branch filter has no beat index', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: {
+      rows: [
+        { branchId: 'branch-a', name: 'Branch A' },
+        { branchId: 'branch-b', name: 'Branch B' },
+      ],
+    },
+    beats: [
+      { text: 'Only Branch A has a story beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const branchBFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(branch-b)"/)?.[1] ?? '';
+  assert.equal(branchBFilter, 'branch-b');
+
+  const branchBChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === branchBFilter);
+  assert.ok(branchBChip);
+  assert.equal(typeof branchBChip.onclick, 'function');
+  (branchBChip.onclick as () => void)();
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const hero = storyHtml.match(/<button type="button" class="story-hero is-empty" data-component="StoryLatestChangeHero"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(hero, /Story is waiting for mission movement/);
+  assert.doesNotMatch(hero, /data-story-hero=/);
+  assert.doesNotMatch(storyHtml, /Only Branch A has a story beat/);
+  assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-story-hero]').length, 0);
+
+  const digest = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryDigestCards"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(digest, /Mission wins 0/);
+  assert.match(digest, /New signals 0/);
+  assert.match(digest, /Lessons 0/);
+  assert.match(digest, /Drift 0/);
+  const timeline = storyHtml.match(/<div class="story-timeline"[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.equal((timeline.match(/<i /g) ?? []).length, 0);
+
+  const emptyDigestNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-digest]')[0];
+  assert.equal(typeof emptyDigestNode.onclick, 'function');
+  (emptyDigestNode.onclick as () => void)();
+  const digestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(digestSheet, /No story beats served/);
+  assert.doesNotMatch(digestSheet, /Only Branch A has a story beat/);
 });
 
 test('page · empty story names mission movement wait state', async () => {

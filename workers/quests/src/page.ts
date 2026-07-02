@@ -3795,41 +3795,57 @@ function storyContextScene(context){
   if (context === 'story') return 3;
   return 4;
 }
-function renderStoryHero(beats){
-  const latest = beats[0] || { text:'Story is waiting for mission movement', lane:'beat' };
+function renderStoryHero(rows){
+  if (!rows.length) {
+    return '<button type="button" class="story-hero is-empty" data-component="StoryLatestChangeHero" data-interaction-kind="read-only">' +
+      mcGlyphSvg('signal', 'dormant') +
+      '<span><b>Latest change</b><small>Story is waiting for mission movement · switch filters or refresh after evidence lands</small></span>' +
+    '</button>';
+  }
+  const latestRow = rows[0];
+  const latest = latestRow.beat;
   const group = storyBeatGroup(latest);
-  return '<button type="button" class="story-hero" data-component="StoryLatestChangeHero" data-story-hero="0" data-interaction-kind="sheet">' +
+  return '<button type="button" class="story-hero" data-component="StoryLatestChangeHero" data-story-hero="' + latestRow.index + '" data-interaction-kind="sheet">' +
     mcGlyphSvg(storyBeatGlyph(group), storyBeatState(latest)) +
     '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + ' · open full beat detail</small></span>' +
   '</button>';
 }
-function renderStoryGroupControls(groups, beats){
+function renderStoryGroupControls(groups, rows){
   const labels = ['all', 'Mission wins', 'New signals', 'Lessons', 'Drift'];
   return '<div class="story-filter-strip" data-component="StoryGroupControls">' + labels.map(label =>
-    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' · ' + (label === 'all' ? beats.length : beats.filter(beat => storyBeatGroup(beat) === label).length) + '</button>'
+    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' · ' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</button>'
   ).join('') + '</div>';
 }
-function renderStoryTimeline(beats){
-  return '<div class="story-timeline" data-component="StoryTimelineRail">' + beats.slice(0, 12).map(beat =>
-    '<i class="is-' + esc(mcStateKind(storyBeatState(beat))) + '"></i>'
+function renderStoryTimeline(rows){
+  return '<div class="story-timeline" data-component="StoryTimelineRail">' + rows.slice(0, 12).map(row =>
+    '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '"></i>'
   ).join('') + '</div>';
 }
 function renderStoryBranchFilters(env){
   const branches = branchRows(env || {});
-  if (!branches.length) return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button><button type="button" data-component="BranchArcChip" data-story-branch-filter="missing">branch packets pending</button></div>';
-  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (STORY_BRANCH_FILTER === 'all' ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + branches.slice(0, 5).map(branch => {
+  const pendingSelected = STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned';
+  if (!branches.length) {
+    return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (!pendingSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button><button type="button" class="' + (pendingSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="missing">branch packets pending</button></div>';
+  }
+  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (STORY_BRANCH_FILTER === 'all' ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + (pendingSelected ? '<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="missing">branch packets pending</button>' : '') + branches.slice(0, 5).map(branch => {
     const id = mcText(branch.branchId || branch.productId || branch.name, 'branch');
     return '<button type="button" class="' + (STORY_BRANCH_FILTER === id ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="' + esc(id) + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>';
   }
   ).join('') + '</div>';
 }
-function renderStoryDigest(beats){
-  const counts = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => [group, beats.filter(beat => storyBeatGroup(beat) === group).length]);
+function renderStoryDigest(rows){
+  const counts = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => [group, rows.filter(row => storyBeatGroup(row.beat) === group).length]);
   return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-interaction-kind="sheet">' +
     mcGlyphSvg('proof', 'active') +
     '<span><b>Digest</b><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
     '<i aria-hidden="true">›</i>' +
   '</button>';
+}
+function visibleStoryBeats(beats){
+  const rows = beats.map((beat, index) => ({ beat, index }));
+  if (STORY_BRANCH_FILTER === 'all') return rows;
+  if (STORY_BRANCH_FILTER === 'unassigned' || STORY_BRANCH_FILTER === 'missing') return rows.filter(row => !storyBeatBranch(row.beat));
+  return rows.filter(row => storyBeatBranch(row.beat) === STORY_BRANCH_FILTER);
 }
 function storyPacketTrail(beat){
   const group = storyBeatGroup(beat);
@@ -3838,9 +3854,9 @@ function storyPacketTrail(beat){
   return '<span data-component="StoryPacketTrail">' + mcPacketDots(count, storyBeatState(beat), { mode:'rail' }) + '</span>';
 }
 function openStoryDigest(){
-  const rows = STORY_BEATS.slice(0, 12).map((beat, index) => {
-    const group = storyBeatGroup(beat);
-    return '<button type="button" class="li" data-story-digest-beat="' + index + '"><span class="cname">' + esc(group) + '</span><div class="cdesc">' + esc(beat.text || 'story beat') + '</div></button>';
+  const rows = visibleStoryBeats(STORY_BEATS).slice(0, 12).map(row => {
+    const group = storyBeatGroup(row.beat);
+    return '<button type="button" class="li" data-story-digest-beat="' + row.index + '"><span class="cname">' + esc(group) + '</span><div class="cdesc">' + esc(row.beat.text || 'story beat') + '</div></button>';
   }).join('');
   $('sheetBody').innerHTML = '<div class="arc">story · digest</div><h2>Story Digest</h2><div class="nar">Digest lists individual beats without hiding blockers.</div>' + (rows || '<div class="nar">No story beats served.</div>');
   $('sheetBody').querySelectorAll('[data-story-digest-beat]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyDigestBeat));
@@ -3854,7 +3870,10 @@ function openStoryBeat(index){
   const target = storyBeatTarget(lane);
   const group = storyBeatGroup(beat);
   const context = storyBeatContext(group, lane, beat);
-  const branchFocus = storyBeatBranch(beat) || (branchRows(ECOSYSTEM_ENV || {})[0] && mcBranchId(branchRows(ECOSYSTEM_ENV || {})[0], 0)) || '';
+  const beatBranch = storyBeatBranch(beat);
+  const pendingStoryFilter = STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned';
+  const firstBranch = branchRows(ECOSYSTEM_ENV || {})[0];
+  const branchFocus = beatBranch || (pendingStoryFilter ? '' : ((firstBranch && mcBranchId(firstBranch, 0)) || ''));
   const warning = /contradict/i.test(String(beat.text || ''))
     ? '<b>warning</b><span>contradiction requires Inspect review before this becomes a win</span>'
     : '';
@@ -3883,15 +3902,13 @@ function renderStory(env){
     $('beats').querySelectorAll('[data-story-empty-action]').forEach(el => el.onclick = () => el.dataset.storyEmptyAction === 'refresh' ? refresh() : go(el.dataset.storyEmptyAction === 'mission' ? 0 : 4));
     return;
   }
-  const visibleBeats = STORY_BRANCH_FILTER === 'all'
-    ? beats
-    : beats.filter(beat => storyBeatBranch(beat) === STORY_BRANCH_FILTER || !storyBeatBranch(beat));
+  const visibleBeats = visibleStoryBeats(beats);
   const groups = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => ({
     group,
-    beats: visibleBeats.map((beat, index) => ({ beat, index:beats.indexOf(beat) })).filter(row => storyBeatGroup(row.beat) === group),
+    beats: visibleBeats.filter(row => storyBeatGroup(row.beat) === group),
   })).filter(row => STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group);
   const allGroups = ['Mission wins', 'New signals', 'Lessons', 'Drift'];
-  $('beats').innerHTML = renderStoryHero(beats) + renderStoryGroupControls(allGroups, beats) + renderStoryBranchFilters(env) + renderStoryDigest(beats) + renderStoryTimeline(beats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
+  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryGroupControls(allGroups, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
     '<section class="story-group" data-component="StoryGroup" data-story-group="' + esc(group.toLowerCase().replace(/\\s+/g, '-')) + '">' +
     '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + (groupBeats.length ? groupBeats.map(({ beat:b, index:i }) => {
     const lane = b.lane || 'beat';
@@ -3916,7 +3933,7 @@ function renderStory(env){
   });
   $('beats').querySelectorAll('[data-story-branch-filter]').forEach(el => el.onclick = () => {
     STORY_BRANCH_FILTER = el.dataset.storyBranchFilter || 'all';
-    if (STORY_BRANCH_FILTER !== 'all' && STORY_BRANCH_FILTER !== 'missing') MISSION_BRANCH_FOCUS = STORY_BRANCH_FILTER;
+    MISSION_BRANCH_FOCUS = (STORY_BRANCH_FILTER !== 'all' && STORY_BRANCH_FILTER !== 'missing') ? STORY_BRANCH_FILTER : '';
     renderStory(env);
   });
   $('beats').querySelectorAll('.beat').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.beat));
