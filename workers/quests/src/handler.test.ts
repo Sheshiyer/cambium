@@ -2536,7 +2536,7 @@ test('page · Mission Control visual primitives are named and reduced-motion saf
     'packetDrift',
     'glyphBreathe',
     'warningAttention',
-    '.mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-selected-halo[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
+    '.mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
   ]) assert.ok(PAGE.includes(marker), `PAGE has ${marker}`);
 
   for (const key of ['sourceRefs', 'propShapes', 'MissionGlyph', 'StateToken', 'OrbitProgress', 'SelectedHalo', 'SignalRail', 'PacketFlow', 'BranchArcChip', 'MissionCard', 'QuestlineTimeline', 'ProofList', 'KpiPulse', 'GateActionRow', 'Motion']) {
@@ -3271,7 +3271,9 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   const selectedBranchChip = html.match(/<button type="button" class="mc-branch-chip[^"]*mc-selected-halo[^"]*"[^>]*data-selected-surface="branch-chip"[^>]*>/)?.[0] ?? '';
   assert.match(selectedBranchChip, /data-component="BranchArcChip"/);
   assert.doesNotMatch(selectedBranchChip, /data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
-  assert.match(PAGE, /\.mc-branch-chip\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:none/);
+  assert.match(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:none/);
+  assert.doesNotMatch(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:orbitSweep/);
+  assert.doesNotMatch(PAGE, /\.gate-hero::after\{[\s\S]*?animation:orbitSweep|\.branch-sheet-hero::after\{[\s\S]*?animation:orbitSweep/);
   assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
   assert.match(html, /data-packet-mode="texture"/);
   assert.match(html, /data-mission-state-action="proof"/);

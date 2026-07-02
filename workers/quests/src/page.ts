@@ -304,8 +304,7 @@ export const PAGE = `<!doctype html>
 	  .mc-orbit .mc-packet-dots{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);min-height:6px;gap:3px;animation:none}
 	  .mc-selected-halo{position:relative;box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
 	  .mc-selected-halo::after{content:"";position:absolute;inset:3px;border-radius:inherit;border:1px solid rgba(224,255,79,.22);pointer-events:none}
-	  .mc-selected-halo[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.42);border-left-color:transparent;animation:orbitSweep 5.6s var(--ease) infinite}
-	  .mc-branch-chip.mc-selected-halo[data-motion="orbitSweep"]::after{border-left-color:rgba(224,255,79,.22);animation:none}
+	  .mc-selected-halo[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.22);animation:none}
 	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
 	  .mc-signal-rail.is-active{border-color:rgba(224,255,79,.34)}
 	  .mc-signal-rail.is-blocked,.mc-signal-rail.is-proof-needed{border-color:rgba(248,181,96,.42);border-style:dashed}
@@ -452,7 +451,7 @@ export const PAGE = `<!doctype html>
     border:1px solid rgba(224,255,79,.28);border-radius:14px;padding:14px;background:linear-gradient(145deg,rgba(224,255,79,.06),rgba(1,47,52,.38) 60%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
   .gate-hero::after{content:"";position:absolute;right:-34px;top:-34px;width:124px;height:124px;border-radius:50%;
-    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none;animation:orbitSweep 8s linear infinite}
+    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none}
   .gate-title-row{position:relative;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start}
   .gate-title-row h3{font-size:20px;line-height:1.1;color:var(--ink);margin:0 0 6px}
   .gate-title-row p{font-size:12.5px;line-height:1.45;opacity:.78;max-width:46ch}
@@ -542,7 +541,7 @@ export const PAGE = `<!doctype html>
   .branch-sheet-hero{position:relative;overflow:hidden;border:1px solid rgba(224,255,79,.27);border-radius:12px;padding:13px;
     background:linear-gradient(145deg,rgba(224,255,79,.055),rgba(1,47,52,.4) 62%);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
   .branch-sheet-hero::after{content:"";position:absolute;right:-28px;top:-24px;width:120px;height:120px;border-radius:50%;
-    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none;animation:orbitSweep 8s linear infinite}
+    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none}
   .branch-sheet-head{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;z-index:1}
   .branch-sheet-head h2{margin:2px 0 1px;font-size:20px;line-height:1.12;color:var(--soft)}
   .branch-sheet-head .arc{opacity:.72;font-size:11px}
@@ -598,7 +597,7 @@ export const PAGE = `<!doctype html>
 
 	  @media (prefers-reduced-motion: reduce){
 	    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-	    .mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-selected-halo[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
+	    .mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
 	  }
 </style>
 </head>
