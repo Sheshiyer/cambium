@@ -63,3 +63,18 @@ Evidence from coverage runs:
 - Batching-style one_change_rule fails: `Loop Control Inputs row 1 one_change_rule must not suggest batching`
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 2
+
+Removed the hard-coded action-word allowlist from `one_change_rule` validation and replaced it with a focused fail-closed guard for second-count / batching phrasing only.
+
+What changed:
+- Added explicit rejection for `and one`, `and exactly one`, `plus`, `then also`, `also select/choose/record/write/draft/create/return/run`, `then select/choose/record/write/draft/create/return/run`, plus `multiple`, `several`, `batch`, and `all gates`
+- Kept valid coordinating text such as `and keep ... approval-gated`, `and never execute ...`, and `and write only the finding to .operator/branch-loops/...`
+- Removed the prior action-word allowlist so future valid rules like `Select exactly one remediation` are not blocked
+
+Evidence from coverage runs:
+- `Select exactly one gate and one approval request` fails: `Loop Control Inputs row 1 one_change_rule must not suggest batching`
+- `Select exactly one remediation` passes the one-change-rule check when the rest of the row remains valid
+- `npm run validate:product-branches`: passed
+- `npm test`: passed

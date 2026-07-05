@@ -193,8 +193,32 @@ const LOOP_REQUIRED_COLUMNS = [
 ];
 
 const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
-const LOOP_ONE_CHANGE_SIGNAL_WORDS = ['change', 'decision', 'gate', 'claim', 'check', 'action', 'proof', 'approval', 'assignment', 'request'];
-const LOOP_ONE_CHANGE_BATCHING_PHRASES = ['multiple', 'several', 'batch', 'all gates'];
+const LOOP_ONE_CHANGE_SECOND_ACTION_PATTERNS = [
+  /\band one\b/i,
+  /\band exactly one\b/i,
+  /\bplus\b/i,
+  /\bthen also\b/i,
+  /\balso select\b/i,
+  /\balso choose\b/i,
+  /\balso record\b/i,
+  /\balso write\b/i,
+  /\balso draft\b/i,
+  /\balso create\b/i,
+  /\balso return\b/i,
+  /\balso run\b/i,
+  /\bthen select\b/i,
+  /\bthen choose\b/i,
+  /\bthen record\b/i,
+  /\bthen write\b/i,
+  /\bthen draft\b/i,
+  /\bthen create\b/i,
+  /\bthen return\b/i,
+  /\bthen run\b/i,
+  /\bmultiple\b/i,
+  /\bseveral\b/i,
+  /\bbatch\b/i,
+  /\ball gates\b/i
+];
 
 function validateLoopControlRows({ source, packetFile }) {
   const { rows } = parseSectionTable(source, 'Loop Control Inputs');
@@ -217,10 +241,7 @@ function validateLoopControlRows({ source, packetFile }) {
     if (!oneChangeRule.includes('exactly one')) {
       throw new Error(`${rowLabel} one_change_rule must include "exactly one"`);
     }
-    if (!LOOP_ONE_CHANGE_SIGNAL_WORDS.some((word) => oneChangeRule.includes(word))) {
-      throw new Error(`${rowLabel} one_change_rule must mention one change, decision, gate, claim, check, action, proof, approval, assignment, or request`);
-    }
-    if (LOOP_ONE_CHANGE_BATCHING_PHRASES.some((phrase) => oneChangeRule.includes(phrase))) {
+    if (LOOP_ONE_CHANGE_SECOND_ACTION_PATTERNS.some((pattern) => pattern.test(oneChangeRule))) {
       throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
     }
     const stopRule = String(row.stop_rule || '').trim();
