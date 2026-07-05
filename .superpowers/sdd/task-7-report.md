@@ -64,3 +64,30 @@ Result:
 
 - No functional concerns from the implemented scope.
 - The original brief’s sample test targeted `mapwrap`; in this codebase the Mission Control loop UI lives on the Mission scene (`stem`), so the final test was adjusted to assert against the correct rendered surface while preserving the intended manual-first behavior check.
+
+## Fix Report Addendum
+
+### Review Fixes Applied
+
+- Switched the branch-local fallback contract path from `branch.loops` to `branch.controls.loops` first, with `branch.loops` retained only as a compatibility fallback.
+- Added derived manual-first `runMode` mapping for fallback rows that do not provide it:
+  - `green -> read-only`
+  - `yellow -> approval-required`
+  - `red -> never-alone`
+  - default -> `approval-required`
+- Normalized fallback loop rows before rendering so Mission Control does not emit `undefined` when `visual.branchLoops` is absent or partial.
+- Updated the Task 7 fixture so the branch-local data lives in `controls.loops`, matching the declared interface.
+
+### Additional Coverage Added
+
+- The main Task 7 Mission Control test now exercises `controls.loops`.
+- Added fallback coverage proving Mission Control still renders manual-first loop status from `branch.controls.loops` when top-level `visual.branchLoops` is absent, and that the rendered UI does not contain `undefined`.
+
+### Fix Verification
+
+1. `node --test workers/quests/src/handler.test.ts --test-name-pattern "branch loop controls"`
+   - PASS
+2. `node --test workers/quests/src/handler.test.ts --test-name-pattern "surface contract|Mission scene renders branch arcs|builds Mission Control view from branchStories"`
+   - PASS
+3. `npm test`
+   - PASS (`653` passed, `0` failed)

@@ -3262,12 +3262,17 @@ test('page · Mission Control renders branch loop controls as manual-first', asy
         icp: { primary: 'Shopify founder validating fit check demand' },
         questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
         missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
-        loops: [{ loopId: 'fitcheck-launch-gate-loop', title: 'Fitcheck launch gate loop', cadence: 'manual weekly', objective: 'Move one launch blocker.', metric: 'One gate changes status.', boundaryColor: 'yellow', oneChangeRule: 'Select exactly one launch gate.', stateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md', stopRule: 'Stop after 3 rounds.', modelRoute: 'cheap-first', proofRequired: 'Updated gate row.' }],
         gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
         kpis: [],
         proofPaths: [],
         promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
-        controls: { loops: [], approvals: [], dispatchHints: [], organRouting: [], ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' } },
+        controls: {
+          loops: [{ loopId: 'fitcheck-launch-gate-loop', title: 'Fitcheck launch gate loop', cadence: 'manual weekly', objective: 'Move one launch blocker.', metric: 'One gate changes status.', boundaryColor: 'yellow', oneChangeRule: 'Select exactly one launch gate.', stateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md', stopRule: 'Stop after 3 rounds.', modelRoute: 'cheap-first', proofRequired: 'Updated gate row.' }],
+          approvals: [],
+          dispatchHints: [],
+          organRouting: [],
+          ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' },
+        },
         source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
         gaps: [],
       }],
@@ -3286,6 +3291,44 @@ test('page · Mission Control renders branch loop controls as manual-first', asy
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /branch loops · fitcheck/);
   assert.match(sheet, /Fitcheck launch gate loop · yellow · Stop after 3 rounds\./);
+});
+
+test('page · Mission Control derives manual-first loop run mode from branch controls when visual loop rows are missing', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: {
+          loops: [{ loopId: 'fitcheck-launch-gate-loop', title: 'Fitcheck launch gate loop', cadence: 'manual weekly', objective: 'Move one launch blocker.', metric: 'One gate changes status.', boundaryColor: 'yellow', oneChangeRule: 'Select exactly one launch gate.', stateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md', stopRule: 'Stop after 3 rounds.', modelRoute: 'cheap-first', proofRequired: 'Updated gate row.' }],
+          approvals: [],
+          dispatchHints: [],
+          organRouting: [],
+          ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' },
+        },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /Fitcheck launch gate loop · approval-required/);
+  assert.match(html, /yellow · manual weekly/);
+  assert.doesNotMatch(html, /undefined/);
+  assert.doesNotMatch(html, /autonomous loop scheduled/i);
 });
 
 test('page · Mission scene renders branch arcs, next mission, blockers, proof, KPIs, and actions', async () => {

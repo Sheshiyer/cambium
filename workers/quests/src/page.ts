@@ -2510,6 +2510,35 @@ function branchLoopRows(env, branchId){
   const rows = Array.isArray(branchLoopEnvelope(env).rows) ? branchLoopEnvelope(env).rows : [];
   return rows.filter(row => String(row.branchId || row.productId || '') === String(branchId || ''));
 }
+function mcLoopRunMode(row){
+  if (row && row.runMode) return row.runMode;
+  const boundaryColor = String((row && row.boundaryColor) || '').toLowerCase();
+  if (boundaryColor === 'green') return 'read-only';
+  if (boundaryColor === 'red') return 'never-alone';
+  return 'approval-required';
+}
+function mcBranchControlLoops(branch){
+  const controlLoops = mcList(branch && branch.controls && branch.controls.loops);
+  if (controlLoops.length) return controlLoops;
+  return mcList(branch && branch.loops);
+}
+function mcLoopViewRow(row){
+  return {
+    ...row,
+    boundaryColor:mcText(row && row.boundaryColor, 'yellow'),
+    cadence:mcText(row && row.cadence, 'manual review'),
+    runMode:mcLoopRunMode(row),
+    title:mcText(row && row.title, mcText(row && row.loopId, 'Loop control')),
+    stopRule:mcText(row && row.stopRule, 'stop rule missing'),
+  };
+}
+function mcLoopRows(env, branch, branchId){
+  const visualRows = branchLoopRows(env, branchId).map(mcLoopViewRow);
+  const fallbackRows = mcBranchControlLoops(branch)
+    .filter(loop => !visualRows.some(row => row.loopId && loop && row.loopId === loop.loopId))
+    .map(mcLoopViewRow);
+  return visualRows.concat(fallbackRows);
+}
 function mcLoopState(row){
   if (!row) return 'blocked';
   if (row.boundaryColor === 'green') return 'active';
@@ -2570,7 +2599,7 @@ function buildMissionControlView(env){
     blockers:mcBlockers(env || {}, branch),
     proofNeeded:mcProofNeeded(branch, mission),
     kpis:mcKpis(branch),
-    loops:branch ? branchLoopRows(env || {}, mcBranchId(branch, selectedIndex)).concat(mcList(branch.loops).filter(loop => !branchLoopRows(env || {}, mcBranchId(branch, selectedIndex)).some(row => row.loopId === loop.loopId))) : [],
+    loops:branch ? mcLoopRows(env || {}, branch, mcBranchId(branch, selectedIndex)) : [],
     promotion:{
       state:mcText(promotion.state, 'proof-only'),
       currentGate:mcText(promotion.currentGate, nextMission.gate || 'proof gate missing'),
@@ -2824,7 +2853,7 @@ function branchMissionFocusNarrative(branch, mission, gate, controls, focus){
     return 'Open the proof requirement for the next branch mission: ' + ((mission && mission.proofRequired) || (gate && gate.requiredProof) || 'proof requirement missing');
   }
   if (focus === 'loops') {
-    const loops = mcList(branch && branch.loops);
+    const loops = mcBranchControlLoops(branch).map(mcLoopViewRow);
     return loops.length ? loops.map(loop => (loop.title || loop.loopId) + ' · ' + (loop.boundaryColor || 'yellow') + ' · ' + (loop.stopRule || 'stop rule missing')).join(' / ') : 'loop controls missing';
   }
   return controls.currentFrontier || (branch.vision && branch.vision.statement) || branch.arcTitle || 'branch frontier missing';
