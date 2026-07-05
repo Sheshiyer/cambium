@@ -91,3 +91,26 @@ node --test bin/quine/hyphae/branch-stories.test.ts
 - `node --test bin/quine/hyphae/branch-stories.test.ts`
   - PASS
   - `8/8` tests passed
+
+---
+
+## Re-review Fix Follow-up
+
+### Reviewer finding addressed
+
+- Tightened `sectionHasTableShape()` so any non-empty required table section with no markdown table rows now fails closed as malformed instead of passing through as valid prose.
+- This preserves the prior absent-section behavior because empty section bodies still route through the existing missing-section gap path.
+
+### Additional regression coverage
+
+- Added a focused test for a prose-only `Loop Control Inputs` section.
+- Verified it produces:
+  - no parsed loops
+  - a blocked malformed-table gap for `Loop Control Inputs`
+- Confirmed the existing happy-path, missing-section, and malformed-table loop tests still pass.
+
+### Follow-up test results
+
+- `node --test bin/quine/hyphae/branch-stories.test.ts`
+  - PASS
+  - `9/9` tests passed

@@ -96,7 +96,7 @@ function sectionHasTableShape(source: string, section: string): boolean {
   const sectionBody = extractSection(source, section);
   if (!sectionBody.trim()) return true;
   const tableLines = sectionBody.split(/\r?\n/).filter((line) => line.trim().startsWith('|'));
-  if (tableLines.length === 0) return true;
+  if (tableLines.length === 0) return false;
   return tableLines.some((line, index) => tableLines[index + 1] && isSeparatorRow(tableLines[index + 1]));
 }
 

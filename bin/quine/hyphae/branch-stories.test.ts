@@ -165,6 +165,86 @@ test('fails soft when loop control inputs section is missing', () => {
   assert.ok(story.gaps.some((gap) => gap.status === 'blocked' && /Loop Control Inputs/.test(gap.detail)));
 });
 
+test('fails closed when loop control inputs section contains prose instead of a table', () => {
+  const root = mkdtempSync(join(tmpdir(), 'cambium-branch-stories-prose-loops-'));
+  const packetDir = join(root, 'docs', 'plans', 'product-branches');
+  mkdirSync(packetDir, { recursive: true });
+  writeFileSync(join(packetDir, 'index.md'), [
+    '# Test Product Branch Packets',
+    '',
+    '| product_id | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- |',
+    '| demo | Demo | Proof candidate | proof-only | Prose loops | demo.md |',
+    '',
+  ].join('\n'));
+  writeFileSync(join(packetDir, 'demo.md'), [
+    '---',
+    'schema: cambium.product_branch_packet.v1',
+    'product_id: demo',
+    'name: Demo',
+    'role: Proof candidate',
+    'promotion_state: proof-only',
+    'current_gate: Prose loops',
+    'packet_owner: cambium',
+    '---',
+    '',
+    '# Demo',
+    '',
+    '## Product Seed',
+    '',
+    '| Field | Value |',
+    '| --- | --- |',
+    '| autonomy_boundary | Human approval required. |',
+    '',
+    '## Branch Story Controls',
+    '',
+    '| Control | Value |',
+    '| --- | --- |',
+    '| arc_title | Prose Loop Controls |',
+    '',
+    '## Loop Control Inputs',
+    '',
+    'This loop section exists, but it is prose only and should fail closed.',
+    '',
+    '## Mission Control Inputs',
+    '',
+    '| mission_id | title | type | owner | gate | proof_required | dispatch_target |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| demo-mission | Demo mission | proof | operator | Gate 1 | Evidence | review |',
+    '',
+    '## KPI Control Inputs',
+    '',
+    '| kpi_id | label | survival | better_than_survival | source | current_state |',
+    '| --- | --- | --- | --- | --- | --- |',
+    '| demo-kpi | Demo KPI | 1 | 2 | ledger | pending |',
+    '',
+    '## Policy / Permission Inputs',
+    '',
+    '| permission | status | required_approval | failure_mode |',
+    '| --- | --- | --- | --- |',
+    '| founder-approval | pending | Founder sign-off | Blocked until approved |',
+    '',
+    '## Dispatch Inputs',
+    '',
+    '| route | payload_hint | allowed_when | blocked_when |',
+    '| --- | --- | --- | --- |',
+    '| review | summary | proof exists | approval missing |',
+    '',
+    '## Proof Foldback',
+    '',
+    '| proof_id | source_path | validates | promotes |',
+    '| --- | --- | --- | --- |',
+    '| proof-1 | docs/proof.md | Gate 1 | supervised-branch |',
+    '',
+  ].join('\n'));
+
+  const [story] = loadBranchStories({ root }, 'cambium');
+
+  assert.equal(story.productId, 'demo');
+  assert.equal(story.loops.length, 0);
+  assert.ok(story.gaps.some((gap) => gap.status === 'blocked' && /Loop Control Inputs table is malformed/.test(gap.detail)));
+});
+
 test('records malformed table gaps when a control section cannot be parsed', () => {
   const root = mkdtempSync(join(tmpdir(), 'cambium-branch-stories-malformed-'));
   const packetDir = join(root, 'docs', 'plans', 'product-branches');
