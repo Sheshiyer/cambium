@@ -107,6 +107,12 @@ Cortex ingestion targets: this packet, Vantyx brand brief, product README/develo
 
 First real pilot proof: a real second tenant onboarded through `new-client --apply` with public health and rollback evidence.
 
+## Loop Control Inputs
+
+| loop_id | title | cadence | objective | metric | boundary_color | one_change_rule | state_file | stop_rule | model_route | proof_required |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| vantyx-second-tenant-loop | Vantyx second-tenant proof loop | manual weekly until second tenant proof closes | Advance one second-tenant onboarding, publish, rollback, or analytics proof gate without touching unrelated tenant config. | One route health, rollback, or analytics proof row is added per round. | yellow | Select exactly one tenant proof action and keep Cloudflare route/domain changes approval-gated. | .operator/branch-loops/vantyx-second-tenant-loop.md | Stop after 3 rounds, after rollback proof is verified, or when no approved second tenant candidate exists. | cheap-first; escalate for deploy log interpretation only | `new-client` receipt, `/api/config` health receipt, rollback receipt, or blocked approval note. |
+
 ## Branch Story Controls
 
 | Control | Value |

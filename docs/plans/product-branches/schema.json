@@ -41,6 +41,7 @@
     "Evidence Ledger",
     "Gate Ledger",
     "Quest Queue",
+    "Loop Control Inputs",
     "Branch Story Controls",
     "Mission Control Inputs",
     "KPI Control Inputs",
@@ -119,6 +120,23 @@
         "source_path",
         "validates",
         "promotes"
+      ]
+    },
+    {
+      "section": "Loop Control Inputs",
+      "min_rows": 1,
+      "required_columns": [
+        "loop_id",
+        "title",
+        "cadence",
+        "objective",
+        "metric",
+        "boundary_color",
+        "one_change_rule",
+        "state_file",
+        "stop_rule",
+        "model_route",
+        "proof_required"
       ]
     }
   ],

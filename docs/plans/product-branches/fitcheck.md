@@ -106,6 +106,12 @@ Cortex ingestion targets: this normalized packet, the dated Fitcheck packet, HDI
 
 First real pilot proof: one merchant seed from intake to launch/garden with archived proof packet.
 
+## Loop Control Inputs
+
+| loop_id | title | cadence | objective | metric | boundary_color | one_change_rule | state_file | stop_rule | model_route | proof_required |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| fitcheck-launch-gate-loop | Fitcheck launch gate loop | manual weekly until first merchant proof begins | Move one Fitcheck launch blocker from blocked to evidenced or return a founder approval request. | One gate changes status or one approval request is recorded per round. | yellow | Select exactly one of Shopify QA, Dodo reservation env, privacy copy, outreach approval, or first merchant proof. | .operator/branch-loops/fitcheck-launch-gate-loop.md | Stop after 3 rounds, after first merchant proof is archived, or when missing credentials prevent the selected gate twice. | cheap-first; escalate only when validator or proof command fails | Updated Evidence Ledger row, Gate Ledger row, or founder approval request pasted into the loop state file. |
+
 ## Branch Story Controls
 
 | Control | Value |
