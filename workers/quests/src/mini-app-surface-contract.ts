@@ -20,6 +20,7 @@ export const MINI_APP_ECOSYSTEM_TARGETS = [
   'vault-via-paperclip',
   'live-proof',
   'product-branches',
+  'branch-loops',
 ] as const;
 export type MiniAppEcosystemTarget = typeof MINI_APP_ECOSYSTEM_TARGETS[number];
 
@@ -145,6 +146,7 @@ export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
   { id: 'branch-missions', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc mission queue' },
   { id: 'branch-kpis', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc KPI controls' },
   { id: 'branch-gates', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc gate ledger' },
+  { id: 'branch-loops', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchLoopLibrary manual-first loop controls' },
   { id: 'branch-proof', target: 'product-branches', interactions: { primary: 'external-proof' }, source: 'BranchStoryArc proof foldback' },
   {
     id: 'side-quests',

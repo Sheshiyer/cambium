@@ -2503,6 +2503,19 @@ function mcControls(branch){
     autonomyBoundary:mcText(controls.autonomyBoundary, 'proof must fold back before autonomy claims'),
   };
 }
+function branchLoopEnvelope(env){
+  return env && env.branchLoops ? env.branchLoops : { rows: [] };
+}
+function branchLoopRows(env, branchId){
+  const rows = Array.isArray(branchLoopEnvelope(env).rows) ? branchLoopEnvelope(env).rows : [];
+  return rows.filter(row => String(row.branchId || row.productId || '') === String(branchId || ''));
+}
+function mcLoopState(row){
+  if (!row) return 'blocked';
+  if (row.boundaryColor === 'green') return 'active';
+  if (row.boundaryColor === 'yellow') return 'proof-needed';
+  return 'blocked';
+}
 function buildMissionControlView(env){
   const branchEnv = branchEnvelope(env || {});
   const rows = branchRows(env || {});
@@ -2557,6 +2570,7 @@ function buildMissionControlView(env){
     blockers:mcBlockers(env || {}, branch),
     proofNeeded:mcProofNeeded(branch, mission),
     kpis:mcKpis(branch),
+    loops:branch ? branchLoopRows(env || {}, mcBranchId(branch, selectedIndex)).concat(mcList(branch.loops).filter(loop => !branchLoopRows(env || {}, mcBranchId(branch, selectedIndex)).some(row => row.loopId === loop.loopId))) : [],
     promotion:{
       state:mcText(promotion.state, 'proof-only'),
       currentGate:mcText(promotion.currentGate, nextMission.gate || 'proof gate missing'),
@@ -2652,6 +2666,14 @@ function renderMissionToolLink(view){
     '<button type="button" data-mission-action="tools" data-no-scene-drag="1">Open Tools</button>' +
   '</section>';
 }
+function renderMissionLoops(view){
+  const rows = view.loops && view.loops.length ? view.loops.slice(0, 3) : [];
+  if (!rows.length) return '';
+  return '<section class="mission-tool-link" data-component="BranchLoopControls" data-ecosystem-target="branch-loops">' +
+    '<span><b>Loop controls</b><small>' + esc(rows.map(row => (row.title || row.loopId) + ' · ' + row.runMode).join(' / ')) + '</small></span>' +
+    '<button type="button" class="secondary" data-mission-action="loops" data-no-scene-drag="1" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="branch-loops">' + esc(rows[0].boundaryColor + ' · ' + rows[0].cadence) + '</button>' +
+  '</section>';
+}
 function renderMissionControl(env){
   const stem = $('stem');
   const view = buildMissionControlView(env);
@@ -2672,6 +2694,7 @@ function renderMissionControl(env){
     renderMissionStateStack(view),
     renderMissionProofNeeded(view),
     renderMissionToolLink(view),
+    renderMissionLoops(view),
     renderMissionActions(view),
     renderMissionKpis(view),
   ].join('');
@@ -2695,6 +2718,7 @@ function renderMissionControl(env){
   stem.querySelectorAll('[data-mission-proof-row]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));
   stem.querySelectorAll('[data-mission-state-action]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, el.dataset.missionStateAction === 'selected' ? undefined : el.dataset.missionStateAction));
   stem.querySelectorAll('[data-mission-action="tools"]').forEach(el => el.onclick = () => { TOOL_FOCUS = 'ts-status'; TOOL_CONTEXT_BRANCH = view.selectedBranchId || ''; go(2); cmdsDrawn = false; renderCommands(); });
+  stem.querySelectorAll('[data-mission-action="loops"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'loops'));
 }
 function branchCardState(branch){
   const text = mcBranchStatusText(branch);
@@ -2789,6 +2813,7 @@ function renderBranchProof(env){
 function branchMissionFocusLabel(focus){
   if (focus === 'gate') return 'branch gate';
   if (focus === 'proof') return 'branch proof';
+  if (focus === 'loops') return 'branch loops';
   return 'branch mission';
 }
 function branchMissionFocusNarrative(branch, mission, gate, controls, focus){
@@ -2797,6 +2822,10 @@ function branchMissionFocusNarrative(branch, mission, gate, controls, focus){
   }
   if (focus === 'proof') {
     return 'Open the proof requirement for the next branch mission: ' + ((mission && mission.proofRequired) || (gate && gate.requiredProof) || 'proof requirement missing');
+  }
+  if (focus === 'loops') {
+    const loops = mcList(branch && branch.loops);
+    return loops.length ? loops.map(loop => (loop.title || loop.loopId) + ' · ' + (loop.boundaryColor || 'yellow') + ' · ' + (loop.stopRule || 'stop rule missing')).join(' / ') : 'loop controls missing';
   }
   return controls.currentFrontier || (branch.vision && branch.vision.statement) || branch.arcTitle || 'branch frontier missing';
 }
