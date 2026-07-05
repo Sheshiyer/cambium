@@ -60,11 +60,17 @@ const stories = [{
   gaps: [],
 }] satisfies BranchStoryArc[];
 
+const readyStories = [{
+  ...stories[0],
+  loops: [stories[0].loops[0], { ...stories[0].loops[1], boundaryColor: 'green' }],
+}] satisfies BranchStoryArc[];
+
 test('deriveBranchLoopLibrary counts boundary colors and run permissions', () => {
   const library = deriveBranchLoopLibrary(stories);
 
   assert.equal(library.source, 'product-branch-packets@v1');
   assert.equal(library.total, 2);
+  assert.equal(library.status, 'blocked');
   assert.equal(library.green, 0);
   assert.equal(library.yellow, 1);
   assert.equal(library.red, 1);
@@ -73,8 +79,16 @@ test('deriveBranchLoopLibrary counts boundary colors and run permissions', () =>
   assert.equal(library.rows[0].stateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
 });
 
-test('loopCanRunUnattended only allows green loops', () => {
+test('deriveBranchLoopLibrary reports empty, ready, and blocked statuses', () => {
+  assert.equal(deriveBranchLoopLibrary([]).status, 'empty');
+  assert.equal(deriveBranchLoopLibrary(readyStories).status, 'ready');
+  assert.equal(deriveBranchLoopLibrary(stories).status, 'blocked');
+});
+
+test('loopCanRunUnattended keeps manual-first default unless scheduling is approved', () => {
   assert.equal(loopCanRunUnattended(stories[0].loops[0]), false);
-  assert.equal(loopCanRunUnattended({ ...stories[0].loops[0], boundaryColor: 'green' }), true);
-  assert.equal(loopCanRunUnattended(stories[0].loops[1]), false);
+  assert.equal(loopCanRunUnattended({ ...stories[0].loops[0], boundaryColor: 'green' }), false);
+  assert.equal(loopCanRunUnattended({ ...stories[0].loops[0], boundaryColor: 'green' }, { schedulingApproved: true }), true);
+  assert.equal(loopCanRunUnattended(stories[0].loops[0], { schedulingApproved: true }), false);
+  assert.equal(loopCanRunUnattended(stories[0].loops[1], { schedulingApproved: true }), false);
 });

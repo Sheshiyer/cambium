@@ -33,8 +33,12 @@ export interface BranchLoopLibrary {
   rows: BranchLoopLibraryRow[];
 }
 
-export function loopCanRunUnattended(loop: BranchLoop): boolean {
-  return loop.boundaryColor === 'green';
+export interface LoopCanRunUnattendedOptions {
+  schedulingApproved?: boolean;
+}
+
+export function loopCanRunUnattended(loop: BranchLoop, options: LoopCanRunUnattendedOptions = {}): boolean {
+  return loop.boundaryColor === 'green' && options.schedulingApproved === true;
 }
 
 export function loopRunMode(loop: BranchLoop): BranchLoopRunMode {

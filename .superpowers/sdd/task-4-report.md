@@ -40,3 +40,9 @@
 
 - No functional concerns at this time.
 - The module assumes the prior-task loop fields remain stable, which matches the current branch-story contract.
+
+## Fix follow-up
+
+- Updated `loopCanRunUnattended(loop, options?)` so boundary color alone no longer authorizes unattended execution.
+- The helper now stays manual-first by default and only returns `true` for green loops when `schedulingApproved: true` is explicitly supplied.
+- Added status coverage for `empty`, `ready`, and `blocked`, with the red-containing fixture asserting `blocked`.
