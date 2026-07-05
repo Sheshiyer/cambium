@@ -194,7 +194,13 @@ const LOOP_REQUIRED_COLUMNS = [
 
 const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
 const LOOP_ONE_CHANGE_BATCHING_PHRASES = ['multiple', 'several', 'batch', 'all gates'];
-const LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES = ['and keep', 'and never', 'and write only'];
+const LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES = [
+  'and keep',
+  'and never',
+  'and write only',
+  'and document the finding in',
+  'and record the finding in'
+];
 
 function countExactPhrase(value, phrase) {
   return (value.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
@@ -253,6 +259,10 @@ function validateOneChangeRule(oneChangeRule, rowLabel) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 
+  if (/\s[&/+]\s/.test(remainder)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
   if (/\b(?:then|also|plus)\b/i.test(remainder)) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
@@ -262,7 +272,11 @@ function validateOneChangeRule(oneChangeRule, rowLabel) {
   }
 
   const andCount = countWholeWord(remainder, 'and');
-  const guardrailMatch = remainder.match(/\s(and keep|and never|and write only)\b/i);
+  const guardrailPattern = new RegExp(
+    `\\s(${LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES.map((prefix) => prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`,
+    'i'
+  );
+  const guardrailMatch = remainder.match(guardrailPattern);
 
   if (andCount > 1) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);

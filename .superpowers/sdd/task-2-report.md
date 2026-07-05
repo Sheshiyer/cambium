@@ -177,3 +177,22 @@ Evidence from coverage runs:
 - `Select exactly one of gate A, gate B or gate C.` passes when the rest of the row is valid
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 9
+
+Closed the last separator bypasses and expanded the allowed recording guardrails.
+
+What changed:
+- Rejected spaced symbolic batching separators ` & `, ` / `, and ` + ` after `exactly one`
+- Kept unspaced ordinary token slashes like `route/domain` untouched
+- Added recording guardrails for `and document the finding in` and `and record the finding in`
+- Kept `and file a founder approval request` rejected and preserved the existing packet rows
+
+Evidence from coverage runs:
+- `Select exactly one gate & file a founder approval request.` fails
+- `Select exactly one gate / request one decision.` fails
+- `Select exactly one remediation and document the finding in .operator/branch-loops/demo.md.` passes
+- `Select exactly one remediation and record the finding in .operator/branch-loops/demo.md.` passes
+- `node --test scripts/validate-product-branch-packets.test.mjs`: passed
+- `npm run validate:product-branches`: passed
+- `npm test`: passed
