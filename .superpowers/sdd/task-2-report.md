@@ -112,3 +112,17 @@ Evidence from coverage runs:
 - Current packet rows, including `and keep ...`, `and never ...`, and `and write only ...`, still pass
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 5
+
+Added automated regression coverage for the validator logic and wired it into `npm test`.
+
+What changed:
+- Added `scripts/validate-product-branch-packets.test.mjs` with focused node:test coverage for the validator
+- Updated `package.json` test script to include `scripts/*.test.mjs`
+- Covered uppercase boundary, blank required field, unsafe state file, punctuation-separated follow-on actions, standalone decision request pass, and current packet validation
+
+Evidence from coverage runs:
+- Focused validator test command `node --test scripts/validate-product-branch-packets.test.mjs`: passed
+- `npm run validate:product-branches`: passed
+- `npm test`: passed

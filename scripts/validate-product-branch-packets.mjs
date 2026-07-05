@@ -194,6 +194,7 @@ const LOOP_REQUIRED_COLUMNS = [
 
 const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
 const LOOP_ONE_CHANGE_BATCHING_PHRASES = ['multiple', 'several', 'batch', 'all gates'];
+const LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES = ['and keep', 'and never', 'and write only'];
 
 function countExactPhrase(value, phrase) {
   return (value.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
@@ -224,7 +225,10 @@ function validateLoopControlRows({ source, packetFile }) {
       throw new Error(`${rowLabel} one_change_rule must include "exactly one" only once`);
     }
     const firstExactOneIndex = oneChangeRule.indexOf('exactly one');
-    const oneChangeTail = firstExactOneIndex === -1 ? '' : oneChangeRule.slice(firstExactOneIndex + 'exactly one'.length);
+    const oneChangeTail = firstExactOneIndex === -1 ? '' : oneChangeRule.slice(firstExactOneIndex + 'exactly one'.length).trimStart();
+    if (/[.;:]\s*\S/.test(oneChangeTail) && !LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES.some((prefix) => oneChangeTail.includes(prefix))) {
+      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+    }
     if (/\b(?:plus|then|also)\b/i.test(oneChangeTail)) {
       throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
     }
