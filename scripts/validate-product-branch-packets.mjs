@@ -259,7 +259,11 @@ function validateOneChangeRule(oneChangeRule, rowLabel) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 
-  if (/\s[&/+]\s/.test(remainder)) {
+  if (/[&+]/.test(remainder)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (/\/\s*(?:request|file|submit|approve|decide|escalate|select|choose|record|write|draft|create|return|run)\b/i.test(remainder)) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 

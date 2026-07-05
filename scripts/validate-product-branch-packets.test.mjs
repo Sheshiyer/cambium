@@ -141,6 +141,21 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
       label: 'spaced slash',
       rule: 'Select exactly one gate / request one decision.',
       message: /must not suggest batching/
+    },
+    {
+      label: 'unspaced slash',
+      rule: 'Select exactly one gate/request one decision.',
+      message: /must not suggest batching/
+    },
+    {
+      label: 'unspaced plus',
+      rule: 'Select exactly one gate+file approval request.',
+      message: /must not suggest batching/
+    },
+    {
+      label: 'unspaced ampersand',
+      rule: 'Select exactly one gate&request approval.',
+      message: /must not suggest batching/
     }
   ];
 

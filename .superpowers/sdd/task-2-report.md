@@ -196,3 +196,20 @@ Evidence from coverage runs:
 - `node --test scripts/validate-product-branch-packets.test.mjs`: passed
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 10
+
+Closed the remaining unspaced symbolic separator bypasses in `one_change_rule`.
+
+What changed:
+- Rejected raw `&` and `+` anywhere after `exactly one`
+- Rejected `/` only when it starts a second action/request phrase such as `request`, `file`, `submit`, `approve`, `decide`, `escalate`, `select`, `choose`, `record`, `write`, `draft`, `create`, `return`, or `run`
+- Kept ordinary slash compounds like `route/domain` and `.operator/branch-loops/...` valid
+
+Evidence from coverage runs:
+- `Select exactly one gate/request one decision.` fails
+- `Select exactly one gate+file approval request.` fails
+- `Select exactly one gate&request approval.` fails
+- `node --test scripts/validate-product-branch-packets.test.mjs`: passed
+- `npm run validate:product-branches`: passed
+- `npm test`: passed
