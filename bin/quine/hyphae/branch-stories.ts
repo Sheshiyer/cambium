@@ -6,6 +6,7 @@ import type {
   BranchDispatchHint,
   BranchEvidenceRow,
   BranchGate,
+  BranchKind,
   BranchKpi,
   BranchLoop,
   BranchLoopBoundaryColor,
@@ -23,6 +24,7 @@ export type { BranchStoryArc, BranchStoryGap } from '../../operator/quests/branc
 
 interface PacketIndexRow {
   product_id: string;
+  branch_kind: string;
   name: string;
   role: string;
   promotion_state: string;
@@ -157,6 +159,12 @@ function normalizePromotionState(value: string): BranchPromotionState {
   return 'proof-only';
 }
 
+function normalizeBranchKind(value: string): BranchKind {
+  const kind = clean(value) as BranchKind;
+  if (kind === 'product' || kind === 'client' || kind === 'internal-service') return kind;
+  return 'product';
+}
+
 function normalizeLoopBoundaryColor(value: string): BranchLoopBoundaryColor {
   const color = clean(value).toLowerCase();
   if (color === 'green' || color === 'yellow' || color === 'red') return color;
@@ -237,6 +245,7 @@ function parseIndex(root: string): PacketIndexRow[] {
     .filter((row) => row.product_id && row.packet)
     .map((row) => ({
       product_id: row.product_id,
+      branch_kind: row.branch_kind || 'product',
       name: row.name,
       role: row.role,
       promotion_state: row.promotion_state,
@@ -248,7 +257,7 @@ function parseIndex(root: string): PacketIndexRow[] {
 function safePacketPath(row: PacketIndexRow): string {
   const packet = clean(row.packet);
   if (!packet || isAbsolute(packet) || packet.includes('..') || packet.includes('\\')) {
-    throw new Error(`unsafe product branch packet path for ${row.product_id || 'unknown'}: ${packet || '<missing>'}`);
+    throw new Error(`unsafe branch packet path for ${row.product_id || 'unknown'}: ${packet || '<missing>'}`);
   }
   return packet;
 }
@@ -259,6 +268,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
   const source = existsSync(packetFile) ? readText(packetFile) : '';
   const metadata = parseFrontmatter(source);
   const productId = clean(metadata.product_id || row.product_id);
+  const branchKind = normalizeBranchKind(metadata.branch_kind || row.branch_kind);
   const name = clean(metadata.name || row.name || productId);
   const role = clean(metadata.role || row.role);
   const productSeed = tableRecord(source, 'Product Seed');
@@ -346,6 +356,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
   const currentFrontier = controls.current_frontier || clean(metadata.current_gate || row.current_gate);
   const story: BranchStoryArc = {
     branchId: productId,
+    branchKind,
     productId,
     name,
     role,

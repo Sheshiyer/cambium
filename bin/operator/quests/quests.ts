@@ -62,7 +62,7 @@ export interface QuestInputs {
   };
   /** Explicit policy-facing priority contract. Visual decisionContext rows never substitute for this. */
   prioritySignals?: PolicyPrioritySignals;
-  /** Product/service branch arcs parsed from proof-bound product packets. The global quest ledger never derives completion from these rows. */
+  /** Product, client, and service branch arcs parsed from proof-bound branch packets. The global quest ledger never derives completion from these rows. */
   branchStories?: BranchStoryArc[];
 }
 

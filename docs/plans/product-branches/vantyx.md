@@ -1,6 +1,7 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: vantyx
+branch_kind: product
 name: Vantyx
 role: Tenant onboarding and publishing branch
 promotion_state: supervised-branch
@@ -8,7 +9,7 @@ current_gate: Tenant proof and rollback proof
 packet_owner: cambium
 ---
 
-# Vantyx Product Branch Packet
+# Vantyx Branch Packet
 
 Vantyx is a supervised Cambium product-branch candidate for a multi-tenant immersive SaaS branch. The inspected product surface is `Panaroma-Webapp`, with brand source in `brandmint-v2/brands/vantyx`; `10869` and `10869-space-v1` are portfolio repos rather than the current Vantyx surface.
 
@@ -17,6 +18,7 @@ Vantyx is a supervised Cambium product-branch candidate for a multi-tenant immer
 | Field | Value |
 | --- | --- |
 | product_id | `vantyx` |
+| branch_kind | `product` |
 | one_sentence_seed | Living 360 degree tour platform for view-led real-estate developers selling floor-by-floor views before and during construction. |
 | founder_intent | Turn Vantyx into a repeatable tenant onboarding and publish/rollback branch inside Cambium. |
 | target_customer | View-led property developers and sales or marketing teams; secondary users are visualization and digital marketing agencies serving developers. |

@@ -2986,7 +2986,7 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   const stem = elements.get('stem')!.innerHTML;
   const progress = elements.get('progress')!.textContent;
   assert.match(stem, /Mission control is waiting for branch packets/);
-  assert.match(stem, /Branch arcs appear only after product packets reach the visual envelope/);
+  assert.match(stem, /Branch arcs appear only after branch packets reach the visual envelope/);
   assert.doesNotMatch(stem, /mc-mission-card/);
   assert.match(progress, /branch packets waiting/);
   assert.match(map, /Inspect/);

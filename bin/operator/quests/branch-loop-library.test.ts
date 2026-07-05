@@ -5,6 +5,7 @@ import type { BranchStoryArc } from './branch-stories.ts';
 
 const stories = [{
   branchId: 'fitcheck',
+  branchKind: 'product',
   productId: 'fitcheck',
   name: 'Fitcheck',
   role: 'Supervised product branch',
@@ -76,6 +77,8 @@ test('deriveBranchLoopLibrary counts boundary colors and run permissions', () =>
   assert.equal(library.red, 1);
   assert.equal(library.rows[0].runMode, 'approval-required');
   assert.equal(library.rows[1].runMode, 'never-alone');
+  assert.equal(library.rows[0].branchKind, 'product');
+  assert.equal(library.rows[0].branchName, 'Fitcheck');
   assert.equal(library.rows[0].stateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
 });
 

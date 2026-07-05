@@ -2743,7 +2743,7 @@ function renderMissionControl(env){
   const view = buildMissionControlView(env);
   stem.classList.add('mission-control');
   if (!view.selectedBranch) {
-    stem.innerHTML = '<div class="mission-empty"><b>Mission control is waiting for branch packets.</b><p>Branch arcs appear only after product packets reach the visual envelope.</p><div class="mc-action-row" data-component="GateActionRow"><button type="button" data-mission-action="refresh">Refresh</button><button type="button" class="secondary" data-mission-action="inspect">Inspect</button></div></div>';
+    stem.innerHTML = '<div class="mission-empty"><b>Mission control is waiting for branch packets.</b><p>Branch arcs appear only after branch packets reach the visual envelope.</p><div class="mc-action-row" data-component="GateActionRow"><button type="button" data-mission-action="refresh">Refresh</button><button type="button" class="secondary" data-mission-action="inspect">Inspect</button></div></div>';
     resetQuestSummary('branch packets waiting', 'inspect source');
     stem.querySelectorAll('[data-mission-action="refresh"]').forEach(el => el.onclick = () => refresh());
     stem.querySelectorAll('[data-mission-action="inspect"]').forEach(el => el.onclick = () => go(4));
@@ -2803,7 +2803,7 @@ function branchCards(env){
   if (!rows.length) return [{
     title:'BRANCH GAP',
     state:'wait',
-    detail:branchEnv.gap || 'product branch packets missing or empty',
+    detail:branchEnv.gap || 'branch packets missing or empty',
     proof:'branchStories.rows missing from visual envelope',
     source:branchEnv.source || 'missing',
     branch:null,
@@ -2961,7 +2961,7 @@ function openBranchMissionSheet(env, branchIndex, missionIndex, focus){
     const branchEnv = branchEnvelope(env);
     $('sheetBody').innerHTML = '<div class="branch-sheet"><section class="branch-sheet-hero">' +
       '<div class="branch-sheet-head">' + mcGlyphSvg('gate', 'blocked') + '<div><div class="arc">branch gap · missing</div><h2>Branch Gap</h2></div>' + mcStateToken('blocked', 'Missing') + '</div>' +
-      '<div class="nar">' + esc(branchEnv.gap || 'product branch packets missing or empty') + '</div>' +
+      '<div class="nar">' + esc(branchEnv.gap || 'branch packets missing or empty') + '</div>' +
       '<div class="branch-claim-guard">' + mcStateToken('blocked', 'Guard') + '<span><b>Proof rule</b>missing branch data cannot render ready work</span></div>' +
       '</section>' + branchSheetInspect({}, branchEnv) + '</div>';
     veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light'); return;

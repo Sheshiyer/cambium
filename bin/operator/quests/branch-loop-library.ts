@@ -5,6 +5,8 @@ export type BranchLoopRunMode = 'read-only' | 'approval-required' | 'never-alone
 export interface BranchLoopLibraryRow {
   loopId: string;
   branchId: string;
+  branchKind: BranchStoryArc['branchKind'];
+  branchName: string;
   productId: string;
   productName: string;
   title: string;
@@ -52,6 +54,8 @@ export function deriveBranchLoopLibrary(stories: BranchStoryArc[]): BranchLoopLi
     story.loops.map((loop) => ({
       loopId: loop.loopId,
       branchId: story.branchId,
+      branchKind: story.branchKind,
+      branchName: story.name,
       productId: story.productId,
       productName: story.name,
       title: loop.title,

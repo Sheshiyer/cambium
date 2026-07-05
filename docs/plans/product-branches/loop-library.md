@@ -1,6 +1,6 @@
 # Cambium Branch Loop Library
 
-This library adapts the loop principle to Cambium product branches. A branch loop is not a scheduler by itself. It is a proof-bound routine contract stored in the product packet and run manually until a founder approves scheduling.
+This library adapts the loop principle to Cambium ecosystem branches: products, client delivery streams, and internal services. A branch loop is not a scheduler by itself. It is a proof-bound routine contract stored in the branch packet and run manually until a founder approves scheduling.
 
 ## Boundary Colors
 
@@ -18,12 +18,13 @@ Every round changes exactly one thing or records exactly one blocked approval re
 
 ## Initial Library
 
-| product | loop | boundary | state file |
-| --- | --- | --- | --- |
-| Fitcheck | `fitcheck-launch-gate-loop` | yellow | `.operator/branch-loops/fitcheck-launch-gate-loop.md` |
-| Vantyx | `vantyx-second-tenant-loop` | yellow | `.operator/branch-loops/vantyx-second-tenant-loop.md` |
-| Snow Gloves OS | `snow-gloves-os-approval-loop` | red | `.operator/branch-loops/snow-gloves-os-approval-loop.md` |
-| IVerif | `iverif-claim-proof-loop` | green | `.operator/branch-loops/iverif-claim-proof-loop.md` |
+| branch | kind | loop | boundary | state file |
+| --- | --- | --- | --- | --- |
+| Fitcheck | product | `fitcheck-launch-gate-loop` | yellow | `.operator/branch-loops/fitcheck-launch-gate-loop.md` |
+| Vantyx | product | `vantyx-second-tenant-loop` | yellow | `.operator/branch-loops/vantyx-second-tenant-loop.md` |
+| Snow Gloves OS | internal-service | `snow-gloves-os-approval-loop` | red | `.operator/branch-loops/snow-gloves-os-approval-loop.md` |
+| IVerif | product | `iverif-claim-proof-loop` | green | `.operator/branch-loops/iverif-claim-proof-loop.md` |
+| Client Delivery | client | `client-delivery-handoff-loop` | yellow | `.operator/branch-loops/client-delivery-handoff-loop.md` |
 
 ## Scheduling Rule
 

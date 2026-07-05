@@ -2509,10 +2509,10 @@ function deriveBranchStoriesEnvelope(branchStories: BranchStoryArc[] | undefined
       gaps: [{
         id: 'product-branch-packets-missing',
         status: 'pending',
-        detail: 'no product branch packets were loaded into QuestInputs',
+        detail: 'no branch packets were loaded into QuestInputs',
         source: 'QuestInputs.branchStories',
       }],
-      gap: 'product branch packets missing or empty',
+      gap: 'branch packets missing or empty',
     };
   }
   const gaps = rows.flatMap((row) => row.gaps);
