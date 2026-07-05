@@ -460,6 +460,11 @@ function normalizeAssignmentTask(raw: Record<string, unknown>, memberId: string)
     promotionState: optionalText(raw.promotionState ?? branchMission.promotionState, 120),
     proofFoldback: optionalText(raw.proofFoldback ?? branchMission.proofFoldback, 500),
     autonomyBoundary: optionalText(raw.autonomyBoundary ?? branchMission.autonomyBoundary, 500),
+    loopId: optionalText(raw.loopId ?? branchMission.loopId, 160),
+    loopBoundaryColor: optionalText(raw.loopBoundaryColor ?? branchMission.loopBoundaryColor, 24),
+    loopStateFile: optionalText(raw.loopStateFile ?? branchMission.loopStateFile, 240),
+    loopStopRule: optionalText(raw.loopStopRule ?? branchMission.loopStopRule, 500),
+    loopOneChangeRule: optionalText(raw.loopOneChangeRule ?? branchMission.loopOneChangeRule, 500),
     ...(approvalsRequired.length ? { approvalsRequired } : {}),
   };
   const branchMissionRecord = Object.fromEntries(Object.entries(branchMissionMeta).filter(([, value]) =>
@@ -599,6 +604,11 @@ function topicQuestAssignment(raw: Record<string, unknown>, createId: () => stri
       ...(optionalText(raw.proofFoldback, 500) ? { proofFoldback: optionalText(raw.proofFoldback, 500) } : {}),
       ...(optionalText(raw.promotionState, 120) ? { promotionState: optionalText(raw.promotionState, 120) } : {}),
       ...(optionalText(raw.autonomyBoundary, 500) ? { autonomyBoundary: optionalText(raw.autonomyBoundary, 500) } : {}),
+      ...(optionalText(raw.loopId, 160) ? { loopId: optionalText(raw.loopId, 160) } : {}),
+      ...(optionalText(raw.loopBoundaryColor, 24) ? { loopBoundaryColor: optionalText(raw.loopBoundaryColor, 24) } : {}),
+      ...(optionalText(raw.loopStateFile, 240) ? { loopStateFile: optionalText(raw.loopStateFile, 240) } : {}),
+      ...(optionalText(raw.loopStopRule, 500) ? { loopStopRule: optionalText(raw.loopStopRule, 500) } : {}),
+      ...(optionalText(raw.loopOneChangeRule, 500) ? { loopOneChangeRule: optionalText(raw.loopOneChangeRule, 500) } : {}),
       ...(approvalsRequired.length ? { approvalsRequired } : {}),
     },
   };

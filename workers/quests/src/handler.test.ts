@@ -6059,6 +6059,11 @@ test('bridge · Cambium emits live project task assignment directives', async ()
       promotionState: 'supervised-branch',
       proofFoldback: 'docs/plans/product-branches/fitcheck.md#proof-foldback',
       autonomyBoundary: 'founder approval gates remain required',
+      loopId: 'fitcheck-launch-gate-loop',
+      loopBoundaryColor: 'yellow',
+      loopStateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+      loopStopRule: 'Stop after 3 rounds.',
+      loopOneChangeRule: 'Select exactly one launch gate.',
       approvalsRequired: ['founder provides authenticated route/session'],
     },
   };
@@ -6102,6 +6107,11 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   assert.equal(directive.payload.task.promotionState, 'supervised-branch');
   assert.equal(directive.payload.task.proofFoldback, 'docs/plans/product-branches/fitcheck.md#proof-foldback');
   assert.equal(directive.payload.task.autonomyBoundary, 'founder approval gates remain required');
+  assert.equal(directive.payload.task.loopId, 'fitcheck-launch-gate-loop');
+  assert.equal(directive.payload.task.loopBoundaryColor, 'yellow');
+  assert.equal(directive.payload.task.loopStateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
+  assert.equal(directive.payload.task.loopStopRule, 'Stop after 3 rounds.');
+  assert.equal(directive.payload.task.loopOneChangeRule, 'Select exactly one launch gate.');
   assert.deepEqual(directive.payload.task.approvalsRequired, ['founder provides authenticated route/session']);
   assert.equal(directive.payload.task.eventId, body(queued).eventId);
   assert.ok(directive.payloadHash);
@@ -6135,6 +6145,45 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   }), deps);
   assert.equal(conflict.status, 409);
   assert.equal(body(conflict).eventId, 'cambium:fitcheck-product:task-fitcheck-brief:assigned');
+});
+
+test('bridge · project task assignments preserve branchMission loop metadata fallback', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    now: () => '2026-06-22T08:00:00.000Z',
+    uuid: () => 'assign-loop-fallback-1',
+  };
+  const queued = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      memberId: 'mathis',
+      task: {
+        taskId: 'task-fitcheck-loop-fallback',
+        projectId: 'fitcheck-product',
+        title: 'Prepare loop fallback proof',
+        branchMission: {
+          loopId: 'fitcheck-launch-gate-loop',
+          loopBoundaryColor: 'yellow',
+          loopStateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+          loopStopRule: 'Stop after 3 rounds.',
+          loopOneChangeRule: 'Select exactly one launch gate.',
+        },
+      },
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/mathis', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const directive = body(pending).directives[0];
+  assert.equal(directive.payload.task.loopId, 'fitcheck-launch-gate-loop');
+  assert.equal(directive.payload.task.loopBoundaryColor, 'yellow');
+  assert.equal(directive.payload.task.loopStateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
+  assert.equal(directive.payload.task.loopStopRule, 'Stop after 3 rounds.');
+  assert.equal(directive.payload.task.loopOneChangeRule, 'Select exactly one launch gate.');
 });
 
 test('bridge · scoped Hermes assignment token only enqueues task assignments', async () => {
@@ -6475,6 +6524,11 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
       sourceMessageId: '852',
       memberId: 'shesh',
       summary: 'Build route proof is stale and needs a fresh worker probe.',
+      loopId: 'fitcheck-launch-gate-loop',
+      loopBoundaryColor: 'yellow',
+      loopStateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+      loopStopRule: 'Stop after 3 rounds.',
+      loopOneChangeRule: 'Select exactly one launch gate.',
       skillHints: [{
         skillId: 'engineering-delivery-proof',
         domain: 'engineering',
@@ -6500,6 +6554,11 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
   assert.equal(directive.payload.task.taskType, 'engineering');
   assert.equal(directive.payload.task.assignedBy, 'hermes-topic-router');
   assert.equal(directive.payload.task.source, 'cambium-topic-routing');
+  assert.equal(directive.payload.task.loopId, 'fitcheck-launch-gate-loop');
+  assert.equal(directive.payload.task.loopBoundaryColor, 'yellow');
+  assert.equal(directive.payload.task.loopStateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
+  assert.equal(directive.payload.task.loopStopRule, 'Stop after 3 rounds.');
+  assert.equal(directive.payload.task.loopOneChangeRule, 'Select exactly one launch gate.');
   assert.match(directive.payload.task.description, /Telegram Dev topic signal/);
   assert.deepEqual(directive.payload.task.skillHints, [{
     skillId: 'engineering-delivery-proof',
