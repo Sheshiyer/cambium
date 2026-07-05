@@ -88,6 +88,16 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
       message: /must not suggest batching/
     },
     {
+      label: 'comma approval',
+      rule: 'Select exactly one gate, one approval request.',
+      message: /must not suggest batching/
+    },
+    {
+      label: 'comma submit',
+      rule: 'Select exactly one gate, submit a founder approval request.',
+      message: /must not suggest batching/
+    },
+    {
       label: 'period-separated follow-on',
       rule: 'Select exactly one gate. File a founder approval request.',
       message: /must not suggest batching/

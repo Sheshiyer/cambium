@@ -142,3 +142,20 @@ Evidence from coverage runs:
 - `node --test scripts/validate-product-branch-packets.test.mjs`: passed
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 7
+
+Replaced the comma bypass handling with an allowlist-shaped clause split that matches the packet contract.
+
+What changed:
+- Split `one_change_rule` after the first `exactly one` into a selected-item clause and optional guardrail clause
+- Allowed commas only in explicit `exactly one of A, B, or C` / `exactly one of A, B or C` enumeration shapes
+- Kept `and keep`, `and never`, and `and write only` as the only allowed guardrail clause starters
+- Kept path dots in `.operator/...` intact when they are part of the value, not sentence punctuation
+
+Evidence from coverage runs:
+- `Select exactly one gate, one approval request.` fails
+- `Select exactly one gate, submit a founder approval request.` fails
+- Focused validator test command `node --test scripts/validate-product-branch-packets.test.mjs`: passed
+- `npm run validate:product-branches`: passed
+- `npm test`: passed
