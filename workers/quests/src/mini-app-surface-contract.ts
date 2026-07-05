@@ -55,6 +55,7 @@ export const MINI_APP_MAP_SUBSECTION_IDS = [
   'branch-missions',
   'branch-kpis',
   'branch-gates',
+  'branch-loops',
   'branch-proof',
   'side-quests',
   'coordination',

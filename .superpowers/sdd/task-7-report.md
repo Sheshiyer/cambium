@@ -91,3 +91,30 @@ Result:
    - PASS
 3. `npm test`
    - PASS (`653` passed, `0` failed)
+
+## Re-Review Fix Report Addendum
+
+### Re-Review Fixes Applied
+
+- Added `branch-loops` to the canonical `MINI_APP_MAP_SUBSECTION_IDS` inventory so the subsection registry and subsection definitions now agree.
+- Changed the loop-sheet narrative to use the same normalized merged loop rows as the Mission Control card, so visual-only `branchLoops` rows still populate the sheet when branch-local loop arrays are absent.
+- Hardened `mcLoopRunMode()` so only founder-safe values can render:
+  - `read-only`
+  - `approval-required`
+  - `never-alone`
+- Any other upstream run mode value now falls back to a safe manual-first value derived from `boundaryColor`, preventing `scheduled` or `autonomous` from becoming visible UI copy.
+
+### Re-Review Coverage Added
+
+- Surface-contract inventory coverage now asserts `branch-loops` is present in both the canonical subsection id list and the subsection records.
+- Added a visual-only loop-row test proving the card renders and the loop sheet does not fall back to `loop controls missing`.
+- Added a run-mode sanitization test proving unsafe top-level `scheduled`/`autonomous` values do not render and instead map to safe manual-first labels.
+
+### Re-Review Verification
+
+1. `node --test workers/quests/src/handler.test.ts --test-name-pattern "branch loop controls"`
+   - PASS
+2. `node --test workers/quests/src/handler.test.ts --test-name-pattern "surface contract|Mission scene renders branch arcs|builds Mission Control view from branchStories"`
+   - PASS
+3. `npm test`
+   - PASS (`654` passed, `0` failed)

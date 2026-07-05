@@ -2511,7 +2511,8 @@ function branchLoopRows(env, branchId){
   return rows.filter(row => String(row.branchId || row.productId || '') === String(branchId || ''));
 }
 function mcLoopRunMode(row){
-  if (row && row.runMode) return row.runMode;
+  const raw = String((row && row.runMode) || '').toLowerCase();
+  if (raw === 'read-only' || raw === 'approval-required' || raw === 'never-alone') return raw;
   const boundaryColor = String((row && row.boundaryColor) || '').toLowerCase();
   if (boundaryColor === 'green') return 'read-only';
   if (boundaryColor === 'red') return 'never-alone';
@@ -2538,6 +2539,9 @@ function mcLoopRows(env, branch, branchId){
     .filter(loop => !visualRows.some(row => row.loopId && loop && row.loopId === loop.loopId))
     .map(mcLoopViewRow);
   return visualRows.concat(fallbackRows);
+}
+function mcLoopFocusNarrative(rows){
+  return rows.length ? rows.map(loop => (loop.title || loop.loopId) + ' · ' + (loop.boundaryColor || 'yellow') + ' · ' + (loop.stopRule || 'stop rule missing')).join(' / ') : 'loop controls missing';
 }
 function mcLoopState(row){
   if (!row) return 'blocked';
@@ -2845,7 +2849,7 @@ function branchMissionFocusLabel(focus){
   if (focus === 'loops') return 'branch loops';
   return 'branch mission';
 }
-function branchMissionFocusNarrative(branch, mission, gate, controls, focus){
+function branchMissionFocusNarrative(branch, mission, gate, controls, focus, loopRows){
   if (focus === 'gate') {
     return 'Review the active gate before this branch can advance: ' + (gate ? ((gate.gate || 'gate') + ' · ' + (gate.status || 'pending') + ' · ' + (gate.requiredProof || 'proof required')) : ((mission && mission.gate) || 'gate missing'));
   }
@@ -2853,8 +2857,7 @@ function branchMissionFocusNarrative(branch, mission, gate, controls, focus){
     return 'Open the proof requirement for the next branch mission: ' + ((mission && mission.proofRequired) || (gate && gate.requiredProof) || 'proof requirement missing');
   }
   if (focus === 'loops') {
-    const loops = mcBranchControlLoops(branch).map(mcLoopViewRow);
-    return loops.length ? loops.map(loop => (loop.title || loop.loopId) + ' · ' + (loop.boundaryColor || 'yellow') + ' · ' + (loop.stopRule || 'stop rule missing')).join(' / ') : 'loop controls missing';
+    return mcLoopFocusNarrative(loopRows || []);
   }
   return controls.currentFrontier || (branch.vision && branch.vision.statement) || branch.arcTitle || 'branch frontier missing';
 }
@@ -2940,6 +2943,7 @@ function openBranchMissionSheet(env, branchIndex, missionIndex, focus){
   const proofPaths = Array.isArray(branch.proofPaths) ? branch.proofPaths : [];
   const approvals = branch.controls && Array.isArray(branch.controls.approvals) ? branch.controls.approvals : [];
   const controls = branch.controls && branch.controls.ui ? branch.controls.ui : {};
+  const loopRows = mcLoopRows(env || {}, branch, mcBranchId(branch, branchIndex));
   const focusLabel = branchMissionFocusLabel(focus);
   const missionState = mcMissionState(branch, mission);
   const gateState = gate ? mcStateKind(gate.status) : missionState;
@@ -2950,7 +2954,7 @@ function openBranchMissionSheet(env, branchIndex, missionIndex, focus){
       '<div class="branch-sheet-head mc-selected-halo" data-component="SelectedHalo" data-selected-surface="detail-sheet">' + mcGlyphSvg(focus === 'gate' ? 'build' : focus === 'proof' ? 'proof' : 'arc', focusState) +
         '<div><div class="arc">' + esc(focusLabel) + ' · ' + esc(branch.branchId || branch.productId || 'branch') + '</div><h2>' + esc(branch.name || branch.productId || 'Product Branch') + '</h2></div>' +
         mcStateToken(focusState, focus === 'gate' ? 'Review gate' : focus === 'proof' ? 'Proof needed' : 'Selected') + '</div>' +
-      '<div class="nar">' + esc(branchMissionFocusNarrative(branch, mission, gate, controls, focus)) + '</div>' +
+      '<div class="nar">' + esc(branchMissionFocusNarrative(branch, mission, gate, controls, focus, loopRows)) + '</div>' +
       '<div class="branch-sheet-glance">' +
         branchSheetGlance('Arc', branch.arcTitle || branch.arcId || 'arc missing') +
         branchSheetGlance('Mission', mission ? ((mission.missionId || 'mission') + ' · ' + (mission.title || 'mission title missing')) : 'mission queue missing') +
