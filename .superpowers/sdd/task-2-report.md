@@ -159,3 +159,21 @@ Evidence from coverage runs:
 - Focused validator test command `node --test scripts/validate-product-branch-packets.test.mjs`: passed
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 8
+
+Replaced the remaining `exactly one of ...` enumeration handling with a stricter single-clause grammar.
+
+What changed:
+- `one_change_rule` now parses only the text after the first `exactly one`
+- The remainder rejects sentence-separator punctuation `;`, `:`, and `. `, while still allowing `.operator/...` path dots and a final terminal period
+- The remainder rejects follow-on connectors `plus`, `then`, and `also`
+- Only one `and` is allowed, and only when it starts one of the contract guardrails `and keep`, `and never`, or `and write only`
+- Selected clauses with commas are accepted only for explicit enumeration shapes like `of A, B or C` and `of A, B, or C`
+
+Evidence from coverage runs:
+- `Select exactly one of gate A or gate B and file a founder approval request.` fails
+- `Select exactly one of gate A, gate B, or gate C then request one decision.` fails
+- `Select exactly one of gate A, gate B or gate C.` passes when the rest of the row is valid
+- `npm run validate:product-branches`: passed
+- `npm test`: passed

@@ -200,37 +200,20 @@ function countExactPhrase(value, phrase) {
   return (value.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
 }
 
-function splitOneChangeRule(oneChangeRule) {
-  const exactOneIndex = oneChangeRule.indexOf('exactly one');
-  const afterExactOne = oneChangeRule.slice(exactOneIndex + 'exactly one'.length).trimStart();
-
-  if (!afterExactOne) {
-    return { selectedClause: '', guardrailClause: '' };
-  }
-
-  const guardrailMatch = afterExactOne.match(/\s(and keep|and never|and write only)\b/i);
-  if (guardrailMatch) {
-    return {
-      selectedClause: afterExactOne.slice(0, guardrailMatch.index).trim(),
-      guardrailClause: afterExactOne.slice(guardrailMatch.index + 1).trimStart()
-    };
-  }
-
-  return { selectedClause: afterExactOne.trim(), guardrailClause: '' };
+function countWholeWord(value, word) {
+  return (value.match(new RegExp(`\\b${word}\\b`, 'g')) || []).length;
 }
 
-function hasAllowedEnumerationShape(selectedClause) {
-  const normalizedSelected = selectedClause.replace(/\.$/, '');
+function stripFinalTerminalPeriod(value) {
+  return value.endsWith('.') ? value.slice(0, -1).trimEnd() : value;
+}
 
-  if (!normalizedSelected.includes(',')) {
-    return true;
-  }
-
-  if (!/^of\s+/i.test(normalizedSelected)) {
+function isExplicitEnumerationClause(selectedClause) {
+  if (!/^of\s+/i.test(selectedClause) || !selectedClause.includes(',')) {
     return false;
   }
 
-  return /(?:,\s*or\s+[^,]+$)|(?:\sor\s+[^,]+$)/i.test(normalizedSelected);
+  return /^of\s+[^,]+(?:,\s*[^,]+)*\s*,?\s*or\s+[^,]+$/i.test(selectedClause);
 }
 
 function validateGuardrailClause(guardrailClause, rowLabel) {
@@ -245,7 +228,7 @@ function validateGuardrailClause(guardrailClause, rowLabel) {
 
   const guardrailBody = guardrailClause.slice(guardrailPrefix.length).trimStart();
 
-  if (/[;:]\s*\S/.test(guardrailBody) || /\.\s+\S/.test(guardrailBody)) {
+  if (/[;:]/.test(guardrailBody) || /\.\s+\S/.test(guardrailBody)) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 
@@ -253,8 +236,60 @@ function validateGuardrailClause(guardrailClause, rowLabel) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 
-  if (/\band\s+(?!keep\b|never\b|write\s+only\b)/i.test(guardrailBody)) {
+  if (/\band\b/i.test(guardrailBody)) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+}
+
+function validateOneChangeRule(oneChangeRule, rowLabel) {
+  const exactOneIndex = oneChangeRule.indexOf('exactly one');
+  const remainder = stripFinalTerminalPeriod(oneChangeRule.slice(exactOneIndex + 'exactly one'.length).trimStart());
+
+  if (!remainder) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (/[;:]/.test(remainder) || /\.\s+\S/.test(remainder)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (/\b(?:then|also|plus)\b/i.test(remainder)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (LOOP_ONE_CHANGE_BATCHING_PHRASES.some((phrase) => new RegExp(`\\b${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(remainder))) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  const andCount = countWholeWord(remainder, 'and');
+  const guardrailMatch = remainder.match(/\s(and keep|and never|and write only)\b/i);
+
+  if (andCount > 1) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (andCount === 1) {
+    if (!guardrailMatch) {
+      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+    }
+    if (guardrailMatch.index !== remainder.indexOf(guardrailMatch[0])) {
+      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+    }
+  }
+
+  const selectedClause = guardrailMatch ? remainder.slice(0, guardrailMatch.index).trim() : remainder.trim();
+  const guardrailClause = guardrailMatch ? remainder.slice(guardrailMatch.index + 1).trimStart() : '';
+
+  if (!selectedClause) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (selectedClause.includes(',') && !isExplicitEnumerationClause(selectedClause)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (guardrailClause) {
+    validateGuardrailClause(guardrailClause, rowLabel);
   }
 }
 
@@ -282,23 +317,7 @@ function validateLoopControlRows({ source, packetFile }) {
     if (countExactPhrase(oneChangeRule, 'exactly one') > 1) {
       throw new Error(`${rowLabel} one_change_rule must include "exactly one" only once`);
     }
-    const { selectedClause, guardrailClause } = splitOneChangeRule(oneChangeRule);
-    if (!hasAllowedEnumerationShape(selectedClause)) {
-      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-    }
-    if (/[;:]\s*\S/.test(selectedClause) || /\.\s+\S/.test(selectedClause)) {
-      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-    }
-    if (/\b(?:and|then|also|plus)\b/i.test(selectedClause) && !/^of\s+/i.test(selectedClause.replace(/\.$/, ''))) {
-      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-    }
-    if (/\b(?:multiple|several|batch|all gates)\b/i.test(selectedClause)) {
-      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-    }
-    if (/\b(?:multiple|several|batch|all gates)\b/i.test(guardrailClause)) {
-      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-    }
-    validateGuardrailClause(guardrailClause, rowLabel);
+    validateOneChangeRule(oneChangeRule, rowLabel);
     const stopRule = String(row.stop_rule || '').trim();
     if (!/stop/i.test(stopRule)) {
       throw new Error(`${rowLabel} stop_rule must describe when to stop`);

@@ -121,6 +121,16 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
       label: 'decision request batching',
       rule: 'Select exactly one remediation, then request one decision.',
       message: /must not suggest batching/
+    },
+    {
+      label: 'enumeration file',
+      rule: 'Select exactly one of gate A or gate B and file a founder approval request.',
+      message: /must not suggest batching/
+    },
+    {
+      label: 'enumeration then request',
+      rule: 'Select exactly one of gate A, gate B, or gate C then request one decision.',
+      message: /must not suggest batching/
     }
   ];
 
@@ -138,4 +148,10 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
   });
   const passResult = runValidator(passPacketDir);
   assert.equal(passResult.status, 0, passResult.stderr);
+
+  const enumerationPassPacketDir = withTempDocs((packetFile) => {
+    replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one of gate A, gate B or gate C.');
+  });
+  const enumerationPassResult = runValidator(enumerationPassPacketDir);
+  assert.equal(enumerationPassResult.status, 0, enumerationPassResult.stderr);
 });
