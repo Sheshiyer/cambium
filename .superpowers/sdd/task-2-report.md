@@ -93,3 +93,22 @@ Evidence from coverage runs:
 - `Select exactly one decision request.` passes when the rest of the row is valid
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 4
+
+Replaced the narrow verb denylist with a structural connector rule that looks only at the text after the first `exactly one`.
+
+What changed:
+- Rejects repeated `exactly one`
+- Rejects follow-on connectors `plus`, `then`, and `also`
+- Rejects `and ...` clauses after the chosen item unless they are the contract-allowed guardrails `and keep`, `and never`, or `and write only`
+- Continues rejecting broad batching words `multiple`, `several`, `batch`, and `all gates`
+
+Evidence from coverage runs:
+- `Select exactly one gate and file a founder approval request.` fails
+- `Select exactly one gate, then escalate another blocker.` fails
+- `Select exactly one remediation, then request one decision.` fails
+- `Select exactly one decision request.` passes when the rest of the row is valid
+- Current packet rows, including `and keep ...`, `and never ...`, and `and write only ...`, still pass
+- `npm run validate:product-branches`: passed
+- `npm test`: passed

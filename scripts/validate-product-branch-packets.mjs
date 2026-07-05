@@ -193,33 +193,11 @@ const LOOP_REQUIRED_COLUMNS = [
 ];
 
 const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
-const LOOP_ONE_CHANGE_SECOND_ACTION_PATTERNS = [
-  /\band one\b/i,
-  /\band exactly one\b/i,
-  /\bplus\b/i,
-  /\bthen also\b/i,
-  /\balso select\b/i,
-  /\balso choose\b/i,
-  /\balso record\b/i,
-  /\balso write\b/i,
-  /\balso draft\b/i,
-  /\balso create\b/i,
-  /\balso return\b/i,
-  /\balso run\b/i,
-  /\bthen select\b/i,
-  /\bthen choose\b/i,
-  /\bthen record\b/i,
-  /\bthen write\b/i,
-  /\bthen draft\b/i,
-  /\bthen create\b/i,
-  /\bthen return\b/i,
-  /\bthen run\b/i,
-  /(?:[,;]\s*|\b(?:and|then|also|plus)\s+)(?:request one decision|one decision request|request|decide|approve)\b/i,
-  /\bmultiple\b/i,
-  /\bseveral\b/i,
-  /\bbatch\b/i,
-  /\ball gates\b/i
-];
+const LOOP_ONE_CHANGE_BATCHING_PHRASES = ['multiple', 'several', 'batch', 'all gates'];
+
+function countExactPhrase(value, phrase) {
+  return (value.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+}
 
 function validateLoopControlRows({ source, packetFile }) {
   const { rows } = parseSectionTable(source, 'Loop Control Inputs');
@@ -242,7 +220,18 @@ function validateLoopControlRows({ source, packetFile }) {
     if (!oneChangeRule.includes('exactly one')) {
       throw new Error(`${rowLabel} one_change_rule must include "exactly one"`);
     }
-    if (LOOP_ONE_CHANGE_SECOND_ACTION_PATTERNS.some((pattern) => pattern.test(oneChangeRule))) {
+    if (countExactPhrase(oneChangeRule, 'exactly one') > 1) {
+      throw new Error(`${rowLabel} one_change_rule must include "exactly one" only once`);
+    }
+    const firstExactOneIndex = oneChangeRule.indexOf('exactly one');
+    const oneChangeTail = firstExactOneIndex === -1 ? '' : oneChangeRule.slice(firstExactOneIndex + 'exactly one'.length);
+    if (/\b(?:plus|then|also)\b/i.test(oneChangeTail)) {
+      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+    }
+    if (/\band\s+(?!keep\b|never\b|write\s+only\b)/i.test(oneChangeTail)) {
+      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+    }
+    if (LOOP_ONE_CHANGE_BATCHING_PHRASES.some((phrase) => oneChangeTail.includes(phrase))) {
       throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
     }
     const stopRule = String(row.stop_rule || '').trim();
