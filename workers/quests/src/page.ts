@@ -2510,10 +2510,15 @@ function branchLoopRows(env, branchId){
   const rows = Array.isArray(branchLoopEnvelope(env).rows) ? branchLoopEnvelope(env).rows : [];
   return rows.filter(row => String(row.branchId || row.productId || '') === String(branchId || ''));
 }
+function mcLoopBoundaryColor(row){
+  const color = String((row && row.boundaryColor) || '').toLowerCase();
+  if (color === 'green' || color === 'yellow' || color === 'red') return color;
+  return 'red';
+}
 function mcLoopRunMode(row){
   const raw = String((row && row.runMode) || '').toLowerCase();
   if (raw === 'read-only' || raw === 'approval-required' || raw === 'never-alone') return raw;
-  const boundaryColor = String((row && row.boundaryColor) || '').toLowerCase();
+  const boundaryColor = mcLoopBoundaryColor(row);
   if (boundaryColor === 'green') return 'read-only';
   if (boundaryColor === 'red') return 'never-alone';
   return 'approval-required';
@@ -2533,7 +2538,7 @@ function mcLoopCadence(row){
 function mcLoopViewRow(row){
   return {
     ...row,
-    boundaryColor:mcText(row && row.boundaryColor, 'yellow'),
+    boundaryColor:mcLoopBoundaryColor(row),
     cadence:mcLoopCadence(row),
     runMode:mcLoopRunMode(row),
     title:mcText(row && row.title, mcText(row && row.loopId, 'Loop control')),
@@ -2973,13 +2978,13 @@ function openBranchMissionSheet(env, branchIndex, missionIndex, focus){
   const focusLabel = branchMissionFocusLabel(focus);
   const missionState = mcMissionState(branch, mission);
   const gateState = gate ? mcStateKind(gate.status) : missionState;
-  const focusState = focus === 'gate' ? gateState : focus === 'proof' ? 'proof-needed' : missionState;
+  const focusState = focus === 'gate' ? gateState : focus === 'proof' ? 'proof-needed' : focus === 'loops' ? mcLoopState(loopRows[0]) : missionState;
   const guardCopy = controls.blockedCopy || 'no unsupported launch, approval, or autonomy claim from this sheet';
   $('sheetBody').innerHTML = '<div class="branch-sheet" data-component="BranchMissionSheet">' +
     '<section class="branch-sheet-hero" data-component="MissionCard">' +
       '<div class="branch-sheet-head mc-selected-halo" data-component="SelectedHalo" data-selected-surface="detail-sheet">' + mcGlyphSvg(focus === 'gate' ? 'build' : focus === 'proof' ? 'proof' : 'arc', focusState) +
         '<div><div class="arc">' + esc(focusLabel) + ' · ' + esc(branch.branchId || branch.productId || 'branch') + '</div><h2>' + esc(branch.name || branch.productId || 'Product Branch') + '</h2></div>' +
-        mcStateToken(focusState, focus === 'gate' ? 'Review gate' : focus === 'proof' ? 'Proof needed' : 'Selected') + '</div>' +
+        mcStateToken(focusState, focus === 'gate' ? 'Review gate' : focus === 'proof' ? 'Proof needed' : focus === 'loops' ? 'Loop control' : 'Selected') + '</div>' +
       '<div class="nar">' + esc(branchMissionFocusNarrative(branch, mission, gate, controls, focus, loopRows)) + '</div>' +
       '<div class="branch-sheet-glance">' +
         branchSheetGlance('Arc', branch.arcTitle || branch.arcId || 'arc missing') +
