@@ -122,6 +122,28 @@ test('quests story envelope beats carry normalized source fields', () => {
   assert.equal(beats[2].lane, 'paperclip');
 });
 
+test('quests visual envelope exposes branch loop library without changing quest ledger completion', () => {
+  const inputs = gatherQuestInputs({ root: process.cwd(), vaultRoot: join(process.cwd(), 'vault') }, 'cambium');
+  const ledgerWithoutBranches = questLedger({});
+  const ledgerWithBranches = questLedger({ branchStories: inputs.branchStories });
+  const visual = buildVisualEnvelope(
+    { root: process.cwd(), vaultRoot: join(process.cwd(), 'vault') },
+    'cambium',
+    { branchStories: inputs.branchStories },
+    ledgerWithBranches,
+    { source: 'test', derivedAt: '2026-07-05T00:00:00.000Z' },
+  );
+
+  assert.equal(ledgerWithBranches.completed, ledgerWithoutBranches.completed);
+  assert.equal(visual.branchLoops.source, 'product-branch-packets@v1');
+  assert.equal(visual.branchLoops.total, 4);
+  assert.equal(visual.branchLoops.green, 1);
+  assert.equal(visual.branchLoops.yellow, 2);
+  assert.equal(visual.branchLoops.red, 1);
+  assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'iverif-claim-proof-loop' && row.runMode === 'read-only'));
+  assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'snow-gloves-os-approval-loop' && row.runMode === 'never-alone'));
+});
+
 test('quests priority-audit reports missing source without writing policy authority', () => {
   const ctx = tmpCtx();
 
