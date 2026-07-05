@@ -78,3 +78,18 @@ Evidence from coverage runs:
 - `Select exactly one remediation` passes the one-change-rule check when the rest of the row remains valid
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 3
+
+Added a targeted request/decision second-action guard so decision-request batching is rejected only when it is appended as a second action.
+
+What changed:
+- Rejected added-action phrasing like `then request`, `also request`, `and request`, `then decide`, `also decide`, `and decide`, `then approve`, `also approve`, `and approve`
+- Rejected added-action `request one decision` and `one decision request` when they follow an `exactly one` rule
+- Kept standalone `Select exactly one decision request.` valid
+
+Evidence from coverage runs:
+- `Select exactly one remediation, then request one decision` fails: `Loop Control Inputs row 1 one_change_rule must not suggest batching`
+- `Select exactly one decision request.` passes when the rest of the row is valid
+- `npm run validate:product-branches`: passed
+- `npm test`: passed

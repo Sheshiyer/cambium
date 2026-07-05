@@ -214,6 +214,7 @@ const LOOP_ONE_CHANGE_SECOND_ACTION_PATTERNS = [
   /\bthen create\b/i,
   /\bthen return\b/i,
   /\bthen run\b/i,
+  /(?:[,;]\s*|\b(?:and|then|also|plus)\s+)(?:request one decision|one decision request|request|decide|approve)\b/i,
   /\bmultiple\b/i,
   /\bseveral\b/i,
   /\bbatch\b/i,
