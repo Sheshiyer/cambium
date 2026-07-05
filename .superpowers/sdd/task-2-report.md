@@ -213,3 +213,22 @@ Evidence from coverage runs:
 - `node --test scripts/validate-product-branch-packets.test.mjs`: passed
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 11
+
+Tightened the recording guardrails and relaxed the selected-clause grammar so valid labels can pass.
+
+What changed:
+- Recording guardrails now require `.operator/branch-loops/` for `and write only`, `and document the finding in`, and `and record the finding in`
+- Selected-clause checks now reject second-action connectors only when they introduce action/request verbs, not when they appear in ordinary labels like `pricing and packaging remediation` or `R&D fix`
+- Kept explicit comma enumeration shapes passing and kept the existing packet rows green
+
+Evidence from coverage runs:
+- `Select exactly one remediation and record the finding in docs/review.md.` fails
+- `Select exactly one remediation and document the finding in docs/review.md.` fails
+- `Select exactly one pricing and packaging remediation.` passes
+- `Select exactly one R&D fix.` passes
+- Current packet rows still pass
+- `node --test scripts/validate-product-branch-packets.test.mjs`: passed
+- `npm run validate:product-branches`: passed
+- `npm test`: passed

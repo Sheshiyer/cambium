@@ -118,6 +118,16 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
       message: /must not suggest batching/
     },
     {
+      label: 'recording guardrail bad path',
+      rule: 'Select exactly one remediation and record the finding in docs/review.md.',
+      message: /must not suggest batching/
+    },
+    {
+      label: 'documenting guardrail bad path',
+      rule: 'Select exactly one remediation and document the finding in docs/review.md.',
+      message: /must not suggest batching/
+    },
+    {
       label: 'decision request batching',
       rule: 'Select exactly one remediation, then request one decision.',
       message: /must not suggest batching/
@@ -191,4 +201,16 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
   });
   const recordPassResult = runValidator(recordPassPacketDir);
   assert.equal(recordPassResult.status, 0, recordPassResult.stderr);
+
+  const pricingPassPacketDir = withTempDocs((packetFile) => {
+    replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one pricing and packaging remediation.');
+  });
+  const pricingPassResult = runValidator(pricingPassPacketDir);
+  assert.equal(pricingPassResult.status, 0, pricingPassResult.stderr);
+
+  const rdPassPacketDir = withTempDocs((packetFile) => {
+    replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one R&D fix.');
+  });
+  const rdPassResult = runValidator(rdPassPacketDir);
+  assert.equal(rdPassResult.status, 0, rdPassResult.stderr);
 });

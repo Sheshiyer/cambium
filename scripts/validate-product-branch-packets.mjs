@@ -201,6 +201,28 @@ const LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES = [
   'and document the finding in',
   'and record the finding in'
 ];
+const LOOP_ONE_CHANGE_RECORDING_GUARDRAIL_PREFIXES = [
+  'and write only',
+  'and document the finding in',
+  'and record the finding in'
+];
+const LOOP_ONE_CHANGE_SECOND_ACTION_WORDS = [
+  'request',
+  'file',
+  'submit',
+  'approve',
+  'decide',
+  'escalate',
+  'select',
+  'choose',
+  'record',
+  'write',
+  'draft',
+  'create',
+  'return',
+  'run',
+  'one'
+];
 
 function countExactPhrase(value, phrase) {
   return (value.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
@@ -220,6 +242,11 @@ function isExplicitEnumerationClause(selectedClause) {
   }
 
   return /^of\s+[^,]+(?:,\s*[^,]+)*\s*,?\s*or\s+[^,]+$/i.test(selectedClause);
+}
+
+function matchesSecondActionPattern(value) {
+  const secondActionAlternation = LOOP_ONE_CHANGE_SECOND_ACTION_WORDS.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  return new RegExp(`(?:\\band\\s+(?:${secondActionAlternation})\\b|[&+]\\s*(?:${secondActionAlternation})\\b|\\/\\s*(?:${secondActionAlternation})\\b)`, 'i').test(value);
 }
 
 function validateGuardrailClause(guardrailClause, rowLabel) {
@@ -245,6 +272,10 @@ function validateGuardrailClause(guardrailClause, rowLabel) {
   if (/\band\b/i.test(guardrailBody)) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
+
+  if (LOOP_ONE_CHANGE_RECORDING_GUARDRAIL_PREFIXES.includes(guardrailPrefix) && !guardrailClause.includes('.operator/branch-loops/')) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
 }
 
 function validateOneChangeRule(oneChangeRule, rowLabel) {
@@ -259,14 +290,6 @@ function validateOneChangeRule(oneChangeRule, rowLabel) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 
-  if (/[&+]/.test(remainder)) {
-    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-  }
-
-  if (/\/\s*(?:request|file|submit|approve|decide|escalate|select|choose|record|write|draft|create|return|run)\b/i.test(remainder)) {
-    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-  }
-
   if (/\b(?:then|also|plus)\b/i.test(remainder)) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
@@ -275,30 +298,20 @@ function validateOneChangeRule(oneChangeRule, rowLabel) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 
-  const andCount = countWholeWord(remainder, 'and');
   const guardrailPattern = new RegExp(
     `\\s(${LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES.map((prefix) => prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`,
     'i'
   );
   const guardrailMatch = remainder.match(guardrailPattern);
 
-  if (andCount > 1) {
-    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-  }
-
-  if (andCount === 1) {
-    if (!guardrailMatch) {
-      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-    }
-    if (guardrailMatch.index !== remainder.indexOf(guardrailMatch[0])) {
-      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
-    }
-  }
-
   const selectedClause = guardrailMatch ? remainder.slice(0, guardrailMatch.index).trim() : remainder.trim();
   const guardrailClause = guardrailMatch ? remainder.slice(guardrailMatch.index + 1).trimStart() : '';
 
   if (!selectedClause) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (matchesSecondActionPattern(selectedClause)) {
     throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
   }
 
