@@ -2523,11 +2523,18 @@ function mcBranchControlLoops(branch){
   if (controlLoops.length) return controlLoops;
   return mcList(branch && branch.loops);
 }
+function mcLoopCadence(row){
+  const cadence = mcText(row && row.cadence, 'manual review');
+  if (/\\b(scheduled|autonomous|unattended|cron|automatic|auto-run)\\b/i.test(cadence)) {
+    return mcLoopRunMode(row) === 'read-only' ? 'manual review' : 'manual approval required';
+  }
+  return cadence;
+}
 function mcLoopViewRow(row){
   return {
     ...row,
     boundaryColor:mcText(row && row.boundaryColor, 'yellow'),
-    cadence:mcText(row && row.cadence, 'manual review'),
+    cadence:mcLoopCadence(row),
     runMode:mcLoopRunMode(row),
     title:mcText(row && row.title, mcText(row && row.loopId, 'Loop control')),
     stopRule:mcText(row && row.stopRule, 'stop rule missing'),

@@ -3398,7 +3398,7 @@ test('page · Mission Control sanitizes unsafe top-level loop run modes to manua
           loopId: 'fitcheck-launch-gate-loop',
           branchId: 'fitcheck',
           title: 'Fitcheck launch gate loop',
-          cadence: 'manual weekly',
+          cadence: 'scheduled weekly',
           boundaryColor: 'yellow',
           runMode: 'scheduled',
           stopRule: 'Stop after 3 rounds.',
@@ -3407,7 +3407,7 @@ test('page · Mission Control sanitizes unsafe top-level loop run modes to manua
           loopId: 'fitcheck-proof-loop',
           branchId: 'fitcheck',
           title: 'Fitcheck proof loop',
-          cadence: 'manual daily',
+          cadence: 'autonomous hourly',
           boundaryColor: 'red',
           runMode: 'autonomous',
           stopRule: 'Stop after proof drift.',
@@ -3439,7 +3439,12 @@ test('page · Mission Control sanitizes unsafe top-level loop run modes to manua
 
   assert.match(html, /Fitcheck launch gate loop · approval-required/);
   assert.match(html, /Fitcheck proof loop · never-alone/);
-  assert.doesNotMatch(html, /scheduled|autonomous/i);
+  assert.match(html, /manual (approval required|review)/);
+  assert.doesNotMatch(html, /scheduled|autonomous|unattended/i);
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'loops');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.doesNotMatch(sheet, /scheduled|autonomous|unattended/i);
 });
 
 test('page · Mission Control enriches partial visual loop rows with branch control metadata', async () => {

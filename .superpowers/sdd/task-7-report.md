@@ -140,3 +140,26 @@ Result:
    - PASS
 3. `npm test`
    - PASS
+
+## Critical Review Fix Report Addendum
+
+### Critical Review Fixes Applied
+
+- Added founder-visible cadence sanitization in `mcLoopViewRow()` through a dedicated `mcLoopCadence()` helper.
+- Unsafe cadence terms such as `scheduled`, `autonomous`, `unattended`, `cron`, `automatic`, and `auto-run` now collapse to manual-first copy before rendering.
+- Safe manual cadence text such as `manual weekly` remains unchanged.
+- The sanitization applies at the normalized loop row layer, so the Mission Control loop CTA cannot surface unattended scheduling language even when upstream visual rows contain it.
+
+### Critical Review Coverage Added
+
+- Updated the unsafe top-level loop regression so the visual rows carry unsafe cadence values (`scheduled weekly`, `autonomous hourly`) alongside unsafe run modes.
+- Verified the rendered Mission Control UI shows manual-first cadence copy and does not emit `scheduled`, `autonomous`, or `unattended`.
+
+### Critical Review Verification
+
+1. `node --test workers/quests/src/handler.test.ts --test-name-pattern "branch loop controls"`
+   - PASS
+2. `node --test workers/quests/src/handler.test.ts --test-name-pattern "surface contract|Mission scene renders branch arcs|builds Mission Control view from branchStories"`
+   - PASS
+3. `npm test`
+   - PASS
