@@ -178,23 +178,50 @@ function normalizeControlValue(value) {
   return value.trim().replace(/^`|`$/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 }
 
+const LOOP_REQUIRED_COLUMNS = [
+  'loop_id',
+  'title',
+  'cadence',
+  'objective',
+  'metric',
+  'boundary_color',
+  'one_change_rule',
+  'state_file',
+  'stop_rule',
+  'model_route',
+  'proof_required'
+];
+
 const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
+const LOOP_ONE_CHANGE_SIGNAL_WORDS = ['change', 'decision', 'gate', 'claim', 'check', 'action', 'proof', 'approval', 'assignment', 'request'];
+const LOOP_ONE_CHANGE_BATCHING_PHRASES = ['multiple', 'several', 'batch', 'all gates'];
 
 function validateLoopControlRows({ source, packetFile }) {
   const { rows } = parseSectionTable(source, 'Loop Control Inputs');
   rows.forEach((row, index) => {
     const rowLabel = `${packetFile}: Loop Control Inputs row ${index + 1}`;
-    const color = normalizeControlValue(row.boundary_color || '');
-    if (!LOOP_BOUNDARY_COLORS.has(color)) {
-      throw new Error(`${rowLabel} has invalid boundary_color "${row.boundary_color}"`);
+    const missingFields = LOOP_REQUIRED_COLUMNS.filter((field) => String(row[field] || '').trim() === '');
+    if (missingFields.length) {
+      throw new Error(`${rowLabel} missing required loop field(s): ${missingFields.join(', ')}`);
+    }
+
+    const boundaryColor = String(row.boundary_color || '').trim();
+    if (!LOOP_BOUNDARY_COLORS.has(boundaryColor)) {
+      throw new Error(`${rowLabel} has invalid boundary_color "${boundaryColor}"`);
     }
     const stateFile = String(row.state_file || '').trim();
     if (!stateFile.startsWith('.operator/branch-loops/') || stateFile.includes('..') || stateFile.includes('\\')) {
       throw new Error(`${rowLabel} has unsafe state_file "${stateFile}"`);
     }
-    const oneChangeRule = String(row.one_change_rule || '').toLowerCase();
+    const oneChangeRule = String(row.one_change_rule || '').trim().toLowerCase();
     if (!oneChangeRule.includes('exactly one')) {
       throw new Error(`${rowLabel} one_change_rule must include "exactly one"`);
+    }
+    if (!LOOP_ONE_CHANGE_SIGNAL_WORDS.some((word) => oneChangeRule.includes(word))) {
+      throw new Error(`${rowLabel} one_change_rule must mention one change, decision, gate, claim, check, action, proof, approval, assignment, or request`);
+    }
+    if (LOOP_ONE_CHANGE_BATCHING_PHRASES.some((phrase) => oneChangeRule.includes(phrase))) {
+      throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
     }
     const stopRule = String(row.stop_rule || '').trim();
     if (!/stop/i.test(stopRule)) {

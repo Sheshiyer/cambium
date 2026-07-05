@@ -47,3 +47,19 @@ After the change:
 ## Concerns
 
 None at this time.
+
+## Review Fix Addendum
+
+Implemented the review findings by tightening `validateLoopControlRows()` in `scripts/validate-product-branch-packets.mjs`.
+
+What changed:
+- Added a required-field check for every loop row across `loop_id`, `title`, `cadence`, `objective`, `metric`, `boundary_color`, `one_change_rule`, `state_file`, `stop_rule`, `model_route`, and `proof_required`
+- Switched `boundary_color` validation to the trimmed raw literal, accepting only exact lowercase `green`, `yellow`, or `red`
+- Strengthened `one_change_rule` to require `exactly one`, one of the task-specified action words, and no batching language such as `multiple`, `several`, `batch`, or `all gates`
+
+Evidence from coverage runs:
+- Blank required loop field fails: `Loop Control Inputs row 1 missing required loop field(s): proof_required`
+- `Green` boundary fails: `Loop Control Inputs row 1 has invalid boundary_color "Green"`
+- Batching-style one_change_rule fails: `Loop Control Inputs row 1 one_change_rule must not suggest batching`
+- `npm run validate:product-branches`: passed
+- `npm test`: passed
