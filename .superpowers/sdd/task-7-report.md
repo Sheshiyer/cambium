@@ -118,3 +118,25 @@ Result:
    - PASS
 3. `npm test`
    - PASS (`654` passed, `0` failed)
+
+## Final Review Fix Report Addendum
+
+### Final Review Fixes Applied
+
+- Reworked `mcLoopRows()` so loop rows are merged by `loopId` instead of treating `visual.branchLoops` as a full replacement.
+- `visual.branchLoops` values now win only for fields they actually provide; missing or empty values are filled from `branch.controls.loops`, then legacy `branch.loops` through the existing fallback path.
+- Preserved founder-safe run-mode sanitization so only `read-only`, `approval-required`, and `never-alone` can render; unsafe values still derive from `boundaryColor`.
+
+### Final Review Coverage Added
+
+- Added a regression test where a partial `visual.branchLoops.rows` entry shares a `loopId` with richer `branch.controls.loops` metadata.
+- Verified the Mission Control card and loop sheet render the enriched title, cadence, and stop rule without emitting `stop rule missing`, `manual review`, `undefined`, or unsafe scheduling language.
+
+### Final Review Verification
+
+1. `node --test workers/quests/src/handler.test.ts --test-name-pattern "branch loop controls"`
+   - PASS
+2. `node --test workers/quests/src/handler.test.ts --test-name-pattern "surface contract|Mission scene renders branch arcs|builds Mission Control view from branchStories"`
+   - PASS
+3. `npm test`
+   - PASS

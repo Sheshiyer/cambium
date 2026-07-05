@@ -2533,12 +2533,31 @@ function mcLoopViewRow(row){
     stopRule:mcText(row && row.stopRule, 'stop rule missing'),
   };
 }
+function mcLoopRowMerge(primary, fallback){
+  const merged = { ...(fallback || {}) };
+  const source = primary || {};
+  Object.keys(source).forEach(key => {
+    const value = source[key];
+    if (value == null) return;
+    if (typeof value === 'string' && value.trim() === '') return;
+    merged[key] = value;
+  });
+  return merged;
+}
 function mcLoopRows(env, branch, branchId){
-  const visualRows = branchLoopRows(env, branchId).map(mcLoopViewRow);
-  const fallbackRows = mcBranchControlLoops(branch)
-    .filter(loop => !visualRows.some(row => row.loopId && loop && row.loopId === loop.loopId))
+  const visualRows = branchLoopRows(env, branchId);
+  const fallbackRows = mcBranchControlLoops(branch);
+  const usedFallback = new Set();
+  const mergedVisualRows = visualRows.map(row => {
+    const loopId = mcText(row && row.loopId, '');
+    const fallbackIndex = loopId ? fallbackRows.findIndex(loop => mcText(loop && loop.loopId, '') === loopId) : -1;
+    if (fallbackIndex >= 0) usedFallback.add(fallbackIndex);
+    return mcLoopViewRow(mcLoopRowMerge(row, fallbackIndex >= 0 ? fallbackRows[fallbackIndex] : null));
+  });
+  const remainingFallbackRows = fallbackRows
+    .filter((_, index) => !usedFallback.has(index))
     .map(mcLoopViewRow);
-  return visualRows.concat(fallbackRows);
+  return mergedVisualRows.concat(remainingFallbackRows);
 }
 function mcLoopFocusNarrative(rows){
   return rows.length ? rows.map(loop => (loop.title || loop.loopId) + ' · ' + (loop.boundaryColor || 'yellow') + ' · ' + (loop.stopRule || 'stop rule missing')).join(' / ') : 'loop controls missing';
