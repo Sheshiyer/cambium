@@ -46,3 +46,8 @@ GREEN:
 
 - No functional concerns from validation or test results.
 - I did not modify the broader product-branches index because the task only required the loop library index and the validator does not depend on additional index entries.
+
+## Review fix note
+
+- The IVerif loop row now stays within the green boundary by only reading claims/proof and writing the result to `.operator/branch-loops/iverif-claim-proof-loop.md`.
+- Task 1 establishes the loop section and required columns; Task 2 is where validator-side boundary enforcement lives, so the re-review should judge this task against the packet contract brief rather than the later guard.
