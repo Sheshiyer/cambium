@@ -1,6 +1,7 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: iverif
+branch_kind: product
 name: IVerif
 role: Compliance and proof product candidate
 promotion_state: proof-only
@@ -8,7 +9,7 @@ current_gate: Claim/proof separation before automation
 packet_owner: cambium
 ---
 
-# IVerif Product Branch Packet
+# IVerif Branch Packet
 
 IVerif is a proof-only Cambium product candidate for AI document validation in EU energy subsidy workflows. Current evidence supports a brand/wiki/research packet, not live product readiness, compliance readiness, or branch promotion readiness.
 
@@ -17,6 +18,7 @@ IVerif is a proof-only Cambium product candidate for AI document validation in E
 | Field | Value |
 | --- | --- |
 | product_id | `iverif` |
+| branch_kind | `product` |
 | one_sentence_seed | AI document validation for EU energy subsidy operators, focused on catching dossier errors before subsidy submission. |
 | founder_intent | Preserve IVerif as a proof-only candidate until public claims, compliance evidence, and route/build proof are separated and verified. |
 | target_customer | Energy subsidy operators, compliance teams, and regulatory auditors handling CEE, BEG, ECO4, and related EU subsidy dossiers. |

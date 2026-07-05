@@ -1,11 +1,12 @@
 {
   "schema_id": "cambium.product_branch_packet.v1",
   "version": 1,
-  "description": "Machine-checkable contract for Cambium product-branch proof packets.",
+  "description": "Machine-checkable contract for Cambium branch proof packets across product, client, and internal-service branches.",
   "packet_dir": "docs/plans/product-branches",
   "index_file": "docs/plans/product-branches/index.md",
   "required_index_columns": [
     "product_id",
+    "branch_kind",
     "name",
     "role",
     "promotion_state",
@@ -15,6 +16,7 @@
   "required_metadata_fields": [
     "schema",
     "product_id",
+    "branch_kind",
     "name",
     "role",
     "promotion_state",
@@ -26,6 +28,11 @@
     "supervised-branch",
     "autonomous-branch",
     "organ-service"
+  ],
+  "branch_kinds": [
+    "product",
+    "client",
+    "internal-service"
   ],
   "proof_statuses": [
     "verified",
@@ -140,22 +147,31 @@
       ]
     }
   ],
-  "required_products": [
+  "required_branches": [
     {
       "product_id": "fitcheck",
+      "branch_kind": "product",
       "packet": "fitcheck.md"
     },
     {
       "product_id": "vantyx",
+      "branch_kind": "product",
       "packet": "vantyx.md"
     },
     {
       "product_id": "snow-gloves-os",
+      "branch_kind": "internal-service",
       "packet": "snow-gloves-os.md"
     },
     {
       "product_id": "iverif",
+      "branch_kind": "product",
       "packet": "iverif.md"
+    },
+    {
+      "product_id": "client-delivery",
+      "branch_kind": "client",
+      "packet": "client-delivery.md"
     }
   ],
   "promotion_ladder_phrase": "proof-only -> supervised branch -> autonomous branch"

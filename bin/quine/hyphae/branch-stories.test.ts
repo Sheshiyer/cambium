@@ -5,13 +5,14 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { loadBranchStories } from './branch-stories.ts';
 
-test('loads branch stories from product packets without flattening controls', () => {
+test('loads branch stories from branch packets without flattening controls', () => {
   const stories = loadBranchStories({ root: process.cwd() }, 'cambium');
   const fitcheck = stories.find((story) => story.productId === 'fitcheck');
 
   assert.ok(fitcheck);
   assert.equal(fitcheck.promotion.state, 'supervised-branch');
   assert.equal(fitcheck.branchId, 'fitcheck');
+  assert.equal(fitcheck.branchKind, 'product');
   assert.equal(fitcheck.arcId, 'fitcheck-supervised-launch-hardening');
   assert.ok(fitcheck.controls.organRouting.length);
   assert.ok(fitcheck.controls.variableContractPayloads.length);
@@ -25,7 +26,7 @@ test('loads branch stories from product packets without flattening controls', ()
   assert.match(fitcheck.controls.autonomyBoundary, /founder approval/i);
 });
 
-test('loads branch loop controls from product packets', () => {
+test('loads branch loop controls from branch packets', () => {
   const stories = loadBranchStories({ root: process.cwd() }, 'cambium');
   const fitcheck = stories.find((story) => story.productId === 'fitcheck');
 
@@ -41,6 +42,12 @@ test('loads branch loop controls from product packets', () => {
   const vantyx = stories.find((story) => story.productId === 'vantyx');
   assert.ok(vantyx);
   assert.match(vantyx.loops[0].proofRequired, /`new-client` receipt/);
+
+  const clientDelivery = stories.find((story) => story.productId === 'client-delivery');
+  assert.ok(clientDelivery);
+  assert.equal(clientDelivery.branchKind, 'client');
+  assert.equal(clientDelivery.loops[0].loopId, 'client-delivery-handoff-loop');
+  assert.equal(clientDelivery.loops[0].boundaryColor, 'yellow');
 });
 
 test('records blocked packet gaps without promoting weak evidence', () => {
@@ -60,9 +67,9 @@ test('fails soft when an indexed packet is missing required control sections', (
   writeFileSync(join(packetDir, 'index.md'), [
     '# Test Product Branch Packets',
     '',
-    '| product_id | name | role | promotion_state | current_gate | packet |',
-    '| --- | --- | --- | --- | --- | --- |',
-    '| demo | Demo | Proof candidate | proof-only | Missing controls | demo.md |',
+    '| product_id | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| demo | product | Demo | Proof candidate | proof-only | Missing controls | demo.md |',
     '',
   ].join('\n'));
   writeFileSync(join(packetDir, 'demo.md'), [
@@ -100,9 +107,9 @@ test('fails soft when loop control inputs section is missing', () => {
   writeFileSync(join(packetDir, 'index.md'), [
     '# Test Product Branch Packets',
     '',
-    '| product_id | name | role | promotion_state | current_gate | packet |',
-    '| --- | --- | --- | --- | --- | --- |',
-    '| demo | Demo | Proof candidate | proof-only | Missing loops | demo.md |',
+    '| product_id | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| demo | product | Demo | Proof candidate | proof-only | Missing loops | demo.md |',
     '',
   ].join('\n'));
   writeFileSync(join(packetDir, 'demo.md'), [
@@ -133,13 +140,13 @@ test('fails soft when loop control inputs section is missing', () => {
     '## Mission Control Inputs',
     '',
     '| mission_id | title | type | owner | gate | proof_required | dispatch_target |',
-    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
     '| demo-mission | Demo mission | proof | operator | Gate 1 | Evidence | review |',
     '',
     '## KPI Control Inputs',
     '',
     '| kpi_id | label | survival | better_than_survival | source | current_state |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
     '| demo-kpi | Demo KPI | 1 | 2 | ledger | pending |',
     '',
     '## Policy / Permission Inputs',
@@ -176,9 +183,9 @@ test('fails closed when loop control inputs section contains prose instead of a 
   writeFileSync(join(packetDir, 'index.md'), [
     '# Test Product Branch Packets',
     '',
-    '| product_id | name | role | promotion_state | current_gate | packet |',
-    '| --- | --- | --- | --- | --- | --- |',
-    '| demo | Demo | Proof candidate | proof-only | Prose loops | demo.md |',
+    '| product_id | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| demo | product | Demo | Proof candidate | proof-only | Prose loops | demo.md |',
     '',
   ].join('\n'));
   writeFileSync(join(packetDir, 'demo.md'), [
@@ -213,13 +220,13 @@ test('fails closed when loop control inputs section contains prose instead of a 
     '## Mission Control Inputs',
     '',
     '| mission_id | title | type | owner | gate | proof_required | dispatch_target |',
-    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
     '| demo-mission | Demo mission | proof | operator | Gate 1 | Evidence | review |',
     '',
     '## KPI Control Inputs',
     '',
     '| kpi_id | label | survival | better_than_survival | source | current_state |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
     '| demo-kpi | Demo KPI | 1 | 2 | ledger | pending |',
     '',
     '## Policy / Permission Inputs',
@@ -256,9 +263,9 @@ test('records malformed table gaps when a control section cannot be parsed', () 
   writeFileSync(join(packetDir, 'index.md'), [
     '# Test Product Branch Packets',
     '',
-    '| product_id | name | role | promotion_state | current_gate | packet |',
-    '| --- | --- | --- | --- | --- | --- |',
-    '| demo | Demo | Proof candidate | proof-only | Table shape | demo.md |',
+    '| product_id | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| demo | product | Demo | Proof candidate | proof-only | Table shape | demo.md |',
     '',
   ].join('\n'));
   writeFileSync(join(packetDir, 'demo.md'), [
@@ -301,9 +308,9 @@ test('records malformed table gaps when loop control inputs cannot be parsed', (
   writeFileSync(join(packetDir, 'index.md'), [
     '# Test Product Branch Packets',
     '',
-    '| product_id | name | role | promotion_state | current_gate | packet |',
-    '| --- | --- | --- | --- | --- | --- |',
-    '| demo | Demo | Proof candidate | proof-only | Malformed loops | demo.md |',
+    '| product_id | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| demo | product | Demo | Proof candidate | proof-only | Malformed loops | demo.md |',
     '',
   ].join('\n'));
   writeFileSync(join(packetDir, 'demo.md'), [
@@ -339,13 +346,13 @@ test('records malformed table gaps when loop control inputs cannot be parsed', (
     '## Mission Control Inputs',
     '',
     '| mission_id | title | type | owner | gate | proof_required | dispatch_target |',
-    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
     '| demo-mission | Demo mission | proof | operator | Gate 1 | Evidence | review |',
     '',
     '## KPI Control Inputs',
     '',
     '| kpi_id | label | survival | better_than_survival | source | current_state |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
     '| demo-kpi | Demo KPI | 1 | 2 | ledger | pending |',
     '',
     '## Policy / Permission Inputs',
@@ -382,14 +389,14 @@ test('rejects unsafe packet paths at runtime before reading packet files', () =>
   writeFileSync(join(packetDir, 'index.md'), [
     '# Test Product Branch Packets',
     '',
-    '| product_id | name | role | promotion_state | current_gate | packet |',
-    '| --- | --- | --- | --- | --- | --- |',
-    '| demo | Demo | Proof candidate | proof-only | Unsafe path | ../outside.md |',
+    '| product_id | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| demo | product | Demo | Proof candidate | proof-only | Unsafe path | ../outside.md |',
     '',
   ].join('\n'));
 
   assert.throws(
     () => loadBranchStories({ root }, 'cambium'),
-    /unsafe product branch packet path for demo/,
+    /unsafe branch packet path for demo/,
   );
 });

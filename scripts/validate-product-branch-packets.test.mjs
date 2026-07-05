@@ -40,10 +40,10 @@ function replaceFitcheck(packetFile, from, to) {
   writeFileSync(packetFile, next);
 }
 
-test('current product packets validate cleanly', () => {
+test('current branch packets validate cleanly', () => {
   const result = runValidator(PACKET_DIR);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /validated 4 product branch packet\(s\)/);
+  assert.match(result.stdout, /validated 5 branch packet\(s\)/);
 });
 
 test('boundary colors, required loop cells, and state files fail closed', () => {

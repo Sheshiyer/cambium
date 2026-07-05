@@ -1,23 +1,23 @@
 ---
-task: "Implement Cambium product branch packet system"
+task: "Implement Cambium ecosystem branch packet system"
 slug: 20260629-024014_cambium-product-branch-packets
 project: cambium
 effort: E3
 effort_source: classifier
 phase: complete
-progress: 34/34
+progress: 40/40
 mode: interactive
 started: 2026-06-29T02:40:14Z
-updated: 2026-06-29T03:01:15Z
+updated: 2026-07-05T12:28:23Z
 ---
 
 ## Problem
 
-Cambium has a proven Fitcheck branch packet, but the packet shape is not yet reusable or machine-checkable. Without a shared schema, index, and local validation command, future products can drift into prose-only status notes, overclaim autonomy, or skip proof boundaries.
+Cambium has a proven Fitcheck branch packet, but the packet shape is not yet reusable or machine-checkable across the full ecosystem. Without a shared schema, index, and local validation command, future products, client delivery streams, or internal services can drift into prose-only status notes, overclaim autonomy, or skip proof boundaries.
 
 ## Vision
 
-Each standalone product can enter Cambium as an inspectable branch packet with the same operational spine: seed, organ routing, variable contract payload, services, evidence, gates, quest queue, and promotion rule. The packet layer should make the next product review feel boring in the best way: a validator says the shell is sound, and the human can focus on whether the evidence is strong.
+Each standalone product, client delivery stream, or internal service can enter Cambium as an inspectable branch packet with the same operational spine: seed, organ routing, variable contract payload, services, evidence, gates, quest queue, and promotion rule. The packet layer should make the next branch review feel boring in the best way: a validator says the shell is sound, and the human can focus on whether the evidence is strong.
 
 ## Out of Scope
 
@@ -41,7 +41,7 @@ Each standalone product can enter Cambium as an inspectable branch packet with t
 
 ## Goal
 
-Ship the first reusable Cambium product-branch proof packet system: a schema, local validator, product index, normalized Fitcheck packet, and initial Vantyx, Snow Gloves OS, and IVerif packets. The system is done when `npm run validate:product-branches` passes locally and each packet keeps promotion claims bound to inspected evidence.
+Ship the first reusable Cambium branch proof packet system: a schema, local validator, branch index, normalized Fitcheck packet, initial Vantyx, Snow Gloves OS, and IVerif packets, and a client delivery branch packet. The system is done when `npm run validate:product-branches` passes locally and each packet keeps promotion claims bound to inspected evidence.
 
 ## Criteria
 
@@ -79,6 +79,12 @@ Ship the first reusable Cambium product-branch proof packet system: a schema, lo
 - [x] ISC-32: `npm run validate` exits 0 after packet changes.
 - [x] ISC-33: Anti: no packet claims autonomous branch readiness without live customer proof and app-action portability.
 - [x] ISC-34: Anti: no packet introduces secrets, provider keys, or runtime credential values.
+- [x] ISC-35: `schema.json` declares the required `branch_kind` field and allowed branch kinds.
+- [x] ISC-36: `docs/plans/product-branches/index.md` includes `client-delivery` with `branch_kind` `client`.
+- [x] ISC-37: `docs/plans/product-branches/client-delivery.md` exists.
+- [x] ISC-38: Runtime branch stories expose `branchKind` without removing `productId` compatibility.
+- [x] ISC-39: The branch loop library includes five loops with the client loop as yellow approval-required.
+- [x] ISC-40: Anti: the client branch packet does not expose private client identifiers, contacts, secrets, pricing, or contracts.
 
 ## Test Strategy
 
@@ -118,6 +124,12 @@ Ship the first reusable Cambium product-branch proof packet system: a schema, lo
 | ISC-32 | command | existing Cambium validation | exit 0 | `npm run validate` |
 | ISC-33 | anti-probe | autonomous claims absent | no forbidden ready claim | `rg` |
 | ISC-34 | anti-probe | secrets absent in packet files | no credential patterns | `rg` |
+| ISC-35 | content | branch_kind schema fields | all present | `rg` |
+| ISC-36 | content | client delivery index row | row present | `rg` |
+| ISC-37 | file | client delivery packet exists | exists | `test -f` |
+| ISC-38 | test | branch story parser keeps branchKind and productId | pass | `node --test bin/quine/hyphae/branch-stories.test.ts` |
+| ISC-39 | command | loop library counts five loops and client yellow | pass | `npm run branch-loops:check` |
+| ISC-40 | anti-probe | client packet privacy exclusions | no sensitive values | `rg` |
 
 ## Features
 
@@ -128,12 +140,14 @@ Ship the first reusable Cambium product-branch proof packet system: a schema, lo
 | PacketIndex | List product ids, roles, promotion states, gates, and packet paths. | ISC-14, ISC-15, ISC-16, ISC-17, ISC-18 | PacketSchema | true |
 | FitcheckPacket | Normalize the existing Fitcheck branch packet without replacing the source packet. | ISC-19, ISC-20, ISC-21, ISC-29, ISC-30, ISC-33, ISC-34 | PacketSchema | true |
 | NewProductPackets | Add Vantyx, Snow Gloves OS, and IVerif packets with bounded claims. | ISC-22, ISC-23, ISC-24, ISC-25, ISC-26, ISC-27, ISC-29, ISC-30, ISC-33, ISC-34 | PacketSchema | true |
+| BranchKindAndClientPacket | Add explicit branch kinds and client delivery as a supervised branch packet. | ISC-35, ISC-36, ISC-37, ISC-38, ISC-39, ISC-40 | PacketSchema, PacketValidator | true |
 | VerificationPass | Run focused packet validation and relevant Cambium validation. | ISC-31, ISC-32 | PacketValidator, PacketIndex, FitcheckPacket, NewProductPackets | false |
 
 ## Decisions
 
 - 2026-06-29 02:42: Advisor gate attempted before implementation, but `bun ~/.claude/PAI/TOOLS/Inference.ts --mode advisor --auto-state` failed with `401 Invalid authentication credentials`; this is not treated as a valid sign-off.
 - 2026-06-29 02:42: Packet validation will use Markdown frontmatter plus required headings so packet files stay human-readable while the validator remains dependency-free and fail-closed.
+- 2026-07-05 12:28: Refined packet semantics from product-only to ecosystem branch packets. `product_id` stays as the stable slug for compatibility, while `branch_kind` separates product, client, and internal-service branches.
 
 ## Verification
 
@@ -144,11 +158,11 @@ Ship the first reusable Cambium product-branch proof packet system: a schema, lo
 - ISC-5: schema probe — `PASS required sections`.
 - ISC-6: file probe — `PASS validator exists`.
 - ISC-7: source probe — `PASS validator reads schema`.
-- ISC-8: negative validator probe — `missing-file: expected failure -> product branch packet validation failed: missing packet file for iverif`.
+- ISC-8: negative validator probe — `missing-file: expected failure -> branch packet validation failed: missing packet file for iverif`.
 - ISC-9: negative validator probe — `missing-frontmatter-field: expected failure -> ... missing metadata fields: packet_owner`.
 - ISC-10: negative validator probe — `bad-promotion-state: expected failure -> ... unknown promotion_state "autonomous-ready"`.
 - ISC-11: negative validator probe — `missing-section: expected failure -> ... missing sections: Gate Ledger`.
-- ISC-12: command probe — `validated 4 product branch packet(s) against cambium.product_branch_packet.v1`.
+- ISC-12: command probe — `validated 5 branch packet(s) against cambium.product_branch_packet.v1`.
 - ISC-13: package probe — `PASS package script`.
 - ISC-14: file probe — `PASS index exists`.
 - ISC-15: content probe — `PASS fitcheck row`.
@@ -167,11 +181,18 @@ Ship the first reusable Cambium product-branch proof packet system: a schema, lo
 - ISC-28: content and command probe — `PASS all required sections in packets` plus `npm run validate:product-branches`.
 - ISC-29: content probe — `PASS promotion ladder in packets`.
 - ISC-30: content probe — `PASS evidence status labels in packets`.
-- ISC-31: command probe — `npm run validate:product-branches` exited 0 with `validated 4 product branch packet(s)`.
+- ISC-31: command probe — `npm run validate:product-branches` exited 0 with `validated 5 branch packet(s)`.
 - ISC-32: command probe — `npm run validate` exited 0 with `registry + pipeline valid`.
 - ISC-33: anti-probe — `PASS no forbidden autonomy-ready claim`.
 - ISC-34: anti-probe — `PASS no credential values`.
+- ISC-35: content probe — `schema.json` requires `branch_kind` and declares `product`, `client`, and `internal-service`.
+- ISC-36: content probe — index row `client-delivery | client | Client Delivery`.
+- ISC-37: file probe — `PASS docs/plans/product-branches/client-delivery.md exists`.
+- ISC-38: focused test probe — `node --test ... branch-stories.test.ts ...` passed with client branch assertions.
+- ISC-39: command probe — `npm run branch-loops:check` exited 0 with `total=5 green=1 yellow=3 red=1` and `client-delivery-handoff-loop`.
+- ISC-40: anti-probe — client packet uses redacted proof language and no private client identifiers or secret values.
 - Full regression: command probe — `npm test` exited 0 with `tests 600`, `pass 600`, `fail 0`.
+- Full regression: command probe — `npm test` exited 0 with `tests 659`, `pass 659`, `fail 0`.
 
 ## Changelog
 
@@ -179,3 +200,7 @@ Ship the first reusable Cambium product-branch proof packet system: a schema, lo
   refuted by: read-only product-context inspection found the current Vantyx surface in `Panaroma-Webapp` with brand source in `brandmint-v2/brands/vantyx`.
   learned: product packets must record repo/source routing explicitly so branch promotion does not inherit stale or nearby workspace assumptions.
   criterion now: ISC-23 and the Vantyx packet require tenant proof as the next gate rather than assuming readiness from adjacent repo names.
+- 2026-07-05 | conjectured: branch packets represented new or existing product/productized surfaces.
+  refuted by: branch-loop planning needs client work to share the same proof, approval, and handoff contract.
+  learned: ecosystem branches need an explicit `branch_kind` so products, clients, and internal services can share the packet shape without semantic overclaim.
+  criterion now: ISC-35 through ISC-40 require `branch_kind`, a client delivery packet, parser propagation, loop-library proof, and client privacy boundaries.

@@ -1,6 +1,7 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: fitcheck
+branch_kind: product
 name: Fitcheck
 role: Supervised product branch
 promotion_state: supervised-branch
@@ -8,7 +9,7 @@ current_gate: Shopify Dodo privacy QA outreach and first merchant proof
 packet_owner: cambium
 ---
 
-# Fitcheck Product Branch Packet
+# Fitcheck Branch Packet
 
 Fitcheck is the first Cambium product branch packet normalized from the existing proof packet at `docs/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. This file is the reusable Cambium packet view; the dated packet remains the source evidence trail.
 
@@ -17,6 +18,7 @@ Fitcheck is the first Cambium product branch packet normalized from the existing
 | Field | Value |
 | --- | --- |
 | product_id | `fitcheck` |
+| branch_kind | `product` |
 | one_sentence_seed | Done-for-you AI virtual try-on launch service for Shopify fashion brands. |
 | founder_intent | Use the Thoughtseed growth engine to run Fitcheck as the first supervised product branch. |
 | target_customer | Shopify fashion brands that need shoppers to visualize fit before purchase. |

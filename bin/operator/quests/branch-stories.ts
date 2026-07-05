@@ -152,8 +152,11 @@ export interface BranchStoryGap {
   source: string;
 }
 
+export type BranchKind = 'product' | 'client' | 'internal-service';
+
 export interface BranchStoryArc {
   branchId: string;
+  branchKind: BranchKind;
   productId: string;
   name: string;
   role: string;

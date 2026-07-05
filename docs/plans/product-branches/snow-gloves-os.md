@@ -1,6 +1,7 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: snow-gloves-os
+branch_kind: internal-service
 name: Snow Gloves OS
 role: Will-organ service
 promotion_state: organ-service
@@ -8,7 +9,7 @@ current_gate: Service contract and GTM approval gate
 packet_owner: cambium
 ---
 
-# Snow Gloves OS Product Branch Packet
+# Snow Gloves OS Branch Packet
 
 Snow Gloves OS is represented in Cambium as a Will-organ service packet, not a standalone app autonomy packet. The inspected evidence supports a tenant-scoped operations service candidate with alpha/proof gates still open.
 
@@ -17,6 +18,7 @@ Snow Gloves OS is represented in Cambium as a Will-organ service packet, not a s
 | Field | Value |
 | --- | --- |
 | product_id | `snow-gloves-os` |
+| branch_kind | `internal-service` |
 | one_sentence_seed | Tenant-scoped business-operations layer that routes apps, knowledge, judgment, and orchestration through auditable approval-gated flows. |
 | founder_intent | Bind Snow Gloves OS into Cambium as the Will-organ service for tenant operations and GTM routines. |
 | target_customer | Internal operator/founder plus tenant businesses; inspected tenant surfaces include `tryambakam-noesis` and a provisioned `mathis` property-listing use case. |

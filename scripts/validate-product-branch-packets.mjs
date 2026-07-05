@@ -41,7 +41,7 @@ function usage() {
   return [
     'Usage: node scripts/validate-product-branch-packets.mjs [--schema path] [--packet-dir path] [--index path]',
     '',
-    'Validates Cambium product-branch packet Markdown files against schema.json.'
+    'Validates Cambium branch packet Markdown files against schema.json.'
   ].join('\n');
 }
 
@@ -73,7 +73,7 @@ function isSeparatorRow(line) {
 function parseIndexTable(source, requiredColumns) {
   const tableLines = source.split(/\r?\n/).filter((line) => line.trim().startsWith('|'));
   if (tableLines.length < 3) {
-    throw new Error('index must contain a Markdown table with product packet rows');
+    throw new Error('index must contain a Markdown table with branch packet rows');
   }
 
   const headerLineIndex = tableLines.findIndex((line, index) => tableLines[index + 1] && isSeparatorRow(tableLines[index + 1]));
@@ -166,8 +166,14 @@ function validateMetadata({ metadata, schema, row, packetFile }) {
   if (!schema.promotion_states.includes(metadata.promotion_state)) {
     throw new Error(`${packetFile}: unknown promotion_state "${metadata.promotion_state}"`);
   }
+  if (schema.branch_kinds?.length && !schema.branch_kinds.includes(metadata.branch_kind)) {
+    throw new Error(`${packetFile}: unknown branch_kind "${metadata.branch_kind}"`);
+  }
   if (metadata.product_id !== row.product_id) {
     throw new Error(`${packetFile}: product_id "${metadata.product_id}" does not match index row "${row.product_id}"`);
+  }
+  if (metadata.branch_kind !== row.branch_kind) {
+    throw new Error(`${packetFile}: branch_kind "${metadata.branch_kind}" does not match index row "${row.branch_kind}"`);
   }
   if (metadata.promotion_state !== row.promotion_state) {
     throw new Error(`${packetFile}: promotion_state "${metadata.promotion_state}" does not match index row "${row.promotion_state}"`);
@@ -406,14 +412,18 @@ function validatePacket({ packetFile, schema, row }) {
   validateLoopControlRows({ source, packetFile });
 }
 
-function validateRequiredProducts(schema, rows) {
-  for (const product of schema.required_products || []) {
-    const row = rows.find((candidate) => candidate.product_id === product.product_id);
+function validateRequiredBranches(schema, rows) {
+  const requiredBranches = schema.required_branches || schema.required_products || [];
+  for (const branch of requiredBranches) {
+    const row = rows.find((candidate) => candidate.product_id === branch.product_id);
     if (!row) {
-      throw new Error(`index missing required product_id: ${product.product_id}`);
+      throw new Error(`index missing required product_id: ${branch.product_id}`);
     }
-    if (row.packet !== product.packet) {
-      throw new Error(`index product ${product.product_id} points at ${row.packet}, expected ${product.packet}`);
+    if (branch.branch_kind && row.branch_kind !== branch.branch_kind) {
+      throw new Error(`index branch ${branch.product_id} has branch_kind ${row.branch_kind}, expected ${branch.branch_kind}`);
+    }
+    if (row.packet !== branch.packet) {
+      throw new Error(`index branch ${branch.product_id} points at ${row.packet}, expected ${branch.packet}`);
     }
   }
 }
@@ -436,14 +446,14 @@ function main() {
   }
 
   const rows = parseIndexTable(readText(indexFile), schema.required_index_columns);
-  validateRequiredProducts(schema, rows);
+  validateRequiredBranches(schema, rows);
 
   for (const row of rows) {
-    if (!row.product_id || !row.packet) {
-      throw new Error('index rows must include product_id and packet values');
+    if (!row.product_id || !row.branch_kind || !row.packet) {
+      throw new Error('index rows must include product_id, branch_kind, and packet values');
     }
     if (isAbsolute(row.packet) || row.packet.includes('..')) {
-      throw new Error(`index product ${row.product_id} has unsafe packet path: ${row.packet}`);
+      throw new Error(`index branch ${row.product_id} has unsafe packet path: ${row.packet}`);
     }
     validatePacket({
       packetFile: join(packetDir, row.packet),
@@ -452,12 +462,12 @@ function main() {
     });
   }
 
-  console.log(`validated ${rows.length} product branch packet(s) against ${schema.schema_id}`);
+  console.log(`validated ${rows.length} branch packet(s) against ${schema.schema_id}`);
 }
 
 try {
   main();
 } catch (error) {
-  console.error(`product branch packet validation failed: ${error.message}`);
+  console.error(`branch packet validation failed: ${error.message}`);
   process.exitCode = 1;
 }
