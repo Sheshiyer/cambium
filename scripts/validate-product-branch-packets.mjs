@@ -194,7 +194,6 @@ const LOOP_REQUIRED_COLUMNS = [
 
 const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
 const LOOP_ONE_CHANGE_BATCHING_PHRASES = ['multiple', 'several', 'batch', 'all gates'];
-const LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES = ['and keep', 'and never', 'and write only'];
 
 function countExactPhrase(value, phrase) {
   return (value.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
@@ -226,11 +225,16 @@ function validateLoopControlRows({ source, packetFile }) {
     }
     const firstExactOneIndex = oneChangeRule.indexOf('exactly one');
     const oneChangeTail = firstExactOneIndex === -1 ? '' : oneChangeRule.slice(firstExactOneIndex + 'exactly one'.length).trimStart();
-    if (/[.;:]\s*\S/.test(oneChangeTail) && !LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES.some((prefix) => oneChangeTail.includes(prefix))) {
+    if (/[;:]\s*\S/.test(oneChangeTail) || /\.\s+\S/.test(oneChangeTail)) {
       throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
     }
     if (/\b(?:plus|then|also)\b/i.test(oneChangeTail)) {
       throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+    }
+    if (/(?:^|[^\w])(?:file|request|decide|approve|escalate|select|choose|record|write|draft|create|return|run)\b/i.test(oneChangeTail)) {
+      if (/,\s*(?:file|request|decide|approve|escalate|select|choose|record|write|draft|create|return|run)\b/i.test(oneChangeTail)) {
+        throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+      }
     }
     if (/\band\s+(?!keep\b|never\b|write\s+only\b)/i.test(oneChangeTail)) {
       throw new Error(`${rowLabel} one_change_rule must not suggest batching`);

@@ -83,6 +83,11 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
       message: /must not suggest batching/
     },
     {
+      label: 'comma file',
+      rule: 'Select exactly one gate, file a founder approval request.',
+      message: /must not suggest batching/
+    },
+    {
       label: 'period-separated follow-on',
       rule: 'Select exactly one gate. File a founder approval request.',
       message: /must not suggest batching/
@@ -95,6 +100,11 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
     {
       label: 'punctuated request',
       rule: 'Select exactly one remediation; request one decision.',
+      message: /must not suggest batching/
+    },
+    {
+      label: 'guardrail with follow-on',
+      rule: 'Select exactly one claim and write only the finding to .operator/branch-loops/demo.md; request one decision.',
       message: /must not suggest batching/
     },
     {

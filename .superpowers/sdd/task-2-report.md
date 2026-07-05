@@ -126,3 +126,19 @@ Evidence from coverage runs:
 - Focused validator test command `node --test scripts/validate-product-branch-packets.test.mjs`: passed
 - `npm run validate:product-branches`: passed
 - `npm test`: passed
+
+## Review Fix Addendum 6
+
+Closed the remaining punctuation and guardrail bypasses in `one_change_rule`.
+
+What changed:
+- Rejected comma-separated second actions like `Select exactly one gate, file a founder approval request.`
+- Rejected guardrail-clause follow-ons like `Select exactly one claim and write only the finding to .operator/branch-loops/demo.md; request one decision.`
+- Kept existing valid enumerations and current packet rows passing
+
+Evidence from coverage runs:
+- `Select exactly one gate, file a founder approval request.` fails
+- `Select exactly one claim and write only the finding to .operator/branch-loops/demo.md; request one decision.` fails
+- `node --test scripts/validate-product-branch-packets.test.mjs`: passed
+- `npm run validate:product-branches`: passed
+- `npm test`: passed
