@@ -1,4 +1,4 @@
-import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,15 +18,19 @@ function runValidator(packetDir) {
   });
 }
 
-function withTempDocs(mutator) {
+function runValidatorWithTempPackets(mutator) {
   const tempRoot = mkdtempSync(join(tmpdir(), 'cambium-branch-loop-'));
-  const tempDocs = join(tempRoot, 'docs');
-  cpSync(join(REPO_ROOT, 'docs'), tempDocs, { recursive: true });
-  const packetFile = join(tempDocs, 'plans/product-branches/fitcheck.md');
-  if (mutator) {
-    mutator(packetFile);
+  const tempPacketDir = join(tempRoot, 'product-branches');
+  try {
+    cpSync(PACKET_DIR, tempPacketDir, { recursive: true });
+    const packetFile = join(tempPacketDir, 'fitcheck.md');
+    if (mutator) {
+      mutator(packetFile);
+    }
+    return runValidator(tempPacketDir);
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
   }
-  return join(tempDocs, 'plans/product-branches');
 }
 
 function replaceFitcheck(packetFile, from, to) {
@@ -68,8 +72,7 @@ test('boundary colors, required loop cells, and state files fail closed', () => 
   ];
 
   for (const testCase of cases) {
-    const packetDir = withTempDocs((packetFile) => testCase.mutate(packetFile));
-    const result = runValidator(packetDir);
+    const result = runValidatorWithTempPackets((packetFile) => testCase.mutate(packetFile));
     assert.notEqual(result.status, 0, testCase.name);
     assert.match(result.stderr, testCase.message, testCase.name);
   }
@@ -170,47 +173,40 @@ test('one_change_rule structural guard rejects follow-on action punctuation and 
   ];
 
   for (const failCase of failCases) {
-    const packetDir = withTempDocs((packetFile) => {
+    const result = runValidatorWithTempPackets((packetFile) => {
       replaceFitcheck(packetFile, BASE_ROW_RULE, failCase.rule);
     });
-    const result = runValidator(packetDir);
     assert.notEqual(result.status, 0, failCase.label);
     assert.match(result.stderr, failCase.message, failCase.label);
   }
 
-  const passPacketDir = withTempDocs((packetFile) => {
+  const passResult = runValidatorWithTempPackets((packetFile) => {
     replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one decision request.');
   });
-  const passResult = runValidator(passPacketDir);
   assert.equal(passResult.status, 0, passResult.stderr);
 
-  const enumerationPassPacketDir = withTempDocs((packetFile) => {
+  const enumerationPassResult = runValidatorWithTempPackets((packetFile) => {
     replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one of gate A, gate B or gate C.');
   });
-  const enumerationPassResult = runValidator(enumerationPassPacketDir);
   assert.equal(enumerationPassResult.status, 0, enumerationPassResult.stderr);
 
-  const documentPassPacketDir = withTempDocs((packetFile) => {
+  const documentPassResult = runValidatorWithTempPackets((packetFile) => {
     replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one remediation and document the finding in .operator/branch-loops/demo.md.');
   });
-  const documentPassResult = runValidator(documentPassPacketDir);
   assert.equal(documentPassResult.status, 0, documentPassResult.stderr);
 
-  const recordPassPacketDir = withTempDocs((packetFile) => {
+  const recordPassResult = runValidatorWithTempPackets((packetFile) => {
     replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one remediation and record the finding in .operator/branch-loops/demo.md.');
   });
-  const recordPassResult = runValidator(recordPassPacketDir);
   assert.equal(recordPassResult.status, 0, recordPassResult.stderr);
 
-  const pricingPassPacketDir = withTempDocs((packetFile) => {
+  const pricingPassResult = runValidatorWithTempPackets((packetFile) => {
     replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one pricing and packaging remediation.');
   });
-  const pricingPassResult = runValidator(pricingPassPacketDir);
   assert.equal(pricingPassResult.status, 0, pricingPassResult.stderr);
 
-  const rdPassPacketDir = withTempDocs((packetFile) => {
+  const rdPassResult = runValidatorWithTempPackets((packetFile) => {
     replaceFitcheck(packetFile, BASE_ROW_RULE, 'Select exactly one R&D fix.');
   });
-  const rdPassResult = runValidator(rdPassPacketDir);
   assert.equal(rdPassResult.status, 0, rdPassResult.stderr);
 });
