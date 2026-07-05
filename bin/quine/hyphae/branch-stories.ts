@@ -57,7 +57,8 @@ function readText(path: string): string {
 }
 
 function clean(value: unknown): string {
-  return String(value ?? '').trim().replace(/^`|`$/g, '');
+  const text = String(value ?? '').trim();
+  return text.startsWith('`') && text.endsWith('`') ? text.slice(1, -1) : text;
 }
 
 function normalizeHeader(value: string): string {

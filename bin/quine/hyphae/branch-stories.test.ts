@@ -37,6 +37,10 @@ test('loads branch loop controls from product packets', () => {
   assert.equal(fitcheck.loops[0].stateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
   assert.match(fitcheck.loops[0].stopRule, /Stop after 3 rounds/i);
   assert.deepEqual(fitcheck.controls.loops, fitcheck.loops);
+
+  const vantyx = stories.find((story) => story.productId === 'vantyx');
+  assert.ok(vantyx);
+  assert.match(vantyx.loops[0].proofRequired, /`new-client` receipt/);
 });
 
 test('records blocked packet gaps without promoting weak evidence', () => {
