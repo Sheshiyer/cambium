@@ -71,3 +71,23 @@ node --test bin/quine/hyphae/branch-stories.test.ts
 
 - None from implementation or test results.
 - I did not see unrelated modified files in this worktree during this task; the working changes were limited to the task files above before writing this report.
+
+---
+
+## Review Fix Follow-up
+
+### Reviewer finding addressed
+
+- Added `Loop Control Inputs` to the parser's required control section list so the existing missing-section and malformed-table gap machinery now covers loop controls too.
+
+### Additional regression coverage
+
+- Added a focused test for a packet missing `Loop Control Inputs`, verifying the parser keeps `story.loops` empty and emits a blocked gap mentioning `Loop Control Inputs`.
+- Added a focused test for a malformed `Loop Control Inputs` table, verifying the parser keeps `story.loops` empty and emits a blocked malformed-table gap for that section.
+- Confirmed the existing happy-path loop parsing test still passes.
+
+### Follow-up test results
+
+- `node --test bin/quine/hyphae/branch-stories.test.ts`
+  - PASS
+  - `8/8` tests passed

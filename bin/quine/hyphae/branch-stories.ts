@@ -34,6 +34,7 @@ const PACKET_DIR = 'docs/plans/product-branches';
 const INDEX_FILE = `${PACKET_DIR}/index.md`;
 const CONTROL_SECTIONS = [
   'Branch Story Controls',
+  'Loop Control Inputs',
   'Mission Control Inputs',
   'KPI Control Inputs',
   'Policy / Permission Inputs',
