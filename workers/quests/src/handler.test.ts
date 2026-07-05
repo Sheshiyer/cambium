@@ -344,11 +344,169 @@ const PRIMARY_MISSION_COPY_DENYLIST = [
   'no local state write',
   'source route',
   'no local operator writes',
+  'real world-state',
+  'no fake progress',
+  'served beats',
+  'operator narrative',
+  'source detail',
+  'debug layer',
+  'back path',
+  'trace action',
 ];
+
+const PRIMARY_SCENE_SHEET_TELEMETRY_DENYLIST = [
+  'reduced motion proof',
+  'data-reduced-motion-proof',
+  'data-sheet',
+  'data-signed-action',
+  'data-chat-command',
+  'data-read-only',
+  'scene state changes remain visible',
+  'sheet=',
+  'signed action=',
+  'chat command=',
+  'read-only=',
+  'proof, packet, freshness, and system detail',
+  'system detail behind the main Mission Control flow',
+];
+
+const CHROME_COPY_DENYLIST = [
+  'real world-state',
+  'no fake progress',
+  'scene provenance',
+  'ecosystem target',
+  'source detail',
+  'debug layer',
+  'back path',
+  'trace action',
+  'operator narrative',
+  'served beats',
+  'local operator writes',
+];
+
+const STORY_PRIMARY_COPY_DENYLIST = [
+  'story fallback',
+  'served beats',
+  'quest-ledger',
+  'operator narrative',
+  'source detail',
+  'no fake story progress',
+  'served proof',
+  'operator lesson',
+  'proof detail available in sheet',
+];
+
+function decodeHtmlText(value: string): string {
+  return value
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+const NON_TEXT_TAGS = new Set(['script', 'style', 'svg']);
+const VOID_HTML_TAGS = new Set([
+  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta',
+  'param', 'source', 'track', 'wbr',
+]);
+
+function htmlAttributeValue(tag: string, attr: string): string | null {
+  const match = tag.match(new RegExp(`\\b${attr}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i'));
+  return match ? (match[1] ?? match[2] ?? match[3] ?? '') : null;
+}
+
+function htmlTagName(tag: string): string | null {
+  const match = tag.match(/^<\/?\s*([a-z][\w:-]*)/i);
+  return match ? match[1].toLowerCase() : null;
+}
+
+function openingTagHidesText(tag: string, tagName: string): boolean {
+  if (NON_TEXT_TAGS.has(tagName)) return true;
+  if (/(?:^|[\s<])hidden(?:[\s=/>]|$)/i.test(tag)) return true;
+  if ((htmlAttributeValue(tag, 'aria-hidden') ?? '').toLowerCase() === 'true') return true;
+
+  const className = htmlAttributeValue(tag, 'class');
+  if (className?.split(/\s+/).includes('sr')) return true;
+
+  const style = htmlAttributeValue(tag, 'style') ?? '';
+  return /\bdisplay\s*:\s*none\b/i.test(style) || /\bvisibility\s*:\s*hidden\b/i.test(style);
+}
+
+function stripNonRenderedTextNodes(html: string): string {
+  const stack: Array<{ tagName: string; hidden: boolean }> = [];
+  let hiddenDepth = 0;
+  let stripped = '';
+  let offset = 0;
+
+  for (const match of html.matchAll(/<!--[\s\S]*?-->|<\/?[a-z][^>]*>|<[^>]+>/gi)) {
+    if (hiddenDepth === 0) stripped += html.slice(offset, match.index);
+
+    const token = match[0];
+    const tagName = htmlTagName(token);
+    if (token.startsWith('<!--')) {
+      if (hiddenDepth === 0) stripped += ' ';
+    } else if (!tagName) {
+      if (hiddenDepth === 0) stripped += token;
+    } else if (/^<\s*\//.test(token)) {
+      let closedHidden = false;
+      while (stack.length > 0) {
+        const frame = stack.pop()!;
+        if (frame.hidden) {
+          closedHidden = true;
+          hiddenDepth = Math.max(0, hiddenDepth - 1);
+        }
+        if (frame.tagName === tagName) break;
+      }
+      if (!closedHidden && hiddenDepth === 0) stripped += token;
+    } else {
+      const hidden = hiddenDepth > 0 || openingTagHidesText(token, tagName);
+      const selfClosing = /\/\s*>$/.test(token) || VOID_HTML_TAGS.has(tagName);
+      if (!hidden) stripped += token;
+      else if (hiddenDepth === 0) stripped += ' ';
+      if (!selfClosing) {
+        stack.push({ tagName, hidden });
+        if (hidden) hiddenDepth += 1;
+      }
+    }
+
+    offset = match.index + token.length;
+  }
+
+  if (hiddenDepth === 0) stripped += html.slice(offset);
+  return stripped;
+}
+
+function visibleTextFromHtml(html: string): string {
+  return decodeHtmlText(stripNonRenderedTextNodes(html)
+    .replace(/<[^>]+>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function pageFragment(name: string, pattern: RegExp): string {
+  const match = PAGE.match(pattern);
+  assert.ok(match, `PAGE has ${name}`);
+  return match[0];
+}
 
 function assertNoPrimaryMetaCopy(html: string) {
   for (const term of PRIMARY_MISSION_COPY_DENYLIST) {
     assert.doesNotMatch(html, new RegExp(escapeRegExp(term), 'i'), `primary copy leaked meta term: ${term}`);
+  }
+}
+
+function assertNoStoryPrimaryCopyLeak(html: string) {
+  const text = visibleTextFromHtml(html);
+  for (const term of STORY_PRIMARY_COPY_DENYLIST) {
+    assert.doesNotMatch(text, new RegExp(escapeRegExp(term), 'i'), `Story primary copy leaked: ${term}`);
+  }
+}
+
+function assertNoPrimarySceneSheetTelemetry(html: string) {
+  for (const term of PRIMARY_SCENE_SHEET_TELEMETRY_DENYLIST) {
+    assert.doesNotMatch(html, new RegExp(escapeRegExp(term), 'i'), `primary sheet leaked telemetry term: ${term}`);
   }
 }
 
@@ -408,10 +566,49 @@ function fakeStyle(): Record<string, string | ((name: string, value: string) => 
   return style;
 }
 
+function decodeHtmlAttribute(value: string) {
+  return value
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+}
+
+function dataKey(name: string) {
+  return name.replace(/^data-/, '').replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+}
+
+function htmlAttributes(tag: string) {
+  const attrs = new Map<string, string>();
+  for (const match of tag.matchAll(/\s([a-zA-Z0-9_:-]+)(?:="([^"]*)")?/g)) {
+    attrs.set(match[1], decodeHtmlAttribute(match[2] ?? ''));
+  }
+  return attrs;
+}
+
+function htmlMatchesSelector(attrs: Map<string, string>, selector: string) {
+  const classMatch = selector.match(/^\.([a-zA-Z0-9_-]+)$/);
+  if (classMatch) return (attrs.get('class') || '').split(/\s+/).includes(classMatch[1]);
+  const attrMatch = selector.match(/^\[([a-zA-Z0-9_:-]+)(?:="([^"]*)")?\]$/);
+  if (!attrMatch) return false;
+  const [, name, value] = attrMatch;
+  if (!attrs.has(name)) return false;
+  return value === undefined || attrs.get(name) === value;
+}
+
 function makeElement(id: string) {
-  return {
+  let html = '';
+  let htmlVersion = 0;
+  const queryCache = new Map<string, ReturnType<typeof makeElement>[]>();
+  const element = {
     id,
-    innerHTML: '',
+    get innerHTML() { return html; },
+    set innerHTML(value: string) {
+      html = String(value);
+      htmlVersion += 1;
+      queryCache.clear();
+    },
     textContent: '',
     style: fakeStyle(),
     classList: new FakeClassList(),
@@ -422,9 +619,28 @@ function makeElement(id: string) {
     onclick: null as unknown,
     addEventListener() {},
     setPointerCapture() {},
-    querySelectorAll() { return []; },
-    querySelector() { return makeElement(`${id}:query`); },
+    querySelectorAll(selector: string) {
+      const key = `${htmlVersion}\u0000${selector}`;
+      if (!queryCache.has(key)) {
+        const nodes: ReturnType<typeof makeElement>[] = [];
+        for (const match of this.innerHTML.matchAll(/<([a-z0-9-]+)\b([^>]*)>/gi)) {
+          const attrs = htmlAttributes(match[0]);
+          if (!htmlMatchesSelector(attrs, selector)) continue;
+          const node = makeElement(`${id}:query:${nodes.length}`);
+          node.innerHTML = match[0];
+          node.textContent = match[0];
+          for (const [name, value] of attrs) {
+            if (name.startsWith('data-')) node.dataset[dataKey(name)] = value;
+          }
+          nodes.push(node);
+        }
+        queryCache.set(key, nodes);
+      }
+      return queryCache.get(key)!;
+    },
+    querySelector(selector: string) { return this.querySelectorAll(selector)[0] ?? makeElement(`${id}:query`); },
   };
+  return element;
 }
 
 async function renderPageFixtureContext(
@@ -1234,8 +1450,51 @@ test('page · serves the Living Blueprint shell at /', async () => {
   assert.match(r.headers['content-type'], /text\/html/);
   assert.match(PAGE, /#00272B/);
   assert.match(PAGE, /#E0FF4F/);
-  assert.match(PAGE, /no fake progress/);
+  assert.doesNotMatch(PAGE, /every status derives|real world-state|no fake progress/i);
+  assert.match(JSON.stringify(NO_FAKE_PROGRESS_VISUAL_FIXTURE), /visual-fixture:no-fake-progress/);
   assert.match(PAGE, /telegram-web-app\.js/);
+});
+
+test('page · chrome copy scan keeps infrastructure terms out of visible shell copy', () => {
+  const chromeFragments = [
+    ['root status', pageFragment('root status header', /<header\b[^>]*class="[^"]*\broot-status\b[^"]*"[\s\S]*?<\/header>/i)],
+    ['root nav', pageFragment('root nav', /<nav\b[^>]*class="[^"]*\broot-nav\b[^"]*"[\s\S]*?<\/nav>/i)],
+    ['scene badge', pageFragment('scene badge', /<button\b[^>]*id="sceneBadge"[\s\S]*?<\/button>/i)],
+    ['freshness chip', pageFragment('freshness chip', /<button\b[^>]*id="fresh"[\s\S]*?<\/button>/i)],
+  ];
+  const footer = PAGE.match(/<footer\b[\s\S]*?<\/footer>/i);
+  if (footer) chromeFragments.push(['footer', footer[0]]);
+
+  const visibleChromeCopy = chromeFragments
+    .map(([name, html]) => `${name}: ${visibleTextFromHtml(html)}`)
+    .join('\n');
+
+  assert.match(visibleChromeCopy, /root status: Mission Control tenant cambium · branch arcs Mission syncing/);
+  assert.match(visibleChromeCopy, /root nav: Mission next move Gate review Tools act Story signals Inspect proof/);
+  assert.match(visibleChromeCopy, /scene badge: Mission/);
+  assert.match(visibleChromeCopy, /freshness chip: syncing/);
+  for (const term of CHROME_COPY_DENYLIST) {
+    assert.doesNotMatch(visibleChromeCopy, new RegExp(escapeRegExp(term), 'i'), `chrome copy leaked meta term: ${term}`);
+  }
+});
+
+test('page · chrome copy scan ignores hidden helper copy', () => {
+  const visibleCopy = visibleTextFromHtml(`
+    <header data-debug="served beats">
+      <strong>Mission visible</strong>
+      <span class="sr">real world-state</span>
+      <span hidden>no fake progress</span>
+      <span aria-hidden="true">scene provenance</span>
+      <span style="display:none">debug layer</span>
+      <span style="visibility: hidden">operator narrative</span>
+      <span title="source detail">Gate visible</span>
+    </header>
+  `);
+
+  assert.equal(visibleCopy, 'Mission visible Gate visible');
+  for (const term of CHROME_COPY_DENYLIST) {
+    assert.doesNotMatch(visibleCopy, new RegExp(escapeRegExp(term), 'i'), `hidden chrome copy leaked meta term: ${term}`);
+  }
 });
 
 test('page · five scenes with Mission-first tabs and sliding indicator', () => {
@@ -1288,7 +1547,58 @@ test('page · scenes expose accessible titles', () => {
   }
 });
 
-test('page · active scene badge opens view details sheet', async () => {
+test('page · active scene badge opens founder summary sheet for primary scenes', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const badge = rendered.elements.get('sceneBadge')!;
+  const scenes: Array<[number, string]> = [
+    [0, 'Mission'],
+    [1, 'Gate'],
+    [2, 'Tools'],
+    [3, 'Story'],
+  ];
+
+  for (const [index, label] of scenes) {
+    (rendered.context.go as (index: number) => void)(index);
+    assert.equal(badge.textContent, label);
+    (badge.onclick as () => void)();
+    const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+    assert.match(sheet, new RegExp(`mission control · ${label.toLowerCase()}`));
+    assert.match(sheet, /next<\/b><span>/);
+    assert.match(sheet, /refresh<\/b><span>Pull to refresh updates \/api\/quests\/cambium/);
+    assert.doesNotMatch(sheet, /Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow/);
+    assertNoPrimarySceneSheetTelemetry(sheet);
+    assert.doesNotMatch(sheet, /view<\/b>|target<\/b>|source<\/b>/);
+    assert.doesNotMatch(sheet, /tg-miniapp-scenes@v1|product-branches|operator-narrative|cambium-worker/);
+    assert.doesNotMatch(sheet, /scene provenance|ecosystem target|local operator writes/);
+  }
+});
+
+test('page · scene badge keeps canonical ecosystem target dataset values', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const badge = rendered.elements.get('sceneBadge')!;
+
+  for (const [index, section] of MINI_APP_SECTIONS.entries()) {
+    (rendered.context.go as (index: number) => void)(index);
+    assert.equal(badge.textContent?.toLowerCase(), section.scene);
+    assert.equal(badge.dataset.ecosystemTarget, section.target);
+    assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(section.target), `target ${section.target} is canonical`);
+  }
+});
+
+test('page · scene badge Inspect behavior survives display label rename', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  vm.runInContext("SCENE_META[4].label = 'Proof Detail';", rendered.context as vm.Context);
+  (rendered.context.go as (index: number) => void)(4);
+  const badge = rendered.elements.get('sceneBadge')!;
+  assert.equal(badge.textContent, 'Proof Detail');
+  (badge.onclick as () => void)();
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /view details · inspect/);
+  assert.match(sheet, /reduced motion proof<\/b><span data-reduced-motion-proof="1"/);
+  assert.doesNotMatch(sheet, /mission control · proof detail/);
+});
+
+test('page · Inspect scene badge opens proof detail metadata sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   (rendered.context.go as (index: number) => void)(4);
   const badge = rendered.elements.get('sceneBadge')!;
@@ -1300,6 +1610,7 @@ test('page · active scene badge opens view details sheet', async () => {
   assert.match(sheet, /view<\/b><span>tg-miniapp-scenes@v1/);
   assert.match(sheet, /target<\/b><span>cambium-worker/);
   assert.match(sheet, /refresh<\/b><span>Pull to refresh updates \/api\/quests\/cambium/);
+  assert.match(sheet, /reduced motion proof<\/b><span data-reduced-motion-proof="1"/);
   assert.doesNotMatch(sheet, /scene provenance|ecosystem target|local operator writes/);
 });
 
@@ -1345,6 +1656,7 @@ test('mini app surface contract · inventories operator map subsections', () => 
     'branch-missions',
     'branch-kpis',
     'branch-gates',
+    'branch-loops',
     'branch-proof',
     'side-quests',
     'coordination',
@@ -1355,6 +1667,7 @@ test('mini app surface contract · inventories operator map subsections', () => 
     'companions',
     'rails',
   ]);
+  assert.ok(MINI_APP_MAP_SUBSECTIONS.some((section) => section.id === 'branch-loops'));
 });
 
 test('mini app surface contract · records section interaction semantics', () => {
@@ -1512,6 +1825,7 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(storyHtml, /data-component="MissionGlyph"/);
   assert.match(storyHtml, /data-component="StateToken"/);
   assert.doesNotMatch(storyHtml, /quest-ledger|paperclipActivityBeats|deviations/);
+  assertNoStoryPrimaryCopyLeak(storyHtml);
   const beatIndexes = rows.map((row) => row.match(/data-beat="(\d+)"/)?.[1]).sort();
   assert.deepEqual(beatIndexes, ['0', '1', '2', '3', '4']);
   for (const row of rows) {
@@ -1528,9 +1842,11 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(noesisSheet, /lane<\/b><span>noesis/);
   assert.match(noesisSheet, /text<\/b><span>The mid-brain woke/);
   assert.match(noesisSheet, /source<\/b><span>deviations/);
-  assert.match(noesisSheet, /context link<\/b><span>inspect/);
-  assert.match(noesisSheet, /Open Inspect/);
-  assert.match(noesisSheet, /action<\/b><span>read-only story row; no execution action/);
+  assert.match(noesisSheet, /proof<\/b><span>Proof needed/);
+  assert.match(noesisSheet, /from<\/b><span>Operator narrative/);
+  assert.match(noesisSheet, /related page<\/b><span>inspect/);
+  assert.match(noesisSheet, /Open Proof/);
+  assert.doesNotMatch(noesisSheet, /source summary|ecosystem target|context link|action<\/b>|Inspect source rows|Review source detail/);
   assert.doesNotMatch(noesisSheet, /data-kind="approve"|data-kind="reroll"|data-promote-skill|data-queue-side-quest/);
 
   (rendered.context.openStoryDigest as () => void)();
@@ -1545,7 +1861,375 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
 });
 
-test('page · empty story names mission movement wait state', async () => {
+test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      { text: 'Mission win shipped', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'Signal heartbeat received', lane: 'heartbeat', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'Forge lesson captured', lane: 'forge', branchId: 'branch-a', source: 'skill-registry', noesis: false },
+      { text: 'Drift contradiction noted', lane: 'noesis', branchId: 'branch-a', source: 'noesis', noesis: true },
+    ],
+  });
+  assert.deepEqual(Array.from(vm.runInContext('STORY_GROUPS', rendered.context as vm.Context) as string[]), ['Mission wins', 'New signals', 'Lessons', 'Drift']);
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  for (const group of ['Mission wins', 'New signals', 'Lessons', 'Drift']) {
+    assert.match(storyHtml, new RegExp(`data-story-filter="${group}">${group} · 1`));
+    assert.match(storyHtml, new RegExp(`<div class="cmdgrp">${group}</div>`));
+  }
+});
+
+test('page · Story semantics handle ambiguous copy, signal proof, and explicit routing', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      { text: 'blocked by copy', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'lesson blocked earlier', lane: 'forge', branchId: 'branch-a', source: 'skill-registry', noesis: false },
+      { text: 'Signal with receipt', lane: 'heartbeat', branchId: 'branch-a', proof: 'Receipt ready', source: 'world.log', noesis: false },
+      { text: 'Gate approval phrasing variant', lane: 'beat', context: 'gate', branchId: 'branch-a', source: 'manual-story', noesis: false },
+      { text: 'Use ts-status command phrasing variant', lane: 'beat', context: 'tools', branchId: 'branch-a', source: 'manual-story', noesis: false },
+      { text: 'Proof receipt phrasing variant', lane: 'beat', context: 'proof', branchId: 'branch-a', source: 'manual-story', noesis: false },
+    ],
+  });
+  const context = rendered.context as vm.Context;
+
+  assert.equal(vm.runInContext("storyBeatGroup({ text:'blocked by copy', lane:'quest' })", context), 'Drift');
+  assert.equal(vm.runInContext("storyBeatGroup({ text:'lesson blocked earlier', lane:'forge' })", context), 'Lessons');
+  assert.equal(vm.runInContext("storyBeatState({ text:'Signal with receipt', lane:'heartbeat', proof:'Receipt ready' })", context), 'active');
+  assert.equal(vm.runInContext("storyBeatContext('New signals', 'heartbeat', { context:'gate' })", context), 'gate');
+  assert.equal(vm.runInContext("storyBeatContext('New signals', 'heartbeat', { context:'tools' })", context), 'tools');
+  assert.equal(vm.runInContext("storyBeatContext('New signals', 'heartbeat', { context:'proof' })", context), 'inspect');
+
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  assert.match(storyHtml, /data-story-digest-state="blocked"/);
+  assertNoStoryPrimaryCopyLeak(storyHtml);
+
+  (rendered.context.openStoryBeat as (index: number) => void)(3);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-story-target="gate"/);
+  (rendered.context.openStoryBeat as (index: number) => void)(4);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-story-target="tools"/);
+  (rendered.context.openStoryBeat as (index: number) => void)(5);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-story-target="inspect"/);
+});
+
+test('page · story filter scopes hero digest and timeline while preserving beat indexes', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: {
+      rows: [
+        { branchId: 'branch-a', name: 'Branch A' },
+        { branchId: 'branch-b', name: 'Branch B', freshness: { state: 'stale', detail: 'old packet' } },
+      ],
+    },
+    beats: [
+      { text: 'Branch A shipped intake win', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+      { text: 'Branch B recorded cortex lesson', lane: 'forge', branchId: 'branch-b', source: 'skill-registry', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const renderedFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(branch-b)"/)?.[1] ?? '';
+  assert.equal(renderedFilter, 'branch-b');
+  assert.doesNotMatch(rendered.elements.get('beats')!.innerHTML, /data-story-branch-filter="unassigned"/);
+
+  const branchBChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === renderedFilter);
+  assert.ok(branchBChip);
+  assert.equal(branchBChip.dataset.storyBranchState, 'stale');
+  assert.match(rendered.elements.get('beats')!.innerHTML, /is-stale" data-component="BranchArcChip" data-story-branch-filter="branch-b" data-story-branch-state="stale"/);
+  assert.equal(typeof branchBChip.onclick, 'function');
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
+  (branchBChip.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'branch-a');
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const hero = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryLatestChangeHero"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(hero, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(hero, /Branch A shipped intake win/);
+  assert.match(hero, /data-story-hero="1"/);
+
+  const heroIndex = Number(hero.match(/data-story-hero="(\d+)"/)?.[1] ?? -1);
+  (rendered.context.openStoryBeat as (index: number) => void)(heroIndex);
+  const heroSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(heroSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(heroSheet, /Branch A shipped intake win/);
+
+  const digest = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryDigestCards"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(digest, /Mission wins 0/);
+  assert.match(digest, /Lessons 1/);
+  assert.match(digest, /data-story-digest-state="active"/);
+  assert.doesNotMatch(digest, /Mission wins 1/);
+  assert.match(storyHtml, /data-story-filter="all">all · 1/);
+  assert.match(storyHtml, /data-story-filter="Mission wins">Mission wins · 0/);
+  assert.match(storyHtml, /data-story-filter="Lessons">Lessons · 1/);
+
+  const timeline = storyHtml.match(/<div class="story-timeline"[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.equal((timeline.match(/<i /g) ?? []).length, 1);
+
+  const beatsElement = rendered.elements.get('beats')!;
+  const heroNode = beatsElement.querySelectorAll('[data-story-hero]')[0];
+  assert.equal(heroNode.dataset.storyHero, '1');
+  assert.equal(typeof heroNode.onclick, 'function');
+  (heroNode.onclick as () => void)();
+  const clickedHeroSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(clickedHeroSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(clickedHeroSheet, /Branch A shipped intake win/);
+
+  const beatCards = storyHtml.match(/<button type="button" class="[^"]*beat[\s\S]*?<\/button>/g) ?? [];
+  assert.equal(beatCards.length, 1);
+  assert.match(beatCards[0], /data-component="StoryBeatCard"/);
+  assert.match(beatCards[0], /data-beat="1"/);
+  assert.match(beatCards[0], /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(beatCards[0], /Branch A shipped intake win/);
+  const beatNode = beatsElement.querySelectorAll('.beat')[0];
+  assert.equal(beatNode.dataset.beat, '1');
+  assert.equal(typeof beatNode.onclick, 'function');
+  (beatNode.onclick as () => void)();
+  const clickedBeatSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(clickedBeatSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(clickedBeatSheet, /Branch A shipped intake win/);
+
+  const digestNode = beatsElement.querySelectorAll('[data-story-digest]')[0];
+  assert.equal(digestNode.dataset.storyDigest, '1');
+  assert.equal(typeof digestNode.onclick, 'function');
+  (digestNode.onclick as () => void)();
+  const digestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(digestSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(digestSheet, /Branch A shipped intake win/);
+  assert.match(digestSheet, /data-story-digest-beat="1"/);
+  assert.doesNotMatch(digestSheet, /data-story-digest-beat="0"/);
+  const digestBeatNode = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-digest-beat]')[0];
+  assert.equal(digestBeatNode.dataset.storyDigestBeat, '1');
+  assert.equal(typeof digestBeatNode.onclick, 'function');
+  (digestBeatNode.onclick as () => void)();
+  const clickedDigestRowSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(clickedDigestRowSheet, /Branch B recorded cortex lesson/);
+  assert.doesNotMatch(clickedDigestRowSheet, /Branch A shipped intake win/);
+});
+
+test('page · story filter unassigned BranchArcChip shows unassigned beats', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: { rows: [] },
+    beats: [
+      { text: 'Unassigned signal reached story', lane: 'beat', source: 'manual-story', noesis: false },
+      { text: 'Assigned branch should stay hidden', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const unassignedFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(unassigned)"/)?.[1] ?? '';
+  assert.equal(unassignedFilter, 'unassigned');
+  assert.doesNotMatch(rendered.elements.get('beats')!.innerHTML, /data-story-branch-filter="missing"/);
+
+  const unassignedChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === unassignedFilter);
+  assert.ok(unassignedChip);
+  assert.equal(typeof unassignedChip.onclick, 'function');
+  (unassignedChip.onclick as () => void)();
+  const unassignedChipHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedBranchChips = unassignedChipHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
+  assert.match(unassignedChipHtml, /Unassigned signal reached story/);
+  assert.doesNotMatch(unassignedChipHtml, /Assigned branch should stay hidden/);
+  assert.match(unassignedChipHtml, /data-story-hero="0"/);
+  assert.match(unassignedChipHtml, /data-beat="0"/);
+  assert.match(unassignedChipHtml, /data-story-filter="all">all · 1/);
+  assert.match(unassignedChipHtml, /New signals 1/);
+  assert.doesNotMatch(unassignedChipHtml, /Mission wins 1/);
+
+  const unassignedDigestNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-digest]')[0];
+  assert.equal(typeof unassignedDigestNode.onclick, 'function');
+  (unassignedDigestNode.onclick as () => void)();
+  const unassignedDigestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(unassignedDigestSheet, /Unassigned signal reached story/);
+  assert.doesNotMatch(unassignedDigestSheet, /Assigned branch should stay hidden/);
+  assert.match(unassignedDigestSheet, /data-story-digest-beat="0"/);
+
+  vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
+  const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
+  assert.match(unassignedHtml, /Unassigned signal reached story/);
+  assert.doesNotMatch(unassignedHtml, /Assigned branch should stay hidden/);
+  assert.match(unassignedHtml, /data-story-hero="0"/);
+
+  vm.runInContext("STORY_BRANCH_FILTER = 'missing'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
+  const legacyMissingHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedLegacyChips = legacyMissingHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedLegacyChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
+  assert.match(legacyMissingHtml, /Unassigned signal reached story/);
+
+  const assignedOnly = await renderPageFixtureContext({
+    ...envelope,
+    beats: [{ text: 'Assigned-only story beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false }],
+  });
+  const assignedOnlyHtml = assignedOnly.elements.get('beats')!.innerHTML;
+  assert.doesNotMatch(assignedOnlyHtml, /data-story-branch-filter="unassigned"/);
+  assert.doesNotMatch(assignedOnlyHtml, /data-story-branch-filter="missing"/);
+  vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", assignedOnly.context as vm.Context);
+  const staleUnassignedHtml = assignedOnly.elements.get('beats')!.innerHTML;
+  assert.match(staleUnassignedHtml, /data-story-branch-filter="all">all branches/);
+  assert.match(staleUnassignedHtml, /Assigned-only story beat/);
+  assert.match(staleUnassignedHtml, /data-story-filter="all">all · 1/);
+});
+
+test('page · story filter keeps unassigned chip visible when branches arrive', async () => {
+  const branchlessEnvelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: { rows: [] },
+    beats: [
+      { text: 'Unassigned carry-forward beat', lane: 'quest', source: 'manual-story', noesis: false },
+      { text: 'Branched carry-forward beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(branchlessEnvelope);
+  const unassignedChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === 'unassigned');
+  assert.ok(unassignedChip);
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
+  (unassignedChip.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'branch-a');
+
+  const branchedEnvelope = {
+    ...branchlessEnvelope,
+    branchStories: {
+      rows: [{ branchId: 'branch-a', name: 'Branch A' }],
+    },
+  };
+  vm.runInContext(`ECOSYSTEM_ENV = ${JSON.stringify(branchedEnvelope)}; renderStory(ECOSYSTEM_ENV);`, rendered.context as vm.Context);
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedBranchChips = storyHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
+  assert.match(storyHtml, /data-story-branch-filter="unassigned">unassigned/);
+  assert.match(storyHtml, /Branch A/);
+  assert.match(storyHtml, /Unassigned carry-forward beat/);
+  assert.doesNotMatch(storyHtml, /Branched carry-forward beat/);
+  assert.match(storyHtml, /data-story-filter="all">all · 1/);
+  assert.match(storyHtml, /data-story-hero="0"/);
+  const heroNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-hero]')[0];
+  assert.equal(typeof heroNode.onclick, 'function');
+  (heroNode.onclick as () => void)();
+  const beatSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(beatSheet, /mission<\/b><span>branch context not served/);
+  const missionTarget = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-target]').find((node) => node.dataset.storyTarget === 'mission');
+  assert.ok(missionTarget);
+  assert.equal(missionTarget.dataset.storyBranchContext, '');
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-a';", rendered.context as vm.Context);
+  (missionTarget.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+
+  vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
+  const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
+  const selectedUnassignedChips = unassignedHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
+  assert.deepEqual(selectedUnassignedChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
+  assert.match(unassignedHtml, /Unassigned carry-forward beat/);
+  assert.doesNotMatch(unassignedHtml, /Branched carry-forward beat/);
+});
+
+test('page · Story-to-Mission MISSION_BRANCH_FOCUS sync only follows branch-scoped beats', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: {
+      rows: [
+        { branchId: 'branch-a', name: 'Branch A' },
+        { branchId: 'branch-b', name: 'Branch B' },
+      ],
+    },
+    beats: [
+      { text: 'Unassigned mission beat', lane: 'quest', source: 'manual-story', noesis: false },
+      { text: 'Branch A mission beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+
+  const branchBChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === 'branch-b');
+  assert.ok(branchBChip);
+  vm.runInContext("MISSION_BRANCH_FOCUS = '';", rendered.context as vm.Context);
+  (branchBChip.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+
+  (rendered.context.openStoryBeat as (index: number) => void)(0);
+  const unassignedMissionTarget = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-target]').find((node) => node.dataset.storyTarget === 'mission');
+  assert.ok(unassignedMissionTarget);
+  assert.equal(unassignedMissionTarget.dataset.storyBranchContext, '');
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'branch-b';", rendered.context as vm.Context);
+  (unassignedMissionTarget.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), '');
+
+  (rendered.context.openStoryBeat as (index: number) => void)(1);
+  const branchMissionTarget = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-target]').find((node) => node.dataset.storyTarget === 'mission');
+  assert.ok(branchMissionTarget);
+  assert.equal(branchMissionTarget.dataset.storyBranchContext, 'branch-a');
+  (branchMissionTarget.onclick as () => void)();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'branch-a');
+});
+
+test('page · story hero empty branch filter has no beat index', async () => {
+  const envelope = {
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-06-22T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    branchStories: {
+      rows: [
+        { branchId: 'branch-a', name: 'Branch A' },
+        { branchId: 'branch-b', name: 'Branch B' },
+      ],
+    },
+    beats: [
+      { text: 'Only Branch A has a story beat', lane: 'quest', branchId: 'branch-a', source: 'quest-ledger', noesis: false },
+    ],
+  };
+  const rendered = await renderPageFixtureContext(envelope);
+  const branchBFilter = rendered.elements.get('beats')!.innerHTML.match(/data-story-branch-filter="(branch-b)"/)?.[1] ?? '';
+  assert.equal(branchBFilter, 'branch-b');
+
+  const branchBChip = rendered.elements.get('beats')!.querySelectorAll('[data-story-branch-filter]').find((node) => node.dataset.storyBranchFilter === branchBFilter);
+  assert.ok(branchBChip);
+  assert.equal(typeof branchBChip.onclick, 'function');
+  (branchBChip.onclick as () => void)();
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const hero = storyHtml.match(/<button type="button" class="story-hero is-empty" data-component="StoryLatestChangeHero"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(hero, /No branch story yet/);
+  assert.doesNotMatch(hero, /data-story-hero=/);
+  assert.doesNotMatch(storyHtml, /Only Branch A has a story beat/);
+  assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-story-hero]').length, 0);
+
+  const digest = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryDigestCards"[\s\S]*?<\/button>/)?.[0] ?? '';
+  assert.match(digest, /Mission wins 0/);
+  assert.match(digest, /New signals 0/);
+  assert.match(digest, /Lessons 0/);
+  assert.match(digest, /Drift 0/);
+  const timeline = storyHtml.match(/<div class="story-timeline"[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.equal((timeline.match(/<i /g) ?? []).length, 0);
+
+  const emptyDigestNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-digest]')[0];
+  assert.equal(typeof emptyDigestNode.onclick, 'function');
+  (emptyDigestNode.onclick as () => void)();
+  const digestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(digestSheet, /No story beats served/);
+  assert.doesNotMatch(digestSheet, /Only Branch A has a story beat/);
+});
+
+test('page · empty story names branch story wait state', async () => {
   const rendered = await renderPageFixtureContext({
     schema: 1,
     tenant: 'cambium',
@@ -1561,12 +2245,36 @@ test('page · empty story names mission movement wait state', async () => {
   });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
 
-  assert.match(storyHtml, /Story is waiting for mission movement/);
-  assert.match(storyHtml, /New wins, signals, lessons, and drift/);
+  assert.match(storyHtml, /No branch story yet/);
+  assert.match(storyHtml, /Wins, signals, lessons, and drift appear here after a branch has evidence/);
+  assert.match(storyHtml, />Open Mission</);
+  assert.match(storyHtml, />Open Proof</);
   assert.match(storyHtml, /data-source="mission-story@v1"/);
   assert.match(storyHtml, /data-story-empty-action="mission"/);
   assert.match(storyHtml, /data-story-empty-action="inspect"/);
+  assertNoStoryPrimaryCopyLeak(storyHtml);
   assert.doesNotMatch(storyHtml, /class="beat/);
+});
+
+test('page · stale Story banner is human copy above filters', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-01-01T00:00:00.000Z',
+    source: 'fixture',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      { text: 'Stale branch signal landed', lane: 'heartbeat', branchId: 'branch-a', source: 'world.log', noesis: false },
+    ],
+  });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /data-component="StoryStaleBanner"/);
+  assert.match(storyHtml, /Last story check is stale/);
+  assert.match(storyHtml, /Refresh before using these beats for a decision/);
+  assert.ok(storyHtml.indexOf('data-component="StoryStaleBanner"') < storyHtml.indexOf('data-component="StoryGroupControls"'));
+  const banner = storyHtml.match(/<section class="mission-stale-notice story-stale-notice"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.doesNotMatch(visibleTextFromHtml(banner), /source|envelope|no fake progress/i);
 });
 
 test('page audit helper · mini app shell does not expose secret markers', () => {
@@ -1592,7 +2300,7 @@ test('page · interaction layer: sheet, haptics, inspect cards', () => {
   assert.match(PAGE, /data-component="GateActionRow"/);
   assert.doesNotMatch(PAGE, /\.mc-action-row\{position:sticky/);
   assert.match(PAGE, /data-sense=\|data-lane=/);
-  assert.match(PAGE, /renderOperatorMap/);
+  assert.match(PAGE, /renderInspect/);
   assert.match(PAGE, /Inspect/);
   assert.match(PAGE, /stage-card/);
 });
@@ -1830,7 +2538,7 @@ test('page · Mission Control visual primitives are named and reduced-motion saf
     'packetDrift',
     'glyphBreathe',
     'warningAttention',
-    '.mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-selected-halo[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
+    '.mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
   ]) assert.ok(PAGE.includes(marker), `PAGE has ${marker}`);
 
   for (const key of ['sourceRefs', 'propShapes', 'MissionGlyph', 'StateToken', 'OrbitProgress', 'SelectedHalo', 'SignalRail', 'PacketFlow', 'BranchArcChip', 'MissionCard', 'QuestlineTimeline', 'ProofList', 'KpiPulse', 'GateActionRow', 'Motion']) {
@@ -1954,7 +2662,7 @@ test('page · primary flow does not render the hidden component gallery as the a
 });
 
 test('page · shared visual mechanics remain available inside Inspect', () => {
-  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'Proof, packet, freshness, and system detail', 'Inspect keeps the low-level proof rows']) {
+  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'Proof map for blockers, packets, freshness, and evidence', 'Inspect keeps the low-level proof rows']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
   }
   for (const stage of CAMBIUM_VISUAL_STAGES) {
@@ -1973,26 +2681,61 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   const inspectHtml = rendered.elements.get('mapwrap')!.innerHTML;
 
   assert.match(inspectHtml, /data-component="InspectGroupStack"/);
-  for (const group of ['freshness', 'policy', 'live-proof', 'branch-packets', 'branch-fixtures', 'gates', 'tools', 'rails', 'evidence', 'surface-contract']) {
+  for (const group of ['freshness', 'live-proof', 'branch-packets', 'gates', 'policy', 'tools', 'rails', 'evidence']) {
     assert.match(inspectHtml, new RegExp(`data-component="InspectGroup"[^>]*data-inspect-group="${group}"`));
   }
+  assert.doesNotMatch(inspectHtml.match(/data-component="InspectGroupStack"[\s\S]*?<\/section>/)?.[0] ?? '', /branch-fixtures|surface-contract/);
+  assert.match(inspectHtml, /data-component="InspectSecondaryLinks"/);
+  assert.match(inspectHtml, /data-component="InspectSecondaryLink"[^>]*data-inspect-group="branch-fixtures"/);
+  assert.match(inspectHtml, /data-component="InspectSecondaryLink"[^>]*data-inspect-group="surface-contract"/);
+  assert.ok(inspectHtml.indexOf('data-component="InspectProofSummaryAction"') < inspectHtml.indexOf('data-component="InspectGroupStack"'));
+  assert.ok(inspectHtml.indexOf('data-component="InspectGroupStack"') < inspectHtml.indexOf('data-component="InspectSecondaryLinks"'));
+  assert.ok(inspectHtml.indexOf('data-component="InspectSecondaryLinks"') < inspectHtml.indexOf('<div class="cmdgrp">freshness</div>'));
+  assert.ok(inspectHtml.indexOf('<div class="cmdgrp">evidence</div>') < inspectHtml.indexOf('<div class="stagegrid">'));
+  assert.match(inspectHtml, /data-inspect-group="freshness"[\s\S]*data-inspect-group="live-proof"[\s\S]*data-inspect-group="branch-packets"[\s\S]*data-inspect-group="gates"[\s\S]*data-inspect-group="policy"/);
+  const firstViewportText = visibleTextFromHtml(inspectHtml.slice(0, inspectHtml.indexOf('data-component="InspectSecondaryLinks"')));
+  assert.doesNotMatch(firstViewportText, /operator map|R3F|schema|envelope|contract/i);
+  assert.match(firstViewportText, /Proof map for blockers, packets, freshness, and evidence/i);
+  assert.match(firstViewportText, /live blocker|No live blockers/i);
   assert.match(inspectHtml, /data-inspect-target="tools"/);
   assert.match(inspectHtml, /data-component="InspectProofSummaryAction"/);
   assert.match(inspectHtml, /data-inspect-summary="1"/);
+  assert.match(inspectHtml, /Open proof details/);
   assert.match(inspectHtml, /Inspect keeps the low-level proof rows out of Mission, Gate, Tools, and Story/);
+  assert.doesNotMatch(inspectHtml.match(/data-component="InspectGroupStack"[\s\S]*data-component="InspectSecondaryLinks"/)?.[0] ?? '', /Envelope|readiness rows|feed Mission/);
+  assert.match(inspectHtml, /refresh before trusting decisions/i);
+  assert.match(inspectHtml, /blocker\(s\) still need proof|No live blockers/i);
+  assert.match(inspectHtml, /Mission can trust|Mission cannot trust/i);
+  assert.match(inspectHtml, /founder approval/i);
+  assert.match(inspectHtml, /Blocked or bounded action/i);
+  assert.match(inspectHtml, /toolbelt commands available|toolbelt commands unavailable/i);
+
+  const proofSummary = rendered.elements.get('mapwrap')!.querySelectorAll('[data-inspect-summary]')[0];
+  assert.ok(proofSummary);
+  assert.equal(typeof proofSummary.onclick, 'function');
+  (proofSummary.onclick as () => void)();
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /<h2>Proof Summary<\/h2>/);
+
   (rendered.context.openInspectGroupSheet as (id: string, env: unknown) => void)('tools', FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /inspect · tools/);
-  assert.match(sheet, /debug layer<\/b><span>Inspect keeps proof and architecture details behind the main app flow/);
-  assert.match(sheet, /back path<\/b><span>Tools -> Inspect/);
+  assert.match(sheet, /proof layer<\/b><span>Inspect keeps proof and architecture details behind the main app flow/);
+  assert.match(sheet, /related page<\/b><span>Tools -> Inspect/);
+  assert.match(sheet, /command availability<\/b><span>toolbelt commands/);
+  assert.match(sheet, /safe use<\/b><span>Tools copy command text/);
+  assert.match(sheet, /how to use this<\/b><span>Open the primary page/);
+  assert.ok(sheet.indexOf('summary</b>') < sheet.indexOf('source</b><span>inspect-proof-layer@v1'));
+  assert.doesNotMatch(sheet, /debug layer|back path|trace action/);
   assert.match(sheet, /related page<\/b><span>Tools/);
   assert.match(sheet, /data-inspect-page-link="tools"/);
 
   (rendered.context.openInspectGroupSheet as (id: string, env: unknown) => void)('surface-contract', FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const contractSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(contractSheet, /surface contract/);
-  assert.match(contractSheet, /Mission<\/b><span>branch packet state/);
-  assert.match(contractSheet, /Tools<\/b><span>mission-effect commands/);
+  assert.match(contractSheet, /scene<\/b><span>Mission · Gate · Tools · Story · Inspect/);
+  assert.match(contractSheet, /role<\/b><span>five-scene surface contract/);
+  assert.match(contractSheet, /proof link<\/b><span>primary pages route here/);
+  assert.match(contractSheet, /status summary<\/b><span>coverage exists/);
 
   (rendered.context.openInspectSummarySheet as (env: unknown) => void)(FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const summarySheet = rendered.elements.get('sheetBody')!.innerHTML;
@@ -2243,10 +2986,11 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   const stem = elements.get('stem')!.innerHTML;
   const progress = elements.get('progress')!.textContent;
   assert.match(stem, /Mission control is waiting for branch packets/);
-  assert.match(stem, /No fake progress/);
+  assert.match(stem, /Branch arcs appear only after product packets reach the visual envelope/);
+  assert.doesNotMatch(stem, /mc-mission-card/);
   assert.match(progress, /branch packets waiting/);
   assert.match(map, /Inspect/);
-  assert.match(map, /Proof, packet, freshness, and system detail/);
+  assert.match(map, /Proof map for blockers, packets, freshness, and evidence/);
   assert.match(map, /ACTIVE ORGAN/);
   assert.match(map, /GENESIS · I/);
   assert.match(map, /WAKE HEALTH/);
@@ -2479,6 +3223,375 @@ test('page · builds Mission Control view from branchStories without promoting m
   assert.notEqual(view.nextMission.state, 'complete');
 });
 
+test('page · Mission Control renders branch loop controls as manual-first', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchLoops: {
+      source: 'product-branch-packets@v1',
+      status: 'blocked',
+      total: 1,
+      green: 0,
+      yellow: 1,
+      red: 0,
+      rows: [{
+        loopId: 'fitcheck-launch-gate-loop',
+        branchId: 'fitcheck',
+        productId: 'fitcheck',
+        productName: 'Fitcheck',
+        title: 'Fitcheck launch gate loop',
+        cadence: 'manual weekly',
+        objective: 'Move one launch blocker.',
+        metric: 'One gate changes status.',
+        boundaryColor: 'yellow',
+        runMode: 'approval-required',
+        oneChangeRule: 'Select exactly one launch gate.',
+        stateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+        stopRule: 'Stop after 3 rounds.',
+        modelRoute: 'cheap-first',
+        proofRequired: 'Updated gate row.',
+        promotionState: 'supervised-branch',
+        currentGate: 'Launch proof',
+        packetFile: 'docs/plans/product-branches/fitcheck.md',
+      }],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: {
+          loops: [{ loopId: 'fitcheck-launch-gate-loop', title: 'Fitcheck launch gate loop', cadence: 'manual weekly', objective: 'Move one launch blocker.', metric: 'One gate changes status.', boundaryColor: 'yellow', oneChangeRule: 'Select exactly one launch gate.', stateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md', stopRule: 'Stop after 3 rounds.', modelRoute: 'cheap-first', proofRequired: 'Updated gate row.' }],
+          approvals: [],
+          dispatchHints: [],
+          organRouting: [],
+          ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' },
+        },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /Fitcheck launch gate loop/);
+  assert.match(html, /approval-required/);
+  assert.match(html, /manual weekly/);
+  assert.match(html, /data-mission-action="loops"/);
+  assert.doesNotMatch(html, /autonomous loop scheduled/i);
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'loops');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /branch loops · fitcheck/);
+  assert.match(sheet, /data-component="StateToken" data-state="proof-needed" aria-label="state: Loop control"/);
+  assert.match(sheet, /Fitcheck launch gate loop · yellow · Stop after 3 rounds\./);
+});
+
+test('page · Mission Control derives manual-first loop run mode from branch controls when visual loop rows are missing', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: {
+          loops: [{ loopId: 'fitcheck-launch-gate-loop', title: 'Fitcheck launch gate loop', cadence: 'manual weekly', objective: 'Move one launch blocker.', metric: 'One gate changes status.', boundaryColor: 'yellow', oneChangeRule: 'Select exactly one launch gate.', stateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md', stopRule: 'Stop after 3 rounds.', modelRoute: 'cheap-first', proofRequired: 'Updated gate row.' }],
+          approvals: [],
+          dispatchHints: [],
+          organRouting: [],
+          ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' },
+        },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /Fitcheck launch gate loop · approval-required/);
+  assert.match(html, /yellow · manual weekly/);
+  assert.doesNotMatch(html, /undefined/);
+  assert.doesNotMatch(html, /autonomous loop scheduled/i);
+});
+
+test('page · Mission Control loop sheet uses visual loop rows when branch-local loops are absent', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchLoops: {
+      source: 'product-branch-packets@v1',
+      status: 'blocked',
+      total: 1,
+      green: 0,
+      yellow: 1,
+      red: 0,
+      rows: [{
+        loopId: 'fitcheck-launch-gate-loop',
+        branchId: 'fitcheck',
+        title: 'Fitcheck launch gate loop',
+        cadence: 'manual weekly',
+        boundaryColor: 'yellow',
+        runMode: 'approval-required',
+        stopRule: 'Stop after 3 rounds.',
+      }],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: { loops: [], approvals: [], dispatchHints: [], organRouting: [], ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' } },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /Fitcheck launch gate loop · approval-required/);
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'loops');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /Fitcheck launch gate loop · yellow · Stop after 3 rounds\./);
+  assert.doesNotMatch(sheet, /loop controls missing/);
+});
+
+test('page · Mission Control sanitizes unsafe top-level loop run modes to manual-first copy', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchLoops: {
+      source: 'product-branch-packets@v1',
+      status: 'blocked',
+      total: 2,
+      green: 0,
+      yellow: 1,
+      red: 1,
+      rows: [
+        {
+          loopId: 'fitcheck-launch-gate-loop',
+          branchId: 'fitcheck',
+          title: 'Fitcheck launch gate loop',
+          cadence: 'scheduled weekly',
+          boundaryColor: 'yellow',
+          runMode: 'scheduled',
+          stopRule: 'Stop after 3 rounds.',
+        },
+        {
+          loopId: 'fitcheck-proof-loop',
+          branchId: 'fitcheck',
+          title: 'Fitcheck proof loop',
+          cadence: 'autonomous hourly',
+          boundaryColor: 'red',
+          runMode: 'autonomous',
+          stopRule: 'Stop after proof drift.',
+        },
+      ],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: { loops: [], approvals: [], dispatchHints: [], organRouting: [], ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' } },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /Fitcheck launch gate loop · approval-required/);
+  assert.match(html, /Fitcheck proof loop · never-alone/);
+  assert.match(html, /manual (approval required|review)/);
+  assert.doesNotMatch(html, /scheduled|autonomous|unattended/i);
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'loops');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.doesNotMatch(sheet, /scheduled|autonomous|unattended/i);
+});
+
+test('page · Mission Control normalizes branch loop controls boundary colors before rendering', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchLoops: {
+      source: 'product-branch-packets@v1',
+      status: 'blocked',
+      total: 3,
+      green: 1,
+      yellow: 1,
+      red: 1,
+      rows: [
+        {
+          loopId: 'fitcheck-launch-gate-loop',
+          branchId: 'fitcheck',
+          title: 'Fitcheck launch gate loop',
+          cadence: 'manual weekly',
+          boundaryColor: 'Yellow',
+          runMode: 'scheduled',
+          stopRule: 'Stop after 3 rounds.',
+        },
+        {
+          loopId: 'fitcheck-read-loop',
+          branchId: 'fitcheck',
+          title: 'Fitcheck read loop',
+          cadence: 'manual daily',
+          boundaryColor: 'GREEN',
+          stopRule: 'Stop after read drift.',
+        },
+        {
+          loopId: 'fitcheck-invalid-loop',
+          branchId: 'fitcheck',
+          title: 'Fitcheck invalid loop',
+          cadence: 'manual weekly',
+          boundaryColor: 'amber is-unsafe',
+          runMode: 'scheduled',
+          stopRule: 'Stop after invalid boundary.',
+        },
+      ],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: { loops: [], approvals: [], dispatchHints: [], organRouting: [], ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' } },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /yellow · manual weekly/);
+  assert.match(html, /Fitcheck launch gate loop · approval-required/);
+  assert.match(html, /Fitcheck read loop · read-only/);
+  assert.match(html, /Fitcheck invalid loop · never-alone/);
+  assert.doesNotMatch(html, /Yellow|GREEN|amber|is-unsafe|scheduled/);
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'loops');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /Fitcheck launch gate loop · yellow · Stop after 3 rounds\./);
+  assert.match(sheet, /Fitcheck read loop · green · Stop after read drift\./);
+  assert.match(sheet, /Fitcheck invalid loop · red · Stop after invalid boundary\./);
+  assert.doesNotMatch(sheet, /Yellow|GREEN|amber|is-unsafe|scheduled/);
+});
+
+test('page · Mission Control enriches partial visual loop rows with branch control metadata', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchLoops: {
+      source: 'product-branch-packets@v1',
+      status: 'blocked',
+      total: 1,
+      green: 0,
+      yellow: 1,
+      red: 0,
+      rows: [{
+        loopId: 'fitcheck-launch-gate-loop',
+        branchId: 'fitcheck',
+        boundaryColor: 'yellow',
+        runMode: 'scheduled',
+      }],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        vision: { statement: 'Move launch proof from packet to founder-visible evidence.' },
+        icp: { primary: 'Shopify founder validating fit check demand' },
+        questline: [{ id: 'proof', title: 'Proof', status: 'blocked' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'supervised-branch', currentGate: 'Founder review', rule: 'proof first' },
+        controls: {
+          loops: [{
+            loopId: 'fitcheck-launch-gate-loop',
+            title: 'Fitcheck launch gate loop',
+            cadence: 'manual weekly',
+            objective: 'Move one launch blocker.',
+            metric: 'One gate changes status.',
+            boundaryColor: 'yellow',
+            oneChangeRule: 'Select exactly one launch gate.',
+            stateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+            stopRule: 'Stop after 3 rounds.',
+            modelRoute: 'cheap-first',
+            proofRequired: 'Updated gate row.',
+          }],
+          approvals: [],
+          dispatchHints: [],
+          organRouting: [],
+          ui: { currentFrontier: 'Founder approval is the current frontier.', blockedCopy: 'Do not claim launch proof until viewport evidence lands.' },
+        },
+        source: { packetFile: 'docs/plans/product-branches/fitcheck.md', indexFile: 'docs/plans/product-branches/index.md' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /Fitcheck launch gate loop · approval-required/);
+  assert.match(html, /yellow · manual weekly/);
+  assert.doesNotMatch(html, /stop rule missing|manual review|undefined|scheduled|autonomous/i);
+
+  (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'loops');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /Fitcheck launch gate loop · yellow · Stop after 3 rounds\./);
+  assert.doesNotMatch(sheet, /loop controls missing|stop rule missing|manual review|undefined|scheduled|autonomous/i);
+});
+
 test('page · Mission scene renders branch arcs, next mission, blockers, proof, KPIs, and actions', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -2526,6 +3639,12 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-selected-surface="branch-chip"/);
   assert.match(html, /data-selected-surface="mission-state-row"/);
   assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);
+  const selectedBranchChip = html.match(/<button type="button" class="mc-branch-chip[^"]*mc-selected-halo[^"]*"[^>]*data-selected-surface="branch-chip"[^>]*>/)?.[0] ?? '';
+  assert.match(selectedBranchChip, /data-component="BranchArcChip"/);
+  assert.doesNotMatch(selectedBranchChip, /data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
+  assert.match(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:none/);
+  assert.doesNotMatch(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:orbitSweep/);
+  assert.doesNotMatch(PAGE, /\.gate-hero::after\{[\s\S]*?animation:orbitSweep|\.branch-sheet-hero::after\{[\s\S]*?animation:orbitSweep/);
   assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
   assert.match(html, /data-packet-mode="texture"/);
   assert.match(html, /data-mission-state-action="proof"/);
@@ -2557,7 +3676,7 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
 });
 
-test('page · primary Mission Gate Tools and Story copy denylist keeps meta language in Inspect', async () => {
+test('page · primary copy Mission Gate Tools and Story denylist keeps meta language in Inspect', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     branchStories: {
@@ -2744,7 +3863,7 @@ test('page · stage sheets map organs to ecosystem targets and stay read-only', 
   for (const [stageId, target] of expected) {
     (rendered.context.openMapSheet as (ledger: unknown, stageId: string) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE.ledger, stageId);
     const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-    assert.match(sheet, new RegExp(`operator map · ${stageId}`));
+    assert.match(sheet, new RegExp(`inspect stage · ${stageId}`));
     assert.match(sheet, /data-component="VisualStageSheetHeader"/);
     assert.match(sheet, /data-component="MissionGlyph"/);
     assert.match(sheet, /data-component="StateToken"/);
@@ -2832,12 +3951,35 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   assert.match(commandHtml, /class="cmd ref[^"]*"(?=[^>]*data-interaction-kind="read-only")/);
 
   (rendered.elements.get('sceneBadge')!.onclick as () => void)();
-  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
-  assert.match(sheet, /data-sheet="true"/);
-  assert.match(sheet, /data-signed-action="true"/);
-  assert.match(sheet, /data-chat-command="true"/);
-  assert.match(sheet, /data-read-only="true"/);
+  const storySheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assertNoPrimarySceneSheetTelemetry(storySheet);
+
+  (rendered.context.go as (index: number) => void)(4);
+  (rendered.elements.get('sceneBadge')!.onclick as () => void)();
+  const inspectSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(inspectSheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
+  assert.match(inspectSheet, /data-sheet="true"/);
+  assert.match(inspectSheet, /data-signed-action="true"/);
+  assert.match(inspectSheet, /data-chat-command="true"/);
+  assert.match(inspectSheet, /data-read-only="true"/);
+});
+
+test('visual fixtures · no-fake-progress visual fixture stays honest about missing proof', () => {
+  assert.deepEqual(NO_FAKE_PROGRESS_VISUAL_FIXTURE.beats, []);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.derivedAt, '2026-01-01T00:00:00.000Z');
+  assert.ok(
+    Date.now() - Date.parse(NO_FAKE_PROGRESS_VISUAL_FIXTURE.derivedAt) > 360 * 60 * 1000,
+    'no-fake-progress fixture remains stale by the six-hour proof window',
+  );
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.commands, null);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.status, 'blocked');
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.liveProofReady, false);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.blocked, 3);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.rows.length, NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.blocked);
+  for (const row of NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.rows) {
+    assert.equal(row.state, 'blocked', `${row.id} remains blocked`);
+    assert.match(row.proof, /guidance, not proof|current readiness blocks/, `${row.id} proof does not overclaim readiness`);
+  }
 });
 
 test('visual fixtures · fresh ecosystem fixture has live source proofs', () => {
@@ -4917,6 +6059,11 @@ test('bridge · Cambium emits live project task assignment directives', async ()
       promotionState: 'supervised-branch',
       proofFoldback: 'docs/plans/product-branches/fitcheck.md#proof-foldback',
       autonomyBoundary: 'founder approval gates remain required',
+      loopId: 'fitcheck-launch-gate-loop',
+      loopBoundaryColor: 'yellow',
+      loopStateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+      loopStopRule: 'Stop after 3 rounds.',
+      loopOneChangeRule: 'Select exactly one launch gate.',
       approvalsRequired: ['founder provides authenticated route/session'],
     },
   };
@@ -4960,6 +6107,11 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   assert.equal(directive.payload.task.promotionState, 'supervised-branch');
   assert.equal(directive.payload.task.proofFoldback, 'docs/plans/product-branches/fitcheck.md#proof-foldback');
   assert.equal(directive.payload.task.autonomyBoundary, 'founder approval gates remain required');
+  assert.equal(directive.payload.task.loopId, 'fitcheck-launch-gate-loop');
+  assert.equal(directive.payload.task.loopBoundaryColor, 'yellow');
+  assert.equal(directive.payload.task.loopStateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
+  assert.equal(directive.payload.task.loopStopRule, 'Stop after 3 rounds.');
+  assert.equal(directive.payload.task.loopOneChangeRule, 'Select exactly one launch gate.');
   assert.deepEqual(directive.payload.task.approvalsRequired, ['founder provides authenticated route/session']);
   assert.equal(directive.payload.task.eventId, body(queued).eventId);
   assert.ok(directive.payloadHash);
@@ -4993,6 +6145,45 @@ test('bridge · Cambium emits live project task assignment directives', async ()
   }), deps);
   assert.equal(conflict.status, 409);
   assert.equal(body(conflict).eventId, 'cambium:fitcheck-product:task-fitcheck-brief:assigned');
+});
+
+test('bridge · project task assignments preserve branchMission loop metadata fallback', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    now: () => '2026-06-22T08:00:00.000Z',
+    uuid: () => 'assign-loop-fallback-1',
+  };
+  const queued = await handle(req('POST', '/v1/bridge/assign-task', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      memberId: 'mathis',
+      task: {
+        taskId: 'task-fitcheck-loop-fallback',
+        projectId: 'fitcheck-product',
+        title: 'Prepare loop fallback proof',
+        branchMission: {
+          loopId: 'fitcheck-launch-gate-loop',
+          loopBoundaryColor: 'yellow',
+          loopStateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+          loopStopRule: 'Stop after 3 rounds.',
+          loopOneChangeRule: 'Select exactly one launch gate.',
+        },
+      },
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/mathis', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  const directive = body(pending).directives[0];
+  assert.equal(directive.payload.task.loopId, 'fitcheck-launch-gate-loop');
+  assert.equal(directive.payload.task.loopBoundaryColor, 'yellow');
+  assert.equal(directive.payload.task.loopStateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
+  assert.equal(directive.payload.task.loopStopRule, 'Stop after 3 rounds.');
+  assert.equal(directive.payload.task.loopOneChangeRule, 'Select exactly one launch gate.');
 });
 
 test('bridge · scoped Hermes assignment token only enqueues task assignments', async () => {
@@ -5333,6 +6524,11 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
       sourceMessageId: '852',
       memberId: 'shesh',
       summary: 'Build route proof is stale and needs a fresh worker probe.',
+      loopId: 'fitcheck-launch-gate-loop',
+      loopBoundaryColor: 'yellow',
+      loopStateFile: '.operator/branch-loops/fitcheck-launch-gate-loop.md',
+      loopStopRule: 'Stop after 3 rounds.',
+      loopOneChangeRule: 'Select exactly one launch gate.',
       skillHints: [{
         skillId: 'engineering-delivery-proof',
         domain: 'engineering',
@@ -5358,6 +6554,11 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
   assert.equal(directive.payload.task.taskType, 'engineering');
   assert.equal(directive.payload.task.assignedBy, 'hermes-topic-router');
   assert.equal(directive.payload.task.source, 'cambium-topic-routing');
+  assert.equal(directive.payload.task.loopId, 'fitcheck-launch-gate-loop');
+  assert.equal(directive.payload.task.loopBoundaryColor, 'yellow');
+  assert.equal(directive.payload.task.loopStateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
+  assert.equal(directive.payload.task.loopStopRule, 'Stop after 3 rounds.');
+  assert.equal(directive.payload.task.loopOneChangeRule, 'Select exactly one launch gate.');
   assert.match(directive.payload.task.description, /Telegram Dev topic signal/);
   assert.deepEqual(directive.payload.task.skillHints, [{
     skillId: 'engineering-delivery-proof',

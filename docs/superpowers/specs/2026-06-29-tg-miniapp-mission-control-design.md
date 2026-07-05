@@ -183,6 +183,8 @@ Primary UI should prefer:
 
 The rule is not to hide the architecture. The rule is to put it behind the decision the founder is trying to make.
 
+`no fake progress` is a verification invariant and fixture name, not footer copy or primary product language.
+
 ## Data Flow
 
 The Mission Control surface should derive from existing data rather than inventing a parallel state model.

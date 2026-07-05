@@ -178,6 +178,184 @@ function normalizeControlValue(value) {
   return value.trim().replace(/^`|`$/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 }
 
+const LOOP_REQUIRED_COLUMNS = [
+  'loop_id',
+  'title',
+  'cadence',
+  'objective',
+  'metric',
+  'boundary_color',
+  'one_change_rule',
+  'state_file',
+  'stop_rule',
+  'model_route',
+  'proof_required'
+];
+
+const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
+const LOOP_ONE_CHANGE_BATCHING_PHRASES = ['multiple', 'several', 'batch', 'all gates'];
+const LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES = [
+  'and keep',
+  'and never',
+  'and write only',
+  'and document the finding in',
+  'and record the finding in'
+];
+const LOOP_ONE_CHANGE_RECORDING_GUARDRAIL_PREFIXES = [
+  'and write only',
+  'and document the finding in',
+  'and record the finding in'
+];
+const LOOP_ONE_CHANGE_SECOND_ACTION_WORDS = [
+  'request',
+  'file',
+  'submit',
+  'approve',
+  'decide',
+  'escalate',
+  'select',
+  'choose',
+  'record',
+  'write',
+  'draft',
+  'create',
+  'return',
+  'run',
+  'one'
+];
+
+function countExactPhrase(value, phrase) {
+  return (value.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+}
+
+function countWholeWord(value, word) {
+  return (value.match(new RegExp(`\\b${word}\\b`, 'g')) || []).length;
+}
+
+function stripFinalTerminalPeriod(value) {
+  return value.endsWith('.') ? value.slice(0, -1).trimEnd() : value;
+}
+
+function isExplicitEnumerationClause(selectedClause) {
+  if (!/^of\s+/i.test(selectedClause) || !selectedClause.includes(',')) {
+    return false;
+  }
+
+  return /^of\s+[^,]+(?:,\s*[^,]+)*\s*,?\s*or\s+[^,]+$/i.test(selectedClause);
+}
+
+function matchesSecondActionPattern(value) {
+  const secondActionAlternation = LOOP_ONE_CHANGE_SECOND_ACTION_WORDS.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  return new RegExp(`(?:\\band\\s+(?:${secondActionAlternation})\\b|[&+]\\s*(?:${secondActionAlternation})\\b|\\/\\s*(?:${secondActionAlternation})\\b)`, 'i').test(value);
+}
+
+function validateGuardrailClause(guardrailClause, rowLabel) {
+  if (!guardrailClause) {
+    return;
+  }
+
+  const guardrailPrefix = LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES.find((prefix) => guardrailClause.startsWith(prefix));
+  if (!guardrailPrefix) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  const guardrailBody = guardrailClause.slice(guardrailPrefix.length).trimStart();
+
+  if (/[;:]/.test(guardrailBody) || /\.\s+\S/.test(guardrailBody)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (/\b(?:then|also|plus)\b/i.test(guardrailBody)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (/\band\b/i.test(guardrailBody)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (LOOP_ONE_CHANGE_RECORDING_GUARDRAIL_PREFIXES.includes(guardrailPrefix) && !guardrailClause.includes('.operator/branch-loops/')) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+}
+
+function validateOneChangeRule(oneChangeRule, rowLabel) {
+  const exactOneIndex = oneChangeRule.indexOf('exactly one');
+  const remainder = stripFinalTerminalPeriod(oneChangeRule.slice(exactOneIndex + 'exactly one'.length).trimStart());
+
+  if (!remainder) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (/[;:]/.test(remainder) || /\.\s+\S/.test(remainder)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (/\b(?:then|also|plus)\b/i.test(remainder)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (LOOP_ONE_CHANGE_BATCHING_PHRASES.some((phrase) => new RegExp(`\\b${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(remainder))) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  const guardrailPattern = new RegExp(
+    `\\s(${LOOP_ONE_CHANGE_GUARDRAIL_PREFIXES.map((prefix) => prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`,
+    'i'
+  );
+  const guardrailMatch = remainder.match(guardrailPattern);
+
+  const selectedClause = guardrailMatch ? remainder.slice(0, guardrailMatch.index).trim() : remainder.trim();
+  const guardrailClause = guardrailMatch ? remainder.slice(guardrailMatch.index + 1).trimStart() : '';
+
+  if (!selectedClause) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (matchesSecondActionPattern(selectedClause)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (selectedClause.includes(',') && !isExplicitEnumerationClause(selectedClause)) {
+    throw new Error(`${rowLabel} one_change_rule must not suggest batching`);
+  }
+
+  if (guardrailClause) {
+    validateGuardrailClause(guardrailClause, rowLabel);
+  }
+}
+
+function validateLoopControlRows({ source, packetFile }) {
+  const { rows } = parseSectionTable(source, 'Loop Control Inputs');
+  rows.forEach((row, index) => {
+    const rowLabel = `${packetFile}: Loop Control Inputs row ${index + 1}`;
+    const missingFields = LOOP_REQUIRED_COLUMNS.filter((field) => String(row[field] || '').trim() === '');
+    if (missingFields.length) {
+      throw new Error(`${rowLabel} missing required loop field(s): ${missingFields.join(', ')}`);
+    }
+
+    const boundaryColor = String(row.boundary_color || '').trim();
+    if (!LOOP_BOUNDARY_COLORS.has(boundaryColor)) {
+      throw new Error(`${rowLabel} has invalid boundary_color "${boundaryColor}"`);
+    }
+    const stateFile = String(row.state_file || '').trim();
+    if (!stateFile.startsWith('.operator/branch-loops/') || stateFile.includes('..') || stateFile.includes('\\')) {
+      throw new Error(`${rowLabel} has unsafe state_file "${stateFile}"`);
+    }
+    const oneChangeRule = String(row.one_change_rule || '').trim().toLowerCase();
+    if (!oneChangeRule.includes('exactly one')) {
+      throw new Error(`${rowLabel} one_change_rule must include "exactly one"`);
+    }
+    if (countExactPhrase(oneChangeRule, 'exactly one') > 1) {
+      throw new Error(`${rowLabel} one_change_rule must include "exactly one" only once`);
+    }
+    validateOneChangeRule(oneChangeRule, rowLabel);
+    const stopRule = String(row.stop_rule || '').trim();
+    if (!/stop/i.test(stopRule)) {
+      throw new Error(`${rowLabel} stop_rule must describe when to stop`);
+    }
+  });
+}
+
 function validateControlTables({ source, packetFile, schema }) {
   for (const table of schema.required_control_tables || []) {
     const { headers, rows } = parseSectionTable(source, table.section);
@@ -225,6 +403,7 @@ function validatePacket({ packetFile, schema, row }) {
   }
 
   validateControlTables({ source, packetFile, schema });
+  validateLoopControlRows({ source, packetFile });
 }
 
 function validateRequiredProducts(schema, rows) {

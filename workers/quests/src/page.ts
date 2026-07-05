@@ -11,6 +11,11 @@
 // drill-down (tap ring → zoom + parsed evidence facets), count-up numerals, tactile haptics.
 
 import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_RAILS, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../shared/cambium-visual-contract.ts';
+import { MINI_APP_SECTIONS } from './mini-app-surface-contract.ts';
+
+const SCENE_TARGET_BY_SCENE = Object.fromEntries(
+  MINI_APP_SECTIONS.map((section) => [section.scene, section.target]),
+);
 
 export const PAGE = `<!doctype html>
 <html lang="en">
@@ -231,7 +236,7 @@ export const PAGE = `<!doctype html>
   .mission-tool-link small,.tool-recommend small,.story-hero small,.inspect-proof-summary small{display:block;font:11px/1.35 var(--mono);opacity:.68;margin-top:3px}
   .mission-tool-link button,.tool-recommend button{appearance:none;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:var(--bg);font:800 12px inherit;padding:9px 10px;cursor:pointer}
 
-  /* ── operator map — R3F mechanics, Telegram density ───── */
+  /* ── inspect proof map — Telegram density ───── */
 	  @keyframes spin{to{transform:rotate(360deg)}}
 	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
 	  @keyframes orbitSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -299,7 +304,7 @@ export const PAGE = `<!doctype html>
 	  .mc-orbit .mc-packet-dots{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);min-height:6px;gap:3px;animation:none}
 	  .mc-selected-halo{position:relative;box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
 	  .mc-selected-halo::after{content:"";position:absolute;inset:3px;border-radius:inherit;border:1px solid rgba(224,255,79,.22);pointer-events:none}
-	  .mc-selected-halo[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.42);border-left-color:transparent;animation:orbitSweep 5.6s var(--ease) infinite}
+	  .mc-selected-halo[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.22);animation:none}
 	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
 	  .mc-signal-rail.is-active{border-color:rgba(224,255,79,.34)}
 	  .mc-signal-rail.is-blocked,.mc-signal-rail.is-proof-needed{border-color:rgba(248,181,96,.42);border-style:dashed}
@@ -446,7 +451,7 @@ export const PAGE = `<!doctype html>
     border:1px solid rgba(224,255,79,.28);border-radius:14px;padding:14px;background:linear-gradient(145deg,rgba(224,255,79,.06),rgba(1,47,52,.38) 60%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
   .gate-hero::after{content:"";position:absolute;right:-34px;top:-34px;width:124px;height:124px;border-radius:50%;
-    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none;animation:orbitSweep 8s linear infinite}
+    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none}
   .gate-title-row{position:relative;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start}
   .gate-title-row h3{font-size:20px;line-height:1.1;color:var(--ink);margin:0 0 6px}
   .gate-title-row p{font-size:12.5px;line-height:1.45;opacity:.78;max-width:46ch}
@@ -536,7 +541,7 @@ export const PAGE = `<!doctype html>
   .branch-sheet-hero{position:relative;overflow:hidden;border:1px solid rgba(224,255,79,.27);border-radius:12px;padding:13px;
     background:linear-gradient(145deg,rgba(224,255,79,.055),rgba(1,47,52,.4) 62%);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
   .branch-sheet-hero::after{content:"";position:absolute;right:-28px;top:-24px;width:120px;height:120px;border-radius:50%;
-    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none;animation:orbitSweep 8s linear infinite}
+    border:1px dashed rgba(224,255,79,.22);opacity:.8;pointer-events:none}
   .branch-sheet-head{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;z-index:1}
   .branch-sheet-head h2{margin:2px 0 1px;font-size:20px;line-height:1.12;color:var(--soft)}
   .branch-sheet-head .arc{opacity:.72;font-size:11px}
@@ -592,7 +597,7 @@ export const PAGE = `<!doctype html>
 
 	  @media (prefers-reduced-motion: reduce){
 	    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-	    .mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-selected-halo[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
+	    .mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
 	  }
 </style>
 </head>
@@ -660,7 +665,6 @@ export const PAGE = `<!doctype html>
     <section class="scene" id="sceneS" aria-labelledby="sceneSTitle"><h2 id="sceneSTitle" class="sr">Story</h2><div id="beats"></div></section>
     <section class="scene" id="sceneF" aria-labelledby="sceneFTitle"><h2 id="sceneFTitle" class="sr">Inspect</h2><div class="mapwrap" id="mapwrap"></div></section>
   </div>
-  <footer>every status derives from real world-state — no fake progress.</footer>
 </div>
 <div class="veil" id="veil"></div>
 <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
@@ -943,12 +947,13 @@ let MISSION_BRANCH_FOCUS = '';
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
 const track = $('track'), ind = $('ind'), SCN = 5;
 let scene = START_SCENE;
+const SCENE_TARGET_BY_SCENE = ${JSON.stringify(SCENE_TARGET_BY_SCENE)};
 const SCENE_META = [
-  { label:'Mission', source:'tg-miniapp-scenes@v1', target:'product-branches', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions' },
-  { label:'Gate', source:'tg-miniapp-scenes@v1', target:'telegram', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; founder decisions require confirmation' },
-  { label:'Tools', source:'tg-miniapp-scenes@v1', target:'hermes', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; tool actions remain explicit' },
-  { label:'Story', source:'tg-miniapp-scenes@v1', target:'operator-narrative', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; story rows stay evidence-backed' },
-  { label:'Inspect', source:'tg-miniapp-scenes@v1', target:'cambium-worker', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; proof detail stays inspectable' },
+  { kind:'primary', label:'Mission', target:SCENE_TARGET_BY_SCENE.mission, summary:'Next branch move, gate, and proof cue stay together for founder review.', next:'Open the active mission card or send blocked choices to Gate.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions' },
+  { kind:'primary', label:'Gate', target:SCENE_TARGET_BY_SCENE.gate, summary:'Founder decisions stay explicit, reversible, and separated from read-only review.', next:'Review the queued choice, then approve or reroll with confirmation.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; founder decisions require confirmation' },
+  { kind:'primary', label:'Tools', target:SCENE_TARGET_BY_SCENE.tools, summary:'Operator commands are available as copyable chat actions and live read-only sheets.', next:'Choose a command, copy it, or inspect the live tool sheet.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; tool actions remain explicit' },
+  { kind:'primary', label:'Story', target:SCENE_TARGET_BY_SCENE.story, summary:'Story rows summarize wins, signals, lessons, and drift after evidence lands.', next:'Open a beat for context or return to Mission, Gate, or Tools.', refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; story rows stay evidence-backed' },
+  { kind:'inspect', label:'Inspect', source:'tg-miniapp-scenes@v1', target:SCENE_TARGET_BY_SCENE.inspect, refresh:'Pull to refresh updates ' + REFRESH_ROUTE + '; proof detail stays inspectable' },
 ];
 $('ptr').dataset.refreshRoute = REFRESH_ROUTE;
 $('ptrProof').textContent = 'Pull to refresh updates ' + REFRESH_ROUTE + '; decisions stay behind signed actions.';
@@ -994,9 +999,15 @@ function reducedMotionProofRow(){
 }
 function openSceneSheet(){
   const meta = SCENE_META[scene] || SCENE_META[0];
-  $('sheetBody').innerHTML = '<div class="arc">view details · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
-    '<div class="nar">Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow.</div>' +
-    '<div class="kv"><b>view</b><span>' + esc(meta.source) + '</span><b>target</b><span>' + esc(meta.target) + '</span><b>refresh</b><span>' + esc(meta.refresh) + '</span>' + reducedMotionProofRow() + '</div>';
+  if (meta.kind === 'inspect') {
+    $('sheetBody').innerHTML = '<div class="arc">view details · inspect</div><h2>Inspect</h2>' +
+      '<div class="nar">Inspect keeps proof, packet, freshness, and system detail behind the main Mission Control flow.</div>' +
+      '<div class="kv"><b>view</b><span>' + esc(meta.source) + '</span><b>target</b><span>' + esc(meta.target) + '</span><b>refresh</b><span>' + esc(meta.refresh) + '</span>' + reducedMotionProofRow() + '</div>';
+  } else {
+    $('sheetBody').innerHTML = '<div class="arc">mission control · ' + esc(meta.label.toLowerCase()) + '</div><h2>' + esc(meta.label) + '</h2>' +
+      '<div class="nar">' + esc(meta.summary) + '</div>' +
+      '<div class="kv"><b>summary</b><span>' + esc(meta.summary) + '</span><b>next</b><span>' + esc(meta.next) + '</span><b>refresh</b><span>' + esc(meta.refresh) + '</span></div>';
+  }
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 $('sceneBadge').onclick = openSceneSheet;
@@ -1650,7 +1661,7 @@ function openGateResultSheet(kind, subject, res, fallback, item){
 function openGateFailureSheet(kind, subject, error, fallback, item){
   $('sheetBody').innerHTML = '<div class="arc">gate result · refused</div><h2>Decision Not Queued</h2>' +
     '<div class="nar">The Worker refused this signed action. No local queue write was created, and branch proof is unchanged.</div>' +
-    gateRows([['action kind', kind], ['subject', subject], ['reason', error || 'unknown'], ['idempotency', fallback.idempotencyKey], ['consequence', fallback.consequence], ['reversibility', fallback.reversibility], ['next step', 'Refresh Gate, then inspect source detail or return to Mission']]) +
+    gateRows([['action kind', kind], ['subject', subject], ['reason', error || 'unknown'], ['idempotency', fallback.idempotencyKey], ['consequence', fallback.consequence], ['reversibility', fallback.reversibility], ['next step', 'Refresh Gate, then open proof details or return to Mission']]) +
     '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
   $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
     returnFromGate(el.dataset.gateResultNav, item);
@@ -2492,6 +2503,83 @@ function mcControls(branch){
     autonomyBoundary:mcText(controls.autonomyBoundary, 'proof must fold back before autonomy claims'),
   };
 }
+function branchLoopEnvelope(env){
+  return env && env.branchLoops ? env.branchLoops : { rows: [] };
+}
+function branchLoopRows(env, branchId){
+  const rows = Array.isArray(branchLoopEnvelope(env).rows) ? branchLoopEnvelope(env).rows : [];
+  return rows.filter(row => String(row.branchId || row.productId || '') === String(branchId || ''));
+}
+function mcLoopBoundaryColor(row){
+  const color = String((row && row.boundaryColor) || '').toLowerCase();
+  if (color === 'green' || color === 'yellow' || color === 'red') return color;
+  return 'red';
+}
+function mcLoopRunMode(row){
+  const raw = String((row && row.runMode) || '').toLowerCase();
+  if (raw === 'read-only' || raw === 'approval-required' || raw === 'never-alone') return raw;
+  const boundaryColor = mcLoopBoundaryColor(row);
+  if (boundaryColor === 'green') return 'read-only';
+  if (boundaryColor === 'red') return 'never-alone';
+  return 'approval-required';
+}
+function mcBranchControlLoops(branch){
+  const controlLoops = mcList(branch && branch.controls && branch.controls.loops);
+  if (controlLoops.length) return controlLoops;
+  return mcList(branch && branch.loops);
+}
+function mcLoopCadence(row){
+  const cadence = mcText(row && row.cadence, 'manual review');
+  if (/\\b(scheduled|autonomous|unattended|cron|automatic|auto-run)\\b/i.test(cadence)) {
+    return mcLoopRunMode(row) === 'read-only' ? 'manual review' : 'manual approval required';
+  }
+  return cadence;
+}
+function mcLoopViewRow(row){
+  return {
+    ...row,
+    boundaryColor:mcLoopBoundaryColor(row),
+    cadence:mcLoopCadence(row),
+    runMode:mcLoopRunMode(row),
+    title:mcText(row && row.title, mcText(row && row.loopId, 'Loop control')),
+    stopRule:mcText(row && row.stopRule, 'stop rule missing'),
+  };
+}
+function mcLoopRowMerge(primary, fallback){
+  const merged = { ...(fallback || {}) };
+  const source = primary || {};
+  Object.keys(source).forEach(key => {
+    const value = source[key];
+    if (value == null) return;
+    if (typeof value === 'string' && value.trim() === '') return;
+    merged[key] = value;
+  });
+  return merged;
+}
+function mcLoopRows(env, branch, branchId){
+  const visualRows = branchLoopRows(env, branchId);
+  const fallbackRows = mcBranchControlLoops(branch);
+  const usedFallback = new Set();
+  const mergedVisualRows = visualRows.map(row => {
+    const loopId = mcText(row && row.loopId, '');
+    const fallbackIndex = loopId ? fallbackRows.findIndex(loop => mcText(loop && loop.loopId, '') === loopId) : -1;
+    if (fallbackIndex >= 0) usedFallback.add(fallbackIndex);
+    return mcLoopViewRow(mcLoopRowMerge(row, fallbackIndex >= 0 ? fallbackRows[fallbackIndex] : null));
+  });
+  const remainingFallbackRows = fallbackRows
+    .filter((_, index) => !usedFallback.has(index))
+    .map(mcLoopViewRow);
+  return mergedVisualRows.concat(remainingFallbackRows);
+}
+function mcLoopFocusNarrative(rows){
+  return rows.length ? rows.map(loop => (loop.title || loop.loopId) + ' · ' + (loop.boundaryColor || 'yellow') + ' · ' + (loop.stopRule || 'stop rule missing')).join(' / ') : 'loop controls missing';
+}
+function mcLoopState(row){
+  if (!row) return 'blocked';
+  if (row.boundaryColor === 'green') return 'active';
+  if (row.boundaryColor === 'yellow') return 'proof-needed';
+  return 'blocked';
+}
 function buildMissionControlView(env){
   const branchEnv = branchEnvelope(env || {});
   const rows = branchRows(env || {});
@@ -2522,7 +2610,7 @@ function buildMissionControlView(env){
   return {
     source:mcText(branchEnv.source, 'product-branch-packets@v1'),
     stale:mcBranchEnvelopeStale(env || {}, branchEnv),
-    staleDetail:mcText(branchEnv.staleReason || (env && env.freshness && env.freshness.detail), 'refresh before decisions; Inspect keeps timestamp/source detail'),
+    staleDetail:mcText(branchEnv.staleReason || (env && env.freshness && env.freshness.detail), 'refresh before decisions; Inspect keeps timestamp and proof detail'),
     selectedBranchId:branch ? mcBranchId(branch, selectedIndex) : requested,
     selectedBranch:branch,
     branches:rows.slice(0, 12).map((row, index) => {
@@ -2546,6 +2634,7 @@ function buildMissionControlView(env){
     blockers:mcBlockers(env || {}, branch),
     proofNeeded:mcProofNeeded(branch, mission),
     kpis:mcKpis(branch),
+    loops:branch ? mcLoopRows(env || {}, branch, mcBranchId(branch, selectedIndex)) : [],
     promotion:{
       state:mcText(promotion.state, 'proof-only'),
       currentGate:mcText(promotion.currentGate, nextMission.gate || 'proof gate missing'),
@@ -2566,7 +2655,7 @@ function buildMissionControlView(env){
 function renderBranchArcRail(view){
   if (!view.branches.length) return '';
   return '<div class="mc-branch-rail">' + view.branches.map((branch, index) =>
-    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '"' + (branch.selected && !RM ? ' data-motion="orbitSweep" data-motion-primitive="orbitSweep"' : '') + '>' +
+    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
       mcGlyphSvg(branch.organ.glyph, branch.state, { motion: branch.selected ? 'glyphBreathe' : '' }) +
       '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b><small>' + esc(branch.organ.label + ' organ · ' + branch.nextMission) + '</small></span>' + mcStateToken(branch.state, branch.state) +
     '</button>'
@@ -2641,12 +2730,20 @@ function renderMissionToolLink(view){
     '<button type="button" data-mission-action="tools" data-no-scene-drag="1">Open Tools</button>' +
   '</section>';
 }
+function renderMissionLoops(view){
+  const rows = view.loops && view.loops.length ? view.loops.slice(0, 3) : [];
+  if (!rows.length) return '';
+  return '<section class="mission-tool-link" data-component="BranchLoopControls" data-ecosystem-target="branch-loops">' +
+    '<span><b>Loop controls</b><small>' + esc(rows.map(row => (row.title || row.loopId) + ' · ' + row.runMode).join(' / ')) + '</small></span>' +
+    '<button type="button" class="secondary" data-mission-action="loops" data-no-scene-drag="1" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="branch-loops">' + esc(rows[0].boundaryColor + ' · ' + rows[0].cadence) + '</button>' +
+  '</section>';
+}
 function renderMissionControl(env){
   const stem = $('stem');
   const view = buildMissionControlView(env);
   stem.classList.add('mission-control');
   if (!view.selectedBranch) {
-    stem.innerHTML = '<div class="mission-empty"><b>Mission control is waiting for branch packets.</b><p>No fake progress: branch arcs appear only after product packets reach the visual envelope.</p><div class="mc-action-row" data-component="GateActionRow"><button type="button" data-mission-action="refresh">Refresh</button><button type="button" class="secondary" data-mission-action="inspect">Inspect</button></div></div>';
+    stem.innerHTML = '<div class="mission-empty"><b>Mission control is waiting for branch packets.</b><p>Branch arcs appear only after product packets reach the visual envelope.</p><div class="mc-action-row" data-component="GateActionRow"><button type="button" data-mission-action="refresh">Refresh</button><button type="button" class="secondary" data-mission-action="inspect">Inspect</button></div></div>';
     resetQuestSummary('branch packets waiting', 'inspect source');
     stem.querySelectorAll('[data-mission-action="refresh"]').forEach(el => el.onclick = () => refresh());
     stem.querySelectorAll('[data-mission-action="inspect"]').forEach(el => el.onclick = () => go(4));
@@ -2661,6 +2758,7 @@ function renderMissionControl(env){
     renderMissionStateStack(view),
     renderMissionProofNeeded(view),
     renderMissionToolLink(view),
+    renderMissionLoops(view),
     renderMissionActions(view),
     renderMissionKpis(view),
   ].join('');
@@ -2684,6 +2782,7 @@ function renderMissionControl(env){
   stem.querySelectorAll('[data-mission-proof-row]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));
   stem.querySelectorAll('[data-mission-state-action]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, el.dataset.missionStateAction === 'selected' ? undefined : el.dataset.missionStateAction));
   stem.querySelectorAll('[data-mission-action="tools"]').forEach(el => el.onclick = () => { TOOL_FOCUS = 'ts-status'; TOOL_CONTEXT_BRANCH = view.selectedBranchId || ''; go(2); cmdsDrawn = false; renderCommands(); });
+  stem.querySelectorAll('[data-mission-action="loops"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'loops'));
 }
 function branchCardState(branch){
   const text = mcBranchStatusText(branch);
@@ -2778,14 +2877,18 @@ function renderBranchProof(env){
 function branchMissionFocusLabel(focus){
   if (focus === 'gate') return 'branch gate';
   if (focus === 'proof') return 'branch proof';
+  if (focus === 'loops') return 'branch loops';
   return 'branch mission';
 }
-function branchMissionFocusNarrative(branch, mission, gate, controls, focus){
+function branchMissionFocusNarrative(branch, mission, gate, controls, focus, loopRows){
   if (focus === 'gate') {
     return 'Review the active gate before this branch can advance: ' + (gate ? ((gate.gate || 'gate') + ' · ' + (gate.status || 'pending') + ' · ' + (gate.requiredProof || 'proof required')) : ((mission && mission.gate) || 'gate missing'));
   }
   if (focus === 'proof') {
     return 'Open the proof requirement for the next branch mission: ' + ((mission && mission.proofRequired) || (gate && gate.requiredProof) || 'proof requirement missing');
+  }
+  if (focus === 'loops') {
+    return mcLoopFocusNarrative(loopRows || []);
   }
   return controls.currentFrontier || (branch.vision && branch.vision.statement) || branch.arcTitle || 'branch frontier missing';
 }
@@ -2871,17 +2974,18 @@ function openBranchMissionSheet(env, branchIndex, missionIndex, focus){
   const proofPaths = Array.isArray(branch.proofPaths) ? branch.proofPaths : [];
   const approvals = branch.controls && Array.isArray(branch.controls.approvals) ? branch.controls.approvals : [];
   const controls = branch.controls && branch.controls.ui ? branch.controls.ui : {};
+  const loopRows = mcLoopRows(env || {}, branch, mcBranchId(branch, branchIndex));
   const focusLabel = branchMissionFocusLabel(focus);
   const missionState = mcMissionState(branch, mission);
   const gateState = gate ? mcStateKind(gate.status) : missionState;
-  const focusState = focus === 'gate' ? gateState : focus === 'proof' ? 'proof-needed' : missionState;
+  const focusState = focus === 'gate' ? gateState : focus === 'proof' ? 'proof-needed' : focus === 'loops' ? mcLoopState(loopRows[0]) : missionState;
   const guardCopy = controls.blockedCopy || 'no unsupported launch, approval, or autonomy claim from this sheet';
   $('sheetBody').innerHTML = '<div class="branch-sheet" data-component="BranchMissionSheet">' +
     '<section class="branch-sheet-hero" data-component="MissionCard">' +
       '<div class="branch-sheet-head mc-selected-halo" data-component="SelectedHalo" data-selected-surface="detail-sheet">' + mcGlyphSvg(focus === 'gate' ? 'build' : focus === 'proof' ? 'proof' : 'arc', focusState) +
         '<div><div class="arc">' + esc(focusLabel) + ' · ' + esc(branch.branchId || branch.productId || 'branch') + '</div><h2>' + esc(branch.name || branch.productId || 'Product Branch') + '</h2></div>' +
-        mcStateToken(focusState, focus === 'gate' ? 'Review gate' : focus === 'proof' ? 'Proof needed' : 'Selected') + '</div>' +
-      '<div class="nar">' + esc(branchMissionFocusNarrative(branch, mission, gate, controls, focus)) + '</div>' +
+        mcStateToken(focusState, focus === 'gate' ? 'Review gate' : focus === 'proof' ? 'Proof needed' : focus === 'loops' ? 'Loop control' : 'Selected') + '</div>' +
+      '<div class="nar">' + esc(branchMissionFocusNarrative(branch, mission, gate, controls, focus, loopRows)) + '</div>' +
       '<div class="branch-sheet-glance">' +
         branchSheetGlance('Arc', branch.arcTitle || branch.arcId || 'arc missing') +
         branchSheetGlance('Mission', mission ? ((mission.missionId || 'mission') + ' · ' + (mission.title || 'mission title missing')) : 'mission queue missing') +
@@ -3146,21 +3250,38 @@ function inspectGroupSummaries(env, L){
   const evidenceRows = insightBoxes(env || { ledger:L });
   const toolCount = CMDS.reduce((sum, group) => sum + group[1].length, 0);
   return [
-    { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'Envelope is stale or missing; refresh proof before trusting movement.' : 'Envelope age is inside the current proof window.' },
-    { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:String(policyRows.length) + ' policy checks keep operator action bounded.' },
-    { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:String(proofRows.length) + ' live readiness rows stay honest about blockers.' },
-    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? String(branchRows.length) + ' branch packet(s) feed Mission.' : 'No branch packet rows; Mission must not fake progress.' },
-    { id:'branch-fixtures', title:'branch fixtures', glyph:'arc', state:branchRows.length ? 'active' : 'proof-needed', detail:'Fixture rows remain inspect-only and never masquerade as live proof.' },
-    { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder decision(s) waiting.' : 'No founder decisions are waiting.' },
-    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:toolCount + ' toolbelt commands; live command data is ' + (env && env.commands ? 'available.' : 'not available.') },
-    { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' visual contract rails remain inspectable here.' },
-    { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence rows can open proof sheets.' : 'Evidence detail is missing from this envelope.' },
-    { id:'surface-contract', title:'surface contract', glyph:'cortex', state:'active', detail:'Five scenes are listed with state and proof links; this does not prove live Telegram readiness.' },
+    { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'Refresh before trusting decisions; this story and proof map may be old.' : 'Current proof window is fresh; refresh before trusting decisions after new movement.' },
+    { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:proofRows.some(row => row.state !== 'ready') ? String(proofRows.filter(row => row.state !== 'ready').length) + ' blocker(s) still need proof before release claims.' : 'No live blockers are served.' },
+    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? 'Mission can trust ' + String(branchRows.length) + ' branch packet(s).' : 'Mission cannot trust branch state until packet rows arrive.' },
+    { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder approval item(s) waiting.' : 'No founder approval is waiting.' },
+    { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:'Blocked or bounded action is explained before policy internals.' },
+    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:env && env.commands ? String(toolCount) + ' toolbelt commands available for safe use.' : String(toolCount) + ' toolbelt commands unavailable until live data refreshes.' },
+    { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' proof rails remain inspectable after critical blockers.' },
+    { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence row(s) can open proof sheets.' : 'Evidence detail is missing from this proof map.' },
   ];
+}
+function inspectSecondaryGroupSummaries(env, L){
+  const branchRows = (env && env.branchStories && Array.isArray(env.branchStories.rows)) ? env.branchStories.rows : [];
+  return [
+    { id:'branch-fixtures', title:'branch fixtures', glyph:'arc', state:branchRows.length ? 'active' : 'proof-needed', detail:'Fixture rows calibrate layout only; they never satisfy live proof.' },
+    { id:'surface-contract', title:'surface contract', glyph:'cortex', state:'active', detail:'Scene coverage and proof links stay available as secondary detail.' },
+  ];
+}
+function inspectAllGroupSummaries(env, L){
+  return inspectGroupSummaries(env, L).concat(inspectSecondaryGroupSummaries(env, L));
 }
 function renderInspectGroups(env, L){
   return '<section class="inspect-groups" data-component="InspectGroupStack">' + inspectGroupSummaries(env, L).map(group =>
     '<button type="button" class="' + mcClass('inspect-group', group.state) + '" data-component="InspectGroup" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
+      mcGlyphSvg(group.glyph, group.state) +
+      '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
+      mcStateToken(group.state, mcStateKind(group.state)) +
+    '</button>'
+  ).join('') + '</section>';
+}
+function renderInspectSecondaryLinks(env, L){
+  return '<section class="inspect-secondary" data-component="InspectSecondaryLinks"><div class="cmdgrp">Tapestry proof links</div>' + inspectSecondaryGroupSummaries(env, L).map(group =>
+    '<button type="button" class="' + mcClass('inspect-group', group.state, 'is-secondary') + '" data-component="InspectSecondaryLink" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
       mcGlyphSvg(group.glyph, group.state) +
       '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
       mcStateToken(group.state, mcStateKind(group.state)) +
@@ -3174,6 +3295,9 @@ function inspectGroupDetailRows(id, env, L){
     freshness:[
       ['stale envelope', FRESHNESS_STATE.stale ? 'yes · refresh before trusting movement' : 'no · current proof window'],
       ['derived at', (env && env.derivedAt) || 'missing'],
+      ['threshold', '360 minutes'],
+      ['refresh route', REFRESH_ROUTE],
+      ['provenance', FRESHNESS_STATE.source || 'missing'],
       ['ignored stale refresh', 'older envelopes never repaint Mission state'],
     ],
     policy:[
@@ -3183,31 +3307,35 @@ function inspectGroupDetailRows(id, env, L){
       ['promotion ladder', 'prototype -> proof-only -> supervised branch -> founder-approved release'],
     ],
     'live-proof':[
-      ['ready count', String((live.summary && live.summary.ready) || 0)],
       ['blocked count', String((live.summary && live.summary.blocked) || liveProofCards(env || { ledger:L }).filter(row => row.state !== 'ready').length)],
+      ['next action', 'rerun npm run proof:tg-live-readiness after final release SHA and device capture exist'],
+      ['ready count', String((live.summary && live.summary.ready) || 0)],
       ['blockers', live.blockers && live.blockers.length ? live.blockers.join(' · ') : 'Telegram initData and device artifact may still be required'],
       ['blocker owner', 'operator captures redacted receipts; Worker validates before any release claim'],
-      ['next action', 'rerun npm run proof:tg-live-readiness after final release SHA and device capture exist'],
       ['secret redaction', 'receipts must stay redacted; no raw initData or bearer token belongs in screenshots'],
     ],
     'branch-packets':[
+      ['Mission readiness', branchRows(env || { ledger:L }).length ? 'Mission has branch packet rows to compare.' : 'Mission lacks branch packet rows and must stay in wait state.'],
+      ['missing diagnostics', branchRows(env || { ledger:L }).length ? 'branch rows served' : (branchEnv.gap || 'branch stories missing')],
       ['packet source', branchEnv.source || 'missing'],
       ['schema', (branchEnv.schema || (branchEnv.rows && branchEnv.rows[0] && branchEnv.rows[0].source && branchEnv.rows[0].source.schema)) || 'cambium.product_branch_packet.v1'],
-      ['missing diagnostics', branchRows(env || { ledger:L }).length ? 'branch rows served' : (branchEnv.gap || 'branch stories missing')],
     ],
     'branch-fixtures':[
       ['fixture count', String(branchRows(env || { ledger:L }).length)],
       ['fixture boundary', 'fixtures can calibrate Mission layout but cannot satisfy live proof rows'],
-      ['proof handoff', 'Mission links to branch packet sheets; Inspect preserves raw source detail'],
+      ['proof handoff', 'Mission links to branch packet sheets; Inspect keeps raw proof available'],
     ],
     gates:[
-      ['signed route', '/api/gate/' + TENANT],
-      ['queue state', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' open item(s)'],
       ['auth boundary', 'initData checked by Worker before queue write'],
+      ['founder approval', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' founder approval item(s)'],
+      ['queue state', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' open item(s)'],
+      ['signed route', '/api/gate/' + TENANT],
       ['idempotency audit', 'Gate sheets show idempotency hints before approve or reroll action'],
       ['redacted auth', 'auth failures describe missing Telegram proof without exposing initData'],
     ],
     tools:[
+      ['command availability', CMDDATA ? 'toolbelt commands available from live data' : 'toolbelt commands unavailable until refresh'],
+      ['safe use', 'Tools copy command text or open sheets; signed decisions stay in Gate'],
       ['tool source', CMDDATA ? 'live command envelope available' : 'live command envelope stale'],
       ['command semantics', 'Tools copy command text or open sheets; signed decisions stay in Gate'],
       ['recent strip', '/ts-status · /ts-hermes · /ts-standup'],
@@ -3226,11 +3354,10 @@ function inspectGroupDetailRows(id, env, L){
       ['related page trace', 'Story and Tools sheets can route back to Inspect evidence rows'],
     ],
     'surface-contract':[
-      ['Mission', 'branch packet state, selected mission, proof, KPIs, Gate, and Tools links'],
-      ['Gate', 'founder decision queue, proof rows, safe action sheets, and auth failure handling'],
-      ['Tools', 'mission-effect commands, disabled reasons, expected receipts, and Inspect audit links'],
-      ['Story', 'digest cards, branch filters, grouped beats, and proof follow-up links'],
-      ['Inspect', 'read-only proof taxonomy, surface contract rows, and redacted release evidence'],
+      ['scene', 'Mission · Gate · Tools · Story · Inspect'],
+      ['role', 'five-scene surface contract for the Telegram mini app'],
+      ['proof link', 'primary pages route here for packet, blocker, and evidence detail'],
+      ['status summary', 'coverage exists; live Telegram readiness still depends on redacted proof receipts'],
     ],
   };
   return rows[id] || [['detail', 'no specific detail rows served']];
@@ -3241,9 +3368,10 @@ function renderInspectProofSummary(env, L){
   const branchCount = branchRows(env || { ledger:L }).length;
   const blockedNames = liveRows.filter(row => row.state !== 'ready').slice(0, 3).map(row => row.title || row.id || 'readiness row');
   const blockerText = blockedNames.length ? ' · blocked: ' + blockedNames.join(', ') : '';
+  const lead = blocked ? blocked + ' live blocker(s)' : 'No live blockers';
   return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction">' +
-    '<b>Proof summary</b><small>' + branchCount + ' branch packet(s) · ' + blocked + ' live readiness blocker(s) · redacted receipts required' + esc(blockerText) + '.</small>' +
-    '<div class="gbtns command-copy"><button type="button" data-inspect-summary="1">Open proof summary</button></div>' +
+    '<b>Proof summary</b><small>' + esc(lead) + ' · ' + branchCount + ' branch packet(s) · redacted receipts required' + esc(blockerText) + '.</small>' +
+    '<div class="gbtns command-copy"><button type="button" data-inspect-summary="1">Open proof details</button></div>' +
   '</section>';
 }
 function inspectRelatedPage(id){
@@ -3262,14 +3390,14 @@ function inspectRelatedScene(id){
 }
 function openInspectGroupSheet(id, env){
   const L = (env && env.ledger) || env || {};
-  const group = inspectGroupSummaries(env || { ledger:L }, L).find(row => row.id === id) || inspectGroupSummaries(env || { ledger:L }, L)[0];
+  const group = inspectAllGroupSummaries(env || { ledger:L }, L).find(row => row.id === id) || inspectGroupSummaries(env || { ledger:L }, L)[0];
   const related = inspectRelatedPage(group.id);
   const scene = inspectRelatedScene(group.id);
   $('sheetBody').innerHTML = '<div class="arc">inspect · ' + esc(group.id) + '</div><h2>' + esc(group.title) + '</h2>' +
     '<div class="nar">' + esc(group.detail) + '</div>' +
-    '<div class="kv"><b>debug layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>summary</b><span>' + esc(group.detail) + '</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>proof</b><span>read-only Inspect sheet; primary pages link back here for evidence</span><b>back path</b><span>' + esc(related) + ' -> Inspect</span><b>source</b><span>inspect-proof-layer@v1</span>' +
+    '<div class="kv"><b>proof layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>summary</b><span>' + esc(group.detail) + '</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>proof</b><span>read-only Inspect sheet; primary pages link back here for evidence</span><b>related page</b><span>' + esc(related) + ' -> Inspect</span>' +
     inspectGroupDetailRows(group.id, env || { ledger:L }, L).map(([label, value]) => '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>').join('') +
-    '<b>related page</b><span>' + esc(related) + '</span><b>trace action</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
+    '<b>source</b><span>inspect-proof-layer@v1</span><b>return path</b><span>' + esc(related) + '</span><b>how to use this</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
     '<div class="gbtns"><button type="button" data-inspect-page-link="' + esc(scene) + '">Open related page</button></div>';
   $('sheetBody').querySelectorAll('[data-inspect-page-link]').forEach(el => el.onclick = () => {
     closeSheet();
@@ -3295,7 +3423,7 @@ function openInspectSummarySheet(env){
   if (proofCopy) proofCopy.onclick = () => copyCommandToClipboard(summary, proofCopy, 'Copied proof summary').catch(() => { proofCopy.textContent = 'Copy unavailable'; });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
-function renderOperatorMap(env){
+function renderInspect(env){
   const L = env.ledger || env;
   const activeStageId = stageForArc((L.current && L.current.arc) || 'XVII');
   const stageCards = STAGES.map((stage, i) => {
@@ -3315,10 +3443,11 @@ function renderOperatorMap(env){
     return '<button type="button" class="rail ' + (hot ? 'hot' : '') + '" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-rail="' + esc(rail.id || (rail.from + '-' + rail.to)) + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></button>';
   }).join('');
   $('mapwrap').innerHTML =
-    '<div class="maphead"><div><h2>Inspect</h2><p>Proof, packet, freshness, and system detail.</p></div>' +
+    '<div class="maphead"><div><h2>Inspect</h2><p>Proof map for blockers, packets, freshness, and evidence.</p></div>' +
       '<button type="button" class="mapbadge" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-ecosystem-target="r3f">frontier · ' + esc((L.current && L.current.arc) || 'complete') + '</button></div>' +
-    renderInspectGroups(env.ledger ? env : { ledger:L }, L) +
     renderInspectProofSummary(env.ledger ? env : { ledger:L }, L) +
+    renderInspectGroups(env.ledger ? env : { ledger:L }, L) +
+    renderInspectSecondaryLinks(env.ledger ? env : { ledger:L }, L) +
     '<div class="cmdgrp">freshness</div>' + renderTapestryAudit(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">wake</div>' + renderWake(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">lanes</div>' + renderLanes(env.ledger ? env : { ledger:L }) +
@@ -3334,8 +3463,8 @@ function renderOperatorMap(env){
     '<div class="cmdgrp">side quests</div>' + renderSideQuests(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">coordination</div>' + renderSocial(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">senses</div>' + renderSenses(env.ledger ? env : { ledger:L }) +
-    '<div class="stagegrid">' + stageCards + '</div>' +
     '<div class="cmdgrp">evidence</div>' + renderInsightBoxes(env.ledger ? env : { ledger:L }) +
+    '<div class="stagegrid">' + stageCards + '</div>' +
     '<div class="cmdgrp">skill labors</div>' + renderSkills(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">companions</div>' + renderNpc(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>' +
@@ -3412,7 +3541,7 @@ function openMapSheet(L, stageId){
   const rows = stageRows(L, stage);
   const target = stageEcosystemTarget(stage.id);
   const stageState = rows.length ? (rows.some(row => row.status !== 'complete') ? 'active' : 'complete') : 'idle';
-  const stageHeader = '<div class="branch-sheet-head" data-component="VisualStageSheetHeader" data-stage-state="' + esc(stageState) + '">' + mcGlyphSvg(stage.id, stageState) + '<div><div class="arc">operator map · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2></div>' + mcStateToken(stageState, rows.length ? 'Read-only' : 'No rows') + '</div>';
+  const stageHeader = '<div class="branch-sheet-head" data-component="VisualStageSheetHeader" data-stage-state="' + esc(stageState) + '">' + mcGlyphSvg(stage.id, stageState) + '<div><div class="arc">inspect stage · ' + esc(stage.id) + '</div><h2>' + esc(stage.title) + '</h2></div>' + mcStateToken(stageState, rows.length ? 'Read-only' : 'No rows') + '</div>';
   const stageMeta = '<div class="kv"><b>organ target</b><span>' + esc(target) + '</span><b>source</b><span>shared/cambium-visual-contract.ts</span><b>interaction</b><span>read-only stage inspection; no signed action is queued from this sheet</span></div>';
   const body = rows.length ? rows.map((row, i) => {
     const facets = facetsFrom(row.evidence);
@@ -3698,6 +3827,7 @@ const LANE_ICON = {
 let STORY_BEATS = [];
 let STORY_GROUP_FILTER = 'all';
 let STORY_BRANCH_FILTER = 'all';
+const STORY_GROUPS = ['Mission wins','New signals','Lessons','Drift'];
 function storyBeatTarget(lane){
   if (lane === 'heartbeat') return 'quine';
   if (lane === 'paperclip') return 'paperclip';
@@ -3724,6 +3854,12 @@ function storyLaneLabel(lane, beat){
 function storyBeatGroup(beat){
   const text = String((beat && beat.text) || '');
   const lane = (beat && beat.lane) || (beat && beat.noesis ? 'noesis' : 'beat');
+  const explicit = mcText(beat && (beat.group || beat.storyGroup || beat.kind), '');
+  if (/mission|win|complete/i.test(explicit)) return 'Mission wins';
+  if (/signal|new/i.test(explicit)) return 'New signals';
+  if (/lesson|learn/i.test(explicit)) return 'Lessons';
+  if (/drift|stale|blocked|missing|contradict/i.test(explicit)) return 'Drift';
+  if (lane === 'forge' && /lesson|learn/i.test(text)) return 'Lessons';
   if ((beat && beat.noesis) || /stale|missing|contradict|blocked|drift/i.test(text)) return 'Drift';
   return storyLaneLabel(lane, beat);
 }
@@ -3732,7 +3868,7 @@ function storyBeatState(beat){
   if (group === 'Mission wins') return 'complete';
   if (group === 'Drift') return /blocked|contradict/i.test(String((beat && beat.text) || '')) ? 'blocked' : 'stale';
   if (group === 'Lessons') return 'active';
-  return 'proof-needed';
+  return mcText(beat && (beat.proof || beat.evidence), '') ? 'active' : 'proof-needed';
 }
 function storyBeatGlyph(group){
   if (group === 'Mission wins') return 'proof';
@@ -3743,16 +3879,22 @@ function storyBeatGlyph(group){
 function storyBeatBranch(beat){
   return mcText(beat && (beat.branchId || beat.branch || beat.productId || beat.clientName), '');
 }
+function hasUnassignedStoryBeats(beats){
+  return mcList(beats).some(beat => !storyBeatBranch(beat));
+}
 function storyBeatOutcome(beat, group){
   const text = mcText(beat && (beat.outcome || beat.result || beat.detail), '');
   if (text) return text;
-  if (group === 'Mission wins') return 'mission moved with served proof';
-  if (group === 'Lessons') return 'operator lesson recorded for the branch packet';
-  if (group === 'Drift') return 'follow-up required before this can become a win';
-  return 'new signal requires source review';
+  if (group === 'Mission wins') return 'Mission moved';
+  if (group === 'Lessons') return 'Lesson captured';
+  if (group === 'Drift') return 'Needs follow-up';
+  return 'New signal';
 }
 function storyBeatProofCue(beat, group){
-  return mcText(beat && (beat.proof || beat.evidence), group === 'Drift' ? 'proof needed' : 'proof detail available in sheet');
+  if (beat && (beat.proof || beat.evidence)) return mcText(beat.proof || beat.evidence, '');
+  if (group === 'Mission wins') return 'Proof ready';
+  if (group === 'Drift') return 'Proof needed';
+  return 'Review evidence';
 }
 function storyBeatSourceSummary(beat, lane){
   const source = storyBeatSource(beat, lane);
@@ -3763,15 +3905,22 @@ function storyBeatSourceSummary(beat, lane){
 }
 function storyBeatFollowup(beat, group){
   if (beat && beat.followup) return beat.followup;
-  if (group === 'Drift') return 'Inspect source rows before promoting this story beat';
-  if (group === 'Mission wins') return 'Open Mission or proof detail';
-  if (group === 'Lessons') return 'Link lesson back to branch packet';
-  return 'Review source detail';
+  if (group === 'Drift') return 'Review the blocker before calling it a win';
+  if (group === 'Mission wins') return 'Open Mission with this branch';
+  if (group === 'Lessons') return 'Carry the lesson into the branch plan';
+  return 'Decide whether this signal changes the next move';
 }
 function storyBeatContext(group, lane, beat){
+  const explicit = mcText(beat && (beat.context || beat.relatedPage || beat.targetPage || beat.actionTarget), '').toLowerCase();
+  if (/mission/.test(explicit)) return 'mission';
+  if (/gate|approve|decision/.test(explicit)) return 'gate';
+  if (/tool|command/.test(explicit)) return 'tools';
+  if (/story/.test(explicit)) return 'story';
+  if (/inspect|proof|evidence/.test(explicit)) return 'inspect';
   const text = String((beat && beat.text) || '');
   if (/gate|approve|reroll|decision/i.test(text)) return 'gate';
   if (/tool|command|\\/ts-|ts-/i.test(text)) return 'tools';
+  if (/proof|evidence/i.test(text) && group !== 'Mission wins') return 'inspect';
   if (group === 'Mission wins') return 'mission';
   if (group === 'Drift') return 'inspect';
   if (lane === 'quest') return 'mission';
@@ -3784,41 +3933,73 @@ function storyContextScene(context){
   if (context === 'story') return 3;
   return 4;
 }
-function renderStoryHero(beats){
-  const latest = beats[0] || { text:'Story is waiting for mission movement', lane:'beat' };
+function renderStoryHero(rows){
+  if (!rows.length) {
+    return '<button type="button" class="story-hero is-empty" data-component="StoryLatestChangeHero" data-interaction-kind="read-only">' +
+      mcGlyphSvg('signal', 'dormant') +
+      '<span><b>Latest change</b><small>No branch story yet · switch filters or refresh after evidence lands</small></span>' +
+    '</button>';
+  }
+  const latestRow = rows[0];
+  const latest = latestRow.beat;
   const group = storyBeatGroup(latest);
-  return '<button type="button" class="story-hero" data-component="StoryLatestChangeHero" data-story-hero="0" data-interaction-kind="sheet">' +
+  return '<button type="button" class="story-hero" data-component="StoryLatestChangeHero" data-story-hero="' + latestRow.index + '" data-interaction-kind="sheet">' +
     mcGlyphSvg(storyBeatGlyph(group), storyBeatState(latest)) +
-    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + ' · open full beat detail</small></span>' +
+    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + ' · Open branch beat</small></span>' +
   '</button>';
 }
-function renderStoryGroupControls(groups, beats){
-  const labels = ['all', 'Mission wins', 'New signals', 'Lessons', 'Drift'];
+function renderStoryGroupControls(groups, rows){
+  const labels = ['all'].concat(groups);
   return '<div class="story-filter-strip" data-component="StoryGroupControls">' + labels.map(label =>
-    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' · ' + (label === 'all' ? beats.length : beats.filter(beat => storyBeatGroup(beat) === label).length) + '</button>'
+    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' · ' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</button>'
   ).join('') + '</div>';
 }
-function renderStoryTimeline(beats){
-  return '<div class="story-timeline" data-component="StoryTimelineRail">' + beats.slice(0, 12).map(beat =>
-    '<i class="is-' + esc(mcStateKind(storyBeatState(beat))) + '"></i>'
+function renderStoryTimeline(rows){
+  return '<div class="story-timeline" data-component="StoryTimelineRail">' + rows.slice(0, 12).map(row =>
+    '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '"></i>'
   ).join('') + '</div>';
 }
 function renderStoryBranchFilters(env){
   const branches = branchRows(env || {});
-  if (!branches.length) return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button><button type="button" data-component="BranchArcChip" data-story-branch-filter="missing">branch packets pending</button></div>';
-  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (STORY_BRANCH_FILTER === 'all' ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + branches.slice(0, 5).map(branch => {
+  const hasUnassigned = hasUnassignedStoryBeats(STORY_BEATS);
+  const unassignedSelected = hasUnassigned && (STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned');
+  const allSelected = STORY_BRANCH_FILTER === 'all' || (!hasUnassigned && (STORY_BRANCH_FILTER === 'missing' || STORY_BRANCH_FILTER === 'unassigned'));
+  const unassignedChip = hasUnassigned ? '<button type="button" class="' + (unassignedSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="unassigned">unassigned</button>' : '';
+  if (!branches.length) {
+    return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (allSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + unassignedChip + '</div>';
+  }
+  return '<div class="story-filter-strip" data-component="StoryBranchFilterChips"><button type="button" class="' + (allSelected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="all">all branches</button>' + unassignedChip + branches.slice(0, 5).map(branch => {
     const id = mcText(branch.branchId || branch.productId || branch.name, 'branch');
-    return '<button type="button" class="' + (STORY_BRANCH_FILTER === id ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-story-branch-filter="' + esc(id) + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>';
+    const state = mcStateKind(mcBranchStatusText(branch));
+    const stateClass = state === 'idle' ? '' : ' is-' + state;
+    return '<button type="button" class="' + (STORY_BRANCH_FILTER === id ? 'is-selected mc-selected-halo' : '') + stateClass + '" data-component="BranchArcChip" data-story-branch-filter="' + esc(id) + '" data-story-branch-state="' + esc(state) + '">' + esc(branch.name || branch.branchId || 'branch') + '</button>';
   }
   ).join('') + '</div>';
 }
-function renderStoryDigest(beats){
-  const counts = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => [group, beats.filter(beat => storyBeatGroup(beat) === group).length]);
-  return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-interaction-kind="sheet">' +
-    mcGlyphSvg('proof', 'active') +
+function storyDigestState(rows){
+  if (!rows.length) return 'idle';
+  if (rows.some(row => storyBeatState(row.beat) === 'blocked')) return 'blocked';
+  if (rows.some(row => storyBeatGroup(row.beat) === 'Drift')) return 'stale';
+  if (rows.some(row => storyBeatState(row.beat) === 'proof-needed')) return 'proof-needed';
+  return 'active';
+}
+function renderStoryDigest(rows){
+  const counts = STORY_GROUPS.map(group => [group, rows.filter(row => storyBeatGroup(row.beat) === group).length]);
+  const state = storyDigestState(rows);
+  return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-story-digest-state="' + esc(state) + '" data-interaction-kind="sheet">' +
+    mcGlyphSvg('proof', state) +
     '<span><b>Digest</b><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
     '<i aria-hidden="true">›</i>' +
   '</button>';
+}
+function visibleStoryBeats(beats){
+  const rows = beats.map((beat, index) => ({ beat, index }));
+  if (STORY_BRANCH_FILTER === 'all') return rows;
+  if (STORY_BRANCH_FILTER === 'unassigned' || STORY_BRANCH_FILTER === 'missing') {
+    const unassignedRows = rows.filter(row => !storyBeatBranch(row.beat));
+    return unassignedRows.length ? unassignedRows : rows;
+  }
+  return rows.filter(row => storyBeatBranch(row.beat) === STORY_BRANCH_FILTER);
 }
 function storyPacketTrail(beat){
   const group = storyBeatGroup(beat);
@@ -3827,9 +4008,9 @@ function storyPacketTrail(beat){
   return '<span data-component="StoryPacketTrail">' + mcPacketDots(count, storyBeatState(beat), { mode:'rail' }) + '</span>';
 }
 function openStoryDigest(){
-  const rows = STORY_BEATS.slice(0, 12).map((beat, index) => {
-    const group = storyBeatGroup(beat);
-    return '<button type="button" class="li" data-story-digest-beat="' + index + '"><span class="cname">' + esc(group) + '</span><div class="cdesc">' + esc(beat.text || 'story beat') + '</div></button>';
+  const rows = visibleStoryBeats(STORY_BEATS).slice(0, 12).map(row => {
+    const group = storyBeatGroup(row.beat);
+    return '<button type="button" class="li" data-story-digest-beat="' + row.index + '"><span class="cname">' + esc(group) + '</span><div class="cdesc">' + esc(row.beat.text || 'story beat') + '</div></button>';
   }).join('');
   $('sheetBody').innerHTML = '<div class="arc">story · digest</div><h2>Story Digest</h2><div class="nar">Digest lists individual beats without hiding blockers.</div>' + (rows || '<div class="nar">No story beats served.</div>');
   $('sheetBody').querySelectorAll('[data-story-digest-beat]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyDigestBeat));
@@ -3843,7 +4024,8 @@ function openStoryBeat(index){
   const target = storyBeatTarget(lane);
   const group = storyBeatGroup(beat);
   const context = storyBeatContext(group, lane, beat);
-  const branchFocus = storyBeatBranch(beat) || (branchRows(ECOSYSTEM_ENV || {})[0] && mcBranchId(branchRows(ECOSYSTEM_ENV || {})[0], 0)) || '';
+  const beatBranch = storyBeatBranch(beat);
+  const branchFocus = beatBranch;
   const warning = /contradict/i.test(String(beat.text || ''))
     ? '<b>warning</b><span>contradiction requires Inspect review before this becomes a win</span>'
     : '';
@@ -3852,8 +4034,8 @@ function openStoryBeat(index){
     : '';
   $('sheetBody').innerHTML = '<div class="arc">story beat · ' + esc(group.toLowerCase()) + '</div><h2>Story Beat</h2>' +
     '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
-    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>mission</b><span>' + esc(branchFocus || 'branch context not served') + '</span><b>outcome</b><span>' + esc(storyBeatOutcome(beat, group)) + '</span><b>proof cue</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>source summary</b><span>' + esc(storyBeatSourceSummary(beat, lane)) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>ecosystem target</b><span>' + esc(target) + '</span><b>evidence link</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>follow-up</b><span>' + esc(storyBeatFollowup(beat, group)) + '</span><b>context link</b><span>' + esc(context) + '</span><b>action</b><span>read-only story row; no execution action</span>' + warning + paperclipRows + '</div>' +
-    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Inspect') + '</button><button type="button" class="reroll" data-story-target="inspect">Inspect evidence</button></div>';
+    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>mission</b><span>' + esc(branchFocus || 'branch context not served') + '</span><b>outcome</b><span>' + esc(storyBeatOutcome(beat, group)) + '</span><b>proof</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>from</b><span>' + esc(storyBeatSourceSummary(beat, lane)) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>proof path</b><span>' + esc(target) + '</span><b>next</b><span>' + esc(storyBeatFollowup(beat, group)) + '</span><b>related page</b><span>' + esc(context) + '</span>' + warning + paperclipRows + '</div>' +
+    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Proof') + '</button><button type="button" class="reroll" data-story-target="inspect">Open Proof</button></div>';
   $('sheetBody').querySelectorAll('[data-story-target]').forEach(el => el.onclick = () => {
     veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open = false;
     if (el.dataset.storyTarget === 'mission') MISSION_BRANCH_FOCUS = el.dataset.storyBranchContext || '';
@@ -3862,25 +4044,34 @@ function openStoryBeat(index){
   });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' || lane === 'paperclip' ? 'medium' : 'light');
 }
+function storyEnvStale(env){
+  const minutes = minutesSince(env && env.derivedAt);
+  const text = [env && env.freshness && env.freshness.state, env && env.freshness && env.freshness.detail].filter(Boolean).join(' ');
+  return FRESHNESS_STATE.stale || minutes === null || minutes > 360 || /stale|expired|old|refresh/i.test(text);
+}
+function renderStoryStaleBanner(env){
+  if (!storyEnvStale(env || {})) return '';
+  return '<section class="mission-stale-notice story-stale-notice" data-component="StoryStaleBanner" data-story-stale="1"><b>Last story check is stale.</b><span>Refresh before using these beats for a decision.</span></section>';
+}
+function renderStoryEmptyState(env){
+  return renderStoryStaleBanner(env || {}) + '<div class="state" data-component="StoryEmptyState" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>No branch story yet.</b><p>Wins, signals, lessons, and drift appear here after a branch has evidence.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Open Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Open Proof</button></div></div>';
+}
 function renderStory(env){
   const served = env.beats && env.beats.length;
   const beats = served ? env.beats :
     env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
   STORY_BEATS = beats;
   if (!beats.length) {
-    $('beats').innerHTML = '<div class="state" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>Story is waiting for mission movement.</b><p>New wins, signals, lessons, and drift appear here after evidence lands.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Inspect</button></div></div>';
+    $('beats').innerHTML = renderStoryEmptyState(env);
     $('beats').querySelectorAll('[data-story-empty-action]').forEach(el => el.onclick = () => el.dataset.storyEmptyAction === 'refresh' ? refresh() : go(el.dataset.storyEmptyAction === 'mission' ? 0 : 4));
     return;
   }
-  const visibleBeats = STORY_BRANCH_FILTER === 'all'
-    ? beats
-    : beats.filter(beat => storyBeatBranch(beat) === STORY_BRANCH_FILTER || !storyBeatBranch(beat));
-  const groups = ['Mission wins', 'New signals', 'Lessons', 'Drift'].map(group => ({
+  const visibleBeats = visibleStoryBeats(beats);
+  const groups = STORY_GROUPS.map(group => ({
     group,
-    beats: visibleBeats.map((beat, index) => ({ beat, index:beats.indexOf(beat) })).filter(row => storyBeatGroup(row.beat) === group),
+    beats: visibleBeats.filter(row => storyBeatGroup(row.beat) === group),
   })).filter(row => STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group);
-  const allGroups = ['Mission wins', 'New signals', 'Lessons', 'Drift'];
-  $('beats').innerHTML = renderStoryHero(beats) + renderStoryGroupControls(allGroups, beats) + renderStoryBranchFilters(env) + renderStoryDigest(beats) + renderStoryTimeline(beats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
+  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
     '<section class="story-group" data-component="StoryGroup" data-story-group="' + esc(group.toLowerCase().replace(/\\s+/g, '-')) + '">' +
     '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + (groupBeats.length ? groupBeats.map(({ beat:b, index:i }) => {
     const lane = b.lane || 'beat';
@@ -3895,7 +4086,7 @@ function renderStory(env){
       storyPacketTrail(b) +
       mcStateToken(state, group === 'Drift' ? 'drift' : group === 'Mission wins' ? 'win' : group === 'Lessons' ? 'lesson' : 'signal') +
     '</button>';
-    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Refresh or inspect source detail; no fake story progress is shown.</p></div>') + '</div></section>'
+    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Nothing in this lane yet. Refresh after branch evidence changes.</p></div>') + '</div></section>'
   ).join('') : '<div class="state"><b>No story beats in this group.</b><p>Switch groups or refresh after new branch evidence lands.</p></div>');
   $('beats').querySelectorAll('[data-story-hero]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyHero));
   $('beats').querySelectorAll('[data-story-digest]').forEach(el => el.onclick = () => openStoryDigest());
@@ -3905,7 +4096,6 @@ function renderStory(env){
   });
   $('beats').querySelectorAll('[data-story-branch-filter]').forEach(el => el.onclick = () => {
     STORY_BRANCH_FILTER = el.dataset.storyBranchFilter || 'all';
-    if (STORY_BRANCH_FILTER !== 'all' && STORY_BRANCH_FILTER !== 'missing') MISSION_BRANCH_FOCUS = STORY_BRANCH_FILTER;
     renderStory(env);
   });
   $('beats').querySelectorAll('.beat').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.beat));
@@ -4007,7 +4197,7 @@ function paint(env){
   CMDDATA = env.commands || null;
   renderMissionControl(env);
   if (SCENE_PARAM === 'components' || SCENE_PARAM === 'component' || SCENE_PARAM === 'board') renderComponentGallery(env);
-  else renderOperatorMap(env);
+  else renderInspect(env);
   renderStory(env); renderGauge(env.ledger); freshness(env);
 }
 function load(){

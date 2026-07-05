@@ -1,5 +1,6 @@
 export type BranchPromotionState = 'proof-only' | 'supervised-branch' | 'autonomous-branch' | 'organ-service';
 export type BranchProofStatus = 'verified' | 'blocked' | 'pending' | 'no-signal';
+export type BranchLoopBoundaryColor = 'green' | 'yellow' | 'red';
 
 export interface BranchVision {
   statement: string;
@@ -32,6 +33,20 @@ export interface BranchMission {
   gate: string;
   proofRequired: string;
   dispatchTarget: string;
+}
+
+export interface BranchLoop {
+  loopId: string;
+  title: string;
+  cadence: string;
+  objective: string;
+  metric: string;
+  boundaryColor: BranchLoopBoundaryColor;
+  oneChangeRule: string;
+  stateFile: string;
+  stopRule: string;
+  modelRoute: string;
+  proofRequired: string;
 }
 
 export interface BranchGate {
@@ -112,6 +127,7 @@ export interface BranchControlBundle {
   approvals: BranchApproval[];
   autonomyBoundary: string;
   dispatchHints: BranchDispatchHint[];
+  loops: BranchLoop[];
   policySignals: BranchPolicySignal[];
   ui: {
     headline: string;
@@ -148,6 +164,7 @@ export interface BranchStoryArc {
   kpis: BranchKpi[];
   questline: BranchQuestStage[];
   missions: BranchMission[];
+  loops: BranchLoop[];
   gates: BranchGate[];
   proofPaths: BranchProofPath[];
   promotion: BranchPromotion;

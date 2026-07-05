@@ -7,6 +7,8 @@ import type {
   BranchEvidenceRow,
   BranchGate,
   BranchKpi,
+  BranchLoop,
+  BranchLoopBoundaryColor,
   BranchMission,
   BranchOrganRoute,
   BranchProofPath,
@@ -32,6 +34,7 @@ const PACKET_DIR = 'docs/plans/product-branches';
 const INDEX_FILE = `${PACKET_DIR}/index.md`;
 const CONTROL_SECTIONS = [
   'Branch Story Controls',
+  'Loop Control Inputs',
   'Mission Control Inputs',
   'KPI Control Inputs',
   'Policy / Permission Inputs',
@@ -54,7 +57,8 @@ function readText(path: string): string {
 }
 
 function clean(value: unknown): string {
-  return String(value ?? '').trim().replace(/^`|`$/g, '');
+  const text = String(value ?? '').trim();
+  return text.startsWith('`') && text.endsWith('`') ? text.slice(1, -1) : text;
 }
 
 function normalizeHeader(value: string): string {
@@ -93,7 +97,7 @@ function sectionHasTableShape(source: string, section: string): boolean {
   const sectionBody = extractSection(source, section);
   if (!sectionBody.trim()) return true;
   const tableLines = sectionBody.split(/\r?\n/).filter((line) => line.trim().startsWith('|'));
-  if (tableLines.length === 0) return true;
+  if (tableLines.length === 0) return false;
   return tableLines.some((line, index) => tableLines[index + 1] && isSeparatorRow(tableLines[index + 1]));
 }
 
@@ -151,6 +155,35 @@ function normalizePromotionState(value: string): BranchPromotionState {
   const state = clean(value) as BranchPromotionState;
   if (state === 'proof-only' || state === 'supervised-branch' || state === 'autonomous-branch' || state === 'organ-service') return state;
   return 'proof-only';
+}
+
+function normalizeLoopBoundaryColor(value: string): BranchLoopBoundaryColor {
+  const color = clean(value).toLowerCase();
+  if (color === 'green' || color === 'yellow' || color === 'red') return color;
+  return 'red';
+}
+
+function loopControlGaps(loops: BranchLoop[]): BranchStoryGap[] {
+  return loops.flatMap((loop) => {
+    const gaps: BranchStoryGap[] = [];
+    if (!loop.oneChangeRule.toLowerCase().includes('exactly one')) {
+      gaps.push({
+        id: `${slugify(loop.loopId)}-one-change-rule`,
+        status: 'blocked',
+        detail: `${loop.loopId} must select exactly one change per round`,
+        source: 'loop-control-inputs',
+      });
+    }
+    if (!loop.stateFile.startsWith('.operator/branch-loops/') || loop.stateFile.includes('..') || loop.stateFile.includes('\\')) {
+      gaps.push({
+        id: `${slugify(loop.loopId)}-state-file`,
+        status: 'blocked',
+        detail: `${loop.loopId} has unsafe loop state file ${loop.stateFile}`,
+        source: 'loop-control-inputs',
+      });
+    }
+    return gaps;
+  });
 }
 
 function sectionMissingGaps(source: string, packetFile: string): BranchStoryGap[] {
@@ -296,6 +329,19 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
     allowedWhen: clean(dispatch.allowed_when),
     blockedWhen: clean(dispatch.blocked_when),
   })).filter((dispatch) => dispatch.route);
+  const loops = sectionRows(source, 'Loop Control Inputs').map((loop): BranchLoop => ({
+    loopId: clean(loop.loop_id),
+    title: clean(loop.title),
+    cadence: clean(loop.cadence),
+    objective: clean(loop.objective),
+    metric: clean(loop.metric),
+    boundaryColor: normalizeLoopBoundaryColor(loop.boundary_color),
+    oneChangeRule: clean(loop.one_change_rule),
+    stateFile: clean(loop.state_file),
+    stopRule: clean(loop.stop_rule),
+    modelRoute: clean(loop.model_route),
+    proofRequired: clean(loop.proof_required),
+  })).filter((loop) => loop.loopId);
 
   const currentFrontier = controls.current_frontier || clean(metadata.current_gate || row.current_gate);
   const story: BranchStoryArc = {
@@ -310,6 +356,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
     kpis,
     questline: questlineFromSection(source),
     missions,
+    loops,
     gates,
     proofPaths,
     promotion: {
@@ -326,6 +373,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
       approvals,
       autonomyBoundary: clean(productSeed.autonomy_boundary || controls.autonomy_boundary),
       dispatchHints,
+      loops,
       policySignals: approvals,
       ui: {
         headline: name,
@@ -347,6 +395,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
       ...ledgerGaps(evidenceLedger.map((evidence) => ({ status: evidence.status, detail: evidence.evidence, source: 'evidence-ledger' }))),
       ...ledgerGaps(gates.map((gate) => ({ status: gate.status, detail: `${gate.gate}: ${gate.requiredProof}`, source: 'gate-ledger' }))),
       ...ledgerGaps(approvals.map((approval) => ({ status: approval.status, detail: `${approval.permission}: ${approval.failureMode || approval.requiredApproval}`, source: 'policy-permission-inputs' }))),
+      ...loopControlGaps(loops),
     ],
   };
   return story;

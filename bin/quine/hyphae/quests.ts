@@ -30,6 +30,8 @@ import { paperclipActivityBeats, paperclipOpenItems, paperclipQuestInputs, paper
 import type { PaperclipOpenItem } from './paperclip.ts';
 import { loadBranchStories } from './branch-stories.ts';
 import type { BranchStoryArc, BranchStoryGap } from '../../operator/quests/branch-stories.ts';
+import { deriveBranchLoopLibrary } from '../../operator/quests/branch-loop-library.ts';
+import type { BranchLoopLibrary } from '../../operator/quests/branch-loop-library.ts';
 import { refreshProjectEvidence } from './project-evidence.ts';
 import { auditPrioritySource, capturePrioritySource, prioritySignalsPath, prioritySourceTemplate, refreshPrioritySignals } from './priority-signals.ts';
 
@@ -543,6 +545,7 @@ export interface VisualEnvelope {
     gaps: BranchStoryGap[];
     gap?: string;
   };
+  branchLoops: BranchLoopLibrary;
 }
 
 // Founder-inheritance reducer. Root tenants (cambium/thoughtseed) earn the I–IX
@@ -2701,6 +2704,7 @@ export function buildVisualEnvelope(
   const liveProof = deriveLiveProofEnvelope(ctx, tenant);
   const sideQuestEvents = readSideQuestEvents(ctx, tenant);
   const branchStories = deriveBranchStoriesEnvelope(inputs.branchStories);
+  const branchLoops = deriveBranchLoopLibrary(inputs.branchStories ?? []);
   return {
     wake,
     lanes,
@@ -2715,6 +2719,7 @@ export function buildVisualEnvelope(
     liveProof,
     sideQuests: deriveSideQuestEnvelope(wake, stance, skills, policy, npc, ledger, meta.openItems, sideQuestEvents, meta.derivedAt),
     branchStories,
+    branchLoops,
   };
 }
 

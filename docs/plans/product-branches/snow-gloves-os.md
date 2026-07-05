@@ -105,6 +105,12 @@ Cortex ingestion targets: this packet, Snow Gloves OS README/explainer/config/sp
 
 First real pilot proof: one tenant operation routed through approval, Paperclip/Hermes foldback, redacted audit log, and smoke/test receipts.
 
+## Loop Control Inputs
+
+| loop_id | title | cadence | objective | metric | boundary_color | one_change_rule | state_file | stop_rule | model_route | proof_required |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| snow-gloves-os-approval-loop | Snow Gloves OS approval-gate loop | manual weekly until Will-organ approval proof exists | Prove one clean service, approval-gate, or Paperclip foldback condition for the Will-organ service packet. | One clean smoke receipt, approval audit receipt, or foldback receipt is captured per round. | red | Select exactly one proof action and never execute high-risk tenant operations without explicit approval. | .operator/branch-loops/snow-gloves-os-approval-loop.md | Stop after 2 blocked approval checks, after a live approval-gate proof is archived, or before any connector activation request. | cheap-first; escalate for approval-policy reasoning only | Redacted smoke/test receipt, approval decision, queued task receipt, or foldback report path. |
+
 ## Branch Story Controls
 
 | Control | Value |
