@@ -25,6 +25,20 @@ test('loads branch stories from product packets without flattening controls', ()
   assert.match(fitcheck.controls.autonomyBoundary, /founder approval/i);
 });
 
+test('loads branch loop controls from product packets', () => {
+  const stories = loadBranchStories({ root: process.cwd() }, 'cambium');
+  const fitcheck = stories.find((story) => story.productId === 'fitcheck');
+
+  assert.ok(fitcheck);
+  assert.ok(fitcheck.loops);
+  assert.equal(fitcheck.loops[0].loopId, 'fitcheck-launch-gate-loop');
+  assert.equal(fitcheck.loops[0].boundaryColor, 'yellow');
+  assert.match(fitcheck.loops[0].oneChangeRule, /exactly one/i);
+  assert.equal(fitcheck.loops[0].stateFile, '.operator/branch-loops/fitcheck-launch-gate-loop.md');
+  assert.match(fitcheck.loops[0].stopRule, /Stop after 3 rounds/i);
+  assert.deepEqual(fitcheck.controls.loops, fitcheck.loops);
+});
+
 test('records blocked packet gaps without promoting weak evidence', () => {
   const stories = loadBranchStories({ root: process.cwd() }, 'cambium');
   const iverif = stories.find((story) => story.productId === 'iverif');
