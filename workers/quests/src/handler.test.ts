@@ -6625,6 +6625,165 @@ test('bridge · Alerts topic signals become urgent operations assignments', asyn
   assert.equal(task.taskType, 'operations');
 });
 
+function iverifActionRequest() {
+  return {
+    schema: 'thoughtseed.action-request.v1',
+    id: 'ar_iverif_autogtm_lead_gap',
+    idempotencyKey: 'action-request:iverif-autogtm-leads-1',
+    tenantId: 'cambium',
+    status: 'proposed',
+    source: 'hermes-routine-signal',
+    createdAt: '2026-07-07T10:00:00.000Z',
+    updatedAt: '2026-07-07T10:00:00.000Z',
+    branchId: 'iverif',
+    branchLabel: 'IVerif',
+    projectId: 'iverif',
+    projectName: 'IVerif',
+    questId: 'the-handoff',
+    topic: {
+      chatId: '-1002691202808',
+      topicKey: 'clients',
+      threadId: 804,
+      sourceMessageId: 'iverif-autogtm-leads-1',
+    },
+    title: 'Approval needed: Prepare client handoff signal',
+    summary: 'iVerif AutoGTM by Explee triggered a batch of leads, but post-lead outreach/enrichment/follow-up is not configured yet. Need founder options before any send.',
+    why: 'topic signal touches client, cofounder, external delivery, release, or approval-gated work',
+    options: [
+      {
+        id: 'make-branch-task',
+        label: 'Make branch task',
+        consequence: 'turn the gap into a Cambium assignment with proof and stop rules',
+        risk: 'low',
+        requiresSignedConfirmation: false,
+        resultKind: 'queue_task',
+      },
+      {
+        id: 'draft-follow-up',
+        label: 'Draft follow-up',
+        consequence: 'prepare copy and next-step options for approval, with no automatic send',
+        risk: 'high',
+        requiresSignedConfirmation: true,
+        resultKind: 'request_input',
+      },
+    ],
+    receipts: [],
+    redaction: 'safe',
+  };
+}
+
+test('bridge · creates iVerif ActionRequest idempotently', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-07T10:00:00.000Z',
+  };
+
+  const first = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+  assert.equal(first.status, 200);
+  const created = body(first);
+  assert.equal(created.ok, true);
+  assert.equal(created.duplicate, false);
+  assert.equal(created.actionRequest.branchId, 'iverif');
+  assert.equal(created.actionRequest.topic.threadId, 804);
+
+  const duplicate = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).duplicate, true);
+  assert.equal(body(duplicate).actionRequest.id, 'ar_iverif_autogtm_lead_gap');
+});
+
+test('bridge · resolves low-risk iVerif callback to queued with meaningful receipt', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-07T10:00:00.000Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+
+  const resolved = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'make-branch-task',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+    }),
+  }), deps);
+
+  assert.equal(resolved.status, 200);
+  const result = body(resolved);
+  assert.equal(result.actionRequest.status, 'queued');
+  assert.equal(result.actionRequest.selectedOptionId, 'make-branch-task');
+  assert.equal(result.receipt.reply, 'Queued: Make branch task.');
+  assert.equal(result.receipt.editCard, true);
+  assert.equal(result.actionRequest.receipts.length, 1);
+
+  const duplicate = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'make-branch-task',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+    }),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).duplicate, true);
+  assert.equal(body(duplicate).receipt.reply, undefined);
+  assert.equal(body(duplicate).actionRequest.receipts.length, 1);
+});
+
+test('bridge · escalates high-risk iVerif callback and rejects wrong topic actor', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-07T10:00:00.000Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+
+  const wrongTopic = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'draft-follow-up',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 797 },
+    }),
+  }), deps);
+  assert.equal(wrongTopic.status, 403);
+  assert.match(wrongTopic.body, /topic actor mismatch/);
+
+  const escalated = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'draft-follow-up',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+    }),
+  }), deps);
+
+  assert.equal(escalated.status, 200);
+  const result = body(escalated);
+  assert.equal(result.actionRequest.status, 'needs_signed_confirmation');
+  assert.equal(result.miniAppGate.required, true);
+  assert.equal(result.receipt.toast, 'Open Mini App confirmation');
+  assert.match(result.receipt.reply, /Needs signed confirmation/);
+});
+
 test('fabric bridge · handler accepts external bridge and ledger stores', async () => {
   const kv = fakeKv();
   const db = new FakeD1Database();
