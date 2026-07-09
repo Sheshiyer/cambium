@@ -1460,6 +1460,54 @@ sheet.addEventListener('pointercancel', endSheet);
 const initData = (TG && TG.initData) || '';
 let GATE_ITEMS = [];
 let GATE_FILTER = 'all';
+function actionRequestRows(env){
+  const envelope = env && env.actionRequests;
+  const rows = Array.isArray(envelope)
+    ? envelope
+    : envelope && Array.isArray(envelope.rows)
+      ? envelope.rows
+      : envelope && Array.isArray(envelope.actionRequests)
+        ? envelope.actionRequests
+        : [];
+  return rows.filter(row => row && typeof row === 'object');
+}
+function actionRequestState(row){
+  const status = String((row && row.status) || 'proposed');
+  if (status === 'completed' || status === 'consumed') return 'complete';
+  if (status === 'blocked' || status === 'needs_signed_confirmation') return 'blocked';
+  if (status === 'queued' || status === 'awaiting_input') return 'active';
+  return 'proof-needed';
+}
+function actionRequestGateItems(env){
+  return actionRequestRows(env).filter(row => !/completed|consumed|superseded/i.test(String(row.status || ''))).map(row => ({
+    id:row.id || row.title || 'action-request',
+    actionRequestId:row.id || '',
+    title:row.title || 'ActionRequest',
+    source:row.source || 'cambium-action-requests@v1',
+    sourcePath:'cambium-action-requests@v1',
+    status:row.status || 'proposed',
+    owner:row.owner || 'founder',
+    branchId:row.branchId || row.projectId || 'branch-not-served',
+    branchLabel:row.branchLabel || row.projectName || row.branchId || 'branch not served',
+    clientName:row.branchLabel || row.projectName || row.branchId || 'branch not served',
+    missionId:row.questId || 'quest-not-served',
+    updatedAt:row.updatedAt || row.createdAt || 'updatedAt not served',
+    evidence:row.evidence || row.summary || row.why || 'ActionRequest evidence missing',
+    consequence:row.consequence || row.next || 'founder choice updates ActionRequest state only',
+    approveConsequence:'queue founder approval for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue',
+    rerollConsequence:String(row.status || '') === 'needs_signed_confirmation'
+      ? 'queue signed Mini App confirmation for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue'
+      : 'queue founder reroll request for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue',
+    reversibility:row.reversibility || 'ActionRequest can be superseded until consumed',
+    idempotencyHint:row.idempotencyHint || row.id || 'action-request',
+    priority:row.priority || { source:'cambium-action-requests@v1', risk:'review', dependency:'founder-choice', score:10 },
+    actionRequest:row,
+  }));
+}
+function gateItemsFromEnvelope(env){
+  const openItems = Array.isArray(env && env.openItems) ? env.openItems : [];
+  return openItems.concat(actionRequestGateItems(env || {}));
+}
 function gateSource(it){ return (it && (it.paperclipSource || it.source || it.sourcePath || it.origin || (it.priority && it.priority.source))) || 'Paperclip · /internal/gate/' + TENANT; }
 function gateOriginLabel(it){
   const raw = String(gateSource(it) || 'Paperclip');
@@ -1472,7 +1520,7 @@ function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evid
 function gateBranchId(it){ return mcText(it && (it.branchId || it.branch || it.productId || it.clientName), 'branch-not-served').toLowerCase().replace(/[^a-z0-9-]+/g, '-'); }
 function gateBranchFocus(it){ return gateBranchId(it); }
 function gateBranchMission(it){
-  const branch = it && (it.branchId || it.branch || it.productId || it.clientName);
+  const branch = it && (it.branchLabel || it.clientName || it.branch || it.productId || it.branchId);
   const mission = it && (it.missionId || it.mission || it.questId || it.title);
   return mcText(branch, 'branch not served') + ' · ' + mcText(mission, 'mission not served');
 }
@@ -1592,11 +1640,14 @@ function renderGateItem(it, i){
   const evidence = gateEvidence(it);
   const approveConsequence = gateConsequence('approve', it);
   const rerollConsequence = gateConsequence('reroll', it);
-  const state = mcStateKind((it && it.status) || 'proof-needed');
+  const state = it && it.actionRequest ? actionRequestState(it.actionRequest) : mcStateKind((it && it.status) || 'proof-needed');
   const reversibility = gateReversibility('approve', it);
   const reversibilityState = gateReversibilityState(reversibility);
   const stale = state === 'stale' || /not served|stale|old|expired/i.test(gateUpdatedAt(it));
-  return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '">' +
+  const actionRequestAttrs = it && it.actionRequestId
+    ? ' data-action-request-id="' + esc(it.actionRequestId) + '" data-action-request-status="' + esc(it.status || 'proposed') + '" data-ecosystem-target="action-requests"'
+    : '';
+  return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '"' + actionRequestAttrs + '>' +
     '<div class="gcard-head">' +
       mcGlyphSvg('gate', state) +
       '<div><div class="gid">' + esc(it.id) + '</div><div class="gtitle">' + esc(it.title) + '</div></div>' +
@@ -1713,7 +1764,7 @@ function openGatePreflight(kind, subject, node){
 function loadGate(){
   const el = $('gate');
   fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
-    const items = (d && d.openItems) || [];
+    const items = gateItemsFromEnvelope(d || {});
     GATE_ITEMS = items;
     const source = '/internal/gate/' + TENANT;
     renderGateHeroDecision(items, source);
@@ -3032,7 +3083,7 @@ function tapestryRows(env){
   const stance = stanceCard(env.ledger ? env : { ledger:L });
   const npcs = npcCards(env.ledger ? env : { ledger:L });
   const mira = npcs.find(npc => String(npc.title || '').toUpperCase() === 'MIRA') || npcs[0];
-  const openItems = Array.isArray(env.openItems) ? env.openItems : [];
+  const openItems = gateItemsFromEnvelope(env || {});
   const gateReady = openItems.some(item => (item.evidence || item.detail) && (item.consequence || item.approveConsequence || item.rerollConsequence) && item.reversibility && item.idempotencyHint);
   const commandReady = !!env.commands;
   const memory = senseCards(env.ledger ? env : { ledger:L }).find(sense => sense.id === 'memory');
@@ -3244,7 +3295,8 @@ function inspectGroupSummaries(env, L){
   const minutes = minutesSince(env && env.derivedAt);
   const stale = minutes === null || minutes > 360;
   const branchRows = (env && env.branchStories && Array.isArray(env.branchStories.rows)) ? env.branchStories.rows : [];
-  const gateRows = Array.isArray(env && env.openItems) ? env.openItems : [];
+  const gateRows = gateItemsFromEnvelope(env || {});
+  const actionRequests = actionRequestRows(env || {});
   const policyRows = [policyCard(env || { ledger:L })];
   const proofRows = liveProofCards(env || { ledger:L });
   const evidenceRows = insightBoxes(env || { ledger:L });
@@ -3254,6 +3306,7 @@ function inspectGroupSummaries(env, L){
     { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:proofRows.some(row => row.state !== 'ready') ? String(proofRows.filter(row => row.state !== 'ready').length) + ' blocker(s) still need proof before release claims.' : 'No live blockers are served.' },
     { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? 'Mission can trust ' + String(branchRows.length) + ' branch packet(s).' : 'Mission cannot trust branch state until packet rows arrive.' },
     { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder approval item(s) waiting.' : 'No founder approval is waiting.' },
+    { id:'action-requests', title:'action requests', glyph:'gate', state:actionRequests.length ? actionRequestState(actionRequests[0]) : 'idle', detail:actionRequests.length ? String(actionRequests.length) + ' iVerif ActionRequest row(s) projected into Gate, Story, and Inspect.' : 'No ActionRequests are served yet.' },
     { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:'Blocked or bounded action is explained before policy internals.' },
     { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:env && env.commands ? String(toolCount) + ' toolbelt commands available for safe use.' : String(toolCount) + ' toolbelt commands unavailable until live data refreshes.' },
     { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' proof rails remain inspectable after critical blockers.' },
@@ -3288,9 +3341,34 @@ function renderInspectSecondaryLinks(env, L){
     '</button>'
   ).join('') + '</section>';
 }
+function renderActionRequests(env){
+  const rows = actionRequestRows(env || {});
+  if (!rows.length) return '<div class="boxgrid"><div class="ibox" data-component="ActionRequestEmptyState"><b>NO ACTION REQUESTS</b><span>No redacted ActionRequest rows are served yet.</span></div></div>';
+  return '<div class="boxgrid" data-component="ActionRequestProjectionGrid">' + rows.slice(0, 8).map((row, i) =>
+    '<button type="button" class="ibox action-request ' + (actionRequestState(row) === 'complete' ? 'ready' : '') + '" data-component="ActionRequestProjectionCard" data-action-request-index="' + i + '" data-action-request-id="' + esc(row.id || '') + '" data-action-request-status="' + esc(row.status || 'proposed') + '" data-ecosystem-target="action-requests">' +
+      '<b>' + esc(row.title || row.id || 'ActionRequest') + '</b><span>' + esc((row.branchLabel || row.projectName || row.branchId || 'branch') + ' · ' + (row.status || 'proposed') + ' · ' + (row.next || row.summary || 'founder choice pending')) + '</span>' +
+    '</button>'
+  ).join('') + '</div>';
+}
+function openActionRequestBox(env, index){
+  const row = actionRequestRows(env || {})[index];
+  if (!row) return;
+  const receipt = row.receipts && row.receipts.latest ? row.receipts.latest : null;
+  $('sheetBody').innerHTML = '<div class="arc">action request · ' + esc(row.branchLabel || row.branchId || 'branch') + '</div><h2>' + esc(row.title || row.id || 'ActionRequest') + '</h2>' +
+    '<div class="nar">' + esc(row.summary || row.next || 'ActionRequest summary not served') + '</div>' +
+    '<div class="kv"><b>branch</b><span>' + esc(row.branchLabel || row.branchId || 'missing') + '</span><b>quest</b><span>' + esc(row.questId || 'missing') + '</span><b>status</b><span>' + esc(row.status || 'proposed') + '</span><b>why</b><span>' + esc(row.why || 'why not served') + '</span><b>next</b><span>' + esc(row.next || 'founder choice required') + '</span><b>proof</b><span>' + esc(row.evidence || row.summary || 'proof missing') + '</span><b>consequence</b><span>' + esc(row.consequence || 'consequence missing') + '</span><b>reversibility</b><span>' + esc(row.reversibility || 'reversibility missing') + '</span><b>receipt count</b><span>' + esc(row.receipts && row.receipts.count != null ? row.receipts.count : 0) + '</span><b>latest receipt</b><span>' + esc(receipt ? receipt.kind + ' · ' + receipt.text : 'none') + '</span><b>redaction</b><span>no raw initData, callback nonce, bearer token, or Telegram chat id rendered</span><b>source</b><span>' + esc(row.source || 'cambium-action-requests@v1') + '</span></div>' +
+    '<div class="gbtns"><button type="button" data-inspect-page-link="gate">Open Gate</button><button type="button" class="reroll" data-inspect-page-link="story">Open Story</button></div>';
+  $('sheetBody').querySelectorAll('[data-inspect-page-link]').forEach(el => el.onclick = () => {
+    closeSheet();
+    go(el.dataset.inspectPageLink === 'gate' ? 1 : 3);
+  });
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
+}
 function inspectGroupDetailRows(id, env, L){
   const live = (env && env.liveProof) || {};
   const branchEnv = branchEnvelope(env || { ledger:L });
+  const actionRequests = actionRequestRows(env || {});
+  const gateItems = gateItemsFromEnvelope(env || {});
   const rows = {
     freshness:[
       ['stale envelope', FRESHNESS_STATE.stale ? 'yes · refresh before trusting movement' : 'no · current proof window'],
@@ -3327,11 +3405,19 @@ function inspectGroupDetailRows(id, env, L){
     ],
     gates:[
       ['auth boundary', 'initData checked by Worker before queue write'],
-      ['founder approval', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' founder approval item(s)'],
-      ['queue state', String(Array.isArray(env && env.openItems) ? env.openItems.length : 0) + ' open item(s)'],
+      ['founder approval', String(gateItems.length) + ' founder approval item(s)'],
+      ['queue state', String(gateItems.length) + ' open item(s)'],
       ['signed route', '/api/gate/' + TENANT],
       ['idempotency audit', 'Gate sheets show idempotency hints before approve or reroll action'],
       ['redacted auth', 'auth failures describe missing Telegram proof without exposing initData'],
+    ],
+    'action-requests':[
+      ['projection', 'cambium-action-requests@v1 feeds Gate, Story, and Inspect from one redacted list DTO'],
+      ['rows', String(actionRequests.length)],
+      ['iVerif rows', String(actionRequests.filter(row => row.branchId === 'iverif' || row.projectId === 'iverif').length)],
+      ['statuses', actionRequests.length ? actionRequests.map(row => row.id + ':' + row.status).join(' · ') : 'none'],
+      ['redaction', 'no raw initData, callback nonce, bearer token, or Telegram chat id is rendered'],
+      ['next action', actionRequests[0] ? (actionRequests[0].next || 'founder choice required') : 'serve ActionRequest rows from Cambium'],
     ],
     tools:[
       ['command availability', CMDDATA ? 'toolbelt commands available from live data' : 'toolbelt commands unavailable until refresh'],
@@ -3376,7 +3462,7 @@ function renderInspectProofSummary(env, L){
 }
 function inspectRelatedPage(id){
   if (id === 'tools') return 'Tools';
-  if (id === 'gates') return 'Gate';
+  if (id === 'gates' || id === 'action-requests') return 'Gate';
   if (id === 'branch-packets' || id === 'branch-fixtures') return 'Mission';
   if (id === 'evidence' || id === 'live-proof' || id === 'surface-contract') return 'Inspect';
   return 'Inspect';
@@ -3459,6 +3545,7 @@ function renderInspect(env){
     '<div class="cmdgrp">missions</div>' + renderBranchMissions(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">KPIs</div>' + renderBranchKpis(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">gates</div>' + renderBranchGates(env.ledger ? env : { ledger:L }) +
+    '<div class="cmdgrp">action requests</div>' + renderActionRequests(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">proof paths</div>' + renderBranchProof(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">side quests</div>' + renderSideQuests(env.ledger ? env : { ledger:L }) +
     '<div class="cmdgrp">coordination</div>' + renderSocial(env.ledger ? env : { ledger:L }) +
@@ -3486,6 +3573,7 @@ function renderInspect(env){
   $('mapwrap').querySelectorAll('.ibox.branch[data-branch]').forEach(el => el.onclick = () => openBranchMissionSheet(env.ledger ? env : { ledger:L }, +el.dataset.branch, -1));
   $('mapwrap').querySelectorAll('[data-branch-mission]').forEach(el => el.onclick = () => openBranchMissionSheet(env.ledger ? env : { ledger:L }, +el.dataset.branch, +el.dataset.branchMission));
   $('mapwrap').querySelectorAll('[data-branch-kpi],[data-branch-gate],[data-branch-proof]').forEach(el => el.onclick = () => openBranchMissionSheet(env.ledger ? env : { ledger:L }, +el.dataset.branch, -1));
+  $('mapwrap').querySelectorAll('[data-action-request-index]').forEach(el => el.onclick = () => openActionRequestBox(env.ledger ? env : { ledger:L }, +el.dataset.actionRequestIndex));
   $('mapwrap').querySelectorAll('[data-side]').forEach(el => el.onclick = () => openSideQuestBox(env.ledger ? env : { ledger:L }, +el.dataset.side));
   $('mapwrap').querySelectorAll('[data-social]').forEach(el => el.onclick = () => openSocialBox(env.ledger ? env : { ledger:L }, +el.dataset.social));
   $('mapwrap').querySelectorAll('.ibox[data-box]').forEach(el => el.onclick = () => openInsightBox(env.ledger ? env : { ledger:L }, +el.dataset.box));
@@ -3832,6 +3920,7 @@ function storyBeatTarget(lane){
   if (lane === 'heartbeat') return 'quine';
   if (lane === 'paperclip') return 'paperclip';
   if (lane === 'forge') return 'operator-skills';
+  if (lane === 'action-request') return 'action-requests';
   if (lane === 'noesis') return 'operator-narrative';
   if (lane === 'quest') return 'quest-ledger';
   return 'operator-narrative';
@@ -3841,6 +3930,7 @@ function storyBeatSource(beat, lane){
   if (lane === 'paperclip') return 'paperclipActivityBeats';
   if (lane === 'quest') return 'quest-ledger';
   if (lane === 'heartbeat') return 'world.log';
+  if (lane === 'action-request') return 'cambium-action-requests@v1';
   return 'operator-narrative';
 }
 function storyLaneLabel(lane, beat){
@@ -3848,6 +3938,7 @@ function storyLaneLabel(lane, beat){
   if (lane === 'quest') return 'Mission wins';
   if (lane === 'heartbeat' || lane === 'paperclip') return 'New signals';
   if (lane === 'forge') return 'Lessons';
+  if (lane === 'action-request') return 'New signals';
   if (lane === 'noesis') return 'Drift';
   return 'New signals';
 }
@@ -3898,6 +3989,7 @@ function storyBeatProofCue(beat, group){
 }
 function storyBeatSourceSummary(beat, lane){
   const source = storyBeatSource(beat, lane);
+  if (/action-requests/i.test(source)) return 'ActionRequest';
   if (/paperclip/i.test(source)) return 'Paperclip activity';
   if (/quest|ledger/i.test(source)) return 'Quest ledger';
   if (/world|heartbeat/i.test(source)) return 'World signal';
@@ -4056,10 +4148,35 @@ function renderStoryStaleBanner(env){
 function renderStoryEmptyState(env){
   return renderStoryStaleBanner(env || {}) + '<div class="state" data-component="StoryEmptyState" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>No branch story yet.</b><p>Wins, signals, lessons, and drift appear here after a branch has evidence.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Open Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Open Proof</button></div></div>';
 }
+function actionRequestStoryBeats(env){
+  return actionRequestRows(env || {}).map(row => {
+    const status = String(row.status || 'proposed');
+    const group = status === 'completed' || status === 'consumed'
+      ? 'Mission wins'
+      : status === 'blocked' || status === 'needs_signed_confirmation'
+        ? 'Drift'
+        : 'New signals';
+    return {
+      text:(row.branchLabel || row.projectName || row.branchId || 'Branch') + ' ActionRequest ' + status + ': ' + (row.title || row.id || 'founder choice'),
+      lane:'action-request',
+      group,
+      context:group === 'Mission wins' ? 'inspect' : 'gate',
+      branchId:row.branchId || row.projectId || '',
+      source:'cambium-action-requests@v1',
+      proof:row.evidence || row.summary || row.next || 'ActionRequest proof missing',
+      outcome:row.next || row.status || 'founder choice pending',
+      detail:row.summary || row.why || '',
+      followup:row.next || 'Open Gate for founder choice, then Inspect for proof',
+      actionRequestId:row.id,
+    };
+  });
+}
 function renderStory(env){
   const served = env.beats && env.beats.length;
-  const beats = served ? env.beats :
-    env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
+  const actionBeats = actionRequestStoryBeats(env || {});
+  const beats = served ? env.beats.concat(actionBeats) :
+    actionBeats.length ? actionBeats :
+      env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
   STORY_BEATS = beats;
   if (!beats.length) {
     $('beats').innerHTML = renderStoryEmptyState(env);
@@ -4077,8 +4194,9 @@ function renderStory(env){
     const lane = b.lane || 'beat';
     const state = storyBeatState(b);
     const context = storyBeatContext(group, lane, b);
+    const target = lane === 'action-request' ? storyBeatTarget(lane) : 'operator-narrative';
     const contradiction = /contradict/i.test(String(b.text || ''));
-    return '<button type="button" class="' + mcClass('beat' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="mission-story@v1" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="operator-narrative"' + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
+    return '<button type="button" class="' + mcClass('beat' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="mission-story@v1" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
       '<span class="ico">' + mcGlyphSvg(storyBeatGlyph(group), state) + '</span>' +
       '<span class="lane">' + esc(group) + '</span>' +
       '<b>' + esc(b.text || 'Story beat') + '</b>' +

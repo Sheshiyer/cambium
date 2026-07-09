@@ -9,7 +9,7 @@ import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
-import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
+import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
 
 function playwrightHeadlessShellCandidates() {
@@ -284,6 +284,9 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   { scene: 'inspect', fixture: 'mira', path: 'inspect-companions-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-npc="0"]' },
   { scene: 'gate', path: 'gate-empty-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-component=\"GateEmptyState\"]') && document.body.textContent.includes('no founder decisions waiting')" },
   { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-signed-action-entrypoint=\"approve\"]')" },
+  { scene: 'gate', fixture: 'action-requests', path: 'gate-iverif-action-request-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]') && document.body.textContent.includes('IVerif') && document.body.textContent.includes('needs_signed_confirmation')" },
+  { scene: 'story', fixture: 'action-requests', path: 'story-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 3, waitFor: "document.querySelector('[data-ecosystem-target=\"action-requests\"]') && document.body.textContent.includes('IVerif ActionRequest')" },
+  { scene: 'inspect', fixture: 'action-requests', path: 'inspect-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]', waitFor: "document.querySelector('[data-component=\"ActionRequestProjectionCard\"]') && document.body.textContent.includes('action requests')" },
   {
     scene: 'gate',
     fixture: 'gate',
@@ -555,6 +558,8 @@ async function withServer(fn) {
             ? miraFixture
             : fixture === 'branch-stories'
               ? branchStoriesFixture
+              : fixture === 'action-requests'
+                ? IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE
               : fixture === 'fresh'
                 ? FRESH_ECOSYSTEM_VISUAL_FIXTURE
                 : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
@@ -980,6 +985,7 @@ writeFileSync(join(outDir, 'skill-promotion-fixture.json'), JSON.stringify(skill
 writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(miraFixture, null, 2) + '\n');
 writeFileSync(join(outDir, 'fresh-ecosystem-fixture.json'), JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE, null, 2) + '\n');
 writeFileSync(join(outDir, 'branch-stories-fixture.json'), JSON.stringify(branchStoriesFixture, null, 2) + '\n');
+writeFileSync(join(outDir, 'iverif-action-requests-fixture.json'), JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, null, 2) + '\n');
 
 const proofs = [];
 await withServer(async (base) => {

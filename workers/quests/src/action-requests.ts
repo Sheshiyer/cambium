@@ -1,6 +1,7 @@
 export interface ActionRequestKvLike {
   get(key: string): Promise<string | null>;
   put(key: string, value: string): Promise<void>;
+  list(prefix: string): Promise<string[]>;
 }
 
 export type ActionRequestStatus =
@@ -73,6 +74,69 @@ export interface ActionRequestRouteResult {
   body: Record<string, unknown>;
 }
 
+export interface ActionRequestListInput {
+  tenantId?: string;
+  branchId?: string;
+  status?: string;
+  limit?: number;
+}
+
+export interface ActionRequestListItemV1 {
+  schema: 'thoughtseed.action-request-list-item.v1';
+  id: string;
+  tenantId: string;
+  status: ActionRequestStatus;
+  branchId?: string;
+  branchLabel?: string;
+  projectId: string;
+  projectName: string;
+  questId?: string;
+  topic: {
+    topicKey: string;
+    threadId: number;
+    sourceMessageId?: string;
+  };
+  title: string;
+  summary: string;
+  why: string;
+  source: ActionRequestV1['source'];
+  redaction: ActionRequestV1['redaction'];
+  createdAt: string;
+  updatedAt: string;
+  selectedOptionId?: string;
+  next: string;
+  evidence: string;
+  consequence: string;
+  approveConsequence: string;
+  rerollConsequence: string;
+  reversibility: string;
+  idempotencyHint: string;
+  owner: string;
+  priority: {
+    source: string;
+    risk: 'low' | 'high';
+    dependency: string;
+    score: number;
+    reasons: string[];
+  };
+  options: Array<{
+    id: string;
+    label: string;
+    consequence: string;
+    risk: 'low' | 'high';
+    requiresSignedConfirmation: boolean;
+    resultKind: ActionRequestOptionV1['resultKind'];
+  }>;
+  receipts: {
+    count: number;
+    latest?: {
+      at: string;
+      kind: ActionRequestV1['receipts'][number]['kind'];
+      text: string;
+    };
+  };
+}
+
 const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export async function createActionRequestRecord(
@@ -103,6 +167,35 @@ export async function createActionRequestRecord(
   await kv.put(arRecordKey(actionRequest.tenantId, actionRequest.id), JSON.stringify(actionRequest));
   await kv.put(idempotencyKey, JSON.stringify({ id: actionRequest.id, payloadHash }));
   return route(200, { ok: true, duplicate: false, actionRequest });
+}
+
+export async function listActionRequestRecords(
+  kv: ActionRequestKvLike,
+  raw: ActionRequestListInput = {},
+): Promise<ActionRequestRouteResult> {
+  const tenantId = clean(raw.tenantId) || 'cambium';
+  if (!VALID_TENANT.test(tenantId)) return route(400, { error: 'bad tenantId' });
+  const branchId = clean(raw.branchId);
+  const status = statusText(raw.status) || null;
+  const limit = Math.max(1, Math.min(100, Number(raw.limit) || 50));
+  const keys = await kv.list(arRecordPrefix(tenantId));
+  const rows = (await Promise.all(keys.map(async (key) => parseJson(await kv.get(key)))))
+    .filter(isActionRequest)
+    .filter((row) => !branchId || row.branchId === branchId)
+    .filter((row) => !status || row.status === status)
+    .sort((a, b) => String(b.updatedAt || b.createdAt).localeCompare(String(a.updatedAt || a.createdAt)))
+    .slice(0, limit)
+    .map(toListItem);
+
+  return route(200, {
+    schema: 'thoughtseed.action-request-list.v1',
+    ok: true,
+    tenantId,
+    branchId: branchId || undefined,
+    count: rows.length,
+    rows,
+    actionRequests: rows,
+  });
 }
 
 export async function resolveActionRequestRecord(
@@ -250,6 +343,95 @@ async function readActionRequest(kv: ActionRequestKvLike, tenantId: string, id: 
   return isRecord(parsed) ? parsed as unknown as ActionRequestV1 : null;
 }
 
+function isActionRequest(value: unknown): value is ActionRequestV1 {
+  return isRecord(value) && value.schema === 'thoughtseed.action-request.v1' && typeof value.id === 'string';
+}
+
+function toListItem(actionRequest: ActionRequestV1): ActionRequestListItemV1 {
+  const selected = actionRequest.options.find((option) => option.id === actionRequest.selectedOptionId);
+  const lowRisk = actionRequest.options.find((option) => option.risk === 'low') || actionRequest.options[0];
+  const signed = actionRequest.options.find((option) => option.requiresSignedConfirmation || option.risk === 'high') || actionRequest.options[1] || lowRisk;
+  const latestReceipt = actionRequest.receipts.length ? actionRequest.receipts[actionRequest.receipts.length - 1] : undefined;
+  const risk = actionRequest.options.some((option) => option.risk === 'high') ? 'high' : 'low';
+  const consequence = (selected || lowRisk || signed)?.consequence || 'founder choice changes only the queued ActionRequest state until consumed';
+  return {
+    schema: 'thoughtseed.action-request-list-item.v1',
+    id: actionRequest.id,
+    tenantId: actionRequest.tenantId,
+    status: actionRequest.status,
+    branchId: actionRequest.branchId,
+    branchLabel: actionRequest.branchLabel,
+    projectId: actionRequest.projectId,
+    projectName: actionRequest.projectName,
+    questId: actionRequest.questId,
+    topic: {
+      topicKey: actionRequest.topic.topicKey,
+      threadId: actionRequest.topic.threadId,
+      sourceMessageId: actionRequest.topic.sourceMessageId,
+    },
+    title: actionRequest.title,
+    summary: actionRequest.summary,
+    why: actionRequest.why,
+    source: actionRequest.source,
+    redaction: actionRequest.redaction,
+    createdAt: actionRequest.createdAt,
+    updatedAt: actionRequest.updatedAt,
+    selectedOptionId: actionRequest.selectedOptionId,
+    next: nextForActionRequest(actionRequest),
+    evidence: `${actionRequest.summary} · ${actionRequest.why}`,
+    consequence,
+    approveConsequence: lowRisk
+      ? `queue ${lowRisk.label}; no client, spend, or public action runs until operator consumption`
+      : 'queue low-risk branch task; no external action runs until consumed',
+    rerollConsequence: signed
+      ? `escalate ${signed.label} to signed Mini App confirmation before execution`
+      : 'request a clearer branch option before execution',
+    reversibility: actionRequest.status === 'needs_signed_confirmation'
+      ? 'withheld until signed Mini App confirmation; reversible by choosing another option'
+      : 'queued ActionRequest can be superseded until consumed by Cambium',
+    idempotencyHint: actionRequest.idempotencyKey,
+    owner: 'founder',
+    priority: {
+      source: 'cambium-action-requests@v1',
+      risk,
+      dependency: actionRequest.status === 'needs_signed_confirmation' ? 'signed-confirmation' : 'founder-choice',
+      score: risk === 'high' ? 18 : 10,
+      reasons: [
+        actionRequest.branchLabel || actionRequest.projectName,
+        actionRequest.questId || 'quest pending',
+        actionRequest.status,
+      ],
+    },
+    options: actionRequest.options.map((option) => ({
+      id: option.id,
+      label: option.label,
+      consequence: option.consequence,
+      risk: option.risk,
+      requiresSignedConfirmation: option.requiresSignedConfirmation,
+      resultKind: option.resultKind,
+    })),
+    receipts: {
+      count: actionRequest.receipts.length,
+      ...(latestReceipt ? {
+        latest: {
+          at: latestReceipt.at,
+          kind: latestReceipt.kind,
+          text: latestReceipt.text,
+        },
+      } : {}),
+    },
+  };
+}
+
+function nextForActionRequest(actionRequest: ActionRequestV1): string {
+  if (actionRequest.status === 'needs_signed_confirmation') return 'Mini App signed confirmation required before execution';
+  if (actionRequest.status === 'queued') return 'Cambium can consume this queued branch task after operator review';
+  if (actionRequest.status === 'completed') return 'Completed; keep the receipt in Story and Inspect';
+  if (actionRequest.status === 'blocked') return 'Blocked until the branch receives a safer option or proof';
+  if (actionRequest.status === 'awaiting_input') return 'Capture founder reply in the Telegram topic before proceeding';
+  return 'Founder choice is still required in Telegram';
+}
+
 function toOption(raw: Record<string, unknown>): ActionRequestOptionV1 | null {
   const id = clean(raw.id);
   const label = clean(raw.label);
@@ -290,6 +472,10 @@ function statusText(value: unknown): ActionRequestStatus | null {
 
 function arRecordKey(tenantId: string, id: string): string {
   return `action-request:${tenantId}:${id}`;
+}
+
+function arRecordPrefix(tenantId: string): string {
+  return `action-request:${tenantId}:`;
 }
 
 function arIdempotencyKey(tenantId: string, idempotencyKey: string): string {
