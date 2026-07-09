@@ -1222,9 +1222,15 @@ function sanitizeQuestEnvelope(envelope: any): any {
   };
 }
 
-function publicQuestBody(stored: string): string {
+async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Promise<string> {
   try {
-    return JSON.stringify(sanitizeQuestEnvelope(JSON.parse(stored)));
+    const envelope = sanitizeQuestEnvelope(JSON.parse(stored));
+    const actionRequests = await listActionRequestRecords(kv, { tenantId, limit: 50 });
+    if (actionRequests.status !== 200 || Number(actionRequests.body.count) < 1) return JSON.stringify(envelope);
+    return JSON.stringify({
+      ...envelope,
+      actionRequests: actionRequests.body,
+    });
   } catch {
     return stored;
   }
@@ -1418,7 +1424,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     // M3 isolation suite is green — gate open to all valid tenants
     const stored = await deps.kv.get(ledgerKey(tenant));
     if (!stored) return json(404, { error: `no ledger pushed yet for "${tenant}" — run: quine write quests push --tenant ${tenant}` });
-    return { status: 200, headers: { ...JSON_HEADERS }, body: publicQuestBody(stored) };
+    return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
   }
 
   if (method === 'POST' && routePath.startsWith('/internal/ledger/')) {
