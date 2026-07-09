@@ -900,6 +900,37 @@ test('push then get · round-trips the envelope verbatim', async () => {
   assert.equal(get.headers['cache-control'], 'no-store');
 });
 
+test('push then get · includes redacted ActionRequests when bridge records exist', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', bridgeToken: 'bridge' };
+  const put = await handle(
+    req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps,
+  );
+  assert.equal(put.status, 200);
+  const created = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      ...iverifActionRequest(),
+      status: 'needs_signed_confirmation',
+      selectedOptionId: 'draft-follow-up',
+      receipts: [
+        { at: '2026-07-07T10:05:00.000Z', kind: 'callback', text: 'Needs signed confirmation in the Mini App before Draft follow-up can run.', telegramMessageId: 901 },
+      ],
+    }),
+  }), deps);
+  assert.equal(created.status, 200);
+
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  const projection = body(get);
+  assert.equal(projection.actionRequests.schema, 'thoughtseed.action-request-list.v1');
+  assert.equal(projection.actionRequests.count, 1);
+  assert.equal(projection.actionRequests.rows[0].id, 'ar_iverif_autogtm_lead_gap');
+  assert.equal(projection.actionRequests.rows[0].status, 'needs_signed_confirmation');
+  assert.equal(projection.actionRequests.rows[0].selectedOptionId, 'draft-follow-up');
+  assert.doesNotMatch(get.body, /-1002691202808|telegramMessageId|initData|tgWebAppData|Bearer|bridge-token/i);
+});
+
 test('push then get · redacts generic social proof from public quest JSON', async () => {
   const kv = fakeKv();
   const deps = { kv, pushToken: 't' };
