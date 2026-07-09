@@ -1478,31 +1478,45 @@ function actionRequestState(row){
   if (status === 'queued' || status === 'awaiting_input') return 'active';
   return 'proof-needed';
 }
+function actionRequestSelectedOption(row){
+  const options = Array.isArray(row && row.options) ? row.options : [];
+  const selectedId = String((row && row.selectedOptionId) || '');
+  return options.find(option => String(option && option.id) === selectedId)
+    || options.find(option => option && (option.requiresSignedConfirmation || option.risk === 'high'))
+    || options[0]
+    || null;
+}
 function actionRequestGateItems(env){
-  return actionRequestRows(env).filter(row => !/completed|consumed|superseded/i.test(String(row.status || ''))).map(row => ({
-    id:row.id || row.title || 'action-request',
-    actionRequestId:row.id || '',
-    title:row.title || 'ActionRequest',
-    source:row.source || 'cambium-action-requests@v1',
-    sourcePath:'cambium-action-requests@v1',
-    status:row.status || 'proposed',
-    owner:row.owner || 'founder',
-    branchId:row.branchId || row.projectId || 'branch-not-served',
-    branchLabel:row.branchLabel || row.projectName || row.branchId || 'branch not served',
-    clientName:row.branchLabel || row.projectName || row.branchId || 'branch not served',
-    missionId:row.questId || 'quest-not-served',
-    updatedAt:row.updatedAt || row.createdAt || 'updatedAt not served',
-    evidence:row.evidence || row.summary || row.why || 'ActionRequest evidence missing',
-    consequence:row.consequence || row.next || 'founder choice updates ActionRequest state only',
-    approveConsequence:'queue founder approval for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue',
-    rerollConsequence:String(row.status || '') === 'needs_signed_confirmation'
-      ? 'queue signed Mini App confirmation for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue'
-      : 'queue founder reroll request for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue',
-    reversibility:row.reversibility || 'ActionRequest can be superseded until consumed',
-    idempotencyHint:row.idempotencyHint || row.id || 'action-request',
-    priority:row.priority || { source:'cambium-action-requests@v1', risk:'review', dependency:'founder-choice', score:10 },
-    actionRequest:row,
-  }));
+  return actionRequestRows(env).filter(row => !/completed|consumed|superseded/i.test(String(row.status || ''))).map(row => {
+    const selected = actionRequestSelectedOption(row);
+    const selectedLabel = selected && selected.label ? selected.label : (row.selectedOptionId || row.id || 'ActionRequest');
+    return {
+      id:row.id || row.title || 'action-request',
+      actionRequestId:row.id || '',
+      selectedOptionId:row.selectedOptionId || (selected && selected.id) || '',
+      title:row.title || 'ActionRequest',
+      source:row.source || 'cambium-action-requests@v1',
+      sourcePath:'cambium-action-requests@v1',
+      status:row.status || 'proposed',
+      owner:row.owner || 'founder',
+      branchId:row.branchId || row.projectId || 'branch-not-served',
+      branchLabel:row.branchLabel || row.projectName || row.branchId || 'branch not served',
+      clientName:row.branchLabel || row.projectName || row.branchId || 'branch not served',
+      missionId:row.questId || 'quest-not-served',
+      updatedAt:row.updatedAt || row.createdAt || 'updatedAt not served',
+      evidence:row.evidence || row.summary || row.why || 'ActionRequest evidence missing',
+      consequence:row.consequence || row.next || 'founder choice updates ActionRequest state only',
+      approveConsequence:'queue founder approval for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue',
+      rerollConsequence:String(row.status || '') === 'needs_signed_confirmation'
+        ? 'queue signed Mini App confirmation for ' + selectedLabel + '; no external mutation until operator consumes the queue'
+        : 'queue founder reroll request for ' + (row.id || row.title || 'ActionRequest') + '; no external mutation until operator consumes the queue',
+      confirmConsequence:'queue signed Mini App confirmation for ' + selectedLabel + '; no external mutation until operator consumes the queue',
+      reversibility:row.reversibility || 'ActionRequest can be superseded until consumed',
+      idempotencyHint:row.idempotencyHint || row.id || 'action-request',
+      priority:row.priority || { source:'cambium-action-requests@v1', risk:'review', dependency:'founder-choice', score:10 },
+      actionRequest:row,
+    };
+  });
 }
 function gateItemsFromEnvelope(env){
   const openItems = Array.isArray(env && env.openItems) ? env.openItems : [];
@@ -1516,6 +1530,9 @@ function gateOriginLabel(it){
 function gateOwner(it){ return (it && (it.owner || it.assignee || it.founder || it.operator)) || 'owner not served'; }
 function gateUpdatedAt(it){ return (it && (it.updatedAt || it.updated || it.ts || it.createdAt)) || 'updatedAt not served'; }
 function gateSubject(it){ return (it && (it.id || it.title)) || 'handoff'; }
+function isActionRequestGateItem(it){ return !!(it && (it.actionRequest || it.sourcePath === 'cambium-action-requests@v1' || it.actionRequestId)); }
+function gateActionRequestOption(it){ return actionRequestSelectedOption((it && it.actionRequest) || it || {}); }
+function gateActionSubject(kind, it){ return kind === 'confirm-action-request' && isActionRequestGateItem(it) ? (it.actionRequestId || (it.actionRequest && it.actionRequest.id) || it.id || gateSubject(it)) : gateSubject(it); }
 function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evidence missing from handoff'; }
 function gateBranchId(it){ return mcText(it && (it.branchId || it.branch || it.productId || it.clientName), 'branch-not-served').toLowerCase().replace(/[^a-z0-9-]+/g, '-'); }
 function gateBranchFocus(it){ return gateBranchId(it); }
@@ -1534,7 +1551,9 @@ function gateReversibilityState(text){
 function gateQueueConsequence(raw, kind, subject){
   const fallback = kind === 'approve'
     ? 'queue founder approval for ' + subject + '; no Paperclip/org mutation until the operator consumes the queue'
-    : 'queue founder reroll request for ' + subject + '; no Paperclip/org mutation until the operator consumes the queue';
+    : kind === 'confirm-action-request'
+      ? 'queue signed ActionRequest confirmation for ' + subject + '; no external mutation until operator consumes the queue'
+      : 'queue founder reroll request for ' + subject + '; no Paperclip/org mutation until the operator consumes the queue';
   if (!raw) return fallback;
   const text = String(raw);
   const lower = String(text).toLowerCase();
@@ -1544,11 +1563,16 @@ function gateQueueConsequence(raw, kind, subject){
   return explicitlyQueued && explicitlyNonMutating && !directChangeVerb ? text : fallback;
 }
 function gateConsequence(kind, it){
-  const subject = gateSubject(it);
+  const subject = gateActionSubject(kind, it);
   if (kind === 'approve') return gateQueueConsequence(it && (it.approveConsequence || it.consequence), kind, subject);
+  if (kind === 'confirm-action-request') return gateQueueConsequence(it && (it.confirmConsequence || it.rerollConsequence || it.consequence), kind, subject);
   return gateQueueConsequence(it && (it.rerollConsequence || it.consequence), kind, subject);
 }
 function gateIdempotency(kind, it){
+  if (kind === 'confirm-action-request' && isActionRequestGateItem(it)) {
+    const option = gateActionRequestOption(it);
+    return kind + ':' + TENANT + ':' + (it.actionRequestId || it.id || 'action-request') + ':' + ((option && option.id) || it.selectedOptionId || 'selected');
+  }
   const basis = it && typeof it === 'object' ? (it.idempotencyHint || it.id || 'unknown') : it;
   return kind + ':' + TENANT + ':' + basis;
 }
@@ -1644,8 +1668,14 @@ function renderGateItem(it, i){
   const reversibility = gateReversibility('approve', it);
   const reversibilityState = gateReversibilityState(reversibility);
   const stale = state === 'stale' || /not served|stale|old|expired/i.test(gateUpdatedAt(it));
+  const needsSignedActionRequest = isActionRequestGateItem(it) && String((it && it.status) || '') === 'needs_signed_confirmation';
+  const selectedOption = gateActionRequestOption(it);
+  const selectedOptionId = selectedOption && selectedOption.id ? selectedOption.id : ((it && it.selectedOptionId) || '');
+  const actionButtons = needsSignedActionRequest
+    ? '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="confirm-action-request" data-kind="confirm-action-request" data-action-request-option-id="' + esc(selectedOptionId) + '" data-risk-state="' + esc(reversibilityState) + '">Confirm signed</button><button type="button" class="detail" data-gate-detail="1">Details</button>'
+    : '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve" data-risk-state="' + esc(reversibilityState) + '">Approve safely</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll" data-risk-state="' + esc(reversibilityState) + '">Reroll safely</button><button type="button" class="detail" data-gate-detail="1">Details</button>';
   const actionRequestAttrs = it && it.actionRequestId
-    ? ' data-action-request-id="' + esc(it.actionRequestId) + '" data-action-request-status="' + esc(it.status || 'proposed') + '" data-ecosystem-target="action-requests"'
+    ? ' data-action-request-id="' + esc(it.actionRequestId) + '" data-action-request-status="' + esc(it.status || 'proposed') + '" data-action-request-selected-option-id="' + esc(selectedOptionId) + '" data-ecosystem-target="action-requests"'
     : '';
   return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '"' + actionRequestAttrs + '>' +
     '<div class="gcard-head">' +
@@ -1661,13 +1691,14 @@ function renderGateItem(it, i){
       '<span><b>Proof attached</b>' + esc(evidence) + '</span><i aria-hidden="true">›</i>' +
     '</button>' +
     '<div class="gbtns gate-actions">' +
-    '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve" data-risk-state="' + esc(reversibilityState) + '">Approve safely</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll" data-risk-state="' + esc(reversibilityState) + '">Reroll safely</button><button type="button" class="detail" data-gate-detail="1">Details</button></div>' +
+    actionButtons + '</div>' +
     '<div class="gmeta">' +
       gateFact('Decision waiting', gateSubject(it)) +
       gateFact('Branch / mission', gateBranchMission(it)) +
       gateFact('Proof attached', evidence) +
       gateFact('Approve consequence', approveConsequence) +
       gateFact('Reroll consequence', rerollConsequence) +
+      (needsSignedActionRequest ? gateFact('Signed confirmation', gateConsequence('confirm-action-request', it)) : '') +
       gateFact('Reversibility', reversibility) +
     '</div>' +
     '<div class="gitem-details" data-component="GateRowExpansionDetails">' +
@@ -1698,10 +1729,13 @@ function returnFromGate(target, item){
 }
 function openGateResultSheet(kind, subject, res, fallback, item){
   const duplicate = !!(res && res.duplicate);
-  $('sheetBody').innerHTML = '<div class="arc">gate result · ' + esc(duplicate ? 'duplicate' : 'queued') + '</div><h2>' + esc(duplicate ? 'Original Queued Action Reused' : 'Founder Decision Queued') + '</h2>' +
+  const isActionRequestConfirm = kind === 'confirm-action-request';
+  $('sheetBody').innerHTML = '<div class="arc">gate result · ' + esc(duplicate ? 'duplicate' : 'queued') + '</div><h2>' + esc(duplicate ? 'Original Queued Action Reused' : isActionRequestConfirm ? 'ActionRequest Signed Confirmation Queued' : 'Founder Decision Queued') + '</h2>' +
     '<div class="nar">' + esc(duplicate
       ? 'Duplicate response reused the original queued action. This does not imply a new write.'
-      : 'Signed action queued a founder decision only. Paperclip and org state do not mutate until an operator consumes the queue.') + '</div>' +
+      : isActionRequestConfirm
+        ? 'Signed Mini App confirmation updated the canonical ActionRequest to queued. Client-facing send, spend, deploy, or outbound execution still waits for operator consumption.'
+        : 'Signed action queued a founder decision only. Paperclip and org state do not mutate until an operator consumes the queue.') + '</div>' +
     gateRows([['action kind', kind], ['subject', subject], ['queued action', (res && res.queued) || 'missing'], ['idempotency', (res && res.idempotencyKey) || fallback.idempotencyKey], ['consequence', (res && res.consequence) || fallback.consequence], ['reversibility', (res && res.reversibility) || fallback.reversibility]]) +
     '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
   $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
@@ -1724,14 +1758,16 @@ function openGateDetailSheet(node){
   const evidence = gateEvidence(item);
   const reversibility = gateReversibility('approve', item);
   const reversibilityState = gateReversibilityState(reversibility);
+  const needsSignedActionRequest = isActionRequestGateItem(item) && String((item && item.status) || '') === 'needs_signed_confirmation';
   $('sheetBody').innerHTML = '<div class="arc">gate detail · proof</div><h2>' + esc(item.title || node.dataset.id || 'Gate item') + '</h2>' +
-    '<div class="nar">Proof, consequence, reversibility, source, and sync state for this Gate row. Approve and reroll still require signed preflight.</div>' +
+    '<div class="nar">' + esc(needsSignedActionRequest ? 'Proof, consequence, reversibility, source, and sync state for this ActionRequest. The selected high-risk option requires signed Mini App confirmation.' : 'Proof, consequence, reversibility, source, and sync state for this Gate row. Approve and reroll still require signed preflight.') + '</div>' +
     gateRows([
       ['subject', gateSubject(item)],
       ['branch / mission', gateBranchMission(item)],
       ['proof attached', evidence],
       ['approve consequence', gateConsequence('approve', item)],
       ['reroll consequence', gateConsequence('reroll', item)],
+      ...(needsSignedActionRequest ? [['signed confirmation', gateConsequence('confirm-action-request', item)]] : []),
       ['reversibility', reversibility],
       ['reversibility state', reversibilityState],
       ['source', gateOriginLabel(item)],
@@ -1751,10 +1787,18 @@ function openGatePreflight(kind, subject, node){
   const consequence = gateConsequence(kind, item);
   const reversibility = gateReversibility(kind, item);
   const idempotencyKey = gateIdempotency(kind, item.id ? item : subject);
-  $('sheetBody').innerHTML = '<div class="arc">gate preflight · explicit confirmation</div><h2>' + esc(kind === 'approve' ? 'Approve Gate Item' : 'Reroll Gate Item') + '</h2>' +
-    '<div class="nar">Review this signed action before queueing it. Confirmation queues a founder decision only; it does not mutate Paperclip or org state.</div>' +
-    gateRows([['action kind',kind], ['subject',subject], ['evidence',evidence], ['consequence',consequence], ['reversibility',reversibility], ['source',gateOriginLabel(item)], ['source route','/api/gate/' + TENANT], ['initData status',initData ? 'present for Worker verification' : 'missing until opened inside Telegram'], ['idempotency',idempotencyKey]]) +
-    '<div class="gbtns"><button type="button" class="approve" data-gate-confirm="' + esc(kind) + '">Confirm ' + esc(kind) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
+  const option = gateActionRequestOption(item);
+  const title = kind === 'approve' ? 'Approve Gate Item' : kind === 'confirm-action-request' ? 'Confirm ActionRequest' : 'Reroll Gate Item';
+  const confirmText = kind === 'confirm-action-request' ? 'Confirm signed' : 'Confirm ' + kind;
+  const rows = [['action kind',kind], ['subject',subject]];
+  if (kind === 'confirm-action-request') rows.push(['selected option', (option && (option.label || option.id)) || item.selectedOptionId || 'selected option not served']);
+  rows.push(['evidence',evidence], ['consequence',consequence], ['reversibility',reversibility], ['source',gateOriginLabel(item)], ['source route','/api/gate/' + TENANT], ['initData status',initData ? 'present for Worker verification' : 'missing until opened inside Telegram'], ['idempotency',idempotencyKey]);
+  $('sheetBody').innerHTML = '<div class="arc">gate preflight · explicit confirmation</div><h2>' + esc(title) + '</h2>' +
+    '<div class="nar">' + esc(kind === 'confirm-action-request'
+      ? 'Review this signed ActionRequest confirmation before queueing it. Confirmation changes only the canonical ActionRequest state; execution still waits for operator consumption.'
+      : 'Review this signed action before queueing it. Confirmation queues a founder decision only; it does not mutate Paperclip or org state.') + '</div>' +
+    gateRows(rows) +
+    '<div class="gbtns"><button type="button" class="approve" data-gate-confirm="' + esc(kind) + '">' + esc(confirmText) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
   const confirm = $('sheetBody').querySelector('[data-gate-confirm]');
   if (confirm) confirm.onclick = () => { closeSheet(); gateAct(kind, subject, node); };
   const cancel = $('sheetBody').querySelector('[data-gate-cancel]');
@@ -1784,9 +1828,13 @@ function loadGateWire(el, source){
   });
   el.querySelectorAll('[data-gate-empty-nav]').forEach(node => node.onclick = () => go(node.dataset.gateEmptyNav === 'mission' ? 0 : 4));
     el.querySelectorAll('.gitem').forEach(node => {
-      node.querySelector('.approve').onclick = () => openGatePreflight('approve', node.dataset.id, node);
-      node.querySelector('.reroll').onclick = () => openGatePreflight('reroll', node.dataset.id, node);
-      node.querySelector('[data-gate-detail]').onclick = () => openGateDetailSheet(node);
+      node.querySelectorAll('[data-kind]').forEach(button => button.onclick = () => {
+        const item = GATE_ITEMS[Number(node.dataset.i)] || {};
+        const kind = button.dataset.kind || 'approve';
+        openGatePreflight(kind, gateActionSubject(kind, item), node);
+      });
+      const detail = node.querySelector('[data-gate-detail]');
+      if (detail) detail.onclick = () => openGateDetailSheet(node);
       const proof = node.querySelector('[data-gate-proof]');
       if (proof) proof.onclick = () => openGateDetailSheet(node);
     });
@@ -1797,14 +1845,21 @@ function gateAct(kind, subject, node){
   const consequence = gateConsequence(kind, item);
   const reversibility = gateReversibility(kind, item);
   const idempotencyKey = gateIdempotency(kind, item.id ? item : subject);
+  const option = gateActionRequestOption(item);
+  const payload = { kind, subject, initData, evidence, consequence, reversibility, idempotencyKey };
+  if (kind === 'confirm-action-request') {
+    payload.actionRequestId = item.actionRequestId || (item.actionRequest && item.actionRequest.id) || subject;
+    payload.optionId = (option && option.id) || item.selectedOptionId || (item.actionRequest && item.actionRequest.selectedOptionId) || '';
+  }
   buzz('medium'); node.style.opacity = '.5';
   fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
-    body: JSON.stringify({ kind, subject, initData, evidence, consequence, reversibility, idempotencyKey }) })
+    body: JSON.stringify(payload) })
     .then(r => r.json()).then(res => {
       node.style.opacity='1';
       if (res.queued) {
-        node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind)+' founder decision queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
+        node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind === 'confirm-action-request' ? 'signed ActionRequest confirmation' : kind + ' founder decision')+' queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
+        if (kind === 'confirm-action-request') setTimeout(loadGate, 350);
       } else {
         const error = res.error || 'unknown';
         node.innerHTML = '<div class="gnote">refused: '+esc(error)+' · no local queue write.</div>';

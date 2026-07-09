@@ -8,7 +8,7 @@
 // green (the quest log's own arc VII — the feature gates itself).
 
 import { PAGE } from './page.ts';
-import { createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
+import { confirmSignedActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
@@ -155,7 +155,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest' | 'confirm-action-request';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -1768,12 +1768,22 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest'].includes(body.kind) || !body.subject) {
-      return json(400, { error: 'need kind approve|reroll|promote-skill|queue-side-quest and subject' });
+    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request'].includes(body.kind) || !(body.subject || body.actionRequestId)) {
+      return json(400, { error: 'need kind approve|reroll|promote-skill|queue-side-quest|confirm-action-request and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
     if (!verdict.ok) return json(401, { error: verdict.reason });
     const kind = body.kind as GateActionKind;
+    if (kind === 'confirm-action-request') {
+      const actionRequestId = shortText(body.actionRequestId || body.subject, '', 160);
+      if (!actionRequestId) return json(400, { error: 'confirm-action-request needs actionRequestId' });
+      const result = await confirmSignedActionRequestRecord(deps.kv, actionRequestId, {
+        ...body,
+        tenantId: tenant,
+        founderTelegramUserId: verdict.userId,
+      }, () => (deps.now ? deps.now() : new Date().toISOString()));
+      return json(result.status, result.body);
+    }
     const subject = shortText(body.subject, 'unknown subject', 160);
     const idempotencyKey = shortText(body.idempotencyKey, `${kind}:${subject}`, 240);
     const existingKeys = await deps.kv.list(`gate:${tenant}:`);

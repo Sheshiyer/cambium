@@ -69,6 +69,14 @@ export interface ActionRequestResolveInput {
   };
 }
 
+export interface ActionRequestSignedConfirmInput {
+  tenantId?: string;
+  optionId?: string;
+  founderTelegramUserId?: string;
+  evidence?: string;
+  idempotencyKey?: string;
+}
+
 export interface ActionRequestRouteResult {
   status: number;
   body: Record<string, unknown>;
@@ -253,6 +261,83 @@ export async function resolveActionRequestRecord(
         optionId: option.id,
       },
     } : {}),
+  });
+}
+
+export async function confirmSignedActionRequestRecord(
+  kv: ActionRequestKvLike,
+  id: string,
+  raw: unknown,
+  nowIso: () => string,
+): Promise<ActionRequestRouteResult> {
+  if (!isRecord(raw)) return route(400, { error: 'ActionRequest signed confirmation body must be an object' });
+  const tenantId = clean(raw.tenantId) || 'cambium';
+  if (!VALID_TENANT.test(tenantId)) return route(400, { error: 'bad tenantId' });
+  const actionRequest = await readActionRequest(kv, tenantId, id);
+  if (!actionRequest) return route(404, { error: 'ActionRequest not found' });
+
+  const founderTelegramUserId = clean(raw.founderTelegramUserId);
+  if (!founderTelegramUserId) return route(403, { error: 'founder signed confirmation missing' });
+
+  const optionId = clean(raw.optionId) || clean(actionRequest.selectedOptionId);
+  if (!optionId) return route(400, { error: 'ActionRequest option is required for signed confirmation' });
+  if (actionRequest.selectedOptionId && actionRequest.selectedOptionId !== optionId) {
+    return route(409, { error: 'signed confirmation option mismatch', selectedOptionId: actionRequest.selectedOptionId });
+  }
+  const option = actionRequest.options.find((candidate) => candidate.id === optionId);
+  if (!option) return route(400, { error: 'unknown ActionRequest option' });
+  if (statusForOption(option) !== 'needs_signed_confirmation') {
+    return route(400, { error: 'ActionRequest option does not require signed confirmation' });
+  }
+
+  const idempotencyKey = clean(raw.idempotencyKey) || `confirm-action-request:${tenantId}:${actionRequest.id}:${option.id}`;
+  const consequence = option.consequence || 'queue signed ActionRequest for operator consumption';
+  const reversibility = 'queued ActionRequest can be superseded until consumed by Cambium';
+
+  if (actionRequest.status === 'queued' && actionRequest.selectedOptionId === option.id) {
+    return route(200, {
+      ok: true,
+      duplicate: true,
+      queued: actionRequest.id,
+      kind: 'confirm-action-request',
+      subject: actionRequest.id,
+      idempotencyKey,
+      consequence,
+      reversibility,
+      actionRequest,
+      receipt: { editCard: false, toast: 'Already queued' },
+    });
+  }
+
+  if (actionRequest.status !== 'needs_signed_confirmation') {
+    return route(409, { error: `ActionRequest status ${actionRequest.status} cannot be signed-confirmed` });
+  }
+
+  const at = nowIso();
+  const receiptText = `Signed confirmation queued: ${option.label}.`;
+  const updated: ActionRequestV1 = {
+    ...actionRequest,
+    status: 'queued',
+    selectedOptionId: option.id,
+    updatedAt: at,
+    receipts: [
+      ...actionRequest.receipts,
+      { at, kind: 'gate', text: receiptText },
+    ],
+  };
+  await kv.put(arRecordKey(updated.tenantId, updated.id), JSON.stringify(updated));
+
+  return route(200, {
+    ok: true,
+    duplicate: false,
+    queued: updated.id,
+    kind: 'confirm-action-request',
+    subject: updated.id,
+    idempotencyKey,
+    consequence,
+    reversibility,
+    actionRequest: updated,
+    receipt: { editCard: true, reply: receiptText, toast: 'Signed confirmation queued' },
   });
 }
 
