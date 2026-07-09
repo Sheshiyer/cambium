@@ -20,6 +20,7 @@ import type { D1DatabaseLike, D1StatementLike } from './index.ts';
 import { PAGE } from './page.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
+  IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE,
   NO_FAKE_PROGRESS_VISUAL_FIXTURE,
   OFFLINE_ECOSYSTEM_VISUAL_FIXTURE,
   STALE_ECOSYSTEM_VISUAL_FIXTURE,
@@ -1629,7 +1630,7 @@ test('mini app surface contract · exports current scene ids', () => {
 });
 
 test('mini app surface contract · maps ecosystem targets', () => {
-  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'skills', 'gtm', 'distribution', 'vault-via-paperclip', 'live-proof', 'product-branches']) {
+  for (const target of ['telegram', 'hermes', 'paperclip', 'cambium-worker', 'quine', 'quest-ledger', 'operator-policy', 'operator-skills', 'operator-narrative', 'cortex', 'r3f', 'github', 'skills', 'gtm', 'distribution', 'vault-via-paperclip', 'live-proof', 'product-branches', 'branch-loops', 'action-requests']) {
     assert.ok(MINI_APP_ECOSYSTEM_TARGETS.includes(target as never), `target ${target} is inventoried`);
   }
 });
@@ -1657,6 +1658,7 @@ test('mini app surface contract · inventories operator map subsections', () => 
     'branch-kpis',
     'branch-gates',
     'branch-loops',
+    'action-requests',
     'branch-proof',
     'side-quests',
     'coordination',
@@ -1694,7 +1696,18 @@ test('mini app surface contract · records section interaction semantics', () =>
     },
     source: 'paperclipCommandsData plus curios.self command reference/action surface',
   });
-  assert.deepEqual(byId['founder-gate']?.interactions, { primary: 'signed-action' });
+  assert.deepEqual(byId['founder-gate'], {
+    id: 'founder-gate',
+    scene: 'gate',
+    target: 'telegram',
+    interactions: {
+      primary: 'signed-action',
+      controls: [
+        { id: 'action-request-gate-row', interaction: 'signed-action', source: 'cambium-action-requests@v1', target: 'action-requests' },
+      ],
+    },
+    source: 'telegram initData plus Worker gate queue plus cambium-action-requests@v1',
+  });
   assert.deepEqual(byId['story-feed'], {
     id: 'story-feed',
     scene: 'story',
@@ -1708,16 +1721,22 @@ test('mini app surface contract · records section interaction semantics', () =>
         { id: 'forge-story-beat', interaction: 'sheet', source: 'deviations', target: 'operator-skills' },
         { id: 'noesis-story-beat', interaction: 'sheet', source: 'operator-narrative', target: 'operator-narrative' },
         { id: 'quest-story-fallback', interaction: 'sheet', source: 'quest-ledger', target: 'quest-ledger' },
+        { id: 'action-request-story-beat', interaction: 'sheet', source: 'cambium-action-requests@v1', target: 'action-requests' },
       ],
     },
-    source: 'served beats or complete quest rows',
+    source: 'served beats, ActionRequests, or complete quest rows',
   });
   assert.deepEqual(byId.inspect, {
     id: 'inspect',
     scene: 'inspect',
     target: 'cambium-worker',
-    interactions: { primary: 'sheet' },
-    source: 'shared/cambium-visual-contract.ts and served visual envelope proofs',
+    interactions: {
+      primary: 'sheet',
+      controls: [
+        { id: 'action-request-inspect-detail', interaction: 'sheet', source: 'cambium-action-requests@v1', target: 'action-requests' },
+      ],
+    },
+    source: 'shared/cambium-visual-contract.ts, cambium-action-requests@v1, and served visual envelope proofs',
   });
 });
 
@@ -1734,6 +1753,12 @@ test('mini app surface contract · records map subsection interaction semantics'
     target: 'product-branches',
     interactions: { primary: 'external-proof' },
     source: 'BranchStoryArc proof foldback',
+  });
+  assert.deepEqual(byId['action-requests'], {
+    id: 'action-requests',
+    target: 'action-requests',
+    interactions: { primary: 'sheet' },
+    source: 'cambium-action-requests@v1 redacted projection',
   });
   assert.deepEqual(byId.skills, {
     id: 'skills',
@@ -2839,6 +2864,44 @@ test('page · gate item cards show decision mission proof and queue-only fields'
   assert.match(detailSheet, /sync state<\/b><span>ready for founder review|sync state<\/b><span>blocked until proof resolves/);
   assert.match(detailSheet, /data-gate-detail-nav="mission"/);
   assert.match(detailSheet, /data-gate-detail-nav="inspect"/);
+});
+
+test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect', async () => {
+  const rendered = await renderPageFixtureContext(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, { search: '?tenant=cambium&scene=gate' });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+  const story = rendered.elements.get('beats')!.innerHTML;
+  const inspect = rendered.elements.get('mapwrap')!.innerHTML;
+
+  assert.match(gate, /data-action-request-id="ar_iverif_autogtm_followup_signed"/);
+  assert.match(gate, /IVerif · the-handoff/);
+  assert.match(gate, /needs_signed_confirmation/);
+  assert.match(gate, /signed Mini App confirmation/);
+  assert.match(story, /IVerif ActionRequest needs_signed_confirmation/);
+  assert.match(story, /data-ecosystem-target="action-requests"/);
+  assert.match(inspect, /data-component="ActionRequestProjectionCard"/);
+  assert.match(inspect, /action requests/);
+  assert.match(inspect, /ar_iverif_autogtm_make_task/);
+
+  (rendered.context.openActionRequestBox as (env: unknown, index: number) => void)(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, 0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /action request · IVerif/);
+  assert.match(sheet, /latest receipt<\/b><span>callback · Needs signed confirmation/);
+  assert.match(sheet, /redaction<\/b><span>no raw initData, callback nonce, bearer token, or Telegram chat id rendered/);
+});
+
+test('page · iVerif ActionRequest projection does not render raw Telegram secrets', async () => {
+  const rendered = await renderPageFixtureContext(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, { search: '?tenant=cambium&scene=gate' });
+  (rendered.context.openActionRequestBox as (env: unknown, index: number) => void)(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, 0);
+  const combined = [
+    rendered.elements.get('gate')!.innerHTML,
+    rendered.elements.get('beats')!.innerHTML,
+    rendered.elements.get('mapwrap')!.innerHTML,
+    rendered.elements.get('sheetBody')!.innerHTML,
+  ].join('\n');
+
+  assert.doesNotMatch(combined, /-1002691202808/);
+  assert.doesNotMatch(combined, /query_id=|auth_date=|tgWebAppData|callbackNonce|telegramMessageId|Bearer\s+[A-Za-z0-9._-]{12,}|secret-hash|secret-signature/i);
+  assert.match(combined, /redaction/);
 });
 
 test('page · gate consequence sanitizer rewrites direct Paperclip mutation wording', async () => {
@@ -3994,6 +4057,20 @@ test('visual fixtures · fresh ecosystem fixture has live source proofs', () => 
   assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.beats.length >= 2, 'fresh fixture has story beats');
   assert.match(FRESH_ECOSYSTEM_VISUAL_FIXTURE.rails.proof, /rails served from shared/);
   assert.ok(FRESH_ECOSYSTEM_VISUAL_FIXTURE.sourceProofs.some((proof) => proof.id === 'commands'));
+});
+
+test('visual fixtures · iVerif ActionRequest fixture is a reusable W5 branch projection', () => {
+  assert.equal(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.source, 'visual-fixture:iverif-action-requests');
+  assert.equal(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.schema, 'thoughtseed.action-request-list.v1');
+  assert.equal(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.branchId, 'iverif');
+  assert.deepEqual(
+    IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows.map((row) => row.status),
+    ['needs_signed_confirmation', 'queued', 'completed'],
+  );
+  assert.ok(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows.every((row) => row.branchId === 'iverif'));
+  const fixtureText = JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE);
+  assert.doesNotMatch(fixtureText, /-1002691202808/);
+  assert.doesNotMatch(fixtureText, /query_id=|auth_date=|tgWebAppData|callbackNonce|telegramMessageId|Bearer\s+[A-Za-z0-9._-]{12,}|secret-hash|secret-signature/i);
 });
 
 test('visual fixtures · fresh ecosystem fixture renders command and story proof', async () => {
@@ -6623,6 +6700,234 @@ test('bridge · Alerts topic signals become urgent operations assignments', asyn
   assert.equal(task.questId, 'the-ship-gate');
   assert.equal(task.priority, 'urgent');
   assert.equal(task.taskType, 'operations');
+});
+
+function iverifActionRequest() {
+  return {
+    schema: 'thoughtseed.action-request.v1',
+    id: 'ar_iverif_autogtm_lead_gap',
+    idempotencyKey: 'action-request:iverif-autogtm-leads-1',
+    tenantId: 'cambium',
+    status: 'proposed',
+    source: 'hermes-routine-signal',
+    createdAt: '2026-07-07T10:00:00.000Z',
+    updatedAt: '2026-07-07T10:00:00.000Z',
+    branchId: 'iverif',
+    branchLabel: 'IVerif',
+    projectId: 'iverif',
+    projectName: 'IVerif',
+    questId: 'the-handoff',
+    topic: {
+      chatId: '-1002691202808',
+      topicKey: 'clients',
+      threadId: 804,
+      sourceMessageId: 'iverif-autogtm-leads-1',
+    },
+    title: 'Approval needed: Prepare client handoff signal',
+    summary: 'iVerif AutoGTM by Explee triggered a batch of leads, but post-lead outreach/enrichment/follow-up is not configured yet. Need founder options before any send.',
+    why: 'topic signal touches client, cofounder, external delivery, release, or approval-gated work',
+    options: [
+      {
+        id: 'make-branch-task',
+        label: 'Make branch task',
+        consequence: 'turn the gap into a Cambium assignment with proof and stop rules',
+        risk: 'low',
+        requiresSignedConfirmation: false,
+        resultKind: 'queue_task',
+      },
+      {
+        id: 'draft-follow-up',
+        label: 'Draft follow-up',
+        consequence: 'prepare copy and next-step options for approval, with no automatic send',
+        risk: 'high',
+        requiresSignedConfirmation: true,
+        resultKind: 'request_input',
+      },
+    ],
+    receipts: [],
+    redaction: 'safe',
+  };
+}
+
+test('bridge · creates iVerif ActionRequest idempotently', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-07T10:00:00.000Z',
+  };
+
+  const first = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+  assert.equal(first.status, 200);
+  const created = body(first);
+  assert.equal(created.ok, true);
+  assert.equal(created.duplicate, false);
+  assert.equal(created.actionRequest.branchId, 'iverif');
+  assert.equal(created.actionRequest.topic.threadId, 804);
+
+  const duplicate = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).duplicate, true);
+  assert.equal(body(duplicate).actionRequest.id, 'ar_iverif_autogtm_lead_gap');
+});
+
+test('bridge · resolves low-risk iVerif callback to queued with meaningful receipt', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-07T10:00:00.000Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+
+  const resolved = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'make-branch-task',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+    }),
+  }), deps);
+
+  assert.equal(resolved.status, 200);
+  const result = body(resolved);
+  assert.equal(result.actionRequest.status, 'queued');
+  assert.equal(result.actionRequest.selectedOptionId, 'make-branch-task');
+  assert.equal(result.receipt.reply, 'Queued: Make branch task.');
+  assert.equal(result.receipt.editCard, true);
+  assert.equal(result.actionRequest.receipts.length, 1);
+
+  const duplicate = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'make-branch-task',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+    }),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).duplicate, true);
+  assert.equal(body(duplicate).receipt.reply, undefined);
+  assert.equal(body(duplicate).actionRequest.receipts.length, 1);
+});
+
+test('bridge · escalates high-risk iVerif callback and rejects wrong topic actor', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-07T10:00:00.000Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+
+  const wrongTopic = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'draft-follow-up',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 797 },
+    }),
+  }), deps);
+  assert.equal(wrongTopic.status, 403);
+  assert.match(wrongTopic.body, /topic actor mismatch/);
+
+  const escalated = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'draft-follow-up',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+    }),
+  }), deps);
+
+  assert.equal(escalated.status, 200);
+  const result = body(escalated);
+  assert.equal(result.actionRequest.status, 'needs_signed_confirmation');
+  assert.equal(result.miniAppGate.required, true);
+  assert.equal(result.receipt.toast, 'Open Mini App confirmation');
+  assert.match(result.receipt.reply, /Needs signed confirmation/);
+});
+
+test('bridge · lists redacted iVerif ActionRequests for Mini App projection', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-07T10:00:00.000Z',
+  };
+  const records = [
+    {
+      ...iverifActionRequest(),
+      id: 'ar_iverif_autogtm_followup_signed',
+      idempotencyKey: 'action-request:iverif-autogtm-leads-signed',
+      status: 'needs_signed_confirmation',
+      updatedAt: '2026-07-07T10:05:00.000Z',
+      selectedOptionId: 'draft-follow-up',
+      receipts: [
+        { at: '2026-07-07T10:05:00.000Z', kind: 'callback', text: 'Needs signed confirmation in the Mini App before Draft follow-up can run.', telegramMessageId: 901 },
+      ],
+    },
+    {
+      ...iverifActionRequest(),
+      id: 'ar_iverif_autogtm_make_task',
+      idempotencyKey: 'action-request:iverif-autogtm-leads-queued',
+      status: 'queued',
+      updatedAt: '2026-07-07T10:11:00.000Z',
+      selectedOptionId: 'make-branch-task',
+      receipts: [
+        { at: '2026-07-07T10:11:00.000Z', kind: 'callback', text: 'Queued: Make branch task.', telegramMessageId: 902 },
+      ],
+    },
+    {
+      ...iverifActionRequest(),
+      id: 'ar_iverif_autogtm_receipt_complete',
+      idempotencyKey: 'action-request:iverif-autogtm-leads-complete',
+      status: 'completed',
+      updatedAt: '2026-07-07T10:30:00.000Z',
+      selectedOptionId: 'make-branch-task',
+      receipts: [
+        { at: '2026-07-07T10:30:00.000Z', kind: 'complete', text: 'Completed: iVerif receipt retained for method replay.', telegramMessageId: 903 },
+      ],
+    },
+  ];
+  for (const record of records) {
+    const created = await handle(req('POST', '/v1/bridge/action-requests', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify(record),
+    }), deps);
+    assert.equal(created.status, 200);
+  }
+
+  const listed = await handle(req('GET', '/v1/bridge/action-requests?tenantId=cambium&branchId=iverif', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(listed.status, 200);
+  const projection = body(listed);
+  assert.equal(projection.schema, 'thoughtseed.action-request-list.v1');
+  assert.equal(projection.count, 3);
+  assert.equal(projection.rows[0].id, 'ar_iverif_autogtm_receipt_complete');
+  assert.equal(projection.rows[1].status, 'queued');
+  assert.equal(projection.rows[2].status, 'needs_signed_confirmation');
+  assert.equal(projection.rows[2].topic.threadId, 804);
+  assert.equal(projection.rows[2].priority.source, 'cambium-action-requests@v1');
+  assert.match(projection.rows[2].rerollConsequence, /signed Mini App confirmation/);
+  assert.equal(projection.rows[2].receipts.latest.kind, 'callback');
+
+  const redacted = JSON.stringify(projection);
+  assert.doesNotMatch(redacted, /-1002691202808/);
+  assert.doesNotMatch(redacted, /telegramMessageId|callbackNonce|initData|tgWebAppData|Bearer|bridge-token/i);
 });
 
 test('fabric bridge · handler accepts external bridge and ledger stores', async () => {

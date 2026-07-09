@@ -8,6 +8,7 @@
 // green (the quest log's own arc VII — the feature gates itself).
 
 import { PAGE } from './page.ts';
+import { createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
@@ -1545,6 +1546,36 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ...parsed,
         topic: { topicKey, threadId: route.threadId, questId: route.questId },
       });
+    }
+
+    if (method === 'GET' && routePath === '/v1/bridge/action-requests') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may list action requests' });
+      const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
+      const result = await listActionRequestRecords(deps.kv, {
+        tenantId: String(params.get('tenantId') || params.get('tenant') || 'cambium'),
+        branchId: String(params.get('branchId') || ''),
+        status: String(params.get('status') || ''),
+        limit: Number(params.get('limit') || 50),
+      });
+      return json(result.status, result.body);
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/action-requests') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may create action requests' });
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const result = await createActionRequestRecord(deps.kv, body, nowIso);
+      return json(result.status, result.body);
+    }
+
+    const actionRequestResolve = routePath.match(/^\/v1\/bridge\/action-requests\/([^/]+)\/resolve$/);
+    if (method === 'POST' && actionRequestResolve) {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may resolve action requests' });
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const id = decodeURIComponent(actionRequestResolve[1]);
+      const result = await resolveActionRequestRecord(deps.kv, id, body, nowIso);
+      return json(result.status, result.body);
     }
 
     if (method === 'POST' && routePath === '/v1/bridge/github-command') {

@@ -21,6 +21,7 @@ export const MINI_APP_ECOSYSTEM_TARGETS = [
   'live-proof',
   'product-branches',
   'branch-loops',
+  'action-requests',
 ] as const;
 export type MiniAppEcosystemTarget = typeof MINI_APP_ECOSYSTEM_TARGETS[number];
 
@@ -56,6 +57,7 @@ export const MINI_APP_MAP_SUBSECTION_IDS = [
   'branch-kpis',
   'branch-gates',
   'branch-loops',
+  'action-requests',
   'branch-proof',
   'side-quests',
   'coordination',
@@ -98,7 +100,18 @@ export type MiniAppMapSubsection = {
 
 export const MINI_APP_SECTIONS: readonly MiniAppSurfaceSection[] = [
   { id: 'mission-control', scene: 'mission', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'product-branch-packets@v1 plus quest-ledger-envelope@v1' },
-  { id: 'founder-gate', scene: 'gate', target: 'telegram', interactions: { primary: 'signed-action' }, source: 'telegram initData plus Worker gate queue' },
+  {
+    id: 'founder-gate',
+    scene: 'gate',
+    target: 'telegram',
+    interactions: {
+      primary: 'signed-action',
+      controls: [
+        { id: 'action-request-gate-row', interaction: 'signed-action', source: 'cambium-action-requests@v1', target: 'action-requests' },
+      ],
+    },
+    source: 'telegram initData plus Worker gate queue plus cambium-action-requests@v1',
+  },
   {
     id: 'operator-toolbelt',
     scene: 'tools',
@@ -127,11 +140,23 @@ export const MINI_APP_SECTIONS: readonly MiniAppSurfaceSection[] = [
         { id: 'forge-story-beat', interaction: 'sheet', source: 'deviations', target: 'operator-skills' },
         { id: 'noesis-story-beat', interaction: 'sheet', source: 'operator-narrative', target: 'operator-narrative' },
         { id: 'quest-story-fallback', interaction: 'sheet', source: 'quest-ledger', target: 'quest-ledger' },
+        { id: 'action-request-story-beat', interaction: 'sheet', source: 'cambium-action-requests@v1', target: 'action-requests' },
       ],
     },
-    source: 'served beats or complete quest rows',
+    source: 'served beats, ActionRequests, or complete quest rows',
   },
-  { id: 'inspect', scene: 'inspect', target: 'cambium-worker', interactions: { primary: 'sheet' }, source: 'shared/cambium-visual-contract.ts and served visual envelope proofs' },
+  {
+    id: 'inspect',
+    scene: 'inspect',
+    target: 'cambium-worker',
+    interactions: {
+      primary: 'sheet',
+      controls: [
+        { id: 'action-request-inspect-detail', interaction: 'sheet', source: 'cambium-action-requests@v1', target: 'action-requests' },
+      ],
+    },
+    source: 'shared/cambium-visual-contract.ts, cambium-action-requests@v1, and served visual envelope proofs',
+  },
 ];
 
 export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
@@ -148,6 +173,7 @@ export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
   { id: 'branch-kpis', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc KPI controls' },
   { id: 'branch-gates', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc gate ledger' },
   { id: 'branch-loops', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchLoopLibrary manual-first loop controls' },
+  { id: 'action-requests', target: 'action-requests', interactions: { primary: 'sheet' }, source: 'cambium-action-requests@v1 redacted projection' },
   { id: 'branch-proof', target: 'product-branches', interactions: { primary: 'external-proof' }, source: 'BranchStoryArc proof foldback' },
   {
     id: 'side-quests',
