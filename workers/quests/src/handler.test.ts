@@ -2791,8 +2791,9 @@ test('page · gate chamber previews consequence, reversibility, evidence, and id
   }
   assert.match(PAGE, /data-signed-action-entrypoint="approve"/);
   assert.match(PAGE, /data-signed-action-entrypoint="reroll"/);
-  assert.match(PAGE, /openGatePreflight\('approve'/);
-  assert.match(PAGE, /openGatePreflight\('reroll'/);
+  assert.match(PAGE, /data-signed-action-entrypoint="confirm-action-request"/);
+  assert.match(PAGE, /querySelectorAll\('\[data-kind\]'\)/);
+  assert.match(PAGE, /openGatePreflight\(kind, gateActionSubject\(kind, item\), node\)/);
 });
 
 test('page · empty gate names internal source and no open items', async () => {
@@ -2876,6 +2877,10 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(gate, /IVerif · the-handoff/);
   assert.match(gate, /needs_signed_confirmation/);
   assert.match(gate, /signed Mini App confirmation/);
+  assert.match(gate, /data-signed-action-entrypoint="confirm-action-request"/);
+  assert.match(gate, /data-kind="confirm-action-request"/);
+  assert.match(gate, /data-action-request-selected-option-id="draft-follow-up"/);
+  assert.match(gate, /Confirm signed/);
   assert.match(story, /IVerif ActionRequest needs_signed_confirmation/);
   assert.match(story, /data-ecosystem-target="action-requests"/);
   assert.match(inspect, /data-component="ActionRequestProjectionCard"/);
@@ -2887,6 +2892,15 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(sheet, /action request · IVerif/);
   assert.match(sheet, /latest receipt<\/b><span>callback · Needs signed confirmation/);
   assert.match(sheet, /redaction<\/b><span>no raw initData, callback nonce, bearer token, or Telegram chat id rendered/);
+
+  (rendered.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('confirm-action-request', 'ar_iverif_autogtm_followup_signed', { dataset: { i: '0', id: 'ar_iverif_autogtm_followup_signed' }, style: {} });
+  const preflight = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(preflight, /<h2>Confirm ActionRequest<\/h2>/);
+  assert.match(preflight, /action kind<\/b><span>confirm-action-request/);
+  assert.match(preflight, /selected option<\/b><span>Draft follow-up/);
+  assert.match(preflight, /source route<\/b><span>\/api\/gate\/cambium/);
+  assert.match(preflight, /idempotency<\/b><span>confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up/);
+  assert.match(preflight, /data-gate-confirm="confirm-action-request"/);
 });
 
 test('page · iVerif ActionRequest projection does not render raw Telegram secrets', async () => {
@@ -6859,6 +6873,75 @@ test('bridge · escalates high-risk iVerif callback and rejects wrong topic acto
   assert.equal(result.miniAppGate.required, true);
   assert.equal(result.receipt.toast, 'Open Mini App confirmation');
   assert.match(result.receipt.reply, /Needs signed confirmation/);
+});
+
+test('gate · signed Mini App confirmation queues high-risk iVerif ActionRequest', async () => {
+  const kv = fakeKv();
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_B, authDate: NOW / 1000 - 10 });
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    gate: gateCfg(pubKeyHex),
+    now: () => '2026-07-07T10:06:00.000Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+  const escalated = await handle(req('POST', '/v1/bridge/action-requests/ar_iverif_autogtm_lead_gap/resolve', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium',
+      optionId: 'draft-follow-up',
+      founderTelegramUserId: 'founder-1',
+      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+    }),
+  }), deps);
+  assert.equal(body(escalated).actionRequest.status, 'needs_signed_confirmation');
+
+  const confirmed = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'confirm-action-request',
+      subject: 'ar_iverif_autogtm_lead_gap',
+      actionRequestId: 'ar_iverif_autogtm_lead_gap',
+      optionId: 'draft-follow-up',
+      evidence: 'founder signed high-risk ActionRequest confirmation in the Mini App',
+      consequence: 'queue signed Mini App confirmation for Draft follow-up; no external mutation until operator consumes the queue',
+      reversibility: 'withheld until signed Mini App confirmation; reversible by choosing another option',
+      idempotencyKey: 'confirm-action-request:cambium:ar_iverif_autogtm_lead_gap:draft-follow-up',
+      initData,
+    }),
+  }), deps);
+  assert.equal(confirmed.status, 200);
+  const result = body(confirmed);
+  assert.equal(result.queued, 'ar_iverif_autogtm_lead_gap');
+  assert.equal(result.kind, 'confirm-action-request');
+  assert.equal(result.duplicate, false);
+  assert.equal(result.actionRequest.status, 'queued');
+  assert.equal(result.actionRequest.selectedOptionId, 'draft-follow-up');
+  assert.equal(result.actionRequest.receipts.length, 2);
+  assert.equal(result.actionRequest.receipts[1].kind, 'gate');
+  assert.equal(result.receipt.reply, 'Signed confirmation queued: Draft follow-up.');
+
+  const duplicate = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'confirm-action-request',
+      subject: 'ar_iverif_autogtm_lead_gap',
+      actionRequestId: 'ar_iverif_autogtm_lead_gap',
+      optionId: 'draft-follow-up',
+      idempotencyKey: 'confirm-action-request:cambium:ar_iverif_autogtm_lead_gap:draft-follow-up',
+      initData,
+    }),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).duplicate, true);
+  assert.equal(body(duplicate).actionRequest.receipts.length, 2);
+
+  const listed = await handle(req('GET', '/v1/bridge/action-requests?tenantId=cambium&branchId=iverif', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(body(listed).rows[0].status, 'queued');
+  assert.equal(body(listed).rows[0].receipts.latest.kind, 'gate');
 });
 
 test('bridge · lists redacted iVerif ActionRequests for Mini App projection', async () => {
