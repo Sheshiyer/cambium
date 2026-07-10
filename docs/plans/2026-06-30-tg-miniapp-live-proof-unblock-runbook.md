@@ -95,7 +95,7 @@ npm run proof:tg-live-readiness -- \
   --operator-consumed <integer >= 1> \
   --operator-rejected <integer >= 0> \
   --miniapp-envelope <path to refreshed mini app envelope file> \
-  --visible-marker "<string that appears in the envelope file>"
+  --visible-marker "<ActionRequest id, idempotency marker, or channel receipt marker visible in the envelope file>"
 ```
 
 Optional (validators apply defaults from `live-proof-readiness.mjs:842-845` if omitted):
@@ -106,7 +106,9 @@ Order of operations during the run (the capture handles all four phases in one c
 1. Capture command submits to `POST /api/gate/{tenant}` with the signed initData.
 2. Capture command lists `GET /internal/gate/{tenant}` and verifies the queued id or idempotency key appears.
 3. **Founder runs the operator command** (e.g. `quine:write-skills:apply-promotions`) outside this script and saves the audit log to `--operator-audit`.
-4. Founder refreshes the mini app, saves the visible envelope to `--miniapp-envelope`, and confirms `--visible-marker` is in that file (validator enforces this, `live-proof-readiness.mjs:836`).
+4. Founder refreshes the mini app, saves the visible envelope to `--miniapp-envelope`, and confirms `--visible-marker` is in that file; the validator enforces both presence and marker binding.
+
+For channel-origin ActionRequests, use a visible marker that appears in the refreshed Mini App envelope and ties the receipt to the redacted ActionRequest, for example `ar_iverif_w6_live_mrcwmcs3` or `Clients 804 msg 1068`. Do not use raw queued ids, raw Telegram `initData`, private chat ids, or a generic visual marker.
 
 Output artifact: `docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json` — schema `cambium.signed-action-smoke.v1`, stores hashes + counts only (no `queuedId`, no `subject`, no `idempotencyKey`).
 

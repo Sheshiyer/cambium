@@ -2908,10 +2908,17 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(gate, /IVerif · the-handoff/);
   assert.match(gate, /needs_signed_confirmation/);
   assert.match(gate, /signed Mini App confirmation/);
+  assert.match(gate, /data-component="GateRoutePill"/);
+  assert.match(gate, /Clients · topic 804 · message 1068/);
+  assert.match(gate, /data-component="GateReceiptSummary"/);
+  assert.match(gate, /Telegram card Clients 804 message 1068 receives a queued receipt/);
   assert.match(gate, /data-signed-action-entrypoint="confirm-action-request"/);
   assert.match(gate, /data-kind="confirm-action-request"/);
   assert.match(gate, /data-action-request-selected-option-id="draft-follow-up"/);
   assert.match(gate, /Confirm signed/);
+  assert.match(PAGE, /data-component="GateProgressSummary"[\s\S]*<div class="gauge" id="gauge" data-component="OrbitProgress"><\/div>/);
+  const gateHeroMarkup = PAGE.match(/<section class="gate-hero"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.doesNotMatch(gateHeroMarkup, /id="gauge"/);
   assert.match(story, /IVerif ActionRequest needs_signed_confirmation/);
   assert.match(story, /data-ecosystem-target="action-requests"/);
   assert.match(inspect, /data-component="ActionRequestProjectionCard"/);
@@ -2929,9 +2936,28 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(preflight, /<h2>Confirm ActionRequest<\/h2>/);
   assert.match(preflight, /action kind<\/b><span>confirm-action-request/);
   assert.match(preflight, /selected option<\/b><span>Draft follow-up/);
+  assert.match(preflight, /channel route<\/b><span>Clients · topic 804 · message 1068/);
+  assert.match(preflight, /receipt expectation<\/b><span>Telegram card Clients 804 message 1068 receives a queued receipt/);
   assert.match(preflight, /source route<\/b><span>\/api\/gate\/cambium/);
   assert.match(preflight, /idempotency<\/b><span>confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up/);
   assert.match(preflight, /data-gate-confirm="confirm-action-request"/);
+
+  (rendered.context.openGateResultSheet as (kind: string, subject: string, res: unknown, fallback: unknown, item: unknown) => void)('confirm-action-request', 'ar_iverif_autogtm_followup_signed', {
+    queued: 'ar_iverif_autogtm_followup_signed',
+    duplicate: false,
+    idempotencyKey: 'confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up',
+    consequence: 'queue signed Mini App confirmation for Draft follow-up; no external mutation until operator consumes the queue',
+    reversibility: 'withheld until signed Mini App confirmation; reversible by choosing another option',
+  }, {
+    idempotencyKey: 'confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up',
+    consequence: 'fallback',
+    reversibility: 'fallback',
+  }, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows[0]);
+  const resultSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(resultSheet, /ActionRequest Signed Confirmation Queued/);
+  assert.match(resultSheet, /channel route<\/b><span>Clients · topic 804 · message 1068/);
+  assert.match(resultSheet, /receipt expectation<\/b><span>Telegram card Clients 804 message 1068 receives a queued receipt/);
+  assert.match(resultSheet, /data-gate-result-refresh="1"/);
 });
 
 test('page · iVerif ActionRequest projection does not render raw Telegram secrets', async () => {
@@ -3851,6 +3877,45 @@ test('page · proof-only blocked branch primary UI does not overclaim readiness'
   assert.match(html, /Signed viewport receipt/);
   assert.match(html, /Blocked by/);
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
+});
+
+test('page · IVerif gate copy keeps proof-only boundary before signed action', async () => {
+  const env = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'iverif',
+        name: 'IVerif',
+        promotion: { state: 'proof-only', currentGate: 'Claim/proof separation before automation' },
+        arcTitle: 'Claim Proof Separation',
+        missions: [{ missionId: 'iverif-wiki-proof', title: 'Repair and run wiki build/route proof', gate: 'Build proof', proofRequired: '`verify:data`, `verify:routes`, and build receipt', dispatchTarget: 'hermes' }],
+        gates: [{ gate: 'Public claims', status: 'blocked', requiredProof: 'source-linked claim table' }],
+        kpis: [],
+        proofPaths: [],
+        gaps: [],
+      }],
+    },
+    openItems: [{
+      id: 'ar_iverif_w6_live_mrcwmcs3',
+      title: 'IVerif: decision needed before action',
+      branchId: 'iverif',
+      missionId: 'iverif-wiki-proof',
+      evidence: 'proof-only claim/proof separation before automation; post-lead enrichment and outreach are not configured',
+      consequence: 'queue founder approval for ar_iverif_w6_live_mrcwmcs3; no Paperclip/org mutation and no outreach or client-facing send until signed confirmation and operator consume',
+      approveConsequence: 'queue founder approval for ar_iverif_w6_live_mrcwmcs3; no Paperclip/org mutation and no outreach or client-facing send until signed confirmation and operator consume',
+      rerollConsequence: 'queue founder reroll request for ar_iverif_w6_live_mrcwmcs3; no Paperclip/org mutation and no outreach or client-facing send until signed confirmation and operator consume',
+      reversibility: 'withheld until signed Mini App confirmation',
+      idempotencyHint: 'ar_iverif_w6_live_mrcwmcs3',
+    }],
+  };
+  const rendered = await renderPageFixtureContext(env, { search: '?tenant=cambium&scene=gate' });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+
+  assert.match(gate, /iverif/);
+  assert.match(gate, /proof-only|claim\/proof separation|signed/i);
+  assert.match(gate, /no outreach or client-facing send until signed confirmation and operator consume/);
+  assert.doesNotMatch(gate, /autonomous|outreach sent|client-facing send complete|live SaaS ready/i);
 });
 
 test('page · unreachable ledger state names retry route and no local write', async () => {
