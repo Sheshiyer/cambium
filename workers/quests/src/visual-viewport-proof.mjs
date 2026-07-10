@@ -58,6 +58,70 @@ const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/
 const VIEWPORT_PROOF_MANIFEST_SCHEMA = 'cambium.tg-viewport-proof-manifest.v1';
 const REDACTED_PROOF_SECRET_PATTERN = /(query_id=|auth_date=|tgWebAppData|QUESTS_PUSH_TOKEN|Bearer\s+|secret-hash|secret-signature)/i;
 
+function missionContainmentAssertion(width) {
+  return `(() => {
+    const scene = document.querySelectorAll('.scene')[0];
+    const card = document.querySelector('.mc-mission-card');
+    const branches = document.querySelector('.mc-branch-rail');
+    const questline = document.querySelector('.mc-questline');
+    const proofRows = [...document.querySelectorAll('[data-mission-proof-row]')];
+    const checks = {
+      viewport: Math.abs(window.innerWidth - ${width}) <= 1,
+      documentViewport: Math.abs(document.body.clientWidth - window.innerWidth) <= 1 && document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1 && document.body.scrollWidth <= window.innerWidth + 1,
+      sceneContained: Boolean(scene) && scene.scrollWidth <= scene.clientWidth + 1,
+      cardContained: Boolean(card) && card.scrollWidth <= card.clientWidth + 1,
+      branchRailContained: Boolean(branches) && branches.getBoundingClientRect().right <= window.innerWidth + 1,
+      questlineContained: Boolean(questline) && questline.getBoundingClientRect().right <= window.innerWidth + 1,
+      branchTabs: Boolean(branches) && branches.getAttribute('role') === 'tablist' && Boolean(branches.querySelector('[role="tab"][aria-selected="true"]')),
+      proofButtons: proofRows.length > 0 && proofRows.every((row) => row.tagName === 'BUTTON'),
+      labelsBounded: [...document.querySelectorAll('.mc-questline-row b')].every((label) => label.scrollWidth <= label.clientWidth + 1 || getComputedStyle(label).webkitLineClamp === '2'),
+    };
+    return { ok:Object.values(checks).every(Boolean), checks };
+  })()`;
+}
+
+function inspectPanePreparation(pane, disclosureTitle) {
+  return `(() => {
+    const tab = document.querySelector('[data-inspect-pane-select="${pane}"]');
+    if (!tab) throw new Error('missing Inspect ${pane} tab');
+    if (tab.getAttribute('aria-selected') !== 'true') tab.click();
+    const active = document.querySelector('[data-inspect-pane="${pane}"].is-active');
+    if (!active) throw new Error('Inspect ${pane} pane did not activate');
+    const details = [...active.querySelectorAll('details')].find((node) => node.querySelector('summary')?.textContent.includes(${JSON.stringify(disclosureTitle)}));
+    if (!details) throw new Error('missing Inspect disclosure ${disclosureTitle}');
+    details.open = true;
+  })()`;
+}
+
+function inspectContainmentAssertion(pane, width) {
+  return `(() => {
+    const scene = document.querySelectorAll('.scene')[4];
+    const active = document.querySelector('[data-inspect-pane="${pane}"].is-active');
+    const summary = document.querySelector('[data-component="InspectProofSummaryAction"]');
+    const switcher = document.querySelector('[data-component="InspectPaneSwitcher"]');
+    const frontierMapBadges = [...document.querySelectorAll('.maphead .mapbadge[data-ecosystem-target="r3f"]')];
+    const proofDetailsButtons = [...document.querySelectorAll('[data-component="InspectProofSummaryAction"] [data-inspect-summary="1"]')];
+    const frontierMapBadge = frontierMapBadges.length === 1 ? frontierMapBadges[0] : null;
+    const openProofDetails = proofDetailsButtons.length === 1 ? proofDetailsButtons[0] : null;
+    const checks = {
+      viewport: Math.abs(window.innerWidth - ${width}) <= 1,
+      bodyViewport: Math.abs(document.body.clientWidth - window.innerWidth) <= 1,
+      rootContained: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1 && document.body.scrollWidth <= window.innerWidth + 1,
+      sceneContained: Boolean(scene) && scene.scrollWidth <= scene.clientWidth + 1,
+      paneActive: Boolean(active),
+      paneContained: Boolean(active) && active.scrollWidth <= active.clientWidth + 1,
+      summaryContained: Boolean(summary) && summary.scrollWidth <= summary.clientWidth + 1,
+      switcherContained: Boolean(switcher) && switcher.scrollWidth <= switcher.clientWidth + 1,
+      groupRowsContained: Boolean(active) && [...active.querySelectorAll('.inspect-group')].every((row) => row.scrollWidth <= row.clientWidth + 1),
+      frontierMapBadgeUnique: frontierMapBadges.length === 1,
+      proofDetailsButtonUnique: proofDetailsButtons.length === 1,
+      frontierMapBadgeHeight: Boolean(frontierMapBadge) && frontierMapBadge.getBoundingClientRect().height >= 44,
+      openProofDetailsHeight: Boolean(openProofDetails) && openProofDetails.getBoundingClientRect().height >= 44,
+    };
+    return { ok:Object.values(checks).every(Boolean), checks };
+  })()`;
+}
+
 function redactProofFixtureValue(value) {
   if (typeof value === 'string') return value.replaceAll('QUESTS_PUSH_TOKEN', '[redacted worker credential]');
   if (Array.isArray(value)) return value.map(redactProofFixtureValue);
@@ -156,10 +220,12 @@ export function validateViewportProofManifest(manifest) {
 
     if (proof.intent === 'clickability-proof') {
       const sheet = isPlainObject(proof.sheet) ? proof.sheet : {};
+      const inPageInteraction = proof.interactionSurface === 'page';
       if (!isNonEmptyString(proof.clickTargetSelector)) issues.push(`${prefix}.clickTargetSelector must be present for clickability proofs`);
-      if (!isNonEmptyString(proof.clipSelector) && !isNonEmptyString(sheet.clipSelector)) {
+      if (!inPageInteraction && !isNonEmptyString(proof.clipSelector) && !isNonEmptyString(sheet.clipSelector)) {
         issues.push(`${prefix}.clipSelector or sheet.clipSelector must be present for clickability proofs`);
       }
+      if (inPageInteraction && proof.browserAssertions !== true) issues.push(`${prefix}.browserAssertions must be true for in-page clickability proofs`);
       if (clickTargetCount === undefined) issues.push(`${prefix}.clickTargetCount must be present for clickability proofs`);
     }
   }
@@ -196,7 +262,7 @@ export function buildViewportProofManifest({
     viewport,
     proofIntentSummary,
     proofs,
-    invariant: 'Screenshots use the real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions; queued component proofs additionally use exact-width touch emulation.',
+    invariant: 'Screenshots use the real PAGE export, local API fixtures, mobile emulation, browser-asserted in-page interaction proof, and a clipped real sheet proof for bottom-sheet actions; queued component proofs additionally use exact-width touch emulation.',
   };
   assertViewportProofManifestSchema(manifest);
   return manifest;
@@ -206,10 +272,34 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   {
     scene: 'mission',
     fixture: 'branch-stories',
+    path: 'mission-control-320-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 0,
+    exactViewport: true,
+    viewport: { width: 320, height: 844 },
+    waitFor: "document.querySelector('.mc-mission-card') && document.querySelector('.mc-branch-rail[role=\"tablist\"]') && document.querySelector('.mc-questline[data-no-scene-drag=\"1\"]')",
+    assertExpression: missionContainmentAssertion(320),
+  },
+  {
+    scene: 'mission',
+    fixture: 'branch-stories',
     path: 'mission-control-mobile.png',
     intent: 'layout-proof',
     sceneIndex: 0,
+    exactViewport: true,
     waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('.mc-mission-card') && document.body.textContent.includes('Fitcheck') && document.body.textContent.includes('Run authenticated Shopify widget QA')",
+    assertExpression: missionContainmentAssertion(390),
+  },
+  {
+    scene: 'mission',
+    fixture: 'branch-stories',
+    path: 'mission-control-430-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 0,
+    exactViewport: true,
+    viewport: { width: 430, height: 844 },
+    waitFor: "document.querySelector('.mc-mission-card') && document.querySelector('.mc-branch-rail[role=\"tablist\"]') && document.querySelector('.mc-questline[data-no-scene-drag=\"1\"]')",
+    assertExpression: missionContainmentAssertion(430),
   },
   {
     scene: 'mission',
@@ -286,15 +376,15 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   {
     scene: 'mission',
     fixture: 'branch-stories',
-    path: 'sheet-mission-vantyx-mobile.png',
+    path: 'mission-vantyx-selected-mobile.png',
     intent: 'clickability-proof',
     sceneIndex: 0,
     waitFor: "document.querySelector('[data-mission-branch=\"1\"]') && document.body.textContent.includes('Vantyx')",
     expression: "(() => { const el = [...document.querySelectorAll('[data-mission-branch]')].find(node => node.textContent.includes('Vantyx')); if (!el) throw new Error('missing Vantyx branch chip'); el.click(); })()",
-    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('branch mission · vantyx') && document.querySelector('#sheet').textContent.includes('Second Tenant Publish Proof') && document.querySelector('#sheet').textContent.includes('Branch source')",
+    waitAfterExpression: "!document.querySelector('#sheet.on') && document.querySelector('[data-mission-branch=\"1\"][aria-selected=\"true\"]') && document.querySelector('#mission-branch-panel h3') && document.querySelector('#mission-branch-panel h3').textContent.includes('Create and health-check second tenant')",
+    assertExpression: "(() => { const scene=document.querySelectorAll('.scene')[0]; const panel=document.querySelector('#mission-branch-panel'); const selected=document.querySelector('[data-mission-branch=\"1\"]'); return { ok:MISSION_BRANCH_FOCUS === 'vantyx' && !document.querySelector('#sheet.on') && document.activeElement === selected && panel && panel.scrollWidth <= panel.clientWidth + 1 && scene && scene.scrollWidth <= scene.clientWidth + 1 }; })()",
     clickTargetSelector: '[data-mission-branch="1"]',
     clickTargetCount: 1,
-    clipSelector: '#sheet',
   },
   { scene: 'story', fixture: 'fresh', path: 'story-feed-mobile.png', intent: 'layout-proof', sceneIndex: 3, scrollSelector: '#beats', waitFor: "document.querySelector('[data-component=\"StoryGroup\"]') && document.querySelector('[data-component=\"StoryBeatCard\"]') && document.body.textContent.includes('Mission wins') && document.body.textContent.includes('New signals')" },
   { scene: 'tools', fixture: 'fresh', path: 'tools-mobile.png', intent: 'layout-proof', sceneIndex: 2, waitFor: "document.querySelector('[data-component=\"ToolActionCard\"]') && document.querySelector('[data-command-name=\"ts-status\"]') && document.body.textContent.includes('Mission effect')" },
@@ -311,18 +401,21 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clickTargetCount: 1,
     clipSelector: '#sheet',
   },
-  { scene: 'inspect', path: 'inspect-tapestry-audit-mobile.png', intent: 'layout-proof', sceneIndex: 4, waitFor: "document.querySelector('[data-component=\"InspectGroupStack\"]') && document.querySelector('[data-inspect-group=\"freshness\"]') && document.querySelector('[data-tapestry=\"0\"]')", clickTargetCount: 14 },
-  { scene: 'inspect', path: 'inspect-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-wake="0"]' },
-  { scene: 'inspect', path: 'inspect-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-policy]' },
-  { scene: 'inspect', path: 'inspect-live-proof-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-live-proof="0"]', waitFor: "document.querySelector('[data-live-proof=\"0\"]')" },
-  { scene: 'inspect', fixture: 'gate', path: 'inspect-gate-priority-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-policy]' },
-  { scene: 'inspect', fixture: 'skill', path: 'inspect-skill-promotion-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-skill="0"]' },
+  { scene: 'inspect', path: 'inspect-proof-320-mobile.png', intent: 'layout-proof', sceneIndex: 4, exactViewport: true, viewport: { width: 320, height: 844 }, waitFor: "document.querySelector('[data-inspect-pane=\"proof\"].is-active') && document.querySelector('[data-component=\"InspectProofSummaryAction\"]')", assertExpression: inspectContainmentAssertion('proof', 320) },
+  { scene: 'inspect', path: 'inspect-system-overview-mobile.png', intent: 'layout-proof', sceneIndex: 4, waitFor: "document.querySelector('[data-inspect-pane-select=\"system\"]')", expression: "document.querySelector('[data-inspect-pane-select=\"system\"]').click()", waitAfterExpression: "document.querySelector('[data-inspect-pane=\"system\"].is-active') && document.querySelector('[data-inspect-pane-select=\"system\"][aria-selected=\"true\"]') && document.activeElement === document.querySelector('[data-inspect-pane-select=\"system\"]')", assertExpression: inspectContainmentAssertion('system', 390) },
+  { scene: 'inspect', path: 'inspect-tapestry-audit-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('system', 'Runtime state'), waitFor: "document.querySelector('[data-component=\"InspectGroupStack\"]') && document.querySelector('[data-inspect-group=\"tools\"]') && document.querySelector('[data-tapestry=\"0\"]')", clickTargetCount: 14 },
+  { scene: 'inspect', path: 'inspect-no-fake-progress-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('system', 'Runtime state'), scrollSelector: '[data-wake="0"]' },
+  { scene: 'inspect', path: 'inspect-policy-gap-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('system', 'Runtime state'), scrollSelector: '[data-policy]' },
+  { scene: 'inspect', path: 'inspect-live-proof-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('proof', 'Live readiness'), scrollSelector: '[data-live-proof="0"]', waitFor: "document.querySelector('[data-live-proof=\"0\"]')" },
+  { scene: 'inspect', fixture: 'gate', path: 'inspect-gate-priority-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('system', 'Runtime state'), scrollSelector: '[data-policy]' },
+  { scene: 'inspect', fixture: 'skill', path: 'inspect-skill-promotion-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('system', 'Operators'), scrollSelector: '[data-skill="0"]' },
   {
     scene: 'inspect',
     fixture: 'skill',
     path: 'sheet-inspect-skill-promotion-mobile.png',
     intent: 'clickability-proof',
     sceneIndex: 4,
+    prepareExpression: inspectPanePreparation('system', 'Operators'),
     scrollSelector: '[data-skill="0"]',
     waitFor: "document.querySelector('[data-skill=\"0\"]')",
     expression: "(() => { const el = document.querySelector('[data-skill=\"0\"]'); if (!el) throw new Error('missing founder-review skill card'); el.click(); })()",
@@ -331,8 +424,22 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clickTargetCount: 1,
     clipSelector: '#sheet',
   },
-  { scene: 'inspect', fixture: 'mira', path: 'inspect-mira-relationship-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-npc="0"]' },
-  { scene: 'inspect', fixture: 'mira', path: 'inspect-companions-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-npc="0"]' },
+  {
+    scene: 'inspect',
+    fixture: 'mira',
+    path: 'inspect-mira-relationship-mobile.png',
+    intent: 'clickability-proof',
+    sceneIndex: 4,
+    prepareExpression: inspectPanePreparation('system', 'Operators'),
+    scrollSelector: '[data-npc="0"]',
+    waitFor: "document.querySelector('[data-npc=\"0\"]')",
+    expression: "document.querySelector('[data-npc=\"0\"]').click()",
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('companion · ready') && document.querySelector('#sheet').textContent.includes('MIRA') && document.querySelector('#sheet').textContent.includes('stage')",
+    clickTargetSelector: '[data-npc="0"]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  { scene: 'inspect', fixture: 'mira', path: 'inspect-companions-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('system', 'Operators'), scrollSelector: '[data-npc="0"]' },
   { scene: 'gate', path: 'gate-empty-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-component=\"GateEmptyState\"]') && document.body.textContent.includes('no founder decisions waiting')" },
   { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-signed-action-entrypoint=\"approve\"]') && document.body.textContent.includes('Clients') && document.body.textContent.includes('message 1068')" },
   { scene: 'gate', fixture: 'action-requests', path: 'gate-iverif-action-request-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]') && document.body.textContent.includes('IVerif') && document.body.textContent.includes('needs_signed_confirmation')" },
@@ -476,7 +583,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clipSelector: '#sheet',
   },
   { scene: 'story', fixture: 'action-requests', path: 'story-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 3, waitFor: "document.querySelector('[data-ecosystem-target=\"action-requests\"]') && document.body.textContent.includes('IVerif ActionRequest')" },
-  { scene: 'inspect', fixture: 'action-requests', path: 'inspect-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]', waitFor: "document.querySelector('[data-component=\"ActionRequestProjectionCard\"]') && document.body.textContent.includes('action requests')" },
+  { scene: 'inspect', fixture: 'action-requests', path: 'inspect-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('proof', 'Decisions and receipts'), scrollSelector: '[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]', waitFor: "document.querySelector('[data-component=\"ActionRequestProjectionCard\"]') && document.body.textContent.includes('action requests')" },
   {
     scene: 'gate',
     fixture: 'action-requests',
@@ -1040,13 +1147,31 @@ async function waitForExpression(cdp, expression, timeoutMs = 5_000) {
 }
 
 async function tapSelector(cdp, selector) {
+  await evaluate(cdp, `(() => {
+    const node = document.querySelector(${JSON.stringify(selector)});
+    if (!node) throw new Error('missing tap selector ${selector}');
+    node.scrollIntoView({ block: 'center', inline: 'nearest' });
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 100));
   const point = await evaluate(cdp, `(() => {
     const node = document.querySelector(${JSON.stringify(selector)});
     if (!node) throw new Error('missing tap selector ${selector}');
     const rect = node.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) throw new Error('tap selector has empty rect ${selector}');
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const hit = document.elementFromPoint(x, y);
+    return {
+      x,
+      y,
+      visible:x >= 0 && x <= window.innerWidth && y >= 0 && y <= window.innerHeight,
+      hitTarget:Boolean(hit && (hit === node || node.contains(hit))),
+      rect:{ left:rect.left, top:rect.top, width:rect.width, height:rect.height },
+      viewport:{ width:window.innerWidth, height:window.innerHeight },
+      hit:hit ? hit.tagName + (hit.id ? '#' + hit.id : '') + (hit.className ? '.' + String(hit.className).replace(/\\s+/g,'.') : '') : 'none',
+    };
   })()`);
+  if (!point.visible || !point.hitTarget) throw new Error(`tap selector is not hittable ${selector}: ${JSON.stringify(point)}`);
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: point.x, y: point.y, button: 'none' });
   await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 });
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 });
@@ -1091,6 +1216,7 @@ async function stopBrowserProcess(browserProcess) {
 async function captureWithBrowser(browser, mode, url, file, options = {}) {
   const profile = mkdtempSync(join(tmpdir(), 'cambium-tg-proof-'));
   const port = await freePort();
+  const captureViewport = { ...viewport, ...(options.viewport || {}) };
   let chromeStderr = '';
   const chrome = spawn(browser, [
     ...mode.args,
@@ -1104,7 +1230,7 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
     '--remote-debugging-address=127.0.0.1',
     `--user-data-dir=${profile}`,
     `--remote-debugging-port=${port}`,
-    `--window-size=${viewport.width},${viewport.height}`,
+    `--window-size=${captureViewport.width},${captureViewport.height}`,
     'about:blank',
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
   chrome.stderr?.on('data', (chunk) => {
@@ -1124,11 +1250,11 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       await cdp.send('Page.enable');
       const exactViewport = options.exactViewport === true;
       const mobileMetrics = {
-        width: viewport.width,
-        height: viewport.height,
+        width: captureViewport.width,
+        height: captureViewport.height,
         deviceScaleFactor: 2,
         mobile: !exactViewport,
-        ...(exactViewport ? { screenWidth:viewport.width, screenHeight:viewport.height } : {}),
+        ...(exactViewport ? { screenWidth:captureViewport.width, screenHeight:captureViewport.height } : {}),
       };
       await cdp.send('Emulation.setDeviceMetricsOverride', mobileMetrics);
       if (exactViewport) await cdp.send('Emulation.setTouchEmulationEnabled', { enabled:true, maxTouchPoints:5 });
@@ -1138,6 +1264,11 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
         await cdp.send('Emulation.setDeviceMetricsOverride', mobileMetrics);
         await cdp.send('Emulation.setPageScaleFactor', { pageScaleFactor: 1 });
         await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+      if (options.prepareExpression) {
+        await waitForExpression(cdp, options.prepareWaitFor || "document.querySelector('[data-component=\"MissionControlShell\"]')");
+        await evaluate(cdp, `${options.prepareExpression}; undefined`);
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
       if (options.waitFor) {
         await waitForExpression(cdp, options.waitFor);
@@ -1270,7 +1401,9 @@ await withServer(async (base, metrics) => {
       path: proof.path,
       intent: proof.intent,
       viewportMode: proof.exactViewport ? 'exact-width-touch' : 'mobile-emulation',
+      viewport: { ...viewport, ...(proof.viewport || {}) },
       ...(isNonEmptyString(proof.assertExpression) ? { browserAssertions: true } : {}),
+      ...(proof.intent === 'clickability-proof' ? { interactionSurface: isNonEmptyString(proof.clipSelector) ? 'sheet' : 'page' } : {}),
       ...(Number.isFinite(expectedWorkerPostCount) ? { expectedWorkerPostCount, workerPostCount } : {}),
       ...(isNonEmptyString(proof.clickTargetSelector) ? { clickTargetSelector: proof.clickTargetSelector } : {}),
       ...(Number.isFinite(Number(normalizedClickTargetCount(proof))) ? { clickTargetCount: Number(normalizedClickTargetCount(proof)) } : {}),

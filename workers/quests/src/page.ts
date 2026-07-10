@@ -55,7 +55,7 @@ export const PAGE = `<!doctype html>
   .blob{display:none}
   .grain{position:absolute;inset:0;opacity:.05;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
-  .app{position:relative;height:100dvh;display:flex;flex-direction:column;z-index:1}
+  .app{position:relative;width:100%;max-width:100%;min-width:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;z-index:1}
 
   header.root-status{padding:calc(var(--sat) + 14px) 18px 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
   .root-brand{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
@@ -66,7 +66,7 @@ export const PAGE = `<!doctype html>
   .root-brand-glyph .mc-core{fill:currentColor;stroke:none;opacity:.86}
   .root-brand-glyph .mc-soft{opacity:.42}
   .brand{min-width:0;font-size:21px;font-weight:750;letter-spacing:0;line-height:1.05}
-  .brand small{display:block;font-size:11px;font-weight:400;opacity:.66;letter-spacing:.06em;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brand small{display:block;font-size:11px;font-weight:400;opacity:.66;letter-spacing:0;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .root-chip-stack{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}
   .chip{font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.32);
     border-radius:999px;color:var(--ink);white-space:nowrap;transition:color .4s var(--ease),border-color .4s var(--ease)}
@@ -105,7 +105,7 @@ export const PAGE = `<!doctype html>
     border-radius:2px;transition:transform .45s var(--ease);box-shadow:0 0 8px rgba(224,255,79,.4)}
 
   /* ── commands panel ─────────────────────────── */
-  .cmdgrp{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.45;margin:18px 0 9px}
+  .cmdgrp{font:10px var(--mono);letter-spacing:0;text-transform:uppercase;opacity:.45;margin:18px 0 9px}
   .cmdgrp:first-child{margin-top:4px}
   .tool-recommend{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px;border-color:rgba(224,255,79,.22)}
   .tool-recommend.is-idle{border-style:dashed;opacity:.78}
@@ -144,7 +144,7 @@ export const PAGE = `<!doctype html>
 
   /* min-height:0 lets the flex track be constrained to its allocated height
      (not grow to content) so the scenes' overflow-y:auto actually scrolls. */
-  .track{flex:1;min-height:0;display:flex;will-change:transform;touch-action:pan-y}
+  .track{width:100%;max-width:100%;min-width:0;flex:1;min-height:0;display:flex;will-change:transform;touch-action:pan-y}
   .scene{flex:0 0 100%;width:100%;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;
     padding:18px 18px calc(var(--sab) + 118px);overscroll-behavior:contain}
 
@@ -184,7 +184,8 @@ export const PAGE = `<!doctype html>
   .meta span{cursor:pointer}
   .meta span:active{transform:scale(.97)}
   .meta #here{text-align:right;color:var(--ink);opacity:.85}
-  .stem.mission-control{padding-left:0;display:grid;gap:12px;--grow:0%}
+  .stem.mission-control{width:100%;min-width:0;padding-left:0;display:grid;gap:12px;--grow:0%}
+  .stem.mission-control>*{min-width:0}
   .stem.mission-control::before{display:none}
   .mission-empty{border:1px dashed rgba(248,181,96,.42);border-radius:8px;padding:14px;background:rgba(1,47,52,.34)}
   .mission-empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
@@ -192,35 +193,37 @@ export const PAGE = `<!doctype html>
   .mc-branch-chip{appearance:none;text-align:left;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
   .mc-branch-copy{display:block;min-width:0}
   .mc-branch-copy b{display:block;color:var(--ink);font-size:11px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .mc-branch-copy small{display:block;max-width:132px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.72;font:10px/1.2 var(--mono)}
+  .mc-branch-copy small{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.72;font:10px/1.25 var(--mono)}
   .mc-branch-chip .mc-glyph{width:25px;height:25px;border-radius:7px}
-  .mc-branch-chip .mc-state-token{min-height:20px;padding:3px 6px}
+  .mc-branch-chip .mc-state-token{flex:none;min-height:20px;max-width:88px;padding:3px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mc-branch-chip.is-selected{border-color:rgba(224,255,79,.55);background:rgba(224,255,79,.065)}
-  .mc-section-title{font:11px var(--mono);color:var(--ink);text-transform:uppercase;letter-spacing:.08em;margin:3px 0}
+  .mc-section-title{font:11px var(--mono);color:var(--ink);text-transform:uppercase;letter-spacing:0;margin:3px 0}
   .mc-mission-card{position:relative;overflow:hidden;border:1px solid rgba(224,255,79,.36);background:rgba(1,47,52,.42);padding:14px;border-radius:8px;display:grid;gap:10px}
   .mc-mission-card::before{content:"";position:absolute;inset:0 0 30% 38%;opacity:.32;pointer-events:none;
     background:
       repeating-radial-gradient(ellipse at 62% 44%,rgba(214,255,246,.2) 0 1px,transparent 1px 12px),
       linear-gradient(135deg,transparent,rgba(224,255,79,.08))}
   .mc-mission-card>*{position:relative;z-index:1}
-  .mc-mission-card h3{font-size:20px;line-height:1.12;color:var(--ink)}
-  .mc-mission-card p{font-size:13px;opacity:.78}
-  .mc-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .mc-mission-card h3{font-size:18px;line-height:1.18;color:var(--ink);overflow-wrap:anywhere}
+  .mc-mission-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;font-size:13px;line-height:1.48;opacity:.78}
+  .mc-card-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:10px}
+  .mc-card-head>div{min-width:0}
   .mc-card-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .mc-card-meta span,.mc-blocker-row,.mc-kpi-row{border:1px solid var(--line);border-radius:8px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono)}
+  .mc-card-meta span,.mc-blocker-row,.mc-kpi-row{min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono);overflow-wrap:anywhere}
   .mc-branch-texture{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px;background:linear-gradient(90deg,rgba(224,255,79,.09),rgba(1,47,52,.2))}
   .mc-branch-texture>span{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;min-width:0;font:11px/1.3 var(--mono)}
   .mc-branch-texture b{display:block;color:var(--ink);font-weight:650}
   .mc-branch-texture small{display:block;min-width:0;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mc-proof-list>span{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;min-height:48px;border-bottom:1px solid var(--line);padding:8px 10px;background:transparent;font:11px/1.35 var(--mono)}
-  .mc-proof-list>span:last-child{border-bottom:0}
-  .mc-proof-list>span>span{display:block;min-width:0}
+  .mc-proof-list>button{appearance:none;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;min-height:56px;border:0;border-bottom:1px solid var(--line);padding:8px 10px;background:transparent;color:var(--soft);text-align:left;font:11px/1.35 var(--mono);cursor:pointer}
+  .mc-proof-list>button:last-child{border-bottom:0}
+  .mc-proof-list>button:active{background:rgba(224,255,79,.04)}
+  .mc-proof-list>button>span{display:block;min-width:0;overflow-wrap:anywhere}
   .mc-card-meta b,.mc-proof-list b,.mc-blocker-row b,.mc-kpi-row b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px}
-  .mc-questline-row{position:relative;display:grid;grid-template-rows:auto auto auto;gap:6px;justify-items:center;text-align:center;align-items:start;min-height:74px;padding:4px 3px}
+  .mc-questline-row{position:relative;display:grid;grid-template-rows:auto auto auto;gap:6px;justify-items:center;text-align:center;align-items:start;min-height:84px;padding:5px 4px;scroll-snap-align:start}
   .mc-questline-row:not(:last-child)::after{content:"";position:absolute;left:calc(50% + 18px);right:-50%;top:18px;border-top:1px dashed var(--line2)}
   .mc-questline-row .mc-signal-rail{position:absolute;left:calc(50% + 18px);right:-50%;top:14px;min-height:10px;border-bottom:0;background:rgba(1,47,52,.45)}
-  .mc-questline-row b{font-size:10.5px;line-height:1.15;max-width:76px;min-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .mc-questline-row .mc-state-token{max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mc-questline-row b{font-size:10.5px;line-height:1.2;max-width:84px;min-height:26px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+  .mc-questline-row .mc-state-token{max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mc-blockers,.mc-kpis{display:grid;gap:8px}
   .mc-kpi-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
   .mc-kpi-copy{display:grid;gap:3px;min-width:0}
@@ -234,6 +237,7 @@ export const PAGE = `<!doctype html>
   .mission-tool-link{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
   .mission-tool-link b,.tool-recommend b,.story-hero b,.inspect-proof-summary b{display:block;color:var(--ink);font-size:13px;line-height:1.25}
   .mission-tool-link small,.tool-recommend small,.story-hero small,.inspect-proof-summary small{display:block;font:11px/1.35 var(--mono);opacity:.68;margin-top:3px}
+  .inspect-proof-summary>small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
   .mission-tool-link button,.tool-recommend button{appearance:none;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:var(--bg);font:800 12px inherit;padding:9px 10px;cursor:pointer}
 
   /* ── inspect proof map — Telegram density ───── */
@@ -245,9 +249,9 @@ export const PAGE = `<!doctype html>
 	  @keyframes warningAttention{0%{border-color:rgba(248,181,96,.42)}45%{border-color:rgba(248,181,96,.86)}100%{border-color:rgba(248,181,96,.5)}}
 	  .mapwrap{display:flex;flex-direction:column;gap:12px;padding-top:2px}
 	  .maphead{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;padding-bottom:4px}
-	  .maphead h2{font-size:18px;letter-spacing:.01em;color:var(--ink)}
+	  .maphead h2{font-size:18px;letter-spacing:0;color:var(--ink)}
   .maphead p{font-size:12px;opacity:.68;max-width:48ch;margin-top:3px}
-  .mapbadge{font:11px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.28);
+  .mapbadge{min-height:44px;display:inline-flex;align-items:center;font:11px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.28);
     border-radius:999px;padding:6px 10px;white-space:nowrap;appearance:none;background:transparent;cursor:pointer}
   .mapbadge:active{transform:scale(.96)}
   .wakegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
@@ -269,8 +273,9 @@ export const PAGE = `<!doctype html>
   .ibox.skill span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.npc span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.ready{border-color:rgba(224,255,79,.28);background:rgba(224,255,79,.04)}
-	  .mc-branch-rail{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
-  .mc-branch-chip{flex:0 0 auto;min-width:178px;min-height:52px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);background:rgba(1,47,52,.38);color:var(--mc-mint);padding:8px 10px;font:11px var(--mono)}
+	  .mc-branch-rail{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;padding:2px 0 8px;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;scrollbar-width:none;touch-action:pan-x}
+  .mc-branch-rail::-webkit-scrollbar{display:none}
+  .mc-branch-chip{flex:0 0 clamp(200px,68vw,232px);min-width:0;min-height:56px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);background:rgba(1,47,52,.38);color:var(--mc-mint);padding:8px 10px;font:11px var(--mono);scroll-snap-align:start}
 	  .mc-glyph{width:28px;height:28px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);display:inline-grid;place-items:center;color:var(--mc-chartreuse);background:var(--mc-panel);position:relative;overflow:hidden;flex:none}
 	  .mc-glyph svg{width:80%;height:80%;display:block;stroke:currentColor;fill:none;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
 	  .mc-glyph .mc-fill{fill:currentColor;opacity:.16;stroke:currentColor}
@@ -315,7 +320,8 @@ export const PAGE = `<!doctype html>
 	  .mc-packet{width:4px;height:4px;border-radius:50%;background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.34);flex:0 0 auto}
 	  .mc-packet-dots.is-blocked .mc-packet,.mc-packet-dots.is-proof-needed .mc-packet,.mc-packet-dots.is-stale .mc-packet{background:var(--mc-warn);box-shadow:0 0 7px rgba(248,181,96,.2)}
 	  .mc-glyph[data-motion="glyphBreathe"] svg{transform-origin:center;animation:glyphBreathe 3.4s var(--ease) infinite}
-  .mc-questline{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:0;border:1px solid var(--line);border-radius:8px;padding:9px;background:rgba(1,47,52,.26)}
+  .mc-questline{display:grid;width:100%;min-width:0;max-width:100%;grid-auto-flow:column;grid-auto-columns:88px;gap:0;border:1px solid var(--line);border-radius:8px;padding:9px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scrollbar-width:none;touch-action:pan-x;background:rgba(1,47,52,.26)}
+  .mc-questline::-webkit-scrollbar{display:none}
   .mc-proof-list{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;font:11px var(--mono);color:var(--soft);background:rgba(1,47,52,.24)}
 	  .mc-kpi-pulse{display:inline-grid;place-items:center;min-width:38px;min-height:38px;border-radius:50%;border:1px solid rgba(224,255,79,.34);color:var(--ink)}
 	  .mc-state-stack{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:rgba(1,47,52,.26)}
@@ -341,7 +347,7 @@ export const PAGE = `<!doctype html>
 	  .component-board-head p{font-size:12px;opacity:.68;max-width:48ch;margin-top:4px}
 	  .component-board-head span{font:10px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.34);border-radius:999px;padding:4px 8px;white-space:nowrap}
 	  .component-panel{border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.26);padding:11px;overflow:hidden}
-	  .component-panel h3{font:11px var(--mono);color:var(--ink);letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px}
+	  .component-panel h3{font:11px var(--mono);color:var(--ink);letter-spacing:0;text-transform:uppercase;margin:0 0 10px}
 	  .component-grid{display:grid;gap:8px}
 	  .component-glyph-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 	  .component-state-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -355,7 +361,7 @@ export const PAGE = `<!doctype html>
 	  .component-orbit-grid .component-frame{text-align:center;display:grid;justify-items:center;gap:6px}
 	  .component-sample{border:1px solid var(--line);border-radius:8px;background:rgba(0,39,43,.24);padding:9px;min-width:0}
 	  .component-branch-chip-sample{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
-	  .component-sample-title{font:11px var(--mono);color:var(--ink);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+	  .component-sample-title{font:11px var(--mono);color:var(--ink);text-transform:uppercase;letter-spacing:0;margin-bottom:6px}
 	  .component-motion-frames{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:7px}
 	  .component-motion-frames .mc-glyph,.component-motion-frames .mc-orbit{margin:auto}
 	  .component-motion-frame{min-height:58px;display:grid;place-items:center;border:1px dashed var(--line2);border-radius:7px;background:rgba(1,47,52,.22)}
@@ -393,12 +399,26 @@ export const PAGE = `<!doctype html>
   .rail span{color:var(--ink);opacity:.75}
   .rail.hot{border-color:rgba(224,255,79,.34);background:rgba(224,255,79,.045)}
   .mapnote{font:11px/1.5 var(--mono);opacity:.58}
-  .inspect-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .inspect-pane-switcher{display:grid;grid-template-columns:1fr 1fr;gap:4px;border:1px solid var(--line);border-radius:8px;padding:4px;background:rgba(1,47,52,.28)}
+  .inspect-pane-switcher button{appearance:none;min-width:0;min-height:44px;border:0;border-radius:6px;background:transparent;color:var(--soft);font:650 11px/1 var(--mono);cursor:pointer}
+  .inspect-pane-switcher button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+  .inspect-pane{display:none;min-width:0;gap:12px}
+  .inspect-pane.is-active{display:grid}
+  .inspect-pane-section{display:grid;gap:8px;min-width:0}
+  .inspect-pane-heading{font:11px/1.2 var(--mono);color:var(--ink);text-transform:uppercase}
+  .inspect-disclosure{border-top:1px solid var(--line);padding-top:8px}
+  .inspect-disclosure>summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--soft);font:650 12px/1.3 var(--mono);cursor:pointer;list-style:none}
+  .inspect-disclosure>summary::-webkit-details-marker{display:none}
+  .inspect-disclosure>summary::after{content:"+";color:var(--ink);font:18px/1 var(--mono)}
+  .inspect-disclosure[open]>summary::after{content:"−"}
+  .inspect-disclosure-body{display:grid;gap:10px;padding:4px 0 10px}
+  .inspect-groups{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:rgba(1,47,52,.22)}
   .inspect-group{appearance:none;text-align:left;color:var(--soft);display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;
-    min-width:0;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.3);padding:9px;cursor:pointer}
+    min-width:0;min-height:64px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;padding:10px;cursor:pointer}
+  .inspect-group:last-child{border-bottom:0}
   .inspect-group b{display:block;color:var(--soft);font-size:12.5px;line-height:1.2;margin-bottom:2px;text-transform:capitalize}
   .inspect-group small{display:block;font:10.5px/1.35 var(--mono);opacity:.62;overflow-wrap:anywhere}
-  .inspect-group .mc-state-token{grid-column:1 / -1;width:max-content}
+  .inspect-group .mc-state-token{grid-column:2;width:max-content;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .facets{display:flex;flex-direction:column;gap:8px}
   .facet{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);
     border-radius:11px;font:12.5px var(--mono);
@@ -434,7 +454,7 @@ export const PAGE = `<!doctype html>
     border-radius:7px;background:var(--bg2);border:1px solid var(--line)}
   .beat .ico .mc-glyph{width:21px;height:21px;border:0;background:transparent}
   .beat .ico svg{width:12px;height:12px;stroke:var(--soft);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
-  .beat .lane{display:block;font:9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:3px}
+  .beat .lane{display:block;font:9.5px var(--mono);letter-spacing:0;text-transform:uppercase;opacity:.5;margin-bottom:3px}
   .beat b{color:var(--soft)}
   .beat small{display:block;font:10.5px/1.35 var(--mono);opacity:.64;margin-top:4px;overflow-wrap:anywhere}
   .beat .mc-state-token{margin-top:8px}
@@ -460,8 +480,8 @@ export const PAGE = `<!doctype html>
   .gauge .gate-orbit{width:128px;display:grid;place-items:center;gap:5px}
   .gauge svg{width:128px;max-width:100%;overflow:visible;filter:drop-shadow(0 0 10px rgba(224,255,79,.12))}
   .gauge .gv{font:700 21px var(--mono);fill:var(--ink)}
-  .gauge .gl{font:9.5px var(--mono);fill:var(--soft);opacity:.55;letter-spacing:.08em}
-  .gauge .gstate{font:9px var(--mono);fill:var(--warn);letter-spacing:.08em;text-transform:uppercase}
+  .gauge .gl{font:9.5px var(--mono);fill:var(--soft);opacity:.55;letter-spacing:0}
+  .gauge .gstate{font:9px var(--mono);fill:var(--warn);letter-spacing:0;text-transform:uppercase}
   .gate-orbit .gate-orbit-node{fill:var(--bg2);stroke:rgba(224,255,79,.38);stroke-width:1.5}
   .gate-orbit.is-active .gate-orbit-node,.gate-orbit.is-complete .gate-orbit-node{fill:var(--ink);stroke:rgba(224,255,79,.7)}
   .gate-orbit.is-blocked .gate-orbit-node,.gate-orbit.is-proof-needed .gate-orbit-node{fill:var(--warn);stroke:rgba(248,181,96,.58)}
@@ -470,11 +490,11 @@ export const PAGE = `<!doctype html>
   .gate-progress-summary{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px;background:rgba(1,47,52,.22)}
   .gate-progress-summary .gauge{min-height:88px}
   .gate-progress-copy{font:11px/1.45 var(--mono);color:var(--soft)}
-  .gate-progress-copy b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+  .gate-progress-copy b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:0;margin-bottom:3px}
   .gate-progress-copy span{display:block;opacity:.72}
   .gate-state-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
   .gate-state-strip span{min-width:0;border:1px solid var(--line);border-radius:9px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono)}
-  .gate-state-strip b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+  .gate-state-strip b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:0;margin-bottom:3px}
   .gate-state-strip small{display:block;opacity:.76;overflow-wrap:anywhere}
   .gate-hero-decision{border:1px solid var(--line);border-radius:9px;padding:8px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono);margin-top:9px}
   .gate-hero-decision b{display:block;color:var(--ink);font-weight:650;margin-bottom:2px}
@@ -501,7 +521,7 @@ export const PAGE = `<!doctype html>
   .gmeta span{opacity:.74;overflow-wrap:anywhere}
   .gitem-details{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
   .gitem-details span{border:1px solid var(--line);border-radius:8px;padding:7px;font:10.5px/1.35 var(--mono);opacity:.76}
-  .gitem-details b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+  .gitem-details b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:0;margin-bottom:2px}
   .gate-proof-row{appearance:none;width:100%;min-height:56px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;
     border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin:8px 0;background:rgba(1,47,52,.24);color:var(--soft);font:11px/1.35 var(--mono);text-align:left;cursor:pointer}
   .gate-proof-row:active{transform:scale(.99)}
@@ -512,7 +532,7 @@ export const PAGE = `<!doctype html>
   .gate-proof-open{font:20px/1 var(--mono);color:var(--ink);opacity:.72}
   .gate-route-receipt{display:grid;gap:6px;margin:8px 0 10px}
   .gate-route-pill,.gate-receipt-summary{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:rgba(1,47,52,.24);font:10.5px/1.35 var(--mono);overflow-wrap:anywhere}
-  .gate-route-pill b,.gate-receipt-summary b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+  .gate-route-pill b,.gate-receipt-summary b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:0;margin-bottom:2px}
   .gate-route-pill span,.gate-receipt-summary span{opacity:.78}
   .gate-stale-chip{display:inline-flex;align-items:center;width:max-content;border:1px dashed rgba(248,181,96,.42);border-radius:999px;color:var(--warn);padding:3px 7px;font:10px var(--mono);margin-top:7px}
   .gitem .mc-signal-rail{margin:8px 0 10px}
@@ -520,7 +540,7 @@ export const PAGE = `<!doctype html>
   .gpriority span{border:1px solid rgba(248,181,96,.36);border-radius:999px;padding:4px 8px;color:var(--warn);font:10px var(--mono);background:rgba(248,181,96,.04)}
   .gate-empty .mc-signal-rail,.gate-error .mc-signal-rail{margin-top:9px}
   .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .gbtns button{appearance:none;border:0;border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;
+  .gbtns button{appearance:none;min-height:44px;border:0;border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;
     transition:transform .2s var(--ease)}
   .gbtns button:active{transform:scale(.97)}
   .gbtns .approve{background:var(--ink);color:var(--bg)}
@@ -532,7 +552,7 @@ export const PAGE = `<!doctype html>
   .gate-queued-state{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;border:1px solid rgba(224,255,79,.3);
     border-radius:8px;padding:8px 10px;background:rgba(224,255,79,.055);color:var(--soft)}
   .gate-queued-state::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 3px rgba(224,255,79,.1)}
-  .gate-queued-state b{display:block;color:var(--ink);font:650 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.05em}
+  .gate-queued-state b{display:block;color:var(--ink);font:650 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:0}
   .gate-queued-state small{display:block;margin-top:2px;font:10px/1.25 var(--mono);opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .gate-result-actions .approve{grid-column:1/-1}
   .gbtns.command-copy{grid-template-columns:1fr;margin:12px 0}
@@ -557,11 +577,11 @@ export const PAGE = `<!doctype html>
   #sheetBody{max-height:calc(100dvh - var(--sat) - var(--sab) - 70px);overflow-y:auto;overscroll-behavior:contain;padding:0 1px 6px;scrollbar-width:none}
   #sheetBody::-webkit-scrollbar{display:none}
   .sheet .arc{font:12px var(--mono);color:var(--ink);opacity:.9}
-  .sheet h2{font-size:19px;letter-spacing:.01em;margin:4px 0 8px}
+  .sheet h2{font-size:19px;letter-spacing:0;margin:4px 0 8px;overflow-wrap:anywhere}
   .sheet .nar{opacity:.85;margin-bottom:12px;line-height:1.55}
-  .kv{display:grid;grid-template-columns:84px 1fr;gap:7px 10px;font-size:13px}
-  .kv b{font:11px var(--mono);opacity:.55;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
-  .kv span{font-family:var(--mono);font-size:12.5px;line-height:1.5}
+  .kv{display:grid;grid-template-columns:84px minmax(0,1fr);gap:7px 10px;font-size:13px}
+  .kv b{font:11px var(--mono);opacity:.55;font-weight:500;letter-spacing:0;text-transform:uppercase;padding-top:2px}
+  .kv span{min-width:0;font-family:var(--mono);font-size:12.5px;line-height:1.5;overflow-wrap:anywhere;word-break:break-word}
   .gatekv{grid-template-columns:minmax(96px,30%) minmax(0,1fr);margin-bottom:14px}
   .gatekv span{overflow-wrap:anywhere;word-break:break-word}
   .status-complete,.status-active{color:var(--ink)} .status-locked{opacity:.6}
@@ -577,13 +597,13 @@ export const PAGE = `<!doctype html>
   .branch-sheet-glance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
   .branch-sheet-glance span{min-width:0;border:1px solid var(--line);border-radius:9px;padding:8px;background:rgba(1,47,52,.28);
     font:11px/1.35 var(--mono);overflow-wrap:anywhere}
-  .branch-sheet-glance b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+  .branch-sheet-glance b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px;text-transform:uppercase;letter-spacing:0}
   .branch-claim-guard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:start;margin-top:10px;padding:9px;
     border:1px dashed rgba(248,181,96,.38);border-radius:10px;background:rgba(248,181,96,.045);font:12px/1.45 var(--mono)}
   .branch-claim-guard b{display:block;color:var(--warn);font-weight:650;margin-bottom:2px}
   .branch-claim-guard span{display:block;overflow-wrap:anywhere;opacity:.82}
   .branch-sheet-section{display:grid;gap:7px}
-  .branch-sheet-section h3{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin:0}
+  .branch-sheet-section h3{font:11px var(--mono);letter-spacing:0;text-transform:uppercase;color:var(--ink);margin:0}
   .branch-sheet-timeline{display:grid;gap:7px;border-left:1px solid var(--line2);padding-left:10px}
   .branch-stage{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;min-height:42px}
   .branch-stage b{display:block;font-size:13px;overflow-wrap:anywhere}
@@ -604,7 +624,7 @@ export const PAGE = `<!doctype html>
   .branch-kpi span:last-child{display:block;opacity:.75;overflow-wrap:anywhere}
   .branch-inspect{display:grid;grid-template-columns:96px minmax(0,1fr);gap:6px 9px;border-top:1px solid var(--line);padding-top:10px;
     font:11px/1.45 var(--mono);opacity:.72}
-  .branch-inspect b{color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:.06em}
+  .branch-inspect b{color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:0}
   .branch-inspect span{overflow-wrap:anywhere}
 
   /* ── skeleton / states ──────────────────────── */
@@ -622,6 +642,17 @@ export const PAGE = `<!doctype html>
 
   footer{flex:none;padding:8px 18px calc(var(--sab) + 12px);
     font:10.5px var(--mono);opacity:.5;background:linear-gradient(transparent,var(--bg) 45%);z-index:2;pointer-events:none}
+
+	  @media (max-width:350px){
+	    header.root-status{grid-template-columns:minmax(0,1fr);padding-left:14px;padding-right:14px}
+	    .root-chip-stack{width:100%;justify-content:flex-start}
+	    .root-nav{margin-left:12px;margin-right:12px}
+	    .scene{padding-left:14px;padding-right:14px}
+	    .mission-tool-link,.maphead{grid-template-columns:1fr}
+	    .mission-tool-link button{width:100%}
+	    .mapbadge{justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+	    .kv{grid-template-columns:76px minmax(0,1fr);gap:7px 8px}
+	  }
 
 	  @media (prefers-reduced-motion: reduce){
 	    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -898,8 +929,8 @@ function renderComponentMissionComponentsBoard(){
     ).join('') +
   '</div>';
   const proofList = '<div class="mc-proof-list" data-component="ProofList">' +
-    '<span>' + mcGlyphSvg('proof', 'proof-needed') + '<span><b>ProofList</b>receipt required before claim</span>' + mcStateToken('proof-needed', 'proof') + '</span>' +
-    '<span>' + mcGlyphSvg('build', 'blocked') + '<span><b>Blocked proof</b>missing live route or artifact</span>' + mcStateToken('blocked', 'blocked') + '</span>' +
+    '<button type="button" data-mission-proof-row="1">' + mcGlyphSvg('proof', 'proof-needed') + '<span><b>ProofList</b>receipt required before claim</span>' + mcStateToken('proof-needed', 'proof') + '</button>' +
+    '<button type="button" data-mission-proof-row="1">' + mcGlyphSvg('build', 'blocked') + '<span><b>Blocked proof</b>missing live route or artifact</span>' + mcStateToken('blocked', 'blocked') + '</button>' +
   '</div>';
   const kpiPulse = mcKpiPulse({ label:'KpiPulse', currentState:'signal depth served', survival:'survival threshold', betterThanSurvival:'better-than-survival evidence' }, 0);
   const gateRow = '<div class="mc-action-row" data-component="GateActionRow">' +
@@ -974,6 +1005,7 @@ let LEDGER = null;
 let ECOSYSTEM_ENV = null;
 let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'freshness missing' };
 let MISSION_BRANCH_FOCUS = '';
+let INSPECT_PANE = 'proof';
 
 /* ── scene engine: tap + finger-tracked swipe (axis-locked, momentum, rubber-band) ── */
 const track = $('track'), ind = $('ind'), SCN = 5;
@@ -3008,8 +3040,8 @@ function buildMissionControlView(env){
 }
 function renderBranchArcRail(view){
   if (!view.branches.length) return '';
-  return '<div class="mc-branch-rail">' + view.branches.map((branch, index) =>
-    '<button type="button" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
+  return '<div class="mc-branch-rail" role="tablist" aria-label="Product branches" data-no-scene-drag="1">' + view.branches.map((branch, index) =>
+    '<button type="button" id="mission-branch-tab-' + index + '" role="tab" aria-selected="' + (branch.selected ? 'true' : 'false') + '" aria-controls="mission-branch-panel" tabindex="' + (branch.selected ? '0' : '-1') + '" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-no-scene-drag="1" data-interaction-kind="tab" data-source="' + esc(view.source) + '">' +
       mcGlyphSvg(branch.organ.glyph, branch.state, { motion: branch.selected ? 'glyphBreathe' : '' }) +
       '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b><small>' + esc(branch.organ.label + ' organ · ' + branch.nextMission) + '</small></span>' + mcStateToken(branch.state, branch.state) +
     '</button>'
@@ -3018,7 +3050,8 @@ function renderBranchArcRail(view){
 function renderMissionCard(view){
   const mission = view.nextMission;
   const progress = view.questline.length ? Math.round(100 * view.questline.filter(row => row.state === 'complete').length / view.questline.length) : 0;
-  return '<section class="' + mcClass('mc-mission-card', mission.state) + '" data-component="MissionCard" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
+  const selectedTabIndex = Math.max(0, view.branches.findIndex(branch => branch.selected));
+  return '<section id="mission-branch-panel" role="tabpanel" aria-labelledby="mission-branch-tab-' + selectedTabIndex + '" class="' + mcClass('mc-mission-card', mission.state) + '" data-component="MissionCard" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
     '<div class="mc-card-head"><div>' + mcStateToken(mission.state, 'Next Mission') + '<h3>' + esc(mission.title) + '</h3></div>' + mcOrbitProgress({ value:progress, state:mission.state, label:progress + '%' }) + '</div>' +
     '<p>' + esc(view.vision) + '</p>' +
     '<div class="mc-card-meta"><span><b>Owner</b>' + esc(mission.owner) + '</span><span><b>Gate</b>' + esc(mission.gate) + '</span><span><b>Dispatch</b>' + esc(mission.dispatchTarget) + '</span><span><b>Promotion</b>' + esc(view.promotion.state) + '</span></div>' +
@@ -3030,8 +3063,9 @@ function renderMissionCard(view){
   '</section>';
 }
 function renderQuestlineTimeline(view){
-  return '<div data-component="QuestlineTimeline"><div class="mc-section-title">Questline</div><div class="mc-questline">' + view.questline.map((stage, index) =>
-    '<div class="mc-questline-row" data-questline-stage-state="' + esc(mcStateKind(stage.state || stage.status)) + '"><span>' + mcGlyphSvg(mcGlyphForQuestStage(stage, index, view.questline.length), stage.state) + '</span><b title="' + esc(stage.title) + '">' + esc(mcShortLabel(stage.title, 'Stage')) + '</b>' + mcStateToken(stage.state, stage.status) + (index < view.questline.length - 1 ? mcSignalRail({ state:mcQuestlineRailState(stage, view.questline[index + 1]), packetCount:3 }) : '') + '</div>'
+  const currentIndex = Math.max(0, view.questline.findIndex(stage => mcStateKind(stage.state || stage.status) !== 'complete'));
+  return '<div data-component="QuestlineTimeline"><div class="mc-section-title">Questline</div><div class="mc-questline" role="list" aria-label="Questline stages" data-no-scene-drag="1">' + view.questline.map((stage, index) =>
+    '<div class="mc-questline-row" role="listitem" data-questline-stage-state="' + esc(mcStateKind(stage.state || stage.status)) + '"' + (index === currentIndex ? ' aria-current="step"' : '') + '><span>' + mcGlyphSvg(mcGlyphForQuestStage(stage, index, view.questline.length), stage.state) + '</span><b title="' + esc(stage.title) + '">' + esc(mcText(stage.title, 'Stage')) + '</b>' + mcStateToken(stage.state, stage.status) + (index < view.questline.length - 1 ? mcSignalRail({ state:mcQuestlineRailState(stage, view.questline[index + 1]), packetCount:3 }) : '') + '</div>'
   ).join('') + '</div></div>';
 }
 function renderMissionStateStack(view){
@@ -3065,7 +3099,7 @@ function renderMissionBlockers(view){
 }
 function renderMissionProofNeeded(view){
   return '<div data-component="ProofList"><div class="mc-section-title">Proof needed</div><div class="mc-proof-list">' + view.proofNeeded.slice(0, 5).map(row =>
-    '<span class="' + mcClass('mc-proof-row', row.state) + '" data-mission-proof-row="1" data-interaction-kind="sheet">' + mcGlyphSvg('proof', row.state) + '<span><b>' + esc(row.label) + '</b>' + esc(row.detail || row.source || 'proof detail missing') + '</span><i aria-hidden="true">›</i></span>'
+    '<button type="button" class="' + mcClass('mc-proof-row', row.state) + '" data-mission-proof-row="1" data-interaction-kind="sheet">' + mcGlyphSvg('proof', row.state) + '<span><b>' + esc(row.label) + '</b>' + esc(row.detail || row.source || 'proof detail missing') + '</span><i aria-hidden="true">›</i></button>'
   ).join('') + '</div></div>';
 }
 function renderMissionKpis(view){
@@ -3091,6 +3125,32 @@ function renderMissionLoops(view){
     '<span><b>Loop controls</b><small>' + esc(rows.map(row => (row.title || row.loopId) + ' · ' + row.runMode).join(' / ')) + '</small></span>' +
     '<button type="button" class="secondary" data-mission-action="loops" data-no-scene-drag="1" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="branch-loops">' + esc(rows[0].boundaryColor + ' · ' + rows[0].cadence) + '</button>' +
   '</section>';
+}
+function tabKeyTargetIndex(event, index, count){
+  if (!event || !count) return null;
+  let target = null;
+  if (event.key === 'ArrowRight') target = (index + 1) % count;
+  else if (event.key === 'ArrowLeft') target = (index - 1 + count) % count;
+  else if (event.key === 'Home') target = 0;
+  else if (event.key === 'End') target = count - 1;
+  if (target !== null && typeof event.preventDefault === 'function') event.preventDefault();
+  return target;
+}
+function focusRenderedTab(rootId, selector){
+  const tab = $(rootId).querySelector(selector);
+  if (!tab || typeof tab.focus !== 'function') return;
+  try { tab.focus({ preventScroll:true }); } catch (_) { tab.focus(); }
+}
+function selectMissionBranch(env, branchIndex, focusSelected){
+  const rows = branchRows(env || {});
+  const branch = rows[branchIndex];
+  if (!branch) return;
+  MISSION_BRANCH_FOCUS = mcBranchId(branch, branchIndex);
+  renderMissionControl(env);
+  const selected = $('stem').querySelector('[data-mission-branch="' + branchIndex + '"]');
+  if (selected && typeof selected.scrollIntoView === 'function') selected.scrollIntoView({ block:'nearest', inline:'center', behavior:RM ? 'auto' : 'smooth' });
+  if (focusSelected) focusRenderedTab('stem', '[data-mission-branch="' + branchIndex + '"]');
+  buzz('light');
 }
 function renderMissionControl(env){
   const stem = $('stem');
@@ -3129,7 +3189,15 @@ function renderMissionControl(env){
   here.dataset.interactionKind = 'sheet';
   here.dataset.source = view.source;
   here.onclick = () => openBranchMissionSheet(env, branchIndex, 0);
-  stem.querySelectorAll('[data-mission-branch]').forEach(el => el.onclick = () => openBranchMissionSheet(env, +el.dataset.missionBranch, -1));
+  const branchTabs = [...stem.querySelectorAll('[data-mission-branch]')];
+  branchTabs.forEach((el, index) => {
+    el.onclick = () => selectMissionBranch(env, +el.dataset.missionBranch, true);
+    el.onkeydown = event => {
+      const target = tabKeyTargetIndex(event, index, branchTabs.length);
+      if (target === null) return;
+      selectMissionBranch(env, +branchTabs[target].dataset.missionBranch, true);
+    };
+  });
   stem.querySelectorAll('.mc-mission-card').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0));
   stem.querySelectorAll('[data-mission-action="gate"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'gate'));
   stem.querySelectorAll('[data-mission-action="proof"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'proof'));
@@ -3626,14 +3694,24 @@ function inspectSecondaryGroupSummaries(env, L){
 function inspectAllGroupSummaries(env, L){
   return inspectGroupSummaries(env, L).concat(inspectSecondaryGroupSummaries(env, L));
 }
-function renderInspectGroups(env, L){
-  return '<section class="inspect-groups" data-component="InspectGroupStack">' + inspectGroupSummaries(env, L).map(group =>
+function renderInspectGroups(env, L, groupIds){
+  const allowed = Array.isArray(groupIds) ? new Set(groupIds) : null;
+  const groups = inspectGroupSummaries(env, L).filter(group => !allowed || allowed.has(group.id));
+  return '<section class="inspect-groups" data-component="InspectGroupStack">' + groups.map(group =>
     '<button type="button" class="' + mcClass('inspect-group', group.state) + '" data-component="InspectGroup" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
       mcGlyphSvg(group.glyph, group.state) +
       '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
       mcStateToken(group.state, mcStateKind(group.state)) +
     '</button>'
   ).join('') + '</section>';
+}
+function renderInspectPaneSwitcher(){
+  return '<div class="inspect-pane-switcher" data-component="InspectPaneSwitcher" role="tablist" aria-label="Inspect views">' +
+    ['proof','system'].map(pane => '<button type="button" id="inspect-' + pane + '-tab" role="tab" aria-selected="' + (INSPECT_PANE === pane ? 'true' : 'false') + '" aria-controls="inspect-' + pane + '-panel" tabindex="' + (INSPECT_PANE === pane ? '0' : '-1') + '" data-inspect-pane-select="' + pane + '">' + (pane === 'proof' ? 'Proof' : 'System') + '</button>').join('') +
+  '</div>';
+}
+function renderInspectDisclosure(title, body, open){
+  return '<details class="inspect-disclosure"' + (open ? ' open' : '') + '><summary>' + esc(title) + '</summary><div class="inspect-disclosure-body">' + body + '</div></details>';
 }
 function renderInspectSecondaryLinks(env, L){
   return '<section class="inspect-secondary" data-component="InspectSecondaryLinks"><div class="cmdgrp">Tapestry proof links</div>' + inspectSecondaryGroupSummaries(env, L).map(group =>
@@ -3755,8 +3833,8 @@ function renderInspectProofSummary(env, L){
   const liveRows = liveProofCards(env || { ledger:L });
   const blocked = liveRows.filter(row => row.state !== 'ready').length;
   const branchCount = branchRows(env || { ledger:L }).length;
-  const blockedNames = liveRows.filter(row => row.state !== 'ready').slice(0, 3).map(row => row.title || row.id || 'readiness row');
-  const blockerText = blockedNames.length ? ' · blocked: ' + blockedNames.join(', ') : '';
+  const blockedNames = liveRows.filter(row => row.state !== 'ready').slice(0, 1).map(row => row.title || row.id || 'readiness row');
+  const blockerText = blockedNames.length ? ' · next: ' + blockedNames[0] : '';
   const lead = blocked ? blocked + ' live blocker(s)' : 'No live blockers';
   return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction">' +
     '<b>Proof summary</b><small>' + esc(lead) + ' · ' + branchCount + ' branch packet(s) · redacted receipts required' + esc(blockerText) + '.</small>' +
@@ -3812,6 +3890,11 @@ function openInspectSummarySheet(env){
   if (proofCopy) proofCopy.onclick = () => copyCommandToClipboard(summary, proofCopy, 'Copied proof summary').catch(() => { proofCopy.textContent = 'Copy unavailable'; });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
+function selectInspectView(env, pane, focusSelected){
+  INSPECT_PANE = pane === 'system' ? 'system' : 'proof';
+  renderInspect(env);
+  if (focusSelected) focusRenderedTab('mapwrap', '[data-inspect-pane-select="' + INSPECT_PANE + '"]');
+}
 function renderInspect(env){
   const L = env.ledger || env;
   const activeStageId = stageForArc((L.current && L.current.arc) || 'XVII');
@@ -3831,34 +3914,38 @@ function renderInspect(env){
     const hot = rail.from === activeStageId || rail.to === activeStageId;
     return '<button type="button" class="rail ' + (hot ? 'hot' : '') + '" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-rail="' + esc(rail.id || (rail.from + '-' + rail.to)) + '"><b>' + esc(stageTitle(rail.from)) + ' -> ' + esc(stageTitle(rail.to)) + '</b><span>' + esc(rail.label) + '</span></button>';
   }).join('');
+  const inspectEnv = env.ledger ? env : { ledger:L };
+  const proofPane =
+    '<section id="inspect-proof-panel" data-inspect-pane="proof" class="inspect-pane is-active" role="tabpanel" aria-labelledby="inspect-proof-tab">' +
+      '<div class="inspect-pane-section"><div class="inspect-pane-heading">Decision readiness</div>' + renderInspectGroups(inspectEnv, L, ['freshness','live-proof','branch-packets','gates','action-requests','policy','evidence']) + '</div>' +
+      renderInspectDisclosure('Live readiness', '<div class="cmdgrp">live proof</div>' + renderLiveProof(inspectEnv), false) +
+      renderInspectDisclosure('Branch evidence', '<div class="cmdgrp">branch packets</div>' + renderBranches(inspectEnv) + '<div class="cmdgrp">missions</div>' + renderBranchMissions(inspectEnv) + '<div class="cmdgrp">KPIs</div>' + renderBranchKpis(inspectEnv), false) +
+      renderInspectDisclosure('Decisions and receipts', '<div class="cmdgrp">gates</div>' + renderBranchGates(inspectEnv) + '<div class="cmdgrp">action requests</div>' + renderActionRequests(inspectEnv) + '<div class="cmdgrp">proof paths</div>' + renderBranchProof(inspectEnv), false) +
+      renderInspectDisclosure('Evidence rows', '<div class="cmdgrp">evidence</div>' + renderInsightBoxes(inspectEnv), false) +
+    '</section>';
+  const systemPane =
+    '<section id="inspect-system-panel" data-inspect-pane="system" class="inspect-pane is-active" role="tabpanel" aria-labelledby="inspect-system-tab">' +
+      '<div class="inspect-pane-section"><div class="inspect-pane-heading">System map</div>' + renderInspectGroups(inspectEnv, L, ['tools','rails']) + '</div>' +
+      renderInspectSecondaryLinks(inspectEnv, L) +
+      renderInspectDisclosure('Runtime state', '<div class="cmdgrp">freshness</div>' + renderTapestryAudit(inspectEnv) + '<div class="cmdgrp">wake</div>' + renderWake(inspectEnv) + '<div class="cmdgrp">lanes</div>' + renderLanes(inspectEnv) + '<div class="cmdgrp">stance</div>' + renderStance(inspectEnv) + '<div class="cmdgrp">policy</div>' + renderPolicy(inspectEnv) + '<div class="cmdgrp">decision context</div>' + renderDecisionContext(inspectEnv), false) +
+      renderInspectDisclosure('Tapestry signals', '<div class="cmdgrp">side quests</div>' + renderSideQuests(inspectEnv) + '<div class="cmdgrp">coordination</div>' + renderSocial(inspectEnv) + '<div class="cmdgrp">senses</div>' + renderSenses(inspectEnv) + '<div class="stagegrid">' + stageCards + '</div><div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>', false) +
+      renderInspectDisclosure('Operators', '<div class="cmdgrp">skill labors</div>' + renderSkills(inspectEnv) + '<div class="cmdgrp">companions</div>' + renderNpc(inspectEnv), false) +
+    '</section>';
   $('mapwrap').innerHTML =
     '<div class="maphead"><div><h2>Inspect</h2><p>Proof map for blockers, packets, freshness, and evidence.</p></div>' +
       '<button type="button" class="mapbadge" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-ecosystem-target="r3f">frontier · ' + esc((L.current && L.current.arc) || 'complete') + '</button></div>' +
-    renderInspectProofSummary(env.ledger ? env : { ledger:L }, L) +
-    renderInspectGroups(env.ledger ? env : { ledger:L }, L) +
-    renderInspectSecondaryLinks(env.ledger ? env : { ledger:L }, L) +
-    '<div class="cmdgrp">freshness</div>' + renderTapestryAudit(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">wake</div>' + renderWake(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">lanes</div>' + renderLanes(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">stance</div>' + renderStance(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">policy</div>' + renderPolicy(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">decision context</div>' + renderDecisionContext(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">live proof</div>' + renderLiveProof(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">branch packets</div>' + renderBranches(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">missions</div>' + renderBranchMissions(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">KPIs</div>' + renderBranchKpis(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">gates</div>' + renderBranchGates(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">action requests</div>' + renderActionRequests(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">proof paths</div>' + renderBranchProof(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">side quests</div>' + renderSideQuests(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">coordination</div>' + renderSocial(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">senses</div>' + renderSenses(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">evidence</div>' + renderInsightBoxes(env.ledger ? env : { ledger:L }) +
-    '<div class="stagegrid">' + stageCards + '</div>' +
-    '<div class="cmdgrp">skill labors</div>' + renderSkills(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">companions</div>' + renderNpc(env.ledger ? env : { ledger:L }) +
-    '<div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>' +
+    renderInspectProofSummary(inspectEnv, L) +
+    renderInspectPaneSwitcher() + (INSPECT_PANE === 'system' ? systemPane : proofPane) +
     '<div class="mapnote">Inspect keeps the low-level proof rows out of Mission, Gate, Tools, and Story.</div>';
+  const inspectTabs = [...$('mapwrap').querySelectorAll('[data-inspect-pane-select]')];
+  inspectTabs.forEach((el, index) => {
+    el.onclick = () => selectInspectView(env, el.dataset.inspectPaneSelect, true);
+    el.onkeydown = event => {
+      const target = tabKeyTargetIndex(event, index, inspectTabs.length);
+      if (target === null) return;
+      selectInspectView(env, inspectTabs[target].dataset.inspectPaneSelect, true);
+    };
+  });
   $('mapwrap').querySelectorAll('.mapbadge').forEach(el => el.onclick = () => openMapHeaderSheet(L));
   $('mapwrap').querySelectorAll('[data-inspect-group]').forEach(el => el.onclick = () => openInspectGroupSheet(el.dataset.inspectGroup, env.ledger ? env : { ledger:L }));
   $('mapwrap').querySelectorAll('[data-inspect-summary]').forEach(el => el.onclick = () => openInspectSummarySheet(env.ledger ? env : { ledger:L }));

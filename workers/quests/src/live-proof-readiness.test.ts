@@ -226,6 +226,30 @@ test('live proof readiness blocks stale viewport manifests after a newer failure
   assert.ok(viewport?.evidence.includes('docs/plans/assets/tg-miniapp-viewport-proof/failure.json'));
 });
 
+test('live proof readiness orders viewport receipts by generatedAt instead of checkout mtime', () => {
+  const cwd = fixtureRepo();
+  const chrome = join(cwd, 'chrome');
+  const viewportDir = join(cwd, 'docs/plans/assets/tg-miniapp-viewport-proof');
+  mkdirSync(viewportDir, { recursive: true });
+  writeFileSync(chrome, '');
+  writeFileSync(join(viewportDir, 'manifest.json'), JSON.stringify({ generatedAt: '2026-06-22T00:02:00.000Z' }));
+  writeFileSync(join(viewportDir, 'failure.json'), JSON.stringify({
+    generatedAt: '2026-06-22T00:01:00.000Z',
+    error: 'Older diagnostic copied after the passing manifest',
+  }));
+
+  const report = assessLiveProofReadiness({
+    cwd,
+    home: join(cwd, 'home'),
+    env: { CHROME_BIN: chrome },
+    generatedAt: '2026-06-22T00:03:00.000Z',
+  });
+
+  const viewport = report.items.find((item) => item.id === 'viewport-layout-proof');
+  assert.equal(viewport?.state, 'ready');
+  assert.match(viewport?.detail ?? '', /viewport manifest exists/);
+});
+
 test('live proof readiness treats viewport browser diagnostics as evidence, not proof', () => {
   const cwd = fixtureRepo();
   const chrome = join(cwd, 'chrome');
@@ -308,10 +332,28 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-actions-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'layout-proof' && proof.scrollSelector === '[data-component="ProofList"]'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-review-gate-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-action="gate"]'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-open-proof-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-action="proof"]'));
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-vantyx-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-branch="1"]'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-vantyx-selected-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-branch="1"]' && proof.clipSelector === undefined && proof.assertExpression?.includes('document.activeElement === selected')));
+  const missionProof320 = VIEWPORT_PROOF_CAPTURE_STEPS.find((proof) => proof.path === 'mission-control-320-mobile.png');
+  assert.equal(missionProof320?.viewport?.width, 320);
+  assert.equal(missionProof320?.exactViewport, true);
+  assert.match(missionProof320?.assertExpression ?? '', /document\.documentElement\.scrollWidth <= document\.documentElement\.clientWidth \+ 1/);
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-control-mobile.png' && typeof proof.assertExpression === 'string'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-control-430-mobile.png' && proof.viewport?.width === 430 && proof.exactViewport === true && typeof proof.assertExpression === 'string'));
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'story')?.path, 'story-feed-mobile.png');
   assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'story')?.url ?? '', /\?tenant=cambium&scene=story/);
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-tapestry-audit-mobile.png')?.clickTargetCount, 14);
+  const inspectProof320 = VIEWPORT_PROOF_CAPTURE_STEPS.find((proof) => proof.path === 'inspect-proof-320-mobile.png');
+  assert.equal(inspectProof320?.viewport?.width, 320);
+  assert.equal(inspectProof320?.exactViewport, true);
+  assert.equal(typeof inspectProof320?.assertExpression, 'string');
+  assert.match(inspectProof320?.assertExpression ?? '', /\.maphead \.mapbadge\[data-ecosystem-target="r3f"\]/);
+  assert.match(inspectProof320?.assertExpression ?? '', /\[data-component="InspectProofSummaryAction"\] \[data-inspect-summary="1"\]/);
+  assert.match(inspectProof320?.assertExpression ?? '', /frontierMapBadges\.length === 1/);
+  assert.match(inspectProof320?.assertExpression ?? '', /proofDetailsButtons\.length === 1/);
+  assert.match(inspectProof320?.assertExpression ?? '', /frontierMapBadge\.getBoundingClientRect\(\)\.height >= 44/);
+  assert.match(inspectProof320?.assertExpression ?? '', /openProofDetails\.getBoundingClientRect\(\)\.height >= 44/);
+  assert.match(inspectProof320?.assertExpression ?? '', /document\.documentElement\.scrollWidth <= document\.documentElement\.clientWidth \+ 1/);
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'inspect-system-overview-mobile.png' && proof.scene === 'inspect' && typeof proof.assertExpression === 'string' && proof.waitAfterExpression?.includes('document.activeElement')));
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-live-proof-mobile.png')?.scene, 'inspect');
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'inspect-live-proof-mobile.png' && proof.scene === 'inspect'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'story-feed-mobile.png' && proof.scene === 'story' && proof.fixture === 'fresh'));
@@ -319,6 +361,7 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-inspect-skill-promotion-mobile.png' && proof.scene === 'inspect' && proof.fixture === 'skill' && proof.intent === 'clickability-proof' && proof.clipSelector === '#sheet'));
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-skill-promotion-mobile.png')?.scene, 'inspect');
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'inspect-companions-mobile.png' && proof.scene === 'inspect' && proof.fixture === 'mira'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'inspect-mira-relationship-mobile.png' && proof.scene === 'inspect' && proof.fixture === 'mira' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-npc="0"]' && proof.clipSelector === '#sheet'));
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'inspect-companions-mobile.png')?.scene, 'inspect');
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'gate-empty-mobile.png' && proof.scene === 'gate' && proof.fixture === undefined && proof.intent === 'layout-proof'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'gate-consequence-mobile.png' && proof.scene === 'gate' && proof.fixture === 'gate'));
