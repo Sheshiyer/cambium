@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "derivedAt": "2026-06-30T06:24:08.332Z",
+  "derivedAt": "2026-07-10T07:06:56.376Z",
   "source": "visual-fixture:branch-stories",
   "tenant": "cambium",
   "beats": [
@@ -921,13 +921,14 @@
   "branchStories": {
     "source": "product-branch-packets@v1",
     "status": "partial",
-    "total": 4,
-    "active": 3,
-    "blocked": 34,
+    "total": 5,
+    "active": 4,
+    "blocked": 43,
     "activeBranchId": "fitcheck",
     "rows": [
       {
         "branchId": "fitcheck",
+        "branchKind": "product",
         "productId": "fitcheck",
         "name": "Fitcheck",
         "role": "Supervised product branch",
@@ -1023,6 +1024,21 @@
             "dispatchTarget": "plexus-agent-fabric"
           }
         ],
+        "loops": [
+          {
+            "loopId": "fitcheck-launch-gate-loop",
+            "title": "Fitcheck launch gate loop",
+            "cadence": "manual weekly until first merchant proof begins",
+            "objective": "Move one Fitcheck launch blocker from blocked to evidenced or return a founder approval request.",
+            "metric": "One gate changes status or one approval request is recorded per round.",
+            "boundaryColor": "yellow",
+            "oneChangeRule": "Select exactly one of Shopify QA, Dodo reservation env, privacy copy, outreach approval, or first merchant proof.",
+            "stateFile": ".operator/branch-loops/fitcheck-launch-gate-loop.md",
+            "stopRule": "Stop after 3 rounds, after first merchant proof is archived, or when missing credentials prevent the selected gate twice.",
+            "modelRoute": "cheap-first; escalate only when validator or proof command fails",
+            "proofRequired": "Updated Evidence Ledger row, Gate Ledger row, or founder approval request pasted into the loop state file."
+          }
+        ],
         "gates": [
           {
             "gate": "Human approvals",
@@ -1088,6 +1104,7 @@
         "controls": {
           "productSeed": {
             "product_id": "fitcheck",
+            "branch_kind": "product",
             "one_sentence_seed": "Done-for-you AI virtual try-on launch service for Shopify fashion brands.",
             "founder_intent": "Use the Thoughtseed growth engine to run Fitcheck as the first supervised product branch.",
             "target_customer": "Shopify fashion brands that need shoppers to visualize fit before purchase.",
@@ -1298,21 +1315,36 @@
           "dispatchHints": [
             {
               "route": "hermes-topic-assignment",
-              "payloadHint": "fitcheck-shopify-qa` with branchMission metadata",
+              "payloadHint": "`fitcheck-shopify-qa` with branchMission metadata",
               "allowedWhen": "Shopify access and QA scope are approved",
               "blockedWhen": "credentials or privacy wording missing"
             },
             {
               "route": "cambium-bridge-assignment",
-              "payloadHint": "fitcheck-dodo-reservation` as supervised implementation task",
+              "payloadHint": "`fitcheck-dodo-reservation` as supervised implementation task",
               "allowedWhen": "Dodo URL/env target is approved",
               "blockedWhen": "payment activation remains unapproved"
             },
             {
               "route": "plexus-agent-fabric",
-              "payloadHint": "fitcheck-outreach-approval` for member approval workflow",
+              "payloadHint": "`fitcheck-outreach-approval` for member approval workflow",
               "allowedWhen": "outreach copy exists and founder review is requested",
               "blockedWhen": "public claim proof is missing"
+            }
+          ],
+          "loops": [
+            {
+              "loopId": "fitcheck-launch-gate-loop",
+              "title": "Fitcheck launch gate loop",
+              "cadence": "manual weekly until first merchant proof begins",
+              "objective": "Move one Fitcheck launch blocker from blocked to evidenced or return a founder approval request.",
+              "metric": "One gate changes status or one approval request is recorded per round.",
+              "boundaryColor": "yellow",
+              "oneChangeRule": "Select exactly one of Shopify QA, Dodo reservation env, privacy copy, outreach approval, or first merchant proof.",
+              "stateFile": ".operator/branch-loops/fitcheck-launch-gate-loop.md",
+              "stopRule": "Stop after 3 rounds, after first merchant proof is archived, or when missing credentials prevent the selected gate twice.",
+              "modelRoute": "cheap-first; escalate only when validator or proof command fails",
+              "proofRequired": "Updated Evidence Ledger row, Gate Ledger row, or founder approval request pasted into the loop state file."
             }
           ],
           "policySignals": [
@@ -1450,6 +1482,7 @@
       },
       {
         "branchId": "vantyx",
+        "branchKind": "product",
         "productId": "vantyx",
         "name": "Vantyx",
         "role": "Tenant onboarding and publishing branch",
@@ -1523,7 +1556,7 @@
             "type": "proof",
             "owner": "founder/codex",
             "gate": "Tenant proof",
-            "proofRequired": "new-client` receipt plus `/api/config` health",
+            "proofRequired": "`new-client` receipt plus `/api/config` health",
             "dispatchTarget": "cambium"
           },
           {
@@ -1543,6 +1576,21 @@
             "gate": "Analytics consent",
             "proofRequired": "PostHog event receipt without secret values",
             "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "loops": [
+          {
+            "loopId": "vantyx-second-tenant-loop",
+            "title": "Vantyx second-tenant proof loop",
+            "cadence": "manual weekly until second tenant proof closes",
+            "objective": "Advance one second-tenant onboarding, publish, rollback, or analytics proof gate without touching unrelated tenant config.",
+            "metric": "One route health, rollback, or analytics proof row is added per round.",
+            "boundaryColor": "yellow",
+            "oneChangeRule": "Select exactly one tenant proof action and keep Cloudflare route/domain changes approval-gated.",
+            "stateFile": ".operator/branch-loops/vantyx-second-tenant-loop.md",
+            "stopRule": "Stop after 3 rounds, after rollback proof is verified, or when no approved second tenant candidate exists.",
+            "modelRoute": "cheap-first; escalate for deploy log interpretation only",
+            "proofRequired": "`new-client` receipt, `/api/config` health receipt, rollback receipt, or blocked approval note."
           }
         ],
         "gates": [
@@ -1610,6 +1658,7 @@
         "controls": {
           "productSeed": {
             "product_id": "vantyx",
+            "branch_kind": "product",
             "one_sentence_seed": "Living 360 degree tour platform for view-led real-estate developers selling floor-by-floor views before and during construction.",
             "founder_intent": "Turn Vantyx into a repeatable tenant onboarding and publish/rollback branch inside Cambium.",
             "target_customer": "View-led property developers and sales or marketing teams; secondary users are visualization and digital marketing agencies serving developers.",
@@ -1720,11 +1769,11 @@
           ],
           "adapterServiceMap": [
             {
-              "providerRoute": "Cloudflare Worker `vantyx",
+              "providerRoute": "Cloudflare Worker `vantyx`",
               "inputs": "Tenant config and deploy bundle",
               "outputs": "Public viewer and APIs",
               "failureModes": "Broken deploy, wrong tenant binding, route mismatch",
-              "tenantMapping": "tenant slug, e.g. `marina-one-ka",
+              "tenantMapping": "tenant slug, e.g. `marina-one-ka`",
               "privacyBoundary": "Secrets remain in Wrangler, not packet files"
             },
             {
@@ -1763,19 +1812,19 @@
           "evidenceLedger": [
             {
               "status": "verified",
-              "evidence": "INFRA_STATUS.md` maps GetVantyx/Vantyx to `Panaroma-Webapp`."
+              "evidence": "`INFRA_STATUS.md` maps GetVantyx/Vantyx to `Panaroma-Webapp`."
             },
             {
               "status": "verified",
-              "evidence": "Panaroma-Webapp/README.md` names Vantyx and the Marina One live reference."
+              "evidence": "`Panaroma-Webapp/README.md` names Vantyx and the Marina One live reference."
             },
             {
               "status": "verified",
-              "evidence": "Panaroma-Webapp/docs/DEVELOPMENT.md` documents stack, commands, architecture, deploy, and secrets boundaries."
+              "evidence": "`Panaroma-Webapp/docs/DEVELOPMENT.md` documents stack, commands, architecture, deploy, and secrets boundaries."
             },
             {
               "status": "verified",
-              "evidence": "Panaroma-Webapp/worker/wrangler.toml` names Worker `vantyx`."
+              "evidence": "`Panaroma-Webapp/worker/wrangler.toml` names Worker `vantyx`."
             },
             {
               "status": "verified",
@@ -1824,21 +1873,36 @@
           "dispatchHints": [
             {
               "route": "cambium-bridge-assignment",
-              "payloadHint": "vantyx-second-tenant` with branchMission metadata",
+              "payloadHint": "`vantyx-second-tenant` with branchMission metadata",
               "allowedWhen": "target tenant and proof scope are approved",
               "blockedWhen": "no tenant candidate or route approval"
             },
             {
               "route": "hermes-topic-assignment",
-              "payloadHint": "vantyx-rollback-proof` as supervised proof task",
+              "payloadHint": "`vantyx-rollback-proof` as supervised proof task",
               "allowedWhen": "staging or production target is named",
               "blockedWhen": "deploy permissions are missing"
             },
             {
               "route": "plexus-agent-fabric",
-              "payloadHint": "vantyx-analytics-proof` for member proof report",
+              "payloadHint": "`vantyx-analytics-proof` for member proof report",
               "allowedWhen": "analytics boundary is approved",
               "blockedWhen": "consent or PostHog access is missing"
+            }
+          ],
+          "loops": [
+            {
+              "loopId": "vantyx-second-tenant-loop",
+              "title": "Vantyx second-tenant proof loop",
+              "cadence": "manual weekly until second tenant proof closes",
+              "objective": "Advance one second-tenant onboarding, publish, rollback, or analytics proof gate without touching unrelated tenant config.",
+              "metric": "One route health, rollback, or analytics proof row is added per round.",
+              "boundaryColor": "yellow",
+              "oneChangeRule": "Select exactly one tenant proof action and keep Cloudflare route/domain changes approval-gated.",
+              "stateFile": ".operator/branch-loops/vantyx-second-tenant-loop.md",
+              "stopRule": "Stop after 3 rounds, after rollback proof is verified, or when no approved second tenant candidate exists.",
+              "modelRoute": "cheap-first; escalate for deploy log interpretation only",
+              "proofRequired": "`new-client` receipt, `/api/config` health receipt, rollback receipt, or blocked approval note."
             }
           ],
           "policySignals": [
@@ -1970,6 +2034,7 @@
       },
       {
         "branchId": "snow-gloves-os",
+        "branchKind": "internal-service",
         "productId": "snow-gloves-os",
         "name": "Snow Gloves OS",
         "role": "Will-organ service",
@@ -2043,7 +2108,7 @@
             "type": "proof",
             "owner": "codex",
             "gate": "Clean checkout proof",
-            "proofRequired": "make smoke` and test receipts with generated dirt isolated",
+            "proofRequired": "`make smoke` and test receipts with generated dirt isolated",
             "dispatchTarget": "cambium"
           },
           {
@@ -2063,6 +2128,21 @@
             "gate": "Foldback proof",
             "proofRequired": "task queue receipt plus Hermes/Paperclip report",
             "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "loops": [
+          {
+            "loopId": "snow-gloves-os-approval-loop",
+            "title": "Snow Gloves OS approval-gate loop",
+            "cadence": "manual weekly until Will-organ approval proof exists",
+            "objective": "Prove one clean service, approval-gate, or Paperclip foldback condition for the Will-organ service packet.",
+            "metric": "One clean smoke receipt, approval audit receipt, or foldback receipt is captured per round.",
+            "boundaryColor": "red",
+            "oneChangeRule": "Select exactly one proof action and never execute high-risk tenant operations without explicit approval.",
+            "stateFile": ".operator/branch-loops/snow-gloves-os-approval-loop.md",
+            "stopRule": "Stop after 2 blocked approval checks, after a live approval-gate proof is archived, or before any connector activation request.",
+            "modelRoute": "cheap-first; escalate for approval-policy reasoning only",
+            "proofRequired": "Redacted smoke/test receipt, approval decision, queued task receipt, or foldback report path."
           }
         ],
         "gates": [
@@ -2130,6 +2210,7 @@
         "controls": {
           "productSeed": {
             "product_id": "snow-gloves-os",
+            "branch_kind": "internal-service",
             "one_sentence_seed": "Tenant-scoped business-operations layer that routes apps, knowledge, judgment, and orchestration through auditable approval-gated flows.",
             "founder_intent": "Bind Snow Gloves OS into Cambium as the Will-organ service for tenant operations and GTM routines.",
             "target_customer": "Internal operator/founder plus tenant businesses; inspected tenant surfaces include `tryambakam-noesis` and a provisioned `mathis` property-listing use case.",
@@ -2234,7 +2315,7 @@
             },
             {
               "group": "acceptance_checks",
-              "currentSource": "make doctor`, `make smoke`, `make test`, CI smoke/test references",
+              "currentSource": "`make doctor`, `make smoke`, `make test`, CI smoke/test references",
               "status": "pending"
             }
           ],
@@ -2283,7 +2364,7 @@
           "evidenceLedger": [
             {
               "status": "verified",
-              "evidence": "snow-gloves-os/README.md`, `docs/explainer.md`, `config/snowgloves.yaml`, orchestration specs, AutoGTM specs, and tenant manifest were inspected read-only by the product-context agent."
+              "evidence": "`snow-gloves-os/README.md`, `docs/explainer.md`, `config/snowgloves.yaml`, orchestration specs, AutoGTM specs, and tenant manifest were inspected read-only by the product-context agent."
             },
             {
               "status": "verified",
@@ -2336,21 +2417,36 @@
           "dispatchHints": [
             {
               "route": "cambium-bridge-assignment",
-              "payloadHint": "snow-gloves-os-clean-smoke` as organ-service proof task",
+              "payloadHint": "`snow-gloves-os-clean-smoke` as organ-service proof task",
               "allowedWhen": "clean checkout or isolated worktree exists",
               "blockedWhen": "runtime/generated dirt cannot be isolated"
             },
             {
               "route": "hermes-topic-assignment",
-              "payloadHint": "snow-gloves-os-approval-gate` with approval boundary",
+              "payloadHint": "`snow-gloves-os-approval-gate` with approval boundary",
               "allowedWhen": "high-risk action scope is explicit",
               "blockedWhen": "approval policy is not available"
             },
             {
               "route": "plexus-agent-fabric",
-              "payloadHint": "snow-gloves-os-paperclip-foldback` for report workflow",
+              "payloadHint": "`snow-gloves-os-paperclip-foldback` for report workflow",
               "allowedWhen": "Paperclip route and recovery target are named",
               "blockedWhen": "Paperclip is unavailable without queue proof"
+            }
+          ],
+          "loops": [
+            {
+              "loopId": "snow-gloves-os-approval-loop",
+              "title": "Snow Gloves OS approval-gate loop",
+              "cadence": "manual weekly until Will-organ approval proof exists",
+              "objective": "Prove one clean service, approval-gate, or Paperclip foldback condition for the Will-organ service packet.",
+              "metric": "One clean smoke receipt, approval audit receipt, or foldback receipt is captured per round.",
+              "boundaryColor": "red",
+              "oneChangeRule": "Select exactly one proof action and never execute high-risk tenant operations without explicit approval.",
+              "stateFile": ".operator/branch-loops/snow-gloves-os-approval-loop.md",
+              "stopRule": "Stop after 2 blocked approval checks, after a live approval-gate proof is archived, or before any connector activation request.",
+              "modelRoute": "cheap-first; escalate for approval-policy reasoning only",
+              "proofRequired": "Redacted smoke/test receipt, approval decision, queued task receipt, or foldback report path."
             }
           ],
           "policySignals": [
@@ -2482,6 +2578,7 @@
       },
       {
         "branchId": "iverif",
+        "branchKind": "product",
         "productId": "iverif",
         "name": "IVerif",
         "role": "Compliance and proof product candidate",
@@ -2564,7 +2661,7 @@
             "type": "implementation",
             "owner": "codex",
             "gate": "Build proof",
-            "proofRequired": "verify:data`, `verify:routes`, and build receipt",
+            "proofRequired": "`verify:data`, `verify:routes`, and build receipt",
             "dispatchTarget": "hermes"
           },
           {
@@ -2575,6 +2672,21 @@
             "gate": "Privacy/legal",
             "proofRequired": "evidence map or blocked-control list",
             "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "loops": [
+          {
+            "loopId": "iverif-claim-proof-loop",
+            "title": "IVerif claim/proof separation loop",
+            "cadence": "manual weekly while packet remains proof-only",
+            "objective": "Review one public, compliance, privacy, performance, or build claim and record its evidence state in the loop state file.",
+            "metric": "One read-only claim review note or route-proof receipt is written to the loop state file.",
+            "boundaryColor": "green",
+            "oneChangeRule": "Select exactly one claim or route-proof check and write only the finding to `.operator/branch-loops/iverif-claim-proof-loop.md`.",
+            "stateFile": ".operator/branch-loops/iverif-claim-proof-loop.md",
+            "stopRule": "Stop after 4 review rounds, after wiki build proof passes, or when source material is missing for the selected claim.",
+            "modelRoute": "cheap-first; escalate only for conflicting evidence review",
+            "proofRequired": "Source-linked claim note, build/route receipt, or blocked-control note written in the state file."
           }
         ],
         "gates": [
@@ -2642,6 +2754,7 @@
         "controls": {
           "productSeed": {
             "product_id": "iverif",
+            "branch_kind": "product",
             "one_sentence_seed": "AI document validation for EU energy subsidy operators, focused on catching dossier errors before subsidy submission.",
             "founder_intent": "Preserve IVerif as a proof-only candidate until public claims, compliance evidence, and route/build proof are separated and verified.",
             "target_customer": "Energy subsidy operators, compliance teams, and regulatory auditors handling CEE, BEG, ECO4, and related EU subsidy dossiers.",
@@ -2746,7 +2859,7 @@
             },
             {
               "group": "acceptance_checks",
-              "currentSource": "wiki-site/package.json` commands are present, but route/build proof is missing",
+              "currentSource": "`wiki-site/package.json` commands are present, but route/build proof is missing",
               "status": "blocked"
             }
           ],
@@ -2756,7 +2869,7 @@
               "inputs": "Brand config and generation state",
               "outputs": "Brand/copy/visual outputs",
               "failureModes": "Generated claims outpace evidence",
-              "tenantMapping": "iverif` brand seed",
+              "tenantMapping": "`iverif` brand seed",
               "privacyBoundary": "Source sanitization required"
             },
             {
@@ -2771,8 +2884,8 @@
               "providerRoute": "Astro wiki-site",
               "inputs": "Wiki source",
               "outputs": "Static site/routes",
-              "failureModes": "dist` missing, verify scripts missing",
-              "tenantMapping": "iverif` docs site",
+              "failureModes": "`dist` missing, verify scripts missing",
+              "tenantMapping": "`iverif` docs site",
               "privacyBoundary": "No sensitive source leakage"
             },
             {
@@ -2799,11 +2912,11 @@
             },
             {
               "status": "verified",
-              "evidence": "wiki-site/package.json` declares `dev`, `build`, `preview`, `verify:data`, and `verify:routes`."
+              "evidence": "`wiki-site/package.json` declares `dev`, `build`, `preview`, `verify:data`, and `verify:routes`."
             },
             {
               "status": "blocked",
-              "evidence": "wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established."
+              "evidence": "`wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established."
             },
             {
               "status": "blocked",
@@ -2848,21 +2961,36 @@
           "dispatchHints": [
             {
               "route": "cambium-bridge-assignment",
-              "payloadHint": "iverif-claim-table` as proof-only review task",
+              "payloadHint": "`iverif-claim-table` as proof-only review task",
               "allowedWhen": "source list is available and claim scope is defined",
               "blockedWhen": "claims remain unsourced"
             },
             {
               "route": "hermes-topic-assignment",
-              "payloadHint": "iverif-wiki-proof` for repair/build proof",
+              "payloadHint": "`iverif-wiki-proof` for repair/build proof",
               "allowedWhen": "repo path and missing scripts are confirmed",
               "blockedWhen": "provider secrets or publication claims are needed"
             },
             {
               "route": "plexus-agent-fabric",
-              "payloadHint": "iverif-privacy-evidence` as member review task",
+              "payloadHint": "`iverif-privacy-evidence` as member review task",
               "allowedWhen": "privacy/security claims are enumerated",
               "blockedWhen": "legal/compliance evidence is missing"
+            }
+          ],
+          "loops": [
+            {
+              "loopId": "iverif-claim-proof-loop",
+              "title": "IVerif claim/proof separation loop",
+              "cadence": "manual weekly while packet remains proof-only",
+              "objective": "Review one public, compliance, privacy, performance, or build claim and record its evidence state in the loop state file.",
+              "metric": "One read-only claim review note or route-proof receipt is written to the loop state file.",
+              "boundaryColor": "green",
+              "oneChangeRule": "Select exactly one claim or route-proof check and write only the finding to `.operator/branch-loops/iverif-claim-proof-loop.md`.",
+              "stateFile": ".operator/branch-loops/iverif-claim-proof-loop.md",
+              "stopRule": "Stop after 4 review rounds, after wiki build proof passes, or when source material is missing for the selected claim.",
+              "modelRoute": "cheap-first; escalate only for conflicting evidence review",
+              "proofRequired": "Source-linked claim note, build/route receipt, or blocked-control note written in the state file."
             }
           ],
           "policySignals": [
@@ -2909,7 +3037,7 @@
           {
             "id": "evidence-ledger-3",
             "status": "blocked",
-            "detail": "wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established.",
+            "detail": "`wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established.",
             "source": "evidence-ledger"
           },
           {
@@ -2994,6 +3122,527 @@
             "id": "policy-permission-inputs-4",
             "status": "blocked",
             "detail": "operator outreach: no GTM dispatch",
+            "source": "policy-permission-inputs"
+          }
+        ]
+      },
+      {
+        "branchId": "client-delivery",
+        "branchKind": "client",
+        "productId": "client-delivery",
+        "name": "Client Delivery",
+        "role": "Client delivery branch",
+        "arcId": "client-delivery-client-delivery-handoff",
+        "arcTitle": "Client Delivery Handoff",
+        "vision": {
+          "statement": "Client delivery becomes a supervised Cambium branch where scope, proof, acceptance, and handoff are visible without leaking private client data."
+        },
+        "icp": {
+          "primary": "Founder, operator, or client stakeholder who needs delivery progress tied to explicit acceptance criteria and proof."
+        },
+        "kpis": [
+          {
+            "kpiId": "client-scope-accepted",
+            "label": "Client scope accepted",
+            "survival": "one redacted scope has acceptance criteria",
+            "betterThanSurvival": "scope links to proof path and owner",
+            "source": "client-delivery branch state",
+            "currentState": "pending"
+          },
+          {
+            "kpiId": "client-handoff-closed",
+            "label": "Client handoff closed",
+            "survival": "handoff summary exists",
+            "betterThanSurvival": "acceptance receipt and reusable lesson are archived",
+            "source": "handoff artifact and approval log",
+            "currentState": "pending"
+          }
+        ],
+        "questline": [
+          {
+            "id": "quest-1",
+            "title": "Bind one client scope to this branch with redacted acceptance criteria.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-2",
+            "title": "Identify the delivery artifact, repo, preview, or document surface.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-3",
+            "title": "Run the narrowest proof check that demonstrates delivery progress.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-4",
+            "title": "Request approval before client-facing communication or production change.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-5",
+            "title": "Capture acceptance or blocked-feedback proof.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-6",
+            "title": "Produce handoff summary and next-step owner.",
+            "status": "queued"
+          },
+          {
+            "id": "quest-7",
+            "title": "Fold sanitized delivery lessons into Cortex after approval.",
+            "status": "queued"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "client-delivery-scope-bind",
+            "title": "Bind client scope and acceptance criteria",
+            "type": "proof",
+            "owner": "founder/codex",
+            "gate": "Scope acceptance",
+            "proofRequired": "redacted scope note plus acceptance criteria",
+            "dispatchTarget": "cambium"
+          },
+          {
+            "missionId": "client-delivery-proof-run",
+            "title": "Produce delivery proof for one artifact",
+            "type": "proof",
+            "owner": "codex",
+            "gate": "Delivery artifact",
+            "proofRequired": "build/test/screenshot/doc receipt",
+            "dispatchTarget": "hermes"
+          },
+          {
+            "missionId": "client-delivery-handoff-approval",
+            "title": "Request handoff or client-message approval",
+            "type": "approval",
+            "owner": "founder",
+            "gate": "Client communication",
+            "proofRequired": "approved draft or hold decision",
+            "dispatchTarget": "plexus-agent-fabric"
+          }
+        ],
+        "loops": [
+          {
+            "loopId": "client-delivery-handoff-loop",
+            "title": "Client delivery handoff loop",
+            "cadence": "manual weekly while a client scope is active",
+            "objective": "Move one client delivery gate from pending or blocked to evidenced, or return one founder approval request.",
+            "metric": "One scope, proof, acceptance, or handoff gate changes status per round.",
+            "boundaryColor": "yellow",
+            "oneChangeRule": "Select exactly one of scope acceptance, delivery receipt, signoff proof, or blocked-client decision.",
+            "stateFile": ".operator/branch-loops/client-delivery-handoff-loop.md",
+            "stopRule": "Stop after 3 rounds, after accepted handoff is archived, or when client approval is unavailable for the selected gate twice.",
+            "modelRoute": "cheap-first; escalate only when proof is client-sensitive or repo access is missing",
+            "proofRequired": "Redacted scope note, delivery receipt, acceptance receipt, handoff summary, or founder approval request pasted into the loop state file."
+          }
+        ],
+        "gates": [
+          {
+            "gate": "Scope acceptance",
+            "status": "pending",
+            "requiredProof": "Founder-approved scope summary with acceptance criteria."
+          },
+          {
+            "gate": "Client communication",
+            "status": "blocked",
+            "requiredProof": "Approval before any message, invite, or signoff request is sent."
+          },
+          {
+            "gate": "Production change",
+            "status": "blocked",
+            "requiredProof": "Approved target, rollback note, and deploy proof."
+          },
+          {
+            "gate": "Privacy/legal",
+            "status": "blocked",
+            "requiredProof": "Redaction and publication boundary for any client-identifying material."
+          },
+          {
+            "gate": "Public claims",
+            "status": "blocked",
+            "requiredProof": "Client-approved reference or case-study permission."
+          },
+          {
+            "gate": "Handoff completion",
+            "status": "pending",
+            "requiredProof": "Handoff artifact, owner confirmation, and next-step agreement."
+          }
+        ],
+        "proofPaths": [
+          {
+            "proofId": "client-delivery-scope-proof",
+            "sourcePath": "future redacted scope note",
+            "validates": "client scope has accepted criteria",
+            "promotes": "keeps client branch supervised and actionable"
+          },
+          {
+            "proofId": "client-delivery-artifact-proof",
+            "sourcePath": "future build/test/screenshot/doc receipt",
+            "validates": "delivery artifact moved under proof",
+            "promotes": "unlocks handoff review only after approval"
+          },
+          {
+            "proofId": "client-delivery-handoff-proof",
+            "sourcePath": "future handoff summary and acceptance receipt",
+            "validates": "client handoff completed without private-data leakage",
+            "promotes": "candidate for reusable client delivery playbook after review"
+          }
+        ],
+        "promotion": {
+          "state": "supervised-branch",
+          "currentGate": "Client scope acceptance and handoff proof",
+          "rule": "Client Delivery is currently `supervised-branch`. The ladder remains `proof-only -> supervised branch -> autonomous branch`. Do not promote client delivery toward autonomous operation until scoped client approval, delivery proof, communication approval, privacy/redaction proof, and handoff acceptance are complete."
+        },
+        "controls": {
+          "productSeed": {
+            "product_id": "client-delivery",
+            "branch_kind": "client",
+            "one_sentence_seed": "Supervised client delivery branch that moves a scoped client outcome from acceptance criteria to proof-backed handoff.",
+            "founder_intent": "Include client work in the Cambium ecosystem map so delivery, signoff, and follow-through are governed by branch loops.",
+            "target_customer": "Active or prospective clients with a defined scope, delivery artifact, acceptance gate, and handoff path.",
+            "pain_or_desire": "Client work can disappear into ad hoc execution unless scope, proof, handoff, and approval boundaries stay visible.",
+            "offer": "Managed delivery loop with scope packet, implementation proof, acceptance receipt, and handoff summary.",
+            "survival_metric": "One client scope has accepted criteria and a named proof path.",
+            "better_than_survival_metric": "One client delivery closes with acceptance, handoff proof, and reusable lessons folded into Cambium.",
+            "GTM_channel": "Founder-led client delivery, referrals, partner work, and existing account expansion.",
+            "constraints": "Do not expose private client identifiers, contracts, pricing, credentials, or contact data in packets.",
+            "third_party_apps": "GitHub, Vercel, Cloudflare, Slack/Gmail/Calendar, client-approved project tools, and redacted proof archives when authorized.",
+            "autonomy_boundary": "Client work remains supervised; AI may draft, inspect, and summarize, but scope changes, client messages, spend, credentials, and signoff requests require approval.",
+            "approvals": "Scope acceptance, delivery artifact acceptance, client-facing messages, production changes, public references, and handoff completion."
+          },
+          "organRouting": [
+            {
+              "organ": "Genesis",
+              "owner": "Client brief and founder context",
+              "input": "Scope, promise, constraints, and success definition",
+              "output": "client_scope`, `delivery_intent`, `handoff_shape",
+              "proofPath": "Redacted scope note or approved brief",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Taste",
+              "owner": "Client-facing quality loop",
+              "input": "Delivery artifact, copy, UX, or report surface",
+              "output": "Reroll list and acceptance critique",
+              "proofPath": "Future client QA note",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hands",
+              "owner": "Delivery repo or artifact surface",
+              "input": "Scoped implementation and proof tasks",
+              "output": "Code/docs/artifact changes with receipts",
+              "proofPath": "PRs, build logs, screenshots, or redacted handoff artifacts",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Will",
+              "owner": "Account and approval routines",
+              "input": "Approved next action and communication boundary",
+              "output": "Client update, approval request, or hold decision",
+              "proofPath": "Founder-approved action log",
+              "currentGate": "blocked until approval"
+            },
+            {
+              "organ": "Cortex",
+              "owner": "Cambium memory",
+              "input": "Redacted scope, proof, lessons, and reusable patterns",
+              "output": "Searchable delivery memory",
+              "proofPath": "Future sanitized ingestion",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Hermes",
+              "owner": "Founder-facing routing",
+              "input": "Client branch status and blockers",
+              "output": "Report or recommendation",
+              "proofPath": "Hermes/Paperclip proof receipt",
+              "currentGate": "pending"
+            },
+            {
+              "organ": "Garden",
+              "owner": "Delivery health cadence",
+              "input": "Acceptance gates and open blockers",
+              "output": "Manual delivery pulse",
+              "proofPath": "Future client-delivery pulse",
+              "currentGate": "blocked until first accepted scope"
+            }
+          ],
+          "variableContractPayloads": [
+            {
+              "group": "client_scope",
+              "currentSource": "Redacted scope brief or founder-approved client notes",
+              "status": "pending"
+            },
+            {
+              "group": "delivery_intent",
+              "currentSource": "Accepted outcome, artifact boundary, and acceptance criteria",
+              "status": "pending"
+            },
+            {
+              "group": "handoff_shape",
+              "currentSource": "Handoff summary, owner, archive path, and next-step agreement",
+              "status": "pending"
+            },
+            {
+              "group": "asset_plan",
+              "currentSource": "Client-approved assets, repo paths, screenshots, or docs",
+              "status": "no-signal"
+            },
+            {
+              "group": "section_plan",
+              "currentSource": "Scope, build/proof, QA, acceptance, handoff, and follow-up",
+              "status": "pending"
+            },
+            {
+              "group": "interaction_plan",
+              "currentSource": "Client update, review request, signoff request, and delivery archive",
+              "status": "pending"
+            },
+            {
+              "group": "acceptance_checks",
+              "currentSource": "Build/test/proof commands plus client acceptance receipt",
+              "status": "pending"
+            }
+          ],
+          "adapterServiceMap": [
+            {
+              "providerRoute": "GitHub repo or worktree",
+              "inputs": "Scoped delivery task and implementation proof",
+              "outputs": "PR, commit, or code review packet",
+              "failureModes": "Wrong repo, dirty worktree, unreviewed client change",
+              "tenantMapping": "client/project slug when approved",
+              "privacyBoundary": "No client secrets, contracts, or private contact data in packet"
+            },
+            {
+              "providerRoute": "Vercel/Cloudflare preview",
+              "inputs": "Approved artifact and env boundary",
+              "outputs": "Preview URL or deploy receipt",
+              "failureModes": "Protected preview, stale deploy, missing env",
+              "tenantMapping": "project or client-owned deployment",
+              "privacyBoundary": "Never expose credentials or private data in public routes"
+            },
+            {
+              "providerRoute": "Slack/Gmail/Calendar",
+              "inputs": "Approved client communication",
+              "outputs": "Update, meeting note, or approval request",
+              "failureModes": "Unapproved send, wrong recipient, stale context",
+              "tenantMapping": "client contact only when authorized",
+              "privacyBoundary": "Draft-only until founder approves exact message"
+            },
+            {
+              "providerRoute": "Paperclip/Hermes",
+              "inputs": "Branch status and blocker summary",
+              "outputs": "Founder-facing handoff report",
+              "failureModes": "Missing proof, stale status, unowned blocker",
+              "tenantMapping": "Cambium client branch",
+              "privacyBoundary": "Redacted summaries only"
+            },
+            {
+              "providerRoute": "Cortex memory",
+              "inputs": "Sanitized lessons and proof paths",
+              "outputs": "Reusable client delivery memory",
+              "failureModes": "Sensitive data leakage or noisy ingestion",
+              "tenantMapping": "redacted client slug",
+              "privacyBoundary": "Strip client identifiers unless explicitly approved"
+            }
+          ],
+          "evidenceLedger": [
+            {
+              "status": "pending",
+              "evidence": "Client branch packet exists as a reusable contract for scope, delivery, acceptance, and handoff proof."
+            },
+            {
+              "status": "blocked",
+              "evidence": "No specific client scope, approval boundary, or acceptance receipt is bound in this generic packet yet."
+            },
+            {
+              "status": "no-signal",
+              "evidence": "No public case-study claim or reusable client result is evidenced here."
+            }
+          ],
+          "approvals": [
+            {
+              "permission": "client-facing message",
+              "status": "blocked",
+              "requiredApproval": "founder approves exact message and recipient boundary",
+              "failureMode": "no send or calendar action"
+            },
+            {
+              "permission": "production deploy/change",
+              "status": "blocked",
+              "requiredApproval": "founder approves target, rollback, and timing",
+              "failureMode": "delivery remains draft or preview-only"
+            },
+            {
+              "permission": "private client data",
+              "status": "blocked",
+              "requiredApproval": "founder approves redaction and storage boundary",
+              "failureMode": "packet must omit identifiers and sensitive material"
+            },
+            {
+              "permission": "public reference",
+              "status": "blocked",
+              "requiredApproval": "client and founder approve reference wording",
+              "failureMode": "no public claim or case study"
+            }
+          ],
+          "autonomyBoundary": "Client work remains supervised; AI may draft, inspect, and summarize, but scope changes, client messages, spend, credentials, and signoff requests require approval.",
+          "dispatchHints": [
+            {
+              "route": "cambium-bridge-assignment",
+              "payloadHint": "`client-delivery-scope-bind` with redacted branch metadata",
+              "allowedWhen": "scope source is approved for internal handling",
+              "blockedWhen": "client identity or contract data is unredacted"
+            },
+            {
+              "route": "hermes-topic-assignment",
+              "payloadHint": "`client-delivery-proof-run` with proof path",
+              "allowedWhen": "artifact surface and proof command are named",
+              "blockedWhen": "repo access or deploy target is missing"
+            },
+            {
+              "route": "plexus-agent-fabric",
+              "payloadHint": "`client-delivery-handoff-approval` for member approval workflow",
+              "allowedWhen": "handoff draft is ready for review",
+              "blockedWhen": "client-facing message has not been approved"
+            }
+          ],
+          "loops": [
+            {
+              "loopId": "client-delivery-handoff-loop",
+              "title": "Client delivery handoff loop",
+              "cadence": "manual weekly while a client scope is active",
+              "objective": "Move one client delivery gate from pending or blocked to evidenced, or return one founder approval request.",
+              "metric": "One scope, proof, acceptance, or handoff gate changes status per round.",
+              "boundaryColor": "yellow",
+              "oneChangeRule": "Select exactly one of scope acceptance, delivery receipt, signoff proof, or blocked-client decision.",
+              "stateFile": ".operator/branch-loops/client-delivery-handoff-loop.md",
+              "stopRule": "Stop after 3 rounds, after accepted handoff is archived, or when client approval is unavailable for the selected gate twice.",
+              "modelRoute": "cheap-first; escalate only when proof is client-sensitive or repo access is missing",
+              "proofRequired": "Redacted scope note, delivery receipt, acceptance receipt, handoff summary, or founder approval request pasted into the loop state file."
+            }
+          ],
+          "policySignals": [
+            {
+              "permission": "client-facing message",
+              "status": "blocked",
+              "requiredApproval": "founder approves exact message and recipient boundary",
+              "failureMode": "no send or calendar action"
+            },
+            {
+              "permission": "production deploy/change",
+              "status": "blocked",
+              "requiredApproval": "founder approves target, rollback, and timing",
+              "failureMode": "delivery remains draft or preview-only"
+            },
+            {
+              "permission": "private client data",
+              "status": "blocked",
+              "requiredApproval": "founder approves redaction and storage boundary",
+              "failureMode": "packet must omit identifiers and sensitive material"
+            },
+            {
+              "permission": "public reference",
+              "status": "blocked",
+              "requiredApproval": "client and founder approve reference wording",
+              "failureMode": "no public claim or case study"
+            }
+          ],
+          "ui": {
+            "headline": "Client Delivery",
+            "currentFrontier": "Scope acceptance, delivery proof, client communication approval, and handoff artifact remain the live gates.",
+            "missionVerb": "Bind client scope and acceptance criteria",
+            "narrativeVoice": "Client operator voice: bind scope, prove the artifact, ask before messaging, and archive the handoff.",
+            "blockedCopy": "Do not claim client approval, production delivery, public case-study permission, or autonomous account action until evidenced."
+          }
+        },
+        "source": {
+          "tenant": "cambium",
+          "schema": "cambium.product_branch_packet.v1",
+          "indexFile": "docs/plans/product-branches/index.md",
+          "packetFile": "docs/plans/product-branches/client-delivery.md"
+        },
+        "gaps": [
+          {
+            "id": "evidence-ledger-1",
+            "status": "pending",
+            "detail": "Client branch packet exists as a reusable contract for scope, delivery, acceptance, and handoff proof.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-2",
+            "status": "blocked",
+            "detail": "No specific client scope, approval boundary, or acceptance receipt is bound in this generic packet yet.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "evidence-ledger-3",
+            "status": "no-signal",
+            "detail": "No public case-study claim or reusable client result is evidenced here.",
+            "source": "evidence-ledger"
+          },
+          {
+            "id": "gate-ledger-1",
+            "status": "pending",
+            "detail": "Scope acceptance: Founder-approved scope summary with acceptance criteria.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-2",
+            "status": "blocked",
+            "detail": "Client communication: Approval before any message, invite, or signoff request is sent.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-3",
+            "status": "blocked",
+            "detail": "Production change: Approved target, rollback note, and deploy proof.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-4",
+            "status": "blocked",
+            "detail": "Privacy/legal: Redaction and publication boundary for any client-identifying material.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-5",
+            "status": "blocked",
+            "detail": "Public claims: Client-approved reference or case-study permission.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "gate-ledger-6",
+            "status": "pending",
+            "detail": "Handoff completion: Handoff artifact, owner confirmation, and next-step agreement.",
+            "source": "gate-ledger"
+          },
+          {
+            "id": "policy-permission-inputs-1",
+            "status": "blocked",
+            "detail": "client-facing message: no send or calendar action",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-2",
+            "status": "blocked",
+            "detail": "production deploy/change: delivery remains draft or preview-only",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-3",
+            "status": "blocked",
+            "detail": "private client data: packet must omit identifiers and sensitive material",
+            "source": "policy-permission-inputs"
+          },
+          {
+            "id": "policy-permission-inputs-4",
+            "status": "blocked",
+            "detail": "public reference: no public claim or case study",
             "source": "policy-permission-inputs"
           }
         ]
@@ -3261,7 +3910,7 @@
       {
         "id": "evidence-ledger-3",
         "status": "blocked",
-        "detail": "wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established.",
+        "detail": "`wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established.",
         "source": "evidence-ledger"
       },
       {
@@ -3346,6 +3995,84 @@
         "id": "policy-permission-inputs-4",
         "status": "blocked",
         "detail": "operator outreach: no GTM dispatch",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "evidence-ledger-1",
+        "status": "pending",
+        "detail": "Client branch packet exists as a reusable contract for scope, delivery, acceptance, and handoff proof.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-2",
+        "status": "blocked",
+        "detail": "No specific client scope, approval boundary, or acceptance receipt is bound in this generic packet yet.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "evidence-ledger-3",
+        "status": "no-signal",
+        "detail": "No public case-study claim or reusable client result is evidenced here.",
+        "source": "evidence-ledger"
+      },
+      {
+        "id": "gate-ledger-1",
+        "status": "pending",
+        "detail": "Scope acceptance: Founder-approved scope summary with acceptance criteria.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-2",
+        "status": "blocked",
+        "detail": "Client communication: Approval before any message, invite, or signoff request is sent.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-3",
+        "status": "blocked",
+        "detail": "Production change: Approved target, rollback note, and deploy proof.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-4",
+        "status": "blocked",
+        "detail": "Privacy/legal: Redaction and publication boundary for any client-identifying material.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-5",
+        "status": "blocked",
+        "detail": "Public claims: Client-approved reference or case-study permission.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "gate-ledger-6",
+        "status": "pending",
+        "detail": "Handoff completion: Handoff artifact, owner confirmation, and next-step agreement.",
+        "source": "gate-ledger"
+      },
+      {
+        "id": "policy-permission-inputs-1",
+        "status": "blocked",
+        "detail": "client-facing message: no send or calendar action",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-2",
+        "status": "blocked",
+        "detail": "production deploy/change: delivery remains draft or preview-only",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-3",
+        "status": "blocked",
+        "detail": "private client data: packet must omit identifiers and sensitive material",
+        "source": "policy-permission-inputs"
+      },
+      {
+        "id": "policy-permission-inputs-4",
+        "status": "blocked",
+        "detail": "public reference: no public claim or case study",
         "source": "policy-permission-inputs"
       }
     ]

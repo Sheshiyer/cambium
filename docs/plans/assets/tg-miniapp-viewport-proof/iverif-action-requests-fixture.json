@@ -1,43 +1,10 @@
 {
   "schema": 1,
-  "derivedAt": "2026-01-01T00:00:00.000Z",
-  "source": "visual-fixture:no-fake-progress",
+  "derivedAt": "2026-07-07T10:30:00.000Z",
+  "source": "visual-fixture:iverif-action-requests",
   "tenant": "cambium",
   "beats": [],
-  "openItems": [
-    {
-      "id": "ar_iverif_w6_live_mrcwmcs3",
-      "title": "IVerif: decision needed before action",
-      "branchId": "iverif",
-      "missionId": "iverif-wiki-proof",
-      "source": "Telegram · Clients · 804 · msg 1068",
-      "telegram": {
-        "topicLabel": "Clients",
-        "threadId": 804,
-        "messageId": "1068"
-      },
-      "status": "blocked",
-      "owner": "Mathis",
-      "updatedAt": "2026-06-22T00:00:00.000Z",
-      "evidence": "THO-9 is blocked · owner Mathis · updated 2026-06-22T00:00:00.000Z",
-      "receiptExpectation": "Telegram message 1068 receives a queued receipt after the Worker accepts the signed action.",
-      "consequence": "queue founder decision for THO-9; no Paperclip mutation until consumed",
-      "approveConsequence": "queue founder approval for THO-9; no Paperclip mutation until consumed",
-      "rerollConsequence": "queue founder reroll request for THO-9; no Paperclip mutation until consumed",
-      "reversibility": "queued action can be superseded until consumed; reroll keeps the item open",
-      "idempotencyHint": "THO-9:blocked:2026-06-22T00:00:00.000Z",
-      "priority": {
-        "source": "paperclip-priority@v1",
-        "risk": "critical",
-        "dependency": "blocks-delivery",
-        "score": 24,
-        "reasons": [
-          "status/title indicates blocked or critical risk",
-          "item can block delivery or founder handoff"
-        ]
-      }
-    }
-  ],
+  "openItems": [],
   "commands": null,
   "wake": {
     "source": "visual-fixture:no-fake-progress",
@@ -185,9 +152,9 @@
         "id": "risk",
         "title": "RISK",
         "on": true,
-        "detail": "16 quest risk traces · 1 gate risk",
-        "proof": "II · First Mint: artifacts pending: seed, positioning, cta unclaimed · VI · Memory: cortex unreachable · XV · The Launch: deploy events missing · THO-9: critical risk · blocks-delivery dependency",
-        "source": "paperclip-open-items",
+        "detail": "16 quest risk traces · 0 gate risks",
+        "proof": "II · First Mint: artifacts pending: seed, positioning, cta unclaimed · VI · Memory: cortex unreachable · XV · The Launch: deploy events missing",
+        "source": "quest-ledger",
         "evidence": [
           {
             "label": "II · First Mint",
@@ -203,11 +170,6 @@
             "label": "XV · The Launch",
             "status": "locked",
             "detail": "deploy events missing"
-          },
-          {
-            "label": "THO-9",
-            "status": "blocked",
-            "detail": "critical risk · blocks-delivery dependency"
           }
         ]
       },
@@ -290,22 +252,23 @@
   "policy": {
     "source": "operator-policy",
     "status": "ready",
-    "action": "Review gate item THO-9: Review launch copy",
+    "action": "Review iVerif ActionRequest: Draft lead follow-up",
     "title": "NEXT ACTION",
-    "detail": "THO-9 · blocked · blocked queue priority · critical risk · blocks-delivery dependency",
+    "detail": "iVerif · needs signed confirmation · client-facing outreach remains withheld",
     "blockers": [],
     "cautions": [
-      "founder must still choose approve or reroll inside the signed Gate flow"
+      "client-facing follow-up must stay behind signed confirmation"
     ],
     "requiredSignals": [
-      "gate item evidence",
-      "gate consequences",
-      "gate idempotency",
-      "gate queue priority",
-      "gate risk signal",
-      "gate dependency signal"
+      "ActionRequest row",
+      "redacted receipt",
+      "branch id",
+      "quest id",
+      "consequence",
+      "reversibility"
     ],
-    "rulesVersion": "operator-policy@v1.4"
+    "rulesVersion": "operator-policy@v1.4",
+    "gap": ""
   },
   "npc": {
     "source": "missing",
@@ -848,6 +811,434 @@
         "title": "The Garden",
         "status": "locked",
         "evidence": "lessons and archive missing"
+      }
+    ]
+  },
+  "actionRequests": {
+    "schema": "thoughtseed.action-request-list.v1",
+    "tenantId": "cambium",
+    "branchId": "iverif",
+    "count": 3,
+    "rows": [
+      {
+        "schema": "thoughtseed.action-request-list-item.v1",
+        "id": "ar_iverif_autogtm_followup_signed",
+        "tenantId": "cambium",
+        "status": "needs_signed_confirmation",
+        "branchId": "iverif",
+        "branchLabel": "IVerif",
+        "projectId": "iverif",
+        "projectName": "IVerif",
+        "questId": "the-handoff",
+        "topic": {
+          "topicKey": "clients",
+          "threadId": 804,
+          "sourceMessageId": "iverif-autogtm-leads-1"
+        },
+        "telegram": {
+          "topicLabel": "Clients",
+          "threadId": 804,
+          "messageId": 1068
+        },
+        "title": "Approval needed: Draft lead follow-up",
+        "summary": "AutoGTM by Explee surfaced iVerif leads, but follow-up copy and send rules are not configured.",
+        "why": "The next move touches client-facing outreach and must stay founder-gated.",
+        "source": "hermes-routine-signal",
+        "redaction": "safe",
+        "createdAt": "2026-07-07T10:00:00.000Z",
+        "updatedAt": "2026-07-07T10:05:00.000Z",
+        "selectedOptionId": "draft-follow-up",
+        "next": "Mini App signed confirmation required before execution",
+        "evidence": "iVerif AutoGTM leads exist · post-lead enrichment, copy, and follow-up route are not configured",
+        "consequence": "prepare copy and next-step options for approval, with no automatic send",
+        "receiptExpectation": "Telegram card Clients 804 message 1068 receives a queued receipt after signed confirmation is accepted.",
+        "approveConsequence": "queue Make branch task; no client, spend, or public action runs until operator consumption",
+        "rerollConsequence": "escalate Draft follow-up to signed Mini App confirmation before execution",
+        "reversibility": "withheld until signed Mini App confirmation; reversible by choosing another option",
+        "idempotencyHint": "action-request:iverif-autogtm-leads-1",
+        "owner": "founder",
+        "priority": {
+          "source": "cambium-action-requests@v1",
+          "risk": "high",
+          "dependency": "signed-confirmation",
+          "score": 18,
+          "reasons": [
+            "IVerif",
+            "the-handoff",
+            "needs_signed_confirmation"
+          ]
+        },
+        "options": [
+          {
+            "id": "make-branch-task",
+            "label": "Make branch task",
+            "consequence": "turn the gap into a Cambium assignment with proof and stop rules",
+            "risk": "low",
+            "requiresSignedConfirmation": false,
+            "resultKind": "queue_task"
+          },
+          {
+            "id": "draft-follow-up",
+            "label": "Draft follow-up",
+            "consequence": "prepare copy and next-step options for approval, with no automatic send",
+            "risk": "high",
+            "requiresSignedConfirmation": true,
+            "resultKind": "request_input"
+          }
+        ],
+        "receipts": {
+          "count": 1,
+          "latest": {
+            "at": "2026-07-07T10:05:00.000Z",
+            "kind": "callback",
+            "text": "Needs signed confirmation in the Mini App before Draft follow-up can run."
+          }
+        }
+      },
+      {
+        "schema": "thoughtseed.action-request-list-item.v1",
+        "id": "ar_iverif_autogtm_make_task",
+        "tenantId": "cambium",
+        "status": "queued",
+        "branchId": "iverif",
+        "branchLabel": "IVerif",
+        "projectId": "iverif",
+        "projectName": "IVerif",
+        "questId": "the-handoff",
+        "topic": {
+          "topicKey": "clients",
+          "threadId": 804,
+          "sourceMessageId": "iverif-autogtm-leads-2"
+        },
+        "telegram": {
+          "topicLabel": "Clients",
+          "threadId": 804,
+          "messageId": 1069
+        },
+        "title": "Queue iVerif post-lead handoff task",
+        "summary": "The low-risk branch task path is queued so the operator can define stop rules and proof.",
+        "why": "This creates bounded Cambium work without sending outreach.",
+        "source": "hermes-routine-signal",
+        "redaction": "safe",
+        "createdAt": "2026-07-07T10:10:00.000Z",
+        "updatedAt": "2026-07-07T10:11:00.000Z",
+        "selectedOptionId": "make-branch-task",
+        "next": "Cambium can consume this queued branch task after operator review",
+        "evidence": "low-risk founder callback queued a branch task and produced a receipt",
+        "consequence": "turn the gap into a Cambium assignment with proof and stop rules",
+        "receiptExpectation": "Telegram card Clients 804 message 1069 keeps the queued task receipt visible after operator consumption.",
+        "approveConsequence": "queue Make branch task; no client, spend, or public action runs until operator consumption",
+        "rerollConsequence": "request a clearer branch option before execution",
+        "reversibility": "queued ActionRequest can be superseded until consumed by Cambium",
+        "idempotencyHint": "action-request:iverif-autogtm-leads-2",
+        "owner": "founder",
+        "priority": {
+          "source": "cambium-action-requests@v1",
+          "risk": "low",
+          "dependency": "founder-choice",
+          "score": 10,
+          "reasons": [
+            "IVerif",
+            "the-handoff",
+            "queued"
+          ]
+        },
+        "options": [
+          {
+            "id": "make-branch-task",
+            "label": "Make branch task",
+            "consequence": "turn the gap into a Cambium assignment with proof and stop rules",
+            "risk": "low",
+            "requiresSignedConfirmation": false,
+            "resultKind": "queue_task"
+          }
+        ],
+        "receipts": {
+          "count": 1,
+          "latest": {
+            "at": "2026-07-07T10:11:00.000Z",
+            "kind": "callback",
+            "text": "Queued: Make branch task."
+          }
+        }
+      },
+      {
+        "schema": "thoughtseed.action-request-list-item.v1",
+        "id": "ar_iverif_autogtm_receipt_complete",
+        "tenantId": "cambium",
+        "status": "completed",
+        "branchId": "iverif",
+        "branchLabel": "IVerif",
+        "projectId": "iverif",
+        "projectName": "IVerif",
+        "questId": "the-handoff",
+        "topic": {
+          "topicKey": "clients",
+          "threadId": 804,
+          "sourceMessageId": "iverif-autogtm-leads-3"
+        },
+        "telegram": {
+          "topicLabel": "Clients",
+          "threadId": 804,
+          "messageId": 1070
+        },
+        "title": "Record iVerif lead gap receipt",
+        "summary": "The receipt is completed and should remain visible in Story and Inspect as method evidence.",
+        "why": "The branch methodology needs durable receipts after actions complete.",
+        "source": "hermes-routine-signal",
+        "redaction": "safe",
+        "createdAt": "2026-07-07T10:20:00.000Z",
+        "updatedAt": "2026-07-07T10:30:00.000Z",
+        "selectedOptionId": "record-complete",
+        "next": "Completed; keep the receipt in Story and Inspect",
+        "evidence": "completed ActionRequest receipt retained without exposing raw Telegram data",
+        "consequence": "record the receipt only",
+        "receiptExpectation": "Telegram card Clients 804 message 1070 remains linked to the completed receipt evidence.",
+        "approveConsequence": "record receipt; no external mutation",
+        "rerollConsequence": "supersede with a newer receipt if proof changes",
+        "reversibility": "completed receipt can be superseded by a newer ActionRequest",
+        "idempotencyHint": "action-request:iverif-autogtm-leads-3",
+        "owner": "founder",
+        "priority": {
+          "source": "cambium-action-requests@v1",
+          "risk": "low",
+          "dependency": "receipt-history",
+          "score": 4,
+          "reasons": [
+            "IVerif",
+            "the-handoff",
+            "completed"
+          ]
+        },
+        "options": [
+          {
+            "id": "record-complete",
+            "label": "Record complete",
+            "consequence": "record the receipt only",
+            "risk": "low",
+            "requiresSignedConfirmation": false,
+            "resultKind": "record_only"
+          }
+        ],
+        "receipts": {
+          "count": 2,
+          "latest": {
+            "at": "2026-07-07T10:30:00.000Z",
+            "kind": "complete",
+            "text": "Completed: iVerif receipt retained for method replay."
+          }
+        }
+      }
+    ],
+    "actionRequests": [
+      {
+        "schema": "thoughtseed.action-request-list-item.v1",
+        "id": "ar_iverif_autogtm_followup_signed",
+        "tenantId": "cambium",
+        "status": "needs_signed_confirmation",
+        "branchId": "iverif",
+        "branchLabel": "IVerif",
+        "projectId": "iverif",
+        "projectName": "IVerif",
+        "questId": "the-handoff",
+        "topic": {
+          "topicKey": "clients",
+          "threadId": 804,
+          "sourceMessageId": "iverif-autogtm-leads-1"
+        },
+        "telegram": {
+          "topicLabel": "Clients",
+          "threadId": 804,
+          "messageId": 1068
+        },
+        "title": "Approval needed: Draft lead follow-up",
+        "summary": "AutoGTM by Explee surfaced iVerif leads, but follow-up copy and send rules are not configured.",
+        "why": "The next move touches client-facing outreach and must stay founder-gated.",
+        "source": "hermes-routine-signal",
+        "redaction": "safe",
+        "createdAt": "2026-07-07T10:00:00.000Z",
+        "updatedAt": "2026-07-07T10:05:00.000Z",
+        "selectedOptionId": "draft-follow-up",
+        "next": "Mini App signed confirmation required before execution",
+        "evidence": "iVerif AutoGTM leads exist · post-lead enrichment, copy, and follow-up route are not configured",
+        "consequence": "prepare copy and next-step options for approval, with no automatic send",
+        "receiptExpectation": "Telegram card Clients 804 message 1068 receives a queued receipt after signed confirmation is accepted.",
+        "approveConsequence": "queue Make branch task; no client, spend, or public action runs until operator consumption",
+        "rerollConsequence": "escalate Draft follow-up to signed Mini App confirmation before execution",
+        "reversibility": "withheld until signed Mini App confirmation; reversible by choosing another option",
+        "idempotencyHint": "action-request:iverif-autogtm-leads-1",
+        "owner": "founder",
+        "priority": {
+          "source": "cambium-action-requests@v1",
+          "risk": "high",
+          "dependency": "signed-confirmation",
+          "score": 18,
+          "reasons": [
+            "IVerif",
+            "the-handoff",
+            "needs_signed_confirmation"
+          ]
+        },
+        "options": [
+          {
+            "id": "make-branch-task",
+            "label": "Make branch task",
+            "consequence": "turn the gap into a Cambium assignment with proof and stop rules",
+            "risk": "low",
+            "requiresSignedConfirmation": false,
+            "resultKind": "queue_task"
+          },
+          {
+            "id": "draft-follow-up",
+            "label": "Draft follow-up",
+            "consequence": "prepare copy and next-step options for approval, with no automatic send",
+            "risk": "high",
+            "requiresSignedConfirmation": true,
+            "resultKind": "request_input"
+          }
+        ],
+        "receipts": {
+          "count": 1,
+          "latest": {
+            "at": "2026-07-07T10:05:00.000Z",
+            "kind": "callback",
+            "text": "Needs signed confirmation in the Mini App before Draft follow-up can run."
+          }
+        }
+      },
+      {
+        "schema": "thoughtseed.action-request-list-item.v1",
+        "id": "ar_iverif_autogtm_make_task",
+        "tenantId": "cambium",
+        "status": "queued",
+        "branchId": "iverif",
+        "branchLabel": "IVerif",
+        "projectId": "iverif",
+        "projectName": "IVerif",
+        "questId": "the-handoff",
+        "topic": {
+          "topicKey": "clients",
+          "threadId": 804,
+          "sourceMessageId": "iverif-autogtm-leads-2"
+        },
+        "telegram": {
+          "topicLabel": "Clients",
+          "threadId": 804,
+          "messageId": 1069
+        },
+        "title": "Queue iVerif post-lead handoff task",
+        "summary": "The low-risk branch task path is queued so the operator can define stop rules and proof.",
+        "why": "This creates bounded Cambium work without sending outreach.",
+        "source": "hermes-routine-signal",
+        "redaction": "safe",
+        "createdAt": "2026-07-07T10:10:00.000Z",
+        "updatedAt": "2026-07-07T10:11:00.000Z",
+        "selectedOptionId": "make-branch-task",
+        "next": "Cambium can consume this queued branch task after operator review",
+        "evidence": "low-risk founder callback queued a branch task and produced a receipt",
+        "consequence": "turn the gap into a Cambium assignment with proof and stop rules",
+        "receiptExpectation": "Telegram card Clients 804 message 1069 keeps the queued task receipt visible after operator consumption.",
+        "approveConsequence": "queue Make branch task; no client, spend, or public action runs until operator consumption",
+        "rerollConsequence": "request a clearer branch option before execution",
+        "reversibility": "queued ActionRequest can be superseded until consumed by Cambium",
+        "idempotencyHint": "action-request:iverif-autogtm-leads-2",
+        "owner": "founder",
+        "priority": {
+          "source": "cambium-action-requests@v1",
+          "risk": "low",
+          "dependency": "founder-choice",
+          "score": 10,
+          "reasons": [
+            "IVerif",
+            "the-handoff",
+            "queued"
+          ]
+        },
+        "options": [
+          {
+            "id": "make-branch-task",
+            "label": "Make branch task",
+            "consequence": "turn the gap into a Cambium assignment with proof and stop rules",
+            "risk": "low",
+            "requiresSignedConfirmation": false,
+            "resultKind": "queue_task"
+          }
+        ],
+        "receipts": {
+          "count": 1,
+          "latest": {
+            "at": "2026-07-07T10:11:00.000Z",
+            "kind": "callback",
+            "text": "Queued: Make branch task."
+          }
+        }
+      },
+      {
+        "schema": "thoughtseed.action-request-list-item.v1",
+        "id": "ar_iverif_autogtm_receipt_complete",
+        "tenantId": "cambium",
+        "status": "completed",
+        "branchId": "iverif",
+        "branchLabel": "IVerif",
+        "projectId": "iverif",
+        "projectName": "IVerif",
+        "questId": "the-handoff",
+        "topic": {
+          "topicKey": "clients",
+          "threadId": 804,
+          "sourceMessageId": "iverif-autogtm-leads-3"
+        },
+        "telegram": {
+          "topicLabel": "Clients",
+          "threadId": 804,
+          "messageId": 1070
+        },
+        "title": "Record iVerif lead gap receipt",
+        "summary": "The receipt is completed and should remain visible in Story and Inspect as method evidence.",
+        "why": "The branch methodology needs durable receipts after actions complete.",
+        "source": "hermes-routine-signal",
+        "redaction": "safe",
+        "createdAt": "2026-07-07T10:20:00.000Z",
+        "updatedAt": "2026-07-07T10:30:00.000Z",
+        "selectedOptionId": "record-complete",
+        "next": "Completed; keep the receipt in Story and Inspect",
+        "evidence": "completed ActionRequest receipt retained without exposing raw Telegram data",
+        "consequence": "record the receipt only",
+        "receiptExpectation": "Telegram card Clients 804 message 1070 remains linked to the completed receipt evidence.",
+        "approveConsequence": "record receipt; no external mutation",
+        "rerollConsequence": "supersede with a newer receipt if proof changes",
+        "reversibility": "completed receipt can be superseded by a newer ActionRequest",
+        "idempotencyHint": "action-request:iverif-autogtm-leads-3",
+        "owner": "founder",
+        "priority": {
+          "source": "cambium-action-requests@v1",
+          "risk": "low",
+          "dependency": "receipt-history",
+          "score": 4,
+          "reasons": [
+            "IVerif",
+            "the-handoff",
+            "completed"
+          ]
+        },
+        "options": [
+          {
+            "id": "record-complete",
+            "label": "Record complete",
+            "consequence": "record the receipt only",
+            "risk": "low",
+            "requiresSignedConfirmation": false,
+            "resultKind": "record_only"
+          }
+        ],
+        "receipts": {
+          "count": 2,
+          "latest": {
+            "at": "2026-07-07T10:30:00.000Z",
+            "kind": "complete",
+            "text": "Completed: iVerif receipt retained for method replay."
+          }
+        }
       }
     ]
   }

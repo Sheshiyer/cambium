@@ -160,7 +160,8 @@ function validSignedSmoke(overrides: Record<string, unknown> = {}): Record<strin
       miniAppRefresh: {
         refreshed: true,
         envelopeSha256: hashOf('visual-envelope'),
-        visibleMarkerHash: hashOf('production-card-marker'),
+        visibleMarkerHash: hashOf('cambium-founder-review'),
+        visibleMarkerBinding: 'action-subject',
       },
     },
     notes: ['Redacted lifecycle receipt; private identifiers omitted.'],
@@ -355,7 +356,7 @@ test('live proof readiness marks capture steps ready-to-capture when prerequisit
   const operatorAuditPath = 'docs/plans/assets/tg-miniapp-live-proof/operator-audit.json';
   const miniAppEnvelopePath = 'docs/plans/assets/tg-miniapp-live-proof/miniapp-envelope.json';
   writeFileSync(join(cwd, operatorAuditPath), JSON.stringify({ consumed: 1 }));
-  writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'production-card-marker' }));
+  writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'cambium-founder-review' }));
 
   const report = assessLiveProofReadiness({
     cwd,
@@ -379,7 +380,7 @@ test('live proof readiness marks capture steps ready-to-capture when prerequisit
     operatorConsumed: 1,
     operatorRejected: 0,
     miniAppEnvelopePath,
-    visibleMarker: 'production-card-marker',
+    visibleMarker: 'cambium-founder-review',
     generatedAt: '2026-06-22T00:01:00.000Z',
   });
 
@@ -611,6 +612,24 @@ test('signed-action smoke validation requires queue, consume, and refresh phases
   assert.equal(good.ready, true);
 });
 
+test('signed-action smoke validation requires refresh marker binding to the queued action', () => {
+  const smoke = validSignedSmoke();
+  const phases = smoke.phases as Record<string, Record<string, unknown>>;
+  phases.miniAppRefresh = {
+    ...phases.miniAppRefresh,
+    visibleMarkerBinding: 'generic-card-marker',
+  };
+
+  const verdict = validateSignedActionSmokeArtifact(smoke, {
+    tenant: 'cambium',
+    workerUrl: 'https://curious.thoughtseed.space',
+    generatedAt: '2026-06-22T00:02:00.000Z',
+  });
+
+  assert.equal(verdict.ready, false);
+  assert.match(verdict.missing.join(' '), /visibleMarkerBinding/);
+});
+
 test('signed-action smoke capture refuses without explicit network and mutation authorization', async () => {
   await assert.rejects(
     captureSignedActionSmoke({
@@ -660,10 +679,43 @@ test('signed-action smoke capture refuses a refresh marker missing from the mini
       operatorConsumed: 1,
       operatorRejected: 0,
       miniAppEnvelopePath,
-      visibleMarker: 'production-card-marker',
+      visibleMarker: 'cambium-founder-review',
       fetchImpl: async () => ({ status: 200, ok: true, text: async () => '{}' }),
     }),
     /visible marker/,
+  );
+});
+
+test('signed-action smoke capture refuses a generic refresh marker', async () => {
+  const cwd = fixtureRepo();
+  const operatorAuditPath = 'docs/plans/assets/tg-miniapp-live-proof/operator-audit.json';
+  const miniAppEnvelopePath = 'docs/plans/assets/tg-miniapp-live-proof/miniapp-envelope.json';
+  writeFileSync(join(cwd, operatorAuditPath), JSON.stringify({ consumed: 1, subject: 'cambium-founder-review' }));
+  writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'production-card-marker', subject: 'cambium-founder-review' }));
+
+  await assert.rejects(
+    captureSignedActionSmoke({
+      cwd,
+      tenant: 'cambium',
+      workerUrl: 'https://worker.test',
+      token: 'secret-token',
+      allowNetwork: true,
+      allowMutation: true,
+      env: { TELEGRAM_INIT_DATA: signedInitData() },
+      capturedAt: '2026-06-22T00:01:00.000Z',
+      actionKind: 'promote-skill',
+      actionSubject: 'cambium-founder-review',
+      actionIdempotencyKey: 'promote-skill:cambium:cambium-founder-review',
+      operatorCommand: 'quine write skills apply-promotions',
+      operatorAuditPath,
+      operatorChecked: 1,
+      operatorConsumed: 1,
+      operatorRejected: 0,
+      miniAppEnvelopePath,
+      visibleMarker: 'production-card-marker',
+      fetchImpl: async () => ({ status: 200, ok: true, text: async () => '{}' }),
+    }),
+    /visible marker must identify/,
   );
 });
 
@@ -672,7 +724,7 @@ test('signed-action smoke capture writes only redacted queue, consume, and refre
   const operatorAuditPath = 'docs/plans/assets/tg-miniapp-live-proof/operator-audit.json';
   const miniAppEnvelopePath = 'docs/plans/assets/tg-miniapp-live-proof/miniapp-envelope.json';
   writeFileSync(join(cwd, operatorAuditPath), JSON.stringify({ consumed: 1, action: 'queued-id', subject: 'cambium-founder-review' }));
-  writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'production-card-marker', subject: 'cambium-founder-review' }));
+  writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'cambium-founder-review', subject: 'cambium-founder-review' }));
   const calls: Array<{ url: string; init: Record<string, unknown> }> = [];
   const submitBody = JSON.stringify({
     queued: 'queued-id',
@@ -715,7 +767,7 @@ test('signed-action smoke capture writes only redacted queue, consume, and refre
     operatorConsumed: 1,
     operatorRejected: 0,
     miniAppEnvelopePath,
-    visibleMarker: 'production-card-marker',
+    visibleMarker: 'cambium-founder-review',
     fetchImpl: async (url: string, init: Record<string, unknown>) => {
       calls.push({ url, init });
       if (url.endsWith('/api/gate/cambium')) return { status: 200, ok: true, text: async () => submitBody };
@@ -729,6 +781,7 @@ test('signed-action smoke capture writes only redacted queue, consume, and refre
   assert.equal((calls[1].init.headers as Record<string, string>).authorization, 'Bearer secret-token');
   assert.equal((artifact.phases as Record<string, any>).workerList.sawQueuedAction, true);
   assert.equal((artifact.phases as Record<string, any>).operatorConsume.consumed, 1);
+  assert.equal((artifact.phases as Record<string, any>).miniAppRefresh.visibleMarkerBinding, 'action-subject');
 
   const path = writeSignedActionSmokeArtifact(artifact, 'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json', cwd);
   const text = readFileSync(path, 'utf8');

@@ -26,7 +26,8 @@ const WORKER_INITDATA_MAX_AGE_SEC = 600;
 const HASH_64 = /^sha256:[a-f0-9]{64}$/i;
 const LIVE_PROOF_ASSET_DIR = 'docs/plans/assets/tg-miniapp-live-proof';
 const SIGNED_SMOKE_KINDS = ['skill-promotion', 'side-quest', 'npc-history', 'gate-approval'];
-const GATE_ACTION_KINDS = ['approve', 'reroll', 'promote-skill', 'queue-side-quest'];
+const GATE_ACTION_KINDS = ['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request'];
+const VISIBLE_MARKER_BINDINGS = ['action-subject', 'action-idempotency', 'action-request-id', 'telegram-receipt'];
 const SMOKE_LEAK_KEY = /^(authorization|cookie|secret|token|pushToken|bearer|initData|rawInitData|telegramInitData|subject|idempotencyKey|queuedId|founderId|rawBody|responseBody|requestBody)$/i;
 const RAW_INITDATA_MARKERS = [
   /(?:^|[?&\s])query_id=/i,
@@ -187,6 +188,20 @@ function hasSecretLeak(value) {
 
 function hasSignedSmokeLeak(value) {
   return hasLeak(value, [...RAW_INITDATA_MARKERS, ...SECRET_MARKERS], SMOKE_LEAK_KEY);
+}
+
+function classifyVisibleMarkerBinding(marker, options = {}) {
+  const value = String(marker || '').trim();
+  if (!value) return '';
+  const subject = String(options.subject || '').trim();
+  const idempotencyKey = String(options.idempotencyKey || '').trim();
+  if (subject && value.includes(subject)) return 'action-subject';
+  if (idempotencyKey && value.includes(idempotencyKey)) return 'action-idempotency';
+  if (/\bar_[a-z0-9][a-z0-9_-]*\b/i.test(value)) return 'action-request-id';
+  if (/\b(?:message|msg)\s*#?\d+\b/i.test(value) && /\b(?:topic|thread|clients|client|dev|ops|sales|support)\b/i.test(value)) {
+    return 'telegram-receipt';
+  }
+  return '';
 }
 
 function hasLeak(value, stringMarkers, keyMarker) {
@@ -421,7 +436,7 @@ export function createSignedActionSmokeTemplate(options = {}) {
         initDataAgeSeconds: 0,
       },
       action: {
-        kind: 'TODO-promote-skill-or-queue-side-quest-or-approve-or-reroll',
+        kind: 'TODO-promote-skill-or-queue-side-quest-or-approve-or-reroll-or-confirm-action-request',
         subjectHash: 'sha256:TODO_SHA256_OF_REDACTED_SUBJECT',
         idempotencyKeyHash: 'sha256:TODO_SHA256_OF_IDEMPOTENCY_KEY',
       },
@@ -450,6 +465,7 @@ export function createSignedActionSmokeTemplate(options = {}) {
           refreshed: true,
           envelopeSha256: 'sha256:TODO_SHA256_OF_REFRESHED_VISUAL_ENVELOPE',
           visibleMarkerHash: 'sha256:TODO_SHA256_OF_VISIBLE_CARD_MARKER',
+          visibleMarkerBinding: 'TODO-action-subject-or-action-idempotency-or-action-request-id-or-telegram-receipt',
         },
       },
       notes: [
@@ -714,6 +730,9 @@ export function validateSignedActionSmokeArtifact(value, options = {}) {
   if (miniAppRefresh.refreshed !== true) missing.push('phases.miniAppRefresh.refreshed must be true');
   requireHash(miniAppRefresh.envelopeSha256, 'phases.miniAppRefresh.envelopeSha256', missing);
   requireHash(miniAppRefresh.visibleMarkerHash, 'phases.miniAppRefresh.visibleMarkerHash', missing);
+  if (!VISIBLE_MARKER_BINDINGS.includes(String(miniAppRefresh.visibleMarkerBinding || ''))) {
+    missing.push(`phases.miniAppRefresh.visibleMarkerBinding must be one of ${VISIBLE_MARKER_BINDINGS.join(', ')}`);
+  }
 
   const ready = missing.length === 0;
   return {
@@ -834,6 +853,10 @@ export async function captureSignedActionSmoke(options = {}) {
   const visibleMarker = requiredString(options.visibleMarker, 'visible marker');
   const envelopeText = readFileSync(miniAppEnvelopeAbsolute, 'utf8');
   if (!envelopeText.includes(visibleMarker)) throw new Error('visible marker must appear in the mini app envelope file');
+  const visibleMarkerBinding = classifyVisibleMarkerBinding(visibleMarker, { subject, idempotencyKey });
+  if (!visibleMarkerBinding) {
+    throw new Error('visible marker must identify the ActionRequest, idempotency key, action subject, or Telegram receipt marker');
+  }
 
   const submitBody = {
     kind: actionKind,
@@ -910,6 +933,7 @@ export async function captureSignedActionSmoke(options = {}) {
         refreshed: true,
         envelopeSha256: sha256File(miniAppEnvelopeAbsolute),
         visibleMarkerHash: sha256Text(visibleMarker),
+        visibleMarkerBinding,
       },
     },
     notes: [
@@ -1045,14 +1069,18 @@ function countPrerequisite(value, id, label) {
     : { id, state: 'blocked', detail: `${label} must be a non-negative integer` };
 }
 
-function visibleMarkerPrerequisite(cwd, envelopePath, visibleMarker) {
+function visibleMarkerPrerequisite(cwd, envelopePath, visibleMarker, actionSubject = '', actionIdempotencyKey = '') {
   const marker = String(visibleMarker || '').trim();
   if (!marker) return { id: 'visible-marker', state: 'blocked', detail: 'visible marker is required' };
   if (!String(envelopePath || '').trim()) return { id: 'visible-marker', state: 'blocked', detail: 'mini app envelope path is required before marker can be checked' };
+  const binding = classifyVisibleMarkerBinding(marker, { subject: actionSubject, idempotencyKey: actionIdempotencyKey });
+  if (!binding) {
+    return { id: 'visible-marker', state: 'blocked', detail: 'visible marker must identify the ActionRequest, idempotency key, action subject, or Telegram receipt marker' };
+  }
   try {
     const text = readFileSync(resolve(cwd, envelopePath), 'utf8');
     return text.includes(marker)
-      ? { id: 'visible-marker', state: 'ready', detail: 'visible marker appears in the mini app envelope' }
+      ? { id: 'visible-marker', state: 'ready', detail: `visible marker appears in the mini app envelope as ${binding}` }
       : { id: 'visible-marker', state: 'blocked', detail: 'visible marker must appear in the mini app envelope' };
   } catch {
     return { id: 'visible-marker', state: 'blocked', detail: 'mini app envelope must be readable before marker can be checked' };
@@ -1103,7 +1131,7 @@ function buildCapturePlan(options) {
     countPrerequisite(args.operatorConsumed, 'operator-consumed', 'operator consumed'),
     countPrerequisite(args.operatorRejected, 'operator-rejected', 'operator rejected'),
     filePrerequisite(cwd, args.miniAppEnvelopePath, 'miniapp-envelope', 'mini app envelope'),
-    visibleMarkerPrerequisite(cwd, args.miniAppEnvelopePath, args.visibleMarker),
+    visibleMarkerPrerequisite(cwd, args.miniAppEnvelopePath, args.visibleMarker, args.actionSubject, args.actionIdempotencyKey),
   ];
   return {
     schema: 'cambium.tg-live-proof-capture-plan.v1',

@@ -119,6 +119,9 @@ This creates a loop:
 ## Boundaries
 
 - Telegram topic routing is signal intake, not execution authority.
+- Telegram topic buttons and group/channel callbacks may create or route review
+  signals, but founder-signed approval still requires the Mini App Gate path
+  with valid Telegram WebView `initData`.
 - Cambium remains the assignment and quest bridge owner.
 - Plexus remains the member task/report surface.
 - Hermes remains the hosted observer, classifier, cron runner, and delivery

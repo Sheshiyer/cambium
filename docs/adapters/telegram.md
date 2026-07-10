@@ -14,6 +14,8 @@ Telegram implements the shared [approval lane](./approval.md). It should emit th
 - Group or channel messages that can become project evidence.
 - Bot callbacks for gate decisions.
 
+Group/channel messages can become evidence or ActionRequests; they do not replace the signed Mini App approval lane.
+
 ## Outputs
 
 - Approval events for the operator.

@@ -21,6 +21,21 @@ The Telegram mini app is Cambium's pocket ecosystem surface. It may render engin
 
 Branch arcs, missions, KPIs, gates, and proof are owned by Mission — anything that mutates branch promotion state must originate there or in Gate, not in Inspect. The Inspect subsections (tapestry / wake / lanes / stance / policy / decision context / live proof / evidence boxes / skills / companions / rails) replace the legacy Map ecosystem language; the Map scene no longer exists in the deployed surface.
 
+## Gate ActionRequest Display Contract
+
+An open Gate item that originated from Telegram must display these redacted, founder-safe fields before any signed confirmation:
+
+- `actionRequestId`: stable ActionRequest id or redacted equivalent.
+- `branchId` and `missionId`: the product branch and mission the decision belongs to.
+- `telegram.topicLabel`: human label such as `Clients`.
+- `telegram.threadId`: Telegram topic id, such as `804`, never the private chat id.
+- `telegram.messageId`: Telegram message id for the card that should receive a receipt.
+- `receiptExpectation`: what changes after queueing, for example `Telegram card edit plus queued receipt`.
+- `proofSummary`: bounded evidence summary.
+- `approveConsequence`, `rerollConsequence`, `reversibility`, and `idempotencyHint`.
+
+The Mini App may show topic/thread/message ids as routing context, but it must not show raw private chat ids, raw founder ids, raw `initData`, bearer tokens, or queued ids.
+
 ## Ecosystem Targets
 
 Every ecosystem target must identify the source that owns its truth:
