@@ -174,6 +174,12 @@ function artifactMtimeMs(cwd, path) {
   }
 }
 
+function artifactReceiptTimeMs(cwd, path) {
+  const artifact = parseJsonArtifact(cwd, path);
+  const generatedAtMs = Date.parse(String(artifact.value?.generatedAt || ''));
+  return Number.isFinite(generatedAtMs) ? generatedAtMs : artifactMtimeMs(cwd, path);
+}
+
 function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
@@ -1203,7 +1209,7 @@ export function assessLiveProofReadiness(options = {}) {
   const viewportManifest = artifactExists(cwd, viewportManifestPath);
   const viewportFailure = artifactExists(cwd, viewportFailurePath);
   const viewportDiagnostics = artifactExists(cwd, viewportDiagnosticsPath);
-  const viewportFailureNewer = viewportFailure && artifactMtimeMs(cwd, viewportFailurePath) >= artifactMtimeMs(cwd, viewportManifestPath);
+  const viewportFailureNewer = viewportFailure && artifactReceiptTimeMs(cwd, viewportFailurePath) >= artifactReceiptTimeMs(cwd, viewportManifestPath);
   const viewportReady = viewportManifest && !viewportFailureNewer;
   const promotionConsumer = fileHas(cwd, 'bin/quine/hyphae/skills.ts', 'applySkillPromotionDecisions');
   const sideQuestConsumer = fileHas(cwd, 'bin/quine/hyphae/quests.ts', 'applySideQuestQueueDecisions');

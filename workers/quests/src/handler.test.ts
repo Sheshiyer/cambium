@@ -633,6 +633,7 @@ function makeElement(id: string, tagName = 'div', initialAttrs: Map<string, stri
   const attrs = new Map(initialAttrs);
   const listeners = new Map<string, Set<(event: Record<string, any>) => void>>();
   const pointerCaptureCalls: unknown[] = [];
+  const focusCalls: unknown[] = [];
   const queryCache = new Map<string, ReturnType<typeof makeElement>[]>();
   const dataset = {} as Record<string, string>;
   for (const [name, value] of attrs) {
@@ -663,8 +664,10 @@ function makeElement(id: string, tagName = 'div', initialAttrs: Map<string, stri
       else attrs.delete('disabled');
     },
     onclick: null as unknown,
+    onkeydown: null as unknown,
     eventListeners: listeners,
     setPointerCaptureCalls: pointerCaptureCalls,
+    focusCalls,
     addEventListener(type: string, listener: (event: Record<string, any>) => void) {
       if (!listeners.has(type)) listeners.set(type, new Set());
       listeners.get(type)!.add(listener);
@@ -697,6 +700,9 @@ function makeElement(id: string, tagName = 'div', initialAttrs: Map<string, stri
     },
     setPointerCapture(pointerId: unknown) {
       pointerCaptureCalls.push(pointerId);
+    },
+    focus(options?: unknown) {
+      focusCalls.push(options ?? null);
     },
     dispatchEvent(rawEvent: Record<string, any>) {
       const event = prepareFakeEvent(rawEvent, rawEvent?.type || 'event', this);
@@ -821,6 +827,17 @@ async function renderPageFixtureContext(
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
   return { elements, context, fetchCalls, fetchRequests, clipboardWrites };
+}
+
+function selectInspectPane(
+  rendered: Awaited<ReturnType<typeof renderPageFixtureContext>>,
+  pane: 'proof' | 'system',
+) {
+  const map = rendered.elements.get('mapwrap')!;
+  const tab = map.querySelectorAll('[data-inspect-pane-select]').find((node) => node.dataset.inspectPaneSelect === pane);
+  assert.ok(tab, `Inspect ${pane} tab is rendered`);
+  tab.click();
+  assert.equal(map.querySelectorAll('[data-inspect-pane-select]').find((node) => node.dataset.inspectPaneSelect === pane)?.getAttribute('aria-selected'), 'true');
 }
 
 async function renderPageFixture(envelope: unknown) {
@@ -1999,8 +2016,12 @@ test('page audit helper · real rendered pseudo-button rows declare interaction 
   (rendered.context.renderStory as (env: unknown) => void)({
     beats: [{ text: 'fixture beat', lane: 'quest' }],
   });
+  const inspectProofHtml = rendered.elements.get('mapwrap')!.innerHTML;
+  selectInspectPane(rendered, 'system');
+  const inspectSystemHtml = rendered.elements.get('mapwrap')!.innerHTML;
   const html = [
-    rendered.elements.get('mapwrap')!.innerHTML,
+    inspectProofHtml,
+    inspectSystemHtml,
     rendered.elements.get('beats')!.innerHTML,
     rendered.elements.get('cmds')!.innerHTML,
   ].join('');
@@ -2900,7 +2921,11 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
     now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
   });
-  const inspectHtml = rendered.elements.get('mapwrap')!.innerHTML;
+  const map = rendered.elements.get('mapwrap')!;
+  const inspectProofHtml = map.innerHTML;
+  selectInspectPane(rendered, 'system');
+  const inspectSystemHtml = map.innerHTML;
+  const inspectHtml = [inspectProofHtml, inspectSystemHtml].join('\n');
 
   assert.match(inspectHtml, /data-component="InspectGroupStack"/);
   for (const group of ['freshness', 'live-proof', 'branch-packets', 'gates', 'policy', 'tools', 'rails', 'evidence']) {
@@ -3431,8 +3456,11 @@ test('page · delegated signed gate renders refused and network error sheets', a
 });
 
 test('page · no-fake-progress visual fixture renders explicit gaps', async () => {
-  const elements = await renderPageFixture(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
-  const map = elements.get('mapwrap')!.innerHTML;
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  const inspectProofHtml = rendered.elements.get('mapwrap')!.innerHTML;
+  selectInspectPane(rendered, 'system');
+  const elements = rendered.elements;
+  const map = [inspectProofHtml, elements.get('mapwrap')!.innerHTML].join('\n');
   const stem = elements.get('stem')!.innerHTML;
   const progress = elements.get('progress')!.textContent;
   assert.match(stem, /Mission control is waiting for branch packets/);
@@ -4089,8 +4117,10 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-selected-surface="branch-chip"/);
   assert.match(html, /data-selected-surface="mission-state-row"/);
   assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);
-  const selectedBranchChip = html.match(/<button type="button" class="mc-branch-chip[^"]*mc-selected-halo[^"]*"[^>]*data-selected-surface="branch-chip"[^>]*>/)?.[0] ?? '';
+  const selectedBranchChip = rendered.elements.get('stem')!.querySelectorAll('[data-selected-surface="branch-chip"]')[0]?.innerHTML ?? '';
   assert.match(selectedBranchChip, /data-component="BranchArcChip"/);
+  assert.match(selectedBranchChip, /role="tab"/);
+  assert.match(selectedBranchChip, /aria-selected="true"/);
   assert.doesNotMatch(selectedBranchChip, /data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
   assert.match(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:none/);
   assert.doesNotMatch(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:orbitSweep/);
@@ -4124,6 +4154,160 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(proofSheet, /data-component="KpiPulse"[^>]*data-kpi-kind="survival"[\s\S]*data-component="OrbitProgress"[\s\S]*class="mc-kpi-bars" data-component="PacketFlow"/);
   assert.doesNotMatch(proofSheet, /mc-kpi-pulse/);
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
+});
+
+test('page · mission branch tab updates content in place and keeps the sheet closed', async () => {
+  const branch = (branchId: string, name: string, title: string) => ({
+    branchId,
+    name,
+    arcTitle: `${name} arc`,
+    vision: { statement: `${name} keeps its next move visible in Mission.` },
+    questline: [
+      { id: 'confirm', title: `Confirm ${name} direction`, status: 'verified' },
+      { id: 'run', title: title, status: 'pending' },
+    ],
+    missions: [{ missionId: `${branchId}-next`, title, owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Hermes' }],
+    gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+    kpis: [],
+    proofPaths: [{ proofId: `${branchId}-proof`, validates: 'Viewport capture', promotes: 'supervised branch' }],
+    promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+    gaps: [{ id: `${branchId}-gap`, status: 'blocked', detail: 'Founder review pending', source: 'packet' }],
+  });
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [
+        branch('fitcheck', 'Fitcheck', 'Run authenticated Shopify widget QA'),
+        branch('vantyx', 'Vantyx', 'Publish Vantyx proof packet'),
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const stem = rendered.elements.get('stem')!;
+  const sheet = rendered.elements.get('sheet')!;
+  const tabs = stem.querySelectorAll('[data-mission-branch]');
+
+  assert.equal(tabs.length, 2);
+  assert.equal(tabs[0].getAttribute('role'), 'tab');
+  assert.equal(tabs[0].getAttribute('aria-selected'), 'true');
+  assert.match(stem.innerHTML, /<h3>Run authenticated Shopify widget QA<\/h3>/);
+
+  tabs[0].click();
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'fitcheck');
+  assert.match(stem.innerHTML, /<h3>Run authenticated Shopify widget QA<\/h3>/);
+  assert.equal(sheet.classList.has('on'), false);
+
+  stem.querySelectorAll('[data-mission-branch]')[1].click();
+
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'vantyx');
+  assert.match(stem.innerHTML, /<h3>Publish Vantyx proof packet<\/h3>/);
+  assert.equal(stem.querySelectorAll('[data-mission-branch]')[1].getAttribute('aria-selected'), 'true');
+  assert.equal(sheet.classList.has('on'), false);
+  assert.equal(vm.runInContext('sheetState.open', rendered.context as vm.Context), false);
+
+  const vantyxTab = stem.querySelectorAll('[data-mission-branch]')[1];
+  assert.equal(vantyxTab.dispatchEvent({ type:'keydown', key:'ArrowLeft', bubbles:true }), false);
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'fitcheck');
+  assert.equal(stem.querySelector('[data-mission-branch="0"]').focusCalls.length, 1);
+
+  const fitcheckTab = stem.querySelectorAll('[data-mission-branch]')[0];
+  assert.equal(fitcheckTab.dispatchEvent({ type:'keydown', key:'End', bubbles:true }), false);
+  assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'vantyx');
+  assert.equal(stem.querySelector('[data-mission-branch="1"]').focusCalls.length, 1);
+});
+
+test('page · mission questline is a contained single-row scroller with readable labels', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        vision: { statement: 'Keep the complete mobile sequence readable.' },
+        questline: [
+          { id: 'confirm', title: 'Confirm Shopify credentials', status: 'verified' },
+          { id: 'run', title: 'Run authenticated Shopify widget QA', status: 'pending' },
+          { id: 'patch', title: 'Patch only verified failures', status: 'pending' },
+          { id: 'wire', title: 'Wire Dodo payment proof', status: 'pending' },
+          { id: 'ingest', title: 'Ingest evidence receipts', status: 'pending' },
+        ],
+        missions: [{ missionId: 'qa', title: 'Run authenticated Shopify widget QA', owner: 'Build', gate: 'Credentials', proofRequired: 'Viewport capture', dispatchTarget: 'Hermes' }],
+        gates: [{ gate: 'Credentials', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'proof-only' },
+        gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  assert.match(html, /class="mc-questline"[^>]*data-no-scene-drag="1"/);
+  assert.match(html, />Confirm Shopify credentials<\/b>/);
+  assert.match(html, /aria-current="step"/);
+  assert.match(PAGE, /\.mc-questline\{[^}]*grid-auto-flow:column[^}]*overflow-x:auto/);
+  assert.match(PAGE, /\.app\{[^}]*max-width:100%[^}]*overflow:hidden/);
+  assert.match(PAGE, /\.track\{[^}]*max-width:100%[^}]*display:flex/);
+  assert.doesNotMatch(PAGE, /\.mc-questline\{[^}]*repeat\(auto-fit/);
+});
+
+test('page · mission proof previews are semantic buttons', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck', name: 'Fitcheck', vision: { statement: 'Proof stays reachable.' },
+        questline: [{ id: 'proof', title: 'Attach viewport proof', status: 'blocked' }],
+        missions: [{ missionId: 'proof', title: 'Attach viewport proof', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Hermes' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [], proofPaths: [{ proofId: 'viewport', validates: 'Viewport capture', promotes: 'supervised branch' }],
+        promotion: { state: 'proof-only' }, gaps: [],
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  assert.match(rendered.elements.get('stem')!.innerHTML, /<button type="button"[^>]*data-mission-proof-row="1"/);
+});
+
+test('page · Inspect keeps summary visible while Proof and System switch in place', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=inspect',
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+  });
+  const map = rendered.elements.get('mapwrap')!;
+  const controls = map.querySelectorAll('[data-inspect-pane-select]');
+
+  assert.match(map.innerHTML, /data-component="InspectProofSummaryAction"/);
+  assert.match(map.innerHTML, /data-component="InspectPaneSwitcher"/);
+  assert.equal(controls.length, 2);
+  assert.equal(controls[0].dataset.inspectPaneSelect, 'proof');
+  assert.equal(controls[0].getAttribute('aria-selected'), 'true');
+  assert.equal(controls[0].getAttribute('aria-controls'), 'inspect-proof-panel');
+  assert.equal(controls[0].getAttribute('tabindex'), '0');
+  assert.match(map.innerHTML, /data-inspect-pane="proof"[^>]*class="inspect-pane is-active"/);
+  assert.match(map.innerHTML, /id="inspect-proof-panel"[^>]*aria-labelledby="inspect-proof-tab"/);
+  assert.doesNotMatch(map.innerHTML, /data-inspect-pane="system"/);
+
+  controls[1].click();
+
+  assert.equal(vm.runInContext('INSPECT_PANE', rendered.context as vm.Context), 'system');
+  assert.equal(map.querySelectorAll('[data-inspect-pane-select]')[1].getAttribute('aria-selected'), 'true');
+  assert.equal(map.querySelectorAll('[data-inspect-pane-select]')[1].getAttribute('aria-controls'), 'inspect-system-panel');
+  assert.match(map.innerHTML, /data-inspect-pane="system"[^>]*class="inspect-pane is-active"/);
+  assert.match(map.innerHTML, /id="inspect-system-panel"[^>]*aria-labelledby="inspect-system-tab"/);
+  assert.doesNotMatch(map.innerHTML, /data-inspect-pane="proof"/);
+  assert.equal(rendered.elements.get('sheet')!.classList.has('on'), false);
+
+  const systemTab = map.querySelectorAll('[data-inspect-pane-select]')[1];
+  assert.equal(systemTab.dispatchEvent({ type:'keydown', key:'ArrowLeft', bubbles:true }), false);
+  assert.equal(vm.runInContext('INSPECT_PANE', rendered.context as vm.Context), 'proof');
+  assert.equal(map.querySelector('[data-inspect-pane-select="proof"]').focusCalls.length, 1);
+  assert.match(map.innerHTML, /data-inspect-pane="proof"[^>]*class="inspect-pane is-active"/);
+  assert.doesNotMatch(map.innerHTML, /data-inspect-pane="system"/);
 });
 
 test('page · primary copy Mission Gate Tools and Story denylist keeps meta language in Inspect', async () => {
@@ -4299,6 +4483,7 @@ test('page · inspect header opens shared visual contract sheet', async () => {
 
 test('page · rail rows carry data-rail and open rail sheets', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
 
   for (const rail of CAMBIUM_VISUAL_RAILS) {
@@ -4420,6 +4605,7 @@ test('page · pull-to-refresh provenance is read-only fetch', () => {
 test('page · reduced motion keeps scene state and interactions visible', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   (rendered.context.go as (index: number) => void)(4);
+  selectInspectPane(rendered, 'system');
   (rendered.context.go as (index: number) => void)(3);
   assert.equal(rendered.elements.get('tb3')!.classList.has('on'), true);
   assert.equal(rendered.elements.get('sceneBadge')!.textContent, 'Story');
@@ -4534,7 +4720,9 @@ test('visual fixtures · offline ecosystem fixture keeps gaps explicit', () => {
 
 test('visual fixtures · offline ecosystem fixture renders offline gaps', async () => {
   const rendered = await renderPageFixtureContext(OFFLINE_ECOSYSTEM_VISUAL_FIXTURE);
-  const map = rendered.elements.get('mapwrap')!.innerHTML;
+  const inspectProofHtml = rendered.elements.get('mapwrap')!.innerHTML;
+  selectInspectPane(rendered, 'system');
+  const map = [inspectProofHtml, rendered.elements.get('mapwrap')!.innerHTML].join('\n');
   assert.match(map, /PAPERCLIP OFFLINE/);
   assert.match(map, /offline gap: missing source/);
   assert.match(map, /live proof source offline/);
@@ -4561,6 +4749,7 @@ test('page · tapestry audit sheet maps completion requirements to source-backed
 
 test('page · tapestry audit renders every row as a target-backed sheet', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  selectInspectPane(rendered, 'system');
   const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   const targets = [
@@ -4589,6 +4778,7 @@ test('page · tapestry audit renders every row as a target-backed sheet', async 
 
 test('page · source-backed tapestry rows stay wait-state when proof is blocked', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
+  selectInspectPane(rendered, 'system');
   const rows = (rendered.context.tapestryRows as (env: unknown) => Array<{ id: string; state: string; detail: string }>)(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   const blockedRows = [
@@ -4685,7 +4875,7 @@ test('page · live proof capture plan renders as guidance, not evidence', async 
 });
 
 test('page · wake cards prefer served visual-envelope proof over local inference', async () => {
-  const elements = await renderPageFixture({
+  const rendered = await renderPageFixtureContext({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     source: 'local-source-would-win-if-derived',
     wake: {
@@ -4703,6 +4893,8 @@ test('page · wake cards prefer served visual-envelope proof over local inferenc
       ],
     },
   });
+  selectInspectPane(rendered, 'system');
+  const elements = rendered.elements;
   const map = elements.get('mapwrap')!.innerHTML;
   assert.match(map, /served ingest gap from fixture/);
   assert.doesNotMatch(map, /local-source-would-win-if-derived/);
@@ -4765,6 +4957,7 @@ test('page · wake sheet renders operator wake history without changing latest s
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /latest viability proof still missing/);
   const viabilityIndex = CAMBIUM_WAKE_STEPS.findIndex((step) => step.id === 'viability');
@@ -4920,7 +5113,7 @@ test('page · insight sheet exposes durable source, proof, origin, and evidence 
 });
 
 test('page · sense cards prefer served visual-envelope signals over local inference', async () => {
-  const elements = await renderPageFixture({
+  const rendered = await renderPageFixtureContext({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     senses: {
       source: 'quest-ledger-envelope@v1',
@@ -4948,6 +5141,8 @@ test('page · sense cards prefer served visual-envelope signals over local infer
       ],
     },
   });
+  selectInspectPane(rendered, 'system');
+  const elements = rendered.elements;
   const map = elements.get('mapwrap')!.innerHTML;
   assert.match(map, /served signal gap from fixture/);
   assert.match(map, /served cortex proof from fixture/);
@@ -5069,7 +5264,7 @@ test('page · sense sheets map ecosystem targets and clarify memory empty state'
 });
 
 test('page · side quest cards render only served pure-trigger predicates', async () => {
-  const elements = await renderPageFixture({
+  const rendered = await renderPageFixtureContext({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     sideQuests: {
       source: 'pure-trigger-predicates',
@@ -5091,6 +5286,8 @@ test('page · side quest cards render only served pure-trigger predicates', asyn
       ],
     },
   });
+  selectInspectPane(rendered, 'system');
+  const elements = rendered.elements;
   const map = elements.get('mapwrap')!.innerHTML;
   assert.match(map, /side quests/);
   assert.match(map, /GATE REVIEW/);
@@ -5139,6 +5336,7 @@ test('page · served side quest rows strip overclaim terms from row and sheet', 
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /SERVED TRIGGER/);
   assert.match(map, /side quest trigger active/);
@@ -5200,6 +5398,7 @@ test('page · side quest sheet renders operator ledger history without browser w
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /WAKE PROOF/);
   assert.match(map, /QUEUED · operator queued wake evidence refresh/);
@@ -5236,6 +5435,7 @@ test('page · social cards render only served tenant coordination evidence', asy
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /coordination/);
   assert.match(map, /HANDOFF QUEUE/);
@@ -5271,6 +5471,7 @@ test('page · social cards reject leaderboard and generic social-proof copy', as
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /SOCIAL GAP/);
   assert.match(map, /coordination rows rejected because they were not tenant handoff evidence/);
@@ -5338,6 +5539,7 @@ test('page · decision context renders served and gap rows without changing poli
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /decision context/);
   assert.match(map, /OWNER LOAD/);
@@ -5486,7 +5688,7 @@ test('page · branch stories render branches, arcs, missions, KPIs, gates, and p
 });
 
 test('page · gate priority renders as review-only next action', async () => {
-  const elements = await renderPageFixture({
+  const rendered = await renderPageFixtureContext({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     policy: {
       source: 'operator-policy',
@@ -5500,6 +5702,8 @@ test('page · gate priority renders as review-only next action', async () => {
       rulesVersion: 'operator-policy@v1.4',
     },
   });
+  selectInspectPane(rendered, 'system');
+  const elements = rendered.elements;
   const map = elements.get('mapwrap')!.innerHTML;
   assert.match(map, /NEXT ACTION/);
   assert.match(map, /Review gate item THO-9: Review launch copy/);
@@ -5509,7 +5713,7 @@ test('page · gate priority renders as review-only next action', async () => {
 });
 
 test('page · skill labor cards render conservative tiers and sample gaps', async () => {
-  const elements = await renderPageFixture({
+  const rendered = await renderPageFixtureContext({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     skills: {
       source: 'skill-registry',
@@ -5564,6 +5768,8 @@ test('page · skill labor cards render conservative tiers and sample gaps', asyn
       ],
     },
   });
+  selectInspectPane(rendered, 'system');
+  const elements = rendered.elements;
   const map = elements.get('mapwrap')!.innerHTML;
   assert.match(map, /UNPROVEN · need 3 uses for tier; found 1/);
   assert.match(map, /DECLINING · recent success 33% below 50% over 3 uses/);
@@ -5572,7 +5778,7 @@ test('page · skill labor cards render conservative tiers and sample gaps', asyn
 });
 
 test('page · skill promotion cards require founder approval before production', async () => {
-  const elements = await renderPageFixture({
+  const rendered = await renderPageFixtureContext({
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     skills: {
       source: 'skill-registry',
@@ -5625,6 +5831,8 @@ test('page · skill promotion cards require founder approval before production',
       ],
     },
   });
+  selectInspectPane(rendered, 'system');
+  const elements = rendered.elements;
   const map = elements.get('mapwrap')!.innerHTML;
   assert.match(map, /cambium-founder-review/);
   assert.match(map, /promotion: FOUNDER REVIEW/);
@@ -6088,6 +6296,7 @@ test('page · Mira companion card renders only served relationship evidence', as
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   const map = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(map, /MIRA/);
   assert.match(map, /SIGHTED/);
@@ -6197,6 +6406,7 @@ test('page · NPC history smoke flows from quine write to companion sheet', asyn
     },
   };
   const rendered = await renderPageFixtureContext(envelope);
+  selectInspectPane(rendered, 'system');
   assert.match(rendered.elements.get('mapwrap')!.innerHTML, /SIGHTED/);
   (rendered.context.openNpcBox as (env: unknown, index: number) => void)(envelope, 0);
   const adviceSheet = rendered.elements.get('sheetBody')!.innerHTML;
@@ -6229,6 +6439,7 @@ test('page · NPC history smoke flows from quine write to companion sheet', asyn
   const contradictionVisual = buildVisualEnvelope(ctx, 'acme', {}, ledger, { source: 'npc-history-smoke', derivedAt: '2026-06-22T00:00:00.000Z' });
   const contradictionEnvelope = { ...envelope, ...contradictionVisual };
   const contradictionRendered = await renderPageFixtureContext(contradictionEnvelope);
+  selectInspectPane(contradictionRendered, 'system');
   assert.match(contradictionRendered.elements.get('mapwrap')!.innerHTML, /NEEDS REVIEW/);
   (contradictionRendered.context.openNpcBox as (env: unknown, index: number) => void)(contradictionEnvelope, 0);
   const blockedSheet = contradictionRendered.elements.get('sheetBody')!.innerHTML;
