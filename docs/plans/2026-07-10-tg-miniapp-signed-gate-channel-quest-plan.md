@@ -23,6 +23,7 @@ Completed in worktree `codex/tg-signed-gate-channel-quest`:
 - Task 10 GitHub tracking: created `https://github.com/Sheshiyer/cambium/issues/226` for signed Gate UX on channel-origin ActionRequests.
 - Task 11 full verification: focused Gate tests, live-proof readiness tests, product-branch validation, repo validation, viewport proof, non-strict live-readiness, full `npm test`, and `git diff --check` passed.
 - Task 12 PR handoff: opened `https://github.com/Sheshiyer/cambium/pull/227` from `codex/tg-signed-gate-channel-quest`.
+- Follow-up confirm UX: the preflight `Confirm signed` tap now keeps the sheet open, shows `Queueing...`, disables the tapped button, posts to `/api/gate/cambium`, and falls through to queued/refused sheets instead of looking inert while the Worker responds.
 
 Still not completed in this pass:
 

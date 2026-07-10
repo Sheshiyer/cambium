@@ -2941,6 +2941,20 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(preflight, /source route<\/b><span>\/api\/gate\/cambium/);
   assert.match(preflight, /idempotency<\/b><span>confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up/);
   assert.match(preflight, /data-gate-confirm="confirm-action-request"/);
+  assert.match(preflight, /data-gate-submit-status="idle"/);
+
+  const confirmButton = rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]');
+  const submitStatus = rendered.elements.get('sheetBody')!.querySelector('[data-gate-submit-status]');
+  const beforeConfirmFetches = rendered.fetchCalls.length;
+  assert.equal(typeof confirmButton.onclick, 'function');
+  (confirmButton.onclick as () => void)();
+  assert.equal(confirmButton.textContent, 'Queueing...');
+  assert.equal((confirmButton as unknown as { disabled: boolean }).disabled, true);
+  assert.equal(confirmButton.dataset.gateSubmitState, 'pending');
+  assert.equal(submitStatus.dataset.gateSubmitStatus, 'pending');
+  assert.match(submitStatus.textContent, /Queueing signed action with Worker verification/);
+  assert.equal(rendered.fetchCalls.length, beforeConfirmFetches + 1);
+  assert.equal(rendered.fetchCalls.at(-1), '/api/gate/cambium');
 
   (rendered.context.openGateResultSheet as (kind: string, subject: string, res: unknown, fallback: unknown, item: unknown) => void)('confirm-action-request', 'ar_iverif_autogtm_followup_signed', {
     queued: 'ar_iverif_autogtm_followup_signed',

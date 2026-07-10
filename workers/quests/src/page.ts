@@ -520,9 +520,13 @@ export const PAGE = `<!doctype html>
   .gbtns .approve{background:var(--ink);color:var(--bg)}
   .gbtns .reroll{background:none;border:1px solid rgba(214,255,246,.4);color:var(--soft)}
   .gbtns .detail{background:rgba(1,47,52,.5);border:1px solid var(--line2);color:var(--ink)}
+  .gbtns button:disabled{cursor:wait;opacity:.72;transform:none}
   .gbtns.command-copy{grid-template-columns:1fr;margin:12px 0}
   .gbtns.command-copy button{background:var(--ink);color:var(--bg)}
   .gnote{font:11px var(--mono);opacity:.6;margin-top:12px;line-height:1.5}
+  .gate-submit-status{margin:10px 0 12px;padding:9px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.24);
+    color:var(--ink);font:11px/1.45 var(--mono);overflow-wrap:anywhere}
+  .gate-submit-status[data-gate-submit-status="pending"]{border-style:dashed;background:rgba(224,255,79,.07)}
 
   /* ── sheet ──────────────────────────────────── */
   .veil{position:fixed;inset:0;background:rgba(0,20,23,.55);opacity:0;pointer-events:none;
@@ -1879,12 +1883,26 @@ function openGatePreflight(kind, subject, node){
       ? 'Review this signed ActionRequest confirmation before queueing it. Confirmation changes only the canonical ActionRequest state; execution still waits for operator consumption.'
       : 'Review this signed action before queueing it. Confirmation queues a founder decision only; it does not mutate Paperclip or org state.') + '</div>' +
     gateRows(rows) +
+    '<div class="gate-submit-status" data-gate-submit-status="idle">Waiting for explicit signed confirmation. No queue write has been attempted.</div>' +
     '<div class="gbtns"><button type="button" class="approve" data-gate-confirm="' + esc(kind) + '">' + esc(confirmText) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
   const confirm = $('sheetBody').querySelector('[data-gate-confirm]');
-  if (confirm) confirm.onclick = () => { closeSheet(); gateAct(kind, subject, node); };
+  if (confirm) confirm.onclick = () => { gateAct(kind, subject, node, confirm); };
   const cancel = $('sheetBody').querySelector('[data-gate-cancel]');
   if (cancel) cancel.onclick = closeSheet;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
+function setGateSubmitState(button, state, text){
+  const status = $('sheetBody').querySelector('[data-gate-submit-status]');
+  if (status) {
+    status.textContent = text;
+    if (status.dataset) status.dataset.gateSubmitStatus = state;
+  }
+  if (button) {
+    button.textContent = state === 'pending' ? 'Queueing...' : text;
+    button.disabled = state === 'pending';
+    if (button.dataset) button.dataset.gateSubmitState = state;
+    if (button.setAttribute) button.setAttribute('aria-busy', state === 'pending' ? 'true' : 'false');
+  }
 }
 function loadGate(){
   const el = $('gate');
@@ -1920,7 +1938,7 @@ function loadGateWire(el, source){
       if (proof) proof.onclick = () => openGateDetailSheet(node);
     });
 }
-function gateAct(kind, subject, node){
+function gateAct(kind, subject, node, submitButton){
   const item = GATE_ITEMS[Number(node.dataset.i)] || {};
   const evidence = gateEvidence(item);
   const consequence = gateConsequence(kind, item);
@@ -1933,22 +1951,33 @@ function gateAct(kind, subject, node){
     payload.optionId = (option && option.id) || item.selectedOptionId || (item.actionRequest && item.actionRequest.selectedOptionId) || '';
   }
   buzz('medium'); node.style.opacity = '.5';
+  setGateSubmitState(submitButton, 'pending', 'Queueing signed action with Worker verification...');
   fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
     body: JSON.stringify(payload) })
-    .then(r => r.json()).then(res => {
+    .then(r => Promise.resolve().then(() => r.json()).catch(() => ({ error: (r && r.ok === false) ? 'Worker returned a non-JSON refusal' : 'Worker returned an unreadable response' })).then(res => {
+      if (r && r.ok === false && res && !res.error) res.error = 'Worker refused with HTTP ' + (r.status || 'error');
+      return res || {};
+    })).then(res => {
       node.style.opacity='1';
       if (res.queued) {
         node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind === 'confirm-action-request' ? 'signed ActionRequest confirmation' : kind + ' founder decision')+' queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
         if (kind === 'confirm-action-request') setTimeout(loadGate, 350);
       } else {
+        setGateSubmitState(submitButton, 'refused', 'Worker refused this signed action.');
         const error = res.error || 'unknown';
         node.innerHTML = '<div class="gnote">refused: '+esc(error)+' · no local queue write.</div>';
         if (isGateAuthFailure(error)) openGateTelegramAuthFailure(error);
         else openGateFailureSheet(kind, subject, error, { idempotencyKey, consequence, reversibility }, item);
       }
       notify(res.queued ? 'success' : 'error');
-    }).catch(() => { node.style.opacity='1'; node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>'; openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey, consequence, reversibility }, item); });
+    }).catch(() => {
+      node.style.opacity='1';
+      setGateSubmitState(submitButton, 'error', 'Network failure before the Worker could queue this action.');
+      node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>';
+      openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey, consequence, reversibility }, item);
+      notify('error');
+    });
 }
 function skillPromotionEvidence(skill){
   return skill.title + ' · ' + skill.detail;
