@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
-import { handle } from './handler.ts';
+import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
 import { d1BridgeStore, d1FabricLedgerStore } from './index.ts';
 import type {
   FabricEvidenceCandidateRecord,
@@ -842,6 +842,34 @@ test('healthz · ok', async () => {
   const r = await handle(req('GET', '/healthz'), { kv: fakeKv() });
   assert.equal(r.status, 200);
   assert.match(r.body, /cambium-quests/);
+});
+
+test('healthz gate · fails closed until Telegram gate bindings are configured', async () => {
+  const missing = await handle(req('GET', '/healthz/gate'), { kv: fakeKv() });
+  assert.equal(missing.status, 503);
+  assert.deepEqual(JSON.parse(missing.body), {
+    ok: false,
+    worker: 'cambium-quests',
+    capability: 'telegram-signed-gate',
+    gateConfigured: false,
+    error: 'gate not configured',
+  });
+
+  const ready = await handle(req('GET', '/healthz/gate'), {
+    kv: fakeKv(),
+    gate: {
+      botId: '123456',
+      founderIds: ['42'],
+      pubKeyHex: TELEGRAM_PROD_PUBKEY,
+    },
+  });
+  assert.equal(ready.status, 200);
+  assert.deepEqual(JSON.parse(ready.body), {
+    ok: true,
+    worker: 'cambium-quests',
+    capability: 'telegram-signed-gate',
+    gateConfigured: true,
+  });
 });
 
 test('context routes · handler delegates context health to bounded module', async () => {

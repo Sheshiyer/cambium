@@ -1283,6 +1283,20 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
 
+  if (method === 'GET' && routePath === '/healthz/gate') {
+    const gateConfigured = Boolean(
+      deps.gate?.botId.trim()
+      && deps.gate.founderIds.some((founderId) => founderId.trim()),
+    );
+    return json(gateConfigured ? 200 : 503, {
+      ok: gateConfigured,
+      worker: 'cambium-quests',
+      capability: 'telegram-signed-gate',
+      gateConfigured,
+      ...(gateConfigured ? {} : { error: 'gate not configured' }),
+    });
+  }
+
   if (method === 'GET' && routePath === '/healthz') {
     return json(200, { ok: true, worker: 'cambium-quests' });
   }
