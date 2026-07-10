@@ -588,22 +588,61 @@ function htmlAttributes(tag: string) {
   return attrs;
 }
 
-function htmlMatchesSelector(attrs: Map<string, string>, selector: string) {
+function htmlMatchesSingleSelector(attrs: Map<string, string>, tagName: string, selector: string) {
+  const normalized = selector.trim().toLowerCase();
+  if (!normalized) return false;
   const classMatch = selector.match(/^\.([a-zA-Z0-9_-]+)$/);
   if (classMatch) return (attrs.get('class') || '').split(/\s+/).includes(classMatch[1]);
   const attrMatch = selector.match(/^\[([a-zA-Z0-9_:-]+)(?:="([^"]*)")?\]$/);
-  if (!attrMatch) return false;
-  const [, name, value] = attrMatch;
-  if (!attrs.has(name)) return false;
-  return value === undefined || attrs.get(name) === value;
+  if (attrMatch) {
+    const [, name, value] = attrMatch;
+    if (!attrs.has(name)) return false;
+    return value === undefined || attrs.get(name) === value;
+  }
+  return /^[a-z][a-z0-9-]*$/i.test(selector) && tagName.toLowerCase() === normalized;
 }
 
-function makeElement(id: string) {
+function htmlMatchesSelector(attrs: Map<string, string>, tagName: string, selector: string) {
+  return selector.split(',').some((part) => htmlMatchesSingleSelector(attrs, tagName, part));
+}
+
+function prepareFakeEvent(rawEvent: Record<string, any>, fallbackType: string, target: ReturnType<typeof makeElement>) {
+  const event = rawEvent || {};
+  event.type ||= fallbackType;
+  event.target ||= target;
+  event.bubbles = event.bubbles !== false;
+  event.cancelBubble = false;
+  event.defaultPrevented = Boolean(event.defaultPrevented);
+  const originalPreventDefault = typeof event.preventDefault === 'function' ? event.preventDefault : null;
+  event.preventDefault = () => {
+    event.defaultPrevented = true;
+    if (originalPreventDefault && originalPreventDefault !== event.preventDefault) originalPreventDefault.call(event);
+  };
+  const originalStopPropagation = typeof event.stopPropagation === 'function' ? event.stopPropagation : null;
+  event.stopPropagation = () => {
+    event.cancelBubble = true;
+    if (originalStopPropagation && originalStopPropagation !== event.stopPropagation) originalStopPropagation.call(event);
+  };
+  return event;
+}
+
+function makeElement(id: string, tagName = 'div', initialAttrs: Map<string, string> = new Map()) {
   let html = '';
   let htmlVersion = 0;
+  let disabled = initialAttrs.has('disabled');
+  const attrs = new Map(initialAttrs);
+  const listeners = new Map<string, Set<(event: Record<string, any>) => void>>();
+  const pointerCaptureCalls: unknown[] = [];
   const queryCache = new Map<string, ReturnType<typeof makeElement>[]>();
+  const dataset = {} as Record<string, string>;
+  for (const [name, value] of attrs) {
+    if (name.startsWith('data-')) dataset[dataKey(name)] = value;
+  }
   const element = {
     id,
+    nodeType: 1,
+    tagName: tagName.toUpperCase(),
+    parentElement: null as ReturnType<typeof makeElement> | null,
     get innerHTML() { return html; },
     set innerHTML(value: string) {
       html = String(value);
@@ -613,40 +652,110 @@ function makeElement(id: string) {
     textContent: '',
     style: fakeStyle(),
     classList: new FakeClassList(),
-    dataset: {} as Record<string, string>,
+    dataset,
     children: [] as unknown[],
     clientWidth: 390,
     scrollTop: 0,
+    get disabled() { return disabled; },
+    set disabled(value: boolean) {
+      disabled = Boolean(value);
+      if (disabled) attrs.set('disabled', '');
+      else attrs.delete('disabled');
+    },
     onclick: null as unknown,
-    addEventListener() {},
-    setPointerCapture() {},
+    eventListeners: listeners,
+    setPointerCaptureCalls: pointerCaptureCalls,
+    addEventListener(type: string, listener: (event: Record<string, any>) => void) {
+      if (!listeners.has(type)) listeners.set(type, new Set());
+      listeners.get(type)!.add(listener);
+    },
+    removeEventListener(type: string, listener: (event: Record<string, any>) => void) {
+      listeners.get(type)?.delete(listener);
+    },
+    setAttribute(name: string, value: string) {
+      const normalizedValue = String(value);
+      attrs.set(name, normalizedValue);
+      if (name.startsWith('data-')) this.dataset[dataKey(name)] = normalizedValue;
+      if (name === 'disabled') disabled = true;
+    },
+    getAttribute(name: string) {
+      return attrs.get(name) ?? null;
+    },
+    hasAttribute(name: string) {
+      return attrs.has(name);
+    },
+    matches(selector: string) {
+      return htmlMatchesSelector(attrs, tagName, selector);
+    },
+    closest(selector: string) {
+      let node: ReturnType<typeof makeElement> | null = this;
+      while (node) {
+        if (node.matches(selector)) return node;
+        node = node.parentElement;
+      }
+      return null;
+    },
+    setPointerCapture(pointerId: unknown) {
+      pointerCaptureCalls.push(pointerId);
+    },
+    dispatchEvent(rawEvent: Record<string, any>) {
+      const event = prepareFakeEvent(rawEvent, rawEvent?.type || 'event', this);
+      let node: ReturnType<typeof makeElement> | null = this;
+      while (node) {
+        event.currentTarget = node;
+        for (const listener of node.eventListeners.get(event.type) ?? []) listener.call(node, event);
+        const propertyHandler = node[`on${event.type}` as keyof typeof node];
+        if (typeof propertyHandler === 'function') propertyHandler.call(node, event);
+        if (!event.bubbles || event.cancelBubble) break;
+        node = node.parentElement;
+      }
+      return !event.defaultPrevented;
+    },
+    click() {
+      if (disabled) return false;
+      return this.dispatchEvent({ type: 'click', bubbles: true, cancelable: true });
+    },
     querySelectorAll(selector: string) {
       const key = `${htmlVersion}\u0000${selector}`;
       if (!queryCache.has(key)) {
         const nodes: ReturnType<typeof makeElement>[] = [];
         for (const match of this.innerHTML.matchAll(/<([a-z0-9-]+)\b([^>]*)>/gi)) {
+          const matchedTagName = match[1].toLowerCase();
           const attrs = htmlAttributes(match[0]);
-          if (!htmlMatchesSelector(attrs, selector)) continue;
-          const node = makeElement(`${id}:query:${nodes.length}`);
+          if (!htmlMatchesSelector(attrs, matchedTagName, selector)) continue;
+          const node = makeElement(`${id}:query:${nodes.length}`, matchedTagName, attrs);
+          node.parentElement = this;
           node.innerHTML = match[0];
           node.textContent = match[0];
-          for (const [name, value] of attrs) {
-            if (name.startsWith('data-')) node.dataset[dataKey(name)] = value;
-          }
           nodes.push(node);
         }
         queryCache.set(key, nodes);
       }
       return queryCache.get(key)!;
     },
-    querySelector(selector: string) { return this.querySelectorAll(selector)[0] ?? makeElement(`${id}:query`); },
+    querySelector(selector: string) {
+      const found = this.querySelectorAll(selector)[0];
+      if (found) return found;
+      const empty = makeElement(`${id}:query`);
+      empty.parentElement = this;
+      return empty;
+    },
   };
   return element;
 }
 
 async function renderPageFixtureContext(
   envelope: unknown,
-  options: { search?: string; rejectFetch?: boolean; now?: string; fetchSequence?: unknown[]; clipboard?: boolean } = {},
+  options: {
+    search?: string;
+    rejectFetch?: boolean;
+    now?: string;
+    fetchSequence?: unknown[];
+    clipboard?: boolean;
+    telegramInitData?: string;
+    onFetch?: (request: { url: string; init: RequestInit; index: number }) => void;
+    fetchResponder?: (request: { url: string; init: RequestInit; index: number }) => unknown;
+  } = {},
 ) {
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
@@ -662,21 +771,39 @@ async function renderPageFixtureContext(
     'stem', 'fill', 'progress', 'here', 'mapwrap', 'beats', 'gauge', 'gate', 'cmds', 'veil', 'sheet', 'sheetBody']) {
     getElementById(id);
   }
+  getElementById('sheetBody').parentElement = getElementById('sheet');
 
   const fetchCalls: string[] = [];
+  const fetchRequests: Array<{ url: string; init: RequestInit; method: string; body?: BodyInit | null }> = [];
   const clipboardWrites: string[] = [];
   const fetchSequence = [...(options.fetchSequence ?? [])];
   const fixedNow = options.now ? Date.parse(options.now) : null;
+  const telegramWebApp = options.telegramInitData
+    ? {
+        initData: options.telegramInitData,
+        initDataUnsafe: {},
+        ready() {},
+        expand() {},
+        setHeaderColor() {},
+        setBackgroundColor() {},
+        HapticFeedback: { impactOccurred() {}, notificationOccurred() {} },
+      }
+    : undefined;
   const context: Record<string, unknown> = {
     document: { getElementById, querySelectorAll: () => [] },
-    window: { Telegram: undefined, addEventListener() {}, innerWidth: 390 },
+    window: { Telegram: telegramWebApp ? { WebApp: telegramWebApp } : undefined, addEventListener() {}, innerWidth: 390 },
     location: { search: options.search ?? '' },
     matchMedia: () => ({ matches: true }),
     navigator: options.clipboard ? { clipboard: { writeText: async (text: string) => { clipboardWrites.push(String(text)); } } } : {},
-    fetch: async (url: string) => {
+    fetch: async (url: string, init: RequestInit = {}) => {
       fetchCalls.push(String(url));
+      const record = { url: String(url), init, method: String(init.method ?? 'GET'), body: init.body };
+      fetchRequests.push(record);
+      options.onFetch?.({ url: record.url, init, index: fetchRequests.length - 1 });
       if (options.rejectFetch) throw new Error('fixture fetch failed');
-      const next = fetchSequence.length ? fetchSequence.shift() : envelope;
+      const request = { url: record.url, init, index: fetchRequests.length - 1 };
+      const supplied = options.fetchResponder?.(request);
+      const next = supplied !== undefined ? supplied : fetchSequence.length ? fetchSequence.shift() : envelope;
       if (next instanceof Error) throw next;
       return { ok: true, json: async () => next };
     },
@@ -688,16 +815,27 @@ async function renderPageFixtureContext(
     setTimeout,
     clearTimeout,
   };
+  context.Telegram = (context.window as { Telegram?: unknown }).Telegram;
   context.globalThis = context;
   vm.runInContext(scripts[0], vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
-  return { elements, context, fetchCalls, clipboardWrites };
+  return { elements, context, fetchCalls, fetchRequests, clipboardWrites };
 }
 
 async function renderPageFixture(envelope: unknown) {
   const { elements } = await renderPageFixtureContext(envelope);
   return elements;
+}
+
+const TEST_TELEGRAM_INIT_DATA = 'query_id=AAE-test&user=%7B%22id%22%3A424242%7D&auth_date=1783632000&hash=secret-signature';
+
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+async function flushPageAsync(rounds = 4) {
+  for (let i = 0; i < rounds; i += 1) await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 test('healthz · ok', async () => {
@@ -2899,7 +3037,29 @@ test('page · gate item cards show decision mission proof and queue-only fields'
 });
 
 test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect', async () => {
-  const rendered = await renderPageFixtureContext(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, { search: '?tenant=cambium&scene=gate' });
+  const initialEnvelope = cloneJson(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE);
+  const refreshedEnvelope = cloneJson(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE);
+  refreshedEnvelope.actionRequests.rows[0].selectedOptionId = 'make-branch-task';
+  let currentEnvelope: unknown = initialEnvelope;
+  const queuedResponse = {
+    queued: 'ar_iverif_autogtm_followup_signed',
+    duplicate: false,
+    idempotencyKey: 'confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up',
+    consequence: 'queue signed Mini App confirmation for Draft follow-up; no external mutation until operator consumes the queue',
+    reversibility: 'withheld until signed Mini App confirmation; reversible by choosing another option',
+  };
+  let rendered: Awaited<ReturnType<typeof renderPageFixtureContext>>;
+  const tapStatesAtFetch: Array<{ state: string; text: string }> = [];
+  rendered = await renderPageFixtureContext(initialEnvelope, {
+    search: '?tenant=cambium&scene=gate',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    onFetch: ({ url, init }) => {
+      if (url !== '/api/gate/cambium' || init.method !== 'POST') return;
+      const status = rendered.elements.get('sheetBody')!.querySelector('[data-gate-submit-status]');
+      tapStatesAtFetch.push({ state: status.dataset.gateSubmitStatus, text: status.textContent });
+    },
+    fetchResponder: ({ init }) => init.method === 'POST' ? queuedResponse : currentEnvelope,
+  });
   const gate = rendered.elements.get('gate')!.innerHTML;
   const story = rendered.elements.get('beats')!.innerHTML;
   const inspect = rendered.elements.get('mapwrap')!.innerHTML;
@@ -2925,7 +3085,7 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(inspect, /action requests/);
   assert.match(inspect, /ar_iverif_autogtm_make_task/);
 
-  (rendered.context.openActionRequestBox as (env: unknown, index: number) => void)(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, 0);
+  (rendered.context.openActionRequestBox as (env: unknown, index: number) => void)(initialEnvelope, 0);
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /action request · IVerif/);
   assert.match(sheet, /latest receipt<\/b><span>callback · Needs signed confirmation/);
@@ -2941,37 +3101,64 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(preflight, /source route<\/b><span>\/api\/gate\/cambium/);
   assert.match(preflight, /idempotency<\/b><span>confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up/);
   assert.match(preflight, /data-gate-confirm="confirm-action-request"/);
+  assert.match(preflight, /data-gate-subject="ar_iverif_autogtm_followup_signed"/);
+  assert.match(preflight, /data-gate-action-request-id="ar_iverif_autogtm_followup_signed"/);
+  assert.match(preflight, /data-gate-option-id="draft-follow-up"/);
+  assert.match(preflight, /data-gate-idempotency-key="confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up"/);
   assert.match(preflight, /data-gate-submit-status="idle"/);
+  assert.doesNotMatch(preflight, /query_id=|auth_date=|secret-signature|Bearer\s|callbackNonce|telegram chat id/i);
+  assert.match(PAGE, /sheetBody\.addEventListener\('click'/);
+  assert.doesNotMatch(PAGE, /confirm\.onclick/);
 
   const confirmButton = rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]');
   const submitStatus = rendered.elements.get('sheetBody')!.querySelector('[data-gate-submit-status]');
-  const beforeConfirmFetches = rendered.fetchCalls.length;
-  assert.equal(typeof confirmButton.onclick, 'function');
-  (confirmButton.onclick as () => void)();
+  const sheetElement = rendered.elements.get('sheet')!;
+  const sheetBody = rendered.elements.get('sheetBody')!;
+  sheetBody.dispatchEvent({ type: 'pointerdown', pointerId: 7, clientY: 120, timeStamp: 1 });
+  assert.equal(sheetElement.setPointerCaptureCalls.length, 1, 'non-interactive sheet background keeps drag capture');
+  sheetBody.dispatchEvent({ type: 'pointerup', pointerId: 7, clientY: 120, timeStamp: 2 });
+  const captureCount = sheetElement.setPointerCaptureCalls.length;
+  confirmButton.dispatchEvent({ type: 'pointerdown', pointerId: 8, clientY: 120, timeStamp: 3 });
+  assert.equal(sheetElement.setPointerCaptureCalls.length, captureCount, 'confirm pointerdown is never captured by sheet drag');
+
+  currentEnvelope = refreshedEnvelope;
+  (rendered.context.loadGate as () => void)();
+  await flushPageAsync();
+
+  const beforeConfirmPosts = rendered.fetchRequests.filter((request) => request.method === 'POST').length;
+  confirmButton.click();
+  confirmButton.dispatchEvent({ type: 'click', bubbles: true, cancelable: true });
   assert.equal(confirmButton.textContent, 'Queueing...');
   assert.equal((confirmButton as unknown as { disabled: boolean }).disabled, true);
-  assert.equal(confirmButton.dataset.gateSubmitState, 'pending');
-  assert.equal(submitStatus.dataset.gateSubmitStatus, 'pending');
-  assert.match(submitStatus.textContent, /Queueing signed action with Worker verification/);
-  assert.equal(rendered.fetchCalls.length, beforeConfirmFetches + 1);
-  assert.equal(rendered.fetchCalls.at(-1), '/api/gate/cambium');
+  assert.equal(confirmButton.getAttribute('aria-busy'), 'true');
+  assert.equal(confirmButton.dataset.gateSubmitState, 'request-sent');
+  assert.equal(submitStatus.dataset.gateSubmitStatus, 'request-sent');
+  assert.match(submitStatus.textContent, /Worker request sent; waiting for response/);
+  assert.deepEqual(tapStatesAtFetch, [{ state: 'tap-received', text: 'Tap received; sending Worker request...' }]);
 
-  (rendered.context.openGateResultSheet as (kind: string, subject: string, res: unknown, fallback: unknown, item: unknown) => void)('confirm-action-request', 'ar_iverif_autogtm_followup_signed', {
-    queued: 'ar_iverif_autogtm_followup_signed',
-    duplicate: false,
-    idempotencyKey: 'confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up',
-    consequence: 'queue signed Mini App confirmation for Draft follow-up; no external mutation until operator consumes the queue',
-    reversibility: 'withheld until signed Mini App confirmation; reversible by choosing another option',
-  }, {
-    idempotencyKey: 'confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up',
-    consequence: 'fallback',
-    reversibility: 'fallback',
-  }, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows[0]);
+  const posts = rendered.fetchRequests.filter((request) => request.method === 'POST');
+  assert.equal(posts.length, beforeConfirmPosts + 1);
+  assert.equal(posts[0].url, '/api/gate/cambium');
+  const payload = JSON.parse(String(posts[0].body));
+  assert.equal(payload.kind, 'confirm-action-request');
+  assert.equal(payload.subject, 'ar_iverif_autogtm_followup_signed');
+  assert.equal(payload.actionRequestId, 'ar_iverif_autogtm_followup_signed');
+  assert.equal(payload.optionId, 'draft-follow-up', 'preflight option stays frozen after Gate refresh');
+  assert.equal(payload.idempotencyKey, 'confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up');
+  assert.equal(payload.initData, TEST_TELEGRAM_INIT_DATA);
+
+  await flushPageAsync();
   const resultSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(resultSheet, /ActionRequest Signed Confirmation Queued/);
   assert.match(resultSheet, /channel route<\/b><span>Clients · topic 804 · message 1068/);
   assert.match(resultSheet, /receipt expectation<\/b><span>Telegram card Clients 804 message 1068 receives a queued receipt/);
   assert.match(resultSheet, /data-gate-result-refresh="1"/);
+
+  const refresh = rendered.elements.get('sheetBody')!.querySelector('[data-gate-result-refresh]');
+  const beforeRefreshFetches = rendered.fetchRequests.length;
+  refresh.click();
+  assert.equal(refresh.textContent, 'Refreshing...');
+  assert.equal(rendered.fetchRequests.length, beforeRefreshFetches + 1);
 });
 
 test('page · iVerif ActionRequest projection does not render raw Telegram secrets', async () => {
@@ -3062,6 +3249,8 @@ test('page · approve and reroll gate preflight sheets do not POST before confir
   assert.match(rerollSheet, /idempotency<\/b><span>reroll:cambium:THO-9:blocked/);
   assert.match(rerollSheet, /data-gate-confirm="reroll"/);
   assert.equal(rendered.fetchCalls.length, fetchCount);
+  rendered.elements.get('sheetBody')!.querySelector('[data-gate-cancel]').click();
+  assert.equal(rendered.elements.get('sheet')!.classList.has('on'), false);
 });
 
 test('page · Gate warning attention rests after one pass', () => {
@@ -3112,20 +3301,61 @@ test('page · signed gate auth failures from Worker open Telegram sheet', async 
   };
   const rendered = await renderPageFixtureContext(envelope, {
     search: '?tenant=cambium&scene=gate',
-    fetchSequence: [envelope, envelope, { error: 'stale auth_date' }],
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => init.method === 'POST' ? { error: 'stale auth_date' } : envelope,
   });
-  const node = { dataset: { i: '0', id: 'THO-9' }, style: {}, innerHTML: '' };
-
-  (rendered.context.gateAct as (kind: string, subject: string, node: unknown) => void)('approve', 'THO-9', node);
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  (rendered.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('approve', 'THO-9', { dataset: { i: '0', id: 'THO-9' }, style: {} });
+  rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]').click();
+  await flushPageAsync();
 
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /Telegram auth · blocked/);
   assert.match(sheet, /valid founder auth/);
   assert.match(sheet, /response<\/b><span>stale auth_date/);
   assert.match(sheet, /queue write<\/b><span>none/);
-  assert.match(String(node.innerHTML), /refused: stale auth_date · no local queue write/);
+  assert.equal(rendered.fetchRequests.filter((request) => request.method === 'POST').length, 1);
+});
+
+test('page · delegated signed gate renders refused and network error sheets', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [{
+      id: 'THO-9',
+      title: 'Review launch copy',
+      source: 'Paperclip · paperclip-open-items',
+      owner: 'Mathis',
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      evidence: 'THO-9 blocked by launch copy review',
+      consequence: 'queue founder decision for THO-9; no Paperclip mutation until consumed',
+      reversibility: 'queued action can be superseded until consumed',
+      idempotencyHint: 'THO-9:blocked',
+    }],
+  };
+  const refusal = await renderPageFixtureContext(envelope, {
+    search: '?tenant=cambium&scene=gate',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => init.method === 'POST' ? { error: 'ActionRequest status proposed cannot be signed-confirmed' } : envelope,
+  });
+  (refusal.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('approve', 'THO-9', { dataset: { i: '0', id: 'THO-9' }, style: {} });
+  refusal.elements.get('sheetBody')!.querySelector('[data-gate-confirm]').click();
+  await flushPageAsync();
+  const refusalSheet = refusal.elements.get('sheetBody')!.innerHTML;
+  assert.match(refusalSheet, /Decision Not Queued/);
+  assert.match(refusalSheet, /ActionRequest status proposed cannot be signed-confirmed/);
+  assert.match(refusalSheet, /No local queue write was created/);
+
+  const network = await renderPageFixtureContext(envelope, {
+    search: '?tenant=cambium&scene=gate',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => init.method === 'POST' ? new Error('fixture gate network failure') : envelope,
+  });
+  (network.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('approve', 'THO-9', { dataset: { i: '0', id: 'THO-9' }, style: {} });
+  network.elements.get('sheetBody')!.querySelector('[data-gate-confirm]').click();
+  await flushPageAsync();
+  const networkSheet = network.elements.get('sheetBody')!.innerHTML;
+  assert.match(networkSheet, /Decision Not Queued/);
+  assert.match(networkSheet, /network failure/);
+  assert.match(networkSheet, /No local queue write was created/);
 });
 
 test('page · no-fake-progress visual fixture renders explicit gaps', async () => {
