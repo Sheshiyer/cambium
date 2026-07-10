@@ -1390,7 +1390,7 @@ track.addEventListener('pointerup', endDrag);
 track.addEventListener('pointercancel', endDrag);
 
 /* ── bottom sheet (quest/ring detail) with drag-to-dismiss ── */
-const veil = $('veil'), sheet = $('sheet');
+const veil = $('veil'), sheet = $('sheet'), sheetBody = $('sheetBody');
 const sheetState = { open:false };
 function openSheet(row){
   const env = ECOSYSTEM_ENV || {};
@@ -1452,7 +1452,16 @@ function closeSheet(){ veil.classList.remove('on'); sheet.classList.remove('on')
   sheet.style.transition=''; sheet.style.transform=''; buzz('light'); }
 veil.onclick = closeSheet;
 let sdrag = null;
-sheet.addEventListener('pointerdown', e => { sdrag = { sy:e.clientY, ly:e.clientY, lt:e.timeStamp, v:0 };
+function closestSheetTarget(target, selector){
+  const node = target && target.nodeType === 3 ? target.parentElement : target;
+  return node && node.closest ? node.closest(selector) : null;
+}
+function isInteractiveSheetTarget(target){
+  return !!closestSheetTarget(target, 'button, a, input, select, textarea, label, [role="button"], [contenteditable="true"]');
+}
+sheet.addEventListener('pointerdown', e => {
+  if (isInteractiveSheetTarget(e.target) || (typeof e.button === 'number' && e.button !== 0)) { sdrag = null; return; }
+  sdrag = { sy:e.clientY, ly:e.clientY, lt:e.timeStamp, v:0 };
   try{ sheet.setPointerCapture(e.pointerId); }catch(_){} });
 sheet.addEventListener('pointermove', e => {
   if (!sdrag) return;
@@ -1471,6 +1480,26 @@ function endSheet(e){ if (!sdrag) return; const d = sdrag; sdrag = null;
 }
 sheet.addEventListener('pointerup', endSheet);
 sheet.addEventListener('pointercancel', endSheet);
+sheetBody.addEventListener('click', e => {
+  const confirm = closestSheetTarget(e.target, '[data-gate-confirm]');
+  if (confirm) {
+    if (e.preventDefault) e.preventDefault();
+    gateAct(confirm);
+    return;
+  }
+  const cancel = closestSheetTarget(e.target, '[data-gate-cancel]');
+  if (cancel) {
+    if (e.preventDefault) e.preventDefault();
+    closeSheet();
+    return;
+  }
+  const refresh = closestSheetTarget(e.target, '[data-gate-result-refresh]');
+  if (refresh) {
+    if (e.preventDefault) e.preventDefault();
+    refresh.textContent = 'Refreshing...';
+    loadGate();
+  }
+});
 
 /* ── gate — one queued founder decision. initData proves the founder; the Worker validates (Ed25519). ── */
 const initData = (TG && TG.initData) || '';
@@ -1813,8 +1842,6 @@ function openGateResultSheet(kind, subject, res, fallback, item){
         : 'Signed action queued a founder decision only. Paperclip and org state do not mutate until an operator consumes the queue.') + '</div>' +
     gateRows(rows) +
     '<div class="gbtns"><button type="button" class="approve" data-gate-result-refresh="1">Refresh receipt</button><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
-  const refresh = $('sheetBody').querySelector('[data-gate-result-refresh]');
-  if (refresh) refresh.onclick = () => { refresh.textContent = 'Refreshing...'; loadGate(); };
   $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
     returnFromGate(el.dataset.gateResultNav, item);
   });
@@ -1862,6 +1889,59 @@ function openGateDetailSheet(node){
   });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
+function gateSubmitAttr(name, value){ return ' data-gate-' + name + '="' + esc(value == null ? '' : value) + '"'; }
+function gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, reversibility, idempotencyKey, option){
+  const telegram = gateTelegramMeta(item);
+  return gateSubmitAttr('confirm', kind) +
+    gateSubmitAttr('subject', subject) +
+    gateSubmitAttr('item-id', (item && item.id) || subject) +
+    gateSubmitAttr('action-request-id', (item && (item.actionRequestId || (item.actionRequest && item.actionRequest.id))) || '') +
+    gateSubmitAttr('option-id', (option && option.id) || (item && item.selectedOptionId) || '') +
+    gateSubmitAttr('evidence', evidence) +
+    gateSubmitAttr('consequence', consequence) +
+    gateSubmitAttr('reversibility', reversibility) +
+    gateSubmitAttr('idempotency-key', idempotencyKey) +
+    gateSubmitAttr('branch-id', item && item.branchId) +
+    gateSubmitAttr('mission-id', item && (item.missionId || item.questId)) +
+    gateSubmitAttr('topic-label', telegram.topicLabel) +
+    gateSubmitAttr('thread-id', telegram.threadId) +
+    gateSubmitAttr('message-id', telegram.messageId) +
+    gateSubmitAttr('receipt-expectation', gateReceiptExpectation(item));
+}
+function gateSubmitContext(button){
+  const data = (button && button.dataset) || {};
+  return {
+    kind:data.gateConfirm || '', subject:data.gateSubject || '', itemId:data.gateItemId || '',
+    actionRequestId:data.gateActionRequestId || '', optionId:data.gateOptionId || '',
+    evidence:data.gateEvidence || '', consequence:data.gateConsequence || '',
+    reversibility:data.gateReversibility || '', idempotencyKey:data.gateIdempotencyKey || '',
+    branchId:data.gateBranchId || '', missionId:data.gateMissionId || '',
+    topicLabel:data.gateTopicLabel || '', threadId:data.gateThreadId || '', messageId:data.gateMessageId || '',
+    receiptExpectation:data.gateReceiptExpectation || '',
+  };
+}
+function gateItemForSubmit(context){
+  const current = GATE_ITEMS.find(item => String((item && item.id) || '') === context.itemId || String((item && item.actionRequestId) || '') === context.actionRequestId) || {};
+  return Object.assign({}, current, {
+    id:context.itemId || context.subject,
+    actionRequestId:context.actionRequestId,
+    selectedOptionId:context.optionId,
+    branchId:context.branchId,
+    missionId:context.missionId,
+    evidence:context.evidence,
+    confirmConsequence:context.consequence,
+    reversibility:context.reversibility,
+    telegram:{ topicLabel:context.topicLabel, threadId:context.threadId, messageId:context.messageId },
+    receiptExpectation:context.receiptExpectation,
+  });
+}
+function gateNodeForSubmit(context){
+  const nodes = $('gate').querySelectorAll('.gitem');
+  for (const node of nodes) {
+    if ((context.itemId && node.dataset.id === context.itemId) || (context.actionRequestId && node.dataset.actionRequestId === context.actionRequestId)) return node;
+  }
+  return null;
+}
 function openGatePreflight(kind, subject, node){
   const item = GATE_ITEMS[Number(node.dataset.i)] || {};
   const evidence = gateEvidence(item);
@@ -1871,6 +1951,7 @@ function openGatePreflight(kind, subject, node){
   const option = gateActionRequestOption(item);
   const channelRoute = gateTelegramRoute(item);
   const receiptExpectation = gateReceiptExpectation(item);
+  const submitAttrs = gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, reversibility, idempotencyKey, option);
   const title = kind === 'approve' ? 'Approve Gate Item' : kind === 'confirm-action-request' ? 'Confirm ActionRequest' : 'Reroll Gate Item';
   const confirmText = kind === 'confirm-action-request' ? 'Confirm signed' : 'Confirm ' + kind;
   const rows = [['action kind',kind], ['subject',subject]];
@@ -1884,11 +1965,7 @@ function openGatePreflight(kind, subject, node){
       : 'Review this signed action before queueing it. Confirmation queues a founder decision only; it does not mutate Paperclip or org state.') + '</div>' +
     gateRows(rows) +
     '<div class="gate-submit-status" data-gate-submit-status="idle">Waiting for explicit signed confirmation. No queue write has been attempted.</div>' +
-    '<div class="gbtns"><button type="button" class="approve" data-gate-confirm="' + esc(kind) + '">' + esc(confirmText) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
-  const confirm = $('sheetBody').querySelector('[data-gate-confirm]');
-  if (confirm) confirm.onclick = () => { gateAct(kind, subject, node, confirm); };
-  const cancel = $('sheetBody').querySelector('[data-gate-cancel]');
-  if (cancel) cancel.onclick = closeSheet;
+    '<div class="gbtns"><button type="button" class="approve"' + submitAttrs + '>' + esc(confirmText) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function setGateSubmitState(button, state, text){
@@ -1898,10 +1975,11 @@ function setGateSubmitState(button, state, text){
     if (status.dataset) status.dataset.gateSubmitStatus = state;
   }
   if (button) {
-    button.textContent = state === 'pending' ? 'Queueing...' : text;
-    button.disabled = state === 'pending';
+    const waiting = state === 'tap-received' || state === 'request-sent' || state === 'pending';
+    button.textContent = waiting ? 'Queueing...' : text;
+    button.disabled = waiting;
     if (button.dataset) button.dataset.gateSubmitState = state;
-    if (button.setAttribute) button.setAttribute('aria-busy', state === 'pending' ? 'true' : 'false');
+    if (button.setAttribute) button.setAttribute('aria-busy', waiting ? 'true' : 'false');
   }
 }
 function loadGate(){
@@ -1938,43 +2016,65 @@ function loadGateWire(el, source){
       if (proof) proof.onclick = () => openGateDetailSheet(node);
     });
 }
-function gateAct(kind, subject, node, submitButton){
-  const item = GATE_ITEMS[Number(node.dataset.i)] || {};
-  const evidence = gateEvidence(item);
-  const consequence = gateConsequence(kind, item);
-  const reversibility = gateReversibility(kind, item);
-  const idempotencyKey = gateIdempotency(kind, item.id ? item : subject);
-  const option = gateActionRequestOption(item);
+function gateAct(submitButton){
+  if (!submitButton || !submitButton.dataset) return;
+  const priorState = submitButton.dataset.gateSubmitState || '';
+  if (priorState === 'tap-received' || priorState === 'request-sent' || priorState === 'pending') return;
+  const context = gateSubmitContext(submitButton);
+  const kind = context.kind;
+  const subject = context.subject;
+  if (!kind || !subject) {
+    setGateSubmitState(submitButton, 'error', 'Signed action context is incomplete. Reopen Gate and try again.');
+    return;
+  }
+  const item = gateItemForSubmit(context);
+  const node = gateNodeForSubmit(context);
+  const evidence = context.evidence;
+  const consequence = context.consequence;
+  const reversibility = context.reversibility;
+  const idempotencyKey = context.idempotencyKey;
   const payload = { kind, subject, initData, evidence, consequence, reversibility, idempotencyKey };
   if (kind === 'confirm-action-request') {
-    payload.actionRequestId = item.actionRequestId || (item.actionRequest && item.actionRequest.id) || subject;
-    payload.optionId = (option && option.id) || item.selectedOptionId || (item.actionRequest && item.actionRequest.selectedOptionId) || '';
+    payload.actionRequestId = context.actionRequestId || subject;
+    payload.optionId = context.optionId;
   }
-  buzz('medium'); node.style.opacity = '.5';
-  setGateSubmitState(submitButton, 'pending', 'Queueing signed action with Worker verification...');
-  fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
-    body: JSON.stringify(payload) })
+  buzz('medium');
+  if (node && node.style) node.style.opacity = '.5';
+  setGateSubmitState(submitButton, 'tap-received', 'Tap received; sending Worker request...');
+  let request;
+  try {
+    request = fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify(payload) });
+    setGateSubmitState(submitButton, 'request-sent', 'Worker request sent; waiting for response...');
+  } catch (_) {
+    if (node && node.style) node.style.opacity='1';
+    setGateSubmitState(submitButton, 'error', 'Network failure before the Worker could queue this action.');
+    openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey, consequence, reversibility }, item);
+    notify('error');
+    return;
+  }
+  Promise.resolve(request)
     .then(r => Promise.resolve().then(() => r.json()).catch(() => ({ error: (r && r.ok === false) ? 'Worker returned a non-JSON refusal' : 'Worker returned an unreadable response' })).then(res => {
       if (r && r.ok === false && res && !res.error) res.error = 'Worker refused with HTTP ' + (r.status || 'error');
       return res || {};
     })).then(res => {
-      node.style.opacity='1';
+      if (node && node.style) node.style.opacity='1';
       if (res.queued) {
-        node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind === 'confirm-action-request' ? 'signed ActionRequest confirmation' : kind + ' founder decision')+' queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
+        if (node) node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind === 'confirm-action-request' ? 'signed ActionRequest confirmation' : kind + ' founder decision')+' queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
         if (kind === 'confirm-action-request') setTimeout(loadGate, 350);
       } else {
         setGateSubmitState(submitButton, 'refused', 'Worker refused this signed action.');
         const error = res.error || 'unknown';
-        node.innerHTML = '<div class="gnote">refused: '+esc(error)+' · no local queue write.</div>';
+        if (node) node.innerHTML = '<div class="gnote">refused: '+esc(error)+' · no local queue write.</div>';
         if (isGateAuthFailure(error)) openGateTelegramAuthFailure(error);
         else openGateFailureSheet(kind, subject, error, { idempotencyKey, consequence, reversibility }, item);
       }
       notify(res.queued ? 'success' : 'error');
     }).catch(() => {
-      node.style.opacity='1';
+      if (node && node.style) node.style.opacity='1';
       setGateSubmitState(submitButton, 'error', 'Network failure before the Worker could queue this action.');
-      node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>';
+      if (node) node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>';
       openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey, consequence, reversibility }, item);
       notify('error');
     });

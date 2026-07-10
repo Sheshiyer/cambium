@@ -1,6 +1,6 @@
 {
   "schema": "cambium.tg-viewport-proof-manifest.v1",
-  "generatedAt": "2026-07-10T07:09:17.443Z",
+  "generatedAt": "2026-07-10T10:44:56.342Z",
   "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   "browserMode": "headless-new",
   "browserCandidates": [
@@ -13,7 +13,7 @@
   },
   "proofIntentSummary": {
     "layout-proof": 21,
-    "clickability-proof": 8
+    "clickability-proof": 9
   },
   "proofs": [
     {
@@ -322,6 +322,24 @@
       "width": 3120,
       "height": 1128,
       "bytes": 239508
+    },
+    {
+      "scene": "gate",
+      "fixture": "action-requests",
+      "url": "http://127.0.0.1:61923/?tenant=cambium&scene=gate&fixture=action-requests",
+      "path": "sheet-gate-confirm-action-request-request-sent-mobile.png",
+      "intent": "clickability-proof",
+      "expectedWorkerPostCount": 1,
+      "workerPostCount": 1,
+      "clickTargetSelector": "[data-gate-confirm=\"confirm-action-request\"]",
+      "clickTargetCount": 1,
+      "clipSelector": "#sheet",
+      "sheet": {
+        "clipSelector": "#sheet"
+      },
+      "width": 3120,
+      "height": 1128,
+      "bytes": 234592
     },
     {
       "scene": "gate",

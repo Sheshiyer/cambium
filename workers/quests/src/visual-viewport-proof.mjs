@@ -302,6 +302,21 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   },
   {
     scene: 'gate',
+    fixture: 'action-requests',
+    path: 'sheet-gate-confirm-action-request-request-sent-mobile.png',
+    intent: 'clickability-proof',
+    waitFor: "document.querySelector('[data-signed-action-entrypoint=\"confirm-action-request\"]')",
+    scrollSelector: '[data-signed-action-entrypoint="confirm-action-request"]',
+    expression: "(() => { const entry = document.querySelector('[data-signed-action-entrypoint=\"confirm-action-request\"]'); if (!entry) throw new Error('missing confirm ActionRequest gate action'); entry.click(); })()",
+    tapTargetSelector: '[data-gate-confirm="confirm-action-request"]',
+    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"confirm-action-request\"][data-gate-submit-state=\"request-sent\"]') && document.querySelector('[data-gate-submit-status=\"request-sent\"]') && document.querySelector('#sheet').textContent.includes('Worker request sent; waiting for response') && document.querySelector('[data-gate-confirm=\"confirm-action-request\"]').textContent.includes('Queueing...')",
+    expectedWorkerPostCount: 1,
+    clickTargetSelector: '[data-gate-confirm="confirm-action-request"]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'gate',
     fixture: 'gate',
     path: 'sheet-gate-approve-preflight-mobile.png',
     intent: 'clickability-proof',
@@ -563,6 +578,7 @@ function pngSize(path) {
 
 async function withServer(fn) {
   let activeFixture = NO_FAKE_PROGRESS_VISUAL_FIXTURE;
+  let gatePostCount = 0;
   const server = createServer((req, res) => {
     const url = new URL(req.url ?? '/', 'http://127.0.0.1');
     if (url.pathname === '/' || url.pathname === '/index.html') {
@@ -594,6 +610,21 @@ async function withServer(fn) {
       res.end(JSON.stringify(activeFixture));
       return;
     }
+    if (url.pathname === '/api/gate/cambium' && req.method === 'POST') {
+      gatePostCount += 1;
+      setTimeout(() => {
+        if (res.destroyed) return;
+        res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+        res.end(JSON.stringify({
+          queued: 'viewport-proof-action-request',
+          duplicate: false,
+          idempotencyKey: 'viewport-proof-redacted',
+          consequence: 'viewport proof only; no external mutation',
+          reversibility: 'viewport proof only; no external mutation',
+        }));
+      }, 2_000);
+      return;
+    }
     res.writeHead(204);
     res.end();
   });
@@ -608,7 +639,9 @@ async function withServer(fn) {
   try {
     const address = server.address();
     if (!address || typeof address === 'string') throw new Error('server did not bind to a TCP port');
-    await fn(`http://127.0.0.1:${address.port}`);
+    await fn(`http://127.0.0.1:${address.port}`, {
+      gatePostCount: () => gatePostCount,
+    });
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
@@ -1005,18 +1038,24 @@ writeFileSync(join(outDir, 'branch-stories-fixture.json'), JSON.stringify(branch
 writeFileSync(join(outDir, 'iverif-action-requests-fixture.json'), JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, null, 2) + '\n');
 
 const proofs = [];
-await withServer(async (base) => {
+await withServer(async (base, metrics) => {
   for (const proof of VIEWPORT_PROOF_CAPTURE_STEPS) {
     const file = join(outDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
     await capture(url, file, proof);
+    const expectedWorkerPostCount = Number(proof.expectedWorkerPostCount);
+    const workerPostCount = metrics.gatePostCount();
+    if (Number.isFinite(expectedWorkerPostCount) && workerPostCount !== expectedWorkerPostCount) {
+      throw new Error(`${proof.path} expected ${expectedWorkerPostCount} Worker POST request(s), received ${workerPostCount}`);
+    }
     proofs.push({
       scene: proof.scene,
       fixture: fixtureForCaptureStep(proof),
       url,
       path: proof.path,
       intent: proof.intent,
+      ...(Number.isFinite(expectedWorkerPostCount) ? { expectedWorkerPostCount, workerPostCount } : {}),
       ...(isNonEmptyString(proof.clickTargetSelector) ? { clickTargetSelector: proof.clickTargetSelector } : {}),
       ...(Number.isFinite(Number(normalizedClickTargetCount(proof))) ? { clickTargetCount: Number(normalizedClickTargetCount(proof)) } : {}),
       ...(isNonEmptyString(proof.clipSelector)
