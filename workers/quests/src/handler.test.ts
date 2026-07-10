@@ -3041,7 +3041,7 @@ test('page · gate item cards show decision mission proof and queue-only fields'
   assert.match(hero, /<b>THO-9<\/b><span>branch not served · Review launch copy/);
   assert.match(gate, /Decision waiting<\/b><span>THO-9/);
   assert.match(gate, /Branch \/ mission<\/b><span>branch not served · Review launch copy/);
-  assert.match(gate, /Proof attached<\/b><span>THO-9 blocked by launch copy review/);
+  assert.match(gate, /class="gate-proof-copy"><b>Proof attached<\/b><small>THO-9 blocked by launch copy review/);
   assert.match(gate, /Approve consequence<\/b><span>queue founder approval for THO-9/);
   assert.match(gate, /Reroll consequence<\/b><span>queue founder reroll request for THO-9/);
   assert.match(gate, /Reversibility<\/b><span>queued action can be superseded until consumed/);
@@ -3053,6 +3053,8 @@ test('page · gate item cards show decision mission proof and queue-only fields'
   assert.match(gate, /Reversibility state<\/b>active/);
   assert.match(gate, /data-gate-detail="1"/);
   assert.match(gate, /data-interaction-kind="signed-action"/);
+  assert.match(gate, /Approve safely/);
+  assert.match(gate, /Reroll safely/);
   assert.doesNotMatch(gate, /origin ·|Paperclip execution|before execution|executed by the org|source route|initData|\/api\/gate/);
 
   (rendered.context.openGateDetailSheet as (node: unknown) => void)({ dataset: { i: '0', id: 'THO-9' } });
@@ -3181,12 +3183,54 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(resultSheet, /channel route<\/b><span>Clients · topic 804 · message 1068/);
   assert.match(resultSheet, /receipt expectation<\/b><span>Telegram card Clients 804 message 1068 receives a queued receipt/);
   assert.match(resultSheet, /data-gate-result-refresh="1"/);
+  assert.match(resultSheet, /class="gbtns gate-result-actions"/);
+  assert.match(resultSheet, /data-gate-result-nav="mission"/);
+  assert.match(resultSheet, /data-gate-result-nav="inspect"/);
 
   const refresh = rendered.elements.get('sheetBody')!.querySelector('[data-gate-result-refresh]');
   const beforeRefreshFetches = rendered.fetchRequests.length;
   refresh.click();
   assert.equal(refresh.textContent, 'Refreshing...');
   assert.equal(rendered.fetchRequests.length, beforeRefreshFetches + 1);
+});
+
+test('page · queued ActionRequest renders proof and status without another mutation path', async () => {
+  const envelope = cloneJson(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE) as any;
+  const queued = envelope.actionRequests.rows.find((row: { status?: string }) => row.status === 'queued');
+  assert.ok(queued, 'visual fixture has a queued ActionRequest');
+  envelope.actionRequests.rows = [queued];
+  envelope.actionRequests.actionRequests = [queued];
+  envelope.actionRequests.count = 1;
+
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+
+  assert.match(gate, /data-action-request-status="queued"/);
+  assert.match(gate, /data-component="GateQueuedState" data-state="queued"/);
+  assert.match(gate, /<b>Queued<\/b><small>Awaiting operator consumption<\/small>/);
+  assert.match(gate, /<button type="button" class="gate-proof-row"[^>]*data-gate-proof="1"/);
+  assert.match(gate, /class="gate-proof-copy"><b>Proof attached<\/b><small>low-risk founder callback queued a branch task and produced a receipt<\/small>/);
+  assert.match(gate, /data-glyph-kind="proof"/);
+  assert.match(gate, /class="gate-proof-open"/);
+  assert.match(gate, /data-gate-detail="1"/);
+  assert.match(gate, /Queued consequence<\/b>/);
+  assert.match(gate, /Execution boundary<\/b><span>awaiting operator consumption; no external mutation has run/);
+  assert.match(gate, /<b>Sync<\/b>queued; awaiting operator consumption/);
+  assert.equal((gate.match(/low-risk founder callback queued a branch task and produced a receipt/g) ?? []).length, 1, 'compact card renders one clamped proof preview');
+  assert.doesNotMatch(gate, /Approve safely|Reroll safely|data-signed-action-entrypoint=|data-kind="/);
+  assert.doesNotMatch(gate, /data-component="OrbitProgress"[^>]*>[\s\S]*?Proof/);
+
+  (rendered.context.openGateDetailSheet as (node: unknown) => void)({ dataset: { i: '0', id: queued.id } });
+  const detail = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(detail, /gate detail · proof/);
+  assert.match(detail, /The signed confirmation is queued/);
+  assert.match(detail, /proof attached<\/b><span>low-risk founder callback queued a branch task and produced a receipt/);
+  assert.match(detail, /execution boundary<\/b><span>awaiting operator consumption; no external mutation has run/);
+  assert.match(detail, /sync state<\/b><span>queued; awaiting operator consumption/);
+  assert.doesNotMatch(detail, /approve consequence|reroll consequence/i);
+
+  const combined = gate + '\n' + detail;
+  assert.doesNotMatch(combined, /query_id=|auth_date=|tgWebAppData|callbackNonce|Bearer\s|secret-hash|secret-signature/i);
 });
 
 test('page · iVerif ActionRequest projection does not render raw Telegram secrets', async () => {

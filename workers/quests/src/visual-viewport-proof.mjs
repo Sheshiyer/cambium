@@ -44,6 +44,11 @@ const CDP_PROBE_TIMEOUT_MS = Number(process.env.CDP_PROBE_TIMEOUT_MS || 3_500);
 const argv = new Set(process.argv.slice(2));
 const DIAGNOSE_BROWSER = argv.has('--diagnose-browser');
 const INCLUDE_HEADED_BROWSER_PROBE = argv.has('--include-headed-browser-probe') || process.env.INCLUDE_HEADED_BROWSER_PROBE === '1';
+const PROOF_PATH_FILTER = String(process.env.TG_VIEWPORT_PROOF_FILTER || '').trim();
+export function shouldWriteCanonicalViewportArtifacts(proofPathFilter) {
+  return String(proofPathFilter || '').trim().length === 0;
+}
+const WRITE_CANONICAL_PROOF_ARTIFACTS = shouldWriteCanonicalViewportArtifacts(PROOF_PATH_FILTER);
 let activeBrowser = CHROME;
 let activeBrowserMode = 'headless-new';
 
@@ -52,6 +57,52 @@ const viewport = { width: 390, height: 844 };
 const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/telegram-web-app.js');
 const VIEWPORT_PROOF_MANIFEST_SCHEMA = 'cambium.tg-viewport-proof-manifest.v1';
 const REDACTED_PROOF_SECRET_PATTERN = /(query_id=|auth_date=|tgWebAppData|QUESTS_PUSH_TOKEN|Bearer\s+|secret-hash|secret-signature)/i;
+
+function redactProofFixtureValue(value) {
+  if (typeof value === 'string') return value.replaceAll('QUESTS_PUSH_TOKEN', '[redacted worker credential]');
+  if (Array.isArray(value)) return value.map(redactProofFixtureValue);
+  if (isPlainObject(value)) return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, redactProofFixtureValue(entry)]));
+  return value;
+}
+
+export function buildQueuedActionRequestFixture() {
+  const fixture = redactProofFixtureValue(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE);
+  const pending = fixture.actionRequests.rows.find((row) => row.status === 'needs_signed_confirmation');
+  if (!pending) throw new Error('IVerif visual fixture is missing its signed ActionRequest row');
+  const queued = {
+    ...pending,
+    id: 'ar_iverif_w6_live_mrcwmcs3',
+    status: 'queued',
+    title: 'IVerif: decision needed before action',
+    updatedAt: '2026-07-10T11:35:41.833Z',
+    next: 'Cambium can consume this queued branch task after operator review',
+    evidence: 'AutoGTM by Explee has triggered leads, but post-lead enrichment, outreach, and follow-up loop is not configured yet. Hermes is asking for founder direction before any client-facing send or automated outreach happens.',
+    receiptExpectation: 'Telegram card Clients 804 message 1068 holds the queued receipt while Cambium awaits operator consumption.',
+    reversibility: 'queued ActionRequest can be superseded until consumed by Cambium',
+    priority: {
+      ...pending.priority,
+      dependency: 'operator-consumption',
+      reasons: ['IVerif', 'the-handoff', 'queued'],
+    },
+    receipts: {
+      count: 3,
+      latest: {
+        at: '2026-07-10T11:35:41.833Z',
+        kind: 'gate',
+        text: 'Signed confirmation queued: Draft follow-up.',
+      },
+    },
+  };
+  fixture.derivedAt = '2026-07-10T11:54:55.071Z';
+  fixture.source = 'visual-fixture:iverif-queued-action-request';
+  fixture.openItems = [];
+  fixture.actionRequests.count = 1;
+  fixture.actionRequests.rows = [queued];
+  fixture.actionRequests.actionRequests = [queued];
+  return fixture;
+}
+
+const QUEUED_ACTION_REQUEST_VISUAL_FIXTURE = buildQueuedActionRequestFixture();
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -145,7 +196,7 @@ export function buildViewportProofManifest({
     viewport,
     proofIntentSummary,
     proofs,
-    invariant: 'Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions.',
+    invariant: 'Screenshots use the real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions; queued component proofs additionally use exact-width touch emulation.',
   };
   assertViewportProofManifestSchema(manifest);
   return manifest;
@@ -285,6 +336,145 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   { scene: 'gate', path: 'gate-empty-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-component=\"GateEmptyState\"]') && document.body.textContent.includes('no founder decisions waiting')" },
   { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-signed-action-entrypoint=\"approve\"]') && document.body.textContent.includes('Clients') && document.body.textContent.includes('message 1068')" },
   { scene: 'gate', fixture: 'action-requests', path: 'gate-iverif-action-request-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]') && document.body.textContent.includes('IVerif') && document.body.textContent.includes('needs_signed_confirmation')" },
+  {
+    scene: 'gate',
+    fixture: 'action-request-queued',
+    path: 'gate-iverif-queued-proof-mobile.png',
+    intent: 'layout-proof',
+    exactViewport: true,
+    sceneIndex: 1,
+    scrollSelector: '[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"]',
+    waitFor: `(() => {
+      const card = document.querySelector('[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"]');
+      const proof = card && card.querySelector('[data-gate-proof="1"]');
+      const preview = proof && proof.querySelector('.gate-proof-copy small');
+      const queued = card && card.querySelector('[data-component="GateQueuedState"][data-state="queued"]');
+      if (!card || !proof || !preview || !queued) return false;
+      const scene = card.closest('.scene');
+      const proofStyle = getComputedStyle(proof);
+      const previewStyle = getComputedStyle(preview);
+      const proofRect = proof.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const previewRect = preview.getBoundingClientRect();
+      const lineHeight = Number.parseFloat(previewStyle.lineHeight);
+      return proof.tagName === 'BUTTON'
+        && proofRect.height >= 44
+        && proofRect.width >= cardRect.width - 28
+        && proofStyle.textAlign === 'left'
+        && previewStyle.webkitLineClamp === '2'
+        && Number.isFinite(lineHeight)
+        && previewRect.height <= lineHeight * 2 + 1
+        && card.querySelector('[data-glyph-kind="proof"]')
+        && card.querySelector('.gate-proof-open')
+        && card.querySelector('[data-gate-detail="1"]')
+        && !card.querySelector('[data-signed-action-entrypoint], [data-kind]')
+        && card.scrollWidth <= card.clientWidth + 1
+        && scene && scene.scrollWidth <= scene.clientWidth + 1
+        && Math.abs(window.innerWidth - 390) <= 1
+        && Math.abs(window.innerHeight - 844) <= 1
+        && window.visualViewport
+        && Math.abs(window.visualViewport.width - 390) <= 1
+        && Math.abs(window.visualViewport.height - 844) <= 1;
+    })()`,
+  },
+  {
+    scene: 'gate',
+    fixture: 'action-request-queued',
+    path: 'sheet-gate-queued-result-mobile.png',
+    intent: 'layout-proof',
+    exactViewport: true,
+    waitFor: "document.querySelector('[data-action-request-id=\"ar_iverif_w6_live_mrcwmcs3\"]') && document.querySelector('[data-component=\"GateQueuedState\"]')",
+    expression: `(() => {
+      const item = GATE_ITEMS[0];
+      if (!item) throw new Error('missing queued ActionRequest for result sheet proof');
+      const result = {
+        queued: item.id,
+        duplicate: false,
+        idempotencyKey: 'confirm-action-request:cambium:ar_iverif_w6_live_mrcwmcs3:draft-follow-up',
+        consequence: 'prepare copy and next-step options for approval, with no automatic send',
+        reversibility: 'queued ActionRequest can be superseded until consumed by Cambium',
+      };
+      openGateResultSheet('confirm-action-request', item.id, result, result, item);
+    })()`,
+    waitAfterExpression: "document.querySelector('#sheet.on .gate-result-actions') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    assertExpression: `(() => {
+      const sheet = document.querySelector('#sheet.on');
+      const actions = sheet && sheet.querySelector('.gate-result-actions');
+      const refresh = actions && actions.querySelector('[data-gate-result-refresh="1"]');
+      const mission = actions && actions.querySelector('[data-gate-result-nav="mission"]');
+      const inspect = actions && actions.querySelector('[data-gate-result-nav="inspect"]');
+      const kv = sheet && sheet.querySelector('.gatekv');
+      if (!sheet || !actions || !refresh || !mission || !inspect || !kv) return { ok:false, missing:true };
+      const actionsRect = actions.getBoundingClientRect();
+      const refreshRect = refresh.getBoundingClientRect();
+      const missionRect = mission.getBoundingClientRect();
+      const inspectRect = inspect.getBoundingClientRect();
+      const idempotency = [...kv.querySelectorAll('span')].find((span) => span.textContent.includes('confirm-action-request'));
+      if (!idempotency) return { ok:false, missingIdempotency:true };
+      const idempotencyStyle = getComputedStyle(idempotency);
+      const checks = {
+        refreshStartsAtGrid: Math.abs(refreshRect.left - actionsRect.left) <= 1,
+        refreshEndsAtGrid: Math.abs(refreshRect.right - actionsRect.right) <= 1,
+        navigationBelowRefresh: missionRect.top > refreshRect.bottom,
+        navigationSharesRow: Math.abs(missionRect.top - inspectRect.top) <= 1,
+        navigationSharesHeight: Math.abs(missionRect.height - inspectRect.height) <= 1,
+        idempotencyWrapPolicy: idempotencyStyle.overflowWrap === 'anywhere' || idempotencyStyle.wordBreak === 'break-word',
+        valuesDoNotOverflow: [...kv.querySelectorAll('span')].every((span) => span.scrollWidth <= span.clientWidth + 1),
+        sheetDoesNotOverflow: sheet.scrollWidth <= sheet.clientWidth + 1,
+        viewportWidthIsMobile: Math.abs(window.innerWidth - 390) <= 1,
+        viewportHeightIsMobile: Math.abs(window.innerHeight - 844) <= 1,
+        visualViewportIsMobile: Boolean(window.visualViewport)
+          && Math.abs(window.visualViewport.width - 390) <= 1
+          && Math.abs(window.visualViewport.height - 844) <= 1,
+        bodyMatchesViewport: Math.abs(document.body.clientWidth - window.innerWidth) <= 1,
+      };
+      return {
+        ok: Object.values(checks).every(Boolean),
+        checks,
+        widths: {
+          sheetClient:sheet.clientWidth,
+          sheetScroll:sheet.scrollWidth,
+          viewport:window.innerWidth,
+          visualViewport:window.visualViewport && window.visualViewport.width,
+          visualScale:window.visualViewport && window.visualViewport.scale,
+          screen:window.screen.width,
+          outer:window.outerWidth,
+          dpr:window.devicePixelRatio,
+          document:document.documentElement.scrollWidth,
+        },
+      };
+    })()`,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'gate',
+    fixture: 'action-request-queued',
+    path: 'sheet-gate-queued-proof-detail-mobile.png',
+    intent: 'clickability-proof',
+    exactViewport: true,
+    sceneIndex: 1,
+    waitFor: "document.querySelector('[data-action-request-id=\"ar_iverif_w6_live_mrcwmcs3\"] [data-gate-proof=\"1\"]')",
+    scrollSelector: '[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"]',
+    tapTargetSelector: '[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"] [data-gate-proof="1"]',
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('gate detail · proof') && document.querySelector('#sheet').textContent.includes('The signed confirmation is queued') && document.querySelector('#sheet').textContent.includes('AutoGTM by Explee has triggered leads')",
+    assertExpression: `(() => {
+      const sheet = document.querySelector('#sheet.on');
+      const proofValue = sheet && [...sheet.querySelectorAll('.gatekv span')].find((span) => span.textContent.includes('AutoGTM by Explee has triggered leads'));
+      return {
+        ok: Boolean(sheet && proofValue)
+          && Math.abs(window.innerWidth - 390) <= 1
+          && Math.abs(window.innerHeight - 844) <= 1
+          && Boolean(window.visualViewport)
+          && Math.abs(window.visualViewport.width - 390) <= 1
+          && Math.abs(window.visualViewport.height - 844) <= 1
+          && sheet.scrollWidth <= sheet.clientWidth + 1
+          && proofValue.scrollWidth <= proofValue.clientWidth + 1,
+      };
+    })()`,
+    clickTargetSelector: '[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"] [data-gate-proof="1"]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
   { scene: 'story', fixture: 'action-requests', path: 'story-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 3, waitFor: "document.querySelector('[data-ecosystem-target=\"action-requests\"]') && document.body.textContent.includes('IVerif ActionRequest')" },
   { scene: 'inspect', fixture: 'action-requests', path: 'inspect-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 4, scrollSelector: '[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]', waitFor: "document.querySelector('[data-component=\"ActionRequestProjectionCard\"]') && document.body.textContent.includes('action requests')" },
   {
@@ -593,9 +783,11 @@ async function withServer(fn) {
               ? branchStoriesFixture
               : fixture === 'action-requests'
                 ? IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE
-              : fixture === 'fresh'
-                ? FRESH_ECOSYSTEM_VISUAL_FIXTURE
-                : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
+                : fixture === 'action-request-queued'
+                  ? QUEUED_ACTION_REQUEST_VISUAL_FIXTURE
+                  : fixture === 'fresh'
+                    ? FRESH_ECOSYSTEM_VISUAL_FIXTURE
+                    : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
       res.end(proofPage);
       return;
@@ -930,14 +1122,23 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
     const cdp = await cdpClient(pageTarget.webSocketDebuggerUrl);
     try {
       await cdp.send('Page.enable');
-      await cdp.send('Emulation.setDeviceMetricsOverride', {
+      const exactViewport = options.exactViewport === true;
+      const mobileMetrics = {
         width: viewport.width,
         height: viewport.height,
         deviceScaleFactor: 2,
-        mobile: true,
-      });
+        mobile: !exactViewport,
+        ...(exactViewport ? { screenWidth:viewport.width, screenHeight:viewport.height } : {}),
+      };
+      await cdp.send('Emulation.setDeviceMetricsOverride', mobileMetrics);
+      if (exactViewport) await cdp.send('Emulation.setTouchEmulationEnabled', { enabled:true, maxTouchPoints:5 });
       await cdp.send('Page.navigate', { url });
       await new Promise((resolve) => setTimeout(resolve, 2500));
+      if (exactViewport) {
+        await cdp.send('Emulation.setDeviceMetricsOverride', mobileMetrics);
+        await cdp.send('Emulation.setPageScaleFactor', { pageScaleFactor: 1 });
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
       if (options.waitFor) {
         await waitForExpression(cdp, options.waitFor);
       }
@@ -970,6 +1171,12 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       }
       if (options.waitAfterExpression) {
         await waitForExpression(cdp, options.waitAfterExpression);
+      }
+      if (options.assertExpression) {
+        const assertion = await evaluate(cdp, options.assertExpression);
+        if (assertion !== true && !(assertion && assertion.ok === true)) {
+          throw new Error(`Browser assertion failed: ${JSON.stringify(assertion)}`);
+        }
       }
       const shot = await cdp.send('Page.captureScreenshot', await screenshotParams(cdp, options));
       writeFileSync(file, Buffer.from(shot.data, 'base64'));
@@ -1029,17 +1236,24 @@ return;
 }
 assertBrowserAvailable();
 mkdirSync(outDir, { recursive: true });
-writeFileSync(join(outDir, 'no-fake-progress-fixture.json'), JSON.stringify(NO_FAKE_PROGRESS_VISUAL_FIXTURE, null, 2) + '\n');
-writeFileSync(join(outDir, 'gate-fixture.json'), JSON.stringify(gateFixture, null, 2) + '\n');
-writeFileSync(join(outDir, 'skill-promotion-fixture.json'), JSON.stringify(skillFixture, null, 2) + '\n');
-writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(miraFixture, null, 2) + '\n');
-writeFileSync(join(outDir, 'fresh-ecosystem-fixture.json'), JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE, null, 2) + '\n');
-writeFileSync(join(outDir, 'branch-stories-fixture.json'), JSON.stringify(branchStoriesFixture, null, 2) + '\n');
-writeFileSync(join(outDir, 'iverif-action-requests-fixture.json'), JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, null, 2) + '\n');
+if (WRITE_CANONICAL_PROOF_ARTIFACTS) {
+  writeFileSync(join(outDir, 'no-fake-progress-fixture.json'), JSON.stringify(NO_FAKE_PROGRESS_VISUAL_FIXTURE, null, 2) + '\n');
+  writeFileSync(join(outDir, 'gate-fixture.json'), JSON.stringify(gateFixture, null, 2) + '\n');
+  writeFileSync(join(outDir, 'skill-promotion-fixture.json'), JSON.stringify(skillFixture, null, 2) + '\n');
+  writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(miraFixture, null, 2) + '\n');
+  writeFileSync(join(outDir, 'fresh-ecosystem-fixture.json'), JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE, null, 2) + '\n');
+  writeFileSync(join(outDir, 'branch-stories-fixture.json'), JSON.stringify(branchStoriesFixture, null, 2) + '\n');
+  writeFileSync(join(outDir, 'iverif-action-requests-fixture.json'), JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, null, 2) + '\n');
+  writeFileSync(join(outDir, 'iverif-queued-action-request-fixture.json'), JSON.stringify(QUEUED_ACTION_REQUEST_VISUAL_FIXTURE, null, 2) + '\n');
+}
 
 const proofs = [];
+const captureSteps = PROOF_PATH_FILTER
+  ? VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => proof.path.includes(PROOF_PATH_FILTER))
+  : VIEWPORT_PROOF_CAPTURE_STEPS;
+if (captureSteps.length === 0) throw new Error(`No viewport proof path matched ${PROOF_PATH_FILTER}`);
 await withServer(async (base, metrics) => {
-  for (const proof of VIEWPORT_PROOF_CAPTURE_STEPS) {
+  for (const proof of captureSteps) {
     const file = join(outDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
@@ -1055,6 +1269,8 @@ await withServer(async (base, metrics) => {
       url,
       path: proof.path,
       intent: proof.intent,
+      viewportMode: proof.exactViewport ? 'exact-width-touch' : 'mobile-emulation',
+      ...(isNonEmptyString(proof.assertExpression) ? { browserAssertions: true } : {}),
       ...(Number.isFinite(expectedWorkerPostCount) ? { expectedWorkerPostCount, workerPostCount } : {}),
       ...(isNonEmptyString(proof.clickTargetSelector) ? { clickTargetSelector: proof.clickTargetSelector } : {}),
       ...(Number.isFinite(Number(normalizedClickTargetCount(proof))) ? { clickTargetCount: Number(normalizedClickTargetCount(proof)) } : {}),
@@ -1077,7 +1293,7 @@ const manifest = buildViewportProofManifest({
   proofs,
 });
 
-writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
+if (WRITE_CANONICAL_PROOF_ARTIFACTS) writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 console.log(JSON.stringify(manifest, null, 2));
 }
 

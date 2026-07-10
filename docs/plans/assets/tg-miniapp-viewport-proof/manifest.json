@@ -1,6 +1,6 @@
 {
   "schema": "cambium.tg-viewport-proof-manifest.v1",
-  "generatedAt": "2026-07-10T10:44:56.342Z",
+  "generatedAt": "2026-07-10T12:40:44.612Z",
   "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   "browserMode": "headless-new",
   "browserCandidates": [
@@ -12,8 +12,8 @@
     "height": 844
   },
   "proofIntentSummary": {
-    "layout-proof": 21,
-    "clickability-proof": 9
+    "layout-proof": 23,
+    "clickability-proof": 10
   },
   "proofs": [
     {
@@ -288,6 +288,51 @@
       "bytes": 1256193
     },
     {
+      "scene": "gate",
+      "fixture": "action-request-queued",
+      "url": "http://127.0.0.1:51104/?tenant=cambium&scene=gate&fixture=action-request-queued",
+      "path": "gate-iverif-queued-proof-mobile.png",
+      "intent": "layout-proof",
+      "viewportMode": "exact-width-touch",
+      "width": 780,
+      "height": 1688,
+      "bytes": 866851
+    },
+    {
+      "scene": "gate",
+      "fixture": "action-request-queued",
+      "url": "http://127.0.0.1:51104/?tenant=cambium&scene=gate&fixture=action-request-queued",
+      "path": "sheet-gate-queued-result-mobile.png",
+      "intent": "layout-proof",
+      "viewportMode": "exact-width-touch",
+      "browserAssertions": true,
+      "clipSelector": "#sheet",
+      "sheet": {
+        "clipSelector": "#sheet"
+      },
+      "width": 780,
+      "height": 1478,
+      "bytes": 265770
+    },
+    {
+      "scene": "gate",
+      "fixture": "action-request-queued",
+      "url": "http://127.0.0.1:51104/?tenant=cambium&scene=gate&fixture=action-request-queued",
+      "path": "sheet-gate-queued-proof-detail-mobile.png",
+      "intent": "clickability-proof",
+      "viewportMode": "exact-width-touch",
+      "browserAssertions": true,
+      "clickTargetSelector": "[data-action-request-id=\"ar_iverif_w6_live_mrcwmcs3\"] [data-gate-proof=\"1\"]",
+      "clickTargetCount": 1,
+      "clipSelector": "#sheet",
+      "sheet": {
+        "clipSelector": "#sheet"
+      },
+      "width": 780,
+      "height": 1668,
+      "bytes": 321810
+    },
+    {
       "scene": "story",
       "fixture": "action-requests",
       "url": "http://127.0.0.1:63563/?tenant=cambium&scene=story&fixture=action-requests",
@@ -374,5 +419,5 @@
       "bytes": 200198
     }
   ],
-  "invariant": "Screenshots use real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions."
+  "invariant": "Screenshots use the real PAGE export, local API fixtures, mobile emulation, and a clipped real sheet proof for bottom-sheet actions; queued component proofs additionally use exact-width touch emulation."
 }

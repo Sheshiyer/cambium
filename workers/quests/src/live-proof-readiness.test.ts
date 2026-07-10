@@ -23,7 +23,13 @@ import {
   writeWorkerProbeArtifact,
   writeWorkerProbeTemplate,
 } from './live-proof-readiness.mjs';
-import { assertViewportProofManifestSchema, buildViewportProofManifest, VIEWPORT_PROOF_CAPTURE_STEPS } from './visual-viewport-proof.mjs';
+import {
+  assertViewportProofManifestSchema,
+  buildQueuedActionRequestFixture,
+  buildViewportProofManifest,
+  shouldWriteCanonicalViewportArtifacts,
+  VIEWPORT_PROOF_CAPTURE_STEPS,
+} from './visual-viewport-proof.mjs';
 
 const TEST_TELEGRAM_USER_ID = '1000000001';
 
@@ -348,6 +354,13 @@ test('viewport proof manifest schema rejects missing clickability selectors or r
     }),
     /clickTargetSelector|clipSelector|raw Telegram initData/,
   );
+});
+
+test('queued viewport fixture is redacted and filtered proofs cannot replace canonical artifacts', () => {
+  const fixtureText = JSON.stringify(buildQueuedActionRequestFixture());
+  assert.doesNotMatch(fixtureText, /QUESTS_PUSH_TOKEN|query_id=|auth_date=|tgWebAppData|Bearer\s+|secret-hash|secret-signature/);
+  assert.equal(shouldWriteCanonicalViewportArtifacts(''), true);
+  assert.equal(shouldWriteCanonicalViewportArtifacts('sheet-gate-queued-proof-detail-mobile.png'), false);
 });
 
 test('live proof readiness marks capture steps ready-to-capture when prerequisites are supplied', () => {
