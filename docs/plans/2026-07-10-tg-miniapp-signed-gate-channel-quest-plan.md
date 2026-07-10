@@ -22,10 +22,11 @@ Completed in worktree `codex/tg-signed-gate-channel-quest`:
 - Task 9 IVerif boundary: added a regression that keeps the Gate copy proof-only and prevents the Mini App from implying outreach/client-facing send completion before signed confirmation and operator consume.
 - Task 10 GitHub tracking: created `https://github.com/Sheshiyer/cambium/issues/226` for signed Gate UX on channel-origin ActionRequests.
 - Task 11 full verification: focused Gate tests, live-proof readiness tests, product-branch validation, repo validation, viewport proof, non-strict live-readiness, full `npm test`, and `git diff --check` passed.
+- Task 12 PR handoff: opened `https://github.com/Sheshiyer/cambium/pull/227` from `codex/tg-signed-gate-channel-quest`.
 
 Still not completed in this pass:
 
-- Task 12 PR/deploy handoff remains pending.
+- Deployment handoff remains pending after merge/deploy.
 - Bridge metadata inventory found a sibling Hermes/Cambium mismatch for the `dev` topic id and missing downstream preservation of topic/message receipt metadata; that is a follow-up outside this Mini App UI lock zone.
 
 ## Source Anchors
