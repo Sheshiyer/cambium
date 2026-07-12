@@ -27,6 +27,8 @@ import {
   assertViewportProofManifestSchema,
   buildQueuedActionRequestFixture,
   buildViewportProofManifest,
+  MOBILE_CONTRACT_PROOF_PATHS,
+  selectViewportProofCaptureSteps,
   shouldWriteCanonicalViewportArtifacts,
   VIEWPORT_PROOF_CAPTURE_STEPS,
 } from './visual-viewport-proof.mjs';
@@ -250,6 +252,28 @@ test('live proof readiness orders viewport receipts by generatedAt instead of ch
   assert.match(viewport?.detail ?? '', /viewport manifest exists/);
 });
 
+test('live proof readiness blocks a viewport manifest from a different PAGE source', () => {
+  const cwd = fixtureRepo();
+  const viewportDir = join(cwd, 'docs/plans/assets/tg-miniapp-viewport-proof');
+  mkdirSync(viewportDir, { recursive: true });
+  writeFileSync(join(viewportDir, 'manifest.json'), JSON.stringify({
+    generatedAt: '2026-06-22T00:02:00.000Z',
+    pageSourceSha256: 'a'.repeat(64),
+  }));
+
+  const report = assessLiveProofReadiness({
+    cwd,
+    home: join(cwd, 'home'),
+    env: {},
+    generatedAt: '2026-06-22T00:03:00.000Z',
+    expectedPageSourceSha256: 'b'.repeat(64),
+  });
+  const viewport = report.items.find((entry: { id: string }) => entry.id === 'viewport-layout-proof');
+  assert.equal(viewport?.state, 'blocked');
+  assert.match(viewport?.detail ?? '', /different PAGE source/);
+  assert.deepEqual(viewport?.missing, ['rerun npm run proof:tg-viewport from the current PAGE source']);
+});
+
 test('live proof readiness treats viewport browser diagnostics as evidence, not proof', () => {
   const cwd = fixtureRepo();
   const chrome = join(cwd, 'chrome');
@@ -324,19 +348,23 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   const artifact = JSON.parse(JSON.stringify(manifest));
 
   assert.equal(artifact.schema, 'cambium.tg-viewport-proof-manifest.v1');
+  assert.match(artifact.pageSourceSha256, /^[a-f0-9]{64}$/);
   assert.equal(artifact.browserMode, 'headless-new');
   assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 9, 'clickability-proof': 4 });
   assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'clickability-proof', 'layout-proof', 'clickability-proof']);
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'mission')?.path, 'mission-control-mobile.png');
   assert.match(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'mission')?.url ?? '', /\?tenant=cambium&scene=mission/);
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-actions-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'layout-proof' && proof.scrollSelector === '[data-component="ProofList"]'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-actions-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'layout-proof' && proof.scrollSelector === '[data-component="GateActionRow"]'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-utilities-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'layout-proof' && proof.scrollSelector === '[data-component="MissionToolLink"]' && proof.assertExpression?.includes('compactActionsDoNotOverlap')));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-review-gate-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-action="gate"]'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-mission-open-proof-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-action="proof"]'));
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-vantyx-selected-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-branch="1"]' && proof.clipSelector === undefined && proof.assertExpression?.includes('document.activeElement === selected')));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-vantyx-selected-mobile.png' && proof.scene === 'mission' && proof.fixture === 'branch-stories' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-mission-branch="1"]' && proof.tapTargetSelector === '[data-mission-branch="1"]' && proof.clipSelector === undefined && proof.touchDragTargetSelector === '.mc-branch-rail' && proof.assertExpression?.includes('drag.delta >= 24') && proof.assertExpression?.includes('document.activeElement === selected')));
   const missionProof320 = VIEWPORT_PROOF_CAPTURE_STEPS.find((proof) => proof.path === 'mission-control-320-mobile.png');
   assert.equal(missionProof320?.viewport?.width, 320);
   assert.equal(missionProof320?.exactViewport, true);
   assert.match(missionProof320?.assertExpression ?? '', /document\.documentElement\.scrollWidth <= document\.documentElement\.clientWidth \+ 1/);
+  assert.match(missionProof320?.assertExpression ?? '', /questline\.scrollWidth <= questline\.clientWidth \+ 1/);
+  assert.match(missionProof320?.assertExpression ?? '', /data-horizontal-scroll="branch-rail"/);
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-control-mobile.png' && typeof proof.assertExpression === 'string'));
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'mission-control-430-mobile.png' && proof.viewport?.width === 430 && proof.exactViewport === true && typeof proof.assertExpression === 'string'));
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'story')?.path, 'story-feed-mobile.png');
@@ -404,6 +432,20 @@ test('queued viewport fixture is redacted and filtered proofs cannot replace can
   assert.doesNotMatch(fixtureText, /QUESTS_PUSH_TOKEN|query_id=|auth_date=|tgWebAppData|Bearer\s+|secret-hash|secret-signature/);
   assert.equal(shouldWriteCanonicalViewportArtifacts(''), true);
   assert.equal(shouldWriteCanonicalViewportArtifacts('sheet-gate-queued-proof-detail-mobile.png'), false);
+  assert.equal(shouldWriteCanonicalViewportArtifacts('', true), false);
+});
+
+test('mobile contract proof is focused, noncanonical, and required by CI plus release', () => {
+  const steps = selectViewportProofCaptureSteps({ proofPathFilter:'', mobileContractOnly:true });
+  assert.deepEqual(steps.map((proof) => proof.path), MOBILE_CONTRACT_PROOF_PATHS);
+  assert.ok(steps.every((proof) => typeof proof.assertExpression === 'string'));
+
+  const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
+  assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
+  const ci = readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8');
+  const release = readFileSync(new URL('../../../.github/workflows/release.yml', import.meta.url), 'utf8');
+  assert.match(ci, /npm run proof:tg-mobile-contract/);
+  assert.match(release, /npm run proof:tg-mobile-contract/);
 });
 
 test('live proof readiness marks capture steps ready-to-capture when prerequisites are supplied', () => {

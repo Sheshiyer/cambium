@@ -68,7 +68,7 @@ export const PAGE = `<!doctype html>
   .brand{min-width:0;font-size:21px;font-weight:750;letter-spacing:0;line-height:1.05}
   .brand small{display:block;font-size:11px;font-weight:400;opacity:.66;letter-spacing:0;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .root-chip-stack{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}
-  .chip{font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.32);
+  .chip{min-height:44px;display:inline-flex;align-items:center;justify-content:center;font:11px/1 var(--mono);padding:5px 10px;border:1px solid rgba(224,255,79,.32);
     border-radius:999px;color:var(--ink);white-space:nowrap;transition:color .4s var(--ease),border-color .4s var(--ease)}
   button.chip{appearance:none;background:transparent;cursor:pointer}
   .chip.stale{border-color:var(--warn);color:var(--warn)}
@@ -109,8 +109,8 @@ export const PAGE = `<!doctype html>
   .cmdgrp:first-child{margin-top:4px}
   .tool-recommend{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px;border-color:rgba(224,255,79,.22)}
   .tool-recommend.is-idle{border-style:dashed;opacity:.78}
-  .tool-context-strip,.tool-recent-strip,.story-filter-strip,.gate-filter-strip{display:flex;gap:7px;overflow-x:auto;padding:8px;margin-bottom:10px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28);scrollbar-width:none}
-  .tool-context-strip span,.tool-context-strip button,.tool-recent-strip button,.story-filter-strip button,.gate-filter-strip button{flex:0 0 auto;border:1px solid var(--line2);border-radius:999px;background:rgba(1,47,52,.36);color:var(--soft);padding:6px 9px;font:10.5px/1 var(--mono)}
+  .tool-context-strip,.tool-recent-strip,.story-filter-strip,.gate-filter-strip{display:flex;flex-wrap:wrap;gap:7px;overflow:hidden;padding:8px;margin-bottom:10px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28)}
+  .tool-context-strip span,.tool-context-strip button,.tool-recent-strip button,.story-filter-strip button,.gate-filter-strip button{flex:0 1 auto;min-width:0;max-width:100%;min-height:36px;border:1px solid var(--line2);border-radius:999px;background:rgba(1,47,52,.36);color:var(--soft);padding:6px 9px;font:10.5px/1.2 var(--mono);white-space:normal;overflow-wrap:anywhere}
   .tool-context-strip button,.tool-recent-strip button,.story-filter-strip button,.gate-filter-strip button{appearance:none;cursor:pointer}
   .tool-context-strip button.is-selected,.story-filter-strip button.is-selected,.gate-filter-strip button.is-selected{border-color:rgba(224,255,79,.48);color:var(--ink);background:rgba(224,255,79,.08)}
   .tool-safety-row{font:11px/1.45 var(--mono);opacity:.72;margin-top:10px;border-top:1px solid var(--line);padding-top:9px}
@@ -219,11 +219,14 @@ export const PAGE = `<!doctype html>
   .mc-proof-list>button:active{background:rgba(224,255,79,.04)}
   .mc-proof-list>button>span{display:block;min-width:0;overflow-wrap:anywhere}
   .mc-card-meta b,.mc-proof-list b,.mc-blocker-row b,.mc-kpi-row b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px}
-  .mc-questline-row{position:relative;display:grid;grid-template-rows:auto auto auto;gap:6px;justify-items:center;text-align:center;align-items:start;min-height:84px;padding:5px 4px;scroll-snap-align:start}
-  .mc-questline-row:not(:last-child)::after{content:"";position:absolute;left:calc(50% + 18px);right:-50%;top:18px;border-top:1px dashed var(--line2)}
-  .mc-questline-row .mc-signal-rail{position:absolute;left:calc(50% + 18px);right:-50%;top:14px;min-height:10px;border-bottom:0;background:rgba(1,47,52,.45)}
-  .mc-questline-row b{font-size:10.5px;line-height:1.2;max-width:84px;min-height:26px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
-  .mc-questline-row .mc-state-token{max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mc-questline-row{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0;min-height:56px;padding:8px 4px;text-align:left}
+  .mc-questline-row:not(:last-child){border-bottom:1px solid var(--line)}
+  .mc-questline-row:not(:last-child)::after{content:"";position:absolute;left:17px;top:calc(50% + 14px);bottom:calc(-50% + 14px);border-left:1px dashed var(--line2);pointer-events:none}
+  .mc-questline-row[data-questline-stage-state="blocked"]::after,.mc-questline-row[data-questline-stage-state="proof-needed"]::after{border-left-color:rgba(248,181,96,.5)}
+  .mc-questline-row .mc-signal-rail{display:none}
+  .mc-questline-row>span:first-child{position:relative;z-index:1;display:grid;place-items:center}
+  .mc-questline-row b{min-width:0;font-size:11px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+  .mc-questline-row .mc-state-token{justify-self:end;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mc-blockers,.mc-kpis{display:grid;gap:8px}
   .mc-kpi-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
   .mc-kpi-copy{display:grid;gap:3px;min-width:0}
@@ -234,11 +237,13 @@ export const PAGE = `<!doctype html>
   .mc-action-row button{appearance:none;min-height:60px;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:#00272B;font-weight:800;cursor:pointer;touch-action:manipulation}
   .mc-action-row button.secondary{border-color:var(--line2);background:rgba(1,47,52,.55);color:var(--soft)}
   .mission-tool-link,.tool-recommend,.story-hero,.inspect-proof-summary{border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28);padding:12px 13px}
-  .mission-tool-link{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+  .mission-tool-link{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:center}
+  .mission-tool-link>*{min-width:0}
   .mission-tool-link b,.tool-recommend b,.story-hero b,.inspect-proof-summary b{display:block;color:var(--ink);font-size:13px;line-height:1.25}
-  .mission-tool-link small,.tool-recommend small,.story-hero small,.inspect-proof-summary small{display:block;font:11px/1.35 var(--mono);opacity:.68;margin-top:3px}
+  .mission-tool-link small,.tool-recommend small,.story-hero small,.inspect-proof-summary small{display:block;font:11px/1.35 var(--mono);opacity:.68;margin-top:3px;overflow-wrap:anywhere}
   .inspect-proof-summary>small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
   .mission-tool-link button,.tool-recommend button{appearance:none;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:var(--bg);font:800 12px inherit;padding:9px 10px;cursor:pointer}
+  .mission-tool-link button{width:100%;min-height:44px}
 
   /* ── inspect proof map — Telegram density ───── */
 	  @keyframes spin{to{transform:rotate(360deg)}}
@@ -320,8 +325,7 @@ export const PAGE = `<!doctype html>
 	  .mc-packet{width:4px;height:4px;border-radius:50%;background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.34);flex:0 0 auto}
 	  .mc-packet-dots.is-blocked .mc-packet,.mc-packet-dots.is-proof-needed .mc-packet,.mc-packet-dots.is-stale .mc-packet{background:var(--mc-warn);box-shadow:0 0 7px rgba(248,181,96,.2)}
 	  .mc-glyph[data-motion="glyphBreathe"] svg{transform-origin:center;animation:glyphBreathe 3.4s var(--ease) infinite}
-  .mc-questline{display:grid;width:100%;min-width:0;max-width:100%;grid-auto-flow:column;grid-auto-columns:88px;gap:0;border:1px solid var(--line);border-radius:8px;padding:9px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scrollbar-width:none;touch-action:pan-x;background:rgba(1,47,52,.26)}
-  .mc-questline::-webkit-scrollbar{display:none}
+  .mc-questline{display:grid;width:100%;min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:8px;padding:6px 9px;overflow:hidden;background:rgba(1,47,52,.26)}
   .mc-proof-list{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;font:11px var(--mono);color:var(--soft);background:rgba(1,47,52,.24)}
 	  .mc-kpi-pulse{display:inline-grid;place-items:center;min-width:38px;min-height:38px;border-radius:50%;border:1px solid rgba(224,255,79,.34);color:var(--ink)}
 	  .mc-state-stack{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:rgba(1,47,52,.26)}
@@ -643,9 +647,13 @@ export const PAGE = `<!doctype html>
   footer{flex:none;padding:8px 18px calc(var(--sab) + 12px);
     font:10.5px var(--mono);opacity:.5;background:linear-gradient(transparent,var(--bg) 45%);z-index:2;pointer-events:none}
 
-	  @media (max-width:350px){
-	    header.root-status{grid-template-columns:minmax(0,1fr);padding-left:14px;padding-right:14px}
+	  @media (max-width:480px){
+	    header.root-status{grid-template-columns:minmax(0,1fr)}
 	    .root-chip-stack{width:100%;justify-content:flex-start}
+	  }
+
+	  @media (max-width:350px){
+	    header.root-status{padding-left:14px;padding-right:14px}
 	    .root-nav{margin-left:12px;margin-right:12px}
 	    .scene{padding-left:14px;padding-right:14px}
 	    .mission-tool-link,.maphead{grid-template-columns:1fr}
@@ -3040,7 +3048,7 @@ function buildMissionControlView(env){
 }
 function renderBranchArcRail(view){
   if (!view.branches.length) return '';
-  return '<div class="mc-branch-rail" role="tablist" aria-label="Product branches" data-no-scene-drag="1">' + view.branches.map((branch, index) =>
+  return '<div class="mc-branch-rail" role="tablist" aria-label="Product branches" data-horizontal-scroll="branch-rail" data-no-scene-drag="1">' + view.branches.map((branch, index) =>
     '<button type="button" id="mission-branch-tab-' + index + '" role="tab" aria-selected="' + (branch.selected ? 'true' : 'false') + '" aria-controls="mission-branch-panel" tabindex="' + (branch.selected ? '0' : '-1') + '" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-no-scene-drag="1" data-interaction-kind="tab" data-source="' + esc(view.source) + '">' +
       mcGlyphSvg(branch.organ.glyph, branch.state, { motion: branch.selected ? 'glyphBreathe' : '' }) +
       '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b><small>' + esc(branch.organ.label + ' organ · ' + branch.nextMission) + '</small></span>' + mcStateToken(branch.state, branch.state) +
@@ -3122,8 +3130,8 @@ function renderMissionLoops(view){
   const rows = view.loops && view.loops.length ? view.loops.slice(0, 3) : [];
   if (!rows.length) return '';
   return '<section class="mission-tool-link" data-component="BranchLoopControls" data-ecosystem-target="branch-loops">' +
-    '<span><b>Loop controls</b><small>' + esc(rows.map(row => (row.title || row.loopId) + ' · ' + row.runMode).join(' / ')) + '</small></span>' +
-    '<button type="button" class="secondary" data-mission-action="loops" data-no-scene-drag="1" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="branch-loops">' + esc(rows[0].boundaryColor + ' · ' + rows[0].cadence) + '</button>' +
+    '<span><b>Loop controls</b><small>' + esc(rows.map(row => (row.title || row.loopId) + ' · ' + row.runMode + ' · ' + row.boundaryColor + ' · ' + row.cadence).join(' / ')) + '</small></span>' +
+    '<button type="button" class="secondary" data-mission-action="loops" data-no-scene-drag="1" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="branch-loops">Open controls</button>' +
   '</section>';
 }
 function tabKeyTargetIndex(event, index, count){
@@ -3168,12 +3176,12 @@ function renderMissionControl(env){
     renderMissionStaleNotice(view),
     renderBranchArcRail(view),
     renderMissionCard(view),
-    renderQuestlineTimeline(view),
     renderMissionStateStack(view),
+    renderMissionActions(view),
+    renderQuestlineTimeline(view),
     renderMissionProofNeeded(view),
     renderMissionToolLink(view),
     renderMissionLoops(view),
-    renderMissionActions(view),
     renderMissionKpis(view),
   ].join('');
   const branchIndex = Math.max(0, branchRows(env).findIndex(branch => branch === view.selectedBranch));

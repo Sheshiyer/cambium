@@ -3,6 +3,7 @@
 // screenshots exercise the same inline app script the Worker serves.
 
 import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
@@ -43,40 +44,96 @@ const CDP_TIMEOUT_MS = Number(process.env.CDP_TIMEOUT_MS || 30_000);
 const CDP_PROBE_TIMEOUT_MS = Number(process.env.CDP_PROBE_TIMEOUT_MS || 3_500);
 const argv = new Set(process.argv.slice(2));
 const DIAGNOSE_BROWSER = argv.has('--diagnose-browser');
+const MOBILE_CONTRACT_ONLY = argv.has('--mobile-contract');
 const INCLUDE_HEADED_BROWSER_PROBE = argv.has('--include-headed-browser-probe') || process.env.INCLUDE_HEADED_BROWSER_PROBE === '1';
 const PROOF_PATH_FILTER = String(process.env.TG_VIEWPORT_PROOF_FILTER || '').trim();
-export function shouldWriteCanonicalViewportArtifacts(proofPathFilter) {
-  return String(proofPathFilter || '').trim().length === 0;
+export function shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly = false) {
+  return String(proofPathFilter || '').trim().length === 0 && mobileContractOnly !== true;
 }
-const WRITE_CANONICAL_PROOF_ARTIFACTS = shouldWriteCanonicalViewportArtifacts(PROOF_PATH_FILTER);
+const WRITE_CANONICAL_PROOF_ARTIFACTS = shouldWriteCanonicalViewportArtifacts(PROOF_PATH_FILTER, MOBILE_CONTRACT_ONLY);
 let activeBrowser = CHROME;
 let activeBrowserMode = 'headless-new';
 
 const outDir = resolve('docs/plans/assets/tg-miniapp-viewport-proof');
 const viewport = { width: 390, height: 844 };
 const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/telegram-web-app.js');
+const PAGE_SOURCE_SHA256 = createHash('sha256').update(PAGE).digest('hex');
 const VIEWPORT_PROOF_MANIFEST_SCHEMA = 'cambium.tg-viewport-proof-manifest.v1';
 const REDACTED_PROOF_SECRET_PATTERN = /(query_id=|auth_date=|tgWebAppData|QUESTS_PUSH_TOKEN|Bearer\s+|secret-hash|secret-signature)/i;
 
 function missionContainmentAssertion(width) {
   return `(() => {
-    const scene = document.querySelectorAll('.scene')[0];
+    const scenes = [...document.querySelectorAll('.scene')];
+    const activeTab = document.querySelector('.root-tab.on');
+    const activeIndex = Number(String(activeTab?.id || 'tb0').replace('tb', '')) || 0;
+    const scene = scenes[activeIndex];
     const card = document.querySelector('.mc-mission-card');
     const branches = document.querySelector('.mc-branch-rail');
     const questline = document.querySelector('.mc-questline');
     const proofRows = [...document.querySelectorAll('[data-mission-proof-row]')];
+    const branchAllowlist = scene ? [...scene.querySelectorAll('[data-horizontal-scroll="branch-rail"]')] : [];
+    const isAllowlisted = (node) => Boolean(node.closest('[data-horizontal-scroll="branch-rail"]'));
+    const isVisible = (node) => {
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 1 && rect.height > 1;
+    };
+    const horizontalScrollers = scene ? [...scene.querySelectorAll('*')].filter((node) => {
+      const style = getComputedStyle(node);
+      return node.scrollWidth > node.clientWidth + 1 && /^(auto|scroll)$/.test(style.overflowX);
+    }) : [];
+    const sceneRect = scene?.getBoundingClientRect();
+    const boundaryLeft = Math.max(0, sceneRect?.left || 0);
+    const boundaryRight = Math.min(window.innerWidth, sceneRect?.right || window.innerWidth);
+    const overflowOffenders = scene ? [...scene.querySelectorAll('*')].filter((node) => {
+      if (isAllowlisted(node) || !isVisible(node)) return false;
+      const rect = node.getBoundingClientRect();
+      return rect.left < boundaryLeft - 1 || rect.right > boundaryRight + 1;
+    }) : [];
+    const inactiveSceneIntersections = scenes.filter((node, index) => {
+      if (index === activeIndex) return false;
+      const rect = node.getBoundingClientRect();
+      return rect.width > 1 && rect.right > .5 && rect.left < window.innerWidth - .5;
+    });
+    const compactActionRows = scene ? [...scene.querySelectorAll('[data-component="MissionToolLink"], [data-component="BranchLoopControls"]')] : [];
+    const compactActionsDoNotOverlap = compactActionRows.every((row) => {
+      const button = row.querySelector('button');
+      const copy = [...row.children].find((node) => node !== button);
+      if (!button || !copy) return false;
+      const a = button.getBoundingClientRect();
+      const b = copy.getBoundingClientRect();
+      return a.right <= b.left + 1 || b.right <= a.left + 1 || a.bottom <= b.top + 1 || b.bottom <= a.top + 1;
+    });
+    const questlineStyle = questline ? getComputedStyle(questline) : null;
     const checks = {
       viewport: Math.abs(window.innerWidth - ${width}) <= 1,
       documentViewport: Math.abs(document.body.clientWidth - window.innerWidth) <= 1 && document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1 && document.body.scrollWidth <= window.innerWidth + 1,
       sceneContained: Boolean(scene) && scene.scrollWidth <= scene.clientWidth + 1,
       cardContained: Boolean(card) && card.scrollWidth <= card.clientWidth + 1,
-      branchRailContained: Boolean(branches) && branches.getBoundingClientRect().right <= window.innerWidth + 1,
-      questlineContained: Boolean(questline) && questline.getBoundingClientRect().right <= window.innerWidth + 1,
+      branchRailContained: Boolean(branches) && branches.getBoundingClientRect().left >= boundaryLeft - 1 && branches.getBoundingClientRect().right <= boundaryRight + 1,
+      branchRailAllowlisted: branchAllowlist.length === 1 && branchAllowlist[0] === branches,
+      branchRailOnlyHorizontalScroller: Boolean(branches) && branches.scrollWidth > branches.clientWidth + 1 && horizontalScrollers.every(isAllowlisted),
+      questlineContained: Boolean(questline) && questline.getBoundingClientRect().left >= boundaryLeft - 1 && questline.getBoundingClientRect().right <= boundaryRight + 1,
+      questlineIntrinsicFit: Boolean(questline) && questline.scrollWidth <= questline.clientWidth + 1,
+      questlineNoHorizontalGesture: Boolean(questlineStyle) && !/^(auto|scroll)$/.test(questlineStyle.overflowX) && !questlineStyle.touchAction.split(/\\s+/).includes('pan-x'),
       branchTabs: Boolean(branches) && branches.getAttribute('role') === 'tablist' && Boolean(branches.querySelector('[role="tab"][aria-selected="true"]')),
       proofButtons: proofRows.length > 0 && proofRows.every((row) => row.tagName === 'BUTTON'),
       labelsBounded: [...document.querySelectorAll('.mc-questline-row b')].every((label) => label.scrollWidth <= label.clientWidth + 1 || getComputedStyle(label).webkitLineClamp === '2'),
+      activeSceneDescendantsContained: overflowOffenders.length === 0,
+      settledSceneIsolated: inactiveSceneIntersections.length === 0,
+      compactActionsDoNotOverlap,
     };
-    return { ok:Object.values(checks).every(Boolean), checks };
+    const describe = (node) => node.tagName.toLowerCase() + (node.id ? '#' + node.id : '') + (node.classList.length ? '.' + [...node.classList].join('.') : '');
+    return {
+      ok:Object.values(checks).every(Boolean),
+      checks,
+      diagnostics:{
+        questline:questline ? { clientWidth:questline.clientWidth, scrollWidth:questline.scrollWidth, overflowX:questlineStyle.overflowX, touchAction:questlineStyle.touchAction } : null,
+        horizontalScrollers:horizontalScrollers.map(describe),
+        overflowOffenders:overflowOffenders.map(describe),
+        inactiveSceneIntersections:inactiveSceneIntersections.map(describe),
+      },
+    };
   })()`;
 }
 
@@ -193,6 +250,7 @@ export function validateViewportProofManifest(manifest) {
   if (!isPlainObject(manifest)) return ['manifest must be an object'];
   if (manifest.schema !== VIEWPORT_PROOF_MANIFEST_SCHEMA) issues.push(`manifest.schema must be ${VIEWPORT_PROOF_MANIFEST_SCHEMA}`);
   if (!isNonEmptyString(manifest.generatedAt)) issues.push('manifest.generatedAt must be present');
+  if (!/^[a-f0-9]{64}$/.test(String(manifest.pageSourceSha256 || ''))) issues.push('manifest.pageSourceSha256 must be a SHA-256 digest');
   if (!isNonEmptyString(manifest.browserMode)) issues.push('manifest.browserMode must be present');
   if (!isNonEmptyString(manifest.invariant)) issues.push('manifest.invariant must be present');
   if (!Array.isArray(manifest.proofs) || manifest.proofs.length === 0) issues.push('manifest.proofs must include at least one proof');
@@ -256,6 +314,7 @@ export function buildViewportProofManifest({
   const manifest = {
     schema: VIEWPORT_PROOF_MANIFEST_SCHEMA,
     generatedAt,
+    pageSourceSha256: PAGE_SOURCE_SHA256,
     chrome,
     browserMode,
     browserCandidates,
@@ -307,8 +366,18 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     path: 'mission-actions-mobile.png',
     intent: 'layout-proof',
     sceneIndex: 0,
-    scrollSelector: '[data-component="ProofList"]',
+    scrollSelector: '[data-component="GateActionRow"]',
     waitFor: "document.querySelector('[data-component=\"MissionStateStack\"]') && document.querySelector('[data-component=\"ProofList\"]') && document.querySelector('[data-component=\"GateActionRow\"]') && document.querySelector('[data-mission-action=\"gate\"]') && document.querySelector('[data-mission-action=\"proof\"]')",
+  },
+  {
+    scene: 'mission',
+    fixture: 'branch-stories',
+    path: 'mission-utilities-mobile.png',
+    intent: 'layout-proof',
+    sceneIndex: 0,
+    scrollSelector: '[data-component="MissionToolLink"]',
+    waitFor: "document.querySelector('[data-component=\"MissionToolLink\"]') && document.querySelector('[data-component=\"BranchLoopControls\"]') && document.querySelector('[data-component=\"KpiPulse\"]')",
+    assertExpression: missionContainmentAssertion(390),
   },
   {
     scene: 'components',
@@ -380,9 +449,11 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     intent: 'clickability-proof',
     sceneIndex: 0,
     waitFor: "document.querySelector('[data-mission-branch=\"1\"]') && document.body.textContent.includes('Vantyx')",
-    expression: "(() => { const el = [...document.querySelectorAll('[data-mission-branch]')].find(node => node.textContent.includes('Vantyx')); if (!el) throw new Error('missing Vantyx branch chip'); el.click(); })()",
+    touchDragTargetSelector: '.mc-branch-rail',
+    touchDragDistance: 96,
+    tapTargetSelector: '[data-mission-branch="1"]',
     waitAfterExpression: "!document.querySelector('#sheet.on') && document.querySelector('[data-mission-branch=\"1\"][aria-selected=\"true\"]') && document.querySelector('#mission-branch-panel h3') && document.querySelector('#mission-branch-panel h3').textContent.includes('Create and health-check second tenant')",
-    assertExpression: "(() => { const scene=document.querySelectorAll('.scene')[0]; const panel=document.querySelector('#mission-branch-panel'); const selected=document.querySelector('[data-mission-branch=\"1\"]'); return { ok:MISSION_BRANCH_FOCUS === 'vantyx' && !document.querySelector('#sheet.on') && document.activeElement === selected && panel && panel.scrollWidth <= panel.clientWidth + 1 && scene && scene.scrollWidth <= scene.clientWidth + 1 }; })()",
+    assertExpression: "(() => { const scene=document.querySelectorAll('.scene')[0]; const panel=document.querySelector('#mission-branch-panel'); const selected=document.querySelector('[data-mission-branch=\"1\"]'); const drag=JSON.parse(document.documentElement.dataset.proofTouchDrag || '{}'); const dragIsolated=drag.delta >= 24 && drag.sceneBefore === drag.sceneAfter && drag.sceneAfter === 'tb0' && drag.sheetBefore === false && drag.sheetAfter === false && drag.trackBefore === drag.trackAfter; return { ok:MISSION_BRANCH_FOCUS === 'vantyx' && !document.querySelector('#sheet.on') && document.activeElement === selected && panel && panel.scrollWidth <= panel.clientWidth + 1 && scene && scene.scrollWidth <= scene.clientWidth + 1 && dragIsolated, drag }; })()",
     clickTargetSelector: '[data-mission-branch="1"]',
     clickTargetCount: 1,
   },
@@ -637,6 +708,25 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clipSelector: '#sheet',
   },
 ];
+
+export const MOBILE_CONTRACT_PROOF_PATHS = [
+  'mission-control-320-mobile.png',
+  'mission-control-mobile.png',
+  'mission-control-430-mobile.png',
+  'mission-utilities-mobile.png',
+  'mission-vantyx-selected-mobile.png',
+];
+
+export function selectViewportProofCaptureSteps({ proofPathFilter = '', mobileContractOnly = false } = {}) {
+  if (String(proofPathFilter).trim()) {
+    return VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => proof.path.includes(String(proofPathFilter).trim()));
+  }
+  if (mobileContractOnly) {
+    const paths = new Set(MOBILE_CONTRACT_PROOF_PATHS);
+    return VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => paths.has(proof.path));
+  }
+  return VIEWPORT_PROOF_CAPTURE_STEPS;
+}
 
 const gateFixture = {
   ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
@@ -1151,6 +1241,11 @@ async function tapSelector(cdp, selector) {
     const node = document.querySelector(${JSON.stringify(selector)});
     if (!node) throw new Error('missing tap selector ${selector}');
     node.scrollIntoView({ block: 'center', inline: 'nearest' });
+    const horizontalScroller = node.closest('[data-horizontal-scroll]');
+    if (horizontalScroller) {
+      const targetLeft = node.offsetLeft - (horizontalScroller.clientWidth - node.offsetWidth) / 2;
+      horizontalScroller.scrollTo({ left:Math.max(0, targetLeft), behavior:'auto' });
+    }
   })()`);
   await new Promise((resolve) => setTimeout(resolve, 100));
   const point = await evaluate(cdp, `(() => {
@@ -1175,6 +1270,63 @@ async function tapSelector(cdp, selector) {
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: point.x, y: point.y, button: 'none' });
   await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 });
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 });
+}
+
+async function touchDragSelector(cdp, selector, distance = 96) {
+  await cdp.send('Emulation.setTouchEmulationEnabled', { enabled:true, maxTouchPoints:5 });
+  await evaluate(cdp, `(() => {
+    const node = document.querySelector(${JSON.stringify(selector)});
+    if (!node) throw new Error('missing touch-drag selector ${selector}');
+    node.scrollIntoView({ block:'center', inline:'nearest' });
+    node.scrollLeft = 0;
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  const before = await evaluate(cdp, `(() => {
+    const node = document.querySelector(${JSON.stringify(selector)});
+    const rect = node.getBoundingClientRect();
+    const startX = Math.min(window.innerWidth - 24, rect.right - 24);
+    const endX = Math.max(rect.left + 24, startX - ${Number(distance)});
+    return {
+      startX,
+      endX,
+      y:rect.top + rect.height / 2,
+      scrollLeft:node.scrollLeft,
+      scene:document.querySelector('.root-tab.on')?.id || '',
+      sheetOpen:Boolean(document.querySelector('#sheet.on')),
+      trackTransform:getComputedStyle(document.querySelector('#track')).transform,
+    };
+  })()`);
+  const point = (x) => [{ x, y:before.y, id:1, radiusX:2, radiusY:2, force:1 }];
+  await cdp.send('Input.dispatchTouchEvent', { type:'touchStart', touchPoints:point(before.startX) });
+  for (let index = 1; index <= 6; index += 1) {
+    const x = before.startX + ((before.endX - before.startX) * index / 6);
+    await cdp.send('Input.dispatchTouchEvent', { type:'touchMove', touchPoints:point(x) });
+    await new Promise((resolve) => setTimeout(resolve, 18));
+  }
+  await cdp.send('Input.dispatchTouchEvent', { type:'touchEnd', touchPoints:[] });
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  const after = await evaluate(cdp, `(() => {
+    const node = document.querySelector(${JSON.stringify(selector)});
+    return {
+      scrollLeft:node.scrollLeft,
+      scene:document.querySelector('.root-tab.on')?.id || '',
+      sheetOpen:Boolean(document.querySelector('#sheet.on')),
+      trackTransform:getComputedStyle(document.querySelector('#track')).transform,
+    };
+  })()`);
+  const result = {
+    beforeScrollLeft:before.scrollLeft,
+    afterScrollLeft:after.scrollLeft,
+    delta:Math.abs(after.scrollLeft - before.scrollLeft),
+    sceneBefore:before.scene,
+    sceneAfter:after.scene,
+    sheetBefore:before.sheetOpen,
+    sheetAfter:after.sheetOpen,
+    trackBefore:before.trackTransform,
+    trackAfter:after.trackTransform,
+  };
+  await evaluate(cdp, `document.documentElement.dataset.proofTouchDrag = ${JSON.stringify(JSON.stringify(result))}; undefined`);
+  return result;
 }
 
 async function screenshotParams(cdp, options = {}) {
@@ -1292,6 +1444,9 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
         await evaluate(cdp, `document.querySelectorAll('.scene')[${sceneIndex}]?.scrollTo(0, ${options.scrollTop}); undefined`);
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
+      if (options.touchDragTargetSelector) {
+        await touchDragSelector(cdp, options.touchDragTargetSelector, options.touchDragDistance);
+      }
       if (options.expression) {
         await evaluate(cdp, `${options.expression}; undefined`);
         await new Promise((resolve) => setTimeout(resolve, 500));
@@ -1379,9 +1534,10 @@ if (WRITE_CANONICAL_PROOF_ARTIFACTS) {
 }
 
 const proofs = [];
-const captureSteps = PROOF_PATH_FILTER
-  ? VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => proof.path.includes(PROOF_PATH_FILTER))
-  : VIEWPORT_PROOF_CAPTURE_STEPS;
+const captureSteps = selectViewportProofCaptureSteps({
+  proofPathFilter:PROOF_PATH_FILTER,
+  mobileContractOnly:MOBILE_CONTRACT_ONLY,
+});
 if (captureSteps.length === 0) throw new Error(`No viewport proof path matched ${PROOF_PATH_FILTER}`);
 await withServer(async (base, metrics) => {
   for (const proof of captureSteps) {
