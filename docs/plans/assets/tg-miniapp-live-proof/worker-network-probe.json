@@ -1,7 +1,7 @@
 {
   "schema": "cambium.worker-network-probe.v1",
   "tenant": "cambium",
-  "capturedAt": "2026-07-09T02:17:36.795Z",
+  "capturedAt": "2026-07-12T08:36:33.306Z",
   "source": "production-worker",
   "workerUrl": "https://curious.thoughtseed.space",
   "probes": [
