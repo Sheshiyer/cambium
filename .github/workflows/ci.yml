@@ -27,6 +27,15 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Telegram mobile layout contract
+        run: |
+          browser="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$browser" ]; then
+            echo "No Chromium-family browser is available for the Telegram mobile contract" >&2
+            exit 1
+          fi
+          CHROME_BIN="$browser" npm run proof:tg-mobile-contract
+
       - name: Standalone audit
         run: npm run standalone:audit
 

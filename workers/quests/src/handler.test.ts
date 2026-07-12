@@ -4062,6 +4062,8 @@ test('page · Mission Control enriches partial visual loop rows with branch cont
 
   assert.match(html, /Fitcheck launch gate loop · approval-required/);
   assert.match(html, /yellow · manual weekly/);
+  assert.match(html, /data-mission-action="loops"[^>]*>Open controls<\/button>/);
+  assert.doesNotMatch(html, /data-mission-action="loops"[^>]*>yellow · manual weekly<\/button>/);
   assert.doesNotMatch(html, /stop rule missing|manual review|undefined|scheduled|autonomous/i);
 
   (rendered.context.openBranchMissionSheet as (env: unknown, branchIndex: number, missionIndex: number, focus?: string) => void)(envelope, 0, 0, 'loops');
@@ -4128,6 +4130,15 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
   assert.match(html, /data-packet-mode="texture"/);
   assert.match(html, /data-mission-state-action="proof"/);
+  const stateStackIndex = html.indexOf('data-component="MissionStateStack"');
+  const actionRowIndex = html.indexOf('data-component="GateActionRow"');
+  const questlineIndex = html.indexOf('data-component="QuestlineTimeline"');
+  const proofListIndex = html.indexOf('data-component="ProofList"');
+  const toolLinkIndex = html.indexOf('data-component="MissionToolLink"');
+  assert.ok(stateStackIndex < actionRowIndex, 'state summary should lead into primary actions');
+  assert.ok(actionRowIndex < questlineIndex, 'primary actions should precede the long Questline');
+  assert.ok(questlineIndex < proofListIndex, 'Questline should precede detailed proof rows');
+  assert.ok(proofListIndex < toolLinkIndex, 'proof should precede secondary utilities');
   assert.match(html, /data-mission-state-action="gate"/);
   assert.match(html, /data-component="OrbitProgress"[^>]*>[\s\S]*<span class="mc-orbit-label">Proof<\/span>/);
   assert.match(html, /data-component="OrbitProgress"[^>]*>[\s\S]*<span class="mc-orbit-label">KPI<\/span>/);
@@ -4217,7 +4228,7 @@ test('page · mission branch tab updates content in place and keeps the sheet cl
   assert.equal(stem.querySelector('[data-mission-branch="1"]').focusCalls.length, 1);
 });
 
-test('page · mission questline is a contained single-row scroller with readable labels', async () => {
+test('page · mission questline is an intrinsic vertical mobile flow with readable labels', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
     branchStories: {
@@ -4248,10 +4259,23 @@ test('page · mission questline is a contained single-row scroller with readable
   assert.match(html, /class="mc-questline"[^>]*data-no-scene-drag="1"/);
   assert.match(html, />Confirm Shopify credentials<\/b>/);
   assert.match(html, /aria-current="step"/);
-  assert.match(PAGE, /\.mc-questline\{[^}]*grid-auto-flow:column[^}]*overflow-x:auto/);
+  assert.match(PAGE, /\.mc-questline\{[^}]*grid-template-columns:minmax\(0,1fr\)[^}]*overflow:hidden/);
+  assert.match(PAGE, /\.mc-questline-row\{[^}]*grid-template-columns:auto minmax\(0,1fr\) auto[^}]*min-height:56px/);
+  assert.doesNotMatch(PAGE, /\.mc-questline\{[^}]*(?:grid-auto-flow:column|grid-auto-columns|overflow-x:auto|scroll-snap-type:x|touch-action:pan-x)/);
   assert.match(PAGE, /\.app\{[^}]*max-width:100%[^}]*overflow:hidden/);
   assert.match(PAGE, /\.track\{[^}]*max-width:100%[^}]*display:flex/);
-  assert.doesNotMatch(PAGE, /\.mc-questline\{[^}]*repeat\(auto-fit/);
+});
+
+test('page · compact filter strips wrap instead of introducing hidden horizontal rails', () => {
+  assert.match(PAGE, /\.tool-context-strip,\.tool-recent-strip,\.story-filter-strip,\.gate-filter-strip\{[^}]*flex-wrap:wrap[^}]*overflow:hidden/);
+  assert.match(PAGE, /\.tool-context-strip span,\.tool-context-strip button,\.tool-recent-strip button,\.story-filter-strip button,\.gate-filter-strip button\{[^}]*min-width:0[^}]*max-width:100%/);
+  assert.doesNotMatch(PAGE, /\.(?:tool-context-strip|tool-recent-strip|story-filter-strip|gate-filter-strip)\{[^}]*overflow-x:auto/);
+});
+
+test('page · mobile header keeps full-width brand and touch-safe chips through 430px', () => {
+  assert.match(PAGE, /\.chip\{[^}]*min-height:44px[^}]*display:inline-flex/);
+  assert.match(PAGE, /@media \(max-width:480px\)\{[\s\S]*?header\.root-status\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(PAGE, /@media \(max-width:480px\)\{[\s\S]*?\.root-chip-stack\{[^}]*width:100%[^}]*justify-content:flex-start/);
 });
 
 test('page · mission proof previews are semantic buttons', async () => {
