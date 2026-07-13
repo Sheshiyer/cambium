@@ -278,7 +278,7 @@ export const PAGE = `<!doctype html>
   .ibox.skill span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.npc span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.ready{border-color:rgba(224,255,79,.28);background:rgba(224,255,79,.04)}
-	  .mc-branch-rail{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;padding:2px 0 8px;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;scrollbar-width:none;touch-action:pan-x}
+	  .mc-branch-rail{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;padding:2px 0 8px;overscroll-behavior-inline:contain;scrollbar-width:none;touch-action:pan-x}
   .mc-branch-rail::-webkit-scrollbar{display:none}
   .mc-branch-chip{flex:0 0 clamp(200px,68vw,232px);min-width:0;min-height:56px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);background:rgba(1,47,52,.38);color:var(--mc-mint);padding:8px 10px;font:11px var(--mono);scroll-snap-align:start}
 	  .mc-glyph{width:28px;height:28px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);display:inline-grid;place-items:center;color:var(--mc-chartreuse);background:var(--mc-panel);position:relative;overflow:hidden;flex:none}
@@ -1598,7 +1598,7 @@ function gateTelegramMeta(it){
   const telegram = (it && it.telegram) || (row && row.telegram) || {};
   const topicLabel = telegramTopicLabel(telegram.topicLabel || telegram.topic || telegram.topicKey || topic.topicLabel || topic.topic || topic.topicKey || row.topicLabel || row.topicKey);
   const threadId = telegram.threadId || telegram.topicThreadId || topic.threadId || topic.topicThreadId || row.threadId || row.topicThreadId || '';
-  const messageId = telegram.messageId || telegram.actionCardMessageId || topic.messageId || topic.actionCardMessageId || row.messageId || row.actionCardMessageId || '';
+  const messageId = telegram.messageId || telegram.actionCardMessageId || topic.sourceMessageId || topic.messageId || topic.actionCardMessageId || row.sourceMessageId || row.messageId || row.actionCardMessageId || '';
   return { topicLabel, threadId:String(threadId || '').trim(), messageId:String(messageId || '').trim() };
 }
 function gateTelegramRoute(it){
@@ -1613,14 +1613,12 @@ function gateTelegramRoute(it){
 function gateReceiptExpectation(it){
   const row = (it && it.actionRequest) || it || {};
   const explicit = (it && it.receiptExpectation) || row.receiptExpectation;
-  if (explicit) return String(explicit);
-  const meta = gateTelegramMeta(it);
-  if (meta.messageId) {
-    const topic = meta.topicLabel || 'Telegram topic';
-    const thread = meta.threadId ? ' ' + meta.threadId : '';
-    return 'Telegram card ' + topic + thread + ' message ' + meta.messageId + ' receives a queued receipt after the Worker accepts the signed action.';
-  }
-  return '';
+  return explicit ? String(explicit) : '';
+}
+function gateLatestReceipt(it){
+  const row = (it && it.actionRequest) || it || {};
+  const latest = row && row.receipts && row.receipts.latest;
+  return latest && latest.text ? String(latest.text) : '';
 }
 function actionRequestGateItems(env){
   return actionRequestRows(env).filter(row => !/completed|consumed|superseded/i.test(String(row.status || ''))).map(row => {
@@ -1631,7 +1629,7 @@ function actionRequestGateItems(env){
     const telegramRoute = {
       topicLabel:telegram.topicLabel || topic.topicLabel || telegram.topic || topic.topic || telegram.topicKey || topic.topicKey || row.topicLabel || row.topicKey || '',
       threadId:telegram.threadId || telegram.topicThreadId || topic.threadId || topic.topicThreadId || row.threadId || row.topicThreadId || '',
-      messageId:telegram.messageId || telegram.actionCardMessageId || topic.messageId || topic.actionCardMessageId || row.messageId || row.actionCardMessageId || '',
+      messageId:telegram.messageId || telegram.actionCardMessageId || topic.sourceMessageId || topic.messageId || topic.actionCardMessageId || row.sourceMessageId || row.messageId || row.actionCardMessageId || '',
     };
     return {
       id:row.id || row.title || 'action-request',
@@ -1811,6 +1809,7 @@ function renderGateItem(it, i){
   const rerollConsequence = gateConsequence('reroll', it);
   const channelRoute = gateTelegramRoute(it);
   const receiptExpectation = gateReceiptExpectation(it);
+  const latestReceipt = gateLatestReceipt(it);
   const state = it && it.actionRequest ? actionRequestState(it.actionRequest) : mcStateKind((it && it.status) || 'proof-needed');
   const reversibility = gateReversibility('approve', it);
   const reversibilityState = gateReversibilityState(reversibility);
@@ -1819,6 +1818,7 @@ function renderGateItem(it, i){
   const needsSignedActionRequest = actionRequestStatus === 'needs_signed_confirmation';
   const queuedActionRequest = actionRequestStatus === 'queued';
   const selectedOption = gateActionRequestOption(it);
+  const selectedOptionLabel = selectedOption && selectedOption.label ? String(selectedOption.label) : '';
   const selectedOptionId = selectedOption && selectedOption.id ? selectedOption.id : ((it && it.selectedOptionId) || '');
   const actionButtons = needsSignedActionRequest
     ? '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="confirm-action-request" data-kind="confirm-action-request" data-action-request-option-id="' + esc(selectedOptionId) + '" data-risk-state="' + esc(reversibilityState) + '">Confirm signed</button><button type="button" class="detail" data-gate-detail="1">Details</button>'
@@ -1841,9 +1841,10 @@ function renderGateItem(it, i){
       mcStateToken(state, (it && it.status) || 'Gate review') +
     '</div>' +
     gatePriorityChips(it) +
-    ((channelRoute || receiptExpectation) ? '<div class="gate-route-receipt">' +
+    ((channelRoute || receiptExpectation || latestReceipt) ? '<div class="gate-route-receipt">' +
       (channelRoute ? '<div class="gate-route-pill" data-component="GateRoutePill"><b>Channel route</b><span>' + esc(channelRoute) + '</span></div>' : '') +
       (receiptExpectation ? '<div class="gate-receipt-summary" data-component="GateReceiptSummary"><b>Receipt</b><span>' + esc(receiptExpectation) + '</span></div>' : '') +
+      (latestReceipt ? '<div class="gate-receipt-summary" data-component="GateLatestReceipt"><b>Latest receipt</b><span>' + esc(latestReceipt) + '</span></div>' : '') +
     '</div>' : '') +
     mcSignalRail({ state, packetCount:4 }) +
     (stale ? '<span class="gate-stale-chip" data-component="GateStaleSyncState" data-gate-stale-chip="1">' + esc(gateUpdatedAt(it)) + ' · refresh before deciding</span>' : '') +
@@ -1857,7 +1858,9 @@ function renderGateItem(it, i){
       gateFact('Decision waiting', gateSubject(it)) +
       gateFact('Branch / mission', gateBranchMission(it)) +
       (channelRoute ? gateFact('Channel route', channelRoute) : '') +
+      (selectedOptionLabel ? gateFact('Selected option', selectedOptionLabel) : '') +
       (receiptExpectation ? gateFact('Receipt expectation', receiptExpectation) : '') +
+      (latestReceipt ? gateFact('Latest receipt', latestReceipt) : '') +
       actionFacts +
       gateFact('Reversibility', reversibility) +
     '</div>' +
@@ -1892,8 +1895,10 @@ function openGateResultSheet(kind, subject, res, fallback, item){
   const isActionRequestConfirm = kind === 'confirm-action-request';
   const channelRoute = gateTelegramRoute(item);
   const receiptExpectation = gateReceiptExpectation(item);
+  const latestReceipt = gateLatestReceipt(item);
   const rows = [['action kind', kind], ['subject', subject]];
   if (channelRoute) rows.push(['channel route', channelRoute]);
+  if (latestReceipt) rows.push(['latest receipt', latestReceipt]);
   if (receiptExpectation) rows.push(['receipt expectation', receiptExpectation]);
   rows.push(['queued action', (res && res.queued) || 'missing'], ['idempotency', (res && res.idempotencyKey) || fallback.idempotencyKey], ['consequence', (res && res.consequence) || fallback.consequence], ['reversibility', (res && res.reversibility) || fallback.reversibility]);
   $('sheetBody').innerHTML = '<div class="arc">gate result · ' + esc(duplicate ? 'duplicate' : 'queued') + '</div><h2>' + esc(duplicate ? 'Original Queued Action Reused' : isActionRequestConfirm ? 'ActionRequest Signed Confirmation Queued' : 'Founder Decision Queued') + '</h2>' +
@@ -2029,12 +2034,14 @@ function openGatePreflight(kind, subject, node){
   const option = gateActionRequestOption(item);
   const channelRoute = gateTelegramRoute(item);
   const receiptExpectation = gateReceiptExpectation(item);
+  const latestReceipt = gateLatestReceipt(item);
   const submitAttrs = gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, reversibility, idempotencyKey, option);
   const title = kind === 'approve' ? 'Approve Gate Item' : kind === 'confirm-action-request' ? 'Confirm ActionRequest' : 'Reroll Gate Item';
   const confirmText = kind === 'confirm-action-request' ? 'Confirm signed' : 'Confirm ' + kind;
   const rows = [['action kind',kind], ['subject',subject]];
   if (kind === 'confirm-action-request') rows.push(['selected option', (option && (option.label || option.id)) || item.selectedOptionId || 'selected option not served']);
   if (channelRoute) rows.push(['channel route', channelRoute]);
+  if (latestReceipt) rows.push(['latest receipt', latestReceipt]);
   if (receiptExpectation) rows.push(['receipt expectation', receiptExpectation]);
   rows.push(['evidence',evidence], ['consequence',consequence], ['reversibility',reversibility], ['source',gateOriginLabel(item)], ['source route','/api/gate/' + TENANT], ['initData status',initData ? 'present for Worker verification' : 'missing until opened inside Telegram'], ['idempotency',idempotencyKey]);
   $('sheetBody').innerHTML = '<div class="arc">gate preflight · explicit confirmation</div><h2>' + esc(title) + '</h2>' +
@@ -2614,7 +2621,7 @@ function liveProofCards(env){
       detail:proof.gap || 'live proof readiness not served',
       proof:'liveProof.rows missing from visual envelope',
       source:proof.source || 'missing',
-      writes:'docs/plans/assets/tg-miniapp-live-proof/readiness.json',
+      writes:'.artifacts/tg-miniapp-live-proof/readiness.json',
       command:'npm run proof:tg-live-readiness',
       prerequisites:[{ label:'readiness.json', status:'blocked', detail:'not served' }],
       privacy:['capture plan is run guidance, not proof'],
@@ -3149,6 +3156,29 @@ function focusRenderedTab(rootId, selector){
   if (!tab || typeof tab.focus !== 'function') return;
   try { tab.focus({ preventScroll:true }); } catch (_) { tab.focus(); }
 }
+function bindMissionBranchRailTouch(rail){
+  if (!rail || rail.dataset.touchDragBound === '1') return;
+  rail.dataset.touchDragBound = '1';
+  let startX = 0;
+  let startScrollLeft = 0;
+  let dragging = false;
+  rail.addEventListener('touchstart', event => {
+    if (!event.touches || event.touches.length !== 1) return;
+    dragging = true;
+    startX = event.touches[0].clientX;
+    startScrollLeft = rail.scrollLeft;
+  }, { passive:true });
+  rail.addEventListener('touchmove', event => {
+    if (!dragging || !event.touches || event.touches.length !== 1) return;
+    const delta = startX - event.touches[0].clientX;
+    if (Math.abs(delta) < 2) return;
+    if (event.cancelable) event.preventDefault();
+    rail.scrollLeft = startScrollLeft + delta;
+  }, { passive:false });
+  const stopDragging = () => { dragging = false; };
+  rail.addEventListener('touchend', stopDragging, { passive:true });
+  rail.addEventListener('touchcancel', stopDragging, { passive:true });
+}
 function selectMissionBranch(env, branchIndex, focusSelected){
   const rows = branchRows(env || {});
   const branch = rows[branchIndex];
@@ -3184,6 +3214,7 @@ function renderMissionControl(env){
     renderMissionLoops(view),
     renderMissionKpis(view),
   ].join('');
+  bindMissionBranchRailTouch(stem.querySelector('.mc-branch-rail'));
   const branchIndex = Math.max(0, branchRows(env).findIndex(branch => branch === view.selectedBranch));
   const pct = view.questline.length ? Math.round(100 * view.questline.filter(row => row.state === 'complete').length / view.questline.length) : 0;
   $('fill').style.width = pct + '%';

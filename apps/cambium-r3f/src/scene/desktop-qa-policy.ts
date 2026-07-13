@@ -6,16 +6,13 @@ export const cambiumQaPolicy: CambiumQaPolicy = {
     { id: 'macbook-pro-14', label: 'MacBook Pro 14', width: 1512, height: 982, role: 'secondary-review' },
     { id: 'desktop-wide', label: 'Desktop wide', width: 1728, height: 1117, role: 'secondary-review' },
   ],
-  visualFeedbackGate: {
-    status: 'awaiting-user-flow-feedback',
-    reviewer: 'user',
-    browserVisualE2E: 'skipped-by-user-request',
-    acceptanceMode: 'human-perceptual-flow-review',
-    automatedProof: [
+  visualAcceptancePolicy: {
+    reviewer: 'human',
+    browserVisualE2E: 'recommended-not-release-blocking',
+    acceptanceMode: 'automated-gates-plus-human-reference-review',
+    automatedGates: [
       'npm run r3f:test',
       'npm run r3f:build',
-      'npm run validate',
-      'npm run render-docs:check',
     ],
     explicitNonGoals: [
       'mobile viewport acceptance',

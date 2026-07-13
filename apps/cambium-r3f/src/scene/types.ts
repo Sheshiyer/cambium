@@ -114,12 +114,11 @@ export interface DesktopViewport {
   role: 'primary-review' | 'secondary-review';
 }
 
-export interface VisualFeedbackGate {
-  status: 'awaiting-user-flow-feedback';
-  reviewer: 'user';
-  browserVisualE2E: 'skipped-by-user-request';
-  acceptanceMode: 'human-perceptual-flow-review';
-  automatedProof: readonly string[];
+export interface VisualAcceptancePolicy {
+  reviewer: 'human';
+  browserVisualE2E: 'recommended-not-release-blocking';
+  acceptanceMode: 'automated-gates-plus-human-reference-review';
+  automatedGates: readonly string[];
   explicitNonGoals: readonly string[];
 }
 
@@ -133,7 +132,7 @@ export interface ElectronReadiness {
 
 export interface CambiumQaPolicy {
   desktopViewports: readonly DesktopViewport[];
-  visualFeedbackGate: VisualFeedbackGate;
+  visualAcceptancePolicy: VisualAcceptancePolicy;
   electronReadiness: ElectronReadiness;
 }
 

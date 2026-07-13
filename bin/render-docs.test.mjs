@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gatherOrgan, renderOrganPage, renderCatalog } from './render-docs.mjs';
+import { applyOrganSnapshot, gatherOrgan, renderOrganPage, renderCatalog } from './render-docs.mjs';
 
 // a fake reader so gather is tested without touching real repos
 const fakeReader = {
@@ -48,6 +48,18 @@ test('gatherOrgan greps counts from a non-json source file', () => {
   const data = gatherOrgan(meta, fakeReader);
   assert.equal(data.counts.model, 'nv-embedqa-e5-v5');
   assert.equal(data.counts.dim, '1024');
+});
+
+test('applyOrganSnapshot makes clean-checkout rendering independent of sibling repos', () => {
+  const data = applyOrganSnapshot(genesisMeta, {
+    organs: [{
+      id: 'genesis',
+      components: [{ name:'pinned-component', kind:'snapshot', desc:'committed source inventory' }],
+      counts: { components:1 },
+    }],
+  });
+  assert.equal(data.components[0]?.name, 'pinned-component');
+  assert.equal(data.counts.components, 1);
 });
 
 test('renderOrganPage produces well-formed HTML with the hero, components, and a generated banner', () => {

@@ -55,6 +55,12 @@ let activeBrowser = CHROME;
 let activeBrowserMode = 'headless-new';
 
 const outDir = resolve('docs/plans/assets/tg-miniapp-viewport-proof');
+const diagnosticsDir = resolve('.artifacts/tg-miniapp-viewport');
+export function viewportProofArtifactDirectory({ proofPathFilter = '', mobileContractOnly = false } = {}) {
+  return shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly)
+    ? outDir
+    : join(diagnosticsDir, 'captures');
+}
 const viewport = { width: 390, height: 844 };
 const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/telegram-web-app.js');
 const PAGE_SOURCE_SHA256 = createHash('sha256').update(PAGE).digest('hex');
@@ -198,7 +204,6 @@ export function buildQueuedActionRequestFixture() {
     updatedAt: '2026-07-10T11:35:41.833Z',
     next: 'Cambium can consume this queued branch task after operator review',
     evidence: 'AutoGTM by Explee has triggered leads, but post-lead enrichment, outreach, and follow-up loop is not configured yet. Hermes is asking for founder direction before any client-facing send or automated outreach happens.',
-    receiptExpectation: 'Telegram card Clients 804 message 1068 holds the queued receipt while Cambium awaits operator consumption.',
     reversibility: 'queued ActionRequest can be superseded until consumed by Cambium',
     priority: {
       ...pending.priority,
@@ -270,6 +275,7 @@ export function validateViewportProofManifest(manifest) {
     if (!isNonEmptyString(proof.path)) issues.push(`${prefix}.path must be present`);
     if (!isNonEmptyString(proof.intent)) issues.push(`${prefix}.intent must be present`);
     if (!isNonEmptyString(proof.fixture)) issues.push(`${prefix}.fixture must be present`);
+    if ('sha256' in proof && !/^[a-f0-9]{64}$/.test(String(proof.sha256 || ''))) issues.push(`${prefix}.sha256 must be a SHA-256 digest when present`);
 
     const clickTargetCount = normalizedClickTargetCount(proof);
     if (clickTargetCount !== undefined && (!Number.isInteger(clickTargetCount) || clickTargetCount < 1)) {
@@ -512,7 +518,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
   },
   { scene: 'inspect', fixture: 'mira', path: 'inspect-companions-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('system', 'Operators'), scrollSelector: '[data-npc="0"]' },
   { scene: 'gate', path: 'gate-empty-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-component=\"GateEmptyState\"]') && document.body.textContent.includes('no founder decisions waiting')" },
-  { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-signed-action-entrypoint=\"approve\"]') && document.body.textContent.includes('Clients') && document.body.textContent.includes('message 1068')" },
+  { scene: 'gate', fixture: 'gate', path: 'gate-consequence-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-component=\"MissionControlShell\"]') && document.querySelector('[data-component=\"RootNav\"]') && document.querySelector('[data-signed-action-entrypoint=\"approve\"]') && document.body.textContent.includes('THO-9')" },
   { scene: 'gate', fixture: 'action-requests', path: 'gate-iverif-action-request-mobile.png', intent: 'layout-proof', waitFor: "document.querySelector('[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]') && document.body.textContent.includes('IVerif') && document.body.textContent.includes('needs_signed_confirmation')" },
   {
     scene: 'gate',
@@ -715,6 +721,7 @@ export const MOBILE_CONTRACT_PROOF_PATHS = [
   'mission-control-430-mobile.png',
   'mission-utilities-mobile.png',
   'mission-vantyx-selected-mobile.png',
+  'sheet-gate-queued-proof-detail-mobile.png',
 ];
 
 export function selectViewportProofCaptureSteps({ proofPathFilter = '', mobileContractOnly = false } = {}) {
@@ -732,17 +739,15 @@ const gateFixture = {
   ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
   openItems: [
     {
-      id: 'ar_iverif_w6_live_mrcwmcs3',
-      title: 'IVerif: decision needed before action',
-      branchId: 'iverif',
-      missionId: 'iverif-wiki-proof',
-      source: 'Telegram · Clients · 804 · msg 1068',
-      telegram: { topicLabel: 'Clients', threadId: 804, messageId: '1068' },
+      id: 'THO-9',
+      title: 'Review launch copy',
+      branchId: 'cambium',
+      missionId: 'the-ship-gate',
+      source: 'Paperclip · paperclip-open-items',
       status: 'blocked',
       owner: 'Mathis',
       updatedAt: '2026-06-22T00:00:00.000Z',
       evidence: 'THO-9 is blocked · owner Mathis · updated 2026-06-22T00:00:00.000Z',
-      receiptExpectation: 'Telegram message 1068 receives a queued receipt after the Worker accepts the signed action.',
       consequence: 'queue founder decision for THO-9; no Paperclip mutation until consumed',
       approveConsequence: 'queue founder approval for THO-9; no Paperclip mutation until consumed',
       rerollConsequence: 'queue founder reroll request for THO-9; no Paperclip mutation until consumed',
@@ -1118,6 +1123,7 @@ async function probeBrowserDebugging(browser, mode) {
     '--disable-background-networking',
     '--disable-dev-shm-usage',
     '--no-sandbox',
+    '--touch-events=enabled',
     '--no-first-run',
     '--no-default-browser-check',
     '--enable-logging=stderr',
@@ -1150,7 +1156,7 @@ async function probeBrowserDebugging(browser, mode) {
 }
 
 async function writeBrowserDiagnosticsArtifact() {
-  mkdirSync(outDir, { recursive: true });
+  mkdirSync(diagnosticsDir, { recursive: true });
   const results = [];
   for (const browser of BROWSER_CANDIDATES) {
     for (const mode of browserProbeModes) {
@@ -1182,7 +1188,7 @@ async function writeBrowserDiagnosticsArtifact() {
     results,
     invariant: 'Browser diagnostics are not layout proof; viewport proof remains blocked until manifest.json is regenerated by a passing screenshot run.',
   };
-  writeFileSync(join(outDir, 'browser-diagnostics.json'), JSON.stringify(artifact, null, 2) + '\n');
+  writeFileSync(join(diagnosticsDir, 'browser-diagnostics.json'), JSON.stringify(artifact, null, 2) + '\n');
   return artifact;
 }
 
@@ -1272,59 +1278,101 @@ async function tapSelector(cdp, selector) {
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 });
 }
 
+export function touchDragNeedsRetry(result, minimumDelta = 24) {
+  const delta = Number(result?.delta);
+  return !Number.isFinite(delta) || delta < minimumDelta;
+}
+
 async function touchDragSelector(cdp, selector, distance = 96) {
   await cdp.send('Emulation.setTouchEmulationEnabled', { enabled:true, maxTouchPoints:5 });
-  await evaluate(cdp, `(() => {
-    const node = document.querySelector(${JSON.stringify(selector)});
-    if (!node) throw new Error('missing touch-drag selector ${selector}');
-    node.scrollIntoView({ block:'center', inline:'nearest' });
-    node.scrollLeft = 0;
-  })()`);
-  await new Promise((resolve) => setTimeout(resolve, 150));
-  const before = await evaluate(cdp, `(() => {
-    const node = document.querySelector(${JSON.stringify(selector)});
-    const rect = node.getBoundingClientRect();
-    const startX = Math.min(window.innerWidth - 24, rect.right - 24);
-    const endX = Math.max(rect.left + 24, startX - ${Number(distance)});
-    return {
-      startX,
-      endX,
-      y:rect.top + rect.height / 2,
-      scrollLeft:node.scrollLeft,
-      scene:document.querySelector('.root-tab.on')?.id || '',
-      sheetOpen:Boolean(document.querySelector('#sheet.on')),
-      trackTransform:getComputedStyle(document.querySelector('#track')).transform,
+  let result;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    await evaluate(cdp, `(() => {
+      const node = document.querySelector(${JSON.stringify(selector)});
+      if (!node) throw new Error('missing touch-drag selector ${selector}');
+      if (node.dataset.proofTouchProbeBound !== '1') {
+        node.dataset.proofTouchProbeBound = '1';
+        node.dataset.proofTouchStarts = '0';
+        node.dataset.proofTouchMoves = '0';
+        node.addEventListener('touchstart', (event) => {
+          node.dataset.proofTouchStarts = String(Number(node.dataset.proofTouchStarts || 0) + 1);
+          node.dataset.proofTouchStartX = String(event.touches?.[0]?.clientX);
+        }, { passive:true });
+        node.addEventListener('touchmove', (event) => {
+          node.dataset.proofTouchMoves = String(Number(node.dataset.proofTouchMoves || 0) + 1);
+          node.dataset.proofTouchMoveX = String(event.touches?.[0]?.clientX);
+          node.dataset.proofTouchLength = String(event.touches?.length);
+        }, { passive:true });
+      }
+      node.scrollIntoView({ block:'center', inline:'nearest' });
+      node.scrollLeft = 0;
+    })()`);
+    await new Promise((resolve) => setTimeout(resolve, 150 + attempt * 50));
+    const before = await evaluate(cdp, `(() => {
+      const node = document.querySelector(${JSON.stringify(selector)});
+      const rect = node.getBoundingClientRect();
+      const startX = Math.min(window.innerWidth - 24, rect.right - 24);
+      const endX = Math.max(rect.left + 24, startX - ${Number(distance)});
+      return {
+        startX,
+        endX,
+        y:rect.top + rect.height / 2,
+        scrollLeft:node.scrollLeft,
+        scene:document.querySelector('.root-tab.on')?.id || '',
+        sheetOpen:Boolean(document.querySelector('#sheet.on')),
+        trackTransform:getComputedStyle(document.querySelector('#track')).transform,
+        touchStarts:Number(node.dataset.proofTouchStarts || 0),
+        touchMoves:Number(node.dataset.proofTouchMoves || 0),
+        touchDragBound:node.dataset.touchDragBound || '',
+        touchStartX:node.dataset.proofTouchStartX || '',
+        touchMoveX:node.dataset.proofTouchMoveX || '',
+        touchLength:node.dataset.proofTouchLength || '',
+      };
+    })()`);
+    const point = (x) => ({ x, y:before.y, radiusX:1, radiusY:1, force:1, id:1 });
+    await cdp.send('Input.dispatchTouchEvent', { type:'touchStart', touchPoints:[point(before.startX)] });
+    for (let step = 1; step <= 8; step += 1) {
+      const x = before.startX + (before.endX - before.startX) * step / 8;
+      await cdp.send('Input.dispatchTouchEvent', { type:'touchMove', touchPoints:[point(x)] });
+      await new Promise((resolve) => setTimeout(resolve, 24));
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type:'touchEnd', touchPoints:[] });
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    const after = await evaluate(cdp, `(() => {
+      const node = document.querySelector(${JSON.stringify(selector)});
+      return {
+        scrollLeft:node.scrollLeft,
+        scene:document.querySelector('.root-tab.on')?.id || '',
+        sheetOpen:Boolean(document.querySelector('#sheet.on')),
+        trackTransform:getComputedStyle(document.querySelector('#track')).transform,
+        touchStarts:Number(node.dataset.proofTouchStarts || 0),
+        touchMoves:Number(node.dataset.proofTouchMoves || 0),
+        touchDragBound:node.dataset.touchDragBound || '',
+        touchStartX:node.dataset.proofTouchStartX || '',
+        touchMoveX:node.dataset.proofTouchMoveX || '',
+        touchLength:node.dataset.proofTouchLength || '',
+      };
+    })()`);
+    result = {
+      attempt,
+      beforeScrollLeft:before.scrollLeft,
+      afterScrollLeft:after.scrollLeft,
+      delta:Math.abs(after.scrollLeft - before.scrollLeft),
+      sceneBefore:before.scene,
+      sceneAfter:after.scene,
+      sheetBefore:before.sheetOpen,
+      sheetAfter:after.sheetOpen,
+      trackBefore:before.trackTransform,
+      trackAfter:after.trackTransform,
+      touchStarts:after.touchStarts - before.touchStarts,
+      touchMoves:after.touchMoves - before.touchMoves,
+      touchDragBound:after.touchDragBound,
+      touchStartX:after.touchStartX,
+      touchMoveX:after.touchMoveX,
+      touchLength:after.touchLength,
     };
-  })()`);
-  const point = (x) => [{ x, y:before.y, id:1, radiusX:2, radiusY:2, force:1 }];
-  await cdp.send('Input.dispatchTouchEvent', { type:'touchStart', touchPoints:point(before.startX) });
-  for (let index = 1; index <= 6; index += 1) {
-    const x = before.startX + ((before.endX - before.startX) * index / 6);
-    await cdp.send('Input.dispatchTouchEvent', { type:'touchMove', touchPoints:point(x) });
-    await new Promise((resolve) => setTimeout(resolve, 18));
+    if (!touchDragNeedsRetry(result)) break;
   }
-  await cdp.send('Input.dispatchTouchEvent', { type:'touchEnd', touchPoints:[] });
-  await new Promise((resolve) => setTimeout(resolve, 350));
-  const after = await evaluate(cdp, `(() => {
-    const node = document.querySelector(${JSON.stringify(selector)});
-    return {
-      scrollLeft:node.scrollLeft,
-      scene:document.querySelector('.root-tab.on')?.id || '',
-      sheetOpen:Boolean(document.querySelector('#sheet.on')),
-      trackTransform:getComputedStyle(document.querySelector('#track')).transform,
-    };
-  })()`);
-  const result = {
-    beforeScrollLeft:before.scrollLeft,
-    afterScrollLeft:after.scrollLeft,
-    delta:Math.abs(after.scrollLeft - before.scrollLeft),
-    sceneBefore:before.scene,
-    sceneAfter:after.scene,
-    sheetBefore:before.sheetOpen,
-    sheetAfter:after.sheetOpen,
-    trackBefore:before.trackTransform,
-    trackAfter:after.trackTransform,
-  };
   await evaluate(cdp, `document.documentElement.dataset.proofTouchDrag = ${JSON.stringify(JSON.stringify(result))}; undefined`);
   return result;
 }
@@ -1501,8 +1549,8 @@ async function capture(url, file, options = {}) {
 
 function writeFailureArtifact(error) {
   try {
-    mkdirSync(outDir, { recursive: true });
-    writeFileSync(join(outDir, 'failure.json'), JSON.stringify({
+    mkdirSync(diagnosticsDir, { recursive: true });
+    writeFileSync(join(diagnosticsDir, 'failure.json'), JSON.stringify({
       generatedAt: new Date().toISOString(),
       browserCandidates: BROWSER_CANDIDATES,
       browserModes: browserProbeModes.map((mode) => mode.id),
@@ -1521,17 +1569,11 @@ console.log(JSON.stringify(diagnostics, null, 2));
 return;
 }
 assertBrowserAvailable();
-mkdirSync(outDir, { recursive: true });
-if (WRITE_CANONICAL_PROOF_ARTIFACTS) {
-  writeFileSync(join(outDir, 'no-fake-progress-fixture.json'), JSON.stringify(NO_FAKE_PROGRESS_VISUAL_FIXTURE, null, 2) + '\n');
-  writeFileSync(join(outDir, 'gate-fixture.json'), JSON.stringify(gateFixture, null, 2) + '\n');
-  writeFileSync(join(outDir, 'skill-promotion-fixture.json'), JSON.stringify(skillFixture, null, 2) + '\n');
-  writeFileSync(join(outDir, 'mira-relationship-fixture.json'), JSON.stringify(miraFixture, null, 2) + '\n');
-  writeFileSync(join(outDir, 'fresh-ecosystem-fixture.json'), JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE, null, 2) + '\n');
-  writeFileSync(join(outDir, 'branch-stories-fixture.json'), JSON.stringify(branchStoriesFixture, null, 2) + '\n');
-  writeFileSync(join(outDir, 'iverif-action-requests-fixture.json'), JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, null, 2) + '\n');
-  writeFileSync(join(outDir, 'iverif-queued-action-request-fixture.json'), JSON.stringify(QUEUED_ACTION_REQUEST_VISUAL_FIXTURE, null, 2) + '\n');
-}
+const artifactDir = viewportProofArtifactDirectory({
+  proofPathFilter:PROOF_PATH_FILTER,
+  mobileContractOnly:MOBILE_CONTRACT_ONLY,
+});
+mkdirSync(artifactDir, { recursive: true });
 
 const proofs = [];
 const captureSteps = selectViewportProofCaptureSteps({
@@ -1541,7 +1583,7 @@ const captureSteps = selectViewportProofCaptureSteps({
 if (captureSteps.length === 0) throw new Error(`No viewport proof path matched ${PROOF_PATH_FILTER}`);
 await withServer(async (base, metrics) => {
   for (const proof of captureSteps) {
-    const file = join(outDir, proof.path);
+    const file = join(artifactDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
     await capture(url, file, proof);
@@ -1570,6 +1612,7 @@ await withServer(async (base, metrics) => {
           }
         : {}),
       ...pngSize(file),
+      sha256:createHash('sha256').update(readFileSync(file)).digest('hex'),
     });
   }
 });

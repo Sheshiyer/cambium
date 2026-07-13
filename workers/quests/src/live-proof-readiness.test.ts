@@ -30,6 +30,8 @@ import {
   MOBILE_CONTRACT_PROOF_PATHS,
   selectViewportProofCaptureSteps,
   shouldWriteCanonicalViewportArtifacts,
+  touchDragNeedsRetry,
+  viewportProofArtifactDirectory,
   VIEWPORT_PROOF_CAPTURE_STEPS,
 } from './visual-viewport-proof.mjs';
 
@@ -39,7 +41,7 @@ function fixtureRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'cambium-live-proof-'));
   mkdirSync(join(root, 'workers/quests/src'), { recursive: true });
   mkdirSync(join(root, 'bin/quine/hyphae'), { recursive: true });
-  mkdirSync(join(root, 'docs/plans/assets/tg-miniapp-live-proof'), { recursive: true });
+  mkdirSync(join(root, '.artifacts/tg-miniapp-live-proof'), { recursive: true });
   writeFileSync(join(root, 'workers/quests/src/page.ts'), 'const initData = TG && TG.initData || "";');
   writeFileSync(join(root, 'workers/quests/src/handler.ts'), 'export function validateInitData() {}');
   writeFileSync(join(root, 'workers/quests/src/handler.test.ts'), 'NPC history smoke flows from quine write to companion sheet');
@@ -67,7 +69,7 @@ function validDeviceProof(overrides: Record<string, unknown> = {}): Record<strin
     },
     screenshot: {
       sha256: `sha256:${'c'.repeat(64)}`,
-      path: 'docs/plans/assets/tg-miniapp-live-proof/founder-device.png',
+      path: '.artifacts/tg-miniapp-live-proof/founder-device.png',
     },
     notes: ['Captured inside Telegram WebView without storing raw initData.'],
     ...overrides,
@@ -75,7 +77,7 @@ function validDeviceProof(overrides: Record<string, unknown> = {}): Record<strin
 }
 
 function writeScreenshotFixture(cwd: string, body = 'founder telegram webview screenshot bytes'): { path: string; sha256: string } {
-  const path = 'docs/plans/assets/tg-miniapp-live-proof/founder-device.png';
+  const path = '.artifacts/tg-miniapp-live-proof/founder-device.png';
   writeFileSync(join(cwd, path), body);
   return {
     path,
@@ -206,10 +208,12 @@ test('live proof readiness blocks stale viewport manifests after a newer failure
   const cwd = fixtureRepo();
   const chrome = join(cwd, 'chrome');
   const viewportDir = join(cwd, 'docs/plans/assets/tg-miniapp-viewport-proof');
+  const diagnosticsDir = join(cwd, '.artifacts/tg-miniapp-viewport');
   mkdirSync(viewportDir, { recursive: true });
+  mkdirSync(diagnosticsDir, { recursive: true });
   writeFileSync(chrome, '');
   writeFileSync(join(viewportDir, 'manifest.json'), JSON.stringify({ generatedAt: '2026-06-22T00:00:00.000Z' }));
-  writeFileSync(join(viewportDir, 'failure.json'), JSON.stringify({
+  writeFileSync(join(diagnosticsDir, 'failure.json'), JSON.stringify({
     generatedAt: '2026-06-22T00:01:00.000Z',
     error: 'No configured browser exposed a Chrome DevTools Protocol endpoint',
   }));
@@ -225,17 +229,19 @@ test('live proof readiness blocks stale viewport manifests after a newer failure
   assert.equal(viewport?.state, 'blocked');
   assert.match(viewport?.detail ?? '', /latest local viewport proof attempt failed/);
   assert.deepEqual(viewport?.missing, ['repair local browser CDP and rerun npm run proof:tg-viewport to regenerate manifest.json']);
-  assert.ok(viewport?.evidence.includes('docs/plans/assets/tg-miniapp-viewport-proof/failure.json'));
+  assert.ok(viewport?.evidence.includes('.artifacts/tg-miniapp-viewport/failure.json'));
 });
 
 test('live proof readiness orders viewport receipts by generatedAt instead of checkout mtime', () => {
   const cwd = fixtureRepo();
   const chrome = join(cwd, 'chrome');
   const viewportDir = join(cwd, 'docs/plans/assets/tg-miniapp-viewport-proof');
+  const diagnosticsDir = join(cwd, '.artifacts/tg-miniapp-viewport');
   mkdirSync(viewportDir, { recursive: true });
+  mkdirSync(diagnosticsDir, { recursive: true });
   writeFileSync(chrome, '');
   writeFileSync(join(viewportDir, 'manifest.json'), JSON.stringify({ generatedAt: '2026-06-22T00:02:00.000Z' }));
-  writeFileSync(join(viewportDir, 'failure.json'), JSON.stringify({
+  writeFileSync(join(diagnosticsDir, 'failure.json'), JSON.stringify({
     generatedAt: '2026-06-22T00:01:00.000Z',
     error: 'Older diagnostic copied after the passing manifest',
   }));
@@ -255,7 +261,9 @@ test('live proof readiness orders viewport receipts by generatedAt instead of ch
 test('live proof readiness blocks a viewport manifest from a different PAGE source', () => {
   const cwd = fixtureRepo();
   const viewportDir = join(cwd, 'docs/plans/assets/tg-miniapp-viewport-proof');
+  const diagnosticsDir = join(cwd, '.artifacts/tg-miniapp-viewport');
   mkdirSync(viewportDir, { recursive: true });
+  mkdirSync(diagnosticsDir, { recursive: true });
   writeFileSync(join(viewportDir, 'manifest.json'), JSON.stringify({
     generatedAt: '2026-06-22T00:02:00.000Z',
     pageSourceSha256: 'a'.repeat(64),
@@ -278,14 +286,16 @@ test('live proof readiness treats viewport browser diagnostics as evidence, not 
   const cwd = fixtureRepo();
   const chrome = join(cwd, 'chrome');
   const viewportDir = join(cwd, 'docs/plans/assets/tg-miniapp-viewport-proof');
+  const diagnosticsDir = join(cwd, '.artifacts/tg-miniapp-viewport');
   mkdirSync(viewportDir, { recursive: true });
+  mkdirSync(diagnosticsDir, { recursive: true });
   writeFileSync(chrome, '');
   writeFileSync(join(viewportDir, 'manifest.json'), JSON.stringify({ generatedAt: '2026-06-22T00:00:00.000Z' }));
-  writeFileSync(join(viewportDir, 'failure.json'), JSON.stringify({
+  writeFileSync(join(diagnosticsDir, 'failure.json'), JSON.stringify({
     generatedAt: '2026-06-22T00:01:00.000Z',
     error: 'No configured browser exposed a Chrome DevTools Protocol endpoint',
   }));
-  writeFileSync(join(viewportDir, 'browser-diagnostics.json'), JSON.stringify({
+  writeFileSync(join(diagnosticsDir, 'browser-diagnostics.json'), JSON.stringify({
     schema: 'cambium.tg-viewport-browser-diagnostics.v1',
     summary: { ready: 0, blocked: 2, total: 2, cdpReady: false },
   }));
@@ -300,7 +310,7 @@ test('live proof readiness treats viewport browser diagnostics as evidence, not 
   const viewport = report.items.find((item) => item.id === 'viewport-layout-proof');
   assert.equal(viewport?.state, 'blocked');
   assert.match(viewport?.detail ?? '', /browser diagnostics are available/);
-  assert.ok(viewport?.evidence.includes('docs/plans/assets/tg-miniapp-viewport-proof/browser-diagnostics.json'));
+  assert.ok(viewport?.evidence.includes('.artifacts/tg-miniapp-viewport/browser-diagnostics.json'));
   assert.deepEqual(viewport?.missing, ['repair local browser CDP and rerun npm run proof:tg-viewport to regenerate manifest.json']);
 });
 
@@ -433,26 +443,39 @@ test('queued viewport fixture is redacted and filtered proofs cannot replace can
   assert.equal(shouldWriteCanonicalViewportArtifacts(''), true);
   assert.equal(shouldWriteCanonicalViewportArtifacts('sheet-gate-queued-proof-detail-mobile.png'), false);
   assert.equal(shouldWriteCanonicalViewportArtifacts('', true), false);
+  assert.match(viewportProofArtifactDirectory(), /docs\/plans\/assets\/tg-miniapp-viewport-proof$/);
+  assert.match(viewportProofArtifactDirectory({ mobileContractOnly:true }), /\.artifacts\/tg-miniapp-viewport\/captures$/);
+  assert.match(viewportProofArtifactDirectory({ proofPathFilter:'gate' }), /\.artifacts\/tg-miniapp-viewport\/captures$/);
 });
 
 test('mobile contract proof is focused, noncanonical, and required by CI plus release', () => {
   const steps = selectViewportProofCaptureSteps({ proofPathFilter:'', mobileContractOnly:true });
   assert.deepEqual(steps.map((proof) => proof.path), MOBILE_CONTRACT_PROOF_PATHS);
+  assert.ok(steps.some((proof) => proof.fixture === 'action-request-queued' && proof.tapTargetSelector));
   assert.ok(steps.every((proof) => typeof proof.assertExpression === 'string'));
 
   const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
   assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
   const ci = readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8');
   const release = readFileSync(new URL('../../../.github/workflows/release.yml', import.meta.url), 'utf8');
-  assert.match(ci, /npm run proof:tg-mobile-contract/);
-  assert.match(release, /npm run proof:tg-mobile-contract/);
+  const verifyRelease = readFileSync(new URL('../../../scripts/verify-release.mjs', import.meta.url), 'utf8');
+  assert.match(verifyRelease, /proof:tg-mobile-contract/);
+  assert.match(ci, /npm run verify:release/);
+  assert.match(release, /npm run verify:release/);
+});
+
+test('mobile touch proof retries only when a real drag produced insufficient scroll', () => {
+  assert.equal(touchDragNeedsRetry({ delta:0 }), true);
+  assert.equal(touchDragNeedsRetry({ delta:23.99 }), true);
+  assert.equal(touchDragNeedsRetry({ delta:24 }), false);
+  assert.equal(touchDragNeedsRetry({ delta:96 }), false);
 });
 
 test('live proof readiness marks capture steps ready-to-capture when prerequisites are supplied', () => {
   const cwd = fixtureRepo();
   const screenshot = writeScreenshotFixture(cwd);
-  const operatorAuditPath = 'docs/plans/assets/tg-miniapp-live-proof/operator-audit.json';
-  const miniAppEnvelopePath = 'docs/plans/assets/tg-miniapp-live-proof/miniapp-envelope.json';
+  const operatorAuditPath = '.artifacts/tg-miniapp-live-proof/operator-audit.json';
+  const miniAppEnvelopePath = '.artifacts/tg-miniapp-live-proof/miniapp-envelope.json';
   writeFileSync(join(cwd, operatorAuditPath), JSON.stringify({ consumed: 1 }));
   writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'cambium-founder-review' }));
 
@@ -493,7 +516,7 @@ test('live proof readiness does not count a device proof template as live eviden
   const cwd = fixtureRepo();
   writeDeviceProofTemplate(
     createDeviceProofTemplate({ tenant: 'cambium', generatedAt: '2026-06-22T00:00:00.000Z' }),
-    'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json',
+    '.artifacts/tg-miniapp-live-proof/telegram-webview.json',
     cwd,
   );
 
@@ -518,7 +541,7 @@ test('live proof readiness does not count a Worker probe template as production 
       workerUrl: 'https://curious.thoughtseed.space',
       generatedAt: '2026-06-22T00:00:00.000Z',
     }),
-    'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json',
+    '.artifacts/tg-miniapp-live-proof/worker-network-probe.json',
     cwd,
   );
 
@@ -544,7 +567,7 @@ test('live proof readiness reports a signed-action smoke template as a follow-up
       workerUrl: 'https://curious.thoughtseed.space',
       generatedAt: '2026-06-22T00:00:00.000Z',
     }),
-    'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json',
+    '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json',
     cwd,
   );
 
@@ -583,7 +606,7 @@ test('device proof capture refuses missing initData and screenshots outside the 
       cwd,
       tenant: 'cambium',
       env: {},
-      screenshotPath: 'docs/plans/assets/tg-miniapp-live-proof/founder-device.png',
+      screenshotPath: '.artifacts/tg-miniapp-live-proof/founder-device.png',
       platform: 'ios',
       webViewUrl: 'https://curious.thoughtseed.space/?tgWebAppData=secret',
       capturedAt: '2026-06-22T00:01:00.000Z',
@@ -625,7 +648,7 @@ test('device proof capture writes a valid redacted artifact from env initData an
   assert.equal((artifact.webView as Record<string, unknown>).urlPath, '/');
   assert.equal((artifact.screenshot as Record<string, unknown>).sha256, screenshot.sha256);
 
-  const path = writeDeviceProofArtifact(artifact, 'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json', cwd);
+  const path = writeDeviceProofArtifact(artifact, '.artifacts/tg-miniapp-live-proof/telegram-webview.json', cwd);
   const text = readFileSync(path, 'utf8');
   assert.doesNotMatch(text, new RegExp(`query_id=|auth_date=|secret-hash|secret-signature|${TEST_TELEGRAM_USER_ID}|tgWebAppData`));
 
@@ -753,8 +776,8 @@ test('signed-action smoke capture refuses without explicit network and mutation 
 
 test('signed-action smoke capture refuses a refresh marker missing from the mini app envelope', async () => {
   const cwd = fixtureRepo();
-  const operatorAuditPath = 'docs/plans/assets/tg-miniapp-live-proof/operator-audit.json';
-  const miniAppEnvelopePath = 'docs/plans/assets/tg-miniapp-live-proof/miniapp-envelope.json';
+  const operatorAuditPath = '.artifacts/tg-miniapp-live-proof/operator-audit.json';
+  const miniAppEnvelopePath = '.artifacts/tg-miniapp-live-proof/miniapp-envelope.json';
   writeFileSync(join(cwd, operatorAuditPath), JSON.stringify({ consumed: 1 }));
   writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'different-card-marker' }));
 
@@ -786,8 +809,8 @@ test('signed-action smoke capture refuses a refresh marker missing from the mini
 
 test('signed-action smoke capture refuses a generic refresh marker', async () => {
   const cwd = fixtureRepo();
-  const operatorAuditPath = 'docs/plans/assets/tg-miniapp-live-proof/operator-audit.json';
-  const miniAppEnvelopePath = 'docs/plans/assets/tg-miniapp-live-proof/miniapp-envelope.json';
+  const operatorAuditPath = '.artifacts/tg-miniapp-live-proof/operator-audit.json';
+  const miniAppEnvelopePath = '.artifacts/tg-miniapp-live-proof/miniapp-envelope.json';
   writeFileSync(join(cwd, operatorAuditPath), JSON.stringify({ consumed: 1, subject: 'cambium-founder-review' }));
   writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'production-card-marker', subject: 'cambium-founder-review' }));
 
@@ -819,8 +842,8 @@ test('signed-action smoke capture refuses a generic refresh marker', async () =>
 
 test('signed-action smoke capture writes only redacted queue, consume, and refresh proof', async () => {
   const cwd = fixtureRepo();
-  const operatorAuditPath = 'docs/plans/assets/tg-miniapp-live-proof/operator-audit.json';
-  const miniAppEnvelopePath = 'docs/plans/assets/tg-miniapp-live-proof/miniapp-envelope.json';
+  const operatorAuditPath = '.artifacts/tg-miniapp-live-proof/operator-audit.json';
+  const miniAppEnvelopePath = '.artifacts/tg-miniapp-live-proof/miniapp-envelope.json';
   writeFileSync(join(cwd, operatorAuditPath), JSON.stringify({ consumed: 1, action: 'queued-id', subject: 'cambium-founder-review' }));
   writeFileSync(join(cwd, miniAppEnvelopePath), JSON.stringify({ marker: 'cambium-founder-review', subject: 'cambium-founder-review' }));
   const calls: Array<{ url: string; init: Record<string, unknown> }> = [];
@@ -881,7 +904,7 @@ test('signed-action smoke capture writes only redacted queue, consume, and refre
   assert.equal((artifact.phases as Record<string, any>).operatorConsume.consumed, 1);
   assert.equal((artifact.phases as Record<string, any>).miniAppRefresh.visibleMarkerBinding, 'action-subject');
 
-  const path = writeSignedActionSmokeArtifact(artifact, 'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json', cwd);
+  const path = writeSignedActionSmokeArtifact(artifact, '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json', cwd);
   const text = readFileSync(path, 'utf8');
   assert.doesNotMatch(text, new RegExp(`secret-token|query_id=|auth_date=|secret-hash|secret-signature|${TEST_TELEGRAM_USER_ID}|cambium-founder-review|queued-id|founderId|tgWebAppData`));
 
@@ -979,7 +1002,7 @@ test('Worker probe capture writes only redacted status, count, and digest metada
   assert.equal((artifact.probes as Array<Record<string, unknown>>)[0].queuedActionCount, 1);
   assert.equal((artifact.probes as Array<Record<string, unknown>>)[0].bodySha256, `sha256:${createHash('sha256').update(body).digest('hex')}`);
 
-  const path = writeWorkerProbeArtifact(artifact, 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json', cwd);
+  const path = writeWorkerProbeArtifact(artifact, '.artifacts/tg-miniapp-live-proof/worker-network-probe.json', cwd);
   const text = readFileSync(path, 'utf8');
   assert.doesNotMatch(text, /secret-token|queued-action|founderId|Bearer/);
 
@@ -1022,11 +1045,11 @@ test('live proof readiness becomes ready only when live-proof prerequisites are 
   }));
   const screenshot = writeScreenshotFixture(cwd);
   writeFileSync(
-    join(cwd, 'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json'),
+    join(cwd, '.artifacts/tg-miniapp-live-proof/telegram-webview.json'),
     JSON.stringify(validDeviceProof({ screenshot })),
   );
   writeFileSync(
-    join(cwd, 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json'),
+    join(cwd, '.artifacts/tg-miniapp-live-proof/worker-network-probe.json'),
     JSON.stringify(validWorkerProbe({ workerUrl: 'https://worker.test' })),
   );
 
@@ -1054,7 +1077,7 @@ test('live proof readiness becomes ready only when live-proof prerequisites are 
 test('device proof template writer creates a non-authoritative scaffold', () => {
   const cwd = fixtureRepo();
   const template = createDeviceProofTemplate({ tenant: 'cambium', generatedAt: '2026-06-22T00:03:00.000Z' });
-  const path = writeDeviceProofTemplate(template, 'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.template.json', cwd);
+  const path = writeDeviceProofTemplate(template, '.artifacts/tg-miniapp-live-proof/telegram-webview.template.json', cwd);
   const text = readFileSync(path, 'utf8');
 
   assert.match(text, /cambium\.tg-device-proof-template\.v1/);
@@ -1077,7 +1100,7 @@ test('Worker probe template writer creates a non-authoritative scaffold', () => 
     workerUrl: 'https://curious.thoughtseed.space',
     generatedAt: '2026-06-22T00:04:00.000Z',
   });
-  const path = writeWorkerProbeTemplate(template, 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.template.json', cwd);
+  const path = writeWorkerProbeTemplate(template, '.artifacts/tg-miniapp-live-proof/worker-network-probe.template.json', cwd);
   const text = readFileSync(path, 'utf8');
 
   assert.match(text, /cambium\.worker-network-probe-template\.v1/);
@@ -1101,7 +1124,7 @@ test('signed-action smoke template writer creates a non-authoritative scaffold',
     workerUrl: 'https://curious.thoughtseed.space',
     generatedAt: '2026-06-22T00:05:00.000Z',
   });
-  const path = writeSignedActionSmokeTemplate(template, 'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.template.json', cwd);
+  const path = writeSignedActionSmokeTemplate(template, '.artifacts/tg-miniapp-live-proof/signed-action-smoke.template.json', cwd);
   const text = readFileSync(path, 'utf8');
 
   assert.match(text, /cambium\.signed-action-smoke-template\.v1/);
@@ -1118,7 +1141,7 @@ test('live proof readiness writes a redacted manifest artifact', () => {
     generatedAt: '2026-06-22T00:02:00.000Z',
   });
 
-  const path = writeReadinessManifest(report, 'docs/plans/assets/tg-miniapp-live-proof/readiness.json', cwd);
+  const path = writeReadinessManifest(report, '.artifacts/tg-miniapp-live-proof/readiness.json', cwd);
   assert.match(path, /readiness\.json$/);
   const text = readFileSync(path, 'utf8');
   assert.match(text, /cambium\.tg-live-proof-readiness\.v1/);

@@ -544,7 +544,7 @@ test('quests apply-side-quests re-checks the current envelope before writing que
 
 test('quests visual envelope surfaces redacted live-proof capture plan', () => {
   const ctx = tmpCtx();
-  const proofDir = join(ctx.root, 'docs', 'plans', 'assets', 'tg-miniapp-live-proof');
+  const proofDir = join(ctx.root, '.artifacts', 'tg-miniapp-live-proof');
   mkdirSync(proofDir, { recursive: true });
   writeFileSync(join(proofDir, 'readiness.json'), JSON.stringify({
     schema: 'cambium.tg-live-proof-readiness.v1',
@@ -560,9 +560,9 @@ test('quests visual envelope surfaces redacted live-proof capture plan', () => {
       steps: [
         {
           id: 'device-webview-proof',
-          writes: 'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json',
+          writes: '.artifacts/tg-miniapp-live-proof/telegram-webview.json',
           state: 'blocked',
-          command: 'node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot docs/plans/assets/tg-miniapp-live-proof/<founder-device>.png --write',
+          command: 'node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot .artifacts/tg-miniapp-live-proof/<founder-device>.png --write',
           prerequisites: [
             { id: 'fresh-telegram-init-data', state: 'blocked', detail: 'capture fresh Telegram initData from a founder WebView' },
             { id: 'screenshot-under-proof-dir', state: 'blocked', detail: 'founder-device screenshot path is required' },

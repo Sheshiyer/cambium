@@ -1,7 +1,8 @@
 # Hermes Topic Routing To Cambium Quests
 
-Status: implemented locally
-Date: 2026-06-25
+Status: active pinned consumer snapshot
+Snapshot source: `Sheshiyer/hermes-aws-ts@67ba40cda9fb935eb5b2a9955cc7edb5bd579657`
+Runtime owner tracker: [Hermes #88](https://github.com/Sheshiyer/hermes-aws-ts/issues/88)
 
 ## Purpose
 
@@ -46,7 +47,7 @@ The route returns the same idempotent assignment shape as
   "queued": true,
   "topic": {
     "topicKey": "dev",
-    "threadId": 799,
+    "threadId": 862,
     "questId": "the-build"
   }
 }
@@ -59,7 +60,7 @@ Minimum:
 ```json
 {
   "topicKey": "dev",
-  "threadId": 799,
+  "threadId": 862,
   "sourceMessageId": "852",
   "summary": "Build route proof is stale and needs a fresh worker probe."
 }
@@ -82,7 +83,7 @@ Optional fields:
 | --- | ---: | --- | --- | --- |
 | Hermes | 797 | `the-gate` | `operations` | `normal` |
 | Digests | 798 | `the-review` | `research` | `normal` |
-| Dev | 799 | `the-build` | `engineering` | `high` |
+| Dev | 862 | `the-build` | `engineering` | `high` |
 | Inbox | 800 | `the-brief` | `general` | `normal` |
 | Calendar | 801 | `the-brief` | `operations` | `normal` |
 | Agent Ops | 802 | `living-org` | `operations` | `high` |
@@ -127,3 +128,14 @@ This creates a loop:
 - Hermes remains the hosted observer, classifier, cron runner, and delivery
   surface.
 - Paperclip is provenance only.
+
+## Ownership and drift
+
+Hermes owns Telegram topology; Cambium owns quest mapping. Cambium's sole
+runtime snapshot is `workers/quests/src/telegram-routing.ts`, which records the
+exact Hermes source commit and the cross-repository tracker. Raw topic literals
+must not be copied into handlers, tests, runbooks, or plans as current config.
+
+Hermes #88 will replace this temporary pinned TypeScript snapshot with a
+versioned manifest plus digest synchronization. Historical evidence may retain
+older topic ids, but it is not configuration.

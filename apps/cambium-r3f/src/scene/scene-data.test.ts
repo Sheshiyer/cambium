@@ -100,10 +100,11 @@ test('game-engine model exposes emitters, controls, and scene-native visualizati
   assert.equal(scene.activeScreen.mode, 'visualizations');
 });
 
-test('scene model exposes desktop manual-feedback QA policy', () => {
+test('scene model exposes durable desktop acceptance policy', () => {
   const scene = buildCambiumScene();
-  assert.equal(scene.qaPolicy.visualFeedbackGate.browserVisualE2E, 'skipped-by-user-request');
-  assert.equal(scene.qaPolicy.visualFeedbackGate.reviewer, 'user');
+  assert.equal(scene.qaPolicy.visualAcceptancePolicy.browserVisualE2E, 'recommended-not-release-blocking');
+  assert.equal(scene.qaPolicy.visualAcceptancePolicy.reviewer, 'human');
+  assert.equal('status' in scene.qaPolicy.visualAcceptancePolicy, false);
   assert.equal(scene.qaPolicy.electronReadiness.targetShell, 'electron-macos-laptop');
   assert.ok(scene.qaPolicy.desktopViewports.some((viewport) => viewport.id === 'macbook-air-13'));
 });

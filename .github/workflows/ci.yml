@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: test · node ${{ matrix.node }}
+  verify:
+    name: deterministic release verification · node ${{ matrix.node }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -21,23 +21,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: apps/cambium-r3f/package-lock.json
 
-      # Cambium is zero-dependency (Node v26 runs the TypeScript natively), so there is nothing
-      # to install — `npm test` runs `node --test` over the .mjs + native .ts suites directly.
-      - name: Test
-        run: npm test
+      - name: Install retained R3F runtime
+        run: npm ci --prefix apps/cambium-r3f
 
-      - name: Telegram mobile layout contract
+      - name: Resolve Chromium
         run: |
           browser="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
           if [ -z "$browser" ]; then
-            echo "No Chromium-family browser is available for the Telegram mobile contract" >&2
+            echo "No Chromium-family browser is available" >&2
             exit 1
           fi
-          CHROME_BIN="$browser" npm run proof:tg-mobile-contract
+          echo "CHROME_BIN=$browser" >> "$GITHUB_ENV"
 
-      - name: Standalone audit
-        run: npm run standalone:audit
+      - name: Verify deterministic release contract
+        run: npm run verify:release
 
-      - name: Standalone smoke
-        run: npm run standalone:smoke
+      - name: Live readiness report (separate evidence)
+        if: always()
+        run: npm run proof:tg-live-readiness
+
+      - name: Upload live readiness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tg-miniapp-live-readiness-${{ github.sha }}
+          path: .artifacts/tg-miniapp-live-proof/readiness.json
+          if-no-files-found: error

@@ -6,7 +6,6 @@
   "observability": { "enabled": true },
   "routes": [],
   "vars": {
-    "CAMBIUM_PUBLIC_BASE_URL": "https://cambium.example.com",
     "CONTEXT_ALLOWED_TENANTS": "cambium",
     "CONTEXT_EMBEDDING_PROVIDER": "nvidia",
     "CONTEXT_EMBEDDING_MODEL": "nvidia/nv-embedqa-e5-v5"

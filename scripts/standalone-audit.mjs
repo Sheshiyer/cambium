@@ -5,6 +5,7 @@
 import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const skipDirs = new Set([
   '.git',
@@ -48,12 +49,6 @@ function candidateFiles() {
   return tracked.stdout.concat(untracked.stdout).split('\n').filter(Boolean);
 }
 
-const files = candidateFiles()
-  .filter(Boolean)
-  .filter((file) => !file.startsWith('docs/plans/assets/'))
-  .filter((file) => !file.startsWith('apps/cambium-r3f/public/assets/'))
-  .filter((file) => !file.endsWith('VERSIONS.md'));
-
 const privatePatterns = [
   { name: 'private macOS user path', pattern: /\/Users\/sheshnarayaniyer\b/ },
   { name: 'private project volume path', pattern: /\/Volumes\/madara\b/ },
@@ -63,11 +58,15 @@ const privatePatterns = [
   { name: 'raw private user UUID from exports', pattern: new RegExp('d00e212d-3726-4b83-b68c-' + 'ab661d0bd0db', 'i') },
 ];
 
+export function isAllowedLiveDeploymentEvidencePath(file) {
+  return /^(README\.md|ISA\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/diagrams\/|docs\/evidence\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/.test(file);
+}
+
 const liveDefaultPatterns = [
   {
     name: 'live Thoughtseed URL in product code/config',
     pattern: /curious\.thoughtseed\.space/,
-    allowed: /^(README\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/diagrams\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/,
+    allowed: isAllowedLiveDeploymentEvidencePath,
   },
   {
     name: 'checked-in founder Telegram ids',
@@ -75,26 +74,40 @@ const liveDefaultPatterns = [
   },
 ];
 
-const failures = [];
-for (const file of files) {
-  let text = '';
-  try {
-    text = readFileSync(file, 'utf8');
-  } catch {
-    continue;
+export function runStandaloneAudit() {
+  const files = candidateFiles()
+    .filter(Boolean)
+    .filter((file) => !file.startsWith('docs/plans/assets/'))
+    .filter((file) => !file.startsWith('apps/cambium-r3f/public/assets/'))
+    .filter((file) => !file.endsWith('VERSIONS.md'));
+
+  const failures = [];
+  for (const file of files) {
+    let text = '';
+    try {
+      text = readFileSync(file, 'utf8');
+    } catch {
+      continue;
+    }
+    for (const rule of privatePatterns) {
+      if (rule.pattern.test(text)) failures.push(`${file}: ${rule.name}`);
+    }
+    for (const rule of liveDefaultPatterns) {
+      const allowed = typeof rule.allowed === 'function' ? rule.allowed(file) : (rule.allowed?.test(file) ?? false);
+      if (rule.pattern.test(text) && !allowed) failures.push(`${file}: ${rule.name}`);
+    }
   }
-  for (const rule of privatePatterns) {
-    if (rule.pattern.test(text)) failures.push(`${file}: ${rule.name}`);
+
+  if (failures.length) {
+    console.error('standalone audit failed:');
+    for (const failure of failures) console.error(`- ${failure}`);
+    return 1;
   }
-  for (const rule of liveDefaultPatterns) {
-    if (rule.pattern.test(text) && !(rule.allowed?.test(file) ?? false)) failures.push(`${file}: ${rule.name}`);
-  }
+
+  console.log(`standalone audit passed (${files.length} publishable files checked)`);
+  return 0;
 }
 
-if (failures.length) {
-  console.error('standalone audit failed:');
-  for (const failure of failures) console.error(`- ${failure}`);
-  process.exit(1);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  process.exitCode = runStandaloneAudit();
 }
-
-console.log(`standalone audit passed (${files.length} publishable files checked)`);

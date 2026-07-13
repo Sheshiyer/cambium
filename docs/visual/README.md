@@ -1,24 +1,19 @@
-# Visual Release Scope
+# Visual release scope
 
 Cambium's standalone release gate is the portable six-scale fractal tapestry:
 `skill -> cluster -> organ -> venture -> company -> portfolio`.
 
-The R3F visual engine is the spatial rendering of that tapestry. It matters, and
-it should keep its own quality bar, but final game-engine visual parity is not
-the same gate as standalone product portability.
+The retained R3F app is a maintained visual runtime. Every deterministic release
+audit runs:
 
-`docs/visual/release-scope.json` records the release decision:
+```bash
+npm run r3f:test
+npm run r3f:build
+```
 
-- `standaloneReleaseGate.status = "satisfied"` means the non-visual standalone
-  product can be released once the final audit passes from `main`.
-- `r3fGameEngineRealignment.releaseBlocker = false` means GitHub issues #44-#52
-  remain the visual-product acceptance roadmap, not blockers for tagging the
-  provider-neutral standalone release.
-- the final audit must still run `npm run r3f:test` and `npm run r3f:build` so
-  the shipped R3F scaffold does not regress.
-- release-facing docs must not claim final R3F visual parity until the game
-  engine realignment milestone is actually closed.
+These commands prevent code and build regressions. They do not claim that a
+human has accepted visual parity, flow quality, or reference fidelity. Human
+perceptual review remains separate dated evidence.
 
-This split keeps two truths intact: Cambium can be cloned and emulated by a new
-organization without private company state, and the visual engine still has a
-clear road to the lush tactical-map product target.
+GitHub owns milestone and issue state. This directory intentionally contains no
+copied issue list, open/closed status, or waiting-for-review flag.

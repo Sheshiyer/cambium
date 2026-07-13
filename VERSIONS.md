@@ -11,9 +11,28 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.2.8 · **Thalia .8** — *truth has one owner*
+
+The operational-truth update: ActionRequest state, Telegram provenance, visual proof,
+runbooks, roadmap status, and release qualification now converge through machine-checked
+contracts instead of copied checklists or fixture-only fields.
+
+- **One ActionRequest lifecycle** — production projection, Gate rendering, fixtures, and the
+  operator consumer share durable identifiers, state-valid controls, selected-option context,
+  redacted receipts, and source-message provenance.
+- **State-driven operations** — one evergreen runbook replaces message-number instructions;
+  historical plans are explicitly non-operational and transient live-proof output belongs in
+  ignored `.artifacts/` storage.
+- **Owned Telegram routing** — Cambium validates a pinned Hermes routing snapshot while the
+  cross-repository manifest is tracked in `Sheshiyer/hermes-aws-ts#88`.
+- **Drift-resistant release** — CI and releases use one deterministic verification command,
+  including production-shaped mobile proof and the retained R3F application. Live founder-device
+  readiness remains a separate inspectable artifact and is never inferred from browser proof.
+- **Roadmap retirement** — obsolete generated issue mirrors and temporal release configuration
+  are removed; M7 closes as implemented/deferred instead of remaining an evergreen open checklist.
+
 ### v0.2.7 · **Thalia .7** — *the root takes Meristem*
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The composition update: Cambium's active Genesis stage now runs through Meristem.
 The conductor calls a no-spend Cambium contract shim that maps Meristem sidecar
@@ -38,7 +57,6 @@ groups the downstream stages consume.
 
 ### v0.2.5 · **Thalia .5** — *the tapestry stands alone*
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The product update: Cambium's fractal tapestry is now release-safe as a standalone
 project. The repo keeps the reusable company-compiler/operator architecture while
@@ -62,7 +80,6 @@ company-bound adapter names from active product surfaces.
 
 ### v0.2.4 · **Thalia .4** — *the bridge becomes release-testable*
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The org update: Cambium's post-Thalia bridge is now testable from a clean checkout. The quest
 surface, project evidence, archive gate, lesson-mint surface, and R3F tactical-map scaffold all
@@ -82,7 +99,6 @@ have release-path evidence instead of relying on private local state.
 
 ### v0.2.3 · **Thalia .3** — *the game sees the org live*
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The org update: the quest log now reads the real pulse of the agent plane — MultiCA-derived
  evidence joins the fold, and every quest arc derives from actual operations.
@@ -98,7 +114,6 @@ The org update: the quest log now reads the real pulse of the agent plane — Mu
 
 ### v0.2.2 · **Thalia .2** — *the game becomes many, and writes back*
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The org update: the quest game gains a story it tells in prose, the venture becomes *many*
 ventures, and the founder can finally act from inside the map.
@@ -121,7 +136,6 @@ ventures, and the founder can finally act from inside the map.
 
 ### v0.2.1 · **Thalia .1** — *the game becomes visible*
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The quest update: Thalia's game gets its surfaces — a quest log that cannot lie, a forge that
 learns from repetition, and the first living UI in the founders' pocket.
@@ -142,7 +156,6 @@ learns from repetition, and the first living UI in the founders' pocket.
 
 ### v0.2.0 · **Thalia** — *muse of comedy, festivity, and play*
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
 
 The operator comes alive and becomes **playable**. Thalia presides over the game.
 
@@ -178,12 +191,13 @@ viability, NPC self-play (ICP + Founder), the composition layer.
 ## How we cut a release
 
 ```bash
-# bump package.json (version + codename), gate on tests, commit, tag, push the tag:
+# after adding the release stanza, preflight, bump, commit, tag, and push:
 bash scripts/release.sh 0.3.0 Urania
 ```
 
-Pushing the `vX.Y.Z` tag triggers **`.github/workflows/release.yml`** — it runs the full suite, then
-creates the GitHub Release titled `vX.Y.Z · <Muse>` with auto-generated notes. CI
-(**`.github/workflows/ci.yml`**) runs the same suite on every push to `main` and every PR.
+Pushing the `vX.Y.Z` tag triggers **`.github/workflows/release.yml`**. Local,
+CI, and release paths all call `npm run verify:release`; live Telegram readiness
+is generated and uploaded as separate dated evidence. A deterministic release
+does not claim founder-device proof.
 
 Before tagging, add the release's stanza to the **Current** section above (the Muse + what shipped).

@@ -1,0 +1,500 @@
+{
+  "schema": "cambium.organ-source-snapshot.v1",
+  "sourceRoots": {
+    "skill-clusters": "Skill-clusters",
+    "snow-gloves": "snow-gloves-os"
+  },
+  "organs": [
+    {
+      "id": "genesis",
+      "components": [
+        {
+          "name": "meristem-genesis-contract.mjs",
+          "kind": "contract shim",
+          "desc": "maps Meristem output envelopes into Cambium's active Genesis contract"
+        },
+        {
+          "name": "brand-config.yaml",
+          "kind": "identity source",
+          "desc": "canonical brand slug, name, and category"
+        },
+        {
+          "name": ".brandmint/outputs",
+          "kind": "sidecar output",
+          "desc": "26 consumed Meristem skill outputs"
+        },
+        {
+          "name": "asset-manifest.json",
+          "kind": "asset proof",
+          "desc": "validates user and generated asset paths before handoff"
+        }
+      ],
+      "counts": {}
+    },
+    {
+      "id": "hands",
+      "components": [
+        {
+          "name": "add-spoke-footer",
+          "kind": "conductor script",
+          "desc": "add spoke footers"
+        },
+        {
+          "name": "archive-library",
+          "kind": "conductor script",
+          "desc": "archive the library"
+        },
+        {
+          "name": "audit-refs",
+          "kind": "conductor script",
+          "desc": "audit references"
+        },
+        {
+          "name": "auto-tier",
+          "kind": "conductor script",
+          "desc": "auto-tier clusters"
+        },
+        {
+          "name": "budget-report",
+          "kind": "conductor script",
+          "desc": "token budget report"
+        },
+        {
+          "name": "cluster-health",
+          "kind": "conductor script",
+          "desc": "per-cluster health"
+        },
+        {
+          "name": "conduct-execute",
+          "kind": "conductor script",
+          "desc": "dispatch the <cluster>-orchestrator"
+        },
+        {
+          "name": "gen-index",
+          "kind": "conductor script",
+          "desc": "regenerate the skill-index"
+        },
+        {
+          "name": "import-craft-skills",
+          "kind": "conductor script",
+          "desc": ""
+        },
+        {
+          "name": "integrate-ecc",
+          "kind": "conductor script",
+          "desc": "integrate ecc"
+        },
+        {
+          "name": "loop-feedback",
+          "kind": "conductor script",
+          "desc": "the feedback loop"
+        },
+        {
+          "name": "prune-archive",
+          "kind": "conductor script",
+          "desc": ""
+        },
+        {
+          "name": "resolve-task",
+          "kind": "conductor script",
+          "desc": "task → cluster (TF-IDF over the skills)"
+        },
+        {
+          "name": "session-keeper",
+          "kind": "conductor script",
+          "desc": "session continuity"
+        },
+        {
+          "name": "ship-battery",
+          "kind": "conductor script",
+          "desc": "the fail-closed ship gate"
+        },
+        {
+          "name": "skills-health",
+          "kind": "conductor script",
+          "desc": "skills health"
+        },
+        {
+          "name": "skills-normalize",
+          "kind": "conductor script",
+          "desc": "normalise skills"
+        },
+        {
+          "name": "tier",
+          "kind": "conductor script",
+          "desc": "cluster tiering"
+        },
+        {
+          "name": "visual-qa",
+          "kind": "conductor script",
+          "desc": "semantic visual QA"
+        }
+      ],
+      "counts": {
+        "clusters": 42,
+        "skills": 794
+      }
+    },
+    {
+      "id": "taste",
+      "components": [
+        {
+          "name": "bootstrap-brand",
+          "kind": "script",
+          "desc": ""
+        },
+        {
+          "name": "brand-version",
+          "kind": "script",
+          "desc": ""
+        },
+        {
+          "name": "brandmint",
+          "kind": "script",
+          "desc": ""
+        },
+        {
+          "name": "brandmint-multi",
+          "kind": "script",
+          "desc": ""
+        },
+        {
+          "name": "brandmint-pack",
+          "kind": "script",
+          "desc": ""
+        },
+        {
+          "name": "brandmint-reroll",
+          "kind": "script",
+          "desc": "reroll until on-brand (self-heal)"
+        },
+        {
+          "name": "crawl-codrops",
+          "kind": "script",
+          "desc": "crawl Codrops → the taste index"
+        },
+        {
+          "name": "embed",
+          "kind": "script",
+          "desc": ""
+        },
+        {
+          "name": "emit-brand-spec",
+          "kind": "script",
+          "desc": "emit the canonical brand-spec.json"
+        },
+        {
+          "name": "enrich",
+          "kind": "script",
+          "desc": "enrich brand data"
+        },
+        {
+          "name": "gen-logo",
+          "kind": "script",
+          "desc": "generate the logo"
+        },
+        {
+          "name": "gen-positioning",
+          "kind": "script",
+          "desc": "generate positioning"
+        },
+        {
+          "name": "gen-voice",
+          "kind": "script",
+          "desc": "generate the brand voice"
+        },
+        {
+          "name": "kit-qa",
+          "kind": "script",
+          "desc": "on-brand QA (the verify gate)"
+        },
+        {
+          "name": "kit-register",
+          "kind": "script",
+          "desc": "register the brand kit"
+        },
+        {
+          "name": "nim-probe",
+          "kind": "script",
+          "desc": ""
+        },
+        {
+          "name": "taste-feedback",
+          "kind": "script",
+          "desc": "feed outcomes back"
+        },
+        {
+          "name": "taste-resolve",
+          "kind": "script",
+          "desc": "the conductor — emits the on-brand brief"
+        },
+        {
+          "name": "validate-brand-spec",
+          "kind": "script",
+          "desc": "validate the brand-spec"
+        },
+        {
+          "name": "brand-tokens",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "canonical",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "comfyui",
+          "kind": "lib",
+          "desc": "ComfyUI backend"
+        },
+        {
+          "name": "design-memory",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "governor",
+          "kind": "lib",
+          "desc": "spend governor"
+        },
+        {
+          "name": "gpt-image",
+          "kind": "lib",
+          "desc": "gpt-image-2 backend"
+        },
+        {
+          "name": "idempotency",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "kit-qa",
+          "kind": "lib",
+          "desc": "on-brand QA (the verify gate)"
+        },
+        {
+          "name": "load-env",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "nanobanana",
+          "kind": "lib",
+          "desc": "Nano Banana Pro (Gemini) backend"
+        },
+        {
+          "name": "nim",
+          "kind": "lib",
+          "desc": "the NIM client (embed/search)"
+        },
+        {
+          "name": "noesis",
+          "kind": "lib",
+          "desc": "the design-memory client"
+        },
+        {
+          "name": "png-decode",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "prototype-feedback",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "render",
+          "kind": "lib",
+          "desc": "render adapter"
+        },
+        {
+          "name": "rerank",
+          "kind": "lib",
+          "desc": "rerank candidates"
+        },
+        {
+          "name": "reroll",
+          "kind": "lib",
+          "desc": "reroll core"
+        },
+        {
+          "name": "router",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "store-fs",
+          "kind": "lib",
+          "desc": "filesystem persistence"
+        },
+        {
+          "name": "taste-eval",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "variable-contract",
+          "kind": "lib",
+          "desc": ""
+        },
+        {
+          "name": "yaml-lite",
+          "kind": "lib",
+          "desc": ""
+        }
+      ],
+      "counts": {}
+    },
+    {
+      "id": "will",
+      "components": [
+        {
+          "name": "ceo",
+          "kind": "C-suite agent",
+          "desc": "mission/vision/strategy"
+        },
+        {
+          "name": "chief-of-staff",
+          "kind": "C-suite agent",
+          "desc": "the skill-graph router"
+        },
+        {
+          "name": "cto",
+          "kind": "C-suite agent",
+          "desc": "architecture + execution"
+        },
+        {
+          "name": "dispatcher",
+          "kind": "C-suite agent",
+          "desc": "orchestration dispatch (GTM)"
+        },
+        {
+          "name": "interpreter",
+          "kind": "C-suite agent",
+          "desc": "synthesis / brand→ICP Briefs"
+        },
+        {
+          "name": "librarian",
+          "kind": "C-suite agent",
+          "desc": "retrieval / research"
+        },
+        {
+          "name": "sentinel",
+          "kind": "C-suite agent",
+          "desc": "risk / approvals"
+        },
+        {
+          "name": "approvals",
+          "kind": "script",
+          "desc": "the approval queue"
+        },
+        {
+          "name": "embed_worker",
+          "kind": "script",
+          "desc": "the tenant vector-index (cortex client)"
+        },
+        {
+          "name": "hermes",
+          "kind": "script",
+          "desc": "the event bus"
+        },
+        {
+          "name": "ingest",
+          "kind": "script",
+          "desc": "source ingestion"
+        },
+        {
+          "name": "paperclip_bridge",
+          "kind": "script",
+          "desc": "the optional agent-plane task bridge"
+        },
+        {
+          "name": "replay",
+          "kind": "script",
+          "desc": "event replay"
+        },
+        {
+          "name": "sentinel_sweep",
+          "kind": "script",
+          "desc": "risk sweep"
+        },
+        {
+          "name": "tn_seed",
+          "kind": "script",
+          "desc": "community seeding (Reddit)"
+        },
+        {
+          "name": "001-hand-in-glove-platform",
+          "kind": "spec",
+          "desc": ""
+        },
+        {
+          "name": "002-orchestration-wiring",
+          "kind": "spec",
+          "desc": ""
+        },
+        {
+          "name": "003-distribution-os",
+          "kind": "spec",
+          "desc": ""
+        },
+        {
+          "name": "004-brand-enriched-autogtm",
+          "kind": "spec",
+          "desc": ""
+        }
+      ],
+      "counts": {}
+    },
+    {
+      "id": "cortex",
+      "components": [
+        {
+          "name": "embed",
+          "kind": "op",
+          "desc": "x → 1024-dim vector"
+        },
+        {
+          "name": "search",
+          "kind": "op",
+          "desc": "kNN nearest on-brand references"
+        },
+        {
+          "name": "taste-index",
+          "kind": "store",
+          "desc": "the Codrops crawl"
+        },
+        {
+          "name": "brand-assets",
+          "kind": "store",
+          "desc": "the brand's own assets"
+        },
+        {
+          "name": "design-memory",
+          "kind": "store",
+          "desc": "the brand's seed taste = x*"
+        },
+        {
+          "name": "nim.mjs",
+          "kind": "client",
+          "desc": "skill-clusters NIM client"
+        },
+        {
+          "name": "design_memory.py",
+          "kind": "client",
+          "desc": "brandmint memory client"
+        },
+        {
+          "name": "embed_worker.py",
+          "kind": "client",
+          "desc": "snow-gloves tenant embed worker"
+        }
+      ],
+      "counts": {
+        "model": "nv-embedqa-e5-v5",
+        "dim": "1024"
+      }
+    }
+  ]
+}
