@@ -1,5 +1,5 @@
 {
-  "note": "Editorial metadata + SOURCE manifests for the per-organ pages. bin/render-docs.mjs merges this with the LIVE component lists + counts read from the organ repos, then emits docs/organs/*.html + docs/organs.html. Component LISTS come from source (can't drift); the descriptions here are best-effort (a new component still appears, name-only). roots resolve relative to the cambium repo's parent dir.",
+  "note": "Editorial metadata + source manifests for the per-organ pages. Normal rendering consumes the committed docs/organs/source-snapshot.json so clean clones are deterministic. npm run render-docs:refresh is the explicit cross-repository operation that rereads sibling organ repos, replaces the snapshot, and rerenders the pages. roots resolve relative to the Cambium repo parent only during that refresh.",
   "roots": { "skill-clusters": "Skill-clusters", "snow-gloves": "snow-gloves-os" },
   "organs": [
     {

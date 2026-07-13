@@ -17,6 +17,7 @@
     "demo:quests": "node scripts/demo-quest-ledger.mjs",
     "tapestry:snapshot": "node scripts/tapestry-snapshot.mjs",
     "render-docs": "node bin/render-docs.mjs",
+    "render-docs:refresh": "node bin/render-docs.mjs --refresh-snapshot",
     "render-docs:check": "node bin/render-docs.mjs --check",
     "drift:audit": "node scripts/drift-audit.mjs",
     "verify:release": "node scripts/verify-release.mjs",

@@ -95,6 +95,7 @@ export async function auditRepository(rootValue = process.cwd()) {
 
   for (const required of [
     'docs/LIFECYCLE.md',
+    'docs/organs/source-snapshot.json',
     'docs/plans/README.md',
     'docs/runbooks/telegram-action-request-lifecycle.md',
     'workers/quests/src/telegram-routing.ts',

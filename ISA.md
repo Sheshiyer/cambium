@@ -7,7 +7,7 @@ phase: execute
 progress: 70/80
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-13T09:55:36Z
+updated: 2026-07-13T10:00:13Z
 ---
 
 ## Problem
@@ -238,6 +238,10 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
   refuted by: one full release run produced zero branch-rail scroll under both Chrome headless modes
   learned: retrying the real gesture is valid stabilization; setting the success state programmatically is not
   criterion now: ISC-55 requires bounded real-touch retries followed by the same isolation and hit-test assertions
+- 2026-07-13 | conjectured: Generated organ docs could remain deterministic while reading ambient sibling repositories
+  refuted by: cleanup PR CI rendered five pages differently because a clean checkout has no sibling organ trees
+  learned: cross-repository inventory must be an explicit refresh into a committed snapshot, never an implicit release input
+  criterion now: ISC-56 checks pages rendered exclusively from `docs/organs/source-snapshot.json`; `render-docs:refresh` is the bounded cross-repository update path
 
 ## Verification
 
@@ -245,6 +249,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - Branch provenance: cleanup and merge-base both resolve to fetched `origin/main` `84f616152f05885369b97a18c8ac4318bb21b23a`.
 - Runtime and drift: focused Worker, routing, readiness, release-contract, standalone-audit, and mutation tests pass. Deliberate production-shape, fixed-instruction, touch, and PNG-digest failures were observed before their implementations passed.
 - Canonical browser proof: 38 captures pass (27 layout, 11 clickability), PAGE SHA-256 `8b244e78c1c076716b5f59c2ab382e4ff04ecefab94c73703c85cc97669e2726`; aggregate canonical PNG digest is `77cd5fedf8786f561748b48b3f23860b1db57d252ca31ac29e53ea4e38784b68` before and after the focused mobile run.
-- Deterministic release verification passes: 684 core tests, six CI mobile stories including real touch drag and a hit-tested queued ActionRequest proof tap, 51 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
+- Deterministic release verification passes: 699 core tests, six CI mobile stories including real touch drag and a hit-tested queued ActionRequest proof tap, 51 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
 - GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5, M7, cleanup PR/CI, deployment, and release checks remain intentionally open.
+- First cleanup CI run `29240965478` correctly failed generated-doc synchronization and caused no roadmap mutation. The ambient sibling-repository dependency is now replaced by a committed 91-component organ snapshot; protected CI must rerun before M5/M7 closeout.
 - Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.
