@@ -1123,6 +1123,7 @@ async function probeBrowserDebugging(browser, mode) {
     '--disable-background-networking',
     '--disable-dev-shm-usage',
     '--no-sandbox',
+    '--touch-events=enabled',
     '--no-first-run',
     '--no-default-browser-check',
     '--enable-logging=stderr',
@@ -1289,6 +1290,20 @@ async function touchDragSelector(cdp, selector, distance = 96) {
     await evaluate(cdp, `(() => {
       const node = document.querySelector(${JSON.stringify(selector)});
       if (!node) throw new Error('missing touch-drag selector ${selector}');
+      if (node.dataset.proofTouchProbeBound !== '1') {
+        node.dataset.proofTouchProbeBound = '1';
+        node.dataset.proofTouchStarts = '0';
+        node.dataset.proofTouchMoves = '0';
+        node.addEventListener('touchstart', (event) => {
+          node.dataset.proofTouchStarts = String(Number(node.dataset.proofTouchStarts || 0) + 1);
+          node.dataset.proofTouchStartX = String(event.touches?.[0]?.clientX);
+        }, { passive:true });
+        node.addEventListener('touchmove', (event) => {
+          node.dataset.proofTouchMoves = String(Number(node.dataset.proofTouchMoves || 0) + 1);
+          node.dataset.proofTouchMoveX = String(event.touches?.[0]?.clientX);
+          node.dataset.proofTouchLength = String(event.touches?.length);
+        }, { passive:true });
+      }
       node.scrollIntoView({ block:'center', inline:'nearest' });
       node.scrollLeft = 0;
     })()`);
@@ -1306,13 +1321,19 @@ async function touchDragSelector(cdp, selector, distance = 96) {
         scene:document.querySelector('.root-tab.on')?.id || '',
         sheetOpen:Boolean(document.querySelector('#sheet.on')),
         trackTransform:getComputedStyle(document.querySelector('#track')).transform,
+        touchStarts:Number(node.dataset.proofTouchStarts || 0),
+        touchMoves:Number(node.dataset.proofTouchMoves || 0),
+        touchDragBound:node.dataset.touchDragBound || '',
+        touchStartX:node.dataset.proofTouchStartX || '',
+        touchMoveX:node.dataset.proofTouchMoveX || '',
+        touchLength:node.dataset.proofTouchLength || '',
       };
     })()`);
-    const point = (x) => [{ x, y:before.y, id:1, radiusX:2, radiusY:2, force:1 }];
-    await cdp.send('Input.dispatchTouchEvent', { type:'touchStart', touchPoints:point(before.startX) });
-    for (let index = 1; index <= 8; index += 1) {
-      const x = before.startX + ((before.endX - before.startX) * index / 8);
-      await cdp.send('Input.dispatchTouchEvent', { type:'touchMove', touchPoints:point(x) });
+    const point = (x) => ({ x, y:before.y, radiusX:1, radiusY:1, force:1, id:1 });
+    await cdp.send('Input.dispatchTouchEvent', { type:'touchStart', touchPoints:[point(before.startX)] });
+    for (let step = 1; step <= 8; step += 1) {
+      const x = before.startX + (before.endX - before.startX) * step / 8;
+      await cdp.send('Input.dispatchTouchEvent', { type:'touchMove', touchPoints:[point(x)] });
       await new Promise((resolve) => setTimeout(resolve, 24));
     }
     await cdp.send('Input.dispatchTouchEvent', { type:'touchEnd', touchPoints:[] });
@@ -1324,6 +1345,12 @@ async function touchDragSelector(cdp, selector, distance = 96) {
         scene:document.querySelector('.root-tab.on')?.id || '',
         sheetOpen:Boolean(document.querySelector('#sheet.on')),
         trackTransform:getComputedStyle(document.querySelector('#track')).transform,
+        touchStarts:Number(node.dataset.proofTouchStarts || 0),
+        touchMoves:Number(node.dataset.proofTouchMoves || 0),
+        touchDragBound:node.dataset.touchDragBound || '',
+        touchStartX:node.dataset.proofTouchStartX || '',
+        touchMoveX:node.dataset.proofTouchMoveX || '',
+        touchLength:node.dataset.proofTouchLength || '',
       };
     })()`);
     result = {
@@ -1337,6 +1364,12 @@ async function touchDragSelector(cdp, selector, distance = 96) {
       sheetAfter:after.sheetOpen,
       trackBefore:before.trackTransform,
       trackAfter:after.trackTransform,
+      touchStarts:after.touchStarts - before.touchStarts,
+      touchMoves:after.touchMoves - before.touchMoves,
+      touchDragBound:after.touchDragBound,
+      touchStartX:after.touchStartX,
+      touchMoveX:after.touchMoveX,
+      touchLength:after.touchLength,
     };
     if (!touchDragNeedsRetry(result)) break;
   }

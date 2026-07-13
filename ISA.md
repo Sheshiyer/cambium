@@ -3,11 +3,11 @@ project: Cambium
 task: "Eliminate operational drift across Cambium proof, configuration, documentation, and GitHub state"
 effort: comprehensive
 effort_source: classifier
-phase: execute
-progress: 70/80
+phase: verify
+progress: 71/80
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-13T10:00:13Z
+updated: 2026-07-13T10:20:48Z
 ---
 
 ## Problem
@@ -126,7 +126,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - [ ] ISC-48: Every M7 issue state agrees with the recorded M7 decision.
 - [ ] ISC-49: Deferred M7 work has a binary restart condition.
 - [x] ISC-50: The Hermes routing mismatch tracker links both repositories and exact sources.
-- [ ] ISC-51: The cleanup pull request links the drift incident and verification evidence.
+- [x] ISC-51: The cleanup pull request links the drift incident and verification evidence.
 - [ ] ISC-52: GitHub reports zero open cleanup pull requests after merge.
 
 ### Verification, deployment, and release
@@ -242,14 +242,18 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
   refuted by: cleanup PR CI rendered five pages differently because a clean checkout has no sibling organ trees
   learned: cross-repository inventory must be an explicit refresh into a committed snapshot, never an implicit release input
   criterion now: ISC-56 checks pages rendered exclusively from `docs/organs/source-snapshot.json`; `render-docs:refresh` is the bounded cross-repository update path
+- 2026-07-13 | conjectured: A bounded real-touch retry plus a production touch handler was sufficient to prove branch-rail motion
+  refuted by: Chrome delivered one touch start and seven moves across 96 pixels, but proximity snapping returned the rail to zero before the assertion
+  learned: interaction proof must observe the settled user-visible state; a self-defeating snap rule can hide after valid event delivery
+  criterion now: ISC-55 requires stable settled scroll plus unchanged scene, sheet, and track state before the hit-tested branch tap
 
 ## Verification
 
 - Primary checkout preservation: status digest `eed44f76e58b130fbbb25849421cc93a56662feb143096dec17fcdb306669460` and stash digest `b45c285aa8d1d51b4df0b41cdfd7b0e2e803bdb50c2950c996449874859d7627` match their pre-cleanup values; six worktrees remain.
 - Branch provenance: cleanup and merge-base both resolve to fetched `origin/main` `84f616152f05885369b97a18c8ac4318bb21b23a`.
 - Runtime and drift: focused Worker, routing, readiness, release-contract, standalone-audit, and mutation tests pass. Deliberate production-shape, fixed-instruction, touch, and PNG-digest failures were observed before their implementations passed.
-- Canonical browser proof: 38 captures pass (27 layout, 11 clickability), PAGE SHA-256 `8b244e78c1c076716b5f59c2ab382e4ff04ecefab94c73703c85cc97669e2726`; aggregate canonical PNG digest is `77cd5fedf8786f561748b48b3f23860b1db57d252ca31ac29e53ea4e38784b68` before and after the focused mobile run.
-- Deterministic release verification passes: 699 core tests, six CI mobile stories including real touch drag and a hit-tested queued ActionRequest proof tap, 51 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
+- Canonical browser proof: 38 captures pass (27 layout, 11 clickability), PAGE SHA-256 `db1351564dd64741582ea8888698de663dcd005105ac0d856b0c6b2b3e97a77c`; the manifest binds every canonical PNG to its current SHA-256 and focused runs write only ignored diagnostics.
+- Deterministic release verification passes: 701 core tests, six CI mobile stories including settled real touch drag and a hit-tested queued ActionRequest proof tap, 51 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
 - GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5, M7, cleanup PR/CI, deployment, and release checks remain intentionally open.
-- First cleanup CI run `29240965478` correctly failed generated-doc synchronization and caused no roadmap mutation. The ambient sibling-repository dependency is now replaced by a committed 91-component organ snapshot; protected CI must rerun before M5/M7 closeout.
+- Cleanup CI run `29240965478` correctly failed ambient generated-doc synchronization; run `29241191160` then passed docs and 700 tests but exposed branch-rail snap-back after genuine touch delivery. The committed snapshot and settled-scroll contract now pass 701 core tests and the complete local release gate; protected CI must rerun before M5/M7 closeout.
 - Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.

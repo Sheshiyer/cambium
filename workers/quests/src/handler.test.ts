@@ -4330,6 +4330,24 @@ test('page · mobile header keeps full-width brand and touch-safe chips through 
   assert.match(PAGE, /@media \(max-width:480px\)\{[\s\S]*?\.root-chip-stack\{[^}]*width:100%[^}]*justify-content:flex-start/);
 });
 
+test('page · branch rail owns deterministic touch drag without leaking scene motion', async () => {
+  assert.match(PAGE, /function bindMissionBranchRailTouch\(rail\)/);
+  assert.match(PAGE, /rail\.addEventListener\('touchstart'/);
+  assert.match(PAGE, /rail\.addEventListener\('touchmove'/);
+  assert.match(PAGE, /event\.preventDefault\(\)/);
+  assert.match(PAGE, /rail\.scrollLeft\s*=\s*startScrollLeft\s*\+\s*delta/);
+  assert.match(PAGE, /bindMissionBranchRailTouch\(stem\.querySelector\('\.mc-branch-rail'\)\)/);
+
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { search:'?tenant=cambium&scene=mission' });
+  const rail = rendered.elements.get('stem')!.querySelector('.mc-branch-rail') as any;
+  const bindRailTouch = vm.runInContext('bindMissionBranchRailTouch', rendered.context as vm.Context);
+  bindRailTouch(rail);
+  rail.scrollLeft = 0;
+  assert.equal(rail.dispatchEvent({ type:'touchstart', touches:[{ clientX:320 }], cancelable:true }), true);
+  rail.dispatchEvent({ type:'touchmove', touches:[{ clientX:224 }], cancelable:true });
+  assert.equal(rail.scrollLeft, 96);
+});
+
 test('page · mission proof previews are semantic buttons', async () => {
   const envelope = {
     ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,

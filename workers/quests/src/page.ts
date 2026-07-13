@@ -278,7 +278,7 @@ export const PAGE = `<!doctype html>
   .ibox.skill span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.npc span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.ready{border-color:rgba(224,255,79,.28);background:rgba(224,255,79,.04)}
-	  .mc-branch-rail{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;padding:2px 0 8px;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;scrollbar-width:none;touch-action:pan-x}
+	  .mc-branch-rail{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;padding:2px 0 8px;overscroll-behavior-inline:contain;scrollbar-width:none;touch-action:pan-x}
   .mc-branch-rail::-webkit-scrollbar{display:none}
   .mc-branch-chip{flex:0 0 clamp(200px,68vw,232px);min-width:0;min-height:56px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);background:rgba(1,47,52,.38);color:var(--mc-mint);padding:8px 10px;font:11px var(--mono);scroll-snap-align:start}
 	  .mc-glyph{width:28px;height:28px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);display:inline-grid;place-items:center;color:var(--mc-chartreuse);background:var(--mc-panel);position:relative;overflow:hidden;flex:none}
@@ -3156,6 +3156,29 @@ function focusRenderedTab(rootId, selector){
   if (!tab || typeof tab.focus !== 'function') return;
   try { tab.focus({ preventScroll:true }); } catch (_) { tab.focus(); }
 }
+function bindMissionBranchRailTouch(rail){
+  if (!rail || rail.dataset.touchDragBound === '1') return;
+  rail.dataset.touchDragBound = '1';
+  let startX = 0;
+  let startScrollLeft = 0;
+  let dragging = false;
+  rail.addEventListener('touchstart', event => {
+    if (!event.touches || event.touches.length !== 1) return;
+    dragging = true;
+    startX = event.touches[0].clientX;
+    startScrollLeft = rail.scrollLeft;
+  }, { passive:true });
+  rail.addEventListener('touchmove', event => {
+    if (!dragging || !event.touches || event.touches.length !== 1) return;
+    const delta = startX - event.touches[0].clientX;
+    if (Math.abs(delta) < 2) return;
+    if (event.cancelable) event.preventDefault();
+    rail.scrollLeft = startScrollLeft + delta;
+  }, { passive:false });
+  const stopDragging = () => { dragging = false; };
+  rail.addEventListener('touchend', stopDragging, { passive:true });
+  rail.addEventListener('touchcancel', stopDragging, { passive:true });
+}
 function selectMissionBranch(env, branchIndex, focusSelected){
   const rows = branchRows(env || {});
   const branch = rows[branchIndex];
@@ -3191,6 +3214,7 @@ function renderMissionControl(env){
     renderMissionLoops(view),
     renderMissionKpis(view),
   ].join('');
+  bindMissionBranchRailTouch(stem.querySelector('.mc-branch-rail'));
   const branchIndex = Math.max(0, branchRows(env).findIndex(branch => branch === view.selectedBranch));
   const pct = view.questline.length ? Math.round(100 * view.questline.filter(row => row.state === 'complete').length / view.questline.length) : 0;
   $('fill').style.width = pct + '%';
