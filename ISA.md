@@ -247,6 +247,10 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
   refuted by: Chrome delivered one touch start and seven moves across 96 pixels, but proximity snapping returned the rail to zero before the assertion
   learned: interaction proof must observe the settled user-visible state; a self-defeating snap rule can hide after valid event delivery
   criterion now: ISC-55 requires stable settled scroll plus unchanged scene, sheet, and track state before the hit-tested branch tap
+- 2026-07-13 | conjectured: A clean main worktree made R3F contract synchronization deterministic for release
+  refuted by: ignored `.operator/branch-loops` state changed the generated quest summary while CI, which had no local runtime state, stayed green
+  learned: ignored runtime state must never become an implicit generated release input; local ledger refresh is an explicit reviewed operation
+  criterion now: ISC-78 includes deterministic R3F contract sync plus `sync:contracts:refresh` as the only operator-ledger import path
 
 ## Verification
 
@@ -258,4 +262,5 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5 and M7 are closed with zero open issues; cleanup merge, deployment, and release checks remain intentionally open.
 - Cleanup CI run `29240965478` correctly failed ambient generated-doc synchronization; run `29241191160` then passed docs and 700 tests but exposed branch-rail snap-back after genuine touch delivery. The committed snapshot and settled-scroll contract now pass 701 core tests and the complete local release gate.
 - Protected CI run `29242583053` passed at `d829dbb1e712065304c6aee5041d906b9a0d1372` and uploaded `tg-miniapp-live-readiness-ac3d2568f858588b949f0221876b7f48e9ec08ec`; the artifact remains blocked evidence, not founder-device proof.
+- The first v0.2.8 release attempt stopped before package mutation because ignored local `.operator` state changed R3F output and the worktree lacked R3F dependencies. After dependency installation and the explicit-refresh guard, the complete deterministic release gate passes locally with 52 R3F tests while `.operator/branch-loops` remains present.
 - Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.

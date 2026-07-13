@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "sync:contracts": "node scripts/generate-scene-contract.mjs",
+    "sync:contracts:refresh": "CAMBIUM_R3F_REFRESH_QUEST_SUMMARY=1 node scripts/generate-scene-contract.mjs",
     "prebuild": "npm run sync:contracts",
     "build": "tsc -b && vite build",
     "pretest": "npm run sync:contracts",

@@ -27,6 +27,8 @@ The generated bridge lives at `src/generated/source-contract.ts`. Refresh it wit
 
 Frozen references remain owned by `docs/plans/assets/cambium-r3f-implementation/reference-freeze.json`.
 
+`npm run sync:contracts` is deterministic and preserves the committed quest summary even when ignored `.operator` state exists locally. Refresh that summary from a local operator ledger only through the explicit `npm run sync:contracts:refresh` command, then review and commit the generated diff deliberately.
+
 ## Meshy Asset Pipeline
 
 The Meshy key is expected as `MESHY_API_KEY` in `$HOME/.claude/.env` or the process environment. The pipeline is credit-safe by default: planning and prompt validation do not call Meshy, and paid preview/refine calls require `--execute`.
