@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { buildCambiumScene } from './scene-data.ts';
 import { screenOrder } from './route-registry.ts';
@@ -73,6 +74,17 @@ test('scene adapter preserves quest progress and frozen references', () => {
   assert.equal(scene.telemetry.totalQuests, 17);
   assert.ok(scene.references.find((reference) => reference.taskId === 'T005' && reference.screen === 'home'));
   assert.ok(scene.nodes.every((node) => node.id === 'ops' || node.reference));
+});
+
+test('contract sync ignores ambient operator state unless refresh is explicit', () => {
+  const generator = readFileSync(new URL('../../scripts/generate-scene-contract.mjs', import.meta.url), 'utf8');
+  const packageJson = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+  assert.match(generator, /process\.env\.CAMBIUM_R3F_REFRESH_QUEST_SUMMARY === '1'/);
+  assert.match(generator, /refreshQuestSummary && existsSync\(resolve\(repoRoot, '\.operator'\)\)/);
+  assert.equal(
+    packageJson.scripts['sync:contracts:refresh'],
+    'CAMBIUM_R3F_REFRESH_QUEST_SUMMARY=1 node scripts/generate-scene-contract.mjs',
+  );
 });
 
 test('scene adapter binds every implemented route to its frozen reference', () => {

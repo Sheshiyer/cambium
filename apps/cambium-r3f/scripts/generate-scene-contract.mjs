@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '../../..');
 const outFile = resolve(here, '../src/generated/source-contract.ts');
+const refreshQuestSummary = process.env.CAMBIUM_R3F_REFRESH_QUEST_SUMMARY === '1';
 
 const readJson = async (relativePath) => JSON.parse(await readFile(resolve(repoRoot, relativePath), 'utf8'));
 
@@ -139,7 +140,7 @@ let questSummary = previousQuestSummary
       questLine,
     };
 
-if (existsSync(resolve(repoRoot, '.operator'))) {
+if (refreshQuestSummary && existsSync(resolve(repoRoot, '.operator'))) {
   const ctx = { root: repoRoot, vaultRoot: resolve(repoRoot, '../thoughtseed-labs') };
   const tenant = process.env.CAMBIUM_SCENE_TENANT || process.env.TENANT || 'cambium';
   questSummary = summaryFromLedger(questsModule.questLedger(questsHypha.gatherQuestInputs(ctx, tenant)));
