@@ -225,6 +225,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - 2026-07-13 09:35: Hermes owns the future canonical Telegram routing manifest under issue Sheshiyer/hermes-aws-ts#88. Cambium pins the current source commit and validates its local runtime snapshot until that manifest exists.
 - 2026-07-13 10:26: Protected CI run `29242583053` passed the settled-touch contract on Linux. M5 closed empty; M7 closed with eight completed slices and settings issue #47 retired `not planned` behind its fixed-reference, binary-acceptance restart condition.
 - 2026-07-13 10:43: v0.2.8 is released and Worker version `a46651f5-972c-4999-8ed2-e886cd77f1f7` is production-proven. Deterministic release is complete; founder-device Telegram evidence remains a separate live-readiness blocker, not cleanup debt.
+- 2026-07-13 10:47: `archive/m5-phase-q-local` remains intact as the recovery boundary for seven Phase Q commits. Its tagged tip tree equals merged remote-main commit `a6c39cd`, so that historical local line is intentionally preserved but excluded from v0.2.8 runtime scope.
 
 ## Changelog
 
@@ -270,4 +271,5 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - The first v0.2.8 release attempt stopped before package mutation because ignored local `.operator` state changed R3F output and the worktree lacked R3F dependencies. After dependency installation and the explicit-refresh guard, the complete deterministic release gate passes locally with 52 R3F tests while `.operator/branch-loops` remains present.
 - Release: annotated tag `v0.2.8` resolves to guarded release commit `977ca2fff790ec4e1ace1bb88ef84af29b1850c1`; GitHub Release `v0.2.8 · Thalia .8` published after successful workflow run `29243540695`, whose separate live-readiness artifact remains blocked.
 - Deployment: Cloudflare Worker version `a46651f5-972c-4999-8ed2-e886cd77f1f7` is live. Both `curious.thoughtseed.space` and the workers.dev endpoint report `gateConfigured:true`, return `401` for missing Telegram `initData`, and serve HTML SHA-256 `db1351564dd64741582ea8888698de663dcd005105ac0d856b0c6b2b3e97a77c`, exactly matching the released PAGE digest.
+- Rollback: `workers/quests/DEPLOY.md` now restores only from a previous known-good tag in an isolated clean clone, records Wrangler's replacement version, repeats health/auth/digest probes, and explicitly excludes persistent data rollback from an older-code redeploy.
 - Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.
