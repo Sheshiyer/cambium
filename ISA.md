@@ -251,6 +251,10 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
   refuted by: ignored `.operator/branch-loops` state changed the generated quest summary while CI, which had no local runtime state, stayed green
   learned: ignored runtime state must never become an implicit generated release input; local ledger refresh is an explicit reviewed operation
   criterion now: ISC-78 includes deterministic R3F contract sync plus `sync:contracts:refresh` as the only operator-ledger import path
+- 2026-07-13 | conjectured: The one-line workflow command escaped Node's codename expression safely
+  refuted by: release run `29243290350` passed every deterministic gate and uploaded live readiness, then Bash rejected the escaped command substitution before GitHub Release creation
+  learned: release metadata plumbing needs a tested multiline shell contract just like build and proof steps
+  criterion now: ISC-60 includes shell-safe codename resolution before an existing tag can become a published GitHub Release
 
 ## Verification
 

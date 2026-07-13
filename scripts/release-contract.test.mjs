@@ -35,3 +35,9 @@ test('release contract · local release preflights before version mutation and u
   assert.match(releaseScript, /git diff --quiet -- package\.json VERSIONS\.md/);
   assert.match(releaseScript, /origin\/main/);
 });
+
+test('release contract · codename output uses a shell-safe workflow block', () => {
+  assert.match(releaseWorkflow, /CODENAME="\$\(node -p "require\('\.\/package\.json'\)\.codename \|\| 'Muse'"\)"/);
+  assert.match(releaseWorkflow, /printf 'codename=%s\\n' "\$CODENAME" >> "\$GITHUB_OUTPUT"/);
+  assert.doesNotMatch(releaseWorkflow, /node -p \\"/);
+});

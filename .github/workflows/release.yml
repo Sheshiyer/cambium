@@ -57,7 +57,9 @@ jobs:
 
       - name: Resolve codename
         id: meta
-        run: echo "codename=$(node -p \"require('./package.json').codename || 'Muse'\")" >> "$GITHUB_OUTPUT"
+        run: |
+          CODENAME="$(node -p "require('./package.json').codename || 'Muse'")"
+          printf 'codename=%s\n' "$CODENAME" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         env:
