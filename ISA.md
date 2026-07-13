@@ -3,11 +3,11 @@ project: Cambium
 task: "Eliminate operational drift across Cambium proof, configuration, documentation, and GitHub state"
 effort: comprehensive
 effort_source: classifier
-phase: verify
-progress: 76/80
+phase: complete
+progress: 80/80
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-13T10:26:24Z
+updated: 2026-07-13T10:43:57Z
 ---
 
 ## Problem
@@ -127,7 +127,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - [x] ISC-49: Deferred M7 work has a binary restart condition.
 - [x] ISC-50: The Hermes routing mismatch tracker links both repositories and exact sources.
 - [x] ISC-51: The cleanup pull request links the drift incident and verification evidence.
-- [ ] ISC-52: GitHub reports zero open cleanup pull requests after merge.
+- [x] ISC-52: GitHub reports zero open cleanup pull requests after merge.
 
 ### Verification, deployment, and release
 
@@ -136,9 +136,9 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - [x] ISC-55: Mobile contract proof exits zero at 320, 390, and 430 pixels.
 - [x] ISC-56: Documentation synchronization check exits zero.
 - [x] ISC-57: CI completes all required checks on the cleanup pull request.
-- [ ] ISC-58: Production health reports `gateConfigured: true` after deployment.
-- [ ] ISC-59: Production HTML digest matches the released page digest.
-- [ ] ISC-60: Released tag resolves exactly to merged cleanup main.
+- [x] ISC-58: Production health reports `gateConfigured: true` after deployment.
+- [x] ISC-59: Production HTML digest matches the released page digest.
+- [x] ISC-60: Released tag resolves exactly to merged cleanup main.
 
 ### Anti-criteria
 
@@ -224,6 +224,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - 2026-07-13 09:35: M7 is retired rather than re-executed. Implemented issues will close after the cleanup CI gate passes; the partial settings issue is deferred with a binary restart condition based on a fixed human-reference acceptance gap.
 - 2026-07-13 09:35: Hermes owns the future canonical Telegram routing manifest under issue Sheshiyer/hermes-aws-ts#88. Cambium pins the current source commit and validates its local runtime snapshot until that manifest exists.
 - 2026-07-13 10:26: Protected CI run `29242583053` passed the settled-touch contract on Linux. M5 closed empty; M7 closed with eight completed slices and settings issue #47 retired `not planned` behind its fixed-reference, binary-acceptance restart condition.
+- 2026-07-13 10:43: v0.2.8 is released and Worker version `a46651f5-972c-4999-8ed2-e886cd77f1f7` is production-proven. Deterministic release is complete; founder-device Telegram evidence remains a separate live-readiness blocker, not cleanup debt.
 
 ## Changelog
 
@@ -262,9 +263,11 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - Branch provenance: cleanup and merge-base both resolve to fetched `origin/main` `84f616152f05885369b97a18c8ac4318bb21b23a`.
 - Runtime and drift: focused Worker, routing, readiness, release-contract, standalone-audit, and mutation tests pass. Deliberate production-shape, fixed-instruction, touch, and PNG-digest failures were observed before their implementations passed.
 - Canonical browser proof: 38 captures pass (27 layout, 11 clickability), PAGE SHA-256 `db1351564dd64741582ea8888698de663dcd005105ac0d856b0c6b2b3e97a77c`; the manifest binds every canonical PNG to its current SHA-256 and focused runs write only ignored diagnostics.
-- Deterministic release verification passes: 701 core tests, six CI mobile stories including settled real touch drag and a hit-tested queued ActionRequest proof tap, 51 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
-- GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5 and M7 are closed with zero open issues; cleanup merge, deployment, and release checks remain intentionally open.
+- Deterministic release verification passes: 702 core tests, six CI mobile stories including settled real touch drag and a hit-tested queued ActionRequest proof tap, 52 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
+- GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5 and M7 are closed with zero open issues. Cleanup PR #235 and drift follow-ups #236 and #237 are merged; GitHub reports zero open pull requests.
 - Cleanup CI run `29240965478` correctly failed ambient generated-doc synchronization; run `29241191160` then passed docs and 700 tests but exposed branch-rail snap-back after genuine touch delivery. The committed snapshot and settled-scroll contract now pass 701 core tests and the complete local release gate.
 - Protected CI run `29242583053` passed at `d829dbb1e712065304c6aee5041d906b9a0d1372` and uploaded `tg-miniapp-live-readiness-ac3d2568f858588b949f0221876b7f48e9ec08ec`; the artifact remains blocked evidence, not founder-device proof.
 - The first v0.2.8 release attempt stopped before package mutation because ignored local `.operator` state changed R3F output and the worktree lacked R3F dependencies. After dependency installation and the explicit-refresh guard, the complete deterministic release gate passes locally with 52 R3F tests while `.operator/branch-loops` remains present.
+- Release: annotated tag `v0.2.8` resolves to guarded release commit `977ca2fff790ec4e1ace1bb88ef84af29b1850c1`; GitHub Release `v0.2.8 · Thalia .8` published after successful workflow run `29243540695`, whose separate live-readiness artifact remains blocked.
+- Deployment: Cloudflare Worker version `a46651f5-972c-4999-8ed2-e886cd77f1f7` is live. Both `curious.thoughtseed.space` and the workers.dev endpoint report `gateConfigured:true`, return `401` for missing Telegram `initData`, and serve HTML SHA-256 `db1351564dd64741582ea8888698de663dcd005105ac0d856b0c6b2b3e97a77c`, exactly matching the released PAGE digest.
 - Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.
