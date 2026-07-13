@@ -8,6 +8,7 @@ const pkg = JSON.parse(read('package.json'));
 const ci = read('.github/workflows/ci.yml');
 const releaseWorkflow = read('.github/workflows/release.yml');
 const releaseScript = read('scripts/release.sh');
+const workerDeploy = read('workers/quests/DEPLOY.md');
 
 test('release contract · one deterministic command owns local and workflow gates', () => {
   assert.equal(pkg.scripts['drift:audit'], 'node scripts/drift-audit.mjs');
@@ -40,4 +41,13 @@ test('release contract · codename output uses a shell-safe workflow block', () 
   assert.match(releaseWorkflow, /CODENAME="\$\(node -p "require\('\.\/package\.json'\)\.codename \|\| 'Muse'"\)"/);
   assert.match(releaseWorkflow, /printf 'codename=%s\\n' "\$CODENAME" >> "\$GITHUB_OUTPUT"/);
   assert.doesNotMatch(releaseWorkflow, /node -p \\"/);
+});
+
+test('release contract · Worker deployment documents an isolated verified rollback', () => {
+  assert.match(workerDeploy, /## Rollback/);
+  assert.match(workerDeploy, /previous known-good release tag/);
+  assert.match(workerDeploy, /isolated clean clone/);
+  assert.match(workerDeploy, /wrangler deploy --config workers\/quests\/wrangler\.jsonc/);
+  assert.match(workerDeploy, /healthz\/gate/);
+  assert.match(workerDeploy, /HTTP 401/);
 });
