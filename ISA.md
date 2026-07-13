@@ -4,10 +4,10 @@ task: "Eliminate operational drift across Cambium proof, configuration, document
 effort: comprehensive
 effort_source: classifier
 phase: verify
-progress: 71/80
+progress: 76/80
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-13T10:20:48Z
+updated: 2026-07-13T10:26:24Z
 ---
 
 ## Problem
@@ -121,10 +121,10 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 
 - [x] ISC-44: Issue #230 receives the live queued-state correction.
 - [x] ISC-45: Issue #230 is closed as superseded rather than falsely proven.
-- [ ] ISC-46: M5 milestone state is closed with zero open issues.
+- [x] ISC-46: M5 milestone state is closed with zero open issues.
 - [x] ISC-47: M7 has an explicit execute-now or defer decision.
-- [ ] ISC-48: Every M7 issue state agrees with the recorded M7 decision.
-- [ ] ISC-49: Deferred M7 work has a binary restart condition.
+- [x] ISC-48: Every M7 issue state agrees with the recorded M7 decision.
+- [x] ISC-49: Deferred M7 work has a binary restart condition.
 - [x] ISC-50: The Hermes routing mismatch tracker links both repositories and exact sources.
 - [x] ISC-51: The cleanup pull request links the drift incident and verification evidence.
 - [ ] ISC-52: GitHub reports zero open cleanup pull requests after merge.
@@ -135,7 +135,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - [x] ISC-54: Full `npm test` exits zero.
 - [x] ISC-55: Mobile contract proof exits zero at 320, 390, and 430 pixels.
 - [x] ISC-56: Documentation synchronization check exits zero.
-- [ ] ISC-57: CI completes all required checks on the cleanup pull request.
+- [x] ISC-57: CI completes all required checks on the cleanup pull request.
 - [ ] ISC-58: Production health reports `gateConfigured: true` after deployment.
 - [ ] ISC-59: Production HTML digest matches the released page digest.
 - [ ] ISC-60: Released tag resolves exactly to merged cleanup main.
@@ -162,7 +162,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - [x] ISC-72: One runtime routing module owns Cambium chat and topic identifiers.
 - [x] ISC-73: Dead `CAMBIUM_PUBLIC_BASE_URL` configuration is removed or wired end-to-end.
 - [x] ISC-74: Release automation reports live-readiness separately and never labels it deterministic release proof.
-- [ ] ISC-75: CI preserves the live-readiness result as an inspectable artifact.
+- [x] ISC-75: CI preserves the live-readiness result as an inspectable artifact.
 - [x] ISC-76: CI mobile proof includes a production-shaped Gate ActionRequest story.
 - [x] ISC-77: R3F release scope contains no hardcoded permanently-open issue list.
 - [x] ISC-78: CI installs, tests, and builds the retained R3F application.
@@ -223,6 +223,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - 2026-07-13 09:35: Architecture review separated deterministic release qualification from live founder-device evidence. A blocked live-readiness report is preserved and visible, but it cannot invalidate deterministic release proof or masquerade as live proof.
 - 2026-07-13 09:35: M7 is retired rather than re-executed. Implemented issues will close after the cleanup CI gate passes; the partial settings issue is deferred with a binary restart condition based on a fixed human-reference acceptance gap.
 - 2026-07-13 09:35: Hermes owns the future canonical Telegram routing manifest under issue Sheshiyer/hermes-aws-ts#88. Cambium pins the current source commit and validates its local runtime snapshot until that manifest exists.
+- 2026-07-13 10:26: Protected CI run `29242583053` passed the settled-touch contract on Linux. M5 closed empty; M7 closed with eight completed slices and settings issue #47 retired `not planned` behind its fixed-reference, binary-acceptance restart condition.
 
 ## Changelog
 
@@ -254,6 +255,7 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - Runtime and drift: focused Worker, routing, readiness, release-contract, standalone-audit, and mutation tests pass. Deliberate production-shape, fixed-instruction, touch, and PNG-digest failures were observed before their implementations passed.
 - Canonical browser proof: 38 captures pass (27 layout, 11 clickability), PAGE SHA-256 `db1351564dd64741582ea8888698de663dcd005105ac0d856b0c6b2b3e97a77c`; the manifest binds every canonical PNG to its current SHA-256 and focused runs write only ignored diagnostics.
 - Deterministic release verification passes: 701 core tests, six CI mobile stories including settled real touch drag and a hit-tested queued ActionRequest proof tap, 51 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
-- GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5, M7, cleanup PR/CI, deployment, and release checks remain intentionally open.
-- Cleanup CI run `29240965478` correctly failed ambient generated-doc synchronization; run `29241191160` then passed docs and 700 tests but exposed branch-rail snap-back after genuine touch delivery. The committed snapshot and settled-scroll contract now pass 701 core tests and the complete local release gate; protected CI must rerun before M5/M7 closeout.
+- GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5 and M7 are closed with zero open issues; cleanup merge, deployment, and release checks remain intentionally open.
+- Cleanup CI run `29240965478` correctly failed ambient generated-doc synchronization; run `29241191160` then passed docs and 700 tests but exposed branch-rail snap-back after genuine touch delivery. The committed snapshot and settled-scroll contract now pass 701 core tests and the complete local release gate.
+- Protected CI run `29242583053` passed at `d829dbb1e712065304c6aee5041d906b9a0d1372` and uploaded `tg-miniapp-live-readiness-ac3d2568f858588b949f0221876b7f48e9ec08ec`; the artifact remains blocked evidence, not founder-device proof.
 - Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.
