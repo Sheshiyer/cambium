@@ -233,6 +233,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [New adopter runbook](./docs/adopters/new-adopter-30-minutes.md) | the 30-minute clean-clone path for standalone teams |
 | [Adapter boundary](./docs/adapters/README.md) | how optional providers feed evidence without becoming product identity |
 | [Approval lane](./docs/adapters/approval.md) | provider-neutral human gate with CLI, web, and Telegram adapters |
+| [Telegram ActionRequest lifecycle](./docs/runbooks/telegram-action-request-lifecycle.md) | state-driven channel provenance, Mini App authority, queue, and receipt procedure |
 | [Project archive ceremony](./docs/archive/README.md) | generic project closeout receipt and no-fake-progress archive rules |
 | [Memory portability](./docs/memory/README.md) | export, import, reset, deletion, and tenant-isolation rules for cortex memory |
 | [Asset provenance and size policy](./docs/assets/README.md) | source, approval, and file-size rules for runtime and QA visual assets |

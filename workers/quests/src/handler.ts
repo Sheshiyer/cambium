@@ -8,11 +8,12 @@
 // green (the quest log's own arc VII — the feature gates itself).
 
 import { PAGE } from './page.ts';
-import { confirmSignedActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
+import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
 import { isGithubWriteCommand, validateGithubCommand } from './github-command.ts';
+import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-routing.ts';
 
 export interface KvLike {
   get(key: string): Promise<string | null>;
@@ -274,18 +275,6 @@ const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
 const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|rawInitData|initData|query_id|auth_date)\b=?|\b(?:token|user|id)=|hash=)/i;
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
-const THOUGHTSEED_TELEGRAM_CHAT_ID = '-1002691202808';
-const TOPIC_QUEST_ROUTES = {
-  hermes: { topicName: 'Hermes', threadId: 797, questId: 'the-gate', priority: 'normal', taskType: 'operations', title: 'Coordinate Hermes topic signal' },
-  digests: { topicName: 'Digests', threadId: 798, questId: 'the-review', priority: 'normal', taskType: 'research', title: 'Synthesize digest topic signal' },
-  dev: { topicName: 'Dev', threadId: 799, questId: 'the-build', priority: 'high', taskType: 'engineering', title: 'Act on Dev topic signal' },
-  inbox: { topicName: 'Inbox', threadId: 800, questId: 'the-brief', priority: 'normal', taskType: 'general', title: 'Triage Inbox topic signal' },
-  calendar: { topicName: 'Calendar', threadId: 801, questId: 'the-brief', priority: 'normal', taskType: 'operations', title: 'Prepare Calendar topic signal' },
-  agent_ops: { topicName: 'Agent Ops', threadId: 802, questId: 'living-org', priority: 'high', taskType: 'operations', title: 'Investigate Agent Ops topic signal' },
-  alerts: { topicName: 'Alerts', threadId: 803, questId: 'the-ship-gate', priority: 'urgent', taskType: 'operations', title: 'Escalate Alerts topic signal' },
-  clients: { topicName: 'Clients', threadId: 804, questId: 'the-handoff', priority: 'high', taskType: 'general', title: 'Prepare Clients topic signal' },
-} as const;
-
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
 
@@ -1717,11 +1706,12 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const raw = await deps.kv.get(memberKey(memberId));
       if (!raw) return json(404, { error: 'member not in allowlist — POST /v1/handoff/members first' });
       const member = JSON.parse(raw);
+      const base = String(b.linkBase ?? deps.publicBaseUrl ?? '').replace(/\/+$/, '');
+      if (!base) return json(503, { error: 'public base URL unavailable' });
       const jti = deps.uuid ? deps.uuid() : randomTokenHex().slice(0, 16);
       const exp = nowMs + INVITE_TTL_MS;
       const invite = await signInvite(deps.handoffSecret, { memberId, tenantId: member.tenantId ?? memberId, email: member.email, jti, exp });
       await deps.kv.put(inviteKey(jti), JSON.stringify({ jti, memberId, email: member.email, exp, used: false, createdAt: nowIso() }));
-      const base = String(b.linkBase ?? deps.publicBaseUrl ?? 'https://cambium.example.com').replace(/\/+$/, '');
       return json(200, { ok: true, memberId, email: member.email, expiresAt: new Date(exp).toISOString(), invite, link: `${base}/join?t=${invite}` });
     }
 
@@ -1873,6 +1863,9 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const action = JSON.parse(stored);
       if (action.status === 'queued') actions.push(action);
     }
+    const actionRequests = await listActionRequestRecords(deps.kv, { tenantId: tenant, status: 'queued', limit: 100 });
+    const rows = Array.isArray(actionRequests.body.rows) ? actionRequests.body.rows : [];
+    actions.push(...rows.map((row) => ({ ...row, kind: 'action-request' })));
     return json(200, { tenant, actions });
   }
 
@@ -1883,6 +1876,15 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if ((req.headers['authorization'] ?? '') !== `Bearer ${deps.pushToken}`) return json(401, { error: 'bad or missing bearer' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+    if (body.kind === 'action-request') {
+      const result = await consumeActionRequestRecord(
+        deps.kv,
+        tenant,
+        String(body.id ?? ''),
+        () => (deps.now ? deps.now() : new Date().toISOString()),
+      );
+      return json(result.status, result.body);
+    }
     const key = `gate:${tenant}:${body.id}`;
     const stored = await deps.kv.get(key);
     if (!stored) return json(404, { error: 'unknown action' });

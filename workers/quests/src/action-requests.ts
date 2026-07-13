@@ -341,6 +341,54 @@ export async function confirmSignedActionRequestRecord(
   });
 }
 
+export async function consumeActionRequestRecord(
+  kv: ActionRequestKvLike,
+  tenantId: string,
+  id: string,
+  nowIso: () => string,
+): Promise<ActionRequestRouteResult> {
+  if (!VALID_TENANT.test(tenantId)) return route(400, { error: 'bad tenantId' });
+  const actionRequest = await readActionRequest(kv, tenantId, id);
+  if (!actionRequest) return route(404, { error: 'ActionRequest not found' });
+
+  if (actionRequest.status === 'consumed') {
+    return route(200, {
+      ok: true,
+      consumed: actionRequest.id,
+      kind: 'action-request',
+      duplicate: true,
+      actionRequest,
+    });
+  }
+  if (actionRequest.status !== 'queued') {
+    return route(409, { error: `ActionRequest status ${actionRequest.status} cannot be consumed` });
+  }
+
+  const at = nowIso();
+  const updated: ActionRequestV1 = {
+    ...actionRequest,
+    status: 'consumed',
+    updatedAt: at,
+    receipts: [
+      ...actionRequest.receipts,
+      {
+        at,
+        kind: 'consume',
+        text: 'Operator consumed queued ActionRequest; no external mutation was performed by Cambium.',
+      },
+    ],
+  };
+  await kv.put(arRecordKey(updated.tenantId, updated.id), JSON.stringify(updated));
+
+  return route(200, {
+    ok: true,
+    consumed: updated.id,
+    kind: 'action-request',
+    duplicate: false,
+    actionRequest: updated,
+  });
+}
+
 function validateIverifActionRequest(raw: Record<string, unknown>): { actionRequest: ActionRequestV1 } | { error: string } {
   if (raw.schema !== 'thoughtseed.action-request.v1') return { error: 'unsupported ActionRequest schema' };
   const tenantId = clean(raw.tenantId) || 'cambium';

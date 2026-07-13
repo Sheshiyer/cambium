@@ -7,6 +7,7 @@ dist/
 .codegraph/
 .readme-gen.json
 .playwright-mcp/
+.artifacts/
 __pycache__/
 *.pyc
 apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb

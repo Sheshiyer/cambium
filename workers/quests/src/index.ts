@@ -490,6 +490,7 @@ export default {
         fetch: workerFetch,
       }) : undefined,
       githubAllowedRepos,
+      publicBaseUrl: new URL(request.url).origin,
     });
     return new Response(res.body, { status: res.status, headers: res.headers });
   },

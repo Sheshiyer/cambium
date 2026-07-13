@@ -18,6 +18,8 @@
     "tapestry:snapshot": "node scripts/tapestry-snapshot.mjs",
     "render-docs": "node bin/render-docs.mjs",
     "render-docs:check": "node bin/render-docs.mjs --check",
+    "drift:audit": "node scripts/drift-audit.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
     "standalone:audit": "node scripts/standalone-audit.mjs",
     "standalone:smoke": "node scripts/standalone-smoke.mjs",
     "proof:tg-viewport": "node workers/quests/src/visual-viewport-proof.mjs",

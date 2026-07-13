@@ -31,13 +31,19 @@ Cambium to queue a quest-linked Fabric assignment. Cambium validates the live
 topic/thread map before creating the assignment, and Telegram remains signal
 intake rather than execution authority.
 
+Hermes owns the live topic topology. Cambium consumes the pinned snapshot in
+`workers/quests/src/telegram-routing.ts`; [Hermes issue #88](https://github.com/Sheshiyer/hermes-aws-ts/issues/88)
+owns the versioned manifest and cross-repository digest follow-up.
+
 ## Failure Mode
 
 If bot credentials or allowed founder IDs are missing, the approval adapter should be unavailable and the CLI/web approval adapters should remain usable.
 
 ## Tenant Mapping
 
-Map chat IDs to portable org slugs through ignored runtime config. Do not commit live chat IDs or founder account IDs.
+Topic and chat routing identifiers are non-authoritative topology and must have
+one pinned owner. Founder account IDs, credentials, invite links, and signed
+WebView data remain ignored runtime configuration.
 
 ## Privacy Boundary
 

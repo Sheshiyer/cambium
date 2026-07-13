@@ -129,10 +129,10 @@
       "id": "tg-miniapp-live-proof-device-screenshots",
       "kind": "docs-only",
       "paths": [
-        "docs/plans/assets/tg-miniapp-live-proof/*.png",
-        "docs/plans/assets/tg-miniapp-live-proof/*.jpg",
-        "docs/plans/assets/tg-miniapp-live-proof/*.jpeg",
-        "docs/plans/assets/tg-miniapp-live-proof/*.webp"
+        "docs/evidence/tg-miniapp/**/*.png",
+        "docs/evidence/tg-miniapp/**/*.jpg",
+        "docs/evidence/tg-miniapp/**/*.jpeg",
+        "docs/evidence/tg-miniapp/**/*.webp"
       ],
       "source": "Founder-device Telegram WebView screenshots captured for TG-MC-406 live-proof readiness (paired with redacted cambium.tg-device-proof.v1 hashes in telegram-webview.json)",
       "licenseStatus": "project-owned-device-capture",

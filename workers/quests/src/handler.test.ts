@@ -3125,8 +3125,8 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(gate, /signed Mini App confirmation/);
   assert.match(gate, /data-component="GateRoutePill"/);
   assert.match(gate, /Clients · topic 804 · message 1068/);
-  assert.match(gate, /data-component="GateReceiptSummary"/);
-  assert.match(gate, /Telegram card Clients 804 message 1068 receives a queued receipt/);
+  assert.match(gate, /data-component="GateLatestReceipt"/);
+  assert.match(gate, /Needs signed confirmation in the Mini App before Draft follow-up can run\./);
   assert.match(gate, /data-signed-action-entrypoint="confirm-action-request"/);
   assert.match(gate, /data-kind="confirm-action-request"/);
   assert.match(gate, /data-action-request-selected-option-id="draft-follow-up"/);
@@ -3152,7 +3152,8 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(preflight, /action kind<\/b><span>confirm-action-request/);
   assert.match(preflight, /selected option<\/b><span>Draft follow-up/);
   assert.match(preflight, /channel route<\/b><span>Clients · topic 804 · message 1068/);
-  assert.match(preflight, /receipt expectation<\/b><span>Telegram card Clients 804 message 1068 receives a queued receipt/);
+  assert.match(preflight, /latest receipt<\/b><span>Needs signed confirmation in the Mini App before Draft follow-up can run\./);
+  assert.doesNotMatch(preflight, /receipt expectation/i);
   assert.match(preflight, /source route<\/b><span>\/api\/gate\/cambium/);
   assert.match(preflight, /idempotency<\/b><span>confirm-action-request:cambium:ar_iverif_autogtm_followup_signed:draft-follow-up/);
   assert.match(preflight, /data-gate-confirm="confirm-action-request"/);
@@ -3206,7 +3207,7 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   const resultSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(resultSheet, /ActionRequest Signed Confirmation Queued/);
   assert.match(resultSheet, /channel route<\/b><span>Clients · topic 804 · message 1068/);
-  assert.match(resultSheet, /receipt expectation<\/b><span>Telegram card Clients 804 message 1068 receives a queued receipt/);
+  assert.doesNotMatch(resultSheet, /receipt expectation/i);
   assert.match(resultSheet, /data-gate-result-refresh="1"/);
   assert.match(resultSheet, /class="gbtns gate-result-actions"/);
   assert.match(resultSheet, /data-gate-result-nav="mission"/);
@@ -3217,6 +3218,57 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   refresh.click();
   assert.equal(refresh.textContent, 'Refreshing...');
   assert.equal(rendered.fetchRequests.length, beforeRefreshFetches + 1);
+});
+
+test('page · production ActionRequest projection renders message choice receipt and state-valid controls', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    now: () => '2026-07-10T11:35:41.833Z',
+  };
+  const created = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      ...iverifActionRequest(),
+      id: 'ar_iverif_w6_live_mrcwmcs3',
+      idempotencyKey: 'action-request:iverif-w6-live-mrcwmcs3',
+      status: 'queued',
+      selectedOptionId: 'draft-follow-up',
+      topic: {
+        ...iverifActionRequest().topic,
+        sourceMessageId: '1068',
+      },
+      receipts: [{
+        at: '2026-07-10T11:35:41.833Z',
+        kind: 'gate',
+        text: 'Signed confirmation queued: Draft follow-up.',
+      }],
+    }),
+  }), deps);
+  assert.equal(created.status, 200);
+
+  const listed = await handle(req('GET', '/v1/bridge/action-requests?tenantId=cambium&status=queued', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(listed.status, 200);
+  const actionRequests = body(listed);
+  assert.equal(actionRequests.rows[0].topic.sourceMessageId, '1068');
+  assert.equal('telegram' in actionRequests.rows[0], false, 'public projection has no fixture-only telegram enrichment');
+  assert.equal('receiptExpectation' in actionRequests.rows[0], false, 'public projection has no fixture-only receipt copy');
+
+  const rendered = await renderPageFixtureContext({
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    actionRequests,
+  }, { search: '?tenant=cambium&scene=gate' });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+  const card = gate;
+
+  assert.match(card, /Clients · topic 804 · message 1068/);
+  assert.match(card, /Selected option<\/b><span>Draft follow-up/);
+  assert.match(card, /Latest receipt<\/b><span>Signed confirmation queued: Draft follow-up\./);
+  assert.match(card, /data-component="GateQueuedState"/);
+  assert.doesNotMatch(card, /data-signed-action-entrypoint="confirm-action-request"/);
+  assert.doesNotMatch(card, /query_id=|auth_date=|tgWebAppData|callbackNonce|Bearer\s|secret-signature/i);
 });
 
 test('page · queued ActionRequest renders proof and status without another mutation path', async () => {
@@ -4704,6 +4756,19 @@ test('visual fixtures · iVerif ActionRequest fixture is a reusable W5 branch pr
     ['needs_signed_confirmation', 'queued', 'completed'],
   );
   assert.ok(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows.every((row) => row.branchId === 'iverif'));
+  assert.ok(
+    IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows.every((row) => !('telegram' in row)),
+    'fixture must not add a telegram object that the public projection does not serve',
+  );
+  assert.ok(
+    IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows.every((row) => !('receiptExpectation' in row)),
+    'fixture must not add receipt copy that the public projection does not serve',
+  );
+  assert.deepEqual(
+    IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE.actionRequests.rows.map((row) => row.topic.sourceMessageId),
+    ['1068', '1069', '1070'],
+    'message provenance uses the public topic.sourceMessageId field',
+  );
   const fixtureText = JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE);
   assert.doesNotMatch(fixtureText, /-1002691202808/);
   assert.doesNotMatch(fixtureText, /query_id=|auth_date=|tgWebAppData|callbackNonce|telegramMessageId|Bearer\s+[A-Za-z0-9._-]{12,}|secret-hash|secret-signature/i);
@@ -7258,7 +7323,7 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
     body: JSON.stringify({
       chatId: '-1002691202808',
       topicKey: 'dev',
-      threadId: 799,
+      threadId: 862,
       sourceMessageId: '852',
       memberId: 'shesh',
       summary: 'Build route proof is stale and needs a fresh worker probe.',
@@ -7280,7 +7345,7 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
   assert.equal(queued.status, 200);
   assert.equal(body(queued).id, 'assign-topic-dev-1');
   assert.equal(body(queued).eventId, 'topic:thoughtseed-ops:dev:852:assigned');
-  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 799, questId: 'the-build' });
+  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 862, questId: 'the-build' });
 
   const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
     headers: { authorization: 'Bearer bridge' },
@@ -7589,6 +7654,107 @@ test('gate · signed Mini App confirmation queues high-risk iVerif ActionRequest
   }), deps);
   assert.equal(body(listed).rows[0].status, 'queued');
   assert.equal(body(listed).rows[0].receipts.latest.kind, 'gate');
+});
+
+test('operator gate · lists queued ActionRequests through the authenticated queue', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    pushToken: 'push',
+    now: () => '2026-07-10T11:35:41.833Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      ...iverifActionRequest(),
+      status: 'queued',
+      selectedOptionId: 'make-branch-task',
+      topic: { ...iverifActionRequest().topic, sourceMessageId: '1068' },
+      receipts: [{ at: '2026-07-10T11:35:41.833Z', kind: 'callback', text: 'Queued: Make branch task.' }],
+    }),
+  }), deps);
+
+  const listed = await handle(req('GET', '/internal/gate/cambium', {
+    headers: { authorization: 'Bearer push' },
+  }), deps);
+  assert.equal(listed.status, 200);
+  assert.equal(body(listed).actions.length, 1);
+  assert.equal(body(listed).actions[0].kind, 'action-request');
+  assert.equal(body(listed).actions[0].id, 'ar_iverif_autogtm_lead_gap');
+  assert.equal(body(listed).actions[0].topic.sourceMessageId, '1068');
+  assert.equal(body(listed).actions[0].status, 'queued');
+});
+
+test('operator gate · consumes queued ActionRequest once by durable request identity', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    pushToken: 'push',
+    now: () => '2026-07-10T11:40:00.000Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      ...iverifActionRequest(),
+      status: 'queued',
+      selectedOptionId: 'make-branch-task',
+      topic: { ...iverifActionRequest().topic, sourceMessageId: '1068' },
+      receipts: [{ at: '2026-07-10T11:35:41.833Z', kind: 'callback', text: 'Queued: Make branch task.' }],
+    }),
+  }), deps);
+
+  const first = await handle(req('POST', '/internal/gate/cambium/consume', {
+    headers: { authorization: 'Bearer push' },
+    body: JSON.stringify({ id: 'ar_iverif_autogtm_lead_gap', kind: 'action-request', result: 'accepted for bounded operator work' }),
+  }), deps);
+  assert.equal(first.status, 200);
+  assert.equal(body(first).consumed, 'ar_iverif_autogtm_lead_gap');
+  assert.equal(body(first).kind, 'action-request');
+  assert.equal(body(first).duplicate, false);
+  assert.equal(body(first).actionRequest.status, 'consumed');
+  assert.equal(body(first).actionRequest.receipts.at(-1).kind, 'consume');
+  assert.equal(body(first).actionRequest.receipts.at(-1).text, 'Operator consumed queued ActionRequest; no external mutation was performed by Cambium.');
+
+  const second = await handle(req('POST', '/internal/gate/cambium/consume', {
+    headers: { authorization: 'Bearer push' },
+    body: JSON.stringify({ id: 'ar_iverif_autogtm_lead_gap', kind: 'action-request', result: 'different replay text must not append another receipt' }),
+  }), deps);
+  assert.equal(second.status, 200);
+  assert.equal(body(second).duplicate, true);
+  assert.equal(body(second).actionRequest.receipts.length, body(first).actionRequest.receipts.length);
+  assert.equal(body(second).actionRequest.updatedAt, body(first).actionRequest.updatedAt);
+
+  const projected = await handle(req('GET', '/v1/bridge/action-requests?tenantId=cambium', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(body(projected).rows[0].status, 'consumed');
+  assert.equal(body(projected).rows[0].receipts.latest.kind, 'consume');
+
+  const relisted = await handle(req('GET', '/internal/gate/cambium', {
+    headers: { authorization: 'Bearer push' },
+  }), deps);
+  assert.equal(body(relisted).actions.length, 0, 'consumed ActionRequest leaves the active operator queue');
+});
+
+test('operator gate · rejects ActionRequest consumption before queued state', async () => {
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    pushToken: 'push',
+    now: () => '2026-07-10T11:40:00.000Z',
+  };
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(iverifActionRequest()),
+  }), deps);
+
+  const rejected = await handle(req('POST', '/internal/gate/cambium/consume', {
+    headers: { authorization: 'Bearer push' },
+    body: JSON.stringify({ id: 'ar_iverif_autogtm_lead_gap', kind: 'action-request' }),
+  }), deps);
+  assert.equal(rejected.status, 409);
+  assert.match(rejected.body, /status proposed cannot be consumed/);
 });
 
 test('bridge · lists redacted iVerif ActionRequests for Mini App projection', async () => {

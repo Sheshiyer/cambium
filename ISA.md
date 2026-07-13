@@ -1,0 +1,250 @@
+---
+project: Cambium
+task: "Eliminate operational drift across Cambium proof, configuration, documentation, and GitHub state"
+effort: comprehensive
+effort_source: classifier
+phase: execute
+progress: 70/80
+mode: interactive
+started: 2026-07-13T09:04:49Z
+updated: 2026-07-13T09:55:36Z
+---
+
+## Problem
+
+Cambium can report green proofs while the founder cannot find the named control because production data, visual fixtures, plans, and GitHub checklists can each carry a different version of operational truth. The July ActionRequest incident exposed the full failure: production served `topic.sourceMessageId`, the renderer expected an enriched `telegram.messageId`, the fixture supplied fields production never supplied, and issue #230 kept instructing a state transition that had already happened.
+
+This is not only a stale-document problem. It is an ownership and feedback problem: runtime contracts, generated proof, human runbooks, repository configuration, cross-repository Telegram routing, milestones, and releases do not currently converge through one machine-checked lifecycle.
+
+## Vision
+
+A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
+
+The surprising outcome is subtraction: fewer checklists and fewer copied constants produce stronger proof because every remaining instruction is derived from a current state machine or protected by a failing test.
+
+## Out of Scope
+
+- No removal of authentication, signed-action, secret-redaction, idempotency, or no-fake-progress controls.
+- No deletion, reset, stash, cleanup, or rewriting of unrelated local work in the primary checkout.
+- No client-facing send, spend, deploy outside Cambium, or Telegram action on the founder's behalf.
+- No execution of the nine M7 game-engine issues unless live audit selects go-now.
+- No claim that deterministic browser captures substitute for founder-device Telegram evidence.
+- No wholesale deletion of historical plans merely because they are old; history must be clearly non-operational or archived.
+- No cross-repository runtime change without an explicit owning contract and repository-specific verification.
+
+## Principles
+
+- Runtime state outranks issue prose; issue prose must be regenerated or reconciled when runtime state changes.
+- Fixtures must be consumers of production contracts, never privileged sources with display-critical fields production does not emit.
+- Operational instructions describe state transitions, not one message number, one screenshot, or one remembered click path.
+- Historical plans preserve decisions but never function as current runbooks.
+- Configuration has one owner; every copy is generated, validated, or rejected.
+- Proof is provenance plus freshness plus behavior, not a green command alone.
+- Deletion requires classification; dangerous stale instructions are removed, while security boundaries and durable history remain.
+- The dirty primary checkout is user property and remains untouched.
+
+## Constraints
+
+- Cleanup changes are authored only in the clean `codex/drift-proof-cleanup` worktree based on fetched `origin/main`.
+- The Cloudflare Worker remains the production surface at `curious.thoughtseed.space`.
+- Telegram signed actions continue to require valid Mini App `initData`; raw authentication material is never stored.
+- `npm test`, focused Worker tests, mobile proof contracts, and docs synchronization remain release gates.
+- GitHub mutations are limited to issue #230, the verified Hermes mismatch tracker, M5/M7 hygiene, the cleanup PR, and its release.
+- Existing committed visual proof assets remain generated artifacts unless evidence shows their retention itself causes drift.
+- ISC identifiers remain stable; refinements use child identifiers rather than renumbering.
+
+## Goal
+
+Make operational drift mechanically difficult by aligning the ActionRequest runtime contract, renderer, fixtures, tests, runbooks, configuration ownership, GitHub state, and release evidence. The cleanup is complete only when production-shaped tests fail on the exact former mismatch, stale actionable instructions are removed from operational surfaces, deferred roadmap work is explicit, and current main can be released without touching unrelated local work.
+
+## Criteria
+
+### Protected execution boundary
+
+- [x] ISC-1: Primary-checkout status digest equals its pre-cleanup digest.
+- [x] ISC-2: Primary-checkout stash digest equals its pre-cleanup digest.
+- [x] ISC-3: Cleanup branch starts exactly from fetched `origin/main`.
+- [x] ISC-4: Existing worktree count is not reduced by cleanup.
+- [x] ISC-5: Project-level `ISA.md` exists on the cleanup branch.
+
+### ActionRequest runtime contract
+
+- [x] ISC-6: Public ActionRequest projection serves `topic.sourceMessageId` unchanged.
+- [x] ISC-7: Gate route derivation accepts `topic.sourceMessageId` as message provenance.
+- [x] ISC-8: Production-shaped Gate markup contains `Clients · topic 804 · message 1068`.
+- [x] ISC-9: A queued Gate card visibly names its selected option.
+- [x] ISC-10: A queued Gate card visibly names its latest receipt.
+- [x] ISC-11: A queued Gate card renders no signed-confirm mutation control.
+- [x] ISC-12: A `needs_signed_confirmation` Gate card renders one signed-confirm control.
+- [x] ISC-13: A Gate card visibly identifies itself as an ActionRequest.
+- [x] ISC-14: ActionRequest details display the source topic and thread.
+- [x] ISC-15: ActionRequest rendering exposes no raw Telegram authentication material.
+
+### Fixture and proof parity
+
+- [x] ISC-16: The iVerif fixture contains no display-only `telegram.messageId` enrichment.
+- [x] ISC-17: The iVerif fixture contains no manually authored `receiptExpectation` enrichment.
+- [x] ISC-18: The iVerif fixture carries message provenance only through `topic.sourceMessageId`.
+- [x] ISC-19: The queued proof fixture matches the public ActionRequest row shape.
+- [x] ISC-20: Fixture parity validation rejects display-critical fields absent from the public schema.
+- [x] ISC-21: Production-shaped tests fail when `sourceMessageId` mapping is removed.
+- [x] ISC-22: Production-shaped tests fail when selected-option rendering is removed.
+- [x] ISC-23: Production-shaped tests fail when latest-receipt rendering is removed.
+- [x] ISC-24: Queued-state tests reject any confirm-action entrypoint.
+- [x] ISC-25: Signed-confirmation tests require the confirm-action entrypoint.
+
+### Operational documentation lifecycle
+
+- [x] ISC-26: One canonical Telegram ActionRequest lifecycle runbook exists.
+- [x] ISC-27: The canonical runbook maps every ActionRequest state to its valid next action.
+- [x] ISC-28: The canonical runbook separates channel provenance from Mini App launch provenance.
+- [x] ISC-29: The canonical runbook contains no fixed live message number in an instruction.
+- [x] ISC-30: The obsolete June live-proof checklist is absent from active plan surfaces.
+- [x] ISC-31: The July implementation plan is explicitly marked historical and non-operational.
+- [x] ISC-32: `docs/plans/README.md` defines active, generated, historical, and archived classes.
+- [x] ISC-33: Proof-asset documentation states browser captures are not live Telegram proof.
+- [x] ISC-34: README links the canonical lifecycle runbook instead of a dated checklist.
+- [x] ISC-35: Repository search finds no active instruction to reopen the Mini App from message 1068.
+
+### Configuration ownership and drift detection
+
+- [x] ISC-36: Telegram routing ownership is named in one canonical repository contract.
+- [x] ISC-37: Cambium topic constants are validated against the canonical routing contract.
+- [x] ISC-38: Hermes topic constants are tracked against the same canonical routing contract.
+- [x] ISC-39: The Dev-topic mismatch has one GitHub owner and acceptance contract.
+- [x] ISC-40: A local drift-audit command exits zero on current canonical files.
+- [x] ISC-41: The drift audit exits nonzero when a production-required field exists only in fixtures.
+- [x] ISC-42: The drift audit exits nonzero when an active runbook embeds a fixed ActionRequest state.
+- [x] ISC-43: CI runs the drift audit on every pull request.
+
+### GitHub roadmap and lifecycle hygiene
+
+- [x] ISC-44: Issue #230 receives the live queued-state correction.
+- [x] ISC-45: Issue #230 is closed as superseded rather than falsely proven.
+- [ ] ISC-46: M5 milestone state is closed with zero open issues.
+- [x] ISC-47: M7 has an explicit execute-now or defer decision.
+- [ ] ISC-48: Every M7 issue state agrees with the recorded M7 decision.
+- [ ] ISC-49: Deferred M7 work has a binary restart condition.
+- [x] ISC-50: The Hermes routing mismatch tracker links both repositories and exact sources.
+- [ ] ISC-51: The cleanup pull request links the drift incident and verification evidence.
+- [ ] ISC-52: GitHub reports zero open cleanup pull requests after merge.
+
+### Verification, deployment, and release
+
+- [x] ISC-53: Focused Worker handler tests exit zero.
+- [x] ISC-54: Full `npm test` exits zero.
+- [x] ISC-55: Mobile contract proof exits zero at 320, 390, and 430 pixels.
+- [x] ISC-56: Documentation synchronization check exits zero.
+- [ ] ISC-57: CI completes all required checks on the cleanup pull request.
+- [ ] ISC-58: Production health reports `gateConfigured: true` after deployment.
+- [ ] ISC-59: Production HTML digest matches the released page digest.
+- [ ] ISC-60: Released tag resolves exactly to merged cleanup main.
+
+### Anti-criteria
+
+- [x] ISC-61: Anti: cleanup modifies any primary-checkout dirty blob.
+- [x] ISC-62: Anti: cleanup removes authentication, idempotency, redaction, or no-fake-progress gates.
+- [x] ISC-63: Anti: a fixture can pass UI proof using display-critical fields production never emits.
+- [x] ISC-64: Anti: any active instruction asks for a control invalid in the current ActionRequest state.
+- [x] ISC-65: Anti: completion claims founder-device proof that was not freshly captured.
+
+### Queued ActionRequest consumption
+
+- [x] ISC-66: Operator listing includes queued ActionRequests alongside generic gate decisions.
+- [x] ISC-67: Operator consumption transitions one queued ActionRequest to `consumed`.
+- [x] ISC-68: ActionRequest consumption appends one redacted consumption receipt.
+- [x] ISC-69: Repeated consumption returns the original idempotent result.
+- [x] ISC-70: ActionRequest consumption performs no client-facing send or external mutation.
+- [x] ISC-71: Consumed ActionRequests disappear from the active Gate list.
+
+### Additional drift gates
+
+- [x] ISC-72: One runtime routing module owns Cambium chat and topic identifiers.
+- [x] ISC-73: Dead `CAMBIUM_PUBLIC_BASE_URL` configuration is removed or wired end-to-end.
+- [x] ISC-74: Release automation reports live-readiness separately and never labels it deterministic release proof.
+- [ ] ISC-75: CI preserves the live-readiness result as an inspectable artifact.
+- [x] ISC-76: CI mobile proof includes a production-shaped Gate ActionRequest story.
+- [x] ISC-77: R3F release scope contains no hardcoded permanently-open issue list.
+- [x] ISC-78: CI installs, tests, and builds the retained R3F application.
+- [x] ISC-79: Duplicate generated M7 issue bodies are absent after milestone closeout.
+- [x] ISC-80: Anti: UI or API promises operator consumption without an implemented consumer.
+
+## Test Strategy
+
+| ISC range | Type | Binary check | Tool |
+|---|---|---|---|
+| ISC-1..4, ISC-61 | preservation | before/after digests and worktree count match | `git status`, `git stash list`, `git worktree list`, `shasum` |
+| ISC-5 | file | project ISA parses and contains twelve sections | `sed`, `rg` |
+| ISC-6 | live API | public row retains source message provenance | `curl` + `jq` |
+| ISC-7..15, ISC-62 | DOM contract | production-shaped render includes only state-valid controls and redacted fields | `node --test workers/quests/src/handler.test.ts` |
+| ISC-16..20, ISC-63 | schema parity | fixture keys are a subset of public display contract | drift-audit script |
+| ISC-21..25 | mutation tests | deliberate contract removal fails focused tests | test assertions and source inspection |
+| ISC-26..35, ISC-64 | docs lifecycle | canonical runbook present; stale actionable phrases absent | `rg`, docs audit script |
+| ISC-36..43 | configuration | routing sources and CI drift command agree | drift-audit script + workflow inspection |
+| ISC-44..52 | GitHub | live issue, milestone, tracker, and PR state matches decision | `gh issue`, `gh api`, `gh pr` |
+| ISC-53 | focused test | Worker tests exit 0 | `node --test workers/quests/src/handler.test.ts` |
+| ISC-54 | regression | full suite exits 0 | `npm test` |
+| ISC-55 | mobile proof | recursive overflow/gesture contract passes | `npm run proof:tg-mobile-contract` |
+| ISC-56 | docs | rendered docs match sources | `npm run render-docs:check` |
+| ISC-57 | CI | every required PR check succeeds | `gh pr checks --watch` |
+| ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
+| ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
+| ISC-60 | release | tag target equals merged main | `git rev-list`, `gh release view` |
+| ISC-65 | proof boundary | no fresh founder-device claim appears in evidence | issue/PR text inspection |
+| ISC-66..71, ISC-80 | state machine | queued ActionRequest lists, consumes, receipts, deduplicates, and leaves active Gate | focused handler tests |
+| ISC-72..73 | config | one imported routing module; no unused Wrangler variable | `rg`, focused tests |
+| ISC-74..76 | release/CI | deterministic gates and separate live evidence remain distinguishable; Gate story is captured | workflow tests and CI logs |
+| ISC-77..79 | roadmap hygiene | stale issue-number configs and duplicate bodies absent | `rg`, filesystem probe, R3F tests |
+
+## Features
+
+- `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
+- `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
+- `FixtureParity` | Remove fixture-only enrichments and add production-shape failure tests | satisfies ISC-16..25, ISC-63 | depends_on ActionRequestContract | parallelizable false
+- `DocsLifecycle` | Replace dated actionable checklists with one state-driven runbook and lifecycle policy | satisfies ISC-26..35, ISC-64 | depends_on FixtureParity | parallelizable true
+- `RoutingGovernance` | Name canonical Telegram routing ownership and automate mismatch detection | satisfies ISC-36..43 | depends_on FixtureParity | parallelizable true
+- `GitHubHygiene` | Correct #230, close M5, decide M7, and track Hermes mismatch | satisfies ISC-44..52 | depends_on DocsLifecycle, RoutingGovernance | parallelizable false
+- `ReleaseProof` | Run the complete verification, merge, deploy, and publish aligned release evidence | satisfies ISC-53..60, ISC-65 | depends_on all prior features | parallelizable false
+- `ActionRequestConsumption` | Implement the bounded queued-to-consumed lifecycle already promised by the public contract | satisfies ISC-66..71, ISC-80 | depends_on ActionRequestContract | parallelizable false
+- `AdditionalDriftGates` | Remove dead config, strictify release proof, cover Gate in CI, and retire R3F issue mirrors | satisfies ISC-72..79 | depends_on FixtureParity, RoutingGovernance | parallelizable true
+
+## Decisions
+
+- 2026-07-13 09:04: Cleanup uses the existing clean worktree based on `origin/main`; the primary dirty checkout is a protected read-only source.
+- 2026-07-13 09:04: E5 Interview completed from explicit conversation evidence: broken state is stale operational truth; durable principle is runtime contracts over prose; anti-goal is another manual checklist; done means CI rejects the same drift class.
+- 2026-07-13 09:04: The E5 256-ISC floor is intentionally not manufactured. Sixty-five atomic probes cover the actual bounded surfaces; further splitting would create ceremony rather than independent failure signals.
+- 2026-07-13 09:04: Historical plans are classified, not blindly deleted. Only dangerous actionable instructions leave active surfaces; durable decision history remains marked non-operational.
+- 2026-07-13 09:04: Issue #230 may be closed only as superseded by observed queued state, never as successful fresh founder-device proof.
+- 2026-07-13 09:08: CheckCompleteness passed all hard E5 gates: twelve sections present, Interview recorded, 65 unique criteria, five anti-criteria, and no experiential antecedent required for this verifiable operational goal.
+- 2026-07-13 09:07: refined: Multi-angle, first-principles, iceberg, fishbone, and scientific analysis converged on three levers: production-shape parity, document lifecycle classification, and explicit configuration ownership. Deleting old files or patching the renderer alone cannot satisfy the Goal.
+- 2026-07-13 09:09: refined: Repository audit found no ActionRequest operator consumer although live copy promises one. ISC-66..71 and ISC-80 now require an idempotent queued-to-consumed path with no external side effect.
+- 2026-07-13 09:09: refined: Audit expanded the drift surface to dead Wrangler config, non-strict release readiness, missing Gate CI capture, stale R3F issue-number policy, and duplicate generated issue bodies. ISC-72..79 cover these structural sources.
+- 2026-07-13 09:35: Advisor review selected durable-ID consumption over a source-message shortcut. `topic.sourceMessageId` remains provenance; the operator consumes a queued ActionRequest by its own ID without a Telegram side effect.
+- 2026-07-13 09:35: Architecture review separated deterministic release qualification from live founder-device evidence. A blocked live-readiness report is preserved and visible, but it cannot invalidate deterministic release proof or masquerade as live proof.
+- 2026-07-13 09:35: M7 is retired rather than re-executed. Implemented issues will close after the cleanup CI gate passes; the partial settings issue is deferred with a binary restart condition based on a fixed human-reference acceptance gap.
+- 2026-07-13 09:35: Hermes owns the future canonical Telegram routing manifest under issue Sheshiyer/hermes-aws-ts#88. Cambium pins the current source commit and validates its local runtime snapshot until that manifest exists.
+
+## Changelog
+
+- 2026-07-13 | conjectured: Fresh proof screenshots and a page digest were sufficient to keep the Telegram closeout instructions trustworthy
+  refuted by: production served a queued ActionRequest through `topic.sourceMessageId` while the renderer fixture depended on extra `telegram.messageId` and the open issue still requested the earlier confirmation state
+  learned: proof freshness must cover the runtime data shape and state transition, not only the page source and viewport geometry
+  criterion now: ISC-16..25 enforce production-shaped fixture parity and state-specific controls; ISC-44..45 require an honest superseded closeout
+- 2026-07-13 | conjectured: A focused mobile proof could avoid canonical drift by withholding only the manifest write
+  refuted by: the focused proof still overwrote canonical PNGs, allowing screenshots and their manifest metadata to diverge
+  learned: canonical proof requires both output-path isolation and per-artifact content binding
+  criterion now: ISC-40 and ISC-76 include ignored focused captures plus SHA-256 verification for every canonical PNG
+- 2026-07-13 | conjectured: One synthetic touch dispatch was deterministic enough for the release gate
+  refuted by: one full release run produced zero branch-rail scroll under both Chrome headless modes
+  learned: retrying the real gesture is valid stabilization; setting the success state programmatically is not
+  criterion now: ISC-55 requires bounded real-touch retries followed by the same isolation and hit-test assertions
+
+## Verification
+
+- Primary checkout preservation: status digest `eed44f76e58b130fbbb25849421cc93a56662feb143096dec17fcdb306669460` and stash digest `b45c285aa8d1d51b4df0b41cdfd7b0e2e803bdb50c2950c996449874859d7627` match their pre-cleanup values; six worktrees remain.
+- Branch provenance: cleanup and merge-base both resolve to fetched `origin/main` `84f616152f05885369b97a18c8ac4318bb21b23a`.
+- Runtime and drift: focused Worker, routing, readiness, release-contract, standalone-audit, and mutation tests pass. Deliberate production-shape, fixed-instruction, touch, and PNG-digest failures were observed before their implementations passed.
+- Canonical browser proof: 38 captures pass (27 layout, 11 clickability), PAGE SHA-256 `8b244e78c1c076716b5f59c2ab382e4ff04ecefab94c73703c85cc97669e2726`; aggregate canonical PNG digest is `77cd5fedf8786f561748b48b3f23860b1db57d252ca31ac29e53ea4e38784b68` before and after the focused mobile run.
+- Deterministic release verification passes: 684 core tests, six CI mobile stories including real touch drag and a hit-tested queued ActionRequest proof tap, 51 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
+- GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5, M7, cleanup PR/CI, deployment, and release checks remain intentionally open.
+- Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.

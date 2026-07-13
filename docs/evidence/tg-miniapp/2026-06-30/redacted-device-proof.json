@@ -16,7 +16,7 @@
   },
   "screenshot": {
     "sha256": "sha256:e4e6a2ca8dd00c88a3a152d7ec402b23f8d8cf5b5557b44e026489382305bd86",
-    "path": "docs/plans/assets/tg-miniapp-live-proof/founder-device-2026-06-30.jpeg"
+    "path": "docs/evidence/tg-miniapp/2026-06-30/founder-device.jpeg"
   },
   "notes": [
     "Captured by live-proof-readiness --capture-device-proof; raw initData, raw Telegram user id, and WebView query string omitted."

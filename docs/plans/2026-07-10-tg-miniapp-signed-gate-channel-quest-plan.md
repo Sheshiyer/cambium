@@ -1,5 +1,7 @@
 # TG Mini App Signed Gate Channel Quest Implementation Plan
 
+> Lifecycle: historical; non-operational. Do not execute this plan as a runbook. Current state transitions live in `docs/runbooks/telegram-action-request-lifecycle.md`.
+
 > **For Codex:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Make channel-originated Telegram ActionRequests read clearly inside the Cambium TG Mini App Gate, require a signed founder confirmation before queueing, and return an honest queued/receipt state without treating Telegram channels as execution authority.

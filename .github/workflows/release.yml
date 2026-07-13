@@ -1,16 +1,12 @@
 name: Release
 
-# Reusable release pipeline. Fires on any vX.Y.Z tag (or manual dispatch): runs the release gates,
-# records TG mini app readiness, then cuts a GitHub Release titled "vX.Y.Z · <Muse codename>".
-# Codename is read from package.json (`codename`). Idempotent — skips if the release already exists.
-
 on:
   push:
     tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to release (e.g. v0.2.0)'
+        description: 'Existing tag to release (for example v0.3.0)'
         required: true
 
 permissions:
@@ -29,32 +25,39 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '26'
+          cache: npm
+          cache-dependency-path: apps/cambium-r3f/package-lock.json
 
-      - name: Test (release gate)
-        run: npm test
+      - name: Install retained R3F runtime
+        run: npm ci --prefix apps/cambium-r3f
 
-      - name: Telegram mobile layout contract (release gate)
+      - name: Resolve Chromium
         run: |
           browser="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
           if [ -z "$browser" ]; then
-            echo "No Chromium-family browser is available for the Telegram mobile contract" >&2
+            echo "No Chromium-family browser is available" >&2
             exit 1
           fi
-          CHROME_BIN="$browser" npm run proof:tg-mobile-contract
+          echo "CHROME_BIN=$browser" >> "$GITHUB_ENV"
 
-      - name: Standalone audit (release gate)
-        run: npm run standalone:audit
+      - name: Verify deterministic release contract
+        run: npm run verify:release
 
-      - name: Standalone smoke (release gate)
-        run: npm run standalone:smoke
-
-      - name: TG mini app readiness proof (non-strict)
+      - name: Live readiness report (separate evidence)
+        if: always()
         run: npm run proof:tg-live-readiness
 
-      - name: Resolve version + codename
+      - name: Upload live readiness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tg-miniapp-live-readiness-${{ github.sha }}
+          path: .artifacts/tg-miniapp-live-proof/readiness.json
+          if-no-files-found: error
+
+      - name: Resolve codename
         id: meta
-        run: |
-          echo "codename=$(node -p "require('./package.json').codename || 'Muse'")" >> "$GITHUB_OUTPUT"
+        run: echo "codename=$(node -p \"require('./package.json').codename || 'Muse'\")" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         env:
@@ -63,9 +66,7 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           [ "${{ github.event_name }}" = "workflow_dispatch" ] && TAG="${{ github.event.inputs.tag }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG already exists — skipping."
+            echo "Release $TAG already exists; skipping."
           else
-            gh release create "$TAG" \
-              --title "$TAG · ${{ steps.meta.outputs.codename }}" \
-              --generate-notes
+            gh release create "$TAG" --title "$TAG · ${{ steps.meta.outputs.codename }}" --generate-notes
           fi

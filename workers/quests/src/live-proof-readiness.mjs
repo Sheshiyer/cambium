@@ -13,19 +13,19 @@ import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGE } from './page.ts';
 
-const DEFAULT_OUT = 'docs/plans/assets/tg-miniapp-live-proof/readiness.json';
-const DEFAULT_DEVICE_PROOF = 'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json';
-const DEFAULT_DEVICE_TEMPLATE = 'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.template.json';
-const DEFAULT_WORKER_PROBE = 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json';
-const DEFAULT_WORKER_TEMPLATE = 'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.template.json';
-const DEFAULT_SIGNED_SMOKE = 'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json';
-const DEFAULT_SIGNED_SMOKE_TEMPLATE = 'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.template.json';
+const DEFAULT_OUT = '.artifacts/tg-miniapp-live-proof/readiness.json';
+const DEFAULT_DEVICE_PROOF = '.artifacts/tg-miniapp-live-proof/telegram-webview.json';
+const DEFAULT_DEVICE_TEMPLATE = '.artifacts/tg-miniapp-live-proof/telegram-webview.template.json';
+const DEFAULT_WORKER_PROBE = '.artifacts/tg-miniapp-live-proof/worker-network-probe.json';
+const DEFAULT_WORKER_TEMPLATE = '.artifacts/tg-miniapp-live-proof/worker-network-probe.template.json';
+const DEFAULT_SIGNED_SMOKE = '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json';
+const DEFAULT_SIGNED_SMOKE_TEMPLATE = '.artifacts/tg-miniapp-live-proof/signed-action-smoke.template.json';
 const DEFAULT_WORKER = 'https://curious.thoughtseed.space';
 const DEFAULT_DEVICE_PROOF_MAX_AGE_SEC = 24 * 60 * 60;
 const DEFAULT_WORKER_PROBE_MAX_AGE_SEC = 24 * 60 * 60;
 const WORKER_INITDATA_MAX_AGE_SEC = 600;
 const HASH_64 = /^sha256:[a-f0-9]{64}$/i;
-const LIVE_PROOF_ASSET_DIR = 'docs/plans/assets/tg-miniapp-live-proof';
+const LIVE_PROOF_ASSET_DIR = '.artifacts/tg-miniapp-live-proof';
 const SIGNED_SMOKE_KINDS = ['skill-promotion', 'side-quest', 'npc-history', 'gate-approval'];
 const GATE_ACTION_KINDS = ['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request'];
 const VISIBLE_MARKER_BINDINGS = ['action-subject', 'action-idempotency', 'action-request-id', 'telegram-receipt'];
@@ -344,7 +344,7 @@ export function createDeviceProofTemplate(options = {}) {
       },
       screenshot: {
         sha256: 'sha256:TODO_SHA256_OF_SCREENSHOT',
-        path: 'docs/plans/assets/tg-miniapp-live-proof/TODO-founder-device.png',
+        path: '.artifacts/tg-miniapp-live-proof/TODO-founder-device.png',
       },
       notes: [
         'TODO capture Telegram client, device class, and any shell/chrome anomaly without raw initData.',
@@ -560,7 +560,7 @@ export function validateDeviceProofArtifact(value, options = {}) {
     missing,
     evidence: ready
       ? [
-          'docs/plans/assets/tg-miniapp-live-proof/telegram-webview.json',
+          '.artifacts/tg-miniapp-live-proof/telegram-webview.json',
           `capturedAt:${value.capturedAt}`,
           `telegram.initDataAgeSeconds:${initDataAgeSeconds}`,
           `screenshot.path:${screenshotPath}`,
@@ -638,7 +638,7 @@ export function validateWorkerProbeArtifact(value, options = {}) {
     missing,
     evidence: ready
       ? [
-          'docs/plans/assets/tg-miniapp-live-proof/worker-network-probe.json',
+          '.artifacts/tg-miniapp-live-proof/worker-network-probe.json',
           `capturedAt:${value.capturedAt}`,
           `worker:${normalizedUrl(value.workerUrl)}`,
           `probe:GET /internal/gate/${tenant} -> 200`,
@@ -749,7 +749,7 @@ export function validateSignedActionSmokeArtifact(value, options = {}) {
     missing,
     evidence: ready
       ? [
-          'docs/plans/assets/tg-miniapp-live-proof/signed-action-smoke.json',
+          '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json',
           `smokeKind:${value.smokeKind}`,
           `action.kind:${action.kind}`,
           `capturedAt:${value.capturedAt}`,
@@ -1150,7 +1150,7 @@ function buildCapturePlan(options) {
         id: 'device-webview-proof',
         writes: DEFAULT_DEVICE_PROOF,
         state: stepState(deviceProof.ready, devicePrerequisites),
-        command: 'node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot docs/plans/assets/tg-miniapp-live-proof/<founder-device>.png --platform <ios|android|desktop> --webview-url <current Telegram WebView URL> --safe-area <notes> --write',
+        command: 'node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot .artifacts/tg-miniapp-live-proof/<founder-device>.png --platform <ios|android|desktop> --webview-url <current Telegram WebView URL> --safe-area <notes> --write',
         prerequisites: devicePrerequisites,
         privacy: ['raw initData comes only from env', 'artifact stores user/initData/screenshot hashes only', 'WebView query and hash are omitted'],
       },
@@ -1206,8 +1206,8 @@ export function assessLiveProofReadiness(options = {}) {
   });
   const chrome = env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   const viewportManifestPath = 'docs/plans/assets/tg-miniapp-viewport-proof/manifest.json';
-  const viewportFailurePath = 'docs/plans/assets/tg-miniapp-viewport-proof/failure.json';
-  const viewportDiagnosticsPath = 'docs/plans/assets/tg-miniapp-viewport-proof/browser-diagnostics.json';
+  const viewportFailurePath = '.artifacts/tg-miniapp-viewport/failure.json';
+  const viewportDiagnosticsPath = '.artifacts/tg-miniapp-viewport/browser-diagnostics.json';
   const viewportManifestArtifact = parseJsonArtifact(cwd, viewportManifestPath);
   const viewportManifest = viewportManifestArtifact.exists && !viewportManifestArtifact.error;
   const viewportFailure = artifactExists(cwd, viewportFailurePath);

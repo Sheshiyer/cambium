@@ -23,7 +23,7 @@
 ## Remaining Live Inputs
 
 - Fresh `TELEGRAM_INIT_DATA` or `TG_INIT_DATA` from a founder Telegram WebView session.
-- Founder-device screenshot saved under `docs/plans/assets/tg-miniapp-live-proof/`.
+- Founder-device screenshot later archived under `docs/evidence/tg-miniapp/2026-06-30/`.
 - Device platform and safe-area notes for the redacted WebView artifact.
 - A fresh non-mutating Worker list probe captured with `--allow-network` and a valid token.
 - A real signed action lifecycle to produce `signed-action-smoke.json`.
