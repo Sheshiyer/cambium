@@ -37,6 +37,16 @@ CREATE TABLE IF NOT EXISTS bridge_assignments (
 CREATE INDEX IF NOT EXISTS idx_bridge_assignments_project_task
   ON bridge_assignments (project_id, task_id);
 
+CREATE TABLE IF NOT EXISTS bridge_role_task_claims (
+  event_id TEXT PRIMARY KEY,
+  role_id TEXT NOT NULL,
+  member_id TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  binding_version TEXT NOT NULL,
+  intent_hash TEXT NOT NULL,
+  claimed_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS handoff_members (
   member_id TEXT PRIMARY KEY,
   member_json TEXT NOT NULL,

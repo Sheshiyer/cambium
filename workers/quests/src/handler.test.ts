@@ -94,6 +94,7 @@ class FakeD1Database implements D1DatabaseLike {
   readonly bridgeUp = new Map<string, any>();
   readonly directives = new Map<string, any>();
   readonly assignments = new Map<string, any>();
+  readonly roleTaskClaims = new Map<string, any>();
   readonly tasks = new Map<string, any>();
   readonly events = new Map<string, any>();
   readonly candidates = new Map<string, any>();
@@ -150,7 +151,8 @@ class FakeD1Database implements D1DatabaseLike {
     if (q.includes('from bridge_directives')) {
       const [memberId, id] = values;
       const row = this.directives.get(this.key(memberId, id));
-      return row && row.delivered === 0 ? { directive_json: row.directive_json } : null;
+      if (!row || (q.includes('delivered = 0') && row.delivered !== 0)) return null;
+      return { directive_json: row.directive_json, delivered: row.delivered, delivered_at: row.delivered_at };
     }
     if (q.includes('from bridge_assignments')) {
       const [memberId, eventId] = values;
@@ -163,6 +165,10 @@ class FakeD1Database implements D1DatabaseLike {
         payload_hash: row.payload_hash,
         enqueued_at: row.enqueued_at,
       } : null;
+    }
+    if (q.includes('from bridge_role_task_claims')) {
+      const [eventId] = values;
+      return this.roleTaskClaims.get(String(eventId)) ?? null;
     }
     if (q.includes('from fabric_task_events')) {
       const [tenantId, eventId] = values;
@@ -186,9 +192,11 @@ class FakeD1Database implements D1DatabaseLike {
       this.bridgeUp.set(this.key(tenant_id, id), { tenant_id, id, message_json, received_at });
       return 1;
     }
-    if (q.startsWith('insert or replace into bridge_directives')) {
+    if (q.startsWith('insert or replace into bridge_directives') || q.startsWith('insert or ignore into bridge_directives')) {
       const [member_id, id, directive_json, enqueued_at] = values;
-      this.directives.set(this.key(member_id, id), { member_id, id, directive_json, delivered: 0, enqueued_at, delivered_at: null });
+      const key = this.key(member_id, id);
+      if (q.startsWith('insert or ignore') && this.directives.has(key)) return 0;
+      this.directives.set(key, { member_id, id, directive_json, delivered: 0, enqueued_at, delivered_at: null });
       return 1;
     }
     if (q.startsWith('update bridge_directives')) {
@@ -206,6 +214,15 @@ class FakeD1Database implements D1DatabaseLike {
         this.key(member_id, event_id),
         { member_id, event_id, directive_id, task_id, project_id, correlation_id, payload_hash, enqueued_at },
         q.startsWith('insert or ignore'),
+      );
+    }
+    if (q.startsWith('insert or ignore into bridge_role_task_claims')) {
+      const [event_id, role_id, member_id, project_id, binding_version, intent_hash, claimed_at] = values;
+      return this.insertUnique(
+        this.roleTaskClaims,
+        String(event_id),
+        { event_id, role_id, member_id, project_id, binding_version, intent_hash, claimed_at },
+        true,
       );
     }
     if (q.startsWith('insert into fabric_task_events') || q.startsWith('insert or ignore into fabric_task_events')) {
@@ -293,6 +310,38 @@ const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): 
   ({ method, path, headers: {}, ...extra });
 
 const body = (r: { body: string }) => JSON.parse(r.body);
+
+const roleTaskBindings = (
+  version = '2026-07-14.1',
+  binding: Record<string, unknown> = {},
+): string => JSON.stringify({
+  schema: 'cambium.role-task-bindings.v1',
+  version,
+  bindings: {
+    ceo: { enabled: true, memberId: 'shesh', projectId: 'thoughtseed-ops', taskType: 'operations' },
+    scientist: { enabled: true, memberId: 'shesh', projectId: 'thoughtseed-ops', taskType: 'research' },
+    engineer: {
+      enabled: true,
+      memberId: 'shesh',
+      projectId: 'thoughtseed-ops',
+      taskType: 'engineering',
+      ...binding,
+    },
+    designer: { enabled: true, memberId: 'shesh', projectId: 'thoughtseed-ops', taskType: 'design' },
+    synthesist: { enabled: true, memberId: 'shesh', projectId: 'thoughtseed-ops', taskType: 'research' },
+    hermes: { enabled: true, memberId: 'shesh', projectId: 'thoughtseed-ops', taskType: 'operations' },
+  },
+});
+
+const roleTaskBody = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  schema: 'hermes.role-task-intake.v1',
+  source: 'telegram-manual',
+  roleId: 'engineer',
+  text: 'Prepare the native routing proof packet.',
+  idempotencyKey: 'telegram-manual:engineer:proof-1',
+  actorId: 'founder-1',
+  ...overrides,
+});
 
 function canonicalJson(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -7039,6 +7088,342 @@ test('bridge · scoped Hermes assignment token only enqueues task assignments', 
   assert.equal(inbox.status, 403);
 });
 
+test('bridge · role task requires bridge auth and valid server-owned bindings before writes', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const bridgeStore = d1BridgeStore(db);
+  const requestBody = JSON.stringify(roleTaskBody());
+  const unauthorized = await handle(req('POST', '/v1/bridge/role-task', {
+    body: requestBody,
+  }), {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    roleTaskBindingsJson: roleTaskBindings(),
+    bridgeStore,
+  });
+  assert.equal(unauthorized.status, 401);
+
+  const noDurableStore = await handle(req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: requestBody,
+  }), {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    roleTaskBindingsJson: roleTaskBindings(),
+  });
+  assert.equal(noDurableStore.status, 503);
+
+  for (const roleTaskBindingsJson of [undefined, '{', roleTaskBindings('v1', { enabled: false })]) {
+    const unavailable = await handle(req('POST', '/v1/bridge/role-task', {
+      headers: { authorization: 'Bearer assign-only' },
+      body: requestBody,
+    }), {
+      kv,
+      bridgeToken: 'bridge',
+      assignmentToken: 'assign-only',
+      roleTaskBindingsJson,
+      bridgeStore,
+    });
+    assert.equal(unavailable.status, 503);
+  }
+  const unbound = await handle(req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(roleTaskBody({ roleId: 'research' })),
+  }), {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    roleTaskBindingsJson: roleTaskBindings(),
+    bridgeStore,
+  });
+  assert.equal(unbound.status, 503);
+  assert.equal(db.assignments.size, 0);
+  assert.equal(db.directives.size, 0);
+  assert.equal(db.roleTaskClaims.size, 0);
+});
+
+test('bridge · role task rejects caller routing overrides before writes', async () => {
+  for (const override of [
+    { memberId: 'mathis' },
+    { projectId: 'other-project' },
+    { binding: { memberId: 'mathis' } },
+    { taskType: 'operations' },
+    { task: { memberId: 'mathis' } },
+  ]) {
+    const kv = fakeKv();
+    const db = new FakeD1Database();
+    const bridgeStore = d1BridgeStore(db);
+    const rejected = await handle(req('POST', '/v1/bridge/role-task', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify(roleTaskBody(override)),
+    }), {
+      kv,
+      bridgeToken: 'bridge',
+      roleTaskBindingsJson: roleTaskBindings(),
+      bridgeStore,
+    });
+    assert.equal(rejected.status, 400);
+    assert.equal(db.roleTaskClaims.size, 0);
+    assert.equal(db.assignments.size, 0);
+    assert.equal(db.directives.size, 0);
+  }
+});
+
+test('bridge · role task enforces exact schema source and bounded inputs', async () => {
+  const invalidBodies = [
+    roleTaskBody({ schema: 'hermes.role-task-intake.v2' }),
+    roleTaskBody({ source: 'telegram-topic' }),
+    roleTaskBody({ roleId: 'Engineering' }),
+    roleTaskBody({ roleId: 'engineer ' }),
+    roleTaskBody({ text: 'x'.repeat(1201) }),
+    roleTaskBody({ idempotencyKey: 'x'.repeat(161) }),
+    roleTaskBody({ idempotencyKey: 'line-one\nline-two' }),
+    roleTaskBody({ actorId: 'x'.repeat(81) }),
+  ];
+  for (const invalidBody of invalidBodies) {
+    const kv = fakeKv();
+    const db = new FakeD1Database();
+    const bridgeStore = d1BridgeStore(db);
+    const rejected = await handle(req('POST', '/v1/bridge/role-task', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify(invalidBody),
+    }), {
+      kv,
+      bridgeToken: 'bridge',
+      roleTaskBindingsJson: roleTaskBindings(),
+      bridgeStore,
+    });
+    assert.equal(rejected.status, 400);
+    assert.equal(db.roleTaskClaims.size, 0);
+    assert.equal(db.assignments.size, 0);
+    assert.equal(db.directives.size, 0);
+  }
+});
+
+test('bridge · role task queues a bounded redacted receipt and trusted provenance', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const bridgeStore = d1BridgeStore(db);
+  const fullText = 'Prepare the native routing proof packet.\nBearer super-secret must never appear in the receipt.';
+  const queued = await handle(req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(roleTaskBody({ text: fullText })),
+  }), {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    roleTaskBindingsJson: roleTaskBindings(),
+    bridgeStore,
+    now: () => '2026-07-14T08:00:00.000Z',
+    uuid: () => 'role-task-directive-1',
+  });
+  assert.equal(queued.status, 200);
+  const receipt = body(queued);
+  assert.deepEqual(Object.keys(receipt).sort(), [
+    'binding', 'correlationId', 'duplicate', 'eventId', 'id', 'idempotencyKey', 'ok', 'queued', 'schema', 'task',
+  ]);
+  assert.equal(receipt.schema, 'thoughtseed.role-task-receipt.v1');
+  assert.equal(receipt.id, 'role-task-directive-1');
+  assert.equal(receipt.queued, true);
+  assert.equal(receipt.duplicate, false);
+  assert.equal(receipt.binding.version, '2026-07-14.1');
+  assert.equal(receipt.binding.roleId, 'engineer');
+  assert.equal(receipt.binding.memberId, 'shesh');
+  assert.equal(receipt.binding.projectId, 'thoughtseed-ops');
+  assert.equal(receipt.task.taskType, 'engineering');
+  assert.ok(receipt.task.taskId.startsWith('role-task-'));
+  assert.doesNotMatch(queued.body, /super-secret|must never appear|description/i);
+
+  const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
+    headers: { authorization: 'Bearer bridge' },
+  }), {
+    kv,
+    bridgeToken: 'bridge',
+    bridgeStore,
+  });
+  assert.equal(pending.status, 200);
+  const directive = body(pending).directives[0];
+  assert.equal(directive.payload.task.description, fullText);
+  assert.equal(directive.payload.task.assigneeMemberId, 'shesh');
+  assert.equal(directive.payload.task.projectId, 'thoughtseed-ops');
+  assert.equal(directive.payload.task.roleTaskProvenance.roleId, 'engineer');
+  assert.equal(directive.payload.task.roleTaskProvenance.binding.version, '2026-07-14.1');
+  assert.equal(directive.payload.task.roleTaskProvenance.idempotencyKeyHash.length, 64);
+  assert.equal(directive.payload.task.roleTaskProvenance.idempotencyKey, undefined);
+});
+
+test('bridge · registry accepts all six canonical Hermes role slugs', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const bridgeStore = d1BridgeStore(db);
+  const roles = ['ceo', 'scientist', 'engineer', 'designer', 'synthesist', 'hermes'];
+  for (const roleId of roles) {
+    const response = await handle(req('POST', '/v1/bridge/role-task', {
+      headers: { authorization: 'Bearer assign-only' },
+      body: JSON.stringify(roleTaskBody({
+        roleId,
+        idempotencyKey: `telegram-manual:${roleId}:canonical-proof`,
+      })),
+    }), {
+      kv,
+      bridgeToken: 'bridge',
+      assignmentToken: 'assign-only',
+      roleTaskBindingsJson: roleTaskBindings(),
+      bridgeStore,
+      now: () => '2026-07-14T08:03:00.000Z',
+      uuid: () => `role-task-${roleId}`,
+    });
+    assert.equal(response.status, 200);
+    assert.equal(body(response).binding.roleId, roleId);
+  }
+  assert.equal(db.roleTaskClaims.size, 6);
+  assert.equal(db.assignments.size, 6);
+  assert.equal(db.directives.size, 6);
+});
+
+test('bridge · role task replay is idempotent while payload or binding drift conflicts', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const bridgeStore = d1BridgeStore(db);
+  let uuidIndex = 0;
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    roleTaskBindingsJson: roleTaskBindings(),
+    bridgeStore,
+    now: () => '2026-07-14T08:05:00.000Z',
+    uuid: () => `role-task-directive-${++uuidIndex}`,
+  };
+  const request = req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(roleTaskBody()),
+  });
+  const first = await handle(request, deps);
+  const replay = await handle(request, deps);
+  assert.equal(first.status, 200);
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).id, body(first).id);
+  assert.equal(body(replay).duplicate, true);
+
+  const changedText = await handle(req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(roleTaskBody({ text: 'A different task for the same key.' })),
+  }), deps);
+  assert.equal(changedText.status, 409);
+
+  const changedBinding = await handle(request, {
+    ...deps,
+    roleTaskBindingsJson: roleTaskBindings('2026-07-14.2', { memberId: 'mathis', projectId: 'other-project' }),
+  });
+  assert.equal(changedBinding.status, 409);
+  assert.equal([...db.directives.values()].filter((row) => row.member_id === 'mathis').length, 0);
+});
+
+test('bridge · concurrent binding drift is fenced by one atomic role task claim', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const request = req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(roleTaskBody()),
+  });
+  const shared = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-07-14T08:07:00.000Z',
+  };
+  const [first, second] = await Promise.all([
+    handle(request, {
+      ...shared,
+      bridgeStore: d1BridgeStore(db),
+      roleTaskBindingsJson: roleTaskBindings('2026-07-14.a'),
+      uuid: () => 'role-task-concurrent-a',
+    }),
+    handle(request, {
+      ...shared,
+      bridgeStore: d1BridgeStore(db),
+      roleTaskBindingsJson: roleTaskBindings('2026-07-14.b', { memberId: 'mathis', projectId: 'other-project' }),
+      uuid: () => 'role-task-concurrent-b',
+    }),
+  ]);
+  assert.deepEqual([first.status, second.status].sort(), [200, 409]);
+  assert.equal(db.roleTaskClaims.size, 1);
+  assert.equal(db.assignments.size, 1);
+  assert.equal(db.directives.size, 1);
+});
+
+test('bridge · failed directive write repairs on retry without false queued receipt', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const inner = d1BridgeStore(db);
+  let failNextDirective = true;
+  const bridgeStore = {
+    ...inner,
+    async putDirectiveIfAbsent(memberId: string, id: string, directive: Record<string, unknown>) {
+      if (failNextDirective) {
+        failNextDirective = false;
+        throw new Error('simulated directive write failure');
+      }
+      await inner.putDirectiveIfAbsent(memberId, id, directive);
+    },
+  };
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    roleTaskBindingsJson: roleTaskBindings(),
+    bridgeStore,
+    now: () => '2026-07-14T08:10:00.000Z',
+    uuid: () => 'role-task-repair-1',
+  };
+  const request = req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(roleTaskBody()),
+  });
+  const failed = await handle(request, deps);
+  assert.equal(failed.status, 500);
+  assert.equal(db.assignments.size, 1);
+  assert.equal(db.directives.size, 0);
+
+  const repaired = await handle(request, deps);
+  assert.equal(repaired.status, 200);
+  assert.equal(body(repaired).duplicate, true);
+  assert.equal(db.directives.size, 1);
+  assert.equal((await inner.getDirective('shesh', 'role-task-repair-1'))?.payloadHash, [...db.assignments.values()][0].payload_hash);
+});
+
+test('bridge · delivered assignment replay never reopens its D1 directive', async () => {
+  const kv = fakeKv();
+  const db = new FakeD1Database();
+  const bridgeStore = d1BridgeStore(db);
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    roleTaskBindingsJson: roleTaskBindings(),
+    bridgeStore,
+    now: () => '2026-07-14T08:15:00.000Z',
+    uuid: () => 'role-task-delivered-1',
+  };
+  const request = req('POST', '/v1/bridge/role-task', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(roleTaskBody()),
+  });
+  const first = await handle(request, deps);
+  assert.equal(first.status, 200);
+  assert.equal(await bridgeStore.markDirectiveDelivered('shesh', body(first).id, '2026-07-14T08:16:00.000Z'), true);
+
+  const replay = await handle(request, deps);
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).duplicate, true);
+  assert.equal(body(replay).queued, false);
+  assert.equal((await bridgeStore.getDirective('shesh', body(first).id))?.delivered, true);
+  assert.equal((await bridgeStore.listPendingDirectives('shesh', 10)).directives.length, 0);
+});
+
 test('bridge · GitHub command route executes only through admin bridge token', async () => {
   const kv = fakeKv();
   const calls: any[] = [];
@@ -7908,6 +8293,24 @@ test('fabric bridge · normal D1 migrations apply to an empty database and back 
     payloadHash: 'hash-empty-db',
     enqueuedAt: '2026-06-24T09:01:00.000Z',
   });
+  await bridgeStore.putRoleTaskClaim({
+    eventId: 'role-event-empty-db',
+    roleId: 'engineer',
+    memberId: 'mathis',
+    projectId: 'project-empty-db',
+    bindingVersion: 'v1',
+    intentHash: 'intent-hash-first',
+    claimedAt: '2026-06-24T09:01:30.000Z',
+  });
+  await bridgeStore.putRoleTaskClaim({
+    eventId: 'role-event-empty-db',
+    roleId: 'engineer',
+    memberId: 'shesh',
+    projectId: 'other-project',
+    bindingVersion: 'v2',
+    intentHash: 'intent-hash-conflict',
+    claimedAt: '2026-06-24T09:01:31.000Z',
+  });
   await fabricLedger.upsertTask({
     tenantId: 'tenant-b',
     taskId: 'task-empty-db',
@@ -7960,6 +8363,7 @@ test('fabric bridge · normal D1 migrations apply to an empty database and back 
   assert.deepEqual((await bridgeStore.listUpstream('cambium', 10)).map((message) => message.id), ['up-1']);
   assert.equal((await bridgeStore.listPendingDirectives('mathis', 10)).directives.length, 1);
   assert.equal((await bridgeStore.getAssignment('mathis', 'event-empty-db'))?.taskId, 'task-empty-db');
+  assert.equal((await bridgeStore.getRoleTaskClaim('role-event-empty-db'))?.intentHash, 'intent-hash-first');
   assert.equal((await fabricLedger.getTask('task-empty-db', 'tenant-b'))?.tenantId, 'tenant-b');
   assert.equal((await fabricLedger.getEvent('event-empty-db', 'tenant-b'))?.upstreamPayloadHash, 'upstream-empty-db');
   assert.equal((await fabricLedger.listReviewItems('tenant-b')).length, 1);
@@ -8110,7 +8514,7 @@ test('bridge · D1 pending directives over-fetches past corrupt rows', async () 
   assert.deepEqual(pending.directives.map((directive) => directive.id), ['valid']);
 });
 
-test('bridge · assignment race does not enqueue orphan D1 directives', async () => {
+test('bridge · assignment race repairs the winning D1 directive', async () => {
   const kv = fakeKv();
   const db = new FakeD1Database();
   const inner = d1BridgeStore(db);
@@ -8129,9 +8533,9 @@ test('bridge · assignment race does not enqueue orphan D1 directives', async ()
       await inner.putAssignment({ ...record, id: 'assign-race-winner' });
       await inner.putAssignment(record);
     },
-    async putDirective(memberId: string, id: string, directive: Record<string, unknown>) {
+    async putDirectiveIfAbsent(memberId: string, id: string, directive: Record<string, unknown>) {
       directiveWrites++;
-      await inner.putDirective(memberId, id, directive);
+      await inner.putDirectiveIfAbsent(memberId, id, directive);
     },
   };
 
@@ -8152,8 +8556,9 @@ test('bridge · assignment race does not enqueue orphan D1 directives', async ()
   assert.equal(queued.status, 200);
   assert.equal(body(queued).duplicate, true);
   assert.equal(body(queued).id, 'assign-race-winner');
-  assert.equal(directiveWrites, 0);
-  assert.equal(db.directives.size, 0);
+  assert.equal(directiveWrites, 1);
+  assert.equal(db.directives.size, 1);
+  assert.equal((await inner.getDirective('mathis', 'assign-race-winner'))?.id, 'assign-race-winner');
 });
 
 test('fabric bridge · D1 duplicate events and reviews are ignored intentionally', async () => {
