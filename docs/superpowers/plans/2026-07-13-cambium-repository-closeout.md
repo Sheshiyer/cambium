@@ -237,23 +237,62 @@ printf '%s\n' \
   "approved dirty baseline has exactly 11 modified tracked paths and three named untracked paths" \
   > "$BACKUP_DIR/receipts/approved-dirty-baseline.txt"
 
+record_xattrs() {
+  local root=$1
+  local output=$2
+  (
+    cd "$root"
+    while IFS= read -r path; do
+      printf 'path\t%s\n' "$path"
+      /usr/bin/xattr "$path" | LC_ALL=C sort | while IFS= read -r attr; do
+        value=$(/usr/bin/xattr -px "$attr" "$path" | tr -d '[:space:]')
+        printf 'attr\t%s\t%s\t%s\n' "$path" "$attr" "$value"
+      done
+    done < "$BACKUP_DIR/dirty/untracked-paths.txt"
+  ) > "$output"
+}
+
+record_xattrs \
+  "$ROOT" \
+  "$BACKUP_DIR/dirty/untracked-xattrs.source.exact.tsv"
+awk -F '\t' '$1 != "attr" || $3 != "com.apple.provenance"' \
+  "$BACKUP_DIR/dirty/untracked-xattrs.source.exact.tsv" \
+  > "$BACKUP_DIR/dirty/untracked-xattrs.source.normalized.tsv"
+awk -F '\t' '$1 == "attr" && $3 == "com.apple.provenance" {print $2 "\t" $4}' \
+  "$BACKUP_DIR/dirty/untracked-xattrs.source.exact.tsv" \
+  > "$BACKUP_DIR/dirty/untracked-xattrs.source.provenance.tsv"
+cut -f1 "$BACKUP_DIR/dirty/untracked-xattrs.source.provenance.tsv" \
+  | cmp - "$BACKUP_DIR/dirty/untracked-paths.expected.txt"
+
 while IFS= read -r path; do
   mkdir -p "$BACKUP_DIR/dirty/untracked/$(dirname "$path")"
   /usr/bin/ditto --rsrc --extattr --acl \
     "$ROOT/$path" "$BACKUP_DIR/dirty/untracked/$path"
 done < "$BACKUP_DIR/dirty/untracked-paths.txt"
 
-(
-  cd "$ROOT"
-  while IFS= read -r path; do
-    printf 'path\t%s\n' "$path"
-    /usr/bin/xattr "$path" | LC_ALL=C sort | while IFS= read -r attr; do
-      printf 'attr\t%s\t' "$attr"
-      /usr/bin/xattr -px "$attr" "$path" | tr -d '[:space:]'
-      printf '\n'
-    done
-  done < "$BACKUP_DIR/dirty/untracked-paths.txt"
-) > "$BACKUP_DIR/dirty/untracked-xattrs.before.tsv"
+record_xattrs \
+  "$BACKUP_DIR/dirty/untracked" \
+  "$BACKUP_DIR/dirty/untracked-xattrs.backup.exact.tsv"
+awk -F '\t' '$1 != "attr" || $3 != "com.apple.provenance"' \
+  "$BACKUP_DIR/dirty/untracked-xattrs.backup.exact.tsv" \
+  > "$BACKUP_DIR/dirty/untracked-xattrs.backup.normalized.tsv"
+awk -F '\t' '$1 == "attr" && $3 == "com.apple.provenance" {print $2 "\t" $4}' \
+  "$BACKUP_DIR/dirty/untracked-xattrs.backup.exact.tsv" \
+  > "$BACKUP_DIR/dirty/untracked-xattrs.backup.provenance.tsv"
+cut -f1 "$BACKUP_DIR/dirty/untracked-xattrs.backup.provenance.tsv" \
+  | cmp - "$BACKUP_DIR/dirty/untracked-paths.expected.txt"
+diff -u \
+  "$BACKUP_DIR/dirty/untracked-xattrs.source.normalized.tsv" \
+  "$BACKUP_DIR/dirty/untracked-xattrs.backup.normalized.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.source-backup.normalized.diff"
+set +e
+diff -u \
+  "$BACKUP_DIR/dirty/untracked-xattrs.source.provenance.tsv" \
+  "$BACKUP_DIR/dirty/untracked-xattrs.backup.provenance.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.source-backup.provenance.diff"
+provenance_diff_rc=$?
+set -e
+test "$provenance_diff_rc" -le 1
 
 (
   cd "$ROOT"
@@ -262,7 +301,7 @@ done < "$BACKUP_DIR/dirty/untracked-paths.txt"
 ) > "$BACKUP_DIR/dirty/content.before.sha256"
 ```
 
-Expected: status records 11 modified and three untracked paths; `dirty-paths.txt` has 14 entries and `untracked-paths.txt` has three.
+Expected: status records 11 modified and three untracked paths; exact source and backup xattr values are retained, all three paths carry `com.apple.provenance`, and every other xattr matches exactly.
 
 - [ ] **Step 4: Create and verify the initial all-ref bundle**
 
@@ -347,21 +386,57 @@ while IFS= read -r path; do
     "$BACKUP_DIR/dirty/untracked/$path" "$SCRATCH/reconstructed/$path"
 done < "$BACKUP_DIR/dirty/untracked-paths.txt"
 
-(
-  cd "$SCRATCH/reconstructed"
-  while IFS= read -r path; do
-    printf 'path\t%s\n' "$path"
-    /usr/bin/xattr "$path" | LC_ALL=C sort | while IFS= read -r attr; do
-      printf 'attr\t%s\t' "$attr"
-      /usr/bin/xattr -px "$attr" "$path" | tr -d '[:space:]'
-      printf '\n'
-    done
-  done < "$BACKUP_DIR/dirty/untracked-paths.txt"
-) > "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.tsv"
+record_xattrs() {
+  local root=$1
+  local output=$2
+  (
+    cd "$root"
+    while IFS= read -r path; do
+      printf 'path\t%s\n' "$path"
+      /usr/bin/xattr "$path" | LC_ALL=C sort | while IFS= read -r attr; do
+        value=$(/usr/bin/xattr -px "$attr" "$path" | tr -d '[:space:]')
+        printf 'attr\t%s\t%s\t%s\n' "$path" "$attr" "$value"
+      done
+    done < "$BACKUP_DIR/dirty/untracked-paths.txt"
+  ) > "$output"
+}
+
+record_xattrs \
+  "$SCRATCH/reconstructed" \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.exact.tsv"
+awk -F '\t' '$1 != "attr" || $3 != "com.apple.provenance"' \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.exact.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.normalized.tsv"
+awk -F '\t' '$1 == "attr" && $3 == "com.apple.provenance" {print $2 "\t" $4}' \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.exact.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.provenance.tsv"
+cut -f1 "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.provenance.tsv" \
+  | cmp - "$BACKUP_DIR/dirty/untracked-paths.expected.txt"
 diff -u \
-  "$BACKUP_DIR/dirty/untracked-xattrs.before.tsv" \
-  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.tsv" \
-  > "$BACKUP_DIR/verification/untracked-xattrs.diff"
+  "$BACKUP_DIR/dirty/untracked-xattrs.source.normalized.tsv" \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.normalized.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.source-reconstructed.normalized.diff"
+diff -u \
+  "$BACKUP_DIR/dirty/untracked-xattrs.backup.normalized.tsv" \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.normalized.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.backup-reconstructed.normalized.diff"
+set +e
+diff -u \
+  "$BACKUP_DIR/dirty/untracked-xattrs.source.provenance.tsv" \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.provenance.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.source-reconstructed.provenance.diff"
+source_provenance_diff_rc=$?
+diff -u \
+  "$BACKUP_DIR/dirty/untracked-xattrs.backup.provenance.tsv" \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.provenance.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.backup-reconstructed.provenance.diff"
+backup_provenance_diff_rc=$?
+set -e
+test "$source_provenance_diff_rc" -le 1
+test "$backup_provenance_diff_rc" -le 1
+printf '%s\n' \
+  "com.apple.provenance is present exactly once for every source, backup, and reconstructed path; value divergence is recorded but is not a reconstruction gate" \
+  > "$BACKUP_DIR/receipts/untracked-xattrs.provenance-presence.txt"
 
 git -C "$SCRATCH/reconstructed" ls-files --stage -z \
   | cmp - "$BACKUP_DIR/dirty/index-stage.before.z"
@@ -381,7 +456,7 @@ diff -u \
   "$BACKUP_DIR/verification/content.reconstructed.sha256"
 ```
 
-Expected: both diffs are empty, proving status and file bytes reconstruct exactly.
+Expected: status, index, file bytes, and all xattrs other than managed `com.apple.provenance` reconstruct exactly. Provenance exists on every path at all three stages, while its exact value differences remain recorded without gating reconstruction.
 
 - [ ] **Step 6: Seal and verify the initial backup**
 
@@ -402,16 +477,29 @@ read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSE
     ./dirty/untracked-paths.expected.txt \
     ./dirty/status.approved.expected.txt \
     ./dirty/status.approved.actual.txt \
-    ./dirty/untracked-xattrs.before.tsv \
+    ./dirty/untracked-xattrs.source.exact.tsv \
+    ./dirty/untracked-xattrs.source.normalized.tsv \
+    ./dirty/untracked-xattrs.source.provenance.tsv \
+    ./dirty/untracked-xattrs.backup.exact.tsv \
+    ./dirty/untracked-xattrs.backup.normalized.tsv \
+    ./dirty/untracked-xattrs.backup.provenance.tsv \
     ./git/symbolic-refs.before.tsv \
     ./verification/approved-dirty-baseline.diff \
     ./verification/bundle-initial.missing-refs.txt \
     ./verification/bundle-initial.symbolic-refs.restored.tsv \
     ./verification/bundle-initial.symbolic-refs.diff \
-    ./verification/untracked-xattrs.reconstructed.tsv \
-    ./verification/untracked-xattrs.diff \
+    ./verification/untracked-xattrs.reconstructed.exact.tsv \
+    ./verification/untracked-xattrs.reconstructed.normalized.tsv \
+    ./verification/untracked-xattrs.reconstructed.provenance.tsv \
+    ./verification/untracked-xattrs.source-backup.normalized.diff \
+    ./verification/untracked-xattrs.source-reconstructed.normalized.diff \
+    ./verification/untracked-xattrs.backup-reconstructed.normalized.diff \
+    ./verification/untracked-xattrs.source-backup.provenance.diff \
+    ./verification/untracked-xattrs.source-reconstructed.provenance.diff \
+    ./verification/untracked-xattrs.backup-reconstructed.provenance.diff \
     ./receipts/approved-dirty-baseline.txt \
-    ./receipts/bundle-initial.symbolic-refs.txt
+    ./receipts/bundle-initial.symbolic-refs.txt \
+    ./receipts/untracked-xattrs.provenance-presence.txt
   do
     rg -Fq "  $artifact" SHA256SUMS.initial
   done
