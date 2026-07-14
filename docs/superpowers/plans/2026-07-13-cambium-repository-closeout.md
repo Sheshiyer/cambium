@@ -922,7 +922,6 @@ set -euo pipefail
 read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/static-orbit-pr.number"
 HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
-HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
 
 gh pr checks "$PR" --repo Sheshiyer/cambium --watch --interval 10
 gh run list --repo Sheshiyer/cambium --workflow ci.yml \
@@ -968,6 +967,7 @@ Expected: overall job success, three required step successes, and eight unique r
 set -euo pipefail
 read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/static-orbit-pr.number"
+HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
 
 gh api --paginate --slurp -X GET repos/Sheshiyer/cambium/issues \
   -f state=all -f per_page=100 -f sort=created -f direction=asc \
