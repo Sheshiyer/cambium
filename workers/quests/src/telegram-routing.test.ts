@@ -8,9 +8,10 @@ import {
 } from './telegram-routing.ts';
 
 test('Telegram routing snapshot records its Hermes provenance', () => {
-  assert.equal(TELEGRAM_ROUTING_CONTRACT.schema, 'thoughtseed.telegram-topic-map.snapshot.v1');
+  assert.equal(TELEGRAM_ROUTING_CONTRACT.schema, 'thoughtseed.telegram-topic-map.v1');
   assert.equal(TELEGRAM_ROUTING_CONTRACT.sourceRepository, 'Sheshiyer/hermes-aws-ts');
-  assert.equal(TELEGRAM_ROUTING_CONTRACT.sourceCommit, '67ba40cda9fb935eb5b2a9955cc7edb5bd579657');
+  assert.equal(TELEGRAM_ROUTING_CONTRACT.sourceCommit, '0e4736254b1846259b2ea317fb791cc6e9b7e312');
+  assert.equal(TELEGRAM_ROUTING_CONTRACT.manifestSha256, '520fef0b316f8029e858674e7bb948be997d772f0b2ccffd64a3dfd0b6eebd8c');
   assert.match(TELEGRAM_ROUTING_CONTRACT.tracker, /^https:\/\/github\.com\/Sheshiyer\/hermes-aws-ts\/issues\/\d+$/);
 });
 

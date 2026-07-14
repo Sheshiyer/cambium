@@ -1,7 +1,8 @@
 # Hermes Topic Routing To Cambium Quests
 
 Status: active pinned consumer snapshot
-Snapshot source: `Sheshiyer/hermes-aws-ts@67ba40cda9fb935eb5b2a9955cc7edb5bd579657`
+Snapshot source: `Sheshiyer/hermes-aws-ts@0e4736254b1846259b2ea317fb791cc6e9b7e312`
+Manifest SHA-256: `520fef0b316f8029e858674e7bb948be997d772f0b2ccffd64a3dfd0b6eebd8c`
 Runtime owner tracker: [Hermes #88](https://github.com/Sheshiyer/hermes-aws-ts/issues/88)
 
 ## Purpose
@@ -136,6 +137,9 @@ runtime snapshot is `workers/quests/src/telegram-routing.ts`, which records the
 exact Hermes source commit and the cross-repository tracker. Raw topic literals
 must not be copied into handlers, tests, runbooks, or plans as current config.
 
-Hermes #88 will replace this temporary pinned TypeScript snapshot with a
-versioned manifest plus digest synchronization. Historical evidence may retain
-older topic ids, but it is not configuration.
+Hermes #88 owns the canonical versioned manifest. Cambium vendors the manifest
+and verifies its digest and runtime route projection in
+`workers/quests/src/topic-map-drift.test.ts`. Re-vendor only from the Hermes
+manifest at the recorded source commit, then update the source commit and
+digest together. Historical evidence may retain older topic ids, but it is not
+configuration.
