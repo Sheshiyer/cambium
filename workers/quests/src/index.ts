@@ -11,6 +11,7 @@ import {
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import type {
   BridgeAssignmentRecord,
+  BridgeRoleTaskClaimRecord,
   BridgeStoreLike,
   FabricEvidenceCandidateRecord,
   FabricEvidenceReviewRecord,
@@ -49,6 +50,7 @@ interface Env {
   GATE_TG_PUBKEY?: string;
   BRIDGE_TOKEN?: string;
   HERMES_ASSIGNMENT_TOKEN?: string;
+  HERMES_ROLE_TASK_BINDINGS_JSON?: string;
   HANDOFF_SECRET?: string;
   PROVIDER_BROKER_TOKEN?: string;
   CONTEXT_ROUTE_TOKEN?: string;
@@ -109,10 +111,36 @@ export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
       }
       return messages;
     },
+    async getDirective(memberId, id) {
+      const row = await db.prepare(`
+        SELECT directive_json, delivered, delivered_at
+        FROM bridge_directives
+        WHERE member_id = ? AND id = ?
+      `).bind(memberId, id).first<{
+        directive_json: string;
+        delivered: number;
+        delivered_at: string | null;
+      }>();
+      if (!row) return null;
+      let directive: Record<string, unknown>;
+      try { directive = parseJsonRecord(row.directive_json); } catch { return null; }
+      return {
+        ...directive,
+        delivered: row.delivered === 1,
+        ...(row.delivered_at ? { deliveredAt: row.delivered_at } : {}),
+      };
+    },
     async putDirective(memberId, id, directive) {
       const enqueuedAt = typeof directive.enqueuedAt === 'string' ? directive.enqueuedAt : new Date().toISOString();
       await db.prepare(`
         INSERT OR REPLACE INTO bridge_directives (member_id, id, directive_json, delivered, enqueued_at, delivered_at)
+        VALUES (?, ?, ?, 0, ?, NULL)
+      `).bind(memberId, id, JSON.stringify(directive), enqueuedAt).run();
+    },
+    async putDirectiveIfAbsent(memberId, id, directive) {
+      const enqueuedAt = typeof directive.enqueuedAt === 'string' ? directive.enqueuedAt : new Date().toISOString();
+      await db.prepare(`
+        INSERT OR IGNORE INTO bridge_directives (member_id, id, directive_json, delivered, enqueued_at, delivered_at)
         VALUES (?, ?, ?, 0, ?, NULL)
       `).bind(memberId, id, JSON.stringify(directive), enqueuedAt).run();
     },
@@ -190,6 +218,45 @@ export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
         record.correlationId ?? null,
         record.payloadHash,
         record.enqueuedAt,
+      ).run();
+    },
+    async getRoleTaskClaim(eventId) {
+      const row = await db.prepare(`
+        SELECT role_id, member_id, project_id, binding_version, intent_hash, claimed_at
+        FROM bridge_role_task_claims
+        WHERE event_id = ?
+      `).bind(eventId).first<{
+        role_id: string;
+        member_id: string;
+        project_id: string;
+        binding_version: string;
+        intent_hash: string;
+        claimed_at: string;
+      }>();
+      if (!row) return null;
+      return {
+        eventId,
+        roleId: row.role_id,
+        memberId: row.member_id,
+        projectId: row.project_id,
+        bindingVersion: row.binding_version,
+        intentHash: row.intent_hash,
+        claimedAt: row.claimed_at,
+      };
+    },
+    async putRoleTaskClaim(record: BridgeRoleTaskClaimRecord) {
+      await db.prepare(`
+        INSERT OR IGNORE INTO bridge_role_task_claims (
+          event_id, role_id, member_id, project_id, binding_version, intent_hash, claimed_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        record.eventId,
+        record.roleId,
+        record.memberId,
+        record.projectId,
+        record.bindingVersion,
+        record.intentHash,
+        record.claimedAt,
       ).run();
     },
   };
@@ -479,6 +546,7 @@ export default {
       gate,
       bridgeToken: env.BRIDGE_TOKEN,
       assignmentToken: env.HERMES_ASSIGNMENT_TOKEN,
+      roleTaskBindingsJson: env.HERMES_ROLE_TASK_BINDINGS_JSON,
       bridgeStore: env.BRIDGE_DB ? d1BridgeStore(env.BRIDGE_DB) : undefined,
       fabricLedger: env.BRIDGE_DB ? d1FabricLedgerStore(env.BRIDGE_DB) : undefined,
       handoffSecret: env.HANDOFF_SECRET,

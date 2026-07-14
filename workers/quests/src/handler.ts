@@ -32,14 +32,28 @@ export interface BridgeAssignmentRecord {
   enqueuedAt: string;
 }
 
+export interface BridgeRoleTaskClaimRecord {
+  eventId: string;
+  roleId: string;
+  memberId: string;
+  projectId: string;
+  bindingVersion: string;
+  intentHash: string;
+  claimedAt: string;
+}
+
 export interface BridgeStoreLike {
   putUpstream(tenantId: string, id: string, message: Record<string, unknown>): Promise<void>;
   listUpstream(tenantId: string, limit: number): Promise<any[]>;
+  getDirective(memberId: string, id: string): Promise<Record<string, unknown> | null>;
   putDirective(memberId: string, id: string, directive: Record<string, unknown>): Promise<void>;
+  putDirectiveIfAbsent(memberId: string, id: string, directive: Record<string, unknown>): Promise<void>;
   listPendingDirectives(memberId: string, limit: number): Promise<{ directives: any[]; skipped: number }>;
   markDirectiveDelivered(memberId: string, id: string, deliveredAt: string): Promise<boolean>;
   getAssignment(memberId: string, eventId: string): Promise<BridgeAssignmentRecord | null>;
   putAssignment(record: BridgeAssignmentRecord): Promise<void>;
+  getRoleTaskClaim(eventId: string): Promise<BridgeRoleTaskClaimRecord | null>;
+  putRoleTaskClaim(record: BridgeRoleTaskClaimRecord): Promise<void>;
 }
 
 export type FabricEvidenceCandidateStatus = 'verified_evidence' | 'review_pending' | 'rejected_candidate';
@@ -118,6 +132,7 @@ export interface HandlerDeps {
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
   bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
   assignmentToken?: string;    // Scoped Hermes token — may enqueue project_task_assignment only
+  roleTaskBindingsJson?: string; // Server-owned Hermes role -> member/project/task binding registry
   bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
   fabricLedger?: FabricLedgerStoreLike; // Cambium-owned interpreted Fabric task/event ledger
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
@@ -328,8 +343,21 @@ function kvBridgeStore(kv: KvLike): BridgeStoreLike {
       }
       return messages;
     },
+    async getDirective(memberId, id) {
+      const raw = await kv.get(`bridge:dir:${memberId}:${id}`);
+      if (!raw) return null;
+      try { return JSON.parse(raw) as Record<string, unknown>; } catch { return null; }
+    },
     async putDirective(memberId, id, directive) {
       await kv.put(`bridge:dir:${memberId}:${id}`, JSON.stringify(directive));
+    },
+    async putDirectiveIfAbsent(memberId, id, directive) {
+      const key = `bridge:dir:${memberId}:${id}`;
+      // Workers KV cannot provide atomic insert-if-absent. Keep its fallback
+      // best-effort and never deliberately overwrite an existing directive;
+      // production uses D1's atomic INSERT OR IGNORE implementation.
+      if (await kv.get(key)) return;
+      await kv.put(key, JSON.stringify(directive));
     },
     async listPendingDirectives(memberId, limit) {
       const keys = await kv.list(`bridge:dir:${memberId}:`);
@@ -368,6 +396,16 @@ function kvBridgeStore(kv: KvLike): BridgeStoreLike {
     },
     async putAssignment(record) {
       await kv.put(`bridge:assignment:${record.memberId}:${record.eventId}`, JSON.stringify(record));
+    },
+    async getRoleTaskClaim(eventId) {
+      const raw = await kv.get(`bridge:role-task-claim:${eventId}`);
+      if (!raw) return null;
+      try { return JSON.parse(raw) as BridgeRoleTaskClaimRecord; } catch { return null; }
+    },
+    async putRoleTaskClaim(record) {
+      const key = `bridge:role-task-claim:${record.eventId}`;
+      if (await kv.get(key)) return;
+      await kv.put(key, JSON.stringify(record));
     },
   };
 }
@@ -484,13 +522,15 @@ async function queueProjectTaskAssignment(
   msg: Record<string, unknown>,
   nowIso: () => string,
   createId?: () => string,
+  trustedTaskMetadata?: Record<string, unknown>,
 ): Promise<SimpleResponse> {
   const rawTask = msg && typeof msg.task === 'object' && msg.task && !Array.isArray(msg.task) ? msg.task as Record<string, unknown> : null;
   if (!rawTask) return json(400, { error: 'assignment needs a task object' });
   const memberId = String(msg.memberId ?? rawTask.assigneeMemberId ?? '').trim().toLowerCase();
   if (!memberId || !VALID_TENANT.test(memberId)) return json(400, { error: 'assignment needs a valid memberId' });
-  const task = normalizeAssignmentTask(rawTask, memberId);
-  if ('error' in task) return json(400, { error: task.error });
+  const normalizedTask = normalizeAssignmentTask(rawTask, memberId);
+  if ('error' in normalizedTask) return json(400, { error: normalizedTask.error });
+  const task = { ...normalizedTask, ...(trustedTaskMetadata ?? {}) };
 
   const issuedAt = nowIso();
   const taskId = String(task.taskId);
@@ -508,37 +548,260 @@ async function queueProjectTaskAssignment(
     target: { memberId, surface: 'plexus-agent-fabric' },
     task: { ...task, eventId, correlationId },
   };
-  const payload = { ...semanticPayload, issuedAt };
   const payloadHash = await sha256hex(canonicalJson(semanticPayload));
+
+  const finalize = async (assignment: BridgeAssignmentRecord, duplicate: boolean): Promise<SimpleResponse> => {
+    if (assignment.payloadHash !== payloadHash) {
+      return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: assignment.id });
+    }
+    const assignedCorrelationId = assignment.correlationId ?? correlationId;
+    const assignedSemanticPayload = {
+      ...semanticPayload,
+      correlationId: assignedCorrelationId,
+      task: { ...task, eventId, correlationId: assignedCorrelationId },
+    };
+    const expectedDirective = {
+      id: assignment.id,
+      memberId,
+      direction: 'downstream',
+      payload: { ...assignedSemanticPayload, issuedAt: assignment.enqueuedAt },
+      payloadHash,
+      delivered: false,
+      issuedAt: assignment.enqueuedAt,
+      enqueuedAt: assignment.enqueuedAt,
+    };
+    let directive = await bridgeStore.getDirective(memberId, assignment.id);
+    if (!directive) {
+      try {
+        await bridgeStore.putDirectiveIfAbsent(memberId, assignment.id, expectedDirective);
+      } catch {
+        return json(500, { error: 'assignment directive persistence failed', eventId, memberId, id: assignment.id });
+      }
+      directive = await bridgeStore.getDirective(memberId, assignment.id);
+    }
+    if (!directive) {
+      return json(500, { error: 'assignment directive persistence failed', eventId, memberId, id: assignment.id });
+    }
+    const storedPayload = isRecord(directive.payload) ? directive.payload : null;
+    const { issuedAt: _storedIssuedAt, ...storedSemanticPayload } = storedPayload ?? {};
+    const storedPayloadHash = storedPayload ? await sha256hex(canonicalJson(storedSemanticPayload)) : '';
+    if (
+      directive.id !== assignment.id
+      || directive.memberId !== memberId
+      || directive.direction !== 'downstream'
+      || directive.payloadHash !== payloadHash
+      || storedPayloadHash !== payloadHash
+    ) {
+      return json(409, { error: 'assignment directive conflict', eventId, memberId, existingId: assignment.id });
+    }
+    return json(200, {
+      ok: true,
+      id: assignment.id,
+      memberId,
+      taskId,
+      projectId,
+      eventId,
+      correlationId: assignedCorrelationId,
+      queued: directive.delivered !== true,
+      ...(directive.delivered === true ? { delivered: true } : {}),
+      ...(duplicate ? { duplicate: true } : {}),
+    });
+  };
+
   const existing = await bridgeStore.getAssignment(memberId, eventId);
   if (existing) {
-    if (existing.payloadHash !== payloadHash) {
-      return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: existing.id });
-    }
-    return json(200, { ok: true, id: existing.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
+    return finalize(existing, true);
   }
 
-  const stored = {
-    id: directiveId,
-    memberId,
-    direction: 'downstream',
-    payload,
-    payloadHash,
-    delivered: false,
-    issuedAt,
-    enqueuedAt: issuedAt,
-  };
   await bridgeStore.putAssignment({ id: directiveId, memberId, taskId, projectId, eventId, correlationId, payloadHash, enqueuedAt: issuedAt });
   const persisted = await bridgeStore.getAssignment(memberId, eventId);
   if (!persisted) return json(500, { error: 'assignment persistence failed', eventId, memberId });
-  if (persisted.payloadHash !== payloadHash) {
-    return json(409, { error: 'assignment eventId conflict', eventId, memberId, existingId: persisted.id });
+  return finalize(persisted, persisted.id !== directiveId);
+}
+
+interface RoleTaskBinding {
+  enabled: boolean;
+  memberId: string;
+  projectId: string;
+  taskType: string;
+}
+
+interface RoleTaskBindingRegistry {
+  schema: 'cambium.role-task-bindings.v1';
+  version: string;
+  bindings: Record<string, RoleTaskBinding>;
+}
+
+const ROLE_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const OPAQUE_VERSION_RE = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,79}$/;
+const CONTROL_CHAR_RE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
+const OPAQUE_CONTROL_CHAR_RE = /[\u0000-\u001f\u007f]/;
+
+function parseRoleTaskBindings(raw: string | undefined): RoleTaskBindingRegistry | null {
+  if (!raw) return null;
+  let value: unknown;
+  try { value = JSON.parse(raw); } catch { return null; }
+  if (!isRecord(value)) return null;
+  if (value.schema !== 'cambium.role-task-bindings.v1') return null;
+  if (typeof value.version !== 'string' || !OPAQUE_VERSION_RE.test(value.version)) return null;
+  if (!isRecord(value.bindings)) return null;
+  const entries = Object.entries(value.bindings);
+  if (entries.length < 1 || entries.length > 64) return null;
+  const bindings: Record<string, RoleTaskBinding> = {};
+  for (const [roleId, candidate] of entries) {
+    if (roleId.length > 80 || !ROLE_ID_RE.test(roleId) || !isRecord(candidate)) return null;
+    const allowedKeys = new Set(['enabled', 'memberId', 'projectId', 'taskType']);
+    if (Object.keys(candidate).some((key) => !allowedKeys.has(key))) return null;
+    if (typeof candidate.enabled !== 'boolean') return null;
+    if (typeof candidate.memberId !== 'string' || !VALID_TENANT.test(candidate.memberId)) return null;
+    if (typeof candidate.projectId !== 'string' || !VALID_TENANT.test(candidate.projectId)) return null;
+    if (typeof candidate.taskType !== 'string' || !FABRIC_TASK_TYPES.has(candidate.taskType)) return null;
+    bindings[roleId] = {
+      enabled: candidate.enabled,
+      memberId: candidate.memberId,
+      projectId: candidate.projectId,
+      taskType: candidate.taskType,
+    };
   }
-  if (persisted.id !== directiveId) {
-    return json(200, { ok: true, id: persisted.id, memberId, taskId, projectId, eventId, correlationId, queued: true, duplicate: true });
+  return { schema: 'cambium.role-task-bindings.v1', version: value.version, bindings };
+}
+
+function roleTaskText(value: unknown, max: number): string | null {
+  if (typeof value !== 'string') return null;
+  if (value.length > max) return null;
+  const text = value.trim();
+  if (!text || CONTROL_CHAR_RE.test(text)) return null;
+  return text;
+}
+
+function opaqueRoleTaskKey(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length < 1 || value.length > 160) return null;
+  if (!value.trim() || OPAQUE_CONTROL_CHAR_RE.test(value)) return null;
+  return value;
+}
+
+async function queueRoleTask(
+  bridgeStore: BridgeStoreLike,
+  raw: Record<string, unknown>,
+  bindingsJson: string | undefined,
+  nowIso: () => string,
+  createId?: () => string,
+): Promise<SimpleResponse> {
+  const forbiddenOverrides = ['memberId', 'projectId', 'binding', 'bindingVersion', 'assigneeMemberId', 'taskType', 'task'];
+  const override = forbiddenOverrides.find((key) => Object.prototype.hasOwnProperty.call(raw, key));
+  if (override) return json(400, { error: `role task cannot override ${override}` });
+  if (raw.schema !== 'hermes.role-task-intake.v1') return json(400, { error: 'role task schema must be hermes.role-task-intake.v1' });
+  if (raw.source !== 'telegram-manual') return json(400, { error: 'role task source must be telegram-manual' });
+
+  const roleId = typeof raw.roleId === 'string' ? raw.roleId : '';
+  if (!roleId || roleId.length > 80 || !ROLE_ID_RE.test(roleId)) return json(400, { error: 'roleId must be lowercase-kebab' });
+  const text = roleTaskText(raw.text, 1200);
+  if (!text) return json(400, { error: 'role task text must be 1-1200 characters' });
+  const idempotencyKey = opaqueRoleTaskKey(raw.idempotencyKey);
+  if (!idempotencyKey) return json(400, { error: 'idempotencyKey must be an opaque 1-160 character value' });
+  const actorId = raw.actorId === undefined ? undefined : roleTaskText(raw.actorId, 80);
+  if (raw.actorId !== undefined && !actorId) return json(400, { error: 'actorId must be 1-80 characters when provided' });
+
+  const registry = parseRoleTaskBindings(bindingsJson);
+  if (!registry) return json(503, { error: 'role task binding registry unavailable' });
+  const binding = registry.bindings[roleId];
+  if (!binding || !binding.enabled) return json(503, { error: 'role task binding unavailable', roleId });
+
+  const idempotencyHash = await sha256hex(`hermes.role-task-intake.v1\u0000${idempotencyKey}`);
+  const taskId = `role-task-${idempotencyHash.slice(0, 32)}`;
+  const eventId = `hermes:role-task:${idempotencyHash}`;
+  const correlationId = eventId;
+  const intentHash = await sha256hex(canonicalJson({
+    schema: 'hermes.role-task-intake.v1',
+    source: 'telegram-manual',
+    roleId,
+    text,
+    actorId,
+    idempotencyKeyHash: idempotencyHash,
+    binding: {
+      schema: registry.schema,
+      version: registry.version,
+      memberId: binding.memberId,
+      projectId: binding.projectId,
+      taskType: binding.taskType,
+    },
+  }));
+  const claim: BridgeRoleTaskClaimRecord = {
+    eventId,
+    roleId,
+    memberId: binding.memberId,
+    projectId: binding.projectId,
+    bindingVersion: registry.version,
+    intentHash,
+    claimedAt: nowIso(),
+  };
+  try {
+    await bridgeStore.putRoleTaskClaim(claim);
+  } catch {
+    return json(500, { error: 'role task idempotency claim failed', eventId });
   }
-  await bridgeStore.putDirective(memberId, directiveId, stored);
-  return json(200, { ok: true, id: directiveId, memberId, taskId, projectId, eventId, correlationId, queued: true });
+  const persistedClaim = await bridgeStore.getRoleTaskClaim(eventId);
+  if (!persistedClaim) return json(500, { error: 'role task idempotency claim failed', eventId });
+  if (
+    persistedClaim.intentHash !== claim.intentHash
+    || persistedClaim.roleId !== claim.roleId
+    || persistedClaim.memberId !== claim.memberId
+    || persistedClaim.projectId !== claim.projectId
+    || persistedClaim.bindingVersion !== claim.bindingVersion
+  ) {
+    return json(409, { error: 'role task idempotency binding conflict', eventId });
+  }
+
+  const fallbackTitle = `Manual task for ${roleId}`;
+  const firstLine = text.split(/\r?\n/, 1)[0].replace(/\s+/g, ' ').trim();
+  const title = safeFabricText(firstLine, fallbackTitle, 180);
+  const provenance = {
+    schema: 'hermes.role-task-intake.v1',
+    source: 'telegram-manual',
+    roleId,
+    binding: {
+      schema: registry.schema,
+      version: registry.version,
+      memberId: binding.memberId,
+      projectId: binding.projectId,
+      taskType: binding.taskType,
+    },
+    idempotencyKeyHash: idempotencyHash,
+    ...(actorId ? { actorId } : {}),
+  };
+  const queued = await queueProjectTaskAssignment(bridgeStore, {
+    memberId: binding.memberId,
+    eventId,
+    correlationId,
+    task: {
+      taskId,
+      projectId: binding.projectId,
+      title,
+      description: text,
+      taskType: binding.taskType,
+      assignedBy: 'hermes',
+      source: 'telegram-manual',
+    },
+  }, nowIso, createId, { roleTaskProvenance: provenance });
+  if (queued.status !== 200) return queued;
+  const receipt = JSON.parse(queued.body) as Record<string, unknown>;
+  return json(200, {
+    ok: true,
+    schema: 'thoughtseed.role-task-receipt.v1',
+    id: receipt.id,
+    queued: receipt.queued === true,
+    duplicate: receipt.duplicate === true,
+    eventId,
+    correlationId,
+    idempotencyKey,
+    binding: {
+      version: registry.version,
+      roleId,
+      memberId: binding.memberId,
+      projectId: binding.projectId,
+    },
+    task: { taskId, title, taskType: binding.taskType },
+  });
 }
 
 function topicQuestAssignment(raw: Record<string, unknown>, createId: () => string): Record<string, unknown> | { error: string } {
@@ -1537,6 +1800,15 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       return queueProjectTaskAssignment(bridgeStore, msg, nowIso, deps.uuid);
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/role-task') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may enqueue role tasks' });
+      if (!deps.bridgeStore) return json(503, { error: 'durable role task store unavailable' });
+      let msg: unknown;
+      try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      if (!isRecord(msg)) return json(400, { error: 'role task body must be an object' });
+      return queueRoleTask(deps.bridgeStore, msg, deps.roleTaskBindingsJson, nowIso, deps.uuid);
     }
 
     if (method === 'POST' && routePath === '/v1/bridge/topic-assignment') {
