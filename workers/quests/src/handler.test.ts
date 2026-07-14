@@ -6100,7 +6100,7 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
     body: JSON.stringify({
       chatId: '-1002691202808',
       topicKey: 'dev',
-      threadId: 799,
+      threadId: 862,
       sourceMessageId: '852',
       memberId: 'shesh',
       summary: 'Build route proof is stale and needs a fresh worker probe.',
@@ -6117,7 +6117,7 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
   assert.equal(queued.status, 200);
   assert.equal(body(queued).id, 'assign-topic-dev-1');
   assert.equal(body(queued).eventId, 'topic:thoughtseed-ops:dev:852:assigned');
-  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 799, questId: 'the-build' });
+  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 862, questId: 'the-build' });
 
   const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
     headers: { authorization: 'Bearer bridge' },

@@ -273,11 +273,11 @@ const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
 const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|rawInitData|initData|query_id|auth_date)\b=?|\b(?:token|user|id)=|hash=)/i;
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
-const THOUGHTSEED_TELEGRAM_CHAT_ID = '-1002691202808';
-const TOPIC_QUEST_ROUTES = {
+export const THOUGHTSEED_TELEGRAM_CHAT_ID = '-1002691202808';
+export const TOPIC_QUEST_ROUTES = {
   hermes: { topicName: 'Hermes', threadId: 797, questId: 'the-gate', priority: 'normal', taskType: 'operations', title: 'Coordinate Hermes topic signal' },
   digests: { topicName: 'Digests', threadId: 798, questId: 'the-review', priority: 'normal', taskType: 'research', title: 'Synthesize digest topic signal' },
-  dev: { topicName: 'Dev', threadId: 799, questId: 'the-build', priority: 'high', taskType: 'engineering', title: 'Act on Dev topic signal' },
+  dev: { topicName: 'Dev', threadId: 862, questId: 'the-build', priority: 'high', taskType: 'engineering', title: 'Act on Dev topic signal' },
   inbox: { topicName: 'Inbox', threadId: 800, questId: 'the-brief', priority: 'normal', taskType: 'general', title: 'Triage Inbox topic signal' },
   calendar: { topicName: 'Calendar', threadId: 801, questId: 'the-brief', priority: 'normal', taskType: 'operations', title: 'Prepare Calendar topic signal' },
   agent_ops: { topicName: 'Agent Ops', threadId: 802, questId: 'living-org', priority: 'high', taskType: 'operations', title: 'Investigate Agent Ops topic signal' },

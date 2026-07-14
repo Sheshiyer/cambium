@@ -46,7 +46,7 @@ The route returns the same idempotent assignment shape as
   "queued": true,
   "topic": {
     "topicKey": "dev",
-    "threadId": 799,
+    "threadId": 862,
     "questId": "the-build"
   }
 }
@@ -59,7 +59,7 @@ Minimum:
 ```json
 {
   "topicKey": "dev",
-  "threadId": 799,
+  "threadId": 862,
   "sourceMessageId": "852",
   "summary": "Build route proof is stale and needs a fresh worker probe."
 }
@@ -82,7 +82,7 @@ Optional fields:
 | --- | ---: | --- | --- | --- |
 | Hermes | 797 | `the-gate` | `operations` | `normal` |
 | Digests | 798 | `the-review` | `research` | `normal` |
-| Dev | 799 | `the-build` | `engineering` | `high` |
+| Dev | 862 | `the-build` | `engineering` | `high` |
 | Inbox | 800 | `the-brief` | `general` | `normal` |
 | Calendar | 801 | `the-brief` | `operations` | `normal` |
 | Agent Ops | 802 | `living-org` | `operations` | `high` |
