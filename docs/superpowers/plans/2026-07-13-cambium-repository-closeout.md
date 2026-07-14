@@ -20,6 +20,7 @@
 - The static-orbit semantic commit changes exactly `workers/quests/src/page.ts` and `workers/quests/src/handler.test.ts`.
 - The static-orbit pull request contains those two semantic files, regenerated `docs/plans/assets/tg-miniapp-viewport-proof/manifest.json`, and only PNGs beneath that canonical proof directory whose bytes differ after the complete 38-capture refresh.
 - Manually changing only `manifest.json.pageSourceSha256` is forbidden. Every one of the 38 canonical capture steps must succeed and appear in the refresh receipt even when a regenerated PNG is byte-identical and therefore absent from Git.
+- Explicitly clear inherited viewport-proof filters for the canonical run, and persist the resulting proof-refresh commit SHA once. Reuse that immutable value for the expected-path diff, pull-request head checks, CI lookup, and `--match-head-commit`; never replace it with a later live value.
 - Pull-request titles, bodies, and commit messages contain no GitHub issue-closing keyword followed by an issue number.
 - Do not close, reopen, label, edit, comment on, or link a GitHub issue.
 - Do not rewrite history, force-push branch content, force-delete a local branch, or use `git reset --hard`. Remote deletion uses only an exact-SHA `--force-with-lease` as a compare-and-swap guard.
@@ -632,7 +633,7 @@ rg -q 'Deterministic release verification passed' "$BACKUP_DIR/receipts/document
 ! rg -q 'Release verification failed at:' "$BACKUP_DIR/receipts/documentation-ci.log"
 ```
 
-Expected: the job and all three required workflow steps succeed, and the log contains eight unique release-gate markers.
+Expected: the job and all seven required workflow steps succeed, and the log contains eight unique release-gate markers.
 
 - [ ] **Step 5: Merge through GitHub and record proof**
 
@@ -911,7 +912,11 @@ test -z "$(comm -12 \
 rm -f \
   .artifacts/tg-miniapp-viewport/failure.json \
   .artifacts/tg-miniapp-viewport/browser-diagnostics.json
-npm run proof:tg-viewport
+CAPTURE_PATHS=$(env -u TG_VIEWPORT_PROOF_FILTER node --input-type=module -e \
+  "import { VIEWPORT_PROOF_CAPTURE_STEPS } from './workers/quests/src/visual-viewport-proof.mjs'; process.stdout.write(JSON.stringify(VIEWPORT_PROOF_CAPTURE_STEPS.map(({ path }) => path)))")
+test "$(jq length <<< "$CAPTURE_PATHS")" -eq 38
+test "$(jq 'unique | length' <<< "$CAPTURE_PATHS")" -eq 38
+env -u TG_VIEWPORT_PROOF_FILTER npm run proof:tg-viewport
 test ! -e .artifacts/tg-miniapp-viewport/failure.json
 test ! -e .artifacts/tg-miniapp-viewport/browser-diagnostics.json
 test -z "$(git ls-files --others --exclude-standard)"
@@ -964,6 +969,9 @@ test "$staged_proof_changes" = "$proof_changes"
 test -z "$(git diff --name-only)"
 git diff --cached --check
 git commit -m "test: refresh static orbit viewport proof"
+git rev-parse HEAD > "$BACKUP_DIR/receipts/static-orbit-pr.head-sha"
+read -r VERIFIED_HEAD_SHA < "$BACKUP_DIR/receipts/static-orbit-pr.head-sha"
+test "$VERIFIED_HEAD_SHA" = "$(git rev-parse HEAD)"
 test "$(git show -s --format=%s HEAD)" = "test: refresh static orbit viewport proof"
 test "$(git rev-parse HEAD^)" = "$SEMANTIC_SHA"
 test -z "$(git status --porcelain --untracked-files=all)"
@@ -981,12 +989,14 @@ Expected: the immutable two-file semantic commit remains the proof commit's pare
 set -euo pipefail
 cd "$CAMBIUM_SALVAGE_WORKTREE"
 read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
+read -r VERIFIED_HEAD_SHA < "$BACKUP_DIR/receipts/static-orbit-pr.head-sha"
 PROOF_DIR=docs/plans/assets/tg-miniapp-viewport-proof
 EXPECTED_BASE=92fb2370770de65117e6aad0d31e6301f52d1ca9
 
 git fetch --prune origin
 MAIN_SHA=$(gh api repos/Sheshiyer/cambium/branches/main --jq .commit.sha)
 test "$MAIN_SHA" = "$(git rev-parse origin/main)"
+test "$(git rev-parse HEAD)" = "$VERIFIED_HEAD_SHA"
 test -z "$(git status --porcelain --untracked-files=all)"
 
 MERGE_BASE=$(git merge-base "$MAIN_SHA" HEAD)
@@ -1000,7 +1010,7 @@ while IFS= read -r path; do
   esac
 done <<< "$main_since_base"
 
-git diff --name-only origin/main...HEAD \
+git diff --name-only "origin/main...$VERIFIED_HEAD_SHA" \
   | LC_ALL=C sort \
   > "$BACKUP_DIR/receipts/static-orbit-pr.expected-paths"
 for required in \
@@ -1030,6 +1040,7 @@ PR_URL=$(gh pr create --repo Sheshiyer/cambium \
   --body "Removes the orbit sweep animation, retains static state styling, updates focused renderer assertions, and regenerates the complete canonical 38-capture viewport proof. The PR includes only the regenerated manifest and PNGs whose bytes differ. No GitHub issue state is changed.")
 PR=$(gh pr view "$PR_URL" --repo Sheshiyer/cambium --json number --jq .number)
 printf '%s\n' "$PR" > "$BACKUP_DIR/receipts/static-orbit-pr.number"
+test "$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)" = "$VERIFIED_HEAD_SHA"
 
 gh api --paginate --slurp -X GET "repos/Sheshiyer/cambium/pulls/$PR/files" \
   -f per_page=100 \
@@ -1056,14 +1067,16 @@ Expected: the REST and CLI path lists exactly match the clean committed branch's
 set -euo pipefail
 read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/static-orbit-pr.number"
-HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
+read -r VERIFIED_HEAD_SHA < "$BACKUP_DIR/receipts/static-orbit-pr.head-sha"
 
+test "$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)" = "$VERIFIED_HEAD_SHA"
 gh pr checks "$PR" --repo Sheshiyer/cambium --watch --interval 10
+test "$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)" = "$VERIFIED_HEAD_SHA"
 gh run list --repo Sheshiyer/cambium --workflow ci.yml \
-  --event pull_request --commit "$HEAD_SHA" --limit 20 \
+  --event pull_request --commit "$VERIFIED_HEAD_SHA" --limit 20 \
   --json databaseId,headSha,event,status,conclusion,url \
   > "$BACKUP_DIR/receipts/static-orbit-ci.runs.json"
-RUN_ID=$(jq -er --arg sha "$HEAD_SHA" \
+RUN_ID=$(jq -er --arg sha "$VERIFIED_HEAD_SHA" \
   'map(select(.headSha == $sha and .event == "pull_request")) | sort_by(.databaseId) | last | .databaseId' \
   "$BACKUP_DIR/receipts/static-orbit-ci.runs.json")
 test "$RUN_ID" != null
@@ -1094,7 +1107,7 @@ rg -q 'Deterministic release verification passed' "$BACKUP_DIR/receipts/static-o
 ! rg -q 'Release verification failed at:' "$BACKUP_DIR/receipts/static-orbit-ci.log"
 ```
 
-Expected: overall job success, three required step successes, and eight unique release-gate log markers.
+Expected: overall job success, seven required step successes, and eight unique release-gate log markers.
 
 - [ ] **Step 4: Recheck issue state, merge, and capture the merge receipt**
 
@@ -1102,7 +1115,7 @@ Expected: overall job success, three required step successes, and eight unique r
 set -euo pipefail
 read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/static-orbit-pr.number"
-HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
+read -r VERIFIED_HEAD_SHA < "$BACKUP_DIR/receipts/static-orbit-pr.head-sha"
 
 gh api --paginate --slurp -X GET repos/Sheshiyer/cambium/issues \
   -f state=all -f per_page=100 -f sort=created -f direction=asc \
@@ -1117,8 +1130,9 @@ diff -u \
   "$BACKUP_DIR/receipts/issues-all.before-static-orbit-merge.json"
 test "$(gh repo view Sheshiyer/cambium --json deleteBranchOnMerge --jq .deleteBranchOnMerge)" = false
 
+test "$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)" = "$VERIFIED_HEAD_SHA"
 gh pr merge "$PR" --repo Sheshiyer/cambium --merge \
-  --match-head-commit "$HEAD_SHA"
+  --match-head-commit "$VERIFIED_HEAD_SHA"
 gh pr view "$PR" --repo Sheshiyer/cambium \
   --json number,state,headRefName,headRefOid,mergeCommit,mergedAt,url \
   | jq -S . > "$BACKUP_DIR/receipts/static-orbit-pr.merged.json"

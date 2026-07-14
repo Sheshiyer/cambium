@@ -115,7 +115,7 @@ Create `codex/tg-static-orbit-cleanup` from a freshly fetched and SHA-verified `
 - `workers/quests/src/page.ts`
 - `workers/quests/src/handler.test.ts`
 
-The red/green semantic work remains the exact two-file commit `4b95e08`; do not amend, squash, or reconstruct it. On top of that commit, run the complete canonical `npm run proof:tg-viewport` capture and commit its refresh separately as `test: refresh static orbit viewport proof`. The capture must execute all 38 steps successfully. Manually editing only `manifest.json.pageSourceSha256` is forbidden because that would relabel stale screenshots rather than regenerate proof.
+The red/green semantic work remains the exact two-file commit `4b95e08`; do not amend, squash, or reconstruct it. On top of that commit, import the canonical capture-step registry read-only, require exactly 38 unique paths, explicitly clear any inherited capture filter, run the complete canonical `npm run proof:tg-viewport` capture, and commit its refresh separately as `test: refresh static orbit viewport proof`. The capture must execute all 38 steps successfully. Manually editing only `manifest.json.pageSourceSha256` is forbidden because that would relabel stale screenshots rather than regenerate proof.
 
 The proof-refresh commit contains:
 
@@ -132,6 +132,7 @@ Before push, require all of the following:
 - focused quest-handler tests pass;
 - the regenerated manifest's `pageSourceSha256` equals the digest of the actual exported `PAGE`, contains exactly 38 unique proof rows, and matches every listed PNG's bytes and SHA-256;
 - the final branch diff contains the two semantic paths and the regenerated manifest, with every additional path restricted to a canonical viewport-proof PNG;
+- the exact proof-refresh commit SHA is persisted before push and remains identical to local `HEAD` and the pull request head before path inspection, CI lookup, and compare-and-swap merge;
 - `git diff --check` passes;
 - local `npm run verify:release` passes;
 - the worktree contains no unrelated untracked files.
@@ -147,7 +148,7 @@ For each approved pull request:
 3. Confirm the CI verify job actually ran for the pull-request SHA.
 4. Inspect the job evidence: `verify:release` completed all eight gates, live-readiness report generation succeeded, and artifact upload succeeded. A skipped required step is not a pass.
 5. Confirm the open-issue snapshot still equals zero and no issue was mutated.
-6. Merge through GitHub without force operations.
+6. Merge through GitHub without force operations, passing only the persisted proof-refresh SHA to the head-commit compare-and-swap guard.
 7. Record pull-request number, head SHA, merge SHA, check-run URL, and merge time.
 
 Because `main` is unprotected, this sequence is an explicit operational gate rather than a claimed repository-enforced guarantee.
