@@ -2777,11 +2777,11 @@ test('page · Mission Control visual primitives are named and reduced-motion saf
     'renderComponentMissionComponentsBoard',
     'renderComponentMotionBoard',
     'renderComponentLegendBoard',
-    'orbitSweep',
+    'staticOrbit',
     'packetDrift',
     'glyphBreathe',
     'warningAttention',
-    '.mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
+    '.mc-orbit::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
   ]) assert.ok(PAGE.includes(marker), `PAGE has ${marker}`);
 
   for (const key of ['sourceRefs', 'propShapes', 'MissionGlyph', 'StateToken', 'OrbitProgress', 'SelectedHalo', 'SignalRail', 'PacketFlow', 'BranchArcChip', 'MissionCard', 'QuestlineTimeline', 'ProofList', 'KpiPulse', 'GateActionRow', 'Motion']) {
@@ -2852,7 +2852,7 @@ test('page · component route renders the reference glyph state board as compone
     'data-glyph-kind="proof"',
     'data-glyph-kind="gate"',
     'data-state="reduced-motion"',
-    'data-motion="orbitSweep"',
+    'data-motion="staticOrbit"',
     'data-motion="packetDrift"',
     'data-motion="glyphBreathe"',
     'data-motion="warningAttention"',
@@ -4176,8 +4176,8 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(selectedBranchChip, /role="tab"/);
   assert.match(selectedBranchChip, /aria-selected="true"/);
   assert.doesNotMatch(selectedBranchChip, /data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
-  assert.match(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:none/);
-  assert.doesNotMatch(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:orbitSweep/);
+  assert.doesNotMatch(PAGE, /@keyframes orbitSweep|animation:orbitSweep|data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
+  assert.doesNotMatch(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]/);
   assert.doesNotMatch(PAGE, /\.gate-hero::after\{[\s\S]*?animation:orbitSweep|\.branch-sheet-hero::after\{[\s\S]*?animation:orbitSweep/);
   assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
   assert.match(html, /data-packet-mode="texture"/);
