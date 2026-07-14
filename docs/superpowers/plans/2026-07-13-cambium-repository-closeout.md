@@ -100,6 +100,10 @@ gh api repos/Sheshiyer/cambium/rulesets \
 gh pr list --repo Sheshiyer/cambium --state open --limit 1000 \
   --json number,state,title,headRefName,headRefOid,baseRefName,url \
   | jq -S . > "$BACKUP_DIR/github/pulls-open.before.json"
+gh api --paginate --slurp -X GET repos/Sheshiyer/cambium/pulls \
+  -f state=all -f per_page=100 -f sort=created -f direction=asc \
+  | jq -S 'add | sort_by(.number)' \
+  > "$BACKUP_DIR/github/pulls-all.before.json"
 gh api --paginate --slurp -X GET repos/Sheshiyer/cambium/issues \
   -f state=open -f per_page=100 -f sort=created -f direction=asc \
   | jq -S 'add | map(select(has("pull_request") | not)) | sort_by(.number)' \
@@ -175,14 +179,24 @@ printf '%s\n' \
   scripts/validate-product-branch-packets.mjs \
   workers/quests/src/handler.test.ts \
   workers/quests/src/page.ts \
+  > "$BACKUP_DIR/dirty/tracked-modified-paths.expected.txt"
+printf '%s\n' \
   docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md \
   docs/plans/product-branches/loop-library.md \
   docs/superpowers/plans/2026-07-05-cambium-branch-loop-library.md \
+  > "$BACKUP_DIR/dirty/untracked-paths.expected.txt"
+cat \
+  "$BACKUP_DIR/dirty/tracked-modified-paths.expected.txt" \
+  "$BACKUP_DIR/dirty/untracked-paths.expected.txt" \
   > "$BACKUP_DIR/dirty/dirty-paths.txt"
 
+test "$(wc -l < "$BACKUP_DIR/dirty/tracked-modified-paths.expected.txt" | tr -d ' ')" -eq 11
+test "$(wc -l < "$BACKUP_DIR/dirty/untracked-paths.expected.txt" | tr -d ' ')" -eq 3
 test "$(wc -l < "$BACKUP_DIR/dirty/dirty-paths.txt" | tr -d ' ')" -eq 14
 git -C "$ROOT" status --porcelain=v1 --untracked-files=all \
   > "$BACKUP_DIR/dirty/status.before.txt"
+LC_ALL=C sort "$BACKUP_DIR/dirty/status.before.txt" \
+  > "$BACKUP_DIR/dirty/status.approved.actual.txt"
 git -C "$ROOT" status --porcelain=v1 -z --untracked-files=all \
   > "$BACKUP_DIR/dirty/status.before.z"
 git -C "$ROOT" status --porcelain=v2 --branch -z --untracked-files=all \
@@ -195,15 +209,51 @@ git -C "$ROOT" diff --binary --full-index --no-ext-diff --no-textconv --no-renam
   > "$BACKUP_DIR/dirty/tracked-unstaged.patch"
 git -C "$ROOT" diff HEAD --binary --full-index --no-ext-diff --no-textconv --no-renames \
   > "$BACKUP_DIR/dirty/tracked-combined.patch"
+git -C "$ROOT" diff --name-only HEAD -- \
+  | LC_ALL=C sort > "$BACKUP_DIR/dirty/tracked-modified-paths.actual.txt"
 git -C "$ROOT" ls-files --others --exclude-standard \
+  | LC_ALL=C sort \
   > "$BACKUP_DIR/dirty/untracked-paths.txt"
 test "$(wc -l < "$BACKUP_DIR/dirty/untracked-paths.txt" | tr -d ' ')" -eq 3
+diff -u \
+  "$BACKUP_DIR/dirty/tracked-modified-paths.expected.txt" \
+  "$BACKUP_DIR/dirty/tracked-modified-paths.actual.txt" \
+  > "$BACKUP_DIR/verification/tracked-modified-paths.diff"
+diff -u \
+  "$BACKUP_DIR/dirty/untracked-paths.expected.txt" \
+  "$BACKUP_DIR/dirty/untracked-paths.txt" \
+  > "$BACKUP_DIR/verification/untracked-paths.diff"
+{
+  while IFS= read -r path; do printf ' M %s\n' "$path"; done \
+    < "$BACKUP_DIR/dirty/tracked-modified-paths.expected.txt"
+  while IFS= read -r path; do printf '?? %s\n' "$path"; done \
+    < "$BACKUP_DIR/dirty/untracked-paths.expected.txt"
+} | LC_ALL=C sort > "$BACKUP_DIR/dirty/status.approved.expected.txt"
+diff -u \
+  "$BACKUP_DIR/dirty/status.approved.expected.txt" \
+  "$BACKUP_DIR/dirty/status.approved.actual.txt" \
+  > "$BACKUP_DIR/verification/approved-dirty-baseline.diff"
+printf '%s\n' \
+  "approved dirty baseline has exactly 11 modified tracked paths and three named untracked paths" \
+  > "$BACKUP_DIR/receipts/approved-dirty-baseline.txt"
 
 while IFS= read -r path; do
   mkdir -p "$BACKUP_DIR/dirty/untracked/$(dirname "$path")"
   /usr/bin/ditto --rsrc --extattr --acl \
     "$ROOT/$path" "$BACKUP_DIR/dirty/untracked/$path"
 done < "$BACKUP_DIR/dirty/untracked-paths.txt"
+
+(
+  cd "$ROOT"
+  while IFS= read -r path; do
+    printf 'path\t%s\n' "$path"
+    /usr/bin/xattr "$path" | LC_ALL=C sort | while IFS= read -r attr; do
+      printf 'attr\t%s\t' "$attr"
+      /usr/bin/xattr -px "$attr" "$path" | tr -d '[:space:]'
+      printf '\n'
+    done
+  done < "$BACKUP_DIR/dirty/untracked-paths.txt"
+) > "$BACKUP_DIR/dirty/untracked-xattrs.before.tsv"
 
 (
   cd "$ROOT"
@@ -233,12 +283,33 @@ awk -F '	' '{print $3}' "$BACKUP_DIR/git/refs.before.tsv" | LC_ALL=C sort \
   > "$BACKUP_DIR/verification/expected-ref-names.txt"
 awk '{print $2}' "$BACKUP_DIR/verification/bundle-initial.heads.tsv" | LC_ALL=C sort \
   > "$BACKUP_DIR/verification/bundled-ref-names.txt"
-test ! -s <(comm -23 \
+comm -23 \
   "$BACKUP_DIR/verification/expected-ref-names.txt" \
-  "$BACKUP_DIR/verification/bundled-ref-names.txt")
+  "$BACKUP_DIR/verification/bundled-ref-names.txt" \
+  > "$BACKUP_DIR/verification/bundle-initial.missing-refs.txt"
+test ! -s "$BACKUP_DIR/verification/bundle-initial.missing-refs.txt"
+
+awk -F '\t' 'length($4) > 0 {print $3 "\t" $4}' \
+  "$BACKUP_DIR/git/refs.before.tsv" \
+  > "$BACKUP_DIR/git/symbolic-refs.before.tsv"
+grep -Fqx \
+  $'refs/remotes/origin/HEAD\trefs/remotes/origin/main' \
+  "$BACKUP_DIR/git/symbolic-refs.before.tsv"
 
 git clone --mirror "$BUNDLE" "$SCRATCH/cambium.git"
 git --git-dir="$SCRATCH/cambium.git" fsck --full
+: > "$BACKUP_DIR/verification/bundle-initial.symbolic-refs.restored.tsv"
+while IFS=$'\t' read -r ref target; do
+  git --git-dir="$SCRATCH/cambium.git" symbolic-ref "$ref" "$target"
+  actual_target=$(git --git-dir="$SCRATCH/cambium.git" symbolic-ref -q "$ref")
+  test "$actual_target" = "$target"
+  printf '%s\t%s\n' "$ref" "$actual_target" \
+    >> "$BACKUP_DIR/verification/bundle-initial.symbolic-refs.restored.tsv"
+done < "$BACKUP_DIR/git/symbolic-refs.before.tsv"
+diff -u \
+  "$BACKUP_DIR/git/symbolic-refs.before.tsv" \
+  "$BACKUP_DIR/verification/bundle-initial.symbolic-refs.restored.tsv" \
+  > "$BACKUP_DIR/verification/bundle-initial.symbolic-refs.diff"
 while IFS=$'\t' read -r expected_sha expected_type ref symref; do
   actual_sha=$(git --git-dir="$SCRATCH/cambium.git" rev-parse "$ref^{object}")
   test "$actual_sha" = "$expected_sha"
@@ -247,6 +318,8 @@ while IFS=$'\t' read -r expected_sha expected_type ref symref; do
 done < "$BACKUP_DIR/git/refs.before.tsv"
 printf '%s\n' "all manifest refs resolved with exact object IDs and types" \
   > "$BACKUP_DIR/verification/bundle-initial.restore.txt"
+printf '%s\n' "all symbolic refs restored and verified, including origin/HEAD -> origin/main" \
+  > "$BACKUP_DIR/receipts/bundle-initial.symbolic-refs.txt"
 ```
 
 Expected: bundle verification succeeds, no expected ref name is missing, and every manifest ref resolves to the recorded SHA in the mirror clone.
@@ -273,6 +346,22 @@ while IFS= read -r path; do
   /usr/bin/ditto --rsrc --extattr --acl \
     "$BACKUP_DIR/dirty/untracked/$path" "$SCRATCH/reconstructed/$path"
 done < "$BACKUP_DIR/dirty/untracked-paths.txt"
+
+(
+  cd "$SCRATCH/reconstructed"
+  while IFS= read -r path; do
+    printf 'path\t%s\n' "$path"
+    /usr/bin/xattr "$path" | LC_ALL=C sort | while IFS= read -r attr; do
+      printf 'attr\t%s\t' "$attr"
+      /usr/bin/xattr -px "$attr" "$path" | tr -d '[:space:]'
+      printf '\n'
+    done
+  done < "$BACKUP_DIR/dirty/untracked-paths.txt"
+) > "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.tsv"
+diff -u \
+  "$BACKUP_DIR/dirty/untracked-xattrs.before.tsv" \
+  "$BACKUP_DIR/verification/untracked-xattrs.reconstructed.tsv" \
+  > "$BACKUP_DIR/verification/untracked-xattrs.diff"
 
 git -C "$SCRATCH/reconstructed" ls-files --stage -z \
   | cmp - "$BACKUP_DIR/dirty/index-stage.before.z"
@@ -306,6 +395,26 @@ read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSE
     | while IFS= read -r path; do shasum -a 256 "$path"; done \
     > SHA256SUMS.initial
   shasum -a 256 -c SHA256SUMS.initial
+  for artifact in \
+    ./github/pulls-all.before.json \
+    ./dirty/tracked-modified-paths.expected.txt \
+    ./dirty/tracked-modified-paths.actual.txt \
+    ./dirty/untracked-paths.expected.txt \
+    ./dirty/status.approved.expected.txt \
+    ./dirty/status.approved.actual.txt \
+    ./dirty/untracked-xattrs.before.tsv \
+    ./git/symbolic-refs.before.tsv \
+    ./verification/approved-dirty-baseline.diff \
+    ./verification/bundle-initial.missing-refs.txt \
+    ./verification/bundle-initial.symbolic-refs.restored.tsv \
+    ./verification/bundle-initial.symbolic-refs.diff \
+    ./verification/untracked-xattrs.reconstructed.tsv \
+    ./verification/untracked-xattrs.diff \
+    ./receipts/approved-dirty-baseline.txt \
+    ./receipts/bundle-initial.symbolic-refs.txt
+  do
+    rg -Fq "  $artifact" SHA256SUMS.initial
+  done
 )
 ```
 
