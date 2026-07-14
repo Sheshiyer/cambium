@@ -10,9 +10,10 @@
 
 ## Global Constraints
 
+- Before running any shell block, export caller-supplied absolute paths for `CAMBIUM_PRIMARY_WORKTREE`, `CAMBIUM_DOC_WORKTREE`, and `CAMBIUM_SALVAGE_WORKTREE`; backup paths resolve beneath `$HOME/.codex/backups/cambium`.
 - Work only in `Sheshiyer/cambium` and the explicitly named Cambium worktrees.
 - Preserve the dirty checkout until its 14 paths reconstruct byte-for-byte from an off-repository backup.
-- Store preservation artifacts under `/Users/sheshnarayaniyer/.codex/backups/cambium/<UTC-timestamp>/`.
+- Store preservation artifacts under `$HOME/.codex/backups/cambium/<UTC-timestamp>/`.
 - Never copy either stale dirty file wholesale onto current `main`; reapply only the approved semantic hunks.
 - The static-orbit pull request changes exactly `workers/quests/src/page.ts` and `workers/quests/src/handler.test.ts`.
 - Pull-request titles, bodies, and commit messages contain no GitHub issue-closing keyword followed by an issue number.
@@ -34,8 +35,8 @@ The backup, pull requests, branch retirement, and prevention setting are distinc
 ## File Structure
 
 - Existing documentation branch `codex/cambium-repository-closeout-design` contains the committed specification and this plan.
-- Create outside Git: `/Users/sheshnarayaniyer/.codex/backups/cambium/<UTC-timestamp>/` for manifests, bundles, patches, snapshots, checksums, and receipts.
-- Create temporarily: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup` for the semantic salvage.
+- Create outside Git: `$HOME/.codex/backups/cambium/<UTC-timestamp>/` for manifests, bundles, patches, snapshots, checksums, and receipts.
+- Create temporarily at `$CAMBIUM_SALVAGE_WORKTREE` for the semantic salvage.
 - Modify only: `workers/quests/src/handler.test.ts` for static-orbit assertions.
 - Modify only: `workers/quests/src/page.ts` for the static orbit implementation.
 - Create no new runtime source file, npm dependency, issue, tag, or release.
@@ -43,9 +44,9 @@ The backup, pull requests, branch retirement, and prevention setting are distinc
 ### Task 1: Create and prove the off-repository preservation snapshot
 
 **Files:**
-- Create outside repo: `/Users/sheshnarayaniyer/.codex/backups/cambium/<UTC-timestamp>/**`
-- Read only: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/**`
-- Read only: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-closeout-spec/**`
+- Create outside repo: `$HOME/.codex/backups/cambium/<UTC-timestamp>/**`
+- Read only: `$CAMBIUM_PRIMARY_WORKTREE/**`
+- Read only: `$CAMBIUM_DOC_WORKTREE/**`
 
 **Interfaces:**
 - Consumes: current refs, worktrees, GitHub state, and the 14-path dirty checkout.
@@ -57,12 +58,12 @@ Run in Bash 4+:
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-DOC_WT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-closeout-spec
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+DOC_WT="${CAMBIUM_DOC_WORKTREE:?Set CAMBIUM_DOC_WORKTREE to the docs worktree}"
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-BACKUP_DIR=/Users/sheshnarayaniyer/.codex/backups/cambium/$STAMP
+BACKUP_DIR="$HOME/.codex/backups/cambium/$STAMP"
 mkdir -p "$BACKUP_DIR"/{git,dirty/untracked,github,receipts,verification}
-printf '%s\n' "$BACKUP_DIR" > /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+printf '%s\n' "$BACKUP_DIR" > "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 
 test "$(git -C "$ROOT" remote get-url origin)" = "https://github.com/Sheshiyer/cambium.git"
 GH_MAIN=$(gh api repos/Sheshiyer/cambium/branches/main --jq .commit.sha)
@@ -81,8 +82,8 @@ Expected: origin is exact, `GH_MAIN` equals `origin/main`, and the backup path i
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 
 git -C "$ROOT" worktree list --porcelain > "$BACKUP_DIR/git/worktrees.before.txt"
 git -C "$ROOT" for-each-ref \
@@ -164,8 +165,8 @@ Expected: open PR and issue arrays are empty, automatic merged-head deletion is 
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 
 printf '%s\n' \
   docs/architecture/DEPENDENCY-GRAPH.md \
@@ -307,8 +308,8 @@ Expected: status records 11 modified and three untracked paths; exact source and
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 BUNDLE=$BACKUP_DIR/git/cambium-initial-all-refs.bundle
 SCRATCH=$(mktemp -d /tmp/cambium-bundle-check.XXXXXX)
 
@@ -367,7 +368,7 @@ Expected: bundle verification succeeds, no expected ref name is missing, and eve
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 BUNDLE=$BACKUP_DIR/git/cambium-initial-all-refs.bundle
 DIRTY_HEAD=$(sed -n 's/^DIRTY_HEAD=//p' "$BACKUP_DIR/verification/context.env")
 SCRATCH=$(mktemp -d /tmp/cambium-dirty-restore.XXXXXX)
@@ -462,7 +463,7 @@ Expected: status, index, file bytes, and all xattrs other than managed `com.appl
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 (
   cd "$BACKUP_DIR"
   find . -type f ! -name 'SHA256SUMS.*' -print \
@@ -522,7 +523,7 @@ Expected: every initial artifact reports `OK`. Stop the closeout if any step in 
 
 ```bash
 set -euo pipefail
-DOC_WT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-closeout-spec
+DOC_WT="${CAMBIUM_DOC_WORKTREE:?Set CAMBIUM_DOC_WORKTREE to the docs worktree}"
 cd "$DOC_WT"
 git fetch origin
 if ! git merge-base --is-ancestor origin/main HEAD; then
@@ -543,7 +544,7 @@ Expected: exactly the specification and implementation plan differ from current 
 
 ```bash
 set -euo pipefail
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-closeout-spec
+cd "$CAMBIUM_DOC_WORKTREE"
 npm ci --prefix apps/cambium-r3f
 npm run verify:release
 ```
@@ -554,8 +555,8 @@ Expected: eight named gates pass and output ends with `Deterministic release ver
 
 ```bash
 set -euo pipefail
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-closeout-spec
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+cd "$CAMBIUM_DOC_WORKTREE"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 
 git push -u origin codex/cambium-repository-closeout-design
 PR_URL=$(gh pr create --repo Sheshiyer/cambium \
@@ -585,7 +586,7 @@ Expected: one documentation PR exists and the full issue snapshot is byte-identi
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/documentation-pr.number"
 HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
 
@@ -631,7 +632,7 @@ Expected: the job and all three required workflow steps succeed, and the log con
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/documentation-pr.number"
 HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
 
@@ -715,8 +716,8 @@ Expected: the PR is merged, no PR or issue remains open, and the head branch sti
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-SALVAGE_WT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+SALVAGE_WT="${CAMBIUM_SALVAGE_WORKTREE:?Set CAMBIUM_SALVAGE_WORKTREE to the salvage worktree}"
 test ! -e "$SALVAGE_WT"
 ! git -C "$ROOT" show-ref --verify --quiet refs/heads/codex/tg-static-orbit-cleanup
 git -C "$ROOT" fetch --prune origin
@@ -731,7 +732,7 @@ Expected: clean worktree `codex/tg-static-orbit-cleanup` is based on the exact G
 - [ ] **Step 2: Establish the green baseline before changing tests**
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+cd "$CAMBIUM_SALVAGE_WORKTREE"
 node --test \
   --test-name-pattern='page · (Mission Control visual primitives are named and reduced-motion safe|component route renders the reference glyph state board as components|Mission scene renders branch arcs, next mission, blockers, proof, KPIs, and actions)' \
   workers/quests/src/handler.test.ts
@@ -765,7 +766,7 @@ Preserve the existing selected-branch-chip negative assertion and the gate/branc
 - [ ] **Step 4: Run the focused tests and prove they fail for the intended reason**
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+cd "$CAMBIUM_SALVAGE_WORKTREE"
 node --test \
   --test-name-pattern='page · (Mission Control visual primitives are named and reduced-motion safe|component route renders the reference glyph state board as components|Mission scene renders branch arcs, next mission, blockers, proof, KPIs, and actions)' \
   workers/quests/src/handler.test.ts
@@ -806,7 +807,7 @@ Apply these exact semantic replacements to `workers/quests/src/page.ts`:
 - [ ] **Step 6: Run the focused green suite**
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+cd "$CAMBIUM_SALVAGE_WORKTREE"
 node --test \
   --test-name-pattern='page · (Mission Control visual primitives are named and reduced-motion safe|component registry helpers enforce orbit rail packet KPI contracts|component route renders the reference glyph state board as components|Mission scene renders branch arcs, next mission, blockers, proof, KPIs, and actions)' \
   workers/quests/src/handler.test.ts
@@ -818,7 +819,7 @@ Expected: four tests pass, zero fail.
 
 ```bash
 set -euo pipefail
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+cd "$CAMBIUM_SALVAGE_WORKTREE"
 ! rg -n 'orbitSweep' workers/quests/src/page.ts
 rg -n 'staticOrbit' workers/quests/src/page.ts workers/quests/src/handler.test.ts
 actual=$(git diff --name-only origin/main -- | LC_ALL=C sort)
@@ -838,7 +839,7 @@ Expected: `page.ts` has no `orbitSweep` token, the diff contains exactly two fil
 
 ```bash
 set -euo pipefail
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+cd "$CAMBIUM_SALVAGE_WORKTREE"
 git add workers/quests/src/page.ts workers/quests/src/handler.test.ts
 git diff --cached --check
 test "$(git diff --cached --name-only | wc -l | tr -d ' ')" -eq 2
@@ -867,7 +868,7 @@ Expected: one focused commit with no issue-closing keyword and exactly two chang
 
 ```bash
 set -euo pipefail
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+cd "$CAMBIUM_SALVAGE_WORKTREE"
 npm ci --prefix apps/cambium-r3f
 npm run verify:release
 test -z "$(git status --porcelain)"
@@ -879,8 +880,8 @@ Expected: all eight release gates pass and the committed worktree remains clean.
 
 ```bash
 set -euo pipefail
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+cd "$CAMBIUM_SALVAGE_WORKTREE"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 
 git push -u origin codex/tg-static-orbit-cleanup
 PR_URL=$(gh pr create --repo Sheshiyer/cambium \
@@ -918,7 +919,7 @@ Expected: the PR diff is exactly the approved two-file set.
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/static-orbit-pr.number"
 HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
 HEAD_SHA=$(gh pr view "$PR" --repo Sheshiyer/cambium --json headRefOid --jq .headRefOid)
@@ -965,7 +966,7 @@ Expected: overall job success, three required step successes, and eight unique r
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 read -r PR < "$BACKUP_DIR/receipts/static-orbit-pr.number"
 
 gh api --paginate --slurp -X GET repos/Sheshiyer/cambium/issues \
@@ -1042,8 +1043,8 @@ Expected: PR state is `MERGED`, open PR and issue counts are zero, and automatic
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 git -C "$ROOT" fetch --prune origin
 test "$(gh pr list --repo Sheshiyer/cambium --state open --limit 1000 --json number | jq length)" -eq 0
 
@@ -1077,7 +1078,7 @@ Expected: every old, documentation, salvage, main, remote-tracking, and tag ref 
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 gh api --paginate repos/Sheshiyer/cambium/branches \
   --jq '.[] | select(.name != "main") | [.name,.commit.sha] | @tsv' \
   | LC_ALL=C sort > "$BACKUP_DIR/receipts/remote-candidates.tsv"
@@ -1093,8 +1094,8 @@ Define and invoke this fail-closed Bash function:
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 
 retire_remote_branch() {
   local branch=$1 recorded_sha=$2 main_sha live_sha receipt slug encoded compare_file
@@ -1159,7 +1160,7 @@ Expected: every invocation records `aheadBy: 0`, `fileCount: 0`, an exact main S
 
 ```bash
 set -euo pipefail
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 gh api --paginate repos/Sheshiyer/cambium/branches \
   --jq '.[] | [.name,.commit.sha] | @tsv' \
   | LC_ALL=C sort > "$BACKUP_DIR/receipts/remote-branches.after.tsv"
@@ -1184,8 +1185,8 @@ Expected: GitHub exposes exactly one branch named `main`.
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 git -C "$ROOT" status --porcelain=v1 --untracked-files=all \
   > "$BACKUP_DIR/verification/status.before-retirement.txt"
 diff -u \
@@ -1199,7 +1200,7 @@ Expected: empty diff. If status changed, stop and create a new timestamped backu
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
 git -C "$ROOT" fetch --prune origin
 git -C "$ROOT" show origin/main:workers/quests/src/page.ts \
   | rg -q 'staticOrbit'
@@ -1215,7 +1216,7 @@ Expected: current `origin/main` contains `staticOrbit` and no `orbitSweep`.
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
 git -C "$ROOT" restore --source=HEAD --staged --worktree -- \
   docs/architecture/DEPENDENCY-GRAPH.md \
   docs/architecture/REFRESH-NEEDED.md \
@@ -1236,7 +1237,7 @@ Expected: only the three already backed-up untracked paths remain in `git status
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
 rm -f \
   "$ROOT/docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md" \
   "$ROOT/docs/plans/product-branches/loop-library.md" \
@@ -1252,9 +1253,9 @@ Run from `ROOT`, not from either worktree being removed:
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-DOC_WT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-closeout-spec
-SALVAGE_WT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium-static-orbit-cleanup
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+DOC_WT="${CAMBIUM_DOC_WORKTREE:?Set CAMBIUM_DOC_WORKTREE to the docs worktree}"
+SALVAGE_WT="${CAMBIUM_SALVAGE_WORKTREE:?Set CAMBIUM_SALVAGE_WORKTREE to the salvage worktree}"
 git -C "$ROOT" fetch origin
 
 for wt in "$DOC_WT" "$SALVAGE_WT"; do
@@ -1272,7 +1273,7 @@ Expected: both temporary worktree paths are absent; no `--force` option was used
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
 git -C "$ROOT" switch main
 git -C "$ROOT" fetch --prune origin
 git -C "$ROOT" merge --ff-only origin/main
@@ -1288,8 +1289,8 @@ Expected: primary checkout is clean and local, remote-tracking, and GitHub `main
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 git -C "$ROOT" for-each-ref \
   --format='%(refname:short)%09%(objectname)' refs/heads \
   | awk -F '	' '$1 != "main"' \
@@ -1330,8 +1331,8 @@ Expected: `git branch -d` succeeds for each candidate without force; every recei
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 git -C "$ROOT" for-each-ref \
   --format='%(refname:short)%09%(objectname)' refs/heads \
   | LC_ALL=C sort > "$BACKUP_DIR/receipts/local-branches.after.tsv"
@@ -1355,8 +1356,8 @@ Expected: exactly one local branch named `main` remains.
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 
 gh pr list --repo Sheshiyer/cambium --state open --limit 1000 \
   --json number,state,title,headRefName,headRefOid,baseRefName,url \
@@ -1427,7 +1428,7 @@ Expected: zero open PRs/issues, full issue metadata unchanged, releases unchange
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
 GH_MAIN=$(gh api repos/Sheshiyer/cambium/branches/main --jq .commit.sha)
 test "$(git -C "$ROOT" rev-parse HEAD)" = "$GH_MAIN"
 test "$(git -C "$ROOT" rev-parse origin/main)" = "$GH_MAIN"
@@ -1456,8 +1457,8 @@ Expected: GitHub reports `deleteBranchOnMerge=true`. No further GitHub mutation 
 
 ```bash
 set -euo pipefail
-ROOT=/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium
-read -r BACKUP_DIR < /Users/sheshnarayaniyer/.codex/backups/cambium/ACTIVE-CLOSEOUT
+ROOT="${CAMBIUM_PRIMARY_WORKTREE:?Set CAMBIUM_PRIMARY_WORKTREE to the primary checkout}"
+read -r BACKUP_DIR < "$HOME/.codex/backups/cambium/ACTIVE-CLOSEOUT"
 GH_MAIN=$(gh api repos/Sheshiyer/cambium/branches/main --jq .commit.sha)
 
 jq -n \

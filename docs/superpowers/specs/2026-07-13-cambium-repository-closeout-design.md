@@ -78,7 +78,7 @@ Merged pull requests #220 and #227–#229 provide the current broader product-br
 
 The approved design and plan are written on a new clean documentation branch because the dirty checkout cannot safely host them. Before changing the dirty checkout, opening or merging pull requests, deleting any pre-task ref, or changing the repository setting, create a timestamped directory outside the repository:
 
-`/Users/sheshnarayaniyer/.codex/backups/cambium/<UTC-timestamp>/`
+`$HOME/.codex/backups/cambium/<UTC-timestamp>/`
 
 It contains:
 
