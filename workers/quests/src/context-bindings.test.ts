@@ -121,6 +121,92 @@ test('unsafe and broad allowlist keys are skipped and do not call R2', async () 
   assert.match(JSON.stringify(snapshot.sections), /Blocked\/no-signal/);
 });
 
+test('weekly report reads only configured exact keys and reports current, stale, and missing counts', async () => {
+  const calls: string[] = [];
+  const objects = new Map<string, { markdown: string; uploaded: Date }>([
+    ['reports/client-a/weekly.md', {
+      markdown: '# Client A\n\nDelivery is on track. token=do-not-return',
+      uploaded: new Date('2026-07-14T18:00:00.000Z'),
+    }],
+    ['reports/client-b/weekly.md', {
+      markdown: '# Client B\n\nAwaiting an approved decision.',
+      uploaded: new Date('2026-07-10T00:00:00.000Z'),
+    }],
+  ]);
+  const bucket: R2BucketLike = {
+    async get(key) {
+      calls.push(key);
+      const object = objects.get(key);
+      return object ? {
+        key,
+        uploaded: object.uploaded,
+        text: async () => object.markdown,
+      } : null;
+    },
+  };
+  const routineContext = createRoutineContext({
+    bucket,
+    now: () => new Date('2026-07-15T00:00:00.000Z'),
+    allowlist: {
+      'weekly-client-report': [{
+        id: 'client-report-sources',
+        title: 'Client report sources',
+        maxAgeSeconds: 86_400,
+        keys: [
+          'reports/client-a/weekly.md',
+          'reports/client-b/weekly.md',
+          'reports/client-c/weekly.md',
+        ],
+      }],
+    },
+  });
+
+  const snapshot = await routineContext.getSnapshot({ tenant: 'cambium', routine: 'weekly-client-report' });
+
+  assert.deepEqual(calls, [
+    'reports/client-a/weekly.md',
+    'reports/client-b/weekly.md',
+    'reports/client-c/weekly.md',
+  ]);
+  const section = snapshot.sections[0] as any;
+  assert.equal(section.signalState, 'mixed');
+  assert.equal(section.exactKeyCount, 3);
+  assert.equal(section.resolvedKeyCount, 2);
+  assert.equal(section.staleKeyCount, 1);
+  assert.equal(section.missingKeyCount, 1);
+  assert.equal(section.staleAfterSeconds, 86_400);
+  assert.equal(section.items[0].signalState, 'current');
+  assert.equal(section.items[0].observedAt, '2026-07-14T18:00:00.000Z');
+  assert.equal(section.items[0].ageSeconds, 21_600);
+  assert.equal(section.items[1].signalState, 'stale');
+  assert.equal(section.items[2].signalState, 'missing');
+  assert.match(section.items[2].summary, /1 of 3 exact allowlisted R2 objects are missing/);
+  assert.doesNotMatch(JSON.stringify(section), /do-not-return|rawBody|fullMarkdown/);
+});
+
+test('weekly report treats unverified freshness as explicit unknown instead of current', async () => {
+  const routineContext = createRoutineContext({
+    bucket: {
+      get: async (key) => ({ key, text: async () => '# Weekly\n\nBounded summary.' }),
+    },
+    allowlist: {
+      'weekly-client-report': [{
+        id: 'client-report-sources',
+        title: 'Client report sources',
+        keys: ['reports/client-a/weekly.md'],
+      }],
+    },
+  });
+
+  const snapshot = await routineContext.getSnapshot({ tenant: 'cambium', routine: 'weekly-client-report' });
+  const section = snapshot.sections[0] as any;
+
+  assert.equal(section.signalState, 'freshness-unknown');
+  assert.equal(section.items[0].signalState, 'freshness-unknown');
+  assert.equal(section.staleAfterSeconds, undefined);
+  assert.equal(section.items[0].observedAt, undefined);
+});
+
 test('semantic recall embeds query and sends tenant and kind filters to Vectorize', async () => {
   const embedded: string[] = [];
   let queryCall: any;
@@ -305,6 +391,62 @@ test('worker runtime preserves query params for routine snapshots', async () => 
   const payload = await response.json() as any;
   assert.equal(payload.routine, 'daily-standup-digest');
   assert.equal(payload.sections[0].items[0].summary, 'Standup Ready for Hermes.');
+});
+
+test('worker rejects unauthenticated weekly report before any R2 read', async () => {
+  let called = false;
+  const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=weekly-client-report'), fakeWorkerEnv({
+    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ALLOWED_TENANTS: 'cambium',
+    CONTEXT_ROUTINE_ALLOWLIST_JSON: JSON.stringify({
+      'weekly-client-report': [{
+        id: 'client-report-sources',
+        title: 'Client report sources',
+        maxAgeSeconds: 86_400,
+        keys: ['reports/client-a/weekly.md'],
+      }],
+    }),
+    THOUGHTSEED_VAULT: {
+      get: async () => {
+        called = true;
+        return { text: async () => '# Must not be read' };
+      },
+    },
+  }) as any);
+
+  assert.equal(response.status, 401);
+  assert.equal(called, false);
+});
+
+test('weekly-only runtime configuration preserves daily standup blocked defaults', async () => {
+  let called = false;
+  const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
+    headers: { authorization: 'Bearer context-token' },
+  }), fakeWorkerEnv({
+    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ALLOWED_TENANTS: 'cambium',
+    CONTEXT_ROUTINE_ALLOWLIST_JSON: JSON.stringify({
+      'weekly-client-report': [{
+        id: 'client-report-sources',
+        title: 'Client report sources',
+        maxAgeSeconds: 86_400,
+        keys: ['reports/client-a/weekly.md'],
+      }],
+    }),
+    THOUGHTSEED_VAULT: {
+      get: async () => {
+        called = true;
+        return { text: async () => '# Must not be read by daily defaults' };
+      },
+    },
+  }) as any);
+
+  assert.equal(response.status, 200);
+  assert.equal(called, false);
+  const payload = await response.json() as any;
+  assert.equal(payload.routine, 'daily-standup-digest');
+  assert.equal(payload.sections.length, 2);
+  assert.equal(payload.sections[0].signalState, 'blocked-no-signal');
 });
 
 test('worker runtime does not expose routine context without R2 binding', async () => {

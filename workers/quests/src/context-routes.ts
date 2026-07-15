@@ -42,12 +42,21 @@ export interface RoutineContextItem {
   title: string;
   summary: string;
   sourceKey?: string;
+  signalState?: 'current' | 'stale' | 'freshness-unknown' | 'missing' | 'blocked-no-signal';
+  observedAt?: string;
+  ageSeconds?: number;
 }
 
 export interface RoutineContextSection {
   id: string;
   title: string;
   items: RoutineContextItem[];
+  signalState?: 'current' | 'stale' | 'freshness-unknown' | 'no-signal' | 'blocked-no-signal' | 'mixed';
+  exactKeyCount?: number;
+  resolvedKeyCount?: number;
+  staleKeyCount?: number;
+  missingKeyCount?: number;
+  staleAfterSeconds?: number;
 }
 
 export interface RoutineContextLike {
@@ -76,6 +85,9 @@ const MAX_TITLE_LENGTH = 160;
 const MAX_SUMMARY_LENGTH = 500;
 const MAX_SOURCE_KEY_LENGTH = 300;
 const MAX_METADATA_LENGTH = 120;
+const MAX_STALE_AFTER_SECONDS = 90 * 24 * 60 * 60;
+const ROUTINE_ITEM_STATES = new Set(['current', 'stale', 'freshness-unknown', 'missing', 'blocked-no-signal']);
+const ROUTINE_SECTION_STATES = new Set(['current', 'stale', 'freshness-unknown', 'no-signal', 'blocked-no-signal', 'mixed']);
 
 function json(status: number, value: unknown): SimpleResponse {
   return { status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) };
@@ -151,22 +163,57 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+function safeEnum(value: unknown, allowed: Set<string>): string | undefined {
+  return typeof value === 'string' && allowed.has(value) ? value : undefined;
+}
+
+function safeInteger(value: unknown, max: number): number | undefined {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= max
+    ? value
+    : undefined;
+}
+
+function safeIsoTimestamp(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined;
+}
+
 function boundedRoutineItem(value: unknown): RoutineContextItem {
   const item = isRecord(value) ? value : {};
+  const sourceKey = safeString(item.sourceKey, MAX_SOURCE_KEY_LENGTH);
+  const signalState = safeEnum(item.signalState, ROUTINE_ITEM_STATES) as RoutineContextItem['signalState'];
+  const observedAt = safeIsoTimestamp(item.observedAt);
+  const ageSeconds = safeInteger(item.ageSeconds, Number.MAX_SAFE_INTEGER);
   return {
     title: safeString(item.title, MAX_TITLE_LENGTH),
     summary: safeString(item.summary, MAX_SUMMARY_LENGTH),
-    sourceKey: safeString(item.sourceKey, MAX_SOURCE_KEY_LENGTH),
+    ...(sourceKey ? { sourceKey } : {}),
+    ...(signalState ? { signalState } : {}),
+    ...(observedAt ? { observedAt } : {}),
+    ...(ageSeconds !== undefined ? { ageSeconds } : {}),
   };
 }
 
 function boundedRoutineSection(value: unknown): RoutineContextSection {
   const section = isRecord(value) ? value : {};
   const items = Array.isArray(section.items) ? section.items : [];
+  const signalState = safeEnum(section.signalState, ROUTINE_SECTION_STATES) as RoutineContextSection['signalState'];
+  const exactKeyCount = safeInteger(section.exactKeyCount, MAX_ROUTINE_ITEMS);
+  const resolvedKeyCount = safeInteger(section.resolvedKeyCount, MAX_ROUTINE_ITEMS);
+  const staleKeyCount = safeInteger(section.staleKeyCount, MAX_ROUTINE_ITEMS);
+  const missingKeyCount = safeInteger(section.missingKeyCount, MAX_ROUTINE_ITEMS);
+  const staleAfterSeconds = safeInteger(section.staleAfterSeconds, MAX_STALE_AFTER_SECONDS);
   return {
     id: safeString(section.id, MAX_TITLE_LENGTH),
     title: safeString(section.title, MAX_TITLE_LENGTH),
     items: items.slice(0, MAX_ROUTINE_ITEMS).map(boundedRoutineItem),
+    ...(signalState ? { signalState } : {}),
+    ...(exactKeyCount !== undefined ? { exactKeyCount } : {}),
+    ...(resolvedKeyCount !== undefined ? { resolvedKeyCount } : {}),
+    ...(staleKeyCount !== undefined ? { staleKeyCount } : {}),
+    ...(missingKeyCount !== undefined ? { missingKeyCount } : {}),
+    ...(staleAfterSeconds !== undefined ? { staleAfterSeconds } : {}),
   };
 }
 

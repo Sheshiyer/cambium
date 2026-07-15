@@ -9,6 +9,7 @@ import type {
 
 export interface R2ObjectLike {
   key?: string;
+  uploaded?: Date | string;
   text(): Promise<string>;
 }
 
@@ -43,6 +44,7 @@ export interface RoutineSlice {
   id: string;
   title: string;
   keys?: string[];
+  maxAgeSeconds?: number;
   reason?: string;
 }
 
@@ -52,6 +54,7 @@ export interface CreateRoutineContextArgs {
   bucket?: R2BucketLike;
   allowlist?: RoutineContextAllowlist;
   metadata?: ContextProviderMetadata;
+  now?: () => Date;
 }
 
 export type EmbedQuery = (text: string) => Promise<number[]>;
@@ -78,6 +81,8 @@ const MAX_ROUTINE_ITEMS_PER_SECTION = 8;
 const MAX_SUMMARY_LENGTH = 500;
 const MAX_TITLE_LENGTH = 160;
 const MAX_KEY_LENGTH = 512;
+const MIN_STALE_AFTER_SECONDS = 60;
+const MAX_STALE_AFTER_SECONDS = 90 * 24 * 60 * 60;
 const SAFE_KEY = /^[A-Za-z0-9][A-Za-z0-9._/@:=+-]{0,511}$/;
 
 const DEFAULT_NO_SIGNAL_REASON = 'R2 routine object keys are not verified for this candidate slice yet.';
@@ -144,11 +149,29 @@ function firstMarkdownTitle(markdown: string, key: string): string {
   return safeString(filename.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '), MAX_TITLE_LENGTH);
 }
 
-function noSignalItem(slice: RoutineSlice, reason?: string) {
+function noSignalItem(
+  slice: RoutineSlice,
+  reason?: string,
+  signalState: 'missing' | 'blocked-no-signal' = 'blocked-no-signal',
+) {
   return {
     title: `No verified ${safeString(slice.title || slice.id, MAX_TITLE_LENGTH)} signal`,
     summary: `Blocked/no-signal: ${safeString(reason ?? slice.reason ?? DEFAULT_NO_SIGNAL_REASON, MAX_SUMMARY_LENGTH)}`,
+    signalState,
   };
+}
+
+function safeStaleAfterSeconds(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
+  const seconds = Math.floor(value);
+  if (seconds < MIN_STALE_AFTER_SECONDS || seconds > MAX_STALE_AFTER_SECONDS) return undefined;
+  return seconds;
+}
+
+function safeUploadedAt(value: unknown): string | undefined {
+  const date = value instanceof Date ? value : typeof value === 'string' ? new Date(value) : undefined;
+  if (!date || !Number.isFinite(date.getTime())) return undefined;
+  return date.toISOString();
 }
 
 function sanitizeSlice(value: unknown): RoutineSlice | null {
@@ -158,11 +181,13 @@ function sanitizeSlice(value: unknown): RoutineSlice | null {
   const title = safeString(record.title ?? id, MAX_TITLE_LENGTH);
   if (!id || !title) return null;
   const rawKeys = Array.isArray(record.keys) ? record.keys : [];
-  const keys = rawKeys.filter(isSafeRoutineObjectKey);
+  const keys = [...new Set(rawKeys.filter(isSafeRoutineObjectKey))].slice(0, MAX_ROUTINE_ITEMS_PER_SECTION);
+  const maxAgeSeconds = safeStaleAfterSeconds(record.maxAgeSeconds);
   return {
     id,
     title,
     ...(keys.length ? { keys } : {}),
+    ...(maxAgeSeconds ? { maxAgeSeconds } : {}),
     ...(typeof record.reason === 'string' ? { reason: safeString(record.reason, MAX_SUMMARY_LENGTH) } : {}),
   };
 }
@@ -190,6 +215,7 @@ export function createRoutineContext({
   bucket,
   allowlist = DEFAULT_ROUTINE_CONTEXT_SLICES,
   metadata,
+  now = () => new Date(),
 }: CreateRoutineContextArgs): RoutineContextLike {
   const providerMetadata: ContextProviderMetadata = {
     provider: 'cloudflare-r2',
@@ -206,32 +232,84 @@ export function createRoutineContext({
       const sections: RoutineContextSection[] = [];
 
       for (const slice of slices) {
-        const safeKeys = [...new Set(slice.keys ?? [])].filter(isSafeRoutineObjectKey);
+        const safeKeys = [...new Set(slice.keys ?? [])]
+          .filter(isSafeRoutineObjectKey)
+          .slice(0, MAX_ROUTINE_ITEMS_PER_SECTION);
+        const staleAfterSeconds = safeStaleAfterSeconds(slice.maxAgeSeconds);
         if (!safeKeys.length || !bucket) {
           sections.push({
             id: safeString(slice.id, MAX_TITLE_LENGTH),
             title: safeString(slice.title, MAX_TITLE_LENGTH),
             items: [noSignalItem(slice, bucket ? undefined : 'R2 bucket binding is unavailable.')],
+            signalState: 'blocked-no-signal',
+            exactKeyCount: safeKeys.length,
+            resolvedKeyCount: 0,
+            staleKeyCount: 0,
+            missingKeyCount: safeKeys.length,
+            ...(staleAfterSeconds ? { staleAfterSeconds } : {}),
           });
           continue;
         }
 
         const items = [];
-        for (const key of safeKeys.slice(0, MAX_ROUTINE_ITEMS_PER_SECTION)) {
+        let staleKeyCount = 0;
+        let missingKeyCount = 0;
+        const evaluatedAt = now().getTime();
+        for (const key of safeKeys) {
           const object = await bucket.get(key);
-          if (!object) continue;
+          if (!object) {
+            missingKeyCount += 1;
+            continue;
+          }
           const markdown = await object.text();
+          const observedAt = safeUploadedAt(object.uploaded);
+          const ageSeconds = observedAt
+            ? Math.max(0, Math.floor((evaluatedAt - Date.parse(observedAt)) / 1000))
+            : undefined;
+          const signalState = observedAt && staleAfterSeconds
+            ? ageSeconds! > staleAfterSeconds ? 'stale' : 'current'
+            : 'freshness-unknown';
+          if (signalState === 'stale') staleKeyCount += 1;
           items.push({
             title: firstMarkdownTitle(markdown, key),
             summary: summarizeMarkdown(markdown),
             sourceKey: key,
+            signalState,
+            ...(observedAt ? { observedAt } : {}),
+            ...(ageSeconds !== undefined ? { ageSeconds } : {}),
           });
         }
+
+        if (missingKeyCount) {
+          items.push(noSignalItem(
+            slice,
+            `${missingKeyCount} of ${safeKeys.length} exact allowlisted R2 objects are missing.`,
+            'missing',
+          ));
+        }
+
+        const resolvedKeyCount = safeKeys.length - missingKeyCount;
+        const itemStates = new Set(items.map((item) => item.signalState));
+        const signalState = itemStates.size > 1
+          ? 'mixed'
+          : itemStates.has('current')
+            ? 'current'
+            : itemStates.has('stale')
+              ? 'stale'
+              : itemStates.has('freshness-unknown')
+                ? 'freshness-unknown'
+                : 'no-signal';
 
         sections.push({
           id: safeString(slice.id, MAX_TITLE_LENGTH),
           title: safeString(slice.title, MAX_TITLE_LENGTH),
           items: items.length ? items : [noSignalItem(slice, 'No allowlisted R2 objects produced a readable signal.')],
+          signalState,
+          exactKeyCount: safeKeys.length,
+          resolvedKeyCount,
+          staleKeyCount,
+          missingKeyCount,
+          ...(staleAfterSeconds ? { staleAfterSeconds } : {}),
         });
       }
 

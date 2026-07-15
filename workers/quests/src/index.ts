@@ -532,7 +532,10 @@ export default {
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
         routineContext: env.THOUGHTSEED_VAULT ? createRoutineContext({
           bucket: env.THOUGHTSEED_VAULT,
-          allowlist: parseRoutineAllowlistJson(env.CONTEXT_ROUTINE_ALLOWLIST_JSON) ?? DEFAULT_ROUTINE_CONTEXT_SLICES,
+          allowlist: {
+            ...DEFAULT_ROUTINE_CONTEXT_SLICES,
+            ...(parseRoutineAllowlistJson(env.CONTEXT_ROUTINE_ALLOWLIST_JSON) ?? {}),
+          },
         }) : undefined,
         semanticRecall: embed && env.CAMBIUM_CORTEX
           ? createSemanticRecall({ embed, vectorIndex: env.CAMBIUM_CORTEX })
