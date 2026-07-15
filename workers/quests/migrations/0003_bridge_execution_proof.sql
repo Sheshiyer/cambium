@@ -73,10 +73,12 @@ CREATE TABLE IF NOT EXISTS bridge_execution_claims (
 CREATE INDEX IF NOT EXISTS idx_bridge_execution_claims_directive
   ON bridge_execution_claims (member_id, directive_id, attempt);
 
-CREATE TRIGGER IF NOT EXISTS bridge_execution_claim_history_insert
-AFTER INSERT ON bridge_executions
-BEGIN
-  SELECT CASE WHEN EXISTS (
+-- D1's remote SQL API rejects SELECT CASE ... RAISE() inside trigger bodies.
+-- Keep the identity check as a dedicated BEFORE guard using the supported
+-- WHEN ... SELECT RAISE() form, then record history in the AFTER trigger.
+CREATE TRIGGER IF NOT EXISTS bridge_execution_identity_guard_insert
+BEFORE INSERT ON bridge_executions
+WHEN EXISTS (
     SELECT 1 FROM bridge_execution_identities
     WHERE execution_id = NEW.execution_id
       AND (
@@ -87,7 +89,14 @@ BEGIN
         OR runner_id <> NEW.runner_id
         OR host_identity <> NEW.host_identity
       )
-  ) THEN RAISE(ABORT, 'execution identity conflict') END;
+  )
+BEGIN
+  SELECT RAISE(ABORT, 'execution identity conflict');
+END;
+
+CREATE TRIGGER IF NOT EXISTS bridge_execution_claim_history_insert
+AFTER INSERT ON bridge_executions
+BEGIN
   INSERT INTO bridge_execution_identities (
     execution_id, member_id, directive_id, idempotency_key, input_digest, runner_id,
     host_identity, first_claimed_at
@@ -105,11 +114,10 @@ BEGIN
   );
 END;
 
-CREATE TRIGGER IF NOT EXISTS bridge_execution_claim_history_takeover
-AFTER UPDATE OF attempt ON bridge_executions
+CREATE TRIGGER IF NOT EXISTS bridge_execution_identity_guard_takeover
+BEFORE UPDATE OF attempt ON bridge_executions
 WHEN NEW.attempt <> OLD.attempt
-BEGIN
-  SELECT CASE WHEN EXISTS (
+  AND EXISTS (
     SELECT 1 FROM bridge_execution_identities
     WHERE execution_id = NEW.execution_id
       AND (
@@ -120,7 +128,15 @@ BEGIN
         OR runner_id <> NEW.runner_id
         OR host_identity <> NEW.host_identity
       )
-  ) THEN RAISE(ABORT, 'execution identity conflict') END;
+  )
+BEGIN
+  SELECT RAISE(ABORT, 'execution identity conflict');
+END;
+
+CREATE TRIGGER IF NOT EXISTS bridge_execution_claim_history_takeover
+AFTER UPDATE OF attempt ON bridge_executions
+WHEN NEW.attempt <> OLD.attempt
+BEGIN
   INSERT INTO bridge_execution_identities (
     execution_id, member_id, directive_id, idempotency_key, input_digest, runner_id,
     host_identity, first_claimed_at

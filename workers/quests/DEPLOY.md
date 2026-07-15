@@ -76,11 +76,11 @@ npx --no-install wrangler d1 migrations apply cambium-bridge \
 npx --no-install wrangler d1 execute cambium-bridge \
   --remote \
   --config workers/quests/wrangler.jsonc \
-  --command "SELECT name FROM sqlite_master WHERE name IN ('bridge_executions','bridge_execution_identities','bridge_execution_claims','bridge_execution_events','bridge_execution_claim_history_insert','bridge_execution_claim_history_takeover','bridge_execution_ack_timestamp') ORDER BY name"
+  --command "SELECT name FROM sqlite_master WHERE name IN ('bridge_executions','bridge_execution_identities','bridge_execution_claims','bridge_execution_events','bridge_execution_identity_guard_insert','bridge_execution_claim_history_insert','bridge_execution_identity_guard_takeover','bridge_execution_claim_history_takeover','bridge_execution_ack_timestamp') ORDER BY name"
 npx --no-install wrangler deploy --config workers/quests/wrangler.jsonc
 ```
 
-The schema probe must return all four tables and all three triggers. With
+The schema probe must return all four tables and all five triggers. With
 delivery disabled, use the scoped member credential from the Hermes host to
 prove this sequence against a single `native_execution` canary:
 
