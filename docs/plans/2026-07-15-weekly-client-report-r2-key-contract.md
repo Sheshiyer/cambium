@@ -19,7 +19,9 @@ configuration is changed.
 ## Runtime configuration contract
 
 The allowlist is a JSON object keyed by routine id. Each routine contains at
-most eight sections and each section contains at most eight exact keys.
+most eight sections and each section contains at most eight exact keys. Keys
+longer than 300 characters are rejected before R2 and accepted keys are returned
+without truncation for exact reconciliation.
 
 ```text
 {
@@ -53,8 +55,12 @@ freshness fields.
 - Optional section `staleAfterSeconds`: the reviewed freshness threshold.
 - Item `signalState`: `current`, `stale`, `freshness-unknown`, `missing`, or
   `blocked-no-signal`.
-- Resolved items may include only the exact `sourceKey`, R2 `observedAt`
-  upload time, derived `ageSeconds`, title, and bounded plain-text summary.
+- Current and freshness-unknown items may include only the exact `sourceKey`, R2
+  `observedAt` upload time, derived `ageSeconds`, title, and bounded plain-text
+  summary.
+- Stale items include only generic blocked/no-signal copy plus the exact
+  `sourceKey`, `observedAt`, and `ageSeconds`. The Worker does not call
+  `object.text()` or derive a title or summary from stale object content.
 - Missing keys produce one bounded no-signal item and aggregate counts; the
   missing key names are not echoed.
 - If either the R2 upload time or freshness threshold is absent, the signal is
@@ -106,8 +112,8 @@ curl -fsS \
 
 Acceptance requires the projected source, key counts, and freshness states to
 match the reviewed inventory. Missing objects must be `no-signal`; old objects
-must be `stale`; neither state is a production failure if it accurately reports
-the source.
+must be `stale`; neither state may be treated as usable reporting evidence even
+when it accurately reports the source gap.
 
 Repeat the authenticated `daily-standup-digest` probe and a bounded semantic
 recall probe after deployment. Their schemas and status codes must remain

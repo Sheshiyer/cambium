@@ -78,12 +78,13 @@ export interface CreateProviderEmbedderArgs {
 }
 
 const MAX_ROUTINE_ITEMS_PER_SECTION = 8;
+const MAX_ROUTINE_SECTIONS = 8;
 const MAX_SUMMARY_LENGTH = 500;
 const MAX_TITLE_LENGTH = 160;
-const MAX_KEY_LENGTH = 512;
+const MAX_KEY_LENGTH = 300;
 const MIN_STALE_AFTER_SECONDS = 60;
 const MAX_STALE_AFTER_SECONDS = 90 * 24 * 60 * 60;
-const SAFE_KEY = /^[A-Za-z0-9][A-Za-z0-9._/@:=+-]{0,511}$/;
+const SAFE_KEY = /^[A-Za-z0-9][A-Za-z0-9._/@:=+-]{0,299}$/;
 
 const DEFAULT_NO_SIGNAL_REASON = 'R2 routine object keys are not verified for this candidate slice yet.';
 
@@ -161,6 +162,22 @@ function noSignalItem(
   };
 }
 
+function staleSignalItem(
+  slice: RoutineSlice,
+  key: string,
+  observedAt: string,
+  ageSeconds: number,
+) {
+  return {
+    title: `Stale ${safeString(slice.title || slice.id, MAX_TITLE_LENGTH)} signal`,
+    summary: 'Blocked/no-signal: exact allowlisted R2 object is older than the reviewed freshness threshold.',
+    sourceKey: key,
+    signalState: 'stale' as const,
+    observedAt,
+    ageSeconds,
+  };
+}
+
 function safeStaleAfterSeconds(value: unknown): number | undefined {
   if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
   const seconds = Math.floor(value);
@@ -205,7 +222,10 @@ export function parseRoutineAllowlistJson(raw: string | null | undefined): Routi
   for (const [routine, slices] of Object.entries(parsed as Record<string, unknown>)) {
     if (!/^[a-z0-9][a-z0-9_-]{1,119}$/.test(routine)) continue;
     if (!Array.isArray(slices)) continue;
-    const safeSlices = slices.map(sanitizeSlice).filter((slice): slice is RoutineSlice => Boolean(slice));
+    const safeSlices = slices
+      .map(sanitizeSlice)
+      .filter((slice): slice is RoutineSlice => Boolean(slice))
+      .slice(0, MAX_ROUTINE_SECTIONS);
     if (safeSlices.length) allowlist[routine] = safeSlices;
   }
   return Object.keys(allowlist).length ? allowlist : undefined;
@@ -231,7 +251,7 @@ export function createRoutineContext({
       const slices = allowlist[routine] ?? [];
       const sections: RoutineContextSection[] = [];
 
-      for (const slice of slices) {
+      for (const slice of slices.slice(0, MAX_ROUTINE_SECTIONS)) {
         const safeKeys = [...new Set(slice.keys ?? [])]
           .filter(isSafeRoutineObjectKey)
           .slice(0, MAX_ROUTINE_ITEMS_PER_SECTION);
@@ -261,7 +281,6 @@ export function createRoutineContext({
             missingKeyCount += 1;
             continue;
           }
-          const markdown = await object.text();
           const observedAt = safeUploadedAt(object.uploaded);
           const ageSeconds = observedAt
             ? Math.max(0, Math.floor((evaluatedAt - Date.parse(observedAt)) / 1000))
@@ -269,7 +288,12 @@ export function createRoutineContext({
           const signalState = observedAt && staleAfterSeconds
             ? ageSeconds! > staleAfterSeconds ? 'stale' : 'current'
             : 'freshness-unknown';
-          if (signalState === 'stale') staleKeyCount += 1;
+          if (signalState === 'stale') {
+            staleKeyCount += 1;
+            items.push(staleSignalItem(slice, key, observedAt!, ageSeconds!));
+            continue;
+          }
+          const markdown = await object.text();
           items.push({
             title: firstMarkdownTitle(markdown, key),
             summary: summarizeMarkdown(markdown),
