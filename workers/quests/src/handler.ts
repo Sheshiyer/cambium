@@ -56,6 +56,104 @@ export interface BridgeStoreLike {
   putRoleTaskClaim(record: BridgeRoleTaskClaimRecord): Promise<void>;
 }
 
+export type BridgeExecutionOutcomeStatus = 'executed' | 'failed' | 'retryable';
+
+export interface BridgeExecutionAttestation {
+  schema: 'thoughtseed.hermes.execution_attestation.v1';
+  id: string;
+  executionId: string;
+  directiveId: string;
+  idempotencyKey: string;
+  runnerId: string;
+  hostIdentity: string;
+  command: 'canary.record';
+  status: BridgeExecutionOutcomeStatus;
+  exitCode: 0 | 1 | null;
+  inputDigest: string;
+  outputDigest?: string;
+  errorCode?: string;
+  startedAt: string;
+  finishedAt: string;
+}
+
+export interface BridgeExecutionClaimInput {
+  memberId: string;
+  directiveId: string;
+  idempotencyKey: string;
+  inputDigest: string;
+  executionId: string;
+  runnerId: string;
+  hostIdentity: string;
+  claimId: string;
+  fencingToken: string;
+  claimedAt: string;
+  leaseExpiresAt: string;
+}
+
+export type BridgeExecutionClaimResult =
+  | {
+    status: 'claimed';
+    claimId: string;
+    fencingToken: string;
+    attempt: number;
+    leaseExpiresAt: string;
+    runnerId: string;
+    hostIdentity: string;
+  }
+  | {
+    status: 'busy';
+    retryAfterMs: number;
+  }
+  | {
+    status: 'terminal';
+    claimId: string;
+    fencingToken: string;
+    attempt: number;
+    runnerId: string;
+    hostIdentity: string;
+    outcome: {
+      status: 'executed' | 'failed';
+      attestation: BridgeExecutionAttestation;
+    };
+  }
+  | {
+    status: 'conflict';
+    reason: 'execution_id_reused' | 'execution_replay_mismatch';
+  };
+
+export interface BridgeExecutionOutcomeInput {
+  memberId: string;
+  directiveId: string;
+  idempotencyKey: string;
+  executionId: string;
+  runnerId: string;
+  hostIdentity: string;
+  claimId: string;
+  fencingToken: string;
+  attempt: number;
+  status: BridgeExecutionOutcomeStatus;
+  attestation: BridgeExecutionAttestation;
+  attestationDigest: string;
+  recordedAt: string;
+}
+
+export type BridgeExecutionOutcomeResult =
+  | { status: 'recorded'; terminal: boolean; duplicate: boolean }
+  | { status: 'conflict'; reason: 'claim_not_found' | 'claim_mismatch' | 'fencing_conflict' | 'outcome_conflict' };
+
+export interface BridgeExecutionContractIdentity {
+  idempotencyKey: string;
+  inputDigest: string;
+  executionId: string;
+}
+
+export interface BridgeExecutionStoreLike {
+  claimExecution(input: BridgeExecutionClaimInput): Promise<BridgeExecutionClaimResult>;
+  recordExecutionOutcome(input: BridgeExecutionOutcomeInput): Promise<BridgeExecutionOutcomeResult>;
+  hasTerminalExecution(memberId: string, directiveId: string, identity: BridgeExecutionContractIdentity): Promise<boolean>;
+  acknowledgeTerminalDirective(memberId: string, directiveId: string, identity: BridgeExecutionContractIdentity, acknowledgedAt: string): Promise<boolean>;
+}
+
 export type FabricEvidenceCandidateStatus = 'verified_evidence' | 'review_pending' | 'rejected_candidate';
 
 export interface FabricLedgerTaskRecord {
@@ -134,6 +232,7 @@ export interface HandlerDeps {
   assignmentToken?: string;    // Scoped Hermes token — may enqueue project_task_assignment only
   roleTaskBindingsJson?: string; // Server-owned Hermes role -> member/project/task binding registry
   bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
+  executionStore?: BridgeExecutionStoreLike; // D1-only claim/outcome authority; never falls back to KV
   fabricLedger?: FabricLedgerStoreLike; // Cambium-owned interpreted Fabric task/event ledger
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
@@ -422,6 +521,182 @@ const kvKeySegment = (value: string): string => value.toLowerCase().replace(/[^a
 const GH_CMD_IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000;   // a key fences duplicate writes for 24h
 const GH_WRITE_RATE_LIMIT = 10;                          // writes per actor+repo per window
 const GH_WRITE_RATE_WINDOW_MS = 60 * 1000;               // rolling 1-minute window
+const EXECUTION_LEASE_MS = 60 * 1000;
+const EXECUTION_ID = /^exec_[A-Za-z0-9._:-]{1,180}$/;
+const EXECUTION_SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/;
+const EXECUTION_OWNER = /^[A-Za-z0-9._:-]{1,128}$/;
+const ATTESTATION_ID = /^att_[A-Za-z0-9._:-]{1,180}$/;
+const SHA256_DIGEST = /^sha256:[a-f0-9]{64}$/;
+const EXECUTION_ERROR_CODE = /^[a-z0-9][a-z0-9_-]{0,79}$/;
+const EXECUTION_NONCE = /^[A-Za-z0-9._:-]{1,128}$/;
+
+function executionText(value: unknown, pattern = EXECUTION_SAFE_ID): string | null {
+  return typeof value === 'string' && pattern.test(value) ? value : null;
+}
+
+function executionClaimBody(value: unknown): Omit<BridgeExecutionClaimInput, 'claimId' | 'fencingToken' | 'claimedAt' | 'leaseExpiresAt'> | null {
+  if (!isRecord(value) || value.schema !== 'thoughtseed.hermes.execution_claim.v1') return null;
+  const memberId = typeof value.memberId === 'string' && VALID_TENANT.test(value.memberId) ? value.memberId : null;
+  const directiveId = executionText(value.directiveId);
+  const idempotencyKey = executionText(value.idempotencyKey);
+  const executionId = executionText(value.executionId, EXECUTION_ID);
+  const runnerId = executionText(value.runnerId, EXECUTION_OWNER);
+  const hostIdentity = executionText(value.hostIdentity, EXECUTION_OWNER);
+  if (!memberId || !directiveId || !idempotencyKey || !executionId || !runnerId || !hostIdentity) return null;
+  return { memberId, directiveId, idempotencyKey, executionId, runnerId, hostIdentity };
+}
+
+function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput, 'attestationDigest' | 'recordedAt'> | null {
+  if (!isRecord(value) || value.schema !== 'thoughtseed.hermes.execution_outcome.v1') return null;
+  const memberId = typeof value.memberId === 'string' && VALID_TENANT.test(value.memberId) ? value.memberId : null;
+  const directiveId = executionText(value.directiveId);
+  const idempotencyKey = executionText(value.idempotencyKey);
+  const executionId = executionText(value.executionId, EXECUTION_ID);
+  const runnerId = executionText(value.runnerId, EXECUTION_OWNER);
+  const claimId = executionText(value.claimId);
+  const fencingToken = executionText(value.fencingToken);
+  const attempt = Number.isSafeInteger(value.attempt) && Number(value.attempt) > 0 ? Number(value.attempt) : null;
+  const status = value.status === 'executed' || value.status === 'failed' || value.status === 'retryable'
+    ? value.status
+    : null;
+  const rawAttestation = value.attestation;
+  if (!isRecord(rawAttestation) || rawAttestation.schema !== 'thoughtseed.hermes.execution_attestation.v1') return null;
+  const attestationId = executionText(rawAttestation.id, ATTESTATION_ID);
+  const attestationRunnerId = executionText(rawAttestation.runnerId, EXECUTION_OWNER);
+  const attestationHostIdentity = executionText(rawAttestation.hostIdentity, EXECUTION_OWNER);
+  const hostIdentity = attestationHostIdentity;
+  const inputDigest = executionText(rawAttestation.inputDigest, SHA256_DIGEST);
+  const outputDigest = rawAttestation.outputDigest === undefined
+    ? undefined
+    : executionText(rawAttestation.outputDigest, SHA256_DIGEST);
+  const errorCode = rawAttestation.errorCode === undefined
+    ? undefined
+    : executionText(rawAttestation.errorCode, EXECUTION_ERROR_CODE);
+  if (errorCode && /token|secret|password|authorization|credential|api[_-]?key/i.test(errorCode)) return null;
+  const startedAt = typeof rawAttestation.startedAt === 'string' ? rawAttestation.startedAt : null;
+  const finishedAt = typeof rawAttestation.finishedAt === 'string' ? rawAttestation.finishedAt : null;
+  const startedAtMs = startedAt ? Date.parse(startedAt) : NaN;
+  const finishedAtMs = finishedAt ? Date.parse(finishedAt) : NaN;
+  const validTimes = Number.isFinite(startedAtMs) && Number.isFinite(finishedAtMs)
+    && new Date(startedAtMs).toISOString() === startedAt
+    && new Date(finishedAtMs).toISOString() === finishedAt
+    && finishedAtMs >= startedAtMs;
+  if (!memberId || !directiveId || !idempotencyKey || !executionId || !runnerId
+    || !hostIdentity || !claimId || !fencingToken || !attempt || !status || !attestationId
+    || !attestationRunnerId || !attestationHostIdentity || !inputDigest || !validTimes) return null;
+  if (rawAttestation.executionId !== executionId
+    || rawAttestation.directiveId !== directiveId
+    || rawAttestation.idempotencyKey !== idempotencyKey
+    || attestationRunnerId !== runnerId
+    || attestationHostIdentity !== hostIdentity
+    || rawAttestation.command !== 'canary.record'
+    || rawAttestation.status !== status) return null;
+  const exitCode: 0 | 1 | null = status === 'executed' ? 0 : status === 'failed' ? 1 : null;
+  if (rawAttestation.exitCode !== exitCode) return null;
+  if (status === 'executed' && (!outputDigest || errorCode !== undefined)) return null;
+  if (status === 'failed' && (outputDigest !== undefined || !errorCode)) return null;
+  if (status === 'retryable' && (outputDigest !== undefined || !errorCode)) return null;
+  return {
+    memberId,
+    directiveId,
+    idempotencyKey,
+    executionId,
+    runnerId,
+    hostIdentity,
+    claimId,
+    fencingToken,
+    attempt,
+    status,
+    attestation: {
+      schema: 'thoughtseed.hermes.execution_attestation.v1',
+      id: attestationId,
+      executionId,
+      directiveId,
+      idempotencyKey,
+      runnerId,
+      hostIdentity,
+      command: 'canary.record',
+      status,
+      exitCode,
+      inputDigest,
+      ...(outputDigest ? { outputDigest } : {}),
+      ...(errorCode ? { errorCode } : {}),
+      startedAt: startedAt!,
+      finishedAt: finishedAt!,
+    },
+  };
+}
+
+function nativeExecutionContract(
+  directive: Record<string, unknown> | null,
+  memberId: string,
+  directiveId: string,
+): { idempotencyKey: string; input: { nonce: string } } | null {
+  if (!directive || (directive.memberId !== undefined && directive.memberId !== memberId)) return null;
+  const payload = isRecord(directive.payload) ? directive.payload : null;
+  const target = payload && isRecord(payload.target) ? payload.target : null;
+  const input = payload && isRecord(payload.input) ? payload.input : null;
+  if (payload?.type !== 'native_execution'
+    || payload.schema !== 'thoughtseed.hermes.native_execution.v1'
+    || payload.command !== 'canary.record'
+    || target?.memberId !== memberId
+    || !input
+    || Object.keys(input).length !== 1
+    || typeof input.nonce !== 'string'
+    || !EXECUTION_NONCE.test(input.nonce)) return null;
+  const idempotencyKey = directive.idempotencyKey === undefined
+    ? directiveId
+    : executionText(directive.idempotencyKey);
+  if (!idempotencyKey) return null;
+  return {
+    idempotencyKey,
+    input: { nonce: input.nonce },
+  };
+}
+
+async function nativeExecutionIdentity(
+  memberId: string,
+  directiveId: string,
+  contract: { idempotencyKey: string; input: { nonce: string } },
+): Promise<BridgeExecutionContractIdentity> {
+  const inputDigest = `sha256:${await sha256hex(canonicalJson(contract.input))}`;
+  const executionId = `exec_${(await sha256hex(canonicalJson({
+    memberId,
+    directiveId,
+    idempotencyKey: contract.idempotencyKey,
+  }))).slice(0, 32)}`;
+  return { idempotencyKey: contract.idempotencyKey, inputDigest, executionId };
+}
+
+function sameNativeExecutionContract(
+  left: { idempotencyKey: string; input: { nonce: string } },
+  right: { idempotencyKey: string; input: { nonce: string } },
+): boolean {
+  return left.idempotencyKey === right.idempotencyKey && left.input.nonce === right.input.nonce;
+}
+
+async function validExecutionAttestation(
+  contract: { idempotencyKey: string; input: { nonce: string } },
+  outcome: Omit<BridgeExecutionOutcomeInput, 'attestationDigest' | 'recordedAt'>,
+): Promise<boolean> {
+  const expectedInputDigest = `sha256:${await sha256hex(canonicalJson(contract.input))}`;
+  if (outcome.attestation.inputDigest !== expectedInputDigest) return false;
+  if (outcome.status === 'executed') {
+    const proof = {
+      schema: 'thoughtseed.hermes.canary_proof.v1',
+      directiveId: outcome.directiveId,
+      idempotencyKey: outcome.idempotencyKey,
+      executionId: outcome.executionId,
+      command: 'canary.record',
+      inputDigest: expectedInputDigest,
+    };
+    const expectedOutputDigest = `sha256:${await sha256hex(canonicalJson(proof))}`;
+    if (outcome.attestation.outputDigest !== expectedOutputDigest) return false;
+  }
+  const { id: _id, ...identity } = outcome.attestation;
+  const expectedId = `att_${(await sha256hex(canonicalJson(identity))).slice(0, 32)}`;
+  return outcome.attestation.id === expectedId;
+}
 
 // Returns the stored result for a previously-executed write, or null if absent/expired.
 async function readGithubIdempotent(kv: KvLike, idempotencyKey: string, nowMs: number): Promise<GithubCommandResult | null> {
@@ -1898,6 +2173,73 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, result);
     }
 
+    if (method === 'POST' && routePath === '/v1/bridge/executions/claim') {
+      if (!deps.executionStore) return json(503, { error: 'durable execution store unavailable' });
+      let raw: unknown;
+      try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const claim = executionClaimBody(raw);
+      if (!claim) return json(400, { error: 'invalid execution claim contract' });
+      if (!mayAct(claim.memberId)) return json(403, { error: 'token not scoped to this member' });
+
+      const directive = await bridgeStore.getDirective(claim.memberId, claim.directiveId);
+      const contract = nativeExecutionContract(directive, claim.memberId, claim.directiveId);
+      if (!contract) {
+        return json(409, { error: 'directive is not an executable native directive for this member' });
+      }
+      if (claim.idempotencyKey !== contract.idempotencyKey) {
+        return json(409, { error: 'directive idempotency key mismatch' });
+      }
+      const identity = await nativeExecutionIdentity(claim.memberId, claim.directiveId, contract);
+
+      const claimedAt = nowIso();
+      const claimedAtMs = Date.parse(claimedAt);
+      if (!Number.isFinite(claimedAtMs)) return json(500, { error: 'execution clock unavailable' });
+      const result = await deps.executionStore.claimExecution({
+        ...claim,
+        inputDigest: identity.inputDigest,
+        claimId: `claim_${deps.uuid ? deps.uuid() : randomTokenHex()}`,
+        fencingToken: `fence_${randomTokenHex()}`,
+        claimedAt,
+        leaseExpiresAt: new Date(claimedAtMs + EXECUTION_LEASE_MS).toISOString(),
+      });
+      if (result.status === 'busy') return json(409, result);
+      if (result.status === 'conflict') return json(409, { error: result.reason });
+      return json(200, result);
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/executions/outcome') {
+      if (!deps.executionStore) return json(503, { error: 'durable execution store unavailable' });
+      let raw: unknown;
+      try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const outcome = executionOutcomeBody(raw);
+      if (!outcome) return json(400, { error: 'invalid execution outcome contract' });
+      if (!mayAct(outcome.memberId)) return json(403, { error: 'token not scoped to this member' });
+      const directive = await bridgeStore.getDirective(outcome.memberId, outcome.directiveId);
+      const contract = nativeExecutionContract(directive, outcome.memberId, outcome.directiveId);
+      if (!contract || contract.idempotencyKey !== outcome.idempotencyKey) {
+        return json(409, { error: 'execution directive contract mismatch' });
+      }
+      if (!await validExecutionAttestation(contract, outcome)) {
+        return json(409, { error: 'execution attestation verification failed' });
+      }
+      const attestationDigest = `sha256:${await sha256hex(canonicalJson(outcome.attestation))}`;
+      const result = await deps.executionStore.recordExecutionOutcome({
+        ...outcome,
+        attestationDigest,
+        recordedAt: nowIso(),
+      });
+      if (result.status === 'conflict') {
+        return result.reason === 'fencing_conflict'
+          ? json(409, { error: result.reason, code: 'stale_fence' })
+          : json(409, { error: result.reason });
+      }
+      return json(200, {
+        recorded: true,
+        terminal: result.terminal,
+        ...(result.duplicate ? { duplicate: true } : {}),
+      });
+    }
+
     if (method === 'POST' && routePath === '/v1/bridge/directive') {
       if (!principal.admin) return json(403, { error: 'only cofounders/Hermes may enqueue directives' });
       let msg: any;
@@ -1906,8 +2248,39 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!memberId || !VALID_TENANT.test(String(memberId))) return json(400, { error: 'directive needs a valid memberId (top-level or payload.target.memberId)' });
       if (!msg.payload) return json(400, { error: 'directive needs a payload' });
       const id = msg.id ?? (deps.uuid ? deps.uuid() : `b_${memberId}_${nowIso()}`);
+      if (!executionText(id)) return json(400, { error: 'directive id must be a bounded identifier' });
       const stored = { ...msg, id, memberId, direction: 'downstream', delivered: false, enqueuedAt: nowIso() };
+      const existing = await bridgeStore.getDirective(String(memberId), String(id));
+      const incomingPayload = isRecord(stored.payload) ? stored.payload : null;
+      const existingPayload = isRecord(existing?.payload) ? existing.payload : null;
+      const incomingNative = incomingPayload?.type === 'native_execution';
+      const existingNative = existingPayload?.type === 'native_execution';
+      if (incomingNative || existingNative) {
+        if (!incomingNative) return json(409, { error: 'native directive identity conflict' });
+        const incomingContract = nativeExecutionContract(stored, String(memberId), String(id));
+        if (!incomingContract) return json(400, { error: 'invalid native execution directive contract' });
+        await bridgeStore.putDirectiveIfAbsent(String(memberId), String(id), stored);
+        const persisted = await bridgeStore.getDirective(String(memberId), String(id));
+        const persistedContract = nativeExecutionContract(persisted, String(memberId), String(id));
+        if (!persisted || !persistedContract || !sameNativeExecutionContract(persistedContract, incomingContract)) {
+          return json(409, { error: 'native directive identity conflict' });
+        }
+        const duplicate = existing !== null;
+        return json(200, {
+          ok: true,
+          id,
+          memberId,
+          queued: persisted.delivered !== true,
+          ...(persisted.delivered === true ? { delivered: true } : {}),
+          ...(duplicate ? { duplicate: true } : {}),
+        });
+      }
       await bridgeStore.putDirective(String(memberId), String(id), stored);
+      const persisted = await bridgeStore.getDirective(String(memberId), String(id));
+      const persistedPayload = isRecord(persisted?.payload) ? persisted.payload : null;
+      if (persistedPayload?.type === 'native_execution') {
+        return json(409, { error: 'native directive identity conflict' });
+      }
       return json(200, { ok: true, id, memberId, queued: true });
     }
 
@@ -1925,9 +2298,41 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const member = body.memberId; const ids = Array.isArray(body.ids) ? body.ids : [];
       if (!member || !ids.length) return json(400, { error: 'ack needs memberId + ids[]' });
       if (!mayAct(member)) return json(403, { error: 'token not scoped to this member' });
+      const normalizedIds = ids.map((id: unknown) => executionText(id)).filter((id: string | null): id is string => Boolean(id));
+      if (normalizedIds.length !== ids.length) return json(400, { error: 'ack ids must be bounded identifiers' });
+      const nativeContracts = new Map<string, BridgeExecutionContractIdentity>();
+      for (const id of normalizedIds) {
+        const directive = await bridgeStore.getDirective(String(member), id);
+        const payload = isRecord(directive?.payload) ? directive.payload : null;
+        if (payload?.type !== 'native_execution') continue;
+        const contract = nativeExecutionContract(directive, String(member), id);
+        if (!contract) {
+          return json(409, { ok: false, error: 'native directive contract is invalid', refused: [id] });
+        }
+        nativeContracts.set(id, await nativeExecutionIdentity(String(member), id, contract));
+      }
+      if (nativeContracts.size && !deps.executionStore) {
+        return json(503, { error: 'durable execution store unavailable for native ACK' });
+      }
+      const refused: string[] = [];
+      for (const [id, identity] of nativeContracts) {
+        if (!await deps.executionStore!.hasTerminalExecution(String(member), id, identity)) refused.push(id);
+      }
+      if (refused.length) {
+        return json(409, {
+          ok: false,
+          error: 'terminal execution outcome required before ACK',
+          refused,
+        });
+      }
       let acked = 0;
-      for (const id of ids) {
-        if (await bridgeStore.markDirectiveDelivered(String(member), String(id), nowIso())) acked++;
+      for (const id of normalizedIds) {
+        const identity = nativeContracts.get(id);
+        if (identity) {
+          if (await deps.executionStore!.acknowledgeTerminalDirective(String(member), id, identity, nowIso())) acked++;
+        } else if (await bridgeStore.markDirectiveDelivered(String(member), id, nowIso())) {
+          acked++;
+        }
       }
       return json(200, { ok: true, acked });
     }

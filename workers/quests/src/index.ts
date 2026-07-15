@@ -11,6 +11,12 @@ import {
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import type {
   BridgeAssignmentRecord,
+  BridgeExecutionClaimInput,
+  BridgeExecutionClaimResult,
+  BridgeExecutionContractIdentity,
+  BridgeExecutionOutcomeInput,
+  BridgeExecutionOutcomeResult,
+  BridgeExecutionStoreLike,
   BridgeRoleTaskClaimRecord,
   BridgeStoreLike,
   FabricEvidenceCandidateRecord,
@@ -133,8 +139,21 @@ export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
     async putDirective(memberId, id, directive) {
       const enqueuedAt = typeof directive.enqueuedAt === 'string' ? directive.enqueuedAt : new Date().toISOString();
       await db.prepare(`
-        INSERT OR REPLACE INTO bridge_directives (member_id, id, directive_json, delivered, enqueued_at, delivered_at)
+        INSERT INTO bridge_directives (member_id, id, directive_json, delivered, enqueued_at, delivered_at)
         VALUES (?, ?, ?, 0, ?, NULL)
+        ON CONFLICT(member_id, id) DO UPDATE SET
+          directive_json = excluded.directive_json,
+          delivered = 0,
+          enqueued_at = excluded.enqueued_at,
+          delivered_at = NULL
+        WHERE CASE WHEN json_valid(bridge_directives.directive_json)
+            THEN COALESCE(json_extract(bridge_directives.directive_json, '$.payload.type'), '')
+            ELSE ''
+          END <> 'native_execution'
+          AND CASE WHEN json_valid(excluded.directive_json)
+            THEN COALESCE(json_extract(excluded.directive_json, '$.payload.type'), '')
+            ELSE ''
+          END <> 'native_execution'
       `).bind(memberId, id, JSON.stringify(directive), enqueuedAt).run();
     },
     async putDirectiveIfAbsent(memberId, id, directive) {
@@ -258,6 +277,363 @@ export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
         record.intentHash,
         record.claimedAt,
       ).run();
+    },
+  };
+}
+
+interface BridgeExecutionRow {
+  member_id: string;
+  directive_id: string;
+  idempotency_key: string;
+  input_digest: string;
+  execution_id: string;
+  claim_id: string;
+  fencing_token: string;
+  lease_expires_at: string;
+  runner_id: string;
+  host_identity: string;
+  attempt: number;
+  outcome_status: 'executed' | 'failed' | 'retryable' | null;
+  terminal: number;
+  attestation_json: string | null;
+  attestation_id: string | null;
+  attestation_digest: string | null;
+  claimed_at: string;
+  outcome_recorded_at: string | null;
+  acknowledged_at: string | null;
+}
+
+interface BridgeExecutionIdentityRow {
+  execution_id: string;
+  member_id: string;
+  directive_id: string;
+  idempotency_key: string;
+  input_digest: string;
+  runner_id: string;
+  host_identity: string;
+}
+
+async function executionRow(db: D1DatabaseLike, memberId: string, directiveId: string): Promise<BridgeExecutionRow | null> {
+  return db.prepare(`
+    SELECT member_id, directive_id, idempotency_key, input_digest, execution_id, claim_id, fencing_token,
+      lease_expires_at, runner_id, host_identity, attempt, outcome_status, terminal, attestation_json,
+      attestation_id, attestation_digest, claimed_at, outcome_recorded_at, acknowledged_at
+    FROM bridge_executions
+    WHERE member_id = ? AND directive_id = ?
+  `).bind(memberId, directiveId).first<BridgeExecutionRow>();
+}
+
+async function executionIdentityRow(db: D1DatabaseLike, executionId: string): Promise<BridgeExecutionIdentityRow | null> {
+  return db.prepare(`
+    SELECT execution_id, member_id, directive_id, idempotency_key, input_digest, runner_id, host_identity
+    FROM bridge_execution_identities
+    WHERE execution_id = ?
+  `).bind(executionId).first<BridgeExecutionIdentityRow>();
+}
+
+function executionIdentityMatches(row: BridgeExecutionIdentityRow, input: BridgeExecutionClaimInput): boolean {
+  if (row.member_id !== input.memberId
+    || row.directive_id !== input.directiveId
+    || row.idempotency_key !== input.idempotencyKey
+    || row.input_digest !== input.inputDigest
+    || row.runner_id !== input.runnerId
+    || row.host_identity !== input.hostIdentity) return false;
+  return true;
+}
+
+function executionContractMatches(
+  row: BridgeExecutionRow,
+  input: BridgeExecutionContractIdentity,
+): boolean {
+  return row.idempotency_key === input.idempotencyKey
+    && row.input_digest === input.inputDigest
+    && row.execution_id === input.executionId;
+}
+
+function activeClaimBusy(row: BridgeExecutionRow, claimedAt: string): BridgeExecutionClaimResult {
+  const remaining = Date.parse(row.lease_expires_at) - Date.parse(claimedAt);
+  return {
+    status: 'busy',
+    retryAfterMs: Math.max(1, Math.min(30_000, Number.isFinite(remaining) ? remaining : 30_000)),
+  };
+}
+
+function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResult {
+  const attestation = parseJsonRecord(row.attestation_json);
+  if ((row.outcome_status !== 'executed' && row.outcome_status !== 'failed')
+    || attestation.schema !== 'thoughtseed.hermes.execution_attestation.v1'
+    || typeof attestation.id !== 'string'
+    || typeof attestation.executionId !== 'string'
+    || typeof attestation.directiveId !== 'string'
+    || typeof attestation.idempotencyKey !== 'string'
+    || typeof attestation.runnerId !== 'string'
+    || typeof attestation.hostIdentity !== 'string'
+    || attestation.command !== 'canary.record'
+    || attestation.status !== row.outcome_status
+    || attestation.executionId !== row.execution_id
+    || attestation.directiveId !== row.directive_id
+    || attestation.idempotencyKey !== row.idempotency_key
+    || attestation.inputDigest !== row.input_digest
+    || attestation.runnerId !== row.runner_id
+    || attestation.hostIdentity !== row.host_identity
+    || typeof attestation.startedAt !== 'string'
+    || typeof attestation.finishedAt !== 'string'
+    || (row.outcome_status === 'executed' && (attestation.exitCode !== 0 || typeof attestation.outputDigest !== 'string'))
+    || (row.outcome_status === 'failed' && (attestation.exitCode !== 1 || typeof attestation.errorCode !== 'string'))) {
+    throw new Error('terminal execution row is missing its redacted attestation');
+  }
+  const storedAttestation = {
+    schema: 'thoughtseed.hermes.execution_attestation.v1' as const,
+    id: attestation.id,
+    executionId: attestation.executionId,
+    directiveId: attestation.directiveId,
+    idempotencyKey: attestation.idempotencyKey,
+    runnerId: attestation.runnerId,
+    hostIdentity: attestation.hostIdentity,
+    command: 'canary.record' as const,
+    status: row.outcome_status,
+    exitCode: attestation.exitCode as 0 | 1,
+    inputDigest: attestation.inputDigest,
+    ...(typeof attestation.outputDigest === 'string' ? { outputDigest: attestation.outputDigest } : {}),
+    ...(typeof attestation.errorCode === 'string' ? { errorCode: attestation.errorCode } : {}),
+    startedAt: attestation.startedAt,
+    finishedAt: attestation.finishedAt,
+  };
+  return {
+    status: 'terminal',
+    claimId: row.claim_id,
+    fencingToken: row.fencing_token,
+    attempt: row.attempt,
+    runnerId: row.runner_id,
+    hostIdentity: row.host_identity,
+    outcome: {
+      status: row.outcome_status,
+      attestation: storedAttestation,
+    },
+  };
+}
+
+async function insertOutcomeEvent(db: D1DatabaseLike, input: BridgeExecutionOutcomeInput): Promise<void> {
+  const event = {
+    status: input.status,
+    attestation: input.attestation,
+  };
+  await db.prepare(`
+    INSERT OR IGNORE INTO bridge_execution_events (
+      execution_id, attestation_id, member_id, directive_id, status,
+      attestation_digest, event_json, recorded_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    input.executionId,
+    input.attestation.id,
+    input.memberId,
+    input.directiveId,
+    input.status,
+    input.attestationDigest,
+    JSON.stringify(event),
+    input.recordedAt,
+  ).run();
+}
+
+function identicalOutcome(row: BridgeExecutionRow, input: BridgeExecutionOutcomeInput): boolean {
+  return row.outcome_status === input.status
+    && row.attestation_id === input.attestation.id
+    && row.attestation_digest === input.attestationDigest;
+}
+
+export function d1BridgeExecutionStore(db: D1DatabaseLike): BridgeExecutionStoreLike {
+  return {
+    async claimExecution(input: BridgeExecutionClaimInput): Promise<BridgeExecutionClaimResult> {
+      const current = await executionRow(db, input.memberId, input.directiveId);
+      if (current?.terminal === 1) {
+        return executionContractMatches(current, input)
+          ? terminalClaimResult(current)
+          : { status: 'conflict', reason: 'execution_replay_mismatch' };
+      }
+      if (current
+        && executionContractMatches(current, input)
+        && (current.runner_id !== input.runnerId || current.host_identity !== input.hostIdentity)
+        && current.lease_expires_at > input.claimedAt) {
+        return activeClaimBusy(current, input.claimedAt);
+      }
+      const identity = await executionIdentityRow(db, input.executionId);
+      if (identity && !executionIdentityMatches(identity, input)) {
+        return { status: 'conflict', reason: 'execution_replay_mismatch' };
+      }
+      try {
+        await db.prepare(`
+          INSERT INTO bridge_executions (
+            member_id, directive_id, idempotency_key, input_digest, execution_id, claim_id,
+            fencing_token, lease_expires_at, runner_id, host_identity, attempt, claimed_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+          ON CONFLICT(member_id, directive_id) DO UPDATE SET
+            idempotency_key = excluded.idempotency_key,
+            input_digest = excluded.input_digest,
+            execution_id = excluded.execution_id,
+            claim_id = excluded.claim_id,
+            fencing_token = excluded.fencing_token,
+            lease_expires_at = excluded.lease_expires_at,
+            runner_id = excluded.runner_id,
+            host_identity = excluded.host_identity,
+            attempt = bridge_executions.attempt + 1,
+            outcome_status = NULL,
+            terminal = 0,
+            attestation_json = NULL,
+            attestation_id = NULL,
+            attestation_digest = NULL,
+            claimed_at = excluded.claimed_at,
+            outcome_recorded_at = NULL,
+            acknowledged_at = NULL
+          WHERE bridge_executions.terminal = 0
+            AND bridge_executions.lease_expires_at <= excluded.claimed_at
+        `).bind(
+          input.memberId,
+          input.directiveId,
+          input.idempotencyKey,
+          input.inputDigest,
+          input.executionId,
+          input.claimId,
+          input.fencingToken,
+          input.leaseExpiresAt,
+          input.runnerId,
+          input.hostIdentity,
+          input.claimedAt,
+        ).run();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (/execution identity conflict|unique constraint failed|sqlite_constraint_(?:unique|primarykey)/i.test(message)) {
+          const raced = await executionIdentityRow(db, input.executionId);
+          return raced && !executionIdentityMatches(raced, input)
+            ? { status: 'conflict', reason: 'execution_replay_mismatch' }
+            : { status: 'conflict', reason: 'execution_id_reused' };
+        }
+        throw error;
+      }
+
+      const row = await executionRow(db, input.memberId, input.directiveId);
+      if (!row) return { status: 'conflict', reason: 'execution_id_reused' };
+      if (row.terminal === 1) {
+        return executionContractMatches(row, input)
+          ? terminalClaimResult(row)
+          : { status: 'conflict', reason: 'execution_replay_mismatch' };
+      }
+      if (row.execution_id === input.executionId) {
+        if (row.idempotency_key !== input.idempotencyKey
+          || row.input_digest !== input.inputDigest
+          || row.runner_id !== input.runnerId
+          || row.host_identity !== input.hostIdentity) {
+          return { status: 'conflict', reason: 'execution_replay_mismatch' };
+        }
+        return {
+          status: 'claimed',
+          claimId: row.claim_id,
+          fencingToken: row.fencing_token,
+          attempt: row.attempt,
+          leaseExpiresAt: row.lease_expires_at,
+          runnerId: row.runner_id,
+          hostIdentity: row.host_identity,
+        };
+      }
+      return activeClaimBusy(row, input.claimedAt);
+    },
+
+    async recordExecutionOutcome(input: BridgeExecutionOutcomeInput): Promise<BridgeExecutionOutcomeResult> {
+      let row = await executionRow(db, input.memberId, input.directiveId);
+      if (!row) return { status: 'conflict', reason: 'claim_not_found' };
+      if (row.fencing_token !== input.fencingToken) return { status: 'conflict', reason: 'fencing_conflict' };
+      if (row.execution_id !== input.executionId
+        || row.idempotency_key !== input.idempotencyKey
+        || row.runner_id !== input.runnerId
+        || row.host_identity !== input.hostIdentity
+        || row.claim_id !== input.claimId
+        || row.attempt !== input.attempt) {
+        return { status: 'conflict', reason: 'claim_mismatch' };
+      }
+
+      if (identicalOutcome(row, input)) {
+        await insertOutcomeEvent(db, input);
+        return { status: 'recorded', terminal: row.terminal === 1, duplicate: true };
+      }
+      if (row.terminal === 1 || row.attestation_id === input.attestation.id) {
+        return { status: 'conflict', reason: 'outcome_conflict' };
+      }
+
+      const terminal = input.status === 'retryable' ? 0 : 1;
+      const result = await db.prepare(`
+        UPDATE bridge_executions
+        SET outcome_status = ?, terminal = ?, attestation_json = ?, attestation_id = ?,
+          attestation_digest = ?, outcome_recorded_at = ?
+        WHERE member_id = ? AND directive_id = ? AND execution_id = ?
+          AND claim_id = ? AND fencing_token = ? AND runner_id = ? AND host_identity = ?
+          AND attempt = ? AND terminal = 0
+      `).bind(
+        input.status,
+        terminal,
+        JSON.stringify(input.attestation),
+        input.attestation.id,
+        input.attestationDigest,
+        input.recordedAt,
+        input.memberId,
+        input.directiveId,
+        input.executionId,
+        input.claimId,
+        input.fencingToken,
+        input.runnerId,
+        input.hostIdentity,
+        input.attempt,
+      ).run();
+
+      if ((result.meta?.changes ?? 0) === 0) {
+        row = await executionRow(db, input.memberId, input.directiveId);
+        if (row && identicalOutcome(row, input)) {
+          await insertOutcomeEvent(db, input);
+          return { status: 'recorded', terminal: row.terminal === 1, duplicate: true };
+        }
+        if (row && row.fencing_token !== input.fencingToken) return { status: 'conflict', reason: 'fencing_conflict' };
+        return { status: 'conflict', reason: 'outcome_conflict' };
+      }
+
+      await insertOutcomeEvent(db, input);
+      return { status: 'recorded', terminal: terminal === 1, duplicate: false };
+    },
+
+    async hasTerminalExecution(memberId, directiveId, identity) {
+      const row = await db.prepare(`
+        SELECT terminal
+        FROM bridge_executions
+        WHERE member_id = ? AND directive_id = ? AND idempotency_key = ?
+          AND input_digest = ? AND execution_id = ? AND terminal = 1
+      `).bind(
+        memberId,
+        directiveId,
+        identity.idempotencyKey,
+        identity.inputDigest,
+        identity.executionId,
+      ).first<{ terminal: number }>();
+      return row?.terminal === 1;
+    },
+
+    async acknowledgeTerminalDirective(memberId, directiveId, identity, acknowledgedAt) {
+      const result = await db.prepare(`
+        UPDATE bridge_directives
+        SET delivered = 1, delivered_at = ?
+        WHERE member_id = ? AND id = ? AND delivered = 0
+          AND EXISTS (
+            SELECT 1 FROM bridge_executions
+            WHERE member_id = ? AND directive_id = ? AND idempotency_key = ?
+              AND input_digest = ? AND execution_id = ? AND terminal = 1
+          )
+      `).bind(
+        acknowledgedAt,
+        memberId,
+        directiveId,
+        memberId,
+        directiveId,
+        identity.idempotencyKey,
+        identity.inputDigest,
+        identity.executionId,
+      ).run();
+      return (result.meta?.changes ?? 0) > 0;
     },
   };
 }
@@ -551,6 +927,7 @@ export default {
       assignmentToken: env.HERMES_ASSIGNMENT_TOKEN,
       roleTaskBindingsJson: env.HERMES_ROLE_TASK_BINDINGS_JSON,
       bridgeStore: env.BRIDGE_DB ? d1BridgeStore(env.BRIDGE_DB) : undefined,
+      executionStore: env.BRIDGE_DB ? d1BridgeExecutionStore(env.BRIDGE_DB) : undefined,
       fabricLedger: env.BRIDGE_DB ? d1FabricLedgerStore(env.BRIDGE_DB) : undefined,
       handoffSecret: env.HANDOFF_SECRET,
       providerBroker,
