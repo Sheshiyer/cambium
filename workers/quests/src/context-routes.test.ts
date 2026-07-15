@@ -276,6 +276,61 @@ test('routine snapshot emits Cloudflare source claims only from supplied metadat
   assert.match(r.body, /thoughtseed-vault/);
 });
 
+test('routine snapshot returns only bounded key counts and freshness fields', async () => {
+  const r = await handleContextRoute(req('GET', '/v1/context/routine-snapshot?tenant=cambium&routine=weekly-client-report', undefined, 'context-token'), {
+    token: 'context-token',
+    ...allowCambium,
+    now: () => '2026-07-15T00:00:00.000Z',
+    routineContext: {
+      getSnapshot: async () => ({
+        sections: [{
+          id: 'client-report-sources',
+          title: 'Client report sources',
+          signalState: 'mixed',
+          exactKeyCount: 3,
+          resolvedKeyCount: 2,
+          staleKeyCount: 1,
+          missingKeyCount: 1,
+          staleAfterSeconds: 86400,
+          rawObjects: ['must not leak'],
+          items: [{
+            title: 'Client A',
+            summary: 'Bounded summary.',
+            sourceKey: 'reports/client-a/weekly.md',
+            signalState: 'current',
+            observedAt: '2026-07-14T18:00:00.000Z',
+            ageSeconds: 21600,
+            rawMarkdown: 'must not leak',
+          }],
+        }],
+      }),
+    },
+  });
+
+  assert.equal(r.status, 200);
+  const payload = JSON.parse(r.body);
+  assert.deepEqual(payload.sections[0], {
+    id: 'client-report-sources',
+    title: 'Client report sources',
+    items: [{
+      title: 'Client A',
+      summary: 'Bounded summary.',
+      sourceKey: 'reports/client-a/weekly.md',
+      signalState: 'current',
+      observedAt: '2026-07-14T18:00:00.000Z',
+      ageSeconds: 21600,
+    }],
+    signalState: 'mixed',
+    exactKeyCount: 3,
+    resolvedKeyCount: 2,
+    staleKeyCount: 1,
+    missingKeyCount: 1,
+    staleAfterSeconds: 86400,
+  });
+  assert.equal(payload.omitted.rawObjects, true);
+  assert.doesNotMatch(r.body, /must not leak|rawMarkdown/);
+});
+
 test('routine snapshot rejects tenants without an explicit policy before provider calls', async () => {
   let called = false;
   const r = await handleContextRoute(req('GET', '/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', undefined, 'context-token'), {
