@@ -2,11 +2,12 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
-import { d1BridgeStore, d1FabricLedgerStore } from './index.ts';
+import { d1BridgeExecutionStore, d1BridgeStore, d1FabricLedgerStore } from './index.ts';
 import type {
   FabricEvidenceCandidateRecord,
   FabricEvidenceReviewRecord,
@@ -192,10 +193,16 @@ class FakeD1Database implements D1DatabaseLike {
       this.bridgeUp.set(this.key(tenant_id, id), { tenant_id, id, message_json, received_at });
       return 1;
     }
-    if (q.startsWith('insert or replace into bridge_directives') || q.startsWith('insert or ignore into bridge_directives')) {
+    if (q.startsWith('insert into bridge_directives') || q.startsWith('insert or replace into bridge_directives') || q.startsWith('insert or ignore into bridge_directives')) {
       const [member_id, id, directive_json, enqueued_at] = values;
       const key = this.key(member_id, id);
       if (q.startsWith('insert or ignore') && this.directives.has(key)) return 0;
+      const existing = this.directives.get(key);
+      if (existing && q.startsWith('insert into bridge_directives')) {
+        const existingPayload = JSON.parse(String(existing.directive_json)).payload as Record<string, unknown> | undefined;
+        const incomingPayload = JSON.parse(String(directive_json)).payload as Record<string, unknown> | undefined;
+        if (existingPayload?.type === 'native_execution' || incomingPayload?.type === 'native_execution') return 0;
+      }
       this.directives.set(key, { member_id, id, directive_json, delivered: 0, enqueued_at, delivered_at: null });
       return 1;
     }
@@ -304,6 +311,160 @@ function applyNormalMigrations(db: DatabaseSync) {
   for (const file of normalMigrationFiles()) {
     db.exec(readFileSync(new URL(file, questsMigrationDir), 'utf8'));
   }
+}
+
+function executionClaim(overrides: Record<string, unknown> = {}) {
+  const claim = {
+    schema: 'thoughtseed.hermes.execution_claim.v1',
+    memberId: 'shesh',
+    directiveId: 'native-canary-1',
+    idempotencyKey: 'native-canary-1',
+    runnerId: 'hermes-ec2-runner-01',
+    hostIdentity: 'hermes-ec2-01',
+    ...overrides,
+  };
+  return {
+    ...claim,
+    executionId: typeof overrides.executionId === 'string'
+      ? overrides.executionId
+      : testExecutionId(String(claim.memberId), String(claim.directiveId), String(claim.idempotencyKey)),
+  };
+}
+
+function testDigestCanonical(value: unknown) {
+  return `sha256:${createHash('sha256').update(canonicalJson(value)).digest('hex')}`;
+}
+
+function testExecutionId(memberId: string, directiveId: string, idempotencyKey: string) {
+  return `exec_${createHash('sha256')
+    .update(canonicalJson({ memberId, directiveId, idempotencyKey }))
+    .digest('hex')
+    .slice(0, 32)}`;
+}
+
+function executionOutcome(
+  claim: Record<string, unknown>,
+  claimResponse: Record<string, unknown>,
+  overrides: Record<string, unknown> = {},
+) {
+  const status = overrides.status === 'failed' || overrides.status === 'retryable' ? overrides.status : 'executed';
+  const startedAt = String(overrides.startedAt ?? '2026-07-15T10:00:00.000Z');
+  const finishedAt = String(overrides.finishedAt ?? '2026-07-15T10:00:01.000Z');
+  const inputDigest = testDigestCanonical({ nonce: `nonce-${claim.directiveId}` });
+  const outputDigest = status === 'executed' ? testDigestCanonical({
+    schema: 'thoughtseed.hermes.canary_proof.v1',
+    directiveId: claim.directiveId,
+    idempotencyKey: claim.idempotencyKey,
+    executionId: claim.executionId,
+    command: 'canary.record',
+    inputDigest,
+  }) : undefined;
+  const identity = {
+    schema: 'thoughtseed.hermes.execution_attestation.v1',
+    executionId: claim.executionId,
+    directiveId: claim.directiveId,
+    idempotencyKey: claim.idempotencyKey,
+    runnerId: claim.runnerId,
+    hostIdentity: claim.hostIdentity,
+    command: 'canary.record',
+    status,
+    exitCode: status === 'executed' ? 0 : status === 'failed' ? 1 : null,
+    inputDigest,
+    ...(outputDigest ? { outputDigest } : {}),
+    ...(status === 'executed' ? {} : { errorCode: String(overrides.errorCode ?? 'canary_failed') }),
+    startedAt,
+    finishedAt,
+  };
+  const attestation = {
+    ...identity,
+    id: `att_${createHash('sha256').update(canonicalJson(identity)).digest('hex').slice(0, 32)}`,
+  };
+  const { status: _status, errorCode: _errorCode, startedAt: _startedAt, finishedAt: _finishedAt, ...extra } = overrides;
+  return {
+    schema: 'thoughtseed.hermes.execution_outcome.v1',
+    memberId: claim.memberId,
+    directiveId: claim.directiveId,
+    idempotencyKey: claim.idempotencyKey,
+    executionId: claim.executionId,
+    runnerId: claim.runnerId,
+    claimId: claimResponse.claimId,
+    fencingToken: claimResponse.fencingToken,
+    attempt: claimResponse.attempt,
+    status,
+    attestation,
+    ...extra,
+  };
+}
+
+function nativeExecutionHarness(now: () => string) {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const sqliteD1 = new SqliteD1Database(db);
+  const bridgeStore = d1BridgeStore(sqliteD1);
+  const executionStore = d1BridgeExecutionStore(sqliteD1);
+  let uuidIndex = 0;
+  return {
+    db,
+    bridgeStore,
+    executionStore,
+    deps: {
+      kv: fakeKv(),
+      bridgeToken: 'bridge',
+      assignmentToken: 'assign-only',
+      handoffSecret: 'handoff-secret',
+      now,
+      nowMs: () => Date.parse(now()),
+      uuid: () => `native-${++uuidIndex}`,
+      bridgeStore,
+      executionStore,
+    },
+  };
+}
+
+async function queueNativeDirective(
+  deps: ReturnType<typeof nativeExecutionHarness>['deps'],
+  overrides: Record<string, unknown> = {},
+) {
+  const id = String(overrides.id ?? 'native-canary-1');
+  const memberId = String(overrides.memberId ?? 'shesh');
+  const idempotencyKey = String(overrides.idempotencyKey ?? id);
+  const response = await handle(req('POST', '/v1/bridge/directive', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      id,
+      memberId,
+      idempotencyKey,
+      payload: {
+        type: 'native_execution',
+        schema: 'thoughtseed.hermes.native_execution.v1',
+        command: 'canary.record',
+        target: { memberId },
+        input: { nonce: `nonce-${id}` },
+      },
+    }),
+  }), deps);
+  assert.equal(response.status, 200);
+}
+
+async function issueScopedMemberToken(
+  deps: ReturnType<typeof nativeExecutionHarness>['deps'],
+  memberId = 'shesh',
+) {
+  const add = await handle(req('POST', '/v1/handoff/members', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId, tenantId: 'cambium', email: `${memberId}@example.com` }),
+  }), deps);
+  assert.equal(add.status, 200);
+  const invite = await handle(req('POST', '/v1/handoff/invite', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId, linkBase: 'https://curious.thoughtseed.space' }),
+  }), deps);
+  assert.equal(invite.status, 200);
+  const redeem = await handle(req('POST', '/v1/handoff/redeem', {
+    body: JSON.stringify({ invite: body(invite).invite }),
+  }), deps);
+  assert.equal(redeem.status, 200);
+  return String(body(redeem).token);
 }
 
 const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): SimpleRequest =>
@@ -6896,6 +7057,442 @@ test('bridge · admin queues and Paperclip acknowledges directives', async () =>
     headers: { authorization: 'Bearer bridge' },
   }), deps);
   assert.equal(body(afterAck).count, 0);
+});
+
+test('bridge execution · scoped member claim is atomic and replays the winning lease', async (t) => {
+  const now = '2026-07-15T10:00:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps, { id: 'native-race', idempotencyKey: 'native-race' });
+  const memberToken = await issueScopedMemberToken(harness.deps);
+  const claims = [
+    executionClaim({
+      directiveId: 'native-race',
+      idempotencyKey: 'native-race',
+      executionId: 'exec_native_race_a',
+    }),
+    executionClaim({
+      directiveId: 'native-race',
+      idempotencyKey: 'native-race',
+      executionId: 'exec_native_race_b',
+      runnerId: 'hermes-ec2-runner-02',
+      hostIdentity: 'hermes-ec2-02',
+    }),
+  ];
+  const responses = await Promise.all(claims.map((claim) => handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(claim),
+  }), harness.deps)));
+  assert.deepEqual(responses.map((response) => response.status).sort(), [200, 409]);
+  const winnerIndex = responses.findIndex((response) => response.status === 200);
+  const winner = body(responses[winnerIndex]);
+  const busy = body(responses[1 - winnerIndex]);
+  assert.equal(winner.status, 'claimed');
+  assert.ok(Date.parse(winner.leaseExpiresAt) > Date.parse(now));
+  assert.equal(winner.runnerId, claims[winnerIndex].runnerId);
+  assert.equal(winner.hostIdentity, claims[winnerIndex].hostIdentity);
+  assert.equal(busy.status, 'busy');
+  assert.ok(busy.retryAfterMs > 0);
+
+  const replay = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(claims[winnerIndex]),
+  }), harness.deps);
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).claimId, winner.claimId);
+  assert.equal(body(replay).fencingToken, winner.fencingToken);
+  assert.equal(body(replay).attempt, 1);
+  assert.equal(body(replay).leaseExpiresAt, winner.leaseExpiresAt);
+
+  const outOfScope = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(executionClaim({ memberId: 'mathis', directiveId: 'native-race', idempotencyKey: 'native-race' })),
+  }), harness.deps);
+  assert.equal(outOfScope.status, 403);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_executions').get() as any).count, 1);
+});
+
+test('bridge execution · live owner rotation stays busy without disclosing claim credentials', async (t) => {
+  const now = '2026-07-15T10:03:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps, { id: 'native-owner-live', idempotencyKey: 'native-owner-live' });
+  const original = executionClaim({
+    directiveId: 'native-owner-live',
+    idempotencyKey: 'native-owner-live',
+  });
+  const first = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(original),
+  }), harness.deps);
+  assert.equal(first.status, 200);
+
+  const rotated = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      ...original,
+      runnerId: 'hermes-ec2-runner-02',
+      hostIdentity: 'hermes-ec2-02',
+    }),
+  }), harness.deps);
+  assert.equal(rotated.status, 409);
+  assert.equal(body(rotated).status, 'busy');
+  assert.ok(body(rotated).retryAfterMs > 0);
+  assert.equal(body(rotated).claimId, undefined);
+  assert.equal(body(rotated).fencingToken, undefined);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_claims').get() as any).count, 1);
+});
+
+test('bridge execution · expired takeover rotates fencing and rejects the stale runner', async (t) => {
+  let now = '2026-07-15T10:05:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps, { id: 'native-fence', idempotencyKey: 'native-fence' });
+  const firstClaim = executionClaim({
+    directiveId: 'native-fence',
+    idempotencyKey: 'native-fence',
+    executionId: 'exec_native_fence_a',
+  });
+  const first = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(firstClaim),
+  }), harness.deps);
+  assert.equal(first.status, 200);
+
+  now = '2026-07-15T10:06:01.000Z';
+  const secondClaim = executionClaim({
+    directiveId: 'native-fence',
+    idempotencyKey: 'native-fence',
+    executionId: 'exec_native_fence_b',
+  });
+  const second = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(secondClaim),
+  }), harness.deps);
+  assert.equal(second.status, 200);
+  assert.equal(body(second).attempt, 2);
+  assert.notEqual(body(second).fencingToken, body(first).fencingToken);
+  assert.ok(Date.parse(body(second).leaseExpiresAt) > Date.parse(now));
+
+  const supersededReplay = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(firstClaim),
+  }), harness.deps);
+  assert.equal(supersededReplay.status, 409);
+  assert.equal(body(supersededReplay).status, 'busy');
+
+  await queueNativeDirective(harness.deps, { id: 'native-fence-other', idempotencyKey: 'native-fence-other' });
+  const reusedAcrossDirective = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionClaim({
+      directiveId: 'native-fence-other',
+      idempotencyKey: 'native-fence-other',
+      executionId: firstClaim.executionId,
+    })),
+  }), harness.deps);
+  assert.equal(reusedAcrossDirective.status, 409);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_claims').get() as any).count, 2);
+
+  const stale = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionOutcome(firstClaim, body(first))),
+  }), harness.deps);
+  assert.equal(stale.status, 409);
+  assert.equal(body(stale).error, 'fencing_conflict');
+  assert.equal(body(stale).code, 'stale_fence');
+
+  now = '2026-07-15T10:07:02.000Z';
+  const renewed = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(secondClaim),
+  }), harness.deps);
+  assert.equal(renewed.status, 200, renewed.body);
+  assert.equal(body(renewed).attempt, 3);
+  assert.notEqual(body(renewed).fencingToken, body(second).fencingToken);
+  assert.equal(body(renewed).runnerId, secondClaim.runnerId);
+  assert.equal(body(renewed).hostIdentity, secondClaim.hostIdentity);
+
+  const supersededSecondOutcome = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionOutcome(secondClaim, body(second))),
+  }), harness.deps);
+  assert.equal(supersededSecondOutcome.status, 409);
+  assert.equal(body(supersededSecondOutcome).code, 'stale_fence');
+
+  const recorded = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionOutcome(secondClaim, body(renewed))),
+  }), harness.deps);
+  assert.equal(recorded.status, 200);
+  assert.equal(body(recorded).terminal, true);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_claims').get() as any).count, 3);
+});
+
+test('bridge execution · outcome replay is idempotent and persists only redacted attestation', async (t) => {
+  const now = '2026-07-15T10:10:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps);
+  const claim = executionClaim();
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(claim),
+  }), harness.deps);
+  assert.equal(claimed.status, 200);
+  const outcome = executionOutcome(claim, body(claimed), {
+    exceptionMessage: 'Bearer raw-secret-must-not-persist',
+  });
+  const attestationId = (outcome.attestation as any).id;
+  const tampered = structuredClone(outcome) as any;
+  tampered.attestation.inputDigest = `sha256:${'0'.repeat(64)}`;
+  const rejectedTamper = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(tampered),
+  }), harness.deps);
+  assert.equal(rejectedTamper.status, 409);
+  assert.equal(body(rejectedTamper).error, 'execution attestation verification failed');
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_events').get() as any).count, 0);
+  const first = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(outcome),
+  }), harness.deps);
+  const replay = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(outcome),
+  }), harness.deps);
+  assert.equal(first.status, 200);
+  assert.deepEqual(body(first), { recorded: true, terminal: true });
+  assert.equal(replay.status, 200);
+  assert.deepEqual(body(replay), { recorded: true, terminal: true, duplicate: true });
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_events').get() as any).count, 1);
+
+  const stored = harness.db.prepare(`
+    SELECT e.attestation_json, h.event_json
+    FROM bridge_executions e
+    JOIN bridge_execution_events h ON h.execution_id = e.execution_id
+  `).get() as any;
+  assert.doesNotMatch(`${stored.attestation_json}\n${stored.event_json}`, /Bearer|raw-secret|exception/i);
+
+  const conflicting = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionOutcome(claim, body(claimed), {
+      status: 'failed',
+      errorCode: 'conflicting_terminal_failure',
+    })),
+  }), harness.deps);
+  assert.equal(conflicting.status, 409);
+  assert.equal(body(conflicting).error, 'outcome_conflict');
+
+  const mismatchedTerminalReplay = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionClaim({ executionId: 'exec_native_canary_terminal_replay' })),
+  }), harness.deps);
+  assert.equal(mismatchedTerminalReplay.status, 409);
+  assert.equal(body(mismatchedTerminalReplay).error, 'execution_replay_mismatch');
+
+  const terminalReplay = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionClaim({
+      executionId: claim.executionId,
+      runnerId: 'hermes-ec2-runner-02',
+      hostIdentity: 'hermes-ec2-02',
+    })),
+  }), harness.deps);
+  assert.equal(terminalReplay.status, 200);
+  assert.equal(body(terminalReplay).status, 'terminal');
+  assert.equal(body(terminalReplay).outcome.status, 'executed');
+  assert.equal(body(terminalReplay).runnerId, claim.runnerId);
+  assert.equal(body(terminalReplay).hostIdentity, claim.hostIdentity);
+  assert.equal(body(terminalReplay).outcome.attestation.id, attestationId);
+  assert.equal(body(terminalReplay).outcome.attestation.executionId, claim.executionId);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_claims').get() as any).count, 1);
+
+  const recoveredAck = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId: 'shesh', ids: ['native-canary-1'] }),
+  }), harness.deps);
+  assert.equal(recoveredAck.status, 200);
+  assert.equal(body(recoveredAck).acked, 1);
+});
+
+test('bridge execution · native directive identity is immutable and ACK binds the current contract', async (t) => {
+  const now = '2026-07-15T10:12:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  const id = 'native-immutable';
+  const originalDirective = {
+    id,
+    memberId: 'shesh',
+    idempotencyKey: id,
+    payload: {
+      type: 'native_execution',
+      schema: 'thoughtseed.hermes.native_execution.v1',
+      command: 'canary.record',
+      target: { memberId: 'shesh' },
+      input: { nonce: `nonce-${id}` },
+    },
+  };
+  const enqueue = async (directive: Record<string, unknown>) => handle(req('POST', '/v1/bridge/directive', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(directive),
+  }), harness.deps);
+
+  assert.equal((await enqueue(originalDirective)).status, 200);
+  const exactReplay = await enqueue(originalDirective);
+  assert.equal(exactReplay.status, 200);
+  assert.equal(body(exactReplay).duplicate, true);
+  assert.equal(body(exactReplay).queued, true);
+
+  const conflicting = structuredClone(originalDirective) as any;
+  conflicting.payload.input.nonce = 'nonce-conflicting-requeue';
+  const conflict = await enqueue(conflicting);
+  assert.equal(conflict.status, 409);
+  assert.equal(body(conflict).error, 'native directive identity conflict');
+
+  const legacyReplacement = await enqueue({
+    id,
+    memberId: 'shesh',
+    payload: { kind: 'sync', target: { memberId: 'shesh' } },
+  });
+  assert.equal(legacyReplacement.status, 409);
+  assert.equal(body(legacyReplacement).error, 'native directive identity conflict');
+  assert.equal((await harness.bridgeStore.getDirective('shesh', id) as any).payload.input.nonce, `nonce-${id}`);
+
+  const claim = executionClaim({ directiveId: id, idempotencyKey: id });
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(claim),
+  }), harness.deps);
+  assert.equal(claimed.status, 200);
+  const outcome = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionOutcome(claim, body(claimed))),
+  }), harness.deps);
+  assert.equal(outcome.status, 200);
+  assert.equal(body(outcome).terminal, true);
+
+  await harness.bridgeStore.putDirective('shesh', id, {
+    ...conflicting,
+    enqueuedAt: now,
+  });
+  assert.equal((await harness.bridgeStore.getDirective('shesh', id) as any).payload.input.nonce, `nonce-${id}`);
+
+  harness.db.prepare(`
+    UPDATE bridge_directives
+    SET directive_json = ?
+    WHERE member_id = 'shesh' AND id = ?
+  `).run(JSON.stringify({ ...conflicting, enqueuedAt: now, delivered: false }), id);
+  const staleProofAck = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId: 'shesh', ids: [id] }),
+  }), harness.deps);
+  assert.equal(staleProofAck.status, 409);
+  assert.deepEqual(body(staleProofAck).refused, [id]);
+});
+
+test('bridge execution · malformed native directives are rejected before storage', async (t) => {
+  const now = '2026-07-15T10:14:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  const validPayload = {
+    type: 'native_execution',
+    schema: 'thoughtseed.hermes.native_execution.v1',
+    command: 'canary.record',
+    target: { memberId: 'shesh' },
+    input: { nonce: 'nonce-valid' },
+  };
+  const malformed = [
+    { id: 'native-bad-schema', payload: { ...validPayload, schema: 'thoughtseed.hermes.native_execution.v0' } },
+    { id: 'native-bad-command', payload: { ...validPayload, command: 'shell.exec' } },
+    { id: 'native-bad-target', payload: { ...validPayload, target: { memberId: 'mathis' } } },
+    { id: 'native-bad-nonce', payload: { ...validPayload, input: { nonce: 'contains spaces' } } },
+    { id: 'native-extra-input', payload: { ...validPayload, input: { nonce: 'valid', token: 'forbidden' } } },
+    { id: 'native-bad-idempotency', idempotencyKey: 'contains spaces', payload: validPayload },
+  ];
+  for (const candidate of malformed) {
+    const response = await handle(req('POST', '/v1/bridge/directive', {
+      headers: { authorization: 'Bearer bridge' },
+      body: JSON.stringify({ memberId: 'shesh', idempotencyKey: candidate.id, ...candidate }),
+    }), harness.deps);
+    assert.equal(response.status, 400, `${candidate.id}: ${response.body}`);
+    assert.equal(body(response).error, 'invalid native execution directive contract');
+    assert.equal(await harness.bridgeStore.getDirective('shesh', candidate.id), null);
+  }
+});
+
+test('bridge execution · native ACK waits for terminal outcome while legacy ACK remains compatible', async (t) => {
+  const now = '2026-07-15T10:15:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps, { id: 'native-ack', idempotencyKey: 'native-ack' });
+  const legacy = await handle(req('POST', '/v1/bridge/directive', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ id: 'legacy-sync', memberId: 'shesh', payload: { kind: 'sync', target: { memberId: 'shesh' } } }),
+  }), harness.deps);
+  assert.equal(legacy.status, 200);
+
+  const claim = executionClaim({
+    directiveId: 'native-ack',
+    idempotencyKey: 'native-ack',
+  });
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(claim),
+  }), harness.deps);
+  assert.equal(claimed.status, 200);
+
+  const mixedEarlyAck = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId: 'shesh', ids: ['legacy-sync', 'native-ack'] }),
+  }), harness.deps);
+  assert.equal(mixedEarlyAck.status, 409);
+  assert.deepEqual(body(mixedEarlyAck).refused, ['native-ack']);
+  assert.equal((await harness.bridgeStore.listPendingDirectives('shesh', 10)).directives.length, 2);
+
+  const legacyAck = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId: 'shesh', ids: ['legacy-sync'] }),
+  }), harness.deps);
+  assert.equal(legacyAck.status, 200);
+  assert.equal(body(legacyAck).acked, 1);
+
+  const retryable = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionOutcome(claim, body(claimed), {
+      status: 'retryable',
+      errorCode: 'temporary_canary_failure',
+    })),
+  }), harness.deps);
+  assert.equal(retryable.status, 200);
+  assert.equal(body(retryable).terminal, false);
+  const retryableAck = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId: 'shesh', ids: ['native-ack'] }),
+  }), harness.deps);
+  assert.equal(retryableAck.status, 409);
+
+  const terminal = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(executionOutcome(claim, body(claimed))),
+  }), harness.deps);
+  assert.equal(terminal.status, 200);
+  assert.equal(body(terminal).terminal, true);
+
+  const finalAck = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ memberId: 'shesh', ids: ['native-ack'] }),
+  }), harness.deps);
+  assert.equal(finalAck.status, 200);
+  assert.equal(body(finalAck).acked, 1);
+  assert.equal((await harness.bridgeStore.listPendingDirectives('shesh', 10)).directives.length, 0);
+  const stored = harness.db.prepare(`
+    SELECT outcome_status, terminal, acknowledged_at
+    FROM bridge_executions
+    WHERE member_id = 'shesh' AND directive_id = 'native-ack'
+  `).get() as any;
+  assert.equal(stored.outcome_status, 'executed');
+  assert.equal(stored.terminal, 1);
+  assert.equal(stored.acknowledged_at, now);
 });
 
 test('bridge · Cambium emits live project task assignment directives', async () => {
