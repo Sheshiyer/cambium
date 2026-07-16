@@ -2,7 +2,7 @@
 // A compatible feed can emit project lifecycle: open projects, sync
 // conflicts, and the sync journal (operations as they happen). This hypha reads the
 // agent-feed export and turns recent activity into source:"project-feed" narrative beats
-// so the org's project plane joins the story alongside MultiCA agent activity.
+// so the org's project plane joins the story alongside Paperclip and Hermes activity.
 //
 // Auth: bearer token from env (TEAMFORGE_FEED_TOKEN, falling back to
 // TF_WEBHOOK_HMAC_SECRET) — the route's app secret. If the feed is behind

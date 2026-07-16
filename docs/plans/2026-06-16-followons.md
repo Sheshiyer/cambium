@@ -1,5 +1,7 @@
 # Follow-on plans (non-visual queue after M5 Phase Q Bridge)
 
+> **Runtime retirement note (2026-07-16):** MultiCA references below are historical context only, not executable guidance. Current runtime authority is Paperclip/Hermes, and CI forbids restoring the retired client.
+
 > Drafted 2026-06-16 after M5 Phase Q + Bridge writers landed and Mathis went first-light. Three independent subsystems that the user named as in-scope but that warrant separate implementation plans rather than bundling.
 
 ## 1. Lesson-miner agent — arc XVII closure

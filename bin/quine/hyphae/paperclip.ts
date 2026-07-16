@@ -1,7 +1,7 @@
 // Quine hypha · paperclip — the live Thoughtseed org plane.
 // Paperclip is the local company/team management runtime: agents, issues,
 // approvals, and activity. Cambium reads it into the quest miniapp instead of
-// the retired TeamForge/MultiCA lanes. Default target is the private local
+// the retired external control-plane lanes. Default target is the private local
 // Paperclip core at 127.0.0.1:3100; no secrets are printed.
 
 import { execFileSync } from 'node:child_process';

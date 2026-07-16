@@ -1,5 +1,7 @@
 # Cambium Hermes Skill Loadout Contract Implementation Plan
 
+> **Runtime retirement note (2026-07-16):** MultiCA references below are historical context only, not executable guidance. Current runtime authority is Paperclip/Hermes, and CI forbids restoring the retired client.
+
 > **For Codex:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Generalize the GitHub skill-loadout pattern into a reusable Cambium/Hermes skill contract for GTM, distribution, product, design, engineering, and ops, with Hermes aware of the skills as a game-master layer over the fractal tapestry.

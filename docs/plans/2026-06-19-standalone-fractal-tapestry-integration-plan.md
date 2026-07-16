@@ -1,5 +1,7 @@
 # Standalone Fractal Tapestry Integration Plan
 
+> **Runtime retirement note (2026-07-16):** MultiCA references below are historical context only, not executable guidance. Current runtime authority is Paperclip/Hermes, and CI forbids restoring the retired client.
+
 Date: 2026-06-19
 
 ## Goal

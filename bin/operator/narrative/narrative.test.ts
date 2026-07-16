@@ -3,7 +3,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { beatsFromWorldLog, beatsFromDeviations, narrate } from './narrative.ts';
+import { STORY_BEAT_SOURCES, beatsFromWorldLog, beatsFromDeviations, narrate } from './narrative.ts';
+
+const RETIRED_SOURCE = ['multi', 'ca'].join('');
+
+test('narrative · source contract includes active Paperclip and excludes the retired runtime', () => {
+  assert.deepEqual(STORY_BEAT_SOURCES, ['world-log', 'deviations', 'paperclip', 'project-feed']);
+  assert.equal(STORY_BEAT_SOURCES.includes('paperclip'), true);
+  assert.equal((STORY_BEAT_SOURCES as readonly string[]).includes(RETIRED_SOURCE), false);
+});
 
 const LOG = [
   '#1 onb-01-calling → noesis · reaffirm the vision (calling)',
