@@ -10,7 +10,7 @@ state truthful through derived ledgers.
 - Stages: Genesis -> Taste -> Build -> Ops.
 - Cross-cutting layer: Cortex feeds all stages and records aesthetic memory/deviation signals.
 - Runner: `bin/compose.mjs run` and `bin/lib/invoke.mjs` gate execution, thread stage output into the next stage, and fail closed on spend.
-- "You are here" surface: `quine quests --tenant cambium` derives progress from `.operator` state, cortex records, MultiCA activity, and project evidence.
+- "You are here" surface: `quine quests --tenant cambium` derives progress from `.operator` state, cortex records, Paperclip/Hermes activity, and project evidence.
 - Background story lanes: Paperclip, Hermes bridge events, world logs, and deviations emit live activity beats for the quest miniapp.
 - Historical verified state for this review: Cambium was at Arc X, "The Brief", with 9/17 quests complete. Treat newer quest evidence as authoritative.
 

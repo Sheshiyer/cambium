@@ -20,6 +20,7 @@
     "render-docs:refresh": "node bin/render-docs.mjs --refresh-snapshot",
     "render-docs:check": "node bin/render-docs.mjs --check",
     "drift:audit": "node scripts/drift-audit.mjs",
+    "retired-runtime:check": "node scripts/retired-runtime-surfaces.mjs",
     "verify:release": "node scripts/verify-release.mjs",
     "standalone:audit": "node scripts/standalone-audit.mjs",
     "standalone:smoke": "node scripts/standalone-smoke.mjs",

@@ -7,12 +7,15 @@
 
 import { parseWorldLogLine } from '../skills/forge.ts';
 
+export const STORY_BEAT_SOURCES = ['world-log', 'deviations', 'paperclip', 'project-feed'] as const;
+export type StoryBeatSource = (typeof STORY_BEAT_SOURCES)[number];
+
 export interface StoryBeat {
   n: number | null;          // step number when the source line carried one
   text: string;              // the prose
-  lane: string;              // micro | meso | macro | heartbeat | noesis | multica | quest …
+  lane: string;              // micro | meso | macro | heartbeat | noesis | quest …
   noesis: boolean;
-  source: 'world-log' | 'deviations' | 'multica' | 'project-feed';
+  source: StoryBeatSource;
   raw?: string;              // the underlying record, for audit
 }
 

@@ -1,5 +1,7 @@
 # Branch Story Adapter Mini App Implementation Plan
 
+> **Runtime retirement note (2026-07-16):** MultiCA references below are historical context only, not executable guidance. Current runtime authority is Paperclip/Hermes, and CI forbids restoring the retired client.
+
 > **For Codex:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Add a branch story adapter that turns Cambium product/service ingestion packets into branch arcs, questlines, missions, gates, proof signals, KPI inputs, and mini app control surfaces without replacing the existing quest ledger.

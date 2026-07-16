@@ -3,6 +3,7 @@
 import { spawnSync } from 'node:child_process';
 
 const gates = [
+  ['retired runtime guard', 'npm', ['run', 'retired-runtime:check']],
   ['drift audit', 'npm', ['run', 'drift:audit']],
   ['core tests', 'npm', ['test']],
   ['generated docs', 'npm', ['run', 'render-docs:check']],
