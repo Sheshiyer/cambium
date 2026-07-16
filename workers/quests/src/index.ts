@@ -9,6 +9,7 @@ import {
   parseRoutineAllowlistJson,
 } from './context-bindings.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
+import { createIVerifExpleeObserver } from './iverif-explee.ts';
 import type {
   BridgeAssignmentRecord,
   BridgeExecutionClaimInput,
@@ -56,6 +57,8 @@ interface Env {
   GATE_TG_PUBKEY?: string;
   BRIDGE_TOKEN?: string;
   HERMES_ASSIGNMENT_TOKEN?: string;
+  IVERIF_READ_TOKEN?: string;
+  EXPLEE_API_KEY?: string;
   HERMES_ROLE_TASK_BINDINGS_JSON?: string;
   HANDOFF_SECRET?: string;
   PROVIDER_BROKER_TOKEN?: string;
@@ -919,6 +922,12 @@ export default {
       };
     }
     const githubAllowedRepos = parseAllowedRepos(env.GITHUB_AGENT_ALLOWED_REPOS);
+    const iverifApiKey = env.EXPLEE_API_KEY?.trim();
+    const iverifReadToken = env.IVERIF_READ_TOKEN?.trim();
+    const iverifExplee = iverifApiKey ? createIVerifExpleeObserver({
+      apiKey: iverifApiKey,
+      fetchImpl: workerFetch,
+    }) : undefined;
     const res = await handle(simple, {
       kv,
       pushToken: env.QUESTS_PUSH_TOKEN,
@@ -932,6 +941,8 @@ export default {
       handoffSecret: env.HANDOFF_SECRET,
       providerBroker,
       contextRoutes,
+      iverifReadToken,
+      iverifExplee,
       githubCommand: env.GITHUB_AGENT_TOKEN ? createGithubCommandExecutor({
         token: env.GITHUB_AGENT_TOKEN,
         allowedRepos: githubAllowedRepos,
