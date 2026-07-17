@@ -1,0 +1,49 @@
+{
+  "mode": "interactive",
+  "granularity": "coarse",
+  "workflow": {
+    "research": false,
+    "plan_check": true,
+    "verifier": true,
+    "auto_advance": false,
+    "nyquist_validation": true,
+    "discuss_mode": "assumptions",
+    "research_before_questions": false,
+    "ui_phase": false,
+    "ui_safety_gate": false
+  },
+  "planning": {
+    "commit_docs": true,
+    "search_gitignored": false,
+    "sub_repos": [
+      "../hermes-service-agreement-slice",
+      "../temperance-ec2-headless-shadow"
+    ]
+  },
+  "parallelization": {
+    "enabled": false,
+    "plan_level": false,
+    "task_level": false,
+    "skip_checkpoints": false,
+    "max_concurrent_agents": 1,
+    "min_plans_for_parallel": 2
+  },
+  "gates": {
+    "confirm_project": true,
+    "confirm_phases": true,
+    "confirm_roadmap": true,
+    "confirm_breakdown": true,
+    "confirm_plan": true,
+    "execute_next_plan": true,
+    "issues_review": true,
+    "confirm_transition": true
+  },
+  "safety": {
+    "always_confirm_destructive": true,
+    "always_confirm_external_services": true
+  },
+  "hooks": {
+    "context_warnings": true
+  },
+  "agent_skills": {}
+}
