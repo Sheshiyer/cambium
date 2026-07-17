@@ -56,6 +56,12 @@ no send, sign, publish, or delivery action.
   Worker/schema with zero business tasks, then restored `de63b1ae...`.
 - Hermes gateway and runner timer are active. Native execution is `true`; legacy
   ACK-without-execution is `false`; both Temperance paths are immutable release paths.
+- The temporary operator SSH rule `sgr-02469c3d525231ae1` was revoked after
+  remote verification; AWS returned `Return: true` and exact rule readback now
+  returns `InvalidSecurityGroupRuleId.NotFound`.
+- Post-deliverable Advisor initially challenged the stored-byte, replay, and
+  access evidence. Raw readback and D1/AWS probes closed those concerns; its
+  re-call found no remaining completion blocker.
 
 ## Test Gates
 
