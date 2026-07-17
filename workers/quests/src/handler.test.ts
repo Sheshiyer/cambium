@@ -7140,7 +7140,7 @@ test('business slice · D1 lease renders one immutable task through authenticate
   t.after(() => harness.db.close());
   const intake = businessTaskIntake();
   const created = await handle(req('POST', '/v1/bridge/business-tasks', {
-    headers: { authorization: 'Bearer bridge' },
+    headers: { authorization: 'Bearer assign-only' },
     body: JSON.stringify(intake),
   }), harness.deps);
   assert.equal(created.status, 200, created.body);
@@ -7150,7 +7150,7 @@ test('business slice · D1 lease renders one immutable task through authenticate
   assert.match(taskIdentity.gsdTaskId, /^gsd-service-agreement-[a-f0-9]{32}$/);
 
   const replay = await handle(req('POST', '/v1/bridge/business-tasks', {
-    headers: { authorization: 'Bearer bridge' },
+    headers: { authorization: 'Bearer assign-only' },
     body: JSON.stringify(intake),
   }), harness.deps);
   assert.equal(replay.status, 200);
@@ -7314,16 +7314,22 @@ test('business slice · intake rejects external actions and unknown fields befor
   const harness = nativeExecutionHarness(() => '2026-07-17T09:10:00.000Z');
   t.after(() => harness.db.close());
   const external = await handle(req('POST', '/v1/bridge/business-tasks', {
-    headers: { authorization: 'Bearer bridge' },
+    headers: { authorization: 'Bearer assign-only' },
     body: JSON.stringify(businessTaskIntake({ intent: 'Send the agreement for signature' })),
   }), harness.deps);
   assert.equal(external.status, 400);
   assert.equal(body(external).code, 'external_action_forbidden');
   const unknown = await handle(req('POST', '/v1/bridge/business-tasks', {
-    headers: { authorization: 'Bearer bridge' },
+    headers: { authorization: 'Bearer assign-only' },
     body: JSON.stringify(businessTaskIntake({ arbitrary: 'forbidden' })),
   }), harness.deps);
   assert.equal(unknown.status, 400);
+  const memberToken = await issueScopedMemberToken(harness.deps, 'shesh');
+  const memberCreate = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(businessTaskIntake()),
+  }), harness.deps);
+  assert.equal(memberCreate.status, 403);
   assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_business_tasks').get() as any).count, 0);
   assert.equal(harness.r2Puts(), 0);
 });

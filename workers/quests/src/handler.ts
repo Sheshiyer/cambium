@@ -2618,7 +2618,9 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
 
     if (method === 'POST' && routePath === '/v1/bridge/business-tasks') {
-      if (!principal.admin) return json(403, { error: 'only cofounders/Hermes may create business tasks' });
+      if (!principal.admin && !principal.assignmentOnly) {
+        return json(403, { error: 'only cofounders/Hermes may create business tasks' });
+      }
       if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
       let raw: unknown;
       try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
