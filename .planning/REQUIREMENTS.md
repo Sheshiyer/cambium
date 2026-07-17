@@ -8,6 +8,11 @@
 - [x] **REQ-04**: R2 and D1 durably bind the artifact to execution identity.
 - [x] **REQ-05**: Authenticated readback returns task and artifact proof.
 - [x] **REQ-06**: Intake and execution replay remain exactly-once at the artifact boundary.
+- [ ] **REQ-07**: Hermes exposes a feature-gated synthetic service-agreement draft command through Telegram.
+- [ ] **REQ-08**: Telegram draft retries and operator replay converge on one stable D1 task.
+- [ ] **REQ-09**: Cambium exposes a redacted D1-backed operator receipt without widening raw read authority.
+- [ ] **REQ-10**: Telegram status reports the truthful D1 state and safe artifact digest without document bytes.
+- [ ] **REQ-11**: The deployed command passes live intake, replay, rollback, health, allowlist, and access-revocation gates.
 
 ## Traceability
 
@@ -19,3 +24,8 @@
 | REQ-04 | ISC-168–172 | 1 |
 | REQ-05 | ISC-173–176 | 1 |
 | REQ-06 | ISC-171–180 | 1 |
+| REQ-07 | ISC-189–205, ISC-236–237 | 2 |
+| REQ-08 | ISC-195–208, ISC-227–229, ISC-234–235 | 2 |
+| REQ-09 | ISC-212–220, ISC-233 | 2 |
+| REQ-10 | ISC-211–222, ISC-228 | 2 |
+| REQ-11 | ISC-223–232, ISC-237 | 2 |

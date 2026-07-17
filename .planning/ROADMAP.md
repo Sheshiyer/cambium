@@ -7,6 +7,7 @@ The v0.3 recovery milestone connects one narrow business command across the alre
 ## Phases
 
 - [x] **Phase 1: D1-Leased Service-Agreement Draft** - Connect intake, lease, Temperance rendering, durable storage, outcome, and readback.
+- [ ] **Phase 2: Telegram Operator Intake** - Expose the proven synthetic slice through bounded draft and redacted status commands.
 
 ## Phase Details
 
@@ -27,8 +28,26 @@ The v0.3 recovery milestone connects one narrow business command across the alre
 Plans:
 - [x] 01-01: Implement, deploy, and live-prove the D1-leased draft slice.
 
+### Phase 2: Telegram Operator Intake
+**Goal**: A founder can submit and reconcile the proven synthetic service-agreement canary from the allowlisted Telegram surface without JSON, a coding CLI, or SSH.
+**Depends on**: Phase 1
+**Requirements**: REQ-07, REQ-08, REQ-09, REQ-10, REQ-11
+**Canonical refs**: ecosystem-recovery ISA iteration 5; Cambium `codex/operator-intake-service-agreement`; Hermes `codex/operator-intake-service-agreement`.
+**Prerequisites**: Proven D1-leased service-agreement slice and active Hermes Telegram plugin.
+**Success Criteria** (what must be TRUE):
+  1. `/ts-agreement-draft canary [request-key]` creates or replays one stable D1 task through the scoped assignment credential.
+  2. `/ts-agreement-status <task-id>` returns an allowlisted D1 receipt without raw task data, artifact bytes, R2 keys, or broader credentials.
+  3. The task reaches `awaiting_human_approval` with one artifact whose digest and length match the redacted receipt.
+  4. Registration is default-off, the live founder/group allowlist remains enforced, and one-version rollback leaves no orphan.
+  5. Worker, gateway, timer, and SSH security-group state are healthy after proof.
+**Plans**: 1 plan
+
+Plans:
+- [ ] 02-01: Implement, deploy, and live-prove Telegram operator intake and status.
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. D1-Leased Service-Agreement Draft | 1/1 | Complete | 2026-07-17 |
+| 2. Telegram Operator Intake | 0/1 | In progress | — |

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-07-17)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
-**Current focus:** D1-Leased Service-Agreement Draft
+**Current focus:** Telegram Operator Intake
 
 ## Current Position
 
-Phase: 1 of 1 (D1-Leased Service-Agreement Draft)
+Phase: 2 of 2 (Telegram Operator Intake)
 Plan: 1 of 1 in current phase
-Status: Complete
-Last activity: 2026-07-17 — live D1 lease, pinned rendering, immutable R2 receipt, authenticated readback, replay, and rollback proof passed.
+Status: In progress
+Last activity: 2026-07-17 — froze the feature-gated Telegram draft/status, redacted receipt, replay, rollout, and rollback contracts.
 
-Progress: [██████████] 100%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -35,14 +35,16 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Extend the same typed business-task pattern only after this slice remains healthy in routine operation.
+- Add the redacted assignment-readable D1 operator receipt.
+- Add the default-off Telegram draft and status commands.
+- Deploy and prove intake, replay, status, rollback, and allowlist enforcement.
 
 ### Blockers/Concerns
 
-- None for this phase. Native execution is enabled only for strict supported commands; legacy ACK remains disabled.
+- Founder-device command transport cannot be impersonated by the bot; remote handler and registry proof will be captured, then the founder command remains the human acceptance tap if needed.
 
 ## Session Continuity
 
-Last session: 2026-07-17 09:36 UTC
-Stopped at: Phase complete with live proof; final ISA/Advisor audit remains in the parent recovery task.
-Resume file: .planning/phases/01-d1-leased-service-agreement-draft/01-01-SUMMARY.md
+Last session: 2026-07-17 10:00 UTC
+Stopped at: Phase 2 commitment plan accepted; implementation begins with Cambium read model.
+Resume file: .planning/phases/02-telegram-operator-intake/02-01-PLAN.md

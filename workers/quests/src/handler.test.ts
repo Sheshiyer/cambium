@@ -7159,11 +7159,41 @@ test('business slice · D1 lease renders one immutable task through authenticate
   assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_business_tasks').get() as any).count, 1);
   assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_directives WHERE id = ?').get(taskIdentity.directiveId) as any).count, 1);
 
+  const queuedOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer assign-only' } },
+  ), harness.deps);
+  assert.equal(queuedOperatorReceipt.status, 200);
+  assert.deepEqual(body(queuedOperatorReceipt), {
+    ok: true,
+    schema: 'thoughtseed.business_task_operator_receipt.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    status: 'queued',
+    synthetic: true,
+    externalAction: 'none',
+    updatedAt: now,
+    artifact: null,
+  });
+
   const directive = await harness.bridgeStore.getDirective('shesh', taskIdentity.directiveId) as any;
   assert.equal(directive.payload.command, 'service_agreement.draft.render');
   assert.equal(directive.payload.input.gsdTaskId, taskIdentity.gsdTaskId);
   const memberToken = await issueScopedMemberToken(harness.deps, 'shesh');
   const otherToken = await issueScopedMemberToken(harness.deps, 'mathis');
+  const adminOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer bridge' } },
+  ), harness.deps);
+  assert.equal(adminOperatorReceipt.status, 200);
+  const memberOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: `Bearer ${memberToken}` } },
+  ), harness.deps);
+  assert.equal(memberOperatorReceipt.status, 200);
   const claim = executionClaim({
     directiveId: taskIdentity.directiveId,
     idempotencyKey: intake.idempotencyKey,
@@ -7247,6 +7277,20 @@ test('business slice · D1 lease renders one immutable task through authenticate
     headers: { authorization: `Bearer ${otherToken}` },
   }), harness.deps);
   assert.equal(forbiddenTaskRead.status, 403);
+  const assignmentRawTaskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: 'Bearer assign-only' },
+  }), harness.deps);
+  assert.equal(assignmentRawTaskRead.status, 403);
+  const assignmentRawArtifactRead = await handle(req('GET', `/v1/bridge/business-artifacts/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: 'Bearer assign-only' },
+  }), harness.deps);
+  assert.equal(assignmentRawArtifactRead.status, 403);
+  const forbiddenOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: `Bearer ${otherToken}` } },
+  ), harness.deps);
+  assert.equal(forbiddenOperatorReceipt.status, 403);
   const taskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
     headers: { authorization: `Bearer ${memberToken}` },
   }), harness.deps);
@@ -7301,6 +7345,30 @@ test('business slice · D1 lease renders one immutable task through authenticate
   assert.equal(body(recorded).terminal, true);
   assert.equal((harness.db.prepare('SELECT status FROM bridge_business_tasks').get() as any).status, 'awaiting_human_approval');
 
+  const terminalOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer assign-only' } },
+  ), harness.deps);
+  assert.equal(terminalOperatorReceipt.status, 200);
+  assert.deepEqual(body(terminalOperatorReceipt), {
+    ok: true,
+    schema: 'thoughtseed.business_task_operator_receipt.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    status: 'awaiting_human_approval',
+    synthetic: true,
+    externalAction: 'none',
+    updatedAt: now,
+    artifact: {
+      artifactId,
+      digest: artifactDigest,
+      byteLength: artifactBytes.byteLength,
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      approvalState: 'awaiting_human_approval',
+    },
+  });
+
   const ack = await handle(req('POST', '/v1/bridge/ack', {
     headers: { authorization: `Bearer ${memberToken}` },
     body: JSON.stringify({ memberId: 'shesh', ids: [taskIdentity.directiveId] }),
@@ -7332,6 +7400,31 @@ test('business slice · intake rejects external actions and unknown fields befor
   assert.equal(memberCreate.status, 403);
   assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_business_tasks').get() as any).count, 0);
   assert.equal(harness.r2Puts(), 0);
+});
+
+test('business slice · Telegram operator source is additive and remains synthetic-only', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-17T10:00:00.000Z');
+  t.after(() => harness.db.close());
+  const intake = businessTaskIntake({
+    source: 'hermes-telegram-operator',
+    memberId: 'hermes-runner',
+    idempotencyKey: 'telegram-service-agreement-canary-20260717-default',
+    approval: {
+      scope: 'internal_canary_draft_only',
+      observationId: 'approval_telegram_20260717_default',
+      observedAt: '2026-07-17T00:00:00.000Z',
+    },
+  });
+  const response = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(intake),
+  }), harness.deps);
+  assert.equal(response.status, 200, response.body);
+  const stored = await harness.businessStore.getTask(body(response).gsdTaskId);
+  assert.equal(stored?.request.source, 'hermes-telegram-operator');
+  assert.equal(stored?.memberId, 'hermes-runner');
+  assert.equal(stored?.synthetic, true);
+  assert.equal(stored?.externalAction, 'none');
 });
 
 test('bridge execution · scoped member claim is atomic and replays the winning lease', async (t) => {

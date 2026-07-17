@@ -668,7 +668,7 @@ type NativeExecutionContract =
 
 interface BusinessTaskIntake {
   schema: 'thoughtseed.business_task_intake.v1';
-  source: 'temperance-operator';
+  source: 'temperance-operator' | 'hermes-telegram-operator';
   action: 'service_agreement.draft.render';
   memberId: string;
   idempotencyKey: string;
@@ -795,7 +795,7 @@ function parseBusinessTaskIntake(value: unknown): { intake?: BusinessTaskIntake;
     'project', 'commercial', 'approval', 'externalAction',
   ])) return { error: 'invalid business task intake' };
   if (value.schema !== 'thoughtseed.business_task_intake.v1'
-    || value.source !== 'temperance-operator'
+    || (value.source !== 'temperance-operator' && value.source !== 'hermes-telegram-operator')
     || value.action !== 'service_agreement.draft.render'
     || value.synthetic !== true
     || value.externalAction !== 'none'
@@ -2719,6 +2719,37 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!task) return json(404, { error: 'business task not found' });
       if (!mayAct(task.memberId)) return json(403, { error: 'token not scoped to this business task' });
       return json(200, { task });
+    }
+
+    const businessOperatorReceiptRead = routePath.match(
+      /^\/v1\/bridge\/business-tasks\/([^/]+)\/operator-receipt$/,
+    );
+    if (method === 'GET' && businessOperatorReceiptRead) {
+      if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
+      const taskId = decodeURIComponent(businessOperatorReceiptRead[1]);
+      if (!BUSINESS_SAFE_ID.test(taskId)) return json(400, { error: 'invalid business task id' });
+      const task = await deps.businessStore.getTask(taskId);
+      if (!task) return json(404, { error: 'business task not found' });
+      if (!principal.admin && !principal.assignmentOnly && principal.memberId !== task.memberId) {
+        return json(403, { error: 'token not scoped to this business task receipt' });
+      }
+      return json(200, {
+        ok: true,
+        schema: 'thoughtseed.business_task_operator_receipt.v1',
+        gsdTaskId: task.gsdTaskId,
+        workflowId: task.workflowId,
+        status: task.status,
+        synthetic: true,
+        externalAction: 'none',
+        updatedAt: task.updatedAt,
+        artifact: task.receipt ? {
+          artifactId: task.receipt.artifactId,
+          digest: task.receipt.digest,
+          byteLength: task.receipt.byteLength,
+          contentType: task.receipt.contentType,
+          approvalState: task.receipt.approvalState,
+        } : null,
+      });
     }
 
     const businessArtifactRead = routePath.match(/^\/v1\/bridge\/business-artifacts\/([^/]+)$/);
