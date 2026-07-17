@@ -11,17 +11,17 @@ See: .planning/PROJECT.md (updated 2026-07-17)
 
 Phase: 1 of 1 (D1-Leased Service-Agreement Draft)
 Plan: 1 of 1 in current phase
-Status: In progress
-Last activity: 2026-07-17 — canonical repositories, live Worker version, D1 migrations, EC2 release, and acceptance criteria captured.
+Status: Complete
+Last activity: 2026-07-17 — live D1 lease, pinned rendering, immutable R2 receipt, authenticated readback, replay, and rollback proof passed.
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: 0 min
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 39 min
+- Total execution time: 0.65 hours
 
 ## Accumulated Context
 
@@ -35,16 +35,14 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-None yet.
+- Extend the same typed business-task pattern only after this slice remains healthy in routine operation.
 
 ### Blockers/Concerns
 
-- Worker artifact upload must validate the active fencing token.
-- Existing runner deployment starts with native execution disabled.
-- Temporary SSH ingress must be revoked after proof.
+- None for this phase. Native execution is enabled only for strict supported commands; legacy ACK remains disabled.
 
 ## Session Continuity
 
-Last session: 2026-07-17 08:57 UTC
-Stopped at: Plan accepted locally; pre-build Advisor pending.
-Resume file: .planning/phases/01-d1-leased-service-agreement-draft/01-01-PLAN.md
+Last session: 2026-07-17 09:36 UTC
+Stopped at: Phase complete with live proof; final ISA/Advisor audit remains in the parent recovery task.
+Resume file: .planning/phases/01-d1-leased-service-agreement-draft/01-01-SUMMARY.md

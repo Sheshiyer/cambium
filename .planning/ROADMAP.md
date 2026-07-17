@@ -6,7 +6,7 @@ The v0.3 recovery milestone connects one narrow business command across the alre
 
 ## Phases
 
-- [ ] **Phase 1: D1-Leased Service-Agreement Draft** - Connect intake, lease, Temperance rendering, durable storage, outcome, and readback.
+- [x] **Phase 1: D1-Leased Service-Agreement Draft** - Connect intake, lease, Temperance rendering, durable storage, outcome, and readback.
 
 ## Phase Details
 
@@ -25,10 +25,10 @@ The v0.3 recovery milestone connects one narrow business command across the alre
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: Implement, deploy, and live-prove the D1-leased draft slice.
+- [x] 01-01: Implement, deploy, and live-prove the D1-leased draft slice.
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. D1-Leased Service-Agreement Draft | 0/1 | In progress | - |
+| 1. D1-Leased Service-Agreement Draft | 1/1 | Complete | 2026-07-17 |

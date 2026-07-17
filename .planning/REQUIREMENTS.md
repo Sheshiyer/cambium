@@ -2,12 +2,12 @@
 
 ## Milestone v0.3
 
-- [ ] **REQ-01**: Strict business intake creates one stable D1 task and directive.
-- [ ] **REQ-02**: Hermes obtains a D1 lease before invoking Temperance.
-- [ ] **REQ-03**: Temperance renders the pinned Thoughtseed DOCX draft.
-- [ ] **REQ-04**: R2 and D1 durably bind the artifact to execution identity.
-- [ ] **REQ-05**: Authenticated readback returns task and artifact proof.
-- [ ] **REQ-06**: Intake and execution replay remain exactly-once at the artifact boundary.
+- [x] **REQ-01**: Strict business intake creates one stable D1 task and directive.
+- [x] **REQ-02**: Hermes obtains a D1 lease before invoking Temperance.
+- [x] **REQ-03**: Temperance renders the pinned Thoughtseed DOCX draft.
+- [x] **REQ-04**: R2 and D1 durably bind the artifact to execution identity.
+- [x] **REQ-05**: Authenticated readback returns task and artifact proof.
+- [x] **REQ-06**: Intake and execution replay remain exactly-once at the artifact boundary.
 
 ## Traceability
 
