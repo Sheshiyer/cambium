@@ -7,7 +7,7 @@ The v0.3 recovery milestone connects one narrow business command across the alre
 ## Phases
 
 - [x] **Phase 1: D1-Leased Service-Agreement Draft** - Connect intake, lease, Temperance rendering, durable storage, outcome, and readback.
-- [ ] **Phase 2: Telegram Operator Intake** - Expose the proven synthetic slice through bounded draft and redacted status commands.
+- [x] **Phase 2: Telegram Operator Intake** - Expose the proven synthetic slice through bounded draft and redacted status commands.
 
 ## Phase Details
 
@@ -43,11 +43,11 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01: Implement, deploy, and live-prove Telegram operator intake and status.
+- [x] 02-01: Implement, deploy, and live-prove Telegram operator intake and status.
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. D1-Leased Service-Agreement Draft | 1/1 | Complete | 2026-07-17 |
-| 2. Telegram Operator Intake | 0/1 | In progress | — |
+| 2. Telegram Operator Intake | 1/1 | Complete | 2026-07-17 |

@@ -14,15 +14,8 @@ An operator action counts only when its authoritative task, lease, artifact, out
 
 - ✓ D1 owns native execution claims, fencing, terminal outcomes, and ACK eligibility — native execution proof release.
 - ✓ Hermes polls the Worker on a durable timer and persists local attempt state — native execution proof release.
-
-### Active
-
-- [ ] REQ-01: A strict service-agreement draft intake creates one stable D1 business task and native directive.
-- [ ] REQ-02: Hermes leases the directive and invokes the pinned Temperance business renderer.
-- [ ] REQ-03: Temperance produces a non-signable Thoughtseed DOCX draft with pinned policy receipts.
-- [ ] REQ-04: The artifact is immutable in R2 and its identity is recorded in D1.
-- [ ] REQ-05: Authenticated status and artifact readback prove the same terminal execution.
-- [ ] REQ-06: Replay produces neither a second directive nor a second artifact.
+- ✓ REQ-01–REQ-06 prove one replay-safe D1-leased synthetic service-agreement draft from strict intake through immutable artifact readback.
+- ✓ REQ-07–REQ-11 expose that same slice through feature-gated Telegram intake and a redacted D1 status projection, with live replay, rollback, allowlist, and access-revocation proof.
 
 ### Out of Scope
 
@@ -48,10 +41,11 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Use one typed `service_agreement.draft.render` command | Prevents general executor scope and makes validation exhaustive | — Pending |
-| Stop at `awaiting_human_approval` | Proves the business pipeline without authorizing a legal side effect | — Pending |
-| Store bytes in `thoughtseed-vault` R2 and receipts in D1 | Separates artifact storage from transactional authority | — Pending |
-| Keep legacy `.planning` GSD for this milestone | Matches existing project and recovery architecture | — Pending |
+| Use one typed `service_agreement.draft.render` command | Prevents general executor scope and makes validation exhaustive | ✓ Proven |
+| Stop at `awaiting_human_approval` | Proves the business pipeline without authorizing a legal side effect | ✓ Proven |
+| Store bytes in `thoughtseed-vault` R2 and receipts in D1 | Separates artifact storage from transactional authority | ✓ Proven |
+| Keep legacy `.planning` GSD for this milestone | Matches existing project and recovery architecture | ✓ Proven |
+| Treat Telegram as an adapter over the existing D1 loop | Avoids creating another orchestrator or execution authority | ✓ Proven |
 
 ---
-*Last updated: 2026-07-17 after D1-leased slice planning*
+*Last updated: 2026-07-17 after Telegram operator-intake proof*

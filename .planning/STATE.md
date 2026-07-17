@@ -11,15 +11,15 @@ See: .planning/PROJECT.md (updated 2026-07-17)
 
 Phase: 2 of 2 (Telegram Operator Intake)
 Plan: 1 of 1 in current phase
-Status: In progress
-Last activity: 2026-07-17 — froze the feature-gated Telegram draft/status, redacted receipt, replay, rollout, and rollback contracts.
+Status: Complete
+Last activity: 2026-07-17 — feature-gated Telegram intake and redacted D1 status passed live replay, rollback, health, allowlist, and access-revocation proof.
 
-Progress: [█████░░░░░] 50%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
+- Total plans completed: 2
 - Average duration: 39 min
 - Total execution time: 0.65 hours
 
@@ -35,16 +35,14 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Add the redacted assignment-readable D1 operator receipt.
-- Add the default-off Telegram draft and status commands.
-- Deploy and prove intake, replay, status, rollback, and allowlist enforcement.
+- Founder may perform one human-typed command as a user acceptance tap; the engineering path is already live-proven through the installed handler and gateway authorization/registration surface.
 
 ### Blockers/Concerns
 
-- Founder-device command transport cannot be impersonated by the bot; remote handler and registry proof will be captured, then the founder command remains the human acceptance tap if needed.
+- None. The capability remains intentionally synthetic-only.
 
 ## Session Continuity
 
-Last session: 2026-07-17 10:00 UTC
-Stopped at: Phase 2 commitment plan accepted; implementation begins with Cambium read model.
-Resume file: .planning/phases/02-telegram-operator-intake/02-01-PLAN.md
+Last session: 2026-07-17 10:21 UTC
+Stopped at: Phase 2 complete with deployed operator intake, replay-safe D1 receipt, rollback proof, and revoked SSH.
+Resume file: .planning/phases/02-telegram-operator-intake/02-01-SUMMARY.md
