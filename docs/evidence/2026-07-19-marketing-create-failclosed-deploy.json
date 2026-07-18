@@ -1,6 +1,6 @@
 {
   "schema": "cambium.marketing-create-failclosed-deploy-evidence.v1",
-  "generatedAt": "2026-07-18T21:34:43Z",
+  "generatedAt": "2026-07-18T21:41:46Z",
   "scope": {
     "tenantId": "thoughtseed",
     "adapterId": "founder-article-nvidia@1.0.0",
@@ -12,6 +12,8 @@
     "branch": "codex/marketing-create-failclosed-deploy",
     "baseCommit": "c22f2141d3e17ab8cd1d319222cf769183323275",
     "deployedCommit": "f9b02478b50d5d15e6045b68ab8c74542a1138d9",
+    "reviewHeadBeforeFinalEvidenceAmendment": "0c0babc10622d5522b7f639fa329bd705c05be7b",
+    "runtimeDiffFromDeployedCommitToReviewHead": "empty",
     "deploymentTag": "git-f9b02478b50d5d15e6045b68ab8c74542a1138d9"
   },
   "cloudflare": {
@@ -42,7 +44,7 @@
     },
     "standaloneAudit": {
       "status": "passed",
-      "publishableFiles": 397
+      "publishableFiles": 398
     },
     "standaloneSmoke": "passed",
     "compositionValidation": {
@@ -64,14 +66,19 @@
   },
   "failClosedProof": {
     "mode": "isolated local Wrangler with local D1",
+    "runtimeSourceCommit": "f9b02478b50d5d15e6045b68ab8c74542a1138d9",
+    "runtimeMatchesDeployedCommit": true,
     "bridgeAuthority": "synthetic",
+    "authenticationPathProof": "the same bearer-token branch rejected the unauthenticated control with 401, accepted the synthetic bearer credential, and then returned the renderer-secret gate error",
     "activationIdentity": "committed public catalog identity",
     "providerKey": "absent",
     "prepareStatus": 503,
     "prepareError": "renderer_secret_missing",
     "responseContainedStack": false,
     "runRowsAfterProof": 0,
-    "approvalRowsAfterProof": 0
+    "approvalRowsAfterProof": 0,
+    "productionAuthenticatedProof": "deferred to the separate trusted-machine activation wave",
+    "deferralPrecondition": "NVIDIA_MARKETING_CREATE_API_KEY and MARKETING_CREATE_ACTIVATION remain absent from the production Worker"
   },
   "backup": {
     "locationClass": "private operator state outside repository",
