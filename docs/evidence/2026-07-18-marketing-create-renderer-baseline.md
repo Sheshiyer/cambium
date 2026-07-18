@@ -29,4 +29,3 @@ No root file contents were read into this evidence record.
 | `composition/contracts/marketing-assets.v1.json` | `8758722327567e8eddb8b73aac961eec8c59c6c262c1b972ee70555e55438365` |
 
 The final audit must reproduce every hash above.
-

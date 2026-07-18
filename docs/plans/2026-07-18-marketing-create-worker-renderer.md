@@ -331,4 +331,3 @@ Run Temperance read-only contract/secret and D1/concurrency audits. Re-dispatch 
 **Step 6: Commit and publish review surface**
 
 Commit docs/evidence as `docs(marketing): record renderer safety proof`, push `codex/marketing-create-worker-renderer`, and open a pull request based on `codex/marketing-capability-orchestration`. Do not merge or deploy.
-

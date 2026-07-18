@@ -54,4 +54,3 @@ CREATE TABLE IF NOT EXISTS marketing_render_approvals (
 
 CREATE INDEX IF NOT EXISTS idx_marketing_render_approvals_request
   ON marketing_render_approvals (tenant_id, request_id, decided_at);
-
