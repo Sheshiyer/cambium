@@ -11,8 +11,12 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const registry = loadJson(join(root, 'registry.json'));
 const pipeline = loadJson(join(root, 'composition', 'pipeline.json'));
+const production = loadJson(join(root, 'composition', 'production.v1.json'));
 const leadOps = loadJson(join(root, 'composition', 'lead-ops.v1.json'));
 const leadContracts = loadJson(join(root, 'composition', 'contracts', 'lead-ecosystem.v1.json'));
+const createAdapters = loadJson(join(root, 'composition', 'create-adapters.v1.json'));
+const marketingCapabilities = loadJson(join(root, 'composition', 'marketing-capabilities.v1.json'));
+const marketingAssets = loadJson(join(root, 'composition', 'contracts', 'marketing-assets.v1.json'));
 const machineReadableContractGroups = new Set([
   'idea',
   'brand_system',
@@ -28,6 +32,31 @@ const machineReadableContractGroups = new Set([
   'business',
 ]);
 const dedupe = (values) => [...new Set(values)];
+
+async function writeProductionFixture(fixtureRoot, {
+  omitted = [],
+  manifest = production,
+  graph = leadOps,
+  adapterCatalog = createAdapters,
+} = {}) {
+  const omittedPaths = new Set(omitted);
+  const files = new Map([
+    ['registry.json', registry],
+    ['composition/production.v1.json', manifest],
+    ['composition/pipeline.json', pipeline],
+    ['composition/lead-ops.v1.json', graph],
+    ['composition/contracts/lead-ecosystem.v1.json', leadContracts],
+    ['composition/create-adapters.v1.json', adapterCatalog],
+    ['composition/marketing-capabilities.v1.json', marketingCapabilities],
+    ['composition/contracts/marketing-assets.v1.json', marketingAssets],
+  ]);
+  await mkdir(join(fixtureRoot, 'composition', 'contracts'), { recursive: true });
+  for (const [relativePath, value] of files) {
+    if (!omittedPaths.has(relativePath)) {
+      await writeFile(join(fixtureRoot, relativePath), JSON.stringify(value));
+    }
+  }
+}
 
 test('registry resolves every pipeline organ (repo + entrypoint)', () => {
   const plan = planPipeline({ registry, pipeline, tenant: 't' });
@@ -49,9 +78,19 @@ test('stages are ordered genesis -> taste -> build -> ops', () => {
 test('production composition loader resolves and validates the ops lead subgraph', () => {
   const loaded = loadComposition(root);
 
+  assert.equal(loaded.production.id, 'production-composition');
+  assert.equal(loaded.production.version, '1.0.0');
   assert.equal(loaded.leadOps.id, 'lead-ops');
   assert.equal(loaded.leadOps.version, '1.0.0');
   assert.equal(loaded.leadContracts.catalog_id, 'lead-ecosystem@1.0.0');
+  assert.equal(loaded.createAdapters.catalog_id, 'create-adapters@1.0.0');
+  assert.deepEqual(loaded.createAdapterIds, ['founder-article-nvidia@1.0.0']);
+  assert.equal(
+    loaded.createAdapterActivation,
+    `founder-article-nvidia@1.0.0:${loaded.createAdapters.catalog_digest}`,
+  );
+  assert.equal(loaded.marketingCapabilities.schema_version, 'marketing-capabilities@1.0.0');
+  assert.equal(loaded.marketingAssets.catalog_id, 'marketing-assets@1.0.0');
   assert.deepEqual(loaded.leadOps.stages, [
     'discover',
     'capture',
@@ -64,34 +103,21 @@ test('production composition loader resolves and validates the ops lead subgraph
 
 test('production composition loader rejects a missing referenced lead subgraph', async () => {
   const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-missing-lead-'));
-  await mkdir(join(fixtureRoot, 'composition'));
-  await writeFile(join(fixtureRoot, 'registry.json'), JSON.stringify(registry));
-  await writeFile(join(fixtureRoot, 'composition', 'pipeline.json'), JSON.stringify({
-    ...pipeline,
-    stages: pipeline.stages.map((stage) => stage.id === 'ops'
-      ? {
-          ...stage,
-          subgraph: {
-            id: 'lead-ops',
-            version: '1.0.0',
-            path: 'missing-lead-ops.v1.json',
-          },
-        }
-      : stage),
-  }));
+  await writeProductionFixture(fixtureRoot, {
+    omitted: ['composition/lead-ops.v1.json'],
+  });
 
   assert.throws(
     () => loadComposition(fixtureRoot),
-    /lead subgraph.*missing-lead-ops\.v1\.json.*could not be loaded/i,
+    /lead subgraph.*lead-ops\.v1\.json.*could not be loaded/i,
   );
 });
 
 test('production composition loader rejects a missing referenced lead contract catalog', async () => {
   const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-missing-catalog-'));
-  await mkdir(join(fixtureRoot, 'composition'));
-  await writeFile(join(fixtureRoot, 'registry.json'), JSON.stringify(registry));
-  await writeFile(join(fixtureRoot, 'composition', 'pipeline.json'), JSON.stringify(pipeline));
-  await writeFile(join(fixtureRoot, 'composition', 'lead-ops.v1.json'), JSON.stringify(leadOps));
+  await writeProductionFixture(fixtureRoot, {
+    omitted: ['composition/contracts/lead-ecosystem.v1.json'],
+  });
 
   assert.throws(
     () => loadComposition(fixtureRoot),
@@ -101,7 +127,6 @@ test('production composition loader rejects a missing referenced lead contract c
 
 test('production composition loader rejects graph contract IDs absent from the catalog', async () => {
   const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-unknown-contract-'));
-  await mkdir(join(fixtureRoot, 'composition', 'contracts'), { recursive: true });
   const graph = structuredClone(leadOps);
   graph.nodes.find((node) => node.id === 'discover').exit_contracts = [
     'unregistered_observation@1.0.0',
@@ -112,18 +137,70 @@ test('production composition loader rejects graph contract IDs absent from the c
   graph.edges.find((edge) => edge.from === 'discover' && edge.to === 'capture').contracts = [
     'unregistered_observation@1.0.0',
   ];
-  await writeFile(join(fixtureRoot, 'registry.json'), JSON.stringify(registry));
-  await writeFile(join(fixtureRoot, 'composition', 'pipeline.json'), JSON.stringify(pipeline));
-  await writeFile(join(fixtureRoot, 'composition', 'lead-ops.v1.json'), JSON.stringify(graph));
-  await writeFile(
-    join(fixtureRoot, 'composition', 'contracts', 'lead-ecosystem.v1.json'),
-    JSON.stringify(leadContracts),
-  );
+  await writeProductionFixture(fixtureRoot, { graph });
 
   assert.throws(
     () => loadComposition(fixtureRoot),
     /unknown graph contract.*unregistered_observation@1\.0\.0/i,
   );
+});
+
+test('production composition loader requires the immutable production manifest', async () => {
+  const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-missing-production-'));
+  await writeProductionFixture(fixtureRoot, {
+    omitted: ['composition/production.v1.json'],
+  });
+
+  assert.throws(
+    () => loadComposition(fixtureRoot),
+    /production composition manifest.*could not be loaded/i,
+  );
+});
+
+test('production composition loader rejects missing create and marketing catalogs', async () => {
+  for (const [relativePath, pattern] of [
+    ['composition/create-adapters.v1.json', /create adapter catalog.*could not be loaded/i],
+    ['composition/marketing-capabilities.v1.json', /marketing capability catalog.*could not be loaded/i],
+    ['composition/contracts/marketing-assets.v1.json', /marketing asset catalog.*could not be loaded/i],
+  ]) {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-missing-production-ref-'));
+    await writeProductionFixture(fixtureRoot, { omitted: [relativePath] });
+    assert.throws(() => loadComposition(fixtureRoot), pattern, relativePath);
+  }
+});
+
+test('production composition loader rejects manifest identity, unknown keys, and reference drift', async () => {
+  const cases = [
+    ['identity', (value) => { value.version = '2.0.0'; }, /production-composition@1\.0\.0/i],
+    ['unknown key', (value) => { value.surprise = true; }, /unknown fields/i],
+    ['lead path', (value) => { value.lead_ops.path = '../lead-ops.v1.json'; }, /local|path/i],
+    ['adapter identity', (value) => { value.create_adapter_catalog.version = '2.0.0'; }, /create-adapters@1\.0\.0/i],
+  ];
+
+  for (const [name, mutate, pattern] of cases) {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-production-drift-'));
+    const manifest = structuredClone(production);
+    mutate(manifest);
+    await writeProductionFixture(fixtureRoot, { manifest });
+    assert.throws(() => loadComposition(fixtureRoot), pattern, name);
+  }
+});
+
+test('production registration does not mutate the offline founder recipe authority envelope', () => {
+  const loaded = loadComposition(root);
+  const founderRecipe = loaded.marketingCapabilities.recipes.find(
+    ({ id }) => id === 'founder-article-draft@1.0.0',
+  );
+
+  assert.deepEqual(founderRecipe.execution_envelope, {
+    network: 'none',
+    authentication: 'none',
+    external_write: 'none',
+    spend: 'none',
+    schedule: 'none',
+  });
+  assert.deepEqual(founderRecipe.live_adapters, []);
+  assert.deepEqual(founderRecipe.spend, { tier: 'none' });
 });
 
 test('plan marks free vs paid tiers per stage', () => {
