@@ -119,18 +119,21 @@ approved claim IDs, bounded usage count, computed digests, and review metadata.
 
 ## Secret custody and activation
 
-Two independent Cloudflare Worker secrets gate the runtime:
+Two independent Cloudflare Worker bindings gate the runtime:
 
 - `NVIDIA_MARKETING_CREATE_API_KEY` is the provider credential. It must be separately issued for this exact
   renderer, restricted as narrowly as NVIDIA permits, and stored only as a Cloudflare Worker secret.
-- `MARKETING_CREATE_ACTIVATION` contains the exact immutable activation shown above. It is a separate kill
-  switch and must also be stored as a Worker secret, never as a plaintext Wrangler `vars` entry.
+- `MARKETING_CREATE_ACTIVATION` contains the exact immutable activation shown above. The string is a committed
+  public catalog identity, not a credential. Its remotely effective binding is nevertheless stored as a Worker
+  secret for change control and must never be deployed as a plaintext Wrangler `vars` entry. An isolated local,
+  non-remote missing-key proof may supply the public identity through `--var` and may never be promoted.
 
 The provider key must not be copied or reused from a generic `NVIDIA_API_KEY`, an EC2 environment or secret,
 an MCP server, a developer shell profile, or another adapter. Conversely, this renderer's key must never be
 made available to EC2, MCP, generic provider maps, context routes, repository files, `.env` files, Wrangler
 `vars`, request payloads, D1, logs, receipts, test snapshots, or evidence artifacts. Never print, echo, diff,
-or paste either secret value into a command line argument or recorded terminal transcript.
+or paste the provider key into a command line argument or recorded terminal transcript. Never record an
+interactive production-binding value beyond the activation identity already committed in this repository.
 
 ### Operator provisioning checklist
 
@@ -163,7 +166,9 @@ values only at Wrangler's interactive prompt.
 8. After activation, exercise the governed sequence only: prepare, signed founder approval, ID-only execute,
    then human review. Stop on any reconciliation-required result.
 
-This repository slice intentionally stops before every provisioning and deployment step above.
+The original renderer implementation slice stopped before provisioning or deployment. The later fail-closed
+installation may apply the additive schema and secret-absent Worker Version through `workers/quests/DEPLOY.md`;
+provider-key and activation provisioning remain a separate, explicitly approved operator change.
 
 ## Rotation, rollback, and reconciliation
 

@@ -60,6 +60,12 @@ test "$(jq -r '.d1_databases[] | select(.binding == "BRIDGE_DB") | .database_nam
 test "$(jq -r '.d1_databases[] | select(.binding == "BRIDGE_DB") | .database_id' "$WRANGLER_CONFIG")" = "$D1_UUID"
 ```
 
+`PUBLIC_MARKETING_ACTIVATION` is the committed catalog identity, not a
+credential. Its value is already public in source. The production binding is
+still stored as a Worker secret to preserve change control and prevent
+accidental activation; only the isolated local proof below may supply the
+public identity through `--var`.
+
 Run the complete deterministic release gate, the composition and product
 packet validators, a whitespace check, and Wrangler's strict local bundle
 preflight before any remote upload. `--dry-run` makes the final command
@@ -535,11 +541,15 @@ because Worker code was rolled back.
 
 ### Later, separately approved activation
 
-Activation is a different change window. The provider key and activation
-value must be entered interactively from a trusted operator machine directly
-into Cloudflare. EC2 instances, Hermes hosts, MCP servers, MCP login stores,
-repository files, command arguments, shell variables, environment files,
-CI artifacts, and chat are all prohibited from holding either value.
+Activation is a different change window. The confidential provider key and
+the live activation binding must be entered interactively from a trusted
+operator machine directly into Cloudflare. EC2 instances, Hermes hosts, MCP
+servers, MCP login stores, repository files, command arguments, shell
+variables, environment files, CI artifacts, and chat are prohibited from
+holding the provider key or a remotely effective binding. The committed
+activation identity is public, but outside the isolated local proof it must
+not be installed as a plaintext remote variable or used to bypass the staged
+Worker-secret review.
 
 Wrangler 4.95 copies the latest uploaded Version when `versions secret put`
 runs and offers no `--version-id` selector. Therefore preserve the candidate

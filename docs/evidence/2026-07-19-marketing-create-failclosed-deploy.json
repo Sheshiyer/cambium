@@ -1,0 +1,170 @@
+{
+  "schema": "cambium.marketing-create-failclosed-deploy-evidence.v1",
+  "generatedAt": "2026-07-18T21:34:43Z",
+  "scope": {
+    "tenantId": "thoughtseed",
+    "adapterId": "founder-article-nvidia@1.0.0",
+    "operation": "secret-absent production installation",
+    "activationState": "disabled",
+    "providerExecutionAuthorized": false
+  },
+  "source": {
+    "branch": "codex/marketing-create-failclosed-deploy",
+    "baseCommit": "c22f2141d3e17ab8cd1d319222cf769183323275",
+    "deployedCommit": "f9b02478b50d5d15e6045b68ab8c74542a1138d9",
+    "deploymentTag": "git-f9b02478b50d5d15e6045b68ab8c74542a1138d9"
+  },
+  "cloudflare": {
+    "accountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+    "workerName": "cambium-quests",
+    "previousVersionId": "584888fb-2684-4618-838a-fe152f02c29b",
+    "deployedVersionId": "9e6885ce-ea25-4158-ba71-69b8bdfc256b",
+    "trafficPercent": 100,
+    "previewAlias": "https://marketing-create-f9b02478b50d-cambium-quests.sheshnarayan-iyer.workers.dev",
+    "d1": {
+      "databaseName": "cambium-bridge",
+      "binding": "BRIDGE_DB",
+      "uuid": "f6b950ac-2480-4a7d-9dac-1ff7e951d936"
+    }
+  },
+  "releaseGates": {
+    "fullCambiumTests": {
+      "passed": 893,
+      "failed": 0
+    },
+    "targetedRendererAndCompositionTests": {
+      "passed": 346,
+      "failed": 0
+    },
+    "releaseContractTests": {
+      "passed": 5,
+      "failed": 0
+    },
+    "standaloneAudit": {
+      "status": "passed",
+      "publishableFiles": 397
+    },
+    "standaloneSmoke": "passed",
+    "compositionValidation": {
+      "status": "passed",
+      "registeredCreateAdapters": 1,
+      "enabledCreateAdapters": 0
+    },
+    "productBranchPackets": {
+      "status": "passed",
+      "validated": 8
+    },
+    "wranglerStrictDryRun": "passed",
+    "r3fTests": {
+      "passed": 52,
+      "failed": 0
+    },
+    "r3fBuild": "passed",
+    "deterministicReleaseVerification": "passed"
+  },
+  "failClosedProof": {
+    "mode": "isolated local Wrangler with local D1",
+    "bridgeAuthority": "synthetic",
+    "activationIdentity": "committed public catalog identity",
+    "providerKey": "absent",
+    "prepareStatus": 503,
+    "prepareError": "renderer_secret_missing",
+    "responseContainedStack": false,
+    "runRowsAfterProof": 0,
+    "approvalRowsAfterProof": 0
+  },
+  "backup": {
+    "locationClass": "private operator state outside repository",
+    "fileName": "cambium-bridge-20260718T212553Z.sql",
+    "receiptFileName": "cambium-bridge-20260718T212553Z.sql.sha256",
+    "sha256": "95a8872c665854ef43e1b9c29f601fecad23eb5f710a2c24a4acd6d78f1a0df3",
+    "restoreIntegrity": "ok",
+    "restoredTableCount": 18,
+    "rowContentPrinted": false
+  },
+  "migration": {
+    "name": "0005_marketing_create_renderer.sql",
+    "kind": "additive tables and indexes only",
+    "pendingBefore": true,
+    "applied": true,
+    "pendingAfter": 0,
+    "tables": [
+      "marketing_render_approvals",
+      "marketing_render_runs"
+    ],
+    "runRows": 0,
+    "approvalRows": 0
+  },
+  "bindings": {
+    "NVIDIA_MARKETING_CREATE_API_KEY": "absent",
+    "MARKETING_CREATE_ACTIVATION": "absent",
+    "checkedAcrossAllVersionBindingTypes": true,
+    "checkedInSecretNameList": true,
+    "valuesInspected": false,
+    "genericNvidiaFallback": false
+  },
+  "probes": {
+    "surfaces": [
+      "https://cambium-quests.sheshnarayan-iyer.workers.dev",
+      "https://curious.thoughtseed.space"
+    ],
+    "immediate": {
+      "versionAt100Percent": true,
+      "healthStatus": 200,
+      "unauthenticatedPrepareStatus": 401,
+      "runRows": 0,
+      "approvalRows": 0,
+      "forbiddenBindingsAbsent": true
+    },
+    "delayedFiveMinutes": {
+      "versionAt100Percent": true,
+      "healthStatus": 200,
+      "unauthenticatedPrepareStatus": 401,
+      "runRows": 0,
+      "approvalRows": 0,
+      "forbiddenBindingsAbsent": true
+    }
+  },
+  "safety": {
+    "providerCalls": 0,
+    "providerAuthorizedRequests": 0,
+    "providerCredentialsProvisioned": 0,
+    "activationBindingsProvisioned": 0,
+    "ec2SecretChanges": 0,
+    "mcpCredentialChanges": 0,
+    "realClientDataUsed": false,
+    "contentGenerated": false,
+    "contentPublishedOrSent": false
+  },
+  "rollback": {
+    "targetVersionId": "584888fb-2684-4618-838a-fe152f02c29b",
+    "triggered": false,
+    "triggers": [
+      "unexpected active version",
+      "health response other than 200",
+      "unauthenticated prepare response other than 401",
+      "appearance of either marketing binding",
+      "nonzero marketing-render row count",
+      "release-attributed elevated errors"
+    ]
+  },
+  "reviews": {
+    "temperanceExternalRail": "timed out before producing a bounded summary",
+    "temperanceFailOpenAction": "three tasks re-dispatched to Codex reviewers",
+    "fallbackDeploymentAudit": "findings resolved",
+    "fallbackSecretAudit": "pass after staged-version hardening",
+    "fallbackLiveProofAudit": "findings resolved",
+    "finalCodeReview": "pass after public-activation custody clarification",
+    "independentLiveStateReview": "pass with no blockers",
+    "forge": "unavailable because local Codex runtime was missing; no edits"
+  },
+  "dirtyRootObservation": {
+    "targetedByThisWave": false,
+    "statusPathSetHashUnchanged": true,
+    "initialStatusSha256": "252ef63b30f5baeb774d02f373621a53b159aedb6c3320113007d96fbe646062",
+    "finalStatusSha256": "252ef63b30f5baeb774d02f373621a53b159aedb6c3320113007d96fbe646062",
+    "initialTrackedDiffSha256": "53b7bfd0117b881966af84330d6b07bc8310429f3c8c7aafdb496270f063d255",
+    "finalTrackedDiffSha256": "6a7c7203999f167b87107b8f12761e88310e0eafb22fcf42c4bf84810b5e487c",
+    "assessment": "tracked dirty content changed outside the isolated deployment worktree during this wave; no root file was edited, staged, reset, or committed by this workflow"
+  }
+}
