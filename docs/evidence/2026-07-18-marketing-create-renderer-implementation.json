@@ -1,0 +1,364 @@
+{
+  "schema_version": "marketing-create-renderer-implementation-evidence@1.0.0",
+  "record_status": "verified_review_ready",
+  "captured_at": "2026-07-18T13:40:10Z",
+  "finalizer": "Codex branch owner",
+  "scope": {
+    "tenant": "thoughtseed",
+    "renderer_count": 1,
+    "mode": "fixed-tenant-review-only",
+    "registration_state": "registered_disabled",
+    "implementation_only": true,
+    "declared_mutations": {
+      "deployments": 0,
+      "worker_secret_changes": 0,
+      "activation_changes": 0,
+      "d1_migrations_applied": 0,
+      "live_provider_calls": 0,
+      "external_publications": 0
+    },
+    "scope_verification": "passed_no_live_mutations"
+  },
+  "fixed_identities": {
+    "tenant_id": "thoughtseed",
+    "adapter_id": "founder-article-nvidia@1.0.0",
+    "adapter_catalog_digest": "ae1d60e951f6d6c18041581ddb018b53b162ebfb49bf9370f3185c38e03fc12f",
+    "activation_binding": "MARKETING_CREATE_ACTIVATION",
+    "activation_value": "founder-article-nvidia@1.0.0:ae1d60e951f6d6c18041581ddb018b53b162ebfb49bf9370f3185c38e03fc12f",
+    "recipe_id": "founder-article-draft@1.0.0",
+    "provider_id": "nvidia",
+    "provider_url": "https://integrate.api.nvidia.com/v1/chat/completions",
+    "model": "meta/llama-3.1-70b-instruct",
+    "provider_secret_binding": "NVIDIA_MARKETING_CREATE_API_KEY",
+    "prompt_template_id": "thoughtseed-founder-article@1.0.0",
+    "prompt_template_digest": "d1d1db81ae9b1eaeb9ba3f799a9a7fdeb61e87bc2805fdab4b29761274963a80",
+    "generation": {
+      "stream": false,
+      "temperature": 0.2,
+      "max_tokens": 1800
+    },
+    "network": {
+      "attempts": 1,
+      "timeout_ms": 30000,
+      "maximum_response_bytes": 65536
+    },
+    "output_authority": {
+      "execution_mode": "review_only",
+      "artifact_contract": "asset_draft@1.0.0",
+      "receipt_contract": "operator_receipt@1.0.0",
+      "publish_eligible": false,
+      "external_action": "none"
+    }
+  },
+  "implementation_paths": {
+    "production_manifest": "composition/production.v1.json",
+    "adapter_catalog": "composition/create-adapters.v1.json",
+    "adapter_validator": "bin/lib/create-adapters.mjs",
+    "composition_loader": "bin/compose.mjs",
+    "renderer_domain": "workers/quests/src/marketing-renderer.ts",
+    "d1_store": "workers/quests/src/marketing-render-store.ts",
+    "d1_migration": "workers/quests/migrations/0005_marketing_create_renderer.sql",
+    "schema_mirror": "workers/quests/schema/bridge.sql",
+    "http_authority": "workers/quests/src/handler.ts",
+    "worker_binding": "workers/quests/src/index.ts",
+    "composition_tests": [
+      "bin/create-adapters.test.mjs",
+      "bin/compose.test.mjs"
+    ],
+    "renderer_tests": [
+      "workers/quests/src/marketing-renderer.test.ts",
+      "workers/quests/src/marketing-render-store.test.ts",
+      "workers/quests/src/migration.test.ts"
+    ],
+    "route_tests": "workers/quests/src/handler.test.ts",
+    "operator_documentation": "docs/architecture/marketing-create-worker-renderer.md",
+    "baseline_evidence": "docs/evidence/2026-07-18-marketing-create-renderer-baseline.md"
+  },
+  "authority_flow": {
+    "ordered_states": [
+      "prepared",
+      "claimed",
+      "invoking",
+      "succeeded|failed|indeterminate"
+    ],
+    "approval_boundary": {
+      "position": "between prepared and claimed",
+      "route": "/api/gate/thoughtseed",
+      "kind": "approve-marketing-render",
+      "transport": "Telegram signed init data",
+      "contract": "approval_decision@1.0.0",
+      "scope": "exact_action_digest",
+      "client_owned_approval_objects": false
+    },
+    "prepare_boundary": {
+      "route": "POST /v1/bridge/marketing-renders/prepare",
+      "principal": "bridge_admin_only",
+      "effect": "persist immutable bounded prepared action",
+      "provider_egress": false
+    },
+    "execute_boundary": {
+      "route": "POST /v1/bridge/marketing-renders/:requestId/execute",
+      "principal": "bridge_admin_only",
+      "body_fields": [
+        "approvalDecisionId"
+      ],
+      "durable_pre_egress_requirement": "claimed to invoking CAS followed by exact request, claim, fence, status, and invoked-at readback"
+    },
+    "replay_policy": {
+      "succeeded": "return stored review-only artifact and receipt without provider egress",
+      "failed": "return stored terminal classified failure without provider egress",
+      "claimed_unexpired": "busy",
+      "claimed_expired": "may reclaim with a higher fencing token before invocation only",
+      "invoking": "reconciliation_required; no automatic retry",
+      "indeterminate": "reconciliation_required; no automatic retry"
+    }
+  },
+  "secret_custody": {
+    "provider_key": {
+      "binding": "NVIDIA_MARKETING_CREATE_API_KEY",
+      "storage": "cloudflare_worker_secret",
+      "issuance": "separately issued for this adapter only",
+      "reuse_prohibited_from": [
+        "generic NVIDIA_API_KEY",
+        "EC2 credentials or environment",
+        "MCP credentials or environment",
+        "another adapter or provider integration"
+      ],
+      "allowed_exposure": "in-memory Authorization bearer header to the fixed NVIDIA endpoint only"
+    },
+    "activation": {
+      "binding": "MARKETING_CREATE_ACTIVATION",
+      "storage": "cloudflare_worker_secret",
+      "plaintext_wrangler_vars_allowed": false,
+      "provisioned_separately_from_provider_key": true,
+      "missing_or_mismatched_behavior": "fail closed before D1 mutation, provider key use, or network egress"
+    },
+    "provisioning_commands_not_executed": [
+      "npx wrangler secret put NVIDIA_MARKETING_CREATE_API_KEY",
+      "npx wrangler secret put MARKETING_CREATE_ACTIVATION"
+    ],
+    "inspection_command_not_executed": "npx wrangler secret list",
+    "prohibited_locations": [
+      "repository files",
+      ".env files",
+      "Wrangler plaintext vars",
+      "shell history",
+      "EC2",
+      "MCP",
+      "generic provider maps",
+      "context routes",
+      "requests",
+      "D1",
+      "logs",
+      "receipts",
+      "test snapshots",
+      "evidence artifacts"
+    ],
+    "secret_values_recorded": false
+  },
+  "rollback": {
+    "first_action": "remove MARKETING_CREATE_ACTIVATION from the affected Worker environment",
+    "second_action_if_required": "roll back the reviewed Worker version",
+    "provider_key_deletion_is_primary_kill_switch": false,
+    "precondition": "manually reconcile every invoking or indeterminate run before successor activation",
+    "automatic_ambiguous_retry_allowed": false
+  },
+  "safety_assertions": [
+    {
+      "id": "fixed-tenant-and-adapter",
+      "assertion": "Catalog, runtime constants, D1 checks, and routes admit only tenant thoughtseed and adapter founder-article-nvidia@1.0.0.",
+      "evidence_paths": [
+        "composition/create-adapters.v1.json",
+        "workers/quests/src/marketing-renderer.ts",
+        "workers/quests/migrations/0005_marketing_create_renderer.sql",
+        "workers/quests/schema/bridge.sql"
+      ],
+      "verification_status": "passed"
+    },
+    {
+      "id": "immutable-activation",
+      "assertion": "Only the exact adapter-plus-catalog activation enables prepare or execute; absent or drifted activation produces no D1 mutation and no egress.",
+      "evidence_paths": [
+        "bin/create-adapters.test.mjs",
+        "bin/compose.test.mjs",
+        "workers/quests/src/marketing-renderer.test.ts",
+        "workers/quests/src/handler.test.ts"
+      ],
+      "verification_status": "passed"
+    },
+    {
+      "id": "exclusive-provider-secret",
+      "assertion": "The dedicated NVIDIA key is read only from NVIDIA_MARKETING_CREATE_API_KEY and is absent from generic providers, context routes, persistence, responses, logs, and evidence.",
+      "evidence_paths": [
+        "composition/create-adapters.v1.json",
+        "workers/quests/src/index.ts",
+        "workers/quests/src/marketing-renderer.ts",
+        "workers/quests/src/marketing-renderer.test.ts"
+      ],
+      "verification_status": "passed"
+    },
+    {
+      "id": "signed-founder-authority",
+      "assertion": "Only a fresh signed allowlisted Telegram founder action for /api/gate/thoughtseed can persist approval for the exact prepared action digest.",
+      "evidence_paths": [
+        "workers/quests/src/handler.ts",
+        "workers/quests/src/handler.test.ts",
+        "workers/quests/src/marketing-render-store.ts"
+      ],
+      "verification_status": "passed"
+    },
+    {
+      "id": "durable-pre-egress-fence",
+      "assertion": "Provider egress occurs only after D1 claim fencing and confirmed durable invoking readback; stale or ambiguous fences perform zero fetches.",
+      "evidence_paths": [
+        "workers/quests/src/marketing-render-store.ts",
+        "workers/quests/src/marketing-render-store.test.ts",
+        "workers/quests/src/marketing-renderer.ts",
+        "workers/quests/src/marketing-renderer.test.ts"
+      ],
+      "verification_status": "passed"
+    },
+    {
+      "id": "single-attempt-and-reconciliation",
+      "assertion": "The provider has one network attempt; invoking and indeterminate outcomes are never automatically reclaimed or retried.",
+      "evidence_paths": [
+        "composition/create-adapters.v1.json",
+        "workers/quests/migrations/0005_marketing_create_renderer.sql",
+        "workers/quests/src/marketing-render-store.test.ts",
+        "workers/quests/src/marketing-renderer.test.ts"
+      ],
+      "verification_status": "passed"
+    },
+    {
+      "id": "review-only-output",
+      "assertion": "Success emits one normalized draft and redacted receipt with review required, publishEligible false, and externalAction none.",
+      "evidence_paths": [
+        "composition/create-adapters.v1.json",
+        "workers/quests/src/marketing-renderer.ts",
+        "workers/quests/src/marketing-renderer.test.ts",
+        "workers/quests/src/handler.test.ts"
+      ],
+      "verification_status": "passed"
+    },
+    {
+      "id": "no-live-mutation-in-slice",
+      "assertion": "Implementation and tests performed no deployment, Worker secret mutation, activation mutation, D1 migration application, live NVIDIA call, or publication.",
+      "evidence_paths": [
+        "docs/evidence/2026-07-18-marketing-create-renderer-baseline.md",
+        "docs/architecture/marketing-create-worker-renderer.md"
+      ],
+      "verification_status": "passed"
+    }
+  ],
+  "immutable_baseline_recheck": [
+    {
+      "path": "composition/pipeline.json",
+      "expected_sha256": "d738535c5060a0cb93a50b94511d32365593f7a242f92c08cf11913399d1f5a2",
+      "result": "matched"
+    },
+    {
+      "path": "composition/lead-ops.v1.json",
+      "expected_sha256": "25e69e404668b49fc8dfe03fab059212e3856383a8b5bb2c222f555a4f53db15",
+      "result": "matched"
+    },
+    {
+      "path": "composition/contracts/lead-ecosystem.v1.json",
+      "expected_sha256": "b1814b46370e4a184eb1968607d88361d21e9e0e7001044124e6a0967f3f9f2d",
+      "result": "matched"
+    },
+    {
+      "path": "composition/marketing-capabilities.v1.json",
+      "expected_sha256": "ce377ffbeffbf4b7bd2cc7ffc9f68288bc4e8eace9bf7bd75529ed910261a666",
+      "result": "matched"
+    },
+    {
+      "path": "composition/contracts/marketing-assets.v1.json",
+      "expected_sha256": "8758722327567e8eddb8b73aac961eec8c59c6c262c1b972ee70555e55438365",
+      "result": "matched"
+    }
+  ],
+  "verification_commands": [
+    {
+      "id": "composition-focused",
+      "command": "node --test bin/create-adapters.test.mjs bin/compose.test.mjs",
+      "result": {
+        "status": "passed",
+        "exit_code": 0,
+        "passed": 35,
+        "failed": 0
+      }
+    },
+    {
+      "id": "renderer-and-d1-focused",
+      "command": "node --test workers/quests/src/marketing-renderer.test.ts workers/quests/src/marketing-render-store.test.ts workers/quests/src/migration.test.ts",
+      "result": {
+        "status": "passed",
+        "exit_code": 0,
+        "passed": 33,
+        "failed": 0
+      }
+    },
+    {
+      "id": "authenticated-route-focused",
+      "command": "node --test --test-name-pattern='marketing renderer route' workers/quests/src/handler.test.ts",
+      "result": {
+        "status": "passed",
+        "exit_code": 0,
+        "passed": 7,
+        "failed": 0
+      }
+    },
+    {
+      "id": "targeted-feature-suite",
+      "command": "node --test bin/create-adapters.test.mjs bin/compose.test.mjs bin/marketing-orchestration.test.mjs workers/quests/src/marketing-renderer.test.ts workers/quests/src/marketing-render-store.test.ts workers/quests/src/migration.test.ts workers/quests/src/handler.test.ts",
+      "result": {
+        "status": "passed",
+        "exit_code": 0,
+        "passed": 345,
+        "failed": 0
+      }
+    },
+    {
+      "id": "repository-validation",
+      "command": "npm run validate",
+      "result": {
+        "status": "passed",
+        "exit_code": 0
+      }
+    },
+    {
+      "id": "full-tests",
+      "command": "npm test",
+      "result": {
+        "status": "passed",
+        "exit_code": 0,
+        "passed": 892,
+        "failed": 0
+      }
+    },
+    {
+      "id": "diff-check",
+      "command": "git diff --check",
+      "result": {
+        "status": "passed",
+        "exit_code": 0
+      }
+    },
+    {
+      "id": "immutable-input-hashes",
+      "command": "shasum -a 256 composition/pipeline.json composition/lead-ops.v1.json composition/contracts/lead-ecosystem.v1.json composition/marketing-capabilities.v1.json composition/contracts/marketing-assets.v1.json",
+      "result": {
+        "status": "passed",
+        "exit_code": 0,
+        "matches_expected": true
+      }
+    }
+  ],
+  "final_review": {
+    "secret_and_contract_audit": "passed_no_blocking_findings",
+    "d1_concurrency_audit": "passed_after_terminal_takeover_race_fix",
+    "spec_compliance_review": "approved_no_blocking_follow_ups",
+    "code_quality_security_review": "passed_no_blocking_findings",
+    "final_evidence_redaction_check": "passed_no_secret_values"
+  }
+}
