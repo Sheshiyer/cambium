@@ -18,6 +18,23 @@ const NON_AUTHORITATIVE_PLANES = Object.freeze([
   'hermes',
   'provider',
 ]);
+const AUTHORITY_CONTRACTS = Object.freeze({
+  task: 'action_request@1.0.0',
+  lease: 'writer_lease@1.0.0',
+  fencing: 'writer_lease@1.0.0',
+  approval: 'approval_decision@1.0.0',
+  receipt: 'operator_receipt@1.0.0',
+});
+const ENGAGE_ENTRY_REQUIREMENTS = Object.freeze([
+  'current suppression state',
+  'exact action approval',
+  'writer lease',
+  'current fencing token',
+]);
+const ENGAGE_AUTHORITY_CONTRACTS = Object.freeze([
+  'approval_decision@1.0.0',
+  'writer_lease@1.0.0',
+]);
 const CONTRACT_PATTERN = /^([a-z][a-z0-9_]*)@(\d+\.\d+\.\d+)$/;
 const KNOWN_CONTRACT_VERSIONS = new Set(['1.0.0']);
 
@@ -77,6 +94,9 @@ function validateAuthority(authority) {
       throw new Error(`authority primitive "${key}" must be owned by Cambium`);
     }
     validateContract(primitive.contract, `authority primitive "${key}"`);
+    if (primitive.contract !== AUTHORITY_CONTRACTS[key]) {
+      throw new Error(`authority primitive "${key}" must bind ${AUTHORITY_CONTRACTS[key]}`);
+    }
     if (typeof primitive.rule !== 'string' || primitive.rule.length === 0) {
       throw new Error(`authority primitive "${key}" requires an explicit rule`);
     }
@@ -108,6 +128,23 @@ function validateNodeShape(node) {
       throw new Error(`node "${node.id}" missing ${direction} eligibility gate`);
     }
     requireStringArray(gate.requires, `node "${node.id}" ${direction} eligibility requirements`);
+    if (gate.authority_contracts !== undefined) {
+      validateContracts(
+        gate.authority_contracts,
+        `node "${node.id}" ${direction} authority contracts`,
+      );
+    }
+  }
+  if (node.id === 'engage') {
+    const entryGate = eligibility.entry;
+    if (!sameMembers(entryGate.requires, ENGAGE_ENTRY_REQUIREMENTS)) {
+      throw new Error('engage entry eligibility must require suppression, approval, lease, and fencing semantics');
+    }
+    if (!Array.isArray(entryGate.authority_contracts)
+      || !sameMembers(entryGate.authority_contracts, ENGAGE_AUTHORITY_CONTRACTS)
+      || !ENGAGE_AUTHORITY_CONTRACTS.every((contract) => node.entry_contracts.includes(contract))) {
+      throw new Error('engage entry eligibility must bind approval_decision@1.0.0 and writer_lease@1.0.0 authority contracts');
+    }
   }
 
   const failurePolicy = requireObject(node.failure_policy, `node "${node.id}" failure policy`);
@@ -183,7 +220,10 @@ function validateJoins(graph, nodesById) {
   for (const node of nodesById.values()) {
     if (graph.entry_nodes.includes(node.id)) continue;
     const incoming = graph.edges.filter((edge) => edge.to === node.id);
-    const supplied = new Set(incoming.flatMap((edge) => edge.contracts));
+    const supplied = new Set([
+      ...incoming.flatMap((edge) => edge.contracts),
+      ...(node.eligibility?.entry?.authority_contracts || []),
+    ]);
     const missing = node.entry_contracts.filter((contract) => !supplied.has(contract));
     if (missing.length) {
       throw new Error(`unsatisfied join for "${node.id}": missing ${missing.join(', ')}`);
@@ -217,10 +257,18 @@ function validateReconciliation(graph) {
   }
 }
 
-function validateLearningFoldback(graph, nodeIds) {
+function validateLearningFoldback(graph, nodesById) {
   const foldback = requireObject(graph.learning_foldback, 'learning_foldback');
-  if (!nodeIds.includes(foldback.source)
-    || foldback.target !== 'cortex'
+  if (foldback.source !== 'engage') {
+    throw new Error('learning foldback source must be engage');
+  }
+  if (foldback.contract !== 'derived_learning@1.0.0') {
+    throw new Error('learning foldback must use derived_learning@1.0.0');
+  }
+  if (!nodesById.get('engage')?.exit_contracts.includes(foldback.contract)) {
+    throw new Error('learning foldback contract must be produced by engage');
+  }
+  if (foldback.target !== 'cortex'
     || foldback.mode !== 'derived-only') {
     throw new Error('learning foldback must be derived-only from a lead node to cortex');
   }
@@ -356,7 +404,7 @@ export function validateLeadOps(graph, { knownContractIds = null } = {}) {
   validateFanOuts(graph, nodeIds);
   validateJoins(graph, nodesById);
   validateReconciliation(graph);
-  validateLearningFoldback(graph, nodeIds);
+  validateLearningFoldback(graph, nodesById);
 
   const referencedContractIds = referencedLeadOpsContracts(graph);
   if (knownContractIds !== null) {

@@ -49,6 +49,24 @@ test('canonical graph makes Cambium the authority for task, lease, fencing, appr
     'hermes',
     'provider',
   ]);
+  const engage = graph.nodes.find((node) => node.id === 'engage');
+  assert.ok(engage.entry_contracts.includes('approval_decision@1.0.0'));
+  assert.ok(engage.entry_contracts.includes('writer_lease@1.0.0'));
+  assert.deepEqual(engage.eligibility.entry.authority_contracts, [
+    'approval_decision@1.0.0',
+    'writer_lease@1.0.0',
+  ]);
+});
+
+test('rejects swapped authority primitive contracts', async () => {
+  const graph = clone(await canonicalGraph());
+  graph.authority.primitives.approval.contract = 'operator_receipt@1.0.0';
+  graph.authority.primitives.receipt.contract = 'approval_decision@1.0.0';
+
+  assert.throws(
+    () => validateLeadOps(graph),
+    /authority primitive "approval".*approval_decision@1\.0\.0/i,
+  );
 });
 
 test('canonical graph defines typed fan-out, joins, partial failure, reconciliation, and derived-only learning', async () => {
@@ -146,6 +164,18 @@ test('rejects missing exit eligibility gates', async () => {
   assert.throws(() => validateLeadOps(graph), /engage.*exit eligibility gate/i);
 });
 
+test('rejects engage gates that weaken approval, lease, fencing, or suppression semantics', async () => {
+  const graph = clone(await canonicalGraph());
+  graph.nodes.find((node) => node.id === 'engage').eligibility.entry.requires = [
+    'always allowed',
+  ];
+
+  assert.throws(
+    () => validateLeadOps(graph),
+    /engage.*entry eligibility.*suppression.*approval.*lease.*fencing/i,
+  );
+});
+
 test('rejects raw or authoritative cortex foldback', async () => {
   const rawGraph = clone(await canonicalGraph());
   rawGraph.learning_foldback.raw_identity = true;
@@ -154,6 +184,22 @@ test('rejects raw or authoritative cortex foldback', async () => {
   const authorityGraph = clone(await canonicalGraph());
   authorityGraph.learning_foldback.authoritative = true;
   assert.throws(() => validateLeadOps(authorityGraph), /derived-only.*authoritative/i);
+});
+
+test('rejects foldback whose source or contract is not the engage-derived learning output', async () => {
+  const wrongSource = clone(await canonicalGraph());
+  wrongSource.learning_foldback.source = 'create';
+  assert.throws(
+    () => validateLeadOps(wrongSource),
+    /foldback.*source.*engage/i,
+  );
+
+  const wrongContract = clone(await canonicalGraph());
+  wrongContract.learning_foldback.contract = 'content_asset@1.0.0';
+  assert.throws(
+    () => validateLeadOps(wrongContract),
+    /foldback.*derived_learning@1\.0\.0/i,
+  );
 });
 
 test('rejects absent reconciliation semantics', async () => {

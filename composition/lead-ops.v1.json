@@ -252,7 +252,9 @@
       "entry_contracts": [
         "content_asset@1.0.0",
         "action_request@1.0.0",
-        "suppression_state@1.0.0"
+        "suppression_state@1.0.0",
+        "approval_decision@1.0.0",
+        "writer_lease@1.0.0"
       ],
       "exit_contracts": [
         "execution_attempt@1.0.0",
@@ -270,6 +272,10 @@
             "exact action approval",
             "writer lease",
             "current fencing token"
+          ],
+          "authority_contracts": [
+            "approval_decision@1.0.0",
+            "writer_lease@1.0.0"
           ]
         },
         "exit": {
@@ -382,7 +388,9 @@
       "required_contracts": [
         "content_asset@1.0.0",
         "action_request@1.0.0",
-        "suppression_state@1.0.0"
+        "suppression_state@1.0.0",
+        "approval_decision@1.0.0",
+        "writer_lease@1.0.0"
       ]
     }
   ],

@@ -33,7 +33,8 @@
       "branch": "codex/lead-ecosystem-contracts",
       "base": "codex/operator-intake-service-agreement",
       "baseCommit": "7360e5d949fa85786183cee85e033c89a0de578f",
-      "pullRequest": null
+      "foundationCommit": "cd241fad9dd866a21842ac07c6b080462bc40834",
+      "pullRequest": "https://github.com/Sheshiyer/cambium/pull/256"
     }
   },
   "integrationRule": "The lead-contract pull request targets the agreement branch until pull request 255 merges; IVerif remains an explicit dependency and is not copied silently.",
