@@ -135,31 +135,32 @@ or paste either secret value into a command line argument or recorded terminal t
 ### Operator provisioning checklist
 
 Perform this only from a trusted operator machine, against a verified Worker account and environment, and in a
-separately approved activation change. Enter secret values only at Wrangler's interactive prompt.
+separately approved activation change. The executable source of truth is the **Marketing Create: Fail-Closed
+Installation** and **Later, separately approved activation** sections of `workers/quests/DEPLOY.md`. Enter secret
+values only at Wrangler's interactive prompt.
 
 1. Issue a new NVIDIA key dedicated to `founder-article-nvidia@1.0.0`. Do not select an existing generic,
    EC2, MCP, or shared key.
-2. Verify the target account, Worker, environment, catalog digest, and planned rollback. Do not deploy as part
-   of secret inspection.
-3. Provision the dedicated provider credential interactively:
-
-   ```bash
-   npx wrangler secret put NVIDIA_MARKETING_CREATE_API_KEY
-   ```
-
-4. In a separate reviewed action, provision the activation binding interactively:
-
-   ```bash
-   npx wrangler secret put MARKETING_CREATE_ACTIVATION
-   ```
-
-   At the prompt, enter the exact activation from the immutable identity table. Do not place it in
-   `wrangler.toml`, plaintext `vars`, shell history, CI logs, or a non-interactive command argument.
-5. Inspect secret **names only** with `npx wrangler secret list`. The presence of both names is not proof that
-   their values are correct and does not authorize a deploy or provider call.
-6. Use the established deployment review to bind both secrets to only the intended Worker environment. Keep
-   activation disabled everywhere else.
-7. After activation, exercise the governed sequence only: prepare, signed founder approval, ID-only execute,
+2. Complete the fail-closed installation runbook first. Record the reviewed candidate Version UUID, its
+   `resources.script.etag`, and its complete binding-name/type signature. Neither marketing binding may exist
+   in that Version or any active Version.
+3. Wrangler 4.95 `versions secret put` copies the latest uploaded Version and accepts no `--version-id`.
+   Immediately before the first staged put, require the latest Version UUID to equal the recorded candidate;
+   abort if any other Version is newer.
+4. Run `wrangler versions secret put NVIDIA_MARKETING_CREATE_API_KEY` and type the dedicated provider key only
+   at the hidden prompt. This creates an undeployed Version. Record its UUID, require it to be latest, require
+   its script ETag to equal the candidate ETag, and require its binding signature to add exactly that one
+   `secret_text` name.
+5. Recheck that the provider-secret Version remains latest immediately before running `wrangler versions secret
+   put MARKETING_CREATE_ACTIVATION`. Type the exact activation from the immutable identity table only at the
+   hidden prompt and record the new undeployed Version UUID.
+6. Abort unless the final Version remains latest, retains the recorded candidate script ETag, and its complete
+   binding signature is exactly the candidate signature plus both marketing `secret_text` names. A Git tag or
+   successful `versions view` by itself does not prove code derivation or exclude an intervening Version.
+7. Only after that review, explicitly deploy the verified UUID with `wrangler versions deploy
+   "$ACTIVATION_VERSION_ID@100%"`. Do not use `wrangler secret put`; it creates and immediately deploys a new
+   Version instead of preserving the staged review boundary.
+8. After activation, exercise the governed sequence only: prepare, signed founder approval, ID-only execute,
    then human review. Stop on any reconciliation-required result.
 
 This repository slice intentionally stops before every provisioning and deployment step above.
