@@ -11,6 +11,22 @@ const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const VALIDATOR = join(REPO_ROOT, 'scripts/validate-product-branch-packets.mjs');
 const PACKET_DIR = join(REPO_ROOT, 'docs/plans/product-branches');
 const BASE_ROW_RULE = 'Select exactly one of Shopify QA, Dodo reservation env, privacy copy, outreach approval, or first merchant proof.';
+const COMPLETE_SAFE_PROVIDER_POLICY = `
+## Provider / Data Policy
+
+| Field | Value |
+| --- | --- |
+| subgraph_version | \`lead-ops@1.0.0\` |
+| stage_capabilities | \`discover:company-observation@1.0.0, enrich:identity-resolution@1.0.0\` |
+| provider_binding | \`none\` |
+| adapter_version | \`none\` |
+| mutation_enabled | \`false\` |
+| data_classification | \`synthetic\` |
+| processing_region | \`none\` |
+| purpose | Offline contract proof only. |
+| retention | \`none\` |
+| suppression_policy | No contact or mutation; suppression always dominates. |
+`;
 
 function runValidator(packetDir) {
   return spawnSync(process.execPath, [VALIDATOR, '--packet-dir', packetDir], {
@@ -25,12 +41,16 @@ function runValidatorWithTempPackets(mutator) {
     cpSync(PACKET_DIR, tempPacketDir, { recursive: true });
     const packetFile = join(tempPacketDir, 'fitcheck.md');
     if (mutator) {
-      mutator(packetFile);
+      mutator(packetFile, tempPacketDir, join(tempPacketDir, 'index.md'));
     }
     return runValidator(tempPacketDir);
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
   }
+}
+
+function insertProviderPolicy(packetFile, policy = COMPLETE_SAFE_PROVIDER_POLICY) {
+  replaceFitcheck(packetFile, '\n## Promotion Rule\n', `${policy}\n## Promotion Rule\n`);
 }
 
 function replaceFitcheck(packetFile, from, to) {
@@ -43,7 +63,109 @@ function replaceFitcheck(packetFile, from, to) {
 test('current branch packets validate cleanly', () => {
   const result = runValidator(PACKET_DIR);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /validated 5 branch packet\(s\)/);
+  assert.match(result.stdout, /validated 8 branch packet\(s\)/);
+});
+
+test('optional provider policy accepts zero-authority omissions and complete safe references', () => {
+  const complete = runValidatorWithTempPackets((packetFile) => {
+    insertProviderPolicy(packetFile);
+  });
+  assert.equal(complete.status, 0, complete.stderr);
+
+  const omittedAuthority = runValidatorWithTempPackets((packetFile) => {
+    insertProviderPolicy(packetFile, `
+## Provider / Data Policy
+
+| Field | Value |
+| --- | --- |
+| subgraph_version | \`lead-ops@1.0.0\` |
+| data_classification | \`synthetic\` |
+| purpose | Offline contract proof only. |
+`);
+  });
+  assert.equal(omittedAuthority.status, 0, omittedAuthority.stderr);
+});
+
+test('provider policy rejects unknown catalog versions and unversioned active bindings', () => {
+  const cases = [
+    {
+      name: 'unknown subgraph version',
+      from: '`lead-ops@1.0.0`',
+      to: '`lead-ops@latest`',
+      message: /unknown subgraph_version "lead-ops@latest"/
+    },
+    {
+      name: 'unknown capability version',
+      from: '`discover:company-observation@1.0.0, enrich:identity-resolution@1.0.0`',
+      to: '`discover:company-observation@latest`',
+      message: /invalid stage_capabilities reference.*latest/
+    },
+    {
+      name: 'unversioned provider binding',
+      from: '`none` |\n| adapter_version | `none`',
+      to: '`explee-observation` |\n| adapter_version | `1.0.0`',
+      message: /provider_binding must be none or a versioned catalog reference/
+    },
+    {
+      name: 'missing adapter version for binding',
+      from: '`none` |\n| adapter_version | `none`',
+      to: '`explee-observation@1.0.0` |\n| adapter_version | `none`',
+      message: /active provider_binding requires a semantic adapter_version/
+    }
+  ];
+
+  for (const testCase of cases) {
+    const result = runValidatorWithTempPackets((packetFile) => {
+      insertProviderPolicy(packetFile);
+      replaceFitcheck(packetFile, testCase.from, testCase.to);
+    });
+    assert.notEqual(result.status, 0, testCase.name);
+    assert.match(result.stderr, testCase.message, testCase.name);
+  }
+});
+
+test('proof-only packets reject provider mutation even with otherwise valid policy', () => {
+  const result = runValidatorWithTempPackets((_packetFile, packetDir) => {
+    const packetFile = join(packetDir, 'iverif.md');
+    const activeMutationPolicy = COMPLETE_SAFE_PROVIDER_POLICY
+      .replace('| provider_binding | `none` |', '| provider_binding | `synthetic-observation@1.0.0` |')
+      .replace('| adapter_version | `none` |', '| adapter_version | `1.0.0` |')
+      .replace('| mutation_enabled | `false` |', '| mutation_enabled | `true` |');
+    insertProviderPolicy(packetFile, activeMutationPolicy);
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /proof-only packet cannot enable provider mutation/);
+});
+
+test('provider policy rejects caller-owned routing and credential overrides', () => {
+  for (const field of ['tenant_id', 'account_id', 'project_id', 'campaign_id', 'credential_ref']) {
+    const result = runValidatorWithTempPackets((packetFile) => {
+      insertProviderPolicy(packetFile, COMPLETE_SAFE_PROVIDER_POLICY.replace(
+        '| provider_binding |',
+        `| ${field} | caller-controlled |\n| provider_binding |`
+      ));
+    });
+
+    assert.notEqual(result.status, 0, field);
+    assert.match(result.stderr, new RegExp(`caller-owned override field "${field}"`), field);
+  }
+});
+
+test('index rejects duplicate product IDs and duplicate packet paths before packet loading', () => {
+  const duplicateId = runValidatorWithTempPackets((_packetFile, _packetDir, indexFile) => {
+    const source = readFileSync(indexFile, 'utf8');
+    writeFileSync(indexFile, `${source.trimEnd()}\n| fitcheck | product | Duplicate ID | Proof | proof-only | Duplicate check | vantyx.md |\n`);
+  });
+  assert.notEqual(duplicateId.status, 0);
+  assert.match(duplicateId.stderr, /duplicate product_id "fitcheck"/);
+
+  const duplicatePath = runValidatorWithTempPackets((_packetFile, _packetDir, indexFile) => {
+    const source = readFileSync(indexFile, 'utf8');
+    writeFileSync(indexFile, `${source.trimEnd()}\n| fitcheck-copy | product | Duplicate Path | Proof | proof-only | Duplicate check | fitcheck.md |\n`);
+  });
+  assert.notEqual(duplicatePath.status, 0);
+  assert.match(duplicatePath.stderr, /duplicate packet path "fitcheck\.md"/);
 });
 
 test('boundary colors, required loop cells, and state files fail closed', () => {

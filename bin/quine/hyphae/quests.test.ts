@@ -136,11 +136,12 @@ test('quests visual envelope exposes branch loop library without changing quest 
 
   assert.equal(ledgerWithBranches.completed, ledgerWithoutBranches.completed);
   assert.equal(visual.branchLoops.source, 'product-branch-packets@v1');
-  assert.equal(visual.branchLoops.total, 5);
-  assert.equal(visual.branchLoops.green, 1);
+  assert.equal(visual.branchLoops.total, 8);
+  assert.equal(visual.branchLoops.green, 4);
   assert.equal(visual.branchLoops.yellow, 3);
   assert.equal(visual.branchLoops.red, 1);
   assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'iverif-claim-proof-loop' && row.runMode === 'read-only'));
+  assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'iberev-contract-proof-loop' && row.runMode === 'read-only'));
   assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'snow-gloves-os-approval-loop' && row.runMode === 'never-alone'));
   assert.ok(visual.branchLoops.rows.some((row) => row.branchKind === 'client' && row.loopId === 'client-delivery-handoff-loop'));
 });
@@ -294,14 +295,17 @@ test('gatherQuestInputs loads branch stories beside project evidence', () => {
   const inputs = gatherQuestInputs({ root: process.cwd(), vaultRoot: join(process.cwd(), 'vault') }, 'cambium');
   const fitcheck = inputs.branchStories?.find((story) => story.productId === 'fitcheck');
   const clientDelivery = inputs.branchStories?.find((story) => story.productId === 'client-delivery');
+  const iberev = inputs.branchStories?.find((story) => story.productId === 'iberev');
 
   assert.ok(inputs.branchStories);
-  assert.equal(inputs.branchStories.length, 5);
+  assert.equal(inputs.branchStories.length, 8);
   assert.ok(fitcheck);
   assert.ok(clientDelivery);
+  assert.ok(iberev);
   assert.equal(clientDelivery.branchKind, 'client');
   assert.equal(fitcheck.missions[0].missionId, 'fitcheck-shopify-qa');
   assert.equal(fitcheck.promotion.state, 'supervised-branch');
+  assert.equal(iberev.promotion.state, 'proof-only');
 });
 
 test('quests visual envelope exposes branchStories without changing quest ledger completion', () => {
@@ -320,10 +324,11 @@ test('quests visual envelope exposes branchStories without changing quest ledger
   assert.equal(ledgerWithBranches.current?.id, ledgerWithoutBranches.current?.id);
   assert.equal(visual.branchStories.source, 'product-branch-packets@v1');
   assert.equal(visual.branchStories.status, 'partial');
-  assert.equal(visual.branchStories.total, 5);
+  assert.equal(visual.branchStories.total, inputs.branchStories?.length);
   assert.equal(visual.branchStories.activeBranchId, 'fitcheck');
   assert.equal(visual.branchStories.rows.find((story) => story.productId === 'fitcheck')?.arcId, 'fitcheck-supervised-launch-hardening');
   assert.equal(visual.branchStories.rows.find((story) => story.productId === 'client-delivery')?.branchKind, 'client');
+  assert.equal(visual.branchStories.rows.find((story) => story.productId === 'geo')?.arcId, 'geo-citations-before-visibility-claims');
   assert.ok(visual.branchStories.gaps.some((gap) => gap.status === 'blocked'));
 });
 

@@ -3,12 +3,16 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { planPipeline, formatPlan, loadJson, parseRunArgs } from './compose.mjs';
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { planPipeline, formatPlan, loadJson, loadComposition, parseRunArgs } from './compose.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const registry = loadJson(join(root, 'registry.json'));
 const pipeline = loadJson(join(root, 'composition', 'pipeline.json'));
+const leadOps = loadJson(join(root, 'composition', 'lead-ops.v1.json'));
+const leadContracts = loadJson(join(root, 'composition', 'contracts', 'lead-ecosystem.v1.json'));
 const machineReadableContractGroups = new Set([
   'idea',
   'brand_system',
@@ -39,6 +43,86 @@ test('stages are ordered genesis -> taste -> build -> ops', () => {
   assert.deepEqual(
     plan.steps.map((s) => s.stage),
     ['genesis', 'taste', 'build', 'ops'],
+  );
+});
+
+test('production composition loader resolves and validates the ops lead subgraph', () => {
+  const loaded = loadComposition(root);
+
+  assert.equal(loaded.leadOps.id, 'lead-ops');
+  assert.equal(loaded.leadOps.version, '1.0.0');
+  assert.equal(loaded.leadContracts.catalog_id, 'lead-ecosystem@1.0.0');
+  assert.deepEqual(loaded.leadOps.stages, [
+    'discover',
+    'capture',
+    'enrich',
+    'understand',
+    'create',
+    'engage',
+  ]);
+});
+
+test('production composition loader rejects a missing referenced lead subgraph', async () => {
+  const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-missing-lead-'));
+  await mkdir(join(fixtureRoot, 'composition'));
+  await writeFile(join(fixtureRoot, 'registry.json'), JSON.stringify(registry));
+  await writeFile(join(fixtureRoot, 'composition', 'pipeline.json'), JSON.stringify({
+    ...pipeline,
+    stages: pipeline.stages.map((stage) => stage.id === 'ops'
+      ? {
+          ...stage,
+          subgraph: {
+            id: 'lead-ops',
+            version: '1.0.0',
+            path: 'missing-lead-ops.v1.json',
+          },
+        }
+      : stage),
+  }));
+
+  assert.throws(
+    () => loadComposition(fixtureRoot),
+    /lead subgraph.*missing-lead-ops\.v1\.json.*could not be loaded/i,
+  );
+});
+
+test('production composition loader rejects a missing referenced lead contract catalog', async () => {
+  const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-missing-catalog-'));
+  await mkdir(join(fixtureRoot, 'composition'));
+  await writeFile(join(fixtureRoot, 'registry.json'), JSON.stringify(registry));
+  await writeFile(join(fixtureRoot, 'composition', 'pipeline.json'), JSON.stringify(pipeline));
+  await writeFile(join(fixtureRoot, 'composition', 'lead-ops.v1.json'), JSON.stringify(leadOps));
+
+  assert.throws(
+    () => loadComposition(fixtureRoot),
+    /lead contract catalog.*contracts\/lead-ecosystem\.v1\.json.*could not be loaded/i,
+  );
+});
+
+test('production composition loader rejects graph contract IDs absent from the catalog', async () => {
+  const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-compose-unknown-contract-'));
+  await mkdir(join(fixtureRoot, 'composition', 'contracts'), { recursive: true });
+  const graph = structuredClone(leadOps);
+  graph.nodes.find((node) => node.id === 'discover').exit_contracts = [
+    'unregistered_observation@1.0.0',
+  ];
+  graph.nodes.find((node) => node.id === 'capture').entry_contracts = [
+    'unregistered_observation@1.0.0',
+  ];
+  graph.edges.find((edge) => edge.from === 'discover' && edge.to === 'capture').contracts = [
+    'unregistered_observation@1.0.0',
+  ];
+  await writeFile(join(fixtureRoot, 'registry.json'), JSON.stringify(registry));
+  await writeFile(join(fixtureRoot, 'composition', 'pipeline.json'), JSON.stringify(pipeline));
+  await writeFile(join(fixtureRoot, 'composition', 'lead-ops.v1.json'), JSON.stringify(graph));
+  await writeFile(
+    join(fixtureRoot, 'composition', 'contracts', 'lead-ecosystem.v1.json'),
+    JSON.stringify(leadContracts),
+  );
+
+  assert.throws(
+    () => loadComposition(fixtureRoot),
+    /unknown graph contract.*unregistered_observation@1\.0\.0/i,
   );
 });
 
