@@ -5,7 +5,7 @@ branch_kind: product
 name: IVerif
 role: Compliance and proof product candidate
 promotion_state: proof-only
-current_gate: Claim/proof separation before automation
+current_gate: Claim/proof separation and live campaign reconciliation before automation
 packet_owner: cambium
 ---
 
@@ -28,9 +28,9 @@ IVerif is a proof-only Cambium product candidate for AI document validation in E
 | better_than_survival_metric | Wiki/product route builds cleanly and one operator-approved validation workflow is evidenced without compliance overclaim. |
 | GTM_channel | Compliance/operator research and proof-led pilot conversations only after claim review. |
 | constraints | No automation before claim/proof separation; no compliance/security/performance claim without direct evidence. |
-| third_party_apps | Brandmint, NotebookLM, Vercel/GitHub, Astro/MDX/GSAP, fal.ai/nano-banana-pro, GPT Image, OpenAI, OpenRouter, Replicate, inference providers mentioned by config/scripts. |
-| autonomy_boundary | Proof-only sidecar; Cambium may record evidence but must not automate outreach or validation claims. |
-| approvals | Source-linked claim review, privacy/security evidence, operator approval, build/route proof, and compliance wording approval. |
+| third_party_apps | Explee, Brandmint, NotebookLM, Vercel/GitHub, Astro/MDX/GSAP, fal.ai/nano-banana-pro, GPT Image, OpenAI, OpenRouter, Replicate, inference providers mentioned by config/scripts. |
+| autonomy_boundary | Proof-only sidecar; Cambium may observe the fixed IVerif Explee campaign but must not mutate outreach or promote validation claims. |
+| approvals | Source-linked claim review, privacy/security evidence, read-parity proof, one-writer reconciliation, operator approval, build/route proof, and compliance wording approval. |
 
 ## Organ Routing
 
@@ -64,6 +64,7 @@ IVerif is a proof-only Cambium product candidate for AI document validation in E
 | NotebookLM artifacts | Research/source material | Explainer and knowledge artifacts | Unsourced or stale claims | proof packet source | Sanitize source material before publication |
 | Astro wiki-site | Wiki source | Static site/routes | `dist` missing, verify scripts missing | `iverif` docs site | No sensitive source leakage |
 | Inference/image providers | Prompt/config inputs | Images or generated content | Missing API tokens, unverified provider output | brand/wiki artifacts | Do not record provider keys |
+| Explee project `16763`, campaign `45711` | Fixed GET observations only | Redacted Public Agencies campaign evidence | Live campaign drift, unproven one-writer ownership, provider unavailable | `iverif` only | No credentials, lead PII, or raw message content outside provider boundary |
 | Future SaaS/API | Dossier documents and rules | Validation results and audit trail | Compliance/security/performance overclaim | future tenant/account | GDPR, residency, encryption, DPA, and audit evidence required |
 
 ## Evidence Ledger
@@ -72,6 +73,9 @@ IVerif is a proof-only Cambium product candidate for AI document validation in E
 | --- | --- |
 | verified | Product-context agent found `brand-config.yaml`, `.brandmint-state.json`, seven `.brandmint/outputs/*.json` outputs, `wiki-output/*.md`, `deliverables/notebooklm/artifacts/*`, `wiki-site` Astro source, `WEBSITE_ASSETS_GUIDE.md`, and generation/publish manifests. |
 | verified | `wiki-site/package.json` declares `dev`, `build`, `preview`, `verify:data`, and `verify:routes`. |
+| verified | A direct Explee read observation on 2026-07-16 bound project `16763` and Public Agencies campaign `45711`: 2,921 sends, 17 replies, 0.6 percent provider-reported reply rate, six provider-labelled hot leads, $87.63 spend, and 2,779/2,887 pool usage. This verifies provider state only, not product demand or claims. |
+| blocked | All 17 observed replies require classification before a qualified-reply baseline or experiment winner can be declared. |
+| blocked | Live campaign activity conflicts with the packet's blocked customer-contact gate; provider auto-reply state and one-writer ownership must be reconciled before any campaign mutation. |
 | blocked | `wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established. |
 | blocked | GDPR, ISO 27001, SOC 2, EU residency, encryption, SAML/OAuth, SLA, and DPA claims are copy/spec claims unless separately evidenced. |
 | blocked | Performance and market claims need source-linked review before public use. |
@@ -85,21 +89,24 @@ IVerif is a proof-only Cambium product candidate for AI document validation in E
 | Spend approvals | pending | Approval before provider-backed generation or validation runs. |
 | Privacy/legal | blocked | GDPR, residency, encryption, DPA, audit trail, and source-sanitization evidence. |
 | Payment | no-signal | No payment or billing route evidenced. |
-| Customer contact | blocked | No outreach until claim/proof review is complete. |
+| Customer contact | blocked | Existing live campaign activity is drift to reconcile, not authorization; no Cambium dispatch until read parity, claim review, one-writer proof, and operator approval. |
 | Public claims | blocked | Separate claims such as only AI platform, leading operators, 90 percent error reduction, <5 min processing, <200ms API, 99.9 percent uptime, <2 percent rejection, compliance certifications, and market-volume numbers. |
 | Credentials | blocked | Config references external env/provider token surfaces; no key values belong in packets. |
 
 ## Quest Queue
 
 1. Create a source-linked claim table for every public/compliance/performance claim.
-2. Mark each claim verified, blocked, pending, or no-signal.
-3. Repair or replace missing wiki-site verification scripts.
-4. Run wiki build and route proof.
-5. Produce privacy/security evidence for any compliance statement.
-6. Get explicit operator approval before any product-branch promotion.
-7. Keep Cambium sidecar disabled/proof-only until the above gates close.
+2. Classify all 17 existing Public Agencies replies before interpreting campaign demand.
+3. Prove fixed, redacted Explee GET parity through Cambium and Hermes.
+4. Reconcile provider auto-reply state and establish one-writer ownership.
+5. Mark each claim verified, blocked, pending, or no-signal.
+6. Repair or replace missing wiki-site verification scripts.
+7. Run wiki build and route proof.
+8. Produce privacy/security evidence for any compliance statement.
+9. Get explicit operator approval before any product-branch promotion or campaign change.
+10. Keep Cambium provider mutation disabled and the product proof-only until the above gates close.
 
-Current frontier: claim/proof separation before automation.
+Current frontier: classify replies and prove redacted read parity while claim/proof and customer-contact gates remain blocked.
 
 Garden cadence: weekly proof review only; no autonomous execution cadence.
 
@@ -147,6 +154,20 @@ First real pilot proof: one operator-approved validation workflow with sourced r
 | provider-backed generation | pending | founder approves spend and source sanitation | generation remains disabled |
 | privacy/security wording | blocked | evidence exists for each claim | mini app must show proof-only state |
 | operator outreach | blocked | operator approval after proof separation | no GTM dispatch |
+
+## IVerif Public Agencies Observation Contract
+
+| Control | Value |
+| --- | --- |
+| grounding source | `workers/quests/src/iverif-grounding.ts` |
+| evidence packet | `docs/evidence/2026-07-16-iverif-public-agencies-experiment.md` |
+| Explee binding | project `16763`, campaign `45711` |
+| Telegram routing | topic `clients`, thread `804` |
+| provider policy | `observe-only`; upstream method allowlist is `GET` |
+| persona hypothesis | Regulatory Auditor / Programme Administrator |
+| experiment variable | operator/rejection framing -> manual exception and defensible review-trail framing |
+| winner gate | all historical and treatment replies classified; minimum 100 treatment sends and seven days after separate approval |
+| send eligibility | `false` until later signed-action gates close |
 
 ## Dispatch Inputs
 

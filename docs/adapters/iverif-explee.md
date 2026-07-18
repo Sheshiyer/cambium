@@ -45,7 +45,7 @@ Candidate parity is field-by-field, not a successful-status check:
 1. Compare direct Explee project, campaign, autopilot, inbox, and thread GET results with the four redacted Cambium projections.
 2. Confirm project `16763`, campaign `45711`, aggregate counts, freshness, pagination, provider auto-reply state, and opaque thread state match.
 3. Confirm every Cambium response reports `sendEligible=false`, and that no identity, address, subject, body, credential, or raw RFC message identifier leaves the adapter.
-4. Exercise `/ts-iverif status`, `inbox`, `thread`, and `optimize` against the candidate Worker; verify Hermes distinguishes provider reply eligibility from system send eligibility.
+4. Exercise the four authenticated Cambium read routes directly against the candidate Worker; if a later Hermes `/ts-iverif` wrapper is added, it must preserve the same read-only distinction between provider reply eligibility and system send eligibility.
 5. Keep production deployment, drafting, and every provider mutation disabled until the parity receipt is reviewed.
 
 ## Port
