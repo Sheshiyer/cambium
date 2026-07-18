@@ -1,6 +1,6 @@
 # Lead Ecosystem Contract Foundation
 
-Status: L-1/L0 contract foundation. No provider is activated by this document or its companion contracts.
+Status: L-1/L0 contract foundation plus one implemented fixed-tenant live read-only observer. No provider mutation is activated by this document or its companion contracts.
 
 ## What this architecture makes canonical
 
@@ -76,16 +76,16 @@ The later runtime implementation must add atomic budget reservation and usage le
 
 Existing packet fields remain valid. The optional provider/data policy section grants no authority when absent. A proof-only packet cannot enable mutation. iBerev, AISEO, and GEO enter as distinct proof-only control packets with no active provider binding; they are not aliases for IVerif.
 
-## Next authorized L1 slice
+## Implemented first L1 slice
 
-Implement one fixed-tenant, read-only Explee observation adapter behind the contract catalog:
+The first live slice now exists as one fixed-tenant, read-only Explee observer for IVerif:
 
-1. Pin one API/schema version and a narrow endpoint/method allowlist.
-2. Bind tenant, account, project, and campaign server-side; reject caller overrides.
-3. Use typed secret references only; never serialize credentials.
-4. Validate deterministic request/response fixtures with a network sentinel first.
-5. Add redaction, size/time limits, bounded retry for safe reads, drift refusal, and an immutable observation receipt.
-6. Keep replies, budgets, sending, autopilot, and every mutation capability disabled.
-7. Prove replay, provenance, suppression preservation, and operator-safe receipt before any live canary is separately authorized.
+1. One documented Explee public API surface is pinned by route family and method shape.
+2. Tenant, project, and campaign binding remain server-side and non-overridable.
+3. Credentials stay in Worker secrets; Hermes receives only the dedicated read token.
+4. The adapter enforces redaction, bounded pagination, response-size limits, timeout bounds, and fail-closed drift handling.
+5. Cambium exposes only four GET observer routes: status, inbox, thread, and optimize.
+6. Reply drafting/sending, budgets, autopilot changes, imports, starts, stops, and every provider mutation remain blocked.
+7. The projection preserves provenance and safety state while withholding lead identity, message content, and raw provider payloads.
 
-That L1 slice is read-only adapter work. Live network proof, paid enrichment, asset generation, outbound engagement, and shared learning remain later gates.
+This is still a bounded read-only adapter. Live mutation, paid enrichment, asset generation, outbound engagement, and shared-learning foldback remain later gates.

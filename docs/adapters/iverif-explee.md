@@ -2,6 +2,15 @@
 
 This contract grounds one product and one campaign before Cambium generalizes an AutoGTM scaffold. It defines an **observe-only** provider boundary for IVerif's Public Agencies campaign. The evidence layer introduced no client or route; the observer layer now implements four dedicated GET routes without adding a campaign mutation.
 
+## Official Vendor Surface
+
+This slice is pinned to Explee's published public API surface as verified on 2026-07-18:
+
+- Human docs: <https://api.explee.com/public/api/docs>
+- OpenAPI schema: <https://api.explee.com/public/api/openapi.json>
+
+The current implementation uses only documented `GET` endpoints under `/public/api/v1/autogtm/...` and keeps every `POST` mutation route out of Cambium's exposed boundary.
+
 ## Fixed Binding
 
 | Surface | Fixed value |
