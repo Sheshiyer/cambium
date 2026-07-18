@@ -200,5 +200,5 @@ Before rotation, rollback completion, or activation of any successor adapter:
 | Route and signed-gate verification | `workers/quests/src/handler.test.ts` |
 
 The implementation evidence record is
-`docs/evidence/2026-07-18-marketing-create-renderer-implementation.json`. Its verification fields remain pending
-until the branch owner runs and records the complete final test and security audit.
+`docs/evidence/2026-07-18-marketing-create-renderer-implementation.json`. Its verification fields record the
+completed owner-run tests, immutable hash checks, redaction audit, and independent review verdicts.
