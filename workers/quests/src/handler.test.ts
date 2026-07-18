@@ -7,7 +7,13 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
-import { d1BridgeBusinessTaskStore, d1BridgeExecutionStore, d1BridgeStore, d1FabricLedgerStore } from './index.ts';
+import worker, { d1BridgeBusinessTaskStore, d1BridgeExecutionStore, d1BridgeStore, d1FabricLedgerStore } from './index.ts';
+import { d1MarketingRenderStore } from './marketing-render-store.ts';
+import {
+  MARKETING_CREATE_ADAPTER_ID,
+  MARKETING_CREATE_EXPECTED_ACTIVATION,
+  MARKETING_CREATE_PROVIDER_URL,
+} from './marketing-renderer.ts';
 import type {
   FabricEvidenceCandidateRecord,
   FabricEvidenceReviewRecord,
@@ -10724,4 +10730,387 @@ test('IVerif observer normalizes unexpected failures without leaking provider bo
   assert.equal(response.status, 503);
   assert.equal(body(response).error, 'iverif_observer_unavailable');
   assert.doesNotMatch(response.body, /pii-|secret/);
+});
+
+// ── Fixed-tenant marketing create renderer ──────────────────────────────
+
+function marketingRoutePrepareInput(overrides: Record<string, unknown> = {}) {
+  return {
+    requestId: 'marketing-render-request-001',
+    idempotencyKey: 'marketing-render-replay-001',
+    actorId: 'operator-founder-001',
+    budgetReservationId: 'budget-founder-article-001',
+    expiresAt: '2026-07-18T14:00:00.000Z',
+    brief: {
+      briefId: 'asset-brief-founder-001',
+      objective: 'Explain how governed organic media earns trust.',
+      audience: 'Founder-led service businesses',
+      callToAction: 'Review the workflow before adopting it.',
+      productPacketId: 'thoughtseed-marketing@1.0.0',
+      productPacketDigest: '2'.repeat(64),
+      evidenceSnapshotDigest: '3'.repeat(64),
+      seedDigest: '4'.repeat(64),
+      facts: [{
+        claimId: 'claim-governance-001',
+        text: 'Every generated asset remains review-only until explicit approval.',
+        sourceDigest: '5'.repeat(64),
+      }],
+    },
+    ...overrides,
+  };
+}
+
+function marketingRouteHarness(fetchImpl: typeof fetch, overrides: Record<string, unknown> = {}) {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const store = d1MarketingRenderStore(new SqliteD1Database(db));
+  let uuidSequence = 0;
+  const ids = ['approval-marketing-render-001', 'claim-marketing-render-001'];
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    marketingRenderStore: store,
+    marketingRenderer: {
+      activation: MARKETING_CREATE_EXPECTED_ACTIVATION,
+      apiKey: 'exclusive-worker-secret-value',
+      fetchImpl,
+    },
+    now: () => '2026-07-18T13:00:00.000Z',
+    uuid: () => ids[uuidSequence++] ?? `marketing-id-${uuidSequence}`,
+    ...overrides,
+  };
+  return { db, store, deps };
+}
+
+async function prepareMarketingRoute(deps: any, payload = marketingRoutePrepareInput()) {
+  return handle(req('POST', '/v1/bridge/marketing-renders/prepare', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(payload),
+  }), deps);
+}
+
+test('marketing renderer route · only admin can prepare the immutable registered action', async () => {
+  let fetches = 0;
+  const { store, deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}', { status: 500 });
+  });
+
+  const assignment = await handle(req('POST', '/v1/bridge/marketing-renders/prepare', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(marketingRoutePrepareInput()),
+  }), deps);
+  assert.equal(assignment.status, 403);
+
+  const override = await prepareMarketingRoute(deps, marketingRoutePrepareInput({ model: 'caller/model' }));
+  assert.equal(override.status, 400);
+  assert.equal(body(override).error, 'invalid_prepare_input');
+
+  const prepared = await prepareMarketingRoute(deps);
+  assert.equal(prepared.status, 200);
+  assert.deepEqual(body(prepared), {
+    ok: true,
+    duplicate: false,
+    requestId: 'marketing-render-request-001',
+    adapterId: MARKETING_CREATE_ADAPTER_ID,
+    actionDigest: body(prepared).actionDigest,
+    status: 'awaiting_human_approval',
+    nextAction: {
+      route: '/api/gate/thoughtseed',
+      kind: 'approve-marketing-render',
+    },
+  });
+  assert.match(body(prepared).actionDigest, /^[a-f0-9]{64}$/);
+  assert.doesNotMatch(prepared.body, /exclusive-worker-secret-value|messages|promptTemplate/i);
+  assert.ok(await store.getPrepared('marketing-render-request-001'));
+  assert.equal(fetches, 0);
+});
+
+test('marketing renderer route · activation mismatch refuses before D1 preparation', async () => {
+  let fetches = 0;
+  const { store, deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}');
+  }, {
+    marketingRenderer: {
+      activation: 'wrong-activation',
+      apiKey: 'exclusive-worker-secret-value',
+    },
+  });
+
+  const response = await prepareMarketingRoute(deps);
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'renderer_disabled');
+  assert.equal(await store.getPrepared('marketing-render-request-001'), null);
+  assert.equal(fetches, 0);
+});
+
+test('marketing renderer route · preparation normalizes D1 failures without leaking diagnostics', async () => {
+  const { deps } = marketingRouteHarness(async () => new Response('{}'), {
+    marketingRenderStore: {
+      async prepare() { throw new Error('database-secret-diagnostic'); },
+    },
+  });
+  const response = await prepareMarketingRoute(deps);
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'marketing_render_store_unavailable');
+  assert.doesNotMatch(response.body, /database-secret-diagnostic/);
+});
+
+test('marketing renderer route · signed Thoughtseed founder approval is persisted and idempotent', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: TEST_FOUNDER_A,
+    authDate: NOW / 1000 - 30,
+  });
+  const { store, deps } = marketingRouteHarness(async () => new Response('{}'), {
+    gate: gateCfg(pubKeyHex),
+  });
+  assert.equal((await prepareMarketingRoute(deps)).status, 200);
+
+  deps.marketingRenderer.activation = 'wrong-activation';
+  const disabled = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(disabled.status, 503);
+  assert.equal(body(disabled).error, 'renderer_disabled');
+  assert.equal(await store.getApproval('approval-marketing-render-001'), null);
+  deps.marketingRenderer.activation = MARKETING_CREATE_EXPECTED_ACTIVATION;
+
+  const injectedAuthority = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      actionDigest: '9'.repeat(64),
+      initData,
+    }),
+  }), deps);
+  assert.equal(injectedAuthority.status, 400);
+  assert.equal(body(injectedAuthority).error, 'invalid_marketing_render_approval_input');
+  assert.equal(await store.getApproval('approval-marketing-render-001'), null);
+
+  const wrongTenant = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(wrongTenant.status, 403);
+
+  const approved = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  assert.deepEqual(body(approved), {
+    ok: true,
+    duplicate: false,
+    requestId: 'marketing-render-request-001',
+    approvalDecisionId: 'approval-marketing-render-001',
+  });
+  const persisted = await store.getApproval('approval-marketing-render-001');
+  assert.equal(persisted?.approver_id, `telegram-founder-${TEST_FOUNDER_A}`);
+
+  const duplicate = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).duplicate, true);
+  assert.equal(body(duplicate).approvalDecisionId, 'approval-marketing-render-001');
+});
+
+test('marketing renderer route · persisted approval executes once and replays review-only output', async () => {
+  let fetches = 0;
+  const providerSecret = 'exclusive-worker-secret-value';
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: TEST_FOUNDER_B,
+    authDate: NOW / 1000 - 30,
+  });
+  const { deps } = marketingRouteHarness(async (url, init) => {
+    fetches += 1;
+    assert.equal(String(url), MARKETING_CREATE_PROVIDER_URL);
+    assert.equal((init?.headers as Record<string, string>).authorization, `Bearer ${providerSecret}`);
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({
+        title: 'Governed organic media',
+        body: 'A review-only article grounded in verified facts.',
+      }) } }],
+      usage: { total_tokens: 321 },
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  }, {
+    gate: gateCfg(pubKeyHex),
+  });
+  assert.equal((await prepareMarketingRoute(deps)).status, 200);
+  const approved = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  const approvalDecisionId = body(approved).approvalDecisionId;
+
+  const override = await handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ approvalDecisionId, model: 'caller/model' }),
+  }), deps);
+  assert.equal(override.status, 400);
+  assert.equal(fetches, 0);
+
+  const assignment = await handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ approvalDecisionId }),
+  }), deps);
+  assert.equal(assignment.status, 403);
+  assert.equal(fetches, 0);
+
+  const execute = () => handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ approvalDecisionId }),
+  }), deps);
+  const first = await execute();
+  assert.equal(first.status, 200);
+  assert.equal(body(first).status, 'succeeded');
+  assert.equal(body(first).replayed, false);
+  assert.equal(body(first).adapterId, MARKETING_CREATE_ADAPTER_ID);
+  assert.equal(body(first).publishEligible, false);
+  assert.equal(body(first).externalAction, 'none');
+  assert.equal(body(first).artifact.status, 'draft');
+  assert.equal(body(first).receipt.state, 'awaiting_human_approval');
+  assert.doesNotMatch(first.body, new RegExp(providerSecret));
+
+  const replay = await execute();
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).replayed, true);
+  assert.equal(body(replay).artifactDigest, body(first).artifactDigest);
+  assert.deepEqual(body(replay).artifact, body(first).artifact);
+  assert.equal(fetches, 1);
+});
+
+test('marketing renderer route · missing exclusive secret fails closed without provider egress', async () => {
+  let fetches = 0;
+  const { deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}');
+  }, {
+    marketingRenderer: {
+      activation: MARKETING_CREATE_EXPECTED_ACTIVATION,
+      fetchImpl: async () => {
+        fetches += 1;
+        return new Response('{}');
+      },
+    },
+  });
+
+  const response = await handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ approvalDecisionId: 'approval-marketing-render-001' }),
+  }), deps);
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'renderer_secret_missing');
+  assert.equal(fetches, 0);
+});
+
+test('marketing renderer runtime · Worker bindings stay exclusive and execute without generic NVIDIA authority', async () => {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const kvRows = new Map<string, string>();
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: TEST_FOUNDER_A,
+    authDate: Math.floor(Date.now() / 1000) - 30,
+  });
+  const exclusiveSecret = 'exclusive-worker-secret-value';
+  const genericSecret = 'generic-secret-must-not-be-used';
+  let providerFetches = 0;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    providerFetches += 1;
+    assert.equal(String(url), MARKETING_CREATE_PROVIDER_URL);
+    assert.equal((init?.headers as Record<string, string>).authorization, `Bearer ${exclusiveSecret}`);
+    assert.notEqual((init?.headers as Record<string, string>).authorization, `Bearer ${genericSecret}`);
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({
+        title: 'Governed organic media',
+        body: 'A review-only article grounded in verified facts.',
+      }) } }],
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  }) as typeof fetch;
+  const env = {
+    QUESTS: {
+      async get(key: string) { return kvRows.get(key) ?? null; },
+      async put(key: string, value: string) { kvRows.set(key, value); },
+      async list({ prefix }: { prefix: string }) {
+        return { keys: [...kvRows.keys()].filter((key) => key.startsWith(prefix)).map((name) => ({ name })) };
+      },
+    },
+    BRIDGE_DB: new SqliteD1Database(db),
+    BRIDGE_TOKEN: 'bridge',
+    GATE_BOT_ID: TEST_BOT_ID,
+    GATE_FOUNDER_IDS: TEST_FOUNDER_A,
+    GATE_TG_PUBKEY: pubKeyHex,
+    MARKETING_CREATE_ACTIVATION: MARKETING_CREATE_EXPECTED_ACTIVATION,
+    NVIDIA_MARKETING_CREATE_API_KEY: exclusiveSecret,
+    NVIDIA_API_KEY: genericSecret,
+  };
+  try {
+    const prepare = await worker.fetch(new Request('https://worker.example/v1/bridge/marketing-renders/prepare', {
+      method: 'POST',
+      headers: { authorization: 'Bearer bridge', 'content-type': 'application/json' },
+      body: JSON.stringify(marketingRoutePrepareInput()),
+    }), env as any);
+    assert.equal(prepare.status, 200);
+
+    const approve = await worker.fetch(new Request('https://worker.example/api/gate/thoughtseed', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'approve-marketing-render',
+        requestId: 'marketing-render-request-001',
+        subject: 'marketing-render-request-001',
+        initData,
+      }),
+    }), env as any);
+    assert.equal(approve.status, 200);
+    const approvalDecisionId = (await approve.json() as any).approvalDecisionId;
+
+    const execute = await worker.fetch(new Request('https://worker.example/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+      method: 'POST',
+      headers: { authorization: 'Bearer bridge', 'content-type': 'application/json' },
+      body: JSON.stringify({ approvalDecisionId }),
+    }), env as any);
+    assert.equal(execute.status, 200);
+    const result = await execute.json() as any;
+    assert.equal(result.status, 'succeeded');
+    assert.equal(result.publishEligible, false);
+    assert.equal(result.externalAction, 'none');
+    assert.equal(providerFetches, 1);
+    assert.doesNotMatch(JSON.stringify(result), /exclusive-worker-secret-value|generic-secret-must-not-be-used/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  const source = readFileSync(new URL('./index.ts', import.meta.url), 'utf8');
+  const providerMap = source.match(/const providers:[\s\S]*?const workerFetch/)?.[0] ?? '';
+  assert.doesNotMatch(providerMap, /NVIDIA_MARKETING_CREATE_API_KEY|MARKETING_CREATE_ACTIVATION/);
 });
