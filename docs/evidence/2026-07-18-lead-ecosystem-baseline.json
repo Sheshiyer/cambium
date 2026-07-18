@@ -34,8 +34,16 @@
       "base": "codex/operator-intake-service-agreement",
       "baseCommit": "7360e5d949fa85786183cee85e033c89a0de578f",
       "foundationCommit": "cd241fad9dd866a21842ac07c6b080462bc40834",
+      "authorityHardeningCommit": "1df2274a5e9bd34f171f46a97bb89cd25674fb5d",
       "pullRequest": "https://github.com/Sheshiyer/cambium/pull/256"
     }
+  },
+  "codeIntegrationRehearsal": {
+    "leadTip": "1df2274a5e9bd34f171f46a97bb89cd25674fb5d",
+    "iverifTip": "bfb0e8ca20f45f264a62c14caf68a4164c29ea72",
+    "mergeTree": "26a775680c19391a500b2d677ab437a49c116523",
+    "conflicts": 0,
+    "note": "Three-tip code rehearsal: the lead tip already contains the Cambium agreement tip; the evidence-only recording commit follows this rehearsal."
   },
   "integrationRule": "The lead-contract pull request targets the agreement branch until pull request 255 merges; IVerif remains an explicit dependency and is not copied silently.",
   "prohibitions": [
