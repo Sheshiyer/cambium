@@ -10594,6 +10594,7 @@ test('IVerif observer requires its dedicated configuration and rejects broad bri
     { pushToken: IVERIF_TEST_READ_TOKEN },
     { providerBroker: { token: IVERIF_TEST_READ_TOKEN, providers: {} } },
     { contextRoutes: { token: IVERIF_TEST_READ_TOKEN } },
+    { iverifProviderApiKey: IVERIF_TEST_READ_TOKEN },
   ]) {
     const rejected = await handle(req('GET', path, {
       headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
@@ -10654,8 +10655,40 @@ test('IVerif inbox and thread routes preserve opaque state without enabling repl
   assert.equal(body(thread).personId, 'person-1');
   assert.equal(body(thread).providerCanReply, true);
   assert.equal(body(thread).policy.sendEligible, false);
-  assert.equal(body(thread).messages[0].messageRef, 'message-1');
+  assert.equal(body(thread).messages[0].messageRef, null);
+  assert.doesNotMatch(thread.body, /message-1/);
   assert.doesNotMatch(thread.body, /"(?:email|name|subject|body_text|reply_cc_emails|phone|linkedin_url|address)"\s*:/i);
+});
+
+test('IVerif thread route emits only digest-shaped message references or null', async () => {
+  const digest = `sha256:${'b'.repeat(64)}`;
+  const observer = fakeIVerifExplee({
+    async getThread(personId) {
+      const thread = await fakeIVerifExplee().getThread(personId);
+      return {
+        ...thread,
+        messageCount: 2,
+        messages: [
+          { ...thread.messages[0], messageId: 'raw-provider-message-identifier' },
+          { ...thread.messages[0], messageId: digest },
+        ],
+      };
+    },
+  });
+  const response = await handle(req('GET', '/v1/bridge/iverif/thread/person-1', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: observer,
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body(response).messages.map((message: { messageRef: string | null }) => message.messageRef), [
+    null,
+    digest,
+  ]);
+  assert.doesNotMatch(response.body, /raw-provider-message-identifier/);
 });
 
 test('IVerif malformed thread ids and non-GET methods stop before provider access', async () => {

@@ -260,11 +260,32 @@ export function isIVerifPersonId(value: string): boolean {
   return SAFE_OPAQUE_ID.test(value);
 }
 
+function assertAnalyticsSemantics({
+  emailsSent,
+  replies,
+  replyRatePercent,
+  hotLeads,
+  poolUsed,
+  poolTotal,
+}: {
+  emailsSent: number;
+  replies: number;
+  replyRatePercent: number;
+  hotLeads: number;
+  poolUsed?: number;
+  poolTotal?: number;
+}): void {
+  if (replyRatePercent > 100 || replies > emailsSent || hotLeads > replies
+    || (poolUsed !== undefined && poolTotal !== undefined && poolUsed > poolTotal)) {
+    throw new IVerifExpleeError('upstream_invalid_response');
+  }
+}
+
 function mapProjectAnalytics(value: unknown): IVerifProjectAnalytics {
   if (!isRecord(value) || value.project_id !== IVERIF_GROUNDING.binding.expleeProjectId) {
     throw new IVerifExpleeError('upstream_invalid_response');
   }
-  return {
+  const analytics = {
     projectId: IVERIF_GROUNDING.binding.expleeProjectId,
     period: requiredPeriod(value.period),
     emailsSent: requiredInteger(value.total_emails_sent),
@@ -273,13 +294,15 @@ function mapProjectAnalytics(value: unknown): IVerifProjectAnalytics {
     hotLeads: requiredInteger(value.total_hot_leads),
     spendUsd: requiredNumber(value.total_spend_usd),
   };
+  assertAnalyticsSemantics(analytics);
+  return analytics;
 }
 
 function mapCampaignAnalytics(value: unknown): IVerifCampaignAnalytics {
   if (!isRecord(value) || value.campaign_id !== IVERIF_GROUNDING.binding.expleeCampaignId) {
     throw new IVerifExpleeError('upstream_invalid_response');
   }
-  return {
+  const analytics = {
     campaignId: IVERIF_GROUNDING.binding.expleeCampaignId,
     campaign: IVERIF_GROUNDING.audience.campaign,
     status: requiredAllowlistedLabel(value.status, CAMPAIGN_STATUSES),
@@ -295,6 +318,8 @@ function mapCampaignAnalytics(value: unknown): IVerifCampaignAnalytics {
     poolUsed: requiredInteger(value.leads_pool_used),
     poolTotal: requiredInteger(value.leads_pool_total),
   };
+  assertAnalyticsSemantics(analytics);
+  return analytics;
 }
 
 function mapAutopilot(value: unknown): IVerifAutopilotState {

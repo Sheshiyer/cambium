@@ -336,6 +336,7 @@ export interface HandlerDeps {
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
   contextRoutes?: ContextRouteDeps; // Optional bounded context route providers (unset → context lane 503s)
   iverifReadToken?: string;     // Dedicated IVERIF_READ_TOKEN; never falls back to bridge/admin credentials.
+  iverifProviderApiKey?: string; // Equality-check only; prevents the provider key from serving as route auth.
   iverifExplee?: IVerifExpleeObserver; // Fixed GET-only Explee observer (unset → IVerif observer 503s).
   githubCommand?: GithubCommandExecutor; // Optional GitHub repo/issue command executor for Hermes manual commands.
   githubAllowedRepos?: string[]; // Same allowlist used by the GitHub command executor.
@@ -2289,6 +2290,7 @@ function iverifReadCredentialReady(deps: HandlerDeps): boolean {
     deps.pushToken,
     deps.providerBroker?.token,
     deps.contextRoutes?.token,
+    deps.iverifProviderApiKey,
   ];
   return otherBearerTokens.every((candidate) => !candidate || candidate.trim() !== token);
 }
@@ -2429,7 +2431,9 @@ async function handleIVerifObserverRoute(
         messageCount: thread.messageCount,
         truncated: thread.truncated,
         messages: thread.messages.map((message) => ({
-          messageRef: message.messageId,
+          messageRef: typeof message.messageId === 'string' && SHA256_DIGEST.test(message.messageId)
+            ? message.messageId
+            : null,
           type: message.type,
           intent: message.intent,
           status: message.status,

@@ -391,6 +391,45 @@ test('IVerif observer rejects provider responses for any other project or campai
   }
 });
 
+test('IVerif observer rejects logically impossible project analytics', async () => {
+  const impossibleAnalytics = [
+    { ...projectAnalytics, overall_reply_rate_pct: 100.01 },
+    { ...projectAnalytics, total_replies: projectAnalytics.total_emails_sent + 1 },
+    { ...projectAnalytics, total_hot_leads: projectAnalytics.total_replies + 1 },
+  ];
+
+  for (const analytics of impossibleAnalytics) {
+    const observer = createIVerifExpleeObserver({
+      apiKey: 'test-key',
+      fetchImpl: async () => jsonResponse(analytics),
+    });
+    await assert.rejects(
+      () => observer.getProjectAnalytics(),
+      (error: unknown) => error instanceof IVerifExpleeError && error.code === 'upstream_invalid_response',
+    );
+  }
+});
+
+test('IVerif observer rejects logically impossible campaign analytics', async () => {
+  const impossibleAnalytics = [
+    { ...campaignAnalytics, reply_rate_pct: 100.01 },
+    { ...campaignAnalytics, total_replies: campaignAnalytics.emails_sent + 1 },
+    { ...campaignAnalytics, hot_leads: campaignAnalytics.total_replies + 1 },
+    { ...campaignAnalytics, leads_pool_used: campaignAnalytics.leads_pool_total + 1 },
+  ];
+
+  for (const analytics of impossibleAnalytics) {
+    const observer = createIVerifExpleeObserver({
+      apiKey: 'test-key',
+      fetchImpl: async () => jsonResponse(analytics),
+    });
+    await assert.rejects(
+      () => observer.getCampaignAnalytics(),
+      (error: unknown) => error instanceof IVerifExpleeError && error.code === 'upstream_invalid_response',
+    );
+  }
+});
+
 test('IVerif observer allowlists provider labels instead of relaying arbitrary strings', async () => {
   const observer = createIVerifExpleeObserver({
     apiKey: 'test-key',
