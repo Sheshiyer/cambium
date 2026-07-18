@@ -42,8 +42,8 @@ Both bases were verified with `git merge-base --is-ancestor`.
 ### Hermes
 
 - TDD red: strict-origin, redirect refusal, grounding, policy, clipping, hash-reference, no-amplification, cooldown, and default-off registration assertions failed before implementation.
-- Focused IVerif suite: 16/16 passed before the final feature-gate tests.
-- Full Telegram plugin regression: 48/48 passed.
+- Focused IVerif suite: 18/18 passed after the final handler-level feature-gate test.
+- Full Telegram plugin regression: 49/49 passed.
 - Python compilation and `git diff --check`: passed.
 
 Representative status, inbox, thread, and optimize DTOs matching Cambium's closed projections all render through Hermes. Drifted grounding, unsafe policy, raw message identifiers, redirects, invalid origins, and malformed payloads fail closed.
