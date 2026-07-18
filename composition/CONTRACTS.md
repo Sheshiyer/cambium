@@ -198,6 +198,25 @@ It contains synthetic facts, no provider hostname, and no network behavior. The 
 network sentinel that throws on any attempted call and asserts that the validator makes zero calls. Live
 provider routing, credentials, spend, and outbound mutation remain later, separately authorized slices.
 
+## Marketing capability and asset records
+
+The pinned capability catalog is
+[marketing-capabilities.v1.json](marketing-capabilities.v1.json), with six internal create-stage schemas in
+[contracts/marketing-assets.v1.json](contracts/marketing-assets.v1.json). It compiles curated
+coreyhaines31/marketingskills expertise into review-only plans; it does not install upstream Markdown as
+runtime policy. All eight outcome recipes compile through the pinned semantic projection; only one has a
+synthetic deterministic draft proof. Canonical runtime spend remains `none`; low-budget quotes are inert data.
+
+The internal records are asset_brief, asset_recipe, asset_draft, asset_variant, asset_quality_report, and
+channel_package. They remain in the non-authoritative capability plane. The existing
+content_asset@1.0.0 record is the intended graph bridge, using asset_kind marketing_review_package. The bridge
+is explicitly blocked until canonical approval is wired; the lead graph, twenty lead records, engage authority
+gates, and provider permissions remain unchanged.
+
+See
+[the capability orchestration architecture](../docs/architecture/marketing-capability-asset-orchestration.md)
+for recipe status, manual-loop behavior, accessibility, low-budget declarations, and future activation gates.
+
 ## Cross-cutting: `cortex` — Aesthetic memory · organ: **cortex** (`taste-nim` + `DESIGN_MEMORY_WORKER`) · *paid*
 - Not a stage — it **feeds all four**. The 1024-dim NIM memory: taste index + the brand's own assets +
   design-memory. Genesis writes the brand's seed taste; taste reads/scores against it; build pulls
