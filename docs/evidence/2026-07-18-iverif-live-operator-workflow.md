@@ -43,14 +43,15 @@ Both bases were verified with `git merge-base --is-ancestor`.
 
 - TDD red: strict-origin, redirect refusal, grounding, policy, clipping, hash-reference, no-amplification, cooldown, and default-off registration assertions failed before implementation.
 - Focused IVerif suite: 18/18 passed after the final handler-level feature-gate test.
+- Full Hermes Node suite: 153/153 passed.
 - Full Telegram plugin regression: 49/49 passed.
-- Python compilation and `git diff --check`: passed.
+- Repository `npm test`, local bridge smoke, Python compilation, deploy-script syntax, and `git diff --check`: passed.
 
 Representative status, inbox, thread, and optimize DTOs matching Cambium's closed projections all render through Hermes. Drifted grounding, unsafe policy, raw message identifiers, redirects, invalid origins, and malformed payloads fail closed.
 
 ## Vendor Source and Credential Semantics
 
-The implementation was checked against Explee's published [human API documentation](https://api.explee.com/public/api/docs) and [OpenAPI document](https://api.explee.com/public/api/openapi.json). Authentication uses `X-API-Key`. The published contract does not document read-only API-key scopes, so this evidence does not claim one. Method safety is instead enforced by Cambium's isolated, fixed-origin, fixed-path GET-only adapter and the absence of any caller-selected provider route.
+The implementation was checked against Explee's published [human API documentation](https://api.explee.com/public/api/docs) and [OpenAPI document](https://api.explee.com/public/api/openapi.json). Authentication uses `X-API-Key`. The published contract does not document read-only API-key scopes, so this evidence does not claim one. Method safety is instead enforced by Cambium's isolated, fixed-origin, fixed-path GET-only adapter and the absence of any caller-selected provider route. This provider-scope limitation remains an explicit residual risk for `followup-iverif-live-canary-20260718`: activation must not assume the installed provider key is read-scoped.
 
 ## Production Secret-Name Preflight
 
