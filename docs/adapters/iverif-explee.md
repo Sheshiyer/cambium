@@ -45,12 +45,20 @@ Candidate parity is field-by-field, not a successful-status check:
 1. Compare direct Explee project, campaign, autopilot, inbox, and thread GET results with the four redacted Cambium projections.
 2. Confirm project `16763`, campaign `45711`, aggregate counts, freshness, pagination, provider auto-reply state, and opaque thread state match.
 3. Confirm every Cambium response reports `sendEligible=false`, and that no identity, address, subject, body, credential, or raw RFC message identifier leaves the adapter.
-4. Exercise the four authenticated Cambium read routes directly against the candidate Worker; if a later Hermes `/ts-iverif` wrapper is added, it must preserve the same read-only distinction between provider reply eligibility and system send eligibility.
+4. Exercise the four authenticated Cambium read routes directly against the candidate Worker, then compare them with Hermes `/ts-iverif status`, `inbox`, `thread <opaque-person-id>`, and `optimize`. Hermes is a rendering shell only: it must preserve the same read-only distinction between provider reply eligibility and system send eligibility, surface the exact grounding and policy contract, and stay disabled by default until both sides hold the dedicated read credential.
 5. Keep production deployment, drafting, and every provider mutation disabled until the parity receipt is reviewed.
+
+Hermes validates the exact grounding, schema version, fixed binding, proof-only
+policy, and one-writer conflict before rendering. Its command remains absent
+unless `HERMES_IVERIF_OPERATOR_ENABLED=true`; disabling the flag and restarting
+the gateway is the immediate rollback. The 2026-07-18 production preflight was
+`credential-blocked` because `EXPLEE_API_KEY` and `IVERIF_READ_TOKEN` were
+not present in the Worker secret-name list. No deploy or provider request was
+made. See [the live operator workflow evidence](../evidence/2026-07-18-iverif-live-operator-workflow.md).
 
 ## Port
 
-The adapter implements a bounded campaign-observation port. Cambium owns policy, redaction, freshness, and the fixed provider binding. Hermes may render Cambium's safe projection; Hermes must not call Explee directly.
+The adapter implements a bounded campaign-observation port. Cambium owns policy, redaction, freshness, and the fixed provider binding. Hermes may render Cambium's safe projection through the default-off `/ts-iverif` founder workflow; Hermes must not call Explee directly and never receives the provider key.
 
 ## Inputs
 
@@ -84,7 +92,7 @@ There is deliberately no inert reply endpoint. A write-shaped route can be mista
 
 The adapter fails closed when its dedicated read token, Explee secret, fixed grounding contract, or provider response is unavailable. Provider response bodies and credentials never reach logs or caller-visible errors. Rate limiting may expose bounded retry metadata, but does not start an unbounded retry loop.
 
-The campaign currently presents a one-writer conflict: live activity exists while Cambium still marks operator outreach blocked, and provider auto-reply ownership has not been reconciled. Every projection therefore reports `sendEligible=false`.
+The campaign currently presents a one-writer conflict: live activity exists while Cambium still marks operator outreach blocked, and provider auto-reply ownership has not been reconciled. Every projection therefore reports `sendEligible=false`, and Hermes receipts must surface that blocked state explicitly rather than inferring readiness from provider reply eligibility.
 
 ## Tenant Mapping
 
