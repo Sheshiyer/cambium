@@ -396,3 +396,82 @@ p {
     transition-duration: 0.001ms !important;
   }
 }
+
+.confirm-sheet {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  pointer-events: auto;
+  background: rgba(0, 39, 43, 0.46);
+  backdrop-filter: blur(6px);
+}
+
+.confirm-sheet__panel {
+  display: grid;
+  gap: 12px;
+  width: min(440px, calc(100% - 48px));
+  padding: 18px;
+  border: 1px solid rgba(224, 255, 79, 0.34);
+  background: rgba(0, 39, 43, 0.82);
+  box-shadow: inset 0 1px 0 rgba(214, 255, 246, 0.08);
+}
+
+.confirm-sheet__panel .hud-kicker {
+  color: #e0ff4f;
+  font-size: 0.68rem;
+}
+
+.confirm-sheet__panel h1 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.confirm-sheet__instruments {
+  display: grid;
+  padding: 8px 10px;
+  border: 1px solid rgba(214, 255, 246, 0.18);
+  background: rgba(0, 39, 43, 0.56);
+  box-shadow: inset 0 1px 0 rgba(214, 255, 246, 0.08);
+  pointer-events: none;
+}
+
+.confirm-sheet__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.confirm-sheet__btn {
+  height: 44px;
+  border: 1px solid rgba(214, 255, 246, 0.2);
+  color: rgba(214, 255, 246, 0.82);
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.confirm-sheet__btn--confirm {
+  border-color: #e0ff4f;
+  color: #00272b;
+  background: #e0ff4f;
+  font-weight: 800;
+}
+
+.confirm-sheet__btn--cancel {
+  color: rgba(214, 255, 246, 0.78);
+}
+
+.confirm-sheet__btn:active {
+  transform: translateY(1px);
+}
+
+.confirm-sheet__btn:focus-visible {
+  outline: 2px solid #d6fff6;
+  outline-offset: -2px;
+}
