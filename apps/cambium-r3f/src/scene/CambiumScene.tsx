@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -6,6 +6,9 @@ import { TacticalCameraRig } from '../engine/camera-rig';
 import { fogPreset, materialPresets } from '../materials/cambium-materials';
 import { createAtmosphereMaterial, createIslandShaderMaterial } from '../materials/shader-studies';
 import { createCambiumFieldContours, createCambiumFieldGeometry, createCambiumFieldSeams } from '../world/cambium-field';
+import { buildConstellationLayout } from '../world/constellation-layout';
+import { ConstellationCluster } from '../world/ConstellationCluster';
+import { fixtureTapestry } from '../world/fixture-tapestry';
 import { generatedRailConnectorContract } from '../world/generated-connectors';
 import { imageTo3dComparisonAssets, type ImageTo3dComparisonAsset } from '../world/image-to-3d-assets';
 import {
@@ -1002,6 +1005,25 @@ function VisualizationField({ scene }: { scene: CambiumSceneModel }) {
           <boxGeometry args={[0.24, 0.12 + (index % 4) * 0.05, 0.18]} />
           <meshStandardMaterial color={index % 3 === 0 ? visualTokens.colors.signal : visualTokens.colors.mist} transparent opacity={0.64} />
         </mesh>
+      ))}
+      <ConstellationMapField />
+    </group>
+  );
+}
+
+function ConstellationMapField() {
+  const layout = useMemo(() => buildConstellationLayout(fixtureTapestry), []);
+  const [focusedHub, setFocusedHub] = useState<string | null>(null);
+
+  return (
+    <group position={[0, 0.6, 0]}>
+      {layout.clusters.map((cluster) => (
+        <ConstellationCluster
+          key={cluster.hubId}
+          layout={cluster}
+          focused={focusedHub === null || focusedHub === cluster.hubId}
+          onHubSelect={(hubId) => setFocusedHub((current) => (current === hubId ? null : hubId))}
+        />
       ))}
     </group>
   );

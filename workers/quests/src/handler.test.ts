@@ -2532,11 +2532,11 @@ test('page · Mission Control visual primitives are named and reduced-motion saf
     'renderComponentMissionComponentsBoard',
     'renderComponentMotionBoard',
     'renderComponentLegendBoard',
-    'orbitSweep',
+    'staticOrbit',
     'packetDrift',
     'glyphBreathe',
     'warningAttention',
-    '.mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
+    '.mc-orbit::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}',
   ]) assert.ok(PAGE.includes(marker), `PAGE has ${marker}`);
 
   for (const key of ['sourceRefs', 'propShapes', 'MissionGlyph', 'StateToken', 'OrbitProgress', 'SelectedHalo', 'SignalRail', 'PacketFlow', 'BranchArcChip', 'MissionCard', 'QuestlineTimeline', 'ProofList', 'KpiPulse', 'GateActionRow', 'Motion']) {
@@ -2607,7 +2607,7 @@ test('page · component route renders the reference glyph state board as compone
     'data-glyph-kind="proof"',
     'data-glyph-kind="gate"',
     'data-state="reduced-motion"',
-    'data-motion="orbitSweep"',
+    'data-motion="staticOrbit"',
     'data-motion="packetDrift"',
     'data-motion="glyphBreathe"',
     'data-motion="warningAttention"',
@@ -3271,8 +3271,8 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   const selectedBranchChip = html.match(/<button type="button" class="mc-branch-chip[^"]*mc-selected-halo[^"]*"[^>]*data-selected-surface="branch-chip"[^>]*>/)?.[0] ?? '';
   assert.match(selectedBranchChip, /data-component="BranchArcChip"/);
   assert.doesNotMatch(selectedBranchChip, /data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
-  assert.match(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:none/);
-  assert.doesNotMatch(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]::after\{[^}]*animation:orbitSweep/);
+  assert.doesNotMatch(PAGE, /@keyframes orbitSweep|animation:orbitSweep|data-motion="orbitSweep"|data-motion-primitive="orbitSweep"/);
+  assert.doesNotMatch(PAGE, /\.mc-selected-halo\[data-motion="orbitSweep"\]/);
   assert.doesNotMatch(PAGE, /\.gate-hero::after\{[\s\S]*?animation:orbitSweep|\.branch-sheet-hero::after\{[\s\S]*?animation:orbitSweep/);
   assert.match(html, /data-component="SignalRail"[^>]*data-state="blocked"[\s\S]*data-component="PacketFlow"/);
   assert.match(html, /data-packet-mode="texture"/);
@@ -7459,4 +7459,65 @@ test('handoff · invite redemption issues a scoped bridge token', async () => {
     body: JSON.stringify(scopedMessage),
   }), deps);
   assert.equal(oldTokenAfterRotate.status, 401);
+});
+
+test('rbac · no principal keeps the founder envelope byte-verbatim and surface-free', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  assert.equal(get.body, ENVELOPE);
+  assert.equal(body(get).surface, undefined);
+});
+
+test('rbac · consultant principal receives filtered surface — no signed-action, no sheet-primary subsections', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const consultant = encodeURIComponent(JSON.stringify({
+    id: 'c1', tenant: 'cambium', role: 'consultant', allow: ['tapestry', 'wake'], createdBy: 'founder-1',
+  }));
+  const get = await handle(req('GET', `/api/quests/cambium?principal=${consultant}`), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface, 'surface present for consultant');
+  const subsectionIds = surface.subsections.map((s: { id: string }) => s.id);
+  assert.deepEqual(subsectionIds, ['tapestry', 'wake']);
+  for (const sub of surface.subsections) {
+    assert.equal(sub.interactions.primary, 'sheet');
+    const signed = (sub.interactions.controls ?? []).filter((c: { interaction: string }) => c.interaction === 'signed-action');
+    assert.equal(signed.length, 0, 'signed-action controls stripped');
+  }
+  assert.equal(surface.sections.length, 0, 'all section primaries exceed consultant ceiling');
+});
+
+test('rbac · team principal keeps chat-command but loses signed-action controls', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const team = JSON.stringify({ id: 't1', tenant: 'cambium', role: 'team', allow: [], createdBy: 'founder-1' });
+  const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': team } }), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface.subsections.length > 0, 'team sees subsections');
+  for (const sub of surface.subsections) {
+    const kinds = [sub.interactions.primary, ...(sub.interactions.secondary ?? []), ...(sub.interactions.controls ?? []).map((c: { interaction: string }) => c.interaction)];
+    assert.ok(!kinds.includes('signed-action'), `subsection ${sub.id} carries no signed-action`);
+  }
+});
+
+test('rbac · expired principal receives empty surface', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const expired = JSON.stringify({
+    id: 'c2', tenant: 'cambium', role: 'consultant', allow: ['tapestry'], createdBy: 'founder-1',
+    expiresAt: '2020-01-01T00:00:00.000Z',
+  });
+  const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': expired } }), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.deepEqual(surface.sections, []);
+  assert.deepEqual(surface.subsections, []);
 });

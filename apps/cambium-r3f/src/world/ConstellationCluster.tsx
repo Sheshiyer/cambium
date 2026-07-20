@@ -2,24 +2,9 @@ import { useMemo } from 'react';
 import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import { visualTokens } from '../scene/visual-tokens';
+import type { ConstellationClusterLayout } from './constellation-layout';
 
-export interface ConstellationNode {
-  id: string;
-  parentId: string | null;
-  label: string;
-  scale: string;
-  status: string;
-  position: [number, number, number];
-  depth: number;
-  accent: string;
-}
-
-export interface ConstellationClusterLayout {
-  hubId: string;
-  accent: string;
-  nodes: ConstellationNode[];
-  edges: Array<[string, string]>;
-}
+export type { ConstellationClusterLayout, ConstellationNode } from './constellation-layout';
 
 interface ConstellationClusterProps {
   layout: ConstellationClusterLayout;

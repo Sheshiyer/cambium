@@ -3,9 +3,9 @@
 // Pins the server-side envelope-filtering rules in rbac.ts: role ceilings on
 // the interaction ladder, consultant per-subsection allow-lists, expiry, and
 // the absence-not-disabled contract (disallowed surface is omitted, and inputs
-// are never mutated). Key precedence rule: the ceiling wins over the
-// allow-list — an allow-listed consultant subsection whose primary interaction
-// exceeds the consultant ceiling is dropped, not granted.
+// are never mutated). Precedence: view kinds (sheet, external-proof) are
+// allow-listable for consultants; action kinds (chat-command, signed-action)
+// always yield to the ceiling, allow-list or not.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -82,12 +82,26 @@ test('consultant keep an allow-listed read-only-primary subsection', () => {
   assert.deepEqual(out, [fixtures[0]]);
 });
 
-test('ceiling wins over allow-list: sheet-primary subsection dropped for consultant', () => {
-  // `lanes` has primary 'sheet', which exceeds the consultant ceiling
-  // ('read-only'). Even though it is allow-listed, it must be absent.
+test('allow-list grants consultants visibility to sheet-primary subsections', () => {
+  // A sheet is a viewing surface: allow-listed consultants see it even though
+  // 'sheet' exceeds their ceiling. The ceiling still strips action controls.
   const out = filterSubsections(
     MINI_APP_MAP_SUBSECTIONS,
     makePrincipal({ role: 'consultant', allow: ['lanes'] }),
+    NOW,
+  );
+  assert.equal(out.length, 1);
+  assert.equal(out[0]?.id, 'lanes');
+  assert.equal(out[0]?.interactions.primary, 'sheet');
+});
+
+test('ceiling still wins for action kinds: signed-action-primary items stay hidden', () => {
+  const fixtures: MiniAppMapSubsection[] = [
+    { id: 'danger', target: 'quine', interactions: { primary: 'signed-action' }, source: 'fixture' },
+  ];
+  const out = filterSubsections(
+    fixtures,
+    makePrincipal({ role: 'consultant', allow: ['danger'] }),
     NOW,
   );
   assert.deepEqual(out, []);
