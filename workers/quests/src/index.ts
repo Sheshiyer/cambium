@@ -10,6 +10,7 @@ import {
 } from './context-bindings.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
+import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { d1MarketingRenderStore } from './marketing-render-store.ts';
 import type {
   BridgeAssignmentRecord,
@@ -1298,6 +1299,7 @@ export default {
       iverifReadToken,
       iverifProviderApiKey: iverifApiKey,
       iverifExplee,
+      leadRuntimeStore: env.BRIDGE_DB ? d1LeadRuntimeStore(env.BRIDGE_DB) : undefined,
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
       marketingRenderer: {
         activation: env.MARKETING_CREATE_ACTIVATION,

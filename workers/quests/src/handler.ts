@@ -16,6 +16,8 @@ import { isGithubWriteCommand, validateGithubCommand } from './github-command.ts
 import { IVerifExpleeError, isIVerifPersonId } from './iverif-explee.ts';
 import type { IVerifExpleeObserver, IVerifExpleeSource } from './iverif-explee.ts';
 import { IVERIF_GROUNDING } from './iverif-grounding.ts';
+import { runIverifCaptureEnrich } from './lead-runtime.ts';
+import type { LeadRuntimeStoreLike } from './lead-runtime-store.ts';
 import {
   MARKETING_CREATE_ADAPTER_ID,
   MARKETING_CREATE_EXPECTED_ACTIVATION,
@@ -347,6 +349,7 @@ export interface HandlerDeps {
   iverifReadToken?: string;     // Dedicated IVERIF_READ_TOKEN; never falls back to bridge/admin credentials.
   iverifProviderApiKey?: string; // Equality-check only; prevents the provider key from serving as route auth.
   iverifExplee?: IVerifExpleeObserver; // Fixed GET-only Explee observer (unset → IVerif observer 503s).
+  leadRuntimeStore?: LeadRuntimeStoreLike; // D1-only canonical identity, task, spend, receipt, and foldback authority.
   marketingRenderStore?: MarketingRenderStoreLike; // D1-only preparation, approval, fencing, and replay authority.
   marketingRenderer?: {        // Exclusive Worker bindings; never included in providerBroker/contextRoutes.
     activation?: string;
@@ -2754,6 +2757,48 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const mayAct = (mid: string) => principal!.admin || principal!.memberId === mid;
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
     const bridgeStore = deps.bridgeStore ?? kvBridgeStore(deps.kv);
+
+    if (method === 'POST' && routePath === '/v1/bridge/lead-runs/iverif/capture-enrich') {
+      if (!principal.admin) return json(403, { error: 'lead runtime execution is cofounder-only' });
+      if (!deps.iverifExplee || !deps.leadRuntimeStore) {
+        return json(503, { error: 'lead_runtime_not_configured' });
+      }
+      let input: unknown;
+      try { input = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      if (!isRecord(input)
+          || Object.keys(input).length !== 1
+          || typeof input.idempotencyKey !== 'string'
+          || !/^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,191}$/.test(input.idempotencyKey)) {
+        return json(400, { error: 'invalid_lead_run_input' });
+      }
+      let result;
+      try {
+        result = await runIverifCaptureEnrich({
+          tenantId: 'thoughtseed',
+          idempotencyKey: input.idempotencyKey,
+          observer: deps.iverifExplee,
+          store: deps.leadRuntimeStore,
+          now: nowIso,
+          uuid: deps.uuid ?? (() => crypto.randomUUID()),
+        });
+      } catch {
+        return json(503, { ok: false, error: 'lead_runtime_unavailable' });
+      }
+      if (result.status === 'completed' || result.status === 'replay') {
+        return json(200, { ok: true, status: result.status, receipt: result.receipt });
+      }
+      if (result.status === 'busy') {
+        return json(409, { ok: false, error: 'lead_runtime_busy', retryAfterMs: result.retryAfterMs });
+      }
+      if (result.status === 'stopped') {
+        return json(200, { ok: false, status: 'stopped', code: result.code });
+      }
+      return json(result.status === 'conflict' ? 409 : 503, {
+        ok: false,
+        error: result.status === 'conflict' ? 'lead_runtime_conflict' : 'lead_runtime_failed',
+        code: result.code,
+      });
+    }
 
     if (method === 'POST' && routePath === '/v1/bridge/marketing-renders/prepare') {
       if (!principal.admin) return json(403, { error: 'marketing render preparation is cofounder-only' });

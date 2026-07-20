@@ -26,6 +26,7 @@ import {
   validateMarketingCapabilityCatalog,
 } from './lib/marketing-orchestration.mjs';
 import { validateCreateAdapterCatalog } from './lib/create-adapters.mjs';
+import { validateLeadAdapterCatalog } from './lib/lead-adapters.mjs';
 
 // ───────────────────────── pure core (no I/O) ─────────────────────────
 
@@ -142,6 +143,7 @@ function validateProductionManifest(manifest) {
     'version',
     'pipeline',
     'lead_ops',
+    'lead_adapter_catalog',
     'create_adapter_catalog',
   ], 'production composition manifest');
   if (manifest.id !== 'production-composition' || manifest.version !== '1.0.0') {
@@ -158,6 +160,20 @@ function validateProductionManifest(manifest) {
       || manifest.lead_ops.version !== '1.0.0'
       || manifest.lead_ops.path !== 'lead-ops.v1.json') {
     throw new Error('production composition manifest lead reference must remain lead-ops@1.0.0');
+  }
+  exactManifestKeys(
+    manifest.lead_adapter_catalog,
+    ['id', 'version', 'path'],
+    'production composition manifest lead adapter reference',
+  );
+  assertLocalCompositionPath(
+    manifest.lead_adapter_catalog.path,
+    'production composition manifest lead adapter path',
+  );
+  if (manifest.lead_adapter_catalog.id !== 'lead-adapters'
+      || manifest.lead_adapter_catalog.version !== '1.0.0'
+      || manifest.lead_adapter_catalog.path !== 'lead-adapters.v1.json') {
+    throw new Error('production composition manifest lead adapter reference must remain lead-adapters@1.0.0');
   }
   exactManifestKeys(
     manifest.create_adapter_catalog,
@@ -237,6 +253,16 @@ export function loadComposition(root) {
     throw new Error(`lead contract catalog identity mismatch: expected ${expectedCatalogId}`);
   }
   validateLeadOps(leadOps, { knownContractIds: validatedCatalog.contract_ids });
+
+  const leadAdapters = loadReferencedJson(
+    join(compositionRoot, production.lead_adapter_catalog.path),
+    'lead adapter catalog',
+  );
+  const expectedLeadAdapterCatalogId = `${production.lead_adapter_catalog.id}@${production.lead_adapter_catalog.version}`;
+  if (leadAdapters.catalog_id !== expectedLeadAdapterCatalogId) {
+    throw new Error(`lead adapter catalog identity mismatch: expected ${expectedLeadAdapterCatalogId}`);
+  }
+  const validatedLeadAdapters = validateLeadAdapterCatalog(leadAdapters);
 
   const createAdapters = loadReferencedJson(
     join(compositionRoot, production.create_adapter_catalog.path),
@@ -325,6 +351,9 @@ export function loadComposition(root) {
     leadOps,
     leadContracts,
     leadContractIds: validatedCatalog.contract_ids,
+    leadAdapters,
+    leadAdapterIds: validatedLeadAdapters.adapter_ids,
+    leadScheduleArmed: validatedLeadAdapters.schedule_armed,
     marketingCapabilities,
     marketingAssets,
     createAdapters,
@@ -442,6 +471,7 @@ export async function main(argv, root) {
       registry,
       pipeline,
       leadOps,
+      leadAdapterIds,
       createAdapterIds,
     } = loadComposition(root);
     const plan = planPipeline({ registry, pipeline, tenant: cmd === 'plan' ? rest[0] : '<validate>' });
@@ -449,7 +479,7 @@ export async function main(argv, root) {
       console.log(formatPlan(plan));
     } else {
       const nOrgans = Object.keys(registry.organs).length;
-      console.log(`✓ registry + pipeline valid — ${pipeline.stages.length} top-level stages, ${leadOps.stages.length} lead stages, ${createAdapterIds.length} disabled create adapter, ${nOrgans} organs, all resolve`);
+      console.log(`✓ registry + pipeline valid — ${pipeline.stages.length} top-level stages, ${leadOps.stages.length} lead stages, ${leadAdapterIds.length} risk-ordered lead adapters, ${createAdapterIds.length} disabled create adapter, ${nOrgans} organs, all resolve`);
     }
     return 0;
   }

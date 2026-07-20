@@ -25,6 +25,7 @@ import type {
 } from './handler.ts';
 import type { D1DatabaseLike, D1StatementLike } from './index.ts';
 import type { IVerifExpleeObserver } from './iverif-explee.ts';
+import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { PAGE } from './page.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -10726,6 +10727,29 @@ test('IVerif malformed thread ids and non-GET methods stop before provider acces
   assert.equal(calls, 0);
 });
 
+test('IVerif observer reads never create ActionRequests', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  };
+  const headers = { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` };
+
+  for (const path of [
+    '/v1/bridge/iverif/status',
+    '/v1/bridge/iverif/inbox',
+    '/v1/bridge/iverif/thread/person-1',
+    '/v1/bridge/iverif/optimize',
+  ]) {
+    const response = await handle(req('GET', path, { headers }), deps);
+    assert.equal(response.status, 200, path);
+  }
+
+  assert.deepEqual(await kv.list('action-request:'), []);
+  assert.deepEqual(await kv.list('action-request-idempotency:'), []);
+});
+
 test('IVerif optimize combines grounded experiment and live analytics without thread content', async () => {
   const response = await handle(req('GET', '/v1/bridge/iverif/optimize', {
     headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
@@ -10763,6 +10787,97 @@ test('IVerif observer normalizes unexpected failures without leaking provider bo
   assert.equal(response.status, 503);
   assert.equal(body(response).error, 'iverif_observer_unavailable');
   assert.doesNotMatch(response.body, /pii-|secret/);
+});
+
+test('lead runtime route executes one bounded IVerif capture/enrich run and replays durably', async () => {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const kv = fakeKv();
+  let uuidIndex = 0;
+  let inboxCalls = 0;
+  let threadCalls = 0;
+  const observer = fakeIVerifExplee({
+    async getNeedReplyInbox() {
+      inboxCalls += 1;
+      return fakeIVerifExplee().getNeedReplyInbox();
+    },
+    async getThread(personId) {
+      threadCalls += 1;
+      return fakeIVerifExplee().getThread(personId);
+    },
+  });
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    iverifExplee: observer,
+    leadRuntimeStore: d1LeadRuntimeStore(new SqliteD1Database(db)),
+    now: () => '2026-07-20T18:00:00.000Z',
+    uuid: () => `lead-route-${++uuidIndex}`,
+  };
+  const path = '/v1/bridge/lead-runs/iverif/capture-enrich';
+  const request = (credential: string, payload: Record<string, unknown>) => handle(req('POST', path, {
+    headers: { authorization: `Bearer ${credential}` },
+    body: JSON.stringify(payload),
+  }), deps);
+
+  const scoped = await request('assign-only', { idempotencyKey: 'iverif-bounded-run-001' });
+  assert.equal(scoped.status, 403);
+  assert.equal(inboxCalls, 0);
+
+  const malformed = await request('bridge', {
+    idempotencyKey: 'iverif-bounded-run-001',
+    provider: 'caller-override-forbidden',
+  });
+  assert.equal(malformed.status, 400);
+  assert.equal(inboxCalls, 0);
+
+  const unavailable = await handle(req('POST', path, {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ idempotencyKey: 'iverif-unavailable-run-001' }),
+  }), {
+    ...deps,
+    leadRuntimeStore: {
+      ...deps.leadRuntimeStore,
+      async createTask() { throw new Error('sensitive-d1-diagnostic'); },
+    },
+  });
+  assert.equal(unavailable.status, 503);
+  assert.equal(body(unavailable).error, 'lead_runtime_unavailable');
+  assert.doesNotMatch(unavailable.body, /sensitive|diagnostic/i);
+  assert.equal(inboxCalls, 0);
+
+  const completed = await request('bridge', { idempotencyKey: 'iverif-bounded-run-001' });
+  assert.equal(completed.status, 200, completed.body);
+  assert.equal(body(completed).status, 'completed');
+  assert.equal(body(completed).receipt.spendUnits, 0);
+  assert.equal(inboxCalls, 1);
+  assert.equal(threadCalls, 1);
+
+  const replay = await request('bridge', { idempotencyKey: 'iverif-bounded-run-001' });
+  assert.equal(replay.status, 200, replay.body);
+  assert.equal(body(replay).status, 'replay');
+  assert.equal(body(replay).receipt.leadId, body(completed).receipt.leadId);
+  assert.equal(inboxCalls, 1, 'terminal replay performs no provider read');
+  assert.equal(threadCalls, 1, 'terminal replay performs no provider read');
+
+  for (const table of [
+    'lead_records',
+    'lead_source_aliases',
+    'lead_observation_receipts',
+    'lead_loop_tasks',
+    'lead_spend_reservations',
+    'lead_provider_usage',
+    'lead_cortex_foldbacks',
+  ]) {
+    const row = db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get() as { count: number };
+    assert.equal(Number(row.count), 1, table);
+  }
+  const spend = db.prepare(`
+    SELECT reserved_units, settled_units, status FROM lead_spend_reservations
+  `).get() as { reserved_units: number; settled_units: number; status: string };
+  assert.deepEqual({ ...spend }, { reserved_units: 0, settled_units: 0, status: 'settled' });
+  assert.deepEqual(await kv.list('action-request:'), []);
 });
 
 // ── Fixed-tenant marketing create renderer ──────────────────────────────

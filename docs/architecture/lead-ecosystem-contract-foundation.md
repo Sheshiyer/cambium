@@ -1,6 +1,6 @@
 # Lead Ecosystem Contract Foundation
 
-Status: L-1/L0 contract foundation plus one implemented fixed-tenant live read-only observer. No provider mutation is activated by this document or its companion contracts.
+Status: L-1/L0 contract foundation plus one implemented fixed-tenant live read-only observer and its manual durable capture/enrich runtime. No provider mutation or recurring schedule is activated by this document or its companion contracts. See [Lead Runtime Spine](./lead-runtime-spine.md).
 
 ## What this architecture makes canonical
 
@@ -88,4 +88,4 @@ The first live slice now exists as one fixed-tenant, read-only Explee observer f
 6. Reply drafting/sending, budgets, autopilot changes, imports, starts, stops, and every provider mutation remain blocked.
 7. The projection preserves provenance and safety state while withholding lead identity, message content, and raw provider payloads.
 
-This is still a bounded read-only adapter. Live mutation, paid enrichment, asset generation, outbound engagement, and shared-learning foldback remain later gates.
+The observer now also feeds one bounded manual runtime proof: it selects at most one contact, persists one canonical lead and immutable GET receipt, settles deliberate zero usage, and records only a derived numeric foldback. Replays return the durable receipt without another provider call. Live mutation, paid enrichment, asset generation, outbound engagement, and recurring schedules remain later gates.

@@ -1,11 +1,44 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
 const scriptUrl = new URL('prove-marketing-create-prepare.sh', import.meta.url);
 const scriptPath = decodeURIComponent(scriptUrl.pathname);
 const deployUrl = new URL('../workers/quests/DEPLOY.md', import.meta.url);
+
+function withFakeWrangler(version = '4.95.0') {
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cambium-wrangler-fixture-'));
+  const npxPath = path.join(fixtureRoot, 'npx');
+  fs.writeFileSync(npxPath, [
+    '#!/bin/sh',
+    'if test "$#" = 3 && test "$1" = "--no-install" && test "$2" = "wrangler" && test "$3" = "--version"; then',
+    `  printf '%s\\n' ${JSON.stringify(version)}`,
+    '  exit 0',
+    'fi',
+    'printf \'unexpected hermetic npx invocation\\n\' >&2',
+    'exit 97',
+    '',
+  ].join('\n'), { mode: 0o700 });
+  return {
+    env: { ...process.env, PATH: `${fixtureRoot}${path.delimiter}${process.env.PATH ?? ''}` },
+    cleanup: () => fs.rmSync(fixtureRoot, { recursive: true, force: true }),
+  };
+}
+
+function runPrepare(args, env = {}, wranglerVersion = '4.95.0') {
+  const fixture = withFakeWrangler(wranglerVersion);
+  try {
+    return spawnSync(scriptPath, args, {
+      encoding: 'utf8',
+      env: { ...fixture.env, ...env },
+    });
+  } finally {
+    fixture.cleanup();
+  }
+}
 
 test('prepare proof helper is statically bounded to the reviewed route and state', () => {
   const script = fs.readFileSync(scriptUrl, 'utf8');
@@ -124,10 +157,7 @@ test('activation rollback health probes are endpoint-pinned and curlrc-independe
 });
 
 test('prepare proof check-only gate runs without a credential or mutation', () => {
-  const result = spawnSync(scriptPath, ['--check-only'], {
-    encoding: 'utf8',
-    env: { ...process.env, BRIDGE_TOKEN: '' },
-  });
+  const result = runPrepare(['--check-only'], { BRIDGE_TOKEN: '' });
 
   assert.equal(result.status, 0, result.stderr);
   const receipt = JSON.parse(result.stdout);
@@ -137,6 +167,14 @@ test('prepare proof check-only gate runs without a credential or mutation', () =
     wranglerStatus: 'pinned_4.95.0',
     counts: { dependencies: 13, forbiddenRouteCalls: 0 },
   });
+});
+
+test('prepare proof check-only gate fails closed on a wrong Wrangler version', () => {
+  const result = runPrepare(['--check-only'], { BRIDGE_TOKEN: '' }, '4.94.0');
+
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /error=unexpected_wrangler_version\n$/);
+  assert.equal(result.stdout, '');
 });
 
 test('prepare proof requires the operator-supplied reviewed Worker origin', async (t) => {
@@ -152,13 +190,9 @@ test('prepare proof requires the operator-supplied reviewed Worker origin', asyn
 
   for (const [baseUrl, expectedError] of rejectedOrigins) {
     await t.test(baseUrl || 'missing origin', () => {
-      const result = spawnSync(scriptPath, [], {
-        encoding: 'utf8',
-        env: {
-          ...process.env,
-          BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
-          CAMBIUM_QUESTS_BASE_URL: baseUrl,
-        },
+      const result = runPrepare([], {
+        BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
+        CAMBIUM_QUESTS_BASE_URL: baseUrl,
       });
 
       assert.equal(result.status, 1, result.stdout);
@@ -168,13 +202,9 @@ test('prepare proof requires the operator-supplied reviewed Worker origin', asyn
   }
 
   await t.test('unreviewed canonical HTTPS origin is rejected before token use', () => {
-    const result = spawnSync(scriptPath, [], {
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
-        CAMBIUM_QUESTS_BASE_URL: 'https://example.invalid/',
-      },
+    const result = runPrepare([], {
+      BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
+      CAMBIUM_QUESTS_BASE_URL: 'https://example.invalid/',
     });
 
     assert.equal(result.status, 1, result.stdout);
@@ -189,13 +219,9 @@ test('prepare proof requires the operator-supplied reviewed Worker origin', asyn
       'workers',
       'dev',
     ].join('.')}/`;
-    const result = spawnSync(scriptPath, [], {
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        BRIDGE_TOKEN: '',
-        CAMBIUM_QUESTS_BASE_URL: reviewedWorkerOrigin,
-      },
+    const result = runPrepare([], {
+      BRIDGE_TOKEN: '',
+      CAMBIUM_QUESTS_BASE_URL: reviewedWorkerOrigin,
     });
 
     assert.equal(result.status, 1, result.stdout);

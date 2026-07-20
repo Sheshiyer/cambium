@@ -9,6 +9,11 @@
     "version": "1.0.0",
     "path": "lead-ops.v1.json"
   },
+  "lead_adapter_catalog": {
+    "id": "lead-adapters",
+    "version": "1.0.0",
+    "path": "lead-adapters.v1.json"
+  },
   "create_adapter_catalog": {
     "id": "create-adapters",
     "version": "1.0.0",
