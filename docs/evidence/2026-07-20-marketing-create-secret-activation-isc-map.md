@@ -67,7 +67,7 @@ This map binds every criterion in the activation ISA to redacted evidence. JSON 
 | ISC-61 | `d1Witness`; `prepareProof.idempotencyEvidence` | PASS |
 | ISC-62 | `authorityBoundaries`; `redactionCheck` | PASS |
 | ISC-63 | `authorityBoundaries`; `redactionCheck` | PASS |
-| ISC-64 | `authorityBoundaries`; `redactionCheck`; reviewed-origin credential guard; standalone audit | PASS |
+| ISC-64 | `authorityBoundaries`; `redactionCheck`; `releaseGates.standaloneAudit`; reviewed-origin credential guard | PASS |
 | ISC-65 | `deployment.rollbackTargetVersionId`; activation runbook rollback acceptance | PASS |
 | ISC-66 | `deployment.rollbackTargetVersionId`; activation runbook rollback acceptance | PASS |
 | ISC-67 | `deployment.rollbackTargetVersionId`; digest-pinned two-surface rollback probes | PASS |
