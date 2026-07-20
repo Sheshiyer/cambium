@@ -1,13 +1,13 @@
 ---
 project: Cambium
-task: "Eliminate operational drift across Cambium proof, configuration, documentation, and GitHub state"
-effort: comprehensive
-effort_source: classifier
-phase: complete
-progress: 80/80
+task: "Consolidate lead stack and build durable runtime spine"
+effort: advanced
+effort_source: context-override
+phase: execute
+progress: 80/128
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-13T10:43:57Z
+updated: 2026-07-20T17:57:00Z
 ---
 
 ## Problem
@@ -16,11 +16,15 @@ Cambium can report green proofs while the founder cannot find the named control 
 
 This is not only a stale-document problem. It is an ownership and feedback problem: runtime contracts, generated proof, human runbooks, repository configuration, cross-repository Telegram routing, milestones, and releases do not currently converge through one machine-checked lifecycle.
 
+The July lead-ecosystem stack added another form of the same problem: seven dependent pull requests describe provider contracts, a read-only Explee observer, marketing capabilities, and a fail-closed renderer, but child branches had no CI rollup and the runtime still lacked canonical lead identity, durable task ownership, reservation/usage accounting, and replay-safe foldback.
+
 ## Vision
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
 
 The surprising outcome is subtraction: fewer checklists and fewer copied constants produce stronger proof because every remaining instruction is derived from a current state machine or protected by a failing test.
+
+For the lead runtime, the corresponding subtraction is that provider breadth becomes declarative. One bounded Iverif capture/enrich run can be replayed without duplicate leads, hidden spend, or provider egress; every higher-risk adapter remains inert until the same durable authority spine proves it is safe.
 
 ## Out of Scope
 
@@ -31,6 +35,8 @@ The surprising outcome is subtraction: fewer checklists and fewer copied constan
 - No claim that deterministic browser captures substitute for founder-device Telegram evidence.
 - No wholesale deletion of historical plans merely because they are old; history must be clearly non-operational or archived.
 - No cross-repository runtime change without an explicit owning contract and repository-specific verification.
+- No broad provider activation, live paid rendering, automatic engagement, or recurring schedule arming in the lead-runtime milestone.
+- No second lead-contract registry alongside the canonical `lead-ecosystem.v1.json`, `lead-ops.v1.json`, and adapter catalogs.
 
 ## Principles
 
@@ -52,10 +58,15 @@ The surprising outcome is subtraction: fewer checklists and fewer copied constan
 - GitHub mutations are limited to issue #230, the verified Hermes mismatch tracker, M5/M7 hygiene, the cleanup PR, and its release.
 - Existing committed visual proof assets remain generated artifacts unless evidence shows their retention itself causes drift.
 - ISC identifiers remain stable; refinements use child identifiers rather than renumbering.
+- Lead identity and dedupe precede subgraph execution; spend reservations precede metered calls; usage settlement follows provider receipts.
+- Durable task state, idempotency keys, receipts, stop rules, and accounting precede recurring schedules.
+- Explee read parity remains GET-only and no-spend, with observer authorization separated from provider credentials.
 
 ## Goal
 
 Make operational drift mechanically difficult by aligning the ActionRequest runtime contract, renderer, fixtures, tests, runbooks, configuration ownership, GitHub state, and release evidence. The cleanup is complete only when production-shaped tests fail on the exact former mismatch, stale actionable instructions are removed from operational surfaces, deferred roadmap work is explicit, and current main can be released without touching unrelated local work.
+
+For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a successful CI run for the consolidated main SHA, and ship a tested durable runtime that proves one bounded Iverif Explee capture/enrich path while engagement, media generation, and recurring schedules remain fail-closed.
 
 ## Criteria
 
@@ -169,6 +180,69 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - [x] ISC-79: Duplicate generated M7 issue bodies are absent after milestone closeout.
 - [x] ISC-80: Anti: UI or API promises operator consumption without an implemented consumer.
 
+### Lead-stack consolidation
+
+- [x] ISC-81: PR #255 reports `MERGED`.
+- [x] ISC-82: PR #256 reports `MERGED`.
+- [x] ISC-83: PR #257 reports `MERGED`.
+- [x] ISC-84: PR #258 reports `MERGED`.
+- [x] ISC-85: PR #259 reports `MERGED`.
+- [x] ISC-86: PR #260 reports `MERGED`.
+- [x] ISC-87: PR #261 reports `MERGED`.
+- [x] ISC-88: `origin/main` contains PR #257 head `fc1812c`.
+- [x] ISC-89: `origin/main` contains PR #261 head `9a53dcf`.
+- [ ] ISC-90: Consolidated `main` CI concludes success for its head SHA.
+
+### Explee read parity
+
+- [ ] ISC-91: Explee company search remains a GET-only observer route.
+- [ ] ISC-92: Explee company lookup remains a GET-only observer route.
+- [ ] ISC-93: Explee employee search remains a GET-only observer route.
+- [ ] ISC-94: Explee employee lookup remains a GET-only observer route.
+- [ ] ISC-95: Observer authorization rejects the Explee provider key as a read token.
+- [ ] ISC-96: Explee observer requests cannot create action requests.
+
+### Canonical lead runtime
+
+- [ ] ISC-97: The durable schema contains one canonical lead-record table.
+- [ ] ISC-98: Source identity aliases have a database uniqueness constraint.
+- [ ] ISC-99: Replaying one source identity returns the same canonical lead ID.
+- [ ] ISC-100: Conflicting normalized email identities fail closed.
+- [ ] ISC-101: Source observations persist immutable receipt metadata.
+- [ ] ISC-102: A declared lead subgraph is validated before execution.
+- [ ] ISC-103: Stage dependencies execute in topological order.
+- [ ] ISC-104: A failed stage prevents dependent stages from running.
+- [ ] ISC-105: One bounded Iverif capture/enrich run persists one canonical lead.
+- [ ] ISC-106: Replaying the Iverif run produces no duplicate lead.
+- [ ] ISC-107: The Iverif run records one read-only Explee receipt.
+
+### Spend, tasks, and foldback
+
+- [ ] ISC-108: The durable schema contains spend reservation records.
+- [ ] ISC-109: The durable schema contains provider usage records.
+- [ ] ISC-110: A metered stage without a reservation fails before adapter invocation.
+- [ ] ISC-111: One idempotency key cannot reserve spend twice.
+- [ ] ISC-112: Provider usage cannot exceed its settled reservation.
+- [ ] ISC-113: A no-spend Explee read settles at zero usage.
+- [ ] ISC-114: Loop tasks persist pending, running, completed, failed, and stopped states.
+- [ ] ISC-115: Task claiming is lease-bound and compare-and-set safe.
+- [ ] ISC-116: Replaying a completed task returns its prior receipt.
+- [ ] ISC-117: A stop rule prevents the next adapter invocation.
+- [ ] ISC-118: A completed lead run persists one derived cortex foldback projection.
+- [ ] ISC-119: Cortex foldback excludes raw lead identity.
+
+### Provider risk and scheduling
+
+- [ ] ISC-120: ScrapeGraphAI, getleads, and Explee are discovery/read adapters.
+- [ ] ISC-121: Apollo enrichment has higher risk than discovery/read adapters.
+- [ ] ISC-122: Apollo and Composio engagement require approval and spend gates.
+- [ ] ISC-123: ElevenLabs and Runway are highest-risk gated adapters.
+- [ ] ISC-124: Recurring schedule arming is false by default.
+- [ ] ISC-125: Schedule arming fails without durable task state.
+- [ ] ISC-126: Schedule arming fails without receipt persistence.
+- [ ] ISC-127: Schedule arming fails without spend accounting.
+- [ ] ISC-128: Anti: tests and proofs perform zero live paid-provider calls.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -195,6 +269,11 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 | ISC-72..73 | config | one imported routing module; no unused Wrangler variable | `rg`, focused tests |
 | ISC-74..76 | release/CI | deterministic gates and separate live evidence remain distinguishable; Gate story is captured | workflow tests and CI logs |
 | ISC-77..79 | roadmap hygiene | stale issue-number configs and duplicate bodies absent | `rg`, filesystem probe, R3F tests |
+| ISC-81..90 | GitHub integration | PR states, head ancestry, consolidated main CI | `gh`, `git` |
+| ISC-91..96 | Explee contract | four GET routes and separated fail-closed authorization | focused Worker tests |
+| ISC-97..107 | runtime integration | schema, dedupe, DAG order, bounded Iverif replay | migration/store/executor tests |
+| ISC-108..119 | accounting and durability | reservations, usage, leased tasks, stop rules, derived foldback | focused runtime tests |
+| ISC-120..128 | provider policy | risk order and inert recurring schedules | catalog and scheduler tests |
 
 ## Features
 
@@ -207,6 +286,11 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - `ReleaseProof` | Run the complete verification, merge, deploy, and publish aligned release evidence | satisfies ISC-53..60, ISC-65 | depends_on all prior features | parallelizable false
 - `ActionRequestConsumption` | Implement the bounded queued-to-consumed lifecycle already promised by the public contract | satisfies ISC-66..71, ISC-80 | depends_on ActionRequestContract | parallelizable false
 - `AdditionalDriftGates` | Remove dead config, strictify release proof, cover Gate in CI, and retire R3F issue mirrors | satisfies ISC-72..79 | depends_on FixtureParity, RoutingGovernance | parallelizable true
+- `LeadStackConsolidation` | Merge the seven reviewed PRs and prove consolidated main | satisfies ISC-81..90 | depends_on AdditionalDriftGates | parallelizable false
+- `ExpleeReadParity` | Preserve four GET observers and hardened credential separation | satisfies ISC-91..96 | depends_on LeadStackConsolidation | parallelizable false
+- `CanonicalLeadRuntime` | Persist identity, dedupe, observations, and execute one bounded subgraph | satisfies ISC-97..107 | depends_on ExpleeReadParity | parallelizable false
+- `LeadAuthoritySpine` | Reserve spend, settle usage, lease tasks, stop safely, and fold back derived learning | satisfies ISC-108..119 | depends_on CanonicalLeadRuntime | parallelizable false
+- `ProviderRiskAndScheduling` | Declare adapter risk and keep recurring schedules inert | satisfies ISC-120..128 | depends_on LeadAuthoritySpine | parallelizable false
 
 ## Decisions
 
@@ -226,6 +310,10 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 - 2026-07-13 10:26: Protected CI run `29242583053` passed the settled-touch contract on Linux. M5 closed empty; M7 closed with eight completed slices and settings issue #47 retired `not planned` behind its fixed-reference, binary-acceptance restart condition.
 - 2026-07-13 10:43: v0.2.8 is released and Worker version `a46651f5-972c-4999-8ed2-e886cd77f1f7` is production-proven. Deterministic release is complete; founder-device Telegram evidence remains a separate live-readiness blocker, not cleanup debt.
 - 2026-07-13 10:47: `archive/m5-phase-q-local` remains intact as the recovery boundary for seven Phase Q commits. Its tagged tip tree equals merged remote-main commit `a6c39cd`, so that historical local line is intentionally preserved but excluded from v0.2.8 runtime scope.
+- 2026-07-20 17:48: refined: The lead-runtime milestone extends the project ISA at stable IDs ISC-81..128; it does not replace the completed 80-criterion drift milestone.
+- 2026-07-20 17:50: Advisor selected serial original-PR merges over a synthetic consolidation PR to preserve review linkage and rollback granularity. A disposable full-stack merge passed 913 tests, the 407-file standalone audit, and standalone smoke before GitHub mutation.
+- 2026-07-20 17:55: PRs #255..261 merged with merge commits in dependency order. The first consolidated main CI failed because the proof-helper test reached a missing Wrangler prerequisite before input-validation assertions; this is now the release-blocking ingestion-order defect.
+- 2026-07-20 17:56: Root-cause-at-ingestion checkpoint — unsafe lead execution enters when a task exists without canonical identity, durable ownership, and a spend reservation. The runtime fix belongs at task creation and adapter invocation, not in output post-processing.
 
 ## Changelog
 
