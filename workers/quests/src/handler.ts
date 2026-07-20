@@ -28,6 +28,61 @@ import {
 } from './marketing-renderer.ts';
 import type { MarketingRenderStoreLike } from './marketing-renderer.ts';
 import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-routing.ts';
+import { MINI_APP_SECTIONS, MINI_APP_MAP_SUBSECTIONS } from './mini-app-surface-contract.ts';
+import { filterSections, filterSubsections, type Principal } from './rbac.ts';
+
+const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
+  id: 'anonymous-founder',
+  tenant: '*',
+  role: 'founder',
+  allow: [],
+  createdBy: 'system',
+};
+
+function resolveSurfacePrincipal(req: SimpleRequest): Principal | null {
+  let fromQuery: string | undefined;
+  const queryStart = req.path.indexOf('?');
+  if (queryStart >= 0) {
+    fromQuery = new URLSearchParams(req.path.slice(queryStart + 1)).get('principal') ?? undefined;
+  }
+  const raw = req.headers['x-principal'] ?? fromQuery;
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(String(raw));
+    if (
+      parsed && typeof parsed === 'object' &&
+      typeof parsed.id === 'string' &&
+      typeof parsed.tenant === 'string' &&
+      (parsed.role === 'founder' || parsed.role === 'team' || parsed.role === 'consultant') &&
+      Array.isArray(parsed.allow) &&
+      typeof parsed.createdBy === 'string'
+    ) {
+      return {
+        id: parsed.id,
+        tenant: parsed.tenant,
+        role: parsed.role,
+        allow: parsed.allow.filter((v: unknown) => typeof v === 'string'),
+        createdBy: parsed.createdBy,
+        ...(typeof parsed.expiresAt === 'string' ? { expiresAt: parsed.expiresAt } : {}),
+      };
+    }
+  } catch { /* fall through to founder default */ }
+  return FOUNDER_FALLBACK_PRINCIPAL;
+}
+
+async function surfaceScopedQuestBody(kv: KvLike, tenantId: string, stored: string, principal: Principal): Promise<string> {
+  const base = await publicQuestBody(kv, tenantId, stored);
+  try {
+    const envelope = JSON.parse(base);
+    envelope.surface = {
+      sections: filterSections(MINI_APP_SECTIONS, principal),
+      subsections: filterSubsections(MINI_APP_MAP_SUBSECTIONS, principal),
+    };
+    return JSON.stringify(envelope);
+  } catch {
+    return base;
+  }
+}
 
 export interface KvLike {
   get(key: string): Promise<string | null>;
@@ -2670,7 +2725,11 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     // M3 isolation suite is green — gate open to all valid tenants
     const stored = await deps.kv.get(ledgerKey(tenant));
     if (!stored) return json(404, { error: `no ledger pushed yet for "${tenant}" — run: quine write quests push --tenant ${tenant}` });
-    return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
+    const principal = resolveSurfacePrincipal(req);
+    if (!principal) {
+      return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
+    }
+    return { status: 200, headers: { ...JSON_HEADERS }, body: await surfaceScopedQuestBody(deps.kv, tenant, stored, { ...principal, tenant }) };
   }
 
   if (method === 'POST' && routePath.startsWith('/internal/ledger/')) {

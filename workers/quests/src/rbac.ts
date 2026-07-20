@@ -102,8 +102,16 @@ function filterItems<T extends SurfaceItem>(
   const out: T[] = [];
   for (const item of items) {
     const { interactions } = item;
-    if (!permits(interactions.primary, principal.role)) continue;
-    if (allowListApplies && principal.role === 'consultant' && !principal.allow.includes(item.id)) {
+    const consultantAllowed =
+      allowListApplies && principal.role === 'consultant' && principal.allow.includes(item.id);
+    // A sheet is a viewing surface, not a mutation: a consultant's allow-list
+    // may grant visibility to sheet-primary items even though 'sheet' sits
+    // above their ceiling. The ceiling still strips action kinds below.
+    const primaryVisible =
+      permits(interactions.primary, principal.role) ||
+      (consultantAllowed && (interactions.primary === 'sheet' || interactions.primary === 'external-proof'));
+    if (!primaryVisible) continue;
+    if (allowListApplies && principal.role === 'consultant' && !consultantAllowed) {
       continue;
     }
 

@@ -11294,3 +11294,63 @@ test('marketing renderer runtime · Worker bindings stay exclusive and execute w
   const providerMap = source.match(/const providers:[\s\S]*?const workerFetch/)?.[0] ?? '';
   assert.doesNotMatch(providerMap, /NVIDIA_MARKETING_CREATE_API_KEY|MARKETING_CREATE_ACTIVATION/);
 });
+test('rbac · no principal keeps the founder envelope byte-verbatim and surface-free', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  assert.equal(get.body, ENVELOPE);
+  assert.equal(body(get).surface, undefined);
+});
+
+test('rbac · consultant principal receives filtered surface — no signed-action, no sheet-primary subsections', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const consultant = encodeURIComponent(JSON.stringify({
+    id: 'c1', tenant: 'cambium', role: 'consultant', allow: ['tapestry', 'wake'], createdBy: 'founder-1',
+  }));
+  const get = await handle(req('GET', `/api/quests/cambium?principal=${consultant}`), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface, 'surface present for consultant');
+  const subsectionIds = surface.subsections.map((s: { id: string }) => s.id);
+  assert.deepEqual(subsectionIds, ['tapestry', 'wake']);
+  for (const sub of surface.subsections) {
+    assert.equal(sub.interactions.primary, 'sheet');
+    const signed = (sub.interactions.controls ?? []).filter((c: { interaction: string }) => c.interaction === 'signed-action');
+    assert.equal(signed.length, 0, 'signed-action controls stripped');
+  }
+  assert.equal(surface.sections.length, 0, 'all section primaries exceed consultant ceiling');
+});
+
+test('rbac · team principal keeps chat-command but loses signed-action controls', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const team = JSON.stringify({ id: 't1', tenant: 'cambium', role: 'team', allow: [], createdBy: 'founder-1' });
+  const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': team } }), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface.subsections.length > 0, 'team sees subsections');
+  for (const sub of surface.subsections) {
+    const kinds = [sub.interactions.primary, ...(sub.interactions.secondary ?? []), ...(sub.interactions.controls ?? []).map((c: { interaction: string }) => c.interaction)];
+    assert.ok(!kinds.includes('signed-action'), `subsection ${sub.id} carries no signed-action`);
+  }
+});
+
+test('rbac · expired principal receives empty surface', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const expired = JSON.stringify({
+    id: 'c2', tenant: 'cambium', role: 'consultant', allow: ['tapestry'], createdBy: 'founder-1',
+    expiresAt: '2020-01-01T00:00:00.000Z',
+  });
+  const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': expired } }), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.deepEqual(surface.sections, []);
+  assert.deepEqual(surface.subsections, []);
+});
