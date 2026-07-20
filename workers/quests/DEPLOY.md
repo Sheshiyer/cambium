@@ -664,7 +664,7 @@ idempotent replay, zero approval rows, and null invocation, artifact, terminal,
 and provider-usage fields:
 
 ```bash
-: "${CAMBIUM_QUESTS_BASE_URL:?set the exact deployed base URL}"
+: "${CAMBIUM_QUESTS_BASE_URL:?set the reviewed direct workers.dev canonical HTTPS origin}"
 test -x scripts/prove-marketing-create-prepare.sh
 ./scripts/prove-marketing-create-prepare.sh --check-only
 CAMBIUM_QUESTS_BASE_URL="$CAMBIUM_QUESTS_BASE_URL" \
@@ -676,6 +676,42 @@ If Version 62 has already received traffic, roll back to this literal inert
 candidate target, never to a tag, latest Version, or rebuilt artifact:
 
 ```bash
+: "${CAMBIUM_QUESTS_DIRECT_HEALTH_URL:?set the exact direct HTTPS /healthz URL}"
+: "${CAMBIUM_QUESTS_CUSTOM_HEALTH_URL:?set the exact custom HTTPS /healthz URL}"
+CAMBIUM_QUESTS_DIRECT_HEALTH_SHA256='618193599d58486ffa1755971d7edf81bf1b9bb422161db75f472e49e23d4f45'
+CAMBIUM_QUESTS_CUSTOM_HEALTH_SHA256='ba9ff22b02359797877fc53501822bbdae51c6b6854fbce49ae08c7cfbd6cc56'
+validate_cambium_health_url() {
+  node -e '
+    const { createHash } = require("node:crypto");
+    const raw = process.argv[1];
+    const expectedDigest = process.argv[2];
+    let parsed;
+    try {
+      parsed = new URL(raw);
+    } catch {
+      process.exit(1);
+    }
+    if (
+      parsed.protocol !== "https:"
+      || parsed.origin === "null"
+      || parsed.username !== ""
+      || parsed.password !== ""
+      || parsed.pathname !== "/healthz"
+      || parsed.search !== ""
+      || parsed.hash !== ""
+      || raw !== `${parsed.origin}/healthz`
+    ) process.exit(1);
+    const observedDigest = createHash("sha256").update(raw).digest("hex");
+    if (observedDigest !== expectedDigest) process.exit(1);
+  ' "$1" "$2"
+}
+validate_cambium_health_url \
+  "$CAMBIUM_QUESTS_DIRECT_HEALTH_URL" "$CAMBIUM_QUESTS_DIRECT_HEALTH_SHA256" \
+  || { echo 'invalid direct HTTPS health URL' >&2; exit 1; }
+validate_cambium_health_url \
+  "$CAMBIUM_QUESTS_CUSTOM_HEALTH_URL" "$CAMBIUM_QUESTS_CUSTOM_HEALTH_SHA256" \
+  || { echo 'invalid custom HTTPS health URL' >&2; exit 1; }
+
 npx --no-install wrangler versions deploy \
   '9e6885ce-ea25-4158-ba71-69b8bdfc256b@100%' \
   --name cambium-quests --config workers/quests/wrangler.jsonc \
@@ -689,10 +725,14 @@ jq -e --arg candidate '9e6885ce-ea25-4158-ba71-69b8bdfc256b' '
   .versions | length == 1 and .[0].percentage == 100
   and .[0].version_id == $candidate
 ' "$ROLLBACK_DEPLOYMENT_JSON"
-test "$(curl -sS -o /dev/null -w '%{http_code}' \
-  'https://cambium-quests.sheshnarayan-iyer.workers.dev/healthz')" = 200
-test "$(curl -sS -o /dev/null -w '%{http_code}' \
-  'https://curious.thoughtseed.space/healthz')" = 200
+test "$(curl -q --proxy '' --proto '=https' \
+  --connect-timeout 5 --max-time 15 --max-filesize 65536 \
+  -sS -o /dev/null -w '%{http_code}' \
+  "$CAMBIUM_QUESTS_DIRECT_HEALTH_URL")" = 200
+test "$(curl -q --proxy '' --proto '=https' \
+  --connect-timeout 5 --max-time 15 --max-filesize 65536 \
+  -sS -o /dev/null -w '%{http_code}' \
+  "$CAMBIUM_QUESTS_CUSTOM_HEALTH_URL")" = 200
 rm -f "$ROLLBACK_DEPLOYMENT_JSON"
 trap - EXIT
 ```

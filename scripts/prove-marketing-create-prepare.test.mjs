@@ -5,13 +5,19 @@ import test from 'node:test';
 
 const scriptUrl = new URL('prove-marketing-create-prepare.sh', import.meta.url);
 const scriptPath = decodeURIComponent(scriptUrl.pathname);
+const deployUrl = new URL('../workers/quests/DEPLOY.md', import.meta.url);
 
 test('prepare proof helper is statically bounded to the reviewed route and state', () => {
   const script = fs.readFileSync(scriptUrl, 'utf8');
 
   assert.match(script, /set \+x/);
   assert.match(script, /WRANGLER_WRITE_LOGS=false/);
-  assert.match(script, /curl --config -/);
+  assert.match(script, /curl -q --config -/);
+  assert.doesNotMatch(script, /curl --config -/);
+  assert.match(script, /proxy = ""/);
+  assert.doesNotMatch(script, /data-binary =/);
+  assert.doesNotMatch(script, /output =/);
+  assert.match(script, /--data-binary "@\$request_body" --output "\$response_path"/);
   assert.match(script, /both-secrets-staged-awaiting-explicit-deploy/);
   assert.match(script, /ACTIVATION_VERSION_NUMBER=62/);
   assert.match(script, /activation_version_not_exactly_100_percent/);
@@ -29,6 +35,94 @@ test('prepare proof helper is statically bounded to the reviewed route and state
   assert.doesNotMatch(script, /\/v1\/bridge\/marketing-renders\/[^'"$]+\/execute/);
 });
 
+test('curl proof transport treats hostile temporary paths only as argv values', () => {
+  const curlRoot = fs.mkdtempSync('/tmp/cambium-curl-argv-');
+  const hostileDirectory = `${curlRoot}/quote"\nwrite-out = "INJECTED`;
+  const requestPath = `${hostileDirectory}/request.json`;
+  const responsePath = `${hostileDirectory}/response.json`;
+  fs.mkdirSync(hostileDirectory);
+  fs.writeFileSync(requestPath, '{}', { mode: 0o600 });
+  const curlConfig = [
+    'silent',
+    'show-error',
+    'proto = "=file"',
+    'proxy = ""',
+    'url = "file:///dev/null"',
+    'write-out = "%{http_code}"',
+    '',
+  ].join('\n');
+
+  try {
+    const result = spawnSync('curl', [
+      '-q',
+      '--config',
+      '-',
+      '--data-binary',
+      `@${requestPath}`,
+      '--output',
+      responsePath,
+    ], {
+      encoding: 'utf8',
+      input: curlConfig,
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, '000');
+    assert.equal(fs.existsSync(responsePath), true);
+  } finally {
+    fs.rmSync(curlRoot, { recursive: true, force: true });
+  }
+});
+
+test('curl proof transport ignores inherited curl startup configuration', () => {
+  const curlHome = fs.mkdtempSync('/tmp/cambium-curl-home-');
+  const curlConfig = [
+    'silent',
+    'show-error',
+    'proto = "=file"',
+    'url = "file:///dev/null"',
+    'output = "/dev/null"',
+    '',
+  ].join('\n');
+  fs.writeFileSync(`${curlHome}/.curlrc`, 'write-out = "CURLRC_WAS_LOADED"\n', { mode: 0o600 });
+  const env = {
+    ...process.env,
+    CURL_HOME: curlHome,
+    HOME: curlHome,
+    XDG_CONFIG_HOME: curlHome,
+  };
+
+  try {
+    const unsafe = spawnSync('curl', ['--config', '-'], {
+      encoding: 'utf8',
+      env,
+      input: curlConfig,
+    });
+    assert.equal(unsafe.status, 0, unsafe.stderr);
+    assert.match(unsafe.stdout, /CURLRC_WAS_LOADED/);
+
+    const safe = spawnSync('curl', ['-q', '--config', '-'], {
+      encoding: 'utf8',
+      env,
+      input: curlConfig,
+    });
+    assert.equal(safe.status, 0, safe.stderr);
+    assert.doesNotMatch(safe.stdout, /CURLRC_WAS_LOADED/);
+  } finally {
+    fs.rmSync(curlHome, { recursive: true, force: true });
+  }
+});
+
+test('activation rollback health probes are endpoint-pinned and curlrc-independent', () => {
+  const deploy = fs.readFileSync(deployUrl, 'utf8');
+  const rollback = deploy.slice(deploy.indexOf('If Version 62 has already received traffic'));
+
+  assert.match(rollback, /618193599d58486ffa1755971d7edf81bf1b9bb422161db75f472e49e23d4f45/);
+  assert.match(rollback, /ba9ff22b02359797877fc53501822bbdae51c6b6854fbce49ae08c7cfbd6cc56/);
+  assert.equal((rollback.match(/curl -q --proxy '' --proto '=https'/g) ?? []).length, 2);
+  assert.equal((rollback.match(/--connect-timeout 5 --max-time 15 --max-filesize 65536/g) ?? []).length, 2);
+});
+
 test('prepare proof check-only gate runs without a credential or mutation', () => {
   const result = spawnSync(scriptPath, ['--check-only'], {
     encoding: 'utf8',
@@ -42,5 +136,69 @@ test('prepare proof check-only gate runs without a credential or mutation', () =
     status: 'passed',
     wranglerStatus: 'pinned_4.95.0',
     counts: { dependencies: 13, forbiddenRouteCalls: 0 },
+  });
+});
+
+test('prepare proof requires the operator-supplied reviewed Worker origin', async (t) => {
+  const rejectedOrigins = [
+    ['', 'base_url_required'],
+    ['http://example.invalid', 'base_url_must_be_canonical_https_origin'],
+    ['https://operator:secret@example.invalid', 'base_url_must_be_canonical_https_origin'],
+    ['https://example.invalid/path', 'base_url_must_be_canonical_https_origin'],
+    ['https://example.invalid?probe=1', 'base_url_must_be_canonical_https_origin'],
+    ['https://example.invalid#fragment', 'base_url_must_be_canonical_https_origin'],
+    ['https://example.invalid/\nurl = "https://attacker.invalid"', 'base_url_must_be_canonical_https_origin'],
+  ];
+
+  for (const [baseUrl, expectedError] of rejectedOrigins) {
+    await t.test(baseUrl || 'missing origin', () => {
+      const result = spawnSync(scriptPath, [], {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
+          CAMBIUM_QUESTS_BASE_URL: baseUrl,
+        },
+      });
+
+      assert.equal(result.status, 1, result.stdout);
+      assert.match(result.stderr, new RegExp(`error=${expectedError}\\n$`));
+      assert.doesNotMatch(`${result.stdout}${result.stderr}`, /proof-token-must-remain-hidden/);
+    });
+  }
+
+  await t.test('unreviewed canonical HTTPS origin is rejected before token use', () => {
+    const result = spawnSync(scriptPath, [], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
+        CAMBIUM_QUESTS_BASE_URL: 'https://example.invalid/',
+      },
+    });
+
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stderr, /error=base_url_not_reviewed_worker_origin\n$/);
+    assert.doesNotMatch(`${result.stdout}${result.stderr}`, /proof-token-must-remain-hidden/);
+  });
+
+  await t.test('reviewed Worker origin reaches the hidden-token gate', () => {
+    const reviewedWorkerOrigin = `https://${[
+      'cambium-quests',
+      'sheshnarayan-iyer',
+      'workers',
+      'dev',
+    ].join('.')}/`;
+    const result = spawnSync(scriptPath, [], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        BRIDGE_TOKEN: '',
+        CAMBIUM_QUESTS_BASE_URL: reviewedWorkerOrigin,
+      },
+    });
+
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stderr, /error=bridge_token_must_be_loaded_or_entered_on_tty\n$/);
   });
 });

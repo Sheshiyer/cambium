@@ -17,13 +17,12 @@ readonly WRANGLER_CONFIG="$REPO_ROOT/workers/quests/wrangler.jsonc"
 readonly WORKER_NAME='cambium-quests'
 readonly D1_NAME='cambium-bridge'
 readonly D1_UUID='f6b950ac-2480-4a7d-9dac-1ff7e951d936'
-readonly DIRECT_BASE_URL='https://cambium-quests.sheshnarayan-iyer.workers.dev'
-readonly CUSTOM_BASE_URL='https://curious.thoughtseed.space'
 readonly PREPARE_ROUTE='/v1/bridge/marketing-renders/prepare'
 readonly EXPECTED_ADAPTER_ID='founder-article-nvidia@1.0.0'
 readonly EXPECTED_NEXT_ACTION_ROUTE='/api/gate/thoughtseed'
 readonly EXPECTED_NEXT_ACTION_KIND='approve-marketing-render'
 readonly REQUIRED_WRANGLER_VERSION='4.95.0'
+readonly REVIEWED_BASE_ORIGIN_SHA256='553d2960c075af3180b71289101c55fa356e07e9f83cead88ea989d34d4430c5'
 readonly ACTIVATION_VERSION_NUMBER=62
 readonly ACTIVATION_BINDING_COUNT=21
 readonly PROVIDER_SECRET_NAME='NVIDIA_MARKETING_CREATE_API_KEY'
@@ -59,7 +58,7 @@ check_static_contract() {
   approval_call_pattern='(curl|url[[:space:]]*=).*api/ga''te'
   forbidden_execute='/exec''ute'
   forbidden_provider='integrate.api.''nvidia.com'
-  curl_config_call='curl --con''fig -'
+  curl_config_call='curl -q --con''fig -'
 
   bash -n "$SCRIPT_PATH" || fail 'bash_syntax_check_failed'
   for dependency in awk bash chmod curl date dirname grep jq mktemp node npx rm shasum; do
@@ -99,12 +98,36 @@ fi
 
 check_static_contract
 
-base_url_input="${CAMBIUM_QUESTS_BASE_URL:-$DIRECT_BASE_URL}"
-readonly BASE_URL="${base_url_input%/}"
-case "$BASE_URL" in
-  "$DIRECT_BASE_URL"|"$CUSTOM_BASE_URL") ;;
-  *) fail 'unexpected_base_url' ;;
-esac
+base_url_input="${CAMBIUM_QUESTS_BASE_URL-}"
+test -n "$base_url_input" || fail 'base_url_required'
+if ! normalized_base_url="$(node -e '
+  const raw = process.argv[1];
+  let parsed;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    process.exit(1);
+  }
+  const canonicalInputs = new Set([parsed.origin, `${parsed.origin}/`]);
+  if (
+    parsed.protocol !== "https:"
+    || parsed.origin === "null"
+    || parsed.username !== ""
+    || parsed.password !== ""
+    || parsed.pathname !== "/"
+    || parsed.search !== ""
+    || parsed.hash !== ""
+    || !canonicalInputs.has(raw)
+  ) process.exit(1);
+  process.stdout.write(parsed.origin);
+' "$base_url_input")"; then
+  fail 'base_url_must_be_canonical_https_origin'
+fi
+readonly BASE_URL="$normalized_base_url"
+observed_base_origin_sha256="$(builtin printf '%s' "$BASE_URL" | shasum -a 256 | awk '{print $1}')"
+test "$observed_base_origin_sha256" = "$REVIEWED_BASE_ORIGIN_SHA256" \
+  || fail 'base_url_not_reviewed_worker_origin'
+unset observed_base_origin_sha256
 
 umask 077
 temp_parent="${TMPDIR:-/tmp}"
@@ -296,16 +319,16 @@ curl_prepare() {
     builtin printf 'show-error\n'
     builtin printf 'request = "POST"\n'
     builtin printf 'proto = "=https"\n'
+    builtin printf 'proxy = ""\n'
     builtin printf 'connect-timeout = 5\n'
     builtin printf 'max-time = 20\n'
     builtin printf 'max-filesize = 65536\n'
     builtin printf 'url = "%s%s"\n' "$BASE_URL" "$PREPARE_ROUTE"
     builtin printf 'header = "content-type: application/json"\n'
     builtin printf 'header = "%s"\n' "$authorization_header"
-    builtin printf 'data-binary = "@%s"\n' "$request_body"
-    builtin printf 'output = "%s"\n' "$response_path"
     builtin printf 'write-out = "%%{http_code}"\n'
-  } | curl --config - 2>/dev/null)"; then
+  } | curl -q --config - \
+    --data-binary "@$request_body" --output "$response_path" 2>/dev/null)"; then
     fail 'prepare_transport_failed'
   fi
   [[ "$http_status" =~ ^[0-9]{3}$ ]] || fail 'prepare_status_invalid'
