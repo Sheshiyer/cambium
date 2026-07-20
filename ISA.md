@@ -3,11 +3,11 @@ project: Cambium
 task: "Consolidate lead stack and build durable runtime spine"
 effort: advanced
 effort_source: context-override
-phase: execute
-progress: 127/128
+phase: complete
+progress: 128/128
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-20T18:28:12Z
+updated: 2026-07-20T18:36:22Z
 ---
 
 ## Problem
@@ -191,7 +191,7 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - [x] ISC-87: PR #261 reports `MERGED`.
 - [x] ISC-88: `origin/main` contains PR #257 head `fc1812c`.
 - [x] ISC-89: `origin/main` contains PR #261 head `9a53dcf`.
-- [ ] ISC-90: Consolidated `main` CI concludes success for its head SHA.
+- [x] ISC-90: Consolidated `main` CI concludes success for its head SHA.
 
 ### Explee read parity
 
@@ -315,6 +315,8 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - 2026-07-20 17:55: PRs #255..261 merged with merge commits in dependency order. The first consolidated main CI failed because the proof-helper test reached a missing Wrangler prerequisite before input-validation assertions; this is now the release-blocking ingestion-order defect.
 - 2026-07-20 17:56: Root-cause-at-ingestion checkpoint — unsafe lead execution enters when a task exists without canonical identity, durable ownership, and a spend reservation. The runtime fix belongs at task creation and adapter invocation, not in output post-processing.
 - 2026-07-20 18:28: Independent review blocked the first runtime draft on ambiguous lease replay and caller-authored foldback metrics. Expired takeovers now reconcile only from a durable observation or fail before provider replay; foldback inputs are reduced to identity and all metrics derive from a DB-validated completed receipt.
+- 2026-07-20 18:34: PR #262 merged the reviewed runtime as `6c5c5fdbed3c5b419386db4a679b43923b9403d9` after exact-head PR CI run `29768161661` passed all deterministic release gates.
+- 2026-07-20 18:36: Consolidated-main CI run `29768331726` passed for merge SHA `6c5c5fdbed3c5b419386db4a679b43923b9403d9`; ISC-90 is satisfied and the 128-criterion lead-runtime milestone is complete.
 
 ## Changelog
 
@@ -346,6 +348,10 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
   refuted by: release run `29243290350` passed every deterministic gate and uploaded live readiness, then Bash rejected the escaped command substitution before GitHub Release creation
   learned: release metadata plumbing needs a tested multiline shell contract just like build and proof steps
   criterion now: ISC-60 includes shell-safe codename resolution before an existing tag can become a published GitHub Release
+- 2026-07-20 | conjectured: Green stacked branches and complete local release gates were sufficient evidence that the consolidated main head would pass CI
+  refuted by: consolidated-main run `29765512088` failed because the marketing-create proof test depended on ambient Wrangler availability before reaching its input-validation assertions
+  learned: portable tests must supply their own tool fixture and prove wrong-version behavior fails closed; local tool installations are not release evidence
+  criterion now: ISC-90 requires a successful consolidated-main CI head, with the hermetic Wrangler fixture exercised by the same deterministic release workflow
 
 ## Verification
 
@@ -402,3 +408,5 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - ISC-119: schema test — foldback columns contain no email, phone, alias, source ID, lead ID, identity, payload, or text field.
 - ISC-115: adversarial replay test — an expired lease with a persisted observation finishes without provider reads; one without an observation fails `lead_run_reconciliation_required` before provider access.
 - ISC-118: adversarial derivation tests — caller-supplied and direct-SQL poisoned foldbacks fail; valid foldback metrics and time are derived from the immutable completed receipt.
+- ISC-90: PR CI run `29768161661` passed on exact runtime head `bccf7a88c7e1c06025fe40080991a0e3a3008b34`; consolidated-main push run `29768331726` then passed on merge SHA `6c5c5fdbed3c5b419386db4a679b43923b9403d9`.
+- Final deterministic release evidence: 937 core tests, the 416-file standalone audit, standalone smoke, Telegram mobile proof, 52 R3F tests, and the R3F production build all passed in GitHub CI. Paid engagement/media adapters and every recurring schedule remain disabled; no live paid-provider call was made.
