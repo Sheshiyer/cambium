@@ -552,110 +552,150 @@ not be installed as a plaintext remote variable or used to bypass the staged
 Worker-secret review.
 
 Wrangler 4.95 copies the latest uploaded Version when `versions secret put`
-runs and offers no `--version-id` selector. Therefore preserve the candidate
-script ETag and binding signature recorded during installation, require the
-candidate to be latest before the first put, and abort on any intervening
-Version. Stage each secret without production traffic:
+runs and offers no `--version-id` selector. Use the checked-in
+`scripts/stage-marketing-create-secrets.sh` helper; do not issue either put by
+hand. The helper accepts secret values only through Wrangler's hidden TTY
+prompts, parses each created UUID from that put's stdout, never deploys, and
+writes only a private redacted receipt.
+
+The helper is also the binding and Version proof. It numeric-sorts Version
+numbers rather than trusting API array order and permits only the exact ladder
+Version 60 (`9e6885ce-ea25-4158-ba71-69b8bdfc256b`) to Version 61 after the
+provider-key put to Version 62 after the activation put. Immediately before
+the first put it requires that literal candidate to be both latest and the
+only Version at 100 percent production traffic. An intervening upload or
+deployment is a hard stop.
+
+Binding comparison must preserve every field of every non-secret binding,
+recursively key-normalize each object, and sort the complete array by binding
+name and type. Secret bindings alone are reduced to `{name,type}`. The helper
+therefore requires exact 19-object candidate parity, then exactly the provider
+secret addition at 20, then exactly the activation secret addition at 21;
+name/type-only comparison of the baseline bindings is insufficient.
+
+From a clean checkout of the reviewed activation commit, run the helper in a
+TTY. It is resumable only from a fully verified Version 60, 61, or 62 state:
 
 ```bash
-: "${CANDIDATE_VERSION_ID:?restore the reviewed candidate Version UUID}"
-: "${CANDIDATE_SCRIPT_ETAG:?restore its recorded script ETag}"
-: "${CANDIDATE_BINDING_SIGNATURE:?restore its names-and-types signature}"
-
-LATEST_VERSION_ID="$(npx --no-install wrangler versions list \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
-  | jq -er '.[-1].id')"
-test "$LATEST_VERSION_ID" = "$CANDIDATE_VERSION_ID"
-
-npx --no-install wrangler versions secret put NVIDIA_MARKETING_CREATE_API_KEY \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" \
-  --tag "git-$GIT_SHA-provider-secret-staged" \
-  --message "stage dedicated marketing provider binding"
+set -euo pipefail
+umask 077
+test -z "$(git status --porcelain=v1)"
+test -x scripts/stage-marketing-create-secrets.sh
+./scripts/stage-marketing-create-secrets.sh
 ```
 
-Type the dedicated provider key only at Wrangler's hidden prompt. Record the
-printed UUID as `PROVIDER_SECRET_VERSION_ID`. Prove that it became latest,
-retained the candidate script ETag, added exactly the provider secret binding,
-and did not add activation. Recheck latest immediately before the second put:
+Do not copy either secret into a command argument, shell variable, file, log,
+or chat. The helper captures and parses both put results internally. A normal
+successful run ends at a verified but undeployed Version 62; production must
+still be the literal candidate Version 60 at 100 percent.
+
+Run the helper's read-only verification mode once more before deployment. Then
+independently re-prove the numeric Version ladder and extract the final UUID
+from the verified Version 62 record. The helper has already matched this UUID
+to the UUID parsed from the second put's stdout:
 
 ```bash
-: "${PROVIDER_SECRET_VERSION_ID:?copy the provider-secret Version UUID}"
-test "$(npx --no-install wrangler versions list \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
-  | jq -er '.[-1].id')" = "$PROVIDER_SECRET_VERSION_ID"
+WORKER_NAME=cambium-quests
+WRANGLER_CONFIG=workers/quests/wrangler.jsonc
+CANDIDATE_VERSION_ID=9e6885ce-ea25-4158-ba71-69b8bdfc256b
 
-PROVIDER_VERSION_JSON="$(mktemp)"
-npx --no-install wrangler versions view "$PROVIDER_SECRET_VERSION_ID" \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
-  > "$PROVIDER_VERSION_JSON"
-PROVIDER_EXPECTED_BINDINGS="$(jq -cn \
-  --argjson base "$CANDIDATE_BINDING_SIGNATURE" \
-  '$base + [{name:"NVIDIA_MARKETING_CREATE_API_KEY",type:"secret_text"}]
-   | sort_by(.name, .type)')"
-jq -e --arg id "$PROVIDER_SECRET_VERSION_ID" \
-  --arg etag "$CANDIDATE_SCRIPT_ETAG" \
-  --argjson expected "$PROVIDER_EXPECTED_BINDINGS" \
-  '.id == $id and .resources.script.etag == $etag
-   and ([.resources.bindings[]? | {name, type}] | sort_by(.name, .type)) == $expected' \
-  "$PROVIDER_VERSION_JSON"
-rm -f "$PROVIDER_VERSION_JSON"
+./scripts/stage-marketing-create-secrets.sh --check-only
 
-test "$(npx --no-install wrangler versions list \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
-  | jq -er '.[-1].id')" = "$PROVIDER_SECRET_VERSION_ID"
+FINAL_VERSIONS_JSON="$(mktemp)"
+FINAL_DEPLOYMENT_JSON="$(mktemp)"
+trap 'rm -f "$FINAL_VERSIONS_JSON" "$FINAL_DEPLOYMENT_JSON"' EXIT
 
-npx --no-install wrangler versions secret put MARKETING_CREATE_ACTIVATION \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" \
-  --tag "git-$GIT_SHA-marketing-activation-staged" \
-  --message "stage reviewed marketing activation binding"
+npx --no-install wrangler versions list \
+  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
+  > "$FINAL_VERSIONS_JSON"
+jq -e --arg candidate "$CANDIDATE_VERSION_ID" '
+  (map(.number |= tonumber) | sort_by(.number)) as $versions
+  | ([$versions[] | select(.number >= 60) | .number] == [60,61,62])
+    and ([$versions[] | select(.number == 60 and .id == $candidate)] | length == 1)
+    and ([$versions[] | select(.number == 61)] | length == 1)
+    and ([$versions[] | select(.number == 62)] | length == 1)
+' "$FINAL_VERSIONS_JSON"
+ACTIVATION_VERSION_ID="$(jq -er '
+  (map(.number |= tonumber) | sort_by(.number))
+  | last | select(.number == 62) | .id
+' "$FINAL_VERSIONS_JSON")"
+case "$ACTIVATION_VERSION_ID" in
+  ????????-????-????-????-????????????) ;;
+  *) echo 'final staged version is not one exact UUID' >&2; exit 1 ;;
+esac
 ```
 
-Type the reviewed activation only at the second hidden prompt. Record the
-printed UUID as `ACTIVATION_VERSION_ID`. Abort unless it is still latest, has
-the identical candidate script ETag, and its complete binding signature is
-exactly the candidate signature plus both secret names. These checks prove
-code and binding continuity; a tag or `versions view` alone does not.
+Explicit deployment is a separate, final operation. Immediately before it,
+require production still to be only the literal candidate at 100 percent.
+Nothing may run between this guard and the deploy command:
 
 ```bash
-: "${ACTIVATION_VERSION_ID:?copy the final staged Version UUID printed by Wrangler}"
-test "$(npx --no-install wrangler versions list \
+npx --no-install wrangler deployments status \
   --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
-  | jq -er '.[-1].id')" = "$ACTIVATION_VERSION_ID"
-
-ACTIVATION_VERSION_JSON="$(mktemp)"
-npx --no-install wrangler versions view "$ACTIVATION_VERSION_ID" \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
-  > "$ACTIVATION_VERSION_JSON"
-ACTIVATION_EXPECTED_BINDINGS="$(jq -cn \
-  --argjson base "$CANDIDATE_BINDING_SIGNATURE" \
-  '$base
-   + [{name:"NVIDIA_MARKETING_CREATE_API_KEY",type:"secret_text"}]
-   + [{name:"MARKETING_CREATE_ACTIVATION",type:"secret_text"}]
-   | sort_by(.name, .type)')"
-jq -e --arg id "$ACTIVATION_VERSION_ID" \
-  --arg etag "$CANDIDATE_SCRIPT_ETAG" \
-  --argjson expected "$ACTIVATION_EXPECTED_BINDINGS" \
-  '.id == $id and .resources.script.etag == $etag
-   and ([.resources.bindings[]? | {name, type}] | sort_by(.name, .type)) == $expected
-   and any(.resources.bindings[]?;
-     .name == "NVIDIA_MARKETING_CREATE_API_KEY" and .type == "secret_text")
-   and any(.resources.bindings[]?;
-     .name == "MARKETING_CREATE_ACTIVATION" and .type == "secret_text")' \
-  "$ACTIVATION_VERSION_JSON"
-rm -f "$ACTIVATION_VERSION_JSON"
-
-test "$(npx --no-install wrangler versions list \
-  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
-  | jq -er '.[-1].id')" = "$ACTIVATION_VERSION_ID"
+  > "$FINAL_DEPLOYMENT_JSON"
+jq -e --arg candidate '9e6885ce-ea25-4158-ba71-69b8bdfc256b' '
+  .versions | length == 1 and .[0].percentage == 100
+  and .[0].version_id == $candidate
+' "$FINAL_DEPLOYMENT_JSON"
 npx --no-install wrangler versions deploy "$ACTIVATION_VERSION_ID@100%" \
   --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" \
   --message "activate reviewed marketing create Version" --yes
+npx --no-install wrangler deployments status \
+  --name "$WORKER_NAME" --config "$WRANGLER_CONFIG" --json \
+  > "$FINAL_DEPLOYMENT_JSON"
+jq -e --arg activated "$ACTIVATION_VERSION_ID" '
+  .versions | length == 1 and .[0].percentage == 100
+  and .[0].version_id == $activated
+' "$FINAL_DEPLOYMENT_JSON"
+rm -f "$FINAL_VERSIONS_JSON" "$FINAL_DEPLOYMENT_JSON"
+trap - EXIT
 ```
 
 Do not use `wrangler secret put` for this activation: that legacy command
 creates and immediately deploys a new Worker Version. `wrangler versions secret
 put` stages the change; only the explicit `wrangler versions deploy` command
-above may activate it after review.
+above may activate it after all proof succeeds.
+
+After deployment, run only the checked-in prepare proof helper. It may call the
+authenticated `/v1/bridge/marketing-renders/prepare` route and perform bounded
+D1 reads. It must not call the approval route, the render `/execute` route, or
+the provider. Its passing receipt requires one retained `prepared` row, an
+idempotent replay, zero approval rows, and null invocation, artifact, terminal,
+and provider-usage fields:
+
+```bash
+: "${CAMBIUM_QUESTS_BASE_URL:?set the exact deployed base URL}"
+test -x scripts/prove-marketing-create-prepare.sh
+./scripts/prove-marketing-create-prepare.sh --check-only
+CAMBIUM_QUESTS_BASE_URL="$CAMBIUM_QUESTS_BASE_URL" \
+  ./scripts/prove-marketing-create-prepare.sh
+```
+
+Any failed Version, binding, deployment, or prepare-only proof stops the wave.
+If Version 62 has already received traffic, roll back to this literal inert
+candidate target, never to a tag, latest Version, or rebuilt artifact:
+
+```bash
+npx --no-install wrangler versions deploy \
+  '9e6885ce-ea25-4158-ba71-69b8bdfc256b@100%' \
+  --name cambium-quests --config workers/quests/wrangler.jsonc \
+  --message 'rollback marketing-create activation to inert Version 60' --yes
+ROLLBACK_DEPLOYMENT_JSON="$(mktemp)"
+trap 'rm -f "$ROLLBACK_DEPLOYMENT_JSON"' EXIT
+npx --no-install wrangler deployments status \
+  --name cambium-quests --config workers/quests/wrangler.jsonc --json \
+  > "$ROLLBACK_DEPLOYMENT_JSON"
+jq -e --arg candidate '9e6885ce-ea25-4158-ba71-69b8bdfc256b' '
+  .versions | length == 1 and .[0].percentage == 100
+  and .[0].version_id == $candidate
+' "$ROLLBACK_DEPLOYMENT_JSON"
+test "$(curl -sS -o /dev/null -w '%{http_code}' \
+  'https://cambium-quests.sheshnarayan-iyer.workers.dev/healthz')" = 200
+test "$(curl -sS -o /dev/null -w '%{http_code}' \
+  'https://curious.thoughtseed.space/healthz')" = 200
+rm -f "$ROLLBACK_DEPLOYMENT_JSON"
+trap - EXIT
+```
 
 ## Hermes Native Execution Order
 
