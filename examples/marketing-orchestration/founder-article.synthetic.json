@@ -1,0 +1,84 @@
+{
+  "fixture_version": "marketing-proof@1.0.0",
+  "fixture_id": "founder-article-synthetic@1.0.0",
+  "request": {
+    "tenant": {
+      "tenant_id": "thoughtseed-synthetic",
+      "purpose": "offline-marketing-orchestration-proof",
+      "data_classification": "synthetic",
+      "processing_region": "local",
+      "retention_days": 30
+    },
+    "outcome_id": "founder_article",
+    "product_packet": {
+      "packet_id": "aiseo-synthetic@1.0.0",
+      "packet_version": "1.0.0",
+      "product_name": "Thoughtseed AISEO",
+      "audience": "founders building evidence-led organic acquisition",
+      "problem": "marketing expertise is fragmented across tools and cannot safely drive execution",
+      "positioning": "a governed orchestration layer that compiles expertise into reviewable assets",
+      "promise": "turn product truth into traceable organic media without granting publishing authority",
+      "differentiators": [
+        "digest-bound provenance",
+        "review-only capability plans",
+        "Cambium-owned approval boundaries"
+      ],
+      "voice_principles": [
+        "specific",
+        "calm",
+        "evidence-led"
+      ],
+      "call_to_action": "review the exact package digest before any channel action",
+      "claim_bindings": [
+        {"field": "product_name", "value_digest": "c5ad404ee24b298e9f01c21f539089aedd7ea35883c5c4d55fcc6ff548254f9a", "claim_ids": ["claim-synthetic-003"]},
+        {"field": "positioning", "value_digest": "f5fbf303753322107beb415b94913776a62879ec59624b4dc53ec31d0d7d3d66", "claim_ids": ["claim-synthetic-001"]},
+        {"field": "promise", "value_digest": "3a307672a5b2599e7f9c1452d6fa127560fad67b08b5fbe11c498f6114f3cf92", "claim_ids": ["claim-synthetic-001"]}
+      ]
+    },
+    "objective": "explain how governed capability compilation makes organic media safer",
+    "channel_outcome": "founder_article",
+    "desired_title": "A safer way to turn marketing expertise into organic media",
+    "evidence_snapshot": {
+      "snapshot_digest": "a6f1dfc8d30725b074edc38c6a791a73e9e582739fc38031e8195b849cb0b9ec",
+      "observed_at": "2026-07-18T11:55:00.000Z",
+      "claims": [
+        {
+          "claim_id": "claim-synthetic-001",
+          "statement": "Cambium keeps task, lease, fencing, approval, and receipt authority.",
+          "source_ref": "lead-ecosystem-contract-foundation@1.0.0",
+          "evidence_digest": "2b5ea398664b0d976a66a06fe1f2a2a021e83bbf7d8f04d29e2f92527b6b1f18",
+          "verified": true,
+          "rights_status": "cleared",
+          "expires_at": "2026-08-18T00:00:00.000Z"
+        },
+        {
+          "claim_id": "claim-synthetic-002",
+          "statement": "The pinned upstream source contains forty-seven marketing skills.",
+          "source_ref": "marketingskills@67264763cb107d61749f418d081c56e5bcbc0209",
+          "evidence_digest": "3941d4d53018523039fcd50ca24b9f1e19e66c76c92163019e003c75c117c8ab",
+          "verified": true,
+          "rights_status": "cleared",
+          "expires_at": "2026-08-18T00:00:00.000Z"
+        },
+        {
+          "claim_id": "claim-synthetic-003",
+          "statement": "Thoughtseed AISEO is the synthetic product packet used for this review-only proof.",
+          "source_ref": "aiseo-synthetic@1.0.0",
+          "evidence_digest": "24de983f9932364515893a62d2151b9986be170805bf116d9e1f653422be20c8",
+          "verified": true,
+          "rights_status": "cleared",
+          "expires_at": "2026-08-18T00:00:00.000Z"
+        }
+      ]
+    }
+  },
+  "loop_observation": {
+    "tenant_id": "thoughtseed-synthetic",
+    "asset_id": "founder-article-synthetic-001",
+    "source_asset_digest": "4f61354145845637bd90da2c9dfe205c8def7f0a93492a56f472a20f53b60110",
+    "observed_at": "2026-07-18T11:58:00.000Z",
+    "freshness_expires_at": "2026-08-18T00:00:00.000Z",
+    "quality_score": 92,
+    "observation_window": "2026-07-01/2026-07-18"
+  }
+}

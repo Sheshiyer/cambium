@@ -1,0 +1,3996 @@
+{
+  "schema_version": "marketing-capabilities@1.0.0",
+  "source": {
+    "repository": "https://github.com/coreyhaines31/marketingskills",
+    "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+    "license": {
+      "spdx": "MIT",
+      "sha256": "b70d71e24e40fce5da8f4b6f9cd862096a048e433db7f3c8cac5e348e6d34591",
+      "path": "LICENSE"
+    },
+    "skill_count": 47,
+    "loop_definition_count": 45,
+    "capability_set_digest": "7147c3e52094acce76e4cba08d0131eef40292d4c4ecab54a61013253f56faf5",
+    "versions_file": "VERSIONS.md",
+    "digest": {
+      "algorithm": "sha256",
+      "canonicalization": "relative_path_nul_content_nul_v1"
+    }
+  },
+  "policy": {
+    "execution_envelope": {
+      "network": "none",
+      "authentication": "none",
+      "external_write": "none",
+      "spend": "none",
+      "schedule": "none"
+    },
+    "max_execution_class": "review_only",
+    "prohibited_output_actions": [
+      "publish",
+      "send",
+      "spend",
+      "schedule",
+      "provider_action",
+      "credential_access",
+      "external_mutation"
+    ],
+    "live_adapters": [],
+    "low_budget_variants_runtime_enabled": false
+  },
+  "asset_catalog_ref": {
+    "catalog_id": "marketing-assets@1.0.0",
+    "path": "composition/contracts/marketing-assets.v1.json",
+    "contract_ids": [
+      "asset_brief@1.0.0",
+      "asset_recipe@1.0.0",
+      "asset_draft@1.0.0",
+      "asset_variant@1.0.0",
+      "asset_quality_report@1.0.0",
+      "channel_package@1.0.0"
+    ]
+  },
+  "content_asset_bridge": {
+    "catalog_path": "composition/contracts/lead-ecosystem.v1.json",
+    "contract_id": "content_asset@1.0.0",
+    "stage": "create",
+    "source_contract_id": "channel_package@1.0.0",
+    "asset_kind": "marketing_review_package",
+    "authority_owner": "cambium",
+    "approval_required": true,
+    "publish_eligible_by_default": false,
+    "activation_state": "blocked",
+    "blocking_reason": "canonical_approval_contract_not_wired"
+  },
+  "orchestration_set_digest": "223d63575fdcf0c57f25eb76a1b2e00e12f981c67614245b4e5d3cd47410ce4d",
+  "capabilities": [
+    {
+      "id": "ab-testing@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "ab-testing",
+      "source_closure_digest": "ddbdaae2771f0725fe2aa55209aaaa8d3bdfaf95e67f357e0e8cdef4f7279733",
+      "classification": "measurement",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "ab-testing",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "ad-creative@2.8.0",
+      "upstream_version": "2.8.0",
+      "upstream_directory": "ad-creative",
+      "source_closure_digest": "cc7c91cffe3d6a07c47e2035b229f20b2937401353f9dd94d51558cc3da54342",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "multimedia",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "ad-creative",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "ads@2.2.0",
+      "upstream_version": "2.2.0",
+      "upstream_directory": "ads",
+      "source_closure_digest": "31373a59d64645520b0885fe07f9ae57f5486b6560b18c5b337863d878304566",
+      "classification": "distribution-planning",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "ads",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "ai-seo@2.2.0",
+      "upstream_version": "2.2.0",
+      "upstream_directory": "ai-seo",
+      "source_closure_digest": "ee443de17654784ac017d20ea663df34d70d2077314917b91b5b386741c4f5e0",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_brief@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "search"
+      ],
+      "channel_support": [
+        {
+          "family": "search",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "ai-seo",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:ai-seo@2.2.0"
+      ]
+    },
+    {
+      "id": "analytics@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "analytics",
+      "source_closure_digest": "8de288f9e74347f8bd3e2d86e7298f02656fcfa0d634f4afa69bfb1203fc7bf8",
+      "classification": "measurement",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_brief@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "analytics",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:analytics@2.0.0"
+      ]
+    },
+    {
+      "id": "aso@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "aso",
+      "source_closure_digest": "d412a5491d84af77e7c987564a431e02341702a28c957d1a81ca2ce00267da89",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "aso",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "churn-prevention@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "churn-prevention",
+      "source_closure_digest": "63c688b02d7f540dc36b5c73cc8605880430eb3f93f0efc9f80331f969432201",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "churn-prevention",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "co-marketing@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "co-marketing",
+      "source_closure_digest": "02ea27135f09868a275922a6a1d68919f42bf0567e6314eaae22098de02722b1",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "co-marketing",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "cold-email@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "cold-email",
+      "source_closure_digest": "88dcb23f140ceae63b7d5ab3c616b53cf05c154fc4430a7d04f38855a682124a",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "lifecycle_messaging",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "cold-email",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "community-marketing@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "community-marketing",
+      "source_closure_digest": "2c98c6da930476081689a6f1db3325684896736e9aff5c052d1c448fa9c86439",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "social"
+      ],
+      "channel_support": [
+        {
+          "family": "social",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "community-marketing",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:community-marketing@2.0.0"
+      ]
+    },
+    {
+      "id": "competitor-profiling@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "competitor-profiling",
+      "source_closure_digest": "054395b106cbe8ac708e2da58ad6d859bbad8fb0c801a1dea71727dd0b9cfbe4",
+      "classification": "research",
+      "stages": [
+        "understand"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "competitor-profiling",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:competitor-profiling@2.0.0"
+      ]
+    },
+    {
+      "id": "competitors@2.0.1",
+      "upstream_version": "2.0.1",
+      "upstream_directory": "competitors",
+      "source_closure_digest": "06408b910572f79a1b161c17de8acac0d95ab28f945c7b5f31b9d9821478f430",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "competitors",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:competitors@2.0.1"
+      ]
+    },
+    {
+      "id": "content-strategy@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "content-strategy",
+      "source_closure_digest": "3ef6f3500e7884b6c6bb736b1bd935a42fc229a008148e200a0106e93b50af78",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "content-strategy",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:content-strategy@2.0.0"
+      ]
+    },
+    {
+      "id": "copy-editing@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "copy-editing",
+      "source_closure_digest": "9bfcd7678da1b3042dce0c684ec49b87abb0bfc0e3a76032cf12a9739bcf4ec5",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "copy-editing",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:copy-editing@2.0.0"
+      ]
+    },
+    {
+      "id": "copywriting@2.0.1",
+      "upstream_version": "2.0.1",
+      "upstream_directory": "copywriting",
+      "source_closure_digest": "edc00ea31c0b7f195170ee52f6b57330d4d2fb9f88f615ab8198a062c619afab",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "copywriting",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:copywriting@2.0.1"
+      ]
+    },
+    {
+      "id": "cro@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "cro",
+      "source_closure_digest": "d2af9f98c5cee07b9ff1afbdb59c39566e91ff2fa6de47fcafe66edf489ecb82",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "cro",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:cro@2.0.0"
+      ]
+    },
+    {
+      "id": "customer-research@2.0.1",
+      "upstream_version": "2.0.1",
+      "upstream_directory": "customer-research",
+      "source_closure_digest": "8e2e5e8bfaab35ad8a780a3e38a488f59cf91686f42fc232392df4330a2ba080",
+      "classification": "research",
+      "stages": [
+        "understand"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "customer-research",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:customer-research@2.0.1"
+      ]
+    },
+    {
+      "id": "directory-submissions@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "directory-submissions",
+      "source_closure_digest": "66d5aed830f1f655c98403cb439ca0ae5aa540ba497cfc12d53244b6cfd07ae8",
+      "classification": "distribution-planning",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "directory-submissions",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "emails@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "emails",
+      "source_closure_digest": "8ff825e3ad12bcb3478ac057cb6342adf75dcc2f2340220f9fbf0b03583cdf65",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "lifecycle_messaging"
+      ],
+      "channel_support": [
+        {
+          "family": "lifecycle_messaging",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "emails",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:emails@2.0.0"
+      ]
+    },
+    {
+      "id": "free-tools@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "free-tools",
+      "source_closure_digest": "1546096613878b7b94d5f3b9406cf2311fb86c49f7291c93bba0e75e905edacc",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_brief@1.0.0",
+        "asset_draft@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "free-tools",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:free-tools@2.0.0"
+      ]
+    },
+    {
+      "id": "image@2.0.1",
+      "upstream_version": "2.0.1",
+      "upstream_directory": "image",
+      "source_closure_digest": "0e7dc3bcd59226f6784ddbff83580371708ba489ca4f4bf09b80751f9a8eaa79",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_brief@1.0.0",
+        "asset_variant@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "multimedia"
+      ],
+      "channel_support": [
+        {
+          "family": "multimedia",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "image",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:image@2.0.1"
+      ]
+    },
+    {
+      "id": "launch@2.0.1",
+      "upstream_version": "2.0.1",
+      "upstream_directory": "launch",
+      "source_closure_digest": "0d5e1252246da2785320ad50d9cfa633b54f4cbe11bce86e859ca66ee92b1705",
+      "classification": "distribution-planning",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "launch",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "lead-magnets@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "lead-magnets",
+      "source_closure_digest": "6ae00720e3a0529aa27d19ede25849413a15a46f7aeb1bcb96eb6d67f8b8ced9",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "lead-magnets",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:lead-magnets@2.0.0"
+      ]
+    },
+    {
+      "id": "marketing-council@1.0.0",
+      "upstream_version": "1.0.0",
+      "upstream_directory": "marketing-council",
+      "source_closure_digest": "71847bbac13c4352cb5374229608bad7f0c3ed921337d0556ff916b22f4ccb19",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "marketing-council",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "marketing-ideas@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "marketing-ideas",
+      "source_closure_digest": "c877acbffa216d80f45da49d3d037fd30c239553f3155bd8653f8c8136295f83",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "marketing-ideas",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:marketing-ideas@2.0.0"
+      ]
+    },
+    {
+      "id": "marketing-loops@1.2.0",
+      "upstream_version": "1.2.0",
+      "upstream_directory": "marketing-loops",
+      "source_closure_digest": "470a1fdf5424530128a5e4d6f98c55a895e8a43ae988402c80c65cb89ee1e801",
+      "classification": "orchestration",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_recipe@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "marketing-loops",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:marketing-loops@1.2.0"
+      ]
+    },
+    {
+      "id": "marketing-plan@1.1.0",
+      "upstream_version": "1.1.0",
+      "upstream_directory": "marketing-plan",
+      "source_closure_digest": "4eee2400d38f85595f9ba3ff7fbdf4a2c17ec3b1c55d570c1a906f6aef25c60f",
+      "classification": "orchestration",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "marketing-plan",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "marketing-psychology@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "marketing-psychology",
+      "source_closure_digest": "2f7c01f4084b3c82c59e845b02b07f24a8875197a7d2df6f85d6e87e9de9338b",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "marketing-psychology",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "offers@1.0.0",
+      "upstream_version": "1.0.0",
+      "upstream_directory": "offers",
+      "source_closure_digest": "6128ce5a60c59c90a9542b20c61e8e16fdf533877dcfc4021f5068d488561434",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "offers",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "onboarding@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "onboarding",
+      "source_closure_digest": "39c77f5ad9992f31f89f5517394bba67ac7c69d07e4f3250fc8f56f1d360fafa",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "onboarding",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "paywalls@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "paywalls",
+      "source_closure_digest": "128b95f3eaec2562cdd2294fdd2ccc3d8fae7b829a1a3224917ff17181b005ce",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "paywalls",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "popups@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "popups",
+      "source_closure_digest": "2b65b6d9914e9f8fe62c2ce9ea5afefbdce5d1509bc4c3d04c2cadcd64bdce18",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "popups",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "pricing@2.0.1",
+      "upstream_version": "2.0.1",
+      "upstream_directory": "pricing",
+      "source_closure_digest": "1cf469b0f0d5338308fd1e5999ab720c4b82329a72e8c44e25dfc81400e5b42c",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "pricing",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "product-marketing@2.1.0",
+      "upstream_version": "2.1.0",
+      "upstream_directory": "product-marketing",
+      "source_closure_digest": "b38ce0834bc816d854352646955975294d940bcb01e9d846ddbaec4361ab94e7",
+      "classification": "context",
+      "stages": [
+        "understand"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "product-marketing",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:product-marketing@2.1.0"
+      ]
+    },
+    {
+      "id": "programmatic-seo@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "programmatic-seo",
+      "source_closure_digest": "869ec2c3d93c42663e199c4553633a7437ccb83fa4f3dea94ddd8a5df260cf18",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "search",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "programmatic-seo",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "prospecting@1.1.0",
+      "upstream_version": "1.1.0",
+      "upstream_directory": "prospecting",
+      "source_closure_digest": "e4087a562a26acbe4ea0ed8c014e37e1dc9f91914ca83afb6902b14c3e0d6176",
+      "classification": "research",
+      "stages": [
+        "understand"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "prospecting",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "public-relations@1.0.0",
+      "upstream_version": "1.0.0",
+      "upstream_directory": "public-relations",
+      "source_closure_digest": "69a61508b014494eb2ca93d0a954accb00cf5e0d30032d0ff8194bdf3cc4b35e",
+      "classification": "distribution-planning",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "public-relations",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "referrals@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "referrals",
+      "source_closure_digest": "3960200cfe81a89b1f360cfe0ca64933203e2090dadda453ce680807e9f83e38",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "referrals",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "revops@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "revops",
+      "source_closure_digest": "931498f584f8109d2bb1d7f88f6b2ad42d90f2707fd9e8b4ea4741b49858fb35",
+      "classification": "orchestration",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "revops",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "sales-enablement@2.0.1",
+      "upstream_version": "2.0.1",
+      "upstream_directory": "sales-enablement",
+      "source_closure_digest": "db5bc4b8e8cb4f3896aa932c344fce5a05e976a8c1ca9067194e3cd419db232e",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "sales-enablement",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:sales-enablement@2.0.1"
+      ]
+    },
+    {
+      "id": "schema@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "schema",
+      "source_closure_digest": "fe04099452ae94081e9bca9363422ee98d7e9d3a99feedfd77a5bc8ff4ea6846",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "search"
+      ],
+      "channel_support": [
+        {
+          "family": "search",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "schema",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:schema@2.0.0"
+      ]
+    },
+    {
+      "id": "seo-audit@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "seo-audit",
+      "source_closure_digest": "4299174132694c46ea693c0805621b10d9232a8062c637cc0f1bef20d8fdb1f9",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "search"
+      ],
+      "channel_support": [
+        {
+          "family": "search",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "seo-audit",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:seo-audit@2.0.0"
+      ]
+    },
+    {
+      "id": "signup@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "signup",
+      "source_closure_digest": "bcf356ff00849e8c88eb6e4c38817572a4496d73ac378c09db9c39fbe709ddc9",
+      "classification": "optimization",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "editorial",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "signup",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "site-architecture@2.0.0",
+      "upstream_version": "2.0.0",
+      "upstream_directory": "site-architecture",
+      "source_closure_digest": "03193a0d90f0196e5bc1965ddb2915c1927429fd3040f5f1691c3b193167d710",
+      "classification": "strategy",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_brief@1.0.0",
+        "asset_draft@1.0.0"
+      ],
+      "channel_outputs": [
+        "search"
+      ],
+      "channel_support": [
+        {
+          "family": "search",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "site-architecture",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:site-architecture@2.0.0"
+      ]
+    },
+    {
+      "id": "sms@1.0.0",
+      "upstream_version": "1.0.0",
+      "upstream_directory": "sms",
+      "source_closure_digest": "7ec96e82140366416d7aa88d716ce7433b07dce81cd6ad678a4943413dee82aa",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [],
+      "channel_outputs": [],
+      "channel_support": [
+        {
+          "family": "lifecycle_messaging",
+          "status": "unsupported"
+        }
+      ],
+      "curation_state": "reference_only",
+      "curation_reason": "Reference-only because upstream behavior can require live providers, identity, spend, scheduling, or external-write authority.",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "sms",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": []
+    },
+    {
+      "id": "social@2.2.0",
+      "upstream_version": "2.2.0",
+      "upstream_directory": "social",
+      "source_closure_digest": "7d91e4d0a78986b84b7212bc2e948312991618a302a691f6b37fd95852502b97",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "social"
+      ],
+      "channel_support": [
+        {
+          "family": "social",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "social",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:social@2.2.0"
+      ]
+    },
+    {
+      "id": "video@2.1.0",
+      "upstream_version": "2.1.0",
+      "upstream_directory": "video",
+      "source_closure_digest": "4ae87ac8732012443b70e5e46d94687d2885c36bd482911cb39f57dd4dca4f2b",
+      "classification": "creation",
+      "stages": [
+        "create"
+      ],
+      "asset_outputs": [
+        "asset_brief@1.0.0",
+        "asset_variant@1.0.0",
+        "asset_quality_report@1.0.0"
+      ],
+      "channel_outputs": [
+        "multimedia"
+      ],
+      "channel_support": [
+        {
+          "family": "multimedia",
+          "status": "supported"
+        }
+      ],
+      "curation_state": "eligible",
+      "curation_reason": "",
+      "requires_human_review": true,
+      "evidence_requirements": [
+        "verified_claims",
+        "cleared_rights",
+        "current_freshness"
+      ],
+      "product_context_requirements": [
+        "versioned_product_packet"
+      ],
+      "allowed_input_classes": [
+        "synthetic",
+        "derived",
+        "public_business"
+      ],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "max_execution_class": "review_only",
+      "prohibited_output_actions": [
+        "publish",
+        "send",
+        "spend",
+        "schedule",
+        "provider_action",
+        "credential_access",
+        "external_mutation"
+      ],
+      "attribution": {
+        "repository": "https://github.com/coreyhaines31/marketingskills",
+        "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "directory": "video",
+        "license": "MIT"
+      },
+      "semantic_fixture_ids": [
+        "upstream-eval:video@2.1.0"
+      ]
+    }
+  ],
+  "recipes": [
+    {
+      "id": "seo-article-brief@1.0.0",
+      "name": "SEO article brief",
+      "status": "compiled",
+      "founder_job": "Turn a search opportunity into a bounded evidence-led brief.",
+      "primary_asset_type": "seo_article_brief",
+      "purpose_metric": "brief_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "content-strategy@2.0.0",
+        "seo-audit@2.0.0",
+        "ai-seo@2.2.0",
+        "schema@2.0.0"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "search"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "founder-article-draft@1.0.0",
+      "name": "Founder article draft",
+      "status": "executed",
+      "founder_job": "Turn verified product truth into one reviewable founder article.",
+      "primary_asset_type": "founder_article",
+      "purpose_metric": "exact_package_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "customer-research@2.0.1",
+        "copywriting@2.0.1",
+        "copy-editing@2.0.0"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "founder_article"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "social-repurposing@1.0.0",
+      "name": "Social repurposing",
+      "status": "compiled",
+      "founder_job": "Adapt an approved source asset into review-only social drafts.",
+      "primary_asset_type": "social_draft_set",
+      "purpose_metric": "variant_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "social@2.2.0",
+        "copy-editing@2.0.0",
+        "image@2.0.1",
+        "video@2.1.0"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0",
+        "asset_draft@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_variant@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "social"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "newsletter-draft@1.0.0",
+      "name": "Newsletter draft",
+      "status": "compiled",
+      "founder_job": "Compile product evidence into a reviewable newsletter draft.",
+      "primary_asset_type": "newsletter_draft",
+      "purpose_metric": "newsletter_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "emails@2.0.0",
+        "copywriting@2.0.1"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "newsletter"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "community-response-brief@1.0.0",
+      "name": "Community response brief",
+      "status": "compiled",
+      "founder_job": "Prepare a bounded helpful response brief without posting authority.",
+      "primary_asset_type": "community_response_brief",
+      "purpose_metric": "response_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "community-marketing@2.0.0",
+        "copywriting@2.0.1"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "community"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "lead-magnet-outline@1.0.0",
+      "name": "Lead magnet outline",
+      "status": "compiled",
+      "founder_job": "Shape verified expertise into a reviewable lead-magnet outline.",
+      "primary_asset_type": "lead_magnet_outline",
+      "purpose_metric": "outline_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "lead-magnets@2.0.0",
+        "free-tools@2.0.0",
+        "copywriting@2.0.1"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "case-study-draft@1.0.0",
+      "name": "Case study draft",
+      "status": "compiled",
+      "founder_job": "Compile verified customer evidence into a review-only case study.",
+      "primary_asset_type": "case_study_draft",
+      "purpose_metric": "case_study_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "customer-research@2.0.1",
+        "sales-enablement@2.0.1",
+        "copywriting@2.0.1"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "editorial"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "landing-page-improvement-brief@1.0.0",
+      "name": "Landing page improvement brief",
+      "status": "compiled",
+      "founder_job": "Produce evidence-bound landing-page recommendations for human review.",
+      "primary_asset_type": "landing_page_improvement_brief",
+      "purpose_metric": "recommendation_review_readiness",
+      "capability_chain": [
+        "product-marketing@2.1.0",
+        "analytics@2.0.0",
+        "cro@2.0.0",
+        "site-architecture@2.0.0",
+        "copywriting@2.0.1",
+        "copy-editing@2.0.0"
+      ],
+      "input_contracts": [
+        "asset_brief@1.0.0"
+      ],
+      "output_contracts": [
+        "asset_recipe@1.0.0",
+        "asset_draft@1.0.0",
+        "asset_quality_report@1.0.0",
+        "channel_package@1.0.0"
+      ],
+      "channel_outputs": [
+        "web"
+      ],
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "self_checks": [
+        "evidence_bound",
+        "rights_current",
+        "claims_traceable",
+        "authority_absent",
+        "accessibility_companion_present"
+      ],
+      "approval_checkpoint": {
+        "required": true,
+        "stage": "create",
+        "decision_scope": "exact_package_digest"
+      },
+      "review_budget": {
+        "max_minutes": 45,
+        "max_reviewers": 3,
+        "max_variants": 6,
+        "max_claims": 64
+      },
+      "accessibility_companion": {
+        "required": true,
+        "format": "plain_text",
+        "contract_id": "asset_draft@1.0.0"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    }
+  ],
+  "loops": [
+    {
+      "id": "content-decay@1.0.0",
+      "name": "Content decay check",
+      "status": "executed",
+      "cadence": {
+        "mode": "manual_check_only",
+        "suggested_interval": "monthly_suggestion",
+        "schedule_armed": false
+      },
+      "acts_when": {
+        "all": [
+          {
+            "field": "freshness_expires_at",
+            "operator": "lte",
+            "value_from": "clock.now"
+          }
+        ]
+      },
+      "purpose_metric": "stale_asset_review_coverage",
+      "capability_sequence": [
+        "marketing-loops@1.2.0",
+        "content-strategy@2.0.0",
+        "copy-editing@2.0.0"
+      ],
+      "body": {
+        "maximum_steps": 6,
+        "steps": [
+          "Validate the signed observation.",
+          "Compare freshness expiry with the injected clock.",
+          "Prepare one review brief only when decay is detected."
+        ]
+      },
+      "self_checks": [
+        "input_digest_current",
+        "single_manual_outcome",
+        "schedule_unarmed",
+        "review_queue_only"
+      ],
+      "state_policy": {
+        "storage": "receipt_only",
+        "retention": "bounded_by_tenant_policy",
+        "writes": "fenced_review_artifact_only"
+      },
+      "idempotency_policy": {
+        "key_fields": [
+          "tenant_id",
+          "loop_version",
+          "observation_window",
+          "input_digest"
+        ],
+        "duplicate_outcome": "skipped"
+      },
+      "run_identity_fields": [
+        "tenant_id",
+        "loop_version",
+        "observation_window",
+        "input_digest"
+      ],
+      "cursor_policy": "advance_after_fenced_durable_artifact_receipt",
+      "missed_cadence_policy": "no_catch_up_without_approved_backfill",
+      "stop_condition": "Stop after one bounded manual outcome or any failed self-check.",
+      "error_bailout": "Return blocked without cursor movement, scheduling, publishing, sending, or spend.",
+      "manual_outcomes": [
+        {
+          "status": "brief_ready",
+          "reason_code": "content_decay_detected"
+        },
+        {
+          "status": "skipped",
+          "reason_code": "asset_fresh"
+        },
+        {
+          "status": "blocked",
+          "reason_code": "observation_invalid"
+        }
+      ],
+      "output_destination": "review_queue",
+      "schedule_armed": false,
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "content-repurposing@1.0.0",
+      "name": "Content repurposing check",
+      "status": "compiled",
+      "cadence": {
+        "mode": "manual_check_only",
+        "suggested_interval": "weekly_suggestion",
+        "schedule_armed": false
+      },
+      "acts_when": {
+        "all": [
+          {
+            "field": "quality_score",
+            "operator": "gte",
+            "value": 80
+          }
+        ]
+      },
+      "purpose_metric": "repurposing_candidate_coverage",
+      "capability_sequence": [
+        "marketing-loops@1.2.0",
+        "social@2.2.0",
+        "copywriting@2.0.1"
+      ],
+      "body": {
+        "maximum_steps": 6,
+        "steps": [
+          "Validate the source digest.",
+          "Check the quality threshold.",
+          "Prepare a review-only repurposing package."
+        ]
+      },
+      "self_checks": [
+        "input_digest_current",
+        "single_manual_outcome",
+        "schedule_unarmed",
+        "review_queue_only"
+      ],
+      "state_policy": {
+        "storage": "receipt_only",
+        "retention": "bounded_by_tenant_policy",
+        "writes": "fenced_review_artifact_only"
+      },
+      "idempotency_policy": {
+        "key_fields": [
+          "tenant_id",
+          "loop_version",
+          "observation_window",
+          "input_digest"
+        ],
+        "duplicate_outcome": "skipped"
+      },
+      "run_identity_fields": [
+        "tenant_id",
+        "loop_version",
+        "observation_window",
+        "input_digest"
+      ],
+      "cursor_policy": "advance_after_fenced_durable_artifact_receipt",
+      "missed_cadence_policy": "no_catch_up_without_approved_backfill",
+      "stop_condition": "Stop after one bounded manual outcome or any failed self-check.",
+      "error_bailout": "Return blocked without cursor movement, scheduling, publishing, sending, or spend.",
+      "manual_outcomes": [
+        {
+          "status": "package_ready",
+          "reason_code": "repurposing_candidate"
+        },
+        {
+          "status": "skipped",
+          "reason_code": "quality_below_threshold"
+        }
+      ],
+      "output_destination": "review_queue",
+      "schedule_armed": false,
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "social-listening-brief@1.0.0",
+      "name": "Social listening brief",
+      "status": "compiled",
+      "cadence": {
+        "mode": "manual_check_only",
+        "suggested_interval": "weekly_suggestion",
+        "schedule_armed": false
+      },
+      "acts_when": {
+        "all": [
+          {
+            "field": "quality_score",
+            "operator": "gte",
+            "value": 70
+          }
+        ]
+      },
+      "purpose_metric": "evidence_led_response_coverage",
+      "capability_sequence": [
+        "marketing-loops@1.2.0",
+        "community-marketing@2.0.0",
+        "customer-research@2.0.1"
+      ],
+      "body": {
+        "maximum_steps": 6,
+        "steps": [
+          "Validate the observation.",
+          "Summarize only supplied evidence.",
+          "Prepare a response brief for review."
+        ]
+      },
+      "self_checks": [
+        "input_digest_current",
+        "single_manual_outcome",
+        "schedule_unarmed",
+        "review_queue_only"
+      ],
+      "state_policy": {
+        "storage": "receipt_only",
+        "retention": "bounded_by_tenant_policy",
+        "writes": "fenced_review_artifact_only"
+      },
+      "idempotency_policy": {
+        "key_fields": [
+          "tenant_id",
+          "loop_version",
+          "observation_window",
+          "input_digest"
+        ],
+        "duplicate_outcome": "skipped"
+      },
+      "run_identity_fields": [
+        "tenant_id",
+        "loop_version",
+        "observation_window",
+        "input_digest"
+      ],
+      "cursor_policy": "advance_after_fenced_durable_artifact_receipt",
+      "missed_cadence_policy": "no_catch_up_without_approved_backfill",
+      "stop_condition": "Stop after one bounded manual outcome or any failed self-check.",
+      "error_bailout": "Return blocked without cursor movement, scheduling, publishing, sending, or spend.",
+      "manual_outcomes": [
+        {
+          "status": "brief_ready",
+          "reason_code": "response_signal_detected"
+        },
+        {
+          "status": "skipped",
+          "reason_code": "no_response_signal"
+        }
+      ],
+      "output_destination": "review_queue",
+      "schedule_armed": false,
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "content-calendar-refill@1.0.0",
+      "name": "Content calendar refill check",
+      "status": "compiled",
+      "cadence": {
+        "mode": "manual_check_only",
+        "suggested_interval": "monthly_suggestion",
+        "schedule_armed": false
+      },
+      "acts_when": {
+        "all": [
+          {
+            "field": "quality_score",
+            "operator": "lt",
+            "value": 60
+          }
+        ]
+      },
+      "purpose_metric": "reviewable_idea_backlog_coverage",
+      "capability_sequence": [
+        "marketing-loops@1.2.0",
+        "content-strategy@2.0.0",
+        "marketing-ideas@2.0.0"
+      ],
+      "body": {
+        "maximum_steps": 6,
+        "steps": [
+          "Validate the observation window.",
+          "Assess the bounded refill condition.",
+          "Prepare an idea brief for review."
+        ]
+      },
+      "self_checks": [
+        "input_digest_current",
+        "single_manual_outcome",
+        "schedule_unarmed",
+        "review_queue_only"
+      ],
+      "state_policy": {
+        "storage": "receipt_only",
+        "retention": "bounded_by_tenant_policy",
+        "writes": "fenced_review_artifact_only"
+      },
+      "idempotency_policy": {
+        "key_fields": [
+          "tenant_id",
+          "loop_version",
+          "observation_window",
+          "input_digest"
+        ],
+        "duplicate_outcome": "skipped"
+      },
+      "run_identity_fields": [
+        "tenant_id",
+        "loop_version",
+        "observation_window",
+        "input_digest"
+      ],
+      "cursor_policy": "advance_after_fenced_durable_artifact_receipt",
+      "missed_cadence_policy": "no_catch_up_without_approved_backfill",
+      "stop_condition": "Stop after one bounded manual outcome or any failed self-check.",
+      "error_bailout": "Return blocked without cursor movement, scheduling, publishing, sending, or spend.",
+      "manual_outcomes": [
+        {
+          "status": "brief_ready",
+          "reason_code": "calendar_refill_needed"
+        },
+        {
+          "status": "skipped",
+          "reason_code": "calendar_has_coverage"
+        }
+      ],
+      "output_destination": "review_queue",
+      "schedule_armed": false,
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    },
+    {
+      "id": "competitor-signal-brief@1.0.0",
+      "name": "Competitor signal brief",
+      "status": "compiled",
+      "cadence": {
+        "mode": "manual_check_only",
+        "suggested_interval": "monthly_suggestion",
+        "schedule_armed": false
+      },
+      "acts_when": {
+        "all": [
+          {
+            "field": "quality_score",
+            "operator": "gte",
+            "value": 50
+          }
+        ]
+      },
+      "purpose_metric": "verified_competitor_signal_coverage",
+      "capability_sequence": [
+        "marketing-loops@1.2.0",
+        "competitors@2.0.1",
+        "competitor-profiling@2.0.0"
+      ],
+      "body": {
+        "maximum_steps": 6,
+        "steps": [
+          "Validate the supplied competitor observation.",
+          "Bind every signal to evidence.",
+          "Prepare a non-publishing review brief."
+        ]
+      },
+      "self_checks": [
+        "input_digest_current",
+        "single_manual_outcome",
+        "schedule_unarmed",
+        "review_queue_only"
+      ],
+      "state_policy": {
+        "storage": "receipt_only",
+        "retention": "bounded_by_tenant_policy",
+        "writes": "fenced_review_artifact_only"
+      },
+      "idempotency_policy": {
+        "key_fields": [
+          "tenant_id",
+          "loop_version",
+          "observation_window",
+          "input_digest"
+        ],
+        "duplicate_outcome": "skipped"
+      },
+      "run_identity_fields": [
+        "tenant_id",
+        "loop_version",
+        "observation_window",
+        "input_digest"
+      ],
+      "cursor_policy": "advance_after_fenced_durable_artifact_receipt",
+      "missed_cadence_policy": "no_catch_up_without_approved_backfill",
+      "stop_condition": "Stop after one bounded manual outcome or any failed self-check.",
+      "error_bailout": "Return blocked without cursor movement, scheduling, publishing, sending, or spend.",
+      "manual_outcomes": [
+        {
+          "status": "brief_ready",
+          "reason_code": "competitor_signal_detected"
+        },
+        {
+          "status": "skipped",
+          "reason_code": "no_competitor_signal"
+        }
+      ],
+      "output_destination": "review_queue",
+      "schedule_armed": false,
+      "execution_mode": "review_only",
+      "live_adapters": [],
+      "execution_envelope": {
+        "network": "none",
+        "authentication": "none",
+        "external_write": "none",
+        "spend": "none",
+        "schedule": "none"
+      },
+      "spend": {
+        "tier": "none"
+      },
+      "low_budget_quote": {
+        "runtime_enabled": false,
+        "currency": "USD",
+        "maximum_per_run": 0,
+        "billing_unit": "reviewed_package",
+        "quote_expires_at": "2027-07-18T00:00:00.000Z",
+        "zero_spend_precursor_contract": "channel_package@1.0.0"
+      }
+    }
+  ]
+}
