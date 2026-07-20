@@ -92,6 +92,11 @@ export const sourceContract = {
         "title": "Operate + GTM",
         "input": "artifact",
         "output": "business",
+        "subgraph": {
+          "id": "lead-ops",
+          "version": "1.0.0",
+          "path": "lead-ops.v1.json"
+        },
         "requires": [
           "artifact",
           "brand_docs",

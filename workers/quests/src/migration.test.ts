@@ -5,6 +5,7 @@ import test from 'node:test';
 const migrationUrl = new URL('../migrations/0003_bridge_execution_proof.sql', import.meta.url);
 const businessArtifactsMigrationUrl = new URL('../migrations/0004_business_artifacts.sql', import.meta.url);
 const marketingRendererMigrationUrl = new URL('../migrations/0005_marketing_create_renderer.sql', import.meta.url);
+const leadRuntimeMigrationUrl = new URL('../migrations/0006_lead_runtime_spine.sql', import.meta.url);
 const schemaUrl = new URL('../schema/bridge.sql', import.meta.url);
 
 function triggerDefinitions(sql: string): Record<string, string> {
@@ -58,6 +59,13 @@ function marketingRendererDefinitions(sql: string): {
   };
 }
 
+function leadRuntimeDefinitions(sql: string): string {
+  const marker = 'CREATE TABLE IF NOT EXISTS lead_records';
+  const offset = sql.indexOf(marker);
+  assert.notEqual(offset, -1, 'missing lead_records table definition');
+  return normalizeDefinition(sql.slice(offset));
+}
+
 test('native execution schema uses D1-compatible identity guard triggers', async () => {
   const [migration, schema] = await Promise.all([
     readFile(migrationUrl, 'utf8'),
@@ -79,7 +87,12 @@ test('native execution schema uses D1-compatible identity guard triggers', async
     assert.match(sql, /BEFORE UPDATE OF attempt ON bridge_executions\s+WHEN NEW\.attempt <> OLD\.attempt\s+AND EXISTS[\s\S]*SELECT RAISE\(ABORT, 'execution identity conflict'\)/);
   }
 
-  assert.deepEqual(triggerDefinitions(migration), triggerDefinitions(schema));
+  const migrationTriggers = triggerDefinitions(migration);
+  const schemaTriggers = triggerDefinitions(schema);
+  assert.deepEqual(
+    migrationTriggers,
+    Object.fromEntries(Object.keys(migrationTriggers).map((name) => [name, schemaTriggers[name]])),
+  );
 });
 
 test('business task migration remains identical to the canonical schema', async () => {
@@ -133,4 +146,35 @@ test('marketing renderer migration remains identical to the canonical schema', a
     ]);
   }
   assert.deepEqual(migrationDefinitions, schemaDefinitions);
+});
+
+test('lead runtime migration remains identical to the canonical schema', async () => {
+  const [migration, schema] = await Promise.all([
+    readFile(leadRuntimeMigrationUrl, 'utf8'),
+    readFile(schemaUrl, 'utf8'),
+  ]);
+  const migrationDefinition = leadRuntimeDefinitions(migration);
+  const schemaDefinition = leadRuntimeDefinitions(schema);
+
+  for (const definition of [migrationDefinition, schemaDefinition]) {
+    for (const table of [
+      'lead_records',
+      'lead_source_aliases',
+      'lead_observation_receipts',
+      'lead_loop_tasks',
+      'lead_spend_reservations',
+      'lead_provider_usage',
+      'lead_cortex_foldbacks',
+    ]) {
+      assert.match(definition, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}\\b`));
+    }
+    assert.match(definition, /UNIQUE \(tenant_id, provider_id, source_id\)/);
+    assert.match(definition, /status IN \('pending', 'running', 'completed', 'failed', 'stopped'\)/);
+    assert.match(definition, /completed lead task receipt is invalid/);
+    assert.match(definition, /provider usage exceeds or lacks reservation/);
+    assert.match(definition, /lead cortex foldback must derive from completed task receipt/);
+    assert.match(definition, /lead cortex foldbacks are immutable/);
+  }
+
+  assert.equal(migrationDefinition, schemaDefinition);
 });

@@ -14,6 +14,7 @@ const pipeline = loadJson(join(root, 'composition', 'pipeline.json'));
 const production = loadJson(join(root, 'composition', 'production.v1.json'));
 const leadOps = loadJson(join(root, 'composition', 'lead-ops.v1.json'));
 const leadContracts = loadJson(join(root, 'composition', 'contracts', 'lead-ecosystem.v1.json'));
+const leadAdapters = loadJson(join(root, 'composition', 'lead-adapters.v1.json'));
 const createAdapters = loadJson(join(root, 'composition', 'create-adapters.v1.json'));
 const marketingCapabilities = loadJson(join(root, 'composition', 'marketing-capabilities.v1.json'));
 const marketingAssets = loadJson(join(root, 'composition', 'contracts', 'marketing-assets.v1.json'));
@@ -37,6 +38,7 @@ async function writeProductionFixture(fixtureRoot, {
   omitted = [],
   manifest = production,
   graph = leadOps,
+  leadAdapterCatalog = leadAdapters,
   adapterCatalog = createAdapters,
 } = {}) {
   const omittedPaths = new Set(omitted);
@@ -46,6 +48,7 @@ async function writeProductionFixture(fixtureRoot, {
     ['composition/pipeline.json', pipeline],
     ['composition/lead-ops.v1.json', graph],
     ['composition/contracts/lead-ecosystem.v1.json', leadContracts],
+    ['composition/lead-adapters.v1.json', leadAdapterCatalog],
     ['composition/create-adapters.v1.json', adapterCatalog],
     ['composition/marketing-capabilities.v1.json', marketingCapabilities],
     ['composition/contracts/marketing-assets.v1.json', marketingAssets],
@@ -83,6 +86,18 @@ test('production composition loader resolves and validates the ops lead subgraph
   assert.equal(loaded.leadOps.id, 'lead-ops');
   assert.equal(loaded.leadOps.version, '1.0.0');
   assert.equal(loaded.leadContracts.catalog_id, 'lead-ecosystem@1.0.0');
+  assert.equal(loaded.leadAdapters.catalog_id, 'lead-adapters@1.0.0');
+  assert.deepEqual(loaded.leadAdapterIds, [
+    'explee-read@1.0.0',
+    'scrapegraphai-discover@1.0.0',
+    'getleads-capture@1.0.0',
+    'apollo-enrichment@1.0.0',
+    'apollo-engagement@1.0.0',
+    'composio-engagement@1.0.0',
+    'elevenlabs-create@1.0.0',
+    'runway-create@1.0.0',
+  ]);
+  assert.equal(loaded.leadScheduleArmed, false);
   assert.equal(loaded.createAdapters.catalog_id, 'create-adapters@1.0.0');
   assert.deepEqual(loaded.createAdapterIds, ['founder-article-nvidia@1.0.0']);
   assert.equal(
@@ -159,6 +174,7 @@ test('production composition loader requires the immutable production manifest',
 
 test('production composition loader rejects missing create and marketing catalogs', async () => {
   for (const [relativePath, pattern] of [
+    ['composition/lead-adapters.v1.json', /lead adapter catalog.*could not be loaded/i],
     ['composition/create-adapters.v1.json', /create adapter catalog.*could not be loaded/i],
     ['composition/marketing-capabilities.v1.json', /marketing capability catalog.*could not be loaded/i],
     ['composition/contracts/marketing-assets.v1.json', /marketing asset catalog.*could not be loaded/i],
@@ -174,6 +190,7 @@ test('production composition loader rejects manifest identity, unknown keys, and
     ['identity', (value) => { value.version = '2.0.0'; }, /production-composition@1\.0\.0/i],
     ['unknown key', (value) => { value.surprise = true; }, /unknown fields/i],
     ['lead path', (value) => { value.lead_ops.path = '../lead-ops.v1.json'; }, /local|path/i],
+    ['lead adapter identity', (value) => { value.lead_adapter_catalog.version = '2.0.0'; }, /lead-adapters@1\.0\.0/i],
     ['adapter identity', (value) => { value.create_adapter_catalog.version = '2.0.0'; }, /create-adapters@1\.0\.0/i],
   ];
 

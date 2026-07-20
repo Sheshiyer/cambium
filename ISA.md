@@ -4,10 +4,10 @@ task: "Consolidate lead stack and build durable runtime spine"
 effort: advanced
 effort_source: context-override
 phase: execute
-progress: 80/128
+progress: 127/128
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-20T17:57:00Z
+updated: 2026-07-20T18:28:12Z
 ---
 
 ## Problem
@@ -195,53 +195,53 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 
 ### Explee read parity
 
-- [ ] ISC-91: Explee company search remains a GET-only observer route.
-- [ ] ISC-92: Explee company lookup remains a GET-only observer route.
-- [ ] ISC-93: Explee employee search remains a GET-only observer route.
-- [ ] ISC-94: Explee employee lookup remains a GET-only observer route.
-- [ ] ISC-95: Observer authorization rejects the Explee provider key as a read token.
-- [ ] ISC-96: Explee observer requests cannot create action requests.
+- [x] ISC-91: Explee status remains a GET-only observer route.
+- [x] ISC-92: Explee need-reply inbox remains a GET-only observer route.
+- [x] ISC-93: Explee person thread remains a GET-only observer route.
+- [x] ISC-94: Explee optimize projection remains a GET-only observer route.
+- [x] ISC-95: Observer authorization rejects the Explee provider key as a read token.
+- [x] ISC-96: Explee observer requests cannot create action requests.
 
 ### Canonical lead runtime
 
-- [ ] ISC-97: The durable schema contains one canonical lead-record table.
-- [ ] ISC-98: Source identity aliases have a database uniqueness constraint.
-- [ ] ISC-99: Replaying one source identity returns the same canonical lead ID.
-- [ ] ISC-100: Conflicting normalized email identities fail closed.
-- [ ] ISC-101: Source observations persist immutable receipt metadata.
-- [ ] ISC-102: A declared lead subgraph is validated before execution.
-- [ ] ISC-103: Stage dependencies execute in topological order.
-- [ ] ISC-104: A failed stage prevents dependent stages from running.
-- [ ] ISC-105: One bounded Iverif capture/enrich run persists one canonical lead.
-- [ ] ISC-106: Replaying the Iverif run produces no duplicate lead.
-- [ ] ISC-107: The Iverif run records one read-only Explee receipt.
+- [x] ISC-97: The durable schema contains one canonical lead-record table.
+- [x] ISC-98: Source identity aliases have a database uniqueness constraint.
+- [x] ISC-99: Replaying one source identity returns the same canonical lead ID.
+- [x] ISC-100: Conflicting normalized email identities fail closed.
+- [x] ISC-101: Source observations persist immutable receipt metadata.
+- [x] ISC-102: A declared lead subgraph is validated before execution.
+- [x] ISC-103: Stage dependencies execute in topological order.
+- [x] ISC-104: A failed stage prevents dependent stages from running.
+- [x] ISC-105: One bounded Iverif capture/enrich run persists one canonical lead.
+- [x] ISC-106: Replaying the Iverif run produces no duplicate lead.
+- [x] ISC-107: The Iverif run records one read-only Explee receipt.
 
 ### Spend, tasks, and foldback
 
-- [ ] ISC-108: The durable schema contains spend reservation records.
-- [ ] ISC-109: The durable schema contains provider usage records.
-- [ ] ISC-110: A metered stage without a reservation fails before adapter invocation.
-- [ ] ISC-111: One idempotency key cannot reserve spend twice.
-- [ ] ISC-112: Provider usage cannot exceed its settled reservation.
-- [ ] ISC-113: A no-spend Explee read settles at zero usage.
-- [ ] ISC-114: Loop tasks persist pending, running, completed, failed, and stopped states.
-- [ ] ISC-115: Task claiming is lease-bound and compare-and-set safe.
-- [ ] ISC-116: Replaying a completed task returns its prior receipt.
-- [ ] ISC-117: A stop rule prevents the next adapter invocation.
-- [ ] ISC-118: A completed lead run persists one derived cortex foldback projection.
-- [ ] ISC-119: Cortex foldback excludes raw lead identity.
+- [x] ISC-108: The durable schema contains spend reservation records.
+- [x] ISC-109: The durable schema contains provider usage records.
+- [x] ISC-110: A metered stage without a reservation fails before adapter invocation.
+- [x] ISC-111: One idempotency key cannot reserve spend twice.
+- [x] ISC-112: Provider usage cannot exceed its settled reservation.
+- [x] ISC-113: A no-spend Explee read settles at zero usage.
+- [x] ISC-114: Loop tasks persist pending, running, completed, failed, and stopped states.
+- [x] ISC-115: Task claiming is lease-bound and compare-and-set safe.
+- [x] ISC-116: Replaying a completed task returns its prior receipt.
+- [x] ISC-117: A stop rule prevents the next adapter invocation.
+- [x] ISC-118: A completed lead run persists one derived cortex foldback projection.
+- [x] ISC-119: Cortex foldback excludes raw lead identity.
 
 ### Provider risk and scheduling
 
-- [ ] ISC-120: ScrapeGraphAI, getleads, and Explee are discovery/read adapters.
-- [ ] ISC-121: Apollo enrichment has higher risk than discovery/read adapters.
-- [ ] ISC-122: Apollo and Composio engagement require approval and spend gates.
-- [ ] ISC-123: ElevenLabs and Runway are highest-risk gated adapters.
-- [ ] ISC-124: Recurring schedule arming is false by default.
-- [ ] ISC-125: Schedule arming fails without durable task state.
-- [ ] ISC-126: Schedule arming fails without receipt persistence.
-- [ ] ISC-127: Schedule arming fails without spend accounting.
-- [ ] ISC-128: Anti: tests and proofs perform zero live paid-provider calls.
+- [x] ISC-120: ScrapeGraphAI, getleads, and Explee occupy the lower-risk discover/capture/read adapter tier.
+- [x] ISC-121: Apollo enrichment has higher risk than discovery/read adapters.
+- [x] ISC-122: Apollo and Composio engagement require approval and spend gates.
+- [x] ISC-123: ElevenLabs and Runway are highest-risk gated adapters.
+- [x] ISC-124: Recurring schedule arming is false by default.
+- [x] ISC-125: Schedule arming fails without durable task state.
+- [x] ISC-126: Schedule arming fails without receipt persistence.
+- [x] ISC-127: Schedule arming fails without spend accounting.
+- [x] ISC-128: Anti: tests and proofs perform zero live paid-provider calls.
 
 ## Test Strategy
 
@@ -314,6 +314,7 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - 2026-07-20 17:50: Advisor selected serial original-PR merges over a synthetic consolidation PR to preserve review linkage and rollback granularity. A disposable full-stack merge passed 913 tests, the 407-file standalone audit, and standalone smoke before GitHub mutation.
 - 2026-07-20 17:55: PRs #255..261 merged with merge commits in dependency order. The first consolidated main CI failed because the proof-helper test reached a missing Wrangler prerequisite before input-validation assertions; this is now the release-blocking ingestion-order defect.
 - 2026-07-20 17:56: Root-cause-at-ingestion checkpoint — unsafe lead execution enters when a task exists without canonical identity, durable ownership, and a spend reservation. The runtime fix belongs at task creation and adapter invocation, not in output post-processing.
+- 2026-07-20 18:28: Independent review blocked the first runtime draft on ambiguous lease replay and caller-authored foldback metrics. Expired takeovers now reconcile only from a durable observation or fail before provider replay; foldback inputs are reduced to identity and all metrics derive from a DB-validated completed receipt.
 
 ## Changelog
 
@@ -361,3 +362,43 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - Deployment: Cloudflare Worker version `a46651f5-972c-4999-8ed2-e886cd77f1f7` is live. Both `curious.thoughtseed.space` and the workers.dev endpoint report `gateConfigured:true`, return `401` for missing Telegram `initData`, and serve HTML SHA-256 `db1351564dd64741582ea8888698de663dcd005105ac0d856b0c6b2b3e97a77c`, exactly matching the released PAGE digest.
 - Rollback: `workers/quests/DEPLOY.md` now restores only from a previous known-good tag in an isolated clean clone, records Wrangler's replacement version, repeats health/auth/digest probes, and explicitly excludes persistent data rollback from an older-code redeploy.
 - Proof boundary: no fresh founder-device Telegram proof is claimed. Fresh `initData` and a current founder-device artifact remain separate live-readiness blockers.
+- ISC-91: focused Worker test — `IVerif status exposes live one-writer conflict while remaining send-ineligible` passed.
+- ISC-92: focused Worker test — `IVerif inbox and thread routes preserve opaque state without enabling replies` passed.
+- ISC-93: focused Worker test — `IVerif thread route emits only digest-shaped message references or null` passed.
+- ISC-94: focused Worker test — `IVerif optimize combines grounded experiment and live analytics without thread content` passed.
+- ISC-95: focused Worker test — `IVerif observer requires its dedicated configuration and rejects broad bridge auth` passed.
+- ISC-96: focused Worker test — `IVerif observer reads never create ActionRequests` passed; the 288-test observer/handler suite reported zero failures.
+- ISC-120: adapter catalog validation — `lead adapters are registered in the requested increasing-risk order` passed with Explee, ScrapeGraphAI, and getleads in the first tier.
+- ISC-121: adapter catalog validation — `apollo-enrichment@1.0.0` is risk order 40 after the three lower-risk adapters.
+- ISC-122: adapter catalog validation — Apollo and Composio engagement both require approval, reservation, usage settlement, and receipts.
+- ISC-123: adapter catalog validation — ElevenLabs and Runway are orders 70 and 80 and carry explicit provider side-effect authority while disabled.
+- ISC-124: adapter catalog validation — `recurring_schedule.armed` and every adapter `schedule_enabled` remain `false`.
+- ISC-125: scheduler policy test — omission of `durable_task_state` returns `allowed: false`.
+- ISC-126: scheduler policy test — omission of `provider_receipts` returns `allowed: false`.
+- ISC-127: scheduler policy test — omission of `spend_accounting` returns `allowed: false`.
+- ISC-128: focused catalog/composition tests — 33 tests passed using local JSON and injected data only; no provider client is imported or invoked.
+- ISC-97: schema and migration test — `lead_records` exists once in migration `0006` and the canonical bridge schema.
+- ISC-98: database constraint test — `(tenant_id, provider_id, source_id)` is unique in `lead_source_aliases`.
+- ISC-99: store test — source-alias replay returns the original lead ID; deterministic-ID crash repair also passes.
+- ISC-100: store test — normalized-email collision returns `normalized_email_conflict` and persists no second lead.
+- ISC-101: database trigger test — GET observation updates and deletes both fail with `immutable`.
+- ISC-102: executor test — bounded DAG validation rejects duplicate, missing, cyclic, and oversized graphs before execution.
+- ISC-103: executor test — `discover`, `capture`, and `enrich` execute in deterministic topological order.
+- ISC-104: executor test — a failed capture records enrich as `dependency_not_completed` without invoking it.
+- ISC-105: runtime and handler tests — one admin-only IVerif run persists exactly one canonical lead and one alias.
+- ISC-106: runtime and handler tests — terminal replay returns the same lead ID with no second inbox/thread call or duplicate record.
+- ISC-107: runtime test — the persisted Explee observation is method `GET`, provider `explee-public-api`, and source `person-a`.
+- ISC-108: schema test — `lead_spend_reservations` is present in migration and canonical schema.
+- ISC-109: schema test — `lead_provider_usage` is present in migration and canonical schema.
+- ISC-110: executor test — a metered stage without `reservationId` returns `spend_reservation_required` before its adapter function runs.
+- ISC-111: store test — a repeated reservation idempotency key returns the original reservation; semantic drift conflicts.
+- ISC-112: schema and store tests — usage above reservation is rejected and settled reservation identity is immutable.
+- ISC-113: bounded IVerif test — reservation, settlement, usage, and operator receipt all record zero spend units.
+- ISC-114: store tests — pending, running, completed, failed, and stopped states are persisted and terminal states are immutable.
+- ISC-115: store test — active claims return busy, expired takeover increments fencing, and a stale fence cannot complete.
+- ISC-116: runtime test — completed-task replay returns the persisted receipt with `replayed: true` and no provider call.
+- ISC-117: executor/runtime tests — stop is checked before adapter invocation and persists `stopped` with zero observer calls.
+- ISC-118: runtime test — one completed task records exactly one immutable numeric `lead_cortex_foldbacks` row.
+- ISC-119: schema test — foldback columns contain no email, phone, alias, source ID, lead ID, identity, payload, or text field.
+- ISC-115: adversarial replay test — an expired lease with a persisted observation finishes without provider reads; one without an observation fails `lead_run_reconciliation_required` before provider access.
+- ISC-118: adversarial derivation tests — caller-supplied and direct-SQL poisoned foldbacks fail; valid foldback metrics and time are derived from the immutable completed receipt.
