@@ -1,0 +1,56 @@
+{
+  "schema": "cambium.lead_ecosystem_baseline.v1",
+  "capturedAt": "2026-07-18T08:00:00Z",
+  "scope": "L-1/L0 contract foundation; synthetic and offline only",
+  "baselines": {
+    "cambiumAgreement": {
+      "repository": "Sheshiyer/cambium",
+      "branch": "codex/operator-intake-service-agreement",
+      "commit": "7360e5d949fa85786183cee85e033c89a0de578f",
+      "pullRequest": "https://github.com/Sheshiyer/cambium/pull/255",
+      "base": "main",
+      "verification": "743/743 tests"
+    },
+    "hermesAgreement": {
+      "repository": "Sheshiyer/hermes-aws-ts",
+      "branch": "codex/operator-intake-service-agreement",
+      "commit": "e41065aecaba6291579860a6a49a78d0259fff21",
+      "pullRequest": "https://github.com/Sheshiyer/hermes-aws-ts/pull/103",
+      "base": "main",
+      "verification": "153/153 Node tests; 30/30 Telegram plugin tests"
+    },
+    "iverifObserver": {
+      "repository": "Sheshiyer/cambium",
+      "branch": "codex/iverif-explee-observer",
+      "commit": "bfb0e8ca20f45f264a62c14caf68a4164c29ea72",
+      "pullRequest": "https://github.com/Sheshiyer/cambium/pull/254",
+      "base": "codex/iverif-evidence-contract",
+      "mergeStateAtCapture": "CLEAN",
+      "authority": "fixed IVerif observation only; sendEligible=false"
+    },
+    "leadContracts": {
+      "repository": "Sheshiyer/cambium",
+      "branch": "codex/lead-ecosystem-contracts",
+      "base": "codex/operator-intake-service-agreement",
+      "baseCommit": "7360e5d949fa85786183cee85e033c89a0de578f",
+      "foundationCommit": "cd241fad9dd866a21842ac07c6b080462bc40834",
+      "authorityHardeningCommit": "1df2274a5e9bd34f171f46a97bb89cd25674fb5d",
+      "pullRequest": "https://github.com/Sheshiyer/cambium/pull/256"
+    }
+  },
+  "codeIntegrationRehearsal": {
+    "leadTip": "1df2274a5e9bd34f171f46a97bb89cd25674fb5d",
+    "iverifTip": "bfb0e8ca20f45f264a62c14caf68a4164c29ea72",
+    "mergeTree": "26a775680c19391a500b2d677ab437a49c116523",
+    "conflicts": 0,
+    "note": "Three-tip code rehearsal: the lead tip already contains the Cambium agreement tip; the evidence-only recording commit follows this rehearsal."
+  },
+  "integrationRule": "The lead-contract pull request targets the agreement branch until pull request 255 merges; IVerif remains an explicit dependency and is not copied silently.",
+  "prohibitions": [
+    "no provider network calls",
+    "no credentials or inline secrets",
+    "no paid execution",
+    "no outbound mutation",
+    "no deployment or protected-branch merge"
+  ]
+}

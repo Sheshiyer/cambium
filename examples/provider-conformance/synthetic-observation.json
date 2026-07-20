@@ -1,0 +1,112 @@
+{
+  "fixture_version": "provider-conformance@1.0.0",
+  "fixture_id": "synthetic-company-observation@1.0.0",
+  "provider_contract": {
+    "schema_version": "provider_contract@1.0.0",
+    "tenant": {
+      "tenant_id": "thoughtseed-synthetic",
+      "purpose": "contract-conformance",
+      "data_classification": "synthetic",
+      "processing_region": "local",
+      "retention_days": 30
+    },
+    "record_id": "provider-contract-synthetic-observer",
+    "provider_name": "synthetic-observer",
+    "adapter_version": "synthetic-adapter@1.0.0",
+    "provider_permission_id": "provider-permission-synthetic-observer",
+    "target_refs": ["fixture://synthetic-observation"],
+    "endpoint_allowlist": [
+      {
+        "endpoint_ref": "fixture://synthetic-observation",
+        "tool_id": "synthetic-company-observer",
+        "methods": ["GET"]
+      }
+    ],
+    "supported_operations": ["observe"],
+    "timeout_ms": 1000,
+    "retry_policy": {
+      "max_attempts": 2,
+      "base_delay_ms": 100,
+      "max_delay_ms": 1000,
+      "retryable_errors": ["rate_limit"]
+    },
+    "idempotency_policy": "exact_key_required",
+    "redaction_policy": "sensitive_fields_denied",
+    "reconciliation_policy": "required_on_ambiguous",
+    "receipt_policy": "redacted_digest_only",
+    "api_schema_version": "synthetic-provider-api@1.0.0",
+    "schema_drift_policy": "fail_closed",
+    "error_classification": [
+      "authentication",
+      "authorization",
+      "rate_limit",
+      "timeout",
+      "validation",
+      "provider_unavailable",
+      "ambiguous"
+    ],
+    "mutation_default": false,
+    "error_policy": "fail_closed"
+  },
+  "provider_permission": {
+    "schema_version": "provider_permission@1.0.0",
+    "tenant": {
+      "tenant_id": "thoughtseed-synthetic",
+      "purpose": "contract-conformance",
+      "data_classification": "synthetic",
+      "processing_region": "local",
+      "retention_days": 30
+    },
+    "record_id": "provider-permission-synthetic-observer",
+    "scopes": ["company.observe", "signal.observe"],
+    "allowed_operations": ["observe"],
+    "data_policy": {
+      "classification": "synthetic",
+      "processing_region": "local",
+      "purpose": "contract-conformance",
+      "retention_days": 30
+    },
+    "permission_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "issued_at": "2026-07-18T00:00:00.000Z"
+  },
+  "provider_binding": {
+    "schema_version": "provider_binding@1.0.0",
+    "tenant": {
+      "tenant_id": "thoughtseed-synthetic",
+      "purpose": "contract-conformance",
+      "data_classification": "synthetic",
+      "processing_region": "local",
+      "retention_days": 30
+    },
+    "record_id": "provider-binding-synthetic-observer",
+    "provider_contract_id": "provider-contract-synthetic-observer",
+    "provider_permission_id": "provider-permission-synthetic-observer",
+    "capability": "company_observation",
+    "adapter_version": "synthetic-adapter@1.0.0",
+    "credential_ref": "secretref://providers/synthetic-observer/read-only",
+    "mutation_enabled": false,
+    "kill_switch": "engaged"
+  },
+  "observation": {
+    "schema_version": "provider_observation@1.0.0",
+    "tenant": {
+      "tenant_id": "thoughtseed-synthetic",
+      "purpose": "contract-conformance",
+      "data_classification": "synthetic",
+      "processing_region": "local",
+      "retention_days": 30
+    },
+    "record_id": "provider-observation-synthetic-001",
+    "provider_binding_id": "provider-binding-synthetic-observer",
+    "observation_kind": "company_signal",
+    "observed_at": "2026-07-18T00:00:00.000Z",
+    "request_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+    "response_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+    "idempotency_key": "observation-synthetic-replay-001",
+    "payload_facts": [
+      {"metric": "company_fit", "value": "high"},
+      {"metric": "industry_match", "value": "matched"}
+    ]
+  },
+  "expected_observation_digest": "8394565bbb67d59736b76a3a307c6fdf260416f22292bd50ea0545afd3623f9c"
+}

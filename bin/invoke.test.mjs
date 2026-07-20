@@ -112,6 +112,43 @@ test('gate: a spend:none stage is allowed under --execute without approval', () 
   assert.equal(gateStage('x', { spend: 'none' }, { execute: true, approve: null }).allowed, true);
 });
 
+test('gate: none refuses provider I/O even under --execute', () => {
+  const gate = gateStage(
+    'provider-observer',
+    { spend: 'none', provider_io: 'network' },
+    { execute: true, approve: 'provider-observer' },
+  );
+  assert.equal(gate.allowed, false);
+  assert.equal(gate.code, 'invalid_spend_policy');
+  assert.match(gate.reason, /provider I\/O/i);
+});
+
+test('gate: valid subscription and metered policies remain runtime-refused without ledgers', () => {
+  const budget_window = {
+    starts_at: '2026-07-01T00:00:00.000Z',
+    ends_at: '2026-08-01T00:00:00.000Z',
+  };
+  const policies = [
+    {
+      tier: 'subscription',
+      provider_binding: 'explee-readonly-v1',
+      budget_window,
+    },
+    { tier: 'metered', unit: 'request', limit: 100, budget_window },
+  ];
+
+  for (const spend of policies) {
+    const gate = gateStage('provider-observer', { spend }, {
+      execute: true,
+      approve: 'provider-observer',
+    });
+    assert.equal(gate.allowed, false);
+    assert.equal(gate.code, 'spend_ledgers_unavailable');
+    assert.deepEqual(gate.prerequisites, ['reservation_ledger', 'usage_ledger']);
+    assert.match(gate.reason, /reservation.*usage.*ledger/i);
+  }
+});
+
 // ── runStage (gate + injected runner; tests NEVER spawn a real process) ──
 test('runStage dry-run does NOT call the runner', async () => {
   let calls = 0;
@@ -135,6 +172,44 @@ test('runStage approved-execute calls the runner exactly once', async () => {
   const res = await runStage('taste', { ...ctx, tenant: 'acme', execute: true, approve: 'taste', runner });
   assert.equal(res.spawned, true);
   assert.equal(calls, 1);
+});
+
+test('runStage subscription and metered refusals create zero execution side effects', async () => {
+  const budget_window = {
+    starts_at: '2026-07-01T00:00:00.000Z',
+    ends_at: '2026-08-01T00:00:00.000Z',
+  };
+  const policies = [
+    {
+      tier: 'subscription',
+      provider_binding: 'explee-readonly-v1',
+      budget_window,
+    },
+    { tier: 'metered', unit: 'request', limit: 100, budget_window },
+  ];
+
+  for (const spend of policies) {
+    const effects = { runner: 0, queue: 0, retry: 0, rollback: 0 };
+    const providerAdapters = {
+      taste: { ...adapters.taste, spend, provider_io: 'network' },
+    };
+    const res = await runStage('taste', {
+      registry,
+      adapters: providerAdapters,
+      cambiumRoot: '/x/cambium',
+      tenant: 'acme',
+      execute: true,
+      approve: 'taste',
+      runner: () => { effects.runner++; return { status: 0 }; },
+      queue: () => { effects.queue++; },
+      retry: () => { effects.retry++; },
+      rollback: () => { effects.rollback++; },
+    });
+
+    assert.equal(res.spawned, false);
+    assert.equal(res.gate.code, 'spend_ledgers_unavailable');
+    assert.deepEqual(effects, { runner: 0, queue: 0, retry: 0, rollback: 0 });
+  }
 });
 
 test('runStage dry-run skips contract validation until a stage may execute', async () => {

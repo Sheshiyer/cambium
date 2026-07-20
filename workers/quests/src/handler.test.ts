@@ -18,6 +18,7 @@ import type {
   SimpleRequest,
 } from './handler.ts';
 import type { D1DatabaseLike, D1StatementLike } from './index.ts';
+import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { PAGE } from './page.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -546,6 +547,85 @@ const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): 
   ({ method, path, headers: {}, ...extra });
 
 const body = (r: { body: string }) => JSON.parse(r.body);
+const IVERIF_TEST_READ_TOKEN = `iverif-read-v1.${'a'.repeat(64)}`;
+
+function fakeIVerifExplee(overrides: Partial<IVerifExpleeObserver> = {}): IVerifExpleeObserver {
+  const source = { provider: 'explee-public-api' as const, observedAt: '2026-07-16T07:00:00.000Z' };
+  const project = {
+    projectId: 16_763,
+    period: 'all',
+    emailsSent: 6_439,
+    replies: 31,
+    replyRatePercent: 0.5,
+    hotLeads: 6,
+    spendUsd: 193.17,
+  };
+  const campaign = {
+    campaignId: 45_711,
+    campaign: 'Public Agencies',
+    status: 'outreach',
+    statusReason: null,
+    period: 'all',
+    emailsSent: 2_921,
+    replies: 17,
+    replyRatePercent: 0.6,
+    hotLeads: 6,
+    spendUsd: 87.63,
+    costPerLeadUsd: 14.61,
+    dailyBudgetUsd: 9,
+    poolUsed: 2_779,
+    poolTotal: 2_887,
+  };
+  const autopilot = {
+    projectId: 16_763,
+    autopilotEnabled: true,
+    autoReplyEnabled: true,
+    autoReplyDelayMinutes: 1_440,
+  };
+  return {
+    async getProjectAnalytics() { return { source, analytics: project }; },
+    async getCampaignAnalytics() { return { source, analytics: campaign }; },
+    async getAutopilot() { return { source, autopilot }; },
+    async getSnapshot() { return { source, project, campaign, autopilot }; },
+    async getNeedReplyInbox() {
+      return {
+        source,
+        tab: 'need_reply',
+        contacts: [{
+          personId: 'person-1',
+          latestIntent: 'hot_lead',
+          sentCount: 2,
+          replyCount: 1,
+          latestSentAt: '2026-07-15T00:00:00.000Z',
+          latestReplyAt: '2026-07-15T01:00:00.000Z',
+        }],
+        total: 1,
+        omittedContacts: 0,
+        pageCount: 1,
+        truncated: false,
+      };
+    },
+    async getThread(personId) {
+      return {
+        source,
+        personId,
+        canReply: true,
+        replyBlockedReason: null,
+        latestIntent: 'hot_lead',
+        messageCount: 1,
+        truncated: false,
+        messages: [{
+          messageId: 'message-1',
+          type: 'reply',
+          intent: 'hot_lead',
+          status: null,
+          timestamp: '2026-07-15T01:00:00.000Z',
+        }],
+      };
+    },
+    ...overrides,
+  };
+}
 
 const roleTaskBindings = (
   version = '2026-07-14.1',
@@ -10478,4 +10558,170 @@ test('handoff · invite redemption issues a scoped bridge token', async () => {
     body: JSON.stringify(scopedMessage),
   }), deps);
   assert.equal(oldTokenAfterRotate.status, 401);
+});
+
+test('IVerif observer requires its dedicated configuration and rejects broad bridge auth', async () => {
+  const kv = fakeKv();
+  const path = '/v1/bridge/iverif/status';
+  const unconfigured = await handle(req('GET', path, {
+    headers: { authorization: 'Bearer bridge' },
+  }), { kv, bridgeToken: 'bridge' });
+  assert.equal(unconfigured.status, 503);
+  assert.equal(body(unconfigured).error, 'iverif_observer_not_configured');
+
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assignment',
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  };
+  for (const credential of ['bridge', 'assignment', 'wrong']) {
+    const rejected = await handle(req('GET', path, {
+      headers: { authorization: `Bearer ${credential}` },
+    }), deps);
+    assert.equal(rejected.status, 401);
+  }
+
+  const accepted = await handle(req('GET', path, {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), deps);
+  assert.equal(accepted.status, 200);
+
+  for (const collision of [
+    { bridgeToken: IVERIF_TEST_READ_TOKEN },
+    { assignmentToken: IVERIF_TEST_READ_TOKEN },
+    { pushToken: IVERIF_TEST_READ_TOKEN },
+    { providerBroker: { token: IVERIF_TEST_READ_TOKEN, providers: {} } },
+    { contextRoutes: { token: IVERIF_TEST_READ_TOKEN } },
+  ]) {
+    const rejected = await handle(req('GET', path, {
+      headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+    }), { ...deps, ...collision });
+    assert.equal(rejected.status, 503);
+    assert.equal(body(rejected).error, 'iverif_observer_not_configured');
+  }
+
+  const unnamespaced = await handle(req('GET', path, {
+    headers: { authorization: 'Bearer otherwise-long-enough-but-unnamespaced-read-token' },
+  }), {
+    ...deps,
+    iverifReadToken: 'otherwise-long-enough-but-unnamespaced-read-token',
+  });
+  assert.equal(unnamespaced.status, 503);
+});
+
+test('IVerif status exposes live one-writer conflict while remaining send-ineligible', async () => {
+  const response = await handle(req('GET', '/v1/bridge/iverif/status', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  });
+
+  assert.equal(response.status, 200);
+  const payload = body(response);
+  assert.equal(payload.schema, 'cambium.iverif-observer.status.v1');
+  assert.equal(payload.grounding.binding.expleeProjectId, 16_763);
+  assert.equal(payload.grounding.binding.expleeCampaignId, 45_711);
+  assert.equal(payload.campaign.emailsSent, 2_921);
+  assert.equal(payload.policy.mode, 'observe');
+  assert.equal(payload.policy.proofState, 'proof-only');
+  assert.deepEqual(payload.policy.allowedProviderMethods, ['GET']);
+  assert.equal(payload.policy.autoReplyEnabled, true);
+  assert.equal(payload.policy.oneWriterConflict, true);
+  assert.equal(payload.policy.oneWriterConflictReason, 'provider-auto-reply-enabled');
+  assert.equal(payload.policy.sendEligible, false);
+  assert.doesNotMatch(response.body, /"(?:email|name|subject|body_text|reply_cc_emails|phone|linkedin_url|address)"\s*:/i);
+});
+
+test('IVerif inbox and thread routes preserve opaque state without enabling replies', async () => {
+  const deps = {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  };
+  const headers = { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` };
+
+  const inbox = await handle(req('GET', '/v1/bridge/iverif/inbox', { headers }), deps);
+  assert.equal(inbox.status, 200);
+  assert.equal(body(inbox).contacts[0].personId, 'person-1');
+  assert.equal(body(inbox).policy.sendEligible, false);
+
+  const thread = await handle(req('GET', '/v1/bridge/iverif/thread/person-1', { headers }), deps);
+  assert.equal(thread.status, 200);
+  assert.equal(body(thread).personId, 'person-1');
+  assert.equal(body(thread).providerCanReply, true);
+  assert.equal(body(thread).policy.sendEligible, false);
+  assert.equal(body(thread).messages[0].messageRef, 'message-1');
+  assert.doesNotMatch(thread.body, /"(?:email|name|subject|body_text|reply_cc_emails|phone|linkedin_url|address)"\s*:/i);
+});
+
+test('IVerif malformed thread ids and non-GET methods stop before provider access', async () => {
+  let calls = 0;
+  const observer = fakeIVerifExplee({
+    async getThread(personId) {
+      calls += 1;
+      return fakeIVerifExplee().getThread(personId);
+    },
+    async getSnapshot() {
+      calls += 1;
+      return fakeIVerifExplee().getSnapshot();
+    },
+  });
+  const deps = {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: observer,
+  };
+  const headers = { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` };
+
+  const malformed = await handle(req('GET', '/v1/bridge/iverif/thread/person%40example.invalid', { headers }), deps);
+  assert.equal(malformed.status, 400);
+  assert.equal(body(malformed).error, 'bad_person_id');
+
+  const mutation = await handle(req('POST', '/v1/bridge/iverif/status', { headers, body: '{}' }), deps);
+  assert.equal(mutation.status, 405);
+  assert.equal(mutation.headers.allow, 'GET');
+  assert.equal(calls, 0);
+});
+
+test('IVerif optimize combines grounded experiment and live analytics without thread content', async () => {
+  const response = await handle(req('GET', '/v1/bridge/iverif/optimize', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  });
+
+  assert.equal(response.status, 200);
+  const payload = body(response);
+  assert.equal(payload.schema, 'cambium.iverif-observer.optimize.v1');
+  assert.equal(payload.live.emailsSent, 2_921);
+  assert.equal(payload.experiment.variable, 'discovery-framing');
+  assert.equal(payload.experiment.repliesClassified, 0);
+  assert.equal(payload.experiment.winnerEligible, false);
+  assert.equal(payload.claimStatus.verified, 0);
+  assert.ok(payload.claimStatus.blocked.includes('compliance-guarantee'));
+  assert.doesNotMatch(response.body, /"(?:messages|body_text|from_email|to_email|lead)"\s*:/i);
+});
+
+test('IVerif observer normalizes unexpected failures without leaking provider bodies', async () => {
+  const response = await handle(req('GET', '/v1/bridge/iverif/status', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee({
+      async getSnapshot() {
+        throw new Error('pii-upstream-body-with-secret');
+      },
+    }),
+  });
+
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'iverif_observer_unavailable');
+  assert.doesNotMatch(response.body, /pii-|secret/);
 });

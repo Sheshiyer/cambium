@@ -13,6 +13,9 @@ import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
 import { isGithubWriteCommand, validateGithubCommand } from './github-command.ts';
+import { IVerifExpleeError, isIVerifPersonId } from './iverif-explee.ts';
+import type { IVerifExpleeObserver, IVerifExpleeSource } from './iverif-explee.ts';
+import { IVERIF_GROUNDING } from './iverif-grounding.ts';
 import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-routing.ts';
 
 export interface KvLike {
@@ -332,6 +335,8 @@ export interface HandlerDeps {
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
   contextRoutes?: ContextRouteDeps; // Optional bounded context route providers (unset → context lane 503s)
+  iverifReadToken?: string;     // Dedicated IVERIF_READ_TOKEN; never falls back to bridge/admin credentials.
+  iverifExplee?: IVerifExpleeObserver; // Fixed GET-only Explee observer (unset → IVerif observer 503s).
   githubCommand?: GithubCommandExecutor; // Optional GitHub repo/issue command executor for Hermes manual commands.
   githubAllowedRepos?: string[]; // Same allowlist used by the GitHub command executor.
   uuid?: () => string;         // injectable for tests
@@ -2250,6 +2255,240 @@ function tenantOf(path: string, prefix: string): string | null {
   return VALID_TENANT.test(rest) ? rest : null;
 }
 
+const IVERIF_ROUTE_PREFIX = '/v1/bridge/iverif';
+const IVERIF_THREAD_PREFIX = `${IVERIF_ROUTE_PREFIX}/thread/`;
+const IVERIF_READ_TOKEN_PREFIX = 'iverif-read-v1.';
+
+function iverifGroundingReady(): boolean {
+  return IVERIF_GROUNDING.schema === 'cambium.iverif-grounding.v1'
+    && IVERIF_GROUNDING.binding.productId === 'iverif'
+    && IVERIF_GROUNDING.binding.expleeProjectId === 16_763
+    && IVERIF_GROUNDING.binding.expleeCampaignId === 45_711
+    && IVERIF_GROUNDING.policy.providerMode === 'observe-only'
+    && IVERIF_GROUNDING.policy.providerMutationEnabled === false
+    && IVERIF_GROUNDING.policy.allowedProviderMethods.length === 1
+    && IVERIF_GROUNDING.policy.allowedProviderMethods[0] === 'GET';
+}
+
+function iverifGroundingProjection() {
+  return {
+    schema: IVERIF_GROUNDING.schema,
+    version: IVERIF_GROUNDING.snapshot.version,
+    digest: IVERIF_GROUNDING.snapshot.digest,
+    binding: IVERIF_GROUNDING.binding,
+  };
+}
+
+function iverifReadCredentialReady(deps: HandlerDeps): boolean {
+  const token = deps.iverifReadToken?.trim();
+  if (!token || token.length < IVERIF_READ_TOKEN_PREFIX.length + 32 || token.length > 256
+    || !token.startsWith(IVERIF_READ_TOKEN_PREFIX)) return false;
+  const otherBearerTokens = [
+    deps.bridgeToken,
+    deps.assignmentToken,
+    deps.pushToken,
+    deps.providerBroker?.token,
+    deps.contextRoutes?.token,
+  ];
+  return otherBearerTokens.every((candidate) => !candidate || candidate.trim() !== token);
+}
+
+function iverifPolicyProjection(autoReplyEnabled?: boolean) {
+  const oneWriterConflict = autoReplyEnabled === true || IVERIF_GROUNDING.policy.oneWriterState !== 'proven';
+  return {
+    mode: 'observe',
+    proofState: IVERIF_GROUNDING.policy.promotionState,
+    allowedProviderMethods: IVERIF_GROUNDING.policy.allowedProviderMethods,
+    sendEligible: false,
+    oneWriterConflict,
+    oneWriterConflictReason: autoReplyEnabled === true
+      ? 'provider-auto-reply-enabled'
+      : 'ownership-unproven',
+    autoReplyEnabled: autoReplyEnabled ?? null,
+    liveCampaignDrift: IVERIF_GROUNDING.policy.liveCampaignDrift,
+  };
+}
+
+function iverifEnvelope(schema: string, source: IVerifExpleeSource) {
+  return {
+    schema,
+    source: source.provider,
+    observedAt: source.observedAt,
+    grounding: iverifGroundingProjection(),
+  };
+}
+
+function iverifErrorResponse(error: unknown): SimpleResponse {
+  if (!(error instanceof IVerifExpleeError)) {
+    return json(503, { error: 'iverif_observer_unavailable', retryable: true });
+  }
+  switch (error.code) {
+    case 'bad_person_id':
+      return json(400, { error: 'bad_person_id', retryable: false });
+    case 'upstream_not_found':
+      return json(404, { error: 'provider_record_not_found', retryable: false });
+    case 'upstream_rate_limited':
+      return json(429, {
+        error: 'provider_rate_limited',
+        retryable: true,
+        ...(error.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: error.retryAfterSeconds }),
+      });
+    case 'upstream_timeout':
+      return json(503, { error: 'provider_timeout', retryable: true });
+    case 'upstream_unavailable':
+      return json(503, { error: 'provider_unavailable', retryable: error.retryable });
+    case 'upstream_auth_failed':
+      return json(502, { error: 'provider_auth_failed', retryable: false });
+    case 'upstream_invalid_response':
+      return json(502, { error: 'provider_invalid_response', retryable: false });
+    case 'not_configured':
+      return json(503, { error: 'iverif_observer_not_configured', retryable: false });
+  }
+  return json(503, { error: 'iverif_observer_unavailable', retryable: false });
+}
+
+async function handleIVerifObserverRoute(
+  req: SimpleRequest,
+  deps: HandlerDeps,
+  routePath: string,
+): Promise<SimpleResponse> {
+  if (!iverifGroundingReady() || !iverifReadCredentialReady(deps) || !deps.iverifExplee) {
+    return json(503, { error: 'iverif_observer_not_configured' });
+  }
+  if ((req.headers.authorization ?? '') !== `Bearer ${deps.iverifReadToken}`) {
+    return json(401, { error: 'bad or missing iverif read credential' });
+  }
+  if (req.method !== 'GET') {
+    return {
+      ...json(405, { error: 'iverif observer is GET-only' }),
+      headers: { ...JSON_HEADERS, allow: 'GET' },
+    };
+  }
+
+  try {
+    if (routePath === `${IVERIF_ROUTE_PREFIX}/status`) {
+      const snapshot = await deps.iverifExplee.getSnapshot();
+      return json(200, {
+        ...iverifEnvelope('cambium.iverif-observer.status.v1', snapshot.source),
+        policy: iverifPolicyProjection(snapshot.autopilot.autoReplyEnabled),
+        project: {
+          projectId: snapshot.project.projectId,
+          emailsSent: snapshot.project.emailsSent,
+          totalReplies: snapshot.project.replies,
+          replyRatePct: snapshot.project.replyRatePercent,
+          hotLeads: snapshot.project.hotLeads,
+          spendUsd: snapshot.project.spendUsd,
+        },
+        campaign: {
+          campaignId: snapshot.campaign.campaignId,
+          status: snapshot.campaign.status,
+          statusReason: snapshot.campaign.statusReason,
+          emailsSent: snapshot.campaign.emailsSent,
+          totalReplies: snapshot.campaign.replies,
+          replyRatePct: snapshot.campaign.replyRatePercent,
+          hotLeads: snapshot.campaign.hotLeads,
+          spendUsd: snapshot.campaign.spendUsd,
+          costPerLeadUsd: snapshot.campaign.costPerLeadUsd,
+          dailyBudgetUsd: snapshot.campaign.dailyBudgetUsd,
+          leadsPoolUsed: snapshot.campaign.poolUsed,
+          leadsPoolTotal: snapshot.campaign.poolTotal,
+        },
+        autopilot: snapshot.autopilot,
+      });
+    }
+
+    if (routePath === `${IVERIF_ROUTE_PREFIX}/inbox`) {
+      const inbox = await deps.iverifExplee.getNeedReplyInbox();
+      return json(200, {
+        ...iverifEnvelope('cambium.iverif-observer.inbox.v1', inbox.source),
+        policy: iverifPolicyProjection(),
+        tab: inbox.tab,
+        total: inbox.total,
+        omittedContacts: inbox.omittedContacts,
+        pageCount: inbox.pageCount,
+        hasMore: inbox.truncated,
+        contacts: inbox.contacts,
+      });
+    }
+
+    if (routePath.startsWith(IVERIF_THREAD_PREFIX)) {
+      const encodedPersonId = routePath.slice(IVERIF_THREAD_PREFIX.length);
+      let personId = '';
+      try { personId = decodeURIComponent(encodedPersonId); } catch { /* rejected below */ }
+      if (!personId || encodedPersonId.includes('/') || !isIVerifPersonId(personId)) {
+        return json(400, { error: 'bad_person_id', retryable: false });
+      }
+      const thread = await deps.iverifExplee.getThread(personId);
+      return json(200, {
+        ...iverifEnvelope('cambium.iverif-observer.thread.v1', thread.source),
+        policy: iverifPolicyProjection(),
+        personId: thread.personId,
+        providerCanReply: thread.canReply,
+        replyBlockedReason: thread.replyBlockedReason,
+        latestIntent: thread.latestIntent,
+        messageCount: thread.messageCount,
+        truncated: thread.truncated,
+        messages: thread.messages.map((message) => ({
+          messageRef: message.messageId,
+          type: message.type,
+          intent: message.intent,
+          status: message.status,
+          ts: message.timestamp,
+        })),
+      });
+    }
+
+    if (routePath === `${IVERIF_ROUTE_PREFIX}/optimize`) {
+      const [campaign, autopilot] = await Promise.all([
+        deps.iverifExplee.getCampaignAnalytics(),
+        deps.iverifExplee.getAutopilot(),
+      ]);
+      return json(200, {
+        ...iverifEnvelope('cambium.iverif-observer.optimize.v1', campaign.source),
+        policy: iverifPolicyProjection(autopilot.autopilot.autoReplyEnabled),
+        audience: IVERIF_GROUNDING.audience,
+        baseline: {
+          emailsSent: IVERIF_GROUNDING.baseline.sends,
+          totalReplies: IVERIF_GROUNDING.baseline.replies,
+          replyRatePct: IVERIF_GROUNDING.baseline.replyRatePercent,
+          hotLeads: IVERIF_GROUNDING.baseline.hotLeads,
+          spendUsd: IVERIF_GROUNDING.baseline.spendUsdCents / 100,
+          leadsPoolUsed: IVERIF_GROUNDING.baseline.poolUsed,
+          leadsPoolTotal: IVERIF_GROUNDING.baseline.poolTotal,
+        },
+        live: {
+          emailsSent: campaign.analytics.emailsSent,
+          totalReplies: campaign.analytics.replies,
+          replyRatePct: campaign.analytics.replyRatePercent,
+          hotLeads: campaign.analytics.hotLeads,
+          spendUsd: campaign.analytics.spendUsd,
+          leadsPoolUsed: campaign.analytics.poolUsed,
+          leadsPoolTotal: campaign.analytics.poolTotal,
+        },
+        experiment: {
+          id: IVERIF_GROUNDING.experiment.id,
+          variable: IVERIF_GROUNDING.experiment.variable,
+          hypothesis: IVERIF_GROUNDING.experiment.hypothesis,
+          repliesClassified: IVERIF_GROUNDING.baseline.classifiedReplies,
+          winnerEligible: false,
+          nextStep: IVERIF_GROUNDING.experiment.prerequisites[0],
+        },
+        claimStatus: {
+          verified: IVERIF_GROUNDING.claims.filter((claim) => claim.status === 'verified').length,
+          hypotheses: IVERIF_GROUNDING.claims.filter((claim) => claim.status === 'hypothesis').length,
+          blocked: IVERIF_GROUNDING.claims
+            .filter((claim) => claim.status === 'blocked')
+            .map((claim) => claim.category),
+        },
+      });
+    }
+
+    return json(404, { error: 'iverif observer route not found' });
+  } catch (error) {
+    return iverifErrorResponse(error);
+  }
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
@@ -2449,6 +2688,12 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const body = JSON.stringify(envelope);
     await deps.kv.put(key, body);
     return json(200, { ok: true, tenant, bytes: body.length, derivedAt: envelope.derivedAt });
+  }
+
+  // The IVerif observer has a dedicated read credential and must never inherit
+  // broad bridge, assignment, or member-token authority.
+  if (routePath === IVERIF_ROUTE_PREFIX || routePath.startsWith(`${IVERIF_ROUTE_PREFIX}/`)) {
+    return handleIVerifObserverRoute(req, deps, routePath);
   }
 
   // ── Founder ↔ Paperclip bridge ──────────────────────────────────────────

@@ -137,6 +137,67 @@ brand, copy, visuals, assets, sections, interactions, and acceptance checks.
 - **If required fields are missing**: the seam should be flagged for verification, because the system cannot
   distinguish deliberate change from drift from documentation alone.
 
+## Lead ecosystem catalog
+
+The versioned machine contract for the lead operating slice is
+[`contracts/lead-ecosystem.v1.json`](contracts/lead-ecosystem.v1.json). It sits beneath `ops`; it does not
+add another top-level pipeline or grant a provider permission to run. The catalog is intentionally
+zero-dependency and closed: every record has a unique `name@version` identifier, a bounded tenant envelope,
+local-only schema references, bounded arrays and strings, and `additionalProperties: false` at every object
+boundary.
+
+### Lifecycle records
+
+- `lead_record`, `source_alias`, and `identity_resolution` preserve a tenant-scoped canonical lead while
+  source aliases evolve. Identity resolution is continuous, confidence-bearing, observed, and CAS-revisioned
+  through ambiguous, matched, merged, split, and human-review states. Merge/split lineage is mandatory;
+  stale revisions, cross-tenant aliases, and self-merges fail closed.
+- `provider_observation`, `signal_batch`, and `icp_score` separate observed evidence from derived scoring.
+  Every score binds its evidence, rule version, and model version. Provider payloads cannot supply tenant,
+  account, project, or campaign authority.
+- `suppression_state` is authoritative and dominates enrichment, approval, create, and engage decisions.
+  An opt-out, hard bounce, complaint, legal hold, expiry, or tenant policy cannot be widened away by a newer
+  provider observation. Consent basis, affected channels, retention disposition, alias/channel propagation,
+  and the non-clearable provider-refresh rule travel with every revision.
+- `content_asset` contains only bounded classification, provenance, rights, approval, digest, and expiry at
+  this boundary. Rendered body content and raw contact identity do not enter the catalog record.
+- `action_request` binds tenant, provider capability, exact endpoint/tool/method, adapter and canonicalization
+  versions, payload and credential-binding digests, budget reservation, actor, expiry, idempotency key,
+  suppression revision, and eligibility into one canonical SHA-256 action digest.
+- `approval_decision` is scoped to `exact_action`, names its approver and expiry, and must carry that exact
+  digest. Changing any bound field invalidates the approval rather than broadening it to a campaign.
+- `execution_attempt`, `outcome_event`, `reconciliation`, and `compensation` form the eventual action audit
+  trail: attempts retain request/response/provider-receipt digests, prior-attempt lineage, fencing and timing;
+  outcomes retain provider event identity and attribution; reconciliation compares expected and observed
+  states; compensation binds retry eligibility, repair, escalation, deadline, and receipt.
+- A `writer_lease` explicitly scopes tenant, campaign, and channel. Its monotonically fenced token makes
+  Cambium the one writer; provider systems never become task, approval, or receipt authorities.
+- `operator_receipt` exposes only bounded state, artifact count, next action, replay truth, and timestamp.
+  Redaction is mandatory; identity, provider payloads, document content, credentials, and URLs are forbidden.
+- `derived_learning` is the only cortex foldback record. It accepts allowlisted numeric aggregate metrics,
+  a privacy-reviewed transformation version, source outcome references, and a minimum cohort of ten. Raw
+  observations, aliases, contact identity, arbitrary prose, and provider payloads cannot cross that seam.
+
+### Provider records
+
+`provider_contract`, `provider_permission`, and `provider_binding` keep four concerns separate:
+
+1. The contract pins API schema and adapter versions, exact local endpoint/tool/method allowlists, bounded
+   timeout/retry policy, exact-key idempotency, error classification, redaction, reconciliation, receipt, and
+   fail-closed schema drift behavior.
+2. The permission lists explicit scopes and a closed data policy: classification, region, purpose, and
+   retention.
+3. The binding points at those immutable records and a typed `secretref://` identifier. Secret values are
+   rejected recursively and never belong in JSON contracts, fixtures, logs, or receipts.
+4. Mutation defaults to disabled and the kill switch defaults to engaged. A packet or caller cannot widen
+   either default.
+
+The executable proof is
+[`../examples/provider-conformance/synthetic-observation.json`](../examples/provider-conformance/synthetic-observation.json).
+It contains synthetic facts, no provider hostname, and no network behavior. The conformance test supplies a
+network sentinel that throws on any attempted call and asserts that the validator makes zero calls. Live
+provider routing, credentials, spend, and outbound mutation remain later, separately authorized slices.
+
 ## Cross-cutting: `cortex` — Aesthetic memory · organ: **cortex** (`taste-nim` + `DESIGN_MEMORY_WORKER`) · *paid*
 - Not a stage — it **feeds all four**. The 1024-dim NIM memory: taste index + the brand's own assets +
   design-memory. Genesis writes the brand's seed taste; taste reads/scores against it; build pulls

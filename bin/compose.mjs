@@ -19,6 +19,8 @@ import { spawnSync } from 'node:child_process';
 import { runPipeline } from './lib/invoke.mjs';
 import { handleDeviation } from './lib/whyhandler.mjs';
 import { defaultCortex } from './lib/cortex.mjs';
+import { validateLeadOps } from './lib/lead-ops.mjs';
+import { validateLeadContractCatalog } from './lib/lead-contracts.mjs';
 
 // ───────────────────────── pure core (no I/O) ─────────────────────────
 
@@ -55,6 +57,7 @@ export function planPipeline({ registry, pipeline, tenant } = {}) {
     ...organOf(stage.organ, `stage "${stage.id}"`),
     input: stage.input,
     output: stage.output,
+    subgraph: stage.subgraph ? { ...stage.subgraph } : null,
     requires: stage.requires || [],
     produces: stage.produces || [],
     blocking: stage.blocking || [],
@@ -106,10 +109,55 @@ export function loadJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-function load(root) {
+export function loadComposition(root) {
+  const compositionRoot = join(root, 'composition');
+  const registry = loadJson(join(root, 'registry.json'));
+  const pipeline = loadJson(join(compositionRoot, 'pipeline.json'));
+  const ops = Array.isArray(pipeline.stages)
+    ? pipeline.stages.find((stage) => stage.id === 'ops')
+    : null;
+  const reference = ops?.subgraph;
+  if (!reference || typeof reference !== 'object') {
+    throw new Error('ops stage missing required lead subgraph reference');
+  }
+  if (reference.id !== 'lead-ops' || reference.version !== '1.0.0') {
+    throw new Error('ops lead subgraph reference must be lead-ops@1.0.0');
+  }
+  if (typeof reference.path !== 'string'
+    || reference.path.length === 0
+    || reference.path.startsWith('/')
+    || reference.path.split(/[\\/]/).includes('..')) {
+    throw new Error('ops lead subgraph path must be a local composition path');
+  }
+  let leadOps;
+  try {
+    leadOps = loadJson(join(compositionRoot, reference.path));
+  } catch (error) {
+    throw new Error(`lead subgraph "${reference.path}" could not be loaded: ${error.message}`);
+  }
+  const validatedGraph = validateLeadOps(leadOps);
+  if (validatedGraph.id !== reference.id || validatedGraph.version !== reference.version) {
+    throw new Error('ops lead subgraph reference does not match the resolved graph identity');
+  }
+  const catalogReference = leadOps.contract_catalog;
+  let leadContracts;
+  try {
+    leadContracts = loadJson(join(compositionRoot, catalogReference.path));
+  } catch (error) {
+    throw new Error(`lead contract catalog "${catalogReference.path}" could not be loaded: ${error.message}`);
+  }
+  const validatedCatalog = validateLeadContractCatalog(leadContracts);
+  const expectedCatalogId = `${catalogReference.id}@${catalogReference.version}`;
+  if (validatedCatalog.catalog_id !== expectedCatalogId) {
+    throw new Error(`lead contract catalog identity mismatch: expected ${expectedCatalogId}`);
+  }
+  validateLeadOps(leadOps, { knownContractIds: validatedCatalog.contract_ids });
   return {
-    registry: loadJson(join(root, 'registry.json')),
-    pipeline: loadJson(join(root, 'composition', 'pipeline.json')),
+    registry,
+    pipeline,
+    leadOps,
+    leadContracts,
+    leadContractIds: validatedCatalog.contract_ids,
   };
 }
 
@@ -156,7 +204,7 @@ async function runCmd(root, { tenant, execute, approve, stage, input, intent }) 
     console.log('refused: --execute requires a tenant — compose run <tenant> --execute --approve <stage>');
     return 2;
   }
-  const { registry, pipeline } = load(root);
+  const { registry, pipeline } = loadComposition(root);
   const adapters = loadJson(join(root, 'adapters.json')).adapters;
   const cortex = defaultCortex(root); // I3: the why-handler writes through the unified cortex interface
   let stages = pipeline.stages;
@@ -218,13 +266,13 @@ async function runCmd(root, { tenant, execute, approve, stage, input, intent }) 
 export async function main(argv, root) {
   const [cmd, ...rest] = argv;
   if (cmd === 'plan' || cmd === 'validate') {
-    const { registry, pipeline } = load(root);
+    const { registry, pipeline, leadOps } = loadComposition(root);
     const plan = planPipeline({ registry, pipeline, tenant: cmd === 'plan' ? rest[0] : '<validate>' });
     if (cmd === 'plan') {
       console.log(formatPlan(plan));
     } else {
       const nOrgans = Object.keys(registry.organs).length;
-      console.log(`✓ registry + pipeline valid — ${pipeline.stages.length} stages, ${nOrgans} organs, all resolve`);
+      console.log(`✓ registry + pipeline valid — ${pipeline.stages.length} top-level stages, ${leadOps.stages.length} lead stages, ${nOrgans} organs, all resolve`);
     }
     return 0;
   }
