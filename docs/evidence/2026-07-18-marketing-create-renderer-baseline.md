@@ -4,7 +4,7 @@ Recorded before implementation on 2026-07-18.
 
 ## Dirty root preservation
 
-- Root: `/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium`
+- Root: dirty operator checkout (private filesystem path intentionally omitted)
 - HEAD: `d288a26974850ee63daf56647523233540dfcf88`
 - Porcelain status SHA-256: `252ef63b30f5baeb774d02f373621a53b159aedb6c3320113007d96fbe646062`
 - Binary tracked diff SHA-256: `53b7bfd0117b881966af84330d6b07bc8310429f3c8c7aafdb496270f063d255`

@@ -2760,6 +2760,9 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (deps.marketingRenderer?.activation !== MARKETING_CREATE_EXPECTED_ACTIVATION) {
         return json(503, { error: 'renderer_disabled' });
       }
+      if (!deps.marketingRenderer.apiKey?.trim()) {
+        return json(503, { error: 'renderer_secret_missing' });
+      }
       if (!deps.marketingRenderStore) return json(503, { error: 'marketing_render_store_unavailable' });
       let input: unknown;
       try { input = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }

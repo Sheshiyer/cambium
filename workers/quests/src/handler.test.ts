@@ -10879,6 +10879,36 @@ test('marketing renderer route · activation mismatch refuses before D1 preparat
   assert.equal(fetches, 0);
 });
 
+test('marketing renderer route · missing exclusive secret refuses before D1 preparation', async () => {
+  let storeCalls = 0;
+  let fetches = 0;
+  const { deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}');
+  }, {
+    marketingRenderStore: {
+      async prepare() {
+        storeCalls += 1;
+        throw new Error('prepare must not reach D1 without the renderer secret');
+      },
+    },
+    marketingRenderer: {
+      activation: MARKETING_CREATE_EXPECTED_ACTIVATION,
+      apiKey: '   ',
+      fetchImpl: async () => {
+        fetches += 1;
+        return new Response('{}');
+      },
+    },
+  });
+
+  const response = await prepareMarketingRoute(deps);
+  assert.equal(response.status, 503);
+  assert.deepEqual(body(response), { error: 'renderer_secret_missing' });
+  assert.equal(storeCalls, 0);
+  assert.equal(fetches, 0);
+});
+
 test('marketing renderer route · preparation normalizes D1 failures without leaking diagnostics', async () => {
   const { deps } = marketingRouteHarness(async () => new Response('{}'), {
     marketingRenderStore: {
@@ -11110,7 +11140,9 @@ test('marketing renderer runtime · Worker bindings stay exclusive and execute w
     const prepare = await worker.fetch(new Request('https://worker.example/v1/bridge/marketing-renders/prepare', {
       method: 'POST',
       headers: { authorization: 'Bearer bridge', 'content-type': 'application/json' },
-      body: JSON.stringify(marketingRoutePrepareInput()),
+      body: JSON.stringify(marketingRoutePrepareInput({
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      })),
     }), env as any);
     assert.equal(prepare.status, 200);
 
