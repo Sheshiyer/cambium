@@ -173,3 +173,32 @@ export function buildCambiumScene(activeScreenId: ScreenId = defaultScreenId, ca
     interactionPlan: sourceContract.interactionPlan,
   };
 }
+
+export interface SheetRowModel {
+  id: string;
+  label: string;
+  value: string;
+  tone?: string;
+}
+
+export interface SheetEnvelopeRow {
+  id: string;
+  label: string;
+  value: string;
+  tone?: string;
+}
+
+export function sheetRowsFromEnvelope(rows: readonly SheetEnvelopeRow[]): readonly SheetRowModel[] {
+  return rows.map((row) => ({
+    id: row.id,
+    label: row.label,
+    value: row.value,
+    tone: row.tone ?? 'mist',
+  }));
+}
+
+export const FIXTURE_SHEET_ROWS: readonly SheetRowModel[] = sheetRowsFromEnvelope([
+  { id: 'mission-arc', label: 'ARC', value: 'the-archive', tone: 'signal' },
+  { id: 'mission-progress', label: 'PROGRESS', value: '3/4 demo arcs', tone: 'mist' },
+  { id: 'mission-stance', label: 'STANCE', value: 'lessons minted', tone: 'depth' },
+]);
