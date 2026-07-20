@@ -1,0 +1,17 @@
+{
+  "id": "production-composition",
+  "version": "1.0.0",
+  "pipeline": {
+    "path": "pipeline.json"
+  },
+  "lead_ops": {
+    "id": "lead-ops",
+    "version": "1.0.0",
+    "path": "lead-ops.v1.json"
+  },
+  "create_adapter_catalog": {
+    "id": "create-adapters",
+    "version": "1.0.0",
+    "path": "create-adapters.v1.json"
+  }
+}

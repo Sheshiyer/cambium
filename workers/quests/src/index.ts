@@ -10,6 +10,7 @@ import {
 } from './context-bindings.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
+import { d1MarketingRenderStore } from './marketing-render-store.ts';
 import type {
   BridgeAssignmentRecord,
   BridgeBusinessArtifactReceipt,
@@ -79,6 +80,8 @@ interface Env {
   NVIDIA_API_KEY?: string;
   NVIDIA_BASE_URL?: string;
   NVIDIA_DEFAULT_MODEL?: string;
+  MARKETING_CREATE_ACTIVATION?: string;
+  NVIDIA_MARKETING_CREATE_API_KEY?: string;
   NEBIUS_API_KEY?: string;
   NEBIUS_BASE_URL?: string;
   NEBIUS_DEFAULT_MODEL?: string;
@@ -1295,6 +1298,12 @@ export default {
       iverifReadToken,
       iverifProviderApiKey: iverifApiKey,
       iverifExplee,
+      marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
+      marketingRenderer: {
+        activation: env.MARKETING_CREATE_ACTIVATION,
+        apiKey: env.NVIDIA_MARKETING_CREATE_API_KEY,
+        fetchImpl: workerFetch,
+      },
       githubCommand: env.GITHUB_AGENT_TOKEN ? createGithubCommandExecutor({
         token: env.GITHUB_AGENT_TOKEN,
         allowedRepos: githubAllowedRepos,

@@ -16,6 +16,15 @@ import { isGithubWriteCommand, validateGithubCommand } from './github-command.ts
 import { IVerifExpleeError, isIVerifPersonId } from './iverif-explee.ts';
 import type { IVerifExpleeObserver, IVerifExpleeSource } from './iverif-explee.ts';
 import { IVERIF_GROUNDING } from './iverif-grounding.ts';
+import {
+  MARKETING_CREATE_ADAPTER_ID,
+  MARKETING_CREATE_EXPECTED_ACTIVATION,
+  MarketingRendererError,
+  executeMarketingRender,
+  parseMarketingExecuteInput,
+  prepareMarketingRender,
+} from './marketing-renderer.ts';
+import type { MarketingRenderStoreLike } from './marketing-renderer.ts';
 import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-routing.ts';
 
 export interface KvLike {
@@ -338,6 +347,12 @@ export interface HandlerDeps {
   iverifReadToken?: string;     // Dedicated IVERIF_READ_TOKEN; never falls back to bridge/admin credentials.
   iverifProviderApiKey?: string; // Equality-check only; prevents the provider key from serving as route auth.
   iverifExplee?: IVerifExpleeObserver; // Fixed GET-only Explee observer (unset → IVerif observer 503s).
+  marketingRenderStore?: MarketingRenderStoreLike; // D1-only preparation, approval, fencing, and replay authority.
+  marketingRenderer?: {        // Exclusive Worker bindings; never included in providerBroker/contextRoutes.
+    activation?: string;
+    apiKey?: string;
+    fetchImpl?: typeof fetch;
+  };
   githubCommand?: GithubCommandExecutor; // Optional GitHub repo/issue command executor for Hermes manual commands.
   githubAllowedRepos?: string[]; // Same allowlist used by the GitHub command executor.
   uuid?: () => string;         // injectable for tests
@@ -371,7 +386,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest' | 'confirm-action-request';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -2740,6 +2755,78 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
     const bridgeStore = deps.bridgeStore ?? kvBridgeStore(deps.kv);
 
+    if (method === 'POST' && routePath === '/v1/bridge/marketing-renders/prepare') {
+      if (!principal.admin) return json(403, { error: 'marketing render preparation is cofounder-only' });
+      if (deps.marketingRenderer?.activation !== MARKETING_CREATE_EXPECTED_ACTIVATION) {
+        return json(503, { error: 'renderer_disabled' });
+      }
+      if (!deps.marketingRenderStore) return json(503, { error: 'marketing_render_store_unavailable' });
+      let input: unknown;
+      try { input = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      let prepared;
+      try {
+        prepared = await prepareMarketingRender(input, {
+          now: nowIso,
+        });
+      } catch (error) {
+        const code = error instanceof MarketingRendererError ? error.code : 'invalid_prepare_input';
+        const status = code === 'invalid_prepare_input' || code === 'prepare_expiry_invalid' ? 400 : 503;
+        return json(status, { error: code });
+      }
+      let stored;
+      try {
+        stored = await deps.marketingRenderStore.prepare(prepared);
+      } catch {
+        return json(503, { error: 'marketing_render_store_unavailable' });
+      }
+      if (stored.status === 'conflict') return json(409, { error: 'marketing_render_identity_conflict' });
+      return json(200, {
+        ok: true,
+        duplicate: stored.status === 'duplicate',
+        requestId: stored.record.requestId,
+        adapterId: MARKETING_CREATE_ADAPTER_ID,
+        actionDigest: stored.record.actionDigest,
+        status: 'awaiting_human_approval',
+        nextAction: {
+          route: '/api/gate/thoughtseed',
+          kind: 'approve-marketing-render',
+        },
+      });
+    }
+
+    const marketingExecuteMatch = routePath.match(/^\/v1\/bridge\/marketing-renders\/([^/]+)\/execute$/);
+    if (method === 'POST' && marketingExecuteMatch) {
+      if (!principal.admin) return json(403, { error: 'marketing render execution is cofounder-only' });
+      const requestId = executionText(marketingExecuteMatch[1]);
+      if (!requestId) return json(400, { error: 'invalid_render_request_id' });
+      let input: unknown;
+      try { input = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const parsed = parseMarketingExecuteInput(input);
+      if (!parsed.ok) return json(400, { error: parsed.code });
+      if (!deps.marketingRenderStore) return json(503, { error: 'marketing_render_store_unavailable' });
+      try {
+        const result = await executeMarketingRender(requestId, parsed.value.approvalDecisionId, {
+          store: deps.marketingRenderStore,
+          activation: deps.marketingRenderer?.activation,
+          apiKey: deps.marketingRenderer?.apiKey,
+          fetchImpl: deps.marketingRenderer?.fetchImpl,
+          now: nowIso,
+          uuid: deps.uuid,
+        });
+        if (result.status === 'succeeded') return json(200, result);
+        if (result.status === 'busy') return json(409, result);
+        if (result.status === 'failed') return json(502, result);
+        return json(409, result);
+      } catch (error) {
+        const code = error instanceof MarketingRendererError ? error.code : 'marketing_renderer_unavailable';
+        if (code === 'renderer_disabled' || code === 'renderer_secret_missing') return json(503, { error: code });
+        if (code === 'render_request_not_found' || code === 'approval_not_found') return json(404, { error: code });
+        if (code.startsWith('approval_')) return json(403, { error: code });
+        if (code === 'render_request_expired') return json(409, { error: code });
+        return json(503, { error: 'marketing_renderer_unavailable' });
+      }
+    }
+
     if (method === 'POST' && routePath === '/v1/bridge/ingest') {
       let msg: any;
       try { msg = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
@@ -3382,12 +3469,47 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request'].includes(body.kind) || !(body.subject || body.actionRequestId)) {
-      return json(400, { error: 'need kind approve|reroll|promote-skill|queue-side-quest|confirm-action-request and subject' });
+    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
+      return json(400, { error: 'need a supported gate kind and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
     if (!verdict.ok) return json(401, { error: verdict.reason });
     const kind = body.kind as GateActionKind;
+    if (kind === 'approve-marketing-render') {
+      if (tenant !== 'thoughtseed') return json(403, { error: 'marketing renderer is fixed to the thoughtseed tenant' });
+      const allowedFields = new Set(['kind', 'requestId', 'subject', 'initData']);
+      if (!isRecord(body)
+          || !Object.hasOwn(body, 'requestId')
+          || Object.keys(body).some((field) => !allowedFields.has(field))) {
+        return json(400, { error: 'invalid_marketing_render_approval_input' });
+      }
+      if (deps.marketingRenderer?.activation !== MARKETING_CREATE_EXPECTED_ACTIVATION) {
+        return json(503, { error: 'renderer_disabled' });
+      }
+      if (!deps.marketingRenderStore) return json(503, { error: 'marketing_render_store_unavailable' });
+      const requestId = executionText(body.requestId || body.subject);
+      if (!requestId) return json(400, { error: 'approve-marketing-render needs a valid requestId' });
+      const approvalDecisionId = (deps.uuid ?? (() => crypto.randomUUID()))();
+      let result;
+      try {
+        result = await deps.marketingRenderStore.approvePrepared({
+          requestId,
+          founderId: verdict.userId,
+          decidedAt: deps.now ? deps.now() : new Date().toISOString(),
+          approvalDecisionId,
+        });
+      } catch {
+        return json(503, { error: 'marketing_render_approval_unavailable' });
+      }
+      if (result.status === 'not_found') return json(404, { error: 'render_request_not_found' });
+      if (result.status === 'conflict') return json(409, { error: 'marketing_render_approval_conflict' });
+      return json(200, {
+        ok: true,
+        duplicate: result.status === 'duplicate',
+        requestId,
+        approvalDecisionId: result.approval.record_id,
+      });
+    }
     if (kind === 'confirm-action-request') {
       const actionRequestId = shortText(body.actionRequestId || body.subject, '', 160);
       if (!actionRequestId) return json(400, { error: 'confirm-action-request needs actionRequestId' });

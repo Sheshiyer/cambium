@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const migrationUrl = new URL('../migrations/0003_bridge_execution_proof.sql', import.meta.url);
 const businessArtifactsMigrationUrl = new URL('../migrations/0004_business_artifacts.sql', import.meta.url);
+const marketingRendererMigrationUrl = new URL('../migrations/0005_marketing_create_renderer.sql', import.meta.url);
 const schemaUrl = new URL('../schema/bridge.sql', import.meta.url);
 
 function triggerDefinitions(sql: string): Record<string, string> {
@@ -34,6 +35,25 @@ function businessTaskDefinitions(sql: string): {
 
   return {
     table: normalizeDefinition(table[0]),
+    indexes,
+  };
+}
+
+function marketingRendererDefinitions(sql: string): {
+  runs: string;
+  approvals: string;
+  indexes: Record<string, string>;
+} {
+  const runs = sql.match(/CREATE TABLE IF NOT EXISTS marketing_render_runs[\s\S]*?\n\);/);
+  const approvals = sql.match(/CREATE TABLE IF NOT EXISTS marketing_render_approvals[\s\S]*?\n\);/);
+  assert.ok(runs, 'missing marketing_render_runs table definition');
+  assert.ok(approvals, 'missing marketing_render_approvals table definition');
+  const indexes: Record<string, string> = {};
+  const pattern = /CREATE (?:UNIQUE )?INDEX IF NOT EXISTS (idx_marketing_render_[A-Za-z0-9_]+)[\s\S]*?;/g;
+  for (const match of sql.matchAll(pattern)) indexes[match[1]] = normalizeDefinition(match[0]);
+  return {
+    runs: normalizeDefinition(runs[0]),
+    approvals: normalizeDefinition(approvals[0]),
     indexes,
   };
 }
@@ -87,5 +107,30 @@ test('business task migration remains identical to the canonical schema', async 
     assert.match(definitions.table, /status NOT IN \('artifact_stored', 'awaiting_human_approval'\)/);
   }
 
+  assert.deepEqual(migrationDefinitions, schemaDefinitions);
+});
+
+test('marketing renderer migration remains identical to the canonical schema', async () => {
+  const [migration, schema] = await Promise.all([
+    readFile(marketingRendererMigrationUrl, 'utf8'),
+    readFile(schemaUrl, 'utf8'),
+  ]);
+  const migrationDefinitions = marketingRendererDefinitions(migration);
+  const schemaDefinitions = marketingRendererDefinitions(schema);
+  for (const definitions of [migrationDefinitions, schemaDefinitions]) {
+    assert.match(definitions.runs, /tenant_id TEXT NOT NULL DEFAULT 'thoughtseed' CHECK \(tenant_id = 'thoughtseed'\)/);
+    assert.match(definitions.runs, /adapter_id TEXT NOT NULL DEFAULT 'founder-article-nvidia@1\.0\.0' CHECK \(adapter_id = 'founder-article-nvidia@1\.0\.0'\)/);
+    assert.match(definitions.runs, /attempt INTEGER NOT NULL DEFAULT 1 CHECK \(attempt = 1\)/);
+    assert.match(definitions.runs, /status TEXT NOT NULL CHECK \(status IN \('prepared', 'claimed', 'invoking', 'succeeded', 'failed', 'indeterminate'\)\)/);
+    assert.match(definitions.runs, /UNIQUE \(tenant_id, idempotency_key\)/);
+    assert.match(definitions.runs, /CHECK \(status NOT IN \('invoking', 'succeeded', 'failed', 'indeterminate'\) OR invoked_at IS NOT NULL\)/);
+    assert.match(definitions.runs, /CHECK \(status <> 'succeeded' OR \(artifact_json IS NOT NULL AND receipt_json IS NOT NULL AND artifact_digest IS NOT NULL\)\)/);
+    assert.match(definitions.approvals, /decision TEXT NOT NULL CHECK \(decision IN \('approved', 'rejected'\)\)/);
+    assert.match(definitions.approvals, /UNIQUE \(request_id, action_digest, approver_id\)/);
+    assert.deepEqual(Object.keys(definitions.indexes).sort(), [
+      'idx_marketing_render_approvals_request',
+      'idx_marketing_render_runs_status',
+    ]);
+  }
   assert.deepEqual(migrationDefinitions, schemaDefinitions);
 });
