@@ -1293,6 +1293,7 @@ export default {
       providerBroker,
       contextRoutes,
       iverifReadToken,
+      iverifProviderApiKey: iverifApiKey,
       iverifExplee,
       githubCommand: env.GITHUB_AGENT_TOKEN ? createGithubCommandExecutor({
         token: env.GITHUB_AGENT_TOKEN,
