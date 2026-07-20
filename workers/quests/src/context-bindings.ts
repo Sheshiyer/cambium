@@ -10,11 +10,20 @@ import type {
 export interface R2ObjectLike {
   key?: string;
   uploaded?: Date | string;
+  size?: number;
+  customMetadata?: Record<string, string>;
   text(): Promise<string>;
+  arrayBuffer?(): Promise<ArrayBuffer>;
 }
 
 export interface R2BucketLike {
   get(key: string): Promise<R2ObjectLike | null>;
+  head?(key: string): Promise<R2ObjectLike | null>;
+  put?(key: string, value: Uint8Array, options?: {
+    onlyIf?: { etagDoesNotMatch?: string };
+    httpMetadata?: { contentType?: string; contentDisposition?: string };
+    customMetadata?: Record<string, string>;
+  }): Promise<R2ObjectLike | null>;
 }
 
 export type VectorizeMetadataValue = string | number | boolean | null | Record<string, unknown> | unknown[];

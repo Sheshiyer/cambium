@@ -66,14 +66,36 @@ export interface BridgeExecutionAttestation {
   idempotencyKey: string;
   runnerId: string;
   hostIdentity: string;
-  command: 'canary.record';
+  command: 'canary.record' | 'service_agreement.draft.render';
   status: BridgeExecutionOutcomeStatus;
   exitCode: 0 | 1 | null;
   inputDigest: string;
   outputDigest?: string;
+  businessReceipt?: BridgeBusinessArtifactReceipt;
   errorCode?: string;
   startedAt: string;
   finishedAt: string;
+}
+
+export interface BridgeBusinessArtifactReceipt {
+  schema: 'thoughtseed.business_artifact_receipt.v1';
+  artifactId: string;
+  businessTaskId: string;
+  gsdTaskId: string;
+  executionId: string;
+  directiveId: string;
+  memberId: string;
+  digest: string;
+  byteLength: number;
+  contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  r2Key: string;
+  contentPolicyId: string;
+  contentPolicyDigest: string;
+  rendererPolicyId: string;
+  rendererPolicyDigest: string;
+  approvalState: 'awaiting_human_approval';
+  synthetic: true;
+  externalAction: 'none';
 }
 
 export interface BridgeExecutionClaimInput {
@@ -152,6 +174,78 @@ export interface BridgeExecutionStoreLike {
   recordExecutionOutcome(input: BridgeExecutionOutcomeInput): Promise<BridgeExecutionOutcomeResult>;
   hasTerminalExecution(memberId: string, directiveId: string, identity: BridgeExecutionContractIdentity): Promise<boolean>;
   acknowledgeTerminalDirective(memberId: string, directiveId: string, identity: BridgeExecutionContractIdentity, acknowledgedAt: string): Promise<boolean>;
+  verifyActiveClaim(input: {
+    memberId: string;
+    directiveId: string;
+    idempotencyKey: string;
+    executionId: string;
+    runnerId: string;
+    hostIdentity: string;
+    claimId: string;
+    fencingToken: string;
+    attempt: number;
+    observedAt: string;
+  }): Promise<boolean>;
+}
+
+export type BridgeBusinessTaskStatus =
+  | 'queued'
+  | 'leased'
+  | 'rendering'
+  | 'artifact_stored'
+  | 'retrying'
+  | 'awaiting_human_approval'
+  | 'failed';
+
+export interface BridgeBusinessTaskRecord {
+  businessTaskId: string;
+  gsdTaskId: string;
+  idempotencyKey: string;
+  intentDigest: string;
+  directiveId: string;
+  directiveSchema: 'thoughtseed.hermes.native_execution.v1';
+  memberId: string;
+  tenantId: 'thoughtseed';
+  projectId: string;
+  clientId: string;
+  workflowId: 'thoughtseed.legal.service-agreement.draft.v1';
+  status: BridgeBusinessTaskStatus;
+  request: Record<string, unknown>;
+  approvalScope: 'internal_canary_draft_only';
+  approvalObservationId: string;
+  approvalObservedAt: string;
+  synthetic: true;
+  externalAction: 'none';
+  executionId?: string;
+  receipt?: BridgeBusinessArtifactReceipt;
+  createdAt: string;
+  updatedAt: string;
+  terminalAt?: string;
+}
+
+export interface BridgeBusinessArtifactUpload {
+  task: BridgeBusinessTaskRecord;
+  executionId: string;
+  artifactId: string;
+  digest: string;
+  byteLength: number;
+  contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  fileName: string;
+  bytes: Uint8Array;
+  contentPolicyId: string;
+  contentPolicyDigest: string;
+  rendererPolicyId: string;
+  rendererPolicyDigest: string;
+  recordedAt: string;
+}
+
+export interface BridgeBusinessTaskStoreLike {
+  createTask(record: BridgeBusinessTaskRecord): Promise<'created' | 'duplicate' | 'conflict'>;
+  getTask(businessTaskId: string): Promise<BridgeBusinessTaskRecord | null>;
+  markLeased(businessTaskId: string, executionId: string, recordedAt: string): Promise<void>;
+  putArtifact(input: BridgeBusinessArtifactUpload): Promise<{ stored: boolean; duplicate: boolean; receipt: BridgeBusinessArtifactReceipt }>;
+  markOutcome(businessTaskId: string, status: 'retrying' | 'awaiting_human_approval' | 'failed', recordedAt: string): Promise<void>;
+  getArtifact(businessTaskId: string): Promise<{ receipt: BridgeBusinessArtifactReceipt; base64: string } | null>;
 }
 
 export type FabricEvidenceCandidateStatus = 'verified_evidence' | 'review_pending' | 'rejected_candidate';
@@ -233,6 +327,7 @@ export interface HandlerDeps {
   roleTaskBindingsJson?: string; // Server-owned Hermes role -> member/project/task binding registry
   bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
   executionStore?: BridgeExecutionStoreLike; // D1-only claim/outcome authority; never falls back to KV
+  businessStore?: BridgeBusinessTaskStoreLike; // D1 task metadata plus immutable R2 artifact bytes
   fabricLedger?: FabricLedgerStoreLike; // Cambium-owned interpreted Fabric task/event ledger
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
@@ -294,6 +389,10 @@ const b64urlFromBytes = (bytes: Uint8Array): string => {
 };
 async function sha256hex(s: string): Promise<string> {
   const d = await crypto.subtle.digest('SHA-256', TEXT.encode(s) as unknown as BufferSource);
+  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+async function sha256Bytes(bytes: Uint8Array): Promise<string> {
+  const d = await crypto.subtle.digest('SHA-256', bytes as unknown as BufferSource);
   return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 async function hmacB64url(secret: string, msg: string): Promise<string> {
@@ -529,6 +628,295 @@ const ATTESTATION_ID = /^att_[A-Za-z0-9._:-]{1,180}$/;
 const SHA256_DIGEST = /^sha256:[a-f0-9]{64}$/;
 const EXECUTION_ERROR_CODE = /^[a-z0-9][a-z0-9_-]{0,79}$/;
 const EXECUTION_NONCE = /^[A-Za-z0-9._:-]{1,128}$/;
+const BUSINESS_SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/;
+const BUSINESS_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' as const;
+const BUSINESS_EXTERNAL_ACTION_RE = /\b(?:email|send|deliver|publish|signature|signing|e-?sign|whatsapp|telegram)\b/i;
+const BUSINESS_CONTENT_POLICY_ID = 'anthropic-skills:thoughtseed-contract-generator@1';
+const BUSINESS_CONTENT_POLICY_DIGEST = 'sha256:b34b87ac93681a9acb4127ebdeb3030eccf4f9b6e2f8119b21326fdf3ffe9a13';
+const BUSINESS_RENDERER_POLICY_ID = 'thoughtseed.docx.legal.a4.v1';
+const BUSINESS_RENDERER_POLICY_DIGEST = 'sha256:ab11e39c744ac22dd6ee88b50f7fd275954ce4dd6bebd44590844b1f6ac6f453';
+
+interface ServiceAgreementDraftInput {
+  schema: 'thoughtseed.legal.service_agreement_draft_input.v1';
+  workflowId: 'thoughtseed.legal.service-agreement.draft.v1';
+  tenantId: 'thoughtseed';
+  projectId: string;
+  clientId: string;
+  gsdTaskId: string;
+  synthetic: true;
+  intent: string;
+  documentKind: 'service_agreement';
+  clientDisplayName: 'Thoughtseed Systems Test Client';
+  projectName: string;
+  projectSummary: string;
+  engagementType: 'fixed_price';
+  currency: 'INR';
+  feeMinor: number;
+  deliverables: string[];
+  outOfScope: string[];
+  approval: {
+    scope: 'internal_canary_draft_only';
+    observationId: string;
+    observedAt: string;
+  };
+  externalAction: 'none';
+}
+
+type NativeExecutionContract =
+  | { command: 'canary.record'; idempotencyKey: string; input: { nonce: string } }
+  | { command: 'service_agreement.draft.render'; idempotencyKey: string; input: ServiceAgreementDraftInput };
+
+interface BusinessTaskIntake {
+  schema: 'thoughtseed.business_task_intake.v1';
+  source: 'temperance-operator' | 'hermes-telegram-operator';
+  action: 'service_agreement.draft.render';
+  memberId: string;
+  idempotencyKey: string;
+  synthetic: true;
+  intent: string;
+  project: {
+    tenantId: 'thoughtseed';
+    projectId: string;
+    clientId: string;
+    clientDisplayName: 'Thoughtseed Systems Test Client';
+    projectName: string;
+    projectSummary: string;
+    deliverables: string[];
+    outOfScope: string[];
+  };
+  commercial: {
+    engagementType: 'fixed_price';
+    currency: 'INR';
+    feeMinor: number;
+  };
+  approval: {
+    scope: 'internal_canary_draft_only';
+    observationId: string;
+    observedAt: string;
+  };
+  externalAction: 'none';
+}
+
+interface BusinessArtifactUploadBody {
+  memberId: string;
+  directiveId: string;
+  idempotencyKey: string;
+  executionId: string;
+  runnerId: string;
+  hostIdentity: string;
+  claimId: string;
+  fencingToken: string;
+  attempt: number;
+  artifact: {
+    id: string;
+    fileName: string;
+    contentType: typeof BUSINESS_CONTENT_TYPE;
+    byteLength: number;
+    digest: string;
+    bytes: Uint8Array;
+  };
+  workflowId: 'thoughtseed.legal.service-agreement.draft.v1';
+  gsdTaskId: string;
+  approvalState: 'awaiting_human_approval';
+  synthetic: true;
+  externalAction: 'none';
+  policies: {
+    contentPolicyId: string;
+    contentPolicyDigest: string;
+    rendererPolicyId: string;
+    rendererPolicyDigest: string;
+    fallbackPolicy: 'fail_closed';
+  };
+}
+
+function exactKeys(value: Record<string, unknown>, expected: string[]): boolean {
+  const actual = Object.keys(value).sort();
+  return actual.length === expected.length && actual.every((key, index) => key === [...expected].sort()[index]);
+}
+
+function canonicalIso(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const time = Date.parse(value);
+  return Number.isFinite(time) && new Date(time).toISOString() === value;
+}
+
+function safeBusinessText(value: unknown, max: number): value is string {
+  return typeof value === 'string'
+    && value.trim() === value
+    && value.length > 0
+    && value.length <= max
+    && !/[\u0000-\u001F\u007F]/.test(value);
+}
+
+function safeBusinessList(value: unknown, min: number, max: number, itemMax: number): value is string[] {
+  return Array.isArray(value)
+    && value.length >= min
+    && value.length <= max
+    && value.every((item) => safeBusinessText(item, itemMax));
+}
+
+function parseServiceAgreementDraftInput(value: unknown): ServiceAgreementDraftInput | null {
+  if (!isRecord(value) || !exactKeys(value, [
+    'schema', 'workflowId', 'tenantId', 'projectId', 'clientId', 'gsdTaskId', 'synthetic',
+    'intent', 'documentKind', 'clientDisplayName', 'projectName', 'projectSummary', 'engagementType',
+    'currency', 'feeMinor', 'deliverables', 'outOfScope', 'approval', 'externalAction',
+  ])) return null;
+  if (value.schema !== 'thoughtseed.legal.service_agreement_draft_input.v1'
+    || value.workflowId !== 'thoughtseed.legal.service-agreement.draft.v1'
+    || value.tenantId !== 'thoughtseed'
+    || value.synthetic !== true
+    || value.documentKind !== 'service_agreement'
+    || value.clientDisplayName !== 'Thoughtseed Systems Test Client'
+    || value.engagementType !== 'fixed_price'
+    || value.currency !== 'INR'
+    || value.externalAction !== 'none') return null;
+  for (const key of ['projectId', 'clientId', 'gsdTaskId']) {
+    if (typeof value[key] !== 'string' || !BUSINESS_SAFE_ID.test(value[key])) return null;
+  }
+  if (!safeBusinessText(value.intent, 240) || BUSINESS_EXTERNAL_ACTION_RE.test(value.intent)) return null;
+  if (!safeBusinessText(value.projectName, 120) || !safeBusinessText(value.projectSummary, 600)) return null;
+  if (!Number.isSafeInteger(value.feeMinor) || Number(value.feeMinor) < 100 || Number(value.feeMinor) > 10_000_000_000) return null;
+  if (!safeBusinessList(value.deliverables, 1, 8, 180) || !safeBusinessList(value.outOfScope, 1, 8, 180)) return null;
+  if (!isRecord(value.approval) || !exactKeys(value.approval, ['scope', 'observationId', 'observedAt'])) return null;
+  if (value.approval.scope !== 'internal_canary_draft_only'
+    || typeof value.approval.observationId !== 'string'
+    || !BUSINESS_SAFE_ID.test(value.approval.observationId)
+    || !canonicalIso(value.approval.observedAt)) return null;
+  return value as unknown as ServiceAgreementDraftInput;
+}
+
+function parseBusinessTaskIntake(value: unknown): { intake?: BusinessTaskIntake; error?: string; code?: string } {
+  if (!isRecord(value)) return { error: 'invalid business task intake' };
+  if (typeof value.intent === 'string' && BUSINESS_EXTERNAL_ACTION_RE.test(value.intent)) {
+    return { error: 'external action is forbidden for this business slice', code: 'external_action_forbidden' };
+  }
+  if (!exactKeys(value, [
+    'schema', 'source', 'action', 'memberId', 'idempotencyKey', 'synthetic', 'intent',
+    'project', 'commercial', 'approval', 'externalAction',
+  ])) return { error: 'invalid business task intake' };
+  if (value.schema !== 'thoughtseed.business_task_intake.v1'
+    || (value.source !== 'temperance-operator' && value.source !== 'hermes-telegram-operator')
+    || value.action !== 'service_agreement.draft.render'
+    || value.synthetic !== true
+    || value.externalAction !== 'none'
+    || typeof value.memberId !== 'string'
+    || !VALID_TENANT.test(value.memberId)
+    || typeof value.idempotencyKey !== 'string'
+    || !BUSINESS_SAFE_ID.test(value.idempotencyKey)
+    || !safeBusinessText(value.intent, 240)) return { error: 'invalid business task intake' };
+  if (!isRecord(value.project) || !exactKeys(value.project, [
+    'tenantId', 'projectId', 'clientId', 'clientDisplayName', 'projectName', 'projectSummary', 'deliverables', 'outOfScope',
+  ])) return { error: 'invalid business project contract' };
+  if (value.project.tenantId !== 'thoughtseed'
+    || value.project.clientDisplayName !== 'Thoughtseed Systems Test Client'
+    || typeof value.project.projectId !== 'string'
+    || !BUSINESS_SAFE_ID.test(value.project.projectId)
+    || typeof value.project.clientId !== 'string'
+    || !BUSINESS_SAFE_ID.test(value.project.clientId)
+    || !safeBusinessText(value.project.projectName, 120)
+    || !safeBusinessText(value.project.projectSummary, 600)
+    || !safeBusinessList(value.project.deliverables, 1, 8, 180)
+    || !safeBusinessList(value.project.outOfScope, 1, 8, 180)) return { error: 'invalid business project contract' };
+  if (!isRecord(value.commercial) || !exactKeys(value.commercial, ['engagementType', 'currency', 'feeMinor'])
+    || value.commercial.engagementType !== 'fixed_price'
+    || value.commercial.currency !== 'INR'
+    || !Number.isSafeInteger(value.commercial.feeMinor)
+    || Number(value.commercial.feeMinor) < 100
+    || Number(value.commercial.feeMinor) > 10_000_000_000) return { error: 'invalid business commercial contract' };
+  if (!isRecord(value.approval) || !exactKeys(value.approval, ['scope', 'observationId', 'observedAt'])
+    || value.approval.scope !== 'internal_canary_draft_only'
+    || typeof value.approval.observationId !== 'string'
+    || !BUSINESS_SAFE_ID.test(value.approval.observationId)
+    || !canonicalIso(value.approval.observedAt)) return { error: 'invalid business approval contract' };
+  return { intake: value as unknown as BusinessTaskIntake };
+}
+
+function parseBusinessArtifactUpload(value: unknown): BusinessArtifactUploadBody | null {
+  if (!isRecord(value) || !exactKeys(value, [
+    'schema', 'memberId', 'directiveId', 'idempotencyKey', 'executionId', 'runnerId', 'hostIdentity',
+    'claimId', 'fencingToken', 'attempt', 'artifact', 'workflowId', 'gsdTaskId', 'approvalState',
+    'synthetic', 'externalAction', 'policies',
+  ])) return null;
+  if (value.schema !== 'thoughtseed.hermes.business_artifact_upload.v1'
+    || typeof value.memberId !== 'string' || !VALID_TENANT.test(value.memberId)
+    || !executionText(value.directiveId)
+    || !executionText(value.idempotencyKey)
+    || !executionText(value.executionId, EXECUTION_ID)
+    || !executionText(value.runnerId, EXECUTION_OWNER)
+    || !executionText(value.hostIdentity, EXECUTION_OWNER)
+    || !executionText(value.claimId)
+    || !executionText(value.fencingToken)
+    || !Number.isSafeInteger(value.attempt) || Number(value.attempt) < 1
+    || value.workflowId !== 'thoughtseed.legal.service-agreement.draft.v1'
+    || typeof value.gsdTaskId !== 'string' || !BUSINESS_SAFE_ID.test(value.gsdTaskId)
+    || value.approvalState !== 'awaiting_human_approval'
+    || value.synthetic !== true
+    || value.externalAction !== 'none') return null;
+  if (!isRecord(value.artifact) || !exactKeys(value.artifact, [
+    'id', 'fileName', 'contentType', 'byteLength', 'digest', 'base64',
+  ])) return null;
+  if (typeof value.artifact.id !== 'string' || !BUSINESS_SAFE_ID.test(value.artifact.id)
+    || !safeBusinessText(value.artifact.fileName, 240) || !value.artifact.fileName.endsWith('.docx')
+    || value.artifact.contentType !== BUSINESS_CONTENT_TYPE
+    || !Number.isSafeInteger(value.artifact.byteLength)
+    || Number(value.artifact.byteLength) < 1
+    || Number(value.artifact.byteLength) > 2_000_000
+    || typeof value.artifact.digest !== 'string' || !SHA256_DIGEST.test(value.artifact.digest)
+    || typeof value.artifact.base64 !== 'string'
+    || value.artifact.base64.length > 2_700_000
+    || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value.artifact.base64)) return null;
+  let bytes: Uint8Array;
+  try {
+    const binary = atob(value.artifact.base64);
+    bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  } catch {
+    return null;
+  }
+  if (bytes.byteLength !== value.artifact.byteLength) return null;
+  if (!isRecord(value.policies) || !exactKeys(value.policies, [
+    'contentPolicyId', 'contentPolicyDigest', 'rendererPolicyId', 'rendererPolicyDigest', 'fallbackPolicy',
+  ])) return null;
+  if (value.policies.contentPolicyId !== BUSINESS_CONTENT_POLICY_ID
+    || value.policies.contentPolicyDigest !== BUSINESS_CONTENT_POLICY_DIGEST
+    || value.policies.rendererPolicyId !== BUSINESS_RENDERER_POLICY_ID
+    || value.policies.rendererPolicyDigest !== BUSINESS_RENDERER_POLICY_DIGEST
+    || value.policies.fallbackPolicy !== 'fail_closed') return null;
+  return {
+    memberId: value.memberId,
+    directiveId: value.directiveId as string,
+    idempotencyKey: value.idempotencyKey as string,
+    executionId: value.executionId as string,
+    runnerId: value.runnerId as string,
+    hostIdentity: value.hostIdentity as string,
+    claimId: value.claimId as string,
+    fencingToken: value.fencingToken as string,
+    attempt: Number(value.attempt),
+    artifact: {
+      id: value.artifact.id,
+      fileName: value.artifact.fileName,
+      contentType: BUSINESS_CONTENT_TYPE,
+      byteLength: Number(value.artifact.byteLength),
+      digest: value.artifact.digest,
+      bytes,
+    },
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    gsdTaskId: value.gsdTaskId,
+    approvalState: 'awaiting_human_approval',
+    synthetic: true,
+    externalAction: 'none',
+    policies: {
+      contentPolicyId: value.policies.contentPolicyId,
+      contentPolicyDigest: value.policies.contentPolicyDigest,
+      rendererPolicyId: value.policies.rendererPolicyId,
+      rendererPolicyDigest: value.policies.rendererPolicyDigest,
+      fallbackPolicy: 'fail_closed',
+    },
+  };
+}
+
+function sameBusinessReceipt(left: BridgeBusinessArtifactReceipt | undefined, right: BridgeBusinessArtifactReceipt | undefined): boolean {
+  return Boolean(left && right && canonicalJson(left) === canonicalJson(right));
+}
 
 function executionText(value: unknown, pattern = EXECUTION_SAFE_ID): string | null {
   return typeof value === 'string' && pattern.test(value) ? value : null;
@@ -544,6 +932,33 @@ function executionClaimBody(value: unknown): Omit<BridgeExecutionClaimInput, 'cl
   const hostIdentity = executionText(value.hostIdentity, EXECUTION_OWNER);
   if (!memberId || !directiveId || !idempotencyKey || !executionId || !runnerId || !hostIdentity) return null;
   return { memberId, directiveId, idempotencyKey, executionId, runnerId, hostIdentity };
+}
+
+function parseBusinessArtifactReceipt(value: unknown): BridgeBusinessArtifactReceipt | null {
+  if (!isRecord(value) || !exactKeys(value, [
+    'schema', 'artifactId', 'businessTaskId', 'gsdTaskId', 'executionId', 'directiveId', 'memberId',
+    'digest', 'byteLength', 'contentType', 'r2Key', 'contentPolicyId', 'contentPolicyDigest',
+    'rendererPolicyId', 'rendererPolicyDigest', 'approvalState', 'synthetic', 'externalAction',
+  ])) return null;
+  if (value.schema !== 'thoughtseed.business_artifact_receipt.v1'
+    || typeof value.artifactId !== 'string' || !BUSINESS_SAFE_ID.test(value.artifactId)
+    || typeof value.businessTaskId !== 'string' || !BUSINESS_SAFE_ID.test(value.businessTaskId)
+    || typeof value.gsdTaskId !== 'string' || !BUSINESS_SAFE_ID.test(value.gsdTaskId)
+    || typeof value.executionId !== 'string' || !EXECUTION_ID.test(value.executionId)
+    || typeof value.directiveId !== 'string' || !BUSINESS_SAFE_ID.test(value.directiveId)
+    || typeof value.memberId !== 'string' || !VALID_TENANT.test(value.memberId)
+    || typeof value.digest !== 'string' || !SHA256_DIGEST.test(value.digest)
+    || !Number.isSafeInteger(value.byteLength) || Number(value.byteLength) < 1 || Number(value.byteLength) > 2_000_000
+    || value.contentType !== BUSINESS_CONTENT_TYPE
+    || typeof value.r2Key !== 'string' || !value.r2Key.startsWith('business-artifacts/thoughtseed/')
+    || value.contentPolicyId !== BUSINESS_CONTENT_POLICY_ID
+    || value.contentPolicyDigest !== BUSINESS_CONTENT_POLICY_DIGEST
+    || value.rendererPolicyId !== BUSINESS_RENDERER_POLICY_ID
+    || value.rendererPolicyDigest !== BUSINESS_RENDERER_POLICY_DIGEST
+    || value.approvalState !== 'awaiting_human_approval'
+    || value.synthetic !== true
+    || value.externalAction !== 'none') return null;
+  return value as unknown as BridgeBusinessArtifactReceipt;
 }
 
 function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput, 'attestationDigest' | 'recordedAt'> | null {
@@ -589,13 +1004,19 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
     || rawAttestation.idempotencyKey !== idempotencyKey
     || attestationRunnerId !== runnerId
     || attestationHostIdentity !== hostIdentity
-    || rawAttestation.command !== 'canary.record'
+    || (rawAttestation.command !== 'canary.record' && rawAttestation.command !== 'service_agreement.draft.render')
     || rawAttestation.status !== status) return null;
   const exitCode: 0 | 1 | null = status === 'executed' ? 0 : status === 'failed' ? 1 : null;
   if (rawAttestation.exitCode !== exitCode) return null;
+  const businessReceipt = rawAttestation.businessReceipt === undefined
+    ? undefined
+    : parseBusinessArtifactReceipt(rawAttestation.businessReceipt);
+  if (rawAttestation.businessReceipt !== undefined && !businessReceipt) return null;
   if (status === 'executed' && (!outputDigest || errorCode !== undefined)) return null;
-  if (status === 'failed' && (outputDigest !== undefined || !errorCode)) return null;
-  if (status === 'retryable' && (outputDigest !== undefined || !errorCode)) return null;
+  if ((status === 'failed' || status === 'retryable') && (outputDigest !== undefined || !errorCode || businessReceipt !== undefined)) return null;
+  if (rawAttestation.command === 'service_agreement.draft.render') {
+    if (status === 'executed' && (!businessReceipt || businessReceipt.digest !== outputDigest)) return null;
+  } else if (businessReceipt !== undefined) return null;
   return {
     memberId,
     directiveId,
@@ -615,11 +1036,12 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
       idempotencyKey,
       runnerId,
       hostIdentity,
-      command: 'canary.record',
+      command: rawAttestation.command,
       status,
       exitCode,
       inputDigest,
       ...(outputDigest ? { outputDigest } : {}),
+      ...(businessReceipt ? { businessReceipt } : {}),
       ...(errorCode ? { errorCode } : {}),
       startedAt: startedAt!,
       finishedAt: finishedAt!,
@@ -631,33 +1053,36 @@ function nativeExecutionContract(
   directive: Record<string, unknown> | null,
   memberId: string,
   directiveId: string,
-): { idempotencyKey: string; input: { nonce: string } } | null {
+): NativeExecutionContract | null {
   if (!directive || (directive.memberId !== undefined && directive.memberId !== memberId)) return null;
   const payload = isRecord(directive.payload) ? directive.payload : null;
   const target = payload && isRecord(payload.target) ? payload.target : null;
   const input = payload && isRecord(payload.input) ? payload.input : null;
   if (payload?.type !== 'native_execution'
     || payload.schema !== 'thoughtseed.hermes.native_execution.v1'
-    || payload.command !== 'canary.record'
     || target?.memberId !== memberId
-    || !input
-    || Object.keys(input).length !== 1
-    || typeof input.nonce !== 'string'
-    || !EXECUTION_NONCE.test(input.nonce)) return null;
+    || !input) return null;
   const idempotencyKey = directive.idempotencyKey === undefined
     ? directiveId
     : executionText(directive.idempotencyKey);
   if (!idempotencyKey) return null;
-  return {
-    idempotencyKey,
-    input: { nonce: input.nonce },
-  };
+  if (payload.command === 'canary.record'
+    && Object.keys(input).length === 1
+    && typeof input.nonce === 'string'
+    && EXECUTION_NONCE.test(input.nonce)) {
+    return { command: 'canary.record', idempotencyKey, input: { nonce: input.nonce } };
+  }
+  if (payload.command === 'service_agreement.draft.render') {
+    const businessInput = parseServiceAgreementDraftInput(input);
+    if (businessInput) return { command: 'service_agreement.draft.render', idempotencyKey, input: businessInput };
+  }
+  return null;
 }
 
 async function nativeExecutionIdentity(
   memberId: string,
   directiveId: string,
-  contract: { idempotencyKey: string; input: { nonce: string } },
+  contract: NativeExecutionContract,
 ): Promise<BridgeExecutionContractIdentity> {
   const inputDigest = `sha256:${await sha256hex(canonicalJson(contract.input))}`;
   const executionId = `exec_${(await sha256hex(canonicalJson({
@@ -669,29 +1094,48 @@ async function nativeExecutionIdentity(
 }
 
 function sameNativeExecutionContract(
-  left: { idempotencyKey: string; input: { nonce: string } },
-  right: { idempotencyKey: string; input: { nonce: string } },
+  left: NativeExecutionContract,
+  right: NativeExecutionContract,
 ): boolean {
-  return left.idempotencyKey === right.idempotencyKey && left.input.nonce === right.input.nonce;
+  return left.command === right.command
+    && left.idempotencyKey === right.idempotencyKey
+    && canonicalJson(left.input) === canonicalJson(right.input);
 }
 
 async function validExecutionAttestation(
-  contract: { idempotencyKey: string; input: { nonce: string } },
+  contract: NativeExecutionContract,
   outcome: Omit<BridgeExecutionOutcomeInput, 'attestationDigest' | 'recordedAt'>,
 ): Promise<boolean> {
   const expectedInputDigest = `sha256:${await sha256hex(canonicalJson(contract.input))}`;
   if (outcome.attestation.inputDigest !== expectedInputDigest) return false;
+  if (outcome.attestation.command !== contract.command) return false;
   if (outcome.status === 'executed') {
-    const proof = {
-      schema: 'thoughtseed.hermes.canary_proof.v1',
-      directiveId: outcome.directiveId,
-      idempotencyKey: outcome.idempotencyKey,
-      executionId: outcome.executionId,
-      command: 'canary.record',
-      inputDigest: expectedInputDigest,
-    };
-    const expectedOutputDigest = `sha256:${await sha256hex(canonicalJson(proof))}`;
-    if (outcome.attestation.outputDigest !== expectedOutputDigest) return false;
+    if (contract.command === 'canary.record') {
+      const proof = {
+        schema: 'thoughtseed.hermes.canary_proof.v1',
+        directiveId: outcome.directiveId,
+        idempotencyKey: outcome.idempotencyKey,
+        executionId: outcome.executionId,
+        command: 'canary.record',
+        inputDigest: expectedInputDigest,
+      };
+      const expectedOutputDigest = `sha256:${await sha256hex(canonicalJson(proof))}`;
+      if (outcome.attestation.outputDigest !== expectedOutputDigest) return false;
+    } else {
+      const receipt = outcome.attestation.businessReceipt;
+      const expectedArtifactId = `artifact_${(await sha256hex(`${contract.input.gsdTaskId}\u0000thoughtseed.hermes.native_execution.v1`)).slice(0, 32)}`;
+      if (!receipt
+        || receipt.artifactId !== expectedArtifactId
+        || receipt.businessTaskId !== contract.input.gsdTaskId
+        || receipt.gsdTaskId !== contract.input.gsdTaskId
+        || receipt.executionId !== outcome.executionId
+        || receipt.directiveId !== outcome.directiveId
+        || receipt.memberId !== outcome.memberId
+        || receipt.digest !== outcome.attestation.outputDigest
+        || receipt.approvalState !== 'awaiting_human_approval'
+        || receipt.synthetic !== true
+        || receipt.externalAction !== 'none') return false;
+    }
   }
   const { id: _id, ...identity } = outcome.attestation;
   const expectedId = `att_${(await sha256hex(canonicalJson(identity))).slice(0, 32)}`;
@@ -2173,6 +2617,219 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(200, result);
     }
 
+    if (method === 'POST' && routePath === '/v1/bridge/business-tasks') {
+      if (!principal.admin && !principal.assignmentOnly) {
+        return json(403, { error: 'only cofounders/Hermes may create business tasks' });
+      }
+      if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
+      let raw: unknown;
+      try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const parsed = parseBusinessTaskIntake(raw);
+      if (!parsed.intake) return json(400, { error: parsed.error, ...(parsed.code ? { code: parsed.code } : {}) });
+      const intake = parsed.intake;
+      const identityHash = await sha256hex(`thoughtseed.business_task_intake.v1\u0000${intake.idempotencyKey}`);
+      const gsdTaskId = `gsd-service-agreement-${identityHash.slice(0, 32)}`;
+      const directiveId = `business-service-agreement-${identityHash.slice(0, 32)}`;
+      const createdAt = nowIso();
+      const input: ServiceAgreementDraftInput = {
+        schema: 'thoughtseed.legal.service_agreement_draft_input.v1',
+        workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+        tenantId: 'thoughtseed',
+        projectId: intake.project.projectId,
+        clientId: intake.project.clientId,
+        gsdTaskId,
+        synthetic: true,
+        intent: intake.intent,
+        documentKind: 'service_agreement',
+        clientDisplayName: 'Thoughtseed Systems Test Client',
+        projectName: intake.project.projectName,
+        projectSummary: intake.project.projectSummary,
+        engagementType: 'fixed_price',
+        currency: 'INR',
+        feeMinor: intake.commercial.feeMinor,
+        deliverables: intake.project.deliverables,
+        outOfScope: intake.project.outOfScope,
+        approval: intake.approval,
+        externalAction: 'none',
+      };
+      const task: BridgeBusinessTaskRecord = {
+        businessTaskId: gsdTaskId,
+        gsdTaskId,
+        idempotencyKey: intake.idempotencyKey,
+        intentDigest: `sha256:${await sha256hex(canonicalJson(intake))}`,
+        directiveId,
+        directiveSchema: 'thoughtseed.hermes.native_execution.v1',
+        memberId: intake.memberId,
+        tenantId: 'thoughtseed',
+        projectId: intake.project.projectId,
+        clientId: intake.project.clientId,
+        workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+        status: 'queued',
+        request: intake as unknown as Record<string, unknown>,
+        approvalScope: 'internal_canary_draft_only',
+        approvalObservationId: intake.approval.observationId,
+        approvalObservedAt: intake.approval.observedAt,
+        synthetic: true,
+        externalAction: 'none',
+        createdAt,
+        updatedAt: createdAt,
+      };
+      const createResult = await deps.businessStore.createTask(task);
+      if (createResult === 'conflict') return json(409, { error: 'business task idempotency conflict' });
+      const directive = {
+        id: directiveId,
+        memberId: intake.memberId,
+        tenantId: 'thoughtseed',
+        idempotencyKey: intake.idempotencyKey,
+        direction: 'downstream',
+        delivered: false,
+        enqueuedAt: createdAt,
+        payload: {
+          type: 'native_execution',
+          schema: 'thoughtseed.hermes.native_execution.v1',
+          command: 'service_agreement.draft.render',
+          target: { memberId: intake.memberId },
+          input,
+        },
+      };
+      await bridgeStore.putDirectiveIfAbsent(intake.memberId, directiveId, directive);
+      const persisted = await bridgeStore.getDirective(intake.memberId, directiveId);
+      const contract = nativeExecutionContract(persisted, intake.memberId, directiveId);
+      if (!contract || contract.command !== 'service_agreement.draft.render'
+        || contract.idempotencyKey !== intake.idempotencyKey
+        || canonicalJson(contract.input) !== canonicalJson(input)) {
+        return json(409, { error: 'business directive identity conflict' });
+      }
+      return json(200, {
+        ok: true,
+        businessTaskId: gsdTaskId,
+        gsdTaskId,
+        directiveId,
+        status: (await deps.businessStore.getTask(gsdTaskId))?.status ?? 'queued',
+        ...(createResult === 'duplicate' ? { duplicate: true } : {}),
+      });
+    }
+
+    const businessTaskRead = routePath.match(/^\/v1\/bridge\/business-tasks\/([^/]+)$/);
+    if (method === 'GET' && businessTaskRead) {
+      if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
+      const taskId = decodeURIComponent(businessTaskRead[1]);
+      if (!BUSINESS_SAFE_ID.test(taskId)) return json(400, { error: 'invalid business task id' });
+      const task = await deps.businessStore.getTask(taskId);
+      if (!task) return json(404, { error: 'business task not found' });
+      if (!mayAct(task.memberId)) return json(403, { error: 'token not scoped to this business task' });
+      return json(200, { task });
+    }
+
+    const businessOperatorReceiptRead = routePath.match(
+      /^\/v1\/bridge\/business-tasks\/([^/]+)\/operator-receipt$/,
+    );
+    if (method === 'GET' && businessOperatorReceiptRead) {
+      if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
+      const taskId = decodeURIComponent(businessOperatorReceiptRead[1]);
+      if (!BUSINESS_SAFE_ID.test(taskId)) return json(400, { error: 'invalid business task id' });
+      const task = await deps.businessStore.getTask(taskId);
+      if (!task) return json(404, { error: 'business task not found' });
+      if (!principal.admin && !principal.assignmentOnly && principal.memberId !== task.memberId) {
+        return json(403, { error: 'token not scoped to this business task receipt' });
+      }
+      return json(200, {
+        ok: true,
+        schema: 'thoughtseed.business_task_operator_receipt.v1',
+        gsdTaskId: task.gsdTaskId,
+        workflowId: task.workflowId,
+        status: task.status,
+        synthetic: true,
+        externalAction: 'none',
+        updatedAt: task.updatedAt,
+        artifact: task.receipt ? {
+          artifactId: task.receipt.artifactId,
+          digest: task.receipt.digest,
+          byteLength: task.receipt.byteLength,
+          contentType: task.receipt.contentType,
+          approvalState: task.receipt.approvalState,
+        } : null,
+      });
+    }
+
+    const businessArtifactRead = routePath.match(/^\/v1\/bridge\/business-artifacts\/([^/]+)$/);
+    if (method === 'GET' && businessArtifactRead) {
+      if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
+      const taskId = decodeURIComponent(businessArtifactRead[1]);
+      if (!BUSINESS_SAFE_ID.test(taskId)) return json(400, { error: 'invalid business task id' });
+      const task = await deps.businessStore.getTask(taskId);
+      if (!task) return json(404, { error: 'business task not found' });
+      if (!mayAct(task.memberId)) return json(403, { error: 'token not scoped to this business task' });
+      const artifact = await deps.businessStore.getArtifact(taskId);
+      return artifact ? json(200, artifact) : json(404, { error: 'business artifact not found' });
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/executions/artifact') {
+      if (!deps.executionStore || !deps.businessStore) return json(503, { error: 'durable business execution stores unavailable' });
+      let raw: unknown;
+      try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const upload = parseBusinessArtifactUpload(raw);
+      if (!upload) return json(400, { error: 'invalid business artifact upload contract' });
+      if (!mayAct(upload.memberId)) return json(403, { error: 'token not scoped to this member' });
+      const task = await deps.businessStore.getTask(upload.gsdTaskId);
+      const directive = await bridgeStore.getDirective(upload.memberId, upload.directiveId);
+      const contract = nativeExecutionContract(directive, upload.memberId, upload.directiveId);
+      if (!task || !contract || contract.command !== 'service_agreement.draft.render'
+        || task.memberId !== upload.memberId
+        || task.directiveId !== upload.directiveId
+        || task.idempotencyKey !== upload.idempotencyKey
+        || task.gsdTaskId !== upload.gsdTaskId
+        || contract.idempotencyKey !== upload.idempotencyKey
+        || contract.input.gsdTaskId !== upload.gsdTaskId) {
+        return json(409, { error: 'business artifact execution contract mismatch' });
+      }
+      const identity = await nativeExecutionIdentity(upload.memberId, upload.directiveId, contract);
+      if (identity.executionId !== upload.executionId) return json(409, { error: 'business artifact execution identity mismatch' });
+      const active = await deps.executionStore.verifyActiveClaim({
+        memberId: upload.memberId,
+        directiveId: upload.directiveId,
+        idempotencyKey: upload.idempotencyKey,
+        executionId: upload.executionId,
+        runnerId: upload.runnerId,
+        hostIdentity: upload.hostIdentity,
+        claimId: upload.claimId,
+        fencingToken: upload.fencingToken,
+        attempt: upload.attempt,
+        observedAt: nowIso(),
+      });
+      if (!active) return json(409, { error: 'fencing_conflict', code: 'stale_fence' });
+      const digest = `sha256:${await sha256Bytes(upload.artifact.bytes)}`;
+      const expectedArtifactId = `artifact_${(await sha256hex(`${upload.gsdTaskId}\u0000thoughtseed.hermes.native_execution.v1`)).slice(0, 32)}`;
+      const expectedFileName = `Service_Agreement_${expectedArtifactId}_DRAFT.docx`;
+      const hasZipMagic = upload.artifact.bytes[0] === 0x50
+        && upload.artifact.bytes[1] === 0x4b
+        && upload.artifact.bytes[2] === 0x03
+        && upload.artifact.bytes[3] === 0x04;
+      if (digest !== upload.artifact.digest
+        || expectedArtifactId !== upload.artifact.id
+        || upload.artifact.fileName !== expectedFileName
+        || !hasZipMagic) {
+        return json(409, { error: 'business artifact digest or identity mismatch' });
+      }
+      const recordedAt = nowIso();
+      const result = await deps.businessStore.putArtifact({
+        task,
+        executionId: upload.executionId,
+        artifactId: upload.artifact.id,
+        digest,
+        byteLength: upload.artifact.byteLength,
+        contentType: upload.artifact.contentType,
+        fileName: upload.artifact.fileName,
+        bytes: upload.artifact.bytes,
+        contentPolicyId: upload.policies.contentPolicyId,
+        contentPolicyDigest: upload.policies.contentPolicyDigest,
+        rendererPolicyId: upload.policies.rendererPolicyId,
+        rendererPolicyDigest: upload.policies.rendererPolicyDigest,
+        recordedAt,
+      });
+      return json(200, result);
+    }
+
     if (method === 'POST' && routePath === '/v1/bridge/executions/claim') {
       if (!deps.executionStore) return json(503, { error: 'durable execution store unavailable' });
       let raw: unknown;
@@ -2204,6 +2861,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       });
       if (result.status === 'busy') return json(409, result);
       if (result.status === 'conflict') return json(409, { error: result.reason });
+      if (result.status === 'claimed' && contract.command === 'service_agreement.draft.render') {
+        if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
+        await deps.businessStore.markLeased(contract.input.gsdTaskId, identity.executionId, claimedAt);
+      }
       return json(200, result);
     }
 
@@ -2222,6 +2883,16 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!await validExecutionAttestation(contract, outcome)) {
         return json(409, { error: 'execution attestation verification failed' });
       }
+      if (contract.command === 'service_agreement.draft.render') {
+        if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
+        const task = await deps.businessStore.getTask(contract.input.gsdTaskId);
+        if (!task || task.executionId !== outcome.executionId) {
+          return json(409, { error: 'business task execution state mismatch' });
+        }
+        if (outcome.status === 'executed' && !sameBusinessReceipt(task.receipt, outcome.attestation.businessReceipt)) {
+          return json(409, { error: 'business artifact receipt is not durably stored' });
+        }
+      }
       const attestationDigest = `sha256:${await sha256hex(canonicalJson(outcome.attestation))}`;
       const result = await deps.executionStore.recordExecutionOutcome({
         ...outcome,
@@ -2232,6 +2903,13 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         return result.reason === 'fencing_conflict'
           ? json(409, { error: result.reason, code: 'stale_fence' })
           : json(409, { error: result.reason });
+      }
+      if (contract.command === 'service_agreement.draft.render') {
+        await deps.businessStore!.markOutcome(
+          contract.input.gsdTaskId,
+          outcome.status === 'executed' ? 'awaiting_human_approval' : outcome.status === 'failed' ? 'failed' : 'retrying',
+          nowIso(),
+        );
       }
       return json(200, {
         recorded: true,

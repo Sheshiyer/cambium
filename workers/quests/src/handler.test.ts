@@ -7,7 +7,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
-import { d1BridgeExecutionStore, d1BridgeStore, d1FabricLedgerStore } from './index.ts';
+import { d1BridgeBusinessTaskStore, d1BridgeExecutionStore, d1BridgeStore, d1FabricLedgerStore } from './index.ts';
 import type {
   FabricEvidenceCandidateRecord,
   FabricEvidenceReviewRecord,
@@ -402,11 +402,55 @@ function nativeExecutionHarness(now: () => string) {
   const sqliteD1 = new SqliteD1Database(db);
   const bridgeStore = d1BridgeStore(sqliteD1);
   const executionStore = d1BridgeExecutionStore(sqliteD1);
+  const r2Objects = new Map<string, { bytes: Uint8Array; customMetadata: Record<string, string> }>();
+  let r2Puts = 0;
+  const r2 = {
+    async get(key: string) {
+      const object = r2Objects.get(key);
+      if (!object) return null;
+      return {
+        key,
+        size: object.bytes.byteLength,
+        customMetadata: object.customMetadata,
+        async text() { return new TextDecoder().decode(object.bytes); },
+        async arrayBuffer() { return object.bytes.slice().buffer; },
+      };
+    },
+    async head(key: string) {
+      const object = r2Objects.get(key);
+      if (!object) return null;
+      return {
+        key,
+        size: object.bytes.byteLength,
+        customMetadata: object.customMetadata,
+        async text() { return ''; },
+        async arrayBuffer() { return object.bytes.slice().buffer; },
+      };
+    },
+    async put(key: string, value: Uint8Array, options?: { customMetadata?: Record<string, string> }) {
+      if (r2Objects.has(key)) return null;
+      r2Puts++;
+      const object = { bytes: value.slice(), customMetadata: { ...(options?.customMetadata ?? {}) } };
+      r2Objects.set(key, object);
+      return {
+        key,
+        size: object.bytes.byteLength,
+        customMetadata: object.customMetadata,
+        async text() { return new TextDecoder().decode(object.bytes); },
+        async arrayBuffer() { return object.bytes.slice().buffer; },
+      };
+    },
+  };
+  const businessStore = d1BridgeBusinessTaskStore(sqliteD1, r2);
   let uuidIndex = 0;
   return {
     db,
     bridgeStore,
     executionStore,
+    businessStore,
+    r2,
+    r2Objects,
+    r2Puts: () => r2Puts,
     deps: {
       kv: fakeKv(),
       bridgeToken: 'bridge',
@@ -417,6 +461,7 @@ function nativeExecutionHarness(now: () => string) {
       uuid: () => `native-${++uuidIndex}`,
       bridgeStore,
       executionStore,
+      businessStore,
     },
   };
 }
@@ -465,6 +510,36 @@ async function issueScopedMemberToken(
   }), deps);
   assert.equal(redeem.status, 200);
   return String(body(redeem).token);
+}
+
+function businessTaskIntake(overrides: Record<string, unknown> = {}) {
+  return {
+    schema: 'thoughtseed.business_task_intake.v1',
+    source: 'temperance-operator',
+    action: 'service_agreement.draft.render',
+    memberId: 'shesh',
+    idempotencyKey: 'service-agreement-system-canary-20260717',
+    synthetic: true,
+    intent: 'Create an internal service agreement draft for the Thoughtseed D1 lease canary',
+    project: {
+      tenantId: 'thoughtseed',
+      projectId: 'thoughtseed-system-canary',
+      clientId: 'synthetic-client',
+      clientDisplayName: 'Thoughtseed Systems Test Client',
+      projectName: 'Thoughtseed D1 Lease Canary',
+      projectSummary: 'A bounded proof connecting D1 leasing to Hermes, Temperance, DOCX rendering, durable storage, and authenticated readback.',
+      deliverables: ['One D1-leased task', 'One pinned service-agreement DOCX draft'],
+      outOfScope: ['External delivery or publication', 'Signature requests or legal commitment'],
+    },
+    commercial: { engagementType: 'fixed_price', currency: 'INR', feeMinor: 100000 },
+    approval: {
+      scope: 'internal_canary_draft_only',
+      observationId: 'approval_draft_canary_20260717',
+      observedAt: '2026-07-17T08:50:00.000Z',
+    },
+    externalAction: 'none',
+    ...overrides,
+  };
 }
 
 const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): SimpleRequest =>
@@ -7057,6 +7132,299 @@ test('bridge · admin queues and Paperclip acknowledges directives', async () =>
     headers: { authorization: 'Bearer bridge' },
   }), deps);
   assert.equal(body(afterAck).count, 0);
+});
+
+test('business slice · D1 lease renders one immutable task through authenticated artifact readback', async (t) => {
+  const now = '2026-07-17T09:00:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  const intake = businessTaskIntake();
+  const created = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(intake),
+  }), harness.deps);
+  assert.equal(created.status, 200, created.body);
+  const taskIdentity = body(created);
+  assert.equal(taskIdentity.status, 'queued');
+  assert.equal(taskIdentity.businessTaskId, taskIdentity.gsdTaskId);
+  assert.match(taskIdentity.gsdTaskId, /^gsd-service-agreement-[a-f0-9]{32}$/);
+
+  const replay = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(intake),
+  }), harness.deps);
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).duplicate, true);
+  assert.equal(body(replay).directiveId, taskIdentity.directiveId);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_business_tasks').get() as any).count, 1);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_directives WHERE id = ?').get(taskIdentity.directiveId) as any).count, 1);
+
+  const queuedOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer assign-only' } },
+  ), harness.deps);
+  assert.equal(queuedOperatorReceipt.status, 200);
+  assert.deepEqual(body(queuedOperatorReceipt), {
+    ok: true,
+    schema: 'thoughtseed.business_task_operator_receipt.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    status: 'queued',
+    synthetic: true,
+    externalAction: 'none',
+    updatedAt: now,
+    artifact: null,
+  });
+
+  const directive = await harness.bridgeStore.getDirective('shesh', taskIdentity.directiveId) as any;
+  assert.equal(directive.payload.command, 'service_agreement.draft.render');
+  assert.equal(directive.payload.input.gsdTaskId, taskIdentity.gsdTaskId);
+  const memberToken = await issueScopedMemberToken(harness.deps, 'shesh');
+  const otherToken = await issueScopedMemberToken(harness.deps, 'mathis');
+  const adminOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer bridge' } },
+  ), harness.deps);
+  assert.equal(adminOperatorReceipt.status, 200);
+  const memberOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: `Bearer ${memberToken}` } },
+  ), harness.deps);
+  assert.equal(memberOperatorReceipt.status, 200);
+  const claim = executionClaim({
+    directiveId: taskIdentity.directiveId,
+    idempotencyKey: intake.idempotencyKey,
+    executionId: testExecutionId('shesh', taskIdentity.directiveId, String(intake.idempotencyKey)),
+  });
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(claim),
+  }), harness.deps);
+  assert.equal(claimed.status, 200, claimed.body);
+  assert.equal(body(claimed).status, 'claimed');
+  assert.equal((harness.db.prepare('SELECT status FROM bridge_business_tasks').get() as any).status, 'leased');
+
+  const artifactBytes = Uint8Array.from([0x50, 0x4b, 0x03, 0x04, ...new TextEncoder().encode('synthetic-docx-canary')]);
+  const artifactDigest = `sha256:${createHash('sha256').update(artifactBytes).digest('hex')}`;
+  const artifactId = `artifact_${createHash('sha256')
+    .update(`${taskIdentity.gsdTaskId}\u0000thoughtseed.hermes.native_execution.v1`)
+    .digest('hex')
+    .slice(0, 32)}`;
+  const upload = {
+    schema: 'thoughtseed.hermes.business_artifact_upload.v1',
+    memberId: 'shesh',
+    directiveId: taskIdentity.directiveId,
+    idempotencyKey: intake.idempotencyKey,
+    executionId: claim.executionId,
+    runnerId: claim.runnerId,
+    hostIdentity: claim.hostIdentity,
+    claimId: body(claimed).claimId,
+    fencingToken: body(claimed).fencingToken,
+    attempt: body(claimed).attempt,
+    artifact: {
+      id: artifactId,
+      fileName: `Service_Agreement_${artifactId}_DRAFT.docx`,
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      byteLength: artifactBytes.byteLength,
+      digest: artifactDigest,
+      base64: Buffer.from(artifactBytes).toString('base64'),
+    },
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    approvalState: 'awaiting_human_approval',
+    synthetic: true,
+    externalAction: 'none',
+    policies: {
+      contentPolicyId: 'anthropic-skills:thoughtseed-contract-generator@1',
+      contentPolicyDigest: 'sha256:b34b87ac93681a9acb4127ebdeb3030eccf4f9b6e2f8119b21326fdf3ffe9a13',
+      rendererPolicyId: 'thoughtseed.docx.legal.a4.v1',
+      rendererPolicyDigest: 'sha256:ab11e39c744ac22dd6ee88b50f7fd275954ce4dd6bebd44590844b1f6ac6f453',
+      fallbackPolicy: 'fail_closed',
+    },
+  };
+  const staleUpload = structuredClone(upload);
+  staleUpload.fencingToken = 'fence_stale';
+  const stale = await handle(req('POST', '/v1/bridge/executions/artifact', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(staleUpload),
+  }), harness.deps);
+  assert.equal(stale.status, 409);
+  assert.equal(body(stale).code, 'stale_fence');
+  assert.equal(harness.r2Puts(), 0);
+
+  const stored = await handle(req('POST', '/v1/bridge/executions/artifact', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(upload),
+  }), harness.deps);
+  assert.equal(stored.status, 200, stored.body);
+  assert.equal(body(stored).stored, true);
+  assert.equal(body(stored).duplicate, false);
+  assert.equal(body(stored).receipt.digest, artifactDigest);
+  assert.equal(harness.r2Puts(), 1);
+
+  const duplicateArtifact = await handle(req('POST', '/v1/bridge/executions/artifact', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(upload),
+  }), harness.deps);
+  assert.equal(duplicateArtifact.status, 200);
+  assert.equal(body(duplicateArtifact).duplicate, true);
+  assert.equal(harness.r2Puts(), 1);
+
+  const forbiddenTaskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: `Bearer ${otherToken}` },
+  }), harness.deps);
+  assert.equal(forbiddenTaskRead.status, 403);
+  const assignmentRawTaskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: 'Bearer assign-only' },
+  }), harness.deps);
+  assert.equal(assignmentRawTaskRead.status, 403);
+  const assignmentRawArtifactRead = await handle(req('GET', `/v1/bridge/business-artifacts/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: 'Bearer assign-only' },
+  }), harness.deps);
+  assert.equal(assignmentRawArtifactRead.status, 403);
+  const forbiddenOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: `Bearer ${otherToken}` } },
+  ), harness.deps);
+  assert.equal(forbiddenOperatorReceipt.status, 403);
+  const taskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: `Bearer ${memberToken}` },
+  }), harness.deps);
+  assert.equal(taskRead.status, 200);
+  assert.equal(body(taskRead).task.status, 'artifact_stored');
+
+  const artifactRead = await handle(req('GET', `/v1/bridge/business-artifacts/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: `Bearer ${memberToken}` },
+  }), harness.deps);
+  assert.equal(artifactRead.status, 200);
+  assert.equal(body(artifactRead).receipt.digest, artifactDigest);
+  assert.deepEqual(Buffer.from(body(artifactRead).base64, 'base64'), Buffer.from(artifactBytes));
+
+  const receipt = body(stored).receipt;
+  const attestationIdentity = {
+    schema: 'thoughtseed.hermes.execution_attestation.v1',
+    executionId: claim.executionId,
+    directiveId: claim.directiveId,
+    idempotencyKey: claim.idempotencyKey,
+    runnerId: claim.runnerId,
+    hostIdentity: claim.hostIdentity,
+    command: 'service_agreement.draft.render',
+    status: 'executed',
+    exitCode: 0,
+    inputDigest: testDigestCanonical(directive.payload.input),
+    outputDigest: artifactDigest,
+    businessReceipt: receipt,
+    startedAt: now,
+    finishedAt: '2026-07-17T09:00:01.000Z',
+  };
+  const outcome = {
+    schema: 'thoughtseed.hermes.execution_outcome.v1',
+    memberId: 'shesh',
+    directiveId: claim.directiveId,
+    idempotencyKey: claim.idempotencyKey,
+    executionId: claim.executionId,
+    runnerId: claim.runnerId,
+    claimId: body(claimed).claimId,
+    fencingToken: body(claimed).fencingToken,
+    attempt: body(claimed).attempt,
+    status: 'executed',
+    attestation: {
+      ...attestationIdentity,
+      id: `att_${createHash('sha256').update(canonicalJson(attestationIdentity)).digest('hex').slice(0, 32)}`,
+    },
+  };
+  const recorded = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(outcome),
+  }), harness.deps);
+  assert.equal(recorded.status, 200, recorded.body);
+  assert.equal(body(recorded).terminal, true);
+  assert.equal((harness.db.prepare('SELECT status FROM bridge_business_tasks').get() as any).status, 'awaiting_human_approval');
+
+  const terminalOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer assign-only' } },
+  ), harness.deps);
+  assert.equal(terminalOperatorReceipt.status, 200);
+  assert.deepEqual(body(terminalOperatorReceipt), {
+    ok: true,
+    schema: 'thoughtseed.business_task_operator_receipt.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    status: 'awaiting_human_approval',
+    synthetic: true,
+    externalAction: 'none',
+    updatedAt: now,
+    artifact: {
+      artifactId,
+      digest: artifactDigest,
+      byteLength: artifactBytes.byteLength,
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      approvalState: 'awaiting_human_approval',
+    },
+  });
+
+  const ack = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify({ memberId: 'shesh', ids: [taskIdentity.directiveId] }),
+  }), harness.deps);
+  assert.equal(ack.status, 200);
+  assert.equal(body(ack).acked, 1);
+  assert.equal(harness.r2Objects.size, 1);
+});
+
+test('business slice · intake rejects external actions and unknown fields before D1 writes', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-17T09:10:00.000Z');
+  t.after(() => harness.db.close());
+  const external = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(businessTaskIntake({ intent: 'Send the agreement for signature' })),
+  }), harness.deps);
+  assert.equal(external.status, 400);
+  assert.equal(body(external).code, 'external_action_forbidden');
+  const unknown = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(businessTaskIntake({ arbitrary: 'forbidden' })),
+  }), harness.deps);
+  assert.equal(unknown.status, 400);
+  const memberToken = await issueScopedMemberToken(harness.deps, 'shesh');
+  const memberCreate = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(businessTaskIntake()),
+  }), harness.deps);
+  assert.equal(memberCreate.status, 403);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_business_tasks').get() as any).count, 0);
+  assert.equal(harness.r2Puts(), 0);
+});
+
+test('business slice · Telegram operator source is additive and remains synthetic-only', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-17T10:00:00.000Z');
+  t.after(() => harness.db.close());
+  const intake = businessTaskIntake({
+    source: 'hermes-telegram-operator',
+    memberId: 'hermes-runner',
+    idempotencyKey: 'telegram-service-agreement-canary-20260717-default',
+    approval: {
+      scope: 'internal_canary_draft_only',
+      observationId: 'approval_telegram_20260717_default',
+      observedAt: '2026-07-17T00:00:00.000Z',
+    },
+  });
+  const response = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(intake),
+  }), harness.deps);
+  assert.equal(response.status, 200, response.body);
+  const stored = await harness.businessStore.getTask(body(response).gsdTaskId);
+  assert.equal(stored?.request.source, 'hermes-telegram-operator');
+  assert.equal(stored?.memberId, 'hermes-runner');
+  assert.equal(stored?.synthetic, true);
+  assert.equal(stored?.externalAction, 'none');
 });
 
 test('bridge execution · scoped member claim is atomic and replays the winning lease', async (t) => {

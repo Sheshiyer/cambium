@@ -11,6 +11,10 @@ import {
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import type {
   BridgeAssignmentRecord,
+  BridgeBusinessArtifactReceipt,
+  BridgeBusinessArtifactUpload,
+  BridgeBusinessTaskRecord,
+  BridgeBusinessTaskStoreLike,
   BridgeExecutionClaimInput,
   BridgeExecutionClaimResult,
   BridgeExecutionContractIdentity,
@@ -360,6 +364,9 @@ function activeClaimBusy(row: BridgeExecutionRow, claimedAt: string): BridgeExec
 
 function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResult {
   const attestation = parseJsonRecord(row.attestation_json);
+  const command = attestation.command === 'canary.record' || attestation.command === 'service_agreement.draft.render'
+    ? attestation.command
+    : null;
   if ((row.outcome_status !== 'executed' && row.outcome_status !== 'failed')
     || attestation.schema !== 'thoughtseed.hermes.execution_attestation.v1'
     || typeof attestation.id !== 'string'
@@ -368,7 +375,7 @@ function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResul
     || typeof attestation.idempotencyKey !== 'string'
     || typeof attestation.runnerId !== 'string'
     || typeof attestation.hostIdentity !== 'string'
-    || attestation.command !== 'canary.record'
+    || !command
     || attestation.status !== row.outcome_status
     || attestation.executionId !== row.execution_id
     || attestation.directiveId !== row.directive_id
@@ -390,11 +397,14 @@ function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResul
     idempotencyKey: attestation.idempotencyKey,
     runnerId: attestation.runnerId,
     hostIdentity: attestation.hostIdentity,
-    command: 'canary.record' as const,
+    command,
     status: row.outcome_status,
     exitCode: attestation.exitCode as 0 | 1,
     inputDigest: attestation.inputDigest,
     ...(typeof attestation.outputDigest === 'string' ? { outputDigest: attestation.outputDigest } : {}),
+    ...(command === 'service_agreement.draft.render' && attestation.businessReceipt && typeof attestation.businessReceipt === 'object'
+      ? { businessReceipt: attestation.businessReceipt as BridgeBusinessArtifactReceipt }
+      : {}),
     ...(typeof attestation.errorCode === 'string' ? { errorCode: attestation.errorCode } : {}),
     startedAt: attestation.startedAt,
     finishedAt: attestation.finishedAt,
@@ -634,6 +644,344 @@ export function d1BridgeExecutionStore(db: D1DatabaseLike): BridgeExecutionStore
         identity.executionId,
       ).run();
       return (result.meta?.changes ?? 0) > 0;
+    },
+
+    async verifyActiveClaim(input) {
+      const row = await db.prepare(`
+        SELECT execution_id
+        FROM bridge_executions
+        WHERE member_id = ? AND directive_id = ? AND idempotency_key = ? AND execution_id = ?
+          AND runner_id = ? AND host_identity = ? AND claim_id = ? AND fencing_token = ?
+          AND attempt = ? AND terminal = 0 AND lease_expires_at > ?
+      `).bind(
+        input.memberId,
+        input.directiveId,
+        input.idempotencyKey,
+        input.executionId,
+        input.runnerId,
+        input.hostIdentity,
+        input.claimId,
+        input.fencingToken,
+        input.attempt,
+        input.observedAt,
+      ).first<{ execution_id: string }>();
+      return row?.execution_id === input.executionId;
+    },
+  };
+}
+
+interface BridgeBusinessTaskRow {
+  business_task_id: string;
+  gsd_task_id: string;
+  idempotency_key: string;
+  intent_digest: string;
+  directive_id: string;
+  directive_schema: 'thoughtseed.hermes.native_execution.v1';
+  member_id: string;
+  tenant_id: 'thoughtseed';
+  project_id: string;
+  client_id: string;
+  workflow_id: 'thoughtseed.legal.service-agreement.draft.v1';
+  status: BridgeBusinessTaskRecord['status'];
+  request_json: string;
+  approval_scope: 'internal_canary_draft_only';
+  approval_observation_id: string;
+  approval_observed_at: string;
+  synthetic: number;
+  external_action: 'none';
+  execution_id: string | null;
+  artifact_id: string | null;
+  artifact_digest: string | null;
+  artifact_byte_length: number | null;
+  artifact_content_type: string | null;
+  artifact_r2_key: string | null;
+  content_policy_id: string | null;
+  content_policy_digest: string | null;
+  renderer_policy_id: string | null;
+  renderer_policy_digest: string | null;
+  created_at: string;
+  updated_at: string;
+  terminal_at: string | null;
+}
+
+const BUSINESS_TASK_COLUMNS = `
+  business_task_id, gsd_task_id, idempotency_key, intent_digest, directive_id, directive_schema,
+  member_id, tenant_id, project_id, client_id, workflow_id, status, request_json, approval_scope,
+  approval_observation_id, approval_observed_at, synthetic, external_action, execution_id,
+  artifact_id, artifact_digest, artifact_byte_length, artifact_content_type, artifact_r2_key,
+  content_policy_id, content_policy_digest, renderer_policy_id, renderer_policy_digest,
+  created_at, updated_at, terminal_at
+`;
+
+async function businessTaskRow(db: D1DatabaseLike, businessTaskId: string): Promise<BridgeBusinessTaskRow | null> {
+  return db.prepare(`SELECT ${BUSINESS_TASK_COLUMNS} FROM bridge_business_tasks WHERE business_task_id = ?`)
+    .bind(businessTaskId)
+    .first<BridgeBusinessTaskRow>();
+}
+
+function businessReceiptFromRow(row: BridgeBusinessTaskRow): BridgeBusinessArtifactReceipt | undefined {
+  if (!row.execution_id || !row.artifact_id || !row.artifact_digest || !row.artifact_byte_length
+    || !row.artifact_content_type || !row.artifact_r2_key || !row.content_policy_id
+    || !row.content_policy_digest || !row.renderer_policy_id || !row.renderer_policy_digest) return undefined;
+  if (row.artifact_content_type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    throw new Error('business artifact content type is invalid');
+  }
+  return {
+    schema: 'thoughtseed.business_artifact_receipt.v1',
+    artifactId: row.artifact_id,
+    businessTaskId: row.business_task_id,
+    gsdTaskId: row.gsd_task_id,
+    executionId: row.execution_id,
+    directiveId: row.directive_id,
+    memberId: row.member_id,
+    digest: row.artifact_digest,
+    byteLength: row.artifact_byte_length,
+    contentType: row.artifact_content_type,
+    r2Key: row.artifact_r2_key,
+    contentPolicyId: row.content_policy_id,
+    contentPolicyDigest: row.content_policy_digest,
+    rendererPolicyId: row.renderer_policy_id,
+    rendererPolicyDigest: row.renderer_policy_digest,
+    approvalState: 'awaiting_human_approval',
+    synthetic: true,
+    externalAction: 'none',
+  };
+}
+
+function businessTaskFromRow(row: BridgeBusinessTaskRow): BridgeBusinessTaskRecord {
+  return {
+    businessTaskId: row.business_task_id,
+    gsdTaskId: row.gsd_task_id,
+    idempotencyKey: row.idempotency_key,
+    intentDigest: row.intent_digest,
+    directiveId: row.directive_id,
+    directiveSchema: row.directive_schema,
+    memberId: row.member_id,
+    tenantId: row.tenant_id,
+    projectId: row.project_id,
+    clientId: row.client_id,
+    workflowId: row.workflow_id,
+    status: row.status,
+    request: parseJsonRecord(row.request_json),
+    approvalScope: row.approval_scope,
+    approvalObservationId: row.approval_observation_id,
+    approvalObservedAt: row.approval_observed_at,
+    synthetic: true,
+    externalAction: 'none',
+    ...(row.execution_id ? { executionId: row.execution_id } : {}),
+    ...(businessReceiptFromRow(row) ? { receipt: businessReceiptFromRow(row) } : {}),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    ...(row.terminal_at ? { terminalAt: row.terminal_at } : {}),
+  };
+}
+
+function sameBusinessTaskIdentity(row: BridgeBusinessTaskRow, record: BridgeBusinessTaskRecord): boolean {
+  return row.business_task_id === record.businessTaskId
+    && row.gsd_task_id === record.gsdTaskId
+    && row.idempotency_key === record.idempotencyKey
+    && row.intent_digest === record.intentDigest
+    && row.directive_id === record.directiveId
+    && row.member_id === record.memberId
+    && row.tenant_id === record.tenantId
+    && row.project_id === record.projectId
+    && row.client_id === record.clientId
+    && row.workflow_id === record.workflowId;
+}
+
+async function digestBusinessBytes(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', bytes as unknown as BufferSource);
+  return `sha256:${[...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  }
+  return btoa(binary);
+}
+
+export function d1BridgeBusinessTaskStore(db: D1DatabaseLike, bucket: R2BucketLike): BridgeBusinessTaskStoreLike {
+  if (!bucket.put || !bucket.head) throw new Error('business artifact R2 binding is not writable');
+  return {
+    async createTask(record) {
+      const result = await db.prepare(`
+        INSERT OR IGNORE INTO bridge_business_tasks (
+          business_task_id, gsd_task_id, idempotency_key, intent_digest, directive_id, directive_schema,
+          member_id, tenant_id, project_id, client_id, workflow_id, status, request_json, approval_scope,
+          approval_observation_id, approval_observed_at, synthetic, external_action, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 'none', ?, ?)
+      `).bind(
+        record.businessTaskId,
+        record.gsdTaskId,
+        record.idempotencyKey,
+        record.intentDigest,
+        record.directiveId,
+        record.directiveSchema,
+        record.memberId,
+        record.tenantId,
+        record.projectId,
+        record.clientId,
+        record.workflowId,
+        record.status,
+        JSON.stringify(record.request),
+        record.approvalScope,
+        record.approvalObservationId,
+        record.approvalObservedAt,
+        record.createdAt,
+        record.updatedAt,
+      ).run();
+      if ((result.meta?.changes ?? 0) > 0) return 'created';
+      const existing = await db.prepare(`
+        SELECT ${BUSINESS_TASK_COLUMNS}
+        FROM bridge_business_tasks
+        WHERE business_task_id = ? OR gsd_task_id = ? OR idempotency_key = ? OR directive_id = ?
+        LIMIT 1
+      `).bind(record.businessTaskId, record.gsdTaskId, record.idempotencyKey, record.directiveId)
+        .first<BridgeBusinessTaskRow>();
+      return existing && sameBusinessTaskIdentity(existing, record) ? 'duplicate' : 'conflict';
+    },
+
+    async getTask(businessTaskId) {
+      const row = await businessTaskRow(db, businessTaskId);
+      return row ? businessTaskFromRow(row) : null;
+    },
+
+    async markLeased(businessTaskId, executionId, recordedAt) {
+      const result = await db.prepare(`
+        UPDATE bridge_business_tasks
+        SET status = 'leased', execution_id = ?, updated_at = ?
+        WHERE business_task_id = ?
+          AND status IN ('queued', 'leased', 'rendering', 'retrying')
+          AND (execution_id IS NULL OR execution_id = ?)
+      `).bind(executionId, recordedAt, businessTaskId, executionId).run();
+      if ((result.meta?.changes ?? 0) > 0) return;
+      const row = await businessTaskRow(db, businessTaskId);
+      if (!row || row.execution_id !== executionId
+        || !['artifact_stored', 'awaiting_human_approval'].includes(row.status)) {
+        throw new Error('business task lease transition conflict');
+      }
+    },
+
+    async putArtifact(input: BridgeBusinessArtifactUpload) {
+      const current = await businessTaskRow(db, input.task.businessTaskId);
+      if (!current || current.execution_id !== input.executionId) throw new Error('business artifact execution mismatch');
+      const r2Key = `business-artifacts/thoughtseed/${input.task.gsdTaskId}/${input.artifactId}.docx`;
+      const receipt: BridgeBusinessArtifactReceipt = {
+        schema: 'thoughtseed.business_artifact_receipt.v1',
+        artifactId: input.artifactId,
+        businessTaskId: input.task.businessTaskId,
+        gsdTaskId: input.task.gsdTaskId,
+        executionId: input.executionId,
+        directiveId: input.task.directiveId,
+        memberId: input.task.memberId,
+        digest: input.digest,
+        byteLength: input.byteLength,
+        contentType: input.contentType,
+        r2Key,
+        contentPolicyId: input.contentPolicyId,
+        contentPolicyDigest: input.contentPolicyDigest,
+        rendererPolicyId: input.rendererPolicyId,
+        rendererPolicyDigest: input.rendererPolicyDigest,
+        approvalState: 'awaiting_human_approval',
+        synthetic: true,
+        externalAction: 'none',
+      };
+      const existingReceipt = businessReceiptFromRow(current);
+      if (existingReceipt) {
+        if (JSON.stringify(existingReceipt) !== JSON.stringify(receipt)) throw new Error('business artifact identity conflict');
+        const head = await bucket.head!(r2Key);
+        if (!head || head.size !== input.byteLength || head.customMetadata?.digest !== input.digest) {
+          throw new Error('business artifact receipt exists without matching R2 object');
+        }
+        return { stored: true, duplicate: true, receipt };
+      }
+
+      let stored = false;
+      try {
+        const object = await bucket.put!(r2Key, input.bytes, {
+          onlyIf: { etagDoesNotMatch: '*' },
+          httpMetadata: { contentType: input.contentType },
+          customMetadata: {
+            digest: input.digest,
+            artifactId: input.artifactId,
+            businessTaskId: input.task.businessTaskId,
+            executionId: input.executionId,
+          },
+        });
+        stored = object !== null;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!/precondition|412/i.test(message)) throw error;
+      }
+      if (!stored) {
+        const head = await bucket.head!(r2Key);
+        if (!head || head.size !== input.byteLength || head.customMetadata?.digest !== input.digest) {
+          throw new Error('business artifact create-if-absent conflict');
+        }
+      }
+
+      const updated = await db.prepare(`
+        UPDATE bridge_business_tasks
+        SET status = 'artifact_stored', artifact_id = ?, artifact_digest = ?, artifact_byte_length = ?,
+          artifact_content_type = ?, artifact_r2_key = ?, content_policy_id = ?, content_policy_digest = ?,
+          renderer_policy_id = ?, renderer_policy_digest = ?, updated_at = ?
+        WHERE business_task_id = ? AND execution_id = ? AND artifact_id IS NULL
+      `).bind(
+        input.artifactId,
+        input.digest,
+        input.byteLength,
+        input.contentType,
+        r2Key,
+        input.contentPolicyId,
+        input.contentPolicyDigest,
+        input.rendererPolicyId,
+        input.rendererPolicyDigest,
+        input.recordedAt,
+        input.task.businessTaskId,
+        input.executionId,
+      ).run();
+      if ((updated.meta?.changes ?? 0) === 0) {
+        const raced = await businessTaskRow(db, input.task.businessTaskId);
+        const racedReceipt = raced ? businessReceiptFromRow(raced) : undefined;
+        if (!racedReceipt || JSON.stringify(racedReceipt) !== JSON.stringify(receipt)) {
+          throw new Error('business artifact D1 identity conflict');
+        }
+        return { stored: true, duplicate: true, receipt };
+      }
+      return { stored: true, duplicate: !stored, receipt };
+    },
+
+    async markOutcome(businessTaskId, status, recordedAt) {
+      const terminalAt = status === 'retrying' ? null : recordedAt;
+      const result = await db.prepare(`
+        UPDATE bridge_business_tasks
+        SET status = ?, updated_at = ?, terminal_at = ?
+        WHERE business_task_id = ?
+          AND (
+            (? = 'awaiting_human_approval' AND artifact_id IS NOT NULL)
+            OR (? = 'retrying' AND terminal_at IS NULL)
+            OR (? = 'failed' AND artifact_id IS NULL)
+          )
+      `).bind(status, recordedAt, terminalAt, businessTaskId, status, status, status).run();
+      if ((result.meta?.changes ?? 0) > 0) return;
+      const row = await businessTaskRow(db, businessTaskId);
+      if (!row || row.status !== status) throw new Error('business task outcome transition conflict');
+    },
+
+    async getArtifact(businessTaskId) {
+      const row = await businessTaskRow(db, businessTaskId);
+      if (!row) return null;
+      const receipt = businessReceiptFromRow(row);
+      if (!receipt) return null;
+      const object = await bucket.get(receipt.r2Key);
+      if (!object?.arrayBuffer) throw new Error('business artifact R2 object is unreadable');
+      const bytes = new Uint8Array(await object.arrayBuffer());
+      if (bytes.byteLength !== receipt.byteLength || await digestBusinessBytes(bytes) !== receipt.digest) {
+        throw new Error('business artifact R2 readback digest mismatch');
+      }
+      return { receipt, base64: bytesToBase64(bytes) };
     },
   };
 }
@@ -928,6 +1276,9 @@ export default {
       roleTaskBindingsJson: env.HERMES_ROLE_TASK_BINDINGS_JSON,
       bridgeStore: env.BRIDGE_DB ? d1BridgeStore(env.BRIDGE_DB) : undefined,
       executionStore: env.BRIDGE_DB ? d1BridgeExecutionStore(env.BRIDGE_DB) : undefined,
+      businessStore: env.BRIDGE_DB && env.THOUGHTSEED_VAULT
+        ? d1BridgeBusinessTaskStore(env.BRIDGE_DB, env.THOUGHTSEED_VAULT)
+        : undefined,
       fabricLedger: env.BRIDGE_DB ? d1FabricLedgerStore(env.BRIDGE_DB) : undefined,
       handoffSecret: env.HANDOFF_SECRET,
       providerBroker,
