@@ -239,7 +239,6 @@ export const PAGE = `<!doctype html>
   /* ── inspect proof map — Telegram density ───── */
 	  @keyframes spin{to{transform:rotate(360deg)}}
 	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
-	  @keyframes orbitSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 	  @keyframes packetDrift{0%{transform:translateX(-8%);opacity:.42}50%{opacity:.95}100%{transform:translateX(8%);opacity:.5}}
 	  @keyframes glyphBreathe{0%,100%{transform:scale(1);opacity:.86}50%{transform:scale(1.035);opacity:1}}
 	  @keyframes warningAttention{0%{border-color:rgba(248,181,96,.42)}45%{border-color:rgba(248,181,96,.86)}100%{border-color:rgba(248,181,96,.5)}}
@@ -294,8 +293,8 @@ export const PAGE = `<!doctype html>
 	  .mc-state-token.is-stale{border-color:rgba(248,181,96,.36);color:var(--mc-warn)}
 	  .mc-state-token.is-locked{opacity:.66}
 	  .mc-orbit{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--mc-line-strong);display:grid;place-items:center;color:var(--mc-chartreuse);font:10px var(--mono);background:radial-gradient(circle,rgba(1,47,52,.96) 0 52%,transparent 53%),conic-gradient(currentColor calc(var(--mc-progress,0) * 1%),rgba(214,255,246,.08) 0)}
-	  .mc-orbit::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(224,255,79,.24);border-left-color:transparent;pointer-events:none}
-	  .mc-orbit[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.4);border-left-color:transparent;animation:orbitSweep 4.8s var(--ease) infinite}
+	  .mc-orbit::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(224,255,79,.24);pointer-events:none}
+	  .mc-orbit.is-active::after{border-color:rgba(224,255,79,.4)}
 	  .mc-orbit.is-complete::after{border-color:rgba(224,255,79,.48)}
 	  .mc-orbit.is-blocked,.mc-orbit.is-proof-needed,.mc-orbit.is-stale{color:var(--mc-warn);border-color:rgba(248,181,96,.44);background:radial-gradient(circle,rgba(1,47,52,.96) 0 52%,transparent 53%),conic-gradient(currentColor calc(var(--mc-progress,0) * 1%),rgba(248,181,96,.11) 0)}
 	  .mc-orbit.is-proof-needed::after{border-style:dotted;border-color:rgba(248,181,96,.5)}
@@ -304,7 +303,6 @@ export const PAGE = `<!doctype html>
 	  .mc-orbit .mc-packet-dots{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);min-height:6px;gap:3px;animation:none}
 	  .mc-selected-halo{position:relative;box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
 	  .mc-selected-halo::after{content:"";position:absolute;inset:3px;border-radius:inherit;border:1px solid rgba(224,255,79,.22);pointer-events:none}
-	  .mc-selected-halo[data-motion="orbitSweep"]::after{border-color:rgba(224,255,79,.22);animation:none}
 	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
 	  .mc-signal-rail.is-active{border-color:rgba(224,255,79,.34)}
 	  .mc-signal-rail.is-blocked,.mc-signal-rail.is-proof-needed{border-color:rgba(248,181,96,.42);border-style:dashed}
@@ -597,7 +595,7 @@ export const PAGE = `<!doctype html>
 
 	  @media (prefers-reduced-motion: reduce){
 	    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-	    .mc-orbit::after,.mc-orbit[data-motion="orbitSweep"]::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
+	    .mc-orbit::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
 	  }
 </style>
 </head>
@@ -711,7 +709,7 @@ const MC_COMPONENT_REGISTRY = Object.freeze({
   ProofList:['proof-needed','blocked','stale'],
   KpiPulse:['survival','better-than-survival'],
   GateActionRow:['review-gate','open-proof'],
-  Motion:['orbitSweep','packetDrift','glyphBreathe','warningAttention','reducedMotion']
+  Motion:['staticOrbit','packetDrift','glyphBreathe','warningAttention','reducedMotion']
 });
 const MC_GLYPH_SVG = {
   genesis:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 3.8 19.5 11.2 27.4 8.8 23.8 16 27.4 23.2 19.5 20.8 16 28.2 12.5 20.8 4.6 23.2 8.2 16 4.6 8.8 12.5 11.2Z"/><path d="M16 6.8 18.1 12.6 24.2 12.1 19.4 16 24.2 19.9 18.1 19.4 16 25.2 13.9 19.4 7.8 19.9 12.6 16 7.8 12.1 13.9 12.6Z"/><circle class="mc-core" cx="16" cy="16" r="2.1"/><path class="mc-soft" d="M7 27c4.2-.6 6.8-.6 9.2.1 2.8.8 5.2.7 8.8-.4"/></svg>',
@@ -761,10 +759,9 @@ function mcOrbitProgress(opts){
   const value = Math.max(0, Math.min(100, Number(opts && opts.value) || 0));
   const label = opts && opts.label ? opts.label : value + '%';
   const kind = mcStateKind(opts && opts.state);
-  const motion = kind === 'active' && !RM ? ' data-motion="orbitSweep" data-motion-primitive="orbitSweep"' : '';
   const packets = opts && opts.showPacketDots ? mcPacketDots(opts.packetCount || 3, kind, { mode:'orbit' }) : '';
   const aria = (opts && opts.ariaLabel) || ('progress ' + label + ' · ' + kind);
-  return '<span class="' + mcClass('mc-orbit', kind) + '" data-component="OrbitProgress" data-state="' + esc(kind) + '" data-value="' + value + '"' + motion + ' role="img" aria-label="' + esc(aria) + '" style="--mc-progress:' + value + '"><span class="mc-orbit-label">' + esc(label) + '</span>' + packets + '</span>';
+  return '<span class="' + mcClass('mc-orbit', kind) + '" data-component="OrbitProgress" data-state="' + esc(kind) + '" data-value="' + value + '" role="img" aria-label="' + esc(aria) + '" style="--mc-progress:' + value + '"><span class="mc-orbit-label">' + esc(label) + '</span>' + packets + '</span>';
 }
 function mcSignalRail(opts){
   const kind = mcStateKind(opts && opts.state);
@@ -888,7 +885,7 @@ function renderComponentMissionComponentsBoard(){
 }
 function renderComponentMotionBoard(){
   const motions = [
-    ['orbitSweep','Orbit Sweep', [mcOrbitProgress({ value: 25, state: 'active', label: '25' }), mcOrbitProgress({ value: 50, state: 'active', label: '50' }), mcOrbitProgress({ value: 75, state: 'proof-needed', label: '75' })]],
+    ['staticOrbit','Static Orbit', [mcOrbitProgress({ value: 25, state: 'active', label: '25' }), mcOrbitProgress({ value: 50, state: 'active', label: '50' }), mcOrbitProgress({ value: 75, state: 'proof-needed', label: '75' })]],
     ['packetDrift','Packet Drift', [mcSignalRail({ state: 'idle', packetCount: 4 }), mcSignalRail({ state: 'active', packetCount: 6 }), mcSignalRail({ state: 'blocked', packetCount: 3 })]],
     ['glyphBreathe','Glyph Breathe', [mcGlyphSvg('genesis', 'active', { motion:'glyphBreathe' }), mcGlyphSvg('taste', 'selected'), mcGlyphSvg('gate', 'blocked')]],
     ['warningAttention','Warning Attention', [mcStateToken('proof-needed', 'proof'), mcStateToken('blocked', 'blocked'), mcStateToken('stale', 'stale')]],
