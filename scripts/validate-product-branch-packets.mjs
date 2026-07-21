@@ -178,6 +178,34 @@ function normalizeControlValue(value) {
   return value.trim().replace(/^`|`$/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 }
 
+const LOOP_BOUNDARY_COLORS = new Set(['green', 'yellow', 'red']);
+
+function validateLoopControlRows({ source, packetFile }) {
+  const { rows } = parseSectionTable(source, 'Loop Control Inputs');
+  rows.forEach((row, index) => {
+    const rowLabel = `${packetFile}: Loop Control Inputs row ${index + 1}`;
+    const color = normalizeControlValue(row.boundary_color || '');
+    if (!LOOP_BOUNDARY_COLORS.has(color)) {
+      throw new Error(`${rowLabel} has invalid boundary_color "${row.boundary_color}"`);
+    }
+
+    const stateFile = String(row.state_file || '').trim();
+    if (!stateFile.startsWith('.operator/branch-loops/') || stateFile.includes('..') || stateFile.includes('\\')) {
+      throw new Error(`${rowLabel} has unsafe state_file "${stateFile}"`);
+    }
+
+    const oneChangeRule = String(row.one_change_rule || '').toLowerCase();
+    if (!oneChangeRule.includes('exactly one')) {
+      throw new Error(`${rowLabel} one_change_rule must include "exactly one"`);
+    }
+
+    const stopRule = String(row.stop_rule || '').trim();
+    if (!/stop/i.test(stopRule)) {
+      throw new Error(`${rowLabel} stop_rule must describe when to stop`);
+    }
+  });
+}
+
 function validateControlTables({ source, packetFile, schema }) {
   for (const table of schema.required_control_tables || []) {
     const { headers, rows } = parseSectionTable(source, table.section);
@@ -225,6 +253,7 @@ function validatePacket({ packetFile, schema, row }) {
   }
 
   validateControlTables({ source, packetFile, schema });
+  validateLoopControlRows({ source, packetFile });
 }
 
 function validateRequiredProducts(schema, rows) {
