@@ -138,7 +138,7 @@
       "licenseStatus": "project-owned-device-capture",
       "approvalStatus": "docs-only",
       "sizePolicy": "docs-reference-image",
-      "notes": "Real Telegram WebView screenshots for the device-artifact proof gate; the JSON artifact stores only SHA256 hashes of user id, initData, and the screenshot file — no raw credentials, raw user ids, or raw Telegram initData are committed."
+      "notes": "Real Telegram WebView screenshots for the device-artifact proof gate; the JSON artifact stores only SHA256 hashes of user id, initData, and the screenshot file \u2014 no raw credentials, raw user ids, or raw Telegram initData are committed."
     },
     {
       "id": "tg-miniapp-mission-control-reference-pack",
@@ -166,6 +166,18 @@
       "approvalStatus": "docs-only",
       "sizePolicy": "docs-reference-image",
       "notes": "Planning and QA evidence for visual review; not runtime data."
+    },
+    {
+      "id": "constellation-ui-reference",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/constellation-ui-reference/*.png"
+      ],
+      "source": "AI-generated UI direction references (gpt-image-2 via Codex OAuth) anchored on the canonical mission-control source sheets",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Direction references for the constellation convergence plan; not pixel-parity gates, not runtime data."
     }
   ]
 }
