@@ -4,6 +4,15 @@ import { MINI_APP_MAP_SUBSECTIONS, type MiniAppMapSubsection } from '../../../..
 import { SceneSheet } from './SceneSheet.tsx';
 import { KNOWLEDGE_SECTIONS } from './knowledge-model.ts';
 import {
+  clearIdentity,
+  founderIdentity,
+  loadIdentity,
+  roleBadge,
+  saveIdentity,
+  type Identity,
+} from './identity-model.ts';
+import { loadEnvelope } from './envelope-loader.ts';
+import {
   DEFAULT_SETTINGS,
   loadSettings,
   saveSettings,
@@ -11,7 +20,6 @@ import {
 } from './settings-model.ts';
 import {
   HUD_MODES,
-  WORKFORCE_SHEET_ROWS,
   islandSheetRows,
   subsectionSheetRows,
   type HudMode,
@@ -56,12 +64,23 @@ function instrumentTone(item: ScenePanel | EngineControl | VisualizationLayer | 
   return 'kind' in item ? item.kind : item.tone;
 }
 
+function extractInviteToken(raw: string): string {
+  const trimmed = raw.trim();
+  const match = trimmed.match(/[?&]token=([^&#]+)/);
+  return match ? decodeURIComponent(match[1]!) : trimmed;
+}
+
 export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange }: SceneHudProps) {
   const focusedNode = scene.nodes.find((node) => node.id === scene.activeScreen.focusNode) ?? scene.nodes.find((node) => node.state === 'active') ?? scene.nodes[0];
   const isReferenceOverview = scene.activeScreen.id === scene.overviewArtDirection.routeId;
   const [hudMode, setHudMode] = useState<HudMode>(readHudModeFromHash);
   const [sheet, setSheet] = useState<OpenSheet | null>(null);
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings(window.localStorage));
+  const [identity, setIdentity] = useState<Identity | null>(() => loadIdentity(window.localStorage));
+  const [inviteToken, setInviteToken] = useState('');
+  const [inviteStatus, setInviteStatus] = useState<string | null>(null);
+  const [envelopeStatus, setEnvelopeStatus] = useState<'idle' | 'live' | 'unconfigured' | 'offline' | 'bad-status'>('idle');
+  const [liveSubsections, setLiveSubsections] = useState<readonly MiniAppMapSubsection[] | null>(null);
   const [knowledgeIndex, setKnowledgeIndex] = useState(0);
   const cameraBeforeSheet = useRef<CameraMode | null>(null);
 
@@ -69,6 +88,12 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
     setSettings(next);
     saveSettings(next, window.localStorage);
     document.documentElement.dataset.reducedMotion = next.reducedMotion;
+  };
+
+  const applyIdentity = (next: Identity | null) => {
+    setIdentity(next);
+    if (next) saveIdentity(next, window.localStorage);
+    else clearIdentity(window.localStorage);
   };
 
   useEffect(() => {
@@ -91,15 +116,76 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
     { id: 'settings-note', label: 'NOTE', value: 'motion + camera apply live; tenant + worker wire in C4', tone: 'mist' },
   ];
 
+  const identityRows = (): readonly SheetRowModel[] => {
+    const rows: SheetRowModel[] = identity
+      ? [
+          { id: 'identity-badge', label: 'BADGE', value: roleBadge(identity).label, tone: roleBadge(identity).tone },
+          { id: 'identity-via', label: 'VIA', value: identity.via, tone: 'mist' },
+        ]
+      : [{ id: 'identity-state', label: 'STATE', value: 'no identity — founder local or invite below', tone: 'depth' }];
+    if (!settings.workerBaseUrl) {
+      rows.push({ id: 'worker-missing', label: 'WORKER URL', value: 'not configured — open settings', tone: 'depth' });
+    }
+    if (inviteStatus) {
+      rows.push({ id: 'invite-status', label: 'INVITE', value: inviteStatus, tone: 'signal' });
+    }
+    return rows;
+  };
+
+  const workforceRows = (): readonly SheetRowModel[] => {
+    if (!identity) {
+      return [
+        { id: 'workforce-state', label: 'STATE', value: 'no identity — sign in via the IDENTITY chip', tone: 'depth' },
+      ];
+    }
+    const principal = identity.principal;
+    return [
+      { id: 'principal-id', label: 'PRINCIPAL', value: principal.id, tone: 'signal' },
+      { id: 'principal-role', label: 'ROLE', value: principal.role, tone: 'mist' },
+      { id: 'principal-via', label: 'VIA', value: identity.via, tone: 'mist' },
+      { id: 'principal-allow', label: 'ALLOW', value: principal.allow.length ? principal.allow.join(' · ') : 'all', tone: 'depth' },
+      { id: 'principal-expires', label: 'EXPIRES', value: principal.expiresAt ?? 'never', tone: 'mist' },
+      { id: 'workforce-next', label: 'NEXT', value: 'principal constellation + invite issuing land after worker deploy (C4b)', tone: 'depth' },
+    ];
+  };
+
+  const verifyInvite = async () => {
+    if (!settings.workerBaseUrl) {
+      setInviteStatus('WORKER URL not configured — open settings');
+      return;
+    }
+    const token = extractInviteToken(inviteToken);
+    if (!token) {
+      setInviteStatus('paste an invite link or token');
+      return;
+    }
+    try {
+      const base = settings.workerBaseUrl.trim().replace(/\/+$/, '');
+      const response = await fetch(`${base}/v1/invites/verify?token=${encodeURIComponent(token)}`);
+      const body = (await response.json()) as { ok?: boolean; reason?: string; principal?: Identity['principal'] };
+      if (response.ok && body.ok && body.principal) {
+        applyIdentity({ principal: body.principal, via: 'invite' });
+        setInviteToken('');
+        setInviteStatus(null);
+        closeSheet();
+      } else {
+        setInviteStatus(body.reason ?? `verify failed (${response.status})`);
+      }
+    } catch {
+      setInviteStatus('worker unreachable');
+    }
+  };
+
   const subsectionGroups = useMemo(() => {
+    const source = liveSubsections ?? MINI_APP_MAP_SUBSECTIONS;
     const groups = new Map<string, MiniAppMapSubsection[]>();
-    for (const subsection of MINI_APP_MAP_SUBSECTIONS) {
+    for (const subsection of source) {
       const bucket = groups.get(subsection.target) ?? [];
       bucket.push(subsection);
       groups.set(subsection.target, bucket);
     }
     return [...groups.entries()];
-  }, []);
+  }, [liveSubsections]);
 
   const openSheet = (next: OpenSheet) => {
     if (!sheet) cameraBeforeSheet.current = cameraMode;
@@ -117,11 +203,30 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
     setHudMode(mode);
     writeHudModeToHash(mode);
     if (mode === 'workforce') {
-      openSheet({ title: 'WORKFORCE', kicker: 'PRINCIPALS · PLACEHOLDER', rows: WORKFORCE_SHEET_ROWS });
+      openSheet({ title: 'WORKFORCE', kicker: identity ? 'PRINCIPALS · LIVE' : 'PRINCIPALS · SIGN IN', rows: workforceRows() });
     } else {
       closeSheet();
     }
   };
+
+  useEffect(() => {
+    if (hudMode !== 'sheets') return;
+    let cancelled = false;
+    loadEnvelope(settings, identity).then((result) => {
+      if (cancelled) return;
+      if (result.ok) {
+        const subsections = result.envelope.surface?.subsections;
+        setLiveSubsections(subsections && subsections.length ? subsections : null);
+        setEnvelopeStatus('live');
+      } else {
+        setLiveSubsections(null);
+        setEnvelopeStatus(result.reason);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [hudMode, settings, identity]);
 
   useEffect(() => {
     if (!sheet) return;
@@ -175,6 +280,18 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
             title="Cycle knowledge sections"
           >
             guide
+          </button>
+          <button
+            type="button"
+            data-tone={identity ? roleBadge(identity).tone : 'depth'}
+            aria-pressed={sheet?.title === 'IDENTITY'}
+            onClick={() =>
+              sheet?.title === 'IDENTITY'
+                ? closeSheet()
+                : openSheet({ title: 'IDENTITY', kicker: identity ? 'ACCESS · SIGNED IN' : 'ACCESS · SIGN IN', rows: identityRows() })
+            }
+          >
+            {identity ? roleBadge(identity).label : 'sign in'}
           </button>
         </div>
         <div className="telemetry-line" aria-label="Process telemetry">
@@ -244,6 +361,17 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
 
       {hudMode === 'sheets' ? (
         <section className={`sheet-browser${sheet ? ' hud-layer--dimmed' : ''}`} aria-label="Map subsection sheets">
+          {envelopeStatus === 'unconfigured' ? (
+            <div className="instrument-line" data-tone="depth">
+              <span>ENVELOPE</span>
+              <strong>worker not configured</strong>
+            </div>
+          ) : envelopeStatus === 'offline' || envelopeStatus === 'bad-status' ? (
+            <div className="instrument-line" data-tone="depth">
+              <span>ENVELOPE</span>
+              <strong>offline — showing static contract</strong>
+            </div>
+          ) : null}
           {subsectionGroups.map(([target, subsections]) => (
             <div key={target} className="sheet-browser__group">
               <span className="hud-kicker">{target.toUpperCase()}</span>
@@ -270,7 +398,12 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
       ) : null}
 
       {sheet ? (
-        <SceneSheet title={sheet.title} kicker={sheet.kicker} rows={sheet.rows} onClose={closeSheet}>
+        <SceneSheet
+          title={sheet.title}
+          kicker={sheet.kicker}
+          rows={sheet.title === 'IDENTITY' ? identityRows() : sheet.title === 'WORKFORCE' ? workforceRows() : sheet.rows}
+          onClose={closeSheet}
+        >
           {sheet.title === 'SETTINGS' ? (
             <section className="camera-dial" aria-label="Live settings">
               {(['system', 'on', 'off'] as const).map((option) => (
@@ -296,6 +429,41 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
                   cam:{option}
                 </button>
               ))}
+            </section>
+          ) : null}
+          {sheet.title === 'IDENTITY' ? (
+            <section className="camera-dial" aria-label="Sign in options">
+              <button
+                type="button"
+                onClick={() => {
+                  applyIdentity(founderIdentity(settings.tenant));
+                  setInviteStatus(null);
+                  closeSheet();
+                }}
+              >
+                continue as founder (local)
+              </button>
+              <input
+                type="text"
+                aria-label="Invite link or token"
+                placeholder="invite link or token"
+                value={inviteToken}
+                onChange={(event) => setInviteToken(event.target.value)}
+              />
+              <button type="button" onClick={() => void verifyInvite()}>
+                verify
+              </button>
+              {identity ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    applyIdentity(null);
+                    setInviteStatus(null);
+                  }}
+                >
+                  sign out
+                </button>
+              ) : null}
             </section>
           ) : null}
         </SceneSheet>

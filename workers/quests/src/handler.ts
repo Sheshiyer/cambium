@@ -14,6 +14,7 @@ import type { GithubCommandExecutor, GithubCommandResult } from './github-comman
 import { isGithubWriteCommand, validateGithubCommand } from './github-command.ts';
 import { MINI_APP_SECTIONS, MINI_APP_MAP_SUBSECTIONS } from './mini-app-surface-contract.ts';
 import { filterSections, filterSubsections, type Principal } from './rbac.ts';
+import { createInvite as createConsultantInvite, verifyInvite as verifyConsultantInvite } from './invites.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
   id: 'anonymous-founder',
@@ -174,6 +175,7 @@ export interface HandlerDeps {
   bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
   fabricLedger?: FabricLedgerStoreLike; // Cambium-owned interpreted Fabric task/event ledger
   handoffSecret?: string;      // Worker secret HANDOFF_SECRET — signs invite links (unset → handoff 503)
+  inviteSecret?: string;
   providerBroker?: ProviderBrokerConfig; // Worker secrets for hosted provider proxying (unset → provider lane 503s)
   contextRoutes?: ContextRouteDeps; // Optional bounded context route providers (unset → context lane 503s)
   githubCommand?: GithubCommandExecutor; // Optional GitHub repo/issue command executor for Hermes manual commands.
@@ -227,6 +229,7 @@ const b64urlToBytes = (s: string): Uint8Array => {
 const TEXT = new TextEncoder();
 const TOKEN_TTL_MS = 30 * 24 * 3600 * 1000;   // per-member token: 30d → monthly rotation
 const INVITE_TTL_MS = 7 * 24 * 3600 * 1000;   // invite link: 7d to redeem
+const INVITE_MAX_TTL_MS = 30 * 24 * 3600 * 1000;
 const b64urlFromBytes = (bytes: Uint8Array): string => {
   let s = ''; for (const b of bytes) s += String.fromCharCode(b);
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -1317,6 +1320,12 @@ function tenantOf(path: string, prefix: string): string | null {
   return VALID_TENANT.test(rest) ? rest : null;
 }
 
+function queryParam(path: string, key: string): string | undefined {
+  const queryStart = path.indexOf('?');
+  if (queryStart < 0) return undefined;
+  return new URLSearchParams(path.slice(queryStart + 1)).get(key) ?? undefined;
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
@@ -1456,12 +1465,63 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(404, { error: `no Fabric route for ${method} ${path}` });
   }
 
+  if (method === 'GET' && routePath === '/v1/invites/verify') {
+    if (!deps.inviteSecret) return json(503, { error: 'invite secret not configured on the worker' });
+    const token = queryParam(path, 'token');
+    if (!token) return json(400, { error: 'missing token' });
+    const result = verifyConsultantInvite(token, deps.inviteSecret, new Date(deps.nowMs ? deps.nowMs() : Date.now()));
+    if (!result.ok) return json(401, { ok: false, reason: result.reason });
+    return json(200, { ok: true, principal: result.principal });
+  }
+
+  if (method === 'POST' && routePath.startsWith('/v1/invites/')) {
+    const tenant = tenantOf(path, '/v1/invites/');
+    if (!tenant) return json(400, { error: 'bad tenant' });
+    if (!deps.pushToken) return json(503, { error: 'push token not configured on the worker' });
+    const auth = req.headers['authorization'] ?? '';
+    if (auth !== `Bearer ${deps.pushToken}`) return json(401, { error: 'bad or missing bearer' });
+    if (!deps.inviteSecret) return json(503, { error: 'invite secret not configured on the worker' });
+    let inviteBody: any;
+    try { inviteBody = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+    if (!isRecord(inviteBody)) return json(400, { error: 'invite body must be an object' });
+    if (!Array.isArray(inviteBody.allow) || !inviteBody.allow.every((v: unknown) => typeof v === 'string')) {
+      return json(400, { error: 'allow must be a string array' });
+    }
+    const createdBy = typeof inviteBody.createdBy === 'string' ? inviteBody.createdBy.trim() : '';
+    if (!createdBy) return json(400, { error: 'createdBy must be a non-empty string' });
+    let ttlMs = INVITE_TTL_MS;
+    if (inviteBody.ttlMs !== undefined) {
+      if (typeof inviteBody.ttlMs !== 'number' || !Number.isFinite(inviteBody.ttlMs) || inviteBody.ttlMs <= 0) {
+        return json(400, { error: 'ttlMs must be a positive number' });
+      }
+      if (inviteBody.ttlMs > INVITE_MAX_TTL_MS) return json(400, { error: 'ttlMs exceeds the 30 day cap' });
+      ttlMs = inviteBody.ttlMs;
+    }
+    const { token, principal } = createConsultantInvite({
+      tenant,
+      allow: inviteBody.allow,
+      createdBy,
+      ttlMs,
+      now: new Date(deps.nowMs ? deps.nowMs() : Date.now()),
+      secret: deps.inviteSecret,
+    });
+    return json(200, { token, principal, inviteUrl: `/app?invite=${token}` });
+  }
+
   if (method === 'GET' && routePath.startsWith('/api/quests/')) {
     const tenant = tenantOf(path, '/api/quests/');
     if (!tenant) return json(400, { error: 'bad tenant' });
     // M3 isolation suite is green — gate open to all valid tenants
     const stored = await deps.kv.get(ledgerKey(tenant));
     if (!stored) return json(404, { error: `no ledger pushed yet for "${tenant}" — run: quine write quests push --tenant ${tenant}` });
+    const inviteToken = queryParam(path, 'invite');
+    if (inviteToken) {
+      if (!deps.inviteSecret) return json(503, { error: 'invite secret not configured on the worker' });
+      const result = verifyConsultantInvite(inviteToken, deps.inviteSecret, new Date(deps.nowMs ? deps.nowMs() : Date.now()));
+      if (!result.ok) return json(401, { error: result.reason === 'expired' ? 'invite expired' : 'invite invalid' });
+      if (result.principal.tenant !== tenant) return json(403, { error: 'invite tenant mismatch' });
+      return { status: 200, headers: { ...JSON_HEADERS }, body: surfaceScopedQuestBody(stored, result.principal) };
+    }
     const principal = resolveSurfacePrincipal(req);
     if (!principal) {
       return { status: 200, headers: { ...JSON_HEADERS }, body: publicQuestBody(stored) };
