@@ -2,6 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Coolshape } from 'coolshapes-react';
 import { MINI_APP_MAP_SUBSECTIONS, type MiniAppMapSubsection } from '../../../../shared/mini-app-surface-contract.ts';
 import { SceneSheet } from './SceneSheet.tsx';
+import { KNOWLEDGE_SECTIONS } from './knowledge-model.ts';
+import {
+  DEFAULT_SETTINGS,
+  loadSettings,
+  saveSettings,
+  type AppSettings,
+} from './settings-model.ts';
 import {
   HUD_MODES,
   WORKFORCE_SHEET_ROWS,
@@ -54,7 +61,35 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
   const isReferenceOverview = scene.activeScreen.id === scene.overviewArtDirection.routeId;
   const [hudMode, setHudMode] = useState<HudMode>(readHudModeFromHash);
   const [sheet, setSheet] = useState<OpenSheet | null>(null);
+  const [settings, setSettings] = useState<AppSettings>(() => loadSettings(window.localStorage));
+  const [knowledgeIndex, setKnowledgeIndex] = useState(0);
   const cameraBeforeSheet = useRef<CameraMode | null>(null);
+
+  const applySettings = (next: AppSettings) => {
+    setSettings(next);
+    saveSettings(next, window.localStorage);
+    document.documentElement.dataset.reducedMotion = next.reducedMotion;
+  };
+
+  useEffect(() => {
+    document.documentElement.dataset.reducedMotion = settings.reducedMotion;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const openKnowledgeSheet = (index: number) => {
+    const section = KNOWLEDGE_SECTIONS[index];
+    if (!section) return;
+    setKnowledgeIndex(index);
+    openSheet({ title: section.title.toUpperCase(), kicker: section.kicker, rows: section.rows });
+  };
+
+  const settingsRows = (): readonly SheetRowModel[] => [
+    { id: 'reduced-motion', label: 'REDUCED MOTION', value: settings.reducedMotion, tone: 'signal' },
+    { id: 'default-camera', label: 'DEFAULT CAMERA', value: settings.defaultCamera, tone: 'mist' },
+    { id: 'tenant', label: 'TENANT', value: settings.tenant, tone: 'depth' },
+    { id: 'worker-url', label: 'WORKER URL', value: settings.workerBaseUrl || 'not configured', tone: settings.workerBaseUrl ? 'signal' : 'depth' },
+    { id: 'settings-note', label: 'NOTE', value: 'motion + camera apply live; tenant + worker wire in C4', tone: 'mist' },
+  ];
 
   const subsectionGroups = useMemo(() => {
     const groups = new Map<string, MiniAppMapSubsection[]>();
@@ -124,6 +159,23 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
               {mode}
             </button>
           ))}
+        </div>
+        <div className="mode-pill" role="group" aria-label="App tools">
+          <button
+            type="button"
+            aria-pressed={sheet?.title === 'SETTINGS'}
+            onClick={() => (sheet?.title === 'SETTINGS' ? closeSheet() : openSheet({ title: 'SETTINGS', kicker: 'APP · LIVE', rows: settingsRows() }))}
+          >
+            settings
+          </button>
+          <button
+            type="button"
+            aria-pressed={sheet?.title === KNOWLEDGE_SECTIONS[knowledgeIndex]?.title.toUpperCase()}
+            onClick={() => openKnowledgeSheet(sheet ? (knowledgeIndex + 1) % KNOWLEDGE_SECTIONS.length : 0)}
+            title="Cycle knowledge sections"
+          >
+            guide
+          </button>
         </div>
         <div className="telemetry-line" aria-label="Process telemetry">
           <span>{scene.telemetry.progressLabel}</span>
@@ -218,7 +270,35 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
       ) : null}
 
       {sheet ? (
-        <SceneSheet title={sheet.title} kicker={sheet.kicker} rows={sheet.rows} onClose={closeSheet} />
+        <SceneSheet title={sheet.title} kicker={sheet.kicker} rows={sheet.rows} onClose={closeSheet}>
+          {sheet.title === 'SETTINGS' ? (
+            <section className="camera-dial" aria-label="Live settings">
+              {(['system', 'on', 'off'] as const).map((option) => (
+                <button
+                  key={`motion-${option}`}
+                  type="button"
+                  aria-pressed={settings.reducedMotion === option}
+                  onClick={() => applySettings({ ...settings, reducedMotion: option })}
+                >
+                  motion:{option}
+                </button>
+              ))}
+              {(['overview', 'node', 'flat'] as const).map((option) => (
+                <button
+                  key={`camera-${option}`}
+                  type="button"
+                  aria-pressed={settings.defaultCamera === option}
+                  onClick={() => {
+                    applySettings({ ...settings, defaultCamera: option });
+                    onCameraModeChange(option);
+                  }}
+                >
+                  cam:{option}
+                </button>
+              ))}
+            </section>
+          ) : null}
+        </SceneSheet>
       ) : null}
     </>
   );

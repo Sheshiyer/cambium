@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react';
 import type { SheetRowModel } from './scene-data.ts';
 import type { MiniAppSectionId } from '../../../../shared/mini-app-surface-contract.ts';
 
 export interface SceneSheetProps {
+  children?: ReactNode;
   title: string;
   kicker: string;
   rows: readonly SheetRowModel[];
@@ -9,7 +11,7 @@ export interface SceneSheetProps {
   onClose?: () => void;
 }
 
-export function SceneSheet({ title, kicker, rows, sectionId, onClose }: SceneSheetProps) {
+export function SceneSheet({ title, kicker, rows, sectionId, onClose, children }: SceneSheetProps) {
   return (
     <aside
       className="diegetic-readout scene-sheet"
@@ -35,6 +37,7 @@ export function SceneSheet({ title, kicker, rows, sectionId, onClose }: SceneShe
             </div>
           ))}
         </div>
+        {children}
       </div>
     </aside>
   );

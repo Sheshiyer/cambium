@@ -617,3 +617,28 @@ p {
   outline: 2px solid #d6fff6;
   outline-offset: -2px;
 }
+
+/* settings-model: reduced-motion override from the SETTINGS sheet */
+:root[data-reduced-motion='on'] * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+:root[data-reduced-motion='off'] * {
+  animation-duration: revert !important;
+  animation-iteration-count: revert !important;
+  transition-duration: revert !important;
+}
+
+/* settings controls inside a sheet: static flow, not the floating dial */
+.scene-sheet .camera-dial {
+  position: static;
+  width: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.scene-sheet .camera-dial button {
+  flex: 1 1 30%;
+}
