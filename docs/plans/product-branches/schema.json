@@ -59,6 +59,23 @@
   ],
   "required_control_tables": [
     {
+      "section": "Loop Control Inputs",
+      "min_rows": 1,
+      "required_columns": [
+        "loop_id",
+        "title",
+        "cadence",
+        "objective",
+        "metric",
+        "boundary_color",
+        "one_change_rule",
+        "state_file",
+        "stop_rule",
+        "model_route",
+        "proof_required"
+      ]
+    },
+    {
       "section": "Branch Story Controls",
       "min_rows": 6,
       "required_columns": [

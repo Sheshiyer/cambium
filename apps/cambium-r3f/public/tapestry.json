@@ -1,0 +1,53 @@
+{
+  "schema": "cambium.fractal-tapestry.snapshot.v1",
+  "generatedAt": "2026-07-21T09:00:00.000Z",
+  "standalone": true,
+  "tenant": {
+    "id": "demo-org",
+    "label": "Demo Grove",
+    "vision": "Turn a clear founder promise into a living operating map.",
+    "mission": "ship useful, on-brand work with synthetic demo evidence only"
+  },
+  "recursion": ["skill", "cluster", "organ", "venture", "company", "portfolio"],
+  "field": {
+    "id": "cambium-field",
+    "role": "living-fractal-substrate",
+    "symmetry": "organ-radial",
+    "width": 15.8,
+    "depth": 10.6,
+    "contourCount": 12,
+    "seamCount": 9
+  },
+  "nodes": [
+    { "id": "genesis", "organ": "genesis", "title": "Genesis", "scale": "organ", "x": -4.8, "z": -1.2, "status": "complete", "inputs": ["idea"], "outputs": ["brand_system", "copy_system"] },
+    { "id": "taste", "organ": "taste", "title": "Taste", "scale": "organ", "x": -2.1, "z": 1.2, "status": "active", "inputs": ["brand_system"], "outputs": ["taste_brief"] },
+    { "id": "build", "organ": "hands", "title": "Build", "scale": "organ", "x": 1.4, "z": 1.05, "status": "complete", "inputs": ["taste_brief"], "outputs": ["artifact"] },
+    { "id": "ops", "organ": "will", "title": "Ops", "scale": "organ", "x": 4.4, "z": -1.15, "status": "active", "inputs": ["artifact"], "outputs": ["live_signal"] },
+    { "id": "cortex", "organ": "cortex", "title": "Cortex", "scale": "organ", "x": 0.1, "z": -3.25, "status": "memory", "inputs": ["semantic_memory", "structural_memory"], "outputs": ["genesis", "taste", "build", "ops"] },
+    { "id": "brand-dna", "organ": "genesis", "title": "Brand DNA", "scale": "cluster", "x": -5.4, "z": -1.8, "status": "complete" },
+    { "id": "voice-slots", "organ": "genesis", "title": "Voice Slots", "scale": "skill", "x": -4.2, "z": -0.6, "status": "complete" },
+    { "id": "reference-hunt", "organ": "taste", "title": "Reference Hunt", "scale": "cluster", "x": -2.6, "z": 1.9, "status": "active" },
+    { "id": "reroll-orbit", "organ": "taste", "title": "Reroll Orbit", "scale": "skill", "x": -1.6, "z": 0.8, "status": "pending" },
+    { "id": "gate-run", "organ": "hands", "title": "Gate Run", "scale": "cluster", "x": 1.9, "z": 1.6, "status": "complete" },
+    { "id": "artifact-forge", "organ": "hands", "title": "Artifact Forge", "scale": "skill", "x": 1.1, "z": 0.5, "status": "active" },
+    { "id": "wake-loop", "organ": "will", "title": "Wake Loop", "scale": "cluster", "x": 4.9, "z": -0.6, "status": "active" },
+    { "id": "signal-standup", "organ": "will", "title": "Signal Standup", "scale": "skill", "x": 3.9, "z": -1.7, "status": "pending" },
+    { "id": "recall-lane", "organ": "cortex", "title": "Recall Lane", "scale": "cluster", "x": 0.6, "z": -2.7, "status": "active" },
+    { "id": "lesson-mint", "organ": "cortex", "title": "Lesson Mint", "scale": "skill", "x": -0.4, "z": -3.8, "status": "memory" }
+  ],
+  "rails": [
+    { "id": "genesis-to-taste", "from": "genesis", "to": "taste", "lane": "handoff" },
+    { "id": "taste-to-build", "from": "taste", "to": "build", "lane": "handoff" },
+    { "id": "build-to-ops", "from": "build", "to": "ops", "lane": "runner" },
+    { "id": "cortex-to-genesis", "from": "cortex", "to": "genesis", "lane": "memory" },
+    { "id": "cortex-to-taste", "from": "cortex", "to": "taste", "lane": "memory" },
+    { "id": "cortex-to-build", "from": "cortex", "to": "build", "lane": "memory" },
+    { "id": "cortex-to-ops", "from": "cortex", "to": "ops", "lane": "memory" }
+  ],
+  "telemetry": {
+    "worldVersion": 4,
+    "completedQuestCount": 3,
+    "totalQuestCount": 4,
+    "source": "synthetic-demo-fixture"
+  }
+}

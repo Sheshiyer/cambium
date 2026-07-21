@@ -59,7 +59,7 @@ const privatePatterns = [
 ];
 
 export function isAllowedLiveDeploymentEvidencePath(file) {
-  return /^(README\.md|ISA\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/diagrams\/|docs\/evidence\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/.test(file);
+  return /^(README\.md|ISA\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/archive\/|docs\/diagrams\/|docs\/evidence\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/.test(file);
 }
 
 const liveDefaultPatterns = [
