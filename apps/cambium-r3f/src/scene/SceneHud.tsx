@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Coolshape } from 'coolshapes-react';
 import { MINI_APP_MAP_SUBSECTIONS, type MiniAppMapSubsection } from '../../../../shared/mini-app-surface-contract.ts';
 import { SceneSheet } from './SceneSheet.tsx';
+import { ConfirmActionSheet, type ConfirmActionControl } from './ConfirmActionSheet.tsx';
 import { KNOWLEDGE_SECTIONS } from './knowledge-model.ts';
 import {
   clearIdentity,
   founderIdentity,
+  identityToPrincipalHeader,
   loadIdentity,
   roleBadge,
   saveIdentity,
@@ -82,7 +84,57 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
   const [envelopeStatus, setEnvelopeStatus] = useState<'idle' | 'live' | 'unconfigured' | 'offline' | 'bad-status'>('idle');
   const [liveSubsections, setLiveSubsections] = useState<readonly MiniAppMapSubsection[] | null>(null);
   const [knowledgeIndex, setKnowledgeIndex] = useState(0);
+  const [pendingAction, setPendingAction] = useState<ConfirmActionControl | null>(null);
   const cameraBeforeSheet = useRef<CameraMode | null>(null);
+
+  const confirmSignedAction = async (control: ConfirmActionControl) => {
+    setPendingAction(null);
+    const at = new Date().toISOString();
+    if (!settings.workerBaseUrl) {
+      const entry = { at, principalId: identity?.principal.id ?? 'anonymous', action: control.id, target: control.target ?? control.source, decision: 'allowed', reason: 'queued locally — worker not configured' };
+      try {
+        const raw = window.localStorage.getItem('cambium.audit.v1');
+        const log = raw ? JSON.parse(raw) : [];
+        log.push(entry);
+        window.localStorage.setItem('cambium.audit.v1', JSON.stringify(log));
+      } catch { /* audit is best-effort */ }
+      openSheet({
+        title: control.id.toUpperCase(),
+        kicker: 'SIGNED ACTION · QUEUED LOCALLY',
+        rows: [
+          { id: 'a1', label: 'DECISION', value: 'queued locally', tone: 'signal' },
+          { id: 'a2', label: 'REASON', value: 'worker not configured', tone: 'depth' },
+          { id: 'a3', label: 'AUDIT', value: `local log · ${at}`, tone: 'mist' },
+        ],
+      });
+      return;
+    }
+    try {
+      const response = await fetch(`${settings.workerBaseUrl}/v1/actions/${encodeURIComponent(control.id)}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...(identity ? { 'x-principal': identityToPrincipalHeader(identity) } : {}) },
+        body: JSON.stringify({ control, tenant: settings.tenant }),
+      });
+      openSheet({
+        title: control.id.toUpperCase(),
+        kicker: 'SIGNED ACTION · WORKER',
+        rows: [
+          { id: 'a1', label: 'DECISION', value: response.ok ? 'accepted by worker' : `worker returned ${response.status}`, tone: response.ok ? 'signal' : 'depth' },
+          { id: 'a2', label: 'TARGET', value: control.target ?? control.source, tone: 'mist' },
+          { id: 'a3', label: 'AT', value: at, tone: 'mist' },
+        ],
+      });
+    } catch {
+      openSheet({
+        title: control.id.toUpperCase(),
+        kicker: 'SIGNED ACTION · OFFLINE',
+        rows: [
+          { id: 'a1', label: 'DECISION', value: 'worker unreachable — not queued', tone: 'depth' },
+          { id: 'a2', label: 'RETRY', value: 'check worker URL in settings', tone: 'mist' },
+        ],
+      });
+    }
+  };
 
   const applySettings = (next: AppSettings) => {
     setSettings(next);
@@ -376,21 +428,42 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
             <div key={target} className="sheet-browser__group">
               <span className="hud-kicker">{target.toUpperCase()}</span>
               {subsections.map((subsection) => (
-                <button
-                  key={subsection.id}
-                  type="button"
-                  className="sheet-browser__item"
-                  onClick={() =>
-                    openSheet({
-                      title: subsection.id.toUpperCase(),
-                      kicker: `MAP · ${subsection.target.toUpperCase()}`,
-                      rows: subsectionSheetRows(subsection),
-                    })
-                  }
-                >
-                  <span>{subsection.id}</span>
-                  <strong>{subsection.interactions.primary}</strong>
-                </button>
+                <div key={subsection.id} className="sheet-browser__row">
+                  <button
+                    type="button"
+                    className="sheet-browser__item"
+                    onClick={() =>
+                      openSheet({
+                        title: subsection.id.toUpperCase(),
+                        kicker: `MAP · ${subsection.target.toUpperCase()}`,
+                        rows: subsectionSheetRows(subsection),
+                      })
+                    }
+                  >
+                    <span>{subsection.id}</span>
+                    <strong>{subsection.interactions.primary}</strong>
+                  </button>
+                  {(subsection.interactions.controls ?? [])
+                    .filter((control) => control.interaction === 'signed-action')
+                    .map((control) => (
+                      <button
+                        key={control.id}
+                        type="button"
+                        className="sheet-browser__action"
+                        title={`Signed action: ${control.id}`}
+                        onClick={() =>
+                          setPendingAction({
+                            id: control.id,
+                            interaction: control.interaction,
+                            source: control.source,
+                            target: control.target,
+                          })
+                        }
+                      >
+                        act
+                      </button>
+                    ))}
+                </div>
               ))}
             </div>
           ))}
@@ -467,6 +540,13 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
             </section>
           ) : null}
         </SceneSheet>
+      ) : null}
+      {pendingAction ? (
+        <ConfirmActionSheet
+          control={pendingAction}
+          onConfirm={(id) => void confirmSignedAction(pendingAction ? { ...pendingAction, id } : pendingAction)}
+          onCancel={() => setPendingAction(null)}
+        />
       ) : null}
     </>
   );
