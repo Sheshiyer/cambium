@@ -189,6 +189,8 @@ button {
 .hud-kicker,
 .instrument-line span,
 .camera-dial button,
+.mode-pill button,
+.sheet-browser__item,
 .route-dock button {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: 0;
@@ -384,6 +386,146 @@ p {
 .camera-dial button:focus-visible {
   outline: 2px solid #d6fff6;
   outline-offset: -2px;
+}
+
+.mode-pill {
+  display: flex;
+  border: 1px solid rgba(214, 255, 246, 0.18);
+  background: rgba(0, 39, 43, 0.56);
+  box-shadow: inset 0 1px 0 rgba(214, 255, 246, 0.08);
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+}
+
+.mode-pill button {
+  min-width: 88px;
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-right: 1px solid rgba(214, 255, 246, 0.14);
+  color: rgba(214, 255, 246, 0.76);
+  background: transparent;
+  font-size: 0.68rem;
+}
+
+.mode-pill button:last-child {
+  border-right: 0;
+}
+
+.mode-pill button[aria-pressed="true"] {
+  color: #00272b;
+  background: #d6fff6;
+  font-weight: 800;
+}
+
+.mode-pill button:active {
+  transform: translateY(1px);
+}
+
+.mode-pill button:focus-visible,
+.sheet-browser__item:focus-visible,
+.scene-sheet__close:focus-visible {
+  outline: 2px solid #d6fff6;
+  outline-offset: -2px;
+}
+
+.hud-layer--dimmed {
+  opacity: 0.22;
+}
+
+.sheet-browser {
+  position: absolute;
+  z-index: 4;
+  top: 86px;
+  right: 22px;
+  display: grid;
+  gap: 12px;
+  width: 320px;
+  max-height: calc(100% - 196px);
+  padding: 12px;
+  overflow-y: auto;
+  border: 1px solid rgba(214, 255, 246, 0.18);
+  background: rgba(0, 39, 43, 0.56);
+  box-shadow: inset 0 1px 0 rgba(214, 255, 246, 0.08);
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+}
+
+.sheet-browser__group {
+  display: grid;
+  gap: 4px;
+}
+
+.sheet-browser__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 30px;
+  border: 0;
+  border-bottom: 1px solid rgba(214, 255, 246, 0.12);
+  color: rgba(214, 255, 246, 0.76);
+  background: transparent;
+  font-size: 0.64rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sheet-browser__item:last-child {
+  border-bottom: 0;
+}
+
+.sheet-browser__item strong {
+  color: #e0ff4f;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sheet-browser__item:hover {
+  color: #d6fff6;
+}
+
+.scene-sheet {
+  z-index: 6;
+  grid-template-columns: minmax(320px, 480px);
+  max-height: calc(100% - 120px);
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.scene-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scene-sheet__close {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(214, 255, 246, 0.18);
+  color: rgba(214, 255, 246, 0.78);
+  background: transparent;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scene-sheet__close:hover {
+  color: #00272b;
+  background: #d6fff6;
+}
+
+.scene-sheet__instruments {
+  position: static;
+  width: auto;
+  margin-top: 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

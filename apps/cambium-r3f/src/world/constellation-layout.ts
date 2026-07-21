@@ -40,6 +40,12 @@ export interface TapestrySnapshot {
   nodes: TapestrySnapshotNode[];
 }
 
+export const CONSTELLATION_HOME_MARKER = 'constellation-home-overview';
+
+export function hubScreenIdFor(hubId: string): string {
+  return `island-${hubId}`;
+}
+
 export const CONSTELLATION_ACCENTS = [
   'signal',
   'mist',

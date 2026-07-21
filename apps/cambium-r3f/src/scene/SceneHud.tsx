@@ -1,4 +1,15 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Coolshape } from 'coolshapes-react';
+import { MINI_APP_MAP_SUBSECTIONS, type MiniAppMapSubsection } from '../../../../shared/mini-app-surface-contract.ts';
+import { SceneSheet } from './SceneSheet.tsx';
+import {
+  HUD_MODES,
+  WORKFORCE_SHEET_ROWS,
+  islandSheetRows,
+  subsectionSheetRows,
+  type HudMode,
+  type SheetRowModel,
+} from './scene-data.ts';
 import type { CameraMode, CambiumSceneModel, EngineControl, ScenePanel, ScreenId, VisualizationLayer } from './types';
 
 interface SceneHudProps {
@@ -8,19 +19,92 @@ interface SceneHudProps {
   onCameraModeChange: (mode: CameraMode) => void;
 }
 
+interface OpenSheet {
+  title: string;
+  kicker: string;
+  rows: readonly SheetRowModel[];
+}
+
 const cameraModes: CameraMode[] = ['overview', 'node', 'flat'];
 
-function instrumentLabel(item: ScenePanel | EngineControl | VisualizationLayer) {
+function readHudModeFromHash(): HudMode {
+  if (typeof window === 'undefined') return 'map';
+  const query = window.location.hash.split('?')[1] ?? '';
+  const mode = new URLSearchParams(query).get('mode');
+  return (HUD_MODES as readonly string[]).includes(mode ?? '') ? (mode as HudMode) : 'map';
+}
+
+function writeHudModeToHash(mode: HudMode) {
+  if (typeof window === 'undefined') return;
+  const route = window.location.hash.replace(/^#\/?/, '').split('?')[0] ?? '';
+  const next = mode === 'map' ? route : `${route}?mode=${mode}`;
+  window.history.replaceState(null, '', next ? `#/${next}` : `${window.location.pathname}${window.location.search}`);
+}
+
+function instrumentLabel(item: ScenePanel | EngineControl | VisualizationLayer | SheetRowModel) {
   return 'title' in item ? item.title : item.label;
 }
 
-function instrumentTone(item: ScenePanel | EngineControl | VisualizationLayer) {
-  return 'tone' in item ? item.tone : item.kind;
+function instrumentTone(item: ScenePanel | EngineControl | VisualizationLayer | SheetRowModel) {
+  return 'kind' in item ? item.kind : item.tone;
 }
 
 export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange }: SceneHudProps) {
   const focusedNode = scene.nodes.find((node) => node.id === scene.activeScreen.focusNode) ?? scene.nodes.find((node) => node.state === 'active') ?? scene.nodes[0];
   const isReferenceOverview = scene.activeScreen.id === scene.overviewArtDirection.routeId;
+  const [hudMode, setHudMode] = useState<HudMode>(readHudModeFromHash);
+  const [sheet, setSheet] = useState<OpenSheet | null>(null);
+  const cameraBeforeSheet = useRef<CameraMode | null>(null);
+
+  const subsectionGroups = useMemo(() => {
+    const groups = new Map<string, MiniAppMapSubsection[]>();
+    for (const subsection of MINI_APP_MAP_SUBSECTIONS) {
+      const bucket = groups.get(subsection.target) ?? [];
+      bucket.push(subsection);
+      groups.set(subsection.target, bucket);
+    }
+    return [...groups.entries()];
+  }, []);
+
+  const openSheet = (next: OpenSheet) => {
+    if (!sheet) cameraBeforeSheet.current = cameraMode;
+    setSheet(next);
+    onCameraModeChange('flat');
+  };
+
+  const closeSheet = () => {
+    setSheet(null);
+    if (cameraBeforeSheet.current) onCameraModeChange(cameraBeforeSheet.current);
+    cameraBeforeSheet.current = null;
+  };
+
+  const changeHudMode = (mode: HudMode) => {
+    setHudMode(mode);
+    writeHudModeToHash(mode);
+    if (mode === 'workforce') {
+      openSheet({ title: 'WORKFORCE', kicker: 'PRINCIPALS · PLACEHOLDER', rows: WORKFORCE_SHEET_ROWS });
+    } else {
+      closeSheet();
+    }
+  };
+
+  useEffect(() => {
+    if (!sheet) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeSheet();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [sheet]);
+
+  const instrumentItems: readonly (ScenePanel | EngineControl | VisualizationLayer | SheetRowModel)[] =
+    scene.activeScreen.mode === 'settings'
+      ? scene.engineControls
+      : scene.activeScreen.mode === 'visualizations'
+        ? scene.visualizationLayers
+        : scene.activeScreen.mode === 'island'
+          ? islandSheetRows(scene.activeScreen.id)
+          : scene.activeScreen.panels;
 
   return (
     <>
@@ -28,6 +112,18 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
         <div className="operator-brand">
           <span>CAMBIUM</span>
           <strong>{scene.activeScreen.eyebrow}</strong>
+        </div>
+        <div className="mode-pill" role="group" aria-label="HUD mode">
+          {HUD_MODES.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={hudMode === mode}
+              onClick={() => changeHudMode(mode)}
+            >
+              {mode}
+            </button>
+          ))}
         </div>
         <div className="telemetry-line" aria-label="Process telemetry">
           <span>{scene.telemetry.progressLabel}</span>
@@ -51,7 +147,7 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
       </nav>
 
       {isReferenceOverview ? null : (
-        <aside className="diegetic-readout" aria-label="Current tactical target">
+        <aside className={`diegetic-readout${sheet ? ' hud-layer--dimmed' : ''}`} aria-label="Current tactical target">
           <div className="shape-specimen" aria-hidden="true">
             <Coolshape
               type={focusedNode.coolshape.shapeType}
@@ -84,8 +180,8 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
       )}
 
       {isReferenceOverview ? null : (
-        <section className="scene-instruments" aria-label="Scene instruments">
-          {(scene.activeScreen.mode === 'settings' ? scene.engineControls : scene.activeScreen.mode === 'visualizations' ? scene.visualizationLayers : scene.activeScreen.panels).map((item) => (
+        <section className={`scene-instruments${sheet ? ' hud-layer--dimmed' : ''}`} aria-label="Scene instruments">
+          {instrumentItems.map((item) => (
             <div key={instrumentLabel(item)} className="instrument-line" data-tone={instrumentTone(item)}>
               <span>{instrumentLabel(item)}</span>
               <strong>{item.value}</strong>
@@ -93,6 +189,37 @@ export function SceneHud({ scene, cameraMode, onScreenChange, onCameraModeChange
           ))}
         </section>
       )}
+
+      {hudMode === 'sheets' ? (
+        <section className={`sheet-browser${sheet ? ' hud-layer--dimmed' : ''}`} aria-label="Map subsection sheets">
+          {subsectionGroups.map(([target, subsections]) => (
+            <div key={target} className="sheet-browser__group">
+              <span className="hud-kicker">{target.toUpperCase()}</span>
+              {subsections.map((subsection) => (
+                <button
+                  key={subsection.id}
+                  type="button"
+                  className="sheet-browser__item"
+                  onClick={() =>
+                    openSheet({
+                      title: subsection.id.toUpperCase(),
+                      kicker: `MAP · ${subsection.target.toUpperCase()}`,
+                      rows: subsectionSheetRows(subsection),
+                    })
+                  }
+                >
+                  <span>{subsection.id}</span>
+                  <strong>{subsection.interactions.primary}</strong>
+                </button>
+              ))}
+            </div>
+          ))}
+        </section>
+      ) : null}
+
+      {sheet ? (
+        <SceneSheet title={sheet.title} kicker={sheet.kicker} rows={sheet.rows} onClose={closeSheet} />
+      ) : null}
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { MINI_APP_MAP_SUBSECTIONS, type MiniAppMapSubsection } from '../../../../shared/mini-app-surface-contract.ts';
 import { sourceContract } from '../generated/source-contract.ts';
 import { engineControls, islandDefinitionFor, visualizationLayers } from '../world/island-registry.ts';
 import { cambiumQaPolicy } from './desktop-qa-policy.ts';
@@ -204,3 +205,52 @@ export const FIXTURE_SHEET_ROWS: readonly SheetRowModel[] = sheetRowsFromEnvelop
   { id: 'mission-progress', label: 'PROGRESS', value: '3/4 demo arcs', tone: 'mist' },
   { id: 'mission-stance', label: 'STANCE', value: 'lessons minted', tone: 'depth' },
 ]);
+
+export const HUD_MODES = ['map', 'sheets', 'workforce'] as const;
+export type HudMode = (typeof HUD_MODES)[number];
+
+const ISLAND_ORGAN_KEYWORDS: Record<string, string> = {
+  'island-genesis': 'genesis',
+  'island-taste': 'taste',
+  'island-build': 'hands',
+  'island-ops': 'will',
+  'island-cortex': 'cortex',
+};
+
+function shortenBrief(text: string, max = 72): string {
+  return text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`;
+}
+
+export function subsectionSheetRows(subsection: MiniAppMapSubsection): readonly SheetRowModel[] {
+  return [
+    { id: subsection.id, label: subsection.id.toUpperCase(), value: subsection.target, tone: 'signal' },
+    { id: `${subsection.id}-source`, label: 'SOURCE', value: subsection.source, tone: 'mist' },
+    ...FIXTURE_SHEET_ROWS,
+  ];
+}
+
+export function islandSheetRows(screenId: string): readonly SheetRowModel[] {
+  const screen = routeDrafts.find((route) => route.id === screenId);
+  if (!screen) return [];
+  const keyword = ISLAND_ORGAN_KEYWORDS[screen.id];
+  const rows: SheetRowModel[] = [
+    { id: 'title', label: 'TITLE', value: screen.title, tone: 'signal' },
+    { id: 'eyebrow', label: 'EYEBROW', value: screen.eyebrow, tone: 'mist' },
+    { id: 'brief', label: 'BRIEF', value: shortenBrief(screen.description), tone: 'depth' },
+  ];
+  if (keyword) {
+    for (const subsection of MINI_APP_MAP_SUBSECTIONS) {
+      const haystack = `${subsection.id} ${subsection.target} ${subsection.source}`.toLowerCase();
+      if (haystack.includes(keyword)) {
+        rows.push({ id: `map-${subsection.id}`, label: subsection.id.toUpperCase(), value: subsection.target, tone: 'mist' });
+      }
+    }
+  }
+  return rows;
+}
+
+export const WORKFORCE_SHEET_ROWS: readonly SheetRowModel[] = [
+  { id: 'workforce-state', label: 'STATE', value: 'identity wiring pending', tone: 'signal' },
+  { id: 'workforce-plan', label: 'PLAN', value: 'see docs/plans/2026-07-21-ui-prune-constellation-convergence.md C4', tone: 'mist' },
+  { id: 'workforce-principals', label: 'PRINCIPALS', value: 'none — no live principal data wired yet', tone: 'depth' },
+];
