@@ -21,6 +21,7 @@ are never misled by stale intent.
 ## Canonical design sources
 
 - `assets/tg-miniapp-mission-control-reference/source/` — the atlas + design-system sheet (tokens, glyphs, states, panels). This is the visual language authority alongside the freeze.
+- `assets/constellation-ui-reference/` — generated main-usage screen references (MAP / node view / SHEETS / WORKFORCE) in canonical tokens; the convergence plan’s visual targets.
 
 ## Archive policy
 
