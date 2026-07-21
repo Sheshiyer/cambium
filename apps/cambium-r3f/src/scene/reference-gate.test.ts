@@ -15,7 +15,7 @@ test('perceptual reference gate covers the next art-pipeline requirements', () =
 });
 
 test('current scene model passes the structural reference gate before screenshot review', () => {
-  const result = scorePerceptualReferenceGate(buildCambiumScene('home'));
+  const result = scorePerceptualReferenceGate(buildCambiumScene('home', undefined, true));
   assert.equal(result.passed, true);
   assert.equal(result.score, 100);
   assert.ok(result.checks.every((check) => check.passed));

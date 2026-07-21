@@ -134,15 +134,17 @@ function buildEmitterLanes(rails: SceneRail[]): EmitterLane[] {
   }));
 }
 
-function buildScreens(): ScreenSpec[] {
-  return routeDrafts.map((route) => ({
-    ...route,
-    reference: referenceByScreen.get(route.id),
-  }));
+function buildScreens(includeDev = false): ScreenSpec[] {
+  return routeDrafts
+    .filter((route) => includeDev || !route.devOnly)
+    .map((route) => ({
+      ...route,
+      reference: referenceByScreen.get(route.id),
+    }));
 }
 
-export function buildCambiumScene(activeScreenId: ScreenId = defaultScreenId, cameraMode?: CameraMode): CambiumSceneModel {
-  const screens = buildScreens();
+export function buildCambiumScene(activeScreenId: ScreenId = defaultScreenId, cameraMode?: CameraMode, includeDev = false): CambiumSceneModel {
+  const screens = buildScreens(includeDev);
   const activeScreen = screens.find((screen) => screen.id === activeScreenId) ?? screens[0];
   const nodes = [...sourceContract.pipeline.stages.map((stage) => stageNode(stage, activeScreen.focusNode)), cortexNode(activeScreen.focusNode)];
   const rails = buildRails(nodes);

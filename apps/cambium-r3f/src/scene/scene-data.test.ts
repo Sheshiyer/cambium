@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildCambiumScene } from './scene-data.ts';
-import { screenOrder } from './route-registry.ts';
+import { productScreenOrder, screenOrder } from './route-registry.ts';
 import { sourceContract } from '../generated/source-contract.ts';
 import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_RAILS, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../../shared/cambium-visual-contract.ts';
 
@@ -76,12 +76,19 @@ test('scene adapter preserves quest progress and frozen references', () => {
 });
 
 test('scene adapter binds every implemented route to its frozen reference', () => {
-  const scene = buildCambiumScene();
+  const scene = buildCambiumScene('home', undefined, true);
   assert.deepEqual(scene.screens.map((screen) => screen.id), screenOrder);
   assert.equal(scene.screens.length, 10);
   const frozenScreens = scene.screens.filter((screen) => screen.id !== 'asset-comparison');
   assert.ok(frozenScreens.every((screen) => screen.reference?.taskId === screen.taskId));
   assert.equal(scene.screens.find((screen) => screen.id === 'asset-comparison')?.reference, undefined);
+});
+
+test('product dock prunes dev-only screens unless dev flag is set', () => {
+  const scene = buildCambiumScene();
+  assert.deepEqual(scene.screens.map((screen) => screen.id), productScreenOrder);
+  const devScene = buildCambiumScene('home', undefined, true);
+  assert.deepEqual(devScene.screens.map((screen) => screen.id), screenOrder);
 });
 
 test('route selection highlights the active organ node', () => {

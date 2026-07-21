@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { routeDrafts, screenOrder } from './route-registry.ts';
+import { productScreenOrder, routeDrafts, screenOrder } from './route-registry.ts';
 
 test('route registry covers the frozen Phase 2 screen tasks in order', () => {
   assert.deepEqual(screenOrder, [
@@ -16,6 +16,8 @@ test('route registry covers the frozen Phase 2 screen tasks in order', () => {
     'asset-comparison',
   ]);
   assert.deepEqual(routeDrafts.map((route) => route.taskId), ['T005', 'T006', 'T007', 'T008', 'T009', 'T010', 'T011', 'T012', 'T013', 'R3F-GE-ASSET-QA']);
+  assert.deepEqual(productScreenOrder, ['home', 'island-genesis', 'island-taste', 'island-build', 'island-ops', 'island-cortex', 'visualizations']);
+  assert.deepEqual(routeDrafts.filter((route) => route.devOnly).map((route) => route.id), ['elements-settings', 'figma-components', 'asset-comparison']);
   assert.deepEqual(routeDrafts.map((route) => route.issue), [31, 32, 33, 34, 35, 36, 37, 38, 39, 52]);
 });
 

@@ -111,6 +111,7 @@ export const routeDrafts = [
   },
   {
     id: 'elements-settings',
+    devOnly: true,
     taskId: 'T011',
     issue: 37,
     title: 'ELEMENTS',
@@ -145,6 +146,7 @@ export const routeDrafts = [
   },
   {
     id: 'figma-components',
+    devOnly: true,
     taskId: 'T013',
     issue: 39,
     title: 'CAMBIUM DESIGN SYSTEM',
@@ -163,6 +165,7 @@ export const routeDrafts = [
   },
   {
     id: 'asset-comparison',
+    devOnly: true,
     taskId: 'R3F-GE-ASSET-QA',
     issue: 52,
     title: 'ASSET QA',
@@ -182,3 +185,4 @@ export const routeDrafts = [
 
 export const defaultScreenId = 'home';
 export const screenOrder = routeDrafts.map((route) => route.id);
+export const productScreenOrder = routeDrafts.filter((route) => !route.devOnly).map((route) => route.id);
