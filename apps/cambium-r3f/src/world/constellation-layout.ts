@@ -57,8 +57,8 @@ export const CONSTELLATION_ACCENTS = [
 ] as const;
 
 const MAX_DENDRITE_DEPTH = 4;
-const CHILD_RING_RADIUS = 1.1;
-const DEPTH_STEP = 0.85;
+const CHILD_RING_RADIUS = 0.75;
+const DEPTH_STEP = 0.55;
 
 function hashNodeId(id: string): number {
   let hash = 2166136261;
@@ -104,7 +104,7 @@ export function buildConstellationLayout(snapshot: TapestrySnapshot): Constellat
     return { center, clusters: [] };
   }
 
-  const ringRadius = snapshot.field.width / 2.2;
+  const ringRadius = snapshot.field.width / 3.4;
   const cortexHub = hubs.find(isCortexNode);
   const ringHubs = cortexHub ? hubs.filter((hub) => hub !== cortexHub) : hubs;
 
