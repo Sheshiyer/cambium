@@ -93,6 +93,7 @@ export interface ScreenSpec {
   description: string;
   defaultCamera: CameraMode;
   panels: readonly ScenePanel[];
+  devOnly?: boolean;
   reference?: SceneReference;
   miniAppScene?: import('../../../../shared/mini-app-surface-contract.ts').MiniAppSceneId;
 }
