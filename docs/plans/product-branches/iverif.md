@@ -105,6 +105,12 @@ Cortex ingestion targets: this packet, claim table, sanitized source list, build
 
 First real pilot proof: one operator-approved validation workflow with sourced rules, audit trail, privacy/security evidence, and no unsupported public claim.
 
+## Loop Control Inputs
+
+| loop_id | title | cadence | objective | metric | boundary_color | one_change_rule | state_file | stop_rule | model_route | proof_required |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| iverif-claim-proof-loop | IVerif claim/proof separation loop | manual weekly while packet remains proof-only | Move one public, compliance, privacy, performance, or build claim into verified, blocked, pending, or no-signal status. | One claim row receives a sourced status or one unsupported claim is removed from the candidate copy. | green | Select exactly one claim or route-proof check; do not draft outreach or compliance claims. | .operator/branch-loops/iverif-claim-proof-loop.md | Stop after 4 claim rows, after wiki build proof passes, or when source material is missing for the selected claim. | cheap-first; escalate only for conflicting evidence review | Source-linked claim row, build/route receipt, or blocked-control note in the state file. |
+
 ## Branch Story Controls
 
 | Control | Value |

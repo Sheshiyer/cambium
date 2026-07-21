@@ -10,7 +10,7 @@ packet_owner: cambium
 
 # Fitcheck Product Branch Packet
 
-Fitcheck is the first Cambium product branch packet normalized from the existing proof packet at `docs/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. This file is the reusable Cambium packet view; the dated packet remains the source evidence trail.
+Fitcheck is the first Cambium product branch packet normalized from the existing proof packet at `docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. This file is the reusable Cambium packet view; the dated packet remains the source evidence trail.
 
 ## Product Seed
 
@@ -68,7 +68,7 @@ Fitcheck is the first Cambium product branch packet normalized from the existing
 
 | Status | Evidence |
 | --- | --- |
-| verified | Existing dated packet: `docs/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. |
+| verified | Existing dated packet: `docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. |
 | verified | Local packet recorded Fitcheck landing repo HEAD `f1b8d88`, `npm test` passing `7/7`, live landing HTTP `200`, and App Runner health `ok: true`. |
 | verified | Launch hardening pass recorded lead handler, local browser proof, Vercel preview readiness, App Runner signed-upload proof, and widget harness events. |
 | blocked | Live production Vercel artifact drift and missing Dodo/Fitcheck reservation URL env. |
@@ -105,6 +105,12 @@ Garden cadence: daily branch health pulse only after pilot proof begins.
 Cortex ingestion targets: this normalized packet, the dated Fitcheck packet, HDILINT source maps, QA receipts, and launch lessons.
 
 First real pilot proof: one merchant seed from intake to launch/garden with archived proof packet.
+
+## Loop Control Inputs
+
+| loop_id | title | cadence | objective | metric | boundary_color | one_change_rule | state_file | stop_rule | model_route | proof_required |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| fitcheck-launch-gate-loop | Fitcheck launch gate loop | manual weekly until first merchant proof begins | Move one Fitcheck launch blocker from blocked to evidenced or return a founder approval request. | One gate changes status or one approval request is recorded per round. | yellow | Select exactly one of Shopify QA, Dodo reservation env, privacy copy, outreach approval, or first merchant proof. | .operator/branch-loops/fitcheck-launch-gate-loop.md | Stop after 3 rounds, after first merchant proof is archived, or when missing credentials prevent the selected gate twice. | cheap-first; escalate only when validator or proof command fails | Updated Evidence Ledger row, Gate Ledger row, or founder approval request pasted into the loop state file. |
 
 ## Branch Story Controls
 
