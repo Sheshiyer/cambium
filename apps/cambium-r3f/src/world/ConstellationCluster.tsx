@@ -59,7 +59,7 @@ function makeTriangleGeometry(radius: number, depth: number) {
   return geometry;
 }
 
-const CHAIN_BEAD_SPACING = 0.16;
+const CHAIN_BEAD_SPACING = 0.34;
 const CHAIN_BEAD_OFFSET = 0.032;
 
 function HubGlyph({ kind, accent, emissiveIntensity, onHubClick }: {

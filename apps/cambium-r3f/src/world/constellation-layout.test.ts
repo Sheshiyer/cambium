@@ -40,7 +40,7 @@ test('non-cortex hubs sit on a ring at equal angles with cortex at center', () =
   assert.deepEqual(cortex.nodes[0].position, [0, 0, 0]);
 
   const ringClusters = layout.clusters.filter((cluster) => cluster.hubId !== 'cortex');
-  const ringRadius = 15.8 / 2.2;
+  const ringRadius = 15.8 / 3.4;
   for (const cluster of ringClusters) {
     const hub = cluster.nodes.find((node) => node.depth === 0);
     assert.ok(hub);

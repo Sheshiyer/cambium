@@ -1034,7 +1034,7 @@ function ConstellationMapField() {
   };
 
   return (
-    <group name={CONSTELLATION_HOME_MARKER} position={[0, 0.6, 0]}>
+    <group name={CONSTELLATION_HOME_MARKER} position={[0, 0.65, 0]} scale={0.5}>
       {layout.clusters.map((cluster) => (
         <ConstellationCluster
           key={cluster.hubId}
@@ -1174,24 +1174,28 @@ export function CambiumScene({ scene, cameraMode }: SceneProps) {
       ) : (
         <>
           {isReferenceOverview ? <OverviewWorldStatus scene={scene} /> : null}
-          <RailNetwork
-            rails={scene.rails}
-            nodes={scene.nodes}
-            variant={isReferenceOverview ? 'reference-overview' : 'standard'}
-            particleMultiplier={scene.overviewArtDirection.railParticleMultiplier}
-          />
-          <IslandConnectionPorts rails={scene.rails} nodes={scene.nodes} />
-          <ProcessBeacon node={activeProcessNode(scene.nodes)} showLabel={!isReferenceOverview} />
-          {scene.nodes.map((node) => (
-            <OrganIsland
-              key={node.id}
-              node={node}
-              focused={mode === 'island' && node.id === scene.activeScreen.focusNode}
-              variant={isReferenceOverview ? 'reference-overview' : 'standard'}
-              glyphScale={scene.overviewArtDirection.islandGlyphScale}
-            />
-          ))}
           {mode === 'overview' ? <ConstellationMapField /> : null}
+          {mode !== 'overview' ? (
+            <>
+              <RailNetwork
+                rails={scene.rails}
+                nodes={scene.nodes}
+                variant={isReferenceOverview ? 'reference-overview' : 'standard'}
+                particleMultiplier={scene.overviewArtDirection.railParticleMultiplier}
+              />
+              <IslandConnectionPorts rails={scene.rails} nodes={scene.nodes} />
+              <ProcessBeacon node={activeProcessNode(scene.nodes)} showLabel={!isReferenceOverview} />
+              {scene.nodes.map((node) => (
+                <OrganIsland
+                  key={node.id}
+                  node={node}
+                  focused={mode === 'island' && node.id === scene.activeScreen.focusNode}
+                  variant={isReferenceOverview ? 'reference-overview' : 'standard'}
+                  glyphScale={scene.overviewArtDirection.islandGlyphScale}
+                />
+              ))}
+            </>
+          ) : null}
           {mode === 'island' ? <LocalIslandSystems scene={scene} /> : null}
           {mode === 'settings' ? <ControlBay scene={scene} /> : null}
           {mode === 'visualizations' ? <VisualizationField scene={scene} /> : null}
