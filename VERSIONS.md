@@ -11,6 +11,42 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
+### v0.3.0 · **Urania** — *the venture becomes a constellation*
+
+> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
+
+The sharing update: the R3F visual engine converges on one usable constellation app —
+and opens to the team. Urania presides over the heavens: one operator, a
+constellation of ventures, now drawn as one.
+
+- **The constellation is home** — the six-scale tapestry renders as a ring of
+  canonical organ-glyph clusters (genesis star · taste capsule · build triangle ·
+  ops slab · cortex wheel) with chain-link edges around the cortex center;
+  hub-click zooms to the island; real `tapestry.json` loading with fixture
+  fallback. Dioramas demoted to island screens; dev-milestone screens
+  (design-system board, settings bench, asset QA) pruned behind `?dev=1`.
+- **Sheets everywhere** — all 21 mini-app map subsections readable in SHEETS mode;
+  island instruments hydrate from the envelope adapter instead of hardcoded
+  strings; the surface contract is one shared package across worker and R3F.
+- **RBAC** — founder / team / consultant ceilings on the interaction-kind ladder,
+  enforced server-side (absent-not-disabled) on `GET /api/quests/:tenant`;
+  consultant allow-lists; HMAC invite tokens (`POST /v1/invites/:tenant`,
+  `GET /v1/invites/verify`, `?invite=` auth, fail-closed); tenant-partitioned
+  audit log module.
+- **Identity in the app** — founder-local or invite-token login, role badge,
+  WORKFORCE mode with live principal rows, live envelope fetch with honest
+  offline states.
+- **Signed-action round-trip** — confirm sheets on gated controls post to the
+  worker or queue locally with an audit trail; nothing fake.
+- **Settings + guide + runbook** — reduced-motion and camera apply live and
+  persist; in-app knowledge guide; `docs/adopters/run-the-app.md` boots a clean
+  clone in four commands.
+- **Docs reorganization** — `docs/plans/` carries active intent only; 34 executed
+  or superseded plans archived with an index and link repairs; canonical design
+  sources and generated constellation UI references under provenance policy.
+- **Verified main** — 685 core tests, 98 R3F tests, `r3f:build`,
+  `standalone:audit`, `standalone:smoke` all green.
+
 ### v0.2.7 · **Thalia .7** — *the root takes Meristem*
 
 > Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
@@ -164,7 +200,7 @@ viability, NPC self-play (ICP + Founder), the composition layer.
 | Muse | Domain | Release |
 |---|---|---|
 | **Thalia** | comedy · festivity · play | ✅ **v0.2.0** — the operator becomes a playable infinite game |
-| **Urania** | astronomy · the heavens | → *proposed next* — **M3 multi-tenancy**: one operator, a constellation of ventures |
+| **Urania** | astronomy · the heavens | ✅ **v0.3.0** — the venture becomes a constellation, shared with the team |
 | Calliope | epic poetry (the eldest, "beautiful-voiced") | — |
 | Clio | history | — *(the replay log / cross-run learning)* |
 | Erato | love / lyric poetry | — |
