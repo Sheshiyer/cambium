@@ -11,7 +11,7 @@ const devEnabled = new URLSearchParams(window.location.search).get('dev') === '1
 const visibleScreenOrder = devEnabled ? screenOrder : productScreenOrder;
 
 function routeFromHash(): ScreenId {
-  const hash = window.location.hash.replace(/^#\/?/, '') as ScreenId;
+  const hash = window.location.hash.replace(/^#\/?/, '').split('?')[0] as ScreenId;
   return visibleScreenOrder.includes(hash) ? hash : defaultScreenId;
 }
 
