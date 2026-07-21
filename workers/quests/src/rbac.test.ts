@@ -54,9 +54,9 @@ test('permits orders the ladder against each role ceiling', () => {
   assert.equal(permits('signed-action', 'founder'), true);
 });
 
-test('founder sees all 21 map subsections unchanged', () => {
+test('founder sees all 23 map subsections unchanged', () => {
   const out = filterSubsections(MINI_APP_MAP_SUBSECTIONS, makePrincipal(), NOW);
-  assert.equal(out.length, 21);
+  assert.equal(out.length, 23);
   assert.deepEqual(out, MINI_APP_MAP_SUBSECTIONS);
 });
 
@@ -116,7 +116,7 @@ test('isConsultantVisible reflects role plus allow-list', () => {
 
 test('team keeps chat-command controls but loses signed-action controls', () => {
   const out = filterSubsections(MINI_APP_MAP_SUBSECTIONS, makePrincipal({ role: 'team' }), NOW);
-  assert.equal(out.length, 21, 'team ceiling keeps every sheet/external-proof primary');
+  assert.equal(out.length, 23, 'team ceiling keeps every sheet/external-proof primary');
 
   const sideQuests = out.find((s) => s.id === 'side-quests');
   assert.ok(sideQuests);
@@ -157,7 +157,7 @@ test('expired principal gets an empty envelope', () => {
   const live = makePrincipal({ expiresAt: '2026-07-21T12:00:00.000Z' });
   assert.equal(
     filterSubsections(MINI_APP_MAP_SUBSECTIONS, live, NOW).length,
-    21,
+    23,
     'expiresAt equal to now is not yet expired',
   );
 });
