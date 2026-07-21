@@ -20,3 +20,4 @@ apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb
 
 # local/private reference exports; never commit account, payment, or third-party prompt dumps
 motionsites-export/
+.playwright-cli/
