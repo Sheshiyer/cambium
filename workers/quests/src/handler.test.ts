@@ -11354,3 +11354,132 @@ test('rbac · expired principal receives empty surface', async () => {
   assert.deepEqual(surface.sections, []);
   assert.deepEqual(surface.subsections, []);
 });
+
+test('invites · founder issues an invite and verification round-trips', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's', nowMs: () => 1_000_000 };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: ['tapestry', 'wake'], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const issued = body(issue);
+  assert.equal(issued.principal.role, 'consultant');
+  assert.equal(issued.principal.tenant, 'cambium');
+  assert.deepEqual(issued.principal.allow, ['tapestry', 'wake']);
+  assert.equal(issued.principal.createdBy, 'founder-1');
+  assert.equal(issued.inviteUrl, `/app?invite=${issued.token}`);
+
+  const verify = await handle(req('GET', `/v1/invites/verify?token=${issued.token}`), deps);
+  assert.equal(verify.status, 200);
+  assert.equal(body(verify).ok, true);
+  assert.deepEqual(body(verify).principal, issued.principal);
+});
+
+test('invites · consultant invite token filters the quest surface to the allow-list', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: ['tapestry', 'wake'], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const { token } = body(issue);
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${token}`), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface, 'surface present for invite principal');
+  const subsectionIds = surface.subsections.map((s: { id: string }) => s.id);
+  assert.deepEqual(subsectionIds, ['tapestry', 'wake']);
+  for (const sub of surface.subsections) {
+    const signed = (sub.interactions.controls ?? []).filter((c: { interaction: string }) => c.interaction === 'signed-action');
+    assert.equal(signed.length, 0, 'signed-action controls stripped');
+  }
+  assert.equal(surface.sections.length, 0, 'all section primaries exceed consultant ceiling');
+});
+
+test('invites · invite for another tenant is rejected with 403', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/acme', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${body(issue).token}`), deps);
+  assert.equal(get.status, 403);
+  assert.equal(body(get).error, 'invite tenant mismatch');
+});
+
+test('invites · tampered token is rejected with 401', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const token = String(body(issue).token);
+  const tampered = `${token.slice(0, -1)}${token.endsWith('a') ? 'b' : 'a'}`;
+  const verify = await handle(req('GET', `/v1/invites/verify?token=${tampered}`), deps);
+  assert.equal(verify.status, 401);
+  assert.equal(body(verify).ok, false);
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${tampered}`), deps);
+  assert.equal(get.status, 401);
+  assert.equal(body(get).error, 'invite invalid');
+});
+
+test('invites · expired invite is rejected with 401', async () => {
+  const kv = fakeKv();
+  let now = 1_000_000;
+  const deps = { kv, pushToken: 't', inviteSecret: 's', nowMs: () => now };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1', ttlMs: 1000 }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const { token } = body(issue);
+  now += 2000;
+  const verify = await handle(req('GET', `/v1/invites/verify?token=${token}`), deps);
+  assert.equal(verify.status, 401);
+  assert.deepEqual(body(verify), { ok: false, reason: 'expired' });
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${token}`), deps);
+  assert.equal(get.status, 401);
+  assert.equal(body(get).error, 'invite expired');
+});
+
+test('invites · missing inviteSecret 503s the invite endpoints', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 503);
+  const verify = await handle(req('GET', '/v1/invites/verify?token=x.y'), deps);
+  assert.equal(verify.status, 503);
+});
+
+test('invites · bad bearer on the issue endpoint is rejected with 401', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer wrong' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 401);
+});
+
+test('invites · ttlMs over the 30 day cap is rejected with 400', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1', ttlMs: 31 * 24 * 3600 * 1000 }),
+  }), deps);
+  assert.equal(issue.status, 400);
+});
