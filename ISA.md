@@ -3,11 +3,11 @@ project: Cambium
 task: "Audit and consolidate all Git state into main"
 effort: advanced
 effort_source: classifier
-phase: build
-progress: 0/26
+phase: execute
+progress: 26/26
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-22T07:34:29Z
+updated: 2026-07-22T07:46:30Z
 ---
 
 ## Problem
@@ -245,32 +245,32 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 
 ### Current consolidation audit
 
-- [ ] ISC-129: A baseline records the primary checkout, branches, worktrees, stashes, PRs, and remote main SHA.
-- [ ] ISC-130: The primary checkout's pre-audit dirty file set and content digests remain recoverable throughout consolidation.
-- [ ] ISC-131: Every registered worktree has a recorded path, HEAD, branch or detached state, dirty count, and prunable status.
-- [ ] ISC-132: Every local and remote branch is classified as merged, pending, duplicate, or intentionally preserved against fetched `origin/main`.
-- [ ] ISC-133: Every open PR has recorded head, base, state, mergeability, and check evidence before mutation.
-- [ ] ISC-134: PR #254 is verified as the single reviewed child commit stacked on PR #253.
-- [ ] ISC-135: PR #253's conflict against current `origin/main` is reproduced with the actual merge result, not inferred from prose.
-- [ ] ISC-136: The unique content in `stash@{0}` is classified file-by-file before any selective recovery.
-- [ ] ISC-137: Existing stashes remain retained and content-addressable until every candidate is resolved.
-- [ ] ISC-138: The reviewed IVerif stack is integrated in dependency order on a fresh branch from fetched `origin/main`.
-- [ ] ISC-139: The integrated IVerif stack preserves fixed bindings, redaction, GET-only provider access, and fail-closed mutation policy.
-- [ ] ISC-140: Any selectively recovered validator logic passes the repository's product-branch packet validation tests.
-- [ ] ISC-141: Any recovered live-readiness artifact reports blocked evidence truthfully and never claims founder-device proof.
-- [ ] ISC-142: Dirty architecture assets are either safely included with provenance or preserved as an explicit excluded candidate.
-- [ ] ISC-143: Active architecture instructions contain no destructive tag deletion, force-push, or implicit release mutation command.
-- [ ] ISC-144: The integrated tree passes the full repository test suite before remote merge.
-- [ ] ISC-145: The post-merge `main` head has a successful required CI run for its exact SHA.
-- [ ] ISC-146: Current `main` contains every selected reviewed commit and no unreviewed feature commit.
-- [ ] ISC-147: Open PRs are merged or explicitly closed with a recorded reason, leaving no unresolved selected code path.
-- [ ] ISC-148: No local or remote branch with unique unclassified code remains after consolidation.
-- [ ] ISC-149: Only confirmed missing-gitdir worktree records are pruned after their paths are independently verified absent.
-- [ ] ISC-150: No force-push, stash drop, branch reset, or destructive worktree removal occurs during consolidation.
-- [ ] ISC-151: Anti: the primary checkout's user-owned dirty blobs change except for explicitly documented ISA edits.
-- [ ] ISC-152: Anti: any existing stash reference or its content digest disappears without explicit user authorization.
-- [ ] ISC-153: Anti: a PR is called merged from local ancestry alone without GitHub state and CI evidence.
-- [ ] ISC-154: Anti: consolidation performs any live Explee/provider mutation or exposes provider credentials.
+- [x] ISC-129: A baseline records the primary checkout, branches, worktrees, stashes, PRs, and remote main SHA.
+- [x] ISC-130: The primary checkout's pre-audit dirty file set and content digests remain recoverable throughout consolidation.
+- [x] ISC-131: Every registered worktree has a recorded path, HEAD, branch or detached state, dirty count, and prunable status.
+- [x] ISC-132: Every local and remote branch is classified as merged, pending, duplicate, or intentionally preserved against fetched `origin/main`.
+- [x] ISC-133: Every open PR has recorded head, base, state, mergeability, and check evidence before mutation.
+- [x] ISC-134: PR #254 is verified as the single reviewed child commit stacked on PR #253.
+- [x] ISC-135: PR #253's conflict against current `origin/main` is reproduced with the actual merge result, not inferred from prose.
+- [x] ISC-136: The unique content in `stash@{0}` is classified file-by-file before any selective recovery.
+- [x] ISC-137: Existing stashes remain retained and content-addressable until every candidate is resolved.
+- [x] ISC-138: The reviewed IVerif stack is integrated in dependency order on a fresh branch from fetched `origin/main`.
+- [x] ISC-139: The integrated IVerif stack preserves fixed bindings, redaction, GET-only provider access, and fail-closed mutation policy.
+- [x] ISC-140: Any selectively recovered validator logic passes the repository's product-branch packet validation tests.
+- [x] ISC-141: Any recovered live-readiness artifact reports blocked evidence truthfully and never claims founder-device proof.
+- [x] ISC-142: Dirty architecture assets are either safely included with provenance or preserved as an explicit excluded candidate.
+- [x] ISC-143: Active architecture instructions contain no destructive tag deletion, force-push, or implicit release mutation command.
+- [x] ISC-144: The integrated tree passes the full repository test suite before remote merge.
+- [x] ISC-145: The post-merge `main` head has a successful required CI run for its exact SHA.
+- [x] ISC-146: Current `main` contains every selected reviewed commit and no unreviewed feature commit.
+- [x] ISC-147: Open PRs are merged or explicitly closed with a recorded reason, leaving no unresolved selected code path.
+- [x] ISC-148: No local or remote branch with unique unclassified code remains after consolidation.
+- [x] ISC-149: Only confirmed missing-gitdir worktree records are pruned after their paths are independently verified absent.
+- [x] ISC-150: No force-push, stash drop, branch reset, or destructive worktree removal occurs during consolidation.
+- [x] ISC-151: Anti: the primary checkout's user-owned dirty blobs change except for explicitly documented ISA edits.
+- [x] ISC-152: Anti: any existing stash reference or its content digest disappears without explicit user authorization.
+- [x] ISC-153: Anti: a PR is called merged from local ancestry alone without GitHub state and CI evidence.
+- [x] ISC-154: Anti: consolidation performs any live Explee/provider mutation or exposes provider credentials.
 
 ## Test Strategy
 
@@ -414,8 +414,23 @@ _Last refreshed: 2026-07-21T08:41:07.915Z_
   refuted by: consolidated-main run `29765512088` failed because the marketing-create proof test depended on ambient Wrangler availability before reaching its input-validation assertions
   learned: portable tests must supply their own tool fixture and prove wrong-version behavior fails closed; local tool installations are not release evidence
   criterion now: ISC-90 requires a successful consolidated-main CI head, with the hermetic Wrangler fixture exercised by the same deterministic release workflow
+- 2026-07-22 | conjectured: Every open PR represented unique code still absent from current main
+  refuted by: PR #254's observer implementation and complete child test surface were already reachable through merged PR #257; only PR #253 required integration
+  learned: PR state must be compared with current-tree content and test reachability, not branch lineage alone
+  criterion now: ISC-134, ISC-146, ISC-147, and ISC-148 require stacked-PR and residual-branch classification against fetched main
+- 2026-07-22 | conjectured: Every dirty or stashed readiness artifact should be promoted into active documentation
+  refuted by: `scripts/drift-audit.mjs` forbids `docs/plans/assets/tg-miniapp-live-proof/readiness.json`, and its blocked report was already classified as stale evidence
+  learned: preserve excluded evidence with local archive refs while honoring the repository's own safety gates
+  criterion now: ISC-141..143 and ISC-152 require truthful exclusion, safe instructions, and retained recovery refs
 
 ## Verification
+
+- Consolidation audit: ISC-129..154 are complete (`26/26`), with baseline, provenance, classification, preservation, integration, cleanup, and anti-criteria evidence recorded above.
+- Main parity: local `main` and `origin/main` both resolve to `61b9f9ae7854d58da5d0c095ace879db28189367`; the checkout is clean after this ISA update is committed.
+- Pull requests: #253 merged to `main` as `c5991f0e`; #254 was explicitly closed as superseded by #257; #265 merged the reviewed pending architecture/ISA state as `61b9f9a`; no PRs remain open.
+- CI: exact-head main run `29901397652` passed successfully for `61b9f9a`; the integration branch also passed `npm test` (978/978), product-branch validation, drift audit, docs render check, standalone audit, and standalone smoke.
+- Preservation: four stashes remain present and five `archive/cambium-consolidation-*` tags retain recovery points; all twelve retained non-primary worktrees are clean and reachable from `origin/main`.
+- Cleanup boundary: only three clean consolidation worktrees and two missing-gitdir records were removed; no branch deletion, stash drop, reset, force-push, or live provider mutation occurred.
 
 - Primary checkout preservation: status digest `eed44f76e58b130fbbb25849421cc93a56662feb143096dec17fcdb306669460` and stash digest `b45c285aa8d1d51b4df0b41cdfd7b0e2e803bdb50c2950c996449874859d7627` match their pre-cleanup values; six worktrees remain.
 - Branch provenance: cleanup and merge-base both resolve to fetched `origin/main` `84f616152f05885369b97a18c8ac4318bb21b23a`.
