@@ -7,7 +7,13 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
-import { d1BridgeExecutionStore, d1BridgeStore, d1FabricLedgerStore } from './index.ts';
+import worker, { d1BridgeBusinessTaskStore, d1BridgeExecutionStore, d1BridgeStore, d1FabricLedgerStore } from './index.ts';
+import { d1MarketingRenderStore } from './marketing-render-store.ts';
+import {
+  MARKETING_CREATE_ADAPTER_ID,
+  MARKETING_CREATE_EXPECTED_ACTIVATION,
+  MARKETING_CREATE_PROVIDER_URL,
+} from './marketing-renderer.ts';
 import type {
   FabricEvidenceCandidateRecord,
   FabricEvidenceReviewRecord,
@@ -18,6 +24,8 @@ import type {
   SimpleRequest,
 } from './handler.ts';
 import type { D1DatabaseLike, D1StatementLike } from './index.ts';
+import type { IVerifExpleeObserver } from './iverif-explee.ts';
+import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { PAGE } from './page.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -402,11 +410,55 @@ function nativeExecutionHarness(now: () => string) {
   const sqliteD1 = new SqliteD1Database(db);
   const bridgeStore = d1BridgeStore(sqliteD1);
   const executionStore = d1BridgeExecutionStore(sqliteD1);
+  const r2Objects = new Map<string, { bytes: Uint8Array; customMetadata: Record<string, string> }>();
+  let r2Puts = 0;
+  const r2 = {
+    async get(key: string) {
+      const object = r2Objects.get(key);
+      if (!object) return null;
+      return {
+        key,
+        size: object.bytes.byteLength,
+        customMetadata: object.customMetadata,
+        async text() { return new TextDecoder().decode(object.bytes); },
+        async arrayBuffer() { return object.bytes.slice().buffer; },
+      };
+    },
+    async head(key: string) {
+      const object = r2Objects.get(key);
+      if (!object) return null;
+      return {
+        key,
+        size: object.bytes.byteLength,
+        customMetadata: object.customMetadata,
+        async text() { return ''; },
+        async arrayBuffer() { return object.bytes.slice().buffer; },
+      };
+    },
+    async put(key: string, value: Uint8Array, options?: { customMetadata?: Record<string, string> }) {
+      if (r2Objects.has(key)) return null;
+      r2Puts++;
+      const object = { bytes: value.slice(), customMetadata: { ...(options?.customMetadata ?? {}) } };
+      r2Objects.set(key, object);
+      return {
+        key,
+        size: object.bytes.byteLength,
+        customMetadata: object.customMetadata,
+        async text() { return new TextDecoder().decode(object.bytes); },
+        async arrayBuffer() { return object.bytes.slice().buffer; },
+      };
+    },
+  };
+  const businessStore = d1BridgeBusinessTaskStore(sqliteD1, r2);
   let uuidIndex = 0;
   return {
     db,
     bridgeStore,
     executionStore,
+    businessStore,
+    r2,
+    r2Objects,
+    r2Puts: () => r2Puts,
     deps: {
       kv: fakeKv(),
       bridgeToken: 'bridge',
@@ -417,6 +469,7 @@ function nativeExecutionHarness(now: () => string) {
       uuid: () => `native-${++uuidIndex}`,
       bridgeStore,
       executionStore,
+      businessStore,
     },
   };
 }
@@ -467,10 +520,119 @@ async function issueScopedMemberToken(
   return String(body(redeem).token);
 }
 
+function businessTaskIntake(overrides: Record<string, unknown> = {}) {
+  return {
+    schema: 'thoughtseed.business_task_intake.v1',
+    source: 'temperance-operator',
+    action: 'service_agreement.draft.render',
+    memberId: 'shesh',
+    idempotencyKey: 'service-agreement-system-canary-20260717',
+    synthetic: true,
+    intent: 'Create an internal service agreement draft for the Thoughtseed D1 lease canary',
+    project: {
+      tenantId: 'thoughtseed',
+      projectId: 'thoughtseed-system-canary',
+      clientId: 'synthetic-client',
+      clientDisplayName: 'Thoughtseed Systems Test Client',
+      projectName: 'Thoughtseed D1 Lease Canary',
+      projectSummary: 'A bounded proof connecting D1 leasing to Hermes, Temperance, DOCX rendering, durable storage, and authenticated readback.',
+      deliverables: ['One D1-leased task', 'One pinned service-agreement DOCX draft'],
+      outOfScope: ['External delivery or publication', 'Signature requests or legal commitment'],
+    },
+    commercial: { engagementType: 'fixed_price', currency: 'INR', feeMinor: 100000 },
+    approval: {
+      scope: 'internal_canary_draft_only',
+      observationId: 'approval_draft_canary_20260717',
+      observedAt: '2026-07-17T08:50:00.000Z',
+    },
+    externalAction: 'none',
+    ...overrides,
+  };
+}
+
 const req = (method: string, path: string, extra: Partial<SimpleRequest> = {}): SimpleRequest =>
   ({ method, path, headers: {}, ...extra });
 
 const body = (r: { body: string }) => JSON.parse(r.body);
+const IVERIF_TEST_READ_TOKEN = `iverif-read-v1.${'a'.repeat(64)}`;
+
+function fakeIVerifExplee(overrides: Partial<IVerifExpleeObserver> = {}): IVerifExpleeObserver {
+  const source = { provider: 'explee-public-api' as const, observedAt: '2026-07-16T07:00:00.000Z' };
+  const project = {
+    projectId: 16_763,
+    period: 'all',
+    emailsSent: 6_439,
+    replies: 31,
+    replyRatePercent: 0.5,
+    hotLeads: 6,
+    spendUsd: 193.17,
+  };
+  const campaign = {
+    campaignId: 45_711,
+    campaign: 'Public Agencies',
+    status: 'outreach',
+    statusReason: null,
+    period: 'all',
+    emailsSent: 2_921,
+    replies: 17,
+    replyRatePercent: 0.6,
+    hotLeads: 6,
+    spendUsd: 87.63,
+    costPerLeadUsd: 14.61,
+    dailyBudgetUsd: 9,
+    poolUsed: 2_779,
+    poolTotal: 2_887,
+  };
+  const autopilot = {
+    projectId: 16_763,
+    autopilotEnabled: true,
+    autoReplyEnabled: true,
+    autoReplyDelayMinutes: 1_440,
+  };
+  return {
+    async getProjectAnalytics() { return { source, analytics: project }; },
+    async getCampaignAnalytics() { return { source, analytics: campaign }; },
+    async getAutopilot() { return { source, autopilot }; },
+    async getSnapshot() { return { source, project, campaign, autopilot }; },
+    async getNeedReplyInbox() {
+      return {
+        source,
+        tab: 'need_reply',
+        contacts: [{
+          personId: 'person-1',
+          latestIntent: 'hot_lead',
+          sentCount: 2,
+          replyCount: 1,
+          latestSentAt: '2026-07-15T00:00:00.000Z',
+          latestReplyAt: '2026-07-15T01:00:00.000Z',
+        }],
+        total: 1,
+        omittedContacts: 0,
+        pageCount: 1,
+        truncated: false,
+      };
+    },
+    async getThread(personId) {
+      return {
+        source,
+        personId,
+        canReply: true,
+        replyBlockedReason: null,
+        latestIntent: 'hot_lead',
+        messageCount: 1,
+        truncated: false,
+        messages: [{
+          messageId: 'message-1',
+          type: 'reply',
+          intent: 'hot_lead',
+          status: null,
+          timestamp: '2026-07-15T01:00:00.000Z',
+        }],
+      };
+    },
+    ...overrides,
+  };
+}
 
 const roleTaskBindings = (
   version = '2026-07-14.1',
@@ -7059,6 +7221,299 @@ test('bridge · admin queues and Paperclip acknowledges directives', async () =>
   assert.equal(body(afterAck).count, 0);
 });
 
+test('business slice · D1 lease renders one immutable task through authenticated artifact readback', async (t) => {
+  const now = '2026-07-17T09:00:00.000Z';
+  const harness = nativeExecutionHarness(() => now);
+  t.after(() => harness.db.close());
+  const intake = businessTaskIntake();
+  const created = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(intake),
+  }), harness.deps);
+  assert.equal(created.status, 200, created.body);
+  const taskIdentity = body(created);
+  assert.equal(taskIdentity.status, 'queued');
+  assert.equal(taskIdentity.businessTaskId, taskIdentity.gsdTaskId);
+  assert.match(taskIdentity.gsdTaskId, /^gsd-service-agreement-[a-f0-9]{32}$/);
+
+  const replay = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(intake),
+  }), harness.deps);
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).duplicate, true);
+  assert.equal(body(replay).directiveId, taskIdentity.directiveId);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_business_tasks').get() as any).count, 1);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_directives WHERE id = ?').get(taskIdentity.directiveId) as any).count, 1);
+
+  const queuedOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer assign-only' } },
+  ), harness.deps);
+  assert.equal(queuedOperatorReceipt.status, 200);
+  assert.deepEqual(body(queuedOperatorReceipt), {
+    ok: true,
+    schema: 'thoughtseed.business_task_operator_receipt.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    status: 'queued',
+    synthetic: true,
+    externalAction: 'none',
+    updatedAt: now,
+    artifact: null,
+  });
+
+  const directive = await harness.bridgeStore.getDirective('shesh', taskIdentity.directiveId) as any;
+  assert.equal(directive.payload.command, 'service_agreement.draft.render');
+  assert.equal(directive.payload.input.gsdTaskId, taskIdentity.gsdTaskId);
+  const memberToken = await issueScopedMemberToken(harness.deps, 'shesh');
+  const otherToken = await issueScopedMemberToken(harness.deps, 'mathis');
+  const adminOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer bridge' } },
+  ), harness.deps);
+  assert.equal(adminOperatorReceipt.status, 200);
+  const memberOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: `Bearer ${memberToken}` } },
+  ), harness.deps);
+  assert.equal(memberOperatorReceipt.status, 200);
+  const claim = executionClaim({
+    directiveId: taskIdentity.directiveId,
+    idempotencyKey: intake.idempotencyKey,
+    executionId: testExecutionId('shesh', taskIdentity.directiveId, String(intake.idempotencyKey)),
+  });
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(claim),
+  }), harness.deps);
+  assert.equal(claimed.status, 200, claimed.body);
+  assert.equal(body(claimed).status, 'claimed');
+  assert.equal((harness.db.prepare('SELECT status FROM bridge_business_tasks').get() as any).status, 'leased');
+
+  const artifactBytes = Uint8Array.from([0x50, 0x4b, 0x03, 0x04, ...new TextEncoder().encode('synthetic-docx-canary')]);
+  const artifactDigest = `sha256:${createHash('sha256').update(artifactBytes).digest('hex')}`;
+  const artifactId = `artifact_${createHash('sha256')
+    .update(`${taskIdentity.gsdTaskId}\u0000thoughtseed.hermes.native_execution.v1`)
+    .digest('hex')
+    .slice(0, 32)}`;
+  const upload = {
+    schema: 'thoughtseed.hermes.business_artifact_upload.v1',
+    memberId: 'shesh',
+    directiveId: taskIdentity.directiveId,
+    idempotencyKey: intake.idempotencyKey,
+    executionId: claim.executionId,
+    runnerId: claim.runnerId,
+    hostIdentity: claim.hostIdentity,
+    claimId: body(claimed).claimId,
+    fencingToken: body(claimed).fencingToken,
+    attempt: body(claimed).attempt,
+    artifact: {
+      id: artifactId,
+      fileName: `Service_Agreement_${artifactId}_DRAFT.docx`,
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      byteLength: artifactBytes.byteLength,
+      digest: artifactDigest,
+      base64: Buffer.from(artifactBytes).toString('base64'),
+    },
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    approvalState: 'awaiting_human_approval',
+    synthetic: true,
+    externalAction: 'none',
+    policies: {
+      contentPolicyId: 'anthropic-skills:thoughtseed-contract-generator@1',
+      contentPolicyDigest: 'sha256:b34b87ac93681a9acb4127ebdeb3030eccf4f9b6e2f8119b21326fdf3ffe9a13',
+      rendererPolicyId: 'thoughtseed.docx.legal.a4.v1',
+      rendererPolicyDigest: 'sha256:ab11e39c744ac22dd6ee88b50f7fd275954ce4dd6bebd44590844b1f6ac6f453',
+      fallbackPolicy: 'fail_closed',
+    },
+  };
+  const staleUpload = structuredClone(upload);
+  staleUpload.fencingToken = 'fence_stale';
+  const stale = await handle(req('POST', '/v1/bridge/executions/artifact', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(staleUpload),
+  }), harness.deps);
+  assert.equal(stale.status, 409);
+  assert.equal(body(stale).code, 'stale_fence');
+  assert.equal(harness.r2Puts(), 0);
+
+  const stored = await handle(req('POST', '/v1/bridge/executions/artifact', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(upload),
+  }), harness.deps);
+  assert.equal(stored.status, 200, stored.body);
+  assert.equal(body(stored).stored, true);
+  assert.equal(body(stored).duplicate, false);
+  assert.equal(body(stored).receipt.digest, artifactDigest);
+  assert.equal(harness.r2Puts(), 1);
+
+  const duplicateArtifact = await handle(req('POST', '/v1/bridge/executions/artifact', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(upload),
+  }), harness.deps);
+  assert.equal(duplicateArtifact.status, 200);
+  assert.equal(body(duplicateArtifact).duplicate, true);
+  assert.equal(harness.r2Puts(), 1);
+
+  const forbiddenTaskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: `Bearer ${otherToken}` },
+  }), harness.deps);
+  assert.equal(forbiddenTaskRead.status, 403);
+  const assignmentRawTaskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: 'Bearer assign-only' },
+  }), harness.deps);
+  assert.equal(assignmentRawTaskRead.status, 403);
+  const assignmentRawArtifactRead = await handle(req('GET', `/v1/bridge/business-artifacts/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: 'Bearer assign-only' },
+  }), harness.deps);
+  assert.equal(assignmentRawArtifactRead.status, 403);
+  const forbiddenOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: `Bearer ${otherToken}` } },
+  ), harness.deps);
+  assert.equal(forbiddenOperatorReceipt.status, 403);
+  const taskRead = await handle(req('GET', `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: `Bearer ${memberToken}` },
+  }), harness.deps);
+  assert.equal(taskRead.status, 200);
+  assert.equal(body(taskRead).task.status, 'artifact_stored');
+
+  const artifactRead = await handle(req('GET', `/v1/bridge/business-artifacts/${taskIdentity.gsdTaskId}`, {
+    headers: { authorization: `Bearer ${memberToken}` },
+  }), harness.deps);
+  assert.equal(artifactRead.status, 200);
+  assert.equal(body(artifactRead).receipt.digest, artifactDigest);
+  assert.deepEqual(Buffer.from(body(artifactRead).base64, 'base64'), Buffer.from(artifactBytes));
+
+  const receipt = body(stored).receipt;
+  const attestationIdentity = {
+    schema: 'thoughtseed.hermes.execution_attestation.v1',
+    executionId: claim.executionId,
+    directiveId: claim.directiveId,
+    idempotencyKey: claim.idempotencyKey,
+    runnerId: claim.runnerId,
+    hostIdentity: claim.hostIdentity,
+    command: 'service_agreement.draft.render',
+    status: 'executed',
+    exitCode: 0,
+    inputDigest: testDigestCanonical(directive.payload.input),
+    outputDigest: artifactDigest,
+    businessReceipt: receipt,
+    startedAt: now,
+    finishedAt: '2026-07-17T09:00:01.000Z',
+  };
+  const outcome = {
+    schema: 'thoughtseed.hermes.execution_outcome.v1',
+    memberId: 'shesh',
+    directiveId: claim.directiveId,
+    idempotencyKey: claim.idempotencyKey,
+    executionId: claim.executionId,
+    runnerId: claim.runnerId,
+    claimId: body(claimed).claimId,
+    fencingToken: body(claimed).fencingToken,
+    attempt: body(claimed).attempt,
+    status: 'executed',
+    attestation: {
+      ...attestationIdentity,
+      id: `att_${createHash('sha256').update(canonicalJson(attestationIdentity)).digest('hex').slice(0, 32)}`,
+    },
+  };
+  const recorded = await handle(req('POST', '/v1/bridge/executions/outcome', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(outcome),
+  }), harness.deps);
+  assert.equal(recorded.status, 200, recorded.body);
+  assert.equal(body(recorded).terminal, true);
+  assert.equal((harness.db.prepare('SELECT status FROM bridge_business_tasks').get() as any).status, 'awaiting_human_approval');
+
+  const terminalOperatorReceipt = await handle(req(
+    'GET',
+    `/v1/bridge/business-tasks/${taskIdentity.gsdTaskId}/operator-receipt`,
+    { headers: { authorization: 'Bearer assign-only' } },
+  ), harness.deps);
+  assert.equal(terminalOperatorReceipt.status, 200);
+  assert.deepEqual(body(terminalOperatorReceipt), {
+    ok: true,
+    schema: 'thoughtseed.business_task_operator_receipt.v1',
+    gsdTaskId: taskIdentity.gsdTaskId,
+    workflowId: 'thoughtseed.legal.service-agreement.draft.v1',
+    status: 'awaiting_human_approval',
+    synthetic: true,
+    externalAction: 'none',
+    updatedAt: now,
+    artifact: {
+      artifactId,
+      digest: artifactDigest,
+      byteLength: artifactBytes.byteLength,
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      approvalState: 'awaiting_human_approval',
+    },
+  });
+
+  const ack = await handle(req('POST', '/v1/bridge/ack', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify({ memberId: 'shesh', ids: [taskIdentity.directiveId] }),
+  }), harness.deps);
+  assert.equal(ack.status, 200);
+  assert.equal(body(ack).acked, 1);
+  assert.equal(harness.r2Objects.size, 1);
+});
+
+test('business slice · intake rejects external actions and unknown fields before D1 writes', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-17T09:10:00.000Z');
+  t.after(() => harness.db.close());
+  const external = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(businessTaskIntake({ intent: 'Send the agreement for signature' })),
+  }), harness.deps);
+  assert.equal(external.status, 400);
+  assert.equal(body(external).code, 'external_action_forbidden');
+  const unknown = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(businessTaskIntake({ arbitrary: 'forbidden' })),
+  }), harness.deps);
+  assert.equal(unknown.status, 400);
+  const memberToken = await issueScopedMemberToken(harness.deps, 'shesh');
+  const memberCreate = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify(businessTaskIntake()),
+  }), harness.deps);
+  assert.equal(memberCreate.status, 403);
+  assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_business_tasks').get() as any).count, 0);
+  assert.equal(harness.r2Puts(), 0);
+});
+
+test('business slice · Telegram operator source is additive and remains synthetic-only', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-17T10:00:00.000Z');
+  t.after(() => harness.db.close());
+  const intake = businessTaskIntake({
+    source: 'hermes-telegram-operator',
+    memberId: 'hermes-runner',
+    idempotencyKey: 'telegram-service-agreement-canary-20260717-default',
+    approval: {
+      scope: 'internal_canary_draft_only',
+      observationId: 'approval_telegram_20260717_default',
+      observedAt: '2026-07-17T00:00:00.000Z',
+    },
+  });
+  const response = await handle(req('POST', '/v1/bridge/business-tasks', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(intake),
+  }), harness.deps);
+  assert.equal(response.status, 200, response.body);
+  const stored = await harness.businessStore.getTask(body(response).gsdTaskId);
+  assert.equal(stored?.request.source, 'hermes-telegram-operator');
+  assert.equal(stored?.memberId, 'hermes-runner');
+  assert.equal(stored?.synthetic, true);
+  assert.equal(stored?.externalAction, 'none');
+});
+
 test('bridge execution · scoped member claim is atomic and replays the winning lease', async (t) => {
   const now = '2026-07-15T10:00:00.000Z';
   const harness = nativeExecutionHarness(() => now);
@@ -10110,4 +10565,921 @@ test('handoff · invite redemption issues a scoped bridge token', async () => {
     body: JSON.stringify(scopedMessage),
   }), deps);
   assert.equal(oldTokenAfterRotate.status, 401);
+});
+
+test('IVerif observer requires its dedicated configuration and rejects broad bridge auth', async () => {
+  const kv = fakeKv();
+  const path = '/v1/bridge/iverif/status';
+  const unconfigured = await handle(req('GET', path, {
+    headers: { authorization: 'Bearer bridge' },
+  }), { kv, bridgeToken: 'bridge' });
+  assert.equal(unconfigured.status, 503);
+  assert.equal(body(unconfigured).error, 'iverif_observer_not_configured');
+
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assignment',
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  };
+  for (const credential of ['bridge', 'assignment', 'wrong']) {
+    const rejected = await handle(req('GET', path, {
+      headers: { authorization: `Bearer ${credential}` },
+    }), deps);
+    assert.equal(rejected.status, 401);
+  }
+
+  const accepted = await handle(req('GET', path, {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), deps);
+  assert.equal(accepted.status, 200);
+
+  for (const collision of [
+    { bridgeToken: IVERIF_TEST_READ_TOKEN },
+    { assignmentToken: IVERIF_TEST_READ_TOKEN },
+    { pushToken: IVERIF_TEST_READ_TOKEN },
+    { providerBroker: { token: IVERIF_TEST_READ_TOKEN, providers: {} } },
+    { contextRoutes: { token: IVERIF_TEST_READ_TOKEN } },
+    { iverifProviderApiKey: IVERIF_TEST_READ_TOKEN },
+  ]) {
+    const rejected = await handle(req('GET', path, {
+      headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+    }), { ...deps, ...collision });
+    assert.equal(rejected.status, 503);
+    assert.equal(body(rejected).error, 'iverif_observer_not_configured');
+  }
+
+  const unnamespaced = await handle(req('GET', path, {
+    headers: { authorization: 'Bearer otherwise-long-enough-but-unnamespaced-read-token' },
+  }), {
+    ...deps,
+    iverifReadToken: 'otherwise-long-enough-but-unnamespaced-read-token',
+  });
+  assert.equal(unnamespaced.status, 503);
+});
+
+test('IVerif status exposes live one-writer conflict while remaining send-ineligible', async () => {
+  const response = await handle(req('GET', '/v1/bridge/iverif/status', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  });
+
+  assert.equal(response.status, 200);
+  const payload = body(response);
+  assert.equal(payload.schema, 'cambium.iverif-observer.status.v1');
+  assert.equal(payload.grounding.binding.expleeProjectId, 16_763);
+  assert.equal(payload.grounding.binding.expleeCampaignId, 45_711);
+  assert.equal(payload.campaign.emailsSent, 2_921);
+  assert.equal(payload.policy.mode, 'observe');
+  assert.equal(payload.policy.proofState, 'proof-only');
+  assert.deepEqual(payload.policy.allowedProviderMethods, ['GET']);
+  assert.equal(payload.policy.autoReplyEnabled, true);
+  assert.equal(payload.policy.oneWriterConflict, true);
+  assert.equal(payload.policy.oneWriterConflictReason, 'provider-auto-reply-enabled');
+  assert.equal(payload.policy.sendEligible, false);
+  assert.doesNotMatch(response.body, /"(?:email|name|subject|body_text|reply_cc_emails|phone|linkedin_url|address)"\s*:/i);
+});
+
+test('IVerif inbox and thread routes preserve opaque state without enabling replies', async () => {
+  const deps = {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  };
+  const headers = { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` };
+
+  const inbox = await handle(req('GET', '/v1/bridge/iverif/inbox', { headers }), deps);
+  assert.equal(inbox.status, 200);
+  assert.equal(body(inbox).contacts[0].personId, 'person-1');
+  assert.equal(body(inbox).policy.sendEligible, false);
+
+  const thread = await handle(req('GET', '/v1/bridge/iverif/thread/person-1', { headers }), deps);
+  assert.equal(thread.status, 200);
+  assert.equal(body(thread).personId, 'person-1');
+  assert.equal(body(thread).providerCanReply, true);
+  assert.equal(body(thread).policy.sendEligible, false);
+  assert.equal(body(thread).messages[0].messageRef, null);
+  assert.doesNotMatch(thread.body, /message-1/);
+  assert.doesNotMatch(thread.body, /"(?:email|name|subject|body_text|reply_cc_emails|phone|linkedin_url|address)"\s*:/i);
+});
+
+test('IVerif thread route emits only digest-shaped message references or null', async () => {
+  const digest = `sha256:${'b'.repeat(64)}`;
+  const observer = fakeIVerifExplee({
+    async getThread(personId) {
+      const thread = await fakeIVerifExplee().getThread(personId);
+      return {
+        ...thread,
+        messageCount: 2,
+        messages: [
+          { ...thread.messages[0], messageId: 'raw-provider-message-identifier' },
+          { ...thread.messages[0], messageId: digest },
+        ],
+      };
+    },
+  });
+  const response = await handle(req('GET', '/v1/bridge/iverif/thread/person-1', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: observer,
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body(response).messages.map((message: { messageRef: string | null }) => message.messageRef), [
+    null,
+    digest,
+  ]);
+  assert.doesNotMatch(response.body, /raw-provider-message-identifier/);
+});
+
+test('IVerif malformed thread ids and non-GET methods stop before provider access', async () => {
+  let calls = 0;
+  const observer = fakeIVerifExplee({
+    async getThread(personId) {
+      calls += 1;
+      return fakeIVerifExplee().getThread(personId);
+    },
+    async getSnapshot() {
+      calls += 1;
+      return fakeIVerifExplee().getSnapshot();
+    },
+  });
+  const deps = {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: observer,
+  };
+  const headers = { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` };
+
+  const malformed = await handle(req('GET', '/v1/bridge/iverif/thread/person%40example.invalid', { headers }), deps);
+  assert.equal(malformed.status, 400);
+  assert.equal(body(malformed).error, 'bad_person_id');
+
+  const mutation = await handle(req('POST', '/v1/bridge/iverif/status', { headers, body: '{}' }), deps);
+  assert.equal(mutation.status, 405);
+  assert.equal(mutation.headers.allow, 'GET');
+  assert.equal(calls, 0);
+});
+
+test('IVerif observer reads never create ActionRequests', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  };
+  const headers = { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` };
+
+  for (const path of [
+    '/v1/bridge/iverif/status',
+    '/v1/bridge/iverif/inbox',
+    '/v1/bridge/iverif/thread/person-1',
+    '/v1/bridge/iverif/optimize',
+  ]) {
+    const response = await handle(req('GET', path, { headers }), deps);
+    assert.equal(response.status, 200, path);
+  }
+
+  assert.deepEqual(await kv.list('action-request:'), []);
+  assert.deepEqual(await kv.list('action-request-idempotency:'), []);
+});
+
+test('IVerif optimize combines grounded experiment and live analytics without thread content', async () => {
+  const response = await handle(req('GET', '/v1/bridge/iverif/optimize', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee(),
+  });
+
+  assert.equal(response.status, 200);
+  const payload = body(response);
+  assert.equal(payload.schema, 'cambium.iverif-observer.optimize.v1');
+  assert.equal(payload.live.emailsSent, 2_921);
+  assert.equal(payload.experiment.variable, 'discovery-framing');
+  assert.equal(payload.experiment.repliesClassified, 0);
+  assert.equal(payload.experiment.winnerEligible, false);
+  assert.equal(payload.claimStatus.verified, 0);
+  assert.ok(payload.claimStatus.blocked.includes('compliance-guarantee'));
+  assert.doesNotMatch(response.body, /"(?:messages|body_text|from_email|to_email|lead)"\s*:/i);
+});
+
+test('IVerif observer normalizes unexpected failures without leaking provider bodies', async () => {
+  const response = await handle(req('GET', '/v1/bridge/iverif/status', {
+    headers: { authorization: `Bearer ${IVERIF_TEST_READ_TOKEN}` },
+  }), {
+    kv: fakeKv(),
+    iverifReadToken: IVERIF_TEST_READ_TOKEN,
+    iverifExplee: fakeIVerifExplee({
+      async getSnapshot() {
+        throw new Error('pii-upstream-body-with-secret');
+      },
+    }),
+  });
+
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'iverif_observer_unavailable');
+  assert.doesNotMatch(response.body, /pii-|secret/);
+});
+
+test('lead runtime route executes one bounded IVerif capture/enrich run and replays durably', async () => {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const kv = fakeKv();
+  let uuidIndex = 0;
+  let inboxCalls = 0;
+  let threadCalls = 0;
+  const observer = fakeIVerifExplee({
+    async getNeedReplyInbox() {
+      inboxCalls += 1;
+      return fakeIVerifExplee().getNeedReplyInbox();
+    },
+    async getThread(personId) {
+      threadCalls += 1;
+      return fakeIVerifExplee().getThread(personId);
+    },
+  });
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    iverifExplee: observer,
+    leadRuntimeStore: d1LeadRuntimeStore(new SqliteD1Database(db)),
+    now: () => '2026-07-20T18:00:00.000Z',
+    uuid: () => `lead-route-${++uuidIndex}`,
+  };
+  const path = '/v1/bridge/lead-runs/iverif/capture-enrich';
+  const request = (credential: string, payload: Record<string, unknown>) => handle(req('POST', path, {
+    headers: { authorization: `Bearer ${credential}` },
+    body: JSON.stringify(payload),
+  }), deps);
+
+  const scoped = await request('assign-only', { idempotencyKey: 'iverif-bounded-run-001' });
+  assert.equal(scoped.status, 403);
+  assert.equal(inboxCalls, 0);
+
+  const malformed = await request('bridge', {
+    idempotencyKey: 'iverif-bounded-run-001',
+    provider: 'caller-override-forbidden',
+  });
+  assert.equal(malformed.status, 400);
+  assert.equal(inboxCalls, 0);
+
+  const unavailable = await handle(req('POST', path, {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ idempotencyKey: 'iverif-unavailable-run-001' }),
+  }), {
+    ...deps,
+    leadRuntimeStore: {
+      ...deps.leadRuntimeStore,
+      async createTask() { throw new Error('sensitive-d1-diagnostic'); },
+    },
+  });
+  assert.equal(unavailable.status, 503);
+  assert.equal(body(unavailable).error, 'lead_runtime_unavailable');
+  assert.doesNotMatch(unavailable.body, /sensitive|diagnostic/i);
+  assert.equal(inboxCalls, 0);
+
+  const completed = await request('bridge', { idempotencyKey: 'iverif-bounded-run-001' });
+  assert.equal(completed.status, 200, completed.body);
+  assert.equal(body(completed).status, 'completed');
+  assert.equal(body(completed).receipt.spendUnits, 0);
+  assert.equal(inboxCalls, 1);
+  assert.equal(threadCalls, 1);
+
+  const replay = await request('bridge', { idempotencyKey: 'iverif-bounded-run-001' });
+  assert.equal(replay.status, 200, replay.body);
+  assert.equal(body(replay).status, 'replay');
+  assert.equal(body(replay).receipt.leadId, body(completed).receipt.leadId);
+  assert.equal(inboxCalls, 1, 'terminal replay performs no provider read');
+  assert.equal(threadCalls, 1, 'terminal replay performs no provider read');
+
+  for (const table of [
+    'lead_records',
+    'lead_source_aliases',
+    'lead_observation_receipts',
+    'lead_loop_tasks',
+    'lead_spend_reservations',
+    'lead_provider_usage',
+    'lead_cortex_foldbacks',
+  ]) {
+    const row = db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get() as { count: number };
+    assert.equal(Number(row.count), 1, table);
+  }
+  const spend = db.prepare(`
+    SELECT reserved_units, settled_units, status FROM lead_spend_reservations
+  `).get() as { reserved_units: number; settled_units: number; status: string };
+  assert.deepEqual({ ...spend }, { reserved_units: 0, settled_units: 0, status: 'settled' });
+  assert.deepEqual(await kv.list('action-request:'), []);
+});
+
+// ── Fixed-tenant marketing create renderer ──────────────────────────────
+
+function marketingRoutePrepareInput(overrides: Record<string, unknown> = {}) {
+  return {
+    requestId: 'marketing-render-request-001',
+    idempotencyKey: 'marketing-render-replay-001',
+    actorId: 'operator-founder-001',
+    budgetReservationId: 'budget-founder-article-001',
+    expiresAt: '2026-07-18T14:00:00.000Z',
+    brief: {
+      briefId: 'asset-brief-founder-001',
+      objective: 'Explain how governed organic media earns trust.',
+      audience: 'Founder-led service businesses',
+      callToAction: 'Review the workflow before adopting it.',
+      productPacketId: 'thoughtseed-marketing@1.0.0',
+      productPacketDigest: '2'.repeat(64),
+      evidenceSnapshotDigest: '3'.repeat(64),
+      seedDigest: '4'.repeat(64),
+      facts: [{
+        claimId: 'claim-governance-001',
+        text: 'Every generated asset remains review-only until explicit approval.',
+        sourceDigest: '5'.repeat(64),
+      }],
+    },
+    ...overrides,
+  };
+}
+
+function marketingRouteHarness(fetchImpl: typeof fetch, overrides: Record<string, unknown> = {}) {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const store = d1MarketingRenderStore(new SqliteD1Database(db));
+  let uuidSequence = 0;
+  const ids = ['approval-marketing-render-001', 'claim-marketing-render-001'];
+  const deps = {
+    kv: fakeKv(),
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    marketingRenderStore: store,
+    marketingRenderer: {
+      activation: MARKETING_CREATE_EXPECTED_ACTIVATION,
+      apiKey: 'exclusive-worker-secret-value',
+      fetchImpl,
+    },
+    now: () => '2026-07-18T13:00:00.000Z',
+    uuid: () => ids[uuidSequence++] ?? `marketing-id-${uuidSequence}`,
+    ...overrides,
+  };
+  return { db, store, deps };
+}
+
+async function prepareMarketingRoute(deps: any, payload = marketingRoutePrepareInput()) {
+  return handle(req('POST', '/v1/bridge/marketing-renders/prepare', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify(payload),
+  }), deps);
+}
+
+test('marketing renderer route · only admin can prepare the immutable registered action', async () => {
+  let fetches = 0;
+  const { store, deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}', { status: 500 });
+  });
+
+  const assignment = await handle(req('POST', '/v1/bridge/marketing-renders/prepare', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify(marketingRoutePrepareInput()),
+  }), deps);
+  assert.equal(assignment.status, 403);
+
+  const override = await prepareMarketingRoute(deps, marketingRoutePrepareInput({ model: 'caller/model' }));
+  assert.equal(override.status, 400);
+  assert.equal(body(override).error, 'invalid_prepare_input');
+
+  const prepared = await prepareMarketingRoute(deps);
+  assert.equal(prepared.status, 200);
+  assert.deepEqual(body(prepared), {
+    ok: true,
+    duplicate: false,
+    requestId: 'marketing-render-request-001',
+    adapterId: MARKETING_CREATE_ADAPTER_ID,
+    actionDigest: body(prepared).actionDigest,
+    status: 'awaiting_human_approval',
+    nextAction: {
+      route: '/api/gate/thoughtseed',
+      kind: 'approve-marketing-render',
+    },
+  });
+  assert.match(body(prepared).actionDigest, /^[a-f0-9]{64}$/);
+  assert.doesNotMatch(prepared.body, /exclusive-worker-secret-value|messages|promptTemplate/i);
+  assert.ok(await store.getPrepared('marketing-render-request-001'));
+  assert.equal(fetches, 0);
+});
+
+test('marketing renderer route · activation mismatch refuses before D1 preparation', async () => {
+  let fetches = 0;
+  const { store, deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}');
+  }, {
+    marketingRenderer: {
+      activation: 'wrong-activation',
+      apiKey: 'exclusive-worker-secret-value',
+    },
+  });
+
+  const response = await prepareMarketingRoute(deps);
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'renderer_disabled');
+  assert.equal(await store.getPrepared('marketing-render-request-001'), null);
+  assert.equal(fetches, 0);
+});
+
+test('marketing renderer route · missing exclusive secret refuses before D1 preparation', async () => {
+  let storeCalls = 0;
+  let fetches = 0;
+  const { deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}');
+  }, {
+    marketingRenderStore: {
+      async prepare() {
+        storeCalls += 1;
+        throw new Error('prepare must not reach D1 without the renderer secret');
+      },
+    },
+    marketingRenderer: {
+      activation: MARKETING_CREATE_EXPECTED_ACTIVATION,
+      apiKey: '   ',
+      fetchImpl: async () => {
+        fetches += 1;
+        return new Response('{}');
+      },
+    },
+  });
+
+  const response = await prepareMarketingRoute(deps);
+  assert.equal(response.status, 503);
+  assert.deepEqual(body(response), { error: 'renderer_secret_missing' });
+  assert.equal(storeCalls, 0);
+  assert.equal(fetches, 0);
+});
+
+test('marketing renderer route · preparation normalizes D1 failures without leaking diagnostics', async () => {
+  const { deps } = marketingRouteHarness(async () => new Response('{}'), {
+    marketingRenderStore: {
+      async prepare() { throw new Error('database-secret-diagnostic'); },
+    },
+  });
+  const response = await prepareMarketingRoute(deps);
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'marketing_render_store_unavailable');
+  assert.doesNotMatch(response.body, /database-secret-diagnostic/);
+});
+
+test('marketing renderer route · signed Thoughtseed founder approval is persisted and idempotent', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: TEST_FOUNDER_A,
+    authDate: NOW / 1000 - 30,
+  });
+  const { store, deps } = marketingRouteHarness(async () => new Response('{}'), {
+    gate: gateCfg(pubKeyHex),
+  });
+  assert.equal((await prepareMarketingRoute(deps)).status, 200);
+
+  deps.marketingRenderer.activation = 'wrong-activation';
+  const disabled = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(disabled.status, 503);
+  assert.equal(body(disabled).error, 'renderer_disabled');
+  assert.equal(await store.getApproval('approval-marketing-render-001'), null);
+  deps.marketingRenderer.activation = MARKETING_CREATE_EXPECTED_ACTIVATION;
+
+  const injectedAuthority = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      actionDigest: '9'.repeat(64),
+      initData,
+    }),
+  }), deps);
+  assert.equal(injectedAuthority.status, 400);
+  assert.equal(body(injectedAuthority).error, 'invalid_marketing_render_approval_input');
+  assert.equal(await store.getApproval('approval-marketing-render-001'), null);
+
+  const wrongTenant = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(wrongTenant.status, 403);
+
+  const approved = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  assert.deepEqual(body(approved), {
+    ok: true,
+    duplicate: false,
+    requestId: 'marketing-render-request-001',
+    approvalDecisionId: 'approval-marketing-render-001',
+  });
+  const persisted = await store.getApproval('approval-marketing-render-001');
+  assert.equal(persisted?.approver_id, `telegram-founder-${TEST_FOUNDER_A}`);
+
+  const duplicate = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  assert.equal(duplicate.status, 200);
+  assert.equal(body(duplicate).duplicate, true);
+  assert.equal(body(duplicate).approvalDecisionId, 'approval-marketing-render-001');
+});
+
+test('marketing renderer route · persisted approval executes once and replays review-only output', async () => {
+  let fetches = 0;
+  const providerSecret = 'exclusive-worker-secret-value';
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: TEST_FOUNDER_B,
+    authDate: NOW / 1000 - 30,
+  });
+  const { deps } = marketingRouteHarness(async (url, init) => {
+    fetches += 1;
+    assert.equal(String(url), MARKETING_CREATE_PROVIDER_URL);
+    assert.equal((init?.headers as Record<string, string>).authorization, `Bearer ${providerSecret}`);
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({
+        title: 'Governed organic media',
+        body: 'A review-only article grounded in verified facts.',
+      }) } }],
+      usage: { total_tokens: 321 },
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  }, {
+    gate: gateCfg(pubKeyHex),
+  });
+  assert.equal((await prepareMarketingRoute(deps)).status, 200);
+  const approved = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({
+      kind: 'approve-marketing-render',
+      requestId: 'marketing-render-request-001',
+      subject: 'marketing-render-request-001',
+      initData,
+    }),
+  }), deps);
+  const approvalDecisionId = body(approved).approvalDecisionId;
+
+  const override = await handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ approvalDecisionId, model: 'caller/model' }),
+  }), deps);
+  assert.equal(override.status, 400);
+  assert.equal(fetches, 0);
+
+  const assignment = await handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer assign-only' },
+    body: JSON.stringify({ approvalDecisionId }),
+  }), deps);
+  assert.equal(assignment.status, 403);
+  assert.equal(fetches, 0);
+
+  const execute = () => handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ approvalDecisionId }),
+  }), deps);
+  const first = await execute();
+  assert.equal(first.status, 200);
+  assert.equal(body(first).status, 'succeeded');
+  assert.equal(body(first).replayed, false);
+  assert.equal(body(first).adapterId, MARKETING_CREATE_ADAPTER_ID);
+  assert.equal(body(first).publishEligible, false);
+  assert.equal(body(first).externalAction, 'none');
+  assert.equal(body(first).artifact.status, 'draft');
+  assert.equal(body(first).receipt.state, 'awaiting_human_approval');
+  assert.doesNotMatch(first.body, new RegExp(providerSecret));
+
+  const replay = await execute();
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).replayed, true);
+  assert.equal(body(replay).artifactDigest, body(first).artifactDigest);
+  assert.deepEqual(body(replay).artifact, body(first).artifact);
+  assert.equal(fetches, 1);
+});
+
+test('marketing renderer route · missing exclusive secret fails closed without provider egress', async () => {
+  let fetches = 0;
+  const { deps } = marketingRouteHarness(async () => {
+    fetches += 1;
+    return new Response('{}');
+  }, {
+    marketingRenderer: {
+      activation: MARKETING_CREATE_EXPECTED_ACTIVATION,
+      fetchImpl: async () => {
+        fetches += 1;
+        return new Response('{}');
+      },
+    },
+  });
+
+  const response = await handle(req('POST', '/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({ approvalDecisionId: 'approval-marketing-render-001' }),
+  }), deps);
+  assert.equal(response.status, 503);
+  assert.equal(body(response).error, 'renderer_secret_missing');
+  assert.equal(fetches, 0);
+});
+
+test('marketing renderer runtime · Worker bindings stay exclusive and execute without generic NVIDIA authority', async () => {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const kvRows = new Map<string, string>();
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: TEST_FOUNDER_A,
+    authDate: Math.floor(Date.now() / 1000) - 30,
+  });
+  const exclusiveSecret = 'exclusive-worker-secret-value';
+  const genericSecret = 'generic-secret-must-not-be-used';
+  let providerFetches = 0;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    providerFetches += 1;
+    assert.equal(String(url), MARKETING_CREATE_PROVIDER_URL);
+    assert.equal((init?.headers as Record<string, string>).authorization, `Bearer ${exclusiveSecret}`);
+    assert.notEqual((init?.headers as Record<string, string>).authorization, `Bearer ${genericSecret}`);
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({
+        title: 'Governed organic media',
+        body: 'A review-only article grounded in verified facts.',
+      }) } }],
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  }) as typeof fetch;
+  const env = {
+    QUESTS: {
+      async get(key: string) { return kvRows.get(key) ?? null; },
+      async put(key: string, value: string) { kvRows.set(key, value); },
+      async list({ prefix }: { prefix: string }) {
+        return { keys: [...kvRows.keys()].filter((key) => key.startsWith(prefix)).map((name) => ({ name })) };
+      },
+    },
+    BRIDGE_DB: new SqliteD1Database(db),
+    BRIDGE_TOKEN: 'bridge',
+    GATE_BOT_ID: TEST_BOT_ID,
+    GATE_FOUNDER_IDS: TEST_FOUNDER_A,
+    GATE_TG_PUBKEY: pubKeyHex,
+    MARKETING_CREATE_ACTIVATION: MARKETING_CREATE_EXPECTED_ACTIVATION,
+    NVIDIA_MARKETING_CREATE_API_KEY: exclusiveSecret,
+    NVIDIA_API_KEY: genericSecret,
+  };
+  try {
+    const prepare = await worker.fetch(new Request('https://worker.example/v1/bridge/marketing-renders/prepare', {
+      method: 'POST',
+      headers: { authorization: 'Bearer bridge', 'content-type': 'application/json' },
+      body: JSON.stringify(marketingRoutePrepareInput({
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      })),
+    }), env as any);
+    assert.equal(prepare.status, 200);
+
+    const approve = await worker.fetch(new Request('https://worker.example/api/gate/thoughtseed', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'approve-marketing-render',
+        requestId: 'marketing-render-request-001',
+        subject: 'marketing-render-request-001',
+        initData,
+      }),
+    }), env as any);
+    assert.equal(approve.status, 200);
+    const approvalDecisionId = (await approve.json() as any).approvalDecisionId;
+
+    const execute = await worker.fetch(new Request('https://worker.example/v1/bridge/marketing-renders/marketing-render-request-001/execute', {
+      method: 'POST',
+      headers: { authorization: 'Bearer bridge', 'content-type': 'application/json' },
+      body: JSON.stringify({ approvalDecisionId }),
+    }), env as any);
+    assert.equal(execute.status, 200);
+    const result = await execute.json() as any;
+    assert.equal(result.status, 'succeeded');
+    assert.equal(result.publishEligible, false);
+    assert.equal(result.externalAction, 'none');
+    assert.equal(providerFetches, 1);
+    assert.doesNotMatch(JSON.stringify(result), /exclusive-worker-secret-value|generic-secret-must-not-be-used/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  const source = readFileSync(new URL('./index.ts', import.meta.url), 'utf8');
+  const providerMap = source.match(/const providers:[\s\S]*?const workerFetch/)?.[0] ?? '';
+  assert.doesNotMatch(providerMap, /NVIDIA_MARKETING_CREATE_API_KEY|MARKETING_CREATE_ACTIVATION/);
+});
+test('rbac · no principal keeps the founder envelope byte-verbatim and surface-free', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const get = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(get.status, 200);
+  assert.equal(get.body, ENVELOPE);
+  assert.equal(body(get).surface, undefined);
+});
+
+test('rbac · consultant principal receives filtered surface — no signed-action, no sheet-primary subsections', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const consultant = encodeURIComponent(JSON.stringify({
+    id: 'c1', tenant: 'cambium', role: 'consultant', allow: ['tapestry', 'wake'], createdBy: 'founder-1',
+  }));
+  const get = await handle(req('GET', `/api/quests/cambium?principal=${consultant}`), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface, 'surface present for consultant');
+  const subsectionIds = surface.subsections.map((s: { id: string }) => s.id);
+  assert.deepEqual(subsectionIds, ['tapestry', 'wake']);
+  for (const sub of surface.subsections) {
+    assert.equal(sub.interactions.primary, 'sheet');
+    const signed = (sub.interactions.controls ?? []).filter((c: { interaction: string }) => c.interaction === 'signed-action');
+    assert.equal(signed.length, 0, 'signed-action controls stripped');
+  }
+  assert.equal(surface.sections.length, 0, 'all section primaries exceed consultant ceiling');
+});
+
+test('rbac · team principal keeps chat-command but loses signed-action controls', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const team = JSON.stringify({ id: 't1', tenant: 'cambium', role: 'team', allow: [], createdBy: 'founder-1' });
+  const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': team } }), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface.subsections.length > 0, 'team sees subsections');
+  for (const sub of surface.subsections) {
+    const kinds = [sub.interactions.primary, ...(sub.interactions.secondary ?? []), ...(sub.interactions.controls ?? []).map((c: { interaction: string }) => c.interaction)];
+    assert.ok(!kinds.includes('signed-action'), `subsection ${sub.id} carries no signed-action`);
+  }
+});
+
+test('rbac · expired principal receives empty surface', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const expired = JSON.stringify({
+    id: 'c2', tenant: 'cambium', role: 'consultant', allow: ['tapestry'], createdBy: 'founder-1',
+    expiresAt: '2020-01-01T00:00:00.000Z',
+  });
+  const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': expired } }), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.deepEqual(surface.sections, []);
+  assert.deepEqual(surface.subsections, []);
+});
+
+test('invites · founder issues an invite and verification round-trips', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's', nowMs: () => 1_000_000 };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: ['tapestry', 'wake'], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const issued = body(issue);
+  assert.equal(issued.principal.role, 'consultant');
+  assert.equal(issued.principal.tenant, 'cambium');
+  assert.deepEqual(issued.principal.allow, ['tapestry', 'wake']);
+  assert.equal(issued.principal.createdBy, 'founder-1');
+  assert.equal(issued.inviteUrl, `/app?invite=${issued.token}`);
+
+  const verify = await handle(req('GET', `/v1/invites/verify?token=${issued.token}`), deps);
+  assert.equal(verify.status, 200);
+  assert.equal(body(verify).ok, true);
+  assert.deepEqual(body(verify).principal, issued.principal);
+});
+
+test('invites · consultant invite token filters the quest surface to the allow-list', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: ['tapestry', 'wake'], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const { token } = body(issue);
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${token}`), deps);
+  assert.equal(get.status, 200);
+  const surface = body(get).surface;
+  assert.ok(surface, 'surface present for invite principal');
+  const subsectionIds = surface.subsections.map((s: { id: string }) => s.id);
+  assert.deepEqual(subsectionIds, ['tapestry', 'wake']);
+  for (const sub of surface.subsections) {
+    const signed = (sub.interactions.controls ?? []).filter((c: { interaction: string }) => c.interaction === 'signed-action');
+    assert.equal(signed.length, 0, 'signed-action controls stripped');
+  }
+  assert.equal(surface.sections.length, 0, 'all section primaries exceed consultant ceiling');
+});
+
+test('invites · invite for another tenant is rejected with 403', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/acme', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${body(issue).token}`), deps);
+  assert.equal(get.status, 403);
+  assert.equal(body(get).error, 'invite tenant mismatch');
+});
+
+test('invites · tampered token is rejected with 401', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const token = String(body(issue).token);
+  const tampered = `${token.slice(0, -1)}${token.endsWith('a') ? 'b' : 'a'}`;
+  const verify = await handle(req('GET', `/v1/invites/verify?token=${tampered}`), deps);
+  assert.equal(verify.status, 401);
+  assert.equal(body(verify).ok, false);
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${tampered}`), deps);
+  assert.equal(get.status, 401);
+  assert.equal(body(get).error, 'invite invalid');
+});
+
+test('invites · expired invite is rejected with 401', async () => {
+  const kv = fakeKv();
+  let now = 1_000_000;
+  const deps = { kv, pushToken: 't', inviteSecret: 's', nowMs: () => now };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1', ttlMs: 1000 }),
+  }), deps);
+  assert.equal(issue.status, 200);
+  const { token } = body(issue);
+  now += 2000;
+  const verify = await handle(req('GET', `/v1/invites/verify?token=${token}`), deps);
+  assert.equal(verify.status, 401);
+  assert.deepEqual(body(verify), { ok: false, reason: 'expired' });
+  const get = await handle(req('GET', `/api/quests/cambium?invite=${token}`), deps);
+  assert.equal(get.status, 401);
+  assert.equal(body(get).error, 'invite expired');
+});
+
+test('invites · missing inviteSecret 503s the invite endpoints', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't' };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 503);
+  const verify = await handle(req('GET', '/v1/invites/verify?token=x.y'), deps);
+  assert.equal(verify.status, 503);
+});
+
+test('invites · bad bearer on the issue endpoint is rejected with 401', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer wrong' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1' }),
+  }), deps);
+  assert.equal(issue.status, 401);
+});
+
+test('invites · ttlMs over the 30 day cap is rejected with 400', async () => {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', inviteSecret: 's' };
+  const issue = await handle(req('POST', '/v1/invites/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: JSON.stringify({ allow: [], createdBy: 'founder-1', ttlMs: 31 * 24 * 3600 * 1000 }),
+  }), deps);
+  assert.equal(issue.status, 400);
 });

@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -6,6 +6,10 @@ import { TacticalCameraRig } from '../engine/camera-rig';
 import { fogPreset, materialPresets } from '../materials/cambium-materials';
 import { createAtmosphereMaterial, createIslandShaderMaterial } from '../materials/shader-studies';
 import { createCambiumFieldContours, createCambiumFieldGeometry, createCambiumFieldSeams } from '../world/cambium-field';
+import { CONSTELLATION_HOME_MARKER, buildConstellationLayout, hubScreenIdFor, type TapestrySnapshot } from '../world/constellation-layout';
+import { ConstellationCluster } from '../world/ConstellationCluster';
+import { fixtureTapestry } from '../world/fixture-tapestry';
+import { loadTapestrySnapshot } from '../world/tapestry-loader';
 import { generatedRailConnectorContract } from '../world/generated-connectors';
 import { imageTo3dComparisonAssets, type ImageTo3dComparisonAsset } from '../world/image-to-3d-assets';
 import {
@@ -1003,6 +1007,42 @@ function VisualizationField({ scene }: { scene: CambiumSceneModel }) {
           <meshStandardMaterial color={index % 3 === 0 ? visualTokens.colors.signal : visualTokens.colors.mist} transparent opacity={0.64} />
         </mesh>
       ))}
+      <ConstellationMapField />
+    </group>
+  );
+}
+
+function ConstellationMapField() {
+  const [tapestry, setTapestry] = useState<TapestrySnapshot>(fixtureTapestry);
+  const [focusedHub, setFocusedHub] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadTapestrySnapshot().then((snapshot) => {
+      if (!cancelled) setTapestry(snapshot);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const layout = useMemo(() => buildConstellationLayout(tapestry), [tapestry]);
+
+  const handleHubSelect = (hubId: string) => {
+    setFocusedHub((current) => (current === hubId ? null : hubId));
+    window.location.hash = hubScreenIdFor(hubId);
+  };
+
+  return (
+    <group name={CONSTELLATION_HOME_MARKER} position={[0, 0.65, 0]} scale={0.5}>
+      {layout.clusters.map((cluster) => (
+        <ConstellationCluster
+          key={cluster.hubId}
+          layout={cluster}
+          focused={focusedHub === null || focusedHub === cluster.hubId}
+          onHubSelect={handleHubSelect}
+        />
+      ))}
     </group>
   );
 }
@@ -1134,23 +1174,28 @@ export function CambiumScene({ scene, cameraMode }: SceneProps) {
       ) : (
         <>
           {isReferenceOverview ? <OverviewWorldStatus scene={scene} /> : null}
-          <RailNetwork
-            rails={scene.rails}
-            nodes={scene.nodes}
-            variant={isReferenceOverview ? 'reference-overview' : 'standard'}
-            particleMultiplier={scene.overviewArtDirection.railParticleMultiplier}
-          />
-          <IslandConnectionPorts rails={scene.rails} nodes={scene.nodes} />
-          <ProcessBeacon node={activeProcessNode(scene.nodes)} showLabel={!isReferenceOverview} />
-          {scene.nodes.map((node) => (
-            <OrganIsland
-              key={node.id}
-              node={node}
-              focused={mode === 'island' && node.id === scene.activeScreen.focusNode}
-              variant={isReferenceOverview ? 'reference-overview' : 'standard'}
-              glyphScale={scene.overviewArtDirection.islandGlyphScale}
-            />
-          ))}
+          {mode === 'overview' ? <ConstellationMapField /> : null}
+          {mode !== 'overview' ? (
+            <>
+              <RailNetwork
+                rails={scene.rails}
+                nodes={scene.nodes}
+                variant={isReferenceOverview ? 'reference-overview' : 'standard'}
+                particleMultiplier={scene.overviewArtDirection.railParticleMultiplier}
+              />
+              <IslandConnectionPorts rails={scene.rails} nodes={scene.nodes} />
+              <ProcessBeacon node={activeProcessNode(scene.nodes)} showLabel={!isReferenceOverview} />
+              {scene.nodes.map((node) => (
+                <OrganIsland
+                  key={node.id}
+                  node={node}
+                  focused={mode === 'island' && node.id === scene.activeScreen.focusNode}
+                  variant={isReferenceOverview ? 'reference-overview' : 'standard'}
+                  glyphScale={scene.overviewArtDirection.islandGlyphScale}
+                />
+              ))}
+            </>
+          ) : null}
           {mode === 'island' ? <LocalIslandSystems scene={scene} /> : null}
           {mode === 'settings' ? <ControlBay scene={scene} /> : null}
           {mode === 'visualizations' ? <VisualizationField scene={scene} /> : null}

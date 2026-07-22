@@ -1,0 +1,119 @@
+{
+  "schema_version": "marketing-capability-orchestration-evidence@1.0.0",
+  "generated_at": "2026-07-18T12:19:47Z",
+  "scope": {
+    "mode": "offline-review-only",
+    "tenant": "thoughtseed-synthetic",
+    "live_adapters": 0,
+    "network_calls": 0,
+    "credentials_accessed": 0,
+    "schedules_armed": 0,
+    "external_writes": 0,
+    "provider_actions": 0,
+    "spend_reserved": 0,
+    "deployments": 0
+  },
+  "source": {
+    "repository": "https://github.com/coreyhaines31/marketingskills",
+    "commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+    "license": "MIT",
+    "license_sha256": "b70d71e24e40fce5da8f4b6f9cd862096a048e433db7f3c8cac5e348e6d34591",
+    "capability_count": 47,
+    "loop_definition_count": 45,
+    "eligible_capability_count": 23,
+    "reference_only_capability_count": 24,
+    "semantic_fixture_count": 23,
+    "semantic_eval_case_count": 153,
+    "capability_set_digest": "7147c3e52094acce76e4cba08d0131eef40292d4c4ecab54a61013253f56faf5",
+    "orchestration_set_digest": "223d63575fdcf0c57f25eb76a1b2e00e12f981c67614245b4e5d3cd47410ce4d"
+  },
+  "orchestration": {
+    "recipe_count": 8,
+    "compiled_recipe_count": 8,
+    "executed_recipe_count": 1,
+    "manual_loop_count": 5,
+    "compiled_loop_count": 5,
+    "executed_loop_count": 1,
+    "asset_contract_count": 6,
+    "outcome_resolver": "unique_primary_asset_type",
+    "runtime_spend_policy": {
+      "tier": "none"
+    },
+    "low_budget_quotes_runtime_enabled": false,
+    "content_asset_bridge": {
+      "activation_state": "blocked",
+      "reason_code": "canonical_approval_contract_not_wired"
+    }
+  },
+  "proofs": {
+    "founder_article": {
+      "status": "awaiting_human_approval",
+      "proof_digest": "792c6df388a608996536bab412062c1d2e6df8d3a344f34542ef59830bd86bd4",
+      "package_digest": "280a9304fb5c86e8767953981f867738b5b67ae658f0348962efcabbd7e98066",
+      "receipt_id": "marketing-receipt-5f08536237d0619d6ff92fa6",
+      "publish_eligible": false,
+      "semantic_operation_count": 4
+    },
+    "social_plan": {
+      "status": "compiled",
+      "outcome_id": "social_draft_set",
+      "recipe_id": "social-repurposing@1.0.0",
+      "plan_digest": "b094a91c121afa3fcdcea4fe09cf061d9bb2c56c607bc17159e2fe14c129da2c",
+      "semantic_step_count": 5
+    },
+    "fresh_content_loop": {
+      "status": "skipped",
+      "reason_code": "asset_fresh",
+      "proof_digest": "37f466d2715b6fab25f98f5e4acd4c5c09ed401ca7afe9a6196eae598b853e8e",
+      "artifact_count": 0,
+      "schedule_armed": false,
+      "cursor_advanced": false
+    },
+    "stale_content_loop": {
+      "status": "brief_ready",
+      "reason_code": "content_decay_detected",
+      "proof_digest": "64b71c4e48d5e29c1798505c6adc2843ee98c2a66842ac8cbefcf810595fd1c6",
+      "brief_digest": "5013995789e63f507a735a19398a4965a999c9e536ebfbce9a1849899fc78dbb",
+      "artifact_count": 1,
+      "schedule_armed": false,
+      "cursor_advanced": false
+    }
+  },
+  "verification": {
+    "focused_tests": {
+      "passed": 13,
+      "failed": 0
+    },
+    "full_tests": {
+      "passed": 843,
+      "failed": 0
+    },
+    "source_audit": "passed",
+    "json_parse": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed",
+    "standalone_audit": {
+      "status": "passed",
+      "publishable_files_checked": 384
+    },
+    "standalone_smoke": {
+      "status": "passed",
+      "tests_passed": 843,
+      "tests_failed": 0,
+      "composition_validation": "passed",
+      "synthetic_demo_fixture": "passed",
+      "tapestry_snapshot": "passed"
+    },
+    "independent_correctness_review": "PASS",
+    "independent_architecture_review": "APPROVE",
+    "forge": "unavailable_no_local_codex_runtime_no_edits",
+    "cato_inference_mode": "unavailable_reviewer_fallback_passed",
+    "temperance_external_batches": "two_runs_returned_no_index_codex_fail_open_reviews_passed"
+  },
+  "original_workspace": {
+    "head": "d288a26974850ee63daf56647523233540dfcf88",
+    "tracked_diff_sha256": "53b7bfd0117b881966af84330d6b07bc8310429f3c8c7aafdb496270f063d255",
+    "staged_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "preserved": true
+  }
+}

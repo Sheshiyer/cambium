@@ -385,6 +385,84 @@ function validateControlTables({ source, packetFile, schema }) {
   }
 }
 
+function stripInlineCode(value) {
+  const trimmed = String(value || '').trim();
+  const code = trimmed.match(/^`([^`]*)`$/);
+  return code ? code[1].trim() : trimmed;
+}
+
+function validateProviderDataPolicy({ source, packetFile, metadata, schema }) {
+  const policySchema = schema.provider_data_policy;
+  if (!policySchema || !hasSection(source, policySchema.section)) {
+    return { ...policySchema?.zero_authority_defaults };
+  }
+
+  const { headers, rows } = parseSectionTable(source, policySchema.section);
+  const missingColumns = policySchema.required_columns.filter((column) => !headers.includes(column));
+  if (missingColumns.length) {
+    throw new Error(`${packetFile}: ${policySchema.section} table missing columns: ${missingColumns.join(', ')}`);
+  }
+
+  const values = {};
+  const allowedFields = new Set(policySchema.allowed_fields);
+  const callerOverrides = new Set(policySchema.caller_override_fields);
+  for (const [index, row] of rows.entries()) {
+    const field = normalizeHeader(row.field || '');
+    if (!field) {
+      throw new Error(`${packetFile}: ${policySchema.section} row ${index + 1} is missing field`);
+    }
+    if (callerOverrides.has(field)) {
+      throw new Error(`${packetFile}: ${policySchema.section} contains caller-owned override field "${field}"`);
+    }
+    if (!allowedFields.has(field)) {
+      throw new Error(`${packetFile}: ${policySchema.section} contains unknown field "${field}"`);
+    }
+    if (Object.hasOwn(values, field)) {
+      throw new Error(`${packetFile}: ${policySchema.section} duplicates field "${field}"`);
+    }
+    values[field] = stripInlineCode(row.value);
+  }
+
+  const policy = { ...policySchema.zero_authority_defaults, ...values };
+  if (values.subgraph_version && !policySchema.known_subgraph_versions.includes(values.subgraph_version)) {
+    throw new Error(`${packetFile}: unknown subgraph_version "${values.subgraph_version}"`);
+  }
+
+  if (values.stage_capabilities) {
+    const references = values.stage_capabilities.split(/\s*[,;]\s*/).filter(Boolean);
+    for (const reference of references) {
+      const match = reference.match(/^([a-z][a-z0-9-]*):([a-z][a-z0-9-]*)@(\d+)\.(\d+)\.(\d+)$/);
+      if (!match || !policySchema.known_stages.includes(match[1])) {
+        throw new Error(`${packetFile}: invalid stage_capabilities reference "${reference}"`);
+      }
+    }
+  }
+
+  if (policy.provider_binding !== 'none' && !/^[a-z][a-z0-9-]*@\d+\.\d+\.\d+$/.test(policy.provider_binding)) {
+    throw new Error(`${packetFile}: provider_binding must be none or a versioned catalog reference`);
+  }
+  if (policy.provider_binding === 'none' && policy.adapter_version !== 'none') {
+    throw new Error(`${packetFile}: adapter_version requires an active provider_binding`);
+  }
+  if (policy.provider_binding !== 'none' && !/^\d+\.\d+\.\d+$/.test(policy.adapter_version)) {
+    throw new Error(`${packetFile}: active provider_binding requires a semantic adapter_version`);
+  }
+  if (!['true', 'false'].includes(policy.mutation_enabled)) {
+    throw new Error(`${packetFile}: mutation_enabled must be true or false`);
+  }
+  if (metadata.promotion_state === 'proof-only' && policy.mutation_enabled === 'true') {
+    throw new Error(`${packetFile}: proof-only packet cannot enable provider mutation`);
+  }
+  if (policy.mutation_enabled === 'true' && policy.provider_binding === 'none') {
+    throw new Error(`${packetFile}: provider mutation requires an active provider_binding`);
+  }
+  if (values.data_classification && !policySchema.data_classifications.includes(values.data_classification)) {
+    throw new Error(`${packetFile}: invalid data_classification "${values.data_classification}"`);
+  }
+
+  return policy;
+}
+
 function validatePacket({ packetFile, schema, row }) {
   if (!existsSync(packetFile)) {
     throw new Error(`missing packet file for ${row.product_id}: ${packetFile}`);
@@ -410,6 +488,23 @@ function validatePacket({ packetFile, schema, row }) {
 
   validateControlTables({ source, packetFile, schema });
   validateLoopControlRows({ source, packetFile });
+  validateProviderDataPolicy({ source, packetFile, metadata, schema });
+}
+
+function validateUniqueIndexRows(rows) {
+  const productIds = new Set();
+  const packetPaths = new Set();
+  for (const row of rows) {
+    if (productIds.has(row.product_id)) {
+      throw new Error(`index contains duplicate product_id "${row.product_id}"`);
+    }
+    productIds.add(row.product_id);
+
+    if (packetPaths.has(row.packet)) {
+      throw new Error(`index contains duplicate packet path "${row.packet}"`);
+    }
+    packetPaths.add(row.packet);
+  }
 }
 
 function validateRequiredBranches(schema, rows) {
@@ -446,6 +541,7 @@ function main() {
   }
 
   const rows = parseIndexTable(readText(indexFile), schema.required_index_columns);
+  validateUniqueIndexRows(rows);
   validateRequiredBranches(schema, rows);
 
   for (const row of rows) {

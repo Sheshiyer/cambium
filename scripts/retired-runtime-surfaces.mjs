@@ -52,6 +52,7 @@ function isExcludedPath(path) {
   const normalized = normalize(path);
   const segments = pathSegments(normalized);
   if (HISTORICAL_FILES.has(normalized)) return true;
+  if (normalized.startsWith('docs/archive/')) return true;
   return segments.some((segment) => EXCLUDED_DIRECTORIES.has(segment));
 }
 

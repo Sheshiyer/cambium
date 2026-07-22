@@ -1,0 +1,419 @@
+{
+  "$schema": "thoughtseed://composition/lead-ops@1.0.0",
+  "id": "lead-ops",
+  "version": "1.0.0",
+  "contract_catalog": {
+    "id": "lead-ecosystem",
+    "version": "1.0.0",
+    "path": "contracts/lead-ecosystem.v1.json"
+  },
+  "authority": {
+    "system": "cambium",
+    "exclusive_writer": true,
+    "primitives": {
+      "task": {
+        "owner": "cambium",
+        "contract": "action_request@1.0.0",
+        "rule": "Cambium creates and advances every durable task"
+      },
+      "lease": {
+        "owner": "cambium",
+        "contract": "writer_lease@1.0.0",
+        "rule": "One active writer lease exists per task"
+      },
+      "fencing": {
+        "owner": "cambium",
+        "contract": "writer_lease@1.0.0",
+        "rule": "Every mutation carries the current monotonic fencing token"
+      },
+      "approval": {
+        "owner": "cambium",
+        "contract": "approval_decision@1.0.0",
+        "rule": "Approval binds one exact action digest and expires closed"
+      },
+      "receipt": {
+        "owner": "cambium",
+        "contract": "operator_receipt@1.0.0",
+        "rule": "Cambium emits the redacted authoritative operator receipt"
+      }
+    },
+    "non_authoritative_planes": [
+      "hermes",
+      "provider",
+      "capability"
+    ]
+  },
+  "stages": [
+    "discover",
+    "capture",
+    "enrich",
+    "understand",
+    "create",
+    "engage"
+  ],
+  "entry_nodes": [
+    "discover"
+  ],
+  "terminal_nodes": [
+    "engage"
+  ],
+  "nodes": [
+    {
+      "id": "discover",
+      "stage": "discover",
+      "owner": "cambium",
+      "entry_contracts": [
+        "provider_binding@1.0.0",
+        "provider_permission@1.0.0"
+      ],
+      "exit_contracts": [
+        "provider_observation@1.0.0"
+      ],
+      "eligibility": {
+        "entry": {
+          "id": "tenant-provider-read-authorized",
+          "requires": [
+            "tenant envelope",
+            "read permission",
+            "provider binding"
+          ]
+        },
+        "exit": {
+          "id": "observation-bounded-and-redacted",
+          "requires": [
+            "bounded observation",
+            "source provenance",
+            "no mutation"
+          ]
+        }
+      },
+      "failure_policy": {
+        "mode": "partial",
+        "reconciliation_required": true,
+        "no_silent_drop": true
+      },
+      "terminal_reachability": [
+        "engage"
+      ]
+    },
+    {
+      "id": "capture",
+      "stage": "capture",
+      "owner": "cambium",
+      "entry_contracts": [
+        "provider_observation@1.0.0"
+      ],
+      "exit_contracts": [
+        "lead_record@1.0.0",
+        "source_alias@1.0.0"
+      ],
+      "eligibility": {
+        "entry": {
+          "id": "observation-contract-valid",
+          "requires": [
+            "tenant match",
+            "provider provenance"
+          ]
+        },
+        "exit": {
+          "id": "capture-normalized",
+          "requires": [
+            "bounded lead record",
+            "source alias"
+          ]
+        }
+      },
+      "failure_policy": {
+        "mode": "partial",
+        "reconciliation_required": true,
+        "no_silent_drop": true
+      },
+      "terminal_reachability": [
+        "engage"
+      ]
+    },
+    {
+      "id": "enrich",
+      "stage": "enrich",
+      "owner": "cambium",
+      "entry_contracts": [
+        "lead_record@1.0.0",
+        "source_alias@1.0.0"
+      ],
+      "exit_contracts": [
+        "identity_resolution@1.0.0",
+        "suppression_state@1.0.0"
+      ],
+      "eligibility": {
+        "entry": {
+          "id": "capture-owned-by-tenant",
+          "requires": [
+            "tenant match",
+            "purpose allowed"
+          ]
+        },
+        "exit": {
+          "id": "identity-and-suppression-current",
+          "requires": [
+            "continuous identity resolution",
+            "suppression dominance"
+          ]
+        }
+      },
+      "failure_policy": {
+        "mode": "partial",
+        "reconciliation_required": true,
+        "no_silent_drop": true
+      },
+      "terminal_reachability": [
+        "engage"
+      ]
+    },
+    {
+      "id": "understand",
+      "stage": "understand",
+      "owner": "cambium",
+      "entry_contracts": [
+        "source_alias@1.0.0",
+        "identity_resolution@1.0.0",
+        "suppression_state@1.0.0"
+      ],
+      "exit_contracts": [
+        "icp_score@1.0.0",
+        "signal_batch@1.0.0"
+      ],
+      "eligibility": {
+        "entry": {
+          "id": "identity-resolved-and-unsuppressed-for-analysis",
+          "requires": [
+            "current identity resolution",
+            "analysis purpose allowed"
+          ]
+        },
+        "exit": {
+          "id": "scores-explainable",
+          "requires": [
+            "provenance retained",
+            "scoring evidence bounded"
+          ]
+        }
+      },
+      "failure_policy": {
+        "mode": "partial",
+        "reconciliation_required": true,
+        "no_silent_drop": true
+      },
+      "terminal_reachability": [
+        "engage"
+      ]
+    },
+    {
+      "id": "create",
+      "stage": "create",
+      "owner": "cambium",
+      "entry_contracts": [
+        "icp_score@1.0.0",
+        "signal_batch@1.0.0"
+      ],
+      "exit_contracts": [
+        "content_asset@1.0.0",
+        "action_request@1.0.0"
+      ],
+      "eligibility": {
+        "entry": {
+          "id": "creation-purpose-authorized",
+          "requires": [
+            "tenant brand contract",
+            "scored evidence"
+          ]
+        },
+        "exit": {
+          "id": "action-digest-frozen",
+          "requires": [
+            "content asset",
+            "exact action digest",
+            "no execution"
+          ]
+        }
+      },
+      "failure_policy": {
+        "mode": "fail-closed",
+        "reconciliation_required": true,
+        "no_silent_drop": true
+      },
+      "terminal_reachability": [
+        "engage"
+      ]
+    },
+    {
+      "id": "engage",
+      "stage": "engage",
+      "owner": "cambium",
+      "entry_contracts": [
+        "content_asset@1.0.0",
+        "action_request@1.0.0",
+        "suppression_state@1.0.0",
+        "approval_decision@1.0.0",
+        "writer_lease@1.0.0"
+      ],
+      "exit_contracts": [
+        "execution_attempt@1.0.0",
+        "outcome_event@1.0.0",
+        "reconciliation@1.0.0",
+        "compensation@1.0.0",
+        "operator_receipt@1.0.0",
+        "derived_learning@1.0.0"
+      ],
+      "eligibility": {
+        "entry": {
+          "id": "exact-action-approved-and-leased",
+          "requires": [
+            "current suppression state",
+            "exact action approval",
+            "writer lease",
+            "current fencing token"
+          ],
+          "authority_contracts": [
+            "approval_decision@1.0.0",
+            "writer_lease@1.0.0"
+          ]
+        },
+        "exit": {
+          "id": "attempt-reconciled-and-receipted",
+          "requires": [
+            "execution attempt recorded",
+            "outcome reconciled",
+            "operator receipt redacted"
+          ]
+        }
+      },
+      "failure_policy": {
+        "mode": "fail-closed",
+        "reconciliation_required": true,
+        "no_silent_drop": true
+      },
+      "terminal_reachability": [
+        "engage"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "discover",
+      "to": "capture",
+      "contracts": [
+        "provider_observation@1.0.0"
+      ]
+    },
+    {
+      "from": "capture",
+      "to": "enrich",
+      "contracts": [
+        "lead_record@1.0.0",
+        "source_alias@1.0.0"
+      ]
+    },
+    {
+      "from": "capture",
+      "to": "understand",
+      "contracts": [
+        "source_alias@1.0.0"
+      ]
+    },
+    {
+      "from": "enrich",
+      "to": "understand",
+      "contracts": [
+        "identity_resolution@1.0.0",
+        "suppression_state@1.0.0"
+      ]
+    },
+    {
+      "from": "understand",
+      "to": "create",
+      "contracts": [
+        "icp_score@1.0.0",
+        "signal_batch@1.0.0"
+      ]
+    },
+    {
+      "from": "create",
+      "to": "engage",
+      "contracts": [
+        "content_asset@1.0.0",
+        "action_request@1.0.0"
+      ]
+    },
+    {
+      "from": "enrich",
+      "to": "engage",
+      "contracts": [
+        "suppression_state@1.0.0"
+      ]
+    }
+  ],
+  "fan_outs": [
+    {
+      "from": "capture",
+      "targets": [
+        "enrich",
+        "understand"
+      ],
+      "mode": "independent",
+      "partial_failure": "continue-valid-branches",
+      "reconciliation": "required"
+    }
+  ],
+  "joins": [
+    {
+      "node": "understand",
+      "sources": [
+        "capture",
+        "enrich"
+      ],
+      "policy": "all",
+      "required_contracts": [
+        "source_alias@1.0.0",
+        "identity_resolution@1.0.0",
+        "suppression_state@1.0.0"
+      ]
+    },
+    {
+      "node": "engage",
+      "sources": [
+        "create",
+        "enrich"
+      ],
+      "policy": "all",
+      "required_contracts": [
+        "content_asset@1.0.0",
+        "action_request@1.0.0",
+        "suppression_state@1.0.0",
+        "approval_decision@1.0.0",
+        "writer_lease@1.0.0"
+      ]
+    }
+  ],
+  "reconciliation": {
+    "required": true,
+    "on_partial_failure": "record-and-reconcile",
+    "record": "reconciliation@1.0.0",
+    "compensation": "compensation@1.0.0",
+    "receipt": "operator_receipt@1.0.0",
+    "no_silent_drop": true
+  },
+  "learning_foldback": {
+    "source": "engage",
+    "target": "cortex",
+    "mode": "derived-only",
+    "contract": "derived_learning@1.0.0",
+    "raw_identity": false,
+    "authoritative": false,
+    "excluded_contracts": [
+      "lead_record@1.0.0",
+      "provider_observation@1.0.0",
+      "source_alias@1.0.0",
+      "identity_resolution@1.0.0"
+    ]
+  }
+}

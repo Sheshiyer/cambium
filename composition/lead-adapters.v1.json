@@ -1,0 +1,121 @@
+{
+  "catalog_id": "lead-adapters@1.0.0",
+  "catalog_digest": "2689a02e66fa2263e48f671d7034a4c81658be7c227c54b8e57fcb5b92a53877",
+  "authority": {
+    "owner": "cambium",
+    "exclusive_runtime_writer": true
+  },
+  "risk_policy": {
+    "order": [
+      "explee-read@1.0.0",
+      "scrapegraphai-discover@1.0.0",
+      "getleads-capture@1.0.0",
+      "apollo-enrichment@1.0.0",
+      "apollo-engagement@1.0.0",
+      "composio-engagement@1.0.0",
+      "elevenlabs-create@1.0.0",
+      "runway-create@1.0.0"
+    ],
+    "rule": "lower_risk_must_be_proven_before_higher_risk_activation"
+  },
+  "recurring_schedule": {
+    "armed": false,
+    "prerequisites": [
+      "durable_task_state",
+      "idempotency_keys",
+      "provider_receipts",
+      "stop_rules",
+      "spend_accounting"
+    ]
+  },
+  "adapters": [
+    {
+      "id": "explee-read@1.0.0",
+      "provider": "explee",
+      "stages": ["discover", "capture", "enrich"],
+      "jobs": ["iverif_snapshot", "need_reply_capture", "thread_enrichment"],
+      "risk_order": 10,
+      "activation": {"state": "active_read_only", "network_enabled": true, "schedule_enabled": false},
+      "transport": {"kind": "provider_api", "methods": ["GET"], "mutation_enabled": false},
+      "spend": {"tier": "none", "reservation_required": false, "usage_settlement_required": false},
+      "authority": {"owner": "cambium", "approval_required": false, "receipt_required": true}
+    },
+    {
+      "id": "scrapegraphai-discover@1.0.0",
+      "provider": "scrapegraphai",
+      "stages": ["discover"],
+      "jobs": ["market_conversation_observation", "competitor_surface_observation"],
+      "risk_order": 20,
+      "activation": {"state": "registered_disabled", "network_enabled": false, "schedule_enabled": false},
+      "transport": {"kind": "provider_api", "methods": ["GET", "POST"], "mutation_enabled": false},
+      "spend": {"tier": "subscription", "reservation_required": true, "usage_settlement_required": true},
+      "authority": {"owner": "cambium", "approval_required": false, "receipt_required": true}
+    },
+    {
+      "id": "getleads-capture@1.0.0",
+      "provider": "getleads.io",
+      "stages": ["capture", "enrich"],
+      "jobs": ["provider_contract_capture", "lead_enrichment"],
+      "risk_order": 30,
+      "activation": {"state": "registered_disabled", "network_enabled": false, "schedule_enabled": false},
+      "transport": {"kind": "mcp", "methods": ["GET", "POST"], "mutation_enabled": false},
+      "spend": {"tier": "subscription", "reservation_required": true, "usage_settlement_required": true},
+      "authority": {"owner": "cambium", "approval_required": false, "receipt_required": true}
+    },
+    {
+      "id": "apollo-enrichment@1.0.0",
+      "provider": "apollo",
+      "stages": ["capture", "enrich"],
+      "jobs": ["prospect_search", "contact_enrichment", "intent_observation"],
+      "risk_order": 40,
+      "activation": {"state": "registered_disabled", "network_enabled": false, "schedule_enabled": false},
+      "transport": {"kind": "provider_api", "methods": ["GET", "POST"], "mutation_enabled": false},
+      "spend": {"tier": "subscription", "reservation_required": true, "usage_settlement_required": true},
+      "authority": {"owner": "cambium", "approval_required": false, "receipt_required": true}
+    },
+    {
+      "id": "apollo-engagement@1.0.0",
+      "provider": "apollo",
+      "stages": ["engage"],
+      "jobs": ["sequence_enrollment", "engagement_analytics"],
+      "risk_order": 50,
+      "activation": {"state": "registered_disabled", "network_enabled": false, "schedule_enabled": false},
+      "transport": {"kind": "provider_api", "methods": ["POST"], "mutation_enabled": true},
+      "spend": {"tier": "gated", "reservation_required": true, "usage_settlement_required": true},
+      "authority": {"owner": "cambium", "approval_required": true, "receipt_required": true}
+    },
+    {
+      "id": "composio-engagement@1.0.0",
+      "provider": "composio",
+      "stages": ["engage"],
+      "jobs": ["authenticated_app_action"],
+      "risk_order": 60,
+      "activation": {"state": "registered_disabled", "network_enabled": false, "schedule_enabled": false},
+      "transport": {"kind": "action_api", "methods": ["POST"], "mutation_enabled": true},
+      "spend": {"tier": "gated", "reservation_required": true, "usage_settlement_required": true},
+      "authority": {"owner": "cambium", "approval_required": true, "receipt_required": true}
+    },
+    {
+      "id": "elevenlabs-create@1.0.0",
+      "provider": "elevenlabs",
+      "stages": ["create"],
+      "jobs": ["voice_personalization"],
+      "risk_order": 70,
+      "activation": {"state": "registered_disabled", "network_enabled": false, "schedule_enabled": false},
+      "transport": {"kind": "provider_api", "methods": ["POST"], "mutation_enabled": true},
+      "spend": {"tier": "metered", "reservation_required": true, "usage_settlement_required": true},
+      "authority": {"owner": "cambium", "approval_required": true, "receipt_required": true}
+    },
+    {
+      "id": "runway-create@1.0.0",
+      "provider": "runway",
+      "stages": ["create"],
+      "jobs": ["video_generation"],
+      "risk_order": 80,
+      "activation": {"state": "registered_disabled", "network_enabled": false, "schedule_enabled": false},
+      "transport": {"kind": "provider_api", "methods": ["POST"], "mutation_enabled": true},
+      "spend": {"tier": "metered", "reservation_required": true, "usage_settlement_required": true},
+      "authority": {"owner": "cambium", "approval_required": true, "receipt_required": true}
+    }
+  ]
+}

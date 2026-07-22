@@ -1,0 +1,228 @@
+{
+  "catalog_id": "create-adapters@1.0.0",
+  "version": "1.0.0",
+  "authority": "cambium",
+  "references": {
+    "marketing_capabilities": {
+      "id": "marketing-capabilities",
+      "version": "1.0.0",
+      "path": "composition/marketing-capabilities.v1.json"
+    },
+    "marketing_assets": {
+      "id": "marketing-assets",
+      "version": "1.0.0",
+      "path": "composition/contracts/marketing-assets.v1.json"
+    },
+    "authority_contracts": {
+      "id": "lead-ecosystem",
+      "version": "1.0.0",
+      "path": "composition/contracts/lead-ecosystem.v1.json",
+      "contract_ids": [
+        "approval_decision@1.0.0",
+        "operator_receipt@1.0.0"
+      ]
+    }
+  },
+  "adapters": [
+    {
+      "id": "founder-article-nvidia@1.0.0",
+      "stage": "create",
+      "tenant_id": "thoughtseed",
+      "recipe_id": "founder-article-draft@1.0.0",
+      "activation": {
+        "state": "registered_disabled",
+        "value_derivation": "<adapter_id>:<catalog_digest>"
+      },
+      "provider": {
+        "id": "nvidia",
+        "url": "https://integrate.api.nvidia.com/v1/chat/completions",
+        "method": "POST",
+        "model": "meta/llama-3.1-70b-instruct",
+        "parameters": {
+          "stream": false,
+          "temperature": 0.2,
+          "max_tokens": 1800
+        },
+        "timeout_ms": 30000,
+        "maximum_response_bytes": 65536,
+        "network_attempts": 1
+      },
+      "secret": {
+        "binding": "NVIDIA_MARKETING_CREATE_API_KEY",
+        "storage": "cloudflare_worker_secret",
+        "exclusivity": "this_adapter_only",
+        "exposure": "authorization_bearer_header_only"
+      },
+      "prompt_template": {
+        "id": "thoughtseed-founder-article@1.0.0",
+        "sha256": "d1d1db81ae9b1eaeb9ba3f799a9a7fdeb61e87bc2805fdab4b29761274963a80"
+      },
+      "spend": {
+        "tier": "gated"
+      },
+      "input": {
+        "source_contract_id": "asset_brief@1.0.0",
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requestId",
+            "idempotencyKey",
+            "actorId",
+            "budgetReservationId",
+            "expiresAt",
+            "brief"
+          ],
+          "properties": {
+            "requestId": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 128,
+              "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$"
+            },
+            "idempotencyKey": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]{7,127}$"
+            },
+            "actorId": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 128,
+              "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$"
+            },
+            "budgetReservationId": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 128,
+              "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$"
+            },
+            "expiresAt": {
+              "type": "string",
+              "minLength": 20,
+              "maxLength": 35,
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+            },
+            "brief": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "briefId",
+                "objective",
+                "audience",
+                "callToAction",
+                "productPacketId",
+                "productPacketDigest",
+                "evidenceSnapshotDigest",
+                "seedDigest",
+                "facts"
+              ],
+              "properties": {
+                "briefId": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 128,
+                  "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$"
+                },
+                "objective": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "audience": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "callToAction": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "productPacketId": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 128,
+                  "pattern": "^[a-z0-9][a-z0-9._:@-]{2,127}$"
+                },
+                "productPacketDigest": {
+                  "type": "string",
+                  "minLength": 64,
+                  "maxLength": 64,
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "evidenceSnapshotDigest": {
+                  "type": "string",
+                  "minLength": 64,
+                  "maxLength": 64,
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "seedDigest": {
+                  "type": "string",
+                  "minLength": 64,
+                  "maxLength": 64,
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "facts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 16,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "claimId",
+                      "text",
+                      "sourceDigest"
+                    ],
+                    "properties": {
+                      "claimId": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 128,
+                        "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$"
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "sourceDigest": {
+                        "type": "string",
+                        "minLength": 64,
+                        "maxLength": 64,
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "approval": {
+        "required": true,
+        "contract_id": "approval_decision@1.0.0",
+        "authority_owner": "cambium",
+        "decision_scope": "exact_action_digest"
+      },
+      "outputs": {
+        "contract_ids": [
+          "asset_draft@1.0.0",
+          "operator_receipt@1.0.0"
+        ],
+        "execution_mode": "review_only",
+        "server_owned": {
+          "adapterId": "founder-article-nvidia@1.0.0",
+          "artifactDigest": "worker_computed_sha256",
+          "publishEligible": false,
+          "externalAction": "none"
+        }
+      }
+    }
+  ],
+  "catalog_digest": "ae1d60e951f6d6c18041581ddb018b53b162ebfb49bf9370f3185c38e03fc12f"
+}

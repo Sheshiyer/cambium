@@ -11,7 +11,7 @@ packet_owner: cambium
 
 # Fitcheck Branch Packet
 
-Fitcheck is the first Cambium product branch packet normalized from the existing proof packet at `docs/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. This file is the reusable Cambium packet view; the dated packet remains the source evidence trail.
+Fitcheck is the first Cambium product branch packet normalized from the existing proof packet at `docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. This file is the reusable Cambium packet view; the dated packet remains the source evidence trail.
 
 ## Product Seed
 
@@ -70,7 +70,7 @@ Fitcheck is the first Cambium product branch packet normalized from the existing
 
 | Status | Evidence |
 | --- | --- |
-| verified | Existing dated packet: `docs/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. |
+| verified | Existing dated packet: `docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. |
 | verified | Local packet recorded Fitcheck landing repo HEAD `f1b8d88`, `npm test` passing `7/7`, live landing HTTP `200`, and App Runner health `ok: true`. |
 | verified | Launch hardening pass recorded lead handler, local browser proof, Vercel preview readiness, App Runner signed-upload proof, and widget harness events. |
 | blocked | Live production Vercel artifact drift and missing Dodo/Fitcheck reservation URL env. |

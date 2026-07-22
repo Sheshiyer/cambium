@@ -59,6 +59,23 @@
   ],
   "required_control_tables": [
     {
+      "section": "Loop Control Inputs",
+      "min_rows": 1,
+      "required_columns": [
+        "loop_id",
+        "title",
+        "cadence",
+        "objective",
+        "metric",
+        "boundary_color",
+        "one_change_rule",
+        "state_file",
+        "stop_rule",
+        "model_route",
+        "proof_required"
+      ]
+    },
+    {
       "section": "Branch Story Controls",
       "min_rows": 6,
       "required_columns": [
@@ -147,6 +164,60 @@
       ]
     }
   ],
+  "provider_data_policy": {
+    "section": "Provider / Data Policy",
+    "required_columns": [
+      "field",
+      "value"
+    ],
+    "allowed_fields": [
+      "subgraph_version",
+      "stage_capabilities",
+      "provider_binding",
+      "adapter_version",
+      "mutation_enabled",
+      "data_classification",
+      "processing_region",
+      "purpose",
+      "retention",
+      "suppression_policy"
+    ],
+    "known_subgraph_versions": [
+      "lead-ops@1.0.0"
+    ],
+    "known_stages": [
+      "discover",
+      "capture",
+      "enrich",
+      "understand",
+      "create",
+      "engage"
+    ],
+    "data_classifications": [
+      "none",
+      "synthetic",
+      "derived",
+      "public_business",
+      "business_contact"
+    ],
+    "caller_override_fields": [
+      "tenant",
+      "tenant_id",
+      "account",
+      "account_id",
+      "project",
+      "project_id",
+      "campaign",
+      "campaign_id",
+      "credential",
+      "credential_ref"
+    ],
+    "zero_authority_defaults": {
+      "provider_binding": "none",
+      "adapter_version": "none",
+      "mutation_enabled": "false"
+    }
+  },
   "required_branches": [
     {
       "product_id": "fitcheck",
@@ -172,6 +243,21 @@
       "product_id": "client-delivery",
       "branch_kind": "client",
       "packet": "client-delivery.md"
+    },
+    {
+      "product_id": "iberev",
+      "branch_kind": "product",
+      "packet": "iberev.md"
+    },
+    {
+      "product_id": "aiseo",
+      "branch_kind": "product",
+      "packet": "aiseo.md"
+    },
+    {
+      "product_id": "geo",
+      "branch_kind": "product",
+      "packet": "geo.md"
     }
   ],
   "promotion_ladder_phrase": "proof-only -> supervised branch -> autonomous branch"

@@ -78,3 +78,15 @@ Do not commit:
 - direct account identifiers.
 
 If a real closure teaches a reusable lesson, commit a synthetic fixture or adapter doc, not the real archive payload.
+
+---
+
+## Archived docs (2026-07-21 reorganization)
+
+`plans/` and `superpowers/` here contain **executed, superseded, or exploratory plans**
+moved out of `docs/plans/` so the active directory carries only current intent.
+Notably: the June tg-miniapp component-system swarm plans (shipped), the meristem
+sidecar plans, the agent-plane ceremony, fitcheck proof packet, hermes contracts,
+and early visual explorations (isometric moodboard, cortex renderable map,
+overview art-pass, current-visual-review). Consult for history only — never as
+current direction. The active index is `docs/plans/README.md`.

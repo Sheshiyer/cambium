@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "catalog_id": "marketing-assets@1.0.0",
+  "version": "1.0.0",
+  "authority": "cambium",
+  "mode": "contract-only",
+  "$defs": {
+    "tenant_envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tenant_id", "purpose", "data_classification", "processing_region", "retention_days"],
+      "properties": {
+        "tenant_id": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"},
+        "purpose": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"},
+        "data_classification": {"type": "string", "maxLength": 32, "enum": ["synthetic", "derived", "public_business", "business_contact"]},
+        "processing_region": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+        "retention_days": {"type": "integer", "minimum": 0, "maximum": 3650}
+      }
+    },
+    "opaque_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$"
+    },
+    "versioned_id": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9_-]*@\\d+\\.\\d+\\.\\d+$"
+    },
+    "digest": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 35,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+    },
+    "quality_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check_id", "status", "reason_code"],
+      "properties": {
+        "check_id": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_-]{0,63}$"},
+        "status": {"type": "string", "maxLength": 16, "enum": ["passed", "failed", "review"]},
+        "reason_code": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]{0,63}$"}
+      }
+    },
+    "capability_version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_id", "upstream_version", "source_closure_digest"],
+      "properties": {
+        "capability_id": {"$ref": "#/$defs/versioned_id"},
+        "upstream_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "source_closure_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "semantic_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence", "capability_id", "operation", "execution_class", "evidence_requirements", "quality_checks", "source_closure_digest"],
+      "properties": {
+        "sequence": {"type": "integer", "minimum": 1, "maximum": 32},
+        "capability_id": {"$ref": "#/$defs/versioned_id"},
+        "operation": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "execution_class": {"type": "string", "maxLength": 32, "enum": ["instruction_only", "deterministic_transform", "manual_evaluator"]},
+        "evidence_requirements": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 64}},
+        "quality_checks": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 64}},
+        "source_closure_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "attribution_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_id", "repository", "commit", "directory", "license", "source_closure_digest"],
+      "properties": {
+        "capability_id": {"$ref": "#/$defs/versioned_id"},
+        "repository": {"type": "string", "minLength": 1, "maxLength": 256},
+        "commit": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[a-f0-9]{40}$"},
+        "directory": {"type": "string", "minLength": 1, "maxLength": 256},
+        "license": {"type": "string", "minLength": 1, "maxLength": 32},
+        "source_closure_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "accessibility_companion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "asset_id", "format"],
+      "properties": {
+        "required": {"type": "boolean", "const": true},
+        "asset_id": {"$ref": "#/$defs/opaque_id"},
+        "format": {"type": "string", "maxLength": 32, "enum": ["plain_text", "structured_text"]}
+      }
+    }
+  },
+  "contracts": [
+    {
+      "id": "asset_brief@1.0.0",
+      "name": "asset_brief",
+      "version": "1.0.0",
+      "owner": "cambium",
+      "category": "capability",
+      "stage": "create",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_version", "tenant", "record_id", "recipe_id", "objective", "channel_outcome", "product_packet_id", "product_packet_version", "product_packet_digest", "evidence_snapshot_digest", "created_at", "seed_digest"],
+        "properties": {
+          "schema_version": {"type": "string", "maxLength": 32, "const": "asset_brief@1.0.0"},
+          "tenant": {"$ref": "#/$defs/tenant_envelope"},
+          "record_id": {"$ref": "#/$defs/opaque_id"},
+          "recipe_id": {"$ref": "#/$defs/versioned_id"},
+          "objective": {"type": "string", "minLength": 1, "maxLength": 512},
+          "channel_outcome": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "product_packet_id": {"$ref": "#/$defs/versioned_id"},
+          "product_packet_version": {"type": "string", "minLength": 5, "maxLength": 32, "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+          "product_packet_digest": {"$ref": "#/$defs/digest"},
+          "evidence_snapshot_digest": {"$ref": "#/$defs/digest"},
+          "created_at": {"$ref": "#/$defs/timestamp"},
+          "seed_digest": {"$ref": "#/$defs/digest"}
+        }
+      },
+      "example": {
+        "schema_version": "asset_brief@1.0.0",
+        "tenant": {"tenant_id": "thoughtseed-synthetic", "purpose": "marketing-contract-conformance", "data_classification": "synthetic", "processing_region": "local", "retention_days": 30},
+        "record_id": "asset-brief-synthetic-001",
+        "recipe_id": "founder-article-draft@1.0.0",
+        "objective": "Explain governed organic media compilation.",
+        "channel_outcome": "founder_article",
+        "product_packet_id": "aiseo-synthetic@1.0.0",
+        "product_packet_version": "1.0.0",
+        "product_packet_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence_snapshot_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+        "created_at": "2026-07-18T12:00:00.000Z",
+        "seed_digest": "3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    },
+    {
+      "id": "asset_recipe@1.0.0",
+      "name": "asset_recipe",
+      "version": "1.0.0",
+      "owner": "cambium",
+      "category": "capability",
+      "stage": "create",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_version", "tenant", "record_id", "brief_id", "recipe_id", "compiler_version", "recipe_digest", "source_commit", "source_closure_digest", "capability_chain", "capability_versions", "semantic_steps", "contract_ids", "execution_mode", "live_adapters", "planned_at", "plan_digest"],
+        "properties": {
+          "schema_version": {"type": "string", "maxLength": 32, "const": "asset_recipe@1.0.0"},
+          "tenant": {"$ref": "#/$defs/tenant_envelope"},
+          "record_id": {"$ref": "#/$defs/opaque_id"},
+          "brief_id": {"$ref": "#/$defs/opaque_id"},
+          "recipe_id": {"$ref": "#/$defs/versioned_id"},
+          "compiler_version": {"type": "string", "minLength": 5, "maxLength": 32, "const": "1.0.0"},
+          "recipe_digest": {"$ref": "#/$defs/digest"},
+          "source_commit": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[a-f0-9]{40}$"},
+          "source_closure_digest": {"$ref": "#/$defs/digest"},
+          "capability_chain": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/versioned_id"}},
+          "capability_versions": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/capability_version"}},
+          "semantic_steps": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/semantic_step"}},
+          "contract_ids": {"type": "array", "minItems": 2, "maxItems": 6, "uniqueItems": true, "items": {"$ref": "#/$defs/versioned_id"}},
+          "execution_mode": {"type": "string", "maxLength": 16, "const": "review_only"},
+          "live_adapters": {"type": "array", "maxItems": 0, "items": {"type": "string", "maxLength": 1}},
+          "planned_at": {"$ref": "#/$defs/timestamp"},
+          "plan_digest": {"$ref": "#/$defs/digest"}
+        }
+      },
+      "example": {
+        "schema_version": "asset_recipe@1.0.0",
+        "tenant": {"tenant_id": "thoughtseed-synthetic", "purpose": "marketing-contract-conformance", "data_classification": "synthetic", "processing_region": "local", "retention_days": 30},
+        "record_id": "asset-recipe-synthetic-001",
+        "brief_id": "asset-brief-synthetic-001",
+        "recipe_id": "founder-article-draft@1.0.0",
+        "compiler_version": "1.0.0",
+        "recipe_digest": "8888888888888888888888888888888888888888888888888888888888888888",
+        "source_commit": "67264763cb107d61749f418d081c56e5bcbc0209",
+        "source_closure_digest": "3c620eaf8e2e21496738f538ad0edc8cd02063d40c87211d3f7baf3e6f414c5e",
+        "capability_chain": ["product-marketing@2.1.0", "customer-research@2.0.1", "copywriting@2.0.1", "copy-editing@2.0.0"],
+        "capability_versions": [
+          {"capability_id": "product-marketing@2.1.0", "upstream_version": "2.1.0", "source_closure_digest": "b38ce0834bc816d854352646955975294d940bcb01e9d846ddbaec4361ab94e7"},
+          {"capability_id": "customer-research@2.0.1", "upstream_version": "2.0.1", "source_closure_digest": "8e2e5e8bfaab35ad8a780a3e38a488f59cf91686f42fc232392df4330a2ba080"},
+          {"capability_id": "copywriting@2.0.1", "upstream_version": "2.0.1", "source_closure_digest": "edc00ea31c0b7f195170ee52f6b57330d4d2fb9f88f615ab8198a062c619afab"},
+          {"capability_id": "copy-editing@2.0.0", "upstream_version": "2.0.0", "source_closure_digest": "9bfcd7678da1b3042dce0c684ec49b87abb0bfc0e3a76032cf12a9739bcf4ec5"}
+        ],
+        "semantic_steps": [
+          {"sequence": 1, "capability_id": "product-marketing@2.1.0", "operation": "bind_product_context", "execution_class": "deterministic_transform", "evidence_requirements": ["cleared_rights", "current_freshness", "verified_claims"], "quality_checks": ["versioned_context", "product_claim_bindings"], "source_closure_digest": "b38ce0834bc816d854352646955975294d940bcb01e9d846ddbaec4361ab94e7"},
+          {"sequence": 2, "capability_id": "customer-research@2.0.1", "operation": "bind_verified_voice_evidence", "execution_class": "deterministic_transform", "evidence_requirements": ["cleared_rights", "current_freshness", "verified_claims"], "quality_checks": ["verified_voice", "claim_traceability"], "source_closure_digest": "8e2e5e8bfaab35ad8a780a3e38a488f59cf91686f42fc232392df4330a2ba080"},
+          {"sequence": 3, "capability_id": "copywriting@2.0.1", "operation": "assemble_editorial_draft", "execution_class": "deterministic_transform", "evidence_requirements": ["cleared_rights", "current_freshness", "verified_claims"], "quality_checks": ["structured_copy", "call_to_action"], "source_closure_digest": "edc00ea31c0b7f195170ee52f6b57330d4d2fb9f88f615ab8198a062c619afab"},
+          {"sequence": 4, "capability_id": "copy-editing@2.0.0", "operation": "enforce_plain_language", "execution_class": "deterministic_transform", "evidence_requirements": ["cleared_rights", "current_freshness", "verified_claims"], "quality_checks": ["clarity", "accessibility"], "source_closure_digest": "9bfcd7678da1b3042dce0c684ec49b87abb0bfc0e3a76032cf12a9739bcf4ec5"}
+        ],
+        "contract_ids": ["asset_brief@1.0.0", "asset_recipe@1.0.0", "asset_draft@1.0.0", "asset_quality_report@1.0.0", "channel_package@1.0.0"],
+        "execution_mode": "review_only",
+        "live_adapters": [],
+        "planned_at": "2026-07-18T12:00:00.000Z",
+        "plan_digest": "f21b4fb75786f87a863911e309152aa4d064cddca334b41b9fc9d5156ec20c52"
+      }
+    },
+    {
+      "id": "asset_draft@1.0.0",
+      "name": "asset_draft",
+      "version": "1.0.0",
+      "owner": "cambium",
+      "category": "capability",
+      "stage": "create",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_version", "tenant", "record_id", "brief_id", "recipe_id", "title", "body", "claim_ids", "evidence_snapshot_digest", "rights_state", "status", "created_at", "content_digest"],
+        "properties": {
+          "schema_version": {"type": "string", "maxLength": 32, "const": "asset_draft@1.0.0"},
+          "tenant": {"$ref": "#/$defs/tenant_envelope"},
+          "record_id": {"$ref": "#/$defs/opaque_id"},
+          "brief_id": {"$ref": "#/$defs/opaque_id"},
+          "recipe_id": {"$ref": "#/$defs/versioned_id"},
+          "title": {"type": "string", "minLength": 1, "maxLength": 256},
+          "body": {"type": "string", "minLength": 1, "maxLength": 12000},
+          "claim_ids": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/opaque_id"}},
+          "evidence_snapshot_digest": {"$ref": "#/$defs/digest"},
+          "rights_state": {"type": "string", "maxLength": 24, "enum": ["cleared", "review_required", "restricted"]},
+          "status": {"type": "string", "maxLength": 16, "const": "draft"},
+          "created_at": {"$ref": "#/$defs/timestamp"},
+          "content_digest": {"$ref": "#/$defs/digest"}
+        }
+      },
+      "example": {
+        "schema_version": "asset_draft@1.0.0",
+        "tenant": {"tenant_id": "thoughtseed-synthetic", "purpose": "marketing-contract-conformance", "data_classification": "synthetic", "processing_region": "local", "retention_days": 30},
+        "record_id": "asset-draft-synthetic-001",
+        "brief_id": "asset-brief-synthetic-001",
+        "recipe_id": "founder-article-draft@1.0.0",
+        "title": "A safer marketing workflow",
+        "body": "A review-only plan binds every factual statement to supplied evidence.",
+        "claim_ids": ["claim-synthetic-001"],
+        "evidence_snapshot_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+        "rights_state": "review_required",
+        "status": "draft",
+        "created_at": "2026-07-18T12:00:00.000Z",
+        "content_digest": "5555555555555555555555555555555555555555555555555555555555555555"
+      }
+    },
+    {
+      "id": "asset_variant@1.0.0",
+      "name": "asset_variant",
+      "version": "1.0.0",
+      "owner": "cambium",
+      "category": "capability",
+      "stage": "create",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_version", "tenant", "record_id", "source_asset_id", "source_asset_digest", "channel", "title", "body", "transformation", "rights_state", "created_at", "content_digest"],
+        "properties": {
+          "schema_version": {"type": "string", "maxLength": 32, "const": "asset_variant@1.0.0"},
+          "tenant": {"$ref": "#/$defs/tenant_envelope"},
+          "record_id": {"$ref": "#/$defs/opaque_id"},
+          "source_asset_id": {"$ref": "#/$defs/opaque_id"},
+          "source_asset_digest": {"$ref": "#/$defs/digest"},
+          "channel": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "title": {"type": "string", "minLength": 1, "maxLength": 256},
+          "body": {"type": "string", "minLength": 1, "maxLength": 12000},
+          "transformation": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "rights_state": {"type": "string", "maxLength": 24, "enum": ["cleared", "review_required", "restricted"]},
+          "created_at": {"$ref": "#/$defs/timestamp"},
+          "content_digest": {"$ref": "#/$defs/digest"}
+        }
+      },
+      "example": {
+        "schema_version": "asset_variant@1.0.0",
+        "tenant": {"tenant_id": "thoughtseed-synthetic", "purpose": "marketing-contract-conformance", "data_classification": "synthetic", "processing_region": "local", "retention_days": 30},
+        "record_id": "asset-variant-synthetic-001",
+        "source_asset_id": "asset-draft-synthetic-001",
+        "source_asset_digest": "5555555555555555555555555555555555555555555555555555555555555555",
+        "channel": "founder_article",
+        "title": "A safer marketing workflow",
+        "body": "A review-only package is ready for exact-digest review.",
+        "transformation": "channel_fit",
+        "rights_state": "review_required",
+        "created_at": "2026-07-18T12:00:00.000Z",
+        "content_digest": "6666666666666666666666666666666666666666666666666666666666666666"
+      }
+    },
+    {
+      "id": "asset_quality_report@1.0.0",
+      "name": "asset_quality_report",
+      "version": "1.0.0",
+      "owner": "cambium",
+      "category": "capability",
+      "stage": "create",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_version", "tenant", "record_id", "asset_id", "asset_digest", "checks", "score", "score_scope", "decision", "factual_claim_count", "generated_at"],
+        "properties": {
+          "schema_version": {"type": "string", "maxLength": 40, "const": "asset_quality_report@1.0.0"},
+          "tenant": {"$ref": "#/$defs/tenant_envelope"},
+          "record_id": {"$ref": "#/$defs/opaque_id"},
+          "asset_id": {"$ref": "#/$defs/opaque_id"},
+          "asset_digest": {"$ref": "#/$defs/digest"},
+          "checks": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/quality_check"}},
+          "score": {"type": "integer", "minimum": 0, "maximum": 100},
+          "score_scope": {"type": "string", "maxLength": 40, "const": "structural_review_readiness"},
+          "decision": {"type": "string", "maxLength": 24, "enum": ["review_required", "blocked"]},
+          "factual_claim_count": {"type": "integer", "minimum": 0, "maximum": 64},
+          "generated_at": {"$ref": "#/$defs/timestamp"}
+        }
+      },
+      "example": {
+        "schema_version": "asset_quality_report@1.0.0",
+        "tenant": {"tenant_id": "thoughtseed-synthetic", "purpose": "marketing-contract-conformance", "data_classification": "synthetic", "processing_region": "local", "retention_days": 30},
+        "record_id": "quality-report-synthetic-001",
+        "asset_id": "asset-variant-synthetic-001",
+        "asset_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+        "checks": [{"check_id": "evidence_bound", "status": "passed", "reason_code": "all_claims_bound"}],
+        "score": 100,
+        "score_scope": "structural_review_readiness",
+        "decision": "review_required",
+        "factual_claim_count": 1,
+        "generated_at": "2026-07-18T12:00:00.000Z"
+      }
+    },
+    {
+      "id": "channel_package@1.0.0",
+      "name": "channel_package",
+      "version": "1.0.0",
+      "owner": "cambium",
+      "category": "capability",
+      "stage": "create",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_version", "tenant", "record_id", "source_asset_id", "source_asset_digest", "channel", "asset_ids", "asset_digests", "attribution", "accessibility_companion", "package_digest", "rights_state", "freshness_expires_at", "approval_state", "publish_eligible", "execution_mode", "created_at"],
+        "properties": {
+          "schema_version": {"type": "string", "maxLength": 32, "const": "channel_package@1.0.0"},
+          "tenant": {"$ref": "#/$defs/tenant_envelope"},
+          "record_id": {"$ref": "#/$defs/opaque_id"},
+          "source_asset_id": {"$ref": "#/$defs/opaque_id"},
+          "source_asset_digest": {"$ref": "#/$defs/digest"},
+          "channel": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "asset_ids": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/opaque_id"}},
+          "asset_digests": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/digest"}},
+          "attribution": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/attribution_entry"}},
+          "accessibility_companion": {"$ref": "#/$defs/accessibility_companion"},
+          "package_digest": {"$ref": "#/$defs/digest"},
+          "rights_state": {"type": "string", "maxLength": 24, "enum": ["cleared", "review_required", "restricted"]},
+          "freshness_expires_at": {"$ref": "#/$defs/timestamp"},
+          "approval_state": {"type": "string", "maxLength": 32, "const": "awaiting_human_approval"},
+          "publish_eligible": {"type": "boolean", "const": false},
+          "execution_mode": {"type": "string", "maxLength": 16, "const": "review_only"},
+          "created_at": {"$ref": "#/$defs/timestamp"}
+        }
+      },
+      "example": {
+        "schema_version": "channel_package@1.0.0",
+        "tenant": {"tenant_id": "thoughtseed-synthetic", "purpose": "marketing-contract-conformance", "data_classification": "synthetic", "processing_region": "local", "retention_days": 30},
+        "record_id": "channel-package-synthetic-001",
+        "source_asset_id": "asset-variant-synthetic-001",
+        "source_asset_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+        "channel": "founder_article",
+        "asset_ids": ["asset-draft-synthetic-001", "asset-variant-synthetic-001"],
+        "asset_digests": ["5555555555555555555555555555555555555555555555555555555555555555", "6666666666666666666666666666666666666666666666666666666666666666"],
+        "attribution": [{"capability_id": "copywriting@2.0.1", "repository": "https://github.com/coreyhaines31/marketingskills", "commit": "67264763cb107d61749f418d081c56e5bcbc0209", "directory": "copywriting", "license": "MIT", "source_closure_digest": "edc00ea31c0b7f195170ee52f6b57330d4d2fb9f88f615ab8198a062c619afab"}],
+        "accessibility_companion": {"required": true, "asset_id": "asset-draft-synthetic-001", "format": "plain_text"},
+        "package_digest": "44d6f50145830d57e84fd984c7b82c4b9fd12a8168fe187a13ab74385e621a4a",
+        "rights_state": "review_required",
+        "freshness_expires_at": "2026-08-18T00:00:00.000Z",
+        "approval_state": "awaiting_human_approval",
+        "publish_eligible": false,
+        "execution_mode": "review_only",
+        "created_at": "2026-07-18T12:00:00.000Z"
+      }
+    }
+  ]
+}

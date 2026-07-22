@@ -6,6 +6,7 @@
 // physically cannot start a process. Constitution #4 (approval-gated risk) lives in gateStage.
 
 import { join } from 'node:path';
+import { validateSpendPolicy } from './spend-policy.mjs';
 
 function hasOwn(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
@@ -49,7 +50,8 @@ function seedContractState(stages, adapters, seedInput) {
     ? firstAdapter?.input_default
     : seedInput;
   if (initial == null || initial === '') return {};
-  if (stages?.length === 1 && required.length && firstAdapter?.spend === 'none') {
+  const firstSpend = validateSpendPolicy(firstAdapter || {});
+  if (stages?.length === 1 && required.length && firstSpend.ok && firstSpend.policy.tier === 'none') {
     return Object.fromEntries(required.map((group) => [group, initial]));
   }
   if (required.length === 1) {
@@ -93,7 +95,7 @@ export function buildInvocation(adapter, { tenant, input, root } = {}) {
     cmd: adapter.cmd,
     args: (adapter.args || []).map(subst),
     cwd: root,
-    spend: adapter.spend || 'gated',
+    spend: hasOwn(adapter, 'spend') ? adapter.spend : 'gated',
   };
 }
 
@@ -102,15 +104,30 @@ export function buildInvocation(adapter, { tenant, input, root } = {}) {
  *   - not executing            → never (dry-run default)
  *   - spend: none              → allowed
  *   - spend: gated + approve===organId → allowed
+ *   - subscription/metered             → refused until ledgers exist
  *   - otherwise                → REFUSED
  */
 export function gateStage(organId, adapter, { execute = false, approve = null } = {}) {
+  const validation = validateSpendPolicy(adapter || {});
+  if (!validation.ok) {
+    return {
+      allowed: false,
+      code: validation.code,
+      reason: validation.reason,
+    };
+  }
+  const { policy } = validation;
   if (!execute) return { allowed: false, dryRun: true, reason: 'dry-run (default) — not executing' };
-  const spend = adapter?.spend || 'gated';
-  if (spend === 'none') return { allowed: true, reason: 'no-spend stage' };
-  // allow-list the spend vocabulary — any UNKNOWN value fails closed (a future
-  // tier like "never" must not be spawnable just because it isn't "none")
-  if (spend !== 'gated') return { allowed: false, reason: `unknown spend "${spend}" — refused (fail-closed)` };
+  if (policy.tier === 'none') return { allowed: true, reason: 'no-spend stage', policy };
+  if (policy.tier === 'subscription' || policy.tier === 'metered') {
+    return {
+      allowed: false,
+      code: 'spend_ledgers_unavailable',
+      reason: `${policy.tier} spend refused — reservation and usage ledgers are required before runtime execution`,
+      prerequisites: ['reservation_ledger', 'usage_ledger'],
+      policy,
+    };
+  }
   if (approve === organId) return { allowed: true, reason: `spend approved for "${organId}"` };
   return { allowed: false, reason: `spend-gated — refused; needs --approve ${organId}` };
 }
