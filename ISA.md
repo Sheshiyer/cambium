@@ -1,13 +1,13 @@
 ---
 project: Cambium
-task: "Consolidate lead stack and build durable runtime spine"
+task: "Audit and consolidate all Git state into main"
 effort: advanced
-effort_source: context-override
-phase: complete
-progress: 128/128
+effort_source: classifier
+phase: build
+progress: 0/26
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-20T18:36:22Z
+updated: 2026-07-22T07:34:29Z
 ---
 
 ## Problem
@@ -243,6 +243,35 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - [x] ISC-127: Schedule arming fails without spend accounting.
 - [x] ISC-128: Anti: tests and proofs perform zero live paid-provider calls.
 
+### Current consolidation audit
+
+- [ ] ISC-129: A baseline records the primary checkout, branches, worktrees, stashes, PRs, and remote main SHA.
+- [ ] ISC-130: The primary checkout's pre-audit dirty file set and content digests remain recoverable throughout consolidation.
+- [ ] ISC-131: Every registered worktree has a recorded path, HEAD, branch or detached state, dirty count, and prunable status.
+- [ ] ISC-132: Every local and remote branch is classified as merged, pending, duplicate, or intentionally preserved against fetched `origin/main`.
+- [ ] ISC-133: Every open PR has recorded head, base, state, mergeability, and check evidence before mutation.
+- [ ] ISC-134: PR #254 is verified as the single reviewed child commit stacked on PR #253.
+- [ ] ISC-135: PR #253's conflict against current `origin/main` is reproduced with the actual merge result, not inferred from prose.
+- [ ] ISC-136: The unique content in `stash@{0}` is classified file-by-file before any selective recovery.
+- [ ] ISC-137: Existing stashes remain retained and content-addressable until every candidate is resolved.
+- [ ] ISC-138: The reviewed IVerif stack is integrated in dependency order on a fresh branch from fetched `origin/main`.
+- [ ] ISC-139: The integrated IVerif stack preserves fixed bindings, redaction, GET-only provider access, and fail-closed mutation policy.
+- [ ] ISC-140: Any selectively recovered validator logic passes the repository's product-branch packet validation tests.
+- [ ] ISC-141: Any recovered live-readiness artifact reports blocked evidence truthfully and never claims founder-device proof.
+- [ ] ISC-142: Dirty architecture assets are either safely included with provenance or preserved as an explicit excluded candidate.
+- [ ] ISC-143: Active architecture instructions contain no destructive tag deletion, force-push, or implicit release mutation command.
+- [ ] ISC-144: The integrated tree passes the full repository test suite before remote merge.
+- [ ] ISC-145: The post-merge `main` head has a successful required CI run for its exact SHA.
+- [ ] ISC-146: Current `main` contains every selected reviewed commit and no unreviewed feature commit.
+- [ ] ISC-147: Open PRs are merged or explicitly closed with a recorded reason, leaving no unresolved selected code path.
+- [ ] ISC-148: No local or remote branch with unique unclassified code remains after consolidation.
+- [ ] ISC-149: Only confirmed missing-gitdir worktree records are pruned after their paths are independently verified absent.
+- [ ] ISC-150: No force-push, stash drop, branch reset, or destructive worktree removal occurs during consolidation.
+- [ ] ISC-151: Anti: the primary checkout's user-owned dirty blobs change except for explicitly documented ISA edits.
+- [ ] ISC-152: Anti: any existing stash reference or its content digest disappears without explicit user authorization.
+- [ ] ISC-153: Anti: a PR is called merged from local ancestry alone without GitHub state and CI evidence.
+- [ ] ISC-154: Anti: consolidation performs any live Explee/provider mutation or exposes provider credentials.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -274,6 +303,12 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 | ISC-97..107 | runtime integration | schema, dedupe, DAG order, bounded Iverif replay | migration/store/executor tests |
 | ISC-108..119 | accounting and durability | reservations, usage, leased tasks, stop rules, derived foldback | focused runtime tests |
 | ISC-120..128 | provider policy | risk order and inert recurring schedules | catalog and scheduler tests |
+| ISC-129..133 | inventory | baseline and complete branch/worktree/PR evidence | `git`, `gh`, digest script |
+| ISC-134..135 | stack diagnosis | child relationship and real conflict reproduction | `gh pr view`, `git merge-tree` |
+| ISC-136..143 | preservation/safety | stash classification and safe documentation selection | `git stash`, `git diff`, `rg` |
+| ISC-144..146 | integration | tests, CI, and selected commit reachability | `npm test`, `gh run`, `git merge-base` |
+| ISC-147..150 | cleanup | PR, branch, worktree, and operation hygiene | `gh`, `git`, filesystem probes |
+| ISC-151..154 | anti-probes | no silent loss, destructive mutation, or false merge claim | before/after digests and GitHub evidence |
 
 ## Features
 
@@ -291,6 +326,29 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - `CanonicalLeadRuntime` | Persist identity, dedupe, observations, and execute one bounded subgraph | satisfies ISC-97..107 | depends_on ExpleeReadParity | parallelizable false
 - `LeadAuthoritySpine` | Reserve spend, settle usage, lease tasks, stop safely, and fold back derived learning | satisfies ISC-108..119 | depends_on CanonicalLeadRuntime | parallelizable false
 - `ProviderRiskAndScheduling` | Declare adapter risk and keep recurring schedules inert | satisfies ISC-120..128 | depends_on LeadAuthoritySpine | parallelizable false
+- `GitStateInventory` | Capture and classify every branch, worktree, stash, and PR before mutation | satisfies ISC-129..137 | depends_on ProviderRiskAndScheduling | parallelizable true
+- `IVerifStackIntegration` | Resolve and verify the reviewed child/parent PR stack on current main | satisfies ISC-134..139, ISC-144..146 | depends_on GitStateInventory | parallelizable false
+- `PendingArtifactRecovery` | Selectively recover unique safe stash content and sanitize active generated instructions | satisfies ISC-136, ISC-140..143 | depends_on GitStateInventory | parallelizable true
+- `GitHubAndWorktreeCloseout` | Merge selected work, classify residual refs, and prune only stale records | satisfies ISC-147..150 | depends_on IVerifStackIntegration, PendingArtifactRecovery | parallelizable false
+- `PreservationProof` | Prove primary dirt, stashes, safety boundary, and no live provider mutation | satisfies ISC-130, ISC-151..154 | depends_on GitStateInventory, GitHubAndWorktreeCloseout | parallelizable false
+
+## Architecture
+
+<!-- arch-assets:start -->
+
+_Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._
+_Last refreshed: 2026-07-21T08:41:07.915Z_
+
+| Asset | Status | How it's generated |
+|---|---|---|
+| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✅ current | auto (file scan) |
+| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✅ current | auto (file scan) |
+| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ⬜ not yet generated | manual (LLM skill) |
+| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ⬜ not yet generated | manual (LLM skill) |
+
+**To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
+
+<!-- arch-assets:end -->
 
 ## Decisions
 
@@ -317,6 +375,10 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - 2026-07-20 18:28: Independent review blocked the first runtime draft on ambiguous lease replay and caller-authored foldback metrics. Expired takeovers now reconcile only from a durable observation or fail before provider replay; foldback inputs are reduced to identity and all metrics derive from a DB-validated completed receipt.
 - 2026-07-20 18:34: PR #262 merged the reviewed runtime as `6c5c5fdbed3c5b419386db4a679b43923b9403d9` after exact-head PR CI run `29768161661` passed all deterministic release gates.
 - 2026-07-20 18:36: Consolidated-main CI run `29768331726` passed for merge SHA `6c5c5fdbed3c5b419386db4a679b43923b9403d9`; ISC-90 is satisfied and the 128-criterion lead-runtime milestone is complete.
+- 2026-07-22 07:30: The active checkout is dirty on a branch whose tree matches released `origin/main` but whose tip is not an ancestor because PR #264 was merged with a distinct release commit; no second feature merge is warranted.
+- 2026-07-22 07:30: The only open code path is the stacked IVerif pair: #254 is the reviewed child of #253, while #253 conflicts with current main and must be resolved on a fresh integration branch.
+- 2026-07-22 07:30: The dirty architecture assets are newer generated output; the stash contains older generated variants plus unique validator/readiness candidates. Recovery will be selective and stashes will remain retained.
+- 2026-07-22 07:30: Delegation floor is relaxed with show-your-math: each inventory probe is a direct bounded Git/GitHub lookup, while parallel write agents would contend on shared worktree metadata and complicate preservation proof.
 
 ## Changelog
 
