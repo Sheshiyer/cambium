@@ -3,11 +3,11 @@ project: Cambium
 task: "Audit and consolidate all Git state into main"
 effort: advanced
 effort_source: classifier
-phase: execute
+phase: verify
 progress: 26/26
 mode: interactive
 started: 2026-07-13T09:04:49Z
-updated: 2026-07-22T07:46:30Z
+updated: 2026-07-22T07:49:30Z
 ---
 
 ## Problem
@@ -415,7 +415,7 @@ _Last refreshed: 2026-07-21T08:41:07.915Z_
   learned: portable tests must supply their own tool fixture and prove wrong-version behavior fails closed; local tool installations are not release evidence
   criterion now: ISC-90 requires a successful consolidated-main CI head, with the hermetic Wrangler fixture exercised by the same deterministic release workflow
 - 2026-07-22 | conjectured: Every open PR represented unique code still absent from current main
-  refuted by: PR #254's observer implementation and complete child test surface were already reachable through merged PR #257; only PR #253 required integration
+  refuted by: PR #254's exact `bfb0e8c` commit is not an ancestor, but its observer surface and child test contract were superseded by the hardened commits merged through PR #257; only PR #253 required integration
   learned: PR state must be compared with current-tree content and test reachability, not branch lineage alone
   criterion now: ISC-134, ISC-146, ISC-147, and ISC-148 require stacked-PR and residual-branch classification against fetched main
 - 2026-07-22 | conjectured: Every dirty or stashed readiness artifact should be promoted into active documentation
@@ -427,9 +427,11 @@ _Last refreshed: 2026-07-21T08:41:07.915Z_
 
 - Consolidation audit: ISC-129..154 are complete (`26/26`), with baseline, provenance, classification, preservation, integration, cleanup, and anti-criteria evidence recorded above.
 - Main parity: local `main` and `origin/main` both resolve to `61b9f9ae7854d58da5d0c095ace879db28189367`; the checkout is clean after this ISA update is committed.
-- Pull requests: #253 merged to `main` as `c5991f0e`; #254 was explicitly closed as superseded by #257; #265 merged the reviewed pending architecture/ISA state as `61b9f9a`; no PRs remain open.
+- Pull requests: #253 merged to `main` as `c5991f0e`; #254's exact `bfb0e8c` commit is not an ancestor, but its observer surface was superseded by merged PR #257 and its closure is recorded; #265 merged the reviewed pending architecture/ISA state as `61b9f9a`; no PRs remain open.
 - CI: exact-head main run `29901397652` passed successfully for `61b9f9a`; the integration branch also passed `npm test` (978/978), product-branch validation, drift audit, docs render check, standalone audit, and standalone smoke.
 - Preservation: four stashes remain present and five `archive/cambium-consolidation-*` tags retain recovery points; all twelve retained non-primary worktrees are clean and reachable from `origin/main`.
+- Stash dispositions: the current dirty-checkout archive retains ISA and architecture provenance already integrated through #265; `wip-before-rebase` retains superseded generated docs, a drift-forbidden readiness report, and validator candidates already present in `main`; the two June stashes retain older generated architecture variants. None was dropped.
+- Archive boundary: consolidation tags remain local-only because pushing them would publish user-owned stash blobs and proof assets; the exact refs and four stash objects remain recoverable on this machine.
 - Cleanup boundary: only three clean consolidation worktrees and two missing-gitdir records were removed; no branch deletion, stash drop, reset, force-push, or live provider mutation occurred.
 
 - Primary checkout preservation: status digest `eed44f76e58b130fbbb25849421cc93a56662feb143096dec17fcdb306669460` and stash digest `b45c285aa8d1d51b4df0b41cdfd7b0e2e803bdb50c2950c996449874859d7627` match their pre-cleanup values; six worktrees remain.
