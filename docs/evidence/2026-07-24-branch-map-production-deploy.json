@@ -1,0 +1,136 @@
+{
+  "schema": "cambium.branch-map-production-deploy-evidence.v1",
+  "generatedAt": "2026-07-23T18:55:00Z",
+  "scope": {
+    "tenantId": "cambium",
+    "operation": "Goal Graph and D1 branch-map receipt authority production deploy",
+    "route": "GET /v1/branch-map/{tenant}",
+    "authentication": "telegram-init-data",
+    "signedActionsAuthorized": false
+  },
+  "source": {
+    "branch": "main",
+    "deployedCommit": "d8e5e5e9ebdec538d84bdaab60afea070277a14f",
+    "featureCommit": "90dfe46",
+    "workingTreeClean": true
+  },
+  "cloudflare": {
+    "accountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+    "workerName": "cambium-quests",
+    "previousVersionId": "4d85d380-e1be-4efd-9fdd-3663fefe6d3a",
+    "deployedVersionId": "42e74689-4907-4845-b5f4-664ff2cc540e",
+    "trafficPercent": 100,
+    "wranglerVersion": "4.95.0",
+    "d1": {
+      "databaseName": "cambium-bridge",
+      "binding": "BRIDGE_DB",
+      "uuid": "f6b950ac-2480-4a7d-9dac-1ff7e951d936",
+      "identityVerifiedRemote": true
+    }
+  },
+  "releaseGates": {
+    "compositionValidation": "passed",
+    "productBranchPackets": {
+      "status": "passed",
+      "validated": 8
+    },
+    "deterministicReleaseVerification": {
+      "status": "passed",
+      "tests": 5,
+      "failed": 0
+    },
+    "whitespaceCheck": "passed",
+    "wranglerStrictDryRun": "passed"
+  },
+  "backup": {
+    "locationClass": "private operator state outside repository",
+    "fileName": "cambium-bridge-20260723T184114Z.sql",
+    "receiptFileName": "cambium-bridge-20260723T184114Z.sql.sha256",
+    "sha256": "83cb4d28f7760c3a576cdf51fbbaa1ffa320b5c09747ccffa455457006301535",
+    "restoreIntegrity": "ok",
+    "restoredTableCount": 20,
+    "rowContentPrinted": false
+  },
+  "migrations": {
+    "pendingBefore": [
+      "0006_lead_runtime_spine.sql",
+      "0007_goal_graph.sql",
+      "0008_branch_transition_receipts.sql"
+    ],
+    "applied": [
+      "0006_lead_runtime_spine.sql",
+      "0007_goal_graph.sql",
+      "0008_branch_transition_receipts.sql"
+    ],
+    "kind": "additive tables, indexes, and immutability triggers only",
+    "pendingAfter": 0,
+    "note": "0006_lead_runtime_spine.sql was also unapplied in production; it is additive, committed on main, and a prerequisite of the deployed HEAD code, so it was applied in the same ordered batch.",
+    "tables": [
+      "goal_graph_approvals",
+      "goal_graph_branch_transition_receipts",
+      "goal_graph_events",
+      "goal_graph_heads",
+      "goal_graph_migrations",
+      "goal_graph_nodes",
+      "lead_records",
+      "lead_source_aliases"
+    ],
+    "rowCountsAfter": {
+      "goal_graph_nodes": 0,
+      "goal_graph_branch_transition_receipts": 0,
+      "lead_records": 0
+    }
+  },
+  "probes": {
+    "surfaces": [
+      "https://cambium-quests.sheshnarayan-iyer.workers.dev",
+      "https://curious.thoughtseed.space"
+    ],
+    "immediate": {
+      "versionAt100Percent": true,
+      "healthStatus": 200,
+      "healthBody": {"ok": true, "worker": "cambium-quests"},
+      "gateHealthStatus": 200,
+      "gateConfigured": true,
+      "gateAuthBoundaryStatus": 401,
+      "gateAuthBoundaryError": "missing initData (the gate opens inside Telegram)",
+      "branchMapUnauthenticatedStatus": 401,
+      "branchMapUnauthenticatedError": "telegram authentication failed"
+    },
+    "delayedFiveMinutes": {
+      "versionAt100Percent": true,
+      "healthStatus": 200,
+      "gateHealthStatus": 200,
+      "gateConfigured": true,
+      "gateAuthBoundaryStatus": 401,
+      "branchMapUnauthenticatedStatus": 401,
+      "transientNote": "one client-side curl SSL timeout (HTTP 000) on a single workers.dev gate probe; immediate retry returned HTTP 401"
+    }
+  },
+  "safety": {
+    "secretsPrinted": false,
+    "secretValuesInspected": false,
+    "initDataUsed": false,
+    "signedActionsSubmitted": 0,
+    "providerCalls": 0,
+    "realClientDataUsed": false,
+    "nonAdditiveMigration": false
+  },
+  "rollback": {
+    "targetVersionId": "4d85d380-e1be-4efd-9fdd-3663fefe6d3a",
+    "triggered": false,
+    "triggers": [
+      "unexpected active version",
+      "health response other than 200",
+      "gate health other than 200 with gateConfigured true",
+      "auth boundary other than 401",
+      "branch-map unauthenticated response of 200 or 500",
+      "release-attributed elevated errors"
+    ],
+    "note": "migrations 0006-0008 are additive and remain applied after any Worker code rollback; do not drop their tables or migration records"
+  },
+  "pending": {
+    "isc279FounderDeviceCapture": "pending until the founder runs live-proof-readiness --capture-device-proof from their Telegram Mini App device",
+    "authenticatedBranchMapRead": "not probed; requires founder Telegram initData and is covered by the founder-device capture"
+  }
+}
