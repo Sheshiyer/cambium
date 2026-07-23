@@ -33,6 +33,11 @@ Every adapter should document:
 - [IVerif Explee](./iverif-explee.md): fixed, observe-only campaign boundary for the IVerif reference slice.
 - [Project archive ceremony](../archive/README.md): generic project closeout receipt; adapters may provide evidence.
 
+The current Worker also contains a fixed lead-runtime spine and a registered-disabled marketing renderer.
+Those are governed by [`docs/architecture/lead-runtime-spine.md`](../architecture/lead-runtime-spine.md) and
+[`docs/architecture/marketing-create-worker-renderer.md`](../architecture/marketing-create-worker-renderer.md);
+neither adapter changes the standalone demo baseline or grants provider side-effect authority by registration alone.
+
 Start with zero adapters:
 
 ```bash

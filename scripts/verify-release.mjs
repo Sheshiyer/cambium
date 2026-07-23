@@ -7,11 +7,13 @@ const gates = [
   ['drift audit', 'npm', ['run', 'drift:audit']],
   ['core tests', 'npm', ['test']],
   ['generated docs', 'npm', ['run', 'render-docs:check']],
+  ['product branch packets', 'npm', ['run', 'validate:product-branches']],
   ['standalone audit', 'npm', ['run', 'standalone:audit']],
   ['standalone smoke', 'npm', ['run', 'standalone:smoke']],
   ['Telegram mobile contract', 'npm', ['run', 'proof:tg-mobile-contract']],
   ['R3F tests', 'npm', ['run', 'r3f:test']],
   ['R3F build', 'npm', ['run', 'r3f:build']],
+  ['Electron packaging contract', 'npm', ['run', 'desktop:test']],
 ];
 
 for (const [label, command, args] of gates) {

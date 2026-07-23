@@ -1,0 +1,6 @@
+npm warn Unknown user config "allow-scripts". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> cambium@0.3.0 standalone:audit
+> node scripts/standalone-audit.mjs
+
+standalone audit passed (491 publishable files checked)

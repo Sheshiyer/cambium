@@ -5,5 +5,6 @@ These guides keep Cambium usable as a standalone fractal tapestry: a clean clone
 Start here:
 
 - [New adopter in 30 minutes](./new-adopter-30-minutes.md): prove the standalone loop, inspect the adapter boundary, and choose the first integration path for a founder-led org, marketing team, or dev/AI team.
+- [Run the visual app](./run-the-app.md): boot the desktop R3F constellation, seed a synthetic tenant, and connect an optional Worker URL.
 
 Provider-specific integrations live behind the [adapter boundary](../adapters/README.md). The zero-adapter demo remains the acceptance baseline.

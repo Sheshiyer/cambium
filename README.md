@@ -35,8 +35,15 @@ The composition layer makes the first launch. The operator keeps the venture ali
 | **Cortex · semantic memory** — recall across runs (NIM 1024-d; node:sqlite local · **Cloudflare Vectorize** prod) | ✅ shipped (M2) | `cortex-memory.ts` · `cortex-sqlite.ts` · `vectorize-cortex.ts` |
 | **Cortex · structural memory** — CodeGraph code-recall lane | ✅ shipped (M2) | `operator coderecall` |
 | **Multi-tenancy** — one operator, many ventures | ✅ shipped (M3) — slug registry · adversarial isolation · all-tenant heartbeat | [`tenant.ts`](./bin/operator/tenant.ts) + [#20–#23](https://github.com/Sheshiyer/cambium/milestone/3) |
+| **Constellation visual engine** — MAP/SHEETS/WORKFORCE surface, shared contract, signed-action controls | ✅ shipped in v0.3.0 Urania | [`apps/cambium-r3f/`](./apps/cambium-r3f/) |
+| **Electron desktop package** — secure local shell, offline renderer, macOS artifact path | ✅ implemented on current `main`; signing/notarization separately governed | [`apps/cambium-r3f/desktop/`](./apps/cambium-r3f/desktop/) · [desktop workflow](./.github/workflows/desktop.yml) |
+| **Tenant Worker runtime** — D1 bridge, KV quests, R2 vault, Vectorize cortex, RBAC, and action receipts | ✅ implemented and CI-covered | [`workers/quests/`](./workers/quests/) · [`wrangler.jsonc`](./workers/quests/wrangler.jsonc) |
+| **Lead runtime + IVerif observer** — fixed-tenant, GET-only, redacted, send-ineligible | ✅ implemented; proof-bound | [`lead-runtime-spine.md`](./docs/architecture/lead-runtime-spine.md) · [`iverif-explee.md`](./docs/adapters/iverif-explee.md) |
+| **Marketing Create** — bounded founder-article draft with signed review gate | 🟡 implemented; registered disabled and not deployed | [`marketing-create-worker-renderer.md`](./docs/architecture/marketing-create-worker-renderer.md) |
 
-The test suite is green under `npm test`. Node **v26** runs the operator's TypeScript natively — zero build, zero dependencies.
+The deterministic release gate is `npm run verify:release`. It covers the core suite, Worker contracts, docs drift, standalone audit, R3F tests/build, the Electron packaging contract, and visual proof. Node **v26** runs the operator's TypeScript natively — zero build, zero root dependencies.
+
+> **Release boundary.** `v0.3.0 · Urania` is the latest published tag. Current `main` also contains the post-release IVerif evidence contract and consolidation documentation; those changes are not a new published version yet.
 
 **The business model, in one line:** the **left brain (build) is free**; the **right brain (taste + memory) is the subscription** — because the memory that learns *your* specific brand is the moat that compounds.
 
@@ -54,6 +61,16 @@ node bin/compose.mjs run acme --execute --approve taste   # only spend on gated 
 node bin/operator/cli.ts onboard               # play the 20-interaction first session
 node bin/operator/cli.ts demo                  # a sample stream of moves through the loop
 node bin/operator/cli.ts coderecall "wake"     # structural recall of code the operator ships
+
+# ── Validate the composition and release surfaces ────────────────────────────
+npm run validate                           # validate registry, pipeline, and contracts
+npm run validate:product-branches          # validate active product-branch packets
+npm run verify:release                     # deterministic release qualification
+
+# ── The desktop constellation (macOS-first Electron shell) ──────────────────
+npm ci --prefix apps/cambium-r3f             # install renderer + Electron dependencies
+npm run desktop:dev                          # Vite dev server + Electron window
+npm run desktop:dist:mac:dir                 # macOS unpacked .app artifact
 ```
 
 ## Standalone demo path
@@ -70,6 +87,15 @@ npm run standalone:smoke
 The demo tenant writes ignored runtime state under `.operator/`. The demo quest ledger renders the synthetic "you are here" path without external providers. The tapestry snapshot is bounded JSON for the six-scale map (`skill -> cluster -> organ -> venture -> company -> portfolio`) and uses synthetic `example.com` evidence only.
 
 Full product blueprint + agent guides: **[Cambium Composition Layer Technical Reference →](./docs/cambium-composition-technical-reference.html)**
+
+## The current runtime boundary
+
+Cambium now has two connected but separately governed planes:
+
+- **Composition/operator plane** — `bin/compose.mjs` plans and validates the organ pipeline; `compose run` executes only declared adapters and keeps spend-gated stages behind explicit approval. `bin/operator/` runs the tenant-scoped infinite-game loop locally.
+- **Runtime/visual plane** — `workers/quests/` is the Cloudflare Worker boundary for tenant data, quest envelopes, action receipts, lead runtime, and fixed observer contracts. `apps/cambium-r3f/` is the desktop-oriented visual engine that consumes shared surface contracts and can fall back to synthetic demo data. Its `desktop/` shell packages that renderer through a secure `cambium://` protocol without bundling Worker credentials.
+
+The current lead slice is read-only and fixed to the IVerif Public Agencies contract. Marketing Create produces review-only drafts and remains registered disabled. Neither surface should be read as permission to send, publish, schedule, or spend.
 
 ---
 
@@ -202,6 +228,15 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | `coderecall "<query>" [--project <path>]` | structural code-recall (CodeGraph lane) |
 | `state` | dump the current world-state |
 
+Repository-level commands live beside the operator CLI:
+
+| Command | What it does |
+|---|---|
+| `node bin/compose.mjs plan <tenant>` | print the contract-driven organ plan |
+| `node bin/compose.mjs validate` | validate registry, pipeline, adapters, and contracts |
+| `npm run quine -- <args>` | query the operator's memory, code, work, vault, and cloud seams |
+| `npm run verify:release` | run deterministic release qualification |
+
 ---
 
 ## Roadmap
@@ -213,6 +248,7 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | **M3 · Multi-Tenancy** ([#20–#23](https://github.com/Sheshiyer/cambium/milestone/3)) | ✅ complete — registry (TeamForge slugs) · per-tenant world+cortex isolation (adversarial suite) · multi-tenant router + all-tenant heartbeat |
 | **M4 · Quest Log & Skill Forge** ([#25+](https://github.com/Sheshiyer/cambium/milestone/4)) | ✅ complete — **v0.2.1 · Thalia .1**: `quine quests`/`skills`, the forge telemetry loop, and the **curios.self miniapp** live at [curious.thoughtseed.space](https://curious.thoughtseed.space) |
 | **M5 · Historical MultiCA Wiring (retired)** ([#28+](https://github.com/Sheshiyer/cambium/milestone/5)) | 🗄️ historical — Phase R, G, Q, and bridge writers were delivered on 2026-06-16. The runtime was later retired in favor of Paperclip/Hermes; this row preserves release history and is not a callable surface. |
+| **v0.3.0 · Urania constellation surface** | ✅ published — R3F MAP/SHEETS surface, shared contracts, RBAC ceilings, invite identity, signed-action round-trip, and clean-clone runbook |
 
 **Beyond M5** — the operator goes fully cloud-native on the same Cloudflare account that already hosts the cortex: the wake loop as a **Durable-Object agent** (persistent state + scheduled heartbeat), **DNS + Registrar** so the operator registers and configures domains for ventures it ships, **Email** delivery, and **Browser Rendering** for the Hands organ. Track it on the **[issues board](https://github.com/Sheshiyer/cambium/issues)**.
 
@@ -230,6 +266,14 @@ The pipeline: **Genesis** mints the brand system → **Taste** turns it into cre
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | the organ constellation + composition layer |
 | [BUSINESS-MODEL.md](./BUSINESS-MODEL.md) | free build, subscription taste + memory |
 | [INTEGRATION.md](./INTEGRATION.md) | how organs and agents wire together |
+| [VERSIONS.md](./VERSIONS.md) | published releases and the current-main boundary |
+| [Lead runtime spine](./docs/architecture/lead-runtime-spine.md) | durable identity, leases, spend receipts, and bounded IVerif execution |
+| [Goal Graph operating model](./docs/architecture/goal-graph-operating-model.md) | durable goal authority, deterministic compiler, projection boundary, and migration proof contract |
+| [Telegram Goal Graph lifecycle](./docs/runbooks/goal-graph-telegram-lifecycle.md) | bounded intent parsing, canonical replay, approval handoff, plus the separately authenticated branch-map read route |
+| [Marketing Create renderer](./docs/architecture/marketing-create-worker-renderer.md) | review-only draft generation and fail-closed activation boundary |
+| [Run the app](./docs/adopters/run-the-app.md) | clean-clone path for the visual engine, tenant fixture, and Worker connection |
+| [Desktop packaging](./apps/cambium-r3f/README.md#electron-desktop-package) | macOS-first Electron development, packaging, security, and signing boundary |
+| [Architecture inventory](./docs/architecture/SERVICES.md) | source-backed runtime and external-resource inventory |
 | [New adopter runbook](./docs/adopters/new-adopter-30-minutes.md) | the 30-minute clean-clone path for standalone teams |
 | [Adapter boundary](./docs/adapters/README.md) | how optional providers feed evidence without becoming product identity |
 | [Approval lane](./docs/adapters/approval.md) | provider-neutral human gate with CLI, web, and Telegram adapters |

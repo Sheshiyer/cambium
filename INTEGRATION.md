@@ -5,12 +5,17 @@ Cambium composes them as services along the pipeline in [`composition/CONTRACTS.
 This file tracks the wires that take Cambium from *"composes in principle"* → *"runs a business
 end-to-end, on-brand, per tenant."*
 
-> **Status (2026-06-29):** the composition layer itself is **live** — `registry.json` (5 organs),
+> **Status (2026-07-22):** the composition layer itself is **live** — `registry.json` (5 organs),
 > `composition/pipeline.json` (genesis→taste→build→ops + cortex), the contracts, and a zero-dep
-> dry-run conductor (`bin/compose.mjs`, 8/8 tests). It **plans + validates** the composition today.
-> **I1 (brand→GTM) is shipped.** Next: turn each stage from a *plan* into a *live service* (I2).
+> conductor (`bin/compose.mjs`) can plan, validate, and run declared adapters behind spend gates.
+> **I1 (brand→GTM) and the bounded I2a/b/c invocation paths are shipped.** A separate Worker/runtime
+> plane now carries tenant, quest, lead, and review-only marketing contracts; that does not mean every
+> external organ is deployed as a continuously running service.
 
 ## The composition layer (this is the home now)
+
+The composition layer remains the contract owner. The operational Worker and visual engine are maintained
+surfaces in this repository, while external organ repositories remain optional, separately governed adapters.
 
 | Artifact | What it is |
 |---|---|
@@ -20,6 +25,16 @@ end-to-end, on-brand, per tenant."*
 | [`bin/compose.mjs`](./bin/compose.mjs) | the dry-run conductor — `compose plan <tenant>` / `compose validate` |
 
 Run it: `node bin/compose.mjs plan acme`. Test it: `npm test` (or `node --test 'bin/*.test.mjs'`).
+
+### Desktop packaging boundary
+
+The R3F visual engine is packaged as a macOS-first Electron application without moving Worker
+authority into the client. Vite produces one relative-path renderer build; Electron loads that build
+through `cambium://app/` with context isolation, sandboxing, denied permissions, and no Node APIs in
+the renderer. The Worker URL remains a user-configured optional remote boundary, and no provider token
+is part of the renderer or packaged shell. Use `npm run desktop:dev` for local development and
+`npm run desktop:dist:mac:dir` for an unpacked macOS artifact; signing, notarization, and updates remain
+separately governed release concerns.
 
 ### The invocation layer (I2 — live, fail-closed)
 

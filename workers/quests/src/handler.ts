@@ -31,6 +31,11 @@ import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-rou
 import { MINI_APP_SECTIONS, MINI_APP_MAP_SUBSECTIONS } from './mini-app-surface-contract.ts';
 import { filterSections, filterSubsections, type Principal } from './rbac.ts';
 import { createInvite as createConsultantInvite, verifyInvite as verifyConsultantInvite } from './invites.ts';
+import { buildBranchMapProjection, projectionDigest } from './branch-map.ts';
+import { BRANCH_MAP_RECEIPT_READ_LIMIT } from './branch-map-receipt-store.ts';
+import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
+import { renderBranchMapSheet } from './branch-map-sheet.ts';
+import type { GoalGraphStoreLike } from './goal-graph-store.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
   id: 'anonymous-founder',
@@ -419,6 +424,9 @@ export interface HandlerDeps {
   now?: () => string;          // injectable clock (ISO) for the bridge
   nowMs?: () => number;        // injectable epoch-ms clock for handoff TTLs
   publicBaseUrl?: string;      // deployed Worker base URL for invite/deep links
+  goalGraphStore?: GoalGraphStoreLike; // D1 Goal Graph authority for read-only branch projections
+  branchMapReceiptStore?: BranchMapReceiptStoreLike; // D1 append-only transition evidence
+  branchMapTenants?: string[]; // server-owned allowlist for Telegram map reads
 }
 
 export interface ProviderConfig {
@@ -2575,6 +2583,75 @@ function queryParam(path: string, key: string): string | undefined {
   return new URLSearchParams(path.slice(queryStart + 1)).get(key) ?? undefined;
 }
 
+async function handleBranchMapRoute(req: SimpleRequest, deps: HandlerDeps, routePath: string): Promise<SimpleResponse> {
+  const tenant = tenantOf(routePath, '/v1/branch-map/');
+  if (!tenant) return json(400, { error: 'bad tenant' });
+  if (req.method !== 'GET') {
+    return { ...json(405, { error: 'branch map is GET-only' }), headers: { ...JSON_HEADERS, allow: 'GET' } };
+  }
+  const allowedTenants = deps.branchMapTenants?.length ? deps.branchMapTenants : ['cambium'];
+  if (!allowedTenants.includes(tenant)) return json(403, { error: 'branch map tenant is not enabled' });
+  if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
+  const initData = (req.headers['x-telegram-init-data'] ?? req.headers['telegram-init-data'] ?? '').trim();
+  const auth = await validateInitData(initData, deps.gate);
+  if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
+  if (!deps.goalGraphStore || !deps.branchMapReceiptStore) {
+    return json(503, { error: 'branch map authority is not configured' });
+  }
+
+  try {
+    const head = await deps.goalGraphStore.readHead(tenant);
+    if (!head) return json(404, { error: 'branch map graph not found' });
+    const nodes = await deps.goalGraphStore.readNodes(tenant);
+    const receipts = await deps.branchMapReceiptStore.listReceipts(tenant, undefined, BRANCH_MAP_RECEIPT_READ_LIMIT);
+    const generatedAt = deps.now ? deps.now() : new Date().toISOString();
+    const projected = buildBranchMapProjection({
+      tenantId: tenant,
+      graphVersion: head.graphVersion,
+      graphDigest: head.graphDigest,
+      generatedAt,
+      sourceRef: head.sourceRef ?? 'd1:goal-graph',
+      nodes,
+      receipts,
+    });
+    if (!projected.accepted) {
+      return json(503, { error: 'branch_map_projection_invalid', errors: projected.errors.slice(0, 12) });
+    }
+    const projection = projected.projection;
+    // Recompute the digest at the seam so a stale or caller-mutated object
+    // cannot be presented as a signed read model.
+    if (projectionDigest(projection) !== projection.projectionDigest) {
+      return json(503, { error: 'branch_map_projection_digest_invalid' });
+    }
+    const rendered = renderBranchMapSheet(projection);
+    if (!rendered.accepted) return json(503, { error: 'branch_map_sheet_invalid', errors: rendered.errors.slice(0, 12) });
+    const proofBody = {
+      schema: 'cambium.telegram.branch-map-proof.v1',
+      tenantId: tenant,
+      graphVersion: projection.graphVersion,
+      graphDigest: projection.graphDigest,
+      projectionDigest: projection.projectionDigest,
+      sheetSchema: rendered.sheet.schema,
+      sheetEnvelopeDigest: `sha256:${await sha256hex(canonicalJson(rendered.sheet))}`,
+      sheetTextDigest: `sha256:${await sha256hex(rendered.sheet.text)}`,
+      authenticatedUserId: auth.userId,
+      generatedAt: projection.generatedAt,
+    };
+    const proofDigest = `sha256:${await sha256hex(canonicalJson(proofBody))}`;
+    return json(200, {
+      schema: 'cambium.telegram.branch-map-route.v1',
+      version: 1,
+      tenantId: tenant,
+      authenticated: { method: 'telegram-init-data', userId: auth.userId },
+      projection,
+      sheet: rendered.sheet,
+      proof: { ...proofBody, proofDigest },
+    });
+  } catch {
+    return json(503, { error: 'branch_map_authority_unavailable' });
+  }
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
@@ -2595,6 +2672,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (method === 'GET' && routePath === '/healthz') {
     return json(200, { ok: true, worker: 'cambium-quests' });
+  }
+
+  if (routePath.startsWith('/v1/branch-map/')) {
+    return handleBranchMapRoute(req, deps, routePath);
   }
 
   if (routePath.startsWith('/v1/context/')) {

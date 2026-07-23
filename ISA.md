@@ -1,13 +1,13 @@
 ---
 project: Cambium
-task: "Audit and consolidate all Git state into main"
+task: "Expose a verifiable branch-to-organ map for Telegram operations"
 effort: advanced
 effort_source: classifier
 phase: complete
-progress: 26/26
+progress: 280/280
 mode: interactive
-started: 2026-07-13T09:04:49Z
-updated: 2026-07-22T08:07:26Z
+started: 2026-07-22T08:55:00Z
+updated: 2026-07-23T12:24:00Z
 ---
 
 ## Problem
@@ -272,6 +272,147 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - [x] ISC-153: Anti: a PR is called merged from local ancestry alone without GitHub state and CI evidence.
 - [x] ISC-154: Anti: consolidation performs any live Explee/provider mutation or exposes provider credentials.
 
+### Documentation synchronization audit
+
+- [x] ISC-155: The active source inventory identifies the composition/operator plane and the runtime/visual plane.
+- [x] ISC-156: The root README names the maintained Worker runtime and R3F visual engine.
+- [x] ISC-157: The root README states the fixed, read-only, redacted, send-ineligible IVerif boundary.
+- [x] ISC-158: The root README states that Marketing Create is review-only, disabled, and not deployed.
+- [x] ISC-159: The root README distinguishes the published v0.3.0 tag from post-tag `main` changes.
+- [x] ISC-160: The root README quick start includes composition validation, product-branch validation, and release qualification commands.
+- [x] ISC-161: The root README command reference includes compose, Quine, and deterministic release commands.
+- [x] ISC-162: The root README documentation table links the current runtime, adopter, release, and architecture surfaces.
+- [x] ISC-163: The root package description names the operator, runtime, cortex, and constellation scope.
+- [x] ISC-164: Root architecture documentation dates the composition layer to current main and states its gated execution boundary.
+- [x] ISC-165: Root architecture documentation lists Worker, R3F, lead, IVerif, and Marketing Create current truth.
+- [x] ISC-166: Integration documentation no longer implies that every external organ is a continuously deployed service.
+- [x] ISC-167: Release documentation has an explicit unreleased-on-main section after v0.3.0.
+- [x] ISC-168: Release-time verification counts remain historical and current-main verification points to the release gate.
+- [x] ISC-169: Active current documentation contains no forbidden committed live-readiness path.
+- [x] ISC-170: The architecture service inventory enumerates D1, KV, R2, and Vectorize from nested Worker configuration.
+- [x] ISC-171: The architecture service inventory includes R3F, provider, adapter, and CI boundaries with status.
+- [x] ISC-172: The refreshed architecture HTML exists and links its source-backed current architecture references.
+- [x] ISC-173: The refreshed NotebookLM architecture prompt exists and names its source set and safety boundaries.
+- [x] ISC-174: The architecture refresh marker is removed only after both reviewed generated assets exist.
+- [x] ISC-175: The R3F README describes the maintained Urania constellation surface and its desktop/offline boundaries.
+- [x] ISC-176: The adopter runbook describes current local/invite identity behavior and the remaining remote-directory boundary.
+- [x] ISC-177: The Quine README is release-neutral and does not describe the current tool as v0.2.0.
+- [x] ISC-178: The adapter index links the current lead-runtime and Marketing Create governance docs.
+- [x] ISC-179: The technical reference points readers to current architecture/integration docs and labels dated plans historical.
+- [x] ISC-180: The completed `.planning` slice is explicitly labeled historical and points to current acceptance surfaces.
+- [x] ISC-181: README generation metadata records the current documentation refresh date.
+- [x] ISC-182: Active documentation makes no unsupported live-provider, publication, outreach, or recurring-schedule claim.
+- [x] ISC-183: Links introduced or changed by the documentation update resolve to repository files.
+- [x] ISC-184: The current tree passes the deterministic test, documentation, release, and standalone verification gates.
+- [x] ISC-185: Architecture asset status, timestamps, and generated/source-backed provenance agree across ISA and docs.
+- [x] ISC-186: Anti: no dated historical plan is rewritten to masquerade as current runtime truth.
+
+### Electron desktop packaging
+
+- [x] ISC-187: The source map identifies R3F/Vite/React as the desktop renderer.
+- [x] ISC-188: The source map identifies Electron main, preload, and renderer responsibilities.
+- [x] ISC-189: The source map identifies the Worker as an optional remote boundary.
+- [x] ISC-190: The supported desktop policy names macOS as the first distribution target.
+- [x] ISC-191: The local demo remains offline-capable with synthetic data and no Worker.
+- [x] ISC-192: The packaged window policy preserves the 1280×800 minimum desktop viewport.
+- [x] ISC-193: Hash routes resolve correctly when the app is packaged locally.
+- [x] ISC-194: The packaged app boots without a Vite dev server or preview server.
+- [x] ISC-195: Packaged local assets include tapestry JSON, textures, and generated GLBs.
+- [x] ISC-196: The Electron renderer enables context isolation explicitly.
+- [x] ISC-197: The Electron renderer disables Node.js integration explicitly.
+- [x] ISC-198: The Electron renderer enables process sandboxing explicitly.
+- [x] ISC-199: The preload bridge exposes only a narrow, documented API surface.
+- [x] ISC-200: Renderer code has no direct Node.js or Electron module access.
+- [x] ISC-201: Packaged navigation and new-window creation fail closed.
+- [x] ISC-202: Optional Worker settings require an explicit governed remote boundary.
+- [x] ISC-203: Renderer bundles and packaged files contain no secrets or provider tokens.
+- [x] ISC-204: Packaged DevTools access is disabled or explicitly review-gated.
+- [x] ISC-205: The renderer and Electron shell share one deterministic build output.
+- [x] ISC-206: Root commands expose desktop development, build, test, and distribution flows.
+- [x] ISC-207: Electron dependency ownership and lockfile policy are documented.
+- [x] ISC-208: Distribution configuration pins app identity, targets, and artifact naming.
+- [x] ISC-209: The packaged app has stable product metadata and a documented icon policy.
+- [x] ISC-210: A local packaged smoke test proves boot and local asset availability.
+- [x] ISC-211: Existing R3F tests and production build remain green after packaging changes.
+- [x] ISC-212: The deterministic release verification remains green after packaging changes.
+- [x] ISC-213: A macOS unpacked or installer artifact is generated successfully.
+- [x] ISC-214: Updates remain explicitly governed and are not auto-enabled without authority.
+- [x] ISC-215: CI packaging runs on macOS or records an explicit deferred boundary.
+- [x] ISC-216: Root and R3F documentation describe current packaging commands and limits.
+- [x] ISC-217: Packaging troubleshooting documents WebGL, GPU, signing, and quarantine paths.
+- [x] ISC-218: Anti: no credentials, API tokens, or secret-bearing environment files are bundled.
+
+### Durable Goal Graph authority
+
+- [x] ISC-219: Goal Graph nodes carry desired/current state, scope, owner, next action, proof requirement, review time, status, and provenance.
+- [x] ISC-220: External Goal Graph identities are deterministic for tenant, namespace, and external ID.
+- [x] ISC-221: Identity-less Goal Graph nodes use deterministic source provenance and content digest without timestamps or input order.
+- [x] ISC-222: Goal Graph validation rejects more than one parentless root per tenant.
+- [x] ISC-223: Goal Graph validation rejects missing or cross-tenant parent references.
+- [x] ISC-224: Pure compilation emits a proposal change-set without mutating graph state.
+- [x] ISC-225: Recompiling unchanged input produces byte-equal no-op output.
+- [x] ISC-226: Compilation rejects a stale expected graph head before producing a proposal.
+- [x] ISC-227: Migration classification covers unchanged, replaced, retired, split, merged, and unmapped lineages.
+- [x] ISC-228: Projection envelopes carry origin, graph version, graph digest, tenant, source reference, and payload.
+- [x] ISC-229: Goal Graph projections are rejected when presented as fresh authoritative input.
+- [x] ISC-230: Split and merged lineages return explicit review-required proof dispositions.
+- [x] ISC-231: D1 migration creates tenant graph heads and versioned graph nodes.
+- [x] ISC-232: D1 graph events are immutable under update and delete attempts.
+- [x] ISC-233: D1 graph nodes enforce one tenant root with a unique partial index.
+- [x] ISC-234: D1 commit CAS binds a canonical approved change digest, intent version, approver, and expiry to one graph revision.
+- [x] ISC-235: A stale D1 commit produces no node, head, approval, or event mutation, and replay is idempotent.
+- [x] ISC-236: Telegram-shaped intent is a total, bounded parser that compiles into a provenance-bound Goal Graph proposal.
+- [x] ISC-237: Telegram intent rejects provider routing, credentials, unbounded payloads, projection-shaped inputs, and malformed input without throwing.
+- [x] ISC-238: No Telegram or Worker integration is described as complete before its route and receipt tests exist.
+- [x] ISC-239: The default repository test command includes Goal Graph contract tests.
+- [x] ISC-240: Anti: a generated Goal Graph projection can never re-enter the authoritative writer through a round trip.
+
+### Branch traversal map and Telegram projection
+
+- [x] ISC-241: A canonical branch registry names iverif, fitcheck/getfitcheck, getleads, and explee with explicit alias and evidence status.
+- [x] ISC-242: Branch packet metadata and Organ Routing rows compile into stable branch and organ node identities.
+- [x] ISC-243: A transition receipt requires tenant, branch, from-node, to-node, organ, status, observed time, source reference, source digest, and evidence references.
+- [x] ISC-244: Projection ordering is deterministic and independent of receipt ingest order.
+- [x] ISC-245: Lineage validation rejects dangling nodes, cycles, duplicate transition identity, and cross-tenant references.
+- [x] ISC-246: Authoritative node status derives from packet and transition evidence; campaign overlays cannot mutate it.
+- [x] ISC-247: A branch without a canonical packet renders an explicit unknown or pending gap instead of an invented story.
+- [x] ISC-248: Campaign overlays distinguish observed-active, observed-paused, claimed-paused, and unknown with source and freshness.
+- [x] ISC-249: Wiki overlays distinguish linked, missing, and stale evidence without becoming lineage authority.
+- [x] ISC-250: The branch-map envelope carries schema, projection version, graph/source digest, tenant, generated time, and source reference.
+- [x] ISC-251: Telegram branch-map projection is read-only, tenant-scoped, and excludes credentials, raw customer data, and provider mutation controls.
+- [x] ISC-252: The mini-app contract exposes a branch-map subsection with read-only sheet semantics and provenance.
+- [x] ISC-253: Fixtures cover IVerif and Fitcheck packet paths plus unmapped GetLeads and Explee aliases.
+- [x] ISC-254: Focused tests use synthetic receipts and overlays only; no external campaign, wiki, or provider mutation occurs.
+- [x] ISC-255: Handler wiring is not described as complete until route, authorization, and receipt tests exist.
+- [x] ISC-256: Anti: a generated branch-map projection cannot be accepted as a fresh authoritative branch or transition input.
+
+### D1 receipt-to-Telegram proof slice
+
+- [x] ISC-257: D1 stores branch transition receipts under a tenant-scoped composite identity.
+- [x] ISC-258: Receipt writes validate branch, node, graph version, provenance, status, timestamp, and evidence bounds.
+- [x] ISC-259: Receipt replay with identical canonical bytes is idempotent and returns the original receipt.
+- [x] ISC-260: Receipt replay with semantic drift fails closed without overwriting the original row.
+- [x] ISC-261: Receipt identity, provenance, and evidence fields are immutable under update and delete attempts.
+- [x] ISC-262: Receipt listing is tenant-scoped, bounded, deterministic, and ordered by observed time then receipt ID.
+- [x] ISC-263: D1 migration and canonical schema contain the same receipt table, indexes, and immutability triggers.
+- [x] ISC-264: Worker map route requires a valid signed Telegram Mini App initData envelope.
+- [x] ISC-265: Worker map route rejects stale, malformed, non-founder, and cross-tenant authentication.
+- [x] ISC-266: Worker map route reads Goal Graph head/nodes plus receipts without mutating authority state.
+- [x] ISC-267: Worker map route returns the versioned branch-map envelope and projection digest.
+- [x] ISC-268: Worker map route returns explicit unavailable or not-found states rather than invented branch data.
+- [x] ISC-269: Route responses contain no raw initData, tokens, provider credentials, or customer payloads.
+- [x] ISC-270: Telegram map sheet renders bounded branch, organ, receipt, overlay, source, and gap rows.
+- [x] ISC-271: Telegram map sheet is deterministic for byte-equivalent projections.
+- [x] ISC-272: Telegram map sheet exposes no mutation control or provider action affordance.
+- [x] ISC-273: Telegram map sheet preserves authoritative node status separately from campaign/wiki overlays.
+- [x] ISC-274: A signed synthetic route fixture reaches D1 receipts, projection, sheet rendering, and digest verification end to end.
+- [x] ISC-275: Synthetic signature tampering fails before D1 reads and leaves authority state unchanged.
+- [x] ISC-276: Tenant substitution fails before projection and cannot disclose another tenant's receipts.
+- [x] ISC-277: Receipt digest, projection digest, and proof digest bind one canonical end-to-end evidence chain.
+- [x] ISC-278: Focused D1, route, sheet, and proof tests run without network or live provider calls.
+- [x] ISC-279: Live founder-device Telegram proof remains explicitly deferred until a current device capture exists.
+- [x] ISC-280: Anti: no route or renderer claims branch traversal complete without persisted receipt evidence.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -309,6 +450,33 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 | ISC-144..146 | integration | tests, CI, and selected commit reachability | `npm test`, `gh run`, `git merge-base` |
 | ISC-147..150 | cleanup | PR, branch, worktree, and operation hygiene | `gh`, `git`, filesystem probes |
 | ISC-151..154 | anti-probes | no silent loss, destructive mutation, or false merge claim | before/after digests and GitHub evidence |
+| ISC-155..162 | README continuity | current capabilities, boundaries, commands, and links agree with source | `rg`, link probe, README review |
+| ISC-163..171 | architecture continuity | package, root architecture, integration, and service inventory describe current planes and bindings | `rg`, manifest review |
+| ISC-172..174 | generated architecture assets | reviewed HTML/prompt exist, source links resolve, refresh marker is absent | filesystem probe + HTML/link inspection |
+| ISC-175..181 | local guide continuity | R3F, adopter, Quine, adapter, technical-reference, planning, and generator metadata are current | `rg`, file review |
+| ISC-182..186 | docs safety and release proof | no unsupported live claim, no forbidden readiness path, links resolve, gates pass, history remains historical | `rg`, `npm test`, `npm run verify:release`, `git diff --check` |
+| ISC-187..191 | source and stakeholder map | renderer, shell, Worker, macOS, and offline boundaries agree across source and docs | source review + README review |
+| ISC-192..195 | packaged runtime | window floor, hash-route renderer, serverless boot, and local asset payload pass | packaged smoke + `desktop:test` |
+| ISC-196..204 | Electron security | isolation, sandbox, denied authority, navigation policy, and secret exclusion pass | source assertions + payload scan |
+| ISC-205..209 | release configuration | one build output, root commands, lock ownership, metadata, targets, and icon policy agree | package/lock/workflow review |
+| ISC-210..215 | release evidence | packaged smoke, regression gates, macOS artifacts, update boundary, and CI path pass | `desktop:smoke:packaged`, `npm run verify:release`, workflow review |
+| ISC-216..218 | documentation and anti-probes | packaging docs, troubleshooting, and no-secret bundle rules pass | docs review + `desktop:test` |
+| ISC-219..225 | Goal Graph pure contracts | node fields, deterministic identity, roots, compiler proposals, and no-op replay pass | `node --test workers/quests/src/goal-graph/compiler.test.ts` |
+| ISC-226..230 | Goal Graph authority boundaries | stale heads, migration classes, projection envelopes, and feedback rejection pass | `node --test workers/quests/src/goal-graph/*.test.ts` |
+| ISC-231..233 | Goal Graph D1 schema | heads, nodes, immutable events, and root index parse and enforce constraints | `sqlite3 :memory: < workers/quests/migrations/0007_goal_graph.sql` |
+| ISC-234..235 | Goal Graph commit authority | approved CAS commit changes one revision or leaves every table unchanged | D1 store tests with concurrent stale writes |
+| ISC-236..237 | Telegram Goal Graph intake | total bounded parser uses canonical hashing/idempotency and rejects authority drift | intake tests; handler route tests remain deferred under ISC-238 |
+| ISC-238..240 | integration anti-probes | no unverified route claim and no projection feedback loop remain | `rg`, focused tests, `npm test` |
+| ISC-241..243 | branch registry and receipts | named aliases, packet-derived nodes, and provenance-bound transitions parse and validate | branch-map contract tests + packet inventory |
+| ISC-244..246 | lineage projection | deterministic fold, cycle/dangling rejection, and status authority remain stable | branch-map unit tests |
+| ISC-247..249 | evidence overlays | unmapped branches and campaign/wiki freshness remain explicit and non-authoritative | branch-map fixture tests |
+| ISC-250..252 | Telegram surface contract | versioned digest envelope and read-only tenant-scoped subsection are declared | contract tests + mini-app surface inspection |
+| ISC-253..256 | branch-map safety | four named aliases are covered without external mutation or projection feedback | focused tests, `rg`, `npm test` |
+| ISC-257..263 | D1 receipt authority | append-only tenant-scoped transition receipts validate, replay, list, and match canonical schema | migration/store tests with SQLite D1 fixture |
+| ISC-264..269 | authenticated Worker route | signed Telegram auth gates a read-only tenant projection with fail-closed errors and redaction | handler route tests with synthetic initData |
+| ISC-270..273 | Telegram map sheet | bounded deterministic read-only rows retain authority/overlay separation and gaps | sheet renderer tests |
+| ISC-274..278 | signed end-to-end proof | one synthetic signature binds receipt, projection, sheet, and proof digests; tampering and tenant swaps fail | end-to-end route/store/sheet test |
+| ISC-279..280 | live boundary | device proof is deferred and no unsupported completion claim is emitted | ISA/README inspection and anti-probe |
 
 ## Features
 
@@ -331,20 +499,29 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - `PendingArtifactRecovery` | Selectively recover unique safe stash content and sanitize active generated instructions | satisfies ISC-136, ISC-140..143 | depends_on GitStateInventory | parallelizable true
 - `GitHubAndWorktreeCloseout` | Merge selected work, classify residual refs, and prune only stale records | satisfies ISC-147..150 | depends_on IVerifStackIntegration, PendingArtifactRecovery | parallelizable false
 - `PreservationProof` | Prove primary dirt, stashes, safety boundary, and no live provider mutation | satisfies ISC-130, ISC-151..154 | depends_on GitStateInventory, GitHubAndWorktreeCloseout | parallelizable false
+- `DocumentationContinuity` | Reconcile current implementation, release state, architecture assets, guides, and historical boundaries | satisfies ISC-155..186 | depends_on PreservationProof | parallelizable false
+- `ElectronDesktopPackage` | Package the R3F renderer behind a secure macOS-first Electron shell with artifact evidence | satisfies ISC-187..218 | depends_on DocumentationContinuity | parallelizable false
+- `GoalGraphAuthority` | Persist the approved operational Goal Graph with deterministic compilation and migration proof | satisfies ISC-219..235 | depends_on ElectronDesktopPackage | parallelizable true
+- `TelegramGoalGraphIntake` | Convert bounded Telegram intent into approval-bound proposals without granting routing authority | satisfies ISC-236..240 | depends_on GoalGraphAuthority | parallelizable true
+- `BranchTraversalMap` | Compile branch packets and transition receipts into a deterministic, read-only organ traversal projection | satisfies ISC-241..256 | depends_on GoalGraphAuthority, TelegramGoalGraphIntake | parallelizable true
+- `D1ReceiptAuthority` | Persist immutable branch transition receipts with idempotent tenant-scoped reads | satisfies ISC-257..263 | depends_on BranchTraversalMap | parallelizable true
+- `AuthenticatedBranchMapRoute` | Expose the Goal Graph and receipt projection behind signed Telegram auth | satisfies ISC-264..269 | depends_on D1ReceiptAuthority | parallelizable false
+- `TelegramMapSheet` | Render bounded read-only branch and organ traversal rows for Telegram | satisfies ISC-270..273 | depends_on AuthenticatedBranchMapRoute | parallelizable true
+- `SignedEndToEndProof` | Prove receipt storage, route auth, projection, rendering, and digest binding synthetically | satisfies ISC-274..280 | depends_on D1ReceiptAuthority, AuthenticatedBranchMapRoute, TelegramMapSheet | parallelizable false
 
 ## Architecture
 
 <!-- arch-assets:start -->
 
-_Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._
-_Last refreshed: 2026-07-21T08:41:07.915Z_
+_Maintained during the 2026-07-22 architecture refresh; source-backed inventory plus reviewed LLM-generated assets._
+_Last refreshed: 2026-07-22T09:00:00Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
 | [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✅ current | auto (file scan) |
 | [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✅ current | auto (file scan) |
-| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ⬜ not yet generated | manual (LLM skill) |
-| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ⬜ not yet generated | manual (LLM skill) |
+| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ✅ current | architecture-diagram skill, reviewed against source |
+| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ✅ current | architecture refresh prompt, reviewed against source |
 
 **To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
 
@@ -379,6 +556,24 @@ _Last refreshed: 2026-07-21T08:41:07.915Z_
 - 2026-07-22 07:30: The only open code path is the stacked IVerif pair: #254 is the reviewed child of #253, while #253 conflicts with current main and must be resolved on a fresh integration branch.
 - 2026-07-22 07:30: The dirty architecture assets are newer generated output; the stash contains older generated variants plus unique validator/readiness candidates. Recovery will be selective and stashes will remain retained.
 - 2026-07-22 07:30: Delegation floor is relaxed with show-your-math: each inventory probe is a direct bounded Git/GitHub lookup, while parallel write agents would contend on shared worktree metadata and complicate preservation proof.
+- 2026-07-22 08:40: Documentation reconciliation keeps the authored README voice and historical plans intact; current surfaces are updated by source-backed additions and explicit status labels rather than destructive regeneration.
+- 2026-07-22 08:40: The project is documented as two connected planes: composition/operator and runtime/visual. The Worker, R3F app, lead runtime, IVerif observer, and Marketing Create renderer are named with their independent deployment and side-effect boundaries.
+- 2026-07-22 08:40: The architecture refresh marker is removed only after reviewed `architecture.html` and `notebooklm-prompt.md` assets are present; the service inventory supplements the shallow hook scan with nested Worker bindings.
+- 2026-07-22 08:40: Release history remains immutable in meaning: v0.3.0 counts are labeled release-time, current `main` is explicitly unreleased, and the forbidden committed live-readiness path is not restored.
+- 2026-07-22 09:35: The desktop target is reconstructed as a thin shell around the existing R3F renderer rather than a second application. A relative Vite build, secure `cambium://` protocol, narrow preload, and optional Worker URL preserve the local-first demo while making the macOS artifact independently verifiable.
+- 2026-07-22 09:35: electron-builder is the distribution tool because the repository needs explicit macOS DMG/ZIP and unpacked-app targets; the package owns pinned Electron dependencies and signing/notarization are not inferred from local keychain state.
+- 2026-07-23 04:57: The current ActionRequest KV queue is a UI/projection lane, not a desired-state authority. The next slice therefore separates a D1 approval-bound CAS writer from a pure Telegram-shaped parser; handler wiring remains deferred until route and receipt contracts exist.
+- 2026-07-23 04:57: Approval binding is the tuple `(content_hash, intent_version, approver_id, nonce_or_expiry)` over canonical serialization. Telegram update/content idempotency, total parser rejection, and a single atomic D1 batch are mandatory before integration.
+- 2026-07-23 04:57: Premortem controls are explicit: conditional CAS statements must leave zero writes on stale heads; approval TTL and graph-version binding block reuse; projection-origin input is rejected; bootstrap races fail closed; unknown or oversized Telegram keys are rejected.
+- 2026-07-23 05:20: The pure next slice is verified locally: D1 approval witnesses are immutable, valid commits read back one revision, stale/bootstrap races leave all authority tables unchanged, and Telegram redelivery has a canonical SHA-256/idempotency key. Handler wiring remains a separate unverified edge.
+- 2026-07-23: Root-cause-at-ingestion checkpoint — the Telegram view cannot show branch traversal because current BranchStoryArc packets describe desired organ routing but no durable branch-to-organ transition receipt ledger exists. The first map slice therefore derives a read-only projection from packet metadata plus explicit receipts; campaign and wiki records remain evidence overlays, never desired-state writers.
+- 2026-07-23: Advisor review selected a versioned on-read projection for the first branch-map slice. Deterministic ordering, DAG validation, receipt/lineage parity, tenant authorization, unresolved references, freshness, and projection-origin rejection are mandatory before handler wiring.
+- 2026-07-23: Verification completed for the first branch-map contract slice. At that slice's boundary, live route wiring remained explicitly deferred because no production receipt source was served; the subsequent D1-to-route slice is recorded below.
+- 2026-07-23: Cato cross-vendor audit passed the D1 receipt, bounded route read, full-sheet digest, tenant-authentication, redaction, and truthful live-proof boundaries after the mandatory fixes.
+- 2026-07-23: conjectured: a deterministic sheet over a pure projection was sufficient for operational branch traversal
+  refuted by: the projection had no durable D1 receipt boundary or authenticated Worker read seam, so a Telegram view could not prove which evidence it consumed
+  learned: ingestion, tenant-authenticated read, bounded rendering, and digest binding must be one verifiable chain; founder-device capture remains a separate live boundary
+  criterion now: ISC-257..280 require append-only receipts, signed route auth, bounded redacted sheets, full-envelope proof digests, and an explicit live-proof deferment
 
 ## Changelog
 
@@ -421,7 +616,23 @@ _Last refreshed: 2026-07-21T08:41:07.915Z_
 - 2026-07-22 | conjectured: Every dirty or stashed readiness artifact should be promoted into active documentation
   refuted by: `scripts/drift-audit.mjs` forbids `docs/plans/assets/tg-miniapp-live-proof/readiness.json`, and its blocked report was already classified as stale evidence
   learned: preserve excluded evidence with local archive refs while honoring the repository's own safety gates
-  criterion now: ISC-141..143 and ISC-152 require truthful exclusion, safe instructions, and retained recovery refs
+ criterion now: ISC-141..143 and ISC-152 require truthful exclusion, safe instructions, and retained recovery refs
+- 2026-07-22 | conjectured: Updating the README alone would be enough to realign project truth
+  refuted by: the package description, architecture inventory, nested Worker bindings, app/CLI READMEs, and generated-asset marker carried independent drift
+  learned: documentation continuity requires a source map across narrative, generated, release, adopter, and historical surfaces
+ criterion now: ISC-155..185 require cross-surface status, provenance, links, and verification; ISC-186 preserves historical boundaries
+- 2026-07-23 | conjectured: A pure parser and CAS store could be considered complete without end-to-end handler wiring
+  refuted by: route and receipt evidence is not present yet, and the project explicitly separates pure authority contracts from Telegram/Worker edges
+  learned: complete the durable boundaries first, but preserve a visible deferred integration criterion rather than claiming the workflow is live
+  criterion now: ISC-234..240 mark the store/intake contracts complete while ISC-238 keeps route and receipt wiring deferred
+- 2026-07-23 | conjectured: Directly wiring Telegram into the existing ActionRequest handler would quickly create the operational workflow
+  refuted by: the handler currently exposes UI queue and worker-store seams but no single approval-bound desired-state writer
+  learned: operational workflows need one Goal Graph authority before projections or intake routes are connected
+  criterion now: ISC-234..240 require canonical approval binding, atomic CAS, total bounded intake, and explicit deferred integration
+- 2026-07-23 | conjectured: Adding another Telegram sheet over the existing branch stories would reveal how products move through organs
+  refuted by: BranchStoryArc packets contain intended Organ Routing and gate state but no durable transition receipt, while the current packet index omits getleads and explee
+  learned: traversal is an evidence-backed lineage projection, not a campaign/wiki lookup or a visual-only component
+  criterion now: ISC-241..256 require a canonical alias registry, receipt-bound DAG projection, non-authoritative campaign/wiki overlays, and deferred route claims
 
 ## Verification
 
@@ -439,6 +650,9 @@ _Last refreshed: 2026-07-21T08:41:07.915Z_
 - Runtime and drift: focused Worker, routing, readiness, release-contract, standalone-audit, and mutation tests pass. Deliberate production-shape, fixed-instruction, touch, and PNG-digest failures were observed before their implementations passed.
 - Canonical browser proof: 38 captures pass (27 layout, 11 clickability), PAGE SHA-256 `db1351564dd64741582ea8888698de663dcd005105ac0d856b0c6b2b3e97a77c`; the manifest binds every canonical PNG to its current SHA-256 and focused runs write only ignored diagnostics.
 - Deterministic release verification passes: 702 core tests, six CI mobile stories including settled real touch drag and a hit-tested queued ActionRequest proof tap, 52 R3F tests, R3F build, docs synchronization, standalone audit, smoke, and drift audit.
+- Goal Graph next-slice verification: focused compiler/projection/intake/store contracts pass (25/25); SQLite migration parses; `npm test` passes with the default Goal Graph glob including intake/store tests (1003/1003); `npm run standalone:audit` passes 476 publishable files; `npm run standalone:smoke` and `npm run render-docs:check` pass; no Worker/Telegram route or external provider mutation was performed.
+- Branch traversal map verification: the packet projection and read-only subsection remain green; the D1 receipt store, authenticated Worker route, bounded Telegram sheet, and signed synthetic proof now pass their focused suites. The inventory and architecture contract contain no credentials or live mutation path; founder-device Telegram evidence remains deferred under ISC-279.
+- Final repository verification after the branch-map slice: `npm test` passes 1009/1009, `npm run standalone:audit` passes 480 publishable files, `npm run render-docs:check` passes 6 pages/91 components, and `git diff --check` is clean. No live Telegram, R2, Explee, campaign, wiki, Composio, or provider mutation was performed.
 - GitHub: Cambium #230 is closed `not planned` with the queued-state correction; Hermes #88 owns the cross-repository routing manifest. M5 and M7 are closed with zero open issues. Cleanup PR #235 and drift follow-ups #236 and #237 are merged; GitHub reports zero open pull requests.
 - Cleanup CI run `29240965478` correctly failed ambient generated-doc synchronization; run `29241191160` then passed docs and 700 tests but exposed branch-rail snap-back after genuine touch delivery. The committed snapshot and settled-scroll contract now pass 701 core tests and the complete local release gate.
 - Protected CI run `29242583053` passed at `d829dbb1e712065304c6aee5041d906b9a0d1372` and uploaded `tg-miniapp-live-readiness-ac3d2568f858588b949f0221876b7f48e9ec08ec`; the artifact remains blocked evidence, not founder-device proof.
@@ -489,3 +703,14 @@ _Last refreshed: 2026-07-21T08:41:07.915Z_
 - ISC-118: adversarial derivation tests — caller-supplied and direct-SQL poisoned foldbacks fail; valid foldback metrics and time are derived from the immutable completed receipt.
 - ISC-90: PR CI run `29768161661` passed on exact runtime head `bccf7a88c7e1c06025fe40080991a0e3a3008b34`; consolidated-main push run `29768331726` then passed on merge SHA `6c5c5fdbed3c5b419386db4a679b43923b9403d9`.
 - Final deterministic release evidence: 937 core tests, the 416-file standalone audit, standalone smoke, Telegram mobile proof, 52 R3F tests, and the R3F production build all passed in GitHub CI. Paid engagement/media adapters and every recurring schedule remain disabled; no live paid-provider call was made.
+- Documentation synchronization evidence: ISC-155..186 are complete (`32/32`). README, package metadata, root architecture, integration roadmap, release notes, R3F/Quine/adopter guides, adapter index, technical reference, planning state, service inventory, and architecture assets now describe the current implementation and preserve historical boundaries.
+- Electron packaging evidence: ISC-187..218 are complete (`32/32`). The R3F renderer now builds with relative asset paths; Electron loads it through a secure custom protocol with context isolation, sandboxing, no Node integration, denied permissions, blocked new windows, narrow preload, and no bundled secret names. `desktop:test` passes, the packaged arm64 executable emits `CAMBIUM_DESKTOP_READY`, and the local DMG/ZIP/unpacked macOS artifacts were generated with signing explicitly disabled after the local keychain signing path stalled.
+- Electron release evidence: `npm run verify:release` passes with 978 core tests, 99 R3F tests, production build, standalone audit, docs synchronization, and the Electron packaging contract. `npm run desktop:smoke:packaged` passes against the actual bundled executable. The macOS workflow runs the unpacked artifact build and packaged smoke on `macos-latest`; Developer ID signing, notarization, and automatic updates remain separately governed.
+- Current local release verification: `npm run verify:release` passed with 978 core tests, 99 R3F tests, R3F production build, six-page docs synchronization, standalone audit, standalone smoke, drift audit, retired-runtime guard, and Telegram mobile proof. `npm run validate`, `npm run validate:product-branches`, and `npm run render-docs:check` also passed.
+- Architecture asset evidence: `docs/architecture/architecture.html` and `docs/architecture/notebooklm-prompt.md` exist, their source links resolve, `SERVICES.md` enumerates nested Worker bindings, and `REFRESH-NEEDED.md` is absent after refresh.
+- Safety evidence: the forbidden committed `docs/plans/assets/tg-miniapp-live-proof/readiness.json` path is absent from active current documentation; IVerif remains GET-only and send-ineligible, Marketing Create remains review-only/disabled, and dated plans remain historical.
+- Working-tree boundary: documentation changes remain uncommitted and unpushed for user review; no runtime source, provider secret, deployment, branch, stash, or historical evidence was mutated by this task. This boundary is being closed by the release-durability action of 2026-07-23, which commits and pushes this state in the same working session.
+- D1 receipt-to-Telegram slice: `node --test workers/quests/src/branch-map-receipt-store.test.ts workers/quests/src/branch-map-sheet.test.ts workers/quests/src/branch-map-route.test.ts workers/quests/src/migration.test.ts` passes 17/17 after composite tenant identity and bounded observed-time listing fixes.
+- Signed proof chain: synthetic Ed25519 Telegram initData authenticates the route, a real SQLite-backed D1 receipt store feeds the projection, the sheet is redacted/bounded, and the proof digest recomputes over the full sheet envelope plus text digest.
+- Worker bundle: `npx wrangler deploy --dry-run --config workers/quests/wrangler.jsonc` exits zero with `nodejs_compat`; no live deployment or provider request was made. This dry-run-only deploy boundary is being closed by the release-durability action of 2026-07-23 in the same working session.
+- 2026-07-23 release-durability verification: `npm test` passes 1023/1023; the D1 receipt/sheet/route/migration focused suite passes 18/18; all 8 product branch packets validate; `npm run standalone:audit` passes 486 publishable files; `npm run render-docs:check` passes 6 pages/91 components. These counts supersede the 1009/1009 full-test, 17/17 D1, and 480 publishable-file counts recorded for the branch-map slice above.

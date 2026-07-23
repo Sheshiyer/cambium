@@ -1,0 +1,340 @@
+{
+  "schema": "cambium.product_branch_evidence_inventory.v1",
+  "generated_at": "2026-07-23",
+  "purpose": "Evidence-only mapping of branch packets, Brandmint/wiki references, lead adapters, and fixed campaigns.",
+  "source_policy": {
+    "mode": "read_only_inventory",
+    "campaign_ids": "Only identifiers explicitly present in cited repository evidence are recorded; unknown values stay unmapped.",
+    "credentials": "No credential values are recorded. Missing or required credentials are represented only as blocked evidence.",
+    "claims": "Intent, packet text, and provider labels are not promoted to verified product or demand claims without direct evidence."
+  },
+  "entries": [
+    {
+      "key": "iverif",
+      "aliases": [
+        {
+          "value": "iverif",
+          "status": "mapped",
+          "branch_packet": "docs/plans/product-branches/iverif.md"
+        }
+      ],
+      "mapping_status": "mapped_fixed_observe_only",
+      "branch": {
+        "product_id": "iverif",
+        "branch_kind": "product",
+        "promotion_state": "proof-only",
+        "current_gate": "Claim/proof separation and live campaign reconciliation before automation",
+        "packet": "docs/plans/product-branches/iverif.md"
+      },
+      "brandmint_and_wiki": {
+        "brandmint_status": "referenced_not_local_verified",
+        "declared_sources": [
+          "brand-config.yaml",
+          ".brandmint-state.json",
+          ".brandmint/outputs/*.json",
+          "deliverables/notebooklm/artifacts/*"
+        ],
+        "wiki_status": "hypothesis_source_not_claim_authority",
+        "wiki_sources": [
+          "iverif/wiki-output/audience/primary-persona.md",
+          "iverif/wiki-output/audience/secondary-personas.md",
+          "iverif/wiki-output/product/overview.md",
+          "iverif/wiki-output/product/features.md",
+          "iverif/wiki-output/brand/voice-tone.md",
+          "iverif/wiki-output/marketing/campaign-copy.md",
+          "iverif/wiki-output/marketing/email-templates.md"
+        ],
+        "evidence": [
+          "docs/plans/product-branches/iverif.md",
+          "docs/evidence/2026-07-16-iverif-public-agencies-experiment.md"
+        ]
+      },
+      "campaigns": [
+        {
+          "provider": "explee",
+          "project_id": "16763",
+          "campaign_id": "45711",
+          "campaign_name": "Public Agencies",
+          "mapping_status": "mapped_fixed",
+          "mode": "observe_only",
+          "evidence": [
+            "docs/adapters/iverif-explee.md",
+            "docs/evidence/2026-07-16-iverif-public-agencies-experiment.md",
+            "docs/evidence/2026-07-18-iverif-live-operator-workflow.md"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "status": "verified",
+          "path": "docs/adapters/iverif-explee.md",
+          "fact": "Fixed project/campaign binding, documented GET-only routes, redaction, and sendEligible=false policy."
+        },
+        {
+          "status": "verified",
+          "path": "docs/evidence/2026-07-16-iverif-public-agencies-experiment.md",
+          "fact": "A dated provider observation records campaign aggregates and keeps all replies unclassified."
+        },
+        {
+          "status": "blocked",
+          "path": "docs/evidence/2026-07-18-iverif-live-operator-workflow.md",
+          "fact": "Production secret-name preflight was credential-blocked; no deploy, provider request, or Telegram canary was attempted."
+        },
+        {
+          "status": "blocked",
+          "path": "docs/plans/product-branches/iverif.md",
+          "fact": "Wiki build/route proof, privacy/security evidence, claim review, and customer-contact reconciliation remain open."
+        }
+      ],
+      "unmapped_or_uncertain": [
+        "Brandmint and wiki paths are declared by the packet/evidence but are not present as local checkout files in this repository.",
+        "Provider reply labels and send counts do not establish qualified demand or product readiness.",
+        "No campaign mutation, reply drafting, or outbound authorization is mapped."
+      ]
+    },
+    {
+      "key": "fitcheck_getfitcheck",
+      "aliases": [
+        {
+          "value": "fitcheck",
+          "status": "mapped",
+          "branch_packet": "docs/plans/product-branches/fitcheck.md"
+        },
+        {
+          "value": "getfitcheck",
+          "status": "unmapped",
+          "reason": "No exact getfitcheck slug, packet, adapter, campaign, or wiki route appears in the inspected Cambium evidence."
+        }
+      ],
+      "mapping_status": "fitcheck_mapped_getfitcheck_unmapped",
+      "branch": {
+        "product_id": "fitcheck",
+        "branch_kind": "product",
+        "promotion_state": "supervised-branch",
+        "current_gate": "Shopify, Dodo, privacy, QA, outreach, and first merchant proof",
+        "packet": "docs/plans/product-branches/fitcheck.md"
+      },
+      "brandmint_and_wiki": {
+        "brandmint_status": "indirect_brand_seed_reference",
+        "declared_sources": [
+          "Existing Fitcheck brand DNA",
+          "HDILINT brand/GTM/widget/privacy/runbook docs",
+          "Skill-clusters/docs/LESSONS-FITCHECK-RUN.md"
+        ],
+        "wiki_status": "unmapped",
+        "wiki_sources": [],
+        "evidence": [
+          "docs/plans/product-branches/fitcheck.md",
+          "docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md",
+          "docs/organs/source-snapshot.json",
+          "docs/evidence/2026-06-29-meristem-active-genesis-flow.md"
+        ]
+      },
+      "campaigns": [],
+      "campaign_status": "no_signal",
+      "evidence": [
+        {
+          "status": "verified",
+          "path": "docs/plans/product-branches/fitcheck.md",
+          "fact": "Fitcheck is the normalized supervised branch packet with explicit launch gates and proof foldback."
+        },
+        {
+          "status": "verified",
+          "path": "docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md",
+          "fact": "Dated proof packet records landing, Shopify, App Runner, and launch-hardening evidence."
+        },
+        {
+          "status": "blocked",
+          "path": "docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md",
+          "fact": "Public Vercel artifact drift, missing reservation environment, Shopify access, privacy/payment approval, and first merchant proof remain blockers."
+        }
+      ],
+      "unmapped_or_uncertain": [
+        "No getfitcheck branch identity was found; do not treat that alias as a second product.",
+        "No Fitcheck campaign identifier or Explee campaign binding is present in the cited packets.",
+        "Brandmint is a cross-organ Genesis reference; the active Cambium adapter evidence says Meristem is active and Brandmint is rollback-only metadata."
+      ]
+    },
+    {
+      "key": "getleads",
+      "aliases": [
+        {
+          "value": "getleads",
+          "status": "catalog_mapped_branch_unmapped",
+          "adapter_id": "getleads-capture@1.0.0"
+        }
+      ],
+      "mapping_status": "registered_disabled_no_runtime_branch_binding",
+      "branch": {
+        "product_id": null,
+        "branch_packet": null,
+        "status": "unmapped",
+        "reason": "The iBerev packet names getleads.io as a future adapter candidate and explicitly says the wrapper is not bound."
+      },
+      "brandmint_and_wiki": {
+        "brandmint_status": "unmapped",
+        "declared_sources": [],
+        "wiki_status": "unmapped",
+        "wiki_sources": [],
+        "evidence": [
+          "docs/plans/product-branches/iberev.md",
+          "docs/architecture/lead-ecosystem-contract-foundation.md"
+        ]
+      },
+      "adapter": {
+        "provider": "getleads.io",
+        "adapter_id": "getleads-capture@1.0.0",
+        "stages": ["capture", "enrich"],
+        "activation_state": "registered_disabled",
+        "network_enabled": false,
+        "schedule_enabled": false,
+        "mutation_enabled": false,
+        "spend_tier": "subscription",
+        "evidence": [
+          "composition/lead-adapters.v1.json",
+          "docs/architecture/lead-runtime-spine.md",
+          "docs/plans/2026-07-18-lead-ecosystem-integration-review.md"
+        ]
+      },
+      "campaigns": [],
+      "campaign_status": "unmapped",
+      "evidence": [
+        {
+          "status": "verified",
+          "path": "composition/lead-adapters.v1.json",
+          "fact": "The adapter is registered in risk order but disabled, with no network or schedule authority."
+        },
+        {
+          "status": "pending",
+          "path": "docs/plans/product-branches/iberev.md",
+          "fact": "Offline capture, identity, suppression, and replay proof are the current iBerev frontier; no provider output is claimed."
+        },
+        {
+          "status": "blocked",
+          "path": "docs/architecture/lead-ecosystem-contract-foundation.md",
+          "fact": "Canonical lead store, adapter proof, privacy controls, and exact action approval remain required before live wiring."
+        }
+      ],
+      "unmapped_or_uncertain": [
+        "No getleads tenant, account, project, campaign, contact, or credential value is evidenced.",
+        "The proposed iBerev pilot is a planning recommendation, not an active provider binding."
+      ]
+    },
+    {
+      "key": "explee",
+      "aliases": [
+        {
+          "value": "explee",
+          "status": "mapped_in_catalog_and_fixed_iverif_adapter"
+        }
+      ],
+      "mapping_status": "mapped_with_scoped_contexts",
+      "branch_mappings": [
+        {
+          "branch": "iverif",
+          "status": "mapped_fixed_observe_only",
+          "project_id": "16763",
+          "campaign_id": "45711",
+          "evidence": "docs/adapters/iverif-explee.md"
+        },
+        {
+          "branch": "fitcheck",
+          "status": "unmapped",
+          "reason": "Fitcheck packets contain no Explee project/campaign binding."
+        },
+        {
+          "branch": "iberev",
+          "status": "unmapped",
+          "reason": "The packet's future getleads wrapper is not an Explee binding."
+        }
+      ],
+      "brandmint_and_wiki": {
+        "brandmint_status": "cross_organ_reference_only",
+        "evidence": [
+          "docs/organs/organs.meta.json",
+          "docs/organs/source-snapshot.json",
+          "docs/evidence/2026-06-29-meristem-active-genesis-flow.md"
+        ],
+        "fact": "Brandmint/Meristem Genesis output and Explee GTM are separate organ/service surfaces; no product campaign mapping may be inferred from the shared ecosystem."
+      },
+      "catalog": {
+        "adapter_id": "explee-read@1.0.0",
+        "activation_state": "active_read_only",
+        "network_enabled": true,
+        "schedule_enabled": false,
+        "methods": ["GET"],
+        "mutation_enabled": false,
+        "spend_tier": "none",
+        "evidence": [
+          "composition/lead-adapters.v1.json",
+          "docs/architecture/lead-runtime-spine.md",
+          "docs/adapters/iverif-explee.md"
+        ]
+      },
+      "other_documented_context": {
+        "will_brand_to_gtm": "Documented as an approval-gated Explee proxy path in the organ snapshot and integration review; it is not a new branch binding.",
+        "evidence": [
+          "docs/organs/organs.meta.json",
+          "docs/plans/2026-07-18-lead-ecosystem-integration-review.md"
+        ]
+      },
+      "campaigns": [
+        {
+          "project_id": "16763",
+          "campaign_id": "45711",
+          "campaign_name": "Public Agencies",
+          "branch": "iverif",
+          "status": "mapped_fixed_observe_only",
+          "evidence": [
+            "docs/adapters/iverif-explee.md",
+            "docs/evidence/2026-07-16-iverif-public-agencies-experiment.md"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "status": "verified",
+          "path": "docs/adapters/iverif-explee.md",
+          "fact": "The adapter exposes four fixed GET observations and excludes provider mutation routes."
+        },
+        {
+          "status": "verified",
+          "path": "composition/lead-adapters.v1.json",
+          "fact": "Only Explee read parity is active; every other lead adapter remains registered disabled."
+        },
+        {
+          "status": "blocked",
+          "path": "docs/evidence/2026-07-18-iverif-live-operator-workflow.md",
+          "fact": "Required production secret names were absent at preflight; no provider call or canary was made."
+        }
+      ],
+      "unmapped_or_uncertain": [
+        "No provider credential values are present or recorded.",
+        "No Explee campaign binding may be generalized from the fixed IVerif campaign to another branch.",
+        "Provider-reported replies and hot-lead labels remain observations, not qualified demand proof."
+      ]
+    }
+  ],
+  "unmapped_summary": [
+    {
+      "item": "getfitcheck",
+      "status": "unmapped",
+      "reason": "No exact branch, packet, campaign, adapter, or wiki evidence."
+    },
+    {
+      "item": "Fitcheck campaign",
+      "status": "no_signal",
+      "reason": "Fitcheck evidence is Shopify/Vercel/App Runner oriented and provides no campaign identifier."
+    },
+    {
+      "item": "getleads campaign or tenant",
+      "status": "unmapped",
+      "reason": "getleads is registered disabled and the iBerev wrapper is explicitly future/unbound."
+    },
+    {
+      "item": "Local IVerif Brandmint/wiki source checkout",
+      "status": "referenced_not_verified",
+      "reason": "Paths are named by packet/evidence, but their external product-context files are not present in this Cambium checkout."
+    }
+  ]
+}

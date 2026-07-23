@@ -89,5 +89,7 @@ quine write skills record cambium-meso-reroll ok --scenario "…"
 - **Re-forging never resets telemetry** — `upsertSkills` refreshes the repetition evidence and
   keeps everything a skill has learned.
 - **No fake progress / no dark patterns**: the quest log can only show what the world-state proves;
-  arc VII honestly reads `isolation suite pending (M3 open: C1–C4)` until M3 lands.
+  arc VII flips only on the evidence — >1 tenant world on disk AND the isolation suite green in
+  `bin/operator/tenant.test.ts` (M3 landed: portable org slugs, path-namespaced isolation,
+  `tenantScopedStore` force-filtering, `runHeartbeatMulti` sweeping every tenant).
 - Zero dependencies · Node 26 native TS · `node:test` + `assert/strict`, like everything beside it.

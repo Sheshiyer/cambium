@@ -1,0 +1,6 @@
+npm warn Unknown user config "allow-scripts". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> cambium@0.3.0 render-docs:check
+> node bin/render-docs.mjs --check
+
+✓ docs in sync with source (6 pages, 91 components)

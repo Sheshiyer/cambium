@@ -11,9 +11,13 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
-### v0.3.0 · **Urania** — *the venture becomes a constellation*
+### Unreleased on `main` after v0.3.0
 
-> Live proof: 8 ready / 2 blocked (see [readiness.json](docs/plans/assets/tg-miniapp-live-proof/readiness.json))
+`v0.3.0 · Urania` remains the latest published release. Current `main` adds the fixed Public Agencies IVerif evidence contract, the final consolidation/documentation state, and a macOS-first Electron package for the R3F constellation renderer. The Electron shell is artifact-tested but signing, notarization, and automatic updates remain separately governed. The IVerif slice is an observe-only, redacted, GET-only contract with `sendEligible=false`; it is not a release or outreach-readiness claim.
+
+As of 2026-07-23, `main` also carries the Goal Graph authority slice: the Goal Graph core (`workers/quests/src/goal-graph/`), D1-backed branch-map receipt authority (`branch-map-receipt-store`, `branch-map-sheet`, the branch-map route, and goal-graph intake/store), D1 migrations `0007_goal_graph` and `0008_branch_transition_receipts`, and an authenticated read-only Telegram branch-map route, with supporting docs (`docs/architecture/branch-traversal-map.md`, `goal-graph-operating-model.md`, `docs/runbooks/goal-graph-telegram-lifecycle.md`). Verification at landing: 1023/1023 tests green, 18/18 D1 slice tests green, 8 branch packets, a 486-file audit, and docs sync across 6 pages / 91 components. This slice is landed authority work, not a published release.
+
+### v0.3.0 · **Urania** — *the venture becomes a constellation*
 
 The sharing update: the R3F visual engine converges on one usable constellation app —
 and opens to the team. Urania presides over the heavens: one operator, a
@@ -34,8 +38,9 @@ constellation of ventures, now drawn as one.
   `GET /v1/invites/verify`, `?invite=` auth, fail-closed); tenant-partitioned
   audit log module.
 - **Identity in the app** — founder-local or invite-token login, role badge,
-  WORKFORCE mode with live principal rows, live envelope fetch with honest
-  offline states.
+  WORKFORCE mode with local/invite principal context, live envelope fetch when a
+  Worker URL is configured, and honest offline states. A remote principal directory
+  remains a later governed surface.
 - **Signed-action round-trip** — confirm sheets on gated controls post to the
   worker or queue locally with an audit trail; nothing fake.
 - **Settings + guide + runbook** — reduced-motion and camera apply live and
@@ -44,8 +49,10 @@ constellation of ventures, now drawn as one.
 - **Docs reorganization** — `docs/plans/` carries active intent only; 34 executed
   or superseded plans archived with an index and link repairs; canonical design
   sources and generated constellation UI references under provenance policy.
-- **Verified main** — 685 core tests, 98 R3F tests, `r3f:build`,
-  `standalone:audit`, `standalone:smoke` all green.
+- **Release-time verification** — 685 core tests, 98 R3F tests, `r3f:build`,
+  `standalone:audit`, and `standalone:smoke` were green for the published tag. Current-main
+  verification is governed by `npm run verify:release`; transient live-readiness output is
+  CI artifact evidence and is not committed under `docs/plans/assets/`.
 ### v0.2.8 · **Thalia .8** — *truth has one owner*
 
 The operational-truth update: ActionRequest state, Telegram provenance, visual proof,

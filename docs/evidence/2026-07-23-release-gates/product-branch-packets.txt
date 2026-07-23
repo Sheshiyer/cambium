@@ -1,0 +1,6 @@
+npm warn Unknown user config "allow-scripts". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> cambium@0.3.0 validate:product-branches
+> node scripts/validate-product-branch-packets.mjs
+
+validated 8 branch packet(s) against cambium.product_branch_packet.v1

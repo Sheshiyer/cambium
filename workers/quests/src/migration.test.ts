@@ -6,6 +6,7 @@ const migrationUrl = new URL('../migrations/0003_bridge_execution_proof.sql', im
 const businessArtifactsMigrationUrl = new URL('../migrations/0004_business_artifacts.sql', import.meta.url);
 const marketingRendererMigrationUrl = new URL('../migrations/0005_marketing_create_renderer.sql', import.meta.url);
 const leadRuntimeMigrationUrl = new URL('../migrations/0006_lead_runtime_spine.sql', import.meta.url);
+const branchMapReceiptsMigrationUrl = new URL('../migrations/0008_branch_transition_receipts.sql', import.meta.url);
 const schemaUrl = new URL('../schema/bridge.sql', import.meta.url);
 
 function triggerDefinitions(sql: string): Record<string, string> {
@@ -63,7 +64,8 @@ function leadRuntimeDefinitions(sql: string): string {
   const marker = 'CREATE TABLE IF NOT EXISTS lead_records';
   const offset = sql.indexOf(marker);
   assert.notEqual(offset, -1, 'missing lead_records table definition');
-  return normalizeDefinition(sql.slice(offset));
+  const branchBoundary = sql.indexOf('-- Append-only branch transition evidence', offset);
+  return normalizeDefinition(sql.slice(offset, branchBoundary >= 0 ? branchBoundary : undefined));
 }
 
 test('native execution schema uses D1-compatible identity guard triggers', async () => {
@@ -177,4 +179,21 @@ test('lead runtime migration remains identical to the canonical schema', async (
   }
 
   assert.equal(migrationDefinition, schemaDefinition);
+});
+
+test('branch transition receipt migration is represented in the canonical schema', async () => {
+  const [migration, schema] = await Promise.all([
+    readFile(branchMapReceiptsMigrationUrl, 'utf8'),
+    readFile(schemaUrl, 'utf8'),
+  ]);
+  const table = migration.match(/CREATE TABLE IF NOT EXISTS goal_graph_branch_transition_receipts[\s\S]*?\n\);/);
+  assert.ok(table, 'missing branch transition receipt table definition');
+  assert.match(schema, /CREATE TABLE IF NOT EXISTS goal_graph_branch_transition_receipts[\s\S]*?\n\);/);
+  assert.match(schema, /CREATE INDEX IF NOT EXISTS idx_goal_graph_branch_receipts_branch\b/);
+  assert.match(schema, /CREATE INDEX IF NOT EXISTS idx_goal_graph_branch_receipts_node\b/);
+  assert.match(schema, /CREATE TRIGGER IF NOT EXISTS goal_graph_branch_receipts_immutable_update\b/);
+  assert.match(schema, /CREATE TRIGGER IF NOT EXISTS goal_graph_branch_receipts_immutable_delete\b/);
+  assert.match(migration, /UNIQUE \(tenant_id, receipt_digest\)/);
+  assert.match(migration, /PRIMARY KEY \(tenant_id, receipt_id\)/);
+  assert.match(migration, /status IN \('verified', 'pending', 'unknown', 'blocked'\)/);
 });

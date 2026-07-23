@@ -24,6 +24,7 @@ Run the product checks first:
 ```bash
 npm test
 npm run standalone:audit
+npm run verify:release
 ```
 
 Expected result: tests pass, and the standalone audit finds no private company data in tracked or publishable files.

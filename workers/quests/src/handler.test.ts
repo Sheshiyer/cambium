@@ -2239,6 +2239,7 @@ test('mini app surface contract · inventories operator map subsections', () => 
     'decision-context',
     'live-proof',
     'branches',
+    'branch-map',
     'branch-arcs',
     'branch-missions',
     'branch-kpis',
@@ -2333,6 +2334,12 @@ test('mini app surface contract · records map subsection interaction semantics'
     target: 'product-branches',
     interactions: { primary: 'sheet' },
     source: 'product-branch-packets@v1 branch stories',
+  });
+  assert.deepEqual(byId['branch-map'], {
+    id: 'branch-map',
+    target: 'product-branches',
+    interactions: { primary: 'read-only' },
+    source: 'cambium.goal-graph-branch-map.v1 versioned lineage projection',
   });
   assert.deepEqual(byId['branch-proof'], {
     id: 'branch-proof',

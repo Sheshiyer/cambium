@@ -1,5 +1,9 @@
 # Project State
 
+> This planning slice is complete and historical. Use the root `ISA.md`, `README.md`, and current
+> architecture/runbook surfaces for present acceptance and runtime truth; do not treat this file as a
+> current feature backlog.
+
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-07-17)

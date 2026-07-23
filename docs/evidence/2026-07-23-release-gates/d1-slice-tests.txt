@@ -1,0 +1,26 @@
+✔ stores a tenant-scoped receipt and replays identical bytes idempotently (12.938333ms)
+✔ same receipt ID with changed evidence is a conflict and tenants cannot cross-read (4.827083ms)
+✔ a different receipt ID cannot duplicate a tenant receipt digest (2.006375ms)
+✔ receipt and database rows are append-only (2.698708ms)
+✔ invalid transition is rejected before persistence (2.645708ms)
+✔ receipt listing is bounded and ordered by observed time then receipt ID (4.704625ms)
+✔ signed branch-map route returns projection, Telegram sheet, and bound proof (16.357083ms)
+✔ signature tampering fails before D1 reads (1.0205ms)
+✔ tenant substitution is rejected before projection (0.532875ms)
+✔ sheet is versioned, read-only, deterministic, and covers every row kind (16.095ms)
+✔ source references redact labeled secrets and opaque credentials (1.251666ms)
+✔ sheet rows and text remain bounded with deterministic overflow (1.557208ms)
+✔ invalid or malformed projections fail closed before Telegram rendering (0.772208ms)
+✔ native execution schema uses D1-compatible identity guard triggers (23.692333ms)
+✔ business task migration remains identical to the canonical schema (6.210042ms)
+✔ marketing renderer migration remains identical to the canonical schema (2.939083ms)
+✔ lead runtime migration remains identical to the canonical schema (1.379417ms)
+✔ branch transition receipt migration is represented in the canonical schema (1.340584ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.120458

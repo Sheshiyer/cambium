@@ -1,6 +1,6 @@
 # Quine — one command for everything your operator knows and does
 
-*A builder & agent tool inside cambium (v0.2.0). **Founders never touch this** — they just get a
+*A builder & agent tool inside Cambium. **Founders never touch this** — they just get a
 self-running business. This is the control room that makes that possible.*
 
 ## In one line
@@ -41,6 +41,7 @@ Everything comes back as plain JSON, so you can pipe it anywhere (`| jq`). Error
 | **Knowledge** — the notes in the vault | `quine read vault "<term>"` |
 | **The operator** — the live business state | `quine read operator` |
 | **The cloud** — Cloudflare storage + search | `quine read cf vectorize` |
+| **Lead and campaign evidence** — governed contracts in the repository | `quine read vault "iverif"` or `quine read code "lead"` |
 
 Each is writable where it makes sense (`quine write …`). Run via `node bin/quine/quine.ts`,
 `npm run quine -- <args>`, or `./bin/quine/quine.ts`.

@@ -12,6 +12,8 @@ import { createGithubCommandExecutor, parseAllowedRepos } from './github-command
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { d1MarketingRenderStore } from './marketing-render-store.ts';
+import { d1GoalGraphStore } from './goal-graph-store.ts';
+import { d1BranchMapReceiptStore } from './branch-map-receipt-store.ts';
 import type {
   BridgeAssignmentRecord,
   BridgeBusinessArtifactReceipt,
@@ -86,6 +88,7 @@ interface Env {
   NEBIUS_API_KEY?: string;
   NEBIUS_BASE_URL?: string;
   NEBIUS_DEFAULT_MODEL?: string;
+  GATE_BRANCH_MAP_TENANTS?: string;
 }
 
 function parseJsonRecord(raw: string | null | undefined): Record<string, unknown> {
@@ -1301,6 +1304,9 @@ export default {
       iverifExplee,
       leadRuntimeStore: env.BRIDGE_DB ? d1LeadRuntimeStore(env.BRIDGE_DB) : undefined,
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
+      goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
+      branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
+      branchMapTenants: parseAllowedTenants(env.GATE_BRANCH_MAP_TENANTS),
       marketingRenderer: {
         activation: env.MARKETING_CREATE_ACTIVATION,
         apiKey: env.NVIDIA_MARKETING_CREATE_API_KEY,

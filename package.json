@@ -4,9 +4,9 @@
   "codename": "Urania",
   "private": true,
   "type": "module",
-  "description": "The composition layer for the constellation — registry + pipeline + the dry-run conductor.",
+  "description": "The on-brand venture operator: composition contracts, tenant runtime, cortex, and constellation visual engine.",
   "scripts": {
-    "test": "node --test 'scripts/*.test.mjs' 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts' 'bin/operator/quests/*.test.ts' 'bin/operator/skills/*.test.ts' 'bin/operator/narrative/*.test.ts' 'bin/quine/hyphae/*.test.ts' 'workers/quests/src/*.test.ts'",
+    "test": "node --test 'scripts/*.test.mjs' 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts' 'bin/operator/quests/*.test.ts' 'bin/operator/skills/*.test.ts' 'bin/operator/narrative/*.test.ts' 'bin/quine/hyphae/*.test.ts' 'workers/quests/src/*.test.ts' 'workers/quests/src/goal-graph/*.test.ts' 'workers/quests/src/goal-graph-intake.test.ts' 'workers/quests/src/goal-graph-store.test.ts'",
     "operator": "node bin/operator/cli.ts",
     "quine": "node bin/quine/quine.ts",
     "plan": "node bin/compose.mjs plan",
