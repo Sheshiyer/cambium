@@ -1,0 +1,41 @@
+name: Cambium desktop package
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  package-macos:
+    name: package macOS Electron app
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 26
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: apps/cambium-r3f/package-lock.json
+
+      - name: Install renderer and desktop dependencies
+        run: npm ci --prefix apps/cambium-r3f
+
+      - name: Build unpacked desktop artifact
+        run: npm run desktop:dist:mac:dir
+
+      - name: Smoke packaged executable
+        run: npm run desktop:smoke:packaged
+
+      - name: Upload unpacked macOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: cambium-macos-unpacked-${{ github.sha }}
+          path: apps/cambium-r3f/release/**
+          if-no-files-found: error
+
+      - name: Explain distribution signing boundary
+        run: |
+          echo "This workflow proves the unsigned macOS packaging path."
+          echo "Developer ID signing and notarization require explicitly provisioned Apple credentials."

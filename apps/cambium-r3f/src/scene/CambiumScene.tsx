@@ -22,6 +22,7 @@ import {
   type VisualizationOverlaySpec,
 } from '../world/living-flow-assets';
 import { meshyAssetFor, type MeshyIslandAsset } from '../world/meshy-assets';
+import { localAssetUrl } from '../world/local-asset-url';
 import { createProceduralIslandGeometry } from '../world/procedural-islands';
 import type { CameraMode, CambiumSceneModel, SceneNode, SceneRail } from './types';
 import { visualTokens } from './visual-tokens';
@@ -156,7 +157,7 @@ function RailConnectorPreview({
   rotationY: number;
   rail: SceneRail;
 }) {
-  const gltf = useLoader(GLTFLoader, generatedRailConnectorContract.model);
+  const gltf = useLoader(GLTFLoader, localAssetUrl(generatedRailConnectorContract.model));
   const normalized = useMemo(() => normalizeGltfScene(gltf.scene, 1), [gltf.scene]);
   const connectorScale = rail.lane === 'background-emitter' ? 0.42 : Math.min(0.74, Math.max(0.42, length * 0.12));
   const tone = rail.tone === 'memory' ? visualTokens.colors.depth : visualTokens.colors.signal;
@@ -602,7 +603,7 @@ function ReferenceOverviewGlyph({ node, selected }: { node: SceneNode; selected:
 }
 
 function AuthoredIslandModel({ asset, selected }: { asset: MeshyIslandAsset; selected: boolean }) {
-  const gltf = useLoader(GLTFLoader, asset.model);
+  const gltf = useLoader(GLTFLoader, localAssetUrl(asset.model));
   const model = useMemo(() => {
     const clone = gltf.scene.clone(true);
     clone.traverse((child: THREE.Object3D) => {
@@ -662,7 +663,7 @@ function ComparisonModel({
   targetSize: number;
   rotation: [number, number, number];
 }) {
-  const gltf = useLoader(GLTFLoader, modelPath);
+  const gltf = useLoader(GLTFLoader, localAssetUrl(modelPath));
   const normalized = useMemo(() => normalizeGltfScene(gltf.scene, targetSize), [gltf.scene, targetSize]);
 
   return (
@@ -673,7 +674,7 @@ function ComparisonModel({
 }
 
 function SourcePlate({ asset }: { asset: ImageTo3dComparisonAsset }) {
-  const texture = useLoader(THREE.TextureLoader, asset.master.sourceTexture);
+  const texture = useLoader(THREE.TextureLoader, localAssetUrl(asset.master.sourceTexture));
   useMemo(() => {
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = 8;

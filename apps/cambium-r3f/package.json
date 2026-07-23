@@ -1,8 +1,9 @@
 {
   "name": "@cambium/r3f-visual-engine",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
+  "main": "desktop/main.cjs",
   "description": "Isolated React Three Fiber visual engine for the Cambium process map.",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -12,6 +13,13 @@
     "build": "tsc -b && vite build",
     "pretest": "npm run sync:contracts",
     "test": "node --test 'src/**/*.test.ts'",
+    "desktop:dev": "node desktop/run-dev.mjs",
+    "desktop:build": "npm run build",
+    "desktop:run": "electron .",
+    "desktop:test": "node desktop/packaging.test.mjs",
+    "desktop:smoke:packaged": "node desktop/smoke-packaged.mjs",
+    "desktop:dist:mac:dir": "npm run desktop:build && electron-builder --mac --dir",
+    "desktop:dist:mac": "npm run desktop:build && electron-builder --mac",
     "meshy:assets": "node scripts/meshy-island-assets.mjs",
     "meshy:image-to-3d": "node scripts/meshy-image-to-3d.mjs",
     "source-plates": "node scripts/generate-source-plates.mjs",
@@ -29,7 +37,31 @@
     "@types/react-dom": "^18.3.1",
     "@types/three": "^0.170.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "electron": "43.2.0",
+    "electron-builder": "26.15.3",
     "typescript": "^5.7.2",
     "vite": "^8.0.16"
+  },
+  "build": {
+    "appId": "space.thoughtseed.cambium",
+    "productName": "Cambium",
+    "artifactName": "Cambium-${version}-${os}-${arch}.${ext}",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop/main.cjs",
+      "desktop/preload.cjs",
+      "dist/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    }
   }
 }

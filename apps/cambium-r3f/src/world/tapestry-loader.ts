@@ -1,5 +1,6 @@
 import type { TapestrySnapshot } from './constellation-layout.ts';
 import { fixtureTapestry } from './fixture-tapestry.ts';
+import { localAssetUrl } from './local-asset-url.ts';
 
 const TAPESTRY_URL = '/tapestry.json';
 const FETCH_TIMEOUT_MS = 2000;
@@ -21,7 +22,7 @@ export async function loadTapestrySnapshot(): Promise<TapestrySnapshot> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const response = await fetch(TAPESTRY_URL, { signal: controller.signal });
+    const response = await fetch(localAssetUrl(TAPESTRY_URL), { signal: controller.signal });
     if (!response.ok) return fixtureTapestry;
     const data: unknown = await response.json();
     return isTapestrySnapshot(data) ? data : fixtureTapestry;

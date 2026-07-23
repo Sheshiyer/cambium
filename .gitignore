@@ -2,6 +2,7 @@
 deviations.jsonl
 node_modules/
 dist/
+apps/cambium-r3f/release/
 *.tsbuildinfo
 .DS_Store
 .codegraph/

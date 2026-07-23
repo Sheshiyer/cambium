@@ -1,0 +1,20 @@
+[
+  {
+    "id": "electron-shell-security",
+    "task": "Audit this Cambium repository for the minimal Electron main/preload/renderer boundary. Inspect apps/cambium-r3f/src, apps/cambium-r3f/package.json, apps/cambium-r3f/vite.config.ts, and current desktop QA policy. Propose a concrete security checklist and file layout for a local-first macOS Electron shell: contextIsolation, nodeIntegration, sandboxing, navigation, new windows, permissions, IPC, Worker connectivity, and secret handling. Do not edit files. Return only evidence-backed findings, recommended configuration, and tests that would prove it.",
+    "backend": "auto",
+    "model": "auto"
+  },
+  {
+    "id": "electron-release-packaging",
+    "task": "Audit the Cambium repository's package ownership, apps/cambium-r3f/package-lock.json, root scripts, and .github/workflows for a macOS-first Electron distribution plan using current electron-builder guidance. Compare placing the shell inside apps/cambium-r3f versus a separate package. Recommend the simplest reproducible scripts, artifact targets, app identity, signing/notarization boundary, CI job, and update policy. Do not edit files. Return a concise decision matrix and release checklist.",
+    "backend": "auto",
+    "model": "auto"
+  },
+  {
+    "id": "electron-runtime-portability",
+    "task": "Audit apps/cambium-r3f for renderer assumptions that differ between Vite HTTP serving and a packaged local Electron app: base URLs, public assets, tapestry JSON, GLB/texture paths, hash routes, localStorage, Worker fetches, WebGL, and error states. Identify every likely file-origin failure and propose focused tests or minimal abstractions. Do not edit files. Return a prioritized risk list with exact source locations and verification ideas.",
+    "backend": "auto",
+    "model": "auto"
+  }
+]
