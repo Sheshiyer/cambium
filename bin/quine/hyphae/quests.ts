@@ -479,7 +479,7 @@ export interface VisualEnvelope {
     }>;
   };
   liveProof: {
-    source: 'tg-live-proof-readiness@v1' | 'missing';
+    source: 'tg-live-proof-readiness@v1' | 'tg-live-proof-readiness@v2' | 'missing';
     status: LiveProofStatus;
     generatedAt?: string;
     workerUrl?: string;
@@ -2308,6 +2308,8 @@ function liveProofTitle(id: string): string {
   if (id === 'device-webview-proof') return 'DEVICE WEBVIEW PROOF';
   if (id === 'worker-list-proof') return 'WORKER LIST PROOF';
   if (id === 'signed-action-smoke') return 'SIGNED ACTION SMOKE';
+  if (id === 'in-app-signed-receipt') return 'IN-APP SIGNED RECEIPT';
+  if (id === 'no-pasted-init-data') return 'NO PASTED INIT DATA';
   return id.replace(/[-_]+/g, ' ').toUpperCase();
 }
 
@@ -2354,10 +2356,22 @@ function missingLiveProofEnvelope(gap: string): VisualEnvelope['liveProof'] {
   };
 }
 
+const LIVE_PROOF_READINESS_SCHEMA_VERSIONS: Record<string, 'v1' | 'v2'> = {
+  'cambium.tg-live-proof-readiness.v1': 'v1',
+  'cambium.tg-live-proof-readiness.v2': 'v2',
+};
+
 function deriveLiveProofEnvelope(ctx: QuineCtx, tenant: string): VisualEnvelope['liveProof'] {
   const readiness = readJson(join(ctx.root, LIVE_PROOF_READINESS_PATH));
-  if (!isRecord(readiness) || readiness.schema !== 'cambium.tg-live-proof-readiness.v1') {
+  if (!isRecord(readiness)) {
     return missingLiveProofEnvelope(`live proof readiness missing at ${LIVE_PROOF_READINESS_PATH}`);
+  }
+  const schemaVersion = LIVE_PROOF_READINESS_SCHEMA_VERSIONS[String(readiness.schema ?? '')];
+  if (!schemaVersion) {
+    const schemaLabel = typeof readiness.schema === 'string' && readiness.schema.trim()
+      ? readiness.schema
+      : 'unknown';
+    return missingLiveProofEnvelope(`live proof readiness schema ${schemaLabel} is not supported (expected v1 or v2)`);
   }
   const readinessTenant = typeof readiness.tenant === 'string' ? readiness.tenant : '';
   if (readinessTenant && readinessTenant !== tenant) {
@@ -2369,7 +2383,33 @@ function deriveLiveProofEnvelope(ctx: QuineCtx, tenant: string): VisualEnvelope[
     ? capturePlan.invariant
     : LIVE_PROOF_CAPTURE_INVARIANT;
   const steps = Array.isArray(capturePlan.steps) ? capturePlan.steps : [];
-  const rows = steps.slice(0, 3).map((entry, index) => {
+  // Readiness v2 surfaces the retired-initData invariant as a top-level item
+  // ('no-pasted-init-data'); v1 manifests have no such item, so legacy
+  // envelopes keep their capture-plan-only rows.
+  const readinessItems = Array.isArray(readiness.items) ? readiness.items : [];
+  const noPastedInitDataItem = schemaVersion === 'v2'
+    ? readinessItems.find((entry) => isRecord(entry) && entry.id === 'no-pasted-init-data')
+    : undefined;
+  const rows: VisualEnvelope['liveProof']['rows'] = [];
+  if (isRecord(noPastedInitDataItem)) {
+    const state = normalizeLiveProofState(noPastedInitDataItem.state);
+    const detail = String(noPastedInitDataItem.detail ?? 'pasted initData env vars hard-block readiness v2');
+    const evidence = Array.isArray(noPastedInitDataItem.evidence) ? noPastedInitDataItem.evidence.slice(0, 5).map(String) : [];
+    const missing = Array.isArray(noPastedInitDataItem.missing) ? noPastedInitDataItem.missing.slice(0, 5).map(String) : [];
+    rows.push({
+      id: 'no-pasted-init-data',
+      title: liveProofTitle('no-pasted-init-data'),
+      state,
+      detail: state === 'ready' || missing.length === 0 ? detail : `${detail}; missing: ${missing.join('; ')}`,
+      proof: evidence.length ? evidence.join('; ') : 'pasted initData is rejected outright under readiness v2',
+      source: 'tg-live-proof-capture-plan' as const,
+      command: 'npm run proof:tg-live-readiness',
+      writes: '',
+      prerequisites: [],
+      privacy: ['no raw initData, query strings, or initData env values are accepted'],
+    });
+  }
+  rows.push(...steps.slice(0, 3).map((entry, index) => {
     const step = isRecord(entry) ? entry : {};
     const id = String(step.id ?? `live-proof-step-${index + 1}`);
     const prerequisites = liveProofPrerequisites(step.prerequisites);
@@ -2396,9 +2436,9 @@ function deriveLiveProofEnvelope(ctx: QuineCtx, tenant: string): VisualEnvelope[
       prerequisites,
       privacy: Array.isArray(step.privacy) ? step.privacy.slice(0, 5).map(String) : ['redacted receipt required'],
     };
-  });
+  }));
   return {
-    source: 'tg-live-proof-readiness@v1',
+    source: schemaVersion === 'v2' ? 'tg-live-proof-readiness@v2' : 'tg-live-proof-readiness@v1',
     status: readiness.status === 'ready' ? 'ready' : 'blocked',
     generatedAt: typeof readiness.generatedAt === 'string' ? readiness.generatedAt : undefined,
     workerUrl: typeof readiness.workerUrl === 'string' ? readiness.workerUrl : typeof capturePlan.workerUrl === 'string' ? capturePlan.workerUrl : undefined,

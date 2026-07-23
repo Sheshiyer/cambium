@@ -586,10 +586,180 @@ test('quests visual envelope surfaces redacted live-proof capture plan', () => {
     { source: 'test', derivedAt: '2026-06-22T00:06:00.000Z' },
   );
   assert.equal(visual.liveProof.status, 'blocked');
+  assert.equal(visual.liveProof.source, 'tg-live-proof-readiness@v1');
   assert.equal(visual.liveProof.rows[0]?.title, 'DEVICE WEBVIEW PROOF');
   assert.match(visual.liveProof.rows[0]?.detail ?? '', /2\/2 prerequisites blocked/);
   assert.match(visual.liveProof.rows[0]?.proof ?? '', /proof only after their artifacts validate ready/);
   assert.doesNotMatch(JSON.stringify(visual.liveProof), /query_id=|auth_date=|Bearer|QUESTS_PUSH_TOKEN=|rawInitData/i);
+});
+
+test('quests visual envelope maps readiness schema v2 live-proof items', () => {
+  const ctx = tmpCtx();
+  const proofDir = join(ctx.root, '.artifacts', 'tg-miniapp-live-proof');
+  mkdirSync(proofDir, { recursive: true });
+  writeFileSync(join(proofDir, 'readiness.json'), JSON.stringify({
+    schema: 'cambium.tg-live-proof-readiness.v2',
+    generatedAt: '2026-07-24T00:00:00.000Z',
+    tenant: 'acme',
+    workerUrl: 'https://curious.thoughtseed.space',
+    status: 'blocked',
+    summary: { ready: 5, blocked: 5, total: 10, liveProofReady: false },
+    invariant: 'Local deterministic smokes do not prove live Telegram WebView behavior.',
+    items: [
+      {
+        id: 'no-pasted-init-data',
+        label: 'Manual initData ritual retired',
+        state: 'ready',
+        detail: 'No pasted Telegram initData is present; founder-device proof comes from the in-app signed action receipt.',
+        evidence: [],
+        missing: [],
+      },
+      {
+        id: 'founder-device-receipt',
+        label: 'Founder device in-app signed receipt captured',
+        state: 'blocked',
+        detail: 'No redacted in-app signed action receipt exists.',
+        evidence: [],
+        missing: ['perform one signed gate action inside the Telegram mini app'],
+      },
+    ],
+    capturePlan: {
+      schema: 'cambium.tg-live-proof-capture-plan.v2',
+      invariant: 'Founder-device proof is an in-app signed gate action receipt; the CLI never submits Telegram actions and pasted initData is rejected outright.',
+      workerUrl: 'https://curious.thoughtseed.space',
+      steps: [
+        {
+          id: 'in-app-signed-receipt',
+          writes: '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json',
+          state: 'ready-to-capture',
+          command: 'Open the mini app inside Telegram, perform one signed gate action, and save the redacted receipt',
+          prerequisites: [
+            { id: 'no-pasted-init-data', state: 'ready', detail: 'no pasted initData env vars are present' },
+          ],
+          privacy: ['receipt stores hashes only'],
+        },
+        {
+          id: 'worker-list-proof',
+          writes: '.artifacts/tg-miniapp-live-proof/worker-network-probe.json',
+          state: 'blocked',
+          command: 'node workers/quests/src/live-proof-readiness.mjs --capture-worker-probe --allow-network --write',
+          prerequisites: [
+            { id: 'worker-token', state: 'blocked', detail: 'Worker internal token is required' },
+            { id: 'allow-network', state: 'blocked', detail: '--allow-network is required for this capture' },
+          ],
+          privacy: ['artifact stores status, response shape, counts, and body digest only'],
+        },
+      ],
+    },
+  }, null, 2));
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-07-24T00:06:00.000Z' },
+  );
+  assert.equal(visual.liveProof.source, 'tg-live-proof-readiness@v2');
+  assert.equal(visual.liveProof.status, 'blocked');
+  assert.equal(visual.liveProof.summary.total, 10);
+  assert.equal(visual.liveProof.summary.liveProofReady, false);
+  assert.equal(visual.liveProof.rows[0]?.id, 'no-pasted-init-data');
+  assert.equal(visual.liveProof.rows[0]?.title, 'NO PASTED INIT DATA');
+  assert.equal(visual.liveProof.rows[0]?.state, 'ready');
+  assert.match(visual.liveProof.rows[0]?.detail ?? '', /founder-device proof comes from the in-app signed action receipt/);
+  assert.equal(visual.liveProof.rows[1]?.id, 'in-app-signed-receipt');
+  assert.equal(visual.liveProof.rows[1]?.title, 'IN-APP SIGNED RECEIPT');
+  assert.equal(visual.liveProof.rows[1]?.state, 'ready-to-capture');
+  assert.match(visual.liveProof.rows[1]?.detail ?? '', /1\/1 prerequisites ready/);
+  assert.match(visual.liveProof.rows[1]?.proof ?? '', /signed-action-smoke\.json/);
+  assert.equal(visual.liveProof.rows[2]?.id, 'worker-list-proof');
+  assert.equal(visual.liveProof.rows[2]?.title, 'WORKER LIST PROOF');
+  assert.equal(visual.liveProof.rows[2]?.state, 'blocked');
+  assert.match(visual.liveProof.rows[2]?.detail ?? '', /2\/2 prerequisites blocked/);
+  assert.doesNotMatch(JSON.stringify(visual.liveProof), /query_id=|auth_date=|Bearer|QUESTS_PUSH_TOKEN=|rawInitData/i);
+});
+
+test('quests visual envelope surfaces blocked no-pasted-init-data from readiness v2', () => {
+  const ctx = tmpCtx();
+  const proofDir = join(ctx.root, '.artifacts', 'tg-miniapp-live-proof');
+  mkdirSync(proofDir, { recursive: true });
+  writeFileSync(join(proofDir, 'readiness.json'), JSON.stringify({
+    schema: 'cambium.tg-live-proof-readiness.v2',
+    generatedAt: '2026-07-24T00:00:00.000Z',
+    tenant: 'acme',
+    status: 'blocked',
+    summary: { ready: 4, blocked: 6, total: 10, liveProofReady: false },
+    items: [
+      {
+        id: 'no-pasted-init-data',
+        label: 'Manual initData ritual retired',
+        state: 'blocked',
+        detail: 'A retired initData env variable is present; pasted initData is rejected under readiness v2.',
+        evidence: ['retired initData env variable present (value never read)'],
+        missing: ['unset the retired initData env vars; capture the in-app signed action receipt instead'],
+      },
+    ],
+    capturePlan: {
+      schema: 'cambium.tg-live-proof-capture-plan.v2',
+      invariant: 'Founder-device proof is an in-app signed gate action receipt.',
+      steps: [
+        {
+          id: 'in-app-signed-receipt',
+          writes: '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json',
+          state: 'blocked',
+          command: 'Open the mini app inside Telegram, perform one signed gate action, and save the redacted receipt',
+          prerequisites: [
+            { id: 'no-pasted-init-data', state: 'blocked', detail: 'retired initData env var is present; unset it' },
+          ],
+          privacy: ['receipt stores hashes only'],
+        },
+      ],
+    },
+  }, null, 2));
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-07-24T00:06:00.000Z' },
+  );
+  assert.equal(visual.liveProof.source, 'tg-live-proof-readiness@v2');
+  assert.equal(visual.liveProof.rows[0]?.id, 'no-pasted-init-data');
+  assert.equal(visual.liveProof.rows[0]?.state, 'blocked');
+  assert.match(visual.liveProof.rows[0]?.detail ?? '', /missing: unset the retired initData env vars/);
+  assert.equal(visual.liveProof.rows[1]?.id, 'in-app-signed-receipt');
+  assert.equal(visual.liveProof.rows[1]?.state, 'blocked');
+  assert.match(visual.liveProof.rows[1]?.detail ?? '', /1\/1 prerequisites blocked/);
+  assert.doesNotMatch(JSON.stringify(visual.liveProof), /query_id=|auth_date=|Bearer|QUESTS_PUSH_TOKEN=|rawInitData/i);
+});
+
+test('quests visual envelope degrades gracefully on unknown readiness schema versions', () => {
+  const ctx = tmpCtx();
+  const proofDir = join(ctx.root, '.artifacts', 'tg-miniapp-live-proof');
+  mkdirSync(proofDir, { recursive: true });
+  writeFileSync(join(proofDir, 'readiness.json'), JSON.stringify({
+    schema: 'cambium.tg-live-proof-readiness.v3',
+    generatedAt: '2026-07-24T00:00:00.000Z',
+    tenant: 'acme',
+    status: 'ready',
+    summary: { ready: 10, blocked: 0, total: 10, liveProofReady: true },
+    capturePlan: { schema: 'cambium.tg-live-proof-capture-plan.v3', steps: [] },
+  }, null, 2));
+
+  const visual = buildVisualEnvelope(
+    ctx,
+    'acme',
+    {},
+    questLedger({}),
+    { source: 'test', derivedAt: '2026-07-24T00:06:00.000Z' },
+  );
+  assert.equal(visual.liveProof.source, 'missing');
+  assert.equal(visual.liveProof.status, 'missing');
+  assert.equal(visual.liveProof.summary.liveProofReady, false);
+  assert.equal(visual.liveProof.rows[0]?.state, 'gap');
+  assert.match(visual.liveProof.gap ?? '', /cambium\.tg-live-proof-readiness\.v3 is not supported/);
 });
 
 test('quests visual envelope prefers durable operator insight rows over ledger-derived boxes', () => {

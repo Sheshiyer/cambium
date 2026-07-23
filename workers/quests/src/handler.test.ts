@@ -3914,7 +3914,7 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   assert.match(map, /MEMORY SENSE/);
   assert.match(map, /DECISION CONTEXT/);
   assert.match(map, /LIVE PROOF/);
-  assert.match(map, /3\/10 readiness checks blocked/);
+  assert.match(map, /2\/8 readiness checks blocked/);
   assert.match(map, /R3F CONTRACT/);
   assert.match(map, /FRESHNESS GAPS/);
   assert.match(map, /lane telemetry missing from world\.log/);
@@ -3942,10 +3942,11 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   assert.match(map, /MEMBER REVOCATION/);
   assert.match(map, /CROSS-TENANT URGENCY/);
   assert.match(map, /live proof/);
-  assert.match(map, /DEVICE WEBVIEW PROOF/);
-  assert.match(map, /3\/4 prerequisites blocked/);
+  assert.match(map, /IN-APP SIGNED RECEIPT/);
+  assert.match(map, /1\/2 prerequisites blocked/);
   assert.match(map, /WORKER LIST PROOF/);
-  assert.match(map, /SIGNED ACTION SMOKE/);
+  assert.match(map, /worker-network-probe\.json is stale or not trusted/);
+  assert.doesNotMatch(map, /DEVICE WEBVIEW PROOF|SIGNED ACTION SMOKE/);
   assert.match(map, /first session unplayed/);
   assert.equal(elements.get('fresh')!.classList.has('stale'), true);
   assert.doesNotMatch(map, /100% success|founder affinity|relationship level|recommended next|live proof ready|verified founder device|reward unlocked|level up|leaderboard|social proof/i);
@@ -5122,7 +5123,7 @@ test('visual fixtures · no-fake-progress visual fixture stays honest about miss
   assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.commands, null);
   assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.status, 'blocked');
   assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.liveProofReady, false);
-  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.blocked, 3);
+  assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.blocked, 2);
   assert.equal(NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.rows.length, NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.summary.blocked);
   for (const row of NO_FAKE_PROGRESS_VISUAL_FIXTURE.liveProof.rows) {
     assert.equal(row.state, 'blocked', `${row.id} remains blocked`);
@@ -5222,14 +5223,14 @@ test('page · tapestry audit sheet maps completion requirements to source-backed
   (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, liveProofIndex);
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /live proof summary · blocked/);
-  assert.match(sheet, /ready<\/b><span>7/);
-  assert.match(sheet, /blocked<\/b><span>3/);
-  assert.match(sheet, /total<\/b><span>10/);
+  assert.match(sheet, /ready<\/b><span>6/);
+  assert.match(sheet, /blocked<\/b><span>2/);
+  assert.match(sheet, /total<\/b><span>8/);
   assert.match(sheet, /liveProofReady<\/b><span>false/);
-  assert.match(sheet, /blocked row 1<\/b><span>DEVICE WEBVIEW PROOF/);
+  assert.match(sheet, /blocked row 1<\/b><span>IN-APP SIGNED RECEIPT/);
   assert.match(sheet, /blocked row 2<\/b><span>WORKER LIST PROOF/);
-  assert.match(sheet, /blocked row 3<\/b><span>SIGNED ACTION SMOKE/);
-  assert.match(sheet, /proof only after their artifacts validate ready/);
+  assert.doesNotMatch(sheet, /blocked row 3/);
+  assert.match(sheet, /pasted initData is rejected outright/);
   assert.doesNotMatch(sheet, /all requirements complete|production verified|live proof ready/i);
 });
 
@@ -5347,17 +5348,18 @@ test('page · decision-context tapestry row opens first missing decision signal'
 test('page · live proof capture plan renders as guidance, not evidence', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
   const map = rendered.elements.get('mapwrap')!.innerHTML;
-  assert.match(map, /DEVICE WEBVIEW PROOF/);
-  assert.match(map, /3\/4 prerequisites blocked/);
+  assert.match(map, /IN-APP SIGNED RECEIPT/);
+  assert.match(map, /1\/2 prerequisites blocked/);
   (rendered.context.openLiveProofBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, 0);
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /capture plan · not proof · blocked/);
   assert.match(sheet, /tg-live-proof-capture-plan/);
-  assert.match(sheet, /telegram-webview\.json/);
-  assert.match(sheet, /--capture-device-proof/);
-  assert.match(sheet, /artifact stores user\/initData\/screenshot hashes only/);
-  assert.match(sheet, /Capture commands create redacted receipts; they are proof only after their artifacts validate ready/);
+  assert.match(sheet, /signed-action-smoke\.json/);
+  assert.match(sheet, /--write-receipt-template/);
+  assert.match(sheet, /receipt stores hashes only/);
+  assert.match(sheet, /in-app signed gate action receipt/);
   assert.doesNotMatch(map + sheet, /live proof ready|verified founder device|raw initData stored|browser wrote/i);
+  assert.doesNotMatch(map + sheet, /DEVICE WEBVIEW PROOF|--capture-device-proof|telegram-webview\.json/);
 });
 
 test('page · wake cards prefer served visual-envelope proof over local inference', async () => {

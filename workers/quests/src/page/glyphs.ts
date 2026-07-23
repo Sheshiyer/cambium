@@ -1,0 +1,14 @@
+// cambium-quests · miniapp page chunk — MC_GLYPH_SVG glyph atlas (8 glyph variants)
+// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
+// Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+export const GLYPHS = `const MC_GLYPH_SVG = {
+  genesis:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 3.8 19.5 11.2 27.4 8.8 23.8 16 27.4 23.2 19.5 20.8 16 28.2 12.5 20.8 4.6 23.2 8.2 16 4.6 8.8 12.5 11.2Z"/><path d="M16 6.8 18.1 12.6 24.2 12.1 19.4 16 24.2 19.9 18.1 19.4 16 25.2 13.9 19.4 7.8 19.9 12.6 16 7.8 12.1 13.9 12.6Z"/><circle class="mc-core" cx="16" cy="16" r="2.1"/><path class="mc-soft" d="M7 27c4.2-.6 6.8-.6 9.2.1 2.8.8 5.2.7 8.8-.4"/></svg>',
+  taste:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M9.4 12.4 20.2 8.5a6.6 6.6 0 0 1 5 12.2L14.4 24.6a6.6 6.6 0 0 1-5-12.2Z"/><path d="M10.6 13.5 20.9 9.9a5 5 0 0 1 3.5 9.4L14.1 23a5 5 0 0 1-3.5-9.5Z"/><path class="mc-soft" d="m13 16.3 9.8-3.6M10.2 26.4c3.6.5 6.8-.2 9.4-1.3"/></svg>',
+  build:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 4.7 27.5 25.2H4.5Z"/><path d="M16 6.8 25 23.4H7Z"/><path d="M16 13.2 20.6 21H11.4Z"/><path class="mc-soft" d="M9.2 25.2h13.6M12 22.9h8"/></svg>',
+  ops:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M7.2 13.4 21.8 6.7 27.6 13.3 20.1 24.7 5.4 20.3Z"/><path d="M8.2 14.2 21.5 8.2 26 13.6 19.3 23 6.8 19.4Z"/><path d="m10.1 15.3 9.5 3.7 4.6-4.9M19.6 19l1.9-10.8"/><path class="mc-soft" d="M6.2 25.1c3.9-1.2 6.9-1.2 9.8.2"/></svg>',
+  cortex:'<svg viewBox="0 0 32 32"><circle class="mc-fill" cx="16" cy="16" r="10.8"/><circle cx="16" cy="16" r="10.3"/><circle cx="16" cy="16" r="4.1"/><circle class="mc-core" cx="16" cy="16" r="1.6"/><path d="M16 5.7v6.1M16 20.2v6.1M5.7 16h6.1M20.2 16h6.1M8.7 8.7l4.3 4.3M19 19l4.3 4.3M23.3 8.7 19 13M13 19l-4.3 4.3"/></svg>',
+  arc:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M24 7.2a9.8 9.8 0 1 0 0 17.6 11.6 11.6 0 1 1 0-17.6Z"/><path d="M24 7.2a9.8 9.8 0 1 0 0 17.6"/><path d="M22.1 11.7a5.7 5.7 0 1 0 0 8.6"/><path class="mc-soft" d="M6.8 27.1c2.4-.8 4.8-.8 7.3 0 2 .6 4 .5 6.4-.4"/></svg>',
+  proof:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M10.2 5.4c3.6 1.7 6.7 1.8 9.8.4 1.7-.7 3.3.5 3.2 2.3l-1 14.7c-.1 1.9-1.9 3-3.6 2.1-3.1-1.6-6.2-1.8-9.5-.5Z"/><path d="M10.2 5.4c3.6 1.7 6.7 1.8 9.8.4 1.7-.7 3.3.5 3.2 2.3l-1 14.7c-.1 1.9-1.9 3-3.6 2.1-3.1-1.6-6.2-1.8-9.5-.5Z"/><path class="mc-dash" d="M12.4 11.4c2.3.8 4.6.8 7.1.1M12.1 15.4c2.8.9 5.5.9 8.2 0M11.8 19.3c2.1.7 4.4.8 6.8.2"/><path class="mc-soft" d="M7.2 27.2c5.9-2 11.8-1.9 17.6.1"/></svg>',
+  gate:'<svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 4.8 27 24.8H5Z"/><path d="M16 6.8 24.7 23H7.3Z"/><path d="M16 12.8 20.8 20.8H11.2Z"/><path class="mc-core" d="M15.9 17.2 17.9 20.2H13.9Z"/><path class="mc-soft" d="M8.2 27.2c2.2-2.8 4.6-3.2 7.8-1.2 3.2-2 5.6-1.6 7.8 1.2"/></svg>'
+};
+`;

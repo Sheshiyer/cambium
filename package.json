@@ -27,6 +27,8 @@
     "proof:tg-viewport": "node workers/quests/src/visual-viewport-proof.mjs",
     "proof:tg-mobile-contract": "node workers/quests/src/visual-viewport-proof.mjs --mobile-contract",
     "proof:tg-viewport:diagnose": "node workers/quests/src/visual-viewport-proof.mjs --diagnose-browser",
+    "visual:capture": "node scripts/visual-regression.mjs",
+    "visual:baseline": "node scripts/visual-regression.mjs --mode baseline",
     "proof:tg-live-readiness": "node workers/quests/src/live-proof-readiness.mjs --write",
     "proof:tg-live-readiness:strict": "node workers/quests/src/live-proof-readiness.mjs --write --strict",
     "r3f:dev": "npm --prefix apps/cambium-r3f run dev",

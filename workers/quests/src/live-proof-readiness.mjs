@@ -21,7 +21,7 @@
 //   actions; it only validates redacted receipts produced by the in-app flow.
 
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -153,6 +153,19 @@ function hasAnyEnv(env, names) {
 function fileHas(cwd, path, marker) {
   try {
     return readFileSync(resolve(cwd, path), 'utf8').includes(marker);
+  } catch {
+    return false;
+  }
+}
+
+function treeHas(cwd, root, marker) {
+  try {
+    const entries = readdirSync(resolve(cwd, root), { withFileTypes: true });
+    return entries.some((entry) => {
+      const rel = join(root, entry.name);
+      if (entry.isDirectory()) return treeHas(cwd, rel, marker);
+      return /\.(?:ts|mts|js|mjs)$/.test(entry.name) && fileHas(cwd, rel, marker);
+    });
   } catch {
     return false;
   }
@@ -657,7 +670,9 @@ export function assessLiveProofReadiness(options = {}) {
   const promotionConsumer = fileHas(cwd, 'bin/quine/hyphae/skills.ts', 'applySkillPromotionDecisions');
   const sideQuestConsumer = fileHas(cwd, 'bin/quine/hyphae/quests.ts', 'applySideQuestQueueDecisions');
   const npcLocalSmoke = fileHas(cwd, 'workers/quests/src/handler.test.ts', 'NPC history smoke flows from quine write to companion sheet');
-  const pageUsesInitData = fileHas(cwd, 'workers/quests/src/page.ts', 'TG && TG.initData');
+  const pageUsesInitData =
+    fileHas(cwd, 'workers/quests/src/page.ts', 'TG && TG.initData') ||
+    treeHas(cwd, 'workers/quests/src/page', 'TG && TG.initData');
   const workerValidatesInitData = fileHas(cwd, 'workers/quests/src/handler.ts', 'validateInitData');
 
   const items = [
@@ -713,7 +728,7 @@ export function assessLiveProofReadiness(options = {}) {
       pageUsesInitData
         ? 'The page reads Telegram WebApp initData before posting gate actions.'
         : 'The page does not expose the expected Telegram initData gate path.',
-      pageUsesInitData ? ['workers/quests/src/page.ts contains TG initData usage'] : [],
+      pageUsesInitData ? ['workers/quests/src/page/** modules contain TG initData usage'] : [],
       pageUsesInitData ? [] : ['restore page initData forwarding for gate actions'],
     ),
     item(
