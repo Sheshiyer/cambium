@@ -39,3 +39,5 @@ orbitSweep semantics: arc grows clockwise from top; pending ring = dotted track 
 4. reducedMotion fallback: remove translation/ghosting; keep static state dots.
 5. Dotted/dashed = pending or in-transit; solid chartreuse = settled/complete; peach exclusively warning/review.
 6. Slow, calm cubic easing per companion prompt; max one animated focal point per screen.
+
+## Ratification — 2026-07-24, P1-W1: verified against `03-motion-storyboard-mobile.png` (full resolution + region crops of Questline Progress and Proof Orbit strips); corrections: none — all five strips, frame tags, named-animation chips (`orbitSweep`/`packetDrift`/`glyphBreathe`/`warningAttention`/`reducedMotion`), primitive legend, and global motion rules match the board; status: RATIFIED

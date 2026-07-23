@@ -1,36 +1,48 @@
 #!/usr/bin/env node
-// Live-proof readiness audit for the Telegram mini app.
+// Live-proof readiness audit for the Telegram mini app (readiness schema v2).
 //
 // This is intentionally not a live proof by itself. It records whether the
 // specific evidence needed for a live Telegram WebView / production Worker
 // smoke is present, so local deterministic smokes cannot be mistaken for
 // founder-device proof.
+//
+// Readiness v2 contract (2026-07-24 mobile redesign freeze):
+// - Runtime initData auth inside the Telegram WebView stays unchanged and is
+//   validated server-side; this tool never needs raw initData.
+// - The manual initData verification ritual is RETIRED. Telegram desktop no
+//   longer exposes WebView inspect, so pasted initData is impossible here:
+//   TELEGRAM_INIT_DATA / TG_INIT_DATA env vars hard-block readiness, retired
+//   CLI capture flags are rejected, and validators hard-fail any artifact
+//   containing raw initData markers.
+// - Founder-device proof is an IN-APP signed gate action whose redacted
+//   receipt artifact (cambium.signed-action-smoke.v2: userIdHash, actionKind,
+//   subjectHash, idempotencyHash, workerVersionId, capturedAt — hashes only)
+//   validates under this readiness schema. The CLI never submits signed
+//   actions; it only validates redacted receipts produced by the in-app flow.
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, relative, resolve, sep } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGE } from './page.ts';
 
 const DEFAULT_OUT = '.artifacts/tg-miniapp-live-proof/readiness.json';
-const DEFAULT_DEVICE_PROOF = '.artifacts/tg-miniapp-live-proof/telegram-webview.json';
-const DEFAULT_DEVICE_TEMPLATE = '.artifacts/tg-miniapp-live-proof/telegram-webview.template.json';
+const DEFAULT_RECEIPT = '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json';
+const DEFAULT_RECEIPT_TEMPLATE = '.artifacts/tg-miniapp-live-proof/signed-action-smoke.template.json';
 const DEFAULT_WORKER_PROBE = '.artifacts/tg-miniapp-live-proof/worker-network-probe.json';
 const DEFAULT_WORKER_TEMPLATE = '.artifacts/tg-miniapp-live-proof/worker-network-probe.template.json';
-const DEFAULT_SIGNED_SMOKE = '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json';
-const DEFAULT_SIGNED_SMOKE_TEMPLATE = '.artifacts/tg-miniapp-live-proof/signed-action-smoke.template.json';
 const DEFAULT_WORKER = 'https://curious.thoughtseed.space';
-const DEFAULT_DEVICE_PROOF_MAX_AGE_SEC = 24 * 60 * 60;
+const DEFAULT_RECEIPT_MAX_AGE_SEC = 24 * 60 * 60;
 const DEFAULT_WORKER_PROBE_MAX_AGE_SEC = 24 * 60 * 60;
-const WORKER_INITDATA_MAX_AGE_SEC = 600;
 const HASH_64 = /^sha256:[a-f0-9]{64}$/i;
-const LIVE_PROOF_ASSET_DIR = '.artifacts/tg-miniapp-live-proof';
-const SIGNED_SMOKE_KINDS = ['skill-promotion', 'side-quest', 'npc-history', 'gate-approval'];
+const RECEIPT_SCHEMA = 'cambium.signed-action-smoke.v2';
+const RECEIPT_TEMPLATE_SCHEMA = 'cambium.signed-action-smoke-template.v2';
+const RECEIPT_SOURCE = 'in-app-signed-gate-action';
+const RETIRED_RECEIPT_SCHEMAS = ['cambium.tg-device-proof.v1', 'cambium.signed-action-smoke.v1'];
+const RETIRED_INITDATA_ENV_NAMES = ['TELEGRAM_INIT_DATA', 'TG_INIT_DATA'];
 const GATE_ACTION_KINDS = ['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request'];
-const VISIBLE_MARKER_BINDINGS = ['action-subject', 'action-idempotency', 'action-request-id', 'telegram-receipt'];
 const CURRENT_PAGE_SOURCE_SHA256 = createHash('sha256').update(PAGE).digest('hex');
-const SMOKE_LEAK_KEY = /^(authorization|cookie|secret|token|pushToken|bearer|initData|rawInitData|telegramInitData|subject|idempotencyKey|queuedId|founderId|rawBody|responseBody|requestBody)$/i;
 const RAW_INITDATA_MARKERS = [
   /(?:^|[?&\s])query_id=/i,
   /(?:^|[?&\s])auth_date=/i,
@@ -38,6 +50,7 @@ const RAW_INITDATA_MARKERS = [
   /(?:^|[?&\s])signature=/i,
   /tgWebAppData=/i,
   /TELEGRAM_INIT_DATA=/i,
+  /TG_INIT_DATA=/i,
 ];
 const SECRET_MARKERS = [
   /Bearer\s+[A-Za-z0-9._~+/=-]{8,}/i,
@@ -47,6 +60,32 @@ const SECRET_MARKERS = [
   /secret/i,
   /token/i,
 ];
+const RETIRED_FLAGS = new Set([
+  '--capture-device-proof',
+  '--capture-signed-smoke',
+  '--device-proof',
+  '--device-template-out',
+  '--write-device-template',
+  '--screenshot',
+  '--webview-url',
+  '--platform',
+  '--safe-area',
+  '--smoke-kind',
+  '--action-kind',
+  '--action-subject',
+  '--action-evidence',
+  '--action-consequence',
+  '--action-reversibility',
+  '--action-idempotency-key',
+  '--operator-command',
+  '--operator-audit',
+  '--operator-checked',
+  '--operator-consumed',
+  '--operator-rejected',
+  '--miniapp-envelope',
+  '--visible-marker',
+  '--allow-mutation',
+]);
 
 function readEnvFileTokenValue(home = homedir()) {
   try {
@@ -67,86 +106,41 @@ function resolvePushToken(env = process.env, home = homedir()) {
   return envToken || readEnvFileTokenValue(home);
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const out = {
     tenant: process.env.TENANT || 'cambium',
     cwd: process.cwd(),
     write: false,
     out: DEFAULT_OUT,
-    deviceProofPath: DEFAULT_DEVICE_PROOF,
-    deviceTemplateOut: DEFAULT_DEVICE_TEMPLATE,
-    writeDeviceTemplate: false,
+    receiptPath: DEFAULT_RECEIPT,
+    receiptTemplateOut: DEFAULT_RECEIPT_TEMPLATE,
+    writeReceiptTemplate: false,
     workerProbePath: DEFAULT_WORKER_PROBE,
     workerTemplateOut: DEFAULT_WORKER_TEMPLATE,
     writeWorkerTemplate: false,
-    signedSmokePath: DEFAULT_SIGNED_SMOKE,
-    signedSmokeTemplateOut: DEFAULT_SIGNED_SMOKE_TEMPLATE,
-    writeSignedSmokeTemplate: false,
-    captureDeviceProof: false,
-    captureSignedSmoke: false,
-    screenshotPath: '',
-    webViewUrl: process.env.TELEGRAM_WEBVIEW_URL || DEFAULT_WORKER,
-    devicePlatform: process.env.TELEGRAM_WEBVIEW_PLATFORM || '',
-    safeArea: process.env.TELEGRAM_WEBVIEW_SAFE_AREA || '',
     captureWorkerProbe: false,
     allowNetwork: false,
-    allowMutation: false,
     workerUrl: process.env.QUESTS_WORKER_URL || DEFAULT_WORKER,
-    smokeKind: process.env.SIGNED_SMOKE_KIND || '',
-    actionKind: process.env.SIGNED_SMOKE_ACTION_KIND || '',
-    actionSubject: process.env.SIGNED_SMOKE_ACTION_SUBJECT || '',
-    actionEvidence: process.env.SIGNED_SMOKE_ACTION_EVIDENCE || '',
-    actionConsequence: process.env.SIGNED_SMOKE_ACTION_CONSEQUENCE || '',
-    actionReversibility: process.env.SIGNED_SMOKE_ACTION_REVERSIBILITY || '',
-    actionIdempotencyKey: process.env.SIGNED_SMOKE_IDEMPOTENCY_KEY || '',
-    operatorCommand: process.env.SIGNED_SMOKE_OPERATOR_COMMAND || '',
-    operatorAuditPath: process.env.SIGNED_SMOKE_OPERATOR_AUDIT || '',
-    operatorChecked: process.env.SIGNED_SMOKE_OPERATOR_CHECKED || '',
-    operatorConsumed: process.env.SIGNED_SMOKE_OPERATOR_CONSUMED || '',
-    operatorRejected: process.env.SIGNED_SMOKE_OPERATOR_REJECTED || '',
-    miniAppEnvelopePath: process.env.SIGNED_SMOKE_MINIAPP_ENVELOPE || '',
-    visibleMarker: process.env.SIGNED_SMOKE_VISIBLE_MARKER || '',
     strict: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
+    if (RETIRED_FLAGS.has(arg)) {
+      throw new Error(`${arg} is retired: the manual initData capture flow was removed in readiness v2; founder-device proof is the in-app signed action receipt artifact`);
+    }
     if (arg === '--tenant') out.tenant = argv[++i] || out.tenant;
     else if (arg === '--cwd') out.cwd = argv[++i] || out.cwd;
     else if (arg === '--out') out.out = argv[++i] || out.out;
-    else if (arg === '--device-proof') out.deviceProofPath = argv[++i] || out.deviceProofPath;
-    else if (arg === '--device-template-out') out.deviceTemplateOut = argv[++i] || out.deviceTemplateOut;
+    else if (arg === '--receipt') out.receiptPath = argv[++i] || out.receiptPath;
+    else if (arg === '--receipt-template-out') out.receiptTemplateOut = argv[++i] || out.receiptTemplateOut;
     else if (arg === '--worker-probe') out.workerProbePath = argv[++i] || out.workerProbePath;
     else if (arg === '--worker-template-out') out.workerTemplateOut = argv[++i] || out.workerTemplateOut;
-    else if (arg === '--signed-smoke') out.signedSmokePath = argv[++i] || out.signedSmokePath;
-    else if (arg === '--signed-smoke-template-out') out.signedSmokeTemplateOut = argv[++i] || out.signedSmokeTemplateOut;
-    else if (arg === '--screenshot') out.screenshotPath = argv[++i] || out.screenshotPath;
-    else if (arg === '--webview-url') out.webViewUrl = argv[++i] || out.webViewUrl;
-    else if (arg === '--platform') out.devicePlatform = argv[++i] || out.devicePlatform;
-    else if (arg === '--safe-area') out.safeArea = argv[++i] || out.safeArea;
-    else if (arg === '--smoke-kind') out.smokeKind = argv[++i] || out.smokeKind;
-    else if (arg === '--action-kind') out.actionKind = argv[++i] || out.actionKind;
-    else if (arg === '--action-subject') out.actionSubject = argv[++i] || out.actionSubject;
-    else if (arg === '--action-evidence') out.actionEvidence = argv[++i] || out.actionEvidence;
-    else if (arg === '--action-consequence') out.actionConsequence = argv[++i] || out.actionConsequence;
-    else if (arg === '--action-reversibility') out.actionReversibility = argv[++i] || out.actionReversibility;
-    else if (arg === '--action-idempotency-key') out.actionIdempotencyKey = argv[++i] || out.actionIdempotencyKey;
-    else if (arg === '--operator-command') out.operatorCommand = argv[++i] || out.operatorCommand;
-    else if (arg === '--operator-audit') out.operatorAuditPath = argv[++i] || out.operatorAuditPath;
-    else if (arg === '--operator-checked') out.operatorChecked = argv[++i] || out.operatorChecked;
-    else if (arg === '--operator-consumed') out.operatorConsumed = argv[++i] || out.operatorConsumed;
-    else if (arg === '--operator-rejected') out.operatorRejected = argv[++i] || out.operatorRejected;
-    else if (arg === '--miniapp-envelope') out.miniAppEnvelopePath = argv[++i] || out.miniAppEnvelopePath;
-    else if (arg === '--visible-marker') out.visibleMarker = argv[++i] || out.visibleMarker;
     else if (arg === '--write') out.write = true;
-    else if (arg === '--write-device-template') out.writeDeviceTemplate = true;
+    else if (arg === '--write-receipt-template') out.writeReceiptTemplate = true;
     else if (arg === '--write-worker-template') out.writeWorkerTemplate = true;
-    else if (arg === '--write-signed-smoke-template') out.writeSignedSmokeTemplate = true;
-    else if (arg === '--capture-device-proof') out.captureDeviceProof = true;
-    else if (arg === '--capture-signed-smoke') out.captureSignedSmoke = true;
     else if (arg === '--capture-worker-probe') out.captureWorkerProbe = true;
     else if (arg === '--strict') out.strict = true;
     else if (arg === '--allow-network') out.allowNetwork = true;
-    else if (arg === '--allow-mutation') out.allowMutation = true;
     else if (arg === '--worker-url') out.workerUrl = argv[++i] || out.workerUrl;
   }
   return out;
@@ -194,24 +188,6 @@ function hasSecretLeak(value) {
   return hasLeak(value, SECRET_MARKERS, /^(authorization|cookie|secret|token|pushToken|bearer)$/i);
 }
 
-function hasSignedSmokeLeak(value) {
-  return hasLeak(value, [...RAW_INITDATA_MARKERS, ...SECRET_MARKERS], SMOKE_LEAK_KEY);
-}
-
-function classifyVisibleMarkerBinding(marker, options = {}) {
-  const value = String(marker || '').trim();
-  if (!value) return '';
-  const subject = String(options.subject || '').trim();
-  const idempotencyKey = String(options.idempotencyKey || '').trim();
-  if (subject && value.includes(subject)) return 'action-subject';
-  if (idempotencyKey && value.includes(idempotencyKey)) return 'action-idempotency';
-  if (/\bar_[a-z0-9][a-z0-9_-]*\b/i.test(value)) return 'action-request-id';
-  if (/\b(?:message|msg)\s*#?\d+\b/i.test(value) && /\b(?:topic|thread|clients|client|dev|ops|sales|support)\b/i.test(value)) {
-    return 'telegram-receipt';
-  }
-  return '';
-}
-
 function hasLeak(value, stringMarkers, keyMarker) {
   const stack = [{ path: '', value }];
   while (stack.length) {
@@ -241,146 +217,16 @@ function parseJsonArtifact(cwd, path) {
   }
 }
 
-function sha256File(path) {
-  return `sha256:${createHash('sha256').update(readFileSync(path)).digest('hex')}`;
-}
-
 function sha256Text(text) {
   return `sha256:${createHash('sha256').update(String(text)).digest('hex')}`;
 }
 
-function requiredString(value, label) {
-  const text = String(value || '').trim();
-  if (!text) throw new Error(`${label} is required`);
-  return text;
+function normalizedUrl(value) {
+  return String(value || '').replace(/\/+$/, '');
 }
 
-function requiredNonNegativeIntegerOption(value, label) {
-  const n = Number(value);
-  if (!Number.isInteger(n) || n < 0) throw new Error(`${label} must be a non-negative integer`);
-  return n;
-}
-
-function requiredExistingFile(cwd, path, label) {
-  const relPath = requiredString(path, label);
-  const absolute = resolve(cwd, relPath);
-  if (!existsSync(absolute)) throw new Error(`${label} must point at an existing file`);
-  return absolute;
-}
-
-function responseTextHash(text) {
-  return sha256Text(text || '');
-}
-
-function proofAssetRelativePath(cwd, path, label) {
-  if (!path) throw new Error(`${label} is required`);
-  const proofAssetRoot = resolve(cwd, LIVE_PROOF_ASSET_DIR);
-  const absolute = resolve(cwd, path);
-  if (absolute !== proofAssetRoot && !absolute.startsWith(`${proofAssetRoot}${sep}`)) {
-    throw new Error(`${label} must stay under ${LIVE_PROOF_ASSET_DIR}`);
-  }
-  return relative(cwd, absolute).split(sep).join('/');
-}
-
-function sanitizeWebViewUrl(value) {
-  const parsed = new URL(value || DEFAULT_WORKER);
-  if (parsed.protocol !== 'https:') throw new Error('webview URL must use https');
-  return {
-    origin: parsed.origin,
-    path: parsed.pathname || '/',
-  };
-}
-
-function initDataFromEnv(env = process.env) {
-  return String(env.TELEGRAM_INIT_DATA || env.TG_INIT_DATA || '').trim();
-}
-
-function parseInitDataForProof(initData, capturedAt) {
-  if (!initData) throw new Error('TELEGRAM_INIT_DATA or TG_INIT_DATA is required to capture the device proof');
-  const fields = new URLSearchParams(initData);
-  const authDate = Number(fields.get('auth_date') || 0);
-  if (!Number.isFinite(authDate) || authDate <= 0) throw new Error('Telegram initData auth_date is required');
-  let userId = '';
-  try {
-    userId = String(JSON.parse(fields.get('user') || '{}').id || '');
-  } catch {
-    userId = '';
-  }
-  if (!userId) throw new Error('Telegram initData user.id is required');
-  const capturedAtMs = Date.parse(capturedAt);
-  if (!Number.isFinite(capturedAtMs)) throw new Error('capturedAt must be a valid ISO timestamp');
-  const initDataAgeSeconds = Math.floor(capturedAtMs / 1000 - authDate);
-  return {
-    userIdHash: sha256Text(userId),
-    initDataHash: sha256Text(initData),
-    initDataAgeSeconds,
-  };
-}
-
-export function createDeviceProofTemplate(options = {}) {
-  const tenant = options.tenant || 'cambium';
-  const generatedAt = options.generatedAt || new Date().toISOString();
-  return {
-    schema: 'cambium.tg-device-proof-template.v1',
-    generatedAt,
-    tenant,
-    writesAuthority: false,
-    instruction: 'Copy sourceDocument to telegram-webview.json only after a real Telegram WebView capture. Store hashes only; never paste raw initData, query strings, or tokens.',
-    sourceDocument: {
-      schema: 'cambium.tg-device-proof.v1',
-      tenant,
-      capturedAt: 'TODO-ISO-8601',
-      source: 'telegram-webview',
-      telegram: {
-        userIdHash: 'sha256:TODO_SHA256_OF_TELEGRAM_USER_ID',
-        initDataHash: 'sha256:TODO_SHA256_OF_RAW_INITDATA',
-        initDataAgeSeconds: 0,
-      },
-      webView: {
-        platform: 'TODO-ios-android-desktop',
-        urlOrigin: 'https://curious.thoughtseed.space',
-        urlPath: '/',
-        safeArea: 'TODO-top-right-bottom-left-or-notes',
-      },
-      screenshot: {
-        sha256: 'sha256:TODO_SHA256_OF_SCREENSHOT',
-        path: '.artifacts/tg-miniapp-live-proof/TODO-founder-device.png',
-      },
-      notes: [
-        'TODO capture Telegram client, device class, and any shell/chrome anomaly without raw initData.',
-      ],
-    },
-  };
-}
-
-export function captureDeviceProof(options = {}) {
-  const cwd = options.cwd || process.cwd();
-  const tenant = options.tenant || 'cambium';
-  const env = options.env || process.env;
-  const capturedAt = options.capturedAt || new Date().toISOString();
-  const screenshotPath = proofAssetRelativePath(cwd, options.screenshotPath, 'screenshot path');
-  const webView = sanitizeWebViewUrl(options.webViewUrl || DEFAULT_WORKER);
-  const telegram = parseInitDataForProof(options.initData || initDataFromEnv(env), capturedAt);
-  return {
-    schema: 'cambium.tg-device-proof.v1',
-    tenant,
-    capturedAt,
-    source: 'telegram-webview',
-    telegram,
-    webView: {
-      platform: String(options.platform || '').trim(),
-      urlOrigin: webView.origin,
-      urlPath: webView.path,
-      safeArea: String(options.safeArea || '').trim() || 'not recorded',
-    },
-    screenshot: {
-      sha256: sha256File(resolve(cwd, screenshotPath)),
-      path: screenshotPath,
-    },
-    notes: [
-      'Captured by live-proof-readiness --capture-device-proof; raw initData, raw Telegram user id, and WebView query string omitted.',
-    ],
-  };
+function requireHash(value, field, missing) {
+  if (!HASH_64.test(String(value || ''))) missing.push(`${field} must be sha256:<64 hex>`);
 }
 
 export function createWorkerProbeTemplate(options = {}) {
@@ -392,7 +238,7 @@ export function createWorkerProbeTemplate(options = {}) {
     generatedAt,
     tenant,
     writesAuthority: false,
-    instruction: 'Copy sourceDocument to worker-network-probe.json only after an authorized production Worker list probe. Store status, counts, and response digests only; never store bearer headers, tokens, cookies, or raw response bodies.',
+    instruction: 'Copy sourceDocument to worker-network-probe.json only after an authorized production Worker list probe. Store status, counts, and response digests only; never store bearer headers, credentials, cookies, or raw response bodies.',
     sourceDocument: {
       schema: 'cambium.worker-network-probe.v1',
       tenant,
@@ -421,160 +267,30 @@ export function createWorkerProbeTemplate(options = {}) {
   };
 }
 
-export function createSignedActionSmokeTemplate(options = {}) {
+export function createSignedActionReceiptTemplate(options = {}) {
   const tenant = options.tenant || 'cambium';
-  const workerUrl = options.workerUrl || DEFAULT_WORKER;
   const generatedAt = options.generatedAt || new Date().toISOString();
   return {
-    schema: 'cambium.signed-action-smoke-template.v1',
+    schema: RECEIPT_TEMPLATE_SCHEMA,
     generatedAt,
     tenant,
     writesAuthority: false,
-    instruction: 'Copy sourceDocument to signed-action-smoke.json only after a real Telegram signed action runs through Worker queue, operator consume, and mini app refresh. Store hashes and counts only; never store initData, bearer tokens, raw subjects, founder ids, queued ids, or response bodies.',
+    instruction: 'Copy sourceDocument to signed-action-smoke.json only after a real in-app signed gate action emits its redacted receipt. Store hashes only; never paste raw initData, query strings, Telegram user ids, or credentials.',
     sourceDocument: {
-      schema: 'cambium.signed-action-smoke.v1',
+      schema: RECEIPT_SCHEMA,
       tenant,
       capturedAt: 'TODO-ISO-8601',
-      source: 'telegram-worker-operator-smoke',
-      workerUrl,
-      smokeKind: 'TODO-skill-promotion-or-side-quest-or-npc-history-or-gate-approval',
-      telegram: {
-        userIdHash: 'sha256:TODO_SHA256_OF_TELEGRAM_USER_ID',
-        initDataHash: 'sha256:TODO_SHA256_OF_RAW_INITDATA',
-        initDataAgeSeconds: 0,
-      },
-      action: {
-        kind: 'TODO-promote-skill-or-queue-side-quest-or-approve-or-reroll-or-confirm-action-request',
-        subjectHash: 'sha256:TODO_SHA256_OF_REDACTED_SUBJECT',
-        idempotencyKeyHash: 'sha256:TODO_SHA256_OF_IDEMPOTENCY_KEY',
-      },
-      phases: {
-        telegramSubmit: {
-          status: 200,
-          queued: true,
-          duplicate: false,
-          queuedIdHash: 'sha256:TODO_SHA256_OF_WORKER_QUEUED_ID',
-          responseSha256: 'sha256:TODO_SHA256_OF_REDACTED_TELEGRAM_SUBMIT_RESPONSE',
-        },
-        workerList: {
-          status: 200,
-          sawQueuedAction: true,
-          queuedActionCount: 0,
-          bodySha256: 'sha256:TODO_SHA256_OF_REDACTED_WORKER_LIST_RESPONSE',
-        },
-        operatorConsume: {
-          command: 'TODO-quine-write-skills-apply-promotions-or-quine-write-quests-apply-side-quests',
-          checked: 1,
-          consumed: 1,
-          rejected: 0,
-          auditSha256: 'sha256:TODO_SHA256_OF_REDACTED_OPERATOR_AUDIT',
-        },
-        miniAppRefresh: {
-          refreshed: true,
-          envelopeSha256: 'sha256:TODO_SHA256_OF_REFRESHED_VISUAL_ENVELOPE',
-          visibleMarkerHash: 'sha256:TODO_SHA256_OF_VISIBLE_CARD_MARKER',
-          visibleMarkerBinding: 'TODO-action-subject-or-action-idempotency-or-action-request-id-or-telegram-receipt',
-        },
-      },
+      source: RECEIPT_SOURCE,
+      userIdHash: 'sha256:TODO_SHA256_OF_TELEGRAM_USER_ID',
+      actionKind: 'TODO-approve-or-reroll-or-promote-skill-or-queue-side-quest-or-confirm-action-request',
+      subjectHash: 'sha256:TODO_SHA256_OF_REDACTED_SUBJECT',
+      idempotencyHash: 'sha256:TODO_SHA256_OF_IDEMPOTENCY_KEY',
+      workerVersionId: 'TODO-WORKER-VERSION-ID',
       notes: [
-        'TODO identify the user-facing card that changed without storing private action payloads.',
+        'TODO record the gate action context without storing private action payloads.',
       ],
     },
   };
-}
-
-export function validateDeviceProofArtifact(value, options = {}) {
-  const tenant = options.tenant || 'cambium';
-  const generatedAt = options.generatedAt || new Date().toISOString();
-  const cwd = options.cwd || process.cwd();
-  const maxAgeSec = options.maxAgeSec ?? DEFAULT_DEVICE_PROOF_MAX_AGE_SEC;
-  const missing = [];
-
-  if (!isObject(value)) {
-    return { ready: false, state: 'blocked', missing: ['device proof artifact must be a JSON object'] };
-  }
-  if (value.schema === 'cambium.tg-device-proof-template.v1' || value.writesAuthority === false) {
-    return {
-      ready: false,
-      state: 'blocked',
-      missing: ['replace template with real cambium.tg-device-proof.v1 artifact'],
-      evidence: [],
-      detail: 'A non-authoritative template exists, but no real founder Telegram WebView proof has been captured.',
-    };
-  }
-  if (value.schema !== 'cambium.tg-device-proof.v1') missing.push('schema must be cambium.tg-device-proof.v1');
-  if (value.tenant !== tenant) missing.push(`tenant must match ${tenant}`);
-  if (value.source !== 'telegram-webview') missing.push('source must be telegram-webview');
-  if (hasRawInitDataLeak(value)) missing.push('artifact must not contain raw initData, auth_date, signature, hash, query_id, or tgWebAppData');
-
-  const capturedAtMs = Date.parse(String(value.capturedAt || ''));
-  const generatedAtMs = Date.parse(generatedAt);
-  if (!Number.isFinite(capturedAtMs)) {
-    missing.push('capturedAt must be a valid ISO timestamp');
-  } else if (Number.isFinite(generatedAtMs)) {
-    const ageSec = Math.floor((generatedAtMs - capturedAtMs) / 1000);
-    if (ageSec < -300) missing.push('capturedAt cannot be in the future');
-    if (ageSec > maxAgeSec) missing.push(`capturedAt must be within ${maxAgeSec} seconds`);
-  }
-
-  const telegram = isObject(value.telegram) ? value.telegram : {};
-  if (!HASH_64.test(String(telegram.userIdHash || ''))) missing.push('telegram.userIdHash must be sha256:<64 hex>');
-  if (!HASH_64.test(String(telegram.initDataHash || ''))) missing.push('telegram.initDataHash must be sha256:<64 hex>');
-  const initDataAgeSeconds = Number(telegram.initDataAgeSeconds);
-  if (!Number.isFinite(initDataAgeSeconds) || initDataAgeSeconds < 0) {
-    missing.push('telegram.initDataAgeSeconds must be a non-negative number');
-  } else if (initDataAgeSeconds > WORKER_INITDATA_MAX_AGE_SEC) {
-    missing.push(`telegram.initDataAgeSeconds must be <= ${WORKER_INITDATA_MAX_AGE_SEC}`);
-  }
-
-  const webView = isObject(value.webView) ? value.webView : {};
-  if (webView.urlOrigin !== DEFAULT_WORKER && !String(webView.urlOrigin || '').startsWith('https://')) {
-    missing.push('webView.urlOrigin must be an https origin');
-  }
-  if (!String(webView.platform || '').trim()) missing.push('webView.platform is required');
-
-  const screenshot = isObject(value.screenshot) ? value.screenshot : {};
-  if (!HASH_64.test(String(screenshot.sha256 || ''))) missing.push('screenshot.sha256 must be sha256:<64 hex>');
-  const screenshotPath = String(screenshot.path || '').trim();
-  if (!screenshotPath) {
-    missing.push('screenshot.path is required');
-  } else {
-    const proofAssetRoot = resolve(cwd, LIVE_PROOF_ASSET_DIR);
-    const screenshotAbsolute = resolve(cwd, screenshotPath);
-    if (screenshotAbsolute !== proofAssetRoot && !screenshotAbsolute.startsWith(`${proofAssetRoot}${sep}`)) {
-      missing.push(`screenshot.path must stay under ${LIVE_PROOF_ASSET_DIR}`);
-    } else if (!existsSync(screenshotAbsolute)) {
-      missing.push('screenshot.path must point at an existing file');
-    } else if (HASH_64.test(String(screenshot.sha256 || ''))) {
-      const actual = sha256File(screenshotAbsolute);
-      if (actual.toLowerCase() !== String(screenshot.sha256).toLowerCase()) {
-        missing.push('screenshot.sha256 must match the screenshot file');
-      }
-    }
-  }
-
-  const ready = missing.length === 0;
-  return {
-    ready,
-    state: ready ? 'ready' : 'blocked',
-    missing,
-    evidence: ready
-      ? [
-          '.artifacts/tg-miniapp-live-proof/telegram-webview.json',
-          `capturedAt:${value.capturedAt}`,
-          `telegram.initDataAgeSeconds:${initDataAgeSeconds}`,
-          `screenshot.path:${screenshotPath}`,
-          `screenshot:${screenshot.sha256}`,
-        ]
-      : [],
-    detail: ready
-      ? 'A redacted founder Telegram WebView proof artifact is present and fresh enough for the Worker initData gate.'
-      : 'The Telegram WebView proof artifact exists, but it is incomplete, stale, mismatched, or unsafe to trust.',
-  };
-}
-
-function normalizedUrl(value) {
-  return String(value || '').replace(/\/+$/, '');
 }
 
 export function validateWorkerProbeArtifact(value, options = {}) {
@@ -600,7 +316,7 @@ export function validateWorkerProbeArtifact(value, options = {}) {
   if (value.tenant !== tenant) missing.push(`tenant must match ${tenant}`);
   if (value.source !== 'production-worker') missing.push('source must be production-worker');
   if (normalizedUrl(value.workerUrl) !== workerUrl) missing.push(`workerUrl must match ${workerUrl}`);
-  if (hasSecretLeak(value)) missing.push('artifact must not contain bearer headers, tokens, cookies, authorization, or secrets');
+  if (hasSecretLeak(value)) missing.push('artifact must not contain bearer headers, credentials, cookies, authorization, or secrets');
 
   const capturedAtMs = Date.parse(String(value.capturedAt || ''));
   const generatedAtMs = Date.parse(generatedAt);
@@ -652,40 +368,41 @@ export function validateWorkerProbeArtifact(value, options = {}) {
   };
 }
 
-function requireHash(value, field, missing) {
-  if (!HASH_64.test(String(value || ''))) missing.push(`${field} must be sha256:<64 hex>`);
-}
-
-function requireNonNegativeInteger(value, field, missing) {
-  const n = Number(value);
-  if (!Number.isInteger(n) || n < 0) missing.push(`${field} must be a non-negative integer`);
-}
-
-export function validateSignedActionSmokeArtifact(value, options = {}) {
+export function validateSignedActionReceiptArtifact(value, options = {}) {
   const tenant = options.tenant || 'cambium';
   const generatedAt = options.generatedAt || new Date().toISOString();
-  const workerUrl = normalizedUrl(options.workerUrl || DEFAULT_WORKER);
-  const maxAgeSec = options.maxAgeSec ?? DEFAULT_WORKER_PROBE_MAX_AGE_SEC;
+  const maxAgeSec = options.maxAgeSec ?? DEFAULT_RECEIPT_MAX_AGE_SEC;
   const missing = [];
 
   if (!isObject(value)) {
-    return { ready: false, state: 'blocked', missing: ['signed action smoke artifact must be a JSON object'] };
+    return { ready: false, state: 'blocked', missing: ['signed action receipt artifact must be a JSON object'] };
   }
-  if (value.schema === 'cambium.signed-action-smoke-template.v1' || value.writesAuthority === false) {
+  if (value.schema === RECEIPT_TEMPLATE_SCHEMA || value.writesAuthority === false) {
     return {
       ready: false,
       state: 'blocked',
-      missing: ['replace template with real cambium.signed-action-smoke.v1 artifact'],
+      missing: [`replace template with real ${RECEIPT_SCHEMA} artifact`],
       evidence: [],
-      detail: 'A non-authoritative signed-action smoke template exists, but no mutating Telegram action proof has been captured.',
+      detail: 'A non-authoritative receipt template exists, but no in-app signed gate action receipt has been captured.',
     };
   }
-  if (value.schema !== 'cambium.signed-action-smoke.v1') missing.push('schema must be cambium.signed-action-smoke.v1');
+  if (RETIRED_RECEIPT_SCHEMAS.includes(String(value.schema))) {
+    missing.push(`${value.schema} artifacts are retired; founder-device proof is the in-app signed action receipt (${RECEIPT_SCHEMA})`);
+  }
+  if (value.schema !== RECEIPT_SCHEMA) missing.push(`schema must be ${RECEIPT_SCHEMA}`);
   if (value.tenant !== tenant) missing.push(`tenant must match ${tenant}`);
-  if (value.source !== 'telegram-worker-operator-smoke') missing.push('source must be telegram-worker-operator-smoke');
-  if (normalizedUrl(value.workerUrl) !== workerUrl) missing.push(`workerUrl must match ${workerUrl}`);
-  if (!SIGNED_SMOKE_KINDS.includes(String(value.smokeKind))) missing.push(`smokeKind must be one of ${SIGNED_SMOKE_KINDS.join(', ')}`);
-  if (hasSignedSmokeLeak(value)) missing.push('artifact must not contain initData, bearer headers, tokens, raw subjects, queued ids, founder ids, or raw bodies');
+  if (value.source !== RECEIPT_SOURCE) missing.push(`source must be ${RECEIPT_SOURCE}`);
+
+  // Hard fail: pasted initData, query strings, credentials, or retired v1
+  // proof fields make the artifact unsafe to trust no matter what else it
+  // contains. Pasted initData must be impossible under readiness v2.
+  if (hasRawInitDataLeak(value)) missing.push('artifact must not contain raw initData, auth_date, signature, hash, query_id, tgWebAppData, or initData env values');
+  if (hasSecretLeak(value)) missing.push('artifact must not contain bearer headers, credentials, cookies, authorization, or secrets');
+  for (const retiredField of ['telegram', 'phases', 'screenshot', 'webView', 'initDataHash', 'initDataAgeSeconds']) {
+    if (Object.prototype.hasOwnProperty.call(value, retiredField)) {
+      missing.push(`retired v1 proof field ${retiredField} must not appear in a ${RECEIPT_SCHEMA} receipt`);
+    }
+  }
 
   const capturedAtMs = Date.parse(String(value.capturedAt || ''));
   const generatedAtMs = Date.parse(generatedAt);
@@ -697,50 +414,11 @@ export function validateSignedActionSmokeArtifact(value, options = {}) {
     if (ageSec > maxAgeSec) missing.push(`capturedAt must be within ${maxAgeSec} seconds`);
   }
 
-  const telegram = isObject(value.telegram) ? value.telegram : {};
-  requireHash(telegram.userIdHash, 'telegram.userIdHash', missing);
-  requireHash(telegram.initDataHash, 'telegram.initDataHash', missing);
-  const initDataAgeSeconds = Number(telegram.initDataAgeSeconds);
-  if (!Number.isFinite(initDataAgeSeconds) || initDataAgeSeconds < 0) {
-    missing.push('telegram.initDataAgeSeconds must be a non-negative number');
-  } else if (initDataAgeSeconds > WORKER_INITDATA_MAX_AGE_SEC) {
-    missing.push(`telegram.initDataAgeSeconds must be <= ${WORKER_INITDATA_MAX_AGE_SEC}`);
-  }
-
-  const action = isObject(value.action) ? value.action : {};
-  if (!GATE_ACTION_KINDS.includes(String(action.kind))) missing.push(`action.kind must be one of ${GATE_ACTION_KINDS.join(', ')}`);
-  requireHash(action.subjectHash, 'action.subjectHash', missing);
-  requireHash(action.idempotencyKeyHash, 'action.idempotencyKeyHash', missing);
-
-  const phases = isObject(value.phases) ? value.phases : {};
-  const telegramSubmit = isObject(phases.telegramSubmit) ? phases.telegramSubmit : {};
-  if (Number(telegramSubmit.status) !== 200) missing.push('phases.telegramSubmit.status must be 200');
-  if (telegramSubmit.queued !== true) missing.push('phases.telegramSubmit.queued must be true');
-  if (typeof telegramSubmit.duplicate !== 'boolean') missing.push('phases.telegramSubmit.duplicate must be boolean');
-  requireHash(telegramSubmit.queuedIdHash, 'phases.telegramSubmit.queuedIdHash', missing);
-  requireHash(telegramSubmit.responseSha256, 'phases.telegramSubmit.responseSha256', missing);
-
-  const workerList = isObject(phases.workerList) ? phases.workerList : {};
-  if (Number(workerList.status) !== 200) missing.push('phases.workerList.status must be 200');
-  if (workerList.sawQueuedAction !== true) missing.push('phases.workerList.sawQueuedAction must be true');
-  requireNonNegativeInteger(workerList.queuedActionCount, 'phases.workerList.queuedActionCount', missing);
-  requireHash(workerList.bodySha256, 'phases.workerList.bodySha256', missing);
-
-  const operatorConsume = isObject(phases.operatorConsume) ? phases.operatorConsume : {};
-  if (!String(operatorConsume.command || '').trim()) missing.push('phases.operatorConsume.command is required');
-  requireNonNegativeInteger(operatorConsume.checked, 'phases.operatorConsume.checked', missing);
-  const consumed = Number(operatorConsume.consumed);
-  if (!Number.isInteger(consumed) || consumed < 1) missing.push('phases.operatorConsume.consumed must be an integer >= 1');
-  requireNonNegativeInteger(operatorConsume.rejected, 'phases.operatorConsume.rejected', missing);
-  requireHash(operatorConsume.auditSha256, 'phases.operatorConsume.auditSha256', missing);
-
-  const miniAppRefresh = isObject(phases.miniAppRefresh) ? phases.miniAppRefresh : {};
-  if (miniAppRefresh.refreshed !== true) missing.push('phases.miniAppRefresh.refreshed must be true');
-  requireHash(miniAppRefresh.envelopeSha256, 'phases.miniAppRefresh.envelopeSha256', missing);
-  requireHash(miniAppRefresh.visibleMarkerHash, 'phases.miniAppRefresh.visibleMarkerHash', missing);
-  if (!VISIBLE_MARKER_BINDINGS.includes(String(miniAppRefresh.visibleMarkerBinding || ''))) {
-    missing.push(`phases.miniAppRefresh.visibleMarkerBinding must be one of ${VISIBLE_MARKER_BINDINGS.join(', ')}`);
-  }
+  requireHash(value.userIdHash, 'userIdHash', missing);
+  if (!GATE_ACTION_KINDS.includes(String(value.actionKind))) missing.push(`actionKind must be one of ${GATE_ACTION_KINDS.join(', ')}`);
+  requireHash(value.subjectHash, 'subjectHash', missing);
+  requireHash(value.idempotencyHash, 'idempotencyHash', missing);
+  if (!String(value.workerVersionId || '').trim()) missing.push('workerVersionId is required');
 
   const ready = missing.length === 0;
   return {
@@ -750,17 +428,17 @@ export function validateSignedActionSmokeArtifact(value, options = {}) {
     evidence: ready
       ? [
           '.artifacts/tg-miniapp-live-proof/signed-action-smoke.json',
-          `smokeKind:${value.smokeKind}`,
-          `action.kind:${action.kind}`,
           `capturedAt:${value.capturedAt}`,
-          `worker:${normalizedUrl(value.workerUrl)}`,
-          `consumed:${consumed}`,
-          `visibleMarker:${miniAppRefresh.visibleMarkerHash}`,
+          `actionKind:${value.actionKind}`,
+          `workerVersionId:${value.workerVersionId}`,
+          `userIdHash:${value.userIdHash}`,
+          `subjectHash:${value.subjectHash}`,
+          `idempotencyHash:${value.idempotencyHash}`,
         ]
       : [],
     detail: ready
-      ? 'A redacted signed Telegram action smoke receipt proves queue, list, consume, and mini app refresh phases.'
-      : 'No complete signed Telegram action smoke receipt exists yet; mutating live proof is still pending.',
+      ? 'A redacted in-app signed gate action receipt proves the founder device ran a real Telegram WebView action.'
+      : 'No complete redacted in-app signed gate action receipt exists yet; founder-device proof is still pending.',
   };
 }
 
@@ -819,164 +497,6 @@ export async function captureWorkerProbe(options = {}) {
   };
 }
 
-function defaultSmokeKindForAction(kind) {
-  if (kind === 'promote-skill') return 'skill-promotion';
-  if (kind === 'queue-side-quest') return 'side-quest';
-  return 'gate-approval';
-}
-
-function parseJsonText(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
-export async function captureSignedActionSmoke(options = {}) {
-  const cwd = options.cwd || process.cwd();
-  const tenant = options.tenant || 'cambium';
-  const workerUrl = normalizedUrl(options.workerUrl || DEFAULT_WORKER);
-  const env = options.env || process.env;
-  const home = options.home || homedir();
-  if (!options.allowNetwork) throw new Error('refusing signed-action smoke capture without --allow-network');
-  if (!options.allowMutation) throw new Error('refusing signed-action smoke capture without --allow-mutation');
-
-  const token = options.token || resolvePushToken(env, home);
-  if (!token) throw new Error('QUESTS_PUSH_TOKEN is required to capture the signed-action smoke');
-  const fetchImpl = options.fetchImpl || fetch;
-  if (typeof fetchImpl !== 'function') throw new Error('fetch is unavailable for signed-action smoke capture');
-
-  const capturedAt = options.capturedAt || new Date().toISOString();
-  const telegram = parseInitDataForProof(options.initData || initDataFromEnv(env), capturedAt);
-  const actionKind = requiredString(options.actionKind, 'action kind');
-  if (!GATE_ACTION_KINDS.includes(actionKind)) throw new Error(`action kind must be one of ${GATE_ACTION_KINDS.join(', ')}`);
-  const smokeKind = String(options.smokeKind || defaultSmokeKindForAction(actionKind)).trim();
-  if (!SIGNED_SMOKE_KINDS.includes(smokeKind)) throw new Error(`smoke kind must be one of ${SIGNED_SMOKE_KINDS.join(', ')}`);
-  const subject = requiredString(options.actionSubject, 'action subject');
-  const idempotencyKey = requiredString(options.actionIdempotencyKey, 'action idempotency key');
-  const operatorCommand = requiredString(options.operatorCommand, 'operator command');
-  const operatorAuditAbsolute = requiredExistingFile(cwd, options.operatorAuditPath, 'operator audit');
-  const miniAppEnvelopeAbsolute = requiredExistingFile(cwd, options.miniAppEnvelopePath, 'mini app envelope');
-  const visibleMarker = requiredString(options.visibleMarker, 'visible marker');
-  const envelopeText = readFileSync(miniAppEnvelopeAbsolute, 'utf8');
-  if (!envelopeText.includes(visibleMarker)) throw new Error('visible marker must appear in the mini app envelope file');
-  const visibleMarkerBinding = classifyVisibleMarkerBinding(visibleMarker, { subject, idempotencyKey });
-  if (!visibleMarkerBinding) {
-    throw new Error('visible marker must identify the ActionRequest, idempotency key, action subject, or Telegram receipt marker');
-  }
-
-  const submitBody = {
-    kind: actionKind,
-    subject,
-    initData: options.initData || initDataFromEnv(env),
-    evidence: String(options.actionEvidence || '').trim() || 'live signed-action smoke capture',
-    consequence: String(options.actionConsequence || '').trim() || `capture ${actionKind} smoke for ${subject}`,
-    reversibility: String(options.actionReversibility || '').trim() || 'queued action can be superseded until operator consumption',
-    idempotencyKey,
-  };
-  const submitResponse = await fetchImpl(`${workerUrl}/api/gate/${tenant}`, {
-    method: 'POST',
-    headers: {
-      accept: 'application/json',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(submitBody),
-  });
-  const submitText = await submitResponse.text();
-  const submitJson = parseJsonText(submitText);
-  const queuedId = String(submitJson?.queued || '');
-
-  const listPath = `/internal/gate/${tenant}`;
-  const listResponse = await fetchImpl(`${workerUrl}${listPath}`, {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      authorization: `Bearer ${token}`,
-    },
-  });
-  const listText = await listResponse.text();
-  const listJson = parseJsonText(listText);
-  const actions = Array.isArray(listJson?.actions) ? listJson.actions : [];
-  const sawQueuedAction = actions.some((action) => {
-    if (!isObject(action)) return false;
-    return String(action.id || '') === queuedId || String(action.idempotencyKey || '') === idempotencyKey;
-  });
-
-  return {
-    schema: 'cambium.signed-action-smoke.v1',
-    tenant,
-    capturedAt,
-    source: 'telegram-worker-operator-smoke',
-    workerUrl,
-    smokeKind,
-    telegram,
-    action: {
-      kind: actionKind,
-      subjectHash: sha256Text(subject),
-      idempotencyKeyHash: sha256Text(idempotencyKey),
-    },
-    phases: {
-      telegramSubmit: {
-        status: Number(submitResponse.status || 0),
-        queued: !!queuedId,
-        duplicate: !!submitJson?.duplicate,
-        queuedIdHash: sha256Text(queuedId),
-        responseSha256: responseTextHash(submitText),
-      },
-      workerList: {
-        status: Number(listResponse.status || 0),
-        sawQueuedAction,
-        queuedActionCount: actions.length,
-        bodySha256: responseTextHash(listText),
-      },
-      operatorConsume: {
-        command: operatorCommand,
-        checked: requiredNonNegativeIntegerOption(options.operatorChecked, 'operator checked'),
-        consumed: requiredNonNegativeIntegerOption(options.operatorConsumed, 'operator consumed'),
-        rejected: requiredNonNegativeIntegerOption(options.operatorRejected, 'operator rejected'),
-        auditSha256: sha256File(operatorAuditAbsolute),
-      },
-      miniAppRefresh: {
-        refreshed: true,
-        envelopeSha256: sha256File(miniAppEnvelopeAbsolute),
-        visibleMarkerHash: sha256Text(visibleMarker),
-        visibleMarkerBinding,
-      },
-    },
-    notes: [
-      'Captured by live-proof-readiness --capture-signed-smoke; private inputs, queue identifiers, Worker bodies, and local audit/envelope contents omitted.',
-    ],
-  };
-}
-
-function assessDeviceProof(cwd, path, options) {
-  const parsed = parseJsonArtifact(cwd, path);
-  if (!parsed.exists) {
-    return {
-      ready: false,
-      state: 'blocked',
-      detail: 'No live Telegram WebView proof artifact exists; local Chrome screenshots remain layout-only evidence.',
-      evidence: [],
-      missing: ['capture redacted cambium.tg-device-proof.v1 from a founder Telegram WebView session'],
-    };
-  }
-  if (parsed.error) {
-    return {
-      ready: false,
-      state: 'blocked',
-      detail: 'The Telegram WebView proof artifact could not be parsed.',
-      evidence: [],
-      missing: [parsed.error],
-    };
-  }
-  const verdict = validateDeviceProofArtifact(parsed.value, { cwd, ...options });
-  return {
-    ...verdict,
-    evidence: verdict.ready ? [path, ...(verdict.evidence || []).filter((entry) => entry !== path)] : [],
-  };
-}
-
 function assessWorkerProbe(cwd, path, options) {
   const parsed = parseJsonArtifact(cwd, path);
   if (!parsed.exists) {
@@ -1004,27 +524,27 @@ function assessWorkerProbe(cwd, path, options) {
   };
 }
 
-function assessSignedActionSmoke(cwd, path, options) {
+function assessSignedActionReceipt(cwd, path, options) {
   const parsed = parseJsonArtifact(cwd, path);
   if (!parsed.exists) {
     return {
       ready: false,
       state: 'blocked',
-      detail: 'No redacted signed-action smoke receipt exists; queue/consume/refresh proof remains a live follow-up.',
+      detail: 'No redacted in-app signed action receipt exists; founder-device proof remains a live follow-up.',
       evidence: [],
-      missing: ['capture redacted cambium.signed-action-smoke.v1 after Telegram signed action, Worker queue/list, operator consume, and mini app refresh'],
+      missing: [`perform one signed gate action inside the Telegram mini app and save the redacted ${RECEIPT_SCHEMA} receipt`],
     };
   }
   if (parsed.error) {
     return {
       ready: false,
       state: 'blocked',
-      detail: 'The signed-action smoke receipt could not be parsed.',
+      detail: 'The in-app signed action receipt could not be parsed.',
       evidence: [],
       missing: [parsed.error],
     };
   }
-  const verdict = validateSignedActionSmokeArtifact(parsed.value, options);
+  const verdict = validateSignedActionReceiptArtifact(parsed.value, options);
   return {
     ...verdict,
     evidence: verdict.ready ? [path, ...(verdict.evidence || []).filter((entry) => entry !== path)] : [],
@@ -1035,64 +555,10 @@ function item(id, label, state, detail, evidence, missing = []) {
   return { id, label, state, detail, evidence, missing };
 }
 
-function proofPathPrerequisite(cwd, path, id, label) {
-  if (!String(path || '').trim()) return { id, state: 'blocked', detail: `${label} path is required` };
-  try {
-    const relPath = proofAssetRelativePath(cwd, path, label);
-    const absolute = resolve(cwd, relPath);
-    return existsSync(absolute)
-      ? { id, state: 'ready', detail: `${relPath} exists under ${LIVE_PROOF_ASSET_DIR}` }
-      : { id, state: 'blocked', detail: `${relPath} must exist under ${LIVE_PROOF_ASSET_DIR}` };
-  } catch (error) {
-    return { id, state: 'blocked', detail: error instanceof Error ? error.message : String(error) };
-  }
-}
-
-function filePrerequisite(cwd, path, id, label) {
-  if (!String(path || '').trim()) return { id, state: 'blocked', detail: `${label} path is required` };
-  return existsSync(resolve(cwd, path))
-    ? { id, state: 'ready', detail: `${path} exists` }
-    : { id, state: 'blocked', detail: `${path} must exist` };
-}
-
-function valuePrerequisite(value, id, label) {
-  return String(value || '').trim()
-    ? { id, state: 'ready', detail: `${label} is supplied` }
-    : { id, state: 'blocked', detail: `${label} is required` };
-}
-
 function flagPrerequisite(value, id, flagName) {
   return value
     ? { id, state: 'ready', detail: `${flagName} supplied` }
     : { id, state: 'blocked', detail: `${flagName} is required for this capture` };
-}
-
-function countPrerequisite(value, id, label) {
-  if (value === undefined || value === null || String(value).trim() === '') {
-    return { id, state: 'blocked', detail: `${label} must be supplied` };
-  }
-  const n = Number(value);
-  return Number.isInteger(n) && n >= 0
-    ? { id, state: 'ready', detail: `${label}=${n}` }
-    : { id, state: 'blocked', detail: `${label} must be a non-negative integer` };
-}
-
-function visibleMarkerPrerequisite(cwd, envelopePath, visibleMarker, actionSubject = '', actionIdempotencyKey = '') {
-  const marker = String(visibleMarker || '').trim();
-  if (!marker) return { id: 'visible-marker', state: 'blocked', detail: 'visible marker is required' };
-  if (!String(envelopePath || '').trim()) return { id: 'visible-marker', state: 'blocked', detail: 'mini app envelope path is required before marker can be checked' };
-  const binding = classifyVisibleMarkerBinding(marker, { subject: actionSubject, idempotencyKey: actionIdempotencyKey });
-  if (!binding) {
-    return { id: 'visible-marker', state: 'blocked', detail: 'visible marker must identify the ActionRequest, idempotency key, action subject, or Telegram receipt marker' };
-  }
-  try {
-    const text = readFileSync(resolve(cwd, envelopePath), 'utf8');
-    return text.includes(marker)
-      ? { id: 'visible-marker', state: 'ready', detail: `visible marker appears in the mini app envelope as ${binding}` }
-      : { id: 'visible-marker', state: 'blocked', detail: 'visible marker must appear in the mini app envelope' };
-  } catch {
-    return { id: 'visible-marker', state: 'blocked', detail: 'mini app envelope must be readable before marker can be checked' };
-  }
 }
 
 function stepState(artifactReady, prerequisites) {
@@ -1102,57 +568,41 @@ function stepState(artifactReady, prerequisites) {
 
 function buildCapturePlan(options) {
   const {
-    cwd,
-    hasInitData,
+    hasPastedInitData,
     hasToken,
     allowNetwork,
-    allowMutation,
-    deviceProof,
+    receipt,
     workerProbe,
-    signedSmoke,
     workerUrl,
-    args,
   } = options;
-  const envInit = { id: 'fresh-telegram-init-data', state: hasInitData ? 'ready' : 'blocked', detail: hasInitData ? 'TELEGRAM_INIT_DATA or TG_INIT_DATA is present' : 'capture fresh TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView' };
+  const noPastedInitData = {
+    id: 'no-pasted-init-data',
+    state: hasPastedInitData ? 'blocked' : 'ready',
+    detail: hasPastedInitData
+      ? 'retired TELEGRAM_INIT_DATA or TG_INIT_DATA is present; unset it — pasted initData is rejected under readiness v2'
+      : 'no pasted initData env vars are present',
+  };
   const workerToken = { id: 'worker-token', state: hasToken ? 'ready' : 'blocked', detail: hasToken ? 'QUESTS_PUSH_TOKEN is available without printing it' : 'QUESTS_PUSH_TOKEN is required without storing it in artifacts' };
-  const devicePrerequisites = [
-    envInit,
-    proofPathPrerequisite(cwd, args.screenshotPath, 'screenshot-under-proof-dir', 'founder-device screenshot'),
-    valuePrerequisite(args.devicePlatform, 'device-platform', 'device platform'),
-    valuePrerequisite(args.webViewUrl, 'webview-url', 'WebView URL'),
-  ];
+  const receiptPrerequisites = [noPastedInitData];
   const workerPrerequisites = [
     workerToken,
     flagPrerequisite(allowNetwork, 'allow-network', '--allow-network'),
   ];
-  const signedPrerequisites = [
-    envInit,
-    workerToken,
-    flagPrerequisite(allowNetwork, 'allow-network', '--allow-network'),
-    flagPrerequisite(allowMutation, 'allow-mutation', '--allow-mutation'),
-    valuePrerequisite(args.actionKind, 'action-kind', 'action kind'),
-    valuePrerequisite(args.actionSubject, 'action-subject', 'action subject'),
-    valuePrerequisite(args.actionIdempotencyKey, 'action-idempotency-key', 'action idempotency key'),
-    valuePrerequisite(args.operatorCommand, 'operator-command', 'operator command'),
-    filePrerequisite(cwd, args.operatorAuditPath, 'operator-audit', 'operator audit'),
-    countPrerequisite(args.operatorChecked, 'operator-checked', 'operator checked'),
-    countPrerequisite(args.operatorConsumed, 'operator-consumed', 'operator consumed'),
-    countPrerequisite(args.operatorRejected, 'operator-rejected', 'operator rejected'),
-    filePrerequisite(cwd, args.miniAppEnvelopePath, 'miniapp-envelope', 'mini app envelope'),
-    visibleMarkerPrerequisite(cwd, args.miniAppEnvelopePath, args.visibleMarker, args.actionSubject, args.actionIdempotencyKey),
-  ];
   return {
-    schema: 'cambium.tg-live-proof-capture-plan.v1',
-    invariant: 'Capture commands create redacted receipts; they are proof only after their artifacts validate ready.',
+    schema: 'cambium.tg-live-proof-capture-plan.v2',
+    invariant: 'Founder-device proof is an in-app signed gate action receipt; the CLI never submits Telegram actions and pasted initData is rejected outright.',
     workerUrl,
     steps: [
       {
-        id: 'device-webview-proof',
-        writes: DEFAULT_DEVICE_PROOF,
-        state: stepState(deviceProof.ready, devicePrerequisites),
-        command: 'node workers/quests/src/live-proof-readiness.mjs --capture-device-proof --screenshot .artifacts/tg-miniapp-live-proof/<founder-device>.png --platform <ios|android|desktop> --webview-url <current Telegram WebView URL> --safe-area <notes> --write',
-        prerequisites: devicePrerequisites,
-        privacy: ['raw initData comes only from env', 'artifact stores user/initData/screenshot hashes only', 'WebView query and hash are omitted'],
+        id: 'in-app-signed-receipt',
+        writes: DEFAULT_RECEIPT,
+        state: stepState(receipt.ready, receiptPrerequisites),
+        command: 'Open the mini app inside Telegram, perform one signed gate action, and save the redacted receipt emitted by the in-app flow to .artifacts/tg-miniapp-live-proof/signed-action-smoke.json (--write-receipt-template scaffolds the shape)',
+        prerequisites: receiptPrerequisites,
+        privacy: [
+          'receipt stores hashes only: userIdHash, actionKind, subjectHash, idempotencyHash, workerVersionId, capturedAt',
+          'no raw initData, raw user ids, or query strings are accepted',
+        ],
       },
       {
         id: 'worker-list-proof',
@@ -1161,14 +611,6 @@ function buildCapturePlan(options) {
         command: 'node workers/quests/src/live-proof-readiness.mjs --capture-worker-probe --allow-network --write',
         prerequisites: workerPrerequisites,
         privacy: ['Worker credential is used only as an authorization header', 'artifact stores status, response shape, counts, and body digest only'],
-      },
-      {
-        id: 'signed-action-smoke',
-        writes: DEFAULT_SIGNED_SMOKE,
-        state: stepState(signedSmoke.ready, signedPrerequisites),
-        command: 'node workers/quests/src/live-proof-readiness.mjs --capture-signed-smoke --allow-network --allow-mutation --action-kind <kind> --action-subject <subject> --action-idempotency-key <key> --operator-command "<consumer command>" --operator-audit <audit-file> --operator-checked <n> --operator-consumed <n> --operator-rejected <n> --miniapp-envelope <refreshed-envelope-file> --visible-marker <visible-card-marker> --write',
-        prerequisites: signedPrerequisites,
-        privacy: ['raw initData is sent only in the Telegram submit body', 'Worker credential is used only for the internal list request', 'proof tool does not consume the queue', 'artifact stores hashes, counts, status codes, and digests only'],
       },
     ],
   };
@@ -1183,12 +625,12 @@ export function assessLiveProofReadiness(options = {}) {
   const workerUrl = options.workerUrl || env.QUESTS_WORKER_URL || DEFAULT_WORKER;
   const generatedAt = options.generatedAt || new Date().toISOString();
   const hasToken = hasAnyEnv(env, ['QUESTS_PUSH_TOKEN']) || readEnvFileToken(home);
-  const hasInitData = hasAnyEnv(env, ['TELEGRAM_INIT_DATA', 'TG_INIT_DATA']);
-  const deviceProofPath = options.deviceProofPath || DEFAULT_DEVICE_PROOF;
-  const deviceProof = assessDeviceProof(cwd, deviceProofPath, {
+  const hasPastedInitData = hasAnyEnv(env, RETIRED_INITDATA_ENV_NAMES);
+  const receiptPath = options.receiptPath || DEFAULT_RECEIPT;
+  const receipt = assessSignedActionReceipt(cwd, receiptPath, {
     tenant,
     generatedAt,
-    maxAgeSec: options.deviceProofMaxAgeSec ?? DEFAULT_DEVICE_PROOF_MAX_AGE_SEC,
+    maxAgeSec: options.receiptMaxAgeSec ?? DEFAULT_RECEIPT_MAX_AGE_SEC,
   });
   const workerProbePath = options.workerProbePath || DEFAULT_WORKER_PROBE;
   const workerProbe = assessWorkerProbe(cwd, workerProbePath, {
@@ -1196,13 +638,6 @@ export function assessLiveProofReadiness(options = {}) {
     generatedAt,
     workerUrl,
     maxAgeSec: options.workerProbeMaxAgeSec ?? DEFAULT_WORKER_PROBE_MAX_AGE_SEC,
-  });
-  const signedSmokePath = options.signedSmokePath || DEFAULT_SIGNED_SMOKE;
-  const signedSmoke = assessSignedActionSmoke(cwd, signedSmokePath, {
-    tenant,
-    generatedAt,
-    workerUrl,
-    maxAgeSec: options.signedSmokeMaxAgeSec ?? DEFAULT_WORKER_PROBE_MAX_AGE_SEC,
   });
   const chrome = env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   const viewportManifestPath = 'docs/plans/assets/tg-miniapp-viewport-proof/manifest.json';
@@ -1227,22 +662,22 @@ export function assessLiveProofReadiness(options = {}) {
 
   const items = [
     item(
-      'telegram-init-data',
-      'Real Telegram initData available',
-      hasInitData ? 'ready' : 'blocked',
-      hasInitData
-        ? 'A real Telegram WebView initData value is present in the environment; value is redacted.'
-        : 'No real Telegram WebView initData is present, so signed founder actions cannot be proven live.',
-      hasInitData ? ['env:TELEGRAM_INIT_DATA or env:TG_INIT_DATA present'] : [],
-      hasInitData ? [] : ['TELEGRAM_INIT_DATA or TG_INIT_DATA from a founder Telegram WebView session'],
+      'no-pasted-init-data',
+      'Manual initData ritual retired',
+      hasPastedInitData ? 'blocked' : 'ready',
+      hasPastedInitData
+        ? 'TELEGRAM_INIT_DATA or TG_INIT_DATA is present in the environment; pasted initData is rejected under readiness v2.'
+        : 'No pasted Telegram initData is present; founder-device proof comes from the in-app signed action receipt.',
+      hasPastedInitData ? ['retired initData env variable present (value never read)'] : [],
+      hasPastedInitData ? ['unset TELEGRAM_INIT_DATA and TG_INIT_DATA; capture the in-app signed action receipt instead'] : [],
     ),
     item(
-      'telegram-device-artifact',
-      'Founder device WebView artifact captured',
-      deviceProof.state,
-      deviceProof.detail,
-      deviceProof.evidence || [],
-      deviceProof.missing || [],
+      'founder-device-receipt',
+      'Founder device in-app signed receipt captured',
+      receipt.state,
+      receipt.detail,
+      receipt.evidence || [],
+      receipt.missing || [],
     ),
     item(
       'worker-token',
@@ -1354,36 +789,18 @@ export function assessLiveProofReadiness(options = {}) {
 
   const ready = items.filter((entry) => entry.state === 'ready').length;
   const blocked = items.length - ready;
-  const liveRequired = ['telegram-init-data', 'telegram-device-artifact', 'worker-token', 'worker-network-probe'];
+  const liveRequired = ['no-pasted-init-data', 'founder-device-receipt', 'worker-token', 'worker-network-probe'];
   const liveReady = liveRequired.every((id) => items.find((entry) => entry.id === id)?.state === 'ready');
   const capturePlan = buildCapturePlan({
-    cwd,
-    hasInitData,
+    hasPastedInitData,
     hasToken,
     allowNetwork,
-    allowMutation: !!options.allowMutation,
-    deviceProof,
+    receipt,
     workerProbe,
-    signedSmoke,
     workerUrl,
-    args: {
-      screenshotPath: options.screenshotPath || '',
-      devicePlatform: options.devicePlatform || options.platform || '',
-      webViewUrl: options.webViewUrl || '',
-      actionKind: options.actionKind || '',
-      actionSubject: options.actionSubject || '',
-      actionIdempotencyKey: options.actionIdempotencyKey || '',
-      operatorCommand: options.operatorCommand || '',
-      operatorAuditPath: options.operatorAuditPath || '',
-      operatorChecked: options.operatorChecked,
-      operatorConsumed: options.operatorConsumed,
-      operatorRejected: options.operatorRejected,
-      miniAppEnvelopePath: options.miniAppEnvelopePath || '',
-      visibleMarker: options.visibleMarker || '',
-    },
   });
   return {
-    schema: 'cambium.tg-live-proof-readiness.v1',
+    schema: 'cambium.tg-live-proof-readiness.v2',
     generatedAt,
     tenant,
     workerUrl,
@@ -1394,20 +811,9 @@ export function assessLiveProofReadiness(options = {}) {
       total: items.length,
       liveProofReady: liveReady,
     },
-    invariant: 'Local deterministic smokes and Chrome viewport screenshots do not prove live Telegram WebView or production Worker KV behavior.',
+    invariant: 'Local deterministic smokes and Chrome viewport screenshots do not prove live Telegram WebView or production Worker KV behavior; founder-device proof is the redacted in-app signed action receipt.',
     items,
     capturePlan,
-    followups: {
-      signedActionSmoke: {
-        schema: 'cambium.signed-action-smoke-readiness.v1',
-        path: signedSmokePath,
-        state: signedSmoke.state,
-        detail: signedSmoke.detail,
-        evidence: signedSmoke.evidence || [],
-        missing: signedSmoke.missing || [],
-        invariant: 'Signed action smoke receipts prove mutating Telegram queue/consume/refresh paths and are tracked separately from the base live WebView/Worker readiness gate.',
-      },
-    },
   };
 }
 
@@ -1415,20 +821,6 @@ export function writeReadinessManifest(report, outPath = DEFAULT_OUT, cwd = proc
   const absolute = resolve(cwd, outPath);
   mkdirSync(resolve(absolute, '..'), { recursive: true });
   writeFileSync(absolute, JSON.stringify(report, null, 2) + '\n');
-  return absolute;
-}
-
-export function writeDeviceProofTemplate(template, outPath = DEFAULT_DEVICE_TEMPLATE, cwd = process.cwd()) {
-  const absolute = resolve(cwd, outPath);
-  mkdirSync(resolve(absolute, '..'), { recursive: true });
-  writeFileSync(absolute, JSON.stringify(template, null, 2) + '\n');
-  return absolute;
-}
-
-export function writeDeviceProofArtifact(artifact, outPath = DEFAULT_DEVICE_PROOF, cwd = process.cwd()) {
-  const absolute = resolve(cwd, outPath);
-  mkdirSync(resolve(absolute, '..'), { recursive: true });
-  writeFileSync(absolute, JSON.stringify(artifact, null, 2) + '\n');
   return absolute;
 }
 
@@ -1446,14 +838,14 @@ export function writeWorkerProbeArtifact(artifact, outPath = DEFAULT_WORKER_PROB
   return absolute;
 }
 
-export function writeSignedActionSmokeTemplate(template, outPath = DEFAULT_SIGNED_SMOKE_TEMPLATE, cwd = process.cwd()) {
+export function writeSignedActionReceiptTemplate(template, outPath = DEFAULT_RECEIPT_TEMPLATE, cwd = process.cwd()) {
   const absolute = resolve(cwd, outPath);
   mkdirSync(resolve(absolute, '..'), { recursive: true });
   writeFileSync(absolute, JSON.stringify(template, null, 2) + '\n');
   return absolute;
 }
 
-export function writeSignedActionSmokeArtifact(artifact, outPath = DEFAULT_SIGNED_SMOKE, cwd = process.cwd()) {
+export function writeSignedActionReceiptArtifact(artifact, outPath = DEFAULT_RECEIPT, cwd = process.cwd()) {
   const absolute = resolve(cwd, outPath);
   mkdirSync(resolve(absolute, '..'), { recursive: true });
   writeFileSync(absolute, JSON.stringify(artifact, null, 2) + '\n');
@@ -1462,24 +854,6 @@ export function writeSignedActionSmokeArtifact(artifact, outPath = DEFAULT_SIGNE
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  if (args.captureDeviceProof) {
-    const artifact = captureDeviceProof({
-      cwd: args.cwd,
-      tenant: args.tenant,
-      env: process.env,
-      screenshotPath: args.screenshotPath,
-      webViewUrl: args.webViewUrl,
-      platform: args.devicePlatform,
-      safeArea: args.safeArea,
-    });
-    const verdict = validateDeviceProofArtifact(artifact, {
-      cwd: args.cwd,
-      tenant: args.tenant,
-      generatedAt: artifact.capturedAt,
-    });
-    if (!verdict.ready) throw new Error(`captured device proof is incomplete: ${verdict.missing.join('; ')}`);
-    writeDeviceProofArtifact(artifact, args.deviceProofPath, args.cwd);
-  }
   if (args.captureWorkerProbe) {
     const artifact = await captureWorkerProbe({
       tenant: args.tenant,
@@ -1490,47 +864,8 @@ async function main() {
     });
     writeWorkerProbeArtifact(artifact, args.workerProbePath, args.cwd);
   }
-  if (args.captureSignedSmoke) {
-    const artifact = await captureSignedActionSmoke({
-      cwd: args.cwd,
-      tenant: args.tenant,
-      workerUrl: args.workerUrl,
-      allowNetwork: args.allowNetwork,
-      allowMutation: args.allowMutation,
-      env: process.env,
-      home: homedir(),
-      smokeKind: args.smokeKind,
-      actionKind: args.actionKind,
-      actionSubject: args.actionSubject,
-      actionEvidence: args.actionEvidence,
-      actionConsequence: args.actionConsequence,
-      actionReversibility: args.actionReversibility,
-      actionIdempotencyKey: args.actionIdempotencyKey,
-      operatorCommand: args.operatorCommand,
-      operatorAuditPath: args.operatorAuditPath,
-      operatorChecked: args.operatorChecked,
-      operatorConsumed: args.operatorConsumed,
-      operatorRejected: args.operatorRejected,
-      miniAppEnvelopePath: args.miniAppEnvelopePath,
-      visibleMarker: args.visibleMarker,
-    });
-    const verdict = validateSignedActionSmokeArtifact(artifact, {
-      tenant: args.tenant,
-      workerUrl: args.workerUrl,
-      generatedAt: artifact.capturedAt,
-    });
-    if (!verdict.ready) throw new Error(`captured signed-action smoke is incomplete: ${verdict.missing.join('; ')}`);
-    writeSignedActionSmokeArtifact(artifact, args.signedSmokePath, args.cwd);
-  }
   const report = assessLiveProofReadiness(args);
   if (args.write) writeReadinessManifest(report, args.out, args.cwd);
-  if (args.writeDeviceTemplate) {
-    writeDeviceProofTemplate(
-      createDeviceProofTemplate({ tenant: args.tenant, generatedAt: report.generatedAt }),
-      args.deviceTemplateOut,
-      args.cwd,
-    );
-  }
   if (args.writeWorkerTemplate) {
     writeWorkerProbeTemplate(
       createWorkerProbeTemplate({ tenant: args.tenant, workerUrl: args.workerUrl, generatedAt: report.generatedAt }),
@@ -1538,10 +873,10 @@ async function main() {
       args.cwd,
     );
   }
-  if (args.writeSignedSmokeTemplate) {
-    writeSignedActionSmokeTemplate(
-      createSignedActionSmokeTemplate({ tenant: args.tenant, workerUrl: args.workerUrl, generatedAt: report.generatedAt }),
-      args.signedSmokeTemplateOut,
+  if (args.writeReceiptTemplate) {
+    writeSignedActionReceiptTemplate(
+      createSignedActionReceiptTemplate({ tenant: args.tenant, generatedAt: report.generatedAt }),
+      args.receiptTemplateOut,
       args.cwd,
     );
   }

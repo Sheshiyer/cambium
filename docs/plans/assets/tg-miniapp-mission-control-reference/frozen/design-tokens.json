@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "name": "cambium-tg-miniapp",
+    "version": "1.0.0",
+    "description": "Frozen design tokens for the Cambium Telegram Mini App mission-control redesign. Derived from the verified design-system and atlas boards with zero color deltas at native resolution.",
+    "sourceBoard": {
+      "spec": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/04-tokens-and-atlas.md",
+      "motionSpec": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/03-motion-spec.md",
+      "designSystemBoard": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/cambium-design-system-source.png",
+      "atlasBoard": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/cambium-atlas-source.png"
+    },
+    "frozenAt": "2026-07-24"
+  },
+  "color": {
+    "deepBase": "#00272B",
+    "surface": "#012F34",
+    "accent": "#E0FF4F",
+    "highlight": "#D6FFF6",
+    "void": "#231651",
+    "paper": "#F5F3E8",
+    "warning": "#FFC7A1"
+  },
+  "type": {
+    "family": {
+      "display": {
+        "role": "condensed-sans",
+        "note": "Exact font family name not determinable from board; role token only."
+      },
+      "body": {
+        "role": "condensed-sans",
+        "note": "Exact font family name not determinable from board; role token only."
+      },
+      "mono": {
+        "role": "mono",
+        "use": "data readouts, telemetry rows, stat chips"
+      }
+    },
+    "scale": {
+      "h1": { "size": 64, "lineHeight": 72, "tracking": -0.02 },
+      "h2": { "size": 40, "lineHeight": 48, "tracking": -0.01 },
+      "h3": { "size": 28, "lineHeight": 36, "tracking": -0.01 },
+      "h4": { "size": 20, "lineHeight": 28, "tracking": 0 },
+      "body": { "size": 14, "lineHeight": 20, "tracking": 0 },
+      "caps": { "size": 12, "lineHeight": 16, "tracking": 0.06, "trackingMax": 0.08 },
+      "micro": { "size": 10, "lineHeight": 14, "tracking": 0.08, "trackingMax": 0.12 },
+      "data": { "size": 10, "lineHeight": 14, "tracking": 0.08, "familyRole": "mono" }
+    }
+  },
+  "grid": {
+    "baseUnit": 8,
+    "column": 8
+  },
+  "spacing": [8, 16, 24, 32, 48, 64],
+  "radius": [2, 4, 8, 16],
+  "elevation": {
+    "0": "flat",
+    "1": "raised",
+    "2": "high",
+    "4": "float"
+  },
+  "state": {
+    "active": "accent",
+    "blocked": "warning",
+    "pending": "dashed-highlight",
+    "locked": "dim",
+    "stale": "dim-dotted",
+    "complete": "accent-ring",
+    "selected": "accent-double-halo"
+  },
+  "motion": {
+    "named": ["orbitSweep", "packetDrift", "glyphBreathe", "warningAttention", "reducedMotion"],
+    "orbitSweep": {
+      "semantics": "arc grows clockwise from top; pending ring = dotted track beneath",
+      "usedBy": ["proof-orbit", "selected-branch"]
+    },
+    "packetDrift": {
+      "semantics": "active progression along a rail; ghosted trailing dots + directional arrows",
+      "usedBy": ["questline-progress", "packet-rail"]
+    },
+    "glyphBreathe": {
+      "semantics": "subtle glyph emphasis; pairs with orbitSweep on selection",
+      "usedBy": ["selected-branch"]
+    },
+    "warningAttention": {
+      "semantics": "persistent peach stroke + warning icon change only; never pulsing",
+      "usedBy": ["questline-blocked", "gate-attention"]
+    },
+    "reducedMotion": {
+      "semantics": "canonical fallback: remove translation and ghosting; keep static state dots",
+      "usedBy": ["all"]
+    },
+    "rules": {
+      "maxSimultaneous": 2,
+      "noFlashing": true,
+      "noMotionBlur": true,
+      "maxAnimatedFocalPointsPerScreen": 1,
+      "easing": "slow calm cubic",
+      "warningIsPersistentNotPulsing": true
+    }
+  }
+}

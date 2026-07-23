@@ -20,7 +20,7 @@ Glyphs are identity marks, not buttons; labels stay text-first for accessibility
 | State | Visual |
 |---|---|
 | `idle` | all elements desaturated teal/grey, dim; no ring, no badges |
-| `active` | chartreuse partial arc (~270°) on orbit + 3 chartreuse packet dots on rails; "active" label in chartreuse |
+| `active` | chartreuse partial arc (~270°) on orbit + chartreuse packet dots on rails/arc; "active" label in chartreuse |
 | `selected` | double chartreuse halo: full thin outer ring + full inner ring, concentric |
 | `complete` | full thin chartreuse ring + chartreuse check badge (circle+checkmark) top-right; packets settled as trail |
 | `blocked` | entire scene re-tinted peach; orbit becomes **dashed** peach arc; peach warning-triangle badge top-right; glyph cores glow peach |
@@ -32,10 +32,10 @@ Glyphs are identity marks, not buttons; labels stay text-first for accessibility
 Track: dashed mint, low opacity. Fill: solid chartreuse arc clockwise from 12 o'clock. Variants: 0% (track only) / 25% / 50% / 75% / 100% (full solid ring) / **blocked** (peach dashed track, no fill, peach warning triangle centered) / **stale** (faint dashed track, dimmer nodes, no fill). Never color alone — pair with label or `%` readout.
 
 ## BranchArcChip (pill, full radius, ~28px tall)
-Glyph icon + mono count ("9/17") + 1px vertical divider + branch label. Mint text, hairline border, transparent/surface fill. Selected: chartreuse stroke + chartreuse text.
+Glyph icon + mono count ("9/17", chartreuse) + 1px vertical divider + branch label ("Genesis", mint). Hairline border, transparent/surface fill. Board depicts a single chip; no separate selected/unselected variants shown.
 
 ## MissionCard (8px radius, surface fill, 1px border, faint contour texture)
-Left text column + right constellation thumbnail (node-graph on dark field, one chartreuse active node): eyebrow caps label (chartreuse), title (mint, medium), 4 mono label/value rows (Owner/Gate/Dispatch/Promotion).
+Left text column + right constellation thumbnail (node-graph on dark field, one chartreuse active node): title ("Launch proof packet", mint, medium) + 4 mono label/value rows (Owner/Gate/Dispatch/Promotion). No separate eyebrow line on board.
 
 ## QuestlineTimeline (horizontal dashed rail, 4–6 stations)
 Station = icon + 2-line mono caption (name / state-word). Canonical set: check-circle "Seed/complete" (mint) → filled target ring "Packet/active" (chartreuse) → warning triangle "Proof/blocked" (peach) → padlock "Launch/locked" (dim mint). Connectors: solid chartreuse behind complete→active; dashed muted past the active node.
@@ -44,12 +44,14 @@ Station = icon + 2-line mono caption (name / state-word). Canonical set: check-c
 Dotted-circle outline icon + mint founder-readable label ("Deploy URL", "Viewport capture", "Evidence receipt") + right chevron `›`; hairline separators. Raw routes/schemas never appear here — Inspect only.
 
 ## KpiPulse (stacked rows)
-Row = concentric dotted-ring badge + 2-line mono label ("Survival:/qualified waitlist", "Better:/paid pilot") + right-aligned spark-bar chart (~18 thin chartreuse bars, varied heights).
+Row = concentric dotted-ring badge + 2-line mono label ("Survival:/qualified waitlist", "Better:/paid pilot") + right-aligned spark-bar chart (~15 thin chartreuse bars, varied heights).
 
 ## GateActionRow (bottom actions)
 Primary: solid `#E0FF4F` fill, `#00272B` text ("Review Gate"), 8px radius. Secondary: transparent fill, 1px chartreuse border, chartreuse text ("Open Proof").
 
 ## Legend vocabulary (frozen)
-`node` = rosette · `rail` = curved connector with dots · `packet` = dotted trail of small chartreuse squares · `orbit` = dashed mint circle · `selected` = solid chartreuse ring · `warning` = peach triangle outline with "!" · `locked` = mint padlock · `stale` = faint dotted ring.
+`node` = rosette · `rail` = curved connector with dots · `packet` = dotted trail of small chartreuse squares · `orbit` = dashed mint circle · `active` = solid chartreuse ring · `warning` = peach triangle outline with "!" · `locked` = mint padlock · `stale` = faint dotted ring.
 
 *Not determinable from image: exact px font sizes, dash-gap ratios, exact opacities — treat above as proportional; colors map to the named token palette.*
+
+## Ratification — 2026-07-24, P1-W1: verified against `01-component-glyph-state-board.png` (full resolution + region crops of legend, MissionCard, BranchArcChip, Cortex, active state, OrbitProgress, KpiPulse); corrections: (1) Legend vocabulary — solid chartreuse ring label is `active` on this board, not `selected` (note: board 03's primitive legend labels the same ring `selected` — cross-board naming divergence flagged for contract owner); (2) BranchArcChip — removed unverifiable "Selected: chartreuse stroke + chartreuse text" variant claim; board shows a single chip (chartreuse count "9/17", mint label, hairline border); (3) MissionCard — removed claimed chartreuse eyebrow caps line; board shows title "Launch proof packet" + 4 label/value rows only; (4) active state — removed exact "3 packet dots" count (arc carries ~4–5 glow dots incl. endpoints; count not reliably determinable); (5) KpiPulse spark-bar count ~18 → ~15 per board crop; status: RATIFIED
