@@ -1,0 +1,94 @@
+{
+  "contract": "tg-miniapp-scene/v1",
+  "sceneId": "mission",
+  "tabIndex": 0,
+  "label": "Mission",
+  "sceneRoot": "#stem",
+  "refreshRoute": "GET /api/quests/{tenant}",
+  "wordCap": 90,
+  "governingContracts": [
+    "docs/architecture/contracts/tg-miniapp-contract-v2.md §1 (product-branch-packets@v1, quest-ledger-envelope@v1)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/01-component-anatomy.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/02-screen-composition.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/04-tokens-and-atlas.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/05-copy-budget.md"
+  ],
+  "envelopes": [
+    {
+      "name": "quest-envelope.branchStories",
+      "schema": "product-branch-packets@v1",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Operator packet build",
+      "consumedFor": "branch arc chips, selected branch, next mission, questline, proof rows, KPIs, promotion, organ routing"
+    },
+    {
+      "name": "quest-envelope.ledger",
+      "schema": "quest-ledger-envelope@v1",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Quest ledger",
+      "consumedFor": "progress summary (completed/total) and frontier line"
+    },
+    {
+      "name": "quest-envelope.freshness + derivedAt",
+      "schema": "served composite envelope header",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Worker KV quest store",
+      "consumedFor": "staleness notice; 360-minute threshold; older envelopes never repaint"
+    }
+  ],
+  "components": [
+    "BranchArcChip",
+    "MissionCard",
+    "MissionGlyph",
+    "StateToken",
+    "OrbitProgress",
+    "QuestlineTimeline",
+    "ProofList",
+    "KpiPulse",
+    "GateActionRow",
+    "SignalRail",
+    "PacketFlow",
+    "SelectedHalo"
+  ],
+  "dataFields": [
+    { "field": "branchStories.rows", "type": "array<BranchPacket>", "source": "quest-envelope.branchStories.rows (GET /api/quests/{tenant})", "required": true, "fallback": "EMPTY panel: waiting for branch packets + Refresh/Inspect CTAs" },
+    { "field": "branchStories.rows[].branchId", "type": "string (branchId | productId | arcId)", "source": "branchStories.rows[]", "required": true, "fallback": "synthesized 'branch-{index+1}' label" },
+    { "field": "branchStories.rows[].name", "type": "string", "source": "branchStories.rows[].name | productId", "required": false, "fallback": "'Product Branch'" },
+    { "field": "branchStories.rows[].arcTitle", "type": "string", "source": "branchStories.rows[].arcTitle", "required": false, "fallback": "'branch arc'" },
+    { "field": "branchStories.rows[].missions[]", "type": "array<{missionId, title, owner, gate, proofRequired, dispatchTarget, status}>", "source": "branchStories.rows[].missions", "required": true, "fallback": "MissionCard in blocked state: 'Mission queue missing', dispatchTarget 'inspect'" },
+    { "field": "branchStories.rows[].gates[]", "type": "array<{gate, status}>", "source": "branchStories.rows[].gates", "required": false, "fallback": "mission state derives from mission.status with 'pending' default" },
+    { "field": "branchStories.rows[].vision.statement", "type": "string", "source": "branchStories.rows[].vision.statement", "required": false, "fallback": "'vision statement missing'" },
+    { "field": "branchStories.rows[].icp.primary", "type": "string", "source": "branchStories.rows[].icp.primary", "required": false, "fallback": "'ICP missing'" },
+    { "field": "branchStories.rows[].promotion", "type": "{state, currentGate, rule}", "source": "branchStories.rows[].promotion", "required": false, "fallback": "state 'proof-only', rule 'proof first; no promotion without foldback evidence'" },
+    { "field": "branchStories.rows[].controls.organRouting[]", "type": "array<{organ, currentGate, status, proofPath, owner}>", "source": "branchStories.rows[].controls.organRouting", "required": false, "fallback": "neutral organ fallback: glyph 'arc', idle state" },
+    { "field": "branchStories.rows[].source", "type": "{status, freshness, staleReason, packetFile, indexFile, schema}", "source": "branchStories.rows[].source", "required": false, "fallback": "feeds branch state text; Inspect link shows 'source packet missing'" },
+    { "field": "branchStories.rows[].freshness", "type": "{status, state, detail}", "source": "branchStories.rows[].freshness", "required": false, "fallback": "feeds stale detection via state text scan" },
+    { "field": "branchStories.source + branchStories.staleReason", "type": "string", "source": "quest-envelope.branchStories", "required": false, "fallback": "source defaults 'product-branch-packets@v1'; staleDetail from envelope freshness" },
+    { "field": "branchStories.rows[].kpis[]", "type": "array<{label, currentState, survival, betterThanSurvival}>", "source": "branchStories.rows[].kpis (packet KPI rows)", "required": false, "fallback": "single KpiPulse row 'KPI missing / not proven / survival threshold missing'" },
+    { "field": "branchStories.rows[].proof[]", "type": "array<{label, state, detail, source}>", "source": "branchStories.rows[] proof requirement rows (normalized by mcProofNeeded)", "required": false, "fallback": "ProofList row 'Proof requirement missing' in proof-needed alias state" },
+    { "field": "ledger.completed", "type": "number", "source": "quest-envelope.ledger.completed", "required": true, "fallback": "0; progress bar width 0%" },
+    { "field": "ledger.total", "type": "number", "source": "quest-envelope.ledger.total", "required": true, "fallback": "0; summary shows branch arc count instead of quest count" },
+    { "field": "derivedAt", "type": "string (ISO 8601)", "source": "quest-envelope.derivedAt", "required": true, "fallback": "treated as stale; stale notice renders" },
+    { "field": "freshness", "type": "{state, detail}", "source": "quest-envelope.freshness", "required": false, "fallback": "staleness derived from derivedAt age > 360 min" }
+  ],
+  "states": {
+    "renders": ["idle", "active", "selected", "complete", "blocked", "locked", "stale", "reducedMotion"],
+    "aliases": { "proof-needed": "dashed hollow ring treatment (frozen/02 STATE STACK 'Proof needed' row); maps through mcStateKind" },
+    "derivation": {
+      "selected": "focused branch chip (MISSION_BRANCH_FOCUS or ?branch=) — SelectedHalo on branch-chip",
+      "active": "branch/mission with unverified current gate — chartreuse arc + packet dots",
+      "complete": "questline stage or gate with status verified/complete/done",
+      "blocked": "gate status blocked/warning/gap/missing, or mission-gap fallback — full peach re-tint",
+      "locked": "questline stage past active node, or ts-style locked status — dim padlock",
+      "stale": "branch/envelope freshness stale or derivedAt older than 360 min — desaturated + stale notice",
+      "idle": "neutral organ fallback or branch with no state signal",
+      "reducedMotion": "prefers-reduced-motion: static orbit, no packetDrift/glyphBreathe"
+    }
+  },
+  "panelBehavior": {
+    "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing branch packets / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
+    "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + node icon; 'Mission control is waiting for branch packets.' + Refresh (outline) + Inspect (outline)", "trigger": "branchStories.rows empty or missing" },
+    "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'ledger unreachable — pull down to retry' + Retry outline button; no local write", "trigger": "GET /api/quests/{tenant} rejects" }
+  },
+  "fixtures": "workers/quests/src/page/scenes/fixtures/mission.fixture.json"
+}

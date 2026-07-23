@@ -1,0 +1,87 @@
+{
+  "contract": "tg-miniapp-scene/v1",
+  "sceneId": "story",
+  "tabIndex": 3,
+  "label": "Story",
+  "sceneRoot": "#beats",
+  "refreshRoute": "GET /api/quests/{tenant}",
+  "wordCap": 70,
+  "governingContracts": [
+    "docs/architecture/contracts/tg-miniapp-contract-v2.md §1 (quest-ledger-envelope@v1 → Story; ActionRequest projection)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/01-component-anatomy.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/04-tokens-and-atlas.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/05-copy-budget.md (≤ 70 words; beats as signal rows with state tokens)"
+  ],
+  "envelopes": [
+    {
+      "name": "quest-envelope.beats",
+      "schema": "mission-story@v1 (served beat rows)",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Operator narrative / story build",
+      "consumedFor": "beat cards, hero latest-change, digest counts, timeline rail"
+    },
+    {
+      "name": "quest-envelope.actionRequests",
+      "schema": "thoughtseed.action-request-list-item.v1 projection",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "ActionRequest records",
+      "consumedFor": "projected story beats (status → Mission wins / Drift / New signals)"
+    },
+    {
+      "name": "quest-envelope.ledger",
+      "schema": "quest-ledger-envelope@v1",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Quest ledger",
+      "consumedFor": "fallback beats from completed ledger rows when no beats served"
+    },
+    {
+      "name": "quest-envelope.branchStories + freshness",
+      "schema": "product-branch-packets@v1 + envelope header",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Operator packet build",
+      "consumedFor": "branch filter chips, stale banner"
+    }
+  ],
+  "components": [
+    "MissionGlyph",
+    "StateToken",
+    "BranchArcChip",
+    "PacketFlow",
+    "SignalRail",
+    "SelectedHalo"
+  ],
+  "dataFields": [
+    { "field": "beats[]", "type": "array<StoryBeat>", "source": "quest-envelope.beats", "required": false, "fallback": "ActionRequest beats → ledger-complete beats → EMPTY panel" },
+    { "field": "beats[].text", "type": "string", "source": "quest-envelope.beats[].text", "required": true, "fallback": "'Story beat text missing' (also drives contradiction scan)" },
+    { "field": "beats[].lane", "type": "enum (heartbeat | paperclip | forge | noesis | quest | action-request | beat)", "source": "quest-envelope.beats[].lane", "required": false, "fallback": "'beat' (noesis flag → 'noesis')" },
+    { "field": "beats[].noesis", "type": "boolean", "source": "quest-envelope.beats[].noesis", "required": false, "fallback": "false" },
+    { "field": "beats[].group | storyGroup | kind", "type": "string", "source": "quest-envelope.beats[] group hints", "required": false, "fallback": "group classified from lane + text scan into Mission wins / New signals / Lessons / Drift" },
+    { "field": "beats[].proof | evidence", "type": "string", "source": "quest-envelope.beats[] proof fields", "required": false, "fallback": "state alias 'proof-needed'; cue 'Review evidence' / 'Proof needed'" },
+    { "field": "beats[].branchId | branch | productId | clientName", "type": "string", "source": "quest-envelope.beats[] branch fields", "required": false, "fallback": "beat lands under 'unassigned' branch filter chip" },
+    { "field": "beats[].source", "type": "string", "source": "quest-envelope.beats[].source", "required": false, "fallback": "lane-derived source (paperclipActivityBeats / quest-ledger / world.log / cambium-action-requests@v1 / operator-narrative)" },
+    { "field": "beats[].outcome | result | detail", "type": "string", "source": "quest-envelope.beats[] outcome fields", "required": false, "fallback": "group default ('Mission moved' / 'Lesson captured' / 'Needs follow-up' / 'New signal')" },
+    { "field": "beats[].followup", "type": "string", "source": "quest-envelope.beats[].followup", "required": false, "fallback": "group default follow-up line" },
+    { "field": "actionRequests.rows[]", "type": "array<ActionRequestListItem>", "source": "quest-envelope.actionRequests.rows", "required": false, "fallback": "no projected ActionRequest beats" },
+    { "field": "ledger.rows[]", "type": "array<{title, evidence, status}>", "source": "quest-envelope.ledger.rows (status complete only)", "required": false, "fallback": "no fallback beats; EMPTY panel if beats and actionRequests also empty" },
+    { "field": "branchStories.rows[]", "type": "array<BranchPacket>", "source": "quest-envelope.branchStories.rows", "required": false, "fallback": "single 'all branches' filter chip (+ 'unassigned' if any beat lacks a branch)" },
+    { "field": "derivedAt + freshness", "type": "string (ISO 8601) + {state, detail}", "source": "quest-envelope header", "required": false, "fallback": "stale banner renders: 'Last story check is stale. Refresh before using these beats for a decision.'" }
+  ],
+  "states": {
+    "renders": ["idle", "active", "complete", "blocked", "stale", "reducedMotion"],
+    "aliases": { "proof-needed": "beats without proof/evidence outside wins/lessons lanes" },
+    "derivation": {
+      "complete": "Mission wins group",
+      "active": "Lessons group, or beat with proof/evidence attached",
+      "blocked": "Drift group whose text matches blocked/contradict — peach; contradiction adds warning row",
+      "stale": "Drift group (non-blocked), stale envelope banner",
+      "idle": "empty digest / no beats",
+      "reducedMotion": "static packet trails"
+    }
+  },
+  "panelBehavior": {
+    "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing branch story / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
+    "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + signal glyph; 'No branch story yet — wins, signals, lessons, drift appear after a branch has evidence' + Refresh (outline) [+ Open Mission / Open Proof]", "trigger": "no beats, no ActionRequest rows, no completed ledger rows" },
+    "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'story unreachable — pull to retry' + Retry outline button", "trigger": "GET /api/quests/{tenant} rejects" }
+  },
+  "fixtures": "workers/quests/src/page/scenes/fixtures/story.fixture.json"
+}

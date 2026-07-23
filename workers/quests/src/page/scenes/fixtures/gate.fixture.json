@@ -1,0 +1,118 @@
+{
+  "fixture": "gate.fixture",
+  "scene": "gate",
+  "contract": "docs/architecture/contracts/scenes/gate.json",
+  "redaction": "synthetic fx-* ids only; receipts are hashes-only per v2 §5; no initData, tokens, chat ids, or query strings.",
+  "states": {
+    "normal": {
+      "description": "One paperclip handoff open for review plus one ActionRequest in needs_signed_confirmation with options and a redacted latest receipt.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 9, "total": 17 },
+        "openItems": [
+          {
+            "id": "fx-handoff-001",
+            "title": "Approve proof packet dispatch",
+            "status": "proposed",
+            "branchId": "fx-branch-fitcheck",
+            "branchLabel": "Fitcheck",
+            "missionId": "fx-m-02",
+            "owner": "operator",
+            "evidence": "deploy URL + viewport capture attached",
+            "consequence": "queue founder approval for fx-handoff-001; no Paperclip/org mutation until the operator consumes the queue",
+            "reversibility": "reversible until consumed; supersede with a newer gate action",
+            "idempotencyHint": "fx-handoff-001",
+            "priority": { "risk": "review", "dependency": "proof gate", "score": 6, "source": "paperclip-handoffs@v1" },
+            "updatedAt": "2026-07-24T08:58:00.000Z",
+            "paperclipSource": "Paperclip · /internal/gate/cambium"
+          }
+        ],
+        "actionRequests": {
+          "schema": "thoughtseed.action-request-list-item.v1",
+          "count": 1,
+          "rows": [
+            {
+              "id": "fx-ar-001",
+              "title": "Publish landing render",
+              "status": "needs_signed_confirmation",
+              "branchId": "fx-branch-iverif",
+              "branchLabel": "IVerif",
+              "questId": "fx-q-07",
+              "selectedOptionId": "opt-publish",
+              "options": [
+                { "id": "opt-publish", "label": "Publish render" },
+                { "id": "opt-hold", "label": "Hold for revision" }
+              ],
+              "summary": "High-risk render option selected in chat; signed confirmation required.",
+              "why": "client-facing publish",
+              "next": "founder signed confirmation in Mini App",
+              "evidence": "render preview receipt sha256:9d2c4f6a8b0e1c3d5f7a9b1c2d3e4f5061728394a5b6c7d8e9f0a1b2c3d4e5f6",
+              "consequence": "queue signed Mini App confirmation for Publish render; no external mutation until operator consumes the queue",
+              "reversibility": "ActionRequest can be superseded until consumed",
+              "idempotencyHint": "fx-ar-001",
+              "topic": { "topicKey": "fx-topic-12", "threadId": "sha256:1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a" },
+              "receipts": {
+                "count": 1,
+                "latest": { "kind": "redacted-receipt", "text": "sha256:4f6a8b0e1c3d5f7a9b1c2d3e4f5061728394a5b6c7d8e9f0a1b2c3d4e5f60718" }
+              },
+              "source": "cambium-action-requests@v1"
+            }
+          ]
+        }
+      },
+      "signedActionResponse": {
+        "description": "v2 §2.2 success shape for approve on fx-handoff-001",
+        "body": {
+          "queued": "fx-queued-9f2",
+          "duplicate": false,
+          "kind": "approve",
+          "subject": "fx-handoff-001",
+          "idempotencyKey": "approve:cambium:fx-handoff-001",
+          "consequence": "queue founder approval for fx-handoff-001; no Paperclip/org mutation until the operator consumes the queue",
+          "reversibility": "reversible until consumed; supersede with a newer gate action"
+        }
+      }
+    },
+    "blocked": {
+      "description": "One handoff blocked on missing proof with stale updatedAt; peach treatment + stale chip; approve path stays proof-gated.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 4, "total": 17 },
+        "openItems": [
+          {
+            "id": "fx-handoff-002",
+            "title": "Approve warmth claim publish",
+            "status": "blocked",
+            "branchId": "fx-branch-snowgloves",
+            "branchLabel": "Snow Gloves",
+            "missionId": "fx-m-21",
+            "owner": "operator",
+            "evidence": "evidence missing from handoff",
+            "consequence": "queue founder approval for fx-handoff-002; no Paperclip/org mutation until the operator consumes the queue",
+            "reversibility": "irreversible after publish; proof required before approval",
+            "idempotencyHint": "fx-handoff-002",
+            "priority": { "risk": "high", "dependency": "claim table", "score": 9, "source": "paperclip-handoffs@v1" },
+            "updatedAt": "updatedAt not served",
+            "paperclipSource": "Paperclip · /internal/gate/cambium"
+          }
+        ],
+        "actionRequests": { "schema": "thoughtseed.action-request-list-item.v1", "count": 0, "rows": [] }
+      }
+    },
+    "empty": {
+      "description": "No open items and no ActionRequests; Gate renders the EMPTY panel (locked gate glyph, Mission/Inspect CTAs) and hero 'Decision waiting'.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 17, "total": 17 },
+        "openItems": [],
+        "actionRequests": { "schema": "thoughtseed.action-request-list-item.v1", "count": 0, "rows": [] }
+      }
+    }
+  }
+}

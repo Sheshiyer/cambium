@@ -1,0 +1,76 @@
+{
+  "contract": "tg-miniapp-scene/v1",
+  "sceneId": "inspect",
+  "tabIndex": 4,
+  "label": "Inspect",
+  "sceneRoot": "#mapwrap",
+  "refreshRoute": "GET /api/quests/{tenant} · GET /v1/branch-map/{tenant} (read-only, header initData auth)",
+  "wordCap": 260,
+  "governingContracts": [
+    "docs/architecture/contracts/tg-miniapp-contract-v2.md §1 (all served envelopes) + §4 (branch-map read model, digests only)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/01-component-anatomy.md (ProofList: raw routes/schemas appear ONLY here)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/04-tokens-and-atlas.md (panel patterns originate here; footer telemetry canon)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/05-copy-budget.md (largest budget; kv grids are Inspect-only)"
+  ],
+  "envelopes": [
+    {
+      "name": "quest-envelope (composite)",
+      "schema": "quest-ledger-envelope@v1 + product-branch-packets@v1 + liveProof + social + commands + actionRequests",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Quest ledger / operator packet build / readiness tooling / Paperclip gateway",
+      "consumedFor": "group stack summaries, kv detail sheets, freshness pane, evidence rows"
+    },
+    {
+      "name": "branch-map read model",
+      "schema": "cambium.telegram.branch-map-route.v1 (+ cambium.telegram.branch-map-proof.v1)",
+      "route": "GET /v1/branch-map/{tenant}",
+      "authority": "Goal-graph store head + branch-map receipt store",
+      "consumedFor": "branch-map sheet + proof digests; digest mismatch at seam → 503, UI treats proof as digests only"
+    }
+  ],
+  "components": [
+    "ProofList",
+    "MissionGlyph",
+    "StateToken",
+    "PacketFlow",
+    "SignalRail",
+    "OrbitProgress",
+    "SelectedHalo"
+  ],
+  "dataFields": [
+    { "field": "ledger", "type": "object (rows, completed, total)", "source": "quest-envelope.ledger", "required": true, "fallback": "groups relying on ledger render 'proof-needed' / gap detail" },
+    { "field": "freshness", "type": "{derivedAt, source, state, detail} (threshold 360 min)", "source": "quest-envelope header + client FRESHNESS_STATE", "required": true, "fallback": "'derived at: missing'; freshness group in stale state" },
+    { "field": "liveProof.summary", "type": "{blocked, ready}", "source": "quest-envelope.liveProof.summary", "required": false, "fallback": "counts derived from liveProofCards rows" },
+    { "field": "liveProof.blockers[]", "type": "array<string>", "source": "quest-envelope.liveProof.blockers", "required": false, "fallback": "'Telegram initData and device artifact may still be required' detail line" },
+    { "field": "branchStories", "type": "{rows, source, schema, gap}", "source": "quest-envelope.branchStories", "required": false, "fallback": "branch-packets group blocked: 'Mission cannot trust branch state until packet rows arrive'" },
+    { "field": "openItems[]", "type": "array<GateItem>", "source": "quest-envelope.openItems", "required": false, "fallback": "gates group idle: 'No founder approval is waiting.'" },
+    { "field": "actionRequests.rows[]", "type": "array<ActionRequestListItem>", "source": "quest-envelope.actionRequests.rows", "required": false, "fallback": "ActionRequestEmptyState box: 'No redacted ActionRequest rows are served yet.'" },
+    { "field": "actionRequests.rows[].receipts", "type": "{count, latest:{kind, text}} redacted", "source": "actionRequests.rows[].receipts", "required": false, "fallback": "'receipt count 0 · latest receipt none'" },
+    { "field": "commands", "type": "object | null", "source": "quest-envelope.commands", "required": false, "fallback": "tools group stale: 'toolbelt commands unavailable until live data refreshes'" },
+    { "field": "social.rows[]", "type": "array (sanitized coordination evidence)", "source": "quest-envelope.social (sanitizeQuestEnvelope, tenant-handoff-only)", "required": false, "fallback": "fallback social row; 'coordination evidence sanitized' gap note" },
+    { "field": "branchMap.projection", "type": "object (validated projection, digest re-verified at seam)", "source": "GET /v1/branch-map/{tenant} → projection", "required": false, "fallback": "branch-map pane hidden or gap; 404 graph head → empty panel" },
+    { "field": "branchMap.sheet", "type": "object (rendered branch-map sheet)", "source": "GET /v1/branch-map/{tenant} → sheet", "required": false, "fallback": "no sheet rendered; proof digests alone never imply layout" },
+    { "field": "branchMap.proof", "type": "{graphDigest, projectionDigest, sheetEnvelopeDigest, sheetTextDigest, generatedAt, proofDigest} (sha256:<64 hex> only)", "source": "GET /v1/branch-map/{tenant} → proof (cambium.telegram.branch-map-proof.v1)", "required": false, "fallback": "proof row absent; UI never requests raw graph payloads beyond the sheet" },
+    { "field": "policy + evidence derivations", "type": "derived rows (policyCard, insightBoxes, RAILS, STAGES)", "source": "derived client-side from envelope + bundled visual contract (shared/cambium-visual-contract.ts)", "required": false, "fallback": "group state 'gap'/'proof-needed' with plain-language detail" }
+  ],
+  "states": {
+    "renders": ["idle", "active", "selected", "complete", "blocked", "locked", "stale", "reducedMotion"],
+    "aliases": { "proof-needed": "rows awaiting evidence; dashed hollow ring" },
+    "derivation": {
+      "active": "group with served, fresh data",
+      "complete": "live-proof group with zero non-ready rows",
+      "blocked": "policy gap, missing branch packets, branch-map digest/503 failure — peach",
+      "selected": "focused group / expanded disclosure (SelectedHalo detail-sheet surface)",
+      "stale": "freshness group past 360-min threshold; commands envelope missing",
+      "locked": "proof rows behind unsigned gate actions",
+      "idle": "groups with nothing waiting (gates idle, no action requests)",
+      "reducedMotion": "static telemetry rows; reduced-motion proof row stays visible"
+    }
+  },
+  "panelBehavior": {
+    "loading": { "pattern": "frozen/04 LOADING (canonical)", "render": "'Synchronizing network / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
+    "empty": { "pattern": "frozen/04 EMPTY (canonical)", "render": "dashed circle + node icon; 'No nodes discovered / Initialize a survey to begin exploring.' + outline CTA", "trigger": "envelope groups all empty; branch-map 404 (no graph head)" },
+    "error": { "pattern": "frozen/04 ERROR (canonical)", "render": "peach warning triangle; 'Signal lost in strata / Check connection and try again.' + RETRY outline button", "trigger": "refresh route rejects; branch-map 401/503 surfaces as blocked group with redacted reason, never raw error internals" }
+  },
+  "fixtures": "workers/quests/src/page/scenes/fixtures/inspect.fixture.json"
+}

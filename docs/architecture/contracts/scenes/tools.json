@@ -1,0 +1,78 @@
+{
+  "contract": "tg-miniapp-scene/v1",
+  "sceneId": "tools",
+  "tabIndex": 2,
+  "label": "Tools",
+  "sceneRoot": "#cmds",
+  "refreshRoute": "GET /api/quests/{tenant}",
+  "wordCap": 80,
+  "governingContracts": [
+    "docs/architecture/contracts/tg-miniapp-contract-v2.md §1 (missing data renders as explicit gap)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/01-component-anatomy.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/04-tokens-and-atlas.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/05-copy-budget.md §4 (BANNED: copy-paste command blocks must not survive the redesign; actions POST via the gate client in-app)"
+  ],
+  "envelopes": [
+    {
+      "name": "quest-envelope.commands",
+      "schema": "paperclipCommandsData (live command envelope)",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Paperclip gateway via quest envelope",
+      "consumedFor": "live sheets (status/hermes/agents/work/handoffs), availability states, recommendation card"
+    },
+    {
+      "name": "quest-envelope.openItems + branchStories",
+      "schema": "gate rows + product-branch-packets@v1",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Worker KV gate store + operator packet build",
+      "consumedFor": "mission context strip, recommended-next-tool derivation, ts-approve/ts-reject availability"
+    },
+    {
+      "name": "client constant CMDS",
+      "schema": "static command catalog (13 commands, 4 groups)",
+      "route": "bundled in page (scenes/tools.ts CMDS)",
+      "authority": "client bundle",
+      "consumedFor": "command cards, group segmented control, recent strip"
+    }
+  ],
+  "components": [
+    "MissionGlyph",
+    "StateToken",
+    "SignalRail",
+    "PacketFlow",
+    "SelectedHalo"
+  ],
+  "dataFields": [
+    { "field": "commands", "type": "object | null (paperclipCommandsData)", "source": "quest-envelope.commands (GET /api/quests/{tenant})", "required": false, "fallback": "all live commands render stale; live sheets show 'org data unavailable: Paperclip gateway unreachable'" },
+    { "field": "commands.status", "type": "{agents, issuesOpen, issuesDone, arcs, hermes}", "source": "quest-envelope.commands.status", "required": false, "fallback": "/ts-status sheet rows show 'unknown'" },
+    { "field": "commands.services[]", "type": "array<{name, status, detail, label}>", "source": "quest-envelope.commands.services", "required": false, "fallback": "'no Hermes service data.' row" },
+    { "field": "commands.agents[]", "type": "array<{name, model}>", "source": "quest-envelope.commands.agents", "required": false, "fallback": "'no agents.' row" },
+    { "field": "commands.work[]", "type": "array<{id, status, title, who | owner, source}>", "source": "quest-envelope.commands.work", "required": false, "fallback": "'no active work.' row" },
+    { "field": "commands.handoffs[]", "type": "array<{id, status, title, source, gateRelation}>", "source": "quest-envelope.commands.handoffs", "required": false, "fallback": "'nothing waiting on you.' row" },
+    { "field": "openItems.length", "type": "number", "source": "quest-envelope.openItems (count)", "required": false, "fallback": "ts-approve / ts-reject render locked: 'no waiting founder decision is served for this command'" },
+    { "field": "branchStories.rows", "type": "array<BranchPacket>", "source": "quest-envelope.branchStories.rows (mission context via buildMissionControlView)", "required": false, "fallback": "context strip shows 'branch pending' / 'Branch packets pending'; recommendation panel EMPTY" },
+    { "field": "nextMission.{title, gate, state}", "type": "derived object", "source": "derived from branchStories via buildMissionControlView", "required": false, "fallback": "blocked mission fallback drives ts-run to proof-needed: 'use Gate or Open Proof before acting'" },
+    { "field": "proofNeeded[]", "type": "array<{label, state, detail}>", "source": "derived from branch packets (mcProofNeeded)", "required": false, "fallback": "digest commands (ts-standup/ts-digest) render active instead of proof-needed" },
+    { "field": "catalog.CMDS", "type": "array<[group, array<[name, args, desc, kind]>]> (13 commands: Act/Ask/Report/Coordinate)", "source": "client constant in scenes/tools.ts", "required": true, "fallback": "n/a — bundled constant" },
+    { "field": "freshness.stale", "type": "derived boolean", "source": "envelope freshness + commands presence", "required": false, "fallback": "context strip 'tools stale' token; disabled reason 'live command data unavailable; pull to refresh'" }
+  ],
+  "states": {
+    "renders": ["idle", "active", "blocked", "locked", "stale", "reducedMotion"],
+    "aliases": { "proof-needed": "'needs proof' availability label on act/digest commands" },
+    "derivation": {
+      "active": "live command with fresh commands data, or act command with no gate dependency — 'usable'",
+      "stale": "commands envelope missing — live commands dim; pull-to-refresh only",
+      "locked": "ts-approve/ts-reject with zero open gate items",
+      "blocked": "command blocked until proof resolves",
+      "idle": "reference-only commands (ts-agent, ts-project, ts-vault)",
+      "reducedMotion": "static glyphs, no packet drift"
+    }
+  },
+  "panelBehavior": {
+    "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing toolbelt / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
+    "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + ops glyph; 'No mission recommendation yet — tools suggest after branch packets reach Mission' + Open Mission (outline)", "trigger": "no branch packets and no recommendation derivable" },
+    "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'Paperclip gateway unreachable — pull to refresh' + Retry outline button; no command results synthesized", "trigger": "commands envelope null after refresh" }
+  },
+  "redesignNote": "frozen/05 §4 bans copy-paste command blocks and 'Copy command text' buttons in the redesign; P2 builders replace copy affordances with in-app actions or read-only sheets. This contract lists current-consumed fields so the replacement keeps data parity.",
+  "fixtures": "workers/quests/src/page/scenes/fixtures/tools.fixture.json"
+}

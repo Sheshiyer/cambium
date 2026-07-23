@@ -1,0 +1,128 @@
+{
+  "fixture": "inspect.fixture",
+  "scene": "inspect",
+  "contract": "docs/architecture/contracts/scenes/inspect.json",
+  "redaction": "synthetic fx-* ids only; all digests sha256:<64 hex>; no initData, tokens, chat ids, query strings, or raw graph payloads.",
+  "states": {
+    "normal": {
+      "description": "All groups served: fresh envelope, live proof partly ready, branch packets present, one gate item, one ActionRequest with redacted receipt, branch-map read model with proof digests.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "source": "/api/quests/cambium",
+        "freshness": { "state": "fresh", "detail": "fresh 2m" },
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 9, "total": 17, "rows": [ { "title": "Seed branch packet", "evidence": "packet receipt", "status": "complete" } ] },
+        "liveProof": {
+          "summary": { "blocked": 1, "ready": 3 },
+          "blockers": [ "founder-device signed receipt pending" ]
+        },
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "schema": "cambium.product_branch_packet.v1",
+          "rows": [
+            { "branchId": "fx-branch-fitcheck", "name": "Fitcheck", "status": "active", "source": { "schema": "cambium.product_branch_packet.v1", "packetFile": "packets/fx-fitcheck.json", "indexFile": "packets/index.json", "tenant": "cambium" }, "freshness": { "status": "fresh", "state": "fresh", "detail": "derived 12m ago" } }
+          ]
+        },
+        "openItems": [
+          { "id": "fx-handoff-001", "title": "Approve proof packet dispatch", "status": "proposed", "branchId": "fx-branch-fitcheck", "updatedAt": "2026-07-24T08:58:00.000Z" }
+        ],
+        "actionRequests": {
+          "schema": "thoughtseed.action-request-list-item.v1",
+          "count": 1,
+          "rows": [
+            {
+              "id": "fx-ar-001",
+              "title": "Publish landing render",
+              "status": "needs_signed_confirmation",
+              "branchId": "fx-branch-iverif",
+              "branchLabel": "IVerif",
+              "questId": "fx-q-07",
+              "summary": "High-risk render option selected in chat.",
+              "why": "client-facing publish",
+              "next": "founder signed confirmation in Mini App",
+              "evidence": "render preview receipt sha256:9d2c4f6a8b0e1c3d5f7a9b1c2d3e4f5061728394a5b6c7d8e9f0a1b2c3d4e5f6",
+              "consequence": "queue signed Mini App confirmation; no external mutation until operator consumes the queue",
+              "reversibility": "ActionRequest can be superseded until consumed",
+              "idempotencyHint": "fx-ar-001",
+              "receipts": { "count": 1, "latest": { "kind": "redacted-receipt", "text": "sha256:4f6a8b0e1c3d5f7a9b1c2d3e4f5061728394a5b6c7d8e9f0a1b2c3d4e5f60718" } },
+              "source": "cambium-action-requests@v1"
+            }
+          ]
+        },
+        "commands": { "status": { "agents": 3, "issuesOpen": 5, "issuesDone": 21, "arcs": "4 active", "hermes": "healthy" }, "services": [], "agents": [], "work": [], "handoffs": [] },
+        "social": { "source": "coordination-evidence@v1", "scope": "tenant-handoff-only", "status": "gap", "rows": [ { "state": "gap", "note": "coordination evidence sanitized" } ], "gap": "coordination evidence sanitized" }
+      },
+      "branchMap": {
+        "schema": "cambium.telegram.branch-map-route.v1",
+        "version": 1,
+        "tenantId": "cambium",
+        "authenticated": { "method": "telegram-init-data", "userId": "fx-founder" },
+        "projection": { "nodeCount": 9, "edgeCount": 14, "note": "validated projection; digest re-verified at seam" },
+        "sheet": { "rows": 9, "note": "rendered branch-map sheet (display rows only)" },
+        "proof": {
+          "schema": "cambium.telegram.branch-map-proof.v1",
+          "tenantId": "cambium",
+          "graphVersion": "fx-graph-2026-07-24",
+          "graphDigest": "sha256:aa10b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f",
+          "projectionDigest": "sha256:bb20c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "sheetSchema": "cambium.branch-map-sheet.v1",
+          "sheetEnvelopeDigest": "sha256:cc30d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1",
+          "sheetTextDigest": "sha256:dd40e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2",
+          "authenticatedUserId": "fx-founder",
+          "generatedAt": "2026-07-24T09:10:00.000Z",
+          "proofDigest": "sha256:ee50f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3"
+        }
+      }
+    },
+    "blocked": {
+      "description": "Live proof blocked (2 blockers), branch packets missing (Mission cannot trust branch state), branch-map digest mismatch refused at seam (503).",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T02:00:00.000Z",
+        "source": "/api/quests/cambium",
+        "freshness": { "state": "stale", "detail": "derived 7h ago; refresh before trusting decisions" },
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 4, "total": 17, "rows": [] },
+        "liveProof": {
+          "summary": { "blocked": 2, "ready": 1 },
+          "blockers": [ "founder-device signed receipt pending", "release SHA not recorded" ]
+        },
+        "branchStories": { "source": "product-branch-packets@v1", "gap": "branch stories missing", "rows": [] },
+        "openItems": [
+          { "id": "fx-handoff-002", "title": "Approve warmth claim publish", "status": "blocked", "branchId": "fx-branch-snowgloves", "updatedAt": "updatedAt not served" }
+        ],
+        "actionRequests": { "schema": "thoughtseed.action-request-list-item.v1", "count": 0, "rows": [] },
+        "commands": null,
+        "social": { "source": "coordination-evidence@v1", "scope": "tenant-handoff-only", "status": "gap", "rows": [], "gap": "coordination evidence sanitized" }
+      },
+      "branchMapError": {
+        "status": 503,
+        "body": { "error": "branch_map_projection_digest_invalid" },
+        "note": "UI treats as blocked group with redacted reason; never retries in a tight loop, never displays raw graph payloads"
+      }
+    },
+    "empty": {
+      "description": "Minimal envelope: ledger present but empty, no packets, no gate items, no ActionRequests, no live proof rows, branch-map 404 (no graph head) → EMPTY panel pattern.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "source": "/api/quests/cambium",
+        "freshness": { "state": "fresh", "detail": "fresh 1m" },
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 0, "total": 0, "rows": [] },
+        "liveProof": { "summary": { "blocked": 0, "ready": 0 }, "blockers": [] },
+        "branchStories": { "source": "product-branch-packets@v1", "gap": "branch stories missing", "rows": [] },
+        "openItems": [],
+        "actionRequests": { "schema": "thoughtseed.action-request-list-item.v1", "count": 0, "rows": [] },
+        "commands": null,
+        "social": { "source": "coordination-evidence@v1", "scope": "tenant-handoff-only", "status": "gap", "rows": [], "gap": "coordination evidence sanitized" }
+      },
+      "branchMapError": {
+        "status": 404,
+        "body": { "error": "graph head not found" },
+        "note": "branch-map pane renders the EMPTY panel: dashed circle + node icon + outline CTA"
+      }
+    }
+  }
+}

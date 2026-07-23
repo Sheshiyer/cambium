@@ -1,0 +1,98 @@
+{
+  "fixture": "story.fixture",
+  "scene": "story",
+  "contract": "docs/architecture/contracts/scenes/story.json",
+  "redaction": "synthetic fx-* ids only; no initData, tokens, chat ids, or query strings.",
+  "states": {
+    "normal": {
+      "description": "Served beats across all four groups plus one projected ActionRequest beat; branch filter chips from two branch packets.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "freshness": { "state": "fresh", "detail": "fresh 5m" },
+        "beats": [
+          { "text": "Fitcheck proof packet shipped to staging", "lane": "quest", "group": "Mission wins", "proof": "deploy receipt sha256:7a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9", "branchId": "fx-branch-fitcheck", "source": "quest-ledger", "outcome": "Mission moved", "followup": "Open Mission with this branch" },
+          { "text": "Waitlist crossed 120 qualified signups", "lane": "heartbeat", "group": "New signals", "evidence": "kpi snapshot", "branchId": "fx-branch-fitcheck", "source": "world.log" },
+          { "text": "Taste review prefers shorter hero copy", "lane": "forge", "group": "Lessons", "branchId": "fx-branch-vantyx", "source": "operator-narrative" },
+          { "text": "Vantyx intake brief is stale", "lane": "noesis", "noesis": true, "group": "Drift", "branchId": "fx-branch-vantyx", "source": "operator-narrative" }
+        ],
+        "actionRequests": {
+          "schema": "thoughtseed.action-request-list-item.v1",
+          "count": 1,
+          "rows": [
+            { "id": "fx-ar-001", "title": "Publish landing render", "status": "needs_signed_confirmation", "branchId": "fx-branch-iverif", "branchLabel": "IVerif", "summary": "High-risk render option selected in chat.", "next": "Open Gate for founder choice, then Inspect for proof", "evidence": "render preview receipt", "source": "cambium-action-requests@v1" }
+          ]
+        },
+        "ledger": {
+          "schema": "quest-ledger-envelope@v1",
+          "rows": [
+            { "title": "Seed branch packet", "evidence": "packet receipt", "status": "complete" },
+            { "title": "Launch proof packet", "evidence": "pending", "status": "active" }
+          ]
+        },
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "rows": [
+            { "branchId": "fx-branch-fitcheck", "name": "Fitcheck", "status": "active", "freshness": { "status": "fresh", "state": "fresh", "detail": "fresh" } },
+            { "branchId": "fx-branch-vantyx", "name": "Vantyx", "status": "stale", "freshness": { "status": "stale", "state": "stale", "detail": "derived 9h ago" } }
+          ]
+        }
+      },
+      "expectedDerivations": {
+        "groups": { "Mission wins": 1, "New signals": 1, "Lessons": 1, "Drift": 2 },
+        "digestState": "blocked or stale (Drift present)",
+        "hero": "latest visible beat opens story beat sheet"
+      }
+    },
+    "blocked": {
+      "description": "Drift beat with contradiction text (blocked state, peach, warning row in sheet) plus a blocked ActionRequest projection.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "freshness": { "state": "fresh", "detail": "fresh 8m" },
+        "beats": [
+          { "text": "Snow Gloves warmth claim contradicts lab sheet — blocked", "lane": "noesis", "noesis": true, "group": "Drift", "branchId": "fx-branch-snowgloves", "source": "operator-narrative", "followup": "Review the blocker before calling it a win" }
+        ],
+        "actionRequests": {
+          "schema": "thoughtseed.action-request-list-item.v1",
+          "count": 1,
+          "rows": [
+            { "id": "fx-ar-002", "title": "Publish warmth claim", "status": "blocked", "branchId": "fx-branch-snowgloves", "branchLabel": "Snow Gloves", "summary": "Claim evidence missing; publish path blocked.", "next": "founder choice pending", "evidence": "ActionRequest proof missing", "source": "cambium-action-requests@v1" }
+          ]
+        },
+        "ledger": { "schema": "quest-ledger-envelope@v1", "rows": [] },
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "rows": [
+            { "branchId": "fx-branch-snowgloves", "name": "Snow Gloves", "status": "blocked", "freshness": { "status": "fresh", "state": "fresh", "detail": "fresh" } }
+          ]
+        }
+      },
+      "expectedDerivations": {
+        "groups": { "Drift": 2 },
+        "digestState": "blocked",
+        "warning": "contradiction requires Inspect review before this becomes a win"
+      }
+    },
+    "empty": {
+      "description": "No beats, no ActionRequests, no completed ledger rows; Story renders the EMPTY panel with Refresh / Open Mission / Open Proof.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "freshness": { "state": "fresh", "detail": "fresh 1m" },
+        "beats": [],
+        "actionRequests": { "schema": "thoughtseed.action-request-list-item.v1", "count": 0, "rows": [] },
+        "ledger": {
+          "schema": "quest-ledger-envelope@v1",
+          "rows": [
+            { "title": "Launch proof packet", "evidence": "pending", "status": "active" }
+          ]
+        },
+        "branchStories": { "source": "product-branch-packets@v1", "rows": [] }
+      }
+    }
+  }
+}

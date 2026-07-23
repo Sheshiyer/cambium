@@ -1,0 +1,108 @@
+{
+  "fixture": "tools.fixture",
+  "scene": "tools",
+  "contract": "docs/architecture/contracts/scenes/tools.json",
+  "redaction": "synthetic fx-* ids only; no initData, tokens, chat ids, or query strings.",
+  "states": {
+    "normal": {
+      "description": "Live commands envelope present; branch context active; recommendation card resolves to /ts-run; one handoff open so ts-approve/ts-reject are proof-needed, not locked.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "freshness": { "state": "fresh", "detail": "fresh 3m" },
+        "commands": {
+          "status": { "agents": 3, "issuesOpen": 5, "issuesDone": 21, "arcs": "4 active", "hermes": "healthy" },
+          "services": [
+            { "name": "fx-svc-scheduler", "status": "ok", "detail": "timers green", "label": "scheduler" },
+            { "name": "fx-svc-gateway", "status": "ok", "detail": "gateway reachable", "label": "gateway" }
+          ],
+          "agents": [
+            { "name": "fx-agent-builder", "model": "fx-model-a" },
+            { "name": "fx-agent-reviewer", "model": "fx-model-b" }
+          ],
+          "work": [
+            { "id": "fx-work-101", "status": "open", "title": "Proof packet scaffold", "who": "fx-agent-builder", "source": "paperclipCommandsData" }
+          ],
+          "handoffs": [
+            { "id": "fx-handoff-001", "status": "proposed", "title": "Approve proof packet dispatch", "source": "paperclipCommandsData", "gateRelation": "founder gate review context only" }
+          ]
+        },
+        "openItems": [
+          { "id": "fx-handoff-001", "title": "Approve proof packet dispatch", "status": "proposed", "branchId": "fx-branch-fitcheck" }
+        ],
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "rows": [
+            {
+              "branchId": "fx-branch-fitcheck",
+              "name": "Fitcheck",
+              "missions": [
+                { "missionId": "fx-m-02", "title": "Launch proof packet", "owner": "build", "gate": "proof gate", "proofRequired": "deploy URL + viewport capture", "dispatchTarget": "quine", "status": "active" }
+              ],
+              "gates": [ { "gate": "proof gate", "status": "pending" } ],
+              "proof": [ { "label": "Deploy URL", "state": "proof-needed", "detail": "deploy URL not served", "source": "product-branch-packets@v1" } ],
+              "freshness": { "status": "fresh", "state": "fresh", "detail": "derived 3m ago" }
+            }
+          ]
+        }
+      },
+      "expectedDerivations": {
+        "recommendedTool": "ts-handoffs (founder decision context is the current blocker)",
+        "availability": { "ts-status": "active", "ts-approve": "proof-needed", "ts-run": "active", "ts-standup": "proof-needed", "ts-vault": "idle" }
+      }
+    },
+    "blocked": {
+      "description": "Mission blocked on an unverified gate; ts-run degrades to proof-needed with 'use Gate or Open Proof before acting'.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "freshness": { "state": "fresh", "detail": "fresh 6m" },
+        "commands": {
+          "status": { "agents": 3, "issuesOpen": 6, "issuesDone": 21, "arcs": "4 active", "hermes": "healthy" },
+          "services": [],
+          "agents": [],
+          "work": [],
+          "handoffs": []
+        },
+        "openItems": [],
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "rows": [
+            {
+              "branchId": "fx-branch-snowgloves",
+              "name": "Snow Gloves",
+              "missions": [
+                { "missionId": "fx-m-21", "title": "Proof of warmth claim", "owner": "build", "gate": "claim table", "proofRequired": "claim evidence row", "dispatchTarget": "quine", "status": "blocked" }
+              ],
+              "gates": [ { "gate": "claim table", "status": "blocked" } ],
+              "proof": [ { "label": "Evidence receipt", "state": "blocked", "detail": "claim evidence missing", "source": "product-branch-packets@v1" } ],
+              "freshness": { "status": "fresh", "state": "fresh", "detail": "derived 6m ago" }
+            }
+          ]
+        }
+      },
+      "expectedDerivations": {
+        "recommendedTool": "ts-standup (proof-needed rows should become a progress receipt)",
+        "availability": { "ts-run": "proof-needed", "ts-approve": "locked", "ts-reject": "locked" }
+      }
+    },
+    "empty": {
+      "description": "Commands envelope null (gateway unreachable) and no branch packets; live commands stale, recommendation panel EMPTY pattern.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "freshness": { "state": "stale", "detail": "commands missing" },
+        "commands": null,
+        "openItems": [],
+        "branchStories": { "source": "product-branch-packets@v1", "gap": "branch stories missing", "rows": [] }
+      },
+      "expectedDerivations": {
+        "recommendedTool": "(none — EMPTY recommendation panel)",
+        "availability": { "ts-status": "stale", "ts-hermes": "stale", "ts-approve": "locked", "ts-agent": "idle" }
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "fixture": "mission.fixture",
+  "scene": "mission",
+  "contract": "docs/architecture/contracts/scenes/mission.json",
+  "redaction": "synthetic fx-* ids only; sha256 hashes for receipt/user material; no initData, tokens, chat ids, or query strings. Fixtures calibrate layout only and never satisfy live proof.",
+  "states": {
+    "normal": {
+      "description": "Two branch packets served; selected branch active with questline mid-flight, proof rows pending, KPIs partial.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "source": "/api/quests/cambium",
+        "freshness": { "state": "fresh", "detail": "fresh 2m" },
+        "ledger": {
+          "schema": "quest-ledger-envelope@v1",
+          "completed": 9,
+          "total": 17,
+          "rows": [
+            { "title": "Seed branch packet", "evidence": "sha256:3f1a9c4e2b7d0518f6a3c9e1d4b2087f5e6a1c3d9b8042f7e5a6c1d3b9e8042f", "status": "complete" },
+            { "title": "Launch proof packet", "evidence": "evidence pending", "status": "active" }
+          ]
+        },
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "rows": [
+            {
+              "branchId": "fx-branch-fitcheck",
+              "name": "Fitcheck",
+              "productId": "fitcheck",
+              "arcTitle": "Arc IV",
+              "status": "active",
+              "vision": { "statement": "Fit confidence before checkout." },
+              "icp": { "primary": "online apparel returners" },
+              "missions": [
+                { "missionId": "fx-m-01", "title": "Seed branch packet", "owner": "genesis", "gate": "intake", "proofRequired": "packet receipt", "dispatchTarget": "quine", "status": "complete" },
+                { "missionId": "fx-m-02", "title": "Launch proof packet", "owner": "build", "gate": "proof gate", "proofRequired": "deploy URL + viewport capture", "dispatchTarget": "quine", "status": "active" },
+                { "missionId": "fx-m-03", "title": "Founder gate review", "owner": "ops", "gate": "founder approval", "proofRequired": "signed gate receipt", "dispatchTarget": "gate", "status": "locked" }
+              ],
+              "gates": [
+                { "gate": "intake", "status": "verified" },
+                { "gate": "proof gate", "status": "pending" },
+                { "gate": "founder approval", "status": "locked" }
+              ],
+              "promotion": { "state": "proof-only", "currentGate": "proof gate", "rule": "proof first; no promotion without foldback evidence" },
+              "controls": { "organRouting": [ { "organ": "build", "currentGate": "proof gate", "status": "active", "proofPath": "inspect", "owner": "builder" } ], "ui": { "currentFrontier": "proof packet" } },
+              "source": { "status": "served", "freshness": "fresh", "schema": "cambium.product_branch_packet.v1", "packetFile": "packets/fx-fitcheck.json", "indexFile": "packets/index.json" },
+              "freshness": { "status": "fresh", "state": "fresh", "detail": "derived 12m ago" },
+              "kpis": [
+                { "label": "Survival:", "currentState": "qualified waitlist", "survival": "120 qualified signups", "betterThanSurvival": "paid pilot" },
+                { "label": "Better:", "currentState": "not proven", "survival": "paid pilot", "betterThanSurvival": "" }
+              ],
+              "proof": [
+                { "label": "Deploy URL", "state": "proof-needed", "detail": "deploy URL not served", "source": "product-branch-packets@v1" },
+                { "label": "Viewport capture", "state": "proof-needed", "detail": "capture missing", "source": "product-branch-packets@v1" }
+              ]
+            },
+            {
+              "branchId": "fx-branch-vantyx",
+              "name": "Vantyx",
+              "productId": "vantyx",
+              "arcTitle": "Arc II",
+              "status": "stale",
+              "missions": [
+                { "missionId": "fx-m-11", "title": "Refresh intake brief", "owner": "genesis", "gate": "intake", "proofRequired": "brief receipt", "dispatchTarget": "quine", "status": "stale" }
+              ],
+              "gates": [ { "gate": "intake", "status": "stale" } ],
+              "promotion": { "state": "prototype", "currentGate": "intake", "rule": "proof first" },
+              "source": { "status": "served", "freshness": "stale", "staleReason": "packet older than 360 min", "schema": "cambium.product_branch_packet.v1" },
+              "freshness": { "status": "stale", "state": "stale", "detail": "derived 9h ago" },
+              "kpis": [],
+              "proof": []
+            }
+          ]
+        }
+      }
+    },
+    "blocked": {
+      "description": "Selected branch mission blocked by an unverified gate; peach treatment on card, state stack row, and branch chip.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "source": "/api/quests/cambium",
+        "freshness": { "state": "fresh", "detail": "fresh 4m" },
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 4, "total": 17, "rows": [] },
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "rows": [
+            {
+              "branchId": "fx-branch-snowgloves",
+              "name": "Snow Gloves",
+              "productId": "snow-gloves",
+              "arcTitle": "Arc III",
+              "status": "blocked",
+              "vision": { "statement": "Winter gear that fits the ride." },
+              "icp": { "primary": "commuter cyclists" },
+              "missions": [
+                { "missionId": "fx-m-21", "title": "Proof of warmth claim", "owner": "build", "gate": "claim table", "proofRequired": "claim evidence row", "dispatchTarget": "quine", "status": "blocked" }
+              ],
+              "gates": [ { "gate": "claim table", "status": "blocked" } ],
+              "promotion": { "state": "proof-only", "currentGate": "claim table", "rule": "proof first" },
+              "controls": { "organRouting": [ { "organ": "build", "currentGate": "claim table", "status": "blocked", "proofPath": "inspect", "owner": "builder" } ] },
+              "source": { "status": "served", "freshness": "fresh", "schema": "cambium.product_branch_packet.v1" },
+              "freshness": { "status": "fresh", "state": "fresh", "detail": "derived 4m ago" },
+              "kpis": [
+                { "label": "Survival:", "currentState": "not proven", "survival": "40 preorders", "betterThanSurvival": "" }
+              ],
+              "proof": [
+                { "label": "Evidence receipt", "state": "blocked", "detail": "claim evidence missing; gate cannot verify", "source": "product-branch-packets@v1" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "empty": {
+      "description": "No branch packets served; scene renders the EMPTY panel pattern with Refresh/Inspect CTAs.",
+      "envelope": {
+        "schema": "quest-envelope@v1",
+        "tenant": "cambium",
+        "derivedAt": "2026-07-24T09:12:00.000Z",
+        "source": "/api/quests/cambium",
+        "freshness": { "state": "fresh", "detail": "fresh 1m" },
+        "ledger": { "schema": "quest-ledger-envelope@v1", "completed": 0, "total": 0, "rows": [] },
+        "branchStories": {
+          "source": "product-branch-packets@v1",
+          "gap": "branch stories missing",
+          "rows": []
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "contract": "tg-miniapp-scene/v1",
+  "sceneId": "gate",
+  "tabIndex": 1,
+  "label": "Gate",
+  "sceneRoot": "#gate (+ #gateHeroDecision hero, #gauge evidence dial)",
+  "refreshRoute": "GET /api/quests/{tenant} (list) · POST /api/gate/{tenant} (signed actions)",
+  "wordCap": 110,
+  "governingContracts": [
+    "docs/architecture/contracts/tg-miniapp-contract-v2.md §1 (gate queue rows display rules) + §2 (signed-action payload)",
+    "docs/architecture/contracts/tg-miniapp-ecosystem-contract.md §Gate ActionRequest Display Contract (thoughtseed.action-request-list-item.v1 projection)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/01-component-anatomy.md (GateActionRow, gate glyph always peach)",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/04-tokens-and-atlas.md",
+    "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/05-copy-budget.md §3 (preflight sheet rule)"
+  ],
+  "envelopes": [
+    {
+      "name": "quest-envelope.openItems",
+      "schema": "Worker KV gate store rows (paperclip handoffs)",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Worker KV gate store",
+      "consumedFor": "gate queue cards, hero decision, filter counts"
+    },
+    {
+      "name": "quest-envelope.actionRequests",
+      "schema": "thoughtseed.action-request-list-item.v1 projection",
+      "route": "GET /api/quests/{tenant} (merged by publicQuestBody)",
+      "authority": "ActionRequest records",
+      "consumedFor": "ActionRequest gate items with needs_signed_confirmation / queued lifecycle"
+    },
+    {
+      "name": "gate-action response",
+      "schema": "v2 §2.2 success / §2.3 failure",
+      "route": "POST /api/gate/{tenant}",
+      "authority": "Worker gate route (initData validated server-side)",
+      "consumedFor": "result sheet: queued id, duplicate flag, consequence, reversibility, idempotencyKey"
+    },
+    {
+      "name": "quest-envelope.ledger",
+      "schema": "quest-ledger-envelope@v1",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Quest ledger",
+      "consumedFor": "GateOrbitProgress evidence dial (arcs grown / total)"
+    }
+  ],
+  "components": [
+    "GateActionRow",
+    "MissionGlyph",
+    "StateToken",
+    "BranchArcChip",
+    "SignalRail",
+    "PacketFlow",
+    "OrbitProgress",
+    "SelectedHalo"
+  ],
+  "dataFields": [
+    { "field": "openItems[]", "type": "array<GateItem>", "source": "quest-envelope.openItems (GET /api/quests/{tenant})", "required": true, "fallback": "EMPTY panel: no founder decisions waiting + Mission/Inspect CTAs" },
+    { "field": "actionRequests.rows[]", "type": "array<ActionRequestListItem>", "source": "quest-envelope.actionRequests.rows", "required": false, "fallback": "no ActionRequest gate items projected" },
+    { "field": "item.id", "type": "string", "source": "openItems[] / actionRequests.rows[].id", "required": true, "fallback": "row not rendered without an id or title (subject required for signed action)" },
+    { "field": "item.title", "type": "string", "source": "openItems[] / actionRequests.rows[].title", "required": true, "fallback": "gid shows id only" },
+    { "field": "item.status", "type": "enum string (proposed | needs_signed_confirmation | queued | blocked | …)", "source": "openItems[].status / actionRequests.rows[].status", "required": true, "fallback": "'proof-needed' alias state" },
+    { "field": "item.branchId | branchLabel | productId | clientName", "type": "string", "source": "gate item branch fields", "required": false, "fallback": "'branch not served'; filter chip 'branch-not-served'" },
+    { "field": "item.missionId | questId", "type": "string", "source": "gate item mission fields", "required": false, "fallback": "'mission not served'" },
+    { "field": "item.evidence | detail", "type": "string", "source": "gate item evidence", "required": false, "fallback": "'evidence missing from handoff'" },
+    { "field": "item.consequence | approveConsequence", "type": "string (queued non-mutating phrasing enforced)", "source": "gate item consequence", "required": false, "fallback": "worker-style fallback: 'queue founder approval for <subject>; no Paperclip/org mutation until the operator consumes the queue'" },
+    { "field": "item.rerollConsequence", "type": "string", "source": "gate item consequence", "required": false, "fallback": "'queue founder reroll request for <subject>; …'" },
+    { "field": "item.confirmConsequence", "type": "string", "source": "actionRequests.rows[] consequence", "required": false, "fallback": "'queue signed Mini App confirmation for <option>; …'" },
+    { "field": "item.reversibility", "type": "string (rendered as state token per frozen/05 §3)", "source": "gate item reversibility", "required": false, "fallback": "'reversible until consumed; supersede with a newer gate action' (approve) / review-request fallback (reroll)" },
+    { "field": "item.idempotencyHint", "type": "string", "source": "gate item idempotencyHint", "required": false, "fallback": "idempotency key derived '<kind>:<tenant>:<id|hint>'" },
+    { "field": "item.priority", "type": "{risk, dependency, score, source}", "source": "gate item priority", "required": false, "fallback": "no priority chips rendered" },
+    { "field": "item.updatedAt | createdAt", "type": "string (timestamp)", "source": "gate item timestamps", "required": false, "fallback": "'updatedAt not served' + stale chip" },
+    { "field": "item.owner", "type": "string", "source": "gate item owner/assignee/founder", "required": false, "fallback": "'owner not served'" },
+    { "field": "item.actionRequestId + item.selectedOptionId + item.options[]", "type": "string + array<{id, label}>", "source": "actionRequests.rows[] (display contract)", "required": false, "fallback": "confirm-action-request control not rendered; approve/reroll pair shown" },
+    { "field": "item.receipts.latest", "type": "{kind, text} redacted receipt", "source": "actionRequests.rows[].receipts.latest (latest ACTUAL receipt; never receiptExpectation)", "required": false, "fallback": "'Latest receipt' row omitted" },
+    { "field": "item.topic", "type": "{topicKey, threadId, sourceMessageId?}", "source": "actionRequests.rows[].topic (Telegram-originated rows only)", "required": false, "fallback": "channel route pill omitted" },
+    { "field": "ledger.completed + ledger.total", "type": "number", "source": "quest-envelope.ledger", "required": true, "fallback": "dial shows 0/0 in locked state, 'Awaiting ledger'" },
+    { "field": "gate-action.response", "type": "{queued, duplicate, kind, subject, idempotencyKey, consequence, reversibility} | {error}", "source": "POST /api/gate/{tenant} (v2 §2.2/§2.3)", "required": true, "fallback": "failure sheet 'Decision Not Queued' with redacted reason; no local queue write" }
+  ],
+  "states": {
+    "renders": ["idle", "active", "selected", "blocked", "locked", "stale", "reducedMotion"],
+    "aliases": { "proof-needed": "review-ready default when status missing" },
+    "derivation": {
+      "active": "item ready for founder review; approve/reroll controls enabled",
+      "selected": "queued ActionRequest — selection + latest receipt + operator-waiting, NO second confirm control (v2 §1)",
+      "blocked": "status blocked, stale-sync, or irreversible reversibility text — peach treatment",
+      "locked": "EMPTY panel glyph; approve/reject tools locked when no open items",
+      "stale": "updatedAt missing/not served/stale — stale chip 'refresh before deciding'",
+      "idle": "empty queue hero 'Decision waiting'",
+      "reducedMotion": "static orbit dial, no packet drift"
+    },
+    "exitRule": "consumed / completed / superseded rows leave the active Gate list (v2 §1)"
+  },
+  "panelBehavior": {
+    "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing decision queue / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
+    "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + gate glyph (locked); 'no founder decisions waiting.' + Mission (outline) + Inspect (outline)", "trigger": "openItems and actionRequests.rows both empty" },
+    "error": { "pattern": "frozen/04 ERROR", "render": "peach gate glyph; 'network failure — <route> unreachable; no local queue write' + Retry outline button", "trigger": "GET /api/quests/{tenant} rejects; signed-action 401/503 opens auth-failure sheet instead of retry" }
+  },
+  "fixtures": "workers/quests/src/page/scenes/fixtures/gate.fixture.json"
+}
