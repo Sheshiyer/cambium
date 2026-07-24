@@ -26,8 +26,8 @@ export const STYLE_TOOLS = `  /* ── commands panel ────────�
   .cmd{cursor:pointer;transition:transform .2s var(--ease),border-color .3s var(--ease)}
   .cmd:active{transform:scale(.985)}
   .cmd.live{border-color:rgba(224,255,79,.22)}
-  .cmd.is-stale{border-color:rgba(248,181,96,.35)}
-  .cmd.is-blocked,.cmd.is-locked{border-color:rgba(248,181,96,.42);border-style:dashed}
+  .cmd.is-stale{border-color:rgba(255,199,161,.35)}
+  .cmd.is-blocked,.cmd.is-locked{border-color:rgba(255,199,161,.42);border-style:dashed}
   .cmd[data-tool-focus="1"]{box-shadow:0 0 0 1px rgba(224,255,79,.45),inset 0 1px 0 rgba(255,255,255,.08)}
   .cmd .mc-state-token{align-self:center}
   .cmd .cgo{align-self:center;font-size:20px;color:var(--ink);opacity:.6}

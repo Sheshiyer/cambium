@@ -38,7 +38,7 @@ export const STYLE_SHEET = `  /* ── sheet ───────────�
     font:11px/1.35 var(--mono);overflow-wrap:anywhere}
   .branch-sheet-glance b{display:block;color:var(--ink);font-weight:650;margin-bottom:3px;text-transform:uppercase;letter-spacing:0}
   .branch-claim-guard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:start;margin-top:10px;padding:9px;
-    border:1px dashed rgba(248,181,96,.38);border-radius:10px;background:rgba(248,181,96,.045);font:12px/1.45 var(--mono)}
+    border:1px dashed rgba(255,199,161,.38);border-radius:10px;background:rgba(255,199,161,.045);font:12px/1.45 var(--mono)}
   .branch-claim-guard b{display:block;color:var(--warn);font-weight:650;margin-bottom:2px}
   .branch-claim-guard span{display:block;overflow-wrap:anywhere;opacity:.82}
   .branch-sheet-section{display:grid;gap:7px}
@@ -50,8 +50,8 @@ export const STYLE_SHEET = `  /* ── sheet ───────────�
   .branch-row-list{display:grid;gap:7px}
   .branch-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--line);border-radius:10px;
     padding:9px;background:rgba(1,47,52,.28);font:12px/1.42 var(--mono);overflow:hidden}
-  .branch-row.is-blocked{border-color:rgba(248,181,96,.42);background:rgba(248,181,96,.045)}
-  .branch-row.is-proof-needed{border-color:rgba(248,181,96,.34)}
+  .branch-row.is-blocked{border-color:rgba(255,199,161,.42);background:rgba(255,199,161,.045)}
+  .branch-row.is-proof-needed{border-color:rgba(255,199,161,.34)}
   .branch-row b{display:block;color:var(--soft);font-weight:650;margin-bottom:2px;overflow-wrap:anywhere}
   .branch-row span{display:block;opacity:.76;overflow-wrap:anywhere}
   .branch-row small{display:block;color:var(--ink);opacity:.58;margin-top:4px;overflow-wrap:anywhere}

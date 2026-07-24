@@ -40,7 +40,7 @@ export const STYLE_MISSION = `  /* ── quest line — the living vine ──�
   .stem.mission-control{width:100%;min-width:0;padding-left:0;display:grid;gap:12px;--grow:0%}
   .stem.mission-control>*{min-width:0}
   .stem.mission-control::before{display:none}
-  .mission-empty{border:1px dashed rgba(248,181,96,.42);border-radius:8px;padding:14px;background:rgba(1,47,52,.34)}
+  .mission-empty{border:1px dashed rgba(255,199,161,.42);border-radius:8px;padding:14px;background:rgba(1,47,52,.34)}
   .mission-empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
   .mission-empty p{font-size:13px;opacity:.76;margin-bottom:12px}
   .mc-branch-chip{appearance:none;text-align:left;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
@@ -75,18 +75,16 @@ export const STYLE_MISSION = `  /* ── quest line — the living vine ──�
   .mc-questline-row{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0;min-height:56px;padding:8px 4px;text-align:left}
   .mc-questline-row:not(:last-child){border-bottom:1px solid var(--line)}
   .mc-questline-row:not(:last-child)::after{content:"";position:absolute;left:17px;top:calc(50% + 14px);bottom:calc(-50% + 14px);border-left:1px dashed var(--line2);pointer-events:none}
-  .mc-questline-row[data-questline-stage-state="blocked"]::after,.mc-questline-row[data-questline-stage-state="proof-needed"]::after{border-left-color:rgba(248,181,96,.5)}
+  .mc-questline-row[data-questline-stage-state="blocked"]::after{border-left-color:rgba(255,199,161,.5)}
   .mc-questline-row .mc-signal-rail{display:none}
   .mc-questline-row>span:first-child{position:relative;z-index:1;display:grid;place-items:center}
   .mc-questline-row b{min-width:0;font-size:11px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
   .mc-questline-row .mc-state-token{justify-self:end;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mc-blockers,.mc-kpis{display:grid;gap:8px}
-  .mc-kpi-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
+  .mc-kpi-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
   .mc-kpi-copy{display:grid;gap:3px;min-width:0}
   .mc-kpi-copy small{color:var(--muted)}
-  .mc-kpi-bars{display:flex;gap:4px;align-items:end;min-height:14px;margin-top:3px}
-  .mc-kpi-bars i{width:12px;border-radius:5px 5px 2px 2px;background:rgba(224,255,79,.62);box-shadow:0 0 8px rgba(224,255,79,.18)}
-  .mc-kpi-bars i:nth-child(1){height:6px}.mc-kpi-bars i:nth-child(2){height:10px}.mc-kpi-bars i:nth-child(3){height:14px}
+  .mc-kpi-row .mc-kpi-bars{justify-self:end}
   .mc-action-row button{appearance:none;min-height:60px;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:#00272B;font-weight:800;cursor:pointer;touch-action:manipulation}
   .mc-action-row button.secondary{border-color:var(--line2);background:rgba(1,47,52,.55);color:var(--soft)}
   .mission-tool-link,.tool-recommend,.story-hero,.inspect-proof-summary{border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28);padding:12px 13px}

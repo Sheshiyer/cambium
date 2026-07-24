@@ -44,6 +44,6 @@ const MC_COMPONENT_REGISTRY = Object.freeze({
   ProofList:['proof-needed','blocked','stale'],
   KpiPulse:['survival','better-than-survival'],
   GateActionRow:['review-gate','open-proof'],
-  Motion:['staticOrbit','packetDrift','glyphBreathe','warningAttention','reducedMotion']
+  Motion:['orbitSweep','packetDrift','glyphBreathe','warningAttention','reducedMotion']
 });
 `;

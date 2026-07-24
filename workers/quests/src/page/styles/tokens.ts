@@ -12,12 +12,14 @@ export const STYLE_TOKENS = `<!doctype html>
   :root{
     --bg:#00272B; --bg2:#012F34; --ink:#E0FF4F; --soft:#D6FFF6; --violet:#231651;
     --line:rgba(214,255,246,.09); --line2:rgba(214,255,246,.16); --glass:rgba(1,47,52,.72);
-    --warn:#F8B560;
+    /* frozen palette (design-tokens.json, zero-delta verified): peach warning is #FFC7A1 */
+    --warn:#FFC7A1;
     --mc-bg:#00272B; --mc-panel:#012F34; --mc-panel-glass:rgba(1,47,52,.72);
-    --mc-chartreuse:#E0FF4F; --mc-mint:#D6FFF6; --mc-warn:#F8B560;
+    --mc-chartreuse:#E0FF4F; --mc-mint:#D6FFF6; --mc-warn:#FFC7A1;
+    --mc-peach:#FFC7A1; --mc-peach-rgb:255,199,161; --mc-void:#231651; --mc-paper:#F5F3E8;
     --mc-line:rgba(214,255,246,.09); --mc-line-strong:rgba(214,255,246,.16);
-    --mc-active-fill:rgba(224,255,79,.08); --mc-warning-fill:rgba(248,181,96,.055);
-    --mc-radius:8px; --mc-radius-compact:7px; --mc-safe-top:var(--sat); --mc-safe-bottom:var(--sab);
+    --mc-active-fill:rgba(224,255,79,.08); --mc-warning-fill:rgba(255,199,161,.055);
+    --mc-radius:8px; --mc-radius-compact:4px; --mc-safe-top:var(--sat); --mc-safe-bottom:var(--sab);
     --ease:cubic-bezier(.16,1,.3,1); --pop:cubic-bezier(.34,1.56,.64,1);
     --mono:ui-monospace,'JetBrains Mono',SFMono-Regular,Menlo,monospace;
     --sat:env(safe-area-inset-top); --sab:env(safe-area-inset-bottom);

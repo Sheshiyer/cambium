@@ -34,7 +34,8 @@ export const STYLE_STATES = `  /* ── skeleton / states ───────
 
 	  @media (prefers-reduced-motion: reduce){
 	    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-	    .mc-orbit::after,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
+	    /* frozen/03 reducedMotion fallback: remove translation/ghosting, keep static canonical state (dots stay, zero motion). */
+	    .mc-orbit[data-motion="orbitSweep"] .mc-orbit-arc,.mc-packet-dots[data-motion="packetDrift"],.mc-glyph[data-motion="glyphBreathe"] svg,.mc-state-token{animation:none!important}
 	  }
 </style>
 `;

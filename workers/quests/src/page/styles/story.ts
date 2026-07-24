@@ -12,7 +12,7 @@ export const STYLE_STORY = `  /* ── story — the continuous narrative, as c
   .story-timeline{display:flex;gap:6px;padding:8px;margin-bottom:2px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28)}
   .story-timeline i{height:5px;flex:1;border-radius:999px;background:rgba(214,255,246,.16)}
   .story-timeline i.is-complete{background:rgba(224,255,79,.55)}
-  .story-timeline i.is-blocked,.story-timeline i.is-stale{background:rgba(248,181,96,.55)}
+  .story-timeline i.is-blocked,.story-timeline i.is-stale{background:rgba(255,199,161,.55)}
   .story-group{display:grid;gap:8px}
   .story-group .cmdgrp{margin:4px 0 0}
   .story-group-body{display:grid;gap:8px}
@@ -28,7 +28,7 @@ export const STYLE_STORY = `  /* ── story — the continuous narrative, as c
   .beat b{color:var(--soft)}
   .beat small{display:block;font:10.5px/1.35 var(--mono);opacity:.64;margin-top:4px;overflow-wrap:anywhere}
   .beat .mc-state-token{margin-top:8px}
-  .beat.is-stale,.beat.is-blocked{border-color:rgba(248,181,96,.34)}
+  .beat.is-stale,.beat.is-blocked{border-color:rgba(255,199,161,.34)}
   .beat.noesis{border-color:rgba(214,255,246,.4);background:var(--glass);backdrop-filter:blur(10px);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 20px rgba(214,255,246,.05)}
   .beat.noesis .ico{border-color:rgba(214,255,246,.5)}

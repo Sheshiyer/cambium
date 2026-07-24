@@ -101,7 +101,7 @@ function renderComponentMissionComponentsBoard(){
 }
 function renderComponentMotionBoard(){
   const motions = [
-    ['staticOrbit','Static Orbit', [mcOrbitProgress({ value: 25, state: 'active', label: '25' }), mcOrbitProgress({ value: 50, state: 'active', label: '50' }), mcOrbitProgress({ value: 75, state: 'proof-needed', label: '75' })]],
+    ['orbitSweep','Orbit Sweep', [mcOrbitProgress({ value: 25, state: 'active', label: '25' }), mcOrbitProgress({ value: 50, state: 'active', label: '50' }), mcOrbitProgress({ value: 75, state: 'proof-needed', label: '75' })]],
     ['packetDrift','Packet Drift', [mcSignalRail({ state: 'idle', packetCount: 4 }), mcSignalRail({ state: 'active', packetCount: 6 }), mcSignalRail({ state: 'blocked', packetCount: 3 })]],
     ['glyphBreathe','Glyph Breathe', [mcGlyphSvg('genesis', 'active', { motion:'glyphBreathe' }), mcGlyphSvg('taste', 'selected'), mcGlyphSvg('gate', 'blocked')]],
     ['warningAttention','Warning Attention', [mcStateToken('proof-needed', 'proof'), mcStateToken('blocked', 'blocked'), mcStateToken('stale', 'stale')]],

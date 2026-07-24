@@ -20,7 +20,7 @@ export const STYLE_GATE = `  /* ── gate ────────────
   .gauge .gstate{font:9px var(--mono);fill:var(--warn);letter-spacing:0;text-transform:uppercase}
   .gate-orbit .gate-orbit-node{fill:var(--bg2);stroke:rgba(224,255,79,.38);stroke-width:1.5}
   .gate-orbit.is-active .gate-orbit-node,.gate-orbit.is-complete .gate-orbit-node{fill:var(--ink);stroke:rgba(224,255,79,.7)}
-  .gate-orbit.is-blocked .gate-orbit-node,.gate-orbit.is-proof-needed .gate-orbit-node{fill:var(--warn);stroke:rgba(248,181,96,.58)}
+  .gate-orbit.is-blocked .gate-orbit-node,.gate-orbit.is-proof-needed .gate-orbit-node{fill:var(--warn);stroke:rgba(255,199,161,.58)}
   .gate-orbit .gate-orbit-caption{display:flex;justify-content:center;width:100%}
   .gate-orbit .mc-state-token{min-height:20px;padding:3px 7px;max-width:116px;text-align:center;justify-content:center}
   .gate-progress-summary{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px;background:rgba(1,47,52,.22)}
@@ -38,7 +38,7 @@ export const STYLE_GATE = `  /* ── gate ────────────
   .gate-filter-strip{margin-bottom:2px}
   .gate-empty,.gate-error{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px dashed rgba(224,255,79,.28);
     border-radius:13px;padding:12px;background:rgba(1,47,52,.28);font:12.5px/1.48 var(--mono)}
-  .gate-error{border-color:rgba(248,181,96,.44);background:rgba(248,181,96,.045)}
+  .gate-error{border-color:rgba(255,199,161,.44);background:rgba(255,199,161,.045)}
   .gate-empty b,.gate-error b{display:block;color:var(--soft);font-weight:650;margin-bottom:3px}
   .gate-empty span,.gate-error span{display:block;opacity:.76;overflow-wrap:anywhere}
   .ghead{font-size:17px;font-weight:650;color:var(--ink);margin-bottom:2px}
@@ -48,7 +48,7 @@ export const STYLE_GATE = `  /* ── gate ────────────
     opacity:0;transform:translateY(12px);animation:rise .5s var(--pop) forwards;animation-delay:calc(var(--i)*70ms)}
   .gitem::after{content:"";position:absolute;inset:auto 12px 0;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);opacity:.7}
   .gitem.is-active,.gitem.is-complete{border-color:rgba(224,255,79,.3);background:linear-gradient(145deg,rgba(224,255,79,.055),rgba(1,47,52,.36))}
-  .gitem.is-blocked,.gitem.is-proof-needed{border-color:rgba(248,181,96,.42);background:linear-gradient(145deg,rgba(248,181,96,.055),rgba(1,47,52,.34))}
+  .gitem.is-blocked,.gitem.is-proof-needed{border-color:rgba(255,199,161,.42);background:linear-gradient(145deg,rgba(255,199,161,.055),rgba(1,47,52,.34))}
   .gcard-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;margin-bottom:10px}
   .gitem .gid{font:11px var(--mono);color:var(--ink);opacity:.85}
   .gitem .gtitle{font-weight:650;margin:3px 0 0;color:var(--soft);overflow-wrap:anywhere}
@@ -70,10 +70,10 @@ export const STYLE_GATE = `  /* ── gate ────────────
   .gate-route-pill,.gate-receipt-summary{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:rgba(1,47,52,.24);font:10.5px/1.35 var(--mono);overflow-wrap:anywhere}
   .gate-route-pill b,.gate-receipt-summary b{display:block;color:var(--ink);font-weight:650;text-transform:uppercase;letter-spacing:0;margin-bottom:2px}
   .gate-route-pill span,.gate-receipt-summary span{opacity:.78}
-  .gate-stale-chip{display:inline-flex;align-items:center;width:max-content;border:1px dashed rgba(248,181,96,.42);border-radius:999px;color:var(--warn);padding:3px 7px;font:10px var(--mono);margin-top:7px}
+  .gate-stale-chip{display:inline-flex;align-items:center;width:max-content;border:1px dashed rgba(255,199,161,.42);border-radius:999px;color:var(--warn);padding:3px 7px;font:10px var(--mono);margin-top:7px}
   .gitem .mc-signal-rail{margin:8px 0 10px}
   .gpriority{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
-  .gpriority span{border:1px solid rgba(248,181,96,.36);border-radius:999px;padding:4px 8px;color:var(--warn);font:10px var(--mono);background:rgba(248,181,96,.04)}
+  .gpriority span{border:1px solid rgba(255,199,161,.36);border-radius:999px;padding:4px 8px;color:var(--warn);font:10px var(--mono);background:rgba(255,199,161,.04)}
   .gate-empty .mc-signal-rail,.gate-error .mc-signal-rail{margin-top:9px}
   .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .gbtns button{appearance:none;min-height:44px;border:0;border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;

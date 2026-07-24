@@ -4,9 +4,7 @@
 export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density ───── */
 	  @keyframes spin{to{transform:rotate(360deg)}}
 	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
-	  @keyframes packetDrift{0%{transform:translateX(-8%);opacity:.42}50%{opacity:.95}100%{transform:translateX(8%);opacity:.5}}
-	  @keyframes glyphBreathe{0%,100%{transform:scale(1);opacity:.86}50%{transform:scale(1.035);opacity:1}}
-	  @keyframes warningAttention{0%{border-color:rgba(248,181,96,.42)}45%{border-color:rgba(248,181,96,.86)}100%{border-color:rgba(248,181,96,.5)}}
+	  /* named animations + shared component CSS moved to styles/components.ts (T-013/T-014 frozen spec) */
 	  .mapwrap{display:flex;flex-direction:column;gap:12px;padding-top:2px}
 	  .maphead{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;padding-bottom:4px}
 	  .maphead h2{font-size:18px;letter-spacing:0;color:var(--ink)}
@@ -36,52 +34,10 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
 	  .mc-branch-rail{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;padding:2px 0 8px;overscroll-behavior-inline:contain;scrollbar-width:none;touch-action:pan-x}
   .mc-branch-rail::-webkit-scrollbar{display:none}
   .mc-branch-chip{flex:0 0 clamp(200px,68vw,232px);min-width:0;min-height:56px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);background:rgba(1,47,52,.38);color:var(--mc-mint);padding:8px 10px;font:11px var(--mono);scroll-snap-align:start}
-	  .mc-glyph{width:28px;height:28px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);display:inline-grid;place-items:center;color:var(--mc-chartreuse);background:var(--mc-panel);position:relative;overflow:hidden;flex:none}
-	  .mc-glyph svg{width:80%;height:80%;display:block;stroke:currentColor;fill:none;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
-	  .mc-glyph .mc-fill{fill:currentColor;opacity:.16;stroke:currentColor}
-	  .mc-glyph .mc-core{fill:currentColor;stroke:none;opacity:.86}
-	  .mc-glyph .mc-soft{opacity:.42}
-	  .mc-glyph .mc-dash{stroke-dasharray:1.4 2.5}
-	  .mc-glyph.is-active,.mc-glyph.is-selected,.mc-glyph.is-complete{border-color:rgba(224,255,79,.42);background:var(--mc-active-fill)}
-	  .mc-glyph.is-active::after,.mc-glyph.is-selected::after{content:"";position:absolute;inset:2px;border-radius:inherit;border:1px solid rgba(224,255,79,.24);pointer-events:none}
-	  .mc-glyph.is-blocked,.mc-glyph.is-proof-needed{color:var(--mc-warn);border-color:rgba(248,181,96,.5);background:var(--mc-warning-fill)}
-	  .mc-glyph.is-locked{color:rgba(214,255,246,.46);border-color:rgba(214,255,246,.1);opacity:.72}
-	  .mc-glyph.is-stale{color:var(--mc-warn);border-color:rgba(248,181,96,.34)}
-	  .mc-state-token{display:inline-flex;align-items:center;gap:6px;min-height:24px;border:1px solid var(--mc-line);border-radius:999px;padding:4px 8px;font:10px var(--mono);color:var(--mc-mint)}
-	  .mc-state-token::before{content:"";width:6px;height:6px;border-radius:50%;border:1px solid currentColor;opacity:.75}
-	  .mc-state-token.is-active::before,.mc-state-token.is-selected::before{background:currentColor}
-	  .mc-state-token.is-complete::before{border-radius:50%;background:var(--mc-chartreuse);box-shadow:inset 0 0 0 2px var(--mc-panel)}
-	  .mc-state-token.is-blocked::before,.mc-state-token.is-proof-needed::before{border-radius:2px;transform:rotate(45deg);background:transparent}
-	  .mc-state-token.is-locked::before{border-radius:2px;opacity:.5}
-	  .mc-state-token.is-stale::before{background:transparent;border-style:dashed}
-	  .mc-state-token.is-active,.mc-state-token.is-selected,.mc-state-token.is-complete{border-color:rgba(224,255,79,.38);color:var(--mc-chartreuse)}
-	  .mc-state-token.is-blocked,.mc-state-token.is-proof-needed{border-color:rgba(248,181,96,.5);color:var(--mc-warn);animation:warningAttention 2.4s var(--ease) 1 both}
-	  .mc-state-token.is-stale{border-color:rgba(248,181,96,.36);color:var(--mc-warn)}
-	  .mc-state-token.is-locked{opacity:.66}
-	  .mc-orbit{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--mc-line-strong);display:grid;place-items:center;color:var(--mc-chartreuse);font:10px var(--mono);background:radial-gradient(circle,rgba(1,47,52,.96) 0 52%,transparent 53%),conic-gradient(currentColor calc(var(--mc-progress,0) * 1%),rgba(214,255,246,.08) 0)}
-	  .mc-orbit::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(224,255,79,.24);pointer-events:none}
-	  .mc-orbit.is-active::after{border-color:rgba(224,255,79,.4)}
-	  .mc-orbit.is-complete::after{border-color:rgba(224,255,79,.48)}
-	  .mc-orbit.is-blocked,.mc-orbit.is-proof-needed,.mc-orbit.is-stale{color:var(--mc-warn);border-color:rgba(248,181,96,.44);background:radial-gradient(circle,rgba(1,47,52,.96) 0 52%,transparent 53%),conic-gradient(currentColor calc(var(--mc-progress,0) * 1%),rgba(248,181,96,.11) 0)}
-	  .mc-orbit.is-proof-needed::after{border-style:dotted;border-color:rgba(248,181,96,.5)}
-	  .mc-orbit.is-locked{color:rgba(214,255,246,.48);border-style:dashed}
-	  .mc-orbit-label{position:relative;z-index:1;text-align:center;max-width:34px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-	  .mc-orbit .mc-packet-dots{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);min-height:6px;gap:3px;animation:none}
-	  .mc-selected-halo{position:relative;box-shadow:0 0 0 1px rgba(224,255,79,.5),0 0 18px rgba(224,255,79,.18)}
-	  .mc-selected-halo::after{content:"";position:absolute;inset:3px;border-radius:inherit;border:1px solid rgba(224,255,79,.22);pointer-events:none}
-	  .mc-signal-rail{position:relative;min-height:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
-	  .mc-signal-rail.is-active{border-color:rgba(224,255,79,.34)}
-	  .mc-signal-rail.is-blocked,.mc-signal-rail.is-proof-needed{border-color:rgba(248,181,96,.42);border-style:dashed}
-	  .mc-signal-rail.is-locked{border-style:dashed;opacity:.62}
-	  .mc-signal-rail .mc-rail-end{position:absolute;right:2px;top:50%;width:7px;height:7px;border:1px solid var(--mc-warn);transform:translateY(-50%) rotate(45deg);background:rgba(248,181,96,.1)}
-	  .mc-packet-dots{display:flex;gap:5px;align-items:center;justify-content:center;min-height:20px;max-width:100%;overflow:hidden}
-	  .mc-packet-dots[data-motion="packetDrift"]{animation:packetDrift 3.6s var(--ease) infinite alternate}
-	  .mc-packet{width:4px;height:4px;border-radius:50%;background:var(--ink);box-shadow:0 0 7px rgba(224,255,79,.34);flex:0 0 auto}
-	  .mc-packet-dots.is-blocked .mc-packet,.mc-packet-dots.is-proof-needed .mc-packet,.mc-packet-dots.is-stale .mc-packet{background:var(--mc-warn);box-shadow:0 0 7px rgba(248,181,96,.2)}
-	  .mc-glyph[data-motion="glyphBreathe"] svg{transform-origin:center;animation:glyphBreathe 3.4s var(--ease) infinite}
+	  /* mc-glyph / mc-state-token / mc-orbit / mc-selected-halo / mc-signal-rail / mc-packet-dots / mc-kpi-bars
+	     moved to styles/components.ts (frozen T-013/T-014 spec). Scene overrides below still apply. */
   .mc-questline{display:grid;width:100%;min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:8px;padding:6px 9px;overflow:hidden;background:rgba(1,47,52,.26)}
   .mc-proof-list{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;font:11px var(--mono);color:var(--soft);background:rgba(1,47,52,.24)}
-	  .mc-kpi-pulse{display:inline-grid;place-items:center;min-width:38px;min-height:38px;border-radius:50%;border:1px solid rgba(224,255,79,.34);color:var(--ink)}
 	  .mc-state-stack{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:rgba(1,47,52,.26)}
 	  .mc-state-row{appearance:none;text-align:left;color:var(--soft);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;
 	    min-height:56px;padding:9px 10px;border:0;border-bottom:1px solid var(--line);background:transparent;font:12px/1.35 inherit}
@@ -91,10 +47,10 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
 	  .mc-state-row .mc-glyph{width:34px;height:34px}
 	  .mc-state-row .mc-orbit{width:34px;height:34px}
 	  .mc-state-row.is-selected{border-color:rgba(224,255,79,.36);background:rgba(224,255,79,.035)}
-	  .mc-state-row.is-blocked{box-shadow:inset 2px 0 0 rgba(248,181,96,.7)}
-	  .mc-state-row.is-proof-needed{box-shadow:inset 2px 0 0 rgba(248,181,96,.45)}
+	  .mc-state-row.is-blocked{box-shadow:inset 2px 0 0 rgba(255,199,161,.7)}
+	  .mc-state-row.is-proof-needed{box-shadow:inset 2px 0 0 rgba(255,199,161,.45)}
 	  .mc-state-row:active{transform:scale(.99)}
-	  .mission-stale-notice{border:1px dashed rgba(248,181,96,.42);border-radius:8px;padding:10px;background:rgba(248,181,96,.045);font:11.5px/1.45 var(--mono)}
+	  .mission-stale-notice{border:1px dashed rgba(255,199,161,.42);border-radius:8px;padding:10px;background:rgba(255,199,161,.045);font:11.5px/1.45 var(--mono)}
 	  .mission-stale-notice b{display:block;color:var(--warn);font-weight:650;margin-bottom:3px}
 	  .mc-action-row{position:static;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 0 2px}
 	  .mc-action-row[data-component="GateActionRow"]{border-top:1px solid var(--line);margin-top:2px}
@@ -124,14 +80,6 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
 	  .component-motion-frames .mc-glyph,.component-motion-frames .mc-orbit{margin:auto}
 	  .component-motion-frame{min-height:58px;display:grid;place-items:center;border:1px dashed var(--line2);border-radius:7px;background:rgba(1,47,52,.22)}
 	  .component-legend-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
-	  .component-legend-node{width:18px;height:18px;border-radius:50%;border:1px solid var(--line2);background:rgba(1,47,52,.45)}
-	  .component-legend-node.is-rail{width:32px;height:2px;border-radius:2px;background:var(--line2)}
-	  .component-legend-node.is-packet{width:7px;height:7px;background:var(--ink);box-shadow:0 0 8px rgba(224,255,79,.38)}
-	  .component-legend-node.is-orbit{border-color:rgba(224,255,79,.46);background:conic-gradient(var(--ink) 70%,rgba(214,255,246,.1) 0)}
-	  .component-legend-node.is-active{background:var(--ink);border-color:var(--ink)}
-	  .component-legend-node.is-warning{background:var(--warn);border-color:var(--warn)}
-	  .component-legend-node.is-locked{opacity:.46;border-style:dashed}
-	  .component-legend-node.is-stale{border-color:var(--warn);border-style:dashed}
 	  .stagegrid{display:grid;grid-template-columns:1fr;gap:8px}
   .stage-card{position:relative;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;
     padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:rgba(1,47,52,.36);color:var(--soft);

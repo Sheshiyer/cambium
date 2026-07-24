@@ -1,9 +1,10 @@
 // cambium-quests · miniapp page assembler (T-009 pure refactor).
-// Concatenates the page/* chunks in served order. The result is byte-identical to the
-// former monolithic page.ts PAGE string; proof tooling pins sha256(PAGE), so keep order stable.
+// Concatenates the page/* chunks in served order. The byte-identical era ended at P2-W1:
+// frozen-spec visual changes land here now; keep assembly order explicit and stable.
 import { STYLE_TOKENS } from './styles/tokens.ts';
 import { STYLE_TOOLS } from './styles/tools.ts';
 import { STYLE_MISSION } from './styles/mission.ts';
+import { STYLE_COMPONENTS } from './styles/components.ts';
 import { STYLE_INSPECT } from './styles/inspect.ts';
 import { STYLE_STORY } from './styles/story.ts';
 import { STYLE_GATE } from './styles/gate.ts';
@@ -30,6 +31,7 @@ export const PAGE =
   STYLE_TOKENS +
   STYLE_TOOLS +
   STYLE_MISSION +
+  STYLE_COMPONENTS +
   STYLE_INSPECT +
   STYLE_STORY +
   STYLE_GATE +
