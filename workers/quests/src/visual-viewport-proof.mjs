@@ -75,7 +75,7 @@ function missionContainmentAssertion(width) {
     const scene = scenes[activeIndex];
     const card = document.querySelector('.mc-mission-card');
     const branches = document.querySelector('.mc-branch-rail');
-    const questline = document.querySelector('.mc-questline');
+    const questline = document.querySelector('.mc-timeline, .mc-questline');
     const proofRows = [...document.querySelectorAll('[data-mission-proof-row]')];
     const branchAllowlist = scene ? [...scene.querySelectorAll('[data-horizontal-scroll="branch-rail"]')] : [];
     const isAllowlisted = (node) => Boolean(node.closest('[data-horizontal-scroll="branch-rail"]'));
@@ -124,7 +124,7 @@ function missionContainmentAssertion(width) {
       questlineNoHorizontalGesture: Boolean(questlineStyle) && !/^(auto|scroll)$/.test(questlineStyle.overflowX) && !questlineStyle.touchAction.split(/\\s+/).includes('pan-x'),
       branchTabs: Boolean(branches) && branches.getAttribute('role') === 'tablist' && Boolean(branches.querySelector('[role="tab"][aria-selected="true"]')),
       proofButtons: proofRows.length > 0 && proofRows.every((row) => row.tagName === 'BUTTON'),
-      labelsBounded: [...document.querySelectorAll('.mc-questline-row b')].every((label) => label.scrollWidth <= label.clientWidth + 1 || getComputedStyle(label).webkitLineClamp === '2'),
+      labelsBounded: [...document.querySelectorAll('.mc-timeline-station b, .mc-questline-row b')].every((label) => label.scrollWidth <= label.clientWidth + 1 || getComputedStyle(label).webkitLineClamp === '2'),
       activeSceneDescendantsContained: overflowOffenders.length === 0,
       settledSceneIsolated: inactiveSceneIntersections.length === 0,
       compactActionsDoNotOverlap,
@@ -342,7 +342,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     sceneIndex: 0,
     exactViewport: true,
     viewport: { width: 320, height: 844 },
-    waitFor: "document.querySelector('.mc-mission-card') && document.querySelector('.mc-branch-rail[role=\"tablist\"]') && document.querySelector('.mc-questline[data-no-scene-drag=\"1\"]')",
+    waitFor: "document.querySelector('.mc-mission-card') && document.querySelector('.mc-branch-rail[role=\"tablist\"]') && document.querySelector('.mc-timeline[data-no-scene-drag=\"1\"], .mc-questline[data-no-scene-drag=\"1\"]')",
     assertExpression: missionContainmentAssertion(320),
   },
   {
@@ -363,7 +363,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     sceneIndex: 0,
     exactViewport: true,
     viewport: { width: 430, height: 844 },
-    waitFor: "document.querySelector('.mc-mission-card') && document.querySelector('.mc-branch-rail[role=\"tablist\"]') && document.querySelector('.mc-questline[data-no-scene-drag=\"1\"]')",
+    waitFor: "document.querySelector('.mc-mission-card') && document.querySelector('.mc-branch-rail[role=\"tablist\"]') && document.querySelector('.mc-timeline[data-no-scene-drag=\"1\"], .mc-questline[data-no-scene-drag=\"1\"]')",
     assertExpression: missionContainmentAssertion(430),
   },
   {
@@ -640,24 +640,23 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     waitFor: "document.querySelector('[data-action-request-id=\"ar_iverif_w6_live_mrcwmcs3\"] [data-gate-proof=\"1\"]')",
     scrollSelector: '[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"]',
     tapTargetSelector: '[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"] [data-gate-proof="1"]',
-    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet').textContent.includes('gate detail · proof') && document.querySelector('#sheet').textContent.includes('The signed confirmation is queued') && document.querySelector('#sheet').textContent.includes('AutoGTM by Explee has triggered leads')",
+    waitAfterExpression: "document.querySelector('.root-tab.on') && document.querySelector('.root-tab.on').id === 'tb4' && !document.querySelector('#sheet.on')",
     assertExpression: `(() => {
-      const sheet = document.querySelector('#sheet.on');
-      const proofValue = sheet && [...sheet.querySelectorAll('.gatekv span')].find((span) => span.textContent.includes('AutoGTM by Explee has triggered leads'));
+      const activeTab = document.querySelector('.root-tab.on');
+      const scenes = [...document.querySelectorAll('.scene')];
+      const inspectScene = scenes[4];
+      const inspectVisible = inspectScene && getComputedStyle(inspectScene).display !== 'none';
       return {
-        ok: Boolean(sheet && proofValue)
+        ok: Boolean(activeTab && activeTab.id === 'tb4' && inspectVisible && !document.querySelector('#sheet.on'))
           && Math.abs(window.innerWidth - 390) <= 1
           && Math.abs(window.innerHeight - 844) <= 1
           && Boolean(window.visualViewport)
           && Math.abs(window.visualViewport.width - 390) <= 1
-          && Math.abs(window.visualViewport.height - 844) <= 1
-          && sheet.scrollWidth <= sheet.clientWidth + 1
-          && proofValue.scrollWidth <= proofValue.clientWidth + 1,
+          && Math.abs(window.visualViewport.height - 844) <= 1,
       };
     })()`,
     clickTargetSelector: '[data-action-request-id="ar_iverif_w6_live_mrcwmcs3"] [data-gate-proof="1"]',
     clickTargetCount: 1,
-    clipSelector: '#sheet',
   },
   { scene: 'story', fixture: 'action-requests', path: 'story-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 3, waitFor: "document.querySelector('[data-ecosystem-target=\"action-requests\"]') && document.body.textContent.includes('IVerif ActionRequest')" },
   { scene: 'inspect', fixture: 'action-requests', path: 'inspect-iverif-action-request-mobile.png', intent: 'layout-proof', sceneIndex: 4, prepareExpression: inspectPanePreparation('proof', 'Decisions and receipts'), scrollSelector: '[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]', waitFor: "document.querySelector('[data-component=\"ActionRequestProjectionCard\"]') && document.body.textContent.includes('action requests')" },
@@ -669,7 +668,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     waitFor: "document.querySelector('[data-signed-action-entrypoint=\"confirm-action-request\"]')",
     scrollSelector: '[data-signed-action-entrypoint="confirm-action-request"]',
     expression: "(() => { const el = document.querySelector('[data-signed-action-entrypoint=\"confirm-action-request\"]'); if (!el) throw new Error('missing confirm ActionRequest gate action'); el.click(); })()",
-    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"confirm-action-request\"]') && document.querySelector('#sheet').textContent.includes('Waiting for explicit signed confirmation') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
+    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"confirm-action-request\"]') && document.querySelector('#sheet').textContent.includes('gate preflight') && document.querySelector('#sheet [data-gate-preflight-inspect=\"1\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40",
     clickTargetSelector: '[data-signed-action-entrypoint="confirm-action-request"]',
     clickTargetCount: 1,
     clipSelector: '#sheet',
@@ -683,7 +682,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     scrollSelector: '[data-signed-action-entrypoint="confirm-action-request"]',
     expression: "(() => { const entry = document.querySelector('[data-signed-action-entrypoint=\"confirm-action-request\"]'); if (!entry) throw new Error('missing confirm ActionRequest gate action'); entry.click(); })()",
     tapTargetSelector: '[data-gate-confirm="confirm-action-request"]',
-    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"confirm-action-request\"][data-gate-submit-state=\"request-sent\"]') && document.querySelector('[data-gate-submit-status=\"request-sent\"]') && document.querySelector('#sheet').textContent.includes('Worker request sent; waiting for response') && document.querySelector('[data-gate-confirm=\"confirm-action-request\"]').textContent.includes('Queueing...')",
+    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"confirm-action-request\"][data-gate-submit-state=\"request-sent\"]') && document.querySelector('[data-gate-submit-status=\"request-sent\"]') && document.querySelector('#sheet').textContent.includes('sending…') && document.querySelector('[data-gate-confirm=\"confirm-action-request\"]').textContent.includes('Queueing...')",
     expectedWorkerPostCount: 1,
     clickTargetSelector: '[data-gate-confirm="confirm-action-request"]',
     clickTargetCount: 1,

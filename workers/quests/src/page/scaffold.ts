@@ -42,20 +42,20 @@ export const SCAFFOLD = `</head>
           <div class="gate-title-row">
             <span class="mc-glyph is-proof-needed" data-component="MissionGlyph" data-glyph-kind="gate" data-state="proof-needed" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 4.8 27 24.8H5Z"/><path d="M16 6.8 24.7 23H7.3Z"/><path d="M16 12.8 20.8 20.8H11.2Z"/><path class="mc-core" d="M15.9 17.2 17.9 20.2H13.9Z"/><path class="mc-soft" d="M8.2 27.2c2.2-2.8 4.6-3.2 7.8-1.2 3.2-2 5.6-1.6 7.8 1.2"/></svg></span>
             <div>
-              <h3>Gate · decisions</h3>
-              <p>Review founder decisions tied to branches, missions, proof, consequence, and reversibility.</p>
-              <div id="gateHeroDecision" class="gate-hero-decision" data-component="GateDecisionHeroCard"><b>Decision waiting</b><span>Loading Gate queue…</span></div>
+              <h3>Gate</h3>
+              <p>founder decisions · proof first</p>
+              <div id="gateHeroDecision" class="gate-hero-decision" data-component="GateDecisionHeroCard"><b>Gate quiet</b><span>loading the queue…</span></div>
             </div>
           </div>
         </section>
         <div class="gate-progress-summary" data-component="GateProgressSummary">
           <div class="gauge" id="gauge" data-component="OrbitProgress"></div>
-          <div class="gate-progress-copy"><b>Receipt sync</b><span>Queued actions return here only after Worker queue, operator consumption, and Mini App refresh proof line up.</span></div>
+          <div class="gate-progress-copy"><b>Receipt sync</b><span>receipts land after operator consumption</span></div>
         </div>
         <div class="gate-state-strip" data-component="GateStateStack">
-          <span><b>Decision</b><small>founder confirmation</small></span>
-          <span><b>Effect</b><small>held for operator consumption</small></span>
-          <span><b>Proof</b><small>evidence before action</small></span>
+          <span><b>Decision</b><small>founder sign</small></span>
+          <span><b>Effect</b><small>awaits operator</small></span>
+          <span><b>Proof</b><small>evidence first</small></span>
         </div>
         <div id="gate" class="gate-queue">loading the queue…</div>
       </div>

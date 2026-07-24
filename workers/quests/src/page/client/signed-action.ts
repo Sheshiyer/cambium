@@ -1,10 +1,17 @@
 // cambium-quests · miniapp page chunk — Gate scene + signed action client (initData, preflight, queue posts)
-// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
-// Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+// T-017/T-018 rebuild: decision queue as visual state stack (frozen/02 §5), Gate Attention strip
+// (frozen/03 strip 5), GateActionRow anatomy (frozen/01), single-consequence-line preflight sheet
+// (frozen/05 §3 + frozen/06 §2.4). Copy per frozen/06 G1–G20. The signed-action CLIENT CONTRACT is
+// frozen by docs/architecture/contracts/tg-miniapp-contract-v2.md §2: runtime initData auth, the
+// POST /api/gate payload shape, idempotency keys, and the queue consume flow are unchanged.
+// Assembly order: page/index.ts.
 export const CLIENT_SIGNED_ACTION = `/* ── gate — one queued founder decision. initData proves the founder; the Worker validates (Ed25519). ── */
 const initData = (TG && TG.initData) || '';
 let GATE_ITEMS = [];
 let GATE_FILTER = 'all';
+let GATE_PREFLIGHT_ORIGIN = null;
+/* Canonical StateToken subtitles (frozen/06 §2.3) — context-free, same words on every tab. */
+const GATE_STATE_SUBTITLE = { idle:'waiting', active:'ready', selected:'selected', complete:'verified', blocked:'blocked', stale:'refresh first', locked:'on hold', 'proof-needed':'needs proof', 'reduced-motion':'waiting' };
 function actionRequestRows(env){
   const envelope = env && env.actionRequests;
   const rows = Array.isArray(envelope)
@@ -46,25 +53,12 @@ function gateTelegramMeta(it){
   const messageId = telegram.messageId || telegram.actionCardMessageId || topic.sourceMessageId || topic.messageId || topic.actionCardMessageId || row.sourceMessageId || row.messageId || row.actionCardMessageId || '';
   return { topicLabel, threadId:String(threadId || '').trim(), messageId:String(messageId || '').trim() };
 }
-function gateTelegramRoute(it){
-  const meta = gateTelegramMeta(it);
-  if (!meta.topicLabel && !meta.threadId && !meta.messageId) return '';
-  const parts = [];
-  parts.push(meta.topicLabel || 'Telegram topic');
-  if (meta.threadId) parts.push('topic ' + meta.threadId);
-  if (meta.messageId) parts.push('message ' + meta.messageId);
-  return parts.join(' · ');
-}
 function gateReceiptExpectation(it){
   const row = (it && it.actionRequest) || it || {};
   const explicit = (it && it.receiptExpectation) || row.receiptExpectation;
   return explicit ? String(explicit) : '';
 }
-function gateLatestReceipt(it){
-  const row = (it && it.actionRequest) || it || {};
-  const latest = row && row.receipts && row.receipts.latest;
-  return latest && latest.text ? String(latest.text) : '';
-}
+/* v2 §1 exit rule: consumed / completed / superseded rows leave the active Gate list. */
 function actionRequestGateItems(env){
   return actionRequestRows(env).filter(row => !/completed|consumed|superseded/i.test(String(row.status || ''))).map(row => {
     const selected = actionRequestSelectedOption(row);
@@ -111,10 +105,6 @@ function gateItemsFromEnvelope(env){
   return openItems.concat(actionRequestGateItems(env || {}));
 }
 function gateSource(it){ return (it && (it.paperclipSource || it.source || it.sourcePath || it.origin || (it.priority && it.priority.source))) || 'Paperclip · /internal/gate/' + TENANT; }
-function gateOriginLabel(it){
-  const raw = String(gateSource(it) || 'Paperclip');
-  return raw.split(' · ')[0] || 'Paperclip';
-}
 function gateOwner(it){ return (it && (it.owner || it.assignee || it.founder || it.operator)) || 'owner not served'; }
 function gateUpdatedAt(it){ return (it && (it.updatedAt || it.updated || it.ts || it.createdAt)) || 'updatedAt not served'; }
 function gateSubject(it){ return (it && (it.id || it.title)) || 'handoff'; }
@@ -173,7 +163,10 @@ function gatePriorityChips(it){
   return chips.length ? '<div class="gpriority">' + chips.slice(0, 4).map(chip => '<span>' + esc(chip) + '</span>').join('') + '</div>' : '';
 }
 function gateFilterKey(it){
-  const state = mcStateKind((it && it.status) || 'proof-needed');
+  const raw = String((it && it.status) || 'proof-needed');
+  /* proposed / needs_signed_confirmation are review-ready (controls enabled, gate.json states.derivation). */
+  if (raw === 'proposed' || raw === 'needs_signed_confirmation') return 'review';
+  const state = mcStateKind(raw);
   if (state === 'blocked' || state === 'stale') return 'blocked';
   if (state === 'proof-needed' || state === 'active') return 'review';
   return 'all';
@@ -206,38 +199,73 @@ function renderGateFilters(items){
     ).join('') +
   '</div>';
 }
+/* Row display state: served status + stale sync + irreversible reversibility (gate.json states.derivation). */
+function gateRowState(it){
+  const raw = String((it && it.status) || 'proof-needed');
+  /* proposed = ready for founder review (active); proof-needed stays the missing-status default (gate.json). */
+  const base = it && it.actionRequest ? actionRequestState(it.actionRequest) : (raw === 'proposed' ? 'active' : mcStateKind(raw));
+  const stale = base === 'stale' || /not served|stale|old|expired/i.test(gateUpdatedAt(it));
+  if (stale) return 'stale';
+  if (gateReversibilityState(gateReversibility('approve', it)) === 'blocked') return 'blocked';
+  return base;
+}
+function gateRowSubtitle(it, state){
+  if (isActionRequestGateItem(it) && String((it && it.status) || '') === 'queued') return 'awaits operator';
+  return GATE_STATE_SUBTITLE[mcStateKind(state)] || 'waiting';
+}
+/* Left ~60px state token (icon + color + rail, never color alone); words live in the row subtitle. */
+function gateRowToken(state, subtitle){
+  const kind = mcStateKind(state);
+  const icon = MC_STATE_ICON[kind] || MC_STATE_ICON.idle;
+  return '<span class="' + mcClass('gate-row-token', kind) + '" data-component="StateToken" data-state="' + esc(kind) + '" aria-hidden="true"><i class="mc-token-icon">' + icon + '</i></span>';
+}
+/* Gate Attention strip (frozen/03 strip 5): quiet → attention (peach stroke + triangle, warningAttention runs once) → review (filled peach Review pill). */
+function gateReviewReady(it){
+  if (isActionRequestGateItem(it) && String((it && it.status) || '') === 'needs_signed_confirmation') return true;
+  return gateFilterKey(it) === 'review';
+}
+function renderGateAttention(items){
+  const review = items.filter(gateReviewReady).length;
+  const blocked = items.filter(item => gateFilterKey(item) === 'blocked').length;
+  const state = review > 0 ? 'review' : blocked > 0 ? 'attention' : 'quiet';
+  const copy = state === 'review' ? review + ' to review' : state === 'attention' ? blocked + ' blocked' : 'gate quiet';
+  const tail = state === 'review'
+    ? '<button type="button" class="gate-attn-review" data-gate-attention-review="1">Review</button>'
+    : (state === 'attention' ? '<span class="gate-attn-triangle" data-motion-primitive="warningAttention" aria-hidden="true">' + MC_STATE_ICON.blocked + '</span>' : '') +
+      '<span class="gate-attn-chev" aria-hidden="true">›</span>';
+  return '<div class="' + 'gate-attention is-' + state + '" data-component="GateAttentionStrip" data-attention-state="' + state + '">' +
+    mcGlyphSvg('gate', state === 'quiet' ? 'locked' : 'blocked') +
+    '<span class="gate-attn-copy">' + esc(copy) + '</span>' + tail + '</div>';
+}
 function renderGateQueue(items, source){
   if (!items.length) return renderGateEmpty(source);
   const filtered = items.map((item, index) => ({ item, index })).filter(row => gateFilterMatch(row.item));
-  return renderGateFilters(items) +
-    (filtered.length ? filtered.map(row => renderGateItem(row.item, row.index)).join('') : '<div class="gnote">No Gate items match ' + esc(gateFilterLabel(GATE_FILTER)) + '; urgent blockers stay visible under all.</div>') +
-    '<div class="gnote">signed actions queue founder decisions; detail sheets carry audit proof.</div>';
+  return '<div class="gate-stack-header" data-component="GateStackHeader">Decision queue</div>' +
+    renderGateAttention(items) +
+    renderGateFilters(items) +
+    '<div class="gate-stack" data-component="GateDecisionStack">' +
+    (filtered.length ? filtered.map(row => renderGateItem(row.item, row.index)).join('') : '<div class="gnote">no rows match · blockers stay under all</div>') +
+    '</div>' +
+    '<div class="gnote">signed decisions queue here · proof lives in Inspect</div>';
 }
 function renderGateHeroDecision(items, source){
   const first = items[0] || null;
   const el = $('gateHeroDecision');
   if (!el) return;
   if (!first) {
-    el.innerHTML = '<b>Decision waiting</b><span>No founder decision is waiting; Mission and Inspect stay available.</span>';
+    el.innerHTML = '<b>Gate quiet</b><span>mission and inspect stay open</span>';
     el.dataset.gateHeroState = 'idle';
     return;
   }
-  el.innerHTML = '<b>' + esc(gateSubject(first)) + '</b><span>' + esc(gateBranchMission(first)) + ' · proof: ' + esc(gateEvidence(first)) + '</span>';
+  el.innerHTML = '<b>' + esc(gateSubject(first)) + '</b><span>' + esc(gateBranchMission(first)) + '</span>';
   el.dataset.gateHeroState = mcStateKind(first.status || 'proof-needed');
   el.dataset.source = gateSource(first) || source;
-}
-function gateFact(label, value){
-  return '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>';
 }
 function renderGateEmpty(source){
   return '<div class="gate-empty" data-component="GateEmptyState" data-gate-state="empty" data-source="' + esc(source) + '">' +
     mcGlyphSvg('gate', 'locked') +
-    '<div><b>no founder decisions waiting.</b><span>Gate is quiet. Evidence-backed approve and reroll choices appear here only after Cambium serves an open item.</span>' +
+    '<div><b>no founder decisions waiting.</b><span>decisions appear here when Cambium serves open work</span>' +
       mcSignalRail({ state:'locked', packetCount:3 }) +
-      '<div class="gmeta gate-empty-meta">' +
-        gateFact('Decision lane', 'waiting for open work') +
-        gateFact('Founder action', 'confirmation appears with the next decision') +
-      '</div>' +
       '<div class="gbtns"><button type="button" class="detail" data-gate-empty-nav="mission">Mission</button><button type="button" class="reroll" data-gate-empty-nav="inspect">Inspect</button></div>' +
     '</div>' +
   '</div>';
@@ -250,82 +278,40 @@ function renderGateError(source){
 }
 function renderGateItem(it, i){
   const evidence = gateEvidence(it);
-  const approveConsequence = gateConsequence('approve', it);
-  const rerollConsequence = gateConsequence('reroll', it);
-  const channelRoute = gateTelegramRoute(it);
-  const receiptExpectation = gateReceiptExpectation(it);
-  const latestReceipt = gateLatestReceipt(it);
-  const state = it && it.actionRequest ? actionRequestState(it.actionRequest) : mcStateKind((it && it.status) || 'proof-needed');
+  const state = gateRowState(it);
+  const subtitle = gateRowSubtitle(it, state);
   const reversibility = gateReversibility('approve', it);
   const reversibilityState = gateReversibilityState(reversibility);
-  const stale = state === 'stale' || /not served|stale|old|expired/i.test(gateUpdatedAt(it));
+  const stale = state === 'stale';
   const actionRequestStatus = isActionRequestGateItem(it) ? String((it && it.status) || '') : '';
   const needsSignedActionRequest = actionRequestStatus === 'needs_signed_confirmation';
   const queuedActionRequest = actionRequestStatus === 'queued';
   const selectedOption = gateActionRequestOption(it);
-  const selectedOptionLabel = selectedOption && selectedOption.label ? String(selectedOption.label) : '';
   const selectedOptionId = selectedOption && selectedOption.id ? selectedOption.id : ((it && it.selectedOptionId) || '');
   const actionButtons = needsSignedActionRequest
-    ? '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="confirm-action-request" data-kind="confirm-action-request" data-action-request-option-id="' + esc(selectedOptionId) + '" data-risk-state="' + esc(reversibilityState) + '">Confirm signed</button><button type="button" class="detail" data-gate-detail="1">Details</button>'
+    ? '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="confirm-action-request" data-kind="confirm-action-request" data-action-request-option-id="' + esc(selectedOptionId) + '" data-risk-state="' + esc(reversibilityState) + '">Confirm</button><button type="button" class="detail" data-gate-detail="1">Inspect</button>'
     : queuedActionRequest
-      ? '<span class="gate-queued-state" data-component="GateQueuedState" data-state="queued" aria-live="polite"><span><b>Queued</b><small>Awaiting operator consumption</small></span></span><button type="button" class="detail" data-gate-detail="1">Details</button>'
-    : '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve" data-risk-state="' + esc(reversibilityState) + '">Approve safely</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll" data-risk-state="' + esc(reversibilityState) + '">Reroll safely</button><button type="button" class="detail" data-gate-detail="1">Details</button>';
-  const actionFacts = queuedActionRequest
-    ? gateFact('Queued consequence', gateConsequence('confirm-action-request', it)) +
-      gateFact('Execution boundary', 'awaiting operator consumption; no external mutation has run')
-    : gateFact('Approve consequence', approveConsequence) +
-      gateFact('Reroll consequence', rerollConsequence) +
-      (needsSignedActionRequest ? gateFact('Signed confirmation', gateConsequence('confirm-action-request', it)) : '');
+      ? '<span class="gate-queued-state" data-component="GateQueuedState" data-state="queued" aria-live="polite"><span><b>Queued</b><small>awaits operator</small></span></span><button type="button" class="detail" data-gate-detail="1">Inspect</button>'
+      : '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-kind="approve" data-risk-state="' + esc(reversibilityState) + '">Approve</button><button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-kind="reroll" data-risk-state="' + esc(reversibilityState) + '">Reroll</button><button type="button" class="detail" data-gate-detail="1">Inspect</button>';
   const actionRequestAttrs = it && it.actionRequestId
     ? ' data-action-request-id="' + esc(it.actionRequestId) + '" data-action-request-status="' + esc(it.status || 'proposed') + '" data-action-request-selected-option-id="' + esc(selectedOptionId) + '" data-ecosystem-target="action-requests"'
     : '';
   return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '"' + actionRequestAttrs + '>' +
-    '<div class="gcard-head">' +
-      mcGlyphSvg('gate', state) +
-      '<div><div class="gid">' + esc(it.id) + '</div><div class="gtitle">' + esc(it.title) + '</div></div>' +
-      mcStateToken(state, (it && it.status) || 'Gate review') +
+    '<div class="grow-head" data-component="GateStackRow">' +
+      gateRowToken(state, subtitle) +
+      '<div class="grow-copy"><div class="gtitle">' + esc(it.title) + '</div><div class="gsub-line">' + esc(subtitle) + '</div></div>' +
+      '<span class="gate-row-dot" aria-hidden="true"></span>' +
+      '<button type="button" class="grow-chev" data-gate-detail="1" aria-label="Inspect ' + esc(it.title || it.id || 'gate item') + '">›</button>' +
     '</div>' +
     gatePriorityChips(it) +
-    ((channelRoute || receiptExpectation || latestReceipt) ? '<div class="gate-route-receipt">' +
-      (channelRoute ? '<div class="gate-route-pill" data-component="GateRoutePill"><b>Channel route</b><span>' + esc(channelRoute) + '</span></div>' : '') +
-      (receiptExpectation ? '<div class="gate-receipt-summary" data-component="GateReceiptSummary"><b>Receipt</b><span>' + esc(receiptExpectation) + '</span></div>' : '') +
-      (latestReceipt ? '<div class="gate-receipt-summary" data-component="GateLatestReceipt"><b>Latest receipt</b><span>' + esc(latestReceipt) + '</span></div>' : '') +
-    '</div>' : '') +
-    mcSignalRail({ state, packetCount:4 }) +
-    (stale ? '<span class="gate-stale-chip" data-component="GateStaleSyncState" data-gate-stale-chip="1">' + esc(gateUpdatedAt(it)) + ' · refresh before deciding</span>' : '') +
+    (stale ? '<span class="gate-stale-chip" data-component="GateStaleSyncState" data-gate-stale-chip="1">stale · refresh first · ' + esc(gateUpdatedAt(it)) + '</span>' : '') +
     '<button type="button" class="gate-proof-row" data-gate-proof="1" data-interaction-kind="sheet" aria-label="Open proof details">' +
       mcGlyphSvg('proof', state === 'blocked' ? 'proof-needed' : state) +
-      '<span class="gate-proof-copy"><b>Proof attached</b><small>' + esc(evidence) + '</small></span><span class="gate-proof-open" aria-hidden="true">›</span>' +
+      '<span class="gate-proof-copy"><b>Proof</b><small>' + esc(evidence) + '</small></span><span class="gate-proof-open" aria-hidden="true">›</span>' +
     '</button>' +
     '<div class="gbtns gate-actions' + (queuedActionRequest ? ' is-queued' : '') + '">' +
     actionButtons + '</div>' +
-    '<div class="gmeta">' +
-      gateFact('Decision waiting', gateSubject(it)) +
-      gateFact('Branch / mission', gateBranchMission(it)) +
-      (channelRoute ? gateFact('Channel route', channelRoute) : '') +
-      (selectedOptionLabel ? gateFact('Selected option', selectedOptionLabel) : '') +
-      (receiptExpectation ? gateFact('Receipt expectation', receiptExpectation) : '') +
-      (latestReceipt ? gateFact('Latest receipt', latestReceipt) : '') +
-      actionFacts +
-      gateFact('Reversibility', reversibility) +
-    '</div>' +
-    '<div class="gitem-details" data-component="GateRowExpansionDetails">' +
-      '<span><b>State</b>' + esc(state) + '</span>' +
-      '<span><b>Sync</b>' + esc(stale ? 'stale; refresh before decisions' : queuedActionRequest ? 'queued; awaiting operator consumption' : gateFilterKey(it) === 'blocked' ? 'needs proof before action' : 'ready for founder review') + '</span>' +
-      '<span><b>Updated</b>' + esc(gateUpdatedAt(it)) + '</span>' +
-      '<span><b>Reversibility state</b>' + esc(reversibilityState) + '</span>' +
-    '</div></div>';
-}
-function gateRows(rows){ return '<div class="kv gatekv">' + rows.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
-function openGateSheet(arc, title, narrative, rows){
-  $('sheetBody').innerHTML = '<div class="arc">' + esc(arc) + '</div><h2>' + esc(title) + '</h2>' +
-    '<div class="nar">' + esc(narrative) + '</div>' + gateRows(rows);
-  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
-}
-function openGateTelegramAuthFailure(error){
-  openGateSheet('Telegram auth · blocked', 'Open inside Telegram',
-    'This signed action must run inside Telegram with valid founder auth so initData can prove the founder. No local queue write was created.',
-    [['source route','/api/gate/' + TENANT], ['response', error || 'missing initData (the gate opens inside Telegram)'], ['queue write','none']]);
+  '</div>';
 }
 function isGateAuthFailure(error){
   return /initData|Telegram|signature|auth_date|founder|verification unavailable/i.test(String(error || ''));
@@ -335,90 +321,48 @@ function returnFromGate(target, item){
   closeSheet();
   go(target === 'mission' ? 0 : 4);
 }
-function openGateResultSheet(kind, subject, res, fallback, item){
-  const duplicate = !!(res && res.duplicate);
-  const isActionRequestConfirm = kind === 'confirm-action-request';
-  const channelRoute = gateTelegramRoute(item);
-  const receiptExpectation = gateReceiptExpectation(item);
-  const latestReceipt = gateLatestReceipt(item);
-  const rows = [['action kind', kind], ['subject', subject]];
-  if (channelRoute) rows.push(['channel route', channelRoute]);
-  if (latestReceipt) rows.push(['latest receipt', latestReceipt]);
-  if (receiptExpectation) rows.push(['receipt expectation', receiptExpectation]);
-  rows.push(['queued action', (res && res.queued) || 'missing'], ['idempotency', (res && res.idempotencyKey) || fallback.idempotencyKey], ['consequence', (res && res.consequence) || fallback.consequence], ['reversibility', (res && res.reversibility) || fallback.reversibility]);
-  $('sheetBody').innerHTML = '<div class="arc">gate result · ' + esc(duplicate ? 'duplicate' : 'queued') + '</div><h2>' + esc(duplicate ? 'Original Queued Action Reused' : isActionRequestConfirm ? 'ActionRequest Signed Confirmation Queued' : 'Founder Decision Queued') + '</h2>' +
-    '<div class="nar">' + esc(duplicate
-      ? 'Duplicate response reused the original queued action. This does not imply a new write.'
-      : isActionRequestConfirm
-        ? 'Signed Mini App confirmation updated the canonical ActionRequest to queued. Client-facing send, spend, deploy, or outbound execution still waits for operator consumption.'
-        : 'Signed action queued a founder decision only. Paperclip and org state do not mutate until an operator consumes the queue.') + '</div>' +
-    gateRows(rows) +
-    '<div class="gbtns gate-result-actions"><button type="button" class="approve" data-gate-result-refresh="1">Refresh receipt</button><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
+function gateWireSheetNav(item){
   $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
     returnFromGate(el.dataset.gateResultNav, item);
   });
+}
+/* Receipt token + state flip, ≤ 8 words surrounding copy (frozen/05 §3, frozen/06 G16). */
+function openGateResultSheet(kind, subject, res, fallback, item){
+  const duplicate = !!(res && res.duplicate);
+  const title = duplicate
+    ? 'Original queued action reused'
+    : kind === 'confirm-action-request'
+      ? 'ActionRequest confirmation queued'
+      : 'Founder decision queued';
+  $('sheetBody').innerHTML = '<div class="arc">gate result</div><h2>' + esc(title) + '</h2>' +
+    '<div class="gate-result-line" data-component="GateReceiptToken">' + mcStateToken('complete', 'receipt') + '<span>' + esc(duplicate ? 'decision queued · original reused' : 'decision queued · receipt in Inspect') + '</span></div>' +
+    /* Small receipt kv (frozen/06 G19: receipt carries the mono idempotency key). The no-kv-wall rule
+       governs the preflight; the result sheet is a receipt surface, Inspect-adjacent, so two rows live here. */
+    '<div class="gatekv" data-component="GateReceiptDetails">' +
+      '<b>queued action</b><span>' + esc((res && (res.queued || res.id)) || subject) + '</span>' +
+      '<b>idempotency</b><span>' + esc((res && res.idempotencyKey) || (fallback && fallback.idempotencyKey) || 'receipt pending') + '</span>' +
+    '</div>' +
+    '<div class="gbtns gate-result-actions"><button type="button" class="approve" data-gate-result-refresh="1">Refresh</button><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
+  gateWireSheetNav(item);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function openGateFailureSheet(kind, subject, error, fallback, item){
-  $('sheetBody').innerHTML = '<div class="arc">gate result · refused</div><h2>Decision Not Queued</h2>' +
-    '<div class="nar">The Worker refused this signed action. No local queue write was created, and branch proof is unchanged.</div>' +
-    gateRows([['action kind', kind], ['subject', subject], ['reason', error || 'unknown'], ['idempotency', fallback.idempotencyKey], ['consequence', fallback.consequence], ['reversibility', fallback.reversibility], ['next step', 'Refresh Gate, then open proof details or return to Mission']]) +
+  const network = /network failure/i.test(String(error || ''));
+  $('sheetBody').innerHTML = '<div class="arc">gate result</div><h2>Decision not queued</h2>' +
+    '<div class="gate-result-line">' + mcStateToken('blocked', 'blocked') + '<span>' + esc(network ? 'network failure · no write' : 'worker refused · no queue write · proof unchanged') + '</span></div>' +
     '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
-  $('sheetBody').querySelectorAll('[data-gate-result-nav]').forEach(el => el.onclick = () => {
-    returnFromGate(el.dataset.gateResultNav, item);
-  });
+  gateWireSheetNav(item);
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
-function openGateDetailSheet(node){
-  const item = GATE_ITEMS[Number(node.dataset.i)] || {};
-  const evidence = gateEvidence(item);
-  const actionRequestStatus = isActionRequestGateItem(item) ? String((item && item.status) || '') : '';
-  const needsSignedActionRequest = actionRequestStatus === 'needs_signed_confirmation';
-  const queuedActionRequest = actionRequestStatus === 'queued';
-  const detailActionKind = needsSignedActionRequest || queuedActionRequest ? 'confirm-action-request' : 'approve';
-  const reversibility = gateReversibility(detailActionKind, item);
-  const reversibilityState = gateReversibilityState(reversibility);
-  const channelRoute = gateTelegramRoute(item);
-  const receiptExpectation = gateReceiptExpectation(item);
-  const actionRows = queuedActionRequest
-    ? [
-        ['queued consequence', gateConsequence('confirm-action-request', item)],
-        ['execution boundary', 'awaiting operator consumption; no external mutation has run'],
-      ]
-    : [
-        ['approve consequence', gateConsequence('approve', item)],
-        ['reroll consequence', gateConsequence('reroll', item)],
-        ...(needsSignedActionRequest ? [['signed confirmation', gateConsequence('confirm-action-request', item)]] : []),
-      ];
-  const narrative = needsSignedActionRequest
-    ? 'Proof, consequence, reversibility, source, and sync state for this ActionRequest. The selected high-risk option requires signed Mini App confirmation.'
-    : queuedActionRequest
-      ? 'The signed confirmation is queued. Proof and receipt context remain available while execution waits for operator consumption.'
-      : 'Proof, consequence, reversibility, source, and sync state for this Gate row. Approve and reroll still require signed preflight.';
-  $('sheetBody').innerHTML = '<div class="arc">gate detail · proof</div><h2>' + esc(item.title || node.dataset.id || 'Gate item') + '</h2>' +
-    '<div class="nar">' + esc(narrative) + '</div>' +
-    gateRows([
-      ['subject', gateSubject(item)],
-      ['branch / mission', gateBranchMission(item)],
-      ...(channelRoute ? [['channel route', channelRoute]] : []),
-      ...(receiptExpectation ? [['receipt expectation', receiptExpectation]] : []),
-      ['proof attached', evidence],
-      ...actionRows,
-      ['reversibility', reversibility],
-      ['reversibility state', reversibilityState],
-      ['source', gateOriginLabel(item)],
-      ['updated at', gateUpdatedAt(item)],
-      ['idempotency', gateIdempotency(detailActionKind, item)],
-      ['sync state', queuedActionRequest ? 'queued; awaiting operator consumption' : gateFilterKey(item) === 'blocked' ? 'blocked until proof resolves' : 'ready for founder review'],
-    ]) +
-    '<div class="gbtns"><button type="button" class="detail" data-gate-detail-nav="mission">Mission</button><button type="button" class="reroll" data-gate-detail-nav="inspect">Inspect</button></div>';
-  $('sheetBody').querySelectorAll('[data-gate-detail-nav]').forEach(el => el.onclick = () => {
-    returnFromGate(el.dataset.gateDetailNav, item);
-  });
-  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
+function openGateTelegramAuthFailure(error){
+  $('sheetBody').innerHTML = '<div class="arc">Telegram auth</div><h2>Open inside Telegram</h2>' +
+    '<div class="gate-result-line">' + mcStateToken('blocked', 'blocked') + '<span>signed actions run inside Telegram with founder auth</span></div>' +
+    '<div class="gbtns"><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
+  gateWireSheetNav({});
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function gateSubmitAttr(name, value){ return ' data-gate-' + name + '="' + esc(value == null ? '' : value) + '"'; }
-function gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, reversibility, idempotencyKey, option){
+function gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, reversibility, idempotencyKey, option, note){
   const telegram = gateTelegramMeta(item);
   return gateSubmitAttr('confirm', kind) +
     gateSubmitAttr('subject', subject) +
@@ -434,7 +378,8 @@ function gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, re
     gateSubmitAttr('topic-label', telegram.topicLabel) +
     gateSubmitAttr('thread-id', telegram.threadId) +
     gateSubmitAttr('message-id', telegram.messageId) +
-    gateSubmitAttr('receipt-expectation', gateReceiptExpectation(item));
+    gateSubmitAttr('receipt-expectation', gateReceiptExpectation(item)) +
+    (note != null ? gateSubmitAttr('note', note) : '');
 }
 function gateSubmitContext(button){
   const data = (button && button.dataset) || {};
@@ -445,7 +390,7 @@ function gateSubmitContext(button){
     reversibility:data.gateReversibility || '', idempotencyKey:data.gateIdempotencyKey || '',
     branchId:data.gateBranchId || '', missionId:data.gateMissionId || '',
     topicLabel:data.gateTopicLabel || '', threadId:data.gateThreadId || '', messageId:data.gateMessageId || '',
-    receiptExpectation:data.gateReceiptExpectation || '',
+    receiptExpectation:data.gateReceiptExpectation || '', note:data.gateNote || '',
   };
 }
 function gateItemForSubmit(context){
@@ -470,32 +415,41 @@ function gateNodeForSubmit(context){
   }
   return null;
 }
-function openGatePreflight(kind, subject, node){
-  const item = GATE_ITEMS[Number(node.dataset.i)] || {};
-  const evidence = gateEvidence(item);
-  const consequence = gateConsequence(kind, item);
-  const reversibility = gateReversibility(kind, item);
-  const idempotencyKey = gateIdempotency(kind, item.id ? item : subject);
+/* frozen/06 §2.4 — the preflight sheet renders ONLY these lines (served consequence strings are payload, not copy). */
+const GATE_PREFLIGHT_TITLES = { approve:'Approve gate item', reroll:'Reroll gate item', 'promote-skill':'Promote skill', 'queue-side-quest':'Queue side quest', 'confirm-action-request':'Confirm action request' };
+function gatePreflightLine(kind, subject, item, option){
+  if (kind === 'approve') return 'Queues founder approval for ' + subject + '; nothing mutates until an operator consumes the queue.';
+  if (kind === 'reroll') return 'Queues a reroll request for ' + subject + '; current work stays unchanged until operator consumption.';
+  if (kind === 'promote-skill') return 'Queues skill promotion review for ' + subject + '; the registry changes only after operator consumption.';
+  if (kind === 'queue-side-quest') return 'Queues side quest ' + subject + ' for operator follow-up; nothing completes from this device.';
+  const optionToken = (option && (option.id || option.label)) || (item && item.selectedOptionId) || subject;
+  return 'Queues signed confirmation for ' + optionToken + '; execution waits for operator consumption of the queue.';
+}
+/* One preflight sheet for every signed kind (approve / reroll / promote-skill / queue-side-quest / confirm-action-request):
+   glyph + title + ONE consequence line + reversibility state token + ONE Inspect link + Confirm/Cancel. No kv walls. */
+function openGatePreflight(kind, subject, node, seed){
+  const seeded = seed && typeof seed === 'object';
+  const item = seeded && seed.item ? seed.item : (GATE_ITEMS[Number(node && node.dataset ? node.dataset.i : NaN)] || {});
+  const evidence = seeded && seed.evidence != null ? seed.evidence : gateEvidence(item);
+  const consequence = seeded && seed.consequence != null ? seed.consequence : gateConsequence(kind, item);
+  const reversibility = seeded && seed.reversibility != null ? seed.reversibility : gateReversibility(kind, item);
+  const idempotencyKey = seeded && seed.idempotencyKey ? seed.idempotencyKey : gateIdempotency(kind, item.id ? item : subject);
   const option = gateActionRequestOption(item);
-  const channelRoute = gateTelegramRoute(item);
-  const receiptExpectation = gateReceiptExpectation(item);
-  const latestReceipt = gateLatestReceipt(item);
-  const submitAttrs = gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, reversibility, idempotencyKey, option);
-  const title = kind === 'approve' ? 'Approve Gate Item' : kind === 'confirm-action-request' ? 'Confirm ActionRequest' : 'Reroll Gate Item';
-  const confirmText = kind === 'confirm-action-request' ? 'Confirm signed' : 'Confirm ' + kind;
-  const rows = [['action kind',kind], ['subject',subject]];
-  if (kind === 'confirm-action-request') rows.push(['selected option', (option && (option.label || option.id)) || item.selectedOptionId || 'selected option not served']);
-  if (channelRoute) rows.push(['channel route', channelRoute]);
-  if (latestReceipt) rows.push(['latest receipt', latestReceipt]);
-  if (receiptExpectation) rows.push(['receipt expectation', receiptExpectation]);
-  rows.push(['evidence',evidence], ['consequence',consequence], ['reversibility',reversibility], ['source',gateOriginLabel(item)], ['source route','/api/gate/' + TENANT], ['initData status',initData ? 'present for Worker verification' : 'missing until opened inside Telegram'], ['idempotency',idempotencyKey]);
-  $('sheetBody').innerHTML = '<div class="arc">gate preflight · explicit confirmation</div><h2>' + esc(title) + '</h2>' +
-    '<div class="nar">' + esc(kind === 'confirm-action-request'
-      ? 'Review this signed ActionRequest confirmation before queueing it. Confirmation changes only the canonical ActionRequest state; execution still waits for operator consumption.'
-      : 'Review this signed action before queueing it. Confirmation queues a founder decision only; it does not mutate Paperclip or org state.') + '</div>' +
-    gateRows(rows) +
-    '<div class="gate-submit-status" data-gate-submit-status="idle">Waiting for explicit signed confirmation. No queue write has been attempted.</div>' +
-    '<div class="gbtns"><button type="button" class="approve"' + submitAttrs + '>' + esc(confirmText) + '</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
+  const note = seeded && seed.note != null ? seed.note : null;
+  GATE_PREFLIGHT_ORIGIN = (seeded && seed.originNode) || null;
+  const reversibilityState = gateReversibilityState(reversibility);
+  const submitAttrs = gatePreflightSubmitAttrs(kind, subject, item, evidence, consequence, reversibility, idempotencyKey, option, note);
+  const title = GATE_PREFLIGHT_TITLES[kind] || 'Approve gate item';
+  $('sheetBody').innerHTML = '<div class="arc">gate preflight</div>' +
+    '<div class="gate-preflight-head">' + mcGlyphSvg('gate', reversibilityState) + '<h2>' + esc(title) + '</h2></div>' +
+    '<p class="gate-preflight-line" data-component="GatePreflightConsequence">' + esc(gatePreflightLine(kind, subject, item, option)) + '</p>' +
+    '<div class="gate-preflight-meta">' +
+      mcStateToken(reversibilityState === 'blocked' ? 'blocked' : 'active', reversibilityState === 'blocked' ? 'irreversible' : 'until consumed') +
+      '<button type="button" class="gate-inspect-link" data-gate-preflight-inspect="1">Inspect</button>' +
+    '</div>' +
+    '<div class="gate-submit-status" data-gate-submit-status="idle"></div>' +
+    '<div class="gbtns"><button type="button" class="approve"' + submitAttrs + '>Confirm</button><button type="button" class="reroll" data-gate-cancel="1">Cancel</button></div>';
+  $('sheetBody').querySelectorAll('[data-gate-preflight-inspect]').forEach(el => el.onclick = () => { closeSheet(); go(4); });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
 }
 function setGateSubmitState(button, state, text){
@@ -534,17 +488,30 @@ function loadGateWire(el, source){
     loadGateWire(el, source);
   });
   el.querySelectorAll('[data-gate-empty-nav]').forEach(node => node.onclick = () => go(node.dataset.gateEmptyNav === 'mission' ? 0 : 4));
-    el.querySelectorAll('.gitem').forEach(node => {
-      node.querySelectorAll('[data-kind]').forEach(button => button.onclick = () => {
-        const item = GATE_ITEMS[Number(node.dataset.i)] || {};
-        const kind = button.dataset.kind || 'approve';
-        openGatePreflight(kind, gateActionSubject(kind, item), node);
-      });
-      const detail = node.querySelector('[data-gate-detail]');
-      if (detail) detail.onclick = () => openGateDetailSheet(node);
-      const proof = node.querySelector('[data-gate-proof]');
-      if (proof) proof.onclick = () => openGateDetailSheet(node);
+  el.querySelectorAll('[data-gate-attention-review]').forEach(node => node.onclick = () => {
+    const items = $('gate').querySelectorAll('.gitem');
+    for (const row of items) {
+      const item = GATE_ITEMS[Number(row.dataset.i)] || {};
+      if (gateReviewReady(item) && row.scrollIntoView) { row.scrollIntoView({ block:'center' }); return; }
+    }
+  });
+  el.querySelectorAll('.gitem').forEach(node => {
+    node.querySelectorAll('[data-kind]').forEach(button => button.onclick = () => {
+      const item = GATE_ITEMS[Number(node.dataset.i)] || {};
+      const kind = button.dataset.kind || 'approve';
+      openGatePreflight(kind, gateActionSubject(kind, item), node);
     });
+    node.querySelectorAll('[data-gate-detail]').forEach(detail => detail.onclick = () => go(4));
+    node.querySelectorAll('[data-gate-proof]').forEach(proof => proof.onclick = () => go(4));
+  });
+}
+/* Receipt token inline (frozen/06 G19): queued · <kind> · <mono key> / refused · no write / network failure · no write. */
+function gateReceiptNote(node, text){
+  if (!node) return;
+  const html = '<div class="gnote">' + esc(text) + '</div>';
+  if (node.dataset && node.dataset.i != null && node.dataset.i !== '') node.innerHTML = html;
+  else if ('outerHTML' in node) node.outerHTML = html;
+  else node.innerHTML = html;
 }
 function gateAct(submitButton){
   if (!submitButton || !submitButton.dataset) return;
@@ -554,11 +521,11 @@ function gateAct(submitButton){
   const kind = context.kind;
   const subject = context.subject;
   if (!kind || !subject) {
-    setGateSubmitState(submitButton, 'error', 'Signed action context is incomplete. Reopen Gate and try again.');
+    setGateSubmitState(submitButton, 'error', 'context incomplete · reopen gate');
     return;
   }
   const item = gateItemForSubmit(context);
-  const node = gateNodeForSubmit(context);
+  const node = gateNodeForSubmit(context) || GATE_PREFLIGHT_ORIGIN;
   const evidence = context.evidence;
   const consequence = context.consequence;
   const reversibility = context.reversibility;
@@ -568,17 +535,19 @@ function gateAct(submitButton){
     payload.actionRequestId = context.actionRequestId || subject;
     payload.optionId = context.optionId;
   }
+  if (context.note) payload.note = context.note;
   buzz('medium');
   if (node && node.style) node.style.opacity = '.5';
-  setGateSubmitState(submitButton, 'tap-received', 'Tap received; sending Worker request...');
+  setGateSubmitState(submitButton, 'tap-received', 'sending…');
   let request;
   try {
     request = fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
       body: JSON.stringify(payload) });
-    setGateSubmitState(submitButton, 'request-sent', 'Worker request sent; waiting for response...');
+    setGateSubmitState(submitButton, 'request-sent', 'sending…');
   } catch (_) {
     if (node && node.style) node.style.opacity='1';
-    setGateSubmitState(submitButton, 'error', 'Network failure before the Worker could queue this action.');
+    setGateSubmitState(submitButton, 'error', 'network failure · no write');
+    gateReceiptNote(node, 'network failure · no write');
     openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey, consequence, reversibility }, item);
     notify('error');
     return;
@@ -590,21 +559,22 @@ function gateAct(submitButton){
     })).then(res => {
       if (node && node.style) node.style.opacity='1';
       if (res.queued) {
-        if (node) node.innerHTML = '<div class="gnote">'+(res.duplicate ? 'original queued action reused · no new write · ' : '')+esc(kind === 'confirm-action-request' ? 'signed ActionRequest confirmation' : kind + ' founder decision')+' queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>';
+        gateReceiptNote(node, res.duplicate ? 'decision queued · original reused · ' + (res.idempotencyKey || idempotencyKey) : 'queued · ' + kind + ' · ' + (res.idempotencyKey || idempotencyKey));
+        setGateSubmitState(submitButton, 'queued', 'queued');
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
         if (kind === 'confirm-action-request') setTimeout(loadGate, 350);
       } else {
-        setGateSubmitState(submitButton, 'refused', 'Worker refused this signed action.');
+        setGateSubmitState(submitButton, 'refused', 'refused · no write');
         const error = res.error || 'unknown';
-        if (node) node.innerHTML = '<div class="gnote">refused: '+esc(error)+' · no local queue write.</div>';
+        gateReceiptNote(node, 'refused · no write');
         if (isGateAuthFailure(error)) openGateTelegramAuthFailure(error);
         else openGateFailureSheet(kind, subject, error, { idempotencyKey, consequence, reversibility }, item);
       }
       notify(res.queued ? 'success' : 'error');
     }).catch(() => {
       if (node && node.style) node.style.opacity='1';
-      setGateSubmitState(submitButton, 'error', 'Network failure before the Worker could queue this action.');
-      if (node) node.innerHTML = '<div class="gnote">network failure — no local queue write.</div>';
+      setGateSubmitState(submitButton, 'error', 'network failure · no write');
+      gateReceiptNote(node, 'network failure · no write');
       openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey, consequence, reversibility }, item);
       notify('error');
     });
@@ -636,40 +606,28 @@ function sideQuestQueueReversibility(){
 function sideQuestQueueIdempotency(side){
   return 'queue-side-quest:' + TENANT + ':' + sideQuestQueueId(side);
 }
+/* frozen/06 G20 + §2.4: promote-skill and queue-side-quest route through the SAME preflight sheet as other gate actions. */
 function sideQuestAct(side, node){
-  const initData = TG && TG.initData || '';
-  const subject = sideQuestQueueId(side);
-  const evidence = sideQuestQueueEvidence(side);
-  const consequence = sideQuestQueueConsequence(side);
-  const reversibility = sideQuestQueueReversibility();
-  const idempotencyKey = sideQuestQueueIdempotency(side);
-  buzz('medium'); node.style.opacity = '.5'; node.textContent = 'queuing...';
-  fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
-    body: JSON.stringify({ kind:'queue-side-quest', subject, initData, evidence, consequence, reversibility, idempotencyKey, note:side.detail || '' }) })
-    .then(r => r.json()).then(res => {
-      node.style.opacity = '1';
-      node.outerHTML = res.queued
-        ? '<div class="gnote">'+(res.duplicate ? 'already queued · ' : '')+'side quest queued for '+esc(subject)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>'
-        : '<div class="gnote">refused: '+esc(res.error || 'unknown')+'</div>';
-      notify(res.queued ? 'success' : 'error');
-    }).catch(() => { node.style.opacity='1'; node.outerHTML = '<div class="gnote">side quest queue unreachable.</div>'; });
+  const id = sideQuestQueueId(side);
+  openGatePreflight('queue-side-quest', id, null, {
+    item:{ id, branchId:(side && side.branchId) || '', missionId:(side && (side.questId || side.id)) || '' },
+    evidence:sideQuestQueueEvidence(side),
+    consequence:sideQuestQueueConsequence(side),
+    reversibility:sideQuestQueueReversibility(),
+    idempotencyKey:sideQuestQueueIdempotency(side),
+    note:side.detail || '',
+    originNode:node,
+  });
 }
 function skillPromotionAct(skill, node){
-  const initData = TG && TG.initData || '';
-  const evidence = skillPromotionEvidence(skill);
-  const consequence = skillPromotionConsequence(skill);
-  const reversibility = skillPromotionReversibility();
-  const idempotencyKey = skillPromotionIdempotency(skill);
-  buzz('medium'); node.style.opacity = '.5'; node.textContent = 'queuing...';
-  fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'},
-    body: JSON.stringify({ kind:'promote-skill', subject:skill.title, initData, evidence, consequence, reversibility, idempotencyKey }) })
-    .then(r => r.json()).then(res => {
-      node.style.opacity = '1';
-      node.outerHTML = res.queued
-        ? '<div class="gnote">'+(res.duplicate ? 'already queued · ' : '')+'promotion queued for '+esc(skill.title)+' — key '+esc(res.idempotencyKey || idempotencyKey)+'</div>'
-        : '<div class="gnote">refused: '+esc(res.error || 'unknown')+'</div>';
-      notify(res.queued ? 'success' : 'error');
-    }).catch(() => { node.style.opacity='1'; node.outerHTML = '<div class="gnote">promotion queue unreachable.</div>'; });
+  openGatePreflight('promote-skill', skill.title, null, {
+    item:{ id:skill.title },
+    evidence:skillPromotionEvidence(skill),
+    consequence:skillPromotionConsequence(skill),
+    reversibility:skillPromotionReversibility(),
+    idempotencyKey:skillPromotionIdempotency(skill),
+    originNode:node,
+  });
 }
 
 `;
