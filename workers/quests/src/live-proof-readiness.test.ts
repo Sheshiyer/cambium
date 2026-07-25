@@ -666,7 +666,7 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
       { scene: 'gate', fixture: 'gate', path: 'sheet-gate-approve-preflight-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-signed-action-entrypoint="approve"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2100 },
       { scene: 'gate', fixture: 'gate', path: 'sheet-gate-reroll-preflight-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-signed-action-entrypoint="reroll"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2200 },
       { scene: 'tools', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=tools&fixture=fresh', path: 'tools-mobile.png', intent: 'layout-proof', width: 780, height: 1688, bytes: 1700 },
-      { scene: 'tools', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=tools&fixture=fresh', path: 'sheet-tools-command-chat-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-command-name="ts-run"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2300 },
+      { scene: 'tools', fixture: 'fresh', url: 'http://127.0.0.1:8787/?tenant=cambium&scene=tools&fixture=fresh', path: 'sheet-tools-handoff-action-mobile.png', intent: 'clickability-proof', clickTargetSelector: '[data-tool-surface="handoffs"]', clickTargetCount: 1, clipSelector: '#sheet', sheet: { clipSelector: '#sheet' }, width: 780, height: 844, bytes: 2300 },
     ],
   });
   const artifact = JSON.parse(JSON.stringify(manifest));
@@ -723,9 +723,9 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-gate-reroll-preflight-mobile.png')?.scene, 'gate');
   assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'tools-mobile.png')?.scene, 'tools');
   assert.match(artifact.proofs.find((proof: { path: string }) => proof.path === 'tools-mobile.png')?.url ?? '', /\?tenant=cambium&scene=tools&fixture=fresh/);
-  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-tools-command-chat-mobile.png')?.scene, 'tools');
+  assert.equal(artifact.proofs.find((proof: { path: string }) => proof.path === 'sheet-tools-handoff-action-mobile.png')?.scene, 'tools');
   assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'tools-mobile.png' && proof.scene === 'tools' && proof.fixture === 'fresh'));
-  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-tools-command-chat-mobile.png' && proof.scene === 'tools' && proof.fixture === 'fresh' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-command-name="ts-run"]'));
+  assert.ok(VIEWPORT_PROOF_CAPTURE_STEPS.some((proof) => proof.path === 'sheet-tools-handoff-action-mobile.png' && proof.scene === 'tools' && proof.fixture === 'fresh' && proof.intent === 'clickability-proof' && proof.clickTargetSelector === '[data-tool-surface="handoffs"]'));
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.path, 'sheet-inspect-skill-promotion-mobile.png');
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.clipSelector, '#sheet');
   assert.equal(artifact.proofs.find((proof: { intent: string }) => proof.intent === 'clickability-proof')?.clickTargetCount, 1);
