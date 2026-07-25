@@ -5,7 +5,7 @@
 export const STYLE_TOOLS = `  /* ── tools · live action surfaces ───────────── */
   .cmdgrp{font:10px var(--mono);letter-spacing:0;text-transform:uppercase;opacity:.45;margin:18px 0 9px}
   .cmdgrp:first-child{margin-top:4px}
-  .tool-recommend{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px;border:1px solid rgba(224,255,79,.22);border-radius:12px;padding:10px 12px;background:rgba(1,47,52,.34)}
+  .tool-recommend{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px;border:1px solid rgba(224,255,79,.22);border-radius:var(--mc-radius);padding:10px 12px;background:rgba(1,47,52,.34)}
   .tool-recommend.is-idle{border-style:dashed;opacity:.78}
   .tool-recommend .mc-glyph{width:31px;height:31px}
   .tool-recommend span{min-width:0}
@@ -24,7 +24,7 @@ export const STYLE_TOOLS = `  /* ── tools · live action surfaces ───�
   .cmd{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:12px 13px;margin-bottom:8px;
     text-align:left;
     color:var(--soft);font:inherit;
-    border:1px solid var(--line);border-radius:12px;background:rgba(1,47,52,.34)}
+    border:1px solid var(--line);border-radius:var(--mc-radius);background:rgba(1,47,52,.34)}
   .cmd .mc-glyph{width:31px;height:31px}
   .cmd .tool-body{min-width:0;display:grid;gap:3px}
   .cmd .cname{font:600 13.5px var(--mono);color:var(--ink)}
@@ -39,7 +39,7 @@ export const STYLE_TOOLS = `  /* ── tools · live action surfaces ───�
   .cmd .mc-state-token{justify-self:end}
   .cmd .cgo{font-size:20px;color:var(--ink);opacity:.6}
   .tool-result-line{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin:0 0 10px;background:rgba(1,47,52,.24);font:11.5px/1.4 var(--mono);color:var(--soft);overflow-wrap:anywhere}
-  .tool-handoff-row{display:grid;gap:9px;border:1px solid var(--line);border-radius:10px;padding:10px;margin:0 0 10px;background:rgba(1,47,52,.28)}
+  .tool-handoff-row{display:grid;gap:9px;border:1px solid var(--line);border-radius:var(--mc-radius);padding:10px;margin:0 0 10px;background:rgba(1,47,52,.28)}
   .tool-handoff-row .mc-glyph{width:28px;height:28px}
   .tool-handoff-copy{display:block;min-width:0}
   .tool-handoff-copy b{display:block;color:var(--ink);font:650 12px/1.3 var(--mono);overflow-wrap:anywhere}

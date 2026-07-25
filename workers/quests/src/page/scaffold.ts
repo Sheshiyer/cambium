@@ -62,8 +62,8 @@ export const SCAFFOLD = `</head>
     </section>
     <section class="scene" id="sceneC" aria-labelledby="sceneCTitle">
       <h2 id="sceneCTitle" class="sr">Tools</h2>
-      <div class="ghead">Tools · live action surfaces</div>
-      <div class="gsub">Org status, services, agents, work, and handoffs — decided in-app.</div>
+      <div class="ghead">Tools</div>
+      <div class="gsub">live operator surfaces · read-only</div>
       <div id="cmds"></div>
     </section>
     <section class="scene" id="sceneS" aria-labelledby="sceneSTitle"><h2 id="sceneSTitle" class="sr">Story</h2><div id="beats"></div></section>

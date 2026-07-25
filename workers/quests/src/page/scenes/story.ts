@@ -259,7 +259,7 @@ function openStoryBeat(index){
     '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
     '<div class="story-sheet-tokens">' + mcStateToken(state, mcSceneTokenLabel(state)) + '</div>' +
     paperclipNote +
-    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Proof') + '</button><button type="button" class="reroll" data-story-target="inspect">Open Proof</button></div>';
+    '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Proof') + '</button>' + (context === 'inspect' ? '' : '<button type="button" class="reroll" data-story-target="inspect">Open Proof</button>') + '</div>';
   $('sheetBody').querySelectorAll('[data-story-target]').forEach(el => el.onclick = () => {
     veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open = false;
     if (el.dataset.storyTarget === 'mission') MISSION_BRANCH_FOCUS = el.dataset.storyBranchContext || '';
