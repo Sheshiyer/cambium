@@ -3696,7 +3696,7 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   // T-023/frozen-06 §1.6 I2: group details are ≤ 8-word flat declaratives from the canon.
   assert.match(inspectHtml, /proof window fresh · refresh after movement|stale proof window · refresh first/);
   assert.match(inspectHtml, /blockers need proof|no live blockers/);
-  assert.match(inspectHtml, /packets trusted|Mission cannot trust/);
+  assert.match(inspectHtml, /packets trusted|branch state untrusted until packets arrive/);
   assert.match(inspectHtml, /decisions waiting|No founder approval is waiting/);
   assert.match(inspectHtml, /blocked actions explained first/);
   assert.match(inspectHtml, /surfaces live|surfaces stale/);

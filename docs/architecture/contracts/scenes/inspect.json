@@ -42,7 +42,7 @@
     { "field": "freshness", "type": "{derivedAt, source, state, detail} (threshold 360 min)", "source": "quest-envelope header + client FRESHNESS_STATE", "required": true, "fallback": "'derived at: missing'; freshness group in stale state" },
     { "field": "liveProof.summary", "type": "{blocked, ready}", "source": "quest-envelope.liveProof.summary", "required": false, "fallback": "counts derived from liveProofCards rows" },
     { "field": "liveProof.blockers[]", "type": "array<string>", "source": "quest-envelope.liveProof.blockers", "required": false, "fallback": "'Telegram initData and device artifact may still be required' detail line" },
-    { "field": "branchStories", "type": "{rows, source, schema, gap}", "source": "quest-envelope.branchStories", "required": false, "fallback": "branch-packets group blocked: 'Mission cannot trust branch state until packet rows arrive'" },
+    { "field": "branchStories", "type": "{rows, source, schema, gap}", "source": "quest-envelope.branchStories", "required": false, "fallback": "branch-packets group blocked: 'branch state untrusted until packets arrive'" },
     { "field": "openItems[]", "type": "array<GateItem>", "source": "quest-envelope.openItems", "required": false, "fallback": "gates group idle: 'No founder approval is waiting.'" },
     { "field": "actionRequests.rows[]", "type": "array<ActionRequestListItem>", "source": "quest-envelope.actionRequests.rows", "required": false, "fallback": "ActionRequestEmptyState box: 'No redacted ActionRequest rows are served yet.'" },
     { "field": "actionRequests.rows[].receipts", "type": "{count, latest:{kind, text}} redacted", "source": "actionRequests.rows[].receipts", "required": false, "fallback": "'receipt count 0 · latest receipt none'" },

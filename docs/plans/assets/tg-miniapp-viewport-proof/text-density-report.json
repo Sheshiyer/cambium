@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-25T18:45:22.475Z",
+  "generatedAt": "2026-07-25T19:11:30.412Z",
   "ok": true,
   "failures": [],
   "overrides": [
@@ -110,7 +110,7 @@
       "cap": 260,
       "states": {
         "normal": {
-          "words": 105,
+          "words": 107,
           "cap": 260,
           "ok": true,
           "failures": []
@@ -122,7 +122,7 @@
           "failures": []
         },
         "empty": {
-          "words": 113,
+          "words": 111,
           "cap": 260,
           "ok": true,
           "failures": []

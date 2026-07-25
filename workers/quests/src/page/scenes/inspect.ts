@@ -169,7 +169,7 @@ function stanceCard(env){
 }
 function renderStance(env){
   const stance = stanceCard(env);
-  return '<div class="boxgrid"><button type="button" class="ibox ' + (stance.state === 'ready' ? 'ready' : '') + '" data-stance="1"><b>' + esc(stance.title) + '</b><span>' + esc(stance.detail) + '</span></button></div>';
+  return '<div class="boxgrid"><button type="button" class="ibox ' + (stance.state === 'ready' ? 'ready' : 'gap') + '" data-stance="1"><b>' + esc(stance.title) + '</b><span>' + esc(stance.detail) + '</span></button></div>';
 }
 function policyCard(env){
   const policy = env.policy || {};
@@ -194,7 +194,7 @@ function policyCard(env){
 }
 function renderPolicy(env){
   const policy = policyCard(env);
-  return '<div class="boxgrid"><button type="button" class="ibox ' + (policy.state === 'ready' ? 'ready' : '') + '" data-policy="1"><b>' + esc(policy.title) + '</b><span>' + esc(policy.detail) + '</span></button></div>';
+  return '<div class="boxgrid"><button type="button" class="ibox ' + (policy.state === 'ready' ? 'ready' : 'gap') + '" data-policy="1"><b>' + esc(policy.title) + '</b><span>' + esc(policy.detail) + '</span></button></div>';
 }
 function decisionContextCards(env){
   const ctx = env.decisionContext || {};
@@ -222,7 +222,7 @@ function decisionContextCards(env){
 }
 function renderDecisionContext(env){
   return '<div class="boxgrid">' + decisionContextCards(env).map((row, i) =>
-    '<button type="button" class="ibox decision ' + (row.state === 'ready' ? 'ready' : '') + '" data-decision="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+    '<button type="button" class="ibox decision ' + (row.state === 'ready' ? 'ready' : 'gap') + '" data-decision="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function sideQuestOverclaimText(value){
@@ -299,7 +299,7 @@ function sideQuestCards(env){
 }
 function renderSideQuests(env){
   return '<div class="boxgrid">' + sideQuestCards(env).map((quest, i) =>
-    '<button type="button" class="ibox side ' + (quest.state === 'ready' ? 'ready' : '') + '" data-side="' + i + '"' + (quest.state === 'ready' && ['refresh', 'founder-review', 'collect-evidence'].includes(String(quest.action.kind || '')) ? ' data-signed-action-entrypoint="queue-side-quest"' : '') + '><b>' + esc(quest.title) + '</b><span>' + esc(quest.detail) + '</span></button>'
+    '<button type="button" class="ibox side ' + (quest.state === 'ready' ? 'ready' : 'gap') + '" data-side="' + i + '"' + (quest.state === 'ready' && ['refresh', 'founder-review', 'collect-evidence'].includes(String(quest.action.kind || '')) ? ' data-signed-action-entrypoint="queue-side-quest"' : '') + '><b>' + esc(quest.title) + '</b><span>' + esc(quest.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function socialCards(env){
@@ -344,7 +344,7 @@ function socialCards(env){
 }
 function renderSocial(env){
   return '<div class="boxgrid">' + socialCards(env).map((row, i) =>
-    '<button type="button" class="ibox social ' + (row.state === 'ready' ? 'ready' : '') + '" data-social="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+    '<button type="button" class="ibox social ' + (row.state === 'ready' ? 'ready' : 'gap') + '" data-social="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function liveProofCards(env){
@@ -391,7 +391,7 @@ function liveProofCards(env){
 }
 function renderLiveProof(env){
   return '<div class="boxgrid">' + liveProofCards(env).map((row, i) =>
-    '<button type="button" class="ibox liveproof ' + (row.state === 'ready' ? 'ready' : '') + '" data-live-proof="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+    '<button type="button" class="ibox liveproof ' + (row.state === 'ready' ? 'ready' : 'gap') + '" data-live-proof="' + i + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function branchEnvelope(env){
@@ -1027,27 +1027,27 @@ function renderBranchArcCard(branch, index){
   const state = branchCardState(branch);
   const mission = branchActiveMission(branch);
   const detail = (branch.arcTitle || branch.role || 'branch arc') + (mission ? ' · ' + mission.title : '');
-  return '<button type="button" class="ibox branch ' + (state === 'ready' ? 'ready' : '') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + index + '" data-ecosystem-target="product-branches"><b>' + esc(branch.name || branch.branchId || 'Branch') + '</b><span>' + esc(detail) + '</span></button>';
+  return '<button type="button" class="ibox branch ' + (state === 'ready' ? 'ready' : 'gap') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + index + '" data-ecosystem-target="product-branches"><b>' + esc(branch.name || branch.branchId || 'Branch') + '</b><span>' + esc(detail) + '</span></button>';
 }
 function renderBranchMissionCard(mission, branch, branchIndex, missionIndex){
   const gate = branchGateForMission(branch, mission);
   const status = (gate && gate.status) || 'no-signal';
   const ready = status === 'verified';
   const proof = mission.proofRequired || (gate && gate.requiredProof) || 'proof requirement missing';
-  return '<button type="button" class="ibox branch-mission ' + (ready ? 'ready' : '') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-mission="' + missionIndex + '" data-ecosystem-target="product-branches"><b>' + esc(mission.title || mission.missionId || 'Mission') + '</b><span>' + esc(status + ' gate · ' + proof) + '</span></button>';
+  return '<button type="button" class="ibox branch-mission ' + (ready ? 'ready' : 'gap') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-mission="' + missionIndex + '" data-ecosystem-target="product-branches"><b>' + esc(mission.title || mission.missionId || 'Mission') + '</b><span>' + esc(status + ' gate · ' + proof) + '</span></button>';
 }
 function renderBranches(env){
   const cards = branchCards(env);
   return '<div class="boxgrid">' + cards.map((card, i) => card.branch
     ? renderBranchArcCard(card.branch, i)
-    : '<button type="button" class="ibox branch" data-interaction-kind="sheet" data-source="' + esc(card.source || 'missing') + '" data-branch-gap="1" data-ecosystem-target="product-branches"><b>' + esc(card.title) + '</b><span>' + esc(card.detail) + '</span></button>'
+    : '<button type="button" class="ibox branch gap" data-interaction-kind="sheet" data-source="' + esc(card.source || 'missing') + '" data-branch-gap="1" data-ecosystem-target="product-branches"><b>' + esc(card.title) + '</b><span>' + esc(card.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function renderBranchMissions(env){
   const rows = branchRows(env);
   if (!rows.length) return renderBranches(env);
   const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.missions) ? branch.missions : []).slice(0, 3).map((mission, missionIndex) => renderBranchMissionCard(mission, branch, branchIndex, missionIndex)));
-  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>MISSION GAP</b><span>branch mission queue missing</span></button>') + '</div>';
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch gap"><b>MISSION GAP</b><span>branch mission queue missing</span></button>') + '</div>';
 }
 function renderBranchKpis(env){
   const rows = branchRows(env);
@@ -1055,7 +1055,7 @@ function renderBranchKpis(env){
   const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.kpis) ? branch.kpis : []).slice(0, 2).map((kpi, kpiIndex) =>
     '<button type="button" class="ibox branch-kpi" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-kpi="' + kpiIndex + '" data-ecosystem-target="product-branches"><b>' + esc(kpi.label || kpi.kpiId || 'KPI') + '</b><span>' + esc((kpi.currentState || 'state missing') + ' · survival ' + (kpi.survival || 'missing')) + '</span></button>'
   ));
-  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>KPI GAP</b><span>branch KPI controls missing</span></button>') + '</div>';
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch gap"><b>KPI GAP</b><span>branch KPI controls missing</span></button>') + '</div>';
 }
 function renderBranchGates(env){
   const rows = branchRows(env);
@@ -1063,7 +1063,7 @@ function renderBranchGates(env){
   const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.gates) ? branch.gates : []).slice(0, 3).map((gate, gateIndex) =>
     '<button type="button" class="ibox branch-gate ' + (gate.status === 'verified' ? 'ready' : '') + '" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-gate="' + gateIndex + '" data-ecosystem-target="product-branches"><b>' + esc(gate.gate || 'Gate') + '</b><span>' + esc((gate.status || 'no-signal') + ' · ' + (gate.requiredProof || 'required proof missing')) + '</span></button>'
   ));
-  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>GATE GAP</b><span>branch gate ledger missing</span></button>') + '</div>';
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch gap"><b>GATE GAP</b><span>branch gate ledger missing</span></button>') + '</div>';
 }
 function renderBranchProof(env){
   const rows = branchRows(env);
@@ -1071,7 +1071,7 @@ function renderBranchProof(env){
   const cards = rows.flatMap((branch, branchIndex) => (Array.isArray(branch.proofPaths) ? branch.proofPaths : []).slice(0, 3).map((proof, proofIndex) =>
     '<button type="button" class="ibox branch-proof" data-interaction-kind="sheet" data-source="product-branch-packets@v1" data-branch="' + branchIndex + '" data-branch-proof="' + proofIndex + '" data-ecosystem-target="product-branches"><b>' + esc(proof.proofId || 'Proof') + '</b><span>' + esc((proof.validates || 'validation missing') + ' · ' + (proof.promotes || 'promotion rule missing')) + '</span></button>'
   ));
-  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch"><b>PROOF GAP</b><span>branch proof foldback missing</span></button>') + '</div>';
+  return '<div class="boxgrid">' + (cards.length ? cards.join('') : '<button type="button" class="ibox branch gap"><b>PROOF GAP</b><span>branch proof foldback missing</span></button>') + '</div>';
 }
 function branchMissionFocusLabel(focus){
   if (focus === 'gate') return 'branch gate';
@@ -1275,7 +1275,7 @@ function tapestryRows(env){
 }
 function renderTapestryAudit(env){
   return '<div class="boxgrid">' + tapestryRows(env).map((row, i) =>
-    '<button type="button" class="ibox tapestry ' + (row.state === 'ready' ? 'ready' : '') + '" data-tapestry="' + i + '" data-ecosystem-target="' + esc(tapestryTarget(row)) + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
+    '<button type="button" class="ibox tapestry ' + (row.state === 'ready' ? 'ready' : 'gap') + '" data-tapestry="' + i + '" data-ecosystem-target="' + esc(tapestryTarget(row)) + '"><b>' + esc(row.title) + '</b><span>' + esc(row.detail) + '</span></button>'
   ).join('') + '</div>';
 }
 function insightBoxes(env){
@@ -1459,7 +1459,7 @@ function inspectGroupSummaries(env, L){
   return [
     { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'stale proof window · refresh first' : 'proof window fresh · refresh after movement' },
     { id:'live-proof', title:'live proof', glyph:'proof', state:proofBlockers ? 'proof-needed' : 'complete', detail:proofBlockers ? String(proofBlockers) + ' blockers need proof' : 'no live blockers' },
-    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? String(branchRows.length) + ' packets trusted' : 'Mission cannot trust branch state until packet rows arrive' },
+    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? String(branchRows.length) + ' packets trusted' : 'branch state untrusted until packets arrive' },
     { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' decisions waiting' : 'No founder approval is waiting.' },
     { id:'action-requests', title:'action requests', glyph:'gate', state:actionRequests.length ? actionRequestState(actionRequests[0]) : 'idle', detail:actionRequests.length ? String(actionRequests.length) + ' requests projected' : 'none served yet' },
     { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:'blocked actions explained first' },
@@ -1485,7 +1485,7 @@ function renderInspectGroups(env, L, groupIds){
     '<button type="button" class="' + mcClass('inspect-group', group.state) + '" data-component="InspectGroup" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
       mcGlyphSvg(group.glyph, group.state) +
       '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
-      mcStateToken(group.state, mcStateKind(group.state)) +
+      mcStateToken(group.state, mcSceneTokenLabel(group.state)) +
     '</button>'
   ).join('') + '</section>';
 }
@@ -1502,7 +1502,7 @@ function renderInspectSecondaryLinks(env, L){
     '<button type="button" class="' + mcClass('inspect-group', group.state, 'is-secondary') + '" data-component="InspectSecondaryLink" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
       mcGlyphSvg(group.glyph, group.state) +
       '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
-      mcStateToken(group.state, mcStateKind(group.state)) +
+      mcStateToken(group.state, mcSceneTokenLabel(group.state)) +
     '</button>'
   ).join('') + '</section>';
 }

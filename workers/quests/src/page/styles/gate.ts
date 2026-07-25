@@ -115,7 +115,9 @@ export const STYLE_GATE = `  /* ── gate ────────────
 
   /* ── T-018 GateActionRow (frozen/01): primary solid chartreuse fill dark text; secondary transparent 1px chartreuse border ── */
   .gbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .gbtns button{appearance:none;min-height:44px;border:0;border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;
+  /* Unclassed sheet/summary buttons default to the frozen secondary treatment (frozen/01
+     GateActionRow): transparent fill, hairline border, soft ink — never the UA ButtonFace. */
+  .gbtns button{appearance:none;min-height:44px;border:1px solid rgba(214,255,246,.4);border-radius:10px;padding:11px;font:600 13px inherit;cursor:pointer;background:none;color:var(--soft);
     transition:transform .2s var(--ease)}
   .gbtns button:active{transform:scale(.97)}
   .gbtns .approve{background:var(--ink);color:var(--bg)}

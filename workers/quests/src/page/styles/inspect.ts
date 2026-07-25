@@ -13,24 +13,28 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
     border-radius:999px;padding:6px 10px;white-space:nowrap;appearance:none;background:transparent;cursor:pointer}
   .mapbadge:active{transform:scale(.96)}
   .wakegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-  .wake-step{appearance:none;text-align:left;color:var(--soft);min-width:0;padding:9px 9px;border:1px solid var(--line);border-radius:11px;background:rgba(1,47,52,.28);cursor:pointer}
+  .wake-step{appearance:none;text-align:left;color:var(--soft);min-width:0;padding:9px 9px;border:1px solid var(--line);border-radius:var(--mc-radius);background:rgba(1,47,52,.28);cursor:pointer}
   .wake-step b{display:block;font:10px var(--mono);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .wake-step span{display:block;font-size:11px;opacity:.65;line-height:1.25;margin-top:3px;overflow-wrap:anywhere}
   .wake-step.wait{border-style:dashed;opacity:.72}
   .wake-step.done{background:rgba(224,255,79,.045)}
   .sensegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
   .sense{appearance:none;text-align:left;color:var(--soft);padding:10px;border:1px solid var(--line);
-    border-radius:12px;background:rgba(1,47,52,.3);font:12px/1.35 inherit;cursor:pointer}
+    border-radius:var(--mc-radius);background:rgba(1,47,52,.3);font:12px/1.35 inherit;cursor:pointer}
   .sense b{display:block;font:11px var(--mono);color:var(--ink);margin-bottom:3px}
   .sense.on{border-color:rgba(224,255,79,.32);background:rgba(224,255,79,.045)}
   .boxgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .ibox{appearance:none;text-align:left;color:var(--soft);min-height:76px;padding:10px;border:1px solid var(--line);
-    border-radius:12px;background:rgba(1,47,52,.26);font:12px/1.35 inherit;cursor:pointer}
+    border-radius:var(--mc-radius);background:rgba(1,47,52,.26);font:12px/1.35 inherit;cursor:pointer}
   .ibox b{display:block;font:11px var(--mono);color:var(--ink);margin-bottom:4px}
   .ibox span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.72}
   .ibox.skill span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.npc span{display:block;-webkit-line-clamp:unset;overflow:visible;overflow-wrap:anywhere}
 	  .ibox.ready{border-color:rgba(224,255,79,.28);background:rgba(224,255,79,.04)}
+  .ibox.gap{border-color:rgba(var(--mc-peach-rgb),.4);background:var(--mc-warning-fill)}
+  .ibox.gap b{color:var(--mc-peach)}
+  .ibox.gap b::before{content:"";display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;
+    background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 1.4 11 10H1Z' fill='none' stroke='%23FFC7A1' stroke-width='1.4' stroke-linejoin='round'/%3E%3Ccircle cx='6' cy='8.4' r='.9' fill='%23FFC7A1'/%3E%3C/svg%3E")}
 	  .mc-branch-rail{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;padding:2px 0 8px;overscroll-behavior-inline:contain;scrollbar-width:none;touch-action:pan-x}
   .mc-branch-rail::-webkit-scrollbar{display:none}
   .mc-branch-chip{flex:0 0 clamp(200px,68vw,232px);min-width:0;min-height:56px;border:1px solid var(--mc-line-strong);border-radius:var(--mc-radius);background:rgba(1,47,52,.38);color:var(--mc-mint);padding:8px 10px;font:11px var(--mono);scroll-snap-align:start}
@@ -82,12 +86,12 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
 	  .component-legend-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
 	  .stagegrid{display:grid;grid-template-columns:1fr;gap:8px}
   .stage-card{position:relative;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;
-    padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:rgba(1,47,52,.36);color:var(--soft);
+    padding:11px 12px;border:1px solid var(--line);border-radius:var(--mc-radius);background:rgba(1,47,52,.36);color:var(--soft);
     cursor:pointer;opacity:0;transform:translateY(10px);animation:rise .5s var(--ease) forwards;animation-delay:calc(var(--i)*45ms)}
   .stage-card:active{transform:scale(.985)}
   .stage-card.active{border-color:rgba(224,255,79,.45);background:rgba(224,255,79,.06);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-  .stage-card.active::after{content:"";position:absolute;inset:-1px;border-radius:13px;
+  .stage-card.active::after{content:"";position:absolute;inset:-1px;border-radius:var(--mc-radius);
     border:1px solid rgba(224,255,79,.26);animation:halo 2.8s var(--ease) infinite;pointer-events:none}
   .stage-glyph{width:35px;height:35px;border-radius:12px;border:1px solid var(--line2);display:grid;place-items:center;
     font:700 13px var(--mono);color:var(--ink);background:var(--bg2)}
@@ -99,7 +103,7 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
   .stagebar span{display:block;height:100%;background:var(--ink);border-radius:999px;transition:width .8s var(--ease)}
 	  .railgrid{display:grid;gap:8px}
 	  .rail{appearance:none;color:var(--soft);text-align:left;display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border:1px solid var(--line);
-    border-radius:12px;background:rgba(1,47,52,.24);font:12px var(--mono);opacity:.9;cursor:pointer}
+    border-radius:var(--mc-radius);background:rgba(1,47,52,.24);font:12px var(--mono);opacity:.9;cursor:pointer}
   .rail:active{transform:scale(.985)}
   .rail b{font-weight:650;color:var(--soft)}
   .rail span{color:var(--ink);opacity:.75}
@@ -127,7 +131,7 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
   .inspect-group .mc-state-token{grid-column:2;width:max-content;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .facets{display:flex;flex-direction:column;gap:8px}
   .facet{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);
-    border-radius:11px;font:12.5px var(--mono);
+    border-radius:var(--mc-radius);font:12.5px var(--mono);
     opacity:0;transform:translateX(10px);animation:rise .45s var(--ease) forwards;animation-delay:calc(var(--i)*55ms)}
   .facet .dot{width:7px;height:7px;border-radius:50%;flex:none}
   .facet.done .dot{background:var(--ink);box-shadow:0 0 6px rgba(224,255,79,.5)}
