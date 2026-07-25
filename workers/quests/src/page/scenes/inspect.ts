@@ -1,6 +1,13 @@
 // cambium-quests · miniapp page chunk — Inspect scene: proof map, wake/senses/lanes/policy, branch map, audit panels
-// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
-// Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+// P2-W3 rebuild (T-023/T-024): ProofList rows render founder-readable labels (frozen/06 §2.1), group
+// summaries trimmed to the frozen/06 §1.6 I2–I6 canon (≤8-word details, `proof · packets · freshness ·
+// evidence` maphead, `Proof links` section, `no action requests` empty token, `Open proof` button),
+// branch-map read model rendered visually (T-024: glyph rows + SignalRail from served sheet rows; proof
+// digests stay mono in the sheet; 503 → blocked row, 404 → EMPTY panel), story beat provenance absorbed
+// into the evidence group (frozen/06 §1.5 S5 final), copy affordance deleted (frozen/05 §4.1 — the proof
+// summary renders as mono values, never a Copy button). Raw routes/schemas stay HERE only (T-023).
+// Data contract: docs/architecture/contracts/scenes/inspect.json (fixtures: scenes/fixtures/inspect.fixture.json).
+// Assembly order: page/index.ts.
 import { CAMBIUM_LANES, CAMBIUM_SENSES, CAMBIUM_VISUAL_RAILS, CAMBIUM_VISUAL_STAGES, CAMBIUM_WAKE_STEPS } from '../../../../../shared/cambium-visual-contract.ts';
 
 export const SCENE_INSPECT = `/* ── inspect — proof, packet, freshness, and system detail ── */
@@ -823,7 +830,7 @@ function renderMissionStateStack(view){
     { glyph:'cortex', state:'selected', title:'Selected', detail:selected + ' · current focus', token:'selected', focus:'selected' },
     { glyph:'gate', state:blocker.state || 'blocked', title:'Blocked by', detail:blocker.label || 'blocker detail missing', token:mcStateKind(blocker.state || 'blocked'), focus:/proof/i.test(blocker.source || blocker.label || '') ? 'proof' : 'gate' },
     { glyph:'proof', state:proof.state || 'proof-needed', title:'Proof needed', detail:proof.label || proof.detail || 'evidence missing', token:'receipt', focus:'proof', orbit:true },
-    { glyph:'ops', state:locked.state || locked.status || 'locked', title:'Locked', detail:(locked.title || 'next stage') + ' · waiting unlock', token:mcStateKind(locked.state || locked.status || 'locked'), focus:'selected' },
+    { glyph:'ops', state:locked.state || locked.status || 'locked', title:'Locked', detail:(locked.title || 'next stage') + ' · on hold', token:mcStateKind(locked.state || locked.status || 'locked'), focus:'selected' },
   ];
   return '<div data-component="MissionStateStack"><div class="mc-section-title">State Stack</div><div class="mc-state-stack">' + rows.map(row =>
     '<button type="button" class="' + mcClass('mc-state-row', row.state, row.state === 'selected' ? 'is-selected mc-selected-halo' : '') + '" data-selected-surface="' + (row.state === 'selected' ? 'mission-state-row' : 'none') + '" data-mission-state-action="' + esc(row.focus) + '" data-interaction-kind="sheet">' +
@@ -1118,11 +1125,14 @@ function branchSheetKpis(kpis){
   ).join('') + '</div>';
 }
 function branchSheetProofList(branch, mission, proofPaths){
+  /* T-023/frozen-06 §2.1: founder-readable ProofList labels — served requirements map through
+     mcSceneProofLabel; raw requirement text never renders as a row label. Sources stay in the
+     small mono row — Inspect is the only surface allowed to show them (frozen/01 ProofList). */
   const proofNeeded = mcProofNeeded(branch, mission).slice(0, 4).map((row, i) =>
-    branchSheetRow('Proof ' + (i + 1) + ' · ' + row.label, row.detail, row.state, row.source)
+    branchSheetRow('Proof ' + (i + 1) + ' · ' + mcSceneProofLabel(row.label), row.detail, row.state, row.source)
   );
   const proofPathRows = proofPaths.slice(0, 4).map((proof, i) =>
-    branchSheetRow('Proof path ' + (i + 1) + ' · ' + (proof.proofId || 'proof'), 'validates ' + (proof.validates || 'missing') + ' · promotes ' + (proof.promotes || 'missing'), 'proof-needed', 'branchStories.proofPaths')
+    branchSheetRow('Proof path ' + (i + 1) + ' · ' + mcSceneProofLabel(proof.validates || proof.proofId), 'validates ' + (proof.validates || 'missing') + ' · promotes ' + (proof.promotes || 'missing'), 'proof-needed', 'branchStories.proofPaths')
   );
   return '<div class="branch-row-list" data-component="ProofList">' + proofNeeded.concat(proofPathRows).join('') + '</div>';
 }
@@ -1433,6 +1443,8 @@ function renderNpc(env){
   ).join('') + '</div>';
 }
 function inspectGroupSummaries(env, L){
+  /* frozen/06 §1.6 I2: group summary details ≤ 8 words, flat declaratives. Blocked/idle fallbacks
+     keep the exact contract strings (inspect.json dataFields fallbacks). */
   const minutes = minutesSince(env && env.derivedAt);
   const stale = minutes === null || minutes > 360;
   const branchRows = (env && env.branchStories && Array.isArray(env.branchStories.rows)) ? env.branchStories.rows : [];
@@ -1441,24 +1453,26 @@ function inspectGroupSummaries(env, L){
   const policyRows = [policyCard(env || { ledger:L })];
   const proofRows = liveProofCards(env || { ledger:L });
   const evidenceRows = insightBoxes(env || { ledger:L });
+  const beatCount = inspectStoryBeatRows(env).length;
   const toolCount = CMDS.reduce((sum, group) => sum + group[1].length, 0);
+  const proofBlockers = proofRows.filter(row => row.state !== 'ready').length;
   return [
-    { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'Refresh before trusting decisions; this story and proof map may be old.' : 'Current proof window is fresh; refresh before trusting decisions after new movement.' },
-    { id:'live-proof', title:'live proof', glyph:'proof', state:proofRows.some(row => row.state !== 'ready') ? 'proof-needed' : 'complete', detail:proofRows.some(row => row.state !== 'ready') ? String(proofRows.filter(row => row.state !== 'ready').length) + ' blocker(s) still need proof before release claims.' : 'No live blockers are served.' },
-    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? 'Mission can trust ' + String(branchRows.length) + ' branch packet(s).' : 'Mission cannot trust branch state until packet rows arrive.' },
-    { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder approval item(s) waiting.' : 'No founder approval is waiting.' },
-    { id:'action-requests', title:'action requests', glyph:'gate', state:actionRequests.length ? actionRequestState(actionRequests[0]) : 'idle', detail:actionRequests.length ? String(actionRequests.length) + ' iVerif ActionRequest row(s) projected into Gate, Story, and Inspect.' : 'No ActionRequests are served yet.' },
-    { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:'Blocked or bounded action is explained before policy internals.' },
-    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:env && env.commands ? String(toolCount) + ' live action surfaces available for safe use.' : String(toolCount) + ' live action surfaces unavailable until live data refreshes.' },
-    { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' proof rails remain inspectable after critical blockers.' },
-    { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence row(s) can open proof sheets.' : 'Evidence detail is missing from this proof map.' },
+    { id:'freshness', title:'freshness', glyph:'cortex', state:stale ? 'stale' : 'active', detail:stale ? 'stale proof window · refresh first' : 'proof window fresh · refresh after movement' },
+    { id:'live-proof', title:'live proof', glyph:'proof', state:proofBlockers ? 'proof-needed' : 'complete', detail:proofBlockers ? String(proofBlockers) + ' blockers need proof' : 'no live blockers' },
+    { id:'branch-packets', title:'branch packets', glyph:'arc', state:branchRows.length ? 'active' : 'blocked', detail:branchRows.length ? String(branchRows.length) + ' packets trusted' : 'Mission cannot trust branch state until packet rows arrive' },
+    { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' decisions waiting' : 'No founder approval is waiting.' },
+    { id:'action-requests', title:'action requests', glyph:'gate', state:actionRequests.length ? actionRequestState(actionRequests[0]) : 'idle', detail:actionRequests.length ? String(actionRequests.length) + ' requests projected' : 'none served yet' },
+    { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:'blocked actions explained first' },
+    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:env && env.commands ? String(toolCount) + ' surfaces live' : 'surfaces stale' },
+    { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' proof rails' },
+    { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length || beatCount ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence rows' + (beatCount ? ' · ' + String(beatCount) + ' story beats' : '') : (beatCount ? String(beatCount) + ' story beats' : 'evidence rows missing') },
   ];
 }
 function inspectSecondaryGroupSummaries(env, L){
   const branchRows = (env && env.branchStories && Array.isArray(env.branchStories.rows)) ? env.branchStories.rows : [];
   return [
-    { id:'branch-fixtures', title:'branch fixtures', glyph:'arc', state:branchRows.length ? 'active' : 'proof-needed', detail:'Fixture rows calibrate layout only; they never satisfy live proof.' },
-    { id:'surface-contract', title:'surface contract', glyph:'cortex', state:'active', detail:'Scene coverage and proof links stay available as secondary detail.' },
+    { id:'branch-fixtures', title:'branch fixtures', glyph:'arc', state:branchRows.length ? 'active' : 'proof-needed', detail:'fixtures calibrate layout only' },
+    { id:'surface-contract', title:'surface contract', glyph:'cortex', state:'active', detail:'scene coverage and proof links' },
   ];
 }
 function inspectAllGroupSummaries(env, L){
@@ -1484,7 +1498,7 @@ function renderInspectDisclosure(title, body, open){
   return '<details class="inspect-disclosure"' + (open ? ' open' : '') + '><summary>' + esc(title) + '</summary><div class="inspect-disclosure-body">' + body + '</div></details>';
 }
 function renderInspectSecondaryLinks(env, L){
-  return '<section class="inspect-secondary" data-component="InspectSecondaryLinks"><div class="cmdgrp">Tapestry proof links</div>' + inspectSecondaryGroupSummaries(env, L).map(group =>
+  return '<section class="inspect-secondary" data-component="InspectSecondaryLinks"><div class="cmdgrp">Proof links</div>' + inspectSecondaryGroupSummaries(env, L).map(group =>
     '<button type="button" class="' + mcClass('inspect-group', group.state, 'is-secondary') + '" data-component="InspectSecondaryLink" data-interaction-kind="sheet" data-source="inspect-proof-layer@v1" data-inspect-target="' + esc(group.id) + '" data-inspect-group="' + esc(group.id) + '">' +
       mcGlyphSvg(group.glyph, group.state) +
       '<span><b>' + esc(group.title) + '</b><small>' + esc(group.detail) + '</small></span>' +
@@ -1494,7 +1508,7 @@ function renderInspectSecondaryLinks(env, L){
 }
 function renderActionRequests(env){
   const rows = actionRequestRows(env || {});
-  if (!rows.length) return '<div class="boxgrid"><div class="ibox" data-component="ActionRequestEmptyState"><b>NO ACTION REQUESTS</b><span>No redacted ActionRequest rows are served yet.</span></div></div>';
+  if (!rows.length) return '<div class="boxgrid"><div class="ibox" data-component="ActionRequestEmptyState"><b>no action requests</b><span>none served yet</span></div></div>';
   return '<div class="boxgrid" data-component="ActionRequestProjectionGrid">' + rows.slice(0, 8).map((row, i) =>
     '<button type="button" class="ibox action-request ' + (actionRequestState(row) === 'complete' ? 'ready' : '') + '" data-component="ActionRequestProjectionCard" data-action-request-index="' + i + '" data-action-request-id="' + esc(row.id || '') + '" data-action-request-status="' + esc(row.status || 'proposed') + '" data-ecosystem-target="action-requests">' +
       '<b>' + esc(row.title || row.id || 'ActionRequest') + '</b><span>' + esc((row.branchLabel || row.projectName || row.branchId || 'branch') + ' · ' + (row.status || 'proposed') + ' · ' + (row.next || row.summary || 'founder choice pending')) + '</span>' +
@@ -1584,6 +1598,7 @@ function inspectGroupDetailRows(id, env, L){
     ],
     evidence:[
       ['evidence rows', String(insightBoxes(env || { ledger:L }).length)],
+      ['story beats', String(inspectStoryBeatRows(env).length) + ' served · provenance rows below'],
       ['source containment', 'sources and proof paths are Inspect/sheet detail, not primary app copy'],
       ['mini app surface', 'workers/quests/src/page.ts'],
       ['grouping', 'evidence sheets group source, origin, row source, proof, and served evidence'],
@@ -1600,15 +1615,16 @@ function inspectGroupDetailRows(id, env, L){
   return rows[id] || [['detail', 'no specific detail rows served']];
 }
 function renderInspectProofSummary(env, L){
+  /* frozen/06 §1.6 I6: 'N blockers · M packets · redacted receipts required' + Open proof —
+     the next: clause lives in the sheet (blocker names row), not on the card. */
   const liveRows = liveProofCards(env || { ledger:L });
   const blocked = liveRows.filter(row => row.state !== 'ready').length;
   const branchCount = branchRows(env || { ledger:L }).length;
-  const blockedNames = liveRows.filter(row => row.state !== 'ready').slice(0, 1).map(row => row.title || row.id || 'readiness row');
-  const blockerText = blockedNames.length ? ' · next: ' + blockedNames[0] : '';
-  const lead = blocked ? blocked + ' live blocker(s)' : 'No live blockers';
+  const lead = blocked ? blocked + (blocked === 1 ? ' blocker' : ' blockers') : 'no blockers';
+  const packets = branchCount + (branchCount === 1 ? ' packet' : ' packets');
   return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction">' +
-    '<b>Proof summary</b><small>' + esc(lead) + ' · ' + branchCount + ' branch packet(s) · redacted receipts required' + esc(blockerText) + '.</small>' +
-    '<div class="gbtns command-copy"><button type="button" data-inspect-summary="1">Open proof details</button></div>' +
+    '<b>Proof summary</b><small>' + esc(lead) + ' · ' + esc(packets) + ' · redacted receipts required</small>' +
+    '<div class="gbtns"><button type="button" data-inspect-summary="1">Open proof</button></div>' +
   '</section>';
 }
 function inspectRelatedPage(id){
@@ -1625,6 +1641,135 @@ function inspectRelatedScene(id){
   if (page === 'Tools') return 'tools';
   return 'inspect';
 }
+/* ── N4 / frozen/06 §1.5 S5 final: story beat provenance lives in the Inspect evidence group.
+   The Story beat sheet keeps full text + token + nav only; its retired kv provenance rows render
+   here, and the Story Open Proof nav routes into openInspectEvidenceSheet. */
+function inspectStoryBeatRows(env){
+  const beats = env && Array.isArray(env.beats) ? env.beats : [];
+  return beats.length ? beats : (typeof STORY_BEATS !== 'undefined' && Array.isArray(STORY_BEATS) ? STORY_BEATS : []);
+}
+function inspectEvidenceBeatList(env){
+  const beats = inspectStoryBeatRows(env);
+  if (!beats.length) return '';
+  return '<div class="cmdgrp">story beats</div><div class="inspect-beat-list" data-component="InspectEvidenceBeatList">' + beats.slice(0, 8).map((beat, i) => {
+    const group = storyBeatGroup(beat);
+    return '<button type="button" class="li" data-inspect-beat="' + i + '"><span class="cname">' + esc(group) + '</span><div class="cdesc">' + esc(mcSceneClamp(beat && beat.text, 12)) + '</div></button>';
+  }).join('') + '</div>';
+}
+function openInspectEvidenceSheet(env, index){
+  const safeEnv = env && typeof env === 'object' ? env : { beats:inspectStoryBeatRows(null), ledger:{ rows:[] } };
+  const beats = inspectStoryBeatRows(safeEnv);
+  const beat = beats[index] || beats[0];
+  if (!beat) { openInspectGroupSheet('evidence', safeEnv); return; }
+  const lane = beat.lane || (beat.noesis ? 'noesis' : 'beat');
+  const group = storyBeatGroup(beat);
+  const state = storyBeatState(beat);
+  const context = storyBeatContext(group, lane, beat);
+  const branch = storyBeatBranch(beat);
+  const contextLabel = context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : '';
+  $('sheetBody').innerHTML = '<div class="arc">inspect · evidence · ' + esc(group.toLowerCase()) + '</div><h2>Story beat evidence</h2>' +
+    '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
+    '<div class="story-sheet-tokens">' + mcStateToken(state, mcSceneTokenLabel(state)) + '</div>' +
+    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>branch</b><span>' + esc(branch || 'unassigned') + '</span><b>source</b><span>' + esc(beat.source || 'mission-story@v1') + '</span><b>proof</b><span>' + esc(beat.proof || beat.evidence || storyBeatProofCue(beat, group)) + '</span><b>context</b><span>' + esc(context) + '</span></div>' +
+    '<div class="gbtns">' + (contextLabel ? '<button type="button" data-inspect-beat-nav="' + esc(context) + '" data-inspect-beat-branch="' + esc(branch) + '">' + contextLabel + '</button>' : '') + '<button type="button" class="reroll" data-inspect-beat-nav="story">Open Story</button></div>';
+  $('sheetBody').querySelectorAll('[data-inspect-beat-nav]').forEach(el => el.onclick = () => {
+    closeSheet();
+    const target = el.dataset.inspectBeatNav;
+    if (target === 'mission') MISSION_BRANCH_FOCUS = el.dataset.inspectBeatBranch || '';
+    go(target === 'mission' ? 0 : target === 'gate' ? 1 : target === 'tools' ? 2 : 3, true);
+    if (target === 'tools') { cmdsDrawn = false; renderCommands(); }
+  });
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' ? 'medium' : 'light');
+}
+/* ── T-024: branch-map read model rendered visually. Served sheet rows become glyph + StateToken
+   node rows joined by SignalRail connectors; proof digests stay mono inside the sheet (digests
+   only — raw graph payloads never render). 503 at the seam → blocked row with a redacted reason;
+   404 (no graph head) → EMPTY panel (frozen/04). */
+function branchMapView(env){
+  const map = env && env.branchMap && typeof env.branchMap === 'object' ? env.branchMap : null;
+  const error = env && env.branchMapError && typeof env.branchMapError === 'object' ? env.branchMapError : null;
+  if (map && map.projection && map.proof) {
+    const sheet = map.sheet && typeof map.sheet === 'object' ? map.sheet : {};
+    const rows = Array.isArray(sheet.rows) ? sheet.rows : [];
+    return {
+      state:'served',
+      nodeCount:Math.max(0, Number(map.projection.nodeCount) || 0),
+      edgeCount:Math.max(0, Number(map.projection.edgeCount) || 0),
+      rowCount:rows.length || Math.max(0, Number(sheet.rows) || 0),
+      rows,
+      proof:map.proof,
+    };
+  }
+  if (error && Number(error.status) === 404) return { state:'empty' };
+  if (error) return { state:'blocked', status:Number(error.status) || 503, reason:(error.body && error.body.error) || 'branch_map_authority_unavailable' };
+  return { state:'gap' };
+}
+function branchMapRowGlyph(row){
+  if (row.kind === 'branch') return 'arc';
+  if (row.kind === 'receipt') return 'proof';
+  if (row.kind === 'gap') return 'gate';
+  if (row.kind === 'campaign' || row.kind === 'wiki') return 'cortex';
+  if (row.kind === 'organ' && MC_COMPONENT_REGISTRY.MissionGlyph.includes(String(row.organId || ''))) return String(row.organId);
+  return 'build';
+}
+function renderBranchMapNodeRows(view){
+  if (!view.rows.length) return '<div class="branch-map-counts" data-component="BranchMapSheetCounts"><span class="branch-map-mono">' + view.rowCount + ' sheet rows</span><span class="branch-map-mono">full rows in sheet</span></div>';
+  return '<div class="branch-map-rows" data-component="BranchMapSheetRows">' + view.rows.slice(0, 4).map((row, index) => {
+    const state = mcStateKind(row.status || 'active');
+    return (index > 0 ? mcSignalRail({ state, packetCount:2 }) : '') +
+      '<div class="' + mcClass('branch-map-row', state) + '" data-component="BranchMapNodeRow" data-branch-map-row="' + esc(row.kind || 'node') + '">' +
+        mcGlyphSvg(branchMapRowGlyph(row), state) +
+        '<span><b>' + esc(mcSceneClamp(row.title || row.id || 'node', 4)) + '</b><small>' + esc(mcText(row.kind, 'node')) + '</small></span>' +
+        mcStateToken(state, mcSceneTokenLabel(state)) +
+      '</div>';
+  }).join('') + '</div>';
+}
+function renderBranchMapSection(env){
+  const view = branchMapView(env);
+  if (view.state === 'empty') {
+    return '<div class="inspect-pane-section"><div class="inspect-pane-heading">Branch map</div>' +
+      '<div class="state" data-component="BranchMapEmptyState" data-interaction-kind="read-only" data-source="cambium.telegram.branch-map-route.v1"><b>No nodes discovered</b><p>Initialize a survey to begin exploring.</p><div class="gbtns"><button type="button" data-branch-map-refresh="1">Refresh</button></div></div></div>';
+  }
+  const state = view.state === 'served' ? 'complete' : view.state === 'blocked' ? 'blocked' : 'idle';
+  const detail = view.state === 'served'
+    ? view.nodeCount + ' nodes · ' + view.edgeCount + ' edges'
+    : view.state === 'blocked'
+      ? 'digest refused at seam · pull to refresh'
+      : 'branch map read model not served';
+  return '<div class="inspect-pane-section"><div class="inspect-pane-heading">Branch map</div>' +
+    '<section class="inspect-groups" data-component="BranchMapSheet" data-branch-map-state="' + esc(view.state) + '">' +
+      '<button type="button" class="' + mcClass('inspect-group', state) + '" data-interaction-kind="sheet" data-source="cambium.telegram.branch-map-route.v1" data-inspect-branch-map="1">' +
+        mcGlyphSvg('arc', state) +
+        '<span><b>branch map</b><small>' + esc(detail) + '</small></span>' +
+        mcStateToken(state, mcSceneTokenLabel(state)) +
+      '</button>' +
+    '</section>' +
+    (view.state === 'served' ? renderBranchMapNodeRows(view) : '') +
+  '</div>';
+}
+function openBranchMapSheet(env){
+  const view = branchMapView(env);
+  if (view.state === 'gap') { openInspectGroupSheet('surface-contract', env); return; }
+  if (view.state === 'blocked') {
+    $('sheetBody').innerHTML = '<div class="arc">inspect · branch map · blocked</div><h2>Branch map</h2>' +
+      '<div class="nar">digest refused at seam · pull to refresh</div>' +
+      '<div class="kv"><b>status</b><span>' + esc(String(view.status)) + '</span><b>refusal</b><span>' + esc(view.reason || 'branch_map_authority_unavailable') + '</span><b>redaction</b><span>redacted reason only · raw graph payloads never render</span></div>';
+    veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+    return;
+  }
+  const proof = view.proof || {};
+  const digestRows = [
+    ['graph digest', proof.graphDigest],
+    ['projection digest', proof.projectionDigest],
+    ['sheet digest', proof.sheetEnvelopeDigest],
+    ['sheet text digest', proof.sheetTextDigest],
+    ['proof digest', proof.proofDigest],
+  ].filter(([, value]) => value).map(([label, value]) => '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>').join('');
+  $('sheetBody').innerHTML = '<div class="arc">inspect · branch map · verified</div><h2>Branch map</h2>' +
+    '<div class="nar">' + view.nodeCount + ' nodes · ' + view.edgeCount + ' edges · ' + view.rowCount + ' sheet rows</div>' +
+    '<div class="kv"><b>graph version</b><span>' + esc(mcText(proof.graphVersion, 'missing')) + '</span><b>generated at</b><span>' + esc(mcText(proof.generatedAt, 'missing')) + '</span>' + digestRows + '<b>redaction</b><span>digests only · raw graph payloads stay on the worker</span></div>';
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
+}
 function openInspectGroupSheet(id, env){
   const L = (env && env.ledger) || env || {};
   const group = inspectAllGroupSummaries(env || { ledger:L }, L).find(row => row.id === id) || inspectGroupSummaries(env || { ledger:L }, L)[0];
@@ -1635,7 +1780,9 @@ function openInspectGroupSheet(id, env){
     '<div class="kv"><b>proof layer</b><span>Inspect keeps proof and architecture details behind the main app flow</span><b>summary</b><span>' + esc(group.detail) + '</span><b>state</b><span>' + esc(mcStateKind(group.state)) + '</span><b>proof</b><span>read-only Inspect sheet; primary pages link back here for evidence</span><b>related page</b><span>' + esc(related) + ' -> Inspect</span>' +
     inspectGroupDetailRows(group.id, env || { ledger:L }, L).map(([label, value]) => '<b>' + esc(label) + '</b><span>' + esc(value) + '</span>').join('') +
     '<b>source</b><span>inspect-proof-layer@v1</span><b>return path</b><span>' + esc(related) + '</span><b>how to use this</b><span>Open the primary page, then return to Inspect for proof detail</span></div>' +
+    (group.id === 'evidence' ? inspectEvidenceBeatList(env) : '') +
     '<div class="gbtns"><button type="button" data-inspect-page-link="' + esc(scene) + '">Open related page</button></div>';
+  $('sheetBody').querySelectorAll('[data-inspect-beat]').forEach(el => el.onclick = () => openInspectEvidenceSheet(env, +el.dataset.inspectBeat));
   $('sheetBody').querySelectorAll('[data-inspect-page-link]').forEach(el => el.onclick = () => {
     closeSheet();
     const target = el.dataset.inspectPageLink;
@@ -1652,12 +1799,11 @@ function openInspectSummarySheet(env){
     ? '<div class="kv">' + blockedRows.slice(0, 6).map((row, i) => '<b>blocker ' + (i + 1) + '</b><span>' + esc((row.title || row.id || 'readiness row') + ' · ' + (row.detail || row.proof || 'detail missing')) + '</span>').join('') + '</div>'
     : '<div class="nar">no blocked live readiness rows served.</div>';
   const summary = 'Cambium mini app proof summary: ' + branchRows(env || { ledger:L }).length + ' branch packet(s), ' + blockedRows.length + ' live readiness blocker(s), sources stay in Inspect, receipts stay redacted.';
+  /* frozen/05 §4.1 bans copy affordances; the summary renders as a mono value inline
+     (frozen/06 §1.7 #11 ratified mono values, not copy buttons). */
   $('sheetBody').innerHTML = '<div class="arc">inspect · proof summary</div><h2>Proof Summary</h2>' +
     '<div class="nar">' + esc(summary) + '</div>' +
-    '<div class="kv"><b>copy text</b><span>' + esc(summary) + '</span><b>surface</b><span>workers/quests/src/page.ts</span><b>blocker names</b><span>' + esc(blockedRows.length ? blockedRows.slice(0, 4).map(row => row.title || row.id || 'readiness row').join(' · ') : 'none') + '</span><b>redaction rule</b><span>no raw initData, bearer token, or secret value in proof artifacts</span></div>' + blockedBlock +
-    '<div class="gbtns command-copy"><button type="button" data-copy-proof-summary="' + esc(summary) + '">Copy proof summary</button></div>';
-  const proofCopy = $('sheetBody').querySelector('[data-copy-proof-summary]');
-  if (proofCopy) proofCopy.onclick = () => copyCommandToClipboard(summary, proofCopy, 'Copied proof summary').catch(() => { proofCopy.textContent = 'Copy unavailable'; });
+    '<div class="kv"><b>summary</b><span>' + esc(summary) + '</span><b>surface</b><span>workers/quests/src/page.ts</span><b>blocker names</b><span>' + esc(blockedRows.length ? blockedRows.slice(0, 4).map(row => row.title || row.id || 'readiness row').join(' · ') : 'none') + '</span><b>redaction rule</b><span>no raw initData, bearer token, or secret value in proof artifacts</span></div>' + blockedBlock;
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
 function selectInspectView(env, pane, focusSelected){
@@ -1688,6 +1834,7 @@ function renderInspect(env){
   const proofPane =
     '<section id="inspect-proof-panel" data-inspect-pane="proof" class="inspect-pane is-active" role="tabpanel" aria-labelledby="inspect-proof-tab">' +
       '<div class="inspect-pane-section"><div class="inspect-pane-heading">Decision readiness</div>' + renderInspectGroups(inspectEnv, L, ['freshness','live-proof','branch-packets','gates','action-requests','policy','evidence']) + '</div>' +
+      renderBranchMapSection(inspectEnv) +
       renderInspectDisclosure('Live readiness', '<div class="cmdgrp">live proof</div>' + renderLiveProof(inspectEnv), false) +
       renderInspectDisclosure('Branch evidence', '<div class="cmdgrp">branch packets</div>' + renderBranches(inspectEnv) + '<div class="cmdgrp">missions</div>' + renderBranchMissions(inspectEnv) + '<div class="cmdgrp">KPIs</div>' + renderBranchKpis(inspectEnv), false) +
       renderInspectDisclosure('Decisions and receipts', '<div class="cmdgrp">gates</div>' + renderBranchGates(inspectEnv) + '<div class="cmdgrp">action requests</div>' + renderActionRequests(inspectEnv) + '<div class="cmdgrp">proof paths</div>' + renderBranchProof(inspectEnv), false) +
@@ -1702,7 +1849,7 @@ function renderInspect(env){
       renderInspectDisclosure('Operators', '<div class="cmdgrp">skill labors</div>' + renderSkills(inspectEnv) + '<div class="cmdgrp">companions</div>' + renderNpc(inspectEnv), false) +
     '</section>';
   $('mapwrap').innerHTML =
-    '<div class="maphead"><div><h2>Inspect</h2><p>Proof map for blockers, packets, freshness, and evidence.</p></div>' +
+    '<div class="maphead"><div><h2>Inspect</h2><p>proof · packets · freshness · evidence</p></div>' +
       '<button type="button" class="mapbadge" data-interaction-kind="sheet" data-source="shared/cambium-visual-contract" data-ecosystem-target="r3f">frontier · ' + esc((L.current && L.current.arc) || 'complete') + '</button></div>' +
     renderInspectProofSummary(inspectEnv, L) +
     renderInspectPaneSwitcher() + (INSPECT_PANE === 'system' ? systemPane : proofPane) +
@@ -1719,6 +1866,8 @@ function renderInspect(env){
   $('mapwrap').querySelectorAll('.mapbadge').forEach(el => el.onclick = () => openMapHeaderSheet(L));
   $('mapwrap').querySelectorAll('[data-inspect-group]').forEach(el => el.onclick = () => openInspectGroupSheet(el.dataset.inspectGroup, env.ledger ? env : { ledger:L }));
   $('mapwrap').querySelectorAll('[data-inspect-summary]').forEach(el => el.onclick = () => openInspectSummarySheet(env.ledger ? env : { ledger:L }));
+  $('mapwrap').querySelectorAll('[data-inspect-branch-map]').forEach(el => el.onclick = () => openBranchMapSheet(env.ledger ? env : { ledger:L }));
+  $('mapwrap').querySelectorAll('[data-branch-map-refresh]').forEach(el => el.onclick = () => refresh());
   $('mapwrap').querySelectorAll('.rail').forEach(el => el.onclick = () => openRailSheet(el.dataset.rail, L));
   $('mapwrap').querySelectorAll('.stage-card').forEach(el => el.onclick = () => openMapSheet(L, el.dataset.stage));
   $('mapwrap').querySelectorAll('[data-wake]').forEach(el => el.onclick = () => openWakeBox(env.ledger ? env : { ledger:L }, +el.dataset.wake));

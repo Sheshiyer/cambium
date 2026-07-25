@@ -240,9 +240,10 @@ function openStoryDigest(){
   $('sheetBody').querySelectorAll('[data-story-digest-beat]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyDigestBeat));
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
-/* Beat sheet (frozen/06 S5 interim): full text + state token + nav; the kv wall is deleted — the
-   remaining provenance rows land in Inspect's evidence group with its scene worker. Contradiction
-   reads as the blocked StateToken + the Open Proof link, never as a prose warning. */
+/* Beat sheet (frozen/06 S5 final): full text + state token + nav; the kv wall is deleted — its
+   provenance rows are absorbed into Inspect's evidence group (scenes/inspect.ts). The Open Proof
+   nav routes straight into that Inspect evidence sheet for this beat. Contradiction reads as the
+   blocked StateToken + the Open Proof link, never as a prose warning. */
 function openStoryBeat(index){
   const beat = STORY_BEATS[index] || STORY_BEATS[0];
   if (!beat) return;
@@ -265,6 +266,8 @@ function openStoryBeat(index){
     if (el.dataset.storyTarget === 'mission') MISSION_BRANCH_FOCUS = el.dataset.storyBranchContext || '';
     go(storyContextScene(el.dataset.storyTarget), true);
     if (el.dataset.storyTarget === 'tools') { TOOL_FOCUS = 'ts-status'; cmdsDrawn = false; renderCommands(); }
+    /* S5 final: Open Proof lands on the Inspect evidence sheet for this beat (provenance rows live there). */
+    if (el.dataset.storyTarget === 'inspect') openInspectEvidenceSheet(ECOSYSTEM_ENV, index);
   });
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' || lane === 'paperclip' ? 'medium' : 'light');
 }

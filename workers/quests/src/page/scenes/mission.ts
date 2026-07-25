@@ -276,23 +276,18 @@ function renderSceneProofList(view){
       '<i aria-hidden="true">›</i></button>';
   }).join('') + '</div></div>';
 }
-/* KPI pulse (M10): orbit + 2-line mono label + spark bars. Label ≤3 words incl. kind prefix;
-   better line = better · <mono> (≤2-word mono value) when served, else deleted. At rest the
-   survival row leads; remaining served KPIs stay reachable in Inspect (06 §4 trim order 1). */
+/* KPI pulse (T-026 + M10): shared KpiPulse metric card — concentric donut badge snapped to the
+   frozen 0/25/50/75/100 stops, 2-line mono label, packet bars at the served value. Label ≤3 words
+   incl. kind prefix; better line = better · <mono> (≤2-word mono value) when served, else deleted.
+   At rest the survival row leads; remaining served KPIs stay reachable in Inspect (06 §4 trim order 1). */
 function renderSceneKpis(view){
   const rows = view.kpis.length ? view.kpis.slice(0, 1) : [{ label:'KPI missing', currentState:'not proven', survival:'survival threshold missing' }];
   return '<div data-component="KpiPulse"><div class="mc-section-title">KPIs</div><div class="mc-kpis">' + rows.map((row, index) => {
-    const progress = mcKpiProgress(row);
-    const state = mcKpiState(row);
     const survival = index === 0;
     const base = mcSceneClamp(mcText(row && row.label, 'KPI ' + (index + 1)), 2);
     const title = /^(survival|better)/i.test(base) ? base : (survival ? 'Survival: ' : 'Better: ') + base;
     const detail = survival ? mcText(row && row.currentState, 'not proven') : (row && row.betterThanSurvival && row.betterThanSurvival !== 'better-than-survival threshold missing' ? 'better · ' + mcSceneClamp(row.betterThanSurvival, 2) : '');
-    return '<div class="mc-kpi-row" data-component="KpiPulse" data-kpi-kind="' + (survival ? 'survival' : 'better-than-survival') + '" data-state="' + esc(mcStateKind(state)) + '">' +
-      mcOrbitProgress({ value:progress, state, label:'KPI', ariaLabel:'KPI ' + (index + 1) + ' progress ' + progress + '%' }) +
-      '<span class="mc-kpi-copy"><b>' + esc(title) + '</b>' + (detail ? '<span>' + esc(detail) + '</span>' : '') + '</span>' +
-      mcKpiBars(progress, state) +
-    '</div>';
+    return mcKpiPulse(row, index, { title, detail });
   }).join('') + '</div></div>';
 }
 function renderSceneActions(view){

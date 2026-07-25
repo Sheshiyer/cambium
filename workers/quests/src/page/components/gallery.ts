@@ -1,6 +1,7 @@
-// cambium-quests · miniapp page chunk — component gallery boards (glyph/state/orbit/mission/motion/legend)
-// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
-// Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+// cambium-quests · miniapp page chunk — component gallery boards (glyph/state/orbit/mission/motion/legend/kpi-matrix)
+// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith), plus the
+// T-026 KpiPulse metric state matrix (frozen donut stops 0/25/50/75/100 + blocked/stale/reduced-motion).
+// Assembly order: page/index.ts.
 export const COMPONENT_GALLERY = `const MC_BOARD_GLYPHS = Object.freeze([
   ['genesis','Genesis','seed star'],
   ['taste','Taste','capsule proof'],
@@ -126,6 +127,37 @@ function renderComponentLegendBoard(){
     ).join('') + '</div>'
   );
 }
+/* KpiPulse metric state matrix (T-026): every frozen donut stop 0/25/50/75/100 with its state
+   token + packet bars at the served value, plus blocked/stale/reduced-motion variants. Each cell
+   pairs donut + bars + caption — state is never color alone (frozen/01 + frozen/04). */
+const MC_BOARD_KPI_DONUTS = Object.freeze([
+  [0,'idle'],
+  [25,'active'],
+  [50,'proof-needed'],
+  [75,'active'],
+  [100,'complete'],
+]);
+const MC_BOARD_KPI_VARIANTS = Object.freeze([
+  [28,'blocked'],
+  [18,'stale'],
+  [50,'reduced-motion'],
+]);
+function renderComponentKpiPulseBoard(){
+  const cell = (value, state) => {
+    const kind = mcStateKind(state);
+    const stop = mcKpiDonutStop(value);
+    return '<div class="component-frame" data-component="KpiPulseDonutAsset" data-donut-stop="' + stop + '" data-state="' + esc(kind) + '">' +
+      mcKpiDonut({ value, state }) + mcKpiBars(value, state) +
+      '<small>' + stop + '% · ' + esc(kind) + '</small>' +
+    '</div>';
+  };
+  return mcBoardPanel('7. KpiPulse Matrix', 'ComponentKpiPulseBoard',
+    '<div class="component-grid component-orbit-grid">' +
+      MC_BOARD_KPI_DONUTS.map(([value, state]) => cell(value, state)).join('') +
+      MC_BOARD_KPI_VARIANTS.map(([value, state]) => cell(value, state)).join('') +
+    '</div>'
+  );
+}
 function renderComponentGallery(env){
   const wrap = $('mapwrap'); if (!wrap) return;
   const badge = $('sceneBadge');
@@ -143,6 +175,7 @@ function renderComponentGallery(env){
       renderComponentMissionComponentsBoard() +
       renderComponentMotionBoard() +
       renderComponentLegendBoard() +
+      renderComponentKpiPulseBoard() +
     '</section>';
 }
 `;

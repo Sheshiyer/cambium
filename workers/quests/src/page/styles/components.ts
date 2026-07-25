@@ -101,11 +101,20 @@ export const STYLE_COMPONENTS = `  /* ── frozen shared components (T-013/T-0
   .mc-packet-dots.is-proof-needed .mc-packet{background:rgba(214,255,246,.5);box-shadow:none}
   .mc-packet-dots.is-stale .mc-packet{background:rgba(214,255,246,.3);box-shadow:none}
 
-  /* KpiPulse — dotted-ring badge (OrbitProgress) + 2-line mono label + ~15 chartreuse spark bars. */
+  /* KpiPulse — concentric dotted-ring donut badge (OrbitProgress) + 2-line mono label + ~15 chartreuse spark bars. */
   .mc-kpi-bars{display:flex;gap:2px;align-items:flex-end;min-height:14px}
   .mc-kpi-bars i{width:2px;height:var(--mc-spark-h,6px);border-radius:1px;background:rgba(214,255,246,.14)}
   .mc-kpi-bars i[data-active="true"]{background:rgba(224,255,79,.72);box-shadow:0 0 6px rgba(224,255,79,.16)}
   .mc-kpi-bars.is-blocked i[data-active="true"]{background:rgba(255,199,161,.66);box-shadow:0 0 6px rgba(255,199,161,.14)}
+
+  /* KpiPulseDonut (T-026, frozen/01) — concentric dotted-ring badge: the OrbitProgress arc sits
+     inside a dashed inner ring. Decorative + pointer-inert + absolute, so geometry never inflates
+     scrollWidth; static under reduced motion (no animation of its own). */
+  .mc-kpi-donut{position:relative;display:inline-grid;place-items:center}
+  .mc-kpi-donut::before{content:"";position:absolute;inset:6px;border:1px dashed rgba(214,255,246,.2);border-radius:50%;pointer-events:none}
+  .mc-kpi-donut.is-active::before,.mc-kpi-donut.is-complete::before{border-color:rgba(224,255,79,.24)}
+  .mc-kpi-donut.is-blocked::before{border-color:rgba(255,199,161,.34)}
+  .mc-kpi-donut.is-stale::before{border-color:rgba(214,255,246,.1)}
 
   /* legend assets (frozen vocabulary): node/rail/packet/orbit/active/warning/locked/stale */
   .component-legend-node{width:18px;height:18px;border-radius:50%;border:1px solid var(--line2);background:rgba(1,47,52,.45)}

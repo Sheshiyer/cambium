@@ -3648,7 +3648,7 @@ test('page · primary flow does not render the hidden component gallery as the a
 });
 
 test('page · shared visual mechanics remain available inside Inspect', () => {
-  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'Proof map for blockers, packets, freshness, and evidence', 'Inspect keeps the low-level proof rows']) {
+  for (const m of ['const STAGES', 'const RAILS', 'stageForArc', 'proof · packets · freshness · evidence', 'Inspect keeps the low-level proof rows']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
   }
   for (const stage of CAMBIUM_VISUAL_STAGES) {
@@ -3685,20 +3685,21 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   assert.match(inspectHtml, /data-inspect-group="freshness"[\s\S]*data-inspect-group="live-proof"[\s\S]*data-inspect-group="branch-packets"[\s\S]*data-inspect-group="gates"[\s\S]*data-inspect-group="policy"/);
   const firstViewportText = visibleTextFromHtml(inspectHtml.slice(0, inspectHtml.indexOf('data-component="InspectSecondaryLinks"')));
   assert.doesNotMatch(firstViewportText, /operator map|R3F|schema|envelope|contract/i);
-  assert.match(firstViewportText, /Proof map for blockers, packets, freshness, and evidence/i);
-  assert.match(firstViewportText, /live blocker|No live blockers/i);
+  assert.match(firstViewportText, /proof · packets · freshness · evidence/i);
+  assert.match(firstViewportText, /blockers|no live blockers/i);
   assert.match(inspectHtml, /data-inspect-target="tools"/);
   assert.match(inspectHtml, /data-component="InspectProofSummaryAction"/);
   assert.match(inspectHtml, /data-inspect-summary="1"/);
-  assert.match(inspectHtml, /Open proof details/);
+  assert.match(inspectHtml, /Open proof/);
   assert.match(inspectHtml, /Inspect keeps the low-level proof rows out of Mission, Gate, Tools, and Story/);
   assert.doesNotMatch(inspectHtml.match(/data-component="InspectGroupStack"[\s\S]*data-component="InspectSecondaryLinks"/)?.[0] ?? '', /Envelope|readiness rows|feed Mission/);
-  assert.match(inspectHtml, /refresh before trusting decisions/i);
-  assert.match(inspectHtml, /blocker\(s\) still need proof|No live blockers/i);
-  assert.match(inspectHtml, /Mission can trust|Mission cannot trust/i);
-  assert.match(inspectHtml, /founder approval/i);
-  assert.match(inspectHtml, /Blocked or bounded action/i);
-  assert.match(inspectHtml, /live action surfaces available|live action surfaces unavailable/i);
+  // T-023/frozen-06 §1.6 I2: group details are ≤ 8-word flat declaratives from the canon.
+  assert.match(inspectHtml, /proof window fresh · refresh after movement|stale proof window · refresh first/);
+  assert.match(inspectHtml, /blockers need proof|no live blockers/);
+  assert.match(inspectHtml, /packets trusted|Mission cannot trust/);
+  assert.match(inspectHtml, /decisions waiting|No founder approval is waiting/);
+  assert.match(inspectHtml, /blocked actions explained first/);
+  assert.match(inspectHtml, /surfaces live|surfaces stale/);
 
   const proofSummary = rendered.elements.get('mapwrap')!.querySelectorAll('[data-inspect-summary]')[0];
   assert.ok(proofSummary);
@@ -3730,9 +3731,11 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   (rendered.context.openInspectSummarySheet as (env: unknown) => void)(FRESH_ECOSYSTEM_VISUAL_FIXTURE);
   const summarySheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(summarySheet, /Proof Summary/);
+  assert.match(summarySheet, /summary<\/b><span>Cambium mini app proof summary/);
   assert.match(summarySheet, /blocker names<\/b><span>/);
   assert.match(summarySheet, /redaction rule<\/b><span>no raw initData, bearer token, or secret value/);
-  assert.match(summarySheet, /data-copy-proof-summary=/);
+  // Clipboard flag (frozen/05 §4.1): no copy affordance — the summary renders as a mono value inline.
+  assert.doesNotMatch(summarySheet, /data-copy-proof-summary|Copy proof summary|Copy unavailable/);
 });
 
 test('page · visual tapestry layer exposes wake, lanes, stance, policy, decision context, live proof, branch stories, side quests, social, skills, companions, evidence boxes, and gaps', () => {
@@ -4246,7 +4249,7 @@ test('page · no-fake-progress visual fixture renders explicit gaps', async () =
   assert.doesNotMatch(stem, /mc-mission-card/);
   assert.match(progress, /branch packets waiting/);
   assert.match(map, /Inspect/);
-  assert.match(map, /Proof map for blockers, packets, freshness, and evidence/);
+  assert.match(map, /proof · packets · freshness · evidence/);
   assert.match(map, /ACTIVE ORGAN/);
   assert.match(map, /GENESIS · I/);
   assert.match(map, /WAKE HEALTH/);
@@ -11990,4 +11993,179 @@ test('tools fixture · normal handoffs row approves in-app and flips the surface
     rendered.elements.get('cmds')!.querySelector('[data-tool-surface="handoffs"]')!.innerHTML,
     /queued · approve · approve:cambium:fx-handoff-001/,
   );
+});
+
+test('page · T-026 KpiPulse donut renders every frozen stop 0/25/50/75/100 with exact dash geometry', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=components',
+  });
+  const donut = rendered.context.mcKpiDonut as (opts: Record<string, unknown>) => string;
+  const stopOf = rendered.context.mcKpiDonutStop as (value: unknown) => number;
+
+  // frozen/04: dotted-ring gauges at 0/25/50/75/100 — pathLength 100, arc offset = 100 - stop.
+  const matrix: Array<[number, string, number]> = [
+    [0, 'idle', 100],
+    [25, 'active', 75],
+    [50, 'active', 50],
+    [75, 'proof-needed', 25],
+    [100, 'complete', 0],
+  ];
+  for (const [value, state, offset] of matrix) {
+    const html = donut({ value, state });
+    assert.match(html, new RegExp(`class="mc-kpi-donut is-${state}" data-component="KpiPulseDonut" data-donut-stop="${value}" data-state="${state}"`), `donut stop ${value} carries its state token`);
+    assert.match(html, new RegExp(`pathLength="100" style="stroke-dashoffset:${offset}" transform="rotate\\(-90 32 32\\)"`), `stop ${value} dash geometry`);
+    assert.match(html, /data-component="OrbitProgress"/, `stop ${value} builds on OrbitProgress`);
+    assert.equal((html.match(/class="mc-orbit-node"/g) || []).length, 4, `stop ${value} keeps the 4 cardinal nodes`);
+    assert.match(html, /aria-label="progress \d+% · \w[\w-]*"/, `stop ${value} pairs the ring with a readout (never color alone)`);
+  }
+
+  // served progress snaps to the nearest frozen stop (deterministic, ties resolve downward).
+  assert.equal(stopOf(-5), 0);
+  assert.equal(stopOf(12), 0);
+  assert.equal(stopOf(13), 25);
+  assert.equal(stopOf(28), 25);
+  assert.equal(stopOf(42), 50);
+  assert.equal(stopOf(64), 75);
+  assert.equal(stopOf(87), 75);
+  assert.equal(stopOf(88), 100);
+  assert.equal(stopOf(140), 100);
+});
+
+test('page · T-026 KpiPulse donut state variants: blocked/stale render no fill, reduced-motion is static', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=components',
+  });
+  const donut = rendered.context.mcKpiDonut as (opts: Record<string, unknown>) => string;
+
+  // blocked — peach dashed track + centered warning triangle, no fill (frozen/01 OrbitProgress).
+  const blocked = donut({ value: 36, state: 'blocked' });
+  assert.match(blocked, /class="mc-kpi-donut is-blocked" data-component="KpiPulseDonut" data-donut-stop="25" data-state="blocked"/);
+  assert.match(blocked, /class="mc-orbit-warning"/, 'blocked donut carries the peach warning triangle');
+  assert.match(blocked, /stroke-dashoffset:100/, 'blocked donut renders no fill');
+
+  // stale — faint dashed track, dimmer nodes, no fill.
+  const stale = donut({ value: 18, state: 'stale' });
+  assert.match(stale, /data-donut-stop="25" data-state="stale"/);
+  assert.match(stale, /stroke-dashoffset:100/, 'stale donut renders no fill');
+
+  // reduced-motion — full solid thin mint ring, static: no fill arc, no motion attributes, no packets.
+  const reduced = donut({ value: 50, state: 'reduced-motion' });
+  assert.match(reduced, /class="mc-kpi-donut is-reduced-motion" data-component="KpiPulseDonut" data-donut-stop="50" data-state="reduced-motion"/);
+  assert.match(reduced, /stroke-dashoffset:100/, 'reduced-motion donut renders the static ring (arc hidden by CSS)');
+  assert.doesNotMatch(reduced, /data-motion=/, 'reduced-motion donut is static');
+  assert.doesNotMatch(reduced, /data-component="PacketFlow"/, 'reduced-motion donut renders no packets');
+  assert.match(PAGE, /\.mc-orbit\.is-reduced-motion \.mc-orbit-track\{stroke:rgba\(214,255,246,\.6\);stroke-dasharray:none/, 'reducedMotion state = full solid thin mint ring');
+  assert.match(PAGE, /\.mc-orbit\.is-reduced-motion \.mc-orbit-arc\{display:none\}/);
+  assert.match(PAGE, /@media \(prefers-reduced-motion: reduce\)/);
+
+  // donut animation is stroke-dashoffset only; the concentric badge ring is absolute (zero geometry).
+  assert.match(PAGE, /@keyframes orbitSweep\{from\{stroke-dashoffset:100\}\}/);
+  assert.match(PAGE, /\.mc-kpi-donut::before\{content:"";position:absolute;inset:6px;border:1px dashed rgba\(214,255,246,\.2\);border-radius:50%;pointer-events:none\}/);
+  assert.match(PAGE, /\.mc-kpi-donut\.is-blocked::before\{border-color:rgba\(255,199,161,\.34\)\}/);
+});
+
+test('page · T-026 KpiPulse packet bars render served values', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=components',
+  });
+  const bars = rendered.context.mcKpiBars as (progress: number, state: string) => string;
+
+  // ~15 thin bars; lit count = round(served/100 × 15) — the served value, not the snapped donut stop.
+  const served: Array<[number, number]> = [[0, 0], [25, 4], [50, 8], [75, 11], [100, 15]];
+  for (const [progress, lit] of served) {
+    const html = bars(progress, 'active');
+    assert.match(html, /class="mc-kpi-bars" data-component="PacketFlow" data-packet-mode="packet-bar"/);
+    assert.match(html, new RegExp(`data-signal-depth="${lit}" data-signal-total="15"`), `${progress}% reports depth ${lit}`);
+    assert.equal((html.match(/data-active="true"/g) || []).length, lit, `${progress}% lights ${lit} bars`);
+    assert.equal((html.match(/--mc-spark-h:/g) || []).length, 15, `${progress}% renders 15 bars`);
+    assert.match(html, /aria-label="signal depth \d+ of 15"/, `${progress}% pairs bars with a readout`);
+  }
+  assert.match(bars(50, 'blocked'), /data-state="blocked"/);
+  assert.match(PAGE, /\.mc-kpi-bars\.is-blocked i\[data-active="true"\]\{background:rgba\(255,199,161,\.66\)/, 'blocked bars tint peach');
+});
+
+test('page · T-026 KpiPulse metric card snaps the donut to a frozen stop while bars keep the served value', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=components',
+  });
+  const kpi = rendered.context.mcKpiPulse as (row: Record<string, unknown>, index: number, opts?: Record<string, unknown>) => string;
+
+  // idle state → served progress 64 → donut snaps to stop 75; bars keep served 64 → 10 lit.
+  const pulse = kpi({ label: 'Qualified waitlist', currentState: 'signal served', survival: 'waitlist', betterThanSurvival: 'paid pilot' }, 0);
+  assert.match(pulse, /data-component="KpiPulse" data-kpi-kind="survival" data-state="idle" data-donut-stop="75"/);
+  assert.match(pulse, /data-component="KpiPulseDonut" data-donut-stop="75" data-state="idle"/);
+  assert.match(pulse, /stroke-dashoffset:25/, 'stop 75 dash geometry');
+  assert.match(pulse, /data-signal-depth="10" data-signal-total="15"/, 'bars keep the served value');
+
+  // backward-compatible default copy shaping (T-013/T-014 contract unchanged).
+  assert.match(pulse, /<b>Survival: Qualified waitlist<\/b><span>signal served · survival: waitlist<\/span>/);
+  const better = kpi({ label: 'Pilot' }, 1);
+  assert.match(better, /<b>Better: Pilot<\/b><span>better-than-survival proof pending<\/span>/);
+
+  // opts copy override (Mission scene M10 path): empty detail deletes the second line.
+  const shaped = kpi({ label: 'Waitlist', currentState: 'not proven', survival: 'qualified waitlist' }, 0, { title: 'Survival: Waitlist', detail: 'not proven' });
+  assert.match(shaped, /<b>Survival: Waitlist<\/b><span>not proven<\/span>/);
+  assert.match(shaped, /data-donut-stop="50" data-state="proof-needed"/, 'proof-needed served KPI lands on stop 50');
+  const noDetail = kpi({ label: 'Pilot' }, 1, { title: 'Better: Pilot', detail: '' });
+  assert.match(noDetail, /<b>Better: Pilot<\/b><\/span>/, 'empty detail deletes the line (M10)');
+  assert.doesNotMatch(pulse, /mc-kpi-pulse/);
+});
+
+test('page · T-026 component gallery renders the KpiPulse metric state matrix', async () => {
+  const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, {
+    search: '?tenant=cambium&scene=components',
+  });
+  const html = rendered.elements.get('mapwrap')!.innerHTML;
+
+  assert.match(html, /data-component="ComponentKpiPulseBoard"/);
+  assert.match(html, /7\. KpiPulse Matrix/);
+  for (const stop of [0, 25, 50, 75, 100]) {
+    assert.match(html, new RegExp(`data-component="KpiPulseDonutAsset" data-donut-stop="${stop}"`), `matrix covers stop ${stop}`);
+  }
+  for (const state of ['idle', 'active', 'proof-needed', 'complete', 'blocked', 'stale', 'reduced-motion']) {
+    assert.match(html, new RegExp(`data-component="KpiPulseDonutAsset"[^>]*data-state="${state}"`), `matrix covers state ${state}`);
+  }
+  // 5 frozen stops + 3 state variants; every cell pairs donut + packet bars + caption.
+  assert.equal((html.match(/data-component="KpiPulseDonutAsset"/g) || []).length, 8);
+  const board = html.slice(html.indexOf('data-component="ComponentKpiPulseBoard"'));
+  assert.equal((board.match(/data-component="KpiPulseDonut"/g) || []).length, 8);
+  assert.equal((board.match(/class="mc-kpi-bars" data-component="PacketFlow"/g) || []).length, 8);
+  assert.match(board, /0% · idle/);
+  assert.match(board, /100% · complete/);
+  assert.match(board, /50% · reduced-motion/);
+});
+
+test('page · T-026 Mission KPI row uses the shared KpiPulse metric card', async () => {
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Launch arc',
+        questline: [{ id: 'proof', title: 'Collect proof', status: 'active' }],
+        missions: [{ missionId: 'launch-proof', title: 'Launch proof packet', owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Plexus' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+        kpis: [{ kpiId: 'waitlist', label: 'Waitlist', survival: 'qualified waitlist', betterThanSurvival: 'paid pilot', currentState: 'not proven' }],
+        proofPaths: [{ proofId: 'viewport', validates: 'Viewport capture', promotes: 'supervised branch' }],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
+  const html = rendered.elements.get('stem')!.innerHTML;
+
+  // shared component: KpiPulse row → KpiPulseDonut badge → OrbitProgress, snapped stop, served bars.
+  assert.match(html, /data-component="KpiPulse" data-kpi-kind="survival" data-state="proof-needed" data-donut-stop="50"/);
+  assert.match(html, /class="mc-kpi-donut is-proof-needed" data-component="KpiPulseDonut" data-donut-stop="50" data-state="proof-needed"/);
+  assert.match(html, /data-component="KpiPulseDonut"[\s\S]*?data-component="OrbitProgress"[\s\S]*?stroke-dashoffset:50/);
+  assert.match(html, /class="mc-kpi-bars" data-component="PacketFlow" data-packet-mode="packet-bar" data-state="proof-needed" data-signal-depth="6" data-signal-total="15"/);
+  assert.match(html, /<b>Survival: Waitlist<\/b><span>not proven<\/span>/);
+
+  // layout regression guards — row structure + copy budget unchanged.
+  assert.match(html, /<div data-component="KpiPulse"><div class="mc-section-title">KPIs<\/div><div class="mc-kpis">/);
+  assert.equal((html.match(/class="mc-kpi-row"/g) || []).length, 1, 'one KPI row at rest (M10 trim)');
+  assert.doesNotMatch(html, /mc-kpi-pulse/);
+  assert.match(PAGE, /\.mc-kpi-row\{display:grid;grid-template-columns:auto minmax\(0,1fr\) auto/);
 });

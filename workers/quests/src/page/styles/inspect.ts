@@ -1,6 +1,6 @@
 // cambium-quests · miniapp page chunk — Inspect scene CSS (proof map, component board)
-// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
-// Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+// T-009 slice of the served PAGE string; P2-W3 (T-023/T-024) appends branch-map + evidence beat
+// styles (cards radius ≤ 8px per frozen/README). Assembly order: page/index.ts.
 export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density ───── */
 	  @keyframes spin{to{transform:rotate(360deg)}}
 	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
@@ -136,5 +136,16 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
     border-radius:10px;padding:9px 14px;margin-top:14px;font:600 12px inherit;cursor:pointer;
     transition:transform .2s var(--ease)}
   .dback:active{transform:scale(.96)}
+  /* ── T-024 branch map (visual read model) + N4 evidence beat list — cards radius ≤ 8px (frozen/README) ── */
+  .branch-map-rows{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:rgba(1,47,52,.22)}
+  .branch-map-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;min-height:48px;padding:8px 10px;border-bottom:1px solid var(--line)}
+  .branch-map-row:last-child{border-bottom:0}
+  .branch-map-row b{display:block;font-size:12.5px;line-height:1.2;color:var(--soft);overflow-wrap:anywhere}
+  .branch-map-row small{display:block;font:10.5px/1.25 var(--mono);opacity:.6}
+  .branch-map-row .mc-glyph{width:30px;height:30px}
+  .branch-map-rows>.mc-signal-rail{margin:2px 10px}
+  .branch-map-counts{display:flex;gap:8px;flex-wrap:wrap;border:1px dashed var(--line);border-radius:8px;padding:10px}
+  .branch-map-mono{font:11px var(--mono);color:var(--ink);opacity:.75;overflow-wrap:anywhere}
+  .inspect-beat-list{display:grid;gap:8px;margin-top:10px}
 
 `;

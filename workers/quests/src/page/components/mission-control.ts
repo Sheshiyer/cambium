@@ -1,11 +1,12 @@
-// cambium-quests · miniapp page chunk — esc + state-kind + frozen shared component builders (T-013/T-014)
+// cambium-quests · miniapp page chunk — esc + state-kind + frozen shared component builders (T-013/T-014/T-026)
 // Spec: frozen/01-component-anatomy.md (MissionGlyph 8 variants, StateToken 8 states, OrbitProgress,
 // SignalRail, PacketFlow, KpiPulse) + frozen/03-motion-spec.md (orbitSweep, packetDrift, glyphBreathe,
-// warningAttention, reducedMotion) + frozen/04-tokens-and-atlas.md (peach #FFC7A1 = blocked only).
+// warningAttention, reducedMotion) + frozen/04-tokens-and-atlas.md (peach #FFC7A1 = blocked only;
+// dotted-ring gauges at 0/25/50/75/100 — solid chartreuse arc grows clockwise over the dotted track).
 // `proof-needed` is the runtime alias for the PENDING (dashed mint ring) treatment — not a 9th state.
 // Backward-compatible builder signatures: mcGlyphSvg(kind, state, opts), mcStateToken(state, label),
 // mcPacketDots(count, state, opts), mcOrbitProgress(opts), mcSignalRail(opts), mcKpiBars(progress, state),
-// mcKpiPulse(row, index). Assembly order: page/index.ts.
+// mcKpiPulse(row, index, opts), mcKpiDonut(opts), mcKpiDonutStop(value). Assembly order: page/index.ts.
 export const COMPONENT_MISSION_CONTROL = `const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function mcStateKind(raw){
   const state = String(raw || '').toLowerCase();
@@ -91,19 +92,43 @@ function mcKpiBars(progress, state){
     MC_KPI_SPARK_HEIGHTS.map((h, i) => '<i data-active="' + (i < lit ? 'true' : 'false') + '" style="--mc-spark-h:' + h + 'px"></i>').join('') +
   '</span>';
 }
-/* KpiPulse row — dotted-ring badge (OrbitProgress) + 2-line mono label + right-aligned spark bars. */
-function mcKpiPulse(row, index){
+/* KpiPulse donut stops (T-026, frozen/04): gauges render at 0/25/50/75/100 — served progress
+   snaps to the nearest frozen stop so the donut arc always lands on a ratified state. */
+const MC_KPI_DONUT_STOPS = Object.freeze([0, 25, 50, 75, 100]);
+function mcKpiDonutStop(value){
+  const v = Math.max(0, Math.min(100, Number(value) || 0));
+  let best = 0;
+  MC_KPI_DONUT_STOPS.forEach(stop => { if (Math.abs(v - stop) < Math.abs(v - best)) best = stop; });
+  return best;
+}
+/* KpiPulse donut (T-026, frozen/01 badge): concentric dotted-ring badge — OrbitProgress arc at a
+   frozen stop inside the dashed inner ring (.mc-kpi-donut::before, decorative, zero geometry).
+   blocked/stale render no fill; reduced-motion renders the static full thin mint ring. */
+function mcKpiDonut(opts){
+  const kind = mcStateKind(opts && opts.state);
+  const stop = mcKpiDonutStop(opts && opts.value);
+  const label = opts && opts.label ? opts.label : stop + '%';
+  const aria = (opts && opts.ariaLabel) || ('progress ' + stop + '% · ' + kind);
+  return '<span class="' + mcClass('mc-kpi-donut', kind) + '" data-component="KpiPulseDonut" data-donut-stop="' + stop + '" data-state="' + esc(kind) + '">' +
+    mcOrbitProgress({ value:stop, state:kind, label, ariaLabel:aria }) +
+  '</span>';
+}
+/* KpiPulse row — concentric dotted-ring donut badge + 2-line mono label + right-aligned spark bars.
+   Donut snaps to MC_KPI_DONUT_STOPS; packet bars keep the raw served value. opts.title/opts.detail
+   override the default copy shaping (Mission scene M10 rules); opts.detail '' deletes the line. */
+function mcKpiPulse(row, index, opts){
   const progress = mcKpiProgress(row);
   const state = mcKpiState(row);
   const survival = index === 0;
   const kind = survival ? 'survival' : 'better-than-survival';
-  const title = (survival ? 'Survival: ' : 'Better: ') + (row.label || ('KPI ' + (index + 1)));
-  const detail = survival
+  const title = opts && opts.title ? String(opts.title) : (survival ? 'Survival: ' : 'Better: ') + (row.label || ('KPI ' + (index + 1)));
+  const detail = opts && typeof opts.detail === 'string' ? opts.detail : (survival
     ? ((row.currentState || 'not proven') + ' · survival: ' + (row.survival || 'missing'))
-    : (row.betterThanSurvival ? row.betterThanSurvival : 'better-than-survival proof pending');
-  return '<div class="mc-kpi-row" data-component="KpiPulse" data-kpi-kind="' + kind + '" data-state="' + esc(mcStateKind(state)) + '">' +
-    mcOrbitProgress({ value:progress, state, label:'KPI', ariaLabel:'KPI ' + (index + 1) + ' progress ' + progress + '%' }) +
-    '<span class="mc-kpi-copy"><b>' + esc(title) + '</b><span>' + esc(detail) + '</span></span>' +
+    : (row.betterThanSurvival ? row.betterThanSurvival : 'better-than-survival proof pending'));
+  const stop = mcKpiDonutStop(progress);
+  return '<div class="mc-kpi-row" data-component="KpiPulse" data-kpi-kind="' + kind + '" data-state="' + esc(mcStateKind(state)) + '" data-donut-stop="' + stop + '">' +
+    mcKpiDonut({ value:progress, state, label:'KPI', ariaLabel:'KPI ' + (index + 1) + ' progress ' + stop + '% · ' + mcStateKind(state) }) +
+    '<span class="mc-kpi-copy"><b>' + esc(title) + '</b>' + (detail ? '<span>' + esc(detail) + '</span>' : '') + '</span>' +
     mcKpiBars(progress, state) +
   '</div>';
 }

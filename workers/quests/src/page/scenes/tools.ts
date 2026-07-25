@@ -53,19 +53,8 @@ function toolClamp(text, max){
   const words = mcText(text, 'detail missing').split(/\\s+/).filter(Boolean);
   return words.length > max ? words.slice(0, max).join(' ') + '…' : words.join(' ');
 }
-/* hasClipboardApi + copyCommandToClipboard stay ONLY for the Inspect proof-summary sheet
-   (inspect.ts calls it until its own rebuild); this scene never copies anything (T1). */
-function hasClipboardApi(){
-  const nav = globalThis.navigator;
-  return !!(nav && nav.clipboard && typeof nav.clipboard.writeText === 'function');
-}
-async function copyCommandToClipboard(text, node, doneLabel){
-  const nav = globalThis.navigator;
-  if (!nav || !nav.clipboard || typeof nav.clipboard.writeText !== 'function') return { ok:false, reason:'clipboard unavailable' };
-  await nav.clipboard.writeText(text);
-  if (node) node.textContent = doneLabel || 'Copied';
-  return { ok:true, copied:text };
-}
+/* frozen/05 §4.1 bans copy affordances app-wide; the Inspect proof summary now renders mono
+   values inline, so the clipboard helpers that lived here for it are gone (P2-W3). */
 function toolHandoffs(){ return CMDDATA && Array.isArray(CMDDATA.handoffs) ? CMDDATA.handoffs : []; }
 function toolSurfaceCount(id){
   const d = CMDDATA;
