@@ -40,7 +40,7 @@ export const STYLE_GATE = `  /* ── gate ────────────
   .gate-hero-decision b{display:block;color:var(--ink);font-weight:650;margin-bottom:2px}
   .gate-queue{display:grid;gap:10px}
   .gate-filter-strip{margin-bottom:2px}
-  .gate-empty,.gate-error{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px dashed rgba(224,255,79,.28);
+  .gate-empty,.gate-error{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px dashed rgba(214,255,246,.38);
     border-radius:13px;padding:12px;background:rgba(1,47,52,.28);font:12.5px/1.48 var(--mono)}
   .gate-error{border-color:rgba(255,199,161,.44);background:rgba(255,199,161,.045)}
   .gate-empty b,.gate-error b{display:block;color:var(--soft);font-weight:650;margin-bottom:3px}
@@ -125,7 +125,7 @@ export const STYLE_GATE = `  /* ── gate ────────────
   .gate-actions{display:flex;gap:8px}
   .gate-actions button{flex:1 1 0}
   .gate-actions .approve{flex:1 1 0;background:var(--ink);color:var(--bg)}
-  .gate-actions .reroll,.gate-actions .detail{flex:1 1 0;background:transparent;border:1px solid rgba(224,255,79,.45);color:var(--ink)}
+  .gate-actions .reroll,.gate-actions .detail{flex:1 1 0;background:transparent;border:1px solid rgba(224,255,79,.45);color:var(--mc-chartreuse)}
   .gate-actions.is-queued{align-items:stretch}
   .gate-actions.is-queued .detail{flex:0 0 auto;min-width:96px}
   .gate-queued-state{flex:1 1 0;min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;border:1px solid rgba(224,255,79,.3);

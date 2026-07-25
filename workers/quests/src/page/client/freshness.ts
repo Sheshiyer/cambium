@@ -18,7 +18,7 @@ function freshness(env){
     source,
     age: mins,
     stale,
-    detail: mins === null ? 'freshness missing' : mins < 2 ? 'derived just now' : mins < 60 ? 'derived ' + mins + 'm ago' : 'derived ' + Math.round(mins / 60) + 'h ago',
+    detail: mins === null ? 'no freshness' : stale ? 'stale ' + Math.round(mins / 60) + 'h' : mins < 2 ? 'fresh now' : mins < 60 ? 'fresh ' + mins + 'm' : 'fresh ' + Math.round(mins / 60) + 'h',
   };
   f.textContent = FRESHNESS_STATE.detail;
   markFreshnessChip(source);
@@ -43,7 +43,7 @@ function markStaleRefreshIgnored(nextEnv){
     source: (nextEnv && nextEnv.source) || (current && current.source) || REFRESH_ROUTE,
     age: minutesSince(current.derivedAt),
     stale: true,
-    detail: 'stale refresh ignored',
+    detail: 'stale · refresh skipped',
   };
   f.textContent = FRESHNESS_STATE.detail;
   markFreshnessChip(FRESHNESS_STATE.source);

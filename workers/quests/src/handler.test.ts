@@ -2056,7 +2056,7 @@ test('page · chrome copy scan keeps infrastructure terms out of visible shell c
     .map(([name, html]) => `${name}: ${visibleTextFromHtml(html)}`)
     .join('\n');
 
-  assert.match(visibleChromeCopy, /root status: Mission Control tenant cambium · branch arcs Mission syncing/);
+  assert.match(visibleChromeCopy, /root status: Mission Control cambium · branch arcs Mission syncing/);
   assert.match(visibleChromeCopy, /root nav: Mission next move Gate review Tools act Story signals Inspect proof/);
   assert.match(visibleChromeCopy, /scene badge: Mission/);
   assert.match(visibleChromeCopy, /freshness chip: syncing/);
@@ -3431,7 +3431,7 @@ test('page · visual tapestry layer exposes wake, lanes, stance, policy, decisio
 });
 
 test('page · visual layer guards stale and partial envelopes', () => {
-  for (const m of ['env.wake && Array.isArray', 'env.lanes || {}', 'env.senses || {}', 'env.insights || {}', 'env.stance || {}', 'env.policy || {}', 'env.decisionContext || {}', 'env.liveProof || {}', 'env.branchStories || {}', 'env.sideQuests || {}', 'env.social || {}', 'env.skills || {}', 'env.npc || {}', 'age > 360', 'freshness missing']) {
+  for (const m of ['env.wake && Array.isArray', 'env.lanes || {}', 'env.senses || {}', 'env.insights || {}', 'env.stance || {}', 'env.policy || {}', 'env.decisionContext || {}', 'env.liveProof || {}', 'env.branchStories || {}', 'env.sideQuests || {}', 'env.social || {}', 'env.skills || {}', 'env.npc || {}', 'age > 360', 'no freshness']) {
     assert.ok(PAGE.includes(m), `page has partial/stale guard ${m}`);
   }
 });
@@ -3496,7 +3496,7 @@ test('page · gate item cards show decision mission proof and queue-only fields'
   assert.match(gate, /data-component="GateDecisionStack"/);
   assert.match(gate, /data-component="GateStackRow"/);
   assert.match(gate, /class="gate-row-token is-proof-needed" data-component="StateToken" data-state="proof-needed"/);
-  assert.match(gate, /<div class="gtitle">Review launch copy<\/div><div class="gsub-line">needs proof<\/div>/);
+  assert.match(gate, /<div class="gtitle">Review launch copy<\/div><div class="gsub-line">evidence missing<\/div>/);
   assert.match(gate, /class="gate-row-dot"/);
   assert.match(gate, /class="gate-proof-copy"><b>Proof<\/b><small>THO-9 blocked by launch copy review/);
   assert.match(gate, /signed decisions queue here · proof lives in Inspect/);
@@ -4107,7 +4107,7 @@ test('page · pull refresh keeps current branch story view when a stale envelope
   await (rendered.context.refresh as () => Promise<void>)();
 
   assert.match(rendered.elements.get('mapwrap')!.innerHTML, /Launch proof packet/);
-  assert.equal(rendered.elements.get('fresh')!.textContent, 'stale refresh ignored');
+  assert.equal(rendered.elements.get('fresh')!.textContent, 'stale · refresh skipped');
   assert.match(rendered.elements.get('mapwrap')!.innerHTML, /data-source="product-branch-packets@v1"/);
 });
 
@@ -4222,7 +4222,7 @@ test('page · Mission Control renders branch loop controls as manual-first', asy
   const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
   const html = rendered.elements.get('stem')!.innerHTML;
 
-  assert.match(html, /Fitcheck launch gate loop/);
+  assert.doesNotMatch(html, /Fitcheck launch gate loop/);
   assert.match(html, /manual weekly · yellow/);
   assert.match(html, /Loop controls/);
   assert.match(html, /data-mission-action="loops"/);
@@ -4267,7 +4267,7 @@ test('page · Mission Control derives manual-first loop run mode from branch con
   const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
   const html = rendered.elements.get('stem')!.innerHTML;
 
-  assert.match(html, /Fitcheck launch gate loop/);
+  assert.doesNotMatch(html, /Fitcheck launch gate loop/);
   assert.match(html, /manual weekly · yellow/);
   assert.doesNotMatch(html, /undefined/);
   assert.doesNotMatch(html, /autonomous loop scheduled/i);
@@ -4449,7 +4449,8 @@ test('page · Mission Control normalizes branch loop controls boundary colors be
   const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
   const html = rendered.elements.get('stem')!.innerHTML;
 
-  assert.match(html, /Fitcheck launch gate loop/);
+  // M7: card rows render the mono cadence token only; loop titles stay in the Inspect loops sheet.
+  assert.doesNotMatch(html, /Fitcheck (launch gate|read|invalid) loop/);
   assert.match(html, /manual weekly · yellow/);
   assert.match(html, /manual daily · green/);
   assert.match(html, /manual weekly · red/);
@@ -4521,7 +4522,8 @@ test('page · Mission Control enriches partial visual loop rows with branch cont
   const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission' });
   const html = rendered.elements.get('stem')!.innerHTML;
 
-  assert.match(html, /Fitcheck launch gate loop/);
+  // M7: card renders the enriched cadence token only; the loop title opens in the sheet.
+  assert.doesNotMatch(html, /Fitcheck launch gate loop/);
   assert.match(html, /manual weekly · yellow/);
   assert.match(html, /data-mission-action="loops"[^>]*>Open controls<\/button>/);
   assert.doesNotMatch(html, /data-mission-action="loops"[^>]*>yellow · manual weekly<\/button>/);

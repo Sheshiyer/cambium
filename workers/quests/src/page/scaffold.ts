@@ -9,7 +9,7 @@ export const SCAFFOLD = `</head>
   <header class="root-status" data-component="RootStatusStack">
     <div class="root-brand">
       <span class="root-brand-glyph" data-component="RootBrandGlyph" data-glyph-kind="genesis" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="mc-fill" d="M16 3.8 19.5 11.2 27.4 8.8 23.8 16 27.4 23.2 19.5 20.8 16 28.2 12.5 20.8 4.6 23.2 8.2 16 4.6 8.8 12.5 11.2Z"/><path d="M16 6.8 18.1 12.6 24.2 12.1 19.4 16 24.2 19.9 18.1 19.4 16 25.2 13.9 19.4 7.8 19.9 12.6 16 7.8 12.1 13.9 12.6Z"/><circle class="mc-core" cx="16" cy="16" r="2.1"/><path class="mc-soft" d="M7 27c4.2-.6 6.8-.6 9.2.1 2.8.8 5.2.7 8.8-.4"/></svg></span>
-      <div class="brand">Mission Control<small>tenant <span id="ten">cambium</span> · branch arcs</small></div>
+      <div class="brand">Mission Control<small><span id="ten">cambium</span> · branch arcs</small></div>
     </div>
     <div class="root-chip-stack">
       <button id="sceneBadge" type="button" class="chip scene-chip" data-interaction-kind="sheet" data-source="tg-miniapp-scenes@v1">Mission</button>

@@ -11,7 +11,7 @@ let GATE_ITEMS = [];
 let GATE_FILTER = 'all';
 let GATE_PREFLIGHT_ORIGIN = null;
 /* Canonical StateToken subtitles (frozen/06 §2.3) — context-free, same words on every tab. */
-const GATE_STATE_SUBTITLE = { idle:'waiting', active:'ready', selected:'selected', complete:'verified', blocked:'blocked', stale:'refresh first', locked:'on hold', 'proof-needed':'needs proof', 'reduced-motion':'waiting' };
+const GATE_STATE_SUBTITLE = { idle:'waiting', active:'ready', selected:'current focus', complete:'verified', blocked:'needs gate review', stale:'refresh first', locked:'waiting unlock', 'proof-needed':'evidence missing', 'reduced-motion':'waiting' };
 function actionRequestRows(env){
   const envelope = env && env.actionRequests;
   const rows = Array.isArray(envelope)

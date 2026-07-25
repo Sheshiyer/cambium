@@ -44,6 +44,16 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   .mc-branch-chip .mc-glyph{width:25px;height:25px;border-radius:7px}
   .mc-branch-chip .mc-state-token{flex:none;min-height:20px;max-width:88px;padding:3px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mc-branch-chip.is-selected{border-color:rgba(224,255,79,.55);background:rgba(224,255,79,.065)}
+  /* Chip state colors (frozen/02 §2): blocked = peach, stale = muted gray NO accent, locked = dim.
+     State wins over the chartreuse default; selection still rides the halo + aria-selected. */
+  .mc-branch-chip.is-blocked{border-color:rgba(255,199,161,.5)}
+  .mc-branch-chip.is-blocked .mc-branch-copy b{color:var(--mc-peach)}
+  .mc-branch-chip.is-blocked .mc-branch-count{color:var(--mc-peach)}
+  .mc-branch-chip.is-stale{border-color:rgba(214,255,246,.18)}
+  .mc-branch-chip.is-stale .mc-branch-copy b{color:rgba(214,255,246,.5)}
+  .mc-branch-chip.is-stale .mc-branch-count{color:rgba(214,255,246,.45)}
+  .mc-branch-chip.is-locked .mc-branch-copy b{color:rgba(214,255,246,.45)}
+  .mc-branch-chip.is-locked .mc-branch-count{color:rgba(214,255,246,.4)}
   .mc-section-title{font:11px var(--mono);color:var(--ink);text-transform:uppercase;letter-spacing:0;margin:3px 0}
 
   /* hero mission card (frozen/02 §3): surface fill, 1px border, faint contour, constellation right */
@@ -58,8 +68,8 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   .mc-eyebrow{font:10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mc-chartreuse);max-width:58%}
   .mc-card-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:10px;max-width:58%}
   .mc-card-head>div{min-width:0}
-  .mc-card-title{font-size:19px;line-height:1.18;font-weight:700;color:var(--mc-paper);overflow-wrap:anywhere}
-  .mc-mission-card h3{font-size:18px;line-height:1.18;color:var(--ink);overflow-wrap:anywhere}
+  .mc-card-title{font-size:19px;line-height:1.18;font-weight:700;color:var(--mc-paper);overflow-wrap:break-word}
+  .mc-mission-card h3:not(.mc-card-title){font-size:18px;line-height:1.18;color:var(--ink);overflow-wrap:anywhere}
   .mc-mission-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;font-size:13px;line-height:1.48;opacity:.78}
   .mc-meta-grid{display:grid;gap:8px;max-width:58%;font:11px/1.35 var(--mono)}
   .mc-meta-row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;min-width:0}
@@ -91,8 +101,10 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   .mc-station-orbit-arc{fill:none;stroke:rgba(224,255,79,.55);stroke-width:1.2;stroke-dasharray:2.5 3}
   .mc-station-orbit-dot{fill:var(--mc-chartreuse)}
   .mc-station-orbit[data-motion="orbitSweep"] .mc-station-orbit-arc{animation:orbitSweep 1.4s var(--ease) both}
-  .mc-timeline-name{font:600 11px/1.2 inherit;color:var(--mc-paper);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mc-timeline-state{font:9px var(--mono);color:rgba(214,255,246,.55);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mc-timeline-name{font:600 11px/1.2 inherit;color:var(--mc-paper);max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow-wrap:break-word;text-align:center}
+  /* State word renders in full at ≥361px (wraps at the hyphen, e.g. proof-/needed); the
+     compact ≤360px density keeps the single-line ellipsis clamp. */
+  .mc-timeline-state{font:9px/1.25 var(--mono);color:rgba(214,255,246,.55);max-width:100%;overflow:hidden;white-space:normal;overflow-wrap:break-word;text-align:center}
   .mc-connector{position:relative;flex:1 1 0;min-width:8px;height:2px;margin-top:13px;border-radius:2px}
   .mc-connector.is-solid{background:var(--mc-chartreuse);box-shadow:0 0 8px rgba(224,255,79,.35)}
   .mc-connector.is-dashed{background:repeating-linear-gradient(90deg,rgba(214,255,246,.35) 0 4px,transparent 4px 8px)}
@@ -104,7 +116,7 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
     .mc-station{width:20px;height:20px}
     .mc-station-icon,.mc-station-icon svg{width:12px;height:12px}
     .mc-timeline-name{font-size:10px}
-    .mc-timeline-state{font-size:8.5px}
+    .mc-timeline-state{font-size:8.5px;white-space:nowrap;text-overflow:ellipsis}
     .mc-connector{min-width:6px;margin-top:9px}
   }
 
@@ -131,7 +143,7 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   /* GateActionRow + tool/loop links */
   .mc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .mc-action-row button{appearance:none;min-height:60px;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:#00272B;font-weight:800;cursor:pointer;touch-action:manipulation}
-  .mc-action-row button.secondary{border-color:var(--line2);background:rgba(1,47,52,.55);color:var(--soft)}
+  .mc-action-row button.secondary{border:1px solid rgba(224,255,79,.5);background:transparent;color:var(--mc-chartreuse)}
   .mission-tool-link,.tool-recommend,.story-hero,.inspect-proof-summary{border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.28);padding:12px 13px}
   .mission-tool-link{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:center}
   .mission-tool-link>*{min-width:0}

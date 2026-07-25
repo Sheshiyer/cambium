@@ -83,7 +83,7 @@ export const STYLE_TOKENS = `<!doctype html>
   .root-tab-glyph .mc-core{fill:currentColor;stroke:none;opacity:.88}
   .root-tab-glyph .mc-soft,.root-tab-glyph .mc-dash{opacity:.42}
   .root-tab-label{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .root-tab small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:8.5px/1.1 var(--mono);opacity:.55;text-transform:uppercase}
+  .root-tab small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:8.5px/1.1 var(--mono);opacity:.55}
   .root-tab.on{opacity:1;color:var(--ink)}
   .root-tab.on .root-tab-glyph{color:var(--ink);border-color:rgba(224,255,79,.52);box-shadow:0 0 0 1px rgba(224,255,79,.18)}
   .root-tab:active{transform:scale(.97)}

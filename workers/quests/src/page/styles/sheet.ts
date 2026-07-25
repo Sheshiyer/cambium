@@ -31,12 +31,15 @@ export const STYLE_SHEET = `  /* ── sheet ───────────�
   .gate-inspect-link{appearance:none;background:none;border:0;padding:0;min-height:24px;color:var(--ink);
     font:11px var(--mono);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
   .gate-result-line{display:flex;align-items:center;gap:10px;margin:10px 0 14px;font:12px/1.45 var(--mono);color:var(--soft);overflow-wrap:anywhere}
+  /* receipt token label never breaks mid-word; long values (idempotency keys) wrap anywhere on the value span */
+  .gate-result-line .mc-state-token{flex:0 0 auto;white-space:nowrap;overflow-wrap:normal}
+  .gate-result-line>span{min-width:0;overflow-wrap:anywhere}
   /* T-018 gate result sheet receipt rows (frozen/06 G19): queued id + mono idempotency key. Compact receipt
      kv is allowed on this Inspect-adjacent receipt surface; the no-kv-wall rule governs the preflight only. */
   .gatekv{display:grid;grid-template-columns:92px minmax(0,1fr);gap:6px 10px;margin:0 0 14px;padding:9px 10px;
     border:1px solid var(--line);border-radius:10px;background:rgba(1,47,52,.28)}
   .gatekv b{font:10.5px var(--mono);opacity:.55;font-weight:500;letter-spacing:0;text-transform:uppercase;padding-top:2px}
-  .gatekv span{min-width:0;font:12px/1.5 var(--mono);overflow-wrap:anywhere;word-break:break-word}
+  .gatekv span{min-width:0;font:12px/1.5 var(--mono);overflow-wrap:anywhere}
   .status-complete,.status-active{color:var(--ink)} .status-locked{opacity:.6}
   .branch-sheet{display:grid;gap:11px;min-width:0}
   .branch-sheet-hero{position:relative;overflow:hidden;border:1px solid rgba(224,255,79,.27);border-radius:12px;padding:13px;

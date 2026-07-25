@@ -10,7 +10,7 @@ const START_SCENE = ({ mission:0, quests:0, quest:0, q:0, gate:1, tools:2, comma
 $('ten').textContent = TENANT;
 let LEDGER = null;
 let ECOSYSTEM_ENV = null;
-let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'freshness missing' };
+let FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'no freshness' };
 let MISSION_BRANCH_FOCUS = '';
 let INSPECT_PANE = 'proof';
 

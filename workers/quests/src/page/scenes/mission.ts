@@ -172,13 +172,19 @@ function renderSceneConstellation(state){
   '</svg>';
 }
 /* QuestlineTimeline (T-016, frozen/01 + 02 §4): 4–6 stations, icon + 2-line caption
-   (name sans white ≤2 words / state mono muted 1 word). Connector grammar: solid chartreuse
-   behind complete→active; dashed muted past the active node. Active station = filled core +
+   (name sans white 1 word / state mono muted 1 word). Connector grammar: solid chartreuse
+   through the contiguous complete→active run; dashed muted past it. Active station = filled core +
    dashed SVG orbit ring with 4 satellite dots inside the station box (orbitSweep dash sweep
    when motion is allowed — stroke-dashoffset only, so geometry never inflates scrollWidth). */
 function mcSceneStationIcon(kind){
   if (kind === 'active') return '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="6" cy="6" r="1.9" fill="currentColor"/></svg>';
   return MC_STATE_ICON[kind] || MC_STATE_ICON.idle;
+}
+/* Station caption name: first word of the served stage title, punctuation-stripped (the reference
+   board's stations are single words; full title stays in the title attribute). */
+function mcSceneStationName(title){
+  const first = mcText(title, 'Stage').split(/\\s+/).filter(Boolean)[0] || 'Stage';
+  return first.replace(/[.,;:]+$/,'');
 }
 function renderSceneTimeline(view){
   const stages = view.questline.slice(0, 6);
@@ -190,17 +196,19 @@ function renderSceneTimeline(view){
       : '';
     return '<span class="mc-timeline-station" role="listitem" data-questline-stage-state="' + esc(kind) + '"' + (index === currentIndex ? ' aria-current="step"' : '') + '>' +
       '<span class="mc-station is-' + kind + '">' + orbit + '<i class="mc-station-icon" aria-hidden="true">' + mcSceneStationIcon(kind) + '</i></span>' +
-      '<span class="mc-timeline-name" title="' + esc(mcText(stage.title, 'Stage')) + '">' + esc(mcShortLabel(stage.title, 'Stage')) + '</span>' +
+      '<span class="mc-timeline-name" title="' + esc(mcText(stage.title, 'Stage')) + '">' + esc(mcSceneStationName(stage.title)) + '</span>' +
       '<span class="mc-timeline-state">' + esc(kind) + '</span>' +
     '</span>';
   });
   let body = '';
+  let inRun = true;
   stations.forEach((station, index) => {
     body += station;
     if (index >= stations.length - 1) return;
     const left = mcStateKind(stages[index].state || stages[index].status);
     const right = mcStateKind(stages[index + 1].state || stages[index + 1].status);
-    const solid = left === 'complete' && (right === 'complete' || right === 'active');
+    const solid = inRun && (left === 'complete' || left === 'active') && (right === 'complete' || right === 'active');
+    if (right !== 'complete' && right !== 'active') inRun = false;
     body += '<span class="mc-connector ' + (solid ? 'is-solid' : 'is-dashed') + '" data-connector-state="' + (solid ? 'active' : 'pending') + '" aria-hidden="true">' + (solid && right === 'active' ? mcPacketDots(2, 'active') : '') + '</span>';
   });
   return '<div class="mc-timeline" role="list" aria-label="Questline stages" data-component="QuestlineTimeline" data-no-scene-drag="1">' + body + '</div>';
@@ -229,30 +237,31 @@ function renderSceneHeroCard(view){
     renderSceneTimeline(view) +
   '</section>';
 }
-/* STATE STACK (frozen/02 §5 + M8): selected focus, first blocker folded in (label ≤4 words),
-   first proof row, next locked stage. Subtitles from frozen/06 §2.3 (locked = on hold). */
+/* STATE STACK (frozen/02 §5 + M8): selected focus, first blocker folded in (label ≤3 words),
+   first proof row, horizon stage. Subtitles are the frozen/06 §2.3 canonical token words for the
+   row's true state; right indicator is the state icon (orbit on the proof row). */
 function renderSceneStateStack(view){
   const blocker = view.blockers[0] || null;
   const proof = view.proofNeeded[0] || null;
-  const locked = view.questline.find(row => mcStateKind(row.state || row.status) === 'locked') || view.questline[view.questline.length - 1] || { title:'Launch', status:'locked', state:'locked' };
+  const horizon = view.questline[view.questline.length - 1] || { title:'Launch', status:'locked', state:'locked' };
   const rows = [
-    { glyph:'cortex', state:'selected', title:'Selected', detail:'current focus', focus:'selected' },
-    { glyph:'gate', state:blocker ? blocker.state : 'idle', title:'Blocked by', detail:blocker ? mcSceneClamp(blocker.label, 4) : 'no blockers served', focus:blocker && /proof/i.test(blocker.source || blocker.label || '') ? 'proof' : 'gate' },
-    { glyph:'proof', state:proof ? proof.state : 'proof-needed', title:'Proof needed', detail:proof ? mcSceneClamp(proof.label, 4) : 'evidence missing', focus:'proof', orbit:true },
-    { glyph:'ops', state:mcStateKind(locked.state || locked.status || 'locked'), title:mcShortLabel(locked.title, 'Launch'), detail:'on hold', focus:'selected' },
+    { glyph:'cortex', state:'selected', title:'Selected', focus:'selected' },
+    { glyph:'gate', state:blocker ? blocker.state : 'idle', title:'Blocked by', detail:blocker ? mcSceneClamp(blocker.label, 3) : 'no blockers served', focus:blocker && /proof/i.test(blocker.source || blocker.label || '') ? 'proof' : 'gate' },
+    { glyph:'proof', state:proof ? proof.state : 'proof-needed', title:'Proof needed', detail:proof ? mcSceneClamp(proof.label, 3) : 'evidence missing', focus:'proof', orbit:true },
+    { glyph:'ops', state:mcStateKind(horizon.state || horizon.status || 'locked'), title:mcSceneStationName(horizon.title), focus:'selected' },
   ];
   return '<div data-component="MissionStateStack"><div class="mc-section-title">State Stack</div><div class="mc-state-stack">' + rows.map(row => {
     const kind = mcStateKind(row.state);
     return '<button type="button" class="' + mcClass('mc-state-row', kind, kind === 'selected' ? 'is-selected mc-selected-halo' : '') + '" data-selected-surface="' + (kind === 'selected' ? 'mission-state-row' : 'none') + '" data-mission-state-action="' + esc(row.focus) + '" data-interaction-kind="sheet">' +
       mcGlyphSvg(row.glyph, kind) +
-      '<span><b>' + esc(row.title) + '</b><small>' + esc(row.detail) + '</small></span>' +
-      (row.orbit ? mcOrbitProgress({ value:42, state:'proof-needed', label:'Proof' }) : mcStateToken(kind, mcSceneTokenLabel(kind))) +
+      '<span><b>' + esc(row.title) + '</b><small>' + esc(row.detail || mcSceneTokenLabel(kind)) + '</small></span>' +
+      (row.orbit ? mcOrbitProgress({ value:42, state:'proof-needed', label:'Proof' }) : '<i class="mc-state-row-icon is-' + kind + '" aria-hidden="true">' + (MC_STATE_ICON[kind] || MC_STATE_ICON.idle) + '</i>') +
     '</button>';
   }).join('') + '</div></div>';
 }
 function renderSceneStaleNotice(view){
   if (!view.stale) return '';
-  return '<section class="mission-stale-notice" data-component="MissionStalePacketState" data-mission-stale="1">' + mcStateToken('stale', 'refresh first') + '<span>' + esc(view.staleDetail) + '</span></section>';
+  return '<section class="mission-stale-notice" data-component="MissionStalePacketState" data-mission-stale="1">' + mcStateToken('stale', 'refresh first') + '<span>' + esc(mcSceneClamp(view.staleDetail, 2)) + '</span></section>';
 }
 /* PROOF NEEDED (frozen/02 §6 + M9): label-only rows (≤4 words, frozen/06 §2.1), dashed-ring
    icon + packet-dot cluster + chevron; detail lives in Inspect. */
@@ -267,17 +276,18 @@ function renderSceneProofList(view){
       '<i aria-hidden="true">›</i></button>';
   }).join('') + '</div></div>';
 }
-/* KPI pulse (M10): orbit + 2-line mono label + spark bars; better line = better · <mono> when
-   served, else deleted. */
+/* KPI pulse (M10): orbit + 2-line mono label + spark bars. Label ≤3 words incl. kind prefix;
+   better line = better · <mono> (≤2-word mono value) when served, else deleted. At rest the
+   survival row leads; remaining served KPIs stay reachable in Inspect (06 §4 trim order 1). */
 function renderSceneKpis(view){
-  const rows = view.kpis.length ? view.kpis.slice(0, 4) : [{ label:'KPI missing', currentState:'not proven', survival:'survival threshold missing' }];
+  const rows = view.kpis.length ? view.kpis.slice(0, 1) : [{ label:'KPI missing', currentState:'not proven', survival:'survival threshold missing' }];
   return '<div data-component="KpiPulse"><div class="mc-section-title">KPIs</div><div class="mc-kpis">' + rows.map((row, index) => {
     const progress = mcKpiProgress(row);
     const state = mcKpiState(row);
     const survival = index === 0;
-    const base = mcText(row && row.label, 'KPI ' + (index + 1));
+    const base = mcSceneClamp(mcText(row && row.label, 'KPI ' + (index + 1)), 2);
     const title = /^(survival|better)/i.test(base) ? base : (survival ? 'Survival: ' : 'Better: ') + base;
-    const detail = survival ? mcText(row && row.currentState, 'not proven') : (row && row.betterThanSurvival && row.betterThanSurvival !== 'better-than-survival threshold missing' ? 'better · ' + row.betterThanSurvival : '');
+    const detail = survival ? mcText(row && row.currentState, 'not proven') : (row && row.betterThanSurvival && row.betterThanSurvival !== 'better-than-survival threshold missing' ? 'better · ' + mcSceneClamp(row.betterThanSurvival, 2) : '');
     return '<div class="mc-kpi-row" data-component="KpiPulse" data-kpi-kind="' + (survival ? 'survival' : 'better-than-survival') + '" data-state="' + esc(mcStateKind(state)) + '">' +
       mcOrbitProgress({ value:progress, state, label:'KPI', ariaLabel:'KPI ' + (index + 1) + ' progress ' + progress + '%' }) +
       '<span class="mc-kpi-copy"><b>' + esc(title) + '</b>' + (detail ? '<span>' + esc(detail) + '</span>' : '') + '</span>' +
@@ -298,13 +308,19 @@ function renderSceneToolLink(view){
     '<button type="button" data-mission-action="tools" data-no-scene-drag="1">Open Tools</button>' +
   '</section>';
 }
-/* Loop controls (M7): mono cadence token only — cadence · boundary color (≤4 words), run mode
-   and stop rules stay in the Inspect loops sheet. */
+/* Loop controls (M7): mono cadence token only — cadence · boundary color (≤4 words). Loop
+   titles, run modes, and stop rules stay in the Inspect loops sheet ('Open controls'). */
+function mcSceneLoopCadence(row){
+  const cadence = mcLoopCadence(row);
+  if (cadence === 'manual approval required' || cadence === 'manual review') return cadence;
+  const words = cadence.split(/\\s+/).filter(Boolean);
+  return words.length > 2 ? words.slice(0, 2).join(' ') + '…' : cadence;
+}
 function renderSceneLoops(view){
   const rows = view.loops && view.loops.length ? view.loops.slice(0, 3) : [];
   if (!rows.length) return '';
   return '<section class="mission-tool-link" data-component="BranchLoopControls" data-ecosystem-target="branch-loops">' +
-    '<span><b>Loop controls</b>' + rows.map(row => '<small>' + esc(mcText(row && row.title, 'Loop control')) + '</small><small class="mc-loop-token">' + esc(mcText(row && row.cadence, 'manual review') + ' · ' + mcText(row && row.boundaryColor, 'red')) + '</small>').join('') + '</span>' +
+    '<span><b>Loop controls</b>' + rows.map(row => '<small class="mc-loop-token">' + esc(mcSceneLoopCadence(row) + ' · ' + mcText(row && row.boundaryColor, 'red')) + '</small>').join('') + '</span>' +
     '<button type="button" class="secondary" data-mission-action="loops" data-no-scene-drag="1" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="branch-loops">Open controls</button>' +
   '</section>';
 }
@@ -351,7 +367,7 @@ function renderMissionScene(env){
   prog.dataset.source = view.source;
   prog.onclick = () => openBranchMissionSheet(env, branchIndex, -1);
   const here = $('here');
-  here.textContent = 'frontier · ' + view.frontierArc;
+  here.textContent = 'frontier · ' + mcSceneClamp(view.frontierArc, 2);
   here.dataset.interactionKind = 'sheet';
   here.dataset.source = view.source;
   here.onclick = () => openBranchMissionSheet(env, branchIndex, 0);

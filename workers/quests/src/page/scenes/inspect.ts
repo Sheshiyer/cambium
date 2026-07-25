@@ -416,7 +416,7 @@ function mcText(value, fallback){
   return text || fallback;
 }
 function mcShortLabel(value, fallback){
-  const text = mcText(value, fallback).replace(/\s+/g, ' ');
+  const text = mcText(value, fallback).replace(/\\s+/g, ' ');
   if (text.length <= 18) return text;
   const words = text.split(' ').filter(Boolean);
   return (words.length >= 2 ? words.slice(0, 2).join(' ') : text.slice(0, 17)).replace(/[.,;:]+$/,'') + '…';
