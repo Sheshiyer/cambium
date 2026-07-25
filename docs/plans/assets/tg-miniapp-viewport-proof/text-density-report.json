@@ -1,0 +1,139 @@
+{
+  "generatedAt": "2026-07-25T18:45:22.475Z",
+  "ok": true,
+  "failures": [],
+  "overrides": [
+    {
+      "failure": "mission/empty: empty/error state .mission-empty \"Mission control is waiting for branch packets. branch packets have not reached this device\" renders 14 words (cap 12)",
+      "reason": "frozen/06 M12 ratifies this exact empty state (title KEEP `Mission control is waiting for branch packets.` + rewritten body `branch packets have not reached this device` + buttons KEEP) while citing the §2 12-word cap in the same row; title+body renders 14 words. Verbatim copy kept; spec conflict flagged for orchestrator adjudication."
+    }
+  ],
+  "scenes": [
+    {
+      "scene": "mission",
+      "cap": 90,
+      "states": {
+        "normal": {
+          "words": 75,
+          "cap": 90,
+          "ok": true,
+          "failures": []
+        },
+        "blocked": {
+          "words": 68,
+          "cap": 90,
+          "ok": true,
+          "failures": []
+        },
+        "empty": {
+          "words": 21,
+          "cap": 90,
+          "ok": true,
+          "failures": []
+        }
+      }
+    },
+    {
+      "scene": "gate",
+      "cap": 110,
+      "states": {
+        "normal": {
+          "words": 110,
+          "cap": 110,
+          "ok": true,
+          "failures": []
+        },
+        "blocked": {
+          "words": 83,
+          "cap": 110,
+          "ok": true,
+          "failures": []
+        },
+        "empty": {
+          "words": 45,
+          "cap": 110,
+          "ok": true,
+          "failures": []
+        }
+      }
+    },
+    {
+      "scene": "tools",
+      "cap": 80,
+      "states": {
+        "normal": {
+          "words": 52,
+          "cap": 80,
+          "ok": true,
+          "failures": []
+        },
+        "blocked": {
+          "words": 53,
+          "cap": 80,
+          "ok": true,
+          "failures": []
+        },
+        "empty": {
+          "words": 44,
+          "cap": 80,
+          "ok": true,
+          "failures": []
+        }
+      }
+    },
+    {
+      "scene": "story",
+      "cap": 70,
+      "states": {
+        "normal": {
+          "words": 68,
+          "cap": 70,
+          "ok": true,
+          "failures": []
+        },
+        "blocked": {
+          "words": 46,
+          "cap": 70,
+          "ok": true,
+          "failures": []
+        },
+        "empty": {
+          "words": 14,
+          "cap": 70,
+          "ok": true,
+          "failures": []
+        }
+      }
+    },
+    {
+      "scene": "inspect",
+      "cap": 260,
+      "states": {
+        "normal": {
+          "words": 105,
+          "cap": 260,
+          "ok": true,
+          "failures": []
+        },
+        "blocked": {
+          "words": 110,
+          "cap": 260,
+          "ok": true,
+          "failures": []
+        },
+        "empty": {
+          "words": 113,
+          "cap": 260,
+          "ok": true,
+          "failures": []
+        }
+      }
+    }
+  ],
+  "chrome": {
+    "words": 20,
+    "cap": 25,
+    "ok": true,
+    "failures": []
+  }
+}
