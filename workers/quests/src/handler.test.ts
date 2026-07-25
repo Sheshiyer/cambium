@@ -1407,6 +1407,193 @@ test('provider broker · rejects unknown providers and path traversal', async ()
   assert.equal(traversal.status, 400);
 });
 
+test('provider broker · streams SSE through without buffering it', async () => {
+  // The upstream emits three frames with a gap between them. If the broker buffers,
+  // nothing is readable until the stream closes and time-to-first-token becomes
+  // full generation time — which the caller sees as a slot that timed out.
+  let closed = false;
+  const fakeFetch: typeof fetch = async () =>
+    new Response(
+      new ReadableStream({
+        async start(controller) {
+          const enc = new TextEncoder();
+          controller.enqueue(enc.encode('data: {"choices":[{"delta":{"content":"one"}}]}\n\n'));
+          await new Promise((r) => setTimeout(r, 20));
+          controller.enqueue(enc.encode('data: {"choices":[{"delta":{"content":"two"}}]}\n\n'));
+          controller.enqueue(enc.encode('data: [DONE]\n\n'));
+          closed = true;
+          controller.close();
+        },
+      }),
+      { status: 200, headers: { 'content-type': 'text/event-stream' } },
+    );
+
+  const r = await handle(req('POST', '/v1/providers/nebius/chat/completions', {
+    headers: { authorization: 'Bearer broker', 'content-type': 'application/json' },
+    body: JSON.stringify({ model: 'q', stream: true, messages: [{ role: 'user', content: 'hi' }] }),
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: { nebius: { baseUrl: 'https://api.tokenfactory.nebius.com/v1', apiKey: 'secret' } },
+    },
+  });
+
+  assert.equal(r.status, 200);
+  assert.equal(r.headers['content-type'], 'text/event-stream');
+  assert.equal(r.headers['cache-control'], 'no-cache');
+  assert.ok(r.body instanceof ReadableStream, 'SSE body must stay a stream, not a buffered string');
+
+  // The handler returned before the upstream finished — that is the whole point.
+  assert.equal(closed, false, 'broker must not wait for the upstream stream to close');
+
+  const reader = (r.body as ReadableStream).getReader();
+  const first = await reader.read();
+  assert.match(new TextDecoder().decode(first.value), /one/);
+  await reader.cancel();
+});
+
+test('provider broker · non-SSE responses still come back as buffered strings', async () => {
+  const fakeFetch: typeof fetch = async () =>
+    new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'content-type': 'application/json' } });
+  const r = await handle(req('GET', '/v1/providers/nebius/models', {
+    headers: { authorization: 'Bearer broker' },
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: { nebius: { baseUrl: 'https://api.tokenfactory.nebius.com/v1', apiKey: 'secret' } },
+    },
+  });
+  assert.equal(r.status, 200);
+  assert.equal(typeof r.body, 'string');
+});
+
+test('provider broker · a hung upstream returns 504 rather than hanging', async () => {
+  // Never resolves on its own; only the broker's AbortController can end this.
+  const fakeFetch: typeof fetch = (_url, init = {}) =>
+    new Promise((_resolve, reject) => {
+      const signal = (init as { signal?: AbortSignal }).signal;
+      signal?.addEventListener('abort', () => {
+        const err = new Error('aborted');
+        err.name = 'AbortError';
+        reject(err);
+      });
+    });
+
+  const r = await handle(req('GET', '/v1/providers/nebius/models', {
+    headers: { authorization: 'Bearer broker' },
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      timeoutMs: 20,
+      providers: { nebius: { baseUrl: 'https://api.tokenfactory.nebius.com/v1', apiKey: 'secret' } },
+    },
+  });
+  assert.equal(r.status, 504);
+  assert.match(r.body, /timed out/);
+});
+
+test('provider broker · an unreachable upstream returns 502, not a crash', async () => {
+  const fakeFetch: typeof fetch = async () => { throw new TypeError('network failure'); };
+  const r = await handle(req('GET', '/v1/providers/nebius/models', {
+    headers: { authorization: 'Bearer broker' },
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: { nebius: { baseUrl: 'https://api.tokenfactory.nebius.com/v1', apiKey: 'secret' } },
+    },
+  });
+  assert.equal(r.status, 502);
+  assert.match(r.body, /unreachable/);
+});
+
+test('provider broker · authHeader x-api-key sets the key there and NOT in authorization', async () => {
+  const calls: Array<{ url: string; init: RequestInit }> = [];
+  const fakeFetch: typeof fetch = async (url, init = {}) => {
+    calls.push({ url: String(url), init });
+    return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  const r = await handle(req('POST', '/v1/providers/kimi-coding/messages', {
+    headers: {
+      authorization: 'Bearer broker',
+      'content-type': 'application/json',
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({ model: 'k3', messages: [] }),
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: {
+        'kimi-coding': {
+          baseUrl: 'https://api.kimi.com/coding/v1',
+          apiKey: 'secret-kimi-key',
+          authHeader: 'x-api-key',
+        },
+      },
+    },
+  });
+  assert.equal(r.status, 200);
+  const sent = calls[0].init.headers as Record<string, string>;
+  assert.equal(sent['x-api-key'], 'secret-kimi-key');
+  // The caller's own broker credential must never reach the upstream, and the key
+  // must not be duplicated into a second header.
+  assert.equal(sent.authorization, undefined);
+  // Protocol header the Anthropic-shaped upstream needs, forwarded verbatim.
+  assert.equal(sent['anthropic-version'], '2023-06-01');
+});
+
+test('provider broker · health without probe reports config only; ?probe=1 probes upstream', async () => {
+  let probes = 0;
+  const fakeFetch: typeof fetch = async (url) => {
+    probes += 1;
+    // nebius answers, nvidia is down — a config-only view calls both "healthy".
+    return String(url).includes('nebius')
+      ? new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } })
+      : new Response('nope', { status: 503, headers: { 'content-type': 'text/plain' } });
+  };
+  const deps = {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: {
+        nebius: { baseUrl: 'https://api.tokenfactory.nebius.com/v1', apiKey: 'k1' },
+        nvidia: { baseUrl: 'https://integrate.api.nvidia.com/v1', apiKey: 'k2' },
+      },
+    },
+  };
+
+  const plain = await handle(req('GET', '/v1/providers/health', {
+    headers: { authorization: 'Bearer broker' },
+  }), deps);
+  assert.equal(plain.status, 200);
+  assert.equal(body(plain).probed, false);
+  assert.equal(probes, 0, 'config-only health must not touch the network');
+
+  const probed = await handle(req('GET', '/v1/providers/health?probe=1', {
+    headers: { authorization: 'Bearer broker' },
+  }), deps);
+  assert.equal(probed.status, 200);
+  const payload = body(probed);
+  assert.equal(payload.probed, true);
+  assert.equal(payload.ok, false, 'one upstream is down, so the broker is not ok');
+  assert.equal(probes, 2);
+  const byId = Object.fromEntries(payload.providers.map((p: { id: string }) => [p.id, p]));
+  assert.equal(byId.nebius.ok, true);
+  assert.equal(byId.nvidia.ok, false);
+  assert.equal(byId.nvidia.status, 503);
+  assert.doesNotMatch(probed.body, /k1|k2/);
+});
+
 test('quests · M3 isolation suite green — gate open to all valid tenants', async () => {
   const r = await handle(req('GET', '/api/quests/demo-org'), { kv: fakeKv() });
   assert.equal(r.status, 404);                       // open, just no ledger pushed yet

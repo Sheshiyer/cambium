@@ -434,12 +434,19 @@ export interface ProviderConfig {
   apiKey: string;
   defaultModel?: string;
   models?: string[];
+  // Header the upstream expects the key in. Anthropic-shaped providers (kimi-coding)
+  // want `x-api-key`, not `authorization`. Defaults to authorization + Bearer.
+  authHeader?: string;
 }
 
 export interface ProviderBrokerConfig {
   token: string;
   providers: Record<string, ProviderConfig | undefined>;
   fetch?: typeof fetch;
+  // Upstream inference can legitimately run long. This sits OUTSIDE the caller's own
+  // target timeout (OmniRoute combos use 30-90s) so their failover fires first and is
+  // attributable to a slot rather than to us. Unset means the default below.
+  timeoutMs?: number;
 }
 
 // ── W4 · the founder gate: Telegram initData THIRD-PARTY validation ─────
@@ -567,7 +574,9 @@ export interface SimpleRequest {
 export interface SimpleResponse {
   status: number;
   headers: Record<string, string>;
-  body: string;
+  // Streamed upstreams (provider-broker SSE) hand back the body unread so tokens reach
+  // the caller as they arrive; every other route still returns a plain string.
+  body: string | ReadableStream;
 }
 
 /** Tenant ID validation: lowercase kebab, no leading/trailing dash. The M3 isolation
@@ -3902,9 +3911,25 @@ async function handleProviderBroker(req: SimpleRequest, deps: HandlerDeps): Prom
 
   if (req.method === 'GET' && (path === '/v1/providers' || path === '/v1/providers/health')) {
     const providers = configuredProviders(cfg);
+
+    // Without ?probe=1 this reports CONFIGURATION only — a provider whose key is set
+    // but whose upstream is down still lists here. Callers that need a real verdict
+    // (omniroute-check, temperance-doctor) must ask for the probe.
+    if (path === '/v1/providers/health' && /[?&]probe=1(?:&|$)/.test(req.path)) {
+      const probes = await probeProviders(cfg);
+      return json(200, {
+        ok: probes.every((p) => p.ok === true),
+        broker: 'cambium-provider-broker',
+        probed: true,
+        providers: probes,
+        count: probes.length,
+      });
+    }
+
     return json(200, {
       ok: true,
       broker: 'cambium-provider-broker',
+      probed: false,
       providers,
       count: providers.length,
     });
@@ -3924,20 +3949,103 @@ async function handleProviderBroker(req: SimpleRequest, deps: HandlerDeps): Prom
 
   const baseUrl = provider.baseUrl.replace(/\/+$/, '');
   const upstreamUrl = `${baseUrl}/${upstreamPath.replace(/^\/+/, '')}`;
-  const f = cfg.fetch ?? fetch;
-  const upstream = await f(upstreamUrl, {
-    method: req.method,
-    headers: {
-      authorization: `Bearer ${provider.apiKey}`,
-      ...(req.method === 'POST' ? { 'content-type': req.headers['content-type'] ?? 'application/json' } : {}),
-    },
-    body: req.method === 'POST' ? req.body : undefined,
-  });
+
+  let upstream: Response;
+  try {
+    upstream = await providerFetch(cfg, provider, upstreamUrl, req);
+  } catch (err) {
+    // An AbortError here is our own timeout, not an upstream verdict. Say so plainly:
+    // a caller that sees 504 knows to fail the slot, where a hang tells them nothing.
+    const timedOut = (err as { name?: string })?.name === 'AbortError';
+    return json(timedOut ? 504 : 502, {
+      error: timedOut ? `provider "${providerId}" timed out` : `provider "${providerId}" unreachable`,
+    });
+  }
+
   const contentType = upstream.headers.get('content-type') ?? 'application/json; charset=utf-8';
+
+  // Stream SSE straight through. Buffering it collapses time-to-first-token into
+  // full generation time, which reads to the caller as a slot that timed out even
+  // though the upstream answered fine.
+  if (isEventStream(contentType) && upstream.body) {
+    return {
+      status: upstream.status,
+      headers: {
+        'content-type': contentType,
+        'cache-control': 'no-cache',
+        connection: 'keep-alive',
+      },
+      body: upstream.body,
+    };
+  }
+
   const body = await upstream.text();
   return {
     status: upstream.status,
     headers: { 'content-type': contentType, 'cache-control': 'no-store' },
     body,
   };
+}
+
+const PROVIDER_TIMEOUT_MS = 120_000;
+
+function isEventStream(contentType: string): boolean {
+  return contentType.toLowerCase().includes('text/event-stream');
+}
+
+/** Upstream call with the provider's own auth shape and a bounded deadline. */
+async function providerFetch(
+  cfg: ProviderBrokerConfig,
+  provider: ProviderConfig,
+  upstreamUrl: string,
+  req: SimpleRequest,
+): Promise<Response> {
+  const f = cfg.fetch ?? fetch;
+  const headers: Record<string, string> = {};
+
+  // Anthropic-shaped upstreams take a bare key in x-api-key; OpenAI-shaped ones take
+  // `Bearer <key>` in authorization. Only ever one of them — never leak the key twice.
+  const authHeader = (provider.authHeader ?? 'authorization').toLowerCase();
+  headers[authHeader] = authHeader === 'authorization' ? `Bearer ${provider.apiKey}` : provider.apiKey;
+
+  // Client-supplied protocol headers the upstream needs but that carry no credential.
+  const anthropicVersion = req.headers['anthropic-version'];
+  if (anthropicVersion) headers['anthropic-version'] = anthropicVersion;
+
+  if (req.method === 'POST') {
+    headers['content-type'] = req.headers['content-type'] ?? 'application/json';
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), cfg.timeoutMs ?? PROVIDER_TIMEOUT_MS);
+  try {
+    return await f(upstreamUrl, {
+      method: req.method,
+      headers,
+      body: req.method === 'POST' ? req.body : undefined,
+      signal: controller.signal,
+    });
+  } finally {
+    // Streamed responses are consumed after we return, so this only clears the
+    // deadline for establishing the response — not for draining its body.
+    clearTimeout(timer);
+  }
+}
+
+/** Probe each configured provider's models endpoint so "healthy" means it answered. */
+async function probeProviders(cfg: ProviderBrokerConfig): Promise<Array<Record<string, unknown>>> {
+  const entries = Object.entries(cfg.providers).filter(([, p]) => p?.apiKey && p.baseUrl);
+  return Promise.all(
+    entries.map(async ([id, provider]) => {
+      const baseUrl = provider!.baseUrl.replace(/\/+$/, '');
+      const probeReq: SimpleRequest = { method: 'GET', path: '/', headers: {} };
+      try {
+        const res = await providerFetch(cfg, provider!, `${baseUrl}/models`, probeReq);
+        return { id, ok: res.ok, status: res.status };
+      } catch (err) {
+        const timedOut = (err as { name?: string })?.name === 'AbortError';
+        return { id, ok: false, status: null, error: timedOut ? 'timeout' : 'unreachable' };
+      }
+    }),
+  );
 }
