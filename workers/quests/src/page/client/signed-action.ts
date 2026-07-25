@@ -525,7 +525,10 @@ function gateAct(submitButton){
     return;
   }
   const item = gateItemForSubmit(context);
-  const node = gateNodeForSubmit(context) || GATE_PREFLIGHT_ORIGIN;
+  /* Prefer the seeded origin node (Tools handoff card / side-quest / skill rows) so the receipt
+     token + state flip land on the surface the founder tapped; Gate card clicks leave
+     GATE_PREFLIGHT_ORIGIN null and resolve through the queue as before. */
+  const node = GATE_PREFLIGHT_ORIGIN || gateNodeForSubmit(context);
   const evidence = context.evidence;
   const consequence = context.consequence;
   const reversibility = context.reversibility;
@@ -626,6 +629,23 @@ function skillPromotionAct(skill, node){
     consequence:skillPromotionConsequence(skill),
     reversibility:skillPromotionReversibility(),
     idempotencyKey:skillPromotionIdempotency(skill),
+    originNode:node,
+  });
+}
+/* T-019/T-020 extension: Tools handoff rows run through the SAME preflight sheet + queue client
+   as Gate cards (extend, not rewrite). The origin node is the Handoffs surface card, so the
+   receipt token + state flip land on the Tools tab without leaving it. Served consequence /
+   reversibility / idempotency defaults come from the shared gate helpers. */
+function toolHandoffAct(kind, handoff, node){
+  const id = String((handoff && (handoff.id || handoff.title)) || 'handoff');
+  openGatePreflight(kind === 'reroll' ? 'reroll' : 'approve', id, null, {
+    item:{
+      id,
+      title:(handoff && handoff.title) || id,
+      evidence:(handoff && (handoff.evidence || handoff.title)) || 'handoff evidence missing',
+      branchId:(handoff && handoff.branchId) || '',
+      missionId:(handoff && handoff.missionId) || '',
+    },
     originNode:node,
   });
 }

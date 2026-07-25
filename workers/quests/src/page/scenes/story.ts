@@ -1,19 +1,23 @@
-// cambium-quests · miniapp page chunk — Story scene: beat cards with per-lane icons
-// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
-// Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
-export const SCENE_STORY = `/* ── story scene — cards with per-lane icons ── */
-const LANE_ICON = {
-  heartbeat: '<svg viewBox="0 0 16 16"><path d="M1 8h3l2-4 3 8 2-4h4"/></svg>',
-  paperclip: '<svg viewBox="0 0 16 16"><path d="M5.5 4.5v6a2.5 2.5 0 0 0 5 0V4a1.8 1.8 0 0 0-3.6 0v6.1"/></svg>',
-  forge:     '<svg viewBox="0 0 16 16"><path d="M2 11l6-7 6 7"/><path d="M2 11h12"/></svg>',
-  noesis:    '<svg viewBox="0 0 16 16"><path d="M8 1.5l5.5 6.5L8 14.5 2.5 8z"/></svg>',
-  quest:     '<svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 6.5-7"/></svg>',
-  beat:      '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.6"/></svg>'
-};
+// cambium-quests · miniapp page chunk — Story scene, signal rows + PacketFlow rails (T-021 + T-022).
+// Spec: frozen/01-component-anatomy.md (state = icon + color + rail style, never color or text alone;
+// MissionGlyph per group, StateToken canonical subtitles) · frozen/03-motion-spec.md (packetDrift on the
+// single active rail only — max one animated focal point; reducedMotion = static dots, zero translation)
+// · frozen/05 + frozen/06 S1–S9 (≤70 words at rest: hero + digest + group/branch chips + max 6 signal
+// rows; beat full text leaves the primary surface — cards carry the outcome · proof-cue teaser only)
+// · frozen/04 EMPTY panel (dashed circle + glyph, ≤12 words + actions).
+// Data contract: docs/architecture/contracts/scenes/story.json (fixtures: scenes/fixtures/story.fixture.json).
+// Every row derives from served beats / ActionRequest rows / completed ledger rows — no invented narrative.
+// Assembly order: page/index.ts (after scenes/mission.ts, which provides mcSceneClamp + mcSceneTokenLabel).
+export const SCENE_STORY = `/* ── story scene — signal rows with state tokens + PacketFlow rails (T-021/T-022) ── */
 let STORY_BEATS = [];
 let STORY_GROUP_FILTER = 'all';
 let STORY_BRANCH_FILTER = 'all';
 const STORY_GROUPS = ['Mission wins','New signals','Lessons','Drift'];
+/* At-rest row cap (frozen/06 S9): digest + latest change + max 6 signal rows; the remainder stays
+   reachable via the group chips. A stale envelope trims the cap first (frozen/06 §4 trim order 1)
+   so the stale banner never pushes the tab over its 70-word budget. */
+const STORY_ROW_LIMIT = 6;
+const STORY_ROW_LIMIT_STALE = 4;
 function storyBeatTarget(lane){
   if (lane === 'heartbeat') return 'quine';
   if (lane === 'paperclip') return 'paperclip';
@@ -21,14 +25,6 @@ function storyBeatTarget(lane){
   if (lane === 'action-request') return 'action-requests';
   if (lane === 'noesis') return 'operator-narrative';
   if (lane === 'quest') return 'quest-ledger';
-  return 'operator-narrative';
-}
-function storyBeatSource(beat, lane){
-  if (beat && beat.source) return beat.source;
-  if (lane === 'paperclip') return 'paperclipActivityBeats';
-  if (lane === 'quest') return 'quest-ledger';
-  if (lane === 'heartbeat') return 'world.log';
-  if (lane === 'action-request') return 'cambium-action-requests@v1';
   return 'operator-narrative';
 }
 function storyLaneLabel(lane, beat){
@@ -85,20 +81,18 @@ function storyBeatProofCue(beat, group){
   if (group === 'Drift') return 'Proof needed';
   return 'Review evidence';
 }
-function storyBeatSourceSummary(beat, lane){
-  const source = storyBeatSource(beat, lane);
-  if (/action-requests/i.test(source)) return 'ActionRequest';
-  if (/paperclip/i.test(source)) return 'Paperclip activity';
-  if (/quest|ledger/i.test(source)) return 'Quest ledger';
-  if (/world|heartbeat/i.test(source)) return 'World signal';
-  return 'Operator narrative';
+/* Signal-row teaser (frozen/06 S2/S3 + N-05): outcome ≤ 2 words + proof cue ≤ 2 words, rendered as
+   two spans with a CSS hairline separator so no separator character burns a budget word. Full beat
+   text leaves the card; it stays in the beat sheet until Inspect's evidence group absorbs it. */
+function storyBeatTeaser(beat, group){
+  return {
+    outcome: mcSceneClamp(storyBeatOutcome(beat, group), 2),
+    proof: mcSceneClamp(storyBeatProofCue(beat, group), 2),
+  };
 }
-function storyBeatFollowup(beat, group){
-  if (beat && beat.followup) return beat.followup;
-  if (group === 'Drift') return 'Review the blocker before calling it a win';
-  if (group === 'Mission wins') return 'Open Mission with this branch';
-  if (group === 'Lessons') return 'Carry the lesson into the branch plan';
-  return 'Decide whether this signal changes the next move';
+function renderStoryTeaserSpans(beat, group){
+  const teaser = storyBeatTeaser(beat, group);
+  return '<span class="story-teaser-outcome">' + esc(teaser.outcome) + '</span><span class="story-teaser-proof is-' + mcStateKind(storyBeatState(beat)) + '">' + esc(teaser.proof) + '</span>';
 }
 function storyBeatContext(group, lane, beat){
   const explicit = mcText(beat && (beat.context || beat.relatedPage || beat.targetPage || beat.actionTarget), '').toLowerCase();
@@ -123,11 +117,12 @@ function storyContextScene(context){
   if (context === 'story') return 3;
   return 4;
 }
+/* Latest change hero (frozen/06 S4): 'Latest change' + teaser ≤ 8 words, no 'Open branch beat' tail. */
 function renderStoryHero(rows){
   if (!rows.length) {
     return '<button type="button" class="story-hero is-empty" data-component="StoryLatestChangeHero" data-interaction-kind="read-only">' +
       mcGlyphSvg('signal', 'dormant') +
-      '<span><b>Latest change</b><small>No branch story yet · switch filters or refresh after evidence lands</small></span>' +
+      '<span><b>Latest change</b><small>No branch story yet</small></span>' +
     '</button>';
   }
   const latestRow = rows[0];
@@ -135,13 +130,14 @@ function renderStoryHero(rows){
   const group = storyBeatGroup(latest);
   return '<button type="button" class="story-hero" data-component="StoryLatestChangeHero" data-story-hero="' + latestRow.index + '" data-interaction-kind="sheet">' +
     mcGlyphSvg(storyBeatGlyph(group), storyBeatState(latest)) +
-    '<span><b>Latest change</b><small>' + esc(latest.text || 'Story beat text missing') + ' · Open branch beat</small></span>' +
+    '<span><b>Latest change</b><small class="story-teaser">' + renderStoryTeaserSpans(latest, group) + '</small></span>' +
   '</button>';
 }
+/* Group filter chips (frozen/06 S1 KEEP): label + mono chartreuse count, BranchArcChip count canon. */
 function renderStoryGroupControls(groups, rows){
   const labels = ['all'].concat(groups);
   return '<div class="story-filter-strip" data-component="StoryGroupControls">' + labels.map(label =>
-    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' · ' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</button>'
+    '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' <span class="mc-branch-count">' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</span></button>'
   ).join('') + '</div>';
 }
 function renderStoryTimeline(rows){
@@ -173,12 +169,13 @@ function storyDigestState(rows){
   if (rows.some(row => storyBeatState(row.beat) === 'proof-needed')) return 'proof-needed';
   return 'active';
 }
+/* Digest (frozen/06 S1 KEEP): glyph + mono group counts; the counts are the copy. */
 function renderStoryDigest(rows){
   const counts = STORY_GROUPS.map(group => [group, rows.filter(row => storyBeatGroup(row.beat) === group).length]);
   const state = storyDigestState(rows);
   return '<button type="button" class="story-hero" data-component="StoryDigestCards" data-story-digest="1" data-story-digest-state="' + esc(state) + '" data-interaction-kind="sheet">' +
     mcGlyphSvg('proof', state) +
-    '<span><b>Digest</b><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
+    '<span><small>' + counts.map(([group, count]) => group + ' ' + count).join(' · ') + '</small></span>' +
     '<i aria-hidden="true">›</i>' +
   '</button>';
 }
@@ -191,40 +188,77 @@ function visibleStoryBeats(beats){
   }
   return rows.filter(row => storyBeatBranch(row.beat) === STORY_BRANCH_FILTER);
 }
-function storyPacketTrail(beat){
-  const group = storyBeatGroup(beat);
-  if (!(group === 'Mission wins' || group === 'Drift')) return '';
-  const count = group === 'Mission wins' ? 4 : group === 'Drift' ? 2 : 3;
-  return '<span data-component="StoryPacketTrail">' + mcPacketDots(count, storyBeatState(beat), { mode:'rail' }) + '</span>';
+/* PacketFlow rails between beats (T-022). Rail grammar mirrors the QuestlineTimeline connector
+   canon (frozen/01 + 02 §4): solid chartreuse through the complete→active run, peach only when a
+   beat is blocked, dotted when stale, dashed when pending/proof-needed. Dots render inside the
+   SignalRail element only — never inside a row's text container. Max one animated focal point
+   (frozen/03 rule 6): the first active rail keeps packetDrift; later active rails settle to solid
+   complete. Under prefers-reduced-motion mcSignalRail/mcPacketDots emit no data-motion, so the
+   same markup renders static rails with static dots (frozen/03 rule 4 canonical fallback). */
+function storyRailState(a, b){
+  const sa = mcStateKind(storyBeatState(a));
+  const sb = mcStateKind(storyBeatState(b));
+  if (sa === 'blocked' || sb === 'blocked') return 'blocked';
+  if (sa === 'stale' || sb === 'stale') return 'stale';
+  const settled = s => s === 'complete' || s === 'active';
+  if (settled(sa) && settled(sb)) return sb === 'active' ? 'active' : 'complete';
+  if (sa === 'proof-needed' || sb === 'proof-needed') return 'proof-needed';
+  return 'idle';
 }
+function renderStoryPacketRail(a, b, focalUsed){
+  let state = storyRailState(a, b);
+  if (state === 'active' && focalUsed) state = 'complete';
+  const kind = mcStateKind(state);
+  return {
+    focal: kind === 'active',
+    html: '<span class="story-packet-rail" data-component="StoryPacketRail" data-rail-state="' + esc(kind) + '">' + mcSignalRail({ state, packetCount:3 }) + '</span>',
+  };
+}
+/* Signal row (T-021): MissionGlyph per group + evidence teaser (outcome · proof cue) + StateToken
+   with the frozen/06 §2.3 canonical subtitle. State rides icon + color + rail style, never alone. */
+function renderStorySignalRow(row, group){
+  const b = row.beat;
+  const i = row.index;
+  const lane = b.lane || 'beat';
+  const state = storyBeatState(b);
+  const context = storyBeatContext(group, lane, b);
+  const target = lane === 'action-request' ? storyBeatTarget(lane) : 'operator-narrative';
+  const contradiction = /contradict/i.test(String(b.text || ''));
+  return '<button type="button" class="' + mcClass('beat story-signal' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="mission-story@v1" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
+    mcGlyphSvg(storyBeatGlyph(group), state) +
+    '<span class="story-signal-copy story-teaser">' + renderStoryTeaserSpans(b, group) + '</span>' +
+    mcStateToken(state, mcSceneTokenLabel(state)) +
+  '</button>';
+}
+/* Digest sheet (frozen/06 S6): narrative deleted — rows speak; the empty line is KEEP. */
 function openStoryDigest(){
   const rows = visibleStoryBeats(STORY_BEATS).slice(0, 12).map(row => {
     const group = storyBeatGroup(row.beat);
     return '<button type="button" class="li" data-story-digest-beat="' + row.index + '"><span class="cname">' + esc(group) + '</span><div class="cdesc">' + esc(row.beat.text || 'story beat') + '</div></button>';
   }).join('');
-  $('sheetBody').innerHTML = '<div class="arc">story · digest</div><h2>Story Digest</h2><div class="nar">Digest lists individual beats without hiding blockers.</div>' + (rows || '<div class="nar">No story beats served.</div>');
+  $('sheetBody').innerHTML = '<div class="arc">story · digest</div><h2>Story Digest</h2>' + (rows || '<div class="nar">No story beats served.</div>');
   $('sheetBody').querySelectorAll('[data-story-digest-beat]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyDigestBeat));
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('light');
 }
+/* Beat sheet (frozen/06 S5 interim): full text + state token + nav; the kv wall is deleted — the
+   remaining provenance rows land in Inspect's evidence group with its scene worker. Contradiction
+   reads as the blocked StateToken + the Open Proof link, never as a prose warning. */
 function openStoryBeat(index){
   const beat = STORY_BEATS[index] || STORY_BEATS[0];
   if (!beat) return;
   const lane = beat.lane || (beat.noesis ? 'noesis' : 'beat');
-  const source = storyBeatSource(beat, lane);
-  const target = storyBeatTarget(lane);
   const group = storyBeatGroup(beat);
+  const state = storyBeatState(beat);
   const context = storyBeatContext(group, lane, beat);
   const beatBranch = storyBeatBranch(beat);
   const branchFocus = beatBranch;
-  const warning = /contradict/i.test(String(beat.text || ''))
-    ? '<b>warning</b><span>contradiction requires Inspect review before this becomes a win</span>'
-    : '';
-  const paperclipRows = lane === 'paperclip'
-    ? '<b>vault write</b><span>no direct vault write; Paperclip activity is read-only in this sheet</span>'
+  const paperclipNote = lane === 'paperclip'
+    ? '<div class="story-sheet-note">' + mcStateToken('locked', 'on hold') + '<span>paperclip activity stays read-only</span></div>'
     : '';
   $('sheetBody').innerHTML = '<div class="arc">story beat · ' + esc(group.toLowerCase()) + '</div><h2>Story Beat</h2>' +
     '<div class="nar">' + esc(beat.text || 'story beat text missing') + '</div>' +
-    '<div class="kv"><b>group</b><span>' + esc(group) + '</span><b>lane</b><span>' + esc(lane) + '</span><b>mission</b><span>' + esc(branchFocus || 'branch context not served') + '</span><b>outcome</b><span>' + esc(storyBeatOutcome(beat, group)) + '</span><b>proof</b><span>' + esc(storyBeatProofCue(beat, group)) + '</span><b>from</b><span>' + esc(storyBeatSourceSummary(beat, lane)) + '</span><b>text</b><span>' + esc(beat.text || 'missing') + '</span><b>source</b><span>' + esc(source) + '</span><b>proof path</b><span>' + esc(target) + '</span><b>next</b><span>' + esc(storyBeatFollowup(beat, group)) + '</span><b>related page</b><span>' + esc(context) + '</span>' + warning + paperclipRows + '</div>' +
+    '<div class="story-sheet-tokens">' + mcStateToken(state, mcSceneTokenLabel(state)) + '</div>' +
+    paperclipNote +
     '<div class="gbtns"><button type="button" data-story-target="' + esc(context) + '" data-story-branch-context="' + esc(branchFocus) + '">' + esc(context === 'mission' ? 'Open Mission' : context === 'gate' ? 'Open Gate' : context === 'tools' ? 'Open Tools' : 'Open Proof') + '</button><button type="button" class="reroll" data-story-target="inspect">Open Proof</button></div>';
   $('sheetBody').querySelectorAll('[data-story-target]').forEach(el => el.onclick = () => {
     veil.classList.remove('on'); sheet.classList.remove('on'); sheetState.open = false;
@@ -235,16 +269,20 @@ function openStoryBeat(index){
   veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(lane === 'noesis' || lane === 'paperclip' ? 'medium' : 'light');
 }
 function storyEnvStale(env){
+  /* Compute from the envelope alone — paint() calls freshness(env) after renderStory(env), so the
+     FRESHNESS_STATE global still holds the boot value ('no freshness' → stale) on first paint. */
   const minutes = minutesSince(env && env.derivedAt);
   const text = [env && env.freshness && env.freshness.state, env && env.freshness && env.freshness.detail].filter(Boolean).join(' ');
-  return FRESHNESS_STATE.stale || minutes === null || minutes > 360 || /stale|expired|old|refresh/i.test(text);
+  return minutes === null || minutes > 360 || /stale|expired|old|refresh/i.test(text);
 }
+/* Stale banner (frozen/06 S7): token-led — stale token + 'story stale' + 'refresh before deciding'. */
 function renderStoryStaleBanner(env){
   if (!storyEnvStale(env || {})) return '';
-  return '<section class="mission-stale-notice story-stale-notice" data-component="StoryStaleBanner" data-story-stale="1"><b>Last story check is stale.</b><span>Refresh before using these beats for a decision.</span></section>';
+  return '<section class="mission-stale-notice story-stale-notice" data-component="StoryStaleBanner" data-story-stale="1">' + mcStateToken('stale', 'refresh first') + '<b>story stale</b><span>refresh before deciding</span></section>';
 }
+/* EMPTY panel (frozen/04 + frozen/06 S8): title KEEP, body 'beats land after branch evidence'. */
 function renderStoryEmptyState(env){
-  return renderStoryStaleBanner(env || {}) + '<div class="state" data-component="StoryEmptyState" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>No branch story yet.</b><p>Wins, signals, lessons, and drift appear here after a branch has evidence.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Open Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Open Proof</button></div></div>';
+  return renderStoryStaleBanner(env || {}) + '<div class="state" data-component="StoryEmptyState" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>No branch story yet.</b><p>beats land after branch evidence</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Open Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Open Proof</button></div></div>';
 }
 function actionRequestStoryBeats(env){
   return actionRequestRows(env || {}).map(row => {
@@ -282,28 +320,50 @@ function renderStory(env){
     return;
   }
   const visibleBeats = visibleStoryBeats(beats);
+  const rowLimit = storyEnvStale(env || {}) ? STORY_ROW_LIMIT_STALE : STORY_ROW_LIMIT;
   const groups = STORY_GROUPS.map(group => ({
     group,
     beats: visibleBeats.filter(row => storyBeatGroup(row.beat) === group),
   })).filter(row => STORY_GROUP_FILTER === 'all' || STORY_GROUP_FILTER === row.group);
-  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? groups.map(({ group, beats: groupBeats }) =>
-    '<section class="story-group" data-component="StoryGroup" data-story-group="' + esc(group.toLowerCase().replace(/\\s+/g, '-')) + '">' +
-    '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + (groupBeats.length ? groupBeats.map(({ beat:b, index:i }) => {
-    const lane = b.lane || 'beat';
-    const state = storyBeatState(b);
-    const context = storyBeatContext(group, lane, b);
-    const target = lane === 'action-request' ? storyBeatTarget(lane) : 'operator-narrative';
-    const contradiction = /contradict/i.test(String(b.text || ''));
-    return '<button type="button" class="' + mcClass('beat' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="mission-story@v1" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
-      '<span class="ico">' + mcGlyphSvg(storyBeatGlyph(group), state) + '</span>' +
-      '<span class="lane">' + esc(group) + '</span>' +
-      '<b>' + esc(b.text || 'Story beat') + '</b>' +
-      '<small>' + esc(storyBeatOutcome(b, group) + ' · ' + storyBeatProofCue(b, group)) + '</small>' +
-      storyPacketTrail(b) +
-      mcStateToken(state, group === 'Drift' ? 'drift' : group === 'Mission wins' ? 'win' : group === 'Lessons' ? 'lesson' : 'signal') +
-    '</button>';
-    }).join('') : '<div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>Nothing in this lane yet. Refresh after branch evidence changes.</p></div>') + '</div></section>'
-  ).join('') : '<div class="state"><b>No story beats in this group.</b><p>Switch groups or refresh after new branch evidence lands.</p></div>');
+  let remaining = rowLimit;
+  let focalUsed = false;
+  let prevSectionLast = null;
+  const sections = [];
+  groups.forEach(({ group, beats: groupBeats }) => {
+    const slug = esc(group.toLowerCase().replace(/\\s+/g, '-'));
+    if (!groupBeats.length) {
+      /* Empty lanes only render a panel under an explicit group filter; in the 'all' view the
+         digest counts already say the lane is empty (frozen/06 S9 at-rest structure). */
+      if (STORY_GROUP_FILTER !== 'all') {
+        sections.push('<section class="story-group" data-component="StoryGroup" data-story-group="' + slug + '">' +
+          '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body"><div class="state" data-story-empty-group="' + esc(group) + '"><b>' + esc(group) + ' is empty.</b><p>nothing in this lane yet</p></div></div></section>');
+      }
+      return;
+    }
+    const slice = groupBeats.slice(0, Math.max(0, remaining));
+    if (!slice.length) return;
+    remaining -= slice.length;
+    let body = '';
+    slice.forEach((row, rowIndex) => {
+      if (rowIndex > 0) {
+        const rail = renderStoryPacketRail(slice[rowIndex - 1].beat, row.beat, focalUsed);
+        focalUsed = focalUsed || rail.focal;
+        body += rail.html;
+      }
+      body += renderStorySignalRow(row, group);
+    });
+    /* Inter-section rail: the packet flow continues across group boundaries, so consecutive
+       rendered rows always connect — the rail sits between sections, never over text. */
+    if (prevSectionLast) {
+      const rail = renderStoryPacketRail(prevSectionLast, slice[0].beat, focalUsed);
+      focalUsed = focalUsed || rail.focal;
+      sections.push(rail.html);
+    }
+    prevSectionLast = slice[slice.length - 1].beat;
+    sections.push('<section class="story-group" data-component="StoryGroup" data-story-group="' + slug + '">' +
+      '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + body + '</div></section>');
+  });
+  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? sections.join('') : '<div class="state"><b>No story beats in this group.</b><p>switch groups or refresh</p></div>');
   $('beats').querySelectorAll('[data-story-hero]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyHero));
   $('beats').querySelectorAll('[data-story-digest]').forEach(el => el.onclick = () => openStoryDigest());
   $('beats').querySelectorAll('[data-story-filter]').forEach(el => el.onclick = () => {

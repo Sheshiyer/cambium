@@ -2408,9 +2408,10 @@ test('page audit helper · real rendered pseudo-button rows declare interaction 
   assertNoInertPseudoButtons(html);
   assert.match(html, /class="rail [^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="shared\/cambium-visual-contract")/);
   assert.match(html, /class="beat[^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="mission-story@v1")/);
-  assert.match(html, /class="cmd live[^"]*"(?=[^>]*data-interaction-kind="sheet")(?=[^>]*data-source="mission-toolbelt-live@v1")/);
-  assert.match(html, /class="cmd act[^"]*"(?=[^>]*data-interaction-kind="chat-command")(?=[^>]*data-source="curios\.self-chat-command")/);
-  assert.match(html, /class="cmd ref[^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="curios\.self-command-reference")/);
+  // T-019: Tools action surfaces replace the retired act/chat-command and ref/read-only cards.
+  // The no-fake-progress fixture serves no commands envelope, so surfaces render stale + read-only.
+  assert.match(html, /class="cmd live[^"]*"(?=[^>]*data-interaction-kind="read-only")(?=[^>]*data-source="mission-toolbelt-live@v1")/);
+  assert.doesNotMatch(html, /data-interaction-kind="chat-command"|curios\.self-chat-command|curios\.self-command-reference/);
 });
 
 test('page · story beats are clickable sheets with ecosystem provenance', async () => {
@@ -2428,7 +2429,8 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
       { text: 'Quest evidence landed', lane: 'quest', source: 'quest-ledger', noesis: false },
     ],
   };
-  const rendered = await renderPageFixtureContext(envelope);
+  // Pin `now` so the envelope stays fresh and the at-rest row cap keeps all five signal rows.
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-06-22T00:05:00.000Z' });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   const rows = [...storyHtml.matchAll(/<button type="button" class="beat[^"]*"[^>]*>/g)].map((match) => match[0]);
 
@@ -2442,7 +2444,10 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(storyHtml, /data-component="StoryBranchFilterChips"/);
   assert.match(storyHtml, /data-component="StoryDigestCards"/);
   assert.match(storyHtml, /data-component="StoryTimelineRail"/);
-  assert.match(storyHtml, /data-component="StoryPacketTrail"/);
+  // T-022: PacketFlow rails sit between the signal rows; dots live on the rails, never inside rows.
+  assert.match(storyHtml, /data-component="StoryPacketRail"/);
+  assert.match(storyHtml, /data-component="SignalRail"/);
+  assert.match(storyHtml, /data-component="PacketFlow"/);
   assert.match(PAGE, /data-story-warning="contradiction"/);
   assert.match(storyHtml, /data-component="MissionGlyph"/);
   assert.match(storyHtml, /data-component="StateToken"/);
@@ -2460,14 +2465,12 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   (rendered.context.openStoryBeat as (index: number) => void)(3);
   const noesisSheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(noesisSheet, /story beat · drift/);
-  assert.match(noesisSheet, /group<\/b><span>Drift/);
-  assert.match(noesisSheet, /lane<\/b><span>noesis/);
-  assert.match(noesisSheet, /text<\/b><span>The mid-brain woke/);
-  assert.match(noesisSheet, /source<\/b><span>deviations/);
-  assert.match(noesisSheet, /proof<\/b><span>Proof needed/);
-  assert.match(noesisSheet, /from<\/b><span>Operator narrative/);
-  assert.match(noesisSheet, /related page<\/b><span>inspect/);
+  // T-021/frozen-06 S5: the sheet keeps the full beat text + a state token; the kv wall is gone.
+  assert.match(noesisSheet, /The mid-brain woke/);
+  assert.match(noesisSheet, /data-component="StateToken" data-state="stale"/);
+  assert.match(noesisSheet, /refresh first/);
   assert.match(noesisSheet, /Open Proof/);
+  assert.doesNotMatch(noesisSheet, /<div class="kv">/);
   assert.doesNotMatch(noesisSheet, /source summary|ecosystem target|context link|action<\/b>|Inspect source rows|Review source detail/);
   assert.doesNotMatch(noesisSheet, /data-kind="approve"|data-kind="reroll"|data-promote-skill|data-queue-side-quest/);
 
@@ -2478,8 +2481,8 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
 
   (rendered.context.openStoryBeat as (index: number) => void)(1);
   const paperclipSheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(paperclipSheet, /source<\/b><span>paperclipActivityBeats/);
-  assert.match(paperclipSheet, /vault write<\/b><span>no direct vault write/);
+  assert.match(paperclipSheet, /Paperclip carried THO-9/);
+  assert.match(paperclipSheet, /paperclip activity stays read-only/);
   assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
 });
 
@@ -2500,7 +2503,8 @@ test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () 
   assert.deepEqual(Array.from(vm.runInContext('STORY_GROUPS', rendered.context as vm.Context) as string[]), ['Mission wins', 'New signals', 'Lessons', 'Drift']);
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   for (const group of ['Mission wins', 'New signals', 'Lessons', 'Drift']) {
-    assert.match(storyHtml, new RegExp(`data-story-filter="${group}">${group} · 1`));
+    // T-021: chip count renders as a mono count span (BranchArcChip canon), no separator word.
+    assert.match(storyHtml, new RegExp(`data-story-filter="${group}">${group} <span class="mc-branch-count">1</span>`));
     assert.match(storyHtml, new RegExp(`<div class="cmdgrp">${group}</div>`));
   }
 });
@@ -2575,7 +2579,10 @@ test('page · story filter scopes hero digest and timeline while preserving beat
   assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'branch-a');
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   const hero = storyHtml.match(/<button type="button" class="story-hero" data-component="StoryLatestChangeHero"[\s\S]*?<\/button>/)?.[0] ?? '';
-  assert.match(hero, /Branch B recorded cortex lesson/);
+  // T-021/frozen-06 S4: the hero carries the teaser, not the full beat text.
+  assert.match(hero, /Lesson captured/);
+  assert.match(hero, /Review evidence/);
+  assert.doesNotMatch(hero, /Branch B recorded cortex lesson/);
   assert.doesNotMatch(hero, /Branch A shipped intake win/);
   assert.match(hero, /data-story-hero="1"/);
 
@@ -2590,9 +2597,9 @@ test('page · story filter scopes hero digest and timeline while preserving beat
   assert.match(digest, /Lessons 1/);
   assert.match(digest, /data-story-digest-state="active"/);
   assert.doesNotMatch(digest, /Mission wins 1/);
-  assert.match(storyHtml, /data-story-filter="all">all · 1/);
-  assert.match(storyHtml, /data-story-filter="Mission wins">Mission wins · 0/);
-  assert.match(storyHtml, /data-story-filter="Lessons">Lessons · 1/);
+  assert.match(storyHtml, /data-story-filter="all">all <span class="mc-branch-count">1<\/span>/);
+  assert.match(storyHtml, /data-story-filter="Mission wins">Mission wins <span class="mc-branch-count">0<\/span>/);
+  assert.match(storyHtml, /data-story-filter="Lessons">Lessons <span class="mc-branch-count">1<\/span>/);
 
   const timeline = storyHtml.match(/<div class="story-timeline"[\s\S]*?<\/div>/)?.[0] ?? '';
   assert.equal((timeline.match(/<i /g) ?? []).length, 1);
@@ -2610,7 +2617,11 @@ test('page · story filter scopes hero digest and timeline while preserving beat
   assert.equal(beatCards.length, 1);
   assert.match(beatCards[0], /data-component="StoryBeatCard"/);
   assert.match(beatCards[0], /data-beat="1"/);
-  assert.match(beatCards[0], /Branch B recorded cortex lesson/);
+  // T-021/frozen-06 S2: the signal row carries the evidence teaser, not the full beat text.
+  assert.match(beatCards[0], /Lesson captured/);
+  assert.match(beatCards[0], /Review evidence/);
+  assert.match(beatCards[0], /data-component="StateToken" data-state="active"/);
+  assert.doesNotMatch(beatCards[0], /Branch B recorded cortex lesson/);
   assert.doesNotMatch(beatCards[0], /Branch A shipped intake win/);
   const beatNode = beatsElement.querySelectorAll('.beat')[0];
   assert.equal(beatNode.dataset.beat, '1');
@@ -2663,11 +2674,13 @@ test('page · story filter unassigned BranchArcChip shows unassigned beats', asy
   const unassignedChipHtml = rendered.elements.get('beats')!.innerHTML;
   const selectedBranchChips = unassignedChipHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
   assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
-  assert.match(unassignedChipHtml, /Unassigned signal reached story/);
+  // T-021: rows carry teasers; the full beat text only renders in the digest/beat sheets.
+  assert.match(unassignedChipHtml, /New signal/);
+  assert.doesNotMatch(unassignedChipHtml, /Unassigned signal reached story/);
   assert.doesNotMatch(unassignedChipHtml, /Assigned branch should stay hidden/);
   assert.match(unassignedChipHtml, /data-story-hero="0"/);
   assert.match(unassignedChipHtml, /data-beat="0"/);
-  assert.match(unassignedChipHtml, /data-story-filter="all">all · 1/);
+  assert.match(unassignedChipHtml, /data-story-filter="all">all <span class="mc-branch-count">1<\/span>/);
   assert.match(unassignedChipHtml, /New signals 1/);
   assert.doesNotMatch(unassignedChipHtml, /Mission wins 1/);
 
@@ -2681,7 +2694,8 @@ test('page · story filter unassigned BranchArcChip shows unassigned beats', asy
 
   vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", rendered.context as vm.Context);
   const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
-  assert.match(unassignedHtml, /Unassigned signal reached story/);
+  assert.match(unassignedHtml, /New signal/);
+  assert.doesNotMatch(unassignedHtml, /Unassigned signal reached story/);
   assert.doesNotMatch(unassignedHtml, /Assigned branch should stay hidden/);
   assert.match(unassignedHtml, /data-story-hero="0"/);
 
@@ -2689,7 +2703,7 @@ test('page · story filter unassigned BranchArcChip shows unassigned beats', asy
   const legacyMissingHtml = rendered.elements.get('beats')!.innerHTML;
   const selectedLegacyChips = legacyMissingHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
   assert.deepEqual(selectedLegacyChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
-  assert.match(legacyMissingHtml, /Unassigned signal reached story/);
+  assert.match(legacyMissingHtml, /New signal/);
 
   const assignedOnly = await renderPageFixtureContext({
     ...envelope,
@@ -2701,8 +2715,8 @@ test('page · story filter unassigned BranchArcChip shows unassigned beats', asy
   vm.runInContext("STORY_BRANCH_FILTER = 'unassigned'; renderStory(ECOSYSTEM_ENV);", assignedOnly.context as vm.Context);
   const staleUnassignedHtml = assignedOnly.elements.get('beats')!.innerHTML;
   assert.match(staleUnassignedHtml, /data-story-branch-filter="all">all branches/);
-  assert.match(staleUnassignedHtml, /Assigned-only story beat/);
-  assert.match(staleUnassignedHtml, /data-story-filter="all">all · 1/);
+  assert.match(staleUnassignedHtml, /Mission moved/);
+  assert.match(staleUnassignedHtml, /data-story-filter="all">all <span class="mc-branch-count">1<\/span>/);
 });
 
 test('page · story filter keeps unassigned chip visible when branches arrive', async () => {
@@ -2737,15 +2751,19 @@ test('page · story filter keeps unassigned chip visible when branches arrive', 
   assert.deepEqual(selectedBranchChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
   assert.match(storyHtml, /data-story-branch-filter="unassigned">unassigned/);
   assert.match(storyHtml, /Branch A/);
-  assert.match(storyHtml, /Unassigned carry-forward beat/);
+  assert.match(storyHtml, /Mission moved/);
+  assert.doesNotMatch(storyHtml, /Unassigned carry-forward beat/);
   assert.doesNotMatch(storyHtml, /Branched carry-forward beat/);
-  assert.match(storyHtml, /data-story-filter="all">all · 1/);
+  assert.match(storyHtml, /data-story-filter="all">all <span class="mc-branch-count">1<\/span>/);
   assert.match(storyHtml, /data-story-hero="0"/);
   const heroNode = rendered.elements.get('beats')!.querySelectorAll('[data-story-hero]')[0];
   assert.equal(typeof heroNode.onclick, 'function');
   (heroNode.onclick as () => void)();
   const beatSheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(beatSheet, /mission<\/b><span>branch context not served/);
+  // T-021/frozen-06 S5: the sheet carries the full text + state token, not the old kv wall.
+  assert.match(beatSheet, /Unassigned carry-forward beat/);
+  assert.match(beatSheet, /story beat · mission wins/);
+  assert.doesNotMatch(beatSheet, /<div class="kv">/);
   const missionTarget = rendered.elements.get('sheetBody')!.querySelectorAll('[data-story-target]').find((node) => node.dataset.storyTarget === 'mission');
   assert.ok(missionTarget);
   assert.equal(missionTarget.dataset.storyBranchContext, '');
@@ -2757,7 +2775,8 @@ test('page · story filter keeps unassigned chip visible when branches arrive', 
   const unassignedHtml = rendered.elements.get('beats')!.innerHTML;
   const selectedUnassignedChips = unassignedHtml.match(/<button type="button" class="is-selected mc-selected-halo" data-component="BranchArcChip" data-story-branch-filter="[^"]+"/g) ?? [];
   assert.deepEqual(selectedUnassignedChips.map((chip) => chip.match(/data-story-branch-filter="([^"]+)"/)?.[1]), ['unassigned']);
-  assert.match(unassignedHtml, /Unassigned carry-forward beat/);
+  assert.match(unassignedHtml, /Mission moved/);
+  assert.doesNotMatch(unassignedHtml, /Unassigned carry-forward beat/);
   assert.doesNotMatch(unassignedHtml, /Branched carry-forward beat/);
 });
 
@@ -2868,7 +2887,9 @@ test('page · empty story names branch story wait state', async () => {
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
 
   assert.match(storyHtml, /No branch story yet/);
-  assert.match(storyHtml, /Wins, signals, lessons, and drift appear here after a branch has evidence/);
+  // frozen/06 S8: empty body is the five-word token line, not the old narrative sentence.
+  assert.match(storyHtml, /beats land after branch evidence/);
+  assert.doesNotMatch(storyHtml, /Wins, signals, lessons, and drift appear here/);
   assert.match(storyHtml, />Open Mission</);
   assert.match(storyHtml, />Open Proof</);
   assert.match(storyHtml, /data-source="mission-story@v1"/);
@@ -2892,11 +2913,108 @@ test('page · stale Story banner is human copy above filters', async () => {
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
 
   assert.match(storyHtml, /data-component="StoryStaleBanner"/);
-  assert.match(storyHtml, /Last story check is stale/);
-  assert.match(storyHtml, /Refresh before using these beats for a decision/);
+  // frozen/06 S7: token-led banner — stale token + 'story stale' + 'refresh before deciding'.
+  assert.match(storyHtml, /story stale/);
+  assert.match(storyHtml, /refresh before deciding/);
+  assert.match(storyHtml, /data-component="StateToken" data-state="stale"/);
+  assert.doesNotMatch(storyHtml, /Last story check is stale|Refresh before using these beats/);
   assert.ok(storyHtml.indexOf('data-component="StoryStaleBanner"') < storyHtml.indexOf('data-component="StoryGroupControls"'));
   const banner = storyHtml.match(/<section class="mission-stale-notice story-stale-notice"[\s\S]*?<\/section>/)?.[0] ?? '';
   assert.doesNotMatch(visibleTextFromHtml(banner), /source|envelope|no fake progress/i);
+});
+
+// T-021/T-022 scene-contract fixture (docs/architecture/contracts/scenes/story.json).
+const STORY_SCENE_FIXTURE = JSON.parse(
+  readFileSync(new URL('./page/scenes/fixtures/story.fixture.json', import.meta.url), 'utf8'),
+) as { states: Record<string, { envelope: unknown }> };
+
+test('page · story fixture normal state renders evidence-backed signal rows with PacketFlow rails (T-021/T-022)', async () => {
+  const rendered = await renderPageFixtureContext(STORY_SCENE_FIXTURE.states.normal.envelope, { now: '2026-07-24T09:17:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  // Five evidence-backed beats: 4 served + 1 projected ActionRequest, all inside the at-rest cap.
+  const rows = [...storyHtml.matchAll(/<button type="button" class="beat[^"]*"[\s\S]*?<\/button>/g)].map((match) => match[0]);
+  assert.equal(rows.length, 5);
+  for (const row of rows) {
+    assert.match(row, /data-component="StoryBeatCard"/);
+    assert.match(row, /data-component="MissionGlyph"/);
+    assert.match(row, /data-component="StateToken"/);
+    assert.match(row, /story-teaser-outcome/);
+    assert.match(row, /story-teaser-proof/);
+    assert.match(row, /data-interaction-kind="sheet"/);
+    // T-022: packet dots never ride inside a row's text container.
+    assert.doesNotMatch(row, /mc-packet|story-packet-rail/);
+  }
+  // Glyph-coded groups + canonical frozen/06 §2.3 state-token subtitles.
+  assert.match(storyHtml, /data-glyph-kind="proof" data-state="complete"/);
+  assert.match(storyHtml, /data-glyph-kind="gate" data-state="stale"/);
+  assert.match(storyHtml, /aria-label="state: verified"/);
+  assert.match(storyHtml, /aria-label="state: refresh first"/);
+  // Evidence-backed teasers derive from served proof/evidence fields — no invented narrative.
+  assert.match(storyHtml, /deploy receipt/);
+  assert.match(storyHtml, /kpi snapshot/);
+  // T-022: a rail connects every consecutive rendered row (5 rows → 4 rails).
+  const railCount = (storyHtml.match(/data-component="StoryPacketRail"/g) ?? []).length;
+  assert.equal(railCount, rows.length - 1);
+  // Dots on rails only: every packet marker in the scene lives inside a rail segment.
+  const railSegments = storyHtml.split('<span class="story-packet-rail"').slice(1);
+  const scenePackets = (storyHtml.match(/mc-packet/g) ?? []).length;
+  const railPackets = railSegments.reduce((count, segment) => count + ((segment.match(/mc-packet/g) ?? []).length), 0);
+  assert.ok(scenePackets > 0, 'rails carry packet dots');
+  assert.equal(scenePackets, railPackets);
+  // frozen/03 rule 6: max one animated focal point — at most one active rail.
+  const activeRails = (storyHtml.match(/data-rail-state="active"/g) ?? []).length;
+  assert.ok(activeRails <= 1, `at most one active rail, got ${activeRails}`);
+  // The harness forces prefers-reduced-motion: rails render static dots (frozen/03 rule 4).
+  assert.doesNotMatch(storyHtml, /data-motion=/);
+});
+
+test('page · story fixture blocked state codes contradiction as blocked tokens and peach rails (T-021/T-022)', async () => {
+  const rendered = await renderPageFixtureContext(STORY_SCENE_FIXTURE.states.blocked.envelope, { now: '2026-07-24T09:17:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  assert.match(storyHtml, /data-story-warning="contradiction"/);
+  assert.match(storyHtml, /data-glyph-kind="gate" data-state="blocked"/);
+  assert.match(storyHtml, /data-component="StateToken" data-state="blocked"/);
+  assert.match(storyHtml, /aria-label="state: blocked"/);
+  // The rail touching blocked beats goes dashed peach with the end marker; it never animates.
+  assert.match(storyHtml, /data-rail-state="blocked"/);
+  assert.match(storyHtml, /mc-rail-end/);
+  assert.doesNotMatch(storyHtml, /data-motion=/);
+  assert.match(storyHtml, /data-story-digest-state="blocked"/);
+  // frozen/06 S5: contradiction reads as the blocked token + Inspect link, never a prose warning.
+  (rendered.context.openStoryBeat as (index: number) => void)(0);
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /data-component="StateToken" data-state="blocked"/);
+  assert.match(sheet, /Open Proof/);
+  assert.doesNotMatch(sheet, /<div class="kv">/);
+});
+
+test('page · story fixture empty state renders the frozen EMPTY panel (T-021)', async () => {
+  const rendered = await renderPageFixtureContext(STORY_SCENE_FIXTURE.states.empty.envelope, { now: '2026-07-24T09:17:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  assert.match(storyHtml, /data-component="StoryEmptyState"/);
+  assert.match(storyHtml, /No branch story yet/);
+  assert.match(storyHtml, /beats land after branch evidence/);
+  assert.match(storyHtml, />Refresh</);
+  assert.match(storyHtml, />Open Mission</);
+  assert.match(storyHtml, />Open Proof</);
+  assert.doesNotMatch(storyHtml, /class="beat|data-component="StoryPacketRail"/);
+});
+
+test('page · story fixture stays inside the 70-word copy budget in every state (frozen/05)', async () => {
+  const countWords = (html: string) => visibleTextFromHtml(html).split(/\s+/).filter(Boolean).length;
+  for (const state of ['normal', 'blocked', 'empty']) {
+    const rendered = await renderPageFixtureContext(STORY_SCENE_FIXTURE.states[state].envelope, { now: '2026-07-24T09:17:00.000Z' });
+    const words = countWords(rendered.elements.get('beats')!.innerHTML);
+    assert.ok(words <= 70, `story ${state} renders ${words} words at rest (cap 70)`);
+  }
+  // Stale envelope: the banner lands and the row cap trims first (frozen/06 §4 trim order 1).
+  const staleRendered = await renderPageFixtureContext(STORY_SCENE_FIXTURE.states.normal.envelope, { now: '2026-07-24T17:00:00.000Z' });
+  const staleHtml = staleRendered.elements.get('beats')!.innerHTML;
+  assert.match(staleHtml, /data-component="StoryStaleBanner"/);
+  const staleRows = (staleHtml.match(/data-component="StoryBeatCard"/g) ?? []).length;
+  assert.ok(staleRows <= 4, `stale envelope trims to <= 4 rows, got ${staleRows}`);
+  const staleWords = countWords(staleHtml);
+  assert.ok(staleWords <= 70, `story stale renders ${staleWords} words at rest (cap 70)`);
 });
 
 test('page audit helper · mini app shell does not expose secret markers', () => {
@@ -2927,165 +3045,174 @@ test('page · interaction layer: sheet, haptics, inspect cards', () => {
   assert.match(PAGE, /stage-card/);
 });
 
-test('page · commands track Hermes services in the mini app', () => {
-  assert.match(PAGE, /ts-hermes/);
-  assert.match(PAGE, /Check timers and service health/);
-  assert.match(PAGE, /Ask/);
-  assert.match(PAGE, /Act/);
-  assert.match(PAGE, /Coordinate/);
-  assert.match(PAGE, /Report/);
+test('page · Tools scene ships zero copy-paste command blocks', () => {
+  // T-019 / frozen/05 §4.1: no chat syntax, copy buttons, or payload previews survive the redesign.
+  assert.doesNotMatch(PAGE, /\/ts-(run|approve|reject|standup|digest|help|agent|project|vault|status|hermes|agents|projects|handoffs)\b/);
+  // Banned strings are command-copy specific; Inspect's proof-summary copy (W3) keeps its own clipboard path.
+  for (const banned of ['Copy command text', 'data-copy-command', 'chat syntax', 'payload preview', 'Mission effect', 'toolRecentStrip', 'data-tool-recent', 'data-tool-group']) {
+    assert.ok(!PAGE.includes(banned), `Tools redesign dropped ${banned}`);
+  }
+  for (const marker of ['TOOL_SURFACES', "'Org status'", "'Services'", "'Agents'", "'Active work'", "'Handoffs'", 'toolHandoffAct', 'data-signed-action-entrypoint', 'ToolResultToken', 'ToolHandoffActionRow']) {
+    assert.ok(PAGE.includes(marker), `Tools scene keeps ${marker}`);
+  }
 });
 
-test('page · Tools renders mission-effect cards before command syntax', async () => {
+test('page · Tools renders live action surfaces with state tokens', async () => {
   const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
     now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
   });
   (rendered.context.renderCommands as () => void)();
   const toolsHtml = rendered.elements.get('cmds')!.innerHTML;
 
-  for (const group of ['Act', 'Ask', 'Report', 'Coordinate']) {
-    assert.match(toolsHtml, new RegExp(`<div class="cmdgrp">${group}<\\/div>`));
+  assert.equal((toolsHtml.match(/data-component="ToolActionCard"/g) || []).length, 5);
+  for (const [id, label] of [['status', 'Org status'], ['hermes', 'Services'], ['agents', 'Agents'], ['work', 'Active work'], ['handoffs', 'Handoffs']] as const) {
+    assert.match(toolsHtml, new RegExp(`data-tool-surface="${id}"`));
+    assert.match(toolsHtml, new RegExp(`<span class="cname">${label}</span>`));
   }
-  assert.match(toolsHtml, /data-component="ToolActionCard"/);
   assert.match(toolsHtml, /data-component="ToolRecommendationPanel"/);
-  assert.match(toolsHtml, /data-component="ToolGroupSegmentedControl"/);
   assert.match(toolsHtml, /data-component="ToolContextChips"/);
-  assert.match(toolsHtml, /data-component="ToolRecentStrip"/);
-  assert.match(toolsHtml, /data-tool-group="Act"/);
-  assert.match(PAGE, /commandDisabledReason/);
-  assert.match(PAGE, /data-disabled-reason=/);
-  assert.match(toolsHtml, /class="tool-card-meta"/);
-  assert.match(toolsHtml, /chat command copied|live detail sheet/);
-  assert.match(toolsHtml, /data-inspect-target="tools"/);
+  assert.doesNotMatch(toolsHtml, /data-component="ToolRecentStrip"|ToolGroupSegmentedControl/);
   assert.match(toolsHtml, /data-component="MissionGlyph"/);
   assert.match(toolsHtml, /data-component="StateToken"/);
-  assert.match(toolsHtml, /Mission effect<\/b>Assign the next mission step[\s\S]*<span class="cname">\/ts-run<\/span>/);
-  assert.match(toolsHtml, /Mission effect<\/b>Check timers and service health[\s\S]*<span class="cname">\/ts-hermes<\/span>/);
+  assert.match(toolsHtml, /data-interaction-kind="sheet"(?=[^>]*data-source="mission-toolbelt-live@v1")/);
+  assert.match(toolsHtml, /data-inspect-target="tools"/);
   assertNoPrimaryMetaCopy(toolsHtml);
-  assert.doesNotMatch(toolsHtml, /paperclipCommandsData|gateway|debug/i);
+  assert.doesNotMatch(toolsHtml, /\/ts-|Copy command|data-copy-command|chat syntax|payload preview|paperclipCommandsData|gateway|debug/i);
 });
 
-test('page · command reference, action, and digest cards open inspectable copy sheets', async () => {
+test('page · Tools live surface sheets stay read-only with result tokens', async () => {
   const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
     now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
-    clipboard: true,
   });
-  const openCommandCardSheet = rendered.context.openCommandCardSheet as (name: string) => void;
+  const openToolSurfaceSheet = rendered.context.openToolSurfaceSheet as (id: string) => void;
 
-  openCommandCardSheet('ts-agent');
+  openToolSurfaceSheet('status');
   let sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /command · read-only/);
-  assert.match(sheet, /chat syntax<\/b><span>\/ts-agent &lt;name&gt;/);
-  assert.match(sheet, /source<\/b><span>curios\.self-command-reference/);
-  assert.match(sheet, /payload preview<\/b><span>\/ts-agent &lt;name&gt;/);
+  assert.match(sheet, /<h2>Org status<\/h2>/);
+  assert.match(sheet, /data-component="ToolResultToken"/);
+  assert.match(sheet, /3 agents · 2 open/);
   assert.match(sheet, /data-component="ToolSafetyRow"/);
-  assert.match(sheet, /Copy command text/);
-  assert.doesNotMatch(sheet, /data-gate-confirm|data-signed-action-entrypoint|\/api\/gate|bot response|sent to bot/i);
+  assert.match(sheet, /read-only · signed decisions stay in Gate/);
+  assert.match(sheet, /data-tool-audit-link="tools"/);
+  assert.doesNotMatch(sheet, /\/ts-|Copy|chat syntax|payload preview|class="kv|gatekv|data-copy-command/);
 
-  for (const name of ['ts-project', 'ts-vault']) {
-    openCommandCardSheet(name);
-    sheet = rendered.elements.get('sheetBody')!.innerHTML;
-    assert.match(sheet, /command · read-only/);
-    assert.match(sheet, new RegExp(`chat syntax<\\/b><span>\\/${name}`));
-    assert.match(sheet, /source<\/b><span>curios\.self-command-reference/);
-  }
+  openToolSurfaceSheet('hermes');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /<h2>Services<\/h2>/);
+  assert.match(sheet, /2 services/);
 
-  for (const name of ['ts-run', 'ts-approve', 'ts-reject']) {
-    openCommandCardSheet(name);
-    sheet = rendered.elements.get('sheetBody')!.innerHTML;
-    assert.match(sheet, /interaction<\/b><span>chat-command/);
-    assert.match(sheet, /source<\/b><span>curios\.self-chat-command/);
-    assert.match(sheet, /mini app writes<\/b><span>none; copy only, no signed gate endpoint/);
-    assert.doesNotMatch(sheet, /data-gate-confirm|data-signed-action-entrypoint|\/api\/gate|bot response|sent to bot/i);
-  }
+  openToolSurfaceSheet('agents');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /<h2>Agents<\/h2>/);
+  assert.match(sheet, /2 agents/);
 
-  for (const name of ['ts-standup', 'ts-digest', 'ts-help']) {
-    openCommandCardSheet(name);
-    sheet = rendered.elements.get('sheetBody')!.innerHTML;
-    assert.match(sheet, /interaction<\/b><span>chat-command/);
-    assert.match(sheet, /signed action button<\/b><span>not rendered for command sheets/);
-    assert.doesNotMatch(sheet, /data-gate-confirm|data-signed-action-entrypoint|data-promote-skill|data-queue-side-quest/i);
-  }
+  openToolSurfaceSheet('work');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /<h2>Active work<\/h2>/);
+  assert.match(sheet, /1 open/);
 
-  const beforeCopyFetches = rendered.fetchCalls.length;
-  const copyCommandToClipboard = rendered.context.copyCommandToClipboard as (text: string) => Promise<{ ok: boolean; copied?: string }>;
-  const result = await copyCommandToClipboard('/ts-run Mira refresh proof');
-  assert.equal(result.ok, true);
-  assert.deepEqual(rendered.clipboardWrites, ['/ts-run Mira refresh proof']);
-  assert.equal(rendered.fetchCalls.length, beforeCopyFetches);
-  assert.ok(!rendered.fetchCalls.some((url) => /\/api\/gate/.test(url)));
+  openToolSurfaceSheet('handoffs');
+  sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /<h2>Handoffs<\/h2>/);
+  assert.match(sheet, /1 waiting/);
+  assert.match(sheet, /data-component="ToolHandoffActionRow"/);
+  assert.match(sheet, /Approve fresh viewport capture/);
+  assert.match(sheet, /data-signed-action-entrypoint="approve"/);
+  assert.match(sheet, /data-signed-action-entrypoint="reroll"/);
+  assert.doesNotMatch(sheet, /\/ts-|Copy|chat syntax|class="kv|gatekv/);
 });
 
-test('page · command copy falls back to read-only text without clipboard API', async () => {
-  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
-    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
-  });
-  (rendered.context.openCommandCardSheet as (name: string) => void)('ts-vault');
-  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /command text<\/b><span>\/ts-vault &lt;path&gt;/);
-  assert.match(sheet, /clipboard unavailable; select and copy this read-only command text/);
-  assert.doesNotMatch(sheet, /Copy command text|data-copy-command/);
-});
-
-test('page · command live sheets name Paperclip and Hermes data sources', async () => {
-  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
-    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
-    clipboard: true,
-  });
-  const openCmdSheet = rendered.context.openCmdSheet as (key: string) => void;
-
-  openCmdSheet('status');
-  let sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /source<\/b><span>Paperclip command data · paperclipCommandsData/);
-  assert.match(sheet, /agents<\/b><span>3/);
-  assert.match(sheet, /work open<\/b><span>2/);
-  assert.match(sheet, /work done<\/b><span>7/);
-  assert.match(sheet, /arcs<\/b><span>3\/17/);
-  assert.match(sheet, /Hermes<\/b><span>ready/);
-  assert.match(sheet, /Copy command text/);
-  assert.match(sheet, /data-copy-command="\/ts-status"/);
-
-  openCmdSheet('hermes');
-  sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /source<\/b><span>Hermes runtime · paperclipCommandsData/);
-  assert.match(sheet, /service statuses<\/b><span>2/);
-  assert.match(sheet, /Hermes Telegram brain/);
-  assert.match(sheet, /curios\.self command bridge reachable/);
-  assert.match(sheet, /data-copy-command="\/ts-hermes"/);
-
-  openCmdSheet('agents');
-  sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /source<\/b><span>paperclipCommandsData/);
-  assert.match(sheet, /Mira/);
-  assert.match(sheet, /model · operator-npc-events@v1 · source paperclipCommandsData/);
-  assert.match(sheet, /data-copy-command="\/ts-agents"/);
-
-  openCmdSheet('work');
-  sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /THO-42/);
-  assert.match(sheet, /active/);
-  assert.match(sheet, /title Refresh mini app proof surface · owner operator · source paperclipCommandsData/);
-  assert.match(sheet, /data-copy-command="\/ts-projects"/);
-
-  openCmdSheet('handoffs');
-  sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /HND-7/);
-  assert.match(sheet, /waiting-founder/);
-  assert.match(sheet, /title Approve fresh viewport capture · source paperclipCommandsData · gate relation founder gate review context only/);
-  assert.match(sheet, /data-copy-command="\/ts-handoffs"/);
-});
-
-test('page · unavailable command sheet names Paperclip gateway and refresh-only recovery', async () => {
+test('page · Tools unavailable surface shows refresh-first token and retry', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE);
-  (rendered.context.openCmdSheet as (key: string) => void)('status');
+  (rendered.context.openToolSurfaceSheet as (id: string) => void)('status');
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /Paperclip gateway unreachable/);
-  assert.match(sheet, /Pull-to-refresh only/);
-  assert.match(sheet, /does not write local state/);
-  assert.match(sheet, /synthesize command results/);
-  assert.match(sheet, /command text<\/b><span>\/ts-status/);
-  assert.doesNotMatch(sheet, /\/api\/gate/);
+  assert.match(sheet, /refresh first/);
+  assert.match(sheet, /live data unreachable · pull to refresh/);
+  assert.match(sheet, /data-tool-retry="status"/);
+  assert.doesNotMatch(sheet, /\/api\/gate|\/ts-|Copy command/);
   assertNoSecretLeak(sheet);
+});
+
+test('page · Tools handoffs surface posts signed actions via the gate client', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) =>
+      init.method === 'POST'
+        ? { queued: 'gate-queue-1', id: 'HND-7', idempotencyKey: 'approve:cambium:HND-7' }
+        : undefined,
+  });
+  (rendered.context.renderCommands as () => void)();
+  (rendered.context.openToolSurfaceSheet as (id: string) => void)('handoffs');
+
+  const approve = rendered.elements.get('sheetBody')!.querySelectorAll('[data-tool-act]').find((node) => node.dataset.toolAct === 'approve');
+  assert.ok(approve, 'handoff row carries an in-app approve action');
+  (approve.onclick as () => void)();
+
+  const preflight = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(preflight, /gate preflight/);
+  assert.match(preflight, /<h2>Approve gate item<\/h2>/);
+  assert.match(preflight, /Queues founder approval for HND-7; nothing mutates until an operator consumes the queue\./);
+  assert.match(preflight, />until consumed</);
+  assert.match(preflight, /data-gate-confirm="approve"/);
+  assert.match(preflight, /data-gate-subject="HND-7"/);
+  assert.match(preflight, /data-gate-idempotency-key="approve:cambium:HND-7"/);
+  assert.doesNotMatch(preflight, /class="kv|gatekv|initData status|\/ts-/);
+
+  rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]').click();
+  await flushPageAsync();
+
+  const post = rendered.fetchRequests.find((request) => request.method === 'POST' && /\/api\/gate\/cambium/.test(request.url));
+  assert.ok(post, 'handoff action POSTs via the gate client in-app');
+  const payload = JSON.parse(String(post!.body));
+  assert.equal(payload.kind, 'approve');
+  assert.equal(payload.subject, 'HND-7');
+  assert.equal(payload.initData, TEST_TELEGRAM_INIT_DATA);
+  assert.equal(payload.idempotencyKey, 'approve:cambium:HND-7');
+  assert.ok(payload.evidence, 'payload carries evidence');
+  assert.ok(payload.consequence, 'payload carries consequence');
+  assert.ok(payload.reversibility, 'payload carries reversibility');
+
+  // T-020: receipt token + state flip stay visible without leaving the Tools tab.
+  const resultSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(resultSheet, /Founder decision queued/);
+  assert.match(resultSheet, /data-component="GateReceiptToken"/);
+  assert.match(resultSheet, /decision queued · receipt in Inspect/);
+  assert.match(resultSheet, /approve:cambium:HND-7/);
+  const card = rendered.elements.get('cmds')!.querySelector('[data-tool-surface="handoffs"]');
+  assert.match(card.innerHTML, /queued · approve · approve:cambium:HND-7/);
+  assertNoSecretLeak(resultSheet);
+});
+
+test('page · Tools handoff refusal and network failure keep state honest', async () => {
+  const options = (responder: () => unknown) => ({
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }: { init: RequestInit }) =>
+      init.method === 'POST' ? responder() : undefined,
+  });
+  const act = async (rendered: Awaited<ReturnType<typeof renderPageFixtureContext>>) => {
+    (rendered.context.renderCommands as () => void)();
+    (rendered.context.openToolSurfaceSheet as (id: string) => void)('handoffs');
+    const approve = rendered.elements.get('sheetBody')!.querySelectorAll('[data-tool-act]').find((node) => node.dataset.toolAct === 'approve');
+    (approve.onclick as () => void)();
+    rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]').click();
+    await flushPageAsync();
+  };
+
+  const refusal = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE,
+    options(() => ({ error: 'Worker refused with HTTP 409' })) as never);
+  await act(refusal);
+  assert.match(refusal.elements.get('sheetBody')!.innerHTML, /Decision not queued/);
+  assert.match(refusal.elements.get('sheetBody')!.innerHTML, /worker refused · no queue write · proof unchanged/);
+  assert.match(refusal.elements.get('cmds')!.querySelector('[data-tool-surface="handoffs"]')!.innerHTML, /refused · no write/);
+
+  const network = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE,
+    options(() => new Error('network failure')) as never);
+  await act(network);
+  assert.match(network.elements.get('sheetBody')!.innerHTML, /Decision not queued/);
+  assert.match(network.elements.get('sheetBody')!.innerHTML, /network failure · no write/);
+  assert.match(network.elements.get('cmds')!.querySelector('[data-tool-surface="handoffs"]')!.innerHTML, /network failure · no write/);
 });
 
 test('page · craft: skeleton, states, reduced motion, no pure black, no emoji icons', () => {
@@ -3384,7 +3511,7 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   assert.match(inspectHtml, /Mission can trust|Mission cannot trust/i);
   assert.match(inspectHtml, /founder approval/i);
   assert.match(inspectHtml, /Blocked or bounded action/i);
-  assert.match(inspectHtml, /toolbelt commands available|toolbelt commands unavailable/i);
+  assert.match(inspectHtml, /live action surfaces available|live action surfaces unavailable/i);
 
   const proofSummary = rendered.elements.get('mapwrap')!.querySelectorAll('[data-inspect-summary]')[0];
   assert.ok(proofSummary);
@@ -3397,8 +3524,8 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   assert.match(sheet, /inspect · tools/);
   assert.match(sheet, /proof layer<\/b><span>Inspect keeps proof and architecture details behind the main app flow/);
   assert.match(sheet, /related page<\/b><span>Tools -> Inspect/);
-  assert.match(sheet, /command availability<\/b><span>toolbelt commands/);
-  assert.match(sheet, /safe use<\/b><span>Tools copy command text/);
+  assert.match(sheet, /surface availability<\/b><span>live action surfaces/);
+  assert.match(sheet, /safe use<\/b><span>Tools open read-only sheets/);
   assert.match(sheet, /how to use this<\/b><span>Open the primary page/);
   assert.ok(sheet.indexOf('summary</b>') < sheet.indexOf('source</b><span>inspect-proof-layer@v1'));
   assert.doesNotMatch(sheet, /debug layer|back path|trace action/);
@@ -3560,8 +3687,13 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(PAGE, /data-component="GateProgressSummary"[\s\S]*<div class="gauge" id="gauge" data-component="OrbitProgress"><\/div>/);
   const gateHeroMarkup = PAGE.match(/<section class="gate-hero"[\s\S]*?<\/section>/)?.[0] ?? '';
   assert.doesNotMatch(gateHeroMarkup, /id="gauge"/);
-  assert.match(story, /IVerif ActionRequest needs_signed_confirmation/);
   assert.match(story, /data-ecosystem-target="action-requests"/);
+  // T-021/frozen-06 S2: the ActionRequest beat projects as a teaser row; its full text lives in the digest sheet.
+  assert.doesNotMatch(story, /IVerif ActionRequest needs_signed_confirmation/);
+  (rendered.context.openStoryDigest as () => void)();
+  const storyDigestSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(storyDigestSheet, /IVerif ActionRequest needs_signed_confirmation/);
+  assert.match(storyDigestSheet, /data-story-digest-beat=/);
   assert.match(inspect, /data-component="ActionRequestProjectionCard"/);
   assert.match(inspect, /action requests/);
   assert.match(inspect, /ar_iverif_autogtm_make_task/);
@@ -5144,17 +5276,22 @@ test('page · reduced motion keeps scene state and interactions visible', async 
     beats: [{ text: 'reduced motion story beat remains visible', lane: 'quest' }],
   });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
-  assert.match(storyHtml, /reduced motion story beat remains visible/);
+  // T-021: the row stays visible as a teaser; the harness forces prefers-reduced-motion, so
+  // T-022 rails render static — zero data-motion attributes anywhere in the scene.
+  assert.match(storyHtml, /Mission moved/);
+  assert.match(storyHtml, /Proof ready/);
   assert.match(storyHtml, /data-interaction-kind="sheet"/);
+  assert.match(storyHtml, /data-component="StoryPacketRail"|data-component="StoryBeatCard"/);
+  assert.doesNotMatch(storyHtml, /data-motion=/);
 
   const mapHtml = rendered.elements.get('mapwrap')!.innerHTML;
   assert.match(mapHtml, /data-signed-action-entrypoint="queue-side-quest"/);
 
   (rendered.context.renderCommands as () => void)();
   const commandHtml = rendered.elements.get('cmds')!.innerHTML;
-  assert.match(commandHtml, /class="cmd live[^"]*"(?=[^>]*data-interaction-kind="sheet")/);
-  assert.match(commandHtml, /class="cmd act[^"]*"(?=[^>]*data-interaction-kind="chat-command")/);
-  assert.match(commandHtml, /class="cmd ref[^"]*"(?=[^>]*data-interaction-kind="read-only")/);
+  // T-019: surfaces render stale + read-only without a commands envelope; chat commands are gone.
+  assert.match(commandHtml, /class="cmd live[^"]*"(?=[^>]*data-interaction-kind="read-only")/);
+  assert.doesNotMatch(commandHtml, /data-interaction-kind="chat-command"/);
 
   (rendered.elements.get('sceneBadge')!.onclick as () => void)();
   const storySheet = rendered.elements.get('sheetBody')!.innerHTML;
@@ -5166,7 +5303,8 @@ test('page · reduced motion keeps scene state and interactions visible', async 
   assert.match(inspectSheet, /reduced motion proof<\/b><span[^>]*data-reduced-motion-proof="1"/);
   assert.match(inspectSheet, /data-sheet="true"/);
   assert.match(inspectSheet, /data-signed-action="true"/);
-  assert.match(inspectSheet, /data-chat-command="true"/);
+  // T-019 retired chat commands app-wide; read-only surfaces remain (stale Tools cards).
+  assert.match(inspectSheet, /data-chat-command="false"/);
   assert.match(inspectSheet, /data-read-only="true"/);
 });
 
@@ -5234,8 +5372,12 @@ test('visual fixtures · fresh ecosystem fixture renders command and story proof
     now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
   });
   (rendered.context.renderCommands as () => void)();
-  assert.match(rendered.elements.get('cmds')!.innerHTML, /Check timers and service health/);
-  assert.match(rendered.elements.get('beats')!.innerHTML, /Hermes routed a fresh command snapshot/);
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /data-tool-surface="hermes"/);
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /<span class="cname">Services<\/span>/);
+  // T-021: the beat projects as a teaser row at rest; the digest sheet proves the full text landed.
+  assert.match(rendered.elements.get('beats')!.innerHTML, /New signal/);
+  (rendered.context.openStoryDigest as () => void)();
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /Hermes routed a fresh command snapshot/);
   assert.equal(rendered.elements.get('fresh')!.classList.has('stale'), false);
 });
 
@@ -5382,9 +5524,11 @@ test('page · command-state tapestry row opens missing Commands source sheet', a
   (rendered.context.openTapestryBox as (env: unknown, index: number) => void)(NO_FAKE_PROGRESS_VISUAL_FIXTURE, index);
 
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /<h2>commands<\/h2>/);
-  assert.match(sheet, /org data unavailable/);
-  assert.match(sheet, /gateway was unreachable at the last refresh/);
+  assert.match(sheet, /tools · status/);
+  assert.match(sheet, /<h2>Org status<\/h2>/);
+  assert.match(sheet, /live data unreachable · pull to refresh/);
+  assert.match(sheet, /data-tool-retry="status"/);
+  assert.doesNotMatch(sheet, /\/ts-|Copy command/);
 });
 
 test('page · decision-context tapestry row opens first missing decision signal', async () => {
@@ -11548,4 +11692,115 @@ test('invites · ttlMs over the 30 day cap is rejected with 400', async () => {
     body: JSON.stringify({ allow: [], createdBy: 'founder-1', ttlMs: 31 * 24 * 3600 * 1000 }),
   }), deps);
   assert.equal(issue.status, 400);
+});
+
+
+// ── T-019/T-020 · Tools scene fixture states (docs/architecture/contracts/scenes/tools.json) ──
+const TOOLS_SCENE_FIXTURE = JSON.parse(
+  readFileSync(new URL('./page/scenes/fixtures/tools.fixture.json', import.meta.url), 'utf8'),
+) as { states: Record<string, { envelope: Record<string, unknown> }> };
+
+function toolsFixtureEnvelope(state: string) {
+  // The scene fixture intentionally carries no quest ledger; add a minimal empty one so paint()
+  // runs (load() short-circuits envelopes without a ledger before CMDDATA is set).
+  return {
+    ...TOOLS_SCENE_FIXTURE.states[state]!.envelope,
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+  };
+}
+
+test('tools fixture · normal state renders suggested handoffs action and live surfaces', async () => {
+  const rendered = await renderPageFixtureContext(toolsFixtureEnvelope('normal'), { now: '2026-07-24T09:15:00.000Z' });
+  (rendered.context.renderCommands as () => void)();
+  const toolsHtml = rendered.elements.get('cmds')!.innerHTML;
+
+  // Fixture expectation: founder decision context is the current blocker → Suggested → Handoffs.
+  assert.match(toolsHtml, /data-tool-recommend-surface="handoffs"/);
+  assert.match(toolsHtml, /a founder decision blocks this branch/);
+  assert.match(toolsHtml, /3 agents · 5 open/);
+  assert.match(toolsHtml, /data-tool-surface="handoffs"[\s\S]*1 waiting/);
+  // Availability: live surfaces ready; handoffs active with one waiting founder decision.
+  assert.match(toolsHtml, /data-tool-surface="handoffs"[\s\S]*aria-label="state: ready"/);
+  assertNoPrimaryMetaCopy(toolsHtml);
+  assert.doesNotMatch(toolsHtml, /\/ts-|Copy command|data-copy-command|chat syntax|payload preview/i);
+
+  // frozen/05 §1: Tools tab word cap is 80 words at rest.
+  const words = visibleTextFromHtml(toolsHtml).split(/\s+/).filter(Boolean);
+  assert.ok(words.length <= 80, `Tools tab renders ${words.length} words at rest (cap 80)`);
+});
+
+test('tools fixture · blocked state degrades handoffs to on hold and suggests proof receipt', async () => {
+  const rendered = await renderPageFixtureContext(toolsFixtureEnvelope('blocked'), { now: '2026-07-24T09:18:00.000Z' });
+  (rendered.context.renderCommands as () => void)();
+  const toolsHtml = rendered.elements.get('cmds')!.innerHTML;
+
+  // Fixture expectation: proof-needed rows should become a progress receipt; zero open gate
+  // items → Handoffs locked ('on hold'), read-only.
+  assert.match(toolsHtml, /data-tool-recommend-surface="status"/);
+  assert.match(toolsHtml, /proof rows need a progress receipt/);
+  assert.match(toolsHtml, /data-interaction-kind="read-only"(?=[^>]*data-tool-surface="handoffs")/);
+  assert.match(toolsHtml, /data-tool-surface="handoffs"[\s\S]*aria-label="state: on hold"/);
+
+  (rendered.context.openToolSurfaceSheet as (id: string) => void)('handoffs');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /no handoffs waiting/);
+  assert.doesNotMatch(sheet, /data-signed-action-entrypoint|\/ts-/i);
+});
+
+test('tools fixture · empty state renders stale surfaces, idle suggestion, and retry recovery', async () => {
+  const rendered = await renderPageFixtureContext(toolsFixtureEnvelope('empty'), { now: '2026-07-24T09:21:00.000Z' });
+  (rendered.context.renderCommands as () => void)();
+  const toolsHtml = rendered.elements.get('cmds')!.innerHTML;
+
+  // Fixture expectation: commands envelope null → every live surface stale ('refresh first'),
+  // recommendation panel EMPTY.
+  assert.equal((toolsHtml.match(/aria-label="state: refresh first"/g) || []).length >= 5, true);
+  assert.match(toolsHtml, /data-tool-recommend-state="empty"/);
+  assert.match(toolsHtml, /no suggestion yet/);
+  assert.match(toolsHtml, /data-tool-suggest-mission="1"/);
+  assert.doesNotMatch(toolsHtml, /\/ts-|Copy command/i);
+
+  (rendered.context.openToolSurfaceSheet as (id: string) => void)('hermes');
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /live data unreachable · pull to refresh/);
+  assert.match(sheet, /data-tool-retry="hermes"/);
+  assert.doesNotMatch(sheet, /no Hermes service data|\/ts-/i);
+  assertNoSecretLeak(sheet);
+});
+
+test('tools fixture · normal handoffs row approves in-app and flips the surface card', async () => {
+  const rendered = await renderPageFixtureContext(toolsFixtureEnvelope('normal'), {
+    now: '2026-07-24T09:15:00.000Z',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) =>
+      init.method === 'POST'
+        ? { queued: 'gate-queue-9', id: 'fx-handoff-001', idempotencyKey: 'approve:cambium:fx-handoff-001' }
+        : undefined,
+  });
+  (rendered.context.renderCommands as () => void)();
+  (rendered.context.openToolSurfaceSheet as (id: string) => void)('handoffs');
+
+  const sheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /data-component="ToolHandoffActionRow"/);
+  assert.match(sheet, /Approve proof packet dispatch/);
+  const approve = rendered.elements.get('sheetBody')!.querySelectorAll('[data-tool-act]').find((node) => node.dataset.toolAct === 'approve');
+  (approve.onclick as () => void)();
+  const preflight = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(preflight, /Queues founder approval for fx-handoff-001; nothing mutates until an operator consumes the queue\./);
+  assert.match(preflight, /data-gate-idempotency-key="approve:cambium:fx-handoff-001"/);
+
+  rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]').click();
+  await flushPageAsync();
+
+  const post = rendered.fetchRequests.find((request) => request.method === 'POST' && /\/api\/gate\/cambium/.test(request.url));
+  assert.ok(post, 'fixture handoff POSTs through the gate client');
+  const payload = JSON.parse(String(post!.body));
+  assert.equal(payload.kind, 'approve');
+  assert.equal(payload.subject, 'fx-handoff-001');
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /data-component="GateReceiptToken"/);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /decision queued · receipt in Inspect/);
+  assert.match(
+    rendered.elements.get('cmds')!.querySelector('[data-tool-surface="handoffs"]')!.innerHTML,
+    /queued · approve · approve:cambium:fx-handoff-001/,
+  );
 });

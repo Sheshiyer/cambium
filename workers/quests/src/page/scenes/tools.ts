@@ -1,63 +1,39 @@
-// cambium-quests · miniapp page chunk — Tools scene: command catalog, availability, sheets, copy affordance
-// Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
-// Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+// cambium-quests · miniapp page chunk — Tools scene: live action surfaces (T-019/T-020 rebuild).
+// frozen/05 §4 bans copy-paste command blocks app-wide; frozen/06 §1.4 (T1–T12) rewrites this scene
+// into five live operator surfaces (Org status / Services / Agents / Active work / Handoffs), each
+// glyph + label ≤4 words + mono count + canonical StateToken (§2.3) + result token on tap (T4).
+// Mutating intent lives only on Handoffs: rows act in-app through the Gate signed-action client
+// (preflight → POST /api/gate → receipt token + state flip, §2.4/G19) — zero chat commands (T1),
+// zero clipboard (T1), zero kv walls (05 §3; command detail moved to Inspect per T4/T9/T10).
+// Copy: Suggested panel (T6), context chips minus duplicate span (T7), canonical token subtitles
+// (T8), read-only token line (T5/N-06), empty tokens (T11), footer deleted (T12).
+// Data contract: docs/architecture/contracts/scenes/tools.json (fixtures: scenes/fixtures/tools.fixture.json).
+// Assembly order: page/index.ts.
 export const SCENE_TOOLS = `let CMDDATA = null;
-let TOOL_GROUP_FILTER = 'all';
 let TOOL_FOCUS = '';
 let TOOL_CONTEXT_BRANCH = '';
-const CMDS = [
-  ['Act', [
-    ['ts-run', '<agent> <task>', 'Assign the next mission step', 'act'],
-    ['ts-approve', '<id>', 'Approve a waiting decision', 'act'],
-    ['ts-reject', '<id> <reason>', 'Send a decision back with reason', 'act'],
-  ]],
-  ['Ask', [
-    ['ts-status', '', 'Check active arcs, agents, and work health', 'status'],
-    ['ts-hermes', '', 'Check timers and service health', 'hermes'],
-    ['ts-agents', '', 'Inspect who can take the next mission', 'agents'],
-    ['ts-projects', '', 'Review active work tied to branches', 'work'],
-    ['ts-agent', '<name>', 'Inspect one agent before dispatch'],
-    ['ts-project', '<slug>', 'Inspect one project before action'],
-  ]],
-  ['Report', [
-    ['ts-standup', '', 'Summarize today\\'s mission movement', 'digest'],
-    ['ts-digest', '', 'Prepare the founder progress digest', 'digest'],
-    ['ts-help', '', 'List available toolbelt commands', 'digest'],
-  ]],
-  ['Coordinate', [
-    ['ts-handoffs', '', 'See decisions waiting on a founder', 'handoffs'],
-    ['ts-vault', '<path>', 'Read supporting context by path'],
-  ]],
-];
-const LIVE_CMD_KEYS = { status:1, hermes:1, agents:1, work:1, handoffs:1 };
-const LIVE_CMD_NAMES = { status:'ts-status', hermes:'ts-hermes', agents:'ts-agents', work:'ts-projects', handoffs:'ts-handoffs' };
-const COMMANDS_BY_NAME = {};
-CMDS.forEach(([group, items]) => items.forEach(([name, args, desc, kind]) => {
-  COMMANDS_BY_NAME[name] = { group, name, args, desc, kind:kind || 'reference' };
-}));
 let cmdsDrawn = false;
-function toolGroupControls(){
-  const groups = ['all'].concat(CMDS.map(([group]) => group));
-  return '<div class="tool-context-strip" data-component="ToolGroupSegmentedControl">' + groups.map(group =>
-    '<button type="button" class="' + (TOOL_GROUP_FILTER === group ? 'is-selected' : '') + '" data-tool-group="' + esc(group) + '">' + esc(group) + '</button>'
-  ).join('') + '</div>';
+/* Canonical StateToken subtitles (frozen/06 §2.3) — context-free, same words on every tab. */
+const TOOL_TOKEN_LABEL = { complete:'verified', active:'ready', 'proof-needed':'needs proof', blocked:'blocked', stale:'refresh first', locked:'on hold', queued:'awaits operator', selected:'selected', idle:'waiting', receipt:'receipt' };
+function toolTokenLabel(state){ return TOOL_TOKEN_LABEL[mcStateKind(state)] || 'waiting'; }
+/* The five live action surfaces (frozen/06 T4). CMDS keeps the [group, items] shape so the Inspect
+   tools group count (inspect.ts) keeps working until its own rebuild lands. */
+const TOOL_SURFACES = [
+  { id:'status', label:'Org status', glyph:'cortex' },
+  { id:'hermes', label:'Services', glyph:'ops' },
+  { id:'agents', label:'Agents', glyph:'build' },
+  { id:'work', label:'Active work', glyph:'arc' },
+  { id:'handoffs', label:'Handoffs', glyph:'gate' },
+];
+const CMDS = [['Live', TOOL_SURFACES]];
+/* Legacy focus bridge: Mission/Story still set TOOL_FOCUS to retired chat names ('ts-status');
+   normalize to a surface id without keeping the retired names in this scene. */
+const TOOL_FOCUS_ALIAS = { projects:'work', project:'work', agent:'agents' };
+function toolFocusSurface(){
+  const raw = String(TOOL_FOCUS || '').replace(/^\\//, '').replace(/^ts-/, '');
+  const id = TOOL_FOCUS_ALIAS[raw] || raw;
+  return TOOL_SURFACES.some(surface => surface.id === id) ? id : '';
 }
-function commandInteraction(kind){
-  if (LIVE_CMD_KEYS[kind]) return 'sheet';
-  if (kind === 'act' || kind === 'digest') return 'chat-command';
-  return 'read-only';
-}
-function commandSource(kind){
-  if (LIVE_CMD_KEYS[kind]) return 'paperclipCommandsData';
-  if (kind === 'act' || kind === 'digest') return 'curios.self-chat-command';
-  return 'curios.self-command-reference';
-}
-function commandPrimarySource(kind){
-  if (LIVE_CMD_KEYS[kind]) return 'mission-toolbelt-live@v1';
-  if (kind === 'act' || kind === 'digest') return 'curios.self-chat-command';
-  return 'curios.self-command-reference';
-}
-function commandUsage(cmd){ return '/' + cmd.name + (cmd.args ? ' ' + cmd.args : ''); }
 function toolEnv(){
   return ECOSYSTEM_ENV || { ledger: LEDGER || { rows: [] } };
 }
@@ -73,6 +49,12 @@ function toolMissionContext(){
     stale:view.stale,
   };
 }
+function toolClamp(text, max){
+  const words = mcText(text, 'detail missing').split(/\\s+/).filter(Boolean);
+  return words.length > max ? words.slice(0, max).join(' ') + '…' : words.join(' ');
+}
+/* hasClipboardApi + copyCommandToClipboard stay ONLY for the Inspect proof-summary sheet
+   (inspect.ts calls it until its own rebuild); this scene never copies anything (T1). */
 function hasClipboardApi(){
   const nav = globalThis.navigator;
   return !!(nav && nav.clipboard && typeof nav.clipboard.writeText === 'function');
@@ -81,19 +63,153 @@ async function copyCommandToClipboard(text, node, doneLabel){
   const nav = globalThis.navigator;
   if (!nav || !nav.clipboard || typeof nav.clipboard.writeText !== 'function') return { ok:false, reason:'clipboard unavailable' };
   await nav.clipboard.writeText(text);
-  if (node) node.textContent = doneLabel || 'Copied command text';
+  if (node) node.textContent = doneLabel || 'Copied';
   return { ok:true, copied:text };
 }
-function commandCopyControl(text){
-  return hasClipboardApi()
-    ? '<div class="gbtns command-copy"><button type="button" data-copy-command="' + esc(text) + '">Copy command text</button></div>'
-    : '<div class="kv"><b>command text</b><span>' + esc(text) + '</span><b>copy</b><span>clipboard unavailable; select and copy this read-only command text</span></div>';
+function toolHandoffs(){ return CMDDATA && Array.isArray(CMDDATA.handoffs) ? CMDDATA.handoffs : []; }
+function toolSurfaceCount(id){
+  const d = CMDDATA;
+  if (!d) return '';
+  if (id === 'status') return d.status ? String(d.status.agents) + ' agents · ' + String(d.status.issuesOpen) + ' open' : 'status missing';
+  if (id === 'hermes') return String((d.services || []).length) + ' services';
+  if (id === 'agents') return String((d.agents || []).length) + ' agents';
+  if (id === 'work') return String((d.work || []).length) + ' open';
+  if (id === 'handoffs') return String(toolHandoffs().length) + ' waiting';
+  return '';
 }
-function wireCommandCopy(text){
-  const btn = $('sheetBody').querySelector('[data-copy-command]');
-  if (btn) btn.onclick = () => copyCommandToClipboard(text, btn).catch(() => { btn.textContent = 'Copy unavailable'; });
+/* Empty-token lines (frozen/06 T11, ≤ 12 words, flat declaratives). */
+function toolSurfaceEmpty(id){
+  const d = CMDDATA;
+  if (!d) return '';
+  if (id === 'status') return d.status ? '' : 'status missing';
+  if (id === 'hermes') return (d.services || []).length ? '' : 'no services served';
+  if (id === 'agents') return (d.agents || []).length ? '' : 'no agents served';
+  if (id === 'work') return (d.work || []).length ? '' : 'no open work served';
+  return '';
 }
-function wireToolSheetNav(){
+/* Surface state (tools.json states.derivation): stale = commands envelope missing; locked =
+   no waiting founder decision; active = live surface with fresh data. */
+function toolSurfaceState(id){
+  if (!CMDDATA) return 'stale';
+  if (id === 'handoffs') return toolHandoffs().length ? 'active' : 'locked';
+  return 'active';
+}
+/* Suggested panel (frozen/06 T6): reason ≤ 6 words, no command syntax; idle → 'no suggestion yet'. */
+function toolSuggestion(){
+  const ctx = toolMissionContext();
+  if (!ctx.branchId || ctx.branchId === 'branch pending') return null;
+  if (ctx.blockers.some(row => /gate|approval|founder/i.test(row.label || row.source || ''))) return { surface:'handoffs', reason:'a founder decision blocks this branch' };
+  if (ctx.proofRows.length) return { surface:'status', reason:'proof rows need a progress receipt' };
+  if (ctx.stale || !CMDDATA) return { surface:'status', reason:'refresh status first' };
+  return { surface:'work', reason:'mission ready to assign' };
+}
+function toolSuggestionPanel(){
+  const suggestion = toolSuggestion();
+  if (!suggestion) return '<section class="tool-recommend is-idle" data-component="ToolRecommendationPanel" data-tool-recommend-state="empty">' +
+    mcGlyphSvg('ops', 'idle') +
+    '<span><b>Suggested</b><small>no suggestion yet</small></span>' +
+    '<button type="button" data-tool-suggest-mission="1">Open Mission</button>' +
+  '</section>';
+  const surface = TOOL_SURFACES.find(row => row.id === suggestion.surface) || TOOL_SURFACES[0];
+  return '<section class="tool-recommend" data-component="ToolRecommendationPanel" data-tool-recommend-surface="' + esc(surface.id) + '">' +
+    mcGlyphSvg(surface.glyph, toolSurfaceState(surface.id)) +
+    '<span><b>Suggested</b><small>' + esc(suggestion.reason) + '</small></span>' +
+    '<button type="button" data-tool-suggest="' + esc(surface.id) + '">Open</button>' +
+  '</section>';
+}
+/* Context chips (frozen/06 T7): branch · mission gate · tools freshness as canonical tokens;
+   the duplicate 'signed decisions stay in Gate' span is covered by the sheet token line (T5). */
+function toolContextStrip(){
+  const ctx = toolMissionContext();
+  const branchState = ctx.stale ? 'stale' : 'active';
+  const missionState = mcStateKind(ctx.mission.state || 'proof-needed');
+  const toolsState = CMDDATA ? 'active' : 'stale';
+  return '<div class="tool-context-strip" data-component="ToolContextChips">' +
+    '<span class="tool-context-item"><b>' + esc(toolClamp(ctx.branchName, 2)) + '</b>' + mcStateToken(branchState, toolTokenLabel(branchState)) + '</span>' +
+    '<span class="tool-context-item"><b>' + esc(toolClamp(ctx.mission.gate, 2)) + '</b>' + mcStateToken(missionState, toolTokenLabel(missionState)) + '</span>' +
+    '<span class="tool-context-item"><b>tools</b>' + mcStateToken(toolsState, toolTokenLabel(toolsState)) + '</span>' +
+  '</div>';
+}
+/* Action surface card (frozen/06 T4): glyph + label ≤ 4 words + mono count + StateToken + chevron.
+   State rides icon + color + rail style, never color or text alone (frozen/README). */
+function toolSurfaceCard(surface, focus){
+  const state = toolSurfaceState(surface.id);
+  const kind = mcStateKind(state);
+  const count = toolSurfaceCount(surface.id);
+  const interaction = kind === 'locked' || kind === 'stale' ? 'read-only' : 'sheet';
+  return '<button type="button" class="' + mcClass('cmd live', state) + '" data-component="ToolActionCard"' +
+    ' data-interaction-kind="' + interaction + '" data-source="mission-toolbelt-live@v1"' +
+    ' data-inspect-target="tools" data-tool-surface="' + esc(surface.id) + '"' +
+    (focus === surface.id ? ' data-tool-focus="1"' : '') + '>' +
+    mcGlyphSvg(surface.glyph, state) +
+    '<span class="tool-body"><span class="cname">' + esc(surface.label) + '</span>' +
+      (count ? '<span class="tool-count">' + esc(count) + '</span>' : '') + '</span>' +
+    mcStateToken(state, toolTokenLabel(state)) +
+    '<span class="cgo">›</span>' +
+  '</button>';
+}
+function renderCommands(){
+  cmdsDrawn = true;
+  const focus = toolFocusSurface();
+  const cmds = $('cmds');
+  cmds.innerHTML = toolSuggestionPanel() + toolContextStrip() +
+    TOOL_SURFACES.map(surface => toolSurfaceCard(surface, focus)).join('');
+  cmds.querySelectorAll('.cmd').forEach(el => el.onclick = () => openToolSurfaceSheet(el.dataset.toolSurface));
+  cmds.querySelectorAll('[data-tool-suggest]').forEach(el => el.onclick = () => openToolSurfaceSheet(el.dataset.toolSuggest));
+  cmds.querySelectorAll('[data-tool-suggest-mission]').forEach(el => el.onclick = () => go(0));
+}
+/* Handoff action row (T-019): Approve/Reroll run in-app through the Gate signed-action client
+   (toolHandoffAct in client/signed-action.ts) — no chat command ever leaves this device. */
+function toolHandoffRow(h, i){
+  const status = mcStateKind(h.status || 'proposed');
+  return '<div class="tool-handoff-row" data-component="ToolHandoffActionRow" data-tool-handoff-index="' + i + '" data-tool-handoff-id="' + esc(h.id || ('handoff-' + i)) + '">' +
+    mcGlyphSvg('gate', status) +
+    '<span class="tool-handoff-copy"><b>' + esc(h.title || h.id || 'handoff') + '</b><small>' + esc(h.id || 'id missing') + '</small></span>' +
+    '<div class="gbtns gate-actions tool-handoff-actions">' +
+      '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve" data-tool-act="approve" data-tool-handoff-index="' + i + '">Approve</button>' +
+      '<button type="button" class="reroll" data-interaction-kind="signed-action" data-signed-action-entrypoint="reroll" data-tool-act="reroll" data-tool-handoff-index="' + i + '">Reroll</button>' +
+    '</div>' +
+  '</div>';
+}
+/* Read-only token line (frozen/06 T5/N-06 teaser): the only safety copy left on this scene. */
+function toolSafetyTokenLine(){
+  return '<div class="tool-safety-row" data-component="ToolSafetyRow">' + mcStateToken('idle', toolTokenLabel('idle')) + '<span>read-only · signed decisions stay in Gate</span></div>';
+}
+function toolResultLine(state, text){
+  return '<div class="tool-result-line" data-component="ToolResultToken" data-tool-result-state="' + esc(mcStateKind(state)) + '">' + mcStateToken(state, toolTokenLabel(state)) + '<span>' + esc(text) + '</span></div>';
+}
+/* Surface result sheet (T-020): result feedback token + state flip visible without leaving the
+   tab. kv/lists stay in Inspect (T4/T10); empty states are tokens (T11); unreachable = token +
+   Retry (T11). Handoffs carry the in-app signed actions (T-019). */
+function openToolSurfaceSheet(id){
+  const surface = TOOL_SURFACES.find(row => row.id === id) || TOOL_SURFACES[0];
+  const state = toolSurfaceState(surface.id);
+  let result;
+  if (!CMDDATA) {
+    result = toolResultLine('stale', 'live data unreachable · pull to refresh');
+  } else if (surface.id === 'handoffs') {
+    const rows = toolHandoffs();
+    result = rows.length
+      ? toolResultLine('active', rows.length + ' waiting') + rows.map(toolHandoffRow).join('')
+      : toolResultLine('locked', 'no handoffs waiting');
+  } else {
+    const empty = toolSurfaceEmpty(surface.id);
+    result = toolResultLine(state, surface.label + ' · ' + toolSurfaceCount(surface.id)) +
+      (empty ? toolResultLine('idle', empty) : '');
+  }
+  $('sheetBody').innerHTML = '<div class="arc">tools · ' + esc(surface.id) + '</div><h2>' + esc(surface.label) + '</h2>' +
+    result + toolSafetyTokenLine() +
+    '<div class="gbtns">' +
+      (!CMDDATA ? '<button type="button" class="approve" data-tool-retry="' + esc(surface.id) + '">Retry</button>' : '') +
+      '<button type="button" class="detail" data-tool-audit-link="tools">Inspect</button>' +
+      '<button type="button" class="reroll" data-tool-back="mission">Mission</button>' +
+    '</div>';
+  wireToolSheet(surface.id);
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(CMDDATA ? 'medium' : 'light');
+}
+/* Legacy hook: Inspect's command-state row still calls openCmdSheet('status') until its rebuild. */
+function openCmdSheet(key){ openToolSurfaceSheet(key); }
+function wireToolSheet(id){
   $('sheetBody').querySelectorAll('[data-tool-audit-link]').forEach(el => el.onclick = () => {
     closeSheet();
     go(4);
@@ -103,193 +219,13 @@ function wireToolSheetNav(){
     closeSheet();
     go(el.dataset.toolBack === 'mission' ? 0 : 2);
   });
-}
-function commandGlyphKind(cmd){
-  if (cmd.group === 'Act') return 'gate';
-  if (cmd.group === 'Ask') return 'cortex';
-  if (cmd.group === 'Report') return 'proof';
-  if (cmd.group === 'Coordinate') return 'ops';
-  return 'arc';
-}
-function commandAvailability(cmd){
-  const ctx = toolMissionContext();
-  const openItems = Array.isArray(toolEnv().openItems) ? toolEnv().openItems.length : GATE_ITEMS.length;
-  if (LIVE_CMD_KEYS[cmd.kind]) return CMDDATA ? 'active' : 'stale';
-  if (cmd.name === 'ts-approve' || cmd.name === 'ts-reject') return openItems ? 'proof-needed' : 'locked';
-  if (cmd.name === 'ts-run') return ctx.mission && ctx.mission.state !== 'blocked' ? 'active' : 'proof-needed';
-  if (cmd.kind === 'digest') return ctx.proofRows.length ? 'proof-needed' : 'active';
-  if (cmd.kind === 'act') return 'active';
-  return 'idle';
-}
-function commandAvailabilityLabel(state){
-  if (state === 'locked') return 'locked';
-  if (state === 'blocked') return 'blocked';
-  if (state === 'proof-needed') return 'needs proof';
-  if (state === 'stale') return 'stale';
-  if (state === 'active') return 'usable';
-  return 'reference';
-}
-function commandDisabledReason(cmd, state){
-  if (state === 'stale') return 'live command data unavailable; pull to refresh or inspect Tools audit';
-  if (state === 'locked') return 'no waiting founder decision is served for this command';
-  if (state === 'blocked') return 'blocked until proof resolves';
-  if (state === 'proof-needed' && (cmd.name === 'ts-run' || cmd.name === 'ts-approve' || cmd.name === 'ts-reject')) return 'use Gate or Open Proof before acting';
-  return '';
-}
-function commandExpectedReceipt(cmd){
-  if (cmd.group === 'Report') return 'digest receipt or proof summary';
-  if (cmd.group === 'Coordinate') return 'handoff/status receipt';
-  if (cmd.group === 'Act') return 'chat command copied; operator consumes separately';
-  if (LIVE_CMD_KEYS[cmd.kind]) return 'live detail sheet';
-  return 'read-only command reference';
-}
-function commandTargetSystem(cmd){
-  if (cmd.name === 'ts-hermes') return 'Hermes services';
-  if (cmd.name === 'ts-handoffs') return 'Paperclip handoffs';
-  if (cmd.name === 'ts-vault') return 'Vault context';
-  if (cmd.group === 'Act') return 'curios.self operator chat';
-  if (cmd.group === 'Report') return 'founder report';
-  return 'Cambium operator context';
-}
-function recommendedToolName(){
-  const ctx = toolMissionContext();
-  if (!ctx.branchId || ctx.branchId === 'branch pending') return '';
-  if (ctx.blockers.some(row => /gate|approval|founder/i.test(row.label || row.source || ''))) return 'ts-handoffs';
-  if (ctx.proofRows.length) return 'ts-standup';
-  if (ctx.stale || !CMDDATA) return 'ts-status';
-  return 'ts-run';
-}
-function toolRecommendationCard(){
-  const ctx = toolMissionContext();
-  const name = recommendedToolName();
-  if (!name) return '<section class="tool-recommend is-idle" data-component="ToolRecommendationPanel" data-tool-recommend-state="empty">' +
-    mcGlyphSvg('ops', 'idle') +
-    '<span><b>No mission recommendation yet</b><small>Tools will suggest a command after branch packets reach Mission.</small></span>' +
-  '</section>';
-  const cmd = COMMANDS_BY_NAME[name];
-  const reason = name === 'ts-handoffs' ? 'Founder decision context is the current blocker.' : name === 'ts-standup' ? 'Proof-needed rows should become a progress receipt.' : name === 'ts-run' ? 'Mission context is ready for assignment.' : 'Refresh status before acting on ' + ctx.branchName + '.';
-  return '<section class="tool-recommend" data-component="ToolRecommendationPanel" data-tool-recommend-command="' + esc(name) + '">' +
-    mcGlyphSvg(commandGlyphKind(cmd), commandAvailability(cmd)) +
-    '<span><b>Recommended next tool</b><small>/' + esc(name) + ' · ' + esc(reason) + '</small></span>' +
-    '<button type="button" data-tool-recommend="' + esc(name) + '">Open</button>' +
-  '</section>';
-}
-function toolContextStrip(){
-  const ctx = toolMissionContext();
-  return '<div class="tool-context-strip" data-component="ToolContextChips">' +
-    mcStateToken(ctx.stale ? 'stale' : 'active', ctx.branchName) +
-    mcStateToken(ctx.mission.state || 'proof-needed', ctx.mission.gate || 'mission gate') +
-    mcStateToken(CMDDATA ? 'active' : 'stale', CMDDATA ? 'live tools' : 'tools stale') +
-    '<span>signed decisions stay in Gate</span>' +
-  '</div>';
-}
-function toolRecentStrip(){
-  const ctx = toolMissionContext();
-  const recents = (ctx.blockers.length ? ['ts-handoffs', 'ts-status', 'ts-standup'] : ctx.proofRows.length ? ['ts-standup', 'ts-status', 'ts-help'] : ['ts-status', 'ts-hermes', 'ts-standup']);
-  return '<div class="tool-recent-strip" data-component="ToolRecentStrip" data-derived-from="current-state">' + recents.map(name =>
-    '<button type="button" data-tool-recent="' + esc(name) + '">/' + esc(name) + '</button>'
-  ).join('') + '</div>';
-}
-function toolSafetyRow(kind, cmd){
-  const label = LIVE_CMD_KEYS[kind] ? 'opens a live detail sheet' : kind === 'act' || kind === 'digest' ? 'copies command text for chat' : 'reference only';
-  const expected = cmd ? commandExpectedReceipt(cmd) : label;
-  const proof = toolMissionContext().proofRows[0];
-  return '<div class="tool-safety-row" data-component="ToolSafetyRow"><b>Safety before syntax</b>: ' + esc(label) + '; expected result: ' + esc(expected) + '; required proof: ' + esc((proof && proof.label) || 'none served') + '. Tools does not send bot messages or mutate Paperclip.</div>';
-}
-function openCommandCardSheet(name){
-  const cmd = COMMANDS_BY_NAME[name];
-  if (!cmd) return;
-  const interaction = commandInteraction(cmd.kind);
-  const source = commandSource(cmd.kind);
-  const text = commandUsage(cmd);
-  const guidance = interaction === 'chat-command'
-    ? 'Type this command in the curios.self bot chat. The mini app only copies command text; it does not send data, write Paperclip, or fabricate chat output.'
-    : 'Reference command sheet. Type this command in the curios.self bot chat when you want this inspection.';
-  $('sheetBody').innerHTML = '<div class="arc">command · ' + esc(interaction) + '</div><h2>' + esc('/' + cmd.name) + '</h2>' +
-    '<div class="nar">' + esc(guidance) + '</div>' +
-    toolSafetyRow(cmd.kind, cmd) +
-    '<div class="kv"><b>interaction</b><span>' + esc(interaction) + '</span><b>chat syntax</b><span>' + esc(text) + '</span><b>source</b><span>' + esc(source) + '</span><b>card group</b><span>' + esc(cmd.group) + '</span><b>target system</b><span>' + esc(commandTargetSystem(cmd)) + '</span><b>description</b><span>' + esc(cmd.desc) + '</span><b>payload preview</b><span>' + esc(text) + '</span><b>expected receipt</b><span>' + esc(commandExpectedReceipt(cmd)) + '</span><b>mini app writes</b><span>none; copy only, no signed gate endpoint</span><b>signed action button</b><span>not rendered for command sheets</span></div>' +
-    '<div class="gbtns"><button type="button" class="detail" data-tool-audit-link="tools">Inspect audit</button><button type="button" class="reroll" data-tool-back="mission">Mission</button></div>' +
-    commandCopyControl(text);
-  wireCommandCopy(text);
-  wireToolSheetNav();
-  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(interaction === 'chat-command' ? 'medium' : 'light');
-}
-function renderCommands(){
-  if (cmdsDrawn) return; cmdsDrawn = true;
-  if (TOOL_FOCUS && COMMANDS_BY_NAME[TOOL_FOCUS]) TOOL_GROUP_FILTER = COMMANDS_BY_NAME[TOOL_FOCUS].group;
-  const groups = TOOL_GROUP_FILTER === 'all' ? CMDS : CMDS.filter(([group]) => group === TOOL_GROUP_FILTER);
-  $('cmds').innerHTML = toolRecommendationCard() + toolGroupControls() + toolContextStrip() + toolRecentStrip() + groups.map(([group, items]) =>
-    '<div class="cmdgrp">' + esc(group) + '</div>' +
-    items.map(([name, args, desc, kind]) => {
-      const live = kind && LIVE_CMD_KEYS[kind];
-      const action = kind === 'act';
-      const digest = kind === 'digest';
-      const reference = !live && !action && !digest;
-      const interaction = commandInteraction(kind || 'reference');
-      const source = commandPrimarySource(kind || 'reference');
-      const cmd = { group, name, args, desc, kind:kind || 'reference' };
-      const state = commandAvailability(cmd);
-      const disabledReason = commandDisabledReason(cmd, state);
-      const classKind = live ? ' live' : action ? ' act' : reference ? ' ref' : digest ? ' report' : '';
-      return '<button type="button" class="' + mcClass('cmd' + classKind, state) + '" data-component="ToolActionCard"' +
-        ' data-interaction-kind="' + interaction + '" data-source="' + source + '"' +
-        ' data-inspect-target="tools"' +
-        ' data-command-kind="' + (kind || 'reference') + '"' +
-        ' data-command-name="' + esc(name) + '"' +
-        (TOOL_FOCUS === name ? ' data-tool-focus="1"' : '') +
-        (disabledReason ? ' data-disabled-reason="' + esc(disabledReason) + '"' : '') +
-        (live ? ' data-live="' + kind + '"' : '') + '>' +
-        mcGlyphSvg(commandGlyphKind(cmd), state) +
-        '<span class="tool-body"><span class="cdesc"><b>Mission effect</b>' + esc(desc) + '</span>' +
-          '<span class="tool-syntax"><span class="cname">/' + esc(name) + '</span>' +
-          (args ? '<span class="cargs">' + esc(args) + '</span>' : '') + '</span></span>' +
-        mcStateToken(state, commandAvailabilityLabel(state)) +
-        '<span class="tool-card-meta"><span>' + esc(commandTargetSystem(cmd)) + '</span><span>' + esc(commandExpectedReceipt(cmd)) + '</span></span>' +
-        (disabledReason ? '<span class="tool-disabled-reason">' + esc(disabledReason) + ' · Inspect details</span>' : '') +
-        '<span class="cgo">›</span>' +
-      '</button>';
-    }).join('')
-  ).join('') +
-  '<div class="gnote" style="margin-top:18px">Use Tools to inspect, assign, coordinate, and report from the operator chat.</div>';
-  $('cmds').querySelectorAll('[data-tool-group]').forEach(el => el.onclick = () => {
-    TOOL_GROUP_FILTER = el.dataset.toolGroup || 'all';
-    cmdsDrawn = false;
-    renderCommands();
+  $('sheetBody').querySelectorAll('[data-tool-retry]').forEach(el => el.onclick = () => {
+    refresh().then(() => openToolSurfaceSheet(el.dataset.toolRetry || id));
   });
-  $('cmds').querySelectorAll('[data-tool-recommend],[data-tool-recent]').forEach(el => el.onclick = () => openCommandCardSheet(el.dataset.toolRecommend || el.dataset.toolRecent));
-  $('cmds').querySelectorAll('.cmd').forEach(el => el.onclick = () => el.dataset.live ? openCmdSheet(el.dataset.live) : openCommandCardSheet(el.dataset.commandName));
-}
-function kvRows(pairs){ return '<div class="kv">' + pairs.map(([k,v]) => '<b>'+esc(k)+'</b><span>'+esc(v)+'</span>').join('') + '</div>'; }
-function openCmdSheet(key){
-  const d = CMDDATA;
-  let title = '', body = '';
-  const liveCommandText = '/' + (LIVE_CMD_NAMES[key] || 'ts-status');
-  if (!d){ title = 'commands'; body = '<div class="nar">org data unavailable: Paperclip gateway unreachable; gateway was unreachable at the last refresh. Pull-to-refresh only; this sheet does not write local state, call signed gate endpoints, or synthesize command results.</div>'; }
-  else if (key === 'status'){
-    title = '/ts-status';
-    body = kvRows([['source', 'Paperclip command data · paperclipCommandsData'], ['agents', String(d.status.agents)], ['work open', String(d.status.issuesOpen)], ['work done', String(d.status.issuesDone)], ['arcs', d.status.arcs], ['Hermes', d.status.hermes || 'unknown']]);
-  } else if (key === 'hermes'){
-    title = '/ts-hermes · services';
-    body = kvRows([['source', 'Hermes runtime · paperclipCommandsData'], ['service statuses', String((d.services||[]).length)]]) +
-      ((d.services||[]).length ? (d.services||[]).map(s => '<div class="li"><div><span class="cname">'+esc(s.name)+'</span> <span class="cargs">'+esc(s.status)+'</span><div class="cdesc">'+esc(s.detail || s.label)+'</div></div></div>').join('') : '<div class="nar">no Hermes service data.</div>');
-  } else if (key === 'agents'){
-    title = '/ts-agents · ' + (d.agents||[]).length;
-    body = kvRows([['source', 'paperclipCommandsData']]) +
-      ((d.agents||[]).length ? (d.agents||[]).map(a => '<div class="li"><div><span class="cname">'+esc(a.name)+'</span>'+(a.model?'<span class="cargs">'+esc(a.model)+'</span>':'')+'<div class="cdesc">model · '+esc(a.model || 'missing')+' · source paperclipCommandsData</div></div></div>').join('') : '<div class="nar">no agents.</div>');
-  } else if (key === 'work'){
-    title = '/ts-projects · active work';
-    body = kvRows([['source', 'paperclipCommandsData']]) +
-      ((d.work||[]).length ? (d.work||[]).map(w => '<div class="li"><div><span class="cname">'+esc(w.id)+'</span> <span class="cargs">'+esc(w.status)+'</span><div class="cdesc">title '+esc(w.title)+' · owner '+esc(w.who || w.owner || 'missing')+' · source '+esc(w.source || 'paperclipCommandsData')+'</div></div></div>').join('') : '<div class="nar">no active work.</div>');
-  } else if (key === 'handoffs'){
-    title = '/ts-handoffs · ' + (d.handoffs||[]).length;
-    body = kvRows([['source', 'paperclipCommandsData'], ['gate relation', 'handoff rows are review context; signed gate actions stay in the Gate scene']]) +
-      ((d.handoffs||[]).length ? (d.handoffs||[]).map(h => '<div class="li"><span class="cname">'+esc(h.id)+'</span> <span class="cargs">'+esc(h.status)+'</span><div class="cdesc">title '+esc(h.title)+' · source '+esc(h.source || 'paperclipCommandsData')+' · gate relation '+esc(h.gateRelation || 'founder gate review context only')+'</div></div>').join('') : '<div class="nar">nothing waiting on you.</div>');
-  }
-  const cmd = COMMANDS_BY_NAME[LIVE_CMD_NAMES[key] || 'ts-status'] || { group:'Ask', name:LIVE_CMD_NAMES[key] || 'ts-status', args:'', desc:'live command', kind:key };
-  $('sheetBody').innerHTML = '<div class="arc">live · derived with the ledger</div><h2>'+esc(title)+'</h2>' + body + toolSafetyRow(key, cmd) + '<div class="gbtns"><button type="button" class="detail" data-tool-audit-link="tools">Inspect audit</button><button type="button" class="reroll" data-tool-back="mission">Mission</button></div>' + commandCopyControl(liveCommandText);
-  wireCommandCopy(liveCommandText);
-  wireToolSheetNav();
-  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+  $('sheetBody').querySelectorAll('[data-tool-act]').forEach(button => button.onclick = () => {
+    const index = Number(button.dataset.toolHandoffIndex);
+    const card = $('cmds').querySelector('[data-tool-surface="handoffs"]');
+    toolHandoffAct(button.dataset.toolAct || 'approve', toolHandoffs()[index] || {}, card);
+  });
 }
 `;

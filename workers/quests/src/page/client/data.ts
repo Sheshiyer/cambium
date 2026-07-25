@@ -38,6 +38,9 @@ function paint(env){
   ECOSYSTEM_ENV = env;
   LEDGER = env.ledger;
   CMDDATA = env.commands || null;
+  /* Tools scenes re-render on fresh envelope data when the tab is visible (T-019/T-020). */
+  cmdsDrawn = false;
+  if (scene === 2) renderCommands();
   renderMissionControl(env);
   if (SCENE_PARAM === 'components' || SCENE_PARAM === 'component' || SCENE_PARAM === 'board') renderComponentGallery(env);
   else renderInspect(env);

@@ -860,7 +860,7 @@ function renderMissionActions(view){
 }
 function renderMissionToolLink(view){
   return '<section class="mission-tool-link" data-component="MissionToolLink" data-source="' + esc(view.source) + '">' +
-    '<span><b>Suggested tool</b><small>/ts-status checks the branch before you assign or report the next mission step.</small></span>' +
+    '<span><b>Suggested tool</b><small>branch status lives in Tools</small></span>' +
     '<button type="button" data-mission-action="tools" data-no-scene-drag="1">Open Tools</button>' +
   '</section>';
 }
@@ -1449,7 +1449,7 @@ function inspectGroupSummaries(env, L){
     { id:'gates', title:'gates', glyph:'gate', state:gateRows.length ? 'proof-needed' : 'idle', detail:gateRows.length ? String(gateRows.length) + ' founder approval item(s) waiting.' : 'No founder approval is waiting.' },
     { id:'action-requests', title:'action requests', glyph:'gate', state:actionRequests.length ? actionRequestState(actionRequests[0]) : 'idle', detail:actionRequests.length ? String(actionRequests.length) + ' iVerif ActionRequest row(s) projected into Gate, Story, and Inspect.' : 'No ActionRequests are served yet.' },
     { id:'policy', title:'policy', glyph:'build', state:policyRows.some(row => row.state === 'gap') ? 'blocked' : 'active', detail:'Blocked or bounded action is explained before policy internals.' },
-    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:env && env.commands ? String(toolCount) + ' toolbelt commands available for safe use.' : String(toolCount) + ' toolbelt commands unavailable until live data refreshes.' },
+    { id:'tools', title:'tools', glyph:'ops', state:env && env.commands ? 'active' : 'stale', detail:env && env.commands ? String(toolCount) + ' live action surfaces available for safe use.' : String(toolCount) + ' live action surfaces unavailable until live data refreshes.' },
     { id:'rails', title:'rails', glyph:'taste', state:'active', detail:String(RAILS.length) + ' proof rails remain inspectable after critical blockers.' },
     { id:'evidence', title:'evidence', glyph:'proof', state:evidenceRows.length ? 'active' : 'proof-needed', detail:evidenceRows.length ? String(evidenceRows.length) + ' evidence row(s) can open proof sheets.' : 'Evidence detail is missing from this proof map.' },
   ];
@@ -1571,11 +1571,11 @@ function inspectGroupDetailRows(id, env, L){
       ['next action', actionRequests[0] ? (actionRequests[0].next || 'founder choice required') : 'serve ActionRequest rows from Cambium'],
     ],
     tools:[
-      ['command availability', CMDDATA ? 'toolbelt commands available from live data' : 'toolbelt commands unavailable until refresh'],
-      ['safe use', 'Tools copy command text or open sheets; signed decisions stay in Gate'],
+      ['surface availability', CMDDATA ? 'live action surfaces available from live data' : 'live action surfaces unavailable until refresh'],
+      ['safe use', 'Tools open read-only sheets; signed decisions stay in Gate'],
       ['tool source', CMDDATA ? 'live command envelope available' : 'live command envelope stale'],
-      ['command semantics', 'Tools copy command text or open sheets; signed decisions stay in Gate'],
-      ['recent strip', '/ts-status · /ts-hermes · /ts-standup'],
+      ['surface semantics', 'five live surfaces: Org status, Services, Agents, Active work, Handoffs'],
+      ['handoff actions', 'Approve and Reroll post signed decisions through the gate client'],
     ],
     rails:[
       ['visual envelope', 'shared/cambium-visual-contract.ts'],
