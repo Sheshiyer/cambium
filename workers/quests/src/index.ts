@@ -88,6 +88,9 @@ interface Env {
   NEBIUS_API_KEY?: string;
   NEBIUS_BASE_URL?: string;
   NEBIUS_DEFAULT_MODEL?: string;
+  KIMI_CODING_API_KEY?: string;
+  KIMI_CODING_BASE_URL?: string;
+  KIMI_CODING_DEFAULT_MODEL?: string;
   GATE_BRANCH_MAP_TENANTS?: string;
 }
 
@@ -1244,6 +1247,23 @@ export default {
         baseUrl: env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.com/v1',
         defaultModel: env.NEBIUS_DEFAULT_MODEL || 'Qwen/Qwen3-235B-A22B-Instruct-2507',
         models: env.NEBIUS_DEFAULT_MODEL ? [env.NEBIUS_DEFAULT_MODEL] : ['Qwen/Qwen3-235B-A22B-Instruct-2507'],
+      } : undefined,
+      // Anthropic-shaped, unlike the three above: the key goes in x-api-key rather
+      // than `authorization: Bearer`, and the caller's anthropic-version header has
+      // to reach the upstream. Callers use /messages, not /chat/completions.
+      //
+      // command-code is deliberately NOT registered here. Its OmniRoute executor
+      // rewrites the request into a bespoke payload — hoisted top-level `system`,
+      // converted tools, forced stream, clamped max_tokens — before POSTing
+      // /alpha/generate. A byte-passthrough proxy would forward an OpenAI-shaped
+      // body that endpoint does not accept, so brokering it needs a translating
+      // adapter, not a route. Verified against buildCommandCodeBody(), not assumed.
+      'kimi-coding': env.KIMI_CODING_API_KEY ? {
+        apiKey: env.KIMI_CODING_API_KEY,
+        baseUrl: env.KIMI_CODING_BASE_URL || 'https://api.kimi.com/coding/v1',
+        defaultModel: env.KIMI_CODING_DEFAULT_MODEL || 'k3',
+        models: env.KIMI_CODING_DEFAULT_MODEL ? [env.KIMI_CODING_DEFAULT_MODEL] : ['k3'],
+        authHeader: 'x-api-key',
       } : undefined,
     };
     const workerFetch = fetch.bind(globalThis);
