@@ -283,6 +283,10 @@ function renderGateItem(it, i){
   const reversibility = gateReversibility('approve', it);
   const reversibilityState = gateReversibilityState(reversibility);
   const stale = state === 'stale';
+  /* frozen/06 G7: chip copy is 'stale · refresh first'; the mono timestamp rides only when served
+     (the 'updatedAt not served' fallback is state logic, never rendered copy — T-028 budget). */
+  const updatedAtText = gateUpdatedAt(it);
+  const servedUpdatedAt = updatedAtText === 'updatedAt not served' ? '' : updatedAtText;
   const actionRequestStatus = isActionRequestGateItem(it) ? String((it && it.status) || '') : '';
   const needsSignedActionRequest = actionRequestStatus === 'needs_signed_confirmation';
   const queuedActionRequest = actionRequestStatus === 'queued';
@@ -304,7 +308,7 @@ function renderGateItem(it, i){
       '<button type="button" class="grow-chev" data-gate-detail="1" aria-label="Inspect ' + esc(it.title || it.id || 'gate item') + '">›</button>' +
     '</div>' +
     gatePriorityChips(it) +
-    (stale ? '<span class="gate-stale-chip" data-component="GateStaleSyncState" data-gate-stale-chip="1">stale · refresh first · ' + esc(gateUpdatedAt(it)) + '</span>' : '') +
+    (stale ? '<span class="gate-stale-chip" data-component="GateStaleSyncState" data-gate-stale-chip="1">stale · refresh first' + (servedUpdatedAt ? ' · ' + esc(servedUpdatedAt) : '') + '</span>' : '') +
     '<button type="button" class="gate-proof-row" data-gate-proof="1" data-interaction-kind="sheet" aria-label="Open proof details">' +
       mcGlyphSvg('proof', state === 'blocked' ? 'proof-needed' : state) +
       '<span class="gate-proof-copy"><b>Proof</b><small>' + esc(evidence) + '</small></span><span class="gate-proof-open" aria-hidden="true">›</span>' +
