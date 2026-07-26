@@ -12881,3 +12881,298 @@ test('goal graph gate envelope · founder quests body carries pending proposals 
   assert.equal(row.changeSet, undefined);
   assert.doesNotMatch(quests.body, /cambium\.telegram\.goal-graph-intent\.v1/);
 });
+
+// ── S-1 · Hermes standup surface: Plexus daily_agent_event projection + read ──
+// Mirrors what Plexus actually sends through the bridge: payload
+// { type: 'daily_agent_event', schema, event, date, memberId, eventId } where
+// event is the AssistantDailyEvent (plexus-ts src/main/thoughtseed-bridge.ts
+// sendThoughtseedDailyEvent + src/shared/native-assistant.ts).
+
+function dailyAgentEventPayload(event: Record<string, unknown> = {}, payload: Record<string, unknown> = {}) {
+  return {
+    type: 'daily_agent_event',
+    schema: 'thoughtseed.plexus_daily_agent_event.v1',
+    event: {
+      schema: 'thoughtseed.plexus_daily_agent_event.v1',
+      eventId: 'daily_2026-07-17_mathis',
+      date: '2026-07-17',
+      memberId: 'mathis',
+      generatedAt: '2026-07-17T09:00:00.000Z',
+      standupRecordId: 'standup_2026-07-17',
+      projectSummaries: [
+        { projectId: 'cambium', name: 'Cambium', clientName: 'Internal', totalSeconds: 5400, entryCount: 3, evidenceStatus: 'evidenced', repoFullName: 'thoughtseed/cambium' },
+      ],
+      sessionGroups: [
+        { id: 'sg-1', label: 'quests worker', projectId: 'cambium', sessionCount: 2, themes: ['bridge'], matchStatus: 'ready' },
+      ],
+      blockers: [
+        { id: 'daily-delivery-offline', label: 'Worker and Thoughtseed bridge are both unavailable.', severity: 'critical', source: 'infra' },
+      ],
+      suggestions: [
+        { id: 'generate-standup', label: 'Generate today\'s standup evidence.', reason: 'Daily delivery is stronger with a linked standup record.', toolId: 'app.generateStandup' },
+      ],
+      evidenceSummary: {
+        proofStatus: 'evidenced',
+        totalEntries: 3,
+        evidencedEntries: 3,
+        missingEvidenceEntries: 0,
+        legacyUnverifiedEntries: 0,
+        evidencedSeconds: 5400,
+        missingEvidenceSeconds: 0,
+        projectRepoCoverage: { cambium: 'verified' },
+      },
+      workSummary: { totalEntries: 3, totalDurationSeconds: 5400, evidencedEntries: 3, missingEvidenceEntries: 0 },
+      ...event,
+    },
+    date: '2026-07-17',
+    memberId: 'mathis',
+    eventId: 'daily_2026-07-17_mathis',
+    ...payload,
+  };
+}
+
+function standupDeps(kv: ReturnType<typeof fakeKv>) {
+  return {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    now: () => '2026-07-17T10:00:00.000Z',
+  };
+}
+
+async function ingestUpstream(
+  credential: string,
+  payload: unknown,
+  deps: Parameters<typeof handle>[1],
+  opts: { id?: string; memberId?: string; tenantId?: string } = {},
+) {
+  const msg = await signBridge(credential, {
+    id: opts.id ?? 'up-standup-1',
+    timestamp: '2026-07-17T10:00:00.000Z',
+    direction: 'upstream',
+    tenantId: opts.tenantId ?? 'cambium',
+    memberId: opts.memberId ?? 'mathis',
+    payload,
+  });
+  return handle(req('POST', '/v1/bridge/ingest', {
+    headers: { authorization: `Bearer ${credential}` },
+    body: JSON.stringify(msg),
+  }), deps);
+}
+
+function seedMemberToken(kv: ReturnType<typeof fakeKv>, memberId: string, token: string, tenantId = 'cambium') {
+  const tokenHash = createHash('sha256').update(token).digest('hex');
+  kv.store.set(`memtok:${tokenHash}`, memberId);
+  kv.store.set(`member:${memberId}`, JSON.stringify({ status: 'active', tokenHash, tenantId, tokenExp: Date.now() + 3_600_000 }));
+}
+
+function getStandups(credential: string, path: string, deps: Parameters<typeof handle>[1]) {
+  return handle(req('GET', path, { headers: { authorization: `Bearer ${credential}` } }), deps);
+}
+
+test('standup projection · daily_agent_event ingest writes a bounded member-standup record', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  const ingest = await ingestUpstream('bridge', dailyAgentEventPayload(), deps);
+  assert.equal(ingest.status, 200);
+  assert.deepEqual(body(ingest).standup, { projected: true, date: '2026-07-17' });
+
+  const raw = kv.store.get('standup:cambium:mathis:2026-07-17');
+  assert.ok(raw, 'deterministic standup key exists');
+  const record = JSON.parse(raw);
+  assert.equal(record.schema, 'cambium.member-standup.v1');
+  assert.equal(record.tenantId, 'cambium');
+  assert.equal(record.memberId, 'mathis');
+  assert.equal(record.date, '2026-07-17');
+  assert.equal(record.eventId, 'daily_2026-07-17_mathis');
+  assert.equal(record.standupRecordId, 'standup_2026-07-17');
+  assert.equal(record.generatedAt, '2026-07-17T09:00:00.000Z');
+  assert.equal(record.receivedAt, '2026-07-17T10:00:00.000Z');
+  assert.equal(record.workSeconds, 5400);
+  assert.equal(record.entryCount, 3);
+  assert.equal(record.evidencedEntries, 3);
+  assert.equal(record.missingEvidenceEntries, 0);
+  assert.equal(record.proofStatus, 'evidenced');
+  assert.equal(record.sessionGroupCount, 1);
+  assert.equal(record.projects.length, 1);
+  assert.equal(record.projects[0].name, 'Cambium');
+  assert.equal(record.projects[0].totalSeconds, 5400);
+  assert.equal(record.projects[0].repoFullName, 'thoughtseed/cambium');
+  assert.equal(record.blockers.length, 1);
+  assert.equal(record.blockers[0].severity, 'critical');
+  assert.equal(record.blockers[0].label, 'Worker and Thoughtseed bridge are both unavailable.');
+  // The raw event/payload and non-whitelisted collections never cross.
+  assert.equal(record.event, undefined);
+  assert.equal(record.payload, undefined);
+  assert.equal(record.suggestions, undefined);
+  assert.equal(record.sessionGroups, undefined);
+  assert.equal(record.workSummary, undefined);
+  assert.equal(record.evidenceSummary, undefined);
+
+  const read = await getStandups('bridge', '/v1/bridge/standups/cambium/mathis?date=2026-07-17', deps);
+  assert.equal(read.status, 200);
+  assert.equal(body(read).schema, 'cambium.member-standup.v1');
+  assert.deepEqual(body(read).standup, record);
+
+  const recent = await getStandups('bridge', '/v1/bridge/standups/cambium/mathis', deps);
+  assert.equal(recent.status, 200);
+  assert.equal(body(recent).schema, 'cambium.member-standup-list.v1');
+  assert.equal(body(recent).count, 1);
+  assert.deepEqual(body(recent).standups[0], record);
+});
+
+test('standup projection · non-standup payloads write no projection and keep the exact response shape', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  const ingest = await ingestUpstream('bridge', { kind: 'status', text: 'ready' }, deps, { id: 'up-plain-1' });
+  assert.equal(ingest.status, 200);
+  assert.deepEqual(body(ingest), { ok: true, id: 'up-plain-1', stored: true });
+  const standupKeys = [...kv.store.keys()].filter((key) => key.startsWith('standup:'));
+  assert.deepEqual(standupKeys, []);
+
+  // A daily_agent_event without a usable date anywhere also projects nothing.
+  const noDate = await ingestUpstream('bridge', dailyAgentEventPayload({ date: 'not-a-date' }, { date: undefined }), deps, { id: 'up-nodate-1' });
+  assert.equal(noDate.status, 200);
+  assert.deepEqual(body(noDate), { ok: true, id: 'up-nodate-1', stored: true });
+  assert.deepEqual([...kv.store.keys()].filter((key) => key.startsWith('standup:')), []);
+});
+
+test('standup projection · re-ingest of the same member+date re-projects in place', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  const first = await ingestUpstream('bridge', dailyAgentEventPayload(), deps, { id: 'up-re-1' });
+  assert.equal(first.status, 200);
+  const second = await ingestUpstream(
+    'bridge',
+    dailyAgentEventPayload(
+      { eventId: 'daily_2026-07-17_mathis_retry', workSummary: { totalEntries: 5, totalDurationSeconds: 7200, evidencedEntries: 4, missingEvidenceEntries: 1 } },
+      { eventId: 'daily_2026-07-17_mathis_retry' },
+    ),
+    deps,
+    { id: 'up-re-2' },
+  );
+  assert.equal(second.status, 200);
+  const standupKeys = [...kv.store.keys()].filter((key) => key.startsWith('standup:'));
+  assert.deepEqual(standupKeys, ['standup:cambium:mathis:2026-07-17'], 'one deterministic key, never a duplicate');
+  const record = JSON.parse(kv.store.get(standupKeys[0])!);
+  assert.equal(record.eventId, 'daily_2026-07-17_mathis_retry');
+  assert.equal(record.workSeconds, 7200);
+  const recent = await getStandups('bridge', '/v1/bridge/standups/cambium/mathis', deps);
+  assert.equal(body(recent).count, 1);
+});
+
+test('standups read · admin, assignment, and self-member read; other member and cross-tenant are 403', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  seedMemberToken(kv, 'mathis', 'member-token-mathis');
+  seedMemberToken(kv, 'shesh', 'member-token-shesh');
+  const ingest = await ingestUpstream('member-token-mathis', dailyAgentEventPayload(), deps);
+  assert.equal(ingest.status, 200);
+
+  const anonymous = await handle(req('GET', '/v1/bridge/standups/cambium/mathis'), deps);
+  assert.equal(anonymous.status, 401);
+  const badToken = await getStandups('nope', '/v1/bridge/standups/cambium/mathis', deps);
+  assert.equal(badToken.status, 401);
+
+  for (const credential of ['bridge', 'assign-only', 'member-token-mathis']) {
+    const dated = await getStandups(credential, '/v1/bridge/standups/cambium/mathis?date=2026-07-17', deps);
+    assert.equal(dated.status, 200, `${credential} reads the dated standup`);
+    assert.equal(body(dated).standup.memberId, 'mathis');
+    const recent = await getStandups(credential, '/v1/bridge/standups/cambium/mathis', deps);
+    assert.equal(recent.status, 200, `${credential} reads the recent list`);
+    assert.equal(body(recent).count, 1);
+  }
+
+  const otherMember = await getStandups('member-token-shesh', '/v1/bridge/standups/cambium/mathis', deps);
+  assert.equal(otherMember.status, 403);
+  const crossTenant = await getStandups('member-token-mathis', '/v1/bridge/standups/other-tenant/mathis', deps);
+  assert.equal(crossTenant.status, 403);
+
+  // Admin/assignment reach any member; the empty member is a normal 200 empty list.
+  const emptyMember = await getStandups('assign-only', '/v1/bridge/standups/cambium/shesh', deps);
+  assert.equal(emptyMember.status, 200);
+  assert.equal(body(emptyMember).count, 0);
+});
+
+test('standup projection · oversize fields are capped and never stored raw', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  const oversize = 'x'.repeat(5000);
+  const manyProjects = Array.from({ length: 25 }, (_, i) => ({
+    projectId: `p-${i}`, name: `Project ${i}`, totalSeconds: 60, entryCount: 1, evidenceStatus: 'evidenced', repoFullName: `org/repo-${i}`,
+  }));
+  const ingest = await ingestUpstream('bridge', dailyAgentEventPayload({
+    generatedAt: oversize,
+    standupRecordId: oversize,
+    projectSummaries: manyProjects,
+    blockers: [{ id: oversize, label: oversize, severity: 'nuclear', source: oversize }],
+    workSummary: { totalEntries: 9e15, totalDurationSeconds: 9e15, evidencedEntries: 9e15, missingEvidenceEntries: 9e15 },
+    evidenceSummary: { proofStatus: oversize, evidencedEntries: 9e15, missingEvidenceEntries: 9e15 },
+  }), deps);
+  assert.equal(ingest.status, 200);
+
+  const record = JSON.parse(kv.store.get('standup:cambium:mathis:2026-07-17')!);
+  assert.equal(record.projects.length, 8, 'project rows are capped');
+  assert.equal(record.blockers.length, 1);
+  assert.ok(record.blockers[0].label.length <= 240, 'blocker label is capped');
+  assert.ok(record.blockers[0].id.length <= 160, 'blocker id is capped');
+  assert.equal(record.blockers[0].severity, 'info', 'unknown severity degrades to info');
+  assert.ok(record.blockers[0].source.length <= 40, 'blocker source is capped');
+  assert.ok(record.standupRecordId.length <= 160, 'standupRecordId is capped');
+  assert.ok(record.generatedAt.length <= 64, 'generatedAt is capped');
+  assert.equal(record.workSeconds, 1_000_000, 'counts are magnitude-capped');
+  assert.equal(record.entryCount, 1_000_000);
+  assert.equal(record.evidencedEntries, 1_000_000);
+  assert.ok(record.proofStatus.length <= 40, 'proofStatus is capped');
+  assert.ok(!JSON.stringify(record).includes(oversize), 'no oversize string survives into the record');
+});
+
+test('standups read · empty state is an explicit empty list and a dated 404', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  const recent = await getStandups('bridge', '/v1/bridge/standups/cambium/mathis', deps);
+  assert.equal(recent.status, 200);
+  assert.deepEqual(body(recent), { ok: true, schema: 'cambium.member-standup-list.v1', tenant: 'cambium', memberId: 'mathis', count: 0, standups: [] });
+
+  const dated = await getStandups('bridge', '/v1/bridge/standups/cambium/mathis?date=2026-07-17', deps);
+  assert.equal(dated.status, 404);
+  assert.equal(body(dated).error, 'standup_not_found');
+  assert.equal(body(dated).date, '2026-07-17');
+
+  for (const bad of ['17-07-2026', '2026-13-01', '2026-07-32', 'today']) {
+    const malformed = await getStandups('bridge', `/v1/bridge/standups/cambium/mathis?date=${bad}`, deps);
+    assert.equal(malformed.status, 400, `bad date ${bad} is a 400`);
+  }
+  const badMember = await getStandups('bridge', '/v1/bridge/standups/cambium/Mathis!', deps);
+  assert.equal(badMember.status, 400);
+  const badTenant = await getStandups('bridge', '/v1/bridge/standups/Bad_Tenant/mathis', deps);
+  assert.equal(badTenant.status, 400);
+});
+
+test('standups read · served record carries no token or Telegram material', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  const ingest = await ingestUpstream('bridge', dailyAgentEventPayload({
+    telegramChatId: 'tg-chat-777000111',
+    telegramTopicId: 4402,
+    deliveryChannel: 'telegram:topic:4402',
+    bridgeToken: 'bridge-token-material-zzz',
+    rendererSecret: 'renderer-secret-yyy',
+  }), deps);
+  assert.equal(ingest.status, 200);
+
+  const read = await getStandups('bridge', '/v1/bridge/standups/cambium/mathis?date=2026-07-17', deps);
+  assert.equal(read.status, 200);
+  assert.doesNotMatch(read.body, /tg-chat-777000111/);
+  assert.doesNotMatch(read.body, /4402/);
+  assert.doesNotMatch(read.body, /bridge-token-material-zzz/);
+  assert.doesNotMatch(read.body, /renderer-secret-yyy/);
+  assert.doesNotMatch(read.body, /telegram/i);
+  const record = body(read).standup;
+  assert.equal(record.telegramChatId, undefined);
+  assert.equal(record.deliveryChannel, undefined);
+  assert.equal(record.bridgeToken, undefined);
+  // The stored record is equally clean — the projector is the only redaction seam.
+  const storedRaw = kv.store.get('standup:cambium:mathis:2026-07-17')!;
+  assert.doesNotMatch(storedRaw, /tg-chat-777000111|bridge-token-material-zzz|renderer-secret-yyy/);
+});

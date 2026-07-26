@@ -721,6 +721,102 @@ function kvBridgeStore(kv: KvLike): BridgeStoreLike {
   };
 }
 
+// ── Plexus daily standup projection ─────────────────────────────────────────
+// A Plexus daily_agent_event upstream message is the member's standup evidence
+// on the reporting plane (the member-scoped bridge is Plexus's primary
+// reporting port to Hermes). The raw bridge inbox is cofounder-only, so on
+// ingest we additionally project a bounded, redacted record that Hermes reads
+// at GET /v1/bridge/standups/{tenant}/{memberId}. KV only, following the
+// volatile-data precedent: the bridge inbox stays the raw record, this is a
+// derived read model. The deterministic key (tenant + member + UTC date) makes
+// re-ingest an idempotent re-projection — same date overwrites, never
+// duplicates. The projector is the pure boundary: a non-standup or malformed
+// payload yields null, never an exception, so projection can never break the
+// ingest lane. Only whitelisted, capped fields cross: no raw payload dump, no
+// tokens, no Telegram IDs, no renderer secrets.
+
+const MEMBER_STANDUP_SCHEMA = 'cambium.member-standup.v1';
+const MEMBER_STANDUP_LIST_SCHEMA = 'cambium.member-standup-list.v1';
+const PLEXUS_DAILY_AGENT_EVENT_TYPE = 'daily_agent_event';
+const MEMBER_STANDUP_DATE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/;
+const MEMBER_STANDUP_MEMBER = /^[a-z0-9][a-z0-9._-]{0,63}$/;
+const MEMBER_STANDUP_RECENT_LIMIT = 14;      // a digest never needs more than a fortnight
+const MEMBER_STANDUP_MAX_ROWS = 8;           // projects/blockers served per record
+const MEMBER_STANDUP_MAX_COUNT = 1_000_000;  // counts above this are telemetry noise
+
+const memberStandupKey = (tenant: string, memberId: string, date: string): string =>
+  `standup:${tenant}:${memberId}:${date}`;
+
+const memberStandupPrefix = (tenant: string, memberId: string): string =>
+  `standup:${tenant}:${memberId}:`;
+
+function boundedStandupCount(value: unknown): number {
+  const n = Math.floor(Number(value));
+  return Number.isFinite(n) && n > 0 ? Math.min(n, MEMBER_STANDUP_MAX_COUNT) : 0;
+}
+
+function standupProjectionFromMessage(msg: Record<string, unknown>, receivedAt: string): Record<string, unknown> | null {
+  const payload = isRecord(msg.payload) ? msg.payload : null;
+  if (!payload || payload.type !== PLEXUS_DAILY_AGENT_EVENT_TYPE) return null;
+  const event = isRecord(payload.event) ? payload.event : {};
+  const tenant = String(msg.tenantId ?? '');
+  const memberId = String(msg.memberId ?? '');
+  const date = shortText(payload.date ?? event.date, '', 10);
+  if (!VALID_TENANT.test(tenant) || !MEMBER_STANDUP_MEMBER.test(memberId) || !MEMBER_STANDUP_DATE.test(date)) return null;
+  const workSummary = isRecord(event.workSummary) ? event.workSummary : {};
+  const evidence = isRecord(event.evidenceSummary) ? event.evidenceSummary : {};
+  const projects = (Array.isArray(event.projectSummaries) ? event.projectSummaries : [])
+    .slice(0, MEMBER_STANDUP_MAX_ROWS)
+    .flatMap((raw) => {
+      if (!isRecord(raw)) return [];
+      return [{
+        projectId: shortText(raw.projectId, 'unknown', 160),
+        name: shortText(raw.name, 'unnamed project', 240),
+        totalSeconds: boundedStandupCount(raw.totalSeconds),
+        entryCount: boundedStandupCount(raw.entryCount),
+        evidenceStatus: shortText(raw.evidenceStatus, 'unknown', 40),
+        repoFullName: shortText(raw.repoFullName, '', 160) || null,
+      }];
+    });
+  const blockers = (Array.isArray(event.blockers) ? event.blockers : [])
+    .slice(0, MEMBER_STANDUP_MAX_ROWS)
+    .flatMap((raw) => {
+      if (!isRecord(raw)) return [];
+      const severity = shortText(raw.severity, 'info', 24);
+      return [{
+        id: shortText(raw.id, 'blocker', 160),
+        label: shortText(raw.label, 'blocker label not served', 240),
+        severity: ['info', 'warning', 'critical'].includes(severity) ? severity : 'info',
+        source: shortText(raw.source, 'unknown', 40),
+      }];
+    });
+  return {
+    schema: MEMBER_STANDUP_SCHEMA,
+    tenantId: tenant,
+    memberId,
+    date,
+    eventId: shortText(payload.eventId ?? event.eventId, '', 160) || null,
+    standupRecordId: shortText(event.standupRecordId, '', 160) || null,
+    generatedAt: shortText(event.generatedAt, receivedAt, 64),
+    receivedAt,
+    workSeconds: boundedStandupCount(workSummary.totalDurationSeconds),
+    entryCount: boundedStandupCount(workSummary.totalEntries),
+    evidencedEntries: boundedStandupCount(evidence.evidencedEntries ?? workSummary.evidencedEntries),
+    missingEvidenceEntries: boundedStandupCount(evidence.missingEvidenceEntries ?? workSummary.missingEvidenceEntries),
+    proofStatus: shortText(evidence.proofStatus, 'unknown', 40),
+    sessionGroupCount: boundedStandupCount(Array.isArray(event.sessionGroups) ? event.sessionGroups.length : 0),
+    projects,
+    blockers,
+  };
+}
+
+/** A stored record is served only when it parses and carries the standup
+ *  schema; anything else under the prefix is treated as absent. */
+async function readMemberStandup(kv: KvLike, tenant: string, memberId: string, date: string): Promise<Record<string, unknown> | null> {
+  const record = parseJsonObject(await kv.get(memberStandupKey(tenant, memberId, date)));
+  return record && record.schema === MEMBER_STANDUP_SCHEMA ? record : null;
+}
+
 // ── GitHub command bridge: replay protection + write rate limiting ──────────────
 // KvLike has no native expirationTtl, so both records embed their own expiry/window and
 // are validated against an injectable clock on read (same pattern as member-token tokenExp).
@@ -3486,7 +3582,16 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!mayAct(String(msg.memberId))) return json(403, { error: 'token not scoped to this member' });
       if (!principal.admin && principal.tenantId !== String(msg.tenantId)) return json(403, { error: 'token not scoped to this tenant' });
       if (!msg.signature || msg.signature !== await bridgeSignature(_tok, msg)) return json(401, { error: 'bad or missing bridge signature' });
-      await bridgeStore.putUpstream(String(msg.tenantId), String(msg.id), { ...msg, receivedAt: nowIso() });
+      const receivedAt = nowIso();
+      await bridgeStore.putUpstream(String(msg.tenantId), String(msg.id), { ...msg, receivedAt });
+      // Standup projection is additive: a Plexus daily_agent_event also lands as
+      // a bounded member-standup record; every other payload takes the exact
+      // pre-existing path, response shape included.
+      const standup = standupProjectionFromMessage(msg, receivedAt);
+      if (standup) {
+        await deps.kv.put(memberStandupKey(String(msg.tenantId), String(msg.memberId), String(standup.date)), JSON.stringify(standup));
+        return json(200, { ok: true, id: msg.id, stored: true, standup: { projected: true, date: standup.date } });
+      }
       return json(200, { ok: true, id: msg.id, stored: true });
     }
 
@@ -3496,6 +3601,49 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!tenant) return json(400, { error: 'bad tenant' });
       const messages = await bridgeStore.listUpstream(tenant, 100);
       return json(200, { tenant, count: messages.length, messages });
+    }
+
+    // Hermes's standup surface: "today's standup for member X" (?date=) and
+    // "recent standups for digest" (no query, latest-first, capped at 14).
+    // Admin and assignment tokens read any member; a member-scoped token reads
+    // only its own memberId within its own tenant. The lane inherits the
+    // bridge gate above, so an unconfigured bridge already fails closed (503).
+    // Records are served exactly as projected — the projector's whitelist is
+    // the redaction, so nothing raw, token-bearing, or Telegram-shaped can
+    // reach this response.
+    const standupReadMatch = routePath.match(/^\/v1\/bridge\/standups\/([^/]+)\/([^/]+)$/);
+    if (method === 'GET' && standupReadMatch) {
+      const tenant = standupReadMatch[1];
+      const memberId = standupReadMatch[2];
+      if (!VALID_TENANT.test(tenant)) return json(400, { error: 'bad tenant' });
+      if (!MEMBER_STANDUP_MEMBER.test(memberId)) return json(400, { error: 'bad memberId' });
+      if (!principal.admin && !principal.assignmentOnly && principal.memberId !== memberId) {
+        return json(403, { error: 'token not scoped to this member' });
+      }
+      if (!principal.admin && !principal.assignmentOnly && principal.tenantId !== tenant) {
+        return json(403, { error: 'token not scoped to this tenant' });
+      }
+      const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
+      const date = params.get('date');
+      if (date !== null) {
+        if (!MEMBER_STANDUP_DATE.test(date)) return json(400, { error: 'bad date (expected YYYY-MM-DD)' });
+        const standup = await readMemberStandup(deps.kv, tenant, memberId, date);
+        if (!standup) return json(404, { ok: false, error: 'standup_not_found', tenant, memberId, date });
+        return json(200, { ok: true, schema: MEMBER_STANDUP_SCHEMA, tenant, memberId, date, standup });
+      }
+      const prefix = memberStandupPrefix(tenant, memberId);
+      const dates = (await deps.kv.list(prefix))
+        .map((key) => key.slice(prefix.length))
+        .filter((day) => MEMBER_STANDUP_DATE.test(day))
+        .sort()
+        .reverse()
+        .slice(0, MEMBER_STANDUP_RECENT_LIMIT);
+      const standups: Array<Record<string, unknown>> = [];
+      for (const day of dates) {
+        const standup = await readMemberStandup(deps.kv, tenant, memberId, day);
+        if (standup) standups.push(standup);
+      }
+      return json(200, { ok: true, schema: MEMBER_STANDUP_LIST_SCHEMA, tenant, memberId, count: standups.length, standups });
     }
 
     if (method === 'POST' && routePath === '/v1/bridge/assign-task') {
