@@ -4137,6 +4137,90 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.equal(rendered.fetchRequests.length, beforeRefreshFetches + 1);
 });
 
+test('page · goal-graph intake row renders, preflights, and submits a signed approval', async () => {
+  const changeDigest = 'a'.repeat(64);
+  const headDigest = 'b'.repeat(64);
+  const goalGraphRow = {
+    schema: 'cambium.goal-graph-gate-row.v1',
+    kind: 'goal-graph-intake',
+    id: `goal-graph-intake:${changeDigest}`,
+    tenantId: 'cambium',
+    status: 'pending',
+    changeDigest,
+    nodeId: 'gg_node_test',
+    title: 'Goal proposal · publish the approved launch note',
+    summary: 'Telegram goal proposal awaiting founder signature: publish the approved launch note',
+    source: 'telegram-goal-graph-intake@v1',
+    sourceRef: 'telegram:cambium:-100555000111:4242',
+    evidence: 'goal graph intake gg_node_test pinned at intake; commit is a CAS against the pinned head',
+    consequence: 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
+    idempotencyHint: changeDigest,
+    graphVersion: 1,
+    receivedAt: '2026-07-24T00:00:00.000Z',
+    updatedAt: '2026-07-24T00:00:00.000Z',
+  };
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [],
+    goalGraphIntake: { schema: 'cambium.goal-graph-gate-row-list.v1', ok: true, tenantId: 'cambium', count: 1, rows: [goalGraphRow] },
+  };
+  const committedResponse = {
+    ok: true, duplicate: false, replayed: false, committed: true,
+    kind: 'approve-goal-graph', subject: changeDigest, changeDigest,
+    nodeId: 'gg_node_test', sourceRef: goalGraphRow.sourceRef, readback: '/v1/branch-map/cambium',
+    headDigest, graphVersion: 1, approvalNonce: `goal-graph-approval:cambium:${changeDigest}`, approvalDigest: 'c'.repeat(64),
+  };
+  const rendered = await renderPageFixtureContext(envelope, {
+    search: '?tenant=cambium&scene=gate',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => init.method === 'POST' ? committedResponse : envelope,
+  });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+
+  // The pending proposal renders as a tappable, kind-aware approval row.
+  assert.match(gate, /data-goal-graph-change-digest="a{64}"/);
+  assert.match(gate, /data-ecosystem-target="goal-graph-intake"/);
+  assert.match(gate, /<div class="gtitle">Goal proposal · publish the approved launch note<\/div>/);
+  assert.match(gate, /data-signed-action-entrypoint="approve-goal-graph"/);
+  assert.match(gate, /data-kind="approve-goal-graph"/);
+  assert.match(gate, />Approve</);
+  assert.match(gate, />Inspect</);
+  assert.match(gate, /1 to review/, 'pending proposals count as review-ready in the attention strip');
+  assert.doesNotMatch(gate, /data-kind="reroll"/, 'goal proposals have no reroll lane');
+
+  // Preflight: kind-aware title, ONE consequence line, submit attrs carry the digest.
+  (rendered.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)('approve-goal-graph', changeDigest, { dataset: { i: '0', id: `goal-graph-intake:${changeDigest}` }, style: {} });
+  const preflight = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(preflight, /<h2>Approve goal proposal<\/h2>/);
+  assert.match(preflight, /Signs founder approval for Goal proposal · publish the approved launch note; the goal graph commits only after this signature\./);
+  assert.match(preflight, /data-gate-confirm="approve-goal-graph"/);
+  assert.match(preflight, new RegExp(`data-gate-subject="${changeDigest}"`));
+  assert.match(preflight, new RegExp(`data-gate-idempotency-key="approve-goal-graph:cambium:${changeDigest}"`));
+  assert.match(preflight, /data-gate-submit-status="idle"/);
+  assert.doesNotMatch(preflight, /class="kv|gatekv|initData status|source route|query_id=|auth_date=/);
+
+  const confirmButton = rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]');
+  confirmButton.click();
+  await flushPageAsync();
+
+  // Signed submit: POST /api/gate/{tenant} with kind + changeDigest subject + initData.
+  const posts = rendered.fetchRequests.filter((request) => request.method === 'POST');
+  assert.equal(posts.length, 1);
+  assert.equal(posts[0].url, '/api/gate/cambium');
+  const payload = JSON.parse(String(posts[0].body));
+  assert.equal(payload.kind, 'approve-goal-graph');
+  assert.equal(payload.subject, changeDigest);
+  assert.equal(payload.initData, TEST_TELEGRAM_INIT_DATA);
+
+  // Committed response: result sheet confirms the commit (not a queue receipt).
+  const resultSheet = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(resultSheet, /<h2>Goal proposal committed<\/h2>/);
+  assert.match(resultSheet, /goal graph committed · receipt in Inspect/);
+  assert.match(resultSheet, /queued action<\/b><span>gg_node_test/);
+  assert.match(resultSheet, /data-gate-result-refresh="1"/);
+});
+
 test('page · production ActionRequest projection renders message choice receipt and state-valid controls', async () => {
   const deps = {
     kv: fakeKv(),
@@ -12387,7 +12471,7 @@ function goalGraphIntakeIntent(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function goalGraphIntakeHarness(options: { gate?: GateConfig } = {}) {
+function goalGraphIntakeHarness(options: { gate?: GateConfig; pushToken?: string } = {}) {
   const db = new DatabaseSync(':memory:');
   applyNormalMigrations(db);
   const d1 = new GoalGraphBatchSqliteD1(db);
@@ -12401,6 +12485,7 @@ function goalGraphIntakeHarness(options: { gate?: GateConfig } = {}) {
     now: () => GOAL_GRAPH_INTAKE_NOW,
     uuid: () => 'goal-intake-uuid',
     ...(options.gate ? { gate: options.gate } : {}),
+    ...(options.pushToken ? { pushToken: options.pushToken } : {}),
   };
   return { db, kv, deps };
 }
@@ -12691,4 +12776,108 @@ test('goal graph approval · unknown or malformed subjects fail closed', async (
   }), deps);
   assert.equal(unknown.status, 404);
   assert.match(unknown.body, /not found/);
+});
+
+test('goal graph gate envelope · pending intake task appears as a bounded gate row', async () => {
+  const { kv, deps } = goalGraphIntakeHarness({ pushToken: 't' });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = body(intake).changeDigest;
+
+  const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+  assert.equal(listed.status, 200);
+  const actions = JSON.parse(listed.body).actions;
+  assert.equal(actions.length, 1);
+  const row = actions[0];
+  assert.equal(row.kind, 'goal-graph-intake');
+  assert.equal(row.schema, 'cambium.goal-graph-gate-row.v1');
+  assert.equal(row.status, 'pending');
+  assert.equal(row.changeDigest, changeDigest);
+  assert.equal(row.id, `goal-graph-intake:${changeDigest}`);
+  assert.match(row.title, /Goal proposal · publish the approved launch note/);
+  assert.match(row.summary, /awaiting founder signature/);
+  assert.equal(row.sourceRef, 'telegram:cambium:-100555000111:4242');
+  assert.equal(row.receivedAt, GOAL_GRAPH_INTAKE_NOW);
+  assert.match(row.consequence, /commits this Telegram goal proposal to the goal graph/);
+  assert.match(row.reversibility, /reversible until signed/);
+  assert.equal(row.idempotencyHint, changeDigest);
+
+  // Bounded projection: no intent envelope, no change set, no node body beyond
+  // the desiredState-derived title/summary, no founder identifiers.
+  const raw = JSON.stringify(row);
+  assert.equal(row.intent, undefined);
+  assert.equal(row.changeSet, undefined);
+  assert.equal(row.metadata, undefined);
+  assert.equal(row.intentVersion, undefined);
+  assert.doesNotMatch(raw, /cambium\.telegram\.goal-graph-intent\.v1/);
+  assert.doesNotMatch(raw, /expectedHeadDigest":null|"intent":|"changeSet":/);
+
+  // The task itself is untouched by the projection.
+  const task = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${changeDigest}`)!);
+  assert.equal(task.status, 'pending');
+});
+
+test('goal graph gate envelope · committed and stale tasks leave the gate list', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex), pushToken: 't' });
+  const first = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const firstDigest = body(first).changeDigest;
+  const second = await postGoalGraphIntake('bridge', goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4343' },
+  }), deps);
+  const secondDigest = body(second).changeDigest;
+
+  const listRows = async () => {
+    const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+    return JSON.parse(listed.body).actions.filter((row: { kind: string }) => row.kind === 'goal-graph-intake');
+  };
+  assert.equal((await listRows()).length, 2, 'both pending proposals are listed');
+
+  const winner = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: secondDigest, initData }),
+  }), deps);
+  assert.equal(winner.status, 200);
+  assert.deepEqual((await listRows()).map((row: { changeDigest: string }) => row.changeDigest), [firstDigest],
+    'the committed proposal leaves the envelope');
+
+  const stale = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: firstDigest, initData }),
+  }), deps);
+  assert.equal(stale.status, 409);
+  assert.equal((await listRows()).length, 0, 'the stale proposal leaves the envelope');
+  assert.equal(JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${firstDigest}`)!).status, 'stale');
+});
+
+test('goal graph gate envelope · no intake tasks keeps the existing envelope shape', async () => {
+  const { deps } = goalGraphIntakeHarness({ pushToken: 't' });
+  const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+  assert.equal(listed.status, 200);
+  const parsed = JSON.parse(listed.body);
+  assert.equal(parsed.tenant, 'cambium');
+  assert.deepEqual(parsed.actions, []);
+});
+
+test('goal graph gate envelope · founder quests body carries pending proposals and never leaks raw payloads', async () => {
+  const { deps } = goalGraphIntakeHarness({ pushToken: 't' });
+  const pushed = await handle(req('POST', '/internal/ledger/cambium', {
+    headers: { authorization: 'Bearer t' },
+    body: ENVELOPE,
+  }), deps);
+  assert.equal(pushed.status, 200);
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = body(intake).changeDigest;
+
+  const quests = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(quests.status, 200);
+  const parsed = JSON.parse(quests.body);
+  assert.equal(parsed.goalGraphIntake.schema, 'cambium.goal-graph-gate-row-list.v1');
+  assert.equal(parsed.goalGraphIntake.count, 1);
+  const row = parsed.goalGraphIntake.rows[0];
+  assert.equal(row.kind, 'goal-graph-intake');
+  assert.equal(row.changeDigest, changeDigest);
+  assert.match(row.title, /Goal proposal · publish the approved launch note/);
+  assert.equal(row.intent, undefined);
+  assert.equal(row.changeSet, undefined);
+  assert.doesNotMatch(quests.body, /cambium\.telegram\.goal-graph-intent\.v1/);
 });

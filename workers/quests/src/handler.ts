@@ -2309,12 +2309,24 @@ function sanitizeQuestEnvelope(envelope: any): any {
 async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Promise<string> {
   try {
     const envelope = sanitizeQuestEnvelope(JSON.parse(stored));
+    const merged: Record<string, unknown> = { ...envelope };
     const actionRequests = await listActionRequestRecords(kv, { tenantId, limit: 50 });
-    if (actionRequests.status !== 200 || Number(actionRequests.body.count) < 1) return JSON.stringify(envelope);
-    return JSON.stringify({
-      ...envelope,
-      actionRequests: actionRequests.body,
-    });
+    if (actionRequests.status === 200 && Number(actionRequests.body.count) >= 1) {
+      merged.actionRequests = actionRequests.body;
+    }
+    // Pending Telegram goal-graph proposals are founder decisions too: project
+    // them into the same envelope the gate scene renders (bounded rows only).
+    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId);
+    if (goalGraphRows.length >= 1) {
+      merged.goalGraphIntake = {
+        schema: GOAL_GRAPH_GATE_ROW_LIST_SCHEMA,
+        ok: true,
+        tenantId,
+        count: goalGraphRows.length,
+        rows: goalGraphRows,
+      };
+    }
+    return JSON.stringify(merged);
   } catch {
     return stored;
   }
@@ -2743,6 +2755,60 @@ function goalGraphIntakeTaskReceipt(task: Record<string, unknown>, duplicate: bo
       receivedAt: task.receivedAt,
     },
   };
+}
+
+// ── Gate-row projection of pending intake tasks ─────────────────────────────
+// One bounded, render-ready row per PENDING proposal. The projection never
+// echoes the intent envelope, the change set, metadata, or founder identity:
+// only the digests, a bounded desiredState-derived title/summary, the source
+// ref, and consequence/reversibility strings in the house gate-row style.
+
+const GOAL_GRAPH_GATE_ROW_SCHEMA = 'cambium.goal-graph-gate-row.v1';
+const GOAL_GRAPH_GATE_ROW_LIST_SCHEMA = 'cambium.goal-graph-gate-row-list.v1';
+const GOAL_GRAPH_GATE_ROW_LIMIT = 25;
+
+function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, unknown> | null {
+  const tenantId = shortText(task.tenantId, '', 160);
+  const changeDigest = shortText(task.changeDigest, '', 160);
+  if (!tenantId || !/^(?:sha256:)?[a-f0-9]{64}$/.test(changeDigest)) return null;
+  const node = isRecord(task.node) ? task.node : {};
+  const desiredState = shortText(node.desiredState, 'Telegram goal proposal', 120);
+  const receivedAt = shortText(task.receivedAt, shortText(task.updatedAt, 'receivedAt not served', 64), 64);
+  const nodeId = shortText(task.nodeId, 'node id not served', 160);
+  return {
+    schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
+    kind: 'goal-graph-intake',
+    id: `goal-graph-intake:${changeDigest}`,
+    tenantId,
+    status: 'pending',
+    changeDigest,
+    nodeId,
+    title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
+    summary: shortText(`Telegram goal proposal awaiting founder signature: ${desiredState}`, 'Telegram goal proposal awaiting founder signature', 240),
+    source: 'telegram-goal-graph-intake@v1',
+    sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
+    evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
+    consequence: 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
+    idempotencyHint: changeDigest,
+    graphVersion: Number.isInteger(task.graphVersion) ? task.graphVersion : null,
+    receivedAt,
+    updatedAt: receivedAt,
+  };
+}
+
+async function listGoalGraphIntakeGateRows(kv: KvLike, tenantId: string): Promise<Array<Record<string, unknown>>> {
+  const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
+  const rows: Array<Record<string, unknown>> = [];
+  for (const key of keys) {
+    const task = parseJsonObject(await kv.get(key));
+    if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA) continue;
+    if (task.tenantId !== tenantId || task.status !== 'pending') continue;
+    const row = goalGraphIntakeGateRow(task);
+    if (row) rows.push(row);
+  }
+  rows.sort((a, b) => String(b.receivedAt).localeCompare(String(a.receivedAt)));
+  return rows.slice(0, GOAL_GRAPH_GATE_ROW_LIMIT);
 }
 
 async function intakeTelegramGoalGraphRoute(
@@ -4186,6 +4252,9 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const actionRequests = await listActionRequestRecords(deps.kv, { tenantId: tenant, status: 'queued', limit: 100 });
     const rows = Array.isArray(actionRequests.body.rows) ? actionRequests.body.rows : [];
     actions.push(...rows.map((row) => ({ ...row, kind: 'action-request' })));
+    // Pending Telegram goal-graph proposals ride the same envelope as bounded
+    // gate rows so the founder (and the operator poller) sees one decision list.
+    actions.push(...await listGoalGraphIntakeGateRows(deps.kv, tenant));
     return json(200, { tenant, actions });
   }
 
