@@ -1551,6 +1551,73 @@ test('provider broker · authHeader x-api-key sets the key there and NOT in auth
   assert.equal(sent['anthropic-version'], '2023-06-01');
 });
 
+test('provider broker · forwardHeaders passes protocol headers but never a credential', async () => {
+  const calls: Array<{ url: string; init: RequestInit }> = [];
+  const fakeFetch: typeof fetch = async (url, init = {}) => {
+    calls.push({ url: String(url), init });
+    return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  const r = await handle(req('POST', '/v1/providers/command-code/alpha/generate', {
+    headers: {
+      authorization: 'Bearer broker',
+      'content-type': 'application/json',
+      'x-command-code-version': '0.33.2',
+      'x-session-id': 'sess-abc',
+      'x-project-slug': 'pi-cc',
+      cookie: 'session=should-not-travel',
+      'x-not-allowlisted': 'nope',
+    },
+    body: JSON.stringify({ model: 'deepseek/deepseek-v4-flash', messages: [], system: '' }),
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: {
+        'command-code': {
+          baseUrl: 'https://api.commandcode.ai',
+          apiKey: 'secret-cc-key',
+          // authorization/cookie are refused by the guard even though listed here.
+          forwardHeaders: ['x-command-code-version', 'x-session-id', 'x-project-slug', 'authorization', 'cookie'],
+        },
+      },
+    },
+  });
+  assert.equal(r.status, 200);
+  assert.equal(calls[0].url, 'https://api.commandcode.ai/alpha/generate');
+  const sent = calls[0].init.headers as Record<string, string>;
+  // Protocol headers Command Code rejects requests without.
+  assert.equal(sent['x-command-code-version'], '0.33.2');
+  assert.equal(sent['x-session-id'], 'sess-abc');
+  assert.equal(sent['x-project-slug'], 'pi-cc');
+  // The upstream gets the REAL key, never the caller's broker credential — even
+  // though 'authorization' was (wrongly) present in forwardHeaders.
+  assert.equal(sent.authorization, 'Bearer secret-cc-key');
+  assert.equal(sent.cookie, undefined);
+  // Anything not allowlisted stays out.
+  assert.equal(sent['x-not-allowlisted'], undefined);
+});
+
+test('provider broker · a provider without forwardHeaders forwards no x- headers', async () => {
+  const calls: Array<{ init: RequestInit }> = [];
+  const fakeFetch: typeof fetch = async (_u, init = {}) => {
+    calls.push({ init });
+    return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  await handle(req('POST', '/v1/providers/nebius/chat/completions', {
+    headers: { authorization: 'Bearer broker', 'content-type': 'application/json', 'x-session-id': 'leak-me' },
+    body: '{}',
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: { nebius: { baseUrl: 'https://api.tokenfactory.nebius.com/v1', apiKey: 'k' } },
+    },
+  });
+  assert.equal((calls[0].init.headers as Record<string, string>)['x-session-id'], undefined);
+});
+
 test('provider broker · health without probe reports config only; ?probe=1 probes upstream', async () => {
   let probes = 0;
   const fakeFetch: typeof fetch = async (url) => {

@@ -437,6 +437,12 @@ export interface ProviderConfig {
   // Header the upstream expects the key in. Anthropic-shaped providers (kimi-coding)
   // want `x-api-key`, not `authorization`. Defaults to authorization + Bearer.
   authHeader?: string;
+  // Non-credential protocol headers this upstream requires, forwarded verbatim from
+  // the caller. An explicit per-provider allowlist rather than a blanket copy: the
+  // caller's own broker credential must never reach the upstream, and a wildcard
+  // would eventually forward one. Command Code rejects requests without its
+  // version/session headers, so for that provider these are load-bearing.
+  forwardHeaders?: string[];
 }
 
 export interface ProviderBrokerConfig {
@@ -4011,6 +4017,16 @@ async function providerFetch(
   // Client-supplied protocol headers the upstream needs but that carry no credential.
   const anthropicVersion = req.headers['anthropic-version'];
   if (anthropicVersion) headers['anthropic-version'] = anthropicVersion;
+
+  // Per-provider allowlist. Anything that could carry a credential is refused
+  // outright rather than trusted to the config — the caller's broker token lives
+  // in `authorization`, and forwarding it upstream would leak it to the vendor.
+  for (const name of provider.forwardHeaders ?? []) {
+    const key = name.toLowerCase();
+    if (key === 'authorization' || key === 'cookie' || key === 'x-api-key') continue;
+    const value = req.headers[key];
+    if (value) headers[key] = value;
+  }
 
   if (req.method === 'POST') {
     headers['content-type'] = req.headers['content-type'] ?? 'application/json';
