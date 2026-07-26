@@ -238,7 +238,30 @@ export function buildCommandCodeBody(model: string, body: unknown): JsonRecord {
     const v = (input as JsonRecord)[field];
     if (v !== undefined && v !== null) params[field] = v;
   }
-  return params;
+
+  // The generation request is an ENVELOPE with `params` nested inside, not the
+  // params alone. config/memory/taste/skills/permissionMode are all required —
+  // omitting them returns 400 "expected string, received undefined at \"memory\"".
+  // These are the CLI's ambient context fields; the broker has no working
+  // directory or git repo, so they are sent empty rather than fabricated.
+  return {
+    config: {
+      workingDir: '/workspace',
+      date: new Date().toISOString().slice(0, 10),
+      environment: 'external',
+      structure: [],
+      isGitRepo: false,
+      currentBranch: '',
+      mainBranch: '',
+      gitStatus: '',
+      recentCommits: [],
+    },
+    memory: '',
+    taste: '',
+    skills: '',
+    permissionMode: 'standard',
+    params,
+  };
 }
 
 // ── response translation ────────────────────────────────────────────────────

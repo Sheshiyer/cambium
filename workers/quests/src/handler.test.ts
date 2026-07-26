@@ -1669,7 +1669,11 @@ test('provider broker · command-code lane translates both directions end to end
   assert.equal(sent!.headers.authorization, 'Bearer secret-cc-key');
   assert.equal(sent!.headers['x-command-code-version'], '0.33.2');
   assert.ok(sent!.headers['x-session-id']);
-  const body = sent!.body as Record<string, unknown>;
+  const envelope = sent!.body as Record<string, any>;
+  // Envelope required by the endpoint; params carries the generation request.
+  assert.equal(envelope.memory, '');
+  assert.equal(envelope.permissionMode, 'standard');
+  const body = envelope.params;
   assert.equal(body.system, 'be terse');            // hoisted out of messages
   assert.equal(body.stream, true);                  // forced, despite stream:false
   assert.equal(body.model, 'deepseek/deepseek-v4-flash'); // command-code/ prefix stripped

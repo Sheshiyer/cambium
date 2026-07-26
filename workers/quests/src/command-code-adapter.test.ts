@@ -45,14 +45,29 @@ const chunks = (sse: string) =>
 
 // ── request translation ─────────────────────────────────────────────────────
 
+test('command-code · request is an ENVELOPE with params nested, not bare params', () => {
+  // Omitting the envelope returns 400 "expected string, received undefined at
+  // \"memory\"" — the failure that the unit tests alone did not catch.
+  const env = buildCommandCodeBody('m', { messages: [{ role: 'user', content: 'hi' }] }) as any;
+  assert.deepEqual(Object.keys(env).sort(), ['config', 'memory', 'params', 'permissionMode', 'skills', 'taste']);
+  assert.equal(env.memory, '');
+  assert.equal(env.taste, '');
+  assert.equal(env.skills, '');
+  assert.equal(env.permissionMode, 'standard');
+  assert.equal(env.config.environment, 'external');
+  assert.equal(env.config.isGitRepo, false);
+  assert.match(env.config.date, /^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(env.params, 'the generation params belong under params');
+});
+
 test('command-code · hoists system messages out of the message list', () => {
-  const body = buildCommandCodeBody('m', {
+  const body = (buildCommandCodeBody('m', {
     messages: [
       { role: 'system', content: 'be terse' },
       { role: 'developer', content: 'and precise' },
       { role: 'user', content: 'hi' },
     ],
-  });
+  }) as any).params;
   assert.equal(body.system, 'be terse\n\nand precise');
   assert.deepEqual(body.messages, [{ role: 'user', content: 'hi' }]);
 });
@@ -60,7 +75,7 @@ test('command-code · hoists system messages out of the message list', () => {
 test('command-code · always forces stream:true even when the caller did not ask', () => {
   // The endpoint has no non-streaming mode; a non-streaming caller is served by
   // draining the stream on our side, not by asking Command Code not to stream.
-  assert.equal(buildCommandCodeBody('m', { messages: [], stream: false }).stream, true);
+  assert.equal((buildCommandCodeBody('m', { messages: [], stream: false }) as any).params.stream, true);
 });
 
 test('command-code · omits max_tokens rather than defaulting it', () => {
@@ -70,8 +85,8 @@ test('command-code · omits max_tokens rather than defaulting it', () => {
   assert.equal(clampMaxTokens(0), undefined);
   assert.equal(clampMaxTokens(10.7), 10);
   assert.equal(clampMaxTokens(999_999), 200_000);
-  assert.equal('max_tokens' in buildCommandCodeBody('m', { messages: [], max_tokens: -1 }), false);
-  assert.equal(buildCommandCodeBody('m', { messages: [], max_completion_tokens: 64 }).max_tokens, 64);
+  assert.equal('max_tokens' in (buildCommandCodeBody('m', { messages: [], max_tokens: -1 }) as any).params, false);
+  assert.equal((buildCommandCodeBody('m', { messages: [], max_completion_tokens: 64 }) as any).params.max_tokens, 64);
 });
 
 test('command-code · drops tool calls and results that are not paired', () => {
@@ -122,7 +137,7 @@ test('command-code · images survive only for vision models, never empty content
 
 test('command-code · strips a command-code/ model prefix a router may add', () => {
   // The broker strips it before calling this, but the body must carry the bare id.
-  assert.equal(buildCommandCodeBody('deepseek/deepseek-v4-flash', { messages: [] }).model, 'deepseek/deepseek-v4-flash');
+  assert.equal((buildCommandCodeBody('deepseek/deepseek-v4-flash', { messages: [] }) as any).params.model, 'deepseek/deepseek-v4-flash');
 });
 
 // ── response translation ────────────────────────────────────────────────────
