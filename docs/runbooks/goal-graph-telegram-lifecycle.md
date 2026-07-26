@@ -2,8 +2,9 @@
 
 Status: live. The intake route, founder approval bridge, gate surfacing, and D1
 CAS commit are shipped and deployed (Worker version `ec7f080d`, 100% traffic on
-`https://curious.thoughtseed.space`; intake + bridge commit `190284e`, gate UI
-commit `74fd709`). Live end-to-end proof exists; see Evidence.
+the production custom domain per `workers/quests/DEPLOY.md`; intake + bridge
+commit `190284e`, gate UI commit `74fd709`). Live end-to-end proof exists; see
+Evidence.
 
 Runtime sources: `workers/quests/src/goal-graph-intake.ts` (pure parser),
 `workers/quests/src/handler.ts` (intake route, gate-row projection,
