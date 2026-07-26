@@ -8,12 +8,15 @@ The first slice is intentionally pure and reviewable: `goal-graph/types.ts`,
 `identity.ts`, and `compiler.ts` define deterministic node identity, singleton
 roots, stale-head detection, no-op replay, change-set digests, and migration
 classification. `projection-contract.ts` defines the versioned read envelope
-and authority rejection boundary. The next slice adds an approval-bound,
-transactional D1 CAS store (`goal-graph-store.ts`) and a total, bounded,
-canonical Telegram intent parser (`goal-graph-intake.ts`). The migration now
-includes immutable approval witnesses. These contracts are still not wired to
-Worker routes, Telegram delivery, or the BranchStoryArc renderer; that edge
-integration is deliberately deferred until route and receipt tests exist.
+and authority rejection boundary. The approval-bound, transactional D1 CAS
+store (`goal-graph-store.ts`) and the total, bounded, canonical Telegram
+intent parser (`goal-graph-intake.ts`) sit on top, and the migration includes
+immutable approval witnesses. The Telegram edge is now wired and live:
+`POST /v1/bridge/goal-graph-intake` stores a bounded pending proposal in KV,
+the founder-signed `approve-goal-graph` gate kind commits it through the CAS
+store, and `GET /v1/branch-map/{tenant}` serves the authenticated readback.
+The operator lifecycle is
+[`docs/runbooks/goal-graph-telegram-lifecycle.md`](../runbooks/goal-graph-telegram-lifecycle.md).
 
 ## Authority and boundaries
 

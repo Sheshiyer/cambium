@@ -118,6 +118,9 @@ write/action control from this projection.
 The authenticated Worker endpoint is `GET /v1/branch-map/{tenant}` with the
 signed Telegram init data in `X-Telegram-Init-Data`. It returns the versioned
 projection, bounded sheet, and a proof object binding graph, projection, sheet,
-and authenticated-read digests. The existing `branchStories` surface remains
+and authenticated-read digests. The operator procedure (auth checks, failure
+states, redaction) lives in
+[`docs/runbooks/telegram-operator-surface.md`](../runbooks/telegram-operator-surface.md).
+The existing `branchStories` surface remains
 useful for missions, KPIs, gates, and proof paths. The traversal map sits beside
 it: stories describe intent; receipts show what a branch actually traversed.

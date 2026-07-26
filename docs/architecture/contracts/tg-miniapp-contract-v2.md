@@ -57,7 +57,7 @@ flow.
 
 ```json
 {
-  "kind": "approve | reroll | promote-skill | queue-side-quest | confirm-action-request | approve-marketing-render",
+  "kind": "approve | reroll | promote-skill | queue-side-quest | confirm-action-request | approve-marketing-render | approve-goal-graph",
   "subject": "<short text, ≤160 chars>",
   "initData": "<live Telegram.WebApp.initData string>",
   "idempotencyKey": "<opaque key, ≤240 chars; defaults to `${kind}:${subject}`>",
@@ -81,6 +81,13 @@ flow.
 - `approve-marketing-render` is fixed to tenant `thoughtseed`; its body is
   field-restricted to `{kind, requestId, subject, initData}` and writes no gate
   KV entry (it approves a prepared render record instead).
+- `approve-goal-graph` (added after the v2 freeze, with the shipped Phase-5
+  lane) is keyed by `subject` = the intake change digest; it writes no gate KV
+  entry and instead CAS-commits the pending KV proposal to the D1 goal graph.
+  Replay returns `200` with `duplicate: true, replayed: true`; a stale head
+  returns `409 goal_graph_stale_head` with no write. The full contract is the
+  [Telegram Goal Graph intake lifecycle](../../runbooks/goal-graph-telegram-lifecycle.md)
+  runbook.
 
 ### 2.2 Success response (`200`)
 
@@ -108,7 +115,7 @@ KV write.
 | `400` | bad tenant, non-JSON body, unsupported kind, missing subject/id |
 | `401` | missing, stale, malformed, or wrongly-signed `initData`; non-founder user (fail-closed, reason string redacted) |
 | `403` | kind tenant restriction (e.g. marketing renderer off-tenant) |
-| `404` | keyed record not found (`approve-marketing-render`) |
+| `404` | keyed record not found (`approve-marketing-render`, `approve-goal-graph`) |
 | `409` | keyed record conflict |
 | `503` | gate/auth/store not configured |
 

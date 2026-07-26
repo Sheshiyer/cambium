@@ -77,6 +77,17 @@ the redesign shipped read/act surfaces only, intake wiring was not pulled forwar
 2. One live end-to-end proof with replay-safety evidence (no duplicate directive/artifact).
 3. Branch-map route and Phase-2 operator commands promoted into `docs/runbooks/` per `docs/LIFECYCLE.md`; `docs/adapters/telegram.md` updated (currently predates Phase 2).
 
+### Phase 5 — CLOSED 2026-07-27
+All three criteria met. Intake route + approval bridge shipped in `190284e`, gate-envelope
+and Mini App Gate tab surfacing in `74fd709`; production Worker `ec7f080d` at 100% on
+`https://curious.thoughtseed.space`. Live proof 2026-07-26: changeDigest
+`394556383a1e31a0…` → founder-signed `approve-goal-graph` → D1 head `846400e1fa237048…`
+graphVersion 1, replay-safe (`.artifacts/tg-miniapp-live-proof/t041-*.json`, local).
+Docs close-out (issue #269 / T-042): `docs/runbooks/goal-graph-telegram-lifecycle.md`
+flipped to live, `docs/adapters/telegram.md` gained the intake contract, branch-map
+route + Phase-2 operator commands promoted into
+`docs/runbooks/telegram-operator-surface.md`; ISA ISC-238..240 closed with evidence.
+
 ### Phase 6: Operator Health/Heartbeat Digest
 **Goal:** The founder receives one bounded operator digest on a schedule — the first proactive surface.
 **Depends on:** Phase 4 (needs deployed route state); can overlap Phase 5.
