@@ -12339,3 +12339,356 @@ test('page · T-026 Mission KPI row uses the shared KpiPulse metric card', async
   assert.doesNotMatch(html, /mc-kpi-pulse/);
   assert.match(PAGE, /\.mc-kpi-row\{display:grid;grid-template-columns:auto minmax\(0,1fr\) auto/);
 });
+
+// ── T-039/T-040 · Telegram Goal Graph intake → founder approval → D1 commit ──
+
+import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
+import {
+  canonicalizeGoalGraphApproval,
+  d1GoalGraphStore,
+  goalGraphApprovalDigest,
+} from './goal-graph-store.ts';
+import type { GoalGraphD1DatabaseLike, GoalGraphD1StatementLike } from './goal-graph-store.ts';
+import { d1BranchMapReceiptStore } from './branch-map-receipt-store.ts';
+
+/** SqliteD1Database (above) has no batch; the Goal Graph authority fails closed without one. */
+class GoalGraphBatchSqliteD1 implements GoalGraphD1DatabaseLike {
+  private readonly db: DatabaseSync;
+  constructor(db: DatabaseSync) {
+    this.db = db;
+  }
+  prepare(sql: string): GoalGraphD1StatementLike {
+    return new SqliteD1Statement(this.db.prepare(sql));
+  }
+  async batch(statements: GoalGraphD1StatementLike[]): Promise<unknown[]> {
+    this.db.exec('BEGIN');
+    try {
+      const results: unknown[] = [];
+      for (const statement of statements) results.push(await statement.run());
+      this.db.exec('COMMIT');
+      return results;
+    } catch (error) {
+      this.db.exec('ROLLBACK');
+      throw error;
+    }
+  }
+}
+
+const GOAL_GRAPH_INTAKE_NOW = '2026-07-24T00:00:00.000Z';
+
+function goalGraphIntakeIntent(overrides: Record<string, unknown> = {}) {
+  return {
+    schema: 'cambium.telegram.goal-graph-intent.v1',
+    version: 1,
+    tenantId: 'cambium',
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4242', updateId: '90001' },
+    goal: { desiredState: 'publish the approved launch note' },
+    ...overrides,
+  };
+}
+
+function goalGraphIntakeHarness(options: { gate?: GateConfig } = {}) {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const d1 = new GoalGraphBatchSqliteD1(db);
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    assignmentToken: 'assign-only',
+    goalGraphStore: d1GoalGraphStore(d1),
+    branchMapReceiptStore: d1BranchMapReceiptStore(d1),
+    now: () => GOAL_GRAPH_INTAKE_NOW,
+    uuid: () => 'goal-intake-uuid',
+    ...(options.gate ? { gate: options.gate } : {}),
+  };
+  return { db, kv, deps };
+}
+
+/** Deterministic re-parse matching the route's empty-store compile context. */
+function pinnedGoalGraphIntake(intent: unknown) {
+  const parsed = parseTelegramGoalGraphIntent(intent, { now: GOAL_GRAPH_INTAKE_NOW });
+  assert.equal(parsed.accepted, true);
+  if (!parsed.accepted) throw new Error('fixture intent must parse');
+  assert.equal(parsed.compile.status, 'compiled');
+  if (parsed.compile.status !== 'compiled') throw new Error('fixture intent must compile');
+  return parsed;
+}
+
+function postGoalGraphIntake(credential: string | null, payload: unknown, deps: Parameters<typeof handle>[1]) {
+  return handle(req('POST', '/v1/bridge/goal-graph-intake', {
+    ...(credential ? { headers: { authorization: `Bearer ${credential}` } } : {}),
+    body: typeof payload === 'string' ? payload : JSON.stringify(payload),
+  }), deps);
+}
+
+test('goal graph intake · bridge auth is enforced (401 no credential, 403 member-scoped)', async () => {
+  const { kv, deps } = goalGraphIntakeHarness();
+  const anonymous = await postGoalGraphIntake(null, goalGraphIntakeIntent(), deps);
+  assert.equal(anonymous.status, 401);
+
+  const memberToken = 'member-token-goal-intake';
+  const tokenHash = createHash('sha256').update(memberToken).digest('hex');
+  kv.store.set(`memtok:${tokenHash}`, 'shesh');
+  kv.store.set('member:shesh', JSON.stringify({ status: 'active', tokenHash, tokenExp: Date.now() + 3_600_000 }));
+  const memberScoped = await postGoalGraphIntake(memberToken, goalGraphIntakeIntent(), deps);
+  assert.equal(memberScoped.status, 403);
+
+  const hermes = await postGoalGraphIntake('assign-only', goalGraphIntakeIntent(), deps);
+  assert.equal(hermes.status, 200);
+  assert.equal(body(hermes).accepted, true);
+});
+
+test('goal graph intake · non-JSON body is a clean 400', async () => {
+  const { deps } = goalGraphIntakeHarness();
+  const r = await postGoalGraphIntake('bridge', 'this is not json', deps);
+  assert.equal(r.status, 400);
+  assert.match(r.body, /not JSON/);
+});
+
+test('goal graph intake · acceptance persists one bounded PENDING task and writes no graph', async () => {
+  const { kv, deps } = goalGraphIntakeHarness();
+  const intent = goalGraphIntakeIntent();
+  const expected = pinnedGoalGraphIntake(intent);
+  const r = await postGoalGraphIntake('bridge', intent, deps);
+  assert.equal(r.status, 200);
+  const receipt = body(r);
+  assert.equal(receipt.ok, true);
+  assert.equal(receipt.accepted, true);
+  assert.equal(receipt.duplicate, false);
+  assert.equal(receipt.status, 'pending');
+  assert.equal(receipt.schema, 'cambium.goal-graph-intake-task.v1');
+  assert.equal(receipt.tenantId, 'cambium');
+  assert.equal(receipt.idempotencyKey, expected.idempotencyKey);
+  assert.equal(receipt.changeDigest, expected.compile.changeSet.changeDigest);
+  assert.equal(receipt.contentDigest, expected.contentDigest);
+  assert.equal(receipt.sourceRef, expected.sourceRef);
+  assert.equal(receipt.sourceDigest, expected.contentDigest);
+  assert.equal(receipt.nodeId, expected.node.nodeId);
+  assert.equal(receipt.graphVersion, 1);
+  assert.equal(receipt.expectedHeadDigest, null);
+
+  const taskKeys = [...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:cambium:'));
+  assert.equal(taskKeys.length, 1);
+  const task = JSON.parse(kv.store.get(taskKeys[0])!);
+  assert.equal(task.status, 'pending');
+  assert.equal(task.changeSet.changeDigest, expected.compile.changeSet.changeDigest);
+  const idemKeys = [...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:telegram:goal-graph-intent:v1:cambium:'));
+  assert.equal(idemKeys.length, 1);
+
+  // Nothing reaches the D1 authority before founder approval.
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+});
+
+test('goal graph intake · Telegram redelivery collapses to the original task receipt', async () => {
+  const { kv, deps } = goalGraphIntakeHarness();
+  const intent = goalGraphIntakeIntent();
+  const first = await postGoalGraphIntake('bridge', intent, deps);
+  assert.equal(first.status, 200);
+  assert.equal(body(first).duplicate, false);
+
+  const redelivered = await postGoalGraphIntake('bridge', JSON.parse(JSON.stringify(intent)), deps);
+  assert.equal(redelivered.status, 200);
+  assert.equal(body(redelivered).duplicate, true);
+  assert.equal(body(redelivered).changeDigest, body(first).changeDigest);
+  assert.equal(body(redelivered).idempotencyKey, body(first).idempotencyKey);
+  assert.equal(body(redelivered).status, 'pending');
+
+  // A replay never writes twice: one task, one idempotency record, no graph write.
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+});
+
+test('goal graph intake · rejection persists a bounded receipt with no payload echo', async () => {
+  const { kv, deps } = goalGraphIntakeHarness();
+  const intent = goalGraphIntakeIntent({
+    goal: { desiredState: 'x', metadata: { provider: 'sensitive-provider-marker' } },
+  });
+  const r = await postGoalGraphIntake('bridge', intent, deps);
+  assert.equal(r.status, 200);
+  const receipt = body(r);
+  assert.equal(receipt.ok, false);
+  assert.equal(receipt.accepted, false);
+  assert.equal(receipt.rejected, true);
+  assert.equal(receipt.code, 'forbidden_key');
+  assert.ok(receipt.errors.length <= 8);
+
+  const keys = [...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-rejection:cambium:'));
+  assert.equal(keys.length, 1);
+  const stored = kv.store.get(keys[0])!;
+  assert.equal(JSON.parse(stored).schema, 'cambium.goal-graph-intake-rejection.v1');
+  assert.ok(JSON.parse(stored).errors.length <= 8);
+  assert.doesNotMatch(stored, /sensitive-provider-marker/);
+  assert.doesNotMatch(r.body, /sensitive-provider-marker/);
+
+  // A completely shapeless payload is still data, scoped to the unknown tenant.
+  const garbage = await postGoalGraphIntake('bridge', [1, 2, 3], deps);
+  assert.equal(garbage.status, 200);
+  assert.equal(body(garbage).accepted, false);
+  assert.equal(body(garbage).code, 'malformed_input');
+  assert.equal(body(garbage).tenantId, 'unknown');
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-rejection:unknown:')).length, 1);
+});
+
+test('goal graph approval · founder signature commits the pending proposal; branch map reads it back', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const intent = goalGraphIntakeIntent();
+  const expected = pinnedGoalGraphIntake(intent);
+  const intake = await postGoalGraphIntake('bridge', intent, deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = body(intake).changeDigest;
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'approval is required before any commit');
+
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  const decision = body(approved);
+  assert.equal(decision.ok, true);
+  assert.equal(decision.duplicate, false);
+  assert.equal(decision.replayed, false);
+  assert.equal(decision.committed, true);
+  assert.equal(decision.kind, 'approve-goal-graph');
+  assert.equal(decision.changeDigest, changeDigest);
+  assert.equal(decision.nodeId, expected.node.nodeId);
+  assert.equal(decision.sourceRef, expected.sourceRef);
+  assert.equal(decision.readback, '/v1/branch-map/cambium');
+  assert.match(decision.headDigest, /^[a-f0-9]{64}$/);
+  assert.match(decision.approvalDigest, /^[a-f0-9]{64}$/);
+  assert.doesNotMatch(approved.body, new RegExp(TEST_FOUNDER_A), 'response never echoes the founder id');
+  assert.doesNotMatch(approved.body, /initData|query_id|auth_date/);
+
+  const head = await deps.goalGraphStore.readHead('cambium');
+  assert.equal(head?.graphDigest, decision.headDigest);
+  assert.deepEqual(head?.nodeIds, [expected.node.nodeId]);
+  assert.equal(head?.sourceRef, expected.sourceRef);
+
+  // Receipt readback through the existing branch-map projection route.
+  const map = await handle(req('GET', '/v1/branch-map/cambium', {
+    headers: { 'x-telegram-init-data': initData },
+  }), deps);
+  assert.equal(map.status, 200);
+  const projection = body(map).projection;
+  assert.equal(projection.graphDigest, decision.headDigest);
+  const projected = projection.nodes.find((node: { nodeId: string }) => node.nodeId === expected.node.nodeId);
+  assert.ok(projected, 'committed telegram node is readable through the branch map');
+  assert.equal(projected.sourceRef, expected.sourceRef);
+  assert.equal(projected.desiredState, 'publish the approved launch note');
+});
+
+test('goal graph approval · stale head produces no write and an explicit result', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const first = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const firstDigest = body(first).changeDigest;
+  // A second, distinct Telegram message also pins the (empty) bootstrap head.
+  const second = await postGoalGraphIntake('bridge', goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4343' },
+  }), deps);
+  const secondDigest = body(second).changeDigest;
+  assert.notEqual(firstDigest, secondDigest);
+
+  const approve = (subject: string) => handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject, initData }),
+  }), deps);
+  const winner = await approve(secondDigest);
+  assert.equal(winner.status, 200);
+  const head = await deps.goalGraphStore.readHead('cambium');
+  assert.ok(head);
+
+  const stale = await approve(firstDigest);
+  assert.equal(stale.status, 409);
+  assert.equal(body(stale).error, 'goal_graph_stale_head');
+  assert.equal(body(stale).status, 'stale');
+  assert.equal(body(stale).expectedHeadDigest, null);
+  assert.equal(body(stale).actualHeadDigest, head!.graphDigest);
+
+  // The CAS lost: the head is still exactly the winner's revision, no write happened.
+  const after = await deps.goalGraphStore.readHead('cambium');
+  assert.deepEqual(after, head);
+  const task = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${firstDigest}`)!);
+  assert.equal(task.status, 'stale');
+  assert.equal(task.observedHeadDigest, head!.graphDigest);
+});
+
+test('goal graph approval · replay of the same approval nonce is a no-op with evidence', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const changeDigest = body(intake).changeDigest;
+  const approve = () => handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+
+  const first = await approve();
+  assert.equal(first.status, 200);
+  assert.equal(body(first).duplicate, false);
+  const head = await deps.goalGraphStore.readHead('cambium');
+
+  const replay = await approve();
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).duplicate, true);
+  assert.equal(body(replay).replayed, true);
+  assert.equal(body(replay).headDigest, head?.graphDigest);
+  assert.equal(body(replay).approvalNonce, body(first).approvalNonce);
+  assert.equal(body(replay).approvalDigest, body(first).approvalDigest);
+  assert.equal(body(replay).readback, '/v1/branch-map/cambium');
+
+  // The graph is untouched: same head, same single node, same single task.
+  const after = await deps.goalGraphStore.readHead('cambium');
+  assert.deepEqual(after, head);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
+
+  // The D1 authority itself also dedupes a replayed commit via its event marker.
+  const expected = pinnedGoalGraphIntake(goalGraphIntakeIntent());
+  const approvalCore = {
+    tenantId: 'cambium',
+    changeDigest,
+    intentVersion: 1,
+    approverId: TEST_FOUNDER_A,
+    expiresAt: '2026-07-24T01:00:00.000Z',
+    nonce: `goal-graph-approval:cambium:${changeDigest}`,
+  };
+  const replayedCommit = await deps.goalGraphStore.commit({
+    tenantId: 'cambium',
+    changeSet: expected.compile.changeSet,
+    approval: {
+      ...approvalCore,
+      decision: 'approved',
+      canonical: canonicalizeGoalGraphApproval(approvalCore),
+      approvalDigest: goalGraphApprovalDigest(approvalCore),
+    },
+    now: GOAL_GRAPH_INTAKE_NOW,
+  });
+  assert.equal(replayedCommit.status, 'duplicate');
+  assert.equal(replayedCommit.replayed, true);
+});
+
+test('goal graph approval · unknown or malformed subjects fail closed', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+
+  const unsigned = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: 'f'.repeat(64) }),
+  }), deps);
+  assert.equal(unsigned.status, 401);
+
+  const missing = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', initData }),
+  }), deps);
+  assert.equal(missing.status, 400);
+
+  const malformed = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: 'not-a-digest', initData }),
+  }), deps);
+  assert.equal(malformed.status, 400);
+  assert.match(malformed.body, /changeDigest/);
+
+  const unknown = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: 'f'.repeat(64), initData }),
+  }), deps);
+  assert.equal(unknown.status, 404);
+  assert.match(unknown.body, /not found/);
+});

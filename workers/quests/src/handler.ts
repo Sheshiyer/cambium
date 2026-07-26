@@ -35,7 +35,10 @@ import { buildBranchMapProjection, projectionDigest } from './branch-map.ts';
 import { BRANCH_MAP_RECEIPT_READ_LIMIT } from './branch-map-receipt-store.ts';
 import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
 import { renderBranchMapSheet } from './branch-map-sheet.ts';
-import type { GoalGraphStoreLike } from './goal-graph-store.ts';
+import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
+import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
+import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
+import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
@@ -472,7 +475,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -2672,6 +2675,317 @@ async function handleBranchMapRoute(req: SimpleRequest, deps: HandlerDeps, route
   }
 }
 
+// ── T-039/T-040 · Telegram Goal Graph intake → founder approval → D1 commit ──
+// The bridge intake route persists a bounded PENDING proposal (KV, following
+// the action-requests record precedent: D1 remains the graph authority only,
+// so a not-yet-approved proposal has no business in the graph tables). The
+// founder-signed gate lane commits that proposal through d1GoalGraphStore with
+// a CAS against the head the proposal was pinned to at intake time.
+
+const GOAL_GRAPH_INTAKE_TASK_SCHEMA = 'cambium.goal-graph-intake-task.v1';
+const GOAL_GRAPH_INTAKE_REJECTION_SCHEMA = 'cambium.goal-graph-intake-rejection.v1';
+const GOAL_GRAPH_INTAKE_MAX_ERRORS = 8;
+const GOAL_GRAPH_INTAKE_MAX_ERROR_BYTES = 240;
+const GOAL_GRAPH_APPROVAL_TTL_MS = 15 * 60_000;
+
+interface GoalGraphIntakeRouteResult {
+  status: number;
+  body: Record<string, unknown>;
+}
+
+function goalGraphIntakeTaskKey(tenantId: string, changeDigest: string): string {
+  return `goal-graph-intake-task:${tenantId}:${changeDigest}`;
+}
+
+/** Best-effort bounded tenant for receipt scoping; never trusts the payload. */
+function goalGraphIntakeReceiptTenant(raw: unknown): string {
+  if (isRecord(raw) && typeof raw.tenantId === 'string' && VALID_TENANT.test(raw.tenantId)) return raw.tenantId;
+  return 'unknown';
+}
+
+function boundedIntakeErrors(errors: readonly string[]): string[] {
+  return errors.slice(0, GOAL_GRAPH_INTAKE_MAX_ERRORS).map((error) => String(error).slice(0, GOAL_GRAPH_INTAKE_MAX_ERROR_BYTES));
+}
+
+function parseJsonObject(text: string | null): Record<string, unknown> | null {
+  if (!text) return null;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    return isRecord(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+async function readGoalGraphIntakeTask(kv: KvLike, tenantId: string, changeDigest: string): Promise<Record<string, unknown> | null> {
+  const record = parseJsonObject(await kv.get(goalGraphIntakeTaskKey(tenantId, changeDigest)));
+  return record && record.schema === GOAL_GRAPH_INTAKE_TASK_SCHEMA && record.tenantId === tenantId ? record : null;
+}
+
+function goalGraphIntakeTaskReceipt(task: Record<string, unknown>, duplicate: boolean): GoalGraphIntakeRouteResult {
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      accepted: true,
+      duplicate,
+      schema: GOAL_GRAPH_INTAKE_TASK_SCHEMA,
+      tenantId: task.tenantId,
+      status: task.status,
+      idempotencyKey: task.idempotencyKey,
+      changeDigest: task.changeDigest,
+      contentDigest: task.contentDigest,
+      sourceRef: task.sourceRef,
+      sourceDigest: task.sourceDigest,
+      nodeId: task.nodeId,
+      graphVersion: task.graphVersion,
+      expectedHeadDigest: task.expectedHeadDigest ?? null,
+      receivedAt: task.receivedAt,
+    },
+  };
+}
+
+async function intakeTelegramGoalGraphRoute(
+  deps: HandlerDeps,
+  raw: unknown,
+  nowIso: () => string,
+): Promise<GoalGraphIntakeRouteResult> {
+  const receivedAt = nowIso();
+  const receiptTenant = goalGraphIntakeReceiptTenant(raw);
+  // The parser is the pure boundary: a malformed envelope is data, never an
+  // exception, so a Telegram redelivery can never crash-loop this lane.
+  const initial = parseTelegramGoalGraphIntent(raw);
+  if (!initial.accepted) {
+    // Bounded rejection receipt: the parser's bounded error shape only. No
+    // payload, metadata value, or raw Telegram content is echoed back.
+    const receipt = {
+      schema: GOAL_GRAPH_INTAKE_REJECTION_SCHEMA,
+      tenantId: receiptTenant,
+      code: initial.code,
+      errors: boundedIntakeErrors(initial.errors),
+      receivedAt,
+    };
+    const receiptId = `ggi-rej-${(await sha256hex(canonicalJson(receipt))).slice(0, 24)}`;
+    await deps.kv.put(`goal-graph-intake-rejection:${receiptTenant}:${receiptId}`, JSON.stringify(receipt));
+    return {
+      status: 200,
+      body: {
+        ok: false,
+        accepted: false,
+        rejected: true,
+        status: 'rejected',
+        schema: GOAL_GRAPH_INTAKE_REJECTION_SCHEMA,
+        tenantId: receiptTenant,
+        code: initial.code,
+        errors: receipt.errors,
+        receiptId,
+      },
+    };
+  }
+
+  if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal graph authority is not configured' } };
+  const tenantId = initial.value.tenantId;
+  let head: GoalGraphHead | null;
+  let currentNodes: GoalGraphNode[];
+  try {
+    head = await deps.goalGraphStore.readHead(tenantId);
+    currentNodes = await deps.goalGraphStore.readNodes(tenantId);
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  }
+  // Pin the proposal to the CURRENT head so the approval-bound commit is a
+  // CAS against a known digest. The parse is deterministic, so identity,
+  // content digest, and the idempotency key are unchanged by this re-parse.
+  const pinned = parseTelegramGoalGraphIntent(raw, {
+    expectedHeadDigest: head?.graphDigest ?? null,
+    actualHead: head,
+    currentNodes,
+    graphVersion: (head?.graphVersion ?? 0) + 1,
+    now: receivedAt,
+  });
+  if (!pinned.accepted) return { status: 500, body: { error: 'goal_graph_intake_context_failed' } };
+  if (pinned.compile.status !== 'compiled') {
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        error: 'goal_graph_stale_head',
+        status: 'stale',
+        expectedHeadDigest: pinned.compile.expectedHeadDigest ?? null,
+        actualHeadDigest: pinned.compile.actualHeadDigest ?? null,
+      },
+    };
+  }
+  const changeSet = pinned.compile.changeSet;
+
+  // Collapse Telegram redelivery on the canonical idempotency key: a replay
+  // returns the original task receipt and never writes a second record.
+  const idempotencyRecordKey = `goal-graph-intake-idem:${pinned.idempotencyKey}`;
+  const existingRecord = parseJsonObject(await deps.kv.get(idempotencyRecordKey));
+  if (existingRecord) {
+    if (existingRecord.contentDigest !== pinned.contentDigest) {
+      return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: pinned.idempotencyKey } };
+    }
+    const existingTask = parseJsonObject(await deps.kv.get(String(existingRecord.taskKey ?? '')));
+    if (!existingTask) return { status: 409, body: { error: 'goal graph intake idempotency record missing task' } };
+    return goalGraphIntakeTaskReceipt(existingTask, true);
+  }
+
+  const task = {
+    schema: GOAL_GRAPH_INTAKE_TASK_SCHEMA,
+    tenantId,
+    status: 'pending',
+    idempotencyKey: pinned.idempotencyKey,
+    intentVersion: pinned.value.version,
+    sourceRef: pinned.sourceRef,
+    sourceDigest: pinned.sourceDigest,
+    contentDigest: pinned.contentDigest,
+    changeDigest: changeSet.changeDigest,
+    graphVersion: changeSet.graphVersion,
+    expectedHeadDigest: changeSet.expectedHeadDigest ?? null,
+    nodeId: pinned.node.nodeId,
+    intent: pinned.value,
+    node: pinned.node,
+    changeSet,
+    receivedAt,
+    updatedAt: receivedAt,
+  };
+  const taskKey = goalGraphIntakeTaskKey(tenantId, changeSet.changeDigest);
+  await deps.kv.put(taskKey, JSON.stringify(task));
+  await deps.kv.put(idempotencyRecordKey, JSON.stringify({
+    taskKey,
+    contentDigest: pinned.contentDigest,
+    changeDigest: changeSet.changeDigest,
+  }));
+  return goalGraphIntakeTaskReceipt(task, false);
+}
+
+async function approveGoalGraphIntakeRoute(
+  deps: HandlerDeps,
+  tenant: string,
+  body: Record<string, unknown>,
+  founderId: string,
+): Promise<GoalGraphIntakeRouteResult> {
+  if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal graph authority is not configured' } };
+  const changeDigest = shortText(body.changeDigest || body.subject, '', 160);
+  if (!/^(?:sha256:)?[a-f0-9]{64}$/.test(changeDigest)) {
+    return { status: 400, body: { error: 'approve-goal-graph needs a changeDigest subject' } };
+  }
+  const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
+  if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  const evidence = {
+    kind: 'approve-goal-graph',
+    subject: changeDigest,
+    tenantId: tenant,
+    changeDigest,
+    nodeId: task.nodeId,
+    sourceRef: task.sourceRef,
+    sourceDigest: task.sourceDigest,
+    readback: `/v1/branch-map/${tenant}`,
+  };
+  if (task.status === 'committed') {
+    // Replay of an already-committed approval is a no-op with evidence: the
+    // original head, nonce, and approval digest come back, nothing is written.
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        duplicate: true,
+        replayed: true,
+        committed: true,
+        ...evidence,
+        headDigest: task.headDigest,
+        graphVersion: task.graphVersion,
+        approvalNonce: task.approvalNonce,
+        approvalDigest: task.approvalDigest,
+      },
+    };
+  }
+  if (task.status !== 'pending') {
+    return {
+      status: 409,
+      body: { ok: false, error: `goal graph intake task status ${String(task.status)} cannot be approved`, ...evidence },
+    };
+  }
+
+  const now = deps.now ? deps.now() : new Date().toISOString();
+  const nonce = shortText(body.nonce, `goal-graph-approval:${tenant}:${changeDigest}`, 240);
+  const expiresAt = shortText(body.expiresAt, new Date(Date.parse(now) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString(), 64);
+  const intentVersion = Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1;
+  const approvalCore = { tenantId: tenant, changeDigest, intentVersion, approverId: founderId, expiresAt, nonce };
+  const approval: GoalGraphApproval = {
+    ...approvalCore,
+    decision: 'approved',
+    canonical: canonicalizeGoalGraphApproval(approvalCore),
+    approvalDigest: goalGraphApprovalDigest(approvalCore),
+  };
+  let commit: GoalGraphCommitResult;
+  try {
+    commit = await deps.goalGraphStore.commit({
+      tenantId: tenant,
+      changeSet: task.changeSet as GoalChangeSet,
+      approval,
+      now,
+    });
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_commit_unavailable' } };
+  }
+
+  if (commit.status === 'committed' || commit.status === 'duplicate') {
+    await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+      ...task,
+      status: 'committed',
+      headDigest: commit.head.graphDigest,
+      headGraphVersion: commit.head.graphVersion,
+      approvalNonce: nonce,
+      approvalDigest: approval.approvalDigest,
+      committedAt: commit.head.committedAt,
+      updatedAt: now,
+    }));
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        duplicate: commit.status === 'duplicate',
+        replayed: commit.replayed,
+        committed: true,
+        ...evidence,
+        headDigest: commit.head.graphDigest,
+        graphVersion: commit.head.graphVersion,
+        approvalNonce: nonce,
+        approvalDigest: approval.approvalDigest,
+        consequence: `committed telegram goal graph proposal ${changeDigest.slice(0, 16)} to the D1 authority`,
+        reversibility: 'committed graph revisions are immutable; supersede with a new approved proposal',
+      },
+    };
+  }
+  if (commit.status === 'stale') {
+    // The CAS lost: the store guarantees no write happened. Mark the proposal
+    // stale so a fresh Telegram message can pin the current head.
+    await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+      ...task,
+      status: 'stale',
+      observedHeadDigest: commit.actualHeadDigest,
+      updatedAt: now,
+    }));
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        error: 'goal_graph_stale_head',
+        status: 'stale',
+        changeDigest,
+        expectedHeadDigest: commit.expectedHeadDigest,
+        actualHeadDigest: commit.actualHeadDigest,
+      },
+    };
+  }
+  if (commit.status === 'unavailable') {
+    return { status: 503, body: { ok: false, error: 'goal_graph_commit_unavailable', code: commit.code } };
+  }
+  return { status: 409, body: { ok: false, error: 'goal_graph_commit_rejected', code: commit.code, changeDigest } };
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
@@ -3179,6 +3493,14 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       const id = decodeURIComponent(actionRequestResolve[1]);
       const result = await resolveActionRequestRecord(deps.kv, id, body, nowIso);
+      return json(result.status, result.body);
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/goal-graph-intake') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may submit goal graph intents' });
+      let raw: unknown;
+      try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const result = await intakeTelegramGoalGraphRoute(deps, raw, nowIso);
       return json(result.status, result.body);
     }
 
@@ -3737,12 +4059,16 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
+    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
       return json(400, { error: 'need a supported gate kind and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
     if (!verdict.ok) return json(401, { error: verdict.reason });
     const kind = body.kind as GateActionKind;
+    if (kind === 'approve-goal-graph') {
+      const result = await approveGoalGraphIntakeRoute(deps, tenant, body, verdict.userId);
+      return json(result.status, result.body);
+    }
     if (kind === 'approve-marketing-render') {
       if (tenant !== 'thoughtseed') return json(403, { error: 'marketing renderer is fixed to the thoughtseed tenant' });
       const allowedFields = new Set(['kind', 'requestId', 'subject', 'initData']);
