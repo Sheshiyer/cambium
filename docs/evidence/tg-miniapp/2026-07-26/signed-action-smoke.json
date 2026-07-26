@@ -1,0 +1,28 @@
+{
+  "schema": "cambium.signed-action-smoke.v2",
+  "task": "T-034",
+  "proves": "ISC-281: founder-device proof = one in-app signed gate action in the redesigned Mini App; the retired env-initData capture ritual is not used",
+  "capturedAt": "2026-07-26T11:03:36.129Z",
+  "workerVersionId": "203803d4-1b53-4974-85d4-4fe4e3583ef8",
+  "gitSha": "88307e9cbf28f8094f49c85902b8a46ba4d61538",
+  "origin": "https://curious.thoughtseed.space",
+  "actionKind": "confirm-action-request",
+  "subjectHash": "cdf9fc123e94cea11dc001fc3c43b306ce134f12283877068be0680a25a7a0cf",
+  "idempotencyHash": "6d463a342a6f6da58e7d3a164ae434ddff55664aee73d062002a577a0be727e9",
+  "userIdHash": "withheld-by-design: the founder Telegram id never left the Worker; this artifact carries no user identifier in any form",
+  "serverRecord": {
+    "status": "queued",
+    "selectedOptionId": "sign-off",
+    "receipt": {
+      "at": "2026-07-26T11:03:36.129Z",
+      "kind": "gate",
+      "text": "Signed confirmation queued: Sign off redesign."
+    }
+  },
+  "deviceProof": {
+    "surface": "Telegram WebView on founder device, production origin",
+    "flow": "Gate tab -> sign-off card -> Confirm -> preflight -> confirm -> receipt token + state flip in-tab",
+    "resultSheet": "ActionRequest confirmation queued / decision queued - receipt in Inspect"
+  },
+  "redaction": "no raw initData, user ids, tokens, founder ids, bot ids, or query strings"
+}

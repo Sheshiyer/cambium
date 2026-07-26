@@ -51,6 +51,24 @@
 3. Post-deploy health: Worker, gateway, timer green per `workers/quests/DEPLOY.md`.
 4. ISA.md Verification records the deploy + capture; the dry-run boundary note is superseded.
 
+### Phase 4 — CLOSED 2026-07-26 (by redesign, not by the retired ritual)
+The TG Mini App mobile-first redesign (issues #266/#267/#268, plan
+`docs/plans/2026-07-24-tg-miniapp-mobile-redesign-swarm-plan.md`) shipped all five scenes to
+production (Worker version `203803d4`, git `88307e9`, 100% traffic) and the founder signed the
+redesign sign-off in-app — the signed receipt is the founder-device proof (ISC-281), clearing
+ISC-279 **by redesign**; criterion 4.2's `--capture-device-proof` path is retired and superseded.
+Evidence: `docs/evidence/tg-miniapp/2026-07-26/`.
+
+**Retro (T-038):** three phase-2 waves × (scene workers → proof regen → fidelity review → nit fix)
+held the frozen spec without drift; every wave ended PASS-WITH-NITS with nits fixed same-wave.
+Recurring cost: scene workers hit the 60-min ceiling (2–3 resumes each) and the viewport-proof
+script collected stale-selector debt each wave — both priced into future wave estimates. The
+text-density audit (T-028) is now a standing gate (`npm run audit:text-density`). Two frozen-spec
+adjudications ride forward as named overrides: M12 empty-state word-cap conflict and the
+unratified `Viewport capture` label — both need a founder ruling, neither blocks Phase 5.
+**Re-sequencing:** none required — Phase 5 (Goal Graph intake) keeps its scope and dependency;
+the redesign shipped read/act surfaces only, intake wiring was not pulled forward (per plan risk 5).
+
 ### Phase 5: Canonical Telegram Intake → Approval → Goal Graph Commit
 **Goal:** One typed Telegram intake flows end-to-end: intake → D1 task → approval → Goal Graph commit → receipt readback.
 **Depends on:** Phase 4.

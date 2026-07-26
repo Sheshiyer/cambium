@@ -1,0 +1,29 @@
+{
+  "schema": "cambium.tg-miniapp-deploy-evidence.v1",
+  "task": "T-033",
+  "deployedAt": "2026-07-25T20:37:41.341Z",
+  "worker": "cambium-quests",
+  "versionId": "203803d4-1b53-4974-85d4-4fe4e3583ef8",
+  "traffic": "100%",
+  "gitSha": "88307e9cbf28f8094f49c85902b8a46ba4d61538",
+  "origin": "https://curious.thoughtseed.space",
+  "healthChecks": {
+    "bundleMarkers": "redesigned PAGE served (KpiPulseDonut / ToolActionCard / StoryPacketRail present)",
+    "gateHealth": {
+      "ok": true,
+      "gateConfigured": true
+    },
+    "authBoundaryProbe": {
+      "status": 401,
+      "error": "missing initData (the gate opens inside Telegram)",
+      "note": "fail-closed confirmed on production; no credentials used"
+    }
+  },
+  "preDeploy": {
+    "tests": "1055/1055",
+    "verifyRelease": "green",
+    "textDensityAudit": "clean",
+    "viewportProof": "exit 0"
+  },
+  "note": "No initData, tokens, founder ids, or bot ids in this artifact per redaction invariant."
+}

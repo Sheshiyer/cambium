@@ -1,3 +1,9 @@
+> **RETIRED 2026-07-24 — do not follow this document.** The env-initData capture
+> ritual (`TELEGRAM_INIT_DATA`/`TG_INIT_DATA`, `--capture-device-proof`, pasted initData)
+> is unexecutable on current Telegram desktop and removed from tooling. Founder-device
+> proof v2 = one in-app signed gate action (ISC-281); first production instance:
+> `docs/evidence/tg-miniapp/2026-07-26/`. See `docs/architecture/contracts/tg-miniapp-contract-v2.md`.
+
 # TG Mini App — Live Proof Unblock Runbook
 
 > Source action: `TG-MC-406` in `docs/superpowers/specs/2026-06-30-tg-miniapp-plan-vs-code-critique.md`.

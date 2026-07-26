@@ -1,5 +1,6 @@
 {
   "schema": "cambium.tg-device-proof.v1",
+  "supersededBy": "docs/evidence/tg-miniapp/2026-07-26/signed-action-smoke.json (2026-07-26, ISC-281: in-app signed action replaces the retired env-initData capture ritual)",
   "tenant": "cambium",
   "capturedAt": "2026-06-30T12:01:25.068Z",
   "source": "telegram-webview",
