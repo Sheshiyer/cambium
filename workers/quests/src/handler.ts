@@ -36,6 +36,7 @@ import { BRANCH_MAP_RECEIPT_READ_LIMIT } from './branch-map-receipt-store.ts';
 import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
 import { renderBranchMapSheet } from './branch-map-sheet.ts';
 import type { GoalGraphStoreLike } from './goal-graph-store.ts';
+import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
   id: 'anonymous-founder',
@@ -443,6 +444,10 @@ export interface ProviderConfig {
   // would eventually forward one. Command Code rejects requests without its
   // version/session headers, so for that provider these are load-bearing.
   forwardHeaders?: string[];
+  // Providers whose wire format is not OpenAI chat need translating, not proxying.
+  // Only 'command-code' exists today; the field is explicit so a future one has to
+  // opt in rather than inherit a translation meant for someone else.
+  translate?: 'command-code';
 }
 
 export interface ProviderBrokerConfig {
@@ -3954,6 +3959,13 @@ async function handleProviderBroker(req: SimpleRequest, deps: HandlerDeps): Prom
   if (!['GET', 'POST'].includes(req.method)) return json(405, { error: 'provider broker supports GET and POST only' });
 
   const baseUrl = provider.baseUrl.replace(/\/+$/, '');
+
+  // Command Code does not speak OpenAI chat, so this one provider is translated
+  // rather than proxied. Everything else stays byte-passthrough.
+  if (provider.translate === 'command-code' && req.method === 'POST' && /chat\/completions$/.test(upstreamPath)) {
+    return handleCommandCode(cfg, provider, baseUrl, req);
+  }
+
   const upstreamUrl = `${baseUrl}/${upstreamPath.replace(/^\/+/, '')}`;
 
   let upstream: Response;
@@ -3991,6 +4003,97 @@ async function handleProviderBroker(req: SimpleRequest, deps: HandlerDeps): Prom
     headers: { 'content-type': contentType, 'cache-control': 'no-store' },
     body,
   };
+}
+
+/**
+ * Command Code lane: OpenAI chat in, OpenAI chat out, Command Code's own protocol
+ * in between. The caller never learns this provider is different.
+ *
+ * The endpoint only streams, so a non-streaming request is served by draining the
+ * event stream and folding it into one completion rather than by asking for a
+ * mode Command Code does not have.
+ */
+async function handleCommandCode(
+  cfg: ProviderBrokerConfig,
+  provider: ProviderConfig,
+  baseUrl: string,
+  req: SimpleRequest,
+): Promise<SimpleResponse> {
+  let body: unknown;
+  try {
+    body = req.body ? JSON.parse(req.body) : {};
+  } catch {
+    return json(400, { error: 'body is not JSON' });
+  }
+  const asRecord = (v: unknown) => (typeof v === 'object' && v !== null ? (v as Record<string, unknown>) : {});
+  const input = asRecord(body);
+  const wantsStream = input.stream === true;
+
+  // Strip any "command-code/" prefix a router may have prepended; Command Code
+  // wants its own bare model id.
+  const rawModel = typeof input.model === 'string' ? input.model : '';
+  const model = rawModel.replace(/^command-code\//, '');
+  if (!model) return json(400, { error: 'model is required' });
+
+  const translated = buildCommandCodeBody(model, { ...input, model });
+  const sessionId = crypto.randomUUID();
+
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${provider.apiKey}`,
+    'content-type': 'application/json',
+    ...commandCodeHeaders(sessionId),
+  };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), cfg.timeoutMs ?? PROVIDER_TIMEOUT_MS);
+  let upstream: Response;
+  try {
+    const f = cfg.fetch ?? fetch;
+    upstream = await f(`${baseUrl}/alpha/generate`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(translated),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    const timedOut = (err as { name?: string })?.name === 'AbortError';
+    return json(timedOut ? 504 : 502, {
+      error: timedOut ? 'provider "command-code" timed out' : 'provider "command-code" unreachable',
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+
+  if (!upstream.ok) {
+    // Pass the vendor's own diagnostic through rather than inventing one — its
+    // validation messages name the offending field.
+    const text = await upstream.text().catch(() => '');
+    return {
+      status: upstream.status,
+      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      body: text || JSON.stringify({ error: `command-code upstream error ${upstream.status}` }),
+    };
+  }
+  if (!upstream.body) return json(502, { error: 'command-code returned no body' });
+
+  const ids = { completionId: `chatcmpl-${crypto.randomUUID()}`, newToolId: () => crypto.randomUUID() };
+
+  if (wantsStream) {
+    return {
+      status: 200,
+      headers: { 'content-type': 'text/event-stream', 'cache-control': 'no-cache', connection: 'keep-alive' },
+      body: translateStream(upstream.body, model, ids),
+    };
+  }
+
+  try {
+    const completion = await translateToCompletion(upstream.body, model, ids);
+    return json(200, completion as Record<string, unknown>);
+  } catch (err) {
+    // An `error` event mid-stream lands here; surface its message.
+    return json(502, { error: err instanceof Error ? err.message : 'command-code stream error' });
+  }
 }
 
 const PROVIDER_TIMEOUT_MS = 120_000;

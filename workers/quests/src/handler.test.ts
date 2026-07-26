@@ -1557,7 +1557,7 @@ test('provider broker · forwardHeaders passes protocol headers but never a cred
     calls.push({ url: String(url), init });
     return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
   };
-  const r = await handle(req('POST', '/v1/providers/command-code/alpha/generate', {
+  const r = await handle(req('POST', '/v1/providers/proto-demo/alpha/generate', {
     headers: {
       authorization: 'Bearer broker',
       'content-type': 'application/json',
@@ -1574,7 +1574,7 @@ test('provider broker · forwardHeaders passes protocol headers but never a cred
       token: 'broker',
       fetch: fakeFetch,
       providers: {
-        'command-code': {
+        'proto-demo': {
           baseUrl: 'https://api.commandcode.ai',
           apiKey: 'secret-cc-key',
           // authorization/cookie are refused by the guard even though listed here.
@@ -1616,6 +1616,105 @@ test('provider broker · a provider without forwardHeaders forwards no x- header
     },
   });
   assert.equal((calls[0].init.headers as Record<string, string>)['x-session-id'], undefined);
+});
+
+test('provider broker · command-code lane translates both directions end to end', async () => {
+  // The caller speaks OpenAI chat and must never learn this provider is different.
+  let sent: { url: string; headers: Record<string, string>; body: unknown } | null = null;
+  const enc = new TextEncoder();
+  const fakeFetch: typeof fetch = async (url, init = {}) => {
+    sent = {
+      url: String(url),
+      headers: init.headers as Record<string, string>,
+      body: JSON.parse(String(init.body)),
+    };
+    return new Response(
+      new ReadableStream({
+        start(c) {
+          c.enqueue(enc.encode('data: {"type":"text-delta","text":"hi"}\n'));
+          c.enqueue(enc.encode('data: {"type":"finish","finishReason":"stop"}\n'));
+          c.close();
+        },
+      }),
+      { status: 200, headers: { 'content-type': 'text/event-stream' } },
+    );
+  };
+
+  const r = await handle(req('POST', '/v1/providers/command-code/chat/completions', {
+    headers: { authorization: 'Bearer broker', 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: 'command-code/deepseek/deepseek-v4-flash',
+      messages: [{ role: 'system', content: 'be terse' }, { role: 'user', content: 'hello' }],
+      stream: false,
+    }),
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: {
+        'command-code': {
+          baseUrl: 'https://api.commandcode.ai',
+          apiKey: 'secret-cc-key',
+          translate: 'command-code',
+        },
+      },
+    },
+  });
+
+  assert.equal(r.status, 200);
+
+  // Outbound: Command Code's shape, its endpoint, its protocol headers, real key.
+  assert.equal(sent!.url, 'https://api.commandcode.ai/alpha/generate');
+  assert.equal(sent!.headers.authorization, 'Bearer secret-cc-key');
+  assert.equal(sent!.headers['x-command-code-version'], '0.33.2');
+  assert.ok(sent!.headers['x-session-id']);
+  const body = sent!.body as Record<string, unknown>;
+  assert.equal(body.system, 'be terse');            // hoisted out of messages
+  assert.equal(body.stream, true);                  // forced, despite stream:false
+  assert.equal(body.model, 'deepseek/deepseek-v4-flash'); // command-code/ prefix stripped
+
+  // Inbound: a plain OpenAI completion, not Command Code events.
+  const payload = JSON.parse(r.body as string);
+  assert.equal(payload.object, 'chat.completion');
+  assert.equal(payload.choices[0].message.content, 'hi');
+  assert.equal(payload.choices[0].finish_reason, 'stop');
+});
+
+test('provider broker · command-code streaming callers get OpenAI SSE, not CC events', async () => {
+  const enc = new TextEncoder();
+  const fakeFetch: typeof fetch = async () =>
+    new Response(
+      new ReadableStream({
+        start(c) {
+          c.enqueue(enc.encode('data: {"type":"text-delta","text":"yo"}\n'));
+          c.enqueue(enc.encode('data: {"type":"finish","finishReason":"stop"}\n'));
+          c.close();
+        },
+      }),
+      { status: 200, headers: { 'content-type': 'text/event-stream' } },
+    );
+
+  const r = await handle(req('POST', '/v1/providers/command-code/chat/completions', {
+    headers: { authorization: 'Bearer broker', 'content-type': 'application/json' },
+    body: JSON.stringify({ model: 'x', messages: [{ role: 'user', content: 'q' }], stream: true }),
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: { 'command-code': { baseUrl: 'https://api.commandcode.ai', apiKey: 'k', translate: 'command-code' } },
+    },
+  });
+
+  assert.equal(r.status, 200);
+  assert.equal(r.headers['content-type'], 'text/event-stream');
+  assert.ok(r.body instanceof ReadableStream);
+  const text = await new Response(r.body as ReadableStream).text();
+  assert.ok(text.includes('"object":"chat.completion.chunk"'));
+  assert.ok(text.includes('"content":"yo"'));
+  assert.ok(text.trimEnd().endsWith('data: [DONE]'));
+  assert.ok(!text.includes('text-delta'), 'raw Command Code events must not leak to the caller');
 });
 
 test('provider broker · health without probe reports config only; ?probe=1 probes upstream', async () => {
