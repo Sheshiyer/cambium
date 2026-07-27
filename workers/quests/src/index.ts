@@ -1257,25 +1257,14 @@ export default {
         defaultModel: env.NEBIUS_DEFAULT_MODEL || 'Qwen/Qwen3-235B-A22B-Instruct-2507',
         models: env.NEBIUS_DEFAULT_MODEL ? [env.NEBIUS_DEFAULT_MODEL] : ['Qwen/Qwen3-235B-A22B-Instruct-2507'],
       } : undefined,
-      // Command Code speaks a bespoke protocol, NOT OpenAI chat: a hoisted top-level
-      // `system` string, its own message/tool part shapes, a params envelope POSTed
-      // to /alpha/generate, and a bespoke event stream back.
-      //
-      // The intended design was to let OmniRoute's own CommandCodeExecutor do that
-      // translation and point it here. It cannot: OmniRoute runs from a compiled
-      // Next.js bundle, and the executor reads a STATIC registry baseUrl with no
-      // per-connection override — so the call never reaches the broker. Patching the
-      // shipped source has no effect because that source is not what executes.
-      //
-      // Hence translate: 'command-code'. This is the one provider the broker does not
-      // proxy byte-for-byte; see command-code-adapter.ts for the wire format and the
-      // provenance of each rule.
+      // Command Code's supported Provider API is OpenAI-compatible. Keep this route
+      // byte-transparent so server traffic does not depend on the private CLI
+      // /alpha/generate protocol retained by command-code-adapter.ts.
       'command-code': env.COMMAND_CODE_API_KEY ? {
         apiKey: env.COMMAND_CODE_API_KEY,
-        baseUrl: env.COMMAND_CODE_BASE_URL || 'https://api.commandcode.ai',
+        baseUrl: env.COMMAND_CODE_BASE_URL || 'https://api.commandcode.ai/provider/v1',
         defaultModel: env.COMMAND_CODE_DEFAULT_MODEL || 'deepseek/deepseek-v4-flash',
         models: env.COMMAND_CODE_DEFAULT_MODEL ? [env.COMMAND_CODE_DEFAULT_MODEL] : ['deepseek/deepseek-v4-flash'],
-        translate: 'command-code',
       } : undefined,
       // Anthropic-shaped, unlike the OpenAI three above: the key goes in x-api-key
       // rather than `authorization: Bearer`, and the caller's anthropic-version header
