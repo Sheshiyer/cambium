@@ -766,7 +766,6 @@ function standupProjectionFromMessage(msg: Record<string, unknown>, receivedAt: 
   const workSummary = isRecord(event.workSummary) ? event.workSummary : {};
   const evidence = isRecord(event.evidenceSummary) ? event.evidenceSummary : {};
   const projects = (Array.isArray(event.projectSummaries) ? event.projectSummaries : [])
-    .slice(0, MEMBER_STANDUP_MAX_ROWS)
     .flatMap((raw) => {
       if (!isRecord(raw)) return [];
       return [{
@@ -777,7 +776,14 @@ function standupProjectionFromMessage(msg: Record<string, unknown>, receivedAt: 
         evidenceStatus: shortText(raw.evidenceStatus, 'unknown', 40),
         repoFullName: shortText(raw.repoFullName, '', 160) || null,
       }];
-    });
+    })
+    .filter((project) => project.totalSeconds > 0 || project.entryCount > 0)
+    .sort((a, b) =>
+      b.totalSeconds - a.totalSeconds
+      || b.entryCount - a.entryCount
+      || a.name.localeCompare(b.name)
+    )
+    .slice(0, MEMBER_STANDUP_MAX_ROWS);
   const blockers = (Array.isArray(event.blockers) ? event.blockers : [])
     .slice(0, MEMBER_STANDUP_MAX_ROWS)
     .flatMap((raw) => {
