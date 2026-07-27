@@ -1618,6 +1618,62 @@ test('provider broker · a provider without forwardHeaders forwards no x- header
   assert.equal((calls[0].init.headers as Record<string, string>)['x-session-id'], undefined);
 });
 
+test('provider broker · command-code Provider API stays OpenAI-compatible end to end', async () => {
+  let sent: { url: string; headers: Record<string, string>; body: unknown } | null = null;
+  const requestBody = {
+    model: 'deepseek/deepseek-v4-flash',
+    messages: [{ role: 'user', content: 'Reply exactly CANARY_OK' }],
+    stream: false,
+  };
+  const fakeFetch: typeof fetch = async (url, init = {}) => {
+    sent = {
+      url: String(url),
+      headers: init.headers as Record<string, string>,
+      body: JSON.parse(String(init.body)),
+    };
+    return Response.json({
+      id: 'cc-provider-api-test',
+      object: 'chat.completion',
+      choices: [{ index: 0, message: { role: 'assistant', content: 'CANARY_OK' }, finish_reason: 'stop' }],
+    });
+  };
+
+  const r = await handle(req('POST', '/v1/providers/command-code/chat/completions', {
+    headers: {
+      authorization: 'Bearer broker',
+      'content-type': 'application/json',
+      'x-hermes-egress-token': 'caller-must-not-win',
+    },
+    body: JSON.stringify(requestBody),
+  }), {
+    kv: fakeKv(),
+    providerBroker: {
+      token: 'broker',
+      fetch: fakeFetch,
+      providers: {
+        'command-code': {
+          baseUrl: 'https://api.commandcode.ai/provider/v1',
+          apiKey: 'secret-cc-key',
+          staticHeaders: { 'x-hermes-egress-token': 'server-egress-secret' },
+        },
+      },
+    },
+  });
+
+  assert.equal(r.status, 200);
+  assert.equal(sent!.url, 'https://api.commandcode.ai/provider/v1/chat/completions');
+  assert.equal(sent!.headers.authorization, 'Bearer secret-cc-key');
+  assert.equal(sent!.headers['x-hermes-egress-token'], 'server-egress-secret');
+  assert.deepEqual(sent!.body, requestBody);
+  assert.equal(JSON.parse(r.body as string).choices[0].message.content, 'CANARY_OK');
+
+  const source = readFileSync(new URL('./index.ts', import.meta.url), 'utf8');
+  const providerBlock = source.match(/'command-code':[\s\S]*?\} : undefined,/)?.[0] ?? '';
+  assert.match(providerBlock, /https:\/\/api\.commandcode\.ai\/provider\/v1/);
+  assert.doesNotMatch(providerBlock, /translate:\s*'command-code'/);
+  assert.match(providerBlock, /x-hermes-egress-token/);
+});
+
 test('provider broker · command-code lane translates both directions end to end', async () => {
   // The caller speaks OpenAI chat and must never learn this provider is different.
   let sent: { url: string; headers: Record<string, string>; body: unknown } | null = null;

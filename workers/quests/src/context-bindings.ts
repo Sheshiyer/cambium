@@ -6,9 +6,14 @@ import type {
   SemanticRecallLike,
   SemanticRecallResult,
 } from './context-routes.ts';
+import {
+  CONTEXT_PROJECTION_KEY,
+  validateContextProjection,
+} from './context-projections.ts';
 
 export interface R2ObjectLike {
   key?: string;
+  etag?: string;
   uploaded?: Date | string;
   size?: number;
   customMetadata?: Record<string, string>;
@@ -20,7 +25,7 @@ export interface R2BucketLike {
   get(key: string): Promise<R2ObjectLike | null>;
   head?(key: string): Promise<R2ObjectLike | null>;
   put?(key: string, value: Uint8Array, options?: {
-    onlyIf?: { etagDoesNotMatch?: string };
+    onlyIf?: { etagMatches?: string; etagDoesNotMatch?: string };
     httpMetadata?: { contentType?: string; contentDisposition?: string };
     customMetadata?: Record<string, string>;
   }): Promise<R2ObjectLike | null>;
@@ -95,19 +100,14 @@ const MIN_STALE_AFTER_SECONDS = 60;
 const MAX_STALE_AFTER_SECONDS = 90 * 24 * 60 * 60;
 const SAFE_KEY = /^[A-Za-z0-9][A-Za-z0-9._/@:=+-]{0,299}$/;
 
-const DEFAULT_NO_SIGNAL_REASON = 'R2 routine object keys are not verified for this candidate slice yet.';
+const DEFAULT_NO_SIGNAL_REASON = 'Context projection object keys are not verified for this candidate slice yet.';
 
 export const DEFAULT_ROUTINE_CONTEXT_SLICES: RoutineContextAllowlist = {
   'daily-standup-digest': [
     {
-      id: 'heartbeats',
-      title: 'Heartbeat candidates',
-      reason: DEFAULT_NO_SIGNAL_REASON,
-    },
-    {
       id: 'standups',
-      title: 'Standup candidates',
-      reason: DEFAULT_NO_SIGNAL_REASON,
+      title: 'Daily standup',
+      keys: [CONTEXT_PROJECTION_KEY],
     },
   ],
   'weekly-client-report': [
@@ -179,7 +179,7 @@ function staleSignalItem(
 ) {
   return {
     title: `Stale ${safeString(slice.title || slice.id, MAX_TITLE_LENGTH)} signal`,
-    summary: 'Blocked/no-signal: exact allowlisted R2 object is older than the reviewed freshness threshold.',
+    summary: 'Blocked/no-signal: exact allowlisted context projection has expired.',
     sourceKey: key,
     signalState: 'stale' as const,
     observedAt,
@@ -192,12 +192,6 @@ function safeStaleAfterSeconds(value: unknown): number | undefined {
   const seconds = Math.floor(value);
   if (seconds < MIN_STALE_AFTER_SECONDS || seconds > MAX_STALE_AFTER_SECONDS) return undefined;
   return seconds;
-}
-
-function safeUploadedAt(value: unknown): string | undefined {
-  const date = value instanceof Date ? value : typeof value === 'string' ? new Date(value) : undefined;
-  if (!date || !Number.isFinite(date.getTime())) return undefined;
-  return date.toISOString();
 }
 
 function sanitizeSlice(value: unknown): RoutineSlice | null {
@@ -245,18 +239,18 @@ export function createRoutineContext({
   allowlist = DEFAULT_ROUTINE_CONTEXT_SLICES,
   metadata,
   now = () => new Date(),
-}: CreateRoutineContextArgs): RoutineContextLike {
+}: CreateRoutineContextArgs = {}): RoutineContextLike {
   const providerMetadata: ContextProviderMetadata = {
     provider: 'cloudflare-r2',
     source: 'r2-binding',
-    bucket: 'thoughtseed-vault',
+    bucket: 'thoughtseed-context-projections',
     plane: 'cloudflare-source-plane',
-    mode: 'allowlisted-exact-keys',
+    mode: 'validated-context-projections',
     ...metadata,
   };
 
   return {
-    async getSnapshot({ routine }) {
+    async getSnapshot({ tenant, routine }) {
       const slices = allowlist[routine] ?? [];
       const sections: RoutineContextSection[] = [];
 
@@ -269,7 +263,10 @@ export function createRoutineContext({
           sections.push({
             id: safeString(slice.id, MAX_TITLE_LENGTH),
             title: safeString(slice.title, MAX_TITLE_LENGTH),
-            items: [noSignalItem(slice, bucket ? undefined : 'R2 bucket binding is unavailable.')],
+            items: [noSignalItem(
+              slice,
+              bucket ? undefined : 'Context projection bucket binding is unavailable.',
+            )],
             signalState: 'blocked-no-signal',
             exactKeyCount: safeKeys.length,
             resolvedKeyCount: 0,
@@ -283,6 +280,7 @@ export function createRoutineContext({
         const items = [];
         let staleKeyCount = 0;
         let missingKeyCount = 0;
+        let invalidKeyCount = 0;
         const evaluatedAt = now().getTime();
         for (const key of safeKeys) {
           const object = await bucket.get(key);
@@ -290,26 +288,42 @@ export function createRoutineContext({
             missingKeyCount += 1;
             continue;
           }
-          const observedAt = safeUploadedAt(object.uploaded);
-          const ageSeconds = observedAt
-            ? Math.max(0, Math.floor((evaluatedAt - Date.parse(observedAt)) / 1000))
-            : undefined;
-          const signalState = observedAt && staleAfterSeconds
-            ? ageSeconds! > staleAfterSeconds ? 'stale' : 'current'
-            : 'freshness-unknown';
-          if (signalState === 'stale') {
-            staleKeyCount += 1;
-            items.push(staleSignalItem(slice, key, observedAt!, ageSeconds!));
+          let envelope;
+          try {
+            envelope = await validateContextProjection(JSON.parse(await object.text()));
+          } catch {
+            invalidKeyCount += 1;
+            items.push(noSignalItem(
+              slice,
+              'Exact allowlisted object is not a valid context projection envelope.',
+            ));
             continue;
           }
-          const markdown = await object.text();
+          if (envelope.key !== key || envelope.tenantId !== tenant || envelope.routine !== routine) {
+            invalidKeyCount += 1;
+            items.push(noSignalItem(
+              slice,
+              'Context projection identity does not match the exact requested tenant, routine, and key.',
+            ));
+            continue;
+          }
+          const observedAt = envelope.producedAt;
+          const ageSeconds = Math.max(0, Math.floor((evaluatedAt - Date.parse(observedAt)) / 1000));
+          const expired = evaluatedAt >= Date.parse(envelope.expiresAt);
+          const exceededConfiguredAge = staleAfterSeconds !== undefined && ageSeconds > staleAfterSeconds;
+          const signalState = expired || exceededConfiguredAge ? 'stale' : 'current';
+          if (signalState === 'stale') {
+            staleKeyCount += 1;
+            items.push(staleSignalItem(slice, key, observedAt, ageSeconds));
+            continue;
+          }
           items.push({
-            title: firstMarkdownTitle(markdown, key),
-            summary: summarizeMarkdown(markdown),
+            title: firstMarkdownTitle(envelope.markdown, key),
+            summary: summarizeMarkdown(envelope.markdown),
             sourceKey: key,
             signalState,
-            ...(observedAt ? { observedAt } : {}),
-            ...(ageSeconds !== undefined ? { ageSeconds } : {}),
+            observedAt,
+            ageSeconds,
           });
         }
 
@@ -321,7 +335,7 @@ export function createRoutineContext({
           ));
         }
 
-        const resolvedKeyCount = safeKeys.length - missingKeyCount;
+        const resolvedKeyCount = safeKeys.length - missingKeyCount - invalidKeyCount;
         const itemStates = new Set(items.map((item) => item.signalState));
         const signalState = itemStates.size > 1
           ? 'mixed'
@@ -329,14 +343,16 @@ export function createRoutineContext({
             ? 'current'
             : itemStates.has('stale')
               ? 'stale'
-              : itemStates.has('freshness-unknown')
-                ? 'freshness-unknown'
+              : itemStates.has('blocked-no-signal')
+                ? 'blocked-no-signal'
                 : 'no-signal';
 
         sections.push({
           id: safeString(slice.id, MAX_TITLE_LENGTH),
           title: safeString(slice.title, MAX_TITLE_LENGTH),
-          items: items.length ? items : [noSignalItem(slice, 'No allowlisted R2 objects produced a readable signal.')],
+          items: items.length
+            ? items
+            : [noSignalItem(slice, 'No allowlisted context projection objects produced a readable signal.')],
           signalState,
           exactKeyCount: safeKeys.length,
           resolvedKeyCount,

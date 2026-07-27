@@ -11,6 +11,11 @@ import {
   type R2BucketLike,
   type VectorizeIndexLike,
 } from './context-bindings.ts';
+import {
+  CONTEXT_PROJECTION_KEY,
+  CONTEXT_PROJECTION_SCHEMA,
+  contentDigestForMarkdown,
+} from './context-projections.ts';
 
 const fakeWorkerEnv = (overrides: Record<string, unknown> = {}) => ({
   QUESTS: {
@@ -20,6 +25,25 @@ const fakeWorkerEnv = (overrides: Record<string, unknown> = {}) => ({
   },
   ...overrides,
 });
+
+async function projectionEnvelope(overrides: Record<string, unknown> = {}) {
+  const markdown = typeof overrides.markdown === 'string'
+    ? overrides.markdown
+    : '# Daily Standup\nBounded evidence';
+  return {
+    schema: CONTEXT_PROJECTION_SCHEMA,
+    key: CONTEXT_PROJECTION_KEY,
+    tenantId: 'cambium',
+    routine: 'daily-standup-digest',
+    generation: 1,
+    producedAt: '2026-07-28T08:00:00.000Z',
+    expiresAt: '2026-07-28T20:00:00.000Z',
+    sourceRevision: 'git:abc123',
+    contentDigest: await contentDigestForMarkdown(markdown),
+    markdown,
+    ...overrides,
+  };
+}
 
 test('worker adapter serves the mini app shell when root URL carries Telegram query params', async () => {
   const response = await worker.fetch(
@@ -33,7 +57,138 @@ test('worker adapter serves the mini app shell when root URL carries Telegram qu
   assert.match(html, /renderBranches/);
 });
 
-test('routine adapter reads only explicit safe exact keys and summarizes markdown', async () => {
+test('routine adapter validates and summarizes the exact current projection envelope', async () => {
+  const calls: string[] = [];
+  const stored = await projectionEnvelope({
+    markdown: '# Daily Standup\nAlice shipped bounded context. token=super-secret',
+    contentDigest: await contentDigestForMarkdown('# Daily Standup\nAlice shipped bounded context. token=super-secret'),
+  });
+  const routineContext = createRoutineContext({
+    bucket: {
+      async get(key) {
+        calls.push(key);
+        return { key, text: async () => JSON.stringify(stored) };
+      },
+    },
+    now: () => new Date('2026-07-28T10:00:00.000Z'),
+  });
+
+  const snapshot = await routineContext.getSnapshot({
+    tenant: 'cambium',
+    routine: 'daily-standup-digest',
+  });
+
+  assert.deepEqual(calls, [CONTEXT_PROJECTION_KEY]);
+  assert.equal(snapshot.metadata?.bucket, 'thoughtseed-context-projections');
+  assert.equal(snapshot.sections.length, 1);
+  const section = snapshot.sections[0] as any;
+  assert.equal(section.signalState, 'current');
+  assert.equal(section.items[0].title, 'Daily Standup');
+  assert.match(section.items[0].summary, /Alice shipped bounded context/);
+  assert.doesNotMatch(section.items[0].summary, /super-secret|markdown|contentDigest/);
+  assert.equal(section.items[0].sourceKey, CONTEXT_PROJECTION_KEY);
+  assert.equal(section.items[0].observedAt, '2026-07-28T08:00:00.000Z');
+  assert.equal(section.items[0].ageSeconds, 7_200);
+});
+
+test('routine adapter marks an expired projection stale without returning markdown', async () => {
+  const stored = await projectionEnvelope({
+    markdown: '# Daily Standup\nExpired evidence must not surface.',
+    contentDigest: await contentDigestForMarkdown('# Daily Standup\nExpired evidence must not surface.'),
+  });
+  const routineContext = createRoutineContext({
+    bucket: {
+      get: async (key) => ({ key, text: async () => JSON.stringify(stored) }),
+    },
+    now: () => new Date('2026-07-28T20:00:00.001Z'),
+  });
+
+  const snapshot = await routineContext.getSnapshot({
+    tenant: 'cambium',
+    routine: 'daily-standup-digest',
+  });
+  const section = snapshot.sections[0] as any;
+
+  assert.equal(section.signalState, 'stale');
+  assert.equal(section.items[0].signalState, 'stale');
+  assert.equal(section.items[0].sourceKey, CONTEXT_PROJECTION_KEY);
+  assert.doesNotMatch(JSON.stringify(section), /Expired evidence must not surface/);
+});
+
+test('routine adapter reports blocked-no-signal when projection binding is missing', async () => {
+  const routineContext = createRoutineContext();
+  const snapshot = await routineContext.getSnapshot({
+    tenant: 'cambium',
+    routine: 'daily-standup-digest',
+  });
+
+  assert.equal(snapshot.sections.length, 1);
+  const section = snapshot.sections[0] as any;
+  assert.equal(section.signalState, 'blocked-no-signal');
+  assert.equal(section.items[0].signalState, 'blocked-no-signal');
+  assert.match(section.items[0].summary, /projection bucket binding is unavailable/i);
+});
+
+test('worker routine reads only CONTEXT_PROJECTIONS and never THOUGHTSEED_VAULT', async () => {
+  const projectionCalls: string[] = [];
+  let vaultCalled = false;
+  const stored = await projectionEnvelope();
+  const response = await worker.fetch(new Request(
+    'https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest',
+    { headers: { authorization: 'Bearer context-token' } },
+  ), fakeWorkerEnv({
+    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ALLOWED_TENANTS: 'cambium',
+    CONTEXT_PROJECTIONS: {
+      get: async (key: string) => {
+        projectionCalls.push(key);
+        return { key, text: async () => JSON.stringify(stored) };
+      },
+    },
+    THOUGHTSEED_VAULT: {
+      get: async () => {
+        vaultCalled = true;
+        throw new Error('routine context must not read backup/business storage');
+      },
+    },
+  }) as any);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(projectionCalls, [CONTEXT_PROJECTION_KEY]);
+  assert.equal(vaultCalled, false);
+  const payload = await response.json() as any;
+  assert.equal(payload.sections[0].signalState, 'current');
+});
+
+test('worker projection write persists through CONTEXT_PROJECTIONS with its dedicated token', async () => {
+  let write: { key: string; value: Uint8Array; options: unknown } | undefined;
+  const body = await projectionEnvelope();
+  const response = await worker.fetch(new Request('https://worker.local/v1/context/projections', {
+    method: 'POST',
+    headers: {
+      authorization: 'Bearer projection-token',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  }), fakeWorkerEnv({
+    CONTEXT_PROJECTION_WRITE_TOKEN: 'projection-token',
+    CONTEXT_PROJECTIONS: {
+      get: async () => null,
+      put: async (key: string, value: Uint8Array, options: unknown) => {
+        write = { key, value, options };
+        return { key, text: async () => new TextDecoder().decode(value) };
+      },
+    },
+  }) as any);
+
+  assert.equal(response.status, 201);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(write?.key, CONTEXT_PROJECTION_KEY);
+  assert.equal(new TextDecoder().decode(write?.value), JSON.stringify(body));
+  assert.doesNotMatch(await response.text(), /markdown|bucket|metadata|Bounded evidence/i);
+});
+
+test('routine adapter reads only explicit safe exact keys and blocks raw non-envelope objects', async () => {
   const calls: string[] = [];
   const objects = new Map([
     ['routines/daily/standups/2026-06-25.md', '# Standup 2026-06-25\n\n- Alice shipped bounded context.\n- token=super-secret'],
@@ -66,17 +221,17 @@ test('routine adapter reads only explicit safe exact keys and summarizes markdow
   assert.equal(snapshot.sections.length, 1);
   const section = snapshot.sections[0] as any;
   assert.equal(section.items.length, 1);
-  assert.equal(section.items[0].title, 'Standup 2026-06-25');
-  assert.match(section.items[0].summary, /Alice shipped bounded context/);
+  assert.equal(section.items[0].signalState, 'blocked-no-signal');
+  assert.match(section.items[0].summary, /not a valid context projection envelope/);
   assert.doesNotMatch(section.items[0].summary, /#|super-secret/);
-  assert.equal(section.items[0].sourceKey, 'routines/daily/standups/2026-06-25.md');
+  assert.equal(section.items[0].sourceKey, undefined);
 });
 
-test('default blocked slices do not call R2 and produce blocked no-signal summaries', async () => {
-  let called = false;
+test('default slice reads only the frozen key and reports a missing projection', async () => {
+  const calls: string[] = [];
   const bucket: R2BucketLike = {
-    async get() {
-      called = true;
+    async get(key) {
+      calls.push(key);
       return null;
     },
   };
@@ -84,11 +239,11 @@ test('default blocked slices do not call R2 and produce blocked no-signal summar
 
   const snapshot = await routineContext.getSnapshot({ tenant: 'cambium', routine: 'daily-standup-digest' });
 
-  assert.equal(called, false);
-  assert.equal(snapshot.sections.length, 2);
+  assert.deepEqual(calls, [CONTEXT_PROJECTION_KEY]);
+  assert.equal(snapshot.sections.length, 1);
   const summaries = JSON.stringify(snapshot.sections);
   assert.match(summaries, /Blocked\/no-signal/);
-  assert.match(summaries, /R2 routine object keys are not verified/);
+  assert.match(summaries, /1 of 1 exact allowlisted R2 objects are missing/);
   assert.doesNotMatch(summaries, /sourceKey/);
 });
 
@@ -147,42 +302,42 @@ test('routine adapter caps sections before any R2 reads', async () => {
   assert.deepEqual(calls, Array.from({ length: 8 }, (_, index) => `reports/slice-${index}.md`));
 });
 
-test('worker preserves accepted 300-character source keys and rejects longer keys before R2', async () => {
+test('routine allowlist preserves accepted 300-character keys and rejects longer keys before R2', async () => {
   const acceptedKey = `${'a'.repeat(297)}.md`;
   const rejectedKey = `${'b'.repeat(298)}.md`;
   assert.equal(acceptedKey.length, 300);
   assert.equal(rejectedKey.length, 301);
 
   const calls: string[] = [];
-  const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=weekly-client-report', {
-    headers: { authorization: 'Bearer context-token' },
-  }), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
-    CONTEXT_ALLOWED_TENANTS: 'cambium',
-    CONTEXT_ROUTINE_ALLOWLIST_JSON: JSON.stringify({
-      'weekly-client-report': [{
-        id: 'client-report-sources',
-        title: 'Client report sources',
-        keys: [acceptedKey, rejectedKey],
-      }],
-    }),
-    THOUGHTSEED_VAULT: {
+  const allowlist = parseRoutineAllowlistJson(JSON.stringify({
+    'weekly-client-report': [{
+      id: 'client-report-sources',
+      title: 'Client report sources',
+      keys: [acceptedKey, rejectedKey],
+    }],
+  }));
+  const routineContext = createRoutineContext({
+    allowlist,
+    bucket: {
       get: async (key: string) => {
         calls.push(key);
         return { key, text: async () => '# Weekly\n\nBounded summary.' };
       },
     },
-  }) as any);
+  });
 
-  assert.equal(response.status, 200);
+  const snapshot = await routineContext.getSnapshot({
+    tenant: 'cambium',
+    routine: 'weekly-client-report',
+  });
   assert.deepEqual(calls, [acceptedKey]);
-  const payload = await response.json() as any;
-  assert.equal(payload.sections[0].exactKeyCount, 1);
-  assert.equal(payload.sections[0].items[0].sourceKey, acceptedKey);
-  assert.equal(payload.sections[0].items[0].sourceKey.length, 300);
+  const section = snapshot.sections[0] as any;
+  assert.equal(section.exactKeyCount, 1);
+  assert.equal(section.items[0].signalState, 'blocked-no-signal');
+  assert.equal(section.items[0].sourceKey, undefined);
 });
 
-test('weekly report reads only configured exact keys and reports current, stale, and missing counts', async () => {
+test('routine adapter reports invalid and missing projection objects without leaking their bodies', async () => {
   const calls: string[] = [];
   const textCalls: string[] = [];
   const objects = new Map<string, { markdown: string; uploaded: Date }>([
@@ -233,26 +388,22 @@ test('weekly report reads only configured exact keys and reports current, stale,
     'reports/client-b/weekly.md',
     'reports/client-c/weekly.md',
   ]);
-  assert.deepEqual(textCalls, ['reports/client-a/weekly.md']);
+  assert.deepEqual(textCalls, ['reports/client-a/weekly.md', 'reports/client-b/weekly.md']);
   const section = snapshot.sections[0] as any;
   assert.equal(section.signalState, 'mixed');
   assert.equal(section.exactKeyCount, 3);
-  assert.equal(section.resolvedKeyCount, 2);
-  assert.equal(section.staleKeyCount, 1);
+  assert.equal(section.resolvedKeyCount, 0);
+  assert.equal(section.staleKeyCount, 0);
   assert.equal(section.missingKeyCount, 1);
   assert.equal(section.staleAfterSeconds, 86_400);
-  assert.equal(section.items[0].signalState, 'current');
-  assert.equal(section.items[0].observedAt, '2026-07-14T18:00:00.000Z');
-  assert.equal(section.items[0].ageSeconds, 21_600);
-  assert.equal(section.items[1].signalState, 'stale');
-  assert.equal(section.items[1].sourceKey, 'reports/client-b/weekly.md');
-  assert.match(section.items[1].summary, /^Blocked\/no-signal:/);
+  assert.equal(section.items[0].signalState, 'blocked-no-signal');
+  assert.equal(section.items[1].signalState, 'blocked-no-signal');
   assert.equal(section.items[2].signalState, 'missing');
   assert.match(section.items[2].summary, /1 of 3 exact allowlisted R2 objects are missing/);
   assert.doesNotMatch(JSON.stringify(section), /do-not-return|stale-body-must-not-be-read|Awaiting an approved decision|rawBody|fullMarkdown/);
 });
 
-test('weekly report treats unverified freshness as explicit unknown instead of current', async () => {
+test('routine adapter treats malformed raw objects as blocked-no-signal', async () => {
   const routineContext = createRoutineContext({
     bucket: {
       get: async (key) => ({ key, text: async () => '# Weekly\n\nBounded summary.' }),
@@ -269,8 +420,8 @@ test('weekly report treats unverified freshness as explicit unknown instead of c
   const snapshot = await routineContext.getSnapshot({ tenant: 'cambium', routine: 'weekly-client-report' });
   const section = snapshot.sections[0] as any;
 
-  assert.equal(section.signalState, 'freshness-unknown');
-  assert.equal(section.items[0].signalState, 'freshness-unknown');
+  assert.equal(section.signalState, 'blocked-no-signal');
+  assert.equal(section.items[0].signalState, 'blocked-no-signal');
   assert.equal(section.staleAfterSeconds, undefined);
   assert.equal(section.items[0].observedAt, undefined);
 });
@@ -434,34 +585,28 @@ test('summarizeMarkdown returns bounded plain text', () => {
 
 test('worker runtime preserves query params for routine snapshots', async () => {
   const calls: string[] = [];
+  const stored = await projectionEnvelope();
   const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
     headers: { authorization: 'Bearer context-token' },
   }), fakeWorkerEnv({
     CONTEXT_ROUTE_TOKEN: 'context-token',
     CONTEXT_ALLOWED_TENANTS: 'cambium',
-    CONTEXT_ROUTINE_ALLOWLIST_JSON: JSON.stringify({
-      'daily-standup-digest': [{
-        id: 'standups',
-        title: 'Standups',
-        keys: ['routines/daily/standups/2026-06-25.md'],
-      }],
-    }),
-    THOUGHTSEED_VAULT: {
+    CONTEXT_PROJECTIONS: {
       get: async (key: string) => {
         calls.push(key);
-        return { text: async () => '# Standup\nReady for Hermes.' };
+        return { text: async () => JSON.stringify(stored) };
       },
     },
   }) as any);
 
   assert.equal(response.status, 200);
-  assert.deepEqual(calls, ['routines/daily/standups/2026-06-25.md']);
+  assert.deepEqual(calls, [CONTEXT_PROJECTION_KEY]);
   const payload = await response.json() as any;
   assert.equal(payload.routine, 'daily-standup-digest');
-  assert.equal(payload.sections[0].items[0].summary, 'Standup Ready for Hermes.');
+  assert.equal(payload.sections[0].items[0].summary, 'Daily Standup Bounded evidence');
 });
 
-test('worker rejects unauthenticated weekly report before any R2 read', async () => {
+test('worker rejects unauthenticated weekly report before any projection read', async () => {
   let called = false;
   const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=weekly-client-report'), fakeWorkerEnv({
     CONTEXT_ROUTE_TOKEN: 'context-token',
@@ -474,7 +619,7 @@ test('worker rejects unauthenticated weekly report before any R2 read', async ()
         keys: ['reports/client-a/weekly.md'],
       }],
     }),
-    THOUGHTSEED_VAULT: {
+    CONTEXT_PROJECTIONS: {
       get: async () => {
         called = true;
         return { text: async () => '# Must not be read' };
@@ -513,11 +658,11 @@ test('weekly-only runtime configuration preserves daily standup blocked defaults
   assert.equal(called, false);
   const payload = await response.json() as any;
   assert.equal(payload.routine, 'daily-standup-digest');
-  assert.equal(payload.sections.length, 2);
+  assert.equal(payload.sections.length, 1);
   assert.equal(payload.sections[0].signalState, 'blocked-no-signal');
 });
 
-test('worker runtime does not expose routine context without R2 binding', async () => {
+test('worker runtime exposes explicit blocked-no-signal without projection binding', async () => {
   const health = await worker.fetch(new Request('https://worker.local/v1/context/health', {
     headers: { authorization: 'Bearer context-token' },
   }), fakeWorkerEnv({
@@ -527,7 +672,7 @@ test('worker runtime does not expose routine context without R2 binding', async 
 
   assert.equal(health.status, 200);
   const healthPayload = await health.json() as any;
-  assert.equal(healthPayload.capabilities.routineSnapshot, false);
+  assert.equal(healthPayload.capabilities.routineSnapshot, true);
 
   const snapshot = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
     headers: { authorization: 'Bearer context-token' },
@@ -536,8 +681,10 @@ test('worker runtime does not expose routine context without R2 binding', async 
     CONTEXT_ALLOWED_TENANTS: 'cambium',
   }) as any);
 
-  assert.equal(snapshot.status, 503);
-  assert.match(await snapshot.text(), /routine context not configured/);
+  assert.equal(snapshot.status, 200);
+  const snapshotPayload = await snapshot.json() as any;
+  assert.equal(snapshotPayload.sections[0].signalState, 'blocked-no-signal');
+  assert.match(snapshotPayload.sections[0].items[0].summary, /projection bucket binding is unavailable/i);
 });
 
 test('worker runtime fails closed without explicit context tenant policy', async () => {
@@ -546,7 +693,7 @@ test('worker runtime fails closed without explicit context tenant policy', async
     headers: { authorization: 'Bearer context-token' },
   }), fakeWorkerEnv({
     CONTEXT_ROUTE_TOKEN: 'context-token',
-    THOUGHTSEED_VAULT: {
+    CONTEXT_PROJECTIONS: {
       get: async () => {
         called = true;
         return { text: async () => '# Should not be read' };

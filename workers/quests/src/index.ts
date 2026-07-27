@@ -8,6 +8,7 @@ import {
   createSemanticRecall,
   parseRoutineAllowlistJson,
 } from './context-bindings.ts';
+import { createContextProjectionStore } from './context-projections.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
@@ -58,6 +59,7 @@ interface Env {
   };
   BRIDGE_DB?: D1DatabaseLike;
   THOUGHTSEED_VAULT?: R2BucketLike;
+  CONTEXT_PROJECTIONS?: R2BucketLike;
   CAMBIUM_CORTEX?: VectorizeIndexLike;
   QUESTS_PUSH_TOKEN?: string;
   GATE_BOT_ID?: string;
@@ -71,6 +73,7 @@ interface Env {
   HANDOFF_SECRET?: string;
   PROVIDER_BROKER_TOKEN?: string;
   CONTEXT_ROUTE_TOKEN?: string;
+  CONTEXT_PROJECTION_WRITE_TOKEN?: string;
   CONTEXT_ALLOWED_TENANTS?: string;
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
@@ -94,6 +97,7 @@ interface Env {
   COMMAND_CODE_API_KEY?: string;
   COMMAND_CODE_BASE_URL?: string;
   COMMAND_CODE_DEFAULT_MODEL?: string;
+  COMMAND_CODE_EGRESS_TOKEN?: string;
   OPENCODE_API_KEY?: string;
   OPENCODE_BASE_URL?: string;
   OPENCODE_DEFAULT_MODEL?: string;
@@ -1257,25 +1261,17 @@ export default {
         defaultModel: env.NEBIUS_DEFAULT_MODEL || 'Qwen/Qwen3-235B-A22B-Instruct-2507',
         models: env.NEBIUS_DEFAULT_MODEL ? [env.NEBIUS_DEFAULT_MODEL] : ['Qwen/Qwen3-235B-A22B-Instruct-2507'],
       } : undefined,
-      // Command Code speaks a bespoke protocol, NOT OpenAI chat: a hoisted top-level
-      // `system` string, its own message/tool part shapes, a params envelope POSTed
-      // to /alpha/generate, and a bespoke event stream back.
-      //
-      // The intended design was to let OmniRoute's own CommandCodeExecutor do that
-      // translation and point it here. It cannot: OmniRoute runs from a compiled
-      // Next.js bundle, and the executor reads a STATIC registry baseUrl with no
-      // per-connection override — so the call never reaches the broker. Patching the
-      // shipped source has no effect because that source is not what executes.
-      //
-      // Hence translate: 'command-code'. This is the one provider the broker does not
-      // proxy byte-for-byte; see command-code-adapter.ts for the wire format and the
-      // provenance of each rule.
+      // Command Code's supported Provider API is OpenAI-compatible. Keep this route
+      // byte-transparent so server traffic does not depend on the private CLI
+      // /alpha/generate protocol retained by command-code-adapter.ts.
       'command-code': env.COMMAND_CODE_API_KEY ? {
         apiKey: env.COMMAND_CODE_API_KEY,
-        baseUrl: env.COMMAND_CODE_BASE_URL || 'https://api.commandcode.ai',
+        baseUrl: env.COMMAND_CODE_BASE_URL || 'https://api.commandcode.ai/provider/v1',
         defaultModel: env.COMMAND_CODE_DEFAULT_MODEL || 'deepseek/deepseek-v4-flash',
         models: env.COMMAND_CODE_DEFAULT_MODEL ? [env.COMMAND_CODE_DEFAULT_MODEL] : ['deepseek/deepseek-v4-flash'],
-        translate: 'command-code',
+        staticHeaders: env.COMMAND_CODE_EGRESS_TOKEN
+          ? { 'x-hermes-egress-token': env.COMMAND_CODE_EGRESS_TOKEN }
+          : undefined,
       } : undefined,
       // Anthropic-shaped, unlike the OpenAI three above: the key goes in x-api-key
       // rather than `authorization: Bearer`, and the caller's anthropic-version header
@@ -1305,7 +1301,7 @@ export default {
       fetch: fetch.bind(globalThis),
     } : undefined;
     let contextRoutes: ContextRouteDeps | undefined;
-    if (env.CONTEXT_ROUTE_TOKEN) {
+    if (env.CONTEXT_ROUTE_TOKEN || env.CONTEXT_PROJECTION_WRITE_TOKEN) {
       const embeddingProviderId = env.CONTEXT_EMBEDDING_PROVIDER?.trim() || 'nvidia';
       const embeddingProvider = providers[embeddingProviderId];
       const embed = createProviderEmbedder({
@@ -1315,9 +1311,13 @@ export default {
       });
       contextRoutes = {
         token: env.CONTEXT_ROUTE_TOKEN,
+        projectionWriteToken: env.CONTEXT_PROJECTION_WRITE_TOKEN,
+        projectionStore: env.CONTEXT_PROJECTIONS?.put
+          ? createContextProjectionStore({ bucket: env.CONTEXT_PROJECTIONS })
+          : undefined,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
-        routineContext: env.THOUGHTSEED_VAULT ? createRoutineContext({
-          bucket: env.THOUGHTSEED_VAULT,
+        routineContext: env.CONTEXT_ROUTE_TOKEN ? createRoutineContext({
+          bucket: env.CONTEXT_PROJECTIONS,
           allowlist: {
             ...DEFAULT_ROUTINE_CONTEXT_SLICES,
             ...(parseRoutineAllowlistJson(env.CONTEXT_ROUTINE_ALLOWLIST_JSON) ?? {}),
