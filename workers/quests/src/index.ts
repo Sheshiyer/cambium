@@ -94,7 +94,13 @@ interface Env {
   COMMAND_CODE_API_KEY?: string;
   COMMAND_CODE_BASE_URL?: string;
   COMMAND_CODE_DEFAULT_MODEL?: string;
+  OPENCODE_API_KEY?: string;
+  OPENCODE_BASE_URL?: string;
+  OPENCODE_DEFAULT_MODEL?: string;
   GATE_BRANCH_MAP_TENANTS?: string;
+  TF_ACCESS_TEAM_DOMAIN?: string;
+  TF_ACCESS_AUD?: string;
+  PLEXUS_WHOAMI_URL?: string;
 }
 
 function parseJsonRecord(raw: string | null | undefined): Record<string, unknown> {
@@ -1281,6 +1287,16 @@ export default {
         models: env.KIMI_CODING_DEFAULT_MODEL ? [env.KIMI_CODING_DEFAULT_MODEL] : ['k3'],
         authHeader: 'x-api-key',
       } : undefined,
+      // opencode zen: one OpenAI-shaped key fronting a multi-vendor catalog
+      // (claude-*, gpt-5.*, kimi, glm, deepseek, grok, gemini + free lanes).
+      // This is the only broker route to Claude-class models on EC2 — the
+      // device-bound claude OAuth connection cannot follow off the Mac.
+      opencode: env.OPENCODE_API_KEY ? {
+        apiKey: env.OPENCODE_API_KEY,
+        baseUrl: env.OPENCODE_BASE_URL || 'https://opencode.ai/zen/v1',
+        defaultModel: env.OPENCODE_DEFAULT_MODEL || 'deepseek-v4-flash',
+        models: env.OPENCODE_DEFAULT_MODEL ? [env.OPENCODE_DEFAULT_MODEL] : ['deepseek-v4-flash'],
+      } : undefined,
     };
     const workerFetch = fetch.bind(globalThis);
     const providerBroker = env.PROVIDER_BROKER_TOKEN ? {
@@ -1343,6 +1359,11 @@ export default {
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       branchMapTenants: parseAllowedTenants(env.GATE_BRANCH_MAP_TENANTS),
+      plexus: env.TF_ACCESS_TEAM_DOMAIN && env.TF_ACCESS_AUD ? {
+        teamDomain: env.TF_ACCESS_TEAM_DOMAIN,
+        aud: env.TF_ACCESS_AUD,
+        whoamiUrl: env.PLEXUS_WHOAMI_URL,
+      } : undefined,
       marketingRenderer: {
         activation: env.MARKETING_CREATE_ACTIVATION,
         apiKey: env.NVIDIA_MARKETING_CREATE_API_KEY,
