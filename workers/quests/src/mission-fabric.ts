@@ -283,6 +283,15 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const compare = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
+const CANONICAL_UTC_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+
+function assertCanonicalUtcTimestamp(value: unknown, label: string): string {
+  if (typeof value !== 'string' || !CANONICAL_UTC_TIMESTAMP.test(value) || Number.isNaN(Date.parse(value))) {
+    throw new Error(`${label} must be a canonical ISO-8601 UTC timestamp (for example 2026-07-28T09:00:00.000Z); received ${JSON.stringify(value)}`);
+  }
+  return value;
+}
+
 function stableJson(value: unknown, seen = new Set<object>()): string {
   if (value === null || typeof value !== 'object') {
     if (typeof value === 'number' && !Number.isFinite(value)) throw new Error('non-finite number is not serializable');
@@ -369,6 +378,7 @@ export function buildMissionFabricProjection(source: unknown, options: MissionFa
   if (typeof generatedAt !== 'string' || generatedAt.trim().length === 0) {
     throw new Error('compiler clock must return a generatedAt timestamp');
   }
+  assertCanonicalUtcTimestamp(generatedAt, 'generatedAt');
 
   const truncations = new Map<string, number>();
   const truncatedKinds = new Set<string>();
@@ -469,7 +479,7 @@ export function buildMissionFabricProjection(source: unknown, options: MissionFa
       requiredClusterIds: [],
       pinnedLoadoutId: null,
       leaseId: null,
-      proofRequirement: task.blocker ?? '',
+      proofRequirement: '',
       latestReceiptId: null,
     };
     nodes.push({ kind: 'task', value: node });
@@ -507,7 +517,6 @@ export function buildMissionFabricProjection(source: unknown, options: MissionFa
       sourceRef: cluster.assignmentEvidence,
     };
     nodes.push({ kind: 'skill-cluster', value: node });
-    pushEdge('requires-cluster', cluster.clusterId, cluster.clusterId);
   }
 
   const fences = new Map((facts.fences ?? []).map((fence) => [fence.taskId, fence.currentFence]));
@@ -589,11 +598,6 @@ export function buildMissionFabricProjection(source: unknown, options: MissionFa
     });
   }
 
-  for (const [index, entry] of (facts.evidence ?? []).entries()) {
-    if (index >= MISSION_FABRIC_CAPS.MAX_EDGES) break;
-    void entry;
-  }
-
   const sortedNodes = [...nodes].sort((a, b) => compare(nodeIdentity(a), nodeIdentity(b)));
   const sortedEdges = [...edges].sort((a, b) => compare(`${a.kind}:${a.fromId}:${a.toId}`, `${b.kind}:${b.fromId}:${b.toId}`));
   const sortedGaps = [...gaps].sort((a, b) => compare(a.gapId, b.gapId));
@@ -638,9 +642,19 @@ export function buildMissionFabricProjection(source: unknown, options: MissionFa
   };
 
   const asOfCandidates: string[] = [];
-  if (typeof facts.asOf === 'string' && facts.asOf.length > 0) asOfCandidates.push(facts.asOf);
-  for (const receipt of facts.receipts ?? []) if (receipt.verifiedAt !== null) asOfCandidates.push(receipt.verifiedAt);
-  for (const entry of facts.evidence ?? []) if (typeof entry.observedAt === 'string') asOfCandidates.push(entry.observedAt);
+  if (typeof facts.asOf === 'string' && facts.asOf.length > 0) {
+    asOfCandidates.push(assertCanonicalUtcTimestamp(facts.asOf, 'asOf candidate facts.asOf'));
+  }
+  for (const receipt of facts.receipts ?? []) {
+    if (receipt.verifiedAt !== null) {
+      asOfCandidates.push(assertCanonicalUtcTimestamp(receipt.verifiedAt, `asOf candidate receipt ${receipt.receiptId}.verifiedAt`));
+    }
+  }
+  for (const entry of facts.evidence ?? []) {
+    if (typeof entry.observedAt === 'string') {
+      asOfCandidates.push(assertCanonicalUtcTimestamp(entry.observedAt, `asOf candidate evidence ${entry.evidenceRef}.observedAt`));
+    }
+  }
   const asOf = asOfCandidates.sort(compare).at(-1) ?? generatedAt;
 
   return {

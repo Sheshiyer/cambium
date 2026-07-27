@@ -94,16 +94,28 @@ The compiler must not rename those fields or invent peer root types.
   so the digest can later be recomputed after redaction without volatile
   material.
 - **Timestamps.** `asOf` is the newest authoritative input timestamp and is
-  deterministic input. `generatedAt` comes only from an injected compiler
-  clock; the compiler never reads a wall clock. Wall-clock `servedAt` and
-  derived `freshness: 'fresh' | 'stale'` live only in the route's `delivery`
-  envelope and never enter the projection.
+  deterministic input. Every `asOf` candidate (`facts.asOf`, receipt
+  `verifiedAt`, evidence `observedAt`) and the injected `generatedAt` must be
+  a canonical ISO-8601 UTC timestamp (`…T…Z`); the compiler validates each
+  candidate and fails closed on malformed or non-UTC values before taking
+  the lexicographic maximum, because lexicographic ordering is only
+  chronologically sound within the canonical UTC form. `generatedAt` comes
+  only from an injected compiler clock; the compiler never reads a wall
+  clock. Wall-clock `servedAt` and derived `freshness: 'fresh' | 'stale'`
+  live only in the route's `delivery` envelope and never enter the
+  projection.
 - **Authority.** The compiler rejects projection-shaped input as an authority
   source (`sourceKind: 'projection'`). Source facts are read, never mutated;
   all compiler output is fresh objects.
 - **Joins.** Relationships join only on explicit typed identifiers from
   source facts. Missing or dangling joins become typed gaps, never invented
-  relationships.
+  relationships. An edge is never emitted merely to make a vocabulary member
+  appear used: `requires-cluster`, `pins-loadout`, and
+  `informs-next-intent` require authoritative task/cluster/loadout joins,
+  and a self-edge is never legitimate. Field mappings likewise carry source
+  semantics only: a source field that does not exist (for example a task
+  proof requirement) projects as the honest empty value, never a
+  repurposed neighbor such as a blocker.
 
 ## Bounds
 

@@ -195,3 +195,72 @@ test('digest is stable when recomputed from viewer-redacted content', () => {
   assert.notEqual(redactedDigest, projection.graphDigest);
   assert.equal(redactedDigest, projectionDigest({ ...redacted }));
 });
+
+test('never maps a task blocker into FabricTask.proofRequirement', () => {
+  const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, { clock: COMPILER_CLOCK });
+  const blocked = projection.nodes.find(
+    (node) => node.kind === 'task' && node.value.taskId === 'task-fabric-proof',
+  );
+  assert.ok(blocked && blocked.kind === 'task', 'expected the blocked fixture task to be projected');
+  assert.equal(blocked.value.proofRequirement, '', 'source has no proof-requirement field, so the projection must emit the honest empty value instead of inventing blocker semantics');
+});
+
+test('never emits a vocabulary edge without an authoritative typed join', () => {
+  const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, { clock: COMPILER_CLOCK });
+  for (const edge of projection.edges) {
+    assert.notEqual(edge.fromId, edge.toId, `self-edge ${edge.kind}:${edge.fromId} is never legitimate`);
+  }
+  assert.equal(
+    projection.edges.filter((edge) => edge.kind === 'requires-cluster').length,
+    0,
+    'requires-cluster edges need an authoritative task-to-cluster assignment; none exists in the Task 3 source vocabulary',
+  );
+  assert.equal(
+    projection.edges.filter((edge) => edge.kind === 'pins-loadout').length,
+    0,
+    'pins-loadout edges belong to Task 4 adapters and must not be fabricated',
+  );
+  assert.equal(
+    projection.edges.filter((edge) => edge.kind === 'informs-next-intent').length,
+    0,
+    'informs-next-intent edges belong to Task 4 adapters and must not be fabricated',
+  );
+});
+
+test('rejects malformed asOf source timestamps instead of comparing them lexicographically', () => {
+  const malformed = cloneSource();
+  malformed.asOf = '2026-07-28 09:00:00';
+  assert.throws(
+    () => buildMissionFabricProjection(malformed, { clock: COMPILER_CLOCK }),
+    /asOf.*ISO-8601 UTC/i,
+  );
+  const offset = cloneSource();
+  offset.asOf = '2026-07-28T09:00:00+05:30';
+  assert.throws(
+    () => buildMissionFabricProjection(offset, { clock: COMPILER_CLOCK }),
+    /asOf.*ISO-8601 UTC/i,
+  );
+  const badReceipt = cloneSource();
+  badReceipt.receipts[0] = { ...badReceipt.receipts[0], verifiedAt: 'not-a-timestamp' };
+  assert.throws(
+    () => buildMissionFabricProjection(badReceipt, { clock: COMPILER_CLOCK }),
+    /asOf.*ISO-8601 UTC/i,
+  );
+  const badEvidence = cloneSource();
+  badEvidence.evidence[0] = { ...badEvidence.evidence[0], observedAt: '2026-07-28T09:00:00' };
+  assert.throws(
+    () => buildMissionFabricProjection(badEvidence, { clock: COMPILER_CLOCK }),
+    /asOf.*ISO-8601 UTC/i,
+  );
+});
+
+test('rejects a non-canonical generatedAt from the injected compiler clock', () => {
+  assert.throws(
+    () => buildMissionFabricProjection(cloneSource(), { clock: { now: () => '2026-07-28T12:00:00' } }),
+    /generatedAt.*ISO-8601 UTC/i,
+  );
+  assert.throws(
+    () => buildMissionFabricProjection(cloneSource(), { clock: { now: () => 'July 28, 2026' } }),
+    /generatedAt.*ISO-8601 UTC/i,
+  );
+});
