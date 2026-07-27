@@ -31,6 +31,7 @@ import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-rou
 import { MINI_APP_SECTIONS, MINI_APP_MAP_SUBSECTIONS } from './mini-app-surface-contract.ts';
 import { filterSections, filterSubsections, type Principal } from './rbac.ts';
 import { createInvite as createConsultantInvite, verifyInvite as verifyConsultantInvite } from './invites.ts';
+import { resolvePlexusPrincipal, type PlexusGateConfig } from './lib/plexus-principal.ts';
 import { buildBranchMapProjection, projectionDigest } from './branch-map.ts';
 import { BRANCH_MAP_RECEIPT_READ_LIMIT } from './branch-map-receipt-store.ts';
 import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
@@ -431,6 +432,7 @@ export interface HandlerDeps {
   goalGraphStore?: GoalGraphStoreLike; // D1 Goal Graph authority for read-only branch projections
   branchMapReceiptStore?: BranchMapReceiptStoreLike; // D1 append-only transition evidence
   branchMapTenants?: string[]; // server-owned allowlist for Telegram map reads
+  plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → dev founder fallback)
 }
 
 export interface ProviderConfig {
@@ -3368,7 +3370,21 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (result.principal.tenant !== tenant) return json(403, { error: 'invite tenant mismatch' });
       return { status: 200, headers: { ...JSON_HEADERS }, body: await surfaceScopedQuestBody(deps.kv, tenant, stored, result.principal) };
     }
-    const principal = resolveSurfacePrincipal(req);
+    let principal: Principal | null = null;
+    if (deps.plexus) {
+      const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv);
+      if (resolved.kind === 'unauthenticated') {
+        return json(401, { error: 'access_identity_required', message: 'A verified Cloudflare Access identity is required.' });
+      }
+      if (resolved.kind === 'principal') {
+        principal = resolved.principal;
+      } else {
+        // 'unconfigured': deps.plexus was provided but env is partial — fail closed,
+        // never silently promote to the dev founder fallback.
+        return json(503, { error: 'plexus_gate_misconfigured', message: 'Plexus gate is enabled but Access env is incomplete.' });
+      }
+    }
+    if (!principal) principal = resolveSurfacePrincipal(req);
     if (!principal) {
       return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
     }
