@@ -264,3 +264,325 @@ test('rejects a non-canonical generatedAt from the injected compiler clock', () 
     /generatedAt.*ISO-8601 UTC/i,
   );
 });
+
+// ---------------------------------------------------------------------------
+// Task 4 — source adapters, reconciliation, and viewer redaction
+// ---------------------------------------------------------------------------
+
+import {
+  adaptBranchStories,
+  adaptCompanyPrograms,
+  adaptGoalGraph,
+  adaptQuestExecutionFacts,
+  redactMissionFabricProjection,
+} from './mission-fabric.ts';
+
+function branchStoryArc(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    branchId: 'branch-acme',
+    branchKind: 'client',
+    productId: 'product-acme-website',
+    name: 'Acme Corp Website',
+    role: 'client-delivery',
+    arcId: 'arc-x',
+    arcTitle: 'The Brief',
+    vision: { statement: 'A public site for Acme Corp.' },
+    icp: { primary: 'acme-buyer' },
+    kpis: [],
+    questline: [],
+    missions: [],
+    loops: [],
+    gates: [],
+    proofPaths: [],
+    promotion: { state: 'proof-only', currentGate: 'gate-brief', rule: 'proof ladder' },
+    controls: {
+      productSeed: {},
+      organRouting: [{ organ: 'web', owner: 'studio', input: 'brief', output: 'site', proofPath: 'proof/web', currentGate: 'gate-brief' }],
+      variableContractPayloads: [],
+      adapterServiceMap: [],
+      evidenceLedger: [],
+      approvals: [],
+      autonomyBoundary: 'founder-gate',
+      dispatchHints: [],
+      loops: [],
+      policySignals: [],
+      ui: { headline: 'h', currentFrontier: 'f', missionVerb: 'build', narrativeVoice: 'v', blockedCopy: 'b' },
+    },
+    source: { tenant: 'cambium-synthetic', schema: 'branch-packet.v1', indexFile: 'index.json', packetFile: 'branch-acme.json' },
+    gaps: [],
+    ...overrides,
+  };
+}
+
+function questFacts(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    sourceKind: 'quest-execution-facts.v1',
+    tenantId: 'cambium-synthetic',
+    tasks: [{ taskId: 'task-alpha', missionId: 'mission-one', fence: 4 }],
+    fences: [{ taskId: 'task-alpha', currentFence: 4 }],
+    runs: [
+      {
+        runId: 'run-alpha', taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', fence: 4, nonce: 'nonce-alpha', nonceExpiresAt: '2026-07-29T00:00:00.000Z',
+        receiptId: 'receipt-alpha', startedAt: '2026-07-28T09:00:00.000Z', terminalAt: '2026-07-28T09:05:00.000Z',
+      },
+    ],
+    receipts: [
+      {
+        receiptId: 'receipt-alpha', runId: 'run-alpha', taskId: 'task-alpha', status: 'verified',
+        evidenceRef: 'evidence-receipt-alpha', verifiedAt: '2026-07-28T09:05:00.000Z', durable: true,
+      },
+    ],
+    agents: [
+      { agentId: 'agent-cambium', state: 'available', capabilities: ['contracts'], currentTaskId: 'task-alpha', sourceRef: 'quest:agent-cambium' },
+    ],
+    skillClusters: [
+      { clusterId: 'cluster-contracts', state: 'active', capabilities: ['contracts'], eligibleAgentIds: ['agent-cambium'], sourceRef: 'quest:cluster-contracts' },
+    ],
+    taskClusterAssignments: [{ taskId: 'task-alpha', clusterId: 'cluster-contracts' }],
+    ...overrides,
+  };
+}
+
+function workNodes(nodes: readonly { kind: string; value: unknown }[]): Array<Record<string, unknown>> {
+  return nodes.filter((node) => node.kind === 'work').map((node) => node.value as Record<string, unknown>);
+}
+
+test('adaptBranchStories maps a product branch to a sapling with promotion metadata', () => {
+  const nodes = adaptBranchStories([branchStoryArc({ branchKind: 'product', branchId: 'branch-product', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp', rule: 'proof ladder' } })]);
+  const work = workNodes(nodes as readonly { kind: string; value: unknown }[]);
+  assert.equal(work.length, 1);
+  assert.equal(work[0].kind, 'sapling');
+  assert.equal(work[0].branchKind, 'product');
+  assert.equal(work[0].branchId, 'branch-product');
+  assert.equal(work[0].promotionState, 'supervised-branch');
+  assert.equal(work[0].currentGate, 'gate-mvp');
+  assert.deepEqual(work[0].organRoute, ['web']);
+});
+
+test('adaptBranchStories maps a client branch to a client program and never to a sapling', () => {
+  const nodes = adaptBranchStories([branchStoryArc({})]);
+  const work = workNodes(nodes as readonly { kind: string; value: unknown }[]);
+  assert.equal(work.length, 1);
+  assert.equal(work[0].kind, 'program');
+  assert.equal(work[0].programKind, 'client');
+  assert.equal('promotionState' in work[0], false);
+  assert.equal('branchId' in work[0], false);
+});
+
+test('adaptBranchStories maps internal-service only through an explicit capability|operations mapping', () => {
+  const mapped = adaptBranchStories([branchStoryArc({
+    branchKind: 'internal-service',
+    branchId: 'branch-mailroom',
+    controls: {
+      productSeed: {},
+      organRouting: [],
+      variableContractPayloads: [],
+      adapterServiceMap: [{ providerRoute: 'ops/mailroom', inputs: 'in', outputs: 'out', failureModes: 'none', tenantMapping: 'operations', privacyBoundary: 'internal' }],
+      evidenceLedger: [],
+      approvals: [],
+      autonomyBoundary: 'founder-gate',
+      dispatchHints: [],
+      loops: [],
+      policySignals: [],
+      ui: { headline: 'h', currentFrontier: 'f', missionVerb: 'run', narrativeVoice: 'v', blockedCopy: 'b' },
+    },
+  })]);
+  const mappedWork = workNodes(mapped as readonly { kind: string; value: unknown }[]);
+  assert.equal(mappedWork.length, 1);
+  assert.equal(mappedWork[0].kind, 'program');
+  assert.equal(mappedWork[0].programKind, 'operations');
+
+  const unmapped = adaptBranchStories([branchStoryArc({ branchKind: 'internal-service', branchId: 'branch-mystery' })]);
+  const unmappedWork = workNodes(unmapped as readonly { kind: string; value: unknown }[]);
+  assert.equal(unmappedWork.length, 0, 'an unmapped internal-service branch must become a gap, never a fabricated program');
+  const gaps = (unmapped as readonly { kind: string; value?: unknown; gapId?: string; gapKind?: string }[]).filter((entry) => entry.kind === 'gap');
+  assert.equal(gaps.length, 1);
+  assert.match(String(gaps[0].gapId), /branch-mystery/);
+});
+
+test('adaptCompanyPrograms maps all four program kinds to ProgramWork', () => {
+  const packet = (programId: string, programKind: string): Record<string, unknown> => ({
+    schema: 'company-program-packet.v1',
+    programId,
+    tenantId: 'cambium-synthetic',
+    title: `Program ${programId}`,
+    programKind,
+    lifecycle: 'executing',
+    outcomeMetric: 'outcome',
+    authority: { kind: 'goal-graph', namespace: 'cambium.synthetic.goal-graph', graphVersion: 1 },
+    missionIds: ['mission-one'],
+  });
+  const nodes = adaptCompanyPrograms(['company', 'client', 'capability', 'operations'].map((kind) => packet(`program-${kind}`, kind)));
+  const work = workNodes(nodes as readonly { kind: string; value: unknown }[]);
+  assert.deepEqual(
+    work.map((value) => value.programKind).sort(),
+    ['capability', 'client', 'company', 'operations'],
+  );
+  for (const value of work) assert.equal(value.kind, 'program');
+});
+
+test('adaptCompanyPrograms emits a typed gap for a missing source and never fabricates a node', () => {
+  const nodes = adaptCompanyPrograms(null);
+  const work = workNodes(nodes as readonly { kind: string; value: unknown }[]);
+  assert.equal(work.length, 0);
+  const gaps = (nodes as readonly { kind: string; gapKind?: string }[]).filter((entry) => entry.kind === 'gap');
+  assert.equal(gaps.length, 1);
+  assert.match(String(gaps[0].gapKind), /missing|absent|unavailable/i);
+});
+
+test('adaptQuestExecutionFacts keeps the highest valid fence and rejects the stale-fence run', () => {
+  const facts = questFacts({
+    runs: [
+      {
+        runId: 'run-current', taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', fence: 4, nonce: 'nonce-current', nonceExpiresAt: '2026-07-29T00:00:00.000Z',
+        receiptId: 'receipt-alpha', startedAt: '2026-07-28T09:00:00.000Z', terminalAt: '2026-07-28T09:05:00.000Z',
+      },
+      {
+        runId: 'run-stale', taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'rejected', fence: 3, nonce: 'nonce-stale', nonceExpiresAt: '2026-07-29T00:00:00.000Z',
+        receiptId: 'receipt-stale', startedAt: '2026-07-28T08:00:00.000Z', terminalAt: null,
+      },
+    ],
+  });
+  const result = adaptQuestExecutionFacts(facts);
+  const runIds = result.nodes.filter((node) => node.kind === 'run').map((node) => (node.value as { runId: string }).runId);
+  assert.deepEqual(runIds, ['run-current']);
+  const staleGap = result.gaps.find((gap) => gap.kind === 'stale-fence');
+  assert.ok(staleGap, 'expected a stale-fence gap for the rejected run');
+  assert.equal(staleGap.subjectId, 'run-stale');
+});
+
+test('adaptQuestExecutionFacts rejects runs whose nonce or proof metadata is expired', () => {
+  const facts = questFacts({
+    runs: [
+      {
+        runId: 'run-expired', taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', fence: 4, nonce: 'nonce-expired', nonceExpiresAt: '2026-07-01T00:00:00.000Z',
+        receiptId: 'receipt-alpha', startedAt: '2026-07-28T09:00:00.000Z', terminalAt: '2026-07-28T09:05:00.000Z',
+      },
+    ],
+  });
+  const result = adaptQuestExecutionFacts(facts, { now: '2026-07-28T12:00:00.000Z' });
+  const runIds = result.nodes.filter((node) => node.kind === 'run').map((node) => (node.value as { runId: string }).runId);
+  assert.deepEqual(runIds, []);
+  const expiredGap = result.gaps.find((gap) => /expired/i.test(gap.kind));
+  assert.ok(expiredGap, 'expected an expired nonce/proof gap for the rejected run');
+  assert.equal(expiredGap.subjectId, 'run-expired');
+});
+
+test('adaptQuestExecutionFacts joins agents and skills only from explicit quest IDs, never titles', () => {
+  const facts = questFacts({
+    agents: [
+      { agentId: 'agent-cambium', state: 'available', capabilities: ['contracts'], currentTaskId: 'task-alpha', sourceRef: 'quest:agent-cambium' },
+      { agentId: 'agent-decoy', state: 'available', capabilities: ['contracts'], currentTaskId: null, sourceRef: 'quest:agent-decoy' },
+    ],
+    taskClusterAssignments: [{ taskId: 'task-alpha', clusterId: 'cluster-contracts' }],
+  });
+  const result = adaptQuestExecutionFacts(facts);
+  const assignmentEdges = result.edges.filter((edge) => edge.kind === 'assigned-to');
+  assert.deepEqual(assignmentEdges, [{ kind: 'assigned-to', fromId: 'task-alpha', toId: 'agent-cambium' }]);
+  const clusterEdges = result.edges.filter((edge) => edge.kind === 'requires-cluster');
+  assert.deepEqual(clusterEdges, [{ kind: 'requires-cluster', fromId: 'task-alpha', toId: 'cluster-contracts' }]);
+  for (const edge of result.edges) {
+    assert.notEqual(edge.toId, 'agent-decoy', 'relations must come from explicit IDs, never capability or title similarity');
+  }
+  const cluster = result.nodes.find((node) => node.kind === 'skill-cluster');
+  assert.ok(cluster && cluster.kind === 'skill-cluster');
+  assert.deepEqual(cluster.value.eligibleAgentIds, ['agent-cambium']);
+});
+
+test('adaptQuestExecutionFacts links task to run to a durable receipt ID', () => {
+  const result = adaptQuestExecutionFacts(questFacts());
+  const receiptNodes = result.nodes.filter((node) => node.kind === 'receipt');
+  assert.deepEqual(receiptNodes.map((node) => (node.value as { receiptId: string }).receiptId), ['receipt-alpha']);
+  const produces = result.edges.filter((edge) => edge.kind === 'produces');
+  assert.deepEqual(produces, [{ kind: 'produces', fromId: 'run-alpha', toId: 'receipt-alpha' }]);
+  const proves = result.edges.filter((edge) => edge.kind === 'proves');
+  assert.deepEqual(proves, [{ kind: 'proves', fromId: 'receipt-alpha', toId: 'task-alpha' }]);
+  const receipt = receiptNodes[0].value as { receiptId: string; runId: string; taskId: string; status: string };
+  assert.equal(receipt.runId, 'run-alpha');
+  assert.equal(receipt.taskId, 'task-alpha');
+  assert.equal(receipt.status, 'complete');
+});
+
+test('adaptQuestExecutionFacts rejects projection-shaped and wrong-tenant input', () => {
+  assert.throws(
+    () => adaptQuestExecutionFacts({ ...questFacts(), sourceKind: 'projection' }),
+    /projection/i,
+  );
+  assert.throws(
+    () => adaptQuestExecutionFacts(questFacts({ tenantId: 'tenant-foreign' }), { tenantId: 'cambium-synthetic' }),
+    /tenant/i,
+  );
+});
+
+test('adaptGoalGraph adapts goal graph nodes into fabric tasks without creating goals', () => {
+  const goalNode = {
+    nodeId: 'goal-node-1',
+    tenantId: 'cambium-synthetic',
+    namespace: 'cambium.synthetic.goal-graph',
+    externalId: 'task-alpha',
+    parentNodeId: null,
+    scope: 'micro',
+    desiredState: 'ship the contract',
+    currentState: 'contract drafted',
+    owner: 'founder',
+    nextAction: 'review',
+    waitCondition: null,
+    proofRequired: true,
+    reviewAt: null,
+    status: 'active',
+    sourceRef: 'goal-graph:goal-node-1',
+    sourceDigest: 'sha256:abc',
+    graphVersion: 3,
+    metadata: {},
+    createdAt: '2026-07-28T09:00:00.000Z',
+    updatedAt: '2026-07-28T09:00:00.000Z',
+  };
+  const nodes = adaptGoalGraph({ tenantId: 'cambium-synthetic', graphVersion: 3, nodes: [goalNode] });
+  assert.ok(nodes.length >= 1, 'expected at least one fabric node from the goal graph');
+  const taskNode = nodes.find((node) => node.kind === 'task');
+  assert.ok(taskNode && taskNode.kind === 'task');
+  assert.equal(taskNode.value.taskId, 'task-alpha');
+  assert.equal(taskNode.value.desiredState, 'ship the contract');
+  assert.equal(taskNode.value.proofRequirement === 'review', false, 'nextAction must not be repurposed as proof');
+});
+
+test('redactMissionFabricProjection hides private client labels and raw evidence for unauthorized viewers', () => {
+  const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, { clock: COMPILER_CLOCK });
+  const withClient = {
+    ...projection,
+    nodes: [
+      ...projection.nodes,
+      ...adaptBranchStories([branchStoryArc({})]),
+    ] as typeof projection.nodes,
+  };
+  const founder = redactMissionFabricProjection(withClient, { role: 'founder', tenantId: 'cambium-synthetic' });
+  const clientWork = founder.nodes.find((node) => node.kind === 'work' && node.value.kind === 'program' && node.value.programKind === 'client');
+  assert.ok(clientWork && clientWork.kind === 'work' && clientWork.value.kind === 'program');
+  assert.equal(clientWork.value.name, 'Acme Corp Website');
+
+  const unauthorized = redactMissionFabricProjection(withClient, { role: 'viewer', tenantId: 'cambium-synthetic' });
+  const redactedWork = unauthorized.nodes.find((node) => node.kind === 'work' && node.value.kind === 'program' && node.value.programKind === 'client');
+  assert.ok(redactedWork && redactedWork.kind === 'work' && redactedWork.value.kind === 'program');
+  assert.doesNotMatch(redactedWork.value.name, /Acme/, 'private client label must be redacted for unauthorized viewers');
+  for (const node of unauthorized.nodes) {
+    assert.doesNotMatch(JSON.stringify(node), /evidence-receipt-001|evidence-sapling-001/, 'raw evidence references must be redacted for unauthorized viewers');
+  }
+  assert.equal(unauthorized.graphVersion, withClient.graphVersion);
+  assert.equal(unauthorized.asOf, withClient.asOf);
+});
+
+test('redactMissionFabricProjection recomputes a stable graphDigest per fixed viewer', () => {
+  const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, { clock: COMPILER_CLOCK });
+  const viewer = { role: 'viewer' as const, tenantId: 'cambium-synthetic' };
+  const first = redactMissionFabricProjection(projection, viewer);
+  const second = redactMissionFabricProjection(projection, viewer);
+  assert.notEqual(first.graphDigest, projection.graphDigest, 'a redacted graph must not reuse the unredacted digest');
+  assert.equal(first.graphDigest, second.graphDigest, 'digest must be stable for the same fixed viewer');
+  assert.equal(first.graphDigest, projectionDigest(first), 'stored digest must equal recomputation over redacted canonical content');
+  const founder = redactMissionFabricProjection(projection, { role: 'founder', tenantId: 'cambium-synthetic' });
+  assert.equal(founder.graphDigest, projection.graphDigest, 'an authorized viewer sees the unredacted digest');
+});

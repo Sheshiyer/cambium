@@ -672,3 +672,499 @@ export function buildMissionFabricProjection(source: unknown, options: MissionFa
     gaps: sortedGaps,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Task 4 — source adapters, reconciliation, and viewer redaction
+// ---------------------------------------------------------------------------
+
+export interface FabricGapEntry {
+  kind: 'gap';
+  gapId: string;
+  gapKind: string;
+  subjectId: string | null;
+  detail: string;
+  evidenceRef: string | null;
+}
+
+export type FabricAdaptedEntry = FabricNode | FabricGapEntry;
+
+export interface MissionFabricViewer {
+  role: 'founder' | 'operator' | 'viewer';
+  tenantId: string;
+}
+
+export interface GoalGraphProjection {
+  tenantId: string;
+  graphVersion: number;
+  nodes: readonly unknown[];
+}
+
+const PROMOTION_STATES = new Set<SaplingWork['promotionState']>(['proof-only', 'supervised-branch', 'autonomous-branch']);
+const SERVICE_PROGRAM_KINDS = new Set<ProgramWork['programKind']>(['capability', 'operations']);
+
+function gapEntry(gapId: string, gapKind: string, subjectId: string | null, detail: string, evidenceRef: string | null): FabricGapEntry {
+  return { kind: 'gap', gapId, gapKind, subjectId, detail, evidenceRef };
+}
+
+function adaptString(value: unknown, fallback = ''): string {
+  return typeof value === 'string' ? value : fallback;
+}
+
+function adaptTimestamp(value: unknown, fallback: string): string {
+  return typeof value === 'string' && CANONICAL_UTC_TIMESTAMP.test(value) ? value : fallback;
+}
+
+export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[] {
+  if (input === null || input === undefined) {
+    return [gapEntry('gap-branch-stories-source-missing', 'missing-source', null, 'Branch story source is unavailable; no branch nodes were fabricated.', null)];
+  }
+  const arcs = Array.isArray(input) ? input : [input];
+  const entries: FabricAdaptedEntry[] = [];
+  for (const raw of arcs) {
+    if (!isRecord(raw) || typeof raw.branchId !== 'string' || typeof raw.branchKind !== 'string') {
+      entries.push(gapEntry(`gap-branch-story-invalid-${entries.length}`, 'missing-source', null, 'A branch story entry is missing its canonical identity and was not adapted.', null));
+      continue;
+    }
+    const promotion = isRecord(raw.promotion) ? raw.promotion : {};
+    const controls = isRecord(raw.controls) ? raw.controls : {};
+    const organRouting = Array.isArray(controls.organRouting) ? controls.organRouting : [];
+    const organRoute = organRouting
+      .map((route) => (isRecord(route) && typeof route.organ === 'string' ? route.organ : null))
+      .filter((organ): organ is string => organ !== null)
+      .sort(compare);
+    const name = adaptString(raw.name, raw.branchId);
+    if (raw.branchKind === 'product') {
+      const promotionState = typeof promotion.state === 'string' && PROMOTION_STATES.has(promotion.state as SaplingWork['promotionState'])
+        ? promotion.state as SaplingWork['promotionState']
+        : 'proof-only';
+      const work: SaplingWork = {
+        kind: 'sapling',
+        workId: raw.branchId,
+        tenantId: adaptString(raw.tenantId, adaptString(isRecord(raw.source) ? raw.source.tenant : '')),
+        name,
+        desiredState: adaptString(isRecord(raw.vision) ? raw.vision.statement : '', ''),
+        currentState: adaptString(promotion.state, 'proof-only'),
+        status: 'active',
+        ownerId: 'founder',
+        nextAction: null,
+        proofRequired: true,
+        reviewAt: null,
+        sourceRef: `branch-story:${raw.branchId}`,
+        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind }))}`,
+        branchId: raw.branchId,
+        branchKind: 'product',
+        promotionState,
+        currentGate: adaptString(promotion.currentGate, ''),
+        organRoute,
+      };
+      entries.push({ kind: 'work', value: work });
+      continue;
+    }
+    if (raw.branchKind === 'client') {
+      const work: ProgramWork = {
+        kind: 'program',
+        workId: adaptString(raw.productId, raw.branchId),
+        tenantId: adaptString(raw.tenantId, adaptString(isRecord(raw.source) ? raw.source.tenant : '')),
+        name,
+        desiredState: adaptString(isRecord(raw.vision) ? raw.vision.statement : '', ''),
+        currentState: adaptString(raw.arcId, ''),
+        status: 'active',
+        ownerId: 'founder',
+        nextAction: null,
+        proofRequired: true,
+        reviewAt: null,
+        sourceRef: `branch-story:${raw.branchId}`,
+        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind }))}`,
+        programKind: 'client',
+        lifecycle: 'executing',
+        outcomeMetric: '',
+      };
+      entries.push({ kind: 'work', value: work });
+      continue;
+    }
+    if (raw.branchKind === 'internal-service') {
+      const adapterMap = Array.isArray(controls.adapterServiceMap) ? controls.adapterServiceMap : [];
+      const mapping = adapterMap
+        .map((entry) => (isRecord(entry) && typeof entry.tenantMapping === 'string' ? entry.tenantMapping : null))
+        .filter((kind): kind is string => kind !== null && SERVICE_PROGRAM_KINDS.has(kind as ProgramWork['programKind']))
+        .sort(compare)[0];
+      if (mapping === undefined) {
+        entries.push(gapEntry(
+          `gap-branch-service-mapping-${raw.branchId}`,
+          'missing-service-mapping',
+          raw.branchId,
+          `Internal-service branch ${raw.branchId} has no explicit capability|operations mapping; it was not adapted into a program.`,
+          null,
+        ));
+        continue;
+      }
+      const work: ProgramWork = {
+        kind: 'program',
+        workId: adaptString(raw.productId, raw.branchId),
+        tenantId: adaptString(raw.tenantId, adaptString(isRecord(raw.source) ? raw.source.tenant : '')),
+        name,
+        desiredState: adaptString(isRecord(raw.vision) ? raw.vision.statement : '', ''),
+        currentState: mapping,
+        status: 'active',
+        ownerId: 'founder',
+        nextAction: null,
+        proofRequired: true,
+        reviewAt: null,
+        sourceRef: `branch-story:${raw.branchId}`,
+        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind, mapping }))}`,
+        programKind: mapping as ProgramWork['programKind'],
+        lifecycle: 'executing',
+        outcomeMetric: '',
+      };
+      entries.push({ kind: 'work', value: work });
+      continue;
+    }
+    entries.push(gapEntry(
+      `gap-branch-kind-unknown-${raw.branchId}`,
+      'unknown-branch-kind',
+      raw.branchId,
+      `Branch ${raw.branchId} declares unknown branchKind ${String(raw.branchKind)}; classification needed, never guessed.`,
+      null,
+    ));
+  }
+  return entries;
+}
+
+export function adaptCompanyPrograms(input: unknown): readonly FabricAdaptedEntry[] {
+  if (input === null || input === undefined) {
+    return [gapEntry('gap-program-source-missing', 'missing-source', null, 'Company program source is unavailable; no program nodes were fabricated.', null)];
+  }
+  const packets = Array.isArray(input) ? input : [input];
+  const entries: FabricAdaptedEntry[] = [];
+  for (const raw of packets) {
+    if (!isRecord(raw) || typeof raw.programId !== 'string' || typeof raw.programKind !== 'string') {
+      entries.push(gapEntry(`gap-program-packet-invalid-${entries.length}`, 'missing-source', null, 'A company program packet is missing its canonical identity and was not adapted.', null));
+      continue;
+    }
+    if (!PROGRAM_KINDS.has(raw.programKind)) {
+      entries.push(gapEntry(
+        `gap-program-kind-unknown-${raw.programId}`,
+        'unknown-program-kind',
+        raw.programId,
+        `Program ${raw.programId} declares unknown programKind ${String(raw.programKind)} and was not adapted.`,
+        null,
+      ));
+      continue;
+    }
+    const authority = isRecord(raw.authority) ? raw.authority : {};
+    const work: ProgramWork = {
+      kind: 'program',
+      workId: raw.programId,
+      tenantId: adaptString(raw.tenantId),
+      name: adaptString(raw.title, raw.programId),
+      desiredState: adaptString(raw.outcomeMetric, ''),
+      currentState: adaptString(raw.lifecycle, 'proposed'),
+      status: WORK_ACTIVE_STATES.has(adaptString(raw.lifecycle)) ? 'active' : 'draft',
+      ownerId: 'founder',
+      nextAction: null,
+      proofRequired: true,
+      reviewAt: null,
+      sourceRef: `program:${raw.programId}`,
+      sourceDigest: `sha256:${sha256(adaptString(authority.namespace, raw.programId))}`,
+      programKind: raw.programKind as ProgramWork['programKind'],
+      lifecycle: adaptString(raw.lifecycle, 'proposed') as ProgramWork['lifecycle'],
+      outcomeMetric: adaptString(raw.outcomeMetric, ''),
+    };
+    entries.push({ kind: 'work', value: work });
+  }
+  return entries;
+}
+
+export function adaptGoalGraph(input: GoalGraphProjection): readonly FabricNode[] {
+  const nodes: FabricNode[] = [];
+  for (const raw of input.nodes ?? []) {
+    if (!isRecord(raw)) continue;
+    const taskId = adaptString(raw.externalId, adaptString(raw.nodeId));
+    if (taskId.length === 0) continue;
+    const status = adaptString(raw.status, 'draft');
+    const node: FabricTask = {
+      taskId,
+      missionId: adaptString(raw.parentNodeId, ''),
+      desiredState: adaptString(raw.desiredState, ''),
+      status: (status === 'active' ? 'ready' : status === 'blocked' ? 'blocked' : status === 'retired' ? 'complete' : 'queued') as FabricTask['status'],
+      dependencyIds: [],
+      assignedAgentId: null,
+      requiredClusterIds: [],
+      pinnedLoadoutId: null,
+      leaseId: null,
+      proofRequirement: '',
+      latestReceiptId: null,
+    };
+    nodes.push({ kind: 'task', value: node });
+  }
+  return nodes;
+}
+
+export interface QuestExecutionFactsOptions {
+  tenantId?: string;
+  now?: string;
+}
+
+export function adaptQuestExecutionFacts(input: unknown, options: QuestExecutionFactsOptions = {}): {
+  nodes: readonly FabricNode[];
+  edges: readonly FabricEdge[];
+  gaps: readonly FabricGap[];
+} {
+  if (!isRecord(input)) throw new Error('quest execution facts must be an object');
+  if (input.sourceKind === 'projection') {
+    throw new Error('projection input is rejected: a projection is never an authority source for quest execution facts');
+  }
+  if (options.tenantId !== undefined && input.tenantId !== options.tenantId) {
+    throw new Error(`tenant mismatch: quest execution facts tenant ${String(input.tenantId)} does not match requested tenant ${options.tenantId}`);
+  }
+  const facts = input;
+  const nodes: FabricNode[] = [];
+  const edges: FabricEdge[] = [];
+  const gaps: FabricGap[] = [];
+  const now = options.now ?? '9999-12-31T23:59:59.999Z';
+
+  const fences = new Map<string, number>();
+  for (const raw of Array.isArray(facts.fences) ? facts.fences : []) {
+    if (isRecord(raw) && typeof raw.taskId === 'string' && typeof raw.currentFence === 'number') {
+      fences.set(raw.taskId, raw.currentFence);
+    }
+  }
+
+  interface AcceptedRun {
+    runId: string;
+    taskId: string;
+    executorAgentId: string;
+    loadoutId: string;
+    state: string;
+    receiptId: string;
+    startedAt: string;
+    terminalAt: string | null;
+  }
+  const acceptedRuns: AcceptedRun[] = [];
+  const rawRuns = (Array.isArray(facts.runs) ? facts.runs : []).filter(isRecord).slice().sort((a, b) => compare(adaptString(a.runId), adaptString(b.runId)));
+  for (const run of rawRuns) {
+    const runId = adaptString(run.runId);
+    const taskId = adaptString(run.taskId);
+    const fence = typeof run.fence === 'number' ? run.fence : -1;
+    const currentFence = fences.get(taskId);
+    if (currentFence !== undefined && fence < currentFence) {
+      gaps.push({
+        gapId: `gap-stale-fence-${runId}`,
+        kind: 'stale-fence',
+        subjectId: runId,
+        detail: `Run ${runId} was rejected: fence ${fence} is below the authoritative fence ${currentFence} for ${taskId}.`,
+        evidenceRef: null,
+      });
+      continue;
+    }
+    const nonceExpiresAt = adaptString(run.nonceExpiresAt, '');
+    if (nonceExpiresAt.length > 0 && options.now !== undefined && nonceExpiresAt < now) {
+      gaps.push({
+        gapId: `gap-expired-proof-${runId}`,
+        kind: 'expired-proof',
+        subjectId: runId,
+        detail: `Run ${runId} was rejected: its nonce/proof metadata expired at ${nonceExpiresAt}.`,
+        evidenceRef: null,
+      });
+      continue;
+    }
+    acceptedRuns.push({
+      runId,
+      taskId,
+      executorAgentId: adaptString(run.executorAgentId),
+      loadoutId: adaptString(run.loadoutId),
+      state: adaptString(run.state),
+      receiptId: adaptString(run.receiptId),
+      startedAt: adaptTimestamp(run.startedAt, now === '9999-12-31T23:59:59.999Z' ? '1970-01-01T00:00:00.000Z' : now),
+      terminalAt: run.terminalAt === null ? null : adaptTimestamp(run.terminalAt, ''),
+    });
+  }
+
+  const rawReceipts = (Array.isArray(facts.receipts) ? facts.receipts : []).filter(isRecord);
+  const durableReceiptIds = new Set(
+    rawReceipts
+      .filter((receipt) => receipt.durable !== false && typeof receipt.receiptId === 'string' && receipt.receiptId.length > 0)
+      .map((receipt) => receipt.receiptId as string),
+  );
+  const acceptedRunIds = new Set(acceptedRuns.map((run) => run.runId));
+
+  for (const run of acceptedRuns) {
+    const node: FabricRun = {
+      runId: run.runId,
+      taskId: run.taskId,
+      agentId: run.executorAgentId,
+      loadoutId: run.loadoutId,
+      startedAt: run.startedAt,
+      terminalAt: run.terminalAt,
+      status: run.state === 'succeeded' ? 'complete' : run.state === 'rejected' ? 'failed' : 'reconciliation-required',
+    };
+    nodes.push({ kind: 'run', value: node });
+    if (run.executorAgentId.length > 0) edges.push({ kind: 'executes', fromId: run.executorAgentId, toId: run.runId });
+    if (run.receiptId.length > 0 && durableReceiptIds.has(run.receiptId)) {
+      edges.push({ kind: 'produces', fromId: run.runId, toId: run.receiptId });
+    }
+  }
+
+  for (const receipt of rawReceipts.slice().sort((a, b) => compare(adaptString(a.receiptId), adaptString(b.receiptId)))) {
+    const receiptId = adaptString(receipt.receiptId);
+    if (receiptId.length === 0 || !durableReceiptIds.has(receiptId)) continue;
+    const linkedRunId = typeof receipt.runId === 'string' && acceptedRunIds.has(receipt.runId) ? receipt.runId : null;
+    const linkedRun = linkedRunId !== null ? acceptedRuns.find((run) => run.runId === linkedRunId) : undefined;
+    const taskId = linkedRun !== undefined ? linkedRun.taskId : adaptString(receipt.taskId, '');
+    const evidenceRef = typeof receipt.evidenceRef === 'string' ? receipt.evidenceRef : null;
+    const node: FabricReceipt = {
+      receiptId,
+      runId: linkedRunId ?? '',
+      taskId,
+      graphVersion: 0,
+      status: receipt.status === 'verified' ? 'complete' : 'reconciliation-required',
+      inputDigest: `sha256:${sha256(receiptId)}`,
+      outputDigest: evidenceRef !== null ? `sha256:${sha256(evidenceRef)}` : null,
+      evidenceRefs: evidenceRef !== null ? [evidenceRef] : [],
+      approvalRef: null,
+      createdAt: adaptTimestamp(receipt.verifiedAt, '1970-01-01T00:00:00.000Z'),
+    };
+    nodes.push({ kind: 'receipt', value: node });
+    if (linkedRunId !== null && taskId.length > 0) edges.push({ kind: 'proves', fromId: receiptId, toId: taskId });
+  }
+
+  const agentIds = new Set<string>();
+  for (const agent of (Array.isArray(facts.agents) ? facts.agents : []).filter(isRecord)) {
+    const agentId = adaptString(agent.agentId);
+    if (agentId.length === 0) continue;
+    agentIds.add(agentId);
+    const currentTaskId = typeof agent.currentTaskId === 'string' ? agent.currentTaskId : null;
+    const node: FabricAgent = {
+      agentId,
+      role: agentId,
+      runtime: 'other',
+      status: agent.state === 'available' ? 'available' : 'offline',
+      activeTaskIds: currentTaskId !== null ? [currentTaskId] : [],
+      permissionProfile: '',
+      lastSeenAt: now === '9999-12-31T23:59:59.999Z' ? '1970-01-01T00:00:00.000Z' : now,
+      sourceRef: adaptString(agent.sourceRef, `quest:agent:${agentId}`),
+    };
+    nodes.push({ kind: 'agent', value: node });
+  }
+
+  const clusterIds = new Set<string>();
+  for (const cluster of (Array.isArray(facts.skillClusters) ? facts.skillClusters : []).filter(isRecord)) {
+    const clusterId = adaptString(cluster.clusterId);
+    if (clusterId.length === 0) continue;
+    clusterIds.add(clusterId);
+    const eligibleAgentIds = (Array.isArray(cluster.eligibleAgentIds) ? cluster.eligibleAgentIds : [])
+      .filter((id): id is string => typeof id === 'string' && agentIds.has(id))
+      .sort(compare);
+    const node: FabricSkillCluster = {
+      clusterId,
+      name: clusterId,
+      status: cluster.state === 'active' ? 'active' : 'inactive',
+      skillIds: (Array.isArray(cluster.capabilities) ? cluster.capabilities : []).filter((cap): cap is string => typeof cap === 'string').sort(compare),
+      eligibleAgentIds,
+      successRate: null,
+      sourceRef: adaptString(cluster.sourceRef, `quest:cluster:${clusterId}`),
+    };
+    nodes.push({ kind: 'skill-cluster', value: node });
+  }
+
+  for (const task of (Array.isArray(facts.tasks) ? facts.tasks : []).filter(isRecord)) {
+    const taskId = adaptString(task.taskId);
+    if (taskId.length === 0) continue;
+    const node: FabricTask = {
+      taskId,
+      missionId: adaptString(task.missionId, ''),
+      desiredState: adaptString(task.state, ''),
+      status: 'queued',
+      dependencyIds: [],
+      assignedAgentId: null,
+      requiredClusterIds: [],
+      pinnedLoadoutId: null,
+      leaseId: null,
+      proofRequirement: '',
+      latestReceiptId: null,
+    };
+    nodes.push({ kind: 'task', value: node });
+  }
+
+  const taskIds = new Set(
+    (Array.isArray(facts.tasks) ? facts.tasks : []).filter(isRecord).map((task) => adaptString(task.taskId)).filter((id) => id.length > 0),
+  );
+
+  for (const agent of (Array.isArray(facts.agents) ? facts.agents : []).filter(isRecord)) {
+    const agentId = adaptString(agent.agentId);
+    const currentTaskId = typeof agent.currentTaskId === 'string' ? agent.currentTaskId : null;
+    if (agentId.length === 0 || currentTaskId === null) continue;
+    if (taskIds.has(currentTaskId)) {
+      edges.push({ kind: 'assigned-to', fromId: currentTaskId, toId: agentId });
+    } else {
+      gaps.push({
+        gapId: `gap-assignment-join-${agentId}`,
+        kind: 'missing-join',
+        subjectId: agentId,
+        detail: `Agent ${agentId} reports current task ${currentTaskId}, which has no explicit task fact; no assignment edge was emitted.`,
+        evidenceRef: null,
+      });
+    }
+  }
+
+  for (const assignment of (Array.isArray(facts.taskClusterAssignments) ? facts.taskClusterAssignments : []).filter(isRecord)) {
+    const taskId = adaptString(assignment.taskId);
+    const clusterId = adaptString(assignment.clusterId);
+    if (taskId.length === 0 || clusterId.length === 0) continue;
+    if (taskIds.has(taskId) && clusterIds.has(clusterId)) {
+      edges.push({ kind: 'requires-cluster', fromId: taskId, toId: clusterId });
+    } else {
+      gaps.push({
+        gapId: `gap-cluster-join-${taskId}-${clusterId}`,
+        kind: 'missing-join',
+        subjectId: taskId,
+        detail: `Task ${taskId} references cluster ${clusterId}, but the explicit join cannot be resolved; no requires-cluster edge was emitted.`,
+        evidenceRef: null,
+      });
+    }
+  }
+
+  const sortedNodes = [...nodes].sort((a, b) => compare(nodeIdentity(a), nodeIdentity(b)));
+  const sortedEdges = [...edges].sort((a, b) => compare(`${a.kind}:${a.fromId}:${a.toId}`, `${b.kind}:${b.fromId}:${b.toId}`));
+  const sortedGaps = [...gaps].sort((a, b) => compare(a.gapId, b.gapId));
+  return { nodes: sortedNodes, edges: sortedEdges, gaps: sortedGaps };
+}
+
+const AUTHORIZED_FABRIC_ROLES = new Set<MissionFabricViewer['role']>(['founder', 'operator']);
+const REDACTED_CLIENT_LABEL = '[private client]';
+
+export function redactMissionFabricProjection(
+  projection: MissionFabricProjectionV1,
+  viewer: MissionFabricViewer,
+): MissionFabricProjectionV1 {
+  const authorized = AUTHORIZED_FABRIC_ROLES.has(viewer.role) && viewer.tenantId === projection.tenantId;
+  if (authorized) return projection;
+  const nodes = projection.nodes.map((node): FabricNode => {
+    if (node.kind === 'work' && node.value.kind === 'program' && node.value.programKind === 'client') {
+      const value: ProgramWork = { ...node.value, name: REDACTED_CLIENT_LABEL, desiredState: '', outcomeMetric: '' };
+      return { kind: 'work', value };
+    }
+    if (node.kind === 'receipt') {
+      const value: FabricReceipt = { ...node.value, evidenceRefs: [], outputDigest: null };
+      return { kind: 'receipt', value };
+    }
+    return node;
+  });
+  const gaps = projection.gaps.map((gap): FabricGap => ({ ...gap, evidenceRef: null }));
+  const redactedContent = {
+    projectionVersion: projection.projectionVersion,
+    tenantId: projection.tenantId,
+    graphVersion: projection.graphVersion,
+    sourceOfTruth: projection.sourceOfTruth,
+    readOnly: projection.readOnly,
+    nodes,
+    edges: projection.edges,
+    gaps,
+  };
+  return {
+    ...projection,
+    nodes,
+    gaps,
+    graphDigest: projectionDigest(redactedContent),
+  };
+}
