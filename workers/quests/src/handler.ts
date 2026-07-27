@@ -449,6 +449,9 @@ export interface ProviderConfig {
   // would eventually forward one. Command Code rejects requests without its
   // version/session headers, so for that provider these are load-bearing.
   forwardHeaders?: string[];
+  // Server-owned headers for an authenticated fixed-destination egress hop. Values
+  // come only from Worker bindings; caller credentials may never override them.
+  staticHeaders?: Record<string, string>;
   // Providers whose wire format is not OpenAI chat need translating, not proxying.
   // Only 'command-code' exists today; the field is explicit so a future one has to
   // opt in rather than inherit a translation meant for someone else.
@@ -4694,6 +4697,12 @@ async function providerFetch(
     if (key === 'authorization' || key === 'cookie' || key === 'x-api-key') continue;
     const value = req.headers[key];
     if (value) headers[key] = value;
+  }
+
+  for (const [name, value] of Object.entries(provider.staticHeaders ?? {})) {
+    const key = name.toLowerCase();
+    if (key === 'authorization' || key === 'cookie' || key === 'x-api-key') continue;
+    headers[key] = value;
   }
 
   if (req.method === 'POST') {

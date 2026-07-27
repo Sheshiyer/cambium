@@ -94,6 +94,7 @@ interface Env {
   COMMAND_CODE_API_KEY?: string;
   COMMAND_CODE_BASE_URL?: string;
   COMMAND_CODE_DEFAULT_MODEL?: string;
+  COMMAND_CODE_EGRESS_TOKEN?: string;
   OPENCODE_API_KEY?: string;
   OPENCODE_BASE_URL?: string;
   OPENCODE_DEFAULT_MODEL?: string;
@@ -1265,6 +1266,9 @@ export default {
         baseUrl: env.COMMAND_CODE_BASE_URL || 'https://api.commandcode.ai/provider/v1',
         defaultModel: env.COMMAND_CODE_DEFAULT_MODEL || 'deepseek/deepseek-v4-flash',
         models: env.COMMAND_CODE_DEFAULT_MODEL ? [env.COMMAND_CODE_DEFAULT_MODEL] : ['deepseek/deepseek-v4-flash'],
+        staticHeaders: env.COMMAND_CODE_EGRESS_TOKEN
+          ? { 'x-hermes-egress-token': env.COMMAND_CODE_EGRESS_TOKEN }
+          : undefined,
       } : undefined,
       // Anthropic-shaped, unlike the OpenAI three above: the key goes in x-api-key
       // rather than `authorization: Bearer`, and the caller's anthropic-version header

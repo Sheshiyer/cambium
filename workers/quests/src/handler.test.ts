@@ -1639,7 +1639,11 @@ test('provider broker · command-code Provider API stays OpenAI-compatible end t
   };
 
   const r = await handle(req('POST', '/v1/providers/command-code/chat/completions', {
-    headers: { authorization: 'Bearer broker', 'content-type': 'application/json' },
+    headers: {
+      authorization: 'Bearer broker',
+      'content-type': 'application/json',
+      'x-hermes-egress-token': 'caller-must-not-win',
+    },
     body: JSON.stringify(requestBody),
   }), {
     kv: fakeKv(),
@@ -1650,6 +1654,7 @@ test('provider broker · command-code Provider API stays OpenAI-compatible end t
         'command-code': {
           baseUrl: 'https://api.commandcode.ai/provider/v1',
           apiKey: 'secret-cc-key',
+          staticHeaders: { 'x-hermes-egress-token': 'server-egress-secret' },
         },
       },
     },
@@ -1658,6 +1663,7 @@ test('provider broker · command-code Provider API stays OpenAI-compatible end t
   assert.equal(r.status, 200);
   assert.equal(sent!.url, 'https://api.commandcode.ai/provider/v1/chat/completions');
   assert.equal(sent!.headers.authorization, 'Bearer secret-cc-key');
+  assert.equal(sent!.headers['x-hermes-egress-token'], 'server-egress-secret');
   assert.deepEqual(sent!.body, requestBody);
   assert.equal(JSON.parse(r.body as string).choices[0].message.content, 'CANARY_OK');
 
@@ -1665,6 +1671,7 @@ test('provider broker · command-code Provider API stays OpenAI-compatible end t
   const providerBlock = source.match(/'command-code':[\s\S]*?\} : undefined,/)?.[0] ?? '';
   assert.match(providerBlock, /https:\/\/api\.commandcode\.ai\/provider\/v1/);
   assert.doesNotMatch(providerBlock, /translate:\s*'command-code'/);
+  assert.match(providerBlock, /x-hermes-egress-token/);
 });
 
 test('provider broker · command-code lane translates both directions end to end', async () => {
