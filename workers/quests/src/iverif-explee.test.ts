@@ -78,7 +78,10 @@ test('IVerif snapshot uses only fixed GET endpoints and redacts arbitrary fields
   assert.equal(calls.length, 3);
   assert.ok(calls.every((call) => call.url.startsWith(IVERIF_EXPLEE_ORIGIN)));
   assert.ok(calls.every((call) => call.init?.method === 'GET'));
-  assert.ok(calls.every((call) => call.init?.redirect === 'error'));
+  // workerd fetch rejects redirect:'error' with a TypeError; 'manual' is the
+  // only Workers-native no-follow mode. Lock this so the live observer can
+  // never regress into a runtime-throwing redirect value.
+  assert.ok(calls.every((call) => call.init?.redirect === 'manual'));
   assert.ok(calls.every((call) => (call.init?.headers as Record<string, string>)['x-api-key'] === 'test-key'));
   assert.doesNotMatch(JSON.stringify(snapshot), /pii-/);
 });

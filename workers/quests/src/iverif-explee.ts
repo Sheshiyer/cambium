@@ -389,7 +389,10 @@ export function createIVerifExpleeObserver({
           accept: 'application/json',
           'x-api-key': key,
         },
-        redirect: 'error',
+        // workerd fetch does not implement redirect:'error' (throws TypeError);
+        // 'manual' is the Workers-native way to never follow a redirect — a 3xx
+        // surfaces as a non-ok response and maps to upstream_unavailable.
+        redirect: 'manual',
         signal: controller.signal,
       });
     } catch {
