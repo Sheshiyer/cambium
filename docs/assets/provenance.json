@@ -1,6 +1,6 @@
 {
   "schema": "cambium.asset-provenance.v1",
-  "updated": "2026-06-25",
+  "updated": "2026-07-28",
   "policy": {
     "runtimeGlbMaxBytes": 15728640,
     "qaReferenceGlbMaxBytes": 78643200,
@@ -166,6 +166,18 @@
       "approvalStatus": "docs-only",
       "sizePolicy": "docs-reference-image",
       "notes": "Planning and QA evidence for visual review; not runtime data."
+    },
+    {
+      "id": "cambium-operating-fabric-moodboard",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/cambium-operating-fabric-moodboard/*.png"
+      ],
+      "source": "Synthetic operating-fabric visual direction boards generated through Codex OAuth with gpt-image-2",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Aspirational operating-fabric direction for planning; not runtime data or implementation evidence."
     },
     {
       "id": "constellation-ui-reference",
