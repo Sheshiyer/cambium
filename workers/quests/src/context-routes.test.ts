@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { handleContextRoute } from './context-routes.ts';
+import {
+  CONTEXT_PROJECTION_KEY,
+  CONTEXT_PROJECTION_RECEIPT_SCHEMA,
+  CONTEXT_PROJECTION_SCHEMA,
+} from './context-projections.ts';
 
 const req = (method: string, path: string, body?: unknown, token?: string) => ({
   method,
@@ -32,6 +37,90 @@ test('context health returns bounded capability flags', async () => {
   assert.equal(payload.schema, 'thoughtseed.context-health.v1');
   assert.equal(payload.capabilities.routineSnapshot, true);
   assert.equal(payload.capabilities.semanticRecall, true);
+});
+
+test('projection writes require their dedicated configured token before store calls', async () => {
+  let called = false;
+  const projectionStore = {
+    put: async () => {
+      called = true;
+      throw new Error('must not be called');
+    },
+  };
+  const body = {
+    schema: CONTEXT_PROJECTION_SCHEMA,
+    key: CONTEXT_PROJECTION_KEY,
+    tenantId: 'cambium',
+    routine: 'daily-standup-digest',
+    generation: 1,
+    producedAt: '2026-07-28T08:00:00.000Z',
+    expiresAt: '2026-07-28T20:00:00.000Z',
+    sourceRevision: 'git:abc123',
+    contentDigest: 'sha256:7d696bb44566df0ffec55bce3a17117aa397f923f92e26b91c0695f9fc9fd8e4',
+    markdown: '# Daily Standup\nBounded evidence',
+  };
+
+  const missingConfig = await handleContextRoute(req('POST', '/v1/context/projections', body), {
+    token: 'context-token',
+    projectionStore,
+  });
+  assert.equal(missingConfig.status, 503);
+  assert.equal(missingConfig.headers['cache-control'], 'no-store');
+  assert.equal(called, false);
+
+  const readToken = await handleContextRoute(req('POST', '/v1/context/projections', body, 'context-token'), {
+    token: 'context-token',
+    projectionWriteToken: 'projection-token',
+    projectionStore,
+  });
+  assert.equal(readToken.status, 401);
+  assert.equal(readToken.headers['cache-control'], 'no-store');
+  assert.equal(called, false);
+});
+
+test('projection write returns only the bounded store receipt', async () => {
+  let stored: unknown;
+  const body = {
+    schema: CONTEXT_PROJECTION_SCHEMA,
+    key: CONTEXT_PROJECTION_KEY,
+    tenantId: 'cambium',
+    routine: 'daily-standup-digest',
+    generation: 2,
+    producedAt: '2026-07-28T08:00:00.000Z',
+    expiresAt: '2026-07-28T20:00:00.000Z',
+    sourceRevision: 'git:def456',
+    contentDigest: 'sha256:7d696bb44566df0ffec55bce3a17117aa397f923f92e26b91c0695f9fc9fd8e4',
+    markdown: '# Daily Standup\nBounded evidence',
+  };
+  const r = await handleContextRoute(req('POST', '/v1/context/projections', body, 'projection-token'), {
+    projectionWriteToken: 'projection-token',
+    projectionStore: {
+      put: async (value) => {
+        stored = value;
+        return {
+          schema: CONTEXT_PROJECTION_RECEIPT_SCHEMA,
+          key: CONTEXT_PROJECTION_KEY,
+          generation: 2,
+          contentDigest: body.contentDigest,
+          producedAt: body.producedAt,
+          expiresAt: body.expiresAt,
+        };
+      },
+    },
+  });
+
+  assert.equal(r.status, 201);
+  assert.equal(r.headers['cache-control'], 'no-store');
+  assert.deepEqual(stored, body);
+  assert.deepEqual(JSON.parse(r.body), {
+    schema: CONTEXT_PROJECTION_RECEIPT_SCHEMA,
+    key: CONTEXT_PROJECTION_KEY,
+    generation: 2,
+    contentDigest: body.contentDigest,
+    producedAt: body.producedAt,
+    expiresAt: body.expiresAt,
+  });
+  assert.doesNotMatch(r.body, /markdown|sourceRevision|bucket|metadata|Bounded evidence/i);
 });
 
 test('semantic recall rejects missing tenant and query', async () => {

@@ -1,3 +1,11 @@
+import {
+  CONTEXT_PROJECTION_RECEIPT_SCHEMA,
+  ContextProjectionGenerationError,
+  ContextProjectionStorageError,
+  ContextProjectionValidationError,
+  type ContextProjectionStoreLike,
+} from './context-projections.ts';
+
 export interface SimpleRequest {
   method: string;
   path: string;
@@ -65,6 +73,8 @@ export interface RoutineContextLike {
 
 export interface ContextRouteDeps {
   token?: string;
+  projectionWriteToken?: string;
+  projectionStore?: ContextProjectionStoreLike;
   semanticRecall?: SemanticRecallLike;
   routineContext?: RoutineContextLike;
   allowedTenants?: string[];
@@ -77,6 +87,7 @@ const VALID_TENANT = /^[a-z0-9][a-z0-9_-]{1,79}$/;
 const VALID_ROUTINE = /^[a-z0-9][a-z0-9_-]{1,119}$/;
 const VALID_SEMANTIC_KINDS = new Set(['decision', 'evidence', 'handoff', 'heartbeat', 'memory', 'note', 'routine', 'standup', 'task']);
 const MAX_BODY_LENGTH = 4096;
+const MAX_PROJECTION_BODY_BYTES = 40 * 1024;
 const MAX_QUERY_LENGTH = 500;
 const MAX_KIND_LENGTH = 40;
 const MAX_ROUTINE_SECTIONS = 8;
@@ -223,11 +234,56 @@ function semanticRecallResult(value: SemanticRecallHit[] | SemanticRecallResult)
 
 export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteDeps): Promise<SimpleResponse> {
   if (!req.path.startsWith('/v1/context/')) return json(404, { error: `no context route for ${req.method} ${req.path}` });
+  const url = new URL(`https://worker.local${req.path}`);
+
+  if (req.method === 'POST' && url.pathname === '/v1/context/projections') {
+    if (!deps.projectionWriteToken) {
+      return json(503, { error: 'context projection write token not configured' });
+    }
+    if (!authorized(req, deps.projectionWriteToken)) {
+      return json(401, { error: 'bad or missing context projection write credential' });
+    }
+    if (!deps.projectionStore) {
+      return json(503, { error: 'context projection store not configured' });
+    }
+    const rawBody = req.body ?? '';
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_PROJECTION_BODY_BYTES) {
+      return json(400, { error: 'projection body is too large' });
+    }
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return json(400, { error: 'projection body is not JSON' });
+    }
+    try {
+      const receipt = await deps.projectionStore.put(body);
+      return json(201, {
+        schema: CONTEXT_PROJECTION_RECEIPT_SCHEMA,
+        key: receipt.key,
+        generation: receipt.generation,
+        contentDigest: receipt.contentDigest,
+        producedAt: receipt.producedAt,
+        expiresAt: receipt.expiresAt,
+      });
+    } catch (error) {
+      if (error instanceof ContextProjectionValidationError) {
+        return json(400, { error: error.message });
+      }
+      if (error instanceof ContextProjectionGenerationError) {
+        return json(409, { error: error.message });
+      }
+      if (error instanceof ContextProjectionStorageError) {
+        return json(503, { error: error.message });
+      }
+      return json(503, { error: 'context projection write failed' });
+    }
+  }
+
   if (!deps.token) return json(503, { error: 'context route token not configured' });
   if (!authorized(req, deps.token)) return json(401, { error: 'bad or missing context route credential' });
 
   const generatedAt = deps.now ? deps.now() : new Date().toISOString();
-  const url = new URL(`https://worker.local${req.path}`);
 
   if (req.method === 'GET' && url.pathname === '/v1/context/health') {
     return json(200, {
@@ -237,6 +293,7 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
       capabilities: {
         routineSnapshot: Boolean(deps.routineContext),
         semanticRecall: Boolean(deps.semanticRecall),
+        projectionWrite: Boolean(deps.projectionWriteToken && deps.projectionStore),
       },
     });
   }

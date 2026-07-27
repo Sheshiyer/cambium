@@ -19,7 +19,8 @@
     { "binding": "QUESTS", "id": "10aaa6e0a8a545c1afb5ceee7ef61c14" }
   ],
   "r2_buckets": [
-    { "binding": "THOUGHTSEED_VAULT", "bucket_name": "thoughtseed-vault" }
+    { "binding": "THOUGHTSEED_VAULT", "bucket_name": "thoughtseed-vault" },
+    { "binding": "CONTEXT_PROJECTIONS", "bucket_name": "thoughtseed-context-projections" }
   ],
   "vectorize": [
     { "binding": "CAMBIUM_CORTEX", "index_name": "cambium-cortex" }
