@@ -49,7 +49,10 @@ export const FABRIC_SOURCE_FIXTURE = deepFreeze({
     { clusterId: 'cluster-fabric', state: 'active', capabilities: ['contracts', 'projection'], assignmentEvidence: 'evidence-cluster-001' },
     { clusterId: 'cluster-proof', state: 'deferred', capabilities: ['verification'], assignmentEvidence: 'evidence-cluster-002' },
   ],
-  gaps: [{ gapId: 'gap-receipt-fabric-proof', kind: 'missing-receipt', subjectId: 'task-fabric-proof', detail: 'Proof receipt has not been produced.', evidenceRef: 'evidence-gap-001' }],
+  gaps: [
+    { gapId: 'gap-receipt-fabric-proof', kind: 'missing-receipt', subjectId: 'task-fabric-proof', detail: 'Proof receipt has not been produced.', evidenceRef: 'evidence-gap-001' },
+    { gapId: 'gap-capability-fabric-proof', kind: 'capability-gap', subjectId: 'task-fabric-proof', detail: 'No assigned agent has the receipt-reconciliation capability.', evidenceRef: 'evidence-gap-002' },
+  ],
   fences: [{ taskId: 'task-fabric-contract', currentFence: 7, staleFence: 6 }],
   evidence: [
     { evidenceRef: 'evidence-sapling-001', kind: 'branch-story-arc', observedAt: '2026-07-28T09:00:00.000Z' },
@@ -57,5 +60,6 @@ export const FABRIC_SOURCE_FIXTURE = deepFreeze({
     { evidenceRef: 'evidence-cluster-001', kind: 'skill-registry', observedAt: '2026-07-28T09:00:01.000Z' },
     { evidenceRef: 'evidence-cluster-002', kind: 'skill-registry', observedAt: '2026-07-28T09:00:01.000Z' },
     { evidenceRef: 'evidence-gap-001', kind: 'gap-observation', observedAt: '2026-07-28T09:00:01.000Z' },
+    { evidenceRef: 'evidence-gap-002', kind: 'gap-observation', observedAt: '2026-07-28T09:00:01.000Z' },
   ],
 });

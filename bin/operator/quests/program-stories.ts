@@ -39,7 +39,9 @@ function requireExactKeys(value: Record<string, unknown>, allowed: readonly stri
     if (!allowed.includes(key)) throw new TypeError(`${label} contains unknown key: ${key}`);
   }
   for (const key of allowed) {
-    if (!(key in value)) throw new TypeError(`${label} is missing required key: ${key}`);
+    if (!Object.prototype.propertyIsEnumerable.call(value, key)) {
+      throw new TypeError(`${label} is missing required key: ${key}`);
+    }
   }
 }
 
