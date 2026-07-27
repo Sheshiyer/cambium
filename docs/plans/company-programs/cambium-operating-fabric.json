@@ -1,0 +1,18 @@
+{
+  "schema": "company-program-packet.v1",
+  "programId": "cambium-operating-fabric",
+  "tenantId": "cambium-synthetic",
+  "title": "Cambium Operating Fabric",
+  "programKind": "operations",
+  "lifecycle": "executing",
+  "outcomeMetric": "Every approved mission has a bounded, evidence-linked execution path.",
+  "authority": {
+    "kind": "goal-graph",
+    "namespace": "cambium.synthetic.goal-graph",
+    "graphVersion": 1
+  },
+  "missionIds": [
+    "mission-fabric-foundation",
+    "mission-fabric-proof"
+  ]
+}

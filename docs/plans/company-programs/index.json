@@ -1,0 +1,12 @@
+{
+  "schema": "company-program-index.v1",
+  "generatedAt": "2026-07-28T09:00:01.000Z",
+  "tenantId": "cambium-synthetic",
+  "programs": [
+    {
+      "programId": "cambium-operating-fabric",
+      "packet": "cambium-operating-fabric.json",
+      "authority": "goal-graph:cambium.synthetic.goal-graph@1"
+    }
+  ]
+}
