@@ -922,6 +922,7 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
   const edges: FabricEdge[] = [];
   const gaps: FabricGap[] = [];
   const now = options.now ?? '9999-12-31T23:59:59.999Z';
+  const hasClock = options.now !== undefined;
 
   const fences = new Map<string, number>();
   for (const raw of Array.isArray(facts.fences) ? facts.fences : []) {
@@ -929,6 +930,7 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
       fences.set(raw.taskId, raw.currentFence);
     }
   }
+  const hasAuthoritativeFences = fences.size > 0;
 
   interface AcceptedRun {
     runId: string;
@@ -945,9 +947,31 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
   for (const run of rawRuns) {
     const runId = adaptString(run.runId);
     const taskId = adaptString(run.taskId);
-    const fence = typeof run.fence === 'number' ? run.fence : -1;
+    if (runId.length === 0 || taskId.length === 0) {
+      const missing = runId.length === 0 ? (taskId.length === 0 ? 'runId and taskId' : 'runId') : 'taskId';
+      const label = runId.length > 0 ? runId : `row-${gaps.filter((gap) => gap.kind === 'invalid-run').length}`;
+      gaps.push({
+        gapId: `gap-invalid-run-${label}`,
+        kind: 'invalid-run',
+        subjectId: runId.length > 0 ? runId : null,
+        detail: `A runtime run row is missing its canonical identity (${missing}) and was rejected instead of producing an empty run node.`,
+        evidenceRef: null,
+      });
+      continue;
+    }
+    const fence = typeof run.fence === 'number' && Number.isFinite(run.fence) ? run.fence : null;
     const currentFence = fences.get(taskId);
-    if (currentFence !== undefined && fence < currentFence) {
+    if (hasAuthoritativeFences && (fence === null || currentFence === undefined)) {
+      gaps.push({
+        gapId: `gap-unverifiable-fence-${runId}`,
+        kind: 'unverifiable-fence',
+        subjectId: runId,
+        detail: `Run ${runId} was rejected: ${fence === null ? 'its fence is missing or non-finite' : `task ${taskId} has no current authoritative fence`} while an authoritative fence collection is present.`,
+        evidenceRef: null,
+      });
+      continue;
+    }
+    if (currentFence !== undefined && fence !== null && fence < currentFence) {
       gaps.push({
         gapId: `gap-stale-fence-${runId}`,
         kind: 'stale-fence',
@@ -958,7 +982,17 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
       continue;
     }
     const nonceExpiresAt = adaptString(run.nonceExpiresAt, '');
-    if (nonceExpiresAt.length > 0 && options.now !== undefined && nonceExpiresAt < now) {
+    if (nonceExpiresAt.length > 0 && !hasClock) {
+      gaps.push({
+        gapId: `gap-unverifiable-clock-${runId}`,
+        kind: 'unverifiable-clock',
+        subjectId: runId,
+        detail: `Run ${runId} was rejected: nonce/proof expiry metadata is present (${nonceExpiresAt}) but no evaluation clock (options.now) was provided, so freshness is unverifiable.`,
+        evidenceRef: null,
+      });
+      continue;
+    }
+    if (nonceExpiresAt.length > 0 && hasClock && nonceExpiresAt < now) {
       gaps.push({
         gapId: `gap-expired-proof-${runId}`,
         kind: 'expired-proof',
@@ -968,6 +1002,20 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
       });
       continue;
     }
+    let terminalAt: string | null = null;
+    if (run.terminalAt !== null && run.terminalAt !== undefined) {
+      if (typeof run.terminalAt === 'string' && CANONICAL_UTC_TIMESTAMP.test(run.terminalAt)) {
+        terminalAt = run.terminalAt;
+      } else {
+        gaps.push({
+          gapId: `gap-invalid-timestamp-${runId}`,
+          kind: 'invalid-timestamp',
+          subjectId: runId,
+          detail: `Run ${runId} declares a malformed terminalAt (${JSON.stringify(run.terminalAt)}); it was projected as null instead of an empty string.`,
+          evidenceRef: null,
+        });
+      }
+    }
     acceptedRuns.push({
       runId,
       taskId,
@@ -976,7 +1024,7 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
       state: adaptString(run.state),
       receiptId: adaptString(run.receiptId),
       startedAt: adaptTimestamp(run.startedAt, now === '9999-12-31T23:59:59.999Z' ? '1970-01-01T00:00:00.000Z' : now),
-      terminalAt: run.terminalAt === null ? null : adaptTimestamp(run.terminalAt, ''),
+      terminalAt,
     });
   }
 
@@ -1124,10 +1172,42 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
     }
   }
 
+  for (const gap of (Array.isArray(facts.gaps) ? facts.gaps : []).filter(isRecord)) {
+    const gapId = adaptString(gap.gapId);
+    if (gapId.length === 0) continue;
+    gaps.push({
+      gapId,
+      kind: adaptString(gap.kind, 'unknown-gap'),
+      subjectId: typeof gap.subjectId === 'string' ? gap.subjectId : null,
+      detail: adaptString(gap.detail),
+      evidenceRef: typeof gap.evidenceRef === 'string' ? gap.evidenceRef : null,
+    });
+  }
+
   const sortedNodes = [...nodes].sort((a, b) => compare(nodeIdentity(a), nodeIdentity(b)));
   const sortedEdges = [...edges].sort((a, b) => compare(`${a.kind}:${a.fromId}:${a.toId}`, `${b.kind}:${b.fromId}:${b.toId}`));
   const sortedGaps = [...gaps].sort((a, b) => compare(a.gapId, b.gapId));
-  return { nodes: sortedNodes, edges: sortedEdges, gaps: sortedGaps };
+  const truncations: Array<[string, number]> = [];
+  if (sortedNodes.length > MISSION_FABRIC_CAPS.MAX_NODES) truncations.push(['nodes', sortedNodes.length - MISSION_FABRIC_CAPS.MAX_NODES]);
+  if (sortedEdges.length > MISSION_FABRIC_CAPS.MAX_EDGES) truncations.push(['edges', sortedEdges.length - MISSION_FABRIC_CAPS.MAX_EDGES]);
+  for (const [material, dropped] of truncations) {
+    sortedGaps.push({
+      gapId: `gap-projection-truncated-${material}`,
+      kind: 'projection-truncated',
+      subjectId: null,
+      detail: `${material} exceeded the projection cap; ${dropped} entr${dropped === 1 ? 'y was' : 'ies were'} omitted deterministically.`,
+      evidenceRef: null,
+    });
+  }
+  sortedGaps.sort((a, b) => compare(a.gapId, b.gapId));
+  if (sortedGaps.length > MISSION_FABRIC_CAPS.MAX_GAPS) {
+    throw new Error(`quest execution fact gaps exceed the cap of ${MISSION_FABRIC_CAPS.MAX_GAPS}; failing closed instead of dropping gap records`);
+  }
+  return {
+    nodes: sortedNodes.slice(0, MISSION_FABRIC_CAPS.MAX_NODES),
+    edges: sortedEdges.slice(0, MISSION_FABRIC_CAPS.MAX_EDGES),
+    gaps: sortedGaps,
+  };
 }
 
 const AUTHORIZED_FABRIC_ROLES = new Set<MissionFabricViewer['role']>(['founder', 'operator']);
@@ -1147,6 +1227,10 @@ export function redactMissionFabricProjection(
     if (node.kind === 'receipt') {
       const value: FabricReceipt = { ...node.value, evidenceRefs: [], outputDigest: null };
       return { kind: 'receipt', value };
+    }
+    if (node.kind === 'skill-cluster') {
+      const value: FabricSkillCluster = { ...node.value, sourceRef: `redacted:cluster:${node.value.clusterId}` };
+      return { kind: 'skill-cluster', value };
     }
     return node;
   });

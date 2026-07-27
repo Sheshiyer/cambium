@@ -446,7 +446,7 @@ test('adaptQuestExecutionFacts keeps the highest valid fence and rejects the sta
       },
     ],
   });
-  const result = adaptQuestExecutionFacts(facts);
+  const result = adaptQuestExecutionFacts(facts, { now: '2026-07-28T12:00:00.000Z' });
   const runIds = result.nodes.filter((node) => node.kind === 'run').map((node) => (node.value as { runId: string }).runId);
   assert.deepEqual(runIds, ['run-current']);
   const staleGap = result.gaps.find((gap) => gap.kind === 'stale-fence');
@@ -494,7 +494,7 @@ test('adaptQuestExecutionFacts joins agents and skills only from explicit quest 
 });
 
 test('adaptQuestExecutionFacts links task to run to a durable receipt ID', () => {
-  const result = adaptQuestExecutionFacts(questFacts());
+  const result = adaptQuestExecutionFacts(questFacts(), { now: '2026-07-28T12:00:00.000Z' });
   const receiptNodes = result.nodes.filter((node) => node.kind === 'receipt');
   assert.deepEqual(receiptNodes.map((node) => (node.value as { receiptId: string }).receiptId), ['receipt-alpha']);
   const produces = result.edges.filter((edge) => edge.kind === 'produces');
@@ -585,4 +585,152 @@ test('redactMissionFabricProjection recomputes a stable graphDigest per fixed vi
   assert.equal(first.graphDigest, projectionDigest(first), 'stored digest must equal recomputation over redacted canonical content');
   const founder = redactMissionFabricProjection(projection, { role: 'founder', tenantId: 'cambium-synthetic' });
   assert.equal(founder.graphDigest, projection.graphDigest, 'an authorized viewer sees the unredacted digest');
+});
+
+// ---------------------------------------------------------------------------
+// Review Round 1 — hardening regressions
+// ---------------------------------------------------------------------------
+
+test('adaptQuestExecutionFacts projects a malformed non-null terminalAt as null with a typed gap, never an empty string', () => {
+  const facts = questFacts({
+    runs: [
+      {
+        runId: 'run-bad-terminal', taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', fence: 4, nonce: 'nonce-alpha', nonceExpiresAt: '2026-07-29T00:00:00.000Z',
+        receiptId: 'receipt-alpha', startedAt: '2026-07-28T09:00:00.000Z', terminalAt: 'not-a-timestamp',
+      },
+    ],
+  });
+  const result = adaptQuestExecutionFacts(facts, { now: '2026-07-28T12:00:00.000Z' });
+  const runNode = result.nodes.find((node) => node.kind === 'run' && node.value.runId === 'run-bad-terminal');
+  assert.ok(runNode && runNode.kind === 'run', 'expected the run to be projected');
+  assert.equal(runNode.value.terminalAt, null, 'a malformed non-null terminalAt must project null, never an empty string');
+  const gap = result.gaps.find((entry) => entry.kind === 'invalid-timestamp' && entry.subjectId === 'run-bad-terminal');
+  assert.ok(gap, 'expected an invalid-timestamp gap identifying the run');
+  assert.match(gap.detail, /not-a-timestamp/, 'the gap must identify the invalid timestamp value');
+});
+
+test('adaptQuestExecutionFacts rejects junk run rows missing runId or taskId into deterministic typed gaps', () => {
+  const facts = questFacts({
+    runs: [
+      {
+        taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', fence: 4, nonce: 'nonce-alpha', receiptId: 'receipt-alpha',
+        startedAt: '2026-07-28T09:00:00.000Z', terminalAt: null,
+      },
+      {
+        runId: 'run-no-task', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', fence: 4, nonce: 'nonce-beta', receiptId: 'receipt-beta',
+        startedAt: '2026-07-28T09:00:00.000Z', terminalAt: null,
+      },
+    ],
+  });
+  const result = adaptQuestExecutionFacts(facts);
+  assert.equal(result.nodes.filter((node) => node.kind === 'run').length, 0, 'junk runs must never produce empty FabricRun nodes');
+  const junkGaps = result.gaps.filter((gap) => gap.kind === 'invalid-run');
+  assert.equal(junkGaps.length, 2, 'each junk run row must produce its own deterministic typed gap');
+  assert.match(junkGaps.map((gap) => gap.detail).join(' '), /runId/, 'the gap must identify the missing identity field');
+  const rerun = adaptQuestExecutionFacts(structuredClone(facts));
+  assert.deepEqual(rerun.gaps, result.gaps, 'gap IDs for junk rows must be deterministic');
+});
+
+test('adaptQuestExecutionFacts fails closed when an authoritative fence exists but the run fence is missing or non-finite', () => {
+  const malformedFence = questFacts({
+    runs: [
+      {
+        runId: 'run-nan-fence', taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', fence: Number.NaN, nonce: 'nonce-alpha', receiptId: 'receipt-alpha',
+        startedAt: '2026-07-28T09:00:00.000Z', terminalAt: null,
+      },
+      {
+        runId: 'run-no-fence', taskId: 'task-alpha', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1',
+        state: 'succeeded', nonce: 'nonce-beta', receiptId: 'receipt-beta',
+        startedAt: '2026-07-28T09:00:00.000Z', terminalAt: null,
+      },
+    ],
+  });
+  const result = adaptQuestExecutionFacts(malformedFence);
+  assert.equal(result.nodes.filter((node) => node.kind === 'run').length, 0, 'a run with an unverifiable fence against an authoritative fence must be rejected');
+  const fenceGaps = result.gaps.filter((gap) => gap.kind === 'unverifiable-fence');
+  assert.equal(fenceGaps.length, 2);
+  assert.deepEqual(fenceGaps.map((gap) => gap.subjectId).sort(), ['run-nan-fence', 'run-no-fence']);
+});
+
+test('adaptQuestExecutionFacts accepts a finite fence run without authoritative fences when no expiry metadata is present', () => {
+  const facts = questFacts({ fences: [] });
+  for (const run of facts.runs as Array<Record<string, unknown>>) {
+    delete run.nonceExpiresAt;
+  }
+  const result = adaptQuestExecutionFacts(facts);
+  assert.equal(result.nodes.filter((node) => node.kind === 'run').length, 1);
+  assert.equal(result.gaps.some((gap) => gap.kind === 'unverifiable-fence'), false);
+});
+
+test('adaptQuestExecutionFacts rejects expiry-metadata runs when no clock is provided', () => {
+  const result = adaptQuestExecutionFacts(questFacts());
+  assert.equal(result.nodes.filter((node) => node.kind === 'run').length, 0, 'freshness cannot be verified without a clock; the run must be rejected');
+  const gap = result.gaps.find((entry) => entry.kind === 'unverifiable-clock');
+  assert.ok(gap, 'expected a typed unverifiable-clock gap');
+  assert.equal(gap.subjectId, 'run-alpha');
+  const withClock = adaptQuestExecutionFacts(questFacts(), { now: '2026-07-28T12:00:00.000Z' });
+  assert.equal(withClock.nodes.filter((node) => node.kind === 'run').length, 1, 'the same run is accepted when a clock is provided');
+});
+
+test('adaptQuestExecutionFacts bounds nodes, edges, and gaps with visible projection-truncated gaps', () => {
+  const tasks = [];
+  const runs = [];
+  const receipts = [];
+  for (let index = 0; index < 600; index += 1) {
+    const taskId = `task-cap-${String(index).padStart(4, '0')}`;
+    const runId = `run-cap-${String(index).padStart(4, '0')}`;
+    const receiptId = `receipt-cap-${String(index).padStart(4, '0')}`;
+    tasks.push({ taskId, missionId: 'mission-one', fence: 1 });
+    runs.push({
+      runId, taskId, executorAgentId: '', loadoutId: `loadout-${index}`,
+      state: 'succeeded', fence: 1, nonce: `nonce-${index}`, receiptId,
+      startedAt: '2026-07-28T09:00:00.000Z', terminalAt: null,
+    });
+    receipts.push({ receiptId, runId, taskId, status: 'verified', evidenceRef: null, verifiedAt: null, durable: true });
+  }
+  const facts = questFacts({ tasks, runs, receipts, agents: [], skillClusters: [], taskClusterAssignments: [], fences: [] });
+  const result = adaptQuestExecutionFacts(facts);
+  assert.ok(result.nodes.length <= MISSION_FABRIC_CAPS.MAX_NODES, `nodes must be capped at ${MISSION_FABRIC_CAPS.MAX_NODES}`);
+  assert.ok(result.edges.length <= MISSION_FABRIC_CAPS.MAX_EDGES, `edges must be capped at ${MISSION_FABRIC_CAPS.MAX_EDGES}`);
+  assert.ok(result.gaps.length <= MISSION_FABRIC_CAPS.MAX_GAPS, `gaps must be capped at ${MISSION_FABRIC_CAPS.MAX_GAPS}`);
+  const truncation = result.gaps.filter((gap) => gap.kind === 'projection-truncated');
+  assert.ok(truncation.length >= 1, 'overflow must be visible via projection-truncated gaps, never silent');
+  const rerun = adaptQuestExecutionFacts(structuredClone(facts));
+  assert.deepEqual(rerun, result, 'overflow must be deterministic');
+});
+
+test('adaptQuestExecutionFacts fails closed when the truncation gap record itself cannot fit', () => {
+  const gapsInput = [];
+  for (let index = 0; index < 200; index += 1) {
+    gapsInput.push({ gapId: `gap-flood-${String(index).padStart(4, '0')}`, kind: 'capability-gap', subjectId: 'task-alpha', detail: 'flood', evidenceRef: null });
+  }
+  const facts = questFacts({ gaps: gapsInput });
+  assert.throws(
+    () => adaptQuestExecutionFacts(facts),
+    /gaps exceed the cap/i,
+    'when even the gap record cannot fit, the adapter must fail closed like the compiler',
+  );
+});
+
+test('redactMissionFabricProjection redacts skill-cluster sourceRef and evidence pointers for unauthorized viewers', () => {
+  const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, { clock: COMPILER_CLOCK });
+  const founder = redactMissionFabricProjection(projection, { role: 'founder', tenantId: 'cambium-synthetic' });
+  const founderCluster = founder.nodes.find((node) => node.kind === 'skill-cluster');
+  assert.ok(founderCluster && founderCluster.kind === 'skill-cluster');
+  assert.equal(founderCluster.value.sourceRef, 'evidence-cluster-001', 'authorized viewers keep the raw cluster sourceRef');
+
+  const unauthorized = redactMissionFabricProjection(projection, { role: 'viewer', tenantId: 'cambium-synthetic' });
+  for (const node of unauthorized.nodes) {
+    const serialized = JSON.stringify(node);
+    assert.doesNotMatch(serialized, /evidence-cluster-001|evidence-cluster-002/, 'skill-cluster sourceRef/evidence pointers must be redacted');
+    assert.doesNotMatch(serialized, /evidence-receipt-001|evidence-sapling-001/, 'raw evidence pointers must be redacted');
+  }
+  for (const gap of unauthorized.gaps) {
+    assert.equal(gap.evidenceRef, null, 'gap evidence pointers must be redacted');
+  }
+  assert.equal(unauthorized.graphDigest, projectionDigest(unauthorized), 'post-redaction digest must stay stable');
 });
