@@ -13127,6 +13127,47 @@ test('standup projection · oversize fields are capped and never stored raw', as
   assert.ok(!JSON.stringify(record).includes(oversize), 'no oversize string survives into the record');
 });
 
+test('standup projection · active projects survive zero-work rows and are ranked before bounding', async () => {
+  const kv = fakeKv();
+  const deps = standupDeps(kv);
+  const zeroWorkProjects = Array.from({ length: 12 }, (_, i) => ({
+    projectId: `zero-${i}`,
+    name: `Zero ${i}`,
+    totalSeconds: 0,
+    entryCount: 0,
+    evidenceStatus: 'missing',
+    repoFullName: `org/zero-${i}`,
+  }));
+  const ingest = await ingestUpstream('bridge', dailyAgentEventPayload({
+    projectSummaries: [
+      ...zeroWorkProjects,
+      {
+        projectId: 'plexus-ts',
+        name: 'Plexus',
+        totalSeconds: 7200,
+        entryCount: 1,
+        evidenceStatus: 'missing',
+        repoFullName: 'Sheshiyer/plexus-ts',
+      },
+      {
+        projectId: 'cambium',
+        name: 'Cambium',
+        totalSeconds: 1800,
+        entryCount: 2,
+        evidenceStatus: 'evidenced',
+        repoFullName: 'Sheshiyer/cambium',
+      },
+    ],
+  }), deps);
+  assert.equal(ingest.status, 200);
+
+  const record = JSON.parse(kv.store.get('standup:cambium:mathis:2026-07-17')!);
+  assert.deepEqual(record.projects.map((project: { projectId: string }) => project.projectId), [
+    'plexus-ts',
+    'cambium',
+  ]);
+});
+
 test('standups read · empty state is an explicit empty list and a dated 404', async () => {
   const kv = fakeKv();
   const deps = standupDeps(kv);
