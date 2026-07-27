@@ -105,6 +105,19 @@ route + Phase-2 operator commands promoted into
 3. ~20 real Telegram interactions double as the Q5 Venn-partition validation corpus.
 4. Only after this passes: enable proactive schedules.
 
+### Phase 8: Unified Operating Fabric
+**Goal:** Make every active sapling and company program legible through one read-only Mission Fabric, with missions, tasks, runs, receipts, agents, and skill clusters visible in the Telegram Mini App without creating a second workflow authority.
+**Depends on:** Phase 5 for live Goal Graph intake and authenticated readback. Contract/projection work can overlap Phases 6–7; production promotion waits for the same release and founder-device proof gates.
+**Canonical refs:** `docs/architecture/cambium-operating-fabric.md`, `docs/plans/2026-07-28-cambium-operating-fabric-implementation-plan.md`, `docs/visual/cambium-operating-fabric-flow.html`.
+**Status:** design baseline complete; runtime implementation queued.
+**Success criteria:**
+1. A versioned `WorkObject` model distinguishes saplings from company programs; only saplings retain branch promotion semantics.
+2. One deterministic `cambium.mission-fabric-projection.v1` joins Work → Mission → Task → Run → Receipt lineage with separate agent-assignment and skill-requirement edges.
+3. D1 Goal Graph remains the sole operational writer; projections expose source, version, freshness, read-only state, and explicit gaps.
+4. The Telegram Mini App serves `Canopy | Mission | Flow | Workforce | Forge`; Gate and Inspect remain governed contextual sheets with rollback-safe legacy navigation.
+5. Synthetic schema, determinism, redaction, compatibility, viewport, reduced-motion, and text-density suites pass before deployment.
+6. Production promotion requires a founder-device Canopy→Mission→Flow read proof and one contextual signed Gate receipt.
+
 ## Explicitly later (not in v0.4)
 - R2 vault → contract update → Thoughtseed PDF → sign/send: new explicitly-scoped phase; stopping at `awaiting_human_approval` is intentional design, not a gap to patch casually.
 - Hermes-on-EC2 live proof, Growth Cortex as a named service, Composio distribution (catalog-only today), Q7 escalation policy, PHASE-Q-BRIDGE deferred wings (GitHub/CF signal stubs, lesson-miner).

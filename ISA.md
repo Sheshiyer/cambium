@@ -1,13 +1,14 @@
 ---
 project: Cambium
-task: "Expose a verifiable branch-to-organ map for Telegram operations"
+task: "Implement the Cambium operating fabric through local release proof"
 effort: advanced
 effort_source: classifier
-phase: complete
-progress: 280/280
+phase: build
+progress: 339/414
 mode: interactive
-started: 2026-07-22T08:55:00Z
-updated: 2026-07-23T12:24:00Z
+iteration: 2026-07-28-operating-fabric-subagent-implementation
+started: 2026-07-27T21:26:34Z
+updated: 2026-07-27T23:18:00Z
 ---
 
 ## Problem
@@ -18,6 +19,8 @@ This is not only a stale-document problem. It is an ownership and feedback probl
 
 The July lead-ecosystem stack added another form of the same problem: seven dependent pull requests describe provider contracts, a read-only Explee observer, marketing capabilities, and a fail-closed renderer, but child branches had no CI rollup and the runtime still lacked canonical lead identity, durable task ownership, reservation/usage accounting, and replay-safe foldback.
 
+The current Telegram Mission scene visualizes proof-bound branch packets well, but its primary ontology is still branch-first. That makes new venture saplings legible while company programs, capability work, internal operations, agent assignments, and skill-cluster loadouts lack one shared visual operating model. The Goal Graph, quest ledger, branch packets, agent telemetry, and skill registries already hold most of the necessary facts; what is missing is a versioned Mission Fabric projection and a mobile information architecture that joins them without creating a second writer.
+
 ## Vision
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
@@ -25,6 +28,8 @@ A future maintainer can begin from current main, run one drift audit, and know w
 The surprising outcome is subtraction: fewer checklists and fewer copied constants produce stronger proof because every remaining instruction is derived from a current state machine or protected by a failing test.
 
 For the lead runtime, the corresponding subtraction is that provider breadth becomes declarative. One bounded Iverif capture/enrich run can be replayed without duplicate leads, hidden spend, or provider egress; every higher-risk adapter remains inert until the same durable authority spine proves it is safe.
+
+For the operating fabric, the founder opens one Canopy and immediately sees two honest classes of work: saplings moving through the venture-launch loop and company programs moving through their own outcome lifecycle. Selecting either reveals the same Mission → Task → Run → Receipt spine, while Workforce and Forge show which agent and skill-cluster loadout can act. The surprising result is that agents and skills become visible without becoming authorities: they are execution overlays on Goal Graph truth, not a parallel project tracker.
 
 ## Out of Scope
 
@@ -37,6 +42,9 @@ For the lead runtime, the corresponding subtraction is that provider breadth bec
 - No cross-repository runtime change without an explicit owning contract and repository-specific verification.
 - No broad provider activation, live paid rendering, automatic engagement, or recurring schedule arming in the lead-runtime milestone.
 - No second lead-contract registry alongside the canonical `lead-ecosystem.v1.json`, `lead-ops.v1.json`, and adapter catalogs.
+- No runtime implementation, production deployment, live Telegram mutation, or provider call in the operating-fabric design iteration.
+- No forced conversion of company programs into venture saplings merely to reuse the branch UI.
+- No second goal, task, receipt, or workflow authority alongside the D1 Goal Graph.
 
 ## Principles
 
@@ -48,6 +56,9 @@ For the lead runtime, the corresponding subtraction is that provider breadth bec
 - Proof is provenance plus freshness plus behavior, not a green command alone.
 - Deletion requires classification; dangerous stale instructions are removed, while security boundaries and durable history remain.
 - The dirty primary checkout is user property and remains untouched.
+- Work identity, execution identity, and visual projection remain separate concepts.
+- A branch remains a proof-bound launch path; shared Mission Fabric is the bridge across work types.
+- Agent and skill visibility must always resolve back to an assigned task, pinned loadout, and receipt.
 
 ## Constraints
 
@@ -61,12 +72,17 @@ For the lead runtime, the corresponding subtraction is that provider breadth bec
 - Lead identity and dedupe precede subgraph execution; spend reservations precede metered calls; usage settlement follows provider receipts.
 - Durable task state, idempotency keys, receipts, stop rules, and accounting precede recurring schedules.
 - Explee read parity remains GET-only and no-spend, with observer authorization separated from provider credentials.
+- D1 Goal Graph remains the only operational writer for goals, dependencies, status, approvals, and terminal receipts.
+- Existing branch packets and `BranchStoryArc` stay backward compatible during the first operating-fabric slice.
+- The Telegram Mini App retains a five-destination primary navigation ceiling; Gate and Inspect may move to contextual sheets.
 
 ## Goal
 
 Make operational drift mechanically difficult by aligning the ActionRequest runtime contract, renderer, fixtures, tests, runbooks, configuration ownership, GitHub state, and release evidence. The cleanup is complete only when production-shaped tests fail on the exact former mismatch, stale actionable instructions are removed from operational surfaces, deferred roadmap work is explicit, and current main can be released without touching unrelated local work.
 
 For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a successful CI run for the consolidated main SHA, and ship a tested durable runtime that proves one bounded Iverif Explee capture/enrich path while engagement, media generation, and recurring schedules remain fail-closed.
+
+For the operating-fabric iteration, define and visualize one shared model that distinguishes saplings from company programs, compiles both into a read-only Mission Fabric, overlays agents and skill clusters through pinned task loadouts, and maps the complete propose → approve → dispatch → execute → receipt → learn loop into buildable Telegram pages. The iteration is complete when the active architecture contract, implementation plan, roadmap phase, offline visual workflow, and Codex-generated moodboard all agree on the same ontology and authority boundaries.
 
 ## Criteria
 
@@ -414,6 +430,148 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - [x] ISC-280: Anti: no route or renderer claims branch traversal complete without persisted receipt evidence.
 - [x] ISC-281: Founder-device proof consists of one in-app signed gate action (Satisfied 2026-07-26: `docs/evidence/tg-miniapp/2026-07-26/signed-action-smoke.json`.) whose redacted receipt artifact (hashes only — userIdHash, actionKind, subjectHash, idempotencyHash, workerVersionId, capturedAt; no pasted initData) validates under readiness schema v2. Runtime initData auth inside the Telegram WebView stays unchanged and server-validated; the manual env-initData capture ritual is retired because current Telegram desktop exposes no WebView inspect.
 
+### Unified visual operating fabric
+
+- [x] ISC-282: The active operating-fabric contract defines one `WorkObject` union.
+- [x] ISC-283: `WorkObject` distinguishes venture saplings from company programs.
+- [x] ISC-284: Sapling work retains branch promotion and proof-ladder semantics.
+- [x] ISC-285: Company programs use outcome lifecycles without branch-promotion claims.
+- [x] ISC-286: Both work types compile into one read-only Mission Fabric.
+- [x] ISC-287: The Mission Fabric defines Work → Mission → Task → Run → Receipt lineage.
+- [x] ISC-288: Task identity remains independent from its assigned agent.
+- [x] ISC-289: Task identity remains independent from its pinned skill loadout.
+- [x] ISC-290: D1 Goal Graph remains the sole operational workflow writer.
+- [x] ISC-291: Cortex foldback remains a derived learning lane.
+- [x] ISC-292: Existing client and internal-service branches have a compatibility mapping.
+- [x] ISC-293: The mobile information architecture defines a Canopy page.
+- [x] ISC-294: The mobile information architecture defines a Mission page.
+- [x] ISC-295: The mobile information architecture defines a Flow page.
+- [x] ISC-296: The mobile information architecture defines a Workforce page.
+- [x] ISC-297: The mobile information architecture defines a Forge page.
+- [x] ISC-298: Gate and Inspect remain reachable as contextual governed sheets.
+- [x] ISC-299: Every visible work state uses icon, color, and rail treatment.
+- [x] ISC-300: The visual workflow shows propose through approved foldback.
+- [x] ISC-301: The visual workflow shows agent and skill dispatch overlays.
+- [x] ISC-302: The implementation plan names schemas, routes, scenes, fixtures, and tests.
+- [x] ISC-303: The continuation roadmap contains a sequenced operating-fabric phase.
+- [x] ISC-304: A Codex GPT Image prompt cites all three supplied reference families.
+- [x] ISC-305: At least two generated moodboards cover system flow and mobile pages.
+- [x] ISC-306: Antecedent: a founder can identify work, blocker, executor, and proof at a glance.
+- [x] ISC-307: Anti: no design artifact introduces a second workflow authority or live mutation.
+
+### Operating-fabric implementation readiness
+
+- [x] ISC-308: The execution plan starts with the mandatory writing-plans Codex handoff header.
+- [x] ISC-309: The execution plan states one implementation goal matching the active architecture contract.
+- [x] ISC-310: The execution plan summarizes the read-only projection architecture in two or three sentences.
+- [x] ISC-311: The execution plan names the actual TypeScript, Node test runner, Cloudflare Worker, D1, and browser-proof stack.
+- [x] ISC-312: The execution plan requires a fresh isolated worktree based on a verified integration baseline.
+- [x] ISC-313: The execution plan names the baseline-commit prerequisite for currently uncommitted design artifacts.
+- [x] ISC-314: The execution plan preserves traceability from detailed tasks to OF-001..OF-063.
+- [x] ISC-315: Contract-freeze tasks name exact schema, shared-contract, fixture, and test paths.
+- [x] ISC-316: Projection-compiler tasks name exact adapter, compiler, digest, fixture, and test paths.
+- [x] ISC-317: Worker-route tasks name exact handler, environment, authenticated route, D1 fixture, and test paths.
+- [x] ISC-318: Mini App tasks name exact surface-contract, page scene, style, fixture, and viewport-proof paths.
+- [x] ISC-319: The plan identifies which current files are generated mirrors and must stay synchronized.
+- [x] ISC-320: The plan identifies existing branch-map, Goal Graph, lead-runtime, Gate, and visual test patterns to reuse.
+- [x] ISC-321: Every implementation task begins with one failing test or contract assertion.
+- [x] ISC-322: Every implementation task includes the exact focused command that demonstrates RED.
+- [x] ISC-323: Every RED step names the expected failure signal.
+- [x] ISC-324: Every implementation task includes concrete minimal implementation guidance or code shape.
+- [x] ISC-325: Every implementation task includes the exact focused command that demonstrates GREEN.
+- [x] ISC-326: Every implementation task ends with explicit staged files and a conventional commit message.
+- [x] ISC-327: The preparation pass changes no runtime TypeScript, migration, Worker configuration, or UI source.
+- [x] ISC-328: The preparation pass performs no deployment, production database mutation, or Telegram action.
+- [x] ISC-329: The plan makes the no-new-table default explicit and names the gate for adding any migration.
+- [x] ISC-330: The plan introduces the operating fabric behind a server-owned rollback feature flag.
+- [x] ISC-331: The plan gives an exact old-shell rollback and projection-route disable strategy.
+- [x] ISC-332: The plan covers tenant authorization, redaction, response bounds, digest, freshness, nonce, and fencing invariants.
+- [x] ISC-333: The plan defines deterministic ordering and bounded graph-size checks.
+- [x] ISC-334: The plan includes 320, 390, and 430 pixel viewport proofs plus reduced motion.
+- [x] ISC-335: The plan includes keyboard, focus, semantic navigation, and sheet accessibility checks.
+- [x] ISC-336: The plan names focused, full, standalone, documentation, and release verification commands.
+- [x] ISC-337: The plan keeps founder-device read proof and signed Gate proof as separate production-promotion gates.
+- [x] ISC-338: The plan closes with both subagent-driven and parallel-session execution handoffs.
+- [x] ISC-339: Anti: the preparation plan never claims the operating fabric is implemented, deployed, or runtime-verified.
+
+### Operating-fabric runtime implementation
+
+- [ ] ISC-340: The reviewed design baseline is committed on a non-main branch.
+- [ ] ISC-341: The implementation runs from an isolated `codex/cambium-operating-fabric` worktree with a green baseline suite.
+- [ ] ISC-342: A plan-scoped SDD ledger records every task commit and review verdict.
+- [ ] ISC-343: The company-program packet parser rejects unknown keys and missing authority.
+- [ ] ISC-344: The company-program packet fixture is versioned, synthetic, and deterministic.
+- [ ] ISC-345: Anti: program and shared fixtures contain no auth material, token, prompt, or secret.
+- [ ] ISC-346: Program mission IDs are bounded, unique, sorted, and tied to a positive graph version.
+- [ ] ISC-347: Anti: `BranchStoryArc` remains unchanged by the company-program packet slice.
+- [ ] ISC-348: `MissionFabricProjectionV1` exactly matches the frozen public contract field and edge vocabulary.
+- [ ] ISC-349: Identical source facts compile to identical sorted nodes, edges, and graph digest.
+- [ ] ISC-350: Volatile generated time, served time, and freshness are excluded from graph digest material.
+- [ ] ISC-351: Projection-shaped input is rejected as an authority source.
+- [ ] ISC-352: Projection nodes, edges, gaps, evidence references, and display strings enforce frozen bounds.
+- [ ] ISC-353: Deterministic overflow produces a visible `projection-truncated` gap.
+- [ ] ISC-354: Product branches adapt to saplings while retaining promotion metadata.
+- [ ] ISC-355: Client branches adapt to client programs without sapling promotion UI.
+- [ ] ISC-356: Internal-service branches require an explicit capability-or-operations mapping; absence becomes a gap.
+- [ ] ISC-357: Company-program packets adapt to `ProgramWork` without widening `BranchStoryArc`.
+- [ ] ISC-358: Missing joins become typed gaps rather than invented graph relationships.
+- [ ] ISC-359: Stale-fence runs are rejected and only the highest valid fence contributes execution truth.
+- [ ] ISC-360: Agent and skill-cluster edges derive only from explicit source IDs.
+- [ ] ISC-361: Unauthorized viewers receive a redacted projection before graph digest computation.
+- [ ] ISC-362: Task-to-run-to-receipt lineage terminates at durable receipt IDs.
+- [ ] ISC-363: `GET /v1/mission-fabric/{tenant}` returns the bounded projection envelope.
+- [ ] ISC-364: Anti: every mutating method on the mission-fabric route returns method-not-allowed.
+- [ ] ISC-365: An absent, empty, or nonmatching `MISSION_FABRIC_TENANTS` allowlist fails closed.
+- [ ] ISC-366: Missing or invalid Telegram `initData` fails closed before source reads.
+- [ ] ISC-367: The route assembles Goal Graph, quest-envelope, and receipt facts from existing D1/KV stores.
+- [ ] ISC-368: Anti: projection requests perform zero D1 writes and zero KV writes.
+- [ ] ISC-369: The route emits private no-store caching and a viewer-redacted projection ETag.
+- [ ] ISC-370: The branch-only shadow report is non-persisted, redacted, and promotion-blocking on missing IDs.
+- [ ] ISC-371: The legacy five-scene page remains the initial visible and interactive document.
+- [ ] ISC-372: The new scene IDs are exactly `canopy`, `mission`, `flow`, `workforce`, and `forge`.
+- [ ] ISC-373: Worker and shared operating-fabric surface contracts remain byte-equivalent.
+- [ ] ISC-374: Auth or allowlist failure keeps the legacy shell active and the mission-fabric route closed.
+- [ ] ISC-375: Page assembly requires exactly one closing body tag and preserves legacy bytes outside the insertion.
+- [ ] ISC-376: Work, agent, and skill cards expose authority, freshness, type/state, and read-only cues.
+- [ ] ISC-377: Loading, empty, stale, unauthorized, error, and gap states are visually distinct.
+- [ ] ISC-378: Shared controls use semantic labels, visible focus, and 44px minimum targets.
+- [ ] ISC-379: Anti: UI components expose no raw evidence, prompt, token, Telegram auth, or private client payload.
+- [ ] ISC-380: Canopy separates saplings from programs and preserves type-specific lifecycle language.
+- [ ] ISC-381: Canopy renders source-derived active, blocked, stale, and total counts.
+- [ ] ISC-382: Mission renders Work-to-Mission-to-Task lineage for the selected work object.
+- [ ] ISC-383: Mission exposes dependencies, blockers, receipt coverage, and explicit gaps.
+- [ ] ISC-384: Anti: governed Mission actions delegate to the existing signed Gate client rather than writing directly.
+- [ ] ISC-385: Flow renders Task-to-Run-to-Receipt paths with executor, proof, dependency, and stale-fence truth.
+- [ ] ISC-386: Flow uses deterministic bounded layout and an equivalent accessible linear fallback.
+- [ ] ISC-387: Workforce exposes source-derived agent status, assignment, capability, and freshness.
+- [ ] ISC-388: Forge exposes cluster membership, lifecycle, demand, evidence, and capability gaps.
+- [ ] ISC-389: Anti: Workforce and Forge cannot score, promote, activate, edit, or assign directly.
+- [ ] ISC-390: Gate opens contextually only from a governed object and action.
+- [ ] ISC-391: Gate preserves tenant, actor, digest, nonce, expiry, graph version, and fence bindings.
+- [ ] ISC-392: Inspect exposes selected node/edge provenance, source authority, freshness, and gaps.
+- [ ] ISC-393: Closing Gate or Inspect restores the originating scene and keyboard focus.
+- [ ] ISC-394: Expired, replayed, wrong-tenant, wrong-version, and stale-fence approvals fail closed.
+- [ ] ISC-395: Every new scene and sheet has zero document overflow at 320px.
+- [ ] ISC-396: Every new scene and sheet has zero document overflow at 390px.
+- [ ] ISC-397: Every new scene and sheet has zero document overflow at 430px.
+- [ ] ISC-398: Every new interactive target satisfies the 44px minimum touch size.
+- [ ] ISC-399: Reduced-motion mode removes nonessential operating-fabric transitions.
+- [ ] ISC-400: The operating-fabric shell has semantic navigation, landmarks, headings, and logical tab order.
+- [ ] ISC-401: Flow exposes the same fact IDs through graph and linear representations.
+- [ ] ISC-402: All new scenes pass the frozen text-density budgets.
+- [ ] ISC-403: One integration test traces branch/program source through Goal Graph, fenced run, receipt, route, scene, and Inspect.
+- [ ] ISC-404: Compiler, route, and page agree on one redacted graph digest for fixed source and viewer facts.
+- [ ] ISC-405: The integration proof observes zero projection-side D1/KV writers.
+- [ ] ISC-406: Flag-off integration returns the legacy UI and a closed mission-fabric route.
+- [ ] ISC-407: The pilot fixture produces a zero-missing branch shadow report.
+- [ ] ISC-408: The full repository test suite passes on the implementation head.
+- [ ] ISC-409: Documentation, drift, and text-density audits pass on the implementation head.
+- [ ] ISC-410: The standalone publishability audit passes on the implementation head.
+- [ ] ISC-411: The standalone smoke suite passes on the implementation head.
+- [ ] ISC-412: The Telegram mobile-contract proof passes on the implementation head.
+- [ ] ISC-413: The release verifier passes on the implementation head.
+- [ ] ISC-414: Anti: this iteration performs no production deploy, allowlist promotion, D1 mutation, or Telegram action without a separate explicit founder approval.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -478,6 +636,14 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 | ISC-270..273 | Telegram map sheet | bounded deterministic read-only rows retain authority/overlay separation and gaps | sheet renderer tests |
 | ISC-274..278 | signed end-to-end proof | one synthetic signature binds receipt, projection, sheet, and proof digests; tampering and tenant swaps fail | end-to-end route/store/sheet test |
 | ISC-279..281 | live boundary | deferred env-initData capture is superseded by one in-app signed gate action with a redacted hash-only receipt, and no unsupported completion claim is emitted | ISA/README inspection and anti-probe |
+| ISC-282..292 | operating ontology | WorkObject, sapling/program distinction, Mission Fabric lineage, authority, foldback, and compatibility are explicitly defined | architecture contract inspection |
+| ISC-293..299 | mobile information architecture | five primary destinations plus governed sheets and multi-channel state language are explicit | plan and moodboard inspection |
+| ISC-300..301 | visual workflow | full lifecycle and execution overlays are visible in one offline artifact | browser screenshot of HTML workflow |
+| ISC-302..303 | planning continuity | implementation surfaces and roadmap sequencing are explicit | plan/roadmap inspection |
+| ISC-304..305 | generated visual direction | prompt cites all references and two generated boards exist | prompt readback and image metadata |
+| ISC-306..307 | experiential and anti-criteria | glance comprehension is structurally supported and no second authority is introduced | cross-artifact terminology audit |
+| ISC-308..339 | implementation readiness | exact TDD tasks, paths, commands, commits, rollback, security, proofs, and handoff are present without runtime mutation | plan parser, link/path probes, `rg`, `git diff --check` |
+| ISC-340..414 | operating-fabric implementation | execute Tasks 1–13 with TDD, per-task review, deterministic local proof, and no production mutation | focused `node --test`, SDD review packages, full release gates, viewport proof |
 
 ## Features
 
@@ -509,6 +675,13 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 - `AuthenticatedBranchMapRoute` | Expose the Goal Graph and receipt projection behind signed Telegram auth | satisfies ISC-264..269 | depends_on D1ReceiptAuthority | parallelizable false
 - `TelegramMapSheet` | Render bounded read-only branch and organ traversal rows for Telegram | satisfies ISC-270..273 | depends_on AuthenticatedBranchMapRoute | parallelizable true
 - `SignedEndToEndProof` | Prove receipt storage, route auth, projection, rendering, and digest binding synthetically | satisfies ISC-274..280 | depends_on D1ReceiptAuthority, AuthenticatedBranchMapRoute, TelegramMapSheet | parallelizable false
+- `OperatingFabricOntology` | Define WorkObject, sapling/program semantics, Mission Fabric lineage, and authority boundaries | satisfies ISC-282..292, ISC-307 | depends_on GoalGraphAuthority, BranchTraversalMap | parallelizable false
+- `OperatingFabricMobileIA` | Define Canopy, Mission, Flow, Workforce, Forge, Gate, and Inspect surfaces | satisfies ISC-293..299, ISC-306 | depends_on OperatingFabricOntology | parallelizable true
+- `OperatingFabricVisualWorkflow` | Render the full data, task, agent, skill, proof, and learning loop | satisfies ISC-300..301, ISC-306 | depends_on OperatingFabricOntology | parallelizable true
+- `OperatingFabricPlanning` | Reconcile the architecture contract into implementation waves and roadmap state | satisfies ISC-302..303 | depends_on OperatingFabricOntology, OperatingFabricMobileIA | parallelizable false
+- `OperatingFabricMoodboards` | Generate reference-anchored system-flow and mobile-page visual boards | satisfies ISC-304..305, ISC-306 | depends_on OperatingFabricMobileIA, OperatingFabricVisualWorkflow | parallelizable true
+- `OperatingFabricExecutionPlan` | Convert the architecture and wave map into exact TDD tasks, commands, commits, rollback, and proof gates | satisfies ISC-308..339 | depends_on OperatingFabricPlanning, OperatingFabricMoodboards | parallelizable false
+- `OperatingFabricRuntimeImplementation` | Execute the operating-fabric plan through local release proof while preserving the production approval boundary | satisfies ISC-340..414 | depends_on OperatingFabricExecutionPlan | parallelizable false
 
 ## Architecture
 
@@ -575,6 +748,17 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   refuted by: the projection had no durable D1 receipt boundary or authenticated Worker read seam, so a Telegram view could not prove which evidence it consumed
   learned: ingestion, tenant-authenticated read, bounded rendering, and digest binding must be one verifiable chain; founder-device capture remains a separate live boundary
   criterion now: ISC-257..280 require append-only receipts, signed route auth, bounded redacted sheets, full-envelope proof digests, and an explicit live-proof deferment
+- 2026-07-28 02:56: refined: The operating-fabric iteration does not widen `BranchStoryArc` into a universal project model. It introduces a `WorkObject` union: saplings preserve the proof-bound branch ladder, while company programs retain outcome lifecycles; both compile into the same Mission Fabric read model.
+- 2026-07-28 02:56: D1 Goal Graph remains the sole operational writer. Agent state, skill registries, branch/program packets, Cortex summaries, and Telegram pages contribute versioned inputs or projections only.
+- 2026-07-28 02:56: The five-tab Telegram ceiling is preserved by making `Canopy | Mission | Flow | Workforce | Forge` the primary destinations and keeping Gate plus Inspect as contextual sheets. This is a planning decision, not a shipped navigation change.
+- 2026-07-28 02:56: Delegation floor relaxed with show-your-math: the active developer rule forbids unrequested subagents; the work is one tightly coupled ontology/visual/planning edit where parallel writers would create terminology drift.
+- 2026-07-28 03:12: Cato cross-vendor audit was not invoked because the active developer rule forbids subagents unless explicitly requested. The permitted verification bundle uses post-build Advisor review, structural probes, browser rendering, image inspection, documentation synchronization, and diff integrity.
+- 2026-07-28 03:18: Post-build Advisor review hardened the design with a positive per-verb authorization matrix. Interactive desired-state writes require a server-allowlisted founder, Telegram third-party Ed25519 validation, approval digest, unique nonce witness, Worker commit time, canonical change-digest recomputation, and D1 CAS; execution facts require the current fenced lease.
+- 2026-07-28 03:27: refined: Implementation planning reads from the current dirty feature checkout because it contains the uncommitted approved design baseline. The plan must require that baseline to be committed first, then executed from a fresh isolated worktree; automatically moving or committing unrelated checkout state is outside this preparation pass.
+- 2026-07-28 03:27: Delegation floor relaxed with show-your-math: the active developer rule forbids unrequested subagents, and a single plan author is required to keep exact file paths, task order, test commands, and authority terminology internally consistent. Future execution may use the plan's explicitly offered subagent workflow after the user chooses it.
+- 2026-07-28 04:34: The user selected `superpowers:subagent-driven-development`. Tasks 2–13 therefore use a fresh implementer plus task-scoped spec/quality review, with one broad whole-branch review after local release proof.
+- 2026-07-28 04:34: Current authorization covers local implementation and verification only. Task 14's staging deployment, tenant allowlist promotion, real Telegram action, and production rollback rehearsal remain outside this iteration until the founder separately approves them.
+- 2026-07-28 04:42: refined: The SystemsThinking concept map fixes one dependency spine: authoritative D1/runtime/packet sources feed pure adapters, the compiler feeds an authenticated redacted route, and that route activates an additive UI shell. The same server allowlist closes both read delivery and UI activation; the legacy page is the rollback cross-link.
 
 ## Changelog
 
@@ -634,6 +818,14 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   refuted by: BranchStoryArc packets contain intended Organ Routing and gate state but no durable transition receipt, while the current packet index omits getleads and explee
   learned: traversal is an evidence-backed lineage projection, not a campaign/wiki lookup or a visual-only component
   criterion now: ISC-241..256 require a canonical alias registry, receipt-bound DAG projection, non-authoritative campaign/wiki overlays, and deferred route claims
+- 2026-07-28 | conjectured: extending `BranchKind` would unify all Cambium work
+  refuted by: branch promotion semantics fit saplings but misstate company programs, while agents and skills are executors rather than work roots
+  learned: saplings and programs need distinct root types that share a read-only Mission Fabric; agents and skills remain typed overlays
+  criterion now: ISC-282..307 define the ontology, mobile information architecture, visual workflow, planning, moodboards, and authority anti-criterion
+- 2026-07-28 | conjectured: the 63-row wave map was detailed enough to begin implementation
+  refuted by: execution review exposed missing file-level RED/GREEN commands, a non-frozen cross-layer fixture, volatile freshness in the graph digest, ambiguous TypeScript runtime assumptions, and fragile page injection
+  learned: implementation readiness requires one canonical source fixture, exact contract parity, deterministic hash material, an additive legacy shell, and atomic test/commit boundaries
+  criterion now: ISC-308..339 require a verified 14-task handoff with 12 TDD slices, explicit rollback, and separate device-read and signed-Gate proof
 
 ## Verification
 
@@ -720,3 +912,66 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-07-26 redesign ship verification (tg-miniapp mobile-first redesign, phases 1–3 complete): all five scenes rebuilt on the frozen 2026-07-24 component specs across three phase-2 waves (Mission/Gate, Tools/Story, Inspect + KpiPulse metric cards + cross-scene polish), each wave closed with a design-fidelity review (PASS-WITH-NITS, all nits fixed same-wave) and regenerated viewport proofs. Pre-deploy gates at git `88307e9cbf28f8094f49c85902b8a46ba4d61538` (clean tree, pushed to origin/main): `npm test` 1055/1055, `verify:release` green, `audit:text-density` clean (per-scene caps from scene contracts, frozen/05 banned list), viewport proof exit 0. With explicit founder approval, Worker `cambium-quests` version `203803d4-1b53-4974-85d4-4fe4e3583ef8` was promoted to 100% traffic on `https://curious.thoughtseed.space`; post-deploy probes per `workers/quests/DEPLOY.md`: redesigned bundle served, `/healthz/gate` 200 `gateConfigured:true`, auth-boundary probe 401 `missing initData` (fail-closed). Founder then performed the ISC-281 in-app signed smoke on a real device in the Telegram WebView: `confirm-action-request` on the redesign sign-off ActionRequest — server record `queued` with gate receipt `Signed confirmation queued: Sign off redesign.` at 2026-07-26T11:03:36.129Z. Evidence: `docs/evidence/tg-miniapp/2026-07-26/` (deploy evidence + hash-only smoke receipt); the 2026-06-30 env-initData proof is marked superseded. Two frozen-spec adjudications ride along as named, test-bounded overrides pending founder ruling: frozen/06 M12 empty-state word-cap conflict (14-word ratified copy vs 12-word cap) and the unratified `Viewport capture` ProofList label.
 
 - 2026-07-27 Phase-5 close-out (Telegram goal-graph intake lane live, issues #266–#269 wave): the intake lane shipped across two commits — `190284e` (`POST /v1/bridge/goal-graph-intake` typed intent intake → bounded pending KV proposal, plus the `approve-goal-graph` gate bridge committing through the D1 CAS store) and `74fd709` (gate-envelope + Mini App Gate tab surfacing of pending proposals with signed submit and committed receipt). With explicit founder approval, Worker `cambium-quests` version `ec7f080d-cc53-4148-b75d-3e02ba00261c` was deployed to 100% traffic on `https://curious.thoughtseed.space`; post-deploy probes passed (`/healthz/gate` `gateConfigured:true`, gate empty initData 401, intake without auth 401, malformed intent 200 with bounded rejection receipt, receipt KV key cleaned up). Live end-to-end proof 2026-07-26: intake changeDigest `394556383a1e31a08a68e9ecac3f0835751c2508167f110912fd84088001efcf` → founder in-app signed `approve-goal-graph` → D1 CAS commit at head `846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e` graphVersion 1; intake replay collapsed to `duplicate: true` with a single write, and the gate envelope drained to zero pending goal-graph rows after commit. Parser rejections return HTTP 200 by design (anti-redelivery-loop) with a bounded KV receipt and no payload echo. Evidence: `.artifacts/tg-miniapp-live-proof/t041-*.json` (local; `.artifacts/` is gitignored). `npm test` passes 1092/1092 and `npm run render-docs:check` passes. ISC-238, ISC-239, and ISC-240 are closed with the evidence pointers recorded on their criteria above. Docs promoted per `docs/LIFECYCLE.md`: `docs/runbooks/goal-graph-telegram-lifecycle.md` flipped from deferred-contract to live lifecycle, `docs/adapters/telegram.md` gained the adapter-side intake contract, and the branch-map route plus Phase-2 operator commands moved into the new `docs/runbooks/telegram-operator-surface.md`.
+- ISC-282: architecture inspection confirms one discriminated `WorkObject = SaplingWork | ProgramWork` union.
+- ISC-283: type inspection confirms `SaplingWork.kind = 'sapling'` and `ProgramWork.kind = 'program'`.
+- ISC-284: the sapling contract retains branch kind, promotion state, proof ladder, gate, and loop semantics.
+- ISC-285: the program contract uses proposed, active, blocked, paused, complete, and archived lifecycle states without promotion claims.
+- ISC-286: `MissionFabricProjectionV1` is explicitly versioned and `readOnly: true` for both work types.
+- ISC-287: the implementation-plan goal and roadmap both state Mission → Task → Run → Receipt lineage.
+- ISC-288: `FabricTask` stores assignment as an optional edge; task identity and state do not depend on an agent.
+- ISC-289: `FabricTask` stores requirements separately; loadouts are pinned to runs, not task identity.
+- ISC-290: the architecture, plan, roadmap, HTML visual, and image prompts all name D1 Goal Graph as the sole operational writer.
+- ISC-291: the architecture and visual workflow route only numeric, receipt-derived learning summaries into Cortex.
+- ISC-292: the read-only compatibility table maps product branches to saplings and client/internal-service branches to programs.
+- ISC-293: the mobile information architecture defines Canopy as the company-wide work constellation.
+- ISC-294: the mobile information architecture defines Mission as the selected work object's intent and gate surface.
+- ISC-295: the mobile information architecture defines Flow as the mission/task/run/receipt execution rail.
+- ISC-296: the mobile information architecture defines Workforce as human and agent capacity plus assignment truth.
+- ISC-297: the mobile information architecture defines Forge as skill-cluster availability, demand, and provenance.
+- ISC-298: Gate and Inspect remain contextual governed sheets in the contract, plan, prompts, and visual.
+- ISC-299: the visual-language matrix assigns every work state an icon, color, rail, and text treatment.
+- ISC-300: browser-rendered `docs/visual/cambium-operating-fabric-flow.png` shows proposal through approved Cortex foldback.
+- ISC-301: the HTML workflow and system moodboard show separate agent assignment and skill/loadout dispatch overlays.
+- ISC-302: the 63-task implementation plan explicitly names schemas, routes, scenes, fixtures, and tests across seven waves.
+- ISC-303: `.planning/ROADMAP-v0.4-continuation.md` contains the sequenced Phase 8 operating-fabric contract and promotion gates.
+- ISC-304: both saved Codex GPT Image prompts cite the R3F moodboard, constellation reference, and Telegram mission-control reference.
+- ISC-305: image metadata confirms two generated 1536×1024 PNG moodboards for system flow and mobile pages.
+- ISC-306: visual inspection confirms work family, current blocker, executor/loadout, and receipt proof have distinct, readable treatments.
+- ISC-307: cross-artifact terminology audit found no alternate workflow writer; interactive desired-state changes route through signed Gate into D1, execution facts stay inside fenced D1 handlers, and skill catalog promotion remains a governed non-workflow write.
+- Authority hardening: the contract names the positive founder principal, Telegram third-party Ed25519 verifier, `GATE_FOUNDER_IDS` deployment owner boundary, nonce consumption, Worker trusted time, canonical change-digest recomputation, stale-fence rejection, and immutable replay behavior.
+- Operating-fabric verification bundle: local link checks pass for the contract, plan, moodboard README, and visual README; `npm run render-docs:check` passes with six pages and 91 components; `git diff --check` passes.
+- Working-tree boundary: this iteration produced documentation, planning, HTML/SVG, screenshot, and generated-image artifacts only. No runtime code, database, Worker, Telegram state, deployment, or provider was mutated.
+- ISC-308: plan parser — mandatory Codex `superpowers:executing-plans` header is the first plan block.
+- ISC-309: plan parser — one rollback-safe Mission → Task → Run → Receipt goal matches the active architecture.
+- ISC-310: plan parser — architecture paragraph preserves authoritative stores, a pure compiler, authenticated read route, and legacy fallback.
+- ISC-311: plan parser — TypeScript, Node test, Worker, D1, KV, Telegram, and Headless Chrome stack is explicit.
+- ISC-312: plan parser — Task 1 creates `codex/cambium-operating-fabric` in an isolated sibling worktree and runs baseline tests.
+- ISC-313: plan parser — Task 1 stages the reviewed design files explicitly and excludes unrelated status/temp artifacts.
+- ISC-314: traceability probe — parser expanded every task range and found all 63 OF rows.
+- ISC-315: path probe — packet schema, mission contract, complete shared fixture, and contract test paths are exact.
+- ISC-316: path probe — compiler, adapter, digest, fixture, and focused test paths are exact.
+- ISC-317: path probe — handler, Env binding, authenticated route, D1/KV fake source, and route test paths are exact.
+- ISC-318: path probe — mirrored contracts, operating-fabric pages, styles, fixtures, and viewport proof paths are exact.
+- ISC-319: parity probe — Worker/shared surface mirrors are named with a byte-equivalence test.
+- ISC-320: reuse inspection — branch-map, Goal Graph, lead-runtime, signed Gate, and viewport patterns are linked.
+- ISC-321: task parser — all 12 implementation tasks start with a failing behavior or contract assertion.
+- ISC-322: task parser — all 12 implementation tasks contain an exact focused `node --test` RED command.
+- ISC-323: task parser — all 12 implementation tasks name their expected RED failure.
+- ISC-324: task parser — all 12 implementation tasks contain four or more steps and concrete code/contract shapes.
+- ISC-325: task parser — all 12 implementation tasks contain an explicit GREEN command block.
+- ISC-326: task parser — all 12 implementation tasks end with exact `git add` paths and a conventional commit.
+- ISC-327: working-tree probe — `git status --porcelain` found no changed runtime, migration, config, script, package, or UI source path.
+- ISC-328: action inspection — no deploy, production database mutation, Telegram action, external write, staging, or commit was performed.
+- ISC-329: plan inspection — slice one performs virtual mapping only; missing canonical data triggers a separate expand-only migration ADR.
+- ISC-330: plan inspection — absent/empty `MISSION_FABRIC_TENANTS` disables both route delivery and UI activation.
+- ISC-331: rollback inspection — allowlist removal restores the legacy shell and closes the new route without schema reversal.
+- ISC-332: invariant probe — authorization, redaction, bounds, per-viewer graph digest, freshness delivery, nonce, and fencing are explicit.
+- ISC-333: contract probe — canonical sorting plus 512-node, 1,024-edge, 128-gap, and 96-visible-node bounds are explicit.
+- ISC-334: proof inspection — 320px, 390px, 430px, and reduced-motion probes are exact.
+- ISC-335: accessibility inspection — semantic navigation, landmarks, headings, focus restoration, tab order, and linear graph fallback are explicit.
+- ISC-336: command probe — focused, full, docs, drift, density, standalone, mobile, and release commands are exact.
+- ISC-337: promotion inspection — founder-device read and signed Gate proof are independent gates; neither substitutes for the other.
+- ISC-338: handoff probe — both subagent-driven current-session and executing-plans parallel-session choices close the plan.
+- ISC-339: anti-boundary probe — the plan declares no new writer, performs no runtime/deploy work, and says code availability is not promotion.
+- Implementation-readiness verification: plan linter reports `tasks=14`, `tdd_tasks=12`, `clauses=63`, `links=10`, `broken_links=0`, `canonical_missing=0`, and `forbidden_contract_terms=0`; all ISC-308..339 probes pass.
+- Baseline proof: Node `v26.5.0` executed `workers/quests/src/branch-map.test.ts` with 6/6 passing; `npm run render-docs:check` reports six pages and 91 components; `git diff --check` is clean.
