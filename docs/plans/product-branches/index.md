@@ -9,9 +9,6 @@ This index lists Cambium branch packets that can enter the branch loop. A branch
 | snow-gloves-os | internal-service | Snow Gloves OS | Will-organ service | organ-service | Service contract and GTM approval gate | snow-gloves-os.md |
 | iverif | product | IVerif | Compliance/proof product candidate | proof-only | Claim/proof separation before automation | iverif.md |
 | client-delivery | client | Client Delivery | Client delivery branch | supervised-branch | Client scope acceptance and handoff proof | client-delivery.md |
-| iberev | product | iBerev | Typed lead-capture proof candidate | proof-only | Offline capture and identity contract proof | iberev.md |
-| aiseo | product | AISEO | AI-assisted SEO proof candidate | proof-only | Source-bound search workflow proof | aiseo.md |
-| geo | product | GEO | Generative-engine optimization proof candidate | proof-only | Answer-surface evidence and citation proof | geo.md |
 
 ## Branch Kinds
 

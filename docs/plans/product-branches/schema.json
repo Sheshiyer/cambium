@@ -1,264 +1,249 @@
 {
-  "schema_id": "cambium.product_branch_packet.v1",
-  "version": 1,
-  "description": "Machine-checkable contract for Cambium branch proof packets across product, client, and internal-service branches.",
-  "packet_dir": "docs/plans/product-branches",
-  "index_file": "docs/plans/product-branches/index.md",
-  "required_index_columns": [
-    "product_id",
-    "branch_kind",
-    "name",
-    "role",
-    "promotion_state",
-    "current_gate",
-    "packet"
-  ],
-  "required_metadata_fields": [
-    "schema",
-    "product_id",
-    "branch_kind",
-    "name",
-    "role",
-    "promotion_state",
-    "current_gate",
-    "packet_owner"
-  ],
-  "promotion_states": [
-    "proof-only",
-    "supervised-branch",
-    "autonomous-branch",
-    "organ-service"
-  ],
-  "branch_kinds": [
-    "product",
-    "client",
-    "internal-service"
-  ],
-  "proof_statuses": [
-    "verified",
-    "blocked",
-    "pending",
-    "no-signal"
-  ],
-  "required_sections": [
-    "Product Seed",
-    "Organ Routing",
-    "Variable Contract Payload",
-    "Adapter / Service Map",
-    "Evidence Ledger",
-    "Gate Ledger",
-    "Quest Queue",
-    "Loop Control Inputs",
-    "Branch Story Controls",
-    "Mission Control Inputs",
-    "KPI Control Inputs",
-    "Policy / Permission Inputs",
-    "Dispatch Inputs",
-    "Proof Foldback",
-    "Promotion Rule"
-  ],
-  "required_control_tables": [
-    {
-      "section": "Loop Control Inputs",
-      "min_rows": 1,
-      "required_columns": [
-        "loop_id",
-        "title",
-        "cadence",
-        "objective",
-        "metric",
-        "boundary_color",
-        "one_change_rule",
-        "state_file",
-        "stop_rule",
-        "model_route",
-        "proof_required"
-      ]
-    },
-    {
-      "section": "Branch Story Controls",
-      "min_rows": 6,
-      "required_columns": [
-        "control",
-        "value"
-      ],
-      "required_control_values": [
-        "arc_title",
-        "vision",
-        "icp",
-        "current_frontier",
-        "narrative_voice",
-        "anti_claims"
-      ]
-    },
-    {
-      "section": "Mission Control Inputs",
-      "min_rows": 1,
-      "required_columns": [
-        "mission_id",
-        "title",
-        "type",
-        "owner",
-        "gate",
-        "proof_required",
-        "dispatch_target"
-      ]
-    },
-    {
-      "section": "KPI Control Inputs",
-      "min_rows": 1,
-      "required_columns": [
-        "kpi_id",
-        "label",
-        "survival",
-        "better_than_survival",
-        "source",
-        "current_state"
-      ]
-    },
-    {
-      "section": "Policy / Permission Inputs",
-      "min_rows": 1,
-      "required_columns": [
-        "permission",
-        "status",
-        "required_approval",
-        "failure_mode"
-      ]
-    },
-    {
-      "section": "Dispatch Inputs",
-      "min_rows": 1,
-      "required_columns": [
-        "route",
-        "payload_hint",
-        "allowed_when",
-        "blocked_when"
-      ]
-    },
-    {
-      "section": "Proof Foldback",
-      "min_rows": 1,
-      "required_columns": [
-        "proof_id",
-        "source_path",
-        "validates",
-        "promotes"
-      ]
-    },
-    {
-      "section": "Loop Control Inputs",
-      "min_rows": 1,
-      "required_columns": [
-        "loop_id",
-        "title",
-        "cadence",
-        "objective",
-        "metric",
-        "boundary_color",
-        "one_change_rule",
-        "state_file",
-        "stop_rule",
-        "model_route",
-        "proof_required"
-      ]
-    }
-  ],
-  "provider_data_policy": {
-    "section": "Provider / Data Policy",
-    "required_columns": [
-      "field",
-      "value"
-    ],
-    "allowed_fields": [
-      "subgraph_version",
-      "stage_capabilities",
-      "provider_binding",
-      "adapter_version",
-      "mutation_enabled",
-      "data_classification",
-      "processing_region",
-      "purpose",
-      "retention",
-      "suppression_policy"
-    ],
-    "known_subgraph_versions": [
-      "lead-ops@1.0.0"
-    ],
-    "known_stages": [
-      "discover",
-      "capture",
-      "enrich",
-      "understand",
-      "create",
-      "engage"
-    ],
-    "data_classifications": [
-      "none",
-      "synthetic",
-      "derived",
-      "public_business",
-      "business_contact"
-    ],
-    "caller_override_fields": [
-      "tenant",
-      "tenant_id",
-      "account",
-      "account_id",
-      "project",
-      "project_id",
-      "campaign",
-      "campaign_id",
-      "credential",
-      "credential_ref"
-    ],
-    "zero_authority_defaults": {
-      "provider_binding": "none",
-      "adapter_version": "none",
-      "mutation_enabled": "false"
-    }
+ "schema_id": "cambium.product_branch_packet.v1",
+ "version": 1,
+ "description": "Machine-checkable contract for Cambium branch proof packets across product, client, and internal-service branches.",
+ "packet_dir": "docs/plans/product-branches",
+ "index_file": "docs/plans/product-branches/index.md",
+ "required_index_columns": [
+  "product_id",
+  "branch_kind",
+  "name",
+  "role",
+  "promotion_state",
+  "current_gate",
+  "packet"
+ ],
+ "required_metadata_fields": [
+  "schema",
+  "product_id",
+  "branch_kind",
+  "name",
+  "role",
+  "promotion_state",
+  "current_gate",
+  "packet_owner"
+ ],
+ "promotion_states": [
+  "proof-only",
+  "supervised-branch",
+  "autonomous-branch",
+  "organ-service"
+ ],
+ "branch_kinds": [
+  "product",
+  "client",
+  "internal-service"
+ ],
+ "proof_statuses": [
+  "verified",
+  "blocked",
+  "pending",
+  "no-signal"
+ ],
+ "required_sections": [
+  "Product Seed",
+  "Organ Routing",
+  "Variable Contract Payload",
+  "Adapter / Service Map",
+  "Evidence Ledger",
+  "Gate Ledger",
+  "Quest Queue",
+  "Loop Control Inputs",
+  "Branch Story Controls",
+  "Mission Control Inputs",
+  "KPI Control Inputs",
+  "Policy / Permission Inputs",
+  "Dispatch Inputs",
+  "Proof Foldback",
+  "Promotion Rule"
+ ],
+ "required_control_tables": [
+  {
+   "section": "Loop Control Inputs",
+   "min_rows": 1,
+   "required_columns": [
+    "loop_id",
+    "title",
+    "cadence",
+    "objective",
+    "metric",
+    "boundary_color",
+    "one_change_rule",
+    "state_file",
+    "stop_rule",
+    "model_route",
+    "proof_required"
+   ]
   },
-  "required_branches": [
-    {
-      "product_id": "fitcheck",
-      "branch_kind": "product",
-      "packet": "fitcheck.md"
-    },
-    {
-      "product_id": "vantyx",
-      "branch_kind": "product",
-      "packet": "vantyx.md"
-    },
-    {
-      "product_id": "snow-gloves-os",
-      "branch_kind": "internal-service",
-      "packet": "snow-gloves-os.md"
-    },
-    {
-      "product_id": "iverif",
-      "branch_kind": "product",
-      "packet": "iverif.md"
-    },
-    {
-      "product_id": "client-delivery",
-      "branch_kind": "client",
-      "packet": "client-delivery.md"
-    },
-    {
-      "product_id": "iberev",
-      "branch_kind": "product",
-      "packet": "iberev.md"
-    },
-    {
-      "product_id": "aiseo",
-      "branch_kind": "product",
-      "packet": "aiseo.md"
-    },
-    {
-      "product_id": "geo",
-      "branch_kind": "product",
-      "packet": "geo.md"
-    }
+  {
+   "section": "Branch Story Controls",
+   "min_rows": 6,
+   "required_columns": [
+    "control",
+    "value"
+   ],
+   "required_control_values": [
+    "arc_title",
+    "vision",
+    "icp",
+    "current_frontier",
+    "narrative_voice",
+    "anti_claims"
+   ]
+  },
+  {
+   "section": "Mission Control Inputs",
+   "min_rows": 1,
+   "required_columns": [
+    "mission_id",
+    "title",
+    "type",
+    "owner",
+    "gate",
+    "proof_required",
+    "dispatch_target"
+   ]
+  },
+  {
+   "section": "KPI Control Inputs",
+   "min_rows": 1,
+   "required_columns": [
+    "kpi_id",
+    "label",
+    "survival",
+    "better_than_survival",
+    "source",
+    "current_state"
+   ]
+  },
+  {
+   "section": "Policy / Permission Inputs",
+   "min_rows": 1,
+   "required_columns": [
+    "permission",
+    "status",
+    "required_approval",
+    "failure_mode"
+   ]
+  },
+  {
+   "section": "Dispatch Inputs",
+   "min_rows": 1,
+   "required_columns": [
+    "route",
+    "payload_hint",
+    "allowed_when",
+    "blocked_when"
+   ]
+  },
+  {
+   "section": "Proof Foldback",
+   "min_rows": 1,
+   "required_columns": [
+    "proof_id",
+    "source_path",
+    "validates",
+    "promotes"
+   ]
+  },
+  {
+   "section": "Loop Control Inputs",
+   "min_rows": 1,
+   "required_columns": [
+    "loop_id",
+    "title",
+    "cadence",
+    "objective",
+    "metric",
+    "boundary_color",
+    "one_change_rule",
+    "state_file",
+    "stop_rule",
+    "model_route",
+    "proof_required"
+   ]
+  }
+ ],
+ "provider_data_policy": {
+  "section": "Provider / Data Policy",
+  "required_columns": [
+   "field",
+   "value"
   ],
-  "promotion_ladder_phrase": "proof-only -> supervised branch -> autonomous branch"
+  "allowed_fields": [
+   "subgraph_version",
+   "stage_capabilities",
+   "provider_binding",
+   "adapter_version",
+   "mutation_enabled",
+   "data_classification",
+   "processing_region",
+   "purpose",
+   "retention",
+   "suppression_policy"
+  ],
+  "known_subgraph_versions": [
+   "lead-ops@1.0.0"
+  ],
+  "known_stages": [
+   "discover",
+   "capture",
+   "enrich",
+   "understand",
+   "create",
+   "engage"
+  ],
+  "data_classifications": [
+   "none",
+   "synthetic",
+   "derived",
+   "public_business",
+   "business_contact"
+  ],
+  "caller_override_fields": [
+   "tenant",
+   "tenant_id",
+   "account",
+   "account_id",
+   "project",
+   "project_id",
+   "campaign",
+   "campaign_id",
+   "credential",
+   "credential_ref"
+  ],
+  "zero_authority_defaults": {
+   "provider_binding": "none",
+   "adapter_version": "none",
+   "mutation_enabled": "false"
+  }
+ },
+ "required_branches": [
+  {
+   "product_id": "fitcheck",
+   "branch_kind": "product",
+   "packet": "fitcheck.md"
+  },
+  {
+   "product_id": "vantyx",
+   "branch_kind": "product",
+   "packet": "vantyx.md"
+  },
+  {
+   "product_id": "snow-gloves-os",
+   "branch_kind": "internal-service",
+   "packet": "snow-gloves-os.md"
+  },
+  {
+   "product_id": "iverif",
+   "branch_kind": "product",
+   "packet": "iverif.md"
+  },
+  {
+   "product_id": "client-delivery",
+   "branch_kind": "client",
+   "packet": "client-delivery.md"
+  }
+ ],
+ "promotion_ladder_phrase": "proof-only -> supervised branch -> autonomous branch"
 }

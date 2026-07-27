@@ -63,7 +63,7 @@ function replaceFitcheck(packetFile, from, to) {
 test('current branch packets validate cleanly', () => {
   const result = runValidator(PACKET_DIR);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /validated 8 branch packet\(s\)/);
+  assert.match(result.stdout, /validated 5 branch packet\(s\)/);
 });
 
 test('optional provider policy accepts zero-authority omissions and complete safe references', () => {
