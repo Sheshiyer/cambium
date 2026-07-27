@@ -24,7 +24,10 @@ const [pipeline, acceptanceChecks, interactionPlan, referenceFreeze, visualContr
   readJson('composition/pipeline.json'),
   readJsonWithGeneratedFallback('cortex/cambium/contracts/acceptance_checks.json', 'acceptanceChecks'),
   readJsonWithGeneratedFallback('cortex/cambium/contracts/interaction_plan.json', 'interactionPlan'),
-  readJson('docs/plans/assets/cambium-r3f-implementation/reference-freeze.json'),
+  readJsonWithGeneratedFallback(
+    'docs/plans/assets/cambium-r3f-implementation/reference-freeze.json',
+    'referenceFreeze',
+  ),
   import(pathToFileURL(resolve(repoRoot, 'shared/cambium-visual-contract.ts')).href),
   import(pathToFileURL(resolve(repoRoot, 'bin/operator/quests/quests.ts')).href),
   import(pathToFileURL(resolve(repoRoot, 'bin/quine/hyphae/quests.ts')).href),
