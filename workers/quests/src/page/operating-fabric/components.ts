@@ -30,24 +30,10 @@ function esc(value: Escapable): string {
   return String(value).replace(/[&<>"']/g, (char) => HTML_ENTITIES[char] ?? char);
 }
 
-function unescapeForAttribute(escapedText: string): string {
-  return escapedText
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-}
-
 function bounded(value: Escapable, max = 120): string {
   const text = String(value ?? '');
   if (text.length <= max) return text;
   return `${text.slice(0, Math.max(0, max - 1))}…`;
-}
-
-function safeLabel(value: Escapable, fallback: string): string {
-  const text = bounded(value).trim();
-  return text.length > 0 ? esc(text) : fallback;
 }
 
 // ── shared view-model types (bounded, fail-closed) ─────────────────────────
@@ -70,15 +56,30 @@ export interface Freshness {
   checkedAt?: string | null;
 }
 
-// Raw credential/auth/prompt markers that must never render, even when the
-// projection itself is hostile. Renderers fail closed to a neutral label.
+// Raw credential/auth markers and precise prompt-content/injection signatures
+// that must never render, even when the projection itself is hostile.
+// Renderers fail closed to a neutral label. Prompt markers match only raw
+// prompt content (`prompt: …`, `prompt = …`) and explicit `prompt injection`
+// phrasing — never the bare word, so legitimate labels such as
+// `Prompt Engineering` or `promptly verify` render faithfully. This is
+// signature-based defensive output safety, not semantic prompt-injection
+// detection.
 const SECRET_MARKER_PATTERN =
-  /query_id=|auth_date=|\bhash=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|prompt/i;
+  /query_id=|auth_date=|\bhash=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\bprompt\s*[:=]|prompt\s+injection/i;
 
-function failsClosedOnSecrets(value: Escapable, fallback: string): string {
+// Raw bounded fail-closed policy for free-text fields: returns the raw text
+// unescaped, or the neutral fallback when empty/marker-bearing. Callers apply
+// exactly one esc() pass at the point of emission so visible text, data
+// attributes, and aria-labels are always single-escaped.
+function rawTextOrFallback(value: Escapable, fallback: string): string {
   const text = bounded(value).trim();
   if (text.length === 0 || SECRET_MARKER_PATTERN.test(text)) return fallback;
-  return esc(text);
+  return text;
+}
+
+function failsClosedOnSecrets(value: Escapable, fallback: string): string {
+  const raw = rawTextOrFallback(value, fallback);
+  return raw === fallback ? fallback : esc(raw);
 }
 
 // Canonical runtime discriminants mirrored from ../../mission-fabric.ts.
@@ -109,14 +110,15 @@ function allowlisted(value: Escapable, allowed: ReadonlySet<string>): string {
 // ── authority badge ─────────────────────────────────────────────────────────
 
 export function renderAuthorityBadge(authority: AuthorityRef): string {
-  const sourceRef = failsClosedOnSecrets(authority?.sourceRef, 'unknown authority');
+  const sourceRefRaw = rawTextOrFallback(authority?.sourceRef, 'unknown authority');
+  const sourceRef = esc(sourceRefRaw);
   const rawVersion = authority?.graphVersion;
   const version = Number.isSafeInteger(rawVersion) && (rawVersion as number) >= 0 ? (rawVersion as number) : null;
   const versionLabel = version !== null ? `graphVersion ${version}` : 'version unknown';
-  const aria = `authority: ${sourceRef} · ${versionLabel}`;
+  const aria = esc(`authority: ${sourceRefRaw} · ${versionLabel}`);
   return (
     `<span class="of-badge of-badge-authority" data-component="FabricAuthorityBadge" ` +
-    `data-authority="${esc(unescapeForAttribute(sourceRef))}" aria-label="${aria}">` +
+    `data-authority="${sourceRef}" aria-label="${aria}">` +
     `<span class="of-badge-label">${sourceRef}</span>` +
     `<span class="of-badge-meta">${versionLabel}</span>` +
     `</span>`
@@ -225,7 +227,7 @@ export function renderAgentCard(
 ): string {
   const value = (node?.value ?? {}) as Record<string, unknown>;
   const name = failsClosedOnSecrets(value.agentId as Escapable, 'unknown agent');
-  const role = safeLabel(value.role as Escapable, 'unknown role');
+  const role = failsClosedOnSecrets(value.role as Escapable, 'unknown role');
   const statusAllowed = allowlisted(value.status as Escapable, AGENT_STATUSES);
   const status = statusAllowed;
   const contextValue = context && typeof context === 'object' ? context : null;
@@ -291,17 +293,15 @@ export function renderSkillClusterCard(
 // ── typed gap ───────────────────────────────────────────────────────────────
 
 export function renderGapState(gap: FabricGap): string {
-  const kindRaw = gap?.kind;
-  const kindText = bounded(kindRaw).trim();
-  const kind = kindText.length === 0 || SECRET_MARKER_PATTERN.test(kindText) ? 'unknown gap' : kindText;
-  const subject = gap?.subjectId ? failsClosedOnSecrets(gap.subjectId, 'unknown subject') : 'unscoped';
+  const kindRaw = rawTextOrFallback(gap?.kind, 'unknown gap');
+  const subjectRaw = gap?.subjectId ? rawTextOrFallback(gap.subjectId, 'unknown subject') : 'unscoped';
   const detail = failsClosedOnSecrets(gap?.detail, 'no detail available');
-  const kindEscaped = esc(kind);
+  const kindEscaped = esc(kindRaw);
   return (
     `<div class="of-gap" data-component="FabricGap" data-gap-kind="${kindEscaped}" ` +
-    `role="status" aria-label="gap: ${kindEscaped} on ${subject}">` +
+    `role="status" aria-label="gap: ${kindEscaped} on ${esc(subjectRaw)}">` +
     `<span class="of-gap-kind">${kindEscaped}</span>` +
-    `<span class="of-gap-subject">${subject}</span>` +
+    `<span class="of-gap-subject">${esc(subjectRaw)}</span>` +
     `<p class="of-gap-detail">${detail}</p>` +
     `</div>`
   );
@@ -312,15 +312,14 @@ export function renderGapState(gap: FabricGap): string {
 export function renderFabricEdge(edge: FabricEdge): string {
   const kindAllowed = allowlisted(edge?.kind as Escapable, EDGE_KINDS);
   const kind = kindAllowed === 'unknown' ? 'unknown relation' : kindAllowed;
-  const fromId = failsClosedOnSecrets(edge?.fromId, 'redacted');
-  const toId = failsClosedOnSecrets(edge?.toId, 'redacted');
-  const label = `${fromId} ${kind} ${toId}`;
+  const fromIdRaw = rawTextOrFallback(edge?.fromId, 'redacted');
+  const toIdRaw = rawTextOrFallback(edge?.toId, 'redacted');
   return (
     `<span class="of-edge" data-component="FabricEdge" data-edge-kind="${esc(kindAllowed)}" ` +
-    `aria-label="${esc(label)}">` +
-    `<span class="of-edge-from">${fromId}</span>` +
+    `aria-label="${esc(`${fromIdRaw} ${kind} ${toIdRaw}`)}">` +
+    `<span class="of-edge-from">${esc(fromIdRaw)}</span>` +
     `<span class="of-edge-kind">${kind}</span>` +
-    `<span class="of-edge-to">${toId}</span>` +
+    `<span class="of-edge-to">${esc(toIdRaw)}</span>` +
     `</span>`
   );
 }

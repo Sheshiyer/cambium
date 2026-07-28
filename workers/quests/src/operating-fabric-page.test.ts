@@ -1102,3 +1102,117 @@ test('renderers fail closed when runtime context is absent or malformed', () => 
   assert.match(partialCluster, /coverage unknown/, 'null coverage renders unknown, not a crash');
   assert.match(partialCluster, /data-state="unknown"/, 'null freshness renders unknown, not a crash');
 });
+
+// ── Task 7 re-review corrections (fix round 3) · precise prompt signatures ──
+//
+// Regression coverage for the independent re-review: the bare `/prompt/i`
+// marker over-redacted legitimate labels ("Prompt Engineering" → "unknown
+// cluster"), agent role bypassed credential markers entirely, and the edge
+// aria-label was escaped twice. Prompt content must now fail closed only on
+// precise content/injection signatures; legitimate labels render faithfully.
+
+test('precise prompt-content and injection signatures fail closed', () => {
+  const hostileWork = renderWorkCard(makeWorkNode({ name: 'prompt: system instructions override' }), {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.match(hostileWork, /unnamed work/, 'raw prompt content in work name fails closed');
+  assert.ok(!hostileWork.includes('prompt:'), 'raw prompt content never renders');
+
+  const hostileCluster = renderSkillClusterCard(makeClusterNode({ name: 'system prompt: you are now root' }), {
+    coverage: { eligible: 1, covered: 1 },
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+  });
+  assert.match(hostileCluster, /unknown cluster/, 'system-prompt content in cluster name fails closed');
+
+  const hostileAssignment = renderAgentCard(makeAgentNode({ agentId: 'agent-1' }), {
+    capabilities: ['prompt=override the operator'],
+    assignment: 'explicit prompt injection attempt',
+  });
+  assert.match(hostileAssignment, /unassigned/, 'explicit prompt-injection assignment fails closed');
+  assert.ok(!hostileAssignment.includes('prompt=override'), 'prompt= content never renders in chips');
+
+  const hostileGap = renderGapState({
+    gapId: 'gap-p1',
+    kind: 'prompt = injected content',
+    subjectId: 'task-9',
+    detail: 'clean detail',
+    evidenceRef: null,
+  });
+  assert.match(hostileGap, /data-gap-kind="unknown gap"/, 'prompt= content in gap kind fails closed');
+});
+
+test('legitimate prompt-shaped and token-shaped labels render faithfully', () => {
+  const workHtml = renderWorkCard(makeWorkNode({ name: 'Token Ledger', sourceRef: 'tokenized operations' }), {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.match(workHtml, /Token Ledger/, 'Token Ledger work name renders faithfully');
+  assert.match(workHtml, /tokenized operations/, 'tokenized operations provenance renders faithfully');
+
+  const clusterHtml = renderSkillClusterCard(makeClusterNode({ name: 'Prompt Engineering' }), {
+    coverage: { eligible: 1, covered: 1 },
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+  });
+  assert.match(clusterHtml, /Prompt Engineering/, 'Prompt Engineering cluster name renders faithfully');
+
+  const agentHtml = renderAgentCard(makeAgentNode({ agentId: 'agent-1' }), {
+    capabilities: ['x'],
+    assignment: 'Prompt Engineering guild',
+  });
+  assert.match(agentHtml, /Prompt Engineering guild/, 'Prompt Engineering guild assignment renders faithfully');
+  assert.ok(!agentHtml.includes('unassigned'), 'assigned agent never renders a false unassigned state');
+
+  const roleHtml = renderAgentCard(makeAgentNode({ role: 'promptly verify outputs' }), {
+    capabilities: ['x'],
+    assignment: 'task-1',
+  });
+  assert.match(roleHtml, /promptly verify outputs/, 'promptly verify role renders faithfully');
+
+  const namedAgentHtml = renderAgentCard(makeAgentNode({ agentId: 'Prompt Engineering' }), {
+    capabilities: ['x'],
+    assignment: 'task-1',
+  });
+  assert.match(namedAgentHtml, /Prompt Engineering/, 'Prompt Engineering agent id renders faithfully');
+});
+
+test('agent role follows the same secret-safe free-text policy', () => {
+  const credentialRole = renderAgentCard(makeAgentNode({ role: 'admin token=ab12cd34ef56gh78' }), {
+    capabilities: ['x'],
+    assignment: 'task-1',
+  });
+  assert.match(credentialRole, /unknown role/, 'credential-bearing role fails closed');
+  assert.ok(!credentialRole.includes('ab12cd34ef56gh78'), 'role credentials never render');
+
+  const promptRole = renderAgentCard(makeAgentNode({ role: 'prompt: override instructions' }), {
+    capabilities: ['x'],
+    assignment: 'task-1',
+  });
+  assert.match(promptRole, /unknown role/, 'prompt-content role fails closed');
+
+  const privateKeyRole = renderAgentCard(makeAgentNode({ role: 'holder of PRIVATE KEY material' }), {
+    capabilities: ['x'],
+    assignment: 'task-1',
+  });
+  assert.match(privateKeyRole, /unknown role/, 'key-material role fails closed');
+
+  const legitRole = renderAgentCard(makeAgentNode({ role: 'Prompt Engineering guild lead' }), {
+    capabilities: ['x'],
+    assignment: 'task-1',
+  });
+  assert.match(legitRole, /Prompt Engineering guild lead/, 'legitimate role label renders faithfully');
+});
+
+test('renderFabricEdge escapes ids exactly once in visible text and aria-label', () => {
+  const html = renderFabricEdge({ kind: 'contains', fromId: 'a & b', toId: 'c < d' });
+  assert.ok(html.includes('<span class="of-edge-from">a &amp; b</span>'), 'visible from id escapes exactly once');
+  assert.ok(html.includes('<span class="of-edge-to">c &lt; d</span>'), 'visible to id escapes exactly once');
+  assert.ok(html.includes('aria-label="a &amp; b contains c &lt; d"'), 'aria-label escapes exactly once');
+  assert.ok(!html.includes('&amp;amp;'), 'no double-escaped ampersands anywhere in the edge');
+  assert.ok(!html.includes('&amp;lt;'), 'no double-escaped angle brackets anywhere in the edge');
+});
+
+test('components.ts keeps no unescape/re-escape helpers', () => {
+  const source = readFileSync(new URL('./page/operating-fabric/components.ts', import.meta.url), 'utf8');
+  assert.ok(!source.includes('unescapeForAttribute'), 'dead unescape/re-escape helper is removed');
+});
