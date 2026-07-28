@@ -991,6 +991,7 @@ git commit -m "feat: render workforce and skill forge"
 - Create: `workers/quests/src/page/operating-fabric/inspect-sheet.ts`
 - Modify: `workers/quests/src/page/operating-fabric/client.ts`
 - Modify: `workers/quests/src/page/client/signed-action.ts`
+- Modify: `workers/quests/src/handler.ts`
 - Modify: `workers/quests/src/operating-fabric-page.test.ts`
 - Modify: `workers/quests/src/handler.test.ts`
 
@@ -999,10 +1000,11 @@ git commit -m "feat: render workforce and skill forge"
 Prove:
 
 - Gate opens only from a governed object/action;
-- proposal digest, nonce, expiry, tenant, actor, and head version remain bound;
+- the client approval payload never carries `actor`; the server never trusts or uses a client-supplied actor and derives founder identity solely from verified Telegram initData;
+- the server-issued descriptor carries digest, tenant, nonce, expiry, tenant-scoped expected head version, and fence, is persisted and projected back to the client exactly as issued, and is revalidated against the current head/CAS state before any write is committed;
 - Inspect opens from a selected node/edge and shows source authority plus freshness;
 - back/close restores the originating scene and focus;
-- expired, replayed, or wrong-fence approvals fail closed;
+- expired, replayed, or wrong-fence approvals fail closed; any client-supplied actor field cannot influence the approval identity;
 - legacy Gate and Inspect root scenes remain available while the flag is off.
 
 Run:
@@ -1015,7 +1017,7 @@ Expected RED: contextual sheets and focus restoration are missing.
 
 **Step 2: Reuse the signed client**
 
-The new Gate sheet must call the existing signed-action functions. Do not fork signing or approval logic. Inspect accepts only projection IDs and performs no raw arbitrary source lookup.
+The new Gate sheet must call the existing signed-action functions. Do not fork signing or approval logic. Inspect accepts only projection IDs and performs no raw arbitrary source lookup. Actor is never accepted from the client approval payload; the handler derives actor server-side from verified Telegram initData. The server-issued descriptor (digest, tenant, nonce, expiry, expected head version, fence) is persisted and projected exactly as issued, and the handler revalidates it against the current head/CAS state before committing a write.
 
 **Step 3: Run GREEN and security regressions**
 
@@ -1026,7 +1028,7 @@ node --test workers/quests/src/rbac.test.ts
 git diff --check
 ```
 
-Expected: nonce, expiry, tenant, actor, digest, head-version, and fence protections remain GREEN.
+Expected: nonce, expiry, tenant, server-derived actor, digest, head-version, and fence protections remain GREEN.
 
 **Step 4: Commit**
 
@@ -1035,6 +1037,7 @@ git add workers/quests/src/page/operating-fabric/gate-sheet.ts \
   workers/quests/src/page/operating-fabric/inspect-sheet.ts \
   workers/quests/src/page/operating-fabric/client.ts \
   workers/quests/src/page/client/signed-action.ts \
+  workers/quests/src/handler.ts \
   workers/quests/src/operating-fabric-page.test.ts \
   workers/quests/src/handler.test.ts
 git commit -m "feat: add contextual gate and inspect sheets"
@@ -1058,7 +1061,7 @@ Add 320px, 390px, and 430px checks for all five new scenes plus both sheets:
 - sheet close/back controls remain visible;
 - 44px minimum interactive targets;
 - visible focus and logical tab order;
-- semantic `<nav>`, `aria-current`, landmark, and heading hierarchy;
+- semantic `<nav>`, `aria-selected` for tabs, `aria-current` for link navigation, landmark, and heading hierarchy;
 - reduced-motion mode removes nonessential transitions;
 - graph has a linear fallback;
 - scene copy stays within frozen character/row budgets;

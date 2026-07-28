@@ -1,4 +1,4 @@
-// cambium-quests · operating fabric boot client (Task 6 + Task 8 additive bundle).
+// cambium-quests · operating fabric boot client (Task 6 + Task 8 + Task 11 additive bundle).
 // Starts inert: it probes the tenant mission-fabric route once with the
 // runtime Telegram initData, and activates the shell ONLY for an exact
 // status 200 whose delivery.operatingFabricEnabled is exactly true.
@@ -16,6 +16,14 @@
 // The shared helpers and all scene renderers live INSIDE the boot IIFE, so
 // nothing is exposed on globalThis.
 //
+// Task 11 wiring: gate-sheet.ts and inspect-sheet.ts browser JS strings are
+// composed lexically below. CONTEXTUAL_SHEET_RETURN_BROWSER_JS (from
+// signed-action.ts) is installed only after successful authenticated activation.
+// currentScene is tracked for contextual sheet return navigation.
+// Each scene receives at least one accessible type=button inspect control
+// appended to its rendered HTML, wired to an opaque data-of-inspect-token —
+// the DOM never sees a raw canonical node/edge id.
+//
 // Fail-closed activation: on a valid exact-200 response the boot validates
 // the projection shape and renderer availability, pre-renders the Canopy,
 // Mission, Flow, Workforce, and Forge scenes safely, and only then unhides
@@ -28,6 +36,9 @@ import { MISSION_BROWSER_JS } from './mission.ts';
 import { FLOW_BROWSER_JS } from './flow.ts';
 import { WORKFORCE_BROWSER_JS } from './workforce.ts';
 import { FORGE_BROWSER_JS } from './forge.ts';
+import { GATE_SHEET_BROWSER_JS, GATE_ENTRYPOINT_BROWSER_JS } from './gate-sheet.ts';
+import { INSPECT_SHEET_BROWSER_JS } from './inspect-sheet.ts';
+import { CONTEXTUAL_SHEET_RETURN_BROWSER_JS, OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS } from '../client/signed-action.ts';
 
 // Shared browser helpers used by both scene renderer bundles. Plain ES5-ish
 // JavaScript: no TypeScript syntax, no imports, no browser-incompatible APIs.
@@ -115,6 +126,10 @@ ${MISSION_BROWSER_JS}
 ${FLOW_BROWSER_JS}
 ${WORKFORCE_BROWSER_JS}
 ${FORGE_BROWSER_JS}
+${GATE_SHEET_BROWSER_JS}
+${GATE_ENTRYPOINT_BROWSER_JS}
+${INSPECT_SHEET_BROWSER_JS}
+${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
   var ofScenes = { renderCanopy: ofRenderCanopy, renderOperatingMission: ofRenderOperatingMission, renderFlow: ofRenderFlow, renderWorkforce: ofRenderWorkforce, renderForge: ofRenderForge };
   // The shell ships as real DOM, hidden and inert; boot only un-hides it.
   var root = document.getElementById('operating-fabric');
@@ -131,6 +146,8 @@ ${FORGE_BROWSER_JS}
   var latestProjection = null;
   var latestDelivery = null;
   var openWorkId = null;
+  // currentScene: tracks the active scene for contextual sheet return.
+  var currentScene = 'canopy';
   function sceneRoot(id) {
     return document.getElementById('of-scene-' + id) || root.querySelector('[data-of-scene="' + id + '"]');
   }
@@ -138,6 +155,261 @@ ${FORGE_BROWSER_JS}
     if (delivery && delivery.freshness === 'stale') return { state: 'stale', checkedAt: delivery.servedAt || null };
     if (delivery && delivery.freshness === 'fresh') return { state: 'fresh', checkedAt: delivery.servedAt || null };
     return null;
+  }
+  // ofInspectTokens: bounded in-memory opaque token registry. Maps an opaque
+  // token (never a canonical ID) to the exact target object served in the
+  // projection. Rebuilt on every render so stale tokens from a prior
+  // projection never resolve. The DOM only ever sees the token and a generic
+  // label — never a raw canonical node/edge id.
+  var OF_INSPECT_TOKEN_LIMIT = 64;
+  var ofInspectTokens = {};
+  var ofInspectTokenSeq = 0;
+  var ofInspectTokenCount = 0;
+  function ofResetInspectTokens() {
+    ofInspectTokens = {};
+    ofInspectTokenCount = 0;
+  }
+  function ofRegisterInspectToken(target) {
+    if (ofInspectTokenCount >= OF_INSPECT_TOKEN_LIMIT) return null;
+    var token = 'of-tok-' + ofInspectTokenSeq;
+    ofInspectTokenSeq += 1;
+    ofInspectTokenCount += 1;
+    ofInspectTokens[token] = target;
+    return token;
+  }
+  // ofFindNodeByKind: exact lookup of the first projection node of a given
+  // kind, chosen directly from the projection — never by matching a rendered
+  // public id back into the DOM.
+  function ofFindNodeByKind(projection, kind) {
+    var nodes = (projection && projection.nodes) || [];
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i] && nodes[i].kind === kind) return nodes[i];
+    }
+    return null;
+  }
+  function ofFindEdge(projection) {
+    var edges = (projection && projection.edges) || [];
+    return edges.length ? edges[0] : null;
+  }
+  function ofNodeIdFieldName(kind) {
+    switch (kind) {
+      case 'work': return 'workId';
+      case 'mission': return 'missionId';
+      case 'task': return 'taskId';
+      case 'agent': return 'agentId';
+      case 'skill-cluster': return 'clusterId';
+      case 'run': return 'runId';
+      case 'receipt': return 'receiptId';
+      default: return '';
+    }
+  }
+  function ofNodeIdField(node) {
+    var field = node && ofNodeIdFieldName(node.kind);
+    var value = (node && node.value) || {};
+    return field && typeof value[field] === 'string' ? value[field] : '';
+  }
+  // ofSafeIdentity: internal-registration-only guard for a canonical id used
+  // to key the opaque token registry. Rejects empty, overlong, control-
+  // character, or secret-marked values. Never used to build DOM content.
+  function ofHasControlChar(value) {
+    for (var i = 0; i < value.length; i++) {
+      var code = value.charCodeAt(i);
+      if (code <= 31 || code === 127) return true;
+    }
+    return false;
+  }
+  function ofSafeIdentity(value) {
+    if (typeof value !== 'string') return false;
+    if (value.length === 0 || value.length > 64) return false;
+    if (ofHasControlChar(value)) return false;
+    if (OF_SECRET_MARKER.test(value)) return false;
+    return true;
+  }
+  // appendInspectControls: appends exactly one accessible type=button inspect
+  // control per scene, wired to an opaque registry token. The target is
+  // chosen directly from the projection (one node of the scene's own kind,
+  // or the first edge for flow), never by matching a rendered public ID.
+  function appendInspectControls(sceneId, sceneEl, projection) {
+    if (!sceneEl || !ofValidProjection(projection)) return;
+    var kindBySceneId = { canopy: 'work', mission: 'mission', workforce: 'agent', forge: 'skill-cluster' };
+    if (sceneId === 'flow') {
+      var flowNode = ofFindNodeByKind(projection, 'task') || ofFindNodeByKind(projection, 'run') || ofFindNodeByKind(projection, 'receipt');
+      if (flowNode && ofSafeIdentity(ofNodeIdField(flowNode))) {
+        var flowToken = ofRegisterInspectToken({ kind: 'node', nodeId: ofNodeIdField(flowNode) });
+        if (flowToken) {
+          var fbtn = document.createElement('button');
+          fbtn.type = 'button';
+          fbtn.className = 'of-control of-inspect-btn';
+          fbtn.setAttribute('data-of-inspect-token', flowToken);
+          fbtn.setAttribute('aria-label', 'Inspect flow item');
+          fbtn.textContent = 'Inspect';
+          sceneEl.appendChild(fbtn);
+        }
+      }
+      var flowEdge = ofFindEdge(projection);
+      if (
+        flowEdge &&
+        ofSafeIdentity(flowEdge.kind) &&
+        ofSafeIdentity(flowEdge.fromId) &&
+        ofSafeIdentity(flowEdge.toId)
+      ) {
+        var edgeToken = ofRegisterInspectToken({ kind: 'edge', edgeKind: flowEdge.kind, fromId: flowEdge.fromId, toId: flowEdge.toId });
+        if (edgeToken) {
+          var ebtn = document.createElement('button');
+          ebtn.type = 'button';
+          ebtn.className = 'of-control of-inspect-btn';
+          ebtn.setAttribute('data-of-inspect-token', edgeToken);
+          ebtn.setAttribute('aria-label', 'Inspect flow edge');
+          ebtn.textContent = 'Inspect edge';
+          sceneEl.appendChild(ebtn);
+        }
+      }
+      return;
+    }
+    var kind = kindBySceneId[sceneId];
+    if (!kind) return;
+    var node = ofFindNodeByKind(projection, kind);
+    if (!node) return;
+    var nodeId = ofNodeIdField(node);
+    if (!ofSafeIdentity(nodeId)) return;
+    var token = ofRegisterInspectToken({ kind: 'node', nodeId: nodeId });
+    if (!token) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'of-control of-inspect-btn';
+    btn.setAttribute('data-of-inspect-token', token);
+    btn.setAttribute('aria-label', 'Inspect ' + ofEsc(kind));
+    btn.textContent = 'Inspect';
+    sceneEl.appendChild(btn);
+  }
+  // appendGateEntrypoint: appends exactly one accessible type=button Gate
+  // control to the mission scene. Its state (ready/no-pending/expired/invalid)
+  // is decided at click time against a freshly fetched envelope — never at
+  // render time — so a stale render never claims an approval is available.
+  function appendGateEntrypoint(sceneEl) {
+    if (!sceneEl) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'of-control of-gate-entrypoint-btn';
+    btn.setAttribute('data-of-gate-entrypoint', '1');
+    btn.setAttribute('data-of-gate-entrypoint-state', 'idle');
+    btn.setAttribute('aria-label', 'Open Gate for the pending goal proposal');
+    btn.textContent = 'Gate';
+    sceneEl.appendChild(btn);
+  }
+  // ofFetchGatePendingItem: fetches the real /api/quests/:tenant envelope and
+  // selects the first pending cambium.goal-graph-intake.v1 row, carrying its
+  // exact server-issued fence fields. Never synthesizes a proposal from the
+  // mission-fabric projection.
+  function ofFetchGatePendingItem() {
+    return fetch('/api/quests/' + tenant)
+      .then(function (res) { return res && res.status === 200 ? res.json() : {}; })
+      .then(function (envelopeBody) {
+        var envelope = envelopeBody && envelopeBody.goalGraphIntake;
+        var rows = Array.isArray(envelope)
+          ? envelope
+          : envelope && Array.isArray(envelope.rows)
+            ? envelope.rows
+            : envelope && Array.isArray(envelope.goalGraphIntake)
+              ? envelope.goalGraphIntake
+              : [];
+        var pending = null;
+        for (var i = 0; i < rows.length; i += 1) {
+          var row = rows[i];
+          if (row && typeof row === 'object' && String(row.status || 'pending') === 'pending') {
+            pending = row;
+            break;
+          }
+        }
+        if (!pending) return null;
+        return {
+          changeDigest: String(pending.changeDigest || ''),
+          tenant: tenant,
+          nonce: String(pending.approvalNonce || ''),
+          expiresAt: String(pending.approvalExpiresAt || ''),
+          expectedHeadVersion: typeof pending.expectedHeadVersion === 'number' ? pending.expectedHeadVersion : NaN,
+          fence: typeof pending.fence === 'number' ? pending.fence : NaN,
+          evidence: String(pending.evidence || pending.summary || ''),
+          consequence: String(pending.consequence || ''),
+          reversibility: String(pending.reversibility || ''),
+          title: String(pending.title || ''),
+        };
+      })
+      .catch(function () { return null; });
+  }
+  // ofGateEntrypointBusy: synchronous double-click guard. Set true the
+  // instant a click is accepted, before the fetch resolves, so a second click
+  // in the same busy window is a no-op — never a second openGatePreflight call.
+  var ofGateEntrypointBusy = false;
+  function handleGateEntrypointClick(btn) {
+    if (ofGateEntrypointBusy || !btn || btn.disabled) return;
+    ofGateEntrypointBusy = true;
+    btn.disabled = true;
+    var originScene = currentScene;
+    var originFocus = btn;
+    ofFetchGatePendingItem()
+      .then(function (pending) {
+        var result = ofRenderGateEntrypoint(pending, {
+          openGatePreflight: function (kind, subject, node, seed) {
+            if (typeof openGatePreflight !== 'function') return;
+            openGatePreflight(kind, subject, node, seed);
+            if (typeof sheet !== 'undefined' && sheet && sheet._ofSetReturnCallback) {
+              sheet._ofSetReturnCallback(function () {
+                navigate(originScene);
+                if (originFocus && typeof originFocus.focus === 'function') originFocus.focus();
+              });
+            }
+          },
+        });
+        btn.setAttribute('data-of-gate-entrypoint-state', result.reason);
+        if (result.disabled) {
+          btn.disabled = true;
+          btn.setAttribute('aria-disabled', 'true');
+        } else {
+          btn.disabled = false;
+          btn.removeAttribute('aria-disabled');
+        }
+      })
+      .catch(function () {
+        btn.setAttribute('data-of-gate-entrypoint-state', 'invalid');
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+      })
+      .then(function () {
+        ofGateEntrypointBusy = false;
+      });
+  }
+  // openInspectForTarget: exact registry lookup only — an unknown token does
+  // nothing. On a hit, calls the pure ofRenderInspectSheet(projection,
+  // target) and places the returned HTML into the existing sheetBody,
+  // opening the shared veil/sheet, then registers the origin scene and a
+  // focus-return callback.
+  function openInspectForTarget(triggerEl, originScene) {
+    var token = triggerEl.getAttribute('data-of-inspect-token');
+    if (!token || !Object.prototype.hasOwnProperty.call(ofInspectTokens, token)) return;
+    var target = ofInspectTokens[token];
+    var projection = latestProjection;
+    if (!ofValidProjection(projection)) return;
+    var sb = document.getElementById('sheetBody');
+    if (!sb || !veil || !sheet) return;
+    sb.innerHTML = ofRenderInspectSheet(projection, target);
+    var focusTrigger = triggerEl;
+    if (sheet._ofSetReturnCallback) {
+      sheet._ofSetReturnCallback(function () {
+        navigate(originScene);
+        if (focusTrigger && typeof focusTrigger.focus === 'function') focusTrigger.focus();
+      });
+    }
+    veil.classList.add('on');
+    sheet.classList.add('on');
+    if (typeof sheetState !== 'undefined' && sheetState) sheetState.open = true;
+    var focusTarget = sb.querySelector('[data-of-inspect-back], [data-of-inspect-close]');
+    if (focusTarget && typeof focusTarget.focus === 'function') {
+      focusTarget.focus();
+    } else if (sheet && typeof sheet.focus === 'function') {
+      sheet.focus();
+    }
+    if (typeof buzz === 'function') buzz('medium');
   }
   function renderScenes(projection, delivery) {
     if (!ofValidProjection(projection)) return false;
@@ -180,9 +452,17 @@ ${FORGE_BROWSER_JS}
     flowRoot.innerHTML = flowHtml;
     workforceRoot.innerHTML = workforceHtml;
     forgeRoot.innerHTML = forgeHtml;
+    ofResetInspectTokens();
+    appendInspectControls('canopy', canopyRoot, projection);
+    appendInspectControls('mission', missionRoot, projection);
+    appendInspectControls('flow', flowRoot, projection);
+    appendInspectControls('workforce', workforceRoot, projection);
+    appendInspectControls('forge', forgeRoot, projection);
+    appendGateEntrypoint(missionRoot);
     return true;
   }
   function navigate(sceneId) {
+    currentScene = sceneId;
     var tabs = root.querySelectorAll('[data-of-tab]');
     for (var index = 0; index < tabs.length; index += 1) {
       tabs[index].setAttribute('aria-selected', tabs[index].getAttribute('data-of-tab') === sceneId ? 'true' : 'false');
@@ -252,10 +532,34 @@ ${FORGE_BROWSER_JS}
     flowRoot.innerHTML = flowHtml;
     workforceRoot.innerHTML = workforceHtml;
     forgeRoot.innerHTML = forgeHtml;
+    // Append inspect controls to all five scenes after successful activation.
+    ofResetInspectTokens();
+    appendInspectControls('canopy', canopyRoot, projection);
+    appendInspectControls('mission', missionRoot, projection);
+    appendInspectControls('flow', flowRoot, projection);
+    appendInspectControls('workforce', workforceRoot, projection);
+    appendInspectControls('forge', forgeRoot, projection);
+    appendGateEntrypoint(missionRoot);
+    // Install contextual sheet return system only after successful activation.
+    // Idempotent: guard inside CONTEXTUAL_SHEET_RETURN_BROWSER_JS prevents re-install.
+    try {
+${CONTEXTUAL_SHEET_RETURN_BROWSER_JS}
+    } catch (_) { /* contextual sheet install is best-effort; sheet still works */ }
   }
   root.addEventListener('click', function (event) {
     var target = event.target;
     if (!target) return;
+    // Inspect token button: exact registry lookup only; opens shared veil/sheetBody.
+    var inspectTokenBtn = typeof target.closest === 'function' ? target.closest('[data-of-inspect-token]') : null;
+    if (inspectTokenBtn) {
+      openInspectForTarget(inspectTokenBtn, currentScene);
+      return;
+    }
+    var gateEntrypointBtn = typeof target.closest === 'function' ? target.closest('[data-of-gate-entrypoint]') : null;
+    if (gateEntrypointBtn) {
+      handleGateEntrypointClick(gateEntrypointBtn);
+      return;
+    }
     var opener = typeof target.closest === 'function' ? target.closest('[data-of-open-work]') : null;
     if (opener) {
       // Local focus only: selection never mutates work state, never writes,

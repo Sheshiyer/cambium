@@ -27,6 +27,11 @@ import {
   type MiniAppSceneId,
 } from './mini-app-surface-contract.ts';
 import { OPERATING_FABRIC_PAGE } from './page/operating-fabric/index.ts';
+import { renderGateSheetPreflight, GATE_SHEET_BROWSER_JS } from './page/operating-fabric/gate-sheet.ts';
+import { renderInspectSheet, INSPECT_SHEET_BROWSER_JS } from './page/operating-fabric/inspect-sheet.ts';
+import type { InspectTarget } from './page/operating-fabric/inspect-sheet.ts';
+import { CLIENT_SHEET } from './page/client/sheet.ts';
+import { CONTEXTUAL_SHEET_RETURN_BROWSER_JS, OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS } from './page/client/signed-action.ts';
 import { OPERATING_FABRIC_MARKUP, OPERATING_FABRIC_SCENES } from './page/operating-fabric/scaffold.ts';
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_STYLES } from './page/operating-fabric/styles.ts';
@@ -196,19 +201,29 @@ type FabricResponse =
   | { kind: 'json'; value: unknown }
   | { kind: 'malformed' };
 
+function fabricDataKey(name: string): string {
+  return name.slice(5).replace(/-([a-z])/g, (_dash, letter: string) => letter.toUpperCase());
+}
+
 function makeFabricElement(tag: string) {
   const classes = new Set<string>();
-  const listeners = new Map<string, Array<() => void>>();
-  return {
+  const listeners = new Map<string, Array<(event: unknown) => void>>();
+  const attributes = new Map<string, string>();
+  const el = {
     tagName: tag.toUpperCase(),
+    type: '',
+    className: '',
+    onclick: null as null | ((event?: unknown) => void),
     hidden: false,
     inert: false,
     ariaHidden: null as string | null,
     ariaSelected: null as string | null,
     dataset: {} as Record<string, string>,
     children: [] as unknown[],
+    style: {} as Record<string, string>,
     innerHTML: '',
     textContent: '',
+    focusCount: 0,
     classList: {
       add(...names: string[]) {
         for (const name of names) classes.add(name);
@@ -228,17 +243,22 @@ function makeFabricElement(tag: string) {
       if (name === 'aria-hidden') return this.ariaHidden;
       if (name === 'aria-selected') return this.ariaSelected;
       if (name.startsWith('data-')) {
-        const key = name.slice(5).replace(/-([a-z])/g, (_dash, letter: string) => letter.toUpperCase());
+        const key = fabricDataKey(name);
         return this.dataset[key] ?? null;
       }
-      return null;
+      return attributes.has(name) ? attributes.get(name)! : null;
     },
     setAttribute(name: string, value: string) {
-      if (name === 'aria-hidden') this.ariaHidden = String(value);
-      if (name === 'aria-selected') this.ariaSelected = String(value);
+      const stringValue = String(value);
+      if (name === 'aria-hidden') this.ariaHidden = stringValue;
+      if (name === 'aria-selected') this.ariaSelected = stringValue;
+      if (name.startsWith('data-')) {
+        this.dataset[fabricDataKey(name)] = stringValue;
+      }
+      attributes.set(name, stringValue);
     },
     listeners,
-    addEventListener(type: string, handler: () => void) {
+    addEventListener(type: string, handler: (event: unknown) => void) {
       const list = listeners.get(type) ?? [];
       list.push(handler);
       listeners.set(type, list);
@@ -247,21 +267,41 @@ function makeFabricElement(tag: string) {
       this.hidden = hidden;
       this.inert = inert;
     },
+    appendChild(child: unknown) {
+      this.children.push(child);
+      return child;
+    },
+    setPointerCapture() {},
     querySelector(_selector: string) {
       return null;
     },
     querySelectorAll(_selector: string) {
       return [] as unknown[];
     },
-    focus() {},
+    focus() {
+      this.focusCount++;
+    },
+    closest(selector: string) {
+      const inspectMatch = selector.match(/^\[(data-of-inspect-token|data-of-inspect-back|data-of-inspect-close)\]$/);
+      if (inspectMatch) {
+        return this.getAttribute(inspectMatch[1]) !== null ? this : null;
+      }
+      return null;
+    },
   };
+  return el;
 }
 
 type FabricElement = ReturnType<typeof makeFabricElement>;
 
 function bootOperatingFabricDocument(
   responder: (request: { url: string; init: { headers?: Record<string, string> } }) => FabricResponse,
-  options: { initData?: string; includeRoot?: boolean; onError?: (error: unknown) => void } = {},
+  options: {
+    initData?: string;
+    includeRoot?: boolean;
+    onError?: (error: unknown) => void;
+    withContextualSheet?: boolean;
+  } = {},
 ) {
   const fetches: Array<{ url: string; headers: Record<string, string> }> = [];
   const fabricRoot = makeFabricElement('div');
@@ -270,6 +310,32 @@ function bootOperatingFabricDocument(
   fabricRoot.ariaHidden = 'true';
   const legacyShell = makeFabricElement('div');
   const elements = new Map<string, FabricElement>([['operating-fabric', fabricRoot]]);
+
+  let veil: FabricElement | undefined;
+  let sheet: FabricElement | undefined;
+  let sheetBody: FabricElement | undefined;
+  let sheetFocusControl: FabricElement | undefined;
+  if (options.withContextualSheet) {
+    veil = makeFabricElement('div');
+    sheet = makeFabricElement('div');
+    sheetBody = makeFabricElement('div');
+    sheetFocusControl = makeFabricElement('button');
+    elements.set('veil', veil);
+    elements.set('sheet', sheet);
+    elements.set('sheetBody', sheetBody);
+    const originalSheetBodyQuerySelector = sheetBody.querySelector.bind(sheetBody);
+    sheetBody.querySelector = (selector: string) => {
+      if (
+        selector.includes('data-of-inspect-back') &&
+        selector.includes('data-of-inspect-close') &&
+        sheetBody!.innerHTML.includes('Inspect')
+      ) {
+        return sheetFocusControl!;
+      }
+      return originalSheetBodyQuerySelector(selector);
+    };
+  }
+
   const sceneElements: FabricElement[] = [];
   for (const scene of OPERATING_FABRIC_SCENE_IDS) {
     const sceneEl = makeFabricElement('section');
@@ -310,6 +376,7 @@ function bootOperatingFabricDocument(
         if (selector === '[data-of-scene]') return sceneElements;
         return [];
       },
+      createElement: (tag: string) => makeFabricElement(tag),
     },
     window: { Telegram: { WebApp: { initData: options.initData ?? 'tg-init-data-fixture' } } },
     TENANT: 'acme',
@@ -347,14 +414,42 @@ function bootOperatingFabricDocument(
     setTimeout,
     clearTimeout,
   };
+  if (options.withContextualSheet) {
+    context.$ = (id: string) => elements.get(id) ?? null;
+    context.veil = veil;
+    context.sheet = sheet;
+    context.sheetBody = sheetBody;
+    context.sheetState = { open: false };
+    context.ECOSYSTEM_ENV = {};
+    context.LEDGER = { rows: [] };
+    context.policyCard = () => ({ state: 'ready', detail: 'ok', blockers: [] });
+    context.activeRow = () => null;
+    context.esc = (v: unknown) => String(v == null ? '' : v);
+    context.buzz = () => {};
+    context.gateAct = () => {};
+    context.loadGate = () => {};
+  }
   context.Telegram = (context.window as { Telegram?: unknown }).Telegram;
   context.globalThis = context;
 
   const bootScript = extractScriptBodies(OPERATING_FABRIC_BOOT)[0];
   assert.ok(bootScript, 'boot chunk yields its client script');
-  vm.runInContext(bootScript, vm.createContext(context));
+  const vmContext = vm.createContext(context);
+  if (options.withContextualSheet) {
+    vm.runInContext(CLIENT_SHEET, vmContext);
+    vm.runInContext(
+      'var __ofIntegrationCloseCount = 0; var __ofOriginalClose = closeSheet; closeSheet = function(){ __ofIntegrationCloseCount++; __ofOriginalClose(); };',
+      vmContext,
+    );
+  }
+  vm.runInContext(bootScript, vmContext);
   const dispatchClick = (target: { closest: (selector: string) => unknown }) => {
     for (const handler of (fabricRoot as { listeners?: Map<string, Array<(event: unknown) => void>> }).listeners?.get('click') ?? []) {
+      handler({ target });
+    }
+  };
+  const dispatchSheetClick = (target: { closest: (selector: string) => unknown }) => {
+    for (const handler of (sheetBody as { listeners?: Map<string, Array<(event: unknown) => void>> } | undefined)?.listeners?.get('click') ?? []) {
       handler({ target });
     }
   };
@@ -376,7 +471,25 @@ function bootOperatingFabricDocument(
     const tab = { getAttribute: (name: string) => (name === 'data-of-tab' ? sceneId : null) };
     dispatchClick({ closest: (selector: string) => (selector === '[data-of-tab]' ? tab : null) });
   };
-  return { fabricRoot, legacyShell, fetches, elements, tabElements, sceneElements, clickOpen, clickNested, clickMiss, clickTab };
+  return {
+    context: vmContext,
+    fabricRoot,
+    legacyShell,
+    fetches,
+    elements,
+    tabElements,
+    sceneElements,
+    veil,
+    sheet,
+    sheetBody,
+    sheetFocusControl,
+    clickOpen,
+    clickNested,
+    clickMiss,
+    clickTab,
+    dispatchClick,
+    dispatchSheetClick,
+  };
 }
 
 async function flushBoot() {
@@ -1317,7 +1430,7 @@ test('components.ts keeps no unescape/re-escape helpers', () => {
 // only then swaps visibility; renderer failure preserves the legacy shell.
 
 import { buildMissionFabricProjection } from './mission-fabric.ts';
-import type { FabricNode, FabricWorkNode, MissionFabricProjectionV1, FabricAgent, FabricSkillCluster } from './mission-fabric.ts';
+import type { FabricNode, FabricWorkNode, MissionFabricProjectionV1, FabricAgent, FabricSkillCluster, FabricEdge } from './mission-fabric.ts';
 import { renderCanopy, CANOPY_BROWSER_JS } from './page/operating-fabric/canopy.ts';
 import { renderOperatingMission, MISSION_BROWSER_JS } from './page/operating-fabric/mission.ts';
 
@@ -2520,7 +2633,13 @@ test('governed actions render as honest read-only cues deferred to the signed Ga
 test('boot glue carries no lifecycle mutation, write path, or authorization logic', () => {
   const bootScript = bootBody(OPERATING_FABRIC_BOOT);
   // The scene renderer constants legitimately own lifecycle/promotion view
-  // vocabulary; the glue audit bans mutation/authority surfaces only.
+  // vocabulary; the Task 11 gate-action bridge legitimately owns the signed
+  // approve-goal-graph write path. The glue audit excludes that bridge and
+  // bans mutation/authority surfaces everywhere else.
+  const bridgeStart = bootScript.indexOf(
+    "typeof openGatePreflight !== 'function' || typeof gateAct !== 'function'",
+  );
+  const auditedScript = bridgeStart === -1 ? bootScript : bootScript.slice(0, bridgeStart);
   for (const banned of [
     'POST',
     'api/gate',
@@ -2529,7 +2648,7 @@ test('boot glue carries no lifecycle mutation, write path, or authorization logi
     'signed-action',
     'role ===',
   ]) {
-    assert.ok(!bootScript.includes(banned), `boot client stays free of authority surface: ${banned}`);
+    assert.ok(!auditedScript.includes(banned), `boot client stays free of authority surface: ${banned}`);
   }
 });
 
@@ -4100,7 +4219,7 @@ test('flow renderer and boot glue carry no write, Gate, RBAC, assignment, or aut
   assert.ok(!FLOW_BROWSER_JS.includes('data-of-open-work'), 'flow renderer adds no authority-adjacent open-work delegation');
   assert.ok(!/addEventListener/.test(FLOW_BROWSER_JS), 'flow renderer registers no event handlers');
   const body = bootBody(OPERATING_FABRIC_BOOT);
-  const flowSection = body.slice(body.indexOf('function ofRenderFlow'), body.indexOf('var ofScenes'));
+  const flowSection = body.slice(body.indexOf('function ofRenderFlow'), body.indexOf('function ofRenderWorkforce'));
   for (const banned of ['fetch(', 'POST', 'api/gate', 'checkRole', 'data-action-request', 'signed-action', 'role ===']) {
     assert.ok(!flowSection.includes(banned), `composed flow section stays free of authority surface: ${banned}`);
   }
@@ -5699,4 +5818,932 @@ test('forge rejects a gap detail whose secret marker appears after the visible b
   assert.ok(!html.includes(taintedPrefix), 'no visible prefix from a secret-bearing field survives');
   assert.match(html, /gap-detail">unknown</, 'the tainted visible detail becomes honest unknown');
   assert.equal(html, renderForgeBrowser(projection), 'late-secret redaction has Node/browser parity');
+});
+
+// ── Task 11 test helpers ────────────────────────────────────────────────────
+
+function makeFabricFixture(): MissionFabricProjectionV1 {
+  const work: FabricWorkNode = {
+    kind: 'work',
+    value: {
+      kind: 'program',
+      workId: 'work-fx-001',
+      tenantId: 'cambium',
+      name: 'Fixture program',
+      desiredState: 'ship fixture',
+      currentState: 'in progress',
+      status: 'active',
+      ownerId: 'founder',
+      nextAction: 'review',
+      proofRequired: true,
+      reviewAt: null,
+      sourceRef: 'source-ref-fx',
+      sourceDigest: 'digest-fx',
+      programKind: 'company',
+      lifecycle: 'executing',
+      outcomeMetric: 'fixture-metric',
+    },
+  };
+  const task: FabricNode = {
+    kind: 'task',
+    value: {
+      taskId: 'task-fx-001',
+      missionId: 'mission-fx-001',
+      desiredState: 'complete fixture task',
+      status: 'running',
+      dependencyIds: [],
+      assignedAgentId: 'agent-fx-001',
+      requiredClusterIds: ['cluster-fx-001'],
+      pinnedLoadoutId: null,
+      leaseId: null,
+      proofRequirement: 'receipt required',
+      latestReceiptId: null,
+    },
+  };
+  const mission: FabricNode = {
+    kind: 'mission',
+    value: {
+      missionId: 'mission-fx-001',
+      workId: 'work-fx-001',
+      title: 'Fixture mission',
+      objective: 'exercise inspect/gate unit coverage',
+      status: 'active',
+      gateId: null,
+      proofRequirement: 'receipt required',
+      taskIds: ['task-fx-001'],
+      sourceRef: 'source-ref-fx',
+    },
+  };
+  const agent: FabricAgent & { kind: 'agent' } = {
+    kind: 'agent',
+    agentId: 'agent-fx-001',
+    role: 'builder',
+    runtime: 'codex',
+    status: 'running',
+    activeTaskIds: ['task-fx-001'],
+    permissionProfile: 'standard',
+    lastSeenAt: '2026-07-28T00:00:00Z',
+    sourceRef: 'source-ref-fx',
+  } as unknown as FabricAgent & { kind: 'agent' };
+  const agentNode: FabricNode = { kind: 'agent', value: agent as unknown as FabricAgent };
+  const skillCluster: FabricSkillCluster = {
+    clusterId: 'cluster-fx-001',
+    name: 'Fixture cluster',
+    status: 'active',
+    skillIds: ['skill-fx-001'],
+    eligibleAgentIds: ['agent-fx-001'],
+    successRate: 0.9,
+    sourceRef: 'source-ref-fx',
+  };
+  const skillClusterNode: FabricNode = { kind: 'skill-cluster', value: skillCluster };
+
+  const edge: FabricEdge = { kind: 'contains', fromId: 'mission-fx-001', toId: 'task-fx-001' };
+
+  return {
+    schema: 'cambium.mission-fabric-projection.v1',
+    projectionVersion: 1,
+    tenantId: 'cambium',
+    graphVersion: 42,
+    graphDigest: 'graph-digest-fx',
+    generatedAt: '2026-07-28T00:00:00Z',
+    asOf: '2026-07-28T00:00:00Z',
+    sourceOfTruth: 'd1-goal-graph',
+    readOnly: true,
+    nodes: [work as unknown as FabricNode, task, mission, agentNode, skillClusterNode],
+    edges: [edge],
+    gaps: [
+      { gapId: 'gap-fx-001', kind: 'missing-evidence', subjectId: 'task-fx-001', detail: 'no receipt yet', evidenceRef: null },
+    ],
+  };
+}
+
+const FABRIC_FIXTURE = makeFabricFixture();
+
+function findFixtureNode(kind: FabricNode['kind']): FabricNode {
+  const found = FABRIC_FIXTURE.nodes.find((n) => n.kind === kind);
+  assert.ok(found, `fixture must include a ${kind} node`);
+  return found as FabricNode;
+}
+
+// ── Gate sheet unit tests ───────────────────────────────────────────────────
+
+test('renderGateSheetPreflight opens exactly once for a valid explicit fresh descriptor and binds the exact key set', () => {
+  const taskNode = findFixtureNode('task');
+  const taskId = (taskNode.value as { taskId: string }).taskId;
+  const calls: unknown[][] = [];
+  const result = renderGateSheetPreflight(
+    FABRIC_FIXTURE,
+    {
+      selected: taskNode,
+      action: {
+        kind: 'approve-goal-graph',
+        subject: taskId,
+        objectId: 'change-digest-fx',
+        nonce: 'nonce-fx',
+        expiresAt: '2026-07-29T00:00:00Z',
+        expectedHeadVersion: 42,
+        fence: 1,
+      },
+    },
+    {
+      freshness: 'fresh',
+      openGatePreflight: (...args: unknown[]) => { calls.push(args); },
+    },
+  );
+
+  assert.equal(result.opened, true);
+  assert.equal(result.routeTo, 'gate');
+  assert.equal(calls.length, 1, 'openGatePreflight is delegated to exactly once');
+  assert.ok(result.binding);
+  assert.deepEqual(Object.keys(result.binding!).sort(), ['changeDigest', 'expiresAt', 'fence', 'graphVersion', 'nonce', 'tenant'].sort());
+  assert.equal(result.binding!.tenant, 'cambium');
+  assert.equal(result.binding!.changeDigest, 'change-digest-fx');
+  assert.equal(result.binding!.nonce, 'nonce-fx');
+  assert.equal(result.binding!.expiresAt, '2026-07-29T00:00:00Z');
+  assert.equal(result.binding!.graphVersion, 42);
+  assert.equal(result.binding!.fence, 1);
+  assert.ok(!result.html.includes('data-gate-confirm'));
+  assert.ok(!/Confirm/.test(result.html));
+  assert.match(result.html, /data-of-gate-sheet-close="1"[^>]*>Close</);
+});
+
+function gateFixtureSelectionValid() {
+  const taskNode = findFixtureNode('task');
+  const taskId = (taskNode.value as { taskId: string }).taskId;
+  return {
+    selected: taskNode,
+    action: {
+      kind: 'approve-goal-graph' as const,
+      subject: taskId,
+      objectId: 'change-digest-fx',
+      nonce: 'nonce-fx',
+      expiresAt: '2026-07-29T00:00:00Z',
+      expectedHeadVersion: 42,
+      fence: 1,
+    },
+  };
+}
+
+const GATE_FAIL_CLOSED_CASES: Array<{ name: string; mutate: (sel: ReturnType<typeof gateFixtureSelectionValid>, ctxOverrides: Record<string, unknown>) => { selection: ReturnType<typeof gateFixtureSelectionValid>; context: Record<string, unknown> } }> = [
+  {
+    name: 'stale freshness',
+    mutate: (sel, ctx) => ({ selection: sel, context: { ...ctx, freshness: 'stale' } }),
+  },
+  {
+    name: 'missing callback',
+    mutate: (sel, ctx) => {
+      const { openGatePreflight, ...rest } = ctx;
+      return { selection: sel, context: rest };
+    },
+  },
+  {
+    name: 'structurally equal but foreign node object',
+    mutate: (sel, ctx) => ({
+      selection: { selected: { ...sel.selected } as unknown as FabricNode, action: sel.action },
+      context: ctx,
+    }),
+  },
+  {
+    name: 'wrong subject',
+    mutate: (sel, ctx) => ({ selection: { selected: sel.selected, action: { ...sel.action, subject: 'not-the-canonical-id' } }, context: ctx }),
+  },
+  {
+    name: 'wrong kind',
+    mutate: (sel, ctx) => ({ selection: { selected: sel.selected, action: { ...sel.action, kind: 'reroll' as unknown as 'approve-goal-graph' } }, context: ctx }),
+  },
+  {
+    name: 'inherited canonical ID via prototype',
+    mutate: (sel, ctx) => {
+      const taskId = (sel.selected!.value as { taskId: string }).taskId;
+      const proto = { taskId };
+      const value = Object.create(proto);
+      const selected = { kind: 'task', value } as unknown as FabricNode;
+      return { selection: { selected, action: { ...sel.action, subject: taskId } }, context: ctx };
+    },
+  },
+  {
+    name: 'secret-marker field',
+    mutate: (sel, ctx) => ({ selection: { selected: sel.selected, action: { ...sel.action, nonce: 'Bearer secret-token' } }, context: ctx }),
+  },
+  {
+    name: 'control-char field',
+    mutate: (sel, ctx) => ({ selection: { selected: sel.selected, action: { ...sel.action, objectId: 'digest\x00fx' } }, context: ctx }),
+  },
+  {
+    name: 'overlong field',
+    mutate: (sel, ctx) => ({ selection: { selected: sel.selected, action: { ...sel.action, objectId: 'x'.repeat(200) } }, context: ctx }),
+  },
+  {
+    name: 'invalid graphVersion',
+    mutate: (sel, ctx) => ({ selection: { selected: sel.selected, action: { ...sel.action, expectedHeadVersion: -1 } }, context: ctx }),
+  },
+  {
+    name: 'invalid fence',
+    mutate: (sel, ctx) => ({ selection: { selected: sel.selected, action: { ...sel.action, fence: 1.5 } }, context: ctx }),
+  },
+];
+
+for (const { name, mutate } of GATE_FAIL_CLOSED_CASES) {
+  test(`renderGateSheetPreflight fails closed: ${name}`, () => {
+    let callCount = 0;
+    const baseCtx: Record<string, unknown> = { freshness: 'fresh', openGatePreflight: () => { callCount++; } };
+    const { selection, context } = mutate(gateFixtureSelectionValid(), baseCtx);
+    const result = renderGateSheetPreflight(FABRIC_FIXTURE, selection as any, context as any);
+    assert.equal(result.opened, false);
+    assert.equal(result.routeTo, 'inspect');
+    assert.equal(callCount, 0, 'callback must never be invoked on a fail-closed path');
+    assert.ok(!result.html.includes('data-gate-confirm'));
+    assert.ok(!/Confirm/.test(result.html));
+  });
+}
+
+test('GATE_SHEET_BROWSER_JS parity: ofRenderGateSheetPreflight matches renderGateSheetPreflight result and callback behavior', () => {
+  const context = vm.createContext({});
+  vm.runInContext(GATE_SHEET_BROWSER_JS, context);
+
+  const selection = gateFixtureSelectionValid();
+  let browserCalls = 0;
+  (context as any).__seed = { freshness: 'fresh', openGatePreflight: () => { browserCalls++; } };
+  (context as any).__projection = FABRIC_FIXTURE;
+  (context as any).__selection = selection;
+  const browserResult = vm.runInContext('ofRenderGateSheetPreflight(__projection, __selection, __seed)', context);
+
+  let nativeCalls = 0;
+  const nativeResult = renderGateSheetPreflight(FABRIC_FIXTURE, selection, {
+    freshness: 'fresh',
+    openGatePreflight: () => { nativeCalls++; },
+  });
+
+  assert.equal(browserResult.opened, nativeResult.opened);
+  assert.equal(browserResult.routeTo, nativeResult.routeTo);
+  assert.equal(browserResult.html, nativeResult.html);
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(browserResult.binding)), JSON.parse(JSON.stringify(nativeResult.binding)));
+  assert.equal(browserCalls, nativeCalls);
+  assert.equal(browserCalls, 1);
+});
+
+test('GATE_SHEET_BROWSER_JS source has no forbidden side-effect surface', () => {
+  assert.ok(!/\bdocument\./.test(GATE_SHEET_BROWSER_JS));
+  assert.ok(!/\bwindow\./.test(GATE_SHEET_BROWSER_JS));
+  assert.ok(!/\bfetch\s*\(/.test(GATE_SHEET_BROWSER_JS));
+  assert.ok(!/\bstorage\b/i.test(GATE_SHEET_BROWSER_JS));
+  assert.ok(!/addEventListener/.test(GATE_SHEET_BROWSER_JS));
+  assert.ok(!/\beval\s*\(/.test(GATE_SHEET_BROWSER_JS));
+  assert.ok(!/new Function/.test(GATE_SHEET_BROWSER_JS));
+});
+
+// ── Inspect sheet unit tests ────────────────────────────────────────────────
+
+test('renderInspectSheet renders exact identity, provenance, and only the relevant gap for a unique node', () => {
+  const taskNode = findFixtureNode('task');
+  const taskId = (taskNode.value as { taskId: string }).taskId;
+  const html = renderInspectSheet(FABRIC_FIXTURE, { kind: 'node', nodeId: taskId });
+  assert.match(html, new RegExp(taskId));
+  assert.match(html, /sourceOfTruth: d1-goal-graph/);
+  assert.match(html, /graphVersion: 42/);
+  assert.match(html, /generatedAt: 2026-07-28T00:00:00Z/);
+  assert.match(html, /asOf: 2026-07-28T00:00:00Z/);
+  assert.match(html, /read-only — this projection cannot be mutated from here/);
+  assert.match(html, /no receipt yet/);
+  assert.ok(!/evidenceRef/.test(html));
+  assert.ok(!/graphDigest/.test(html));
+  assert.ok(!/sourceRef/.test(html));
+});
+
+test('renderInspectSheet renders exact identity for a unique edge', () => {
+  const edge = FABRIC_FIXTURE.edges[0]!;
+  const html = renderInspectSheet(FABRIC_FIXTURE, { kind: 'edge', edgeKind: edge.kind, fromId: edge.fromId, toId: edge.toId });
+  assert.match(html, new RegExp(edge.fromId));
+  assert.match(html, new RegExp(edge.toId));
+  assert.match(html, /Edge inspect/);
+});
+
+const INSPECT_FAIL_CASES: Array<{ name: string; target: InspectTarget }> = [
+  { name: 'unknown node id', target: { kind: 'node', nodeId: 'nonexistent-node-id' } },
+  { name: 'unknown edge', target: { kind: 'edge', edgeKind: 'depends-on', fromId: 'sentinel-unknown-edge-from-8b2d4e', toId: 'sentinel-unknown-edge-to-7a1c3f' } },
+];
+
+for (const { name, target } of INSPECT_FAIL_CASES) {
+  test(`renderInspectSheet never echoes requested sentinel and says unavailable: ${name}`, () => {
+    const html = renderInspectSheet(FABRIC_FIXTURE, target);
+    assert.match(html, /Inspect unavailable/);
+    assert.match(html, /No exact, unique match was found in the served projection/);
+    if (target.kind === 'node') assert.ok(!html.includes(target.nodeId));
+    if (target.kind === 'edge') {
+      assert.ok(!html.includes(target.fromId));
+    }
+  });
+}
+
+test('renderInspectSheet never treats a skill-cluster node\'s own taskId-shaped field as its canonical ID', () => {
+  const sentinelTaskId = 'sentinel-skill-cluster-own-taskId-9f3c1a';
+  const wrongKindNode = {
+    kind: 'skill-cluster',
+    value: {
+      taskId: sentinelTaskId,
+      name: 'General',
+      status: 'available',
+      skillIds: [],
+      eligibleAgentIds: [],
+      successRate: null,
+      sourceRef: `redacted:cluster:${sentinelTaskId}`,
+    },
+  } as unknown as FabricNode;
+  const poisoned: MissionFabricProjectionV1 = {
+    ...FABRIC_FIXTURE,
+    nodes: [...FABRIC_FIXTURE.nodes, wrongKindNode],
+  };
+
+  const html = renderInspectSheet(poisoned, { kind: 'node', nodeId: sentinelTaskId });
+  assert.match(html, /Inspect unavailable/);
+  assert.match(html, /No exact, unique match was found in the served projection/);
+  assert.ok(!html.includes(sentinelTaskId));
+});
+
+test('renderInspectSheet never renders forbidden evidenceRef/graphDigest/sourceRef/secret sentinels even when present on the projection', () => {
+  const poisoned = {
+    ...FABRIC_FIXTURE,
+    graphDigest: 'SECRET-graph-digest-should-not-render',
+    gaps: [
+      { gapId: 'gap-x', kind: 'missing-evidence', subjectId: (findFixtureNode('task').value as { taskId: string }).taskId, detail: 'ok', evidenceRef: 'SECRET-evidence-ref-should-not-render' },
+    ],
+  } as MissionFabricProjectionV1;
+  const taskId = (findFixtureNode('task').value as { taskId: string }).taskId;
+  const html = renderInspectSheet(poisoned, { kind: 'node', nodeId: taskId });
+  assert.ok(!html.includes('SECRET-graph-digest-should-not-render'));
+  assert.ok(!html.includes('SECRET-evidence-ref-should-not-render'));
+});
+
+test('INSPECT_SHEET_BROWSER_JS parity: ofRenderInspectSheet matches Node renderInspectSheet output', () => {
+  const context = vm.createContext({});
+  vm.runInContext(INSPECT_SHEET_BROWSER_JS, context);
+  const taskId = (findFixtureNode('task').value as { taskId: string }).taskId;
+  const target: InspectTarget = { kind: 'node', nodeId: taskId };
+  (context as any).__projection = FABRIC_FIXTURE;
+  (context as any).__target = target;
+  const browserHtml = vm.runInContext('ofRenderInspectSheet(__projection, __target)', context);
+  const nativeHtml = renderInspectSheet(FABRIC_FIXTURE, target);
+  assert.equal(browserHtml, nativeHtml);
+});
+
+test('INSPECT_SHEET_BROWSER_JS source has no forbidden side-effect surface', () => {
+  assert.ok(!/\bdocument\./.test(INSPECT_SHEET_BROWSER_JS));
+  assert.ok(!/\bwindow\./.test(INSPECT_SHEET_BROWSER_JS));
+  assert.ok(!/\bfetch\s*\(/.test(INSPECT_SHEET_BROWSER_JS));
+  assert.ok(!/\b(?:local|session)Storage\b/.test(INSPECT_SHEET_BROWSER_JS));
+  assert.ok(!/addEventListener/.test(INSPECT_SHEET_BROWSER_JS));
+  assert.ok(!/\beval\s*\(/.test(INSPECT_SHEET_BROWSER_JS));
+  assert.ok(!/new\s+Function\s*\(/.test(INSPECT_SHEET_BROWSER_JS));
+});
+
+// ── Shared contextual-sheet-close installer (direct real-source closure) ────
+
+function makeContextualSheetElement(tag: string) {
+  const classes = new Set<string>();
+  const listeners = new Map<string, Array<(event: unknown) => void>>();
+  return {
+    tagName: tag.toUpperCase(),
+    style: {} as Record<string, string>,
+    classList: {
+      add(...names: string[]) { for (const n of names) classes.add(n); },
+      remove(...names: string[]) { for (const n of names) classes.delete(n); },
+      contains: (n: string) => classes.has(n),
+    },
+    listeners,
+    addEventListener(type: string, handler: (event: unknown) => void) {
+      const list = listeners.get(type) ?? [];
+      list.push(handler);
+      listeners.set(type, list);
+    },
+    setPointerCapture() {},
+    onclick: null as null | (() => void),
+  };
+}
+
+function installContextualSheetContext() {
+  const veilEl = makeContextualSheetElement('div');
+  const sheetEl: any = makeContextualSheetElement('div');
+  const sheetBodyEl = makeContextualSheetElement('div');
+  let closeCalled = 0;
+  let callbackCalled = 0;
+  let callbackDuringClose: unknown = 'not-checked';
+
+  const context: Record<string, unknown> = {
+    $(id: string) {
+      if (id === 'veil') return veilEl;
+      if (id === 'sheet') return sheetEl;
+      if (id === 'sheetBody') return sheetBodyEl;
+      return null;
+    },
+    document: {
+      getElementById: (id: string) => (id === 'sheetBody' ? sheetBodyEl : id === 'veil' ? veilEl : id === 'sheet' ? sheetEl : null),
+    },
+    ECOSYSTEM_ENV: {},
+    LEDGER: { rows: [] },
+    policyCard: () => ({ state: 'ready', detail: 'ok', blockers: [] }),
+    activeRow: () => null,
+    esc: (v: unknown) => String(v == null ? '' : v),
+    buzz: () => {},
+    gateAct: () => {},
+    loadGate: () => {},
+    TG: { initData: '' },
+  };
+  vm.createContext(context);
+  vm.runInContext(CLIENT_SHEET, context);
+  const legacyClickListenerBaseline = sheetBodyEl.listeners.get('click')?.length ?? 0;
+  (context as any).closeSheet = () => {
+    closeCalled++;
+    if (typeof (sheetEl as any)._ofReturnCallback === 'function') callbackDuringClose = (sheetEl as any)._ofReturnCallback;
+  };
+  const wrapClose = () => { closeCalled++; };
+  // The real closeSheet is defined inside CLIENT_SHEET's evaluated body; capture
+  // stats by wrapping the sheet element's dismiss counters instead of replacing
+  // the lexical binding (which the installer itself owns).
+  vm.runInContext('var __ofOriginalCloseCallCount = 0; var __ofOriginalClose = closeSheet; closeSheet = function(){ __ofOriginalCloseCallCount++; __ofOriginalClose(); };', context);
+  vm.runInContext(CONTEXTUAL_SHEET_RETURN_BROWSER_JS, context);
+
+  return { context, veilEl, sheetEl, sheetBodyEl, wrapClose, callbackDuringClose: () => callbackDuringClose, legacyClickListenerBaseline };
+}
+
+test('contextual sheet close installer installs exactly one sheetBody listener across two installer evaluations', () => {
+  const { context, sheetBodyEl, legacyClickListenerBaseline } = installContextualSheetContext();
+  const afterFirstInstall = sheetBodyEl.listeners.get('click')?.length ?? 0;
+  assert.equal(
+    afterFirstInstall,
+    legacyClickListenerBaseline + 1,
+    'first contextual installer evaluation must add exactly one click listener on top of the legacy baseline',
+  );
+
+  vm.runInContext(CONTEXTUAL_SHEET_RETURN_BROWSER_JS, context);
+  const afterSecondInstall = sheetBodyEl.listeners.get('click')?.length ?? 0;
+  assert.equal(
+    afterSecondInstall,
+    afterFirstInstall,
+    'installer must be idempotent: re-evaluating the contextual installer leaves the total listener count unchanged',
+  );
+});
+
+test('CONTEXTUAL_SHEET_RETURN_BROWSER_JS source never references window.closeSheet as an assignment target', () => {
+  assert.ok(!/\bwindow\.closeSheet\s*=/.test(CONTEXTUAL_SHEET_RETURN_BROWSER_JS));
+});
+
+function dispatchSheetBodyClick(sheetBodyEl: ReturnType<typeof makeContextualSheetElement>, target: { closest: (selector: string) => unknown }) {
+  for (const handler of sheetBodyEl.listeners.get('click') ?? []) {
+    handler({ target, preventDefault: () => {} });
+  }
+}
+
+const CONTEXTUAL_DISMISS_ROUTES: Array<{
+  name: string;
+  dismiss: (ctx: ReturnType<typeof installContextualSheetContext>) => void;
+}> = [
+  {
+    name: 'Back',
+    dismiss: ({ sheetBodyEl }) => dispatchSheetBodyClick(sheetBodyEl, { closest: (sel: string) => (sel === '[data-of-inspect-back]' ? {} : null) }),
+  },
+  {
+    name: 'Inspect Close',
+    dismiss: ({ sheetBodyEl }) => dispatchSheetBodyClick(sheetBodyEl, { closest: (sel: string) => (sel === '[data-of-inspect-close]' ? {} : null) }),
+  },
+  {
+    name: 'Gate Close',
+    dismiss: ({ sheetBodyEl }) => dispatchSheetBodyClick(sheetBodyEl, { closest: (sel: string) => (sel === '[data-of-gate-sheet-close]' ? {} : null) }),
+  },
+  {
+    name: 'legacy data-gate-cancel',
+    dismiss: ({ sheetBodyEl }) => dispatchSheetBodyClick(sheetBodyEl, { closest: (sel: string) => (sel === '[data-gate-cancel]' ? {} : null) }),
+  },
+  {
+    name: 'veil click',
+    dismiss: ({ veilEl }) => { if (typeof veilEl.onclick === 'function') veilEl.onclick(); },
+  },
+  {
+    name: 'drag-to-dismiss',
+    dismiss: ({ context }) => { vm.runInContext('closeSheet()', context); },
+  },
+];
+
+for (const { name, dismiss } of CONTEXTUAL_DISMISS_ROUTES) {
+  test(`contextual sheet dismiss route "${name}" calls original close once and callback once, with callback slot null during the callback`, () => {
+    const setup = installContextualSheetContext();
+    const { context } = setup;
+
+    let callbackCount = 0;
+    let slotDuringCallback: unknown = 'unset';
+    vm.runInContext(
+      `sheet._ofSetReturnCallback(function () { __ofCallbackCount = (__ofCallbackCount || 0) + 1; __ofSlotDuringCallback = sheet._ofReturnCallback; });`,
+      context,
+    );
+    (context as any).__ofCallbackCount = 0;
+    (context as any).__ofSlotDuringCallback = 'unset';
+
+    dismiss(setup);
+
+    callbackCount = (context as any).__ofCallbackCount;
+    slotDuringCallback = (context as any).__ofSlotDuringCallback;
+
+    assert.equal((context as any).__ofOriginalCloseCallCount, 1, `${name} must call the original close exactly once`);
+    assert.equal(callbackCount, 1, `${name} must call the callback exactly once`);
+    assert.equal(slotDuringCallback, null, 'callback slot must be null while the callback itself runs');
+
+    // Repeated dismiss must not replay the already-consumed callback.
+    dismiss(setup);
+    assert.equal((context as any).__ofOriginalCloseCallCount, 2, `${name} repeated dismiss still calls original close`);
+    assert.equal((context as any).__ofCallbackCount, 1, `${name} repeated dismiss does not replay the consumed callback`);
+  });
+}
+
+// ── Task 11 real-boot inspect integration (document-level DOM harness) ────
+
+const CANONICAL_MARKERS = ['work-fx-001', 'mission-fx-001', 'task-fx-001', 'agent-fx-001', 'cluster-fx-001', 'contains'];
+
+function sceneInspectButtons(sceneEl: FabricElement): FabricElement[] {
+  return sceneEl.children.filter(
+    (child): child is FabricElement => (child as FabricElement).dataset?.ofInspectToken !== undefined,
+  );
+}
+
+function serializeControl(btn: FabricElement) {
+  return {
+    textContent: btn.textContent,
+    type: btn.type,
+    className: btn.className,
+    dataset: { ...btn.dataset },
+    ariaLabel: btn.getAttribute('aria-label'),
+  };
+}
+
+test('real boot appends exactly one inspect control per scene (two for flow) with opaque tokens and no canonical leakage', async () => {
+  const booted = bootOperatingFabricDocument(
+    () => ({
+      kind: 'json',
+      value: {
+        delivery: { operatingFabricEnabled: true, freshness: 'fresh', servedAt: '2026-07-28T00:00:00Z' },
+        projection: FABRIC_FIXTURE,
+      },
+    }),
+    { withContextualSheet: true },
+  );
+  await flushBoot();
+
+  const canopyScene = booted.elements.get('of-scene-canopy')!;
+  const missionScene = booted.elements.get('of-scene-mission')!;
+  const workforceScene = booted.elements.get('of-scene-workforce')!;
+  const forgeScene = booted.elements.get('of-scene-forge')!;
+  const flowScene = booted.elements.get('of-scene-flow')!;
+
+  const singleSceneButtons = [canopyScene, missionScene, workforceScene, forgeScene].map(sceneInspectButtons);
+  for (const buttons of singleSceneButtons) {
+    assert.equal(buttons.length, 1, 'each of canopy/mission/workforce/forge has exactly one inspect control');
+  }
+  const flowButtons = sceneInspectButtons(flowScene);
+  assert.equal(flowButtons.length, 2, 'flow has exactly two inspect controls');
+
+  const allButtons = [...singleSceneButtons.flat(), ...flowButtons];
+  const tokens = new Set<string>();
+  for (const btn of allButtons) {
+    assert.equal(btn.type, 'button', 'every inspect control is type=button');
+    const token = btn.dataset.ofInspectToken;
+    assert.match(token, /^of-tok-[0-9]+$/, 'token is opaque and matches the expected shape');
+    assert.equal(tokens.has(token), false, 'every token is unique');
+    tokens.add(token);
+    assert.match(btn.textContent, /^Inspect( edge)?$/, 'control text is generic, never canonical');
+    const ariaLabel = btn.getAttribute('aria-label') ?? '';
+    assert.ok(ariaLabel.length > 0, 'control has an aria-label');
+
+    const serialized = JSON.stringify(serializeControl(btn));
+    for (const marker of CANONICAL_MARKERS) {
+      assert.ok(!serialized.includes(marker), `serialized control never leaks canonical marker ${marker}`);
+    }
+    assert.ok(!serialized.toLowerCase().includes('data-gate-confirm'), 'no gate/confirm control present');
+    assert.ok(!/confirm/i.test(serialized), 'no gate/confirm control present');
+  }
+});
+
+test('real inspect click opens the sheet with fixture content and back/close both route home and focus once', async () => {
+  const booted = bootOperatingFabricDocument(
+    () => ({
+      kind: 'json',
+      value: {
+        delivery: { operatingFabricEnabled: true, freshness: 'fresh', servedAt: '2026-07-28T00:00:00Z' },
+        projection: FABRIC_FIXTURE,
+      },
+    }),
+    { withContextualSheet: true },
+  );
+  await flushBoot();
+
+  const canopyScene = booted.elements.get('of-scene-canopy')!;
+  const [canopyControl] = sceneInspectButtons(canopyScene);
+  assert.ok(canopyControl, 'canopy inspect control exists');
+
+  const focusCountBefore = canopyControl.focusCount;
+  booted.dispatchClick(canopyControl);
+
+  assert.ok(booted.sheetBody!.innerHTML.includes('work-fx-001'), 'sheet body includes the resolved work identity');
+  assert.ok(booted.sheetBody!.innerHTML.includes('sourceOfTruth'), 'sheet body includes provenance');
+  assert.equal(booted.veil!.classList.contains('on'), true, 'veil is on');
+  assert.equal(booted.sheet!.classList.contains('on'), true, 'sheet is on');
+  assert.equal(booted.sheetFocusControl!.focusCount, 1, 'first actionable sheet control receives focus on open');
+
+  const backTarget = makeFabricElement('button');
+  backTarget.setAttribute('data-of-inspect-back', '1');
+  const closeCountBeforeBack = (booted.context as any).__ofIntegrationCloseCount;
+  booted.dispatchSheetClick(backTarget);
+  assert.equal((booted.context as any).__ofIntegrationCloseCount, closeCountBeforeBack + 1, 'back dismiss closes exactly once');
+  assert.equal(booted.tabElements.find((t) => t.dataset.ofTab === 'canopy')?.ariaSelected, 'true', 'canopy scene remains active after back');
+  assert.equal(canopyControl.focusCount, focusCountBefore + 1, 'origin control regains focus once after back');
+
+  booted.dispatchClick(canopyControl);
+  const closeCountBeforeClose = (booted.context as any).__ofIntegrationCloseCount;
+  const focusBeforeClose = canopyControl.focusCount;
+  const closeTarget = makeFabricElement('button');
+  closeTarget.setAttribute('data-of-inspect-close', '1');
+  booted.dispatchSheetClick(closeTarget);
+  assert.equal((booted.context as any).__ofIntegrationCloseCount, closeCountBeforeClose + 1, 'close dismiss closes exactly once more');
+  assert.equal(canopyControl.focusCount, focusBeforeClose + 1, 'origin control regains focus once after close');
+
+  const closeCountBeforeRepeat = (booted.context as any).__ofIntegrationCloseCount;
+  const focusBeforeRepeat = canopyControl.focusCount;
+  booted.dispatchSheetClick(closeTarget);
+  assert.equal(
+    (booted.context as any).__ofIntegrationCloseCount,
+    closeCountBeforeRepeat + 1,
+    'repeated dismiss still increments the original close count',
+  );
+  assert.equal(canopyControl.focusCount, focusBeforeRepeat, 'repeated dismiss does not replay the consumed focus callback');
+});
+
+test('re-render rotates the inspect token and a stale control cannot reopen the sheet', async () => {
+  const booted = bootOperatingFabricDocument(
+    () => ({
+      kind: 'json',
+      value: {
+        delivery: { operatingFabricEnabled: true, freshness: 'fresh', servedAt: '2026-07-28T00:00:00Z' },
+        projection: FABRIC_FIXTURE,
+      },
+    }),
+    { withContextualSheet: true },
+  );
+  await flushBoot();
+
+  const canopyScene = booted.elements.get('of-scene-canopy')!;
+  const [oldControl] = sceneInspectButtons(canopyScene);
+  const oldToken = oldControl.dataset.ofInspectToken;
+  assert.ok(oldToken);
+
+  booted.clickOpen('work-fx-001');
+  await flushBoot();
+
+  const refreshedButtons = sceneInspectButtons(canopyScene);
+  const newControl = refreshedButtons[refreshedButtons.length - 1];
+  assert.ok(newControl, 'canopy still has an appended inspect control after re-render');
+  const newToken = newControl.dataset.ofInspectToken;
+  assert.notEqual(newToken, oldToken, 'token differs across re-render');
+
+  const oldSuffix = Number(oldToken.match(/^of-tok-([0-9]+)$/)![1]);
+  const newSuffix = Number(newToken.match(/^of-tok-([0-9]+)$/)![1]);
+  assert.ok(newSuffix > oldSuffix, 'numeric token suffix increases across re-render');
+
+  // Fake innerHTML assignment does not clear children, so a stale reference
+  // to the old control instance is still reachable here; dispatching a click
+  // through it must not reopen the sheet since the token registry rotated.
+  booted.sheetBody!.innerHTML = '';
+  booted.dispatchClick(oldControl);
+  assert.equal(booted.sheetBody!.innerHTML, '', 'sheet body remains unchanged for a stale token');
+  assert.equal(booted.sheet!.classList.contains('on'), false, 'sheet does not reopen for a stale token');
+});
+
+const HOSTILE_WORK_IDS = ['token=SECRET', 'x'.repeat(65), 'bad\x00id'];
+
+for (const hostileWorkId of HOSTILE_WORK_IDS) {
+  test(`canopy creates no inspect control when the work canonical id is hostile: ${JSON.stringify(hostileWorkId)}`, async () => {
+    const hostileFixture: MissionFabricProjectionV1 = {
+      ...FABRIC_FIXTURE,
+      nodes: FABRIC_FIXTURE.nodes.map((node) =>
+        node.kind === 'work'
+          ? { kind: 'work', value: { ...(node.value as Record<string, unknown>), workId: hostileWorkId } }
+          : node,
+      ) as MissionFabricProjectionV1['nodes'],
+    };
+
+    const booted = bootOperatingFabricDocument(
+      () => ({
+        kind: 'json',
+        value: {
+          delivery: { operatingFabricEnabled: true, freshness: 'fresh', servedAt: '2026-07-28T00:00:00Z' },
+          projection: hostileFixture,
+        },
+      }),
+      { withContextualSheet: true },
+    );
+    await flushBoot();
+
+    const canopyScene = booted.elements.get('of-scene-canopy')!;
+    assert.equal(sceneInspectButtons(canopyScene).length, 0, 'no inspect control is created for a hostile work id');
+  });
+}
+
+// ── OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS: direct executable tests ─────────
+// Honest legacy stubs standing in for the real openGatePreflight/gateAct
+// (declared by CLIENT_SIGNED_ACTION) — enough surface for the bridge to wrap
+// and call through, without re-deriving CLIENT_SIGNED_ACTION's own behavior.
+
+function makeGateButtonStub() {
+  const dataset: Record<string, string> = {};
+  return {
+    dataset,
+    disabled: false,
+    querySelector: () => null,
+  };
+}
+
+function makeSheetBodyStub(confirmButton: ReturnType<typeof makeGateButtonStub> | null) {
+  return {
+    querySelector: (selector: string) =>
+      selector === '[data-gate-confirm="approve-goal-graph"]' ? confirmButton : null,
+  };
+}
+
+function installGateActionBridgeContext(options: { tenant?: string } = {}) {
+  const tenant = options.tenant ?? 'acme';
+  const preflightCalls: unknown[][] = [];
+  const fetchCalls: Array<{ url: string; body: unknown }> = [];
+  const gateSubmitStates: Array<{ state: string; text: string }> = [];
+  let confirmButton: ReturnType<typeof makeGateButtonStub> | null = null;
+
+  const context: Record<string, unknown> = {
+    TENANT: tenant,
+    initData: 'fx-init-data',
+    $: (id: string) => (id === 'sheetBody' ? makeSheetBodyStub(confirmButton) : null),
+    openGatePreflight: function (...args: unknown[]) {
+      preflightCalls.push(args);
+      confirmButton = makeGateButtonStub();
+      confirmButton.dataset.gateConfirm = String(args[0] ?? '');
+      confirmButton.dataset.gateSubject = String(args[1] ?? '');
+    },
+    gateAct: function ofOriginalGateActStub() {
+      (context as any).__originalGateActCalls = ((context as any).__originalGateActCalls || 0) + 1;
+    },
+    gateSubmitContext: (button: any) => ({
+      kind: (button && button.dataset && button.dataset.gateConfirm) || '',
+      subject: (button && button.dataset && button.dataset.gateSubject) || '',
+      itemId: '', actionRequestId: '', optionId: '', evidence: '', consequence: '',
+      reversibility: '', idempotencyKey: 'fx-idem', branchId: '', missionId: '',
+      topicLabel: '', threadId: '', messageId: '', receiptExpectation: '', note: '',
+    }),
+    gateItemForSubmit: () => ({}),
+    setGateSubmitState: (button: any, state: string, text: string) => {
+      gateSubmitStates.push({ state, text });
+      if (button && button.dataset) button.dataset.gateSubmitState = state;
+    },
+    buzz: () => {},
+    notify: () => {},
+    openGateResultSheet: () => {},
+    openGateFailureSheet: () => {},
+    openGateTelegramAuthFailure: () => {},
+    isGateAuthFailure: () => false,
+    loadGate: () => {},
+    setTimeout: (fn: () => void) => fn(),
+    fetch: (url: string, init: any) => {
+      fetchCalls.push({ url, body: init && init.body ? JSON.parse(init.body) : null });
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ committed: true }) });
+    },
+    Promise,
+    JSON,
+    console,
+  };
+  vm.createContext(context);
+  vm.runInContext(OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS, context);
+  return {
+    context,
+    preflightCalls,
+    fetchCalls,
+    gateSubmitStates,
+    getConfirmButton: () => confirmButton,
+    originalGateActCalls: () => (context as any).__originalGateActCalls || 0,
+  };
+}
+
+function validSeed(overrides: Record<string, unknown> = {}) {
+  return {
+    changeDigest: 'a'.repeat(64),
+    tenant: 'acme',
+    nonce: 'fx-nonce-1',
+    expiresAt: '2099-01-01T00:00:00.000Z',
+    graphVersion: 42,
+    fence: 1,
+    ...overrides,
+  };
+}
+
+test('gate-action bridge: valid descriptor opens exactly one preflight and posts exactly one request with no actor', async () => {
+  const harness = installGateActionBridgeContext();
+  vm.runInContext(
+    'openGatePreflight("approve-goal-graph", "fx-subject", null, __seed)',
+    Object.assign(harness.context, { __seed: validSeed() }),
+  );
+  assert.equal(harness.preflightCalls.length, 1, 'exactly one preflight opens for a valid descriptor');
+  const button = harness.getConfirmButton()!;
+  vm.runInContext('gateAct(__button)', Object.assign(harness.context, { __button: button }));
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(harness.fetchCalls.length, 1, 'exactly one POST fires for a valid confirm');
+  assert.equal(harness.fetchCalls[0]!.url, '/api/gate/acme');
+  assert.deepEqual(
+    Object.keys(harness.fetchCalls[0]!.body as Record<string, unknown>).sort(),
+    ['changeDigest', 'expectedHeadVersion', 'expiresAt', 'fence', 'initData', 'kind', 'nonce', 'subject', 'tenant'].sort(),
+  );
+  assert.ok(!('actor' in (harness.fetchCalls[0]!.body as Record<string, unknown>)), 'payload never carries actor');
+  assert.equal(harness.originalGateActCalls(), 0, 'the original gateAct is never invoked for a valid goal-graph submit');
+});
+
+test('gate-action bridge: sha256: prefixed digest form is also accepted', async () => {
+  const harness = installGateActionBridgeContext();
+  vm.runInContext(
+    'openGatePreflight("approve-goal-graph", "fx-subject", null, __seed)',
+    Object.assign(harness.context, { __seed: validSeed({ changeDigest: 'sha256:' + 'a'.repeat(64) }) }),
+  );
+  assert.equal(harness.preflightCalls.length, 1, 'a prefixed digest still opens exactly one preflight');
+  const button = harness.getConfirmButton()!;
+  vm.runInContext('gateAct(__button)', Object.assign(harness.context, { __button: button }));
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(harness.fetchCalls.length, 1, 'a prefixed digest still posts exactly once');
+  assert.equal((harness.fetchCalls[0]!.body as Record<string, unknown>).changeDigest, 'sha256:' + 'a'.repeat(64));
+});
+
+test('gate-action bridge: double click on the same confirm posts exactly once', async () => {
+  const harness = installGateActionBridgeContext();
+  vm.runInContext(
+    'openGatePreflight("approve-goal-graph", "fx-subject", null, __seed)',
+    Object.assign(harness.context, { __seed: validSeed() }),
+  );
+  const button = harness.getConfirmButton()!;
+  vm.runInContext('gateAct(__button)', Object.assign(harness.context, { __button: button }));
+  vm.runInContext('gateAct(__button)', Object.assign(harness.context, { __button: button }));
+  await Promise.resolve();
+  assert.equal(harness.fetchCalls.length, 1, 'the double-submit guard admits exactly one POST');
+});
+
+test('gate-action bridge: non-goal-graph kind opens original preflight and delegates gateAct with zero fetch', async () => {
+  const harness = installGateActionBridgeContext();
+  vm.runInContext(
+    'openGatePreflight("approve", "fx-subject", null, __seed)',
+    Object.assign(harness.context, { __seed: validSeed() }),
+  );
+  assert.equal(harness.preflightCalls.length, 1, 'non-goal-graph kinds still delegate to the original preflight');
+  const button = makeGateButtonStub();
+  button.dataset.gateConfirm = 'approve';
+  button.dataset.gateSubject = 'fx-subject';
+  vm.runInContext('gateAct(__button)', Object.assign(harness.context, { __button: button }));
+  assert.equal(harness.originalGateActCalls(), 1, 'non-goal-graph gateAct delegates to the original exactly once');
+  assert.equal(harness.fetchCalls.length, 0, 'the bridge never fetches for a delegated non-goal-graph action');
+});
+
+const INVALID_SEEDS: Array<[string, Record<string, unknown> | null]> = [
+  ['missing seed', null],
+  ['malformed changeDigest', validSeed({ changeDigest: 'not-a-digest' })],
+  ['tenant mismatch', validSeed({ tenant: 'other-tenant' })],
+  ['expired expiresAt', validSeed({ expiresAt: '2000-01-01T00:00:00.000Z' })],
+  ['negative expectedHeadVersion', validSeed({ graphVersion: -1 })],
+  ['fractional expectedHeadVersion', validSeed({ graphVersion: 1.5 })],
+  ['negative fence', validSeed({ fence: -1 })],
+  ['fractional fence', validSeed({ fence: 0.5 })],
+  ['unsafe nonce (control character)', validSeed({ nonce: 'bad nonce with newline\n' })],
+  ['unbounded nonce', validSeed({ nonce: 'x'.repeat(200) })],
+];
+
+for (const [label, seed] of INVALID_SEEDS) {
+  test(`gate-action bridge: ${label} opens zero preflight bindings and posts zero requests`, async () => {
+    const harness = installGateActionBridgeContext();
+    vm.runInContext(
+      'openGatePreflight("approve-goal-graph", "fx-subject", null, __seed)',
+      Object.assign(harness.context, { __seed: seed }),
+    );
+    assert.equal(harness.getConfirmButton(), null, `${label}: no bound confirm control exists to submit`);
+    assert.equal(harness.fetchCalls.length, 0, `${label}: zero POST fires`);
+  });
+}
+
+test('gate-action bridge: tenant mismatch between bound descriptor and current TENANT fails closed at submit with zero fetch', async () => {
+  const harness = installGateActionBridgeContext({ tenant: 'acme' });
+  vm.runInContext(
+    'openGatePreflight("approve-goal-graph", "fx-subject", null, __seed)',
+    Object.assign(harness.context, { __seed: validSeed({ tenant: 'acme' }) }),
+  );
+  const button = harness.getConfirmButton()!;
+  // Simulate the tenant changing out from under the bound descriptor between
+  // preflight-open and submit (e.g. a stale confirm control from a prior tenant).
+  vm.runInContext('TENANT = "other-tenant";', harness.context);
+  vm.runInContext('gateAct(__button)', Object.assign(harness.context, { __button: button }));
+  await Promise.resolve();
+  assert.equal(harness.fetchCalls.length, 0, 'a tenant mismatch discovered at submit time posts zero requests');
+  assert.equal(harness.originalGateActCalls(), 0, 'a bound goal-graph descriptor never falls through to the original gateAct');
+  assert.ok(
+    harness.gateSubmitStates.some((s) => s.state === 'error'),
+    'submit failure is surfaced via setGateSubmitState error, not silence',
+  );
 });

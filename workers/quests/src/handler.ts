@@ -3129,6 +3129,32 @@ const GOAL_GRAPH_GATE_ROW_SCHEMA = 'cambium.goal-graph-gate-row.v1';
 const GOAL_GRAPH_GATE_ROW_LIST_SCHEMA = 'cambium.goal-graph-gate-row-list.v1';
 const GOAL_GRAPH_GATE_ROW_LIMIT = 25;
 
+// Single source of truth for the approval descriptor (nonce/expiry/head
+// version/fence), shared by the gate-row projection and the approval route.
+// Legacy tasks that predate the descriptor fields are given exactly the same
+// fallback derivation in both places, so an exact client echo of a projected
+// row can never be rejected by approval. Malformed stored timestamps fail
+// closed (return null) rather than propagating a NaN-derived date.
+function resolveGoalGraphApprovalDescriptor(
+  task: Record<string, unknown>,
+  tenantId: string,
+  changeDigest: string,
+): { approvalNonce: string; approvalExpiresAt: string; expectedHeadVersion: number; fence: number } | null {
+  const approvalNonce = shortText(task.approvalNonce, `goal-graph-approval:${tenantId}:${changeDigest}`, 240);
+  let approvalExpiresAt = shortText(task.approvalExpiresAt, '', 64);
+  if (!approvalExpiresAt) {
+    const receivedAt = shortText(task.receivedAt, shortText(task.updatedAt, '', 64), 64);
+    const receivedAtMs = receivedAt ? Date.parse(receivedAt) : NaN;
+    if (!Number.isFinite(receivedAtMs)) return null;
+    approvalExpiresAt = new Date(receivedAtMs + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString();
+  } else if (!Number.isFinite(Date.parse(approvalExpiresAt))) {
+    return null;
+  }
+  const expectedHeadVersion = Number.isInteger(task.expectedHeadVersion) ? Number(task.expectedHeadVersion) : 0;
+  const fence = Number.isInteger(task.fence) ? Number(task.fence) : (Number.isInteger(task.graphVersion) ? Number(task.graphVersion) : 0);
+  return { approvalNonce, approvalExpiresAt, expectedHeadVersion, fence };
+}
+
 function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, unknown> | null {
   const tenantId = shortText(task.tenantId, '', 160);
   const changeDigest = shortText(task.changeDigest, '', 160);
@@ -3137,6 +3163,8 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
   const desiredState = shortText(node.desiredState, 'Telegram goal proposal', 120);
   const receivedAt = shortText(task.receivedAt, shortText(task.updatedAt, 'receivedAt not served', 64), 64);
   const nodeId = shortText(task.nodeId, 'node id not served', 160);
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, changeDigest);
+  if (!descriptor) return null;
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
     kind: 'goal-graph-intake',
@@ -3156,6 +3184,10 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     graphVersion: Number.isInteger(task.graphVersion) ? task.graphVersion : null,
     receivedAt,
     updatedAt: receivedAt,
+    approvalNonce: descriptor.approvalNonce,
+    approvalExpiresAt: descriptor.approvalExpiresAt,
+    expectedHeadVersion: descriptor.expectedHeadVersion,
+    fence: descriptor.fence,
   };
 }
 
@@ -3259,6 +3291,16 @@ async function intakeTelegramGoalGraphRoute(
     return goalGraphIntakeTaskReceipt(existingTask, true);
   }
 
+  // Server-issued approval descriptor, pinned at intake so approval never
+  // derives nonce/expiry/fence from the request: the nonce format matches
+  // the historical safe default, the TTL matches the existing 15-minute
+  // window, expectedHeadVersion pins the head this proposal was built
+  // against (0 for no head), and fence pins the target changeSet version.
+  const approvalNonce = `goal-graph-approval:${tenantId}:${changeSet.changeDigest}`;
+  const approvalExpiresAt = new Date(Date.parse(receivedAt) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString();
+  const expectedHeadVersion = head?.graphVersion ?? 0;
+  const fence = changeSet.graphVersion;
+
   const task = {
     schema: GOAL_GRAPH_INTAKE_TASK_SCHEMA,
     tenantId,
@@ -3277,6 +3319,10 @@ async function intakeTelegramGoalGraphRoute(
     changeSet,
     receivedAt,
     updatedAt: receivedAt,
+    approvalNonce,
+    approvalExpiresAt,
+    expectedHeadVersion,
+    fence,
   };
   const taskKey = goalGraphIntakeTaskKey(tenantId, changeSet.changeDigest);
   await deps.kv.put(taskKey, JSON.stringify(task));
@@ -3337,8 +3383,71 @@ async function approveGoalGraphIntakeRoute(
   }
 
   const now = deps.now ? deps.now() : new Date().toISOString();
-  const nonce = shortText(body.nonce, `goal-graph-approval:${tenant}:${changeDigest}`, 240);
-  const expiresAt = shortText(body.expiresAt, new Date(Date.parse(now) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString(), 64);
+
+  // The descriptor is server-issued at intake time (backward-compatible
+  // defaults when an old task predates the descriptor fields). Approval
+  // reads it from storage; it never derives nonce/expiry/fence itself, and
+  // a body-supplied value is only ever checked against the stored value —
+  // never trusted to set it.
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest);
+  if (!descriptor) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_descriptor_invalid', code: 'descriptor_invalid', ...evidence } };
+  }
+  const storedNonce = descriptor.approvalNonce;
+  const storedExpiresAt = descriptor.approvalExpiresAt;
+  const storedExpectedHeadVersion = descriptor.expectedHeadVersion;
+  const storedFence = descriptor.fence;
+
+  const storedExpiresAtMs = Date.parse(storedExpiresAt);
+  const nowMs = Date.parse(now);
+  if (!Number.isFinite(storedExpiresAtMs) || !Number.isFinite(nowMs) || storedExpiresAtMs <= nowMs) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_expired', code: 'approval_expired', ...evidence } };
+  }
+  if (body.nonce !== undefined && shortText(body.nonce, '', 240) !== storedNonce) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_nonce_mismatch', code: 'nonce_mismatch', ...evidence } };
+  }
+  if (body.expiresAt !== undefined && shortText(body.expiresAt, '', 64) !== storedExpiresAt) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_expiry_mismatch', code: 'expiry_mismatch', ...evidence } };
+  }
+  if (body.expectedHeadVersion !== undefined && Number(body.expectedHeadVersion) !== storedExpectedHeadVersion) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_head_version_mismatch', code: 'head_version_mismatch', ...evidence } };
+  }
+  if (body.fence !== undefined && Number(body.fence) !== storedFence) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_fence_mismatch', code: 'fence_mismatch', ...evidence } };
+  }
+
+  // Belt-and-suspenders head pin check ahead of the D1 CAS: the current
+  // authoritative head must still equal the pinned expectedHeadVersion. The
+  // final D1 conditional write remains the authoritative race guard.
+  let currentHead: GoalGraphHead | null;
+  try {
+    currentHead = await deps.goalGraphStore.readHead(tenant);
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  }
+  const currentHeadVersion = currentHead?.graphVersion ?? 0;
+  if (currentHeadVersion !== storedExpectedHeadVersion) {
+    await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+      ...task,
+      status: 'stale',
+      observedHeadDigest: currentHead?.graphDigest ?? null,
+      updatedAt: now,
+    }));
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        error: 'goal_graph_stale_head',
+        status: 'stale',
+        changeDigest,
+        expectedHeadDigest: task.expectedHeadDigest ?? null,
+        actualHeadDigest: currentHead?.graphDigest ?? null,
+      },
+    };
+  }
+
+  const nonce = storedNonce;
+  const expiresAt = storedExpiresAt;
   const intentVersion = Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1;
   const approvalCore = { tenantId: tenant, changeDigest, intentVersion, approverId: founderId, expiresAt, nonce };
   const approval: GoalGraphApproval = {
