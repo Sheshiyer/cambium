@@ -7,21 +7,24 @@
 // and inert with the legacy document visible. initData never touches the
 // DOM, storage, or logs; this client holds no authorization logic.
 //
-// Task 8 wiring: the canopy and mission browser renderers below are plain
-// browser-valid JavaScript source constants owned by canopy.ts/mission.ts and
-// composed lexically into this single boot script — no filesystem reads, no
-// source-text transformation, no eval/new Function, no ambient mutable
-// renderer global, and no third script. The shared helpers and both scene
-// renderers live INSIDE the boot IIFE, so nothing is exposed on globalThis.
+// Task 8 + Task 9 wiring: the canopy, mission, and flow browser renderers
+// below are plain browser-valid JavaScript source constants owned by
+// canopy.ts/mission.ts/flow.ts and composed lexically into this single boot
+// script — no filesystem reads, no source-text transformation, no
+// eval/new Function, no ambient mutable renderer global, and no third script.
+// The shared helpers and all scene renderers live INSIDE the boot IIFE, so
+// nothing is exposed on globalThis.
 //
 // Fail-closed activation: on a valid exact-200 response the boot validates
-// the projection shape and renderer availability, pre-renders the Canopy and
-// Mission scenes safely, and only then unhides the new root and hides the
-// legacy shell. A missing/invalid renderer, malformed projection, renderer
-// exception, or absent DOM root leaves the legacy shell visible/interactive
-// and the new shell hidden/inert — activation never happens first.
+// the projection shape and renderer availability, pre-renders the Canopy,
+// Mission, and Flow scenes safely, and only then unhides the new root and
+// hides the legacy shell. A missing/invalid renderer, malformed projection,
+// renderer exception, or absent DOM root (including the Flow root) leaves
+// the legacy shell visible/interactive and the new shell hidden/inert —
+// activation never happens first.
 import { CANOPY_BROWSER_JS } from './canopy.ts';
 import { MISSION_BROWSER_JS } from './mission.ts';
+import { FLOW_BROWSER_JS } from './flow.ts';
 
 // Shared browser helpers used by both scene renderer bundles. Plain ES5-ish
 // JavaScript: no TypeScript syntax, no imports, no browser-incompatible APIs.
@@ -106,7 +109,8 @@ export const OPERATING_FABRIC_BOOT = `<script data-operating-fabric-boot>
 ${OPERATING_FABRIC_SCENE_HELPERS_JS}
 ${CANOPY_BROWSER_JS}
 ${MISSION_BROWSER_JS}
-  var ofScenes = { renderCanopy: ofRenderCanopy, renderOperatingMission: ofRenderOperatingMission };
+${FLOW_BROWSER_JS}
+  var ofScenes = { renderCanopy: ofRenderCanopy, renderOperatingMission: ofRenderOperatingMission, renderFlow: ofRenderFlow };
   // The shell ships as real DOM, hidden and inert; boot only un-hides it.
   var root = document.getElementById('operating-fabric');
   if (!root) return;
@@ -133,8 +137,10 @@ ${MISSION_BROWSER_JS}
   function renderScenes(projection, delivery) {
     var canopyRoot = sceneRoot('canopy');
     var missionRoot = sceneRoot('mission');
+    var flowRoot = sceneRoot('flow');
     if (canopyRoot) canopyRoot.innerHTML = ofScenes.renderCanopy(projection, { freshness: freshnessFor(delivery) });
     if (missionRoot) missionRoot.innerHTML = ofScenes.renderOperatingMission(projection, openWorkId);
+    if (flowRoot) flowRoot.innerHTML = ofScenes.renderFlow(projection);
   }
   function navigate(sceneId) {
     var tabs = root.querySelectorAll('[data-of-tab]');
@@ -155,19 +161,22 @@ ${MISSION_BROWSER_JS}
   // interactive and the new shell hidden and inert.
   function activate(projection, delivery) {
     if (!ofValidProjection(projection)) return;
-    if (typeof ofScenes.renderCanopy !== 'function' || typeof ofScenes.renderOperatingMission !== 'function') return;
+    if (typeof ofScenes.renderCanopy !== 'function' || typeof ofScenes.renderOperatingMission !== 'function' || typeof ofScenes.renderFlow !== 'function') return;
     var canopyRoot = sceneRoot('canopy');
     var missionRoot = sceneRoot('mission');
-    if (!canopyRoot || !missionRoot) return;
+    var flowRoot = sceneRoot('flow');
+    if (!canopyRoot || !missionRoot || !flowRoot) return;
     var canopyHtml;
     var missionHtml;
+    var flowHtml;
     try {
       canopyHtml = ofScenes.renderCanopy(projection, { freshness: freshnessFor(delivery) });
       missionHtml = ofScenes.renderOperatingMission(projection, openWorkId);
+      flowHtml = ofScenes.renderFlow(projection);
     } catch (error) {
       return;
     }
-    if (typeof canopyHtml !== 'string' || typeof missionHtml !== 'string') return;
+    if (typeof canopyHtml !== 'string' || typeof missionHtml !== 'string' || typeof flowHtml !== 'string') return;
     root.hidden = false;
     root.classList.add('of-on');
     root.inert = false;
@@ -182,6 +191,7 @@ ${MISSION_BROWSER_JS}
     }
     canopyRoot.innerHTML = canopyHtml;
     missionRoot.innerHTML = missionHtml;
+    flowRoot.innerHTML = flowHtml;
   }
   root.addEventListener('click', function (event) {
     var target = event.target;

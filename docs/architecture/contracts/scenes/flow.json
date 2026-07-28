@@ -1,0 +1,67 @@
+{
+  "contract": "cambium-operating-fabric-scene/v1",
+  "sceneId": "flow",
+  "tabIndex": 2,
+  "label": "Flow",
+  "sceneRoot": "[data-of-scene=\"flow\"]",
+  "refreshRoute": "GET /v1/mission-fabric/{tenant}",
+  "synthetic": true,
+  "fixture": "workers/quests/src/page/scenes/fixtures/flow.fixture.json",
+  "projection": {
+    "schema": "cambium.mission-fabric-projection.v1",
+    "authority": "d1-goal-graph (read-only projection; never a writer)",
+    "consumedFor": "Task → Run → Receipt lineage rows, depends-on edges vs blocked state, executor identity, canonical produces/proves proof, typed stale-fence/unverifiable-fence gaps, explicit missing-run/missing-receipt labels"
+  },
+  "lineage": {
+    "join": "explicit ids only: run.taskId, receipt.runId, executes edges (agent→run), produces edges (run→receipt), proves edges (receipt→task), contains edges (work→mission→task for workId filters); never name/title joins",
+    "order": "tasks deduplicated by taskId and stable-sorted by taskId; runs deduplicated by runId and stable-sorted by runId; receipts deduplicated by receiptId and stable-sorted by receiptId; input order never changes visible truth",
+    "lookupSafety": "Node lookups use Map and browser lookup dictionaries are prototype-safe (Object.create(null)), so hostile ids such as __proto__, constructor, or prototype never corrupt membership"
+  },
+  "fields": {
+    "columns": "deterministic Task → Run → Receipt columns with visible directional paths (aria-hidden in the visual representation; the accessible linear list carries readable direction text)",
+    "dependencies": "depends-on edges and task.dependencyIds render as their own facts; a blocked task status renders as a separate fact — dependencies never masquerade as blockers",
+    "fenceTruth": "stale or unverifiable fences render only from typed stale-fence/unverifiable-fence gaps; rejected runs may be absent as run nodes and the gap is the truth; no current fence, stale fence, accepted run, or readiness value is ever invented",
+    "executor": "executor identity renders only from canonical executes edges resolving to canonical agent nodes; an unresolvable executor renders the honest label 'executor not present in projection' and the raw id never renders",
+    "proof": "only exact canonical produces (run→receipt) and proves (receipt→task) edges render as proof; bounded receipt ids and receipt status only — never raw evidence refs, raw digests, payloads, prompts, tokens, Telegram auth, or private client data",
+    "missing": "a task with no accepted run renders 'run not present in projection'; an accepted run with no canonical receipt renders 'receipt not present in projection'; causes are never invented and typed source gaps render separately"
+  },
+  "filters": {
+    "shape": "{ workId?, agentId?, state? }",
+    "rules": "explicit IDs/enums only: workId scopes through contains edges, agentId matches executes relationships plus task.assignedAgentId, state matches canonical task status; filters are bounded and secret-filtered; title text never matches; secret-bearing filter input matches nothing and never echoes"
+  },
+  "states": {
+    "renders": [
+      "empty",
+      "stale",
+      "error",
+      "truncated"
+    ],
+    "derivation": {
+      "empty": "no task rows survive the projection or the explicit filters",
+      "stale": "delivery freshness state is stale",
+      "error": "missing or malformed projection",
+      "truncated": "combined visible Task/Run/Receipt fact nodes exceed the 96 bound; overflow renders the exact copy 'showing 96 of N'"
+    }
+  },
+  "density": {
+    "factLimit": 96,
+    "wordCap": 260,
+    "bounds": "the combined visible Task/Run/Receipt fact nodes are bounded at 96 after a deterministic column+ID stable sort (all tasks, then runs, then receipts in canonical ID order); truncation renders the exact copy 'showing 96 of N' and rows beyond the bound never fabricate receipt truth"
+  },
+  "representations": {
+    "graph": "a visual table with Task/Run/Receipt columns and aria-hidden directional path markup; no force simulation and no animation is required to read direction",
+    "linear": "an accessible ordered list fallback carrying readable direction text per row; linear facts stay semantic and never aria-hidden",
+    "parity": "the two representations expose the exact same unique fact-ID set; visual duplicate markup is aria-hidden"
+  },
+  "authority": {
+    "read-only": true,
+    "governedActions": "every governed action delegates to the existing signed Gate client (POST /api/gate/{tenant}) via its frozen hook; this slice exposes no safe hook, so the scene renders no direct actions and defers activation wiring to Task 11",
+    "forbidden": "no write path, no Gate/RBAC/assignment logic, no fetch, no event handlers, no copied signing, no initData handling, and no client-authored state transitions inside the scene"
+  },
+  "interactions": [],
+  "accessibility": {
+    "structure": "rows are table rows with labelled facts plus a semantic ordered-list fallback; typed gaps use role=status",
+    "announcements": "empty/error states use role=status via the shared FabricState renderer"
+  },
+  "redaction": "no initData, tokens, raw evidence refs, raw digests, prompt material, or client payloads render; proof renders bounded receipt ids/status through canonical produces/proves edges only; every projection-derived string passes the Task 7 escaping/fail-closed policy. The Node substrate embeds the canonical Task 7 signature regex VERBATIM (query_id=|auth_date=|\\bhash=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection); the served browser substrate expresses the same policy as a legible normalized grammar — (?:query_id|auth_date|token)=|(?:^|\\W)(?:hash)= plus the remaining explicit canonical terms — boolean-equivalent by the generated adversarial matrix with zero divergences; no character-class fragmentation, no split/concatenated forms"
+}

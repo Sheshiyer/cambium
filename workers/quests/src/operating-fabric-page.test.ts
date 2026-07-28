@@ -2795,3 +2795,2018 @@ test('click delegation covers nested openers, non-opener clicks, and tab navigat
   assert.equal(booted.legacyShell.hidden, true, 'no click path ever mutates the legacy shell');
   assert.equal(booted.legacyShell.inert, true, 'no click path ever restores legacy interactivity');
 });
+
+// ── Task 9 · Flow scene (RED) ──────────────────────────────────────────────
+//
+// The Flow scene renders deterministic Task → Run → Receipt columns with
+// visible directional paths from the exact MissionFabricProjectionV1 truth:
+// depends-on edges and blocked state stay separate facts, executor identity
+// comes only from canonical run/agent relationships, proof comes only from
+// canonical produces/proves edges and bounded receipt ids/status, and a stale
+// or unverifiable fence renders only as a typed gap — never as a run node and
+// never as an invented current fence. Graph and accessible linear fallback
+// expose the exact same unique fact-ID set; the combined visible
+// Task/Run/Receipt fact nodes are bounded at 96 after a deterministic
+// column+ID stable sort, with the exact copy `showing 96 of N` when
+// truncated. FLOW_BROWSER_JS is a plain browser-valid source constant
+// composed lexically into the single boot IIFE by client.ts — no source
+// transforms, no ambient renderer globals, no third scene script — and Flow
+// joins the fail-closed pre-render activation set.
+
+import { renderFlow, FLOW_BROWSER_JS, FLOW_FACT_LIMIT } from './page/operating-fabric/flow.ts';
+
+const flowFixture = loadJsonFixture('./page/scenes/fixtures/flow.fixture.json');
+const flowContract = loadJsonFixture('../../../docs/architecture/contracts/scenes/flow.json');
+
+const FLOW_SOURCE = flowFixture.states.normal.source;
+const FLOW_PROJECTION: MissionFabricProjectionV1 = buildMissionFabricProjection(FLOW_SOURCE, {
+  tenantId: FLOW_SOURCE.tenantId,
+  clock: { now: () => '2026-07-28T09:00:00.000Z' },
+});
+
+type FlowTaskNode = Extract<FabricNode, { kind: 'task' }>;
+type FlowRunNode = Extract<FabricNode, { kind: 'run' }>;
+type FlowReceiptNode = Extract<FabricNode, { kind: 'receipt' }>;
+type FlowAgentNode = Extract<FabricNode, { kind: 'agent' }>;
+
+function flowNodesOf<K extends FlowTaskNode['kind'] | FlowRunNode['kind'] | FlowReceiptNode['kind']>(
+  projection: MissionFabricProjectionV1,
+  kind: K,
+): Array<Extract<FabricNode, { kind: K }>> {
+  return projection.nodes.filter(
+    (node): node is Extract<FabricNode, { kind: K }> => node?.kind === kind,
+  );
+}
+
+function makeFlowTask(taskId: string, overrides: Record<string, unknown> = {}): FlowTaskNode {
+  return {
+    kind: 'task',
+    value: {
+      taskId,
+      missionId: 'fx-flow-mission',
+      desiredState: 'verified',
+      status: 'ready',
+      dependencyIds: [],
+      assignedAgentId: null,
+      requiredClusterIds: [],
+      pinnedLoadoutId: null,
+      leaseId: null,
+      proofRequirement: 'receipt required',
+      latestReceiptId: null,
+      ...overrides,
+    },
+  } as FlowTaskNode;
+}
+
+function makeFlowRun(runId: string, taskId: string, overrides: Record<string, unknown> = {}): FlowRunNode {
+  return {
+    kind: 'run',
+    value: {
+      runId,
+      taskId,
+      agentId: 'fx-flow-agent-a',
+      loadoutId: 'fx-loadout',
+      startedAt: '2026-07-28T05:00:00.000Z',
+      terminalAt: null,
+      status: 'complete',
+      ...overrides,
+    },
+  } as FlowRunNode;
+}
+
+function makeFlowReceipt(receiptId: string, runId: string, taskId: string, overrides: Record<string, unknown> = {}): FlowReceiptNode {
+  return {
+    kind: 'receipt',
+    value: {
+      receiptId,
+      runId,
+      taskId,
+      graphVersion: 7,
+      status: 'complete',
+      inputDigest: `sha256:${'a'.repeat(64)}`,
+      outputDigest: null,
+      evidenceRefs: [],
+      approvalRef: null,
+      createdAt: '2026-07-28T05:30:00.000Z',
+      ...overrides,
+    },
+  } as FlowReceiptNode;
+}
+
+function makeFlowAgent(agentId: string, overrides: Record<string, unknown> = {}): FlowAgentNode {
+  return {
+    kind: 'agent',
+    value: {
+      agentId,
+      role: 'executor',
+      runtime: 'codex',
+      status: 'running',
+      activeTaskIds: [],
+      permissionProfile: 'fresh',
+      lastSeenAt: '2026-07-28T06:00:00.000Z',
+      sourceRef: 'd1-goal-graph',
+      ...overrides,
+    },
+  } as FlowAgentNode;
+}
+
+function makeFlowProjection(overrides: Partial<MissionFabricProjectionV1> = {}): MissionFabricProjectionV1 {
+  return {
+    schema: 'cambium.mission-fabric-projection.v1',
+    projectionVersion: 1,
+    tenantId: 'fx-tenant',
+    graphVersion: 7,
+    graphDigest: `sha256:${'0'.repeat(64)}`,
+    generatedAt: '2026-07-28T09:00:00.000Z',
+    asOf: '2026-07-28T09:00:00.000Z',
+    sourceOfTruth: 'd1-goal-graph',
+    readOnly: true,
+    nodes: [],
+    edges: [],
+    gaps: [],
+    ...overrides,
+  } as MissionFabricProjectionV1;
+}
+
+function flowGraphFactIds(html: string): string[] {
+  const graphMatch = html.match(/<table class="of-flow-graph"[^>]*>([\s\S]*?)<\/table>/);
+  // An empty projection renders the empty state with no graph and no list:
+  // both representations legitimately expose zero fact IDs.
+  if (!graphMatch) return html.includes('of-state-empty') ? [] : assert.fail('flow renders a visual graph representation');
+  return [...graphMatch[1]!.matchAll(/data-of-fact="([^"]+)"/g)].map((match) => match[1]!);
+}
+
+function flowListFactIds(html: string): string[] {
+  const listMatch = html.match(/<ol class="of-flow-list"[^>]*>([\s\S]*?)<\/ol>/);
+  if (!listMatch) return html.includes('of-state-empty') ? [] : assert.fail('flow renders an accessible linear list fallback');
+  return [...listMatch[1]!.matchAll(/data-of-fact="([^"]+)"/g)].map((match) => match[1]!);
+}
+
+// ── flow fixture + contract ─────────────────────────────────────────────────
+
+test('flow fixture is synthetic, layout-only, and carries every required fence truth shape', () => {
+  for (const key of ['fixture', 'scene', 'contract', 'redaction', 'states']) {
+    assert.ok(key in flowFixture, `flow fixture declares ${key}`);
+  }
+  assert.equal(flowFixture.scene, 'flow', 'flow fixture names its scene');
+  assert.equal(flowFixture.contract, 'docs/architecture/contracts/scenes/flow.json', 'flow fixture names its contract');
+  const raw = JSON.stringify(flowFixture);
+  for (const marker of ['query_id=', 'auth_date=', 'Bearer ', 'PRIVATE KEY', 'TELEGRAM_INIT_DATA', 'TG_INIT_DATA', 'QUESTS_PUSH_TOKEN']) {
+    assert.ok(!raw.includes(marker), `flow fixture never carries ${marker}`);
+  }
+  assert.match(raw, /layout-only|synthetic/, 'flow fixture is labelled synthetic and layout-only');
+  assert.ok(!raw.includes('"proofComplete": true'), 'flow fixture never claims live proof completion');
+  for (const task of flowFixture.states.normal.source.tasks as Array<{ taskId: string }>) {
+    assert.ok(task.taskId.startsWith('fx-'), `flow fixture task ids stay synthetic: ${task.taskId}`);
+  }
+  for (const state of ['normal', 'stale', 'empty']) {
+    assert.ok(state in flowFixture.states, `flow fixture covers the ${state} state`);
+    assert.equal(flowFixture.states[state].source.tenantId, 'fx-tenant', `flow ${state} source stays on the synthetic tenant`);
+  }
+  // The normal state carries the canonical truth mix the renderer must honor:
+  // an accepted run chain, a typed stale-fence rejection, a typed
+  // unverifiable-fence rejection, a task with no accepted run, and an
+  // accepted run with no canonical receipt.
+  const source = FLOW_SOURCE;
+  const runTaskIds = new Set(source.runtimeRuns.map((run: { taskId: string }) => run.taskId));
+  assert.ok(runTaskIds.has('fx-flow-task-alpha'), 'normal fixture carries an accepted run chain');
+  const taskIds = new Set(source.tasks.map((task: { taskId: string }) => task.taskId));
+  for (const required of ['fx-flow-task-alpha', 'fx-flow-task-beta', 'fx-flow-task-gamma', 'fx-flow-task-delta', 'fx-flow-task-epsilon']) {
+    assert.ok(taskIds.has(required), `normal fixture carries ${required}`);
+  }
+});
+
+test('flow scene contract binds route, truth vocabulary, bounds, and redaction', () => {
+  assert.equal(flowContract.contract, 'cambium-operating-fabric-scene/v1', 'flow contract version');
+  assert.equal(flowContract.sceneId, 'flow', 'flow contract id');
+  assert.equal(flowContract.refreshRoute, 'GET /v1/mission-fabric/{tenant}', 'flow refresh route');
+  assert.equal(flowContract.synthetic, true, 'flow fixture pairing is declared synthetic');
+  assert.ok(flowContract.fixture.endsWith('flow.fixture.json'), 'flow contract names its fixture');
+  assert.ok(Array.isArray(flowContract.states.renders), 'flow contract declares states');
+  for (const state of ['empty', 'error', 'stale', 'truncated']) {
+    assert.ok(flowContract.states.renders.includes(state), `flow contract handles ${state}`);
+  }
+  assert.ok(!flowContract.states.renders.includes('loading'), 'flow contract never claims a renderer-owned loading state');
+  assert.ok(!('loading' in flowContract.states.derivation), 'flow contract derives no loading state');
+  assert.equal(flowContract.density.factLimit, 96, 'flow contract pins the 96 combined fact bound');
+  assert.ok(typeof flowContract.redaction === 'string' && flowContract.redaction.length > 0, 'flow contract declares redaction policy');
+  assert.match(JSON.stringify(flowContract.authority), /read-only/, 'flow authority stays read-only');
+  assert.match(JSON.stringify(flowContract), /\/api\/gate/, 'flow names the governed signed Gate surface');
+  const contractText = JSON.stringify(flowContract);
+  for (const term of ['stale-fence', 'unverifiable-fence', 'produces', 'proves', 'depends-on', 'showing 96 of']) {
+    assert.ok(contractText.includes(term), `flow contract names the truth term: ${term}`);
+  }
+  assert.ok(!contractText.includes('evidenceRefs'), 'flow contract never exposes raw evidenceRefs');
+});
+
+// ── flow derivation + rendering ─────────────────────────────────────────────
+
+test('flow renders Task, Run, and Receipt columns with visible directional paths', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  assert.match(html, /data-component="FabricFlow"/, 'flow scene component marker');
+  assert.match(html, /data-of-flow-column="task"/, 'task column renders');
+  assert.match(html, /data-of-flow-column="run"/, 'run column renders');
+  assert.match(html, /data-of-flow-column="receipt"/, 'receipt column renders');
+  const header = html.slice(0, html.indexOf('</tr>') + 5);
+  assert.ok(
+    header.indexOf('data-of-flow-column="task"') < header.indexOf('data-of-flow-column="run"') &&
+    header.indexOf('data-of-flow-column="run"') < header.indexOf('data-of-flow-column="receipt"'),
+    'columns render in canonical task → run → receipt order',
+  );
+  assert.match(html, /data-of-path="task-run"/, 'visible task to run directional path');
+  assert.match(html, /data-of-path="run-receipt"/, 'visible run to receipt directional path');
+  assert.match(html, /aria-hidden="true"[^>]*data-of-path="task-run"/, 'visual direction markup is aria-hidden');
+  assert.match(html, /aria-hidden="true"[^>]*data-of-path="run-receipt"/, 'visual run-to-receipt markup is aria-hidden');
+  assert.match(html, /data-of-flow-row="fx-flow-task-alpha"/, 'accepted chain task row renders');
+  assert.match(html, /fx-flow-run-alpha/, 'accepted run id renders');
+  assert.match(html, /fx-flow-receipt-alpha/, 'accepted receipt id renders');
+  assert.ok(!/force|simulation/i.test(html), 'no force simulation vocabulary');
+});
+
+test('flow keeps depends-on edges and blocked task state as separate facts', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  const betaRow = html.match(/<tr data-of-flow-row="fx-flow-task-beta"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(betaRow.length > 0, 'blocked task row renders');
+  assert.match(betaRow, /data-of-dependency="fx-flow-task-alpha"/, 'depends-on edge renders as its own fact');
+  assert.match(betaRow, /<dd>blocked<\/dd>/, 'blocked state renders as its own fact');
+  const dependencyFact = betaRow.match(/<div class="of-fact" data-of-dependency="fx-flow-task-alpha">[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.ok(dependencyFact.length > 0, 'dependency fact block renders');
+  assert.ok(!/<dd>blocked<\/dd>/.test(dependencyFact), 'dependency fact never masquerades as the blocked state');
+  const deltaRow = html.match(/<tr data-of-flow-row="fx-flow-task-delta"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(deltaRow.length > 0, 'run-bearing task row renders');
+  assert.ok(!/data-of-dependency=/.test(deltaRow), 'task without dependencies renders no dependency fact');
+});
+
+test('flow renders accepted runs as nodes and typed stale or unverifiable fences as gaps only', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  assert.match(html, /data-of-fact="run:fx-flow-run-alpha"/, 'accepted run renders as a fact node');
+  assert.match(html, /data-of-gap-kind="stale-fence"/, 'stale fence renders as a typed gap');
+  assert.match(html, /data-of-gap-kind="unverifiable-fence"/, 'unverifiable fence renders as a typed gap');
+  assert.ok(!html.includes('data-of-fact="run:fx-flow-run-stale"'), 'rejected stale run never becomes a run node');
+  assert.ok(!html.includes('data-of-fact="run:fx-flow-run-unverifiable"'), 'unverifiable run never becomes a run node');
+  assert.match(html, /fx-flow-run-stale/, 'stale gap keeps its run subject');
+  assert.match(html, /fx-flow-run-unverifiable/, 'unverifiable gap keeps its run subject');
+  const epsilonRow = html.match(/<tr data-of-flow-row="fx-flow-task-epsilon"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(epsilonRow.length > 0, 'fence-rejected task row still renders');
+  assert.ok(!/data-of-fact="run:/.test(epsilonRow), 'fence-rejected task carries no run fact');
+  assert.match(epsilonRow, /run not present in projection/, 'fence-rejected task renders the honest missing-run label');
+  assert.ok(!epsilonRow.includes('data-of-gap-kind="stale-fence"'), 'a gap naming only the rejected run never guesses the epsilon row');
+  const epsilonRowWithoutGaps = epsilonRow.replace(/<div class="of-gap"[\s\S]*?<\/div>/g, '');
+  assert.ok(!/current fence|fence \d+/i.test(epsilonRowWithoutGaps.replace(/stale-fence/g, '')), 'no current or invented fence value renders outside the typed gap');
+  const graphSection = html.match(/<table class="of-flow-graph"[\s\S]*?<\/table>/)?.[0] ?? '';
+  const listSection = html.match(/<ol class="of-flow-list"[\s\S]*?<\/ol>/)?.[0] ?? '';
+  assert.match(graphSection, /data-of-flow-unscoped-gaps="true"/, 'unmappable typed gaps render in the honest unscoped graph section');
+  assert.match(listSection, /data-of-flow-unscoped-gaps="true"/, 'unmappable typed gaps render in the honest unscoped list section');
+  const betaFenceRow = html.match(/<tr data-of-flow-row="fx-flow-task-beta"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(betaFenceRow.length > 0, 'unverifiable-fence task row still renders');
+  assert.ok(!/data-of-fact="run:/.test(betaFenceRow), 'unverifiable-fence task carries no run fact');
+  assert.match(betaFenceRow, /data-of-gap-kind="unverifiable-fence"/, 'unverifiable-fence task preserves its typed source gap');
+});
+
+test('flow shows executor identity from canonical run and agent relationships only', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  const alphaRow = html.match(/<tr data-of-flow-row="fx-flow-task-alpha"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(alphaRow, /data-of-executor="fx-flow-agent-a"/, 'executor renders from the canonical executes relationship');
+  const deltaRow = html.match(/<tr data-of-flow-row="fx-flow-task-delta"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(deltaRow, /data-of-executor="fx-flow-agent-b"/, 'second executor renders from its canonical run');
+  const noAgentProjection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-task-orphan'),
+      makeFlowRun('fx-run-orphan', 'fx-task-orphan', { agentId: 'fx-agent-absent' }),
+    ],
+    edges: [],
+    gaps: [],
+  });
+  const orphanHtml = renderFlow(noAgentProjection);
+  const orphanRow = orphanHtml.match(/<tr data-of-flow-row="fx-task-orphan"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(orphanRow.length > 0, 'run with unresolvable executor still renders its row');
+  assert.match(orphanRow, /executor not present in projection/, 'unresolvable executor renders the honest label');
+  assert.ok(!orphanRow.includes('fx-agent-absent'), 'unverifiable executor identity never renders');
+});
+
+test('flow shows proof through canonical produces and proves edges with bounded receipt ids and status only', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  const alphaRow = html.match(/<tr data-of-flow-row="fx-flow-task-alpha"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(alphaRow, /data-of-proof="produces · proves"/, 'canonical produces and proves edges render as proof');
+  assert.match(alphaRow, /data-of-fact="receipt:fx-flow-receipt-alpha"/, 'canonical receipt fact renders');
+  assert.match(alphaRow, /<dd>complete<\/dd>/, 'receipt status renders');
+  assert.ok(!alphaRow.includes('evidenceRefs'), 'raw evidenceRefs never render');
+  assert.ok(!/[0-9a-f]{64}/.test(alphaRow), 'raw digests never render in flow rows');
+  const reversed = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-task-rev'),
+      makeFlowRun('fx-run-rev', 'fx-task-rev'),
+      makeFlowReceipt('fx-receipt-rev', 'fx-run-rev', 'fx-task-rev'),
+    ],
+    edges: [{ kind: 'proves', fromId: 'fx-task-rev', toId: 'fx-receipt-rev' }],
+    gaps: [],
+  });
+  const reversedHtml = renderFlow(reversed);
+  const reversedRow = reversedHtml.match(/<tr data-of-flow-row="fx-task-rev"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(!/data-of-proof=/.test(reversedRow), 'a reversed task-to-receipt edge never counts as proof');
+  assert.match(reversedRow, /proof not present in projection/, 'reversed-edge task renders the honest missing-proof label');
+  const hostileReceipt = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-task-h'),
+      makeFlowRun('fx-run-h', 'fx-task-h'),
+      makeFlowReceipt('fx-receipt-hostile', 'fx-run-h', 'fx-task-h', {
+        evidenceRefs: ['s3://private-bucket/raw-evidence.jsonl'],
+        inputDigest: `sha256:${'b'.repeat(64)}`,
+        outputDigest: `sha256:${'c'.repeat(64)}`,
+      }),
+    ],
+    edges: [
+      { kind: 'produces', fromId: 'fx-run-h', toId: 'fx-receipt-hostile' },
+      { kind: 'proves', fromId: 'fx-receipt-hostile', toId: 'fx-task-h' },
+    ],
+    gaps: [],
+  });
+  const hostileHtml = renderFlow(hostileReceipt);
+  assert.ok(!hostileHtml.includes('s3://private-bucket'), 'raw evidence refs never render');
+  assert.ok(!hostileHtml.includes('b'.repeat(64)), 'raw input digests never render');
+  assert.ok(!hostileHtml.includes('c'.repeat(64)), 'raw output digests never render');
+  // Hostile secret-bearing receipt fields are stripped, but the genuine
+  // produces+proves edges still render the exact joined proof kinds — the
+  // same proof semantics as the accepted full-chain case.
+  assert.match(hostileHtml, /data-of-proof="produces · proves"/, 'canonical produces and proves edges render as proof');
+});
+
+test('flow renders explicit missing-run and missing-receipt labels without inventing causes', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  const gammaRow = html.match(/<tr data-of-flow-row="fx-flow-task-gamma"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(gammaRow.length > 0, 'run-less task row renders');
+  assert.match(gammaRow, /run not present in projection/, 'run-less task renders the explicit missing-run label');
+  assert.match(gammaRow, /receipt not present in projection/, 'run-less task never invents a receipt');
+  const deltaRow = html.match(/<tr data-of-flow-row="fx-flow-task-delta"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(deltaRow, /data-of-fact="run:fx-flow-run-delta"/, 'receipt-less run still renders');
+  assert.match(deltaRow, /receipt not present in projection/, 'accepted run without canonical receipt renders the explicit label');
+  assert.ok(!/scheduled|queued up|awaiting|pending/i.test(gammaRow), 'no invented cause for a missing run');
+  assert.ok(!/lost|dropped|failed to write/i.test(deltaRow), 'no invented cause for a missing receipt');
+});
+
+test('flow filters by explicit workId, agentId, and state — never title matching', () => {
+  const betaOnly = renderFlow(FLOW_PROJECTION, { state: 'blocked' });
+  assert.match(betaOnly, /data-of-flow-row="fx-flow-task-beta"/, 'blocked filter keeps the blocked task');
+  assert.ok(!betaOnly.includes('data-of-flow-row="fx-flow-task-alpha"'), 'blocked filter drops non-blocked tasks');
+  assert.ok(!betaOnly.includes('data-of-flow-row="fx-flow-task-gamma"'), 'blocked filter drops ready tasks');
+  const agentA = renderFlow(FLOW_PROJECTION, { agentId: 'fx-flow-agent-a' });
+  assert.match(agentA, /data-of-flow-row="fx-flow-task-alpha"/, 'agentId filter keeps executor tasks');
+  assert.match(agentA, /data-of-flow-row="fx-flow-task-gamma"/, 'agentId filter keeps explicitly assigned tasks');
+  assert.ok(!agentA.includes('data-of-flow-row="fx-flow-task-delta"'), 'agentId filter drops other executors');
+  assert.ok(!agentA.includes('data-of-flow-row="fx-flow-task-epsilon"'), 'agentId filter drops unassigned tasks');
+  const workFiltered = renderFlow(FLOW_PROJECTION, { workId: 'fx-flow-work-001' });
+  assert.match(workFiltered, /data-of-flow-row="fx-flow-task-alpha"/, 'workId filter keeps tasks inside the work');
+  const otherWork = renderFlow(FLOW_PROJECTION, { workId: 'fx-flow-work-absent' });
+  assert.ok(!otherWork.includes('data-of-flow-row='), 'absent workId renders no rows');
+  assert.match(otherWork, /data-of-flow-unscoped-gaps="true"/, 'absent workId honestly preserves the genuinely unmappable typed-gap section');
+  const noMatch = renderFlow(FLOW_PROJECTION, { agentId: 'fx-flow-agent-absent' });
+  assert.ok(!noMatch.includes('data-of-flow-row='), 'unmatched agentId renders no rows');
+  assert.match(noMatch, /data-of-flow-unscoped-gaps="true"/, 'unmatched agentId honestly preserves the unmappable typed-gap section');
+  const titleProbe = renderFlow(FLOW_PROJECTION, { workId: 'Reliability Program' });
+  assert.ok(!titleProbe.includes('data-of-flow-row='), 'title text never matches as a filter');
+  const combined = renderFlow(FLOW_PROJECTION, { agentId: 'fx-flow-agent-a', state: 'blocked' });
+  assert.ok(!combined.includes('data-of-flow-row='), 'combined filters intersect');
+  const hostileFilter = renderFlow(FLOW_PROJECTION, { agentId: 'fx-flow-agent-a query_id=AAE7' });
+  assert.match(hostileFilter, /of-state-empty/, 'secret-bearing filter input matches nothing');
+  assert.ok(!hostileFilter.includes('query_id='), 'secret-bearing filter input never echoes');
+  const hostileIdProjection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-task-clean'),
+      makeFlowAgent('agent query_id=AAE7'),
+      makeFlowAgent('agent Bearer eyJ'),
+      makeFlowTask('fx-task-clean-2'),
+    ],
+    edges: [
+      { kind: 'assigned-to', fromId: 'fx-task-clean', toId: 'agent query_id=AAE7' },
+      { kind: 'assigned-to', fromId: 'fx-task-clean-2', toId: 'agent Bearer eyJ' },
+    ],
+    gaps: [],
+  });
+  const hostileAgentHtml = renderFlow(hostileIdProjection, { agentId: 'agent query_id=AAE7' });
+  assert.ok(!hostileAgentHtml.includes('query_id='), 'hostile agent ids never echo through filter paths');
+  assert.ok(!hostileAgentHtml.includes('Bearer eyJ'), 'other hostile agent ids never leak through filter output');
+});
+
+test('flow bounds combined Task, Run, and Receipt fact nodes at 96 with deterministic order and exact truncation copy', () => {
+  assert.equal(FLOW_FACT_LIMIT, 96, 'flow fact limit constant is 96');
+  const nodes: FabricNode[] = [];
+  const edges: Array<{ kind: 'produces'; fromId: string; toId: string }> = [];
+  for (let index = 0; index < 40; index += 1) {
+    const taskId = `fx-bound-task-${String(index).padStart(3, '0')}`;
+    const runId = `fx-bound-run-${String(index).padStart(3, '0')}`;
+    const receiptId = `fx-bound-receipt-${String(index).padStart(3, '0')}`;
+    nodes.push(makeFlowTask(taskId));
+    nodes.push(makeFlowRun(runId, taskId));
+    nodes.push(makeFlowReceipt(receiptId, runId, taskId));
+    edges.push({ kind: 'produces', fromId: runId, toId: receiptId });
+  }
+  const projection = makeFlowProjection({ nodes, edges, gaps: [] });
+  const html = renderFlow(projection);
+  const totalFacts = 40 * 3;
+  assert.ok(html.includes(`showing 96 of ${totalFacts}`), `exact truncation copy renders: showing 96 of ${totalFacts}`);
+  const graphIds = flowGraphFactIds(html);
+  const listIds = flowListFactIds(html);
+  assert.equal(new Set(graphIds).size, FLOW_FACT_LIMIT, 'graph shows exactly 96 unique facts');
+  assert.equal(new Set(listIds).size, FLOW_FACT_LIMIT, 'linear list shows exactly 96 unique facts');
+  const tasksVisible = graphIds.filter((id) => id.startsWith('task:'));
+  const runsVisible = graphIds.filter((id) => id.startsWith('run:'));
+  const receiptsVisible = graphIds.filter((id) => id.startsWith('receipt:'));
+  assert.equal(tasksVisible.length, 40, 'all 40 tasks survive the column-first bound');
+  assert.equal(runsVisible.length, 40, 'all 40 runs survive the column-first bound');
+  assert.equal(receiptsVisible.length, 16, 'receipts truncate to the 96 bound');
+  const sortedReceipts = [...receiptsVisible].sort();
+  assert.deepEqual(receiptsVisible, sortedReceipts, 'visible receipts keep canonical ID order');
+  const sortedTasks = [...tasksVisible].sort();
+  assert.deepEqual(tasksVisible, sortedTasks, 'visible tasks keep canonical ID order');
+  assert.equal(html.match(/data-of-flow-row=/g)?.length ?? 0, 40, 'every visible task keeps its row');
+  const taskRowForLastReceipt = html.match(/<tr data-of-flow-row="fx-bound-task-015"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(taskRowForLastReceipt, /data-of-fact="receipt:fx-bound-receipt-015"/, 'the last visible receipt stays on its row');
+  const truncatedRow = html.match(/<tr data-of-flow-row="fx-bound-task-016"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(truncatedRow, /receipt not present in projection/, 'rows beyond the bound never fabricate receipt truth');
+  assert.ok(!truncatedRow.includes('fx-bound-receipt-016'), 'truncated receipts never render');
+  const shuffled = [...nodes].reverse();
+  const htmlShuffled = renderFlow(makeFlowProjection({ nodes: shuffled, edges, gaps: [] }));
+  assert.deepEqual(flowGraphFactIds(htmlShuffled), graphIds, 'input order never changes the bounded fact set');
+});
+
+test('flow graph and linear fallback expose the exact same unique fact-ID set under permuted duplicate hostile input', () => {
+  // The visual graph is the aria-hidden duplicate; the semantic list is the
+  // accessible truth. Parity is asserted on the unique fact-ID set only —
+  // the list additionally carries the complete readable truth.
+  const nodes: FabricNode[] = [
+    makeFlowTask('fx-parity-task-b'),
+    makeFlowTask('fx-parity-task-a'),
+    makeFlowTask('fx-parity-task-a'),
+    makeFlowRun('fx-parity-run-a', 'fx-parity-task-a'),
+    makeFlowRun('fx-parity-run-a', 'fx-parity-task-a'),
+    makeFlowReceipt('fx-parity-receipt-a', 'fx-parity-run-a', 'fx-parity-task-a'),
+    makeFlowAgent('fx-parity-agent-a'),
+  ];
+  const edges = [
+    { kind: 'executes', fromId: 'fx-parity-agent-a', toId: 'fx-parity-run-a' },
+    { kind: 'produces', fromId: 'fx-parity-run-a', toId: 'fx-parity-receipt-a' },
+    { kind: 'proves', fromId: 'fx-parity-receipt-a', toId: 'fx-parity-task-a' },
+  ] as MissionFabricProjectionV1['edges'];
+  const projection = makeFlowProjection({ nodes, edges, gaps: [] });
+  const html = renderFlow(projection);
+  const graphIds = flowGraphFactIds(html);
+  const listIds = flowListFactIds(html);
+  assert.deepEqual(new Set(graphIds), new Set(listIds), 'graph and list expose the exact same unique fact-ID set');
+  assert.equal(graphIds.length, new Set(graphIds).size, 'graph fact IDs are unique');
+  assert.equal(listIds.length, new Set(listIds).size, 'linear list fact IDs are unique');
+  const graphRows = html.match(/<table class="of-flow-graph"[^>]*>([\s\S]*?)<\/table>/)?.[1] ?? '';
+  const pathMarkup = [...graphRows.matchAll(/data-of-path="[^"]+"/g)];
+  assert.ok(pathMarkup.length >= 2, 'visual direction markup renders');
+  for (const match of pathMarkup) {
+    const tag = html.slice(Math.max(0, (html.indexOf(match[0]) - 200)), html.indexOf(match[0]) + match[0].length);
+    assert.match(tag, /aria-hidden="true"/, 'visual direction markup is aria-hidden');
+  }
+  const listMarkup = html.match(/<ol class="of-flow-list"[^>]*>([\s\S]*?)<\/ol>/)?.[0] ?? '';
+  assert.ok(!/aria-hidden="true"/.test(listMarkup), 'linear facts remain semantic');
+  for (const permutation of [[...nodes].reverse(), [nodes[2]!, nodes[0]!, nodes[4]!, nodes[1]!, nodes[3]!, nodes[5]!, nodes[6]!]]) {
+    const permutedHtml = renderFlow(makeFlowProjection({ nodes: permutation, edges, gaps: [] }));
+    assert.deepEqual(flowGraphFactIds(permutedHtml), graphIds, 'permuted input never changes graph fact IDs');
+    assert.deepEqual(flowListFactIds(permutedHtml), listIds, 'permuted input never changes list fact IDs');
+  }
+  assert.match(html, /flow: task fx-parity-task-a · run fx-parity-run-a · receipt fx-parity-receipt-a/, 'linear fallback carries readable direction text');
+  assert.match(html, /data-of-flow-row="fx-parity-task-b"/, 'run-less task stays in the parity set');
+});
+
+test('flow survives prototype-shaped ids and hostile text or attributes', () => {
+  const hostileNodes: FabricNode[] = [
+    makeFlowTask('__proto__'),
+    makeFlowTask('constructor'),
+    makeFlowTask('fx-task- Hostile<script>alert(1)</script>'),
+    makeFlowRun('prototype', '__proto__'),
+    makeFlowRun('fx-run- Hostile onmouseover=alert(1)', 'constructor'),
+    makeFlowReceipt('fx-receipt- Hostile"><svg onload=alert(1)>', 'prototype', '__proto__'),
+    makeFlowAgent('hasOwnProperty'),
+  ];
+  const hostileEdges = [
+    { kind: 'executes', fromId: 'hasOwnProperty', toId: 'prototype' },
+    { kind: 'produces', fromId: 'prototype', toId: 'fx-receipt- Hostile"><svg onload=alert(1)>' },
+    { kind: 'proves', fromId: 'fx-receipt- Hostile"><svg onload=alert(1)>', toId: '__proto__' },
+  ] as MissionFabricProjectionV1['edges'];
+  const projection = makeFlowProjection({ nodes: hostileNodes, edges: hostileEdges, gaps: [] });
+  const html = renderFlow(projection);
+  assert.match(html, /data-of-flow-row="__proto__"/, 'prototype-shaped task id renders as its own row');
+  assert.match(html, /data-of-flow-row="constructor"/, 'constructor-shaped task id renders as its own row');
+  assert.match(html, /data-of-executor="hasOwnProperty"/, 'prototype-shaped executor id renders');
+  assert.ok(!html.includes('<script>alert(1)</script>'), 'hostile markup never injects');
+  assert.ok(!html.includes('onload=alert(1)>'), 'hostile attribute payloads never inject');
+  assert.ok(html.includes('&lt;script&gt;'), 'hostile text stays escaped and legible');
+  const protoRow = html.match(/<tr data-of-flow-row="__proto__"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(protoRow, /data-of-fact="run:prototype"/, 'prototype-shaped run id resolves on the correct row');
+  assert.match(protoRow, /data-of-proof="produces · proves"/, 'prototype-shaped receipt proof resolves');
+  const constructorRow = html.match(/<tr data-of-flow-row="constructor"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(!/data-of-fact="receipt:/.test(constructorRow), 'constructor row never inherits prototype truth');
+  assert.match(constructorRow, /receipt not present in projection/, 'constructor row renders the honest missing-receipt label');
+  const hostileSecret = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-task-secret', { desiredState: 'verified token=zz99' }),
+      makeFlowRun('fx-run-secret', 'fx-task-secret', { status: 'failed' }),
+      makeFlowAgent('fx-agent-secret', { role: 'executor initData' }),
+    ],
+    edges: [{ kind: 'executes', fromId: 'fx-agent-secret', toId: 'fx-run-secret' }],
+    gaps: [
+      { gapId: 'fx-gap-secret', kind: 'stale-fence', subjectId: 'fx-run-secret', detail: 'run rejected hash=abc123', evidenceRef: null },
+    ],
+  });
+  const secretHtml = renderFlow(hostileSecret);
+  assert.ok(!secretHtml.includes('token=zz99'), 'secret-bearing desired state never renders');
+  assert.ok(!secretHtml.includes('hash=abc123'), 'secret-bearing gap detail never renders');
+  assert.match(secretHtml, /data-of-gap-kind="stale-fence"/, 'typed gap kind still renders with redacted detail');
+});
+
+test('flow keeps Node and browser parity across the synthetic fixture states', () => {
+  for (const state of ['normal', 'stale', 'empty']) {
+    const source = flowFixture.states[state].source;
+    const projection = buildMissionFabricProjection(source, {
+      tenantId: source.tenantId,
+      clock: { now: () => '2026-07-28T09:00:00.000Z' },
+    });
+    const nodeHtml = renderFlow(projection);
+    const context = vm.createContext({
+      ofRenderFlow: undefined as unknown,
+      moduleSource: undefined as unknown,
+    });
+    vm.runInContext(
+      `var ofEsc = function (value) { return String(value == null ? '' : value).replace(/[&<>"]/g, function (char) { return char === '&' ? '&amp;' : char === '<' ? '&lt;' : char === '>' ? '&gt;' : '&quot;'; }); };
+function ofValidProjection(projection) {
+  return Boolean(
+    projection &&
+    typeof projection === 'object' &&
+    projection.schema === 'cambium.mission-fabric-projection.v1' &&
+    Array.isArray(projection.nodes) &&
+    Array.isArray(projection.edges)
+  );
+}
+function ofRenderState(state, title, detail) {
+  return '<div class="of-state of-state-' + state + '" data-component="FabricState" data-state="' + state + '" role="status" aria-label="' + ofEsc(title) + ': ' + ofEsc(detail) + '">' +
+    '<strong class="of-state-title">' + ofEsc(title) + '</strong>' +
+    '<p class="of-state-detail">' + ofEsc(detail) + '</p>' +
+    '</div>';
+}
+var OF_SECRET_MARKER = /(?:query_id|auth_date|token)=|(?:^|\\W)(?:hash)=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection/i;
+function ofSafeText(value, fallback, max) { var limit = typeof max === 'number' ? max : 120; var text = typeof value === 'string' ? value.trim() : ''; if (text.length === 0 || OF_SECRET_MARKER.test(text)) return fallback; return text.length > limit ? text.slice(0, limit - 1) + '…' : text; }
+function ofSafeId(value, fallback) { return ofSafeText(value, fallback, 64); }
+function ofRenderGap(gap) {
+  var kind = ofSafeText(gap && gap.kind, 'unknown gap');
+  var subject = gap && gap.subjectId ? ofSafeText(gap.subjectId, 'unknown subject') : 'unscoped';
+  var detail = ofSafeText(gap && gap.detail, 'no detail available');
+  return '<div class="of-gap" data-component="FabricGap" data-gap-kind="' + ofEsc(kind) + '" role="status" aria-label="gap: ' + ofEsc(kind) + ' on ' + ofEsc(subject) + '">' +
+    '<span class="of-gap-kind">' + ofEsc(kind) + '</span>' +
+    '<span class="of-gap-subject">' + ofEsc(subject) + '</span>' +
+    '<p class="of-gap-detail">' + ofEsc(detail) + '</p>' +
+    '</div>';
+}
+` + FLOW_BROWSER_JS,
+      context,
+    );
+    const browserRender = (context as { ofRenderFlow?: (p: unknown) => string }).ofRenderFlow;
+    assert.equal(typeof browserRender, 'function', `browser flow renderer evaluates for state ${state}`);
+    const browserHtml = browserRender!(JSON.parse(JSON.stringify(projection)));
+    assert.deepEqual(
+      flowGraphFactIds(browserHtml),
+      flowGraphFactIds(nodeHtml),
+      `browser graph fact IDs match Node for state ${state}`,
+    );
+    assert.deepEqual(
+      flowListFactIds(browserHtml),
+      flowListFactIds(nodeHtml),
+      `browser list fact IDs match Node for state ${state}`,
+    );
+    for (const label of ['run not present in projection', 'receipt not present in projection']) {
+      assert.equal(
+        browserHtml.includes(label),
+        nodeHtml.includes(label),
+        `missing-label parity holds for ${label} in state ${state}`,
+      );
+    }
+    assert.equal(
+      browserHtml.includes('showing 96 of'),
+      nodeHtml.includes('showing 96 of'),
+      `truncation copy parity holds for state ${state}`,
+    );
+    assert.equal(
+      (browserHtml.match(/data-of-gap-kind="stale-fence"/g) ?? []).length,
+      (nodeHtml.match(/data-of-gap-kind="stale-fence"/g) ?? []).length,
+      `typed stale-fence gap count parity holds for state ${state}`,
+    );
+  }
+});
+
+// ── flow corrective regressions (controller reproductions) ──────────────────
+// Every test below pins a controller-reproduced failure as honest corrected
+// behavior: the 96 bound after filters, aria-hidden visual markup plus
+// complete accessible truth, per-run executors, exact-edge proof, exact-ID
+// gap scoping with an unscoped section, fail-closed secret IDs in every
+// attribute path, once-only escaping, and full Node/browser parity.
+
+const FLOW_PARITY_HELPERS_JS = `var ofEsc = function (value) { return String(value == null ? '' : value).replace(/[&<>"]/g, function (char) { return char === '&' ? '&amp;' : char === '<' ? '&lt;' : char === '>' ? '&gt;' : '&quot;'; }); };
+function ofValidProjection(projection) {
+  return Boolean(
+    projection &&
+    typeof projection === 'object' &&
+    projection.schema === 'cambium.mission-fabric-projection.v1' &&
+    Array.isArray(projection.nodes) &&
+    Array.isArray(projection.edges)
+  );
+}
+function ofRenderState(state, title, detail) {
+  return '<div class="of-state of-state-' + state + '" data-component="FabricState" data-state="' + state + '" role="status" aria-label="' + ofEsc(title) + ': ' + ofEsc(detail) + '">' +
+    '<strong class="of-state-title">' + ofEsc(title) + '</strong>' +
+    '<p class="of-state-detail">' + ofEsc(detail) + '</p>' +
+    '</div>';
+}
+var OF_SECRET_MARKER = /(?:query_id|auth_date|token)=|(?:^|\\W)(?:hash)=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection/i;
+function ofSafeText(value, fallback, max) { var limit = typeof max === 'number' ? max : 120; var text = typeof value === 'string' ? value.trim() : ''; if (text.length === 0 || OF_SECRET_MARKER.test(text)) return fallback; return text.length > limit ? text.slice(0, limit - 1) + '…' : text; }
+function ofSafeId(value, fallback) { return ofSafeText(value, fallback, 64); }
+`;
+
+function renderFlowBrowser(projection: MissionFabricProjectionV1, filters: { workId?: string; agentId?: string; state?: string } = {}): string {
+  const context = vm.createContext({ ofRenderFlow: undefined as unknown });
+  vm.runInContext(FLOW_PARITY_HELPERS_JS + FLOW_BROWSER_JS, context);
+  const renderer = (context as { ofRenderFlow?: (p: unknown, f?: unknown) => string }).ofRenderFlow;
+  assert.equal(typeof renderer, 'function', 'browser flow renderer evaluates');
+  return renderer!(JSON.parse(JSON.stringify(projection)), JSON.parse(JSON.stringify(filters)));
+}
+
+test('flow caps the combined fact set at 96 including the task column, with truncation copy from the filtered view', () => {
+  const nodes: FabricNode[] = [];
+  for (let index = 0; index < 97; index += 1) {
+    nodes.push(makeFlowTask(`fx-cap-task-${String(index).padStart(3, '0')}`));
+  }
+  const projection = makeFlowProjection({ nodes, edges: [], gaps: [] });
+  const html = renderFlow(projection);
+  const graphIds = new Set(flowGraphFactIds(html));
+  const listIds = new Set(flowListFactIds(html));
+  assert.equal(graphIds.size, FLOW_FACT_LIMIT, '97 tasks never expose 97 unique graph facts');
+  assert.equal(listIds.size, FLOW_FACT_LIMIT, '97 tasks never expose 97 unique list facts');
+  assert.ok(html.includes('showing 96 of 97'), 'exact truncation copy renders: showing 96 of 97');
+  assert.ok(!graphIds.has('task:fx-cap-task-096'), 'the task fact beyond the bound never renders');
+  assert.ok(!html.includes('data-of-flow-row="fx-cap-task-096"'), 'a row whose task fact is beyond the bound never renders');
+  assert.equal(html.match(/data-of-flow-row=/g)?.length ?? 0, FLOW_FACT_LIMIT, 'only bounded rows render');
+
+  // A filtered one-row view must describe the filtered view, never the
+  // unfiltered pool: 120 unrelated tasks exist, one is blocked.
+  const manyNodes: FabricNode[] = [];
+  for (let index = 0; index < 120; index += 1) {
+    manyNodes.push(makeFlowTask(`fx-pool-task-${String(index).padStart(3, '0')}`));
+  }
+  manyNodes.push(makeFlowTask('fx-pool-task-late', { status: 'blocked' }));
+  const pool = makeFlowProjection({ nodes: manyNodes, edges: [], gaps: [] });
+  const filtered = renderFlow(pool, { state: 'blocked' });
+  assert.ok(!filtered.includes('showing 96 of'), 'a one-row filtered view never claims truncation from unrelated rows');
+  assert.match(filtered, /data-of-flow-row="fx-pool-task-late"/, 'the filtered late row renders');
+  assert.equal(new Set(flowGraphFactIds(filtered)).size, 1, 'the filtered view exposes exactly one fact');
+  // The same late row also survives the bound in the unfiltered view: the
+  // bound is column+canonical-ID over the selected view, never input order.
+  const unfiltered = renderFlow(pool);
+  assert.equal(new Set(flowGraphFactIds(unfiltered)).size, FLOW_FACT_LIMIT, 'the unfiltered 121-task view caps at 96');
+  assert.ok(unfiltered.includes('showing 96 of 121'), 'unfiltered truncation copy counts the selected view only');
+});
+
+test('flow visual graph is aria-hidden and produces valid three-column markup', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  assert.match(html, /<table class="of-flow-graph"[^>]*aria-hidden="true"/, 'the visual graph duplicate is aria-hidden');
+  const graphMatch = html.match(/<table class="of-flow-graph"[^>]*>([\s\S]*?)<\/table>/);
+  assert.ok(graphMatch, 'graph renders');
+  const graph = graphMatch![1]!;
+  const headerCells = graphMatch![0]!.match(/<th[^>]*data-of-flow-column=/g) ?? [];
+  assert.equal(headerCells.length, 3, 'the header declares exactly three columns');
+  const tbody = graph.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] ?? '';
+  assert.ok(tbody.length > 0, 'tbody renders');
+  const rows = [...tbody.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)].map((match) => match[1]!);
+  assert.ok(rows.length > 0, 'body rows render');
+  for (const row of rows) {
+    const stripped = row
+      .replace(/<td[\s\S]*?<\/td>/g, '')
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .trim();
+    assert.equal(stripped, '', 'no span siblings render directly under tr');
+    if (row.includes('colspan="3"')) continue;
+    const cellCount = (row.match(/<td[^>]*data-of-flow-cell=/g) ?? []).length;
+    assert.ok(cellCount <= 3, 'no optional fourth td renders against the three-column header');
+    assert.ok(cellCount > 0, 'every row keeps its cells');
+  }
+  // Typed gaps join the receipt cell against the three-column header, and
+  // direction stays visible through static path markup inside cells.
+  const epsilonProjection = makeFlowProjection({
+    nodes: [makeFlowTask('fx-gap-row-task')],
+    edges: [],
+    gaps: [{ gapId: 'fx-gap-row', kind: 'stale-fence', subjectId: 'fx-gap-row-task', detail: 'rejected run fence', evidenceRef: null }],
+  });
+  const gapHtml = renderFlow(epsilonProjection);
+  const gapRow = gapHtml.match(/<tr data-of-flow-row="fx-gap-row-task"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(gapRow, /data-of-gap-kind="stale-fence"/, 'typed gaps render inside the three-column row');
+  assert.match(html, /data-of-path="task-run"/, 'static visible direction markup renders without animation');
+});
+
+test('flow accessible linear fallback carries the complete readable truth and direction', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  const listMatch = html.match(/<ol class="of-flow-list"[^>]*>([\s\S]*?)<\/ol>/);
+  assert.ok(listMatch, 'linear fallback renders');
+  const list = listMatch![1]!;
+  const alphaItem = list.match(/<li[^>]*data-of-fact="task:fx-flow-task-alpha"[\s\S]*?<\/li>/)?.[0] ?? '';
+  assert.ok(alphaItem.length > 0, 'alpha list item renders');
+  assert.match(alphaItem, /data-of-run-status="complete"/, 'list carries per-run status');
+  assert.match(alphaItem, /data-of-executor="fx-flow-agent-a"/, 'list carries per-run executor');
+  assert.match(alphaItem, /data-of-receipt-status="complete"/, 'list carries per-receipt status');
+  assert.match(alphaItem, /data-of-proof="produces · proves"/, 'list carries per-receipt proof');
+  assert.match(alphaItem, /data-of-fact="run:fx-flow-run-alpha"/, 'list carries the run fact ID');
+  assert.match(alphaItem, /data-of-fact="receipt:fx-flow-receipt-alpha"/, 'list carries the receipt fact ID');
+  const betaItem = list.match(/<li[^>]*data-of-fact="task:fx-flow-task-beta"[\s\S]*?<\/li>/)?.[0] ?? '';
+  assert.ok(betaItem.length > 0, 'beta list item renders');
+  assert.match(betaItem, /data-of-task-status="blocked"/, 'list carries observed state');
+  assert.match(betaItem, /data-of-task-desired="blocked"/, 'list carries the canonical desired state');
+  const betaRow = html.match(/<tr data-of-flow-row="fx-flow-task-beta"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  const graphDesired = betaRow.match(/<dt>desired<\/dt><dd>([^<]+)<\/dd>/)?.[1] ?? '';
+  assert.ok(betaItem.includes(`data-of-task-desired="${graphDesired}"`), 'list desired state matches the graph desired fact');
+  assert.match(betaItem, /data-of-dependency="fx-flow-task-alpha"/, 'list carries dependencies');
+  assert.match(betaItem, /data-of-gap-kind="unverifiable-fence"/, 'list carries typed gaps');
+  const gammaItem = list.match(/<li[^>]*data-of-fact="task:fx-flow-task-gamma"[\s\S]*?<\/li>/)?.[0] ?? '';
+  assert.match(gammaItem, /run not present in projection/, 'list carries the honest missing-run label');
+  assert.match(gammaItem, /receipt not present in projection/, 'list carries the honest missing-receipt label');
+  assert.match(list, /flow: task fx-flow-task-alpha · run fx-flow-run-alpha · receipt fx-flow-receipt-alpha/, 'list keeps readable direction');
+  // Exact fact-ID parity is preserved between the aria-hidden graph and the
+  // semantic list.
+  assert.deepEqual(new Set(flowGraphFactIds(html)), new Set(flowListFactIds(html)), 'graph/list unique fact-ID parity holds');
+});
+
+test('flow resolves executor per run and the agentId filter honors canonical executes edges', () => {
+  const projection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-exec-task'),
+      makeFlowRun('fx-exec-run-1', 'fx-exec-task', { agentId: 'fx-exec-field-mismatch' }),
+      makeFlowRun('fx-exec-run-2', 'fx-exec-task'),
+      makeFlowAgent('fx-exec-agent-1'),
+      makeFlowAgent('fx-exec-agent-2'),
+    ],
+    edges: [
+      { kind: 'executes', fromId: 'fx-exec-agent-1', toId: 'fx-exec-run-1' },
+      { kind: 'executes', fromId: 'fx-exec-agent-2', toId: 'fx-exec-run-2' },
+    ],
+    gaps: [],
+  });
+  const html = renderFlow(projection);
+  const row = html.match(/<tr data-of-flow-row="fx-exec-task"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  const run1Block = row.match(/data-of-fact="run:fx-exec-run-1"[\s\S]*?(?=data-of-fact="run:|$)/)?.[0] ?? '';
+  const run2Block = row.match(/data-of-fact="run:fx-exec-run-2"[\s\S]*?(?=data-of-fact="run:|$)/)?.[0] ?? '';
+  assert.match(run1Block, /data-of-executor="fx-exec-agent-1"/, 'run 1 resolves its own executor');
+  assert.match(run2Block, /data-of-executor="fx-exec-agent-2"/, 'run 2 resolves its own executor, never the first');
+  const executors = [...row.matchAll(/data-of-executor="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(executors, ['fx-exec-agent-1', 'fx-exec-agent-2'], 'distinct runs never share the first executor');
+  // The agentId filter honors the canonical executes edge even when the
+  // run.agentId field disagrees, and honors assigned-to edges.
+  const edgeMatch = renderFlow(projection, { agentId: 'fx-exec-agent-1' });
+  assert.match(edgeMatch, /data-of-flow-row="fx-exec-task"/, 'canonical executes edge matches the agentId filter');
+  const fieldOnly = renderFlow(projection, { agentId: 'fx-exec-field-mismatch' });
+  assert.match(fieldOnly, /of-state-empty/, 'a bare run.agentId field without canonical edges never matches the filter');
+  const assignedToProjection = makeFlowProjection({
+    nodes: [makeFlowTask('fx-exec-task-b'), makeFlowAgent('fx-exec-agent-3')],
+    edges: [{ kind: 'assigned-to', fromId: 'fx-exec-task-b', toId: 'fx-exec-agent-3' }],
+    gaps: [],
+  });
+  const assignedMatch = renderFlow(assignedToProjection, { agentId: 'fx-exec-agent-3' });
+  assert.match(assignedMatch, /data-of-flow-row="fx-exec-task-b"/, 'canonical assigned-to edge matches the agentId filter');
+});
+
+test('flow grants proof chips only for exact canonical edges to the current row', () => {
+  const projection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-proof-task-a'),
+      makeFlowTask('fx-proof-task-b'),
+      makeFlowRun('fx-proof-run-a', 'fx-proof-task-a'),
+      makeFlowReceipt('fx-proof-receipt-a', 'fx-proof-run-a', 'fx-proof-task-a'),
+    ],
+    edges: [
+      { kind: 'produces', fromId: 'fx-proof-run-a', toId: 'fx-proof-receipt-a' },
+      { kind: 'proves', fromId: 'fx-proof-receipt-a', toId: 'fx-proof-task-b' },
+    ],
+    gaps: [],
+  });
+  const html = renderFlow(projection);
+  const rowA = html.match(/<tr data-of-flow-row="fx-proof-task-a"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  const rowB = html.match(/<tr data-of-flow-row="fx-proof-task-b"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(rowA.length > 0 && rowB.length > 0, 'both rows render');
+  assert.match(rowA, /data-of-proof="produces"/, 'task-a row grants produces for its exact run-to-receipt edge');
+  assert.ok(!rowA.includes('produces · proves'), 'a proves edge targeting another task grants nothing in task-a');
+  assert.ok(!/data-of-proof="[^"]*proves/.test(rowA), 'cross-task proves never renders in task-a');
+  assert.match(rowA, /data-of-fact="receipt:fx-proof-receipt-a"/, 'the bounded receipt fact stays visible on its run row');
+  assert.ok(!/data-of-proof=/.test(rowB), 'a proves edge contradicting the receipt canonical ownership grants nothing on task-b either');
+  // A bare receipt.runId makes the bounded fact visible but never grants proof.
+  const bareProjection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-proof-task-c'),
+      makeFlowRun('fx-proof-run-c', 'fx-proof-task-c'),
+      makeFlowReceipt('fx-proof-receipt-c', 'fx-proof-run-c', 'fx-proof-task-c'),
+    ],
+    edges: [],
+    gaps: [],
+  });
+  const bareHtml = renderFlow(bareProjection);
+  const bareRow = bareHtml.match(/<tr data-of-flow-row="fx-proof-task-c"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(bareRow, /data-of-fact="receipt:fx-proof-receipt-c"/, 'bare receipt.runId keeps the bounded receipt fact visible');
+  assert.ok(!/data-of-proof="(?:produces|proves)/.test(bareRow), 'bare receipt.runId never grants proof');
+  assert.match(bareRow, /proof not present in projection/, 'bare receipt.runId renders the honest missing-proof label');
+  // Noncanonical and reversed edges grant nothing.
+  const wrongEdges = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-proof-task-d'),
+      makeFlowRun('fx-proof-run-d', 'fx-proof-task-d'),
+      makeFlowReceipt('fx-proof-receipt-d', 'fx-proof-run-d', 'fx-proof-task-d'),
+    ],
+    edges: [
+      { kind: 'produces', fromId: 'fx-proof-receipt-d', toId: 'fx-proof-run-d' },
+      { kind: 'proves', fromId: 'fx-proof-task-d', toId: 'fx-proof-receipt-d' },
+      { kind: 'proves', fromId: 'fx-proof-receipt-d', toId: 'fx-proof-task-absent' },
+    ],
+    gaps: [],
+  });
+  const wrongHtml = renderFlow(wrongEdges);
+  const wrongRow = wrongHtml.match(/<tr data-of-flow-row="fx-proof-task-d"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(!/data-of-proof="(?:produces|proves)/.test(wrongRow), 'reversed and missing-target edges grant nothing');
+  assert.match(wrongRow, /proof not present in projection/, 'wrong-target proof renders the honest label');
+});
+
+test('flow attaches typed gaps by exact canonical IDs only and keeps unmappable gaps in an honest unscoped section', () => {
+  const projection = makeFlowProjection({
+    nodes: [makeFlowTask('a'), makeFlowTask('aa')],
+    edges: [],
+    gaps: [
+      { gapId: 'fx-gap-scoped', kind: 'stale-fence', subjectId: 'fx-gap-run-aa', detail: 'Rejected stale fence fx-gap-run-aa for aa', evidenceRef: null },
+      { gapId: 'fx-gap-exact', kind: 'unverifiable-fence', subjectId: 'a', detail: 'unverifiable fence on a', evidenceRef: null },
+    ],
+  });
+  const html = renderFlow(projection);
+  const rowA = html.match(/<tr data-of-flow-row="a"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  const rowAA = html.match(/<tr data-of-flow-row="aa"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(rowA, /data-of-gap-kind="unverifiable-fence"/, 'exact subjectId match attaches to its task row');
+  assert.ok(!rowA.includes('stale-fence'), 'substring detail text never attaches the aa gap to a');
+  assert.ok(!rowAA.includes('stale-fence'), 'a gap naming only a rejected run never guesses a task row');
+  // The unmappable typed gap survives honestly in an unscoped section in
+  // both representations — never dropped, never row-guessed.
+  const graphSection = html.match(/<table class="of-flow-graph"[\s\S]*?<\/table>/)?.[0] ?? '';
+  const listSection = html.match(/<ol class="of-flow-list"[\s\S]*?<\/ol>/)?.[0] ?? '';
+  assert.match(graphSection, /data-of-flow-unscoped-gaps="true"/, 'graph carries an unscoped typed-gap section');
+  assert.match(listSection, /data-of-flow-unscoped-gaps="true"/, 'list carries an unscoped typed-gap section');
+  assert.match(graphSection, /data-of-gap-kind="stale-fence"/, 'unscoped stale-fence gap renders in the graph');
+  assert.match(listSection, /data-of-gap-kind="stale-fence"/, 'unscoped stale-fence gap renders in the list');
+  assert.match(graphSection, /fx-gap-run-aa/, 'unscoped gap keeps its rejected-run subject honestly');
+  assert.ok(!graphSection.includes('current fence'), 'no invented current fence renders');
+  // Exact run-subject attachment still works when the run node exists.
+  const runScoped = makeFlowProjection({
+    nodes: [makeFlowTask('fx-gap-task-c'), makeFlowRun('fx-gap-run-c', 'fx-gap-task-c')],
+    edges: [],
+    gaps: [{ gapId: 'fx-gap-c', kind: 'stale-fence', subjectId: 'fx-gap-run-c', detail: 'rejected', evidenceRef: null }],
+  });
+  const runScopedHtml = renderFlow(runScoped);
+  const runScopedRow = runScopedHtml.match(/<tr data-of-flow-row="fx-gap-task-c"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.match(runScopedRow, /data-of-gap-kind="stale-fence"/, 'exact run-subject gaps attach to the run row');
+});
+
+test('flow fail-closes secret-bearing canonical IDs in every text and attribute path', () => {
+  const projection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-secret-task token=LEAK', { status: 'ready' }),
+      makeFlowTask('fx-secret-clean'),
+      makeFlowRun('fx-secret-run token=LEAK', 'fx-secret-task token=LEAK'),
+      makeFlowReceipt('fx-secret-receipt token=LEAK', 'fx-secret-run token=LEAK', 'fx-secret-task token=LEAK'),
+      makeFlowAgent('fx-secret-agent token=LEAK'),
+    ],
+    edges: [
+      { kind: 'executes', fromId: 'fx-secret-agent token=LEAK', toId: 'fx-secret-run token=LEAK' },
+      { kind: 'produces', fromId: 'fx-secret-run token=LEAK', toId: 'fx-secret-receipt token=LEAK' },
+      { kind: 'proves', fromId: 'fx-secret-receipt token=LEAK', toId: 'fx-secret-task token=LEAK' },
+      { kind: 'depends-on', fromId: 'fx-secret-task token=LEAK', toId: 'fx-secret-clean' },
+    ],
+    gaps: [
+      { gapId: 'fx-secret-gap', kind: 'stale-fence', subjectId: 'fx-secret-absent-run token=LEAK', detail: 'rejected token=LEAK fence', evidenceRef: null },
+    ],
+  });
+  const html = renderFlow(projection);
+  assert.ok(!html.includes('token=LEAK'), 'no secret-bearing ID survives anywhere in flow output');
+  assert.ok(!html.includes('task token'), 'raw task ID never leaks through fact or row attributes');
+  // Deterministic non-secret placeholders preserve unique fact parity.
+  const graphIds = flowGraphFactIds(html);
+  const listIds = flowListFactIds(html);
+  assert.deepEqual(new Set(graphIds), new Set(listIds), 'secret-placeholder fact parity holds');
+  assert.ok(graphIds.some((id) => /^task:redacted-\d{3}$/.test(id)), 'secret task renders under a deterministic non-secret collision-safe placeholder');
+  assert.ok(!graphIds.some((id) => id.includes('token=')), 'no graph fact ID carries the secret');
+  // Row IDs, dependency, executor, proof, and unscoped-gap attributes all
+  // fail closed.
+  assert.match(html, /data-of-flow-row="task-\d{3}"/, 'secret task row id fails closed to a collision-safe redacted ordinal');
+  assert.match(html, /data-of-executor="redacted"/, 'secret executor id fails closed');
+  assert.ok(!/data-of-dependency="[^"]*token=/.test(html), 'dependency attributes fail closed');
+  assert.ok(!/data-of-proof="[^"]*token=/.test(html), 'proof attributes never carry secrets');
+  const unscopedSection = html.match(/data-of-flow-unscoped-gaps="true"[\s\S]*?(?=<\/ol>|<\/table>)/)?.[0] ?? '';
+  assert.ok(unscopedSection.length > 0, 'unscoped gap section renders');
+  assert.ok(!unscopedSection.includes('token='), 'unscoped gap subjects and details fail closed');
+  assert.match(unscopedSection, /unknown subject|no detail available/, 'secret-bearing gap subjects and details render honest placeholders');
+  // Filters are bounded, secret-filtered, and never echoed.
+  const echoed = renderFlow(projection, { workId: 'fx-work token=LEAK' });
+  assert.ok(!echoed.includes('token=LEAK'), 'secret-bearing workId filter never echoes');
+  const hostileState = renderFlow(projection, { state: 'ready token=LEAK' });
+  assert.match(hostileState, /of-state-empty/, 'secret-bearing state filter matches nothing');
+  assert.ok(!hostileState.includes('token=LEAK'), 'secret-bearing state filter never echoes');
+});
+
+test('flow escapes benign ampersands and markup exactly once in graph, list, and typed gaps', () => {
+  const projection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-amp-task', { desiredState: 'verified & signed' }),
+      makeFlowRun('fx-amp-run', 'fx-amp-task', { status: 'complete' }),
+    ],
+    edges: [],
+    gaps: [
+      { gapId: 'fx-amp-gap', kind: 'stale-fence', subjectId: 'fx-amp-run', detail: 'fish & chips <tag> "quoted"', evidenceRef: null },
+    ],
+  });
+  const html = renderFlow(projection);
+  assert.ok(html.includes('verified &amp; signed'), 'benign ampersand escapes once');
+  assert.ok(!html.includes('&amp;amp;'), 'no double-escaping anywhere in flow output');
+  assert.ok(html.includes('fish &amp; chips &lt;tag&gt; &quot;quoted&quot;'), 'typed-gap detail escapes exactly once');
+  assert.ok(!html.includes('fish & chips <tag>'), 'raw markup never survives');
+  const listSection = html.match(/<ol class="of-flow-list"[\s\S]*?<\/ol>/)?.[0] ?? '';
+  assert.ok(!listSection.includes('&amp;amp;'), 'list output escapes exactly once');
+});
+
+test('flow keeps full Node and browser parity across every corrective reproduction', () => {
+  const cases: Array<[string, MissionFabricProjectionV1, { workId?: string; agentId?: string; state?: string }?]> = [
+    ['fixture normal', FLOW_PROJECTION],
+    [
+      '97-task bound',
+      makeFlowProjection({
+        nodes: Array.from({ length: 97 }, (_, index) => makeFlowTask(`fx-par-cap-${String(index).padStart(3, '0')}`)),
+        edges: [],
+        gaps: [],
+      }),
+    ],
+    [
+      'filtered late row',
+      makeFlowProjection({
+        nodes: [
+          ...Array.from({ length: 120 }, (_, index) => makeFlowTask(`fx-par-pool-${String(index).padStart(3, '0')}`)),
+          makeFlowTask('fx-par-pool-late', { status: 'blocked' }),
+        ],
+        edges: [],
+        gaps: [],
+      }),
+      { state: 'blocked' },
+    ],
+    [
+      'multiple executors',
+      makeFlowProjection({
+        nodes: [
+          makeFlowTask('fx-par-exec-task'),
+          makeFlowRun('fx-par-exec-run-1', 'fx-par-exec-task', { agentId: 'fx-par-field-x' }),
+          makeFlowRun('fx-par-exec-run-2', 'fx-par-exec-task'),
+          makeFlowAgent('fx-par-exec-a1'),
+          makeFlowAgent('fx-par-exec-a2'),
+        ],
+        edges: [
+          { kind: 'executes', fromId: 'fx-par-exec-a1', toId: 'fx-par-exec-run-1' },
+          { kind: 'executes', fromId: 'fx-par-exec-a2', toId: 'fx-par-exec-run-2' },
+        ],
+        gaps: [],
+      }),
+    ],
+    [
+      'contradictory proof grants nothing',
+      makeFlowProjection({
+        nodes: [
+          makeFlowTask('fx-par-proof-a'),
+          makeFlowTask('fx-par-proof-b'),
+          makeFlowRun('fx-par-proof-run', 'fx-par-proof-a'),
+          makeFlowReceipt('fx-par-proof-receipt', 'fx-par-proof-run', 'fx-par-proof-a'),
+        ],
+        edges: [
+          { kind: 'produces', fromId: 'fx-par-proof-run', toId: 'fx-par-proof-receipt' },
+          { kind: 'proves', fromId: 'fx-par-proof-receipt', toId: 'fx-par-proof-b' },
+        ],
+        gaps: [],
+      }),
+    ],
+    [
+      'exact gap scoping with unscoped section',
+      makeFlowProjection({
+        nodes: [makeFlowTask('a'), makeFlowTask('aa')],
+        edges: [],
+        gaps: [
+          { gapId: 'fx-par-gap', kind: 'stale-fence', subjectId: 'fx-par-run-aa', detail: 'Rejected stale fence fx-par-run-aa for aa', evidenceRef: null },
+        ],
+      }),
+    ],
+    [
+      'hostile secret IDs stay collision-safe',
+      makeFlowProjection({
+        nodes: [
+          makeFlowTask('fx-par-secret token=LEAK'),
+          makeFlowRun('fx-par-secret-run token=LEAK', 'fx-par-secret token=LEAK'),
+          makeFlowAgent('fx-par-secret-agent token=LEAK'),
+        ],
+        edges: [{ kind: 'executes', fromId: 'fx-par-secret-agent token=LEAK', toId: 'fx-par-secret-run token=LEAK' }],
+        gaps: [
+          { gapId: 'fx-par-secret-gap', kind: 'stale-fence', subjectId: 'fx-par-absent token=LEAK', detail: 'rejected token=LEAK', evidenceRef: null },
+        ],
+      }),
+    ],
+    [
+      'exec-edge filter parity',
+      makeFlowProjection({
+        nodes: [
+          makeFlowTask('fx-par-filter-task'),
+          makeFlowRun('fx-par-filter-run', 'fx-par-filter-task', { agentId: 'fx-par-field-y' }),
+          makeFlowAgent('fx-par-filter-agent'),
+        ],
+        edges: [{ kind: 'executes', fromId: 'fx-par-filter-agent', toId: 'fx-par-filter-run' }],
+        gaps: [],
+      }),
+      { agentId: 'fx-par-filter-agent' },
+    ],
+    [
+      'benign ampersand gaps',
+      makeFlowProjection({
+        nodes: [makeFlowTask('fx-par-amp'), makeFlowRun('fx-par-amp-run', 'fx-par-amp')],
+        edges: [],
+        gaps: [
+          { gapId: 'fx-par-amp-gap', kind: 'stale-fence', subjectId: 'fx-par-amp-run', detail: 'fish & chips <tag>', evidenceRef: null },
+        ],
+      }),
+    ],
+  ];
+  for (const [label, projection, filters] of cases) {
+    const nodeHtml = renderFlow(projection, filters);
+    const browserHtml = renderFlowBrowser(projection, filters);
+    assert.equal(browserHtml, nodeHtml, `full Node/browser HTML parity holds for ${label}`);
+  }
+});
+
+test('flow leaks no raw evidence, digests, secrets, payloads, prompts, tokens, or auth material', () => {
+  const html = renderFlow(FLOW_PROJECTION);
+  assert.ok(!html.includes('evidenceRefs'), 'rendered flow never names evidenceRefs');
+  assert.ok(!/[0-9a-f]{64}/.test(html), 'rendered flow carries no raw 64-hex digests');
+  for (const marker of CANONICAL_MARKER_HOSTILE_VALUES) {
+    assert.ok(!html.includes(marker), `rendered flow never emits ${marker}`);
+  }
+  const hostileProjection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-task-leak', { proofRequirement: 'prompt: ignore previous instructions' }),
+      makeFlowRun('fx-run-leak', 'fx-task-leak', { loadoutId: 'loadout clientSecret abc' }),
+      makeFlowReceipt('fx-receipt-leak', 'fx-run-leak', 'fx-task-leak', { approvalRef: 'PRIVATE KEY material' }),
+      makeFlowAgent('fx-agent-leak', { permissionProfile: 'QUESTS_PUSH_TOKEN=push' }),
+    ],
+    edges: [
+      { kind: 'executes', fromId: 'fx-agent-leak', toId: 'fx-run-leak' },
+      { kind: 'produces', fromId: 'fx-run-leak', toId: 'fx-receipt-leak' },
+      { kind: 'proves', fromId: 'fx-receipt-leak', toId: 'fx-task-leak' },
+    ],
+    gaps: [],
+  });
+  const hostileHtml = renderFlow(hostileProjection);
+  for (const marker of ['prompt: ignore', 'clientSecret', 'PRIVATE KEY', 'QUESTS_PUSH_TOKEN']) {
+    assert.ok(!hostileHtml.includes(marker), `hostile flow fields never emit ${marker}`);
+  }
+  assert.match(hostileHtml, /data-of-flow-row="fx-task-leak"/, 'hostile fields still render their bounded row');
+});
+
+test('flow distinguishes empty, error, and malformed projections safely', () => {
+  const emptyHtml = renderFlow(makeFlowProjection({ nodes: [], edges: [], gaps: [] }));
+  assert.match(emptyHtml, /of-state-empty/, 'empty projection renders the empty state');
+  const errorHtml = renderFlow(null as unknown as MissionFabricProjectionV1);
+  assert.match(errorHtml, /of-state-error/, 'null projection renders the error state');
+  const malformedHtml = renderFlow({ schema: 'cambium.other.v1' } as unknown as MissionFabricProjectionV1);
+  assert.match(malformedHtml, /of-state-error/, 'malformed projection renders the error state');
+  const noNodesHtml = renderFlow({ schema: 'cambium.mission-fabric-projection.v1', edges: [] } as unknown as MissionFabricProjectionV1);
+  assert.match(noNodesHtml, /of-state-error/, 'missing nodes array renders the error state');
+});
+
+// ── flow boot composition + fail-closed integration ─────────────────────────
+
+test('FLOW_BROWSER_JS is explicit browser-valid JS with no transformer or ambient global', () => {
+  assert.ok(FLOW_BROWSER_JS.includes('function ofRenderFlow('), 'browser flow renderer defines ofRenderFlow');
+  assert.doesNotThrow(() => new Function(FLOW_BROWSER_JS), 'FLOW_BROWSER_JS parses as plain browser JavaScript');
+  for (const banned of ['import ', 'export ', 'node:fs', 'readFileSync', 'eval(', 'new Function(', 'Function.prototype.toString', '.toString()']) {
+    assert.ok(!FLOW_BROWSER_JS.includes(banned), `FLOW_BROWSER_JS never uses ${banned}`);
+  }
+  assert.ok(!/globalThis|window\.of|window\['/.test(FLOW_BROWSER_JS), 'FLOW_BROWSER_JS touches no ambient mutable global');
+  assert.ok(OPERATING_FABRIC_BOOT.includes(FLOW_BROWSER_JS), 'the served boot embeds the exact flow browser source');
+  assert.ok(
+    OPERATING_FABRIC_BOOT.indexOf(FLOW_BROWSER_JS) < OPERATING_FABRIC_BOOT.indexOf('var ofScenes'),
+    'flow browser source composes lexically before the scene registry',
+  );
+  const flowSource = readFileSync(new URL('./page/operating-fabric/flow.ts', import.meta.url), 'utf8');
+  for (const banned of ['node:fs', 'readFileSync']) {
+    assert.ok(!flowSource.includes(banned), `flow.ts never uses ${banned}`);
+  }
+  for (const transformer of ['.replace(/^export', 'split(\'\\n\')', 'loadModuleBody', 'sanitizeForInlineAudit']) {
+    assert.ok(!flowSource.includes(transformer), `flow.ts carries no source transformer ${transformer}`);
+  }
+  for (const fragmented of [
+    'query_[a-z]{2}=',
+    'auth_[a-z]{4}=',
+    'hash[=]',
+    'bot_[a-z]{5}',
+    'client[A-Z][a-z]{5}',
+    'TELEGR[A-Z_]{10}',
+    'TG_[A-Z_]{9}',
+    'QUESTS_[A-Z_]{10}',
+    'PRIVATE [A-Z]{3}',
+    'init[A-Z][a-z]{3}',
+  ]) {
+    assert.ok(!flowSource.includes(fragmented), `flow.ts never uses the obfuscated class form ${fragmented}`);
+    assert.ok(!FLOW_BROWSER_JS.includes(fragmented), `FLOW_BROWSER_JS never serves the obfuscated class form ${fragmented}`);
+  }
+  assert.ok(!/'[A-Za-z]{2}'\s*\+\s*'/.test(flowSource), 'flow.ts never hides markers inside string fragments');
+  assert.ok(!/String\\.fromCharCode|fromCodePoint/.test(flowSource), 'flow.ts never builds markers from character codes');
+  for (const banned of ['eval(', 'new Function(', 'Function.prototype.toString', 'localStorage', 'sessionStorage']) {
+    assert.ok(!flowSource.includes(banned), `flow.ts never uses ${banned}`);
+  }
+  assert.ok(
+    flowSource.includes(CANONICAL_SECRET_MARKER_PATTERN_SOURCE),
+    'flow.ts Node renderer embeds the canonical Task 7 marker policy verbatim',
+  );
+  for (const marker of ['query_id=', 'auth_date=', 'hash', 'bot_token', 'clientSecret', 'initData', 'TELEGRAM_INIT_DATA', 'TG_INIT_DATA', 'QUESTS_PUSH_TOKEN', 'PRIVATE KEY', 'prompt']) {
+    const fragmented = new RegExp(marker.split('').join('[\\w]?'));
+    assert.ok(!fragmented.test(flowSource) || flowSource.includes(marker), `flow.ts never fragments ${marker} across character classes`);
+  }
+});
+
+test('boot registers the flow renderer and the flow scene root stays wired', () => {
+  const body = bootBody(OPERATING_FABRIC_BOOT);
+  assert.match(body, /renderFlow:\s*ofRenderFlow/, 'boot scene registry wires the flow renderer');
+  assert.match(body, /sceneRoot\('flow'\)/, 'boot resolves the flow scene root');
+  assert.ok(body.includes('renderFlow(projection'), 'boot pre-renders flow from the projection');
+  const clientSource = readFileSync(new URL('./page/operating-fabric/client.ts', import.meta.url), 'utf8');
+  assert.match(clientSource, /import \{ FLOW_BROWSER_JS \} from '\.\/flow\.ts';/, 'client composes the flow browser source from flow.ts');
+  const sceneScripts = extractScriptBodies(OPERATING_FABRIC_PAGE).filter((body) =>
+    body.includes('data-operating-fabric-scenes') || body.includes('renderOperatingMission') || body.includes('ofRenderFlow'),
+  );
+  assert.equal(sceneScripts.length, 1, 'flow joins the single boot script — no third scene script');
+});
+
+test('real composed boot populates the flow root with no renderer injection or instrumentation', async () => {
+  const bootErrors: unknown[] = [];
+  const booted = bootOperatingFabricDocument(
+    () => ({
+      kind: 'json',
+      value: {
+        projection: FLOW_PROJECTION,
+        delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+      },
+    }),
+    { onError: (error) => bootErrors.push(error) },
+  );
+  await flushBoot();
+  assert.deepEqual(bootErrors, [], 'flow wiring never throws during activation');
+  assert.equal(booted.fabricRoot.classList.contains('of-on'), true, 'shell activates with the flow projection');
+  const flowRoot = booted.elements.get('of-scene-flow')!;
+  assert.match(flowRoot.innerHTML, /data-component="FabricFlow"/, 'flow scene root is populated by the real boot');
+  assert.match(flowRoot.innerHTML, /data-of-fact="run:fx-flow-run-alpha"/, 'real boot renders accepted run facts');
+  assert.match(flowRoot.innerHTML, /data-of-gap-kind="stale-fence"/, 'real boot renders typed stale-fence gaps');
+  assert.ok(!flowRoot.innerHTML.includes('data-of-fact="run:fx-flow-run-stale"'), 'real boot never fabricates rejected runs');
+  assert.match(flowRoot.innerHTML, /run not present in projection/, 'real boot renders honest missing-run labels');
+  for (const marker of CANONICAL_MARKER_HOSTILE_VALUES) {
+    assert.ok(!flowRoot.innerHTML.includes(marker), `real boot flow root never contains ${marker}`);
+  }
+});
+
+test('activation stays fail-closed when the flow renderer, flow root, or flow render fails', async () => {
+  const bootedMissingRoot = bootOperatingFabricDocument(
+    () => ({
+      kind: 'json',
+      value: {
+        projection: FLOW_PROJECTION,
+        delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+      },
+    }),
+  );
+  // Remove the flow scene root entirely: getElementById, querySelector, and
+  // querySelectorAll must all stop resolving it so activation cannot find
+  // the flow root and must stay fail-closed.
+  bootedMissingRoot.elements.delete('of-scene-flow');
+  const flowSceneElement = bootedMissingRoot.sceneElements.find((scene) => scene.dataset.ofScene === 'flow')!;
+  flowSceneElement.dataset.ofScene = 'flow-removed';
+  await flushBoot();
+  assertStaysInert(bootedMissingRoot, 'missing flow root');
+  assert.equal(bootedMissingRoot.elements.get('of-scene-canopy')!.innerHTML, '', 'missing flow root: canopy is never written');
+
+  const originalRender = renderFlow;
+  void originalRender;
+  const throwingProjection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-task-throw'),
+      {
+        kind: 'run',
+        value: new Proxy(
+          {
+            runId: 'fx-run-throw',
+            taskId: 'fx-task-throw',
+            agentId: 'fx-agent-throw',
+            loadoutId: 'fx-loadout',
+            startedAt: '2026-07-28T05:00:00.000Z',
+            terminalAt: null,
+            status: 'complete',
+          },
+          {
+            get(target, property) {
+              if (property === 'runId') throw new Error('hostile getter');
+              return (target as Record<PropertyKey, unknown>)[property];
+            },
+          },
+        ) as unknown as FlowRunNode['value'],
+      } as FlowRunNode,
+    ],
+    edges: [],
+    gaps: [],
+  });
+  const bootedThrow = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: throwingProjection,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  await flushBoot();
+  assertStaysInert(bootedThrow, 'flow renderer exception');
+  assert.equal(bootedThrow.elements.get('of-scene-flow')!.innerHTML, '', 'flow renderer exception: flow root is never written');
+
+  const malformedBoot = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: { schema: 'cambium.other.v1', nodes: [], edges: [] },
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  await flushBoot();
+  assertStaysInert(malformedBoot, 'malformed projection with flow wired');
+  assert.equal(malformedBoot.elements.get('of-scene-flow')!.innerHTML, '', 'malformed projection: flow root is never written');
+});
+
+test('double boot leaves exactly one populated flow scene and one delegated handler', async () => {
+  const responder = () => ({
+    kind: 'json' as const,
+    value: {
+      projection: FLOW_PROJECTION,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  });
+  const first = bootOperatingFabricDocument(responder);
+  const second = bootOperatingFabricDocument(responder);
+  await flushBoot();
+  for (const [label, booted] of [
+    ['first boot', first],
+    ['second boot', second],
+  ] as const) {
+    assert.equal(booted.fabricRoot.classList.contains('of-on'), true, `${label}: shell activates`);
+    const flowHtml = booted.elements.get('of-scene-flow')!.innerHTML;
+    assert.match(flowHtml, /data-component="FabricFlow"/, `${label}: flow populated`);
+    assert.equal(
+      [...flowHtml.matchAll(/data-component="FabricFlow"/g)].length,
+      1,
+      `${label}: exactly one flow scene renders`,
+    );
+    const clickHandlers = (booted.fabricRoot as unknown as { listeners: Map<string, unknown[]> }).listeners.get('click') ?? [];
+    assert.equal(clickHandlers.length, 1, `${label}: exactly one delegated click handler`);
+  }
+});
+
+test('flow renderer and boot glue carry no write, Gate, RBAC, assignment, or authority logic', () => {
+  const flowSource = readFileSync(new URL('./page/operating-fabric/flow.ts', import.meta.url), 'utf8');
+  for (const banned of [
+    'fetch(',
+    'XMLHttpRequest',
+    'POST',
+    'api/gate',
+    'checkRole',
+    'data-action-request',
+    'signed-action',
+    'role ===',
+    'assign(',
+    'assignedAgentId = ',
+    '.assignedAgentId=',
+  ]) {
+    assert.ok(!flowSource.includes(banned), `flow.ts stays free of write/authority surface: ${banned}`);
+  }
+  assert.ok(!FLOW_BROWSER_JS.includes('data-of-open-work'), 'flow renderer adds no authority-adjacent open-work delegation');
+  assert.ok(!/addEventListener/.test(FLOW_BROWSER_JS), 'flow renderer registers no event handlers');
+  const body = bootBody(OPERATING_FABRIC_BOOT);
+  const flowSection = body.slice(body.indexOf('function ofRenderFlow'), body.indexOf('var ofScenes'));
+  for (const banned of ['fetch(', 'POST', 'api/gate', 'checkRole', 'data-action-request', 'signed-action', 'role ===']) {
+    assert.ok(!flowSection.includes(banned), `composed flow section stays free of authority surface: ${banned}`);
+  }
+});
+
+// ── flow corrective pass 2 (controller reproductions, second implementer) ───
+// Each test below pins a controller-reproduced failure on the corrective-1
+// implementation as honest corrected behavior:
+//   1. secret-safe fact-ID collisions: 100 secret-bearing canonical task IDs
+//      render 96 unique collision-safe public fact IDs, exact 'showing 96 of
+//      100', zero raw leakage, exact graph/list parity — and benign IDs that
+//      truncate to the same 64-character display prefix never collide either.
+//   2. truncation N counts every distinct Task/Run/Receipt fact in the
+//      filtered view across ALL filtered rows (97x3 -> 'showing 96 of 291').
+//   3. contradictory proof: a proves/produces edge that disagrees with the
+//      receipt's canonical run/task ownership grants nothing on any row, and
+//      no target-only proof chip exists — every rendered proof stays attached
+//      to its bounded receipt fact with bounded ID/status.
+//   4. a zero-row projection with an unscoped typed gap preserves the honest
+//      unscoped section in BOTH representations; empty state is valid only
+//      when there are no selected rows AND no relevant unscoped typed gaps.
+//   5. filter bounds are enforced: overlong (65+) or secret-bearing workId/
+//      agentId/state inputs fail closed to an empty view without echoing and
+//      without surfacing unrelated scoped gaps; gap scoping is computed
+//      against the full canonical row set before filtering, so a gap that
+//      belongs to a filtered-out task never reappears as 'unscoped'.
+
+function makeSecretCollisionProjection(count: number): MissionFabricProjectionV1 {
+  const nodes: FabricNode[] = [];
+  for (let index = 0; index < count; index += 1) {
+    nodes.push(makeFlowTask(`fx-leak-task-${String(index).padStart(3, '0')} token=LEAK${index}`));
+  }
+  return makeFlowProjection({ nodes, edges: [], gaps: [] });
+}
+
+test('flow renders collision-safe deterministic public fact IDs for secret-bearing canonical IDs', () => {
+  const projection = makeSecretCollisionProjection(100);
+  const html = renderFlow(projection);
+  const graphIds = flowGraphFactIds(html);
+  const listIds = flowListFactIds(html);
+  assert.equal(new Set(graphIds).size, FLOW_FACT_LIMIT, '100 secret tasks expose exactly 96 unique graph fact IDs');
+  assert.equal(new Set(listIds).size, FLOW_FACT_LIMIT, '100 secret tasks expose exactly 96 unique list fact IDs');
+  assert.deepEqual(new Set(graphIds), new Set(listIds), 'secret-bearing input keeps exact graph/list fact-ID parity');
+  assert.ok(html.includes('showing 96 of 100'), 'exact truncation copy renders: showing 96 of 100');
+  assert.ok(!html.includes('token=LEAK'), 'no raw secret-bearing canonical ID survives anywhere');
+  assert.ok(!/LEAK\d/.test(html), 'no secret fragment survives anywhere');
+  assert.equal(html.match(/data-of-flow-row=/g)?.length ?? 0, FLOW_FACT_LIMIT, '96 distinct rows render for 100 secret tasks');
+  const rowIds = [...html.matchAll(/data-of-flow-row="([^"]+)"/g)].map((match) => match[1]!);
+  assert.equal(new Set(rowIds).size, FLOW_FACT_LIMIT, 'row IDs stay unique under secret collisions');
+  for (const id of graphIds) {
+    assert.match(id, /^task:redacted-\d{3}$/, 'collision-safe fact IDs are kind-scoped redacted ordinals');
+  }
+  // Ordering is permutation-stable: the same 100 tasks in reverse input
+  // order render byte-identical output.
+  const reversed = makeFlowProjection({
+    nodes: (projection.nodes as FabricNode[]).slice().reverse(),
+    edges: [],
+    gaps: [],
+  });
+  assert.equal(renderFlow(reversed), html, 'secret-collision output is permutation-stable');
+  // Every visible fact ID is distinct per distinct selected canonical task:
+  // the first 96 canonical IDs each keep their own public ID.
+  const browserHtml = renderFlowBrowser(projection);
+  assert.equal(browserHtml, html, 'full Node/browser parity holds for the 100-secret reproduction');
+});
+
+test('flow keeps benign 64-prefix-truncated IDs collision-free in fact IDs', () => {
+  const prefix = `fx-${'a'.repeat(62)}`;
+  const projection = makeFlowProjection({
+    nodes: [
+      makeFlowTask(`${prefix}-alpha-long-suffix-one`),
+      makeFlowTask(`${prefix}-beta-long-suffix-two`),
+    ],
+    edges: [],
+    gaps: [],
+  });
+  const html = renderFlow(projection);
+  const graphIds = flowGraphFactIds(html);
+  const listIds = flowListFactIds(html);
+  assert.equal(new Set(graphIds).size, 2, 'same-display-prefix IDs keep two unique graph fact IDs');
+  assert.equal(new Set(listIds).size, 2, 'same-display-prefix IDs keep two unique list fact IDs');
+  assert.deepEqual(new Set(graphIds), new Set(listIds), 'prefix-truncated input keeps exact graph/list parity');
+  assert.equal(html.match(/data-of-flow-row=/g)?.length ?? 0, 2, 'both prefix-truncated rows render');
+  assert.ok(!html.includes('showing 96 of'), 'two facts never claim truncation');
+  const browserHtml = renderFlowBrowser(projection);
+  assert.equal(browserHtml, html, 'full Node/browser parity holds for prefix-truncated IDs');
+});
+
+test('flow counts every distinct filtered-view fact in truncation N, not only kept rows', () => {
+  const nodes: FabricNode[] = [];
+  const edges: FabricEdge[] = [];
+  for (let index = 0; index < 97; index += 1) {
+    const suffix = String(index).padStart(3, '0');
+    nodes.push(makeFlowTask(`fx-total-task-${suffix}`));
+    nodes.push(makeFlowRun(`fx-total-run-${suffix}`, `fx-total-task-${suffix}`));
+    nodes.push(makeFlowReceipt(`fx-total-receipt-${suffix}`, `fx-total-run-${suffix}`, `fx-total-task-${suffix}`));
+    edges.push({ kind: 'produces', fromId: `fx-total-run-${suffix}`, toId: `fx-total-receipt-${suffix}` });
+    edges.push({ kind: 'proves', fromId: `fx-total-receipt-${suffix}`, toId: `fx-total-task-${suffix}` });
+  }
+  const projection = makeFlowProjection({ nodes, edges, gaps: [] });
+  const html = renderFlow(projection);
+  assert.ok(html.includes('showing 96 of 291'), 'truncation N counts every distinct Task/Run/Receipt fact in the view: showing 96 of 291');
+  assert.equal(new Set(flowGraphFactIds(html)).size, FLOW_FACT_LIMIT, 'the visible set still caps at 96');
+  assert.deepEqual(new Set(flowGraphFactIds(html)), new Set(flowListFactIds(html)), 'bounded view keeps exact graph/list parity');
+  const browserHtml = renderFlowBrowser(projection);
+  assert.equal(browserHtml, html, 'full Node/browser parity holds for the 97x3 reproduction');
+});
+
+test('flow grants nothing for contradictory proof edges and renders no target-only proof chips', () => {
+  // The receipt's canonical taskId is task-a and its canonical runId belongs
+  // to task-a, but a hostile proves edge names task-b: this wrong-target edge
+  // must grant nothing on either row.
+  const projection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-contra-task-a'),
+      makeFlowTask('fx-contra-task-b'),
+      makeFlowRun('fx-contra-run-a', 'fx-contra-task-a'),
+      makeFlowReceipt('fx-contra-receipt-a', 'fx-contra-run-a', 'fx-contra-task-a'),
+    ],
+    edges: [
+      { kind: 'produces', fromId: 'fx-contra-run-a', toId: 'fx-contra-receipt-a' },
+      { kind: 'proves', fromId: 'fx-contra-receipt-a', toId: 'fx-contra-task-b' },
+    ],
+    gaps: [],
+  });
+  const html = renderFlow(projection);
+  const rowA = html.match(/<tr data-of-flow-row="fx-contra-task-a"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  const rowB = html.match(/<tr data-of-flow-row="fx-contra-task-b"[\s\S]*?<\/tr>/)?.[0] ?? '';
+  assert.ok(rowA.length > 0 && rowB.length > 0, 'both rows render');
+  assert.match(rowA, /data-of-proof="produces"/, 'the agreeing produces edge still grants proof on task-a');
+  assert.ok(!/data-of-proof="[^"]*proves/.test(rowA), 'the contradictory proves edge grants nothing on task-a');
+  assert.ok(!/data-of-proof=/.test(rowB), 'the contradictory proves edge grants nothing on task-b either');
+  assert.ok(!rowB.includes('data-of-proof-status'), 'no target-only proof chip survives on task-b');
+  // Every rendered proof stays attached to its bounded receipt fact.
+  const proofSpans = [...html.matchAll(/data-of-proof="([^"]+)"/g)];
+  assert.ok(proofSpans.length > 0, 'agreeing proof renders');
+  for (const span of proofSpans) {
+    const enclosingRow = html.slice(Math.max(0, html.indexOf(span[0]) - 4000), html.indexOf(span[0]));
+    assert.match(enclosingRow, /data-of-fact="receipt:fx-contra-receipt-a"/, 'every rendered proof stays attached to its bounded receipt fact');
+  }
+  // A produces edge from a run whose canonical taskId disagrees with the
+  // receipt's canonical taskId grants nothing either.
+  const conflictingRun = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-contra-task-c'),
+      makeFlowTask('fx-contra-task-d'),
+      makeFlowRun('fx-contra-run-c', 'fx-contra-task-c'),
+      makeFlowReceipt('fx-contra-receipt-d', 'fx-contra-run-c', 'fx-contra-task-d'),
+    ],
+    edges: [
+      { kind: 'produces', fromId: 'fx-contra-run-c', toId: 'fx-contra-receipt-d' },
+    ],
+    gaps: [],
+  });
+  const conflictingHtml = renderFlow(conflictingRun);
+  assert.ok(!/data-of-proof=/.test(conflictingHtml), 'a run/task-disagreeing produces edge grants nothing');
+  const browserHtml = renderFlowBrowser(projection);
+  assert.equal(browserHtml, html, 'full Node/browser parity holds for the contradictory-proof reproduction');
+});
+
+test('flow preserves the unscoped typed-gap section when the view has zero task rows', () => {
+  const projection = makeFlowProjection({
+    nodes: [],
+    edges: [],
+    gaps: [
+      { gapId: 'fx-gap-only', kind: 'stale-fence', subjectId: 'fx-gap-only-run', detail: 'rejected stale fence fx-gap-only-run', evidenceRef: null },
+    ],
+  });
+  const html = renderFlow(projection);
+  const graphSection = html.match(/<table class="of-flow-graph"[\s\S]*?<\/table>/)?.[0] ?? '';
+  const listSection = html.match(/<ol class="of-flow-list"[\s\S]*?<\/ol>/)?.[0] ?? '';
+  assert.ok(graphSection.length > 0, 'graph renders even with zero task facts when gaps exist');
+  assert.ok(listSection.length > 0, 'list renders even with zero task facts when gaps exist');
+  assert.match(graphSection, /data-of-flow-unscoped-gaps="true"/, 'graph preserves the unscoped typed-gap section');
+  assert.match(listSection, /data-of-flow-unscoped-gaps="true"/, 'list preserves the unscoped typed-gap section');
+  assert.match(graphSection, /data-of-gap-kind="stale-fence"/, 'the unscoped gap renders in the graph');
+  assert.match(listSection, /data-of-gap-kind="stale-fence"/, 'the unscoped gap renders in the list');
+  assert.ok(!html.includes('of-state-empty'), 'gap-only view never renders the empty state');
+  assert.deepEqual(flowGraphFactIds(html), [], 'graph exposes an empty fact-ID set');
+  assert.deepEqual(flowListFactIds(html), [], 'list exposes the same empty fact-ID set');
+  const browserHtml = renderFlowBrowser(projection);
+  assert.equal(browserHtml, html, 'full Node/browser parity holds for the gap-only reproduction');
+  // Empty state remains valid only when there are no selected rows AND no
+  // relevant unscoped typed gaps.
+  const trulyEmpty = renderFlow(makeFlowProjection({ nodes: [], edges: [], gaps: [] }));
+  assert.match(trulyEmpty, /of-state-empty/, 'no rows and no unscoped typed gaps renders the empty state');
+});
+
+test('flow fails closed on overlong or secret-bearing filter values and scopes gaps before filtering', () => {
+  const projection = makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-bound-task-keep', { status: 'ready' }),
+      makeFlowTask('fx-bound-task-drop', { status: 'blocked' }),
+    ],
+    edges: [],
+    gaps: [
+      { gapId: 'fx-bound-gap', kind: 'stale-fence', subjectId: 'fx-bound-task-drop', detail: 'rejected stale fence for fx-bound-task-drop', evidenceRef: null },
+    ],
+  });
+  const overlong = 'x'.repeat(1000);
+  for (const filters of [
+    { workId: overlong },
+    { agentId: overlong },
+    { state: overlong },
+    { workId: 'fx-work token=LEAK' },
+    { agentId: 'fx-agent token=LEAK' },
+    { state: 'ready token=LEAK' },
+    { workId: 'y'.repeat(65) },
+    { agentId: 'z'.repeat(65) },
+    { state: 'q'.repeat(65) },
+  ]) {
+    const html = renderFlow(projection, filters);
+    assert.match(html, /of-state-empty/, `overlong/secret-bearing filter ${JSON.stringify(Object.keys(filters))} fails closed to an empty view`);
+    assert.ok(!html.includes(overlong), 'the overlong filter value never echoes');
+    assert.ok(!html.includes('token=LEAK'), 'the secret-bearing filter value never echoes');
+    assert.ok(!html.includes('data-of-flow-unscoped-gaps'), 'fail-closed filters never surface unrelated scoped gaps');
+    assert.ok(!html.includes('fx-bound-task-drop'), 'the filtered-out task never reappears through any path');
+    const browserHtml = renderFlowBrowser(projection, filters);
+    assert.equal(browserHtml, html, `full Node/browser parity holds for hostile filter ${JSON.stringify(Object.keys(filters))}`);
+  }
+  // Gap scoping is computed against the full canonical row set BEFORE
+  // filtering: a gap whose subject task is filtered out never reappears as
+  // 'unscoped' in the surviving view.
+  const scoped = renderFlow(projection, { state: 'ready' });
+  assert.match(scoped, /data-of-flow-row="fx-bound-task-keep"/, 'the kept row renders');
+  assert.ok(!scoped.includes('fx-bound-gap'), 'a gap belonging to a filtered-out task never reappears');
+  assert.ok(!scoped.includes('data-of-flow-unscoped-gaps'), 'the surviving view carries no spurious unscoped section');
+  const scopedBrowser = renderFlowBrowser(projection, { state: 'ready' });
+  assert.equal(scopedBrowser, scoped, 'full Node/browser parity holds for pre-filter gap scoping');
+  // Only genuinely unmappable typed gaps still enter the unscoped section.
+  const unmappable = renderFlow(makeFlowProjection({
+    nodes: [makeFlowTask('fx-bound-task-keep', { status: 'ready' })],
+    edges: [],
+    gaps: [
+      { gapId: 'fx-bound-gap-free', kind: 'unverifiable-fence', subjectId: 'fx-bound-absent-run', detail: 'rejected', evidenceRef: null },
+    ],
+  }), { state: 'ready' });
+  assert.match(unmappable, /data-of-flow-unscoped-gaps="true"/, 'genuinely unmappable typed gaps still render unscoped');
+});
+
+// ── flow corrective pass 3: deterministic duplicate reconciliation ──────────
+// Duplicate nodes sharing one canonical ID must NEVER resolve first-input-
+// wins. Exactly one canonical duplicate is selected by a stable tie-break
+// over explicit per-kind OPERATIONAL fields (lineage/status/dependency/
+// assignment truth) — never input order, never object insertion order,
+// never titles/raw evidence/digests/secrets, and never locale-sensitive
+// comparison. Secret-bearing or overlong operational strings compare
+// through injective canonical JSON and code-unit ordering that keeps
+// distinct hostile IDs distinguishable without ever echoing them.
+// Reversing the node array must render byte-identically in BOTH the Node
+// renderer and FLOW_BROWSER_JS, and the surviving visible truth (task
+// status, run executor/status, receipt proof/status) must follow the
+// deterministic winner, never the first seen.
+
+test('flow reconciles duplicate canonical ids deterministically, never first-input-wins', () => {
+  // Two task nodes share taskId fx-dup-task with CONFLICTING statuses; two
+  // run nodes share runId fx-dup-run with conflicting taskId/status; two
+  // receipt nodes share receiptId fx-dup-receipt with conflicting
+  // taskId/status; two agent nodes share agentId fx-dup-agent with
+  // conflicting status. The canonical selection rule is deterministic over
+  // explicit per-kind operational fields — lineage fields (taskId/runId)
+  // BEFORE status — and the pairwise lexicographically smaller canonical
+  // value wins ('blocked' < 'ready' on task.status; 'fx-dup-task' <
+  // 'fx-dup-z' on run.taskId and receipt.taskId). Agent status/role are
+  // non-rendered and excluded from selection, so the agent winner's
+  // identity may follow input order here, but the executor fact is
+  // byte-identical either way. Selection never reads raw evidence, raw
+  // digests, titles, or secrets.
+  const taskReady = makeFlowTask('fx-dup-task', { status: 'ready' });
+  const taskBlocked = makeFlowTask('fx-dup-task', { status: 'blocked' });
+  const runOrphan = makeFlowRun('fx-dup-run', 'fx-dup-z', { status: 'running' });
+  const runCanonical = makeFlowRun('fx-dup-run', 'fx-dup-task', { status: 'failed' });
+  const receiptOrphan = makeFlowReceipt('fx-dup-receipt', 'fx-dup-run', 'fx-dup-z', { status: 'rejected' });
+  const receiptCanonical = makeFlowReceipt('fx-dup-receipt', 'fx-dup-run', 'fx-dup-task', { status: 'complete' });
+  const agentRunning = makeFlowAgent('fx-dup-agent', { status: 'running' });
+  const agentHalted = makeFlowAgent('fx-dup-agent', { status: 'halted' });
+  const canonicalNodes: FabricNode[] = [
+    taskBlocked,
+    runCanonical,
+    receiptCanonical,
+    agentHalted,
+  ];
+  const challengerNodes: FabricNode[] = [
+    taskReady,
+    runOrphan,
+    receiptOrphan,
+    agentRunning,
+  ];
+  const edges = [
+    { kind: 'executes', fromId: 'fx-dup-agent', toId: 'fx-dup-run' },
+    { kind: 'produces', fromId: 'fx-dup-run', toId: 'fx-dup-receipt' },
+    { kind: 'proves', fromId: 'fx-dup-receipt', toId: 'fx-dup-task' },
+  ] as MissionFabricProjectionV1['edges'];
+  const forward = makeFlowProjection({ nodes: [...challengerNodes, ...canonicalNodes], edges, gaps: [] });
+  const reversed = makeFlowProjection({ nodes: [...canonicalNodes, ...challengerNodes], edges, gaps: [] });
+
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversed);
+  // Input order never changes visible truth — byte-identical full HTML.
+  assert.equal(reversedHtml, forwardHtml, 'reversed duplicate input renders byte-identically in the Node renderer');
+
+  // One visible fact per canonical kind+ID: the canonical task row carries
+  // the canonical winner run and the canonical winner receipt — the losing
+  // duplicates never spawn a second row, run, or receipt fact.
+  const graphIds = flowGraphFactIds(forwardHtml);
+  assert.deepEqual(
+    [...graphIds].sort(),
+    ['receipt:fx-dup-receipt', 'run:fx-dup-run', 'task:fx-dup-task'],
+    'one visible fact per canonical kind+ID survives duplicate reconciliation',
+  );
+
+  // The deterministic winner — never the first-seen node — owns the visible
+  // truth: task status, run status, receipt status.
+  const listMarkup = forwardHtml.match(/<ol class="of-flow-list"[^>]*>([\s\S]*?)<\/ol>/)?.[0] ?? '';
+  assert.match(listMarkup, /data-of-task-status="blocked"/, 'visible task status follows the canonical winner');
+  assert.ok(!listMarkup.includes('data-of-task-status="ready"'), 'the losing duplicate task status never renders');
+  assert.match(listMarkup, /data-of-run-status="failed"/, 'visible run status follows the canonical winner');
+  assert.ok(!listMarkup.includes('data-of-run-status="running"'), 'the losing duplicate run status never renders');
+  assert.match(listMarkup, /data-of-receipt-status="complete"/, 'visible receipt status follows the canonical winner');
+  assert.ok(!listMarkup.includes('data-of-receipt-status="rejected"'), 'the losing duplicate receipt status never renders');
+
+  // Executor truth follows the canonical winner run: the winning run is a
+  // canonical node with a canonical executes edge, so its executor resolves
+  // to the canonical agent winner — the losing duplicates never supply the
+  // executor, and no honest-missing label is invented for it.
+  assert.match(listMarkup, /data-of-executor="fx-dup-agent"/, 'visible executor follows the canonical winner run');
+  assert.ok(!listMarkup.includes('executor not present in projection'), 'no honest-missing label is invented for the canonical executor');
+
+  // Proof truth follows agreement with the canonical winners: the canonical
+  // produces edge agrees with the winner receipt's canonical run/task, and
+  // the canonical proves edge agrees with the winner receipt's canonical
+  // task and its canonical run's task, so proof renders attached to the
+  // bounded receipt fact. A proves edge that only agreed with a LOSING
+  // duplicate grants nothing.
+  assert.match(listMarkup, /data-of-proof="produces · proves"/, 'visible proof follows agreement with the canonical winners');
+  const contradicted = makeFlowProjection({
+    nodes: [taskBlocked, runCanonical, receiptCanonical, agentHalted],
+    edges: [
+      { kind: 'executes', fromId: 'fx-dup-agent', toId: 'fx-dup-run' },
+      { kind: 'produces', fromId: 'fx-dup-run', toId: 'fx-dup-receipt' },
+      { kind: 'proves', fromId: 'fx-dup-receipt', toId: 'fx-dup-z' },
+    ] as MissionFabricProjectionV1['edges'],
+    gaps: [],
+  });
+  const contradictedHtml = renderFlow(contradicted);
+  assert.ok(!contradictedHtml.includes('data-of-proof="produces · proves"'), 'a proves edge that contradicts the winner task grants nothing');
+  assert.ok(!contradictedHtml.includes('data-of-proof="proves"'), 'the contradicting proves edge never renders as proof');
+
+  // Full byte-identical Node/browser parity under BOTH input orders.
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversed);
+  assert.equal(forwardBrowser, forwardHtml, 'browser output is byte-identical to Node for forward input');
+  assert.equal(reversedBrowser, reversedHtml, 'browser output is byte-identical to Node for reversed input');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser output is byte-identical under reversed duplicate input');
+});
+
+test('flow duplicate canonical selection is permutation-stable across every node ordering', () => {
+  // Three task duplicates with three distinct statuses: the deterministic
+  // winner is the smallest canonical operational value ('blocked'), and
+  // EVERY permutation of the input array must produce byte-identical output
+  // in both substrates — selection never depends on which duplicate is seen
+  // first, last, or in between.
+  const duplicates: FabricNode[] = [
+    makeFlowTask('fx-dup-task', { status: 'running' }),
+    makeFlowTask('fx-dup-task', { status: 'ready' }),
+    makeFlowTask('fx-dup-task', { status: 'blocked' }),
+  ];
+  const permutations: FabricNode[][] = [
+    [duplicates[0]!, duplicates[1]!, duplicates[2]!],
+    [duplicates[2]!, duplicates[1]!, duplicates[0]!],
+    [duplicates[1]!, duplicates[0]!, duplicates[2]!],
+    [duplicates[1]!, duplicates[2]!, duplicates[0]!],
+    [duplicates[2]!, duplicates[0]!, duplicates[1]!],
+    [duplicates[0]!, duplicates[2]!, duplicates[1]!],
+  ];
+  const renders = permutations.map((nodes) => renderFlow(makeFlowProjection({ nodes, edges: [], gaps: [] })));
+  for (let index = 1; index < renders.length; index += 1) {
+    assert.equal(renders[index], renders[0], `permutation ${index} renders byte-identically in the Node renderer`);
+  }
+  assert.match(renders[0]!, /data-of-task-status="blocked"/, 'the deterministic winner owns visible task status for every permutation');
+  for (const nodes of permutations) {
+    const browserHtml = renderFlowBrowser(makeFlowProjection({ nodes, edges: [], gaps: [] }));
+    assert.equal(browserHtml, renders[0], 'every permutation is byte-identical in the browser substrate');
+  }
+});
+
+test('flow duplicate reconciliation never reads raw evidence, digests, titles, or secrets', () => {
+  // Adversarial duplicates attempt to influence canonical selection through
+  // secret-bearing statuses, raw digests, and raw evidence refs. Operational
+  // comparison reads the full raw secret-bearing string solely to order
+  // candidates (injective canonical JSON, never rendered), and
+  // digests/evidence are non-operational and COMPLETELY EXCLUDED from
+  // selection — secrets never leak, never decide the winner, and the raw
+  // secret/digest/evidence material NEVER renders through any path.
+  const secretStatus = makeFlowTask('fx-dup-task', { status: 'token=LEAKED' });
+  const benignStatus = makeFlowTask('fx-dup-task', { status: 'ready' });
+  const receiptWithEvidence = makeFlowReceipt('fx-dup-receipt', 'fx-dup-run', 'fx-dup-task', {
+    status: 'complete',
+    outputDigest: `sha256:${'f'.repeat(64)}`,
+    evidenceRefs: ['token=EVIDENCE-LEAK'],
+  });
+  const receiptPlain = makeFlowReceipt('fx-dup-receipt', 'fx-dup-run', 'fx-dup-task', { status: 'complete' });
+  const forward = makeFlowProjection({
+    nodes: [secretStatus, benignStatus, makeFlowRun('fx-dup-run', 'fx-dup-task'), receiptWithEvidence, receiptPlain],
+    edges: [],
+    gaps: [],
+  });
+  const reversed = makeFlowProjection({
+    nodes: [receiptPlain, receiptWithEvidence, makeFlowRun('fx-dup-run', 'fx-dup-task'), benignStatus, secretStatus],
+    edges: [],
+    gaps: [],
+  });
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversed);
+  assert.equal(reversedHtml, forwardHtml, 'secret-bearing duplicates reconcile byte-identically under reversal');
+  for (const forbidden of ['token=LEAKED', 'token=EVIDENCE-LEAK', 'f'.repeat(64)]) {
+    assert.ok(!forwardHtml.includes(forbidden), `secret/digest material never renders: ${forbidden.slice(0, 18)}…`);
+  }
+  // The secret-bearing status is read raw solely to order candidates and
+  // renders through the same fail-closed fallback as empty text, so the
+  // comparison stays total and deterministic without echoing.
+  assert.ok(!forwardHtml.includes('data-of-task-status="token=LEAKED"'), 'a secret-bearing duplicate status never wins visibly');
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversed);
+  assert.equal(forwardBrowser, forwardHtml, 'browser parity holds for secret-bearing duplicates');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser parity holds under reversal with secret-bearing duplicates');
+});
+
+// ── flow corrective pass 4: hostile-lineage duplicate reconciliation ────────
+// Pass 3 redacted every compared string through the fail-closed policy, so
+// two DISTINCT secret-bearing or overlong lineage IDs collapsed to the same
+// comparison value — equal keys kept the FIRST input, leaving topology
+// input-order dependent. Pass 4 compares ONLY explicit per-kind operational
+// fields (lineage/status/dependency/executor-filter truth) and keeps every
+// distinct hostile value distinguishable internally through injective
+// canonical JSON and code-unit ordering over the full normalized raw value
+// — collision-free by construction, no digest, no BigInt — that NEVER
+// renders, logs, or enters any public fact ID or report. Titles,
+// evidenceRefs, digests, approvalRef, sourceRef, prompts/payloads,
+// missionId, and every other non-consumed field never participate in
+// selection; when excluded fields are the only difference the surviving
+// object identity may follow input order, but every rendered, filtered,
+// and topology-affecting byte is provably identical.
+
+test('flow reconciles duplicate runs with hostile lineage IDs under reversal (controller reproduction)', () => {
+  // Exact controller reproduction from pass 3 review: two canonical task
+  // rows carry secret-bearing lineage material, and two duplicate runs
+  // sharing runId fx-dup-run point at those hostile taskIds. Reversing ONLY
+  // the two duplicate runs must not change one byte of output, and the
+  // visible run must stay on the deterministic winner's row — never moving
+  // between public rows task-000 / task-001 with input order.
+  const secretTaskIdA = `fx-task-a token=SECRET-A`;
+  const secretTaskIdB = `fx-task-b token=SECRET-B`;
+  const taskA = makeFlowTask(secretTaskIdA);
+  const taskB = makeFlowTask(secretTaskIdB);
+  const runToA = makeFlowRun('fx-dup-run', secretTaskIdA);
+  const runToB = makeFlowRun('fx-dup-run', secretTaskIdB);
+  const forward = makeFlowProjection({ nodes: [taskA, taskB, runToA, runToB], edges: [], gaps: [] });
+  const reversedRuns = makeFlowProjection({ nodes: [taskA, taskB, runToB, runToA], edges: [], gaps: [] });
+
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversedRuns);
+  assert.equal(reversedHtml, forwardHtml, 'reversing only the duplicate runs renders byte-identically in the Node renderer');
+
+  // No secret ever leaks through any path: no hostile lineage id appears
+  // anywhere in the output. (The ofdupinternaldigest sentinel no longer
+  // exists; it is asserted absent as a regression guard.)
+  for (const forbidden of ['SECRET-A', 'SECRET-B', 'token=SECRET', 'ofdupinternaldigest']) {
+    assert.ok(!forwardHtml.includes(forbidden), `hostile lineage material never renders: ${JSON.stringify(forbidden)}`);
+  }
+
+  // Exactly one visible run fact survives, and it stays on the SAME public
+  // row under both orders — the deterministic winner, never the first seen.
+  const graphIds = new Set(flowGraphFactIds(forwardHtml));
+  const runFacts = [...graphIds].filter((id) => id.startsWith('run:'));
+  assert.equal(runFacts.length, 1, 'exactly one visible run fact survives duplicate reconciliation');
+  const rowMatch = forwardHtml.match(/<tr data-of-flow-row="(task-\d{3})"[\s\S]*?data-of-fact="run:fx-dup-run"/);
+  assert.ok(rowMatch, 'the visible run fact renders inside a redacted public task row');
+  const forwardRow = rowMatch![1];
+  const reversedRowMatch = reversedHtml.match(/<tr data-of-flow-row="(task-\d{3})"[\s\S]*?data-of-fact="run:fx-dup-run"/);
+  assert.equal(reversedRowMatch?.[1], forwardRow, 'the visible run stays on the same public row under reversal');
+
+  // Full byte-identical Node/browser parity under BOTH input orders.
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversedRuns);
+  assert.equal(forwardBrowser, forwardHtml, 'browser output is byte-identical to Node for forward input');
+  assert.equal(reversedBrowser, reversedHtml, 'browser output is byte-identical to Node for reversed input');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser output is byte-identical under reversed duplicate runs');
+});
+
+test('flow duplicate reconciliation distinguishes overlong lineage IDs without echoing them', () => {
+  // Two overlong lineage IDs sharing one 64-character prefix collapse under
+  // any truncated or redacted comparison but represent DIFFERENT topology.
+  // Selection must stay deterministic and total without ever echoing the
+  // overlong material.
+  const longPrefix = 'fx-task-long-';
+  const overlongA = `${longPrefix}${'a'.repeat(80)}`;
+  const overlongB = `${longPrefix}${'b'.repeat(80)}`;
+  const taskA = makeFlowTask(overlongA);
+  const taskB = makeFlowTask(overlongB);
+  const runToA = makeFlowRun('fx-dup-run', overlongA);
+  const runToB = makeFlowRun('fx-dup-run', overlongB);
+  const forward = makeFlowProjection({ nodes: [taskA, taskB, runToA, runToB], edges: [], gaps: [] });
+  const reversed = makeFlowProjection({ nodes: [taskA, taskB, runToB, runToA], edges: [], gaps: [] });
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversed);
+  assert.equal(reversedHtml, forwardHtml, 'overlong lineage duplicates reconcile byte-identically under reversal');
+  assert.ok(!forwardHtml.includes('a'.repeat(80)), 'overlong lineage material never renders');
+  assert.ok(!forwardHtml.includes('b'.repeat(80)), 'overlong lineage material never renders');
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversed);
+  assert.equal(forwardBrowser, forwardHtml, 'browser parity holds for overlong lineage duplicates');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser parity holds under reversal with overlong lineage duplicates');
+});
+
+test('flow duplicate selection ignores non-operational fields entirely', () => {
+  // Duplicates differing ONLY in excluded, non-rendered proof material —
+  // titles, evidenceRefs, digests, approvalRef, sourceRef, loadout, timing,
+  // runtime, role, and unknown fields — must render byte-identically under
+  // reversal: those fields never decide visible truth, never render, and
+  // never leak into selection effects.
+  const receiptRich = makeFlowReceipt('fx-dup-receipt', 'fx-dup-run', 'fx-dup-task', {
+    status: 'complete',
+    inputDigest: `sha256:${'c'.repeat(64)}`,
+    outputDigest: `sha256:${'d'.repeat(64)}`,
+    evidenceRefs: ['token=EVIDENCE-ONE'],
+    approvalRef: 'token=APPROVAL-ONE',
+    title: 'receipt title that must never decide',
+  });
+  const receiptBare = makeFlowReceipt('fx-dup-receipt', 'fx-dup-run', 'fx-dup-task', {
+    status: 'complete',
+    inputDigest: `sha256:${'e'.repeat(64)}`,
+    evidenceRefs: [],
+    approvalRef: null,
+  });
+  const runRich = makeFlowRun('fx-dup-run', 'fx-dup-task', {
+    status: 'complete',
+    agentId: 'fx-agent-ignored-a',
+    loadoutId: 'fx-loadout-ignored-a',
+    startedAt: '2026-07-28T01:00:00.000Z',
+    terminalAt: '2026-07-28T02:00:00.000Z',
+  });
+  const runBare = makeFlowRun('fx-dup-run', 'fx-dup-task', {
+    status: 'complete',
+    agentId: 'fx-agent-ignored-b',
+    loadoutId: 'fx-loadout-ignored-b',
+    startedAt: '2026-07-28T03:00:00.000Z',
+  });
+  const agentRich = makeFlowAgent('fx-dup-agent', {
+    role: 'orchestrator',
+    runtime: 'hermes',
+    status: 'blocked',
+    sourceRef: 'token=SOURCE-REF',
+    activeTaskIds: ['fx-task-x'],
+    lastSeenAt: '2026-07-28T07:00:00.000Z',
+  });
+  const agentBare = makeFlowAgent('fx-dup-agent', { role: 'executor', runtime: 'codex', status: 'running' });
+  const edges = [
+    { kind: 'executes', fromId: 'fx-dup-agent', toId: 'fx-dup-run' },
+    { kind: 'produces', fromId: 'fx-dup-run', toId: 'fx-dup-receipt' },
+    { kind: 'proves', fromId: 'fx-dup-receipt', toId: 'fx-dup-task' },
+  ] as MissionFabricProjectionV1['edges'];
+  const forward = makeFlowProjection({
+    nodes: [makeFlowTask('fx-dup-task'), receiptRich, receiptBare, runRich, runBare, agentRich, agentBare],
+    edges,
+    gaps: [],
+  });
+  const reversed = makeFlowProjection({
+    nodes: [makeFlowTask('fx-dup-task'), agentBare, agentRich, runBare, runRich, receiptBare, receiptRich],
+    edges,
+    gaps: [],
+  });
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversed);
+  assert.equal(reversedHtml, forwardHtml, 'non-operational-only differences render byte-identically under reversal');
+  for (const forbidden of [
+    'token=EVIDENCE-ONE',
+    'token=APPROVAL-ONE',
+    'token=SOURCE-REF',
+    'c'.repeat(64),
+    'd'.repeat(64),
+    'e'.repeat(64),
+    'receipt title that must never decide',
+    'fx-agent-ignored-a',
+    'fx-agent-ignored-b',
+    'fx-loadout-ignored-a',
+    'fx-loadout-ignored-b',
+    'orchestrator',
+    'hermes',
+  ]) {
+    assert.ok(!forwardHtml.includes(forbidden), `excluded field material never renders: ${forbidden.slice(0, 24)}…`);
+  }
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversed);
+  assert.equal(forwardBrowser, forwardHtml, 'browser parity holds for non-operational-only duplicates');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser parity holds under reversal with non-operational-only duplicates');
+});
+
+test('flow duplicate reconciliation total order covers rendered and filter truth fields', () => {
+  // The operational projection is a TOTAL deterministic order over every
+  // downstream truth-affecting field: conflicting desiredState, dependency,
+  // and assignedAgentId duplicates resolve identically under reversal, and
+  // the winner owns the visible desired/dependency truth and the agentId
+  // filter result.
+  const taskAlpha = makeFlowTask('fx-dup-task', {
+    status: 'ready',
+    desiredState: 'alpha-state',
+    dependencyIds: ['fx-dep-alpha'],
+    assignedAgentId: 'fx-agent-alpha',
+  });
+  const taskBeta = makeFlowTask('fx-dup-task', {
+    status: 'ready',
+    desiredState: 'beta-state',
+    dependencyIds: ['fx-dep-beta'],
+    assignedAgentId: 'fx-agent-beta',
+  });
+  const forward = makeFlowProjection({ nodes: [taskAlpha, taskBeta], edges: [], gaps: [] });
+  const reversed = makeFlowProjection({ nodes: [taskBeta, taskAlpha], edges: [], gaps: [] });
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversed);
+  assert.equal(reversedHtml, forwardHtml, 'desired/dependency duplicates reconcile byte-identically under reversal');
+  assert.match(forwardHtml, /data-of-task-desired="alpha-state"/, 'the deterministic winner owns visible desired state');
+  assert.ok(!forwardHtml.includes('beta-state'), 'the losing duplicate desired state never renders');
+  assert.ok(!forwardHtml.includes('fx-dep-beta'), 'the losing duplicate dependency never renders');
+  // Filter truth follows the same deterministic winner: the winner's
+  // assignedAgentId matches the agentId filter, the loser's never does.
+  const winnerFiltered = renderFlow(makeFlowProjection({ nodes: [taskBeta, taskAlpha], edges: [], gaps: [] }), {
+    agentId: 'fx-agent-alpha',
+  });
+  assert.ok(winnerFiltered.includes('data-of-task-desired="alpha-state"'), 'agentId filter matches the deterministic winner');
+  const loserFiltered = renderFlow(makeFlowProjection({ nodes: [taskAlpha, taskBeta], edges: [], gaps: [] }), {
+    agentId: 'fx-agent-beta',
+  });
+  assert.ok(!loserFiltered.includes('of-flow-item'), 'the losing duplicate assignedAgentId never satisfies the filter');
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversed);
+  assert.equal(forwardBrowser, forwardHtml, 'browser parity holds for operational-field duplicates');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser parity holds under reversal with operational-field duplicates');
+});
+
+// ── flow hardening pass 5: missionId excluded from duplicate selection ──────
+// missionId is NOT consumed by resolveFlowView — workId scoping uses explicit
+// canonical contains edges only — so it must never decide a duplicate winner.
+// Duplicates differing only in missionId must render byte-identically under
+// reversal, and truth-affecting fields (status, desiredState, assignedAgentId,
+// dependencyIds) must still deterministically reconcile.
+
+test('flow duplicates differing only in missionId render byte-identically under reversal', () => {
+  const taskMissionA = makeFlowTask('fx-dup-task', { missionId: 'fx-mission-alpha', status: 'blocked' });
+  const taskMissionB = makeFlowTask('fx-dup-task', { missionId: 'fx-mission-beta', status: 'ready' });
+  const forward = makeFlowProjection({ nodes: [taskMissionA, taskMissionB], edges: [], gaps: [] });
+  const reversed = makeFlowProjection({ nodes: [taskMissionB, taskMissionA], edges: [], gaps: [] });
+
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversed);
+  assert.equal(reversedHtml, forwardHtml, 'missionId-only differences render byte-identically under reversal');
+
+  // Status truth still deterministically reconciles: the canonical winner is
+  // the lexicographically smaller status ('blocked' < 'ready').
+  const listMarkup = forwardHtml.match(/<ol class="of-flow-list"[^>]*>([\s\S]*?)<\/ol>/)?.[0] ?? '';
+  assert.match(listMarkup, /data-of-task-status="blocked"/, 'status truth follows the deterministic winner');
+  assert.ok(!listMarkup.includes('data-of-task-status="ready"'), 'the losing duplicate status never renders');
+
+  // Full Node/browser parity under both orders.
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversed);
+  assert.equal(forwardBrowser, forwardHtml, 'browser parity holds for missionId-only duplicates');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser parity holds under reversal with missionId-only duplicates');
+});
+
+test('flow duplicate selection still reconciles truth-affecting fields when missionId also differs', () => {
+  // missionId is irrelevant, but assignedAgentId and desiredState are
+  // operational: the winner owns the visible desired state and the filter.
+  const taskAlpha = makeFlowTask('fx-dup-task', {
+    missionId: 'fx-mission-alpha',
+    status: 'ready',
+    desiredState: 'alpha-state',
+    assignedAgentId: 'fx-agent-alpha',
+  });
+  const taskBeta = makeFlowTask('fx-dup-task', {
+    missionId: 'fx-mission-beta',
+    status: 'ready',
+    desiredState: 'beta-state',
+    assignedAgentId: 'fx-agent-beta',
+  });
+  const forward = makeFlowProjection({ nodes: [taskAlpha, taskBeta], edges: [], gaps: [] });
+  const reversed = makeFlowProjection({ nodes: [taskBeta, taskAlpha], edges: [], gaps: [] });
+
+  const forwardHtml = renderFlow(forward);
+  const reversedHtml = renderFlow(reversed);
+  assert.equal(reversedHtml, forwardHtml, 'truth fields reconcile byte-identically under reversal');
+  assert.match(forwardHtml, /data-of-task-desired="alpha-state"/, 'the deterministic winner owns visible desired state');
+  assert.ok(!forwardHtml.includes('beta-state'), 'the losing duplicate desired state never renders');
+
+  const winnerFiltered = renderFlow(makeFlowProjection({ nodes: [taskBeta, taskAlpha], edges: [], gaps: [] }), {
+    agentId: 'fx-agent-alpha',
+  });
+  assert.ok(winnerFiltered.includes('data-of-task-desired="alpha-state"'), 'agentId filter matches the deterministic winner');
+  const loserFiltered = renderFlow(makeFlowProjection({ nodes: [taskAlpha, taskBeta], edges: [], gaps: [] }), {
+    agentId: 'fx-agent-beta',
+  });
+  assert.ok(!loserFiltered.includes('of-flow-item'), 'the losing duplicate assignedAgentId never satisfies the filter');
+
+  const forwardBrowser = renderFlowBrowser(forward);
+  const reversedBrowser = renderFlowBrowser(reversed);
+  assert.equal(forwardBrowser, forwardHtml, 'browser parity holds for truth-field duplicates');
+  assert.equal(reversedBrowser, forwardBrowser, 'browser parity holds under reversal with truth-field duplicates');
+});
+
+test('FLOW_BROWSER_JS contains no BigInt literal or digest helper', () => {
+  assert.ok(!/BigInt\s*\(/.test(FLOW_BROWSER_JS), 'FLOW_BROWSER_JS never calls BigInt');
+  assert.ok(!/\d+n\b/.test(FLOW_BROWSER_JS), 'FLOW_BROWSER_JS contains no BigInt literal suffix');
+  assert.ok(!/dupDigestHex|FNV|fnv|ofdupinternaldigest/.test(FLOW_BROWSER_JS), 'FLOW_BROWSER_JS contains no digest helper or token');
+  // missionId may appear in explanatory comments but is never READ as a
+  // field: no property access, no destructure, no operational-field entry.
+  assert.ok(!/\.missionId|\[['"]missionId['"]\]|\bmissionId\s*:/.test(FLOW_BROWSER_JS), 'FLOW_BROWSER_JS never reads task.missionId');
+});
