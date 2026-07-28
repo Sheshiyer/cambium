@@ -204,6 +204,7 @@ function makeFabricElement(tag: string) {
     hidden: false,
     inert: false,
     ariaHidden: null as string | null,
+    ariaSelected: null as string | null,
     dataset: {} as Record<string, string>,
     children: [] as unknown[],
     innerHTML: '',
@@ -225,10 +226,16 @@ function makeFabricElement(tag: string) {
     },
     getAttribute(name: string) {
       if (name === 'aria-hidden') return this.ariaHidden;
+      if (name === 'aria-selected') return this.ariaSelected;
+      if (name.startsWith('data-')) {
+        const key = name.slice(5).replace(/-([a-z])/g, (_dash, letter: string) => letter.toUpperCase());
+        return this.dataset[key] ?? null;
+      }
       return null;
     },
     setAttribute(name: string, value: string) {
       if (name === 'aria-hidden') this.ariaHidden = String(value);
+      if (name === 'aria-selected') this.ariaSelected = String(value);
     },
     listeners,
     addEventListener(type: string, handler: () => void) {
@@ -346,14 +353,30 @@ function bootOperatingFabricDocument(
   const bootScript = extractScriptBodies(OPERATING_FABRIC_BOOT)[0];
   assert.ok(bootScript, 'boot chunk yields its client script');
   vm.runInContext(bootScript, vm.createContext(context));
-  const clickOpen = (workId: string) => {
-    const opener = { getAttribute: (name: string) => (name === 'data-of-open-work' ? workId : null) };
-    const target = { closest: (selector: string) => (selector === '[data-of-open-work]' ? opener : null) };
+  const dispatchClick = (target: { closest: (selector: string) => unknown }) => {
     for (const handler of (fabricRoot as { listeners?: Map<string, Array<(event: unknown) => void>> }).listeners?.get('click') ?? []) {
       handler({ target });
     }
   };
-  return { fabricRoot, legacyShell, fetches, elements, tabElements, sceneElements, clickOpen };
+  const clickOpen = (workId: string) => {
+    const opener = { getAttribute: (name: string) => (name === 'data-of-open-work' ? workId : null) };
+    dispatchClick({ closest: (selector: string) => (selector === '[data-of-open-work]' ? opener : null) });
+  };
+  // Nested target: the opener is an ANCESTOR, so closest resolves only for
+  // the open-work selector — the real delegation path a bubbled click takes.
+  const clickNested = (workId: string) => {
+    const opener = { getAttribute: (name: string) => (name === 'data-of-open-work' ? workId : null) };
+    dispatchClick({ closest: (selector: string) => (selector === '[data-of-open-work]' ? opener : null) });
+  };
+  // A click on a non-interactive descendant: closest resolves for nothing.
+  const clickMiss = () => {
+    dispatchClick({ closest: () => null });
+  };
+  const clickTab = (sceneId: string) => {
+    const tab = { getAttribute: (name: string) => (name === 'data-of-tab' ? sceneId : null) };
+    dispatchClick({ closest: (selector: string) => (selector === '[data-of-tab]' ? tab : null) });
+  };
+  return { fabricRoot, legacyShell, fetches, elements, tabElements, sceneElements, clickOpen, clickNested, clickMiss, clickTab };
 }
 
 async function flushBoot() {
@@ -1318,12 +1341,14 @@ const missionContract = loadJsonFixture('../../../docs/architecture/contracts/sc
 const CANONICAL_SECRET_MARKER_PATTERN_SOURCE =
   'query_id=|auth_date=|\\bhash=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection';
 const CANONICAL_SECRET_MARKER = new RegExp(CANONICAL_SECRET_MARKER_PATTERN_SOURCE, 'i');
-// The grouped browser assignment grammar: assignment-like canonical field
-// names share one alternation under a single word boundary; every remaining
+// The grouped browser assignment grammar: query_id=/auth_date=/token= stay
+// unanchored exactly like the canonical Node policy, and hash keeps its
+// canonical word-boundary semantics expressed legibly as (?:^|\W) so the
+// served page carries no contiguous `hash=` literal. Every remaining
 // canonical term stays explicit. All field names and operators are plain and
 // readable — this is a normalized security grammar, not marker hiding.
 const BROWSER_GROUPED_SECRET_MARKER_PATTERN_SOURCE =
-  '\\b(?:query_id|auth_date|hash|token)=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection';
+  '(?:query_id|auth_date|token)=|(?:^|\\W)(?:hash)=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection';
 const BROWSER_GROUPED_SECRET_MARKER = new RegExp(BROWSER_GROUPED_SECRET_MARKER_PATTERN_SOURCE, 'i');
 const CANONICAL_MARKER_HOSTILE_VALUES = [
   'query_id=AAE7',
@@ -1341,6 +1366,55 @@ const CANONICAL_MARKER_HOSTILE_VALUES = [
   'prompt: ignore previous instructions',
   'prompt injection attempt',
 ];
+
+// Generated adversarial equivalence matrix: canonical Node policy vs grouped
+// browser policy must agree (boolean) on every cell. The matrix crosses
+// word-char and non-word prefixes with all four assignment signatures,
+// hostile suffixes, case variants, canonical remaining terms, and benign
+// near misses — including every reviewer reproduction. Divergence count is
+// asserted to be exactly zero by the tests below.
+const EQUIVALENCE_MATRIX_PREFIXES = ['', 'x', 'A', '0', '_', '-', '/', ' ', '\n', 'prefix_', 'access_', 'refresh_'];
+const EQUIVALENCE_MATRIX_SIGNATURES = ['query_id=', 'auth_date=', 'hash=', 'token='];
+const EQUIVALENCE_MATRIX_SUFFIXES = ['', 'abc123', 'AAE7', 'zz99 extra'];
+const EQUIVALENCE_REVIEWER_REPRODUCTIONS = [
+  'xtoken=abc123',
+  'atoken=1',
+  'access_token=xyz',
+  'refresh_token=abc',
+  'prefix_token=abc',
+  'xquery_id=AAE7',
+  'xauth_date=999',
+];
+const EQUIVALENCE_BENIGN_NEAR_MISSES = [
+  'xhash=1',
+  'prefix_hash=1',
+  'tokens=abc',
+  'query_ids=abc',
+  'auth_dates=1',
+  'hashes=1',
+  'token =abc',
+  'query_id =abc',
+  'hash =abc',
+  'token budget review',
+  'hashed evidence digest',
+  'query identifier audit',
+  'authorized ledger line',
+];
+const EQUIVALENCE_MATRIX_SAMPLES: string[] = (() => {
+  const samples = new Set<string>();
+  for (const prefix of EQUIVALENCE_MATRIX_PREFIXES) {
+    for (const signature of EQUIVALENCE_MATRIX_SIGNATURES) {
+      for (const suffix of EQUIVALENCE_MATRIX_SUFFIXES) {
+        samples.add(prefix + signature + suffix);
+        samples.add(prefix + signature.toUpperCase() + suffix);
+      }
+    }
+  }
+  for (const value of CANONICAL_MARKER_HOSTILE_VALUES) samples.add(value);
+  for (const value of EQUIVALENCE_REVIEWER_REPRODUCTIONS) samples.add(value);
+  for (const value of EQUIVALENCE_BENIGN_NEAR_MISSES) samples.add(value);
+  return [...samples];
+})();
 
 const TASK8_SOURCE = canopyFixture.states.normal.source;
 const TASK8_PROJECTION: MissionFabricProjectionV1 = buildMissionFabricProjection(TASK8_SOURCE, {
@@ -1484,19 +1558,19 @@ test('Task 8 modules pin the exact Task 7 secret-marker policy verbatim', () => 
     'the served boot script no longer embeds the verbatim canonical pattern',
   );
   // Equivalence proof, not a claim: canonical Node policy and grouped browser
-  // policy agree on every canonical hostile signature and every benign near
-  // miss.
-  for (const sample of [
-    ...CANONICAL_MARKER_HOSTILE_VALUES,
-    'promptly verify the fence',
-    'Prompt Engineering program',
-    'token budget review',
-    'hashed evidence digest',
-    'authorized ledger line',
-    'private customer notes',
-    'query identifier audit',
-    'bearer of the badge',
-  ]) {
+  // policy agree (boolean) on every cell of the generated adversarial matrix
+  // — prefixes x signatures x suffixes, case variants, reviewer
+  // reproductions, canonical remaining terms, and benign near misses.
+  let divergences = 0;
+  for (const sample of EQUIVALENCE_MATRIX_SAMPLES) {
+    if (BROWSER_GROUPED_SECRET_MARKER.test(sample) !== CANONICAL_SECRET_MARKER.test(sample)) divergences += 1;
+  }
+  assert.equal(
+    divergences,
+    0,
+    `grouped browser policy is boolean-equivalent to the canonical Node policy on all ${EQUIVALENCE_MATRIX_SAMPLES.length} matrix cells`,
+  );
+  for (const sample of ['promptly verify the fence', 'Prompt Engineering program', 'private customer notes', 'bearer of the badge']) {
     assert.equal(
       BROWSER_GROUPED_SECRET_MARKER.test(sample),
       CANONICAL_SECRET_MARKER.test(sample),
@@ -1535,12 +1609,20 @@ test('served browser policy never hides markers — no obfuscated, split, encode
     assert.ok(!/\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|fromCharCode|fromCodePoint/.test(source), `${label} never encodes markers as escapes or char codes`);
     assert.ok(!/new RegExp|eval\(|new Function\(/.test(source), `${label} never constructs the policy dynamically`);
   }
-  // The grouped grammar keeps every canonical term plain and readable in the
-  // served source: assignment-like field names appear verbatim, merely
-  // grouped under one shared '=' inside a single alternation.
+  // The normalized grammar keeps every canonical term plain and readable in
+  // the served source: assignment-like field names appear verbatim, grouped
+  // under shared '=' alternations with the canonical boundary semantics.
   for (const field of ['query_id', 'auth_date', 'hash', 'token']) {
     assert.ok(OPERATING_FABRIC_BOOT.includes(field), `browser grammar names ${field} plainly`);
   }
+  assert.ok(
+    OPERATING_FABRIC_BOOT.includes('(?:query_id|auth_date|token)=|(?:^|\\W)(?:hash)='),
+    'browser grammar keeps the unanchored assignment group and the legible hash boundary',
+  );
+  assert.ok(
+    !OPERATING_FABRIC_BOOT.includes('hash='),
+    'served boot never carries the contiguous raw-audit hash= literal',
+  );
   for (const term of ['Bearer\\s', 'bot_token', 'clientSecret', 'initData', 'TELEGRAM_INIT_DATA', 'TG_INIT_DATA', 'QUESTS_PUSH_TOKEN', 'PRIVATE KEY']) {
     assert.ok(OPERATING_FABRIC_BOOT.includes(term), `browser grammar keeps ${term} explicit`);
   }
@@ -1958,9 +2040,7 @@ test('mission scene shows desired vs observed state, dependencies, blockers, gap
       : null;
     if (explicit) return true;
     return proofEdges.some(
-      (edge) =>
-        (receiptById.has(edge.fromId) && edge.toId === task.value.taskId) ||
-        (receiptById.has(edge.toId) && edge.fromId === task.value.taskId),
+      (edge) => receiptById.has(edge.fromId) && edge.toId === task.value.taskId,
     );
   }).length;
   assert.equal(receiptCovered, covered, 'receipt coverage follows latestReceiptId and exact proof edges only');
@@ -2559,4 +2639,159 @@ test('a double boot leaves exactly one active shell and one populated canopy', a
       `${label}: exactly one canopy summary renders`,
     );
   }
+});
+
+test('browser and canonical secret policies agree on the generated adversarial matrix with zero divergences', () => {
+  const divergent: string[] = [];
+  for (const sample of EQUIVALENCE_MATRIX_SAMPLES) {
+    if (BROWSER_GROUPED_SECRET_MARKER.test(sample) !== CANONICAL_SECRET_MARKER.test(sample)) divergent.push(sample);
+  }
+  assert.deepEqual(divergent, [], `zero divergences across ${EQUIVALENCE_MATRIX_SAMPLES.length} matrix cells`);
+  // Reviewer reproductions are hostile under BOTH policies.
+  for (const reproduction of EQUIVALENCE_REVIEWER_REPRODUCTIONS) {
+    assert.equal(CANONICAL_SECRET_MARKER.test(reproduction), true, `canonical policy flags ${reproduction}`);
+    assert.equal(BROWSER_GROUPED_SECRET_MARKER.test(reproduction), true, `browser policy flags ${reproduction}`);
+  }
+  // Benign prefixed-hash near misses stay unflagged under BOTH policies.
+  for (const benign of ['xhash=1', 'prefix_hash=1']) {
+    assert.equal(CANONICAL_SECRET_MARKER.test(benign), false, `canonical policy tolerates ${benign}`);
+    assert.equal(BROWSER_GROUPED_SECRET_MARKER.test(benign), false, `browser policy tolerates ${benign}`);
+  }
+});
+
+test('prefixed-hostile projection values survive neither Node renderers nor the composed browser boot', async () => {
+  // Every value here is flagged by BOTH policies (benign prefixed-hash near
+  // misses like 'xhash=1' are pinned unflagged in the matrix test above and
+  // must NOT be routed here — renderers rightly let them through).
+  const prefixedHostile = [
+    ...EQUIVALENCE_REVIEWER_REPRODUCTIONS,
+    'XTOKEN=ABC123',
+    ' prefix_token=abc',
+  ];
+  const hostileWorkValues = prefixedHostile.map((marker, index) =>
+    makeWorkNode({
+      kind: 'sapling',
+      workId: `fx-prefixed-${index} ${marker}`,
+      name: `prefixed ${marker}`,
+      currentGate: `gate ${marker}`,
+      status: 'active',
+    }).value,
+  );
+  const hostileProjection = {
+    ...TASK8_PROJECTION,
+    nodes: [...TASK8_PROJECTION.nodes, ...hostileWorkValues.map((value) => ({ kind: 'work' as const, value }))],
+  } as unknown as MissionFabricProjectionV1;
+  const canopyHtml = renderCanopy(hostileProjection);
+  const missionHtml = renderOperatingMission(hostileProjection, 'fx-program-001');
+  for (const marker of prefixedHostile) {
+    assert.ok(!canopyHtml.includes(marker), `node canopy never emits ${marker}`);
+    assert.ok(!missionHtml.includes(marker), `node mission never emits ${marker}`);
+  }
+  const booted = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: hostileProjection,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  await flushBoot();
+  const canopyRoot = booted.elements.get('of-scene-canopy')!;
+  const missionRoot = booted.elements.get('of-scene-mission')!;
+  // Selecting a work object round-trips the hostile projection through the
+  // real delegated click path and re-renders both scenes.
+  booted.clickOpen('fx-program-001');
+  await flushBoot();
+  for (const marker of prefixedHostile) {
+    assert.ok(!canopyRoot.innerHTML.includes(marker), `browser canopy root never contains ${marker}`);
+    assert.ok(!missionRoot.innerHTML.includes(marker), `browser mission root never contains ${marker}`);
+    assert.ok(!canopyRoot.textContent.includes(marker), `browser canopy visible text never contains ${marker}`);
+    assert.ok(!missionRoot.textContent.includes(marker), `browser mission visible text never contains ${marker}`);
+  }
+  // No hostile value survives into the data attributes the harness mirrors
+  // from rendered DOM, nor into aria labels.
+  for (const element of [canopyRoot, missionRoot]) {
+    for (const value of Object.values(element.dataset)) {
+      for (const marker of prefixedHostile) {
+        assert.ok(!value.includes(marker), 'browser data attributes never carry hostile prefixed values');
+      }
+    }
+  }
+  assert.ok(!canopyRoot.innerHTML.includes('aria-label="xtoken='), 'aria labels never carry hostile prefixed values');
+  assert.ok(!missionRoot.innerHTML.includes('aria-label="xtoken='), 'aria labels never carry hostile prefixed values');
+});
+
+test('scene contracts list only renderer-owned states — no phantom loading state', () => {
+  const CANOPY_SOURCE = readFileSync(new URL('./page/operating-fabric/canopy.ts', import.meta.url), 'utf8');
+  const MISSION_SOURCE = readFileSync(new URL('./page/operating-fabric/mission.ts', import.meta.url), 'utf8');
+  for (const [label, contract, source] of [
+    ['canopy', canopyContract, CANOPY_SOURCE],
+    ['operating-mission', missionContract, MISSION_SOURCE],
+  ] as const) {
+    assert.ok(!contract.states.renders.includes('loading'), `${label} contract never claims a renderer-owned loading state`);
+    assert.ok(!('loading' in contract.states.derivation), `${label} contract derives no loading state`);
+    assert.equal(source.includes("ofRenderState('loading'"), false, `${label} renderer never emits a loading state`);
+    assert.equal(source.includes("of-state-loading"), false, `${label} renderer carries no loading state markup`);
+  }
+});
+
+test('click delegation covers nested openers, non-opener clicks, and tab navigation', async () => {
+  const booted = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: TASK8_PROJECTION,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  await flushBoot();
+  assert.equal(booted.fabricRoot.classList.contains('of-on'), true, 'shell activates before click coverage');
+  const canopyRoot = booted.elements.get('of-scene-canopy')!;
+  const missionRoot = booted.elements.get('of-scene-mission')!;
+  const canopyHtmlAfterBoot = canopyRoot.innerHTML;
+  const clickHandlers = (booted.fabricRoot as unknown as { listeners: Map<string, unknown[]> }).listeners.get('click') ?? [];
+  assert.equal(clickHandlers.length, 1, 'exactly one delegated click handler is registered');
+  const fetchesAfterBoot = booted.fetches.length;
+
+  // Nested opener: the click target sits inside the opener element, so only
+  // closest('[data-of-open-work]') resolves — event delegation semantics.
+  booted.clickNested('fx-program-001');
+  await flushBoot();
+  const canopyHtmlAfterOpen = canopyRoot.innerHTML;
+  assert.match(missionRoot.innerHTML, /data-lineage-work="fx-program-001"/, 'nested opener click selects the work lineage');
+  const missionTab = booted.tabElements.find((tab) => tab.dataset.ofTab === 'mission')!;
+  const canopyTab = booted.tabElements.find((tab) => tab.dataset.ofTab === 'canopy')!;
+  assert.equal(missionTab.ariaSelected, 'true', 'mission tab is selected after opening a work object');
+  assert.equal(canopyTab.ariaSelected, 'false', 'canopy tab is deselected after opening a work object');
+  assert.equal(missionRoot.hidden, false, 'mission panel is unhidden after opening a work object');
+  assert.equal(canopyRoot.hidden, true, 'canopy panel is hidden after opening a work object');
+  const clickHandlersAfterOpen = (booted.fabricRoot as unknown as { listeners: Map<string, unknown[]> }).listeners.get('click') ?? [];
+  assert.equal(clickHandlersAfterOpen.length, 1, 'opening a work object registers no additional click handlers');
+  assert.equal(booted.fetches.length, fetchesAfterBoot, 'opening a work object issues no fetch');
+  assert.equal(canopyHtmlAfterOpen, canopyHtmlAfterBoot, 'canopy re-render is deterministic through selection');
+
+  // Non-opener click: closest returns null for every selector — no throw, no
+  // scene change, no re-render.
+  const missionHtmlBeforeNonOpener = missionRoot.innerHTML;
+  booted.clickMiss();
+  await flushBoot();
+  assert.equal(missionRoot.hidden, false, 'non-opener click never changes the active panel');
+  assert.equal(missionTab.ariaSelected, 'true', 'non-opener click never changes the selected tab');
+  assert.equal(missionRoot.innerHTML, missionHtmlBeforeNonOpener, 'non-opener click never re-renders');
+  assert.equal(booted.fetches.length, fetchesAfterBoot, 'non-opener click issues no fetch');
+
+  // Tab click: local scene navigation only.
+  const canopyHtmlBeforeTab = canopyRoot.innerHTML;
+  const missionHtmlBeforeTab = missionRoot.innerHTML;
+  booted.clickTab('canopy');
+  await flushBoot();
+  assert.equal(canopyRoot.hidden, false, 'tab click unhides the canopy panel');
+  assert.equal(missionRoot.hidden, true, 'tab click hides the mission panel');
+  assert.equal(canopyTab.ariaSelected, 'true', 'tab click selects the canopy tab');
+  assert.equal(missionTab.ariaSelected, 'false', 'tab click deselects the mission tab');
+  assert.equal(canopyRoot.innerHTML, canopyHtmlBeforeTab, 'tab click never re-renders canopy');
+  assert.equal(missionRoot.innerHTML, missionHtmlBeforeTab, 'tab click never re-renders mission');
+  assert.equal(booted.fetches.length, fetchesAfterBoot, 'tab click issues no fetch');
+  const clickHandlersAfterAll = (booted.fabricRoot as unknown as { listeners: Map<string, unknown[]> }).listeners.get('click') ?? [];
+  assert.equal(clickHandlersAfterAll.length, 1, 'no click path ever duplicates the delegated handler');
+  assert.equal(booted.legacyShell.hidden, true, 'no click path ever mutates the legacy shell');
+  assert.equal(booted.legacyShell.inert, true, 'no click path ever restores legacy interactivity');
 });

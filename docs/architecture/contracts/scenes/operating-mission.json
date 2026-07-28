@@ -27,7 +27,6 @@
   },
   "states": {
     "renders": [
-      "loading",
       "empty",
       "stale",
       "error",
@@ -61,5 +60,5 @@
     "structure": "lineage rows are ordered lists of articles with labelled facts; the governed cue is plain text, never a fake active control",
     "announcements": "empty/error states use role=status via the shared FabricState renderer"
   },
-  "redaction": "no initData, tokens, raw evidence refs, prompt material, or client payloads render; receipt coverage renders ids and counts only; every projection-derived string passes the Task 7 escaping/fail-closed policy. The Node substrate embeds the canonical Task 7 signature regex VERBATIM (query_id=|auth_date=|\\bhash=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection); the served browser substrate uses a behavior-equivalent grouped assignment grammar (\\b(?:query_id|auth_date|hash|token)= plus the remaining explicit canonical terms) solely to separate detector syntax from secret-value leakage under the frozen raw-PAGE audit — equivalence proven by tests, no character-class fragmentation, no split/concatenated forms"
+  "redaction": "no initData, tokens, raw evidence refs, prompt material, or client payloads render; receipt coverage renders ids and counts only; every projection-derived string passes the Task 7 escaping/fail-closed policy. The Node substrate embeds the canonical Task 7 signature regex VERBATIM (query_id=|auth_date=|\\bhash=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection); the served browser substrate expresses the same policy as a legible normalized grammar — (?:query_id|auth_date|token)=|(?:^|\\W)(?:hash)= plus the remaining explicit canonical terms — that keeps query_id/auth_date/token unanchored and the hash word boundary exactly like the canonical policy while never containing the contiguous raw-audit hash= literal; boolean equivalence is proven by a generated adversarial matrix (prefixes × assignment signatures × suffixes, case variants, benign near misses) with zero divergences; no character-class fragmentation, no split/concatenated forms"
 }

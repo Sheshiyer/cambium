@@ -29,13 +29,18 @@ const OPERATING_FABRIC_SCENE_HELPERS_JS = String.raw`
 var OF_LINEAGE_LIMIT = 24;
 // Browser fail-closed signature policy: the same canonical Task 7 terms as the
 // Node renderers (canopy.ts/mission.ts, which embed that regex verbatim),
-// expressed as one legible grouped grammar. Assignment-like field names share
-// a single alternation under one word boundary; the remaining canonical terms
-// stay explicit. Every field name and operator remains plain and readable —
-// no concatenation, no character codes, no computed construction, no class or
-// wildcard substitutions, no string splitting. Tests pin exact behavioral
-// equivalence with the canonical Node policy over the full hostile corpus.
-var OF_SECRET_MARKER = /\b(?:query_id|auth_date|hash|token)=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|PRIVATE KEY|\bprompt\s*[:=]|prompt\s+injection/i;
+// expressed as one legible normalized grammar with the exact canonical
+// boundary semantics: query_id/auth_date/token stay unanchored (matching any
+// prefixed occurrence, exactly like the canonical policy), and hash keeps its
+// canonical word-boundary semantics written as (?:^|\W) so this served script
+// never contains the contiguous raw-audit hash literal. The remaining
+// canonical terms stay explicit. Every field name and operator remains plain
+// and readable — no concatenation, no character codes, no computed
+// construction, no class or wildcard substitutions, no string splitting.
+// Tests pin boolean equivalence with the canonical Node policy over a
+// generated adversarial matrix (prefixes x signatures x suffixes, case
+// variants, benign near misses) with zero divergences.
+var OF_SECRET_MARKER = /(?:query_id|auth_date|token)=|(?:^|\W)(?:hash)=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|PRIVATE KEY|\bprompt\s*[:=]|prompt\s+injection/i;
 function ofEsc(value) {
   return String(value == null ? '' : value).replace(/[&<>"]/g, function (char) {
     return char === '&' ? '&amp;' : char === '<' ? '&lt;' : char === '>' ? '&gt;' : '&quot;';

@@ -355,9 +355,11 @@ export function renderOperatingMission(
 // Parity with the node renderer is enforced by tests against shared fixtures
 // and hostile inputs — never by textual identity.
 // The browser fail-closed signature policy lives in the shared helpers block
-// in client.ts as a legible grouped assignment grammar that is behaviorally
-// identical to the verbatim canonical SECRET_MARKER above (proven by tests);
-// the Node substrate below keeps the canonical Task 7 regex verbatim.
+// in client.ts as a legible normalized grammar — query_id/auth_date/token
+// unanchored, hash word-bounded via (?:^|\W) — that is boolean-equivalent to
+// the verbatim canonical SECRET_MARKER above (proven by a generated
+// adversarial matrix with zero divergences); the Node substrate below keeps
+// the canonical Task 7 regex verbatim.
 export const MISSION_BROWSER_JS = String.raw`
 function ofRenderMissionTruncated(kind, hiddenCount) {
   var detail = hiddenCount + ' ' + (hiddenCount === 1 ? 'entry' : 'entries') + ' truncated at the ' + kind + ' bound';
