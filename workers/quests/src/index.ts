@@ -102,6 +102,7 @@ interface Env {
   OPENCODE_BASE_URL?: string;
   OPENCODE_DEFAULT_MODEL?: string;
   GATE_BRANCH_MAP_TENANTS?: string;
+  MISSION_FABRIC_TENANTS?: string;
   TF_ACCESS_TEAM_DOMAIN?: string;
   TF_ACCESS_AUD?: string;
   PLEXUS_WHOAMI_URL?: string;
@@ -1359,6 +1360,7 @@ export default {
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       branchMapTenants: parseAllowedTenants(env.GATE_BRANCH_MAP_TENANTS),
+      missionFabricTenants: parseAllowedTenants(env.MISSION_FABRIC_TENANTS),
       plexus: env.TF_ACCESS_TEAM_DOMAIN && env.TF_ACCESS_AUD ? {
         teamDomain: env.TF_ACCESS_TEAM_DOMAIN,
         aud: env.TF_ACCESS_AUD,

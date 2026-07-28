@@ -33,6 +33,16 @@ import { filterSections, filterSubsections, type Principal } from './rbac.ts';
 import { createInvite as createConsultantInvite, verifyInvite as verifyConsultantInvite } from './invites.ts';
 import { resolvePlexusPrincipal, type PlexusGateConfig } from './lib/plexus-principal.ts';
 import { buildBranchMapProjection, projectionDigest } from './branch-map.ts';
+import {
+  MISSION_FABRIC_CAPS,
+  adaptBranchStories,
+  adaptCompanyPrograms,
+  adaptGoalGraph,
+  adaptQuestExecutionFacts,
+  projectionDigest as missionFabricProjectionDigest,
+  redactMissionFabricProjection,
+} from './mission-fabric.ts';
+import type { FabricEdge, FabricGap, FabricNode, MissionFabricProjectionV1, MissionFabricViewer } from './mission-fabric.ts';
 import { BRANCH_MAP_RECEIPT_READ_LIMIT } from './branch-map-receipt-store.ts';
 import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
 import { renderBranchMapSheet } from './branch-map-sheet.ts';
@@ -432,6 +442,7 @@ export interface HandlerDeps {
   goalGraphStore?: GoalGraphStoreLike; // D1 Goal Graph authority for read-only branch projections
   branchMapReceiptStore?: BranchMapReceiptStoreLike; // D1 append-only transition evidence
   branchMapTenants?: string[]; // server-owned allowlist for Telegram map reads
+  missionFabricTenants?: string[]; // server-owned allowlist for operating-fabric composition reads; absent/empty disables all tenants
   plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → dev founder fallback)
 }
 
@@ -2725,6 +2736,250 @@ function queryParam(path: string, key: string): string | undefined {
   return new URLSearchParams(path.slice(queryStart + 1)).get(key) ?? undefined;
 }
 
+
+// ── Task 5 · GET /v1/mission-fabric/{tenant} ────────────────────────────────
+// Authenticated, bounded, GET-only, read-only operating-fabric composition.
+// Reads the D1 Goal Graph head/nodes, the KV quest envelope (ledgerKey), and
+// the D1 branch/runtime receipts; adapts them through the pure Task 3-4
+// compiler/adapters/redactor; never writes, backfills, or fabricates joins.
+// The allowlist is server-owned: an absent or empty MISSION_FABRIC_TENANTS
+// disables every tenant — the route never defaults to cambium.
+
+export interface FabricShadowReport {
+  branchFacts: number;
+  representedFacts: number;
+  missingIds: readonly string[];
+  unexpectedIds: readonly string[];
+}
+
+const MISSION_FABRIC_CLOCK_SKEW_MS = 24 * 60 * 60_000;
+
+function fabricIdentityOf(node: FabricNode): string {
+  const value = node.value as Record<string, unknown>;
+  return String(value.workId ?? value.missionId ?? value.taskId ?? value.agentId ?? value.clusterId ?? value.runId ?? value.receiptId ?? '');
+}
+
+function fabricTimestampMs(value: string): number | null {
+  if (!CANONICAL_FABRIC_TS.test(value)) return null;
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+const CANONICAL_FABRIC_TS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+
+function fabricBranchFactIds(branchStories: unknown): string[] {
+  const rows = Array.isArray(branchStories) ? branchStories : [];
+  const ids: string[] = [];
+  for (const row of rows) {
+    if (!isRecord(row)) continue;
+    if (row.branchKind === 'product' && typeof row.branchId === 'string' && row.branchId.length > 0) ids.push(row.branchId);
+    if (row.branchKind === 'client' && typeof row.productId === 'string' && row.productId.length > 0) ids.push(row.productId);
+  }
+  return [...new Set(ids)].sort();
+}
+
+async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, routePath: string): Promise<SimpleResponse> {
+  const tenantPath = routePath.split('?')[0];
+  const tenant = tenantOf(tenantPath, '/v1/mission-fabric/');
+  if (!tenant) return json(400, { error: 'bad tenant' });
+  if (req.method !== 'GET') {
+    return { ...json(405, { error: 'mission fabric is GET-only' }), headers: { ...JSON_HEADERS, allow: 'GET' } };
+  }
+  const allowlist = deps.missionFabricTenants ?? [];
+  if (!allowlist.includes(tenant)) return json(403, { error: 'mission fabric tenant is not enabled' });
+  if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
+  const initData = (req.headers['x-telegram-init-data'] ?? req.headers['telegram-init-data'] ?? '').trim();
+  const auth = await validateInitData(initData, deps.gate);
+  if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
+  if (!deps.goalGraphStore || !deps.branchMapReceiptStore) {
+    return json(503, { error: 'mission fabric authority is not configured' });
+  }
+
+  try {
+    const head = await deps.goalGraphStore.readHead(tenant);
+    if (!head) return json(404, { error: 'mission fabric graph not found' });
+    const nodes = await deps.goalGraphStore.readNodes(tenant);
+    const storedEnvelope = parseStoredEnvelope(await deps.kv.get(ledgerKey(tenant))) as Record<string, unknown> | null;
+    const receipts = await deps.branchMapReceiptStore.listReceipts(tenant, undefined, BRANCH_MAP_RECEIPT_READ_LIMIT);
+
+    const servedAt = deps.now ? deps.now() : new Date().toISOString();
+    if (fabricTimestampMs(servedAt) === null) return json(503, { error: 'mission_fabric_clock_invalid' });
+
+    const entries: Array<FabricNode | FabricGap> = [];
+    for (const entry of [...adaptBranchStories(isRecord(storedEnvelope) ? storedEnvelope.branchStories : null), ...adaptCompanyPrograms(isRecord(storedEnvelope) ? storedEnvelope.companyPrograms : null)]) {
+      if (entry.kind === 'gap') {
+        entries.push({ gapId: entry.gapId, kind: entry.gapKind, subjectId: entry.subjectId, detail: entry.detail, evidenceRef: entry.evidenceRef });
+      } else {
+        entries.push(entry);
+      }
+    }
+    entries.push(...adaptGoalGraph({ tenantId: tenant, graphVersion: head.graphVersion, nodes }));
+    const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;
+    if (isRecord(fabricFacts) && Array.isArray(fabricFacts.fences)) {
+      for (const fenceRow of fabricFacts.fences) {
+        if (!isRecord(fenceRow)) continue;
+        const currentFence = fenceRow.currentFence;
+        const nonFinite = typeof currentFence === 'number' && !Number.isFinite(currentFence);
+        if (nonFinite || currentFence === '__fabric-non-finite__') {
+          return json(503, { error: 'mission_fabric_fence_invalid' });
+        }
+      }
+    }
+    if (isRecord(fabricFacts) && Array.isArray(fabricFacts.runs)) {
+      for (const run of fabricFacts.runs) {
+        if (!isRecord(run)) continue;
+        if (typeof run.nonceExpiresAt === 'string' && run.nonceExpiresAt.length > 0 && fabricTimestampMs(run.nonceExpiresAt) === null) {
+          run.nonceExpiresAt = '1970-01-01T00:00:00.000Z';
+        }
+      }
+    }
+    const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt });
+    entries.push(...execution.nodes);
+    const mergedEdges: FabricEdge[] = [...execution.edges];
+    const mergedGaps: FabricGap[] = [...execution.gaps];
+
+    const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
+    const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
+    for (let index = mergedEdges.length - 1; index >= 0; index -= 1) {
+      const edge = mergedEdges[index];
+      if (edge.kind !== 'executes') continue;
+      if (agentNodeIds.has(edge.fromId)) continue;
+      mergedEdges.splice(index, 1);
+      mergedGaps.push({
+        gapId: `gap-executes-join-${edge.toId}`,
+        kind: 'missing-join',
+        subjectId: edge.toId,
+        detail: `Run ${edge.toId} names executor agent ${edge.fromId}, but no explicit agent node exists; the executes edge was not emitted.`,
+        evidenceRef: null,
+      });
+    }
+
+    const receiptEvidence = new Map(receipts.map((receipt) => [receipt.receiptId, receipt.observedAt]));
+    const composedNodes: FabricNode[] = [];
+    for (const entry of entries) {
+      if ('gapId' in entry) {
+        mergedGaps.push(entry);
+        continue;
+      }
+      if (entry.kind === 'receipt') {
+        const observedAt = receiptEvidence.get(entry.value.receiptId);
+        if (observedAt !== undefined && fabricTimestampMs(observedAt) !== null) {
+          composedNodes.push({ kind: 'receipt', value: { ...entry.value, createdAt: observedAt } });
+          continue;
+        }
+      }
+      composedNodes.push(entry);
+    }
+    for (const receipt of receipts) {
+      if (runNodeIds.size === 0) break;
+      const alreadyRepresented = composedNodes.some((node) => node.kind === 'receipt' && node.value.receiptId === receipt.receiptId);
+      if (alreadyRepresented) continue;
+      mergedGaps.push({
+        gapId: `gap-runtime-receipt-${receipt.receiptId}`,
+        kind: 'missing-join',
+        subjectId: receipt.receiptId,
+        detail: `Branch/runtime receipt ${receipt.receiptId} has no durable execution-fact counterpart in the quest envelope; it was not fabricated into a node.`,
+        evidenceRef: null,
+      });
+    }
+
+    const sortedNodes = [...composedNodes].sort((a, b) => {
+      const left = `${a.kind}:${fabricIdentityOf(a)}`;
+      const right = `${b.kind}:${fabricIdentityOf(b)}`;
+      return left < right ? -1 : left > right ? 1 : 0;
+    }).slice(0, MISSION_FABRIC_CAPS.MAX_NODES);
+    const sortedEdges = [...mergedEdges].sort((a, b) => {
+      const left = `${a.kind}:${a.fromId}:${a.toId}`;
+      const right = `${b.kind}:${b.fromId}:${b.toId}`;
+      return left < right ? -1 : left > right ? 1 : 0;
+    }).slice(0, MISSION_FABRIC_CAPS.MAX_EDGES);
+    if (composedNodes.length > MISSION_FABRIC_CAPS.MAX_NODES || mergedEdges.length > MISSION_FABRIC_CAPS.MAX_EDGES) {
+      mergedGaps.push({
+        gapId: 'gap-projection-truncated-composition',
+        kind: 'projection-truncated',
+        subjectId: null,
+        detail: 'The composed mission fabric exceeded the projection caps; entries were omitted deterministically.',
+        evidenceRef: null,
+      });
+    }
+    const sortedGaps = [...mergedGaps].sort((a, b) => (a.gapId < b.gapId ? -1 : a.gapId > b.gapId ? 1 : 0));
+    if (sortedGaps.length > MISSION_FABRIC_CAPS.MAX_GAPS) {
+      return json(503, { error: 'mission_fabric_gap_overflow' });
+    }
+
+    const content = {
+      projectionVersion: 1 as const,
+      tenantId: tenant,
+      graphVersion: head.graphVersion,
+      sourceOfTruth: 'd1-goal-graph' as const,
+      readOnly: true as const,
+      nodes: sortedNodes,
+      edges: sortedEdges,
+      gaps: sortedGaps,
+    };
+    const projection: MissionFabricProjectionV1 = {
+      schema: 'cambium.mission-fabric-projection.v1',
+      ...content,
+      graphDigest: missionFabricProjectionDigest(content),
+      generatedAt: servedAt,
+      asOf: typeof head.committedAt === 'string' && fabricTimestampMs(head.committedAt) !== null ? head.committedAt : servedAt,
+    };
+
+    const viewer: MissionFabricViewer = {
+      role: deps.gate.founderIds.includes(auth.userId) ? 'founder' : 'viewer',
+      tenantId: tenant,
+    };
+    const redacted = redactMissionFabricProjection(projection, viewer);
+    const redactedDigest = missionFabricProjectionDigest(redacted);
+    if (redactedDigest !== redacted.graphDigest) {
+      return json(503, { error: 'mission_fabric_projection_digest_invalid' });
+    }
+
+    const derivedAt = isRecord(storedEnvelope) && typeof storedEnvelope.derivedAt === 'string' ? storedEnvelope.derivedAt : '';
+    const headMs = fabricTimestampMs(projection.asOf);
+    const derivedMs = fabricTimestampMs(derivedAt);
+    const freshness = derivedMs !== null && headMs !== null && derivedMs >= headMs - MISSION_FABRIC_CLOCK_SKEW_MS ? 'fresh' : 'stale';
+
+    const body: Record<string, unknown> = {
+      projection: redacted,
+      delivery: { operatingFabricEnabled: true, servedAt, freshness },
+    };
+
+    const shadowRequested = queryParam(req.path, 'shadow') === '1';
+    if (shadowRequested && allowlist.includes(tenant)) {
+      const branchFactIds = fabricBranchFactIds(isRecord(storedEnvelope) ? storedEnvelope.branchStories : null);
+      const represented = new Set(
+        redacted.nodes
+          .filter((node): node is Extract<FabricNode, { kind: 'work' }> => node.kind === 'work')
+          .filter((node) => node.value.kind === 'sapling' || (node.value.kind === 'program' && node.value.programKind === 'client'))
+          .map((node) => (node.value.kind === 'sapling' ? node.value.branchId : node.value.workId)),
+      );
+      const missingIds = branchFactIds.filter((id) => !represented.has(id)).sort();
+      const unexpectedIds = [...represented].filter((id) => !branchFactIds.includes(id)).sort();
+      const shadow: FabricShadowReport = {
+        branchFacts: branchFactIds.length,
+        representedFacts: branchFactIds.length - missingIds.length,
+        missingIds,
+        unexpectedIds,
+      };
+      body.shadow = shadow;
+      body.promotionBlocked = missingIds.length > 0;
+    }
+
+    return {
+      status: 200,
+      headers: {
+        ...JSON_HEADERS,
+        'cache-control': 'private, no-store',
+        etag: redacted.graphDigest,
+      },
+      body: JSON.stringify(body),
+    };
+  } catch {
+    return json(503, { error: 'mission_fabric_authority_unavailable' });
+  }
+}
+
 async function handleBranchMapRoute(req: SimpleRequest, deps: HandlerDeps, routePath: string): Promise<SimpleResponse> {
   const tenant = tenantOf(routePath, '/v1/branch-map/');
   if (!tenant) return json(400, { error: 'bad tenant' });
@@ -3183,6 +3438,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (routePath.startsWith('/v1/branch-map/')) {
     return handleBranchMapRoute(req, deps, routePath);
+  }
+
+  if (routePath.startsWith('/v1/mission-fabric/')) {
+    return handleMissionFabricRoute(req, deps, routePath);
   }
 
   if (routePath.startsWith('/v1/context/')) {

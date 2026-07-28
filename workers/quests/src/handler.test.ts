@@ -13273,3 +13273,14 @@ test('standups read · served record carries no token or Telegram material', asy
   const storedRaw = kv.store.get('standup:cambium:mathis:2026-07-17')!;
   assert.doesNotMatch(storedRaw, /tg-chat-777000111|bridge-token-material-zzz|renderer-secret-yyy/);
 });
+
+test('mission fabric route does not shadow existing routes and unknown paths still 404', async () => {
+  const health = await handle(req('GET', '/healthz'), { kv: fakeKv() });
+  assert.equal(health.status, 200);
+  const unknown = await handle(req('GET', '/v1/mission-fabric'), { kv: fakeKv() });
+  assert.equal(unknown.status, 404);
+  const unknownPost = await handle(req('POST', '/v1/mission-fabric', { body: '{}' }), { kv: fakeKv() });
+  assert.equal(unknownPost.status, 404);
+  const adjacent = await handle(req('GET', '/v1/mission-fabric-extra/cambium'), { kv: fakeKv() });
+  assert.equal(adjacent.status, 404);
+});
