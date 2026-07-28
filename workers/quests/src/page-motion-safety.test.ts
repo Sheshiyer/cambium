@@ -15,6 +15,9 @@ import {
   mergeProductionEnvelope,
   renderPageFixtureContext,
 } from '../../../scripts/text-density-audit.mjs';
+import { renderFabricState } from './page/operating-fabric/components.ts';
+import { renderGateEntrypoint } from './page/operating-fabric/gate-sheet.ts';
+import type { GatePendingItem } from './page/operating-fabric/gate-sheet.ts';
 
 const FIXTURE_NOW = '2026-07-24T09:17:00.000Z';
 
@@ -132,4 +135,162 @@ test('T-027 · blocked and stale states stay icon-coded under reduced motion (ne
       assert.match(html, /data-state="blocked"/, `${scene}/blocked keeps its blocked state hook`);
     }
   }
+});
+
+// ── Task 12: operating fabric motion/accessibility contract ────────────────
+// Static source assertions over the operating-fabric scaffold/styles/client
+// modules bundled into PAGE — no browser required. Responsive containment at
+// 320/390/430px lives in the orchestrator-owned visual-viewport-proof.mjs.
+
+test('T-12 · operating fabric fixed widths stay within the 320px viewport floor', () => {
+  const shellStart = PAGE.indexOf('#operating-fabric{display:none}');
+  assert.ok(shellStart >= 0, 'PAGE bundles the operating-fabric shell styles');
+  const shellEnd = PAGE.indexOf('</style>', shellStart);
+  const shellCss = PAGE.slice(shellStart, shellEnd);
+  for (const match of shellCss.matchAll(/[^a-z-]width:\s*(\d+)px/g)) {
+    const px = Number(match[1]);
+    assert.ok(px <= 320, `operating fabric fixed width ${px}px exceeds the 320px viewport floor`);
+  }
+});
+
+test('T-12 · operating fabric reduced-motion gate strips shell transitions and animations', () => {
+  assert.match(
+    PAGE,
+    /#operating-fabric, #operating-fabric \*\{transition:none !important;animation:none !important\}/,
+    'operating fabric RM block removes nonessential transitions/animations under its own shell',
+  );
+});
+
+test('T-12 · operating fabric controls carry a 44px minimum target and visible focus', () => {
+  assert.match(PAGE, /\.of-tab\{[^}]*min-height:44px/, '.of-tab declares the 44px minimum control height');
+  assert.match(
+    PAGE,
+    /\.of-tab:focus-visible,\.of-control:focus-visible\{outline:2px solid var\(--ink\);outline-offset:2px\}/,
+    'operating fabric tabs and controls get a visible focus-visible outline',
+  );
+});
+
+test('T-12 · operating fabric scene nav is semantic with aria-current-equivalent selection state', () => {
+  assert.match(PAGE, /<nav class="of-nav"[^>]*aria-label="Operating Fabric scenes">/, 'scene nav is a labelled <nav> landmark');
+  assert.match(PAGE, /class="of-tab"[^>]*aria-selected="true"/, 'the active scene tab is marked selected');
+  assert.match(PAGE, /class="of-tab"[^>]*aria-selected="false"/, 'inactive scene tabs are marked unselected');
+});
+
+test('T-12 · every operating fabric scene is a landmark section with a heading', () => {
+  const sceneIds = ['canopy', 'mission', 'flow', 'workforce', 'forge'];
+  for (const sceneId of sceneIds) {
+    const sectionRe = new RegExp(
+      `<section class="of-scene" data-of-scene="${sceneId}" aria-labelledby="ofScene${sceneId[0]!.toUpperCase()}${sceneId.slice(1)}Title"[^>]*>` +
+        `<h2 id="ofScene${sceneId[0]!.toUpperCase()}${sceneId.slice(1)}Title"`,
+    );
+    assert.match(PAGE, sectionRe, `${sceneId} scene is a labelled landmark section with a heading`);
+  }
+});
+
+test('T-12 · flow graph carries an accessible linear fallback', () => {
+  assert.match(
+    PAGE,
+    /<table class="of-flow-graph" data-of-flow-representation="graph" aria-hidden="true">/,
+    'the visual flow graph is hidden from assistive tech',
+  );
+  assert.match(
+    PAGE,
+    /<ol class="of-flow-list" data-of-flow-fallback="linear">/,
+    'flow provides a linear <ol> fallback carrying the same content',
+  );
+});
+
+test('T-12 · operating fabric renders honest safety states for loading/empty/stale/unauthorized/error', () => {
+  const expectations: Record<'loading' | 'empty' | 'stale' | 'unauthorized' | 'error', { title: string; detail: string }> = {
+    loading: { title: 'loading', detail: 'fetching the operating fabric' },
+    empty: { title: 'empty', detail: 'no rows in this view' },
+    stale: { title: 'stale', detail: 'evidence is older than the freshness window' },
+    unauthorized: { title: 'unauthorized', detail: 'not authorized to view this fabric' },
+    error: { title: 'error', detail: 'failed to load the operating fabric' },
+  };
+  for (const state of Object.keys(expectations) as Array<keyof typeof expectations>) {
+    const { title, detail } = expectations[state];
+    const html = renderFabricState(state);
+    assert.match(html, new RegExp(`data-state="${state}"`), `${state} carries its data-state`);
+    assert.match(html, /role="status"/, `${state} carries role="status"`);
+    assert.match(html, new RegExp(`aria-label="${title}: ${detail}"`), `${state} carries its exact aria-label`);
+    assert.match(html, new RegExp(`>${title}</strong>`), `${state} carries its exact title`);
+    assert.match(html, new RegExp(`>${detail}</p>`), `${state} carries its exact detail`);
+  }
+});
+
+test('T-12 · Gate entrypoint renders an honest disabled state for no-pending/invalid/expired', () => {
+  const noPending = renderGateEntrypoint(null);
+  assert.equal(noPending.reason, 'no-pending');
+  assert.equal(noPending.disabled, true);
+  assert.equal(noPending.opened, false);
+  assert.match(noPending.html, /class="of-control of-gate-entrypoint-btn" disabled aria-disabled="true" data-of-gate-entrypoint="1" data-of-gate-entrypoint-state="no-pending"/);
+
+  const malformed = renderGateEntrypoint({} as unknown as GatePendingItem);
+  assert.equal(malformed.reason, 'invalid');
+  assert.equal(malformed.disabled, true);
+  assert.equal(malformed.opened, false);
+  assert.match(malformed.html, /data-of-gate-entrypoint-state="invalid"/);
+
+  const expiredItem: GatePendingItem = {
+    changeDigest: 'digest-1',
+    tenant: 'tenant-1',
+    nonce: 'nonce-1',
+    expiresAt: '2000-01-01T00:00:00.000Z',
+    expectedHeadVersion: 1,
+    fence: 1,
+    evidence: 'evidence',
+    consequence: 'consequence',
+    reversibility: 'reversible',
+  };
+  const expired = renderGateEntrypoint(expiredItem, { now: () => Date.parse('2026-07-24T09:17:00.000Z') });
+  assert.equal(expired.reason, 'expired');
+  assert.equal(expired.disabled, true);
+  assert.equal(expired.opened, false);
+  assert.match(expired.html, /data-of-gate-entrypoint-state="expired"/);
+
+  let callCount = 0;
+  const validItem: GatePendingItem = {
+    changeDigest: 'digest-2',
+    tenant: 'tenant-2',
+    nonce: 'nonce-2',
+    expiresAt: '2099-01-01T00:00:00.000Z',
+    expectedHeadVersion: 1,
+    fence: 1,
+    evidence: 'evidence',
+    consequence: 'consequence',
+    reversibility: 'reversible',
+  };
+  const opened = renderGateEntrypoint(validItem, {
+    now: () => Date.parse('2026-07-24T09:17:00.000Z'),
+    openGatePreflight: () => {
+      callCount += 1;
+    },
+  });
+  assert.equal(opened.reason, 'opened');
+  assert.equal(opened.disabled, false);
+  assert.equal(opened.opened, true);
+  assert.equal(callCount, 1, 'openGatePreflight is called exactly once');
+  assert.match(
+    opened.html,
+    /class="of-control of-gate-entrypoint-btn" data-of-gate-entrypoint="1" data-of-gate-entrypoint-state="ready"/,
+  );
+});
+
+test('T-12 · Gate entrypoint click handler disables the button before the in-flight request resolves', () => {
+  assert.match(
+    PAGE,
+    /if \(ofGateEntrypointBusy \|\| !btn \|\| btn\.disabled\) return;/,
+    'Gate entrypoint click handler guards against double-submission while busy',
+  );
+  assert.match(
+    PAGE,
+    /btn\.disabled = true;/,
+    'Gate entrypoint disables the button before the in-flight request resolves',
+  );
+});
+
+test('T-12 · Inspect sheet exposes back/close controls with an <h2> heading', () => {
+  assert.match(PAGE, /<button type="button" class="detail" data-of-inspect-back="1">Back<\/button>/, 'Inspect sheet has a back control');
+  assert.match(PAGE, /<button type="button" class="reroll" data-of-inspect-close="1">Close<\/button>/, 'Inspect sheet has a close control');
 });

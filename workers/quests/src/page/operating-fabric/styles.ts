@@ -8,11 +8,16 @@ export const OPERATING_FABRIC_STYLES = `<style>
 #operating-fabric.of-on{display:block}
 #operating-fabric{position:relative;min-height:100dvh;color:var(--ink)}
 .of-nav{display:flex;gap:.5rem;overflow-x:auto;padding:.75rem 1rem}
-.of-tab{flex:1;min-width:0;min-height:44px;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-align:left;cursor:pointer}
+.of-tab{flex:1;min-width:44px;min-height:44px;box-sizing:border-box;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-align:left;cursor:pointer}
 .of-tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 .of-tab small{display:block;opacity:.72}
-.of-scene{padding:1rem}
+.of-scene{padding:1rem;max-width:100%;overflow-x:hidden}
 .of-scene[hidden]{display:none}
+.of-control{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;box-sizing:border-box;padding:.5rem .75rem;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;font:inherit;cursor:pointer}
+.of-flow{max-width:100%;overflow-x:auto}
+.of-flow-graph{border-collapse:collapse}
+.of-flow-list{display:flex;flex-direction:column;gap:.5rem;list-style:none;margin:0;padding:0}
+.of-flow-item{display:flex;flex-wrap:wrap;gap:.375rem;padding:.5rem .625rem;border:1px solid var(--line);border-radius:var(--mc-radius-compact)}
 /* Task 7 · operating fabric visual grammar */
 .of-badge{display:inline-flex;align-items:center;gap:.375rem;padding:.375rem .625rem;border:1px solid var(--line2);border-radius:999px;font:11px/1 var(--mono);color:var(--soft)}
 .of-badge-label{font-weight:650}

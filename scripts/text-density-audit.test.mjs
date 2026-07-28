@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -108,4 +109,48 @@ test('text-density audit · ratified-verbatim overrides stay explicit and bounde
   // The only waived element failure anywhere in the app is the frozen/06 M12 mission empty
   // state; any NEW over-cap element must fail the gate, not silently join the waiver list.
   assert.ok(report.overrides.length <= 1, report.overrides.map((o) => o.failure).join('\n'));
+});
+
+test('text-density audit · operating-fabric renderers declare bounded density budgets', () => {
+  const opFabricUrl = (file) => new URL(`../workers/quests/src/page/operating-fabric/${file}`, import.meta.url);
+  const canopy = readFileSync(opFabricUrl('canopy.ts'), 'utf8');
+  const mission = readFileSync(opFabricUrl('mission.ts'), 'utf8');
+  const flow = readFileSync(opFabricUrl('flow.ts'), 'utf8');
+  const workforce = readFileSync(opFabricUrl('workforce.ts'), 'utf8');
+  const forge = readFileSync(opFabricUrl('forge.ts'), 'utf8');
+  const gateSheet = readFileSync(opFabricUrl('gate-sheet.ts'), 'utf8');
+  const inspectSheet = readFileSync(opFabricUrl('inspect-sheet.ts'), 'utf8');
+
+  assert.match(canopy, /export const CANOPY_CARD_LIMIT = 24;/);
+  assert.match(canopy, /const visible = sorted\.slice\(0, CANOPY_CARD_LIMIT\);/);
+  assert.match(canopy, /truncated at the canopy bound/);
+
+  assert.match(mission, /export const MISSION_LINEAGE_LIMIT = 24;/);
+  assert.match(mission, /const boundedMissions = missions\.slice\(0, MISSION_LINEAGE_LIMIT\);/);
+  assert.match(mission, /const boundedTasks = lineageTasks\.slice\(0, MISSION_LINEAGE_LIMIT\);/);
+  assert.match(mission, /const boundedEdges = lineageEdges\.slice\(0, MISSION_LINEAGE_LIMIT\);/);
+
+  assert.match(flow, /export const FLOW_FACT_LIMIT = 96;/);
+  assert.match(flow, /candidateFactOrder\.slice\(0, FLOW_FACT_LIMIT\)/);
+  assert.match(flow, /showing /);
+
+  assert.match(workforce, /const MAX_AGENTS = 48;/);
+  assert.match(workforce, /const MAX_LIST = 24;/);
+  assert.match(workforce, /const allAgentIds = allCanonicalAgentIds\.slice\(0, MAX_AGENTS\);/);
+  assert.match(workforce, /const skillLabelsSorted = allSkillLabels\.slice\(0, MAX_LIST\);/);
+  assert.match(workforce, /const attachedBounded = attached\.slice\(0, MAX_LIST\);/);
+  assert.match(workforce, / more/);
+
+  assert.match(forge, /allClusterIds\.slice\(0, 48\)/);
+  assert.match(forge, /memberPubIds\.slice\(0, 24\)/);
+  assert.match(forge, /skillIds\.slice\(0, 24\)/);
+  assert.match(forge, /demandTaskIds\.map\(tid => publicId\('task', tid, taskOrdinal\.get\(tid\) \?\? 0\)\)\.slice\(0, 24\)/);
+  assert.match(forge, /attachedGaps\.slice\(0, 24\)/);
+  assert.match(forge, /showing /);
+
+  assert.match(gateSheet, /const GATE_SHEET_MAX_CHARS = 128;/);
+  assert.match(gateSheet, /function gateSafe\(value: unknown, fallback: string, max = GATE_SHEET_MAX_CHARS\): string/);
+
+  assert.match(inspectSheet, /const MAX_GAPS = 24;/);
+  assert.match(inspectSheet, /const gaps = matching\.slice\(0, MAX_GAPS\);/);
 });

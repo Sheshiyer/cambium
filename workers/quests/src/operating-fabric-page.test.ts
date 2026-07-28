@@ -1991,12 +1991,11 @@ test('program blocked is status-only and independent of lifecycle active', () =>
   );
 });
 
-test('open-lineage control uses the sized of-tab class; of-control is never sized alone', () => {
-  assert.doesNotMatch(
-    OPERATING_FABRIC_STYLES,
-    /\.of-control\{[^}]*min-height/,
-    'of-control alone is NOT sized — no rule claims it',
-  );
+test('of-control carries its own 44px hit target; of-tab additionally sizes to 44px', () => {
+  const controlRule = OPERATING_FABRIC_STYLES.match(/\.of-control\{[^}]*\}/);
+  assert.ok(controlRule, 'a standalone .of-control rule exists');
+  assert.match(controlRule![0], /min-height:44px/, '.of-control alone guarantees a 44px minimum height');
+  assert.match(controlRule![0], /min-width:44px/, '.of-control alone guarantees a 44px minimum width');
   const sizedRule = OPERATING_FABRIC_STYLES.match(/\.of-tab\{[^}]*min-height:44px[^}]*\}/);
   assert.ok(sizedRule, 'the concrete .of-tab rule carries min-height:44px');
   const focusRule = OPERATING_FABRIC_STYLES.match(/\.of-tab:focus-visible,\.of-control:focus-visible\{[^}]*outline:2px/);
@@ -2011,6 +2010,22 @@ test('open-lineage control uses the sized of-tab class; of-control is never size
       `${label}: open-lineage control carries the sized of-tab class plus the scene class`,
     );
   }
+});
+
+test('of-inspect-btn and of-gate-entrypoint-btn controls inherit a 44px hit target from .of-control', () => {
+  const controlRule = OPERATING_FABRIC_STYLES.match(/\.of-control\{[^}]*\}/);
+  assert.ok(controlRule, 'a standalone .of-control rule exists');
+  assert.match(controlRule![0], /min-height:44px/, '.of-control guarantees a 44px minimum height');
+  assert.match(controlRule![0], /min-width:44px/, '.of-control guarantees a 44px minimum width');
+  assert.match(controlRule![0], /box-sizing:border-box/, '.of-control keeps declared padding inside its box so the min size is honored');
+  assert.doesNotMatch(OPERATING_FABRIC_STYLES, /\.of-inspect-btn\{[^}]*min-height/, 'of-inspect-btn relies on the shared .of-control rule, not a bespoke one');
+});
+
+test('of-flow contains intended internal horizontal scroll without leaking overflow to the document', () => {
+  assert.match(OPERATING_FABRIC_STYLES, /\.of-flow\{[^}]*overflow-x:auto/, 'the flow graph/list wrapper owns its own horizontal scroller');
+  assert.match(OPERATING_FABRIC_STYLES, /\.of-flow\{[^}]*max-width:100%/, 'the flow wrapper stays within its scene column');
+  assert.match(OPERATING_FABRIC_STYLES, /\.of-scene\{[^}]*overflow-x:hidden/, 'a scene never grows the document past the viewport, even if its content wants to');
+  assert.match(OPERATING_FABRIC_STYLES, /\.of-scene\{[^}]*max-width:100%/, 'a scene stays clipped to its container width');
 });
 
 test('canopy cards are stable-sorted, bounded, and truncation is an explicit typed state', () => {
