@@ -1,0 +1,219 @@
+{
+  "fixture": "operating-mission.fixture",
+  "scene": "operating-mission",
+  "contract": "docs/architecture/contracts/scenes/operating-mission.json",
+  "redaction": "synthetic fx-* ids only; sha256 hashes for receipt/user material; no initData, tokens, chat ids, or query strings. Fixtures calibrate layout only and never satisfy live proof.",
+  "synthetic": true,
+  "states": {
+    "normal": {
+      "description": "Synthetic mission lineage: program fx-program-001 contains mission fx-mission-001 with tasks fx-task-001/002, an explicit depends-on edge, a typed gap, and one verified receipt. Layout-only; carries no live proof.",
+      "source": {
+        "sourceKind": "synthetic-mission-fixture",
+        "tenantId": "fx-tenant",
+        "asOf": "2026-07-28T06:00:00.000Z",
+        "saplings": [
+          {
+            "saplingId": "fx-sapling-001",
+            "branchId": "fx-branch-ledger",
+            "missionId": "fx-mission-sapling-001",
+            "lifecycle": "active",
+            "promotionState": "supervised-branch",
+            "evidenceRef": "sha256:8f3a1c9e2b7d0518f6a3c9e1d4b2087f5e6a1c3d9b8042f7e5a6c1d3b9e8042f7a"
+          }
+        ],
+        "programs": [
+          {
+            "programId": "fx-program-001",
+            "tenantId": "fx-tenant",
+            "title": "Company Reliability Program",
+            "programKind": "company",
+            "lifecycle": "executing",
+            "outcomeMetric": "verify weekly fabric receipts across tenants",
+            "authority": { "kind": "d1-goal-graph", "namespace": "d1-goal-graph/fx-program-001", "graphVersion": 7 },
+            "missionIds": ["fx-mission-001"]
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "fx-mission-001",
+            "workId": "fx-program-001",
+            "title": "Stabilize fabric receipts",
+            "lifecycle": "executing",
+            "authorityRef": "d1-goal-graph/fx-mission-001"
+          }
+        ],
+        "tasks": [
+          {
+            "taskId": "fx-task-001",
+            "missionId": "fx-mission-001",
+            "state": "running",
+            "dependsOn": [],
+            "assignedAgentId": "fx-agent-001",
+            "fence": 3
+          },
+          {
+            "taskId": "fx-task-002",
+            "missionId": "fx-mission-001",
+            "state": "blocked",
+            "dependsOn": ["fx-task-001"],
+            "assignedAgentId": null,
+            "fence": 1,
+            "blocker": "fx-task-001"
+          }
+        ],
+        "runtimeRuns": [
+          {
+            "runId": "fx-run-001",
+            "taskId": "fx-task-001",
+            "state": "succeeded",
+            "fence": 3,
+            "staleFence": false,
+            "nonce": "fx-nonce-001",
+            "executorAgentId": "fx-agent-001",
+            "receiptId": "fx-receipt-001"
+          }
+        ],
+        "receipts": [
+          {
+            "receiptId": "fx-receipt-001",
+            "runId": "fx-run-001",
+            "status": "verified",
+            "evidenceRef": "sha256:1b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff001",
+            "verifiedAt": "2026-07-28T05:30:00.000Z"
+          }
+        ],
+        "agents": [
+          {
+            "agentId": "fx-agent-001",
+            "state": "available",
+            "capabilities": ["quest-ops"],
+            "currentTaskId": "fx-task-001",
+            "sourceFreshness": "fresh"
+          }
+        ],
+        "skillClusters": [
+          {
+            "clusterId": "fx-cluster-001",
+            "state": "active",
+            "capabilities": ["quest-ops"],
+            "assignmentEvidence": "d1-goal-graph/fx-cluster-001"
+          }
+        ],
+        "gaps": [
+          {
+            "gapId": "fx-gap-001",
+            "kind": "missing-receipt",
+            "subjectId": "fx-task-002",
+            "detail": "synthetic gap: fx-task-002 has no verified receipt",
+            "evidenceRef": null
+          }
+        ],
+        "fences": [{ "taskId": "fx-task-001", "currentFence": 3, "staleFence": 2 }],
+        "evidence": [
+          {
+            "evidenceRef": "sha256:1b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff001",
+            "kind": "receipt",
+            "observedAt": "2026-07-28T05:30:00.000Z"
+          }
+        ]
+      },
+      "selectedWorkId": "fx-program-001"
+    },
+    "blocked": {
+      "description": "Synthetic blocked mission: task fx-task-002 stays blocked behind fx-task-001; no receipt coverage beyond the one verified receipt.",
+      "source": {
+        "sourceKind": "synthetic-mission-fixture",
+        "tenantId": "fx-tenant",
+        "asOf": "2026-07-28T06:00:00.000Z",
+        "saplings": [],
+        "programs": [
+          {
+            "programId": "fx-program-001",
+            "tenantId": "fx-tenant",
+            "title": "Company Reliability Program",
+            "programKind": "company",
+            "lifecycle": "executing",
+            "outcomeMetric": "verify weekly fabric receipts across tenants",
+            "authority": { "kind": "d1-goal-graph", "namespace": "d1-goal-graph/fx-program-001", "graphVersion": 7 },
+            "missionIds": ["fx-mission-001"]
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "fx-mission-001",
+            "workId": "fx-program-001",
+            "title": "Stabilize fabric receipts",
+            "lifecycle": "executing",
+            "authorityRef": "d1-goal-graph/fx-mission-001"
+          }
+        ],
+        "tasks": [
+          {
+            "taskId": "fx-task-001",
+            "missionId": "fx-mission-001",
+            "state": "running",
+            "dependsOn": [],
+            "assignedAgentId": null,
+            "fence": 3
+          },
+          {
+            "taskId": "fx-task-002",
+            "missionId": "fx-mission-001",
+            "state": "blocked",
+            "dependsOn": ["fx-task-001"],
+            "assignedAgentId": null,
+            "fence": 1,
+            "blocker": "fx-task-001"
+          }
+        ],
+        "runtimeRuns": [],
+        "receipts": [],
+        "agents": [],
+        "skillClusters": [],
+        "gaps": [
+          {
+            "gapId": "fx-gap-001",
+            "kind": "missing-receipt",
+            "subjectId": "fx-task-002",
+            "detail": "synthetic gap: fx-task-002 has no verified receipt",
+            "evidenceRef": null
+          }
+        ],
+        "fences": [],
+        "evidence": []
+      },
+      "selectedWorkId": "fx-program-001"
+    },
+    "empty": {
+      "description": "Synthetic empty mission: work exists but carries no missions or tasks.",
+      "source": {
+        "sourceKind": "synthetic-mission-fixture",
+        "tenantId": "fx-tenant",
+        "asOf": "2026-07-28T06:00:00.000Z",
+        "saplings": [],
+        "programs": [
+          {
+            "programId": "fx-program-001",
+            "tenantId": "fx-tenant",
+            "title": "Company Reliability Program",
+            "programKind": "company",
+            "lifecycle": "proposed",
+            "outcomeMetric": "verify weekly fabric receipts across tenants",
+            "authority": { "kind": "d1-goal-graph", "namespace": "d1-goal-graph/fx-program-001", "graphVersion": 7 },
+            "missionIds": []
+          }
+        ],
+        "missions": [],
+        "tasks": [],
+        "runtimeRuns": [],
+        "receipts": [],
+        "agents": [],
+        "skillClusters": [],
+        "gaps": [],
+        "fences": [],
+        "evidence": []
+      },
+      "selectedWorkId": "fx-program-001"
+    }
+  }
+}

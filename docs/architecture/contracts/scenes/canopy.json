@@ -1,0 +1,68 @@
+{
+  "contract": "cambium-operating-fabric-scene/v1",
+  "sceneId": "canopy",
+  "tabIndex": 0,
+  "label": "Canopy",
+  "sceneRoot": "[data-of-scene=\"canopy\"]",
+  "refreshRoute": "GET /v1/mission-fabric/{tenant}",
+  "synthetic": true,
+  "fixture": "workers/quests/src/page/scenes/fixtures/canopy.fixture.json",
+  "projection": {
+    "schema": "cambium.mission-fabric-projection.v1",
+    "authority": "d1-goal-graph (read-only projection; never a writer)",
+    "consumedFor": "sapling/program work cards, aggregate counts, typed gaps, freshness, graphVersion"
+  },
+  "lifecycleVocabulary": {
+    "saplings": "sapling status (draft/ready/active/blocked/paused/complete/retired), promotion (proof-only/supervised-branch/autonomous-branch), and current gate semantics",
+    "programs": "program lifecycle proposed/approved/executing/verifying/complete/retired"
+  },
+  "aggregates": {
+    "total": "count of projection work nodes whose canonical kind is sapling or program",
+    "active": "saplings whose canonical work status is exactly active (value.status === 'active'; currentState is never consulted), and programs whose canonical lifecycle is executing or verifying — ready/approved source lifecycles are mapped to status by the compiler (WORK_ACTIVE_STATES) and the renderer never second-guesses the projection",
+    "blocked": "work nodes whose canonical status is exactly blocked (value.status === 'blocked') for BOTH saplings and programs; ProgramWork.lifecycle has no blocked member, so lifecycle is never read for the blocked aggregate",
+    "stale": "work nodes whose workId is the subjectId of a typed stale gap only (stale-fence gaps name runs, not work objects)",
+    "rules": "deterministic mapping from canonical fields and typed gaps only; never title matching, never fabricated percentages"
+  },
+  "states": {
+    "renders": [
+      "loading",
+      "empty",
+      "stale",
+      "error",
+      "truncated"
+    ],
+    "derivation": {
+      "empty": "no sapling or program work nodes in the projection",
+      "stale": "delivery freshness state is stale",
+      "error": "missing or malformed projection",
+      "truncated": "a section exceeds the 24-card canopy bound; overflow renders as an explicit typed state"
+    }
+  },
+  "density": {
+    "cardLimitPerSection": 24,
+    "wordCap": 260,
+    "bounds": "cards stay bounded and stable-sorted by workId; overflow renders as a truncated state, never silent drops"
+  },
+  "authority": {
+    "read-only": true,
+    "selection": "selecting or opening a work object changes only local selectedWorkId, scene, and focus; zero lifecycle mutation, zero writes, zero extra authority decisions",
+    "governedActions": "any governed action delegates to the existing signed Gate client (POST /api/gate/{tenant}); the canopy slice renders read-only cues only"
+  },
+  "interactions": [
+    {
+      "trigger": "click [data-of-open-work]",
+      "effect": "local selectedWorkId set; scene navigates to mission; focus moves to the mission scene",
+      "mutation": "none"
+    },
+    {
+      "trigger": "click [data-of-tab]",
+      "effect": "local scene navigation only",
+      "mutation": "none"
+    }
+  ],
+  "accessibility": {
+    "structure": "sections aria-labelled Saplings and Programs; cards are articles with heading titles; the open-lineage control is a real button carrying the .of-tab class (the concrete min-height:44px rule) plus of-control/of-card-open, with visible focus via the .of-tab:focus-visible rule — .of-control alone is NOT sized",
+    "announcements": "aggregate counts render as text chips; empty/error/truncated states use role=status via the shared FabricState renderer"
+  },
+  "redaction": "no initData, tokens, raw evidence refs, prompt material, or client payloads render; every projection-derived string passes the Task 7 escaping/fail-closed policy. The Node substrate embeds the canonical Task 7 signature regex VERBATIM (query_id=|auth_date=|\\bhash=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection); the served browser substrate uses a behavior-equivalent grouped assignment grammar (\\b(?:query_id|auth_date|hash|token)= plus the remaining explicit canonical terms) solely to separate detector syntax from secret-value leakage under the frozen raw-PAGE audit — equivalence proven by tests, no character-class fragmentation, no split/concatenated forms"
+}
