@@ -440,3 +440,243 @@ test('RBAC interaction ceilings are unchanged by the new scene contract', () => 
   assert.equal(permits('sheet', 'consultant'), false);
   assert.equal(permits('read-only', 'consultant'), true);
 });
+
+// ── Task 7 · shared visual grammar and state components ────────────────────
+
+import {
+  renderAuthorityBadge,
+  renderFreshnessBadge,
+  renderWorkCard,
+  renderAgentCard,
+  renderSkillClusterCard,
+  renderGapState,
+  renderFabricState,
+  renderFabricEdge,
+} from './page/operating-fabric/components.ts';
+
+const FABRIC_STYLE_BANNED_RAW = [
+  'initData',
+  'query_id=',
+  'auth_date=',
+  'hash=',
+  'Bearer ',
+  'bot_token',
+  'clientSecret',
+];
+
+function makeWorkNode(overrides: Record<string, unknown> = {}) {
+  return {
+    kind: 'work' as const,
+    value: {
+      kind: 'sapling' as const,
+      workId: 'work-1',
+      tenantId: 'acme',
+      name: 'Ledger line',
+      desiredState: 'proof',
+      currentState: 'queued',
+      status: 'active',
+      ownerId: 'founder',
+      nextAction: null,
+      proofRequired: true,
+      reviewAt: null,
+      sourceRef: 'd1-goal-graph',
+      sourceDigest: 'digest',
+      branchId: 'branch-1',
+      branchKind: 'product' as const,
+      promotionState: 'proof-only' as const,
+      currentGate: 'G1',
+      organRoute: [],
+      ...overrides,
+    },
+  };
+}
+
+function makeAgentNode(overrides: Record<string, unknown> = {}) {
+  return {
+    kind: 'agent' as const,
+    value: {
+      agentId: 'agent-1',
+      role: 'implementer',
+      runtime: 'codex' as const,
+      status: 'assigned',
+      activeTaskIds: ['task-9'],
+      permissionProfile: 'fresh',
+      lastSeenAt: '2026-07-28T06:00:00.000Z',
+      sourceRef: 'd1-goal-graph',
+      ...overrides,
+    },
+  };
+}
+
+function makeClusterNode(overrides: Record<string, unknown> = {}) {
+  return {
+    kind: 'skill-cluster' as const,
+    value: {
+      clusterId: 'cluster-1',
+      name: 'ops-core',
+      status: 'active',
+      skillIds: ['quest-ops', 'goal-graph'],
+      eligibleAgentIds: ['agent-1'],
+      successRate: 0.92,
+      sourceRef: 'd1-goal-graph',
+      ...overrides,
+    },
+  };
+}
+
+test('authority badge names the projection authority and never client-derived claims', () => {
+  const html = renderAuthorityBadge({ sourceRef: 'd1-goal-graph', graphVersion: 42 });
+  assert.match(html, /data-component="FabricAuthorityBadge"/);
+  assert.match(html, /d1-goal-graph/);
+  assert.match(html, /graphVersion 42|graph version 42|v42/i);
+  assert.match(html, /aria-label="[^"]*authorit/i, 'badge keeps an accessible authority label');
+  for (const banned of FABRIC_STYLE_BANNED_RAW) {
+    assert.ok(!html.includes(banned), `authority badge never exposes ${banned}`);
+  }
+});
+
+test('authority badge fails closed on malformed input', () => {
+  const html = renderAuthorityBadge({ sourceRef: '', graphVersion: Number.NaN });
+  assert.match(html, /unknown authority|authority unknown/i);
+});
+
+test('freshness badge distinguishes fresh, stale, and unknown states', () => {
+  const fresh = renderFreshnessBadge({ state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' });
+  const stale = renderFreshnessBadge({ state: 'stale', checkedAt: '2026-07-27T06:00:00.000Z' });
+  const unknown = renderFreshnessBadge({ state: 'unknown' });
+  assert.match(fresh, /data-state="fresh"/);
+  assert.match(stale, /data-state="stale"/);
+  assert.match(unknown, /data-state="unknown"/);
+  assert.match(fresh, /2026-07-28T06:00:00.000Z/);
+  assert.notEqual(fresh, stale, 'fresh and stale treatments are visually distinct');
+  assert.match(stale, /stale/i);
+  assert.match(unknown, /unknown/i);
+});
+
+test('work card exposes type, lifecycle, authority, freshness, and a read-only cue', () => {
+  const html = renderWorkCard(makeWorkNode(), {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 42,
+  });
+  assert.match(html, /data-component="FabricWorkCard"/);
+  assert.match(html, /sapling/, 'work type is visible');
+  assert.match(html, /active/, 'lifecycle state is visible');
+  assert.match(html, /Ledger line/, 'work name is visible');
+  assert.match(html, /d1-goal-graph/, 'source authority is visible');
+  assert.match(html, /fresh/, 'freshness is visible');
+  assert.match(html, /read-only|read only/i, 'explicit read-only cue is visible');
+});
+
+test('work card escapes hostile projection text and never renders raw evidence', () => {
+  const hostile = makeWorkNode({
+    name: '<img src=x onerror=alert(1)>',
+    desiredState: '<script>alert(1)</script>',
+    currentState: '" onmouseover="alert(1)',
+  });
+  const html = renderWorkCard(hostile, {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+    evidenceRef: 'evidence://raw/private-payload',
+  });
+  assert.ok(!html.includes('<img src=x'), 'hostile markup is escaped, not injected');
+  assert.ok(!html.includes('<script>alert(1)</script>'), 'script text is escaped');
+  assert.ok(!html.includes('evidence://raw/private-payload'), 'raw evidence refs never render');
+  assert.match(html, /&lt;img src=x/, 'escaped text remains legible');
+});
+
+test('agent card exposes status, assignment, and capability chips', () => {
+  const html = renderAgentCard(makeAgentNode({ capabilities: undefined }), {
+    capabilities: ['goal-graph', 'quests'],
+    assignment: 'task-9',
+  });
+  assert.match(html, /data-component="FabricAgentCard"/);
+  assert.match(html, /assigned/, 'status is visible');
+  assert.match(html, /task-9/, 'current assignment is visible');
+  const chips = html.match(/data-component="FabricCapabilityChip"/g) ?? [];
+  assert.equal(chips.length, 2, 'one chip per capability');
+  assert.match(html, /goal-graph/);
+  assert.match(html, /quests/);
+});
+
+test('agent card renders an explicit gap when unassigned', () => {
+  const html = renderAgentCard(makeAgentNode({ activeTaskIds: [], status: 'available' }), {
+    capabilities: [],
+    assignment: null,
+  });
+  assert.match(html, /no assignment|unassigned|assignment gap/i, 'explicit assignment gap is visible');
+  assert.match(html, /available/, 'status is still visible');
+});
+
+test('skill-cluster card exposes state, coverage, evidence timestamp, and provenance', () => {
+  const html = renderSkillClusterCard(makeClusterNode(), {
+    coverage: { eligible: 3, covered: 2 },
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+  });
+  assert.match(html, /data-component="FabricSkillClusterCard"/);
+  assert.match(html, /active/, 'state is visible');
+  assert.match(html, /2 of 3|2\/3/, 'coverage is visible');
+  assert.match(html, /2026-07-28T06:00:00.000Z/, 'evidence timestamp is visible');
+  assert.match(html, /d1-goal-graph/, 'provenance is visible');
+  assert.match(html, /ops-core/);
+});
+
+test('typed gap renderer names the gap kind and subject without raw evidence', () => {
+  const html = renderGapState({
+    gapId: 'gap-1',
+    kind: 'missing-assignment',
+    subjectId: 'task-9',
+    detail: 'task has no assigned agent',
+    evidenceRef: 'evidence://gap/raw-material',
+  });
+  assert.match(html, /data-component="FabricGap"/);
+  assert.match(html, /missing-assignment/, 'gap kind is visible');
+  assert.match(html, /task-9/, 'gap subject is visible');
+  assert.match(html, /no assigned agent/, 'gap detail is visible');
+  assert.ok(!html.includes('evidence://gap/raw-material'), 'gap evidence refs never render');
+});
+
+test('loading, empty, stale, unauthorized, and error states are visually distinct', () => {
+  const states = ['loading', 'empty', 'stale', 'unauthorized', 'error'] as const;
+  const rendered = states.map((state) => renderFabricState(state));
+  for (const [index, state] of states.entries()) {
+    assert.match(rendered[index]!, new RegExp(`data-state="${state}"`), `${state} carries its state marker`);
+    assert.match(rendered[index]!, /data-component="FabricState"/);
+  }
+  const unique = new Set(rendered);
+  assert.equal(unique.size, states.length, 'every state renders a distinct treatment');
+  assert.match(renderFabricState('unauthorized'), /unauthorized|not authorized|no access/i);
+  assert.match(renderFabricState('error'), /error|failed/i);
+  assert.match(renderFabricState('loading'), /loading/i);
+  assert.match(renderFabricState('empty'), /empty|nothing|no rows/i);
+});
+
+test('every rendered edge carries visible text or an accessible label', () => {
+  const edge = renderFabricEdge({ kind: 'assigned-to', fromId: 'task-9', toId: 'agent-1' });
+  assert.match(edge, /data-component="FabricEdge"/);
+  const hasVisibleText = />[^<]*assigned-to[^<]*</.test(edge) || /<[^>]*>[^<]+<\//.test(edge.replace(/aria-label="[^"]*"/, ''));
+  const hasAccessibleName = /aria-label="[^"]+"/.test(edge) || /role="img"/.test(edge);
+  assert.ok(hasVisibleText || hasAccessibleName, 'edge exposes a label to sighted or assistive users');
+  assert.match(edge, /assigned-to/);
+});
+
+test('fabric renderers never embed secrets, prompts, tokens, or client payloads', () => {
+  const corpus = [
+    renderWorkCard(makeWorkNode(), { freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' }, graphVersion: 7 }),
+    renderAgentCard(makeAgentNode(), { capabilities: ['x'], assignment: 'task-1' }),
+    renderSkillClusterCard(makeClusterNode(), { coverage: { eligible: 1, covered: 1 }, freshness: { state: 'stale', checkedAt: '2026-07-27T00:00:00.000Z' } }),
+    renderGapState({ gapId: 'g', kind: 'stale-evidence', subjectId: null, detail: 'evidence window expired', evidenceRef: null }),
+  ].join('\n');
+  for (const banned of FABRIC_STYLE_BANNED_RAW) {
+    assert.ok(!corpus.includes(banned), `renderer corpus never exposes ${banned}`);
+  }
+  assert.ok(!corpus.includes('prompt'), 'renderer corpus never exposes prompt material');
+});
+
+test('fabric styles extend tokens and keep motion, focus, and target-size contracts', () => {
+  assert.match(OPERATING_FABRIC_STYLES, /var\(--ink\)/, 'styles reuse shared tokens');
+  assert.match(OPERATING_FABRIC_STYLES, /prefers-reduced-motion/, 'reduced motion stays honored');
+  assert.match(OPERATING_FABRIC_STYLES, /of-badge|of-card|of-chip/, 'fabric component styles exist');
+  assert.match(OPERATING_FABRIC_STYLES, /min-height:44px|min-height: 44px/, 'interactive targets stay at least 44px');
+  assert.match(OPERATING_FABRIC_STYLES, /:focus-visible/, 'focus stays visible');
+  assert.ok(!/animation:[^;]*left|animation:[^;]*top|animation:[^;]*width/.test(OPERATING_FABRIC_STYLES), 'motion stays transform/opacity-only');
+});
