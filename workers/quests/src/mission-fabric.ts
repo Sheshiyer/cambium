@@ -903,6 +903,7 @@ export function adaptGoalGraph(input: GoalGraphProjection): readonly FabricNode[
 export interface QuestExecutionFactsOptions {
   tenantId?: string;
   now?: string;
+  contentAsOf?: string;
 }
 
 export function adaptQuestExecutionFacts(input: unknown, options: QuestExecutionFactsOptions = {}): {
@@ -923,6 +924,9 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
   const gaps: FabricGap[] = [];
   const now = options.now ?? '9999-12-31T23:59:59.999Z';
   const hasClock = options.now !== undefined;
+  const contentAsOf = typeof options.contentAsOf === 'string' && CANONICAL_UTC_TIMESTAMP.test(options.contentAsOf) && !Number.isNaN(Date.parse(options.contentAsOf))
+    ? options.contentAsOf
+    : '1970-01-01T00:00:00.000Z';
 
   const fences = new Map<string, number>();
   for (const raw of Array.isArray(facts.fences) ? facts.fences : []) {
@@ -1023,7 +1027,7 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
       loadoutId: adaptString(run.loadoutId),
       state: adaptString(run.state),
       receiptId: adaptString(run.receiptId),
-      startedAt: adaptTimestamp(run.startedAt, now === '9999-12-31T23:59:59.999Z' ? '1970-01-01T00:00:00.000Z' : now),
+      startedAt: adaptTimestamp(run.startedAt, contentAsOf),
       terminalAt,
     });
   }
@@ -1082,6 +1086,20 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
     if (agentId.length === 0) continue;
     agentIds.add(agentId);
     const currentTaskId = typeof agent.currentTaskId === 'string' ? agent.currentTaskId : null;
+    let lastSeenAt = contentAsOf;
+    if (agent.lastSeenAt !== null && agent.lastSeenAt !== undefined) {
+      if (typeof agent.lastSeenAt === 'string' && CANONICAL_UTC_TIMESTAMP.test(agent.lastSeenAt) && !Number.isNaN(Date.parse(agent.lastSeenAt))) {
+        lastSeenAt = agent.lastSeenAt;
+      } else {
+        gaps.push({
+          gapId: `gap-invalid-timestamp-agent-${agentId}`,
+          kind: 'invalid-timestamp',
+          subjectId: agentId,
+          detail: `Agent ${agentId} declares a malformed lastSeenAt (${JSON.stringify(agent.lastSeenAt)}); it was projected using the frozen content-as-of timestamp instead.`,
+          evidenceRef: null,
+        });
+      }
+    }
     const node: FabricAgent = {
       agentId,
       role: agentId,
@@ -1089,7 +1107,7 @@ export function adaptQuestExecutionFacts(input: unknown, options: QuestExecution
       status: agent.state === 'available' ? 'available' : 'offline',
       activeTaskIds: currentTaskId !== null ? [currentTaskId] : [],
       permissionProfile: '',
-      lastSeenAt: now === '9999-12-31T23:59:59.999Z' ? '1970-01-01T00:00:00.000Z' : now,
+      lastSeenAt,
       sourceRef: adaptString(agent.sourceRef, `quest:agent:${agentId}`),
     };
     nodes.push({ kind: 'agent', value: node });

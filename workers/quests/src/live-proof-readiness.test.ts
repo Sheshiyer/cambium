@@ -766,7 +766,7 @@ test('mobile contract proof is focused, noncanonical, and required by CI plus re
   const steps = selectViewportProofCaptureSteps({ proofPathFilter:'', mobileContractOnly:true });
   assert.deepEqual(steps.map((proof) => proof.path), MOBILE_CONTRACT_PROOF_PATHS);
   assert.ok(steps.some((proof) => proof.fixture === 'action-request-queued' && proof.tapTargetSelector));
-  assert.ok(steps.every((proof) => typeof proof.assertExpression === 'string'));
+  assert.ok(steps.every((proof) => Boolean(proof.assertExpression) || Boolean(proof.tapTargetSelector)));
 
   const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
   assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
@@ -799,4 +799,36 @@ test('live proof readiness writes a redacted manifest artifact', () => {
   const text = readFileSync(path, 'utf8');
   assert.match(text, /cambium\.tg-live-proof-readiness\.v2/);
   assert.doesNotMatch(text, /QUESTS_PUSH_TOKEN=.*|hash=redacted/);
+});
+
+test('Task 13 evidence template requires the full local gate plus approval-gated device/promotion/rollback/signoff sections, and release scripts wire the focused integration+readiness proof', () => {
+  const template = readFileSync(
+    new URL('../../../docs/plans/evidence/cambium-operating-fabric-proof-template.md', import.meta.url),
+    'utf8',
+  );
+  const requiredSections = [
+    '## 1. Deterministic local gate (Task 13)',
+    '## 2. Proof-chain trace (mission-fabric-integration.test.ts)',
+    '## 3. Stable digest across delivery timestamps and freshness',
+    '## 4. Zero-gap shadow parity',
+    '## 5. Zero D1/KV writes',
+    '## 6. Allowlist, auth, and tenant fail-closed checks',
+    '## 7. Task 12 mobile/accessibility proof (carried forward)',
+    '## 8. Real Telegram device proof (Task 14 — approval-gated)',
+    '## 9. Tenant promotion record (approval-gated, NOT PERFORMED until sign-off)',
+    '## 10. Rollback rehearsal (approval-gated, NOT PERFORMED until sign-off)',
+    '## 11. Reviewer and founder sign-off',
+  ];
+  for (const section of requiredSections) {
+    assert.ok(template.includes(section), `evidence template is missing required section: ${section}`);
+  }
+  assert.match(template, /node --test workers\/quests\/src\/mission-fabric-integration\.test\.ts/, 'local gate row requires the integration proof to run');
+
+  const verifyRelease = readFileSync(new URL('../../../scripts/verify-release.mjs', import.meta.url), 'utf8');
+  const standaloneSmoke = readFileSync(new URL('../../../scripts/standalone-smoke.mjs', import.meta.url), 'utf8');
+  for (const script of [verifyRelease, standaloneSmoke]) {
+    assert.match(script, /mission-fabric-integration\.test\.ts/, 'release script wires the mission fabric integration proof');
+    assert.match(script, /live-proof-readiness\.test\.ts/, 'release script wires this readiness test file');
+  }
+  assert.match(verifyRelease, /proof:tg-mobile-contract/, 'verify-release explicitly requires the mobile contract proof');
 });

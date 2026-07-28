@@ -676,6 +676,47 @@ test('adaptQuestExecutionFacts rejects expiry-metadata runs when no clock is pro
   assert.equal(withClock.nodes.filter((node) => node.kind === 'run').length, 1, 'the same run is accepted when a clock is provided');
 });
 
+test('adaptQuestExecutionFacts derives missing startedAt/lastSeenAt from contentAsOf, not from the security clock', () => {
+  const facts = questFacts();
+  (facts.runs as Array<Record<string, unknown>>)[0].startedAt = undefined;
+  delete (facts.agents as Array<Record<string, unknown>>)[0].lastSeenAt;
+
+  const first = adaptQuestExecutionFacts(facts, { now: '2026-07-28T10:00:00.000Z', contentAsOf: '2026-07-28T08:00:00.000Z' });
+  const second = adaptQuestExecutionFacts(facts, { now: '2026-07-28T22:00:00.000Z', contentAsOf: '2026-07-28T08:00:00.000Z' });
+
+  const run1 = first.nodes.find((node) => node.kind === 'run');
+  const run2 = second.nodes.find((node) => node.kind === 'run');
+  assert.ok(run1 && run1.kind === 'run' && run2 && run2.kind === 'run');
+  assert.equal(run1.value.startedAt, '2026-07-28T08:00:00.000Z');
+  assert.equal(run1.value.startedAt, run2.value.startedAt, 'startedAt fallback must not vary with servedAt/now');
+
+  const agent1 = first.nodes.find((node) => node.kind === 'agent');
+  const agent2 = second.nodes.find((node) => node.kind === 'agent');
+  assert.ok(agent1 && agent1.kind === 'agent' && agent2 && agent2.kind === 'agent');
+  assert.equal(agent1.value.lastSeenAt, '2026-07-28T08:00:00.000Z');
+  assert.equal(agent1.value.lastSeenAt, agent2.value.lastSeenAt, 'lastSeenAt fallback must not vary with servedAt/now');
+});
+
+test('adaptQuestExecutionFacts projects a malformed explicit agent lastSeenAt as contentAsOf with a visible typed gap', () => {
+  const facts = questFacts();
+  (facts.agents as Array<Record<string, unknown>>)[0].lastSeenAt = 'not-a-timestamp';
+
+  const result = adaptQuestExecutionFacts(facts, { now: '2026-07-28T12:00:00.000Z', contentAsOf: '2026-07-28T08:00:00.000Z' });
+  const agent = result.nodes.find((node) => node.kind === 'agent');
+  assert.ok(agent && agent.kind === 'agent');
+  assert.equal(agent.value.lastSeenAt, '2026-07-28T08:00:00.000Z');
+  const gap = result.gaps.find((entry) => entry.kind === 'invalid-timestamp' && entry.subjectId === 'agent-cambium');
+  assert.ok(gap, 'expected a typed invalid-timestamp gap for the malformed agent lastSeenAt');
+});
+
+test('adaptQuestExecutionFacts still fails closed on nonce expiry even with a frozen contentAsOf', () => {
+  const facts = questFacts();
+  const beforeExpiry = adaptQuestExecutionFacts(facts, { now: '2026-07-28T12:00:00.000Z', contentAsOf: '2026-07-28T08:00:00.000Z' });
+  assert.equal(beforeExpiry.nodes.filter((node) => node.kind === 'run').length, 1);
+  const afterExpiry = adaptQuestExecutionFacts(facts, { now: '2026-08-01T00:00:00.000Z', contentAsOf: '2026-07-28T08:00:00.000Z' });
+  assert.equal(afterExpiry.nodes.filter((node) => node.kind === 'run').length, 0, 'expired nonce must still be rejected using the real security clock');
+});
+
 test('adaptQuestExecutionFacts bounds nodes, edges, and gaps with visible projection-truncated gaps', () => {
   const tasks = [];
   const runs = [];

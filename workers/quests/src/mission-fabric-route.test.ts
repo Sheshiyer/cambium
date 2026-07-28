@@ -17,6 +17,7 @@ const NOW_MS = 1_750_000_000_000;
 const NOW_ISO = '2026-07-28T09:00:00.000Z';
 const BOT_ID = '900000001';
 const FOUNDER_ID = '200000001';
+const NON_FOUNDER_ID = '200000099';
 const TENANT = 'cambium-synthetic';
 
 async function signedInitData(userId = FOUNDER_ID): Promise<{ initData: string; pubKeyHex: string }> {
@@ -128,6 +129,8 @@ function fabricDeps(options: {
   head?: GoalGraphHead | null;
   receipts?: BranchMapReceipt[];
   branchStories?: unknown[];
+  now?: string;
+  viewerIds?: string[];
 }): { deps: HandlerDeps; spies: FabricSpies } {
   const graph = goalGraphFixture();
   const nodes = options.nodes ?? graph.nodes;
@@ -173,7 +176,8 @@ function fabricDeps(options: {
       goalGraphStore,
       branchMapReceiptStore,
       missionFabricTenants: options.allowlist,
-      now: () => NOW_ISO,
+      missionFabricViewerIds: options.viewerIds,
+      now: () => options.now ?? NOW_ISO,
     },
   };
 }
@@ -190,6 +194,9 @@ interface FabricRequestOptions {
   query?: string;
   receipts?: import('./branch-map.ts').BranchMapReceipt[];
   branchStories?: unknown[];
+  now?: string;
+  userId?: string;
+  viewerIds?: string[];
 }
 
 async function requestFabric(options: FabricRequestOptions = {}): Promise<{
@@ -199,7 +206,7 @@ async function requestFabric(options: FabricRequestOptions = {}): Promise<{
   raw: string;
   spies: FabricSpies;
 }> {
-  const auth = await signedInitData();
+  const auth = await signedInitData(options.userId);
   const initData = options.initData === undefined ? auth.initData : options.initData;
   const tenant = options.tenant ?? TENANT;
   const { deps, spies } = fabricDeps({
@@ -211,6 +218,8 @@ async function requestFabric(options: FabricRequestOptions = {}): Promise<{
     head: 'storeHead' in options ? options.storeHead ?? null : options.head ?? undefined,
     receipts: options.receipts,
     branchStories: options.branchStories,
+    now: options.now,
+    viewerIds: options.viewerIds,
   });
   const req: SimpleRequest = {
     method: options.method ?? 'GET',
@@ -230,6 +239,29 @@ async function requestFabric(options: FabricRequestOptions = {}): Promise<{
 test('GET mission fabric requires tenant allowlist and valid Telegram initData', async () => {
   assert.equal((await requestFabric({ allowlist: [], tenant: 'cambium' })).status, 403);
   assert.equal((await requestFabric({ allowlist: ['cambium'], initData: '', tenant: 'cambium' })).status, 401);
+});
+
+test('non-founder signed viewer is rejected by default (fail-closed when viewer list is absent/empty)', async () => {
+  const absent = await requestFabric({ userId: NON_FOUNDER_ID });
+  assert.equal(absent.status, 401);
+  assert.equal(absent.json.error, 'telegram authentication failed');
+
+  const empty = await requestFabric({ userId: NON_FOUNDER_ID, viewerIds: [] });
+  assert.equal(empty.status, 401);
+});
+
+test('explicitly allowlisted non-founder viewer is authorized and receives the redacted viewer role', async () => {
+  const result = await requestFabric({ userId: NON_FOUNDER_ID, viewerIds: [NON_FOUNDER_ID] });
+  assert.equal(result.status, 200);
+  const names = JSON.stringify(result.json.projection.nodes);
+  assert.doesNotMatch(names, /Acme Corp Website/, 'viewer role redacts private client labels');
+});
+
+test('founder authorization is unaffected by the viewer allowlist', async () => {
+  const result = await requestFabric({ viewerIds: [NON_FOUNDER_ID] });
+  assert.equal(result.status, 200);
+  const names = JSON.stringify(result.json.projection.nodes);
+  assert.match(names, /Acme Corp Website/, 'founder still sees unredacted private client labels');
 });
 
 test('mission fabric rejects every mutating method', async () => {
@@ -286,6 +318,31 @@ test('ETag is the redacted graphDigest and delivery is volatile transport metada
   );
   const digestContent = JSON.stringify(first.json.projection);
   assert.ok(!digestContent.includes('servedAt'), 'delivery is excluded from the digest content');
+});
+
+test('frozen source content yields identical redacted graphDigest across different servedAt/freshness, but nonce expiry still varies', async () => {
+  const factsMissingTimestamps = questFacts();
+  delete (factsMissingTimestamps.agents as Array<Record<string, unknown>>)[0].lastSeenAt;
+  (factsMissingTimestamps.runs as Array<Record<string, unknown>>)[0].startedAt = undefined;
+
+  const early = await requestFabric({ facts: factsMissingTimestamps, now: '2026-07-28T10:00:00.000Z' });
+  const late = await requestFabric({ facts: factsMissingTimestamps, now: '2026-07-28T20:00:00.000Z' });
+  assert.equal(early.status, 200);
+  assert.equal(late.status, 200);
+  assert.equal(
+    early.json.projection.graphDigest,
+    late.json.projection.graphDigest,
+    'same frozen source with different servedAt must yield the identical redacted graphDigest',
+  );
+  assert.notEqual(early.json.delivery.servedAt, late.json.delivery.servedAt, 'servedAt itself is still volatile transport metadata');
+
+  const afterExpiry = await requestFabric({ facts: factsMissingTimestamps, now: '2026-08-01T00:00:00.000Z' });
+  assert.equal(afterExpiry.status, 200);
+  assert.notEqual(
+    afterExpiry.json.projection.graphDigest,
+    early.json.projection.graphDigest,
+    'crossing nonce expiry must still change the projected content and its digest',
+  );
 });
 
 test('founder viewer keeps private client labels; foreign viewer redaction changes the digest safely', async () => {

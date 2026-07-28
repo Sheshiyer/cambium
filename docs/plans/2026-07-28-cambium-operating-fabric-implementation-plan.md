@@ -171,9 +171,9 @@ From the repository root:
 
 ```bash
 git worktree add \
-  /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/.worktrees/cambium-operating-fabric \
+  .worktrees/cambium-operating-fabric \
   -b codex/cambium-operating-fabric
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/.worktrees/cambium-operating-fabric
+cd .worktrees/cambium-operating-fabric
 npm test
 ```
 

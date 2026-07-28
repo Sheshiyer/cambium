@@ -74,6 +74,19 @@ const liveDefaultPatterns = [
   },
 ];
 
+// Operating-fabric release surface: the production compiler/handler/scene
+// modules plus their integration and readiness proof. If any of these go
+// missing from the tracked tree, promotion must fail closed rather than
+// silently auditing a smaller surface.
+const requiredOperatingFabricFiles = [
+  'workers/quests/src/mission-fabric.ts',
+  'workers/quests/src/handler.ts',
+  'workers/quests/src/page/operating-fabric/canopy.ts',
+  'workers/quests/src/page/operating-fabric/inspect-sheet.ts',
+  'workers/quests/src/mission-fabric-integration.test.ts',
+  'workers/quests/src/live-proof-readiness.test.ts',
+];
+
 export function runStandaloneAudit() {
   const files = candidateFiles()
     .filter(Boolean)
@@ -82,6 +95,11 @@ export function runStandaloneAudit() {
     .filter((file) => !file.endsWith('VERSIONS.md'));
 
   const failures = [];
+  for (const required of requiredOperatingFabricFiles) {
+    if (!files.includes(required)) {
+      failures.push(`${required}: operating-fabric proof surface missing from tracked tree`);
+    }
+  }
   for (const file of files) {
     let text = '';
     try {

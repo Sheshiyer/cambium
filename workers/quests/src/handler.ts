@@ -443,6 +443,7 @@ export interface HandlerDeps {
   branchMapReceiptStore?: BranchMapReceiptStoreLike; // D1 append-only transition evidence
   branchMapTenants?: string[]; // server-owned allowlist for Telegram map reads
   missionFabricTenants?: string[]; // server-owned allowlist for operating-fabric composition reads; absent/empty disables all tenants
+  missionFabricViewerIds?: string[]; // server-owned non-founder viewer allowlist for /v1/mission-fabric only; absent/empty authorizes founders only
   plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → dev founder fallback)
 }
 
@@ -569,7 +570,10 @@ export function buildDataCheckString(initData: string, botId: string): { dcs: st
   return { dcs: `${botId}:WebAppData\n${lines.join('\n')}`, fields };
 }
 
-export async function validateInitData(
+/** Authenticates the signed Telegram payload only: signature + freshness +
+ *  user id parsing. Performs NO authorization — callers decide who the
+ *  authenticated userId is allowed to act as. */
+async function authenticateInitData(
   initData: string,
   cfg: GateConfig,
 ): Promise<{ ok: true; userId: string } | { ok: false; reason: string }> {
@@ -590,8 +594,21 @@ export async function validateInitData(
   if (!verified) return { ok: false, reason: 'bad signature' };
   let userId = '';
   try { userId = String(JSON.parse(fields.user ?? '{}').id ?? ''); } catch { /* fallthrough */ }
-  if (!userId || !cfg.founderIds.includes(userId)) return { ok: false, reason: 'not a founder' };
+  if (!userId) return { ok: false, reason: 'missing telegram user id' };
   return { ok: true, userId };
+}
+
+/** Public founder-gate contract: authenticates AND authorizes against
+ *  founderIds. Unchanged behavior — every existing caller keeps founder-only
+ *  semantics exactly as before. */
+export async function validateInitData(
+  initData: string,
+  cfg: GateConfig,
+): Promise<{ ok: true; userId: string } | { ok: false; reason: string }> {
+  const auth = await authenticateInitData(initData, cfg);
+  if (!auth.ok) return auth;
+  if (!cfg.founderIds.includes(auth.userId)) return { ok: false, reason: 'not a founder' };
+  return auth;
 }
 
 export interface SimpleRequest {
@@ -2789,8 +2806,12 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
   if (!allowlist.includes(tenant)) return json(403, { error: 'mission fabric tenant is not enabled' });
   if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
   const initData = (req.headers['x-telegram-init-data'] ?? req.headers['telegram-init-data'] ?? '').trim();
-  const auth = await validateInitData(initData, deps.gate);
+  const auth = await authenticateInitData(initData, deps.gate);
   if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
+  const viewerIds = deps.missionFabricViewerIds ?? [];
+  const isFounder = deps.gate.founderIds.includes(auth.userId);
+  const isViewer = viewerIds.includes(auth.userId);
+  if (!isFounder && !isViewer) return json(401, { error: 'telegram authentication failed', reason: 'not authorized for mission fabric' });
   if (!deps.goalGraphStore || !deps.branchMapReceiptStore) {
     return json(503, { error: 'mission fabric authority is not configured' });
   }
@@ -2833,7 +2854,13 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         }
       }
     }
-    const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt });
+    const storedDerivedAt = isRecord(storedEnvelope) && typeof storedEnvelope.derivedAt === 'string' ? storedEnvelope.derivedAt : null;
+    const contentAsOf = storedDerivedAt !== null && fabricTimestampMs(storedDerivedAt) !== null
+      ? storedDerivedAt
+      : (typeof head.committedAt === 'string' && fabricTimestampMs(head.committedAt) !== null
+        ? head.committedAt
+        : '1970-01-01T00:00:00.000Z');
+    const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
     entries.push(...execution.nodes);
     const mergedEdges: FabricEdge[] = [...execution.edges];
     const mergedGaps: FabricGap[] = [...execution.gaps];
@@ -2926,7 +2953,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     };
 
     const viewer: MissionFabricViewer = {
-      role: deps.gate.founderIds.includes(auth.userId) ? 'founder' : 'viewer',
+      role: isFounder ? 'founder' : 'viewer',
       tenantId: tenant,
     };
     const redacted = redactMissionFabricProjection(projection, viewer);
