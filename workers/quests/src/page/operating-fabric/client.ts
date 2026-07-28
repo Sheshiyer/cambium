@@ -1,7 +1,7 @@
 // cambium-quests · operating fabric boot client (Task 6 additive bundle).
 // Starts inert: it probes the tenant mission-fabric route once with the
-// runtime Telegram initData, and activates the shell ONLY for an
-// authenticated 200 whose delivery.operatingFabricEnabled is exactly true.
+// runtime Telegram initData, and activates the shell ONLY for an exact
+// status 200 whose delivery.operatingFabricEnabled is exactly true.
 // Every other outcome — 401, 403, network failure, malformed JSON, absent
 // delivery, explicit false, or merely truthy flags — leaves the shell hidden
 // and inert with the legacy document visible. initData never touches the
@@ -25,12 +25,19 @@ export const OPERATING_FABRIC_BOOT = `<script data-operating-fabric-boot>
     root.classList.add('of-on');
     root.inert = false;
     root.setAttribute('aria-hidden', 'false');
-    if (typeof root.toggle === 'function') root.toggle(false, false);
-    if (legacy) legacy.classList.add('of-active');
+    // The legacy shell genuinely yields the viewport: hidden removes it from
+    // layout and inert makes it noninteractive — no CSS-only class tricks.
+    if (legacy) {
+      legacy.hidden = true;
+      legacy.inert = true;
+      legacy.setAttribute('aria-hidden', 'true');
+      legacy.classList.add('of-active');
+    }
   }
   fetch('/v1/mission-fabric/' + tenant, { headers: { 'x-telegram-init-data': initData } })
     .then(function (res) {
-      if (!res.ok) return;
+      // Strict 200 only: a generic 2xx check would also activate on 201/202/206.
+      if (res.status !== 200) return;
       return res.json().then(function (body) {
         if (body && body.delivery && body.delivery.operatingFabricEnabled === true) activate();
       });

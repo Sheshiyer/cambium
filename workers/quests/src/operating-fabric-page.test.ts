@@ -191,7 +191,7 @@ test('shell adds no Task 7 feature surface and no authorization logic', () => {
 // ── activation gating (document-level DOM harness) ──────────────────────────
 
 type FabricResponse =
-  | { kind: 'status'; status: number }
+  | { kind: 'status'; status: number; jsonValue?: unknown }
   | { kind: 'throw'; error: Error }
   | { kind: 'json'; value: unknown }
   | { kind: 'malformed' };
@@ -270,7 +270,7 @@ function bootOperatingFabricDocument(
         return {
           ok: outcome.status >= 200 && outcome.status < 300,
           status: outcome.status,
-          json: async () => ({}),
+          json: async () => outcome.jsonValue ?? {},
         };
       }
       if (outcome.kind === 'malformed') {
@@ -307,6 +307,9 @@ function assertStaysInert(booted: ReturnType<typeof bootOperatingFabricDocument>
   assert.equal(booted.fabricRoot.inert, true, `${label}: shell stays inert`);
   assert.equal(booted.fabricRoot.ariaHidden, 'true', `${label}: shell stays aria-hidden`);
   assert.equal(booted.fabricRoot.classList.contains('of-on'), false, `${label}: shell never gains the activation class`);
+  assert.equal(booted.legacyShell.hidden, false, `${label}: legacy shell stays visible`);
+  assert.equal(booted.legacyShell.inert, false, `${label}: legacy shell stays interactive`);
+  assert.equal(booted.legacyShell.ariaHidden, null, `${label}: legacy shell stays exposed to assistive tech`);
   assert.equal(
     booted.legacyShell.classList.contains('of-active'),
     false,
@@ -324,6 +327,30 @@ test('boot locates the hidden shell root and the legacy shell by its existing co
 const INERT_CASES: ReadonlyArray<[string, FabricResponse]> = [
   ['missing allowlist response (403)', { kind: 'status', status: 403 }],
   ['unauthenticated response (401)', { kind: 'status', status: 401 }],
+  [
+    '201 with true flag (non-200 must not activate)',
+    {
+      kind: 'status',
+      status: 201,
+      jsonValue: { delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T00:00:00.000Z' } },
+    },
+  ],
+  [
+    '202 with true flag (non-200 must not activate)',
+    {
+      kind: 'status',
+      status: 202,
+      jsonValue: { delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T00:00:00.000Z' } },
+    },
+  ],
+  [
+    '206 with true flag (non-200 must not activate)',
+    {
+      kind: 'status',
+      status: 206,
+      jsonValue: { delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T00:00:00.000Z' } },
+    },
+  ],
   ['network failure', { kind: 'throw', error: new Error('socket hangup') }],
   ['malformed JSON body', { kind: 'malformed' }],
   ['200 without delivery', { kind: 'json', value: { projection: { schema: 'cambium.mission-fabric-projection.v1' } } }],
@@ -368,6 +395,9 @@ test('a valid authenticated 200 with operatingFabricEnabled === true unhides the
   assert.equal(booted.fabricRoot.inert, false, 'shell becomes interactive');
   assert.equal(booted.fabricRoot.ariaHidden, 'false', 'shell is exposed to assistive tech');
   assert.equal(booted.fabricRoot.classList.contains('of-on'), true, 'shell styles unhide through the activation class');
+  assert.equal(booted.legacyShell.hidden, true, 'legacy shell is genuinely hidden after activation');
+  assert.equal(booted.legacyShell.inert, true, 'legacy shell is genuinely noninteractive after activation');
+  assert.equal(booted.legacyShell.ariaHidden, 'true', 'legacy shell is removed from assistive tech after activation');
   assert.equal(booted.legacyShell.classList.contains('of-active'), true, 'legacy document yields the viewport');
 });
 
@@ -391,6 +421,14 @@ test('boot skips the probe entirely when no runtime initData is available', asyn
   await flushBoot();
   assert.equal(booted.fetches.length, 0, 'no initData means no probe');
   assertStaysInert(booted, 'no initData');
+});
+
+test('activation requires exactly status 200, never res.ok', async () => {
+  assert.ok(OPERATING_FABRIC_BOOT.includes('res.status !== 200'), 'boot gates on the exact status code');
+  assert.ok(
+    !OPERATING_FABRIC_BOOT.includes('res.ok'),
+    'boot never uses res.ok, which would also activate on 201/202/206',
+  );
 });
 
 // ── RBAC keeps governing contextual actions ─────────────────────────────────
