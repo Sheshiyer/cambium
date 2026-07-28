@@ -452,7 +452,12 @@ export async function renderPageFixtureContext(envelope, options = {}) {
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
     .filter((script) => script.trim() && !script.includes('telegram-web-app'));
-  if (scripts.length !== 1) throw new Error(`page has ${scripts.length} inline app scripts, expected 1`);
+  // Task 6 scope amendment: the operating-fabric fragment ships its own
+  // separate boot script; the harness evaluates only the legacy app script.
+  const bootScripts = scripts.filter((script) => script.includes('/v1/mission-fabric/'));
+  if (bootScripts.length !== 1) throw new Error(`page has ${bootScripts.length} operating-fabric boot scripts, expected 1`);
+  const appScripts = scripts.filter((script) => !script.includes('/v1/mission-fabric/'));
+  if (appScripts.length !== 1) throw new Error(`page has ${appScripts.length} inline app scripts, expected 1`);
 
   const elements = new Map();
   const getElementById = (id) => {
@@ -483,7 +488,7 @@ export async function renderPageFixtureContext(envelope, options = {}) {
   };
   context.Telegram = context.window.Telegram;
   context.globalThis = context;
-  vm.runInContext(scripts[0], vm.createContext(context));
+  vm.runInContext(appScripts[0], vm.createContext(context));
   const flushRounds = options.flushRounds ?? 5;
   for (let i = 0; i < flushRounds; i += 1) await new Promise((resolve) => setTimeout(resolve, 0));
   return { elements, context };

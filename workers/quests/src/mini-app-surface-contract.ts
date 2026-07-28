@@ -1,5 +1,7 @@
 export const MINI_APP_SCENE_IDS = ['mission', 'gate', 'tools', 'story', 'inspect'] as const;
 export type MiniAppSceneId = typeof MINI_APP_SCENE_IDS[number];
+export const OPERATING_FABRIC_SCENE_IDS = ['canopy', 'mission', 'flow', 'workforce', 'forge'] as const;
+export type OperatingFabricSceneId = typeof OPERATING_FABRIC_SCENE_IDS[number];
 
 export const MINI_APP_ECOSYSTEM_TARGETS = [
   'telegram',
@@ -206,3 +208,13 @@ export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
   { id: 'companions', target: 'cortex', interactions: { primary: 'sheet' }, source: 'operator-npc-events@v1 and cortex memory' },
   { id: 'rails', target: 'r3f', interactions: { primary: 'sheet' }, source: 'shared visual rail contract' },
 ];
+
+// --- scene-to-screen mapping (MiniAppSceneId → R3F ScreenId) ---
+
+export const SCENE_TO_SCREEN = {
+  mission: 'home',
+  gate: 'overlay:founder-gate',
+  tools: 'island',
+  story: 'story',
+  inspect: 'island-cortex',
+} as const satisfies Record<MiniAppSceneId, string>;

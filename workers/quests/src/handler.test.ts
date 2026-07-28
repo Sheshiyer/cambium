@@ -1138,7 +1138,14 @@ async function renderPageFixtureContext(
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
     .filter((script) => script.trim() && !script.includes('telegram-web-app'));
-  assert.equal(scripts.length, 1, 'page has one inline app script');
+  // Task 6 scope amendment: the operating-fabric fragment ships its own
+  // separate boot script alongside the legacy app script. The harness must
+  // evaluate only the legacy app script (every legacy behavior test below is
+  // unchanged) while asserting the boot script is present in the served page.
+  const bootScripts = scripts.filter((script) => script.includes('/v1/mission-fabric/'));
+  assert.equal(bootScripts.length, 1, 'page carries the operating-fabric boot script');
+  const appScripts = scripts.filter((script) => !script.includes('/v1/mission-fabric/'));
+  assert.equal(appScripts.length, 1, 'page has one inline app script');
 
   const elements = new Map<string, ReturnType<typeof makeElement>>();
   const getElementById = (id: string) => {
@@ -1195,7 +1202,7 @@ async function renderPageFixtureContext(
   };
   context.Telegram = (context.window as { Telegram?: unknown }).Telegram;
   context.globalThis = context;
-  vm.runInContext(scripts[0], vm.createContext(context));
+  vm.runInContext(appScripts[0], vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
   return { elements, context, fetchCalls, fetchRequests, clipboardWrites };
