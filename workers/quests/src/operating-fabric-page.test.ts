@@ -5057,3 +5057,157 @@ test('no benign raw ID can ever equal a generated redacted identity in either su
     }
   }
 });
+
+// ── executor determinism (Task 9 rereview remediation) ─────────────────────
+// Conflicting exact canonical executes edges targeting the same canonical run
+// must NEVER resolve first-input-wins: input edge order can never change
+// executor truth. Per run, only edges with kind 'executes', an existing
+// canonical run target, and an existing canonical agent source participate;
+// the lexicographically smallest canonical agentId (code-unit order) wins.
+// Invalid or missing-agent edges never block a later valid edge; when no
+// valid candidate exists the honest 'executor not present in projection'
+// label is retained. run.value.agentId is never consulted as a fallback.
+
+type FlowEdge = MissionFabricProjectionV1['edges'][number];
+
+function makeExecutesEdge(fromId: string, toId: string): FlowEdge {
+  return { kind: 'executes', fromId, toId } as FlowEdge;
+}
+
+function executorDeterminismProjection(edges: FlowEdge[], agentIds: string[]): MissionFabricProjectionV1 {
+  return makeFlowProjection({
+    nodes: [
+      makeFlowTask('fx-det-task'),
+      makeFlowRun('fx-det-run', 'fx-det-task', { agentId: 'fx-det-agent-zz-never-used' }),
+      ...agentIds.map((agentId) => makeFlowAgent(agentId)),
+    ],
+    edges,
+    gaps: [],
+  });
+}
+
+test('conflicting valid executes edges resolve the lexicographically smallest agentId under edge reversal', () => {
+  const forward = executorDeterminismProjection(
+    [makeExecutesEdge('fx-det-agent-b', 'fx-det-run'), makeExecutesEdge('fx-det-agent-a', 'fx-det-run')],
+    ['fx-det-agent-a', 'fx-det-agent-b'],
+  );
+  const reversed = executorDeterminismProjection(
+    [makeExecutesEdge('fx-det-agent-a', 'fx-det-run'), makeExecutesEdge('fx-det-agent-b', 'fx-det-run')],
+    ['fx-det-agent-a', 'fx-det-agent-b'],
+  );
+  for (const [label, projection] of [['forward', forward], ['reversed', reversed]] as const) {
+    for (const [substrate, html] of [['node', renderFlow(projection)], ['browser', renderFlowBrowser(projection)]] as const) {
+      assert.match(html, /data-of-executor="fx-det-agent-a"/, `${label} ${substrate} resolves the lexicographically smallest agentId`);
+      assert.ok(!html.includes('data-of-executor="fx-det-agent-b"'), `${label} ${substrate} never resolves the later-sorted agentId`);
+      assert.ok(!html.includes('executor not present in projection'), `${label} ${substrate} never invents the honest label when a valid executor exists`);
+      assert.ok(!html.includes('fx-det-agent-zz-never-used'), `${label} ${substrate} never falls back to run.value.agentId`);
+    }
+  }
+  assert.equal(renderFlow(forward), renderFlow(reversed), 'node output is byte-identical under edge reversal');
+  assert.equal(renderFlowBrowser(forward), renderFlowBrowser(reversed), 'browser output is byte-identical under edge reversal');
+});
+
+test('an invalid executes edge first never blocks a later valid edge', () => {
+  const projection = executorDeterminismProjection(
+    [makeExecutesEdge('fx-det-agent-missing', 'fx-det-run'), makeExecutesEdge('fx-det-agent-a', 'fx-det-run')],
+    ['fx-det-agent-a'],
+  );
+  for (const [substrate, html] of [['node', renderFlow(projection)], ['browser', renderFlowBrowser(projection)]] as const) {
+    assert.match(html, /data-of-executor="fx-det-agent-a"/, `${substrate} skips the missing-agent edge and resolves the valid executor`);
+    assert.ok(!html.includes('executor not present in projection'), `${substrate} never renders the honest label when a valid edge follows`);
+    assert.ok(!html.includes('fx-det-agent-missing'), `${substrate} never renders the unresolvable agent id`);
+  }
+});
+
+test('only-invalid executes edges retain the honest executor-missing label', () => {
+  const projection = executorDeterminismProjection(
+    [makeExecutesEdge('fx-det-agent-missing', 'fx-det-run'), makeExecutesEdge('fx-det-agent-also-missing', 'fx-det-run')],
+    ['fx-det-agent-a'],
+  );
+  for (const [substrate, html] of [['node', renderFlow(projection)], ['browser', renderFlowBrowser(projection)]] as const) {
+    assert.match(html, /executor not present in projection/, `${substrate} keeps the honest label when no valid candidate exists`);
+    assert.ok(!html.includes('data-of-executor='), `${substrate} never renders an executor attribute without a canonical agent`);
+    assert.ok(!html.includes('fx-det-agent-missing'), `${substrate} never leaks the unresolvable agent id`);
+  }
+});
+
+test('agentId filter visibility is stable under conflicting-edge reversal', () => {
+  const forward = executorDeterminismProjection(
+    [makeExecutesEdge('fx-det-agent-b', 'fx-det-run'), makeExecutesEdge('fx-det-agent-a', 'fx-det-run')],
+    ['fx-det-agent-a', 'fx-det-agent-b'],
+  );
+  const reversed = executorDeterminismProjection(
+    [makeExecutesEdge('fx-det-agent-a', 'fx-det-run'), makeExecutesEdge('fx-det-agent-b', 'fx-det-run')],
+    ['fx-det-agent-a', 'fx-det-agent-b'],
+  );
+  const rowSelector = flowRowSelector('fx-det-task');
+  for (const [label, projection] of [['forward', forward], ['reversed', reversed]] as const) {
+    for (const [substrate, renderer] of [['node', renderFlow], ['browser', renderFlowBrowser]] as const) {
+      const filteredA = renderer(projection, { agentId: 'fx-det-agent-a' });
+      const filteredB = renderer(projection, { agentId: 'fx-det-agent-b' });
+      assert.ok(filteredA.includes(rowSelector), `${label} ${substrate} keeps the row for the deterministic winner agentId`);
+      assert.ok(!filteredB.includes(rowSelector), `${label} ${substrate} drops the row for the non-winning conflicting agentId`);
+    }
+  }
+  assert.equal(renderFlow(forward, { agentId: 'fx-det-agent-a' }), renderFlow(reversed, { agentId: 'fx-det-agent-a' }), 'filtered node output is byte-identical under edge reversal');
+  assert.equal(renderFlowBrowser(forward, { agentId: 'fx-det-agent-a' }), renderFlowBrowser(reversed, { agentId: 'fx-det-agent-a' }), 'filtered browser output is byte-identical under edge reversal');
+});
+
+test('prototype-shaped agent IDs resolve deterministically without prototype corruption', () => {
+  for (const agentId of ['__proto__', 'constructor', 'hasOwnProperty', 'toString']) {
+    const forward = executorDeterminismProjection(
+      [makeExecutesEdge('zz-det-agent', 'fx-det-run'), makeExecutesEdge(agentId, 'fx-det-run')],
+      [agentId, 'zz-det-agent'],
+    );
+    const reversed = executorDeterminismProjection(
+      [makeExecutesEdge(agentId, 'fx-det-run'), makeExecutesEdge('zz-det-agent', 'fx-det-run')],
+      [agentId, 'zz-det-agent'],
+    );
+    for (const [label, projection] of [['forward', forward], ['reversed', reversed]] as const) {
+      for (const [substrate, html] of [['node', renderFlow(projection)], ['browser', renderFlowBrowser(projection)]] as const) {
+        assert.match(html, new RegExp(`data-of-executor="${agentId}"`), `${label} ${substrate} resolves ${agentId} as the code-unit smallest agentId`);
+        assert.ok(!html.includes('executor not present in projection'), `${label} ${substrate} never drops the prototype-shaped executor`);
+      }
+    }
+    assert.equal(renderFlow(forward), renderFlow(reversed), `node output is byte-identical under edge reversal for ${agentId}`);
+    assert.equal(renderFlowBrowser(forward), renderFlowBrowser(reversed), `browser output is byte-identical under edge reversal for ${agentId}`);
+  }
+});
+
+test('conflicting executes edges targeting different runs stay independent and deterministic', () => {
+  const makeProjection = (edges: FlowEdge[]): MissionFabricProjectionV1 =>
+    makeFlowProjection({
+      nodes: [
+        makeFlowTask('fx-det-task'),
+        makeFlowRun('fx-det-run-1', 'fx-det-task'),
+        makeFlowRun('fx-det-run-2', 'fx-det-task'),
+        makeFlowAgent('fx-det-agent-a'),
+        makeFlowAgent('fx-det-agent-b'),
+        makeFlowAgent('fx-det-agent-c'),
+      ],
+      edges,
+      gaps: [],
+    });
+  const forward = makeProjection([
+    makeExecutesEdge('fx-det-agent-c', 'fx-det-run-1'),
+    makeExecutesEdge('fx-det-agent-b', 'fx-det-run-1'),
+    makeExecutesEdge('fx-det-agent-b', 'fx-det-run-2'),
+    makeExecutesEdge('fx-det-agent-a', 'fx-det-run-2'),
+  ]);
+  const reversed = makeProjection([
+    makeExecutesEdge('fx-det-agent-a', 'fx-det-run-2'),
+    makeExecutesEdge('fx-det-agent-b', 'fx-det-run-2'),
+    makeExecutesEdge('fx-det-agent-b', 'fx-det-run-1'),
+    makeExecutesEdge('fx-det-agent-c', 'fx-det-run-1'),
+  ]);
+  for (const projection of [forward, reversed]) {
+    for (const html of [renderFlow(projection), renderFlowBrowser(projection)]) {
+      const executors = [...html.matchAll(/data-of-executor="([^"]+)"/g)].map((match) => match[1]);
+      // The full HTML carries both the graph and list representations, so the
+      // per-run pair repeats; the sequence itself must stay ordered per run.
+      assert.deepEqual(executors, ['fx-det-agent-b', 'fx-det-agent-a', 'fx-det-agent-b', 'fx-det-agent-a'], 'each run resolves its own code-unit smallest executor independently in both representations');
+    }
+  }
+  assert.equal(renderFlow(forward), renderFlow(reversed), 'node output is byte-identical across full edge-array reversal');
+  assert.equal(renderFlowBrowser(forward), renderFlowBrowser(reversed), 'browser output is byte-identical across full edge-array reversal');
+});

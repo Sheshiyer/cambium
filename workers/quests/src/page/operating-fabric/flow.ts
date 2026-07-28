@@ -359,12 +359,32 @@ function resolveFlowView(projection: MissionFabricProjectionV1, filters: FlowFil
 
   // Per-run executor: ONLY an exact canonical executes edge (agentId → runId)
   // whose agent node exists resolves an executor — never run.value.agentId.
+  // Conflicting exact canonical executes edges targeting the same canonical
+  // run NEVER resolve first-input-wins: per run, only edges with kind
+  // 'executes', an existing canonical run target, and an existing canonical
+  // agent source participate, and the lexicographically smallest canonical
+  // agentId by code-unit order wins deterministically. Invalid or
+  // missing-agent edges never block a later valid edge; when no valid
+  // candidate exists the honest 'executor not present in projection' label
+  // is retained. Input edge order can never change executor truth.
   const executorByRunId = new Map<string, AgentNode | null>();
+  const executorCandidates = new Map<string, AgentNode[]>();
   for (const edge of edges) {
     if (!edge || edge.kind !== 'executes') continue;
     const runId = String(edge.toId ?? '');
-    if (!runById.has(runId) || executorByRunId.has(runId)) continue;
-    executorByRunId.set(runId, agentById.get(String(edge.fromId ?? '')) ?? null);
+    if (!runById.has(runId)) continue;
+    const agent = agentById.get(String(edge.fromId ?? ''));
+    if (agent === undefined) continue;
+    const candidates = executorCandidates.get(runId) ?? [];
+    if (!candidates.includes(agent)) {
+      candidates.push(agent);
+      executorCandidates.set(runId, candidates);
+    }
+  }
+  for (const runId of runById.keys()) {
+    const candidates = executorCandidates.get(runId) ?? [];
+    candidates.sort((a, b) => compareId(String(a.value.agentId ?? ''), String(b.value.agentId ?? '')));
+    executorByRunId.set(runId, candidates[0] ?? null);
   }
 
   // Receipt visibility: a canonical receipt whose receipt.runId resolves to a
@@ -985,14 +1005,34 @@ function ofRenderFlow(projection, filters) {
     runsByTaskId[runTaskId].push(run);
   }
   // Per-run executor: ONLY an exact canonical executes edge whose agent node
-  // exists — never run.value.agentId.
+  // exists — never run.value.agentId. Conflicting exact canonical executes
+  // edges targeting the same canonical run NEVER resolve first-input-wins:
+  // per run, only edges with kind 'executes', an existing canonical run
+  // target, and an existing canonical agent source participate, and the
+  // lexicographically smallest canonical agentId by code-unit order wins
+  // deterministically. Invalid or missing-agent edges never block a later
+  // valid edge; when no valid candidate exists the honest 'executor not
+  // present in projection' label is retained.
   var executorByRunId = Object.create(null);
+  var executorCandidatesByRunId = Object.create(null);
   for (var xi = 0; xi < edges.length; xi += 1) {
     var execEdge = edges[xi];
     if (!execEdge || execEdge.kind !== 'executes') continue;
     var execRunId = String(execEdge.toId || '');
-    if (!runMap[execRunId] || Object.prototype.hasOwnProperty.call(executorByRunId, execRunId)) continue;
-    executorByRunId[execRunId] = agentMap[String(execEdge.fromId)] || null;
+    if (!runMap[execRunId]) continue;
+    var execAgent = agentMap[String(execEdge.fromId)];
+    if (!execAgent) continue;
+    var execCandidates = Object.prototype.hasOwnProperty.call(executorCandidatesByRunId, execRunId) ? executorCandidatesByRunId[execRunId] : [];
+    if (execCandidates.indexOf(execAgent) === -1) {
+      execCandidates.push(execAgent);
+      executorCandidatesByRunId[execRunId] = execCandidates;
+    }
+  }
+  for (var xr = 0; xr < runIds.length; xr += 1) {
+    var execCandidateRunId = runIds[xr];
+    var execRunCandidates = Object.prototype.hasOwnProperty.call(executorCandidatesByRunId, execCandidateRunId) ? executorCandidatesByRunId[execCandidateRunId] : [];
+    execRunCandidates.sort(function (a, b) { return compareId(String(a.value.agentId || ''), String(b.value.agentId || '')); });
+    executorByRunId[execCandidateRunId] = execRunCandidates.length > 0 ? execRunCandidates[0] : null;
   }
   var receiptsByRunId = Object.create(null);
   function pushReceiptForRun(runId, receipt) {
