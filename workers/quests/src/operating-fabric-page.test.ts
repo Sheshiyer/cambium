@@ -680,3 +680,425 @@ test('fabric styles extend tokens and keep motion, focus, and target-size contra
   assert.match(OPERATING_FABRIC_STYLES, /:focus-visible/, 'focus stays visible');
   assert.ok(!/animation:[^;]*left|animation:[^;]*top|animation:[^;]*width/.test(OPERATING_FABRIC_STYLES), 'motion stays transform/opacity-only');
 });
+
+// ── Task 7 review corrections · adversarial runtime values ─────────────────
+//
+// Regression coverage for the independent review findings: hostile state
+// strings must never break out of class/data attributes, program nodes render
+// ProgramWork.lifecycle (not generic status/currentState), freshness proof
+// requires a bounded canonical timestamp, coverage only renders when valid,
+// and secret markers placed in rendered fields fail closed.
+
+const FABRIC_SECRET_MARKERS = [
+  'query_id=',
+  'auth_date=',
+  'Bearer eyJ',
+  'bot_token',
+  'clientSecret',
+  'BEGIN PRIVATE KEY',
+];
+
+test('renderFabricState allowlists state so hostile strings cannot break attributes', () => {
+  const hostile = renderFabricState('"><script>alert(1)</script>' as unknown as 'error');
+  assert.ok(!hostile.includes('<script>alert(1)</script>'), 'hostile state never reaches markup');
+  assert.ok(!hostile.includes('of-state-"><'), 'hostile state never breaks out of the class attribute');
+  assert.match(hostile, /data-state="error"/, 'invalid state falls back to the bounded error treatment');
+  assert.match(hostile, /of-state-error/, 'invalid state renders the error styling class');
+
+  const unknown = renderFabricState('running' as unknown as 'loading');
+  assert.match(unknown, /data-state="error"/, 'non-allowlisted state fails closed to error');
+  assert.doesNotMatch(unknown, /of-state-running/, 'non-allowlisted state never becomes a class');
+
+  assert.doesNotMatch(renderFabricState('constructor' as unknown as 'error'), /data-state="constructor"/, 'native keys are not allowlisted');
+
+  for (const state of ['loading', 'empty', 'stale', 'unauthorized', 'error'] as const) {
+    assert.match(renderFabricState(state), new RegExp(`data-state="${state}"`), `valid ${state} is preserved`);
+  }
+});
+
+test('work card renders ProgramWork.lifecycle for program nodes', () => {
+  const programNode = {
+    kind: 'work' as const,
+    value: {
+      kind: 'program' as const,
+      workId: 'cambium-operating-fabric',
+      tenantId: 'cambium-synthetic',
+      name: 'Cambium Operating Fabric',
+      desiredState: 'verified',
+      currentState: 'q',
+      status: 'active',
+      ownerId: 'founder',
+      nextAction: null,
+      proofRequired: true,
+      reviewAt: null,
+      sourceRef: 'd1-goal-graph',
+      sourceDigest: 'digest',
+      programKind: 'operations' as const,
+      lifecycle: 'executing',
+      outcomeMetric: 'bounded execution paths',
+    },
+  };
+  const html = renderWorkCard(programNode as never, {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 3,
+  });
+  assert.match(html, /executing/, 'program lifecycle is visible as the lifecycle');
+  assert.match(html, /program/, 'program work type is visible');
+
+  const runtimeOnly = makeWorkNode({
+    kind: 'program',
+    lifecycle: 'verifying',
+    status: undefined,
+    currentState: 'runtime-only',
+  });
+  const runtimeHtml = renderWorkCard(runtimeOnly, {
+    freshness: { state: 'stale', checkedAt: '2026-07-27T06:00:00.000Z' },
+    graphVersion: 3,
+  });
+  assert.match(runtimeHtml, /verifying/, 'program lifecycle wins over runtime currentState');
+  assert.doesNotMatch(runtimeHtml, /unknown state/, 'program nodes never lose their lifecycle');
+});
+
+test('work card keeps sapling state and promotion semantics without inventing values', () => {
+  const sapling = makeWorkNode({ status: 'active', promotionState: 'supervised-branch' });
+  const html = renderWorkCard(sapling, {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 2,
+  });
+  assert.match(html, /active/, 'sapling status is visible as the lifecycle');
+  assert.match(html, /supervised-branch/, 'sapling promotion state is visible');
+  assert.doesNotMatch(html, /proof-only/, 'the fixture promotion value is not widened or invented');
+
+  const statusless = makeWorkNode({ status: undefined, currentState: 'ready' });
+  const statuslessHtml = renderWorkCard(statusless, {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 2,
+  });
+  assert.match(statuslessHtml, /ready/, 'sapling falls back to a canonical currentState when status is absent');
+  const hostileFallback = makeWorkNode({ status: undefined, currentState: 'leased' });
+  const hostileFallbackHtml = renderWorkCard(hostileFallback, {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 2,
+  });
+  assert.match(hostileFallbackHtml, /unknown state/, 'noncanonical currentState fails closed instead of leaking');
+});
+
+test('freshness badge only renders bounded canonical timestamps as proof', () => {
+  const invalid = renderFreshnessBadge({ state: 'fresh', checkedAt: 'not-a-date trust me' });
+  assert.match(invalid, /data-state="unknown"/, 'noncanonical checkedAt downgrades freshness to unknown');
+  assert.ok(!invalid.includes('<time'), 'invalid timestamps never emit a time element');
+  assert.ok(!invalid.includes('not-a-date'), 'invalid timestamp text never renders');
+
+  const junkSuffix = renderFreshnessBadge({ state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z pwned' });
+  assert.match(junkSuffix, /data-state="unknown"/, 'noncanonical suffixes are not accepted as proof');
+  assert.ok(!junkSuffix.includes('pwned'), 'hostile suffix bytes never render');
+
+  const oversize = renderFreshnessBadge({ state: 'fresh', checkedAt: `2026-07-28T06:00:00.000Z${'x'.repeat(3000)}` });
+  assert.ok(oversize.length < 1024, 'oversize timestamps are bounded');
+  assert.ok(!oversize.includes('x'.repeat(256)), 'oversize payload bytes never render');
+
+  const hostile = renderFreshnessBadge({ state: 'fresh', checkedAt: '" onmouseover="alert(1)' });
+  assert.ok(!hostile.includes('onmouseover='), 'hostile timestamp bytes never reach an attribute');
+  assert.match(hostile, /data-state="unknown"/);
+
+  const valid = renderFreshnessBadge({ state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' });
+  assert.match(valid, /data-state="fresh"/, 'canonical timestamps keep their state');
+  assert.match(valid, /<time class="of-badge-meta" datetime="2026-07-28T06:00:00.000Z">/, 'canonical timestamp renders as proof');
+});
+
+test('skill-cluster coverage renders only nonnegative integers with covered <= eligible', () => {
+  const base = makeClusterNode();
+  const context = { freshness: { state: 'fresh' as const, checkedAt: '2026-07-28T06:00:00.000Z' } };
+
+  const valid = renderSkillClusterCard(base, { coverage: { eligible: 3, covered: 2 }, ...context });
+  assert.match(valid, /2 of 3/, 'valid coverage renders as covered of eligible');
+
+  for (const coverage of [
+    { eligible: 2, covered: 9 },
+    { eligible: -3, covered: 1.5 },
+    { eligible: 2.5, covered: 1 },
+    { eligible: 2, covered: -1 },
+    { eligible: Number.NaN, covered: 1 },
+  ]) {
+    const html = renderSkillClusterCard(base, { coverage, ...context });
+    assert.match(html, /coverage unknown/, `invalid coverage ${JSON.stringify(coverage)} fails closed`);
+    assert.ok(!/\d+(?:\.\d+)? of \d+/.test(html.replace(/graphVersion \d+/g, '')), 'invalid coverage never clamps into invented truth');
+  }
+});
+
+test('rendered fields fail closed on raw credential and auth markers', () => {
+  const hostile = makeWorkNode({
+    name: 'query_id=AAE7 initData Bearer eyJ',
+    sourceRef: 'bot_token clientSecret',
+    currentState: 'BEGIN PRIVATE KEY',
+  });
+  const html = [
+    renderWorkCard(hostile, {
+      freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+      graphVersion: 1,
+    }),
+    renderAgentCard(makeAgentNode({ agentId: 'agent-1' }), {
+      capabilities: ['Bearer eyJ', 'query_id=AAE7'],
+      assignment: 'task-1',
+    }),
+    renderGapState({
+      gapId: 'gap-1',
+      kind: 'clientSecret leak',
+      subjectId: 'task-9',
+      detail: 'raw payload: auth_date=999 hash=abc',
+      evidenceRef: 'evidence://secret',
+    }),
+  ].join('\n');
+  for (const marker of FABRIC_SECRET_MARKERS) {
+    assert.ok(!html.includes(marker), `rendered output never emits raw marker ${marker}`);
+  }
+  assert.match(html, /redacted|unknown/, 'marker-bearing fields fall back to a neutral label');
+});
+
+test('agent card visibly reports capability overflow as +N more', () => {
+  const html = renderAgentCard(makeAgentNode(), {
+    capabilities: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+    assignment: 'task-1',
+  });
+  const chips = html.match(/data-component="FabricCapabilityChip"/g) ?? [];
+  assert.equal(chips.length, 6, 'chips stay bounded');
+  assert.match(html, /\+2 more/, 'overflow count is visibly reported');
+});
+
+test('44px targets and focus rules apply to actual controls, not passive spans', () => {
+  const passiveRules = OPERATING_FABRIC_STYLES.split('\n').filter(
+    (line) => line.includes('min-height:44px') && !line.includes('.of-tab') && !line.includes('.of-control'),
+  );
+  assert.deepEqual(passiveRules, [], 'passive badges/chips/edges do not carry 44px control sizing');
+  assert.match(OPERATING_FABRIC_STYLES, /\.of-tab\{[^}]*min-height:44px/, 'the semantic tab control keeps its 44px target');
+  const focusRule = OPERATING_FABRIC_STYLES.split('\n').find((line) => line.includes(':focus-visible'));
+  assert.ok(focusRule, 'a focus-visible rule exists');
+  assert.match(focusRule!, /\.of-tab:focus-visible/, 'tab focus stays visible');
+  assert.doesNotMatch(focusRule!, /\.of-chip:focus-visible|\.of-badge:focus-visible|\.of-edge:focus-visible/, 'passive spans do not pretend to be focusable controls');
+});
+
+// ── Task 7 controller-audit corrections (fix round 2) · adversarial runtime values ──
+//
+// Regression coverage for the narrow controller audit: the canonical import
+// path must resolve inside src, rendered fields fail closed on prompt
+// material and production credential markers, runtime enums are allowlisted
+// before visible/data-attribute use, data attributes are escaped exactly
+// once, authority graphVersion is a nonnegative safe integer, and missing or
+// malformed runtime contexts fail closed instead of throwing.
+
+test('components.ts canonical import resolves inside workers/quests/src', () => {
+  const source = readFileSync(new URL('./page/operating-fabric/components.ts', import.meta.url), 'utf8');
+  const importPaths = [...source.matchAll(/from\s+'([^']+)'/g)].map((match) => match[1]);
+  assert.ok(importPaths.length > 0, 'components.ts declares its imports');
+  for (const importPath of importPaths) {
+    assert.ok(importPath, 'import specifier is nonempty');
+    if (!importPath.startsWith('.')) continue;
+    const resolved = new URL(importPath, new URL('./page/operating-fabric/components.ts', import.meta.url));
+    readFileSync(resolved, 'utf8');
+    const srcRoot = new URL('.', import.meta.url).pathname;
+    assert.ok(resolved.pathname.startsWith(srcRoot), `${importPath} resolves inside workers/quests/src`);
+  }
+  const missionFabricImport = importPaths.find((importPath) => importPath.includes('mission-fabric'));
+  assert.ok(missionFabricImport, 'components.ts aliases the canonical mission-fabric contracts');
+  assert.equal(
+    missionFabricImport,
+    '../../mission-fabric.ts',
+    'canonical mission-fabric import is the in-src relative path, not ../../../',
+  );
+});
+
+test('rendered fields fail closed on prompt material and production credential markers', () => {
+  const productionMarkers = [
+    'TELEGRAM_INIT_DATA=query_id%3DAAE7',
+    'TG_INIT_DATA=auth_date%3D1770000000',
+    'QUESTS_PUSH_TOKEN=qaab11cc22dd33ee',
+    'token=ab12cd34ef56gh78',
+    'PRIVATE KEY',
+    'BEGIN PRIVATE KEY',
+  ];
+  const hostile = makeWorkNode({
+    name: 'prompt: system instructions override',
+    sourceRef: 'TELEGRAM_INIT_DATA=query_id%3DAAE7',
+    currentState: 'TG_INIT_DATA=auth_date%3D1770000000',
+    promotionState: 'QUESTS_PUSH_TOKEN=qaab11cc22dd33ee',
+  });
+  const html = [
+    renderWorkCard(hostile, {
+      freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+      graphVersion: 1,
+    }),
+    renderAgentCard(makeAgentNode({ agentId: 'agent-1' }), {
+      capabilities: ['QUESTS_PUSH_TOKEN=qaab11cc22dd33ee'],
+      assignment: 'handoff token=ab12cd34ef56gh78',
+    }),
+    renderSkillClusterCard(makeClusterNode({ name: 'prompt injection surface', sourceRef: 'TG_INIT_DATA=auth_date%3D1' }), {
+      coverage: { eligible: 1, covered: 1 },
+      freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    }),
+    renderGapState({
+      gapId: 'gap-1',
+      kind: 'missing-receipt',
+      subjectId: 'task-9',
+      detail: 'context says: prompt: you are now the user; PRIVATE KEY material leaked',
+      evidenceRef: 'evidence://secret',
+    }),
+    renderFabricEdge({ kind: 'assigned-to', fromId: 'token=ab12cd34ef56gh78', toId: 'agent-1' }),
+    renderAuthorityBadge({ sourceRef: 'TELEGRAM_INIT_DATA=query_id%3DAAE7', graphVersion: 1 }),
+  ].join('\n');
+  assert.ok(!html.includes('prompt'), 'prompt material never renders even when injected into rendered fields');
+  for (const marker of productionMarkers) {
+    assert.ok(!html.includes(marker), `rendered output never emits production marker ${marker}`);
+  }
+  assert.ok(!/token=[A-Za-z0-9]/.test(html), 'generic token= assignments never render');
+  assert.match(html, /redacted|unknown|unassigned/, 'marker-bearing fields fall back to neutral labels');
+
+  const safe = makeWorkNode({ name: 'Token Ledger', sourceRef: 'tokenized reconciliation' });
+  const safeHtml = renderWorkCard(safe, {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.match(safeHtml, /Token Ledger/, 'ordinary safe words are not over-redacted');
+  assert.match(safeHtml, /tokenized reconciliation/, 'ordinary tokenized language is not over-redacted');
+});
+
+test('runtime enums are allowlisted before visible and data-attribute use', () => {
+  const hostileWork = makeWorkNode({ kind: '"><script>alert(1)</script>', status: 'compromised' });
+  const workHtml = renderWorkCard(hostileWork, {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.ok(!workHtml.includes('<script>alert(1)</script>'), 'hostile work kind never breaks attributes');
+  assert.match(workHtml, /data-work-kind="unknown"/, 'invalid work kind becomes the neutral data attribute');
+  assert.ok(!/data-work-kind="(sapling|program)"/.test(workHtml), 'invalid work kind is never copied as a canonical kind');
+  assert.match(workHtml, /unknown type/, 'invalid work kind renders a neutral visible type');
+  assert.match(workHtml, /unknown state/, 'invalid work kind renders a neutral visible state');
+
+  const hostileSapling = renderWorkCard(makeWorkNode({ kind: 'sapling', status: 'compromised', promotionState: 'pwnd' }), {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.match(hostileSapling, /unknown promotion/, 'invalid promotion state renders a neutral visible state');
+  assert.ok(!hostileSapling.includes('compromised'), 'invalid sapling status never renders');
+  assert.ok(!hostileSapling.includes('pwnd'), 'invalid promotion state never renders');
+
+  const hostileSaplingNoFallback = renderWorkCard(
+    makeWorkNode({ kind: 'sapling', status: 'compromised', currentState: 'pwnd', promotionState: 'proof-only' }),
+    {
+      freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+      graphVersion: 1,
+    },
+  );
+  assert.match(hostileSaplingNoFallback, /unknown state/, 'invalid sapling status with no valid fallback renders unknown state');
+
+  const programHtml = renderWorkCard(makeWorkNode({ kind: 'program', lifecycle: 'liquidated' }), {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.ok(!programHtml.includes('liquidated'), 'noncanonical program lifecycle never renders');
+  assert.match(programHtml, /unknown state/, 'noncanonical program lifecycle falls back to unknown');
+
+  const agentHtml = renderAgentCard(makeAgentNode({ status: '"><img src=x onerror=alert(1)>' }), {
+    capabilities: ['x'],
+    assignment: 'task-1',
+  });
+  assert.ok(!agentHtml.includes('onerror=alert(1)'), 'hostile agent status never breaks attributes');
+  assert.match(agentHtml, /data-agent-status="unknown"/, 'invalid agent status becomes the neutral data attribute');
+  assert.ok(!/data-agent-status="(offline|available|assigned|running|blocked)"/.test(agentHtml), 'invalid agent status is never copied as canonical');
+  assert.match(agentHtml, /unknown/, 'invalid agent status renders a neutral visible state');
+
+  const clusterHtml = renderSkillClusterCard(makeClusterNode({ status: '"><svg onload=alert(1)>' }), {
+    coverage: { eligible: 1, covered: 1 },
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+  });
+  assert.ok(!clusterHtml.includes('onload=alert(1)'), 'hostile cluster status never breaks attributes');
+  assert.match(clusterHtml, /data-cluster-status="unknown"/, 'invalid cluster status becomes the neutral data attribute');
+  assert.ok(!/data-cluster-status="(inactive|available|active|degraded)"/.test(clusterHtml), 'invalid cluster status is never copied as canonical');
+
+  const edgeHtml = renderFabricEdge({ kind: '"><script>alert(1)</script>' as never, fromId: 'a', toId: 'b' });
+  assert.ok(!edgeHtml.includes('<script>alert(1)</script>'), 'hostile edge kind never breaks attributes');
+  assert.match(edgeHtml, /data-edge-kind="unknown"/, 'invalid edge kind becomes the neutral data attribute');
+  assert.ok(!/data-edge-kind="(contains|depends-on|assigned-to|requires-cluster|pins-loadout|executes|produces|proves|informs-next-intent)"/.test(edgeHtml), 'invalid edge kind is never copied as canonical');
+
+  const validEdge = renderFabricEdge({ kind: 'assigned-to', fromId: 'task-1', toId: 'agent-1' });
+  assert.match(validEdge, /data-edge-kind="assigned-to"/, 'valid edge kind is preserved');
+  const validWork = renderWorkCard(makeWorkNode({ kind: 'sapling', status: 'active' }), {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.match(validWork, /data-work-kind="sapling"/, 'valid work kind is preserved');
+  assert.match(validWork, />sapling</, 'valid work kind stays visible');
+});
+
+test('edge ids and kinds fail closed on secret markers', () => {
+  const html = [
+    renderFabricEdge({ kind: 'assigned-to', fromId: 'task Bearer eyJhbGciOiJIUzI1NiJ9', toId: 'agent-1' }),
+    renderFabricEdge({ kind: 'assigned-to', fromId: 'task-1', toId: 'PRIVATE KEY material' }),
+  ].join('\n');
+  assert.ok(!html.includes('Bearer eyJ'), 'edge fromId never emits raw credentials');
+  assert.ok(!html.includes('PRIVATE KEY'), 'edge toId never emits raw key material');
+  assert.match(html, /redacted/, 'marker-bearing edge ids fail closed to a neutral label');
+});
+
+test('data attributes are escaped exactly once, never twice', () => {
+  const html = renderGapState({
+    gapId: 'g1',
+    kind: 'stale & "broken"',
+    subjectId: 'task-9',
+    detail: 'window expired',
+    evidenceRef: null,
+  });
+  assert.ok(html.includes('data-gap-kind="stale &amp; &quot;broken&quot;"'), 'data-gap-kind escapes exactly once');
+  assert.ok(!html.includes('&amp;amp;'), 'data-gap-kind is never double-escaped');
+  assert.ok(!html.includes('&amp;quot;'), 'double-escaped quotes never appear in data-gap-kind');
+
+  const badge = renderAuthorityBadge({ sourceRef: 'd1-goal-graph & <ops> "quoted"', graphVersion: 3 });
+  assert.match(badge, /data-authority="d1-goal-graph &amp; &lt;ops&gt; &quot;quoted&quot;"/, 'data-authority escapes exactly once');
+  assert.ok(!badge.includes('&amp;amp;'), 'data-authority is never double-escaped');
+
+  const workHtml = renderWorkCard(makeWorkNode({ name: 'A & B "ledger"' }), {
+    freshness: { state: 'fresh', checkedAt: '2026-07-28T06:00:00.000Z' },
+    graphVersion: 1,
+  });
+  assert.ok(!workHtml.includes('&amp;amp;'), 'work card escapes exactly once everywhere');
+  assert.ok(workHtml.includes('A &amp; B &quot;ledger&quot;'), 'work card escapes hostile names exactly once');
+});
+
+test('authority graphVersion renders only nonnegative safe integers', () => {
+  assert.match(renderAuthorityBadge({ sourceRef: 'd1-goal-graph', graphVersion: -1 }), /version unknown/, 'negative graphVersion fails closed');
+  assert.match(renderAuthorityBadge({ sourceRef: 'd1-goal-graph', graphVersion: 3.7 }), /version unknown/, 'fractional graphVersion fails closed');
+  assert.match(renderAuthorityBadge({ sourceRef: 'd1-goal-graph', graphVersion: Number.MAX_SAFE_INTEGER + 1 }), /version unknown/, 'unsafe graphVersion fails closed');
+  assert.match(renderAuthorityBadge({ sourceRef: 'd1-goal-graph', graphVersion: Number.NaN }), /version unknown/, 'NaN graphVersion fails closed');
+  assert.match(renderAuthorityBadge({ sourceRef: 'd1-goal-graph', graphVersion: 0 }), /graphVersion 0/, 'zero graphVersion is a valid nonnegative integer');
+  assert.match(renderAuthorityBadge({ sourceRef: 'd1-goal-graph', graphVersion: 42 }), /graphVersion 42/, 'positive safe graphVersion renders');
+});
+
+test('renderers fail closed when runtime context is absent or malformed', () => {
+  const workNode = makeWorkNode();
+  const workHtml = renderWorkCard(workNode, null as never);
+  assert.match(workHtml, /version unknown/, 'absent work context keeps unknown authority version');
+  assert.match(workHtml, /data-state="unknown"/, 'absent work context keeps unknown freshness');
+  assert.doesNotMatch(workHtml, /graphVersion \d/, 'absent work context never invents a graphVersion');
+
+  const nullFreshness = renderWorkCard(workNode, { freshness: null as never, graphVersion: 2 });
+  assert.match(nullFreshness, /data-state="unknown"/, 'null freshness renders unknown, not a crash');
+  assert.match(nullFreshness, /graphVersion 2/, 'valid context fields survive malformed siblings');
+
+  const agentHtml = renderAgentCard(makeAgentNode(), null as never);
+  assert.match(agentHtml, /no assignment/, 'absent agent context keeps an explicit assignment gap');
+  assert.ok(!agentHtml.includes('data-component="FabricCapabilityChip"'), 'absent agent context renders no capability chips');
+
+  const malformedAgent = renderAgentCard(makeAgentNode(), {
+    capabilities: null as never,
+    assignment: undefined as never,
+  });
+  assert.match(malformedAgent, /no assignment/, 'malformed agent context keeps an explicit assignment gap');
+  assert.ok(!malformedAgent.includes('data-component="FabricCapabilityChip"'), 'malformed capabilities render no chips');
+
+  const clusterHtml = renderSkillClusterCard(makeClusterNode(), null as never);
+  assert.match(clusterHtml, /coverage unknown/, 'absent cluster context keeps unknown coverage');
+  assert.match(clusterHtml, /data-state="unknown"/, 'absent cluster context keeps unknown freshness');
+
+  const partialCluster = renderSkillClusterCard(makeClusterNode(), { coverage: null as never, freshness: null as never });
+  assert.match(partialCluster, /coverage unknown/, 'null coverage renders unknown, not a crash');
+  assert.match(partialCluster, /data-state="unknown"/, 'null freshness renders unknown, not a crash');
+});
