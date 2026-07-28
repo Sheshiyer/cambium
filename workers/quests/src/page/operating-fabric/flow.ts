@@ -105,13 +105,22 @@
 //               details — passes the bounded fail-closed canonical policy.
 //               Secret-bearing canonical IDs never render raw: the fact-ID
 //               layer assigns each DISTINCT selected canonical node a
-//               collision-safe, deterministic, non-secret public ID
-//               (kind-scoped redacted ordinals derived from the canonical
-//               full-column order), so every distinct selected fact keeps a
+//               collision-safe, deterministic, non-secret public ID from one
+//               of two PROVABLY DISJOINT namespaces — benign raw IDs render
+//               as `${kind}:id:${bounded benign raw}` and hostile IDs render
+//               as `${kind}:redacted:${ordinal}` (kind-scoped redacted
+//               ordinals derived from the canonical full-column order). The
+//               `id:` and `redacted:` segments can never collide: no
+//               user-controlled benign raw ID can ever equal a generated
+//               redacted identity, so every distinct selected fact keeps a
 //               unique graph/list ID and the combined visible node count
-//               still caps at 96. Raw evidenceRefs, raw digests, payloads,
-//               prompts, tokens, Telegram auth, and private client data never
-//               render.
+//               still caps at 96. Fact selection/counting keys on canonical
+//               fact keys — never on display or public IDs — and truncation
+//               accounting is byte-identical across substrates. Row identity
+//               is the disjoint public row ID `task:${taskPublicId}`, never
+//               the visible display label. Raw evidenceRefs, raw digests,
+//               payloads, prompts, tokens, Telegram auth, and private client
+//               data never render.
 // The scene is read-only: no write path, no Gate/RBAC/assignment logic, no
 // fetch, no event handlers.
 import {
@@ -155,12 +164,23 @@ function safeId(value: unknown, fallback: string, max = 64): string {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
 
-// Collision-safe public fact ID: every DISTINCT selected canonical node gets
-// a unique, deterministic, non-secret public ID derived from its canonical
-// full-column ordinal. Secret-bearing or overlong raw IDs never render; their
-// nodes still keep unique public IDs so nothing is lost to collisions and
-// graph/list parity holds exactly. Benign IDs that would truncate to the same
-// 64-character display prefix stay collision-free through the ordinal suffix.
+// Collision-safe public identity: every DISTINCT selected canonical node
+// gets a unique, deterministic, non-secret public identity from one of two
+// PROVABLY DISJOINT namespaces. Benign raw IDs render inside the reserved
+// `id:` namespace (`${kind}:id:${bounded benign raw}`); hostile raw IDs
+// render inside the reserved `redacted:` namespace
+// (`${kind}:redacted:${ordinal}`, ordinals derived from the canonical
+// full-column order). Because every benign identity carries the `id:`
+// segment and every generated redacted identity carries the `redacted:`
+// segment, no user-controlled benign raw ID can ever equal a generated
+// redacted identity — the scheme is injective over the union of both
+// input classes by construction, in both substrates. Secret-bearing or
+// overlong raw IDs never render; their nodes still keep unique public IDs
+// so nothing is lost to collisions and graph/list parity holds exactly.
+// Visible display labels are a separate concern: benign labels stay bounded
+// raw text and hostile labels stay non-secret ordinals, but display labels
+// are NEVER used as identity (fact selection/counting keys on canonical
+// fact keys; row identity is the disjoint public row ID below).
 export const FILTER_INPUT_LIMIT = 64;
 
 function isHostileId(rawId: string): boolean {
@@ -174,8 +194,15 @@ function publicDisplayId(prefix: 'task' | 'run' | 'receipt', rawId: string, ordi
 }
 
 function publicFactId(prefix: 'task' | 'run' | 'receipt', rawId: string, ordinal: number): string {
-  if (isHostileId(rawId)) return `${prefix}:redacted-${String(ordinal).padStart(3, '0')}`;
-  return `${prefix}:${rawId.trim()}`;
+  if (isHostileId(rawId)) return `${prefix}:redacted:${String(ordinal).padStart(3, '0')}`;
+  return `${prefix}:id:${rawId.trim()}`;
+}
+
+// Collision-safe public ROW identity: a disjoint row namespace derived from
+// the task's public fact ID — never the visible display label — so a benign
+// `task-NNN` row can never alias a hostile node's generated display ordinal.
+function publicRowId(taskPublicId: string): string {
+  return `task:${taskPublicId}`;
 }
 
 function compareId(a: string, b: string): number {
@@ -208,7 +235,8 @@ interface FlowRow {
 interface FlowView {
   rows: FlowRow[];
   unscopedGaps: FabricGap[];
-  visibleFacts: Set<string>;
+  visibleFactKeys: Set<string>;
+  visibleCount: number;
   totalFacts: number;
 }
 
@@ -520,8 +548,11 @@ function resolveFlowView(projection: MissionFabricProjectionV1, filters: FlowFil
   // Candidate fact universe across ALL filtered rows BEFORE the bound: every
   // distinct canonical Task/Run/Receipt node in the selected view counts in
   // N, and public IDs are assigned from the canonical full-column order over
-  // the ENTIRE selected view — deterministic, kind-scoped, collision-safe,
-  // and non-secret.
+  // the ENTIRE selected view — deterministic, kind-scoped, and drawn from
+  // the provably disjoint benign `id:` / hostile `redacted:` namespaces.
+  // Selection and counting key on canonical fact keys — NEVER on display or
+  // public IDs — so truncation accounting is byte-identical across
+  // substrates even under adversarial ID collisions.
   const candidateFactOrder: string[] = [];
   const ordinalByFactKey = new Map<string, number>();
   const publicByFactKey = new Map<string, string>();
@@ -547,9 +578,7 @@ function resolveFlowView(projection: MissionFabricProjectionV1, filters: FlowFil
   }
   const totalFacts = candidateFactOrder.length;
   const visibleFactKeys = new Set(candidateFactOrder.slice(0, FLOW_FACT_LIMIT));
-  const visibleFacts = new Set<string>(
-    candidateFactOrder.slice(0, FLOW_FACT_LIMIT).map((factKey) => publicByFactKey.get(factKey)!),
-  );
+  const visibleCount = visibleFactKeys.size;
   const keptRows = rows.filter((row) => visibleFactKeys.has(`task:${String(row.task.value.taskId ?? '')}`));
 
   for (const row of keptRows) {
@@ -577,7 +606,7 @@ function resolveFlowView(projection: MissionFabricProjectionV1, filters: FlowFil
     }
   }
 
-  return { rows: keptRows, unscopedGaps, visibleFacts, totalFacts };
+  return { rows: keptRows, unscopedGaps, visibleFactKeys, visibleCount, totalFacts };
 }
 
 function renderGapBlock(gap: FabricGap): string {
@@ -593,7 +622,7 @@ function renderGapBlock(gap: FabricGap): string {
   );
 }
 
-function renderFlowRow(row: FlowRow, visibleFacts: Set<string>): string {
+function renderFlowRow(row: FlowRow, visibleFactKeys: Set<string>): string {
   const taskId = String(row.task.value.taskId ?? '');
   const taskFactId = row.taskPublicId;
   const taskDisplay = row.taskDisplayId;
@@ -606,7 +635,7 @@ function renderFlowRow(row: FlowRow, visibleFacts: Set<string>): string {
       .join('');
 
   const runCellParts: string[] = [];
-  const visibleRuns = row.runs.filter((run) => visibleFacts.has(row.runPublicById.get(String(run.value.runId ?? '')) ?? ''));
+  const visibleRuns = row.runs.filter((run) => visibleFactKeys.has(`run:${String(run.value.runId ?? '')}`));
   if (visibleRuns.length > 0) {
     for (const run of visibleRuns) {
       const runId = String(run.value.runId ?? '');
@@ -625,7 +654,7 @@ function renderFlowRow(row: FlowRow, visibleFacts: Set<string>): string {
 
   const receiptCellParts: string[] = [];
   const visibleReceipts = row.rowReceipts.filter((receipt) =>
-    visibleFacts.has(row.receiptPublicById.get(String(receipt.value.receiptId ?? '')) ?? ''),
+    visibleFactKeys.has(`receipt:${String(receipt.value.receiptId ?? '')}`),
   );
   if (visibleReceipts.length > 0) {
     for (const receipt of visibleReceipts) {
@@ -659,7 +688,7 @@ function renderFlowRow(row: FlowRow, visibleFacts: Set<string>): string {
       ? '<span class="of-flow-path" aria-hidden="true" data-of-path="run-receipt">→</span>'
       : '';
   return (
-    `<tr data-of-flow-row="${escAttr(taskDisplay)}">` +
+    `<tr data-of-flow-row="${escAttr(publicRowId(taskFactId))}">` +
     `<td data-of-flow-cell="task">${taskCell}${pathTaskRun}</td>` +
     `<td data-of-flow-cell="run">${runCellParts.join('')}${pathRunReceipt}</td>` +
     `<td data-of-flow-cell="receipt">${receiptCellParts.join('')}</td>` +
@@ -673,9 +702,9 @@ function renderLinearList(view: FlowView): string {
     const taskId = String(row.task.value.taskId ?? '');
     const taskFactId = row.taskPublicId;
     const taskDisplay = row.taskDisplayId;
-    const visibleRuns = row.runs.filter((run) => view.visibleFacts.has(row.runPublicById.get(String(run.value.runId ?? '')) ?? ''));
+    const visibleRuns = row.runs.filter((run) => view.visibleFactKeys.has(`run:${String(run.value.runId ?? '')}`));
     const visibleReceipts = row.rowReceipts.filter((receipt) =>
-      view.visibleFacts.has(row.receiptPublicById.get(String(receipt.value.receiptId ?? '')) ?? ''),
+      view.visibleFactKeys.has(`receipt:${String(receipt.value.receiptId ?? '')}`),
     );
     const runLabel = visibleRuns.length > 0 ? `run ${row.runDisplayById.get(String(visibleRuns[0]!.value.runId ?? '')) ?? ''}` : 'run not present in projection';
     const receiptLabel = visibleReceipts.length > 0 ? `receipt ${row.receiptDisplayById.get(String(visibleReceipts[0]!.value.receiptId ?? '')) ?? ''}` : 'receipt not present in projection';
@@ -755,10 +784,10 @@ export function renderFlow(
   if (view.rows.length === 0 && view.unscopedGaps.length === 0) {
     return `<div class="of-flow" data-component="FabricFlow">${renderFabricState('empty')}</div>`;
   }
-  const rowHtml = view.rows.map((row) => renderFlowRow(row, view.visibleFacts)).join('');
+  const rowHtml = view.rows.map((row) => renderFlowRow(row, view.visibleFactKeys)).join('');
   const truncated =
-    view.totalFacts > view.visibleFacts.size
-      ? `<p class="of-flow-truncation" data-of-flow-truncation="true">showing ${view.visibleFacts.size} of ${view.totalFacts}</p>`
+    view.totalFacts > view.visibleCount
+      ? `<p class="of-flow-truncation" data-of-flow-truncation="true">showing ${view.visibleCount} of ${view.totalFacts}</p>`
       : '';
   const unscopedRow =
     view.unscopedGaps.length > 0
@@ -846,9 +875,19 @@ function ofRenderFlow(projection, filters) {
     if (isHostileId(rawId)) return prefix + '-' + padOrdinal(ordinal);
     return rawId.trim();
   }
+  // Collision-safe public identity: benign raw IDs render inside the
+  // reserved 'id:' namespace and hostile raw IDs inside the reserved
+  // 'redacted:' namespace — provably disjoint, so no user-controlled benign
+  // raw ID can ever equal a generated redacted identity. Selection/counting
+  // keys on canonical fact keys, never on display or public IDs.
   function publicFactId(prefix, rawId, ordinal) {
-    if (isHostileId(rawId)) return prefix + ':redacted-' + padOrdinal(ordinal);
-    return prefix + ':' + rawId.trim();
+    if (isHostileId(rawId)) return prefix + ':redacted:' + padOrdinal(ordinal);
+    return prefix + ':id:' + rawId.trim();
+  }
+  // Collision-safe public ROW identity: derived from the task's public fact
+  // ID — never the visible display label.
+  function publicRowId(taskPublicId) {
+    return 'task:' + taskPublicId;
   }
   function isFenceGap(gap) {
     return gap && (gap.kind === 'stale-fence' || gap.kind === 'unverifiable-fence');
@@ -1162,8 +1201,10 @@ function ofRenderFlow(projection, filters) {
   // Candidate fact universe across ALL filtered rows BEFORE the bound: every
   // distinct canonical Task/Run/Receipt node in the selected view counts in
   // N, and public IDs come from the canonical full-column order over the
-  // ENTIRE selected view — deterministic, kind-scoped, collision-safe,
-  // non-secret.
+  // ENTIRE selected view — deterministic, kind-scoped, drawn from the
+  // provably disjoint benign 'id:' / hostile 'redacted:' namespaces.
+  // Selection and counting key on canonical fact keys — NEVER on display or
+  // public IDs — byte-identical with the Node substrate.
   var ordinalByFactKey = Object.create(null);
   var publicByFactKey = Object.create(null);
   var candidateFactOrder = [];
@@ -1189,11 +1230,9 @@ function ofRenderFlow(projection, filters) {
   }
   var totalFacts = candidateFactOrder.length;
   var visibleFactKeys = Object.create(null);
-  var visibleFacts = Object.create(null);
   var visibleCount = 0;
   for (var vf = 0; vf < candidateFactOrder.length && vf < FLOW_FACT_LIMIT_BROWSER; vf += 1) {
     visibleFactKeys[candidateFactOrder[vf]] = true;
-    visibleFacts[publicByFactKey[candidateFactOrder[vf]]] = true;
     visibleCount += 1;
   }
   var keptRows = [];
@@ -1242,8 +1281,7 @@ function ofRenderFlow(projection, filters) {
     var runCell = '';
     var visibleRuns = [];
     for (var runIndex = 0; runIndex < rowData.runs.length; runIndex += 1) {
-      var runFactPublic = rowData.runPublicById[String(rowData.runs[runIndex].value.runId || '')] || '';
-      if (visibleFacts[runFactPublic]) visibleRuns.push(rowData.runs[runIndex]);
+      if (visibleFactKeys['run:' + String(rowData.runs[runIndex].value.runId || '')]) visibleRuns.push(rowData.runs[runIndex]);
     }
     if (visibleRuns.length > 0) {
       for (var runVisible = 0; runVisible < visibleRuns.length; runVisible += 1) {
@@ -1262,8 +1300,7 @@ function ofRenderFlow(projection, filters) {
     var receiptCell = '';
     var visibleReceipts = [];
     for (var receiptIndex = 0; receiptIndex < rowData.rowReceipts.length; receiptIndex += 1) {
-      var receiptFactPublic = rowData.receiptPublicById[String(rowData.rowReceipts[receiptIndex].value.receiptId || '')] || '';
-      if (visibleFacts[receiptFactPublic]) visibleReceipts.push(rowData.rowReceipts[receiptIndex]);
+      if (visibleFactKeys['receipt:' + String(rowData.rowReceipts[receiptIndex].value.receiptId || '')]) visibleReceipts.push(rowData.rowReceipts[receiptIndex]);
     }
     if (visibleReceipts.length > 0) {
       for (var receiptVisible = 0; receiptVisible < visibleReceipts.length; receiptVisible += 1) {
@@ -1290,7 +1327,7 @@ function ofRenderFlow(projection, filters) {
     // animation-dependent, never a span sibling directly under tr.
     var pathTaskRun = visibleRuns.length > 0 ? '<span class="of-flow-path" aria-hidden="true" data-of-path="task-run">→</span>' : '';
     var pathRunReceipt = visibleRuns.length > 0 && visibleReceipts.length > 0 ? '<span class="of-flow-path" aria-hidden="true" data-of-path="run-receipt">→</span>' : '';
-    return '<tr data-of-flow-row="' + escAttr(rowData.taskDisplayId) + '">' +
+    return '<tr data-of-flow-row="' + escAttr(publicRowId(rowData.taskPublicId)) + '">' +
       '<td data-of-flow-cell="task">' + taskCell + pathTaskRun + '</td>' +
       '<td data-of-flow-cell="run">' + runCell + pathRunReceipt + '</td>' +
       '<td data-of-flow-cell="receipt">' + receiptCell + '</td>' +
@@ -1315,13 +1352,11 @@ function ofRenderFlow(projection, filters) {
     var listTaskId = String(listRow.task.value.taskId || '');
     var listVisibleRuns = [];
     for (var li = 0; li < listRow.runs.length; li += 1) {
-      var listRunPublic = listRow.runPublicById[String(listRow.runs[li].value.runId || '')] || '';
-      if (visibleFacts[listRunPublic]) listVisibleRuns.push(listRow.runs[li]);
+      if (visibleFactKeys['run:' + String(listRow.runs[li].value.runId || '')]) listVisibleRuns.push(listRow.runs[li]);
     }
     var listVisibleReceipts = [];
     for (var lj = 0; lj < listRow.rowReceipts.length; lj += 1) {
-      var listReceiptPublic = listRow.receiptPublicById[String(listRow.rowReceipts[lj].value.receiptId || '')] || '';
-      if (visibleFacts[listReceiptPublic]) listVisibleReceipts.push(listRow.rowReceipts[lj]);
+      if (visibleFactKeys['receipt:' + String(listRow.rowReceipts[lj].value.receiptId || '')]) listVisibleReceipts.push(listRow.rowReceipts[lj]);
     }
     var runLabel = listVisibleRuns.length > 0 ? 'run ' + (listRow.runDisplayById[String(listVisibleRuns[0].value.runId || '')] || '') : 'run not present in projection';
     var receiptLabel = listVisibleReceipts.length > 0 ? 'receipt ' + (listRow.receiptDisplayById[String(listVisibleReceipts[0].value.receiptId || '')] || '') : 'receipt not present in projection';
