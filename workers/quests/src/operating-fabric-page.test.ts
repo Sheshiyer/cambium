@@ -1317,7 +1317,7 @@ test('components.ts keeps no unescape/re-escape helpers', () => {
 // only then swaps visibility; renderer failure preserves the legacy shell.
 
 import { buildMissionFabricProjection } from './mission-fabric.ts';
-import type { FabricNode, FabricWorkNode, MissionFabricProjectionV1 } from './mission-fabric.ts';
+import type { FabricNode, FabricWorkNode, MissionFabricProjectionV1, FabricAgent, FabricSkillCluster } from './mission-fabric.ts';
 import { renderCanopy, CANOPY_BROWSER_JS } from './page/operating-fabric/canopy.ts';
 import { renderOperatingMission, MISSION_BROWSER_JS } from './page/operating-fabric/mission.ts';
 
@@ -5210,4 +5210,493 @@ test('conflicting executes edges targeting different runs stay independent and d
   }
   assert.equal(renderFlow(forward), renderFlow(reversed), 'node output is byte-identical across full edge-array reversal');
   assert.equal(renderFlowBrowser(forward), renderFlowBrowser(reversed), 'browser output is byte-identical across full edge-array reversal');
+});
+
+// ── Task 10 RED: Workforce and Forge (missing modules) ──────────────────────
+
+import { renderWorkforce, WORKFORCE_BROWSER_JS } from './page/operating-fabric/workforce.ts';
+import { renderForge, FORGE_BROWSER_JS } from './page/operating-fabric/forge.ts';
+import workforceFixture from './page/scenes/fixtures/workforce.fixture.json' with { type: 'json' };
+import forgeFixture from './page/scenes/fixtures/forge.fixture.json' with { type: 'json' };
+import workforceContract from '../../../docs/architecture/contracts/scenes/workforce.json' with { type: 'json' };
+import forgeContract from '../../../docs/architecture/contracts/scenes/forge.json' with { type: 'json' };
+
+const WORKFORCE_PROJECTION = workforceFixture as unknown as MissionFabricProjectionV1;
+const FORGE_PROJECTION = forgeFixture as unknown as MissionFabricProjectionV1;
+
+function makeWorkforceAgentNode(agentId: string, overrides: Partial<FabricAgent> = {}): FabricNode {
+  return {
+    kind: 'agent',
+    value: {
+      agentId,
+      role: 'engineer',
+      runtime: 'codex',
+      status: 'available',
+      activeTaskIds: [],
+      permissionProfile: 'standard',
+      lastSeenAt: '2026-07-28T05:00:00.000Z',
+      sourceRef: `redacted:agent:${agentId}`,
+      ...overrides,
+    },
+  };
+}
+
+function makeForgeSkillClusterNode(clusterId: string, overrides: Partial<FabricSkillCluster> = {}): FabricNode {
+  return {
+    kind: 'skill-cluster',
+    value: {
+      clusterId,
+      name: 'General',
+      status: 'available',
+      skillIds: [],
+      eligibleAgentIds: [],
+      successRate: null,
+      sourceRef: `redacted:cluster:${clusterId}`,
+      ...overrides,
+    },
+  };
+}
+
+test('workforce and forge renderers, fixtures, and contracts satisfy the accepted Task 10 surface', () => {
+  assert.equal(typeof renderWorkforce, 'function', 'renderWorkforce is exported');
+  assert.equal(typeof renderForge, 'function', 'renderForge is exported');
+  assert.equal(typeof WORKFORCE_BROWSER_JS, 'string', 'WORKFORCE_BROWSER_JS constant exists');
+  assert.equal(typeof FORGE_BROWSER_JS, 'string', 'FORGE_BROWSER_JS constant exists');
+  assert.ok(Array.isArray((WORKFORCE_PROJECTION as unknown as { nodes: unknown[] }).nodes), 'workforce fixture loads');
+  assert.ok(Array.isArray((FORGE_PROJECTION as unknown as { nodes: unknown[] }).nodes), 'forge fixture loads');
+  assert.ok(workforceContract && typeof workforceContract === 'object', 'workforce contract loads');
+  assert.ok(forgeContract && typeof forgeContract === 'object', 'forge contract loads');
+});
+
+test('workforce and forge contracts pin read-only authority, bounds, parity, and lifecycle truth', () => {
+  assert.equal(workforceContract.sceneId, 'workforce');
+  assert.equal(workforceContract.tabIndex, 3);
+  assert.equal(workforceContract.projection.schema, 'cambium.mission-fabric-projection.v1');
+  assert.equal(workforceContract.projection.authority, 'd1-goal-graph (read-only projection; never a writer)');
+  assert.equal(workforceContract.density.cardLimit, 48);
+  assert.equal(workforceContract.density.listLimit, 24);
+  assert.deepEqual(workforceContract.interactions, [], 'Workforce has no Task 10 action handler');
+  assert.match(workforceContract.browserParity, /byte-identical/, 'Workforce contract pins Node/browser parity');
+
+  assert.equal(forgeContract.sceneId, 'forge');
+  assert.equal(forgeContract.tabIndex, 4);
+  assert.equal(forgeContract.projection.schema, 'cambium.mission-fabric-projection.v1');
+  assert.equal(forgeContract.lifecycleBoundary, 'Deferred and archived lifecycle are unavailable until canonically projected.');
+  assert.match(forgeContract.noReverseInference, /Inactive remains inactive\./, 'Forge contract forbids reverse lifecycle inference');
+  assert.equal(forgeContract.density.cardLimit, 48);
+  assert.equal(forgeContract.density.listLimit, 24);
+  assert.deepEqual(forgeContract.interactions, [], 'Forge has no Task 10 action handler');
+  assert.match(forgeContract.browserParity, /byte-identical/, 'Forge contract pins Node/browser parity');
+});
+
+test('workforce reconciles duplicate contradictory agent nodes deterministically under reversal', () => {
+  const forward = { schema: 'cambium.mission-fabric-projection.v1', nodes: [makeWorkforceAgentNode('fx-dup-agent', { status: 'available' }), makeWorkforceAgentNode('fx-dup-agent', { status: 'offline' })], edges: [], gaps: [] } as unknown as MissionFabricProjectionV1;
+  const reversed = { schema: 'cambium.mission-fabric-projection.v1', nodes: [makeWorkforceAgentNode('fx-dup-agent', { status: 'offline' }), makeWorkforceAgentNode('fx-dup-agent', { status: 'available' })], edges: [], gaps: [] } as unknown as MissionFabricProjectionV1;
+  assert.equal(renderWorkforce(forward), renderWorkforce(reversed), 'workforce output is byte-identical under duplicate-node reversal');
+});
+
+test('workforce renders honest unknown status, freshness, and permission-profile for missing/invalid values', () => {
+  const projection = { schema: 'cambium.mission-fabric-projection.v1', nodes: [makeWorkforceAgentNode('fx-unknown-agent', { status: 'bogus' as unknown as FabricAgent['status'], permissionProfile: '', lastSeenAt: '' })], edges: [], gaps: [] } as unknown as MissionFabricProjectionV1;
+  const html = renderWorkforce(projection);
+  assert.match(html, /unknown/, 'invalid status/freshness/permission profile render honest unknown');
+  assert.ok(!/available/i.test(html.replace(/unknown/g, '')), 'unknown never silently becomes available');
+});
+
+test('workforce derives current tasks and runs only from exact resolved canonical edges', () => {
+  const projection = { schema: 'cambium.mission-fabric-projection.v1', nodes: [makeWorkforceAgentNode('fx-edge-agent')], edges: [{ kind: 'assigned-to', fromId: 'fx-missing-task', toId: 'fx-edge-agent' }], gaps: [] } as unknown as MissionFabricProjectionV1;
+  const html = renderWorkforce(projection);
+  assert.ok(!html.includes('fx-missing-task'), 'unresolved task endpoint never renders as an assignment');
+});
+
+test('forge renders exact canonical lifecycle status and never invents deferred/archived claims', () => {
+  const projection = { schema: 'cambium.mission-fabric-projection.v1', nodes: [makeForgeSkillClusterNode('fx-life-cluster', { status: 'inactive' })], edges: [], gaps: [] } as unknown as MissionFabricProjectionV1;
+  const html = renderForge(projection);
+  assert.match(html, /inactive/, 'inactive status renders honestly');
+  assert.match(
+    html,
+    /Deferred and archived lifecycle are unavailable until canonically projected\./,
+    'forge states the exact boundary sentence for unavailable lifecycle states',
+  );
+  assert.ok(
+    !/data-status="deferred"|data-status="archived"/i.test(html),
+    'forge never relabels the cluster status as deferred or archived',
+  );
+});
+
+test('forge and workforce redact evidence and bound list output for oversized/hostile input', () => {
+  const manyAgents = Array.from({ length: 200 }, (_, i) => makeWorkforceAgentNode(`fx-scale-agent-${i}`, { sourceRef: 'token=SECRET-EVIDENCE' }));
+  const projection = { schema: 'cambium.mission-fabric-projection.v1', nodes: manyAgents, edges: [], gaps: [] } as unknown as MissionFabricProjectionV1;
+  const html = renderWorkforce(projection);
+  assert.ok(!html.includes('SECRET-EVIDENCE'), 'raw evidence/sourceRef never renders');
+  assert.ok(!html.includes('token='), 'secret-shaped material is redacted');
+});
+
+function renderWorkforceBrowser(projection: MissionFabricProjectionV1): string {
+  const context = vm.createContext({ ofRenderWorkforce: undefined as unknown });
+  vm.runInContext(FLOW_PARITY_HELPERS_JS + WORKFORCE_BROWSER_JS, context);
+  const renderer = (context as { ofRenderWorkforce?: (p: unknown) => string }).ofRenderWorkforce;
+  assert.equal(typeof renderer, 'function', 'browser workforce renderer evaluates');
+  return renderer!(JSON.parse(JSON.stringify(projection)));
+}
+
+function renderForgeBrowser(projection: MissionFabricProjectionV1): string {
+  const context = vm.createContext({ ofRenderForge: undefined as unknown });
+  vm.runInContext(FLOW_PARITY_HELPERS_JS + FORGE_BROWSER_JS, context);
+  const renderer = (context as { ofRenderForge?: (p: unknown) => string }).ofRenderForge;
+  assert.equal(typeof renderer, 'function', 'browser forge renderer evaluates');
+  return renderer!(JSON.parse(JSON.stringify(projection)));
+}
+
+test('workforce fixture renders byte-identical HTML in Node and browser renderers', () => {
+  assert.equal(
+    renderWorkforce(WORKFORCE_PROJECTION),
+    renderWorkforceBrowser(WORKFORCE_PROJECTION),
+    'workforce fixture is byte-identical across Node/browser renderers',
+  );
+});
+
+test('forge fixture renders byte-identical HTML in Node and browser renderers', () => {
+  assert.equal(
+    renderForge(FORGE_PROJECTION),
+    renderForgeBrowser(FORGE_PROJECTION),
+    'forge fixture is byte-identical across Node/browser renderers',
+  );
+});
+
+test('workforce fixture exposes exact assignments, runs, capability coverage, freshness, and typed gaps', () => {
+  const html = renderWorkforce(WORKFORCE_PROJECTION);
+  assert.match(html, /Role: builder/, 'canonical agent role renders');
+  assert.match(html, /Runtime: other/, 'canonical runtime renders distinctly');
+  assert.match(html, /Status: running/, 'exact canonical status renders');
+  assert.match(html, /Permission profile: fx-permission-standard/, 'permission profile renders');
+  assert.match(html, /Source freshness: observed/, 'bounded canonical lastSeenAt yields observed freshness');
+  assert.match(html, /Load: 1/, 'load is the exact resolved assignment count');
+  assert.match(html, /Coverage: 1\/1/, 'coverage compares exact membership with exact task demand');
+  assert.match(html, /Tasks: fx-task-1/, 'exact assigned-to and activeTaskIds resolve the task');
+  assert.match(html, /Runs: fx-run-1/, 'exact executes edge resolves the run');
+  assert.match(html, /Skills: fx-skill-build/, 'canonical cluster membership exposes its skill');
+  assert.match(html, /source-stale/, 'exact-subject typed agent gap renders');
+  assert.match(html, /missing-join/, 'unmapped typed gap renders once in the unscoped section');
+});
+
+test('workforce resolves conflicting executes edges to the code-unit-smallest valid agent', () => {
+  const projection = {
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [
+      makeWorkforceAgentNode('fx-executor-a'),
+      makeWorkforceAgentNode('fx-executor-b'),
+      makeFlowTask('fx-executor-task'),
+      {
+        kind: 'run',
+        value: {
+          runId: 'fx-executor-run',
+          taskId: 'fx-executor-task',
+          agentId: 'fx-bare-agent-must-not-win',
+          loadoutId: 'fx-loadout',
+          startedAt: '2026-07-28T05:00:00.000Z',
+          terminalAt: null,
+          status: 'running',
+        },
+      },
+    ],
+    edges: [
+      { kind: 'executes', fromId: 'fx-missing-agent', toId: 'fx-executor-run' },
+      { kind: 'executes', fromId: 'fx-executor-b', toId: 'fx-executor-run' },
+      { kind: 'executes', fromId: 'fx-executor-a', toId: 'fx-executor-run' },
+    ],
+    gaps: [],
+  } as unknown as MissionFabricProjectionV1;
+  const reversed = { ...projection, edges: [...projection.edges].reverse() } as MissionFabricProjectionV1;
+  const html = renderWorkforce(projection);
+  const agentACard = html.match(/data-agent-id="fx-executor-a"[\s\S]*?<\/div>/)?.[0] ?? '';
+  const agentBCard = html.match(/data-agent-id="fx-executor-b"[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.match(agentACard, /Runs: fx-executor-run/, 'code-unit-smallest valid executor owns the run');
+  assert.ok(!agentBCard.includes('fx-executor-run'), 'the larger valid executor does not also own the run');
+  assert.ok(!html.includes('fx-bare-agent-must-not-win'), 'bare run.agentId is never trusted');
+  assert.equal(html, renderWorkforce(reversed), 'executor choice is stable under full edge reversal');
+  assert.equal(html, renderWorkforceBrowser(projection), 'executor choice has Node/browser parity');
+});
+
+test('forge fixture exposes exact membership, skills, demand, evidence state, lifecycle, and typed gaps', () => {
+  const html = renderForge(FORGE_PROJECTION);
+  assert.match(html, /Status: active/, 'exact active lifecycle renders');
+  assert.match(html, /Status: inactive/, 'exact inactive lifecycle remains inactive');
+  assert.match(html, /Members: fx-agent-1/, 'only resolving eligibleAgentIds render as members');
+  assert.match(html, /Skills: fx-skill-build, fx-skill-test/, 'canonical skillIds render deterministically');
+  assert.match(html, /Demand tasks \(1\): fx-task-build/, 'exact resolved requires-cluster demand renders');
+  assert.match(html, /Assignment evidence: recorded/, 'bounded redacted sourceRef presence renders only recorded state');
+  assert.match(html, /capability-source-gap/, 'exact-subject capability gap renders');
+  assert.match(html, /missing-join/, 'unmapped typed gap renders once unscoped');
+});
+
+test('workforce and forge assign disjoint stable public identities to secret and redacted-shaped IDs', () => {
+  const workforceProjection = {
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [
+      makeWorkforceAgentNode('agent-redacted-0'),
+      makeWorkforceAgentNode('token=SECRET-AGENT'),
+    ],
+    edges: [],
+    gaps: [],
+  } as unknown as MissionFabricProjectionV1;
+  const workforceHtml = renderWorkforce(workforceProjection);
+  const workforcePublicIds = [...workforceHtml.matchAll(/data-agent-id="([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(new Set(workforcePublicIds).size, 2, 'distinct hostile agents retain disjoint public identities');
+  assert.ok(!workforceHtml.includes('SECRET-AGENT'), 'secret agent ID never renders');
+  assert.equal(workforceHtml, renderWorkforceBrowser(workforceProjection), 'hostile Workforce identities have Node/browser parity');
+
+  const forgeProjection = {
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [
+      makeForgeSkillClusterNode('skill-cluster-redacted-0'),
+      makeForgeSkillClusterNode('token=SECRET-CLUSTER'),
+    ],
+    edges: [],
+    gaps: [],
+  } as unknown as MissionFabricProjectionV1;
+  const forgeHtml = renderForge(forgeProjection);
+  const forgePublicIds = [...forgeHtml.matchAll(/data-cluster-id="([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(new Set(forgePublicIds).size, 2, 'distinct hostile clusters retain disjoint public identities');
+  assert.ok(!forgeHtml.includes('SECRET-CLUSTER'), 'secret cluster ID never renders');
+  assert.equal(forgeHtml, renderForgeBrowser(forgeProjection), 'hostile Forge identities have Node/browser parity');
+});
+
+test('workforce and forge proposal cues are inert and deferred to Task 11', () => {
+  const html = renderWorkforce(WORKFORCE_PROJECTION) + renderForge(FORGE_PROJECTION);
+  assert.match(html, /Task 11/, 'proposal cue is visibly labelled deferred to Task 11');
+  assert.ok(!/addEventListener/.test(WORKFORCE_BROWSER_JS + FORGE_BROWSER_JS), 'browser renderers register no event handlers');
+  assert.ok(!/fetch\(/.test(WORKFORCE_BROWSER_JS + FORGE_BROWSER_JS), 'browser renderers issue no write fetch');
+});
+
+test('real boot populates all five scene roots and fails closed if workforce/forge are missing or throw', async () => {
+  const booted = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: WORKFORCE_PROJECTION,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  await flushBoot();
+  assert.match(booted.elements.get('of-scene-workforce')!.innerHTML, /data-component="FabricWorkforce"/, 'real boot populates the workforce root');
+  assert.match(booted.elements.get('of-scene-forge')!.innerHTML, /data-component="FabricForge"/, 'real boot populates the forge root');
+
+  const bootedMissingRoot = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: WORKFORCE_PROJECTION,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  bootedMissingRoot.elements.delete('of-scene-workforce');
+  const workforceSceneElement = bootedMissingRoot.sceneElements.find((scene) => scene.dataset.ofScene === 'workforce')!;
+  workforceSceneElement.dataset.ofScene = 'workforce-removed';
+  await flushBoot();
+  assertStaysInert(bootedMissingRoot, 'missing workforce root');
+  assert.equal(bootedMissingRoot.elements.get('of-scene-canopy')!.innerHTML, '', 'missing workforce root: canopy is never written either');
+
+  const bootedMissingForgeRoot = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: FORGE_PROJECTION,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  bootedMissingForgeRoot.elements.delete('of-scene-forge');
+  const forgeSceneElement = bootedMissingForgeRoot.sceneElements.find((scene) => scene.dataset.ofScene === 'forge')!;
+  forgeSceneElement.dataset.ofScene = 'forge-removed';
+  await flushBoot();
+  assertStaysInert(bootedMissingForgeRoot, 'missing forge root');
+  assert.equal(bootedMissingForgeRoot.elements.get('of-scene-canopy')!.innerHTML, '', 'missing forge root: canopy is never written either');
+
+  const body = bootBody(OPERATING_FABRIC_BOOT);
+  assert.match(body, /renderWorkforce:\s*ofRenderWorkforce/, 'boot registers the workforce renderer');
+  assert.match(body, /renderForge:\s*ofRenderForge/, 'boot registers the forge renderer');
+  assert.match(body, /typeof ofScenes\.renderWorkforce !== 'function'/, 'activation validates the workforce renderer');
+  assert.match(body, /typeof ofScenes\.renderForge !== 'function'/, 'activation validates the forge renderer');
+
+  const hostileWorkforceProjection = {
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [{
+      kind: 'agent',
+      value: {
+        agentId: 'fx-hostile-agent',
+        get role(): string {
+          throw new Error('hostile role getter triggered during pre-render');
+        },
+        runtime: 'other',
+        status: 'available',
+        activeTaskIds: [],
+        permissionProfile: 'standard',
+        lastSeenAt: '2026-07-28T05:00:00.000Z',
+        sourceRef: 'redacted:agent:fx-hostile-agent',
+      },
+    }],
+    edges: [],
+    gaps: [],
+  } as unknown as MissionFabricProjectionV1;
+  const bootedHostileRoleGetter = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: hostileWorkforceProjection,
+      delivery: { operatingFabricEnabled: true, servedAt: '2026-07-28T09:00:00.000Z', freshness: 'fresh' },
+    },
+  }));
+  await flushBoot();
+  assertStaysInert(bootedHostileRoleGetter, 'hostile agent role getter throws during pre-render');
+  for (const sceneId of OPERATING_FABRIC_SCENE_IDS) {
+    assert.equal(bootedHostileRoleGetter.elements.get(`of-scene-${sceneId}`)!.innerHTML, '', `${sceneId} stays unwritten after a Workforce renderer exception`);
+  }
+});
+
+test('workforce duplicate clusters reconcile from operational capability fields, never unused name or status', () => {
+  const agent = makeWorkforceAgentNode('fx-operational-agent');
+  const capabilityWinner = makeForgeSkillClusterNode('fx-operational-cluster', {
+    name: 'Zulu unused label',
+    status: 'inactive',
+    skillIds: ['fx-skill-a'],
+    eligibleAgentIds: ['fx-operational-agent'],
+  });
+  const decorativeWinner = makeForgeSkillClusterNode('fx-operational-cluster', {
+    name: 'Alpha unused label',
+    status: 'active',
+    skillIds: ['fx-skill-z'],
+    eligibleAgentIds: [],
+  });
+  const makeProjection = (clusters: FabricNode[]) => ({
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [agent, ...clusters],
+    edges: [],
+    gaps: [],
+  }) as unknown as MissionFabricProjectionV1;
+  const forward = makeProjection([capabilityWinner, decorativeWinner]);
+  const reversed = makeProjection([decorativeWinner, capabilityWinner]);
+  const html = renderWorkforce(forward);
+  assert.match(html, /fx-skill-a/, 'the operational skill/membership tuple selects the canonical cluster');
+  assert.ok(!html.includes('fx-skill-z'), 'unused cluster name/status cannot steer the winner');
+  assert.equal(html, renderWorkforce(reversed), 'Node output is byte-identical under duplicate reversal');
+  assert.equal(html, renderWorkforceBrowser(forward), 'operational duplicate selection has Node/browser parity');
+  assert.equal(renderWorkforceBrowser(forward), renderWorkforceBrowser(reversed), 'browser output is byte-identical under duplicate reversal');
+});
+
+test('forge duplicate clusters compare derived evidence state, never raw sourceRef', () => {
+  const unknownEvidence = makeForgeSkillClusterNode('fx-evidence-cluster', {
+    sourceRef: 'token=SECRET-SORTS-FIRST',
+  });
+  const recordedEvidence = makeForgeSkillClusterNode('fx-evidence-cluster', {
+    sourceRef: 'zzzz-recorded-reference',
+  });
+  const makeProjection = (clusters: FabricNode[]) => ({
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: clusters,
+    edges: [],
+    gaps: [],
+  }) as unknown as MissionFabricProjectionV1;
+  const forward = makeProjection([unknownEvidence, recordedEvidence]);
+  const reversed = makeProjection([recordedEvidence, unknownEvidence]);
+  const html = renderForge(forward);
+  assert.match(html, /Assignment evidence: recorded/, 'derived recorded evidence wins over unknown without reading raw source order');
+  assert.ok(!html.includes('SECRET-SORTS-FIRST'), 'secret sourceRef never renders');
+  assert.ok(!html.includes('zzzz-recorded-reference'), 'recorded raw sourceRef never renders');
+  assert.equal(html, renderForge(reversed), 'Node output is byte-identical under raw-evidence reversal');
+  assert.equal(html, renderForgeBrowser(forward), 'derived evidence selection has Node/browser parity');
+  assert.equal(renderForgeBrowser(forward), renderForgeBrowser(reversed), 'browser output is byte-identical under raw-evidence reversal');
+});
+
+test('forge treats duplicate agent/task values as observationally equal existence facts', () => {
+  const agentA = makeWorkforceAgentNode('fx-existence-agent', { role: 'alpha', status: 'available' });
+  const agentB = makeWorkforceAgentNode('fx-existence-agent', { role: 'zulu', status: 'offline' });
+  const taskA = makeFlowTask('fx-existence-task', { status: 'queued' });
+  const taskB = makeFlowTask('fx-existence-task', { status: 'blocked' });
+  const cluster = makeForgeSkillClusterNode('fx-existence-cluster', {
+    eligibleAgentIds: ['fx-existence-agent'],
+  });
+  const makeProjection = (values: FabricNode[]) => ({
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: values,
+    edges: [{ kind: 'requires-cluster', fromId: 'fx-existence-task', toId: 'fx-existence-cluster' }],
+    gaps: [],
+  }) as unknown as MissionFabricProjectionV1;
+  const forward = makeProjection([agentA, taskA, agentB, taskB, cluster]);
+  const reversed = makeProjection([cluster, taskB, agentB, taskA, agentA]);
+  const html = renderForge(forward);
+  assert.match(html, /Members: fx-existence-agent/, 'Forge consumes only canonical agent-ID existence');
+  assert.match(html, /Demand tasks \(1\): fx-existence-task/, 'Forge consumes only canonical task-ID existence');
+  assert.equal(html, renderForge(reversed), 'unused duplicate agent/task fields cannot change Node output');
+  assert.equal(html, renderForgeBrowser(forward), 'existence-only duplicate handling has Node/browser parity');
+  assert.equal(renderForgeBrowser(forward), renderForgeBrowser(reversed), 'unused duplicate fields cannot change browser output');
+});
+
+test('workforce and forge expose exact card and list overflow truth with Node/browser parity', () => {
+  const workforceAgentIds = Array.from({ length: 49 }, (_, index) => `fx-overflow-agent-${String(index).padStart(3, '0')}`);
+  const workforceTaskIds = Array.from({ length: 25 }, (_, index) => `fx-overflow-task-${String(index).padStart(3, '0')}`);
+  const workforceSkillIds = Array.from({ length: 26 }, (_, index) => `fx-overflow-skill-${String(index).padStart(3, '0')}`);
+  const workforceAgents = workforceAgentIds.map((agentId, index) =>
+    makeWorkforceAgentNode(agentId, { activeTaskIds: index === 0 ? workforceTaskIds : [] }));
+  const workforceTasks = workforceTaskIds.map((taskId) => makeFlowTask(taskId));
+  const workforceCluster = makeForgeSkillClusterNode('fx-overflow-cluster', {
+    skillIds: workforceSkillIds,
+    eligibleAgentIds: [workforceAgentIds[0]],
+  });
+  const workforceEdges = workforceTaskIds.flatMap((taskId) => [
+    { kind: 'assigned-to', fromId: taskId, toId: workforceAgentIds[0] },
+    { kind: 'requires-cluster', fromId: taskId, toId: 'fx-overflow-cluster' },
+  ]);
+  const workforceProjection = {
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [...workforceAgents, ...workforceTasks, workforceCluster],
+    edges: workforceEdges,
+    gaps: [],
+  } as unknown as MissionFabricProjectionV1;
+  const workforceHtml = renderWorkforce(workforceProjection);
+  assert.match(workforceHtml, /showing 48 of 49 agents/, 'workforce exposes exact card overflow');
+  assert.match(workforceHtml, /class="tasks">Tasks: [^<]*\+1 more/, 'workforce exposes exact task-list overflow');
+  assert.match(workforceHtml, /class="skills">Skills: [^<]*\+2 more/, 'workforce exposes exact skill-list overflow');
+  assert.equal(workforceHtml, renderWorkforceBrowser(workforceProjection), 'workforce overflow truth has Node/browser parity');
+
+  const forgeAgentIds = Array.from({ length: 25 }, (_, index) => `fx-forge-agent-${String(index).padStart(3, '0')}`);
+  const forgeTaskIds = Array.from({ length: 25 }, (_, index) => `fx-forge-task-${String(index).padStart(3, '0')}`);
+  const forgeSkillIds = Array.from({ length: 26 }, (_, index) => `fx-forge-skill-${String(index).padStart(3, '0')}`);
+  const forgeAgents = forgeAgentIds.map((agentId) => makeWorkforceAgentNode(agentId));
+  const forgeTasks = forgeTaskIds.map((taskId) => makeFlowTask(taskId));
+  const forgeClusters = Array.from({ length: 49 }, (_, index) =>
+    makeForgeSkillClusterNode(`fx-forge-cluster-${String(index).padStart(3, '0')}`, index === 0
+      ? { eligibleAgentIds: forgeAgentIds, skillIds: forgeSkillIds }
+      : {}));
+  const forgeEdges = forgeTaskIds.map((taskId) => ({
+    kind: 'requires-cluster',
+    fromId: taskId,
+    toId: 'fx-forge-cluster-000',
+  }));
+  const forgeProjection = {
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [...forgeAgents, ...forgeTasks, ...forgeClusters],
+    edges: forgeEdges,
+    gaps: [],
+  } as unknown as MissionFabricProjectionV1;
+  const forgeHtml = renderForge(forgeProjection);
+  assert.match(forgeHtml, /showing 48 of 49 clusters/, 'forge exposes exact card overflow');
+  assert.match(forgeHtml, /class="cluster-members">Members: [^<]*\+1 more/, 'forge exposes exact member-list overflow');
+  assert.match(forgeHtml, /class="cluster-skills">Skills: [^<]*\+2 more/, 'forge exposes exact skill-list overflow');
+  assert.match(forgeHtml, /class="cluster-demand">Demand tasks \(25\): [^<]*\+1 more/, 'forge exposes exact demand-list overflow');
+  assert.equal(forgeHtml, renderForgeBrowser(forgeProjection), 'forge overflow truth has Node/browser parity');
+});
+
+test('forge rejects a gap detail whose secret marker appears after the visible bound', () => {
+  const taintedPrefix = 'x'.repeat(170);
+  const projection = {
+    schema: 'cambium.mission-fabric-projection.v1',
+    nodes: [],
+    edges: [],
+    gaps: [{
+      gapId: 'fx-late-secret-gap',
+      kind: 'capability-source-gap',
+      subjectId: 'fx-unscoped',
+      detail: `${taintedPrefix}token=SECRET-AFTER-BOUND`,
+    }],
+  } as unknown as MissionFabricProjectionV1;
+  const html = renderForge(projection);
+  assert.ok(!html.includes('SECRET-AFTER-BOUND'), 'late secret marker never renders');
+  assert.ok(!html.includes(taintedPrefix), 'no visible prefix from a secret-bearing field survives');
+  assert.match(html, /gap-detail">unknown</, 'the tainted visible detail becomes honest unknown');
+  assert.equal(html, renderForgeBrowser(projection), 'late-secret redaction has Node/browser parity');
 });

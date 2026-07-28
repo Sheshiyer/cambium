@@ -1,0 +1,35 @@
+{
+  "contract": "cambium-operating-fabric-scene/v1",
+  "sceneId": "workforce",
+  "tabIndex": 3,
+  "label": "Workforce",
+  "sceneRoot": "[data-of-scene=\"workforce\"]",
+  "refreshRoute": "GET /v1/mission-fabric/{tenant}",
+  "synthetic": true,
+  "fixture": "workers/quests/src/page/scenes/fixtures/workforce.fixture.json",
+  "projection": {
+    "schema": "cambium.mission-fabric-projection.v1",
+    "authority": "d1-goal-graph (read-only projection; never a writer)",
+    "consumedFor": "source-derived agent status, role/runtime, permission profile, last-seen observation, assignments, runs, capability coverage, demand, and typed gaps"
+  },
+  "derivation": {
+    "agents": "one canonical card per exact agentId; duplicate winners compare only explicit scene fields with code-unit ordering",
+    "tasks": "exact assigned-to task-to-agent edges plus resolving canonical activeTaskIds; disagreement is an assignment-contradiction gap",
+    "runs": "exact executes agent-to-run edges; the code-unit-smallest valid canonical agent wins and invalid edges never block valid edges",
+    "capabilities": "exact canonical eligibleAgentIds and skillIds compared with exact requires-cluster task demand",
+    "load": "resolved active assignment count only; never productivity, ranking, utilization, or performance"
+  },
+  "density": {
+    "cardLimit": 48,
+    "listLimit": 24,
+    "overflow": "fail closed or render a bounded explicit unknown/truncated state"
+  },
+  "authority": {
+    "readOnly": true,
+    "selection": "local inspection only",
+    "governedActions": "Proposal flow deferred to Task 11; this scene has no write fetch, handler, submit behavior, registry/runtime/task-store call, or authority decision"
+  },
+  "interactions": [],
+  "browserParity": "WORKFORCE_BROWSER_JS is explicit browser-valid source composed into the single boot IIFE; Node and browser observable HTML is byte-identical",
+  "redaction": "Every projection-derived value is bounded and escaped. Secret grammar covers query_id=, auth_date=, word-boundary hash=, Bearer whitespace, bot_token, clientSecret, initData, TELEGRAM_INIT_DATA, TG_INIT_DATA, QUESTS_PUSH_TOKEN, token=, PRIVATE KEY, prompt assignment, and prompt injection. Source/evidence payloads, digests, credentials, Telegram auth, private client data, and hostile raw IDs never render."
+}

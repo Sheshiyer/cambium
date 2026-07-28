@@ -1,0 +1,115 @@
+{
+  "schema": "cambium.mission-fabric-projection.v1",
+  "projectionVersion": 1,
+  "tenantId": "fx-tenant",
+  "graphVersion": 10,
+  "graphDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "generatedAt": "2026-07-28T06:00:00.000Z",
+  "asOf": "2026-07-28T06:00:00.000Z",
+  "sourceOfTruth": "d1-goal-graph",
+  "readOnly": true,
+  "nodes": [
+    {
+      "kind": "agent",
+      "value": {
+        "agentId": "fx-agent-1",
+        "role": "builder",
+        "runtime": "other",
+        "status": "available",
+        "activeTaskIds": [],
+        "permissionProfile": "fx-permission-standard",
+        "lastSeenAt": "2026-07-28T05:58:00.000Z",
+        "sourceRef": "fx-source-agent-1"
+      }
+    },
+    {
+      "kind": "agent",
+      "value": {
+        "agentId": "fx-agent-2",
+        "role": "reviewer",
+        "runtime": "human",
+        "status": "available",
+        "activeTaskIds": [],
+        "permissionProfile": "fx-permission-observer",
+        "lastSeenAt": "2026-07-28T05:57:00.000Z",
+        "sourceRef": "fx-source-agent-2"
+      }
+    },
+    {
+      "kind": "task",
+      "value": {
+        "taskId": "fx-task-build",
+        "missionId": "fx-mission-1",
+        "desiredState": "fx-build-complete",
+        "status": "ready",
+        "dependencyIds": [],
+        "assignedAgentId": null,
+        "requiredClusterIds": ["fx-cluster-active"],
+        "pinnedLoadoutId": null,
+        "leaseId": null,
+        "proofRequirement": "fx-proof-build",
+        "latestReceiptId": null
+      }
+    },
+    {
+      "kind": "task",
+      "value": {
+        "taskId": "fx-task-review",
+        "missionId": "fx-mission-1",
+        "desiredState": "fx-review-complete",
+        "status": "queued",
+        "dependencyIds": ["fx-task-build"],
+        "assignedAgentId": null,
+        "requiredClusterIds": ["fx-cluster-inactive"],
+        "pinnedLoadoutId": null,
+        "leaseId": null,
+        "proofRequirement": "fx-proof-review",
+        "latestReceiptId": null
+      }
+    },
+    {
+      "kind": "skill-cluster",
+      "value": {
+        "clusterId": "fx-cluster-active",
+        "name": "Build Cluster",
+        "status": "active",
+        "skillIds": ["fx-skill-build", "fx-skill-test"],
+        "eligibleAgentIds": ["fx-agent-1"],
+        "successRate": null,
+        "sourceRef": "fx-source-cluster-active"
+      }
+    },
+    {
+      "kind": "skill-cluster",
+      "value": {
+        "clusterId": "fx-cluster-inactive",
+        "name": "Review Cluster",
+        "status": "inactive",
+        "skillIds": ["fx-skill-review"],
+        "eligibleAgentIds": ["fx-agent-2"],
+        "successRate": null,
+        "sourceRef": "fx-source-cluster-inactive"
+      }
+    }
+  ],
+  "edges": [
+    { "kind": "requires-cluster", "fromId": "fx-task-build", "toId": "fx-cluster-active" },
+    { "kind": "requires-cluster", "fromId": "fx-task-review", "toId": "fx-cluster-inactive" }
+  ],
+  "gaps": [
+    {
+      "gapId": "fx-gap-cluster-inactive",
+      "kind": "capability-source-gap",
+      "subjectId": "fx-cluster-inactive",
+      "detail": "Synthetic cluster requires a future governed lifecycle proposal.",
+      "evidenceRef": null
+    },
+    {
+      "gapId": "fx-gap-unmapped",
+      "kind": "missing-join",
+      "subjectId": "fx-unmapped",
+      "detail": "Synthetic reference has no canonical projection endpoint.",
+      "evidenceRef": null
+    }
+  ]
+}
