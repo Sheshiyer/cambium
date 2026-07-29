@@ -3,12 +3,12 @@ project: Cambium
 task: "Commit the portfolio Mini App and add Telegram-aware proactive organ updates"
 effort: advanced
 effort_source: classifier
-phase: verify
+phase: learn
 progress: 541/572
 mode: interactive
 iteration: 2026-07-29-portfolio-organ-update-delivery
 started: 2026-07-27T21:26:34Z
-updated: 2026-07-29T10:46:23Z
+updated: 2026-07-29T10:47:11Z
 ---
 
 ## Problem
@@ -964,6 +964,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-07-29 10:47 learned: Telegram proactivity is an authority chain, not a timer. A scoped assignment token cannot mint delivery intent; client Will delivery requires an exact founder Gate record; Cambium compiles one receipt-backed envelope; Hermes validates and transports it; the Mini App fails closed on unverified dynamic detail. This boundary closed both audit exploits without granting schedule, menu, tenant-activation, or production-traffic authority.
 - 2026-07-29 09:39 refined: “proactive” means event-driven receipt-to-topic delivery, not a new recurring cron. Existing Phase 7 scheduling gates remain authoritative.
 - 2026-07-29 09:39 refined: Cambium compiles and displays delivery intent; Hermes validates the canonical topic and performs Telegram transport. This preserves one topology owner and prevents a second bot sender.
 - 2026-07-29 09:39 refined: the five default organ routes are Genesis→Inbox, Taste→Digests, Hands→Dev, Will→Clients, and Cortex→Agent Ops, with blocked/failed/drifted updates escalating to Alerts and never falling back to General.
