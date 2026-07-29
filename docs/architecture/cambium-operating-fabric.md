@@ -1,10 +1,15 @@
 # Cambium Operating Fabric
 
-Status: active design contract for the next Telegram Mini App visual-workflow slice; runtime not implemented.
+Status: zero-traffic candidate implementation; portfolio-catalog extension remains local until approval-gated staging proof.
 
 Date: 2026-07-28
 
 Authority: the D1 Goal Graph remains the only operational writer. This document defines a read model and its user experience; it does not authorize a runtime mutation, deployment, provider call, schedule, or external action.
+
+The additive portfolio classification sidecar is frozen separately in
+[`contracts/portfolio-catalog-v1.md`](./contracts/portfolio-catalog-v1.md).
+It lets Canopy list the complete mapped portfolio while keeping catalog
+classification visibly subordinate to Goal Graph state.
 
 ## Decision
 

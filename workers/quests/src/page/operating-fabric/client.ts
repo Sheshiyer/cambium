@@ -32,6 +32,7 @@
 // any of the five scene roots) leaves the legacy shell visible/interactive
 // and the new shell hidden/inert — activation never happens first.
 import { CANOPY_BROWSER_JS } from './canopy.ts';
+import { PORTFOLIO_BROWSER_JS } from './portfolio.ts';
 import { MISSION_BROWSER_JS } from './mission.ts';
 import { FLOW_BROWSER_JS } from './flow.ts';
 import { WORKFORCE_BROWSER_JS } from './workforce.ts';
@@ -121,6 +122,7 @@ export const OPERATING_FABRIC_BOOT = `<script data-operating-fabric-boot>
 (function () {
   'use strict';
 ${OPERATING_FABRIC_SCENE_HELPERS_JS}
+${PORTFOLIO_BROWSER_JS}
 ${CANOPY_BROWSER_JS}
 ${MISSION_BROWSER_JS}
 ${FLOW_BROWSER_JS}
@@ -145,7 +147,9 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
   var tenant = (typeof TENANT === 'string' && TENANT) || 'cambium';
   var latestProjection = null;
   var latestDelivery = null;
+  var latestPortfolioPayload = {};
   var openWorkId = null;
+  var selectedPortfolio = null;
   // currentScene: tracks the active scene for contextual sheet return.
   var currentScene = 'canopy';
   function sceneRoot(id) {
@@ -353,6 +357,16 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
           openGatePreflight: function (kind, subject, node, seed) {
             if (typeof openGatePreflight !== 'function') return;
             openGatePreflight(kind, subject, node, seed);
+            var gateBody = document.getElementById('sheetBody');
+            if (gateBody && selectedPortfolio && typeof gateBody.insertAdjacentHTML === 'function') {
+              // Append without replacing the preflight DOM: rewriting
+              // innerHTML here would destroy the confirm and inspect
+              // handlers that openGatePreflight just installed.
+              gateBody.insertAdjacentHTML(
+                'beforeend',
+                ofRenderPortfolioSceneContext('gate', latestProjection, selectedPortfolio)
+              );
+            }
             if (typeof sheet !== 'undefined' && sheet && sheet._ofSetReturnCallback) {
               sheet._ofSetReturnCallback(function () {
                 navigate(originScene);
@@ -392,7 +406,8 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     if (!ofValidProjection(projection)) return;
     var sb = document.getElementById('sheetBody');
     if (!sb || !veil || !sheet) return;
-    sb.innerHTML = ofRenderInspectSheet(projection, target);
+    sb.innerHTML = ofRenderInspectSheet(projection, target) +
+      ofRenderPortfolioSceneContext('inspect', projection, selectedPortfolio);
     var focusTrigger = triggerEl;
     if (sheet._ofSetReturnCallback) {
       sheet._ofSetReturnCallback(function () {
@@ -411,7 +426,7 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     }
     if (typeof buzz === 'function') buzz('medium');
   }
-  function renderScenes(projection, delivery) {
+  function renderScenes(projection, delivery, portfolioPayload) {
     if (!ofValidProjection(projection)) return false;
     if (
       typeof ofScenes.renderCanopy !== 'function' ||
@@ -432,11 +447,22 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     var workforceHtml;
     var forgeHtml;
     try {
-      canopyHtml = ofScenes.renderCanopy(projection, { freshness: freshnessFor(delivery) });
-      missionHtml = ofScenes.renderOperatingMission(projection, openWorkId);
-      flowHtml = ofScenes.renderFlow(projection);
-      workforceHtml = ofScenes.renderWorkforce(projection);
-      forgeHtml = ofScenes.renderForge(projection);
+      var canopyOptions = {
+        freshness: freshnessFor(delivery),
+        portfolioCatalog: portfolioPayload && portfolioPayload.portfolioCatalog,
+        portfolioCatalogSummary: portfolioPayload && portfolioPayload.portfolioCatalogSummary,
+        portfolioJoinReport: portfolioPayload && portfolioPayload.portfolioJoinReport,
+        selectedPortfolioId: selectedPortfolio && selectedPortfolio.canonicalId
+      };
+      canopyHtml = ofScenes.renderCanopy(projection, canopyOptions);
+      missionHtml = ofScenes.renderOperatingMission(projection, openWorkId) +
+        ofRenderPortfolioSceneContext('mission', projection, selectedPortfolio);
+      flowHtml = ofScenes.renderFlow(projection) +
+        ofRenderPortfolioSceneContext('flow', projection, selectedPortfolio);
+      workforceHtml = ofScenes.renderWorkforce(projection) +
+        ofRenderPortfolioSceneContext('workforce', projection, selectedPortfolio);
+      forgeHtml = ofScenes.renderForge(projection) +
+        ofRenderPortfolioSceneContext('forge', projection, selectedPortfolio);
     } catch (error) {
       return false;
     }
@@ -479,7 +505,7 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
   // any visibility change. Any failure — invalid projection, missing
   // renderer, renderer exception, absent root — leaves the legacy shell
   // visible and interactive and the new shell hidden and inert.
-  function activate(projection, delivery) {
+  function activate(projection, delivery, portfolioPayload) {
     if (!ofValidProjection(projection)) return;
     if (
       typeof ofScenes.renderCanopy !== 'function' ||
@@ -500,11 +526,22 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     var workforceHtml;
     var forgeHtml;
     try {
-      canopyHtml = ofScenes.renderCanopy(projection, { freshness: freshnessFor(delivery) });
-      missionHtml = ofScenes.renderOperatingMission(projection, openWorkId);
-      flowHtml = ofScenes.renderFlow(projection);
-      workforceHtml = ofScenes.renderWorkforce(projection);
-      forgeHtml = ofScenes.renderForge(projection);
+      var canopyOptions = {
+        freshness: freshnessFor(delivery),
+        portfolioCatalog: portfolioPayload && portfolioPayload.portfolioCatalog,
+        portfolioCatalogSummary: portfolioPayload && portfolioPayload.portfolioCatalogSummary,
+        portfolioJoinReport: portfolioPayload && portfolioPayload.portfolioJoinReport,
+        selectedPortfolioId: selectedPortfolio && selectedPortfolio.canonicalId
+      };
+      canopyHtml = ofScenes.renderCanopy(projection, canopyOptions);
+      missionHtml = ofScenes.renderOperatingMission(projection, openWorkId) +
+        ofRenderPortfolioSceneContext('mission', projection, selectedPortfolio);
+      flowHtml = ofScenes.renderFlow(projection) +
+        ofRenderPortfolioSceneContext('flow', projection, selectedPortfolio);
+      workforceHtml = ofScenes.renderWorkforce(projection) +
+        ofRenderPortfolioSceneContext('workforce', projection, selectedPortfolio);
+      forgeHtml = ofScenes.renderForge(projection) +
+        ofRenderPortfolioSceneContext('forge', projection, selectedPortfolio);
     } catch (error) {
       return;
     }
@@ -560,13 +597,54 @@ ${CONTEXTUAL_SHEET_RETURN_BROWSER_JS}
       handleGateEntrypointClick(gateEntrypointBtn);
       return;
     }
+    var portfolioFilter = typeof target.closest === 'function' ? target.closest('[data-of-portfolio-filter]') : null;
+    if (portfolioFilter) {
+      var filterId = portfolioFilter.getAttribute('data-of-portfolio-filter');
+      var filterButtons = root.querySelectorAll('[data-of-portfolio-filter]');
+      for (var filterIndex = 0; filterIndex < filterButtons.length; filterIndex += 1) {
+        filterButtons[filterIndex].setAttribute(
+          'aria-pressed',
+          filterButtons[filterIndex].getAttribute('data-of-portfolio-filter') === filterId ? 'true' : 'false'
+        );
+      }
+      var portfolioZones = root.querySelectorAll('[data-portfolio-zone]');
+      for (var zoneIndex = 0; zoneIndex < portfolioZones.length; zoneIndex += 1) {
+        portfolioZones[zoneIndex].hidden =
+          filterId !== 'all' && portfolioZones[zoneIndex].getAttribute('data-portfolio-zone') !== filterId;
+      }
+      return;
+    }
+    var portfolioOpener = typeof target.closest === 'function' ? target.closest('[data-of-open-portfolio]') : null;
+    if (portfolioOpener) {
+      var selectedId = portfolioOpener.getAttribute('data-of-open-portfolio');
+      var normalizedPortfolio = ofNormalizePortfolioPayload(latestPortfolioPayload);
+      selectedPortfolio = null;
+      for (var portfolioIndex = 0; portfolioIndex < normalizedPortfolio.records.length; portfolioIndex += 1) {
+        if (
+          normalizedPortfolio.records[portfolioIndex].canonical &&
+          normalizedPortfolio.records[portfolioIndex].canonicalId === selectedId
+        ) {
+          selectedPortfolio = normalizedPortfolio.records[portfolioIndex];
+          break;
+        }
+      }
+      openWorkId = selectedPortfolio
+        ? ofPortfolioRuntimeWorkId(latestProjection, selectedPortfolio)
+        : null;
+      if (selectedPortfolio && ofValidProjection(latestProjection)) {
+        try { renderScenes(latestProjection, latestDelivery, latestPortfolioPayload); } catch (error) { /* keep the last good render */ }
+        navigate('mission');
+      }
+      return;
+    }
     var opener = typeof target.closest === 'function' ? target.closest('[data-of-open-work]') : null;
     if (opener) {
       // Local focus only: selection never mutates work state, never writes,
       // and never makes an authority decision.
       openWorkId = opener.getAttribute('data-of-open-work');
+      selectedPortfolio = null;
       if (ofValidProjection(latestProjection)) {
-        try { renderScenes(latestProjection, latestDelivery); } catch (error) { /* keep the last good render */ }
+        try { renderScenes(latestProjection, latestDelivery, latestPortfolioPayload); } catch (error) { /* keep the last good render */ }
       }
       navigate('mission');
       return;
@@ -582,7 +660,12 @@ ${CONTEXTUAL_SHEET_RETURN_BROWSER_JS}
         if (body && body.delivery && body.delivery.operatingFabricEnabled === true) {
           latestProjection = body.projection || null;
           latestDelivery = body.delivery || null;
-          activate(latestProjection, latestDelivery);
+          latestPortfolioPayload = {
+            portfolioCatalog: body.portfolioCatalog,
+            portfolioCatalogSummary: body.portfolioCatalogSummary,
+            portfolioJoinReport: body.portfolioJoinReport
+          };
+          activate(latestProjection, latestDelivery, latestPortfolioPayload);
         }
       });
     })

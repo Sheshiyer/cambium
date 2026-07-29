@@ -18,6 +18,13 @@ This contract freezes the public projection shape so that the compiler, the
 Worker route, and the Telegram Mini App can be built in parallel without
 renaming fields or edge vocabulary.
 
+The complete Vault-classified portfolio is transported as the independently
+digested, read-only sidecar defined by
+[`portfolio-catalog-v1.md`](./portfolio-catalog-v1.md). Catalog records never
+enter `nodes` merely to look operational. The route pairs the graph and catalog
+digests, and the client decorates a catalog record only after an exact
+canonical-identifier join.
+
 ## Projection Shape
 
 ```ts

@@ -14,6 +14,11 @@ import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, 
 import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
 import { buildMissionFabricProjection } from './mission-fabric.ts';
 import { FABRIC_SOURCE_FIXTURE } from './mission-fabric-fixture.ts';
+import {
+  PORTFOLIO_CATALOG,
+  buildPortfolioJoinReport,
+  portfolioPairDigest,
+} from './portfolio-catalog.ts';
 
 function playwrightHeadlessShellCandidates() {
   const cacheDir = join(homedir(), 'Library', 'Caches', 'ms-playwright');
@@ -1108,12 +1113,32 @@ const OPERATING_FABRIC_PROJECTION = buildMissionFabricProjection(operatingFabric
   tenantId: 'cambium',
 });
 
+const OPERATING_FABRIC_JOIN_REPORT = buildPortfolioJoinReport(
+  PORTFOLIO_CATALOG,
+  OPERATING_FABRIC_PROJECTION.nodes.filter((node) => node.kind === 'work'),
+);
+
 const OPERATING_FABRIC_DELIVERY_ENVELOPE = {
   projection: OPERATING_FABRIC_PROJECTION,
+  portfolioCatalog: PORTFOLIO_CATALOG,
+  portfolioCatalogSummary: {
+    ...PORTFOLIO_CATALOG.summary,
+    schema: PORTFOLIO_CATALOG.schema,
+    version: PORTFOLIO_CATALOG.version,
+    status: PORTFOLIO_CATALOG.status,
+    readOnly: PORTFOLIO_CATALOG.readOnly,
+    classificationDigest: PORTFOLIO_CATALOG.classificationDigest,
+    catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+  },
+  portfolioJoinReport: OPERATING_FABRIC_JOIN_REPORT,
   delivery: {
     operatingFabricEnabled: true,
     servedAt: '2026-07-28T09:05:00.000Z',
     freshness: 'fresh',
+    portfolioPairDigest: portfolioPairDigest(
+      OPERATING_FABRIC_PROJECTION.graphDigest,
+      PORTFOLIO_CATALOG.catalogDigest,
+    ),
   },
 };
 
@@ -1143,6 +1168,30 @@ function operatingFabricAllScenesAssertion(width) {
   return `(() => {
     const root = document.getElementById('operating-fabric');
     if (!root) return { ok:false, missing:'operating-fabric-root' };
+    const portfolio = root.querySelector('[data-component="PortfolioCanopy"][data-portfolio-mode="detail"]');
+    const portfolioZones = root.querySelectorAll('[data-portfolio-zone]');
+    const portfolioCards = root.querySelectorAll('[data-portfolio-card]');
+    const portfolioCounts = {
+      saplings: root.querySelector('[data-portfolio-count="saplings"]')?.textContent,
+      clients: root.querySelector('[data-portfolio-count="clients"]')?.textContent,
+      programs: root.querySelector('[data-portfolio-count="programs"]')?.textContent,
+      review: root.querySelector('[data-portfolio-count="review"]')?.textContent,
+      historical: root.querySelector('[data-portfolio-count="historical"]')?.textContent,
+    };
+    const fitcheck = root.querySelector('[data-portfolio-id="sapling:fitcheck"]');
+    const portfolioOk = Boolean(portfolio)
+      && portfolioZones.length === 4
+      && portfolioCards.length === 89
+      && portfolioCounts.saplings === '12'
+      && portfolioCounts.clients === '28'
+      && portfolioCounts.programs === '14'
+      && portfolioCounts.review === '16'
+      && portfolioCounts.historical === '19'
+      && Boolean(fitcheck)
+      && fitcheck.textContent.includes('cambium')
+      && fitcheck.textContent.includes('aliases are display-only');
+    const fitcheckFocus = fitcheck?.querySelector('[data-of-open-portfolio="sapling:fitcheck"]');
+    if (fitcheckFocus) fitcheckFocus.click();
     const sceneIds = ['canopy', 'mission', 'flow', 'workforce', 'forge'];
     const results = {};
     for (const sceneId of sceneIds) {
@@ -1162,6 +1211,13 @@ function operatingFabricAllScenesAssertion(width) {
         return Boolean(otherTab) && otherTab.getAttribute('aria-selected') === (other === sceneId ? 'true' : 'false');
       });
       const tabRect = tab.getBoundingClientRect();
+      const tabLabel = tab.querySelector('.of-tab-label');
+      const tabLabelRect = tabLabel ? tabLabel.getBoundingClientRect() : null;
+      const tabLabelContained = Boolean(tabLabel)
+        && tabLabel.scrollWidth <= tabLabel.clientWidth + 1
+        && Boolean(tabLabelRect)
+        && tabLabelRect.left >= tabRect.left - 1
+        && tabLabelRect.right <= tabRect.right + 1;
       const inViewport = (rect) => rect.left >= -1 && rect.right <= window.innerWidth + 1;
       const panelRect = panel ? panel.getBoundingClientRect() : null;
       const rootRect = root.getBoundingClientRect();
@@ -1174,6 +1230,11 @@ function operatingFabricAllScenesAssertion(width) {
         const rect = node.getBoundingClientRect();
         return rect.height >= 44 && rect.width >= 44;
       });
+      const selectedContext = sceneId === 'canopy'
+        ? root.querySelector('[data-portfolio-id="sapling:fitcheck"][aria-current="true"]')
+        : root.querySelector('[data-portfolio-context="' + sceneId + '"]');
+      const selectionPersists = Boolean(selectedContext)
+        && selectedContext.textContent.includes('Fitcheck');
       const noBodyOverflow = document.documentElement.scrollWidth <= window.innerWidth + 1
         && document.body.scrollWidth <= window.innerWidth + 1;
       results[sceneId] = {
@@ -1186,16 +1247,38 @@ function operatingFabricAllScenesAssertion(width) {
           && inViewport(rootRect)
           && noBodyOverflow
           && tabRect.height >= 44
-          && targetsAtLeast44,
+          && tabLabelContained
+          && targetsAtLeast44
+          && selectionPersists,
         panelContained: Boolean(panelRect) && inViewport(panelRect),
+        tabLabelContained,
         interactiveCount: interactiveTargets.length,
+        selectionPersists,
       };
     }
+    const canopyTab = root.querySelector('[data-of-tab="canopy"]');
+    const canopyPanel = root.querySelector('[data-of-scene="canopy"]');
+    if (canopyTab && canopyTab.getAttribute('aria-selected') !== 'true') canopyTab.click();
+    root.scrollIntoView({ block: 'start', inline: 'nearest' });
+    const restoredCanopy = Boolean(canopyTab)
+      && canopyTab.getAttribute('aria-selected') === 'true'
+      && Boolean(canopyPanel)
+      && canopyPanel.hidden === false;
     return {
       ok: Object.values(results).every((entry) => entry.ok === true)
+        && portfolioOk
+        && restoredCanopy
         && Math.abs(window.innerWidth - ${width}) <= 1
         && document.body.scrollWidth <= window.innerWidth + 1,
       results,
+      portfolio: {
+        ok: portfolioOk,
+        zoneCount: portfolioZones.length,
+        cardCount: portfolioCards.length,
+        counts: portfolioCounts,
+        fitcheck: Boolean(fitcheck),
+      },
+      restoredCanopy,
     };
   })()`;
 }

@@ -29,6 +29,11 @@ import {
   type Freshness,
 } from './components.ts';
 import type { MissionFabricProjectionV1 } from '../../mission-fabric.ts';
+import {
+  normalizePortfolioPayload,
+  renderPortfolioCanopy,
+  type PortfolioPayloadInput,
+} from './portfolio.ts';
 
 export const CANOPY_CARD_LIMIT = 24;
 
@@ -159,9 +164,10 @@ function renderSection(
   );
 }
 
-export interface CanopyOptions {
+export interface CanopyOptions extends PortfolioPayloadInput {
   freshness?: Freshness | null;
   error?: boolean;
+  selectedPortfolioId?: string | null;
 }
 
 export function renderCanopy(
@@ -170,6 +176,14 @@ export function renderCanopy(
 ): string {
   if (options.error === true || projection === null || typeof projection !== 'object' || !Array.isArray(projection.nodes)) {
     return renderFabricState('error');
+  }
+  const portfolio = normalizePortfolioPayload(options);
+  if (portfolio.mode !== 'none') {
+    return renderPortfolioCanopy(
+      projection,
+      portfolio,
+      typeof options.selectedPortfolioId === 'string' ? options.selectedPortfolioId : null,
+    );
   }
   const freshness: Freshness =
     options.freshness && typeof options.freshness === 'object'
@@ -276,8 +290,16 @@ function ofRenderCanopySection(section, heading, nodes) {
     '</section>';
 }
 
-function ofRenderCanopy(projection) {
+function ofRenderCanopy(projection, options) {
   if (!ofValidProjection(projection)) return ofRenderState('error', 'error', 'failed to load the operating fabric');
+  var portfolio = ofNormalizePortfolioPayload(options || {});
+  if (portfolio.mode !== 'none') {
+    return ofRenderPortfolioCanopy(
+      projection,
+      portfolio,
+      options && typeof options.selectedPortfolioId === 'string' ? options.selectedPortfolioId : null
+    );
+  }
   var works = [];
   for (var index = 0; index < projection.nodes.length; index += 1) {
     var node = projection.nodes[index];

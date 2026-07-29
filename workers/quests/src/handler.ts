@@ -46,6 +46,12 @@ import type { FabricEdge, FabricGap, FabricNode, MissionFabricProjectionV1, Miss
 import { BRANCH_MAP_RECEIPT_READ_LIMIT } from './branch-map-receipt-store.ts';
 import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
 import { renderBranchMapSheet } from './branch-map-sheet.ts';
+import {
+  PORTFOLIO_CATALOG,
+  buildPortfolioJoinReport,
+  portfolioCatalogForViewer,
+  portfolioPairDigest,
+} from './portfolio-catalog.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
@@ -2967,10 +2973,45 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     const derivedMs = fabricTimestampMs(derivedAt);
     const freshness = derivedMs !== null && headMs !== null && derivedMs >= headMs - MISSION_FABRIC_CLOCK_SKEW_MS ? 'fresh' : 'stale';
 
+    const delivery: Record<string, unknown> = {
+      operatingFabricEnabled: true,
+      servedAt,
+      freshness,
+    };
     const body: Record<string, unknown> = {
       projection: redacted,
-      delivery: { operatingFabricEnabled: true, servedAt, freshness },
+      delivery,
     };
+    let responseDigest = redacted.graphDigest;
+
+    // The Vault-classified portfolio is a separately digested, read-only
+    // sidecar for the Cambium founder surface. It never enters Mission
+    // Fabric nodes and therefore cannot look like Goal Graph operational
+    // truth. Non-founder viewers receive aggregate counts only.
+    if (tenant === 'cambium') {
+      try {
+        const portfolio = portfolioCatalogForViewer(PORTFOLIO_CATALOG, isFounder ? 'founder' : 'viewer');
+        const pairDigest = portfolioPairDigest(redacted.graphDigest, PORTFOLIO_CATALOG.catalogDigest);
+        body.portfolioCatalogSummary = {
+          ...portfolio.summary,
+          schema: PORTFOLIO_CATALOG.schema,
+          version: PORTFOLIO_CATALOG.version,
+          status: PORTFOLIO_CATALOG.status,
+          readOnly: PORTFOLIO_CATALOG.readOnly,
+          classificationDigest: PORTFOLIO_CATALOG.classificationDigest,
+          catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+        };
+        delivery.portfolioPairDigest = pairDigest;
+        responseDigest = pairDigest;
+        if (portfolio.detail !== null) {
+          const workNodes = redacted.nodes.filter((node) => node.kind === 'work');
+          body.portfolioCatalog = portfolio.detail;
+          body.portfolioJoinReport = buildPortfolioJoinReport(PORTFOLIO_CATALOG, workNodes, tenant);
+        }
+      } catch {
+        return json(503, { error: 'portfolio_catalog_unavailable' });
+      }
+    }
 
     const shadowRequested = queryParam(req.path, 'shadow') === '1';
     if (shadowRequested && allowlist.includes(tenant)) {
@@ -2998,7 +3039,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       headers: {
         ...JSON_HEADERS,
         'cache-control': 'private, no-store',
-        etag: redacted.graphDigest,
+        etag: responseDigest,
       },
       body: JSON.stringify(body),
     };

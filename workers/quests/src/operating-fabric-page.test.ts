@@ -522,6 +522,7 @@ test('boot locates the hidden shell root and the legacy shell by its existing co
 const INERT_CASES: ReadonlyArray<[string, FabricResponse]> = [
   ['missing allowlist response (403)', { kind: 'status', status: 403 }],
   ['unauthenticated response (401)', { kind: 'status', status: 401 }],
+  ['portfolio catalog unavailable (503)', { kind: 'status', status: 503 }],
   [
     '201 with true flag (non-200 must not activate)',
     {

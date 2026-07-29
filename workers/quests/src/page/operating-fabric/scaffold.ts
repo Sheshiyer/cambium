@@ -7,11 +7,11 @@ import { OPERATING_FABRIC_SCENE_IDS } from '../../mini-app-surface-contract.ts';
 
 export const OPERATING_FABRIC_SCENES = `<div id="operating-fabric" data-component="OperatingFabricShell" hidden inert aria-hidden="true">
   <nav class="of-nav" data-component="OperatingFabricNav" aria-label="Operating Fabric scenes">
-    <button type="button" class="of-tab" data-of-tab="canopy" data-of-scene-target="canopy" aria-selected="true"><span class="of-tab-label">Canopy</span><small>overview</small></button>
-    <button type="button" class="of-tab" data-of-tab="mission" data-of-scene-target="mission" aria-selected="false"><span class="of-tab-label">Mission</span><small>next move</small></button>
-    <button type="button" class="of-tab" data-of-tab="flow" data-of-scene-target="flow" aria-selected="false"><span class="of-tab-label">Flow</span><small>signals</small></button>
-    <button type="button" class="of-tab" data-of-tab="workforce" data-of-scene-target="workforce" aria-selected="false"><span class="of-tab-label">Workforce</span><small>agents</small></button>
-    <button type="button" class="of-tab" data-of-tab="forge" data-of-scene-target="forge" aria-selected="false"><span class="of-tab-label">Forge</span><small>build</small></button>
+    <button type="button" class="of-tab" data-of-tab="canopy" data-of-scene-target="canopy" aria-label="Canopy · overview" aria-selected="true"><span class="of-tab-label">Canopy</span><small>overview</small></button>
+    <button type="button" class="of-tab" data-of-tab="mission" data-of-scene-target="mission" aria-label="Mission · next move" aria-selected="false"><span class="of-tab-label">Mission</span><small>next move</small></button>
+    <button type="button" class="of-tab" data-of-tab="flow" data-of-scene-target="flow" aria-label="Flow · signals" aria-selected="false"><span class="of-tab-label">Flow</span><small>signals</small></button>
+    <button type="button" class="of-tab" data-of-tab="workforce" data-of-scene-target="workforce" aria-label="Workforce · agents" aria-selected="false"><span class="of-tab-label">Work</span><small>agents</small></button>
+    <button type="button" class="of-tab" data-of-tab="forge" data-of-scene-target="forge" aria-label="Forge · build" aria-selected="false"><span class="of-tab-label">Forge</span><small>build</small></button>
   </nav>
   <div class="of-track" data-component="OperatingFabricTrack">
     <section class="of-scene" data-of-scene="canopy" aria-labelledby="ofSceneCanopyTitle"><h2 id="ofSceneCanopyTitle" class="sr">Canopy</h2></section>

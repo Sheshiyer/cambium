@@ -6,9 +6,10 @@
 export const OPERATING_FABRIC_STYLES = `<style>
 #operating-fabric{display:none}
 #operating-fabric.of-on{display:block}
-#operating-fabric{position:relative;min-height:100dvh;color:var(--ink)}
-.of-nav{display:flex;gap:.5rem;overflow-x:auto;padding:.75rem 1rem}
+#operating-fabric{position:relative;min-height:100dvh;color:var(--ink);padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);box-sizing:border-box}
+.of-nav{display:flex;gap:.5rem;overflow-x:auto;padding:.75rem max(1rem,env(safe-area-inset-right,0)) .75rem max(1rem,env(safe-area-inset-left,0))}
 .of-tab{flex:1;min-width:44px;min-height:44px;box-sizing:border-box;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-align:left;cursor:pointer}
+.of-tab-label{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .of-tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 .of-tab small{display:block;opacity:.72}
 .of-scene{padding:1rem;max-width:100%;overflow-x:hidden}
@@ -53,7 +54,43 @@ export const OPERATING_FABRIC_STYLES = `<style>
 .of-state-stale{border-color:var(--warn);color:var(--warn)}
 .of-state-unauthorized{border-color:var(--warn);color:var(--warn);border-style:dashed}
 .of-state-error{border-color:var(--warn);color:var(--warn);background:var(--mc-warning-fill)}
+.of-portfolio-canopy{display:grid;gap:.75rem}
+.of-portfolio-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.375rem}
+.of-portfolio-count{display:grid;gap:.2rem;min-width:0;padding:.55rem;border:1px solid var(--line2);border-radius:var(--mc-radius-compact);color:var(--soft);font:10px/1.25 var(--mono)}
+.of-portfolio-count strong{font-size:15px;color:var(--ink)}
+.of-portfolio-filters{display:flex;gap:.375rem;overflow-x:auto;padding:.125rem 0}
+.of-portfolio-filter{padding:.5rem .75rem;border-color:var(--line2);border-radius:999px;color:var(--soft);font:11px/1 var(--mono)}
+.of-portfolio-filter[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.of-portfolio-zone{display:grid;gap:.625rem;padding:.75rem;border:1px solid var(--line);border-radius:var(--mc-radius)}
+.of-portfolio-zone[hidden]{display:none}
+.of-portfolio-zone-head{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem}
+.of-portfolio-zone-head h3{margin:0;color:var(--ink);font-size:14px}
+.of-portfolio-zone-head span{color:var(--soft);font:10.5px/1.25 var(--mono);text-align:right}
+.of-portfolio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:.625rem}
+.of-portfolio-card{padding:.75rem}
+.of-portfolio-card[aria-current="true"]{border-color:var(--ink)}
+.of-portfolio-lifecycle{display:grid;gap:.375rem;padding:.625rem;border-left:2px solid var(--line2);color:var(--soft);font:10.5px/1.45 var(--mono)}
+.of-portfolio-lifecycle p{margin:0}
+.of-portfolio-overlay{color:var(--warn)}
+.of-portfolio-more{border:1px solid var(--line);border-radius:var(--mc-radius-compact);padding:.25rem .625rem;color:var(--soft);font:11px/1.4 var(--mono)}
+.of-portfolio-more>summary{display:flex;align-items:center;width:100%;border:0;color:var(--ink)}
+.of-portfolio-more>.of-portfolio-grid{padding:.5rem 0}
+.of-portfolio-aliases{display:flex;flex-wrap:wrap;gap:.375rem}
+.of-portfolio-context{display:grid;gap:.375rem;margin-top:.75rem;padding:.75rem;border:1px dashed var(--line2);border-radius:var(--mc-radius-compact);color:var(--soft);font:11px/1.4 var(--mono)}
+.of-portfolio-context p{margin:0}
 .of-tab:focus-visible,.of-control:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media (max-width:640px){
+  .of-nav{position:sticky;top:0;z-index:2;gap:.25rem;background:var(--bg)}
+  .of-tab{padding:.5rem .125rem;text-align:center}
+  .of-tab-label{font:10.5px/1 var(--mono)}
+  .of-tab small{display:none}
+  .of-scene{padding:.625rem}
+  .of-portfolio-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .of-portfolio-zone{padding:.625rem}
+  .of-portfolio-grid{grid-template-columns:1fr}
+  .of-portfolio-card{padding:.625rem}
+  .of-portfolio-lifecycle{font-size:10px}
+}
 @media (prefers-reduced-motion: reduce){
   #operating-fabric, #operating-fabric *{transition:none !important;animation:none !important}
 }
