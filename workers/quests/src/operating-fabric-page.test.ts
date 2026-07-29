@@ -37,6 +37,7 @@ import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_STYLES } from './page/operating-fabric/styles.ts';
 import { LEGACY_PAGE, PAGE } from './page/index.ts';
 import { permits } from './rbac.ts';
+import { ORGAN_UPDATE_PLAN } from './organ-update-delivery.ts';
 
 const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 'story', 'inspect'];
 const LEGACY_PAGE_DIGEST = '38b085ba3e3af7baad40c7cf36a5fc469da457eb30b27b730bffad504ca68b4a';
@@ -577,6 +578,65 @@ for (const [label, response] of INERT_CASES) {
     assertStaysInert(booted, label);
   });
 }
+
+test('malformed organ delivery detail fails pre-render closed and preserves the legacy shell', async () => {
+  const booted = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: {
+        schema: 'cambium.mission-fabric-projection.v1',
+        graphVersion: 1,
+        nodes: [],
+        edges: [],
+        gaps: [],
+      },
+      delivery: {
+        operatingFabricEnabled: true,
+        servedAt: '2026-07-28T00:00:00.000Z',
+        freshness: 'fresh',
+      },
+      organUpdateDelivery: {
+        schema: 'cambium.organ-update-plan.v1',
+        version: 1,
+        readOnly: true,
+        eventDriven: true,
+        scheduleArmed: true,
+        workflows: [],
+        activeDeliveries: [],
+        planDigest: `sha256:${'a'.repeat(64)}`,
+        topicMapDigest: `sha256:${'b'.repeat(64)}`,
+      },
+    },
+  }));
+  await flushBoot();
+  assertStaysInert(booted, 'malformed organ delivery');
+});
+
+test('shape-valid but digest-drifted organ delivery fails pre-render closed', async () => {
+  const booted = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: {
+      projection: {
+        schema: 'cambium.mission-fabric-projection.v1',
+        graphVersion: 1,
+        nodes: [],
+        edges: [],
+        gaps: [],
+      },
+      delivery: {
+        operatingFabricEnabled: true,
+        servedAt: '2026-07-28T00:00:00.000Z',
+        freshness: 'fresh',
+      },
+      organUpdateDelivery: {
+        ...ORGAN_UPDATE_PLAN,
+        planDigest: `sha256:${'a'.repeat(64)}`,
+      },
+    },
+  }));
+  await flushBoot();
+  assertStaysInert(booted, 'digest-drifted organ delivery');
+});
 
 test('a valid authenticated 200 with operatingFabricEnabled === true unhides the shell and yields the legacy viewport', async () => {
   const booted = bootOperatingFabricDocument(() => ({

@@ -190,6 +190,24 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
   ]);
   assert.equal(result.response.headers.etag, result.json.delivery.portfolioPairDigest);
   assert.notEqual(result.response.headers.etag, result.json.projection.graphDigest);
+  assert.equal(result.json.organUpdateDelivery.schema, 'cambium.organ-update-plan.v1');
+  assert.equal(result.json.organUpdateDelivery.workflows.length, 5);
+  assert.deepEqual(
+    result.json.organUpdateDelivery.workflows.map((workflow: { name: string; defaultTopic: { topicName: string } }) => [
+      workflow.name,
+      workflow.defaultTopic.topicName,
+    ]),
+    [
+      ['Genesis', 'Inbox'],
+      ['Taste', 'Digests'],
+      ['Hands', 'Dev'],
+      ['Will', 'Clients'],
+      ['Cortex', 'Agent Ops'],
+    ],
+  );
+  assert.deepEqual(result.json.organUpdateDelivery.activeDeliveries, []);
+  assert.equal(result.json.organUpdateDelivery.scheduleArmed, false);
+  assert.equal(result.json.organUpdateDeliverySummary, undefined);
   assert.equal(result.writes.d1, 0);
   assert.equal(result.writes.kv, 0);
   assert.doesNotMatch(String(result.response.body), /\/Volumes\/|\/Users\/|query_id|auth_date|synthetic-hash/);
@@ -204,7 +222,141 @@ test('allowlisted non-founder receives aggregate catalog proof but no identities
   assert.equal(result.response.headers.etag, result.json.delivery.portfolioPairDigest);
   assert.equal(result.json.portfolioCatalog, undefined);
   assert.equal(result.json.portfolioJoinReport, undefined);
+  assert.equal(result.json.organUpdateDelivery, undefined);
+  assert.deepEqual(result.json.organUpdateDeliverySummary, {
+    schema: 'cambium.organ-update-delivery-summary.v1',
+    version: 1,
+    readOnly: true,
+    eventDriven: true,
+    scheduleArmed: false,
+    workflowCount: 5,
+    defaultTopicCount: 5,
+    escalationTopicCount: 1,
+    approvalRequiredWorkflowCount: 1,
+    planDigest: result.json.organUpdateDeliverySummary.planDigest,
+  });
+  assert.match(result.json.organUpdateDeliverySummary.planDigest, /^sha256:[0-9a-f]{64}$/);
   assert.doesNotMatch(String(result.response.body), /Fitcheck|ParkArea|SeedForge|getfitcheck/);
   assert.equal(result.writes.d1, 0);
   assert.equal(result.writes.kv, 0);
+});
+
+test('bridge compiles one receipt-backed organ update without writing or sending', async () => {
+  const auth = await signedInitData(FOUNDER_ID);
+  const { deps, writes } = fixtureDeps(auth.pubKeyHex);
+  deps.bridgeToken = 'bridge-secret';
+  const response = await handle({
+    method: 'POST',
+    path: '/v1/bridge/organ-update-delivery',
+    headers: { authorization: 'Bearer bridge-secret' },
+    body: JSON.stringify({
+      schema: 'cambium.organ-update-signal.v1',
+      tenantId: TENANT,
+      workObjectId: 'sapling:fitcheck',
+      organ: 'hands',
+      trigger: 'verification',
+      status: 'complete',
+      audience: 'internal',
+      summary: 'Verification receipt is ready.',
+      observedAt: NOW,
+      proof: { ref: 'receipt:fitcheck-verification', digest: `sha256:${'d'.repeat(64)}` },
+    }),
+  }, deps);
+  const body = JSON.parse(String(response.body));
+  assert.equal(response.status, 200);
+  assert.equal(body.ok, true);
+  assert.equal(body.organUpdateDelivery.schema, 'cambium.organ-update-delivery.v1');
+  assert.equal(body.organUpdateDelivery.route.topicKey, 'dev');
+  assert.equal(body.organUpdateDelivery.route.threadId, 862);
+  assert.equal(body.organUpdateDelivery.eventDriven, true);
+  assert.equal(body.organUpdateDelivery.scheduleArmed, false);
+  assert.equal(writes.d1, 0);
+  assert.equal(writes.kv, 0);
+});
+
+test('bridge rejects unverified approval, foreign tenant, assignment token, and bad auth without writes', async () => {
+  const auth = await signedInitData(FOUNDER_ID);
+  const fixture = fixtureDeps(auth.pubKeyHex);
+  fixture.deps.bridgeToken = 'bridge-secret';
+  fixture.deps.assignmentToken = 'assignment-secret';
+  const request: SimpleRequest = {
+    method: 'POST',
+    path: '/v1/bridge/organ-update-delivery',
+    headers: { authorization: 'Bearer bridge-secret' },
+    body: JSON.stringify({
+      schema: 'cambium.organ-update-signal.v1',
+      tenantId: TENANT,
+      workObjectId: 'client:axtech',
+      organ: 'will',
+      trigger: 'client-delivery',
+      status: 'ready',
+      audience: 'client',
+      summary: 'Client delivery is ready.',
+      observedAt: NOW,
+      proof: { ref: 'receipt:axtech-delivery', digest: `sha256:${'e'.repeat(64)}` },
+      approvalRef: 'gate:made-up-approval',
+    }),
+  };
+  const rejected = await handle(request, fixture.deps);
+  assert.equal(rejected.status, 403);
+  assert.match(String(rejected.body), /approval_not_verified/);
+
+  const foreignTenant = await handle({
+    ...request,
+    body: String(request.body).replace('"tenantId":"cambium"', '"tenantId":"othertenant"'),
+  }, fixture.deps);
+  assert.equal(foreignTenant.status, 403);
+  assert.match(String(foreignTenant.body), /fixed to the cambium tenant/);
+
+  const assignmentOnly = await handle({
+    ...request,
+    headers: { authorization: 'Bearer assignment-secret' },
+  }, fixture.deps);
+  assert.equal(assignmentOnly.status, 403);
+  assert.match(String(assignmentOnly.body), /admin bridge credential/);
+
+  const unauthorized = await handle({ ...request, headers: { authorization: 'Bearer wrong' } }, fixture.deps);
+  assert.equal(unauthorized.status, 401);
+  assert.equal(fixture.writes.d1, 0);
+  assert.equal(fixture.writes.kv, 0);
+});
+
+test('bridge accepts client Will delivery only with a matching founder Gate approval', async () => {
+  const auth = await signedInitData(FOUNDER_ID);
+  const fixture = fixtureDeps(auth.pubKeyHex);
+  fixture.deps.bridgeToken = 'bridge-secret';
+  const get = fixture.deps.kv.get.bind(fixture.deps.kv);
+  fixture.deps.kv.get = async (key) => key === `gate:${TENANT}:approval-001`
+    ? JSON.stringify({
+        id: 'approval-001',
+        founderId: FOUNDER_ID,
+        kind: 'approve',
+        subject: 'client:axtech',
+        status: 'queued',
+      })
+    : get(key);
+  const response = await handle({
+    method: 'POST',
+    path: '/v1/bridge/organ-update-delivery',
+    headers: { authorization: 'Bearer bridge-secret' },
+    body: JSON.stringify({
+      schema: 'cambium.organ-update-signal.v1',
+      tenantId: TENANT,
+      workObjectId: 'client:axtech',
+      organ: 'will',
+      trigger: 'client-delivery',
+      status: 'ready',
+      audience: 'client',
+      summary: 'Client delivery is ready.',
+      observedAt: NOW,
+      proof: { ref: 'receipt:axtech-delivery', digest: `sha256:${'f'.repeat(64)}` },
+      approvalRef: 'gate:approval-001',
+    }),
+  }, fixture.deps);
+  const body = JSON.parse(String(response.body));
+  assert.equal(response.status, 200);
+  assert.equal(body.organUpdateDelivery.route.topicKey, 'clients');
+  assert.equal(body.organUpdateDelivery.approvalRef, 'gate:approval-001');
+  assert.equal(fixture.writes.d1, 0);
+  assert.equal(fixture.writes.kv, 0);
 });

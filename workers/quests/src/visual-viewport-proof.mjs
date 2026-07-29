@@ -14,6 +14,7 @@ import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, 
 import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
 import { buildMissionFabricProjection } from './mission-fabric.ts';
 import { FABRIC_SOURCE_FIXTURE } from './mission-fabric-fixture.ts';
+import { ORGAN_UPDATE_PLAN } from './organ-update-delivery.ts';
 import {
   PORTFOLIO_CATALOG,
   buildPortfolioJoinReport,
@@ -1131,6 +1132,7 @@ const OPERATING_FABRIC_DELIVERY_ENVELOPE = {
     catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
   },
   portfolioJoinReport: OPERATING_FABRIC_JOIN_REPORT,
+  organUpdateDelivery: ORGAN_UPDATE_PLAN,
   delivery: {
     operatingFabricEnabled: true,
     servedAt: '2026-07-28T09:05:00.000Z',
@@ -1179,6 +1181,23 @@ function operatingFabricAllScenesAssertion(width) {
       historical: root.querySelector('[data-portfolio-count="historical"]')?.textContent,
     };
     const fitcheck = root.querySelector('[data-portfolio-id="sapling:fitcheck"]');
+    const organPlan = root.querySelector('[data-component="OrganUpdatePlan"][data-organ-mode="detail"]');
+    const organCards = root.querySelectorAll('[data-component="OrganUpdatePlan"] [data-organ]');
+    const organOk = Boolean(organPlan)
+      && organCards.length === 5
+      && organPlan.getAttribute('data-organ-mode') === 'detail'
+      && organPlan.querySelector('[data-organ-active-state="none"]')
+      && organPlan.textContent.includes('Genesis')
+      && organPlan.textContent.includes('Inbox')
+      && organPlan.textContent.includes('Taste')
+      && organPlan.textContent.includes('Digests')
+      && organPlan.textContent.includes('Hands')
+      && organPlan.textContent.includes('Dev')
+      && organPlan.textContent.includes('Will')
+      && organPlan.textContent.includes('Clients')
+      && organPlan.textContent.includes('Cortex')
+      && organPlan.textContent.includes('Agent Ops')
+      && organPlan.textContent.includes('No recurring schedule');
     const portfolioOk = Boolean(portfolio)
       && portfolioZones.length === 4
       && portfolioCards.length === 89
@@ -1235,6 +1254,11 @@ function operatingFabricAllScenesAssertion(width) {
         : root.querySelector('[data-portfolio-context="' + sceneId + '"]');
       const selectionPersists = Boolean(selectedContext)
         && selectedContext.textContent.includes('Fitcheck');
+      const organContext = sceneId === 'canopy'
+        ? organPlan
+        : root.querySelector('[data-organ-context="' + sceneId + '"][data-organ-active="none"]');
+      const organContextHonest = Boolean(organContext)
+        && (sceneId === 'canopy' || organContext.textContent.includes('authoritative receipt'));
       const noBodyOverflow = document.documentElement.scrollWidth <= window.innerWidth + 1
         && document.body.scrollWidth <= window.innerWidth + 1;
       results[sceneId] = {
@@ -1249,11 +1273,13 @@ function operatingFabricAllScenesAssertion(width) {
           && tabRect.height >= 44
           && tabLabelContained
           && targetsAtLeast44
-          && selectionPersists,
+          && selectionPersists
+          && organContextHonest,
         panelContained: Boolean(panelRect) && inViewport(panelRect),
         tabLabelContained,
         interactiveCount: interactiveTargets.length,
         selectionPersists,
+        organContextHonest,
       };
     }
     const canopyTab = root.querySelector('[data-of-tab="canopy"]');
@@ -1267,6 +1293,7 @@ function operatingFabricAllScenesAssertion(width) {
     return {
       ok: Object.values(results).every((entry) => entry.ok === true)
         && portfolioOk
+        && organOk
         && restoredCanopy
         && Math.abs(window.innerWidth - ${width}) <= 1
         && document.body.scrollWidth <= window.innerWidth + 1,
@@ -1277,6 +1304,10 @@ function operatingFabricAllScenesAssertion(width) {
         cardCount: portfolioCards.length,
         counts: portfolioCounts,
         fitcheck: Boolean(fitcheck),
+      },
+      organPlan: {
+        ok: organOk,
+        cardCount: organCards.length,
       },
       restoredCanopy,
     };

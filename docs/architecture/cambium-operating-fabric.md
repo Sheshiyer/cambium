@@ -11,6 +11,12 @@ The additive portfolio classification sidecar is frozen separately in
 It lets Canopy list the complete mapped portfolio while keeping catalog
 classification visibly subordinate to Goal Graph state.
 
+The event-driven delivery boundary is frozen separately in
+[`contracts/organ-update-delivery-v1.md`](./contracts/organ-update-delivery-v1.md).
+It maps receipt-backed Genesis, Taste, Hands, Will, and Cortex updates to
+Hermes-owned Telegram topics without making this read model a sender or
+scheduler.
+
 ## Decision
 
 Cambium needs one visual operating fabric without turning every kind of work into a product branch.

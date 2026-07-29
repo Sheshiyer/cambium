@@ -78,6 +78,15 @@ export const OPERATING_FABRIC_STYLES = `<style>
 .of-portfolio-aliases{display:flex;flex-wrap:wrap;gap:.375rem}
 .of-portfolio-context{display:grid;gap:.375rem;margin-top:.75rem;padding:.75rem;border:1px dashed var(--line2);border-radius:var(--mc-radius-compact);color:var(--soft);font:11px/1.4 var(--mono)}
 .of-portfolio-context p{margin:0}
+.of-organ-plan{display:grid;gap:.625rem;margin-top:.75rem;padding:.75rem;border:1px solid var(--line);border-radius:var(--mc-radius);min-width:0}
+.of-organ-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;min-width:0}
+.of-organ-head h3{margin:.125rem 0 0;font-size:14px;color:var(--ink)}
+.of-eyebrow{color:var(--soft);font:9.5px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.of-organ-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:.5rem;min-width:0}
+.of-organ-card{padding:.625rem}
+.of-organ-card[aria-current="true"]{border-color:var(--ink)}
+.of-organ-context{display:grid;gap:.375rem;margin-top:.75rem;padding:.75rem;border:1px dashed var(--line2);border-radius:var(--mc-radius-compact);color:var(--soft);font:11px/1.4 var(--mono);overflow-wrap:anywhere}
+.of-organ-context p{margin:0}
 .of-tab:focus-visible,.of-control:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 @media (max-width:640px){
   .of-nav{position:sticky;top:0;z-index:2;gap:.25rem;background:var(--bg)}
@@ -90,6 +99,8 @@ export const OPERATING_FABRIC_STYLES = `<style>
   .of-portfolio-grid{grid-template-columns:1fr}
   .of-portfolio-card{padding:.625rem}
   .of-portfolio-lifecycle{font-size:10px}
+  .of-organ-head{align-items:stretch;flex-direction:column}
+  .of-organ-grid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion: reduce){
   #operating-fabric, #operating-fabric *{transition:none !important;animation:none !important}

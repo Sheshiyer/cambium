@@ -34,6 +34,11 @@ import {
   renderPortfolioCanopy,
   type PortfolioPayloadInput,
 } from './portfolio.ts';
+import {
+  normalizeOrganUpdateView,
+  renderOrganUpdateCanopy,
+  type OrganUpdateViewInput,
+} from './organ-update.ts';
 
 export const CANOPY_CARD_LIMIT = 24;
 
@@ -164,7 +169,7 @@ function renderSection(
   );
 }
 
-export interface CanopyOptions extends PortfolioPayloadInput {
+export interface CanopyOptions extends PortfolioPayloadInput, OrganUpdateViewInput {
   freshness?: Freshness | null;
   error?: boolean;
   selectedPortfolioId?: string | null;
@@ -179,10 +184,11 @@ export function renderCanopy(
   }
   const portfolio = normalizePortfolioPayload(options);
   if (portfolio.mode !== 'none') {
-    return renderPortfolioCanopy(
-      projection,
-      portfolio,
-      typeof options.selectedPortfolioId === 'string' ? options.selectedPortfolioId : null,
+    const selectedPortfolioId = typeof options.selectedPortfolioId === 'string' ? options.selectedPortfolioId : null;
+    const organUpdates = normalizeOrganUpdateView(options);
+    return (
+      renderOrganUpdateCanopy(organUpdates, selectedPortfolioId) +
+      renderPortfolioCanopy(projection, portfolio, selectedPortfolioId)
     );
   }
   const freshness: Freshness =
@@ -294,11 +300,10 @@ function ofRenderCanopy(projection, options) {
   if (!ofValidProjection(projection)) return ofRenderState('error', 'error', 'failed to load the operating fabric');
   var portfolio = ofNormalizePortfolioPayload(options || {});
   if (portfolio.mode !== 'none') {
-    return ofRenderPortfolioCanopy(
-      projection,
-      portfolio,
-      options && typeof options.selectedPortfolioId === 'string' ? options.selectedPortfolioId : null
-    );
+    var selectedPortfolioId = options && typeof options.selectedPortfolioId === 'string' ? options.selectedPortfolioId : null;
+    var organUpdates = ofNormalizeOrganUpdateView(options || {});
+    return ofRenderOrganUpdateCanopy(organUpdates, selectedPortfolioId) +
+      ofRenderPortfolioCanopy(projection, portfolio, selectedPortfolioId);
   }
   var works = [];
   for (var index = 0; index < projection.nodes.length; index += 1) {

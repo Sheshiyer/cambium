@@ -52,6 +52,11 @@ import {
   portfolioCatalogForViewer,
   portfolioPairDigest,
 } from './portfolio-catalog.ts';
+import {
+  ORGAN_UPDATE_PLAN,
+  ORGAN_UPDATE_SUMMARY,
+  compileOrganUpdateDelivery,
+} from './organ-update-delivery.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
@@ -3007,6 +3012,9 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
           const workNodes = redacted.nodes.filter((node) => node.kind === 'work');
           body.portfolioCatalog = portfolio.detail;
           body.portfolioJoinReport = buildPortfolioJoinReport(PORTFOLIO_CATALOG, workNodes, tenant);
+          body.organUpdateDelivery = ORGAN_UPDATE_PLAN;
+        } else {
+          body.organUpdateDeliverySummary = ORGAN_UPDATE_SUMMARY;
         }
       } catch {
         return json(503, { error: 'portfolio_catalog_unavailable' });
@@ -4139,6 +4147,56 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ...parsed,
         topic: { topicKey, threadId: route.threadId, questId: route.questId },
       });
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/organ-update-delivery') {
+      if (!principal.admin) {
+        return json(403, { error: 'organ update delivery compilation requires the admin bridge credential' });
+      }
+      let body: unknown;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      try {
+        const delivery = compileOrganUpdateDelivery(body);
+        if (delivery.tenantId !== 'cambium') {
+          return json(403, { error: 'organ update delivery is fixed to the cambium tenant' });
+        }
+        if (delivery.requiresApproval) {
+          const approvalId = delivery.approvalRef?.startsWith('gate:')
+            ? delivery.approvalRef.slice('gate:'.length)
+            : '';
+          const rawApproval = approvalId
+            ? await deps.kv.get(`gate:${delivery.tenantId}:${approvalId}`)
+            : null;
+          let approval: Record<string, unknown> | null = null;
+          try {
+            approval = rawApproval && isRecord(JSON.parse(rawApproval))
+              ? JSON.parse(rawApproval) as Record<string, unknown>
+              : null;
+          } catch {
+            approval = null;
+          }
+          if (
+            !approval
+            || approval.id !== approvalId
+            || approval.kind !== 'approve'
+            || approval.subject !== delivery.workObjectId
+            || !['queued', 'consumed'].includes(String(approval.status))
+            || !approval.founderId
+          ) {
+            return json(403, { error: 'organ_update_delivery_approval_not_verified' });
+          }
+        }
+        return json(200, {
+          ok: true,
+          organUpdateDelivery: delivery,
+        });
+      } catch (error) {
+        return json(400, {
+          ok: false,
+          error: 'organ_update_delivery_invalid',
+          detail: error instanceof Error ? error.message : 'delivery signal is invalid',
+        });
+      }
     }
 
     if (method === 'GET' && routePath === '/v1/bridge/action-requests') {

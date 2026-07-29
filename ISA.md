@@ -3,12 +3,12 @@ project: Cambium
 task: "Commit the portfolio Mini App and add Telegram-aware proactive organ updates"
 effort: advanced
 effort_source: classifier
-phase: build
-progress: 497/572
+phase: verify
+progress: 537/572
 mode: interactive
 iteration: 2026-07-29-portfolio-organ-update-delivery
 started: 2026-07-27T21:26:34Z
-updated: 2026-07-29T09:44:00Z
+updated: 2026-07-29T10:40:37Z
 ---
 
 ## Problem
@@ -754,62 +754,62 @@ For the portfolio-catalog iteration, the founder-facing Telegram Mini App must r
 
 ### Commit and provenance boundary
 
-- [ ] ISC-529: The verified portfolio implementation is committed on `codex/portfolio-registry-miniapp`.
-- [ ] ISC-530: The portfolio commit includes its source, tests, contracts, ISA, evidence, manifest, and regenerated viewport proofs.
+- [x] ISC-529: The verified portfolio implementation is committed on `codex/portfolio-registry-miniapp`.
+- [x] ISC-530: The portfolio commit includes its source, tests, contracts, ISA, evidence, manifest, and regenerated viewport proofs.
 - [ ] ISC-531: Organ-update delivery lands in a separate commit after the portfolio commit.
 - [ ] ISC-532: Both commit identifiers and their verification commands are recorded in Verification.
 
 ### Versioned proactive organ-update contract
 
-- [ ] ISC-533: Cambium exports a versioned `cambium.organ-update-delivery.v1` contract.
-- [ ] ISC-534: The contract contains exactly five canonical organs: Genesis, Taste, Hands, Will, and Cortex.
-- [ ] ISC-535: Genesis maps brand-intake and brand-proof updates to the Inbox topic.
-- [ ] ISC-536: Taste maps brief, QA, and reroll updates to the Digests topic.
-- [ ] ISC-537: Hands maps build, verification, and ship updates to the Dev topic.
-- [ ] ISC-538: Will maps approved business and client-delivery updates to the Clients topic.
-- [ ] ISC-539: Cortex maps evidence, learning, and drift updates to the Agent Ops topic.
-- [ ] ISC-540: Every organ workflow exposes bounded trigger, stage, skill-hint, proof, and approval metadata.
-- [ ] ISC-541: Blocked, failed, or drifted organ updates escalate only to the pinned Alerts topic.
-- [ ] ISC-542: Every delivery route resolves from the pinned Telegram topic-map snapshot.
-- [ ] ISC-543: An unknown organ, topic, thread, trigger, status, or audience fails compilation closed.
-- [ ] ISC-544: The delivery digest covers normalized signal, organ workflow, topic-map digest, and message bytes.
-- [ ] ISC-545: Equal canonical update signals produce equal delivery IDs and digests.
-- [ ] ISC-546: A delivery signal requires tenant, WorkObject, organ, trigger, status, summary, observed time, and proof reference.
-- [ ] ISC-547: Missing or malformed proof identity prevents a delivery instruction.
-- [ ] ISC-548: Anti: Cambium performs a Telegram Bot API call or stores a bot token for organ updates.
+- [x] ISC-533: Cambium exports a versioned `cambium.organ-update-delivery.v1` contract.
+- [x] ISC-534: The contract contains exactly five canonical organs: Genesis, Taste, Hands, Will, and Cortex.
+- [x] ISC-535: Genesis maps brand-intake and brand-proof updates to the Inbox topic.
+- [x] ISC-536: Taste maps brief, QA, and reroll updates to the Digests topic.
+- [x] ISC-537: Hands maps build, verification, and ship updates to the Dev topic.
+- [x] ISC-538: Will maps approved business and client-delivery updates to the Clients topic.
+- [x] ISC-539: Cortex maps evidence, learning, and drift updates to the Agent Ops topic.
+- [x] ISC-540: Every organ workflow exposes bounded trigger, stage, skill-hint, proof, and approval metadata.
+- [x] ISC-541: Blocked, failed, or drifted organ updates escalate only to the pinned Alerts topic.
+- [x] ISC-542: Every delivery route resolves from the pinned Telegram topic-map snapshot.
+- [x] ISC-543: An unknown organ, topic, thread, trigger, status, or audience fails compilation closed.
+- [x] ISC-544: The delivery digest covers normalized signal, organ workflow, topic-map digest, and message bytes.
+- [x] ISC-545: Equal canonical update signals produce equal delivery IDs and digests.
+- [x] ISC-546: A delivery signal requires tenant, WorkObject, organ, trigger, status, summary, observed time, and proof reference.
+- [x] ISC-547: Missing or malformed proof identity prevents a delivery instruction.
+- [x] ISC-548: Anti: Cambium performs a Telegram Bot API call or stores a bot token for organ updates.
 
 ### Mini App delivery awareness
 
-- [ ] ISC-549: Founder Mission Fabric responses include the full five-organ delivery plan and its digest.
-- [ ] ISC-550: Non-founder responses expose only fixed organ-delivery aggregate counts.
-- [ ] ISC-551: Canopy shows all five organ-update workflows with their Telegram topic destinations.
-- [ ] ISC-552: Selecting a WorkObject preserves organ-update context through Mission, Flow, Workforce, and Forge.
-- [ ] ISC-553: The selected WorkObject shows no active organ update unless an authoritative receipt names that organ.
-- [ ] ISC-554: Every organ view names its mapped skills without claiming assignment or execution.
-- [ ] ISC-555: Gate remains the only path for approval-required delivery consequences.
-- [ ] ISC-556: Invalid delivery data leaves the legacy Mini App shell visible and interactive.
-- [ ] ISC-557: Organ-delivery controls retain 44px targets and zero overflow at 320px, 390px, and 430px.
+- [x] ISC-549: Founder Mission Fabric responses include the full five-organ delivery plan and its digest.
+- [x] ISC-550: Non-founder responses expose only fixed organ-delivery aggregate counts.
+- [x] ISC-551: Canopy shows all five organ-update workflows with their Telegram topic destinations.
+- [x] ISC-552: Selecting a WorkObject preserves organ-update context through Mission, Flow, Workforce, and Forge.
+- [x] ISC-553: The selected WorkObject shows no active organ update unless an authoritative receipt names that organ.
+- [x] ISC-554: Every organ view names its mapped skills without claiming assignment or execution.
+- [x] ISC-555: Gate remains the only path for approval-required delivery consequences.
+- [x] ISC-556: Invalid delivery data leaves the legacy Mini App shell visible and interactive.
+- [x] ISC-557: Organ-delivery controls retain 44px targets and zero overflow at 320px, 390px, and 430px.
 
 ### Hermes transport and event-driven proactivity
 
-- [ ] ISC-558: Hermes validates the delivery schema, delivery digest, topic key, and thread before transport.
-- [ ] ISC-559: Hermes passes the validated thread as Telegram Bot API `message_thread_id`.
-- [ ] ISC-560: Hermes sends one bounded plain-text message for one unseen delivery ID.
-- [ ] ISC-561: A replayed delivery ID produces no second Telegram send.
-- [ ] ISC-562: A failed Telegram send produces no delivered receipt.
-- [ ] ISC-563: A successful send records a bounded receipt with delivery ID, message ID, topic key, thread, and digest.
-- [ ] ISC-564: Client-audience Will delivery remains approval-required before transport.
-- [ ] ISC-565: Organ updates are event-driven from authoritative receipts; no new cron or recurring schedule is armed.
-- [ ] ISC-566: A dry-run path proves compilation and topic choice without sending Telegram traffic.
-- [ ] ISC-567: Anti: transport failure falls back to another topic, chat, or unthreaded General delivery.
+- [x] ISC-558: Hermes validates the delivery schema, delivery digest, topic key, and thread before transport.
+- [x] ISC-559: Hermes passes the validated thread as Telegram Bot API `message_thread_id`.
+- [x] ISC-560: Hermes sends one bounded plain-text message for one unseen delivery ID.
+- [x] ISC-561: A replayed delivery ID produces no second Telegram send.
+- [x] ISC-562: A failed Telegram send produces no delivered receipt.
+- [x] ISC-563: A successful send records a bounded receipt with delivery ID, message ID, topic key, thread, and digest.
+- [x] ISC-564: Client-audience Will delivery remains approval-required before transport.
+- [x] ISC-565: Organ updates are event-driven from authoritative receipts; no new cron or recurring schedule is armed.
+- [x] ISC-566: A dry-run path proves compilation and topic choice without sending Telegram traffic.
+- [x] ISC-567: Anti: transport failure falls back to another topic, chat, or unthreaded General delivery.
 
 ### Cross-repository proof and staging
 
-- [ ] ISC-568: Cambium focused contract, route, renderer, fallback, and browser tests pass.
-- [ ] ISC-569: Hermes focused compiler, bridge, transport, replay, and failure tests pass.
+- [x] ISC-568: Cambium focused contract, route, renderer, fallback, and browser tests pass.
+- [x] ISC-569: Hermes focused compiler, bridge, transport, replay, and failure tests pass.
 - [ ] ISC-570: Both repositories pass their full deterministic release gates on committed heads.
 - [ ] ISC-571: A zero-traffic Cambium candidate serves the portfolio and organ-delivery projection with production binding parity.
-- [ ] ISC-572: Anti: production traffic, Telegram menu configuration, or recurring schedules change before founder-device read and signed-Gate proof.
+- [x] ISC-572: Anti: production traffic, Telegram menu configuration, or recurring schedules change before founder-device read and signed-Gate proof.
 
 ## Test Strategy
 
@@ -1111,6 +1111,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-422 requires canonical tenant-identity resolution from authority evidence before promotion; ISC-445 forbids exposing any nonpilot tenant, branch, or program through the pilot-promotion action
 
 ## Verification
+
+- 2026-07-29 portfolio and organ-update verification: ordered portfolio commit `ae929f12797a68aa506ed4868afcf8f7b5d48de0` preserves the 54-WorkObject Canopy slice; Hermes commit `14ea8309919bc0ecd643ebdfeca3b86ad3f4ef9d` adds strict topic-aware transport. Cambium focused contract/route/renderer/browser tests pass 262/262, the full suite passes 1518/1518, and `npm run verify:release` passes drift, docs, product packets, 37/37 mission-fabric/readiness checks, standalone audit/smoke, the Telegram mobile contract, 99/99 R3F tests, build, and 5/5 desktop packaging checks. Canonical Chromium proof contains 47 artifacts (27 layout, 20 clickability) bound to PAGE SHA-256 `6f9e03495dab3538327566160754dbf33586e754a88a085077f975acf9614327`. Hermes full plugin tests pass 114/114 and the direct TypeScript compiler → Python dry-run probe resolves Hands to Dev thread `862`. Independent adversarial re-audit is `PASS` after proving fabricated Gate approval, foreign tenant, assignment-only bridge access, and digest/route-spoofed UI data all fail closed; matching founder Gate approval succeeds. Independent browser QA is `PASS` at 320px, 390px, and 430px with all five organs, canonical topic destinations, Alerts-only escalation, context across Canopy/Mission/Flow/Workforce/Forge/Inspect/Gate, zero overflow, zero console/network errors, and zero Gate POSTs. No production traffic, Telegram menu, Telegram send, D1/KV write, tenant allowlist, schema, secret, or recurring schedule changed.
 
 - 2026-07-29 Task 14 live partial-execution verification (presently-safe steps only; supersedes the prior planning-stage note): OmniRoute non-Codex implementer session on candidate git SHA `11d1c8a1421d4347da770e1f5e5e4da22c7c4f8d`, worktree clean, `git diff --stat` against code-payload SHA `c849123dd1ce436d2209e32e692ad725c2b958a7` showing exactly one changed file (the committed evidence document, 197 insertions). Fresh Task 13 gate re-run on this exact SHA: `npm test` 1465/1465, `render-docs:check` 6 pages/91 components, `drift:audit` clean, `audit:text-density` clean, `proof:tg-mobile-contract` exit 0, `standalone:audit` 586 files, `standalone:smoke` PASS, `verify:release` PASS (R3F desktop packaging 5/5, Electron packaging), mission-fabric/readiness node tests 37/37, `r3f:test` 99/99. Prior 100%-traffic production Version ID: `5b3425c5-5c14-4d71-b996-3c0d2c056f56` (script etag `b362f5144e20130477670f0df6f1101d27403afeb5e6bf14340d2162a5121e71`); confirmed unchanged and still at 100% after upload. Candidate zero-traffic preview Version ID: `28d39b23-9a05-4497-afe8-f90f59bd74e5` (script etag `d4870b84ddf7bf52d7bc0372c0b8113d9cacba1abc4d96976b187bd7f3c60e15`), preview alias `https://task14-11d1c8a1421d-cambium-quests.sheshnarayan-iyer.workers.dev`, uploaded via `versions upload --preview-alias --keep-vars` with no `--var`, no secret put, no `versions deploy`. Binding/allowlist absence: `MISSION_FABRIC_TENANTS` confirmed absent from both production and candidate binding-name lists and the deployed secret-name list; candidate binding-name/type list is byte-identical to production's. Safe remote probe statuses: `/healthz` 200 `{"ok":true,"worker":"cambium-quests"}`; `/healthz/gate` 200 `gateConfigured:true`; empty-initData gate probe 401 `missing initData`; `/v1/mission-fabric/cambium-synthetic` 403 fail-closed `mission fabric tenant is not enabled`. Production unchanged: post-upload `deployments status --json` re-check shows exactly one version at 100%, byte-identical `version_id` to the pre-upload check. D1 existence-only counts on `goal_graph_heads`: `cambium`=1, `fitcheck`=0, `getfitcheck`=0. No D1/KV write, no secret put, no schema change, and no bot-facing configuration change occurred. Independent OmniRoute review recorded in `.superpowers/sdd/2026-07-28-cambium-operating-fabric-implementation-plan/task-14-review.md`: `VERDICT: APPROVED (staging-only); promotion and rollback blocked`. Reviewer provenance is precise: the reviewer independently reran only `node --test workers/quests/src/mission-fabric-route.test.ts` (18/18); the separate integration+readiness 37/37, full 1465/1465, R3F 99/99, and remaining release-gate results above are implementer report evidence corroborated by explicit pass/fail summaries, not independently rerun by the reviewer; the implementer's outer `tail`/`tee` wrapping without `pipefail` around those commands is a theoretical upstream exit-status masking gap, so the full promotion gate must be rerun directly (not through that pipeline) before any production promotion; the controller (not the reviewer) independently re-probed production state directly (original Version at 100% traffic, candidate Version etag/tag, allowlist binding count 0, preview `/healthz`/`/healthz/gate` 200, synthetic fabric route 403). Still-open gates, all explicitly NOT PERFORMED: founder approval scope/timestamp record (ISC-415), code-payload-SHA-before-upload record (ISC-417), live Cloudflare identity/access preflight record (ISC-418), canonical Getfitcheck tenant-identity resolution (ISC-422), Telegram preview-origin/bot authorization (ISC-429), all founder-device evidence capture (ISC-430..441), independent dual-proof acceptance and promotion (ISC-442..445), post-promotion regression gates (ISC-446..447), and rollback rehearsal/restoration (ISC-448..452). ISC-455's full documentation/roadmap/architecture-doc update and version/receipt path record remain outstanding until promotion is authorized.
 

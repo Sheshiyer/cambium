@@ -33,6 +33,7 @@
 // and the new shell hidden/inert — activation never happens first.
 import { CANOPY_BROWSER_JS } from './canopy.ts';
 import { PORTFOLIO_BROWSER_JS } from './portfolio.ts';
+import { ORGAN_UPDATE_BROWSER_JS } from './organ-update.ts';
 import { MISSION_BROWSER_JS } from './mission.ts';
 import { FLOW_BROWSER_JS } from './flow.ts';
 import { WORKFORCE_BROWSER_JS } from './workforce.ts';
@@ -123,6 +124,7 @@ export const OPERATING_FABRIC_BOOT = `<script data-operating-fabric-boot>
   'use strict';
 ${OPERATING_FABRIC_SCENE_HELPERS_JS}
 ${PORTFOLIO_BROWSER_JS}
+${ORGAN_UPDATE_BROWSER_JS}
 ${CANOPY_BROWSER_JS}
 ${MISSION_BROWSER_JS}
 ${FLOW_BROWSER_JS}
@@ -364,7 +366,12 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
               // handlers that openGatePreflight just installed.
               gateBody.insertAdjacentHTML(
                 'beforeend',
-                ofRenderPortfolioSceneContext('gate', latestProjection, selectedPortfolio)
+                ofRenderPortfolioSceneContext('gate', latestProjection, selectedPortfolio) +
+                  ofRenderOrganUpdateSceneContext(
+                    'gate',
+                    ofNormalizeOrganUpdateView(latestPortfolioPayload),
+                    selectedPortfolio && selectedPortfolio.canonicalId
+                  )
               );
             }
             if (typeof sheet !== 'undefined' && sheet && sheet._ofSetReturnCallback) {
@@ -407,7 +414,12 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     var sb = document.getElementById('sheetBody');
     if (!sb || !veil || !sheet) return;
     sb.innerHTML = ofRenderInspectSheet(projection, target) +
-      ofRenderPortfolioSceneContext('inspect', projection, selectedPortfolio);
+      ofRenderPortfolioSceneContext('inspect', projection, selectedPortfolio) +
+      ofRenderOrganUpdateSceneContext(
+        'inspect',
+        ofNormalizeOrganUpdateView(latestPortfolioPayload),
+        selectedPortfolio && selectedPortfolio.canonicalId
+      );
     var focusTrigger = triggerEl;
     if (sheet._ofSetReturnCallback) {
       sheet._ofSetReturnCallback(function () {
@@ -447,22 +459,29 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     var workforceHtml;
     var forgeHtml;
     try {
+      var organUpdates = ofNormalizeOrganUpdateView(portfolioPayload || {});
       var canopyOptions = {
         freshness: freshnessFor(delivery),
         portfolioCatalog: portfolioPayload && portfolioPayload.portfolioCatalog,
         portfolioCatalogSummary: portfolioPayload && portfolioPayload.portfolioCatalogSummary,
         portfolioJoinReport: portfolioPayload && portfolioPayload.portfolioJoinReport,
+        organUpdateDelivery: portfolioPayload && portfolioPayload.organUpdateDelivery,
+        organUpdateDeliverySummary: portfolioPayload && portfolioPayload.organUpdateDeliverySummary,
         selectedPortfolioId: selectedPortfolio && selectedPortfolio.canonicalId
       };
       canopyHtml = ofScenes.renderCanopy(projection, canopyOptions);
       missionHtml = ofScenes.renderOperatingMission(projection, openWorkId) +
-        ofRenderPortfolioSceneContext('mission', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('mission', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('mission', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
       flowHtml = ofScenes.renderFlow(projection) +
-        ofRenderPortfolioSceneContext('flow', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('flow', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('flow', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
       workforceHtml = ofScenes.renderWorkforce(projection) +
-        ofRenderPortfolioSceneContext('workforce', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('workforce', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('workforce', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
       forgeHtml = ofScenes.renderForge(projection) +
-        ofRenderPortfolioSceneContext('forge', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('forge', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('forge', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
     } catch (error) {
       return false;
     }
@@ -526,22 +545,29 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     var workforceHtml;
     var forgeHtml;
     try {
+      var organUpdates = ofNormalizeOrganUpdateView(portfolioPayload || {});
       var canopyOptions = {
         freshness: freshnessFor(delivery),
         portfolioCatalog: portfolioPayload && portfolioPayload.portfolioCatalog,
         portfolioCatalogSummary: portfolioPayload && portfolioPayload.portfolioCatalogSummary,
         portfolioJoinReport: portfolioPayload && portfolioPayload.portfolioJoinReport,
+        organUpdateDelivery: portfolioPayload && portfolioPayload.organUpdateDelivery,
+        organUpdateDeliverySummary: portfolioPayload && portfolioPayload.organUpdateDeliverySummary,
         selectedPortfolioId: selectedPortfolio && selectedPortfolio.canonicalId
       };
       canopyHtml = ofScenes.renderCanopy(projection, canopyOptions);
       missionHtml = ofScenes.renderOperatingMission(projection, openWorkId) +
-        ofRenderPortfolioSceneContext('mission', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('mission', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('mission', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
       flowHtml = ofScenes.renderFlow(projection) +
-        ofRenderPortfolioSceneContext('flow', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('flow', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('flow', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
       workforceHtml = ofScenes.renderWorkforce(projection) +
-        ofRenderPortfolioSceneContext('workforce', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('workforce', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('workforce', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
       forgeHtml = ofScenes.renderForge(projection) +
-        ofRenderPortfolioSceneContext('forge', projection, selectedPortfolio);
+        ofRenderPortfolioSceneContext('forge', projection, selectedPortfolio) +
+        ofRenderOrganUpdateSceneContext('forge', organUpdates, selectedPortfolio && selectedPortfolio.canonicalId);
     } catch (error) {
       return;
     }
@@ -663,7 +689,9 @@ ${CONTEXTUAL_SHEET_RETURN_BROWSER_JS}
           latestPortfolioPayload = {
             portfolioCatalog: body.portfolioCatalog,
             portfolioCatalogSummary: body.portfolioCatalogSummary,
-            portfolioJoinReport: body.portfolioJoinReport
+            portfolioJoinReport: body.portfolioJoinReport,
+            organUpdateDelivery: body.organUpdateDelivery,
+            organUpdateDeliverySummary: body.organUpdateDeliverySummary
           };
           activate(latestProjection, latestDelivery, latestPortfolioPayload);
         }
