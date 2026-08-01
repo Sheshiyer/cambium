@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Group portfolio work by client and guide review triage"
+task: "Deploy the founder Workbench and reconcile GitHub portfolio candidates"
 effort: deep
 effort_source: classifier
-phase: complete
-progress: 658/689
+phase: build
+progress: 658/721
 mode: interactive
-iteration: 2026-08-01-client-family-review-triage
+iteration: 2026-08-01-hosted-portfolio-github-discovery
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-01T14:17:30Z
+updated: 2026-08-01T16:53:00Z
 ---
 
 ## Problem
@@ -970,6 +970,41 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - [x] ISC-687: Existing v2 and legacy v1 local packets migrate into the versioned review-capable schema without losing WorkObject plans.
 - [x] ISC-688: Every one-tap Unplanned or review decision has a deterministic local undo or reset path.
 
+### Hosted production promotion and GitHub discovery
+
+- [ ] ISC-689: Production promotion originates from the clean reviewed portfolio worktree rather than the dirty primary checkout.
+- [ ] ISC-690: The reviewed portfolio branch contains the current `origin/main` head without dropping later mainline commits.
+- [ ] ISC-691: The generated Worker embed remains byte-identical to the reviewed standalone Workbench bundle before upload.
+- [ ] ISC-692: The complete deterministic release gate passes at the reviewed deployment commit.
+- [ ] ISC-693: Wrangler strict dry-run produces a non-empty bundle without contacting production traffic.
+- [ ] ISC-694: Wrangler read-back resolves the expected Cloudflare account and `cambium-quests` Worker.
+- [ ] ISC-695: Production has one exact Version at 100 percent before promotion and that rollback UUID is retained.
+- [ ] ISC-696: Candidate creation uses a staged Worker Version upload rather than immediate production deployment.
+- [ ] ISC-697: The candidate Version annotation identifies the exact reviewed Git commit.
+- [ ] ISC-698: Candidate bindings preserve every existing production binding name and type.
+- [ ] ISC-699: The candidate preview returns healthy `cambium-quests` identity before promotion.
+- [ ] ISC-700: The candidate preview serves the bounded `/admin/portfolio` Telegram loader.
+- [ ] ISC-701: The candidate preview protects `/v1/admin/portfolio` with the existing missing-authentication denial.
+- [ ] ISC-702: The candidate preview preserves the configured Telegram gate health response.
+- [ ] ISC-703: Production promotion targets only the inspected candidate Version at 100 percent.
+- [ ] ISC-704: Production read-back reports exactly the candidate Version at 100 percent after promotion.
+- [ ] ISC-705: `curious.thoughtseed.space` returns healthy Worker and configured gate responses after promotion.
+- [ ] ISC-706: `curious.thoughtseed.space/admin/portfolio` serves the bounded no-data Telegram loader with restrictive policy.
+- [ ] ISC-707: An unauthenticated custom-domain Workbench API request returns the uniform 401 response without catalog bytes.
+- [ ] ISC-708: Existing health and representative non-portfolio authorization boundaries remain unchanged after promotion.
+- [ ] ISC-709: Anti: promotion changes no D1, KV, R2, Vectorize, secret, Telegram menu, tenant, or schema state.
+- [ ] ISC-710: The saved prior Version remains remotely inspectable as the exact rollback target.
+- [ ] ISC-711: Composio resolves an existing connected GitHub identity for the expected Thoughtseed founder account.
+- [ ] ISC-712: Repository discovery paginates, deduplicates by immutable repository ID, and reports the complete accessible owner inventory.
+- [ ] ISC-713: Repository evidence retains visibility and source timestamps without exposing credentials or repository content.
+- [ ] ISC-714: GitHub Projects discovery reports the complete accessible user-project inventory read-only.
+- [ ] ISC-715: Organization discovery distinguishes account membership from personal-account repository ownership.
+- [ ] ISC-716: Discovered repositories are reconciled against existing WorkObjects and existing Needs Review records before recommendation.
+- [ ] ISC-717: Candidate results distinguish new WorkObject proposals from provenance enrichment and linked product surfaces.
+- [ ] ISC-718: Anti: committed artifacts contain no private repository descriptions or developer-account credentials discovered through Composio.
+- [ ] ISC-719: Anti: GitHub discovery creates or edits no repository, issue, project, account, connection, or trigger.
+- [ ] ISC-720: Anti: a repository or Project name alone never creates a WorkObject, tenant, lifecycle, or operational state.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1065,6 +1100,8 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 | ISC-635..640 | secondary queues and safety | archive/review views, responsive focus behavior, zero-network bundle, and authority disclaimers pass | browser probes and static bundle audit |
 | ISC-641..660 | hosted founder route | signed founder authorization, no-data loader, exact embedded bundle, hidden non-founder link, CSP, zero writes, browser proof, and no promotion pass | focused Node tests, SHA-256 probe, browser capture, Wrangler dry-run, production-status comparison |
 | ISC-661..688 | client hierarchy and triage | exact account grouping, HeyZack/Axdis membership, guided unplanned/review actions, versioned durable review proposals, undo, responsive layout, exact embed, zero writers, and release gates pass | domain tests, DOM/browser interaction, v1/v2/v3 JSON migration, Markdown round-trip, canonical hash, SHA-256 probe, focused/full test suites |
+| ISC-689..710 | production promotion | clean ancestry, deterministic gates, strict dry-run, staged candidate, binding parity, exact 100% Version, custom-domain loader/auth probes, rollback preservation, and zero data/config mutation | `git`, release suite, `wrangler versions/deployments`, binding-signature comparison, `curl` |
+| ISC-711..720 | GitHub discovery | connected identity, exhaustive pagination, stable-ID dedupe, Projects and org inventory, portfolio reconciliation, private-data exclusion, and zero GitHub mutation | `composio whoami`, `composio execute/run`, source registry comparison, command audit |
 
 ## Features
 
@@ -1128,6 +1165,9 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - `GuidedPortfolioTriage` | Turn Unplanned and Needs Review into one-action scheduling and classification decisions with non-authoritative suggestions | satisfies ISC-671..678, ISC-681..682, ISC-688 | depends_on ClientFamilyProjection | parallelizable false
 - `TriageDurability` | Persist and export review proposals in schema v3 while migrating v2 and legacy v1 WorkObject plans | satisfies ISC-679..680, ISC-684, ISC-687 | depends_on GuidedPortfolioTriage | parallelizable false
 - `ClientGroupingProof` | Rebundle, embed, and prove hierarchy plus triage across browser, Worker, mobile, and zero-writer gates | satisfies ISC-683..686 | depends_on ClientFamilyProjection, GuidedPortfolioTriage, TriageDurability | parallelizable false
+- `PortfolioProductionPromotion` | Upload one inspected Worker Version, preserve bindings, promote exactly that UUID, and retain a verified rollback target | satisfies ISC-689..710 | depends_on HostedAdminPortfolioWorkbench, ClientGroupingProof | parallelizable false
+- `ComposioGitHubInventory` | Resolve the connected founder identity and inventory owner repositories, Projects, and memberships through read-only GitHub tools | satisfies ISC-711..715, ISC-718..719 | depends_on none | parallelizable true
+- `GitHubPortfolioReconciliation` | Compare stable repository evidence with WorkObjects and Needs Review without admitting or activating anything | satisfies ISC-716..717, ISC-720 | depends_on ComposioGitHubInventory, PortfolioCatalogProjection | parallelizable false
 
 ## Architecture
 
@@ -1148,6 +1188,13 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-01 16:53: Root-cause-at-ingestion checkpoint — production drift enters when upload source and active binding state are selected, not when the admin page renders. Promotion therefore pins one clean descendant of `origin/main`, compares complete binding signatures, and deploys only the already-probed Version UUID.
+- 2026-08-01 16:53: Advisor invocation returned only an external session receipt and no review content. No approval is inferred; repository contracts, strict preflight, exact binding comparison, preview probes, Forge review, and later Cato audit remain the operative gates.
+- 2026-08-01 16:49: refined: deployment and repository discovery are separate control planes. The Worker may be promoted from one exact reviewed Version, while GitHub evidence remains a read-only intake signal that cannot alter the Vault-owned WorkObject registry.
+- 2026-08-01 16:49: production preflight found the primary checkout dirty with unrelated user artifacts, so promotion is constrained to the clean `codex/portfolio-registry-miniapp` worktree; no reset, stash, merge, or checkout touches the primary tree.
+- 2026-08-01 16:49: GitHub account evidence is queried through the existing Composio connection without `composio dev init`, because binding this repository to a developer project is unnecessary state mutation for read-only discovery.
+- 2026-08-01 16:49: private repository and Project metadata may inform the founder-only chat recommendation, but it must not be copied into the public Cambium repository, generated Workbench, ISA, or deployment receipt.
 
 - 2026-08-01 13:00 refined: the public route authenticates no identity and carries no catalog bytes; it is only a Telegram bootstrap. The protected endpoint is the sole authorization seam and consumes the existing Worker gate configuration, so there is no second allowlist or identity system to drift.
 - 2026-08-01 13:00 refined: every denied Workbench request now returns byte-identical 401 headers and bodies. Missing, malformed, and valid non-founder `initData` cannot disclose allowlist reasoning; the only identity is the one inside Telegram-signed data.
