@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-08-01T17:22:46Z",
+  "source": {
+    "adapter": "Composio GitHub connected account",
+    "authenticatedLogin": "Sheshiyer",
+    "profileCompany": "Thoughtseed Labs",
+    "discoveryMode": "read-only",
+    "identityClarification": "Thoughtseed Labs is the authenticated user's profile company; no organization with that name appears in the authenticated organization memberships."
+  },
+  "inventories": {
+    "founderOwnedRepositories": {
+      "reportedTotal": 234,
+      "enumeratedTotal": 234,
+      "uniqueImmutableIds": 234,
+      "pages": 3,
+      "public": 179,
+      "private": 55,
+      "archived": 0,
+      "forks": 7,
+      "activeNonForkPushedIn2026": 144,
+      "evidenceDigestSha256": "a7de6200fffea34cfb5a1b01083a2a0e1d47972bd5c26bbe06b38e4727ce1d81",
+      "digestProjection": "sorted [databaseId,isPrivate,isArchived,isFork,pushedAt]"
+    },
+    "founderProjectsV2": {
+      "total": 13,
+      "uniqueImmutableIds": 13,
+      "open": 12,
+      "closed": 1,
+      "evidenceDigestSha256": "207fb6bd5678a1945524ce3e86407e8dfb4619af7e0c183eeb766c3dc90957ec",
+      "digestProjection": "sorted [id,number,closed,updatedAt]"
+    },
+    "organizationMemberships": {
+      "total": 1,
+      "entries": [
+        {
+          "login": "SAFVR-SG",
+          "repositories": {
+            "total": 11,
+            "public": 0,
+            "private": 11,
+            "archived": 0,
+            "forks": 0,
+            "evidenceDigestSha256": "60f0553ccf0f7120a6718d445312d05a2b54d47796d7749df411d753aadc9958",
+            "digestProjection": "sorted [databaseId,isPrivate,isArchived,isFork,pushedAt]"
+          },
+          "projectsV2": {
+            "total": 0,
+            "open": 0,
+            "closed": 0,
+            "evidenceDigestSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "digestProjection": "sorted [id,number,closed,updatedAt]"
+          }
+        }
+      ]
+    }
+  },
+  "reconciliation": {
+    "shortlistRecordsReviewed": 16,
+    "disjointCategoryTotals": {
+      "existingWorkObjectEnrichment": 5,
+      "existingNeedsReview": 4,
+      "newWorkObjectProposal": 6,
+      "historicalNonCandidate": 1
+    },
+    "linkedSurfaceAnnotations": 1,
+    "publicNewProposalExamples": [
+      "Somatic-Canticles",
+      "Selemene-engine",
+      "astrelens-v1"
+    ],
+    "privateNamesRetained": false,
+    "automaticRegistryAdmissions": 0,
+    "automaticTenantActivations": 0
+  },
+  "mutationAudit": {
+    "repositoriesCreatedOrEdited": 0,
+    "issuesCreatedOrEdited": 0,
+    "projectsCreatedOrEdited": 0,
+    "accountsOrConnectionsCreatedOrEdited": 0,
+    "triggersCreatedOrEdited": 0
+  }
+}

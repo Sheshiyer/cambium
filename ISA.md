@@ -3,12 +3,12 @@ project: Cambium
 task: "Deploy the founder Workbench and reconcile GitHub portfolio candidates"
 effort: deep
 effort_source: classifier
-phase: execute
-progress: 658/721
+phase: complete
+progress: 689/720
 mode: interactive
 iteration: 2026-08-01-hosted-portfolio-github-discovery
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-01T16:54:00Z
+updated: 2026-08-01T17:25:14Z
 ---
 
 ## Problem
@@ -972,38 +972,38 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 
 ### Hosted production promotion and GitHub discovery
 
-- [ ] ISC-689: Production promotion originates from the clean reviewed portfolio worktree rather than the dirty primary checkout.
-- [ ] ISC-690: The reviewed portfolio branch contains the current `origin/main` head without dropping later mainline commits.
-- [ ] ISC-691: The generated Worker embed remains byte-identical to the reviewed standalone Workbench bundle before upload.
-- [ ] ISC-692: The complete deterministic release gate passes at the reviewed deployment commit.
-- [ ] ISC-693: Wrangler strict dry-run produces a non-empty bundle without contacting production traffic.
-- [ ] ISC-694: Wrangler read-back resolves the expected Cloudflare account and `cambium-quests` Worker.
-- [ ] ISC-695: Production has one exact Version at 100 percent before promotion and that rollback UUID is retained.
-- [ ] ISC-696: Candidate creation uses a staged Worker Version upload rather than immediate production deployment.
-- [ ] ISC-697: The candidate Version annotation identifies the exact reviewed Git commit.
-- [ ] ISC-698: Candidate bindings preserve every existing production binding name and type.
-- [ ] ISC-699: The candidate preview returns healthy `cambium-quests` identity before promotion.
-- [ ] ISC-700: The candidate preview serves the bounded `/admin/portfolio` Telegram loader.
-- [ ] ISC-701: The candidate preview protects `/v1/admin/portfolio` with the existing missing-authentication denial.
-- [ ] ISC-702: The candidate preview preserves the configured Telegram gate health response.
-- [ ] ISC-703: Production promotion targets only the inspected candidate Version at 100 percent.
-- [ ] ISC-704: Production read-back reports exactly the candidate Version at 100 percent after promotion.
-- [ ] ISC-705: `curious.thoughtseed.space` returns healthy Worker and configured gate responses after promotion.
-- [ ] ISC-706: `curious.thoughtseed.space/admin/portfolio` serves the bounded no-data Telegram loader with restrictive policy.
-- [ ] ISC-707: An unauthenticated custom-domain Workbench API request returns the uniform 401 response without catalog bytes.
-- [ ] ISC-708: Existing health and representative non-portfolio authorization boundaries remain unchanged after promotion.
-- [ ] ISC-709: Anti: promotion changes no D1, KV, R2, Vectorize, secret, Telegram menu, tenant, or schema state.
-- [ ] ISC-710: The saved prior Version remains remotely inspectable as the exact rollback target.
-- [ ] ISC-711: Composio resolves an existing connected GitHub identity for the expected Thoughtseed founder account.
-- [ ] ISC-712: Repository discovery paginates, deduplicates by immutable repository ID, and reports the complete accessible owner inventory.
-- [ ] ISC-713: Repository evidence retains visibility and source timestamps without exposing credentials or repository content.
-- [ ] ISC-714: GitHub Projects discovery reports the complete accessible user-project inventory read-only.
-- [ ] ISC-715: Organization discovery distinguishes account membership from personal-account repository ownership.
-- [ ] ISC-716: Discovered repositories are reconciled against existing WorkObjects and existing Needs Review records before recommendation.
-- [ ] ISC-717: Candidate results distinguish new WorkObject proposals from provenance enrichment and linked product surfaces.
-- [ ] ISC-718: Anti: committed artifacts contain no private repository descriptions or developer-account credentials discovered through Composio.
-- [ ] ISC-719: Anti: GitHub discovery creates or edits no repository, issue, project, account, connection, or trigger.
-- [ ] ISC-720: Anti: a repository or Project name alone never creates a WorkObject, tenant, lifecycle, or operational state.
+- [x] ISC-689: Production promotion originates from the clean reviewed portfolio worktree rather than the dirty primary checkout.
+- [x] ISC-690: The reviewed portfolio branch contains the current `origin/main` head without dropping later mainline commits.
+- [x] ISC-691: The generated Worker embed remains byte-identical to the reviewed standalone Workbench bundle before upload.
+- [x] ISC-692: The complete deterministic release gate passes at the reviewed deployment commit.
+- [x] ISC-693: Wrangler strict dry-run produces a non-empty bundle without contacting production traffic.
+- [x] ISC-694: Wrangler read-back resolves the expected Cloudflare account and `cambium-quests` Worker.
+- [x] ISC-695: Production has one exact Version at 100 percent before promotion and that rollback UUID is retained.
+- [x] ISC-696: Candidate creation uses a staged Worker Version upload rather than immediate production deployment.
+- [x] ISC-697: The candidate Version annotation identifies the exact reviewed Git commit.
+- [x] ISC-698: Candidate bindings preserve every existing production binding name and type.
+- [x] ISC-699: The candidate preview returns healthy `cambium-quests` identity before promotion.
+- [x] ISC-700: The candidate preview serves the bounded `/admin/portfolio` Telegram loader.
+- [x] ISC-701: The candidate preview protects `/v1/admin/portfolio` with the existing missing-authentication denial.
+- [x] ISC-702: The candidate preview preserves the configured Telegram gate health response.
+- [x] ISC-703: Production promotion targets only the inspected candidate Version at 100 percent.
+- [x] ISC-704: Production read-back reports exactly the candidate Version at 100 percent after promotion.
+- [x] ISC-705: `curious.thoughtseed.space` returns healthy Worker and configured gate responses after promotion.
+- [x] ISC-706: `curious.thoughtseed.space/admin/portfolio` serves the bounded no-data Telegram loader with restrictive policy.
+- [x] ISC-707: An unauthenticated custom-domain Workbench API request returns the uniform 401 response without catalog bytes.
+- [x] ISC-708: Existing health and representative non-portfolio authorization boundaries remain unchanged after promotion.
+- [x] ISC-709: Anti: promotion changes no D1, KV, R2, Vectorize, secret, Telegram menu, tenant, or schema state.
+- [x] ISC-710: The saved prior Version remains remotely inspectable as the exact rollback target.
+- [x] ISC-711: Composio resolves an existing connected GitHub identity for the expected Thoughtseed founder account.
+- [x] ISC-712: Repository discovery paginates, deduplicates by immutable repository ID, and reports the complete accessible owner inventory.
+- [x] ISC-713: Repository evidence retains visibility and source timestamps without exposing credentials or repository content.
+- [x] ISC-714: GitHub Projects discovery reports the complete accessible user-project inventory read-only.
+- [x] ISC-715: Organization discovery distinguishes account membership from personal-account repository ownership.
+- [x] ISC-716: Discovered repositories are reconciled against existing WorkObjects and existing Needs Review records before recommendation.
+- [x] ISC-717: Candidate results distinguish new WorkObject proposals from provenance enrichment and linked product surfaces.
+- [x] ISC-718: Anti: committed artifacts contain no private repository descriptions or developer-account credentials discovered through Composio.
+- [x] ISC-719: Anti: GitHub discovery creates or edits no repository, issue, project, account, connection, or trigger.
+- [x] ISC-720: Anti: a repository or Project name alone never creates a WorkObject, tenant, lifecycle, or operational state.
 
 ## Test Strategy
 
@@ -1189,6 +1189,13 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-01 17:22: Cato's initial audit found the Worker promotion sound but correctly challenged organization coverage and the absence of a durable privacy-safe GitHub receipt. The fix uses narrow GraphQL projections through the existing connected account: founder-owned repositories paginate by immutable cursor and owner affiliation; the sole organization is queried by immutable node ID; raw private names and descriptions are excluded from the receipt.
+- 2026-08-01 17:22: The authenticated GitHub identity is a user account whose profile company is Thoughtseed Labs, not an organization named Thoughtseed Labs. The only authenticated organization membership is `SAFVR-SG`; it contains eleven accessible private repositories and zero Projects V2. Both scopes are now explicit so profile branding cannot masquerade as GitHub ownership topology.
+- 2026-08-01 17:09: The mandatory post-deliverable Advisor invocation completed without review content. This is recorded as a degraded advisory channel, not a pass; no approval is inferred. Exact live probes, ReReadCheck, CheckCompleteness, Forge's pre-promotion release review, and the independent final Cato audit remain authoritative.
+- 2026-08-01 17:04: Production promotion is complete at one exact staged Version, `e57140e8-2f37-489f-b28c-a3836ebc5ffc`, derived from git `bb2ee9f476559de5d89be4e1bc1ae751af44d24f`. The prior production Version `5b3425c5-5c14-4d71-b996-3c0d2c056f56` remains the explicit inspectable rollback target.
+- 2026-08-01 17:04: A public `200` at `/admin/portfolio` proves only the bounded no-data Telegram bootstrap. Positive protected-document proof remains the signed-founder route test plus a future founder-device observation; unauthenticated production reads must continue to return the uniform `401` response.
+- 2026-08-01 17:04: The current Composio CLI does not expose `dev orgs`, and `dev connected-accounts list` would require repository initialization. Existing connected-account GitHub actions supply the required read-only identity, repository, Project, and organization inventory without creating developer-project state.
+- 2026-08-01 17:04: GitHub names and timestamps are intake evidence, not classifications. New candidates remain proposals for Needs Review; established records receive provenance enrichment; closely coupled repositories remain linked surfaces until a separate lifecycle or authority boundary is proven.
 - 2026-08-01 16:53: Root-cause-at-ingestion checkpoint — production drift enters when upload source and active binding state are selected, not when the admin page renders. Promotion therefore pins one clean descendant of `origin/main`, compares complete binding signatures, and deploys only the already-probed Version UUID.
 - 2026-08-01 16:53: Advisor invocation returned only an external session receipt and no review content. No approval is inferred; repository contracts, strict preflight, exact binding comparison, preview probes, Forge review, and later Cato audit remain the operative gates.
 - 2026-08-01 16:49: refined: deployment and repository discovery are separate control planes. The Worker may be promoted from one exact reviewed Version, while GitHub evidence remains a read-only intake signal that cannot alter the Vault-owned WorkObject registry.
@@ -1293,6 +1300,18 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-08-01 | conjectured: the authenticated user's `Thoughtseed Labs` profile company, owner-repository inventory, default Project list, and organization-membership list together proved the complete GitHub portfolio scope
+  refuted by: Cato separated profile branding from ownership topology; immutable GraphQL enumeration found thirteen Projects rather than the default action's twelve open Projects, and the sole actual organization contained eleven private repositories plus zero Projects
+  learned: GitHub intake must enumerate user ownership and each organization membership as separate immutable scopes, include closed Projects, and preserve redacted digests rather than trusting display labels or default-list semantics
+  criterion now: ISC-712..718 require cursor-complete owner inventory, explicit organization repository/Project coverage, lifecycle-complete Project counts, privacy-safe evidence digests, and classification only after reconciliation
+- 2026-08-01 | conjectured: a repository-local Composio developer-project binding was required to inspect the connected GitHub account
+  refuted by: the developer connected-account subcommand requested initialization while the existing connected GitHub action returned the authenticated account and a complete paginated owner inventory without repository mutation
+  learned: Composio developer-project configuration and an existing end-user connection are separate control planes; read-only discovery should reuse the existing connection and avoid initializing unrelated repository state
+  criterion now: ISC-711..719 require connected identity proof, stable-ID pagination, Projects and membership inventory, private-data exclusion, and zero GitHub mutation
+- 2026-08-01 | conjectured: a successful public loader response was sufficient proof that the founder Workbench was available and protected
+  refuted by: the loader intentionally contains no catalog bytes and must fail closed outside Telegram, while the protected endpoint carries the actual founder authorization decision
+  learned: deployment proof must test the bootstrap and data boundary separately: exact HTML plus restrictive policy for the loader, uniform 401 for unauthenticated API access, and signed-founder proof at the route contract
+  criterion now: ISC-700..707 require preview and custom-domain loader, gate, policy, denial, and live-browser fail-closed evidence
 - 2026-08-01 | conjectured: a restrictive CSP header on the authenticated fetch response would govern HTML subsequently installed with `document.write`
   refuted by: fetch does not install response CSP as document policy, so the loader's `connect-src 'self'` remained active after rendering
   learned: protected document bytes must carry their own early CSP meta when an authenticated loader installs them without a navigation boundary; a real browser must prove blocked egress never reaches the server
@@ -1390,6 +1409,12 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Verification
 
+- 2026-08-01 final Cato cross-vendor audit: initial verdict `concerns` contained no critical or high finding and found the production promotion/admin boundary sound, but identified two medium GitHub evidence gaps: explicit organization repository/Project coverage and a durable privacy-safe reconciliation receipt. After immutable-cursor founder enumeration, immutable-node organization enumeration, corrected thirteen-Project accounting, and receipt creation, re-audit verdict is `pass` with zero critical, high, medium, or low findings. Cato independently reproduced receipt SHA-256 `810cd4e843a4dc721a4924fba41e099adfbd02a874bceab758ab290bcb9b6e5c`, arithmetic, empty-array digest, privacy exclusions, JSON parsing, and diff integrity; completion may proceed once ISA and receipt are committed together.
+- 2026-08-01 17:09 UTC delayed production probe: more than ten minutes after the 16:58:11 UTC promotion, Cloudflare still reports exactly one active Version, `e57140e8-2f37-489f-b28c-a3836ebc5ffc`, at 100 percent. Health, gate, loader, Workbench denial, providers denial, and quest denial each retain the exact status and SHA-256 recorded in the immediate post-promotion probe.
+- 2026-08-01 ReReadCheck: PASS against the user's exact request to update `curious.thoughtseed.space`, integrate the Workbench into the admin flow, resolve the Composio developer GitHub account, and check Thoughtseed Labs repositories and Projects that may belong in the portfolio. The exact staged Workbench is live behind the existing founder-admin Telegram gate; the existing operating-fabric founder-detail link remains the entry point; the connected account, repositories, Projects, and organization membership were inventoried read-only; and recommendations are separated into existing WorkObjects, existing Needs Review matches, provenance enrichment, linked surfaces, and new proposals. No repository name was silently admitted into the registry, no fresh identity was introduced, and the earlier Needs Review interaction redesign is present in the deployed bundle. The only honest remaining observation is positive founder-device rendering with fresh Telegram-signed `initData`, which cannot be fabricated outside Telegram.
+- 2026-08-01 ISC-689..710 production promotion proof: release source is the clean `codex/portfolio-registry-miniapp` worktree at `bb2ee9f476559de5d89be4e1bc1ae751af44d24f`, which contains `origin/main`; the unrelated dirty primary checkout was untouched. `npm run verify:release` passes 1523/1523 core tests, 37/37 mission/live-readiness tests, validation, a 626-file standalone audit, Telegram mobile contract, 99/99 R3F tests and build, and 5/5 desktop packaging checks. Strict Wrangler dry-run produced three output files. The 290,703-byte standalone bundle has SHA-256 `cfc5f50405f96eb6b657d9fbbc6dca6739ddcea4d23384d647ab73a750d1859e`; route tests pass 4/4 and prove generated embed parity. Candidate Version `e57140e8-2f37-489f-b28c-a3836ebc5ffc` was uploaded with `--keep-vars`, tagged `git-bb2ee9f476559de5d89be4e1bc1ae751af44d24f`, and previewed at zero traffic before exact 100-percent promotion. Candidate and rollback Version `5b3425c5-5c14-4d71-b996-3c0d2c056f56` each expose 33 binding names/types with signature `00ba30c8958226bfe2e31d8bb28c2f6894c8a18220bbcd81ecea76a1ae869f2c`.
+- 2026-08-01 custom-domain and boundary proof: production read-back reports only candidate `e57140e8-2f37-489f-b28c-a3836ebc5ffc` at 100 percent. `curious.thoughtseed.space/healthz` and `/healthz/gate` return 200 with `cambium-quests` and `gateConfigured:true`. `/admin/portfolio` returns the same 2,506-byte HTML as the inspected preview, SHA-256 `84a36c6056f58230a82990acd3cfb9ad5799d8db6c180053b417b10560cb4c9a`, with `private, no-store`, restrictive CSP, and no catalog markers. `/v1/admin/portfolio` returns 401 with denial SHA-256 `8d220085ca485bf6eb420846d4ade82aa28ed9a0c1a0bb63ebd52b2aefeb5b89`; existing health, gate, providers, and quest-route status/body digests exactly match the predeployment probes. Isolated real-browser DOM shows title `Thoughtseed Portfolio Workbench`, heading `Opening Portfolio Workbench`, the authorized-Telegram instruction, no catalog bytes, and no console errors. No D1, KV, R2, Vectorize, secret, Telegram menu/send, tenant, allowlist, or schema state changed.
+- 2026-08-01 ISC-711..720 Composio GitHub reconciliation proof: the existing connected GitHub action resolves the expected founder account. Three cursor pages enumerate 234/234 founder-owned repositories with 234 unique immutable IDs: 179 public, 55 private, zero archived, seven forks, and 144 active non-forks pushed in 2026. Projects V2 contain thirteen unique records: twelve open and one closed. The sole organization membership, `SAFVR-SG`, contains eleven accessible private repositories and zero Projects V2. The privacy-safe receipt [`docs/evidence/2026-08-01-portfolio-github-reconciliation.json`](docs/evidence/2026-08-01-portfolio-github-reconciliation.json) commits only counts, stable-projection digests, public proposal examples, reconciliation-category totals, and mutation counts; it retains no private names, descriptions, content, credentials, or immutable IDs. Reconciliation first matched established WorkObjects and existing Needs Review records, then separated provenance enrichment, linked surfaces, candidate proposals, and one closed historical non-candidate. Public candidate evidence includes `Somatic-Canticles`, `Selemene-engine`, and `astrelens-v1`; admission, client grouping, tenant activation, and lifecycle changes remain unperformed. No repository, issue, Project, account, connection, or trigger was created or edited.
 - 2026-08-01 ISC-641..660 hosted founder Workbench proof: `GET /admin/portfolio` serves only the bounded Telegram bootstrap; browser DOM shows it failing closed outside Telegram. `/v1/admin/portfolio` returns 503 for absent, empty-key, or malformed-key gate configuration; missing, invalid, and valid non-founder identities receive byte-identical 401 headers and bodies; a signed founder receives the exact generated Workbench. Both routes are GET-only, responses are `no-store`, route tests prove zero storage/provider writes, and the document/header CSP policies agree except for header-only `frame-ancestors`. The operating-fabric VM harness proves the link stays hidden, inert, and aria-hidden for aggregate viewers and becomes visible, interactive, and aria-exposed only with founder-detail records. Real-browser inspection rendered all 54 records and reduced White Labelable to Brightme and Instal before restoring All.
 - 2026-08-01 hosted release gates: `pnpm check` passes 14/14 domain tests, lint, TypeScript, Vite bundle, zero-egress audit, real Chromium CSP smoke, and standalone smoke. The 274,038-byte `bundle.html` and generated Worker embed reproduce SHA-256 `b4ff0eea93bdbeb786c728e833ac8675d634ff6c4bf40570be6ea46d636c1107`; route tests prove byte-for-byte parity. Chromium injects a same-origin fetch beneath the exact early document CSP meta and records `blocked` while the server observes zero probe requests. Focused Workbench plus operating-fabric tests pass 242/242; the complete repository suite passes 1523/1523; the mobile contract and canonical 47-image viewport proof pass; final strict Wrangler dry-run and `git diff --check` pass. Final Advisor verdict is PASS. Final independent Cato re-audit is PASS with both initial findings closed: effective document CSP and 64-hex Ed25519 gate configuration. No deployment, production traffic, Telegram menu/send, tenant, secret, D1/KV/R2, schema, or provider mutation occurred.
 - 2026-08-01 ISC-601..612 overview and source-truth proof: browser DOM renders 54/54 canonical cards with exact 12 Saplings, 28 client Branches, and 14 internal Programs; source-derived counts are 35 ongoing, 2 paused, 2 white-labelable, 16 review, 10 unplanned, and 19 historical. Brightme and Instal alone populate the white-labelable view; SandBoxLife and Thoughtseed Company Website retain approved lifecycle plus source paused overlays. Search returns all eleven HeyZack-family records, classification filters remain explicit, and every mutable-looking value is labeled `source` or `local plan`.
