@@ -1,0 +1,32 @@
+{
+  "name": "portfolio-cartographer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader native",
+    "build": "tsc -b && vite build --configLoader native",
+    "lint": "oxlint src/App.tsx src/domain.ts src/main.tsx",
+    "test": "node --experimental-strip-types --test src/domain.test.ts",
+    "bundle": "pnpm build && node scripts/bundle.mjs",
+    "standalone:audit": "node scripts/standalone-audit.mjs",
+    "standalone:csp": "node scripts/standalone-csp-smoke.mjs",
+    "standalone:smoke": "node scripts/standalone-smoke.mjs",
+    "check": "pnpm test && pnpm lint && pnpm bundle && pnpm standalone:audit && pnpm standalone:csp && pnpm standalone:smoke",
+    "preview": "vite preview --configLoader native"
+  },
+  "dependencies": {
+    "lucide-react": "^1.27.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "oxlint": "^1.71.0",
+    "typescript": "~6.0.2",
+    "vite": "^7.3.1"
+  }
+}

@@ -12,6 +12,7 @@ export const OPERATING_FABRIC_SCENES = `<div id="operating-fabric" data-componen
     <button type="button" class="of-tab" data-of-tab="flow" data-of-scene-target="flow" aria-label="Flow · signals" aria-selected="false"><span class="of-tab-label">Flow</span><small>signals</small></button>
     <button type="button" class="of-tab" data-of-tab="workforce" data-of-scene-target="workforce" aria-label="Workforce · agents" aria-selected="false"><span class="of-tab-label">Work</span><small>agents</small></button>
     <button type="button" class="of-tab" data-of-tab="forge" data-of-scene-target="forge" aria-label="Forge · build" aria-selected="false"><span class="of-tab-label">Forge</span><small>build</small></button>
+    <a class="of-tab of-workbench-link" href="/admin/portfolio" data-of-portfolio-workbench hidden inert aria-label="Open Portfolio Workbench"><span class="of-tab-label">Plan</span><small>portfolio</small></a>
   </nav>
   <div class="of-track" data-component="OperatingFabricTrack">
     <section class="of-scene" data-of-scene="canopy" aria-labelledby="ofSceneCanopyTitle"><h2 id="ofSceneCanopyTitle" class="sr">Canopy</h2></section>

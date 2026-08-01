@@ -162,6 +162,15 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     if (delivery && delivery.freshness === 'fresh') return { state: 'fresh', checkedAt: delivery.servedAt || null };
     return null;
   }
+  function syncPortfolioWorkbenchLink(portfolioPayload) {
+    var link = root.querySelector('[data-of-portfolio-workbench]');
+    if (!link) return;
+    var catalog = portfolioPayload && portfolioPayload.portfolioCatalog;
+    var founderDetail = Boolean(catalog && Array.isArray(catalog.records));
+    link.hidden = !founderDetail;
+    link.inert = !founderDetail;
+    link.setAttribute('aria-hidden', founderDetail ? 'false' : 'true');
+  }
   // ofInspectTokens: bounded in-memory opaque token registry. Maps an opaque
   // token (never a canonical ID) to the exact target object served in the
   // projection. Rebuilt on every render so stale tokens from a prior
@@ -504,6 +513,7 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     appendInspectControls('workforce', workforceRoot, projection);
     appendInspectControls('forge', forgeRoot, projection);
     appendGateEntrypoint(missionRoot);
+    syncPortfolioWorkbenchLink(portfolioPayload);
     return true;
   }
   function navigate(sceneId) {
@@ -603,6 +613,7 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     appendInspectControls('workforce', workforceRoot, projection);
     appendInspectControls('forge', forgeRoot, projection);
     appendGateEntrypoint(missionRoot);
+    syncPortfolioWorkbenchLink(portfolioPayload);
     // Install contextual sheet return system only after successful activation.
     // Idempotent: guard inside CONTEXTUAL_SHEET_RETURN_BROWSER_JS prevents re-install.
     try {

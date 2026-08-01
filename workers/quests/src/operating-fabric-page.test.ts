@@ -38,6 +38,7 @@ import { OPERATING_FABRIC_STYLES } from './page/operating-fabric/styles.ts';
 import { LEGACY_PAGE, PAGE } from './page/index.ts';
 import { permits } from './rbac.ts';
 import { ORGAN_UPDATE_PLAN } from './organ-update-delivery.ts';
+import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
 
 const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 'story', 'inspect'];
 const LEGACY_PAGE_DIGEST = '38b085ba3e3af7baad40c7cf36a5fc469da457eb30b27b730bffad504ca68b4a';
@@ -310,6 +311,10 @@ function bootOperatingFabricDocument(
   fabricRoot.inert = true;
   fabricRoot.ariaHidden = 'true';
   const legacyShell = makeFabricElement('div');
+  const portfolioWorkbenchLink = makeFabricElement('a');
+  portfolioWorkbenchLink.hidden = true;
+  portfolioWorkbenchLink.inert = true;
+  portfolioWorkbenchLink.ariaHidden = 'true';
   const elements = new Map<string, FabricElement>([['operating-fabric', fabricRoot]]);
 
   let veil: FabricElement | undefined;
@@ -356,6 +361,7 @@ function bootOperatingFabricDocument(
     return [];
   };
   fabricRoot.querySelector = (selector: string) => {
+    if (selector === '[data-of-portfolio-workbench]') return portfolioWorkbenchLink;
     const sceneMatch = selector.match(/^\[data-of-scene="([^"]+)"\]$/);
     if (sceneMatch) return sceneElements.find((scene) => scene.dataset.ofScene === sceneMatch[1]) ?? null;
     return null;
@@ -484,6 +490,7 @@ function bootOperatingFabricDocument(
     sheet,
     sheetBody,
     sheetFocusControl,
+    portfolioWorkbenchLink,
     clickOpen,
     clickNested,
     clickMiss,
@@ -655,6 +662,27 @@ test('a valid authenticated 200 with operatingFabricEnabled === true unhides the
   assert.equal(booted.legacyShell.inert, true, 'legacy shell is genuinely noninteractive after activation');
   assert.equal(booted.legacyShell.ariaHidden, 'true', 'legacy shell is removed from assistive tech after activation');
   assert.equal(booted.legacyShell.classList.contains('of-active'), true, 'legacy document yields the viewport');
+});
+
+test('Workbench link toggles only for founder-detail portfolio payloads', async () => {
+  const projection = { schema: 'cambium.mission-fabric-projection.v1', nodes: [], edges: [] };
+  const delivery = { operatingFabricEnabled: true, servedAt: '2026-07-28T00:00:00.000Z', freshness: 'fresh' };
+  const aggregate = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: { projection, delivery, portfolioCatalogSummary: { totalRecords: PORTFOLIO_CATALOG.records.length } },
+  }));
+  const founder = bootOperatingFabricDocument(() => ({
+    kind: 'json',
+    value: { projection, delivery, portfolioCatalog: PORTFOLIO_CATALOG },
+  }));
+  await flushBoot();
+
+  assert.equal(aggregate.portfolioWorkbenchLink.hidden, true, 'aggregate viewer keeps the Workbench link hidden');
+  assert.equal(aggregate.portfolioWorkbenchLink.inert, true, 'aggregate viewer keeps the Workbench link inert');
+  assert.equal(aggregate.portfolioWorkbenchLink.ariaHidden, 'true', 'aggregate viewer hides the link from assistive tech');
+  assert.equal(founder.portfolioWorkbenchLink.hidden, false, 'founder detail reveals the Workbench link');
+  assert.equal(founder.portfolioWorkbenchLink.inert, false, 'founder detail makes the Workbench link interactive');
+  assert.equal(founder.portfolioWorkbenchLink.ariaHidden, 'false', 'founder detail exposes the link to assistive tech');
 });
 
 test('activation requests reuse the Telegram initData and tenant path without leaking secrets', async () => {

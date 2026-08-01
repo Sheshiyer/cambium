@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Commit the portfolio Mini App and add Telegram-aware proactive organ updates"
-effort: advanced
+task: "Host portfolio workbench behind the Cambium Telegram admin wall"
+effort: deep
 effort_source: classifier
-phase: learn
-progress: 541/572
+phase: complete
+progress: 629/660
 mode: interactive
-iteration: 2026-07-29-portfolio-organ-update-delivery
+iteration: 2026-08-01-hosted-admin-portfolio-workbench
 started: 2026-07-27T21:26:34Z
-updated: 2026-07-29T10:47:11Z
+updated: 2026-08-01T13:11:24Z
 ---
 
 ## Problem
@@ -23,6 +23,8 @@ The current Telegram Mission scene visualizes proof-bound branch packets well, b
 
 The portfolio projection now makes every WorkObject visible, but update delivery still stops at visibility. Cambium has no typed contract that turns an authoritative organ receipt into a bounded Telegram delivery instruction, and the Mini App cannot explain which organ, topic, skills, trigger, or approval boundary will carry the next update. Hermes already owns Telegram transport and topic topology; duplicating that sender inside Cambium would trade one missing link for two competing authorities.
 
+The first Portfolio Cartographer artifact proves classification and pipeline truth, but its interaction model conflates selection, planning, and delivery configuration. A restored 35-item local selection renders 248 selects, 35 textareas, 35 pipeline cards, and a 33,020-pixel page at the current preview width. The complete schema is visible everywhere, so recurring portfolio review feels like configuring a deployment packet instead of scanning, tagging, and focusing long-term work.
+
 ## Vision
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
@@ -34,6 +36,8 @@ For the lead runtime, the corresponding subtraction is that provider breadth bec
 For the operating fabric, the founder opens one Canopy and immediately sees two honest classes of work: saplings moving through the venture-launch loop and company programs moving through their own outcome lifecycle. Selecting either reveals the same Mission → Task → Run → Receipt spine, while Workforce and Forge show which agent and skill-cluster loadout can act. The surprising result is that agents and skills become visible without becoming authorities: they are execution overlays on Goal Graph truth, not a parallel project tracker.
 
 For organ updates, one receipt-backed signal becomes one deterministic delivery envelope. The Mini App shows Genesis, Taste, Hands, Will, and Cortex with their trigger, route, skills, proof, and approval boundary; Hermes validates the pinned topic and performs transport. Proactivity means surfacing meaningful state change with a receipt, not turning every organ into a noisy cron.
+
+For portfolio planning, the founder opens one calm workbench and immediately sees what is ongoing, paused, reusable, awaiting review, or still unplanned. One tap changes local planning intent, one focused drawer holds the project plan, and delivery mechanics stay available in a secondary tab. Canonical Vault facts and local proposals are visually distinct, making fast planning safer than slow form-filling.
 
 ## Out of Scope
 
@@ -55,6 +59,11 @@ For organ updates, one receipt-backed signal becomes one deterministic delivery 
 - No Cambium-owned Telegram Bot API sender, bot token, or duplicated topic topology.
 - No new recurring organ-update schedule before the measured-feedback scheduling gate passes.
 - No client-visible, public, paid, deploy, or other external action without the existing approval boundary.
+- No Vault, TeamForge, Huly, GitHub, Cambium D1, Hermes, or Telegram mutation from the standalone planning artifact.
+- No use of local planning tags as canonical lifecycle, portfolio status, commercial reuse, tenant, or execution truth.
+- No always-expanded per-project delivery form or duplicate pipeline card for every planned WorkObject.
+- No new Telegram bot identity, tenant, menu mutation, or public catalog route for the hosted Workbench.
+- No production traffic promotion merely because an authenticated preview route exists.
 
 ## Principles
 
@@ -69,6 +78,9 @@ For organ updates, one receipt-backed signal becomes one deterministic delivery 
 - Work identity, execution identity, and visual projection remain separate concepts.
 - A branch remains a proof-bound launch path; shared Mission Fabric is the bridge across work types.
 - Agent and skill visibility must always resolve back to an assigned task, pinned loadout, and receipt.
+- Canonical facts, derived source signals, and local planning intent remain separate visible layers.
+- Portfolio scanning is the default interaction; detailed configuration is progressive and item-focused.
+- Commercial reuse is orthogonal to lifecycle, so white-labelability never replaces active, paused, complete, or archived status.
 
 ## Constraints
 
@@ -91,6 +103,11 @@ For organ updates, one receipt-backed signal becomes one deterministic delivery 
 - The WorkObject registry is a content-addressed classification snapshot subordinate to Vault authority and cannot supply operational state.
 - Catalog-to-Mission-Fabric joins use exact canonical `workId` only; names, aliases, folder names, and unresolved tenant identities never join.
 - Fitcheck remains `sapling:fitcheck` under canonical parent tenant `cambium`; `FitCheck` and `getfitcheck` remain non-authoritative aliases.
+- The checked-in 54-WorkObject digest remains the bounded offline source for this artifact.
+- Existing v1 local packets remain importable and migrate without turning old bulk selection into an expanded page.
+- The standalone bundle performs no network request and remains usable at Telegram-width, tablet, and desktop breakpoints.
+- The hosted Workbench reuses the existing Telegram third-party signature validator and `GATE_FOUNDER_IDS` authorization list.
+- The protected HTML is never served before founder authorization; the public route contains only a bounded authentication loader.
 
 ## Goal
 
@@ -101,6 +118,10 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 For the operating-fabric iteration, define and visualize one shared model that distinguishes saplings from company programs, compiles both into a read-only Mission Fabric, overlays agents and skill clusters through pinned task loadouts, and maps the complete propose → approve → dispatch → execute → receipt → learn loop into buildable Telegram pages. The iteration is complete when the active architecture contract, implementation plan, roadmap phase, offline visual workflow, and Codex-generated moodboard all agree on the same ontology and authority boundaries.
 
 For the portfolio-catalog iteration, the founder-facing Telegram Mini App must render all 54 classified WorkObjects from the digest-pinned Vault registry—12 Saplings, 28 client Branches, and 14 internal Programs—plus separate historical and classification-needed summaries. Each selected item receives its type-correct lifecycle grammar and exact live Goal Graph/skill/loadout overlays when they exist; missing operational or capability mappings remain explicit gaps. The local implementation is complete only when the catalog snapshot, route response, five-page UI, mobile proof, tests, and documentation agree without mutating production or promoting the registry into an operational writer.
+
+For the portfolio-workbench iteration, replace the form-dense Cartographer with an overview-first planning surface derived from the Vault taxonomy. Done means the 54 canonical WorkObjects remain intact; ongoing, paused, completed, archived, needs-review, and white-labelable signals are fast to scan and propose; long-term horizons and custom tags are editable with one focused item or an explicit bulk mode; delivery routing is progressively disclosed; v1 state migrates; and the deterministic bundle passes responsive, accessibility, persistence, import/export, density, and zero-network probes.
+
+For the hosted-admin iteration, mount that exact Workbench at `/admin/portfolio` through a public no-data loader and a founder-only `/v1/admin/portfolio` document endpoint. The route must reuse signed Telegram `initData` and the existing founder list, expose no portfolio HTML to missing, invalid, stale, or non-founder identities, remain proposal-only after authorization, and leave Telegram configuration plus production traffic unchanged until a separate promotion gate.
 
 ## Criteria
 
@@ -811,6 +832,103 @@ For the portfolio-catalog iteration, the founder-facing Telegram Mini App must r
 - [x] ISC-571: A zero-traffic Cambium candidate serves the portfolio and organ-delivery projection with production binding parity.
 - [x] ISC-572: Anti: production traffic, Telegram menu configuration, or recurring schedules change before founder-device read and signed-Gate proof.
 
+### Portfolio cartographer decision artifact
+
+- [x] ISC-573: Antecedent: the opening view explains classification, timing, pipeline, and export in one screen.
+- [x] ISC-574: The artifact loads exactly 54 canonical WorkObjects from the checked-in portfolio snapshot.
+- [x] ISC-575: The artifact reports exactly 12 Saplings, 28 client Branches, and 14 internal Programs.
+- [x] ISC-576: The artifact preserves all 16 classification-review records separately from canonical WorkObjects.
+- [x] ISC-577: The artifact preserves all 19 historical product surfaces separately from active classification.
+- [x] ISC-578: Search filters WorkObjects by name, identifier, account, lifecycle, and tenant status.
+- [x] ISC-579: Classification filters isolate Saplings, client Branches, and internal Programs.
+- [x] ISC-580: Individual and bulk selection update one visible selection summary.
+- [x] ISC-581: Every selected WorkObject accepts one local planning horizon: now, next, later, or park.
+- [x] ISC-582: Every selected WorkObject accepts one local priority from one through five.
+- [x] ISC-583: Every selected WorkObject accepts a founder instruction and desired outcome.
+- [x] ISC-584: Every selected WorkObject accepts one primary organ and one valid organ trigger.
+- [x] ISC-585: The five organ workflows expose canonical stages, skill hints, Telegram topics, and approval boundaries.
+- [x] ISC-586: The pipeline canvas renders WorkObject-to-organ-to-stage-to-topic connections.
+- [x] ISC-587: Client-audience Will paths visibly require Mini App Gate approval.
+- [x] ISC-588: Blocked, failed, and drifted paths visibly escalate to Alerts.
+- [x] ISC-589: Decision edits persist across a browser reload using local-only storage.
+- [x] ISC-590: JSON export contains source metadata, selections, decisions, pipelines, and timestamps.
+- [x] ISC-591: Markdown export produces a readable instruction brief for the assistant.
+- [x] ISC-592: Importing a prior JSON export restores the same decision state.
+- [x] ISC-593: Reset requires explicit confirmation before clearing local decisions.
+- [x] ISC-594: Every interactive control is keyboard reachable with a visible focus state.
+- [x] ISC-595: The artifact remains usable at 390px, 768px, and 1440px without horizontal page overflow.
+- [x] ISC-596: A single self-contained HTML bundle opens without a development server.
+- [x] ISC-597: Source authority and classification digest remain visible in the artifact.
+- [x] ISC-598: Anti: the artifact performs any network request, Telegram send, Cloudflare mutation, or D1/KV write.
+- [x] ISC-599: Anti: local categorization silently claims to mutate Vault classification or operational authority.
+- [x] ISC-600: Anti: the artifact invents agent assignments, receipts, tenant activation, or pipeline completion.
+
+### Portfolio planning workbench redesign
+
+- [x] ISC-601: Antecedent: the opening viewport identifies ongoing, paused, white-labelable, review-needed, and unplanned work without requiring selection.
+- [x] ISC-602: The redesigned workbench loads exactly 54 canonical WorkObjects from the digest-pinned snapshot.
+- [x] ISC-603: Every WorkObject card displays its canonical classification and lifecycle or promotion state.
+- [x] ISC-604: Every card distinguishes source-derived facts from local planning intent with explicit provenance labels.
+- [x] ISC-605: Local portfolio signals use exactly unplanned, ongoing, paused, completed, and archived values.
+- [x] ISC-606: White-labelable is modeled as a reuse tag independent from the portfolio signal.
+- [x] ISC-607: Brightme and Instal display source-derived white-labelable reuse.
+- [x] ISC-608: SandBoxLife and Thoughtseed Company Website display source-derived paused overlays without changing canonical lifecycle.
+- [x] ISC-609: Smart views exist for all work, ongoing, paused, white-labelable, needs review, and unplanned work.
+- [x] ISC-610: Each smart view displays an exact matching item count.
+- [x] ISC-611: Search filters by name, identifier, account, tenant, canonical state, portfolio signal, horizon, and tag.
+- [x] ISC-612: Classification filters isolate Saplings, client Branches, and internal Programs.
+- [x] ISC-613: Local planning horizons include now, next, this year, later, and park.
+- [x] ISC-614: A focused WorkObject accepts a portfolio-signal change with one button interaction.
+- [x] ISC-615: Bulk-selection mode is off by default.
+- [x] ISC-616: The bulk action bar renders only while bulk-selection mode has selected items.
+- [x] ISC-617: One bulk action updates the portfolio signal of every explicitly selected item.
+- [x] ISC-618: One bulk action updates the planning horizon of every explicitly selected item.
+- [x] ISC-619: One bulk action adds or removes one normalized tag across every explicitly selected item.
+- [x] ISC-620: At most one WorkObject detail drawer is expanded at a time.
+- [x] ISC-621: The focused Plan view edits priority, horizon, next action, desired evidence, and tags.
+- [x] ISC-622: The focused Delivery view edits organ, valid trigger, signal status, and audience.
+- [x] ISC-623: Changing the organ resets the trigger to one valid trigger for that organ.
+- [x] ISC-624: A client-audience Will delivery visibly requires Mini App Gate approval.
+- [x] ISC-625: Blocked, failed, and drifted delivery signals visibly escalate to Alerts.
+- [x] ISC-626: Unfocused portfolio cards render no textarea, organ selector, trigger selector, or pipeline-stage form.
+- [x] ISC-627: Restoring 35 legacy decisions renders fewer than 40 select controls and a page shorter than 8,000 pixels at 757px width.
+- [x] ISC-628: A v1 Cartographer packet migrates selected decisions into the redesigned local state without data loss.
+- [x] ISC-629: The v2 JSON packet round-trips portfolio signals, horizons, priorities, tags, plans, and delivery settings.
+- [x] ISC-630: Local planning edits survive a browser reload.
+- [x] ISC-631: Reset requires explicit confirmation before clearing local planning state.
+- [x] ISC-632: Markdown export summarizes smart-view status, planning intent, and focused delivery paths.
+- [x] ISC-633: Custom tags are trimmed, normalized, deduplicated, and bounded before persistence or export.
+- [x] ISC-634: Source-derived status and reuse chips have no mutation control.
+- [x] ISC-635: Historical product surfaces remain available in a separate archive view.
+- [x] ISC-636: Classification-review records remain available in a separate review queue.
+- [x] ISC-637: The workbench has no horizontal page overflow at 390px, 768px, and 1440px.
+- [x] ISC-638: Interactive controls are keyboard reachable, visibly focused, and the drawer restores focus when closed.
+- [x] ISC-639: Anti: the standalone bundle initiates a network request or imports an external script, font, or stylesheet.
+- [x] ISC-640: Anti: a local planning action claims canonical, operational, tenant, assignment, receipt, or Telegram authority.
+
+### Hosted founder Workbench
+
+- [x] ISC-641: `GET /admin/portfolio` returns a bounded Telegram authentication loader.
+- [x] ISC-642: The public loader contains no canonical portfolio catalog record.
+- [x] ISC-643: The loader reads Telegram `initData` only from the in-memory WebApp object.
+- [x] ISC-644: The loader sends Telegram `initData` only through the `x-telegram-init-data` request header.
+- [x] ISC-645: The protected Workbench endpoint returns 503 when the Telegram gate is unconfigured.
+- [x] ISC-646: The protected Workbench endpoint returns 401 when Telegram authentication is missing or invalid.
+- [x] ISC-647: The protected Workbench endpoint returns 401 for a valid non-founder Telegram identity.
+- [x] ISC-648: A valid founder request receives the exact bundled Portfolio Workbench document.
+- [x] ISC-649: The protected Workbench response is marked `no-store`.
+- [x] ISC-650: The protected Workbench response carries a restrictive Content Security Policy.
+- [x] ISC-651: Non-GET requests to either Workbench route return 405.
+- [x] ISC-652: The operating-fabric navigation reveals the Workbench link only after founder-detail activation.
+- [x] ISC-653: Aggregate-only non-founder activation leaves the Workbench link hidden.
+- [x] ISC-654: The embedded hosted document preserves the standalone proposal-only and zero-network markers.
+- [x] ISC-655: Serving either Workbench route performs zero D1, KV, R2, Telegram, or provider writes.
+- [x] ISC-656: Anti: this integration adds a Telegram identity, menu mutation, tenant, writer, or alternate authorization system.
+- [x] ISC-657: The generated Worker embed matches `bundle.html` byte-for-byte by SHA-256.
+- [x] ISC-658: Focused route, authorization, shell-link, and bundle tests pass.
+- [x] ISC-659: A browser probe shows the public loader failing closed outside Telegram and the authenticated fixture rendering the Workbench.
+- [x] ISC-660: Anti: production Worker traffic changes before separate promotion authorization and rollback proof.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -894,6 +1012,17 @@ For the portfolio-catalog iteration, the founder-facing Telegram Mini App must r
 | ISC-549..557 | Mini App integration | founder detail, aggregate redaction, five workflows, honest selected state, Gate safety, and mobile layout pass | route/renderer tests, browser proof, viewport screenshots |
 | ISC-558..567 | Hermes transport | schema/topic validation, threaded send, replay suppression, receipt discipline, dry-run, and no fallback pass | focused Hermes unit tests with injected sender |
 | ISC-568..572 | release and staging | both release gates pass and only a zero-traffic candidate changes before founder-device gates | repository test suites, Wrangler version probes, production-state comparison |
+| ISC-573..577 | portfolio coverage | opening orientation plus exact WorkObject, review, and historical counts match canonical snapshots | unit tests and DOM assertions |
+| ISC-578..584 | decision controls | search, filters, selection, horizon, priority, instruction, organ, and trigger round-trip in browser state | unit tests and Playwright interaction |
+| ISC-585..588 | pipeline truth | five canonical organ workflows, Gate requirement, and Alerts escalation render as connected labeled paths | source assertions and DOM inspection |
+| ISC-589..593 | durable local decisions | reload, JSON export/import, Markdown export, and confirmed reset preserve or clear exact state | unit tests and browser reload |
+| ISC-594..597 | artifact experience | keyboard focus, responsive layouts, single-file bundle, and source metadata remain visible | Playwright at 390/768/1440 plus bundle probe |
+| ISC-598..600 | authority safety | no network/runtime mutation or invented operational truth appears in source or runtime | static source audit and browser network capture |
+| ISC-601..612 | overview and source truth | opening smart views, exact counts, search, types, lifecycle, overlays, and provenance match the snapshot | domain tests and browser DOM assertions |
+| ISC-613..625 | planning and delivery interaction | horizons, one-click signal, explicit bulk mode, focused drawer, organ reset, Gate, and Alerts behave deterministically | unit tests and browser interaction |
+| ISC-626..634 | density and durability | unfocused cards stay compact, 35-item v1 migration stays bounded, v2 round-trips, reload/reset/export/tags remain safe | domain tests, browser geometry, reload, import/export |
+| ISC-635..640 | secondary queues and safety | archive/review views, responsive focus behavior, zero-network bundle, and authority disclaimers pass | browser probes and static bundle audit |
+| ISC-641..660 | hosted founder route | signed founder authorization, no-data loader, exact embedded bundle, hidden non-founder link, CSP, zero writes, browser proof, and no promotion pass | focused Node tests, SHA-256 probe, browser capture, Wrangler dry-run, production-status comparison |
 
 ## Features
 
@@ -943,6 +1072,16 @@ For the portfolio-catalog iteration, the founder-facing Telegram Mini App must r
 - `OrganDeliveryMiniApp` | Expose five organ workflows and honest selected-work delivery context in the existing five scenes | satisfies ISC-549..557 | depends_on OrganUpdateDeliveryContract | parallelizable true
 - `HermesOrganTransport` | Validate, thread, deduplicate, send, and receipt organ-update deliveries without schedule authority | satisfies ISC-558..567 | depends_on OrganUpdateDeliveryContract | parallelizable true
 - `OrganDeliveryReleaseProof` | Verify both repositories and upload only a zero-traffic candidate before device gates | satisfies ISC-568..572 | depends_on OrganDeliveryMiniApp, HermesOrganTransport | parallelizable false
+- `PortfolioCartographerData` | Normalize the canonical portfolio, review, historical, lifecycle, and organ workflow snapshots for offline use | satisfies ISC-574..577, ISC-585, ISC-597, ISC-600 | depends_on PortfolioRegistrySnapshot, OrganUpdateDeliveryContract | parallelizable false
+- `PortfolioDecisionCanvas` | Search, select, classify, prioritize, schedule, and annotate WorkObjects without changing source authority | satisfies ISC-573, ISC-578..584, ISC-589, ISC-599 | depends_on PortfolioCartographerData | parallelizable false
+- `PortfolioPipelineComposer` | Draw labeled WorkObject-to-organ-to-stage-to-topic paths with Gate and Alerts truth | satisfies ISC-585..588, ISC-600 | depends_on PortfolioDecisionCanvas | parallelizable false
+- `PortfolioInstructionExport` | Persist locally and round-trip JSON plus Markdown instruction packets | satisfies ISC-589..593 | depends_on PortfolioDecisionCanvas, PortfolioPipelineComposer | parallelizable false
+- `PortfolioCartographerProof` | Bundle and prove the artifact across accessibility, responsive, offline, and no-network gates | satisfies ISC-594..600 | depends_on all portfolio cartographer features | parallelizable false
+- `PortfolioWorkbenchModel` | Separate canonical source facts, derived signals, and reversible local planning overlays with v1 migration | satisfies ISC-602..608, ISC-613, ISC-628..634 | depends_on PortfolioCartographerData | parallelizable false
+- `PortfolioWorkbenchOverview` | Replace selection-first forms with smart views, compact cards, search, filters, and explicit bulk mode | satisfies ISC-601, ISC-609..620, ISC-626..627 | depends_on PortfolioWorkbenchModel | parallelizable false
+- `PortfolioWorkbenchDrawer` | Focus one project across Plan and Delivery tabs with Gate and Alerts truth | satisfies ISC-621..625, ISC-638 | depends_on PortfolioWorkbenchOverview | parallelizable false
+- `PortfolioWorkbenchProof` | Prove archive/review access, deterministic bundle, responsive density, persistence, and zero authority mutation | satisfies ISC-629..640 | depends_on all portfolio workbench features | parallelizable false
+- `HostedAdminPortfolioWorkbench` | Serve the exact Workbench through the existing signed founder wall and a no-data Telegram loader | satisfies ISC-641..660 | depends_on PortfolioWorkbenchProof, PortfolioCatalogProjection | parallelizable false
 
 ## Architecture
 
@@ -964,6 +1103,16 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-01 13:00 refined: the public route authenticates no identity and carries no catalog bytes; it is only a Telegram bootstrap. The protected endpoint is the sole authorization seam and consumes the existing Worker gate configuration, so there is no second allowlist or identity system to drift.
+- 2026-08-01 13:00 refined: every denied Workbench request now returns byte-identical 401 headers and bodies. Missing, malformed, and valid non-founder `initData` cannot disclose allowlist reasoning; the only identity is the one inside Telegram-signed data.
+- 2026-08-01 13:00 root-cause-at-ingestion: hiding a protected document in client navigation cannot secure bytes already shipped in the public page. The fix protects the document at the Worker response boundary, exposes only a catalog-free loader publicly, and makes link visibility a secondary founder-detail cue.
+- 2026-08-01 13:00 advisor verification: the final post-build Advisor returned PASS after the uniform-denial, two-state DOM, named standalone-gate, and three-run deterministic SHA proofs; its earlier timing concern was rejected because the route accepts no arbitrary candidate identity outside signed Telegram `initData`.
+- 2026-08-01 12:00 refined: the redesign separates three layers: immutable source facts, source-derived projections such as paused and white-labelable, and reversible local planning intent. Chips name their provenance; local actions cannot impersonate Vault or operational writers.
+- 2026-08-01 12:00 root-cause-at-ingestion: interaction overload enters when selection creates a complete DecisionCard and PipelineCard for every item. The fix moves upstream into the UI state model: portfolio membership is always visible, bulk selection is explicit, and only one focused item materializes Plan or Delivery controls.
+- 2026-08-01 12:00 refined: recurring planning optimizes for scan → tag → focus. Delivery routing remains available but is no longer the default visual layer.
+- 2026-08-01 12:00 refined: canonical lifecycle remains type-specific; local planning uses a smaller cross-portfolio signal vocabulary, while white-labelability stays an orthogonal reuse dimension.
+- 2026-08-01 12:00 delegation choice: Forge owns the bounded React/domain/CSS implementation because E4 coding requires cross-model production; Cato remains read-only and audits only after live proof. Directed Vault and repository lookups stayed local because Glob and rg answered them in under thirty seconds.
+- 2026-08-01 12:35 advisor degradation: both mandatory pre-build advisor invocations returned process session receipts without review content. No approval was inferred; implementation remains constrained by the architecture design, atomic ISC-601..640 probes, and independent Cato audit.
 - 2026-07-29 10:47 learned: Telegram proactivity is an authority chain, not a timer. A scoped assignment token cannot mint delivery intent; client Will delivery requires an exact founder Gate record; Cambium compiles one receipt-backed envelope; Hermes validates and transports it; the Mini App fails closed on unverified dynamic detail. This boundary closed both audit exploits without granting schedule, menu, tenant-activation, or production-traffic authority.
 - 2026-07-29 09:39 refined: “proactive” means event-driven receipt-to-topic delivery, not a new recurring cron. Existing Phase 7 scheduling gates remain authoritative.
 - 2026-07-29 09:39 refined: Cambium compiles and displays delivery intent; Hermes validates the canonical topic and performs Telegram transport. This preserves one topology owner and prevents a second bot sender.
@@ -1035,9 +1184,19 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-07-29 08:04: Advisor accepted the sidecar shape but rejected the unqualified exact-ID and dual-digest assumptions. The plan now requires type-aware canonicalization at ingestion, a normalized catalog digest, a graph+catalog pair digest, founder-only detailed catalog delivery, server-side aggregate redaction for non-founders, and bidirectional join reporting.
 - 2026-07-29 08:04: Pre-build dry-run against the canonical local Mission Fabric fixture produced 54 catalog WorkObjects, 2 runtime WorkObjects, 2 exact canonical matches (`sapling:cambium`, `program:cambium-operating-fabric`), 0 runtime orphans, and 52 catalog entries without fixture runtime admission. The low match rate is expected and becomes visible product state, not a reason to fabricate runtime nodes.
 - 2026-07-29: The inert zero-traffic staging candidate (Version `28d39b23-9a05-4497-afe8-f90f59bd74e5`) is accepted on the strength of the fresh Task 13 gate re-run (implementer-reported, corroborated by explicit pass/fail summaries — not independently rerun in full by the reviewer), binding-name parity with production (independently re-probed by the controller), and independent OmniRoute review (`VERDICT: APPROVED (staging-only); promotion and rollback blocked`, recorded in `task-14-review.md`). The reviewer independently reran only `node --test workers/quests/src/mission-fabric-route.test.ts` (18/18); the outer implementer `tail`/`tee` wrapping without `pipefail` around the remaining gate commands is a theoretical exit-status masking gap, so the full release gate must be rerun directly (not through that pipeline) before any production promotion. Production promotion remains stopped: it requires both resolution of the canonical pilot-tenant identity (`cambium` accepted at full company-wide scope, or a founder-authorized expand-only ADR for a distinct `getfitcheck`/`fitcheck` tenant) and real-device Telegram proof (founder-device read proof plus signed Gate proof, captured as two independent artifacts per ISC-337/ISC-442) before `MISSION_FABRIC_TENANTS` is touched.
+- 2026-07-29 14:26 refined: Portfolio integration begins with a local proposal-only Cartographer, not a fresh Telegram identity. The founder first selects canonical WorkObjects, proposes timing and categorization, connects an organ route, and exports one bounded instruction packet; Vault classification, Cambium D1 authority, and Hermes transport remain unchanged until a later reviewed integration step.
+
+- 2026-08-01 13:38: refined: The hosted Workbench uses a public no-data loader plus a founder-only document endpoint because top-level Telegram navigation cannot attach the signed `initData` header. UI hiding is navigation affordance only; `validateInitData` remains the server authorization boundary.
+- 2026-08-01 13:38: Advisor confirmed the route shape after requiring explicit proof of the existing 600-second `auth_date` freshness window, shared `GATE_FOUNDER_IDS` source, missing/non-founder refusal, non-logging of `initData`, direct-route authorization, and full release gates. The route preserves existing 401 auth semantics instead of adding a new identity-specific status contract.
+- 2026-08-01 13:38: A Worker-level rate-limit policy is recorded as an optional infrastructure follow-up, not silently introduced in this route integration; the new endpoint reuses the same Ed25519 validation cost and abuse surface as existing founder-gated routes.
+- 2026-08-01 13:42: Root-cause-at-ingestion checkpoint — protected portfolio bytes would leak if the complete bundle entered the public loader or main PAGE before Telegram authorization. The fix therefore gates document delivery at `/v1/admin/portfolio`; the public `/admin/portfolio` route contains no portfolio facts, and the operating-fabric link is only a discoverability layer over the same server wall.
 
 ## Changelog
 
+- 2026-08-01 | conjectured: a restrictive CSP header on the authenticated fetch response would govern HTML subsequently installed with `document.write`
+  refuted by: fetch does not install response CSP as document policy, so the loader's `connect-src 'self'` remained active after rendering
+  learned: protected document bytes must carry their own early CSP meta when an authenticated loader installs them without a navigation boundary; a real browser must prove blocked egress never reaches the server
+  criterion now: ISC-648..650 and ISC-654..658 require document/header CSP parity, a Chromium same-origin block probe, exact generated parity, and complete cryptographic gate configuration
 - 2026-07-13 | conjectured: Fresh proof screenshots and a page digest were sufficient to keep the Telegram closeout instructions trustworthy
   refuted by: production served a queued ActionRequest through `topic.sourceMessageId` while the renderer fixture depended on extra `telegram.messageId` and the open issue still requested the earlier confirmation state
   learned: proof freshness must cover the runtime data shape and state transition, not only the page source and viewport geometry
@@ -1110,8 +1269,24 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   refuted by: D1 existence-only counts on `goal_graph_heads` show `getfitcheck=0` under any tenant and `fitcheck=0` as an independent tenant id — the only `fitcheck`-named artifact in the repository is a branch/story scoped under the company-wide tenant `cambium=1`
   learned: a branch or story alias must never be treated as an independent canonical tenant identity; promotion requires either accepting the full company-wide `cambium` scope or a founder-authorized expand-only ADR that creates a genuinely new `getfitcheck`/`fitcheck` tenant
   criterion now: ISC-422 requires canonical tenant-identity resolution from authority evidence before promotion; ISC-445 forbids exposing any nonpilot tenant, branch, or program through the pilot-promotion action
+- 2026-07-29 | conjectured: direct Mini App integration was the next useful portfolio step
+  refuted by: the founder needed one visual decision surface to classify, sequence, and connect all mapped work before authorizing any runtime or Telegram change
+  learned: a proposal-only offline packet is the correct seam between portfolio truth and later operational integration
+  criterion now: ISC-573..600 require the standalone Cartographer, exact source counts, connected organ routes, durable local decisions, responsive proof, and zero runtime mutation
+- 2026-08-01 | conjectured: exposing every decision and delivery field on every selected project made portfolio planning more capable
+  refuted by: 35 restored items produced 248 selects, 35 textareas, 35 pipeline cards, and a 33,020-pixel page before any focused planning began
+  learned: long-term planning should scan, filter, tag, focus, and optionally inspect delivery; progressive disclosure is a state-model property, not cosmetic collapse
+  criterion now: ISC-601..640 require smart views, orthogonal reuse tags, one focused drawer, explicit reversible bulk planning, durable migration, and offline authority safety
 
 ## Verification
+
+- 2026-08-01 ISC-641..660 hosted founder Workbench proof: `GET /admin/portfolio` serves only the bounded Telegram bootstrap; browser DOM shows it failing closed outside Telegram. `/v1/admin/portfolio` returns 503 for absent, empty-key, or malformed-key gate configuration; missing, invalid, and valid non-founder identities receive byte-identical 401 headers and bodies; a signed founder receives the exact generated Workbench. Both routes are GET-only, responses are `no-store`, route tests prove zero storage/provider writes, and the document/header CSP policies agree except for header-only `frame-ancestors`. The operating-fabric VM harness proves the link stays hidden, inert, and aria-hidden for aggregate viewers and becomes visible, interactive, and aria-exposed only with founder-detail records. Real-browser inspection rendered all 54 records and reduced White Labelable to Brightme and Instal before restoring All.
+- 2026-08-01 hosted release gates: `pnpm check` passes 14/14 domain tests, lint, TypeScript, Vite bundle, zero-egress audit, real Chromium CSP smoke, and standalone smoke. The 274,038-byte `bundle.html` and generated Worker embed reproduce SHA-256 `b4ff0eea93bdbeb786c728e833ac8675d634ff6c4bf40570be6ea46d636c1107`; route tests prove byte-for-byte parity. Chromium injects a same-origin fetch beneath the exact early document CSP meta and records `blocked` while the server observes zero probe requests. Focused Workbench plus operating-fabric tests pass 242/242; the complete repository suite passes 1523/1523; the mobile contract and canonical 47-image viewport proof pass; final strict Wrangler dry-run and `git diff --check` pass. Final Advisor verdict is PASS. Final independent Cato re-audit is PASS with both initial findings closed: effective document CSP and 64-hex Ed25519 gate configuration. No deployment, production traffic, Telegram menu/send, tenant, secret, D1/KV/R2, schema, or provider mutation occurred.
+- 2026-08-01 ISC-601..612 overview and source-truth proof: browser DOM renders 54/54 canonical cards with exact 12 Saplings, 28 client Branches, and 14 internal Programs; source-derived counts are 35 ongoing, 2 paused, 2 white-labelable, 16 review, 10 unplanned, and 19 historical. Brightme and Instal alone populate the white-labelable view; SandBoxLife and Thoughtseed Company Website retain approved lifecycle plus source paused overlays. Search returns all eleven HeyZack-family records, classification filters remain explicit, and every mutable-looking value is labeled `source` or `local plan`.
+- 2026-08-01 ISC-613..625 planning and delivery proof: the semantic horizon board renders Unscheduled plus Now, Next, This year, Later, and Park; pristine state places all 54 WorkObjects in Unscheduled and zero in an implied planning horizon. A focused Fitcheck plan accepted paused, this-year, P1, `#founder-focus`, action, and evidence edits, persisted them across reload, and exposed exactly one drawer. Delivery changed Hands→Will→Genesis while resetting each trigger to a valid organ trigger; Will/client visibly required Mini App Gate; blocked routed to Alerts; Genesis removed the client audience. Explicit bulk mode exposed 54 checkboxes only after activation, announced two selected items, applied paused to both, then `Undo bulk change` restored byte-identical card text and zero local plans.
+- 2026-08-01 ISC-626..640 density, migration, accessibility, and safety proof: default unfocused rendering has 0 selects, 0 textareas, 0 checkboxes, and 0 pipeline cards. The domain suite migrates 35 complete v1 decisions, preserves every legacy classification proposal enum as explicit local intent, rejects partial/corrupt/future/unknown-WorkObject packets, proves v2 round-trip including a Next-only plan, normalizes bounded tags, recomputes source overlays against the current digest, and blocks autosave while unreadable original data awaits explicit Import or Reset. Browser geometry proves no document overflow at 320, 390, 768, or 1440 pixels; the final 757px preview renders two columns at 7,234px and desktop renders three columns at 4,870px. The 390px drawer is exactly viewport-wide below the 66px header and focuses Close. Escape returns focus to the originating card when present; when a signal change filters the source card away, focus moves to the stable workspace H1. Separate queues render 16 review and 19 historical records. `pnpm check` passes 14/14 tests, lint, TypeScript, Vite build, bundle, standalone audit, document-CSP browser smoke, and standalone smoke. Final `bundle.html` is 274,038 bytes with SHA-256 `b4ff0eea93bdbeb786c728e833ac8675d634ff6c4bf40570be6ea46d636c1107`; the audit rejects external assets, forms, fetch, XHR, WebSocket, beacon, and Telegram primitives. The local preview server observed only `/bundle.html` and favicon requests throughout interaction proof. Direct `file://` proof was not attempted beyond the in-app browser's explicit blocked-URL result; supported preview remains `http://127.0.0.1:4176/bundle.html`. No Vault, TeamForge, Huly, GitHub, Cambium D1, Cloudflare, Hermes, Telegram, tenant, allowlist, traffic, or schema mutation occurred.
+- 2026-08-01 advisor hardening: the post-build advisor initially withheld release for missing standalone gates, migration failure paths, 320px reflow, negative egress proof, overlay staleness, and bulk reversibility. The applicable findings are closed by dedicated audit/smoke scripts, malformed/partial/future rejection with original-payload preservation, current-source recomputation, the 320px geometry pass, zero-egress bundle scanning plus server access logs, announced bulk selection, and exact apply→undo proof. Browser policy prevents direct `file://` navigation; the artifact therefore names local HTTP as its verified delivery surface instead of claiming unsupported disk-origin persistence.
+- 2026-08-01 Cato fix loop: independent read-only audit reproduced legacy classification-intent loss, filtered-card focus loss, corrupt-payload overwrite risk, implicit Next scheduling, silent unknown-WorkObject import loss, bulk no-op plan creation, and Next-only persistence loss. The implementation now preserves all five legacy proposal enums as local tags, uses a stable heading focus fallback, removes the modeless drawer scrim, disables autosave until explicit recovery, separates nullable Unscheduled from five durable intentional horizons, routes every single/bulk write through one prune rule, and rejects unknown packet IDs. Browser proof places pristine work 54/54 in Unscheduled, persists Fitcheck as the sole Next plan across reload, restores it to zero plans, and proves removing an absent bulk tag stays a no-op. Final Cato verdict: `PASS` with no critical, high, or medium findings; its only low note is that several persistence, bulk-undo, recovery, and focus paths remain manual browser regression evidence rather than automated component tests.
 
 - 2026-07-29 portfolio and organ-update verification: ordered portfolio commit `ae929f12797a68aa506ed4868afcf8f7b5d48de0` preserves the 54-WorkObject Canopy slice; ordered Cambium organ-delivery commit `fabb819fb7a9d4fe8e1de86341e423289aef2a43` wires the typed compiler, guarded bridge, Mini App views, contracts, tests, and proof; Hermes commit `14ea8309919bc0ecd643ebdfeca3b86ad3f4ef9d` adds strict topic-aware transport. Cambium focused contract/route/renderer/browser tests pass 262/262, the full suite passes 1518/1518, and `npm run verify:release` passes on the clean committed head with drift, docs, product packets, 37/37 mission-fabric/readiness checks, standalone audit/smoke, the Telegram mobile contract, 99/99 R3F tests, build, and 5/5 desktop packaging checks. Canonical Chromium proof contains 47 artifacts (27 layout, 20 clickability) bound to PAGE SHA-256 `6f9e03495dab3538327566160754dbf33586e754a88a085077f975acf9614327`. Hermes full plugin tests pass 114/114 on its clean committed head and the direct TypeScript compiler → Python dry-run probe resolves Hands to Dev thread `862`. Independent adversarial re-audit is `PASS` after proving fabricated Gate approval, foreign tenant, assignment-only bridge access, and digest/route-spoofed UI data all fail closed; matching founder Gate approval succeeds. Independent browser QA is `PASS` at 320px, 390px, and 430px with all five organs, canonical topic destinations, Alerts-only escalation, context across Canopy/Mission/Flow/Workforce/Forge/Inspect/Gate, zero overflow, zero console/network errors, and zero Gate POSTs. Zero-traffic Cambium Version `da5c6284-82a0-4bb1-8080-7159535fd309`, tag `git-fabb819fb7a9d4fe8e1de86341e423289aef2a43`, script etag `52808c9f68674acba4dacfed3c2052f4f1603c4d2a0e53cedb7ed6f38780d8b3`, and alias `https://organ-updates-fabb819-cambium-quests.sheshnarayan-iyer.workers.dev` pass health, exact PAGE digest, portfolio/organ bundle markers, and byte-identical binding-name/type parity with production. Production Version `5b3425c5-5c14-4d71-b996-3c0d2c056f56` remains the sole 100%-traffic version. No production traffic, Telegram menu, Telegram send, D1/KV write, tenant allowlist, schema, secret, or recurring schedule changed.
 
@@ -1274,3 +1449,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-07-28 Task 6 verification: commits `368ca6e` and `781b9cb` preserve the pre-Task-6 `LEGACY_PAGE` digest `38b085ba3e3af7baad40c7cf36a5fc469da457eb30b27b730bffad504ca68b4a`, add exactly the five operating-fabric scene IDs, keep Worker/shared contracts byte-equivalent, and fail closed to the visible/interactive legacy shell for auth, allowlist, network, malformed, absent-flag, false-flag, and non-200 outcomes. Exact authenticated 200 activation hides, inerts, and AT-hides the legacy shell. Page assembly keeps one closing body tag and strips back to legacy byte-for-byte. Independent OmniRoute re-review: spec compliant, code quality approved, no Critical/Important findings. Controller verification: page/RBAC/handler 370/370, motion/density 17/17, `git diff --check` clean. The sole stale canonical screenshot digest is explicitly deferred to Task 13 full proof recapture; no manifest relabel occurred.
 - 2026-07-28 Task 7 verification: commits `45964b7`, `46ca5e2`, and `456b8b3` add the shared read-only operating-fabric visual grammar using canonical Mission Fabric node types. Cards expose bounded work/agent/cluster state, authority, freshness, assignment/capability, coverage, provenance, and explicit gaps; loading, empty, stale, unauthorized, error, and gap treatments remain distinct. Runtime allowlists, canonical timestamp and coverage validation, single-pass escaping, bounded labels, signature-based credential/prompt-content filtering, and missing-context fallbacks prevent raw evidence/auth/token/private payload rendering without hiding legitimate labels such as `Prompt Engineering`. The semantic tab control retains 44px and focus-visible behavior; passive spans do not masquerade as controls. Final OmniRoute review: spec compliant, code quality approved, zero findings. Controller verification: component 62/62, motion 7/7, density audit clean with the pre-existing ratified mission/empty override, `git diff --check` clean.
 - 2026-07-28 Task 10 verification: commit `a24fceb` adds deterministic read-only Workforce and Forge renderers, browser-parity bundles, synthetic canonical fixtures, scene contracts, and fail-closed five-root boot composition. Workforce derives assignment, executor, load, capability coverage, freshness, and exact-subject gaps only from resolving canonical IDs/edges; Forge derives membership, skills, demand, recorded/unknown evidence, exact lifecycle, and gaps without reverse-inventing deferred/archived state. Both scenes expose exact 48-card/24-item overflow truth, collision-safe public identities, late-secret redaction, normalized operational duplicate reconciliation, and inert Task 11 proposal cues with no write/action authority. Focused operating-fabric tests pass 181/181; Worker/RBAC regression tests pass 341/341; docs sync (6 pages/91 components), density, motion safety (7/7), `git diff --check`, and Wrangler dry-run all pass. Fresh OmniRoute review approved the five-scene client; renderer comments about source trust and existence-only duplicate values were checked against the frozen deterministic contract and closed with direct reversal plus Node/browser parity reproductions. No deployment, D1/KV/Telegram/allowlist mutation, screenshot recapture, or viewport manifest change occurred.
+- 2026-07-29 ISC-573..577 portfolio coverage: the standalone opening view renders the Select → Categorize → Trace → Export explanation, exact 54/12/28/14 active counts, the 16 classification-review records, 19 historical surfaces, visible Vault authority, and digest prefix `93b90ed7cee2…`. The domain suite proves the canonical snapshot counts and classifications.
+- 2026-07-29 ISC-578..593 decision and durability proof: 7/7 domain tests cover five-field search, exact organ workflows, Gate/Alerts routing, JSON round-trip, invalid-import rejection, and zero mutation primitives. Browser interaction selected `sapling:fitcheck`, changed its organ to Will, audience to client, status to blocked, added instruction/outcome evidence, rendered `Alerts`, `Mini App Gate required`, and `exceptional route`, restored the same state after reload, and copied a 1,046-character Markdown brief containing the exact Fitcheck route and instruction.
+- 2026-07-29 ISC-594..597 experience and bundle proof: visible focus styles exist for buttons, inputs, selects, textareas, and summaries; browser geometry reported zero horizontal overflow at 390, 768, and 1440 pixels; the 390-pixel Telegram-width capture retained the complete header, proposal boundary, export controls, counts, and workflow steps. `pnpm check` passes tests, scoped lint, TypeScript, Vite production build, and the single-file bundler. Final `bundle.html` is 253,843 bytes with SHA-256 `1d52a8ac5cdbd0965b8c5341a169e476225e5f38dfe396f20a745721ed4e9965`; its bundler rejects external script/style references and requires the cartographer schema marker.
+- 2026-07-29 ISC-598..600 authority safety: source audit finds no fetch, XMLHttpRequest, WebSocket, sendBeacon, Telegram send, Cloudflare mutation, or D1/KV write primitive; the browser loaded zero external scripts/styles and emitted zero console warnings/errors. The UI and exported packet name `proposal-only`, preserve Vault classification, keep Cambium Goal Graph/D1 as operational writer and Hermes as transport, and explicitly refuse tenant activation, agent assignment, receipt minting, or invented completion.

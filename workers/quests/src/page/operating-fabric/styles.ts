@@ -9,6 +9,9 @@ export const OPERATING_FABRIC_STYLES = `<style>
 #operating-fabric{position:relative;min-height:100dvh;color:var(--ink);padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);box-sizing:border-box}
 .of-nav{display:flex;gap:.5rem;overflow-x:auto;padding:.75rem max(1rem,env(safe-area-inset-right,0)) .75rem max(1rem,env(safe-area-inset-left,0))}
 .of-tab{flex:1;min-width:44px;min-height:44px;box-sizing:border-box;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-align:left;cursor:pointer}
+.of-workbench-link{display:flex;flex:1;flex-direction:column;justify-content:center;min-width:54px;box-sizing:border-box;border:1px solid rgba(224,255,79,.36);background:rgba(224,255,79,.08);color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-decoration:none}
+.of-workbench-link[hidden]{display:none}
+.of-workbench-link small{display:block;opacity:.72}
 .of-tab-label{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .of-tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 .of-tab small{display:block;opacity:.72}
@@ -91,8 +94,10 @@ export const OPERATING_FABRIC_STYLES = `<style>
 @media (max-width:640px){
   .of-nav{position:sticky;top:0;z-index:2;gap:.25rem;background:var(--bg)}
   .of-tab{padding:.5rem .125rem;text-align:center}
-  .of-tab-label{font:10.5px/1 var(--mono)}
+  .of-tab-label{font:8.5px/1 var(--mono)}
   .of-tab small{display:none}
+  .of-workbench-link{padding:.5rem .25rem;text-align:center}
+  .of-workbench-link small{display:none}
   .of-scene{padding:.625rem}
   .of-portfolio-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
   .of-portfolio-zone{padding:.625rem}

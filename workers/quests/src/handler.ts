@@ -57,6 +57,12 @@ import {
   ORGAN_UPDATE_SUMMARY,
   compileOrganUpdateDelivery,
 } from './organ-update-delivery.ts';
+import { PORTFOLIO_WORKBENCH_HTML } from './portfolio-workbench.generated.ts';
+import {
+  PORTFOLIO_WORKBENCH_CSP,
+  PORTFOLIO_WORKBENCH_LOADER,
+  PORTFOLIO_WORKBENCH_LOADER_CSP,
+} from './portfolio-workbench.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
@@ -647,6 +653,47 @@ const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QU
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
+
+const portfolioHtml = (body: string, contentSecurityPolicy: string): SimpleResponse => ({
+  status: 200,
+  headers: {
+    'content-type': 'text/html; charset=utf-8',
+    'cache-control': 'private, no-store',
+    'content-security-policy': contentSecurityPolicy,
+    'x-content-type-options': 'nosniff',
+    'referrer-policy': 'no-referrer',
+  },
+  body,
+});
+
+async function handlePortfolioWorkbenchRoute(
+  req: SimpleRequest,
+  deps: HandlerDeps,
+  routePath: string,
+): Promise<SimpleResponse> {
+  if (req.method !== 'GET') {
+    return {
+      ...json(405, { error: 'portfolio workbench is GET-only' }),
+      headers: { ...JSON_HEADERS, allow: 'GET' },
+    };
+  }
+  if (routePath === '/admin/portfolio') {
+    return portfolioHtml(PORTFOLIO_WORKBENCH_LOADER, PORTFOLIO_WORKBENCH_LOADER_CSP);
+  }
+  const gate = deps.gate;
+  const gateConfigured = Boolean(
+    gate?.botId.trim()
+    && /^[0-9a-f]{64}$/i.test(gate.pubKeyHex.trim())
+    && gate.founderIds.some((founderId) => founderId.trim()),
+  );
+  if (!gate || !gateConfigured) return json(503, { error: 'telegram auth is not configured' });
+  const initData = (req.headers['x-telegram-init-data'] ?? '').trim();
+  const auth = await validateInitData(initData, gate);
+  if (!auth.ok) {
+    return json(401, { error: 'telegram authentication failed' });
+  }
+  return portfolioHtml(PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
+}
 
 const ledgerKey = (tenant: string): string => `ledger:${tenant}`;
 const shortText = (value: unknown, fallback: string, max = 300): string => {
@@ -3602,6 +3649,10 @@ async function approveGoalGraphIntakeRoute(
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
+
+  if (routePath === '/admin/portfolio' || routePath === '/v1/admin/portfolio') {
+    return handlePortfolioWorkbenchRoute(req, deps, routePath);
+  }
 
   if (method === 'GET' && routePath === '/healthz/gate') {
     const gateConfigured = Boolean(
