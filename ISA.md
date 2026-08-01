@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Host portfolio workbench behind the Cambium Telegram admin wall"
+task: "Group portfolio work by client and guide review triage"
 effort: deep
 effort_source: classifier
 phase: complete
-progress: 629/660
+progress: 658/689
 mode: interactive
-iteration: 2026-08-01-hosted-admin-portfolio-workbench
+iteration: 2026-08-01-client-family-review-triage
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-01T13:11:24Z
+updated: 2026-08-01T14:17:30Z
 ---
 
 ## Problem
@@ -38,6 +38,8 @@ For the operating fabric, the founder opens one Canopy and immediately sees two 
 For organ updates, one receipt-backed signal becomes one deterministic delivery envelope. The Mini App shows Genesis, Taste, Hands, Will, and Cortex with their trigger, route, skills, proof, and approval boundary; Hermes validates the pinned topic and performs transport. Proactivity means surfacing meaningful state change with a receipt, not turning every organ into a noisy cron.
 
 For portfolio planning, the founder opens one calm workbench and immediately sees what is ongoing, paused, reusable, awaiting review, or still unplanned. One tap changes local planning intent, one focused drawer holds the project plan, and delivery mechanics stay available in a secondary tab. Canonical Vault facts and local proposals are visually distinct, making fast planning safer than slow form-filling.
+
+For client-family planning, the founder sees one expandable HeyZack family rather than eleven unrelated cards, while every Branch remains independently addressable. Unplanned work offers direct scheduling moves; Needs Review pairs each uncertain source record with a clearly labeled suggestion, one-tap alternatives, an optional client-family proposal, and visible completion progress. The hierarchy reduces scanning cost without inventing a new WorkObject, client identity, or canonical classification.
 
 ## Out of Scope
 
@@ -81,6 +83,9 @@ For portfolio planning, the founder opens one calm workbench and immediately see
 - Canonical facts, derived source signals, and local planning intent remain separate visible layers.
 - Portfolio scanning is the default interaction; detailed configuration is progressive and item-focused.
 - Commercial reuse is orthogonal to lifecycle, so white-labelability never replaces active, paused, complete, or archived status.
+- Client family is a relationship projection over canonical `accountId`; it is not a WorkObject kind or lifecycle state.
+- Review assistance must distinguish a recommendation from both a founder proposal and Vault truth.
+- Triage should reduce each common decision to one tap, with progressive detail only when the decision needs it.
 
 ## Constraints
 
@@ -108,6 +113,8 @@ For portfolio planning, the founder opens one calm workbench and immediately see
 - The standalone bundle performs no network request and remains usable at Telegram-width, tablet, and desktop breakpoints.
 - The hosted Workbench reuses the existing Telegram third-party signature validator and `GATE_FOUNDER_IDS` authorization list.
 - The protected HTML is never served before founder authorization; the public route contains only a bounded authentication loader.
+- Source-backed client-family grouping may use exact `accountId` only; display-name or free-text matches cannot regroup canonical WorkObjects.
+- Classification-review decisions remain local proposal data and never admit a review record into the operational catalog.
 
 ## Goal
 
@@ -122,6 +129,8 @@ For the portfolio-catalog iteration, the founder-facing Telegram Mini App must r
 For the portfolio-workbench iteration, replace the form-dense Cartographer with an overview-first planning surface derived from the Vault taxonomy. Done means the 54 canonical WorkObjects remain intact; ongoing, paused, completed, archived, needs-review, and white-labelable signals are fast to scan and propose; long-term horizons and custom tags are editable with one focused item or an explicit bulk mode; delivery routing is progressively disclosed; v1 state migrates; and the deterministic bundle passes responsive, accessibility, persistence, import/export, density, and zero-network probes.
 
 For the hosted-admin iteration, mount that exact Workbench at `/admin/portfolio` through a public no-data loader and a founder-only `/v1/admin/portfolio` document endpoint. The route must reuse signed Telegram `initData` and the existing founder list, expose no portfolio HTML to missing, invalid, stale, or non-founder identities, remain proposal-only after authorization, and leave Telegram configuration plus production traffic unchanged until a separate promotion gate.
+
+For the client-family and review-triage iteration, make grouping the calm default overview: source-backed client families contain their canonical Branches, with HeyZack and Axdis Group proving multi-project nesting. Unplanned WorkObjects receive direct horizon/review actions, and all 16 Needs Review records receive explicit, reversible, exportable local decisions with suggestions that are visibly non-authoritative. The exact regenerated bundle must remain byte-bound to the existing founder-only route without any deployment or external mutation.
 
 ## Criteria
 
@@ -929,6 +938,38 @@ For the hosted-admin iteration, mount that exact Workbench at `/admin/portfolio`
 - [x] ISC-659: A browser probe shows the public loader failing closed outside Telegram and the authenticated fixture rendering the Workbench.
 - [x] ISC-660: Anti: production Worker traffic changes before separate promotion authorization and rollback proof.
 
+### Client-family hierarchy and guided triage
+
+- [x] ISC-661: Client-family groups derive canonical membership only from exact non-null client Branch `accountId` values.
+- [x] ISC-662: The HeyZack family contains exactly its eleven canonical client Branches.
+- [x] ISC-663: The Axdis Group family contains exactly `branch:axtech` and `branch:axtech-erp`.
+- [x] ISC-664: Every remaining client Branch appears in exactly one source-backed client family.
+- [x] ISC-665: Saplings and internal Programs remain separate portfolio groups rather than fake client families.
+- [x] ISC-666: Each family header exposes its member count and effective signal summary.
+- [x] ISC-667: Family disclosure controls are keyboard reachable and expose expanded state semantically.
+- [x] ISC-668: A non-empty search reveals every matching member without requiring a separate family-expansion action.
+- [x] ISC-669: Family, grid, and horizon-board layouts remain directly selectable.
+- [x] ISC-670: Nested project cards retain canonical `workId`, classification, lifecycle, and planning controls.
+- [x] ISC-671: The Unplanned view offers one-action Now, Next, Later, Park, and Needs Review decisions per WorkObject.
+- [x] ISC-672: Unplanned quick decisions update only reversible local planning state.
+- [x] ISC-673: The Needs Review view renders all sixteen source classification-review records.
+- [x] ISC-674: Every source review record receives one deterministic local recommendation and rationale.
+- [x] ISC-674.1: Every recommendation exposes its rule version and source classification digest.
+- [x] ISC-675: Recommendation copy is visibly labeled `suggested` and never `source` or `canonical`.
+- [x] ISC-676: A review record can propose Sapling, Client Branch, internal Program, or remain in review with one tap.
+- [x] ISC-677: A Client Branch proposal accepts a bounded optional client-family identifier.
+- [x] ISC-678: A review decision can be reset without changing the source record.
+- [x] ISC-679: Review decisions round-trip through local persistence and JSON export/import.
+- [x] ISC-680: Markdown export includes each decided review record, proposed type, client family, and note.
+- [x] ISC-681: Needs Review exposes decided and remaining counts derived from the sixteen source records.
+- [x] ISC-682: Locally flagged WorkObjects remain separately visible from source review records.
+- [x] ISC-683: Family and review layouts have no horizontal page overflow at 390px, 768px, and 1440px.
+- [x] ISC-684: Anti: grouping or triage creates a WorkObject, canonical account, tenant, operational state, network request, or writer.
+- [x] ISC-685: The generated Worker embed remains byte-identical to the regenerated standalone bundle.
+- [x] ISC-686: Domain, lint, bundle, CSP, standalone, route, full Worker, and mobile proof gates pass.
+- [x] ISC-687: Existing v2 and legacy v1 local packets migrate into the versioned review-capable schema without losing WorkObject plans.
+- [x] ISC-688: Every one-tap Unplanned or review decision has a deterministic local undo or reset path.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1023,6 +1064,7 @@ For the hosted-admin iteration, mount that exact Workbench at `/admin/portfolio`
 | ISC-626..634 | density and durability | unfocused cards stay compact, 35-item v1 migration stays bounded, v2 round-trips, reload/reset/export/tags remain safe | domain tests, browser geometry, reload, import/export |
 | ISC-635..640 | secondary queues and safety | archive/review views, responsive focus behavior, zero-network bundle, and authority disclaimers pass | browser probes and static bundle audit |
 | ISC-641..660 | hosted founder route | signed founder authorization, no-data loader, exact embedded bundle, hidden non-founder link, CSP, zero writes, browser proof, and no promotion pass | focused Node tests, SHA-256 probe, browser capture, Wrangler dry-run, production-status comparison |
+| ISC-661..688 | client hierarchy and triage | exact account grouping, HeyZack/Axdis membership, guided unplanned/review actions, versioned durable review proposals, undo, responsive layout, exact embed, zero writers, and release gates pass | domain tests, DOM/browser interaction, v1/v2/v3 JSON migration, Markdown round-trip, canonical hash, SHA-256 probe, focused/full test suites |
 
 ## Features
 
@@ -1082,6 +1124,10 @@ For the hosted-admin iteration, mount that exact Workbench at `/admin/portfolio`
 - `PortfolioWorkbenchDrawer` | Focus one project across Plan and Delivery tabs with Gate and Alerts truth | satisfies ISC-621..625, ISC-638 | depends_on PortfolioWorkbenchOverview | parallelizable false
 - `PortfolioWorkbenchProof` | Prove archive/review access, deterministic bundle, responsive density, persistence, and zero authority mutation | satisfies ISC-629..640 | depends_on all portfolio workbench features | parallelizable false
 - `HostedAdminPortfolioWorkbench` | Serve the exact Workbench through the existing signed founder wall and a no-data Telegram loader | satisfies ISC-641..660 | depends_on PortfolioWorkbenchProof, PortfolioCatalogProjection | parallelizable false
+- `ClientFamilyProjection` | Derive expandable client families from exact source account IDs while keeping Saplings and Programs separate | satisfies ISC-661..670 | depends_on PortfolioWorkbenchModel | parallelizable false
+- `GuidedPortfolioTriage` | Turn Unplanned and Needs Review into one-action scheduling and classification decisions with non-authoritative suggestions | satisfies ISC-671..678, ISC-681..682, ISC-688 | depends_on ClientFamilyProjection | parallelizable false
+- `TriageDurability` | Persist and export review proposals in schema v3 while migrating v2 and legacy v1 WorkObject plans | satisfies ISC-679..680, ISC-684, ISC-687 | depends_on GuidedPortfolioTriage | parallelizable false
+- `ClientGroupingProof` | Rebundle, embed, and prove hierarchy plus triage across browser, Worker, mobile, and zero-writer gates | satisfies ISC-683..686 | depends_on ClientFamilyProjection, GuidedPortfolioTriage, TriageDurability | parallelizable false
 
 ## Architecture
 
@@ -1190,6 +1236,13 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-01 13:38: Advisor confirmed the route shape after requiring explicit proof of the existing 600-second `auth_date` freshness window, shared `GATE_FOUNDER_IDS` source, missing/non-founder refusal, non-logging of `initData`, direct-route authorization, and full release gates. The route preserves existing 401 auth semantics instead of adding a new identity-specific status contract.
 - 2026-08-01 13:38: A Worker-level rate-limit policy is recorded as an optional infrastructure follow-up, not silently introduced in this route integration; the new endpoint reuses the same Ed25519 validation cost and abuse surface as existing founder-gated routes.
 - 2026-08-01 13:42: Root-cause-at-ingestion checkpoint — protected portfolio bytes would leak if the complete bundle entered the public loader or main PAGE before Telegram authorization. The fix therefore gates document delivery at `/v1/admin/portfolio`; the public `/admin/portfolio` route contains no portfolio facts, and the operating-fabric link is only a discoverability layer over the same server wall.
+- 2026-08-01 14:18: refined: Client family is a read-only relationship projection over exact canonical `accountId`, never a fourth WorkObject type. HeyZack and Axdis Group are the multi-project proofs; Saplings and internal Programs remain explicit non-client groups.
+- 2026-08-01 14:18: refined: `unplanned` is an effective planning signal, while source classification review is a separate uncertain-record queue. The UI may connect them through local triage actions, but it must not merge their identities or counts.
+- 2026-08-01 14:18: Root-cause-at-ingestion checkpoint — management friction enters when the flat renderer discards the already-present `accountId` relationship and when review records have no durable local decision model. The fix belongs in domain grouping and packet state, not in cosmetic card headings.
+- 2026-08-01 14:18: ApertureOscillation was removed from the capability ledger because no callable skill exists in the active cluster index; IterativeDepth, ISA, FirstPrinciples, SystemsThinking, FeedbackMemoryConsult, Advisor, and ReReadCheck still exceed the E4 thinking floor.
+- 2026-08-01 14:29: Advisor hardening accepted: the local packet advances to a strictly versioned review-capable schema; v2 and v1 inputs migrate explicitly; review suggestions expose rule plus snapshot provenance; one-tap choices are reversible; and tests hash canonical catalog state before and after action-domain operations.
+- 2026-08-01 14:29: Advisor's editable canonical family-ID recommendation is rejected because exact `accountId` is already the source-backed client relationship, not a prefix heuristic. Canonical group projections remain uneditable; only uncertain review records may carry a local proposed client family.
+- 2026-08-01 14:29: Advisor's Telegram dedup concern is outside this artifact's execution boundary: the Workbench has no send path, network primitive, or operational proposal endpoint. The existing founder-only document gate remains unchanged and exact-bundle tests guard it.
 
 ## Changelog
 
@@ -1277,6 +1330,16 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   refuted by: 35 restored items produced 248 selects, 35 textareas, 35 pipeline cards, and a 33,020-pixel page before any focused planning began
   learned: long-term planning should scan, filter, tag, focus, and optionally inspect delivery; progressive disclosure is a state-model property, not cosmetic collapse
   criterion now: ISC-601..640 require smart views, orthogonal reuse tags, one focused drawer, explicit reversible bulk planning, durable migration, and offline authority safety
+
+- 2026-08-01 | conjectured: preserving an immutable source `unplanned` signal meant a Next or Later scheduling choice should remain inside the Unplanned work queue
+  refuted by: real-browser interaction showed the local horizon changed while the visible queue count stayed unchanged, making a completed planning decision look ineffective
+  learned: source lifecycle truth and the actionable planning queue are orthogonal; the queue must remove locally scheduled or review-routed work without rewriting its source signal
+  criterion now: ISC-671, ISC-672, and ISC-688 require every one-tap decision to resolve the computed queue through reversible local state while preserving source classification
+
+- 2026-08-01 | conjectured: independent quick-decision and bulk-change undo mechanisms were safe when each invalidated its own stale snapshots
+  refuted by: Cato reproduced an overlapping-history sequence where a retained bulk snapshot could erase a later quick decision and focused-drawer edit
+  learned: one planning surface needs one mutually exclusive history state whose transitions make incompatible histories impossible by construction
+  criterion now: ISC-672 and ISC-688 require unified bounded LIFO quick history, exclusive bulk history, and stateful bulk-to-quick-to-bulk sequence proof
 
 ## Verification
 
@@ -1453,3 +1516,6 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-07-29 ISC-578..593 decision and durability proof: 7/7 domain tests cover five-field search, exact organ workflows, Gate/Alerts routing, JSON round-trip, invalid-import rejection, and zero mutation primitives. Browser interaction selected `sapling:fitcheck`, changed its organ to Will, audience to client, status to blocked, added instruction/outcome evidence, rendered `Alerts`, `Mini App Gate required`, and `exceptional route`, restored the same state after reload, and copied a 1,046-character Markdown brief containing the exact Fitcheck route and instruction.
 - 2026-07-29 ISC-594..597 experience and bundle proof: visible focus styles exist for buttons, inputs, selects, textareas, and summaries; browser geometry reported zero horizontal overflow at 390, 768, and 1440 pixels; the 390-pixel Telegram-width capture retained the complete header, proposal boundary, export controls, counts, and workflow steps. `pnpm check` passes tests, scoped lint, TypeScript, Vite production build, and the single-file bundler. Final `bundle.html` is 253,843 bytes with SHA-256 `1d52a8ac5cdbd0965b8c5341a169e476225e5f38dfe396f20a745721ed4e9965`; its bundler rejects external script/style references and requires the cartographer schema marker.
 - 2026-07-29 ISC-598..600 authority safety: source audit finds no fetch, XMLHttpRequest, WebSocket, sendBeacon, Telegram send, Cloudflare mutation, or D1/KV write primitive; the browser loaded zero external scripts/styles and emitted zero console warnings/errors. The UI and exported packet name `proposal-only`, preserve Vault classification, keep Cambium Goal Graph/D1 as operational writer and Hermes as transport, and explicitly refuse tenant activation, agent assignment, receipt minting, or invented completion.
+- ISC-661..670: domain and browser hierarchy proof — `groupWorkObjects` partitions all 28 client Branches by exact non-null source `accountId`, yields HeyZack=11 and Axdis Group=2, keeps Saplings and internal Programs in separate source-classification groups, and renders accessible `aria-expanded` family headers with member/signal rollups. The opening preview expands only the two multi-project client families; search expands every matching family; family, grid, and horizon layouts remain selectable.
+- ISC-671..682, ISC-688: interaction and persistence proof — the Unplanned cards expose Now, Next, Later, Park, and Needs Review. Browser interaction applied IVerif→Next and FMRL→Later, reduced the queue 10→8, exposed two bounded undo steps, then restored both exact prior states 8→9→10. A separate-origin proof created IVerif→Next, imported an empty valid v3 packet, and observed zero plans plus zero stale Undo controls. The single `PlanningHistory` state proves bulk→quick clears bulk, quick undo remains bounded LIFO, later bulk clears quick, and discard/empty transitions stay safe; successful Import, confirmed Reset, drawer/signal edits, and ordinary plan edits clear every incompatible history. The review desk renders all 16 source records with deterministic rationale, `thoughtseed.review-suggestion.v1`, the complete 64-character source digest, visible `Suggested · local rule` labeling, four one-tap proposal choices, bounded family/note fields, and 0/16 progress. Choosing `review:10869` persisted 1/16 across reload; Reset restored 0/16. JSON v3 and Markdown round-trips preserve rule plus exact digest, and a mismatched digest fails closed rather than being relabeled; source review and locally flagged WorkObject counts stay separate.
+- ISC-683..687: responsive, safety, embed, and release proof — in-app-browser DOM at 390, 768, and 1440 pixels reports `scrollWidth === innerWidth`, all 16 review cards, all 16 rule markers, and zero warning/error console entries. At 390px, layout selection exposes `aria-pressed`, contextual quick/review labels include each record name, and every targeted new control measures exactly 44px. Canonical catalog bytes remain unchanged across grouping, suggestions, and export. `pnpm check` passes 25/25 domain tests, lint, TypeScript/Vite build, bundle, zero-egress audit, CSP smoke, and standalone smoke; full repository tests pass 1523/1523; route tests pass 4/4; root standalone audit checks 626 publishable files; root standalone smoke and Telegram mobile contract pass; strict Wrangler dry-run exits 0. `bundle.html` and the generated Worker embed are exact at 290,703 bytes with SHA-256 `cfc5f50405f96eb6b657d9fbbc6dca6739ddcea4d23384d647ab73a750d1859e`. Final independent Cato re-audit returns PASS with no remaining findings across planning history, import/reset isolation, provenance, accessibility, offline enforcement, bundle parity, and founder-route security. v2 and legacy v1 inputs migrate explicitly into v3 while invalid/future packets fail closed. No deployment, network request, Telegram send/menu, tenant, account, WorkObject, D1/KV/R2, schema, allowlist, traffic, or provider mutation occurred.

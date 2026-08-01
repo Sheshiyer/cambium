@@ -5,7 +5,8 @@ import {
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts'
 
-export const WORKBENCH_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
+export const WORKBENCH_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
+export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
 export const CLASSIFICATION_DIGEST = '93b90ed7cee268ac7ee87321a88efefced7980349658cf3c640657a71c361281'
@@ -22,6 +23,9 @@ export type OrganId = 'genesis' | 'taste' | 'hands' | 'will' | 'cortex'
 export type SignalStatus = 'ready' | 'complete' | 'blocked' | 'failed' | 'drifted'
 export type Audience = 'internal' | 'client'
 export type PlanningCategory = 'keep-canonical' | Classification | 'needs-review'
+export type ReviewProposal = Classification | 'needs-review'
+export type QuickPlanningDecision = 'now' | 'next' | 'later' | 'park' | 'needs-review'
+export type WorkGroupKind = 'client-family' | 'saplings' | 'internal-programs'
 
 export interface WorkObject {
   workId: string
@@ -82,6 +86,38 @@ export interface WorkPlan {
 export interface WorkbenchState {
   focusedId: string | null
   plans: Record<string, WorkPlan>
+  reviewDecisions: Record<string, ReviewDecision>
+}
+
+export interface WorkbenchInput {
+  focusedId: string | null
+  plans: Record<string, WorkPlan>
+  reviewDecisions?: Record<string, ReviewDecision>
+}
+
+export interface ReviewDecision {
+  proposedType: ReviewProposal
+  clientFamilyId: string
+  note: string
+  suggestionRule: string
+  sourceDigest: string
+}
+
+export interface ReviewSuggestion {
+  proposedType: ReviewProposal
+  rationale: string
+  ruleVersion: typeof REVIEW_SUGGESTION_RULE_VERSION
+  sourceDigest: typeof CLASSIFICATION_DIGEST
+}
+
+export interface WorkObjectGroup {
+  groupId: string
+  label: string
+  kind: WorkGroupKind
+  accountId: string | null
+  provenance: 'source-account' | 'source-classification'
+  members: readonly WorkObject[]
+  signalSummary: Readonly<Record<PortfolioSignal, number>>
 }
 
 export interface Pipeline {
@@ -107,7 +143,7 @@ export interface Pipeline {
 
 export interface ExportPacket extends WorkbenchState {
   schema: typeof WORKBENCH_SCHEMA
-  version: 2
+  version: 3
   source: {
     schema: string
     generatedAt: string
@@ -255,9 +291,133 @@ export const PORTFOLIO_SIGNALS: readonly PortfolioSignal[] = ['unplanned', 'ongo
 export const SMART_VIEWS: readonly SmartView[] = ['all', 'ongoing', 'paused', 'white-labelable', 'needs-review', 'unplanned', 'historical']
 export const SIGNAL_STATUSES: readonly SignalStatus[] = ['ready', 'complete', 'blocked', 'failed', 'drifted']
 export const CLASSIFICATIONS: readonly Classification[] = ['sapling', 'client-branch', 'internal-program']
+export const REVIEW_PROPOSALS: readonly ReviewProposal[] = ['sapling', 'client-branch', 'internal-program', 'needs-review']
+export const REVIEW_SUGGESTION_RULE_VERSION = 'thoughtseed.review-suggestion.v1' as const
 
 const workById = new Map(WORK_OBJECTS.map((work) => [work.workId, work]))
+const reviewById = new Map(REVIEW_RECORDS.map((record) => [record.canonicalId, record]))
 const workflowById = new Map(ORGAN_WORKFLOWS.map((workflow) => [workflow.id, workflow]))
+
+function displayAccountId(accountId: string): string {
+  if (accountId === 'heyzack') return 'HeyZack'
+  if (accountId === 'axdis-group') return 'Axdis Group'
+  return accountId.replaceAll('-', ' ').replace(/\b\w/g, (character) => character.toUpperCase())
+}
+
+function summarizeSignals(
+  members: readonly WorkObject[],
+  plans: Readonly<Record<string, WorkPlan>>,
+): Readonly<Record<PortfolioSignal, number>> {
+  return Object.freeze(Object.fromEntries(PORTFOLIO_SIGNALS.map((signal) => [
+    signal,
+    members.filter((work) => effectiveSignal(work, plans[work.workId]) === signal).length,
+  ])) as Record<PortfolioSignal, number>)
+}
+
+export function groupWorkObjects(
+  works: readonly WorkObject[] = WORK_OBJECTS,
+  plans: Readonly<Record<string, WorkPlan>> = {},
+): WorkObjectGroup[] {
+  const clientFamilies = new Map<string, WorkObject[]>()
+  const saplingMembers: WorkObject[] = []
+  const programMembers: WorkObject[] = []
+  for (const work of works) {
+    if (work.classification === 'sapling') {
+      saplingMembers.push(work)
+      continue
+    }
+    if (work.classification === 'internal-program') {
+      programMembers.push(work)
+      continue
+    }
+    if (!work.accountId) throw new TypeError(`Client Branch ${work.workId} has no source accountId`)
+    const family = clientFamilies.get(work.accountId) ?? []
+    family.push(work)
+    clientFamilies.set(work.accountId, family)
+  }
+  const groups: WorkObjectGroup[] = []
+  if (saplingMembers.length) groups.push({
+    groupId: 'classification:saplings',
+    label: 'Saplings',
+    kind: 'saplings',
+    accountId: null,
+    provenance: 'source-classification',
+    members: saplingMembers,
+    signalSummary: summarizeSignals(saplingMembers, plans),
+  })
+  for (const [accountId, members] of [...clientFamilies.entries()].sort(([left], [right]) => left.localeCompare(right))) {
+    groups.push({
+      groupId: `client:${accountId}`,
+      label: displayAccountId(accountId),
+      kind: 'client-family',
+      accountId,
+      provenance: 'source-account',
+      members: [...members].sort((left, right) => left.name.localeCompare(right.name)),
+      signalSummary: summarizeSignals(members, plans),
+    })
+  }
+  if (programMembers.length) groups.push({
+    groupId: 'classification:internal-programs',
+    label: 'Internal Programs',
+    kind: 'internal-programs',
+    accountId: null,
+    provenance: 'source-classification',
+    members: programMembers,
+    signalSummary: summarizeSignals(programMembers, plans),
+  })
+  return groups
+}
+
+export function reviewSuggestion(record: ReviewRecord): ReviewSuggestion {
+  const evidence = `${record.source} ${record.needed}`.toLowerCase()
+  if (/client account|client note|client mapping|client project/.test(evidence)) {
+    return {
+      proposedType: 'client-branch',
+      rationale: 'The missing evidence is primarily a client account or delivery mapping.',
+      ruleVersion: REVIEW_SUGGESTION_RULE_VERSION,
+      sourceDigest: CLASSIFICATION_DIGEST,
+    }
+  }
+  if (/admit .* as sapling|owned-product|product note|product or client/.test(evidence)) {
+    return {
+      proposedType: 'sapling',
+      rationale: 'The record names product ownership or admission evidence that should be tested as a Sapling.',
+      ruleVersion: REVIEW_SUGGESTION_RULE_VERSION,
+      sourceDigest: CLASSIFICATION_DIGEST,
+    }
+  }
+  if (/company program|portfolio container|media sapling/.test(evidence)) {
+    return {
+      proposedType: 'internal-program',
+      rationale: 'The uncertainty concerns a company capability or portfolio container boundary.',
+      ruleVersion: REVIEW_SUGGESTION_RULE_VERSION,
+      sourceDigest: CLASSIFICATION_DIGEST,
+    }
+  }
+  return {
+    proposedType: 'needs-review',
+    rationale: 'The source evidence does not safely distinguish product, client delivery, or internal program.',
+    ruleVersion: REVIEW_SUGGESTION_RULE_VERSION,
+    sourceDigest: CLASSIFICATION_DIGEST,
+  }
+}
+
+export function normalizeClientFamilyId(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64)
+}
+
+export function normalizeReviewNote(value: string): string {
+  return value.trim().slice(0, 400)
+}
+
+export function applyUnplannedDecision(plan: WorkPlan, decision: QuickPlanningDecision): WorkPlan {
+  if (decision === 'needs-review') {
+    return { ...plan, tags: normalizeTags([...plan.tags, 'needs-review']) }
+  }
+  if (decision === 'now') return { ...plan, signal: 'ongoing', horizon: 'now' }
+  if (decision === 'park') return { ...plan, signal: 'paused', horizon: 'park' }
+  return { ...plan, signal: null, horizon: decision }
+}
 
 export function defaultPlan(): WorkPlan {
   return {
@@ -318,6 +478,11 @@ function matchesView(work: WorkObject, plan: WorkPlan | undefined, view: SmartVi
   if (view === 'white-labelable') return hasWhiteLabelReuse(work, plan)
   if (view === 'needs-review') return Boolean(plan?.tags.includes('needs-review'))
   if (view === 'historical') return false
+  if (view === 'unplanned') {
+    return effectiveSignal(work, plan) === 'unplanned'
+      && !plan?.horizon
+      && !plan?.tags.includes('needs-review')
+  }
   return effectiveSignal(work, plan) === view
 }
 
@@ -403,7 +568,7 @@ export function hasLocalPlan(plan: WorkPlan): boolean {
   )
 }
 
-export function createPacket(state: WorkbenchState, now = new Date()): ExportPacket {
+export function createPacket(state: WorkbenchInput, now = new Date()): ExportPacket {
   const focusedId = state.focusedId && workById.has(state.focusedId) ? state.focusedId : null
   const plans: Record<string, WorkPlan> = {}
   for (const [id, raw] of Object.entries(state.plans)) {
@@ -411,10 +576,15 @@ export function createPacket(state: WorkbenchState, now = new Date()): ExportPac
     const plan = sanitizePlan(raw, id)
     if (hasLocalPlan(plan)) plans[id] = plan
   }
+  const reviewDecisions: Record<string, ReviewDecision> = {}
+  for (const [id, raw] of Object.entries(state.reviewDecisions ?? {})) {
+    if (!reviewById.has(id)) continue
+    reviewDecisions[id] = sanitizeReviewDecision(raw, id)
+  }
   const pipelines = Object.entries(plans).map(([id, plan]) => resolvePipeline(workById.get(id)!, plan))
   return {
     schema: WORKBENCH_SCHEMA,
-    version: 2,
+    version: 3,
     source: {
       schema: SOURCE_SCHEMA,
       generatedAt: SOURCE_GENERATED_AT,
@@ -428,6 +598,7 @@ export function createPacket(state: WorkbenchState, now = new Date()): ExportPac
     },
     focusedId,
     plans,
+    reviewDecisions,
     pipelines,
     exportedAt: now.toISOString(),
   }
@@ -476,21 +647,64 @@ function sanitizePlan(value: unknown, id: string): WorkPlan {
   }
 }
 
-function parseV2(packet: Record<string, unknown>): WorkbenchState {
-  if (packet.version !== 2) throw new TypeError('Packet version is not supported')
+function sanitizeReviewDecision(value: unknown, id: string): ReviewDecision {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError(`Invalid review decision for ${id}`)
+  const raw = value as Partial<ReviewDecision>
+  if (!REVIEW_PROPOSALS.includes(raw.proposedType as ReviewProposal)) {
+    throw new TypeError(`Invalid review proposal for ${id}`)
+  }
+  const proposedType = raw.proposedType as ReviewProposal
+  if (raw.suggestionRule !== REVIEW_SUGGESTION_RULE_VERSION) {
+    throw new TypeError(`Invalid suggestion rule for ${id}`)
+  }
+  if (raw.sourceDigest !== CLASSIFICATION_DIGEST) {
+    throw new TypeError(`Invalid suggestion source digest for ${id}`)
+  }
+  const clientFamilyId = proposedType === 'client-branch'
+    ? normalizeClientFamilyId(String(raw.clientFamilyId ?? ''))
+    : ''
+  return {
+    proposedType,
+    clientFamilyId,
+    note: normalizeReviewNote(String(raw.note ?? '')),
+    suggestionRule: REVIEW_SUGGESTION_RULE_VERSION,
+    sourceDigest: CLASSIFICATION_DIGEST,
+  }
+}
+
+function parsePlans(packet: Record<string, unknown>, versionLabel: string): Pick<WorkbenchState, 'focusedId' | 'plans'> {
   if (!packet.plans || typeof packet.plans !== 'object' || Array.isArray(packet.plans)) {
     throw new TypeError('Plans are invalid')
   }
   const plans: Record<string, WorkPlan> = {}
   for (const [id, value] of Object.entries(packet.plans as Record<string, unknown>)) {
-    if (!workById.has(id)) throw new TypeError(`Unknown WorkObject in v2 packet: ${id}`)
+    if (!workById.has(id)) throw new TypeError(`Unknown WorkObject in ${versionLabel} packet: ${id}`)
     plans[id] = sanitizePlan(value, id)
   }
   if (typeof packet.focusedId === 'string' && !workById.has(packet.focusedId)) {
-    throw new TypeError(`Unknown focused WorkObject in v2 packet: ${packet.focusedId}`)
+    throw new TypeError(`Unknown focused WorkObject in ${versionLabel} packet: ${packet.focusedId}`)
   }
   const focusedId = typeof packet.focusedId === 'string' && workById.has(packet.focusedId) ? packet.focusedId : null
   return { focusedId, plans }
+}
+
+function parseV3(packet: Record<string, unknown>): WorkbenchState {
+  if (packet.version !== 3) throw new TypeError('Packet version is not supported')
+  const parsed = parsePlans(packet, 'v3')
+  if (!packet.reviewDecisions || typeof packet.reviewDecisions !== 'object' || Array.isArray(packet.reviewDecisions)) {
+    throw new TypeError('Review decisions are invalid')
+  }
+  const reviewDecisions: Record<string, ReviewDecision> = {}
+  for (const [id, value] of Object.entries(packet.reviewDecisions as Record<string, unknown>)) {
+    if (!reviewById.has(id)) throw new TypeError(`Unknown review record in v3 packet: ${id}`)
+    reviewDecisions[id] = sanitizeReviewDecision(value, id)
+  }
+  return { ...parsed, reviewDecisions }
+}
+
+function parseV2(packet: Record<string, unknown>): WorkbenchState {
+  if (packet.version !== 2) throw new TypeError('Packet version is not supported')
+  return { ...parsePlans(packet, 'v2'), reviewDecisions: {} }
 }
 
 interface LegacyDecision {
@@ -549,13 +763,14 @@ function parseLegacy(packet: Record<string, unknown>): WorkbenchState {
     }
     plans[id] = plan
   }
-  return { focusedId: ids[0] ?? null, plans }
+  return { focusedId: ids[0] ?? null, plans, reviewDecisions: {} }
 }
 
 export function parsePacket(value: unknown): WorkbenchState {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError('Packet must be an object')
   const packet = value as Record<string, unknown>
-  if (packet.schema === WORKBENCH_SCHEMA) return parseV2(packet)
+  if (packet.schema === WORKBENCH_SCHEMA) return parseV3(packet)
+  if (packet.schema === V2_SCHEMA) return parseV2(packet)
   if (packet.schema === LEGACY_SCHEMA) return parseLegacy(packet)
   throw new TypeError('Packet schema is not supported')
 }
@@ -601,6 +816,23 @@ export function toMarkdown(packet: ExportPacket): string {
       `- Approval: ${pipeline.requiresApproval ? 'Mini App Gate required' : 'not required by this workflow'}`,
       `- Next action: ${pipeline.nextAction || '_not yet specified_'}`,
       `- Desired evidence: ${pipeline.evidence || '_not yet specified_'}`,
+      '',
+    )
+  }
+  const reviewRows = Object.entries(packet.reviewDecisions).sort(([left], [right]) => left.localeCompare(right))
+  lines.push('## Classification review proposals', '')
+  if (reviewRows.length === 0) lines.push('_No source review records decided locally._', '')
+  for (const [id, decision] of reviewRows) {
+    const record = reviewById.get(id)!
+    lines.push(
+      `### ${record.source}`,
+      '',
+      `- Review record: \`${id}\``,
+      `- Proposed type: **${decision.proposedType}**`,
+      `- Client family: ${decision.clientFamilyId ? `\`${decision.clientFamilyId}\`` : '_not proposed_'}`,
+      `- Note: ${decision.note || '_none_'}`,
+      `- Suggestion rule: \`${decision.suggestionRule}\``,
+      `- Suggestion source digest: \`${decision.sourceDigest}\``,
       '',
     )
   }

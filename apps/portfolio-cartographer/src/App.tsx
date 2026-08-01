@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import {
   AlertTriangle,
   Archive,
@@ -46,20 +47,25 @@ import {
   SMART_VIEWS,
   SOURCE_GENERATED_AT,
   WORK_OBJECTS,
+  applyUnplannedDecision,
   createPacket,
   boardHorizon,
   defaultPlan,
   effectiveSignal,
   filterWorkObjects,
+  groupWorkObjects,
   hasLocalPlan,
   normalizeTag,
   normalizeTags,
+  normalizeClientFamilyId,
+  normalizeReviewNote,
   parsePacket,
   resolvePipeline,
   signalProvenance,
   smartViewCount,
   sourceSignal,
   toMarkdown,
+  reviewSuggestion,
   type Audience,
   type BoardHorizon,
   type Classification,
@@ -67,18 +73,29 @@ import {
   type OrganId,
   type PortfolioSignal,
   type Priority,
+  type QuickPlanningDecision,
+  type ReviewDecision,
+  type ReviewProposal,
   type SignalStatus,
   type SmartView,
   type WorkObject,
   type WorkPlan,
   type WorkbenchState,
+  type WorkObjectGroup,
 } from './domain.ts'
+import {
+  discardBulkUndo,
+  emptyPlanningHistory,
+  popQuickUndo,
+  recordBulkUndo,
+  recordQuickUndo,
+} from './planning-history.ts'
 
-const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
+const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v3'
+const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
 type DrawerTab = 'overview' | 'plan' | 'delivery'
-type ViewMode = 'grid' | 'board'
-type BulkUndo = Record<string, WorkPlan | null>
+type ViewMode = 'family' | 'grid' | 'board'
 
 interface LocalLoad extends WorkbenchState {
   notice: string
@@ -100,6 +117,25 @@ function loadLocalState(): LocalLoad {
         return {
           focusedId: null,
           plans: {},
+          reviewDecisions: {},
+          notice: 'Autosave paused · unreadable v3 data remains untouched',
+          autosaveBlocked: true,
+        }
+      }
+    }
+    const v2 = window.localStorage.getItem(V2_STORAGE_KEY)
+    if (v2) {
+      try {
+        return {
+          ...parsePacket(JSON.parse(v2)),
+          notice: 'Migrated v2 plans · original backup preserved',
+          autosaveBlocked: false,
+        }
+      } catch {
+        return {
+          focusedId: null,
+          plans: {},
+          reviewDecisions: {},
           notice: 'Autosave paused · unreadable v2 data remains untouched',
           autosaveBlocked: true,
         }
@@ -117,6 +153,7 @@ function loadLocalState(): LocalLoad {
         return {
           focusedId: null,
           plans: {},
+          reviewDecisions: {},
           notice: 'Autosave paused · unreadable v1 data remains untouched',
           autosaveBlocked: true,
         }
@@ -126,11 +163,12 @@ function loadLocalState(): LocalLoad {
     return {
       focusedId: null,
       plans: {},
+      reviewDecisions: {},
       notice: 'Local save unavailable · export before closing',
       autosaveBlocked: true,
     }
   }
-  return { focusedId: null, plans: {}, notice: 'Ready · planning stays in this browser', autosaveBlocked: false }
+  return { focusedId: null, plans: {}, reviewDecisions: {}, notice: 'Ready · planning stays in this browser', autosaveBlocked: false }
 }
 
 function downloadText(filename: string, value: string, type: string): void {
@@ -185,6 +223,8 @@ function WorkCard({
   onBulkToggle,
   onFocus,
   onQuickSignal,
+  unplannedTriage,
+  onQuickDecision,
 }: {
   work: WorkObject
   plan?: WorkPlan
@@ -193,6 +233,8 @@ function WorkCard({
   onBulkToggle: () => void
   onFocus: () => void
   onQuickSignal: (signal: PortfolioSignal) => void
+  unplannedTriage: boolean
+  onQuickDecision: (decision: QuickPlanningDecision) => void
 }) {
   const signal = effectiveSignal(work, plan)
   const provenance = signalProvenance(work, plan)
@@ -260,35 +302,139 @@ function WorkCard({
         </div>
       )}
 
+      {unplannedTriage && (
+        <div className="unplanned-actions" aria-label={`Plan ${work.name} with one action`}>
+          {(['now', 'next', 'later', 'park', 'needs-review'] as const).map((decision) => (
+            <button
+              type="button"
+              key={decision}
+              aria-label={`Plan ${work.name}: ${decision === 'needs-review' ? 'Needs review' : label(decision)}`}
+              onClick={() => onQuickDecision(decision)}
+            >
+              {decision === 'needs-review' ? 'Needs review' : label(decision)}
+            </button>
+          ))}
+        </div>
+      )}
+
       <footer className="work-card-actions">
         <span>{work.accountId ? `account · ${work.accountId}` : `tenant · ${work.tenantId ?? work.tenantStatus}`}</span>
-        <button
-          type="button"
-          className="quick-action"
-          onClick={() => onQuickSignal(quickActionSignal(signal))}
-          aria-label={`${quickActionLabel(signal)} ${work.name}`}
-        >
-          {signal === 'ongoing' ? <CirclePause aria-hidden="true" /> : <Play aria-hidden="true" />}
-          {quickActionLabel(signal)}
-        </button>
+        {!unplannedTriage && (
+          <button
+            type="button"
+            className="quick-action"
+            onClick={() => onQuickSignal(quickActionSignal(signal))}
+            aria-label={`${quickActionLabel(signal)} ${work.name}`}
+          >
+            {signal === 'ongoing' ? <CirclePause aria-hidden="true" /> : <Play aria-hidden="true" />}
+            {quickActionLabel(signal)}
+          </button>
+        )}
       </footer>
     </article>
   )
 }
 
-function ReviewQueue() {
+function FamilyGroup({
+  group,
+  expanded,
+  onToggle,
+  renderCard,
+}: {
+  group: WorkObjectGroup
+  expanded: boolean
+  onToggle: () => void
+  renderCard: (work: WorkObject) => ReactNode
+}) {
+  const rollup = Object.entries(group.signalSummary)
+    .filter(([, count]) => count > 0)
+    .map(([signal, count]) => `${count} ${label(signal)}`)
+    .join(' · ')
   return (
-    <section className="secondary-grid" aria-label="Classification review queue">
-      {REVIEW_RECORDS.map((record) => (
-        <article className="secondary-card review-card" key={record.canonicalId}>
-          <AlertTriangle aria-hidden="true" />
-          <div>
-            <span>Classification review</span>
-            <h3>{record.source}</h3>
-            <p>{record.needed}</p>
-          </div>
-        </article>
-      ))}
+    <section className="family-group" data-family-id={group.groupId}>
+      <button
+        type="button"
+        className="family-header"
+        aria-expanded={expanded}
+        aria-controls={`family-${group.groupId.replaceAll(':', '-')}`}
+        onClick={onToggle}
+      >
+        <ChevronRight aria-hidden="true" />
+        <span><strong>{group.label}</strong><small>{group.provenance}</small></span>
+        <span className="family-rollup">{rollup || 'No matching signals'}</span>
+        <b>{group.members.length}</b>
+      </button>
+      <div id={`family-${group.groupId.replaceAll(':', '-')}`} hidden={!expanded}>
+        <div className="card-grid">{group.members.map(renderCard)}</div>
+      </div>
+    </section>
+  )
+}
+
+function ReviewQueue({
+  decisions,
+  onChoose,
+  onChange,
+  onReset,
+}: {
+  decisions: Readonly<Record<string, ReviewDecision>>
+  onChoose: (id: string, proposedType: ReviewProposal) => void
+  onChange: (id: string, patch: Partial<ReviewDecision>) => void
+  onReset: (id: string) => void
+}) {
+  const decided = REVIEW_RECORDS.filter((record) => Boolean(decisions[record.canonicalId])).length
+  const familyIds = groupWorkObjects().filter((group) => group.kind === 'client-family').map((group) => group.accountId!)
+  return (
+    <section className="review-desk" aria-label="Classification review queue">
+      <header className="review-progress">
+        <div><span>Guided source review</span><h2>{decided} decided · {REVIEW_RECORDS.length - decided} remaining</h2></div>
+        <progress value={decided} max={REVIEW_RECORDS.length}>{decided} of {REVIEW_RECORDS.length}</progress>
+      </header>
+      <div className="review-grid">
+        {REVIEW_RECORDS.map((record) => {
+          const suggestion = reviewSuggestion(record)
+          const decision = decisions[record.canonicalId]
+          return (
+            <article className={decision ? 'review-triage-card is-decided' : 'review-triage-card'} key={record.canonicalId} data-review-id={record.canonicalId}>
+              <header>
+                <AlertTriangle aria-hidden="true" />
+                <div><span>Source review record</span><h3>{record.source}</h3><code>{record.canonicalId}</code></div>
+              </header>
+              <p className="review-needed"><strong>Evidence missing</strong>{record.needed}</p>
+              <div className="suggestion-box">
+                <span>Suggested · local rule</span>
+                <strong>{label(suggestion.proposedType)}</strong>
+                <p>{suggestion.rationale}</p>
+                <code>{suggestion.ruleVersion} · {suggestion.sourceDigest}</code>
+              </div>
+              <div className="review-choices" aria-label={`Propose a classification for ${record.source}`}>
+                {(['sapling', 'client-branch', 'internal-program', 'needs-review'] as const).map((proposal) => (
+                  <button
+                    type="button"
+                    key={proposal}
+                    className={decision?.proposedType === proposal ? 'is-active' : proposal === suggestion.proposedType ? 'is-suggested' : ''}
+                    aria-pressed={decision?.proposedType === proposal}
+                    aria-label={`Propose ${proposal === 'needs-review' ? 'Keep reviewing' : label(proposal)} for ${record.source}`}
+                    onClick={() => onChoose(record.canonicalId, proposal)}
+                  >
+                    {proposal === 'needs-review' ? 'Keep reviewing' : label(proposal)}
+                  </button>
+                ))}
+              </div>
+              {decision && (
+                <div className="review-local-fields">
+                  {decision.proposedType === 'client-branch' && (
+                    <label><span>Optional client family · local proposal</span><input list="client-family-options" maxLength={72} value={decision.clientFamilyId} onChange={(event) => onChange(record.canonicalId, { clientFamilyId: normalizeClientFamilyId(event.target.value) })} placeholder="account-family-id" /></label>
+                  )}
+                  <label><span>Decision note · local proposal</span><textarea rows={2} maxLength={400} value={decision.note} onChange={(event) => onChange(record.canonicalId, { note: normalizeReviewNote(event.target.value) })} placeholder="What evidence should confirm this proposal?" /></label>
+                  <button type="button" className="reset-review" onClick={() => onReset(record.canonicalId)}><RotateCcw aria-hidden="true" /> Reset local decision</button>
+                </div>
+              )}
+            </article>
+          )
+        })}
+      </div>
+      <datalist id="client-family-options">{familyIds.map((familyId) => <option key={familyId} value={familyId} />)}</datalist>
     </section>
   )
 }
@@ -579,10 +725,14 @@ function PlanDrawer({
 function App() {
   const initial = useMemo(loadLocalState, [])
   const [plans, setPlans] = useState<Record<string, WorkPlan>>({ ...initial.plans })
+  const [reviewDecisions, setReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.reviewDecisions })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('overview')
   const [activeView, setActiveView] = useState<SmartView>('all')
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [viewMode, setViewMode] = useState<ViewMode>('family')
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set(
+    groupWorkObjects().filter((group) => group.kind === 'client-family' && group.members.length > 1).map((group) => group.groupId),
+  ))
   const [query, setQuery] = useState('')
   const [classifications, setClassifications] = useState<Set<Classification>>(new Set())
   const [bulkMode, setBulkMode] = useState(false)
@@ -590,7 +740,9 @@ function App() {
   const [bulkSignal, setBulkSignal] = useState<PortfolioSignal>('ongoing')
   const [bulkHorizon, setBulkHorizon] = useState<Horizon>('next')
   const [bulkTag, setBulkTag] = useState('')
-  const [bulkUndo, setBulkUndo] = useState<BulkUndo | null>(null)
+  const [planningHistory, setPlanningHistory] = useState(emptyPlanningHistory)
+  const bulkUndo = planningHistory.bulk
+  const quickUndoStack = planningHistory.quick
   const [autosaveBlocked, setAutosaveBlocked] = useState(initial.autosaveBlocked)
   const [notice, setNotice] = useState(initial.notice)
   const importRef = useRef<HTMLInputElement>(null)
@@ -611,17 +763,18 @@ function App() {
     ])) as Record<BoardHorizon, WorkObject[]>,
     [plans, visible],
   )
+  const familyGroups = useMemo(() => groupWorkObjects(visible, plans), [visible, plans])
   const plannedCount = Object.keys(plans).length
 
   useEffect(() => {
     if (autosaveBlocked) return
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans })))
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans, reviewDecisions })))
       setNotice('Saved locally · proposal only')
     } catch {
       setNotice('Local save unavailable · export before closing')
     }
-  }, [autosaveBlocked, focusedId, plans])
+  }, [autosaveBlocked, focusedId, plans, reviewDecisions])
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -632,12 +785,80 @@ function App() {
   })
 
   function updatePlan(id: string, patch: Partial<WorkPlan>) {
+    setPlanningHistory(emptyPlanningHistory())
     setPlans((current) => {
       const candidate = { ...(current[id] ?? defaultPlan()), ...patch }
       const next = { ...current }
       writePlanned(next, id, candidate)
       return next
     })
+  }
+
+  function applyQuickDecision(work: WorkObject, decision: QuickPlanningDecision) {
+    const prior = plans[work.workId] ?? null
+    setPlanningHistory((current) => recordQuickUndo(current, { id: work.workId, prior, label: work.name }))
+    setPlans((current) => {
+      const next = { ...current }
+      const plan = next[work.workId] ?? defaultPlan()
+      writePlanned(next, work.workId, applyUnplannedDecision(plan, decision))
+      return next
+    })
+    setNotice(`${work.name} · ${decision === 'needs-review' ? 'Needs review' : label(decision)} local decision`)
+  }
+
+  function undoQuickDecision() {
+    const quickUndo = quickUndoStack.at(-1)
+    if (!quickUndo) return
+    setPlans((current) => {
+      const next = { ...current }
+      if (quickUndo.prior) next[quickUndo.id] = quickUndo.prior
+      else delete next[quickUndo.id]
+      return next
+    })
+    setNotice(`Undid ${quickUndo.label} quick decision`)
+    setPlanningHistory((current) => popQuickUndo(current))
+  }
+
+  function toggleFamily(groupId: string) {
+    setExpandedGroups((current) => {
+      const next = new Set(current)
+      if (next.has(groupId)) next.delete(groupId)
+      else next.add(groupId)
+      return next
+    })
+  }
+
+  function chooseReview(id: string, proposedType: ReviewProposal) {
+    const record = REVIEW_RECORDS.find((candidate) => candidate.canonicalId === id)!
+    const suggestion = reviewSuggestion(record)
+    setReviewDecisions((current) => ({
+      ...current,
+      [id]: {
+        proposedType,
+        clientFamilyId: proposedType === 'client-branch' ? current[id]?.clientFamilyId ?? '' : '',
+        note: current[id]?.note ?? '',
+        suggestionRule: suggestion.ruleVersion,
+        sourceDigest: suggestion.sourceDigest,
+      },
+    }))
+    setNotice(`${record.source} · ${proposedType === 'needs-review' ? 'kept in review' : `${label(proposedType)} proposed`}`)
+  }
+
+  function changeReview(id: string, patch: Partial<ReviewDecision>) {
+    setReviewDecisions((current) => {
+      const prior = current[id]
+      if (!prior) return current
+      return { ...current, [id]: { ...prior, ...patch } }
+    })
+  }
+
+  function resetReview(id: string) {
+    setReviewDecisions((current) => {
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+    setNotice('Local review decision reset · source record unchanged')
   }
 
   function toggleClassification(classification: Classification) {
@@ -661,11 +882,11 @@ function App() {
   function exitBulkMode() {
     setBulkMode(false)
     setBulkSelected(new Set())
-    setBulkUndo(null)
+    setPlanningHistory((current) => discardBulkUndo(current))
   }
 
   function rememberBulkState(): void {
-    setBulkUndo(Object.fromEntries([...bulkSelected].map((id) => [id, plans[id] ?? null])))
+    setPlanningHistory(recordBulkUndo(Object.fromEntries([...bulkSelected].map((id) => [id, plans[id] ?? null]))))
   }
 
   function applyBulkPatch(patch: Partial<WorkPlan>, message: string) {
@@ -702,6 +923,7 @@ function App() {
 
   function undoBulkChange() {
     if (!bulkUndo) return
+    setPlanningHistory(emptyPlanningHistory())
     setPlans((current) => {
       const next = { ...current }
       for (const [id, prior] of Object.entries(bulkUndo)) {
@@ -710,7 +932,6 @@ function App() {
       }
       return next
     })
-    setBulkUndo(null)
     setNotice('Undid last bulk change · prior local plans restored')
   }
 
@@ -737,19 +958,19 @@ function App() {
   }
 
   function exportJson() {
-    const packet = createPacket({ focusedId, plans })
+    const packet = createPacket({ focusedId, plans, reviewDecisions })
     downloadText('thoughtseed-portfolio-workbench.json', `${JSON.stringify(packet, null, 2)}\n`, 'application/json')
     setNotice('JSON planning packet exported')
   }
 
   function exportMarkdown() {
-    downloadText('thoughtseed-portfolio-workbench.md', toMarkdown(createPacket({ focusedId, plans })), 'text/markdown')
+    downloadText('thoughtseed-portfolio-workbench.md', toMarkdown(createPacket({ focusedId, plans, reviewDecisions })), 'text/markdown')
     setNotice('Markdown planning brief exported')
   }
 
   async function copyBrief() {
     try {
-      await navigator.clipboard.writeText(toMarkdown(createPacket({ focusedId, plans })))
+      await navigator.clipboard.writeText(toMarkdown(createPacket({ focusedId, plans, reviewDecisions })))
       setNotice('Planning brief copied')
     } catch {
       setNotice('Clipboard unavailable · use Markdown export')
@@ -761,8 +982,11 @@ function App() {
       const restored = parsePacket(JSON.parse(await file.text()))
       setAutosaveBlocked(false)
       setPlans({ ...restored.plans })
+      setReviewDecisions({ ...restored.reviewDecisions })
       setFocusedId(restored.focusedId)
-      setNotice(`Imported ${Object.keys(restored.plans).length} project plans`)
+      setPlanningHistory(emptyPlanningHistory())
+      exitBulkMode()
+      setNotice(`Imported ${Object.keys(restored.plans).length} plans · ${Object.keys(restored.reviewDecisions).length} review decisions`)
     } catch (error) {
       setNotice(error instanceof Error ? `Import rejected · ${error.message}` : 'Import rejected')
     } finally {
@@ -773,11 +997,14 @@ function App() {
   function resetAll() {
     if (!window.confirm('Clear every local Portfolio Workbench plan? Export first if you need a recovery packet.')) return
     setPlans({})
+    setReviewDecisions({})
     setFocusedId(null)
+    setPlanningHistory(emptyPlanningHistory())
     setAutosaveBlocked(false)
     exitBulkMode()
     try {
       window.localStorage.removeItem(STORAGE_KEY)
+      window.localStorage.removeItem(V2_STORAGE_KEY)
       window.localStorage.removeItem(LEGACY_STORAGE_KEY)
     } catch {
       // State is already cleared in memory.
@@ -799,6 +1026,8 @@ function App() {
           updatePlan(work.workId, { signal })
           setNotice(`${work.name} · ${label(signal)} local plan`)
         }}
+        unplannedTriage={activeView === 'unplanned'}
+        onQuickDecision={(decision) => applyQuickDecision(work, decision)}
       />
     )
   }
@@ -929,8 +1158,9 @@ function App() {
               ))}
             </div>
             <div className="view-toggle" aria-label="Portfolio layout">
-              <button type="button" className={viewMode === 'grid' ? 'is-active' : ''} onClick={() => setViewMode('grid')} aria-label="Grid view"><Grid2X2 /></button>
-              <button type="button" className={viewMode === 'board' ? 'is-active' : ''} onClick={() => setViewMode('board')} aria-label="Horizon board view"><Columns3 /></button>
+              <button type="button" className={viewMode === 'family' ? 'is-active' : ''} aria-pressed={viewMode === 'family'} onClick={() => setViewMode('family')} aria-label="Client family view"><GitBranch /></button>
+              <button type="button" className={viewMode === 'grid' ? 'is-active' : ''} aria-pressed={viewMode === 'grid'} onClick={() => setViewMode('grid')} aria-label="Grid view"><Grid2X2 /></button>
+              <button type="button" className={viewMode === 'board' ? 'is-active' : ''} aria-pressed={viewMode === 'board'} onClick={() => setViewMode('board')} aria-label="Horizon board view"><Columns3 /></button>
             </div>
             <button
               type="button"
@@ -957,12 +1187,19 @@ function App() {
           </div>
         )}
 
+        {quickUndoStack.length > 0 && (
+          <div className="quick-undo-bar" aria-live="polite">
+            <span>{quickUndoStack.at(-1)!.label} updated locally · {quickUndoStack.length} undo {quickUndoStack.length === 1 ? 'step' : 'steps'} available.</span>
+            <button type="button" onClick={undoQuickDecision}><RotateCcw aria-hidden="true" /> Undo last one-tap decision</button>
+          </div>
+        )}
+
         <div className="content-surface">
           {activeView === 'historical' ? (
             <HistoricalQueue />
           ) : activeView === 'needs-review' ? (
             <>
-              <ReviewQueue />
+              <ReviewQueue decisions={reviewDecisions} onChoose={chooseReview} onChange={changeReview} onReset={resetReview} />
               {visible.length > 0 && (
                 <section className="locally-flagged">
                   <header><span>Local review proposals</span><strong>{visible.length}</strong></header>
@@ -970,6 +1207,22 @@ function App() {
                 </section>
               )}
             </>
+          ) : viewMode === 'family' ? (
+            familyGroups.length > 0 ? (
+              <section className="family-layout" aria-label="Portfolio grouped by source client families">
+                {familyGroups.map((group) => (
+                  <FamilyGroup
+                    key={group.groupId}
+                    group={group}
+                    expanded={Boolean(query.trim()) || activeView === 'unplanned' || expandedGroups.has(group.groupId)}
+                    onToggle={() => toggleFamily(group.groupId)}
+                    renderCard={renderCard}
+                  />
+                ))}
+              </section>
+            ) : (
+              <div className="empty-state"><Search /><h2>No matching work</h2><p>Clear search or classification filters to widen the view.</p></div>
+            )
           ) : viewMode === 'grid' ? (
             visible.length > 0 ? <section className="card-grid">{visible.map(renderCard)}</section> : (
               <div className="empty-state"><Search /><h2>No matching work</h2><p>Clear search or classification filters to widen the view.</p></div>

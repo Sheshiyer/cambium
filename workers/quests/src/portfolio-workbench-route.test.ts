@@ -65,7 +65,7 @@ test('public portfolio route serves only a Telegram bootstrap and both routes ar
   assert.match(String(response.body), /telegram-web-app\.js/);
   assert.match(String(response.body), /WebApp/);
   assert.match(String(response.body), /x-telegram-init-data/);
-  assert.doesNotMatch(String(response.body), /sapling:|client-branch|internal-program|portfolio-workbench\.v2/);
+  assert.doesNotMatch(String(response.body), /sapling:|client-branch|internal-program|portfolio-workbench\.v[23]/);
   assert.doesNotMatch(String(response.body), /localStorage|sessionStorage|console\./);
   assert.match(response.headers['content-security-policy'], /connect-src 'self'/);
   for (const path of ['/admin/portfolio', '/v1/admin/portfolio']) {

@@ -39,13 +39,13 @@ for (const match of [...html.matchAll(scriptPattern)]) {
 
 html = html.replace(
   '</head>',
-  '    <meta name="thoughtseed-artifact" content="portfolio-workbench@v2; offline; proposal-only" />\n  </head>',
+  '    <meta name="thoughtseed-artifact" content="portfolio-workbench@v3; offline; proposal-only" />\n  </head>',
 )
 
 if (/<script[^>]+src=|<link[^>]+rel="stylesheet"/i.test(html)) {
   throw new Error('bundle still contains external script or stylesheet references')
 }
-if (!html.includes('thoughtseed.portfolio-workbench.v2')) {
+if (!html.includes('thoughtseed.portfolio-workbench.v3')) {
   throw new Error('bundle is missing the workbench contract marker')
 }
 if (!html.includes(`http-equiv="Content-Security-Policy" content="${documentCsp}"`)) {
