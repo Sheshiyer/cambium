@@ -3,12 +3,12 @@ project: Cambium
 task: "Deploy the founder Workbench and reconcile GitHub portfolio candidates"
 effort: deep
 effort_source: classifier
-phase: build
+phase: execute
 progress: 658/721
 mode: interactive
 iteration: 2026-08-01-hosted-portfolio-github-discovery
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-01T16:53:00Z
+updated: 2026-08-01T16:54:00Z
 ---
 
 ## Problem
