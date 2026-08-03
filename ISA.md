@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Deploy the founder Workbench and reconcile GitHub portfolio candidates"
-effort: deep
+task: "Continue browser navigation through the existing founder identity flow"
+effort: E4
 effort_source: classifier
-phase: complete
-progress: 689/720
+phase: verify
+progress: 712/745
 mode: interactive
-iteration: 2026-08-01-hosted-portfolio-github-discovery
+iteration: 2026-08-03-portfolio-browser-access-continuation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-01T17:25:14Z
+updated: 2026-08-03T11:35:06Z
 ---
 
 ## Problem
@@ -115,6 +115,14 @@ For client-family planning, the founder sees one expandable HeyZack family rathe
 - The protected HTML is never served before founder authorization; the public route contains only a bounded authentication loader.
 - Source-backed client-family grouping may use exact `accountId` only; display-name or free-text matches cannot regroup canonical WorkObjects.
 - Classification-review decisions remain local proposal data and never admit a review record into the operational catalog.
+
+### Browser access risks
+
+- An Access policy scoped to the public bootstrap or Telegram endpoint would block signed Mini App sessions before Worker verification.
+- A browser route that trusts credential presence without Access-JWT verification would expose the Workbench document.
+- A degraded Plexus lookup must retain the consultant floor and never inherit founder access.
+- Worker code promoted before the browser-only Access policy would still land ordinary browsers on an unproductive denial.
+- A redirect back to the public bootstrap after Access login would create a loop instead of reaching the Workbench.
 
 ## Goal
 
@@ -1005,6 +1013,33 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - [x] ISC-719: Anti: GitHub discovery creates or edits no repository, issue, project, account, connection, or trigger.
 - [x] ISC-720: Anti: a repository or Project name alone never creates a WorkObject, tenant, lifecycle, or operational state.
 
+### Browser and Telegram access continuity
+
+- [x] ISC-721: An ordinary browser opening `/admin/portfolio` continues to a dedicated web-auth route without displaying the Telegram-only dead end.
+- [x] ISC-722: A Telegram WebView with non-empty `initData` continues to the existing signed founder endpoint.
+- [x] ISC-723: The public bootstrap contains no portfolio catalog, planning packet, or WorkObject bytes.
+- [x] ISC-724: The bootstrap chooses transport only from Telegram WebApp `initData` presence.
+- [x] ISC-725: Anti: no query parameter, custom header, local storage value, or client-declared role can select founder authorization.
+- [x] ISC-726: The browser continuation route is protected by the existing Cloudflare Access OTP/session flow.
+- [x] ISC-727: The browser continuation validates the existing Access JWT using the configured team domain and audience.
+- [x] ISC-728: The browser continuation resolves authorization through the existing Plexus `/v1/whoami` role map.
+- [x] ISC-729: Only a Plexus `founder` principal receives the browser Workbench document.
+- [x] ISC-730: A valid non-founder Plexus principal receives a bounded denial without portfolio bytes.
+- [x] ISC-731: A missing or invalid Access identity fails closed without portfolio bytes.
+- [x] ISC-732: A degraded Plexus lookup floors away from founder authorization.
+- [x] ISC-733: Partial or missing browser-auth configuration fails closed without falling back to an anonymous founder.
+- [x] ISC-734: The Telegram endpoint retains its existing uniform denial for missing, malformed, stale, or non-founder `initData`.
+- [x] ISC-735: The browser and Telegram success responses contain the exact same generated Workbench bytes.
+- [x] ISC-736: Both success paths preserve the strict Workbench CSP, private no-store cache policy, nosniff, and no-referrer headers.
+- [x] ISC-737: Serving either success path performs zero D1, KV, R2, Telegram, provider, portfolio, or operational-state writes; the browser path may read the existing bounded `plexus:whoami:<jwt-hash>` role cache but suppresses cache writes.
+- [x] ISC-738: The public bootstrap, browser continuation, and Telegram endpoint remain GET-only.
+- [x] ISC-739: The Access policy covers only the browser continuation path and does not intercept the Telegram bootstrap or signed endpoint.
+- [x] ISC-740: Existing root Cambium browser navigation remains unchanged outside the portfolio route.
+- [x] ISC-741: Focused route tests cover browser redirect, Access founder success, non-founder denial, missing identity, Telegram success, and GET-only behavior.
+- [ ] ISC-742: Production candidate proof confirms unauthenticated browser navigation enters the Access flow rather than the Telegram warning.
+- [ ] ISC-743: Production read-back confirms the prior Worker Version remains the exact rollback target.
+- [x] ISC-744: Anti: this change creates no identity provider, user record, tenant, schema, secret value, Telegram menu, traffic split, or alternate portfolio writer.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1023,6 +1058,7 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 | ISC-55 | mobile proof | recursive overflow/gesture contract passes | `npm run proof:tg-mobile-contract` |
 | ISC-56 | docs | rendered docs match sources | `npm run render-docs:check` |
 | ISC-57 | CI | every required PR check succeeds | `gh pr checks --watch` |
+| ISC-721..744 | dual transport auth | browser enters Access/Plexus founder flow; Telegram keeps signed initData; both serve exact bytes without writes | focused Node tests, Cloudflare Access read-back, candidate probes, browser automation, SHA-256, `git diff --check` |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
 | ISC-60 | release | tag target equals merged main | `git rev-list`, `gh release view` |
@@ -1168,6 +1204,10 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - `PortfolioProductionPromotion` | Upload one inspected Worker Version, preserve bindings, promote exactly that UUID, and retain a verified rollback target | satisfies ISC-689..710 | depends_on HostedAdminPortfolioWorkbench, ClientGroupingProof | parallelizable false
 - `ComposioGitHubInventory` | Resolve the connected founder identity and inventory owner repositories, Projects, and memberships through read-only GitHub tools | satisfies ISC-711..715, ISC-718..719 | depends_on none | parallelizable true
 - `GitHubPortfolioReconciliation` | Compare stable repository evidence with WorkObjects and Needs Review without admitting or activating anything | satisfies ISC-716..717, ISC-720 | depends_on ComposioGitHubInventory, PortfolioCatalogProjection | parallelizable false
+- `PortfolioDualTransportBootstrap` | Route browsers to web authentication while preserving signed Telegram bootstrap behavior | satisfies ISC-721..725, ISC-734, ISC-738, ISC-740 | depends_on HostedAdminPortfolioWorkbench | parallelizable false
+- `PortfolioBrowserFounderRoute` | Reuse Access JWT and Plexus role resolution for exact founder-only Workbench delivery | satisfies ISC-727..737, ISC-741 | depends_on PortfolioDualTransportBootstrap | parallelizable false
+- `PortfolioAccessDestination` | Add the browser-only path to the existing multi-domain Plexus Access application | satisfies ISC-726, ISC-739, ISC-744 | depends_on PortfolioBrowserFounderRoute | parallelizable false
+- `PortfolioBrowserReleaseProof` | Promote one staged Version and prove browser redirect, Telegram regression, exact bytes, and rollback | satisfies ISC-742..744 | depends_on PortfolioAccessDestination | parallelizable false
 
 ## Architecture
 
@@ -1188,6 +1228,16 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-03 11:19: the mandatory pre-build Advisor returned only external session `38234` and no review content. No approval is inferred; official Cloudflare path/JWT documentation, live dashboard read-back, focused route tests, staged-version probes, browser proof, ReReadCheck, and Cato remain the operative gates.
+- 2026-08-03 11:18: refined: reuse the existing `plexus-api` Cloudflare Access application and its `thoughtseed_team_list` policy by adding `curious.thoughtseed.space/admin/portfolio/web` as a third destination. This preserves the already-allowlisted Access audience in `TF_ACCESS_AUD`, the existing OTP/session identity provider, and the Plexus role map; no new application or identity system is required.
+- 2026-08-03 11:18: root-cause-at-ingestion: the bad state enters when the public loader treats missing Telegram `initData` as a final authorization verdict. The fix changes that ingestion decision into transport routing: browsers navigate to an Access-protected continuation, Telegram fetches the signed endpoint, and only the server resolves founder authority.
+- 2026-08-03 11:18: the Access destination is path-specific. It must not cover `/admin/portfolio`, because that would intercept Telegram before the Worker can read `initData`; it must not cover `/v1/admin/portfolio`, because that would block the signed Telegram fetch.
+- 2026-08-03 11:18: delivery ordering is Access destination first, staged Worker candidate second, exact Version promotion third. Before promotion, the new protected path reaches the current Worker without changing public navigation; after promotion, the bootstrap can safely redirect into the already-active wall.
+- 2026-08-03 11:27: refined: the browser route reuses `resolvePlexusPrincipal` and may consume its five-minute JWT-hash role cache, but injects a read-only KV adapter so a portfolio document request performs no cache or authority write. Creating a second identity resolver would duplicate the normal auth flow and increase role-drift risk.
+- 2026-08-03 11:35: Access application `95f46040-407f-4bb1-bc38-d346187310b2` now has `curious.thoughtseed.space/admin/portfolio/web` as its third path-specific destination under the unchanged `thoughtseed_team_list` policy. Propagation proof changed the unauthenticated route from the old Worker 404 to a Cloudflare Access 302 while `/admin/portfolio` remained 200.
+- 2026-08-03 11:35: implementation verification passes 19/19 focused portfolio and Plexus authorization tests, 1523/1523 core tests, 37/37 mission/readiness tests, standalone audit and smoke, Telegram mobile contract, 99/99 R3F tests plus build, 5/5 desktop packaging tests, `git diff --check`, and Wrangler strict dry-run. Forge's RED state was 3 pass/4 fail before the browser continuation implementation; GREEN is 7/7 portfolio-route tests.
+- 2026-08-03 11:18: delegation meets the E4 soft floor with Forge owning the bounded code/test edit and Cato owning the independent final audit. Directed repository and dashboard lookups remained local because exact file paths and destinations were discoverable within thirty seconds each.
 
 - 2026-08-01 17:22: Cato's initial audit found the Worker promotion sound but correctly challenged organization coverage and the absence of a durable privacy-safe GitHub receipt. The fix uses narrow GraphQL projections through the existing connected account: founder-owned repositories paginate by immutable cursor and owner affiliation; the sole organization is queried by immutable node ID; raw private names and descriptions are excluded from the receipt.
 - 2026-08-01 17:22: The authenticated GitHub identity is a user account whose profile company is Thoughtseed Labs, not an organization named Thoughtseed Labs. The only authenticated organization membership is `SAFVR-SG`; it contains eleven accessible private repositories and zero Projects V2. Both scopes are now explicit so profile branding cannot masquerade as GitHub ownership topology.

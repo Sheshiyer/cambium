@@ -59,6 +59,7 @@ import {
 } from './organ-update-delivery.ts';
 import { PORTFOLIO_WORKBENCH_HTML } from './portfolio-workbench.generated.ts';
 import {
+  PORTFOLIO_WORKBENCH_ACCESS_DENIED,
   PORTFOLIO_WORKBENCH_CSP,
   PORTFOLIO_WORKBENCH_LOADER,
   PORTFOLIO_WORKBENCH_LOADER_CSP,
@@ -462,6 +463,7 @@ export interface HandlerDeps {
   missionFabricTenants?: string[]; // server-owned allowlist for operating-fabric composition reads; absent/empty disables all tenants
   missionFabricViewerIds?: string[]; // server-owned non-founder viewer allowlist for /v1/mission-fabric only; absent/empty authorizes founders only
   plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → dev founder fallback)
+  plexusFetchImpl?: typeof fetch; // test-only fetch injection for Access JWKS + whoami probes
 }
 
 export interface ProviderConfig {
@@ -654,8 +656,8 @@ const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECR
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
 
-const portfolioHtml = (body: string, contentSecurityPolicy: string): SimpleResponse => ({
-  status: 200,
+const portfolioHtml = (status: number, body: string, contentSecurityPolicy: string): SimpleResponse => ({
+  status,
   headers: {
     'content-type': 'text/html; charset=utf-8',
     'cache-control': 'private, no-store',
@@ -665,6 +667,9 @@ const portfolioHtml = (body: string, contentSecurityPolicy: string): SimpleRespo
   },
   body,
 });
+
+const portfolioFailClosed = (status: 401 | 503): SimpleResponse =>
+  portfolioHtml(status, PORTFOLIO_WORKBENCH_ACCESS_DENIED, PORTFOLIO_WORKBENCH_CSP);
 
 async function handlePortfolioWorkbenchRoute(
   req: SimpleRequest,
@@ -678,7 +683,24 @@ async function handlePortfolioWorkbenchRoute(
     };
   }
   if (routePath === '/admin/portfolio') {
-    return portfolioHtml(PORTFOLIO_WORKBENCH_LOADER, PORTFOLIO_WORKBENCH_LOADER_CSP);
+    return portfolioHtml(200, PORTFOLIO_WORKBENCH_LOADER, PORTFOLIO_WORKBENCH_LOADER_CSP);
+  }
+  if (routePath === '/admin/portfolio/web') {
+    if (!deps.plexus) return portfolioFailClosed(503);
+    const resolved = await resolvePlexusPrincipal(
+      req.headers,
+      deps.plexus,
+      {
+        get: deps.kv.get.bind(deps.kv),
+        async put() { /* portfolio browser route is read-only */ },
+      },
+      deps.plexusFetchImpl,
+    );
+    if (resolved.kind === 'unconfigured') return portfolioFailClosed(503);
+    if (resolved.kind !== 'principal' || resolved.principal.role !== 'founder') {
+      return portfolioFailClosed(401);
+    }
+    return portfolioHtml(200, PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
   }
   const gate = deps.gate;
   const gateConfigured = Boolean(
@@ -692,7 +714,7 @@ async function handlePortfolioWorkbenchRoute(
   if (!auth.ok) {
     return json(401, { error: 'telegram authentication failed' });
   }
-  return portfolioHtml(PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
+  return portfolioHtml(200, PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
 }
 
 const ledgerKey = (tenant: string): string => `ledger:${tenant}`;
@@ -3650,7 +3672,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
 
-  if (routePath === '/admin/portfolio' || routePath === '/v1/admin/portfolio') {
+  if (routePath === '/admin/portfolio' || routePath === '/admin/portfolio/web' || routePath === '/v1/admin/portfolio') {
     return handlePortfolioWorkbenchRoute(req, deps, routePath);
   }
 
@@ -3870,7 +3892,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
     let principal: Principal | null = null;
     if (deps.plexus) {
-      const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv);
+      const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
       if (resolved.kind === 'unauthenticated') {
         return json(401, { error: 'access_identity_required', message: 'A verified Cloudflare Access identity is required.' });
       }

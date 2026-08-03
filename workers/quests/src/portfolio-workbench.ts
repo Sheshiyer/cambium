@@ -49,12 +49,12 @@ export const PORTFOLIO_WORKBENCH_LOADER = `<!doctype html>
   <script>
     (function () {
       'use strict';
-      var status = document.getElementById('portfolioLoaderStatus');
       var webApp = window.Telegram && window.Telegram.WebApp;
       var initData = webApp && typeof webApp.initData === 'string' ? webApp.initData : '';
+      var status = document.getElementById('portfolioLoaderStatus');
       if (webApp && typeof webApp.ready === 'function') webApp.ready();
       if (!initData) {
-        status.textContent = 'Open this page from the authorized Telegram Mini App.';
+        window.location.replace('/admin/portfolio/web');
         return;
       }
       fetch('/v1/admin/portfolio', {
@@ -80,5 +80,28 @@ export const PORTFOLIO_WORKBENCH_LOADER = `<!doctype html>
       });
     })();
   </script>
+</body>
+</html>`;
+
+export const PORTFOLIO_WORKBENCH_ACCESS_DENIED = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Portfolio Access Required</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#071410;color:#f2ecd8}
+    *{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:#071410}
+    main{width:min(100%,420px);padding:28px;border:1px solid rgba(226,237,218,.18);background:#0d1d17}
+    span{display:inline-grid;place-items:center;width:42px;height:42px;margin-bottom:18px;border-radius:50%;background:#dfff4f;color:#071410;font-weight:800}
+    h1{margin:0 0 10px;font-size:24px;line-height:1.1}p{margin:0;color:#a9b7aa;line-height:1.55}
+  </style>
+</head>
+<body>
+  <main aria-labelledby="portfolioDeniedTitle">
+    <span aria-hidden="true">TS</span>
+    <h1 id="portfolioDeniedTitle">Portfolio access required</h1>
+    <p role="status">Sign in with the authorized founder identity to continue.</p>
+  </main>
 </body>
 </html>`;

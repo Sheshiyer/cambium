@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHash, webcrypto } from 'node:crypto';
+import { createHash, createSign, generateKeyPairSync, webcrypto } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
@@ -19,6 +19,13 @@ const NOW_MS = 1_750_000_000_000;
 const BOT_ID = '900000001';
 const FOUNDER_ID = '200000001';
 const VIEWER_ID = '200000099';
+const TEAM_DOMAIN = 'red-queen-4dfa.cloudflareaccess.com';
+const ACCESS_AUD = '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200';
+const ACCESS_KID = 'portfolio-access-test-kid';
+const PORTFOLIO_BYTES_RE = /portfolio-workbench@v3; offline; proposal-only|data-bundled="portfolio-cartographer"/;
+
+const { publicKey: accessPublicKey, privateKey: accessPrivateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const accessJwk = accessPublicKey.export({ format: 'jwk' });
 
 async function signedInitData(userId: string): Promise<{ initData: string; pubKeyHex: string }> {
   const pair = await subtle.generateKey('Ed25519', true, ['sign', 'verify']) as CryptoKeyPair;
@@ -42,7 +49,47 @@ function request(method: string, path: string, headers: Record<string, string> =
   return { method, path, headers };
 }
 
-function deps(gate?: GateConfig): { value: HandlerDeps; writes: () => number } {
+function b64url(value: Buffer | string): string {
+  return Buffer.from(value).toString('base64url');
+}
+
+function signAccessJwt(payload: Record<string, unknown>): string {
+  const header = b64url(JSON.stringify({ alg: 'RS256', kid: ACCESS_KID, typ: 'JWT' }));
+  const body = b64url(JSON.stringify(payload));
+  const signature = createSign('RSA-SHA256').update(`${header}.${body}`).sign(accessPrivateKey, 'base64url');
+  return `${header}.${body}.${signature}`;
+}
+
+function validAccessPayload(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    iss: `https://${TEAM_DOMAIN}`,
+    aud: ACCESS_AUD,
+    email: 'founder@thoughtseed.space',
+    exp: Math.floor(Date.now() / 1000) + 600,
+    ...overrides,
+  };
+}
+
+function plexusFetch(whoamiStatus = 200, whoamiBody: unknown = {}): typeof fetch {
+  return (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes('/cdn-cgi/access/certs')) {
+      return new Response(JSON.stringify({ keys: [{ ...accessJwk, kid: ACCESS_KID }] }), { status: 200 });
+    }
+    if (url.includes('/v1/whoami')) {
+      return new Response(JSON.stringify(whoamiBody), {
+        status: whoamiStatus,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response('not found', { status: 404 });
+  }) as typeof fetch;
+}
+
+function deps(
+  gate?: GateConfig,
+  overrides: Partial<HandlerDeps> = {},
+): { value: HandlerDeps; writes: () => number } {
   let writeCount = 0;
   return {
     value: {
@@ -52,12 +99,13 @@ function deps(gate?: GateConfig): { value: HandlerDeps; writes: () => number } {
         async put() { writeCount += 1; },
       },
       gate,
+      ...overrides,
     },
     writes: () => writeCount,
   };
 }
 
-test('public portfolio route serves only a Telegram bootstrap and both routes are GET-only', async () => {
+test('public portfolio route preserves Telegram initData flow, falls back with location.replace, and all portfolio routes are GET-only', async () => {
   const fixture = deps();
   const response = await handle(request('GET', '/admin/portfolio'), fixture.value);
   assert.equal(response.status, 200);
@@ -65,15 +113,31 @@ test('public portfolio route serves only a Telegram bootstrap and both routes ar
   assert.match(String(response.body), /telegram-web-app\.js/);
   assert.match(String(response.body), /WebApp/);
   assert.match(String(response.body), /x-telegram-init-data/);
+  assert.match(String(response.body), /fetch\('\/v1\/admin\/portfolio'/);
+  assert.match(String(response.body), /location\.replace\('\/admin\/portfolio\/web'\)/);
+  assert.doesNotMatch(String(response.body), /location\.replace\('\/admin\/portfolio'\)/);
   assert.doesNotMatch(String(response.body), /sapling:|client-branch|internal-program|portfolio-workbench\.v[23]/);
   assert.doesNotMatch(String(response.body), /localStorage|sessionStorage|console\./);
   assert.match(response.headers['content-security-policy'], /connect-src 'self'/);
-  for (const path of ['/admin/portfolio', '/v1/admin/portfolio']) {
+  for (const path of ['/admin/portfolio', '/admin/portfolio/web', '/v1/admin/portfolio']) {
     const denied = await handle(request('POST', path), fixture.value);
     assert.equal(denied.status, 405);
     assert.equal(denied.headers.allow, 'GET');
   }
   assert.equal(fixture.writes(), 0);
+});
+
+test('browser portfolio route requires configured Cloudflare Access before serving any protected bytes', async () => {
+  const missing = await handle(request('GET', '/admin/portfolio/web'), deps().value);
+  const partial = await handle(
+    request('GET', '/admin/portfolio/web'),
+    deps(undefined, { plexus: { teamDomain: TEAM_DOMAIN, aud: '' } }).value,
+  );
+
+  assert.equal(missing.status, 503);
+  assert.equal(partial.status, 503);
+  assert.doesNotMatch(String(missing.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(partial.body), PORTFOLIO_BYTES_RE);
 });
 
 test('protected portfolio endpoint fails closed for configuration and Telegram founder authorization', async () => {
@@ -158,6 +222,79 @@ test('founder receives the exact generated bundle with strict no-store and CSP h
   ));
   assert.equal(response.headers['x-content-type-options'], 'nosniff');
   assert.equal(fixture.writes(), 0);
+});
+
+test('browser portfolio route serves the exact bundle only for a founder Cloudflare Access identity', async () => {
+  const jwt = signAccessJwt(validAccessPayload());
+  const fixture = deps(undefined, {
+    plexus: { teamDomain: TEAM_DOMAIN, aud: ACCESS_AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    plexusFetchImpl: plexusFetch(200, {
+      email: 'founder@thoughtseed.space',
+      role: 'admin',
+      identityId: 'pid_founder',
+    }),
+  });
+
+  const response = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': jwt }),
+    fixture.value,
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body, PORTFOLIO_WORKBENCH_HTML);
+  assert.notEqual(response.body, PORTFOLIO_WORKBENCH_LOADER);
+  assert.equal(response.headers['cache-control'], 'private, no-store');
+  assert.equal(response.headers['x-content-type-options'], 'nosniff');
+  assert.equal(response.headers['referrer-policy'], 'no-referrer');
+  assert.match(response.headers['content-security-policy'], /connect-src 'none'/);
+  assert.equal(fixture.writes(), 0);
+});
+
+test('browser portfolio route fails closed uniformly for missing, invalid, non-founder, and degraded identities', async () => {
+  const basePlexus = { teamDomain: TEAM_DOMAIN, aud: ACCESS_AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' };
+  const missing = await handle(
+    request('GET', '/admin/portfolio/web'),
+    deps(undefined, { plexus: basePlexus, plexusFetchImpl: plexusFetch() }).value,
+  );
+  const invalid = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': 'not-a-jwt' }),
+    deps(undefined, { plexus: basePlexus, plexusFetchImpl: plexusFetch() }).value,
+  );
+  const employeeJwt = signAccessJwt(validAccessPayload({ email: 'employee@thoughtseed.space' }));
+  const nonFounder = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': employeeJwt }),
+    deps(undefined, {
+      plexus: basePlexus,
+      plexusFetchImpl: plexusFetch(200, {
+        email: 'employee@thoughtseed.space',
+        role: 'employee',
+        identityId: 'pid_employee',
+      }),
+    }).value,
+  );
+  const degradedJwt = signAccessJwt(validAccessPayload({ email: 'degraded@thoughtseed.space' }));
+  const degraded = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': degradedJwt }),
+    deps(undefined, {
+      plexus: basePlexus,
+      plexusFetchImpl: plexusFetch(500, { error: 'degraded' }),
+    }).value,
+  );
+
+  assert.equal(missing.status, 401);
+  assert.equal(invalid.status, missing.status);
+  assert.equal(nonFounder.status, missing.status);
+  assert.equal(degraded.status, missing.status);
+  assert.equal(invalid.body, missing.body);
+  assert.equal(nonFounder.body, missing.body);
+  assert.equal(degraded.body, missing.body);
+  assert.deepEqual(invalid.headers, missing.headers);
+  assert.deepEqual(nonFounder.headers, missing.headers);
+  assert.deepEqual(degraded.headers, missing.headers);
+  assert.doesNotMatch(String(missing.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(invalid.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(nonFounder.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(degraded.body), PORTFOLIO_BYTES_RE);
 });
 
 test('operating fabric exposes the Workbench link only when founder detail exists', () => {
