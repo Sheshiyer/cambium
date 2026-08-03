@@ -151,10 +151,7 @@ export async function resolvePlexusPrincipal(
     const cached = await kv.get(cacheKey);
     if (cached) {
       const principal = cachedPrincipal(JSON.parse(cached) as unknown, accessEmail, Date.now());
-      if (principal) {
-        console.log(JSON.stringify({ event: 'plexus_principal_resolution', stage: 'cache', role: principal.role }));
-        return { kind: 'principal', principal };
-      }
+      if (principal) return { kind: 'principal', principal };
     }
   } catch { /* cache miss / parse failure → fall through to live lookup */ }
 
@@ -164,25 +161,15 @@ export async function resolvePlexusPrincipal(
       headers: { 'cf-access-jwt-assertion': jwt, 'accept': 'application/json' },
     });
     if (res.status === 404) {
-      console.log(JSON.stringify({ event: 'plexus_principal_resolution', stage: 'whoami', status: res.status, shape: 'not-found' }));
       principal = consultantFloor(accessEmail); // valid Access login, no Plexus identity
     } else if (!res.ok) {
-      console.log(JSON.stringify({ event: 'plexus_principal_resolution', stage: 'whoami', status: res.status, shape: 'error' }));
       principal = consultantFloor(accessEmail); // whoami degraded → fail closed
     } else {
       const body = await res.json();
       const session = normalizeWhoamiSession(body);
-      console.log(JSON.stringify({
-        event: 'plexus_principal_resolution',
-        stage: 'whoami',
-        status: res.status,
-        shape: session ? 'session' : isRecord(body) && body.ok === true ? 'ok-envelope-invalid' : 'invalid',
-        role: session?.role,
-      }));
       principal = session ? principalFromWhoami(session, accessEmail) : consultantFloor(accessEmail);
     }
   } catch {
-    console.log(JSON.stringify({ event: 'plexus_principal_resolution', stage: 'whoami', shape: 'exception' }));
     principal = consultantFloor(accessEmail);
   }
 
