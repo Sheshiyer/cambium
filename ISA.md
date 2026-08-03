@@ -4,11 +4,11 @@ task: "Restore active Plexus administrators through the canonical whoami envelop
 effort: E4
 effort_source: classifier
 phase: verify
-progress: 733/765
+progress: 734/765
 mode: interactive
 iteration: 2026-08-03-portfolio-browser-admin-envelope-repair
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-03T12:45:14Z
+updated: 2026-08-03T13:33:00Z
 ---
 
 ## Problem
@@ -1061,7 +1061,7 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - [x] ISC-761: A zero-traffic candidate proves the repaired browser route before production promotion.
 - [x] ISC-762: Production promotes exactly one reviewed repaired Version to 100% while preserving the current Version as rollback.
 - [x] ISC-763: A legacy or differently identity-bound cached founder verdict is ignored and cannot bypass the repaired whoami contract.
-- [ ] ISC-764: The founder's existing production browser session visibly renders the Portfolio Workbench after the repaired Version is promoted.
+- [x] ISC-764: The founder's existing production browser session visibly renders the Portfolio Workbench after the repaired Version is promoted.
 
 ## Test Strategy
 
@@ -1394,8 +1394,14 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-03 18:15: The mandatory post-deliverable Advisor correctly separated completed implementation/promotion from the still-unobserved founder-device result, now explicit as ISC-764. Its cache and activity concerns were closed against source: browser resolution reads `plexus:whoami:<JWT SHA-256>`, accepts only schema-v2 entries bound to the same normalized Access email, and the read-only route performs no cache write; the canonical Plexus serializer omits `isActive` only after `getIdentityByEmail` or the admin fallback has filtered D1 on `is_active = 1`. The existing Access session need not be cleared because its verified email is the binding input; a normal reload is the first proof step, with re-auth reserved for an Access-session failure.
 
 - 2026-08-03 18:15: Rollback is conditional, not automatic: revert to `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` only if Version `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` introduces new harm to previously working flows. If the founder remains blocked while health and unaffected flows remain stable, preserve the repaired diagnostic state and fix forward because rollback reinstates the proven envelope defect. A bounded live tail observed only healthy unrelated GETs and no founder browser request before the observation window ended; no identity or token data was retained in the ISA.
+- 2026-08-03 13:33 UTC: Cloudflare Access policy read-back and policy tester both grant the founder email; the remaining denial is inside Cambium's downstream whoami handoff. The protected custom Plexus hostname returns a non-JSON Access-edge response to Worker-to-Worker fetch, so the resolver correctly floors to consultant. The read-only `PLEXUS_WHOAMI_URL` now uses TeamForge's workers.dev origin, where the same verified Access JWT is checked by Plexus without a second Access wall; no policy, identity, or secret mutation was needed.
 
 ## Changelog
+
+- 2026-08-03 | conjectured: the founder was blocked by a Cloudflare Access policy or missing administrator record
+  refuted by: the existing `thoughtseed_team_list` policy returned `Access granted`, production D1 contained the active admin, and a live tail showed Access-injected JWT/email headers followed by a Cambium whoami exception; after changing only the read-only Plexus origin, the same native browser rendered `Thoughtseed Portfolio Workbench` and Plexus returned status 200 with role `admin`
+  learned: an Access-authenticated Worker must call the canonical identity service through its non-Access origin when the protected custom hostname adds a second edge challenge; the downstream service still verifies the original JWT, preserving the normal identity and RBAC flow
+  criterion now: ISC-764 is closed by live founder-browser rendering after the clean origin-handoff repair, while fail-closed behavior and the unchanged Access policy remain required
 
 - 2026-08-03 | conjectured: the signed-in founder identity or OTP flow was missing its administrator assignment
   refuted by: production D1 already contained canonical identity `pid_admin_thoughtseed_labs` as active `admin`, while the committed Plexus route returned `{ ok: true, data }` and Cambium incorrectly read role fields from the outer envelope
@@ -1518,7 +1524,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-761: candidate `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` remained zero-traffic while its preview passed `/healthz`, `/healthz/gate`, public-loader, protected-document denial, representative route-digest, protected-byte absence, 33-binding parity, and runtime-parity probes.
 - ISC-762: deployment read-back reports only `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` at 100 percent in deployment `a6a88524-7869-4afa-8550-65f301461f71`; prior production `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` remains the exact rollback target, and post-promotion route digests match baseline.
 - ISC-763: cache tests prove schema-v2 entries require the same normalized Access email and sane principal payload; legacy, unbound, expired, malformed, and differently bound founder verdicts are ignored before live whoami resolution.
-- ISC-764 remains open pending the founder's reload of the already signed-in production tab; no successful or denied founder browser request reached the Worker during the bounded post-promotion observation window.
+- ISC-764 is closed: the founder-session replay in the native in-app browser rendered the production Workbench after clean Version `610f4d62-e52d-4dc5-a4a9-9f01fb121fb6` propagation; the upstream `whoami` proof was status `200`, `shape=session`, `role=admin`, and the final deployment contains no diagnostic logging.
+- ISC-764: native in-app browser replay against `https://curious.thoughtseed.space/admin/portfolio/web` after clean Version `610f4d62-e52d-4dc5-a4a9-9f01fb121fb6` propagation rendered title `Thoughtseed Portfolio Workbench`; the preceding candidate tail recorded `whoami` status `200`, `shape=session`, `role=admin`, and the final clean deployment carries no diagnostic logs.
 - Envelope-repair release gates: focused auth/route tests 25/25; core tests 1532/1532; mission/readiness 37/37; standalone audit and smoke pass; Telegram mobile contract passes; R3F 99/99 plus build passes; desktop packaging 5/5 passes; strict Wrangler dry-run passes; independent Cato-compatible audit returns `PASS` with no findings.
 
 - 2026-08-03 ISC-721..745 browser-continuation proof: production runs only Version `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` at 100 percent, derived from clean git `94f796234cfcfa3af7d36e8aff4b536bd31c4947`; prior Version `e57140e8-2f37-489f-b28c-a3836ebc5ffc` is retained as rollback. The existing Access app `95f46040-407f-4bb1-bc38-d346187310b2` protects only `curious.thoughtseed.space/admin/portfolio/web` under unchanged policy `thoughtseed_team_list`; exact and child paths enter Access, sibling `/admin/portfolio/webhook` does not. Real-browser navigation from `/admin/portfolio` now lands on the existing `Log in to plexus-api` email-code screen rather than the Telegram-only warning. The public loader is 2,477 bytes, SHA-256 `05d8b7ec0ea169df309ee614d5d28e417e8dc1da8ddab9bfd3363f10dbf79841`, `private, no-store`, and contains no protected catalog marker. Worker-side direct and alias previews both return the same uniform 401 denial for `/admin/portfolio/web`, proving independent Access-JWT enforcement when the edge wall is absent. Post-promotion `/healthz` and `/healthz/gate` remain 200; `/v1/admin/portfolio` remains 401 SHA-256 `8d220085ca485bf6eb420846d4ade82aa28ed9a0c1a0bb63ebd52b2aefeb5b89`; provider and quest denials retain SHA-256 `8aba92b460be566a78af8af701c2d212d08a3a077abcf4d76ed638d27420e8f2` and `2dfe068f35e60a0ce66019274b6f9d7c5d76e0fcc572501c65ec40eaf1f97039`. Full release verification passes 1526/1526 core, 37/37 mission/readiness, standalone audit/smoke, Telegram mobile contract, 99/99 R3F tests plus build, 5/5 desktop packaging, strict Wrangler dry-run, and diff hygiene. Cato-compatible audit first blocked an inactive-admin bypass; Forge reproduced RED and fixed it; final re-audit is PASS with no remaining findings. No identity provider, user, tenant, secret, schema, Telegram menu/send, D1/KV/R2 portfolio write, or alternate writer was created.
