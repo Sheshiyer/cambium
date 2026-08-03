@@ -698,6 +698,11 @@ async function handlePortfolioWorkbenchRoute(
     );
     if (resolved.kind === 'unconfigured') return portfolioFailClosed(503);
     if (resolved.kind !== 'principal' || resolved.principal.role !== 'founder') {
+      console.log(JSON.stringify({
+        event: 'portfolio_auth_denied',
+        kind: resolved.kind,
+        role: resolved.kind === 'principal' ? resolved.principal.role : undefined,
+      }));
       return portfolioFailClosed(401);
     }
     return portfolioHtml(200, PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
