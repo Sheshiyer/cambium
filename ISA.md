@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Continue browser navigation through the existing founder identity flow"
+task: "Restore active Plexus administrators through the canonical whoami envelope"
 effort: E4
 effort_source: classifier
-phase: complete
-progress: 715/746
+phase: verify
+progress: 733/765
 mode: interactive
-iteration: 2026-08-03-portfolio-browser-access-continuation
+iteration: 2026-08-03-portfolio-browser-admin-envelope-repair
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-03T12:01:48Z
+updated: 2026-08-03T12:45:14Z
 ---
 
 ## Problem
@@ -1041,6 +1041,28 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - [x] ISC-744: Anti: this change creates no identity provider, user record, tenant, schema, secret value, Telegram menu, traffic split, or alternate portfolio writer.
 - [x] ISC-745: A Plexus identity explicitly marked `isActive: false` never receives founder authorization even when its stored role is `admin`.
 
+### Canonical Plexus session-envelope authorization
+
+- [x] ISC-746: An Access-authenticated session for canonical identity `pid_admin_thoughtseed_labs` resolves through Plexus as an active administrator.
+- [x] ISC-747: A successful canonical `{ ok: true, data: session }` whoami response maps its nested active `admin` role to founder.
+- [x] ISC-748: A legacy flat active-admin whoami response remains compatible and maps to founder.
+- [x] ISC-749: A canonical `{ ok: false, error }` response never maps to founder even if unrelated nested fields contain `admin`.
+- [x] ISC-750: A successful envelope without an object-valued `data` payload never maps to founder.
+- [x] ISC-751: A whoami session whose email differs from the verified Access email never maps to founder.
+- [x] ISC-752: Email binding compares normalized addresses case-insensitively without accepting a different address.
+- [x] ISC-753: An enveloped inactive administrator never maps to founder.
+- [x] ISC-754: An enveloped employee never maps to founder.
+- [x] ISC-755: A malformed or non-object whoami body never maps to founder.
+- [x] ISC-756: The portfolio browser route serves exact Workbench bytes to an enveloped active administrator.
+- [x] ISC-757: The portfolio browser route retains its uniform bounded denial for invalid, inactive, mismatched, and non-founder identities.
+- [x] ISC-758: Anti: the repair introduces no email allowlist, direct D1 role lookup, fresh identity, tenant, secret, schema, or client-declared role bypass.
+- [x] ISC-759: The Telegram signed-founder Workbench route remains byte-identical and behaviorally unchanged.
+- [x] ISC-760: The browser authorization path remains read-only across D1, KV, R2, Telegram, and portfolio state.
+- [x] ISC-761: A zero-traffic candidate proves the repaired browser route before production promotion.
+- [x] ISC-762: Production promotes exactly one reviewed repaired Version to 100% while preserving the current Version as rollback.
+- [x] ISC-763: A legacy or differently identity-bound cached founder verdict is ignored and cannot bypass the repaired whoami contract.
+- [ ] ISC-764: The founder's existing production browser session visibly renders the Portfolio Workbench after the repaired Version is promoted.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1060,6 +1082,7 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 | ISC-56 | docs | rendered docs match sources | `npm run render-docs:check` |
 | ISC-57 | CI | every required PR check succeeds | `gh pr checks --watch` |
 | ISC-721..745 | dual transport auth | browser enters Access/Plexus founder flow; Telegram keeps signed initData; inactive identities fail closed; both serve exact bytes without writes | focused Node tests, Cloudflare Access read-back, candidate probes, browser automation, SHA-256, `git diff --check` |
+| ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
 | ISC-60 | release | tag target equals merged main | `git rev-list`, `gh release view` |
@@ -1210,6 +1233,8 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - `PortfolioAccessDestination` | Add the browser-only path to the existing multi-domain Plexus Access application | satisfies ISC-726, ISC-739, ISC-744 | depends_on PortfolioBrowserFounderRoute | parallelizable false
 - `PortfolioBrowserReleaseProof` | Promote one staged Version and prove browser redirect, Telegram regression, exact bytes, and rollback | satisfies ISC-742..744 | depends_on PortfolioAccessDestination | parallelizable false
 
+- `PlexusWhoamiEnvelopeRepair` | Normalize the canonical success envelope at the Cambium adapter boundary, bind the returned session email and cache payload to the verified Access identity, preserve flat compatibility, and separate deterministic promotion proof from the final founder-browser observation | satisfies ISC-746..764 | depends_on PortfolioBrowserFounderRoute | parallelizable false
+
 ## Architecture
 
 <!-- arch-assets:start -->
@@ -1354,7 +1379,28 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-01 14:29: Advisor's editable canonical family-ID recommendation is rejected because exact `accountId` is already the source-backed client relationship, not a prefix heuristic. Canonical group projections remain uneditable; only uncertain review records may carry a local proposed client family.
 - 2026-08-01 14:29: Advisor's Telegram dedup concern is outside this artifact's execution boundary: the Workbench has no send path, network primitive, or operational proposal endpoint. The existing founder-only document gate remains unchanged and exact-bundle tests guard it.
 
+- 2026-08-03 17:41: refined: canonical identity `pid_admin_thoughtseed_labs` is present in production `plexus_identities` as active `admin`; the denial enters at Cambium's whoami response adapter, which reads the canonical `{ ok: true, data }` envelope as though it were a flat session and therefore floors the verified administrator to consultant. The repair belongs at envelope ingestion, must bind the nested email to the already-verified Access email, and must not add a direct D1 or email-allowlist bypass.
+
+- 2026-08-03 17:52: Advisor approved the ingestion-boundary repair with a deterministic grammar: an own `ok` property always selects envelope parsing; only `ok === true` plus a non-empty, non-array, one-level object payload may proceed; flat compatibility applies only when `ok` is absent. Email binding is exact after trim plus non-locale lowercase only, with missing, alias-normalized, mismatched, malformed, and upstream-error states all failing closed. Canonical committed Plexus source at `team-forge-ts` confirms `/v1/whoami` returns `jsonOk(await buildPlexusSession(...))`, where `jsonOk` emits `{ ok: true, data }`.
+
+- 2026-08-03 18:09: Forge reproduced the canonical envelope defect RED, including a live-whoami bypass by a legacy cached founder verdict, then implemented deterministic envelope ingestion, exact Access-email binding, literal activity validation, and schema-v2 identity-bound cache reads. The focused resolver and browser-route suites pass 25/25; the complete repository suite passes 1532/1532; deterministic `verify:release`, standalone audit/smoke, Telegram mobile contract, R3F tests/build, desktop packaging, strict Wrangler dry-run, and `git diff --check` all pass at git `fc6e05bee50d7386bf692d844f2c9513a8d48e4d`.
+
+- 2026-08-03 18:09: Independent Cato-compatible audit of `fc6e05b` and ISC-746..763 returned `PASS` with no critical, high, medium, or remaining findings. It independently confirmed fail-closed envelope grammar, Access-email binding, inactive and non-founder denial, cache migration safety, exact Workbench success bytes, uniform bounded route denials, Telegram preservation, and the read-only boundary.
+
+- 2026-08-03 18:09: Zero-traffic candidate `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60`, tagged `git-fc6e05bee50d7386bf692d844f2c9513a8d48e4d`, matched production across all 33 bindings and the complete runtime contract. Its preview alias passed health and gate probes, served the public loader, returned the uniform 401 without protected Workbench markers at `/admin/portfolio/web`, and preserved the exact pre-deploy digests of all unaffected routes.
+
+- 2026-08-03 18:09: Exact reviewed candidate `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` is now the sole production Version at 100 percent under deployment `a6a88524-7869-4afa-8550-65f301461f71`. Post-promotion health, gate, loader, Access redirect, and representative authorization digests pass; prior production `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` remains the immediate inspectable rollback target. No D1, KV, R2, Telegram, identity, tenant, schema, secret, or Access-policy mutation occurred.
+
+- 2026-08-03 18:15: The mandatory post-deliverable Advisor correctly separated completed implementation/promotion from the still-unobserved founder-device result, now explicit as ISC-764. Its cache and activity concerns were closed against source: browser resolution reads `plexus:whoami:<JWT SHA-256>`, accepts only schema-v2 entries bound to the same normalized Access email, and the read-only route performs no cache write; the canonical Plexus serializer omits `isActive` only after `getIdentityByEmail` or the admin fallback has filtered D1 on `is_active = 1`. The existing Access session need not be cleared because its verified email is the binding input; a normal reload is the first proof step, with re-auth reserved for an Access-session failure.
+
+- 2026-08-03 18:15: Rollback is conditional, not automatic: revert to `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` only if Version `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` introduces new harm to previously working flows. If the founder remains blocked while health and unaffected flows remain stable, preserve the repaired diagnostic state and fix forward because rollback reinstates the proven envelope defect. A bounded live tail observed only healthy unrelated GETs and no founder browser request before the observation window ended; no identity or token data was retained in the ISA.
+
 ## Changelog
+
+- 2026-08-03 | conjectured: the signed-in founder identity or OTP flow was missing its administrator assignment
+  refuted by: production D1 already contained canonical identity `pid_admin_thoughtseed_labs` as active `admin`, while the committed Plexus route returned `{ ok: true, data }` and Cambium incorrectly read role fields from the outer envelope
+  learned: canonical authentication envelopes must be normalized once at the consumer boundary, with session identity bound to verified Access claims and cached authorization bound to that same identity
+  criterion now: ISC-746..763 require canonical and flat success compatibility, deterministic fail-closed envelope parsing, exact email and activity binding, cache migration safety, route parity, zero-traffic proof, one-Version promotion, and rollback preservation
 
 - 2026-08-01 | conjectured: the authenticated user's `Thoughtseed Labs` profile company, owner-repository inventory, default Project list, and organization-membership list together proved the complete GitHub portfolio scope
   refuted by: Cato separated profile branding from ownership topology; immutable GraphQL enumeration found thirteen Projects rather than the default action's twelve open Projects, and the sole actual organization contained eleven private repositories plus zero Projects
@@ -1464,6 +1510,16 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-672 and ISC-688 require unified bounded LIFO quick history, exclusive bulk history, and stateful bulk-to-quick-to-bulk sequence proof
 
 ## Verification
+
+- ISC-746: production read-only D1 evidence identifies `pid_admin_thoughtseed_labs` as `role=admin` and `is_active=1`; canonical `buildPlexusSession` plus the Access-JWT-bound resolver test proves that exact session resolves as active administrator without an alternate lookup.
+- ISC-747..755: focused resolver tests prove canonical successful-envelope founder mapping, legacy flat compatibility, case-only email normalization, and consultant-floor behavior for `ok:false`, missing/non-object data, nested envelopes, mismatched/missing email, inactive admin, employee, malformed body, upstream error, and non-boolean activity.
+- ISC-756..757: focused route tests prove an enveloped active administrator receives the exact Workbench document, while every invalid, inactive, mismatched, non-founder, or degraded case returns the same bounded 401 headers and body without portfolio markers.
+- ISC-758..760: source and diff audit show no email allowlist, direct D1 authority query, new identity, tenant, schema, secret, client-declared role, Telegram change, mutation primitive, or browser-path write; Telegram signed-founder bytes and behavior remain regression-covered.
+- ISC-761: candidate `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` remained zero-traffic while its preview passed `/healthz`, `/healthz/gate`, public-loader, protected-document denial, representative route-digest, protected-byte absence, 33-binding parity, and runtime-parity probes.
+- ISC-762: deployment read-back reports only `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` at 100 percent in deployment `a6a88524-7869-4afa-8550-65f301461f71`; prior production `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` remains the exact rollback target, and post-promotion route digests match baseline.
+- ISC-763: cache tests prove schema-v2 entries require the same normalized Access email and sane principal payload; legacy, unbound, expired, malformed, and differently bound founder verdicts are ignored before live whoami resolution.
+- ISC-764 remains open pending the founder's reload of the already signed-in production tab; no successful or denied founder browser request reached the Worker during the bounded post-promotion observation window.
+- Envelope-repair release gates: focused auth/route tests 25/25; core tests 1532/1532; mission/readiness 37/37; standalone audit and smoke pass; Telegram mobile contract passes; R3F 99/99 plus build passes; desktop packaging 5/5 passes; strict Wrangler dry-run passes; independent Cato-compatible audit returns `PASS` with no findings.
 
 - 2026-08-03 ISC-721..745 browser-continuation proof: production runs only Version `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` at 100 percent, derived from clean git `94f796234cfcfa3af7d36e8aff4b536bd31c4947`; prior Version `e57140e8-2f37-489f-b28c-a3836ebc5ffc` is retained as rollback. The existing Access app `95f46040-407f-4bb1-bc38-d346187310b2` protects only `curious.thoughtseed.space/admin/portfolio/web` under unchanged policy `thoughtseed_team_list`; exact and child paths enter Access, sibling `/admin/portfolio/webhook` does not. Real-browser navigation from `/admin/portfolio` now lands on the existing `Log in to plexus-api` email-code screen rather than the Telegram-only warning. The public loader is 2,477 bytes, SHA-256 `05d8b7ec0ea169df309ee614d5d28e417e8dc1da8ddab9bfd3363f10dbf79841`, `private, no-store`, and contains no protected catalog marker. Worker-side direct and alias previews both return the same uniform 401 denial for `/admin/portfolio/web`, proving independent Access-JWT enforcement when the edge wall is absent. Post-promotion `/healthz` and `/healthz/gate` remain 200; `/v1/admin/portfolio` remains 401 SHA-256 `8d220085ca485bf6eb420846d4ade82aa28ed9a0c1a0bb63ebd52b2aefeb5b89`; provider and quest denials retain SHA-256 `8aba92b460be566a78af8af701c2d212d08a3a077abcf4d76ed638d27420e8f2` and `2dfe068f35e60a0ce66019274b6f9d7c5d76e0fcc572501c65ec40eaf1f97039`. Full release verification passes 1526/1526 core, 37/37 mission/readiness, standalone audit/smoke, Telegram mobile contract, 99/99 R3F tests plus build, 5/5 desktop packaging, strict Wrangler dry-run, and diff hygiene. Cato-compatible audit first blocked an inactive-admin bypass; Forge reproduced RED and fixed it; final re-audit is PASS with no remaining findings. No identity provider, user, tenant, secret, schema, Telegram menu/send, D1/KV/R2 portfolio write, or alternate writer was created.
 - 2026-08-03 ReReadCheck: PASS against the exact request, “opening on website or browser shouldn’t do this; it should use the normal flow we have.” Ordinary browser navigation now selects the existing Cloudflare Access → Plexus founder flow; Telegram still selects the signed `initData` endpoint; no fresh identity was introduced; and the live route presents the normal email-code login when no existing Access session is available. A positive founder document render still requires the founder to complete that normal OTP step, which was not fabricated or bypassed during verification.
