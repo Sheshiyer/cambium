@@ -73,14 +73,37 @@ function questReq(headers: Record<string, string> = {}): SimpleRequest {
   return { method: 'GET', path: '/api/quests/cambium', headers };
 }
 
-test('plexus resolver · admin whoami → founder', async () => {
+test('plexus resolver · inactive admin whoami floors to consultant', async () => {
   const kv = fakeKv();
   const jwt = signJwt(validPayload());
   const res = await resolvePlexusPrincipal(
     { 'cf-access-jwt-assertion': jwt },
     { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
     kv,
-    jwksFetch(200, { email: 'shesh@thoughtseed.space', role: 'admin', identityId: 'pid_admin_shesh' }),
+    jwksFetch(200, {
+      email: 'shesh@thoughtseed.space',
+      role: 'admin',
+      isActive: false,
+      identityId: 'pid_admin_inactive_shesh',
+    }),
+  );
+  assert.equal(res.kind, 'principal');
+  if (res.kind === 'principal') assert.equal(res.principal.role, 'consultant');
+});
+
+test('plexus resolver · active admin whoami → founder', async () => {
+  const kv = fakeKv();
+  const jwt = signJwt(validPayload());
+  const res = await resolvePlexusPrincipal(
+    { 'cf-access-jwt-assertion': jwt },
+    { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    kv,
+    jwksFetch(200, {
+      email: 'shesh@thoughtseed.space',
+      role: 'admin',
+      isActive: true,
+      identityId: 'pid_admin_shesh',
+    }),
   );
   assert.equal(res.kind, 'principal');
   if (res.kind === 'principal') assert.equal(res.principal.role, 'founder');

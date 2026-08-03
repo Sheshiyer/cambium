@@ -231,6 +231,7 @@ test('browser portfolio route serves the exact bundle only for a founder Cloudfl
     plexusFetchImpl: plexusFetch(200, {
       email: 'founder@thoughtseed.space',
       role: 'admin',
+      isActive: true,
       identityId: 'pid_founder',
     }),
   });
@@ -280,21 +281,38 @@ test('browser portfolio route fails closed uniformly for missing, invalid, non-f
       plexusFetchImpl: plexusFetch(500, { error: 'degraded' }),
     }).value,
   );
+  const inactiveJwt = signAccessJwt(validAccessPayload({ email: 'inactive@thoughtseed.space' }));
+  const inactive = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': inactiveJwt }),
+    deps(undefined, {
+      plexus: basePlexus,
+      plexusFetchImpl: plexusFetch(200, {
+        email: 'inactive@thoughtseed.space',
+        role: 'admin',
+        isActive: false,
+        identityId: 'pid_inactive_admin',
+      }),
+    }).value,
+  );
 
   assert.equal(missing.status, 401);
   assert.equal(invalid.status, missing.status);
   assert.equal(nonFounder.status, missing.status);
   assert.equal(degraded.status, missing.status);
+  assert.equal(inactive.status, missing.status);
   assert.equal(invalid.body, missing.body);
   assert.equal(nonFounder.body, missing.body);
   assert.equal(degraded.body, missing.body);
+  assert.equal(inactive.body, missing.body);
   assert.deepEqual(invalid.headers, missing.headers);
   assert.deepEqual(nonFounder.headers, missing.headers);
   assert.deepEqual(degraded.headers, missing.headers);
+  assert.deepEqual(inactive.headers, missing.headers);
   assert.doesNotMatch(String(missing.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(invalid.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(nonFounder.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(degraded.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(inactive.body), PORTFOLIO_BYTES_RE);
 });
 
 test('operating fabric exposes the Workbench link only when founder detail exists', () => {

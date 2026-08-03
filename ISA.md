@@ -4,11 +4,11 @@ task: "Continue browser navigation through the existing founder identity flow"
 effort: E4
 effort_source: classifier
 phase: verify
-progress: 712/745
+progress: 713/746
 mode: interactive
 iteration: 2026-08-03-portfolio-browser-access-continuation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-03T11:35:06Z
+updated: 2026-08-03T11:46:52Z
 ---
 
 ## Problem
@@ -1039,6 +1039,7 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - [ ] ISC-742: Production candidate proof confirms unauthenticated browser navigation enters the Access flow rather than the Telegram warning.
 - [ ] ISC-743: Production read-back confirms the prior Worker Version remains the exact rollback target.
 - [x] ISC-744: Anti: this change creates no identity provider, user record, tenant, schema, secret value, Telegram menu, traffic split, or alternate portfolio writer.
+- [x] ISC-745: A Plexus identity explicitly marked `isActive: false` never receives founder authorization even when its stored role is `admin`.
 
 ## Test Strategy
 
@@ -1058,7 +1059,7 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 | ISC-55 | mobile proof | recursive overflow/gesture contract passes | `npm run proof:tg-mobile-contract` |
 | ISC-56 | docs | rendered docs match sources | `npm run render-docs:check` |
 | ISC-57 | CI | every required PR check succeeds | `gh pr checks --watch` |
-| ISC-721..744 | dual transport auth | browser enters Access/Plexus founder flow; Telegram keeps signed initData; both serve exact bytes without writes | focused Node tests, Cloudflare Access read-back, candidate probes, browser automation, SHA-256, `git diff --check` |
+| ISC-721..745 | dual transport auth | browser enters Access/Plexus founder flow; Telegram keeps signed initData; inactive identities fail closed; both serve exact bytes without writes | focused Node tests, Cloudflare Access read-back, candidate probes, browser automation, SHA-256, `git diff --check` |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
 | ISC-60 | release | tag target equals merged main | `git rev-list`, `gh release view` |
@@ -1205,7 +1206,7 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - `ComposioGitHubInventory` | Resolve the connected founder identity and inventory owner repositories, Projects, and memberships through read-only GitHub tools | satisfies ISC-711..715, ISC-718..719 | depends_on none | parallelizable true
 - `GitHubPortfolioReconciliation` | Compare stable repository evidence with WorkObjects and Needs Review without admitting or activating anything | satisfies ISC-716..717, ISC-720 | depends_on ComposioGitHubInventory, PortfolioCatalogProjection | parallelizable false
 - `PortfolioDualTransportBootstrap` | Route browsers to web authentication while preserving signed Telegram bootstrap behavior | satisfies ISC-721..725, ISC-734, ISC-738, ISC-740 | depends_on HostedAdminPortfolioWorkbench | parallelizable false
-- `PortfolioBrowserFounderRoute` | Reuse Access JWT and Plexus role resolution for exact founder-only Workbench delivery | satisfies ISC-727..737, ISC-741 | depends_on PortfolioDualTransportBootstrap | parallelizable false
+- `PortfolioBrowserFounderRoute` | Reuse Access JWT and Plexus role resolution for exact founder-only Workbench delivery | satisfies ISC-727..737, ISC-741, ISC-745 | depends_on PortfolioDualTransportBootstrap | parallelizable false
 - `PortfolioAccessDestination` | Add the browser-only path to the existing multi-domain Plexus Access application | satisfies ISC-726, ISC-739, ISC-744 | depends_on PortfolioBrowserFounderRoute | parallelizable false
 - `PortfolioBrowserReleaseProof` | Promote one staged Version and prove browser redirect, Telegram regression, exact bytes, and rollback | satisfies ISC-742..744 | depends_on PortfolioAccessDestination | parallelizable false
 
@@ -1237,6 +1238,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-03 11:27: refined: the browser route reuses `resolvePlexusPrincipal` and may consume its five-minute JWT-hash role cache, but injects a read-only KV adapter so a portfolio document request performs no cache or authority write. Creating a second identity resolver would duplicate the normal auth flow and increase role-drift risk.
 - 2026-08-03 11:35: Access application `95f46040-407f-4bb1-bc38-d346187310b2` now has `curious.thoughtseed.space/admin/portfolio/web` as its third path-specific destination under the unchanged `thoughtseed_team_list` policy. Propagation proof changed the unauthenticated route from the old Worker 404 to a Cloudflare Access 302 while `/admin/portfolio` remained 200.
 - 2026-08-03 11:35: implementation verification passes 19/19 focused portfolio and Plexus authorization tests, 1523/1523 core tests, 37/37 mission/readiness tests, standalone audit and smoke, Telegram mobile contract, 99/99 R3F tests plus build, 5/5 desktop packaging tests, `git diff --check`, and Wrangler strict dry-run. Forge's RED state was 3 pass/4 fail before the browser continuation implementation; GREEN is 7/7 portfolio-route tests.
+- 2026-08-03 11:46: the first Cato-compatible review blocked promotion because `WhoamiBody.isActive` existed but the role mapper ignored an explicit false value, allowing an inactive admin to retain founder authorization. The zero-traffic candidate `206847e6-4f2c-4d39-b694-3c6ec992e1a6` is permanently excluded from promotion consideration.
+- 2026-08-03 11:46: Forge reproduced the audit finding RED (`founder` instead of `consultant`), then made `isActive: false` dominate role mapping. Active admins remain founders and omitted legacy values preserve current compatibility. Plexus and browser-route focused suites pass 20/20, including an end-to-end browser denial for the inactive-admin response.
 - 2026-08-03 11:18: delegation meets the E4 soft floor with Forge owning the bounded code/test edit and Cato owning the independent final audit. Directed repository and dashboard lookups remained local because exact file paths and destinations were discoverable within thirty seconds each.
 
 - 2026-08-01 17:22: Cato's initial audit found the Worker promotion sound but correctly challenged organization coverage and the absence of a durable privacy-safe GitHub receipt. The fix uses narrow GraphQL projections through the existing connected account: founder-owned repositories paginate by immutable cursor and owner affiliation; the sole organization is queried by immutable node ID; raw private names and descriptions are excluded from the receipt.

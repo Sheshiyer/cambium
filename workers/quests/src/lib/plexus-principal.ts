@@ -46,7 +46,13 @@ interface WhoamiBody {
 }
 
 function principalFromWhoami(body: WhoamiBody, email: string): Principal {
-  const role = body.role === 'admin' ? 'founder' : body.role === 'employee' ? 'team' : 'consultant';
+  const role = body.isActive === false
+    ? 'consultant'
+    : body.role === 'admin'
+      ? 'founder'
+      : body.role === 'employee'
+        ? 'team'
+        : 'consultant';
   return {
     id: body.identityId ?? `plexus:${email}`,
     tenant: '*',
