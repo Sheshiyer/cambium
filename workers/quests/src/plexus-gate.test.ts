@@ -73,7 +73,7 @@ function questReq(headers: Record<string, string> = {}): SimpleRequest {
   return { method: 'GET', path: '/api/quests/cambium', headers };
 }
 
-test('plexus resolver · inactive admin whoami floors to consultant', async () => {
+test('plexus resolver · enveloped inactive admin whoami floors to consultant', async () => {
   const kv = fakeKv();
   const jwt = signJwt(validPayload());
   const res = await resolvePlexusPrincipal(
@@ -81,10 +81,13 @@ test('plexus resolver · inactive admin whoami floors to consultant', async () =
     { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
     kv,
     jwksFetch(200, {
-      email: 'shesh@thoughtseed.space',
-      role: 'admin',
-      isActive: false,
-      identityId: 'pid_admin_inactive_shesh',
+      ok: true,
+      data: {
+        email: 'shesh@thoughtseed.space',
+        role: 'admin',
+        isActive: false,
+        identityId: 'pid_admin_inactive_shesh',
+      },
     }),
   );
   assert.equal(res.kind, 'principal');
@@ -109,14 +112,54 @@ test('plexus resolver · active admin whoami → founder', async () => {
   if (res.kind === 'principal') assert.equal(res.principal.role, 'founder');
 });
 
-test('plexus resolver · employee whoami → team', async () => {
+test('plexus resolver · canonical ok true object data active admin → founder', async () => {
+  const kv = fakeKv();
+  const jwt = signJwt(validPayload({ email: 'Founder@Thoughtseed.Space' }));
+  const res = await resolvePlexusPrincipal(
+    { 'cf-access-jwt-assertion': jwt },
+    { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    kv,
+    jwksFetch(200, {
+      ok: true,
+      data: {
+        email: ' founder@thoughtseed.space ',
+        role: 'admin',
+        identityId: 'pid_admin_founder',
+      },
+    }),
+  );
+  assert.equal(res.kind, 'principal');
+  if (res.kind === 'principal') assert.equal(res.principal.role, 'founder');
+});
+
+test('plexus resolver · legacy flat active admin compatibility is preserved', async () => {
+  const kv = fakeKv();
+  const jwt = signJwt(validPayload());
+  const res = await resolvePlexusPrincipal(
+    { 'cf-access-jwt-assertion': jwt },
+    { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    kv,
+    jwksFetch(200, {
+      email: 'shesh@thoughtseed.space',
+      role: 'admin',
+      identityId: 'pid_admin_flat_compat',
+    }),
+  );
+  assert.equal(res.kind, 'principal');
+  if (res.kind === 'principal') assert.equal(res.principal.role, 'founder');
+});
+
+test('plexus resolver · enveloped employee whoami → team, never founder', async () => {
   const kv = fakeKv();
   const jwt = signJwt(validPayload({ email: 'dev@thoughtseed.space' }));
   const res = await resolvePlexusPrincipal(
     { 'cf-access-jwt-assertion': jwt },
     { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
     kv,
-    jwksFetch(200, { email: 'dev@thoughtseed.space', role: 'employee', identityId: 'pid_dev' }),
+    jwksFetch(200, {
+      ok: true,
+      data: { email: 'dev@thoughtseed.space', role: 'employee', identityId: 'pid_dev' },
+    }),
   );
   assert.equal(res.kind, 'principal');
   if (res.kind === 'principal') assert.equal(res.principal.role, 'team');
@@ -146,6 +189,43 @@ test('plexus resolver · whoami 5xx fails closed to consultant, never founder', 
   );
   assert.equal(res.kind, 'principal');
   if (res.kind === 'principal') assert.equal(res.principal.role, 'consultant');
+});
+
+test('plexus resolver · malformed, canonical-invalid, mismatched, and inactive payloads fail closed', async () => {
+  const cases: Array<{ name: string; body: unknown }> = [
+    { name: 'non-object payload', body: 'not-an-object' },
+    { name: 'null payload', body: null },
+    { name: 'canonical ok false', body: { ok: false, data: { email: 'shesh@thoughtseed.space', role: 'admin', isActive: true } } },
+    { name: 'canonical ok non-boolean truthy', body: { ok: 1, data: { email: 'shesh@thoughtseed.space', role: 'admin', isActive: true } } },
+    { name: 'canonical missing data', body: { ok: true } },
+    { name: 'canonical null data', body: { ok: true, data: null } },
+    { name: 'canonical array data', body: { ok: true, data: [] } },
+    { name: 'canonical scalar data', body: { ok: true, data: 'not-an-object' } },
+    { name: 'canonical empty data', body: { ok: true, data: {} } },
+    { name: 'nested canonical envelope', body: { ok: true, data: { ok: true, data: { email: 'shesh@thoughtseed.space', role: 'admin' } } } },
+    { name: 'missing session email', body: { email: '   ', role: 'admin', isActive: true } },
+    { name: 'non-email session identity', body: { email: 'not-an-email', role: 'admin' } },
+    { name: 'mismatched session email', body: { email: 'other@thoughtseed.space', role: 'admin', isActive: true } },
+    { name: 'plus alias mismatch', body: { email: 'shesh+alias@thoughtseed.space', role: 'admin' } },
+    { name: 'dot alias mismatch', body: { email: 'shesh.iyer@thoughtseed.space', role: 'admin' } },
+    { name: 'inactive admin', body: { email: 'shesh@thoughtseed.space', role: 'admin', isActive: false } },
+    { name: 'malformed active flag', body: { email: 'shesh@thoughtseed.space', role: 'admin', isActive: 'false' } },
+  ];
+
+  for (const { name, body } of cases) {
+    const kv = fakeKv();
+    const jwt = signJwt(validPayload());
+    const res = await resolvePlexusPrincipal(
+      { 'cf-access-jwt-assertion': jwt },
+      { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+      kv,
+      jwksFetch(200, body),
+    );
+    assert.equal(res.kind, 'principal', name);
+    if (res.kind === 'principal') {
+      assert.equal(res.principal.role, 'consultant', name);
+    }
+  }
 });
 
 test('plexus resolver · missing JWT → unauthenticated', async () => {
@@ -234,6 +314,93 @@ test('plexus resolver · whoami verdict cached in KV for repeat calls', async ()
   assert.equal(whoamiCalls, 1, 'second call must hit the KV cache');
   const cacheKey = `plexus:whoami:${createHash('sha256').update(jwt).digest('hex')}`;
   assert.ok(kv.store.has(cacheKey), 'cache key present');
+  const cached = JSON.parse(kv.store.get(cacheKey) ?? '{}') as Record<string, unknown>;
+  assert.equal(cached.version, 2, 'cache payload carries the resolver schema version');
+  assert.equal(cached.accessEmail, 'shesh@thoughtseed.space', 'cache payload binds the verified Access email');
+});
+
+test('plexus resolver · pre-repair unbound founder cache is ignored', async () => {
+  const kv = fakeKv();
+  const jwt = signJwt(validPayload());
+  const oldCacheKey = `plexus:whoami:${createHash('sha256').update(jwt).digest('hex')}`;
+  await kv.put(oldCacheKey, JSON.stringify({
+    cachedAt: Date.now(),
+    principal: { id: 'pid_cached_founder', tenant: '*', role: 'founder', allow: [], createdBy: 'plexus' },
+  }));
+  let whoamiCalls = 0;
+  const fetchImpl = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes('/cdn-cgi/access/certs')) {
+      return new Response(JSON.stringify({ keys: [{ ...jwk, kid: KID }] }), { status: 200 });
+    }
+    if (url.includes('/v1/whoami')) {
+      whoamiCalls += 1;
+      return new Response(JSON.stringify({
+        ok: true,
+        data: {
+          email: 'intruder@thoughtseed.space',
+          role: 'admin',
+          isActive: true,
+          identityId: 'pid_intruder',
+        },
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response('nf', { status: 404 });
+  }) as typeof fetch;
+
+  const res = await resolvePlexusPrincipal(
+    { 'cf-access-jwt-assertion': jwt },
+    { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    kv,
+    fetchImpl,
+  );
+
+  assert.equal(whoamiCalls, 1, 'live whoami must run instead of trusting the old founder cache');
+  assert.equal(res.kind, 'principal');
+  if (res.kind === 'principal') {
+    assert.equal(res.principal.role, 'consultant');
+  }
+});
+
+test('plexus resolver · cache bound to another Access email is ignored', async () => {
+  const kv = fakeKv();
+  const jwt = signJwt(validPayload());
+  const cacheKey = `plexus:whoami:${createHash('sha256').update(jwt).digest('hex')}`;
+  await kv.put(cacheKey, JSON.stringify({
+    version: 2,
+    accessEmail: 'other@thoughtseed.space',
+    cachedAt: Date.now(),
+    principal: { id: 'pid_cached_founder', tenant: '*', role: 'founder', allow: [], createdBy: 'plexus' },
+  }));
+  let whoamiCalls = 0;
+  const fetchImpl = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes('/cdn-cgi/access/certs')) {
+      return new Response(JSON.stringify({ keys: [{ ...jwk, kid: KID }] }), { status: 200 });
+    }
+    if (url.includes('/v1/whoami')) {
+      whoamiCalls += 1;
+      return new Response(JSON.stringify({ ok: false }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response('nf', { status: 404 });
+  }) as typeof fetch;
+
+  const res = await resolvePlexusPrincipal(
+    { 'cf-access-jwt-assertion': jwt },
+    { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    kv,
+    fetchImpl,
+  );
+
+  assert.equal(whoamiCalls, 1, 'email-mismatched cache must not suppress live whoami');
+  assert.equal(res.kind, 'principal');
+  if (res.kind === 'principal') assert.equal(res.principal.role, 'consultant');
 });
 
 test('handler gate · missing JWT with plexus configured → 401 access_identity_required', async () => {

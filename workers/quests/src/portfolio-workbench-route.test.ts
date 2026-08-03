@@ -224,15 +224,17 @@ test('founder receives the exact generated bundle with strict no-store and CSP h
   assert.equal(fixture.writes(), 0);
 });
 
-test('browser portfolio route serves the exact bundle only for a founder Cloudflare Access identity', async () => {
+test('browser portfolio route serves the exact bundle for a canonical founder Cloudflare Access identity', async () => {
   const jwt = signAccessJwt(validAccessPayload());
   const fixture = deps(undefined, {
     plexus: { teamDomain: TEAM_DOMAIN, aud: ACCESS_AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
     plexusFetchImpl: plexusFetch(200, {
-      email: 'founder@thoughtseed.space',
-      role: 'admin',
-      isActive: true,
-      identityId: 'pid_founder',
+      ok: true,
+      data: {
+        email: ' Founder@Thoughtseed.Space ',
+        role: 'admin',
+        identityId: 'pid_founder',
+      },
     }),
   });
 
@@ -261,15 +263,66 @@ test('browser portfolio route fails closed uniformly for missing, invalid, non-f
     request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': 'not-a-jwt' }),
     deps(undefined, { plexus: basePlexus, plexusFetchImpl: plexusFetch() }).value,
   );
+  const malformedJwt = signAccessJwt(validAccessPayload());
+  const malformed = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': malformedJwt }),
+    deps(undefined, {
+      plexus: basePlexus,
+      plexusFetchImpl: plexusFetch(200, 'not-an-object'),
+    }).value,
+  );
+  const okFalseJwt = signAccessJwt(validAccessPayload());
+  const okFalse = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': okFalseJwt }),
+    deps(undefined, {
+      plexus: basePlexus,
+      plexusFetchImpl: plexusFetch(200, {
+        ok: false,
+        data: {
+          email: 'founder@thoughtseed.space',
+          role: 'admin',
+          isActive: true,
+          identityId: 'pid_founder_ok_false',
+        },
+      }),
+    }).value,
+  );
+  const missingDataJwt = signAccessJwt(validAccessPayload());
+  const missingData = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': missingDataJwt }),
+    deps(undefined, {
+      plexus: basePlexus,
+      plexusFetchImpl: plexusFetch(200, { ok: true }),
+    }).value,
+  );
+  const mismatchJwt = signAccessJwt(validAccessPayload());
+  const mismatch = await handle(
+    request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': mismatchJwt }),
+    deps(undefined, {
+      plexus: basePlexus,
+      plexusFetchImpl: plexusFetch(200, {
+        ok: true,
+        data: {
+          email: 'intruder@thoughtseed.space',
+          role: 'admin',
+          isActive: true,
+          identityId: 'pid_intruder',
+        },
+      }),
+    }).value,
+  );
   const employeeJwt = signAccessJwt(validAccessPayload({ email: 'employee@thoughtseed.space' }));
   const nonFounder = await handle(
     request('GET', '/admin/portfolio/web', { 'cf-access-jwt-assertion': employeeJwt }),
     deps(undefined, {
       plexus: basePlexus,
       plexusFetchImpl: plexusFetch(200, {
-        email: 'employee@thoughtseed.space',
-        role: 'employee',
-        identityId: 'pid_employee',
+        ok: true,
+        data: {
+          email: 'employee@thoughtseed.space',
+          role: 'employee',
+          identityId: 'pid_employee',
+        },
       }),
     }).value,
   );
@@ -287,29 +340,48 @@ test('browser portfolio route fails closed uniformly for missing, invalid, non-f
     deps(undefined, {
       plexus: basePlexus,
       plexusFetchImpl: plexusFetch(200, {
-        email: 'inactive@thoughtseed.space',
-        role: 'admin',
-        isActive: false,
-        identityId: 'pid_inactive_admin',
+        ok: true,
+        data: {
+          email: 'inactive@thoughtseed.space',
+          role: 'admin',
+          isActive: false,
+          identityId: 'pid_inactive_admin',
+        },
       }),
     }).value,
   );
 
   assert.equal(missing.status, 401);
   assert.equal(invalid.status, missing.status);
+  assert.equal(malformed.status, missing.status);
+  assert.equal(okFalse.status, missing.status);
+  assert.equal(missingData.status, missing.status);
+  assert.equal(mismatch.status, missing.status);
   assert.equal(nonFounder.status, missing.status);
   assert.equal(degraded.status, missing.status);
   assert.equal(inactive.status, missing.status);
   assert.equal(invalid.body, missing.body);
+  assert.equal(malformed.body, missing.body);
+  assert.equal(okFalse.body, missing.body);
+  assert.equal(missingData.body, missing.body);
+  assert.equal(mismatch.body, missing.body);
   assert.equal(nonFounder.body, missing.body);
   assert.equal(degraded.body, missing.body);
   assert.equal(inactive.body, missing.body);
   assert.deepEqual(invalid.headers, missing.headers);
+  assert.deepEqual(malformed.headers, missing.headers);
+  assert.deepEqual(okFalse.headers, missing.headers);
+  assert.deepEqual(missingData.headers, missing.headers);
+  assert.deepEqual(mismatch.headers, missing.headers);
   assert.deepEqual(nonFounder.headers, missing.headers);
   assert.deepEqual(degraded.headers, missing.headers);
   assert.deepEqual(inactive.headers, missing.headers);
   assert.doesNotMatch(String(missing.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(invalid.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(malformed.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(okFalse.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(missingData.body), PORTFOLIO_BYTES_RE);
+  assert.doesNotMatch(String(mismatch.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(nonFounder.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(degraded.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(inactive.body), PORTFOLIO_BYTES_RE);
