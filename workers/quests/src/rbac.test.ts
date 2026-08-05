@@ -12,7 +12,9 @@ import assert from 'node:assert/strict';
 
 import {
   MINI_APP_MAP_SUBSECTIONS,
+  MINI_APP_SCENE_IDS,
   MINI_APP_SECTIONS,
+  OPERATING_FABRIC_SCENE_IDS,
   type MiniAppMapSubsection,
 } from './mini-app-surface-contract.ts';
 import {
@@ -196,4 +198,37 @@ test('inputs are never mutated (deep-frozen fixtures survive filtering)', () => 
   // Must not throw on frozen input, and surviving unstripped items keep identity.
   const founderOut = filterSections(frozenSections, makePrincipal(), NOW);
   assert.deepEqual(founderOut, frozenSections);
+});
+
+test('operating fabric rollout keeps legacy scenes and RBAC ceilings governing actions', () => {
+  // The additive shell introduces scene ids, not capabilities: contextual
+  // actions stay governed by the existing ladder, and the legacy five-scene
+  // surface contract is preserved byte-for-byte during rollout.
+  assert.deepEqual([...MINI_APP_SCENE_IDS], ['mission', 'gate', 'tools', 'story', 'inspect']);
+  assert.deepEqual([...OPERATING_FABRIC_SCENE_IDS], ['canopy', 'mission', 'flow', 'workforce', 'forge']);
+
+  for (const section of MINI_APP_SECTIONS) {
+    assert.ok(
+      (MINI_APP_SCENE_IDS as readonly string[]).includes(section.scene),
+      `legacy section ${section.id} keeps its legacy scene during rollout`,
+    );
+  }
+
+  const founder = makePrincipal();
+  const team = makePrincipal({ role: 'team' });
+  assert.equal(permits('signed-action', founder.role), true);
+  assert.equal(permits('signed-action', team.role), false);
+
+  const founderGate = MINI_APP_SECTIONS.find((section) => section.id === 'founder-gate');
+  assert.ok(founderGate);
+  assert.equal(
+    filterSections([founderGate], founder, NOW).length,
+    1,
+    'founder keeps the signed-action founder gate',
+  );
+  assert.equal(
+    filterSections([founderGate], team, NOW).length,
+    0,
+    'team still loses the signed-action founder gate after the shell lands',
+  );
 });

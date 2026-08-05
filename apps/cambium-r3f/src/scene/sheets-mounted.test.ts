@@ -14,8 +14,8 @@ test('mode pill model has exactly 3 modes', () => {
   assert.deepEqual([...HUD_MODES], ['map', 'sheets', 'workforce']);
 });
 
-test('subsection browser covers all 23 contract subsections', () => {
-  assert.equal(MINI_APP_MAP_SUBSECTIONS.length, 23);
+test('subsection browser covers all 24 contract subsections', () => {
+  assert.equal(MINI_APP_MAP_SUBSECTIONS.length, 24);
   for (const subsection of MINI_APP_MAP_SUBSECTIONS) {
     const props: SceneSheetProps = {
       title: subsection.id.toUpperCase(),

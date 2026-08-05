@@ -33,6 +33,15 @@ export function runStandaloneSmoke({ sourceRoot = process.cwd(), tenant = 'demo-
     const repo = unpackCleanCopy(sourceRoot, temp);
     const commands = [
       ['npm', ['test']],
+      // Focused operating-fabric proof-chain contract: `npm test` already
+      // covers this file, but running it explicitly here keeps the
+      // zero-gap shadow / zero-write / mobile-scene proof visible and
+      // auditable as its own named smoke step on the clean-copy tarball,
+      // not merely implied by the broader suite.
+      [
+        'node',
+        ['--test', 'workers/quests/src/mission-fabric-integration.test.ts', 'workers/quests/src/live-proof-readiness.test.ts'],
+      ],
       ['npm', ['run', 'validate']],
       ['npm', ['run', 'standalone:audit']],
       ['npm', ['run', 'demo:tenant', '--', '--tenant', tenant, '--force']],

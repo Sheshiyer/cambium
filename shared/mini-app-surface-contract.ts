@@ -1,5 +1,7 @@
 export const MINI_APP_SCENE_IDS = ['mission', 'gate', 'tools', 'story', 'inspect'] as const;
 export type MiniAppSceneId = typeof MINI_APP_SCENE_IDS[number];
+export const OPERATING_FABRIC_SCENE_IDS = ['canopy', 'mission', 'flow', 'workforce', 'forge'] as const;
+export type OperatingFabricSceneId = typeof OPERATING_FABRIC_SCENE_IDS[number];
 
 export const MINI_APP_ECOSYSTEM_TARGETS = [
   'telegram',
@@ -52,6 +54,7 @@ export const MINI_APP_MAP_SUBSECTION_IDS = [
   'decision-context',
   'live-proof',
   'branches',
+  'branch-map',
   'branch-arcs',
   'branch-missions',
   'branch-kpis',
@@ -168,6 +171,7 @@ export const MINI_APP_MAP_SUBSECTIONS: readonly MiniAppMapSubsection[] = [
   { id: 'decision-context', target: 'operator-policy', interactions: { primary: 'sheet' }, source: 'decision-context@v1' },
   { id: 'live-proof', target: 'live-proof', interactions: { primary: 'external-proof' }, source: 'tg-live-proof-readiness audit' },
   { id: 'branches', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'product-branch-packets@v1 branch stories' },
+  { id: 'branch-map', target: 'product-branches', interactions: { primary: 'read-only' }, source: 'cambium.goal-graph-branch-map.v1 versioned lineage projection' },
   { id: 'branch-arcs', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc arc metadata' },
   { id: 'branch-missions', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc mission queue' },
   { id: 'branch-kpis', target: 'product-branches', interactions: { primary: 'sheet' }, source: 'BranchStoryArc KPI controls' },

@@ -26,6 +26,9 @@ const fakeWorkerEnv = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+const FIXTURE_PRODUCED_AT = new Date(Date.now() - 2 * 60 * 60 * 1000);
+const FIXTURE_EXPIRES_AT = new Date(FIXTURE_PRODUCED_AT.getTime() + 12 * 60 * 60 * 1000);
+
 async function projectionEnvelope(overrides: Record<string, unknown> = {}) {
   const markdown = typeof overrides.markdown === 'string'
     ? overrides.markdown
@@ -36,8 +39,8 @@ async function projectionEnvelope(overrides: Record<string, unknown> = {}) {
     tenantId: 'cambium',
     routine: 'daily-standup-digest',
     generation: 1,
-    producedAt: '2026-07-28T08:00:00.000Z',
-    expiresAt: '2026-07-28T20:00:00.000Z',
+    producedAt: FIXTURE_PRODUCED_AT.toISOString(),
+    expiresAt: FIXTURE_EXPIRES_AT.toISOString(),
     sourceRevision: 'git:abc123',
     contentDigest: await contentDigestForMarkdown(markdown),
     markdown,
@@ -62,6 +65,8 @@ test('routine adapter validates and summarizes the exact current projection enve
   const stored = await projectionEnvelope({
     markdown: '# Daily Standup\nAlice shipped bounded context. token=super-secret',
     contentDigest: await contentDigestForMarkdown('# Daily Standup\nAlice shipped bounded context. token=super-secret'),
+    producedAt: '2026-07-28T08:00:00.000Z',
+    expiresAt: '2026-07-28T20:00:00.000Z',
   });
   const routineContext = createRoutineContext({
     bucket: {
@@ -95,6 +100,8 @@ test('routine adapter marks an expired projection stale without returning markdo
   const stored = await projectionEnvelope({
     markdown: '# Daily Standup\nExpired evidence must not surface.',
     contentDigest: await contentDigestForMarkdown('# Daily Standup\nExpired evidence must not surface.'),
+    producedAt: '2026-07-28T08:00:00.000Z',
+    expiresAt: '2026-07-28T20:00:00.000Z',
   });
   const routineContext = createRoutineContext({
     bucket: {

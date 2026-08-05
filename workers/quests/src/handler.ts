@@ -33,9 +33,37 @@ import { filterSections, filterSubsections, type Principal } from './rbac.ts';
 import { createInvite as createConsultantInvite, verifyInvite as verifyConsultantInvite } from './invites.ts';
 import { resolvePlexusPrincipal, type PlexusGateConfig } from './lib/plexus-principal.ts';
 import { buildBranchMapProjection, projectionDigest } from './branch-map.ts';
+import {
+  MISSION_FABRIC_CAPS,
+  adaptBranchStories,
+  adaptCompanyPrograms,
+  adaptGoalGraph,
+  adaptQuestExecutionFacts,
+  projectionDigest as missionFabricProjectionDigest,
+  redactMissionFabricProjection,
+} from './mission-fabric.ts';
+import type { FabricEdge, FabricGap, FabricNode, MissionFabricProjectionV1, MissionFabricViewer } from './mission-fabric.ts';
 import { BRANCH_MAP_RECEIPT_READ_LIMIT } from './branch-map-receipt-store.ts';
 import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
 import { renderBranchMapSheet } from './branch-map-sheet.ts';
+import {
+  PORTFOLIO_CATALOG,
+  buildPortfolioJoinReport,
+  portfolioCatalogForViewer,
+  portfolioPairDigest,
+} from './portfolio-catalog.ts';
+import {
+  ORGAN_UPDATE_PLAN,
+  ORGAN_UPDATE_SUMMARY,
+  compileOrganUpdateDelivery,
+} from './organ-update-delivery.ts';
+import { PORTFOLIO_WORKBENCH_HTML } from './portfolio-workbench.generated.ts';
+import {
+  PORTFOLIO_WORKBENCH_ACCESS_DENIED,
+  PORTFOLIO_WORKBENCH_CSP,
+  PORTFOLIO_WORKBENCH_LOADER,
+  PORTFOLIO_WORKBENCH_LOADER_CSP,
+} from './portfolio-workbench.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
@@ -432,7 +460,10 @@ export interface HandlerDeps {
   goalGraphStore?: GoalGraphStoreLike; // D1 Goal Graph authority for read-only branch projections
   branchMapReceiptStore?: BranchMapReceiptStoreLike; // D1 append-only transition evidence
   branchMapTenants?: string[]; // server-owned allowlist for Telegram map reads
+  missionFabricTenants?: string[]; // server-owned allowlist for operating-fabric composition reads; absent/empty disables all tenants
+  missionFabricViewerIds?: string[]; // server-owned non-founder viewer allowlist for /v1/mission-fabric only; absent/empty authorizes founders only
   plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → dev founder fallback)
+  plexusFetchImpl?: typeof fetch; // test-only fetch injection for Access JWKS + whoami probes
 }
 
 export interface ProviderConfig {
@@ -558,7 +589,10 @@ export function buildDataCheckString(initData: string, botId: string): { dcs: st
   return { dcs: `${botId}:WebAppData\n${lines.join('\n')}`, fields };
 }
 
-export async function validateInitData(
+/** Authenticates the signed Telegram payload only: signature + freshness +
+ *  user id parsing. Performs NO authorization — callers decide who the
+ *  authenticated userId is allowed to act as. */
+async function authenticateInitData(
   initData: string,
   cfg: GateConfig,
 ): Promise<{ ok: true; userId: string } | { ok: false; reason: string }> {
@@ -579,8 +613,21 @@ export async function validateInitData(
   if (!verified) return { ok: false, reason: 'bad signature' };
   let userId = '';
   try { userId = String(JSON.parse(fields.user ?? '{}').id ?? ''); } catch { /* fallthrough */ }
-  if (!userId || !cfg.founderIds.includes(userId)) return { ok: false, reason: 'not a founder' };
+  if (!userId) return { ok: false, reason: 'missing telegram user id' };
   return { ok: true, userId };
+}
+
+/** Public founder-gate contract: authenticates AND authorizes against
+ *  founderIds. Unchanged behavior — every existing caller keeps founder-only
+ *  semantics exactly as before. */
+export async function validateInitData(
+  initData: string,
+  cfg: GateConfig,
+): Promise<{ ok: true; userId: string } | { ok: false; reason: string }> {
+  const auth = await authenticateInitData(initData, cfg);
+  if (!auth.ok) return auth;
+  if (!cfg.founderIds.includes(auth.userId)) return { ok: false, reason: 'not a founder' };
+  return auth;
 }
 
 export interface SimpleRequest {
@@ -608,6 +655,67 @@ const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QU
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
+
+const portfolioHtml = (status: number, body: string, contentSecurityPolicy: string): SimpleResponse => ({
+  status,
+  headers: {
+    'content-type': 'text/html; charset=utf-8',
+    'cache-control': 'private, no-store',
+    'content-security-policy': contentSecurityPolicy,
+    'x-content-type-options': 'nosniff',
+    'referrer-policy': 'no-referrer',
+  },
+  body,
+});
+
+const portfolioFailClosed = (status: 401 | 503): SimpleResponse =>
+  portfolioHtml(status, PORTFOLIO_WORKBENCH_ACCESS_DENIED, PORTFOLIO_WORKBENCH_CSP);
+
+async function handlePortfolioWorkbenchRoute(
+  req: SimpleRequest,
+  deps: HandlerDeps,
+  routePath: string,
+): Promise<SimpleResponse> {
+  if (req.method !== 'GET') {
+    return {
+      ...json(405, { error: 'portfolio workbench is GET-only' }),
+      headers: { ...JSON_HEADERS, allow: 'GET' },
+    };
+  }
+  if (routePath === '/admin/portfolio') {
+    return portfolioHtml(200, PORTFOLIO_WORKBENCH_LOADER, PORTFOLIO_WORKBENCH_LOADER_CSP);
+  }
+  if (routePath === '/admin/portfolio/web') {
+    if (!deps.plexus) return portfolioFailClosed(503);
+    const resolved = await resolvePlexusPrincipal(
+      req.headers,
+      deps.plexus,
+      {
+        get: deps.kv.get.bind(deps.kv),
+        async put() { /* portfolio browser route is read-only */ },
+      },
+      deps.plexusFetchImpl,
+    );
+    if (resolved.kind === 'unconfigured') return portfolioFailClosed(503);
+    if (resolved.kind !== 'principal' || resolved.principal.role !== 'founder') {
+      return portfolioFailClosed(401);
+    }
+    return portfolioHtml(200, PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
+  }
+  const gate = deps.gate;
+  const gateConfigured = Boolean(
+    gate?.botId.trim()
+    && /^[0-9a-f]{64}$/i.test(gate.pubKeyHex.trim())
+    && gate.founderIds.some((founderId) => founderId.trim()),
+  );
+  if (!gate || !gateConfigured) return json(503, { error: 'telegram auth is not configured' });
+  const initData = (req.headers['x-telegram-init-data'] ?? '').trim();
+  const auth = await validateInitData(initData, gate);
+  if (!auth.ok) {
+    return json(401, { error: 'telegram authentication failed' });
+  }
+  return portfolioHtml(200, PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
+}
 
 const ledgerKey = (tenant: string): string => `ledger:${tenant}`;
 const shortText = (value: unknown, fallback: string, max = 300): string => {
@@ -2725,6 +2833,298 @@ function queryParam(path: string, key: string): string | undefined {
   return new URLSearchParams(path.slice(queryStart + 1)).get(key) ?? undefined;
 }
 
+
+// ── Task 5 · GET /v1/mission-fabric/{tenant} ────────────────────────────────
+// Authenticated, bounded, GET-only, read-only operating-fabric composition.
+// Reads the D1 Goal Graph head/nodes, the KV quest envelope (ledgerKey), and
+// the D1 branch/runtime receipts; adapts them through the pure Task 3-4
+// compiler/adapters/redactor; never writes, backfills, or fabricates joins.
+// The allowlist is server-owned: an absent or empty MISSION_FABRIC_TENANTS
+// disables every tenant — the route never defaults to cambium.
+
+export interface FabricShadowReport {
+  branchFacts: number;
+  representedFacts: number;
+  missingIds: readonly string[];
+  unexpectedIds: readonly string[];
+}
+
+const MISSION_FABRIC_CLOCK_SKEW_MS = 24 * 60 * 60_000;
+
+function fabricIdentityOf(node: FabricNode): string {
+  const value = node.value as Record<string, unknown>;
+  return String(value.workId ?? value.missionId ?? value.taskId ?? value.agentId ?? value.clusterId ?? value.runId ?? value.receiptId ?? '');
+}
+
+function fabricTimestampMs(value: string): number | null {
+  if (!CANONICAL_FABRIC_TS.test(value)) return null;
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+const CANONICAL_FABRIC_TS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+
+function fabricBranchFactIds(branchStories: unknown): string[] {
+  const rows = Array.isArray(branchStories) ? branchStories : [];
+  const ids: string[] = [];
+  for (const row of rows) {
+    if (!isRecord(row)) continue;
+    if (row.branchKind === 'product' && typeof row.branchId === 'string' && row.branchId.length > 0) ids.push(row.branchId);
+    if (row.branchKind === 'client' && typeof row.productId === 'string' && row.productId.length > 0) ids.push(row.productId);
+  }
+  return [...new Set(ids)].sort();
+}
+
+async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, routePath: string): Promise<SimpleResponse> {
+  const tenantPath = routePath.split('?')[0];
+  const tenant = tenantOf(tenantPath, '/v1/mission-fabric/');
+  if (!tenant) return json(400, { error: 'bad tenant' });
+  if (req.method !== 'GET') {
+    return { ...json(405, { error: 'mission fabric is GET-only' }), headers: { ...JSON_HEADERS, allow: 'GET' } };
+  }
+  const allowlist = deps.missionFabricTenants ?? [];
+  if (!allowlist.includes(tenant)) return json(403, { error: 'mission fabric tenant is not enabled' });
+  if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
+  const initData = (req.headers['x-telegram-init-data'] ?? req.headers['telegram-init-data'] ?? '').trim();
+  const auth = await authenticateInitData(initData, deps.gate);
+  if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
+  const viewerIds = deps.missionFabricViewerIds ?? [];
+  const isFounder = deps.gate.founderIds.includes(auth.userId);
+  const isViewer = viewerIds.includes(auth.userId);
+  if (!isFounder && !isViewer) return json(401, { error: 'telegram authentication failed', reason: 'not authorized for mission fabric' });
+  if (!deps.goalGraphStore || !deps.branchMapReceiptStore) {
+    return json(503, { error: 'mission fabric authority is not configured' });
+  }
+
+  try {
+    const head = await deps.goalGraphStore.readHead(tenant);
+    if (!head) return json(404, { error: 'mission fabric graph not found' });
+    const nodes = await deps.goalGraphStore.readNodes(tenant);
+    const storedEnvelope = parseStoredEnvelope(await deps.kv.get(ledgerKey(tenant))) as Record<string, unknown> | null;
+    const receipts = await deps.branchMapReceiptStore.listReceipts(tenant, undefined, BRANCH_MAP_RECEIPT_READ_LIMIT);
+
+    const servedAt = deps.now ? deps.now() : new Date().toISOString();
+    if (fabricTimestampMs(servedAt) === null) return json(503, { error: 'mission_fabric_clock_invalid' });
+
+    const entries: Array<FabricNode | FabricGap> = [];
+    for (const entry of [...adaptBranchStories(isRecord(storedEnvelope) ? storedEnvelope.branchStories : null), ...adaptCompanyPrograms(isRecord(storedEnvelope) ? storedEnvelope.companyPrograms : null)]) {
+      if (entry.kind === 'gap') {
+        entries.push({ gapId: entry.gapId, kind: entry.gapKind, subjectId: entry.subjectId, detail: entry.detail, evidenceRef: entry.evidenceRef });
+      } else {
+        entries.push(entry);
+      }
+    }
+    entries.push(...adaptGoalGraph({ tenantId: tenant, graphVersion: head.graphVersion, nodes }));
+    const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;
+    if (isRecord(fabricFacts) && Array.isArray(fabricFacts.fences)) {
+      for (const fenceRow of fabricFacts.fences) {
+        if (!isRecord(fenceRow)) continue;
+        const currentFence = fenceRow.currentFence;
+        const nonFinite = typeof currentFence === 'number' && !Number.isFinite(currentFence);
+        if (nonFinite || currentFence === '__fabric-non-finite__') {
+          return json(503, { error: 'mission_fabric_fence_invalid' });
+        }
+      }
+    }
+    if (isRecord(fabricFacts) && Array.isArray(fabricFacts.runs)) {
+      for (const run of fabricFacts.runs) {
+        if (!isRecord(run)) continue;
+        if (typeof run.nonceExpiresAt === 'string' && run.nonceExpiresAt.length > 0 && fabricTimestampMs(run.nonceExpiresAt) === null) {
+          run.nonceExpiresAt = '1970-01-01T00:00:00.000Z';
+        }
+      }
+    }
+    const storedDerivedAt = isRecord(storedEnvelope) && typeof storedEnvelope.derivedAt === 'string' ? storedEnvelope.derivedAt : null;
+    const contentAsOf = storedDerivedAt !== null && fabricTimestampMs(storedDerivedAt) !== null
+      ? storedDerivedAt
+      : (typeof head.committedAt === 'string' && fabricTimestampMs(head.committedAt) !== null
+        ? head.committedAt
+        : '1970-01-01T00:00:00.000Z');
+    const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
+    entries.push(...execution.nodes);
+    const mergedEdges: FabricEdge[] = [...execution.edges];
+    const mergedGaps: FabricGap[] = [...execution.gaps];
+
+    const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
+    const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
+    for (let index = mergedEdges.length - 1; index >= 0; index -= 1) {
+      const edge = mergedEdges[index];
+      if (edge.kind !== 'executes') continue;
+      if (agentNodeIds.has(edge.fromId)) continue;
+      mergedEdges.splice(index, 1);
+      mergedGaps.push({
+        gapId: `gap-executes-join-${edge.toId}`,
+        kind: 'missing-join',
+        subjectId: edge.toId,
+        detail: `Run ${edge.toId} names executor agent ${edge.fromId}, but no explicit agent node exists; the executes edge was not emitted.`,
+        evidenceRef: null,
+      });
+    }
+
+    const receiptEvidence = new Map(receipts.map((receipt) => [receipt.receiptId, receipt.observedAt]));
+    const composedNodes: FabricNode[] = [];
+    for (const entry of entries) {
+      if ('gapId' in entry) {
+        mergedGaps.push(entry);
+        continue;
+      }
+      if (entry.kind === 'receipt') {
+        const observedAt = receiptEvidence.get(entry.value.receiptId);
+        if (observedAt !== undefined && fabricTimestampMs(observedAt) !== null) {
+          composedNodes.push({ kind: 'receipt', value: { ...entry.value, createdAt: observedAt } });
+          continue;
+        }
+      }
+      composedNodes.push(entry);
+    }
+    for (const receipt of receipts) {
+      if (runNodeIds.size === 0) break;
+      const alreadyRepresented = composedNodes.some((node) => node.kind === 'receipt' && node.value.receiptId === receipt.receiptId);
+      if (alreadyRepresented) continue;
+      mergedGaps.push({
+        gapId: `gap-runtime-receipt-${receipt.receiptId}`,
+        kind: 'missing-join',
+        subjectId: receipt.receiptId,
+        detail: `Branch/runtime receipt ${receipt.receiptId} has no durable execution-fact counterpart in the quest envelope; it was not fabricated into a node.`,
+        evidenceRef: null,
+      });
+    }
+
+    const sortedNodes = [...composedNodes].sort((a, b) => {
+      const left = `${a.kind}:${fabricIdentityOf(a)}`;
+      const right = `${b.kind}:${fabricIdentityOf(b)}`;
+      return left < right ? -1 : left > right ? 1 : 0;
+    }).slice(0, MISSION_FABRIC_CAPS.MAX_NODES);
+    const sortedEdges = [...mergedEdges].sort((a, b) => {
+      const left = `${a.kind}:${a.fromId}:${a.toId}`;
+      const right = `${b.kind}:${b.fromId}:${b.toId}`;
+      return left < right ? -1 : left > right ? 1 : 0;
+    }).slice(0, MISSION_FABRIC_CAPS.MAX_EDGES);
+    if (composedNodes.length > MISSION_FABRIC_CAPS.MAX_NODES || mergedEdges.length > MISSION_FABRIC_CAPS.MAX_EDGES) {
+      mergedGaps.push({
+        gapId: 'gap-projection-truncated-composition',
+        kind: 'projection-truncated',
+        subjectId: null,
+        detail: 'The composed mission fabric exceeded the projection caps; entries were omitted deterministically.',
+        evidenceRef: null,
+      });
+    }
+    const sortedGaps = [...mergedGaps].sort((a, b) => (a.gapId < b.gapId ? -1 : a.gapId > b.gapId ? 1 : 0));
+    if (sortedGaps.length > MISSION_FABRIC_CAPS.MAX_GAPS) {
+      return json(503, { error: 'mission_fabric_gap_overflow' });
+    }
+
+    const content = {
+      projectionVersion: 1 as const,
+      tenantId: tenant,
+      graphVersion: head.graphVersion,
+      sourceOfTruth: 'd1-goal-graph' as const,
+      readOnly: true as const,
+      nodes: sortedNodes,
+      edges: sortedEdges,
+      gaps: sortedGaps,
+    };
+    const projection: MissionFabricProjectionV1 = {
+      schema: 'cambium.mission-fabric-projection.v1',
+      ...content,
+      graphDigest: missionFabricProjectionDigest(content),
+      generatedAt: servedAt,
+      asOf: typeof head.committedAt === 'string' && fabricTimestampMs(head.committedAt) !== null ? head.committedAt : servedAt,
+    };
+
+    const viewer: MissionFabricViewer = {
+      role: isFounder ? 'founder' : 'viewer',
+      tenantId: tenant,
+    };
+    const redacted = redactMissionFabricProjection(projection, viewer);
+    const redactedDigest = missionFabricProjectionDigest(redacted);
+    if (redactedDigest !== redacted.graphDigest) {
+      return json(503, { error: 'mission_fabric_projection_digest_invalid' });
+    }
+
+    const derivedAt = isRecord(storedEnvelope) && typeof storedEnvelope.derivedAt === 'string' ? storedEnvelope.derivedAt : '';
+    const headMs = fabricTimestampMs(projection.asOf);
+    const derivedMs = fabricTimestampMs(derivedAt);
+    const freshness = derivedMs !== null && headMs !== null && derivedMs >= headMs - MISSION_FABRIC_CLOCK_SKEW_MS ? 'fresh' : 'stale';
+
+    const delivery: Record<string, unknown> = {
+      operatingFabricEnabled: true,
+      servedAt,
+      freshness,
+    };
+    const body: Record<string, unknown> = {
+      projection: redacted,
+      delivery,
+    };
+    let responseDigest = redacted.graphDigest;
+
+    // The Vault-classified portfolio is a separately digested, read-only
+    // sidecar for the Cambium founder surface. It never enters Mission
+    // Fabric nodes and therefore cannot look like Goal Graph operational
+    // truth. Non-founder viewers receive aggregate counts only.
+    if (tenant === 'cambium') {
+      try {
+        const portfolio = portfolioCatalogForViewer(PORTFOLIO_CATALOG, isFounder ? 'founder' : 'viewer');
+        const pairDigest = portfolioPairDigest(redacted.graphDigest, PORTFOLIO_CATALOG.catalogDigest);
+        body.portfolioCatalogSummary = {
+          ...portfolio.summary,
+          schema: PORTFOLIO_CATALOG.schema,
+          version: PORTFOLIO_CATALOG.version,
+          status: PORTFOLIO_CATALOG.status,
+          readOnly: PORTFOLIO_CATALOG.readOnly,
+          classificationDigest: PORTFOLIO_CATALOG.classificationDigest,
+          catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+        };
+        delivery.portfolioPairDigest = pairDigest;
+        responseDigest = pairDigest;
+        if (portfolio.detail !== null) {
+          const workNodes = redacted.nodes.filter((node) => node.kind === 'work');
+          body.portfolioCatalog = portfolio.detail;
+          body.portfolioJoinReport = buildPortfolioJoinReport(PORTFOLIO_CATALOG, workNodes, tenant);
+          body.organUpdateDelivery = ORGAN_UPDATE_PLAN;
+        } else {
+          body.organUpdateDeliverySummary = ORGAN_UPDATE_SUMMARY;
+        }
+      } catch {
+        return json(503, { error: 'portfolio_catalog_unavailable' });
+      }
+    }
+
+    const shadowRequested = queryParam(req.path, 'shadow') === '1';
+    if (shadowRequested && allowlist.includes(tenant)) {
+      const branchFactIds = fabricBranchFactIds(isRecord(storedEnvelope) ? storedEnvelope.branchStories : null);
+      const represented = new Set(
+        redacted.nodes
+          .filter((node): node is Extract<FabricNode, { kind: 'work' }> => node.kind === 'work')
+          .filter((node) => node.value.kind === 'sapling' || (node.value.kind === 'program' && node.value.programKind === 'client'))
+          .map((node) => (node.value.kind === 'sapling' ? node.value.branchId : node.value.workId)),
+      );
+      const missingIds = branchFactIds.filter((id) => !represented.has(id)).sort();
+      const unexpectedIds = [...represented].filter((id) => !branchFactIds.includes(id)).sort();
+      const shadow: FabricShadowReport = {
+        branchFacts: branchFactIds.length,
+        representedFacts: branchFactIds.length - missingIds.length,
+        missingIds,
+        unexpectedIds,
+      };
+      body.shadow = shadow;
+      body.promotionBlocked = missingIds.length > 0;
+    }
+
+    return {
+      status: 200,
+      headers: {
+        ...JSON_HEADERS,
+        'cache-control': 'private, no-store',
+        etag: responseDigest,
+      },
+      body: JSON.stringify(body),
+    };
+  } catch {
+    return json(503, { error: 'mission_fabric_authority_unavailable' });
+  }
+}
+
 async function handleBranchMapRoute(req: SimpleRequest, deps: HandlerDeps, routePath: string): Promise<SimpleResponse> {
   const tenant = tenantOf(routePath, '/v1/branch-map/');
   if (!tenant) return json(400, { error: 'bad tenant' });
@@ -2874,6 +3274,32 @@ const GOAL_GRAPH_GATE_ROW_SCHEMA = 'cambium.goal-graph-gate-row.v1';
 const GOAL_GRAPH_GATE_ROW_LIST_SCHEMA = 'cambium.goal-graph-gate-row-list.v1';
 const GOAL_GRAPH_GATE_ROW_LIMIT = 25;
 
+// Single source of truth for the approval descriptor (nonce/expiry/head
+// version/fence), shared by the gate-row projection and the approval route.
+// Legacy tasks that predate the descriptor fields are given exactly the same
+// fallback derivation in both places, so an exact client echo of a projected
+// row can never be rejected by approval. Malformed stored timestamps fail
+// closed (return null) rather than propagating a NaN-derived date.
+function resolveGoalGraphApprovalDescriptor(
+  task: Record<string, unknown>,
+  tenantId: string,
+  changeDigest: string,
+): { approvalNonce: string; approvalExpiresAt: string; expectedHeadVersion: number; fence: number } | null {
+  const approvalNonce = shortText(task.approvalNonce, `goal-graph-approval:${tenantId}:${changeDigest}`, 240);
+  let approvalExpiresAt = shortText(task.approvalExpiresAt, '', 64);
+  if (!approvalExpiresAt) {
+    const receivedAt = shortText(task.receivedAt, shortText(task.updatedAt, '', 64), 64);
+    const receivedAtMs = receivedAt ? Date.parse(receivedAt) : NaN;
+    if (!Number.isFinite(receivedAtMs)) return null;
+    approvalExpiresAt = new Date(receivedAtMs + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString();
+  } else if (!Number.isFinite(Date.parse(approvalExpiresAt))) {
+    return null;
+  }
+  const expectedHeadVersion = Number.isInteger(task.expectedHeadVersion) ? Number(task.expectedHeadVersion) : 0;
+  const fence = Number.isInteger(task.fence) ? Number(task.fence) : (Number.isInteger(task.graphVersion) ? Number(task.graphVersion) : 0);
+  return { approvalNonce, approvalExpiresAt, expectedHeadVersion, fence };
+}
+
 function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, unknown> | null {
   const tenantId = shortText(task.tenantId, '', 160);
   const changeDigest = shortText(task.changeDigest, '', 160);
@@ -2882,6 +3308,8 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
   const desiredState = shortText(node.desiredState, 'Telegram goal proposal', 120);
   const receivedAt = shortText(task.receivedAt, shortText(task.updatedAt, 'receivedAt not served', 64), 64);
   const nodeId = shortText(task.nodeId, 'node id not served', 160);
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, changeDigest);
+  if (!descriptor) return null;
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
     kind: 'goal-graph-intake',
@@ -2901,6 +3329,10 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     graphVersion: Number.isInteger(task.graphVersion) ? task.graphVersion : null,
     receivedAt,
     updatedAt: receivedAt,
+    approvalNonce: descriptor.approvalNonce,
+    approvalExpiresAt: descriptor.approvalExpiresAt,
+    expectedHeadVersion: descriptor.expectedHeadVersion,
+    fence: descriptor.fence,
   };
 }
 
@@ -3004,6 +3436,16 @@ async function intakeTelegramGoalGraphRoute(
     return goalGraphIntakeTaskReceipt(existingTask, true);
   }
 
+  // Server-issued approval descriptor, pinned at intake so approval never
+  // derives nonce/expiry/fence from the request: the nonce format matches
+  // the historical safe default, the TTL matches the existing 15-minute
+  // window, expectedHeadVersion pins the head this proposal was built
+  // against (0 for no head), and fence pins the target changeSet version.
+  const approvalNonce = `goal-graph-approval:${tenantId}:${changeSet.changeDigest}`;
+  const approvalExpiresAt = new Date(Date.parse(receivedAt) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString();
+  const expectedHeadVersion = head?.graphVersion ?? 0;
+  const fence = changeSet.graphVersion;
+
   const task = {
     schema: GOAL_GRAPH_INTAKE_TASK_SCHEMA,
     tenantId,
@@ -3022,6 +3464,10 @@ async function intakeTelegramGoalGraphRoute(
     changeSet,
     receivedAt,
     updatedAt: receivedAt,
+    approvalNonce,
+    approvalExpiresAt,
+    expectedHeadVersion,
+    fence,
   };
   const taskKey = goalGraphIntakeTaskKey(tenantId, changeSet.changeDigest);
   await deps.kv.put(taskKey, JSON.stringify(task));
@@ -3082,8 +3528,71 @@ async function approveGoalGraphIntakeRoute(
   }
 
   const now = deps.now ? deps.now() : new Date().toISOString();
-  const nonce = shortText(body.nonce, `goal-graph-approval:${tenant}:${changeDigest}`, 240);
-  const expiresAt = shortText(body.expiresAt, new Date(Date.parse(now) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString(), 64);
+
+  // The descriptor is server-issued at intake time (backward-compatible
+  // defaults when an old task predates the descriptor fields). Approval
+  // reads it from storage; it never derives nonce/expiry/fence itself, and
+  // a body-supplied value is only ever checked against the stored value —
+  // never trusted to set it.
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest);
+  if (!descriptor) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_descriptor_invalid', code: 'descriptor_invalid', ...evidence } };
+  }
+  const storedNonce = descriptor.approvalNonce;
+  const storedExpiresAt = descriptor.approvalExpiresAt;
+  const storedExpectedHeadVersion = descriptor.expectedHeadVersion;
+  const storedFence = descriptor.fence;
+
+  const storedExpiresAtMs = Date.parse(storedExpiresAt);
+  const nowMs = Date.parse(now);
+  if (!Number.isFinite(storedExpiresAtMs) || !Number.isFinite(nowMs) || storedExpiresAtMs <= nowMs) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_expired', code: 'approval_expired', ...evidence } };
+  }
+  if (body.nonce !== undefined && shortText(body.nonce, '', 240) !== storedNonce) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_nonce_mismatch', code: 'nonce_mismatch', ...evidence } };
+  }
+  if (body.expiresAt !== undefined && shortText(body.expiresAt, '', 64) !== storedExpiresAt) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_expiry_mismatch', code: 'expiry_mismatch', ...evidence } };
+  }
+  if (body.expectedHeadVersion !== undefined && Number(body.expectedHeadVersion) !== storedExpectedHeadVersion) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_head_version_mismatch', code: 'head_version_mismatch', ...evidence } };
+  }
+  if (body.fence !== undefined && Number(body.fence) !== storedFence) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_fence_mismatch', code: 'fence_mismatch', ...evidence } };
+  }
+
+  // Belt-and-suspenders head pin check ahead of the D1 CAS: the current
+  // authoritative head must still equal the pinned expectedHeadVersion. The
+  // final D1 conditional write remains the authoritative race guard.
+  let currentHead: GoalGraphHead | null;
+  try {
+    currentHead = await deps.goalGraphStore.readHead(tenant);
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  }
+  const currentHeadVersion = currentHead?.graphVersion ?? 0;
+  if (currentHeadVersion !== storedExpectedHeadVersion) {
+    await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+      ...task,
+      status: 'stale',
+      observedHeadDigest: currentHead?.graphDigest ?? null,
+      updatedAt: now,
+    }));
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        error: 'goal_graph_stale_head',
+        status: 'stale',
+        changeDigest,
+        expectedHeadDigest: task.expectedHeadDigest ?? null,
+        actualHeadDigest: currentHead?.graphDigest ?? null,
+      },
+    };
+  }
+
+  const nonce = storedNonce;
+  const expiresAt = storedExpiresAt;
   const intentVersion = Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1;
   const approvalCore = { tenantId: tenant, changeDigest, intentVersion, approverId: founderId, expiresAt, nonce };
   const approval: GoalGraphApproval = {
@@ -3163,6 +3672,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
 
+  if (routePath === '/admin/portfolio' || routePath === '/admin/portfolio/web' || routePath === '/v1/admin/portfolio') {
+    return handlePortfolioWorkbenchRoute(req, deps, routePath);
+  }
+
   if (method === 'GET' && routePath === '/healthz/gate') {
     const gateConfigured = Boolean(
       deps.gate?.botId.trim()
@@ -3183,6 +3696,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (routePath.startsWith('/v1/branch-map/')) {
     return handleBranchMapRoute(req, deps, routePath);
+  }
+
+  if (routePath.startsWith('/v1/mission-fabric/')) {
+    return handleMissionFabricRoute(req, deps, routePath);
   }
 
   if (routePath.startsWith('/v1/context/')) {
@@ -3375,7 +3892,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
     let principal: Principal | null = null;
     if (deps.plexus) {
-      const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv);
+      const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
       if (resolved.kind === 'unauthenticated') {
         return json(401, { error: 'access_identity_required', message: 'A verified Cloudflare Access identity is required.' });
       }
@@ -3703,6 +4220,56 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ...parsed,
         topic: { topicKey, threadId: route.threadId, questId: route.questId },
       });
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/organ-update-delivery') {
+      if (!principal.admin) {
+        return json(403, { error: 'organ update delivery compilation requires the admin bridge credential' });
+      }
+      let body: unknown;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      try {
+        const delivery = compileOrganUpdateDelivery(body);
+        if (delivery.tenantId !== 'cambium') {
+          return json(403, { error: 'organ update delivery is fixed to the cambium tenant' });
+        }
+        if (delivery.requiresApproval) {
+          const approvalId = delivery.approvalRef?.startsWith('gate:')
+            ? delivery.approvalRef.slice('gate:'.length)
+            : '';
+          const rawApproval = approvalId
+            ? await deps.kv.get(`gate:${delivery.tenantId}:${approvalId}`)
+            : null;
+          let approval: Record<string, unknown> | null = null;
+          try {
+            approval = rawApproval && isRecord(JSON.parse(rawApproval))
+              ? JSON.parse(rawApproval) as Record<string, unknown>
+              : null;
+          } catch {
+            approval = null;
+          }
+          if (
+            !approval
+            || approval.id !== approvalId
+            || approval.kind !== 'approve'
+            || approval.subject !== delivery.workObjectId
+            || !['queued', 'consumed'].includes(String(approval.status))
+            || !approval.founderId
+          ) {
+            return json(403, { error: 'organ_update_delivery_approval_not_verified' });
+          }
+        }
+        return json(200, {
+          ok: true,
+          organUpdateDelivery: delivery,
+        });
+      } catch (error) {
+        return json(400, {
+          ok: false,
+          error: 'organ_update_delivery_invalid',
+          detail: error instanceof Error ? error.message : 'delivery signal is invalid',
+        });
+      }
     }
 
     if (method === 'GET' && routePath === '/v1/bridge/action-requests') {

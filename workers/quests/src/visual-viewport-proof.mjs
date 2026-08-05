@@ -12,6 +12,14 @@ import { pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
 import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
+import { buildMissionFabricProjection } from './mission-fabric.ts';
+import { FABRIC_SOURCE_FIXTURE } from './mission-fabric-fixture.ts';
+import { ORGAN_UPDATE_PLAN } from './organ-update-delivery.ts';
+import {
+  PORTFOLIO_CATALOG,
+  buildPortfolioJoinReport,
+  portfolioPairDigest,
+} from './portfolio-catalog.ts';
 
 function playwrightHeadlessShellCandidates() {
   const cacheDir = join(homedir(), 'Library', 'Caches', 'ms-playwright');
@@ -712,6 +720,135 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clickTargetCount: 1,
     clipSelector: '#sheet',
   },
+  {
+    scene: 'operating-canopy',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-320-mobile.png',
+    intent: 'clickability-proof',
+    exactViewport: true,
+    viewport: { width: 320, height: 844 },
+    waitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"canopy\"]') && document.querySelector('[data-of-gate-entrypoint]')",
+    assertExpression: operatingFabricAllScenesAssertion(320),
+    interactionSurface: 'page',
+    clickTargetSelector: '#operating-fabric [data-of-tab]',
+    clickTargetCount: 5,
+  },
+  {
+    scene: 'operating-mission',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-gate-sheet-320-mobile.png',
+    intent: 'clickability-proof',
+    exactViewport: true,
+    viewport: { width: 320, height: 844 },
+    prepareWaitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"mission\"]')",
+    prepareExpression: operatingFabricMissionPreparation(),
+    waitFor: "document.querySelector('[data-of-scene=\"mission\"]').hidden === false && document.querySelector('[data-of-gate-entrypoint]')",
+    tapTargetSelector: '[data-of-gate-entrypoint]',
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet [data-gate-cancel=\"1\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40 && document.querySelector('#sheet').getBoundingClientRect().right <= window.innerWidth + 1",
+    clickTargetSelector: '[data-of-gate-entrypoint]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'operating-mission',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-inspect-sheet-320-mobile.png',
+    intent: 'clickability-proof',
+    exactViewport: true,
+    viewport: { width: 320, height: 844 },
+    prepareWaitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"mission\"]')",
+    prepareExpression: operatingFabricMissionPreparation(),
+    waitFor: "document.querySelector('[data-of-scene=\"mission\"]').hidden === false && document.querySelector('[data-of-scene=\"mission\"] .of-inspect-btn')",
+    tapTargetSelector: '[data-of-scene="mission"] .of-inspect-btn',
+    waitAfterExpression: "document.querySelector('#sheet.on [data-of-inspect-back]') && document.querySelector('#sheet.on [data-of-inspect-close]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40 && document.querySelector('#sheet').getBoundingClientRect().right <= window.innerWidth + 1",
+    clickTargetSelector: '[data-of-scene="mission"] .of-inspect-btn',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'operating-canopy',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-390-mobile.png',
+    intent: 'clickability-proof',
+    waitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"canopy\"]') && document.querySelector('[data-of-gate-entrypoint]')",
+    assertExpression: operatingFabricAllScenesAssertion(390),
+    interactionSurface: 'page',
+    clickTargetSelector: '#operating-fabric [data-of-tab]',
+    clickTargetCount: 5,
+  },
+  {
+    scene: 'operating-mission',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-gate-sheet-390-mobile.png',
+    intent: 'clickability-proof',
+    prepareWaitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"mission\"]')",
+    prepareExpression: operatingFabricMissionPreparation(),
+    waitFor: "document.querySelector('[data-of-scene=\"mission\"]').hidden === false && document.querySelector('[data-of-gate-entrypoint]')",
+    tapTargetSelector: '[data-of-gate-entrypoint]',
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet [data-gate-cancel=\"1\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40 && document.querySelector('#sheet').getBoundingClientRect().right <= window.innerWidth + 1",
+    clickTargetSelector: '[data-of-gate-entrypoint]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'operating-mission',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-inspect-sheet-390-mobile.png',
+    intent: 'clickability-proof',
+    prepareWaitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"mission\"]')",
+    prepareExpression: operatingFabricMissionPreparation(),
+    waitFor: "document.querySelector('[data-of-scene=\"mission\"]').hidden === false && document.querySelector('[data-of-scene=\"mission\"] .of-inspect-btn')",
+    tapTargetSelector: '[data-of-scene="mission"] .of-inspect-btn',
+    waitAfterExpression: "document.querySelector('#sheet.on [data-of-inspect-back]') && document.querySelector('#sheet.on [data-of-inspect-close]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40 && document.querySelector('#sheet').getBoundingClientRect().right <= window.innerWidth + 1",
+    clickTargetSelector: '[data-of-scene="mission"] .of-inspect-btn',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'operating-canopy',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-430-mobile.png',
+    intent: 'clickability-proof',
+    exactViewport: true,
+    viewport: { width: 430, height: 844 },
+    waitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"canopy\"]') && document.querySelector('[data-of-gate-entrypoint]')",
+    assertExpression: operatingFabricAllScenesAssertion(430),
+    interactionSurface: 'page',
+    clickTargetSelector: '#operating-fabric [data-of-tab]',
+    clickTargetCount: 5,
+  },
+  {
+    scene: 'operating-mission',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-gate-sheet-430-mobile.png',
+    intent: 'clickability-proof',
+    exactViewport: true,
+    viewport: { width: 430, height: 844 },
+    prepareWaitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"mission\"]')",
+    prepareExpression: operatingFabricMissionPreparation(),
+    waitFor: "document.querySelector('[data-of-scene=\"mission\"]').hidden === false && document.querySelector('[data-of-gate-entrypoint]')",
+    tapTargetSelector: '[data-of-gate-entrypoint]',
+    waitAfterExpression: "document.querySelector('#sheet.on') && document.querySelector('#sheet [data-gate-cancel=\"1\"]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40 && document.querySelector('#sheet').getBoundingClientRect().right <= window.innerWidth + 1",
+    clickTargetSelector: '[data-of-gate-entrypoint]',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
+  {
+    scene: 'operating-mission',
+    fixture: 'operating-fabric',
+    path: 'operating-fabric-inspect-sheet-430-mobile.png',
+    intent: 'clickability-proof',
+    exactViewport: true,
+    viewport: { width: 430, height: 844 },
+    prepareWaitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-tab=\"mission\"]')",
+    prepareExpression: operatingFabricMissionPreparation(),
+    waitFor: "document.querySelector('[data-of-scene=\"mission\"]').hidden === false && document.querySelector('[data-of-scene=\"mission\"] .of-inspect-btn')",
+    tapTargetSelector: '[data-of-scene="mission"] .of-inspect-btn',
+    waitAfterExpression: "document.querySelector('#sheet.on [data-of-inspect-back]') && document.querySelector('#sheet.on [data-of-inspect-close]') && document.querySelector('#sheet').getBoundingClientRect().top < window.innerHeight - 40 && document.querySelector('#sheet').getBoundingClientRect().right <= window.innerWidth + 1",
+    clickTargetSelector: '[data-of-scene="mission"] .of-inspect-btn',
+    clickTargetCount: 1,
+    clipSelector: '#sheet',
+  },
 ];
 
 export const MOBILE_CONTRACT_PROOF_PATHS = [
@@ -721,6 +858,15 @@ export const MOBILE_CONTRACT_PROOF_PATHS = [
   'mission-utilities-mobile.png',
   'mission-vantyx-selected-mobile.png',
   'sheet-gate-queued-proof-detail-mobile.png',
+  'operating-fabric-320-mobile.png',
+  'operating-fabric-gate-sheet-320-mobile.png',
+  'operating-fabric-inspect-sheet-320-mobile.png',
+  'operating-fabric-390-mobile.png',
+  'operating-fabric-gate-sheet-390-mobile.png',
+  'operating-fabric-inspect-sheet-390-mobile.png',
+  'operating-fabric-430-mobile.png',
+  'operating-fabric-gate-sheet-430-mobile.png',
+  'operating-fabric-inspect-sheet-430-mobile.png',
 ];
 
 export function selectViewportProofCaptureSteps({ proofPathFilter = '', mobileContractOnly = false } = {}) {
@@ -954,6 +1100,233 @@ function buildBranchStoriesFixture() {
 
 const branchStoriesFixture = buildBranchStoriesFixture();
 
+// operatingFabricSourceFixture: FABRIC_SOURCE_FIXTURE with its program recast
+// as a company program (the fixture ships programKind:'operations'), so the
+// synthetic projection proves a sapling AND a company program together.
+const operatingFabricSourceFixture = {
+  ...FABRIC_SOURCE_FIXTURE,
+  tenantId: 'cambium',
+  programs: FABRIC_SOURCE_FIXTURE.programs.map((program) => ({ ...program, programKind: 'company', tenantId: 'cambium' })),
+};
+
+const OPERATING_FABRIC_PROJECTION = buildMissionFabricProjection(operatingFabricSourceFixture, {
+  clock: { now: () => '2026-07-28T09:05:00.000Z' },
+  tenantId: 'cambium',
+});
+
+const OPERATING_FABRIC_JOIN_REPORT = buildPortfolioJoinReport(
+  PORTFOLIO_CATALOG,
+  OPERATING_FABRIC_PROJECTION.nodes.filter((node) => node.kind === 'work'),
+);
+
+const OPERATING_FABRIC_DELIVERY_ENVELOPE = {
+  projection: OPERATING_FABRIC_PROJECTION,
+  portfolioCatalog: PORTFOLIO_CATALOG,
+  portfolioCatalogSummary: {
+    ...PORTFOLIO_CATALOG.summary,
+    schema: PORTFOLIO_CATALOG.schema,
+    version: PORTFOLIO_CATALOG.version,
+    status: PORTFOLIO_CATALOG.status,
+    readOnly: PORTFOLIO_CATALOG.readOnly,
+    classificationDigest: PORTFOLIO_CATALOG.classificationDigest,
+    catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+  },
+  portfolioJoinReport: OPERATING_FABRIC_JOIN_REPORT,
+  organUpdateDelivery: ORGAN_UPDATE_PLAN,
+  delivery: {
+    operatingFabricEnabled: true,
+    servedAt: '2026-07-28T09:05:00.000Z',
+    freshness: 'fresh',
+    portfolioPairDigest: portfolioPairDigest(
+      OPERATING_FABRIC_PROJECTION.graphDigest,
+      PORTFOLIO_CATALOG.catalogDigest,
+    ),
+  },
+};
+
+// operatingFabricQuestsFixture: the /api/quests/cambium envelope used by the
+// operating-fabric captures. Extends the branch-stories fixture with a single
+// pending goalGraphIntake row so ofFetchGatePendingItem() (client.ts) finds a
+// real, valid, not-yet-expired proposal and the Gate entrypoint renders ready.
+const operatingFabricQuestsFixture = {
+  ...branchStoriesFixture,
+  goalGraphIntake: [
+    {
+      changeDigest: 'a'.repeat(64),
+      status: 'pending',
+      approvalNonce: 'of-proof-nonce-20260728',
+      approvalExpiresAt: '2099-01-01T00:00:00.000Z',
+      expectedHeadVersion: 1,
+      fence: 7,
+      evidence: 'Cambium Operating Fabric program requests approval to advance the goal graph.',
+      consequence: 'advance the goal graph to version 2; no external mutation until confirmed',
+      reversibility: 'queued approval can be superseded until consumed',
+      title: 'Approve goal graph advance',
+    },
+  ],
+};
+
+function operatingFabricAllScenesAssertion(width) {
+  return `(() => {
+    const root = document.getElementById('operating-fabric');
+    if (!root) return { ok:false, missing:'operating-fabric-root' };
+    const portfolio = root.querySelector('[data-component="PortfolioCanopy"][data-portfolio-mode="detail"]');
+    const portfolioZones = root.querySelectorAll('[data-portfolio-zone]');
+    const portfolioCards = root.querySelectorAll('[data-portfolio-card]');
+    const portfolioCounts = {
+      saplings: root.querySelector('[data-portfolio-count="saplings"]')?.textContent,
+      clients: root.querySelector('[data-portfolio-count="clients"]')?.textContent,
+      programs: root.querySelector('[data-portfolio-count="programs"]')?.textContent,
+      review: root.querySelector('[data-portfolio-count="review"]')?.textContent,
+      historical: root.querySelector('[data-portfolio-count="historical"]')?.textContent,
+    };
+    const fitcheck = root.querySelector('[data-portfolio-id="sapling:fitcheck"]');
+    const organPlan = root.querySelector('[data-component="OrganUpdatePlan"][data-organ-mode="detail"]');
+    const organCards = root.querySelectorAll('[data-component="OrganUpdatePlan"] [data-organ]');
+    const organOk = Boolean(organPlan)
+      && organCards.length === 5
+      && organPlan.getAttribute('data-organ-mode') === 'detail'
+      && organPlan.querySelector('[data-organ-active-state="none"]')
+      && organPlan.textContent.includes('Genesis')
+      && organPlan.textContent.includes('Inbox')
+      && organPlan.textContent.includes('Taste')
+      && organPlan.textContent.includes('Digests')
+      && organPlan.textContent.includes('Hands')
+      && organPlan.textContent.includes('Dev')
+      && organPlan.textContent.includes('Will')
+      && organPlan.textContent.includes('Clients')
+      && organPlan.textContent.includes('Cortex')
+      && organPlan.textContent.includes('Agent Ops')
+      && organPlan.textContent.includes('No recurring schedule');
+    const portfolioOk = Boolean(portfolio)
+      && portfolioZones.length === 4
+      && portfolioCards.length === 89
+      && portfolioCounts.saplings === '12'
+      && portfolioCounts.clients === '28'
+      && portfolioCounts.programs === '14'
+      && portfolioCounts.review === '16'
+      && portfolioCounts.historical === '19'
+      && Boolean(fitcheck)
+      && fitcheck.textContent.includes('cambium')
+      && fitcheck.textContent.includes('aliases are display-only');
+    const fitcheckFocus = fitcheck?.querySelector('[data-of-open-portfolio="sapling:fitcheck"]');
+    if (fitcheckFocus) fitcheckFocus.click();
+    const sceneIds = ['canopy', 'mission', 'flow', 'workforce', 'forge'];
+    const results = {};
+    for (const sceneId of sceneIds) {
+      const tab = root.querySelector('[data-of-tab="' + sceneId + '"]');
+      if (!tab) { results[sceneId] = { ok:false, missing:'tab' }; continue; }
+      tab.focus();
+      tab.click();
+      const panel = root.querySelector('[data-of-scene="' + sceneId + '"]');
+      const otherPanelsHidden = sceneIds
+        .filter((other) => other !== sceneId)
+        .every((other) => {
+          const otherPanel = root.querySelector('[data-of-scene="' + other + '"]');
+          return Boolean(otherPanel) && otherPanel.hidden === true;
+        });
+      const tabsSelectedCorrectly = sceneIds.every((other) => {
+        const otherTab = root.querySelector('[data-of-tab="' + other + '"]');
+        return Boolean(otherTab) && otherTab.getAttribute('aria-selected') === (other === sceneId ? 'true' : 'false');
+      });
+      const tabRect = tab.getBoundingClientRect();
+      const tabLabel = tab.querySelector('.of-tab-label');
+      const tabLabelRect = tabLabel ? tabLabel.getBoundingClientRect() : null;
+      const tabLabelContained = Boolean(tabLabel)
+        && tabLabel.scrollWidth <= tabLabel.clientWidth + 1
+        && Boolean(tabLabelRect)
+        && tabLabelRect.left >= tabRect.left - 1
+        && tabLabelRect.right <= tabRect.right + 1;
+      const inViewport = (rect) => rect.left >= -1 && rect.right <= window.innerWidth + 1;
+      const panelRect = panel ? panel.getBoundingClientRect() : null;
+      const rootRect = root.getBoundingClientRect();
+      const interactiveTargets = [
+        tab,
+        ...root.querySelectorAll('[data-of-scene="' + sceneId + '"] .of-inspect-btn'),
+        ...root.querySelectorAll('[data-of-scene="' + sceneId + '"] [data-of-gate-entrypoint]'),
+      ];
+      const targetsAtLeast44 = interactiveTargets.every((node) => {
+        const rect = node.getBoundingClientRect();
+        return rect.height >= 44 && rect.width >= 44;
+      });
+      const selectedContext = sceneId === 'canopy'
+        ? root.querySelector('[data-portfolio-id="sapling:fitcheck"][aria-current="true"]')
+        : root.querySelector('[data-portfolio-context="' + sceneId + '"]');
+      const selectionPersists = Boolean(selectedContext)
+        && selectedContext.textContent.includes('Fitcheck');
+      const organContext = sceneId === 'canopy'
+        ? organPlan
+        : root.querySelector('[data-organ-context="' + sceneId + '"][data-organ-active="none"]');
+      const organContextHonest = Boolean(organContext)
+        && (sceneId === 'canopy' || organContext.textContent.includes('authoritative receipt'));
+      const noBodyOverflow = document.documentElement.scrollWidth <= window.innerWidth + 1
+        && document.body.scrollWidth <= window.innerWidth + 1;
+      results[sceneId] = {
+        ok: Boolean(panel)
+          && panel.hidden === false
+          && otherPanelsHidden
+          && tabsSelectedCorrectly
+          && inViewport(tabRect)
+          && Boolean(panelRect) && inViewport(panelRect)
+          && inViewport(rootRect)
+          && noBodyOverflow
+          && tabRect.height >= 44
+          && tabLabelContained
+          && targetsAtLeast44
+          && selectionPersists
+          && organContextHonest,
+        panelContained: Boolean(panelRect) && inViewport(panelRect),
+        tabLabelContained,
+        interactiveCount: interactiveTargets.length,
+        selectionPersists,
+        organContextHonest,
+      };
+    }
+    const canopyTab = root.querySelector('[data-of-tab="canopy"]');
+    const canopyPanel = root.querySelector('[data-of-scene="canopy"]');
+    if (canopyTab && canopyTab.getAttribute('aria-selected') !== 'true') canopyTab.click();
+    root.scrollIntoView({ block: 'start', inline: 'nearest' });
+    const restoredCanopy = Boolean(canopyTab)
+      && canopyTab.getAttribute('aria-selected') === 'true'
+      && Boolean(canopyPanel)
+      && canopyPanel.hidden === false;
+    return {
+      ok: Object.values(results).every((entry) => entry.ok === true)
+        && portfolioOk
+        && organOk
+        && restoredCanopy
+        && Math.abs(window.innerWidth - ${width}) <= 1
+        && document.body.scrollWidth <= window.innerWidth + 1,
+      results,
+      portfolio: {
+        ok: portfolioOk,
+        zoneCount: portfolioZones.length,
+        cardCount: portfolioCards.length,
+        counts: portfolioCounts,
+        fitcheck: Boolean(fitcheck),
+      },
+      organPlan: {
+        ok: organOk,
+        cardCount: organCards.length,
+      },
+      restoredCanopy,
+    };
+  })()`;
+}
+
+function operatingFabricMissionPreparation() {
+  return `(() => {
+    const root = document.getElementById('operating-fabric');
+    if (!root) throw new Error('missing operating-fabric root');
+    const tab = root.querySelector('[data-of-tab="mission"]');
+    if (!tab) throw new Error('missing operating-fabric mission tab');
+    if (tab.getAttribute('aria-selected') !== 'true') tab.click();
+    const panel = root.querySelector('[data-of-scene="mission"]');
+    if (tab.getAttribute('aria-selected') !== 'true') throw new Error('mission tab did not become selected');
+    if (!panel || panel.hidden !== false) throw new Error('mission panel did not become visible');
+  })()`;
+}
+
 function assertBrowserAvailable() {
   if (BROWSER_CANDIDATES.length === 0) {
     throw new Error(`No Chromium-family browser found. Set CHROME_BIN to run this proof. Checked: ${DEFAULT_BROWSER_CANDIDATES.join(', ')}`);
@@ -988,14 +1361,40 @@ async function withServer(fn) {
                   ? QUEUED_ACTION_REQUEST_VISUAL_FIXTURE
                   : fixture === 'fresh'
                     ? FRESH_ECOSYSTEM_VISUAL_FIXTURE
-                    : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
+                    : fixture === 'operating-fabric'
+                      ? operatingFabricQuestsFixture
+                      : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
       res.end(proofPage);
       return;
     }
     if (url.pathname === '/telegram-web-app.js') {
       res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8', 'cache-control': 'no-store' });
-      res.end('window.Telegram={WebApp:{initData:"",initDataUnsafe:{},ready(){},expand(){},setHeaderColor(){},setBackgroundColor(){},HapticFeedback:{impactOccurred(){},notificationOccurred(){}}}};');
+      // initData is served nonempty ONLY for operating-fabric captures
+      // (scene=operating-*), read from location.search at script-execution
+      // time in the page — every legacy capture keeps seeing empty initData
+      // and stays inert.
+      res.end(
+        'window.Telegram={WebApp:{' +
+          'get initData(){' +
+            'try{return String(new URLSearchParams(location.search).get("scene")||"").indexOf("operating-")===0?"proof-init-data":"";}' +
+            'catch(e){return "";}' +
+          '},' +
+          'initDataUnsafe:{},ready(){},expand(){},setHeaderColor(){},setBackgroundColor(){},' +
+          'HapticFeedback:{impactOccurred(){},notificationOccurred(){}}' +
+        '}};',
+      );
+      return;
+    }
+    if (url.pathname === '/v1/mission-fabric/cambium') {
+      const initData = req.headers['x-telegram-init-data'];
+      if (!initData || typeof initData !== 'string') {
+        res.writeHead(401, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+        res.end(JSON.stringify({ error: 'missing x-telegram-init-data' }));
+        return;
+      }
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+      res.end(JSON.stringify(OPERATING_FABRIC_DELIVERY_ENVELOPE));
       return;
     }
     if (url.pathname === '/api/quests/cambium') {
@@ -1227,7 +1626,11 @@ async function evaluate(cdp, expression) {
     returnByValue: true,
   });
   if (result.exceptionDetails) {
-    throw new Error(`Chrome evaluation failed: ${result.exceptionDetails.text || expression}`);
+    const ex = result.exceptionDetails;
+    const description = ex.exception?.description || ex.exception?.value || ex.text || 'unknown exception';
+    throw new Error(
+      `Chrome evaluation failed at line ${ex.lineNumber ?? '?'}:${ex.columnNumber ?? '?'}: ${description}`,
+    );
   }
   return result.result?.value;
 }
@@ -1585,7 +1988,12 @@ await withServer(async (base, metrics) => {
     const file = join(artifactDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
-    await capture(url, file, proof);
+    try {
+      await capture(url, file, proof);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Capture failed for proof.path="${proof.path}": ${message}`);
+    }
     const expectedWorkerPostCount = Number(proof.expectedWorkerPostCount);
     const workerPostCount = metrics.gatePostCount();
     if (Number.isFinite(expectedWorkerPostCount) && workerPostCount !== expectedWorkerPostCount) {

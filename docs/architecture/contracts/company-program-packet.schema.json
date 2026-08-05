@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cambium.company-program-packet.v1",
+  "title": "Company Program Packet V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "programId", "tenantId", "title", "programKind", "lifecycle", "outcomeMetric", "authority", "missionIds"],
+  "properties": {
+    "schema": { "const": "company-program-packet.v1" },
+    "programId": { "$ref": "#/$defs/identifier" },
+    "tenantId": { "$ref": "#/$defs/identifier" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "programKind": { "enum": ["company", "client", "capability", "operations"] },
+    "lifecycle": { "enum": ["proposed", "approved", "executing", "verifying", "complete", "retired"] },
+    "outcomeMetric": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespace", "graphVersion"],
+      "properties": {
+        "kind": { "const": "goal-graph" },
+        "namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "graphVersion": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "missionIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/identifier" }
+    }
+  },
+  "$defs": {
+    "identifier": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z][a-z0-9-]*$" }
+  }
+}

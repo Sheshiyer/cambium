@@ -26,6 +26,7 @@ export interface PlexusKvLike {
 
 const DEFAULT_WHOAMI_URL = 'https://plexus-api.thoughtseed.space/v1/whoami';
 const CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_SCHEMA_VERSION = 2;
 
 export type PlexusResolveResult =
   | { kind: 'principal'; principal: Principal }
@@ -37,18 +38,57 @@ async function sha256Hex(input: string): Promise<string> {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-interface WhoamiBody {
-  email?: string;
-  role?: string;
-  isActive?: boolean;
-  identityId?: string;
-  displayName?: string;
+interface WhoamiSession {
+  email?: unknown;
+  role?: unknown;
+  isActive?: unknown;
+  identityId?: unknown;
 }
 
-function principalFromWhoami(body: WhoamiBody, email: string): Principal {
-  const role = body.role === 'admin' ? 'founder' : body.role === 'employee' ? 'team' : 'consultant';
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeEmail(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim().toLowerCase();
+  return normalized.includes('@') ? normalized : null;
+}
+
+function directSession(record: Record<string, unknown>): WhoamiSession {
   return {
-    id: body.identityId ?? `plexus:${email}`,
+    email: record.email,
+    role: record.role,
+    isActive: record.isActive,
+    identityId: record.identityId,
+  };
+}
+
+function normalizeWhoamiSession(payload: unknown): WhoamiSession | null {
+  if (!isRecord(payload)) return null;
+  if (Object.prototype.hasOwnProperty.call(payload, 'ok')) {
+    if (payload.ok !== true) return null;
+    if (!isRecord(payload.data) || Object.keys(payload.data).length === 0) return null;
+    if (Object.prototype.hasOwnProperty.call(payload.data, 'ok')) return null;
+    return directSession(payload.data);
+  }
+  return Object.keys(payload).length > 0 ? directSession(payload) : null;
+}
+
+function principalFromWhoami(session: WhoamiSession, accessEmail: string): Principal {
+  const sessionEmail = normalizeEmail(session.email);
+  const active = session.isActive === undefined || session.isActive === true;
+  const role = sessionEmail === accessEmail && active
+    ? session.role === 'admin'
+      ? 'founder'
+      : session.role === 'employee'
+        ? 'team'
+        : 'consultant'
+    : 'consultant';
+  return {
+    id: typeof session.identityId === 'string' && session.identityId.trim()
+      ? session.identityId
+      : `plexus:${accessEmail}`,
     tenant: '*',
     role,
     allow: [],
@@ -58,6 +98,32 @@ function principalFromWhoami(body: WhoamiBody, email: string): Principal {
 
 function consultantFloor(email: string): Principal {
   return { id: `plexus:${email}`, tenant: '*', role: 'consultant', allow: [], createdBy: 'plexus' };
+}
+
+function cachedPrincipal(value: unknown, accessEmail: string, nowMs: number): Principal | null {
+  if (!isRecord(value)) return null;
+  if (value.version !== CACHE_SCHEMA_VERSION || value.accessEmail !== accessEmail) return null;
+  if (typeof value.cachedAt !== 'number' || !Number.isFinite(value.cachedAt)) return null;
+  const ageMs = nowMs - value.cachedAt;
+  if (ageMs < 0 || ageMs >= CACHE_TTL_MS || !isRecord(value.principal)) return null;
+
+  const principal = value.principal;
+  if (
+    typeof principal.id !== 'string'
+    || typeof principal.tenant !== 'string'
+    || (principal.role !== 'founder' && principal.role !== 'team' && principal.role !== 'consultant')
+    || !Array.isArray(principal.allow)
+    || !principal.allow.every((entry) => typeof entry === 'string')
+    || principal.createdBy !== 'plexus'
+  ) return null;
+
+  return {
+    id: principal.id,
+    tenant: principal.tenant,
+    role: principal.role,
+    allow: principal.allow,
+    createdBy: principal.createdBy,
+  };
 }
 
 /**
@@ -77,15 +143,15 @@ export async function resolvePlexusPrincipal(
   const identity = await verifyAccessJwt(headers, cfg, fetchImpl);
   const jwt = readAccessJwt(headers);
   if (!identity || !jwt) return { kind: 'unauthenticated' };
+  const accessEmail = normalizeEmail(identity.email);
+  if (!accessEmail) return { kind: 'unauthenticated' };
 
   const cacheKey = `plexus:whoami:${await sha256Hex(jwt)}`;
   try {
     const cached = await kv.get(cacheKey);
     if (cached) {
-      const parsed = JSON.parse(cached) as { cachedAt?: number; principal?: Principal };
-      if (parsed.principal && typeof parsed.cachedAt === 'number' && Date.now() - parsed.cachedAt < CACHE_TTL_MS) {
-        return { kind: 'principal', principal: parsed.principal };
-      }
+      const principal = cachedPrincipal(JSON.parse(cached) as unknown, accessEmail, Date.now());
+      if (principal) return { kind: 'principal', principal };
     }
   } catch { /* cache miss / parse failure → fall through to live lookup */ }
 
@@ -95,18 +161,25 @@ export async function resolvePlexusPrincipal(
       headers: { 'cf-access-jwt-assertion': jwt, 'accept': 'application/json' },
     });
     if (res.status === 404) {
-      principal = consultantFloor(identity.email); // valid Access login, no Plexus identity
+      principal = consultantFloor(accessEmail); // valid Access login, no Plexus identity
     } else if (!res.ok) {
-      principal = consultantFloor(identity.email); // whoami degraded → fail closed
+      principal = consultantFloor(accessEmail); // whoami degraded → fail closed
     } else {
-      principal = principalFromWhoami((await res.json()) as WhoamiBody, identity.email);
+      const body = await res.json();
+      const session = normalizeWhoamiSession(body);
+      principal = session ? principalFromWhoami(session, accessEmail) : consultantFloor(accessEmail);
     }
   } catch {
-    principal = consultantFloor(identity.email);
+    principal = consultantFloor(accessEmail);
   }
 
   try {
-    await kv.put(cacheKey, JSON.stringify({ cachedAt: Date.now(), principal }));
+    await kv.put(cacheKey, JSON.stringify({
+      version: CACHE_SCHEMA_VERSION,
+      accessEmail,
+      cachedAt: Date.now(),
+      principal,
+    }));
   } catch { /* cache write failure is non-fatal */ }
 
   return { kind: 'principal', principal };

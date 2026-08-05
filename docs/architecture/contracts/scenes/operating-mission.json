@@ -1,0 +1,64 @@
+{
+  "contract": "cambium-operating-fabric-scene/v1",
+  "sceneId": "operating-mission",
+  "tabIndex": 1,
+  "label": "Mission",
+  "sceneRoot": "[data-of-scene=\"mission\"]",
+  "refreshRoute": "GET /v1/mission-fabric/{tenant}",
+  "synthetic": true,
+  "fixture": "workers/quests/src/page/scenes/fixtures/operating-mission.fixture.json",
+  "projection": {
+    "schema": "cambium.mission-fabric-projection.v1",
+    "authority": "d1-goal-graph (read-only projection; never a writer)",
+    "consumedFor": "work/mission/task lineage rows, desired vs observed state, dependencies, blockers, typed gaps, proof requirement, receipt coverage"
+  },
+  "lineage": {
+    "join": "explicit ids only: mission.workId, contains edges (work→mission, mission→task), and mission.taskIds; never name/title joins",
+    "order": "missions are deduplicated by missionId and stable-sorted by missionId before the 24-row bound; tasks render only through explicit mission.taskIds membership, in sorted-mission order then declared taskIds order, deduplicated by taskId; contains edges are deduplicated and sorted by kind/fromId/toId before bounding — input order never changes visible truth",
+    "lookupSafety": "browser lookup dictionaries are prototype-safe (Object.create(null)) and Node lookups use Map, so hostile ids such as __proto__, constructor, or prototype never corrupt membership or coverage"
+  },
+  "fields": {
+    "desired": "work.desiredState / mission.objective / task.desiredState rendered as the desired fact",
+    "observed": "work lifecycle-or-status / mission.status / task.status rendered as the observed fact",
+    "dependencies": "union of task.dependencyIds and depends-on edges from the projection, deduplicated and sorted; dependencies are never labelled blockers",
+    "receiptCoverage": "boolean coverage only: task.latestReceiptId counts only when it resolves to a canonical receipt node; an edge counts only as an exact produces/proves edge whose fromId is a canonical receiptId and whose toId is the taskId — a reversed task-to-receipt edge never counts; when multiple valid receipt edges name one task the lexicographically smallest receiptId renders deterministically while coverage stays boolean; arbitrary last-receipt-by-taskId is never used; readiness is never invented",
+    "blockers": "only when task.status is exactly blocked: detail of typed blocker gaps (kind blocker/blocked/missing-blocker) naming the task as subjectId; the honest label 'blocker detail missing' when no typed gap carries detail",
+    "proofRequirement": "task/mission proofRequirement when non-empty; otherwise the explicit honest label 'proof requirement missing' — never an invented 'proof required'"
+  },
+  "states": {
+    "renders": [
+      "empty",
+      "stale",
+      "error",
+      "truncated"
+    ],
+    "derivation": {
+      "empty": "no work selected, selected work absent from the projection, or the lineage has no missions/tasks",
+      "stale": "delivery freshness state is stale",
+      "error": "missing or malformed projection",
+      "truncated": "missions/tasks/edges exceed the 24-row lineage bound; overflow renders as an explicit typed state"
+    }
+  },
+  "density": {
+    "lineageLimit": 24,
+    "wordCap": 260,
+    "bounds": "lineage lists and edge rows stay bounded at 24 and deterministically ordered; overflow is an explicit typed state, never silent drops"
+  },
+  "authority": {
+    "read-only": true,
+    "governedActions": "every governed action delegates to the existing signed Gate client (POST /api/gate/{tenant}) via its frozen hook; this slice exposes no safe hook, so the scene renders an honest read-only governed-action cue and defers activation wiring to Task 11",
+    "forbidden": "no copied signing, no initData handling, no POST path, no permission ladder, and no client-authored state transitions inside the scene client"
+  },
+  "interactions": [
+    {
+      "trigger": "select work in canopy",
+      "effect": "lineage re-renders for the local selectedWorkId",
+      "mutation": "none"
+    }
+  ],
+  "accessibility": {
+    "structure": "lineage rows are ordered lists of articles with labelled facts; the governed cue is plain text, never a fake active control",
+    "announcements": "empty/error states use role=status via the shared FabricState renderer"
+  },
+  "redaction": "no initData, tokens, raw evidence refs, prompt material, or client payloads render; receipt coverage renders ids and counts only; every projection-derived string passes the Task 7 escaping/fail-closed policy. The Node substrate embeds the canonical Task 7 signature regex VERBATIM (query_id=|auth_date=|\\bhash=|Bearer\\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\\bprompt\\s*[:=]|prompt\\s+injection); the served browser substrate expresses the same policy as a legible normalized grammar — (?:query_id|auth_date|token)=|(?:^|\\W)(?:hash)= plus the remaining explicit canonical terms — that keeps query_id/auth_date/token unanchored and the hash word boundary exactly like the canonical policy while never containing the contiguous raw-audit hash= literal; boolean equivalence is proven by a generated adversarial matrix (prefixes × assignment signatures × suffixes, case variants, benign near misses) with zero divergences; no character-class fragmentation, no split/concatenated forms"
+}

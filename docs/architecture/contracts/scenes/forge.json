@@ -1,0 +1,51 @@
+{
+  "contract": "cambium-operating-fabric-scene/v1",
+  "sceneId": "forge",
+  "tabIndex": 4,
+  "label": "Forge",
+  "sceneRoot": "[data-of-scene=\"forge\"]",
+  "refreshRoute": "GET /v1/mission-fabric/{tenant}",
+  "synthetic": true,
+  "fixture": "workers/quests/src/page/scenes/fixtures/forge.fixture.json",
+  "projection": {
+    "schema": "cambium.mission-fabric-projection.v1",
+    "authority": "d1-goal-graph (read-only projection; never a writer)",
+    "consumedFor": "canonical cluster status, skills, resolving membership, exact task demand, assignment-evidence state, and typed gaps"
+  },
+  "lifecycleBoundary": "Deferred and archived lifecycle are unavailable until canonically projected.",
+  "derivation": {
+    "clusters": "one canonical card per exact clusterId; duplicate winners compare explicit scene fields with code-unit ordering",
+    "membership": "eligibleAgentIds only when each ID resolves to a canonical agent",
+    "skills": "canonical skillIds only",
+    "demand": "exact requires-cluster task-to-cluster edges with both endpoints present",
+    "assignmentEvidence": "recorded/unknown state from bounded redacted canonical sourceRef presence; raw sourceRef and evidence payloads never render",
+    "gaps": "exact cluster/task subject IDs only; unmappable typed gaps render once unscoped"
+  },
+  "noReverseInference": "Never infer deferred or archived lifecycle from inactive status, IDs, labels, sourceRef, gaps, fixtures, or successRate. Inactive remains inactive.",
+  "forbiddenAuthority": [
+    "score",
+    "rank",
+    "promote",
+    "activate",
+    "defer",
+    "archive",
+    "amend",
+    "edit",
+    "assign",
+    "load",
+    "mutate"
+  ],
+  "density": {
+    "cardLimit": 48,
+    "listLimit": 24,
+    "overflow": "fail closed or render a bounded explicit unknown/truncated state"
+  },
+  "authority": {
+    "readOnly": true,
+    "selection": "local inspection only",
+    "governedActions": "Proposal flow deferred to Task 11; telemetry may inform a future governed proposal but never triggers an automatic action"
+  },
+  "interactions": [],
+  "browserParity": "FORGE_BROWSER_JS is explicit browser-valid source composed into the single boot IIFE; Node and browser observable HTML is byte-identical",
+  "redaction": "Every projection-derived value is bounded and escaped. Secret grammar covers query_id=, auth_date=, word-boundary hash=, Bearer whitespace, bot_token, clientSecret, initData, TELEGRAM_INIT_DATA, TG_INIT_DATA, QUESTS_PUSH_TOKEN, token=, PRIVATE KEY, prompt assignment, and prompt injection. Raw source/evidence payloads, digests, credentials, Telegram auth, private client data, and hostile raw IDs never render."
+}

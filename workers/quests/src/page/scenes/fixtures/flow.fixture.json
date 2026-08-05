@@ -1,0 +1,323 @@
+{
+  "fixture": "flow.fixture",
+  "scene": "flow",
+  "contract": "docs/architecture/contracts/scenes/flow.json",
+  "redaction": "synthetic fx-* ids only; sha256 digest-shaped material only; no initData, tokens, chat ids, query strings, or raw evidence payloads. Fixtures calibrate layout only and never satisfy live proof.",
+  "synthetic": true,
+  "states": {
+    "normal": {
+      "description": "Synthetic flow fabric: five fx-flow tasks covering an accepted Task\u2192Run\u2192Receipt chain, a blocked task with an explicit depends-on edge, a task with no accepted run, an accepted run with no canonical receipt, and typed stale-fence/unverifiable-fence rejections. Layout-only; carries no live proof.",
+      "source": {
+        "sourceKind": "synthetic-flow-fixture",
+        "tenantId": "fx-tenant",
+        "asOf": "2026-07-28T06:00:00.000Z",
+        "saplings": [],
+        "programs": [
+          {
+            "programId": "fx-flow-work-001",
+            "tenantId": "fx-tenant",
+            "title": "Flow Reliability Program",
+            "programKind": "operations",
+            "lifecycle": "executing",
+            "outcomeMetric": "verify fabric run lineage",
+            "authority": {
+              "kind": "d1-goal-graph",
+              "namespace": "d1-goal-graph/fx-flow-work-001",
+              "graphVersion": 7
+            },
+            "missionIds": [
+              "fx-flow-mission-001"
+            ]
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "fx-flow-mission-001",
+            "workId": "fx-flow-work-001",
+            "title": "Trace flow lineage",
+            "lifecycle": "executing",
+            "authorityRef": "d1-goal-graph/fx-flow-mission-001"
+          }
+        ],
+        "tasks": [
+          {
+            "taskId": "fx-flow-task-alpha",
+            "missionId": "fx-flow-mission-001",
+            "state": "running",
+            "dependsOn": [],
+            "assignedAgentId": "fx-flow-agent-a",
+            "fence": 4
+          },
+          {
+            "taskId": "fx-flow-task-beta",
+            "missionId": "fx-flow-mission-001",
+            "state": "blocked",
+            "dependsOn": [
+              "fx-flow-task-alpha"
+            ],
+            "assignedAgentId": null,
+            "fence": 1,
+            "blocker": "fx-flow-task-alpha"
+          },
+          {
+            "taskId": "fx-flow-task-gamma",
+            "missionId": "fx-flow-mission-001",
+            "state": "ready",
+            "dependsOn": [],
+            "assignedAgentId": "fx-flow-agent-a",
+            "fence": 2
+          },
+          {
+            "taskId": "fx-flow-task-delta",
+            "missionId": "fx-flow-mission-001",
+            "state": "verifying",
+            "dependsOn": [],
+            "assignedAgentId": "fx-flow-agent-b",
+            "fence": 5
+          },
+          {
+            "taskId": "fx-flow-task-epsilon",
+            "missionId": "fx-flow-mission-001",
+            "state": "ready",
+            "dependsOn": [],
+            "assignedAgentId": null,
+            "fence": 3
+          }
+        ],
+        "runtimeRuns": [
+          {
+            "runId": "fx-flow-run-alpha",
+            "taskId": "fx-flow-task-alpha",
+            "state": "succeeded",
+            "fence": 4,
+            "staleFence": false,
+            "nonce": "fx-flow-nonce-alpha",
+            "executorAgentId": "fx-flow-agent-a",
+            "receiptId": "fx-flow-receipt-alpha"
+          },
+          {
+            "runId": "fx-flow-run-delta",
+            "taskId": "fx-flow-task-delta",
+            "state": "succeeded",
+            "fence": 5,
+            "staleFence": false,
+            "nonce": "fx-flow-nonce-delta",
+            "executorAgentId": "fx-flow-agent-b",
+            "receiptId": "fx-flow-receipt-delta-absent"
+          },
+          {
+            "runId": "fx-flow-run-stale",
+            "taskId": "fx-flow-task-epsilon",
+            "state": "succeeded",
+            "fence": 1,
+            "staleFence": false,
+            "nonce": "fx-flow-nonce-stale",
+            "executorAgentId": "fx-flow-agent-a",
+            "receiptId": "fx-flow-receipt-stale"
+          }
+        ],
+        "receipts": [
+          {
+            "receiptId": "fx-flow-receipt-alpha",
+            "runId": "fx-flow-run-alpha",
+            "status": "verified",
+            "evidenceRef": "sha256:2c4e6a8b0d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e",
+            "verifiedAt": "2026-07-28T05:30:00.000Z"
+          }
+        ],
+        "agents": [
+          {
+            "agentId": "fx-flow-agent-a",
+            "state": "running",
+            "capabilities": [
+              "quest-ops"
+            ],
+            "currentTaskId": "fx-flow-task-alpha",
+            "sourceFreshness": "fresh"
+          },
+          {
+            "agentId": "fx-flow-agent-b",
+            "state": "available",
+            "capabilities": [
+              "quest-ops"
+            ],
+            "currentTaskId": "fx-flow-task-delta",
+            "sourceFreshness": "fresh"
+          }
+        ],
+        "skillClusters": [],
+        "gaps": [
+          {
+            "gapId": "fx-flow-gap-001",
+            "kind": "unverifiable-fence",
+            "subjectId": "fx-flow-task-beta",
+            "detail": "synthetic gap: run fx-flow-run-unverifiable for fx-flow-task-beta could not be verified against an authoritative fence and was rejected",
+            "evidenceRef": null
+          }
+        ],
+        "fences": [
+          {
+            "taskId": "fx-flow-task-alpha",
+            "currentFence": 4,
+            "staleFence": 3
+          },
+          {
+            "taskId": "fx-flow-task-gamma",
+            "currentFence": 2,
+            "staleFence": 1
+          },
+          {
+            "taskId": "fx-flow-task-delta",
+            "currentFence": 5,
+            "staleFence": 4
+          },
+          {
+            "taskId": "fx-flow-task-epsilon",
+            "currentFence": 3,
+            "staleFence": 2
+          }
+        ],
+        "evidence": [
+          {
+            "evidenceRef": "sha256:2c4e6a8b0d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e",
+            "kind": "receipt",
+            "observedAt": "2026-07-28T05:30:00.000Z"
+          }
+        ]
+      }
+    },
+    "stale": {
+      "description": "Synthetic stale flow fabric: identical lineage with delivery freshness downgraded to stale by the harness.",
+      "source": {
+        "sourceKind": "synthetic-flow-fixture",
+        "tenantId": "fx-tenant",
+        "asOf": "2026-07-28T06:00:00.000Z",
+        "saplings": [],
+        "programs": [
+          {
+            "programId": "fx-flow-work-001",
+            "tenantId": "fx-tenant",
+            "title": "Flow Reliability Program",
+            "programKind": "operations",
+            "lifecycle": "executing",
+            "outcomeMetric": "verify fabric run lineage",
+            "authority": {
+              "kind": "d1-goal-graph",
+              "namespace": "d1-goal-graph/fx-flow-work-001",
+              "graphVersion": 7
+            },
+            "missionIds": [
+              "fx-flow-mission-001"
+            ]
+          }
+        ],
+        "missions": [
+          {
+            "missionId": "fx-flow-mission-001",
+            "workId": "fx-flow-work-001",
+            "title": "Trace flow lineage",
+            "lifecycle": "executing",
+            "authorityRef": "d1-goal-graph/fx-flow-mission-001"
+          }
+        ],
+        "tasks": [
+          {
+            "taskId": "fx-flow-task-alpha",
+            "missionId": "fx-flow-mission-001",
+            "state": "running",
+            "dependsOn": [],
+            "assignedAgentId": "fx-flow-agent-a",
+            "fence": 4
+          },
+          {
+            "taskId": "fx-flow-task-beta",
+            "missionId": "fx-flow-mission-001",
+            "state": "blocked",
+            "dependsOn": [
+              "fx-flow-task-alpha"
+            ],
+            "assignedAgentId": null,
+            "fence": 1,
+            "blocker": "fx-flow-task-alpha"
+          }
+        ],
+        "runtimeRuns": [
+          {
+            "runId": "fx-flow-run-alpha",
+            "taskId": "fx-flow-task-alpha",
+            "state": "succeeded",
+            "fence": 4,
+            "staleFence": false,
+            "nonce": "fx-flow-nonce-alpha",
+            "executorAgentId": "fx-flow-agent-a",
+            "receiptId": "fx-flow-receipt-alpha"
+          }
+        ],
+        "receipts": [
+          {
+            "receiptId": "fx-flow-receipt-alpha",
+            "runId": "fx-flow-run-alpha",
+            "status": "verified",
+            "evidenceRef": "sha256:2c4e6a8b0d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e",
+            "verifiedAt": "2026-07-28T05:30:00.000Z"
+          }
+        ],
+        "agents": [
+          {
+            "agentId": "fx-flow-agent-a",
+            "state": "running",
+            "capabilities": [
+              "quest-ops"
+            ],
+            "currentTaskId": "fx-flow-task-alpha",
+            "sourceFreshness": "stale"
+          }
+        ],
+        "skillClusters": [],
+        "gaps": [],
+        "fences": [
+          {
+            "taskId": "fx-flow-task-alpha",
+            "currentFence": 4,
+            "staleFence": 3
+          }
+        ],
+        "evidence": []
+      }
+    },
+    "empty": {
+      "description": "Synthetic empty flow fabric: the work object exists but carries no tasks, runs, or receipts.",
+      "source": {
+        "sourceKind": "synthetic-flow-fixture",
+        "tenantId": "fx-tenant",
+        "asOf": "2026-07-28T06:00:00.000Z",
+        "saplings": [],
+        "programs": [
+          {
+            "programId": "fx-flow-work-001",
+            "tenantId": "fx-tenant",
+            "title": "Flow Reliability Program",
+            "programKind": "operations",
+            "lifecycle": "proposed",
+            "outcomeMetric": "verify fabric run lineage",
+            "authority": {
+              "kind": "d1-goal-graph",
+              "namespace": "d1-goal-graph/fx-flow-work-001",
+              "graphVersion": 7
+            },
+            "missionIds": []
+          }
+        ],
+        "missions": [],
+        "tasks": [],
+        "runtimeRuns": [],
+        "receipts": [],
+        "agents": [],
+        "skillClusters": [],
+        "gaps": [],
+        "fences": [],
+        "evidence": []
+      }
+    }
+  }
+}

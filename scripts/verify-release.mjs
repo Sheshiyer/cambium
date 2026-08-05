@@ -8,6 +8,14 @@ const gates = [
   ['core tests', 'npm', ['test']],
   ['generated docs', 'npm', ['run', 'render-docs:check']],
   ['product branch packets', 'npm', ['run', 'validate:product-branches']],
+  // Named explicitly (rather than left implicit inside "core tests") so
+  // omission of the operating-fabric proof chain or its zero-gap shadow
+  // report fails release verification with its own visible label.
+  [
+    'mission-fabric integration + live-proof readiness',
+    'node',
+    ['--test', 'workers/quests/src/mission-fabric-integration.test.ts', 'workers/quests/src/live-proof-readiness.test.ts'],
+  ],
   ['standalone audit', 'npm', ['run', 'standalone:audit']],
   ['standalone smoke', 'npm', ['run', 'standalone:smoke']],
   ['Telegram mobile contract', 'npm', ['run', 'proof:tg-mobile-contract']],

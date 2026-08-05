@@ -269,6 +269,7 @@ Repository-level commands live beside the operator CLI:
 | [VERSIONS.md](./VERSIONS.md) | published releases and the current-main boundary |
 | [Lead runtime spine](./docs/architecture/lead-runtime-spine.md) | durable identity, leases, spend receipts, and bounded IVerif execution |
 | [Goal Graph operating model](./docs/architecture/goal-graph-operating-model.md) | durable goal authority, deterministic compiler, projection boundary, and migration proof contract |
+| [Organ update delivery v1](./docs/architecture/contracts/organ-update-delivery-v1.md) | receipt-backed organ workflows, pinned Telegram topic routing, Hermes transport boundary, and staging gates |
 | [Telegram Goal Graph lifecycle](./docs/runbooks/goal-graph-telegram-lifecycle.md) | bounded intent parsing, canonical replay, approval handoff, plus the separately authenticated branch-map read route |
 | [Marketing Create renderer](./docs/architecture/marketing-create-worker-renderer.md) | review-only draft generation and fail-closed activation boundary |
 | [Run the app](./docs/adopters/run-the-app.md) | clean-clone path for the visual engine, tenant fixture, and Worker connection |

@@ -723,3 +723,254 @@ function toolHandoffAct(kind, handoff, node){
 }
 
 `;
+
+// CONTEXTUAL_SHEET_RETURN_BROWSER_JS: browser-valid ES5-ish JavaScript installer.
+// Installed only AFTER successful authenticated activation (called from client.ts),
+// and safe to run on every activation: install state lives on the shared sheet
+// object, not on a local closure var, so it survives across separate invocations
+// of this installer body and stays idempotent — the wrap and the sheetBody
+// listener each apply exactly once for the lifetime of the page.
+// Captures lexical closeSheet (not window.closeSheet): reassigning the bare
+// identifier updates the one global binding every other chunk already
+// references (veil.onclick, drag-to-dismiss, gate cancel), so all of those
+// routes keep resolving through the wrapped close without their own changes.
+export const CONTEXTUAL_SHEET_RETURN_BROWSER_JS = String.raw`
+(function () {
+  if (!sheet || sheet._ofContextualSheetInstalled) return;
+  sheet._ofContextualSheetInstalled = true;
+  // Capture lexical closeSheet from the outer scope — never window.closeSheet.
+  var ofOriginalClose = closeSheet;
+  sheet._ofReturnCallback = null;
+  sheet._ofSetReturnCallback = function (cb) { sheet._ofReturnCallback = cb; };
+  sheet._ofClearReturnCallback = function () { sheet._ofReturnCallback = null; };
+  // Reassign closeSheet in this scope: clears the callback slot, calls the
+  // original close once, then invokes the callback once.
+  closeSheet = function ofContextualClose() {
+    var cb = sheet._ofReturnCallback;
+    sheet._ofReturnCallback = null;
+    ofOriginalClose();
+    if (typeof cb === 'function') cb();
+  };
+  // Re-bind veil.onclick to the new closeSheet.
+  if (veil) veil.onclick = closeSheet;
+  // Single non-stacking sheetBody listener: Back / Close / Gate-close all
+  // route through the wrapped lexical closeSheet.
+  var sb = document.getElementById('sheetBody');
+  if (sb) {
+    sb.addEventListener('click', function (e) {
+      var target = e && e.target;
+      if (!target) return;
+      var backEl = typeof target.closest === 'function' ? target.closest('[data-of-inspect-back]') : null;
+      if (backEl) { if (e.preventDefault) e.preventDefault(); closeSheet(); return; }
+      var closeEl = typeof target.closest === 'function' ? target.closest('[data-of-inspect-close]') : null;
+      if (closeEl) { if (e.preventDefault) e.preventDefault(); closeSheet(); return; }
+      var gateCloseEl = typeof target.closest === 'function' ? target.closest('[data-of-gate-sheet-close]') : null;
+      if (gateCloseEl) { if (e.preventDefault) e.preventDefault(); closeSheet(); return; }
+    });
+  }
+})();
+`;
+
+// OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS: composed ONLY into OPERATING_FABRIC_BOOT
+// (never into CLIENT_SIGNED_ACTION). Reuses the SAME legacy auth/signing/
+// preflight functions every other Gate surface uses — openGatePreflight for
+// the preflight sheet, gateAct for the POST /api/gate/:tenant submit —
+// without duplicating validation, signing, payload shape, or double-submit
+// guards. Both functions are declared by CLIENT_SIGNED_ACTION as top-level
+// function declarations in the same page's global scope; this module wraps
+// them (capturing the originals first) so:
+//   - openGatePreflight, once wrapped, binds the exact served descriptor
+//     (changeDigest, tenant, nonce, expiresAt, expectedHeadVersion, fence)
+//     from the seed onto the actual rendered confirm control as data
+//     attributes, for approve-goal-graph only.
+//   - gateAct, once wrapped, reads those exact bound fields off the confirm
+//     control and — for approve-goal-graph only — POSTs exactly
+//     { kind, subject, changeDigest, tenant, nonce, expiresAt,
+//       expectedHeadVersion, fence, initData } to /api/gate/:tenant,
+//     NEVER actor, reusing the legacy double-submit state machine
+//     (setGateSubmitState/gateSubmitContext/gateReceiptNote/openGateResultSheet/
+//     openGateFailureSheet) verbatim via the original gateAct's helpers.
+//   - Any non-approve-goal-graph action falls straight through to the
+//     ORIGINAL openGatePreflight / gateAct — never re-implemented, never
+//     skipped. A goal-graph action with a missing, malformed, or expired
+//     descriptor never falls through: openGatePreflight simply does not open
+//     a preflight (so no Confirm control ever exists to bind to), and gateAct
+//     fails closed with zero delegation to the original and zero fetch.
+// If CLIENT_SIGNED_ACTION has not run yet, both wraps are no-ops.
+export const OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS = String.raw`
+(function () {
+  if (typeof openGatePreflight !== 'function' || typeof gateAct !== 'function') return;
+  if (openGatePreflight._ofWrapped) return;
+  var ofOriginalOpenGatePreflight = openGatePreflight;
+  var ofOriginalGateAct = gateAct;
+  // ofBoundDescriptors: WeakMap-free registry keyed by the confirm button
+  // itself, so the exact fence/nonce/expiry bound at preflight-open time is
+  // exactly what gateAct reads at submit time — never re-derived, never
+  // read back from the DOM's own (possibly stale) rendered text.
+  var ofBoundDescriptors = [];
+  function ofSetBoundDescriptor(node, descriptor) {
+    for (var i = 0; i < ofBoundDescriptors.length; i++) {
+      if (ofBoundDescriptors[i].node === node) { ofBoundDescriptors[i].descriptor = descriptor; return; }
+    }
+    ofBoundDescriptors.push({ node: node, descriptor: descriptor });
+  }
+  function ofGetBoundDescriptor(node) {
+    for (var i = 0; i < ofBoundDescriptors.length; i++) {
+      if (ofBoundDescriptors[i].node === node) return ofBoundDescriptors[i].descriptor;
+    }
+    return null;
+  }
+  function ofNonEmptyString(value) { return typeof value === 'string' && value.trim().length > 0; }
+  function ofFiniteNumber(value) { return typeof value === 'number' && isFinite(value); }
+  // ofSafeBoundedString: internal-registration-only guard for a served field
+  // used to key or transmit the descriptor. Rejects empty, overlong, and
+  // control-character values. Never used to build DOM content.
+  function ofSafeBoundedString(value, max) {
+    if (typeof value !== 'string') return false;
+    var trimmed = value.trim();
+    if (trimmed.length === 0 || value.length > max) return false;
+    for (var i = 0; i < value.length; i++) {
+      var code = value.charCodeAt(i);
+      if (code <= 31 || code === 127) return false;
+    }
+    return true;
+  }
+  function ofNonnegativeSafeInteger(value) {
+    return typeof value === 'number' && isFinite(value) && Number.isInteger(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER;
+  }
+  // ofValidDescriptorSeed: fail-closed — every one of the six served fields
+  // must be present and well-formed, tenant must equal the page's own TENANT
+  // (never a seed-supplied tenant), changeDigest must be exactly the canonical
+  // goal-graph digest shape — bare 64 lowercase hex (the shape sha256() in
+  // goal-graph/identity.ts actually returns) or that same digest with an
+  // optional sha256: prefix (the shape the Worker's own changeDigest guard at
+  // handler.ts also accepts) — nonce/expiresAt must be bounded safe strings,
+  // graphVersion/fence must be nonnegative safe integers, and expiresAt must
+  // parse to a future instant — or the descriptor is rejected outright
+  // (never partially bound).
+  function ofValidDescriptorSeed(seed) {
+    if (!seed || typeof seed !== 'object') return false;
+    if (!/^(?:sha256:)?[0-9a-f]{64}$/.test(String(seed.changeDigest || ''))) return false;
+    if (seed.tenant !== TENANT) return false;
+    if (!ofSafeBoundedString(seed.nonce, 128)) return false;
+    if (!ofNonEmptyString(seed.expiresAt) || seed.expiresAt.length > 64) return false;
+    if (!ofNonnegativeSafeInteger(seed.graphVersion)) return false;
+    if (!ofNonnegativeSafeInteger(seed.fence)) return false;
+    var expiresAtMs = Date.parse(seed.expiresAt);
+    if (!isFinite(expiresAtMs) || expiresAtMs <= Date.now()) return false;
+    return true;
+  }
+  openGatePreflight = function ofWrappedOpenGatePreflight(kind, subject, node, seed) {
+    if (kind !== 'approve-goal-graph') { ofOriginalOpenGatePreflight(kind, subject, node, seed); return; }
+    // Validate BEFORE opening the preflight: an invalid/missing/expired
+    // descriptor opens no preflight at all, so no Confirm control ever exists
+    // for it to bind to and no submit can ever follow.
+    if (!ofValidDescriptorSeed(seed)) return;
+    ofOriginalOpenGatePreflight(kind, subject, node, seed);
+    var confirmNode = typeof $ === 'function' && $('sheetBody')
+      ? $('sheetBody').querySelector('[data-gate-confirm="approve-goal-graph"]')
+      : null;
+    if (!confirmNode) return;
+    ofSetBoundDescriptor(confirmNode, {
+      changeDigest: seed.changeDigest,
+      tenant: seed.tenant,
+      nonce: seed.nonce,
+      expiresAt: seed.expiresAt,
+      expectedHeadVersion: seed.graphVersion,
+      fence: seed.fence,
+    });
+  };
+  openGatePreflight._ofWrapped = true;
+  function ofFailClosed(submitButton) {
+    if (submitButton && submitButton.dataset && typeof setGateSubmitState === 'function') {
+      setGateSubmitState(submitButton, 'error', 'context incomplete · reopen gate');
+    }
+  }
+  gateAct = function ofWrappedGateAct(submitButton) {
+    // Inspect gateSubmitContext FIRST: non-goal kinds delegate to the
+    // original with zero bridge logic and zero fetch of their own.
+    var context = gateSubmitContext(submitButton);
+    var kind = context.kind;
+    var subject = context.subject;
+    if (kind !== 'approve-goal-graph') { ofOriginalGateAct(submitButton); return; }
+    // approve-goal-graph: fail closed on any invalid state — missing/malformed
+    // descriptor, expired descriptor, or a bound tenant that no longer matches
+    // TENANT — with ZERO delegation to the original and ZERO fetch.
+    var descriptor = submitButton ? ofGetBoundDescriptor(submitButton) : null;
+    if (!descriptor) { ofFailClosed(submitButton); return; }
+    if (!ofValidDescriptorSeed({
+      changeDigest: descriptor.changeDigest,
+      tenant: descriptor.tenant,
+      nonce: descriptor.nonce,
+      expiresAt: descriptor.expiresAt,
+      graphVersion: descriptor.expectedHeadVersion,
+      fence: descriptor.fence,
+    })) { ofFailClosed(submitButton); return; }
+    if (!subject) { ofFailClosed(submitButton); return; }
+    if (!submitButton.dataset) return;
+    var priorState = submitButton.dataset.gateSubmitState || '';
+    if (priorState === 'tap-received' || priorState === 'request-sent' || priorState === 'pending') return;
+    var item = gateItemForSubmit(context);
+    var evidence = context.evidence;
+    var consequence = context.consequence;
+    var reversibility = context.reversibility;
+    // Exactly these fields, plus initData — never actor.
+    var payload = {
+      kind: kind,
+      subject: subject,
+      changeDigest: descriptor.changeDigest,
+      tenant: descriptor.tenant,
+      nonce: descriptor.nonce,
+      expiresAt: descriptor.expiresAt,
+      expectedHeadVersion: descriptor.expectedHeadVersion,
+      fence: descriptor.fence,
+      initData: initData,
+    };
+    buzz('medium');
+    setGateSubmitState(submitButton, 'tap-received', 'sending…');
+    var request;
+    try {
+      request = fetch('/api/gate/' + descriptor.tenant, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      setGateSubmitState(submitButton, 'request-sent', 'sending…');
+    } catch (_) {
+      setGateSubmitState(submitButton, 'error', 'network failure · no write');
+      openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey: context.idempotencyKey, consequence: consequence, reversibility: reversibility }, item);
+      notify('error');
+      return;
+    }
+    Promise.resolve(request)
+      .then(function (r) {
+        return Promise.resolve()
+          .then(function () { return r.json(); })
+          .catch(function () { return { error: (r && r.ok === false) ? 'Worker returned a non-JSON refusal' : 'Worker returned an unreadable response' }; })
+          .then(function (res) {
+            if (r && r.ok === false && res && !res.error) res.error = 'Worker refused with HTTP ' + (r.status || 'error');
+            return res || {};
+          });
+      })
+      .then(function (res) {
+        var succeeded = res.committed === true;
+        if (succeeded) {
+          setGateSubmitState(submitButton, 'queued', 'committed');
+          openGateResultSheet(kind, subject, res, { idempotencyKey: context.idempotencyKey, consequence: consequence, reversibility: reversibility }, item);
+          setTimeout(loadGate, 350);
+        } else {
+          setGateSubmitState(submitButton, 'refused', 'refused · no write');
+          var error = res.error || 'unknown';
+          if (isGateAuthFailure(error)) openGateTelegramAuthFailure(error);
+          else openGateFailureSheet(kind, subject, error, { idempotencyKey: context.idempotencyKey, consequence: consequence, reversibility: reversibility }, item);
+        }
+        notify(succeeded ? 'success' : 'error');
+      })
+      .catch(function () {
+        setGateSubmitState(submitButton, 'error', 'network failure · no write');
+        openGateFailureSheet(kind, subject, 'network failure', { idempotencyKey: context.idempotencyKey, consequence: consequence, reversibility: reversibility }, item);
+        notify('error');
+      });
+  };
+})();
+`;

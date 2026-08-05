@@ -26,8 +26,13 @@ import { SCENE_INSPECT } from './scenes/inspect.ts';
 import { SCENE_STORY } from './scenes/story.ts';
 import { CLIENT_FRESHNESS } from './client/freshness.ts';
 import { CLIENT_DATA } from './client/data.ts';
+import { OPERATING_FABRIC_PAGE } from './operating-fabric/index.ts';
 
-export const PAGE =
+// LEGACY_PAGE freezes the current concatenation verbatim — no chunk moves,
+// reorders, or rewrites. PAGE injects the inert operating fabric fragment at
+// the single legacy </body> index; removing the fragment restores LEGACY_PAGE
+// byte-for-byte. PAGE stays the handler's only document export.
+export const LEGACY_PAGE =
   STYLE_TOKENS +
   STYLE_TOOLS +
   STYLE_MISSION +
@@ -53,3 +58,14 @@ export const PAGE =
   SCENE_STORY +
   CLIENT_FRESHNESS +
   CLIENT_DATA;
+
+const bodyClose = '</body>';
+const bodyCloseIndex = LEGACY_PAGE.indexOf(bodyClose);
+if (bodyCloseIndex < 0 || bodyCloseIndex !== LEGACY_PAGE.lastIndexOf(bodyClose)) {
+  throw new Error('legacy page must contain exactly one closing body tag');
+}
+
+export const PAGE =
+  LEGACY_PAGE.slice(0, bodyCloseIndex) +
+  OPERATING_FABRIC_PAGE +
+  LEGACY_PAGE.slice(bodyCloseIndex);

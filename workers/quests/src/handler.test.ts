@@ -1138,7 +1138,14 @@ async function renderPageFixtureContext(
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
     .filter((script) => script.trim() && !script.includes('telegram-web-app'));
-  assert.equal(scripts.length, 1, 'page has one inline app script');
+  // Task 6 scope amendment: the operating-fabric fragment ships its own
+  // separate boot script alongside the legacy app script. The harness must
+  // evaluate only the legacy app script (every legacy behavior test below is
+  // unchanged) while asserting the boot script is present in the served page.
+  const bootScripts = scripts.filter((script) => script.includes('/v1/mission-fabric/'));
+  assert.equal(bootScripts.length, 1, 'page carries the operating-fabric boot script');
+  const appScripts = scripts.filter((script) => !script.includes('/v1/mission-fabric/'));
+  assert.equal(appScripts.length, 1, 'page has one inline app script');
 
   const elements = new Map<string, ReturnType<typeof makeElement>>();
   const getElementById = (id: string) => {
@@ -1195,7 +1202,7 @@ async function renderPageFixtureContext(
   };
   context.Telegram = (context.window as { Telegram?: unknown }).Telegram;
   context.globalThis = context;
-  vm.runInContext(scripts[0], vm.createContext(context));
+  vm.runInContext(appScripts[0], vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
   return { elements, context, fetchCalls, fetchRequests, clipboardWrites };
@@ -13272,4 +13279,229 @@ test('standups read · served record carries no token or Telegram material', asy
   // The stored record is equally clean — the projector is the only redaction seam.
   const storedRaw = kv.store.get('standup:cambium:mathis:2026-07-17')!;
   assert.doesNotMatch(storedRaw, /tg-chat-777000111|bridge-token-material-zzz|renderer-secret-yyy/);
+});
+
+test('mission fabric route does not shadow existing routes and unknown paths still 404', async () => {
+  const health = await handle(req('GET', '/healthz'), { kv: fakeKv() });
+  assert.equal(health.status, 200);
+  const unknown = await handle(req('GET', '/v1/mission-fabric'), { kv: fakeKv() });
+  assert.equal(unknown.status, 404);
+  const unknownPost = await handle(req('POST', '/v1/mission-fabric', { body: '{}' }), { kv: fakeKv() });
+  assert.equal(unknownPost.status, 404);
+  const adjacent = await handle(req('GET', '/v1/mission-fabric-extra/cambium'), { kv: fakeKv() });
+  assert.equal(adjacent.status, 404);
+});
+
+test('wrong-tenant goal graph approval fails closed without writes to either tenant', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const intent = goalGraphIntakeIntent();
+  const intake = await postGoalGraphIntake('bridge', intent, deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = body(intake).changeDigest;
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'approval is required before any commit');
+
+  const wrongTenant = await handle(req('POST', '/api/gate/thoughtseed', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.notEqual(wrongTenant.status, 200);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'wrong-tenant approval must not write cambium');
+  assert.equal(await deps.goalGraphStore.readHead('thoughtseed'), null, 'wrong-tenant approval must not write thoughtseed');
+
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  assert.equal(body(approved).committed, true);
+});
+
+// ── Task 11 · server-issued approval descriptor on the goal-graph gate ─────
+
+test('goal graph gate envelope · pending row exposes the exact server-issued approval descriptor', async () => {
+  const { kv, deps } = goalGraphIntakeHarness({ pushToken: 't' });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = body(intake).changeDigest;
+
+  const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+  const row = JSON.parse(listed.body).actions[0];
+  assert.equal(row.approvalNonce, `goal-graph-approval:cambium:${changeDigest}`);
+  assert.equal(row.approvalExpiresAt, new Date(Date.parse(GOAL_GRAPH_INTAKE_NOW) + 15 * 60_000).toISOString());
+  assert.equal(row.expectedHeadVersion, 0);
+  assert.equal(row.fence, 1);
+
+  const task = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${changeDigest}`)!);
+  assert.equal(task.approvalNonce, row.approvalNonce);
+  assert.equal(task.approvalExpiresAt, row.approvalExpiresAt);
+  assert.equal(task.expectedHeadVersion, 0);
+  assert.equal(task.fence, 1);
+});
+
+test('goal graph approval · correct descriptor (nonce, expiry, head version, fence) commits', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const changeDigest = body(intake).changeDigest;
+
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'approve-goal-graph',
+      subject: changeDigest,
+      initData,
+      nonce: `goal-graph-approval:cambium:${changeDigest}`,
+      expiresAt: new Date(Date.parse(GOAL_GRAPH_INTAKE_NOW) + 15 * 60_000).toISOString(),
+      expectedHeadVersion: 0,
+      fence: 1,
+    }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  assert.equal(body(approved).committed, true);
+});
+
+test('goal graph approval · expired descriptor fails closed without a write', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const past = '2026-07-23T00:00:00.000Z';
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const changeDigest = body(intake).changeDigest;
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  kv.store.set(taskKey, JSON.stringify({ ...task, approvalExpiresAt: past }));
+
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.equal(approved.status, 409);
+  assert.equal(body(approved).code, 'approval_expired');
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'expired approval must not write');
+  assert.equal(JSON.parse(kv.store.get(taskKey)!).status, 'pending', 'expired approval must not mutate task status');
+});
+
+test('goal graph approval · wrong nonce, expiry, head version, or fence is rejected with bounded codes and no write', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const changeDigest = body(intake).changeDigest;
+
+  const attempt = (extra: Record<string, unknown>) => handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData, ...extra }),
+  }), deps);
+
+  const wrongNonce = await attempt({ nonce: 'wrong-nonce' });
+  assert.equal(wrongNonce.status, 409);
+  assert.equal(body(wrongNonce).code, 'nonce_mismatch');
+
+  const wrongExpiry = await attempt({ expiresAt: '2099-01-01T00:00:00.000Z' });
+  assert.equal(wrongExpiry.status, 409);
+  assert.equal(body(wrongExpiry).code, 'expiry_mismatch');
+
+  const wrongHeadVersion = await attempt({ expectedHeadVersion: 7 });
+  assert.equal(wrongHeadVersion.status, 409);
+  assert.equal(body(wrongHeadVersion).code, 'head_version_mismatch');
+
+  const wrongFence = await attempt({ fence: 99 });
+  assert.equal(wrongFence.status, 409);
+  assert.equal(body(wrongFence).code, 'fence_mismatch');
+
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'no mismatch attempt may write the graph');
+});
+
+test('goal graph approval · stale fence against a moved head is refused with no write to either head', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const first = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const firstDigest = body(first).changeDigest;
+  const second = await postGoalGraphIntake('bridge', goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4343' },
+  }), deps);
+  const secondDigest = body(second).changeDigest;
+
+  const approve = (subject: string) => handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject, initData }),
+  }), deps);
+  const winner = await approve(secondDigest);
+  assert.equal(winner.status, 200);
+  const head = await deps.goalGraphStore.readHead('cambium');
+
+  const stale = await approve(firstDigest);
+  assert.equal(stale.status, 409);
+  assert.equal(body(stale).error, 'goal_graph_stale_head');
+
+  const after = await deps.goalGraphStore.readHead('cambium');
+  assert.deepEqual(after, head, 'the winning head must be unchanged by the stale-fence attempt');
+});
+
+test('goal graph approval · omitted descriptor fields remain backward compatible with stored defaults', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const changeDigest = body(intake).changeDigest;
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  // Simulate an old client / old task predating the descriptor fields.
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  delete task.approvalNonce;
+  delete task.approvalExpiresAt;
+  delete task.expectedHeadVersion;
+  delete task.fence;
+  kv.store.set(taskKey, JSON.stringify(task));
+
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  assert.equal(body(approved).committed, true);
+});
+
+test('goal graph gate envelope · legacy row without descriptor fields projects the exact descriptor approval will enforce', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex), pushToken: 't' });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = body(intake).changeDigest;
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  // Simulate an old task predating the descriptor fields: the gate row must
+  // still project exactly what approval will later enforce for this task.
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  delete task.approvalNonce;
+  delete task.approvalExpiresAt;
+  delete task.expectedHeadVersion;
+  delete task.fence;
+  kv.store.set(taskKey, JSON.stringify(task));
+
+  const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+  const row = JSON.parse(listed.body).actions[0];
+  assert.equal(row.approvalNonce, `goal-graph-approval:cambium:${changeDigest}`);
+  assert.equal(row.approvalExpiresAt, new Date(Date.parse(GOAL_GRAPH_INTAKE_NOW) + 15 * 60_000).toISOString());
+  assert.equal(row.expectedHeadVersion, 0);
+  assert.equal(row.fence, task.graphVersion);
+
+  const legacyApproved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'approve-goal-graph',
+      subject: changeDigest,
+      initData,
+      nonce: row.approvalNonce,
+      expiresAt: row.approvalExpiresAt,
+      expectedHeadVersion: row.expectedHeadVersion,
+      fence: row.fence,
+    }),
+  }), deps);
+  assert.equal(legacyApproved.status, 200);
+  assert.equal(body(legacyApproved).committed, true);
+});
+
+test('goal graph gate envelope · legacy row with an unparseable timestamp is omitted rather than thrown', async () => {
+  const { kv, deps } = goalGraphIntakeHarness({ pushToken: 't' });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = body(intake).changeDigest;
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  delete task.approvalExpiresAt;
+  delete task.receivedAt;
+  delete task.updatedAt;
+  kv.store.set(taskKey, JSON.stringify(task));
+
+  const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
+  assert.deepEqual(JSON.parse(listed.body).actions, []);
 });
