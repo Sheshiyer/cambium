@@ -3,9 +3,9 @@
 Transcribed directly from `work-object-registry.v1.json` (generated
 2026-07-29T06:46:00Z, status `proposed-read-only`). No live filesystem
 check performed — this is exactly what the registry currently states,
-nothing more. 67 top-level folders under
-`/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/`, 54 WorkObjects,
-16 folders still flagged as needing a classification decision.
+nothing more. 67 top-level folders under the Thoughtseed portfolio root
+(vault-local path, see the registry's own `discovery.root`), 54
+WorkObjects, 16 folders still flagged as needing a classification decision.
 
 Legend: **Sapling** = owned product, **Branch** = client delivery engagement
 (shown here under its Program record, `programKind: client`), **Program** =

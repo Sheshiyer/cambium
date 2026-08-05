@@ -60,7 +60,7 @@ shouldn't get a single classification as-is.
 
 ### `safvr`
 - Git remote org is `SAFVR-SG`, not the founder's personal `Sheshiyer` account (every other folder in this whole investigation is on `Sheshiyer`)
-- Every commit in the repo's history is authored by someone else (`psychon7 <mohanmv1711@gmail.com>`, plus bots) — the founder has zero commits in the actual application code
+- Every commit in the repo's history is authored by someone else (`psychon7`, personal email redacted, plus bots) — the founder has zero commits in the actual application code
 - No mention of "Thoughtseed" or "spaceblanket" anywhere in the repo (checked directly)
 - Alongside the app code sits a large amount of local growth/GTM material — prospect lists, ICP contact sheets, a GTM business plan, a financial model — none of which is part of SAFVR's own product
 - Flagged, not investigated further at the founder's direction — the relationship type itself needs a direct conversation before any classification, not just more file-reading.
