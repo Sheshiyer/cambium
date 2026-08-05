@@ -52,10 +52,18 @@ export interface D1DatabaseLike {
 }
 
 interface Env {
+  /** App-state KV (quests, bridge idempotency, etc.) */
   QUESTS: {
     get(key: string): Promise<string | null>;
     put(key: string, value: string): Promise<void>;
     list(opts: { prefix: string }): Promise<{ keys: Array<{ name: string }> }>;
+  };
+  /**
+   * Provider/API secrets KV (Labs `cambium-secrets`).
+   * OPENCODE_API_KEY / EXPLEE_API_KEY live here; Worker secrets remain fallback.
+   */
+  SECRETS?: {
+    get(key: string): Promise<string | null>;
   };
   BRIDGE_DB?: D1DatabaseLike;
   THOUGHTSEED_VAULT?: R2BucketLike;
@@ -1221,6 +1229,17 @@ export function d1FabricLedgerStore(db: D1DatabaseLike): FabricLedgerStoreLike {
   };
 }
 
+/** Prefer Worker secret env; fall back to Labs SECRETS KV (cambium-secrets). */
+async function resolveSecret(
+  env: Env,
+  name: 'OPENCODE_API_KEY' | 'EXPLEE_API_KEY',
+): Promise<string | undefined> {
+  const fromEnv = env[name]?.trim();
+  if (fromEnv) return fromEnv;
+  const fromKv = (await env.SECRETS?.get(name))?.trim();
+  return fromKv || undefined;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -1242,6 +1261,8 @@ export default {
       pubKeyHex: env.GATE_TG_PUBKEY || TELEGRAM_PROD_PUBKEY,
       founderIds: env.GATE_FOUNDER_IDS.split(',').map((s) => s.trim()),
     } : undefined;
+    const opencodeApiKey = await resolveSecret(env, 'OPENCODE_API_KEY');
+    const expleeApiKey = await resolveSecret(env, 'EXPLEE_API_KEY');
     const providers: Record<string, ProviderConfig | undefined> = {
       ollama: env.OLLAMA_API_KEY ? {
         apiKey: env.OLLAMA_API_KEY,
@@ -1287,8 +1308,9 @@ export default {
       // (claude-*, gpt-5.*, kimi, glm, deepseek, grok, gemini + free lanes).
       // This is the only broker route to Claude-class models on EC2 — the
       // device-bound claude OAuth connection cannot follow off the Mac.
-      opencode: env.OPENCODE_API_KEY ? {
-        apiKey: env.OPENCODE_API_KEY,
+      // Key: Worker secret or Labs SECRETS KV (OPENCODE_API_KEY).
+      opencode: opencodeApiKey ? {
+        apiKey: opencodeApiKey,
         baseUrl: env.OPENCODE_BASE_URL || 'https://opencode.ai/zen/v1',
         defaultModel: env.OPENCODE_DEFAULT_MODEL || 'deepseek-v4-flash',
         models: env.OPENCODE_DEFAULT_MODEL ? [env.OPENCODE_DEFAULT_MODEL] : ['deepseek-v4-flash'],
@@ -1329,7 +1351,7 @@ export default {
       };
     }
     const githubAllowedRepos = parseAllowedRepos(env.GITHUB_AGENT_ALLOWED_REPOS);
-    const iverifApiKey = env.EXPLEE_API_KEY?.trim();
+    const iverifApiKey = expleeApiKey;
     const iverifReadToken = env.IVERIF_READ_TOKEN?.trim();
     const iverifExplee = iverifApiKey ? createIVerifExpleeObserver({
       apiKey: iverifApiKey,
