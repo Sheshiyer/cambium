@@ -31,6 +31,18 @@ export type RawProgram = readonly [
   overlay?: 'paused',
   commercialReuse?: 'white-labelable',
 ];
+export type RawHistoricalProduct = readonly [
+  canonicalId: string,
+  name: string,
+  status: 'archived' | 'completed' | 'white-labelable' | 'paused',
+  linkedCanonicalId: string | null,
+  source: string,
+];
+export type RawClassificationReview = readonly [
+  canonicalId: string,
+  source: string,
+  needed: string,
+];
 
 export const RAW_SAPLINGS: readonly RawSapling[] = [
   ['sapling:cambium', 'Cambium', 'supervised-branch', 'canonical', 'cambium', ['vault:00-meta/entity-registry.md', 'vault:40-products/cambium/product-overview.md'], ['program:cambium-operating-fabric']],
@@ -110,7 +122,7 @@ export const RAW_PROGRAMS: readonly RawProgram[] = [
   ['program:thoughtseed-brand-atlas', 'Thoughtseed Brand Atlas', 'company', 'executing', 'not-applicable', null, ['repo:thoughtseed-brand-atlas', 'vault:10-brand-essence/visual-identity-2026-08/README.md'], undefined, ['program:company-website', 'program:meristem-brand-system']],
 ];
 
-export const RAW_HISTORICAL_PRODUCTS = [
+export const RAW_HISTORICAL_PRODUCTS: readonly RawHistoricalProduct[] = [
   ['historical-product:bezly', 'Bezly', 'archived', null, 'vault:40-products/01-bezly/product-overview.md'],
   ['historical-product:senseplay', 'Senseplay', 'archived', null, 'vault:40-products/03-senseplay/product-overview.md'],
   ['historical-product:axtech', 'Axtech Product View', 'archived', 'branch:axtech', 'vault:40-products/04-axtech/product-overview.md'],
@@ -131,9 +143,9 @@ export const RAW_HISTORICAL_PRODUCTS = [
   ['historical-product:newsletter', 'Newsletter', 'archived', null, 'vault:40-products/newsletter/product-overview.md'],
   ['historical-product:podcasts', 'Podcasts', 'paused', null, 'vault:40-products/podcasts/concepts/podcast-concepts-overview.md'],
   ['historical-product:pineapple-labs', 'Pineapple Labs', 'archived', null, 'cambium:docs/evidence/2026-08-06-classification-needed-findings.md'],
-] as const;
+];
 
-export const RAW_CLASSIFICATION_REVIEW = [] as const;
+export const RAW_CLASSIFICATION_REVIEW: readonly RawClassificationReview[] = [];
 
 export const RAW_OPERATIONAL_GAP_WORK_IDS = [
   'sapling:cambium',

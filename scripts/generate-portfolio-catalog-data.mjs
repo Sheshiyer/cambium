@@ -105,6 +105,15 @@ function formatArrayOfTuples(name, typeAnnotation, tuples, asConst) {
   return `${decl}[\n${lines.join('\n')}\n]${suffix}`;
 }
 
+// RAW_HISTORICAL_PRODUCTS and RAW_CLASSIFICATION_REVIEW must carry an
+// explicit array type rather than relying on `as const` inference from
+// their contents: when the array is empty (as RAW_CLASSIFICATION_REVIEW
+// is today, since the registry's unresolvedCandidates backlog is fully
+// resolved), `[] as const` infers the literal empty-tuple type `readonly
+// []`, and `.map(([a, b, c]) => ...)` over that produces `never` for the
+// callback parameter — a real `tsc` error (TS2488) that `node --test`
+// never catches, since it strips types without type-checking.
+
 export function formatRawDataModule(raw, headerLines) {
   const parts = [
     ...headerLines,
@@ -134,14 +143,26 @@ export function formatRawDataModule(raw, headerLines) {
     "  overlay?: 'paused',",
     "  commercialReuse?: 'white-labelable',",
     "];",
+    "export type RawHistoricalProduct = readonly [",
+    "  canonicalId: string,",
+    "  name: string,",
+    "  status: 'archived' | 'completed' | 'white-labelable' | 'paused',",
+    "  linkedCanonicalId: string | null,",
+    "  source: string,",
+    "];",
+    "export type RawClassificationReview = readonly [",
+    "  canonicalId: string,",
+    "  source: string,",
+    "  needed: string,",
+    "];",
     "",
     formatArrayOfTuples('RAW_SAPLINGS', 'readonly RawSapling[]', raw.saplings, false),
     "",
     formatArrayOfTuples('RAW_PROGRAMS', 'readonly RawProgram[]', raw.programs, false),
     "",
-    formatArrayOfTuples('RAW_HISTORICAL_PRODUCTS', undefined, raw.historicalProducts, true),
+    formatArrayOfTuples('RAW_HISTORICAL_PRODUCTS', 'readonly RawHistoricalProduct[]', raw.historicalProducts, false),
     "",
-    formatArrayOfTuples('RAW_CLASSIFICATION_REVIEW', undefined, raw.classificationReview, true),
+    formatArrayOfTuples('RAW_CLASSIFICATION_REVIEW', 'readonly RawClassificationReview[]', raw.classificationReview, false),
     "",
     `export const RAW_OPERATIONAL_GAP_WORK_IDS = [\n${raw.operationalGapWorkIds.map((id) => `  '${id}',`).join('\n')}\n] as const;`,
     "",

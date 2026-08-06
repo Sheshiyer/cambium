@@ -188,5 +188,5 @@ test('formatRawDataModule renders valid, trailing-trimmed TS source', () => {
   const text = formatRawDataModule(raw, ['// header line one']);
   assert.match(text, /\/\/ header line one/);
   assert.match(text, /export const RAW_SAPLINGS: readonly RawSapling\[\] = \[\n {2}\['sapling:a', 'A', 'proof-only', 'unresolved', null, \['vault:x\.md'\]\],\n\];/);
-  assert.match(text, /export const RAW_CLASSIFICATION_REVIEW = \[\] as const;/);
+  assert.match(text, /export const RAW_CLASSIFICATION_REVIEW: readonly RawClassificationReview\[\] = \[\];/);
 });
