@@ -83,11 +83,12 @@ export const RAW_PROGRAMS: readonly RawProgram[] = [
   ['program:snow-gloves-os', 'Snow Gloves OS', 'capability', 'executing', 'unresolved', null, ['cambium:docs/plans/product-branches/snow-gloves-os.md', 'repo:snow-gloves-os']],
   ['program:thoughtseed-vault', 'Thoughtseed Labs Vault', 'company', 'executing', 'not-applicable', null, ['vault:00-meta/system-of-records.md']],
   ['program:meristem-brand-system', 'Meristem Brand System', 'capability', 'executing', 'not-applicable', null, ['repo:brandmint-v2', 'vault:00-meta/system-of-records.md']],
+  ['program:thoughtseed-brand-atlas', 'Thoughtseed Brand Atlas', 'company', 'executing', 'not-applicable', null, ['repo:thoughtseed-brand-atlas', 'vault:10-brand-essence/visual-identity-2026-08/README.md'], undefined, ['program:company-website', 'program:meristem-brand-system']],
   ['program:hdilint', 'HDILINT', 'capability', 'executing', 'not-applicable', null, ['repo:HDILINT-backend-aleph']],
   ['program:explee-capabilities', 'Explee Capability Pack', 'capability', 'executing', 'not-applicable', null, ['repo:explee-skills']],
   ['program:engineering-orchestration', 'Engineering Orchestration', 'capability', 'executing', 'not-applicable', null, ['repo:github-next-wave-orchestrator', 'repo:swarm-architect-skill']],
   ['program:operator-utilities', 'Operator Utilities', 'capability', 'executing', 'not-applicable', null, ['repo:gram-cli', 'repo:reddit-cli', 'repo:raycast-extensions']],
-  ['program:company-website', 'Thoughtseed Company Website', 'company', 'approved', 'not-applicable', null, ['vault:40-products/digital-platforms/company-website/technical-implementation/README.md', 'repo:website'], undefined, [], 'paused'],
+  ['program:company-website', 'Thoughtseed Company Website', 'company', 'executing', 'not-applicable', null, ['repo:ThoughtseedOS-Site', 'pages:thoughtseed-os-site', 'vault:10-brand-essence/public-website-snapshot.md', 'repo:website'], undefined, ['program:thoughtseed-brand-atlas']],
   ['program:paperclip-retired', 'Paperclip Retired Execution Plane', 'operations', 'retired', 'not-applicable', null, ['vault:00-meta/system-of-records.md', 'repo:thoughtseed-paperclip']],
 ];
 
@@ -147,7 +148,7 @@ export const RAW_OPERATIONAL_GAP_WORK_IDS = [
   'program:cambium-operating-fabric', 'program:teamforge-control-plane',
   'program:temperance-hermes', 'program:plexus', 'program:skill-clusters',
   'program:snow-gloves-os', 'program:thoughtseed-vault',
-  'program:meristem-brand-system', 'program:hdilint', 'program:explee-capabilities',
+  'program:meristem-brand-system', 'program:thoughtseed-brand-atlas', 'program:hdilint', 'program:explee-capabilities',
   'program:engineering-orchestration', 'program:operator-utilities',
   'program:company-website',
 ] as const;
