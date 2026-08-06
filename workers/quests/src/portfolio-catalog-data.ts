@@ -12,6 +12,7 @@ export type RawSapling = readonly [
   provenance: readonly string[],
   linkedWorkIds?: readonly string[],
   aliases?: readonly RawAlias[],
+  commercialReuse?: 'white-labelable',
 ];
 export type RawProgram = readonly [
   workId: string,

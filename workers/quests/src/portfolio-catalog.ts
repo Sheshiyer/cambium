@@ -192,7 +192,7 @@ function compact<T extends Record<string, unknown>>(value: T): T {
 
 function materializeRecords(): PortfolioCatalogRecord[] {
   const saplings: PortfolioCatalogRecord[] = RAW_SAPLINGS.map((row) => {
-    const [workId, name, promotionState, tenantStatus, tenantId, provenance, linkedWorkIds = [], aliases = []] = row;
+    const [workId, name, promotionState, tenantStatus, tenantId, provenance, linkedWorkIds = [], aliases = [], commercialReuse] = row;
     return compact({
       canonicalId: workId,
       workId,
@@ -206,6 +206,7 @@ function materializeRecords(): PortfolioCatalogRecord[] {
       provenance: [...provenance],
       linkedCanonicalIds: [...linkedWorkIds],
       aliases: aliases.map(([value, namespace]) => ({ value, namespace, tenantAuthority: false as const })),
+      commercialReuse,
     });
   });
   const programs: PortfolioCatalogRecord[] = RAW_PROGRAMS.map((row) => {
