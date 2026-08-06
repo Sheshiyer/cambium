@@ -1,0 +1,14 @@
+{
+  "stableId": "kacima",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/kacima-new",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/Kacima",
+  "packetDigest": "81ad20c5aae7869e6adab86360821a6dc8b73272f4dfb2dcce228b46c0eef84d",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:56:07.633Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

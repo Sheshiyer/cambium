@@ -1,0 +1,14 @@
+{
+  "stableId": "hdilint-backend-aleph",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/HDILINT-backend-aleph",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/HDILINT-backend-aleph",
+  "packetDigest": "7b07c33b7a5bb9e52baf8aaa3f515218f47fee6f71c15dcdca419b0fea16a051",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:56:06.681Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

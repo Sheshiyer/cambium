@@ -1,0 +1,14 @@
+{
+  "stableId": "thoughtseedos-site",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "thoughtseed/ThoughtseedOS-Site",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/ThoughtseedOS-Site",
+  "packetDigest": "cd84f67fc7229d384a82dba5045daaea285793f8493d730dfb2e24904708aee4",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:56:08.669Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

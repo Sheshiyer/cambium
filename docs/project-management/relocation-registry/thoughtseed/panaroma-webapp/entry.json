@@ -1,0 +1,14 @@
+{
+  "stableId": "panaroma-webapp",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/vantyx",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/Panaroma-Webapp",
+  "packetDigest": "10b5d2c380cb7cd40988c9da0f1226b69e99ce3297fc7e2f9923f082f2c44825",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:56:08.121Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

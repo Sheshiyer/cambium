@@ -1,0 +1,14 @@
+{
+  "stableId": "insightreality",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/Insightreality",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/Insightreality",
+  "packetDigest": "846885e00afd07f19f45cd3fdef0d9912511941dda1aa7ffb909584d60e5f5a3",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:56:07.200Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}
