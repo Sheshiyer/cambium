@@ -171,8 +171,11 @@ export function formatRawDataModule(raw, headerLines) {
 }
 
 function main() {
-  const registryPath = process.argv[2]
-    ?? '/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/00-meta/work-object-registry.v1.json';
+  const registryPath = process.argv[2];
+  if (!registryPath) {
+    console.error('Usage: node scripts/generate-portfolio-catalog-data.mjs <path-to-work-object-registry.v1.json>');
+    process.exit(1);
+  }
   const registry = JSON.parse(readFileSync(registryPath, 'utf8'));
   const raw = transformRegistryToRawData(registry);
 

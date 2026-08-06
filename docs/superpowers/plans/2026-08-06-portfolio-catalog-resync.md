@@ -33,7 +33,7 @@ This is a pure additive schema change verified by the *existing* test suite stil
 
 - [ ] **Step 1: Run the existing test suite to confirm a clean baseline**
 
-Run: `cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/.worktrees/portfolio-catalog-resync/workers/quests && node --experimental-strip-types --test src/portfolio-catalog.test.ts`
+Run: `cd <worktree-root>/workers/quests && node --experimental-strip-types --test src/portfolio-catalog.test.ts`
 Expected: PASS (this is the pre-change baseline)
 
 - [ ] **Step 2: Add the `commercialReuse` slot to `RawSapling`**
@@ -124,7 +124,7 @@ Expected: PASS — identical result to Step 1, since no `RAW_SAPLINGS` row popul
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/.worktrees/portfolio-catalog-resync
+cd <worktree-root>
 git add workers/quests/src/portfolio-catalog-data.ts apps/portfolio-cartographer/src/portfolio-catalog-data.ts workers/quests/src/portfolio-catalog.ts
 git commit -m "feat(catalog): add commercialReuse slot to RawSapling schema"
 ```
@@ -503,8 +503,11 @@ export function formatRawDataModule(raw, headerLines) {
 }
 
 function main() {
-  const registryPath = process.argv[2]
-    ?? '/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/thoughtseed-labs/00-meta/work-object-registry.v1.json';
+  const registryPath = process.argv[2];
+  if (!registryPath) {
+    console.error('Usage: node scripts/generate-portfolio-catalog-data.mjs <path-to-work-object-registry.v1.json>');
+    process.exit(1);
+  }
   const registry = JSON.parse(readFileSync(registryPath, 'utf8'));
   const raw = transformRegistryToRawData(registry);
 
@@ -569,11 +572,11 @@ git commit -m "feat(scripts): add reusable registry-to-catalog-data generator wi
 - Modify: `apps/portfolio-cartographer/src/domain.ts:12`
 
 **Interfaces:**
-- Consumes: `node scripts/generate-portfolio-catalog-data.mjs` (Task 2's CLI), printing `{total, saplings, clientBranches, internalPrograms, classificationReview, historicalProducts, operationalGaps, classificationDigestValue}`.
+- Consumes: `node scripts/generate-portfolio-catalog-data.mjs <registry-path>` (Task 2's CLI; the registry path is a required argument, never a hardcoded default, to keep private filesystem paths out of checked-in code), printing `{total, saplings, clientBranches, internalPrograms, classificationReview, historicalProducts, operationalGaps, classificationDigestValue}`.
 
 - [ ] **Step 1: Run the generator against the real registry**
 
-Run: `node scripts/generate-portfolio-catalog-data.mjs` (from repo root; the registry path defaults to the real vault path)
+Run: `node scripts/generate-portfolio-catalog-data.mjs <path-to-work-object-registry.v1.json>` (from repo root)
 Expected output (values, not exact formatting): `total: 72, saplings: 20, clientBranches: 37, internalPrograms: 15, classificationReview: 0, historicalProducts: 20, operationalGaps: 48, classificationDigestValue: "50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2"`
 
 Confirm both output files changed: `git diff --stat workers/quests/src/portfolio-catalog-data.ts apps/portfolio-cartographer/src/portfolio-catalog-data.ts`
@@ -644,7 +647,7 @@ import {
   RAW_OPERATIONAL_GAP_WORK_IDS,
   RAW_PROGRAMS,
   RAW_SAPLINGS,
-} from '/Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/.worktrees/portfolio-catalog-resync/workers/quests/src/portfolio-catalog-data.ts';
+} from '<worktree-root>/workers/quests/src/portfolio-catalog-data.ts';
 
 const PORTFOLIO_CLASSIFICATION_DIGEST = 'PASTE_THE_STEP_2_VALUE_HERE';
 const SUMMARY = Object.freeze({
@@ -720,7 +723,7 @@ Expected: PASS — if any pinned value is still wrong, the error message names e
 - [ ] **Step 10: Commit**
 
 ```bash
-cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/.worktrees/portfolio-catalog-resync
+cd <worktree-root>
 git add workers/quests/src/portfolio-catalog-data.ts apps/portfolio-cartographer/src/portfolio-catalog-data.ts workers/quests/src/portfolio-catalog.ts apps/portfolio-cartographer/src/domain.ts
 git commit -m "feat(catalog): resync portfolio catalog data and pinned constants against current registry (72 WorkObjects, 0 unresolved)"
 ```
@@ -743,7 +746,7 @@ Expected: exits 0, rewrites `bundle.html` and `../../workers/quests/src/portfoli
 
 - [ ] **Step 2: Confirm both generated artifacts changed**
 
-Run: `cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/.worktrees/portfolio-catalog-resync && git diff --stat apps/portfolio-cartographer/bundle.html workers/quests/src/portfolio-workbench.generated.ts`
+Run: `cd <worktree-root> && git diff --stat apps/portfolio-cartographer/bundle.html workers/quests/src/portfolio-workbench.generated.ts`
 Expected: both files show changes (they embed the resynced catalog data)
 
 - [ ] **Step 3: Commit**
@@ -775,7 +778,7 @@ Expected: PASS (test, lint, bundle, standalone:audit, standalone:csp, standalone
 
 - [ ] **Step 3: Run the root deterministic release verification (same as CI)**
 
-Run: `cd /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/cambium/.worktrees/portfolio-catalog-resync && npm run verify:release`
+Run: `cd <worktree-root> && npm run verify:release`
 Expected: PASS — this is the exact command CI's "deterministic release verification" job runs; if it fails, the failure output names the specific check (matches the earlier `standalone:audit`-style failure format from PR #278's history).
 
 - [ ] **Step 4: Run the full root test suite**
