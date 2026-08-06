@@ -1,0 +1,14 @@
+{
+  "stableId": "synchronized-universe-blog",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/harshtruths-blog-v1",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/synchronized-universe-blog",
+  "packetDigest": "b7eab11383580b728548627096fed9b6495d3e304feca67a96c622aa4b21ae4a",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:14.449Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

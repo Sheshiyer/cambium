@@ -1,0 +1,14 @@
+{
+  "stableId": "rssfeedscrapper",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/agentfount",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/rssfeedscrapper",
+  "packetDigest": "ca26e8b3d866bd6ebab5ec080584137763986343ddfb0892c263d09afa033694",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:13.788Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "stableId": "ratan-pitch",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/Akshara-coauthor",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/ratan-pitch",
+  "packetDigest": "70d83ad6d9032edfabcda13e541be2179b8d8320ce94ce1b1290f0bfa42d61d2",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:13.467Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

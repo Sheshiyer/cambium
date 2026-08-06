@@ -1,0 +1,14 @@
+{
+  "stableId": "swarm-architect-skill",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/swarm-architect-skill",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/swarm-architect-skill",
+  "packetDigest": "9f98004badf42f9e640cb9b33b83f3ebd4b23c953f597ab1313d820039a92ac4",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:14.094Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}
