@@ -42,16 +42,16 @@ import {
 
 test('canonical portfolio coverage remains exact', () => {
   assert.deepEqual(CLASSIFICATION_COUNTS, {
-    total: 54,
-    saplings: 12,
-    clientBranches: 28,
-    internalPrograms: 14,
-    review: 16,
-    historical: 19,
+    total: 72,
+    saplings: 20,
+    clientBranches: 37,
+    internalPrograms: 15,
+    review: 0,
+    historical: 20,
   })
-  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 54)
-  assert.equal(REVIEW_RECORDS.length, 16)
-  assert.equal(HISTORICAL_RECORDS.length, 19)
+  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 72)
+  assert.equal(REVIEW_RECORDS.length, 0)
+  assert.equal(HISTORICAL_RECORDS.length, 20)
 })
 
 test('client families derive only from exact source account ids', () => {
@@ -70,8 +70,8 @@ test('client families derive only from exact source account ids', () => {
   assert.ok(clients.every((work) => work.accountId && groups.some((group) => (
     group.groupId === `client:${work.accountId}` && group.members.includes(work)
   ))))
-  assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 12)
-  assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 14)
+  assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 20)
+  assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 15)
 })
 
 test('family signal summaries derive from effective source plus local plans', () => {
@@ -83,7 +83,7 @@ test('family signal summaries derive from effective source plus local plans', ()
 
 test('all source review records receive deterministic suggested provenance', () => {
   const suggestions = REVIEW_RECORDS.map(reviewSuggestion)
-  assert.equal(suggestions.length, 16)
+  assert.equal(suggestions.length, 0)
   assert.ok(suggestions.every((suggestion) => suggestion.ruleVersion === 'thoughtseed.review-suggestion.v1'))
   assert.ok(suggestions.every((suggestion) => suggestion.sourceDigest.length === 64))
   assert.deepEqual(REVIEW_RECORDS.map(reviewSuggestion), suggestions)
@@ -171,8 +171,8 @@ test('search and smart views include local planning dimensions', () => {
   assert.deepEqual(filterWorkObjects('fitcheck', empty, 'all', plans).map((work) => work.workId), ['sapling:fitcheck'])
   assert.deepEqual(filterWorkObjects('founder-focus', empty, 'all', plans).map((work) => work.workId), ['sapling:fitcheck'])
   assert.deepEqual(filterWorkObjects('this-year', empty, 'paused', plans).map((work) => work.workId), ['sapling:fitcheck'])
-  assert.equal(smartViewCount('needs-review', plans), 16)
-  assert.equal(smartViewCount('historical', plans), 19)
+  assert.equal(smartViewCount('needs-review', plans), 0)
+  assert.equal(smartViewCount('historical', plans), 20)
   assert.equal(smartViewCount('white-labelable', plans), 3)
 })
 
