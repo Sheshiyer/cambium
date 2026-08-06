@@ -1,0 +1,14 @@
+{
+  "stableId": "fitcheck-landing",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/fitcheck-landing",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/fitcheck-landing",
+  "packetDigest": "9bf7c5c7e2f3d9fd50add859da0b2d9081cd620931226903ff3dc6d0b1780fc3",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:11.772Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

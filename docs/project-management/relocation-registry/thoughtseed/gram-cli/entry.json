@@ -1,0 +1,14 @@
+{
+  "stableId": "gram-cli",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/glam-cli",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/gram-cli",
+  "packetDigest": "ba9f035d2b987fc3e5fff52d55e2694a0bf702f0b23241da621de22b6954e153",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:12.769Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

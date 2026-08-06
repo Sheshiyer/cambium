@@ -1,0 +1,14 @@
+{
+  "stableId": "virtualtryon-3d",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/virtualtryon",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/virtualtryon-3d",
+  "packetDigest": "c0c30da92270e7f7aead579a2cf298f15b50a281f7a511dd63146a798b8635bb",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:14.767Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

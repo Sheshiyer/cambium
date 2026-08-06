@@ -1,0 +1,14 @@
+{
+  "stableId": "newsense-launch",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/newsense-spatial",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/newsense-launch",
+  "packetDigest": "15ac7d0e49776bfcffc395d89c5bdc6b64f35b8348b6e70820ece8a6db42d2de",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:27:57.063Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

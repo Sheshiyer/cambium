@@ -1,0 +1,14 @@
+{
+  "stableId": "brandmint-v2",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/meristem",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/brandmint-v2",
+  "packetDigest": "c641e3dac6c92bb5acb202773400f8c76b28c3735b6c0c4b9a2c45eb28f31468",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:27:53.532Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

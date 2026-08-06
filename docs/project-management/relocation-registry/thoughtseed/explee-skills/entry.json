@@ -1,0 +1,14 @@
+{
+  "stableId": "explee-skills",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/explee-skills",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/explee-skills",
+  "packetDigest": "5066c760b47716097ddd1ac715e58de3d599600138aece9bf6a230c549a20709",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:11.442Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

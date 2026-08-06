@@ -1,0 +1,14 @@
+{
+  "stableId": "github-next-wave-orchestrator",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/github-next-wave-orchestrator",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/github-next-wave-orchestrator",
+  "packetDigest": "e26834bbf0df972080e00b0b6b7fd718bd595e2aa1efeccc910cba97da3f1570",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:12.454Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

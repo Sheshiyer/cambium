@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "stableId": "thoughtseed-brand-atlas",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/thoughtseed-brand-atlas",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/thoughtseed-brand-atlas",
+  "newPath": "$PROJECTS/thoughtseed/thoughtseed-brand-atlas",
+  "packetDigest": "4d177cbd15dd3710c5ae2df8cb3789a221f7d4c1c879d3fcf743ed2d2bcaef43",
+  "headBefore": "80d842a6beb47e4eff5bb177a6cef489b17ae94c",
+  "headAfter": "80d842a6beb47e4eff5bb177a6cef489b17ae94c",
+  "refsDigestBefore": "7599f2fac668863f87f678e381a882fca55cdb1a3b08cded3aceb0a09dc5893b",
+  "refsDigestAfter": "7599f2fac668863f87f678e381a882fca55cdb1a3b08cded3aceb0a09dc5893b",
+  "registryEntryPath": "$VAULT/01-Projects/thoughtseed/cambium/docs/project-management/relocation-registry/thoughtseed/thoughtseed-brand-atlas",
+  "canonicalProjectRecord": "$VAULT/01-Projects/thoughtseed/cambium/docs/project-management/projects/thoughtseed-brand-atlas.md",
+  "ownerRatifier": "Sheshiyer",
+  "closedAt": "2026-08-07T00:00:00.000Z"
+}

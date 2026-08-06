@@ -1,0 +1,14 @@
+{
+  "stableId": "brandmint-showcase",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/brandmint-showcase",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/brandmint-showcase",
+  "packetDigest": "c2c96d48a3d9d614cdc263493e862f3cd064f6a6fe7b77310b5501d96c79a504",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:27:53.062Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

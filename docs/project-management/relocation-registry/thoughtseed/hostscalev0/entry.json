@@ -1,0 +1,14 @@
+{
+  "stableId": "hostscalev0",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/hostscalev0",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/hostscalev0",
+  "packetDigest": "55aaf04f94caa88ebcac577e3e3034654f1be74544640074ce9b3c89ae9162b8",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:27:53.902Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

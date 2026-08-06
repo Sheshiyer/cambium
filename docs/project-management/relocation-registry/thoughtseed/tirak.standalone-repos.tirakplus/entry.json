@@ -1,0 +1,14 @@
+{
+  "stableId": "tirak.standalone-repos.tirakplus",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/tirakplus",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/Tirak/standalone-repos/tirakplus",
+  "packetDigest": "4c64b18bc1640698a3dd285ceead80449ea95a5d0b7f9843f3017dd4e3d13783",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:35:32.944Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "stableId": "fmrl",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/fmrl",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/fmrl",
+  "packetDigest": "0aa78ac5738e12d25ef473db128fc9365e6b11f8798ee632a8c1fd239cbb32b6",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T22:20:12.134Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}
