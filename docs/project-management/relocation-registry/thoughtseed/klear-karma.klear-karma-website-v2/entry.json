@@ -1,0 +1,14 @@
+{
+  "stableId": "klear-karma.klear-karma-website-v2",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/klear-karma-website-v2",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/klear-karma/klear-karma-website-v2",
+  "packetDigest": "eb472925eb223f02e2dbf05db1b0d52475bab4dc392f6cafe38f9e39f04a5ac5",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:27:54.476Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

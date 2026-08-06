@@ -1,0 +1,14 @@
+{
+  "stableId": "manifest-skill-cluster",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/manifest-skill-137",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/manifest-skill-cluster",
+  "packetDigest": "82c5112b3f4cfed49c7c52d55482d3d1ff404ab081215249e2fe42b652cec079",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:27:54.855Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}
