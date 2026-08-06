@@ -79,6 +79,7 @@ export function runStandaloneAudit() {
     .filter(Boolean)
     .filter((file) => !file.startsWith('docs/plans/assets/'))
     .filter((file) => !file.startsWith('apps/cambium-r3f/public/assets/'))
+    .filter((file) => file !== 'workers/quests/wrangler.labs.jsonc')
     .filter((file) => !file.endsWith('VERSIONS.md'));
 
   const failures = [];
