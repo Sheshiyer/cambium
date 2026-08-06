@@ -28,29 +28,29 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
     operational: 'd1-goal-graph',
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
-  assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '93b90ed7cee268ac7ee87321a88efefced7980349658cf3c640657a71c361281');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:d9fe69f028e1d859ac094f420aedd7904b618dda255edc54e058d929e30df8f1');
+  assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:95a903b358c8baa7938bb424d117e10b344a4340f2d080de439bd18a7dba1bf6');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
-    total: 54,
-    saplings: 12,
-    clientBranches: 28,
-    internalPrograms: 14,
-    classificationReview: 16,
-    historicalProducts: 19,
-    operationalGaps: 47,
+    total: 72,
+    saplings: 20,
+    clientBranches: 37,
+    internalPrograms: 15,
+    classificationReview: 0,
+    historicalProducts: 20,
+    operationalGaps: 48,
   });
-  assert.equal(PORTFOLIO_CATALOG.records.length, 54);
-  assert.equal(PORTFOLIO_CATALOG.historicalProducts.length, 19);
-  assert.equal(PORTFOLIO_CATALOG.classificationReview.length, 16);
-  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 47);
+  assert.equal(PORTFOLIO_CATALOG.records.length, 72);
+  assert.equal(PORTFOLIO_CATALOG.historicalProducts.length, 20);
+  assert.equal(PORTFOLIO_CATALOG.classificationReview.length, 0);
+  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 48);
 });
 
 test('catalog identities are unique, canonical, type-correct, and enum bounded', () => {
   const ids = PORTFOLIO_CATALOG.records.map((record) => record.workId);
-  assert.equal(new Set(ids).size, 54);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 12);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 28);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'internal-program').length, 14);
+  assert.equal(new Set(ids).size, 72);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 20);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 37);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'internal-program').length, 15);
 
   for (const record of PORTFOLIO_CATALOG.records) {
     assert.equal(record.canonicalId, record.workId);
@@ -154,7 +154,7 @@ test('type-aware canonical joins accept only exact or allowed legacy wire forms'
   ]);
   assert.equal(report.matchedCount, 3);
   assert.deepEqual(report.runtimeOrphans, ['branch:parkarea']);
-  assert.equal(report.catalogOrphanCount, 51);
+  assert.equal(report.catalogOrphanCount, 69);
 });
 
 test('canonical join never falls back to matching names or aliases', () => {
@@ -182,7 +182,7 @@ test('unresolved, unverified, and tenant-mismatched records cannot create an ope
   assert.deepEqual(mismatched.runtimeOrphans, ['sapling:cambium', 'sapling:fitcheck']);
 });
 
-test('canonical Mission Fabric fixture dry-run yields 2 matches, 52 catalog orphans, and 0 runtime orphans', () => {
+test('canonical Mission Fabric fixture dry-run yields 2 matches, 70 catalog orphans, and 0 runtime orphans', () => {
   const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, {
     clock: { now: () => '2026-07-28T09:00:01.000Z' },
     tenantId: 'cambium-synthetic',
@@ -196,7 +196,7 @@ test('canonical Mission Fabric fixture dry-run yields 2 matches, 52 catalog orph
     'sapling:cambium',
   ]);
   assert.equal(wrappers.matchedCount, 2);
-  assert.equal(wrappers.catalogOrphanCount, 52);
+  assert.equal(wrappers.catalogOrphanCount, 70);
   assert.equal(wrappers.runtimeOrphanCount, 0);
 });
 

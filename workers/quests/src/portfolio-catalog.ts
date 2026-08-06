@@ -8,14 +8,14 @@ import {
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts';
 
-export const PORTFOLIO_CLASSIFICATION_DIGEST = '93b90ed7cee268ac7ee87321a88efefced7980349658cf3c640657a71c361281';
+export const PORTFOLIO_CLASSIFICATION_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2';
 
-const EXPECTED_CATALOG_DIGEST = 'sha256:d9fe69f028e1d859ac094f420aedd7904b618dda255edc54e058d929e30df8f1';
+const EXPECTED_CATALOG_DIGEST = 'sha256:95a903b358c8baa7938bb424d117e10b344a4340f2d080de439bd18a7dba1bf6';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
 const ABSOLUTE_PATH = /^(?:\/|[A-Za-z]:[\\/]|file:\/\/)/;
-const MAX_RECORDS = 64;
+const MAX_RECORDS = 96;
 const MAX_HISTORICAL = 32;
 const MAX_REVIEW = 32;
 const MAX_GAPS = 64;
@@ -109,13 +109,13 @@ export interface PortfolioOperationalGap {
 }
 
 export interface PortfolioCatalogSummary {
-  total: 54;
-  saplings: 12;
-  clientBranches: 28;
-  internalPrograms: 14;
-  classificationReview: 16;
-  historicalProducts: 19;
-  operationalGaps: 47;
+  total: 72;
+  saplings: 20;
+  clientBranches: 37;
+  internalPrograms: 15;
+  classificationReview: 0;
+  historicalProducts: 20;
+  operationalGaps: 48;
 }
 
 export interface PortfolioCatalogV1 {
@@ -177,13 +177,13 @@ const MISSING_MISSION_FIELDS = Object.freeze([
 ] as const);
 
 const SUMMARY: PortfolioCatalogSummary = Object.freeze({
-  total: 54,
-  saplings: 12,
-  clientBranches: 28,
-  internalPrograms: 14,
-  classificationReview: 16,
-  historicalProducts: 19,
-  operationalGaps: 47,
+  total: 72,
+  saplings: 20,
+  clientBranches: 37,
+  internalPrograms: 15,
+  classificationReview: 0,
+  historicalProducts: 20,
+  operationalGaps: 48,
 });
 
 function compact<T extends Record<string, unknown>>(value: T): T {
@@ -385,10 +385,10 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const historicalProducts = catalog.historicalProducts;
   const classificationReview = catalog.classificationReview;
   const operationalGaps = catalog.operationalGaps;
-  if (!Array.isArray(records) || records.length !== 54 || records.length > MAX_RECORDS) fail('record count drifted');
-  if (!Array.isArray(historicalProducts) || historicalProducts.length !== 19 || historicalProducts.length > MAX_HISTORICAL) fail('historical count drifted');
-  if (!Array.isArray(classificationReview) || classificationReview.length !== 16 || classificationReview.length > MAX_REVIEW) fail('classification review count drifted');
-  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 47 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
+  if (!Array.isArray(records) || records.length !== 72 || records.length > MAX_RECORDS) fail('record count drifted');
+  if (!Array.isArray(historicalProducts) || historicalProducts.length !== 20 || historicalProducts.length > MAX_HISTORICAL) fail('historical count drifted');
+  if (!Array.isArray(classificationReview) || classificationReview.length !== 0 || classificationReview.length > MAX_REVIEW) fail('classification review count drifted');
+  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 48 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
 
   records.forEach((record, index) => validateRecord(record as PortfolioCatalogRecord, index));
   const ids = records.map((record) => (record as PortfolioCatalogRecord).workId);
@@ -396,7 +396,7 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const saplings = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'sapling').length;
   const clients = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'client-branch').length;
   const programs = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'internal-program').length;
-  if (saplings !== 12 || clients !== 28 || programs !== 14) fail('classification counts drifted');
+  if (saplings !== 20 || clients !== 37 || programs !== 15) fail('classification counts drifted');
 
   const historicalIds = new Set<string>();
   for (const [index, value] of historicalProducts.entries()) {
@@ -439,13 +439,13 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
 
   const summary = catalog.summary;
   if (!isRecord(summary)
-    || summary.total !== 54
-    || summary.saplings !== 12
-    || summary.clientBranches !== 28
-    || summary.internalPrograms !== 14
-    || summary.classificationReview !== 16
-    || summary.historicalProducts !== 19
-    || summary.operationalGaps !== 47) fail('summary drifted');
+    || summary.total !== 72
+    || summary.saplings !== 20
+    || summary.clientBranches !== 37
+    || summary.internalPrograms !== 15
+    || summary.classificationReview !== 0
+    || summary.historicalProducts !== 20
+    || summary.operationalGaps !== 48) fail('summary drifted');
 
   const actualDigest = sha256(catalogHashPayload(catalog as unknown as PortfolioCatalogV1));
   if (actualDigest !== catalog.catalogDigest) fail('catalog digest does not match canonical content');
