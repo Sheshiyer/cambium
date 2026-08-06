@@ -1200,12 +1200,12 @@ function operatingFabricAllScenesAssertion(width) {
       && organPlan.textContent.includes('No recurring schedule');
     const portfolioOk = Boolean(portfolio)
       && portfolioZones.length === 4
-      && portfolioCards.length === 89
-      && portfolioCounts.saplings === '12'
-      && portfolioCounts.clients === '28'
-      && portfolioCounts.programs === '14'
-      && portfolioCounts.review === '16'
-      && portfolioCounts.historical === '19'
+      && portfolioCards.length === 92
+      && portfolioCounts.saplings === '20'
+      && portfolioCounts.clients === '37'
+      && portfolioCounts.programs === '15'
+      && portfolioCounts.review === '0'
+      && portfolioCounts.historical === '20'
       && Boolean(fitcheck)
       && fitcheck.textContent.includes('cambium')
       && fitcheck.textContent.includes('aliases are display-only');

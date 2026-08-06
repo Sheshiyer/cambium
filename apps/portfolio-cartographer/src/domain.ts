@@ -9,7 +9,7 @@ export const WORKBENCH_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
 export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
-export const CLASSIFICATION_DIGEST = '93b90ed7cee268ac7ee87321a88efefced7980349658cf3c640657a71c361281'
+export const CLASSIFICATION_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2'
 export const SOURCE_SCHEMA = 'thoughtseed.work-object-registry.v1'
 export const SOURCE_GENERATED_AT = '2026-07-29T06:46:00Z'
 

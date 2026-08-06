@@ -19,7 +19,7 @@ for (const marker of [
   'Cortex',
   'Mini App Gate required',
   'Exceptional signal escalates to Alerts',
-  '93b90ed7cee268ac7ee87321a88efefced7980349658cf3c640657a71c361281',
+  '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2',
 ]) {
   assert.ok(html.includes(marker), `missing standalone contract marker: ${marker}`)
 }
