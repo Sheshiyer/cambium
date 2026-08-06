@@ -15,7 +15,7 @@
 - Never hand-edit `workers/quests/src/portfolio-workbench.generated.ts` or `apps/portfolio-cartographer/bundle.html` — always regenerate via `pnpm bundle`.
 - `sourceRefs` values must never be absolute filesystem paths (`rejectForbiddenMaterial`'s `ABSOLUTE_PATH` check covers the whole catalog recursively) — the registry already follows this convention, but the generator must not introduce any.
 - Trailing-optional-field convention in `RAW_SAPLINGS`/`RAW_PROGRAMS` tuples: omit a trailing field entirely when undefined; only emit an explicit `undefined` for a field that has a later, populated field after it (see existing rows like `['branch:brightme', ..., undefined, 'white-labelable']`).
-- `RAW_HISTORICAL_PRODUCTS`, `RAW_CLASSIFICATION_REVIEW`, and `RAW_OPERATIONAL_GAP_WORK_IDS` are declared `as const`; `RAW_SAPLINGS`/`RAW_PROGRAMS` are declared with explicit `readonly RawX[]` type annotations (no `as const`) — preserve this per-array.
+- `RAW_OPERATIONAL_GAP_WORK_IDS` is declared `as const`; `RAW_SAPLINGS`, `RAW_PROGRAMS`, `RAW_HISTORICAL_PRODUCTS`, and `RAW_CLASSIFICATION_REVIEW` are all declared with explicit `readonly RawX[]` type annotations (no `as const`) — the latter two were moved off `as const` mid-branch (commit `b71c04c`) to fix a real `tsc` TS2488 bug where an empty `as const` array infers the literal empty-tuple type, breaking downstream destructuring. Preserve this per-array.
 
 ---
 
