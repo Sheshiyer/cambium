@@ -1,0 +1,14 @@
+{
+  "stableId": "newsense",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/newsense",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/newsense",
+  "packetDigest": "30d885b9207a825573f64e08e813df261e561dc01e5a080ce6c1c15fcd15b7e2",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:35:34.726Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

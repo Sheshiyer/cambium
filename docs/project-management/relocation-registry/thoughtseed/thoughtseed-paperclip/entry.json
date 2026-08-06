@@ -1,0 +1,14 @@
+{
+  "stableId": "thoughtseed-paperclip",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/thoughtseed-paperclip",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/thoughtseed-paperclip",
+  "packetDigest": "06be9fb89a873880fb3a57e24f2f8963883e6b67dc863f79912420d798a0d1b7",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:35:37.169Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}

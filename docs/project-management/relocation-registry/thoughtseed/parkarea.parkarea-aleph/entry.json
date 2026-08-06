@@ -1,0 +1,14 @@
+{
+  "stableId": "parkarea.parkarea-aleph",
+  "portfolio": "thoughtseed",
+  "githubIdentity": "Sheshiyer/parkarea-aleph",
+  "oldPath": "$VAULT/01-Projects/thoughtseed/parkarea/parkarea-aleph",
+  "packetDigest": "d18d8b71e10696b63b33ba569e64f8bba629fcdd7b2e9bc05e84c00d6b1519e7",
+  "transitions": [
+    {
+      "type": "reconciling",
+      "at": "2026-08-06T23:35:36.694Z",
+      "actor": "vault-project-relocation-apply"
+    }
+  ]
+}
