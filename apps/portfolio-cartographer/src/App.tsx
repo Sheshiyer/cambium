@@ -4,15 +4,12 @@ import {
   AlertTriangle,
   Archive,
   ArrowRight,
-  Braces,
   Check,
   ChevronRight,
   CirclePause,
-  Clipboard,
   Columns3,
-  Download,
-  FileUp,
   Filter,
+  FolderGit2,
   GitBranch,
   Grid2X2,
   History,
@@ -41,6 +38,7 @@ import {
   HISTORICAL_RECORDS,
   HORIZONS,
   ORGAN_WORKFLOWS,
+  PORTFOLIO_ROOT_MAP_DIGEST,
   PORTFOLIO_SIGNALS,
   REVIEW_RECORDS,
   SIGNAL_STATUSES,
@@ -62,11 +60,12 @@ import {
   normalizeClientFamilyId,
   normalizeReviewNote,
   parsePacket,
+  portfolioFolderMappingsForGroup,
+  portfolioFolderMappingsForWork,
   resolvePipeline,
   signalProvenance,
   smartViewCount,
   sourceSignal,
-  toMarkdown,
   reviewSuggestion,
   type Audience,
   type BoardHorizon,
@@ -102,6 +101,36 @@ const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
 type DrawerTab = 'intake' | 'plan' | 'delivery'
 type ViewMode = 'family' | 'grid' | 'board'
+const PORTFOLIO_ACTION_ENDPOINT = '/v1/admin/portfolio/actions'
+type AdminActionState =
+  | { status: 'idle'; receiptId: null }
+  | { status: 'saving'; receiptId: null }
+  | { status: 'queued'; receiptId: string }
+  | { status: 'error'; receiptId: string | null }
+
+interface AdminActionReceipt {
+  receiptId: string
+  status: 'queued'
+  nextFlow: 'repository-intake-review' | 'founder-gate-review' | 'project-creation-execution'
+  approvalStatus?: 'founder-gate-pending' | 'execution-ready'
+  duplicate: boolean
+}
+type ProjectCreationOrigin = 'thoughtseed-venture' | 'thoughtseed-internal' | 'client' | 'unknown'
+type ProjectCreationKind = 'sapling' | 'internal-program' | 'client-branch' | 'needs-review'
+
+interface ProjectCreationDraft {
+  name: string
+  slug: string
+  origin: ProjectCreationOrigin
+  clientFamilyId: string
+}
+
+function derivedProjectKind(origin: ProjectCreationOrigin): ProjectCreationKind {
+  if (origin === 'thoughtseed-venture') return 'sapling'
+  if (origin === 'thoughtseed-internal') return 'internal-program'
+  if (origin === 'client') return 'client-branch'
+  return 'needs-review'
+}
 interface RepositoryEvidence {
   sourceRef: string
   status: 'resolved' | 'unverified' | 'ambiguous' | 'unmatched' | 'malformed' | 'unsafe'
@@ -136,7 +165,7 @@ function loadLocalState(): LocalLoad {
     const current = window.localStorage.getItem(STORAGE_KEY)
     if (current) {
       try {
-        return { ...parsePacket(JSON.parse(current)), notice: 'Restored local planning · proposal only', autosaveBlocked: false }
+        return { ...parsePacket(JSON.parse(current)), notice: 'Restored local draft · save a record to create a durable action', autosaveBlocked: false }
       } catch {
         return {
           focusedId: null,
@@ -216,21 +245,51 @@ function loadLocalState(): LocalLoad {
       reviewDecisions: {},
       retiredReviewDecisions: {},
       reconciliations: {},
-      notice: 'Local save unavailable · export before closing',
+      notice: 'Local draft unavailable · server actions remain explicit',
       autosaveBlocked: true,
     }
   }
-  return { focusedId: null, plans: {}, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, notice: 'Ready · planning stays in this browser', autosaveBlocked: false }
+  return { focusedId: null, plans: {}, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, notice: 'Ready · edit a record, then save its admin action', autosaveBlocked: false }
 }
 
-function downloadText(filename: string, value: string, type: string): void {
-  const blob = new Blob([value], { type })
-  const href = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = href
-  anchor.download = filename
-  anchor.click()
-  URL.revokeObjectURL(href)
+function hostedAdminActionsAvailable(): boolean {
+  return ['/admin/portfolio', '/admin/portfolio/web', '/v1/admin/portfolio'].includes(window.location.pathname)
+}
+
+function actionIdempotencyKey(subjectId: string): string {
+  const nonce = typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  return `${subjectId.replace(/[^A-Za-z0-9._:@/-]/g, '-').slice(0, 72)}:${nonce}`
+}
+
+async function postPortfolioAdminAction(action: Record<string, unknown>): Promise<AdminActionReceipt> {
+  if (!hostedAdminActionsAvailable()) throw new Error('Hosted admin connection required')
+  const telegram = (window as Window & {
+    Telegram?: { WebApp?: { initData?: string } }
+  }).Telegram
+  const initData = telegram?.WebApp?.initData?.trim()
+  const response = await window.fetch(PORTFOLIO_ACTION_ENDPOINT, {
+    method: 'POST',
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: {
+      'content-type': 'application/json',
+      ...(initData ? { 'x-telegram-init-data': initData } : {}),
+    },
+    body: JSON.stringify(action),
+  })
+  const body = await response.json() as {
+    receipt?: AdminActionReceipt
+    error?: string
+    durable?: boolean
+    receiptId?: string
+  }
+  if (!response.ok || !body.receipt) {
+    const durable = body.durable && body.receiptId ? ` Evidence ${body.receiptId} is durable; retry the trigger.` : ''
+    throw new Error(`${body.error ?? 'Portfolio action failed'}.${durable}`)
+  }
+  return body.receipt
 }
 
 function classificationIcon(classification: Classification) {
@@ -298,6 +357,7 @@ function WorkCard({
   const tags = plan?.tags ?? []
   const readiness = intakeReadiness(work, reconciliation ?? defaultReconciliation(work.workId))
   const planningLocked = sourceSignal(work) === 'unplanned' && !readiness.ready
+  const folderMappings = portfolioFolderMappingsForWork(work.workId)
   return (
     <article
       className={bulkSelected ? `work-card signal-${signal} is-bulk-selected` : `work-card signal-${signal}`}
@@ -361,11 +421,21 @@ function WorkCard({
         </div>
       )}
 
+      <div className={folderMappings.length > 0 ? 'folder-receipt' : 'folder-receipt is-gap'}>
+        <FolderGit2 aria-hidden="true" />
+        <span>{folderMappings.length > 0 ? folderMappings.map((mapping) => mapping.path).join(' · ') : 'Folder mapping gap'}</span>
+        <small>proposal</small>
+      </div>
+
       {unplannedTriage && (
         <div className="unplanned-actions" aria-label={`Reconcile ${work.name} before scheduling`}>
-          <button type="button" className="intake-action" onClick={onFocus}>
+          <button type="button" className="intake-action" onClick={onFocus} aria-label={`Inspect & reconcile ${work.name}`}>
             <ShieldCheck aria-hidden="true" />
-            <span>Inspect & reconcile<small>{readiness.ready ? 'Ready for scheduling' : `${readiness.blockers.length} intake gates open`}</small></span>
+            <span>Review repository & map<small>{readiness.ready
+              ? 'Ready for scheduling'
+              : work.classification === 'client-branch'
+                ? 'Assign the Client Branch family'
+                : 'Confirm Thoughtseed origin before planning'}</small></span>
           </button>
         </div>
       )}
@@ -404,6 +474,7 @@ function FamilyGroup({
   onToggle: () => void
   renderCard: (work: WorkObject) => ReactNode
 }) {
+  const folderMappings = portfolioFolderMappingsForGroup(group)
   const rollup = Object.entries(group.signalSummary)
     .filter(([, count]) => count > 0)
     .map(([signal, count]) => `${count} ${label(signal)}`)
@@ -418,7 +489,13 @@ function FamilyGroup({
         onClick={onToggle}
       >
         <ChevronRight aria-hidden="true" />
-        <span><strong>{group.label}</strong><small>{group.provenance}</small></span>
+        <span>
+          <strong>{group.label}</strong>
+          <small>{group.provenance}</small>
+          <code className={folderMappings.length > 0 ? 'family-folder-map' : 'family-folder-map is-gap'}>
+            {folderMappings.length > 0 ? folderMappings.map((mapping) => mapping.path).join(' · ') : 'folder mapping gap'}
+          </code>
+        </span>
         <span className="family-rollup">{rollup || 'No matching signals'}</span>
         <b>{group.members.length}</b>
       </button>
@@ -426,6 +503,101 @@ function FamilyGroup({
         <div className="card-grid">{group.members.map(renderCard)}</div>
       </div>
     </section>
+  )
+}
+
+function AdminActionStatus({ state, available }: { state: AdminActionState; available: boolean }) {
+  const labelText = !available
+    ? 'Local preview'
+    : state.status === 'saving'
+      ? 'Saving action'
+      : state.status === 'queued'
+        ? 'Action queued'
+        : state.status === 'error'
+          ? 'Action needs retry'
+          : 'Admin actions ready'
+  return (
+    <div className={`admin-action-status status-${state.status}`} aria-live="polite">
+      <ShieldCheck aria-hidden="true" />
+      <span>{labelText}<small>{available ? state.receiptId ?? 'R2 evidence · governed queue' : 'hosted connection required'}</small></span>
+    </div>
+  )
+}
+
+function ProjectCreationDrawer({
+  draft,
+  derivedKind,
+  actionState,
+  actionsAvailable,
+  onChange,
+  onSubmit,
+  onClose,
+}: {
+  draft: ProjectCreationDraft
+  derivedKind: ProjectCreationKind
+  actionState: AdminActionState
+  actionsAvailable: boolean
+  onChange: (patch: Partial<ProjectCreationDraft>) => void
+  onSubmit: () => void
+  onClose: () => void
+}) {
+  const slugValid = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/.test(draft.slug)
+  const clientValid = draft.origin !== 'client' || /^[a-z0-9][a-z0-9-]{0,63}$/.test(draft.clientFamilyId)
+  const canSubmit = actionsAvailable
+    && actionState.status !== 'saving'
+    && draft.name.trim().length > 0
+    && slugValid
+    && clientValid
+    && draft.origin !== 'unknown'
+  return (
+    <aside className="plan-drawer project-creation-drawer" role="dialog" aria-modal="false" aria-labelledby="project-creation-title">
+      <header className="drawer-head">
+        <div className="kind-mark"><Plus aria-hidden="true" /></div>
+        <div>
+          <span>Thoughtseed · governed project birth</span>
+          <h2 id="project-creation-title">New Thoughtseed project</h2>
+          <code>thoughtseed/{draft.slug || '&lt;repository&gt;'}</code>
+        </div>
+        <button type="button" className="icon-button" onClick={onClose} aria-label="Close project creation"><X aria-hidden="true" /></button>
+      </header>
+      <div className="drawer-body">
+        <form className="drawer-section intake-section" onSubmit={(event) => { event.preventDefault(); onSubmit() }}>
+          <div className="intake-rule">
+            <ShieldCheck aria-hidden="true" />
+            <div>
+              <strong>Founder command · execution intent</strong>
+              <p>The hosted surface records immutable intent. A trusted local executor creates the folder later; this form never writes the filesystem.</p>
+            </div>
+          </div>
+          <div className="field-grid">
+            <label><span>Project name</span><input value={draft.name} maxLength={120} onChange={(event) => onChange({ name: event.target.value })} placeholder="Project name" /></label>
+            <label><span>Repository slug</span><input value={draft.slug} maxLength={64} onChange={(event) => onChange({ slug: event.target.value.toLowerCase() })} placeholder="project-name" aria-invalid={draft.slug.length > 0 && !slugValid} /></label>
+            <label><span>Origin</span><select value={draft.origin} onChange={(event) => onChange({ origin: event.target.value as ProjectCreationOrigin, clientFamilyId: event.target.value === 'client' ? draft.clientFamilyId : '' })}>
+              <option value="unknown">Needs review</option>
+              <option value="thoughtseed-venture">Thoughtseed venture</option>
+              <option value="thoughtseed-internal">Thoughtseed internal</option>
+              <option value="client">Client engagement</option>
+            </select></label>
+            {draft.origin === 'client' && <label><span>Client family</span><input value={draft.clientFamilyId} maxLength={64} onChange={(event) => onChange({ clientFamilyId: event.target.value.toLowerCase() })} placeholder="client-family" aria-invalid={draft.clientFamilyId.length > 0 && !clientValid} /></label>}
+          </div>
+          <div className="project-evidence-list">
+            <span><b>Request source</b><code>local-founder · locked</code></span>
+            <span><b>Derived kind</b><code>{derivedKind}</code></span>
+            <span><b>Destination</b><code>thoughtseed/{draft.slug || '&lt;repository&gt;'}</code></span>
+            <span><b>After creation</b><code>pending-cambium-ingestion</code></span>
+          </div>
+          <div className="admin-action-panel">
+            <div><ShieldCheck aria-hidden="true" /><span><strong>Durable creation intent</strong><small>R2 evidence first · trusted local execution later</small></span></div>
+            <button type="submit" className="primary-button" disabled={!canSubmit}>
+              <Plus aria-hidden="true" /> {actionState.status === 'saving' ? 'Saving…' : 'Save creation intent'}
+            </button>
+            {!actionsAvailable && <p>Hosted admin connection required. The local preview cannot write.</p>}
+            {draft.origin === 'unknown' && <p>Choose explicit origin evidence before creating a repository.</p>}
+            {actionState.status === 'queued' && <p role="status">Execution-ready intent queued · receipt {actionState.receiptId}</p>}
+          </div>
+        </form>
+      </div>
+    </aside>
   )
 }
 
@@ -524,6 +696,9 @@ function PlanDrawer({
   onTab,
   onChange,
   onReconciliationChange,
+  actionState,
+  actionsAvailable,
+  onQueueReconciliation,
   onClose,
 }: {
   work: WorkObject
@@ -535,6 +710,9 @@ function PlanDrawer({
   onTab: (tab: DrawerTab) => void
   onChange: (patch: Partial<WorkPlan>) => void
   onReconciliationChange: (patch: Partial<PortfolioReconciliation>) => void
+  actionState: AdminActionState
+  actionsAvailable: boolean
+  onQueueReconciliation: () => void
   onClose: () => void
 }) {
   const [tagDraft, setTagDraft] = useState('')
@@ -709,7 +887,7 @@ function PlanDrawer({
             {readiness.classificationMismatch && (
               <div className="mapping-warning" role="alert">
                 <AlertTriangle aria-hidden="true" />
-                <p>Canonical mismatch: export a mapping proposal. This WorkObject stays locked and the catalog is not rewritten locally.</p>
+                <p>Canonical mismatch: save and queue the mapping proposal for governed review. This WorkObject stays locked until that review changes source truth.</p>
               </div>
             )}
             <fieldset className="intake-checklist">
@@ -726,12 +904,20 @@ function PlanDrawer({
               {readiness.ready ? <Check aria-hidden="true" /> : <Target aria-hidden="true" />}
               <div><strong>{readiness.ready ? 'Ready for scheduling' : 'Scheduling locked'}</strong>{readiness.blockers.map((blocker) => <p key={blocker}>{blocker}</p>)}</div>
             </div>
+            <div className="admin-action-panel">
+              <div><ShieldCheck aria-hidden="true" /><span><strong>Save intake action</strong><small>Immutable R2 receipt · pending repository review</small></span></div>
+              <button type="button" className="primary-button" disabled={!actionsAvailable || actionState.status === 'saving'} onClick={onQueueReconciliation}>
+                <FolderGit2 aria-hidden="true" /> {actionState.status === 'saving' ? 'Saving…' : 'Save & queue repository review'}
+              </button>
+              {!actionsAvailable && <p>Hosted admin connection required. The local preview cannot write.</p>}
+              {actionState.status === 'queued' && <p role="status">Queued · receipt {actionState.receiptId}</p>}
+            </div>
             {work.classification === 'client-branch' && (
               <div className="reusable-ip-note"><Sparkles aria-hidden="true" /><p>Reusable Thoughtseed IP from this client work becomes a separate linked Sapling proposal. The client project remains a Client Branch.</p></div>
             )}
             <div className="authority-note">
               <ShieldCheck aria-hidden="true" />
-              <div><strong>Source truth is read-only</strong><p>Vault classifies. Local planning is a reversible proposal.</p></div>
+              <div><strong>Source truth changes through governance</strong><p>This action records durable evidence and queues review; it never rewrites the catalog directly.</p></div>
             </div>
             <dl className="fact-grid">
               <div><dt>Canonical type</dt><dd>{label(work.classification)}</dd></div>
@@ -756,10 +942,10 @@ function PlanDrawer({
 
         {tab === 'plan' && (
           <section className="drawer-section plan-section">
-            {planningLocked && <div className="planning-lock"><ShieldCheck aria-hidden="true" /><p>Complete Intake before changing scheduling. Existing legacy plan values remain visible and exportable.</p></div>}
+            {planningLocked && <div className="planning-lock"><ShieldCheck aria-hidden="true" /><p>Complete Intake before changing scheduling. Existing legacy plan values remain visible in the local draft.</p></div>}
             <fieldset disabled={planningLocked} className="planning-fieldset">
             <div className="field-block">
-              <span className="field-title">Portfolio signal <small>local plan</small></span>
+              <span className="field-title">Portfolio signal <small>draft until saved</small></span>
               <div className="signal-options">
                 {PORTFOLIO_SIGNALS.map((signal) => (
                   <button
@@ -931,10 +1117,12 @@ function App() {
   const initial = useMemo(loadLocalState, [])
   const [plans, setPlans] = useState<Record<string, WorkPlan>>({ ...initial.plans })
   const [reviewDecisions, setReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.reviewDecisions })
-  const [retiredReviewDecisions, setRetiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })
+  const [retiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })
   const [reconciliations, setReconciliations] = useState<Record<string, PortfolioReconciliation>>({ ...initial.reconciliations })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('intake')
+  const [projectCreationOpen, setProjectCreationOpen] = useState(false)
+  const [projectCreation, setProjectCreation] = useState<ProjectCreationDraft>({ name: '', slug: '', origin: 'unknown', clientFamilyId: '' })
   const [activeView, setActiveView] = useState<SmartView>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('family')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set(
@@ -949,9 +1137,11 @@ function App() {
   const [bulkTag, setBulkTag] = useState('')
   const [planningHistory, setPlanningHistory] = useState(emptyPlanningHistory)
   const bulkUndo = planningHistory.bulk
-  const [autosaveBlocked, setAutosaveBlocked] = useState(initial.autosaveBlocked)
+  const [autosaveBlocked] = useState(initial.autosaveBlocked)
   const [notice, setNotice] = useState(initial.notice)
-  const importRef = useRef<HTMLInputElement>(null)
+  const [adminAction, setAdminAction] = useState<AdminActionState>({ status: 'idle', receiptId: null })
+  const actionsAvailable = useMemo(hostedAdminActionsAvailable, [])
+  const pendingActionKeys = useRef(new Map<string, { fingerprint: string; key: string }>())
   const workspaceHeadingRef = useRef<HTMLHeadingElement>(null)
 
   const focusedWork = useMemo(
@@ -976,15 +1166,17 @@ function App() {
     if (autosaveBlocked) return
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })))
-      setNotice('Saved locally · proposal only')
+      setNotice('Local draft updated · save the focused action when ready')
     } catch {
-      setNotice('Local save unavailable · export before closing')
+      setNotice('Local draft unavailable · use the explicit server action when ready')
     }
   }, [autosaveBlocked, focusedId, plans, reconciliations, retiredReviewDecisions, reviewDecisions])
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && focusedId) closeDrawer()
+      if (event.key !== 'Escape') return
+      if (projectCreationOpen) setProjectCreationOpen(false)
+      else if (focusedId) closeDrawer()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -1020,7 +1212,7 @@ function App() {
         updatedAt: new Date().toISOString(),
       },
     }))
-    setNotice('Repository-first intake saved locally · proposal only')
+    setNotice('Repository-first intake draft updated · save and queue it when ready')
   }
 
   function toggleFamily(groupId: string) {
@@ -1168,64 +1360,81 @@ function App() {
     setFocusedId(null)
   }
 
-  function exportJson() {
-    const packet = createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })
-    downloadText('thoughtseed-portfolio-workbench.json', `${JSON.stringify(packet, null, 2)}\n`, 'application/json')
-    setNotice('JSON planning packet exported')
+  function retrySafeActionKey(subjectId: string, proposal: Record<string, unknown>): string {
+    const fingerprint = JSON.stringify(proposal)
+    const pending = pendingActionKeys.current.get(subjectId)
+    if (pending?.fingerprint === fingerprint) return pending.key
+    const key = actionIdempotencyKey(subjectId)
+    pendingActionKeys.current.set(subjectId, { fingerprint, key })
+    return key
   }
 
-  function exportMarkdown() {
-    downloadText('thoughtseed-portfolio-workbench.md', toMarkdown(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })), 'text/markdown')
-    setNotice('Markdown planning brief exported')
-  }
-
-  async function copyBrief() {
-    try {
-      await navigator.clipboard.writeText(toMarkdown(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })))
-      setNotice('Planning brief copied')
-    } catch {
-      setNotice('Clipboard unavailable · use Markdown export')
+  async function queueWorkObjectReconciliation(work: WorkObject, reconciliation: PortfolioReconciliation) {
+    setAdminAction({ status: 'saving', receiptId: null })
+    const proposal = {
+      repositorySourceRef: reconciliation.repositorySourceRef,
+      repositoryDisposition: reconciliation.repositoryDisposition,
+      origin: reconciliation.origin,
+      clientFamilyId: reconciliation.clientFamilyId,
+      planningAuthority: reconciliation.planningAuthority,
+      repositoryPlanningReviewed: reconciliation.repositoryPlanningReviewed,
+      githubIssuesReviewed: reconciliation.githubIssuesReviewed,
+      legacyEvidenceReviewed: reconciliation.legacyEvidenceReviewed,
+      note: reconciliation.note,
     }
-  }
-
-  async function importPacket(file: File) {
     try {
-      const restored = parsePacket(JSON.parse(await file.text()))
-      setAutosaveBlocked(false)
-      setPlans({ ...restored.plans })
-      setReviewDecisions({ ...restored.reviewDecisions })
-      setRetiredReviewDecisions({ ...restored.retiredReviewDecisions })
-      setReconciliations({ ...restored.reconciliations })
-      setFocusedId(restored.focusedId)
-      setPlanningHistory(emptyPlanningHistory())
-      exitBulkMode()
-      setNotice(`Imported ${Object.keys(restored.plans).length} plans · ${Object.keys(restored.reconciliations).length} reconciliations · ${Object.keys(restored.retiredReviewDecisions).length} retired reviews preserved`)
+      const receipt = await postPortfolioAdminAction({
+        schema: 'thoughtseed.portfolio-admin-action.v1',
+        kind: 'reconcile-work-object',
+        portfolioId: 'thoughtseed',
+        idempotencyKey: retrySafeActionKey(work.workId, proposal),
+        rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+        sourceDigest: CLASSIFICATION_DIGEST,
+        subject: { id: work.workId, name: work.name },
+        proposal,
+      })
+      pendingActionKeys.current.delete(work.workId)
+      setAdminAction({ status: 'queued', receiptId: receipt.receiptId })
+      setNotice(`${work.name} · saved to durable evidence and queued for repository intake review`)
     } catch (error) {
-      setNotice(error instanceof Error ? `Import rejected · ${error.message}` : 'Import rejected')
-    } finally {
-      if (importRef.current) importRef.current.value = ''
+      const message = error instanceof Error ? error.message : 'Portfolio action failed'
+      const durableReceipt = message.match(/Evidence (pa_[0-9a-f]+) is durable/)?.[1] ?? null
+      setAdminAction({ status: 'error', receiptId: durableReceipt })
+      setNotice(message)
     }
   }
 
-  function resetAll() {
-    if (!window.confirm('Clear every local Portfolio Workbench plan? Export first if you need a recovery packet.')) return
-    setPlans({})
-    setReviewDecisions({})
-    setRetiredReviewDecisions({})
-    setReconciliations({})
-    setFocusedId(null)
-    setPlanningHistory(emptyPlanningHistory())
-    setAutosaveBlocked(false)
-    exitBulkMode()
-    try {
-      window.localStorage.removeItem(STORAGE_KEY)
-      window.localStorage.removeItem(V3_STORAGE_KEY)
-      window.localStorage.removeItem(V2_STORAGE_KEY)
-      window.localStorage.removeItem(LEGACY_STORAGE_KEY)
-    } catch {
-      // State is already cleared in memory.
+  async function queueProjectCreation() {
+    setAdminAction({ status: 'saving', receiptId: null })
+    const proposal = {
+      intentSchema: 'thoughtseed.project-creation-intent.v1',
+      requestSource: 'local-founder',
+      name: projectCreation.name.trim(),
+      slug: projectCreation.slug,
+      origin: projectCreation.origin,
+      clientFamilyId: projectCreation.clientFamilyId,
+      founderApproval: null,
     }
-    setNotice('Local planning state cleared')
+    try {
+      const receipt = await postPortfolioAdminAction({
+        schema: 'thoughtseed.portfolio-admin-action.v1',
+        kind: 'create-thoughtseed-project',
+        portfolioId: 'thoughtseed',
+        idempotencyKey: retrySafeActionKey(`new:${projectCreation.slug}`, proposal),
+        rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+        sourceDigest: CLASSIFICATION_DIGEST,
+        subject: { id: projectCreation.slug, name: projectCreation.name.trim() },
+        proposal,
+      })
+      pendingActionKeys.current.delete(`new:${projectCreation.slug}`)
+      setAdminAction({ status: 'queued', receiptId: receipt.receiptId })
+      setNotice(`${projectCreation.name.trim()} · creation intent is ${receipt.approvalStatus ?? 'execution-ready'}; local executor is the filesystem writer`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Portfolio action failed'
+      const durableReceipt = message.match(/Evidence (pa_[0-9a-f]+) is durable/)?.[1] ?? null
+      setAdminAction({ status: 'error', receiptId: durableReceipt })
+      setNotice(message)
+    }
   }
 
   function renderCard(work: WorkObject) {
@@ -1240,7 +1449,7 @@ function App() {
         onFocus={() => openDrawer(work.workId)}
         onQuickSignal={(signal) => {
           updatePlan(work.workId, { signal })
-          setNotice(`${work.name} · ${label(signal)} local plan`)
+          setNotice(`${work.name} · ${label(signal)} draft plan`)
         }}
         unplannedTriage={activeView === 'unplanned'}
         reconciliation={reconciliations[work.workId]}
@@ -1249,28 +1458,15 @@ function App() {
   }
 
   return (
-    <main className={focusedWork ? 'workbench has-drawer' : 'workbench'}>
+    <main className={focusedWork || projectCreationOpen ? 'workbench has-drawer' : 'workbench'}>
       <header className="topbar">
         <div className="brand-lockup">
           <span className="brand-mark"><Sparkles aria-hidden="true" /></span>
-          <div><span>Thoughtseed · founder planning artifact</span><strong>Portfolio Workbench</strong></div>
+          <div><span>Thoughtseed · hosted founder admin</span><strong>Portfolio Workbench</strong></div>
         </div>
         <div className="top-actions">
-          <input
-            ref={importRef}
-            type="file"
-            accept="application/json,.json"
-            className="visually-hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (file) void importPacket(file)
-            }}
-          />
-          <button type="button" className="quiet-button" onClick={() => importRef.current?.click()}><FileUp /> Import</button>
-          <button type="button" className="quiet-button" onClick={copyBrief}><Clipboard /> Copy brief</button>
-          <button type="button" className="quiet-button" onClick={exportJson}><Braces /> JSON</button>
-          <button type="button" className="primary-button" onClick={exportMarkdown}><Download /> Markdown</button>
-          <button type="button" className="icon-button danger" onClick={resetAll} aria-label="Reset local planning"><RotateCcw /></button>
+          <button type="button" className="primary-button" onClick={() => { setProjectCreationOpen(true); setFocusedId(null); setAdminAction({ status: 'idle', receiptId: null }) }}><Plus aria-hidden="true" /> New Thoughtseed project</button>
+          <AdminActionStatus state={adminAction} available={actionsAvailable} />
         </div>
       </header>
 
@@ -1314,7 +1510,7 @@ function App() {
       <section className="workspace">
         {autosaveBlocked && (
           <div className="recovery-banner" role="alert">
-            Autosave is paused so unreadable local data stays untouched. Import a recovery packet or use Reset to replace it explicitly.
+            Local draft autosave is paused so unreadable data stays untouched. Server actions remain explicit and never overwrite this draft.
           </div>
         )}
         <header className="workspace-head">
@@ -1451,9 +1647,9 @@ function App() {
         </div>
 
         <footer className="workspace-footer">
-          <div><ShieldCheck /> <span>{CARTOGRAPHER_SCHEMA} · proposal only</span></div>
+          <div><ShieldCheck /> <span>{CARTOGRAPHER_SCHEMA} · admin actions receipted</span></div>
           <p aria-live="polite">{notice}</p>
-          <div><Network /> <span>Offline · zero writers</span></div>
+          <div><Network /> <span>{actionsAvailable ? 'Hosted admin · governed writes' : 'Local preview · no writes'}</span></div>
         </footer>
       </section>
 
@@ -1468,7 +1664,24 @@ function App() {
           onTab={setDrawerTab}
           onChange={(patch) => updatePlan(focusedWork.workId, patch)}
           onReconciliationChange={(patch) => updateReconciliation(focusedWork.workId, patch)}
+          actionState={adminAction}
+          actionsAvailable={actionsAvailable}
+          onQueueReconciliation={() => void queueWorkObjectReconciliation(
+            focusedWork,
+            reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId),
+          )}
           onClose={closeDrawer}
+        />
+      )}
+      {projectCreationOpen && (
+        <ProjectCreationDrawer
+          draft={projectCreation}
+          derivedKind={derivedProjectKind(projectCreation.origin)}
+          actionState={adminAction}
+          actionsAvailable={actionsAvailable}
+          onChange={(patch) => { setProjectCreation((current) => ({ ...current, ...patch })); setAdminAction({ status: 'idle', receiptId: null }) }}
+          onSubmit={() => void queueProjectCreation()}
+          onClose={() => setProjectCreationOpen(false)}
         />
       )}
     </main>

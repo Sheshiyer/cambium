@@ -170,6 +170,97 @@ code {
   min-width: 0;
 }
 
+.portfolio-switcher {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgb(11 24 18 / 82%);
+}
+
+.portfolio-switcher button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  background: transparent;
+}
+
+.portfolio-switcher button:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
+.portfolio-switcher button.is-active {
+  color: var(--lime);
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+
+.portfolio-switcher svg,
+.root-map-status svg,
+.admin-action-status svg {
+  width: 15px;
+  height: 15px;
+}
+
+.root-map-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--lime);
+  font-size: 10px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.root-map-status small {
+  color: var(--faint);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.admin-action-status {
+  min-width: 168px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  color: var(--lime);
+  text-align: right;
+}
+
+.admin-action-status span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.admin-action-status small {
+  overflow: hidden;
+  color: var(--faint);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 8px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-action-status.status-error {
+  color: var(--amber);
+}
+
 .top-actions button,
 .quiet-button,
 .primary-button,
@@ -272,12 +363,14 @@ code {
   line-height: 1.55;
 }
 
-.smart-nav {
+.smart-nav,
+.project-nav {
   display: grid;
   gap: 4px;
 }
 
-.smart-nav > span {
+.smart-nav > span,
+.project-nav > span {
   padding: 0 8px 6px;
   color: var(--faint);
   font-size: 10px;
@@ -286,7 +379,8 @@ code {
   text-transform: uppercase;
 }
 
-.smart-nav button {
+.smart-nav button,
+.project-nav button {
   width: 100%;
   min-height: 40px;
   display: grid;
@@ -301,28 +395,33 @@ code {
   background: transparent;
 }
 
-.smart-nav button:hover {
+.smart-nav button:hover,
+.project-nav button:hover {
   color: var(--ink);
   background: var(--surface-2);
 }
 
-.smart-nav button.is-active {
+.smart-nav button.is-active,
+.project-nav button.is-active {
   color: var(--lime);
   border-color: var(--line-strong);
   background: linear-gradient(90deg, rgb(217 255 99 / 10%), var(--surface-2));
 }
 
-.smart-nav button svg {
+.smart-nav button svg,
+.project-nav button svg {
   width: 16px;
   height: 16px;
 }
 
-.smart-nav button span {
+.smart-nav button span,
+.project-nav button span {
   font-size: 12px;
   font-weight: 700;
 }
 
-.smart-nav button strong {
+.smart-nav button strong,
+.project-nav button strong {
   min-width: 26px;
   padding: 3px 6px;
   border-radius: 999px;
@@ -745,6 +844,7 @@ code {
 .kind-mark.kind-sapling { color: var(--lime); }
 .kind-mark.kind-client-branch { color: var(--amber); }
 .kind-mark.kind-internal-program { color: var(--violet); }
+.kind-mark.kind-project { color: var(--cyan); }
 
 .work-heading {
   min-width: 0;
@@ -892,6 +992,45 @@ code {
 .tag-overflow {
   color: var(--faint);
   font-size: 8px;
+}
+
+.folder-receipt {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  padding: 7px 8px;
+  border: 1px solid rgb(118 215 232 / 18%);
+  border-radius: 8px;
+  color: var(--cyan);
+  background: rgb(118 215 232 / 4%);
+}
+
+.folder-receipt.is-gap {
+  color: var(--amber);
+  border-color: rgb(255 196 99 / 20%);
+  background: rgb(255 196 99 / 4%);
+}
+
+.folder-receipt svg {
+  width: 13px;
+  height: 13px;
+}
+
+.folder-receipt span {
+  overflow: hidden;
+  font: 8px/1.3 "SFMono-Regular", monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-receipt small {
+  color: var(--faint);
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .work-card-actions {
@@ -1234,7 +1373,8 @@ code {
 .intake-rule,
 .planning-lock,
 .mapping-warning,
-.reusable-ip-note {
+.reusable-ip-note,
+.admin-action-panel {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -1252,6 +1392,46 @@ code {
 .reusable-ip-note svg {
   margin-top: 2px;
   color: #527128;
+}
+
+.admin-action-panel {
+  display: grid;
+  color: #253228;
+  border-color: #a9bca7;
+  background: #e7eadf;
+}
+
+.admin-action-panel > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.admin-action-panel > div > span {
+  display: grid;
+  gap: 2px;
+}
+
+.admin-action-panel strong {
+  font-size: 11px;
+}
+
+.admin-action-panel small {
+  color: #667268;
+  font-size: 9px;
+}
+
+.admin-action-panel .primary-button {
+  width: 100%;
+  min-height: 44px;
+}
+
+.admin-action-panel p {
+  margin: 0;
+  color: #68736a;
+  font-size: 9px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .authority-note strong {
@@ -1868,6 +2048,20 @@ code {
   display: block;
 }
 
+.family-folder-map {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--cyan);
+  font: 8px/1.25 "SFMono-Regular", monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.family-folder-map.is-gap {
+  color: var(--amber);
+}
+
 .family-header strong {
   overflow: hidden;
   color: var(--ink);
@@ -1905,6 +2099,136 @@ code {
 .family-group > div {
   padding: 11px;
   border-top: 1px solid var(--line);
+}
+
+.static-family-header {
+  width: 100%;
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: auto minmax(150px, 1fr) minmax(120px, auto) auto;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 13px;
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.static-family-header > svg {
+  color: var(--lime);
+}
+
+.static-family-header strong,
+.static-family-header small {
+  display: block;
+}
+
+.static-family-header strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.static-family-header small {
+  margin-top: 3px;
+  color: var(--faint);
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.static-family-header > b {
+  min-width: 30px;
+  padding: 5px 7px;
+  border-radius: 999px;
+  color: var(--lime);
+  font: 9px/1 "SFMono-Regular", monospace;
+  text-align: center;
+  background: var(--surface-3);
+}
+
+.project-command-bar {
+  justify-content: space-between;
+}
+
+.project-command-bar .search-control {
+  flex: 1;
+}
+
+.read-only-rule {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  color: var(--cyan);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.project-card {
+  min-height: 230px;
+}
+
+.project-intake-copy {
+  margin: 12px 0;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+
+.project-intake-copy strong {
+  color: var(--ink);
+  font-size: 10px;
+}
+
+.project-intake-copy p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.project-intake-action {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 900;
+  background: var(--surface-2);
+}
+
+.project-intake-action:hover {
+  color: var(--lime);
+  border-color: var(--lime-dark);
+}
+
+.project-evidence-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.project-evidence-list span {
+  display: grid;
+  gap: 4px;
+  padding: 11px;
+  border: 1px solid #ced3c4;
+  border-radius: 8px;
+  background: #eef1e6;
+}
+
+.project-evidence-list b {
+  color: #687164;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.project-evidence-list code {
+  color: #243227;
+  font-size: 10px;
 }
 
 .unplanned-actions {
@@ -2241,6 +2565,14 @@ code {
 
   .top-actions {
     overflow-x: auto;
+  }
+
+  .admin-action-status {
+    min-width: 0;
+  }
+
+  .admin-action-status span {
+    display: none;
   }
 
   .top-actions button {

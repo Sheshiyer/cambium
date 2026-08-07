@@ -11,6 +11,10 @@ import {
 } from './portfolio-workbench.generated.ts';
 import { PORTFOLIO_WORKBENCH_LOADER } from './portfolio-workbench.ts';
 import { PORTFOLIO_WORKBENCH_CSP } from './portfolio-workbench.ts';
+import type {
+  PortfolioAdminActionQueueLike,
+  PortfolioAdminActionStoreLike,
+} from './portfolio-admin-actions.ts';
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_SCENES } from './page/operating-fabric/scaffold.ts';
 
@@ -22,7 +26,9 @@ const VIEWER_ID = '200000099';
 const TEAM_DOMAIN = 'red-queen-4dfa.cloudflareaccess.com';
 const ACCESS_AUD = '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200';
 const ACCESS_KID = 'portfolio-access-test-kid';
-const PORTFOLIO_BYTES_RE = /portfolio-workbench@v4; offline; proposal-only|data-bundled="portfolio-cartographer"/;
+const PORTFOLIO_BYTES_RE = /portfolio-workbench@v4; hosted-admin|data-bundled="portfolio-cartographer"/;
+const ROOT_DIGEST = '588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b';
+const SOURCE_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2';
 
 const { publicKey: accessPublicKey, privateKey: accessPrivateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const accessJwk = accessPublicKey.export({ format: 'jwk' });
@@ -45,8 +51,51 @@ async function signedInitData(userId: string): Promise<{ initData: string; pubKe
   return { initData: fields.toString(), pubKeyHex };
 }
 
-function request(method: string, path: string, headers: Record<string, string> = {}): SimpleRequest {
-  return { method, path, headers };
+function request(method: string, path: string, headers: Record<string, string> = {}, body?: unknown): SimpleRequest {
+  return { method, path, headers, ...(body === undefined ? {} : { body: JSON.stringify(body) }) };
+}
+
+function portfolioActionInput() {
+  return {
+    schema: 'thoughtseed.portfolio-admin-action.v1',
+    kind: 'reconcile-work-object',
+    portfolioId: 'thoughtseed',
+    idempotencyKey: 'route-save-cambium-1',
+    rootMapDigest: ROOT_DIGEST,
+    sourceDigest: SOURCE_DIGEST,
+    subject: { id: 'sapling:cambium', name: 'Cambium' },
+    proposal: {
+      repositorySourceRef: 'repo:Sheshiyer/cambium',
+      repositoryDisposition: 'resolved',
+      origin: 'thoughtseed-venture',
+      clientFamilyId: '',
+      planningAuthority: { kind: 'repository', repositoryId: 'R_cambium', fullName: 'Sheshiyer/cambium' },
+      repositoryPlanningReviewed: true,
+      githubIssuesReviewed: true,
+      legacyEvidenceReviewed: true,
+      note: 'Route integration evidence.',
+    },
+  };
+}
+
+function actionStores(events: string[] = []): {
+  store: PortfolioAdminActionStoreLike;
+  queue: PortfolioAdminActionQueueLike;
+} {
+  return {
+    store: {
+      async record() {
+        events.push('r2');
+        return { duplicate: false, recordedAt: '2026-08-07T09:30:00.000Z' };
+      },
+    },
+    queue: {
+      async enqueue() {
+        events.push('queue');
+        return { duplicate: false };
+      },
+    },
+  };
 }
 
 function b64url(value: Buffer | string): string {
@@ -105,7 +154,7 @@ function deps(
   };
 }
 
-test('public portfolio route preserves Telegram initData flow, falls back with location.replace, and all portfolio routes are GET-only', async () => {
+test('public portfolio route preserves Telegram initData flow, falls back with location.replace, and page routes are GET-only', async () => {
   const fixture = deps();
   const response = await handle(request('GET', '/admin/portfolio'), fixture.value);
   assert.equal(response.status, 200);
@@ -124,6 +173,9 @@ test('public portfolio route preserves Telegram initData flow, falls back with l
     assert.equal(denied.status, 405);
     assert.equal(denied.headers.allow, 'GET');
   }
+  const actionRead = await handle(request('GET', '/v1/admin/portfolio/actions'), fixture.value);
+  assert.equal(actionRead.status, 405);
+  assert.equal(actionRead.headers.allow, 'POST');
   assert.equal(fixture.writes(), 0);
 });
 
@@ -212,7 +264,7 @@ test('founder receives the exact generated bundle with strict no-store and CSP h
   );
   assert.equal(response.headers['cache-control'], 'private, no-store');
   assert.match(response.headers['content-security-policy'], /default-src 'none'/);
-  assert.match(response.headers['content-security-policy'], /connect-src 'none'/);
+  assert.match(response.headers['content-security-policy'], /connect-src 'self'/);
   const documentCsp = PORTFOLIO_WORKBENCH_CSP
     .split('; ')
     .filter((directive) => !directive.startsWith('frame-ancestors '))
@@ -249,8 +301,100 @@ test('browser portfolio route serves the exact bundle for a canonical founder Cl
   assert.equal(response.headers['cache-control'], 'private, no-store');
   assert.equal(response.headers['x-content-type-options'], 'nosniff');
   assert.equal(response.headers['referrer-policy'], 'no-referrer');
-  assert.match(response.headers['content-security-policy'], /connect-src 'none'/);
+  assert.match(response.headers['content-security-policy'], /connect-src 'self'/);
   assert.equal(fixture.writes(), 0);
+});
+
+test('Cloudflare Access founder action records durable evidence before the governed trigger', async () => {
+  const jwt = signAccessJwt(validAccessPayload());
+  const events: string[] = [];
+  const stores = actionStores(events);
+  const fixture = deps(undefined, {
+    plexus: { teamDomain: TEAM_DOMAIN, aud: ACCESS_AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    plexusFetchImpl: plexusFetch(200, {
+      ok: true,
+      data: { email: 'founder@thoughtseed.space', role: 'admin', identityId: 'pid_founder' },
+    }),
+    portfolioActionStore: stores.store,
+    portfolioActionQueue: stores.queue,
+    now: () => '2026-08-07T09:30:00.000Z',
+  });
+  const response = await handle(request(
+    'POST',
+    '/v1/admin/portfolio/actions',
+    { 'cf-access-jwt-assertion': jwt, 'content-type': 'application/json' },
+    portfolioActionInput(),
+  ), fixture.value);
+
+  assert.equal(response.status, 200);
+  const body = JSON.parse(String(response.body));
+  assert.equal(body.ok, true);
+  assert.equal(body.receipt.status, 'queued');
+  assert.equal(body.receipt.nextFlow, 'repository-intake-review');
+  assert.deepEqual(events, ['r2', 'queue']);
+  assert.equal(response.headers['cache-control'], 'no-store');
+});
+
+test('Telegram founder can queue an action while missing, non-founder, and unconfigured writers fail closed', async () => {
+  const auth = await signedInitData(FOUNDER_ID);
+  const gate: GateConfig = {
+    botId: BOT_ID,
+    pubKeyHex: auth.pubKeyHex,
+    founderIds: [FOUNDER_ID],
+    now: () => NOW_MS,
+  };
+  const stores = actionStores();
+  const configured = deps(gate, {
+    portfolioActionStore: stores.store,
+    portfolioActionQueue: stores.queue,
+    now: () => '2026-08-07T09:30:00.000Z',
+  });
+  const accepted = await handle(request(
+    'POST',
+    '/v1/admin/portfolio/actions',
+    { 'x-telegram-init-data': auth.initData, 'content-type': 'application/json' },
+    portfolioActionInput(),
+  ), configured.value);
+  assert.equal(accepted.status, 200);
+
+  const missingIdentity = await handle(request(
+    'POST', '/v1/admin/portfolio/actions', { 'content-type': 'application/json' }, portfolioActionInput(),
+  ), configured.value);
+  assert.equal(missingIdentity.status, 401);
+
+  const missingStores = await handle(request(
+    'POST',
+    '/v1/admin/portfolio/actions',
+    { 'x-telegram-init-data': auth.initData, 'content-type': 'application/json' },
+    portfolioActionInput(),
+  ), deps(gate).value);
+  assert.equal(missingStores.status, 503);
+});
+
+test('portfolio action route rejects malformed and oversized input before storage', async () => {
+  const jwt = signAccessJwt(validAccessPayload());
+  const events: string[] = [];
+  const stores = actionStores(events);
+  const fixture = deps(undefined, {
+    plexus: { teamDomain: TEAM_DOMAIN, aud: ACCESS_AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    plexusFetchImpl: plexusFetch(200, {
+      ok: true,
+      data: { email: 'founder@thoughtseed.space', role: 'admin', identityId: 'pid_founder' },
+    }),
+    portfolioActionStore: stores.store,
+    portfolioActionQueue: stores.queue,
+  });
+  const headers = { 'cf-access-jwt-assertion': jwt, 'content-type': 'application/json' };
+  const malformed = await handle(request('POST', '/v1/admin/portfolio/actions', headers, { nope: true }), fixture.value);
+  const oversized = await handle({
+    method: 'POST',
+    path: '/v1/admin/portfolio/actions',
+    headers,
+    body: JSON.stringify({ value: 'x'.repeat(20_000) }),
+  }, fixture.value);
+  assert.equal(malformed.status, 400);
+  assert.equal(oversized.status, 413);
+  assert.deepEqual(events, []);
 });
 
 test('browser portfolio route fails closed uniformly for missing, invalid, non-founder, and degraded identities', async () => {

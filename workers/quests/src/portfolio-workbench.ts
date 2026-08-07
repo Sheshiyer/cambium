@@ -1,4 +1,4 @@
-// Public Telegram bootstrap and protected response contracts for the offline
+// Public Telegram bootstrap and protected response contracts for the hosted
 // Portfolio Workbench. The bootstrap carries no catalog bytes and keeps the
 // signed Telegram initData in one local variable for the single authenticated
 // fetch. Authorization remains entirely server-side.
@@ -19,7 +19,7 @@ export const PORTFOLIO_WORKBENCH_CSP = [
   "script-src 'unsafe-inline'",
   "style-src 'unsafe-inline'",
   "img-src data: blob:",
-  "connect-src 'none'",
+  "connect-src 'self'",
   "base-uri 'none'",
   "form-action 'none'",
   "frame-ancestors 'self' https://*.telegram.org",

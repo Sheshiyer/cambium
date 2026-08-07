@@ -5,6 +5,10 @@ import {
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts'
 import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts'
+import {
+  PORTFOLIO_ROOT_MAP_DIGEST,
+  PORTFOLIO_ROOTS,
+} from './portfolio-root-map.generated.ts'
 
 export const WORKBENCH_SCHEMA = 'thoughtseed.portfolio-workbench.v4' as const
 export const V3_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
@@ -31,6 +35,21 @@ export type WorkGroupKind = 'client-family' | 'saplings' | 'internal-programs'
 export type PortfolioOrigin = 'thoughtseed-venture' | 'thoughtseed-internal' | 'client' | 'unknown'
 export type DerivedClassification = Classification | 'needs-review'
 export type RepositoryDisposition = 'resolved' | 'no-repository' | 'unmatched' | 'ambiguous'
+export type PortfolioId = 'thoughtseed' | 'tryambakam-noesis'
+export type PortfolioFolderKind = 'client-branch' | 'sapling' | 'internal-program' | 'needs-review' | 'project'
+export type PortfolioFolderStatus = 'mapping-proposal' | 'awaiting-ingestion' | 'empty-hold'
+
+export interface PortfolioFolderMapping {
+  portfolioId: PortfolioId
+  portfolioLabel: string
+  itemLabel: string
+  folder: string
+  path: string
+  proposedKind: PortfolioFolderKind
+  accountId: string | null
+  workIds: readonly string[]
+  status: PortfolioFolderStatus
+}
 
 export type PlanningAuthority =
   | { kind: 'repository'; repositoryId: string; fullName: string }
@@ -160,6 +179,50 @@ export interface WorkObjectGroup {
   provenance: 'source-account' | 'source-classification'
   members: readonly WorkObject[]
   signalSummary: Readonly<Record<PortfolioSignal, number>>
+}
+
+export { PORTFOLIO_ROOT_MAP_DIGEST, PORTFOLIO_ROOTS }
+
+export function portfolioRoot(portfolioId: PortfolioId) {
+  const root = PORTFOLIO_ROOTS.find((candidate) => candidate.portfolioId === portfolioId)
+  if (!root) throw new Error(`Unknown portfolio root: ${portfolioId}`)
+  return root
+}
+
+function toPortfolioFolderMapping(
+  portfolioId: PortfolioId,
+  folder: (typeof PORTFOLIO_ROOTS)[number]['folders'][number],
+): PortfolioFolderMapping {
+  const root = portfolioRoot(portfolioId)
+  return {
+    portfolioId,
+    portfolioLabel: root.label,
+    itemLabel: root.itemLabel,
+    folder: folder.folder,
+    path: `${portfolioId}/${folder.folder}`,
+    proposedKind: folder.proposedKind,
+    accountId: folder.accountId,
+    workIds: folder.workIds,
+    status: folder.status,
+  }
+}
+
+export function portfolioFolderMappings(portfolioId: PortfolioId): readonly PortfolioFolderMapping[] {
+  const root = portfolioRoot(portfolioId)
+  return root.folders.map((folder) => toPortfolioFolderMapping(portfolioId, folder))
+}
+
+export function portfolioFolderMappingsForWork(workId: string): readonly PortfolioFolderMapping[] {
+  return portfolioFolderMappings('thoughtseed').filter((mapping) => mapping.workIds.includes(workId))
+}
+
+export function portfolioFolderMappingsForGroup(group: WorkObjectGroup): readonly PortfolioFolderMapping[] {
+  const workIds = new Set(group.members.map((member) => member.workId))
+  return portfolioFolderMappings('thoughtseed').filter((mapping) => (
+    group.kind === 'client-family'
+      ? group.accountId !== null && mapping.accountId === group.accountId
+      : mapping.workIds.some((workId) => workIds.has(workId))
+  ))
 }
 
 export interface Pipeline {
