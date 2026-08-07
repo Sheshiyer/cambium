@@ -1,0 +1,263 @@
+# ==============================================================================
+# Universal .gitignore — drop into any project before the first `git add`
+# ==============================================================================
+#
+# Curated 2026-08-08 from a vault-wide audit. Two rules shaped it:
+#
+#   1. AGGRESSIVE on secrets and provably-generated output.
+#   2. CONSERVATIVE on anything that might be authored content. Over-ignoring
+#      hides real work: one project in this vault carried 95,948 insertions of
+#      uncommitted backend code that nothing could see. A file wrongly ignored
+#      is indistinguishable from a file that does not exist.
+#
+# Order matters. Broad patterns first, `!` re-includes after — git applies the
+# LAST matching rule.
+#
+# CRITICAL: .gitignore does not untrack what is already committed. If a secret
+# was committed before this file existed, adding it here changes nothing — the
+# value stays in history and must be ROTATED, then removed with
+# `git rm --cached <file>`. Check before trusting this file:
+#     git ls-files | grep -E '\.env|\.dev\.vars|\.pem$|\.key$'
+#
+
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# The reason this file exists. Every real .env variant, then example files
+# re-included so onboarding still works.
+
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+*.local.env
+
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+!.dev.vars.example
+
+# Credential material and key files
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+!**/public*.pem
+id_rsa
+id_ed25519
+*.ppk
+
+# Cloud/CLI credential caches. wrangler-account.json holds a Cloudflare
+# account id; gcloud/aws/azure caches hold live tokens.
+.wrangler/
+.aws/
+.azure/
+.gcloud/
+gha-creds-*.json
+service-account*.json
+*-credentials.json
+*.serviceaccount.json
+
+# Tool auth
+.npmrc
+.yarnrc
+.netrc
+!.npmrc.example
+
+# Mobile signing
+*.mobileprovision
+*.cer
+google-services.json
+GoogleService-Info.plist
+!google-services.example.json
+
+
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+bower_components/
+vendor/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/versions
+
+
+# ── Build output ──────────────────────────────────────────────────────────────
+# Regenerable by definition. If a build artifact must ship, re-include it
+# explicitly rather than deleting a rule here.
+dist/
+build/
+out/
+.output/
+.vercel/
+.netlify/
+
+# Framework caches
+.next/
+.nuxt/
+.astro/
+.svelte-kit/
+.docusaurus/
+.expo/
+.expo-shared/
+.parcel-cache/
+.turbo/
+.cache/
+
+# Native
+src-tauri/target/
+src-tauri/gen/
+*.xcworkspace/xcuserdata/
+**/Pods/
+*.app
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+
+# Compiled
+*.o
+*.a
+*.so
+*.dylib
+*.class
+*.jar
+*.war
+
+
+# ── Language runtimes ─────────────────────────────────────────────────────────
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.Python
+*.egg-info/
+.eggs/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.tox/
+
+# Rust / Go
+target/
+*.rs.bk
+go.work.sum
+
+
+# ── Test and coverage artifacts ───────────────────────────────────────────────
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+.coverage.*
+playwright-report/
+test-results/
+blob-report/
+.playwright-cli/
+*.lcov
+lighthouse-report*
+
+
+# ── Logs and diagnostics ──────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.cpuprofile
+*.heapsnapshot
+*.heapprofile
+
+
+# ── Git worktrees ─────────────────────────────────────────────────────────────
+# Worktrees are checkouts OF this repo, not content IN it. `git add -A` sweeps
+# them in as embedded repositories, recording a gitlink to a commit the repo
+# does not contain — clones then get an empty directory and no way to fill it.
+# Observed for real in this vault; not hypothetical.
+.worktrees/
+.codex-worktrees/
+*.worktrees/
+
+
+# ── Agent and tooling state ───────────────────────────────────────────────────
+# Generated indexes and scratch state, NOT authored config. Deliberately narrow:
+# .claude/ and .agents/ often hold hand-written skills and context worth
+# committing, so only their volatile parts are excluded.
+.codegraph/
+.claude/settings.local.json
+.claude/**/cache/
+.superpowers/**/cache/
+.artifacts/
+.batch-progress.json
+.batch-contexts/
+.kombai/
+.omniroute-backups/
+.readme-gen.json
+.trae/
+.windsurf/
+.aider*
+
+
+# ── Editors and OS ────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.fleet/
+.zed/
+
+
+# ── Databases and dumps ───────────────────────────────────────────────────────
+# A local dev database is disposable; committing one is usually an accident and
+# frequently leaks real data.
+*.sqlite
+*.sqlite3
+*.db-journal
+*.dump
+*.sql.gz
+.d1/
+
+
+# ── Archives and large media ──────────────────────────────────────────────────
+# GitHub hard-rejects files over 100 MB and warns over 50 MB. Re-include
+# deliberately if an archive genuinely belongs in the repo.
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+!**/fixtures/**/*.zip
+
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+.node_repl_history
+.grunt
+.lock-wscript
