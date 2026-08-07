@@ -70,6 +70,19 @@ for dir in "$@"; do
     else
       echo "     existing .gitignore already covers every rule"
     fi
+
+    # Re-assert every `!` rule at the very end.
+    #
+    # Appending in template order is necessary but not sufficient: if the
+    # TARGET already carried `!.env.example` and the template contributes a
+    # broader `.env.*` after it, the broad rule now wins and the example file
+    # is silently excluded. Observed on noesismirror-web-falseearth.
+    # Re-emitting the negations last makes them unconditionally final.
+    negs=$(grep -hE '^!' "$target" "$TEMPLATE" 2>/dev/null | awk '!seen[$0]++')
+    if [[ -n "$negs" ]]; then
+      { echo ""; echo "# ── re-includes, kept last so they win (last match wins) ──"
+        echo "$negs"; } >> "$target"
+    fi
   fi
 
   # 3. prove it
