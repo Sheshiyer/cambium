@@ -8,6 +8,7 @@
   "scripts": {
     "test": "node --test 'scripts/*.test.mjs' 'bin/*.test.mjs' 'bin/operator/*.test.ts' 'bin/operator/onboarding/*.test.ts' 'bin/operator/quests/*.test.ts' 'bin/operator/skills/*.test.ts' 'bin/operator/narrative/*.test.ts' 'bin/quine/hyphae/*.test.ts' 'workers/quests/src/*.test.ts' 'workers/quests/src/goal-graph/*.test.ts' 'workers/quests/src/goal-graph-intake.test.ts' 'workers/quests/src/goal-graph-store.test.ts'",
     "operator": "node bin/operator/cli.ts",
+    "project:birth": "node scripts/thoughtseed-project-birth.mjs",
     "quine": "node bin/quine/quine.ts",
     "plan": "node bin/compose.mjs plan",
     "validate": "node bin/compose.mjs validate",

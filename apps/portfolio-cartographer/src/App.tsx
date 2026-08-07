@@ -10,7 +10,6 @@ import {
   Columns3,
   Filter,
   FolderGit2,
-  FolderKanban,
   GitBranch,
   Grid2X2,
   History,
@@ -61,10 +60,8 @@ import {
   normalizeClientFamilyId,
   normalizeReviewNote,
   parsePacket,
-  portfolioFolderMappings,
   portfolioFolderMappingsForGroup,
   portfolioFolderMappingsForWork,
-  portfolioRoot,
   resolvePipeline,
   signalProvenance,
   smartViewCount,
@@ -77,8 +74,6 @@ import {
   type OrganId,
   type PortfolioSignal,
   type PortfolioOrigin,
-  type PortfolioFolderMapping,
-  type PortfolioId,
   type PortfolioReconciliation,
   type Priority,
   type ReviewDecision,
@@ -106,7 +101,6 @@ const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
 type DrawerTab = 'intake' | 'plan' | 'delivery'
 type ViewMode = 'family' | 'grid' | 'board'
-const TRYAMBAKAM_PROJECTS = portfolioFolderMappings('tryambakam-noesis')
 const PORTFOLIO_ACTION_ENDPOINT = '/v1/admin/portfolio/actions'
 type AdminActionState =
   | { status: 'idle'; receiptId: null }
@@ -117,8 +111,25 @@ type AdminActionState =
 interface AdminActionReceipt {
   receiptId: string
   status: 'queued'
-  nextFlow: 'repository-intake-review' | 'project-repository-ingestion'
+  nextFlow: 'repository-intake-review' | 'founder-gate-review' | 'project-creation-execution'
+  approvalStatus?: 'founder-gate-pending' | 'execution-ready'
   duplicate: boolean
+}
+type ProjectCreationOrigin = 'thoughtseed-venture' | 'thoughtseed-internal' | 'client' | 'unknown'
+type ProjectCreationKind = 'sapling' | 'internal-program' | 'client-branch' | 'needs-review'
+
+interface ProjectCreationDraft {
+  name: string
+  slug: string
+  origin: ProjectCreationOrigin
+  clientFamilyId: string
+}
+
+function derivedProjectKind(origin: ProjectCreationOrigin): ProjectCreationKind {
+  if (origin === 'thoughtseed-venture') return 'sapling'
+  if (origin === 'thoughtseed-internal') return 'internal-program'
+  if (origin === 'client') return 'client-branch'
+  return 'needs-review'
 }
 interface RepositoryEvidence {
   sourceRef: string
@@ -495,25 +506,6 @@ function FamilyGroup({
   )
 }
 
-function PortfolioSwitcher({
-  active,
-  onChange,
-}: {
-  active: PortfolioId
-  onChange: (portfolioId: PortfolioId) => void
-}) {
-  return (
-    <nav className="portfolio-switcher" aria-label="Select portfolio">
-      <button type="button" className={active === 'thoughtseed' ? 'is-active' : ''} aria-pressed={active === 'thoughtseed'} onClick={() => onChange('thoughtseed')}>
-        <Leaf aria-hidden="true" /><span>Thoughtseed</span>
-      </button>
-      <button type="button" className={active === 'tryambakam-noesis' ? 'is-active' : ''} aria-pressed={active === 'tryambakam-noesis'} onClick={() => onChange('tryambakam-noesis')}>
-        <FolderKanban aria-hidden="true" /><span>Tryambakam · Noesis</span>
-      </button>
-    </nav>
-  )
-}
-
 function AdminActionStatus({ state, available }: { state: AdminActionState; available: boolean }) {
   const labelText = !available
     ? 'Local preview'
@@ -532,79 +524,78 @@ function AdminActionStatus({ state, available }: { state: AdminActionState; avai
   )
 }
 
-function ProjectCard({ project, onInspect }: { project: PortfolioFolderMapping; onInspect: () => void }) {
-  return (
-    <article className="work-card project-card signal-unplanned" data-project-folder={project.folder}>
-      <header className="work-card-head">
-        <div className="kind-mark kind-project"><FolderKanban aria-hidden="true" /></div>
-        <div className="work-heading">
-          <span className="work-type">Project</span>
-          <h3>{label(project.folder)}</h3>
-          <code>{project.path}</code>
-        </div>
-      </header>
-      <div className="chip-row source-row" aria-label="Project intake facts">
-        <span className="chip chip-source">{project.status === 'empty-hold' ? 'Empty hold' : 'Awaiting ingestion'} <small>observed</small></span>
-      </div>
-      <div className="project-intake-copy">
-        <strong>Project header</strong>
-        <p>Map this folder to its GitHub repository and repo-owned planning before admission.</p>
-      </div>
-      <button type="button" className="project-intake-action" onClick={onInspect}>
-        <FolderGit2 aria-hidden="true" /> Inspect project intake
-      </button>
-    </article>
-  )
-}
-
-function ProjectIntakeDrawer({
-  project,
+function ProjectCreationDrawer({
+  draft,
+  derivedKind,
   actionState,
   actionsAvailable,
-  onQueue,
+  onChange,
+  onSubmit,
   onClose,
 }: {
-  project: PortfolioFolderMapping
+  draft: ProjectCreationDraft
+  derivedKind: ProjectCreationKind
   actionState: AdminActionState
   actionsAvailable: boolean
-  onQueue: () => void
+  onChange: (patch: Partial<ProjectCreationDraft>) => void
+  onSubmit: () => void
   onClose: () => void
 }) {
+  const slugValid = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/.test(draft.slug)
+  const clientValid = draft.origin !== 'client' || /^[a-z0-9][a-z0-9-]{0,63}$/.test(draft.clientFamilyId)
+  const canSubmit = actionsAvailable
+    && actionState.status !== 'saving'
+    && draft.name.trim().length > 0
+    && slugValid
+    && clientValid
+    && draft.origin !== 'unknown'
   return (
-    <aside className="plan-drawer project-intake-drawer" role="dialog" aria-modal="false" aria-labelledby="project-drawer-title">
+    <aside className="plan-drawer project-creation-drawer" role="dialog" aria-modal="false" aria-labelledby="project-creation-title">
       <header className="drawer-head">
-        <div className="kind-mark kind-project"><FolderKanban aria-hidden="true" /></div>
+        <div className="kind-mark"><Plus aria-hidden="true" /></div>
         <div>
-          <span>Project · ingestion proposal</span>
-          <h2 id="project-drawer-title">{label(project.folder)}</h2>
-          <code>{project.path}</code>
+          <span>Thoughtseed · governed project birth</span>
+          <h2 id="project-creation-title">New Thoughtseed project</h2>
+          <code>thoughtseed/{draft.slug || '&lt;repository&gt;'}</code>
         </div>
-        <button type="button" className="icon-button" onClick={onClose} aria-label="Close project intake"><X aria-hidden="true" /></button>
+        <button type="button" className="icon-button" onClick={onClose} aria-label="Close project creation"><X aria-hidden="true" /></button>
       </header>
       <div className="drawer-body">
-        <section className="drawer-section intake-section">
+        <form className="drawer-section intake-section" onSubmit={(event) => { event.preventDefault(); onSubmit() }}>
           <div className="intake-rule">
             <ShieldCheck aria-hidden="true" />
             <div>
-              <strong>Project, not Client Branch</strong>
-              <p>Tryambakam · Noesis uses Project grammar. This header records the shallow folder while GitHub and repository-owned planning are still awaiting ingestion.</p>
+              <strong>Founder command · execution intent</strong>
+              <p>The hosted surface records immutable intent. A trusted local executor creates the folder later; this form never writes the filesystem.</p>
             </div>
           </div>
+          <div className="field-grid">
+            <label><span>Project name</span><input value={draft.name} maxLength={120} onChange={(event) => onChange({ name: event.target.value })} placeholder="Project name" /></label>
+            <label><span>Repository slug</span><input value={draft.slug} maxLength={64} onChange={(event) => onChange({ slug: event.target.value.toLowerCase() })} placeholder="project-name" aria-invalid={draft.slug.length > 0 && !slugValid} /></label>
+            <label><span>Origin</span><select value={draft.origin} onChange={(event) => onChange({ origin: event.target.value as ProjectCreationOrigin, clientFamilyId: event.target.value === 'client' ? draft.clientFamilyId : '' })}>
+              <option value="unknown">Needs review</option>
+              <option value="thoughtseed-venture">Thoughtseed venture</option>
+              <option value="thoughtseed-internal">Thoughtseed internal</option>
+              <option value="client">Client engagement</option>
+            </select></label>
+            {draft.origin === 'client' && <label><span>Client family</span><input value={draft.clientFamilyId} maxLength={64} onChange={(event) => onChange({ clientFamilyId: event.target.value.toLowerCase() })} placeholder="client-family" aria-invalid={draft.clientFamilyId.length > 0 && !clientValid} /></label>}
+          </div>
           <div className="project-evidence-list">
-            <span><b>Folder</b><code>{project.path}</code></span>
-            <span><b>Status</b><code>{project.status}</code></span>
-            <span><b>GitHub repository</b><code>awaiting exact identity</code></span>
-            <span><b>Planning authority</b><code>awaiting repository ingestion</code></span>
+            <span><b>Request source</b><code>local-founder · locked</code></span>
+            <span><b>Derived kind</b><code>{derivedKind}</code></span>
+            <span><b>Destination</b><code>thoughtseed/{draft.slug || '&lt;repository&gt;'}</code></span>
+            <span><b>After creation</b><code>pending-cambium-ingestion</code></span>
           </div>
           <div className="admin-action-panel">
-            <div><ShieldCheck aria-hidden="true" /><span><strong>Durable admin action</strong><small>R2 evidence first · governed intake trigger second</small></span></div>
-            <button type="button" className="primary-button" disabled={!actionsAvailable || actionState.status === 'saving'} onClick={onQueue}>
-              <FolderGit2 aria-hidden="true" /> {actionState.status === 'saving' ? 'Saving…' : 'Start project ingestion'}
+            <div><ShieldCheck aria-hidden="true" /><span><strong>Durable creation intent</strong><small>R2 evidence first · trusted local execution later</small></span></div>
+            <button type="submit" className="primary-button" disabled={!canSubmit}>
+              <Plus aria-hidden="true" /> {actionState.status === 'saving' ? 'Saving…' : 'Save creation intent'}
             </button>
             {!actionsAvailable && <p>Hosted admin connection required. The local preview cannot write.</p>}
-            {actionState.status === 'queued' && <p role="status">Queued · receipt {actionState.receiptId}</p>}
+            {draft.origin === 'unknown' && <p>Choose explicit origin evidence before creating a repository.</p>}
+            {actionState.status === 'queued' && <p role="status">Execution-ready intent queued · receipt {actionState.receiptId}</p>}
           </div>
-        </section>
+        </form>
       </div>
     </aside>
   )
@@ -1130,8 +1121,8 @@ function App() {
   const [reconciliations, setReconciliations] = useState<Record<string, PortfolioReconciliation>>({ ...initial.reconciliations })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('intake')
-  const [activePortfolio, setActivePortfolio] = useState<PortfolioId>('thoughtseed')
-  const [focusedProjectFolder, setFocusedProjectFolder] = useState<string | null>(null)
+  const [projectCreationOpen, setProjectCreationOpen] = useState(false)
+  const [projectCreation, setProjectCreation] = useState<ProjectCreationDraft>({ name: '', slug: '', origin: 'unknown', clientFamilyId: '' })
   const [activeView, setActiveView] = useState<SmartView>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('family')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set(
@@ -1169,16 +1160,6 @@ function App() {
     [plans, visible],
   )
   const familyGroups = useMemo(() => groupWorkObjects(visible, plans), [visible, plans])
-  const visibleProjects = useMemo(() => {
-    const normalized = query.trim().toLowerCase()
-    if (!normalized) return TRYAMBAKAM_PROJECTS
-    return TRYAMBAKAM_PROJECTS.filter((project) => (
-      project.folder.includes(normalized)
-      || project.path.includes(normalized)
-      || project.status.includes(normalized)
-    ))
-  }, [query])
-  const focusedProject = TRYAMBAKAM_PROJECTS.find((project) => project.folder === focusedProjectFolder) ?? null
   const plannedCount = Object.keys(plans).length
 
   useEffect(() => {
@@ -1193,7 +1174,9 @@ function App() {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && focusedId) closeDrawer()
+      if (event.key !== 'Escape') return
+      if (projectCreationOpen) setProjectCreationOpen(false)
+      else if (focusedId) closeDrawer()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -1377,19 +1360,6 @@ function App() {
     setFocusedId(null)
   }
 
-  function changePortfolio(portfolioId: PortfolioId) {
-    setActivePortfolio(portfolioId)
-    setFocusedId(null)
-    setFocusedProjectFolder(null)
-    setQuery('')
-    setBulkMode(false)
-    setBulkSelected(new Set())
-    setAdminAction({ status: 'idle', receiptId: null })
-    setNotice(portfolioId === 'thoughtseed'
-      ? 'Thoughtseed WorkObjects · choose a record to save a governed action'
-      : 'Tryambakam · Noesis Projects · choose a project to start ingestion')
-  }
-
   function retrySafeActionKey(subjectId: string, proposal: Record<string, unknown>): string {
     const fingerprint = JSON.stringify(proposal)
     const pending = pendingActionKeys.current.get(subjectId)
@@ -1434,22 +1404,31 @@ function App() {
     }
   }
 
-  async function queueProjectIngestion(project: PortfolioFolderMapping) {
+  async function queueProjectCreation() {
     setAdminAction({ status: 'saving', receiptId: null })
-    const proposal = { status: project.status === 'empty-hold' ? 'empty-hold' : 'awaiting-ingestion' }
+    const proposal = {
+      intentSchema: 'thoughtseed.project-creation-intent.v1',
+      requestSource: 'local-founder',
+      name: projectCreation.name.trim(),
+      slug: projectCreation.slug,
+      origin: projectCreation.origin,
+      clientFamilyId: projectCreation.clientFamilyId,
+      founderApproval: null,
+    }
     try {
       const receipt = await postPortfolioAdminAction({
         schema: 'thoughtseed.portfolio-admin-action.v1',
-        kind: 'start-project-ingestion',
-        portfolioId: 'tryambakam-noesis',
-        idempotencyKey: retrySafeActionKey(project.folder, proposal),
+        kind: 'create-thoughtseed-project',
+        portfolioId: 'thoughtseed',
+        idempotencyKey: retrySafeActionKey(`new:${projectCreation.slug}`, proposal),
         rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
-        subject: { id: project.folder, name: label(project.folder), path: project.path },
+        sourceDigest: CLASSIFICATION_DIGEST,
+        subject: { id: projectCreation.slug, name: projectCreation.name.trim() },
         proposal,
       })
-      pendingActionKeys.current.delete(project.folder)
+      pendingActionKeys.current.delete(`new:${projectCreation.slug}`)
       setAdminAction({ status: 'queued', receiptId: receipt.receiptId })
-      setNotice(`${label(project.folder)} · saved to durable evidence and queued for project repository ingestion`)
+      setNotice(`${projectCreation.name.trim()} · creation intent is ${receipt.approvalStatus ?? 'execution-ready'}; local executor is the filesystem writer`)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Portfolio action failed'
       const durableReceipt = message.match(/Evidence (pa_[0-9a-f]+) is durable/)?.[1] ?? null
@@ -1478,110 +1457,17 @@ function App() {
     )
   }
 
-  if (activePortfolio === 'tryambakam-noesis') {
-    const noesisRoot = portfolioRoot('tryambakam-noesis')
-    return (
-      <main className={focusedProject ? 'workbench has-drawer' : 'workbench'}>
-        <header className="topbar">
-          <div className="brand-lockup">
-            <span className="brand-mark"><FolderKanban aria-hidden="true" /></span>
-            <div><span>Tryambakam · Noesis</span><strong>Portfolio Workbench</strong></div>
-          </div>
-          <PortfolioSwitcher active={activePortfolio} onChange={changePortfolio} />
-          <AdminActionStatus state={adminAction} available={actionsAvailable} />
-        </header>
-
-        <aside className="sidebar">
-          <div className="sidebar-intro">
-            <p>Prepare shallow project folders for repository-owned planning ingestion.</p>
-            <div className="authority-line"><FolderGit2 aria-hidden="true" /><span>Project is the grammar<br />GitHub is the identity<br />Repos own planning</span></div>
-          </div>
-          <nav className="project-nav" aria-label="Tryambakam project intake status">
-            <span>Project intake</span>
-            <button type="button" className="is-active"><FolderKanban aria-hidden="true" /><span>Projects</span><strong>{noesisRoot.folderCount}</strong></button>
-            <button type="button"><Target aria-hidden="true" /><span>Awaiting ingestion</span><strong>{TRYAMBAKAM_PROJECTS.filter((project) => project.status === 'awaiting-ingestion').length}</strong></button>
-            <button type="button"><CirclePause aria-hidden="true" /><span>Empty hold</span><strong>{TRYAMBAKAM_PROJECTS.filter((project) => project.status === 'empty-hold').length}</strong></button>
-          </nav>
-          <div className="source-receipt">
-            <span>Root map receipt</span>
-            <code>{PORTFOLIO_ROOT_MAP_DIGEST.slice(0, 12)}…</code>
-            <small>shallow · no directory moves</small>
-            <div><b>{noesisRoot.folderCount}</b> projects · <b>4</b> archived separately</div>
-          </div>
-        </aside>
-
-        <section className="workspace">
-          <header className="workspace-head">
-            <div>
-              <span className="eyebrow">Portfolio / Projects</span>
-              <h1 ref={workspaceHeadingRef} tabIndex={-1}>Tryambakam · Noesis Projects<em>{visibleProjects.length}</em></h1>
-              <p>Each shallow folder is a Project awaiting exact GitHub identity and repository-owned planning ingestion. Nothing is classified as a Client Branch here.</p>
-            </div>
-            <div className="summary-pills" aria-label="Project mapping counts">
-              <span><FolderKanban aria-hidden="true" />{noesisRoot.folderCount} Projects</span>
-              <span><FolderGit2 aria-hidden="true" />{TRYAMBAKAM_PROJECTS.filter((project) => project.status === 'awaiting-ingestion').length} awaiting ingestion</span>
-              <span><CirclePause aria-hidden="true" />1 empty hold</span>
-            </div>
-          </header>
-
-          <div className="command-bar project-command-bar">
-            <label className="search-control">
-              <Search aria-hidden="true" />
-              <span className="visually-hidden">Search Tryambakam projects</span>
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search project folder or intake status…" />
-            </label>
-            <div className="read-only-rule"><ShieldCheck aria-hidden="true" /><span>Folder map fixed · ingestion actions are governed</span></div>
-          </div>
-
-          <div className="content-surface">
-            <section className="family-group projects-family" aria-label="Tryambakam Noesis Projects">
-              <header className="static-family-header">
-                <FolderKanban aria-hidden="true" />
-                <span><strong>Projects</strong><small>project-header · shallow folder grammar</small></span>
-                <span className="family-rollup">{visibleProjects.length} awaiting review</span>
-                <b>{visibleProjects.length}</b>
-              </header>
-              <div>
-                {visibleProjects.length > 0 ? (
-                  <div className="card-grid">{visibleProjects.map((project) => (
-                    <ProjectCard key={project.folder} project={project} onInspect={() => setFocusedProjectFolder(project.folder)} />
-                  ))}</div>
-                ) : (
-                  <div className="empty-state"><Search aria-hidden="true" /><h2>No matching projects</h2><p>Clear search to restore the full project intake map.</p></div>
-                )}
-              </div>
-            </section>
-          </div>
-
-          <footer className="workspace-footer">
-            <div><ShieldCheck aria-hidden="true" /> <span>thoughtseed.portfolio-root-map.v1 · action receipts enabled</span></div>
-            <p aria-live="polite">{notice}</p>
-            <div><Network aria-hidden="true" /> <span>{actionsAvailable ? 'Hosted admin · governed writes' : 'Local preview · no writes'}</span></div>
-          </footer>
-        </section>
-
-        {focusedProject && (
-          <ProjectIntakeDrawer
-            project={focusedProject}
-            actionState={adminAction}
-            actionsAvailable={actionsAvailable}
-            onQueue={() => void queueProjectIngestion(focusedProject)}
-            onClose={() => setFocusedProjectFolder(null)}
-          />
-        )}
-      </main>
-    )
-  }
-
   return (
-    <main className={focusedWork ? 'workbench has-drawer' : 'workbench'}>
+    <main className={focusedWork || projectCreationOpen ? 'workbench has-drawer' : 'workbench'}>
       <header className="topbar">
         <div className="brand-lockup">
           <span className="brand-mark"><Sparkles aria-hidden="true" /></span>
           <div><span>Thoughtseed · hosted founder admin</span><strong>Portfolio Workbench</strong></div>
         </div>
-        <PortfolioSwitcher active={activePortfolio} onChange={changePortfolio} />
-        <AdminActionStatus state={adminAction} available={actionsAvailable} />
+        <div className="top-actions">
+          <button type="button" className="primary-button" onClick={() => { setProjectCreationOpen(true); setFocusedId(null); setAdminAction({ status: 'idle', receiptId: null }) }}><Plus aria-hidden="true" /> New Thoughtseed project</button>
+          <AdminActionStatus state={adminAction} available={actionsAvailable} />
+        </div>
       </header>
 
       <aside className="sidebar">
@@ -1785,6 +1671,17 @@ function App() {
             reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId),
           )}
           onClose={closeDrawer}
+        />
+      )}
+      {projectCreationOpen && (
+        <ProjectCreationDrawer
+          draft={projectCreation}
+          derivedKind={derivedProjectKind(projectCreation.origin)}
+          actionState={adminAction}
+          actionsAvailable={actionsAvailable}
+          onChange={(patch) => { setProjectCreation((current) => ({ ...current, ...patch })); setAdminAction({ status: 'idle', receiptId: null }) }}
+          onSubmit={() => void queueProjectCreation()}
+          onClose={() => setProjectCreationOpen(false)}
         />
       )}
     </main>

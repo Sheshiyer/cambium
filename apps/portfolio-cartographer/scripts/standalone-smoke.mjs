@@ -20,11 +20,17 @@ for (const marker of [
   'Mini App Gate required',
   'Exceptional signal escalates to Alerts',
   'Save & queue repository review',
-  'Start project ingestion',
+  'New Thoughtseed project',
+  'Save creation intent',
+  'local-founder',
   '/v1/admin/portfolio/actions',
   '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2',
 ]) {
   assert.ok(html.includes(marker), `missing standalone contract marker: ${marker}`)
 }
 
-console.log('hosted artifact smoke ok · planning, intake actions, Gate, and receipt markers present')
+for (const retiredMarker of ['Start project ingestion']) {
+  assert.ok(!html.includes(retiredMarker), `retired active-UI marker still present: ${retiredMarker}`)
+}
+
+console.log('hosted artifact smoke ok · Thoughtseed planning, Founder Gate intent, and receipt markers present')

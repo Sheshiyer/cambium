@@ -8,6 +8,8 @@ import {
   PortfolioAdminActionValidationError,
   createPortfolioAdminActionQueue,
   createPortfolioAdminActionStore,
+  createPortfolioFounderGateResolver,
+  projectCreationIntentDigest,
   recordPortfolioAdminAction,
 } from './portfolio-admin-actions.ts';
 
@@ -44,19 +46,24 @@ function thoughtseedInput(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function noesisInput(overrides: Record<string, unknown> = {}) {
+function projectCreationInput(overrides: Record<string, unknown> = {}) {
   return {
     schema: 'thoughtseed.portfolio-admin-action.v1',
-    kind: 'start-project-ingestion',
-    portfolioId: 'tryambakam-noesis',
-    idempotencyKey: 'ingest-astrolens-1',
+    kind: 'create-thoughtseed-project',
+    portfolioId: 'thoughtseed',
+    idempotencyKey: 'create-project-nova-1',
     rootMapDigest: ROOT_DIGEST,
-    subject: {
-      id: 'astrolens',
-      name: 'Astrolens',
-      path: 'tryambakam-noesis/astrolens',
+    sourceDigest: SOURCE_DIGEST,
+    subject: { id: 'project-nova', name: 'Project Nova' },
+    proposal: {
+      intentSchema: 'thoughtseed.project-creation-intent.v1',
+      requestSource: 'local-founder',
+      name: 'Project Nova',
+      slug: 'project-nova',
+      origin: 'thoughtseed-venture',
+      clientFamilyId: '',
+      founderApproval: null,
     },
-    proposal: { status: 'awaiting-ingestion' },
     ...overrides,
   };
 }
@@ -214,7 +221,7 @@ test('binds Thoughtseed receipts to the shipped root map and catalog', async () 
   assert.equal(fixture.events.length, 0);
 });
 
-test('binds Tryambakam ingestion to one exact reviewed shallow project', async () => {
+test('rejects retired Tryambakam actions and unsafe Thoughtseed creation paths', async () => {
   const fixture = fixtures();
   const deps = {
     store: createPortfolioAdminActionStore(fixture.bucket),
@@ -224,41 +231,165 @@ test('binds Tryambakam ingestion to one exact reviewed shallow project', async (
   };
 
   await assert.rejects(
-    () => recordPortfolioAdminAction(noesisInput({ rootMapDigest: '0'.repeat(64) }), deps),
+    () => recordPortfolioAdminAction({
+      schema: 'thoughtseed.portfolio-admin-action.v1',
+      kind: 'start-project-ingestion',
+      portfolioId: 'tryambakam-noesis',
+      idempotencyKey: 'retired-noesis-action',
+      rootMapDigest: ROOT_DIGEST,
+      subject: { id: 'astrolens', name: 'Astrolens', path: 'tryambakam-noesis/astrolens' },
+      proposal: { status: 'awaiting-ingestion' },
+    }, deps),
     PortfolioAdminActionValidationError,
   );
   await assert.rejects(
-    () => recordPortfolioAdminAction(noesisInput({
-      subject: { id: 'astrolens', name: 'Astrolens', path: 'tryambakam-noesis/astrolens/nested' },
+    () => recordPortfolioAdminAction(projectCreationInput({
+      subject: { id: '../nested', name: 'Nested' },
+      proposal: { ...(projectCreationInput().proposal as Record<string, unknown>), name: 'Nested', slug: '../nested' },
     }), deps),
     PortfolioAdminActionValidationError,
   );
   await assert.rejects(
-    () => recordPortfolioAdminAction(noesisInput({
-      subject: { id: 'invented', name: 'Invented', path: 'tryambakam-noesis/invented' },
-    }), deps),
+    () => recordPortfolioAdminAction(projectCreationInput({ portfolioId: 'tryambakam-noesis' }), deps),
     PortfolioAdminActionValidationError,
   );
   await assert.rejects(
-    () => recordPortfolioAdminAction(noesisInput({ proposal: { status: 'empty-hold' } }), deps),
+    () => recordPortfolioAdminAction(projectCreationInput({
+      proposal: { ...(projectCreationInput().proposal as Record<string, unknown>), origin: 'client', clientFamilyId: '' },
+    }), deps),
     PortfolioAdminActionValidationError,
   );
   assert.equal(fixture.events.length, 0);
 });
 
-test('Tryambakam project ingestion queues Project grammar, never Client Branch grammar', async () => {
+test('explicit local-founder creation derives grammar and becomes execution-ready', async () => {
   const fixture = fixtures();
-  const receipt = await recordPortfolioAdminAction(noesisInput(), {
+  const receipt = await recordPortfolioAdminAction(projectCreationInput(), {
     store: createPortfolioAdminActionStore(fixture.bucket),
     queue: createPortfolioAdminActionQueue(fixture.queueKv),
-    actorId: 'telegram:200000001',
+    actorId: 'plexus:pid_founder',
     now: () => '2026-08-07T09:30:00.000Z',
   });
-  assert.equal(receipt.nextFlow, 'project-repository-ingestion');
+  assert.equal(receipt.nextFlow, 'project-creation-execution');
+  assert.equal(receipt.approvalStatus, 'execution-ready');
+  const evidence = JSON.parse([...fixture.r2.values()][0]);
+  assert.equal(evidence.action.proposal.derivedKind, 'sapling');
+  assert.equal('path' in evidence.action.subject, false);
   const trigger = JSON.parse([...fixture.kv.values()][0]);
-  assert.equal(trigger.portfolioId, 'tryambakam-noesis');
-  assert.equal(trigger.kind, 'start-project-ingestion');
-  assert.equal(JSON.stringify(trigger).includes('client-branch'), false);
+  assert.equal(trigger.portfolioId, 'thoughtseed');
+  assert.equal(trigger.kind, 'create-thoughtseed-project');
+  assert.equal(trigger.status, 'execution-ready');
+});
+
+test('agent creation stays Founder-Gate-pending until exact intent approval', async () => {
+  const pendingFixture = fixtures();
+  const agentInput = projectCreationInput({
+    idempotencyKey: 'agent-project-nova-1',
+    proposal: { ...(projectCreationInput().proposal as Record<string, unknown>), requestSource: 'agent' },
+  });
+  const pending = await recordPortfolioAdminAction(agentInput, {
+    store: createPortfolioAdminActionStore(pendingFixture.bucket),
+    queue: createPortfolioAdminActionQueue(pendingFixture.queueKv),
+    actorId: 'plexus:pid_founder',
+    now: () => '2026-08-07T09:30:00.000Z',
+  });
+  assert.equal(pending.nextFlow, 'founder-gate-review');
+  assert.equal(pending.approvalStatus, 'founder-gate-pending');
+  assert.equal(JSON.parse([...pendingFixture.kv.values()][0]).status, 'founder-gate-pending');
+
+  const approvedFixture = fixtures();
+  const intentDigest = await projectCreationIntentDigest(agentInput);
+  approvedFixture.kv.set('gate:thoughtseed:gate_project_nova_approved', JSON.stringify({
+    id: 'gate_project_nova_approved',
+    kind: 'approve',
+    subject: intentDigest,
+    founderId: 'founder-1',
+    status: 'queued',
+  }));
+  const approvedInput = projectCreationInput({
+    idempotencyKey: 'agent-project-nova-approved-1',
+    proposal: {
+      ...(agentInput.proposal as Record<string, unknown>),
+      founderApproval: { receiptId: 'gate_project_nova_approved', intentDigest },
+    },
+  });
+  const approved = await recordPortfolioAdminAction(approvedInput, {
+    store: createPortfolioAdminActionStore(approvedFixture.bucket),
+    queue: createPortfolioAdminActionQueue(approvedFixture.queueKv),
+    founderGateResolver: createPortfolioFounderGateResolver(approvedFixture.queueKv),
+    actorId: 'plexus:pid_founder',
+    now: () => '2026-08-07T09:31:00.000Z',
+  });
+  assert.equal(approved.nextFlow, 'project-creation-execution');
+  assert.equal(approved.approvalStatus, 'execution-ready');
+  const approvedTrigger = [...approvedFixture.kv.values()]
+    .map((value) => JSON.parse(value))
+    .find((value) => value.schema === 'thoughtseed.portfolio-admin-action-trigger.v1');
+  assert.equal(approvedTrigger.status, 'execution-ready');
+});
+
+test('inline Founder Gate claims cannot bypass the authoritative Gate resolver', async () => {
+  const fixture = fixtures();
+  const agentInput = projectCreationInput({
+    idempotencyKey: 'agent-project-nova-untrusted-1',
+    proposal: { ...(projectCreationInput().proposal as Record<string, unknown>), requestSource: 'agent' },
+  });
+  const intentDigest = await projectCreationIntentDigest(agentInput);
+  const claimedApproval = projectCreationInput({
+    idempotencyKey: 'agent-project-nova-untrusted-claim-1',
+    proposal: {
+      ...(agentInput.proposal as Record<string, unknown>),
+      founderApproval: { receiptId: 'gate_project_nova_claimed', intentDigest },
+    },
+  });
+
+  await assert.rejects(
+    () => recordPortfolioAdminAction(claimedApproval, {
+      store: createPortfolioAdminActionStore(fixture.bucket),
+      queue: createPortfolioAdminActionQueue(fixture.queueKv),
+      actorId: 'plexus:pid_founder',
+      now: () => '2026-08-07T09:30:00.000Z',
+    }),
+    PortfolioAdminActionValidationError,
+  );
+  fixture.kv.set('gate:thoughtseed:gate_project_nova_claimed', JSON.stringify({
+    id: 'gate_project_nova_claimed',
+    kind: 'approve',
+    subject: `sha256:${'f'.repeat(64)}`,
+    founderId: 'founder-1',
+    status: 'queued',
+  }));
+  await assert.rejects(
+    () => recordPortfolioAdminAction(claimedApproval, {
+      store: createPortfolioAdminActionStore(fixture.bucket),
+      queue: createPortfolioAdminActionQueue(fixture.queueKv),
+      founderGateResolver: createPortfolioFounderGateResolver(fixture.queueKv),
+      actorId: 'plexus:pid_founder',
+      now: () => '2026-08-07T09:30:00.000Z',
+    }),
+    PortfolioAdminActionValidationError,
+  );
+  assert.equal(fixture.events.length, 0);
+});
+
+test('mismatched Founder Gate approval is rejected before durable writes', async () => {
+  const fixture = fixtures();
+  await assert.rejects(
+    () => recordPortfolioAdminAction(projectCreationInput({
+      proposal: {
+        ...(projectCreationInput().proposal as Record<string, unknown>),
+        requestSource: 'dgchat',
+        founderApproval: { receiptId: 'gate_project_nova_wrong', intentDigest: `sha256:${'0'.repeat(64)}` },
+      },
+    }), {
+      store: createPortfolioAdminActionStore(fixture.bucket),
+      queue: createPortfolioAdminActionQueue(fixture.queueKv),
+      actorId: 'plexus:pid_founder',
+      now: () => '2026-08-07T09:30:00.000Z',
+    }),
+    PortfolioAdminActionValidationError,
+  );
+  assert.equal(fixture.events.length, 0);
 });
 
 test('a queue failure reports durable evidence so retry can finish the trigger', async () => {
@@ -268,7 +399,7 @@ test('a queue failure reports durable evidence so retry can finish the trigger',
     async put() { throw new Error('KV unavailable'); },
   });
   await assert.rejects(
-    () => recordPortfolioAdminAction(noesisInput(), {
+    () => recordPortfolioAdminAction(projectCreationInput(), {
       store: createPortfolioAdminActionStore(fixture.bucket),
       queue,
       actorId: 'plexus:pid_founder',

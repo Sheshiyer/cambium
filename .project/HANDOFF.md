@@ -43,6 +43,20 @@
 - Local browser proof covers the portfolio structure at 390, 768, and 1440 pixels with zero horizontal overflow; the exact final artifact smoke separately proves both hosted action labels, the same-origin endpoint, CSP allowance, and retired export controls. Live production action proof remains promotion-gated.
 - Production remains unchanged and issue #293 remains blocked by human packet review #292.
 
+### 2026-08-07 Thoughtseed governed project-birth checkpoint
+
+- This checkpoint supersedes the earlier active Tryambakam Workbench behavior without deleting its reviewed static root evidence. The active Workbench now renders Thoughtseed only; Tryambakam · Noesis folders, root headers, and snapshots remain unchanged outside the UI.
+- Branch: `codex/portfolio-ingestion-headers`; pull request [#297](https://github.com/Sheshiyer/cambium/pull/297); governed-project-birth tracking [#298](https://github.com/Sheshiyer/cambium/issues/298) is In Progress in GitHub Project #14.
+- The visible `New Thoughtseed project` form fixes request source to `local-founder`, collects name, safe slug, explicit origin, and conditional client family, and displays the origin-derived Sapling, Internal Program, or Client Branch classification without a type override or caller-selected path.
+- Explicit local-founder intents may become execution-ready after closed validation. Agent, RBAC, dgchat, and system intents remain Founder-Gate-pending unless the Worker resolves `gate:thoughtseed:<receipt-id>` from its authoritative KV binding and verifies an active founder `approve` record whose subject is the exact normalized intent digest. Inline receipt claims are references, never authority.
+- The standalone executor is local-founder-only unless a trusted host injects the authoritative Gate resolver. It pins root map `588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b` and catalog `50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2`, derives only `thoughtseed/<slug>`, rejects symlink/existing/nested/traversal destinations, initializes Git without a remote, materializes the selected workflow, and cleans its exact new target after partial failure.
+- Successful local execution creates the seven-document project/workflow packet plus `.project/project-ingestion-receipt.v1.json` and `.project/project-index-proposal.v1.json`, both honestly held at `pending-cambium-ingestion` until GitHub repository identity and Cambium index reconciliation occur.
+- `pnpm --dir apps/portfolio-cartographer check` passes 47 active tests with one historical skip plus lint, build, bundle, source audit, CSP, and hosted smoke. The exact hosted artifact is 347,261 bytes, SHA-256 `95c1ef259c3de88911ee02b983b3add23cbbdc099030e1a87a2f4e5c8140820e`, and matches the generated Worker embed.
+- Focused Worker/action-route verification passes 21/21; temporary-root executor verification passes 7/7, including authoritative Gate mismatch, stale digest, symlink, and rollback denial paths. The deterministic release gate passes across core, 37 integration, mobile viewport, 99 R3F, R3F build, and 5 desktop packaging tests.
+- Direct browser proof shows no active Tryambakam marker, correct Sapling and Client Branch derivation, conditional client-family input, shallow destination preview, disabled unauthenticated local writes, and zero browser errors. The updated local proof remains at `http://127.0.0.1:4178/bundle.html` for founder review.
+- Independent re-audit reports no remaining findings. The first audit's two P2 findings—self-asserted Gate authority and unpinned executor digests—and the later P3 test gap for symlink/rollback behavior are closed.
+- No project folder, portfolio root, Vault/R2 copy, production Worker, Goal Graph, registry, provider, remote repository, or deployment state was created, moved, or mutated. Production remains separately blocked by human packet review #292 and promotion gate #293.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It has not been reviewed by a human and is not
 committed.

@@ -5,6 +5,13 @@
 **Scope:** replace the Workbench's offline export controls with authenticated,
 durable, governed intake actions.
 
+> **Founder Gate refinement (2026-08-07):** the active Workbench is now
+> Thoughtseed-only. `start-project-ingestion` and the Tryambakam selector are
+> retired from the active contract. New Thoughtseed project birth uses
+> `create-thoughtseed-project` and the origin-derived, Founder Gate model in
+> `2026-08-07-thoughtseed-governed-project-birth-design.md`. The earlier
+> Tryambakam action grammar below is retained only as implementation history.
+
 ## Decision
 
 Portfolio Workbench is now a hosted founder admin surface, not an offline

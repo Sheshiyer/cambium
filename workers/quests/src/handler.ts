@@ -69,6 +69,7 @@ import {
   PortfolioAdminActionQueueError,
   PortfolioAdminActionStorageError,
   PortfolioAdminActionValidationError,
+  createPortfolioFounderGateResolver,
   recordPortfolioAdminAction,
 } from './portfolio-admin-actions.ts';
 import type {
@@ -790,6 +791,7 @@ async function handlePortfolioAdminActionRoute(
     const receipt = await recordPortfolioAdminAction(input, {
       store: deps.portfolioActionStore,
       queue: deps.portfolioActionQueue,
+      founderGateResolver: createPortfolioFounderGateResolver(deps.kv),
       actorId: founder.actorId,
       now: () => (deps.now ? deps.now() : new Date().toISOString()),
     });

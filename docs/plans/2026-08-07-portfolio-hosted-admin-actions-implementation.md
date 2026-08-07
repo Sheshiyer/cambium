@@ -7,6 +7,12 @@
 idempotent, and ready for the next governed flow without introducing a second
 operational writer.
 
+> **Founder Gate refinement (2026-08-07):** Tasks 1–4 below record the first
+> hosted-action implementation. The active Workbench subsequently retired
+> Tryambakam UI/actions and superseded `start-project-ingestion` with the
+> Thoughtseed-only `create-thoughtseed-project` contract documented in
+> `2026-08-07-thoughtseed-governed-project-birth-implementation.md`.
+
 ## Task 1: Freeze the action contract
 
 - Add focused tests for Thoughtseed reconciliation and Tryambakam Project

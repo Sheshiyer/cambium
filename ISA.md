@@ -1150,15 +1150,15 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 - [ ] ISC-820: An authenticated production DOM probe records that the currently served artifact is v3 and still exposes horizon shortcut buttons.
 - [ ] ISC-821: The merged v4 Unplanned card exposes exactly one `Inspect & reconcile` action before readiness.
 - [ ] ISC-822: The merged v4 Unplanned card exposes none of `Now`, `Next`, `Later`, `Park`, or `Needs review` before readiness.
-- [ ] ISC-823: The Workbench exposes explicit `Thoughtseed` and `Tryambakam · Noesis` portfolio selectors.
+- [ ] ISC-823: [DROPPED — see Decisions 2026-08-07] The Workbench exposes explicit `Thoughtseed` and `Tryambakam · Noesis` portfolio selectors.
 - [ ] ISC-824: The Thoughtseed portfolio retains Sapling, Client Branch, Internal Program, and Needs Review grammar.
 - [ ] ISC-825: Thoughtseed client-family headers retain exact source `accountId` grouping rather than path-name inference.
 - [ ] ISC-826: A client-family header can display its shallow destination folder mapping without changing WorkObject identity.
 - [ ] ISC-827: A client family with no destination folder remains a visible mapping gap.
 - [ ] ISC-828: The committed folder map stores only portfolio-relative folder names and no machine-local absolute checkout path.
 - [ ] ISC-829: Anti: folder organization creates no `client-branches`, `saplings`, `programs`, or `projects` directory around repositories.
-- [ ] ISC-830: The Tryambakam · Noesis portfolio header labels active folder candidates as `Project` rather than `Client Branch`.
-- [ ] ISC-831: Tryambakam-Noesis Project cards expose one `Inspect project intake` action and no scheduling shortcut.
+- [ ] ISC-830: [DROPPED — see Decisions 2026-08-07] The Tryambakam · Noesis portfolio header labels active folder candidates as `Project` rather than `Client Branch`.
+- [ ] ISC-831: [DROPPED — see Decisions 2026-08-07] Tryambakam-Noesis Project cards expose one `Inspect project intake` action and no scheduling shortcut.
 - [ ] ISC-832: The observed Tryambakam-Noesis active-project snapshot contains exactly 30 shallow folders.
 - [ ] ISC-833: The Tryambakam-Noesis `.agents` directory is infrastructure and never rendered as a Project.
 - [ ] ISC-834: The Tryambakam-Noesis `_archive` directory is represented as a separate archived-project surface.
@@ -1172,9 +1172,9 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 - [ ] ISC-842: Header generation refuses a root whose observed shallow folders differ from the committed snapshot.
 - [ ] ISC-843: Header generation changes only the two named header files per portfolio and moves no directory.
 - [ ] ISC-844: The root headers use relative folder names and distinguish proposal evidence from canonical repository identity.
-- [ ] ISC-845: Focused tests prove portfolio selection, counts, exclusions, labels, and button grammar.
+- [ ] ISC-845: [DROPPED — see Decisions 2026-08-07] Focused tests prove portfolio selection, counts, exclusions, labels, and button grammar.
 - [ ] ISC-846: The exact standalone bundle and generated Worker embed remain byte-equivalent after regeneration.
-- [ ] ISC-847: A local browser probe proves both portfolio headers, Thoughtseed intake controls, Tryambakam Project controls, and responsive layout.
+- [ ] ISC-847: [DROPPED — see Decisions 2026-08-07] A local browser probe proves both portfolio headers, Thoughtseed intake controls, Tryambakam Project controls, and responsive layout.
 - [ ] ISC-848: The complete deterministic release gate passes from the finalized branch.
 - [ ] ISC-849: Anti: no production Worker Version is uploaded or promoted while issue #292 remains open and packet status is `draft-held`.
 - [ ] ISC-850: Production promotion requires recorded owner review of the packet, exact candidate proof, binding parity, and preserved rollback.
@@ -1182,9 +1182,9 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 - [ ] ISC-852: Local preview renders the complete Workbench but disables admin writes outside the three authenticated hosted paths.
 - [ ] ISC-853: The browser can submit only `POST /v1/admin/portfolio/actions` with same-origin credentials and an optional Telegram initData header.
 - [ ] ISC-854: The action route authorizes only a Plexus-resolved Cloudflare Access founder or a signed Telegram founder.
-- [ ] ISC-855: The action route rejects non-POST methods, bodies over 16 KiB, invalid JSON, unknown fields, digests that differ from the shipped root map/catalog, invented or renamed WorkObjects, out-of-map or nested Tryambakam paths, Project status drift, and inconsistent portfolio grammar before storage.
+- [ ] ISC-855: [DROPPED — see Decisions 2026-08-07] The action route rejects non-POST methods, bodies over 16 KiB, invalid JSON, unknown fields, digests that differ from the shipped root map/catalog, invented or renamed WorkObjects, out-of-map or nested Tryambakam paths, Project status drift, and inconsistent portfolio grammar before storage.
 - [ ] ISC-856: Thoughtseed `reconcile-work-object` accepts only repository-first intake facts and preserves origin-derived Sapling, Client Branch, and Internal Program grammar.
-- [ ] ISC-857: Tryambakam-Noesis `start-project-ingestion` emits Project ingestion grammar and never Client Branch grammar.
+- [ ] ISC-857: [DROPPED — see Decisions 2026-08-07] Tryambakam-Noesis `start-project-ingestion` emits Project ingestion grammar and never Client Branch grammar.
 - [ ] ISC-858: A valid action writes immutable/idempotent R2 evidence before creating its pending-governed-intake trigger.
 - [ ] ISC-859: Exact replay returns the same receipt without a second R2 or queue write; semantic drift under one idempotency key conflicts.
 - [ ] ISC-860: A queue failure after R2 persistence returns a bounded durable retry receipt so replay can finish the trigger.
@@ -1192,6 +1192,55 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 - [ ] ISC-862: R2 remains evidence storage while D1 Goal Graph remains the sole operational writer after later reviewed approval.
 - [ ] ISC-863: The hosted document CSP permits `connect-src 'self'` and denies every external action destination.
 - [ ] ISC-864: Production remains unchanged until packet review #292 clears promotion gate #293.
+
+### Thoughtseed governed project birth
+
+- [x] ISC-865: The active Workbench renders Thoughtseed as its only portfolio surface.
+- [x] ISC-866: Anti: the active Workbench renders no Tryambakam selector, card, drawer, action, or count.
+- [x] ISC-867: The reviewed Tryambakam root snapshot remains preserved outside the active UI.
+- [x] ISC-868: `create-thoughtseed-project` accepts only the `thoughtseed` portfolio.
+- [x] ISC-869: A project creation intent records exactly one bounded request source.
+- [x] ISC-870: A project creation intent records exactly one explicit origin.
+- [x] ISC-871: The server derives `sapling` only from `thoughtseed-venture` origin.
+- [x] ISC-872: The server derives `internal-program` only from `thoughtseed-internal` origin.
+- [x] ISC-873: The server derives `client-branch` only from `client` origin.
+- [x] ISC-874: Every client-origin intent requires one bounded client-family identifier.
+- [x] ISC-875: Non-client origins reject every non-empty client-family identifier.
+- [x] ISC-876: Unknown origin derives Needs Review and never becomes execution-ready.
+- [x] ISC-877: The creation contract and executor derive exactly `thoughtseed/<slug>` from a safe repository slug.
+- [x] ISC-878: Anti: project intent accepts no absolute, nested, traversal, or caller-selected destination path.
+- [x] ISC-879: An explicit local-founder intent can become execution-ready without a Gate receipt.
+- [x] ISC-880: Every agent, RBAC, dgchat, or system intent begins founder-gate-pending.
+- [x] ISC-881: A non-founder intent becomes execution-ready only when its Founder Gate reference resolves from the authoritative Thoughtseed Gate store.
+- [x] ISC-882: The resolved Founder Gate record is an active founder approval whose subject binds the exact normalized intent digest.
+- [x] ISC-883: The hosted action writes immutable R2 evidence before its governed trigger.
+- [x] ISC-884: Exact creation-intent replay creates no second evidence or queue record.
+- [x] ISC-885: Anti: the hosted action writes no filesystem, GitHub, Vault, registry, or Goal Graph state.
+- [x] ISC-886: The local executor refuses an unapproved non-founder project intent.
+- [x] ISC-887: The local executor refuses every unknown-origin project intent.
+- [x] ISC-888: The local executor refuses symlink, existing, non-empty, nested, or traversal destinations.
+- [x] ISC-889: The local executor creates the complete seven-document project/workflow packet plus ingestion and index receipts.
+- [x] ISC-890: The local executor initializes a Git repository without creating a remote.
+- [x] ISC-891: The project-local ingestion receipt records `pending-cambium-ingestion`.
+- [x] ISC-892: The project-local index proposal contains only a relative destination and derived grammar.
+- [x] ISC-893: Anti: successful local creation does not claim GitHub or portfolio-index reconciliation already occurred.
+- [x] ISC-894: Focused tests prove direct founder, pending agent, approved agent, and denied unknown-origin paths.
+- [x] ISC-895: A temporary-root test proves project packet, Git metadata, index proposal, and ingestion receipt completeness.
+- [x] ISC-896: The exact standalone bundle and generated Worker embed remain byte-equivalent.
+- [x] ISC-897: A local browser probe proves the Thoughtseed-only surface at mobile and desktop widths.
+- [x] ISC-898: The deterministic release suite and independent audit pass before handoff.
+- [x] ISC-899: Anti: no production deployment or root-project mutation occurs during implementation verification.
+- [x] ISC-900: The Workbench exposes one visible `New Thoughtseed project` action.
+- [x] ISC-901: The creation form accepts name, safe slug, origin, and conditional client family.
+- [x] ISC-902: The founder browser fixes request source to `local-founder`.
+- [x] ISC-903: The creation form displays origin-derived kind without allowing an override.
+- [x] ISC-904: The submitted creation intent displays its execution or Founder Gate receipt state.
+- [x] ISC-905: The local executor derives workflow stages from an explicit validated registry input.
+- [x] ISC-906: Every selected workflow stage receives one safe project-local directory.
+- [x] ISC-907: The Worker resolves non-founder approval only from `gate:thoughtseed:<receipt-id>` in its authoritative KV binding.
+- [x] ISC-908: Anti: an inline Founder Gate receipt ID and self-asserted digest cannot authorize project execution.
+- [x] ISC-909: The local executor requires exact equality with the reviewed root-map and portfolio-catalog digests.
+- [x] ISC-910: The standalone CLI executes only local-founder intents; non-founder execution requires a trusted host-injected Gate resolver.
 
 ## Test Strategy
 
@@ -1295,6 +1344,7 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 | ISC-765..819 | repository-first intake | deterministic repository evidence, origin grammar, v4 migration, scheduling locks, exports, browser behavior, bundle parity, GitHub tracking, and no relocation/deployment pass | focused domain/generator/route tests, `pnpm check`, local browser proof, `gh`, source audit, `git diff --check` |
 | ISC-820..850 | portfolio ingestion headers | production drift is observed; 47 Thoughtseed and 30 Tryambakam-Noesis folders map through shallow headers; obsolete buttons remain absent; root headers are bounded; release stays governance-gated | authenticated browser DOM, focused domain/generator tests, temporary-root writer tests, `pnpm check`, route parity, release suite, filesystem before/after inventory, `gh` |
 | ISC-851..864 | hosted portfolio admin actions | export controls are retired; founder actions persist R2 evidence before a governed trigger; replay is safe; Goal Graph authority and promotion gates remain intact | focused action/store tests, authenticated route tests, CSP/source audit, bundle parity, browser action-state proof, release suite |
+| ISC-865..910 | Thoughtseed governed project birth | active UI is Thoughtseed-only; visible creation form emits origin-derived intent; authoritative founder Gate resolution controls non-founder execution; exact-snapshot local executor creates packet, registry-derived workflow stages, and pending-ingestion receipts | focused UI/action/executor tests, temporary roots, bundle parity, browser proof, release suite, independent audit |
 
 ## Features
 
@@ -1309,6 +1359,9 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 - `PortfolioSelector` | Add explicit Thoughtseed and Tryambakam-Noesis headers with type-correct card actions | satisfies ISC-821..839, ISC-845..847 | depends_on PortfolioRootMap | parallelizable false
 - `GovernedPromotion` | Prove exact candidate readiness without bypassing reviewed-held status or rollback | satisfies ISC-820, ISC-846..850 | depends_on PortfolioSelector | parallelizable false
 - `HostedPortfolioActions` | Replace export packets with founder-authenticated R2 receipts and bounded pending-intake triggers | satisfies ISC-851..864 | depends_on PortfolioSelector | parallelizable false
+- `ThoughtseedOnlyWorkbench` | Remove Tryambakam from active rendering, preserve static evidence, and expose one bounded project-creation form | satisfies ISC-865..867, ISC-896..904 | depends_on PortfolioRootMap | parallelizable false
+- `ProjectCreationIntent` | Validate source, origin, derived grammar, relative destination, and Founder Gate binding | satisfies ISC-868..885, ISC-894, ISC-900..904 | depends_on HostedPortfolioActions | parallelizable false
+- `TrustedProjectExecutor` | Create a shallow local Git project packet, registry-derived workflow stages, and pending-ingestion/index-proposal receipts | satisfies ISC-886..895, ISC-905..906 | depends_on ProjectCreationIntent | parallelizable false
 - `ActionRequestConsumption` | Implement the bounded queued-to-consumed lifecycle already promised by the public contract | satisfies ISC-66..71, ISC-80 | depends_on ActionRequestContract | parallelizable false
 - `AdditionalDriftGates` | Remove dead config, strictify release proof, cover Gate in CI, and retire R3F issue mirrors | satisfies ISC-72..79 | depends_on FixtureParity, RoutingGovernance | parallelizable true
 - `LeadStackConsolidation` | Merge the seven reviewed PRs and prove consolidated main | satisfies ISC-81..90 | depends_on AdditionalDriftGates | parallelizable false
@@ -1396,6 +1449,10 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-07 05:05: refined: Tryambakam · Noesis remains preserved in the reviewed root snapshot and external header files but is retired from the active Portfolio Workbench. The founder-facing surface now focuses only on Thoughtseed; the prior selector and Tryambakam active-action criteria remain stable-ID tombstones rather than being renumbered or silently rewritten.
+- 2026-08-07 05:05 refined after audit: explicit local founder commands may execute a validated Thoughtseed project creation immediately. Requests originating from agents, RBAC, dgchat, or any other system remain proposals until the Worker resolves an active founder approval from the authoritative Thoughtseed Gate store and binds its subject to the exact normalized intent digest. Inline receipt claims are references, never authority.
+- 2026-08-07 05:05: a hosted Worker records creation intent but cannot write the founder filesystem. A trusted local executor derives `<projects-root>/thoughtseed/<slug>`, creates the initial Git/project packet, and emits project-local `pending-cambium-ingestion` evidence; GitHub planning authority and canonical portfolio reconciliation remain later governed steps.
 
 - 2026-08-07 04:03: refined: standalone repositories remain immediate children of `/Projects/thoughtseed` or `/Projects/tryambakam-noesis`. Client Branch and Project organization is a metadata/header projection, not an extra directory layer; this preserves the ratified shallow relocation grammar and avoids recreating nested-Git failure modes.
 - 2026-08-07 04:03: Tryambakam · Noesis is a separate portfolio whose ingestion unit is `Project`, not a Thoughtseed client and not a Client Branch. `.agents`, `_archive`, and `selemene-engine-worktrees` are infrastructure/lifecycle surfaces with explicit exclusion handling.
@@ -1549,6 +1606,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-03 13:33 UTC: Cloudflare Access policy read-back and policy tester both grant the founder email; the remaining denial is inside Cambium's downstream whoami handoff. The protected custom Plexus hostname returns a non-JSON Access-edge response to Worker-to-Worker fetch, so the resolver correctly floors to consultant. The read-only `PLEXUS_WHOAMI_URL` now uses TeamForge's workers.dev origin, where the same verified Access JWT is checked by Plexus without a second Access wall; no policy, identity, or secret mutation was needed.
 
 ## Changelog
+
+- 2026-08-07 | conjectured: one active Workbench should present both standalone portfolio roots and let each request source initiate its own project-creation behavior
+  refuted by: the founder explicitly narrowed the active UI to Thoughtseed and approved one governed intent path where local founder execution is direct but every agent-originated request waits for Founder Gate approval
+  learned: project birth is an authority chain, not a folder operation; source, origin-derived grammar, exact approval, shallow destination derivation, project packet, Git initialization, and pending-ingestion receipts must agree before a new directory is considered valid
+  criterion now: ISC-865..910 require a Thoughtseed-only active UI with one visible project-creation form, closed project-creation intent, authoritative Founder Gate resolution, exact reviewed-snapshot binding, trusted local execution with registry-derived stage directories, and honest pending-ingestion/index proposals
 
 - 2026-08-07 | conjectured: an unresolved portfolio item could be made meaningful by assigning `Now`, `Next`, `Later`, `Park`, or `Needs Review` before its repository and origin were known
   refuted by: the founder clarified that timing is not WorkObject grammar; only Thoughtseed-originated ventures are Saplings, every client project is a Client Branch even when new, shared Thoughtseed capability work is an Internal Program, and unknown origin remains Needs Review

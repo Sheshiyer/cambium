@@ -1,22 +1,27 @@
 import type { R2BucketLike } from './context-bindings.ts';
 import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
-import { PORTFOLIO_ROOT_MAP_DIGEST, TRYAMBAKAM_PROJECTS } from './portfolio-root-map.generated.ts';
+import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
 export const PORTFOLIO_ADMIN_ACTION_SCHEMA = 'thoughtseed.portfolio-admin-action.v1' as const;
 export const PORTFOLIO_ADMIN_ACTION_EVIDENCE_SCHEMA = 'thoughtseed.portfolio-admin-action-evidence.v1' as const;
 export const PORTFOLIO_ADMIN_ACTION_TRIGGER_SCHEMA = 'thoughtseed.portfolio-admin-action-trigger.v1' as const;
 export const PORTFOLIO_ADMIN_ACTION_RECEIPT_SCHEMA = 'thoughtseed.portfolio-admin-action-receipt.v1' as const;
+export const PROJECT_CREATION_INTENT_SCHEMA = 'thoughtseed.project-creation-intent.v1' as const;
 
 const SHA256 = /^[0-9a-f]{64}$/;
+const SHA256_REF = /^sha256:[0-9a-f]{64}$/;
 const SAFE_IDEMPOTENCY = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}$/;
 const SAFE_SUBJECT_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,159}$/;
-const SAFE_PATH = /^[A-Za-z0-9][A-Za-z0-9._@/+-]{0,239}$/;
+const SAFE_SLUG = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
+const SAFE_CLIENT_FAMILY = /^[a-z0-9][a-z0-9-]{0,63}$/;
+const SAFE_GATE_RECEIPT = /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
 const TEXT = new TextEncoder();
 const THOUGHTSEED_WORK_OBJECTS = new Map(PORTFOLIO_CATALOG.records.map((record) => [record.workId, record]));
 
-type PortfolioId = 'thoughtseed' | 'tryambakam-noesis';
-type PortfolioAdminActionKind = 'reconcile-work-object' | 'start-project-ingestion';
-type NextFlow = 'repository-intake-review' | 'project-repository-ingestion';
+type PortfolioId = 'thoughtseed';
+type PortfolioAdminActionKind = 'reconcile-work-object' | 'create-thoughtseed-project';
+type NextFlow = 'repository-intake-review' | 'founder-gate-review' | 'project-creation-execution';
+type ApprovalStatus = 'pending-governed-intake' | 'founder-gate-pending' | 'execution-ready';
 
 interface RepositoryPlanningAuthority {
   kind: 'repository';
@@ -41,8 +46,24 @@ interface WorkObjectProposal {
   note: string;
 }
 
-interface ProjectIngestionProposal {
-  status: 'awaiting-ingestion' | 'empty-hold';
+type ProjectRequestSource = 'local-founder' | 'agent' | 'rbac' | 'dgchat' | 'system';
+type ProjectOrigin = 'thoughtseed-venture' | 'thoughtseed-internal' | 'client' | 'unknown';
+type ProjectKind = 'sapling' | 'internal-program' | 'client-branch' | 'needs-review';
+
+interface FounderApproval {
+  receiptId: string;
+  intentDigest: string;
+}
+
+interface ProjectCreationProposal {
+  intentSchema: typeof PROJECT_CREATION_INTENT_SCHEMA;
+  requestSource: ProjectRequestSource;
+  name: string;
+  slug: string;
+  origin: ProjectOrigin;
+  derivedKind: ProjectKind;
+  clientFamilyId: string;
+  founderApproval: FounderApproval | null;
 }
 
 export type PortfolioAdminAction =
@@ -58,12 +79,13 @@ export type PortfolioAdminAction =
   }
   | {
     schema: typeof PORTFOLIO_ADMIN_ACTION_SCHEMA;
-    kind: 'start-project-ingestion';
-    portfolioId: 'tryambakam-noesis';
+    kind: 'create-thoughtseed-project';
+    portfolioId: 'thoughtseed';
     idempotencyKey: string;
     rootMapDigest: string;
-    subject: { id: string; name: string; path: string };
-    proposal: ProjectIngestionProposal;
+    sourceDigest: string;
+    subject: { id: string; name: string };
+    proposal: ProjectCreationProposal;
   };
 
 export interface PortfolioAdminActionReceipt {
@@ -73,6 +95,7 @@ export interface PortfolioAdminActionReceipt {
   recordedAt: string;
   status: 'queued';
   nextFlow: NextFlow;
+  approvalStatus: Exclude<ApprovalStatus, 'pending-governed-intake'> | null;
   duplicate: boolean;
 }
 
@@ -94,6 +117,18 @@ export interface PortfolioAdminActionQueueLike {
   enqueue(trigger: PortfolioAdminActionTrigger): Promise<{ duplicate: boolean }>;
 }
 
+export interface PortfolioFounderGateRecord {
+  id: string;
+  kind: 'approve';
+  subject: string;
+  founderId: string;
+  status: 'queued' | 'consumed';
+}
+
+export interface PortfolioFounderGateResolverLike {
+  resolve(receiptId: string): Promise<PortfolioFounderGateRecord | null>;
+}
+
 interface PortfolioAdminActionTrigger {
   schema: typeof PORTFOLIO_ADMIN_ACTION_TRIGGER_SCHEMA;
   receiptId: string;
@@ -101,7 +136,7 @@ interface PortfolioAdminActionTrigger {
   portfolioId: PortfolioId;
   kind: PortfolioAdminActionKind;
   subjectId: string;
-  status: 'pending-governed-intake';
+  status: ApprovalStatus;
   nextFlow: NextFlow;
   recordedAt: string;
   evidence: { kind: 'immutable-r2-receipt'; receiptId: string };
@@ -253,9 +288,58 @@ function workObjectProposal(value: unknown): WorkObjectProposal {
   };
 }
 
+function derivedProjectKind(origin: ProjectOrigin): ProjectKind {
+  if (origin === 'thoughtseed-venture') return 'sapling';
+  if (origin === 'thoughtseed-internal') return 'internal-program';
+  if (origin === 'client') return 'client-branch';
+  return 'needs-review';
+}
+
+function founderApproval(value: unknown): FounderApproval | null {
+  if (value === null) return null;
+  if (!isRecord(value)) throw new PortfolioAdminActionValidationError('proposal.founderApproval is invalid');
+  exactFields(value, ['receiptId', 'intentDigest'], 'proposal.founderApproval');
+  const receiptId = boundedText(value.receiptId, 'proposal.founderApproval.receiptId', 128);
+  const intentDigest = boundedText(value.intentDigest, 'proposal.founderApproval.intentDigest', 71);
+  if (!SAFE_GATE_RECEIPT.test(receiptId) || !SHA256_REF.test(intentDigest)) {
+    throw new PortfolioAdminActionValidationError('proposal.founderApproval is invalid');
+  }
+  return { receiptId, intentDigest };
+}
+
+function projectCreationProposal(value: unknown): ProjectCreationProposal {
+  if (!isRecord(value)) throw new PortfolioAdminActionValidationError('proposal must be an object');
+  exactFields(value, ['intentSchema', 'requestSource', 'name', 'slug', 'origin', 'clientFamilyId', 'founderApproval'], 'proposal');
+  if (value.intentSchema !== PROJECT_CREATION_INTENT_SCHEMA) {
+    throw new PortfolioAdminActionValidationError('proposal.intentSchema is invalid');
+  }
+  const requestSource = oneOf(value.requestSource, 'proposal.requestSource', ['local-founder', 'agent', 'rbac', 'dgchat', 'system'] as const);
+  const name = boundedText(value.name, 'proposal.name', 120);
+  const slug = boundedText(value.slug, 'proposal.slug', 64);
+  if (!SAFE_SLUG.test(slug)) throw new PortfolioAdminActionValidationError('proposal.slug is invalid');
+  const origin = oneOf(value.origin, 'proposal.origin', ['thoughtseed-venture', 'thoughtseed-internal', 'client', 'unknown'] as const);
+  const clientFamilyId = boundedText(value.clientFamilyId, 'proposal.clientFamilyId', 64, false);
+  if (origin === 'client' && !SAFE_CLIENT_FAMILY.test(clientFamilyId)) {
+    throw new PortfolioAdminActionValidationError('client origin requires proposal.clientFamilyId');
+  }
+  if (origin !== 'client' && clientFamilyId) {
+    throw new PortfolioAdminActionValidationError('non-client origin cannot set proposal.clientFamilyId');
+  }
+  return {
+    intentSchema: PROJECT_CREATION_INTENT_SCHEMA,
+    requestSource,
+    name,
+    slug,
+    origin,
+    derivedKind: derivedProjectKind(origin),
+    clientFamilyId,
+    founderApproval: founderApproval(value.founderApproval),
+  };
+}
+
 export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction {
   if (!isRecord(raw)) throw new PortfolioAdminActionValidationError('action must be an object');
-  const kind = oneOf(raw.kind, 'kind', ['reconcile-work-object', 'start-project-ingestion'] as const);
+  const kind = oneOf(raw.kind, 'kind', ['reconcile-work-object', 'create-thoughtseed-project'] as const);
   if (kind === 'reconcile-work-object') {
     exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action');
     if (raw.schema !== PORTFOLIO_ADMIN_ACTION_SCHEMA || raw.portfolioId !== 'thoughtseed') {
@@ -292,39 +376,35 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
     };
   }
 
-  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'subject', 'proposal'], 'action');
-  if (raw.schema !== PORTFOLIO_ADMIN_ACTION_SCHEMA || raw.portfolioId !== 'tryambakam-noesis') {
-    throw new PortfolioAdminActionValidationError('start-project-ingestion action grammar is invalid');
+  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action');
+  if (raw.schema !== PORTFOLIO_ADMIN_ACTION_SCHEMA || raw.portfolioId !== 'thoughtseed') {
+    throw new PortfolioAdminActionValidationError('create-thoughtseed-project action grammar is invalid');
   }
   if (!isRecord(raw.subject)) throw new PortfolioAdminActionValidationError('subject must be an object');
-  exactFields(raw.subject, ['id', 'name', 'path'], 'subject');
-  if (!isRecord(raw.proposal)) throw new PortfolioAdminActionValidationError('proposal must be an object');
-  exactFields(raw.proposal, ['status'], 'proposal');
+  exactFields(raw.subject, ['id', 'name'], 'subject');
   const rootMapDigest = digest(raw.rootMapDigest, 'rootMapDigest');
+  const sourceDigest = digest(raw.sourceDigest, 'sourceDigest');
   if (rootMapDigest !== PORTFOLIO_ROOT_MAP_DIGEST) {
     throw new PortfolioAdminActionValidationError('rootMapDigest does not match the reviewed root map');
   }
-  const subjectId = safeId(raw.subject.id, 'subject.id', SAFE_SUBJECT_ID);
-  const subjectPath = safeId(raw.subject.path, 'subject.path', SAFE_PATH);
-  const proposalStatus = oneOf(raw.proposal.status, 'proposal.status', ['awaiting-ingestion', 'empty-hold'] as const);
-  const reviewedProject = TRYAMBAKAM_PROJECTS[subjectId as keyof typeof TRYAMBAKAM_PROJECTS];
-  if (!reviewedProject || reviewedProject.path !== subjectPath || reviewedProject.status !== proposalStatus) {
-    throw new PortfolioAdminActionValidationError('subject does not match one reviewed shallow Tryambakam project');
+  if (sourceDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
+    throw new PortfolioAdminActionValidationError('sourceDigest does not match the shipped portfolio catalog');
+  }
+  const proposal = projectCreationProposal(raw.proposal);
+  const subjectId = boundedText(raw.subject.id, 'subject.id', 64);
+  const subjectName = boundedText(raw.subject.name, 'subject.name', 120);
+  if (subjectId !== proposal.slug || subjectName !== proposal.name) {
+    throw new PortfolioAdminActionValidationError('subject does not match the project creation proposal');
   }
   return {
     schema: PORTFOLIO_ADMIN_ACTION_SCHEMA,
     kind,
-    portfolioId: 'tryambakam-noesis',
+    portfolioId: 'thoughtseed',
     idempotencyKey: safeId(raw.idempotencyKey, 'idempotencyKey', SAFE_IDEMPOTENCY),
     rootMapDigest,
-    subject: {
-      id: subjectId,
-      name: boundedText(raw.subject.name, 'subject.name', 160),
-      path: subjectPath,
-    },
-    proposal: {
-      status: proposalStatus,
-    },
+    sourceDigest,
+    subject: { id: subjectId, name: subjectName },
+    proposal,
   };
 }
 
@@ -343,10 +423,89 @@ async function sha256(value: string): Promise<string> {
   return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-function nextFlowFor(action: PortfolioAdminAction): NextFlow {
-  return action.kind === 'reconcile-work-object'
-    ? 'repository-intake-review'
-    : 'project-repository-ingestion';
+function projectIntentCore(action: Extract<PortfolioAdminAction, { kind: 'create-thoughtseed-project' }>): unknown {
+  const { founderApproval: _approval, ...proposal } = action.proposal;
+  return { portfolioId: action.portfolioId, kind: action.kind, subject: action.subject, proposal };
+}
+
+export async function projectCreationIntentDigest(raw: unknown): Promise<string> {
+  const action = validatePortfolioAdminAction(raw);
+  if (action.kind !== 'create-thoughtseed-project') {
+    throw new PortfolioAdminActionValidationError('project creation intent is required');
+  }
+  return `sha256:${await sha256(canonicalJson(projectIntentCore(action)))}`;
+}
+
+async function approvalFor(
+  action: PortfolioAdminAction,
+  founderGateResolver?: PortfolioFounderGateResolverLike,
+): Promise<{
+  status: ApprovalStatus;
+  nextFlow: NextFlow;
+  approvalStatus: PortfolioAdminActionReceipt['approvalStatus'];
+}> {
+  if (action.kind === 'reconcile-work-object') {
+    return { status: 'pending-governed-intake', nextFlow: 'repository-intake-review', approvalStatus: null };
+  }
+  if (action.proposal.origin === 'unknown') {
+    return { status: 'founder-gate-pending', nextFlow: 'founder-gate-review', approvalStatus: 'founder-gate-pending' };
+  }
+  if (action.proposal.requestSource === 'local-founder') {
+    if (action.proposal.founderApproval !== null) {
+      throw new PortfolioAdminActionValidationError('local-founder intent cannot include founderApproval');
+    }
+    return { status: 'execution-ready', nextFlow: 'project-creation-execution', approvalStatus: 'execution-ready' };
+  }
+  const expectedDigest = `sha256:${await sha256(canonicalJson(projectIntentCore(action)))}`;
+  if (!action.proposal.founderApproval) {
+    return { status: 'founder-gate-pending', nextFlow: 'founder-gate-review', approvalStatus: 'founder-gate-pending' };
+  }
+  if (action.proposal.founderApproval.intentDigest !== expectedDigest) {
+    throw new PortfolioAdminActionValidationError('founderApproval does not bind the normalized project intent');
+  }
+  if (!founderGateResolver) {
+    throw new PortfolioAdminActionValidationError('founderApproval requires the trusted Founder Gate resolver');
+  }
+  const resolved = await founderGateResolver.resolve(action.proposal.founderApproval.receiptId);
+  if (!resolved
+    || resolved.id !== action.proposal.founderApproval.receiptId
+    || resolved.kind !== 'approve'
+    || resolved.subject !== expectedDigest
+    || !resolved.founderId
+    || !['queued', 'consumed'].includes(resolved.status)) {
+    throw new PortfolioAdminActionValidationError('founderApproval was not verified by the trusted Founder Gate resolver');
+  }
+  return { status: 'execution-ready', nextFlow: 'project-creation-execution', approvalStatus: 'execution-ready' };
+}
+
+export function createPortfolioFounderGateResolver(kv: Pick<QueueKvLike, 'get'>): PortfolioFounderGateResolverLike {
+  return {
+    async resolve(receiptId) {
+      if (!SAFE_GATE_RECEIPT.test(receiptId)) return null;
+      const raw = await kv.get(`gate:thoughtseed:${receiptId}`);
+      if (!raw) return null;
+      try {
+        const value = JSON.parse(raw) as unknown;
+        if (!isRecord(value)
+          || value.id !== receiptId
+          || value.kind !== 'approve'
+          || typeof value.subject !== 'string'
+          || !SHA256_REF.test(value.subject)
+          || typeof value.founderId !== 'string'
+          || !value.founderId.trim()
+          || !['queued', 'consumed'].includes(String(value.status))) return null;
+        return {
+          id: receiptId,
+          kind: 'approve',
+          subject: value.subject,
+          founderId: value.founderId.trim(),
+          status: value.status as 'queued' | 'consumed',
+        };
+      } catch {
+        return null;
+      }
+    },
+  };
 }
 
 export function createPortfolioAdminActionStore(bucket: R2BucketLike): PortfolioAdminActionStoreLike {
@@ -435,6 +594,7 @@ export async function recordPortfolioAdminAction(
   deps: {
     store: PortfolioAdminActionStoreLike;
     queue: PortfolioAdminActionQueueLike;
+    founderGateResolver?: PortfolioFounderGateResolverLike;
     actorId: string;
     now: () => string;
   },
@@ -447,7 +607,8 @@ export async function recordPortfolioAdminAction(
   const actionDigestHex = await sha256(canonicalJson(action));
   const actionDigest = `sha256:${actionDigestHex}`;
   const receiptId = `pa_${actionDigestHex.slice(0, 24)}`;
-  const nextFlow = nextFlowFor(action);
+  const approval = await approvalFor(action, deps.founderGateResolver);
+  const nextFlow = approval.nextFlow;
   const evidence: StoredEvidence = {
     schema: PORTFOLIO_ADMIN_ACTION_EVIDENCE_SCHEMA,
     receiptId,
@@ -465,7 +626,7 @@ export async function recordPortfolioAdminAction(
     portfolioId: action.portfolioId,
     kind: action.kind,
     subjectId: action.subject.id,
-    status: 'pending-governed-intake',
+    status: approval.status,
     nextFlow,
     recordedAt: stored.recordedAt,
     evidence: { kind: 'immutable-r2-receipt', receiptId },
@@ -484,6 +645,7 @@ export async function recordPortfolioAdminAction(
     recordedAt: stored.recordedAt,
     status: 'queued',
     nextFlow,
+    approvalStatus: approval.approvalStatus,
     duplicate: stored.duplicate && queued.duplicate,
   };
 }

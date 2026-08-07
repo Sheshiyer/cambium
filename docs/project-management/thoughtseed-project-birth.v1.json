@@ -1,0 +1,102 @@
+{
+  "schema": "thoughtseed.project-birth-contract.v1",
+  "portfolioId": "thoughtseed",
+  "status": "founder-approved-local-implementation",
+  "pathGrammar": "<projects-root>/thoughtseed/<repository>",
+  "activeWorkbenchPortfolios": [
+    "thoughtseed"
+  ],
+  "reviewedSnapshots": {
+    "rootMapDigest": "588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b",
+    "portfolioCatalogDigest": "50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2",
+    "exactMatchRequiredForExecution": true
+  },
+  "founderGateAuthority": {
+    "authoritativeStoreKey": "gate:thoughtseed:<receipt-id>",
+    "requiredKind": "approve",
+    "requiredStatuses": [
+      "queued",
+      "consumed"
+    ],
+    "subjectMustEqualIntentDigest": true,
+    "inlineReceiptIsAuthority": false,
+    "standaloneCliSupportsNonFounderExecution": false,
+    "trustedHostResolverRequiredForNonFounderExecution": true
+  },
+  "requestSources": {
+    "local-founder": {
+      "initialApproval": "execution-ready"
+    },
+    "agent": {
+      "initialApproval": "founder-gate-pending"
+    },
+    "rbac": {
+      "initialApproval": "founder-gate-pending"
+    },
+    "dgchat": {
+      "initialApproval": "founder-gate-pending"
+    },
+    "system": {
+      "initialApproval": "founder-gate-pending"
+    }
+  },
+  "originGrammar": {
+    "thoughtseed-venture": {
+      "derivedKind": "sapling",
+      "clientFamilyRequired": false,
+      "creationAllowed": true
+    },
+    "thoughtseed-internal": {
+      "derivedKind": "internal-program",
+      "clientFamilyRequired": false,
+      "creationAllowed": true
+    },
+    "client": {
+      "derivedKind": "client-branch",
+      "clientFamilyRequired": true,
+      "creationAllowed": true
+    },
+    "unknown": {
+      "derivedKind": "needs-review",
+      "clientFamilyRequired": false,
+      "creationAllowed": false
+    }
+  },
+  "destinationDerivation": {
+    "input": "repository slug",
+    "relativePath": "thoughtseed/<slug>",
+    "callerSuppliedPathAllowed": false,
+    "nestingAllowed": false
+  },
+  "requiredLocalOutputs": [
+    "PROJECT.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".project/project.yaml",
+    ".project/CONTEXT.md",
+    ".project/HANDOFF.md",
+    ".project/WORKFLOW.md",
+    ".project/project-ingestion-receipt.v1.json",
+    ".project/project-index-proposal.v1.json"
+  ],
+  "workflowMaterialization": {
+    "registryInputRequired": true,
+    "workflowDocument": ".project/WORKFLOW.md",
+    "stageDirectories": "one safe project-local directory per selected registry stage",
+    "machineLocalRegistryPathCommitted": false
+  },
+  "indexLink": {
+    "currentSnapshot": "portfolio-roots.v1.json",
+    "newProjectStatus": "pending-cambium-ingestion",
+    "canonicalReconciliationRequired": true,
+    "githubPlanningAuthorityRequired": true
+  },
+  "prohibitedEffects": [
+    "physical client-family nesting",
+    "automatic GitHub repository creation",
+    "automatic portfolio registry mutation",
+    "automatic Vault or R2 mutation",
+    "automatic Goal Graph mutation",
+    "automatic production deployment"
+  ]
+}
