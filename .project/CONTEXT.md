@@ -19,7 +19,6 @@ No fields were flagged during drafting — every field in this packet came from 
 
 ## Relocation boundary
 
-This packet is draft-held. The move to a new destination outside the vault
-remains blocked until this packet is reviewed, any flagged fields are
-resolved, the packet change is committed, an exact manifest is approved,
-and a separate live-apply approval exists.
+This packet is reviewed-held. The move to a new destination outside the
+vault remains blocked until an exact manifest is approved and a separate
+live-apply approval exists.

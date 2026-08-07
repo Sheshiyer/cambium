@@ -2,7 +2,7 @@
 
 ## Checkpoint
 
-- Status: `draft-held`
+- Status: `reviewed-held`
 - Portfolio: `thoughtseed`
 - Repository: `cambium`
 - Registry WorkObject: `sapling:cambium`
@@ -57,9 +57,25 @@
 - Independent re-audit reports no remaining findings. The first audit's two P2 findings—self-asserted Gate authority and unpinned executor digests—and the later P3 test gap for symlink/rollback behavior are closed.
 - No project folder, portfolio root, Vault/R2 copy, production Worker, Goal Graph, registry, provider, remote repository, or deployment state was created, moved, or mutated. Production remains separately blocked by human packet review #292 and promotion gate #293.
 
+### 2026-08-08 packet review checkpoint
+
+- Owner approval was given in the active Codex task to merge PR #297 and make
+  the reviewed Portfolio Workbench edits live on production.
+- The six-file repository packet was re-read: `PROJECT.md`, `AGENTS.md`,
+  `CLAUDE.md`, `.project/CONTEXT.md`, `.project/HANDOFF.md`, and
+  `.project/project.yaml`.
+- No packet fields were flagged for correction. Registry evidence, repository
+  identity, governance boundaries, and the relocation hold remain intact.
+- Packet status is moved from `draft-held` to `reviewed-held`.
+- This review does not authorize filesystem relocation, Vault/R2 copy changes,
+  registry transition, session migration, provider changes, Goal Graph writes,
+  project-folder creation, or GitHub repository creation.
+- Production promotion remains governed by issue #293, exact Worker Version
+  proof, binding parity, rollback preservation, and post-promotion readback.
+
 This packet was drafted by the packet-authoring tool from registry and
-repository evidence. It has not been reviewed by a human and is not
-committed.
+repository evidence. It was reviewed under GitHub issue #292 and moved to
+`reviewed-held` by owner-approved commit.
 
 ## Completed
 
@@ -69,13 +85,9 @@ committed.
 
 ## Next action
 
-Close implementation #289 through its reviewed pull request, resolve the 12
-unverified and 17 unmatched repository gaps plus origin mismatches under #290,
-and migrate project-local planning authority through #291. Then review this
-draft packet under #292, resolve any review findings, commit the six packet
-files coherently, and move `packet_status` to `reviewed-held`. Production
-promotion #293, relocation-manifest approval, and live-apply approval remain
-separate later steps.
+Close any remaining repository/origin audit gaps under #290 and migrate
+project-local planning authority through #291. Production promotion #293,
+relocation-manifest approval, and live-apply approval remain separate steps.
 
 ## Verification
 

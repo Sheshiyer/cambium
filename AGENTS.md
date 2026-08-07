@@ -17,7 +17,7 @@ This repository is `cambium`.
 6. Record a bounded checkpoint in `.project/HANDOFF.md` when a reviewed
    change is ready for another client to pick up.
 
-This packet is draft-held. Identity recording does not authorize
-relocation, registry writes, session migration, or deployment changes;
-those remain manifest-gated and require this packet to first be reviewed
-and moved to `reviewed-held`.
+This packet is reviewed-held. Identity recording still does not
+authorize relocation, registry writes, session migration, or provider
+changes; those remain manifest-gated. Production deployment remains
+separately owner-approved and rollback-gated.
