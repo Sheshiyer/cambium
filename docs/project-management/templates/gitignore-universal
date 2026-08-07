@@ -74,6 +74,27 @@ GoogleService-Info.plist
 !google-services.example.json
 
 
+# ── Personal data ─────────────────────────────────────────────────────────────
+# Real records about identifiable people: birth date, time, place, coordinates,
+# charts, readings. This vault's projects generate these routinely and several
+# push to PUBLIC repos, so the default is exclude.
+#
+# The CODE that processes such records is fine to publish; its INPUTS and
+# OUTPUTS are not. Grep cannot tell them apart — an extractor legitimately
+# mentions `birth_date`, while a sibling file holds a real one. Before a first
+# commit, check for files that PARSE as JSON and carry identifying fields with
+# date-, time- or coordinate-shaped values. That test found 24 such files in
+# witness-agents, including family members' full birth data.
+.dyad-subjects/
+.batch-inputs/
+.batch-outputs/
+**/subjects/
+**/parents/
+.full-*.json
+*-kundali.json
+Kundali_*.json
+
+
 # ── Dependencies ──────────────────────────────────────────────────────────────
 node_modules/
 bower_components/
