@@ -4,8 +4,10 @@ import {
   RAW_PROGRAMS,
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts'
+import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts'
 
-export const WORKBENCH_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
+export const WORKBENCH_SCHEMA = 'thoughtseed.portfolio-workbench.v4' as const
+export const V3_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
 export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
@@ -26,6 +28,13 @@ export type PlanningCategory = 'keep-canonical' | Classification | 'needs-review
 export type ReviewProposal = Classification | 'needs-review'
 export type QuickPlanningDecision = 'now' | 'next' | 'later' | 'park' | 'needs-review'
 export type WorkGroupKind = 'client-family' | 'saplings' | 'internal-programs'
+export type PortfolioOrigin = 'thoughtseed-venture' | 'thoughtseed-internal' | 'client' | 'unknown'
+export type DerivedClassification = Classification | 'needs-review'
+export type RepositoryDisposition = 'resolved' | 'no-repository' | 'unmatched' | 'ambiguous'
+
+export type PlanningAuthority =
+  | { kind: 'repository'; repositoryId: string; fullName: string }
+  | { kind: 'cambium'; reason: string }
 
 export interface WorkObject {
   workId: string
@@ -87,12 +96,45 @@ export interface WorkbenchState {
   focusedId: string | null
   plans: Record<string, WorkPlan>
   reviewDecisions: Record<string, ReviewDecision>
+  retiredReviewDecisions: Record<string, ReviewDecision>
+  reconciliations: Record<string, PortfolioReconciliation>
 }
 
 export interface WorkbenchInput {
   focusedId: string | null
   plans: Record<string, WorkPlan>
   reviewDecisions?: Record<string, ReviewDecision>
+  retiredReviewDecisions?: Record<string, ReviewDecision>
+  reconciliations?: Record<string, PortfolioReconciliation>
+}
+
+export interface PortfolioReconciliation {
+  workObjectId: string
+  repositorySourceRef: string | null
+  repositoryDisposition: RepositoryDisposition
+  origin: PortfolioOrigin
+  clientFamilyId: string
+  planningAuthority: PlanningAuthority | null
+  repositoryPlanningReviewed: boolean
+  githubIssuesReviewed: boolean
+  legacyEvidenceReviewed: boolean
+  note: string
+  updatedAt: string
+}
+
+export interface IntakeReadiness {
+  ready: boolean
+  derivedType: DerivedClassification
+  classificationMismatch: boolean
+  blockers: string[]
+}
+
+export interface ReusableIpProposal {
+  proposedType: 'sapling'
+  origin: 'thoughtseed-venture'
+  name: string
+  linkedWorkId: string
+  preservesSourceType: 'client-branch'
 }
 
 export interface ReviewDecision {
@@ -143,7 +185,7 @@ export interface Pipeline {
 
 export interface ExportPacket extends WorkbenchState {
   schema: typeof WORKBENCH_SCHEMA
-  version: 3
+  version: 4
   source: {
     schema: string
     generatedAt: string
@@ -293,9 +335,14 @@ export const SIGNAL_STATUSES: readonly SignalStatus[] = ['ready', 'complete', 'b
 export const CLASSIFICATIONS: readonly Classification[] = ['sapling', 'client-branch', 'internal-program']
 export const REVIEW_PROPOSALS: readonly ReviewProposal[] = ['sapling', 'client-branch', 'internal-program', 'needs-review']
 export const REVIEW_SUGGESTION_RULE_VERSION = 'thoughtseed.review-suggestion.v1' as const
+export const PORTFOLIO_ORIGINS: readonly PortfolioOrigin[] = ['thoughtseed-venture', 'thoughtseed-internal', 'client', 'unknown']
+export const REPOSITORY_DISPOSITIONS: readonly RepositoryDisposition[] = ['resolved', 'no-repository', 'unmatched', 'ambiguous']
 
 const workById = new Map(WORK_OBJECTS.map((work) => [work.workId, work]))
 const reviewById = new Map(REVIEW_RECORDS.map((record) => [record.canonicalId, record]))
+const repositoryEvidenceBySourceRef = new Map<string, (typeof REPOSITORY_EVIDENCE)[number]>(
+  REPOSITORY_EVIDENCE.map((record) => [record.sourceRef, record]),
+)
 const workflowById = new Map(ORGAN_WORKFLOWS.map((workflow) => [workflow.id, workflow]))
 
 function displayAccountId(accountId: string): string {
@@ -378,10 +425,10 @@ export function reviewSuggestion(record: ReviewRecord): ReviewSuggestion {
       sourceDigest: CLASSIFICATION_DIGEST,
     }
   }
-  if (/admit .* as sapling|owned-product|product note|product or client/.test(evidence)) {
+  if (/thoughtseed[- ]origin|thoughtseed[- ]owned venture|founder[- ]owned thoughtseed venture/.test(evidence)) {
     return {
       proposedType: 'sapling',
-      rationale: 'The record names product ownership or admission evidence that should be tested as a Sapling.',
+      rationale: 'Explicit Thoughtseed-origin evidence supports testing this record as a Sapling.',
       ruleVersion: REVIEW_SUGGESTION_RULE_VERSION,
       sourceDigest: CLASSIFICATION_DIGEST,
     }
@@ -399,6 +446,113 @@ export function reviewSuggestion(record: ReviewRecord): ReviewSuggestion {
     rationale: 'The source evidence does not safely distinguish product, client delivery, or internal program.',
     ruleVersion: REVIEW_SUGGESTION_RULE_VERSION,
     sourceDigest: CLASSIFICATION_DIGEST,
+  }
+}
+
+export function deriveClassificationFromOrigin(origin: PortfolioOrigin): DerivedClassification {
+  if (origin === 'thoughtseed-venture') return 'sapling'
+  if (origin === 'thoughtseed-internal') return 'internal-program'
+  if (origin === 'client') return 'client-branch'
+  return 'needs-review'
+}
+
+export function defaultReconciliation(workObjectId: string): PortfolioReconciliation {
+  return {
+    workObjectId,
+    repositorySourceRef: null,
+    repositoryDisposition: 'unmatched',
+    origin: 'unknown',
+    clientFamilyId: '',
+    planningAuthority: null,
+    repositoryPlanningReviewed: false,
+    githubIssuesReviewed: false,
+    legacyEvidenceReviewed: false,
+    note: '',
+    updatedAt: '',
+  }
+}
+
+export function intakeReadiness(
+  work: WorkObject,
+  reconciliation: PortfolioReconciliation,
+): IntakeReadiness {
+  const derivedType = deriveClassificationFromOrigin(reconciliation.origin)
+  const classificationMismatch = derivedType !== 'needs-review' && derivedType !== work.classification
+  const blockers: string[] = []
+  const selectedRepository = reconciliation.repositorySourceRef
+    ? repositoryEvidenceBySourceRef.get(reconciliation.repositorySourceRef)
+    : undefined
+
+  if (reconciliation.repositoryDisposition === 'resolved') {
+    if (!reconciliation.repositorySourceRef || !work.provenance.includes(reconciliation.repositorySourceRef)) {
+      blockers.push('Select repository evidence attached to this WorkObject.')
+    } else if (!selectedRepository || selectedRepository.status !== 'resolved') {
+      blockers.push('The selected repository evidence is not an exact resolved match.')
+    } else if (!selectedRepository.repositoryId || !selectedRepository.fullName) {
+      blockers.push('The selected repository still lacks immutable GitHub identity metadata.')
+    }
+  } else if (reconciliation.repositoryDisposition === 'no-repository') {
+    if (reconciliation.repositorySourceRef !== null) {
+      blockers.push('An explicit no-repository gap cannot retain a repository reference.')
+    }
+    if (work.provenance.some((source) => source.startsWith('repo:'))) {
+      blockers.push('This WorkObject already carries repository evidence; resolve that mapping gap instead of bypassing it.')
+    }
+  } else if (selectedRepository?.status === 'unverified') {
+    blockers.push('The repository candidate needs immutable GitHub identity metadata before it can become planning authority.')
+  } else if (work.provenance.some((source) => source.startsWith('repo:'))) {
+    blockers.push('Resolve the repository evidence attached to this WorkObject.')
+  } else {
+    blockers.push('Resolve an exact repository or record an explicit no-repository gap.')
+  }
+  if (reconciliation.origin === 'unknown') blockers.push('Record the project origin before classification.')
+  if (reconciliation.origin === 'client' && !reconciliation.clientFamilyId) {
+    blockers.push('Map client-originated work to an explicit client family.')
+  }
+  if (!reconciliation.planningAuthority) {
+    blockers.push('Choose the repository or Cambium as planning authority.')
+  } else if (reconciliation.repositoryDisposition === 'resolved' && reconciliation.planningAuthority.kind !== 'repository') {
+    blockers.push('Resolved repository work must use that repository as project-local planning authority.')
+  } else if (
+    reconciliation.repositoryDisposition === 'resolved' &&
+    reconciliation.planningAuthority.kind === 'repository' &&
+    (
+      !selectedRepository ||
+      reconciliation.planningAuthority.repositoryId !== selectedRepository.repositoryId ||
+      reconciliation.planningAuthority.fullName !== selectedRepository.fullName
+    )
+  ) {
+    blockers.push('Planning authority must match the selected immutable repository evidence.')
+  } else if (reconciliation.repositoryDisposition === 'no-repository' && reconciliation.planningAuthority.kind !== 'cambium') {
+    blockers.push('Repository-less work must remain coordinated by Cambium.')
+  }
+  if (!reconciliation.repositoryPlanningReviewed) blockers.push('Review repository planning and roadmap evidence.')
+  if (!reconciliation.githubIssuesReviewed) blockers.push('Review the repository GitHub issues.')
+  if (!reconciliation.legacyEvidenceReviewed) blockers.push('Reconcile tool, session, and dated planning evidence.')
+  if (classificationMismatch) {
+    blockers.push(`Origin derives ${derivedType}, but the canonical catalog currently says ${work.classification}. Export a mapping proposal.`)
+  }
+
+  return {
+    ready: blockers.length === 0,
+    derivedType,
+    classificationMismatch,
+    blockers,
+  }
+}
+
+export function createReusableIpProposal(work: WorkObject, name: string): ReusableIpProposal {
+  if (work.classification !== 'client-branch') {
+    throw new TypeError('Reusable client-derived IP proposals require a Client Branch source')
+  }
+  const normalizedName = name.trim().slice(0, 120)
+  if (!normalizedName) throw new TypeError('Reusable IP proposal name is required')
+  return {
+    proposedType: 'sapling',
+    origin: 'thoughtseed-venture',
+    name: normalizedName,
+    linkedWorkId: work.workId,
+    preservesSourceType: 'client-branch',
   }
 }
 
@@ -473,12 +627,21 @@ export function hasWhiteLabelReuse(work: WorkObject, plan?: WorkPlan): boolean {
   return work.commercialReuse === 'white-labelable' || Boolean(plan?.tags.includes('white-labelable'))
 }
 
-function matchesView(work: WorkObject, plan: WorkPlan | undefined, view: SmartView): boolean {
+function matchesView(
+  work: WorkObject,
+  plan: WorkPlan | undefined,
+  view: SmartView,
+  reconciliations?: Readonly<Record<string, PortfolioReconciliation>>,
+): boolean {
   if (view === 'all') return true
   if (view === 'white-labelable') return hasWhiteLabelReuse(work, plan)
   if (view === 'needs-review') return Boolean(plan?.tags.includes('needs-review'))
   if (view === 'historical') return false
   if (view === 'unplanned') {
+    if (reconciliations && sourceSignal(work) === 'unplanned') {
+      const reconciliation = reconciliations[work.workId] ?? defaultReconciliation(work.workId)
+      if (!intakeReadiness(work, reconciliation).ready) return true
+    }
     return effectiveSignal(work, plan) === 'unplanned'
       && !plan?.horizon
       && !plan?.tags.includes('needs-review')
@@ -491,12 +654,13 @@ export function filterWorkObjects(
   classifications: ReadonlySet<Classification>,
   view: SmartView,
   plans: Readonly<Record<string, WorkPlan>> = {},
+  reconciliations?: Readonly<Record<string, PortfolioReconciliation>>,
 ): WorkObject[] {
   const needle = query.trim().toLowerCase()
   return WORK_OBJECTS.filter((work) => {
     const plan = plans[work.workId]
     if (classifications.size > 0 && !classifications.has(work.classification)) return false
-    if (!matchesView(work, plan, view)) return false
+    if (!matchesView(work, plan, view, reconciliations)) return false
     if (!needle) return true
     return [
       work.name,
@@ -514,12 +678,16 @@ export function filterWorkObjects(
   })
 }
 
-export function smartViewCount(view: SmartView, plans: Readonly<Record<string, WorkPlan>>): number {
+export function smartViewCount(
+  view: SmartView,
+  plans: Readonly<Record<string, WorkPlan>>,
+  reconciliations?: Readonly<Record<string, PortfolioReconciliation>>,
+): number {
   if (view === 'needs-review') {
     return REVIEW_RECORDS.length + WORK_OBJECTS.filter((work) => plans[work.workId]?.tags.includes('needs-review')).length
   }
   if (view === 'historical') return HISTORICAL_RECORDS.length
-  return WORK_OBJECTS.filter((work) => matchesView(work, plans[work.workId], view)).length
+  return WORK_OBJECTS.filter((work) => matchesView(work, plans[work.workId], view, reconciliations)).length
 }
 
 export function resolvePipeline(work: WorkObject, plan: WorkPlan): Pipeline {
@@ -581,10 +749,19 @@ export function createPacket(state: WorkbenchInput, now = new Date()): ExportPac
     if (!reviewById.has(id)) continue
     reviewDecisions[id] = sanitizeReviewDecision(raw, id)
   }
+  const retiredReviewDecisions: Record<string, ReviewDecision> = {}
+  for (const [id, raw] of Object.entries(state.retiredReviewDecisions ?? {})) {
+    retiredReviewDecisions[safeText(id, 160)] = sanitizeRetiredReviewDecision(raw, id)
+  }
+  const reconciliations: Record<string, PortfolioReconciliation> = {}
+  for (const [id, raw] of Object.entries(state.reconciliations ?? {})) {
+    if (!workById.has(id)) continue
+    reconciliations[id] = sanitizeReconciliation(raw, id)
+  }
   const pipelines = Object.entries(plans).map(([id, plan]) => resolvePipeline(workById.get(id)!, plan))
   return {
     schema: WORKBENCH_SCHEMA,
-    version: 3,
+    version: 4,
     source: {
       schema: SOURCE_SCHEMA,
       generatedAt: SOURCE_GENERATED_AT,
@@ -599,6 +776,8 @@ export function createPacket(state: WorkbenchInput, now = new Date()): ExportPac
     focusedId,
     plans,
     reviewDecisions,
+    retiredReviewDecisions,
+    reconciliations,
     pipelines,
     exportedAt: now.toISOString(),
   }
@@ -672,6 +851,127 @@ function sanitizeReviewDecision(value: unknown, id: string): ReviewDecision {
   }
 }
 
+function sanitizeRetiredReviewDecision(value: unknown, id: string): ReviewDecision {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError(`Invalid retired review decision for ${id}`)
+  const raw = value as Partial<ReviewDecision>
+  if (!REVIEW_PROPOSALS.includes(raw.proposedType as ReviewProposal)) {
+    throw new TypeError(`Invalid retired review proposal for ${id}`)
+  }
+  const suggestionRule = safeText(raw.suggestionRule, 160)
+  const sourceDigest = safeText(raw.sourceDigest, 128)
+  if (!suggestionRule || !/^[a-f0-9]{64}$/i.test(sourceDigest)) {
+    throw new TypeError(`Invalid retired review provenance for ${id}`)
+  }
+  const proposedType = raw.proposedType as ReviewProposal
+  return {
+    proposedType,
+    clientFamilyId: proposedType === 'client-branch' ? normalizeClientFamilyId(String(raw.clientFamilyId ?? '')) : '',
+    note: normalizeReviewNote(String(raw.note ?? '')),
+    suggestionRule,
+    sourceDigest,
+  }
+}
+
+function sanitizePlanningAuthority(value: unknown, id: string): PlanningAuthority | null {
+  if (value === null || value === undefined) return null
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError(`Invalid planning authority for ${id}`)
+  }
+  const raw = value as Partial<PlanningAuthority> & Record<string, unknown>
+  if (raw.kind === 'repository') {
+    const repositoryId = safeText(raw.repositoryId, 200)
+    const fullName = safeText(raw.fullName, 200)
+    if (!repositoryId || !/^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(fullName)) {
+      throw new TypeError(`Invalid repository planning authority for ${id}`)
+    }
+    return { kind: 'repository', repositoryId, fullName }
+  }
+  if (raw.kind === 'cambium') {
+    const reason = safeText(raw.reason, 400)
+    if (!reason) throw new TypeError(`Cambium planning authority requires a reason for ${id}`)
+    return { kind: 'cambium', reason }
+  }
+  throw new TypeError(`Invalid planning authority kind for ${id}`)
+}
+
+function sanitizeReconciliation(value: unknown, id: string): PortfolioReconciliation {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError(`Invalid reconciliation for ${id}`)
+  }
+  const raw = value as Partial<PortfolioReconciliation>
+  if (raw.workObjectId !== id) throw new TypeError(`Reconciliation WorkObject mismatch for ${id}`)
+  if (!REPOSITORY_DISPOSITIONS.includes(raw.repositoryDisposition as RepositoryDisposition)) {
+    throw new TypeError(`Invalid repository disposition for ${id}`)
+  }
+  if (!PORTFOLIO_ORIGINS.includes(raw.origin as PortfolioOrigin)) {
+    throw new TypeError(`Invalid portfolio origin for ${id}`)
+  }
+  const repositorySourceRef = raw.repositorySourceRef === null
+    ? null
+    : safeText(raw.repositorySourceRef, 300)
+  if (repositorySourceRef && !repositorySourceRef.startsWith('repo:')) {
+    throw new TypeError(`Invalid repository source reference for ${id}`)
+  }
+  const work = workById.get(id)!
+  const repositoryEvidence = repositorySourceRef
+    ? repositoryEvidenceBySourceRef.get(repositorySourceRef)
+    : undefined
+  if (repositorySourceRef && (!work.provenance.includes(repositorySourceRef) || !repositoryEvidence)) {
+    throw new TypeError(`Repository evidence is not attached to ${id}`)
+  }
+  if (repositoryEvidence) {
+    const evidenceStatus: string = repositoryEvidence.status
+    const expectedDisposition: RepositoryDisposition = evidenceStatus === 'resolved'
+      ? 'resolved'
+      : evidenceStatus === 'ambiguous'
+        ? 'ambiguous'
+        : 'unmatched'
+    if (raw.repositoryDisposition !== expectedDisposition) {
+      throw new TypeError(`Repository disposition does not match generated evidence for ${id}`)
+    }
+  } else if (raw.repositoryDisposition === 'resolved' || raw.repositoryDisposition === 'ambiguous') {
+    throw new TypeError(`Repository disposition lacks generated evidence for ${id}`)
+  }
+  if (
+    raw.repositoryDisposition === 'no-repository' &&
+    (repositorySourceRef !== null || work.provenance.some((source) => source.startsWith('repo:')))
+  ) {
+    throw new TypeError(`No-repository disposition conflicts with catalog evidence for ${id}`)
+  }
+  for (const [field, flag] of [
+    ['repositoryPlanningReviewed', raw.repositoryPlanningReviewed],
+    ['githubIssuesReviewed', raw.githubIssuesReviewed],
+    ['legacyEvidenceReviewed', raw.legacyEvidenceReviewed],
+  ] as const) {
+    if (typeof flag !== 'boolean') throw new TypeError(`Invalid ${field} flag for ${id}`)
+  }
+  const origin = raw.origin as PortfolioOrigin
+  const planningAuthority = sanitizePlanningAuthority(raw.planningAuthority, id)
+  if (
+    raw.repositoryDisposition === 'resolved' &&
+    planningAuthority?.kind === 'repository' &&
+    (
+      planningAuthority.repositoryId !== repositoryEvidence?.repositoryId ||
+      planningAuthority.fullName !== repositoryEvidence.fullName
+    )
+  ) {
+    throw new TypeError(`Repository planning authority does not match generated evidence for ${id}`)
+  }
+  return {
+    workObjectId: id,
+    repositorySourceRef,
+    repositoryDisposition: raw.repositoryDisposition as RepositoryDisposition,
+    origin,
+    clientFamilyId: origin === 'client' ? normalizeClientFamilyId(String(raw.clientFamilyId ?? '')) : '',
+    planningAuthority,
+    repositoryPlanningReviewed: raw.repositoryPlanningReviewed as boolean,
+    githubIssuesReviewed: raw.githubIssuesReviewed as boolean,
+    legacyEvidenceReviewed: raw.legacyEvidenceReviewed as boolean,
+    note: normalizeReviewNote(String(raw.note ?? '')),
+    updatedAt: safeText(raw.updatedAt, 64),
+  }
+}
+
 function parsePlans(packet: Record<string, unknown>, versionLabel: string): Pick<WorkbenchState, 'focusedId' | 'plans'> {
   if (!packet.plans || typeof packet.plans !== 'object' || Array.isArray(packet.plans)) {
     throw new TypeError('Plans are invalid')
@@ -688,23 +988,66 @@ function parsePlans(packet: Record<string, unknown>, versionLabel: string): Pick
   return { focusedId, plans }
 }
 
-function parseV3(packet: Record<string, unknown>): WorkbenchState {
-  if (packet.version !== 3) throw new TypeError('Packet version is not supported')
-  const parsed = parsePlans(packet, 'v3')
+function parseReviewDecisions(packet: Record<string, unknown>, versionLabel: string): Record<string, ReviewDecision> {
   if (!packet.reviewDecisions || typeof packet.reviewDecisions !== 'object' || Array.isArray(packet.reviewDecisions)) {
     throw new TypeError('Review decisions are invalid')
   }
   const reviewDecisions: Record<string, ReviewDecision> = {}
   for (const [id, value] of Object.entries(packet.reviewDecisions as Record<string, unknown>)) {
-    if (!reviewById.has(id)) throw new TypeError(`Unknown review record in v3 packet: ${id}`)
+    if (!reviewById.has(id)) throw new TypeError(`Unknown review record in ${versionLabel} packet: ${id}`)
     reviewDecisions[id] = sanitizeReviewDecision(value, id)
   }
-  return { ...parsed, reviewDecisions }
+  return reviewDecisions
+}
+
+function parseV4(packet: Record<string, unknown>): WorkbenchState {
+  if (packet.version !== 4) throw new TypeError('Packet version is not supported')
+  const parsed = parsePlans(packet, 'v4')
+  const reviewDecisions = parseReviewDecisions(packet, 'v4')
+  if (packet.retiredReviewDecisions !== undefined && (
+    typeof packet.retiredReviewDecisions !== 'object' ||
+    packet.retiredReviewDecisions === null ||
+    Array.isArray(packet.retiredReviewDecisions)
+  )) {
+    throw new TypeError('Retired review decisions are invalid')
+  }
+  const retiredReviewDecisions: Record<string, ReviewDecision> = {}
+  for (const [id, value] of Object.entries((packet.retiredReviewDecisions ?? {}) as Record<string, unknown>)) {
+    retiredReviewDecisions[id] = sanitizeRetiredReviewDecision(value, id)
+  }
+  if (!packet.reconciliations || typeof packet.reconciliations !== 'object' || Array.isArray(packet.reconciliations)) {
+    throw new TypeError('Reconciliations are invalid')
+  }
+  const reconciliations: Record<string, PortfolioReconciliation> = {}
+  for (const [id, value] of Object.entries(packet.reconciliations as Record<string, unknown>)) {
+    if (!workById.has(id)) throw new TypeError(`Unknown WorkObject in v4 reconciliation: ${id}`)
+    reconciliations[id] = sanitizeReconciliation(value, id)
+  }
+  return { ...parsed, reviewDecisions, retiredReviewDecisions, reconciliations }
+}
+
+function parseV3(packet: Record<string, unknown>): WorkbenchState {
+  if (packet.version !== 3) throw new TypeError('Packet version is not supported')
+  if (!packet.reviewDecisions || typeof packet.reviewDecisions !== 'object' || Array.isArray(packet.reviewDecisions)) {
+    throw new TypeError('Review decisions are invalid')
+  }
+  const reviewDecisions: Record<string, ReviewDecision> = {}
+  const retiredReviewDecisions: Record<string, ReviewDecision> = {}
+  for (const [id, value] of Object.entries(packet.reviewDecisions as Record<string, unknown>)) {
+    if (reviewById.has(id)) reviewDecisions[id] = sanitizeReviewDecision(value, id)
+    else retiredReviewDecisions[id] = sanitizeRetiredReviewDecision(value, id)
+  }
+  return {
+    ...parsePlans(packet, 'v3'),
+    reviewDecisions,
+    retiredReviewDecisions,
+    reconciliations: {},
+  }
 }
 
 function parseV2(packet: Record<string, unknown>): WorkbenchState {
   if (packet.version !== 2) throw new TypeError('Packet version is not supported')
-  return { ...parsePlans(packet, 'v2'), reviewDecisions: {} }
+  return { ...parsePlans(packet, 'v2'), reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {} }
 }
 
 interface LegacyDecision {
@@ -763,13 +1106,14 @@ function parseLegacy(packet: Record<string, unknown>): WorkbenchState {
     }
     plans[id] = plan
   }
-  return { focusedId: ids[0] ?? null, plans, reviewDecisions: {} }
+  return { focusedId: ids[0] ?? null, plans, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {} }
 }
 
 export function parsePacket(value: unknown): WorkbenchState {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError('Packet must be an object')
   const packet = value as Record<string, unknown>
-  if (packet.schema === WORKBENCH_SCHEMA) return parseV3(packet)
+  if (packet.schema === WORKBENCH_SCHEMA) return parseV4(packet)
+  if (packet.schema === V3_SCHEMA) return parseV3(packet)
   if (packet.schema === V2_SCHEMA) return parseV2(packet)
   if (packet.schema === LEGACY_SCHEMA) return parseLegacy(packet)
   throw new TypeError('Packet schema is not supported')
@@ -819,6 +1163,35 @@ export function toMarkdown(packet: ExportPacket): string {
       '',
     )
   }
+  const reconciliationRows = Object.entries(packet.reconciliations).sort(([left], [right]) => left.localeCompare(right))
+  lines.push('## Repository-first reconciliation', '')
+  if (reconciliationRows.length === 0) lines.push('_No repository reconciliation decisions recorded._', '')
+  for (const [id, reconciliation] of reconciliationRows) {
+    const work = workById.get(id)!
+    const readiness = intakeReadiness(work, reconciliation)
+    const authority = reconciliation.planningAuthority?.kind === 'repository'
+      ? `repository · ${reconciliation.planningAuthority.fullName} · ${reconciliation.planningAuthority.repositoryId}`
+      : reconciliation.planningAuthority?.kind === 'cambium'
+        ? `Cambium · ${reconciliation.planningAuthority.reason}`
+        : 'not selected'
+    lines.push(
+      `### ${work.name}`,
+      '',
+      `- WorkObject: \`${id}\``,
+      `- Repository: ${reconciliation.repositorySourceRef ? `\`${reconciliation.repositorySourceRef}\`` : '_no exact repository selected_'}`,
+      `- Repository handling: **${reconciliation.repositoryDisposition}**`,
+      `- Origin: **${reconciliation.origin}**`,
+      `- Derived type: **${readiness.derivedType}**`,
+      `- Canonical type: **${work.classification}**`,
+      `- Planning authority: ${authority}`,
+      `- Evidence reviewed: repository planning ${reconciliation.repositoryPlanningReviewed ? 'yes' : 'no'} · GitHub issues ${reconciliation.githubIssuesReviewed ? 'yes' : 'no'} · legacy tools/sessions ${reconciliation.legacyEvidenceReviewed ? 'yes' : 'no'}`,
+      `- Scheduling readiness: **${readiness.ready ? 'ready' : 'locked'}**`,
+      `- Mapping proposal: ${readiness.classificationMismatch ? `change canonical type from ${work.classification} to ${readiness.derivedType} after authority review` : '_none_'}`,
+      `- Blockers: ${readiness.blockers.length ? readiness.blockers.join(' ') : '_none_'}`,
+      `- Note: ${reconciliation.note || '_none_'}`,
+      '',
+    )
+  }
   const reviewRows = Object.entries(packet.reviewDecisions).sort(([left], [right]) => left.localeCompare(right))
   lines.push('## Classification review proposals', '')
   if (reviewRows.length === 0) lines.push('_No source review records decided locally._', '')
@@ -836,10 +1209,28 @@ export function toMarkdown(packet: ExportPacket): string {
       '',
     )
   }
+  const retiredReviewRows = Object.entries(packet.retiredReviewDecisions).sort(([left], [right]) => left.localeCompare(right))
+  lines.push('## Retired classification-review history', '')
+  if (retiredReviewRows.length === 0) lines.push('_No resolved source-review history migrated._', '')
+  for (const [id, decision] of retiredReviewRows) {
+    lines.push(
+      `### ${id}`,
+      '',
+      `- Historical proposed type: **${decision.proposedType}**`,
+      `- Client family: ${decision.clientFamilyId ? `\`${decision.clientFamilyId}\`` : '_not proposed_'}`,
+      `- Note: ${decision.note || '_none_'}`,
+      `- Historical suggestion rule: \`${decision.suggestionRule}\``,
+      `- Historical source digest: \`${decision.sourceDigest}\``,
+      '- Status: preserved migration evidence; not an active classification queue item.',
+      '',
+    )
+  }
   lines.push(
     '## Safety boundary',
     '',
     '- Local tags and signals are proposals, never canonical Vault or operational state.',
+    '- Repository evidence, origin, and mapping mismatches remain proposals until their owning authority reviews them.',
+    '- New client projects remain Client Branches; only Thoughtseed-originated ventures may become Saplings.',
     '- This packet does not activate tenants, assign agents, mint receipts, or send Telegram traffic.',
     '- Runtime integration remains a separately approved, receipt-backed step.',
     '',

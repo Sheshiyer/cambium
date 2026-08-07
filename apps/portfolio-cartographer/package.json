@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader native",
-    "build": "tsc -b && vite build --configLoader native",
-    "lint": "oxlint src/App.tsx src/domain.ts src/main.tsx",
-    "test": "node --experimental-strip-types --test src/domain.test.ts",
+    "evidence:generate": "node scripts/generate-repository-evidence.mjs",
+    "build": "pnpm evidence:generate && tsc -b && vite build --configLoader native",
+    "lint": "oxlint src/App.tsx src/domain.ts src/main.tsx src/repository-evidence.ts",
+    "test": "node --experimental-strip-types --test src/domain.test.ts src/repository-evidence.test.ts",
     "bundle": "pnpm build && node scripts/bundle.mjs",
     "standalone:audit": "node scripts/standalone-audit.mjs",
     "standalone:csp": "node scripts/standalone-csp-smoke.mjs",

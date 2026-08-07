@@ -47,14 +47,16 @@ import {
   SMART_VIEWS,
   SOURCE_GENERATED_AT,
   WORK_OBJECTS,
-  applyUnplannedDecision,
   createPacket,
   boardHorizon,
+  defaultReconciliation,
   defaultPlan,
+  deriveClassificationFromOrigin,
   effectiveSignal,
   filterWorkObjects,
   groupWorkObjects,
   hasLocalPlan,
+  intakeReadiness,
   normalizeTag,
   normalizeTags,
   normalizeClientFamilyId,
@@ -72,8 +74,9 @@ import {
   type Horizon,
   type OrganId,
   type PortfolioSignal,
+  type PortfolioOrigin,
+  type PortfolioReconciliation,
   type Priority,
-  type QuickPlanningDecision,
   type ReviewDecision,
   type ReviewProposal,
   type SignalStatus,
@@ -84,18 +87,39 @@ import {
   type WorkObjectGroup,
 } from './domain.ts'
 import {
+  REPOSITORY_EVIDENCE,
+  REPOSITORY_EVIDENCE_DIGEST,
+} from './repository-evidence.generated.ts'
+import {
   discardBulkUndo,
   emptyPlanningHistory,
-  popQuickUndo,
   recordBulkUndo,
-  recordQuickUndo,
 } from './planning-history.ts'
 
-const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v3'
+const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v4'
+const V3_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v3'
 const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
-type DrawerTab = 'overview' | 'plan' | 'delivery'
+type DrawerTab = 'intake' | 'plan' | 'delivery'
 type ViewMode = 'family' | 'grid' | 'board'
+interface RepositoryEvidence {
+  sourceRef: string
+  status: 'resolved' | 'unverified' | 'ambiguous' | 'unmatched' | 'malformed' | 'unsafe'
+  matchMethod: 'relocation-registry' | 'qualified-name' | 'unique-name' | null
+  stableId: string | null
+  fullName: string | null
+  sourcePath: string | null
+  url: string | null
+  repositoryId: string | null
+  nodeId: string | null
+  visibility: 'PUBLIC' | 'PRIVATE' | 'INTERNAL' | null
+  defaultBranch: string | null
+  archived: boolean | null
+  pushedAt: string | null
+  updatedAt: string | null
+  gaps: readonly string[]
+  candidates?: readonly string[]
+}
 
 interface LocalLoad extends WorkbenchState {
   notice: string
@@ -118,6 +142,28 @@ function loadLocalState(): LocalLoad {
           focusedId: null,
           plans: {},
           reviewDecisions: {},
+          retiredReviewDecisions: {},
+          reconciliations: {},
+          notice: 'Autosave paused · unreadable v4 data remains untouched',
+          autosaveBlocked: true,
+        }
+      }
+    }
+    const v3 = window.localStorage.getItem(V3_STORAGE_KEY)
+    if (v3) {
+      try {
+        return {
+          ...parsePacket(JSON.parse(v3)),
+          notice: 'Migrated v3 plans · original backup preserved',
+          autosaveBlocked: false,
+        }
+      } catch {
+        return {
+          focusedId: null,
+          plans: {},
+          reviewDecisions: {},
+          retiredReviewDecisions: {},
+          reconciliations: {},
           notice: 'Autosave paused · unreadable v3 data remains untouched',
           autosaveBlocked: true,
         }
@@ -136,6 +182,8 @@ function loadLocalState(): LocalLoad {
           focusedId: null,
           plans: {},
           reviewDecisions: {},
+          retiredReviewDecisions: {},
+          reconciliations: {},
           notice: 'Autosave paused · unreadable v2 data remains untouched',
           autosaveBlocked: true,
         }
@@ -154,6 +202,8 @@ function loadLocalState(): LocalLoad {
           focusedId: null,
           plans: {},
           reviewDecisions: {},
+          retiredReviewDecisions: {},
+          reconciliations: {},
           notice: 'Autosave paused · unreadable v1 data remains untouched',
           autosaveBlocked: true,
         }
@@ -164,11 +214,13 @@ function loadLocalState(): LocalLoad {
       focusedId: null,
       plans: {},
       reviewDecisions: {},
+      retiredReviewDecisions: {},
+      reconciliations: {},
       notice: 'Local save unavailable · export before closing',
       autosaveBlocked: true,
     }
   }
-  return { focusedId: null, plans: {}, reviewDecisions: {}, notice: 'Ready · planning stays in this browser', autosaveBlocked: false }
+  return { focusedId: null, plans: {}, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, notice: 'Ready · planning stays in this browser', autosaveBlocked: false }
 }
 
 function downloadText(filename: string, value: string, type: string): void {
@@ -215,6 +267,11 @@ function writePlanned(
   else delete plans[id]
 }
 
+function repositoryEvidenceForWork(work: WorkObject): RepositoryEvidence[] {
+  const refs = new Set(work.provenance.filter((source) => source.startsWith('repo:')))
+  return REPOSITORY_EVIDENCE.filter((record) => refs.has(record.sourceRef)) as RepositoryEvidence[]
+}
+
 function WorkCard({
   work,
   plan,
@@ -224,7 +281,7 @@ function WorkCard({
   onFocus,
   onQuickSignal,
   unplannedTriage,
-  onQuickDecision,
+  reconciliation,
 }: {
   work: WorkObject
   plan?: WorkPlan
@@ -234,11 +291,13 @@ function WorkCard({
   onFocus: () => void
   onQuickSignal: (signal: PortfolioSignal) => void
   unplannedTriage: boolean
-  onQuickDecision: (decision: QuickPlanningDecision) => void
+  reconciliation?: PortfolioReconciliation
 }) {
   const signal = effectiveSignal(work, plan)
   const provenance = signalProvenance(work, plan)
   const tags = plan?.tags ?? []
+  const readiness = intakeReadiness(work, reconciliation ?? defaultReconciliation(work.workId))
+  const planningLocked = sourceSignal(work) === 'unplanned' && !readiness.ready
   return (
     <article
       className={bulkSelected ? `work-card signal-${signal} is-bulk-selected` : `work-card signal-${signal}`}
@@ -248,7 +307,7 @@ function WorkCard({
       <header className="work-card-head">
         {bulkMode && (
           <label className="bulk-check">
-            <input type="checkbox" checked={bulkSelected} onChange={onBulkToggle} />
+            <input type="checkbox" checked={bulkSelected} onChange={onBulkToggle} disabled={planningLocked} />
             <span className="visually-hidden">Select {work.name} for bulk planning</span>
           </label>
         )}
@@ -303,23 +362,22 @@ function WorkCard({
       )}
 
       {unplannedTriage && (
-        <div className="unplanned-actions" aria-label={`Plan ${work.name} with one action`}>
-          {(['now', 'next', 'later', 'park', 'needs-review'] as const).map((decision) => (
-            <button
-              type="button"
-              key={decision}
-              aria-label={`Plan ${work.name}: ${decision === 'needs-review' ? 'Needs review' : label(decision)}`}
-              onClick={() => onQuickDecision(decision)}
-            >
-              {decision === 'needs-review' ? 'Needs review' : label(decision)}
-            </button>
-          ))}
+        <div className="unplanned-actions" aria-label={`Reconcile ${work.name} before scheduling`}>
+          <button type="button" className="intake-action" onClick={onFocus}>
+            <ShieldCheck aria-hidden="true" />
+            <span>Inspect & reconcile<small>{readiness.ready ? 'Ready for scheduling' : `${readiness.blockers.length} intake gates open`}</small></span>
+          </button>
         </div>
       )}
 
       <footer className="work-card-actions">
         <span>{work.accountId ? `account · ${work.accountId}` : `tenant · ${work.tenantId ?? work.tenantStatus}`}</span>
-        {!unplannedTriage && (
+        {!unplannedTriage && planningLocked && (
+          <button type="button" className="quick-action intake-locked" onClick={onFocus} aria-label={`Reconcile ${work.name} before planning`}>
+            <ShieldCheck aria-hidden="true" /> Reconcile first
+          </button>
+        )}
+        {!unplannedTriage && !planningLocked && (
           <button
             type="button"
             className="quick-action"
@@ -459,22 +517,32 @@ function HistoricalQueue() {
 function PlanDrawer({
   work,
   plan,
+  reconciliation,
+  repositoryEvidence,
+  planningLocked,
   tab,
   onTab,
   onChange,
+  onReconciliationChange,
   onClose,
 }: {
   work: WorkObject
   plan: WorkPlan
+  reconciliation: PortfolioReconciliation
+  repositoryEvidence: readonly RepositoryEvidence[]
+  planningLocked: boolean
   tab: DrawerTab
   onTab: (tab: DrawerTab) => void
   onChange: (patch: Partial<WorkPlan>) => void
+  onReconciliationChange: (patch: Partial<PortfolioReconciliation>) => void
   onClose: () => void
 }) {
   const [tagDraft, setTagDraft] = useState('')
   const closeRef = useRef<HTMLButtonElement>(null)
   const pipeline = resolvePipeline(work, plan)
   const workflow = ORGAN_WORKFLOWS.find((candidate) => candidate.id === plan.delivery.organ)!
+  const readiness = intakeReadiness(work, reconciliation)
+  const selectedRepository = repositoryEvidence.find((record) => record.sourceRef === reconciliation.repositorySourceRef)
 
   useEffect(() => {
     closeRef.current?.focus()
@@ -499,6 +567,34 @@ function PlanDrawer({
     })
   }
 
+  function selectRepository(value: string) {
+    if (value === '__none__') {
+      onReconciliationChange({
+        repositorySourceRef: null,
+        repositoryDisposition: 'no-repository',
+        planningAuthority: { kind: 'cambium', reason: 'No exact project repository is available; Cambium coordinates this mapping gap.' },
+      })
+      return
+    }
+    const evidence = repositoryEvidence.find((record) => record.sourceRef === value)
+    if (!evidence) {
+      onReconciliationChange({ repositorySourceRef: null, repositoryDisposition: 'unmatched', planningAuthority: null })
+      return
+    }
+    const disposition = evidence.status === 'resolved'
+      ? 'resolved'
+      : evidence.status === 'ambiguous'
+        ? 'ambiguous'
+        : 'unmatched'
+    onReconciliationChange({
+      repositorySourceRef: evidence.sourceRef,
+      repositoryDisposition: disposition,
+      planningAuthority: evidence.status === 'resolved' && evidence.repositoryId && evidence.fullName
+        ? { kind: 'repository', repositoryId: evidence.repositoryId, fullName: evidence.fullName }
+        : null,
+    })
+  }
+
   return (
     <aside className="plan-drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title">
       <header className="drawer-head">
@@ -514,7 +610,7 @@ function PlanDrawer({
       </header>
 
       <nav className="drawer-tabs" aria-label="Project detail views">
-        {(['overview', 'plan', 'delivery'] as const).map((drawerTab) => (
+        {(['intake', 'plan', 'delivery'] as const).map((drawerTab) => (
           <button
             type="button"
             key={drawerTab}
@@ -528,8 +624,111 @@ function PlanDrawer({
       </nav>
 
       <div className="drawer-body">
-        {tab === 'overview' && (
-          <section className="drawer-section overview-section">
+        {tab === 'intake' && (
+          <section className="drawer-section overview-section intake-section">
+            <div className="intake-rule">
+              <ShieldCheck aria-hidden="true" />
+              <div>
+                <strong>Origin before scheduling</strong>
+                <p>Only Thoughtseed-originated ventures become Saplings. Every client project remains a Client Branch, even when new. Shared Thoughtseed capability work is an Internal Program.</p>
+              </div>
+            </div>
+            <label className="wide-field">
+              <span>Exact repository evidence</span>
+              <select
+                value={reconciliation.repositoryDisposition === 'no-repository' ? '__none__' : reconciliation.repositorySourceRef ?? ''}
+                onChange={(event) => selectRepository(event.target.value)}
+              >
+                <option value="">Choose an exact repository or preserve the gap</option>
+                {repositoryEvidence.map((evidence) => (
+                  <option key={evidence.sourceRef} value={evidence.sourceRef}>
+                    {evidence.fullName ?? evidence.sourceRef} · {evidence.status}{evidence.repositoryId ? ' · verified ID' : ' · metadata gap'}
+                  </option>
+                ))}
+                {repositoryEvidence.length === 0 && <option value="__none__">No project repository · coordinate in Cambium</option>}
+              </select>
+            </label>
+            {selectedRepository && (
+              <div className={`repository-receipt repository-${selectedRepository.status}`}>
+                <div>
+                  <span>{selectedRepository.status} · {selectedRepository.matchMethod ?? 'no match rule'}</span>
+                  <strong>{selectedRepository.fullName ?? selectedRepository.sourceRef}</strong>
+                  <code>{selectedRepository.repositoryId ?? 'immutable GitHub ID unavailable'}</code>
+                </div>
+                {selectedRepository.url && (
+                  <a href={selectedRepository.url} target="_blank" rel="noreferrer">Open GitHub repository</a>
+                )}
+                {selectedRepository.gaps.length > 0 && <p>Evidence gaps: {selectedRepository.gaps.join(' · ')}</p>}
+              </div>
+            )}
+            <div className="field-grid">
+              <label>
+                <span>Origin</span>
+                <select
+                  value={reconciliation.origin}
+                  onChange={(event) => onReconciliationChange({
+                    origin: event.target.value as PortfolioOrigin,
+                    clientFamilyId: event.target.value === 'client'
+                      ? reconciliation.clientFamilyId || work.accountId || ''
+                      : '',
+                  })}
+                >
+                  <option value="unknown">Unknown · Needs Review</option>
+                  <option value="thoughtseed-venture">Thoughtseed venture or product</option>
+                  <option value="client">Client-originated project</option>
+                  <option value="thoughtseed-internal">Thoughtseed shared capability or operations</option>
+                </select>
+              </label>
+              <label>
+                <span>Derived WorkObject type</span>
+                <input value={label(deriveClassificationFromOrigin(reconciliation.origin))} readOnly />
+              </label>
+            </div>
+            {reconciliation.origin === 'client' && (
+              <label className="wide-field">
+                <span>Client family · local mapping proposal</span>
+                <input
+                  value={reconciliation.clientFamilyId}
+                  maxLength={64}
+                  onChange={(event) => onReconciliationChange({ clientFamilyId: normalizeClientFamilyId(event.target.value) })}
+                  placeholder={work.accountId ?? 'client-family-id'}
+                  list="portfolio-client-families"
+                />
+                <datalist id="portfolio-client-families">
+                  {[...new Set(WORK_OBJECTS.map((candidate) => candidate.accountId).filter((accountId): accountId is string => Boolean(accountId)))].sort().map((accountId) => (
+                    <option key={accountId} value={accountId} />
+                  ))}
+                </datalist>
+              </label>
+            )}
+            <dl className="intake-comparison">
+              <div><dt>Canonical catalog</dt><dd>{label(work.classification)}</dd></div>
+              <div><dt>Origin derives</dt><dd>{label(readiness.derivedType)}</dd></div>
+              <div><dt>Planning authority</dt><dd>{reconciliation.planningAuthority?.kind === 'repository' ? reconciliation.planningAuthority.fullName : reconciliation.planningAuthority?.kind === 'cambium' ? 'Cambium · cross-portfolio' : 'not selected'}</dd></div>
+            </dl>
+            {readiness.classificationMismatch && (
+              <div className="mapping-warning" role="alert">
+                <AlertTriangle aria-hidden="true" />
+                <p>Canonical mismatch: export a mapping proposal. This WorkObject stays locked and the catalog is not rewritten locally.</p>
+              </div>
+            )}
+            <fieldset className="intake-checklist">
+              <legend>Evidence reviewed</legend>
+              <label><input type="checkbox" checked={reconciliation.repositoryPlanningReviewed} onChange={(event) => onReconciliationChange({ repositoryPlanningReviewed: event.target.checked })} /> Repository planning and roadmap</label>
+              <label><input type="checkbox" checked={reconciliation.githubIssuesReviewed} onChange={(event) => onReconciliationChange({ githubIssuesReviewed: event.target.checked })} /> GitHub issues and current backlog</label>
+              <label><input type="checkbox" checked={reconciliation.legacyEvidenceReviewed} onChange={(event) => onReconciliationChange({ legacyEvidenceReviewed: event.target.checked })} /> Tool, session, and dated planning evidence reconciled</label>
+            </fieldset>
+            <label className="wide-field">
+              <span>Reconciliation note</span>
+              <textarea rows={3} maxLength={400} value={reconciliation.note} onChange={(event) => onReconciliationChange({ note: normalizeReviewNote(event.target.value) })} placeholder="Record the evidence, conflict, or repository-planning handoff." />
+            </label>
+            <div className={readiness.ready ? 'intake-readiness is-ready' : 'intake-readiness is-locked'}>
+              {readiness.ready ? <Check aria-hidden="true" /> : <Target aria-hidden="true" />}
+              <div><strong>{readiness.ready ? 'Ready for scheduling' : 'Scheduling locked'}</strong>{readiness.blockers.map((blocker) => <p key={blocker}>{blocker}</p>)}</div>
+            </div>
+            {work.classification === 'client-branch' && (
+              <div className="reusable-ip-note"><Sparkles aria-hidden="true" /><p>Reusable Thoughtseed IP from this client work becomes a separate linked Sapling proposal. The client project remains a Client Branch.</p></div>
+            )}
             <div className="authority-note">
               <ShieldCheck aria-hidden="true" />
               <div><strong>Source truth is read-only</strong><p>Vault classifies. Local planning is a reversible proposal.</p></div>
@@ -557,6 +756,8 @@ function PlanDrawer({
 
         {tab === 'plan' && (
           <section className="drawer-section plan-section">
+            {planningLocked && <div className="planning-lock"><ShieldCheck aria-hidden="true" /><p>Complete Intake before changing scheduling. Existing legacy plan values remain visible and exportable.</p></div>}
+            <fieldset disabled={planningLocked} className="planning-fieldset">
             <div className="field-block">
               <span className="field-title">Portfolio signal <small>local plan</small></span>
               <div className="signal-options">
@@ -651,11 +852,14 @@ function PlanDrawer({
                 placeholder="What receipt or result proves this moved?"
               />
             </label>
+            </fieldset>
           </section>
         )}
 
         {tab === 'delivery' && (
           <section className="drawer-section delivery-section">
+            {planningLocked && <div className="planning-lock"><ShieldCheck aria-hidden="true" /><p>Complete Intake before changing delivery planning.</p></div>}
+            <fieldset disabled={planningLocked} className="planning-fieldset">
             <div className="delivery-boundary">
               <Network aria-hidden="true" />
               <p>Optional delivery planning. Cambium compiles intent; Hermes owns Telegram transport.</p>
@@ -715,6 +919,7 @@ function PlanDrawer({
               {pipeline.requiresApproval && <div className="gate-flag"><ShieldCheck /> Mini App Gate required for client delivery</div>}
               {pipeline.escalationTopic && <div className="alert-flag"><AlertTriangle /> Exceptional signal escalates to Alerts</div>}
             </div>
+            </fieldset>
           </section>
         )}
       </div>
@@ -726,8 +931,10 @@ function App() {
   const initial = useMemo(loadLocalState, [])
   const [plans, setPlans] = useState<Record<string, WorkPlan>>({ ...initial.plans })
   const [reviewDecisions, setReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.reviewDecisions })
+  const [retiredReviewDecisions, setRetiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })
+  const [reconciliations, setReconciliations] = useState<Record<string, PortfolioReconciliation>>({ ...initial.reconciliations })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
-  const [drawerTab, setDrawerTab] = useState<DrawerTab>('overview')
+  const [drawerTab, setDrawerTab] = useState<DrawerTab>('intake')
   const [activeView, setActiveView] = useState<SmartView>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('family')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set(
@@ -742,7 +949,6 @@ function App() {
   const [bulkTag, setBulkTag] = useState('')
   const [planningHistory, setPlanningHistory] = useState(emptyPlanningHistory)
   const bulkUndo = planningHistory.bulk
-  const quickUndoStack = planningHistory.quick
   const [autosaveBlocked, setAutosaveBlocked] = useState(initial.autosaveBlocked)
   const [notice, setNotice] = useState(initial.notice)
   const importRef = useRef<HTMLInputElement>(null)
@@ -753,8 +959,8 @@ function App() {
     [focusedId],
   )
   const visible = useMemo(
-    () => filterWorkObjects(query, classifications, activeView, plans),
-    [query, classifications, activeView, plans],
+    () => filterWorkObjects(query, classifications, activeView, plans, reconciliations),
+    [query, classifications, activeView, plans, reconciliations],
   )
   const grouped = useMemo(
     () => Object.fromEntries(BOARD_HORIZONS.map((horizon) => [
@@ -769,12 +975,12 @@ function App() {
   useEffect(() => {
     if (autosaveBlocked) return
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans, reviewDecisions })))
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })))
       setNotice('Saved locally · proposal only')
     } catch {
       setNotice('Local save unavailable · export before closing')
     }
-  }, [autosaveBlocked, focusedId, plans, reviewDecisions])
+  }, [autosaveBlocked, focusedId, plans, reconciliations, retiredReviewDecisions, reviewDecisions])
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -785,6 +991,15 @@ function App() {
   })
 
   function updatePlan(id: string, patch: Partial<WorkPlan>) {
+    const work = WORK_OBJECTS.find((candidate) => candidate.workId === id)
+    if (work && sourceSignal(work) === 'unplanned') {
+      const readiness = intakeReadiness(work, reconciliations[id] ?? defaultReconciliation(id))
+      if (!readiness.ready) {
+        setDrawerTab('intake')
+        setNotice(`${work.name} · scheduling locked until repository-first intake is complete`)
+        return
+      }
+    }
     setPlanningHistory(emptyPlanningHistory())
     setPlans((current) => {
       const candidate = { ...(current[id] ?? defaultPlan()), ...patch }
@@ -794,29 +1009,18 @@ function App() {
     })
   }
 
-  function applyQuickDecision(work: WorkObject, decision: QuickPlanningDecision) {
-    const prior = plans[work.workId] ?? null
-    setPlanningHistory((current) => recordQuickUndo(current, { id: work.workId, prior, label: work.name }))
-    setPlans((current) => {
-      const next = { ...current }
-      const plan = next[work.workId] ?? defaultPlan()
-      writePlanned(next, work.workId, applyUnplannedDecision(plan, decision))
-      return next
-    })
-    setNotice(`${work.name} · ${decision === 'needs-review' ? 'Needs review' : label(decision)} local decision`)
-  }
-
-  function undoQuickDecision() {
-    const quickUndo = quickUndoStack.at(-1)
-    if (!quickUndo) return
-    setPlans((current) => {
-      const next = { ...current }
-      if (quickUndo.prior) next[quickUndo.id] = quickUndo.prior
-      else delete next[quickUndo.id]
-      return next
-    })
-    setNotice(`Undid ${quickUndo.label} quick decision`)
-    setPlanningHistory((current) => popQuickUndo(current))
+  function updateReconciliation(id: string, patch: Partial<PortfolioReconciliation>) {
+    setPlanningHistory(emptyPlanningHistory())
+    setReconciliations((current) => ({
+      ...current,
+      [id]: {
+        ...(current[id] ?? defaultReconciliation(id)),
+        ...patch,
+        workObjectId: id,
+        updatedAt: new Date().toISOString(),
+      },
+    }))
+    setNotice('Repository-first intake saved locally · proposal only')
   }
 
   function toggleFamily(groupId: string) {
@@ -871,6 +1075,13 @@ function App() {
   }
 
   function toggleBulk(id: string) {
+    const work = WORK_OBJECTS.find((candidate) => candidate.workId === id)
+    if (work && sourceSignal(work) === 'unplanned' && !intakeReadiness(work, reconciliations[id] ?? defaultReconciliation(id)).ready) {
+      setFocusedId(id)
+      setDrawerTab('intake')
+      setNotice(`${work.name} · reconcile before bulk planning`)
+      return
+    }
     setBulkSelected((current) => {
       const next = new Set(current)
       if (next.has(id)) next.delete(id)
@@ -937,7 +1148,7 @@ function App() {
 
   function openDrawer(id: string) {
     setFocusedId(id)
-    setDrawerTab('overview')
+    setDrawerTab('intake')
   }
 
   function closeDrawer() {
@@ -958,19 +1169,19 @@ function App() {
   }
 
   function exportJson() {
-    const packet = createPacket({ focusedId, plans, reviewDecisions })
+    const packet = createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })
     downloadText('thoughtseed-portfolio-workbench.json', `${JSON.stringify(packet, null, 2)}\n`, 'application/json')
     setNotice('JSON planning packet exported')
   }
 
   function exportMarkdown() {
-    downloadText('thoughtseed-portfolio-workbench.md', toMarkdown(createPacket({ focusedId, plans, reviewDecisions })), 'text/markdown')
+    downloadText('thoughtseed-portfolio-workbench.md', toMarkdown(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })), 'text/markdown')
     setNotice('Markdown planning brief exported')
   }
 
   async function copyBrief() {
     try {
-      await navigator.clipboard.writeText(toMarkdown(createPacket({ focusedId, plans, reviewDecisions })))
+      await navigator.clipboard.writeText(toMarkdown(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })))
       setNotice('Planning brief copied')
     } catch {
       setNotice('Clipboard unavailable · use Markdown export')
@@ -983,10 +1194,12 @@ function App() {
       setAutosaveBlocked(false)
       setPlans({ ...restored.plans })
       setReviewDecisions({ ...restored.reviewDecisions })
+      setRetiredReviewDecisions({ ...restored.retiredReviewDecisions })
+      setReconciliations({ ...restored.reconciliations })
       setFocusedId(restored.focusedId)
       setPlanningHistory(emptyPlanningHistory())
       exitBulkMode()
-      setNotice(`Imported ${Object.keys(restored.plans).length} plans · ${Object.keys(restored.reviewDecisions).length} review decisions`)
+      setNotice(`Imported ${Object.keys(restored.plans).length} plans · ${Object.keys(restored.reconciliations).length} reconciliations · ${Object.keys(restored.retiredReviewDecisions).length} retired reviews preserved`)
     } catch (error) {
       setNotice(error instanceof Error ? `Import rejected · ${error.message}` : 'Import rejected')
     } finally {
@@ -998,12 +1211,15 @@ function App() {
     if (!window.confirm('Clear every local Portfolio Workbench plan? Export first if you need a recovery packet.')) return
     setPlans({})
     setReviewDecisions({})
+    setRetiredReviewDecisions({})
+    setReconciliations({})
     setFocusedId(null)
     setPlanningHistory(emptyPlanningHistory())
     setAutosaveBlocked(false)
     exitBulkMode()
     try {
       window.localStorage.removeItem(STORAGE_KEY)
+      window.localStorage.removeItem(V3_STORAGE_KEY)
       window.localStorage.removeItem(V2_STORAGE_KEY)
       window.localStorage.removeItem(LEGACY_STORAGE_KEY)
     } catch {
@@ -1027,7 +1243,7 @@ function App() {
           setNotice(`${work.name} · ${label(signal)} local plan`)
         }}
         unplannedTriage={activeView === 'unplanned'}
-        onQuickDecision={(decision) => applyQuickDecision(work, decision)}
+        reconciliation={reconciliations[work.workId]}
       />
     )
   }
@@ -1081,7 +1297,7 @@ function App() {
               {view === 'unplanned' && <Target />}
               {view === 'all' && <Grid2X2 />}
               <span>{label(view)}</span>
-              <strong>{smartViewCount(view, plans)}</strong>
+              <strong>{smartViewCount(view, plans, reconciliations)}</strong>
             </button>
           ))}
         </nav>
@@ -1089,6 +1305,8 @@ function App() {
           <span>Registry receipt</span>
           <code>{CLASSIFICATION_DIGEST.slice(0, 12)}…</code>
           <small>{SOURCE_GENERATED_AT}</small>
+          <span>Repository evidence</span>
+          <code>{REPOSITORY_EVIDENCE_DIGEST.slice(0, 12)}…</code>
           <div><b>{CLASSIFICATION_COUNTS.total}</b> work · <b>{CLASSIFICATION_COUNTS.review}</b> review · <b>{CLASSIFICATION_COUNTS.historical}</b> history</div>
         </div>
       </aside>
@@ -1104,7 +1322,7 @@ function App() {
             <span className="eyebrow">Portfolio / {label(activeView)}</span>
             <h1 ref={workspaceHeadingRef} tabIndex={-1}>
               {activeView === 'all' ? 'Plan the portfolio' : label(activeView)}
-              <em>{activeView === 'historical' ? HISTORICAL_RECORDS.length : activeView === 'needs-review' ? smartViewCount(activeView, plans) : visible.length}</em>
+              <em>{activeView === 'historical' ? HISTORICAL_RECORDS.length : activeView === 'needs-review' ? smartViewCount(activeView, plans, reconciliations) : visible.length}</em>
             </h1>
             <p>
               {activeView === 'all'
@@ -1127,7 +1345,7 @@ function App() {
         <div className="mobile-view-rail" aria-label="Mobile smart views">
           {SMART_VIEWS.map((view) => (
             <button type="button" key={view} className={activeView === view ? 'is-active' : ''} onClick={() => setView(view)}>
-              {label(view)} <strong>{smartViewCount(view, plans)}</strong>
+              {label(view)} <strong>{smartViewCount(view, plans, reconciliations)}</strong>
             </button>
           ))}
         </div>
@@ -1187,13 +1405,6 @@ function App() {
           </div>
         )}
 
-        {quickUndoStack.length > 0 && (
-          <div className="quick-undo-bar" aria-live="polite">
-            <span>{quickUndoStack.at(-1)!.label} updated locally · {quickUndoStack.length} undo {quickUndoStack.length === 1 ? 'step' : 'steps'} available.</span>
-            <button type="button" onClick={undoQuickDecision}><RotateCcw aria-hidden="true" /> Undo last one-tap decision</button>
-          </div>
-        )}
-
         <div className="content-surface">
           {activeView === 'historical' ? (
             <HistoricalQueue />
@@ -1250,9 +1461,13 @@ function App() {
         <PlanDrawer
           work={focusedWork}
           plan={plans[focusedWork.workId] ?? defaultPlan()}
+          reconciliation={reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId)}
+          repositoryEvidence={repositoryEvidenceForWork(focusedWork)}
+          planningLocked={sourceSignal(focusedWork) === 'unplanned' && !intakeReadiness(focusedWork, reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId)).ready}
           tab={drawerTab}
           onTab={setDrawerTab}
           onChange={(patch) => updatePlan(focusedWork.workId, patch)}
+          onReconciliationChange={(patch) => updateReconciliation(focusedWork.workId, patch)}
           onClose={closeDrawer}
         />
       )}

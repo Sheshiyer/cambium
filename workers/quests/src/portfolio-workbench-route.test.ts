@@ -22,7 +22,7 @@ const VIEWER_ID = '200000099';
 const TEAM_DOMAIN = 'red-queen-4dfa.cloudflareaccess.com';
 const ACCESS_AUD = '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200';
 const ACCESS_KID = 'portfolio-access-test-kid';
-const PORTFOLIO_BYTES_RE = /portfolio-workbench@v3; offline; proposal-only|data-bundled="portfolio-cartographer"/;
+const PORTFOLIO_BYTES_RE = /portfolio-workbench@v4; offline; proposal-only|data-bundled="portfolio-cartographer"/;
 
 const { publicKey: accessPublicKey, privateKey: accessPrivateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const accessJwk = accessPublicKey.export({ format: 'jwk' });
