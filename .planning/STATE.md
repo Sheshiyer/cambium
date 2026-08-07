@@ -4,9 +4,23 @@
 > architecture/runbook surfaces for present acceptance and runtime truth; do not treat this file as a
 > current feature backlog.
 
+## Active continuity pointer
+
+The completed Telegram slice below remains historical. Current unfinished-planning
+coordination lives in Phase 9 of `.planning/ROADMAP-v0.4-continuation.md`, the active
+record `docs/continuity/unfinished-brand-cf-hermes-board.md`, and GitHub parent #285.
+Those surfaces preserve 23 source IDs without changing this historical milestone's
+completion state.
+
+Cambium relocation preparation runs in parallel as Phase 10, active record
+`docs/continuity/cambium-relocation-portfolio-reconciliation-prep.md`, and
+GitHub issue #287. It corrects the missing-worktree claim, preserves the current
+Git graph and R2 boundary, and sequences future Phase A/Phase B work without
+changing this historical milestone or authorizing execution.
+
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17)
+See: .planning/PROJECT.md (updated 2026-08-07)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
 **Current focus:** Telegram Operator Intake

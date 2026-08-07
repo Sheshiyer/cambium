@@ -47,5 +47,53 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 | Keep legacy `.planning` GSD for this milestone | Matches existing project and recovery architecture | ✓ Proven |
 | Treat Telegram as an adapter over the existing D1 loop | Avoids creating another orchestrator or execution authority | ✓ Proven |
 
+## Next Milestone: Unfinished Planning Continuity
+
+**Goal:** Preserve and close the 23 unfinished brand, Cloudflare, Hermes, quest,
+contact, and website-delivery source IDs without turning historical claims into
+runtime truth.
+
+**Canonical continuity record:**
+`docs/continuity/unfinished-brand-cf-hermes-board.md`
+
+**Execution surface:** Parent GitHub issue #285; outcome issues #280–#284;
+existing directive and weekly-context issues #249 and #252.
+
+The milestone keeps the core value intact: work counts only when authoritative
+state and durable receipts agree. Every source item therefore carries an evidence
+class, dependency, approval gate, owner issue, and revalidation probe. Planning
+this milestone authorizes no provider, runtime, registry, session, credential, or
+deployment mutation.
+
+## Parallel Preparation Milestone: Cambium Relocation and Portfolio Reconciliation
+
+**Goal:** Prepare Cambium's complete Git graph for a future move into the
+portfolio code root, then close the still-separate canonical project-record
+reconciliation without treating R2 as code sync.
+
+**Canonical continuity record:**
+`docs/continuity/cambium-relocation-portfolio-reconciliation-prep.md`
+
+**GitHub surface:** Issue #287. **Roadmap surface:** Phase 10 of
+`.planning/ROADMAP-v0.4-continuation.md`.
+
+Current evidence holds execution: live GitHub main owns the merged portfolio
+implementation, the old portfolio worktree is absent, the primary checkout is
+on a merged-but-divergent source branch with protected working bytes, four
+linked worktrees remain attached, and the destination does not yet exist.
+Twenty-five destination directories currently represent 32 logical repository
+records, of which 31 remain `reconciling` and one is `reconciled`.
+
+The preparation deliverable now also defines a read-only Portfolio Workbench
+mapping-session packet. It preserves containers, standalone repositories,
+nested primaries, and linked worktrees as different topology facts; joins only
+through stable TeamForge and verified GitHub identity; and permits browser-local
+review/export without filesystem, Git, Vault, registry, R2, or provider writes.
+The current 72-record Workbench does not yet implement that topology overlay.
+
+This milestone produces an owner-reviewable graph and manifest contract only.
+It authorizes no move, rename, branch/worktree change, registry transition, R2
+restore, provider call, session migration, commit, push, or deployment.
+
 ---
-*Last updated: 2026-07-17 after Telegram operator-intake proof*
+*Last updated: 2026-08-07 after relocation-preparation continuity capture*

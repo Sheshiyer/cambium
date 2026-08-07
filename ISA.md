@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Implement the Cambium operating fabric through local release proof"
+task: "Repair the Labs Portfolio Workbench and prepare project-folder mapping"
 effort: advanced
 effort_source: classifier
-phase: build
-progress: 339/414
+phase: complete
+progress: 511/542
 mode: interactive
-iteration: 2026-07-28-operating-fabric-subagent-implementation
+iteration: 2026-08-07-portfolio-workbench-labs-repair-and-mapping-prep
 started: 2026-07-27T21:26:34Z
-updated: 2026-07-27T23:18:00Z
+updated: 2026-08-07T00:52:00Z
 ---
 
 ## Problem
@@ -21,6 +21,8 @@ The July lead-ecosystem stack added another form of the same problem: seven depe
 
 The current Telegram Mission scene visualizes proof-bound branch packets well, but its primary ontology is still branch-first. That makes new venture saplings legible while company programs, capability work, internal operations, agent assignments, and skill-cluster loadouts lack one shared visual operating model. The Goal Graph, quest ledger, branch packets, agent telemetry, and skill registries already hold most of the necessary facts; what is missing is a versioned Mission Fabric projection and a mobile information architecture that joins them without creating a second writer.
 
+The repository-relocation program now exposes the same authority problem at filesystem scale. Historical handoffs describe an isolated portfolio worktree as authoritative even though that path no longer exists, the portfolio code has already merged into GitHub main, most destination repositories have moved, and almost every relocation record remains in `reconciling`. Treating a directory name, an R2 backup, or an old worktree path as project identity would recreate nested Git ambiguity after the physical move.
+
 ## Vision
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
@@ -30,6 +32,8 @@ The surprising outcome is subtraction: fewer checklists and fewer copied constan
 For the lead runtime, the corresponding subtraction is that provider breadth becomes declarative. One bounded Iverif capture/enrich run can be replayed without duplicate leads, hidden spend, or provider egress; every higher-risk adapter remains inert until the same durable authority spine proves it is safe.
 
 For the operating fabric, the founder opens one Canopy and immediately sees two honest classes of work: saplings moving through the venture-launch loop and company programs moving through their own outcome lifecycle. Selecting either reveals the same Mission → Task → Run → Receipt spine, while Workforce and Forge show which agent and skill-cluster loadout can act. The surprising result is that agents and skills become visible without becoming authorities: they are execution overlays on Goal Graph truth, not a parallel project tracker.
+
+For relocation, a future operator can open one active continuity record and distinguish logical projects, physical containers, linked worktrees, repository packets, old-path capsules, reconciliation entries, and knowledge evidence without guessing from folder nesting. Cambium moves only after its complete Git graph is reviewed; after the move, its GitHub-backed portfolio implementation and vault-backed narrative can be joined without copying R2 snapshots into a live checkout.
 
 ## Out of Scope
 
@@ -45,6 +49,8 @@ For the operating fabric, the founder opens one Canopy and immediately sees two 
 - No runtime implementation, production deployment, live Telegram mutation, or provider call in the operating-fabric design iteration.
 - No forced conversion of company programs into venture saplings merely to reuse the branch UI.
 - No second goal, task, receipt, or workflow authority alongside the D1 Goal Graph.
+- No repository move, rename, clone, copy, fetch, merge, checkout, worktree removal, registry transition, R2 restore, deployment, or native-session mutation in the relocation-preparation iteration.
+- No claim that an R2 durability snapshot is a synchronization transport or a source of Git history.
 
 ## Principles
 
@@ -59,6 +65,8 @@ For the operating fabric, the founder opens one Canopy and immediately sees two 
 - Work identity, execution identity, and visual projection remain separate concepts.
 - A branch remains a proof-bound launch path; shared Mission Fabric is the bridge across work types.
 - Agent and skill visibility must always resolve back to an assigned task, pinned loadout, and receipt.
+- Repository identity is stable-ID plus verified GitHub identity; paths and folder names are mutable attributes.
+- A repository graph, not a visually convenient directory, is the unit that relocation safety must classify.
 
 ## Constraints
 
@@ -75,6 +83,16 @@ For the operating fabric, the founder opens one Canopy and immediately sees two 
 - D1 Goal Graph remains the only operational writer for goals, dependencies, status, approvals, and terminal receipts.
 - Existing branch packets and `BranchStoryArc` stay backward compatible during the first operating-fabric slice.
 - The Telegram Mini App retains a five-destination primary navigation ceiling; Gate and Inspect may move to contextual sheets.
+- Cambium's repository contract forbids adding machine-local absolute checkout paths to committed documentation; relocation paths use `$VAULT`, `$PROJECTS`, and named root aliases.
+- R2 remains an encrypted one-way backup with `.git` excluded; it may supply read-only recovery evidence but never canonical code bytes or live Git topology.
+
+### Relocation preparation risks
+
+- The destination inventory is changing while relocation work proceeds; every future manifest must re-probe rather than reuse this snapshot.
+- Linked worktree administration can remain path-sensitive even when every visible checkout is nested under one parent.
+- A physical destination path can look complete while its registry entry remains `reconciling` and its canonical project record is absent.
+- R2's vault-shaped backup can tempt an operator to restore code snapshots even though the backup omits Git history.
+- A stale handoff can preserve valuable provenance while becoming dangerous if its former worktree path is treated as live authority.
 
 ## Goal
 
@@ -83,6 +101,8 @@ Make operational drift mechanically difficult by aligning the ActionRequest runt
 For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a successful CI run for the consolidated main SHA, and ship a tested durable runtime that proves one bounded Iverif Explee capture/enrich path while engagement, media generation, and recurring schedules remain fail-closed.
 
 For the operating-fabric iteration, define and visualize one shared model that distinguishes saplings from company programs, compiles both into a read-only Mission Fabric, overlays agents and skill clusters through pinned task loadouts, and maps the complete propose → approve → dispatch → execute → receipt → learn loop into buildable Telegram pages. The iteration is complete when the active architecture contract, implementation plan, roadmap phase, offline visual workflow, and Codex-generated moodboard all agree on the same ontology and authority boundaries.
+
+For the relocation-preparation iteration, preserve an observed-current-state supplement that corrects stale worktree claims, maps the destination portfolio by exact Git topology, defines R2's evidence-only role, sequences Cambium's graph-safe relocation and Phase B reconciliation, and links the work into planning, handoff, and GitHub without performing any relocation action.
 
 ## Criteria
 
@@ -496,81 +516,257 @@ For the operating-fabric iteration, define and visualize one shared model that d
 
 ### Operating-fabric runtime implementation
 
-- [ ] ISC-340: The reviewed design baseline is committed on a non-main branch.
-- [ ] ISC-341: The implementation runs from an isolated `codex/cambium-operating-fabric` worktree with a green baseline suite.
-- [ ] ISC-342: A plan-scoped SDD ledger records every task commit and review verdict.
-- [ ] ISC-343: The company-program packet parser rejects unknown keys and missing authority.
-- [ ] ISC-344: The company-program packet fixture is versioned, synthetic, and deterministic.
-- [ ] ISC-345: Anti: program and shared fixtures contain no auth material, token, prompt, or secret.
-- [ ] ISC-346: Program mission IDs are bounded, unique, sorted, and tied to a positive graph version.
-- [ ] ISC-347: Anti: `BranchStoryArc` remains unchanged by the company-program packet slice.
-- [ ] ISC-348: `MissionFabricProjectionV1` exactly matches the frozen public contract field and edge vocabulary.
-- [ ] ISC-349: Identical source facts compile to identical sorted nodes, edges, and graph digest.
-- [ ] ISC-350: Volatile generated time, served time, and freshness are excluded from graph digest material.
-- [ ] ISC-351: Projection-shaped input is rejected as an authority source.
-- [ ] ISC-352: Projection nodes, edges, gaps, evidence references, and display strings enforce frozen bounds.
-- [ ] ISC-353: Deterministic overflow produces a visible `projection-truncated` gap.
-- [ ] ISC-354: Product branches adapt to saplings while retaining promotion metadata.
-- [ ] ISC-355: Client branches adapt to client programs without sapling promotion UI.
-- [ ] ISC-356: Internal-service branches require an explicit capability-or-operations mapping; absence becomes a gap.
-- [ ] ISC-357: Company-program packets adapt to `ProgramWork` without widening `BranchStoryArc`.
-- [ ] ISC-358: Missing joins become typed gaps rather than invented graph relationships.
-- [ ] ISC-359: Stale-fence runs are rejected and only the highest valid fence contributes execution truth.
-- [ ] ISC-360: Agent and skill-cluster edges derive only from explicit source IDs.
-- [ ] ISC-361: Unauthorized viewers receive a redacted projection before graph digest computation.
-- [ ] ISC-362: Task-to-run-to-receipt lineage terminates at durable receipt IDs.
-- [ ] ISC-363: `GET /v1/mission-fabric/{tenant}` returns the bounded projection envelope.
-- [ ] ISC-364: Anti: every mutating method on the mission-fabric route returns method-not-allowed.
-- [ ] ISC-365: An absent, empty, or nonmatching `MISSION_FABRIC_TENANTS` allowlist fails closed.
-- [ ] ISC-366: Missing or invalid Telegram `initData` fails closed before source reads.
-- [ ] ISC-367: The route assembles Goal Graph, quest-envelope, and receipt facts from existing D1/KV stores.
-- [ ] ISC-368: Anti: projection requests perform zero D1 writes and zero KV writes.
-- [ ] ISC-369: The route emits private no-store caching and a viewer-redacted projection ETag.
-- [ ] ISC-370: The branch-only shadow report is non-persisted, redacted, and promotion-blocking on missing IDs.
-- [ ] ISC-371: The legacy five-scene page remains the initial visible and interactive document.
-- [ ] ISC-372: The new scene IDs are exactly `canopy`, `mission`, `flow`, `workforce`, and `forge`.
-- [ ] ISC-373: Worker and shared operating-fabric surface contracts remain byte-equivalent.
-- [ ] ISC-374: Auth or allowlist failure keeps the legacy shell active and the mission-fabric route closed.
-- [ ] ISC-375: Page assembly requires exactly one closing body tag and preserves legacy bytes outside the insertion.
-- [ ] ISC-376: Work, agent, and skill cards expose authority, freshness, type/state, and read-only cues.
-- [ ] ISC-377: Loading, empty, stale, unauthorized, error, and gap states are visually distinct.
-- [ ] ISC-378: Shared controls use semantic labels, visible focus, and 44px minimum targets.
-- [ ] ISC-379: Anti: UI components expose no raw evidence, prompt, token, Telegram auth, or private client payload.
-- [ ] ISC-380: Canopy separates saplings from programs and preserves type-specific lifecycle language.
-- [ ] ISC-381: Canopy renders source-derived active, blocked, stale, and total counts.
-- [ ] ISC-382: Mission renders Work-to-Mission-to-Task lineage for the selected work object.
-- [ ] ISC-383: Mission exposes dependencies, blockers, receipt coverage, and explicit gaps.
-- [ ] ISC-384: Anti: governed Mission actions delegate to the existing signed Gate client rather than writing directly.
-- [ ] ISC-385: Flow renders Task-to-Run-to-Receipt paths with executor, proof, dependency, and stale-fence truth.
-- [ ] ISC-386: Flow uses deterministic bounded layout and an equivalent accessible linear fallback.
-- [ ] ISC-387: Workforce exposes source-derived agent status, assignment, capability, and freshness.
-- [ ] ISC-388: Forge exposes cluster membership, lifecycle, demand, evidence, and capability gaps.
-- [ ] ISC-389: Anti: Workforce and Forge cannot score, promote, activate, edit, or assign directly.
-- [ ] ISC-390: Gate opens contextually only from a governed object and action.
-- [ ] ISC-391: Gate preserves tenant, actor, digest, nonce, expiry, graph version, and fence bindings.
-- [ ] ISC-392: Inspect exposes selected node/edge provenance, source authority, freshness, and gaps.
-- [ ] ISC-393: Closing Gate or Inspect restores the originating scene and keyboard focus.
-- [ ] ISC-394: Expired, replayed, wrong-tenant, wrong-version, and stale-fence approvals fail closed.
-- [ ] ISC-395: Every new scene and sheet has zero document overflow at 320px.
-- [ ] ISC-396: Every new scene and sheet has zero document overflow at 390px.
-- [ ] ISC-397: Every new scene and sheet has zero document overflow at 430px.
-- [ ] ISC-398: Every new interactive target satisfies the 44px minimum touch size.
-- [ ] ISC-399: Reduced-motion mode removes nonessential operating-fabric transitions.
-- [ ] ISC-400: The operating-fabric shell has semantic navigation, landmarks, headings, and logical tab order.
-- [ ] ISC-401: Flow exposes the same fact IDs through graph and linear representations.
-- [ ] ISC-402: All new scenes pass the frozen text-density budgets.
-- [ ] ISC-403: One integration test traces branch/program source through Goal Graph, fenced run, receipt, route, scene, and Inspect.
-- [ ] ISC-404: Compiler, route, and page agree on one redacted graph digest for fixed source and viewer facts.
-- [ ] ISC-405: The integration proof observes zero projection-side D1/KV writers.
-- [ ] ISC-406: Flag-off integration returns the legacy UI and a closed mission-fabric route.
-- [ ] ISC-407: The pilot fixture produces a zero-missing branch shadow report.
-- [ ] ISC-408: The full repository test suite passes on the implementation head.
-- [ ] ISC-409: Documentation, drift, and text-density audits pass on the implementation head.
-- [ ] ISC-410: The standalone publishability audit passes on the implementation head.
-- [ ] ISC-411: The standalone smoke suite passes on the implementation head.
-- [ ] ISC-412: The Telegram mobile-contract proof passes on the implementation head.
-- [ ] ISC-413: The release verifier passes on the implementation head.
-- [ ] ISC-414: Anti: this iteration performs no production deploy, allowlist promotion, D1 mutation, or Telegram action without a separate explicit founder approval.
+- [x] ISC-340: The reviewed design baseline is committed on a non-main branch.
+- [x] ISC-341: The implementation runs from an isolated `codex/cambium-operating-fabric` worktree with a green baseline suite.
+- [x] ISC-342: A plan-scoped SDD ledger records every task commit and review verdict.
+- [x] ISC-343: The company-program packet parser rejects unknown keys and missing authority.
+- [x] ISC-344: The company-program packet fixture is versioned, synthetic, and deterministic.
+- [x] ISC-345: Anti: program and shared fixtures contain no auth material, token, prompt, or secret.
+- [x] ISC-346: Program mission IDs are bounded, unique, sorted, and tied to a positive graph version.
+- [x] ISC-347: Anti: `BranchStoryArc` remains unchanged by the company-program packet slice.
+- [x] ISC-348: `MissionFabricProjectionV1` exactly matches the frozen public contract field and edge vocabulary.
+- [x] ISC-349: Identical source facts compile to identical sorted nodes, edges, and graph digest.
+- [x] ISC-350: Volatile generated time, served time, and freshness are excluded from graph digest material.
+- [x] ISC-351: Projection-shaped input is rejected as an authority source.
+- [x] ISC-352: Projection nodes, edges, gaps, evidence references, and display strings enforce frozen bounds.
+- [x] ISC-353: Deterministic overflow produces a visible `projection-truncated` gap.
+- [x] ISC-354: Product branches adapt to saplings while retaining promotion metadata.
+- [x] ISC-355: Client branches adapt to client programs without sapling promotion UI.
+- [x] ISC-356: Internal-service branches require an explicit capability-or-operations mapping; absence becomes a gap.
+- [x] ISC-357: Company-program packets adapt to `ProgramWork` without widening `BranchStoryArc`.
+- [x] ISC-358: Missing joins become typed gaps rather than invented graph relationships.
+- [x] ISC-359: Stale-fence runs are rejected and only the highest valid fence contributes execution truth.
+- [x] ISC-360: Agent and skill-cluster edges derive only from explicit source IDs.
+- [x] ISC-361: Unauthorized viewers receive a redacted projection before graph digest computation.
+- [x] ISC-362: Task-to-run-to-receipt lineage terminates at durable receipt IDs.
+- [x] ISC-363: `GET /v1/mission-fabric/{tenant}` returns the bounded projection envelope.
+- [x] ISC-364: Anti: every mutating method on the mission-fabric route returns method-not-allowed.
+- [x] ISC-365: An absent, empty, or nonmatching `MISSION_FABRIC_TENANTS` allowlist fails closed.
+- [x] ISC-366: Missing or invalid Telegram `initData` fails closed before source reads.
+- [x] ISC-367: The route assembles Goal Graph, quest-envelope, and receipt facts from existing D1/KV stores.
+- [x] ISC-368: Anti: projection requests perform zero D1 writes and zero KV writes.
+- [x] ISC-369: The route emits private no-store caching and a viewer-redacted projection ETag.
+- [x] ISC-370: The branch-only shadow report is non-persisted, redacted, and promotion-blocking on missing IDs.
+- [x] ISC-371: The legacy five-scene page remains the initial visible and interactive document.
+- [x] ISC-372: The new scene IDs are exactly `canopy`, `mission`, `flow`, `workforce`, and `forge`.
+- [x] ISC-373: Worker and shared operating-fabric surface contracts remain byte-equivalent.
+- [x] ISC-374: Auth or allowlist failure keeps the legacy shell active and the mission-fabric route closed.
+- [x] ISC-375: Page assembly requires exactly one closing body tag and preserves legacy bytes outside the insertion.
+- [x] ISC-376: Work, agent, and skill cards expose authority, freshness, type/state, and read-only cues.
+- [x] ISC-377: Loading, empty, stale, unauthorized, error, and gap states are visually distinct.
+- [x] ISC-378: Shared controls use semantic labels, visible focus, and 44px minimum targets.
+- [x] ISC-379: Anti: UI components expose no raw evidence, prompt, token, Telegram auth, or private client payload.
+- [x] ISC-380: Canopy separates saplings from programs and preserves type-specific lifecycle language.
+- [x] ISC-381: Canopy renders source-derived active, blocked, stale, and total counts.
+- [x] ISC-382: Mission renders Work-to-Mission-to-Task lineage for the selected work object.
+- [x] ISC-383: Mission exposes dependencies, blockers, receipt coverage, and explicit gaps.
+- [x] ISC-384: Anti: governed Mission actions delegate to the existing signed Gate client rather than writing directly.
+- [x] ISC-385: Flow renders Task-to-Run-to-Receipt paths with executor, proof, dependency, and stale-fence truth.
+- [x] ISC-386: Flow uses deterministic bounded layout and an equivalent accessible linear fallback.
+- [x] ISC-387: Workforce exposes source-derived agent status, assignment, capability, and freshness.
+- [x] ISC-388: Forge exposes cluster membership, lifecycle, demand, evidence, and capability gaps.
+- [x] ISC-389: Anti: Workforce and Forge cannot score, promote, activate, edit, or assign directly.
+- [x] ISC-390: Gate opens contextually only from a governed object and action.
+- [x] ISC-391: Gate preserves tenant, actor, digest, nonce, expiry, graph version, and fence bindings.
+- [x] ISC-392: Inspect exposes selected node/edge provenance, source authority, freshness, and gaps.
+- [x] ISC-393: Closing Gate or Inspect restores the originating scene and keyboard focus.
+- [x] ISC-394: Expired, replayed, wrong-tenant, wrong-version, and stale-fence approvals fail closed.
+- [x] ISC-395: Every new scene and sheet has zero document overflow at 320px.
+- [x] ISC-396: Every new scene and sheet has zero document overflow at 390px.
+- [x] ISC-397: Every new scene and sheet has zero document overflow at 430px.
+- [x] ISC-398: Every new interactive target satisfies the 44px minimum touch size.
+- [x] ISC-399: Reduced-motion mode removes nonessential operating-fabric transitions.
+- [x] ISC-400: The operating-fabric shell has semantic navigation, landmarks, headings, and logical tab order.
+- [x] ISC-401: Flow exposes the same fact IDs through graph and linear representations.
+- [x] ISC-402: All new scenes pass the frozen text-density budgets.
+- [x] ISC-403: One integration test traces branch/program source through Goal Graph, fenced run, receipt, route, scene, and Inspect.
+- [x] ISC-404: Compiler, route, and page agree on one redacted graph digest for fixed source and viewer facts.
+- [x] ISC-405: The integration proof observes zero projection-side D1/KV writers.
+- [x] ISC-406: Flag-off integration returns the legacy UI and a closed mission-fabric route.
+- [x] ISC-407: The pilot fixture produces a zero-missing branch shadow report.
+- [x] ISC-408: The full repository test suite passes on the implementation head.
+- [x] ISC-409: Documentation, drift, and text-density audits pass on the implementation head.
+- [x] ISC-410: The standalone publishability audit passes on the implementation head.
+- [x] ISC-411: The standalone smoke suite passes on the implementation head.
+- [x] ISC-412: The Telegram mobile-contract proof passes on the implementation head.
+- [x] ISC-413: The release verifier passes on the implementation head.
+- [x] ISC-414: Anti: this iteration performs no production deploy, allowlist promotion, D1 mutation, or Telegram action without a separate explicit founder approval.
+
+### Task 14 live rollout — approval and evidence baseline
+
+- [ ] ISC-415: A recorded founder approval names its exact scope and UTC timestamp before any Task 14 action begins.
+- [x] ISC-416: The exact clean candidate commit SHA is recorded and matches the reviewed Task 1–13 implementation head.
+- [ ] ISC-417: The exact code payload SHA (Worker bundle / deploy artifact digest) to be shipped is recorded before upload.
+- [ ] ISC-418: A live Cloudflare identity and access preflight (account, zone, API token scope) is captured and recorded before any Wrangler command that can mutate production.
+
+### Rollback and version binding safety
+
+- [x] ISC-419: Exactly one prior 100%-traffic Worker version ID is captured as the rollback target before any new version is uploaded.
+- [x] ISC-420: Every current version-binding name (KV/D1/R2/secret binding identifiers) is recorded by name only, with no bound value captured or logged.
+
+### Tenant identity and allowlist truth
+
+- [x] ISC-421: Production `MISSION_FABRIC_TENANTS` current state (absent, empty, or exact value) is captured verbatim before any change.
+- [ ] ISC-422: The canonical Getfitcheck tenant identity is resolved from authority evidence (D1/branch registry/GitHub), with no silent substitution of the `fitcheck` branch alias for an unmapped `getfitcheck` tenant.
+- [ ] ISC-423: Anti: enabling any one root tenant in the allowlist exposes projection data for an unrelated branch, program, or tenant.
+
+### Preview isolation and Cloudflare upload safety
+
+- [x] ISC-424: A Worker preview/version upload with 0% traffic split produces no observable change to live production responses.
+- [x] ISC-425: The uploaded preview Version is verified at 0% production traffic, its binding-name/type map matches the 100%-traffic production Version, and shared D1/KV/bot bindings are recorded explicitly before promotion.
+- [x] ISC-426: Anti: any Task 14 step assumes a separate staging bot, staging Telegram origin, or staging-only data plane exists.
+
+### Existing data confirmation without mutation
+
+- [ ] ISC-427: Existing canonical D1 and KV data for the exact resolved pilot tenant is confirmed present (existence-only) without disclosing row content in any evidence artifact.
+- [x] ISC-428: Anti: any Task 14 step performs D1 or KV seeding, schema migration, or content mutation for the pilot tenant.
+
+### Telegram preview authorization
+
+- [ ] ISC-429: Telegram preview-origin authorization and bot configuration are explicitly named and confirmed before any bot-facing change is proposed.
+
+### Founder-device evidence capture
+
+- [ ] ISC-430: A real founder-device Telegram capture at exactly 320px is recorded as evidence, not a synthetic/browser-emulated substitute.
+- [ ] ISC-431: A real founder-device Telegram capture at exactly 390px is recorded as evidence, not a synthetic/browser-emulated substitute.
+- [ ] ISC-432: An authenticated status/digest response is captured showing signed Telegram initData auth succeeding against the promoted preview or production surface.
+- [ ] ISC-433: All five scenes (Canopy, Mission, Flow, Workforce, Forge) are captured in the founder-device evidence set.
+- [ ] ISC-434: The evidence set includes at least one sapling work object and one company-program work object rendered end to end.
+- [ ] ISC-435: The evidence set includes one Task → Run → Receipt lineage instance traced to a durable receipt ID.
+- [ ] ISC-436: The evidence set includes one agent-to-skill-cluster assignment/loadout instance.
+- [ ] ISC-437: The evidence set includes one explicit missing-data gap rendered, not invented.
+- [ ] ISC-438: The evidence set includes one valid contextual Gate action succeeding with correct tenant/digest/nonce/expiry/graph-version binding.
+- [ ] ISC-439: The evidence set includes one rejected replay or stale-fence Gate attempt failing closed.
+- [ ] ISC-440: The evidence set includes one reduced-motion capture with nonessential transitions absent.
+- [ ] ISC-441: The evidence set includes one zero-gap branch/program shadow report for the resolved pilot.
+
+### Independent proof and promotion gating
+
+- [ ] ISC-442: Founder-device read proof and the signed Gate proof are captured as two independent artifacts, with neither substituted for the other.
+- [ ] ISC-443: Both independent proofs are accepted and recorded before any tenant-allowlist promotion step is taken.
+- [ ] ISC-444: Only the one resolved pilot tenant is added to the production allowlist; no other tenant is added in the same action.
+- [ ] ISC-445: Anti: any nonpilot legacy tenant, branch, or program is exposed, activated, or mutated by the pilot promotion.
+
+### Post-promotion regression gates
+
+- [ ] ISC-446: Standalone audit, standalone smoke, and Telegram mobile-contract proof all pass after promotion, against the promoted head.
+- [ ] ISC-447: Release verification passes after promotion, against the promoted head.
+
+### Rollback rehearsal and restoration
+
+- [ ] ISC-448: A rollback rehearsal removes the pilot tenant from the allowlist and the legacy page plus its route close explicitly on rollback.
+- [ ] ISC-449: Post-rollback, the Gate route and quest ledger report healthy status with no residual pilot exposure.
+- [ ] ISC-450: Anti: rollback triggers any data or schema rollback (D1/KV content reversal) beyond allowlist and route state.
+- [ ] ISC-451: A founder-approved re-add of the pilot tenant restores the exact prior allowlist state.
+- [ ] ISC-452: The restored pilot renders correctly (all five scenes, Gate, Inspect) after re-add.
+
+### Secrets, scope, and evidence discipline
+
+- [x] ISC-453: Anti: any evidence artifact contains a secret, raw Telegram initData, or unredacted authentication material.
+- [x] ISC-454: Anti: any Task 14 action mutates an unrelated tenant, provider credential, or configuration outside the named pilot and rollback scope.
+- [ ] ISC-455: Exact version IDs, receipt IDs, and evidence file paths for every promotion and rollback step are documented in Verification, and the roadmap, visual README, and architecture docs are updated to reflect the live-rollout state; an independent OmniRoute review of the Task 14 evidence set is recorded.
+
+### Unfinished planning continuity recovery
+
+- [x] ISC-456: One active repository document preserves the supplied unfinished-planning board with source provenance.
+- [x] ISC-457: The continuity document separates eight source-claimed completions from twenty-three open source IDs.
+- [x] ISC-458: Each source ID B1..B8, C1..C4, H1..H8, and S1..S3 appears exactly once in the disposition map.
+- [x] ISC-459: Every disposition distinguishes source assertion, repository evidence, live evidence, and unverified external state.
+- [x] ISC-460: The continuity document names the dependency flow joining brand, Cloudflare, Hermes, quests, and public proof.
+- [x] ISC-461: The continuity document defines the data contracts required by each execution lane.
+- [x] ISC-462: `.planning/PROJECT.md` links the continuity recovery as an active next milestone.
+- [x] ISC-463: `.planning/ROADMAP-v0.4-continuation.md` sequences the continuity recovery with dependencies and safety boundaries.
+- [x] ISC-464: `.planning/STATE.md` points from the historical v0.3 slice to the active continuity recovery.
+- [x] ISC-465: Existing issue #249 is reused for preserved-directive reconciliation rather than duplicated.
+- [x] ISC-466: Existing issue #252 is reused for weekly-context completion rather than duplicated.
+- [x] ISC-467: One parent GitHub issue maps the complete source board to outcome-oriented child issues.
+- [x] ISC-468: One GitHub issue captures the founder-decision-to-public-site brand publishing loop.
+- [x] ISC-469: One GitHub issue captures the approval-gated contact and mailbox operations loop.
+- [x] ISC-470: One GitHub issue captures Cloudflare ownership, asset-drain, token, and hosting decisions.
+- [x] ISC-471: One GitHub issue captures Hermes execution, ACK proof, and signal-to-noise closure.
+- [x] ISC-472: One GitHub issue captures quest definition, ledger push, website-delivery, and public readback.
+- [x] ISC-473: Every source open ID maps to at least one GitHub issue number in the repository document.
+- [x] ISC-474: The project handoff records the new documents, roadmap lane, issue set, and verification boundary.
+- [x] ISC-475: Anti: this recovery mutates any deployment, Cloudflare asset, credential, mailbox, cron, directive, registry, session, or provider state.
+
+### Cambium relocation and portfolio reconciliation preparation
+
+- [x] ISC-476: One active continuity record identifies itself as preparation-only and names the five historical relocation plans as source authorities.
+- [x] ISC-477: The record corrects the stale portfolio handoff with three independently probed facts: the named worktree is absent, PR #278 is merged, and every named portfolio file exists on GitHub main.
+- [x] ISC-478: The record distinguishes merged PR #286 from the still-checked-out source branch and reports ancestry divergence without calling the local branch current main.
+- [x] ISC-479: The current Cambium Git graph lists one primary checkout and four linked worktrees with branch, HEAD, cleanliness, and common-directory relationships.
+- [x] ISC-480: A filesystem probe confirms the intended Cambium destination does not yet exist.
+- [x] ISC-481: The destination Thoughtseed root is classified as twenty-five top-level directories, not twenty-five repositories.
+- [x] ISC-482: Exactly twenty-two top-level destination directories are exact standalone Git toplevels with complete six-file repository packets and matching old-path capsules.
+- [x] ISC-483: The three non-Git top-level containers are named and their ten nested primary repositories are mapped explicitly.
+- [x] ISC-484: The Parkarea linked worktree is classified as a worktree of its parent repository rather than a thirty-third portfolio project.
+- [x] ISC-485: All thirty-two logical destination repositories map one-to-one to Cambium relocation-registry entries by stable ID and GitHub identity.
+- [x] ISC-486: Registry transition accounting reports thirty-one `reconciling` entries and one `reconciled` entry without inferring completion from physical presence.
+- [x] ISC-487: The classification rule requires both an exact `.git` marker and `git rev-parse --show-toplevel` equality, preventing the outer vault repository from creating false positives.
+- [x] ISC-488: The portfolio mapping model treats path and basename as attributes while stable ID and verified GitHub identity remain identity keys.
+- [x] ISC-489: GitHub main, not the removed portfolio worktree or the current relocation-records branch, is named as the code authority for the portfolio implementation.
+- [x] ISC-490: Anti: the plan proposes copying files from the missing portfolio worktree into the future Cambium checkout.
+- [x] ISC-491: The record calls R2 an encrypted one-way backup rather than a sync surface.
+- [x] ISC-492: The record states that `.git` is excluded from R2 and GitHub/repository release history must reconstitute code.
+- [x] ISC-493: Anti: the plan instructs restoring an R2 repository snapshot into a live code or runtime path.
+- [x] ISC-494: One authority matrix assigns stable IDs, narrative/classification, code/issues/PRs, reconciliation, and backup evidence to their canonical systems.
+- [x] ISC-495: Typed preparation contracts cover repository graphs, portfolio identity bindings, relocation readiness, knowledge evidence, and post-move reconciliation.
+- [x] ISC-496: One Mermaid flow shows discovery, identity binding, graph classification, approval, physical relocation, pickup, reconciliation, and portfolio projection.
+- [x] ISC-497: Cambium's pre-move gate preserves dirty work, reconciles the merged relocation branch with current main through review, and requires a separate graph-specific decision for each linked worktree.
+- [x] ISC-498: The recommended sequence holds Cambium relocation until branch, worktree, packet, destination, identity, path-consumer, and manifest gates all pass.
+- [x] ISC-499: Phase A acceptance verifies the destination checkout, Git equivalence, packet digest, old-path capsule, registry `reconciling` event, and fresh-client pickup.
+- [x] ISC-500: Phase B acceptance updates and reads back one canonical project record before appending `reconciled` with an evidence digest.
+- [x] ISC-501: The destination portfolio snapshot distinguishes physical relocation from reconciliation completion for every entry.
+- [x] ISC-502: One open GitHub issue owns Cambium relocation readiness and post-move portfolio reconciliation without authorizing execution.
+- [x] ISC-503: The active project, roadmap, state, and continuity-index surfaces link the preparation record and GitHub owner.
+- [x] ISC-504: The repository handoff records current topology, blockers, future gates, verification evidence, and the no-execution boundary.
+- [x] ISC-505: A committed-path scan finds no newly introduced machine-local absolute checkout path in this iteration's documentation.
+- [x] ISC-506: Anti: this iteration moves bytes, changes worktrees or branches, changes registry transitions, restores R2, stages, commits, pushes, deploys, or mutates external runtime/provider state.
+
+### Authenticated Portfolio Workbench browser handoff
+
+- [x] ISC-507: GitHub main names `/admin/portfolio/web` as the founder-only browser route and `/admin/portfolio` as its login-aware loader.
+- [x] ISC-508: A live unauthenticated probe reaches the hosted route or its Cloudflare Access login boundary without exposing protected portfolio bytes.
+- [x] ISC-509: The verified hosted browser URL opens in a visible Codex browser tab for the founder to complete login.
+- [x] ISC-510: Anti: Codex reads, enters, stores, or logs founder credentials, authentication tokens, or protected portfolio mutations before the founder directs the next action.
+
+### Portfolio Workbench post-OTP diagnosis
+
+- [x] ISC-511: The claimed browser tab resolves to `/admin/portfolio/web` after Cloudflare Access and returns exactly the generic application `not found` JSON.
+- [x] ISC-512: The post-OTP response is classified as downstream Worker routing evidence rather than an OTP-delivery or Access-verification failure.
+- [x] ISC-513: GitHub main defines `/admin/portfolio/web` before the generic Worker 404 fallback.
+- [x] ISC-514: The personal-account `workers.dev` deployment exposes the route and fails closed with the Portfolio access-required HTML when no founder principal is supplied.
+- [x] ISC-515: The custom hostname is bound through the Labs Wrangler configuration, which is a distinct deployment authority from the currently authenticated personal Wrangler account.
+- [x] ISC-516: The last repository-backed custom-host production evidence predates the commit that introduced `/admin/portfolio/web` and contains no such route.
+- [x] ISC-517: The remediation is identified as a reviewed Labs production promotion of a route-containing build followed by an authenticated HTML probe, without executing it in this diagnosis.
+- [x] ISC-518: Anti: this diagnosis reads or records OTPs, cookies, redirect query parameters, provider secrets, or mutates Cloudflare Access, Worker deployments, traffic, routes, bindings, or repository history.
+
+### Labs Portfolio Workbench repair and mapping preparation
+
+- [x] ISC-519: The original authenticated custom-host route is reproduced as the generic application 404 before promotion.
+- [x] ISC-520: Fetched GitHub `main` contains merged Portfolio Workbench PR #278 and is pinned to one exact deploy SHA.
+- [x] ISC-521: The current dirty relocation-planning checkout is not used as the deployment source and its pre-existing unrelated bytes remain unchanged.
+- [x] ISC-522: The deployment source is an isolated clean checkout at the exact pinned GitHub-main SHA.
+- [x] ISC-523: The pinned source contains the hosted route, generated Workbench bundle, catalog projection, and route tests.
+- [x] ISC-524: Focused Portfolio Workbench route and catalog tests pass from the pinned source.
+- [x] ISC-525: The repository's complete deterministic release gate passes from the pinned source.
+- [x] ISC-526: A strict Labs-config Wrangler dry-run produces a non-empty bundle without remote mutation.
+- [x] ISC-527: The approved local credential can read the Labs Worker account without displaying or persisting its token value.
+- [x] ISC-528: Labs production has exactly one Worker Version at 100 percent and its UUID is captured as the rollback target.
+- [x] ISC-529: One candidate Version is uploaded from the pinned SHA with an exact git tag/message and without changing traffic.
+- [x] ISC-530: Candidate and production binding sets agree field-for-field except only intentional source/config changes; every existing secret binding remains present by name and type.
+- [x] ISC-531: The candidate preview recognizes `/admin/portfolio/web` and fails closed with Portfolio access-required HTML when no founder principal is supplied.
+- [x] ISC-532: The exact verified candidate Version receives 100 percent Labs production traffic.
+- [x] ISC-533: Post-promotion deployment identity and direct Worker health pass while the custom hostname remains Access-gated.
+- [x] ISC-534: An unauthenticated custom-host `/admin/portfolio/web` request stops at the Cloudflare Access boundary.
+- [x] ISC-535: The already authenticated in-app browser route renders Portfolio Workbench HTML instead of the generic JSON 404.
+- [x] ISC-536: The authenticated Workbench exposes its project catalog and mapping-oriented navigation markers in the visible DOM.
+- [x] ISC-537: The saved prior Labs Version remains remotely resolvable and is ready for an exact-UUID rollback if any production probe fails.
+- [x] ISC-538: The mapping preparation packet reconciles the five relocation plans with the observed 25-container, 32-logical-repository, 31-reconciling, one-reconciled portfolio state.
+- [x] ISC-539: GitHub issue #287 and roadmap Phase 10 remain the durable owners for Cambium graph relocation and Phase B portfolio reconciliation.
+- [x] ISC-540: The mapping preparation distinguishes container, primary repository, nested primary repository, and linked worktree topology while joining stable ID, GitHub identity, packet, registry, and evidence fields.
+- [x] ISC-541: Anti: this repair/preparation pass relocates repositories, changes worktree dispositions, appends registry transitions, restores R2, imports sessions, or treats directories as canonical project identity.
+- [x] ISC-542: The ISA and repository handoff record the exact deployed Version, rollback target, browser proof, mapping boundary, and remaining owner gates.
 
 ## Test Strategy
 
@@ -644,6 +840,13 @@ For the operating-fabric iteration, define and visualize one shared model that d
 | ISC-306..307 | experiential and anti-criteria | glance comprehension is structurally supported and no second authority is introduced | cross-artifact terminology audit |
 | ISC-308..339 | implementation readiness | exact TDD tasks, paths, commands, commits, rollback, security, proofs, and handoff are present without runtime mutation | plan parser, link/path probes, `rg`, `git diff --check` |
 | ISC-340..414 | operating-fabric implementation | execute Tasks 1–13 with TDD, per-task review, deterministic local proof, and no production mutation | focused `node --test`, SDD review packages, full release gates, viewport proof |
+| ISC-415..455 | Task 14 live rollout | founder-approved preview upload, tenant-identity resolution, isolated preview, founder-device dual-proof, gated promotion, and reversible rollback with zero-gap and secret-safety evidence | `wrangler versions`, `curl` + `jq`, D1/KV existence probes, real Telegram founder-device capture, `git`/`gh`, drift/audit/smoke/release scripts, OmniRoute review |
+| ISC-456..475 | planning continuity | source-ID counts, disposition mapping, local links, GitHub issue state, and no-mutation boundary agree | `rg`, Markdown link probe, `gh issue view`, `git diff`, `git status` |
+| ISC-476..506 | relocation preparation | exact Git topology, registry accounting, R2 authority, current planning links, GitHub ownership, and no-mutation boundary agree | `git`, `gh`, `jq`, `find`, `rg`, Markdown inspection, `git diff --check` |
+| ISC-507..510 | browser handoff | route source, live access boundary, visible browser tab, and credential non-custody agree | `git show`, `curl`, Codex browser tab, interaction boundary inspection |
+| ISC-511..518 | post-OTP diagnosis | authenticated tab state, source routing, deployment-account split, historical production evidence, and no-mutation boundary agree | Codex browser DOM, `git show`, `curl`, read-only `wrangler deployments list`, config/evidence inspection |
+| ISC-519..537 | Labs production repair | pinned clean source, tests, dry-run, binding parity, candidate preview, exact Version promotion, health/auth/browser proofs, and rollback readiness agree | `git`, `node --test`, `npm run verify:release`, Wrangler Versions, `curl`, Codex browser DOM |
+| ISC-538..542 | mapping preparation | relocation-plan synthesis, observed portfolio counts, issue/roadmap ownership, topology/data contract, no-relocation boundary, and handoff agree | Markdown/JSON inspection, `gh issue view`, filesystem/Git topology probes, `git diff --check` |
 
 ## Features
 
@@ -682,6 +885,15 @@ For the operating-fabric iteration, define and visualize one shared model that d
 - `OperatingFabricMoodboards` | Generate reference-anchored system-flow and mobile-page visual boards | satisfies ISC-304..305, ISC-306 | depends_on OperatingFabricMobileIA, OperatingFabricVisualWorkflow | parallelizable true
 - `OperatingFabricExecutionPlan` | Convert the architecture and wave map into exact TDD tasks, commands, commits, rollback, and proof gates | satisfies ISC-308..339 | depends_on OperatingFabricPlanning, OperatingFabricMoodboards | parallelizable false
 - `OperatingFabricRuntimeImplementation` | Execute the operating-fabric plan through local release proof while preserving the production approval boundary | satisfies ISC-340..414 | depends_on OperatingFabricExecutionPlan | parallelizable false
+- `ContinuityBoardRecovery` | Preserve and reconcile the unfinished brand, Cloudflare, Hermes, quest, and delivery board | satisfies ISC-456..464, ISC-473..475 | depends_on OperatingFabricPlanning | parallelizable false
+- `ContinuityIssueFabric` | Publish outcome-oriented GitHub issues with flow, data, dependency, and evidence contracts | satisfies ISC-465..472 | depends_on ContinuityBoardRecovery | parallelizable false
+- `RelocationCurrentState` | Correct stale worktree claims and classify the live destination portfolio by exact Git topology | satisfies ISC-476..489 | depends_on ContinuityBoardRecovery | parallelizable false
+- `RelocationAuthorityModel` | Define R2, GitHub, TeamForge, vault, packet, capsule, and reconciliation authority boundaries | satisfies ISC-490..501 | depends_on RelocationCurrentState | parallelizable false
+- `RelocationCoordination` | Link the preparation packet into GitHub, roadmap, state, index, and handoff without executing relocation | satisfies ISC-502..506 | depends_on RelocationAuthorityModel | parallelizable false
+- `PortfolioWorkbenchBrowserHandoff` | Resolve the founder-only hosted route and open it for user-controlled authentication | satisfies ISC-507..510 | depends_on RelocationCurrentState | parallelizable false
+- `PortfolioWorkbenchDeploymentDiagnosis` | Distinguish Access success from route absence and locate the split Cloudflare deployment authority without production mutation | satisfies ISC-511..518 | depends_on PortfolioWorkbenchBrowserHandoff | parallelizable false
+- `LabsPortfolioWorkbenchRepair` | Promote an exact route-bearing Worker Version through the Labs account and prove the authenticated custom-host UI | satisfies ISC-519..537 | depends_on PortfolioWorkbenchDeploymentDiagnosis | parallelizable false
+- `PortfolioMappingSessionPreparation` | Reconcile the relocation plans into a topology-aware, authority-safe mapping session without moving files | satisfies ISC-538..542 | depends_on RelocationAuthorityModel, LabsPortfolioWorkbenchRepair | parallelizable false
 
 ## Architecture
 
@@ -759,8 +971,49 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-07-28 04:34: The user selected `superpowers:subagent-driven-development`. Tasks 2–13 therefore use a fresh implementer plus task-scoped spec/quality review, with one broad whole-branch review after local release proof.
 - 2026-07-28 04:34: Current authorization covers local implementation and verification only. Task 14's staging deployment, tenant allowlist promotion, real Telegram action, and production rollback rehearsal remain outside this iteration until the founder separately approves them.
 - 2026-07-28 04:42: refined: The SystemsThinking concept map fixes one dependency spine: authoritative D1/runtime/packet sources feed pure adapters, the compiler feeds an authenticated redacted route, and that route activates an additive UI shell. The same server allowlist closes both read delivery and UI activation; the legacy page is the rollback cross-link.
+- 2026-07-29: The explicit user constraint for Task 14 is that OmniRoute non-Codex agents perform the review and curation work, not Codex-family agents. Repository authority evidence (branch registry, D1 canonical tenant sources) shows `getfitcheck` is currently unmapped as a tenant identity, while `fitcheck` exists only as a branch under tenant `cambium`. Production allowlist promotion for any Getfitcheck pilot therefore holds until the canonical tenant identity is resolved from authority evidence — a silent substitution of the `fitcheck` branch alias for an unmapped `getfitcheck` tenant is explicitly disallowed (ISC-422, ISC-445).
+- 2026-07-29: The inert zero-traffic staging candidate (Version `28d39b23-9a05-4497-afe8-f90f59bd74e5`) is accepted on the strength of the fresh Task 13 gate re-run (implementer-reported, corroborated by explicit pass/fail summaries — not independently rerun in full by the reviewer), binding-name parity with production (independently re-probed by the controller), and independent OmniRoute review (`VERDICT: APPROVED (staging-only); promotion and rollback blocked`, recorded in `task-14-review.md`). The reviewer independently reran only `node --test workers/quests/src/mission-fabric-route.test.ts` (18/18); the outer implementer `tail`/`tee` wrapping without `pipefail` around the remaining gate commands is a theoretical exit-status masking gap, so the full release gate must be rerun directly (not through that pipeline) before any production promotion. Production promotion remains stopped: it requires both resolution of the canonical pilot-tenant identity (`cambium` accepted at full company-wide scope, or a founder-authorized expand-only ADR for a distinct `getfitcheck`/`fitcheck` tenant) and real-device Telegram proof (founder-device read proof plus signed Gate proof, captured as two independent artifacts per ISC-337/ISC-442) before `MISSION_FABRIC_TENANTS` is touched.
+- 2026-08-07 00:00: The supplied unfinished-planning board is treated as provenance-bearing source material, not current runtime truth. Repository and GitHub evidence may classify or supersede its statements, while live/provider state remains explicitly unverified unless directly probed.
+- 2026-08-07 00:00: E5 Interview completed with zero user questions because the source board, repository contract, existing ISA, planning files, and GitHub backlog already populate every required section and expose the governing safety boundaries.
+- 2026-08-07 00:00: Delegation and Cato floors are relaxed because the active developer rule forbids unrequested subagents; direct repository probes, GitHub reads, Advisor review, deterministic tests, and diff inspection supply the permitted verification bundle.
+- 2026-08-07 00:00: Root-cause-at-ingestion checkpoint — the lossy state enters when an unstructured planning transcript is treated as a backlog without stable source IDs, evidence classes, dependencies, or ownership boundaries. The recovery therefore normalizes those fields before issue creation instead of patching issue prose afterward.
+- 2026-08-07 00:00: The pre-build Advisor probe failed because its OAuth session was expired and could not refresh. The issue structure remains gated by direct source-ID accounting, existing-issue deduplication, repository evidence, and a second post-build Advisor attempt; no completion claim will imply an Advisor verdict if that rail remains unavailable.
+- 2026-08-07 01:18: The required post-build Advisor retry failed with the same expired OAuth session. Completion therefore relies on direct source-ID accounting, repository/GitHub reconciliation, drift and diff checks, and explicit baseline-test disclosure; no Advisor verdict is claimed.
+- 2026-08-07 23:45: refined: The supplied portfolio handoff is retained as provenance but not as current topology. The named worktree is absent; GitHub PR #278 merged the implementation into main, while the present relocation checkout is a separate merged branch with local documentation work.
+- 2026-08-07 23:45: refined: Directory counting is not repository counting. The destination currently contains twenty-five top-level directories: twenty-two standalone repositories and three non-Git containers holding ten nested primary repositories. One additional Parkarea checkout is a linked worktree, not a project.
+- 2026-08-07 23:45: refined: R2 is a one-way encrypted backup with `.git` excluded. It can corroborate or recover vault knowledge in a disaster workflow, but it cannot supply canonical repository bytes, identity, issue state, Git history, or a live checkout.
+- 2026-08-07 23:45: E4 delegation and Cato floors are relaxed because the active developer rule forbids unrequested subagents. Directed Git/filesystem/GitHub probes are faster and less ambiguous here; the required cross-vendor Cato audit cannot be invoked without violating that rule and will be disclosed rather than simulated.
+- 2026-08-07 23:53: The required pre-build Advisor call failed because its OAuth session was expired and could not refresh. No Advisor verdict is claimed; the packet remains bounded by reproducible local and GitHub probes, and the post-build Advisor retry remains required.
+- 2026-08-08 00:10: The required post-build Advisor retry failed with the same expired OAuth session. The E4 Cato audit was not invoked because the active developer rule forbids unrequested subagents; this limitation is disclosed rather than replaced with a simulated verdict.
+- 2026-08-07 00:19: The authenticated browser handoff uses the live-main Worker route contract rather than the stale local branch or a remembered root URL. Authentication remains founder-controlled; the assistant opens the route but never handles credentials.
+- 2026-08-07 00:12: The OTP exchange is successful because the browser reaches the requested custom-host path and receives the Worker's generic JSON fallback. The route-bearing `workers.dev` deployment and the Labs-owned custom hostname are separate deployment authorities; remediation therefore belongs to a reviewed Labs promotion, not repeated OTP entry or an Access-policy change.
+- 2026-08-07 00:28: refined: The user separately authorized repairing the Labs-hosted Workbench. That production approval does not broaden relocation authority: Worker promotion uses a clean pinned GitHub-main checkout, while project/folder mapping remains preparation under issue #287 and Phase 10 with no repository move or registry transition.
+- 2026-08-07 00:48: Production was repaired only from clean GitHub history. PR #288 merged the Labs Plexus-origin regression fix as `648523f46055588f2b6719c613f3d7d56f438eed`; that exact SHA supplied the final candidate and no dirty primary-checkout file entered the bundle.
+- 2026-08-07 00:48: Server-to-server founder-role resolution uses TeamForge's direct Labs Worker origin. The `plexus-api.thoughtseed.space` custom hostname has a distinct Cloudflare Access application that intercepts the Curious JWT, whereas TeamForge itself is the component that must validate the forwarded Access assertion.
+- 2026-08-07 00:48: The Workbench remains an offline, proposal-only 72-record review surface. Project/folder topology is preserved as `thoughtseed.portfolio-folder-mapping-proposal.v1`; no browser interaction is authorized to move folders, write identity, transition the registry, or restore R2.
+- 2026-08-07 00:48: No Cambium GitHub Project V2 exists among the repository owner's visible project boards. Issue #287, Phase 10, `.planning/PROJECT.md`, and the continuity record remain the durable planning owners; no unrelated board or new authority was invented.
 
 ## Changelog
+
+- 2026-08-07 | conjectured: promoting the route-bearing Worker alone would complete authenticated Portfolio Workbench access
+  refuted by: the first promoted route returned the Portfolio access-required page because `PLEXUS_WHOAMI_URL` targeted a custom TeamForge hostname whose separate Cloudflare Access application intercepted the forwarded Curious JWT
+  learned: cross-Access server-to-server role resolution must call TeamForge's direct Worker origin so TeamForge can validate the original assertion itself
+  criterion now: ISC-530..536 prove the single configuration delta, fail-closed preview, exact promotion, Access boundary, and authenticated 72-record Workbench DOM
+
+- 2026-08-07 | conjectured: post-promotion custom-host health would directly expose signed-gate configuration
+  refuted by: direct Worker `/healthz` returns HTTP 200 without a `gateConfigured` field while the custom hostname correctly returns the Cloudflare Access boundary
+  learned: this surface is proven by exact deployment identity, direct Worker health, unauthenticated custom-host Access, and authenticated browser rendering together
+  criterion now: ISC-533 requires deployment identity plus direct health while ISC-534..536 separately prove the Access and authenticated UI layers
+
+- 2026-08-07 | conjectured: the post-OTP `not found` response meant Cloudflare Access rejected or lost the founder login
+  refuted by: the claimed browser tab reaches `/admin/portfolio/web` on the protected host and receives the Worker's exact generic 404 body, while the personal `workers.dev` deployment recognizes the same path and returns the Portfolio access-required HTML
+  learned: authentication succeeded, but the Labs custom hostname is serving a deployment that does not contain the route-bearing Portfolio Workbench bundle
+  criterion now: ISC-511..518 separate Access completion from Worker routing and hold remediation behind a reviewed Labs deployment
+
+- 2026-08-08 | conjectured: The isolated portfolio worktree remained the authoritative source for Cambium's portfolio implementation
+  refuted by: the named worktree path is absent while GitHub PR #278 is merged and live main contains all sixteen named UI, Worker, planning, roadmap, and ISA paths
+  learned: reviewed GitHub main plus stable project identity owns code continuity; a vanished worktree is historical provenance, never a reconstruction source
+  criterion now: ISC-477 and ISC-489 require live-main proof, while ISC-490 rejects copying from the missing worktree
 
 - 2026-07-13 | conjectured: Fresh proof screenshots and a page digest were sufficient to keep the Telegram closeout instructions trustworthy
   refuted by: production served a queued ActionRequest through `topic.sourceMessageId` while the renderer fixture depended on extra `telegram.messageId` and the open issue still requested the earlier confirmation state
@@ -826,9 +1079,56 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   refuted by: execution review exposed missing file-level RED/GREEN commands, a non-frozen cross-layer fixture, volatile freshness in the graph digest, ambiguous TypeScript runtime assumptions, and fragile page injection
   learned: implementation readiness requires one canonical source fixture, exact contract parity, deterministic hash material, an additive legacy shell, and atomic test/commit boundaries
   criterion now: ISC-308..339 require a verified 14-task handoff with 12 TDD slices, explicit rollback, and separate device-read and signed-Gate proof
+- 2026-07-29 | conjectured: the Task 14 preview upload environment could be treated as an isolated staging environment separate from production
+  refuted by: preview Version uploads share the production D1 database, KV namespaces, and the single production Telegram bot configuration — there is no distinct staging data plane or staging bot
+  learned: a preview/0%-traffic Version is a traffic-isolation boundary only; it is not a data or bot isolation boundary, so any preview-time read against D1/KV/Telegram observes and can be observed alongside live production state
+  criterion now: ISC-426 requires the plan to assume no staging bot or staging-only data plane exists; ISC-424..425 require verifying traffic isolation and binding parity specifically, not a separate data-isolated binding plane, before any promotion step
+- 2026-07-29 | conjectured: `<Getfitcheck>` in the pilot-promotion request could be silently resolved to a production tenant identity for allowlisting
+  refuted by: D1 existence-only counts on `goal_graph_heads` show `getfitcheck=0` under any tenant and `fitcheck=0` as an independent tenant id — the only `fitcheck`-named artifact in the repository is a branch/story scoped under the company-wide tenant `cambium=1`
+  learned: a branch or story alias must never be treated as an independent canonical tenant identity; promotion requires either accepting the full company-wide `cambium` scope or a founder-authorized expand-only ADR that creates a genuinely new `getfitcheck`/`fitcheck` tenant
+  criterion now: ISC-422 requires canonical tenant-identity resolution from authority evidence before promotion; ISC-445 forbids exposing any nonpilot tenant, branch, or program through the pilot-promotion action
+- 2026-08-07 | conjectured: copying the unfinished board into a plan and opening one issue per bullet would preserve it safely
+  refuted by: repository lifecycle rules make dated plans historical, while issues #249 and #252 already own two source outcomes and the board mixes assertions with live-looking provider claims
+  learned: continuity begins by assigning stable IDs, evidence classes, dependency edges, approval gates, and outcome ownership before creating execution surfaces
+  criterion now: ISC-456..475 require one active continuity record, exact 23-ID accounting, existing-issue reuse, outcome issues, roadmap/handoff synchronization, and a no-mutation boundary
 
 ## Verification
 
+- ISC-519: pre-promotion authenticated browser body was exactly `{"error":"not found"}` at `https://curious.thoughtseed.space/admin/portfolio/web`.
+- ISC-520: final release checkout resolved to `648523f46055588f2b6719c613f3d7d56f438eed`; GitHub records that exact SHA as merged PR #288 after the earlier Workbench PR #278.
+- ISC-521: deployment commands ran only from the isolated release checkout; primary status retained the pre-existing unrelated dirty paths while this task added only its authorized planning/ISA/handoff edits.
+- ISC-522: the isolated release checkout was clean at the exact merged SHA before the final upload; its machine-local path is intentionally omitted from committed evidence.
+- ISC-523: tree inspection found `portfolio-workbench.ts`, `portfolio-catalog.ts`, `portfolio-workbench.generated.ts`, and the Workbench route tests in the pinned source.
+- ISC-524: final merged-source focused run passed 21 of 21 Portfolio Workbench configuration, route, and catalog tests.
+- ISC-525: final merged-source `npm run verify:release` completed with `Deterministic release verification passed. Live Telegram readiness is separate evidence.`
+- ISC-526: final merged-source strict Labs Wrangler dry run completed with `--dry-run: exiting now.` and no remote mutation.
+- ISC-527: a local environment wrapper authenticated the Labs account `9d7cec1b5a32b2df8c6cdc1321ccd00b`; the credential value was never printed or persisted.
+- ISC-528: initial Labs status had exactly Version `66bfd34b-0eaf-430b-84e1-b43f0d550835` at 100 percent; it was captured before the first promotion.
+- ISC-529: final zero-traffic candidate `858d7234-da0c-4d9f-800b-315cd095d08e` was tagged `git-648523f46055588f2b6719c613f3d7d56f438eed` before promotion.
+- ISC-530: binding comparison reported 34 names/types on each side, all 21 secret bindings retained, and only the plain-text `PLEXUS_WHOAMI_URL` value changed intentionally.
+- ISC-531: final preview health returned HTTP 200 and `/admin/portfolio/web` returned HTTP 401 `Portfolio Access Required` HTML rather than the generic 404.
+- ISC-532: Labs deployment `cb031f40-62a8-4db2-82b4-d1a22c583a9f` assigns 100 percent traffic to Version `858d7234-da0c-4d9f-800b-315cd095d08e`.
+- ISC-533: post-promotion direct Worker `/healthz` returned HTTP 200 with `ok:true`; deployment status independently resolved the exact Version at 100 percent while the custom host remained Access-gated.
+- ISC-534: post-promotion unauthenticated custom-host Workbench probe returned HTTP 302 to the Thoughtseed Labs Cloudflare Access application.
+- ISC-535: authenticated browser URL remained `/admin/portfolio/web` and title became `Thoughtseed Portfolio Workbench`, with no generic 404 or Portfolio access-required page.
+- ISC-536: authenticated DOM exposed `portfolio-workbench@v3; offline; proposal-only`, `Plan the portfolio72`, 72 records, review navigation, export controls, and zero console errors.
+- ISC-537: immediate rollback Version `5829e431-2db2-47b5-9c02-d5490d8baf76` and historical Version `66bfd34b-0eaf-430b-84e1-b43f0d550835` both remained remotely resolvable after final promotion.
+- ISC-538: mapping packet records 25 top-level directories, 22 standalone repositories, three non-Git containers, ten nested primary repositories, 32 logical repositories, one linked non-project worktree, 31 `reconciling`, and one `reconciled`.
+- ISC-539: GitHub issue #287 comment `5210527700`, roadmap Phase 10, `.planning/PROJECT.md`, and the continuity record carry the mapping ownership; issue inspection found no attached Cambium GitHub Project item.
+- ISC-540: `thoughtseed.portfolio-folder-mapping-proposal.v1` joins stable WorkObject/TeamForge identity, verified GitHub identity, packet digest, path reference, container, topology class, registry state, evidence digests, and blockers.
+- ISC-541: no repository or folder move, worktree disposition, registry transition, R2 restore, session import, or native-client-store mutation occurred; folder names remain mutable attributes rather than identity.
+- ISC-542: `.project/HANDOFF.md` records deployed Version `858d7234-da0c-4d9f-800b-315cd095d08e`, rollback targets, authenticated browser markers, the mapping schema and counts, and the remaining reviewed-held/manifest/owner/write-readback gates.
+
+- 2026-07-29 Task 14 live partial-execution verification (presently-safe steps only; supersedes the prior planning-stage note): OmniRoute non-Codex implementer session on candidate git SHA `11d1c8a1421d4347da770e1f5e5e4da22c7c4f8d`, worktree clean, `git diff --stat` against code-payload SHA `c849123dd1ce436d2209e32e692ad725c2b958a7` showing exactly one changed file (the committed evidence document, 197 insertions). Fresh Task 13 gate re-run on this exact SHA: `npm test` 1465/1465, `render-docs:check` 6 pages/91 components, `drift:audit` clean, `audit:text-density` clean, `proof:tg-mobile-contract` exit 0, `standalone:audit` 586 files, `standalone:smoke` PASS, `verify:release` PASS (R3F desktop packaging 5/5, Electron packaging), mission-fabric/readiness node tests 37/37, `r3f:test` 99/99. Prior 100%-traffic production Version ID: `5b3425c5-5c14-4d71-b996-3c0d2c056f56` (script etag `b362f5144e20130477670f0df6f1101d27403afeb5e6bf14340d2162a5121e71`); confirmed unchanged and still at 100% after upload. Candidate zero-traffic preview Version ID: `28d39b23-9a05-4497-afe8-f90f59bd74e5` (script etag `d4870b84ddf7bf52d7bc0372c0b8113d9cacba1abc4d96976b187bd7f3c60e15`), preview alias `https://task14-11d1c8a1421d-cambium-quests.sheshnarayan-iyer.workers.dev`, uploaded via `versions upload --preview-alias --keep-vars` with no `--var`, no secret put, no `versions deploy`. Binding/allowlist absence: `MISSION_FABRIC_TENANTS` confirmed absent from both production and candidate binding-name lists and the deployed secret-name list; candidate binding-name/type list is byte-identical to production's. Safe remote probe statuses: `/healthz` 200 `{"ok":true,"worker":"cambium-quests"}`; `/healthz/gate` 200 `gateConfigured:true`; empty-initData gate probe 401 `missing initData`; `/v1/mission-fabric/cambium-synthetic` 403 fail-closed `mission fabric tenant is not enabled`. Production unchanged: post-upload `deployments status --json` re-check shows exactly one version at 100%, byte-identical `version_id` to the pre-upload check. D1 existence-only counts on `goal_graph_heads`: `cambium`=1, `fitcheck`=0, `getfitcheck`=0. No D1/KV write, no secret put, no schema change, and no bot-facing configuration change occurred. Independent OmniRoute review recorded in `.superpowers/sdd/2026-07-28-cambium-operating-fabric-implementation-plan/task-14-review.md`: `VERDICT: APPROVED (staging-only); promotion and rollback blocked`. Reviewer provenance is precise: the reviewer independently reran only `node --test workers/quests/src/mission-fabric-route.test.ts` (18/18); the separate integration+readiness 37/37, full 1465/1465, R3F 99/99, and remaining release-gate results above are implementer report evidence corroborated by explicit pass/fail summaries, not independently rerun by the reviewer; the implementer's outer `tail`/`tee` wrapping without `pipefail` around those commands is a theoretical upstream exit-status masking gap, so the full promotion gate must be rerun directly (not through that pipeline) before any production promotion; the controller (not the reviewer) independently re-probed production state directly (original Version at 100% traffic, candidate Version etag/tag, allowlist binding count 0, preview `/healthz`/`/healthz/gate` 200, synthetic fabric route 403). Still-open gates, all explicitly NOT PERFORMED: founder approval scope/timestamp record (ISC-415), code-payload-SHA-before-upload record (ISC-417), live Cloudflare identity/access preflight record (ISC-418), canonical Getfitcheck tenant-identity resolution (ISC-422), Telegram preview-origin/bot authorization (ISC-429), all founder-device evidence capture (ISC-430..441), independent dual-proof acceptance and promotion (ISC-442..445), post-promotion regression gates (ISC-446..447), and rollback rehearsal/restoration (ISC-448..452). ISC-455's full documentation/roadmap/architecture-doc update and version/receipt path record remain outstanding until promotion is authorized.
+
+- 2026-07-28 ISC-390..394 Task 11 verification: commit `84dcf99` implements contextual Gate and Inspect sheets, reuses the signed-action client, preserves server-derived actor plus tenant/digest/nonce/expiry/head-version/fence bindings, restores origin scene and keyboard focus on close, and fails closed for replay/expiry/tenant/version/fence errors.
+- 2026-07-28 ISC-395..402 Task 12 verification: commit `04a2d93` plus canonical proof refresh `8dda155` prove the operating-fabric page, Gate sheet, and Inspect sheet at 320/390/430px with zero overflow, 44px interactive targets, correct focus/semantics/landmarks/headings, reduced-motion compliance, a linear graph fallback, and safe loading/empty/stale/unauthorized/error states; the text-density audit passes.
+- 2026-07-28 ISC-403..414 Task 13/local release verification: commit `116a97d` plus baselines `8dda155` and `c849123` provide the end-to-end program/branch → Goal Graph → fenced run → receipt → projection → route → scene → Inspect test with a stable redacted digest, zero D1/KV writes, flag-off/invalid-auth fail-closed behavior, and a zero-gap pilot shadow proof. Full repository tests pass 1465/1465, focused integration/readiness 37/37, R3F tests 99/99, standalone audit 585 files, standalone smoke, mobile contract, R3F build, Electron packaging, render-docs, drift, density, diff checks, and deterministic verify:release all pass. Independent OmniRoute reviews found no high/medium issues. No production deployment, tenant/viewer allowlist change, D1 mutation, or Telegram action occurred; Task 14 remains unexecuted and separately founder-approval-gated.
+- ISC-363..370: Task 5 commit `25a44c9` adds the authenticated, tenant-allowlisted, GET-only Mission Fabric route. Focused route tests pass 14/14, handler tests 329/329, Goal Graph tests 6/6, compiler/adapter tests 40/40, and the full suite passes 1192/1192. Independent OmniRoute security review reproduced auth ordering, zero writes, bounded composition, viewer-redacted digest/ETag parity, private no-store caching, fail-closed clock/fence handling, and non-persisted shadow comparison; verdicts were spec ✅ and quality Approved with no Critical/Important findings. No deployment, allowlist activation, or production mutation occurred.
+- ISC-354..362: Task 4 commits `ac4c97b` and `63a19fa` add pure source adapters and viewer redaction over verified canonical BranchStoryArc, quest, fence, nonce, run, agent, cluster, and durable-receipt fields. Focused tests pass 40/40, adjacent lead/receipt stores pass 13/13, full suite passes 1177/1177, and diff checks are clean. The fix loop hardened malformed runs/timestamps, authoritative fences, missing clocks, adapter caps, and evidence redaction. Fresh OmniRoute re-review returned spec ✅ and quality Approved; the frozen Task 2 fixture and BranchStoryArc remain unchanged.
+- ISC-348..353: Task 3 commits `633a06d` and `7c66937` define the exact Mission Fabric v1 contract and deterministic pure compiler. Focused tests pass 19/19, branch-map regression passes 6/6, full suite passes 1156/1156, and diff checks are clean. The SDD fix loop removed invented blocker/proof semantics and a fabricated cluster self-edge, deleted dead code, and added fail-closed canonical UTC validation. Fresh OmniRoute `temperance-coding` re-review returned spec ✅ and quality Approved with no required findings.
+- ISC-343..347: Task 2 commits `fe66f6c` and `ddd5ff1` define the exact company-program packet, strict own-key parser, JSON schema/index/fixture, and recursively frozen cross-layer source fixture. Focused tests pass 9/9, adjacent branch tests pass 9/9, the full suite passes 1137/1137, JSON parses, and `git diff --check` is clean. The first review's inherited-key and capability-gap findings were closed; fresh OmniRoute `temperance-coding` re-review returned spec ✅ and quality Approved. `BranchStoryArc` remained untouched and no external mutation occurred.
+- ISC-340..342: baseline `9e1d7cc` is preserved on a non-main branch; isolated worktree branch `codex/cambium-operating-fabric` contains Task 1 commit `77aad5c`. The required baseline repair added docs-only provenance for the two synthetic moodboards, then passed focused provenance tests (4/4), the full suite (1128/1128), and a fresh SDD re-review (spec ✅, quality Approved). The plan-scoped ledger records the review round and no runtime or production mutation occurred.
 - Consolidation audit: ISC-129..154 are complete (`26/26`), with baseline, provenance, classification, preservation, integration, cleanup, and anti-criteria evidence recorded above.
 - Main parity: local `main` and `origin/main` both resolve to `f4868c8c8d9b57367b0ae43279d5fbc0879791de`; the checkout is clean after this ISA update is committed.
 - Pull requests: #253 merged to `main` as `c5991f0e`; #254's exact `bfb0e8c` commit is not an ancestor, but its observer surface was superseded by merged PR #257 and its closure is recorded; #265 merged the reviewed pending architecture/ISA state as `61b9f9a`; no PRs remain open.
@@ -975,3 +1275,74 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-339: anti-boundary probe — the plan declares no new writer, performs no runtime/deploy work, and says code availability is not promotion.
 - Implementation-readiness verification: plan linter reports `tasks=14`, `tdd_tasks=12`, `clauses=63`, `links=10`, `broken_links=0`, `canonical_missing=0`, and `forbidden_contract_terms=0`; all ISC-308..339 probes pass.
 - Baseline proof: Node `v26.5.0` executed `workers/quests/src/branch-map.test.ts` with 6/6 passing; `npm run render-docs:check` reports six pages and 91 components; `git diff --check` is clean.
+- 2026-07-28 Task 6 verification: commits `368ca6e` and `781b9cb` preserve the pre-Task-6 `LEGACY_PAGE` digest `38b085ba3e3af7baad40c7cf36a5fc469da457eb30b27b730bffad504ca68b4a`, add exactly the five operating-fabric scene IDs, keep Worker/shared contracts byte-equivalent, and fail closed to the visible/interactive legacy shell for auth, allowlist, network, malformed, absent-flag, false-flag, and non-200 outcomes. Exact authenticated 200 activation hides, inerts, and AT-hides the legacy shell. Page assembly keeps one closing body tag and strips back to legacy byte-for-byte. Independent OmniRoute re-review: spec compliant, code quality approved, no Critical/Important findings. Controller verification: page/RBAC/handler 370/370, motion/density 17/17, `git diff --check` clean. The sole stale canonical screenshot digest is explicitly deferred to Task 13 full proof recapture; no manifest relabel occurred.
+- 2026-07-28 Task 7 verification: commits `45964b7`, `46ca5e2`, and `456b8b3` add the shared read-only operating-fabric visual grammar using canonical Mission Fabric node types. Cards expose bounded work/agent/cluster state, authority, freshness, assignment/capability, coverage, provenance, and explicit gaps; loading, empty, stale, unauthorized, error, and gap treatments remain distinct. Runtime allowlists, canonical timestamp and coverage validation, single-pass escaping, bounded labels, signature-based credential/prompt-content filtering, and missing-context fallbacks prevent raw evidence/auth/token/private payload rendering without hiding legitimate labels such as `Prompt Engineering`. The semantic tab control retains 44px and focus-visible behavior; passive spans do not masquerade as controls. Final OmniRoute review: spec compliant, code quality approved, zero findings. Controller verification: component 62/62, motion 7/7, density audit clean with the pre-existing ratified mission/empty override, `git diff --check` clean.
+- 2026-07-28 Task 10 verification: commit `a24fceb` adds deterministic read-only Workforce and Forge renderers, browser-parity bundles, synthetic canonical fixtures, scene contracts, and fail-closed five-root boot composition. Workforce derives assignment, executor, load, capability coverage, freshness, and exact-subject gaps only from resolving canonical IDs/edges; Forge derives membership, skills, demand, recorded/unknown evidence, exact lifecycle, and gaps without reverse-inventing deferred/archived state. Both scenes expose exact 48-card/24-item overflow truth, collision-safe public identities, late-secret redaction, normalized operational duplicate reconciliation, and inert Task 11 proposal cues with no write/action authority. Focused operating-fabric tests pass 181/181; Worker/RBAC regression tests pass 341/341; docs sync (6 pages/91 components), density, motion safety (7/7), `git diff --check`, and Wrangler dry-run all pass. Fresh OmniRoute review approved the five-scene client; renderer comments about source trust and existence-only duplicate values were checked against the frozen deterministic contract and closed with direct reversal plus Node/browser parity reproductions. No deployment, D1/KV/Telegram/allowlist mutation, screenshot recapture, or viewport manifest change occurred.
+- ISC-456: `docs/continuity/unfinished-brand-cf-hermes-board.md` is an active provenance-bearing continuity record under the lifecycle policy.
+- ISC-457: table probe reports eight source-claimed completion rows and twenty-three open disposition rows.
+- ISC-458: disposition-map parser reports `rows=23`, `unique=23`, `missing=[]`, and `duplicates=[]` for B1–B8, C1–C4, H1–H8, and S1–S3.
+- ISC-459: record inspection confirms explicit `source_assertion`, `repository_verified`, `github_tracked`, `live_verified`, and `external_unverified` definitions; no live claim was invented.
+- ISC-460: Mermaid and sequence inspection confirms brand → quest → Hermes → delivery → canary plus guarded contact/provider lanes.
+- ISC-461: contract inspection confirms shared ContinuityItem plus brand, contact, provider, Hermes, and quest lane records.
+- ISC-462: `.planning/PROJECT.md` names the 23-ID recovery as the next milestone and links the canonical record.
+- ISC-463: `.planning/ROADMAP-v0.4-continuation.md` contains Phase 9 dependencies, issue owners, gates, and seven completion criteria.
+- ISC-464: `.planning/STATE.md` preserves the historical milestone while pointing to Phase 9, the record, and #285.
+- ISC-465: GitHub inspection confirms H4 maps to existing issue #249; no replacement issue was created.
+- ISC-466: GitHub inspection confirms H6 maps to existing issue #252; no replacement issue was created.
+- ISC-467: GitHub issue #285 is open, links the canonical record, and its parsed map reports 23 unique source IDs with zero missing or duplicates.
+- ISC-468: GitHub issue #281 owns B1, B2, B3, B8, S1, and S2 through approved-copy and public-canary evidence.
+- ISC-469: GitHub issue #280 owns B5 and B6 with mailbox-readiness and explicit-send gates.
+- ISC-470: GitHub issue #282 owns B4, B7, C1–C4, and H7 through read-only inventory, manifest, approval, rollback, and proof.
+- ISC-471: GitHub issue #283 owns H1, H2, and H5 and depends on #249 before native execution proof.
+- ISC-472: GitHub issue #284 owns H3, H8, and S3 through quest identity, ledger push/readback, and receipt-gated delivery.
+- ISC-473: continuity-table inspection confirms each of the 23 disposition rows links an owning GitHub issue.
+- ISC-474: `.project/HANDOFF.md` records the board counts, project/roadmap surfaces, issue set, safety boundary, and exact verification results.
+- ISC-475: `git diff --name-only` contains documentation/planning/ISA surfaces only; no deployment, provider, mailbox, cron, directive, registry, session, credential, or runtime mutation was performed.
+- Continuity verification bundle: `npm run drift:audit` passes; `git diff --check` passes; local-reference probe reports zero missing; GitHub #249, #252, and #280–#285 are open and cross-linked.
+- Full-suite disclosure: `npm test` reports 1125/1128 passing. The three failures are outside changed files: two fixed projection fixtures expired on 2026-07-28 and two already-tracked moodboard images lack asset-provenance group coverage. The post-build Advisor retry remained unavailable because its OAuth session could not refresh.
+- ISC-476: continuity-record inspection confirms preparation-only status and all five dated Temperance relocation sources.
+- ISC-477: filesystem probe reports the former portfolio worktree absent; GitHub reports PR #278 merged; live-main tree probe finds all 16 named portfolio paths.
+- ISC-478: GitHub reports PR #286 merged to live main `ca6a7a7`; compare against checked-out `be41feb` reports `status=diverged`, `ahead_by=66`, `behind_by=10`.
+- ISC-479: `git worktree list --porcelain` reports one primary plus four linked worktrees; status counts are 9, 2, 0, 0, and 0 paths respectively.
+- ISC-480: filesystem probe reports `$CAMBIUM_NEW` absent.
+- ISC-481: destination scan reports `top_directories=25`.
+- ISC-482: exact-toplevel scan reports 22 top-level repositories, 22 complete repository packets, and 22 matching old-path capsules.
+- ISC-483: topology scan reports three non-Git containers and ten nested primary repositories; the record names each.
+- ISC-484: Parkarea worktree inspection resolves `production-test-data-scrub` to the `parkarea-aleph` common directory; logical-project accounting excludes it.
+- ISC-485: table/registry comparison reports `identity_bindings=32/32` with no diff.
+- ISC-486: registry parser reports `entries=32`, `reconciling_only=31`, and `reconciled=1`.
+- ISC-487: record inspection requires an exact `.git` marker plus exact `--show-toplevel` equality and separately inspects the common directory/worktree graph.
+- ISC-488: record inspection fixes stable ID plus verified GitHub identity as keys and paths/basenames as attributes.
+- ISC-489: record inspection names GitHub main as portfolio code authority and the current local branch as non-main.
+- ISC-490: anti-probe finds only explicit prohibitions against reconstructing or copying from the absent worktree.
+- ISC-491: R2 section inspection calls the surface an encrypted one-way backup and rejects “sync” as authority shorthand.
+- ISC-492: R2 section inspection records `.git` exclusion and GitHub-based code reconstitution.
+- ISC-493: anti-probe finds no instruction to restore R2 repository snapshots into live code/runtime paths.
+- ISC-494: authority-table inspection assigns TeamForge, live vault, GitHub, local Git, packets, capsules, Cambium reconciliation, and R2 without overlap.
+- ISC-495: contract inspection finds `RepositoryGraphSnapshot`, `PortfolioIdentityBinding`, `RelocationReadiness`, `KnowledgeEvidenceRef`, and `PostMoveReconciliation`.
+- ISC-496: Mermaid inspection confirms identity, graph, knowledge, approval, Phase A, pickup, Phase B, and portfolio-projection nodes; R2 reaches evidence only.
+- ISC-497: Cambium Gate 1 preserves dirty work, starts from verified main, and requires an explicit disposition for each linked worktree.
+- ISC-498: future sequence inspection holds relocation behind graph, packet, destination, identity, path-consumer, manifest, and owner-approval gates.
+- ISC-499: Phase A acceptance names destination/Git equivalence, packet, capsule, registry, receipt, and fresh pickup.
+- ISC-500: Phase B acceptance requires canonical-record write/readback before appending `reconciled` with closure evidence.
+- ISC-501: destination snapshot and both inventory tables show physical topology and registry transition state separately.
+- ISC-502: GitHub issue #287 is open, labeled `documentation`, `area:product`, `status:planned`, and `priority:high`, and repeats the no-authority boundary.
+- ISC-503: pointer probe reports issue #287 and the preparation record in the continuity index, root project, planning project, state, roadmap, and handoff surfaces.
+- ISC-504: handoff inspection records topology, blockers, future gates, and the no-execution boundary.
+- ISC-505: added-line scan across the iteration's committed documentation surfaces reports zero machine-local absolute checkout or user-root paths.
+- ISC-506: `git diff --name-only` remains documentation/planning/ISA-only for this iteration; no relocation, branch/worktree mutation, registry transition, R2 restore, stage, commit, push, provider, session, or deployment action ran.
+- Relocation-preparation verification bundle: `git diff --check` passes; `npm run drift:audit` passes; topology probes report 25 containers, 22 top-level repositories, 10 nested primary repositories, 32 logical bindings, and one linked non-project checkout; GitHub issue #287 is open and live main contains all 16 portfolio paths.
+- Full-suite disclosure: `npm test` remains 1125/1128 passing with the same three pre-existing failures—two expired context-projection fixture expectations and two operating-fabric moodboard assets missing provenance-group coverage. No failing source was changed.
+- Doctrine disclosure: both required Advisor calls failed because OAuth could not refresh; Cato was not invoked because the active developer rule forbids unrequested subagents. No external-review verdict is claimed.
+- ISC-507: live-main source inspection resolves `/admin/portfolio/web` to founder-only Plexus authorization and `/admin/portfolio` to the Telegram/login-aware loader.
+- ISC-508: live unauthenticated probes return HTTP 302 for both hosted routes, stopping at the Cloudflare Access boundary without following the login redirect or reading protected bytes.
+- ISC-509: the Codex browser request queued successfully; the headed-browser fallback `open` command exited zero and Arc became the frontmost application.
+- ISC-510: no credential field, cookie, token, redirect parameter, protected page body, or project mutation was read or written; Arc denied Apple-event tab inspection and no permission escalation was attempted.
+- ISC-511: browser DOM probe — the claimed tab reports sanitized URL `https://curious.thoughtseed.space/admin/portfolio/web` and body `{"error":"not found"}`.
+- ISC-512: boundary analysis — Cloudflare Access redirected to the requested custom-host path; the response body matches the Worker's generic application fallback, not an Access verification page.
+- ISC-513: live-main source probe — `handle()` dispatches `/admin/portfolio/web` to `handlePortfolioWorkbenchRoute` before the final `json(404, { error: 'not found' })` fallback.
+- ISC-514: public endpoint probe — the personal-account `workers.dev` route returns HTTP 401 with `Portfolio Access Required` HTML, proving that deployed surface contains the Portfolio route.
+- ISC-515: configuration and CLI probe — the custom hostname exists only in the Labs Wrangler configuration; the active Wrangler identity can list personal deployments but cannot authenticate to the Labs account.
+- ISC-516: provenance probe — the latest repository-backed custom-host evidence points to git `88307e9`, where `/admin/portfolio/web` is absent; repository history first introduces the route in `02502e0`.
+- ISC-517: remediation inspection — the next safe action is a reviewed route-containing Labs promotion plus authenticated HTML verification; no deployment action ran.
+- ISC-518: safety probe — no OTP, cookie, redirect query, secret, Access policy, deployment, traffic split, route, binding, Git ref, or repository content outside this ISA diagnosis was read or changed.

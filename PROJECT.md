@@ -29,6 +29,32 @@ Read `AGENTS.md`, `CLAUDE.md`, `.project/CONTEXT.md`, and
 sessions, Paseo workspaces, provider stores, and credentials are
 intentionally outside this packet.
 
+## Current continuity lane
+
+The unfinished brand, Cloudflare, Hermes, and website-delivery board is
+preserved in `docs/continuity/unfinished-brand-cf-hermes-board.md` and tracked
+under GitHub issue #285. Its 23 open source IDs are routed into bounded outcome
+issues and Phase 9 of `.planning/ROADMAP-v0.4-continuation.md`.
+
+This is a coordination pointer only. It does not change the packet's
+`draft-held` status or authorize provider, runtime, registry, session, or
+deployment mutations.
+
+## Relocation preparation lane
+
+The observed-current-state supplement at
+`docs/continuity/cambium-relocation-portfolio-reconciliation-prep.md` corrects
+the stale portfolio-worktree handoff, maps the destination as 32 logical
+repositories across 25 top-level directories, and separates physical relocation
+from Phase B reconciliation. GitHub issue #287 owns the future readiness and
+closure sequence.
+
+Cambium remains at its current path. Its proposed destination is absent, its Git
+common directory has four linked worktrees, and protected working bytes remain.
+This lane is preparation only and does not change `draft-held` status or
+authorize relocation, branch/worktree mutation, registry closure, R2 restore,
+session migration, provider changes, or deployment.
+
 ## Local commands
 
 ```bash

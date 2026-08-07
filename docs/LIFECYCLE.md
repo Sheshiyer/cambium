@@ -8,6 +8,7 @@ Cambium keeps one owner for each kind of truth:
 | GitHub issues and milestones | Current roadmap and release coordination | Yes |
 | `docs/architecture/contracts/` | Current runtime and data contracts | Yes |
 | `docs/runbooks/` | Current operator procedures | Yes |
+| `docs/continuity/` | Current issue, dependency, and evidence reconciliation | No; status pointers and probes only, never mutation instructions |
 | `docs/evidence/` | Immutable dated proof | No; evidence describes what happened |
 | `docs/plans/` | Historical implementation records | No |
 | `docs/superpowers/plans/` | Historical generated implementation records | No |

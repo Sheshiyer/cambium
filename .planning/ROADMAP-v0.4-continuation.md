@@ -118,7 +118,39 @@ route + Phase-2 operator commands promoted into
 5. Synthetic schema, determinism, redaction, compatibility, viewport, reduced-motion, and text-density suites pass before deployment.
 6. Production promotion requires a founder-device Canopy→Mission→Flow read proof and one contextual signed Gate receipt.
 
+### Phase 9: Brand, Cloudflare, Hermes, and Website-Delivery Continuity Recovery
+**Goal:** Close every unfinished source-board item through evidence-backed decisions or durable outcome receipts, with no silent loss and no planning-time provider mutation.
+**Depends on:** Phase 8 for shared Mission Fabric vocabulary and visibility. The read-only inventory and founder-decision lanes may proceed independently; runtime changes retain their own approval and release gates.
+**Canonical ref:** `docs/continuity/unfinished-brand-cf-hermes-board.md`.
+**GitHub surface:** Parent #285; outcome issues #280–#284; existing preserved-work issues #249 and #252.
+**Status:** planned; source board captured and decomposed, execution not implied.
+**Success criteria:**
+1. All 23 source IDs (B1–B8, C1–C4, H1–H8, S1–S3) retain exactly one disposition, evidence class, dependency path, revalidation probe, and owning issue.
+2. Founder decisions establish one approved brand snapshot before atlas, workbench, or public-site regeneration.
+3. #249 reconciles preserved directives before #283 proposes native execution; one claim → terminal outcome → ACK chain then carries redacted evidence.
+4. #284 proves stable company-website quest identity, ledger push/readback, and receipt-gated stage wiring before website-delivery stages claim completion.
+5. #280 and #282 cross explicit send/provider approval gates only after read-only ownership inventories and rollback plans exist.
+6. #252 remains fail-closed until its exact curated sources are reviewed; optional or stale items may close with an evidence-backed keep/stale decision.
+7. #281 closes only after approved copy lineage, build digest, deploy target, and public canary evidence agree.
+
+### Phase 10: Cambium Repository-Graph Relocation and Portfolio Reconciliation
+**Goal:** Prepare Cambium's complete Git graph for a future portfolio-root move, preserve the merged Portfolio Workbench implementation on GitHub main, and close Phase B only after the canonical project record reads back against the closure manifest.
+**Depends on:** The repository packet and relocation tooling are prerequisites. Phase 9 is not a sequencing dependency; both continuity lanes can remain planned in parallel. Physical relocation depends on a fresh main checkout, protected-working-byte review, and an owner-approved worktree disposition/manifest.
+**Canonical ref:** `docs/continuity/cambium-relocation-portfolio-reconciliation-prep.md`.
+**GitHub surface:** Issue #287.
+**Status:** preparation captured; execution held.
+**Success criteria:**
+1. Live GitHub main remains the portfolio implementation authority; no file is reconstructed from the absent historical worktree.
+2. Cambium's primary checkout, four linked worktrees, branch/HEAD state, dirty bytes, common directory, remotes, refs, path consumers, and packet digest are re-probed into one owner-reviewed graph snapshot.
+3. Each linked worktree receives an explicit preserve, retire-after-proof, or separately approved graph-plan disposition; no directory-only move is attempted.
+4. One deterministic Phase A manifest binds stable ID `cambium`, `Sheshiyer/cambium`, exact source/destination aliases, destination absence, same-device proof, packet/capsule digests, rollback, and owner approval.
+5. A later authorized Phase A verifies Git/filesystem equivalence, the old-path capsule, append-only `reconciling` entry, relocation receipt, and fresh-client pickup without native-session import.
+6. Phase B writes and reads back one canonical Cambium project record before appending `reconciled` with the closure-manifest digest.
+7. Portfolio projection distinguishes 25 top-level directories, 22 standalone repositories, three containers, 10 nested primary repositories, 32 logical repositories, and one linked worktree while joining TeamForge IDs, GitHub code state, live-vault narrative, and R2 disaster-recovery evidence through explicit authority boundaries.
+8. A future Workbench mapping session consumes one deterministic `thoughtseed.portfolio-folder-mapping-proposal.v1` packet, exposes exact/unmapped/conflict/stale-evidence states, and exports proposals only; it never scans, moves, writes, restores, or invents identity from a basename.
+9. Preparation performs no move, rename, copy, fetch, merge, checkout, worktree deletion, registry transition, R2 restore, stage, commit, push, provider call, session migration, or deployment.
+
 ## Explicitly later (not in v0.4)
 - R2 vault → contract update → Thoughtseed PDF → sign/send: new explicitly-scoped phase; stopping at `awaiting_human_approval` is intentional design, not a gap to patch casually.
-- Hermes-on-EC2 live proof, Growth Cortex as a named service, Composio distribution (catalog-only today), Q7 escalation policy, PHASE-Q-BRIDGE deferred wings (GitHub/CF signal stubs, lesson-miner).
+- Broad Hermes-on-EC2 enablement beyond the scoped Phase 9 delivery-disabled canary, Growth Cortex as a named service, Composio distribution beyond the approval-gated contact proof, Q7 escalation policy, and PHASE-Q-BRIDGE deferred wings (GitHub/CF signal stubs, lesson-miner).
 - Vision-layer task: write the founder outcome (2–3 hrs/day, Telegram-first, display-closed Mac mini) with measurable acceptance into INFINITE-GAME/HOMEOSTASIS — currently undocumented above the assessment layer.
