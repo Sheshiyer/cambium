@@ -1,5 +1,5 @@
 schema_version: 1
-packet_status: draft-held
+packet_status: reviewed-held
 project_id: cambium
 identity_status: pending-teamforge-verification
 portfolio: thoughtseed

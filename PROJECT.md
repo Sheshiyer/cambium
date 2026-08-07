@@ -3,9 +3,9 @@
 ## Packet status
 
 This is the canonical project entry point for the `cambium`
-repository. This packet is **draft-held** — drafted from registry and
-repository evidence, not yet reviewed by a human. No path move, registry
-write, session migration, or provider change is implied by this packet.
+repository. This packet is **reviewed-held** — reviewed from registry,
+repository, and owner approval evidence. No path move, registry write,
+session migration, or provider change is implied by this packet.
 
 ## Registry evidence
 
