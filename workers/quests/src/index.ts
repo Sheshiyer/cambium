@@ -9,6 +9,7 @@ import {
   parseRoutineAllowlistJson,
 } from './context-bindings.ts';
 import { createContextProjectionStore } from './context-projections.ts';
+import { createPortfolioAdminActionQueue, createPortfolioAdminActionStore } from './portfolio-admin-actions.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
@@ -1389,6 +1390,10 @@ export default {
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
+      portfolioActionStore: env.THOUGHTSEED_VAULT?.put
+        ? createPortfolioAdminActionStore(env.THOUGHTSEED_VAULT)
+        : undefined,
+      portfolioActionQueue: createPortfolioAdminActionQueue(kv),
       branchMapTenants: parseAllowedTenants(env.GATE_BRANCH_MAP_TENANTS),
       missionFabricTenants: parseAllowedTenants(env.MISSION_FABRIC_TENANTS),
       missionFabricViewerIds: parseAllowedUserIds(env.MISSION_FABRIC_VIEWER_IDS),

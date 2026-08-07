@@ -8,7 +8,7 @@ const dist = path.join(root, 'dist')
 const input = path.join(dist, 'index.html')
 const output = path.join(root, 'bundle.html')
 const workerEmbed = path.resolve(root, '../../workers/quests/src/portfolio-workbench.generated.ts')
-const documentCsp = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'"
+const documentCsp = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'"
 
 let html = await readFile(input, 'utf8')
 
@@ -39,7 +39,7 @@ for (const match of [...html.matchAll(scriptPattern)]) {
 
 html = html.replace(
   '</head>',
-  '    <meta name="thoughtseed-artifact" content="portfolio-workbench@v4; offline; proposal-only" />\n    <meta name="thoughtseed-repository-evidence" content="thoughtseed.repository-evidence.v1" />\n  </head>',
+  '    <meta name="thoughtseed-artifact" content="portfolio-workbench@v4; hosted-admin; r2-receipted" />\n    <meta name="thoughtseed-repository-evidence" content="thoughtseed.repository-evidence.v1" />\n    <meta name="thoughtseed-portfolio-root-map" content="thoughtseed.portfolio-root-map.v1" />\n  </head>',
 )
 
 if (/<script[^>]+src=|<link[^>]+rel="stylesheet"/i.test(html)) {
@@ -50,6 +50,9 @@ if (!html.includes('thoughtseed.portfolio-workbench.v4')) {
 }
 if (!html.includes('thoughtseed.repository-evidence.v1')) {
   throw new Error('bundle is missing the repository evidence contract marker')
+}
+if (!html.includes('thoughtseed.portfolio-root-map.v1')) {
+  throw new Error('bundle is missing the portfolio root map contract marker')
 }
 if (!html.includes(`http-equiv="Content-Security-Policy" content="${documentCsp}"`)) {
   throw new Error('bundle is missing its document-enforced Content Security Policy')

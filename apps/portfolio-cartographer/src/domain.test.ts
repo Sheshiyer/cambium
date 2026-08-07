@@ -36,6 +36,8 @@ import {
   normalizeClientFamilyId,
   normalizeReviewNote,
   parsePacket,
+  portfolioFolderMappingsForGroup,
+  portfolioRoot,
   resolvePipeline,
   signalProvenance,
   smartViewCount,
@@ -76,6 +78,28 @@ test('client families derive only from exact source account ids', () => {
   ))))
   assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 20)
   assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 15)
+})
+
+test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake', () => {
+  const thoughtseed = portfolioRoot('thoughtseed')
+  const noesis = portfolioRoot('tryambakam-noesis')
+
+  assert.equal(thoughtseed.folderCount, 47)
+  assert.equal(noesis.folderCount, 30)
+  assert.equal(noesis.itemLabel, 'Project')
+  assert.ok(noesis.folders.every((folder) => folder.proposedKind === 'project'))
+  assert.equal(noesis.folders.find((folder) => folder.folder === 'polyhymnia')?.status, 'empty-hold')
+})
+
+test('Thoughtseed family headers resolve mapped folders while preserving explicit gaps', () => {
+  const groups = groupWorkObjects()
+  const heyzack = groups.find((group) => group.groupId === 'client:heyzack')!
+  const axdis = groups.find((group) => group.groupId === 'client:axdis-group')!
+  const airdronauts = groups.find((group) => group.groupId === 'client:airdronauts-productions')!
+
+  assert.deepEqual(portfolioFolderMappingsForGroup(heyzack).map((mapping) => mapping.path), ['thoughtseed/heyzack'])
+  assert.deepEqual(portfolioFolderMappingsForGroup(axdis), [])
+  assert.deepEqual(portfolioFolderMappingsForGroup(airdronauts), [])
 })
 
 test('family signal summaries derive from effective source plus local plans', () => {
@@ -659,15 +683,23 @@ test('saved plans never persist source-derived overlays and recompute against cu
   assert.equal(effectiveSignal(current, restored.plans[id]), 'ongoing')
 })
 
-test('application source has no network or runtime mutation primitives', async () => {
+test('application source exposes only the same-origin founder admin action boundary', async () => {
   const source = await readFile(new URL('./App.tsx', import.meta.url), 'utf8')
-  for (const forbidden of ['fetch(', 'XMLHttpRequest', 'WebSocket(', 'sendBeacon(', 'api.telegram.org', 'wrangler']) {
+  for (const forbidden of ['XMLHttpRequest', 'WebSocket(', 'sendBeacon(', 'api.telegram.org', 'wrangler', 'R2Bucket']) {
     assert.equal(source.includes(forbidden), false, `forbidden source primitive: ${forbidden}`)
   }
+  assert.match(source, /const PORTFOLIO_ACTION_ENDPOINT = '\/v1\/admin\/portfolio\/actions'/)
+  assert.match(source, /window\.fetch\(PORTFOLIO_ACTION_ENDPOINT/)
+  assert.match(source, /method: 'POST'/)
+  assert.match(source, /credentials: 'same-origin'/)
+  assert.match(source, /Hosted admin connection required/)
+  assert.match(source, /R2 evidence first · governed intake trigger second/)
+  assert.doesNotMatch(source, />\s*(?:Import|JSON|Markdown|Copy brief)\s*</)
+  assert.doesNotMatch(source, /Reset local planning/)
   assert.match(source, /data-pipeline-id/)
   assert.match(source, /local plan/)
   assert.match(source, /if \(autosaveBlocked\) return/)
-  assert.match(source, /unreadable local data stays untouched/)
+  assert.match(source, /unreadable data stays untouched/)
   assert.match(source, /writePlanned\(next, id, \{ \.\.\.prior, tags \}\)/)
 })
 
@@ -678,6 +710,8 @@ test('new triage controls expose selection, context, touch size, and bounded und
   assert.match(source, /aria-pressed=\{viewMode === 'grid'\}/)
   assert.match(source, /aria-pressed=\{viewMode === 'board'\}/)
   assert.match(source, /Inspect & reconcile/)
+  assert.match(source, /Review repository & map/)
+  assert.doesNotMatch(source, />Now<|>Next<|>Later<|>Park<|>Needs review</)
   assert.match(source, /repositoryEvidence\.length === 0/)
   assert.doesNotMatch(source, /applyQuickDecision/)
   assert.match(source, /Intake/)
@@ -688,6 +722,16 @@ test('new triage controls expose selection, context, touch size, and bounded und
   assert.match(styles, /\.view-toggle button \{[\s\S]*?min-height: 44px;/)
   assert.match(styles, /\.unplanned-actions button \{[\s\S]*?min-height: 44px;/)
   assert.match(styles, /\.review-choices button \{[\s\S]*?min-height: 44px;/)
+})
+
+test('portfolio selector and Tryambakam cards use Project grammar only', async () => {
+  const source = await readFile(new URL('./App.tsx', import.meta.url), 'utf8')
+  assert.match(source, /aria-label="Select portfolio"/)
+  assert.match(source, />Thoughtseed</)
+  assert.match(source, />Tryambakam · Noesis</)
+  assert.match(source, /<span className="work-type">Project<\/span>/)
+  assert.match(source, /Inspect project intake/)
+  assert.match(source, /Awaiting ingestion/)
 })
 
 test('planning history is mutually exclusive and state replacement safe', () => {

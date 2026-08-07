@@ -64,6 +64,17 @@ import {
   PORTFOLIO_WORKBENCH_LOADER,
   PORTFOLIO_WORKBENCH_LOADER_CSP,
 } from './portfolio-workbench.ts';
+import {
+  PortfolioAdminActionConflictError,
+  PortfolioAdminActionQueueError,
+  PortfolioAdminActionStorageError,
+  PortfolioAdminActionValidationError,
+  recordPortfolioAdminAction,
+} from './portfolio-admin-actions.ts';
+import type {
+  PortfolioAdminActionQueueLike,
+  PortfolioAdminActionStoreLike,
+} from './portfolio-admin-actions.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
@@ -462,6 +473,8 @@ export interface HandlerDeps {
   branchMapTenants?: string[]; // server-owned allowlist for Telegram map reads
   missionFabricTenants?: string[]; // server-owned allowlist for operating-fabric composition reads; absent/empty disables all tenants
   missionFabricViewerIds?: string[]; // server-owned non-founder viewer allowlist for /v1/mission-fabric only; absent/empty authorizes founders only
+  portfolioActionStore?: PortfolioAdminActionStoreLike; // Immutable R2 action evidence; never operational authority.
+  portfolioActionQueue?: PortfolioAdminActionQueueLike; // Bounded pending-intake trigger; Goal Graph remains the sole operational writer.
   plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → dev founder fallback)
   plexusFetchImpl?: typeof fetch; // test-only fetch injection for Access JWKS + whoami probes
 }
@@ -715,6 +728,91 @@ async function handlePortfolioWorkbenchRoute(
     return json(401, { error: 'telegram authentication failed' });
   }
   return portfolioHtml(200, PORTFOLIO_WORKBENCH_HTML, PORTFOLIO_WORKBENCH_CSP);
+}
+
+async function resolvePortfolioFounder(
+  req: SimpleRequest,
+  deps: HandlerDeps,
+): Promise<{ kind: 'founder'; actorId: string } | { kind: 'unauthorized' } | { kind: 'unconfigured' }> {
+  const accessAssertion = (req.headers['cf-access-jwt-assertion'] ?? '').trim();
+  if (accessAssertion || (deps.plexus && !(req.headers['x-telegram-init-data'] ?? '').trim())) {
+    if (!deps.plexus) return { kind: 'unconfigured' };
+    const resolved = await resolvePlexusPrincipal(
+      req.headers,
+      deps.plexus,
+      { get: deps.kv.get.bind(deps.kv), put: deps.kv.put.bind(deps.kv) },
+      deps.plexusFetchImpl,
+    );
+    if (resolved.kind === 'unconfigured') return { kind: 'unconfigured' };
+    if (resolved.kind !== 'principal' || resolved.principal.role !== 'founder') return { kind: 'unauthorized' };
+    return { kind: 'founder', actorId: `plexus:${resolved.principal.id}` };
+  }
+
+  const gate = deps.gate;
+  const gateConfigured = Boolean(
+    gate?.botId.trim()
+    && /^[0-9a-f]{64}$/i.test(gate.pubKeyHex.trim())
+    && gate.founderIds.some((founderId) => founderId.trim()),
+  );
+  if (!gate || !gateConfigured) return { kind: 'unconfigured' };
+  const auth = await validateInitData((req.headers['x-telegram-init-data'] ?? '').trim(), gate);
+  if (!auth.ok) return { kind: 'unauthorized' };
+  return { kind: 'founder', actorId: `telegram:${auth.userId}` };
+}
+
+async function handlePortfolioAdminActionRoute(
+  req: SimpleRequest,
+  deps: HandlerDeps,
+): Promise<SimpleResponse> {
+  if (req.method !== 'POST') {
+    return {
+      ...json(405, { error: 'portfolio admin actions are POST-only' }),
+      headers: { ...JSON_HEADERS, allow: 'POST' },
+    };
+  }
+  const founder = await resolvePortfolioFounder(req, deps);
+  if (founder.kind === 'unconfigured') return json(503, { error: 'portfolio action authentication is not configured' });
+  if (founder.kind !== 'founder') return json(401, { error: 'portfolio action authentication failed' });
+  if (!deps.portfolioActionStore || !deps.portfolioActionQueue) {
+    return json(503, { error: 'portfolio action persistence is not configured' });
+  }
+  const body = req.body ?? '';
+  if (new TextEncoder().encode(body).byteLength > 16 * 1024) {
+    return json(413, { error: 'portfolio action body is too large' });
+  }
+  let input: unknown;
+  try {
+    input = JSON.parse(body);
+  } catch {
+    return json(400, { error: 'portfolio action body must be JSON' });
+  }
+  try {
+    const receipt = await recordPortfolioAdminAction(input, {
+      store: deps.portfolioActionStore,
+      queue: deps.portfolioActionQueue,
+      actorId: founder.actorId,
+      now: () => (deps.now ? deps.now() : new Date().toISOString()),
+    });
+    return json(200, { ok: true, receipt });
+  } catch (error) {
+    if (error instanceof PortfolioAdminActionValidationError) {
+      return json(400, { error: 'portfolio action validation failed' });
+    }
+    if (error instanceof PortfolioAdminActionConflictError) {
+      return json(409, { error: 'portfolio action idempotency conflict' });
+    }
+    if (error instanceof PortfolioAdminActionQueueError) {
+      return json(503, {
+        error: 'portfolio action trigger is pending retry',
+        durable: error.durable,
+        receiptId: error.receiptId,
+      });
+    }
+    if (error instanceof PortfolioAdminActionStorageError) {
+      return json(503, { error: 'portfolio action persistence is unavailable' });
+    }
+    return json(503, { error: 'portfolio action is unavailable' });
+  }
 }
 
 const ledgerKey = (tenant: string): string => `ledger:${tenant}`;
@@ -3671,6 +3769,10 @@ async function approveGoalGraphIntakeRoute(
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
+
+  if (routePath === '/v1/admin/portfolio/actions') {
+    return handlePortfolioAdminActionRoute(req, deps);
+  }
 
   if (routePath === '/admin/portfolio' || routePath === '/admin/portfolio/web' || routePath === '/v1/admin/portfolio') {
     return handlePortfolioWorkbenchRoute(req, deps, routePath);

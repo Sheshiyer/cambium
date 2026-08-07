@@ -28,6 +28,21 @@
 - Browser proof covers reconciliation, scheduling lock/unlock, reload persistence, zero console warnings/errors, and 390, 768, and 1440 pixel layouts. The unverified Nimbus Gate candidate remains locked and cannot select `no-repository`.
 - Independent review initially found two high-priority intake bypasses; both were fixed and the final re-audit reports no remaining P0–P2 findings.
 
+### 2026-08-07 portfolio-ingestion headers checkpoint
+
+- Branch: `codex/portfolio-ingestion-headers`, based on merged repository-first main.
+- Thoughtseed WorkObjects now show proposal folder receipts; Unplanned cards expose one `Review repository & map` action and no horizon shortcuts.
+- Tryambakam · Noesis has a separate 30-card `Projects` header and intake-only drawer; it never uses Client Branch grammar.
+- Root map: `docs/project-management/portfolio-roots.v1.json`, SHA-256 `588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b`.
+- Destination headers were written to both `<projects-root>/<portfolio>/` roots. Only `PORTFOLIO.md` and `portfolio-map.v1.json` were created per root; the directory/inode digest stayed identical before and after and no grouping directory was created.
+- `thoughtseed-labs` is recorded as the R2-synced vault infrastructure context, never as a WorkObject folder. Tryambakam `_archive` and `selemene-engine-worktrees` remain outside the 30 active Projects.
+- The offline Import/Copy/JSON/Markdown/Reset header is retired. Thoughtseed intake now exposes `Save & queue repository review`; Tryambakam Project intake exposes `Start project ingestion`.
+- Founder actions POST only to `/v1/admin/portfolio/actions`; the Worker validates a closed schema against the exact shipped root-map/catalog digests, canonical WorkObject identities, and reviewed shallow Tryambakam Project paths before writing immutable/idempotent R2 evidence and then a bounded `pending-governed-intake` trigger. R2 is evidence, not workflow authority; D1 Goal Graph remains the sole operational writer.
+- Hosted action tracking: issue #296 in GitHub Project #14.
+- `pnpm check` passes 47 active focused tests with one historical fixture skip; eight action/store tests and ten exact Worker route tests pass. Exact hosted artifact is 352,037 bytes, SHA-256 `a195927aaa9dff17326e52022a1f868a13e375456ff2e2df911124fe460b2348`.
+- Local browser proof covers the portfolio structure at 390, 768, and 1440 pixels with zero horizontal overflow; the exact final artifact smoke separately proves both hosted action labels, the same-origin endpoint, CSP allowance, and retired export controls. Live production action proof remains promotion-gated.
+- Production remains unchanged and issue #293 remains blocked by human packet review #292.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It has not been reviewed by a human and is not
 committed.

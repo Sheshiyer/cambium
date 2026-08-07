@@ -19,9 +19,12 @@ for (const marker of [
   'Cortex',
   'Mini App Gate required',
   'Exceptional signal escalates to Alerts',
+  'Save & queue repository review',
+  'Start project ingestion',
+  '/v1/admin/portfolio/actions',
   '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2',
 ]) {
   assert.ok(html.includes(marker), `missing standalone contract marker: ${marker}`)
 }
 
-console.log('standalone smoke ok · planning, provenance, horizons, organs, Gate, Alerts, and receipt markers present')
+console.log('hosted artifact smoke ok · planning, intake actions, Gate, and receipt markers present')

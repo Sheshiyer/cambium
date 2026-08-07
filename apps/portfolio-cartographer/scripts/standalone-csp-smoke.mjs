@@ -101,11 +101,11 @@ try {
     })
   })
   assert.equal(result.code, 0, `Chromium CSP smoke exited cleanly: ${result.stderr.slice(0, 500)}`)
-  assert.match(result.stdout, /data-csp-probe="blocked"/, 'document CSP blocks the injected same-origin fetch')
-  assert.equal(probeRequests, 0, 'the blocked same-origin fetch never reaches the server')
+  assert.match(result.stdout, /data-csp-probe="allowed"/, 'document CSP permits only same-origin admin traffic')
+  assert.equal(probeRequests, 1, 'the same-origin probe reaches the server exactly once')
 } finally {
   await new Promise((resolve) => server.close(resolve))
   rmSync(profile, { recursive: true, force: true })
 }
 
-console.log('standalone CSP smoke ok · document meta blocks same-origin fetch before network dispatch')
+console.log('hosted CSP smoke ok · document meta permits same-origin action traffic')

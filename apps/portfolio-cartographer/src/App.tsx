@@ -4,15 +4,13 @@ import {
   AlertTriangle,
   Archive,
   ArrowRight,
-  Braces,
   Check,
   ChevronRight,
   CirclePause,
-  Clipboard,
   Columns3,
-  Download,
-  FileUp,
   Filter,
+  FolderGit2,
+  FolderKanban,
   GitBranch,
   Grid2X2,
   History,
@@ -41,6 +39,7 @@ import {
   HISTORICAL_RECORDS,
   HORIZONS,
   ORGAN_WORKFLOWS,
+  PORTFOLIO_ROOT_MAP_DIGEST,
   PORTFOLIO_SIGNALS,
   REVIEW_RECORDS,
   SIGNAL_STATUSES,
@@ -62,11 +61,14 @@ import {
   normalizeClientFamilyId,
   normalizeReviewNote,
   parsePacket,
+  portfolioFolderMappings,
+  portfolioFolderMappingsForGroup,
+  portfolioFolderMappingsForWork,
+  portfolioRoot,
   resolvePipeline,
   signalProvenance,
   smartViewCount,
   sourceSignal,
-  toMarkdown,
   reviewSuggestion,
   type Audience,
   type BoardHorizon,
@@ -75,6 +77,8 @@ import {
   type OrganId,
   type PortfolioSignal,
   type PortfolioOrigin,
+  type PortfolioFolderMapping,
+  type PortfolioId,
   type PortfolioReconciliation,
   type Priority,
   type ReviewDecision,
@@ -102,6 +106,20 @@ const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
 type DrawerTab = 'intake' | 'plan' | 'delivery'
 type ViewMode = 'family' | 'grid' | 'board'
+const TRYAMBAKAM_PROJECTS = portfolioFolderMappings('tryambakam-noesis')
+const PORTFOLIO_ACTION_ENDPOINT = '/v1/admin/portfolio/actions'
+type AdminActionState =
+  | { status: 'idle'; receiptId: null }
+  | { status: 'saving'; receiptId: null }
+  | { status: 'queued'; receiptId: string }
+  | { status: 'error'; receiptId: string | null }
+
+interface AdminActionReceipt {
+  receiptId: string
+  status: 'queued'
+  nextFlow: 'repository-intake-review' | 'project-repository-ingestion'
+  duplicate: boolean
+}
 interface RepositoryEvidence {
   sourceRef: string
   status: 'resolved' | 'unverified' | 'ambiguous' | 'unmatched' | 'malformed' | 'unsafe'
@@ -136,7 +154,7 @@ function loadLocalState(): LocalLoad {
     const current = window.localStorage.getItem(STORAGE_KEY)
     if (current) {
       try {
-        return { ...parsePacket(JSON.parse(current)), notice: 'Restored local planning · proposal only', autosaveBlocked: false }
+        return { ...parsePacket(JSON.parse(current)), notice: 'Restored local draft · save a record to create a durable action', autosaveBlocked: false }
       } catch {
         return {
           focusedId: null,
@@ -216,21 +234,51 @@ function loadLocalState(): LocalLoad {
       reviewDecisions: {},
       retiredReviewDecisions: {},
       reconciliations: {},
-      notice: 'Local save unavailable · export before closing',
+      notice: 'Local draft unavailable · server actions remain explicit',
       autosaveBlocked: true,
     }
   }
-  return { focusedId: null, plans: {}, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, notice: 'Ready · planning stays in this browser', autosaveBlocked: false }
+  return { focusedId: null, plans: {}, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, notice: 'Ready · edit a record, then save its admin action', autosaveBlocked: false }
 }
 
-function downloadText(filename: string, value: string, type: string): void {
-  const blob = new Blob([value], { type })
-  const href = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = href
-  anchor.download = filename
-  anchor.click()
-  URL.revokeObjectURL(href)
+function hostedAdminActionsAvailable(): boolean {
+  return ['/admin/portfolio', '/admin/portfolio/web', '/v1/admin/portfolio'].includes(window.location.pathname)
+}
+
+function actionIdempotencyKey(subjectId: string): string {
+  const nonce = typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  return `${subjectId.replace(/[^A-Za-z0-9._:@/-]/g, '-').slice(0, 72)}:${nonce}`
+}
+
+async function postPortfolioAdminAction(action: Record<string, unknown>): Promise<AdminActionReceipt> {
+  if (!hostedAdminActionsAvailable()) throw new Error('Hosted admin connection required')
+  const telegram = (window as Window & {
+    Telegram?: { WebApp?: { initData?: string } }
+  }).Telegram
+  const initData = telegram?.WebApp?.initData?.trim()
+  const response = await window.fetch(PORTFOLIO_ACTION_ENDPOINT, {
+    method: 'POST',
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: {
+      'content-type': 'application/json',
+      ...(initData ? { 'x-telegram-init-data': initData } : {}),
+    },
+    body: JSON.stringify(action),
+  })
+  const body = await response.json() as {
+    receipt?: AdminActionReceipt
+    error?: string
+    durable?: boolean
+    receiptId?: string
+  }
+  if (!response.ok || !body.receipt) {
+    const durable = body.durable && body.receiptId ? ` Evidence ${body.receiptId} is durable; retry the trigger.` : ''
+    throw new Error(`${body.error ?? 'Portfolio action failed'}.${durable}`)
+  }
+  return body.receipt
 }
 
 function classificationIcon(classification: Classification) {
@@ -298,6 +346,7 @@ function WorkCard({
   const tags = plan?.tags ?? []
   const readiness = intakeReadiness(work, reconciliation ?? defaultReconciliation(work.workId))
   const planningLocked = sourceSignal(work) === 'unplanned' && !readiness.ready
+  const folderMappings = portfolioFolderMappingsForWork(work.workId)
   return (
     <article
       className={bulkSelected ? `work-card signal-${signal} is-bulk-selected` : `work-card signal-${signal}`}
@@ -361,11 +410,21 @@ function WorkCard({
         </div>
       )}
 
+      <div className={folderMappings.length > 0 ? 'folder-receipt' : 'folder-receipt is-gap'}>
+        <FolderGit2 aria-hidden="true" />
+        <span>{folderMappings.length > 0 ? folderMappings.map((mapping) => mapping.path).join(' · ') : 'Folder mapping gap'}</span>
+        <small>proposal</small>
+      </div>
+
       {unplannedTriage && (
         <div className="unplanned-actions" aria-label={`Reconcile ${work.name} before scheduling`}>
-          <button type="button" className="intake-action" onClick={onFocus}>
+          <button type="button" className="intake-action" onClick={onFocus} aria-label={`Inspect & reconcile ${work.name}`}>
             <ShieldCheck aria-hidden="true" />
-            <span>Inspect & reconcile<small>{readiness.ready ? 'Ready for scheduling' : `${readiness.blockers.length} intake gates open`}</small></span>
+            <span>Review repository & map<small>{readiness.ready
+              ? 'Ready for scheduling'
+              : work.classification === 'client-branch'
+                ? 'Assign the Client Branch family'
+                : 'Confirm Thoughtseed origin before planning'}</small></span>
           </button>
         </div>
       )}
@@ -404,6 +463,7 @@ function FamilyGroup({
   onToggle: () => void
   renderCard: (work: WorkObject) => ReactNode
 }) {
+  const folderMappings = portfolioFolderMappingsForGroup(group)
   const rollup = Object.entries(group.signalSummary)
     .filter(([, count]) => count > 0)
     .map(([signal, count]) => `${count} ${label(signal)}`)
@@ -418,7 +478,13 @@ function FamilyGroup({
         onClick={onToggle}
       >
         <ChevronRight aria-hidden="true" />
-        <span><strong>{group.label}</strong><small>{group.provenance}</small></span>
+        <span>
+          <strong>{group.label}</strong>
+          <small>{group.provenance}</small>
+          <code className={folderMappings.length > 0 ? 'family-folder-map' : 'family-folder-map is-gap'}>
+            {folderMappings.length > 0 ? folderMappings.map((mapping) => mapping.path).join(' · ') : 'folder mapping gap'}
+          </code>
+        </span>
         <span className="family-rollup">{rollup || 'No matching signals'}</span>
         <b>{group.members.length}</b>
       </button>
@@ -426,6 +492,121 @@ function FamilyGroup({
         <div className="card-grid">{group.members.map(renderCard)}</div>
       </div>
     </section>
+  )
+}
+
+function PortfolioSwitcher({
+  active,
+  onChange,
+}: {
+  active: PortfolioId
+  onChange: (portfolioId: PortfolioId) => void
+}) {
+  return (
+    <nav className="portfolio-switcher" aria-label="Select portfolio">
+      <button type="button" className={active === 'thoughtseed' ? 'is-active' : ''} aria-pressed={active === 'thoughtseed'} onClick={() => onChange('thoughtseed')}>
+        <Leaf aria-hidden="true" /><span>Thoughtseed</span>
+      </button>
+      <button type="button" className={active === 'tryambakam-noesis' ? 'is-active' : ''} aria-pressed={active === 'tryambakam-noesis'} onClick={() => onChange('tryambakam-noesis')}>
+        <FolderKanban aria-hidden="true" /><span>Tryambakam · Noesis</span>
+      </button>
+    </nav>
+  )
+}
+
+function AdminActionStatus({ state, available }: { state: AdminActionState; available: boolean }) {
+  const labelText = !available
+    ? 'Local preview'
+    : state.status === 'saving'
+      ? 'Saving action'
+      : state.status === 'queued'
+        ? 'Action queued'
+        : state.status === 'error'
+          ? 'Action needs retry'
+          : 'Admin actions ready'
+  return (
+    <div className={`admin-action-status status-${state.status}`} aria-live="polite">
+      <ShieldCheck aria-hidden="true" />
+      <span>{labelText}<small>{available ? state.receiptId ?? 'R2 evidence · governed queue' : 'hosted connection required'}</small></span>
+    </div>
+  )
+}
+
+function ProjectCard({ project, onInspect }: { project: PortfolioFolderMapping; onInspect: () => void }) {
+  return (
+    <article className="work-card project-card signal-unplanned" data-project-folder={project.folder}>
+      <header className="work-card-head">
+        <div className="kind-mark kind-project"><FolderKanban aria-hidden="true" /></div>
+        <div className="work-heading">
+          <span className="work-type">Project</span>
+          <h3>{label(project.folder)}</h3>
+          <code>{project.path}</code>
+        </div>
+      </header>
+      <div className="chip-row source-row" aria-label="Project intake facts">
+        <span className="chip chip-source">{project.status === 'empty-hold' ? 'Empty hold' : 'Awaiting ingestion'} <small>observed</small></span>
+      </div>
+      <div className="project-intake-copy">
+        <strong>Project header</strong>
+        <p>Map this folder to its GitHub repository and repo-owned planning before admission.</p>
+      </div>
+      <button type="button" className="project-intake-action" onClick={onInspect}>
+        <FolderGit2 aria-hidden="true" /> Inspect project intake
+      </button>
+    </article>
+  )
+}
+
+function ProjectIntakeDrawer({
+  project,
+  actionState,
+  actionsAvailable,
+  onQueue,
+  onClose,
+}: {
+  project: PortfolioFolderMapping
+  actionState: AdminActionState
+  actionsAvailable: boolean
+  onQueue: () => void
+  onClose: () => void
+}) {
+  return (
+    <aside className="plan-drawer project-intake-drawer" role="dialog" aria-modal="false" aria-labelledby="project-drawer-title">
+      <header className="drawer-head">
+        <div className="kind-mark kind-project"><FolderKanban aria-hidden="true" /></div>
+        <div>
+          <span>Project · ingestion proposal</span>
+          <h2 id="project-drawer-title">{label(project.folder)}</h2>
+          <code>{project.path}</code>
+        </div>
+        <button type="button" className="icon-button" onClick={onClose} aria-label="Close project intake"><X aria-hidden="true" /></button>
+      </header>
+      <div className="drawer-body">
+        <section className="drawer-section intake-section">
+          <div className="intake-rule">
+            <ShieldCheck aria-hidden="true" />
+            <div>
+              <strong>Project, not Client Branch</strong>
+              <p>Tryambakam · Noesis uses Project grammar. This header records the shallow folder while GitHub and repository-owned planning are still awaiting ingestion.</p>
+            </div>
+          </div>
+          <div className="project-evidence-list">
+            <span><b>Folder</b><code>{project.path}</code></span>
+            <span><b>Status</b><code>{project.status}</code></span>
+            <span><b>GitHub repository</b><code>awaiting exact identity</code></span>
+            <span><b>Planning authority</b><code>awaiting repository ingestion</code></span>
+          </div>
+          <div className="admin-action-panel">
+            <div><ShieldCheck aria-hidden="true" /><span><strong>Durable admin action</strong><small>R2 evidence first · governed intake trigger second</small></span></div>
+            <button type="button" className="primary-button" disabled={!actionsAvailable || actionState.status === 'saving'} onClick={onQueue}>
+              <FolderGit2 aria-hidden="true" /> {actionState.status === 'saving' ? 'Saving…' : 'Start project ingestion'}
+            </button>
+            {!actionsAvailable && <p>Hosted admin connection required. The local preview cannot write.</p>}
+            {actionState.status === 'queued' && <p role="status">Queued · receipt {actionState.receiptId}</p>}
+          </div>
+        </section>
+      </div>
+    </aside>
   )
 }
 
@@ -524,6 +705,9 @@ function PlanDrawer({
   onTab,
   onChange,
   onReconciliationChange,
+  actionState,
+  actionsAvailable,
+  onQueueReconciliation,
   onClose,
 }: {
   work: WorkObject
@@ -535,6 +719,9 @@ function PlanDrawer({
   onTab: (tab: DrawerTab) => void
   onChange: (patch: Partial<WorkPlan>) => void
   onReconciliationChange: (patch: Partial<PortfolioReconciliation>) => void
+  actionState: AdminActionState
+  actionsAvailable: boolean
+  onQueueReconciliation: () => void
   onClose: () => void
 }) {
   const [tagDraft, setTagDraft] = useState('')
@@ -709,7 +896,7 @@ function PlanDrawer({
             {readiness.classificationMismatch && (
               <div className="mapping-warning" role="alert">
                 <AlertTriangle aria-hidden="true" />
-                <p>Canonical mismatch: export a mapping proposal. This WorkObject stays locked and the catalog is not rewritten locally.</p>
+                <p>Canonical mismatch: save and queue the mapping proposal for governed review. This WorkObject stays locked until that review changes source truth.</p>
               </div>
             )}
             <fieldset className="intake-checklist">
@@ -726,12 +913,20 @@ function PlanDrawer({
               {readiness.ready ? <Check aria-hidden="true" /> : <Target aria-hidden="true" />}
               <div><strong>{readiness.ready ? 'Ready for scheduling' : 'Scheduling locked'}</strong>{readiness.blockers.map((blocker) => <p key={blocker}>{blocker}</p>)}</div>
             </div>
+            <div className="admin-action-panel">
+              <div><ShieldCheck aria-hidden="true" /><span><strong>Save intake action</strong><small>Immutable R2 receipt · pending repository review</small></span></div>
+              <button type="button" className="primary-button" disabled={!actionsAvailable || actionState.status === 'saving'} onClick={onQueueReconciliation}>
+                <FolderGit2 aria-hidden="true" /> {actionState.status === 'saving' ? 'Saving…' : 'Save & queue repository review'}
+              </button>
+              {!actionsAvailable && <p>Hosted admin connection required. The local preview cannot write.</p>}
+              {actionState.status === 'queued' && <p role="status">Queued · receipt {actionState.receiptId}</p>}
+            </div>
             {work.classification === 'client-branch' && (
               <div className="reusable-ip-note"><Sparkles aria-hidden="true" /><p>Reusable Thoughtseed IP from this client work becomes a separate linked Sapling proposal. The client project remains a Client Branch.</p></div>
             )}
             <div className="authority-note">
               <ShieldCheck aria-hidden="true" />
-              <div><strong>Source truth is read-only</strong><p>Vault classifies. Local planning is a reversible proposal.</p></div>
+              <div><strong>Source truth changes through governance</strong><p>This action records durable evidence and queues review; it never rewrites the catalog directly.</p></div>
             </div>
             <dl className="fact-grid">
               <div><dt>Canonical type</dt><dd>{label(work.classification)}</dd></div>
@@ -756,10 +951,10 @@ function PlanDrawer({
 
         {tab === 'plan' && (
           <section className="drawer-section plan-section">
-            {planningLocked && <div className="planning-lock"><ShieldCheck aria-hidden="true" /><p>Complete Intake before changing scheduling. Existing legacy plan values remain visible and exportable.</p></div>}
+            {planningLocked && <div className="planning-lock"><ShieldCheck aria-hidden="true" /><p>Complete Intake before changing scheduling. Existing legacy plan values remain visible in the local draft.</p></div>}
             <fieldset disabled={planningLocked} className="planning-fieldset">
             <div className="field-block">
-              <span className="field-title">Portfolio signal <small>local plan</small></span>
+              <span className="field-title">Portfolio signal <small>draft until saved</small></span>
               <div className="signal-options">
                 {PORTFOLIO_SIGNALS.map((signal) => (
                   <button
@@ -931,10 +1126,12 @@ function App() {
   const initial = useMemo(loadLocalState, [])
   const [plans, setPlans] = useState<Record<string, WorkPlan>>({ ...initial.plans })
   const [reviewDecisions, setReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.reviewDecisions })
-  const [retiredReviewDecisions, setRetiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })
+  const [retiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })
   const [reconciliations, setReconciliations] = useState<Record<string, PortfolioReconciliation>>({ ...initial.reconciliations })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('intake')
+  const [activePortfolio, setActivePortfolio] = useState<PortfolioId>('thoughtseed')
+  const [focusedProjectFolder, setFocusedProjectFolder] = useState<string | null>(null)
   const [activeView, setActiveView] = useState<SmartView>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('family')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set(
@@ -949,9 +1146,11 @@ function App() {
   const [bulkTag, setBulkTag] = useState('')
   const [planningHistory, setPlanningHistory] = useState(emptyPlanningHistory)
   const bulkUndo = planningHistory.bulk
-  const [autosaveBlocked, setAutosaveBlocked] = useState(initial.autosaveBlocked)
+  const [autosaveBlocked] = useState(initial.autosaveBlocked)
   const [notice, setNotice] = useState(initial.notice)
-  const importRef = useRef<HTMLInputElement>(null)
+  const [adminAction, setAdminAction] = useState<AdminActionState>({ status: 'idle', receiptId: null })
+  const actionsAvailable = useMemo(hostedAdminActionsAvailable, [])
+  const pendingActionKeys = useRef(new Map<string, { fingerprint: string; key: string }>())
   const workspaceHeadingRef = useRef<HTMLHeadingElement>(null)
 
   const focusedWork = useMemo(
@@ -970,15 +1169,25 @@ function App() {
     [plans, visible],
   )
   const familyGroups = useMemo(() => groupWorkObjects(visible, plans), [visible, plans])
+  const visibleProjects = useMemo(() => {
+    const normalized = query.trim().toLowerCase()
+    if (!normalized) return TRYAMBAKAM_PROJECTS
+    return TRYAMBAKAM_PROJECTS.filter((project) => (
+      project.folder.includes(normalized)
+      || project.path.includes(normalized)
+      || project.status.includes(normalized)
+    ))
+  }, [query])
+  const focusedProject = TRYAMBAKAM_PROJECTS.find((project) => project.folder === focusedProjectFolder) ?? null
   const plannedCount = Object.keys(plans).length
 
   useEffect(() => {
     if (autosaveBlocked) return
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })))
-      setNotice('Saved locally · proposal only')
+      setNotice('Local draft updated · save the focused action when ready')
     } catch {
-      setNotice('Local save unavailable · export before closing')
+      setNotice('Local draft unavailable · use the explicit server action when ready')
     }
   }, [autosaveBlocked, focusedId, plans, reconciliations, retiredReviewDecisions, reviewDecisions])
 
@@ -1020,7 +1229,7 @@ function App() {
         updatedAt: new Date().toISOString(),
       },
     }))
-    setNotice('Repository-first intake saved locally · proposal only')
+    setNotice('Repository-first intake draft updated · save and queue it when ready')
   }
 
   function toggleFamily(groupId: string) {
@@ -1168,64 +1377,85 @@ function App() {
     setFocusedId(null)
   }
 
-  function exportJson() {
-    const packet = createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })
-    downloadText('thoughtseed-portfolio-workbench.json', `${JSON.stringify(packet, null, 2)}\n`, 'application/json')
-    setNotice('JSON planning packet exported')
-  }
-
-  function exportMarkdown() {
-    downloadText('thoughtseed-portfolio-workbench.md', toMarkdown(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })), 'text/markdown')
-    setNotice('Markdown planning brief exported')
-  }
-
-  async function copyBrief() {
-    try {
-      await navigator.clipboard.writeText(toMarkdown(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })))
-      setNotice('Planning brief copied')
-    } catch {
-      setNotice('Clipboard unavailable · use Markdown export')
-    }
-  }
-
-  async function importPacket(file: File) {
-    try {
-      const restored = parsePacket(JSON.parse(await file.text()))
-      setAutosaveBlocked(false)
-      setPlans({ ...restored.plans })
-      setReviewDecisions({ ...restored.reviewDecisions })
-      setRetiredReviewDecisions({ ...restored.retiredReviewDecisions })
-      setReconciliations({ ...restored.reconciliations })
-      setFocusedId(restored.focusedId)
-      setPlanningHistory(emptyPlanningHistory())
-      exitBulkMode()
-      setNotice(`Imported ${Object.keys(restored.plans).length} plans · ${Object.keys(restored.reconciliations).length} reconciliations · ${Object.keys(restored.retiredReviewDecisions).length} retired reviews preserved`)
-    } catch (error) {
-      setNotice(error instanceof Error ? `Import rejected · ${error.message}` : 'Import rejected')
-    } finally {
-      if (importRef.current) importRef.current.value = ''
-    }
-  }
-
-  function resetAll() {
-    if (!window.confirm('Clear every local Portfolio Workbench plan? Export first if you need a recovery packet.')) return
-    setPlans({})
-    setReviewDecisions({})
-    setRetiredReviewDecisions({})
-    setReconciliations({})
+  function changePortfolio(portfolioId: PortfolioId) {
+    setActivePortfolio(portfolioId)
     setFocusedId(null)
-    setPlanningHistory(emptyPlanningHistory())
-    setAutosaveBlocked(false)
-    exitBulkMode()
-    try {
-      window.localStorage.removeItem(STORAGE_KEY)
-      window.localStorage.removeItem(V3_STORAGE_KEY)
-      window.localStorage.removeItem(V2_STORAGE_KEY)
-      window.localStorage.removeItem(LEGACY_STORAGE_KEY)
-    } catch {
-      // State is already cleared in memory.
+    setFocusedProjectFolder(null)
+    setQuery('')
+    setBulkMode(false)
+    setBulkSelected(new Set())
+    setAdminAction({ status: 'idle', receiptId: null })
+    setNotice(portfolioId === 'thoughtseed'
+      ? 'Thoughtseed WorkObjects · choose a record to save a governed action'
+      : 'Tryambakam · Noesis Projects · choose a project to start ingestion')
+  }
+
+  function retrySafeActionKey(subjectId: string, proposal: Record<string, unknown>): string {
+    const fingerprint = JSON.stringify(proposal)
+    const pending = pendingActionKeys.current.get(subjectId)
+    if (pending?.fingerprint === fingerprint) return pending.key
+    const key = actionIdempotencyKey(subjectId)
+    pendingActionKeys.current.set(subjectId, { fingerprint, key })
+    return key
+  }
+
+  async function queueWorkObjectReconciliation(work: WorkObject, reconciliation: PortfolioReconciliation) {
+    setAdminAction({ status: 'saving', receiptId: null })
+    const proposal = {
+      repositorySourceRef: reconciliation.repositorySourceRef,
+      repositoryDisposition: reconciliation.repositoryDisposition,
+      origin: reconciliation.origin,
+      clientFamilyId: reconciliation.clientFamilyId,
+      planningAuthority: reconciliation.planningAuthority,
+      repositoryPlanningReviewed: reconciliation.repositoryPlanningReviewed,
+      githubIssuesReviewed: reconciliation.githubIssuesReviewed,
+      legacyEvidenceReviewed: reconciliation.legacyEvidenceReviewed,
+      note: reconciliation.note,
     }
-    setNotice('Local planning state cleared')
+    try {
+      const receipt = await postPortfolioAdminAction({
+        schema: 'thoughtseed.portfolio-admin-action.v1',
+        kind: 'reconcile-work-object',
+        portfolioId: 'thoughtseed',
+        idempotencyKey: retrySafeActionKey(work.workId, proposal),
+        rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+        sourceDigest: CLASSIFICATION_DIGEST,
+        subject: { id: work.workId, name: work.name },
+        proposal,
+      })
+      pendingActionKeys.current.delete(work.workId)
+      setAdminAction({ status: 'queued', receiptId: receipt.receiptId })
+      setNotice(`${work.name} · saved to durable evidence and queued for repository intake review`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Portfolio action failed'
+      const durableReceipt = message.match(/Evidence (pa_[0-9a-f]+) is durable/)?.[1] ?? null
+      setAdminAction({ status: 'error', receiptId: durableReceipt })
+      setNotice(message)
+    }
+  }
+
+  async function queueProjectIngestion(project: PortfolioFolderMapping) {
+    setAdminAction({ status: 'saving', receiptId: null })
+    const proposal = { status: project.status === 'empty-hold' ? 'empty-hold' : 'awaiting-ingestion' }
+    try {
+      const receipt = await postPortfolioAdminAction({
+        schema: 'thoughtseed.portfolio-admin-action.v1',
+        kind: 'start-project-ingestion',
+        portfolioId: 'tryambakam-noesis',
+        idempotencyKey: retrySafeActionKey(project.folder, proposal),
+        rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+        subject: { id: project.folder, name: label(project.folder), path: project.path },
+        proposal,
+      })
+      pendingActionKeys.current.delete(project.folder)
+      setAdminAction({ status: 'queued', receiptId: receipt.receiptId })
+      setNotice(`${label(project.folder)} · saved to durable evidence and queued for project repository ingestion`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Portfolio action failed'
+      const durableReceipt = message.match(/Evidence (pa_[0-9a-f]+) is durable/)?.[1] ?? null
+      setAdminAction({ status: 'error', receiptId: durableReceipt })
+      setNotice(message)
+    }
   }
 
   function renderCard(work: WorkObject) {
@@ -1240,11 +1470,106 @@ function App() {
         onFocus={() => openDrawer(work.workId)}
         onQuickSignal={(signal) => {
           updatePlan(work.workId, { signal })
-          setNotice(`${work.name} · ${label(signal)} local plan`)
+          setNotice(`${work.name} · ${label(signal)} draft plan`)
         }}
         unplannedTriage={activeView === 'unplanned'}
         reconciliation={reconciliations[work.workId]}
       />
+    )
+  }
+
+  if (activePortfolio === 'tryambakam-noesis') {
+    const noesisRoot = portfolioRoot('tryambakam-noesis')
+    return (
+      <main className={focusedProject ? 'workbench has-drawer' : 'workbench'}>
+        <header className="topbar">
+          <div className="brand-lockup">
+            <span className="brand-mark"><FolderKanban aria-hidden="true" /></span>
+            <div><span>Tryambakam · Noesis</span><strong>Portfolio Workbench</strong></div>
+          </div>
+          <PortfolioSwitcher active={activePortfolio} onChange={changePortfolio} />
+          <AdminActionStatus state={adminAction} available={actionsAvailable} />
+        </header>
+
+        <aside className="sidebar">
+          <div className="sidebar-intro">
+            <p>Prepare shallow project folders for repository-owned planning ingestion.</p>
+            <div className="authority-line"><FolderGit2 aria-hidden="true" /><span>Project is the grammar<br />GitHub is the identity<br />Repos own planning</span></div>
+          </div>
+          <nav className="project-nav" aria-label="Tryambakam project intake status">
+            <span>Project intake</span>
+            <button type="button" className="is-active"><FolderKanban aria-hidden="true" /><span>Projects</span><strong>{noesisRoot.folderCount}</strong></button>
+            <button type="button"><Target aria-hidden="true" /><span>Awaiting ingestion</span><strong>{TRYAMBAKAM_PROJECTS.filter((project) => project.status === 'awaiting-ingestion').length}</strong></button>
+            <button type="button"><CirclePause aria-hidden="true" /><span>Empty hold</span><strong>{TRYAMBAKAM_PROJECTS.filter((project) => project.status === 'empty-hold').length}</strong></button>
+          </nav>
+          <div className="source-receipt">
+            <span>Root map receipt</span>
+            <code>{PORTFOLIO_ROOT_MAP_DIGEST.slice(0, 12)}…</code>
+            <small>shallow · no directory moves</small>
+            <div><b>{noesisRoot.folderCount}</b> projects · <b>4</b> archived separately</div>
+          </div>
+        </aside>
+
+        <section className="workspace">
+          <header className="workspace-head">
+            <div>
+              <span className="eyebrow">Portfolio / Projects</span>
+              <h1 ref={workspaceHeadingRef} tabIndex={-1}>Tryambakam · Noesis Projects<em>{visibleProjects.length}</em></h1>
+              <p>Each shallow folder is a Project awaiting exact GitHub identity and repository-owned planning ingestion. Nothing is classified as a Client Branch here.</p>
+            </div>
+            <div className="summary-pills" aria-label="Project mapping counts">
+              <span><FolderKanban aria-hidden="true" />{noesisRoot.folderCount} Projects</span>
+              <span><FolderGit2 aria-hidden="true" />{TRYAMBAKAM_PROJECTS.filter((project) => project.status === 'awaiting-ingestion').length} awaiting ingestion</span>
+              <span><CirclePause aria-hidden="true" />1 empty hold</span>
+            </div>
+          </header>
+
+          <div className="command-bar project-command-bar">
+            <label className="search-control">
+              <Search aria-hidden="true" />
+              <span className="visually-hidden">Search Tryambakam projects</span>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search project folder or intake status…" />
+            </label>
+            <div className="read-only-rule"><ShieldCheck aria-hidden="true" /><span>Folder map fixed · ingestion actions are governed</span></div>
+          </div>
+
+          <div className="content-surface">
+            <section className="family-group projects-family" aria-label="Tryambakam Noesis Projects">
+              <header className="static-family-header">
+                <FolderKanban aria-hidden="true" />
+                <span><strong>Projects</strong><small>project-header · shallow folder grammar</small></span>
+                <span className="family-rollup">{visibleProjects.length} awaiting review</span>
+                <b>{visibleProjects.length}</b>
+              </header>
+              <div>
+                {visibleProjects.length > 0 ? (
+                  <div className="card-grid">{visibleProjects.map((project) => (
+                    <ProjectCard key={project.folder} project={project} onInspect={() => setFocusedProjectFolder(project.folder)} />
+                  ))}</div>
+                ) : (
+                  <div className="empty-state"><Search aria-hidden="true" /><h2>No matching projects</h2><p>Clear search to restore the full project intake map.</p></div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          <footer className="workspace-footer">
+            <div><ShieldCheck aria-hidden="true" /> <span>thoughtseed.portfolio-root-map.v1 · action receipts enabled</span></div>
+            <p aria-live="polite">{notice}</p>
+            <div><Network aria-hidden="true" /> <span>{actionsAvailable ? 'Hosted admin · governed writes' : 'Local preview · no writes'}</span></div>
+          </footer>
+        </section>
+
+        {focusedProject && (
+          <ProjectIntakeDrawer
+            project={focusedProject}
+            actionState={adminAction}
+            actionsAvailable={actionsAvailable}
+            onQueue={() => void queueProjectIngestion(focusedProject)}
+            onClose={() => setFocusedProjectFolder(null)}
+          />
+        )}
+      </main>
     )
   }
 
@@ -1253,25 +1578,10 @@ function App() {
       <header className="topbar">
         <div className="brand-lockup">
           <span className="brand-mark"><Sparkles aria-hidden="true" /></span>
-          <div><span>Thoughtseed · founder planning artifact</span><strong>Portfolio Workbench</strong></div>
+          <div><span>Thoughtseed · hosted founder admin</span><strong>Portfolio Workbench</strong></div>
         </div>
-        <div className="top-actions">
-          <input
-            ref={importRef}
-            type="file"
-            accept="application/json,.json"
-            className="visually-hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (file) void importPacket(file)
-            }}
-          />
-          <button type="button" className="quiet-button" onClick={() => importRef.current?.click()}><FileUp /> Import</button>
-          <button type="button" className="quiet-button" onClick={copyBrief}><Clipboard /> Copy brief</button>
-          <button type="button" className="quiet-button" onClick={exportJson}><Braces /> JSON</button>
-          <button type="button" className="primary-button" onClick={exportMarkdown}><Download /> Markdown</button>
-          <button type="button" className="icon-button danger" onClick={resetAll} aria-label="Reset local planning"><RotateCcw /></button>
-        </div>
+        <PortfolioSwitcher active={activePortfolio} onChange={changePortfolio} />
+        <AdminActionStatus state={adminAction} available={actionsAvailable} />
       </header>
 
       <aside className="sidebar">
@@ -1314,7 +1624,7 @@ function App() {
       <section className="workspace">
         {autosaveBlocked && (
           <div className="recovery-banner" role="alert">
-            Autosave is paused so unreadable local data stays untouched. Import a recovery packet or use Reset to replace it explicitly.
+            Local draft autosave is paused so unreadable data stays untouched. Server actions remain explicit and never overwrite this draft.
           </div>
         )}
         <header className="workspace-head">
@@ -1451,9 +1761,9 @@ function App() {
         </div>
 
         <footer className="workspace-footer">
-          <div><ShieldCheck /> <span>{CARTOGRAPHER_SCHEMA} · proposal only</span></div>
+          <div><ShieldCheck /> <span>{CARTOGRAPHER_SCHEMA} · admin actions receipted</span></div>
           <p aria-live="polite">{notice}</p>
-          <div><Network /> <span>Offline · zero writers</span></div>
+          <div><Network /> <span>{actionsAvailable ? 'Hosted admin · governed writes' : 'Local preview · no writes'}</span></div>
         </footer>
       </section>
 
@@ -1468,6 +1778,12 @@ function App() {
           onTab={setDrawerTab}
           onChange={(patch) => updatePlan(focusedWork.workId, patch)}
           onReconciliationChange={(patch) => updateReconciliation(focusedWork.workId, patch)}
+          actionState={adminAction}
+          actionsAvailable={actionsAvailable}
+          onQueueReconciliation={() => void queueWorkObjectReconciliation(
+            focusedWork,
+            reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId),
+          )}
           onClose={closeDrawer}
         />
       )}
