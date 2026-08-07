@@ -13,14 +13,18 @@ import {
   CARTOGRAPHER_SCHEMA,
   CLASSIFICATION_DIGEST,
   CLASSIFICATION_COUNTS,
+  V3_SCHEMA,
   HISTORICAL_RECORDS,
   LEGACY_SCHEMA,
   V2_SCHEMA,
   ORGAN_WORKFLOWS,
   REVIEW_RECORDS,
   WORK_OBJECTS,
-  applyUnplannedDecision,
+  createReusableIpProposal,
   createPacket,
+  defaultReconciliation,
+  deriveClassificationFromOrigin,
+  intakeReadiness,
   boardHorizon,
   defaultPlan,
   effectiveSignal,
@@ -95,38 +99,119 @@ test('review family identifiers and notes are normalized and bounded', () => {
   assert.equal(normalizeReviewNote(`  ${'x'.repeat(500)}  `).length, 400)
 })
 
-test('unplanned one-tap decisions preserve the planning-state grammar', () => {
-  const base = defaultPlan()
-  assert.deepEqual(
-    { signal: applyUnplannedDecision(base, 'now').signal, horizon: applyUnplannedDecision(base, 'now').horizon },
-    { signal: 'ongoing', horizon: 'now' },
-  )
-  assert.deepEqual(
-    { signal: applyUnplannedDecision(base, 'next').signal, horizon: applyUnplannedDecision(base, 'next').horizon },
-    { signal: null, horizon: 'next' },
-  )
-  assert.deepEqual(
-    { signal: applyUnplannedDecision(base, 'later').signal, horizon: applyUnplannedDecision(base, 'later').horizon },
-    { signal: null, horizon: 'later' },
-  )
-  assert.deepEqual(
-    { signal: applyUnplannedDecision(base, 'park').signal, horizon: applyUnplannedDecision(base, 'park').horizon },
-    { signal: 'paused', horizon: 'park' },
-  )
-  assert.deepEqual(applyUnplannedDecision(base, 'needs-review').tags, ['needs-review'])
+test('origin is the only input that derives portfolio grammar', () => {
+  assert.equal(deriveClassificationFromOrigin('thoughtseed-venture'), 'sapling')
+  assert.equal(deriveClassificationFromOrigin('thoughtseed-internal'), 'internal-program')
+  assert.equal(deriveClassificationFromOrigin('client'), 'client-branch')
+  assert.equal(deriveClassificationFromOrigin('unknown'), 'needs-review')
 })
 
-test('one-tap decisions resolve the computed Unplanned queue without rewriting source truth', () => {
-  const source = WORK_OBJECTS.find((work) => work.workId === 'sapling:iverif')
-  assert.ok(source)
-  const before = smartViewCount('unplanned', {})
+test('repository-first readiness blocks every incomplete or conflicting intake', () => {
+  const client = WORK_OBJECTS.find((work) => work.workId === 'branch:harsh-truths')!
+  const base = defaultReconciliation(client.workId)
+  assert.equal(intakeReadiness(client, base).ready, false)
+  assert.match(intakeReadiness(client, base).blockers.join(' '), /repository/i)
 
-  for (const decision of ['now', 'next', 'later', 'park', 'needs-review'] as const) {
-    const plan = applyUnplannedDecision(defaultPlan(), decision)
-    assert.equal(smartViewCount('unplanned', { [source.workId]: plan }), before - 1, decision)
+  const resolved = {
+    ...base,
+    repositorySourceRef: 'repo:synchronized-universe-blog',
+    repositoryDisposition: 'resolved' as const,
+    origin: 'client' as const,
+    clientFamilyId: 'harshita',
+    planningAuthority: {
+      kind: 'repository' as const,
+      repositoryId: 'R_kgDOTIQbHg',
+      fullName: 'Sheshiyer/harshtruths-blog-v1',
+    },
+    repositoryPlanningReviewed: true,
+    githubIssuesReviewed: true,
+    legacyEvidenceReviewed: true,
   }
+  assert.deepEqual(intakeReadiness(client, resolved), {
+    ready: true,
+    derivedType: 'client-branch',
+    classificationMismatch: false,
+    blockers: [],
+  })
 
-  assert.equal(sourceSignal(source), 'unplanned')
+  assert.match(
+    intakeReadiness(client, { ...resolved, clientFamilyId: '' }).blockers.join(' '),
+    /client family/i,
+  )
+  assert.match(
+    intakeReadiness(client, { ...resolved, repositorySourceRef: 'repo:fitcheck-landing/README.md' }).blockers.join(' '),
+    /attached to this WorkObject/i,
+  )
+  assert.match(
+    intakeReadiness(client, {
+      ...resolved,
+      planningAuthority: { ...resolved.planningAuthority, repositoryId: 'R_wrong' },
+    }).blockers.join(' '),
+    /immutable repository evidence/i,
+  )
+  assert.match(
+    intakeReadiness(client, {
+      ...resolved,
+      repositorySourceRef: null,
+      repositoryDisposition: 'no-repository',
+      planningAuthority: { kind: 'cambium', reason: 'Bypass exact repository evidence.' },
+    }).blockers.join(' '),
+    /already carries repository evidence/i,
+  )
+
+  const nimbus = WORK_OBJECTS.find((work) => work.workId === 'sapling:nimbus-gate')!
+  assert.match(
+    intakeReadiness(nimbus, {
+      ...defaultReconciliation(nimbus.workId),
+      repositorySourceRef: 'repo:Coproperty/nimbus-gate',
+      repositoryDisposition: 'unmatched',
+    }).blockers.join(' '),
+    /immutable GitHub identity metadata/i,
+  )
+
+  const mismatch = intakeReadiness({ ...client, classification: 'sapling' }, resolved)
+  assert.equal(mismatch.ready, false)
+  assert.equal(mismatch.classificationMismatch, true)
+  assert.match(mismatch.blockers.join(' '), /canonical/i)
+})
+
+test('legacy horizon intent cannot hide unresolved source-unplanned work', () => {
+  const work = WORK_OBJECTS.find((candidate) => (
+    sourceSignal(candidate) === 'unplanned' &&
+    !candidate.provenance.some((source) => source.startsWith('repo:'))
+  ))!
+  const plan = { ...defaultPlan(), horizon: 'next' as const }
+  const withoutIntake = smartViewCount('unplanned', { [work.workId]: plan }, {})
+  assert.equal(withoutIntake, smartViewCount('unplanned', {}, {}))
+
+  const ready = {
+    ...defaultReconciliation(work.workId),
+    repositorySourceRef: null,
+    repositoryDisposition: 'no-repository' as const,
+    origin: work.classification === 'sapling'
+      ? 'thoughtseed-venture' as const
+      : work.classification === 'client-branch'
+        ? 'client' as const
+        : 'thoughtseed-internal' as const,
+    clientFamilyId: work.classification === 'client-branch' ? work.accountId ?? 'client-review' : '',
+    planningAuthority: { kind: 'cambium' as const, reason: 'No exact repository is available in the generated evidence.' },
+    repositoryPlanningReviewed: true,
+    githubIssuesReviewed: true,
+    legacyEvidenceReviewed: true,
+  }
+  assert.equal(smartViewCount('unplanned', { [work.workId]: plan }, { [work.workId]: ready }), withoutIntake - 1)
+})
+
+test('client-derived reusable IP becomes a separate linked Sapling proposal', () => {
+  const client = WORK_OBJECTS.find((work) => work.classification === 'client-branch')!
+  assert.deepEqual(createReusableIpProposal(client, 'Shared intake engine'), {
+    proposedType: 'sapling',
+    origin: 'thoughtseed-venture',
+    name: 'Shared intake engine',
+    linkedWorkId: client.workId,
+    preservesSourceType: 'client-branch',
+  })
+  assert.equal(client.classification, 'client-branch')
 })
 
 test('grouping, suggestions, and proposal export never mutate canonical catalog bytes', () => {
@@ -135,8 +220,9 @@ test('grouping, suggestions, and proposal export never mutate canonical catalog 
   REVIEW_RECORDS.forEach(reviewSuggestion)
   createPacket({
     focusedId: null,
-    plans: { 'sapling:iverif': applyUnplannedDecision(defaultPlan(), 'later') },
+    plans: { 'sapling:iverif': { ...defaultPlan(), horizon: 'later' } },
     reviewDecisions: {},
+    reconciliations: {},
   })
   assert.equal(JSON.stringify(WORK_OBJECTS), before)
 })
@@ -240,8 +326,22 @@ test('pipeline routes exceptional states to Alerts and client Will through Gate'
   assert.equal(will.requiresApproval, true)
 })
 
-test('v3 packet export and validated import round-trip plans', () => {
+test('v4 packet export and validated import round-trip plans plus reconciliation', () => {
   const id = 'sapling:fitcheck'
+  const reconciliation = {
+    ...defaultReconciliation(id),
+    repositorySourceRef: 'repo:fitcheck-landing/README.md',
+    repositoryDisposition: 'resolved' as const,
+    origin: 'thoughtseed-venture' as const,
+    planningAuthority: {
+      kind: 'repository' as const,
+      repositoryId: 'R_kgDOSzF56w',
+      fullName: 'Sheshiyer/fitcheck-landing',
+    },
+    repositoryPlanningReviewed: true,
+    githubIssuesReviewed: true,
+    legacyEvidenceReviewed: true,
+  }
   const packet = createPacket({
     focusedId: id,
     plans: {
@@ -256,17 +356,21 @@ test('v3 packet export and validated import round-trip plans', () => {
         delivery: { organ: 'will', trigger: 'client-delivery', status: 'ready', audience: 'client' },
       },
     },
+    reconciliations: { [id]: reconciliation },
   }, new Date('2026-08-01T12:00:00.000Z'))
   assert.equal(packet.schema, CARTOGRAPHER_SCHEMA)
   assert.equal(packet.focusedId, id)
   assert.deepEqual(packet.plans[id].tags, ['founder-focus', 'white-labelable'])
   assert.equal(packet.pipelines.length, 1)
   assert.equal(packet.authority.mode, 'proposal-only')
+  assert.equal(packet.version, 4)
+  assert.equal(packet.reconciliations[id].origin, 'thoughtseed-venture')
 
   const restored = parsePacket(JSON.parse(JSON.stringify(packet)))
   assert.equal(restored.focusedId, id)
   assert.equal(restored.plans[id].signal, 'paused')
   assert.equal(restored.plans[id].horizon, 'this-year')
+  assert.equal(restored.reconciliations[id].planningAuthority?.kind, 'repository')
   assert.match(toMarkdown(packet), /Mini App Gate required/)
   assert.match(toMarkdown(packet), /does not activate tenants/)
 })
@@ -317,6 +421,63 @@ test('v2 packets migrate plans explicitly into v3 state without review decisions
   assert.equal(restored.focusedId, id)
   assert.equal(restored.plans[id].horizon, 'next')
   assert.deepEqual(restored.reviewDecisions, {})
+  assert.deepEqual(restored.reconciliations, {})
+})
+
+test('v3 packets migrate losslessly into v4 state with empty reconciliation', () => {
+  const id = 'sapling:fitcheck'
+  const v4 = createPacket({
+    focusedId: id,
+    plans: { [id]: { ...defaultPlan(), horizon: 'next', nextAction: 'Preserve this plan.' } },
+    reconciliations: {},
+  })
+  const { reconciliations: _reconciliations, ...withoutReconciliations } = v4
+  const restored = parsePacket({ ...withoutReconciliations, schema: V3_SCHEMA, version: 3 })
+  assert.equal(restored.plans[id].horizon, 'next')
+  assert.equal(restored.plans[id].nextAction, 'Preserve this plan.')
+  assert.deepEqual(restored.reconciliations, {})
+})
+
+test('resolved v3 review decisions migrate into retired v4 evidence without loss', () => {
+  const legacyReviewId = 'review:resolved-client'
+  const v4 = createPacket({ focusedId: null, plans: {} })
+  const {
+    reconciliations: _reconciliations,
+    retiredReviewDecisions: _retiredReviewDecisions,
+    reviewDecisions: _reviewDecisions,
+    ...v3Base
+  } = v4
+  const restored = parsePacket({
+    ...v3Base,
+    schema: V3_SCHEMA,
+    version: 3,
+    reviewDecisions: {
+      [legacyReviewId]: {
+        proposedType: 'client-branch',
+        clientFamilyId: ' Legacy Client ',
+        note: ' Preserve the founder decision. ',
+        suggestionRule: 'thoughtseed.review-suggestion.v1',
+        sourceDigest: CLASSIFICATION_DIGEST,
+      },
+    },
+  })
+
+  assert.deepEqual(restored.reviewDecisions, {})
+  assert.equal(restored.retiredReviewDecisions[legacyReviewId].proposedType, 'client-branch')
+  assert.equal(restored.retiredReviewDecisions[legacyReviewId].clientFamilyId, 'legacy-client')
+  assert.equal(restored.retiredReviewDecisions[legacyReviewId].note, 'Preserve the founder decision.')
+
+  const packet = createPacket(restored)
+  assert.deepEqual(packet.retiredReviewDecisions, restored.retiredReviewDecisions)
+  assert.match(toMarkdown(packet), /Retired classification-review history/)
+  assert.match(toMarkdown(packet), /preserved migration evidence/)
+})
+
+test('earlier v4 packets without retired review history remain readable', () => {
+  const packet = createPacket({ focusedId: null, plans: {} })
+  const { retiredReviewDecisions: _retiredReviewDecisions, ...earlierV4 } = packet
+  const restored = parsePacket(earlierV4)
+  assert.deepEqual(restored.retiredReviewDecisions, {})
 })
 
 test('legacy v1 selections migrate into v2 planning state', () => {
@@ -394,7 +555,7 @@ test('invalid packets are rejected instead of replacing local state', () => {
   }))
   assert.throws(() => parsePacket({
     ...createPacket({ focusedId: null, plans: {} }),
-    version: 4,
+    version: 5,
   }))
   assert.throws(() => parsePacket({
     ...createPacket({ focusedId: null, plans: {} }),
@@ -422,6 +583,65 @@ test('invalid packets are rejected instead of replacing local state', () => {
         suggestionRule: 'thoughtseed.review-suggestion.v1',
         sourceDigest: '0'.repeat(64),
       },
+    },
+  }))
+  const fitcheckId = 'sapling:fitcheck'
+  const exactFitcheck = {
+    ...defaultReconciliation(fitcheckId),
+    repositorySourceRef: 'repo:fitcheck-landing/README.md',
+    repositoryDisposition: 'resolved' as const,
+    origin: 'thoughtseed-venture' as const,
+    planningAuthority: {
+      kind: 'repository' as const,
+      repositoryId: 'R_kgDOSzF56w',
+      fullName: 'Sheshiyer/fitcheck-landing',
+    },
+    repositoryPlanningReviewed: true,
+    githubIssuesReviewed: true,
+    legacyEvidenceReviewed: true,
+  }
+  const exactPacket = createPacket({ focusedId: fitcheckId, plans: {}, reconciliations: { [fitcheckId]: exactFitcheck } })
+  assert.throws(() => parsePacket({
+    ...exactPacket,
+    reconciliations: {
+      [fitcheckId]: { ...exactFitcheck, repositorySourceRef: 'repo:invented', repositoryDisposition: 'resolved' },
+    },
+  }))
+  assert.throws(() => parsePacket({
+    ...exactPacket,
+    reconciliations: {
+      [fitcheckId]: {
+        ...exactFitcheck,
+        repositorySourceRef: null,
+        repositoryDisposition: 'no-repository',
+        planningAuthority: { kind: 'cambium', reason: 'Attempted repository bypass.' },
+      },
+    },
+  }))
+  assert.throws(() => parsePacket({
+    ...exactPacket,
+    reconciliations: {
+      [fitcheckId]: {
+        ...exactFitcheck,
+        planningAuthority: { ...exactFitcheck.planningAuthority, repositoryId: 'R_wrong' },
+      },
+    },
+  }))
+  const nimbusId = 'sapling:nimbus-gate'
+  const unverifiedNimbus = {
+    ...defaultReconciliation(nimbusId),
+    repositorySourceRef: 'repo:Coproperty/nimbus-gate',
+    repositoryDisposition: 'unmatched' as const,
+  }
+  const unverifiedPacket = createPacket({
+    focusedId: nimbusId,
+    plans: {},
+    reconciliations: { [nimbusId]: unverifiedNimbus },
+  })
+  assert.throws(() => parsePacket({
+    ...unverifiedPacket,
+    reconciliations: {
+      [nimbusId]: { ...unverifiedNimbus, repositoryDisposition: 'resolved' },
     },
   }))
 })
@@ -457,10 +677,13 @@ test('new triage controls expose selection, context, touch size, and bounded und
   assert.match(source, /aria-pressed=\{viewMode === 'family'\}/)
   assert.match(source, /aria-pressed=\{viewMode === 'grid'\}/)
   assert.match(source, /aria-pressed=\{viewMode === 'board'\}/)
-  assert.match(source, /aria-label=\{`Plan \$\{work\.name\}:/)
+  assert.match(source, /Inspect & reconcile/)
+  assert.match(source, /repositoryEvidence\.length === 0/)
+  assert.doesNotMatch(source, /applyQuickDecision/)
+  assert.match(source, /Intake/)
+  assert.match(source, /Only Thoughtseed-originated ventures become Saplings/)
   assert.match(source, /aria-label=\{`Propose \$\{proposal/)
   assert.match(source, /function updatePlan[\s\S]*?setPlanningHistory\(emptyPlanningHistory\(\)\)[\s\S]*?setPlans/)
-  assert.match(source, /function applyQuickDecision[\s\S]*?recordQuickUndo/)
   assert.match(source, /function rememberBulkState[\s\S]*?recordBulkUndo/)
   assert.match(styles, /\.view-toggle button \{[\s\S]*?min-height: 44px;/)
   assert.match(styles, /\.unplanned-actions button \{[\s\S]*?min-height: 44px;/)

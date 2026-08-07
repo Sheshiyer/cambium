@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Restore active Plexus administrators through the canonical whoami envelope"
+task: "Replace premature portfolio scheduling with repository-first origin reconciliation"
 effort: E4
 effort_source: classifier
 phase: complete
-progress: 734/765
+progress: 789/820
 mode: interactive
-iteration: 2026-08-03-portfolio-browser-admin-envelope-repair
+iteration: 2026-08-07-portfolio-repository-first-intake
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-03T13:36:00Z
+updated: 2026-08-07T02:04:20Z
 ---
 
 ## Problem
@@ -25,6 +25,8 @@ The portfolio projection now makes every WorkObject visible, but update delivery
 
 The first Portfolio Cartographer artifact proves classification and pipeline truth, but its interaction model conflates selection, planning, and delivery configuration. A restored 35-item local selection renders 248 selects, 35 textareas, 35 pipeline cards, and a 33,020-pixel page at the current preview width. The complete schema is visible everywhere, so recurring portfolio review feels like configuring a deployment packet instead of scanning, tagging, and focusing long-term work.
 
+The guided-triage iteration then made the opposite mistake for unresolved work: it allowed `Now`, `Next`, `Later`, `Park`, and `Needs Review` before repository identity, origin, WorkObject grammar, or planning authority had been established. That makes a quick scheduling choice look meaningful while the system still cannot distinguish a Thoughtseed venture from client work, cannot prove which GitHub repository owns the plan, and can silently inherit stale tool-file assumptions. "New" is timing evidence, not a WorkObject type.
+
 ## Vision
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
@@ -40,6 +42,8 @@ For organ updates, one receipt-backed signal becomes one deterministic delivery 
 For portfolio planning, the founder opens one calm workbench and immediately sees what is ongoing, paused, reusable, awaiting review, or still unplanned. One tap changes local planning intent, one focused drawer holds the project plan, and delivery mechanics stay available in a secondary tab. Canonical Vault facts and local proposals are visually distinct, making fast planning safer than slow form-filling.
 
 For client-family planning, the founder sees one expandable HeyZack family rather than eleven unrelated cards, while every Branch remains independently addressable. Unplanned work offers direct scheduling moves; Needs Review pairs each uncertain source record with a clearly labeled suggestion, one-tap alternatives, an optional client-family proposal, and visible completion progress. The hierarchy reduces scanning cost without inventing a new WorkObject, client identity, or canonical classification.
+
+For repository-first intake, every unresolved card begins with the exact GitHub repository evidence and an explicit origin decision. Only Thoughtseed-originated ventures or products may resolve to Saplings; all client-originated work resolves to a Client Branch even when newly started; shared Thoughtseed capability or operations work resolves to an Internal Program; unknown origin remains Needs Review. Scheduling unlocks only after repository evidence, origin, planning authority, and legacy-evidence reconciliation agree. Repository issues and plans own project-local intent; Cambium owns cross-portfolio coordination and honest unresolved gaps.
 
 ## Out of Scope
 
@@ -66,6 +70,9 @@ For client-family planning, the founder sees one expandable HeyZack family rathe
 - No always-expanded per-project delivery form or duplicate pipeline card for every planned WorkObject.
 - No new Telegram bot identity, tenant, menu mutation, or public catalog route for the hosted Workbench.
 - No production traffic promotion merely because an authenticated preview route exists.
+- No physical relocation from the Vault project area into the standalone projects area, no nested-repository repair, and no R2-synced Vault activation in this iteration.
+- No repository, WorkObject, client-family, tenant, or planning-authority inference from the word "new", a folder name, a tool session, or a dated planning file alone.
+- No production Worker upload or traffic change while the Cambium packet remains `draft-held` rather than `reviewed-held`.
 
 ## Principles
 
@@ -86,6 +93,10 @@ For client-family planning, the founder sees one expandable HeyZack family rathe
 - Client family is a relationship projection over canonical `accountId`; it is not a WorkObject kind or lifecycle state.
 - Review assistance must distinguish a recommendation from both a founder proposal and Vault truth.
 - Triage should reduce each common decision to one tap, with progressive detail only when the decision needs it.
+- Origin precedes WorkObject type, and WorkObject type precedes scheduling.
+- A Client Branch is a portfolio WorkObject kind, never a Git branch claim.
+- Repository-native issues and plans are project-local authority; Cambium is the cross-portfolio coordination authority.
+- Tool files, session notes, and date-stamped plans are evidence inputs to reconcile, never current planning authority by themselves.
 
 ## Constraints
 
@@ -139,6 +150,8 @@ For the portfolio-workbench iteration, replace the form-dense Cartographer with 
 For the hosted-admin iteration, mount that exact Workbench at `/admin/portfolio` through a public no-data loader and a founder-only `/v1/admin/portfolio` document endpoint. The route must reuse signed Telegram `initData` and the existing founder list, expose no portfolio HTML to missing, invalid, stale, or non-founder identities, remain proposal-only after authorization, and leave Telegram configuration plus production traffic unchanged until a separate promotion gate.
 
 For the client-family and review-triage iteration, make grouping the calm default overview: source-backed client families contain their canonical Branches, with HeyZack and Axdis Group proving multi-project nesting. Unplanned WorkObjects receive direct horizon/review actions, and all 16 Needs Review records receive explicit, reversible, exportable local decisions with suggestions that are visibly non-authoritative. The exact regenerated bundle must remain byte-bound to the existing founder-only route without any deployment or external mutation.
+
+For the repository-first intake iteration, replace the Unplanned scheduling shortcuts with a durable reconciliation flow: resolve the exact GitHub repository, record whether the origin is a Thoughtseed venture, Thoughtseed internal capability, client, or unknown, derive the only grammar-valid WorkObject type, name the repository or Cambium as planning authority, reconcile legacy tool/session evidence, and block horizon scheduling until every gate agrees. Preserve all existing local plan data through a v4 migration, publish a privacy-safe repository-evidence snapshot, export unresolved mapping proposals, capture the flow in plans and roadmap, and track execution in GitHub Issues plus a dedicated Project without relocating any file tree or deploying the Worker.
 
 ## Criteria
 
@@ -1063,6 +1076,67 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - [x] ISC-763: A legacy or differently identity-bound cached founder verdict is ignored and cannot bypass the repaired whoami contract.
 - [x] ISC-764: The founder's existing production browser session visibly renders the Portfolio Workbench after the repaired Version is promoted.
 
+### Repository-first portfolio intake
+
+- [x] ISC-765: An unresolved WorkObject cannot receive a new horizon decision until repository-first reconciliation is complete.
+- [x] ISC-766: The Unplanned card replaces `Now`, `Next`, `Later`, `Park`, and `Needs Review` shortcuts with one explicit `Inspect & reconcile` action.
+- [x] ISC-767: Reconciliation begins from an exact GitHub repository record or an explicit no-repository gap, never from a fuzzy folder-name assumption.
+- [x] ISC-768: The repository evidence record retains immutable GitHub identity, full name, URL, visibility, default branch, archived state, and source timestamps without repository content.
+- [x] ISC-769: Repository aliases resolve deterministically through the relocation registry before exact owner/name and unique-name fallbacks.
+- [x] ISC-770: Ambiguous or unmatched repository evidence fails closed and remains visible as a mapping gap.
+- [x] ISC-771: The browser artifact contains no GitHub credential and performs no GitHub API request.
+- [x] ISC-772: Repository links are external, explicit, and safe to open without changing portfolio state.
+- [x] ISC-773: Origin is recorded as exactly one of `thoughtseed-venture`, `thoughtseed-internal`, `client`, or `unknown`.
+- [x] ISC-774: Only `thoughtseed-venture` origin derives the Sapling WorkObject type.
+- [x] ISC-775: Every `client` origin derives the Client Branch WorkObject type, including newly started client projects.
+- [x] ISC-776: `thoughtseed-internal` origin derives the Internal Program WorkObject type.
+- [x] ISC-777: `unknown` origin derives Needs Review and cannot unlock scheduling.
+- [x] ISC-778: Anti: the label `new`, repository recency, or a product-like name can derive a Sapling.
+- [x] ISC-779: Anti: Client Branch is never represented as a Git branch, checkout, or repository-branch mutation.
+- [x] ISC-780: Reusable Thoughtseed IP emerging from client work is represented as a separate linked Sapling proposal while the client work remains a Client Branch.
+- [x] ISC-781: A canonical classification that disagrees with the origin-derived type produces a visible mapping proposal and remains scheduling-locked.
+- [x] ISC-782: Existing questionable Sapling claims can be reviewed without silently rewriting the canonical catalog.
+- [x] ISC-783: Planning authority is recorded as the exact project repository or Cambium.
+- [x] ISC-784: Repository-native issues and plans are named as authority for project-local intent when an exact repository exists.
+- [x] ISC-785: Cambium is named as authority for cross-portfolio sequencing, unmapped work, and repository-less coordination.
+- [x] ISC-786: Tool files, session notes, and date-stamped plans are explicitly marked historical evidence inputs rather than current planning authority.
+- [x] ISC-787: Reconciliation records whether repository planning, GitHub issues, and legacy tool/session evidence were each reviewed.
+- [x] ISC-788: Scheduling unlocks only after repository handling, origin, planning authority, and all three evidence reviews are complete and grammar-consistent.
+- [x] ISC-789: The scheduling lock explains every missing or conflicting gate in plain language.
+- [x] ISC-790: Existing v3 local plans migrate to v4 without losing horizon, priority, tags, notes, delivery choices, or review decisions.
+- [x] ISC-791: v4 export/import round-trips reconciliation state, repository evidence references, planning authority, and legacy plan data.
+- [x] ISC-792: v1, v2, and v3 inputs continue to migrate explicitly while invalid or future schemas fail closed.
+- [x] ISC-793: Reset and successful import clear incompatible undo history and stale reconciliation state safely.
+- [x] ISC-794: Existing horizon values remain visible as legacy local intent but do not bypass the new reconciliation gate for source-unplanned work.
+- [x] ISC-795: The focused drawer exposes an Intake surface before Plan and Delivery for unresolved work.
+- [x] ISC-796: The Intake surface shows repository evidence, origin decision, derived type, current canonical type, planning authority, review checklist, and readiness.
+- [x] ISC-797: Plan controls remain disabled for unresolved source-unplanned work until intake readiness is true.
+- [x] ISC-798: Resolved work retains ordinary Plan and Delivery behavior without an unnecessary reclassification burden.
+- [x] ISC-799: Needs Review suggestions cannot recommend Sapling without explicit Thoughtseed-origin evidence.
+- [x] ISC-800: The UI explains that only Thoughtseed-originated ventures become Saplings and all client projects remain Client Branches.
+- [x] ISC-801: The UI explains the separate-linked-Sapling rule for reusable IP derived from client work.
+- [x] ISC-802: Markdown export includes repository, origin, derived type, planning authority, review completeness, blockers, and mapping proposal details.
+- [x] ISC-803: JSON and Markdown exports distinguish canonical catalog facts, generated repository evidence, and local founder proposals.
+- [x] ISC-804: The repository-evidence generator is deterministic and fails on duplicate immutable IDs, ambiguous aliases, or malformed records.
+- [x] ISC-805: Focused tests prove all four origin-to-type derivations, readiness gates, mismatch locking, migration, and export behavior.
+- [x] ISC-806: A real local browser run proves the unresolved-card flow, disabled scheduling, completed reconciliation, persistence, and responsive layout.
+- [x] ISC-807: The exact standalone bundle and generated Worker embed remain byte-identical after regeneration.
+- [x] ISC-808: Static audit proves zero fetch, XMLHttpRequest, WebSocket, sendBeacon, GitHub credential, or portfolio writer in the browser artifact.
+- [x] ISC-809: Design and implementation plans preserve the repository-first grammar, authority split, state migration, tests, rollback, and no-relocation boundary.
+- [x] ISC-810: The continuation roadmap records repository-first reconciliation before physical relocation and R2-backed Vault remapping.
+- [x] ISC-811: Existing unfinished-board and relocation issues are linked rather than duplicated.
+- [x] ISC-812: New GitHub issues separate UI implementation, repository/origin audit, planning-authority migration, packet review, and later deployment.
+- [x] ISC-813: A dedicated GitHub Project contains the preserved unfinished-board issues, relocation-preparation issue, and repository-first intake issues.
+- [x] ISC-814: The bounded handoff records the clean branch, verification evidence, GitHub Project, open mapping gaps, review hold, and exact non-executed relocation scope.
+
+### Repository-first safety boundary
+
+- [x] ISC-815: Anti: this iteration moves, copies, deletes, or nests no project repository under the destination filesystem.
+- [x] ISC-816: Anti: this iteration mutates no Vault registry, R2-synced Vault copy, native client store, Paseo, OmniRoute, provider credential, or external deployment state.
+- [x] ISC-817: Anti: no production Worker Version is uploaded or promoted while the repository packet remains `draft-held`.
+- [x] ISC-818: The dirty primary checkout remains untouched and implementation occurs from a clean branch rooted at current `origin/main`.
+- [x] ISC-819: ReReadCheck and an independent high-effort review confirm the delivered UI, documentation, GitHub tracking, and safety boundary match the founder's exact clarified grammar.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1162,6 +1236,7 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 | ISC-661..688 | client hierarchy and triage | exact account grouping, HeyZack/Axdis membership, guided unplanned/review actions, versioned durable review proposals, undo, responsive layout, exact embed, zero writers, and release gates pass | domain tests, DOM/browser interaction, v1/v2/v3 JSON migration, Markdown round-trip, canonical hash, SHA-256 probe, focused/full test suites |
 | ISC-689..710 | production promotion | clean ancestry, deterministic gates, strict dry-run, staged candidate, binding parity, exact 100% Version, custom-domain loader/auth probes, rollback preservation, and zero data/config mutation | `git`, release suite, `wrangler versions/deployments`, binding-signature comparison, `curl` |
 | ISC-711..720 | GitHub discovery | connected identity, exhaustive pagination, stable-ID dedupe, Projects and org inventory, portfolio reconciliation, private-data exclusion, and zero GitHub mutation | `composio whoami`, `composio execute/run`, source registry comparison, command audit |
+| ISC-765..819 | repository-first intake | deterministic repository evidence, origin grammar, v4 migration, scheduling locks, exports, browser behavior, bundle parity, GitHub tracking, and no relocation/deployment pass | focused domain/generator/route tests, `pnpm check`, local browser proof, `gh`, source audit, `git diff --check` |
 
 ## Features
 
@@ -1228,6 +1303,11 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 - `PortfolioProductionPromotion` | Upload one inspected Worker Version, preserve bindings, promote exactly that UUID, and retain a verified rollback target | satisfies ISC-689..710 | depends_on HostedAdminPortfolioWorkbench, ClientGroupingProof | parallelizable false
 - `ComposioGitHubInventory` | Resolve the connected founder identity and inventory owner repositories, Projects, and memberships through read-only GitHub tools | satisfies ISC-711..715, ISC-718..719 | depends_on none | parallelizable true
 - `GitHubPortfolioReconciliation` | Compare stable repository evidence with WorkObjects and Needs Review without admitting or activating anything | satisfies ISC-716..717, ISC-720 | depends_on ComposioGitHubInventory, PortfolioCatalogProjection | parallelizable false
+- `RepositoryEvidenceSnapshot` | Resolve privacy-safe exact GitHub repository identities deterministically from catalog refs and the relocation registry | satisfies ISC-767..772, ISC-804 | depends_on ComposioGitHubInventory, GitHubPortfolioReconciliation | parallelizable false
+- `OriginGrammar` | Derive Sapling, Client Branch, Internal Program, or Needs Review only from explicit origin evidence | satisfies ISC-773..782, ISC-799..801 | depends_on RepositoryEvidenceSnapshot | parallelizable false
+- `RepositoryFirstIntakeState` | Persist planning authority, review gates, mismatch proposals, and lossless v4 migration | satisfies ISC-783..794 | depends_on OriginGrammar | parallelizable false
+- `RepositoryFirstIntakeUI` | Replace premature Unplanned scheduling with focused Intake, readiness explanations, and locked planning controls | satisfies ISC-765..766, ISC-795..803 | depends_on RepositoryFirstIntakeState | parallelizable false
+- `RepositoryFirstIntakeProof` | Prove generator, domain, browser, bundle, zero-writer, documentation, GitHub, handoff, and safety boundaries | satisfies ISC-805..819 | depends_on RepositoryFirstIntakeUI | parallelizable false
 - `PortfolioDualTransportBootstrap` | Route browsers to web authentication while preserving signed Telegram bootstrap behavior | satisfies ISC-721..725, ISC-734, ISC-738, ISC-740 | depends_on HostedAdminPortfolioWorkbench | parallelizable false
 - `PortfolioBrowserFounderRoute` | Reuse Access JWT and Plexus role resolution for exact founder-only Workbench delivery | satisfies ISC-727..737, ISC-741, ISC-745 | depends_on PortfolioDualTransportBootstrap | parallelizable false
 - `PortfolioAccessDestination` | Add the browser-only path to the existing multi-domain Plexus Access application | satisfies ISC-726, ISC-739, ISC-744 | depends_on PortfolioBrowserFounderRoute | parallelizable false
@@ -1254,6 +1334,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-07 01:21: root-cause-at-ingestion: the bad state enters when an unresolved catalog signal is converted directly into a horizon button. Because repository identity, origin, canonical type agreement, and planning authority are not part of that transition, the UI can create apparently actionable local state on top of an unknown WorkObject. The fix moves those four decisions into a prerequisite intake state rather than adding more labels to the old buttons.
+- 2026-08-07 01:21: the mandatory pre-build Advisor invocation failed because its Claude OAuth session was expired and could not be refreshed. No approval is inferred; the explicit ISA criteria, TDD, Forge implementation, Cato verification, local browser proof, ReReadCheck, and the existing `draft-held` promotion gate remain the independent controls.
+- 2026-08-07 01:15: refined: repository identity and explicit origin now precede portfolio classification and scheduling. Only Thoughtseed ventures derive Saplings; client work derives Client Branches even when new; shared Thoughtseed capability work derives Internal Programs; unknown origin remains Needs Review. Repository-local planning belongs in that repository, Cambium coordinates the portfolio, and legacy tool/session files are reconciliation evidence rather than authority.
+- 2026-08-07 01:15: the repository-first implementation is isolated on a clean branch rooted at current `origin/main`; the user's dirty primary checkout remains untouched. Filesystem relocation, Vault/R2 mutation, and production Worker promotion are explicitly excluded, with promotion held until the Cambium packet is reviewed and moved beyond `draft-held`.
 
 - 2026-08-03 11:19: the mandatory pre-build Advisor returned only external session `38234` and no review content. No approval is inferred; official Cloudflare path/JWT documentation, live dashboard read-back, focused route tests, staged-version probes, browser proof, ReReadCheck, and Cato remain the operative gates.
 - 2026-08-03 11:18: refined: reuse the existing `plexus-api` Cloudflare Access application and its `thoughtseed_team_list` policy by adding `curious.thoughtseed.space/admin/portfolio/web` as a third destination. This preserves the already-allowlisted Access audience in `TF_ACCESS_AUD`, the existing OTP/session identity provider, and the Plexus role map; no new application or identity system is required.
@@ -1397,6 +1482,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-03 13:33 UTC: Cloudflare Access policy read-back and policy tester both grant the founder email; the remaining denial is inside Cambium's downstream whoami handoff. The protected custom Plexus hostname returns a non-JSON Access-edge response to Worker-to-Worker fetch, so the resolver correctly floors to consultant. The read-only `PLEXUS_WHOAMI_URL` now uses TeamForge's workers.dev origin, where the same verified Access JWT is checked by Plexus without a second Access wall; no policy, identity, or secret mutation was needed.
 
 ## Changelog
+
+- 2026-08-07 | conjectured: an unresolved portfolio item could be made meaningful by assigning `Now`, `Next`, `Later`, `Park`, or `Needs Review` before its repository and origin were known
+  refuted by: the founder clarified that timing is not WorkObject grammar; only Thoughtseed-originated ventures are Saplings, every client project is a Client Branch even when new, shared Thoughtseed capability work is an Internal Program, and unknown origin remains Needs Review
+  learned: intake must establish immutable repository evidence or a proven no-repository gap, origin, derived type, planning authority, and evidence-review completeness before scheduling; repository-local plans/issues own local intent while Cambium owns cross-portfolio and unmapped coordination
+  criterion now: ISC-765..819 require repository-first gating, explicit origin grammar, fail-closed evidence resolution, v4 migration, durable GitHub tracking, browser proof, independent review, and a strict no-relocation/no-deployment boundary
 
 - 2026-08-03 | conjectured: the founder was blocked by a Cloudflare Access policy or missing administrator record
   refuted by: the existing `thoughtseed_team_list` policy returned `Access granted`, production D1 contained the active admin, and a live tail showed Access-injected JWT/email headers followed by a Cambium whoami exception; after changing only the read-only Plexus origin, the same native browser rendered `Thoughtseed Portfolio Workbench` and Plexus returned status 200 with role `admin`
@@ -1547,6 +1637,14 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-07-29 portfolio and organ-update verification: ordered portfolio commit `ae929f12797a68aa506ed4868afcf8f7b5d48de0` preserves the 54-WorkObject Canopy slice; ordered Cambium organ-delivery commit `fabb819fb7a9d4fe8e1de86341e423289aef2a43` wires the typed compiler, guarded bridge, Mini App views, contracts, tests, and proof; Hermes commit `14ea8309919bc0ecd643ebdfeca3b86ad3f4ef9d` adds strict topic-aware transport. Cambium focused contract/route/renderer/browser tests pass 262/262, the full suite passes 1518/1518, and `npm run verify:release` passes on the clean committed head with drift, docs, product packets, 37/37 mission-fabric/readiness checks, standalone audit/smoke, the Telegram mobile contract, 99/99 R3F tests, build, and 5/5 desktop packaging checks. Canonical Chromium proof contains 47 artifacts (27 layout, 20 clickability) bound to PAGE SHA-256 `6f9e03495dab3538327566160754dbf33586e754a88a085077f975acf9614327`. Hermes full plugin tests pass 114/114 on its clean committed head and the direct TypeScript compiler → Python dry-run probe resolves Hands to Dev thread `862`. Independent adversarial re-audit is `PASS` after proving fabricated Gate approval, foreign tenant, assignment-only bridge access, and digest/route-spoofed UI data all fail closed; matching founder Gate approval succeeds. Independent browser QA is `PASS` at 320px, 390px, and 430px with all five organs, canonical topic destinations, Alerts-only escalation, context across Canopy/Mission/Flow/Workforce/Forge/Inspect/Gate, zero overflow, zero console/network errors, and zero Gate POSTs. Zero-traffic Cambium Version `da5c6284-82a0-4bb1-8080-7159535fd309`, tag `git-fabb819fb7a9d4fe8e1de86341e423289aef2a43`, script etag `52808c9f68674acba4dacfed3c2052f4f1603c4d2a0e53cedb7ed6f38780d8b3`, and alias `https://organ-updates-fabb819-cambium-quests.sheshnarayan-iyer.workers.dev` pass health, exact PAGE digest, portfolio/organ bundle markers, and byte-identical binding-name/type parity with production. Production Version `5b3425c5-5c14-4d71-b996-3c0d2c056f56` remains the sole 100%-traffic version. No production traffic, Telegram menu, Telegram send, D1/KV write, tenant allowlist, schema, secret, or recurring schedule changed.
 
 - 2026-07-29 Task 14 live partial-execution verification (presently-safe steps only; supersedes the prior planning-stage note): OmniRoute non-Codex implementer session on candidate git SHA `11d1c8a1421d4347da770e1f5e5e4da22c7c4f8d`, worktree clean, `git diff --stat` against code-payload SHA `c849123dd1ce436d2209e32e692ad725c2b958a7` showing exactly one changed file (the committed evidence document, 197 insertions). Fresh Task 13 gate re-run on this exact SHA: `npm test` 1465/1465, `render-docs:check` 6 pages/91 components, `drift:audit` clean, `audit:text-density` clean, `proof:tg-mobile-contract` exit 0, `standalone:audit` 586 files, `standalone:smoke` PASS, `verify:release` PASS (R3F desktop packaging 5/5, Electron packaging), mission-fabric/readiness node tests 37/37, `r3f:test` 99/99. Prior 100%-traffic production Version ID: `5b3425c5-5c14-4d71-b996-3c0d2c056f56` (script etag `b362f5144e20130477670f0df6f1101d27403afeb5e6bf14340d2162a5121e71`); confirmed unchanged and still at 100% after upload. Candidate zero-traffic preview Version ID: `28d39b23-9a05-4497-afe8-f90f59bd74e5` (script etag `d4870b84ddf7bf52d7bc0372c0b8113d9cacba1abc4d96976b187bd7f3c60e15`), preview alias `https://task14-11d1c8a1421d-cambium-quests.sheshnarayan-iyer.workers.dev`, uploaded via `versions upload --preview-alias --keep-vars` with no `--var`, no secret put, no `versions deploy`. Binding/allowlist absence: `MISSION_FABRIC_TENANTS` confirmed absent from both production and candidate binding-name lists and the deployed secret-name list; candidate binding-name/type list is byte-identical to production's. Safe remote probe statuses: `/healthz` 200 `{"ok":true,"worker":"cambium-quests"}`; `/healthz/gate` 200 `gateConfigured:true`; empty-initData gate probe 401 `missing initData`; `/v1/mission-fabric/cambium-synthetic` 403 fail-closed `mission fabric tenant is not enabled`. Production unchanged: post-upload `deployments status --json` re-check shows exactly one version at 100%, byte-identical `version_id` to the pre-upload check. D1 existence-only counts on `goal_graph_heads`: `cambium`=1, `fitcheck`=0, `getfitcheck`=0. No D1/KV write, no secret put, no schema change, and no bot-facing configuration change occurred. Independent OmniRoute review recorded in `.superpowers/sdd/2026-07-28-cambium-operating-fabric-implementation-plan/task-14-review.md`: `VERDICT: APPROVED (staging-only); promotion and rollback blocked`. Reviewer provenance is precise: the reviewer independently reran only `node --test workers/quests/src/mission-fabric-route.test.ts` (18/18); the separate integration+readiness 37/37, full 1465/1465, R3F 99/99, and remaining release-gate results above are implementer report evidence corroborated by explicit pass/fail summaries, not independently rerun by the reviewer; the implementer's outer `tail`/`tee` wrapping without `pipefail` around those commands is a theoretical upstream exit-status masking gap, so the full promotion gate must be rerun directly (not through that pipeline) before any production promotion; the controller (not the reviewer) independently re-probed production state directly (original Version at 100% traffic, candidate Version etag/tag, allowlist binding count 0, preview `/healthz`/`/healthz/gate` 200, synthetic fabric route 403). Still-open gates, all explicitly NOT PERFORMED: founder approval scope/timestamp record (ISC-415), code-payload-SHA-before-upload record (ISC-417), live Cloudflare identity/access preflight record (ISC-418), canonical Getfitcheck tenant-identity resolution (ISC-422), Telegram preview-origin/bot authorization (ISC-429), all founder-device evidence capture (ISC-430..441), independent dual-proof acceptance and promotion (ISC-442..445), post-promotion regression gates (ISC-446..447), and rollback rehearsal/restoration (ISC-448..452). ISC-455's full documentation/roadmap/architecture-doc update and version/receipt path record remain outstanding until promotion is authorized.
+
+- 2026-08-07 repository-first evidence projection: the deterministic generator retains 44 catalog repository references as 15 immutable-ID resolved records, 12 visible unverified owner/name candidates, and 17 unmatched gaps. Generated evidence SHA-256 is `486ac53f21320e7ad9ac386b4a030f44a90eba6de8fd5a01bc3a9329f6f5f7ad`; unverified records cannot become repository authority, and repository-backed work cannot use the no-repository disposition.
+- 2026-08-07 repository-first domain and artifact proof: the Cartographer suite has 34 active passing tests plus one explicitly fixture-dependent v3 review-round-trip skip; focused tests cover all four origin derivations, client-family requirements, repository/no-repository mismatch rejection, immutable-ID gating, migration, import, export, and history isolation. Route parity passes 7/7. The exact standalone bundle and Worker embed are byte-identical at 329,053 bytes with SHA-256 `8514e7a7e0637d6f2cc687f2098ea4606d995d50988dd6bdf4f61107d1e4f3f6`.
+- 2026-08-07 live browser proof: AgentFount selected exact immutable repository evidence, recorded Thoughtseed venture origin, completed all three evidence reviews, unlocked `Next`, and retained the result across reload. Nimbus Gate exposed only its unverified candidate, no no-repository bypass, an unavailable immutable-ID receipt, no selectable repository authority, and a locked schedule. At 390, 768, and 1440 pixels the document had no horizontal overflow; the focused intake action was 44 pixels and the console contained no warning or error entries.
+- 2026-08-07 independent high-effort review: the first audit found two priority-one bypasses — repo-backed no-repository selection and treating owner/name candidates as resolved without an immutable ID. Both were closed in the state model, UI, import validation, plans, and dedicated tests. The re-audit found no priority-zero, priority-one, or priority-two issue; the only residual is the pre-existing fixture-dependent skipped v3 review test described above. The named Cato role was unavailable in this runtime, so the Algorithm-permitted independent reviewer role supplied the cross-vendor-compatible audit instead.
+- 2026-08-07 tracking and preservation proof: GitHub issues #289..#293 separately own implementation, repository/origin audit, planning-authority migration, packet review, and later production promotion. Private GitHub Project #14 contains those issues plus the preserved unfinished-board and relocation-preparation issues. The primary dirty checkout was not edited; the work ran on clean branch `codex/portfolio-repository-first-intake` rooted at the recorded current `origin/main`. No repository was moved, copied, deleted, or nested, and no Vault registry, R2 copy, native client store, provider, Cloudflare Version, production traffic, or deployment state changed.
+- 2026-08-07 final ReReadCheck: the exact final ask was to apply all described portfolio changes, with the governing clarification that only internal Thoughtseed-originated projects may become Saplings and every client project is a Client Branch even when new. Source, tests, browser state, plans, roadmap, handoff, and GitHub tracking all implement that grammar; `new` no longer appears as a type or scheduling shortcut, repository-first reconciliation precedes planning, and relocation plus production promotion remain separately gated.
+- 2026-08-07 post-deliverable Advisor call was attempted before completion and failed closed because the local Claude OAuth session had expired and could not refresh. No approval was inferred. Completion instead rests on direct test/browser evidence and the clean independent re-audit; production remains blocked behind packet review #292 and promotion issue #293.
 
 - 2026-07-28 ISC-390..394 Task 11 verification: commit `84dcf99` implements contextual Gate and Inspect sheets, reuses the signed-action client, preserves server-derived actor plus tenant/digest/nonce/expiry/head-version/fence bindings, restores origin scene and keyboard focus on close, and fails closed for replay/expiry/tenant/version/fence errors.
 - 2026-07-28 ISC-395..402 Task 12 verification: commit `04a2d93` plus canonical proof refresh `8dda155` prove the operating-fabric page, Gate sheet, and Inspect sheet at 320/390/430px with zero overflow, 44px interactive targets, correct focus/semantics/landmarks/headings, reduced-motion compliance, a linear graph fallback, and safe loading/empty/stale/unauthorized/error states; the text-density audit passes.

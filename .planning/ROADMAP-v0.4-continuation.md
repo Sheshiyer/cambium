@@ -118,6 +118,22 @@ route + Phase-2 operator commands promoted into
 5. Synthetic schema, determinism, redaction, compatibility, viewport, reduced-motion, and text-density suites pass before deployment.
 6. Production promotion requires a founder-device Canopy→Mission→Flow read proof and one contextual signed Gate receipt.
 
+### Phase 9: Repository-First Portfolio Reconciliation
+**Goal:** Make repository identity, origin, WorkObject grammar, and planning authority explicit before unresolved work can be scheduled, so GitHub repositories own project-local plans while Cambium coordinates the portfolio without losing historical evidence.
+**Depends on:** Phase 8 portfolio projection and the reviewed relocation design. Physical relocation and R2-backed Vault remapping depend on this phase; they are not executed by it.
+**Canonical refs:** `docs/plans/2026-08-07-portfolio-repository-first-intake-design.md`, `docs/plans/2026-08-07-portfolio-repository-first-intake-implementation.md`, `docs/plans/2026-08-07-portfolio-continuity-board-and-repository-map.md`, and `docs/plans/2026-08-03-vault-project-relocation-design.md` in Temperance Engine.
+**Status:** implementation in progress; production promotion held while the Cambium repository packet remains `draft-held`.
+**Grammar:** only Thoughtseed-originated ventures become Saplings; every client-originated project remains a Client Branch even when new; shared Thoughtseed capability work is an Internal Program; unknown origin stays Needs Review. A Client Branch is not a Git branch.
+**Success criteria:**
+1. A deterministic, privacy-safe repository evidence snapshot resolves catalog refs by immutable GitHub identity or preserves an explicit ambiguous/unmatched gap; the browser carries no token and performs no GitHub fetch.
+2. Workbench state v4 records repository handling, origin, origin-derived type, planning authority, repository/issues/legacy-evidence review, and grammar mismatch while migrating every v1/v2/v3 plan without loss.
+3. Unplanned cards replace horizon shortcuts with `Inspect & reconcile`; Plan controls unlock only after repository, origin, authority, review, and canonical-type agreement gates pass.
+4. Repository-local issues and plans are the project authority; Cambium owns cross-portfolio sequencing, repository-less work, and unresolved mappings; tool/session/date files are historical evidence only.
+5. Existing questionable classifications become exportable mapping proposals rather than silent catalog rewrites. Reusable client-derived IP becomes a separate linked Sapling proposal while the client project stays a Branch.
+6. GitHub issues #280–#285 and #287 plus the bounded repository-first issues are collected in one dedicated Project, preserving the unfinished board and relocation preparation without duplication.
+7. Focused/domain/generator/route tests, offline audit, bundle/embed parity, responsive local browser proof, full release verification, independent review, and ReReadCheck pass.
+8. The Cambium packet is reviewed and moved to `reviewed-held` before any Worker upload; relocation later follows the exact digest-pinned, one-standalone-repository-at-a-time manifest with nested/dirty repository rejection.
+
 ## Explicitly later (not in v0.4)
 - R2 vault → contract update → Thoughtseed PDF → sign/send: new explicitly-scoped phase; stopping at `awaiting_human_approval` is intentional design, not a gap to patch casually.
 - Hermes-on-EC2 live proof, Growth Cortex as a named service, Composio distribution (catalog-only today), Q7 escalation policy, PHASE-Q-BRIDGE deferred wings (GitHub/CF signal stubs, lesson-miner).
