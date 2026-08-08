@@ -46,11 +46,11 @@
         "reposReviewed": 20,
         "nonForks": 16,
         "forks": 4,
-        "historicalProductOrResearch": 10,
+        "historicalProductOrResearch": 11,
         "saplingEvidence": 1,
         "externalForkReference": 3,
         "archiveOnly": 4,
-        "needsReview": 2
+        "needsReview": 1
       },
       "defaults": {
         "receiptKind": "mapping",
@@ -91,10 +91,19 @@
           "visibility": "PRIVATE",
           "isFork": false,
           "pushedAt": "2025-12-04T06:48:17Z",
-          "classification": "needs-review-active-or-historical",
-          "targetWorkId": null,
-          "targetWorkIdStatus": "blocked",
-          "lifecycle": "needs-review"
+          "classification": "historical-product-or-research",
+          "targetWorkId": "program:thoughtseed-vault",
+          "targetWorkIdStatus": "evidence-sink",
+          "lifecycle": "archived",
+          "founderResolution": {
+            "resolvedAt": "2026-08-08",
+            "instruction": "mark completed/not-found and archive out of active Projects",
+            "disposition": "archive-vault-evidence",
+            "githubRepositoryFound": true,
+            "githubRepositoryArchived": false,
+            "localProjectFolderFound": false,
+            "nextQueueRow": "thoughtseed-labs/lockwell-portal"
+          }
         },
         {
           "repository": "thoughtseed-labs/faceananlysisbeta",
