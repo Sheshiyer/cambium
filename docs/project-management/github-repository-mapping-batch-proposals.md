@@ -137,6 +137,7 @@ Purpose: avoid active-work noise and separate source-controlled mapping from phy
 - `$PROJECTS_ROOT/thoughtseed` is the shallow portfolio root. `$PROJECTS_ROOT/thoughtseed/thoughtseed-labs` is R2/vault infrastructure context, never a WorkObject folder.
 - Physical rename/create/archive work is not part of Batch 5. It waits for `docs/project-management/thoughtseed-folder-rename-readiness.v1.json` plus a separate founder-approved relocation manifest with exact paths and rollback/archive targets.
 - Cambium Phase 1 later satisfied that separate gate and is recorded by `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json`; this does not authorize Temperance or Symphonics work.
+- Temperance Phase 2 reconciliation is now complete under `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json`; live movement still requires the receipt's exact approval phrase.
 - Forks, external vendor clones, and dependency references should become dependency/reference evidence, not WorkObjects.
 - Completed/terminated work needs the closeout packet: handoff Markdown, closeout receipt JSON, agent memory projection, finished-index delta, and immutable R2 evidence receipt.
 

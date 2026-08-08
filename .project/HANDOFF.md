@@ -778,3 +778,49 @@ mutation has been performed by drafting this packet.
   row, provider setting, or production deployment was mutated.
 - Next physical lane: reconcile Temperance landing-page `.gitignore` drift and
   preserve local-only artifacts before drafting any separate Phase 2 approval.
+
+### 2026-08-08 Temperance Phase 2 reconciliation checkpoint
+
+- The founder continuation `yes lets do temperance` authorized the documented
+  reconciliation lane. It did not supply the new exact live-apply phrase, so no
+  Temperance folder was moved, archived, created, deleted, or overwritten.
+- The shallow `$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page` slot
+  remains a real non-Git directory on device `16777242`, inode `30366279`. The
+  nested `$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page`
+  checkout remains exact Git authority on the same device, inode `20463948`,
+  origin `https://github.com/Sheshiyer/temperance_engine_landing_page.git`,
+  branch `main`, and head `488f8b7d945b7a8c07ce51a253e3f559149108e8`.
+- Redacted content comparison found 50 byte-identical non-sensitive files, one
+  shallow-only Finder metadata file, no nested-only non-sensitive file, and
+  changes only to Finder metadata plus `.gitignore`. One sensitive ignored file
+  exists on both sides with matching size and mode; its path and content were
+  not recorded, opened, or hashed.
+- The nested checkout's only Git-visible drift is untracked
+  `_PROJECT-STATUS.md`. It is identical to its shallow counterpart at SHA-256
+  `9ef2133d3e8a25ea9184ddc38f9d44979dbd03a9718d4c7e3a44b314d71ed9c3`
+  and receives a dedicated archive target before the future clean-Git check.
+- The tracked authority `.gitignore` stays repository-owned and unchanged. The
+  broader shallow policy remains recoverable inside the displaced-tree archive
+  instead of being silently copied over the authority checkout.
+- `$PROJECTS_ROOT/thoughtseed/website` has inode `30575091` and contains only the
+  nested checkout. The selected post-promotion disposition preserves the empty
+  container as infrastructure. Root-map membership therefore remains 58/58 with
+  digest `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe`.
+- Phase 2 preflight receipt:
+  `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json`.
+  Human-readable comparison:
+  `docs/evidence/2026-08-08-temperance-landing-page-reconciliation.md`.
+- The future live sequence archives nested local status, asserts clean Git,
+  archives the shallow tree intact, promotes the exact checkout, and preserves
+  the container. Checkpoint-specific reverse-order rollback is recorded in the
+  preflight receipt. Both proposed archive targets remain absent.
+- Verification: focused relocation invariants passed 11/11; `pnpm --dir
+  apps/portfolio-cartographer check` passed 63 active tests with one historical
+  skip plus lint, build, bundle, standalone audit, CSP, and smoke; focused
+  Worker portfolio routes passed 36/36; full `npm test` passed 1568/1568;
+  edited JSON parsed, redaction probes passed, and `git diff --check` passed.
+- `thoughtseed-labs` retained inode `30565745`; Symphonics remains absent and
+  held. No R2 object, GitHub state, registry row, Goal Graph row, provider
+  setting, or production deployment changed.
+- Next gate requires this exact approval text:
+  `approve live apply phase 2 Temperance archive-first promote preserve website container`.
