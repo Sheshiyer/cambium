@@ -1,12 +1,12 @@
 ---
 project: Cambium
 task: "Expose portfolio ingestion headers and reconcile production controls"
-effort: E4
+effort: E5
 effort_source: classifier
-phase: verify
-progress: 809/871
+phase: complete
+progress: 870/946
 mode: interactive
-iteration: 2026-08-08-project-closeout-workflow
+iteration: 2026-08-08-batch-2-client-repository-mapping
 started: 2026-07-27T21:26:34Z
 updated: 2026-08-11T08:55:00Z
 ---
@@ -1267,6 +1267,24 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-929: The closeout executor rejects stale digests, incomplete confirmations, unsafe paths, and symlink project roots.
 - [x] ISC-930: Anti: closeout implementation performs no filesystem relocation, GitHub issue closure, Vault/R2 copy mutation, Goal Graph write, deletion, or production deployment.
 
+### Batch 2 client repository mapping
+
+- [x] ISC-931: The Batch 2 summary equals the repository arrays it describes.
+- [x] ISC-932: Every receipt-ready Batch 2 repository has one immutable GitHub repository ID in the generated inventory.
+- [x] ISC-933: Every Batch 2 repository without retrievable immutable identity remains explicitly blocked from receipt issuance.
+- [x] ISC-934: Every receipt-ready Batch 2 candidate is assigned to one exact canonical Client Branch WorkObject.
+- [x] ISC-935: The shared HeyZack Partner/CRM monorepo uses source subpaths to preserve both WorkObject identities.
+- [x] ISC-936: Marina One repositories are separated between Mumbai and Bangalore using floor and location evidence.
+- [x] ISC-937: Batch 2 contamination repositories resolve to an existing non-client WorkObject or an explicit exclusion.
+- [x] ISC-938: The catalog provenance of each mapped Batch 2 Client Branch includes the bounded action-queue pointer and representative exact repository references.
+- [x] ISC-939: Generated repository evidence resolves every newly attached Batch 2 catalog reference deterministically.
+- [x] ISC-940: Portfolio Cartographer's complete deterministic check passes after regeneration.
+- [x] ISC-941: Focused Worker portfolio, admin-action, catalog-route, and Workbench-route tests pass.
+- [x] ISC-942: The full repository test suite passes.
+- [x] ISC-943: Every edited JSON file parses and `git diff --check` passes.
+- [x] ISC-944: `.project/HANDOFF.md` records the bounded Batch 2 checkpoint and remaining live-receipt gate.
+- [x] ISC-945: Anti: this iteration performs no R2 write, GitHub mutation, folder move, registry write, Goal Graph write, provider change, or production deployment.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1286,6 +1304,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-56 | docs | rendered docs match sources | `npm run render-docs:check` |
 | ISC-57 | CI | every required PR check succeeds | `gh pr checks --watch` |
 | ISC-721..745 | dual transport auth | browser enters Access/Plexus founder flow; Telegram keeps signed initData; inactive identities fail closed; both serve exact bytes without writes | focused Node tests, Cloudflare Access read-back, candidate probes, browser automation, SHA-256, `git diff --check` |
+| ISC-931..945 | Batch 2 repository mapping | queue-count probe, immutable GitHub IDs, exact WorkObject assignments, regenerated evidence, scoped/full tests, JSON parse, handoff, and no-external-mutation status | `node`, `gh`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1446,6 +1465,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - `ComposioGitHubInventory` | Resolve the connected founder identity and inventory owner repositories, Projects, and memberships through read-only GitHub tools | satisfies ISC-711..715, ISC-718..719 | depends_on none | parallelizable true
 - `GitHubPortfolioReconciliation` | Compare stable repository evidence with WorkObjects and Needs Review without admitting or activating anything | satisfies ISC-716..717, ISC-720 | depends_on ComposioGitHubInventory, PortfolioCatalogProjection | parallelizable false
 - `RepositoryEvidenceSnapshot` | Resolve privacy-safe exact GitHub repository identities deterministically from catalog refs and the relocation registry | satisfies ISC-767..772, ISC-804 | depends_on ComposioGitHubInventory, GitHubPortfolioReconciliation | parallelizable false
+- `Batch2ClientRepositoryMapping` | Resolve client-family repository clusters into immutable, per-WorkObject mapping evidence while blocking unavailable identities and live receipt writes | satisfies ISC-931..945 | depends_on RepositoryEvidenceSnapshot, GitHubPortfolioReconciliation | parallelizable false
 - `OriginGrammar` | Derive Sapling, Client Branch, Internal Program, or Needs Review only from explicit origin evidence | satisfies ISC-773..782, ISC-799..801 | depends_on RepositoryEvidenceSnapshot | parallelizable false
 - `RepositoryFirstIntakeState` | Persist planning authority, review gates, mismatch proposals, and lossless v4 migration | satisfies ISC-783..794 | depends_on OriginGrammar | parallelizable false
 - `RepositoryFirstIntakeUI` | Replace premature Unplanned scheduling with focused Intake, readiness explanations, and locked planning controls | satisfies ISC-765..766, ISC-795..803 | depends_on RepositoryFirstIntakeState | parallelizable false
@@ -1479,6 +1499,12 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - 2026-08-11: refined: Fitcheck L4 proactive path uses a **bounded Worker cron** (`0 */6`) only to recompile loop projections and Hermes *delivery intents*. Telegram transport remains Hermes-owned; Goal Graph CAS remains founder Gate-only. “Proactive” still means authority-chain delivery, not Cambium auto-admit. Founder may grant **operational clearance** (`proactive-loop:founder-approval`) to quiet held probes without writing D1.
 - 2026-08-11: founder operational clearance for Fitcheck L4 held stages is recorded via `POST /v1/bridge/proactive-loop/founder-approve` (admin bridge). This clears notify noise and materializes a Gate-shaped KV receipt; it is **not** D1 CAS and never sets `writesGoalGraph: true`.
+- 2026-08-08 10:30: refined: the continuation proceeds through Batch 2's local repository-evidence lane. The pasted checkpoint does not silently authorize live R2 mapping receipts, so Batch 3 receipt issuance remains founder-gated; unavailable GitHub identities and contaminating rows remain blocked rather than being promoted by name.
+- 2026-08-08 10:30: the E5 Interview workflow found no thin project-ISA sections requiring new founder questions; the checkpoint already supplied the goal, exclusions, authority boundaries, verified starting state, and next-queue split. The pre-build Advisor invocation was attempted but the local inference OAuth session was expired and could not refresh, so empirical repository probes remain the commitment evidence.
+- 2026-08-08 10:30: refined: complete per-repository Batch 2 assignments live in the action queue and generated immutable-ID inventory. Catalog provenance stays bounded to eight entries per WorkObject, using representative exact refs plus the queue pointer rather than weakening the catalog validator or duplicating all 61 candidates into runtime rows.
+- 2026-08-08 15:54: the post-deliverable Advisor invocation repeated the pre-build authentication failure: its OAuth session is expired and cannot refresh. No advisory approval is inferred. The durable queue-invariant tests, exact GitHub identities, deterministic generation, focused checks, full repository suite, and anti-mutation status are the completion evidence.
+- 2026-08-08 15:54: the E5 Cato step was not spawned because the active system contract prohibits unsolicited subagents unless the user explicitly requests delegation. This constraint is recorded rather than bypassed; no cross-vendor audit result is claimed.
+- 2026-08-08 15:54: `branch:heyzack-panel-app` is the sole catalog Client Branch target without an exact repository assignment. It remains visibly unassigned rather than inheriting a neighboring HeyZack repository; `branch:symphonics` is assigned by repository identity but separately blocked at the shallow-root gate.
 - 2026-08-08 05:45: refined: `Completed / Closed` is a terminal workflow, not a normal local portfolio signal. A WorkObject can leave active views only when a receipt-backed closeout records final handoff, closeout JSON, R2 vault archive intent, agent-aware active/finished memory, active-index delta, and downstream-flow closure. The browser queues intent; the local executor prepares repo-local records; real Vault/R2 synchronization, GitHub issue closure, physical relocation, Goal Graph writes, deletion, and production deployment remain separate governed steps.
 - 2026-08-07 05:05: refined: Tryambakam · Noesis remains preserved in the reviewed root snapshot and external header files but is retired from the active Portfolio Workbench. The founder-facing surface now focuses only on Thoughtseed; the prior selector and Tryambakam active-action criteria remain stable-ID tombstones rather than being renumbered or silently rewritten.
 - 2026-08-07 05:05 refined after audit: explicit local founder commands may execute a validated Thoughtseed project creation immediately. Requests originating from agents, RBAC, dgchat, or any other system remain proposals until the Worker resolves an active founder approval from the authoritative Thoughtseed Gate store and binds its subject to the exact normalized intent digest. Inline receipt claims are references, never authority.
@@ -1638,6 +1664,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-08-08 | conjectured: Batch 2 could be represented as one client-family repository list once GitHub identities were available
+  refuted by: the HeyZack monorepo serves two WorkObjects through source subpaths, Marina One splits by city-specific repo evidence, seven referenced identities are unavailable, Symphonics has identity but no shallow folder, and HeyZack Panel App has no uniquely evidenced repository
+  learned: executable portfolio mapping needs separate repository identity, source subpath, canonical WorkObject, root-map readiness, and hold disposition fields; family/name similarity is not enough
+  criterion now: ISC-931..945 bind exact queue counts, immutable identities, Client Branch assignments, contamination holds, deterministic evidence, full verification, handoff, and zero external mutation
+
 - 2026-08-08 | conjectured: a finished portfolio item could be represented by the existing `completed` or `archived` signal
   refuted by: the founder clarified that closing work requires downstream effects: final handoff, R2 vault records, memory/index updates, stopped/transferred flows, and a handoff/completion/termination process comparable to onboarding
   learned: terminal status needs its own receipt-backed closeout grammar, UI tab, admin action, executor, docs, and agent-readable active/finished projection rather than a passive card label
@@ -1776,6 +1807,12 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
 ## Verification
+
+- 2026-08-08 Batch 2 repository mapping: queue tests prove 10 client families, 61 candidates, 6 holds/excludes, 55 receipt-eligible rows, 12 blocked rows, seven unavailable immutable identities, zero Sapling promotions, exact Client Branch assignments, and an explicit `branch:symphonics` root-map block.
+- Generated evidence: 122 immutable repository identities; 98 bounded catalog repository refs; root-map SHA-256 `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`; repository-evidence SHA-256 `653763dcda3a105cdce6df9d5861e3200b05016ef4533fcb43352b33bb8dff84`; catalog digest `sha256:1f40226825b4d42c3812f42cc3e63ca9b8d76707256fe48ba49a96b7c924988b`.
+- `pnpm --dir apps/portfolio-cartographer check` passes 53 active tests with one historical skip, lint, TypeScript/Vite build, deterministic bundle, standalone audit, CSP smoke, and hosted smoke. Exact bundle/Worker embed: 388,162 bytes, SHA-256 `9e92915d9c1e307f8a147b8b1b3565d0c5aade6a00648d509a556c720db35d11`.
+- Focused Worker portfolio/action-route verification passes 28/28; full `npm test` passes 1568/1568; edited JSON parses; the inventory refresh script parses; catalog payload mirrors match after the standalone-only four-line header; and `git diff --check` passes.
+- Scope proof: no R2 write, GitHub mutation, folder creation/move/copy/delete, registry write, Goal Graph write, provider change, production deployment, or live Workbench mutation occurred.
 
 - ISC-746: production read-only D1 evidence identifies `pid_admin_thoughtseed_labs` as `role=admin` and `is_active=1`; canonical `buildPlexusSession` plus the Access-JWT-bound resolver test proves that exact session resolves as active administrator without an alternate lookup.
 - ISC-747..755: focused resolver tests prove canonical successful-envelope founder mapping, legacy flat compatibility, case-only email normalization, and consultant-floor behavior for `ok:false`, missing/non-object data, nested envelopes, mismatched/missing email, inactive admin, employee, malformed body, upstream error, and non-boolean activity.

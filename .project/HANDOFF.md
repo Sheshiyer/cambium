@@ -577,3 +577,45 @@ mutation has been performed by drafting this packet.
 - No folder was created, moved, copied, deleted, or reorganized. No R2 object,
   GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
   row, production deployment, or live hosted Workbench state was mutated.
+
+### 2026-08-08 Batch 2 client repository mapping checkpoint
+
+- Reviewed all 10 Batch 2 client families and recorded exact repository-to-
+  WorkObject assignments for 16 of 17 catalog Client Branch targets. Newness,
+  privacy, and repository ownership did not promote any client work to a
+  Sapling. `branch:heyzack-panel-app` remains unassigned because no candidate
+  is uniquely evidenced for that target.
+- The action queue now contains 61 candidate rows and 6 hold/exclude rows:
+  55 repository rows are eligible for a future founder-approved mapping
+  receipt and 12 remain explicitly blocked.
+- Seven referenced repositories do not expose immutable GitHub identity to the
+  current authenticated principal. They remain non-executable. The generated
+  read-only inventory now contains 122 immutable repository identities and has
+  a bounded refresh command that fails closed unless unavailable rows are
+  explicitly acknowledged.
+- `Heyzack-ai/PartnerCRMPortal-docs` remains one immutable repository identity
+  with separate CRM and partner content subpaths. Marina One is split by
+  repo-local evidence into Mumbai (four visible repositories) and Bangalore
+  (two visible repositories).
+- Upstream forks, Tirak's `chakra-shine-admin` false positive, Co.Property's
+  Nimbus Gate/WanderFruit product-side provenance, and the separate President
+  panorama surface remain holds. `branch:symphonics` remains blocked by the
+  missing shallow folder.
+- Repository reference validation now treats `oauth` as unsafe only at a path
+  token boundary, so legitimate names such as `Akshara-coauthor` resolve while
+  credential-shaped refs remain rejected. Queue invariant tests bind counts,
+  Client Branch grammar, immutable identities, and the Symphonics block.
+- Final digests: root map
+  `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`;
+  portfolio catalog
+  `sha256:1f40226825b4d42c3812f42cc3e63ca9b8d76707256fe48ba49a96b7c924988b`;
+  repository evidence
+  `653763dcda3a105cdce6df9d5861e3200b05016ef4533fcb43352b33bb8dff84`.
+- Verification: `pnpm --dir apps/portfolio-cartographer check` passed 53 active
+  tests with one historical skip plus lint, bundle, standalone audit, CSP, and
+  hosted smoke; focused Worker portfolio/action-route tests passed 28/28; full
+  `npm test` passed 1568/1568. The hosted artifact is 388,162 bytes, SHA-256
+  `9e92915d9c1e307f8a147b8b1b3565d0c5aade6a00648d509a556c720db35d11`.
+- No folder was created, moved, copied, deleted, or reorganized. No R2 object,
+  GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
+  row, production deployment, or live hosted Workbench state was mutated.

@@ -20,9 +20,10 @@ test('repository evidence resolves registry aliases, qualified names, and unique
     { fullName: 'Sheshiyer/fitcheck-landing', repositoryId: 'R_1', nodeId: 'N_1', visibility: 'PRIVATE', defaultBranch: 'main', archived: false },
     { fullName: 'Coproperty/nimbus-gate', repositoryId: 'R_2' },
     { fullName: 'Sheshiyer/rasa', repositoryId: 'R_3' },
+    { fullName: 'Sheshiyer/Akshara-coauthor', repositoryId: 'R_4' },
   ]
   const records = resolveRepositoryEvidence(
-    ['repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate', 'repo:monthlymealprep'],
+    ['repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate', 'repo:monthlymealprep', 'repo:Sheshiyer/Akshara-coauthor'],
     relocationEntries,
     inventory,
   )
@@ -31,10 +32,11 @@ test('repository evidence resolves registry aliases, qualified names, and unique
     ['repo:Coproperty/nimbus-gate', 'resolved', 'qualified-name', 'Coproperty/nimbus-gate'],
     ['repo:fitcheck-landing', 'resolved', 'relocation-registry', 'Sheshiyer/fitcheck-landing'],
     ['repo:monthlymealprep', 'resolved', 'relocation-registry', 'Sheshiyer/rasa'],
+    ['repo:Sheshiyer/Akshara-coauthor', 'resolved', 'qualified-name', 'Sheshiyer/Akshara-coauthor'],
   ])
   assert.equal(records[1].repositoryId, 'R_1')
   assert.equal(repositoryEvidenceDigest(records), repositoryEvidenceDigest(resolveRepositoryEvidence(
-    ['repo:monthlymealprep', 'repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate'],
+    ['repo:monthlymealprep', 'repo:Sheshiyer/Akshara-coauthor', 'repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate'],
     relocationEntries,
     inventory,
   )))
@@ -53,13 +55,14 @@ test('owner/name candidates without immutable GitHub metadata stay unverified', 
 
 test('repository evidence fails ambiguous, unmatched, malformed, and unsafe refs explicitly', () => {
   const records = resolveRepositoryEvidence(
-    ['repo:shared-name', 'repo:missing-repo', 'repo:', 'repo:https://github.com/secret/token'],
+    ['repo:shared-name', 'repo:missing-repo', 'repo:', 'repo:https://github.com/secret/token', 'repo:owner/oauth-token'],
     relocationEntries,
   )
   assert.deepEqual(records.map((record) => [record.sourceRef, record.status]), [
     ['repo:', 'malformed'],
     ['repo:https://github.com/secret/token', 'unsafe'],
     ['repo:missing-repo', 'unmatched'],
+    ['repo:owner/oauth-token', 'unsafe'],
     ['repo:shared-name', 'ambiguous'],
   ])
   assert.deepEqual(records.find((record) => record.sourceRef === 'repo:shared-name')?.candidates, [

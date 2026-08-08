@@ -72,6 +72,16 @@ Recommended clusters:
 
 Batch rule: map by repository identity and repo-local planning first; do not infer Sapling status from a repository being new or private.
 
+Resolved evidence state (2026-08-08):
+
+- All 10 client families were reviewed against authenticated read-only GitHub metadata. The queue now contains 61 candidate rows, 6 hold/exclude rows, 55 repository rows eligible for a future mapping receipt, and 12 explicitly blocked rows.
+- Sixteen of the 17 catalog Client Branch targets have repository assignments. `branch:heyzack-panel-app` remains unassigned because no candidate is uniquely evidenced for it; `branch:symphonics` has a repository identity but remains blocked because the required shallow folder is absent.
+- Seven referenced repositories do not expose an immutable identity to the current GitHub principal. They remain blocked and cannot be emitted as executable mapping receipts.
+- `Heyzack-ai/PartnerCRMPortal-docs` is one repository with distinct CRM and partner source subpaths; the queue preserves both WorkObject assignments without inventing duplicate repository identities.
+- Marina One evidence is split by repo-local floor and city evidence: four visible repositories map to Mumbai and two map to Bangalore. The two unavailable Ashwin Sheth organization repositories remain held.
+- Forks, false positives, product-side Sapling provenance, and the separate President panorama surface remain explicit holds. No Batch 2 row is promoted to a Sapling.
+- Complete assignments and hold reasons live in `github-repository-mapping-action-queue.v1.json`; the catalog carries bounded representative provenance only.
+
 ## Batch 3 — Sapling provenance
 
 Purpose: attach Thoughtseed-originated product repositories to existing Saplings and split ambiguous provenance between Sapling/IP evidence and client-branch delivery evidence.

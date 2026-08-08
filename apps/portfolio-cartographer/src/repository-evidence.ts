@@ -46,7 +46,8 @@ const SAFE_ALIAS_RE = /^[A-Za-z0-9._-]+(?:\.[A-Za-z0-9._-]+)*$/
 const SAFE_QUALIFIED_RE = /^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/
 const SAFE_PATH_RE = /^[A-Za-z0-9._/-]+$/
 const SAFE_NAME_RE = /^[A-Za-z0-9._-]+$/
-const UNSAFE_MARKERS = ['http://', 'https://', '?', '#', '&', '=', '@', 'ghp_', 'github_pat_', 'x-access-token', 'oauth']
+const UNSAFE_MARKERS = ['http://', 'https://', '?', '#', '&', '=', '@']
+const UNSAFE_CREDENTIAL_MARKER = /(?:^|[/._-])(?:ghp_|github_pat_|x-access-token|oauth(?:[/._:-]|$))/i
 
 function compareText(left: string, right: string): number {
   return left.localeCompare(right, 'en', { sensitivity: 'base' })
@@ -65,7 +66,7 @@ function sourceBody(sourceRef: string): string | null {
 
 function isUnsafeRepositoryBody(value: string): boolean {
   const lowered = value.toLowerCase()
-  return UNSAFE_MARKERS.some((marker) => lowered.includes(marker))
+  return UNSAFE_MARKERS.some((marker) => lowered.includes(marker)) || UNSAFE_CREDENTIAL_MARKER.test(value)
 }
 
 function metadataGaps(metadata: RepositoryInventoryRecord | undefined): RepositoryEvidenceGap[] {

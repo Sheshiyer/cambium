@@ -338,12 +338,17 @@
     },
     {
       "batchId": "github-batch-002-client-branch-clusters",
-      "status": "ready-for-founder-cluster-review",
+      "status": "evidence-reviewed-ready-for-founder-receipt-approval-with-explicit-holds",
       "summary": {
         "clientFamiliesReviewed": 10,
-        "catalogClientBranchTargets": 10,
-        "candidateRowsGrouped": 70,
+        "catalogClientBranchTargets": 17,
+        "catalogClientBranchTargetsWithRepositoryAssignments": 16,
+        "candidateRowsGrouped": 61,
         "holdOrExcludeRows": 6,
+        "receiptEligibleRows": 55,
+        "blockedReceiptRows": 12,
+        "unavailableImmutableIdentityRows": 7,
+        "rootMapBlockedRows": 1,
         "saplingPromotionsRecommended": 0
       },
       "clusters": [
@@ -374,9 +379,58 @@
             "Sheshiyer/heyzack-miniapp-design-systems",
             "Sheshiyer/products-list-heyzack-gen"
           ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:heyzack",
+              "repositoryRefs": [
+                "Heyzack-ai/Heyzack-Email-Templates",
+                "Sheshiyer/heyzack-dashboard",
+                "Sheshiyer/heyzack-launchboom-wiki-v0.2"
+              ]
+            },
+            {
+              "workId": "branch:heyzack-crm",
+              "repositoryRefs": [
+                "Heyzack-ai/PartnerCRMPortal-docs/apps/partner-docs/content/crm"
+              ]
+            },
+            {
+              "workId": "branch:heyzack-estimate",
+              "repositoryRefs": [
+                "HeyZack-Domotique/estimate-web"
+              ]
+            },
+            {
+              "workId": "branch:heyzack-partner-portal",
+              "repositoryRefs": [
+                "Heyzack-ai/PartnerCRMPortal-docs/apps/partner-docs/content/partner"
+              ]
+            },
+            {
+              "workId": "branch:heyzack-tooling",
+              "repositoryRefs": [
+                "Heyzack-ai/tuya-react-native",
+                "Sheshiyer/brochure-py-heyzack",
+                "Sheshiyer/email-engine-heyzack",
+                "Sheshiyer/heyzack-design-token-system",
+                "Sheshiyer/heyzack-miniapp-design-systems",
+                "Sheshiyer/products-list-heyzack-gen"
+              ]
+            },
+            {
+              "workId": "branch:heyzack-proposal",
+              "repositoryRefs": [
+                "HeyZack-Domotique/heyzack-vinci-proposal",
+                "Sheshiyer/heyzack-builder-pitch-experience"
+              ]
+            }
+          ],
           "holdRepos": [
             "Heyzack-ai/tuya-mcp-sdk",
             "Heyzack-ai/xiaozhi-esp32-server"
+          ],
+          "holdReasons": [
+            "Both hold repositories are upstream forks and remain external reference evidence rather than HeyZack-owned Client Branch receipt targets."
           ]
         },
         {
@@ -397,8 +451,28 @@
             "Sheshiyer/tirakplus0admin",
             "Sheshiyer/wikiv2-tirakapp"
           ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:tirak",
+              "repositoryRefs": [
+                "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+                "pineappleinnovationlabs/tirak-admin-command-center",
+                "pineappleinnovationlabs/tirak-dream-journeys",
+                "pineappleinnovationlabs/tirak-website-v1",
+                "Sheshiyer/tirak-backend-alpha01",
+                "Sheshiyer/tirak-mobile-app-v2",
+                "Sheshiyer/tirak-website-v1",
+                "Sheshiyer/tirakplus",
+                "Sheshiyer/tirakplus0admin",
+                "Sheshiyer/wikiv2-tirakapp"
+              ]
+            }
+          ],
           "holdRepos": [
             "pineappleinnovationlabs/chakra-shine-admin"
+          ],
+          "holdReasons": [
+            "chakra-shine-admin is a repository-name false positive and is excluded from Tirak receipts."
           ]
         },
         {
@@ -417,6 +491,22 @@
             "Valoreventures/sblchat",
             "Valoreventures/website_videos",
             "Sheshiyer/sandboxlife-v2"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:sandboxlife",
+              "repositoryRefs": [
+                "Valoreventures/diverse_vitality",
+                "Valoreventures/journal_icons",
+                "Valoreventures/landing-page-v0.1",
+                "Valoreventures/sandbox-beta",
+                "Valoreventures/sandboxlife-alpha",
+                "Valoreventures/sandboxlife-api",
+                "Valoreventures/sblchat",
+                "Valoreventures/website_videos",
+                "Sheshiyer/sandboxlife-v2"
+              ]
+            }
           ]
         },
         {
@@ -437,9 +527,32 @@
             "Sheshiyer/wiki-coproperty",
             "Sheshiyer/wiki-coproperty-v1"
           ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:co-property",
+              "repositoryRefs": [
+                "Sheshiyer/copropertyspace",
+                "Sheshiyer/dashboard-0.1-coproperty",
+                "Sheshiyer/v0-co-property",
+                "Sheshiyer/v0-coproperty-checklist",
+                "Sheshiyer/v0-coproperty-edu",
+                "Sheshiyer/wiki-coproperty",
+                "Sheshiyer/wiki-coproperty-v1"
+              ]
+            }
+          ],
+          "unavailableCandidateRepos": [
+            "Coproperty/dashboard-0.1",
+            "Coproperty/sheets-sync",
+            "Coproperty/wiki"
+          ],
           "holdRepos": [
             "Coproperty/nimbus-gate",
             "Coproperty/wanderfruit-docs"
+          ],
+          "holdReasons": [
+            "The three Coproperty organization candidates and both product-side hold repositories lack retrievable immutable GitHub IDs under the current authenticated account.",
+            "nimbus-gate and wanderfruit-docs belong to sapling:nimbus-gate and sapling:wanderfruit provenance, not branch:co-property receipt targets."
           ]
         },
         {
@@ -452,6 +565,16 @@
             "Sheshiyer/newsense",
             "Sheshiyer/newsense-launch",
             "Sheshiyer/newsense-spatial"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:newsense",
+              "repositoryRefs": [
+                "Sheshiyer/newsense",
+                "Sheshiyer/newsense-launch",
+                "Sheshiyer/newsense-spatial"
+              ]
+            }
           ]
         },
         {
@@ -462,6 +585,14 @@
           "lifecycleSuggestion": "executing",
           "candidateRepos": [
             "Sheshiyer/kacima-new"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:kacima",
+              "repositoryRefs": [
+                "Sheshiyer/kacima-new"
+              ]
+            }
           ]
         },
         {
@@ -474,6 +605,16 @@
             "Sheshiyer/Akshara-coauthor",
             "Sheshiyer/ratandevelopers-property-coauthor",
             "Sheshiyer/valmark-cocreate"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:valmark",
+              "repositoryRefs": [
+                "Sheshiyer/Akshara-coauthor",
+                "Sheshiyer/ratandevelopers-property-coauthor",
+                "Sheshiyer/valmark-cocreate"
+              ]
+            }
           ]
         },
         {
@@ -486,6 +627,16 @@
             "Sheshiyer/coming-soon-earthymunchy",
             "Sheshiyer/earthy-munchy-beta-launch",
             "Sheshiyer/earthymunchy-alpha"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:earthy-munchy",
+              "repositoryRefs": [
+                "Sheshiyer/coming-soon-earthymunchy",
+                "Sheshiyer/earthy-munchy-beta-launch",
+                "Sheshiyer/earthymunchy-alpha"
+              ]
+            }
           ]
         },
         {
@@ -496,6 +647,15 @@
           "lifecycleSuggestion": "executing",
           "candidateRepos": [
             "Sheshiyer/workforce-automation-app-symphonics"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:symphonics",
+              "repositoryRefs": [
+                "Sheshiyer/workforce-automation-app-symphonics"
+              ],
+              "receiptStatus": "blocked-missing-shallow-folder"
+            }
           ],
           "requiresRootMapRepair": true,
           "rootMapRepairStatus": "blocked-missing-shallow-folder"
@@ -517,8 +677,36 @@
             "Sheshiyer/skyline-viewer-ashwin-sheth-group",
             "Raheman-08/panorama-viewer-marina"
           ],
+          "resolvedAssignments": [
+            {
+              "workId": "branch:ashwinsheth-marina-one-mumbai",
+              "repositoryRefs": [
+                "Sheshiyer/panorama-viewer-marina-one",
+                "Sheshiyer/marina-one-v2-preview",
+                "Sheshiyer/panorama-viewer-marina-beta",
+                "Raheman-08/panorama-viewer-marina"
+              ],
+              "evidence": "44th through 75th floor configuration and explicit Mumbai skyline copy"
+            },
+            {
+              "workId": "branch:ashwinsheth-marina-one-bangalore",
+              "repositoryRefs": [
+                "Sheshiyer/marina1-k",
+                "Sheshiyer/skyline-viewer-ashwin-sheth-group"
+              ],
+              "evidence": "6th through 25th floor configuration and explicit Bengaluru copy"
+            }
+          ],
+          "unavailableCandidateRepos": [
+            "ashwinsheth-group/panaroma-v2",
+            "ashwinsheth-group/marina-one-KA"
+          ],
           "holdRepos": [
             "Sheshiyer/president-panaroma"
+          ],
+          "holdReasons": [
+            "The two Ashwin Sheth organization repositories lack retrievable immutable GitHub IDs under the current authenticated account.",
+            "president-panaroma is a separate President panorama surface and has no evidence binding it to either Marina One WorkObject."
           ]
         }
       ]
