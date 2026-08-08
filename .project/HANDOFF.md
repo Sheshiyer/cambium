@@ -132,6 +132,28 @@
   SHA-256 `d46076f15da758ccba7ab3edb863000a48b5057296079ae7550730c4e941ebea`,
   and the generated Worker embed was refreshed from that bundle.
 
+### 2026-08-08 project/R2 mapping execution-plan checkpoint
+
+- Branch: `codex/project-r2-mapping-plan`, rooted at production `main` commit
+  `9de273ebf4aefa24f037a0c87bf3194500066e67`.
+- A fresh shallow GitHub checkout was created for new-root Cambium pickup. The
+  pre-existing new-root `cambium` folder was left untouched because it was not
+  an exact Git checkout.
+- Execution plan:
+  `docs/plans/2026-08-08-project-r2-mapping-execution.md`.
+- The plan converts `docs/project-management/portfolio-root-ingestion-issue.md`
+  into bite-sized reviewed batches for Workbench-driven project/R2 mapping.
+- First batch is evidence-only: active authority proof, read-only folder
+  inventory, and Temperance/OmniRoute/Ollama/ClinePass rail preflight.
+- The plan preserves shallow folder grammar and keeps `thoughtseed-labs` as
+  R2/vault infrastructure context, never as a WorkObject folder.
+- The current R2 role remains immutable/idempotent evidence and encrypted
+  durability. Any R2-primary or two-way-sync change is explicitly separated as
+  a future owner-approved contract update.
+- No worker dispatch, R2 object write, folder move, registry transition,
+  provider setting change, Goal Graph write, production deployment, or GitHub
+  issue mutation was performed by this checkpoint.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
