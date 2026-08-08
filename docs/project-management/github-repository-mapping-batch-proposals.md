@@ -129,11 +129,13 @@ Resolved evidence state (2026-08-08):
 
 ## Batch 5 — Close/completed and exclusion handling
 
-Purpose: avoid active-work noise.
+Purpose: avoid active-work noise and separate source-controlled mapping from physical folder mutation.
 
-- SAFVR is approved as a closed/completed Client Branch and should stay out of active workflow.
-- `virtualtryon-3d` is retired/ignored by founder decision, not an active WorkObject and not a Sapling.
-- `symphonics` remains a missing client-account coverage row because no shallow destination folder exists yet.
+- SAFVR is approved as a closed/completed Client Branch and should stay out of active workflow. Its source-controlled closeout seed is present under `docs/project-management/closeouts/`.
+- `virtualtryon-3d` is retired/ignored by founder decision, not an active WorkObject and not a Sapling. Its retirement handoff, receipt seed, and agent-memory guardrail are present under `docs/project-management/closeouts/`.
+- `symphonics` remains a founder hold for missing shallow-folder disposition. The current repository evidence is planning/docs for the Workforce Automation App; the future custom native SDK / Tuya React Native app scope should remain unmapped until the founder approves an exact shallow-folder and repository disposition.
+- `$PROJECTS_ROOT/thoughtseed` is the shallow portfolio root. `$PROJECTS_ROOT/thoughtseed/thoughtseed-labs` is R2/vault infrastructure context, never a WorkObject folder.
+- Physical rename/create/archive work is not part of Batch 5. It waits for `docs/project-management/thoughtseed-folder-rename-readiness.v1.json` plus a separate founder-approved relocation manifest with exact paths and rollback/archive targets.
 - Forks, external vendor clones, and dependency references should become dependency/reference evidence, not WorkObjects.
 - Completed/terminated work needs the closeout packet: handoff Markdown, closeout receipt JSON, agent memory projection, finished-index delta, and immutable R2 evidence receipt.
 
@@ -146,4 +148,5 @@ Before any batch mutates Workbench state, GitHub issues, project folders, or R2:
 3. each action payload includes catalog digest, root-map digest, WorkObject id, repository identity, lifecycle, and evidence prefix;
 4. client-originated rows remain Client Branches;
 5. close/completed rows produce the required handoff and memory artifacts before leaving active workflow;
-6. VirtualTryOn remains retired/ignored and is not recreated as an active WorkObject during broad action wiring.
+6. VirtualTryOn remains retired/ignored and is not recreated as an active WorkObject during broad action wiring;
+7. any physical folder rename, creation, archive, or de-duplication uses a separate founder-approved relocation manifest rather than a repository-mapping batch.

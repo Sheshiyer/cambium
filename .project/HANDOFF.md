@@ -660,3 +660,44 @@ mutation has been performed by drafting this packet.
 - No folder was created, moved, copied, deleted, or reorganized. No R2 object,
   GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
   row, production deployment, or live hosted Workbench state was mutated.
+
+### 2026-08-08 Batch 5 closeout/exclusion rename-readiness checkpoint
+
+- Batch 5 is settled as closeout/exclusion complete with physical rename work
+  held behind a separate relocation manifest. This checkpoint does not
+  authorize any folder creation, rename, archive, deletion, de-duplication, R2
+  write, GitHub mutation, Goal Graph write, provider change, or production
+  deployment.
+- `docs/project-management/thoughtseed-folder-rename-readiness.v1.json` and
+  `docs/project-management/thoughtseed-folder-rename-readiness.md` define the
+  live-apply gate. Physical renames happen only after a founder-approved
+  manifest lists exact `from`/`to` paths, archive or rollback targets, dry-run
+  comparison, post-apply comparison, root-map digest regeneration, and separate
+  live-apply approval.
+- `$PROJECTS_ROOT/thoughtseed` remains the shallow portfolio root. Active
+  WorkObject folders live directly under that root.
+  `$PROJECTS_ROOT/thoughtseed/thoughtseed-labs` remains R2/vault infrastructure
+  context, never a WorkObject folder.
+- SAFVR is already represented by closeout seed artifacts under
+  `docs/project-management/closeouts/` and stays mapped to
+  `branch:safvr-landing-page` while leaving active workflow.
+- `virtualtryon-3d` is complete as `retired-ignore`: do not create
+  `sapling:virtualtryon`, do not attach active repository/R2 mapping receipts,
+  and keep the root-map row as empty-hold evidence only.
+- `branch:symphonics` remains a founder hold because the shallow folder is
+  absent. The current repository evidence is planning/docs; the future custom
+  native SDK / Tuya React Native app scope stays unmapped until the founder
+  approves exact shallow-folder and repository disposition.
+- The next physical candidates are Cambium's `cambium-authoritative` promote or
+  swap and the Temperance landing-page nested checkout de-duplication, both
+  requiring a separate founder-approved relocation manifest before live apply.
+- Verification: `jq empty` passed for the edited queue and rename-readiness JSON;
+  Batch 2/4/5 queue invariant tests passed 7/7; `pnpm --dir
+  apps/portfolio-cartographer check` passed 57 active tests with one historical
+  skip plus lint, bundle, standalone audit, CSP, and hosted smoke; focused
+  Worker portfolio/admin route tests passed 28/28; full `npm test` passed
+  1568/1568.
+- No folder was created, moved, copied, renamed, archived, deleted, or
+  reorganized. No R2 object, GitHub issue, GitHub Project item, registry row,
+  provider setting, Goal Graph row, production deployment, or live hosted
+  Workbench state was mutated.

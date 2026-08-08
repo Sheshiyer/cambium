@@ -33,6 +33,29 @@ type Batch = {
   rows?: MappingRow[];
   summary: Record<string, number>;
   clusters?: Cluster[];
+  status?: string;
+  renameReadiness?: {
+    filesystemMutationAuthorized?: boolean;
+    shallowPortfolioRoot?: string;
+    vaultContextRoot?: string;
+    thoughtseedLabsBoundary?: string;
+  };
+};
+
+type Batch5Row = {
+  folder: string;
+  status: string;
+  currentWorkId?: string;
+  previousWorkId?: string;
+  closeoutArtifacts?: {
+    handoffMarkdownPath: string;
+    closeoutReceiptJsonPath: string;
+    agentMemoryJsonPath: string;
+    activeIndexDisposition: string;
+  };
+  relocationGate?: {
+    requiresFounderApprovedManifest: boolean;
+  };
 };
 
 const queue = JSON.parse(
@@ -43,6 +66,8 @@ const batch = queue.batches.find(({ batchId }) => batchId === 'github-batch-002-
 if (!batch) throw new Error('Batch 2 client branch queue is missing');
 const batch4 = queue.batches.find(({ batchId }) => batchId === 'github-batch-004-internal-programs-and-vault');
 if (!batch4) throw new Error('Batch 4 internal program queue is missing');
+const batch5 = queue.batches.find(({ batchId }) => batchId === 'github-batch-005-root-map-catalog-repair');
+if (!batch5) throw new Error('Batch 5 root-map repair queue is missing');
 
 const repositoryName = (repositoryRef: string): string => repositoryRef.split('/').slice(0, 2).join('/');
 
@@ -146,4 +171,23 @@ test('Batch 4 plugin work remains deferred until it has a Git identity or fold d
   assert.equal(plugins?.deferredNoGitIdentity, true);
   assert.deepEqual(plugins?.resolvedAssignments, []);
   assert.deepEqual(plugins?.workIds, ['program:operator-utilities', 'program:engineering-orchestration']);
+});
+
+test('Batch 5 settles closeouts while holding physical renames behind a manifest', () => {
+  const rows = (batch5.rows ?? []) as unknown as Batch5Row[];
+  const byFolder = new Map(rows.map((row) => [row.folder, row]));
+
+  assert.equal(batch5.status, 'founder-reviewed-source-controlled-closeout-exclusion-ready-with-symphonics-founder-hold');
+  assert.equal(batch5.summary.rowsReviewed, rows.length);
+  assert.deepEqual([...byFolder.keys()].sort(), ['safvr', 'symphonics', 'virtualtryon-3d']);
+  assert.equal(byFolder.get('virtualtryon-3d')?.status, 'complete-retired-ignore');
+  assert.equal(byFolder.get('virtualtryon-3d')?.previousWorkId, 'sapling:virtualtryon');
+  assert.equal(byFolder.get('safvr')?.status, 'complete-closed-client-branch');
+  assert.equal(byFolder.get('safvr')?.closeoutArtifacts?.activeIndexDisposition, 'remove-from-active');
+  assert.equal(byFolder.get('symphonics')?.status, 'founder-hold-missing-shallow-folder');
+  assert.equal(byFolder.get('symphonics')?.relocationGate?.requiresFounderApprovedManifest, true);
+  assert.equal(batch5.renameReadiness?.filesystemMutationAuthorized, false);
+  assert.equal(batch5.renameReadiness?.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
+  assert.equal(batch5.renameReadiness?.vaultContextRoot, '$PROJECTS_ROOT/thoughtseed/thoughtseed-labs');
+  assert.match(batch5.renameReadiness?.thoughtseedLabsBoundary ?? '', /never a WorkObject folder/);
 });
