@@ -277,6 +277,42 @@
   `pnpm --dir apps/portfolio-cartographer standalone:smoke`, and focused
   Worker portfolio/admin-action/workbench route tests all pass.
 
+### 2026-08-08 GitHub repository mapping audit checkpoint
+
+- Continued the project/R2 mapping preparation with a read-only authenticated
+  GitHub inventory pass across `Sheshiyer`, `thoughtseedlabs`,
+  `thoughtseed-labs`, and all repositories visible through the current
+  authenticated account.
+- Evidence artifact:
+  `docs/evidence/2026-08-08-github-repository-mapping-audit.v1.json`.
+- Founder-review batch proposal:
+  `docs/project-management/github-repository-mapping-batch-proposals.md`.
+- Audit counts: 303 affiliated repositories visible to the authenticated
+  account, 259 explicit repositories across the three requested owners, 312
+  unique repositories after combining both views, 285 repositories still
+  unmapped by the conservative exact-match signal, 268 non-fork unmapped
+  repositories, 204 non-fork unmapped repositories pushed since 2025-01-01, and
+  20 unmapped `thoughtseedlabs` / `thoughtseed-labs` repositories.
+- The audit intentionally does not commit the complete private repository
+  inventory. It records bounded counts, the 20 Thoughtseed org rows, the
+  owner-level distribution, and review batches only.
+- The next batches are separated into Thoughtseed org history, client-branch
+  repository clusters, Sapling provenance, internal programs/vault context, and
+  root-map/catalog repair.
+- Root-map/catalog repair found one immediate identity bug:
+  `virtualtryon-3d` references `sapling:virtualtryon`, but that WorkObject does
+  not exist in the current catalog. It should stay needs-review until founder
+  confirmation or catalog repair.
+- Grammar reaffirmed: only Thoughtseed-originated ventures may become Saplings;
+  client-originated work remains Client Branch even when new; completed or
+  closed work requires the handoff/receipt/memory/finished-index closeout
+  packet before it leaves active workflow.
+- R2 remains immutable/idempotent evidence and durability only. No R2-primary
+  or two-way-sync behavior is introduced by this checkpoint.
+- No GitHub issue, GitHub Project item, repository setting, folder move, R2
+  object write, registry write, provider change, Goal Graph write, production
+  deployment, or Workbench runtime change was performed by this audit.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
