@@ -4,7 +4,7 @@ task: "Execute Cambium Phase 1 archive-first promotion"
 effort: E3
 effort_source: context-override
 phase: plan
-progress: 870/962
+progress: 876/962
 mode: interactive
 iteration: 2026-08-08-cambium-phase-1-live-apply
 started: 2026-07-27T21:26:34Z
@@ -1287,12 +1287,12 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 
 ### Cambium Phase 1 live apply
 
-- [ ] ISC-946: Batch 2 commit `ba56bef` is an ancestor of the current Phase 1 checkout.
-- [ ] ISC-947: The founder message contains the exact Phase 1 live-apply approval text recorded by the preflight receipt.
-- [ ] ISC-948: The authoritative checkout is the clean exact `Sheshiyer/cambium` Git root on `codex/project-r2-mapping-plan` before mutation.
-- [ ] ISC-949: The canonical `cambium` slot is a real non-symlink directory and not a Git repository before mutation.
-- [ ] ISC-950: The new relocation archive container and exact Cambium archive target are absent before mutation.
-- [ ] ISC-951: The pre-apply depth-one comparison differs from the checked-in root map only by the founder-ignored `_home-cleanup-2026-08-08` row.
+- [x] ISC-946: Batch 2 commit `ba56bef` is an ancestor of the current Phase 1 checkout.
+- [x] ISC-947: The founder message contains the exact Phase 1 live-apply approval text recorded by the preflight receipt.
+- [x] ISC-948: The authoritative checkout is the clean exact `Sheshiyer/cambium` Git root on `codex/project-r2-mapping-plan` before mutation.
+- [x] ISC-949: The canonical `cambium` slot is a real non-symlink directory and not a Git repository before mutation.
+- [x] ISC-950: The new relocation archive container and exact Cambium archive target are absent before mutation.
+- [x] ISC-951: The pre-apply depth-one comparison differs from the checked-in root map only by the founder-ignored `_home-cleanup-2026-08-08` row.
 - [ ] ISC-952: The stale non-Git Cambium slot is preserved intact at the exact relocation archive target.
 - [ ] ISC-953: The authoritative Git checkout is promoted into the canonical shallow `cambium` slot without copying or overwriting.
 - [ ] ISC-954: The promoted canonical slot retains the exact Git remote, branch, HEAD, and clean working tree.
@@ -1832,6 +1832,13 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
 ## Verification
+
+- ISC-946: Git ancestry probe — `git merge-base --is-ancestor ba56bef HEAD` exited zero at pre-apply head `d30c5553597caa745b5c1f4f96bf3fb43cc86ba4`.
+- ISC-947: direct founder-input comparison — the continuation contains exact text `approve live apply phase 1 Cambium archive-first promote` followed by “lets proceed.”
+- ISC-948: Git/lstat probe — authority top-level was exact `cambium-authoritative`, origin was `https://github.com/Sheshiyer/cambium.git`, branch was `codex/project-r2-mapping-plan`, and porcelain status was empty.
+- ISC-949: lstat/Git probe — canonical `cambium` was a real directory on device `16777242`, inode `30272996`, not a symlink, and not a Git repository.
+- ISC-950: filesystem existence probe — `_physical-relocation-archive-2026-08-08` and its `cambium-pre-git-authority` child were both absent before apply.
+- ISC-951: depth-one probe — expected 59, observed 58, missing only `_home-cleanup-2026-08-08`, unexpected zero; Symphonics remained absent and `thoughtseed-labs` inode `30565745` was recorded for post-apply preservation proof.
 
 - 2026-08-08 Batch 2 repository mapping: queue tests prove 10 client families, 61 candidates, 6 holds/excludes, 55 receipt-eligible rows, 12 blocked rows, seven unavailable immutable identities, zero Sapling promotions, exact Client Branch assignments, and an explicit `branch:symphonics` root-map block.
 - Generated evidence: 122 immutable repository identities; 98 bounded catalog repository refs; root-map SHA-256 `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`; repository-evidence SHA-256 `653763dcda3a105cdce6df9d5861e3200b05016ef4533fcb43352b33bb8dff84`; catalog digest `sha256:1f40226825b4d42c3812f42cc3e63ca9b8d76707256fe48ba49a96b7c924988b`.
