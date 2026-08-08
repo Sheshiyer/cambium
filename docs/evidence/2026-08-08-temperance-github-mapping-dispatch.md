@@ -81,11 +81,13 @@ Direct Sapling evidence can proceed only after immutable repository resolution:
 - `sapling:wanderfruit`
 - `sapling:whspr`
 
-Founder-review holds:
+Post-dispatch founder resolution: provenance split completed. Klear Karma remains
+`sapling:klear-karma` with Snow Gloves contamination excluded to
+`program:snow-gloves-os`; Kristudios is reclassified as `branch:kristudios`;
+ParkArea and Tirak keep linked Sapling + Client Branch identities, with exact
+repository families attached to the branch side. Batch 3 now has zero founder
+holds.
 
-- Klear Karma: current catalog says Sapling, but prior evidence found `snowglobe` contamination that belongs under `program:snow-gloves-os`.
-- Kristudios: prior evidence says a distinct legal entity may exist; likely Client Branch unless founder confirms Thoughtseed origin.
-- ParkArea and Tirak: split product/IP evidence from client-delivery evidence deliberately.
 - `virtualtryon-3d`: post-dispatch founder decision retires/ignores the surface. Keep it as root-map empty-hold evidence with no active WorkObject id; do not create `sapling:virtualtryon`.
 
 ### Batch 4 — Internal programs and vault context

@@ -549,3 +549,31 @@ mutation has been performed by drafting this packet.
 - No folder was created, moved, copied, deleted, or reorganized. No R2 object,
   GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
   row, production deployment, or live hosted Workbench state was mutated.
+
+### 2026-08-08 Batch 3 provenance split checkpoint
+
+- Founder instruction resolved the Batch 3 provenance holds by splitting
+  Sapling/IP evidence from client-branch delivery evidence.
+- Klear Karma remains `sapling:klear-karma`; `snowglobe`/Snow Gloves
+  contamination is excluded to `program:snow-gloves-os`.
+- Kristudios is no longer modeled as `sapling:kristudios`. The checked-in
+  catalog and root map now use `branch:kristudios` because prior evidence
+  identifies a separately incorporated Kristudios company.
+- ParkArea and Tirak keep linked Sapling + Client Branch identities, but exact
+  repository families are attached to `branch:parkarea` and `branch:tirak`.
+  The Sapling rows remain product/IP placeholders until exact product-side
+  repositories exist.
+- Batch 3 in
+  `docs/project-management/github-repository-mapping-action-queue.v1.json` now
+  records 4 resolved provenance splits, 0 remaining founder holds, 8 direct
+  Sapling mappings, 16 branch repo family mappings, and 1 excluded
+  contamination row.
+- Updated digests after regeneration: root map
+  `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`;
+  portfolio catalog
+  `sha256:eedb62fae59b5aedcde1489ab172825210686d0e0f60a4a750e7adb64226f196`;
+  repository evidence
+  `8172a0258972357174e805c8e7a4d612231e8358b2f2a6e348df92f6a6d5f918`.
+- No folder was created, moved, copied, deleted, or reorganized. No R2 object,
+  GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
+  row, production deployment, or live hosted Workbench state was mutated.

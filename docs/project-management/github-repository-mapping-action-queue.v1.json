@@ -54,7 +54,7 @@
       },
       "defaults": {
         "receiptKind": "mapping",
-        "rootMapDigest": "a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445",
+        "rootMapDigest": "20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc",
         "catalogDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
         "founderDecisionStatus": "founder-review",
         "evidencePrefixTemplate": "portfolio/thoughtseed/workobjects/<targetWorkId>/mapping/"
@@ -525,7 +525,7 @@
     },
     {
       "batchId": "github-batch-003-sapling-provenance",
-      "status": "partial-ready-with-founder-holds",
+      "status": "founder-reviewed-provenance-split-ready-for-mapping-receipts",
       "directSaplingMappings": [
         {
           "workId": "sapling:10869-space",
@@ -584,47 +584,90 @@
           ]
         }
       ],
-      "founderHolds": [
+      "founderHolds": [],
+      "summary": {
+        "directSaplingMappings": 8,
+        "resolvedProvenanceSplits": 4,
+        "remainingFounderHolds": 0,
+        "clientBranchPromotions": 1,
+        "saplingProductReposMapped": 8,
+        "branchRepoFamiliesMapped": 16,
+        "excludedContaminationRows": 1
+      },
+      "resolvedProvenanceSplits": [
         {
           "name": "Klear Karma",
-          "currentWorkId": "sapling:klear-karma",
-          "reason": "prior evidence found snowglobe contamination that belongs under program:snow-gloves-os",
-          "candidateRepos": [
+          "disposition": "sapling-product-repos-with-snowglobe-contamination-excluded",
+          "targetWorkId": "sapling:klear-karma",
+          "mappedRepos": [
             "Sheshiyer/klear-karma",
             "Sheshiyer/klear-karma-backend",
             "Sheshiyer/klear-karma-pitchv1",
+            "Sheshiyer/kkv2-admin-panel",
+            "Sheshiyer/kkv2-klear-karma-RN",
             "Sheshiyer/klear-karma-website-v2",
             "Sheshiyer/Klearkarma-wiki",
-            "Sheshiyer/kkv2-klear-karma-RN",
             "Sheshiyer/rork-klear-karma-mobile-app-frontend"
-          ]
+          ],
+          "excludedContamination": [
+            {
+              "source": "klear-karma/snowglobe nested evidence",
+              "targetWorkId": "program:snow-gloves-os",
+              "repository": "Sheshiyer/snow-gloves-os",
+              "reason": "prior evidence says the nested snowglobe remote points to snow-gloves-os.git and is an internal ops automation tenant instance, not Klear Karma product source"
+            }
+          ],
+          "rootMapState": "folder-remains-needs-review-container-because-product-plus-contamination-were-split"
         },
         {
           "name": "Kristudios",
-          "currentWorkId": "sapling:kristudios",
-          "reason": "prior evidence says a distinct legal entity may exist; likely Client Branch unless founder confirms Thoughtseed origin",
-          "candidateRepos": [
+          "disposition": "client-branch-not-sapling",
+          "previousWorkId": "sapling:kristudios",
+          "targetWorkId": "branch:kristudios",
+          "accountId": "kristudios",
+          "mappedRepos": [
             "Sheshiyer/kristudios-heritage",
             "Sheshiyer/kristudios-space",
             "Sheshiyer/kristudios-v2-web",
             "Sheshiyer/kristudios-wiki"
-          ]
+          ],
+          "reason": "prior evidence identifies Kristudios (OPC) Private Limited as a separately incorporated company, so repository provenance is client-branch evidence unless future founder evidence proves Thoughtseed origin",
+          "rootMapState": "kristudios folder maps to branch:kristudios as client-branch proposal"
         },
         {
           "name": "ParkArea",
-          "currentWorkIds": [
-            "sapling:parkarea",
-            "branch:parkarea"
+          "disposition": "linked-product-and-client-branch-with-branch-side-repositories",
+          "productWorkId": "sapling:parkarea",
+          "clientWorkId": "branch:parkarea",
+          "branchRepos": [
+            "Sheshiyer/parkarea-aleph",
+            "Sheshiyer/parkarea-wiki-v0"
           ],
-          "reason": "split product/IP evidence from client delivery evidence deliberately"
+          "saplingRepoState": "no exact product-side repository in this batch; product evidence remains vault product overview only",
+          "rootMapState": "parkarea folder remains linked branch:parkarea plus sapling:parkarea"
         },
         {
           "name": "Tirak",
-          "currentWorkIds": [
-            "sapling:tirak",
-            "branch:tirak"
+          "disposition": "linked-product-and-client-branch-with-branch-side-repository-family",
+          "productWorkId": "sapling:tirak",
+          "clientWorkId": "branch:tirak",
+          "branchRepos": [
+            "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+            "pineappleinnovationlabs/tirak-admin-command-center",
+            "pineappleinnovationlabs/tirak-dream-journeys",
+            "pineappleinnovationlabs/tirak-website-v1",
+            "Sheshiyer/tirak-backend-alpha01",
+            "Sheshiyer/tirak-mobile-app-v2",
+            "Sheshiyer/tirak-website-v1",
+            "Sheshiyer/tirakplus",
+            "Sheshiyer/tirakplus0admin",
+            "Sheshiyer/wikiv2-tirakapp"
           ],
-          "reason": "split product/IP evidence from client delivery evidence deliberately"
+          "saplingRepoState": "no exact product-side repository in this batch; product evidence remains vault product overview only",
+          "excludedFalsePositiveRepos": [
+            "pineappleinnovationlabs/chakra-shine-admin"
+          ],
+          "rootMapState": "tirak folder remains linked branch:tirak plus sapling:tirak"
         }
       ]
     },

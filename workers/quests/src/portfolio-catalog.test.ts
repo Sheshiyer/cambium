@@ -29,11 +29,11 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
   assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:2afdfd8d8f5642546a75daa395c51a73e6fe032d84ddd5d19af3d08b7b93b45c');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:eedb62fae59b5aedcde1489ab172825210686d0e0f60a4a750e7adb64226f196');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
     total: 74,
-    saplings: 21,
-    clientBranches: 38,
+    saplings: 20,
+    clientBranches: 39,
     internalPrograms: 15,
     classificationReview: 0,
     historicalProducts: 20,
@@ -48,8 +48,8 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
 test('catalog identities are unique, canonical, type-correct, and enum bounded', () => {
   const ids = PORTFOLIO_CATALOG.records.map((record) => record.workId);
   assert.equal(new Set(ids).size, 74);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 21);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 38);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 20);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 39);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'internal-program').length, 15);
 
   for (const record of PORTFOLIO_CATALOG.records) {

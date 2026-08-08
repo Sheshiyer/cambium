@@ -74,7 +74,7 @@ Batch rule: map by repository identity and repo-local planning first; do not inf
 
 ## Batch 3 — Sapling provenance
 
-Purpose: attach Thoughtseed-originated product repositories to existing Saplings, while holding ambiguous ones.
+Purpose: attach Thoughtseed-originated product repositories to existing Saplings and split ambiguous provenance between Sapling/IP evidence and client-branch delivery evidence.
 
 Direct Sapling candidates:
 
@@ -87,11 +87,13 @@ Direct Sapling candidates:
 - `sapling:wanderfruit` ← `wanderfruit-wiki-alpha`
 - `sapling:whspr` ← `whspr-*`
 
-Hold for founder review:
+Resolved provenance splits:
 
-- Klear Karma: catalog says Sapling, but prior evidence notes contamination and needs reconciliation.
-- Kristudios: prior evidence says it may be a distinct legal entity, so do not hard-promote without founder confirmation.
-- ParkArea and Tirak: both currently have Sapling + Client Branch records; repository evidence should be split carefully between product/IP and client delivery.
+- Klear Karma remains `sapling:klear-karma`; Snow Gloves contamination is excluded to `program:snow-gloves-os`.
+- Kristudios is promoted from the missing `sapling:kristudios` assumption to `branch:kristudios` because prior evidence identifies a separately incorporated company.
+- ParkArea keeps linked `sapling:parkarea` + `branch:parkarea`; exact repositories map to the client-delivery branch side.
+- Tirak keeps linked `sapling:tirak` + `branch:tirak`; exact repositories map to the client-delivery branch side.
+- Founder holds remaining for this batch: 0.
 
 ## Batch 4 — Internal programs and vault context
 
