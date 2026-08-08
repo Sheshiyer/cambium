@@ -163,8 +163,8 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
   const result = await requestPortfolio(FOUNDER_ID);
   assert.equal(result.response.status, 200);
   assert.equal(result.json.portfolioCatalogSummary.total, 74);
-  assert.equal(result.json.portfolioCatalogSummary.saplings, 21);
-  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 38);
+  assert.equal(result.json.portfolioCatalogSummary.saplings, 20);
+  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 39);
   assert.equal(result.json.portfolioCatalogSummary.internalPrograms, 15);
   assert.equal(result.json.portfolioCatalogSummary.classificationReview, 0);
   assert.equal(result.json.portfolioCatalogSummary.historicalProducts, 20);

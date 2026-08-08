@@ -10,7 +10,7 @@ import {
 
 export const PORTFOLIO_CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
-const EXPECTED_CATALOG_DIGEST = 'sha256:2afdfd8d8f5642546a75daa395c51a73e6fe032d84ddd5d19af3d08b7b93b45c';
+const EXPECTED_CATALOG_DIGEST = 'sha256:eedb62fae59b5aedcde1489ab172825210686d0e0f60a4a750e7adb64226f196';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
@@ -110,8 +110,8 @@ export interface PortfolioOperationalGap {
 
 export interface PortfolioCatalogSummary {
   total: 74;
-  saplings: 21;
-  clientBranches: 38;
+  saplings: 20;
+  clientBranches: 39;
   internalPrograms: 15;
   classificationReview: 0;
   historicalProducts: 20;
@@ -178,8 +178,8 @@ const MISSING_MISSION_FIELDS = Object.freeze([
 
 const SUMMARY: PortfolioCatalogSummary = Object.freeze({
   total: 74,
-  saplings: 21,
-  clientBranches: 38,
+  saplings: 20,
+  clientBranches: 39,
   internalPrograms: 15,
   classificationReview: 0,
   historicalProducts: 20,
@@ -396,7 +396,7 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const saplings = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'sapling').length;
   const clients = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'client-branch').length;
   const programs = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'internal-program').length;
-  if (saplings !== 21 || clients !== 38 || programs !== 15) fail('classification counts drifted');
+  if (saplings !== 20 || clients !== 39 || programs !== 15) fail('classification counts drifted');
 
   const historicalIds = new Set<string>();
   for (const [index, value] of historicalProducts.entries()) {
@@ -440,8 +440,8 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const summary = catalog.summary;
   if (!isRecord(summary)
     || summary.total !== 74
-    || summary.saplings !== 21
-    || summary.clientBranches !== 38
+    || summary.saplings !== 20
+    || summary.clientBranches !== 39
     || summary.internalPrograms !== 15
     || summary.classificationReview !== 0
     || summary.historicalProducts !== 20

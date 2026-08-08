@@ -240,10 +240,10 @@
         },
         {
           "folder": "kristudios",
-          "proposedKind": "needs-review",
-          "accountId": null,
+          "proposedKind": "client-branch",
+          "accountId": "kristudios",
           "workIds": [
-            "sapling:kristudios"
+            "branch:kristudios"
           ],
           "status": "mapping-proposal"
         },

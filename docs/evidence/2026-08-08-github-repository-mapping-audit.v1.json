@@ -106,6 +106,41 @@
       "currentRootMapState": "no-shallow-folder-row-yet",
       "liveUrl": "https://dlock-lp.vercel.app/",
       "productBranchPacket": "docs/plans/product-branches/dlock.md"
+    },
+    {
+      "resolvedAt": "2026-08-08T00:00:00.000Z",
+      "decision": "founder-resolved-provenance-split",
+      "currentRootMapDigest": "20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc",
+      "currentCatalogDigest": "sha256:eedb62fae59b5aedcde1489ab172825210686d0e0f60a4a750e7adb64226f196",
+      "currentRepositoryEvidenceDigest": "8172a0258972357174e805c8e7a4d612231e8358b2f2a6e348df92f6a6d5f918",
+      "resolvedHolds": [
+        {
+          "folder": "klear-karma",
+          "currentWorkId": "sapling:klear-karma",
+          "excludedWorkId": "program:snow-gloves-os"
+        },
+        {
+          "folder": "kristudios",
+          "previousWorkId": "sapling:kristudios",
+          "currentWorkId": "branch:kristudios"
+        },
+        {
+          "folder": "parkarea",
+          "currentWorkIds": [
+            "branch:parkarea",
+            "sapling:parkarea"
+          ],
+          "repoEvidenceSide": "client-branch"
+        },
+        {
+          "folder": "tirak",
+          "currentWorkIds": [
+            "branch:tirak",
+            "sapling:tirak"
+          ],
+          "repoEvidenceSide": "client-branch"
+        }
+      ]
     }
   ],
   "thoughtseedOrgUnmappedRepos": [
