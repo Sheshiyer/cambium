@@ -15,15 +15,25 @@
   "railResult": {
     "requestedSkill": "temperance-parallel-dispatch",
     "externalRailAccepted": false,
-    "externalRailFailure": "temperance-batch printed dispatch-tasklist.sh not found; temperance-claude, te-dispatch-paid, te-dispatch, and clinepass were missing",
+    "externalRailFailure": "temperance-batch printed dispatch-tasklist.sh not found; external combo rail unavailable in this session",
     "fallbackRail": "in-session-subagents",
     "fallbackTasks": [
       "batch_thoughtseed_org_history",
       "batch_client_branch_clusters",
       "batch_sapling_provenance",
-      "batch_internal_programs_vault"
+      "batch_internal_programs_vault",
+      "batch_root_map_closeout_exclusion",
+      "folder_rename_readiness_audit"
     ],
     "solFamilyUsed": false
+  },
+  "folderRenameReadiness": {
+    "status": "proposal-only-no-filesystem-mutation",
+    "readinessDocument": "docs/project-management/thoughtseed-folder-rename-readiness.v1.json",
+    "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
+    "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+    "boundary": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>; thoughtseed-labs remains R2/vault infrastructure context, never a WorkObject folder",
+    "nextPhysicalPass": "only after a founder-approved relocation manifest with exact from/to paths, archive target, rollback plan, dry-run directory comparison, and live-apply approval"
   },
   "globalBlocks": [],
   "resolvedFounderDecisions": [
@@ -1082,20 +1092,58 @@
     },
     {
       "batchId": "github-batch-005-root-map-catalog-repair",
-      "status": "reviewed-blocked-missing-shallow-folder",
+      "status": "founder-reviewed-source-controlled-closeout-exclusion-ready-with-symphonics-founder-hold",
+      "summary": {
+        "rowsReviewed": 3,
+        "resolvedRetiredIgnoreRows": 1,
+        "closedClientBranchRows": 1,
+        "founderHoldMissingShallowFolderRows": 1,
+        "filesystemMutationRows": 0,
+        "relocationManifestRequiredRows": 1,
+        "saplingPromotionsRecommended": 0
+      },
+      "renameReadiness": {
+        "readinessDocument": "docs/project-management/thoughtseed-folder-rename-readiness.v1.json",
+        "filesystemMutationAuthorized": false,
+        "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
+        "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+        "thoughtseedLabsBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder",
+        "nextPhysicalPass": "founder-approved relocation manifest before any folder rename, create, archive, or de-duplication"
+      },
       "rows": [
         {
           "folder": "virtualtryon-3d",
           "previousWorkId": "sapling:virtualtryon",
           "candidateRepository": "Sheshiyer/virtualtryon",
-          "status": "resolved-retired-ignore",
+          "status": "complete-retired-ignore",
+          "lifecycleDisposition": "retired",
+          "closeoutArtifacts": {
+            "handoffMarkdownPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md",
+            "closeoutReceiptJsonPath": "docs/project-management/closeouts/virtualtryon-3d-retirement.v1.json",
+            "agentMemoryJsonPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-agent-memory.v1.json",
+            "activeIndexDisposition": "exclude-from-active"
+          },
           "recommendedAction": "no Workbench action, no Sapling creation, and no active repository/R2 mapping receipt; keep as root-map empty-hold evidence only"
+        },
+        {
+          "folder": "safvr",
+          "currentWorkId": "branch:safvr-landing-page",
+          "observedRepository": "SAFVR-SG/Landingpage2.0",
+          "status": "complete-closed-client-branch",
+          "lifecycleDisposition": "closed",
+          "closeoutArtifacts": {
+            "handoffMarkdownPath": "docs/project-management/closeouts/safvr-landing-page-handoff.md",
+            "closeoutReceiptJsonPath": "docs/project-management/closeouts/safvr-landing-page-closeout.v1.json",
+            "agentMemoryJsonPath": "docs/project-management/closeouts/safvr-landing-page-agent-memory.v1.json",
+            "activeIndexDisposition": "remove-from-active"
+          },
+          "recommendedAction": "keep the folder mapped to branch:safvr-landing-page but remove it from active workflow; verify repository access only if the client relationship reopens"
         },
         {
           "folder": "symphonics",
           "currentWorkId": "branch:symphonics",
           "candidateRepository": "Sheshiyer/workforce-automation-app-symphonics",
-          "status": "blocked-missing-shallow-folder",
+          "status": "founder-hold-missing-shallow-folder",
           "rootMapState": "missing-client-account-without-shallow-folder",
           "repositoryEvidence": {
             "nameWithOwner": "Sheshiyer/workforce-automation-app-symphonics",
@@ -1113,14 +1161,26 @@
           "reviewEvidence": {
             "reviewedAt": "2026-08-08",
             "requestedRail": "temperance-parallel-dispatch",
-            "acceptedComboRail": "te-dispatch-paid via Codex profile",
-            "acceptedWorkerTask": "queue-flow",
-            "timedOutWorkerTasks": [
+            "acceptedExternalRail": false,
+            "fallbackRail": "in-session-subagents-and-inline-local-review",
+            "previousWorkerTask": "queue-flow",
+            "previousTimedOutWorkerTasks": [
               "rootmap-symphonics",
               "generator-impact"
             ],
             "physicalFolderProbe": "$PROJECTS_ROOT/thoughtseed/symphonics is absent",
-            "repoPlanningProbe": "README.md and overview.md describe a documentation/planning repository for the Workforce Automation App; implementation has not begun."
+            "repoPlanningProbe": "README.md and overview.md describe a documentation/planning repository for the Workforce Automation App; implementation has not begun.",
+            "futureScopeNote": "future custom native SDK / Tuya React Native app scope is intentionally left unmapped until the founder approves the exact shallow-folder and repository disposition"
+          },
+          "relocationGate": {
+            "requiresFounderApprovedManifest": true,
+            "requiredBeforeFolderCreateOrRename": [
+              "exact shallow folder name",
+              "repository role for the planning repo versus future native SDK app",
+              "archive or closeout disposition for any stale local material",
+              "dry-run directory comparison",
+              "live-apply approval"
+            ]
           },
           "recommendedAction": "keep symphonics in missingClientAccounts and do not add a root-map folder row, create a project folder, or generate active repository/R2 mapping receipts until founder approves an exact shallow-folder/repository disposition"
         }

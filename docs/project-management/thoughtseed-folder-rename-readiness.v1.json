@@ -1,0 +1,136 @@
+{
+  "schema": "thoughtseed.folder-rename-readiness.v1",
+  "capturedDate": "2026-08-08",
+  "portfolioId": "thoughtseed",
+  "status": "proposal-only-no-filesystem-mutation",
+  "scope": {
+    "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
+    "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+    "pathGrammar": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>",
+    "vaultBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder"
+  },
+  "whenRenamesHappen": {
+    "phase": "after the source-controlled mapping queue is settled and the founder approves an exact relocation manifest",
+    "notDuring": [
+      "repository evidence mapping",
+      "Batch 5 closeout/exclusion handling",
+      "R2 evidence prefix planning",
+      "Workbench digest regeneration"
+    ],
+    "requiredBeforeLiveApply": [
+      "founder-approved manifest with exact from/to paths",
+      "archive or rollback target for every changed folder",
+      "closed WorkObject disposition where applicable",
+      "dry-run compareObservedDirectories result before mutation",
+      "post-apply compareObservedDirectories result",
+      "root-map digest regeneration after accepted physical state",
+      "separate live-apply approval"
+    ]
+  },
+  "decisions": [
+    {
+      "id": "thoughtseed-labs-boundary",
+      "subject": "thoughtseed-labs",
+      "status": "infrastructure-no-rename",
+      "decision": "keep as R2/vault infrastructure context, not an active project folder and not a WorkObject folder",
+      "futureFilesystemAction": "none for active WorkObject mapping",
+      "evidence": [
+        "docs/project-management/portfolio-roots.v1.json",
+        "docs/evidence/2026-08-08-project-r2-folder-inventory.md",
+        ".project/HANDOFF.md"
+      ]
+    },
+    {
+      "id": "cambium-authoritative-promote-swap",
+      "subject": "cambium / cambium-authoritative",
+      "status": "relocation-manifest-required",
+      "decision": "use cambium-authoritative as temporary exact repository authority; do not create a second Cambium WorkObject",
+      "possibleLiveApply": "archive or rename the stale non-Git cambium folder, then promote/swap the exact checkout into the canonical cambium shallow slot",
+      "blockedBy": [
+        "founder must choose archive-first or promote/swap strategy",
+        "exact rollback target must be named",
+        "live apply must be separate from mapping evidence"
+      ],
+      "evidence": [
+        "docs/evidence/2026-08-08-project-r2-folder-inventory.md",
+        "docs/project-management/project-r2-mapping-proposals.md",
+        ".project/HANDOFF.md"
+      ]
+    },
+    {
+      "id": "temperance-landing-page-dedupe",
+      "subject": "website / temperance-engine-landing-page",
+      "status": "relocation-manifest-required",
+      "decision": "website is a container; the nested exact repository maps to program:temperance-hermes and may later be promoted or de-duplicated against the shallow mapped folder",
+      "possibleLiveApply": "promote the nested exact checkout into the existing shallow temperance-engine-landing-page row, or keep the current container with an explicit exception",
+      "blockedBy": [
+        "founder must approve whether to promote, de-duplicate, or preserve the container",
+        "exact from/to paths and archive target must be listed"
+      ],
+      "evidence": [
+        "docs/project-management/project-r2-mapping-proposals.md",
+        "docs/project-management/github-repository-mapping-action-queue.v1.json",
+        ".project/HANDOFF.md"
+      ]
+    },
+    {
+      "id": "symphonics-shallow-folder",
+      "subject": "symphonics",
+      "status": "founder-hold-missing-shallow-folder",
+      "decision": "do not create a project folder or active mapping receipt for the planning repository until the future custom native SDK / Tuya React Native app disposition is exact",
+      "possibleLiveApply": "create or map a shallow symphonics folder only after founder-approved manifest identifies the app/repository role",
+      "blockedBy": [
+        "shallow folder is absent",
+        "current repository evidence is planning/docs rather than implementation",
+        "future native app scope is intentionally ambiguous"
+      ],
+      "evidence": [
+        "docs/project-management/github-repository-mapping-action-queue.v1.json",
+        ".project/HANDOFF.md"
+      ]
+    },
+    {
+      "id": "safvr-closeout",
+      "subject": "safvr",
+      "status": "complete-closed-client-branch",
+      "decision": "keep mapped to branch:safvr-landing-page but out of active workflow",
+      "futureFilesystemAction": "none unless the client relationship reopens",
+      "evidence": [
+        "docs/project-management/closeouts/safvr-landing-page-handoff.md",
+        "docs/project-management/closeouts/safvr-landing-page-closeout.v1.json",
+        "docs/project-management/closeouts/safvr-landing-page-agent-memory.v1.json"
+      ]
+    },
+    {
+      "id": "virtualtryon-retirement",
+      "subject": "virtualtryon-3d",
+      "status": "complete-retired-ignore",
+      "decision": "keep as root-map empty-hold evidence only; do not create sapling:virtualtryon or active mapping receipts",
+      "futureFilesystemAction": "none unless a future founder-gated reopen reverses the retirement",
+      "evidence": [
+        "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md",
+        "docs/project-management/closeouts/virtualtryon-3d-retirement.v1.json",
+        "docs/project-management/closeouts/virtualtryon-3d-retirement-agent-memory.v1.json"
+      ]
+    },
+    {
+      "id": "plugins-git-identity",
+      "subject": "plugins",
+      "status": "deferred-git-identity-or-fold-decision",
+      "decision": "do not rename; either attach a Git repository or fold into existing operator utility / engineering orchestration infrastructure",
+      "futureFilesystemAction": "none until Git identity or fold decision is approved",
+      "evidence": [
+        "docs/project-management/project-r2-mapping-proposals.md",
+        "docs/project-management/github-repository-mapping-action-queue.v1.json",
+        ".project/HANDOFF.md"
+      ]
+    }
+  ],
+  "verification": {
+    "sourceControlledOnly": true,
+    "filesystemMutationPerformed": false,
+    "r2WritePerformed": false,
+    "githubMutationPerformed": false,
+    "productionDeployPerformed": false
+  }
+}
