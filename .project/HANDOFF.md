@@ -384,6 +384,44 @@
   write, provider change, Goal Graph write, production deployment, or live
   hosted Workbench mutation was performed by this retirement checkpoint.
 
+### 2026-08-08 Symphonics root-map review checkpoint
+
+- Continued the post-retirement repository/R2 mapping flow with the
+  `temperance-parallel-dispatch` combo lane. `te-dispatch-paid` was refreshed
+  and smoke-tested successfully through the Codex profile after sourcing the
+  OmniRoute key; no Sol-family model was used.
+- Accepted combo-worker output from the read-only `queue-flow` audit confirmed
+  there is no global VirtualTryOn block, the VirtualTryOn Batch 5 row is
+  `resolved-retired-ignore`, and Symphonics is the only remaining Batch 5
+  root-map/catalog repair row. The two longer read-only audits were stopped as
+  timeouts and were not accepted as evidence.
+- Read-only GitHub evidence for
+  `Sheshiyer/workforce-automation-app-symphonics` records repository id
+  `R_kgDOOM0pmw`, database id `952969627`, public visibility, default branch
+  `main`, non-fork status, and pushed-at `2025-03-22T09:47:22Z`.
+- Repository-local `README.md` and `overview.md` describe a documentation and
+  planning repository for the Workforce Automation App, with implementation not
+  yet begun.
+- `$PROJECTS_ROOT/thoughtseed/symphonics` is absent, so the root map was not
+  changed. `symphonics` remains in `missingClientAccounts`; adding a folder row
+  now would falsify the shallow folder inventory.
+- The GitHub repository mapping action queue now marks Symphonics as
+  `blocked-missing-shallow-folder` and requires a future founder-approved exact
+  shallow-folder/repository disposition before any root-map row, project-folder
+  creation, active repository/R2 mapping receipt, or Workbench mutation.
+- While verifying, a stale operating-fabric catalog-count test was corrected to
+  derive its expected mapped and card totals from the checked-in
+  `PORTFOLIO_CATALOG.summary` rather than from obsolete literals.
+- Verification: edited JSON files pass `jq empty`; Symphonics review invariants
+  pass a local JSON probe; `pnpm --dir apps/portfolio-cartographer check`
+  passes 50 active tests with one historical skip plus lint, bundle,
+  standalone audit, CSP, and hosted smoke; focused Worker portfolio/admin-action
+  route tests pass 23/23; full `npm test` passes 1568/1568; `git diff --check`
+  passes.
+- No folder was created, moved, copied, deleted, or reorganized. No R2 object,
+  GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
+  row, production deployment, or live hosted Workbench state was mutated.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.

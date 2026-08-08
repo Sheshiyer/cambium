@@ -111,6 +111,7 @@ Purpose: avoid active-work noise.
 
 - SAFVR is approved as a closed/completed Client Branch and should stay out of active workflow.
 - `virtualtryon-3d` is retired/ignored by founder decision, not an active WorkObject and not a Sapling.
+- `symphonics` remains a missing client-account coverage row because no shallow destination folder exists yet.
 - Forks, external vendor clones, and dependency references should become dependency/reference evidence, not WorkObjects.
 - Completed/terminated work needs the closeout packet: handoff Markdown, closeout receipt JSON, agent memory projection, finished-index delta, and immutable R2 evidence receipt.
 

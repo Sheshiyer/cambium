@@ -62,7 +62,7 @@ No Sol-family model was used.
   - `pineappleinnovationlabs/chakra-shine-admin` as a same-owner false positive until repo-local planning confirms;
   - Co.Property Sapling-bound refs left to Sapling provenance;
   - panorama false positive held outside Ashwin Sheth.
-- Symphonics needs root-map attention: catalog row exists, but root-map grouping still lists Symphonics as missing client-account coverage.
+- Symphonics received post-retirement follow-up review: catalog row exists and the GitHub repository is a planning/documentation repository, but `$PROJECTS_ROOT/thoughtseed/symphonics` is absent. Keep Symphonics as missing client-account coverage until the founder approves an exact shallow-folder/repository disposition.
 
 ### Batch 3 — Sapling provenance and catalog repair
 
