@@ -61,6 +61,29 @@ type Batch5Row = {
 const queue = JSON.parse(
   readFileSync(new URL('../../../docs/project-management/github-repository-mapping-action-queue.v1.json', import.meta.url), 'utf8'),
 ) as { batches: Batch[] };
+const physicalLaneManifest = JSON.parse(
+  readFileSync(
+    new URL('../../../docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json', import.meta.url),
+    'utf8',
+  ),
+) as {
+  applyAuthorization: Record<string, boolean>;
+  phases: Array<{
+    phaseId: string;
+    order: number;
+    status: string;
+    liveApplyReady: boolean;
+    proposedOperations?: Array<{ op: string; source?: string; target?: string; path?: string }>;
+    proposedOperationsWhenUnblocked?: Array<{ op: string; source?: string; target?: string; path?: string }>;
+    mustNotDo?: string[];
+  }>;
+  scope: {
+    shallowPortfolioRoot: string;
+    vaultContextRoot: string;
+    vaultBoundary: string;
+  };
+  status: string;
+};
 
 const batch = queue.batches.find(({ batchId }) => batchId === 'github-batch-002-client-branch-clusters');
 if (!batch) throw new Error('Batch 2 client branch queue is missing');
@@ -190,4 +213,44 @@ test('Batch 5 settles closeouts while holding physical renames behind a manifest
   assert.equal(batch5.renameReadiness?.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
   assert.equal(batch5.renameReadiness?.vaultContextRoot, '$PROJECTS_ROOT/thoughtseed/thoughtseed-labs');
   assert.match(batch5.renameReadiness?.thoughtseedLabsBoundary ?? '', /never a WorkObject folder/);
+});
+
+test('physical relocation manifest keeps live apply gated and ordered', () => {
+  const phases = new Map(physicalLaneManifest.phases.map((phase) => [phase.phaseId, phase]));
+  const cambium = phases.get('phase-1-cambium-archive-first-promote');
+  const temperance = phases.get('phase-2-temperance-landing-page-promote-authority');
+  const symphonics = phases.get('phase-3-symphonics-held');
+  const manifestText = JSON.stringify(physicalLaneManifest);
+
+  assert.equal(physicalLaneManifest.status, 'draft-awaiting-founder-live-apply-approval');
+  assert.equal(physicalLaneManifest.applyAuthorization.liveApplyApproved, false);
+  assert.equal(physicalLaneManifest.applyAuthorization.filesystemMutationAuthorized, false);
+  assert.equal(physicalLaneManifest.scope.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
+  assert.equal(physicalLaneManifest.scope.vaultContextRoot, '$PROJECTS_ROOT/thoughtseed/thoughtseed-labs');
+  assert.match(physicalLaneManifest.scope.vaultBoundary, /never a WorkObject folder/);
+  assert.equal(manifestText.includes('/Volumes/'), false);
+  assert.equal(manifestText.includes('thoughtseed-labs/'), false);
+
+  assert.equal(cambium?.order, 1);
+  assert.equal(cambium?.liveApplyReady, true);
+  assert.equal(cambium?.proposedOperations?.some(({ source, target }) =>
+    source === '$PROJECTS_ROOT/thoughtseed/cambium' &&
+    target === '$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority',
+  ), true);
+  assert.equal(cambium?.proposedOperations?.some(({ source, target }) =>
+    source === '$PROJECTS_ROOT/thoughtseed/cambium-authoritative' &&
+    target === '$PROJECTS_ROOT/thoughtseed/cambium',
+  ), true);
+
+  assert.equal(temperance?.order, 2);
+  assert.equal(temperance?.liveApplyReady, false);
+  assert.match(temperance?.status ?? '', /local-state-reconciliation/);
+  assert.equal(temperance?.proposedOperationsWhenUnblocked?.some(({ source, target }) =>
+    source === '$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page' &&
+    target === '$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page',
+  ), true);
+
+  assert.equal(symphonics?.order, 3);
+  assert.equal(symphonics?.liveApplyReady, false);
+  assert.equal(symphonics?.mustNotDo?.some((rule) => rule.includes('create $PROJECTS_ROOT/thoughtseed/symphonics')), true);
 });

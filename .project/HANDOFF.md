@@ -673,3 +673,38 @@ mutation has been performed by drafting this packet.
   reorganized. No R2 object, GitHub issue, GitHub Project item, registry row,
   provider setting, Goal Graph row, production deployment, or live hosted
   Workbench state was mutated.
+
+### 2026-08-08 Thoughtseed physical lane manifest checkpoint
+
+- The next physical lane is drafted but not live-applied:
+  `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json`
+  and its Markdown companion define the exact order and gates.
+- Phase 1 is Cambium archive-first promotion: preserve the stale non-Git
+  `$PROJECTS_ROOT/thoughtseed/cambium` folder under a new relocation archive,
+  then promote the exact `cambium-authoritative` Git checkout into the canonical
+  `cambium` shallow slot. This remains blocked on fresh preflight, founder
+  manifest approval, and separate live-apply approval.
+- Phase 2 is Temperance landing-page promote-authority de-dup, but it is not
+  live-apply ready. The nested `website/temperance-engine-landing-page` checkout
+  is exact Git authority, while the shallow peer is non-Git local state; local
+  artifacts and `.gitignore` drift must be reconciled before any promotion.
+- Phase 3 keeps `branch:symphonics` held. Do not create a shallow folder,
+  generate active mapping receipts, or remove it from `missingClientAccounts`
+  until the future native SDK / Tuya React Native app role is exact.
+- Live preflight observed one root-map/disk drift: `_home-cleanup-2026-08-08`
+  is still listed as infrastructure in the current root map but is absent on
+  disk, so the manifest uses a new explicit relocation archive target and
+  requires fresh root-map digest regeneration rather than relying on old
+  evidence digests.
+- `thoughtseed-labs` remains R2/vault infrastructure context, never a
+  WorkObject folder or relocation target.
+- Verification: `jq empty` passed for the relocation manifest and updated
+  readiness JSON; Batch 2/4/5 plus physical-lane invariant tests passed 8/8;
+  `pnpm --dir apps/portfolio-cartographer check` passed 58 active tests with
+  one historical skip plus lint, bundle, standalone audit, CSP, and hosted
+  smoke; focused Worker portfolio/admin route tests passed 28/28; full
+  `npm test` passed 1568/1568.
+- No folder was created, moved, copied, renamed, archived, deleted, or
+  reorganized. No R2 object, GitHub issue, GitHub Project item, registry row,
+  provider setting, Goal Graph row, production deployment, or live hosted
+  Workbench state was mutated.
