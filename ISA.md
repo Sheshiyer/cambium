@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Expose portfolio ingestion headers and reconcile production controls"
-effort: E5
-effort_source: classifier
-phase: complete
-progress: 870/946
+task: "Execute Cambium Phase 1 archive-first promotion"
+effort: E3
+effort_source: context-override
+phase: plan
+progress: 870/962
 mode: interactive
-iteration: 2026-08-08-batch-2-client-repository-mapping
+iteration: 2026-08-08-cambium-phase-1-live-apply
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-08T15:54:32Z
+updated: 2026-08-08T17:41:00Z
 ---
 
 ## Problem
@@ -1285,6 +1285,25 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-944: `.project/HANDOFF.md` records the bounded Batch 2 checkpoint and remaining live-receipt gate.
 - [x] ISC-945: Anti: this iteration performs no R2 write, GitHub mutation, folder move, registry write, Goal Graph write, provider change, or production deployment.
 
+### Cambium Phase 1 live apply
+
+- [ ] ISC-946: Batch 2 commit `ba56bef` is an ancestor of the current Phase 1 checkout.
+- [ ] ISC-947: The founder message contains the exact Phase 1 live-apply approval text recorded by the preflight receipt.
+- [ ] ISC-948: The authoritative checkout is the clean exact `Sheshiyer/cambium` Git root on `codex/project-r2-mapping-plan` before mutation.
+- [ ] ISC-949: The canonical `cambium` slot is a real non-symlink directory and not a Git repository before mutation.
+- [ ] ISC-950: The new relocation archive container and exact Cambium archive target are absent before mutation.
+- [ ] ISC-951: The pre-apply depth-one comparison differs from the checked-in root map only by the founder-ignored `_home-cleanup-2026-08-08` row.
+- [ ] ISC-952: The stale non-Git Cambium slot is preserved intact at the exact relocation archive target.
+- [ ] ISC-953: The authoritative Git checkout is promoted into the canonical shallow `cambium` slot without copying or overwriting.
+- [ ] ISC-954: The promoted canonical slot retains the exact Git remote, branch, HEAD, and clean working tree.
+- [ ] ISC-955: The archived pre-authority Cambium state remains non-Git and recoverable after promotion.
+- [ ] ISC-956: The root-map snapshot replaces stale cleanup and temporary-authority infrastructure with the exact relocation archive container.
+- [ ] ISC-957: Portfolio root headers are regenerated from the accepted post-apply physical state.
+- [ ] ISC-958: The post-apply depth-one comparison has zero missing and zero unexpected directories.
+- [ ] ISC-959: A post-apply receipt and handoff record the approval, operations, rollback path, before/after evidence, and next Temperance gate.
+- [ ] ISC-960: Focused relocation tests, Portfolio Cartographer check, Worker portfolio routes, full repository tests, JSON parsing, and diff checks pass.
+- [ ] ISC-961: Anti: Phase 1 performs no R2, GitHub, registry, Goal Graph, provider, production, Temperance, Symphonics, or `thoughtseed-labs` mutation.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1305,6 +1324,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-57 | CI | every required PR check succeeds | `gh pr checks --watch` |
 | ISC-721..745 | dual transport auth | browser enters Access/Plexus founder flow; Telegram keeps signed initData; inactive identities fail closed; both serve exact bytes without writes | focused Node tests, Cloudflare Access read-back, candidate probes, browser automation, SHA-256, `git diff --check` |
 | ISC-931..945 | Batch 2 repository mapping | queue-count probe, immutable GitHub IDs, exact WorkObject assignments, regenerated evidence, scoped/full tests, JSON parse, handoff, and no-external-mutation status | `node`, `gh`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
+| ISC-946..961 | Cambium Phase 1 live apply | ancestry, exact approval, pre/post lstat and Git identity, depth-one compare, recoverable archive, atomic path promotion, regenerated root map/headers, receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, `node`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check` |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1466,6 +1486,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - `GitHubPortfolioReconciliation` | Compare stable repository evidence with WorkObjects and Needs Review without admitting or activating anything | satisfies ISC-716..717, ISC-720 | depends_on ComposioGitHubInventory, PortfolioCatalogProjection | parallelizable false
 - `RepositoryEvidenceSnapshot` | Resolve privacy-safe exact GitHub repository identities deterministically from catalog refs and the relocation registry | satisfies ISC-767..772, ISC-804 | depends_on ComposioGitHubInventory, GitHubPortfolioReconciliation | parallelizable false
 - `Batch2ClientRepositoryMapping` | Resolve client-family repository clusters into immutable, per-WorkObject mapping evidence while blocking unavailable identities and live receipt writes | satisfies ISC-931..945 | depends_on RepositoryEvidenceSnapshot, GitHubPortfolioReconciliation | parallelizable false
+- `CambiumPhase1ArchiveFirstPromote` | Preserve stale non-Git Cambium state, promote exact Git authority into the canonical shallow slot, and regenerate physical-map evidence | satisfies ISC-946..961 | depends_on Batch2ClientRepositoryMapping | parallelizable false
 - `OriginGrammar` | Derive Sapling, Client Branch, Internal Program, or Needs Review only from explicit origin evidence | satisfies ISC-773..782, ISC-799..801 | depends_on RepositoryEvidenceSnapshot | parallelizable false
 - `RepositoryFirstIntakeState` | Persist planning authority, review gates, mismatch proposals, and lossless v4 migration | satisfies ISC-783..794 | depends_on OriginGrammar | parallelizable false
 - `RepositoryFirstIntakeUI` | Replace premature Unplanned scheduling with focused Intake, readiness explanations, and locked planning controls | satisfies ISC-765..766, ISC-795..803 | depends_on RepositoryFirstIntakeState | parallelizable false
@@ -1496,6 +1517,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-08 17:34: refined: Batch 2 is already complete because `ba56bef` is an ancestor of current clean head `31c0b3b`. The user's continuation includes the exact preflight approval phrase and “lets proceed,” so it authorizes only Phase 1 Cambium archive-first promotion; Temperance, Symphonics, R2, GitHub, registry, Goal Graph, provider, and production state remain outside scope.
+- 2026-08-08 17:34: FirstPrinciples deconstruction separates four facts: the stale `cambium` directory is recoverable local state, `cambium-authoritative` is Git authority, the canonical address is the shallow `cambium` slot, and correctness requires an atomic archive-then-promote sequence with post-move identity proof. No merge or in-place overwrite is permitted.
+- 2026-08-08 17:34: delegation is intentionally omitted. The operation is a sequential two-rename transaction whose second step depends on the first, directed probes take under 30 seconds, and the active system contract prohibits unsolicited subagents.
+- 2026-08-08 17:41: the pre-apply Advisor call failed because the local inference OAuth session remains expired and cannot refresh. No approval or safety conclusion is inferred from that channel; exact lstat, Git, ancestry, digest, directory-comparison, rollback, and post-move probes remain the commitment gate.
 
 - 2026-08-08 10:30: refined: the continuation proceeds through Batch 2's local repository-evidence lane. The pasted checkpoint does not silently authorize live R2 mapping receipts, so Batch 3 receipt issuance remains founder-gated; unavailable GitHub identities and contaminating rows remain blocked rather than being promoted by name.
 - 2026-08-08 10:30: the E5 Interview workflow found no thin project-ISA sections requiring new founder questions; the checkpoint already supplied the goal, exclusions, authority boundaries, verified starting state, and next-queue split. The pre-build Advisor invocation was attempted but the local inference OAuth session was expired and could not refresh, so empirical repository probes remain the commitment evidence.
