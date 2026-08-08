@@ -320,6 +320,7 @@ export function buildViewportProofManifest({
   viewport,
   proofs,
 }) {
+  const browserEvidenceLabel = (value) => String(value || '').split('/').filter(Boolean).at(-1) || 'unknown-browser';
   const proofIntentSummary = proofs.reduce((summary, proof) => {
     summary[proof.intent] = (summary[proof.intent] || 0) + 1;
     return summary;
@@ -329,9 +330,9 @@ export function buildViewportProofManifest({
     schema: VIEWPORT_PROOF_MANIFEST_SCHEMA,
     generatedAt,
     pageSourceSha256: PAGE_SOURCE_SHA256,
-    chrome,
+    chrome: browserEvidenceLabel(chrome),
     browserMode,
-    browserCandidates,
+    browserCandidates: browserCandidates.map(browserEvidenceLabel),
     viewport,
     proofIntentSummary,
     proofs,
@@ -1200,9 +1201,9 @@ function operatingFabricAllScenesAssertion(width) {
       && organPlan.textContent.includes('No recurring schedule');
     const portfolioOk = Boolean(portfolio)
       && portfolioZones.length === 4
-      && portfolioCards.length === 92
+      && portfolioCards.length === 94
       && portfolioCounts.saplings === '20'
-      && portfolioCounts.clients === '37'
+      && portfolioCounts.clients === '39'
       && portfolioCounts.programs === '15'
       && portfolioCounts.review === '0'
       && portfolioCounts.historical === '20'

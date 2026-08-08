@@ -903,3 +903,54 @@ mutation has been performed by drafting this packet.
   Goal Graph row, provider setting, or production deployment was mutated.
 - No further physical lane is authorized. Phase 3 Symphonics remains held until
   its native-app role and separate founder gate are exact.
+
+### 2026-08-09 portfolio foundation reconciliation checkpoint
+
+- Sapling promotion remains unperformed. This checkpoint repairs and proves
+  the repository-owned identity substrate that promotion will consume.
+- The active catalog remains 74 unique WorkObjects: 20 Saplings, 39 Client
+  Branches, and 15 Internal Programs, plus 20 historical products, zero
+  classification-review records, and 49 bounded known-source operational gaps.
+- Klear Karma now has the reviewed root kind `sapling`; Snow Gloves evidence
+  remains excluded to `program:snow-gloves-os`. The current root-map digest is
+  `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`.
+  Earlier Phase 1/2 receipts correctly retain their accepted `8a3b3bb…`
+  physical snapshot rather than being rewritten.
+- Repository evidence now contains 106 references: 96 resolved, five
+  unverified, and five unmatched. Its digest is
+  `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`.
+  Batch 6 records eight new immutable assignments, four reconciled existing
+  assignments, six unavailable-identity holds, the unassigned Brandmint
+  classification hold, and explicit folder/repository holds for
+  `sapling:whatslegal` and `sapling:seedforge`; no assignment was inferred.
+- DLOCK is indexed and validated as `sapling:dlock`. All six active product
+  packets declare an exact canonical WorkObject identity or, for the generic
+  Client Delivery packet, an explicit non-canonical template scope. Packet
+  validation now rejects orphan files and duplicate canonical identities.
+- Runtime portfolio joins accept exact canonical `sapling:`, `branch:`, or
+  `program:` identities only. Legacy/bare aliases remain runtime gaps;
+  duplicate WorkObject and task identities fail closed. Goal Graph parent
+  storage IDs resolve to parent external IDs, and the UI labels generic matches
+  as Mission Fabric identity rather than Goal Graph proof.
+- Workbench and local birth/closeout actions bind three separate authorities:
+  root map `baec8991…`, classification source
+  `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`,
+  and full catalog
+  `sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64`.
+  Closeout subjects, archive prefixes, and successors are exact-ID bound.
+- Deterministic gates pass: `validate:portfolio-foundation`; Portfolio
+  Cartographer check with 69 active tests and one historical skip; 47/47 real
+  browser viewport proofs (27 layout, 20 clickability); drift audit; and full
+  `npm test` at 1583/1583. JSON parsing and `git diff --check` pass.
+- Remaining operational holds are explicit, not discrepancies: D1 has no typed
+  WorkObject anchor, loadout authority is not joined, six repositories lack a
+  retrievable immutable identity, Brandmint lacks a founder-reviewed
+  classification, and WhatsLegal/SeedForge lack reviewed shallow-folder and
+  repository evidence.
+- The founder's Codex/OmniRoute/Temperance orchestration direction is recorded
+  as context only. This repository did not implement the separate Paseo-to-Codex
+  migration and performed no R2, GitHub, Vault, registry, D1, provider,
+  production, or physical-folder mutation.
+- Next gate: resolve or deliberately accept the explicit holds, then issue
+  separately approved mapping receipts. Sapling promotion remains a later,
+  separately approved operation.

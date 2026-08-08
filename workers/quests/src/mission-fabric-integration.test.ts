@@ -69,14 +69,16 @@ function goalGraphFixture() {
   // Macro parent node whose externalId is the canonical mission ID (its
   // nodeId is just a Goal Graph storage id, gg-mission-fabric-foundation —
   // only externalId is canonical), and a meso child node whose externalId
-  // is the canonical task ID with parentNodeId pointing at the mission ID.
+  // is the canonical task ID with parentNodeId pointing at the parent's D1
+  // storage identity. The adapter resolves that storage ID to the parent's
+  // canonical external mission ID.
   // adaptGoalGraph maps both into FabricTask nodes (there is no
   // FabricMission kind in this route's live composition), so the
   // mission-shaped node is asserted via its own taskId/missionId fields,
   // not via a 'mission' node kind.
   const nodes = [
     goalNode('gg-mission-fabric-foundation', MISSION_ID, null),
-    goalNode('gg-task-contract', 'task-fabric-contract', MISSION_ID),
+    goalNode('gg-task-contract', 'task-fabric-contract', 'gg-mission-fabric-foundation'),
   ];
   const head: GoalGraphHead = {
     tenantId: TENANT, graphVersion: 7, graphDigest: `sha256:${'b'.repeat(64)}`,
@@ -129,12 +131,12 @@ function questEnvelope(facts: Record<string, unknown>, derivedAt = NOW_ISO) {
     derivedAt,
     tenant: TENANT,
     branchStories: [
-      { branchId: 'branch-cambium', branchKind: 'product', name: 'Cambium', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp' }, controls: { organRouting: [] }, source: { tenant: TENANT } },
+      { branchId: 'branch-cambium', branchKind: 'product', canonicalWorkId: 'sapling:cambium', name: 'Cambium', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp' }, controls: { organRouting: [] }, source: { tenant: TENANT } },
       // Private client branch: covers redaction (requirement #5) only. Its
       // productId matches its represented workId so shadow parity stays
       // zero-gap for every viewer role (redaction never removes the work
       // node itself, only its client-identifying fields).
-      { branchId: 'branch-acme-client', branchKind: 'client', productId: 'acme-client-program', name: 'Acme Corp Engagement', vision: { statement: 'acme confidential roadmap' }, arcId: 'arc-acme', source: { tenant: TENANT } },
+      { branchId: 'branch-acme-client', branchKind: 'client', canonicalWorkId: 'branch:acme-client', productId: 'acme-client-program', name: 'Acme Corp Engagement', vision: { statement: 'acme confidential roadmap' }, arcId: 'arc-acme', source: { tenant: TENANT } },
     ],
     companyPrograms: [
       {
@@ -259,21 +261,20 @@ test('full proof chain: program+sapling -> Goal Graph IDs -> fenced run -> recei
   );
   const saplingIds = workNodes.filter((node) => node.value.kind === 'sapling').map((node) => node.value.workId).sort();
   const programIds = workNodes.filter((node) => node.value.kind === 'program').map((node) => node.value.workId).sort();
-  assert.deepEqual(saplingIds, ['branch-cambium'], 'sapling work is present and distinguishable');
-  assert.deepEqual(programIds, ['acme-client-program', 'cambium-operating-fabric'], 'company-wide and client programs are present and distinguishable');
+  assert.deepEqual(saplingIds, ['sapling:cambium'], 'sapling work is present and distinguishable');
+  assert.deepEqual(programIds, ['branch:acme-client', 'cambium-operating-fabric'], 'company-wide and client programs are present and distinguishable');
 
-  // Goal Graph canonical mission and task IDs both reached the projection
-  // as task-shaped nodes (this route's live composition never emits a
-  // standalone 'mission' kind node — adaptGoalGraph maps every Goal Graph
-  // node into FabricTask). The child's missionId field is the exact
-  // parentNodeId parentage from the fixture.
+  // Goal Graph canonical mission and task IDs both reached the projection as
+  // task-shaped nodes. The execution-fact copy of the task reconciles into the
+  // D1-authoritative task node, and the D1 parent storage ID resolves to the
+  // parent's canonical external mission ID.
   const taskNodes = projection.nodes.filter(
     (node): node is Extract<typeof node, { kind: 'task' }> => node.kind === 'task',
   );
   const missionShapedNode = taskNodes.find((node) => node.value.taskId === MISSION_ID);
   assert.ok(missionShapedNode, 'Goal Graph macro (mission) node reached the projection with its exact externalId');
   const childTaskNodes = taskNodes.filter((node) => node.value.taskId === 'task-fabric-contract');
-  assert.ok(childTaskNodes.length >= 1, 'Goal Graph canonical task ID reached the projection');
+  assert.equal(childTaskNodes.length, 1, 'one canonical task node survives D1/execution reconciliation');
   for (const childTask of childTaskNodes) {
     assert.equal(childTask.value.missionId, MISSION_ID, 'child task carries exact mission parentage');
   }
@@ -313,18 +314,16 @@ test('full proof chain: program+sapling -> Goal Graph IDs -> fenced run -> recei
   // a real, correctly-typed Freshness value (no `as any`).
   const freshness: Freshness = { state: result.json.delivery.freshness === 'fresh' ? 'fresh' : 'stale' };
   const canopyHtml = renderCanopy(projection, { freshness });
-  assert.match(canopyHtml, /data-work-id="branch-cambium"/);
+  assert.match(canopyHtml, /data-work-id="sapling:cambium"/);
   assert.match(canopyHtml, /data-work-id="cambium-operating-fabric"/);
-  assert.match(canopyHtml, /data-work-id="acme-client-program"/);
+  assert.match(canopyHtml, /data-work-id="branch:acme-client"/);
 
-  // Contextual Inspect sheet: 'task-fabric-contract' is intentionally
-  // ambiguous (both the Goal-Graph-derived task node and the quest-facts
-  // task node share that taskId), so per the required semantics it must
-  // NOT be selected for Inspect — Inspect the unique run node instead, and
-  // assert its provenance fields plus availability directly.
-  assert.ok(childTaskNodes.length > 1, 'task-fabric-contract is intentionally duplicated across sources');
-  const ambiguousInspect = renderInspectSheet(projection, { kind: 'node', nodeId: 'task-fabric-contract' });
-  assert.match(ambiguousInspect, /Inspect unavailable/, 'ambiguous duplicated ID never resolves for Inspect');
+  const taskInspect = renderInspectSheet(projection, { kind: 'node', nodeId: 'task-fabric-contract' });
+  assert.doesNotMatch(taskInspect, /Inspect unavailable/, 'reconciled task identity remains inspectable');
+  assert.ok(
+    projection.gaps.some((gap) => gap.kind === 'task-overlay-reconciled' && gap.subjectId === 'task-fabric-contract'),
+    'the discarded execution-fact task copy remains visible as a typed reconciliation gap',
+  );
 
   const runInspectHtml = renderInspectSheet(projection, { kind: 'node', nodeId: 'run-fabric-current' });
   assert.doesNotMatch(runInspectHtml, /Inspect unavailable/);
@@ -403,14 +402,14 @@ test('non-founder viewer receives real redaction with a valid signed initData pr
   // Private client label is redacted for the non-founder viewer.
   const founderClientWork = founderProjection.nodes.find(
     (node): node is Extract<typeof node, { kind: 'work' }> =>
-      node.kind === 'work' && node.value.kind === 'program' && node.value.workId === 'acme-client-program',
+      node.kind === 'work' && node.value.kind === 'program' && node.value.workId === 'branch:acme-client',
   );
   assert.ok(founderClientWork, 'founder sees the real client program node');
   assert.equal((founderClientWork!.value as { name: string }).name, 'Acme Corp Engagement');
 
   const viewerClientWork = viewerProjection.nodes.find(
     (node): node is Extract<typeof node, { kind: 'work' }> =>
-      node.kind === 'work' && node.value.kind === 'program' && node.value.workId === 'acme-client-program',
+      node.kind === 'work' && node.value.kind === 'program' && node.value.workId === 'branch:acme-client',
   );
   assert.ok(viewerClientWork, 'client program node still exists for the viewer (redacted, not removed)');
   assert.equal((viewerClientWork!.value as { name: string }).name, '[private client]', 'private client label is redacted for non-founder viewers');

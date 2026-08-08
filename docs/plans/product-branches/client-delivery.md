@@ -1,9 +1,11 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: client-delivery
+canonical_work_id: none
+identity_scope: template
 branch_kind: client
 name: Client Delivery
-role: Client delivery branch
+role: Client delivery branch template
 promotion_state: supervised-branch
 current_gate: Client scope acceptance and handoff proof
 packet_owner: cambium
@@ -11,7 +13,7 @@ packet_owner: cambium
 
 # Client Delivery Branch Packet
 
-Client Delivery is the Cambium branch packet for active client work. It treats client scope, delivery, acceptance, and handoff as first-class branch proof without pretending every branch is a product or new productized offer.
+Client Delivery is the non-canonical Cambium template for active client work. It does not claim a WorkObject identity; each instantiated client branch must bind its own exact `branch:<slug>` ID before an operational join. The template treats client scope, delivery, acceptance, and handoff as first-class branch proof without pretending every branch is a product or new productized offer.
 
 ## Product Seed
 

@@ -158,6 +158,7 @@ export interface BranchStoryArc {
   branchId: string;
   branchKind: BranchKind;
   productId: string;
+  canonicalWorkId?: string;
   name: string;
   role: string;
   arcId: string;

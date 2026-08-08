@@ -10,7 +10,7 @@ import {
 
 export const PORTFOLIO_CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
-const EXPECTED_CATALOG_DIGEST = 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64';
+export const PORTFOLIO_CATALOG_DIGEST = 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
@@ -148,13 +148,20 @@ export interface PortfolioJoinMatch {
   runtimeWorkId: string;
 }
 
+export interface PortfolioRuntimeIdentityCollision {
+  workId: string;
+  occurrences: number;
+}
+
 export interface PortfolioJoinReport {
   matchedCount: number;
   catalogOrphanCount: number;
   runtimeOrphanCount: number;
+  runtimeIdentityCollisionCount: number;
   matches: readonly PortfolioJoinMatch[];
   catalogOrphans: readonly string[];
   runtimeOrphans: readonly string[];
+  runtimeIdentityCollisions: readonly PortfolioRuntimeIdentityCollision[];
 }
 
 export class PortfolioCatalogValidationError extends Error {
@@ -449,8 +456,8 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
 
   const actualDigest = sha256(catalogHashPayload(catalog as unknown as PortfolioCatalogV1));
   if (actualDigest !== catalog.catalogDigest) fail('catalog digest does not match canonical content');
-  if (actualDigest !== EXPECTED_CATALOG_DIGEST) {
-    fail(`checked-in catalog digest drifted: expected ${EXPECTED_CATALOG_DIGEST}, received ${actualDigest}`);
+  if (actualDigest !== PORTFOLIO_CATALOG_DIGEST) {
+    fail(`checked-in catalog digest drifted: expected ${PORTFOLIO_CATALOG_DIGEST}, received ${actualDigest}`);
   }
 }
 
@@ -469,16 +476,24 @@ export function portfolioCatalogForViewer(
   };
 }
 
-function normalizedRuntimeIdentity(value: unknown): { canonicalId: string; runtimeWorkId: string } | null {
+function runtimeWorkIdFrom(value: unknown): string | null {
   if (!isRecord(value)) return null;
   const candidate = value.kind === 'work' && isRecord(value.value) ? value.value : value;
   if (!isRecord(candidate) || typeof candidate.workId !== 'string') return null;
-  const runtimeWorkId = candidate.workId.trim();
+  const workId = candidate.workId.trim();
+  return /^[A-Za-z0-9_.:-]{1,160}$/.test(workId) ? workId : null;
+}
+
+function canonicalRuntimeIdentity(value: unknown): { canonicalId: string; runtimeWorkId: string } | null {
+  if (!isRecord(value)) return null;
+  const candidate = value.kind === 'work' && isRecord(value.value) ? value.value : value;
+  if (!isRecord(candidate)) return null;
+  const runtimeWorkId = runtimeWorkIdFrom(value);
+  if (runtimeWorkId === null) return null;
   const slug = '[a-z0-9]+(?:-[a-z0-9]+)*';
   if (candidate.kind === 'sapling') {
     if (new RegExp(`^sapling:${slug}$`).test(runtimeWorkId)) return { canonicalId: runtimeWorkId, runtimeWorkId };
-    const legacy = new RegExp(`^sapling-(${slug})$`).exec(runtimeWorkId);
-    return legacy ? { canonicalId: `sapling:${legacy[1]}`, runtimeWorkId } : null;
+    return null;
   }
   if (candidate.kind !== 'program') return null;
   const prefix = candidate.programKind === 'client' ? 'branch' : (
@@ -488,7 +503,6 @@ function normalizedRuntimeIdentity(value: unknown): { canonicalId: string; runti
   );
   if (!prefix) return null;
   if (new RegExp(`^${prefix}:${slug}$`).test(runtimeWorkId)) return { canonicalId: runtimeWorkId, runtimeWorkId };
-  if (new RegExp(`^${slug}$`).test(runtimeWorkId)) return { canonicalId: `${prefix}:${runtimeWorkId}`, runtimeWorkId };
   return null;
 }
 
@@ -511,25 +525,45 @@ export function buildPortfolioJoinReport(
       ))
       .map((record) => record.workId),
   );
-  const runtimeIdentities = new Map<string, string>();
+  const runtimeIdentities = new Map<string, { runtimeWorkId: string; occurrences: number }>();
+  const rejectedRuntimeIds = new Set<string>();
   for (const node of Array.isArray(runtimeWorkNodes) ? runtimeWorkNodes : []) {
-    const identity = normalizedRuntimeIdentity(node);
-    if (identity && !runtimeIdentities.has(identity.canonicalId)) runtimeIdentities.set(identity.canonicalId, identity.runtimeWorkId);
+    const identity = canonicalRuntimeIdentity(node);
+    if (!identity) {
+      const rejected = runtimeWorkIdFrom(node);
+      if (rejected !== null) rejectedRuntimeIds.add(rejected);
+      continue;
+    }
+    const existing = runtimeIdentities.get(identity.canonicalId);
+    runtimeIdentities.set(identity.canonicalId, {
+      runtimeWorkId: identity.runtimeWorkId,
+      occurrences: (existing?.occurrences ?? 0) + 1,
+    });
   }
+  const runtimeIdentityCollisions = [...runtimeIdentities.entries()]
+    .filter(([, identity]) => identity.occurrences > 1)
+    .map(([workId, identity]) => ({ workId, occurrences: identity.occurrences }))
+    .sort((a, b) => a.workId.localeCompare(b.workId));
+  const collisionIds = new Set(runtimeIdentityCollisions.map((collision) => collision.workId));
   const matches = [...runtimeIdentities.entries()]
-    .filter(([canonicalId]) => joinEligibleIds.has(canonicalId))
-    .map(([canonicalId, runtimeWorkId]) => ({ canonicalId, runtimeWorkId }))
+    .filter(([canonicalId]) => joinEligibleIds.has(canonicalId) && !collisionIds.has(canonicalId))
+    .map(([canonicalId, identity]) => ({ canonicalId, runtimeWorkId: identity.runtimeWorkId }))
     .sort((a, b) => a.canonicalId.localeCompare(b.canonicalId));
   const matchedIds = new Set(matches.map((match) => match.canonicalId));
   const catalogOrphans = [...catalogIds].filter((id) => !matchedIds.has(id)).sort();
-  const runtimeOrphans = [...runtimeIdentities.keys()].filter((id) => !joinEligibleIds.has(id)).sort();
+  const runtimeOrphans = [...new Set([
+    ...rejectedRuntimeIds,
+    ...[...runtimeIdentities.keys()].filter((id) => !joinEligibleIds.has(id) || collisionIds.has(id)),
+  ])].sort();
   return deepFreeze({
     matchedCount: matches.length,
     catalogOrphanCount: catalogOrphans.length,
     runtimeOrphanCount: runtimeOrphans.length,
+    runtimeIdentityCollisionCount: runtimeIdentityCollisions.length,
     matches,
     catalogOrphans,
     runtimeOrphans,
+    runtimeIdentityCollisions,
   });
 }
 

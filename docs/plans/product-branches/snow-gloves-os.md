@@ -1,6 +1,8 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: snow-gloves-os
+canonical_work_id: program:snow-gloves-os
+identity_scope: canonical-work-object
 branch_kind: internal-service
 name: Snow Gloves OS
 role: Will-organ service

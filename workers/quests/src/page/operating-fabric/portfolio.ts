@@ -13,6 +13,8 @@ export const PORTFOLIO_LIFECYCLE_TEMPLATES = {
 export const PORTFOLIO_ZONE_PREVIEW_LIMIT = 2;
 const PORTFOLIO_RECORD_LIMIT = 160;
 const SECRET_MARKER = /query_id=|auth_date=|\bhash=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\bprompt\s*[:=]|prompt\s+injection/i;
+const CANONICAL_PORTFOLIO_ID = /^(?:sapling|branch|program|review|historical-product):[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const CANONICAL_RUNTIME_WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export interface PortfolioCounts {
   saplings: number;
@@ -232,7 +234,7 @@ function normalizeRecord(
     `unmapped:${zone}`,
     64,
   );
-  const canonical = canonicalId.startsWith(ZONE_PREFIX[zone]);
+  const canonical = CANONICAL_PORTFOLIO_ID.test(canonicalId) && canonicalId.startsWith(ZONE_PREFIX[zone]);
   const aliases = aliasList(row.aliases ?? row.displayAliases);
   if (canonicalId === 'sapling:fitcheck') {
     for (const alias of ['FitCheck', 'getfitcheck']) {
@@ -345,7 +347,8 @@ export function normalizePortfolioPayload(input: PortfolioPayloadInput): Normali
     if (
       canonicalId === null ||
       runtimeWorkId === null ||
-      !/^[A-Za-z0-9_.:-]{1,64}$/.test(runtimeWorkId) ||
+      canonicalId !== runtimeWorkId ||
+      !CANONICAL_RUNTIME_WORK_ID.test(runtimeWorkId) ||
       runtimeByCanonicalId.has(canonicalId)
     ) continue;
     runtimeByCanonicalId.set(canonicalId, runtimeWorkId);
@@ -502,7 +505,7 @@ function portfolioCard(
     `<span class="of-badge">${escapeHtml(record.classification)}</span></header>` +
     `<div class="of-card-body"><dl class="of-card-facts">` +
     `<div class="of-fact"><dt>classification · read-only</dt><dd>${escapeHtml(record.classification)}</dd></div>` +
-    `<div class="of-fact"><dt>Goal Graph</dt><dd>${exact ? 'exact match' : 'missing'}</dd></div>` +
+    `<div class="of-fact"><dt>Mission Fabric identity</dt><dd>${exact ? 'exact match' : 'missing'}</dd></div>` +
     parent +
     `</dl>` +
     aliasesMarkup(record) +
@@ -779,7 +782,7 @@ export function renderPortfolioSceneContext(
   const template = recordTemplate(record);
   let detail = '';
   if (scene === 'mission') {
-    detail = exact ? 'Goal Graph exact match' : 'Goal Graph missing';
+    detail = exact ? 'Mission Fabric identity exact match' : 'Mission Fabric identity missing';
   } else if (scene === 'flow') {
     detail = template
       ? `${template}<br><small>template only · not live state</small>`
@@ -809,8 +812,8 @@ export function renderPortfolioSceneContext(
     detail = provenance.join('<br>');
   } else {
     detail = exact
-      ? 'read-only catalog context · exact identity · no Gate action synthesized'
-      : 'read-only catalog context · Goal Graph missing · no Gate action synthesized';
+      ? 'read-only catalog context · exact runtime identity · no Gate action synthesized'
+      : 'read-only catalog context · runtime identity missing · no Gate action synthesized';
   }
   return (
     `<section class="of-portfolio-context" data-portfolio-context="${scene}" ` +
@@ -938,7 +941,7 @@ function ofNormalizePortfolioRecord(value, forced, rootClassificationDigest) {
     name: ofPortfolioSafe(row.displayName || row.name || row.title || row.source, canonicalId, 120),
     zone: zone,
     classification: ofPortfolioLabel(zone),
-    canonical: canonicalId.indexOf(prefixes[zone]) === 0,
+    canonical: /^(?:sapling|branch|program|review|historical-product):[a-z0-9]+(?:-[a-z0-9]+)*$/.test(canonicalId) && canonicalId.indexOf(prefixes[zone]) === 0,
     runtimeWorkId: null,
     aliases: aliases,
     linkedCanonicalIds: ofPortfolioList(linkedValue, 16),
@@ -1006,7 +1009,7 @@ function ofNormalizePortfolioPayload(input) {
     var match = ofPortfolioObject(matches[mi]);
     var canonicalId = ofPortfolioOptional(match && match.canonicalId, 64);
     var runtimeWorkId = ofPortfolioOptional(match && match.runtimeWorkId, 64);
-    if (!canonicalId || !runtimeWorkId || !/^[A-Za-z0-9_.:-]{1,64}$/.test(runtimeWorkId)) continue;
+    if (!canonicalId || !runtimeWorkId || canonicalId !== runtimeWorkId || !/^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/.test(runtimeWorkId)) continue;
     if (!Object.prototype.hasOwnProperty.call(runtimeByCanonicalId, canonicalId)) {
       runtimeByCanonicalId[canonicalId] = runtimeWorkId;
     }
@@ -1114,7 +1117,7 @@ function ofPortfolioCard(projection, record, selectedId) {
     (selected ? ' aria-current="true"' : '') + '><header class="of-card-head"><h4 class="of-card-title">' +
     ofEsc(record.name) + '</h4><span class="of-badge">' + ofEsc(record.classification) +
     '</span></header><div class="of-card-body"><dl class="of-card-facts"><div class="of-fact"><dt>classification · read-only</dt><dd>' +
-    ofEsc(record.classification) + '</dd></div><div class="of-fact"><dt>Goal Graph</dt><dd>' +
+    ofEsc(record.classification) + '</dd></div><div class="of-fact"><dt>Mission Fabric identity</dt><dd>' +
     (exact ? 'exact match' : 'missing') + '</dd></div>' + parent + '</dl>' + aliases + links + lifecycle + select + '</div></article>';
 }
 function ofPortfolioZoneMarkup(projection, zone, records, counts, selectedId) {
@@ -1199,7 +1202,7 @@ function ofRenderPortfolioSceneContext(scene, projection, record) {
   var ids = ofPortfolioScopedIds(projection, record);
   var template = ofPortfolioTemplate(record);
   var detail = '';
-  if (scene === 'mission') detail = exact ? 'Goal Graph exact match' : 'Goal Graph missing';
+  if (scene === 'mission') detail = exact ? 'Mission Fabric identity exact match' : 'Mission Fabric identity missing';
   else if (scene === 'flow') detail = template ? ofEsc(template) + '<br><small>template only · not live state</small>' : 'Lifecycle template unavailable for this classification';
   else if (scene === 'workforce') {
     var assignments = ofPortfolioTargets(projection, ids, 'assigned-to');
@@ -1219,8 +1222,8 @@ function ofRenderPortfolioSceneContext(scene, projection, record) {
     detail = facts.join('<br>');
   } else {
     detail = exact
-      ? 'read-only catalog context · exact identity · no Gate action synthesized'
-      : 'read-only catalog context · Goal Graph missing · no Gate action synthesized';
+      ? 'read-only catalog context · exact runtime identity · no Gate action synthesized'
+      : 'read-only catalog context · runtime identity missing · no Gate action synthesized';
   }
   return '<section class="of-portfolio-context" data-portfolio-context="' + scene + '" data-portfolio-join="' +
     (exact ? 'exact' : 'missing') + '" aria-label="Selected portfolio context"><strong>' + ofEsc(record.name) +

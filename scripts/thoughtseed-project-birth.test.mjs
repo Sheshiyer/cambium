@@ -8,12 +8,16 @@ import {
   executeProjectBirth,
   normalizeProjectCreationAction,
   projectCreationIntentDigest,
+  REVIEWED_ACTION_CATALOG_DIGEST,
+  REVIEWED_ACTION_SOURCE_DIGEST,
   REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+  REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,
   REVIEWED_ROOT_MAP_DIGEST,
 } from './thoughtseed-project-birth.mjs'
 
 const ROOT_DIGEST = REVIEWED_ROOT_MAP_DIGEST
-const SOURCE_DIGEST = REVIEWED_PORTFOLIO_CATALOG_DIGEST
+const SOURCE_DIGEST = REVIEWED_ACTION_SOURCE_DIGEST
+const CATALOG_DIGEST = REVIEWED_ACTION_CATALOG_DIGEST
 
 function action(proposal = {}, top = {}) {
   return {
@@ -23,6 +27,7 @@ function action(proposal = {}, top = {}) {
     idempotencyKey: 'project-nova-create-1',
     rootMapDigest: ROOT_DIGEST,
     sourceDigest: SOURCE_DIGEST,
+    catalogDigest: CATALOG_DIGEST,
     subject: { id: 'project-nova', name: 'Project Nova' },
     proposal: {
       intentSchema: 'thoughtseed.project-creation-intent.v1',
@@ -62,6 +67,29 @@ test('dry-run derives a shallow Thoughtseed destination without writing', async 
   assert.deepEqual(result.workflow.stages.map((stage) => stage.id), ['0-discover', '1-brand', '7-ship'])
   await assert.rejects(() => readFile(join(fx.projectsRoot, result.relativePath, 'PROJECT.md')), /ENOENT/)
   assert.equal(JSON.stringify(result).includes(fx.projectsRoot), false)
+})
+
+test('current Workbench action binds classification source and complete catalog separately', () => {
+  const normalized = normalizeProjectCreationAction(action())
+  assert.equal(normalized.rootMapDigest, REVIEWED_ROOT_MAP_DIGEST)
+  assert.equal(normalized.sourceDigest, REVIEWED_ACTION_SOURCE_DIGEST)
+  assert.equal(normalized.sourceDigest, REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST)
+  assert.equal(normalized.catalogDigest, REVIEWED_ACTION_CATALOG_DIGEST)
+  assert.equal(normalized.catalogDigest, REVIEWED_PORTFOLIO_CATALOG_DIGEST)
+  assert.match(normalized.catalogDigest, /^sha256:[0-9a-f]{64}$/)
+  assert.notEqual(normalized.catalogDigest, normalized.sourceDigest)
+})
+
+test('creation intent digest binds all three reviewed foundation pins', () => {
+  const normalized = normalizeProjectCreationAction(action())
+  const digest = projectCreationIntentDigest(normalized)
+  for (const [field, value] of [
+    ['rootMapDigest', `0${normalized.rootMapDigest.slice(1)}`],
+    ['sourceDigest', `0${normalized.sourceDigest.slice(1)}`],
+    ['catalogDigest', `sha256:0${normalized.catalogDigest.slice(8)}`],
+  ]) {
+    assert.notEqual(projectCreationIntentDigest({ ...normalized, [field]: value }), digest, field)
+  }
 })
 
 test('local founder execution creates Git, packet, stages, and pending index receipts', async () => {
@@ -143,6 +171,15 @@ test('executor rejects stale but valid-shaped root and catalog digests', async (
   await assert.rejects(
     () => executeProjectBirth({ action: action({}, { sourceDigest: '0'.repeat(64) }), ...fx, workflowId: 'website-delivery', execute: false }),
     /source_digest_not_reviewed/,
+  )
+  await assert.rejects(
+    () => executeProjectBirth({ action: action({}, { catalogDigest: `sha256:${'0'.repeat(64)}` }), ...fx, workflowId: 'website-delivery', execute: false }),
+    /catalog_digest_not_reviewed/,
+  )
+  const { catalogDigest: _catalogDigest, ...missingCatalogDigest } = action()
+  await assert.rejects(
+    () => executeProjectBirth({ action: missingCatalogDigest, ...fx, workflowId: 'website-delivery', execute: false }),
+    /action_fields_invalid/,
   )
 })
 

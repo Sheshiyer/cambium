@@ -2,11 +2,15 @@
 
 Ingest the shallow destination portfolio roots into repository-owned GitHub planning without changing the filesystem grammar or losing the relocation evidence.
 
-## Frozen input
+## Current reviewed input
 
 - Root-map schema: `thoughtseed.portfolio-root-map.v1`
-- Digest: `a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445`
-- Thoughtseed: 54 mapped folder proposals; `thoughtseed-labs` is R2-synced vault infrastructure, while `_home-cleanup-2026-08-08`, `cambium-authoritative`, `openfang`, and `website` are explicit non-WorkObject infrastructure/exclusions.
+- Digest: `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`
+- Prior physical-apply receipts remain correctly bound to the accepted
+  `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe`
+  snapshot; the current digest advances only the reviewed Klear Karma
+  classification from `needs-review` to `sapling`.
+- Thoughtseed: 54 mapped folder proposals; `thoughtseed-labs` is R2-synced vault infrastructure, while `_physical-relocation-archive-2026-08-08`, `openfang`, and `website` are explicit non-WorkObject infrastructure/exclusions. The former `cambium-authoritative` checkout has been promoted into the canonical `cambium` slot and is no longer a separate depth-one folder.
 - Tryambakam · Noesis: 30 active Projects; four archived projects; one worktree-infrastructure folder.
 - Path grammar: `<projects-root>/<portfolio>/<repository>`.
 

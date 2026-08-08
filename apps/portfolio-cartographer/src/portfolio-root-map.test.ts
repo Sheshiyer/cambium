@@ -62,13 +62,13 @@ test('snapshot uses only relative unique folders and bounded proposal kinds', as
   }
 })
 
-test('ambiguous Thoughtseed origins remain review proposals and linked dual work stays explicit', async () => {
+test('review holds and linked dual work stay explicit', async () => {
   const snapshot = await readSnapshot()
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const byFolder = new Map(thoughtseed.folders.map((entry: { folder: string }) => [entry.folder, entry]))
 
   assert.deepEqual(['klear-karma', 'kristudios', 'panaroma-webapp'].map((folder) => byFolder.get(folder)?.proposedKind), [
-    'needs-review', 'client-branch', 'needs-review',
+    'sapling', 'client-branch', 'needs-review',
   ])
   assert.deepEqual(byFolder.get('kristudios')?.workIds, ['branch:kristudios'])
   assert.equal(byFolder.get('virtualtryon-3d')?.proposedKind, 'needs-review')

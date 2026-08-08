@@ -13,6 +13,7 @@ test('loads branch stories from branch packets without flattening controls', () 
   assert.equal(fitcheck.promotion.state, 'supervised-branch');
   assert.equal(fitcheck.branchId, 'fitcheck');
   assert.equal(fitcheck.branchKind, 'product');
+  assert.equal(fitcheck.canonicalWorkId, 'sapling:fitcheck');
   assert.equal(fitcheck.arcId, 'fitcheck-supervised-launch-hardening');
   assert.ok(fitcheck.controls.organRouting.length);
   assert.ok(fitcheck.controls.variableContractPayloads.length);
@@ -46,6 +47,7 @@ test('loads branch loop controls from branch packets', () => {
   const clientDelivery = stories.find((story) => story.productId === 'client-delivery');
   assert.ok(clientDelivery);
   assert.equal(clientDelivery.branchKind, 'client');
+  assert.equal(clientDelivery.canonicalWorkId, undefined);
   assert.equal(clientDelivery.loops[0].loopId, 'client-delivery-handoff-loop');
   assert.equal(clientDelivery.loops[0].boundaryColor, 'yellow');
 });
@@ -96,6 +98,7 @@ test('fails soft when an indexed packet is missing required control sections', (
   const [story] = loadBranchStories({ root }, 'cambium');
 
   assert.equal(story.productId, 'demo');
+  assert.equal(story.canonicalWorkId, undefined);
   assert.equal(story.missions.length, 0);
   assert.ok(story.gaps.some((gap) => gap.status === 'blocked' && /Mission Control Inputs/.test(gap.detail)));
 });

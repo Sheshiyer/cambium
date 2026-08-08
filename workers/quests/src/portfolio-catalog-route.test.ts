@@ -72,6 +72,7 @@ function fixtureDeps(pubKeyHex: string): { deps: HandlerDeps; writes: { d1: numb
     branchStories: [{
       branchId: 'sapling-cambium',
       branchKind: 'product',
+      canonicalWorkId: 'sapling:cambium',
       name: 'Cambium',
       promotion: { state: 'supervised-branch', currentGate: 'gate-mvp' },
       controls: { organRouting: [] },
@@ -180,8 +181,11 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
       catalogOrphans: result.json.portfolioJoinReport.catalogOrphanCount,
       runtimeOrphans: result.json.portfolioJoinReport.runtimeOrphanCount,
     },
-    { matched: 2, catalogOrphans: 72, runtimeOrphans: 0 },
+    { matched: 1, catalogOrphans: 73, runtimeOrphans: 1 },
   );
+  assert.deepEqual(result.json.portfolioJoinReport.runtimeOrphans, ['cambium-operating-fabric']);
+  assert.equal(result.json.portfolioJoinReport.runtimeIdentityCollisionCount, 0);
+  assert.deepEqual(result.json.portfolioJoinReport.runtimeIdentityCollisions, []);
   const fitcheck = result.json.portfolioCatalog.records.find((record: { workId: string }) => record.workId === 'sapling:fitcheck');
   assert.equal(fitcheck.parentTenant, 'cambium');
   assert.deepEqual(fitcheck.aliases.map((alias: { value: string; tenantAuthority: boolean }) => [alias.value, alias.tenantAuthority]), [

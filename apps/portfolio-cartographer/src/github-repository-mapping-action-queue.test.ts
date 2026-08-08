@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from '../../../workers/quests/src/portfolio-catalog.ts';
+import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts';
 import { REPOSITORY_INVENTORY } from './repository-inventory.generated.ts';
+import { PORTFOLIO_ROOT_MAP_DIGEST, PORTFOLIO_ROOTS } from './portfolio-root-map.generated.ts';
 
 type Assignment = {
   workId: string;
@@ -34,6 +37,22 @@ type Batch = {
   summary: Record<string, number>;
   clusters?: Cluster[];
   status?: string;
+  defaults?: {
+    catalogDigest: string;
+    classificationDigest: string;
+    founderDecisionStatus: string;
+    rootMapDigest: string;
+  };
+  directSaplingMappings?: Array<{ workId: string; candidateRepos: string[] }>;
+  founderHolds?: unknown[];
+  resolvedProvenanceSplits?: Array<{
+    targetWorkId?: string;
+    productWorkId?: string;
+    clientWorkId?: string;
+    mappedRepos?: string[];
+    branchRepos?: string[];
+    excludedContamination?: Array<{ targetWorkId: string; repository: string }>;
+  }>;
   renameReadiness?: {
     cambiumPhase1Applied?: boolean;
     cambiumPhase1ApplyReceipt?: string;
@@ -66,7 +85,12 @@ type Batch5Row = {
 
 const queue = JSON.parse(
   readFileSync(new URL('../../../docs/project-management/github-repository-mapping-action-queue.v1.json', import.meta.url), 'utf8'),
-) as { batches: Batch[] };
+) as {
+  batches: Batch[];
+  currentDigests: { catalogDigest: string; classificationDigest: string; rootMapDigest: string };
+  folderRenameReadiness: { status: string };
+  requiredPayloadFieldsBeforeMutation: string[];
+};
 const physicalLaneManifest = JSON.parse(
   readFileSync(
     new URL('../../../docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json', import.meta.url),
@@ -211,8 +235,122 @@ const batch4 = queue.batches.find(({ batchId }) => batchId === 'github-batch-004
 if (!batch4) throw new Error('Batch 4 internal program queue is missing');
 const batch5 = queue.batches.find(({ batchId }) => batchId === 'github-batch-005-root-map-catalog-repair');
 if (!batch5) throw new Error('Batch 5 root-map repair queue is missing');
+const batch1 = queue.batches.find(({ batchId }) => batchId === 'github-batch-001-thoughtseed-org-history');
+if (!batch1) throw new Error('Batch 1 Thoughtseed org queue is missing');
+const batch3 = queue.batches.find(({ batchId }) => batchId === 'github-batch-003-sapling-provenance');
+if (!batch3) throw new Error('Batch 3 Sapling provenance queue is missing');
+const batch6 = queue.batches.find(({ batchId }) => batchId === 'github-batch-006-foundation-repository-reconciliation');
+if (!batch6) throw new Error('Batch 6 foundation reconciliation queue is missing');
 
 const repositoryName = (repositoryRef: string): string => repositoryRef.split('/').slice(0, 2).join('/');
+
+test('current queue digests bind exact catalog and root authorities', () => {
+  assert.deepEqual(queue.currentDigests, {
+    rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+    catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+    classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
+  });
+  assert.equal(batch1.defaults?.rootMapDigest, PORTFOLIO_ROOT_MAP_DIGEST);
+  assert.equal(batch1.defaults?.catalogDigest, PORTFOLIO_CATALOG.catalogDigest);
+  assert.equal(batch1.defaults?.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
+  assert.equal(batch1.defaults?.founderDecisionStatus, 'founder-reviewed');
+  assert.equal(queue.requiredPayloadFieldsBeforeMutation.includes('catalogDigest'), true);
+  assert.equal(queue.requiredPayloadFieldsBeforeMutation.includes('classificationDigest'), true);
+  assert.equal(queue.folderRenameReadiness.status, 'phase-1-and-phase-2-applied-phase-3-held');
+});
+
+test('Batch 1 reviewed rows retain immutable repository and WorkObject identities', () => {
+  const records = (batch1.rows ?? []) as Array<{ repository: string; repositoryId: string; targetWorkId: string }>;
+  const inventory = new Map(REPOSITORY_INVENTORY.map((record) => [record.fullName.toLowerCase(), record]));
+  const workIds = new Set([
+    ...PORTFOLIO_CATALOG.records.map((record) => record.workId),
+    ...PORTFOLIO_CATALOG.historicalProducts.map((record) => record.canonicalId),
+  ]);
+
+  assert.equal(batch1.status, 'founder-reviewed-ready-for-mapping-receipts');
+  assert.equal(records.length, batch1.summary.reposReviewed);
+  for (const record of records) {
+    assert.equal(workIds.has(record.targetWorkId), true, `${record.targetWorkId} must exist in the catalog`);
+    assert.equal(inventory.get(record.repository.toLowerCase())?.repositoryId, record.repositoryId);
+  }
+});
+
+test('Batch 3 Sapling provenance is referentially exact and collision-free', () => {
+  const inventory = new Set(REPOSITORY_INVENTORY.map((record) => record.fullName.toLowerCase()));
+  const workIds = new Set(PORTFOLIO_CATALOG.records.map((record) => record.workId));
+  const bindings: Array<{ workId: string; repository: string }> = [];
+  for (const row of batch3.directSaplingMappings ?? []) {
+    assert.match(row.workId, /^sapling:/);
+    for (const repository of row.candidateRepos) bindings.push({ workId: row.workId, repository });
+  }
+  for (const split of batch3.resolvedProvenanceSplits ?? []) {
+    for (const repository of split.mappedRepos ?? []) bindings.push({ workId: split.targetWorkId!, repository });
+    for (const repository of split.branchRepos ?? []) bindings.push({ workId: split.clientWorkId!, repository });
+    for (const contamination of split.excludedContamination ?? []) bindings.push({ workId: contamination.targetWorkId, repository: contamination.repository });
+    for (const id of [split.targetWorkId, split.productWorkId, split.clientWorkId].filter(Boolean) as string[]) {
+      assert.equal(workIds.has(id), true, `${id} must exist in the catalog`);
+    }
+  }
+
+  assert.equal(batch3.status, 'founder-reviewed-provenance-split-ready-for-mapping-receipts');
+  assert.equal(batch3.founderHolds?.length, 0);
+  assert.equal(batch3.directSaplingMappings?.length, batch3.summary.directSaplingMappings);
+  assert.equal(batch3.resolvedProvenanceSplits?.length, batch3.summary.resolvedProvenanceSplits);
+  assert.equal(bindings.length, 39);
+  assert.equal(new Set(bindings.map(({ repository }) => repository.toLowerCase())).size, bindings.length);
+  for (const binding of bindings) {
+    assert.equal(workIds.has(binding.workId), true, `${binding.workId} must exist in the catalog`);
+    assert.equal(inventory.has(binding.repository.toLowerCase()), true, `${binding.repository} must have immutable inventory evidence`);
+  }
+
+  const thoughtseed = PORTFOLIO_ROOTS.find(({ portfolioId }) => portfolioId === 'thoughtseed')!;
+  const roots = new Map(thoughtseed.folders.map((folder) => [folder.folder, folder]));
+  assert.equal(roots.get('klear-karma')?.proposedKind, 'sapling');
+  assert.deepEqual(roots.get('kristudios')?.workIds, ['branch:kristudios']);
+  assert.deepEqual(roots.get('parkarea')?.workIds, ['branch:parkarea', 'sapling:parkarea']);
+  assert.deepEqual(roots.get('tirak')?.workIds, ['branch:tirak', 'sapling:tirak']);
+});
+
+test('Batch 6 covers every unresolved catalog repository without inference', () => {
+  const rows = (batch6.rows ?? []) as Array<{
+    sourceRef: string;
+    workIds: string[];
+    candidateRepos: string[];
+    unavailableCandidateRepos?: string[];
+    resolvedAssignments: Assignment[];
+    holdReasons?: string[];
+    status: string;
+  }>;
+  const bySourceRef = new Map(rows.map((row) => [row.sourceRef, row]));
+  const unresolved = REPOSITORY_EVIDENCE.filter((record) => record.status !== 'resolved');
+  const inventory = new Set(REPOSITORY_INVENTORY.map((record) => record.fullName.toLowerCase()));
+  const workIds = new Set(PORTFOLIO_CATALOG.records.map((record) => record.workId));
+
+  assert.equal(rows.length, batch6.summary.rowsReviewed);
+  for (const record of unresolved) {
+    assert.equal(bySourceRef.has(record.sourceRef), true, `${record.sourceRef} needs an explicit Batch 6 disposition`);
+  }
+  for (const row of rows) {
+    for (const id of row.workIds) assert.equal(workIds.has(id), true, `${id} must exist in the catalog`);
+    for (const assignment of row.resolvedAssignments) {
+      assert.equal(workIds.has(assignment.workId), true, `${assignment.workId} must exist in the catalog`);
+      for (const repository of assignment.repositoryRefs) {
+        assert.equal(inventory.has(repositoryName(repository).toLowerCase()), true, `${repository} must have immutable inventory evidence`);
+      }
+    }
+    if (row.status.includes('hold')) {
+      assert.equal(row.resolvedAssignments.length, 0);
+      assert.equal((row.holdReasons?.length ?? 0) > 0, true);
+    }
+  }
+  assert.deepEqual(bySourceRef.get('relocation-registry:bwssb')?.workIds, ['branch:bwssb']);
+  assert.deepEqual(bySourceRef.get('relocation-registry:brandmint-showcase')?.workIds, []);
+  assert.equal(bySourceRef.get('relocation-registry:brandmint-showcase')?.status, 'classification-hold-unassigned');
+  assert.deepEqual(bySourceRef.get('catalog-folder-hold:sapling:whatslegal')?.workIds, ['sapling:whatslegal']);
+  assert.deepEqual(bySourceRef.get('catalog-folder-hold:sapling:seedforge')?.workIds, ['sapling:seedforge']);
+  assert.equal(batch6.summary.folderlessWorkObjectHolds, 2);
+  assert.equal(batch6.summary.inferredAssignments, 0);
+});
 
 test('Batch 2 summary matches the executable queue', () => {
   const clusters = batch.clusters ?? [];

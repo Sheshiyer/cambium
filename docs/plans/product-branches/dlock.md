@@ -1,6 +1,8 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: dlock
+canonical_work_id: sapling:dlock
+identity_scope: canonical-work-object
 branch_kind: product
 name: DLOCK
 role: Smart lock and self-storage software product candidate
@@ -61,6 +63,8 @@ operations, billing readiness, access-control correctness, or customer proof.
 
 ## Adapter / Service Map
 
+`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. DLOCK's runtime tenant remains unresolved and no operational join may be inferred from `dlock`, Lockwell, or repository identity.
+
 | Provider / Route | Inputs | Outputs | Failure Modes | Tenant Mapping | Privacy Boundary |
 | --- | --- | --- | --- | --- | --- |
 | Vercel landing | DLOCK landing source and deployment env | Public page, waitlist/contact surface, hardware gallery | Artifact drift, missing lead handler, unreviewed claims | `dlock` | No provider secrets or submitted lead data in packet |
@@ -85,7 +89,7 @@ operations, billing readiness, access-control correctness, or customer proof.
 
 | Gate | Status | Required Proof |
 | --- | --- | --- |
-| Human approvals | pending | Founder approval for DLOCK Sapling mapping, pilot scope, and public claims. |
+| Human approvals | pending | DLOCK Sapling identity mapping is founder-resolved; pilot scope and public claims still require founder approval. |
 | Hardware model approval | pending | Confirm approved lock/key-box models and source of product photos/specs. |
 | TUYA/native integration | blocked | Architecture note for TUYA API/native SDK boundary, credential handling, and device testing. |
 | Privacy/security | blocked | Access logs, tenant data, staff permissions, PIN handling, and audit-log wording need evidence. |
@@ -116,7 +120,7 @@ First real pilot proof: one facility workflow proving rental creation, payment s
 
 | loop_id | title | cadence | objective | metric | boundary_color | one_change_rule | state_file | stop_rule | model_route | proof_required |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| dlock-resource-proof-loop | DLOCK resource proof loop | manual weekly until repository and hardware proofs exist | Move one DLOCK resource or claim from no-signal/blocked to evidenced, or record why it remains blocked. | One resource, claim, or integration boundary changes status per round. | blue | Select exactly one of repository checkout, landing build, hardware resource provenance, TUYA boundary, billing/access invariant, or pilot proof. | .operator/branch-loops/dlock-resource-proof-loop.md | Stop after 4 rounds, after first pilot proof exists, or when credentials/hardware block two consecutive rounds. | cheap-first; escalate only for conflicting integration evidence | Updated Evidence Ledger row, claim-table row, or integration-boundary receipt. |
+| dlock-resource-proof-loop | DLOCK resource proof loop | manual weekly until repository and hardware proofs exist | Move one DLOCK resource or claim from no-signal/blocked to evidenced, or record why it remains blocked. | One resource, claim, or integration boundary changes status per round. | yellow | Select exactly one of repository checkout, landing build, hardware resource provenance, TUYA boundary, billing/access invariant, or pilot proof. | .operator/branch-loops/dlock-resource-proof-loop.md | Stop after 4 rounds, after first pilot proof exists, or when credentials/hardware block two consecutive rounds. | cheap-first; escalate only for conflicting integration evidence | Updated Evidence Ledger row, claim-table row, or integration-boundary receipt. |
 
 ## Branch Story Controls
 

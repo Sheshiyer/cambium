@@ -1,6 +1,8 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: iverif
+canonical_work_id: sapling:iverif
+identity_scope: canonical-work-object
 branch_kind: product
 name: IVerif
 role: Compliance and proof product candidate
@@ -57,6 +59,8 @@ IVerif is a proof-only Cambium product candidate for AI document validation in E
 | `acceptance_checks` | `wiki-site/package.json` commands are present, but route/build proof is missing | blocked |
 
 ## Adapter / Service Map
+
+`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. IVerif's runtime tenant remains unresolved and no operational join may be inferred from the `iverif` label or repository name.
 
 | Provider / Route | Inputs | Outputs | Failure Modes | Tenant Mapping | Privacy Boundary |
 | --- | --- | --- | --- | --- | --- |

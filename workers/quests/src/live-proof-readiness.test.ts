@@ -674,6 +674,8 @@ test('viewport proof manifest distinguishes layout and clickability proof intent
   assert.equal(artifact.schema, 'cambium.tg-viewport-proof-manifest.v1');
   assert.match(artifact.pageSourceSha256, /^[a-f0-9]{64}$/);
   assert.equal(artifact.browserMode, 'headless-new');
+  assert.equal(artifact.chrome, 'Google Chrome');
+  assert.deepEqual(artifact.browserCandidates, ['Google Chrome']);
   assert.deepEqual(artifact.proofIntentSummary, { 'layout-proof': 9, 'clickability-proof': 4 });
   assert.deepEqual(artifact.proofs.map((proof: { intent: string }) => proof.intent), ['layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'layout-proof', 'layout-proof', 'clickability-proof', 'clickability-proof', 'layout-proof', 'clickability-proof']);
   assert.equal(artifact.proofs.find((proof: { scene: string }) => proof.scene === 'mission')?.path, 'mission-control-mobile.png');

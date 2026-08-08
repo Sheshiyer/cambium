@@ -136,9 +136,9 @@ test('quests visual envelope exposes branch loop library without changing quest 
 
   assert.equal(ledgerWithBranches.completed, ledgerWithoutBranches.completed);
   assert.equal(visual.branchLoops.source, 'product-branch-packets@v1');
-  assert.equal(visual.branchLoops.total, 5);
+  assert.equal(visual.branchLoops.total, 6);
   assert.equal(visual.branchLoops.green, 1);
-  assert.equal(visual.branchLoops.yellow, 3);
+  assert.equal(visual.branchLoops.yellow, 4);
   assert.equal(visual.branchLoops.red, 1);
   assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'iverif-claim-proof-loop' && row.runMode === 'read-only'));
   assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'vantyx-second-tenant-loop' && row.branchKind === 'product'));
@@ -298,11 +298,13 @@ test('gatherQuestInputs loads branch stories beside project evidence', () => {
   const iverif = inputs.branchStories?.find((story) => story.productId === 'iverif');
 
   assert.ok(inputs.branchStories);
-  assert.equal(inputs.branchStories.length, 5);
+  assert.equal(inputs.branchStories.length, 6);
   assert.ok(fitcheck);
   assert.ok(clientDelivery);
   assert.ok(iverif);
   assert.equal(clientDelivery.branchKind, 'client');
+  assert.equal(clientDelivery.canonicalWorkId, undefined);
+  assert.equal(fitcheck.canonicalWorkId, 'sapling:fitcheck');
   assert.equal(fitcheck.missions[0].missionId, 'fitcheck-shopify-qa');
   assert.equal(fitcheck.promotion.state, 'supervised-branch');
   assert.equal(iverif.promotion.state, 'proof-only');

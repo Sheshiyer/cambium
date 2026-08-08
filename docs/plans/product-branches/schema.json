@@ -6,6 +6,8 @@
  "index_file": "docs/plans/product-branches/index.md",
  "required_index_columns": [
   "product_id",
+  "canonical_work_id",
+  "identity_scope",
   "branch_kind",
   "name",
   "role",
@@ -16,6 +18,8 @@
  "required_metadata_fields": [
   "schema",
   "product_id",
+  "canonical_work_id",
+  "identity_scope",
   "branch_kind",
   "name",
   "role",
@@ -33,6 +37,16 @@
   "product",
   "client",
   "internal-service"
+ ],
+ "identity_scopes": [
+  "canonical-work-object",
+  "template"
+ ],
+ "non_canonical_work_id_value": "none",
+ "non_packet_markdown_files": [
+  "ISA.md",
+  "index.md",
+  "loop-library.md"
  ],
  "proof_statuses": [
   "verified",
@@ -221,26 +235,43 @@
  "required_branches": [
   {
    "product_id": "fitcheck",
+   "canonical_work_id": "sapling:fitcheck",
+   "identity_scope": "canonical-work-object",
    "branch_kind": "product",
    "packet": "fitcheck.md"
   },
   {
    "product_id": "vantyx",
+   "canonical_work_id": "sapling:vantyx",
+   "identity_scope": "canonical-work-object",
    "branch_kind": "product",
    "packet": "vantyx.md"
   },
   {
    "product_id": "snow-gloves-os",
+   "canonical_work_id": "program:snow-gloves-os",
+   "identity_scope": "canonical-work-object",
    "branch_kind": "internal-service",
    "packet": "snow-gloves-os.md"
   },
   {
    "product_id": "iverif",
+   "canonical_work_id": "sapling:iverif",
+   "identity_scope": "canonical-work-object",
    "branch_kind": "product",
    "packet": "iverif.md"
   },
   {
+   "product_id": "dlock",
+   "canonical_work_id": "sapling:dlock",
+   "identity_scope": "canonical-work-object",
+   "branch_kind": "product",
+   "packet": "dlock.md"
+  },
+  {
    "product_id": "client-delivery",
+   "canonical_work_id": "none",
+   "identity_scope": "template",
    "branch_kind": "client",
    "packet": "client-delivery.md"
   }

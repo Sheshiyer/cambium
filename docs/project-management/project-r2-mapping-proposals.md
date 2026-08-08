@@ -1,6 +1,15 @@
 # Project/R2 mapping proposals — gap settlement
 
-Status: founder-review proposal for the 11 unmapped physical gaps plus the 1 mapped identity gap found on 2026-08-08.
+Status: historical settlement snapshot. Its Cambium and Temperance physical
+observations were superseded by the separately approved Phase 1 and Phase 2
+apply receipts; preserve the proposal as decision evidence, not current
+filesystem authority.
+
+Current physical-state pointers:
+
+- `docs/project-management/thoughtseed-folder-rename-readiness.v1.json`
+- `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json`
+- `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json`
 
 Source evidence:
 

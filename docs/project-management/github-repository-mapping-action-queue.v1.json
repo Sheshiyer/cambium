@@ -28,12 +28,17 @@
     "solFamilyUsed": false
   },
   "folderRenameReadiness": {
-    "status": "proposal-only-no-filesystem-mutation",
+    "status": "phase-1-and-phase-2-applied-phase-3-held",
     "readinessDocument": "docs/project-management/thoughtseed-folder-rename-readiness.v1.json",
     "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
     "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
     "boundary": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>; thoughtseed-labs remains R2/vault infrastructure context, never a WorkObject folder",
     "nextPhysicalPass": "Cambium and Temperance physical lanes are applied; Symphonics remains held with no authorized physical pass"
+  },
+  "currentDigests": {
+    "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+    "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542"
   },
   "globalBlocks": [],
   "resolvedFounderDecisions": [
@@ -64,9 +69,10 @@
       },
       "defaults": {
         "receiptKind": "mapping",
-        "rootMapDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe",
-        "catalogDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
-        "founderDecisionStatus": "founder-review",
+        "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+        "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+        "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+        "founderDecisionStatus": "founder-reviewed",
         "evidencePrefixTemplate": "portfolio/thoughtseed/workobjects/<targetWorkId>/mapping/"
       },
       "rows": [
@@ -815,7 +821,7 @@
               "reason": "prior evidence says the nested snowglobe remote points to snow-gloves-os.git and is an internal ops automation tenant instance, not Klear Karma product source"
             }
           ],
-          "rootMapState": "folder-remains-needs-review-container-because-product-plus-contamination-were-split"
+          "rootMapState": "folder-maps-to-sapling-klear-karma-with-snow-gloves-contamination-excluded"
         },
         {
           "name": "Kristudios",
@@ -1191,6 +1197,189 @@
           "recommendedAction": "keep symphonics in missingClientAccounts and do not add a root-map folder row, create a project folder, or generate active repository/R2 mapping receipts until founder approves an exact shallow-folder/repository disposition"
         }
       ]
+    },
+    {
+      "batchId": "github-batch-006-foundation-repository-reconciliation",
+      "status": "foundation-reviewed-with-explicit-repository-holds",
+      "summary": {
+        "rowsReviewed": 21,
+        "newResolvedAssignments": 8,
+        "existingBatchAssignmentsReconciled": 4,
+        "explicitUnavailableIdentityHolds": 6,
+        "unassignedClassificationHolds": 1,
+        "folderlessWorkObjectHolds": 2,
+        "inferredAssignments": 0
+      },
+      "rows": [
+        {
+          "sourceRef": "repo:plexus-ts",
+          "workIds": ["program:plexus"],
+          "candidateRepos": ["Sheshiyer/plexus-ts"],
+          "resolvedAssignments": [{"workId": "program:plexus", "repositoryRefs": ["Sheshiyer/plexus-ts"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "repo:team-forge-ts",
+          "workIds": ["program:teamforge-control-plane"],
+          "candidateRepos": ["Sheshiyer/team-forge-ts"],
+          "resolvedAssignments": [{"workId": "program:teamforge-control-plane", "repositoryRefs": ["Sheshiyer/team-forge-ts"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "repo:HDILINT-backend-aleph",
+          "workIds": ["program:hdilint"],
+          "candidateRepos": ["Sheshiyer/HDILINT-backend-aleph"],
+          "resolvedAssignments": [{"workId": "program:hdilint", "repositoryRefs": ["Sheshiyer/HDILINT-backend-aleph"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "repo:Insightreality",
+          "workIds": ["branch:insight-realtors-legal-advisors"],
+          "candidateRepos": ["Sheshiyer/Insightreality"],
+          "resolvedAssignments": [{"workId": "branch:insight-realtors-legal-advisors", "repositoryRefs": ["Sheshiyer/Insightreality"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "repo:wtfmedia",
+          "workIds": ["branch:wtfmedia"],
+          "candidateRepos": ["Sheshiyer/wtfmedia"],
+          "resolvedAssignments": [{"workId": "branch:wtfmedia", "repositoryRefs": ["Sheshiyer/wtfmedia"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "repo:Sheshiyer/raycast-extensions",
+          "workIds": ["program:operator-utilities"],
+          "candidateRepos": ["Sheshiyer/raycast-extensions"],
+          "resolvedAssignments": [{"workId": "program:operator-utilities", "repositoryRefs": ["Sheshiyer/raycast-extensions"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "repo:Sheshiyer/skill-clusters",
+          "workIds": ["program:skill-clusters"],
+          "candidateRepos": ["Sheshiyer/skill-clusters"],
+          "resolvedAssignments": [{"workId": "program:skill-clusters", "repositoryRefs": ["Sheshiyer/skill-clusters"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "relocation-registry:bwssb",
+          "workIds": ["branch:bwssb"],
+          "candidateRepos": ["Sheshiyer/bwssb"],
+          "resolvedAssignments": [{"workId": "branch:bwssb", "repositoryRefs": ["Sheshiyer/bwssb"]}],
+          "status": "resolved-live-immutable-identity"
+        },
+        {
+          "sourceRef": "repo:10869",
+          "workIds": ["sapling:10869-space"],
+          "candidateRepos": ["Sheshiyer/10869-space-v1"],
+          "resolvedAssignments": [{"workId": "sapling:10869-space", "repositoryRefs": ["Sheshiyer/10869-space-v1"]}],
+          "status": "reconciled-to-existing-batch-3-assignment",
+          "sourceRefDisposition": "legacy local alias is not repository identity"
+        },
+        {
+          "sourceRef": "repo:Panaroma-Webapp",
+          "workIds": ["sapling:vantyx"],
+          "candidateRepos": ["Sheshiyer/vantyx"],
+          "resolvedAssignments": [{"workId": "sapling:vantyx", "repositoryRefs": ["Sheshiyer/vantyx"]}],
+          "status": "reconciled-to-existing-batch-3-assignment",
+          "sourceRefDisposition": "overlap evidence only; do not conflate Vantyx with panaroma-webapp or Airdronauts"
+        },
+        {
+          "sourceRef": "repo:Kacima",
+          "workIds": ["branch:kacima"],
+          "candidateRepos": ["Sheshiyer/kacima-new"],
+          "resolvedAssignments": [{"workId": "branch:kacima", "repositoryRefs": ["Sheshiyer/kacima-new"]}],
+          "status": "reconciled-to-existing-batch-2-assignment",
+          "sourceRefDisposition": "legacy local alias is not repository identity"
+        },
+        {
+          "sourceRef": "repo:earthy-munchy",
+          "workIds": ["branch:earthy-munchy"],
+          "candidateRepos": ["Sheshiyer/coming-soon-earthymunchy", "Sheshiyer/earthy-munchy-beta-launch", "Sheshiyer/earthymunchy-alpha"],
+          "resolvedAssignments": [{"workId": "branch:earthy-munchy", "repositoryRefs": ["Sheshiyer/coming-soon-earthymunchy", "Sheshiyer/earthy-munchy-beta-launch", "Sheshiyer/earthymunchy-alpha"]}],
+          "status": "reconciled-to-existing-batch-2-assignment",
+          "sourceRefDisposition": "legacy local alias is not repository identity"
+        },
+        {
+          "sourceRef": "repo:Coproperty/nimbus-gate",
+          "workIds": ["sapling:nimbus-gate"],
+          "candidateRepos": ["Coproperty/nimbus-gate"],
+          "unavailableCandidateRepos": ["Coproperty/nimbus-gate"],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-immutable-identity-unavailable",
+          "holdReasons": ["Authenticated read-only GitHub lookup returned no retrievable immutable identity; do not substitute the Co.Property client repository family."]
+        },
+        {
+          "sourceRef": "repo:Coproperty/wanderfruit-docs",
+          "workIds": ["sapling:wanderfruit"],
+          "candidateRepos": ["Coproperty/wanderfruit-docs"],
+          "unavailableCandidateRepos": ["Coproperty/wanderfruit-docs"],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-immutable-identity-unavailable",
+          "holdReasons": ["Authenticated read-only GitHub lookup returned no retrievable immutable identity for this exact owner/name."],
+          "note": "Sheshiyer/wanderfruit-wiki-alpha remains the separate executable Batch 3 Sapling repository."
+        },
+        {
+          "sourceRef": "repo:SAFVR-SG/Landingpage2.0",
+          "workIds": ["branch:safvr-landing-page"],
+          "candidateRepos": ["SAFVR-SG/Landingpage2.0"],
+          "unavailableCandidateRepos": ["SAFVR-SG/Landingpage2.0"],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-closed-branch-identity-unavailable",
+          "holdReasons": ["The exact repository is unavailable under the authenticated account and SAFVR is already closed; do not reopen or remap it implicitly."]
+        },
+        {
+          "sourceRef": "repo:ashwinsheth-group/panaroma-v2",
+          "workIds": ["branch:ashwinsheth-marina-one-mumbai"],
+          "candidateRepos": ["ashwinsheth-group/panaroma-v2"],
+          "unavailableCandidateRepos": ["ashwinsheth-group/panaroma-v2"],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-immutable-identity-unavailable",
+          "holdReasons": ["Authenticated read-only GitHub lookup returned no retrievable immutable identity; existing Sheshiyer and Raheman alternatives remain separately assigned."]
+        },
+        {
+          "sourceRef": "repo:ashwinsheth-group/marina-one-KA/web",
+          "workIds": ["branch:ashwinsheth-marina-one-bangalore"],
+          "candidateRepos": ["ashwinsheth-group/marina-one-KA"],
+          "unavailableCandidateRepos": ["ashwinsheth-group/marina-one-KA"],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-immutable-identity-unavailable",
+          "holdReasons": ["Authenticated read-only GitHub lookup returned no retrievable immutable identity; existing Sheshiyer alternatives remain separately assigned."],
+          "sourcePath": "web"
+        },
+        {
+          "sourceRef": "repo:reddit-cli",
+          "workIds": ["program:operator-utilities"],
+          "candidateRepos": ["Sheshiyer/reddit-cli"],
+          "unavailableCandidateRepos": ["Sheshiyer/reddit-cli"],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-no-retrievable-git-identity",
+          "holdReasons": ["The shallow reddit-cli folder is non-Git and no exact Sheshiyer/reddit-cli repository is retrievable; preserve it as folder evidence only."]
+        },
+        {
+          "sourceRef": "relocation-registry:brandmint-showcase",
+          "workIds": [],
+          "candidateRepos": ["Sheshiyer/brandmint-showcase"],
+          "resolvedAssignments": [],
+          "status": "classification-hold-unassigned",
+          "holdReasons": ["Repository identity is exact, but no founder-reviewed WorkObject ownership or historical/exclusion disposition exists; never infer a Meristem assignment from folder nesting alone."]
+        },
+        {
+          "sourceRef": "catalog-folder-hold:sapling:whatslegal",
+          "workIds": ["sapling:whatslegal"],
+          "candidateRepos": [],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-no-shallow-root-or-repository-evidence",
+          "holdReasons": ["The canonical WorkObject is valid, but no reviewed shallow folder or exact repository identity exists; do not invent either from its display name."]
+        },
+        {
+          "sourceRef": "catalog-folder-hold:sapling:seedforge",
+          "workIds": ["sapling:seedforge"],
+          "candidateRepos": [],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-no-shallow-root-or-repository-evidence",
+          "holdReasons": ["The linked Sapling identity is valid, but only program:seedforge has reviewed repository/root evidence; do not collapse or infer Sapling ownership."]
+        }
+      ]
     }
   ],
   "requiredPayloadFieldsBeforeMutation": [
@@ -1215,6 +1404,7 @@
     "rootMap.status",
     "lifecycle",
     "catalogDigest",
+    "classificationDigest",
     "rootMapDigest",
     "r2Receipt.receiptKind",
     "r2Receipt.receiptId",

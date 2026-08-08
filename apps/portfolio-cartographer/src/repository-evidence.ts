@@ -145,8 +145,15 @@ export function resolveRepositoryEvidence(
   const inventoryByFullName = new Map(
     inventory.map((record) => [record.fullName.toLowerCase(), record] as const),
   )
+  const inventoryByRepositoryName = new Map<string, RepositoryInventoryRecord[]>()
   const duplicateImmutableId = new Map<string, string>()
   for (const record of inventory) {
+    const repositoryName = record.fullName.split('/')[1]?.toLowerCase()
+    if (repositoryName) {
+      const matches = inventoryByRepositoryName.get(repositoryName) ?? []
+      matches.push(record)
+      inventoryByRepositoryName.set(repositoryName, matches)
+    }
     if (!record.repositoryId) continue
     const prior = duplicateImmutableId.get(record.repositoryId)
     if (prior) {
@@ -237,6 +244,19 @@ export function resolveRepositoryEvidence(
       const [entry] = uniqueMatches
       const metadata = inventoryByFullName.get(entry.githubIdentity.toLowerCase())
       return resolvedRecord(sourceRef, 'unique-name', entry.githubIdentity, entry.stableId, metadata)
+    }
+
+    const inventoryNameMatches = inventoryByRepositoryName.get(body.toLowerCase()) ?? []
+    if (inventoryNameMatches.length > 1) {
+      return unresolvedRecord(
+        sourceRef,
+        'ambiguous',
+        inventoryNameMatches.map((record) => record.fullName).sort(compareText),
+      )
+    }
+    if (inventoryNameMatches.length === 1) {
+      const [metadata] = inventoryNameMatches
+      return resolvedRecord(sourceRef, 'unique-name', metadata.fullName, null, metadata)
     }
 
     return unresolvedRecord(sourceRef, 'unmatched')
