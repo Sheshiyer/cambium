@@ -75,6 +75,20 @@ ParkArea and Tirak retain separately linked product and client WorkObjects.
 SeedForge retains separately linked Sapling and capability Program
 WorkObjects. A linked pair never becomes one dual-kind record.
 
+## Repository mapping receipts
+
+The Batch 3 compiler prepares 38 deterministic mapping receipts across 12
+reviewed WorkObjects. Every receipt binds the full catalog digest,
+classification digest, root-map digest, repository-evidence digest, exact
+WorkObject identity, immutable GitHub repository identity, root context, and
+founder decision identifier. The checked-in bundle digest is
+`sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`.
+
+`prepared-not-issued` is an evidence state, not a mutation. The bundle writes
+no R2 object, admits no D1 row, activates no tenant, promotes no Sapling, and
+changes no GitHub repository. Issuance requires its separate apply manifest
+and founder approval; exact replay is idempotent and semantic drift conflicts.
+
 ## Lifecycle templates
 
 The templates explain the kind-specific operating path. They do not report

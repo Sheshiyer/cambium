@@ -8,6 +8,10 @@ export interface GoalGraphNode {
   namespace: string;
   externalId: string | null;
   parentNodeId: string | null;
+  /** Additive nullable anchors; absent legacy values normalize to null. */
+  workObjectId?: string | null;
+  workObjectKind?: 'sapling' | 'branch' | 'program' | null;
+  pinnedLoadoutId?: string | null;
   scope: 'macro' | 'meso' | 'micro' | 'proof';
   desiredState: string;
   currentState: string;

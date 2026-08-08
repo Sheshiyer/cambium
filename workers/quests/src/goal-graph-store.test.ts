@@ -55,6 +55,7 @@ class SqliteD1 implements GoalGraphD1DatabaseLike {
 async function harness() {
   const db = new SqliteD1();
   db.db.exec(await readFile(new URL('../migrations/0007_goal_graph.sql', import.meta.url), 'utf8'));
+  db.db.exec(await readFile(new URL('../migrations/0009_goal_graph_operational_anchors.sql', import.meta.url), 'utf8'));
   return { db, store: d1GoalGraphStore(db) };
 }
 
@@ -137,6 +138,23 @@ test('approved CAS commit persists one revision and reads it back', async () => 
   assert.equal(db.db.prepare('SELECT count(*) AS count FROM goal_graph_approvals').get().count, 1);
   assert.equal(db.db.prepare('SELECT count(*) AS count FROM goal_graph_events').get().count, 1);
   void changeSet;
+});
+
+test('approved CAS commit persists exact WorkObject and loadout anchors', async () => {
+  const { store } = await harness();
+  const root = rootNode({
+    workObjectId: 'sapling:cambium',
+    workObjectKind: 'sapling',
+    pinnedLoadoutId: 'loadout:cambium-runtime',
+  });
+  const compiled = compileGoalGraph({ tenantId: TENANT, expectedHeadDigest: null, actualHead: null, currentNodes: [], proposedNodes: [root], graphVersion: 1, sourceRef: 'test:anchor', sourceDigest: root.sourceDigest, now: NOW });
+  assert.equal(compiled.status, 'compiled');
+  if (compiled.status !== 'compiled') return;
+  assert.equal((await store.commit({ tenantId: TENANT, changeSet: compiled.changeSet, approval: approval(compiled.changeSet.changeDigest), now: NOW })).status, 'committed');
+  const [stored] = await store.readNodes(TENANT);
+  assert.equal(stored.workObjectId, 'sapling:cambium');
+  assert.equal(stored.workObjectKind, 'sapling');
+  assert.equal(stored.pinnedLoadoutId, 'loadout:cambium-runtime');
 });
 
 test('replaying the same approved change is a durable duplicate', async () => {

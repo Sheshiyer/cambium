@@ -104,6 +104,9 @@ Resolved provenance splits:
 - ParkArea keeps linked `sapling:parkarea` + `branch:parkarea`; exact repositories map to the client-delivery branch side.
 - Tirak keeps linked `sapling:tirak` + `branch:tirak`; exact repositories map to the client-delivery branch side.
 - Founder holds remaining for this batch: 0.
+- Thirty-eight exact receipts across twelve WorkObjects are now compiled in
+  `portfolio-mapping-receipts-batch-3.v1.json`. Their bundle status is
+  `prepared-not-issued`; no R2 or Workbench mutation has occurred.
 
 ## Batch 4 — Internal programs and vault context
 

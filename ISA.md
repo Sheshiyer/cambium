@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Reconcile portfolio foundation before Sapling promotion"
-effort: E5
-effort_source: complexity-override
+task: "Issue mapping receipts and anchor the execution foldback loop"
+effort: E3
+effort_source: algorithm-classification
 phase: reflect
-progress: 959/1035
+progress: 995/1071
 mode: interactive
-iteration: 2026-08-09-portfolio-foundation-reconciliation
+iteration: 2026-08-09-portfolio-operational-anchors
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-09T00:39:49+05:30
+updated: 2026-08-09T03:53:04+05:30
 ---
 
 ## Problem
@@ -1388,6 +1388,42 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-1033: A bounded handoff records repaired discrepancies, remaining evidence holds, current digests, and the next promotion gate.
 - [x] ISC-1034: Anti: foundation reconciliation guesses a mapping, promotes a Sapling, issues a mapping receipt, or converts a missing fact into operational truth.
 - [x] ISC-1035: Anti: foundation reconciliation writes R2, GitHub, Vault, registry, D1 Goal Graph, provider, production, or physical project-folder state.
+- [x] ISC-1036: A versioned mapping-receipt contract binds one canonical WorkObject to one immutable repository identity per receipt.
+- [x] ISC-1037: Every mapping receipt carries the exact root-map, classification-source, full-catalog, and repository-evidence digests.
+- [x] ISC-1038: Every mapping receipt carries its reviewed queue batch, founder approval, repository role, origin assertion, and lifecycle state.
+- [x] ISC-1039: Mapping receipt identifiers and content digests derive deterministically from canonical normalized payloads.
+- [x] ISC-1040: Exact replay produces the same receipt and key while conflicting replay fails closed.
+- [x] ISC-1041: Canonical mapping receipt keys follow the reviewed WorkObject evidence-prefix grammar.
+- [x] ISC-1042: The Batch 3 preparation bundle contains every reviewed repository assignment exactly once.
+- [x] ISC-1043: Klear Karma receipts exclude Snow Gloves repositories, which remain assigned only to `program:snow-gloves-os`.
+- [x] ISC-1044: Kristudios receipts target only `branch:kristudios`.
+- [x] ISC-1045: ParkArea and Tirak repository receipts attach to their Client Branch identities while retaining their linked Sapling identities without invented repositories.
+- [x] ISC-1046: Batch 3 founder holds remain empty and all unavailable or unreviewed repository evidence stays outside the receipt bundle.
+- [x] ISC-1047: The receipt preparation command performs no network, R2, GitHub, D1, Vault, registry, or provider write.
+- [x] ISC-1048: A D1 migration adds nullable canonical WorkObject identity and pinned loadout anchors to Goal Graph nodes without rewriting legacy rows.
+- [x] ISC-1049: D1 indexes support tenant-scoped lookup by canonical WorkObject and pinned loadout.
+- [x] ISC-1050: Goal Graph types expose nullable `workObjectId`, `workObjectKind`, and `pinnedLoadoutId` fields.
+- [x] ISC-1051: Goal Graph validation requires WorkObject ID and kind together and rejects prefix-kind mismatches.
+- [x] ISC-1052: Goal Graph validation rejects malformed pinned loadout identities and loadout anchors without a canonical WorkObject.
+- [x] ISC-1053: Goal Graph storage reads and writes all operational anchor fields without weakening compare-and-swap graph authority.
+- [x] ISC-1054: Mission Fabric emits a `contains` edge only for an exact catalog-backed WorkObject anchor.
+- [x] ISC-1055: Mission Fabric emits a `pins-loadout` edge only for an exact anchored task and bounded loadout identity.
+- [x] ISC-1056: Missing, malformed, type-mismatched, or catalog-orphaned anchors produce explicit gaps instead of inferred edges.
+- [x] ISC-1057: Existing legacy Goal Graph nodes continue adapting as tasks while exposing their missing operational anchors honestly.
+- [x] ISC-1058: Duplicate task reconciliation preserves one canonical task node and removes ambiguous edges fail-closed.
+- [x] ISC-1059: A terminal execution outcome can fold back only through its exact canonical Goal Graph task identity.
+- [x] ISC-1060: A foldback receipt binds execution claim, terminal outcome, task, WorkObject, graph version, and proof digest.
+- [x] ISC-1061: Foldback replay is idempotent and conflicting terminal outcomes fail closed.
+- [x] ISC-1062: Mission Fabric emits `informs-next-intent` only from a validated terminal foldback receipt.
+- [x] ISC-1063: The Hermes proof manifest names read probes, canary identity, expected transitions, rollback, and separately consumable live approval.
+- [x] ISC-1064: The local Hermes proof remains a preflight artifact and never claims that production execution, ACK, or foldback occurred.
+- [x] ISC-1065: Mapping receipt, Goal Graph anchor, Mission Fabric, and foldback focused tests exit zero.
+- [x] ISC-1066: Migration, JSON, generated parity, TypeScript, lint, and `git diff --check` validation exit zero.
+- [x] ISC-1067: Portfolio Cartographer validation and the full repository test suite exit zero after operational-anchor integration.
+- [x] ISC-1068: A bounded handoff records receipt counts, anchor semantics, proof status, live gates, and rollback boundaries.
+- [x] ISC-1069: The repository changes are committed locally with a clean worktree and no push.
+- [x] ISC-1070: Anti: this iteration promotes a Sapling, invents a WorkObject/repository/loadout relation, or clears an evidence hold.
+- [x] ISC-1071: Anti: this iteration writes production R2, D1, Hermes, GitHub, Vault, registry, provider, traffic, or deployment state.
 
 ## Test Strategy
 
@@ -1413,6 +1449,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-962..980 | Temperance Phase 2 reconciliation | exact Git and lstat identity, redacted file comparison, ignore-policy decision, local-state archive target, container preservation, unchanged root map, preflight receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, SHA-256, redacted `node` comparison, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
 | ISC-981..999 | Temperance Phase 2 live apply | exact approval, clean input commit, pre/post inodes and Git identity, local-state archive, atomic directory moves, empty container, unchanged root map, apply receipt, scoped/full tests, clean commit, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, SHA-256, `node`, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
 | ISC-1000..1035 | portfolio foundation reconciliation | derive counts and keys, validate referential integrity and digests, distinguish typed shared relationships from ambiguity, reject alias joins, reconcile active prose, run focused/full tests, and prove external/promotion boundaries held | deterministic Node audit/test, TypeScript catalog validators, `jq`, SHA-256, `rg`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
+| ISC-1036..1071 | mapping receipts and operational anchors | compile exact reviewed Batch 3 receipts, validate immutable replay, apply nullable D1 anchor migration locally, prove exact Mission Fabric edges and typed gaps, compile a terminal foldback preflight, run focused/full gates, and prove every external boundary stayed closed | deterministic Node tests, D1 migration/store tests, TypeScript, `jq`, SHA-256, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1585,6 +1622,11 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - `PortfolioBrowserFounderRoute` | Reuse Access JWT and Plexus role resolution for exact founder-only Workbench delivery | satisfies ISC-727..737, ISC-741, ISC-745 | depends_on PortfolioDualTransportBootstrap | parallelizable false
 - `PortfolioAccessDestination` | Add the browser-only path to the existing multi-domain Plexus Access application | satisfies ISC-726, ISC-739, ISC-744 | depends_on PortfolioBrowserFounderRoute | parallelizable false
 - `PortfolioBrowserReleaseProof` | Promote one staged Version and prove browser redirect, Telegram regression, exact bytes, and rollback | satisfies ISC-742..744 | depends_on PortfolioAccessDestination | parallelizable false
+- `PortfolioMappingReceipts` | Compile immutable, digest-bound Batch 3 repository-to-WorkObject receipts and an inspectable apply manifest without issuing live evidence | satisfies ISC-1036..1047 | depends_on RepositoryEvidenceSnapshot | parallelizable false
+- `GoalGraphOperationalAnchors` | Extend Goal Graph storage and validation with exact canonical WorkObject and pinned-loadout anchors | satisfies ISC-1048..1053 | depends_on PortfolioMappingReceipts | parallelizable true
+- `MissionFabricAuthorityJoins` | Project exact anchor edges and explicit gaps without alias, repository-name, or first-wins inference | satisfies ISC-1054..1058 | depends_on GoalGraphOperationalAnchors | parallelizable false
+- `HermesExecutionFoldbackProof` | Bind terminal execution evidence to canonical task and WorkObject identities, then prepare a rollback-gated live canary | satisfies ISC-1059..1064 | depends_on MissionFabricAuthorityJoins | parallelizable false
+- `OperationalAnchorReleaseGate` | Run focused and repository-wide proof, record the bounded handoff, and commit locally without external mutation | satisfies ISC-1065..1071 | depends_on PortfolioMappingReceipts, GoalGraphOperationalAnchors, MissionFabricAuthorityJoins, HermesExecutionFoldbackProof | parallelizable false
 
 - `PlexusWhoamiEnvelopeRepair` | Normalize the canonical success envelope at the Cambium adapter boundary, bind the returned session email and cache payload to the verified Access identity, preserve flat compatibility, and separate deterministic promotion proof from the final founder-browser observation | satisfies ISC-746..764 | depends_on PortfolioBrowserFounderRoute | parallelizable false
 
@@ -1608,6 +1650,15 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-09 03:53: 38 Batch 3 repository assignments compile into deterministic, fully pinned receipts across 12 canonical WorkObjects. They remain `prepared-not-issued`; receipt storage re-derives the compiled identity and rejects tampering before any conditional R2 write.
+- 2026-08-09 03:53: migration 0009 is additive and legacy-safe: database columns stay nullable, while application validation enforces the stronger paired WorkObject/kind and loadout-with-WorkObject invariants. Mission Fabric admits exact catalog anchors only and deduplicates WorkObject-level loadout pins.
+- 2026-08-09 03:53: Hermes terminal foldback is evidence, not authority. A validated terminal receipt may prove the task and inform a bounded next-intent proposal, but it cannot mutate D1 or bypass the Founder Gate and CAS path.
+- 2026-08-09 03:53: one mandatory Forge production pass was attempted for the runtime slice and timed out cleanly after 300 seconds during repository doctrine discovery, with zero edits. The primary completed the integration-bound implementation; additional parallel dispatch was rejected because the remaining runtime, docs, verification, and ISA changes shared overlapping authority and files.
+- 2026-08-09 03:53: the post-deliverable Advisor was invoked at the commitment boundary but its OAuth session was expired and could not refresh. No conflicting opinion exists; 428 focused tests, foundation validation, the complete Cartographer gate, 1601 repository tests, deterministic regeneration, JSON parsing, and diff checks provide direct evidence.
+- 2026-08-09 03:53: capability ledger invoked ISA, FirstPrinciples, SystemsThinking, FeedbackMemoryConsult, Advisor, ReReadCheck, and the mandatory Forge delegation. No selected capability remained phantom; the exact user approval was re-read before commit and still authorizes local implementation, not production mutation.
+- 2026-08-09 04:20: the founder authorized repository implementation for mapping receipts, D1 WorkObject/loadout anchors, and Hermes execution-foldback proof. This authorization prepares deterministic artifacts and local runtime support; production R2, D1, Hermes, GitHub, provider, traffic, and deployment writes remain separately rollback-gated.
+- 2026-08-09 04:20: FirstPrinciples separates identity evidence from operational authority. Repository mapping receipts may bind reviewed immutable GitHub identities now, while Goal Graph anchors remain nullable for legacy rows and Mission Fabric emits operational edges only from exact typed anchors.
+- 2026-08-09 04:20: the foldback proof closes the intended loop only when one terminal Hermes outcome binds to one canonical Goal Graph task, its WorkObject, graph version, and proof digest. A prepared canary manifest is not evidence that the live loop ran.
 - 2026-08-09 00:39: portfolio foundation reconciliation is complete at the repository boundary, but Sapling promotion remains held. The identity substrate now has exact canonical joins, typed multiplicity, explicit evidence holds, and three-field snapshot binding; D1 WorkObject anchors, authoritative loadout joins, mapping-receipt issuance, and unavailable repository facts remain separate operational gates.
 - 2026-08-09 00:39: `rootMapDigest`, classification `sourceDigest`, and full `catalogDigest` are distinct authorities and must travel together through Workbench, Worker, and local birth/closeout execution. A current action cannot execute against an older catalog or root map, and a classification digest can no longer masquerade as the catalog digest.
 - 2026-08-09 00:39: runtime portfolio identity is exact `workId` only. Legacy slugs, display names, aliases, repository names, and first-wins duplicate normalization do not establish operational truth; collisions are reported and withheld, while storage parent IDs resolve to canonical external mission IDs before graph adaptation.
@@ -1805,6 +1856,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-08-09 | conjectured: a correct catalog and exact repository queue were sufficient to make the Workbench an executable control plane
+  refuted by: the system still lacked durable mapping receipts, D1 WorkObject/loadout anchors, exact authority edges, and terminal Hermes foldback evidence
+  learned: the iterative loop becomes executable only when classification, operational identity, pinned execution policy, terminal proof, and next-intent proposal remain distinct but deterministically joined
+  criterion now: ISC-1036..1071 require 38 immutable prepared receipts, nullable exact D1 anchors, typed Mission Fabric joins and gaps, terminal foldback proof, full release gates, and zero unapproved external mutation
+
 - 2026-08-09 | conjectured: existing green catalog, packet, and runtime tests proved the portfolio foundation was ready for Sapling promotion
   refuted by: stale executor pins, an orphan DLOCK packet, alias-derived joins, silent duplicate collapse, mislabeled catalog provenance, missing repository dispositions, and stale active documentation all passed their narrower checks
   learned: foundation readiness requires one coordinated invariant spanning canonical WorkObjects, typed physical/repository evidence, exact runtime joins, three independent snapshot pins, explicit holds, browser proof, and bounded operational authority
@@ -1969,6 +2025,14 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Verification
 
+- ISC-1036..1047 mapping-receipt proof — the deterministic compiler reproduces 38 unique receipts across 12 canonical WorkObjects at bundle digest `sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`; all four authority digests, immutable repository metadata, provenance splits, folderless contexts, replay, tamper rejection, and zero-write preparation validate.
+- ISC-1048..1053 Goal Graph proof — migration 0009 applies additively; compiler, identity, and store tests persist exact nullable WorkObject/kind/loadout anchors, reject invalid pairing and loadout identity, preserve legacy nodes, and retain approved CAS replay and stale-head behavior.
+- ISC-1054..1058 Mission Fabric proof — exact shipped-catalog anchors emit `contains`, bounded loadouts emit one deduplicated `pins-loadout`, invalid or absent anchors remain typed gaps, parent storage identities resolve to external task identities, and duplicate task edges fail closed.
+- ISC-1059..1064 Hermes proof — deterministic terminal foldback binds task, WorkObject, graph version, loadout, claim, fence, attempt, attestation, and proof digests; exact replay is idempotent, tampering/conflict fails before storage, and the live preflight remains explicitly held with flags false.
+- ISC-1065 focused proof — the operational mapping, Goal Graph, branch map, Mission Fabric, integration, handler, and foldback suites pass 428/428; deterministic receipt regeneration returns the exact checked-in bundle digest.
+- ISC-1066..1067 release proof — `validate:portfolio-foundation`, the six-packet validator, Portfolio Cartographer 69 active tests plus one historical skip with lint/TypeScript/build/audit/CSP/smoke, edited JSON parsing, `git diff --check`, and full `npm test` at 1601/1601 all pass.
+- ISC-1068 handoff proof — `.project/HANDOFF.md` records receipt counts/digest, nullable anchor semantics, exact edges/gaps, terminal foldback status, live approval text, rollback-first sequence, and all separately held production boundaries.
+- ISC-1069..1071 boundary proof — one local commit contains the bounded repository changes and leaves the branch clean without push; no Sapling promotion, invented relationship, cleared evidence hold, production R2/D1/Hermes/GitHub/Vault/registry/provider/traffic/deploy mutation, or folder move occurred.
 - ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
 - ISC-1010..1019 root/repository proof — the 58-folder physical dry-run is exact; current root-map digest is `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`; repository evidence contains 106 references, 96 resolved, 5 unmatched, and 5 unverified at digest `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`; every unresolved reference has an assignment, explicit hold, or exclusion.
 - ISC-1020..1024 packet/identity proof — six product packets validate; Fitcheck, IVerif, DLOCK, Vantyx, and Snow Gloves OS carry exact kind-matched canonical Work IDs; Client Delivery declares non-canonical template semantics; orphan packets and duplicate canonical identities fail validation.

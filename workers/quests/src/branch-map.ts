@@ -177,6 +177,7 @@ export interface BranchMapValidationResult<T> {
 const BRANCH_KEYS = new Set(['branchId', 'label', 'nodeIds']);
 const NODE_KEYS = new Set([
   'nodeId', 'tenantId', 'namespace', 'externalId', 'parentNodeId', 'scope', 'desiredState',
+  'workObjectId', 'workObjectKind', 'pinnedLoadoutId',
   'currentState', 'owner', 'nextAction', 'waitCondition', 'proofRequired', 'reviewAt',
   'status', 'sourceRef', 'sourceDigest', 'graphVersion', 'metadata', 'createdAt', 'updatedAt',
 ]);

@@ -37,7 +37,7 @@ import {
   MISSION_FABRIC_CAPS,
   adaptBranchStories,
   adaptCompanyPrograms,
-  adaptGoalGraph,
+  adaptGoalGraphAuthority,
   adaptQuestExecutionFacts,
   projectionDigest as missionFabricProjectionDigest,
   redactMissionFabricProjection,
@@ -3085,7 +3085,13 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         entries.push(entry);
       }
     }
-    const goalGraphFabricNodes = adaptGoalGraph({ tenantId: tenant, graphVersion: head.graphVersion, nodes });
+    const goalGraphAuthority = adaptGoalGraphAuthority({
+      tenantId: tenant,
+      graphVersion: head.graphVersion,
+      nodes,
+      workObjectIds: PORTFOLIO_CATALOG.records.map((record) => record.workId),
+    });
+    const goalGraphFabricNodes = goalGraphAuthority.nodes;
     const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;
     if (isRecord(fabricFacts) && Array.isArray(fabricFacts.fences)) {
       for (const fenceRow of fabricFacts.fences) {
@@ -3114,11 +3120,11 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
     const taskReconciliation = reconcileFabricTaskNodes(goalGraphFabricNodes, execution.nodes);
     entries.push(...taskReconciliation.nodes);
-    const mergedEdges: FabricEdge[] = execution.edges.filter((edge) => (
+    const mergedEdges: FabricEdge[] = [...goalGraphAuthority.edges, ...execution.edges].filter((edge) => (
       !taskReconciliation.blockedTaskIds.has(edge.fromId)
       && !taskReconciliation.blockedTaskIds.has(edge.toId)
     ));
-    const mergedGaps: FabricGap[] = [...execution.gaps, ...taskReconciliation.gaps];
+    const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
 
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));

@@ -12,6 +12,9 @@ function stableNode(node: GoalGraphNode): GoalGraphNode {
 function normalizeNodes(input: readonly GoalGraphInputNode[], tenantId: string, now: string): GoalGraphNode[] {
   const nodes = input.map((node) => ({
     ...node,
+    workObjectId: node.workObjectId ?? null,
+    workObjectKind: node.workObjectKind ?? null,
+    pinnedLoadoutId: node.pinnedLoadoutId ?? null,
     tenantId,
     nodeId: node.nodeId ?? `goal_${sha256({ tenantId, namespace: node.namespace, externalId: node.externalId, sourceRef: node.sourceRef, sourceDigest: node.sourceDigest })}`,
     createdAt: node.createdAt ?? now,

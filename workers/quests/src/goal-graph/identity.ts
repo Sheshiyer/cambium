@@ -35,13 +35,37 @@ export function nodeContentDigest(node: GoalGraphNode | GoalGraphInputNode): str
 
 export type IdentityValidation = {
   valid: true;
-} | { valid: false; code: 'identity_collision' | 'multiple_roots' | 'missing_parent' | 'cross_tenant_parent'; message: string };
+} | { valid: false; code: 'identity_collision' | 'multiple_roots' | 'missing_parent' | 'cross_tenant_parent' | 'invalid_operational_anchor'; message: string };
+
+const WORK_OBJECT_ID = /^(sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const LOADOUT_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}$/;
+
+function validateOperationalAnchor(node: GoalGraphNode): IdentityValidation {
+  const workObjectId = node.workObjectId ?? null;
+  const workObjectKind = node.workObjectKind ?? null;
+  const pinnedLoadoutId = node.pinnedLoadoutId ?? null;
+  if ((workObjectId === null) !== (workObjectKind === null)) {
+    return { valid: false, code: 'invalid_operational_anchor', message: `node ${node.nodeId} must bind WorkObject ID and kind together` };
+  }
+  if (workObjectId !== null) {
+    const match = WORK_OBJECT_ID.exec(workObjectId);
+    if (!match || match[1] !== workObjectKind) {
+      return { valid: false, code: 'invalid_operational_anchor', message: `node ${node.nodeId} has a mismatched WorkObject anchor` };
+    }
+  }
+  if (pinnedLoadoutId !== null && (!workObjectId || !LOADOUT_ID.test(pinnedLoadoutId))) {
+    return { valid: false, code: 'invalid_operational_anchor', message: `node ${node.nodeId} has an invalid loadout anchor` };
+  }
+  return { valid: true };
+}
 
 /** Validate identity uniqueness and the singleton tenant-root invariant. */
 export function validateNodeSet(nodes: readonly GoalGraphNode[]): IdentityValidation {
   const byId = new Map<string, GoalGraphNode>();
   const roots = new Map<string, string>();
   for (const node of nodes) {
+    const anchor = validateOperationalAnchor(node);
+    if (!anchor.valid) return anchor;
     const existing = byId.get(node.nodeId);
     if (existing) {
       if (nodeContentDigest(existing) !== nodeContentDigest(node)) {
@@ -75,5 +99,13 @@ export interface BuildNodeInput extends Omit<GoalGraphInputNode, 'nodeId' | 'cre
 export function buildNode(input: BuildNodeInput): GoalGraphNode {
   const now = input.now ?? new Date().toISOString();
   const nodeId = resolveNodeId(input);
-  return { ...input, nodeId, createdAt: now, updatedAt: now };
+  return {
+    ...input,
+    workObjectId: input.workObjectId ?? null,
+    workObjectKind: input.workObjectKind ?? null,
+    pinnedLoadoutId: input.pinnedLoadoutId ?? null,
+    nodeId,
+    createdAt: now,
+    updatedAt: now,
+  };
 }

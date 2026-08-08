@@ -784,19 +784,32 @@ npx --no-install wrangler d1 execute cambium-bridge \
 npx --no-install wrangler deploy --config workers/quests/wrangler.jsonc
 ```
 
-The schema probe must return all four tables and all five triggers. With
-delivery disabled, use the scoped member credential from the Hermes host to
-prove this sequence against a single `native_execution` canary:
+The schema probe must return all four tables and all five triggers. Before the
+canary, separately confirm that `goal_graph_nodes` exposes all three additive
+operational-anchor columns:
+
+```bash
+npx --no-install wrangler d1 execute cambium-bridge \
+  --remote \
+  --config workers/quests/wrangler.jsonc \
+  --command "SELECT name FROM pragma_table_info('goal_graph_nodes') WHERE name IN ('work_object_id','work_object_kind','pinned_loadout_id') ORDER BY name"
+```
+
+With delivery disabled, use the scoped member credential from the Hermes host
+to prove this sequence against a single `native_execution` canary:
 
 ```text
-poll -> claim -> outcome -> ACK
+poll -> claim -> outcome -> immutable foldback -> ACK
 ```
 
 The claim must have a future `leaseExpiresAt`; a second live claimant must get
 `busy`; an expired takeover must change the fencing token; the stale outcome
-must get HTTP 409; and ACK must get HTTP 409 until a persisted `executed` or
-`failed` outcome exists. Confirm the D1 row has `terminal = 1` and a non-null
-`acknowledged_at` without selecting attestation JSON or credentials.
+must get HTTP 409; foldback must reject non-terminal, mismatched, stale, or
+tampered evidence; and ACK must get HTTP 409 until a persisted `executed` or
+`failed` outcome and its exact immutable foldback proof exist. Confirm the D1
+row has `terminal = 1` and a non-null `acknowledged_at` without selecting
+attestation JSON or credentials. The exact held live-canary conditions are in
+`docs/project-management/hermes-execution-foldback-preflight.v1.json`.
 
 Only after that delivery-disabled canary passes may Hermes set
 `HERMES_RUNNER_EXECUTE_DIRECTIVES=true`. Leave

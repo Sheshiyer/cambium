@@ -28,6 +28,14 @@ test('identity validation rejects collisions, cross-tenant parents, and multiple
   assert.equal(validateNodeSet([root, node({ externalId: 'child', parentNodeId: 'missing' })]).valid, false);
 });
 
+test('operational anchors require exact paired WorkObject identity and bounded loadout', () => {
+  assert.equal(validateNodeSet([node({ workObjectId: 'sapling:cambium', workObjectKind: null })]).valid, false);
+  assert.equal(validateNodeSet([node({ workObjectId: 'sapling:cambium', workObjectKind: 'branch' })]).valid, false);
+  assert.equal(validateNodeSet([node({ pinnedLoadoutId: 'loadout:cambium' })]).valid, false);
+  assert.equal(validateNodeSet([node({ workObjectId: 'sapling:cambium', workObjectKind: 'sapling', pinnedLoadoutId: 'unsafe loadout' })]).valid, false);
+  assert.equal(validateNodeSet([node({ workObjectId: 'sapling:cambium', workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:cambium' })]).valid, true);
+});
+
 test('unchanged replay is a deterministic no-op', () => {
   const root = node();
   const head = makeGoalGraphHead('tenant-alpha', [root], 1, root.createdAt);

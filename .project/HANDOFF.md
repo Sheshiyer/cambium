@@ -926,3 +926,46 @@ mutation has been performed by drafting this packet.
 - Next gate: resolve or deliberately accept the explicit holds, then issue
   separately approved mapping receipts. Sapling promotion remains a later,
   separately approved operation.
+
+### 2026-08-09 operational-anchor and foldback checkpoint
+
+- Batch 3 now compiles 38 deterministic `prepared-not-issued` mapping receipts
+  across 12 exact WorkObjects and 38 immutable GitHub repositories. The bundle
+  digest is
+  `sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`;
+  founder holds remain zero, Snow Gloves contamination and the Chakra Shine
+  false positive remain excluded, and no receipt was written to R2.
+- Mapping receipts bind the current root map, classification source, full
+  catalog, and repository-evidence digests. Receipt identity, content digest,
+  idempotency key, and WorkObject-scoped R2 prefix are deterministic. The store
+  re-derives the compiled receipt before any conditional write, accepts exact
+  replay, and rejects tampered or semantically conflicting evidence.
+- Additive migration `0009_goal_graph_operational_anchors.sql` defines nullable
+  `work_object_id`, `work_object_kind`, and `pinned_loadout_id` columns plus
+  tenant-scoped indexes. Application validation enforces paired, prefix-matched
+  canonical WorkObject identity and rejects loadout anchors without it. Legacy
+  rows remain readable and are not rewritten.
+- Mission Fabric admits `contains` and deduplicated `pins-loadout` edges only
+  from exact catalog-backed Goal Graph anchors. Missing, malformed,
+  type-mismatched, orphaned, or loadout-less anchors remain explicit typed
+  gaps; aliases and repository names never join.
+- Hermes terminal foldback now has a deterministic local contract and immutable
+  store. Only `executed` or `failed` evidence with exact task, WorkObject,
+  loadout, graph version, claim, fence, attempt, attestation, and proof digests
+  emits `proves` and `informs-next-intent`. The latter is proposal evidence,
+  never a direct Goal Graph write.
+- The live proof remains held in
+  `docs/project-management/hermes-execution-foldback-preflight.v1.json`. Its
+  canary sequence is `poll -> claim -> outcome -> immutable foldback -> ACK`,
+  with flags false and rollback-first backup requirements. Separate live
+  approval text is `approve live Hermes canary execution and foldback proof with execution disabled`.
+- Verification passes: 428/428 focused operational tests;
+  `validate:portfolio-foundation`; six product packets; Portfolio Cartographer
+  69 active tests plus one historical skip with lint, TypeScript, build, audit,
+  CSP, and smoke; and full `npm test` at 1601/1601. Receipt regeneration,
+  edited JSON parsing, and `git diff --check` also pass.
+- No Sapling promotion, production D1 migration, R2 write, Hermes execution or
+  ACK, GitHub mutation, Vault/registry/provider change, traffic shift, deploy,
+  or folder move occurred. Mapping-receipt issuance, the D1 migration/live
+  canary, Sapling promotion, and quest deployment remain separate rollback-gated
+  operations.

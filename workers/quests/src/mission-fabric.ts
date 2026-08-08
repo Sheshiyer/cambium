@@ -697,6 +697,8 @@ export interface GoalGraphProjection {
   tenantId: string;
   graphVersion: number;
   nodes: readonly unknown[];
+  /** Exact catalog WorkObject IDs admitted by the composing authority. */
+  workObjectIds?: readonly string[];
 }
 
 const PROMOTION_STATES = new Set<SaplingWork['promotionState']>(['proof-only', 'supervised-branch', 'autonomous-branch']);
@@ -892,8 +894,18 @@ export function adaptCompanyPrograms(input: unknown): readonly FabricAdaptedEntr
   return entries;
 }
 
-export function adaptGoalGraph(input: GoalGraphProjection): readonly FabricNode[] {
+export function adaptGoalGraphAuthority(input: GoalGraphProjection): {
+  nodes: readonly FabricNode[];
+  edges: readonly FabricEdge[];
+  gaps: readonly FabricGap[];
+} {
   const nodes: FabricNode[] = [];
+  const edges: FabricEdge[] = [];
+  const gaps: FabricGap[] = [];
+  const emittedLoadoutPins = new Set<string>();
+  const allowedWorkObjectIds = input.workObjectIds === undefined ? null : new Set(input.workObjectIds);
+  const workObjectPattern = /^(sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
+  const loadoutPattern = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}$/;
   const taskIdByStorageId = new Map<string, string>();
   for (const raw of input.nodes ?? []) {
     if (!isRecord(raw)) continue;
@@ -907,6 +919,17 @@ export function adaptGoalGraph(input: GoalGraphProjection): readonly FabricNode[
     if (taskId.length === 0) continue;
     const parentStorageId = adaptString(raw.parentNodeId);
     const status = adaptString(raw.status, 'draft');
+    const workObjectId = adaptString(raw.workObjectId);
+    const workObjectKind = adaptString(raw.workObjectKind);
+    const pinnedLoadoutId = adaptString(raw.pinnedLoadoutId);
+    const workObjectMatch = workObjectPattern.exec(workObjectId);
+    const pairedAnchor = workObjectId.length > 0 && workObjectKind.length > 0;
+    const anchorValid = pairedAnchor
+      && workObjectMatch !== null
+      && workObjectMatch[1] === workObjectKind
+      && allowedWorkObjectIds !== null
+      && allowedWorkObjectIds.has(workObjectId);
+    const loadoutValid = pinnedLoadoutId.length > 0 && loadoutPattern.test(pinnedLoadoutId);
     const node: FabricTask = {
       taskId,
       missionId: parentStorageId.length > 0 ? (taskIdByStorageId.get(parentStorageId) ?? '') : '',
@@ -915,14 +938,73 @@ export function adaptGoalGraph(input: GoalGraphProjection): readonly FabricNode[
       dependencyIds: [],
       assignedAgentId: null,
       requiredClusterIds: [],
-      pinnedLoadoutId: null,
+      pinnedLoadoutId: anchorValid && loadoutValid ? pinnedLoadoutId : null,
       leaseId: null,
       proofRequirement: '',
       latestReceiptId: null,
     };
     nodes.push({ kind: 'task', value: node });
+    if (workObjectId.length === 0 && workObjectKind.length === 0) {
+      gaps.push({
+        gapId: `gap-goal-work-object-anchor-${taskId}`,
+        kind: 'missing-work-object-anchor',
+        subjectId: taskId,
+        detail: `Goal Graph task ${taskId} has no canonical WorkObject anchor; no contains or loadout edge was emitted.`,
+        evidenceRef: adaptString(raw.sourceRef) || null,
+      });
+      continue;
+    }
+    if (!pairedAnchor || workObjectMatch === null || workObjectMatch[1] !== workObjectKind) {
+      gaps.push({
+        gapId: `gap-goal-work-object-invalid-${taskId}`,
+        kind: 'invalid-work-object-anchor',
+        subjectId: taskId,
+        detail: `Goal Graph task ${taskId} has a malformed or type-mismatched WorkObject anchor; no authority edge was emitted.`,
+        evidenceRef: adaptString(raw.sourceRef) || null,
+      });
+      continue;
+    }
+    if (allowedWorkObjectIds === null || !allowedWorkObjectIds.has(workObjectId)) {
+      gaps.push({
+        gapId: `gap-goal-work-object-orphan-${taskId}`,
+        kind: 'missing-work-object-join',
+        subjectId: taskId,
+        detail: `Goal Graph task ${taskId} references WorkObject ${workObjectId}, which is absent from the exact composing catalog; no authority edge was emitted.`,
+        evidenceRef: adaptString(raw.sourceRef) || null,
+      });
+      continue;
+    }
+    edges.push({ kind: 'contains', fromId: workObjectId, toId: taskId });
+    if (pinnedLoadoutId.length === 0) {
+      gaps.push({
+        gapId: `gap-goal-loadout-anchor-${taskId}`,
+        kind: 'missing-loadout-anchor',
+        subjectId: taskId,
+        detail: `Goal Graph task ${taskId} is WorkObject-anchored but has no authoritative pinned loadout.`,
+        evidenceRef: adaptString(raw.sourceRef) || null,
+      });
+    } else if (!loadoutValid) {
+      gaps.push({
+        gapId: `gap-goal-loadout-invalid-${taskId}`,
+        kind: 'invalid-loadout-anchor',
+        subjectId: taskId,
+        detail: `Goal Graph task ${taskId} has an invalid pinned loadout identity; no pins-loadout edge was emitted.`,
+        evidenceRef: adaptString(raw.sourceRef) || null,
+      });
+    } else {
+      const pinIdentity = `${workObjectId}\u0000${pinnedLoadoutId}`;
+      if (!emittedLoadoutPins.has(pinIdentity)) {
+        emittedLoadoutPins.add(pinIdentity);
+        edges.push({ kind: 'pins-loadout', fromId: workObjectId, toId: pinnedLoadoutId });
+      }
+    }
   }
-  return nodes;
+  return { nodes, edges, gaps };
+}
+
+/** Compatibility adapter for node-only callers; authority joins require an exact catalog set. */
+export function adaptGoalGraph(input: GoalGraphProjection): readonly FabricNode[] {
+  return adaptGoalGraphAuthority(input).nodes;
 }
 
 export interface QuestExecutionFactsOptions {

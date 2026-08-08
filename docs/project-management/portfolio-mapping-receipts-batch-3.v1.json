@@ -1,0 +1,1631 @@
+{
+  "schema": "thoughtseed.portfolio-mapping-receipt-bundle.v1",
+  "preparedDate": "2026-08-09",
+  "status": "prepared-not-issued",
+  "portfolioId": "thoughtseed",
+  "batchId": "github-batch-003-sapling-provenance",
+  "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+  "authority": {
+    "evidenceRole": "immutable-idempotent-repository-to-workobject-mapping",
+    "liveApply": "separately-approved-r2-conditional-put",
+    "notAuthorityFor": [
+      "Sapling promotion",
+      "Goal Graph mutation",
+      "repository ownership",
+      "folder movement",
+      "deployment"
+    ]
+  },
+  "digests": {
+    "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+    "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+    "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f"
+  },
+  "summary": {
+    "receiptCount": 38,
+    "workObjectCount": 12,
+    "repositoryCount": 38,
+    "founderHoldCount": 0,
+    "excludedContaminationCount": 1,
+    "excludedFalsePositiveCount": 1
+  },
+  "exclusions": [
+    {
+      "repository": "Sheshiyer/snow-gloves-os",
+      "disposition": "program:snow-gloves-os",
+      "reason": "Snow Gloves contamination is not Klear Karma product source."
+    },
+    {
+      "repository": "pineappleinnovationlabs/chakra-shine-admin",
+      "disposition": "excluded-false-positive",
+      "reason": "Repository is not part of the Tirak family."
+    }
+  ],
+  "receipts": [
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:kristudios",
+      "workObjectKind": "branch",
+      "originAssertion": "client-origin",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/kristudios-heritage",
+        "repositoryId": "R_kgDOQR5HOw",
+        "databaseId": 1092503355,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-11-08T18:42:19.000Z"
+      },
+      "rootMap": {
+        "folder": "kristudios",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "kristudios",
+        "workIds": [
+          "branch:kristudios"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "proposed",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_f1aca91f7bf95564d14bcb03",
+      "contentDigest": "sha256:f1aca91f7bf95564d14bcb0366b7f87b261de09d701ad46207274a662ee331dc",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:kristudios:R_kgDOQR5HOw",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_f1aca91f7bf95564d14bcb03.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:kristudios",
+      "workObjectKind": "branch",
+      "originAssertion": "client-origin",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/kristudios-space",
+        "repositoryId": "R_kgDOQoS0Lw",
+        "databaseId": 1115993135,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-12-14T05:19:12.000Z"
+      },
+      "rootMap": {
+        "folder": "kristudios",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "kristudios",
+        "workIds": [
+          "branch:kristudios"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "proposed",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_741bf41c21ed8a99ded00277",
+      "contentDigest": "sha256:741bf41c21ed8a99ded00277c372118351e307112aa45c26f7209ead6caf491e",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:kristudios:R_kgDOQoS0Lw",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_741bf41c21ed8a99ded00277.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:kristudios",
+      "workObjectKind": "branch",
+      "originAssertion": "client-origin",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/kristudios-v2-web",
+        "repositoryId": "R_kgDOTwnX4g",
+        "databaseId": 1326045154,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:51:25.000Z"
+      },
+      "rootMap": {
+        "folder": "kristudios",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "kristudios",
+        "workIds": [
+          "branch:kristudios"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "proposed",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_c301ba44c1672798772231ce",
+      "contentDigest": "sha256:c301ba44c1672798772231ce26c8816992f4fd5f2e343d7f348320ba4b316c5d",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:kristudios:R_kgDOTwnX4g",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_c301ba44c1672798772231ce.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:kristudios",
+      "workObjectKind": "branch",
+      "originAssertion": "client-origin",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/kristudios-wiki",
+        "repositoryId": "R_kgDORP_PqA",
+        "databaseId": 1157615528,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T15:02:31.000Z"
+      },
+      "rootMap": {
+        "folder": "kristudios",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "kristudios",
+        "workIds": [
+          "branch:kristudios"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "proposed",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_f5a1c83527136b3c0388c7e4",
+      "contentDigest": "sha256:f5a1c83527136b3c0388c7e4800bb849885c83052c03ee219ed971ba9a22fc62",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:kristudios:R_kgDORP_PqA",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_f5a1c83527136b3c0388c7e4.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:parkarea",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/parkarea-aleph",
+        "repositoryId": "R_kgDOSDqEkg",
+        "databaseId": 1211794578,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T02:00:02.000Z"
+      },
+      "rootMap": {
+        "folder": "parkarea",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "parkarea",
+        "workIds": [
+          "branch:parkarea",
+          "sapling:parkarea"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_4b60456a6675d1b1143815fa",
+      "contentDigest": "sha256:4b60456a6675d1b1143815fab933852636ac5a6fd9475cf4539d2c5271791fae",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:parkarea:R_kgDOSDqEkg",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:parkarea/mapping/pmr_4b60456a6675d1b1143815fa.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:parkarea",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/parkarea-wiki-v0",
+        "repositoryId": "R_kgDOTFJkwA",
+        "databaseId": 1280468160,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:37.000Z"
+      },
+      "rootMap": {
+        "folder": "parkarea",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "parkarea",
+        "workIds": [
+          "branch:parkarea",
+          "sapling:parkarea"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_24d373159ecbfd004709e06d",
+      "contentDigest": "sha256:24d373159ecbfd004709e06d7c513e8b5141415b53b727d0fc721d297f38bdaf",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:parkarea:R_kgDOTFJkwA",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:parkarea/mapping/pmr_24d373159ecbfd004709e06d.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+        "repositoryId": "R_kgDOO4v-mw",
+        "databaseId": 999030427,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-05-18T12:27:11.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_ddc4816500b756982ccc7a8e",
+      "contentDigest": "sha256:ddc4816500b756982ccc7a8eb9720195b0a5e620cf5f78d8ae855f80b36ffa7a",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOO4v-mw",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_ddc4816500b756982ccc7a8e.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "pineappleinnovationlabs/tirak-admin-command-center",
+        "repositoryId": "R_kgDOO4p3uw",
+        "databaseId": 998930363,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:50.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_18fe1dccd2d0137a4a85f611",
+      "contentDigest": "sha256:18fe1dccd2d0137a4a85f611c446f3f6bd28415171a21c7ea28131291efe29cd",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOO4p3uw",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_18fe1dccd2d0137a4a85f611.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "pineappleinnovationlabs/tirak-dream-journeys",
+        "repositoryId": "R_kgDOPHdksg",
+        "databaseId": 1014457522,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-10-16T14:32:32.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_9f211db65c0a8a34dd03eb5b",
+      "contentDigest": "sha256:9f211db65c0a8a34dd03eb5bf8a8030788bd91e36946f844b4cba4bde970355e",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOPHdksg",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_9f211db65c0a8a34dd03eb5b.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "pineappleinnovationlabs/tirak-website-v1",
+        "repositoryId": "R_kgDOQDuQIw",
+        "databaseId": 1077645347,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-10-16T14:52:13.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_57eb49f7263424d44e15e590",
+      "contentDigest": "sha256:57eb49f7263424d44e15e59061ec610de0331f622b01a0f091417b1c4eae7bd3",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOQDuQIw",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_57eb49f7263424d44e15e590.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/tirak-backend-alpha01",
+        "repositoryId": "R_kgDOO5Ekzg",
+        "databaseId": 999367886,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:52.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_3bdefee7a954e214dfac05f6",
+      "contentDigest": "sha256:3bdefee7a954e214dfac05f6efe0059cfeb57d5c6d4b703dc4b51c6dee162e29",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOO5Ekzg",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_3bdefee7a954e214dfac05f6.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/tirak-mobile-app-v2",
+        "repositoryId": "R_kgDOSkuDKw",
+        "databaseId": 1246462763,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T03:16:16.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_5f0e357094d43a1967b05584",
+      "contentDigest": "sha256:5f0e357094d43a1967b055840f73629d3d4e1f042674105f4953832cae1a3b95",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOSkuDKw",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_5f0e357094d43a1967b05584.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/tirak-website-v1",
+        "repositoryId": "R_kgDOQDvyvQ",
+        "databaseId": 1077670589,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-25T10:11:40.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_84836841cd65899729b32bb4",
+      "contentDigest": "sha256:84836841cd65899729b32bb4fbdce365e7cdc6af2f65d92a6c51b103a4c9441d",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOQDvyvQ",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_84836841cd65899729b32bb4.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/tirakplus",
+        "repositoryId": "R_kgDOSXh9KQ",
+        "databaseId": 1232633129,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:54.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_56ed7a1e35a610dc8dbc62f6",
+      "contentDigest": "sha256:56ed7a1e35a610dc8dbc62f6d6d5d63be591ab3d1ccd1746d3173ec14de800e2",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOSXh9KQ",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_56ed7a1e35a610dc8dbc62f6.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/tirakplus0admin",
+        "repositoryId": "R_kgDOSXh9OQ",
+        "databaseId": 1232633145,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:56.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_f54d6564203cd6435558b320",
+      "contentDigest": "sha256:f54d6564203cd6435558b32096482a1535d87f17bfd07786fe346caf16ba681b",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOSXh9OQ",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_f54d6564203cd6435558b320.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "branch:tirak",
+      "workObjectKind": "branch",
+      "originAssertion": "linked-product-client-delivery",
+      "repositoryRole": "client-branch-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/wikiv2-tirakapp",
+        "repositoryId": "R_kgDOQ-nokA",
+        "databaseId": 1139402896,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:58.000Z"
+      },
+      "rootMap": {
+        "folder": "tirak",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "executing",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_64838a64b028bc29057fe9ca",
+      "contentDigest": "sha256:64838a64b028bc29057fe9ca41a323d2cf2e28b485dcaba7879cc8d7b7998cdc",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:branch:tirak:R_kgDOQ-nokA",
+      "r2Key": "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_64838a64b028bc29057fe9ca.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:10869-space",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/10869-space-v1",
+        "repositoryId": "R_kgDOTH-UWA",
+        "databaseId": 1283429464,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-15T14:41:19.000Z"
+      },
+      "rootMap": {
+        "folder": null,
+        "additionalFolders": [],
+        "proposedKind": null,
+        "accountId": null,
+        "workIds": [],
+        "status": "no-shallow-folder"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_55bb867daa459a20a2e389fc",
+      "contentDigest": "sha256:55bb867daa459a20a2e389fce734f1026cc5c2f9ef77ec5da9ffb9743c602607",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:10869-space:R_kgDOTH-UWA",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:10869-space/mapping/pmr_55bb867daa459a20a2e389fc.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:effort-glyph",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/effort-glyph",
+        "repositoryId": "R_kgDONjuR3Q",
+        "databaseId": 909873629,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2024-12-31T03:16:08.000Z"
+      },
+      "rootMap": {
+        "folder": null,
+        "additionalFolders": [],
+        "proposedKind": null,
+        "accountId": null,
+        "workIds": [],
+        "status": "no-shallow-folder"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_c71814cd7805db970a60fd71",
+      "contentDigest": "sha256:c71814cd7805db970a60fd71abaa7bbe97e5bfef2adcb4d536c0413d12f4408f",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:effort-glyph:R_kgDONjuR3Q",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:effort-glyph/mapping/pmr_c71814cd7805db970a60fd71.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:effort-glyph",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/effort-glyph-dashboard-nftclaim",
+        "repositoryId": "R_kgDONkLnaw",
+        "databaseId": 910354283,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2024-12-31T04:04:06.000Z"
+      },
+      "rootMap": {
+        "folder": null,
+        "additionalFolders": [],
+        "proposedKind": null,
+        "accountId": null,
+        "workIds": [],
+        "status": "no-shallow-folder"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_f6e66551adb18e8ad21d776c",
+      "contentDigest": "sha256:f6e66551adb18e8ad21d776cafcd9b4f5f713bd156ac60dac4173f47680bd9d2",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:effort-glyph:R_kgDONkLnaw",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:effort-glyph/mapping/pmr_f6e66551adb18e8ad21d776c.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:effort-glyph",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/effort-glyph-user-dashboard",
+        "repositoryId": "R_kgDONjv5eg",
+        "databaseId": 909900154,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2024-12-31T04:30:32.000Z"
+      },
+      "rootMap": {
+        "folder": null,
+        "additionalFolders": [],
+        "proposedKind": null,
+        "accountId": null,
+        "workIds": [],
+        "status": "no-shallow-folder"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_a9fc8bb5f31806655c19d9c1",
+      "contentDigest": "sha256:a9fc8bb5f31806655c19d9c17673cc5b2b06cb497210e520f8bef8e17220f1e1",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:effort-glyph:R_kgDONjv5eg",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:effort-glyph/mapping/pmr_a9fc8bb5f31806655c19d9c1.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:fmrl",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/fmrl",
+        "repositoryId": "R_kgDORqSNzg",
+        "databaseId": 1185189326,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:44:59.000Z"
+      },
+      "rootMap": {
+        "folder": "fmrl",
+        "additionalFolders": [
+          "fmrl-reactnative"
+        ],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:fmrl"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_211be1545426eebc66572a3d",
+      "contentDigest": "sha256:211be1545426eebc66572a3d79cf1b435091aa818cb5dbb8f4a39e920a8cd683",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:fmrl:R_kgDORqSNzg",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:fmrl/mapping/pmr_211be1545426eebc66572a3d.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:fmrl",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/FMRLcam",
+        "repositoryId": "R_kgDOO-B17A",
+        "databaseId": 1004565996,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-06-18T20:40:19.000Z"
+      },
+      "rootMap": {
+        "folder": "fmrl",
+        "additionalFolders": [
+          "fmrl-reactnative"
+        ],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:fmrl"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_ab48f610e4c0a42325a9ae45",
+      "contentDigest": "sha256:ab48f610e4c0a42325a9ae45c02af03234f8df832936bf0aa95f97487be8479b",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:fmrl:R_kgDOO-B17A",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:fmrl/mapping/pmr_ab48f610e4c0a42325a9ae45.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:iverif",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/iverif-wiki",
+        "repositoryId": "R_kgDOSwXJ7Q",
+        "databaseId": 1258670573,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:09.000Z"
+      },
+      "rootMap": {
+        "folder": "iverif",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:iverif"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_1eed70f65a8c1524f4069071",
+      "contentDigest": "sha256:1eed70f65a8c1524f40690716885be32681bb2c51960b4335f6d5ed20946fb5f",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:iverif:R_kgDOSwXJ7Q",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:iverif/mapping/pmr_1eed70f65a8c1524f4069071.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/kkv2-admin-panel",
+        "repositoryId": "R_kgDOSzKl3w",
+        "databaseId": 1261610463,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-18T10:30:24.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_fed5ff91f63472bc431babe8",
+      "contentDigest": "sha256:fed5ff91f63472bc431babe8fb2c57385d02e880ff20adb494c4ba66a289165c",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOSzKl3w",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_fed5ff91f63472bc431babe8.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/kkv2-klear-karma-RN",
+        "repositoryId": "R_kgDOSUMQlw",
+        "databaseId": 1229131927,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-29T05:45:30.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_771db9af19a6ae7f8b4ad8cc",
+      "contentDigest": "sha256:771db9af19a6ae7f8b4ad8cce47ff3a6c30d2c1409a5082c1d41bcfeeeab5c4f",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOSUMQlw",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_771db9af19a6ae7f8b4ad8cc.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/klear-karma",
+        "repositoryId": "R_kgDOSTjD5w",
+        "databaseId": 1228456935,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-05-04T17:47:52.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_b6ab14e6cb627498d2f84813",
+      "contentDigest": "sha256:b6ab14e6cb627498d2f848131e35158907da7f7d4dfab6deb43e0b5811ec27de",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOSTjD5w",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_b6ab14e6cb627498d2f84813.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/klear-karma-backend",
+        "repositoryId": "R_kgDOPT_ipA",
+        "databaseId": 1027596964,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T13:50:44.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_57ce107f0f88f41a26039667",
+      "contentDigest": "sha256:57ce107f0f88f41a260396675686a31b1ddc27023256e400d3e5579df79baab5",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOPT_ipA",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_57ce107f0f88f41a26039667.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/klear-karma-pitchv1",
+        "repositoryId": "R_kgDOPN3-TA",
+        "databaseId": 1021181516,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-07-17T07:19:00.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_5fc7c59bcd3dea1e9de0bf50",
+      "contentDigest": "sha256:5fc7c59bcd3dea1e9de0bf50c293441158847320acb684ba9d939b6c85c87921",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOPN3-TA",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_5fc7c59bcd3dea1e9de0bf50.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/klear-karma-website-v2",
+        "repositoryId": "R_kgDOSygkXA",
+        "databaseId": 1260921948,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:51:57.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_dc51780f60fdc4a7ab8696eb",
+      "contentDigest": "sha256:dc51780f60fdc4a7ab8696eb5472a5c37e570271cff19008ac9feb8aeff024be",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOSygkXA",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_dc51780f60fdc4a7ab8696eb.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/Klearkarma-wiki",
+        "repositoryId": "R_kgDOPNXkIQ",
+        "databaseId": 1020650529,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T13:50:06.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_2e3316592e72684dacde5d26",
+      "contentDigest": "sha256:2e3316592e72684dacde5d266fbbe74778f488338ec617e5616dfae2a09ba862",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOPNXkIQ",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_2e3316592e72684dacde5d26.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:klear-karma",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/rork-klear-karma-mobile-app-frontend",
+        "repositoryId": "R_kgDOPcQ4Lg",
+        "databaseId": 1036269614,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-03-28T10:02:46.000Z"
+      },
+      "rootMap": {
+        "folder": "klear-karma",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_0b687d433adbd10ea6ea44ac",
+      "contentDigest": "sha256:0b687d433adbd10ea6ea44ac8ed9aab21f4f5182fe0058d21870ff81a13aa032",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:klear-karma:R_kgDOPcQ4Lg",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_0b687d433adbd10ea6ea44ac.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:vantyx",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/vantyx",
+        "repositoryId": "R_kgDOSzK35A",
+        "databaseId": 1261615076,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:33.000Z"
+      },
+      "rootMap": {
+        "folder": "panaroma-webapp",
+        "additionalFolders": [],
+        "proposedKind": "needs-review",
+        "accountId": null,
+        "workIds": [
+          "branch:airdronauts-panorama-viewer-delivery",
+          "sapling:vantyx"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_3f1a0d42a90d50a30432b448",
+      "contentDigest": "sha256:3f1a0d42a90d50a30432b448d2fbb5b6d8d39c944e37aa365e7881a1dea5c1eb",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:vantyx:R_kgDOSzK35A",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:vantyx/mapping/pmr_3f1a0d42a90d50a30432b448.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:vibrasonix",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/Vibrasonix-Wiki",
+        "repositoryId": "R_kgDOOMq9Fw",
+        "databaseId": 952810775,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-03-22T07:07:20.000Z"
+      },
+      "rootMap": {
+        "folder": "vibrasonix",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:vibrasonix"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_06637a6f30dde01cbd78381b",
+      "contentDigest": "sha256:06637a6f30dde01cbd78381b4a3d031cd25468b5b1898b56098818b8c962f8b1",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:vibrasonix:R_kgDOOMq9Fw",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:vibrasonix/mapping/pmr_06637a6f30dde01cbd78381b.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:vibrasonix",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/vibrasonix-wiki-v1",
+        "repositoryId": "R_kgDOPaqOtg",
+        "databaseId": 1034587830,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T15:03:25.000Z"
+      },
+      "rootMap": {
+        "folder": "vibrasonix",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:vibrasonix"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_db2891e5a6869ed6d5925c91",
+      "contentDigest": "sha256:db2891e5a6869ed6d5925c91f83a73aa80544df5abb0e71b8dae376eeb5a63a1",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:vibrasonix:R_kgDOPaqOtg",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:vibrasonix/mapping/pmr_db2891e5a6869ed6d5925c91.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:wanderfruit",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/wanderfruit-wiki-alpha",
+        "repositoryId": "R_kgDOQy3BzA",
+        "databaseId": 1127072204,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-01-03T05:45:18.000Z"
+      },
+      "rootMap": {
+        "folder": "coproperty",
+        "additionalFolders": [],
+        "proposedKind": "client-branch",
+        "accountId": "co-property",
+        "workIds": [
+          "branch:co-property",
+          "sapling:nimbus-gate",
+          "sapling:wanderfruit"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_990aaaba6589f2c1d4d11681",
+      "contentDigest": "sha256:990aaaba6589f2c1d4d116811fdff05bafb80d3c970770a067e60b6e9e89d306",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:wanderfruit:R_kgDOQy3BzA",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:wanderfruit/mapping/pmr_990aaaba6589f2c1d4d11681.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:whspr",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/whspr-assist",
+        "repositoryId": "R_kgDORkZPnw",
+        "databaseId": 1179013023,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T15:03:30.000Z"
+      },
+      "rootMap": {
+        "folder": "whspr",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:whspr"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_42c14e3f3dc24047e4241c0f",
+      "contentDigest": "sha256:42c14e3f3dc24047e4241c0f670779fd1ca1890edb8ca3aa5ab62b51d25443a3",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:whspr:R_kgDORkZPnw",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:whspr/mapping/pmr_42c14e3f3dc24047e4241c0f.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:whspr",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/whspr-pitch-alpha",
+        "repositoryId": "R_kgDOQ3NmTg",
+        "databaseId": 1131636302,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-01-10T12:05:28.000Z"
+      },
+      "rootMap": {
+        "folder": "whspr",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:whspr"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_50d8707be0c618d4235b1eaf",
+      "contentDigest": "sha256:50d8707be0c618d4235b1eafb5833ae152077ccfb4cbb6186cc9c8dafc70a800",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:whspr:R_kgDOQ3NmTg",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:whspr/mapping/pmr_50d8707be0c618d4235b1eaf.json",
+      "status": "prepared"
+    },
+    {
+      "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+      "portfolioId": "thoughtseed",
+      "batchId": "github-batch-003-sapling-provenance",
+      "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+      "decision": "map-reviewed-repository",
+      "workObjectId": "sapling:whspr",
+      "workObjectKind": "sapling",
+      "originAssertion": "thoughtseed-origin",
+      "repositoryRole": "product-source",
+      "repository": {
+        "nameWithOwner": "Sheshiyer/whspr-wiki",
+        "repositoryId": "R_kgDOQ9yhhw",
+        "databaseId": 1138532743,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-01-20T19:59:10.000Z"
+      },
+      "rootMap": {
+        "folder": "whspr",
+        "additionalFolders": [],
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:whspr"
+        ],
+        "status": "mapping-proposal"
+      },
+      "lifecycle": "active",
+      "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+      "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+      "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+      "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f",
+      "receiptKind": "mapping",
+      "receiptId": "pmr_e816725186cd86b56402436a",
+      "contentDigest": "sha256:e816725186cd86b56402436aed5901413edea09815598240e4a29453151ea8af",
+      "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:whspr:R_kgDOQ9yhhw",
+      "r2Key": "portfolio/thoughtseed/workobjects/sapling:whspr/mapping/pmr_e816725186cd86b56402436a.json",
+      "status": "prepared"
+    }
+  ],
+  "applyManifest": {
+    "operation": "r2-conditional-put-if-absent",
+    "approvalRequired": true,
+    "expectedNewObjects": 38,
+    "orderedKeys": [
+      "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_f1aca91f7bf95564d14bcb03.json",
+      "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_741bf41c21ed8a99ded00277.json",
+      "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_c301ba44c1672798772231ce.json",
+      "portfolio/thoughtseed/workobjects/branch:kristudios/mapping/pmr_f5a1c83527136b3c0388c7e4.json",
+      "portfolio/thoughtseed/workobjects/branch:parkarea/mapping/pmr_4b60456a6675d1b1143815fa.json",
+      "portfolio/thoughtseed/workobjects/branch:parkarea/mapping/pmr_24d373159ecbfd004709e06d.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_ddc4816500b756982ccc7a8e.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_18fe1dccd2d0137a4a85f611.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_9f211db65c0a8a34dd03eb5b.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_57eb49f7263424d44e15e590.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_3bdefee7a954e214dfac05f6.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_5f0e357094d43a1967b05584.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_84836841cd65899729b32bb4.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_56ed7a1e35a610dc8dbc62f6.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_f54d6564203cd6435558b320.json",
+      "portfolio/thoughtseed/workobjects/branch:tirak/mapping/pmr_64838a64b028bc29057fe9ca.json",
+      "portfolio/thoughtseed/workobjects/sapling:10869-space/mapping/pmr_55bb867daa459a20a2e389fc.json",
+      "portfolio/thoughtseed/workobjects/sapling:effort-glyph/mapping/pmr_c71814cd7805db970a60fd71.json",
+      "portfolio/thoughtseed/workobjects/sapling:effort-glyph/mapping/pmr_f6e66551adb18e8ad21d776c.json",
+      "portfolio/thoughtseed/workobjects/sapling:effort-glyph/mapping/pmr_a9fc8bb5f31806655c19d9c1.json",
+      "portfolio/thoughtseed/workobjects/sapling:fmrl/mapping/pmr_211be1545426eebc66572a3d.json",
+      "portfolio/thoughtseed/workobjects/sapling:fmrl/mapping/pmr_ab48f610e4c0a42325a9ae45.json",
+      "portfolio/thoughtseed/workobjects/sapling:iverif/mapping/pmr_1eed70f65a8c1524f4069071.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_fed5ff91f63472bc431babe8.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_771db9af19a6ae7f8b4ad8cc.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_b6ab14e6cb627498d2f84813.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_57ce107f0f88f41a26039667.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_5fc7c59bcd3dea1e9de0bf50.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_dc51780f60fdc4a7ab8696eb.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_2e3316592e72684dacde5d26.json",
+      "portfolio/thoughtseed/workobjects/sapling:klear-karma/mapping/pmr_0b687d433adbd10ea6ea44ac.json",
+      "portfolio/thoughtseed/workobjects/sapling:vantyx/mapping/pmr_3f1a0d42a90d50a30432b448.json",
+      "portfolio/thoughtseed/workobjects/sapling:vibrasonix/mapping/pmr_06637a6f30dde01cbd78381b.json",
+      "portfolio/thoughtseed/workobjects/sapling:vibrasonix/mapping/pmr_db2891e5a6869ed6d5925c91.json",
+      "portfolio/thoughtseed/workobjects/sapling:wanderfruit/mapping/pmr_990aaaba6589f2c1d4d11681.json",
+      "portfolio/thoughtseed/workobjects/sapling:whspr/mapping/pmr_42c14e3f3dc24047e4241c0f.json",
+      "portfolio/thoughtseed/workobjects/sapling:whspr/mapping/pmr_50d8707be0c618d4235b1eaf.json",
+      "portfolio/thoughtseed/workobjects/sapling:whspr/mapping/pmr_e816725186cd86b56402436a.json"
+    ],
+    "preconditions": [
+      "re-read all four digests",
+      "confirm every target key is absent or byte-identical",
+      "confirm production binding and rollback owner"
+    ],
+    "conflictPolicy": "abort-entire-apply-before-new-write-on-any-preflight-conflict",
+    "correctionPolicy": "immutable receipts are never edited or deleted; append a separately approved superseding receipt"
+  },
+  "bundleDigest": "sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43"
+}

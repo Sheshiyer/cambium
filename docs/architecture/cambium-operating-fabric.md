@@ -271,13 +271,25 @@ flowchart LR
   D1 --> Dispatch["Task dispatch + lease"]
   Registry --> Dispatch
   Dispatch --> Run["Pinned agent + skill loadout run"]
-  Run --> Receipt["Terminal receipt"]
-  Receipt --> D1
-  Receipt --> Cortex["Cortex derived learning"]
+  Run --> Receipt["D1 terminal receipt"]
+  Receipt --> Foldback["Immutable foldback proof"]
+  Foldback --> Cortex["Cortex derived learning"]
   Cortex --> Intent
 ```
 
 The only return path from Cortex or the UI to graph truth is a new bounded proposal followed by the same approval and CAS gates.
+
+Goal Graph task rows may carry the additive nullable operational anchors
+`work_object_id`, `work_object_kind`, and `pinned_loadout_id`. Exact catalog
+membership admits the WorkObject relationship; aliases and inferred slugs do
+not. An admitted task produces `contains`, while a valid immutable loadout
+produces one WorkObject-level `pins-loadout` edge. Legacy unanchored rows remain
+readable and produce explicit gaps.
+
+Hermes foldback occurs only after D1 has persisted an `executed` or `failed`
+terminal outcome under the current fencing token. The immutable foldback proof
+then emits `proves` and `informs-next-intent`. It cannot write the Goal Graph;
+the next iteration still requires a bounded proposal, founder Gate, and D1 CAS.
 
 ### Entity authority map
 

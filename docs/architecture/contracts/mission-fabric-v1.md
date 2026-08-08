@@ -1,8 +1,8 @@
 # Mission Fabric Projection Contract v1
 
-Date: 2026-07-28
+Date: 2026-08-09
 Schema: `cambium.mission-fabric-projection.v1`
-Status: frozen for the first deterministic compiler slice
+Status: active local contract; production migration and traffic remain approval-gated
 Runtime source: `workers/quests/src/mission-fabric.ts`
 
 ## Purpose
@@ -123,6 +123,31 @@ The compiler must not rename those fields or invent peer root types.
   semantics only: a source field that does not exist (for example a task
   proof requirement) projects as the honest empty value, never a
   repurposed neighbor such as a blocker.
+
+## Goal Graph operational anchors
+
+Migration `0009_goal_graph_operational_anchors.sql` adds nullable
+`work_object_id`, `work_object_kind`, and `pinned_loadout_id` columns to Goal
+Graph nodes. They are nullable so existing graphs remain readable. New anchored
+rows are validated at the application boundary as one exact pair: the
+canonical WorkObject ID prefix must equal its kind, the ID must occur in the
+shipped portfolio catalog, and a loadout may be pinned only alongside that
+WorkObject anchor.
+
+An admitted anchor emits `contains` from the WorkObject to the task. A valid
+loadout additionally emits one deduplicated `pins-loadout` edge from the
+WorkObject to the opaque, immutable loadout identity. Missing, malformed,
+type-mismatched, catalog-orphaned, or loadout-less anchors remain visible as
+typed gaps. The adapter never repairs a bare slug, alias, display name, or
+legacy identifier.
+
+Terminal Hermes outcomes adapt through
+`thoughtseed.hermes.execution-foldback.v1`. The adapter binds tenant, graph
+version, task, WorkObject, loadout, execution claim, fencing token, attempt,
+attestation, and proof digests into deterministic immutable evidence. It emits
+`proves` to the exact task and `informs-next-intent` to the exact WorkObject.
+The latter is evidence for a future bounded proposal; it is never a direct
+Goal Graph mutation.
 
 ## Bounds
 
