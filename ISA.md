@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Execute Cambium Phase 1 archive-first promotion"
+task: "Reconcile Temperance Phase 2 physical lane"
 effort: E3
 effort_source: context-override
 phase: complete
-progress: 886/962
+progress: 905/981
 mode: interactive
-iteration: 2026-08-08-cambium-phase-1-live-apply
+iteration: 2026-08-08-temperance-phase-2-reconciliation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-08T17:55:00Z
+updated: 2026-08-08T18:06:30Z
 ---
 
 ## Problem
@@ -1304,6 +1304,28 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-960: Focused relocation tests, Portfolio Cartographer check, Worker portfolio routes, full repository tests, JSON parsing, and diff checks pass.
 - [x] ISC-961: Anti: Phase 1 performs no R2, GitHub, registry, Goal Graph, provider, production, Temperance, Symphonics, or `thoughtseed-labs` mutation.
 
+### Temperance Phase 2 reconciliation
+
+- [x] ISC-962: The founder continuation authorizes Temperance reconciliation without implying Phase 2 live relocation approval.
+- [x] ISC-963: The shallow `temperance-engine-landing-page` slot is proven to be a real non-symlink directory and not a Git repository.
+- [x] ISC-964: The nested checkout is proven to be the exact `Sheshiyer/temperance_engine_landing_page` Git root on `main` at the recorded HEAD.
+- [x] ISC-965: The `website` container is proven to contain only the nested Temperance authority checkout.
+- [x] ISC-966: The non-sensitive content comparison records the exact count of byte-identical files across both trees.
+- [x] ISC-967: Every shallow-only non-sensitive file is named with size and digest evidence.
+- [x] ISC-968: Every changed non-sensitive file is named with before/authority digests.
+- [x] ISC-969: Sensitive ignored state is counted and compared only by metadata without reading or recording its content.
+- [x] ISC-970: The nested untracked `_PROJECT-STATUS.md` is digest-bound to its identical shallow counterpart and receives a dedicated archive target.
+- [x] ISC-971: The `.gitignore` review preserves shallow policy drift in the archive without silently overwriting the tracked repository policy.
+- [x] ISC-972: The post-promotion container decision preserves `website` as an empty infrastructure directory.
+- [x] ISC-973: The live-apply proposal names exact same-device archive, local-state, source, and destination paths.
+- [x] ISC-974: The live-apply proposal records an exact reverse-order rollback sequence.
+- [x] ISC-975: The planned promotion leaves the 58-directory root-map membership and accepted snapshot digest unchanged.
+- [x] ISC-976: The Phase 2 preflight receipt contains no machine-local absolute path, secret value, or sensitive file content.
+- [x] ISC-977: The physical manifest, readiness records, and mapping queue agree on Phase 2 preflight readiness and the exact approval gate.
+- [x] ISC-978: Focused relocation tests, Portfolio Cartographer check, Worker portfolio routes, full repository tests, JSON parsing, and diff checks pass.
+- [x] ISC-979: Anti: reconciliation performs no folder move, archive creation, deletion, R2 write, GitHub mutation, registry write, Goal Graph write, provider change, or production deployment.
+- [x] ISC-980: A bounded handoff records the evidence, proposed operations, rollback, held boundaries, and next exact approval phrase.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1325,6 +1347,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-721..745 | dual transport auth | browser enters Access/Plexus founder flow; Telegram keeps signed initData; inactive identities fail closed; both serve exact bytes without writes | focused Node tests, Cloudflare Access read-back, candidate probes, browser automation, SHA-256, `git diff --check` |
 | ISC-931..945 | Batch 2 repository mapping | queue-count probe, immutable GitHub IDs, exact WorkObject assignments, regenerated evidence, scoped/full tests, JSON parse, handoff, and no-external-mutation status | `node`, `gh`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-946..961 | Cambium Phase 1 live apply | ancestry, exact approval, pre/post lstat and Git identity, depth-one compare, recoverable archive, atomic path promotion, regenerated root map/headers, receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, `node`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check` |
+| ISC-962..980 | Temperance Phase 2 reconciliation | exact Git and lstat identity, redacted file comparison, ignore-policy decision, local-state archive target, container preservation, unchanged root map, preflight receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, SHA-256, redacted `node` comparison, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1428,6 +1451,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - `ProjectCreationIntent` | Validate source, origin, derived grammar, relative destination, and Founder Gate binding | satisfies ISC-868..885, ISC-894, ISC-900..904 | depends_on HostedPortfolioActions | parallelizable false
 - `TrustedProjectExecutor` | Create a shallow local Git project packet, registry-derived workflow stages, and pending-ingestion/index-proposal receipts | satisfies ISC-886..895, ISC-905..906 | depends_on ProjectCreationIntent | parallelizable false
 - `ProjectCloseoutWorkflow` | Move receipt-backed finished work out of active tracking while producing handoff, R2 archive, memory, and finished-index records | satisfies ISC-911..930 | depends_on HostedPortfolioActions, ProjectCreationIntent | parallelizable false
+- `TemperancePhase2Reconciliation` | Resolve shallow versus nested authority, preserve local-only state, choose container and ignore-policy dispositions, and emit an exact approval-gated preflight | satisfies ISC-962..980 | depends_on Cambium Phase 1 live apply | parallelizable false
 - `ActionRequestConsumption` | Implement the bounded queued-to-consumed lifecycle already promised by the public contract | satisfies ISC-66..71, ISC-80 | depends_on ActionRequestContract | parallelizable false
 - `AdditionalDriftGates` | Remove dead config, strictify release proof, cover Gate in CI, and retire R3F issue mirrors | satisfies ISC-72..79 | depends_on FixtureParity, RoutingGovernance | parallelizable true
 - `LeadStackConsolidation` | Merge the seven reviewed PRs and prove consolidated main | satisfies ISC-81..90 | depends_on AdditionalDriftGates | parallelizable false
@@ -1692,6 +1716,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-08-08 | conjectured: Temperance de-duplication required either merging divergent project content or removing the `website` container
+  refuted by: the redacted comparison found 50 byte-identical non-sensitive files, only Finder metadata plus `.gitignore` drift, one identical untracked status file, and no other container child
+  learned: repository authority can be promoted without content merging by archiving the shallow tree and nested local status separately while preserving the empty container and tracked ignore policy
+  criterion now: ISC-962..980 bind exact authority, redacted comparison, local-state preservation, repository-owned ignore policy, container continuity, rollback, approval, full verification, and zero live mutation
+
 - 2026-08-08 | conjectured: promoting the exact Cambium checkout required only two filesystem renames after approval
   refuted by: root-header regeneration revealed that the all-portfolio writer could update Thoughtseed before unrelated Tryambakam drift aborted the run
   learned: archive-first authority promotion and evidence regeneration are separate transactions; generated-header writers must validate their entire selected scope before any write
@@ -1840,6 +1869,26 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
 ## Verification
+
+- ISC-962: ReReadCheck — the exact continuation `yes lets do temperance` names the documented next lane but does not contain the separately generated Phase 2 live-apply phrase; all physical operations remain unauthorized.
+- ISC-963: lstat/Git probe — the shallow slot is a real non-symlink directory on device `16777242`, inode `30366279`, and returns `not-a-git-repository`.
+- ISC-964: Git/lstat probe — the nested exact root retains inode `20463948`, origin `https://github.com/Sheshiyer/temperance_engine_landing_page.git`, branch `main`, and HEAD `488f8b7d945b7a8c07ce51a253e3f559149108e8`.
+- ISC-965: directory probe — `website` inode `30575091` has exactly one child, `temperance-engine-landing-page`.
+- ISC-966: redacted SHA-256 comparison — 50 non-sensitive files are byte-identical across the shallow and nested trees.
+- ISC-967: redacted inventory — the sole shallow-only non-sensitive file is `public/.DS_Store`, 6,148 bytes, SHA-256 `7ea4f6db9aaa0344b404968a3edf4f62330bff8b2a2db9aebb5142f5a1d143f6`.
+- ISC-968: redacted inventory — only `.DS_Store` and `.gitignore` differ; both sides' sizes and SHA-256 values are recorded in the Phase 2 preflight.
+- ISC-969: sensitive-state probe — one ignored file exists on both sides with matching size and mode; its path and content were not recorded, opened, or hashed.
+- ISC-970: SHA-256/Git probe — nested status is exactly `?? _PROJECT-STATUS.md`; its 1,103 bytes match the shallow counterpart at `9ef2133d3e8a25ea9184ddc38f9d44979dbd03a9718d4c7e3a44b314d71ed9c3` and receive a dedicated archive target.
+- ISC-971: Git/digest review — the 44-byte tracked authority `.gitignore` remains authoritative while the 2,401-byte shallow template remains in the displaced-tree archive; no merge is proposed.
+- ISC-972: manifest probe — post-promotion `website` disposition is exactly `preserve-empty-container-as-infrastructure`.
+- ISC-973: lstat/manifest probe — both trees and both absent archive targets share device `16777242`; six ordered operations name every source and target with `$PROJECTS_ROOT` placeholders.
+- ISC-974: manifest probe — three checkpoint-specific rollback lists cover failure after local-state archival, shallow archival, and completed promotion.
+- ISC-975: root-map probe — expected 58, observed 58, missing zero, unexpected zero; promotion preserves the accepted digest `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe`.
+- ISC-976: source audit — Phase 2 evidence contains no `/Volumes/`, `.env` path, sensitive value, or sensitive content hash; JSON parsing passes.
+- ISC-977: invariant test — manifest, readiness JSON/Markdown, mapping queue, preflight, and exact approval text agree; focused relocation tests pass 11/11.
+- ISC-978: release gates — Portfolio Cartographer passes 63 active tests with one historical skip plus lint/build/bundle/audit/CSP/smoke; Worker portfolio routes pass 36/36; full repository tests pass 1568/1568; JSON parsing and `git diff --check` pass.
+- ISC-979: physical/scope probe — shallow inode `30366279`, authority inode `20463948`, container inode `30575091`, and `thoughtseed-labs` inode `30565745` remain unchanged; both proposed archive targets remain absent; Symphonics remains absent; no external mutation occurred.
+- ISC-980: file read — `.project/HANDOFF.md` records authority evidence, content reconciliation, redaction, preservation choices, exact operations, rollback, verification, held boundaries, and the next approval phrase.
 
 - ISC-946: Git ancestry probe — `git merge-base --is-ancestor ba56bef HEAD` exited zero at pre-apply head `d30c5553597caa745b5c1f4f96bf3fb43cc86ba4`.
 - ISC-947: direct founder-input comparison — the continuation contains exact text `approve live apply phase 1 Cambium archive-first promote` followed by “lets proceed.”

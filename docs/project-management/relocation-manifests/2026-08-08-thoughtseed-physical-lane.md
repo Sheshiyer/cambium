@@ -1,13 +1,13 @@
 # Thoughtseed physical lane manifest
 
-Status: Phase 1 applied and verified; Phase 2 remains blocked on local-state reconciliation and separate approval.
+Status: Phase 1 applied and verified; Phase 2 preflight passed and awaits exact live-apply approval.
 
 Preflight receipt: `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json`.
 
 ## Order
 
 1. Cambium archive-first promote/swap.
-2. Temperance landing-page promote-authority de-dup after local-state reconciliation.
+2. Temperance landing-page archive-first promote after completed reconciliation and exact live-apply approval.
 3. Symphonics stays held until the future native SDK / Tuya React Native app role is exact.
 
 ## Shared Boundary
@@ -32,11 +32,25 @@ Accepted post-apply root-map digest: `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa
 
 ## Phase 2: Temperance
 
-Decision: defer promote-authority.
+Decision: archive-first promote while preserving the `website` infrastructure container.
 
 The canonical slot `$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page` exists but is not a Git repository. The nested checkout `$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page` is the exact `Sheshiyer/temperance_engine_landing_page` authority.
 
-This phase is not live-apply ready. Before any de-duplication, preserve local-only state, review the `.gitignore` delta, clean or archive the nested untracked `_PROJECT-STATUS.md`, and choose whether the `website` container remains infrastructure or is archived.
+Reconciliation is complete and recorded in
+`docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json`.
+Fifty non-sensitive files are byte-identical. The shallow-only and changed
+Finder metadata remains recoverable in the displaced-tree archive. The broader
+shallow `.gitignore` is preserved but does not overwrite the tracked authority
+policy. Sensitive ignored content was not inspected and remains protected by
+archive-first movement.
+
+The nested untracked `_PROJECT-STATUS.md` is identical to its shallow
+counterpart and receives a dedicated archive target before a clean-Git
+assertion. After promotion, the now-empty `website` directory remains
+infrastructure, so the accepted 58-directory root map and digest stay unchanged.
+
+No live apply is authorized yet. It requires the exact approval text:
+`approve live apply phase 2 Temperance archive-first promote preserve website container`.
 
 ## Held
 

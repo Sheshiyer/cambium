@@ -2,7 +2,7 @@
   "schema": "thoughtseed.folder-rename-readiness.v1",
   "capturedDate": "2026-08-08",
   "portfolioId": "thoughtseed",
-  "status": "phase-1-applied-phase-2-blocked",
+  "status": "phase-1-applied-phase-2-preflight-ready",
   "activeManifest": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
   "scope": {
     "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
@@ -60,19 +60,19 @@
     {
       "id": "temperance-landing-page-dedupe",
       "subject": "website / temperance-engine-landing-page",
-      "status": "manifest-drafted-blocked-on-local-state-reconciliation",
-      "decision": "website is a container; the nested exact repository maps to program:temperance-hermes and can only be promoted after local-only artifacts and ignore-policy drift are reconciled",
-      "possibleLiveApply": "promote the nested exact checkout into the existing shallow temperance-engine-landing-page row, or keep the current container with an explicit exception",
+      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
+      "decision": "archive the shallow non-Git tree intact, separately archive the nested untracked status file, promote only the clean exact checkout, and preserve website as an empty infrastructure container",
+      "possibleLiveApply": "execute the exact Phase 2 preflight operations only after the recorded approval phrase",
       "blockedBy": [
-        "local-only artifacts must be inventoried and preserved",
-        "nested Git checkout must be clean or its untracked state must be archived",
-        "founder must approve whether to promote, de-duplicate, or preserve the container"
+        "exact live-apply approval: approve live apply phase 2 Temperance archive-first promote preserve website container"
       ],
       "evidence": [
         "docs/project-management/project-r2-mapping-proposals.md",
         "docs/project-management/github-repository-mapping-action-queue.v1.json",
         ".project/HANDOFF.md",
-        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json"
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json",
+        "docs/evidence/2026-08-08-temperance-landing-page-reconciliation.md"
       ]
     },
     {

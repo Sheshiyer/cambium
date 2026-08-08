@@ -3,7 +3,7 @@
   "manifestId": "2026-08-08-thoughtseed-physical-lane",
   "capturedDate": "2026-08-08",
   "portfolioId": "thoughtseed",
-  "status": "phase-1-applied-phase-2-blocked",
+  "status": "phase-1-applied-phase-2-preflight-ready",
   "preflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json",
   "phase1ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json",
   "applyAuthorization": {
@@ -12,6 +12,8 @@
     "founderManifestApproval": true,
     "liveApplyApproved": true,
     "phase1ApprovalConsumed": true,
+    "phase2ReconciliationApproved": true,
+    "phase2LiveApplyApproved": false,
     "filesystemMutationAuthorized": false,
     "r2WriteAuthorized": false,
     "githubMutationAuthorized": false,
@@ -138,11 +140,13 @@
     {
       "phaseId": "phase-2-temperance-landing-page-promote-authority",
       "order": 2,
-      "status": "blocked-content-and-local-state-reconciliation-required",
-      "liveApplyReady": false,
-      "decision": "defer-promote-authority",
+      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
+      "liveApplyReady": true,
+      "decision": "archive-first-promote-preserve-website-container",
       "workObjectId": "program:temperance-hermes",
       "repositoryIdentity": "Sheshiyer/temperance_engine_landing_page",
+      "preflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json",
+      "requiredApprovalText": "approve live apply phase 2 Temperance archive-first promote preserve website container",
       "observations": {
         "canonicalSlot": {
           "path": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
@@ -159,17 +163,29 @@
         },
         "container": {
           "path": "$PROJECTS_ROOT/thoughtseed/website",
-          "role": "non-workobject-container"
+          "role": "infrastructure-container",
+          "onlyChild": "temperance-engine-landing-page",
+          "postPromotionDisposition": "preserve-empty-container-as-infrastructure"
         }
       },
-      "blockingPreflight": [
-        "review .gitignore delta between shallow copy and nested exact checkout",
-        "inventory and preserve local-only artifacts including _PROJECT-STATUS.md, .vercel, .codegraph, and generated static output",
-        "make nested authority checkout clean or explicitly archive untracked local state",
-        "choose whether website container remains as infrastructure or is removed after promotion",
-        "name exact archive/rollback target for the displaced shallow tree and any container state"
+      "resolvedPreflight": [
+        "the tracked authority .gitignore remains unchanged and the broader shallow policy remains in the displaced-tree archive",
+        "50 non-sensitive files are byte-identical; the shallow-only and changed files are digest-bound in the preflight receipt",
+        "sensitive ignored content was not inspected and remains preserved by archive-first movement",
+        "the nested untracked _PROJECT-STATUS.md has a dedicated archive target and must move before the clean-Git assertion",
+        "website remains as an empty infrastructure container after promotion",
+        "exact archive targets and checkpoint-specific rollback sequences are recorded"
       ],
-      "proposedOperationsWhenUnblocked": [
+      "proposedOperationsWhenApproved": [
+        {
+          "op": "archive-nested-local-state",
+          "source": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page/_PROJECT-STATUS.md",
+          "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state/_PROJECT-STATUS.md"
+        },
+        {
+          "op": "assert-clean-git-authority",
+          "path": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page"
+        },
         {
           "op": "archive",
           "source": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
@@ -181,18 +197,17 @@
           "target": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page"
         },
         {
-          "op": "container-decision",
+          "op": "preserve-empty-container",
           "path": "$PROJECTS_ROOT/thoughtseed/website",
-          "options": [
-            "preserve-empty-container-as-infrastructure",
-            "archive-container-after-founder-approval"
-          ]
+          "disposition": "infrastructure"
         }
       ],
       "mustNotDo": [
         "promote nested Git state before local-only artifacts are preserved",
-        "weaken ignore policy without explicit review",
-        "delete website container state without a named archive target",
+        "copy the shallow .gitignore over the tracked authority policy during relocation",
+        "inspect or record sensitive ignored content",
+        "delete the website container",
+        "move any folder before the exact Phase 2 approval text is supplied",
         "create a website WorkObject"
       ]
     },
