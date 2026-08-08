@@ -97,6 +97,15 @@
       "currentRootMapState": "needs-review-empty-hold-without-workIds",
       "rootMapDigest": "a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445",
       "handoffMarkdownPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md"
+    },
+    {
+      "resolvedAt": "2026-08-08T00:00:00.000Z",
+      "repository": "thoughtseed-labs/lockwell-portal",
+      "decision": "founder-resolved-new-sapling",
+      "currentWorkId": "sapling:dlock",
+      "currentRootMapState": "no-shallow-folder-row-yet",
+      "liveUrl": "https://dlock-lp.vercel.app/",
+      "productBranchPacket": "docs/plans/product-branches/dlock.md"
     }
   ],
   "thoughtseedOrgUnmappedRepos": [

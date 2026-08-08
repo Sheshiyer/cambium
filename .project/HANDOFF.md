@@ -332,8 +332,8 @@
 - Batch 1 result: all 20 `thoughtseedlabs` / `thoughtseed-labs` repositories
   were classified with immutable GitHub IDs. Most are historical/archive/fork
   evidence; `DezinerAI` is founder-resolved archive/vault evidence;
-  `lockwell-portal` remains needs-review; `Vibrasonix-Website` is Sapling
-  evidence only because it is a fork/site row.
+  `lockwell-portal` is founder-resolved as the DLOCK Sapling; `Vibrasonix-Website`
+  is Sapling evidence only because it is a fork/site row.
 - Batch 2 result: 70 client-branch candidate repository rows were grouped
   across 10 client families with zero Sapling promotions. Symphonics needs
   root-map/account coverage review.
@@ -439,7 +439,8 @@
   `program:thoughtseed-vault` with `historical-product-or-research`,
   `evidence-sink`, and `archived` disposition. Batch 1 needs-review count is
   reduced from 2 to 1.
-- The next unresolved Batch 1 queue row is `thoughtseed-labs/lockwell-portal`.
+- The next unresolved Batch 1 queue row at this point was
+  `thoughtseed-labs/lockwell-portal`.
 - Verification: edited JSON files pass `jq empty`; Batch 1 needs-review summary
   equals the remaining `needs-review` row count; `pnpm --dir
   apps/portfolio-cartographer check` passes 50 active tests with one historical
@@ -476,3 +477,47 @@ git status --short
 
 No registry, capsule, relocation, session, Paseo, provider, or deployment
 mutation has been performed by drafting this packet.
+
+### 2026-08-08 DLOCK Sapling mapping checkpoint
+
+- Founder instruction resolved `thoughtseed-labs/lockwell-portal` as the new
+  DLOCK Sapling, matching the requested Fitcheck/IVerif-style resource mapping
+  posture.
+- Live URL evidence: `https://dlock-lp.vercel.app/` returns HTTP 200 from
+  Vercel and presents DLOCK as smart digital locks plus self-storage management
+  software. Page evidence includes unit/facility dashboard, tenant billing,
+  rent collection, remote access management, access logs, waitlist/contact, and
+  TUYA/Bluetooth lock language.
+- Hardware/resource evidence from the live page includes model families
+  `EKPL2`, `EKKB2-TY`, and `SMKB2-BT`, plus `/dlock/...` hardware gallery
+  assets and `/self-storage/...` page imagery.
+- Live read-only GitHub evidence records `thoughtseed-labs/lockwell-portal` as
+  private, non-fork, not GitHub-archived, default branch `main`, repository id
+  `R_kgDOP5AZyQ`, and pushed-at `2025-09-29T12:52:14Z`.
+- Added `sapling:dlock` to the checked-in portfolio catalog data as
+  `proof-only`, unresolved tenant status, with provenance for the GitHub repo,
+  live Vercel page, and `docs/plans/product-branches/dlock.md`.
+- Added `docs/plans/product-branches/dlock.md` to capture the DLOCK product
+  seed, hardware/software resource map, TUYA/native boundary, gates, missions,
+  and proof-only promotion rule.
+- Updated repository inventory/evidence so `repo:thoughtseed-labs/lockwell-portal`
+  resolves by immutable repository id. The GitHub mapping queue now has Batch 1
+  at zero needs-review rows.
+- No `dlock` or `lockwell` shallow folder exists under `$PROJECTS_ROOT/thoughtseed`,
+  so `docs/project-management/portfolio-roots.v1.json` was not changed. Root-map
+  folder admission remains future work after an owner-approved folder/checkout
+  decision.
+- Verification: edited JSON files pass `jq empty`; Batch 1 reports zero
+  needs-review rows and maps `thoughtseed-labs/lockwell-portal` to
+  `sapling:dlock`; local shallow-folder scan finds no `dlock`/`lockwell` folder.
+- Verification: `node --experimental-strip-types --test
+  workers/quests/src/portfolio-catalog.test.ts`, `pnpm --dir
+  apps/portfolio-cartographer check`, focused Worker route/admin tests, and
+  `node --test workers/quests/src/portfolio-catalog-route.test.ts` pass.
+- Verification: full `npm test` passes 1568/1568; root-map digest remains
+  `a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445`;
+  repository evidence digest is
+  `f96573da27dcd2b06084c8b09a44c1d52371d279cb502377671d536e8ad4024d`.
+- No folder was created, moved, copied, deleted, or reorganized. No R2 object,
+  GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
+  row, production deployment, or live hosted Workbench state was mutated.

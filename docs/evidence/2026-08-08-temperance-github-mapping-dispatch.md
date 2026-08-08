@@ -47,12 +47,14 @@ No Sol-family model was used.
 - All 20 resolved to immutable GitHub node IDs by the worker's bounded query.
 - Recommended dispositions:
   - 11 historical product/research evidence rows, including founder-resolved `thoughtseed-labs/DezinerAI`;
-  - 1 Sapling evidence row: `thoughtseedlabs/Vibrasonix-Website` → `sapling:vibrasonix` as fork/site evidence only;
+  - 2 Sapling evidence rows: `thoughtseedlabs/Vibrasonix-Website` → `sapling:vibrasonix` as fork/site evidence only, and founder-resolved `thoughtseed-labs/lockwell-portal` → `sapling:dlock`;
   - 3 external fork/reference rows;
   - 4 archive-only rows;
-  - 1 needs-review row: `thoughtseed-labs/lockwell-portal`.
+  - 0 needs-review rows.
 
-Post-dispatch founder resolution: `thoughtseed-labs/DezinerAI` is not an active Project row. A live read confirmed the private non-fork repository still exists and is not GitHub-archived, while the local shallow Project folder is absent. The queue therefore preserves it as `program:thoughtseed-vault` archive evidence and advances the next decision to `thoughtseed-labs/lockwell-portal`.
+Post-dispatch founder resolution: `thoughtseed-labs/DezinerAI` is not an active Project row. A live read confirmed the private non-fork repository still exists and is not GitHub-archived, while the local shallow Project folder is absent. The queue therefore preserves it as `program:thoughtseed-vault` archive evidence.
+
+Post-dispatch founder resolution: `thoughtseed-labs/lockwell-portal` is the repository evidence for the new DLOCK Sapling. The live page `https://dlock-lp.vercel.app/` presents DLOCK as smart digital locks plus self-storage management software, with hardware/resource families `EKPL2`, `EKKB2-TY`, `SMKB2-BT`, TUYA/Bluetooth access language, billing/unit/customer workflows, and waitlist/contact surfaces. The queue maps the repository to `sapling:dlock` and records the product packet at `docs/plans/product-branches/dlock.md`; root-map folder admission stays blocked until a shallow `dlock`/`lockwell` folder exists or the owner approves creating one.
 
 ### Batch 2 — Client branch clusters
 

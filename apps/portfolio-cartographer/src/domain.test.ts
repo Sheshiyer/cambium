@@ -52,14 +52,14 @@ import {
 
 test('canonical portfolio coverage remains exact', () => {
   assert.deepEqual(CLASSIFICATION_COUNTS, {
-    total: 73,
-    saplings: 20,
+    total: 74,
+    saplings: 21,
     clientBranches: 38,
     internalPrograms: 15,
     review: 0,
     historical: 20,
   })
-  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 73)
+  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 74)
   assert.equal(REVIEW_RECORDS.length, 0)
   assert.equal(HISTORICAL_RECORDS.length, 20)
 })
@@ -80,7 +80,7 @@ test('client families derive only from exact source account ids', () => {
   assert.ok(clients.every((work) => work.accountId && groups.some((group) => (
     group.groupId === `client:${work.accountId}` && group.members.includes(work)
   ))))
-  assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 20)
+  assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 21)
   assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 15)
 })
 
