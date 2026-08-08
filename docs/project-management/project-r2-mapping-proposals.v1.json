@@ -1,0 +1,339 @@
+{
+  "schema": "thoughtseed.project-r2-mapping-proposals.v1",
+  "observedDate": "2026-08-08",
+  "scope": {
+    "portfolio": "thoughtseed",
+    "pathGrammar": "$PROJECTS_ROOT/thoughtseed/<folder>",
+    "sourceInventory": "docs/evidence/2026-08-08-project-r2-folder-inventory.json",
+    "rootMapDigest": "588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b"
+  },
+  "policy": {
+    "saplingRule": "only Thoughtseed-originated ventures may be Saplings",
+    "branchRule": "client-originated work remains a Client Branch even when new",
+    "programRule": "shared company tooling, capability infrastructure, brand systems, and operator surfaces remain Internal Programs",
+    "excludeRule": "temporary checkouts, cleanup archives, external vendor clones, and unowned dependency references do not become WorkObjects"
+  },
+  "counts": {
+    "reviewedGaps": 12,
+    "admitAsClientBranch": 2,
+    "admitAsInternalProgram": 5,
+    "excludeFromWorkObjects": 4,
+    "physicalFollowUpRequired": 2,
+    "founderReviewRequired": 2,
+    "remainingUnmappedPhysicalFoldersAfterSettlement": 0
+  },
+  "proposals": [
+    {
+      "folder": "Airdronauts",
+      "settlement": "admit-nested-repository",
+      "proposedKind": "client-branch",
+      "accountId": "airdronauts-productions",
+      "workIds": [
+        "branch:airdronauts-panorama-viewer-delivery"
+      ],
+      "repository": {
+        "identityStatus": "github-verified",
+        "nameWithOwner": "Sheshiyer/airdronauts-nextjs",
+        "url": "https://github.com/Sheshiyer/airdronauts-nextjs",
+        "isPrivate": true,
+        "defaultBranch": "main",
+        "currentHead": "6fef1d3fd35b",
+        "relativeCheckout": "Airdronauts/website-alpha/airdronauts-nextjs"
+      },
+      "planningAuthority": [
+        "Airdronauts/website-alpha/airdronauts-nextjs/PROJECT.md",
+        "Airdronauts/website-alpha/airdronauts-nextjs/.project/HANDOFF.md",
+        "Airdronauts/website-alpha/airdronauts-nextjs/README.md"
+      ],
+      "rationale": "The repository packet names the Airdronauts Panorama Viewer Delivery WorkObject and the GitHub repository description says this was relocated from the vault on 2026-08-07. This is client-originated delivery work, therefore Client Branch, not Sapling.",
+      "workbenchAction": "map nested repository to the existing Airdronauts client branch and keep the container explicit",
+      "reviewNotes": [
+        "The existing `panaroma-webapp` root-map row also mentions `branch:airdronauts-panorama-viewer-delivery`; later mapping should split or merge those records deliberately rather than duplicate active work."
+      ]
+    },
+    {
+      "folder": "_home-cleanup-2026-08-08",
+      "settlement": "exclude-cleanup-archive",
+      "proposedKind": null,
+      "accountId": null,
+      "workIds": [],
+      "repository": {
+        "identityStatus": "external-nested-reference",
+        "nestedRepositories": [
+          {
+            "nameWithOwner": "garrytan/gstack",
+            "url": "https://github.com/garrytan/gstack",
+            "relativeCheckout": "_home-cleanup-2026-08-08/agents-backups/skills-archive/gstack"
+          }
+        ]
+      },
+      "planningAuthority": [
+        "_home-cleanup-2026-08-08/CLEANUP-LOG.md"
+      ],
+      "rationale": "The cleanup log says this folder is a home-cleanup archive for stale clones, skill backups, and moved runtime files. It is not portfolio work and must not enter Workbench planning.",
+      "workbenchAction": "exclude from WorkObject mapping; keep as local cleanup evidence until a separate owner-approved archive/removal pass",
+      "reviewNotes": []
+    },
+    {
+      "folder": "brandmint-oracle-aleph",
+      "settlement": "admit-exact-repository",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system"
+      ],
+      "repository": {
+        "identityStatus": "github-verified",
+        "nameWithOwner": "Sheshiyer/brandmint-oracle-aleph",
+        "url": "https://github.com/Sheshiyer/brandmint-oracle-aleph",
+        "isPrivate": false,
+        "defaultBranch": "main",
+        "currentHead": "e5c8ca2d5b8d",
+        "relativeCheckout": "brandmint-oracle-aleph"
+      },
+      "planningAuthority": [
+        "brandmint-oracle-aleph/README.md",
+        "brandmint-oracle-aleph/TODO.md",
+        "brandmint-oracle-aleph/docs/plans/"
+      ],
+      "rationale": "Brandmint is shared Thoughtseed brand/capability infrastructure and already aligns to the Meristem brand-system program in the root-map. It is not a client branch and does not need a new Sapling identity.",
+      "workbenchAction": "attach as an exact repository row under `program:meristem-brand-system`",
+      "reviewNotes": []
+    },
+    {
+      "folder": "cambium",
+      "settlement": "mapped-identity-gap",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:cambium",
+        "program:cambium-operating-fabric"
+      ],
+      "repository": {
+        "identityStatus": "physical-folder-not-git",
+        "canonicalRepository": "Sheshiyer/cambium",
+        "canonicalRepositoryUrl": "https://github.com/Sheshiyer/cambium",
+        "authoritativeTemporaryCheckout": "cambium-authoritative"
+      },
+      "planningAuthority": [
+        "cambium-authoritative/PROJECT.md",
+        "cambium-authoritative/.project/HANDOFF.md",
+        "cambium-authoritative/docs/plans/2026-08-08-project-r2-mapping-execution.md"
+      ],
+      "rationale": "The root-map correctly maps Cambium, but the physical `cambium` folder is not an exact Git checkout. The exact repository identity is the fresh authoritative checkout, which should be promoted or swapped only through a separate founder-approved filesystem action.",
+      "workbenchAction": "treat `sapling:cambium` as mapped to `Sheshiyer/cambium`; block physical checkout finalization until swap/promotion is approved",
+      "reviewNotes": [
+        "Do not silently use the stale non-Git folder as the repository authority."
+      ]
+    },
+    {
+      "folder": "cambium-authoritative",
+      "settlement": "exclude-temporary-authority-checkout",
+      "proposedKind": null,
+      "accountId": null,
+      "workIds": [],
+      "repository": {
+        "identityStatus": "github-verified",
+        "nameWithOwner": "Sheshiyer/cambium",
+        "url": "https://github.com/Sheshiyer/cambium",
+        "isPrivate": false,
+        "defaultBranch": "main",
+        "currentHead": "f0faedb9c45c",
+        "relativeCheckout": "cambium-authoritative"
+      },
+      "planningAuthority": [
+        "cambium-authoritative/PROJECT.md",
+        "cambium-authoritative/.project/HANDOFF.md"
+      ],
+      "rationale": "This is the exact repository checkout used to repair Cambium authority. It should not become a second portfolio WorkObject.",
+      "workbenchAction": "exclude as a separate WorkObject; use only as the current repository authority until approved physical promotion",
+      "reviewNotes": []
+    },
+    {
+      "folder": "motionsites-skills",
+      "settlement": "admit-exact-repository",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system",
+        "program:skill-clusters"
+      ],
+      "repository": {
+        "identityStatus": "github-verified",
+        "nameWithOwner": "Sheshiyer/motionsites-skills",
+        "url": "https://github.com/Sheshiyer/motionsites-skills",
+        "isPrivate": true,
+        "defaultBranch": "main",
+        "currentHead": "42a0021bc4d6",
+        "relativeCheckout": "motionsites-skills"
+      },
+      "planningAuthority": [
+        "motionsites-skills/README.md",
+        "motionsites-skills/SKILL-SPEC.md",
+        "motionsites-skills/scripts/README.md"
+      ],
+      "rationale": "This is a reusable template/corpus and brand-skin capability library. It supports internal brand/site capability work and should be an Internal Program row, not a Sapling or Client Branch.",
+      "workbenchAction": "attach as an exact repository row under Meristem/skill-cluster internal programs",
+      "reviewNotes": []
+    },
+    {
+      "folder": "openfang",
+      "settlement": "exclude-external-vendor-reference",
+      "proposedKind": null,
+      "accountId": null,
+      "workIds": [],
+      "repository": {
+        "identityStatus": "external-github-verified",
+        "nameWithOwner": "RightNow-AI/openfang",
+        "url": "https://github.com/RightNow-AI/openfang",
+        "isPrivate": false,
+        "defaultBranch": "main",
+        "currentHead": "acf2587e46be",
+        "relativeCheckout": "openfang"
+      },
+      "planningAuthority": [
+        "openfang/README.md",
+        "openfang/docs/"
+      ],
+      "rationale": "OpenFang is a third-party open-source agent OS under `RightNow-AI`, not a Thoughtseed-owned project or client branch. It can be dependency/reference context, but should not enter Thoughtseed WorkObject mapping.",
+      "workbenchAction": "exclude from WorkObjects; if needed, track as external dependency evidence under a later dependency register",
+      "reviewNotes": []
+    },
+    {
+      "folder": "plugins",
+      "settlement": "defer-git-identity",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:operator-utilities",
+        "program:engineering-orchestration"
+      ],
+      "repository": {
+        "identityStatus": "no-git-identity",
+        "relativeCheckout": "plugins"
+      },
+      "planningAuthority": [
+        "plugins/conducty-codex/README.md",
+        "plugins/conducty-codex/skills/conducty-codex/SKILL.md"
+      ],
+      "rationale": "This is local Codex/plugin integration tooling. It looks like internal operator infrastructure, but it has no exact Git repository identity yet, so it cannot be fully admitted into repository-owned planning.",
+      "workbenchAction": "hold as internal-program candidate with required founder decision: create/attach Git repo or fold into `skill-clusters`/operator utilities",
+      "reviewNotes": [
+        "This is one of the remaining founder-review items because the plan requires immutable GitHub identity or an explicit gap."
+      ]
+    },
+    {
+      "folder": "professional-headshot-suite",
+      "settlement": "admit-exact-repository",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:explee-capabilities",
+        "program:skill-clusters"
+      ],
+      "repository": {
+        "identityStatus": "github-verified",
+        "nameWithOwner": "Sheshiyer/professional-headshot-suite",
+        "url": "https://github.com/Sheshiyer/professional-headshot-suite",
+        "isPrivate": false,
+        "defaultBranch": "main",
+        "currentHead": "f84663969021",
+        "relativeCheckout": "professional-headshot-suite"
+      },
+      "planningAuthority": [
+        "professional-headshot-suite/README.md",
+        "professional-headshot-suite/skills/professional-headshot-suite/SKILL.md"
+      ],
+      "rationale": "This is a reusable Codex skill/capability. It belongs with Thoughtseed capability infrastructure, not as a standalone Sapling unless the founder later decides to productize it.",
+      "workbenchAction": "attach as an exact repository row under capability/skill internal programs",
+      "reviewNotes": []
+    },
+    {
+      "folder": "readme-skill",
+      "settlement": "admit-exact-repository",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:explee-capabilities",
+        "program:operator-utilities",
+        "program:skill-clusters"
+      ],
+      "repository": {
+        "identityStatus": "github-verified",
+        "nameWithOwner": "Sheshiyer/readme-skill",
+        "url": "https://github.com/Sheshiyer/readme-skill",
+        "isPrivate": false,
+        "defaultBranch": "main",
+        "currentHead": "fd1d0a2185a7",
+        "relativeCheckout": "readme-skill"
+      },
+      "planningAuthority": [
+        "readme-skill/README.md",
+        "readme-skill/SKILL.md"
+      ],
+      "rationale": "This is a reusable README-generation skill and operator utility. It should map to internal capability infrastructure, not client work or a Sapling.",
+      "workbenchAction": "attach as an exact repository row under capability/operator utility internal programs",
+      "reviewNotes": []
+    },
+    {
+      "folder": "safvr",
+      "settlement": "founder-review-required-client-candidate",
+      "proposedKind": "client-branch",
+      "accountId": "safvr",
+      "workIds": [
+        "branch:safvr-landing-page"
+      ],
+      "repository": {
+        "identityStatus": "external-remote-unverified-by-current-gh-account",
+        "remoteUrl": "https://github.com/SAFVR-SG/Landingpage2.0.git",
+        "relativeCheckout": "safvr/Landingpage2.0",
+        "currentHead": "55d6162386ed"
+      },
+      "planningAuthority": [
+        "docs/evidence/2026-08-06-classification-needed-findings.md",
+        "safvr/Landingpage2.0/README.md",
+        "safvr/Landingpage2.0/Docs/"
+      ],
+      "rationale": "Prior classification evidence says SAFVR is not clearly Thoughtseed-owned and needs direct founder context. Under the grammar, it must not become a Sapling; if admitted, it should be a Client Branch.",
+      "workbenchAction": "hold for founder review as Client Branch candidate; do not activate as Sapling",
+      "reviewNotes": [
+        "Current GitHub account could not resolve the remote repository via `gh repo view`, so repository authority is the observed git remote until access/ownership is confirmed."
+      ]
+    },
+    {
+      "folder": "website",
+      "settlement": "exclude-container-map-nested-repository",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:temperance-hermes"
+      ],
+      "repository": {
+        "identityStatus": "github-verified-nested",
+        "nameWithOwner": "Sheshiyer/temperance_engine_landing_page",
+        "url": "https://github.com/Sheshiyer/temperance_engine_landing_page",
+        "isPrivate": false,
+        "defaultBranch": "main",
+        "currentHead": "488f8b7d945b",
+        "relativeCheckout": "website/temperance-engine-landing-page"
+      },
+      "planningAuthority": [
+        "website/temperance-engine-landing-page/ISA.md",
+        "website/temperance-engine-landing-page/README.md",
+        "website/temperance-engine-landing-page/_PROJECT-STATUS.md"
+      ],
+      "rationale": "The `website` folder is only a container. The nested Temperance Engine landing page repository maps to the existing `program:temperance-hermes` / `temperance-engine-landing-page` root-map concept.",
+      "workbenchAction": "do not create a `website` WorkObject; bind the nested repository to the existing Temperance internal-program row and schedule a later physical promotion/de-duplication decision",
+      "reviewNotes": [
+        "The mapped shallow `temperance-engine-landing-page` folder currently lacks exact Git identity; the nested repository is the exact Git authority."
+      ]
+    }
+  ],
+  "nextActions": [
+    "Review and approve the Cambium physical checkout promotion/swap separately; no folder move is authorized by this proposal.",
+    "Decide whether `plugins` gets its own GitHub repository or is folded into existing operator utility infrastructure.",
+    "Confirm SAFVR relationship and GitHub access; admit only as Client Branch if approved.",
+    "Resolve duplicate/overloaded Airdronauts and Temperance physical locations before generating Workbench action payloads.",
+    "After approval, convert accepted rows into closed Workbench action payloads with root-map digest, catalog digest, repository identity, and R2 evidence prefix validation."
+  ]
+}
