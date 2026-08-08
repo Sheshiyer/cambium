@@ -339,8 +339,9 @@
   `docs/project-management/github-repository-mapping-action-queue.v1.json`.
 - Batch 1 result: all 20 `thoughtseedlabs` / `thoughtseed-labs` repositories
   were classified with immutable GitHub IDs. Most are historical/archive/fork
-  evidence; `DezinerAI` and `lockwell-portal` remain needs-review;
-  `Vibrasonix-Website` is Sapling evidence only because it is a fork/site row.
+  evidence; `DezinerAI` is founder-resolved archive/vault evidence;
+  `lockwell-portal` remains needs-review; `Vibrasonix-Website` is Sapling
+  evidence only because it is a fork/site row.
 - Batch 2 result: 70 client-branch candidate repository rows were grouped
   across 10 client families with zero Sapling promotions. Symphonics needs
   root-map/account coverage review.
@@ -425,6 +426,33 @@
   passes 50 active tests with one historical skip plus lint, bundle,
   standalone audit, CSP, and hosted smoke; focused Worker portfolio/admin-action
   route tests pass 23/23; full `npm test` passes 1568/1568; `git diff --check`
+  passes.
+- No folder was created, moved, copied, deleted, or reorganized. No R2 object,
+  GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
+  row, production deployment, or live hosted Workbench state was mutated.
+
+### 2026-08-08 DezinerAI queue resolution checkpoint
+
+- Founder instruction resolved `thoughtseed-labs/DezinerAI` out of active
+  project review: treat it as completed/archive evidence or not-found, not as
+  a new active Project.
+- Live read-only GitHub evidence records repository id `R_kgDOQZDb3Q`, private
+  visibility, non-fork status, not-GitHub-archived state, and pushed-at
+  `2025-12-04T06:48:17Z`. The repository description is "Figma plugin to
+  create Ads and Social media posts with AI."
+- Local shallow-folder search found no matching `deziner`/`dezinerai` Project
+  folder under `$PROJECTS_ROOT/thoughtseed`, so no root-map row or folder was
+  added.
+- The GitHub repository mapping action queue now maps `DezinerAI` to
+  `program:thoughtseed-vault` with `historical-product-or-research`,
+  `evidence-sink`, and `archived` disposition. Batch 1 needs-review count is
+  reduced from 2 to 1.
+- The next unresolved Batch 1 queue row is `thoughtseed-labs/lockwell-portal`.
+- Verification: edited JSON files pass `jq empty`; Batch 1 needs-review summary
+  equals the remaining `needs-review` row count; `pnpm --dir
+  apps/portfolio-cartographer check` passes 50 active tests with one historical
+  skip plus lint, bundle, standalone audit, CSP, and hosted smoke; focused
+  Worker portfolio/admin-action route tests pass 23/23; `git diff --check`
   passes.
 - No folder was created, moved, copied, deleted, or reorganized. No R2 object,
   GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph

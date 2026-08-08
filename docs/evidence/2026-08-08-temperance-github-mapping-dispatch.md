@@ -46,11 +46,13 @@ No Sol-family model was used.
 - 16 non-forks and 4 forks.
 - All 20 resolved to immutable GitHub node IDs by the worker's bounded query.
 - Recommended dispositions:
-  - 10 historical product/research evidence rows;
+  - 11 historical product/research evidence rows, including founder-resolved `thoughtseed-labs/DezinerAI`;
   - 1 Sapling evidence row: `thoughtseedlabs/Vibrasonix-Website` → `sapling:vibrasonix` as fork/site evidence only;
   - 3 external fork/reference rows;
   - 4 archive-only rows;
-  - 2 needs-review rows: `thoughtseed-labs/DezinerAI` and `thoughtseed-labs/lockwell-portal`.
+  - 1 needs-review row: `thoughtseed-labs/lockwell-portal`.
+
+Post-dispatch founder resolution: `thoughtseed-labs/DezinerAI` is not an active Project row. A live read confirmed the private non-fork repository still exists and is not GitHub-archived, while the local shallow Project folder is absent. The queue therefore preserves it as `program:thoughtseed-vault` archive evidence and advances the next decision to `thoughtseed-labs/lockwell-portal`.
 
 ### Batch 2 — Client branch clusters
 

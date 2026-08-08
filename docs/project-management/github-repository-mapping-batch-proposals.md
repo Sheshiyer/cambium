@@ -52,7 +52,8 @@ Key rows:
 - `thoughtseed-labs/Sense.Play`, `thoughtseedlabs/Senselpay_Firmware`, `thoughtseedlabs/senseplay_dashboard_v0.01`, `thoughtseedlabs/tomBTfirmware` → likely SensePlay historical family.
 - `thoughtseedlabs/Vibrasonix-Website` → Vibrasonix historical/site evidence or fork reference.
 - `thoughtseed-labs/Breathspectrum`, `Unity-Biosensors`, `TrueRNG-CMOS-Noise`, `museVR`, `DeepAR-Unity`, `faceananlysisbeta` → historical research/product evidence.
-- `thoughtseed-labs/DezinerAI` and `thoughtseed-labs/lockwell-portal` → needs-review because they have newer activity.
+- `thoughtseed-labs/DezinerAI` → founder-resolved archive/vault evidence: the private non-fork repository exists, but no shallow local Project folder is present, so it stays out of active Projects.
+- `thoughtseed-labs/lockwell-portal` → needs-review because it has newer activity and still needs active/history/client-branch disposition.
 - Forks such as `JetScan`, `AR-Video-Player`, and `metaplex` → external fork/reference only unless founder says they became owned delivery surfaces.
 
 ## Batch 2 — Client branch clusters
