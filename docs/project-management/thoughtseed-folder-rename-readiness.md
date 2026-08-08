@@ -1,8 +1,12 @@
 # Thoughtseed folder rename readiness
 
-This artifact now records one completed physical transition: Cambium Phase 1 archive-first promotion. Batch 5 itself remains source-controlled closeout/exclusion work and does not authorize later physical changes.
+This artifact now records two completed physical transitions: Cambium Phase 1
+and Temperance Phase 2 archive-first promotions. Batch 5 itself remains
+source-controlled closeout/exclusion work and does not authorize later physical
+changes.
 
-Active manifest proposal: `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json`.
+Applied manifest and held Phase 3 boundary:
+`docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json`.
 
 ## Boundary
 

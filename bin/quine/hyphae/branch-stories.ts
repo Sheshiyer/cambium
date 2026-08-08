@@ -24,6 +24,7 @@ export type { BranchStoryArc, BranchStoryGap } from '../../operator/quests/branc
 
 interface PacketIndexRow {
   product_id: string;
+  canonical_work_id: string;
   branch_kind: string;
   name: string;
   role: string;
@@ -165,6 +166,11 @@ function normalizeBranchKind(value: string): BranchKind {
   return 'product';
 }
 
+function canonicalWorkId(value: unknown): string | undefined {
+  const workId = clean(value);
+  return /^(?:sapling|branch|program):[a-z0-9][a-z0-9-]*$/.test(workId) ? workId : undefined;
+}
+
 function normalizeLoopBoundaryColor(value: string): BranchLoopBoundaryColor {
   const color = clean(value).toLowerCase();
   if (color === 'green' || color === 'yellow' || color === 'red') return color;
@@ -245,6 +251,7 @@ function parseIndex(root: string): PacketIndexRow[] {
     .filter((row) => row.product_id && row.packet)
     .map((row) => ({
       product_id: row.product_id,
+      canonical_work_id: row.canonical_work_id,
       branch_kind: row.branch_kind || 'product',
       name: row.name,
       role: row.role,
@@ -268,6 +275,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
   const source = existsSync(packetFile) ? readText(packetFile) : '';
   const metadata = parseFrontmatter(source);
   const productId = clean(metadata.product_id || row.product_id);
+  const packetWorkId = canonicalWorkId(metadata.canonical_work_id || row.canonical_work_id);
   const branchKind = normalizeBranchKind(metadata.branch_kind || row.branch_kind);
   const name = clean(metadata.name || row.name || productId);
   const role = clean(metadata.role || row.role);
@@ -358,6 +366,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
     branchId: productId,
     branchKind,
     productId,
+    ...(packetWorkId === undefined ? {} : { canonicalWorkId: packetWorkId }),
     name,
     role,
     arcId: `${productId}-${slugify(arcTitle)}`,

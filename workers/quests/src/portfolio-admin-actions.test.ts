@@ -12,11 +12,14 @@ import {
   projectCreationIntentDigest,
   recordPortfolioAdminAction,
 } from './portfolio-admin-actions.ts';
+import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
+import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
 
-const ROOT_DIGEST = '8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe';
+const ROOT_DIGEST = PORTFOLIO_ROOT_MAP_DIGEST;
 const SOURCE_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
+const CATALOG_DIGEST = PORTFOLIO_CATALOG.catalogDigest;
 
 function thoughtseedInput(overrides: Record<string, unknown> = {}) {
   return {
@@ -26,6 +29,7 @@ function thoughtseedInput(overrides: Record<string, unknown> = {}) {
     idempotencyKey: 'save-sapling-cambium-1',
     rootMapDigest: ROOT_DIGEST,
     sourceDigest: SOURCE_DIGEST,
+    catalogDigest: CATALOG_DIGEST,
     subject: { id: 'sapling:cambium', name: 'Cambium' },
     proposal: {
       repositorySourceRef: 'repo:Sheshiyer/cambium',
@@ -54,6 +58,7 @@ function projectCreationInput(overrides: Record<string, unknown> = {}) {
     idempotencyKey: 'create-project-nova-1',
     rootMapDigest: ROOT_DIGEST,
     sourceDigest: SOURCE_DIGEST,
+    catalogDigest: CATALOG_DIGEST,
     subject: { id: 'project-nova', name: 'Project Nova' },
     proposal: {
       intentSchema: 'thoughtseed.project-creation-intent.v1',
@@ -76,6 +81,7 @@ function closeoutInput(overrides: Record<string, unknown> = {}) {
     idempotencyKey: 'close-cambium-1',
     rootMapDigest: ROOT_DIGEST,
     sourceDigest: SOURCE_DIGEST,
+    catalogDigest: CATALOG_DIGEST,
     subject: { id: 'sapling:cambium', name: 'Cambium' },
     proposal: {
       closeoutSchema: 'thoughtseed.project-closeout.v1',
@@ -241,6 +247,10 @@ test('binds Thoughtseed receipts to the shipped root map and catalog', async () 
     PortfolioAdminActionValidationError,
   );
   await assert.rejects(
+    () => recordPortfolioAdminAction(thoughtseedInput({ catalogDigest: `sha256:${'0'.repeat(64)}` }), deps),
+    PortfolioAdminActionValidationError,
+  );
+  await assert.rejects(
     () => recordPortfolioAdminAction(thoughtseedInput({ subject: { id: 'sapling:invented', name: 'Invented' } }), deps),
     PortfolioAdminActionValidationError,
   );
@@ -354,6 +364,24 @@ test('incomplete closeout cannot write durable evidence or leave active workflow
       proposal: {
         ...(closeoutInput().proposal as Record<string, unknown>),
         handoffDocumented: false,
+      },
+    }), deps),
+    PortfolioAdminActionValidationError,
+  );
+  await assert.rejects(
+    () => recordPortfolioAdminAction(closeoutInput({
+      proposal: {
+        ...(closeoutInput().proposal as Record<string, unknown>),
+        r2VaultPrefix: 'project-closeouts/v1/thoughtseed/program-wrong-object',
+      },
+    }), deps),
+    PortfolioAdminActionValidationError,
+  );
+  await assert.rejects(
+    () => recordPortfolioAdminAction(closeoutInput({
+      proposal: {
+        ...(closeoutInput().proposal as Record<string, unknown>),
+        successorWorkObjectId: 'folder-name-not-a-work-id',
       },
     }), deps),
     PortfolioAdminActionValidationError,

@@ -1,6 +1,8 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: fitcheck
+canonical_work_id: sapling:fitcheck
+identity_scope: canonical-work-object
 branch_kind: product
 name: Fitcheck
 role: Supervised product branch
@@ -57,6 +59,8 @@ Fitcheck is the first Cambium product branch packet normalized from the existing
 | `acceptance_checks` | Existing QA checklist, App Runner health, landing tests | verified for local/proof packet; blocked for public launch gates |
 
 ## Adapter / Service Map
+
+`Tenant Mapping` values below are packet-local context namespaces. Canonical runtime tenant authority remains `cambium` as Fitcheck's catalog parent and must be joined through the exact `sapling:fitcheck` WorkObject identity.
 
 | Provider / Route | Inputs | Outputs | Failure Modes | Tenant Mapping | Privacy Boundary |
 | --- | --- | --- | --- | --- | --- |

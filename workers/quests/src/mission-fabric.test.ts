@@ -282,6 +282,7 @@ function branchStoryArc(overrides: Record<string, unknown> = {}): Record<string,
     branchId: 'branch-acme',
     branchKind: 'client',
     productId: 'product-acme-website',
+    canonicalWorkId: 'branch:acme-website',
     name: 'Acme Corp Website',
     role: 'client-delivery',
     arcId: 'arc-x',
@@ -348,11 +349,12 @@ function workNodes(nodes: readonly { kind: string; value: unknown }[]): Array<Re
   return nodes.filter((node) => node.kind === 'work').map((node) => node.value as Record<string, unknown>);
 }
 
-test('adaptBranchStories maps a product branch to a sapling with promotion metadata', () => {
-  const nodes = adaptBranchStories([branchStoryArc({ branchKind: 'product', branchId: 'branch-product', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp', rule: 'proof ladder' } })]);
+test('adaptBranchStories maps a product branch by exact canonical work identity', () => {
+  const nodes = adaptBranchStories([branchStoryArc({ branchKind: 'product', branchId: 'branch-product', canonicalWorkId: 'sapling:product', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp', rule: 'proof ladder' } })]);
   const work = workNodes(nodes as readonly { kind: string; value: unknown }[]);
   assert.equal(work.length, 1);
   assert.equal(work[0].kind, 'sapling');
+  assert.equal(work[0].workId, 'sapling:product');
   assert.equal(work[0].branchKind, 'product');
   assert.equal(work[0].branchId, 'branch-product');
   assert.equal(work[0].promotionState, 'supervised-branch');
@@ -365,6 +367,7 @@ test('adaptBranchStories maps a client branch to a client program and never to a
   const work = workNodes(nodes as readonly { kind: string; value: unknown }[]);
   assert.equal(work.length, 1);
   assert.equal(work[0].kind, 'program');
+  assert.equal(work[0].workId, 'branch:acme-website');
   assert.equal(work[0].programKind, 'client');
   assert.equal('promotionState' in work[0], false);
   assert.equal('branchId' in work[0], false);
@@ -374,6 +377,7 @@ test('adaptBranchStories maps internal-service only through an explicit capabili
   const mapped = adaptBranchStories([branchStoryArc({
     branchKind: 'internal-service',
     branchId: 'branch-mailroom',
+    canonicalWorkId: 'program:mailroom',
     controls: {
       productSeed: {},
       organRouting: [],
@@ -393,12 +397,26 @@ test('adaptBranchStories maps internal-service only through an explicit capabili
   assert.equal(mappedWork[0].kind, 'program');
   assert.equal(mappedWork[0].programKind, 'operations');
 
-  const unmapped = adaptBranchStories([branchStoryArc({ branchKind: 'internal-service', branchId: 'branch-mystery' })]);
+  const unmapped = adaptBranchStories([branchStoryArc({ branchKind: 'internal-service', branchId: 'branch-mystery', canonicalWorkId: 'program:mystery' })]);
   const unmappedWork = workNodes(unmapped as readonly { kind: string; value: unknown }[]);
   assert.equal(unmappedWork.length, 0, 'an unmapped internal-service branch must become a gap, never a fabricated program');
   const gaps = (unmapped as readonly { kind: string; value?: unknown; gapId?: string; gapKind?: string }[]).filter((entry) => entry.kind === 'gap');
   assert.equal(gaps.length, 1);
   assert.match(String(gaps[0].gapId), /branch-mystery/);
+});
+
+test('adaptBranchStories fails closed without a kind-matched canonical work identity', () => {
+  for (const canonicalWorkId of [undefined, 'branch-product', 'branch:product']) {
+    const adapted = adaptBranchStories([branchStoryArc({
+      branchKind: 'product',
+      branchId: 'branch-product',
+      canonicalWorkId,
+    })]);
+    assert.equal(workNodes(adapted as readonly { kind: string; value: unknown }[]).length, 0);
+    const gaps = adapted.filter((entry) => entry.kind === 'gap');
+    assert.equal(gaps.length, 1);
+    assert.equal(gaps[0].gapKind, 'missing-work-identity');
+  }
 });
 
 test('adaptCompanyPrograms maps all four program kinds to ProgramWork', () => {
@@ -548,6 +566,32 @@ test('adaptGoalGraph adapts goal graph nodes into fabric tasks without creating 
   assert.equal(taskNode.value.taskId, 'task-alpha');
   assert.equal(taskNode.value.desiredState, 'ship the contract');
   assert.equal(taskNode.value.proofRequirement === 'review', false, 'nextAction must not be repurposed as proof');
+});
+
+test('adaptGoalGraph resolves parent storage IDs to canonical external mission IDs', () => {
+  const base = {
+    tenantId: 'cambium-synthetic', namespace: 'cambium.synthetic.goal-graph', scope: 'macro',
+    desiredState: 'state', currentState: 'active', owner: 'founder', nextAction: null,
+    waitCondition: null, proofRequired: true, reviewAt: null, status: 'active',
+    sourceRef: 'goal-graph:test', sourceDigest: 'sha256:abc', graphVersion: 3,
+    metadata: {}, createdAt: '2026-07-28T09:00:00.000Z', updatedAt: '2026-07-28T09:00:00.000Z',
+  };
+  const nodes = adaptGoalGraph({
+    tenantId: 'cambium-synthetic',
+    graphVersion: 3,
+    nodes: [
+      { ...base, nodeId: 'goal-storage-mission', externalId: 'mission-one', parentNodeId: null },
+      { ...base, nodeId: 'goal-storage-task', externalId: 'task-alpha', parentNodeId: 'goal-storage-mission', scope: 'micro' },
+      { ...base, nodeId: 'goal-storage-orphan', externalId: 'task-orphan', parentNodeId: 'missing-storage-parent', scope: 'micro' },
+    ],
+  });
+
+  const child = nodes.find((node) => node.kind === 'task' && node.value.taskId === 'task-alpha');
+  const orphan = nodes.find((node) => node.kind === 'task' && node.value.taskId === 'task-orphan');
+  assert.ok(child?.kind === 'task');
+  assert.equal(child.value.missionId, 'mission-one');
+  assert.ok(orphan?.kind === 'task');
+  assert.equal(orphan.value.missionId, '', 'missing parents fail closed instead of leaking a storage ID');
 });
 
 test('redactMissionFabricProjection hides private client labels and raw evidence for unauthorized viewers', () => {

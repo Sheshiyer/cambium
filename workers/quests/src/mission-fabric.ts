@@ -701,6 +701,11 @@ export interface GoalGraphProjection {
 
 const PROMOTION_STATES = new Set<SaplingWork['promotionState']>(['proof-only', 'supervised-branch', 'autonomous-branch']);
 const SERVICE_PROGRAM_KINDS = new Set<ProgramWork['programKind']>(['capability', 'operations']);
+const CANONICAL_BRANCH_WORK_IDS: Record<string, RegExp> = {
+  product: /^sapling:[a-z0-9][a-z0-9-]*$/,
+  client: /^branch:[a-z0-9][a-z0-9-]*$/,
+  'internal-service': /^program:[a-z0-9][a-z0-9-]*$/,
+};
 
 function gapEntry(gapId: string, gapKind: string, subjectId: string | null, detail: string, evidenceRef: string | null): FabricGapEntry {
   return { kind: 'gap', gapId, gapKind, subjectId, detail, evidenceRef };
@@ -733,13 +738,25 @@ export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[
       .filter((organ): organ is string => organ !== null)
       .sort(compare);
     const name = adaptString(raw.name, raw.branchId);
+    const canonicalWorkId = adaptString(raw.canonicalWorkId);
+    const workIdPattern = CANONICAL_BRANCH_WORK_IDS[raw.branchKind];
+    if (workIdPattern === undefined || !workIdPattern.test(canonicalWorkId)) {
+      entries.push(gapEntry(
+        `gap-branch-work-identity-${raw.branchId}`,
+        'missing-work-identity',
+        raw.branchId,
+        `Branch story ${raw.branchId} has no exact canonical work identity for branch kind ${raw.branchKind}; it was not adapted into a WorkObject.`,
+        null,
+      ));
+      continue;
+    }
     if (raw.branchKind === 'product') {
       const promotionState = typeof promotion.state === 'string' && PROMOTION_STATES.has(promotion.state as SaplingWork['promotionState'])
         ? promotion.state as SaplingWork['promotionState']
         : 'proof-only';
       const work: SaplingWork = {
         kind: 'sapling',
-        workId: raw.branchId,
+        workId: canonicalWorkId,
         tenantId: adaptString(raw.tenantId, adaptString(isRecord(raw.source) ? raw.source.tenant : '')),
         name,
         desiredState: adaptString(isRecord(raw.vision) ? raw.vision.statement : '', ''),
@@ -750,7 +767,7 @@ export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[
         proofRequired: true,
         reviewAt: null,
         sourceRef: `branch-story:${raw.branchId}`,
-        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind }))}`,
+        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind, canonicalWorkId }))}`,
         branchId: raw.branchId,
         branchKind: 'product',
         promotionState,
@@ -763,7 +780,7 @@ export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[
     if (raw.branchKind === 'client') {
       const work: ProgramWork = {
         kind: 'program',
-        workId: adaptString(raw.productId, raw.branchId),
+        workId: canonicalWorkId,
         tenantId: adaptString(raw.tenantId, adaptString(isRecord(raw.source) ? raw.source.tenant : '')),
         name,
         desiredState: adaptString(isRecord(raw.vision) ? raw.vision.statement : '', ''),
@@ -774,7 +791,7 @@ export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[
         proofRequired: true,
         reviewAt: null,
         sourceRef: `branch-story:${raw.branchId}`,
-        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind }))}`,
+        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind, canonicalWorkId }))}`,
         programKind: 'client',
         lifecycle: 'executing',
         outcomeMetric: '',
@@ -800,7 +817,7 @@ export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[
       }
       const work: ProgramWork = {
         kind: 'program',
-        workId: adaptString(raw.productId, raw.branchId),
+        workId: canonicalWorkId,
         tenantId: adaptString(raw.tenantId, adaptString(isRecord(raw.source) ? raw.source.tenant : '')),
         name,
         desiredState: adaptString(isRecord(raw.vision) ? raw.vision.statement : '', ''),
@@ -811,7 +828,7 @@ export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[
         proofRequired: true,
         reviewAt: null,
         sourceRef: `branch-story:${raw.branchId}`,
-        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind, mapping }))}`,
+        sourceDigest: `sha256:${sha256(stableJson({ branchId: raw.branchId, branchKind: raw.branchKind, canonicalWorkId, mapping }))}`,
         programKind: mapping as ProgramWork['programKind'],
         lifecycle: 'executing',
         outcomeMetric: '',
@@ -877,14 +894,22 @@ export function adaptCompanyPrograms(input: unknown): readonly FabricAdaptedEntr
 
 export function adaptGoalGraph(input: GoalGraphProjection): readonly FabricNode[] {
   const nodes: FabricNode[] = [];
+  const taskIdByStorageId = new Map<string, string>();
+  for (const raw of input.nodes ?? []) {
+    if (!isRecord(raw)) continue;
+    const storageId = adaptString(raw.nodeId);
+    const taskId = adaptString(raw.externalId, storageId);
+    if (storageId.length > 0 && taskId.length > 0) taskIdByStorageId.set(storageId, taskId);
+  }
   for (const raw of input.nodes ?? []) {
     if (!isRecord(raw)) continue;
     const taskId = adaptString(raw.externalId, adaptString(raw.nodeId));
     if (taskId.length === 0) continue;
+    const parentStorageId = adaptString(raw.parentNodeId);
     const status = adaptString(raw.status, 'draft');
     const node: FabricTask = {
       taskId,
-      missionId: adaptString(raw.parentNodeId, ''),
+      missionId: parentStorageId.length > 0 ? (taskIdByStorageId.get(parentStorageId) ?? '') : '',
       desiredState: adaptString(raw.desiredState, ''),
       status: (status === 'active' ? 'ready' : status === 'blocked' ? 'blocked' : status === 'retired' ? 'complete' : 'queued') as FabricTask['status'],
       dependencyIds: [],

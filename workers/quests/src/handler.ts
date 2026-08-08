@@ -2956,6 +2956,73 @@ function fabricIdentityOf(node: FabricNode): string {
   return String(value.workId ?? value.missionId ?? value.taskId ?? value.agentId ?? value.clusterId ?? value.runId ?? value.receiptId ?? '');
 }
 
+type FabricTaskNode = Extract<FabricNode, { kind: 'task' }>;
+
+function reconcileFabricTaskNodes(
+  goalGraphNodes: readonly FabricNode[],
+  executionNodes: readonly FabricNode[],
+): {
+  nodes: FabricNode[];
+  gaps: FabricGap[];
+  blockedTaskIds: Set<string>;
+} {
+  const goalTasks = new Map<string, FabricTaskNode[]>();
+  const executionTasks = new Map<string, FabricTaskNode[]>();
+  const executionNonTasks: FabricNode[] = [];
+  const appendTask = (target: Map<string, FabricTaskNode[]>, node: FabricTaskNode): void => {
+    const taskId = node.value.taskId;
+    const rows = target.get(taskId) ?? [];
+    rows.push(node);
+    target.set(taskId, rows);
+  };
+
+  for (const node of goalGraphNodes) {
+    if (node.kind === 'task') appendTask(goalTasks, node);
+  }
+  for (const node of executionNodes) {
+    if (node.kind === 'task') appendTask(executionTasks, node);
+    else executionNonTasks.push(node);
+  }
+
+  const taskIds = [...new Set([...goalTasks.keys(), ...executionTasks.keys()])].sort();
+  const tasks: FabricTaskNode[] = [];
+  const gaps: FabricGap[] = [];
+  const blockedTaskIds = new Set<string>();
+  let collisionOrdinal = 0;
+  for (const taskId of taskIds) {
+    const authoritative = goalTasks.get(taskId) ?? [];
+    const overlays = executionTasks.get(taskId) ?? [];
+    if (authoritative.length > 1 || overlays.length > 1) {
+      collisionOrdinal += 1;
+      blockedTaskIds.add(taskId);
+      gaps.push({
+        gapId: `gap-task-identity-collision-${collisionOrdinal}`,
+        kind: 'identity-collision',
+        subjectId: taskId,
+        detail: `Task ${taskId} has ${authoritative.length} Goal Graph nodes and ${overlays.length} execution-fact nodes; every conflicting task node and edge was withheld.`,
+        evidenceRef: null,
+      });
+      continue;
+    }
+    if (authoritative.length === 1) {
+      tasks.push(authoritative[0]);
+      if (overlays.length > 0) {
+        gaps.push({
+          gapId: `gap-task-overlay-reconciled-${gaps.filter((gap) => gap.kind === 'task-overlay-reconciled').length + 1}`,
+          kind: 'task-overlay-reconciled',
+          subjectId: taskId,
+          detail: `Task ${taskId} was emitted once from Goal Graph authority; its execution-fact copy was treated only as an edge overlay.`,
+          evidenceRef: null,
+        });
+      }
+      continue;
+    }
+    if (overlays.length === 1) tasks.push(overlays[0]);
+  }
+
+  return { nodes: [...tasks, ...executionNonTasks], gaps, blockedTaskIds };
+}
+
 function fabricTimestampMs(value: string): number | null {
   if (!CANONICAL_FABRIC_TS.test(value)) return null;
   const ms = Date.parse(value);
@@ -2969,8 +3036,12 @@ function fabricBranchFactIds(branchStories: unknown): string[] {
   const ids: string[] = [];
   for (const row of rows) {
     if (!isRecord(row)) continue;
-    if (row.branchKind === 'product' && typeof row.branchId === 'string' && row.branchId.length > 0) ids.push(row.branchId);
-    if (row.branchKind === 'client' && typeof row.productId === 'string' && row.productId.length > 0) ids.push(row.productId);
+    if (row.branchKind === 'product' && typeof row.canonicalWorkId === 'string' && /^sapling:[a-z0-9][a-z0-9-]*$/.test(row.canonicalWorkId)) {
+      ids.push(row.canonicalWorkId);
+    }
+    if (row.branchKind === 'client' && typeof row.canonicalWorkId === 'string' && /^branch:[a-z0-9][a-z0-9-]*$/.test(row.canonicalWorkId)) {
+      ids.push(row.canonicalWorkId);
+    }
   }
   return [...new Set(ids)].sort();
 }
@@ -3014,7 +3085,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         entries.push(entry);
       }
     }
-    entries.push(...adaptGoalGraph({ tenantId: tenant, graphVersion: head.graphVersion, nodes }));
+    const goalGraphFabricNodes = adaptGoalGraph({ tenantId: tenant, graphVersion: head.graphVersion, nodes });
     const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;
     if (isRecord(fabricFacts) && Array.isArray(fabricFacts.fences)) {
       for (const fenceRow of fabricFacts.fences) {
@@ -3041,9 +3112,13 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         ? head.committedAt
         : '1970-01-01T00:00:00.000Z');
     const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
-    entries.push(...execution.nodes);
-    const mergedEdges: FabricEdge[] = [...execution.edges];
-    const mergedGaps: FabricGap[] = [...execution.gaps];
+    const taskReconciliation = reconcileFabricTaskNodes(goalGraphFabricNodes, execution.nodes);
+    entries.push(...taskReconciliation.nodes);
+    const mergedEdges: FabricEdge[] = execution.edges.filter((edge) => (
+      !taskReconciliation.blockedTaskIds.has(edge.fromId)
+      && !taskReconciliation.blockedTaskIds.has(edge.toId)
+    ));
+    const mergedGaps: FabricGap[] = [...execution.gaps, ...taskReconciliation.gaps];
 
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
@@ -3197,7 +3272,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         redacted.nodes
           .filter((node): node is Extract<FabricNode, { kind: 'work' }> => node.kind === 'work')
           .filter((node) => node.value.kind === 'sapling' || (node.value.kind === 'program' && node.value.programKind === 'client'))
-          .map((node) => (node.value.kind === 'sapling' ? node.value.branchId : node.value.workId)),
+          .map((node) => node.value.workId),
       );
       const missingIds = branchFactIds.filter((id) => !represented.has(id)).sort();
       const unexpectedIds = [...represented].filter((id) => !branchFactIds.includes(id)).sort();

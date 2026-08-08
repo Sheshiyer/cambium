@@ -172,6 +172,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-06-18T07:02:16Z"
   },
   {
+    "fullName": "Sheshiyer/brandmint-showcase",
+    "repositoryId": "R_kgDOROEMxA",
+    "nodeId": "R_kgDOROEMxA",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:44:50Z",
+    "updatedAt": "2026-08-07T00:45:08Z"
+  },
+  {
     "fullName": "Sheshiyer/brochure-py-heyzack",
     "repositoryId": "R_kgDOPnpaSQ",
     "nodeId": "R_kgDOPnpaSQ",
@@ -180,6 +190,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-04-22T13:49:02Z",
     "updatedAt": "2025-09-15T13:22:51Z"
+  },
+  {
+    "fullName": "Sheshiyer/bwssb",
+    "repositoryId": "R_kgDOTQHXeA",
+    "nodeId": "R_kgDOTQHXeA",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:44:54Z",
+    "updatedAt": "2026-08-07T00:44:59Z"
   },
   {
     "fullName": "Sheshiyer/coming-soon-earthymunchy",
@@ -342,6 +362,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-08-07T00:45:54Z"
   },
   {
+    "fullName": "Sheshiyer/HDILINT-backend-aleph",
+    "repositoryId": "R_kgDOS4jKmg",
+    "nodeId": "R_kgDOS4jKmg",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:52:17Z",
+    "updatedAt": "2026-08-06T10:27:47Z"
+  },
+  {
     "fullName": "Sheshiyer/hermes-aws-ts",
     "repositoryId": "R_kgDOS6faAg",
     "nodeId": "R_kgDOS6faAg",
@@ -410,6 +440,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-08-07T00:45:04Z",
     "updatedAt": "2026-08-07T00:45:18Z"
+  },
+  {
+    "fullName": "Sheshiyer/Insightreality",
+    "repositoryId": "R_kgDOSxg4Kw",
+    "nodeId": "R_kgDOSxg4Kw",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:45:06Z",
+    "updatedAt": "2026-08-07T00:45:13Z"
   },
   {
     "fullName": "Sheshiyer/iverif-wiki",
@@ -662,6 +702,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-08-07T00:45:42Z"
   },
   {
+    "fullName": "Sheshiyer/plexus-ts",
+    "repositoryId": "R_kgDOS3DVng",
+    "nodeId": "R_kgDOS3DVng",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-08T00:34:02Z",
+    "updatedAt": "2026-08-08T00:34:06Z"
+  },
+  {
     "fullName": "Sheshiyer/president-panaroma",
     "repositoryId": "R_kgDOSFeR0w",
     "nodeId": "R_kgDOSFeR0w",
@@ -712,6 +762,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-08-07T00:45:11Z"
   },
   {
+    "fullName": "Sheshiyer/raycast-extensions",
+    "repositoryId": "R_kgDOSKrf_g",
+    "nodeId": "R_kgDOSKrf_g",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-04-26T16:41:13Z",
+    "updatedAt": "2026-04-26T16:43:24Z"
+  },
+  {
     "fullName": "Sheshiyer/readme-skill",
     "repositoryId": "R_kgDORUPtDw",
     "nodeId": "R_kgDORUPtDw",
@@ -742,6 +802,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-02-25T00:42:09Z"
   },
   {
+    "fullName": "Sheshiyer/skill-clusters",
+    "repositoryId": "R_kgDOSxWr3Q",
+    "nodeId": "R_kgDOSxWr3Q",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T03:17:12Z",
+    "updatedAt": "2026-07-07T07:46:51Z"
+  },
+  {
     "fullName": "Sheshiyer/skyline-viewer-ashwin-sheth-group",
     "repositoryId": "R_kgDOQQelWQ",
     "nodeId": "R_kgDOQQelWQ",
@@ -770,6 +840,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-08-06T06:21:14Z",
     "updatedAt": "2026-08-06T06:21:24Z"
+  },
+  {
+    "fullName": "Sheshiyer/team-forge-ts",
+    "repositoryId": "R_kgDOR6-E3A",
+    "nodeId": "R_kgDOR6-E3A",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T23:02:43Z",
+    "updatedAt": "2026-07-27T21:25:48Z"
   },
   {
     "fullName": "Sheshiyer/temperance_engine",
@@ -952,6 +1032,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2025-08-11T09:26:30Z"
   },
   {
+    "fullName": "Sheshiyer/virtualtryon",
+    "repositoryId": "R_kgDOSxfEqw",
+    "nodeId": "R_kgDOSxfEqw",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:46:00Z",
+    "updatedAt": "2026-08-07T00:46:14Z"
+  },
+  {
     "fullName": "Sheshiyer/wanderfruit-wiki-alpha",
     "repositoryId": "R_kgDOQy3BzA",
     "nodeId": "R_kgDOQy3BzA",
@@ -1040,6 +1130,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2025-03-22T09:47:22Z",
     "updatedAt": "2025-03-22T09:47:26Z"
+  },
+  {
+    "fullName": "Sheshiyer/wtfmedia",
+    "repositoryId": "R_kgDOSuOvow",
+    "nodeId": "R_kgDOSuOvow",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:46:05Z",
+    "updatedAt": "2026-08-07T00:46:45Z"
   },
   {
     "fullName": "thoughtseed-labs/Breathspectrum",

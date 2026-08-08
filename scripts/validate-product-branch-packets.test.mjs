@@ -63,7 +63,28 @@ function replaceFitcheck(packetFile, from, to) {
 test('current branch packets validate cleanly', () => {
   const result = runValidator(PACKET_DIR);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /validated 5 branch packet\(s\)/);
+  assert.match(result.stdout, /validated 6 branch packet\(s\)/);
+});
+
+test('canonical WorkObject identities and the client template are explicit', () => {
+  const expected = new Map([
+    ['fitcheck.md', 'sapling:fitcheck'],
+    ['vantyx.md', 'sapling:vantyx'],
+    ['snow-gloves-os.md', 'program:snow-gloves-os'],
+    ['iverif.md', 'sapling:iverif'],
+    ['dlock.md', 'sapling:dlock'],
+  ]);
+
+  for (const [packet, canonicalWorkId] of expected) {
+    const source = readFileSync(join(PACKET_DIR, packet), 'utf8');
+    assert.match(source, new RegExp(`^canonical_work_id: ${canonicalWorkId}$`, 'm'));
+    assert.match(source, /^identity_scope: canonical-work-object$/m);
+  }
+
+  const clientTemplate = readFileSync(join(PACKET_DIR, 'client-delivery.md'), 'utf8');
+  assert.match(clientTemplate, /^canonical_work_id: none$/m);
+  assert.match(clientTemplate, /^identity_scope: template$/m);
+  assert.match(clientTemplate, /does not claim a WorkObject identity/);
 });
 
 test('optional provider policy accepts zero-authority omissions and complete safe references', () => {
@@ -155,17 +176,42 @@ test('provider policy rejects caller-owned routing and credential overrides', ()
 test('index rejects duplicate product IDs and duplicate packet paths before packet loading', () => {
   const duplicateId = runValidatorWithTempPackets((_packetFile, _packetDir, indexFile) => {
     const source = readFileSync(indexFile, 'utf8');
-    writeFileSync(indexFile, `${source.trimEnd()}\n| fitcheck | product | Duplicate ID | Proof | proof-only | Duplicate check | vantyx.md |\n`);
+    writeFileSync(indexFile, `${source.trimEnd()}\n| fitcheck | sapling:duplicate | canonical-work-object | product | Duplicate ID | Proof | proof-only | Duplicate check | duplicate.md |\n`);
   });
   assert.notEqual(duplicateId.status, 0);
   assert.match(duplicateId.stderr, /duplicate product_id "fitcheck"/);
 
   const duplicatePath = runValidatorWithTempPackets((_packetFile, _packetDir, indexFile) => {
     const source = readFileSync(indexFile, 'utf8');
-    writeFileSync(indexFile, `${source.trimEnd()}\n| fitcheck-copy | product | Duplicate Path | Proof | proof-only | Duplicate check | fitcheck.md |\n`);
+    writeFileSync(indexFile, `${source.trimEnd()}\n| fitcheck-copy | sapling:fitcheck-copy | canonical-work-object | product | Duplicate Path | Proof | proof-only | Duplicate check | fitcheck.md |\n`);
   });
   assert.notEqual(duplicatePath.status, 0);
   assert.match(duplicatePath.stderr, /duplicate packet path "fitcheck\.md"/);
+});
+
+test('index rejects duplicate canonical WorkObject identities', () => {
+  const result = runValidatorWithTempPackets((_packetFile, _packetDir, indexFile) => {
+    const source = readFileSync(indexFile, 'utf8');
+    writeFileSync(indexFile, `${source.trimEnd()}\n| duplicate-fitcheck | sapling:fitcheck | canonical-work-object | product | Duplicate WorkObject | Proof | proof-only | Duplicate check | duplicate.md |\n`);
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /duplicate canonical_work_id "sapling:fitcheck"/);
+});
+
+test('packet metadata rejects canonical WorkObject drift', () => {
+  const result = runValidatorWithTempPackets((packetFile) => {
+    replaceFitcheck(packetFile, 'canonical_work_id: sapling:fitcheck', 'canonical_work_id: sapling:iverif');
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /canonical_work_id "sapling:iverif" does not match index row "sapling:fitcheck"/);
+});
+
+test('validator rejects unindexed packet Markdown files', () => {
+  const result = runValidatorWithTempPackets((packetFile, packetDir) => {
+    writeFileSync(join(packetDir, 'orphan.md'), readFileSync(packetFile, 'utf8'));
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /unindexed packet file\(s\): orphan\.md/);
 });
 
 test('boundary colors, required loop cells, and state files fail closed', () => {

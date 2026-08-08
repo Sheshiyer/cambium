@@ -39,6 +39,7 @@ import {
   HORIZONS,
   ORGAN_WORKFLOWS,
   PORTFOLIO_ROOT_MAP_DIGEST,
+  PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_SIGNALS,
   REVIEW_RECORDS,
   SIGNAL_STATUSES,
@@ -1523,6 +1524,7 @@ function App() {
         idempotencyKey: retrySafeActionKey(work.workId, proposal),
         rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
         sourceDigest: CLASSIFICATION_DIGEST,
+        catalogDigest: PORTFOLIO_CATALOG_DIGEST,
         subject: { id: work.workId, name: work.name },
         proposal,
       })
@@ -1556,6 +1558,7 @@ function App() {
         idempotencyKey: retrySafeActionKey(`new:${projectCreation.slug}`, proposal),
         rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
         sourceDigest: CLASSIFICATION_DIGEST,
+        catalogDigest: PORTFOLIO_CATALOG_DIGEST,
         subject: { id: projectCreation.slug, name: projectCreation.name.trim() },
         proposal,
       })
@@ -1603,6 +1606,7 @@ function App() {
         idempotencyKey: retrySafeActionKey(`close:${work.workId}`, proposal),
         rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
         sourceDigest: CLASSIFICATION_DIGEST,
+        catalogDigest: PORTFOLIO_CATALOG_DIGEST,
         subject: { id: work.workId, name: work.name },
         proposal,
       })

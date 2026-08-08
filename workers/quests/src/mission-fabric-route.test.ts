@@ -102,8 +102,8 @@ function questEnvelope(facts: Record<string, unknown>) {
     derivedAt: NOW_ISO,
     tenant: TENANT,
     branchStories: [
-      { branchId: 'branch-cambium', branchKind: 'product', name: 'Cambium', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp' }, controls: { organRouting: [] }, source: { tenant: TENANT } },
-      { branchId: 'branch-acme', branchKind: 'client', productId: 'product-acme-website', name: 'Acme Corp Website', vision: { statement: 'A public site for Acme Corp.' }, source: { tenant: TENANT } },
+      { branchId: 'branch-cambium', branchKind: 'product', canonicalWorkId: 'sapling:cambium', name: 'Cambium', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp' }, controls: { organRouting: [] }, source: { tenant: TENANT } },
+      { branchId: 'branch-acme', branchKind: 'client', canonicalWorkId: 'branch:acme-website', productId: 'product-acme-website', name: 'Acme Corp Website', vision: { statement: 'A public site for Acme Corp.' }, source: { tenant: TENANT } },
     ],
     companyPrograms: [
       { programId: 'cambium-operating-fabric', tenantId: TENANT, title: 'Cambium Operating Fabric', programKind: 'operations', lifecycle: 'executing', outcomeMetric: 'bounded execution paths', authority: { kind: 'goal-graph', namespace: 'cambium.synthetic.goal-graph', graphVersion: 7 }, missionIds: ['mission-fabric-foundation'] },
@@ -282,6 +282,38 @@ test('route assembles D1 Goal Graph and KV quest facts without writes', async ()
   assert.ok(result.spies.kvReads > 0);
 });
 
+test('duplicate authoritative task identities fail closed with no dangling edges', async () => {
+  const nodes = [
+    goalNode('gg-root', 'mission-root', null),
+    goalNode('gg-task-a', 'task-collision', 'gg-root'),
+    goalNode('gg-task-b', 'task-collision', 'gg-root'),
+  ];
+  const facts = {
+    ...questFacts(),
+    tasks: [],
+    fences: [],
+    runs: [],
+    receipts: [],
+    agents: [],
+    skillClusters: [],
+    taskClusterAssignments: [],
+    gaps: [],
+  };
+  const result = await requestFabric({ nodes, facts, receipts: [] });
+
+  assert.equal(result.status, 200);
+  assert.equal(
+    result.json.projection.nodes.some((node: { kind: string; value: { taskId?: string } }) => node.kind === 'task' && node.value.taskId === 'task-collision'),
+    false,
+  );
+  assert.ok(result.json.projection.gaps.some((gap: { kind: string; subjectId: string }) => (
+    gap.kind === 'identity-collision' && gap.subjectId === 'task-collision'
+  )));
+  assert.equal(result.json.projection.edges.some((edge: { fromId: string; toId: string }) => (
+    edge.fromId === 'task-collision' || edge.toId === 'task-collision'
+  )), false);
+});
+
 test('tenant parsing is bounded before any store read', async () => {
   const bad = await requestFabric({ tenant: 'Cambium' });
   assert.equal(bad.status, 400);
@@ -386,7 +418,7 @@ test('shadow comparison counts missing branch facts and never mutates sources', 
     nodes: graph.nodes,
     receipts: [],
     branchStories: [
-      { branchId: 'branch-cambium', branchKind: 'product', name: 'Cambium', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp' }, controls: { organRouting: [] }, source: { tenant: TENANT } },
+      { branchId: 'branch-cambium', branchKind: 'product', canonicalWorkId: 'sapling:cambium', name: 'Cambium', promotion: { state: 'supervised-branch', currentGate: 'gate-mvp' }, controls: { organRouting: [] }, source: { tenant: TENANT } },
     ],
   });
   assert.equal(result.status, 200);

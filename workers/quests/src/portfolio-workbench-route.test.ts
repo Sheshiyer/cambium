@@ -15,6 +15,8 @@ import type {
   PortfolioAdminActionQueueLike,
   PortfolioAdminActionStoreLike,
 } from './portfolio-admin-actions.ts';
+import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
+import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_SCENES } from './page/operating-fabric/scaffold.ts';
 
@@ -27,8 +29,9 @@ const TEAM_DOMAIN = 'red-queen-4dfa.cloudflareaccess.com';
 const ACCESS_AUD = '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200';
 const ACCESS_KID = 'portfolio-access-test-kid';
 const PORTFOLIO_BYTES_RE = /portfolio-workbench@v4; hosted-admin|data-bundled="portfolio-cartographer"/;
-const ROOT_DIGEST = '8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe';
+const ROOT_DIGEST = PORTFOLIO_ROOT_MAP_DIGEST;
 const SOURCE_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
+const CATALOG_DIGEST = PORTFOLIO_CATALOG.catalogDigest;
 
 const { publicKey: accessPublicKey, privateKey: accessPrivateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const accessJwk = accessPublicKey.export({ format: 'jwk' });
@@ -63,6 +66,7 @@ function portfolioActionInput() {
     idempotencyKey: 'route-save-cambium-1',
     rootMapDigest: ROOT_DIGEST,
     sourceDigest: SOURCE_DIGEST,
+    catalogDigest: CATALOG_DIGEST,
     subject: { id: 'sapling:cambium', name: 'Cambium' },
     proposal: {
       repositorySourceRef: 'repo:Sheshiyer/cambium',

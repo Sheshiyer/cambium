@@ -11,12 +11,25 @@ import {
 import { spawnSync } from 'node:child_process'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import {
+  REVIEWED_ACTION_CATALOG_DIGEST,
+  REVIEWED_ACTION_SOURCE_DIGEST,
+  REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+  REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,
+  REVIEWED_ROOT_MAP_DIGEST,
+} from './portfolio-foundation-pins.mjs'
+
+export {
+  REVIEWED_ACTION_CATALOG_DIGEST,
+  REVIEWED_ACTION_SOURCE_DIGEST,
+  REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+  REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,
+  REVIEWED_ROOT_MAP_DIGEST,
+}
 
 export const PROJECT_CREATION_INTENT_SCHEMA = 'thoughtseed.project-creation-intent.v1'
 export const PROJECT_INGESTION_RECEIPT_SCHEMA = 'thoughtseed.project-ingestion-receipt.v1'
 export const PROJECT_INDEX_PROPOSAL_SCHEMA = 'thoughtseed.project-index-proposal.v1'
-export const REVIEWED_ROOT_MAP_DIGEST = '588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b'
-export const REVIEWED_PORTFOLIO_CATALOG_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2'
 
 const SAFE_SLUG = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/
 const SAFE_CLIENT_FAMILY = /^[a-z0-9][a-z0-9-]{0,63}$/
@@ -91,13 +104,14 @@ function normalizedProposal(raw) {
 }
 
 export function normalizeProjectCreationAction(raw) {
-  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action')
+  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'catalogDigest', 'subject', 'proposal'], 'action')
   if (raw.schema !== 'thoughtseed.portfolio-admin-action.v1' || raw.kind !== 'create-thoughtseed-project' || raw.portfolioId !== 'thoughtseed') {
     throw new Error('project_creation_action_invalid')
   }
   if (typeof raw.idempotencyKey !== 'string' || !raw.idempotencyKey) throw new Error('idempotency_key_invalid')
   if (raw.rootMapDigest !== REVIEWED_ROOT_MAP_DIGEST) throw new Error('root_map_digest_not_reviewed')
-  if (raw.sourceDigest !== REVIEWED_PORTFOLIO_CATALOG_DIGEST) throw new Error('source_digest_not_reviewed')
+  if (raw.sourceDigest !== REVIEWED_ACTION_SOURCE_DIGEST) throw new Error('source_digest_not_reviewed')
+  if (raw.catalogDigest !== REVIEWED_ACTION_CATALOG_DIGEST) throw new Error('catalog_digest_not_reviewed')
   exactFields(raw.subject, ['id', 'name'], 'subject')
   const proposal = normalizedProposal(raw.proposal)
   if (raw.subject.id !== proposal.slug || raw.subject.name !== proposal.name) throw new Error('subject_proposal_mismatch')
@@ -108,6 +122,7 @@ export function normalizeProjectCreationAction(raw) {
     idempotencyKey: raw.idempotencyKey,
     rootMapDigest: raw.rootMapDigest,
     sourceDigest: raw.sourceDigest,
+    catalogDigest: raw.catalogDigest,
     subject: { id: proposal.slug, name: proposal.name },
     proposal,
   }
@@ -115,7 +130,15 @@ export function normalizeProjectCreationAction(raw) {
 
 export function projectCreationIntentDigest(action) {
   const { founderApproval: _approval, ...proposal } = action.proposal
-  const core = { portfolioId: action.portfolioId, kind: action.kind, subject: action.subject, proposal }
+  const core = {
+    portfolioId: action.portfolioId,
+    kind: action.kind,
+    rootMapDigest: action.rootMapDigest,
+    sourceDigest: action.sourceDigest,
+    catalogDigest: action.catalogDigest,
+    subject: action.subject,
+    proposal,
+  }
   return `sha256:${sha256(canonicalJson(core))}`
 }
 

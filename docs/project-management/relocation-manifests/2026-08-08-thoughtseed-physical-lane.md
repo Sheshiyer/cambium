@@ -34,7 +34,12 @@ Accepted post-apply root-map digest: `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa
 
 Decision: archive-first promote while preserving the `website` infrastructure container.
 
-The canonical slot `$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page` exists but is not a Git repository. The nested checkout `$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page` is the exact `Sheshiyer/temperance_engine_landing_page` authority.
+Before apply, the canonical slot
+`$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page` existed as a non-Git
+directory and the nested checkout at
+`$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page` was the exact
+`Sheshiyer/temperance_engine_landing_page` authority. The completed state is
+recorded below and in the Phase 2 apply receipt.
 
 Reconciliation is complete and recorded in
 `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json`.
@@ -61,9 +66,10 @@ shallow state and nested status file remain in their named archive targets; the
 
 Symphonics is not part of the physical apply lane. Do not create a `symphonics` folder, do not generate active mapping receipts, and do not remove it from `missingClientAccounts` until the future native-app role is exact.
 
-## Live-Apply Gate
+## Future Live-Apply Gate
 
-A future live apply must prove:
+Any new filesystem change or rollback outside the already consumed Phase 1 and
+Phase 2 approvals must prove:
 
 - fresh depth-one directory comparison before mutation;
 - fresh Git identity and clean-state probes for every moved checkout;

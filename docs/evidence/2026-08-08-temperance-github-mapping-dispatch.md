@@ -34,7 +34,7 @@ No Sol-family model was used.
 | Lane | Scope | Result |
 | --- | --- | --- |
 | `batch_thoughtseed_org_history` | `thoughtseedlabs` / `thoughtseed-labs` history | Completed; 20 repos classified with immutable GitHub IDs |
-| `batch_client_branch_clusters` | Client branch clusters | Completed; 70 candidate client-branch rows grouped, 6 holds, zero Sapling promotions |
+| `batch_client_branch_clusters` | Client branch clusters | Completed; 70 raw candidate evidence rows initially grouped, then curated into 61 queue candidates plus 6 hold/exclude rows, with zero Sapling promotions |
 | `batch_sapling_provenance` | Sapling provenance and root-map/catalog repair | Completed; direct Sapling candidates separated from ambiguous origin rows; VirtualTryOn later retired by founder decision |
 | `batch_internal_programs_vault` | Internal programs, vault context, R2 receipt boundary | Completed; internal program mappings and evidence-only R2 boundary confirmed |
 
@@ -60,7 +60,9 @@ Post-dispatch founder resolution: `thoughtseed-labs/lockwell-portal` is the repo
 
 - 10 client families reviewed.
 - All targets remain Client Branches.
-- 70 candidate client-branch evidence rows identified/grouped.
+- 70 raw client-branch evidence rows were initially identified/grouped; after
+  immutable-identity and assignment reconciliation, the action queue contains
+  61 candidate rows.
 - 6 hold/exclude rows:
   - HeyZack forks as dependency/reference only;
   - `pineappleinnovationlabs/chakra-shine-admin` as a same-owner false positive until repo-local planning confirms;

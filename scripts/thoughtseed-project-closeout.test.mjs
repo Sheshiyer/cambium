@@ -8,12 +8,16 @@ import {
   executeProjectCloseout,
   normalizeProjectCloseoutAction,
   projectCloseoutDigest,
+  REVIEWED_ACTION_CATALOG_DIGEST,
+  REVIEWED_ACTION_SOURCE_DIGEST,
   REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+  REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,
   REVIEWED_ROOT_MAP_DIGEST,
 } from './thoughtseed-project-closeout.mjs'
 
 const ROOT_DIGEST = REVIEWED_ROOT_MAP_DIGEST
-const SOURCE_DIGEST = REVIEWED_PORTFOLIO_CATALOG_DIGEST
+const SOURCE_DIGEST = REVIEWED_ACTION_SOURCE_DIGEST
+const CATALOG_DIGEST = REVIEWED_ACTION_CATALOG_DIGEST
 
 function action(proposal = {}, top = {}) {
   return {
@@ -23,6 +27,7 @@ function action(proposal = {}, top = {}) {
     idempotencyKey: 'close-cambium-1',
     rootMapDigest: ROOT_DIGEST,
     sourceDigest: SOURCE_DIGEST,
+    catalogDigest: CATALOG_DIGEST,
     subject: { id: 'sapling:cambium', name: 'Cambium' },
     proposal: {
       closeoutSchema: 'thoughtseed.project-closeout.v1',
@@ -67,6 +72,56 @@ test('dry-run plans terminal closeout without writing project files', async () =
   await assert.rejects(() => readFile(join(fx.projectRoot, '.project/project-closeout-receipt.v1.json'), 'utf8'), /ENOENT/)
 })
 
+test('current Workbench action binds classification source and complete catalog separately', () => {
+  const normalized = normalizeProjectCloseoutAction(action())
+  assert.equal(normalized.rootMapDigest, REVIEWED_ROOT_MAP_DIGEST)
+  assert.equal(normalized.sourceDigest, REVIEWED_ACTION_SOURCE_DIGEST)
+  assert.equal(normalized.sourceDigest, REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST)
+  assert.equal(normalized.catalogDigest, REVIEWED_ACTION_CATALOG_DIGEST)
+  assert.equal(normalized.catalogDigest, REVIEWED_PORTFOLIO_CATALOG_DIGEST)
+  assert.match(normalized.catalogDigest, /^sha256:[0-9a-f]{64}$/)
+  assert.notEqual(normalized.catalogDigest, normalized.sourceDigest)
+})
+
+test('closeout digest binds all three reviewed foundation pins', () => {
+  const normalized = normalizeProjectCloseoutAction(action())
+  const digest = projectCloseoutDigest(normalized)
+  for (const [field, value] of [
+    ['rootMapDigest', `0${normalized.rootMapDigest.slice(1)}`],
+    ['sourceDigest', `0${normalized.sourceDigest.slice(1)}`],
+    ['catalogDigest', `sha256:0${normalized.catalogDigest.slice(8)}`],
+  ]) {
+    assert.notEqual(projectCloseoutDigest({ ...normalized, [field]: value }), digest, field)
+  }
+})
+
+test('closeout identity binds archive prefix and optional successor to canonical WorkObjects', () => {
+  assert.equal(
+    normalizeProjectCloseoutAction(action({ successorWorkObjectId: 'sapling:fitcheck' })).proposal.successorWorkObjectId,
+    'sapling:fitcheck',
+  )
+  assert.throws(
+    () => normalizeProjectCloseoutAction(action({ r2VaultPrefix: 'project-closeouts/v1/thoughtseed/other' })),
+    /r2_vault_prefix_subject_mismatch/,
+  )
+  assert.throws(
+    () => normalizeProjectCloseoutAction(action({ successorWorkObjectId: 'sapling:invented' })),
+    /successor_work_object_not_canonical/,
+  )
+  assert.throws(
+    () => normalizeProjectCloseoutAction(action({ successorWorkObjectId: 'sapling:cambium' })),
+    /successor_work_object_matches_subject/,
+  )
+  assert.throws(
+    () => normalizeProjectCloseoutAction(action({}, { subject: { id: 'sapling:invented', name: 'Invented' } })),
+    /closeout_subject_not_canonical/,
+  )
+  assert.throws(
+    () => normalizeProjectCloseoutAction(action({}, { subject: { id: 'sapling:cambium', name: 'Renamed Cambium' } })),
+    /closeout_subject_not_canonical/,
+  )
+})
+
 test('execution writes final handoff, receipt, memory projection, and finished-index delta', async () => {
   const fx = await fixture()
   const result = await executeProjectCloseout({ action: action(), ...fx, execute: true, now: () => '2026-08-08T05:30:00.000Z' })
@@ -95,6 +150,19 @@ test('executor rejects stale digests and incomplete closeout confirmations', asy
   await assert.rejects(
     () => executeProjectCloseout({ action: action({}, { rootMapDigest: '0'.repeat(64) }), ...stale, execute: false }),
     /root_map_digest_not_reviewed/,
+  )
+  await assert.rejects(
+    () => executeProjectCloseout({ action: action({}, { sourceDigest: '0'.repeat(64) }), ...stale, execute: false }),
+    /source_digest_not_reviewed/,
+  )
+  await assert.rejects(
+    () => executeProjectCloseout({ action: action({}, { catalogDigest: `sha256:${'0'.repeat(64)}` }), ...stale, execute: false }),
+    /catalog_digest_not_reviewed/,
+  )
+  const { catalogDigest: _catalogDigest, ...missingCatalogDigest } = action()
+  await assert.rejects(
+    () => executeProjectCloseout({ action: missingCatalogDigest, ...stale, execute: false }),
+    /action_fields_invalid/,
   )
   const incomplete = await fixture()
   await assert.rejects(

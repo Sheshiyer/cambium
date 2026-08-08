@@ -13,8 +13,12 @@
   ],
   "pathGrammar": "<projects-root>/thoughtseed/<repository>",
   "reviewedSnapshots": {
-    "rootMapDigest": "a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445",
-    "portfolioCatalogDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+    "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+    "classificationSourceDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+    "portfolioCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "actionSourceDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+    "actionCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "pinAuthority": "scripts/portfolio-foundation-pins.mjs",
     "exactMatchRequiredForExecution": true
   },
   "adminAction": {
@@ -23,6 +27,11 @@
     "proposalSchema": "thoughtseed.project-closeout.v1",
     "nextFlow": "project-closeout",
     "approvalStatus": "pending-project-closeout",
+    "requiredDigestFields": [
+      "rootMapDigest",
+      "sourceDigest",
+      "catalogDigest"
+    ],
     "r2EvidenceBeforeQueue": true,
     "goalGraphWrite": false
   },

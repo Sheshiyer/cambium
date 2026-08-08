@@ -92,3 +92,21 @@ test('repository evidence separates repository identity from source subpaths', (
     ['Sheshiyer/fitcheck-landing', 'README.md', 'https://github.com/Sheshiyer/fitcheck-landing'],
   ])
 })
+
+test('unique inventory repository names resolve legacy unqualified references', () => {
+  const records = resolveRepositoryEvidence(
+    ['repo:plexus-ts', 'repo:shared-repository'],
+    relocationEntries,
+    [
+      { fullName: 'Sheshiyer/plexus-ts', repositoryId: 'R_PLEXUS' },
+      { fullName: 'First/shared-repository', repositoryId: 'R_FIRST' },
+      { fullName: 'Second/shared-repository', repositoryId: 'R_SECOND' },
+    ],
+  )
+
+  assert.deepEqual(records.map((record) => [record.sourceRef, record.status, record.matchMethod, record.fullName]), [
+    ['repo:plexus-ts', 'resolved', 'unique-name', 'Sheshiyer/plexus-ts'],
+    ['repo:shared-repository', 'ambiguous', null, null],
+  ])
+  assert.deepEqual(records[1].candidates, ['First/shared-repository', 'Second/shared-repository'])
+})

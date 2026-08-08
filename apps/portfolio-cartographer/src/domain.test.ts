@@ -785,6 +785,7 @@ test('active Workbench is Thoughtseed-only and exposes governed project birth', 
   assert.match(source, /pending-cambium-ingestion/)
   assert.match(source, /kind: 'create-thoughtseed-project'/)
   assert.match(source, /sourceDigest: CLASSIFICATION_DIGEST/)
+  assert.equal([...source.matchAll(/catalogDigest: PORTFOLIO_CATALOG_DIGEST/g)].length, 3)
   assert.doesNotMatch(source, /name="(?:path|destination)"/)
 })
 

@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Apply Temperance Phase 2 archive-first promotion"
-effort: E3
-effort_source: context-override
-phase: complete
-progress: 923/999
+task: "Reconcile portfolio foundation before Sapling promotion"
+effort: E5
+effort_source: complexity-override
+phase: reflect
+progress: 959/1035
 mode: interactive
-iteration: 2026-08-08-temperance-phase-2-live-apply
+iteration: 2026-08-09-portfolio-foundation-reconciliation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-08T18:21:36Z
+updated: 2026-08-09T00:39:49+05:30
 ---
 
 ## Problem
@@ -125,7 +125,7 @@ For folder ingestion, the founder switches between two explicit portfolio header
 - The WorkObject registry is a content-addressed classification snapshot subordinate to Vault authority and cannot supply operational state.
 - Catalog-to-Mission-Fabric joins use exact canonical `workId` only; names, aliases, folder names, and unresolved tenant identities never join.
 - Fitcheck remains `sapling:fitcheck` under canonical parent tenant `cambium`; `FitCheck` and `getfitcheck` remain non-authoritative aliases.
-- The checked-in 54-WorkObject digest remains the bounded offline source for this artifact.
+- The checked-in, digest-validated catalog is the bounded offline source for this artifact; active counts are derived from its materialized records and must never be copied forward as independent authority.
 - Existing v1 local packets remain importable and migrate without turning old bulk selection into an expanded page.
 - The standalone bundle performs no network request and remains usable at Telegram-width, tablet, and desktop breakpoints.
 - The hosted Workbench reuses the existing Telegram third-party signature validator and `GATE_FOUNDER_IDS` authorization list.
@@ -149,9 +149,11 @@ For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a success
 
 For the operating-fabric iteration, define and visualize one shared model that distinguishes saplings from company programs, compiles both into a read-only Mission Fabric, overlays agents and skill clusters through pinned task loadouts, and maps the complete propose → approve → dispatch → execute → receipt → learn loop into buildable Telegram pages. The iteration is complete when the active architecture contract, implementation plan, roadmap phase, offline visual workflow, and Codex-generated moodboard all agree on the same ontology and authority boundaries.
 
-For the portfolio-catalog iteration, the founder-facing Telegram Mini App must render all 54 classified WorkObjects from the digest-pinned Vault registry—12 Saplings, 28 client Branches, and 14 internal Programs—plus separate historical and classification-needed summaries. Each selected item receives its type-correct lifecycle grammar and exact live Goal Graph/skill/loadout overlays when they exist; missing operational or capability mappings remain explicit gaps. The local implementation is complete only when the catalog snapshot, route response, five-page UI, mobile proof, tests, and documentation agree without mutating production or promoting the registry into an operational writer.
+For the portfolio-catalog iteration, the founder-facing Telegram Mini App must render all 74 currently materialized WorkObjects from the digest-pinned registry projection—20 Saplings, 39 Client Branches, and 15 Internal Programs—plus 20 separate historical products and zero unresolved classification-review records. Each selected item receives its type-correct lifecycle grammar and exact live Goal Graph/skill/loadout overlays when they exist; the 49 missing operational mappings remain explicit gaps. Active counts are derived from the catalog rather than maintained as parallel prose. The local implementation is complete only when the catalog snapshot, route response, five-page UI, mobile proof, tests, and documentation agree without mutating production or promoting the registry into an operational writer.
 
-For the portfolio-workbench iteration, replace the form-dense Cartographer with an overview-first planning surface derived from the Vault taxonomy. Done means the 54 canonical WorkObjects remain intact; ongoing, paused, completed, archived, needs-review, and white-labelable signals are fast to scan and propose; long-term horizons and custom tags are editable with one focused item or an explicit bulk mode; delivery routing is progressively disclosed; v1 state migrates; and the deterministic bundle passes responsive, accessibility, persistence, import/export, density, and zero-network probes.
+For the portfolio-workbench iteration, replace the form-dense Cartographer with an overview-first planning surface derived from the Vault taxonomy. Done means every currently materialized canonical WorkObject remains intact and uniquely identified; ongoing, paused, completed, archived, needs-review, and white-labelable signals are fast to scan and propose; long-term horizons and custom tags are editable with one focused item or an explicit bulk mode; delivery routing is progressively disclosed; v1 state migrates; and the deterministic bundle passes responsive, accessibility, persistence, import/export, density, and zero-network probes.
+
+For the portfolio-foundation reconciliation, prove the identity substrate before any Sapling promotion: each canonical `workId` is unique, every root-map, repository-evidence, action-queue, product-packet, historical-link, and runtime-overlay reference either resolves to exactly one WorkObject or carries an explicit typed hold, and every duplicated runtime surface agrees byte-for-byte or by a recorded digest. Intentional shared repositories and linked Sapling/Client Branch relationships are not flattened into false one-to-one ownership; they must declare their relationship and source subpath. Done means a deterministic repository test rejects orphan, duplicate, ambiguous, stale, or alias-derived joins, all discovered repository-scoped drift is repaired, and unresolved external facts remain visible blockers rather than guessed mappings.
 
 For the hosted-admin iteration, mount that exact Workbench at `/admin/portfolio` through a public no-data loader and a founder-only `/v1/admin/portfolio` document endpoint. The route must reuse signed Telegram `initData` and the existing founder list, expose no portfolio HTML to missing, invalid, stale, or non-founder identities, remain proposal-only after authorization, and leave Telegram configuration plus production traffic unchanged until a separate promotion gate.
 
@@ -1348,6 +1350,45 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-998: Anti: Phase 2 performs no deletion, content merge, R2 write, GitHub mutation, registry write, Goal Graph write, provider change, production deployment, Symphonics change, or `thoughtseed-labs` change.
 - [x] ISC-999: The final handoff records the applied state, recovery path, verification, clean commit, and next held lane.
 
+### Portfolio foundation one-to-one reconciliation
+
+- [x] ISC-1000: The active catalog contains exactly 74 unique canonical `workId` values.
+- [x] ISC-1001: The active catalog classification totals derive to exactly 20 Saplings, 39 Client Branches, and 15 Internal Programs.
+- [x] ISC-1002: The catalog contains exactly 20 historical products and zero unresolved classification-review records.
+- [x] ISC-1003: Every operational-gap `workId` resolves to exactly one active catalog record.
+- [x] ISC-1004: Every active record lacking an exact Mission Fabric work identity appears in the runtime join report; the static known-gap set never implies admission by omission.
+- [x] ISC-1005: Every operational gap declares the complete required-field set without silently synthesizing values.
+- [x] ISC-1006: Canonical aliases never appear as independent active `workId` values.
+- [x] ISC-1007: Every historical-product link is absent or resolves to exactly one active canonical `workId`.
+- [x] ISC-1008: The application and Worker catalog sources materialize identical canonical payloads and catalog digests.
+- [x] ISC-1009: Catalog summary counts equal their materialized arrays rather than independent prose constants.
+- [x] ISC-1010: Every root-map WorkObject reference resolves to exactly one active catalog record.
+- [x] ISC-1011: Every expected shallow Thoughtseed folder has exactly one root-map disposition.
+- [x] ISC-1012: Every observed shallow Thoughtseed folder is mapped, typed as infrastructure, or explicitly held as an unexpected physical gap.
+- [x] ISC-1013: No root-map entry assigns one physical authority path to conflicting canonical WorkObjects.
+- [x] ISC-1014: Every repository-evidence assignment targets an existing canonical `workId` or an explicit non-WorkObject exclusion.
+- [x] ISC-1015: Every repository identity uses immutable evidence when available and explicitly records unavailable identity when not.
+- [x] ISC-1016: Every repository assigned to multiple WorkObjects declares an intentional shared-repository relationship and exact source subpaths.
+- [x] ISC-1017: Every mapping-action queue candidate targets a canonical WorkObject, explicit hold, or explicit exclusion.
+- [x] ISC-1018: Mapping-action queue digests and root-map digests match the exact checked-in source artifacts they claim.
+- [x] ISC-1019: Mapping receipt readiness never claims that an unissued receipt has been issued.
+- [x] ISC-1020: Product packet identifiers for Fitcheck, IVerif, and DLOCK match their canonical catalog `workId` values.
+- [x] ISC-1021: Fitcheck remains `sapling:fitcheck` under canonical parent tenant `cambium`, with aliases non-authoritative.
+- [x] ISC-1022: IVerif remains `sapling:iverif` and cannot advance on a repository-name or folder-name inference.
+- [x] ISC-1023: DLOCK remains `sapling:dlock` and its Lockwell repository evidence does not create a second WorkObject identity.
+- [x] ISC-1024: Unresolved tenant identity cannot create a live Mission Fabric, Goal Graph, agent, skill, or loadout join.
+- [x] ISC-1025: All runtime portfolio joins use exact canonical `workId`, never display name, alias, repository name, or folder name.
+- [x] ISC-1026: Every action contract that pins catalog or root-map digests references the current intended snapshot or is explicitly version-held.
+- [x] ISC-1027: Active ISA and handoff prose report current materialized counts without superseding historical evidence records.
+- [x] ISC-1028: A deterministic foundation audit fails on duplicate IDs, orphan references, conflicting ownership, digest drift, and alias-derived joins.
+- [x] ISC-1029: The foundation audit reports intentional shared or linked relationships separately from discrepancies.
+- [x] ISC-1030: Focused catalog, root-map, mapping-queue, packet, runtime-join, and foundation-audit tests exit zero.
+- [x] ISC-1031: Portfolio Cartographer validation and the full repository test suite exit zero after reconciliation.
+- [x] ISC-1032: JSON parsing, generated-mirror parity, source audit, and `git diff --check` exit zero.
+- [x] ISC-1033: A bounded handoff records repaired discrepancies, remaining evidence holds, current digests, and the next promotion gate.
+- [x] ISC-1034: Anti: foundation reconciliation guesses a mapping, promotes a Sapling, issues a mapping receipt, or converts a missing fact into operational truth.
+- [x] ISC-1035: Anti: foundation reconciliation writes R2, GitHub, Vault, registry, D1 Goal Graph, provider, production, or physical project-folder state.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1371,6 +1412,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-946..961 | Cambium Phase 1 live apply | ancestry, exact approval, pre/post lstat and Git identity, depth-one compare, recoverable archive, atomic path promotion, regenerated root map/headers, receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, `node`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check` |
 | ISC-962..980 | Temperance Phase 2 reconciliation | exact Git and lstat identity, redacted file comparison, ignore-policy decision, local-state archive target, container preservation, unchanged root map, preflight receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, SHA-256, redacted `node` comparison, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
 | ISC-981..999 | Temperance Phase 2 live apply | exact approval, clean input commit, pre/post inodes and Git identity, local-state archive, atomic directory moves, empty container, unchanged root map, apply receipt, scoped/full tests, clean commit, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, SHA-256, `node`, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
+| ISC-1000..1035 | portfolio foundation reconciliation | derive counts and keys, validate referential integrity and digests, distinguish typed shared relationships from ambiguity, reject alias joins, reconcile active prose, run focused/full tests, and prove external/promotion boundaries held | deterministic Node audit/test, TypeScript catalog validators, `jq`, SHA-256, `rg`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1566,6 +1608,16 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-09 00:39: portfolio foundation reconciliation is complete at the repository boundary, but Sapling promotion remains held. The identity substrate now has exact canonical joins, typed multiplicity, explicit evidence holds, and three-field snapshot binding; D1 WorkObject anchors, authoritative loadout joins, mapping-receipt issuance, and unavailable repository facts remain separate operational gates.
+- 2026-08-09 00:39: `rootMapDigest`, classification `sourceDigest`, and full `catalogDigest` are distinct authorities and must travel together through Workbench, Worker, and local birth/closeout execution. A current action cannot execute against an older catalog or root map, and a classification digest can no longer masquerade as the catalog digest.
+- 2026-08-09 00:39: runtime portfolio identity is exact `workId` only. Legacy slugs, display names, aliases, repository names, and first-wins duplicate normalization do not establish operational truth; collisions are reported and withheld, while storage parent IDs resolve to canonical external mission IDs before graph adaptation.
+- 2026-08-09 00:39: the browser proof is part of the deterministic foundation gate. Reconciliation legitimately changed the portfolio fixture cardinality from 37/92 to 39/94, so the proof harness and all 47 canonical viewport artifacts were regenerated and verified rather than preserving stale expectations.
+- 2026-08-09 00:00: refined: before Sapling promotion, the foundation must pass a repository-wide identity reconciliation. “One-to-one” means one unique canonical `workId` per WorkObject and one explicit ownership role per evidence edge; intentional shared repositories and linked Sapling/Client Branch identities remain valid only when typed and subpath-bounded.
+- 2026-08-09 00:00: the founder's current message completed the mandatory E5 Interview signal for this slice: repair every discoverable repository-scoped discrepancy now, preserve unknown external facts as explicit holds, and perform no Sapling promotion during the audit.
+- 2026-08-09 00:00: active materialized runtime state outranks stale active prose. Historical 54-object proofs remain historical evidence, while active Goal and Constraint prose must derive the current 74-object, 20/39/15 classification, 20 historical-product, zero classification-review, and 49 operational-gap snapshot.
+- 2026-08-09 00:00: capability ledger for the E5 audit invokes using-superpowers, ISA Interview/CheckCompleteness/Append, AnalyzeDataQuality, ValidateData, Codex-native parallel independent audit, FirstPrinciples, SystemsThinking, RootCauseAnalysis, Evals, Cato-compatible review, and ReReadCheck. Repository boundaries prohibit external memory/log writes.
+- 2026-08-09 00:00: the initial pre-build Advisor attempt could not start because the local Paseo daemon was offline (`DAEMON_NOT_RUNNING`) and produced no agent or state change. The founder then clarified that Paseo-based remote workflow planning is being replaced elsewhere: Codex owns these rails and may use OmniRoute plus the existing Temperance/Hermes infrastructure described by the Thoughtseed Labs architecture context. This repository records that boundary but does not implement the cross-system migration.
+
 - 2026-08-08 18:11: the founder supplied the exact preflight phrase `approve live apply phase 2 Temperance archive-first promote preserve website container`; authorization is limited to the six ordered Phase 2 operations and their verification/receipt work.
 - 2026-08-08 18:11: FirstPrinciples execution order is preservation before authority movement: archive the one untracked status file, require clean Git, archive the shallow tree, promote the exact checkout, then prove the preserved container and unchanged root map. No content merge or ignore-policy rewrite is permitted.
 - 2026-08-08 18:11: delegation is intentionally omitted because the system prohibits unsolicited subagents and each filesystem step consumes the prior step's verified state. The primary controller owns the entire rollback boundary.
@@ -1753,6 +1805,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-08-09 | conjectured: existing green catalog, packet, and runtime tests proved the portfolio foundation was ready for Sapling promotion
+  refuted by: stale executor pins, an orphan DLOCK packet, alias-derived joins, silent duplicate collapse, mislabeled catalog provenance, missing repository dispositions, and stale active documentation all passed their narrower checks
+  learned: foundation readiness requires one coordinated invariant spanning canonical WorkObjects, typed physical/repository evidence, exact runtime joins, three independent snapshot pins, explicit holds, browser proof, and bounded operational authority
+  criterion now: ISC-1000..1035 bind the 74-object catalog, six packet identities, complete root/repository dispositions, exact joins, current digests, deterministic release gates, explicit remaining holds, and zero promotion or external mutation
+
 - 2026-08-08 | conjectured: Phase 2 could safely promote authority after preserving only the two project trees
   refuted by: the exact preflight showed the authority's sole Git-visible drift was a local status file and the parent `website` directory had an independent infrastructure identity to preserve
   learned: archive local-only state first, demand a clean Git authority, then move whole same-device trees and verify the empty container separately
@@ -1911,6 +1968,18 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
 ## Verification
+
+- ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
+- ISC-1010..1019 root/repository proof — the 58-folder physical dry-run is exact; current root-map digest is `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`; repository evidence contains 106 references, 96 resolved, 5 unmatched, and 5 unverified at digest `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`; every unresolved reference has an assignment, explicit hold, or exclusion.
+- ISC-1020..1024 packet/identity proof — six product packets validate; Fitcheck, IVerif, DLOCK, Vantyx, and Snow Gloves OS carry exact kind-matched canonical Work IDs; Client Delivery declares non-canonical template semantics; orphan packets and duplicate canonical identities fail validation.
+- ISC-1025 runtime proof — exact canonical `workId` is the only portfolio join key; legacy slugs and bare identifiers remain orphans, duplicate identities surface collisions, storage parent IDs resolve before adaptation, and duplicate tasks reconcile or fail closed without ambiguous edges.
+- ISC-1026 action-contract proof — Workbench, Worker, and local executors bind root map `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`, classification source `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`, and full catalog `sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64` as three distinct required fields; birth/closeout parity, stale-pin rejection, subject/archive/successor identity checks, and replay fencing pass 18/18 local plus 23/23 Worker tests.
+- ISC-1027..1029 documentation/audit proof — active contracts, historical banners, relocation state, root-ingestion prose, packet index, mapping queue, and handoff agree with materialized state; typed shared relationships remain distinct from discrepancies; all missing evidence remains an explicit hold rather than an inferred mapping.
+- ISC-1030 focused proof — foundation validation, packet validators, branch-story loops, catalog/root/queue tests, action contracts, and runtime join suites exit zero; runtime-focused coverage passes 145/145 and the packet validator reports six packets.
+- ISC-1031 release proof — Portfolio Cartographer passes 69 active tests with one historical skip plus lint, TypeScript, Vite, deterministic bundle, audit, CSP, and smoke; the Workbench bundle digest is `44719b075f570e6c5ffeadd8922ab3f4c8442f151d31e82649263794e1e9dc61`; full repository tests pass 1583/1583.
+- ISC-1032 browser/source proof — all 47 canonical viewport proofs pass, comprising 27 layout and 20 clickability cases; manifest page digest is `51bb2c97207cde477877919b1ab92a69a4512f65cac5d2dbefd727695fa5b068`; JSON parsing, generated parity, drift audit, and `git diff --check` pass.
+- ISC-1033 handoff proof — `.project/HANDOFF.md` records repaired discrepancies, all current digests and counts, repository evidence holds, the D1/loadout authority gap, receipt status, next promotion gate, and the Codex/OmniRoute migration as context-only work owned elsewhere.
+- ISC-1034..1035 boundary proof — no Sapling was promoted and no mapping receipt was issued; no R2, GitHub, Vault, registry, D1 Goal Graph, provider, production, or physical project-folder state was mutated.
 
 - ISC-981: direct founder-input comparison — the message exactly equals `approve live apply phase 2 Temperance archive-first promote preserve website container`; the receipt marks the Phase 2-only approval consumed.
 - ISC-982: Git ancestry/status probe — `de31783fed5c140af94064d49c8fa07d2bcada0f` was an ancestor of clean apply-input head `6edde71c0677545edae2ee465fc9a16469ca57ca` before mutation.

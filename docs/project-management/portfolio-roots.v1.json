@@ -230,7 +230,7 @@
         },
         {
           "folder": "klear-karma",
-          "proposedKind": "needs-review",
+          "proposedKind": "sapling",
           "accountId": null,
           "workIds": [
             "sapling:klear-karma"

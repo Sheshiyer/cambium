@@ -1,12 +1,14 @@
 import { execFileSync } from 'node:child_process'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, readdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const repositoryRoot = path.resolve(root, '../..')
 const sourcePath = path.join(root, 'src/repository-inventory.generated.ts')
+const catalogPath = path.join(root, 'src/portfolio-catalog-data.ts')
 const queuePath = path.join(repositoryRoot, 'docs/project-management/github-repository-mapping-action-queue.v1.json')
+const relocationDir = path.join(repositoryRoot, 'docs/project-management/relocation-registry/thoughtseed')
 const allowUnresolved = process.argv.includes('--allow-unresolved')
 const refreshAll = process.argv.includes('--refresh-all')
 const repositoryListKeys = new Set([
@@ -41,6 +43,38 @@ function collectQueueRepositories(value, parentKey = '') {
   return repositories
 }
 
+function collectCatalogRepositories(catalog, relocationStableIds) {
+  const repositories = []
+  const rows = [
+    ...catalog.RAW_SAPLINGS.map((row) => row[5]),
+    ...catalog.RAW_PROGRAMS.map((row) => row[6]),
+  ]
+  for (const provenance of rows) {
+    for (const source of provenance) {
+      if (typeof source !== 'string' || !source.startsWith('repo:')) continue
+      const parts = source.slice('repo:'.length).split('/')
+      if (relocationStableIds.has(parts[0].toLowerCase())) continue
+      if (parts.length >= 2 && parts.slice(0, 2).every((part) => /^[A-Za-z0-9._-]+$/.test(part))) {
+        repositories.push(parts.slice(0, 2).join('/'))
+      }
+    }
+  }
+  return repositories
+}
+
+async function collectRelocationRecords() {
+  const entries = await readdir(relocationDir, { withFileTypes: true })
+  const records = []
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue
+    const record = JSON.parse(await readFile(path.join(relocationDir, entry.name, 'entry.json'), 'utf8'))
+    if (typeof record.githubIdentity === 'string' && qualifiedRepository.test(record.githubIdentity)) {
+      records.push({ stableId: String(record.stableId ?? ''), githubIdentity: record.githubIdentity })
+    }
+  }
+  return records
+}
+
 function fetchRepository(fullName) {
   try {
     const raw = execFileSync('gh', ['api', `repos/${fullName}`], {
@@ -64,11 +98,18 @@ function fetchRepository(fullName) {
 }
 
 const queue = JSON.parse(await readFile(queuePath, 'utf8'))
+const catalog = await import(`${pathToFileURL(catalogPath).href}?refresh=${Date.now()}`)
+const relocationRecords = await collectRelocationRecords()
+const relocationStableIds = new Set(relocationRecords.map((record) => record.stableId.toLowerCase()))
 const inventoryModule = await import(`${pathToFileURL(sourcePath).href}?refresh=${Date.now()}`)
 const inventoryByName = new Map(
   inventoryModule.REPOSITORY_INVENTORY.map((record) => [record.fullName.toLowerCase(), { ...record }]),
 )
-const requested = [...new Set(collectQueueRepositories(queue))]
+const requested = [...new Set([
+  ...collectQueueRepositories(queue),
+  ...collectCatalogRepositories(catalog, relocationStableIds),
+  ...relocationRecords.map((record) => record.githubIdentity),
+])]
   .sort((left, right) => left.localeCompare(right, 'en', { sensitivity: 'base' }))
 const unresolved = []
 let refreshed = 0
