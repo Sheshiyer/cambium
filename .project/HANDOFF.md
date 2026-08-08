@@ -313,6 +313,46 @@
   object write, registry write, provider change, Goal Graph write, production
   deployment, or Workbench runtime change was performed by this audit.
 
+### 2026-08-08 Temperance GitHub mapping dispatch checkpoint
+
+- Founder asked to proceed with `temperance-parallel-dispatch` after the
+  GitHub repository mapping audit.
+- External Temperance rail was checked first. `temperance-batch` was installed
+  but unusable because it printed `dispatch-tasklist.sh not found`;
+  `temperance-claude`, `te-dispatch-paid`, `te-dispatch`, and `clinepass` were
+  unavailable. No external batch output was accepted and no Sol-family model
+  was used.
+- Fallback used the skill-approved in-session subagent rail with four
+  independent read-only lanes: Thoughtseed org history, client branch clusters,
+  Sapling provenance/catalog repair, and internal programs/vault context.
+- Dispatch receipt:
+  `docs/evidence/2026-08-08-temperance-github-mapping-dispatch.md`.
+- Executable founder-review queue:
+  `docs/project-management/github-repository-mapping-action-queue.v1.json`.
+- Batch 1 result: all 20 `thoughtseedlabs` / `thoughtseed-labs` repositories
+  were classified with immutable GitHub IDs. Most are historical/archive/fork
+  evidence; `DezinerAI` and `lockwell-portal` remain needs-review;
+  `Vibrasonix-Website` is Sapling evidence only because it is a fork/site row.
+- Batch 2 result: 70 client-branch candidate repository rows were grouped
+  across 10 client families with zero Sapling promotions. Symphonics needs
+  root-map/account coverage review.
+- Batch 3 result: direct Sapling evidence candidates are separated from
+  founder-hold rows. Klear Karma, Kristudios, ParkArea, and Tirak still require
+  origin/product-vs-client split decisions. `virtualtryon-3d` remains blocked
+  because `sapling:virtualtryon` is absent from the current catalog.
+- Batch 4 result: internal program/vault mapping remains evidence-only.
+  `thoughtseed-labs` is R2/vault infrastructure context, not an active
+  WorkObject folder. Multi-bind program rows require one idempotent receipt per
+  WorkObject prefix.
+- The queue specifies required payload fields for later mutation:
+  founder approval, WorkObject id/kind, origin assertion, repository immutable
+  identity, root-map state, lifecycle, catalog/root-map digests, R2 receipt id,
+  idempotency key, prefix, and blocked reason where applicable.
+- No GitHub issue, GitHub Project item, repository setting, folder move, R2
+  object write, registry write, provider change, Goal Graph write, production
+  deployment, Workbench runtime change, or catalog/generated UI change was
+  performed by this dispatch.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
