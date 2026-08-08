@@ -3,12 +3,12 @@ project: Cambium
 task: "Execute Cambium Phase 1 archive-first promotion"
 effort: E3
 effort_source: context-override
-phase: plan
-progress: 876/962
+phase: complete
+progress: 886/962
 mode: interactive
 iteration: 2026-08-08-cambium-phase-1-live-apply
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-11T08:55:00Z
+updated: 2026-08-08T17:55:00Z
 ---
 
 ## Problem
@@ -1293,16 +1293,16 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-949: The canonical `cambium` slot is a real non-symlink directory and not a Git repository before mutation.
 - [x] ISC-950: The new relocation archive container and exact Cambium archive target are absent before mutation.
 - [x] ISC-951: The pre-apply depth-one comparison differs from the checked-in root map only by the founder-ignored `_home-cleanup-2026-08-08` row.
-- [ ] ISC-952: The stale non-Git Cambium slot is preserved intact at the exact relocation archive target.
-- [ ] ISC-953: The authoritative Git checkout is promoted into the canonical shallow `cambium` slot without copying or overwriting.
-- [ ] ISC-954: The promoted canonical slot retains the exact Git remote, branch, HEAD, and clean working tree.
-- [ ] ISC-955: The archived pre-authority Cambium state remains non-Git and recoverable after promotion.
-- [ ] ISC-956: The root-map snapshot replaces stale cleanup and temporary-authority infrastructure with the exact relocation archive container.
-- [ ] ISC-957: Portfolio root headers are regenerated from the accepted post-apply physical state.
-- [ ] ISC-958: The post-apply depth-one comparison has zero missing and zero unexpected directories.
-- [ ] ISC-959: A post-apply receipt and handoff record the approval, operations, rollback path, before/after evidence, and next Temperance gate.
-- [ ] ISC-960: Focused relocation tests, Portfolio Cartographer check, Worker portfolio routes, full repository tests, JSON parsing, and diff checks pass.
-- [ ] ISC-961: Anti: Phase 1 performs no R2, GitHub, registry, Goal Graph, provider, production, Temperance, Symphonics, or `thoughtseed-labs` mutation.
+- [x] ISC-952: The stale non-Git Cambium slot is preserved intact at the exact relocation archive target.
+- [x] ISC-953: The authoritative Git checkout is promoted into the canonical shallow `cambium` slot without copying or overwriting.
+- [x] ISC-954: The promoted canonical slot retains the exact Git remote, branch, HEAD, and clean working tree.
+- [x] ISC-955: The archived pre-authority Cambium state remains non-Git and recoverable after promotion.
+- [x] ISC-956: The root-map snapshot replaces stale cleanup and temporary-authority infrastructure with the exact relocation archive container.
+- [x] ISC-957: Portfolio root headers are regenerated from the accepted post-apply physical state.
+- [x] ISC-958: The post-apply depth-one comparison has zero missing and zero unexpected directories.
+- [x] ISC-959: A post-apply receipt and handoff record the approval, operations, rollback path, before/after evidence, and next Temperance gate.
+- [x] ISC-960: Focused relocation tests, Portfolio Cartographer check, Worker portfolio routes, full repository tests, JSON parsing, and diff checks pass.
+- [x] ISC-961: Anti: Phase 1 performs no R2, GitHub, registry, Goal Graph, provider, production, Temperance, Symphonics, or `thoughtseed-labs` mutation.
 
 ## Test Strategy
 
@@ -1686,8 +1686,16 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - 2026-08-03 18:15: Rollback is conditional, not automatic: revert to `1a7813e2-5c3e-4e63-b36c-ad6b3ad70995` only if Version `1fc4592c-f13f-4fc0-bf5c-0e64f2d17e60` introduces new harm to previously working flows. If the founder remains blocked while health and unaffected flows remain stable, preserve the repaired diagnostic state and fix forward because rollback reinstates the proven envelope defect. A bounded live tail observed only healthy unrelated GETs and no founder browser request before the observation window ended; no identity or token data was retained in the ISA.
 - 2026-08-03 13:33 UTC: Cloudflare Access policy read-back and policy tester both grant the founder email; the remaining denial is inside Cambium's downstream whoami handoff. The protected custom Plexus hostname returns a non-JSON Access-edge response to Worker-to-Worker fetch, so the resolver correctly floors to consultant. The read-only `PLEXUS_WHOAMI_URL` now uses TeamForge's workers.dev origin, where the same verified Access JWT is checked by Plexus without a second Access wall; no policy, identity, or secret mutation was needed.
+- 2026-08-08: The exact founder phrase authorized only Cambium Phase 1. The archive-first transaction consumed that approval after two same-filesystem renames; Temperance, Symphonics, R2, GitHub, registry, Goal Graph, provider, and production boundaries remain closed.
+- 2026-08-08: The first all-portfolio root-header attempt exposed a partial-write hazard: Thoughtseed could be written before unrelated Tryambakam drift failed validation. The generator now validates every selected portfolio before writing and permits exact portfolio scoping; regression tests prove both properties.
+- 2026-08-08: Advisor preflight and post-deliverable review were unavailable because the local OAuth session expired and could not refresh. No substitute external mutation was attempted; deterministic repository, filesystem, digest, and boundary probes provide the completion evidence.
 
 ## Changelog
+
+- 2026-08-08 | conjectured: promoting the exact Cambium checkout required only two filesystem renames after approval
+  refuted by: root-header regeneration revealed that the all-portfolio writer could update Thoughtseed before unrelated Tryambakam drift aborted the run
+  learned: archive-first authority promotion and evidence regeneration are separate transactions; generated-header writers must validate their entire selected scope before any write
+  criterion now: ISC-946..961 bind approval, recoverable renames, canonical Git identity, exact root evidence, atomic scoped generation, complete release gates, and unchanged external boundaries
 
 - 2026-08-08 | conjectured: Batch 2 could be represented as one client-family repository list once GitHub identities were available
   refuted by: the HeyZack monorepo serves two WorkObjects through source subpaths, Marina One splits by city-specific repo evidence, seven referenced identities are unavailable, Symphonics has identity but no shallow folder, and HeyZack Panel App has no uniquely evidenced repository
@@ -1839,6 +1847,17 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-949: lstat/Git probe — canonical `cambium` was a real directory on device `16777242`, inode `30272996`, not a symlink, and not a Git repository.
 - ISC-950: filesystem existence probe — `_physical-relocation-archive-2026-08-08` and its `cambium-pre-git-authority` child were both absent before apply.
 - ISC-951: depth-one probe — expected 59, observed 58, missing only `_home-cleanup-2026-08-08`, unexpected zero; Symphonics remained absent and `thoughtseed-labs` inode `30565745` was recorded for post-apply preservation proof.
+- ISC-952: lstat/content-count probe — archive target retained the original canonical directory's device `16777242`, inode `30272996`, 13,658 regular files, 60 symlinks, and approximate 2.3 GB size.
+- ISC-953: filesystem/Git probe — temporary `cambium-authoritative` disappeared and the canonical `cambium` slot retained authority inode `30620729` after the second same-filesystem rename.
+- ISC-955: Git-negative probe — the archived pre-authority tree remains `not-a-git-repository` and its receipt preserves the exact two-step rollback path.
+- ISC-956: snapshot/generator probe — Thoughtseed infrastructure is exactly `_physical-relocation-archive-2026-08-08`, `openfang`, `thoughtseed-labs`, `website`; regenerated digest is `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe`.
+- ISC-957: scoped header probe — Thoughtseed header generation observed 58 exact directories and wrote only `PORTFOLIO.md` plus `portfolio-map.v1.json`; Tryambakam header hashes stayed `58160e42...` and `8ca1870a...`.
+- ISC-958: post-apply directory probe — expected 58, observed 58, missing zero, unexpected zero.
+- ISC-959: file read/tests — the Phase 1 apply receipt, physical manifest, readiness documents, mapping queue, and `.project/HANDOFF.md` all record applied state, rollback, boundaries, and the Temperance next gate.
+- ISC-954: post-apply and final Git probes — canonical inode `30620729` retained origin `https://github.com/Sheshiyer/cambium.git`, branch `codex/project-r2-mapping-plan`, apply-input head `0041a07c1db0cdf1c2d1210392c1237c9657eb53`, and an empty working tree at the completed checkpoint.
+- ISC-960: release gates — focused Batch 2/4/5/physical-lane plus root-map tests passed 22/22; Portfolio Cartographer passed 62 active tests with one historical skip plus lint/build/bundle/audit/CSP/smoke; Worker portfolio/action routes passed 28/28; full repository tests passed 1568/1568; edited JSON parsed and `git diff --check` passed.
+- ISC-961: physical and scope probes — `thoughtseed-labs` retained inode `30565745`, Symphonics remained absent, the temporary authority sibling disappeared as intended, the archive remained non-Git and recoverable, and no R2, GitHub, registry, Goal Graph, provider, production, or Temperance mutation occurred.
+- Verification hardening: the first all-portfolio header run exposed unrelated Tryambakam drift after updating Thoughtseed. The writer now validates every selected portfolio before any write and supports exact portfolio scoping; 12/12 root-map tests prove both properties.
 
 - 2026-08-08 Batch 2 repository mapping: queue tests prove 10 client families, 61 candidates, 6 holds/excludes, 55 receipt-eligible rows, 12 blocked rows, seven unavailable immutable identities, zero Sapling promotions, exact Client Branch assignments, and an explicit `branch:symphonics` root-map block.
 - Generated evidence: 122 immutable repository identities; 98 bounded catalog repository refs; root-map SHA-256 `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`; repository-evidence SHA-256 `653763dcda3a105cdce6df9d5861e3200b05016ef4533fcb43352b33bb8dff84`; catalog digest `sha256:1f40226825b4d42c3812f42cc3e63ca9b8d76707256fe48ba49a96b7c924988b`.

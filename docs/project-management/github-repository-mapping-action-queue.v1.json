@@ -33,7 +33,7 @@
     "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
     "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
     "boundary": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>; thoughtseed-labs remains R2/vault infrastructure context, never a WorkObject folder",
-    "nextPhysicalPass": "only after a founder-approved relocation manifest with exact from/to paths, archive target, rollback plan, dry-run directory comparison, and live-apply approval"
+    "nextPhysicalPass": "Cambium Phase 1 is applied and verified; Temperance de-duplication remains blocked on local-state reconciliation and separate founder approval"
   },
   "globalBlocks": [],
   "resolvedFounderDecisions": [
@@ -64,7 +64,7 @@
       },
       "defaults": {
         "receiptKind": "mapping",
-        "rootMapDigest": "20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc",
+        "rootMapDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe",
         "catalogDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
         "founderDecisionStatus": "founder-review",
         "evidencePrefixTemplate": "portfolio/thoughtseed/workobjects/<targetWorkId>/mapping/"
@@ -1105,10 +1105,12 @@
       "renameReadiness": {
         "readinessDocument": "docs/project-management/thoughtseed-folder-rename-readiness.v1.json",
         "filesystemMutationAuthorized": false,
+        "cambiumPhase1Applied": true,
+        "cambiumPhase1ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json",
         "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
         "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
         "thoughtseedLabsBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder",
-        "nextPhysicalPass": "founder-approved relocation manifest before any folder rename, create, archive, or de-duplication"
+        "nextPhysicalPass": "Temperance landing-page local-state reconciliation before any Phase 2 live-apply approval"
       },
       "rows": [
         {

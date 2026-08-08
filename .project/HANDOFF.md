@@ -762,3 +762,47 @@ mutation has been performed by drafting this packet.
   1568/1568.
 - No filesystem move, archive creation, R2 write, GitHub mutation, folder
   rename, or production deploy was performed.
+
+### 2026-08-08 Cambium Phase 1 archive-first promotion checkpoint
+
+- Batch 2 is confirmed complete in this history: `ba56bef` is an ancestor of
+  the Phase 1 apply branch. The founder supplied the exact approval text
+  `approve live apply phase 1 Cambium archive-first promote`, scoped to Phase 1
+  only.
+- The former non-Git `$PROJECTS_ROOT/thoughtseed/cambium` tree was moved intact
+  to
+  `$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`.
+  The archived directory preserved device `16777242`, inode `30272996`, 13,658
+  regular files, 60 symbolic links, and approximately 2.3 GB of recoverable
+  local state.
+- The exact `Sheshiyer/cambium` checkout was moved from the temporary
+  `cambium-authoritative` sibling into the canonical shallow `cambium` slot.
+  The promoted directory preserved inode `30620729`, origin
+  `https://github.com/Sheshiyer/cambium.git`, branch
+  `codex/project-r2-mapping-plan`, and apply-input head
+  `0041a07c1db0cdf1c2d1210392c1237c9657eb53`.
+- Post-apply depth-one comparison is exact: 58 expected directories, 58
+  observed, zero missing, and zero unexpected. The accepted root-map digest is
+  `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe`;
+  root-map file SHA-256 is
+  `b16c45ffabd5a463bc1c0f44d1664654860cc6a839bf5dc53b65b3b7826c483e`.
+- Thoughtseed root headers were regenerated from the accepted physical state.
+  Unrelated Tryambakam drift prevented the old all-portfolios writer from
+  completing atomically, so the generator now validates every selected
+  portfolio before writing and supports an exact `--portfolio thoughtseed`
+  scope. Tryambakam header digests remained unchanged.
+- Apply receipt:
+  `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json`.
+  The physical manifest and rename-readiness records now mark Phase 1
+  `applied-verified`; no additional filesystem mutation is authorized.
+- Verification: focused Batch 2/4/5/physical-lane plus root-map tests passed
+  22/22; `pnpm --dir apps/portfolio-cartographer check` passed 62 active tests
+  with one historical skip plus lint, build, bundle, standalone audit, CSP,
+  and smoke; focused Worker portfolio/action-route tests passed 28/28; full
+  `npm test` passed 1568/1568. The hosted artifact is 393,182 bytes, SHA-256
+  `930a4583dcc337247aaa2f3521674f582be1d6855cb34c7e04b33d550499ceb9`.
+- `thoughtseed-labs` retained inode `30565745`; Symphonics remains absent and
+  held. No Temperance tree, R2 object, GitHub state, registry row, Goal Graph
+  row, provider setting, or production deployment was mutated.
+- Next physical lane: reconcile Temperance landing-page `.gitignore` drift and
+  preserve local-only artifacts before drafting any separate Phase 2 approval.

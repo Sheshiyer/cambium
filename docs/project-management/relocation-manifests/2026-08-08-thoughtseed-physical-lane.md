@@ -1,6 +1,6 @@
 # Thoughtseed physical lane manifest
 
-Status: draft manifest with Phase 1 preflight passed. No live apply is authorized by this file.
+Status: Phase 1 applied and verified; Phase 2 remains blocked on local-state reconciliation and separate approval.
 
 Preflight receipt: `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json`.
 
@@ -20,11 +20,15 @@ Preflight receipt: `docs/project-management/relocation-manifests/2026-08-08-thou
 
 Decision: archive-first promote.
 
-The canonical slot `$PROJECTS_ROOT/thoughtseed/cambium` exists but is not a Git repository. The temporary authority checkout `$PROJECTS_ROOT/thoughtseed/cambium-authoritative` is the exact `Sheshiyer/cambium` checkout. A live apply, if separately approved, should first archive the non-Git `cambium` folder, then promote `cambium-authoritative` into the canonical `cambium` slot.
+Applied after the founder supplied the exact approval text `approve live apply phase 1 Cambium archive-first promote`.
+
+The canonical slot `$PROJECTS_ROOT/thoughtseed/cambium` is now the exact `Sheshiyer/cambium` Git checkout. The former non-Git `cambium` state is preserved at `$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`; it was moved, not overwritten or deleted.
 
 The archive target is `$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`. The manifest creates the archive container because the older `_home-cleanup-2026-08-08` infrastructure folder is no longer present on disk and has been approved as ignorable, non-blocking drift.
 
-Do not overwrite, delete, or merge the old `cambium` folder in place.
+Apply receipt: `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json`.
+
+Accepted post-apply root-map digest: `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe`.
 
 ## Phase 2: Temperance
 
