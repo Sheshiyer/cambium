@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Reconcile Temperance Phase 2 physical lane"
+task: "Apply Temperance Phase 2 archive-first promotion"
 effort: E3
 effort_source: context-override
-phase: complete
-progress: 905/981
+phase: observe
+progress: 905/1000
 mode: interactive
-iteration: 2026-08-08-temperance-phase-2-reconciliation
+iteration: 2026-08-08-temperance-phase-2-live-apply
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-08T18:06:30Z
+updated: 2026-08-08T18:11:11Z
 ---
 
 ## Problem
@@ -1326,6 +1326,28 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-979: Anti: reconciliation performs no folder move, archive creation, deletion, R2 write, GitHub mutation, registry write, Goal Graph write, provider change, or production deployment.
 - [x] ISC-980: A bounded handoff records the evidence, proposed operations, rollback, held boundaries, and next exact approval phrase.
 
+### Temperance Phase 2 live apply
+
+- [ ] ISC-981: The founder message exactly matches the Phase 2 live-apply approval text recorded by the preflight receipt.
+- [ ] ISC-982: Reconciliation commit `de31783fed5c140af94064d49c8fa07d2bcada0f` is an ancestor of the clean Cambium apply-input checkout before filesystem mutation.
+- [ ] ISC-983: The shallow Temperance slot retains preflight inode `30366279` and remains a non-Git real directory before mutation.
+- [ ] ISC-984: The nested authority retains preflight inode `20463948`, exact Git identity, recorded HEAD, and only the approved untracked status file before mutation.
+- [ ] ISC-985: Both Phase 2 archive targets are absent and every moved object resides on device `16777242` before mutation.
+- [ ] ISC-986: The nested untracked `_PROJECT-STATUS.md` is moved to its dedicated archive target with its recorded SHA-256 preserved.
+- [ ] ISC-987: The nested authority working tree is clean before either project directory moves.
+- [ ] ISC-988: The shallow non-Git tree is moved intact to its exact archive target with inode and content counts preserved.
+- [ ] ISC-989: The exact Git authority is promoted into the canonical shallow slot with its inode, remote, branch, and HEAD preserved.
+- [ ] ISC-990: The `website` container retains inode `30575091` and is empty after promotion.
+- [ ] ISC-991: The former nested authority path is absent after promotion.
+- [ ] ISC-992: The dedicated local-state archive contains only the approved status file at the recorded digest.
+- [ ] ISC-993: Post-apply root-map comparison remains 58 expected, 58 observed, zero missing, zero unexpected, with the accepted digest unchanged.
+- [ ] ISC-994: Sensitive ignored content remains contained in the promoted and archived trees without being inspected, copied into Cambium, or recorded.
+- [ ] ISC-995: A Phase 2 apply receipt records exact approval, operations, before/after identity, rollback, and held boundaries without machine-local absolute paths.
+- [ ] ISC-996: The physical manifest, readiness records, mapping queue, and evidence documents agree that Phase 2 is applied and no further filesystem mutation is authorized.
+- [ ] ISC-997: Focused relocation tests, Portfolio Cartographer check, Worker portfolio routes, full repository tests, JSON parsing, and diff checks pass.
+- [ ] ISC-998: Anti: Phase 2 performs no deletion, content merge, R2 write, GitHub mutation, registry write, Goal Graph write, provider change, production deployment, Symphonics change, or `thoughtseed-labs` change.
+- [ ] ISC-999: The final handoff records the applied state, recovery path, verification, clean commit, and next held lane.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1348,6 +1370,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-931..945 | Batch 2 repository mapping | queue-count probe, immutable GitHub IDs, exact WorkObject assignments, regenerated evidence, scoped/full tests, JSON parse, handoff, and no-external-mutation status | `node`, `gh`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-946..961 | Cambium Phase 1 live apply | ancestry, exact approval, pre/post lstat and Git identity, depth-one compare, recoverable archive, atomic path promotion, regenerated root map/headers, receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, `node`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check` |
 | ISC-962..980 | Temperance Phase 2 reconciliation | exact Git and lstat identity, redacted file comparison, ignore-policy decision, local-state archive target, container preservation, unchanged root map, preflight receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, SHA-256, redacted `node` comparison, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
+| ISC-981..999 | Temperance Phase 2 live apply | exact approval, clean input commit, pre/post inodes and Git identity, local-state archive, atomic directory moves, empty container, unchanged root map, apply receipt, scoped/full tests, clean commit, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, SHA-256, `node`, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1452,6 +1475,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - `TrustedProjectExecutor` | Create a shallow local Git project packet, registry-derived workflow stages, and pending-ingestion/index-proposal receipts | satisfies ISC-886..895, ISC-905..906 | depends_on ProjectCreationIntent | parallelizable false
 - `ProjectCloseoutWorkflow` | Move receipt-backed finished work out of active tracking while producing handoff, R2 archive, memory, and finished-index records | satisfies ISC-911..930 | depends_on HostedPortfolioActions, ProjectCreationIntent | parallelizable false
 - `TemperancePhase2Reconciliation` | Resolve shallow versus nested authority, preserve local-only state, choose container and ignore-policy dispositions, and emit an exact approval-gated preflight | satisfies ISC-962..980 | depends_on Cambium Phase 1 live apply | parallelizable false
+- `TemperancePhase2LiveApply` | Archive nested local status and shallow state, promote the clean exact authority, preserve the container, and emit recoverable receipt evidence | satisfies ISC-981..999 | depends_on TemperancePhase2Reconciliation | parallelizable false
 - `ActionRequestConsumption` | Implement the bounded queued-to-consumed lifecycle already promised by the public contract | satisfies ISC-66..71, ISC-80 | depends_on ActionRequestContract | parallelizable false
 - `AdditionalDriftGates` | Remove dead config, strictify release proof, cover Gate in CI, and retire R3F issue mirrors | satisfies ISC-72..79 | depends_on FixtureParity, RoutingGovernance | parallelizable true
 - `LeadStackConsolidation` | Merge the seven reviewed PRs and prove consolidated main | satisfies ISC-81..90 | depends_on AdditionalDriftGates | parallelizable false
@@ -1541,6 +1565,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-08 18:11: the founder supplied the exact preflight phrase `approve live apply phase 2 Temperance archive-first promote preserve website container`; authorization is limited to the six ordered Phase 2 operations and their verification/receipt work.
+- 2026-08-08 18:11: FirstPrinciples execution order is preservation before authority movement: archive the one untracked status file, require clean Git, archive the shallow tree, promote the exact checkout, then prove the preserved container and unchanged root map. No content merge or ignore-policy rewrite is permitted.
+- 2026-08-08 18:11: delegation is intentionally omitted because the system prohibits unsolicited subagents and each filesystem step consumes the prior step's verified state. The primary controller owns the entire rollback boundary.
+- 2026-08-08 18:12: the pre-apply Advisor call failed because the local inference OAuth session remains expired and cannot refresh. No advisory approval is inferred; exact authorization, ancestry, lstat, Git, digest, target-absence, and rollback probes remain the commitment gate.
 
 - 2026-08-08 17:59: refined: “yes lets do temperance” authorizes the next documented reconciliation lane, not a silent live filesystem promotion. Phase 2 may advance to an exact preflight and approval phrase; folder moves remain blocked until that phrase is supplied.
 - 2026-08-08 17:59: FirstPrinciples deconstruction separates Git authority, unique local value, canonical address, container role, and rollback. The recommended shape archives the shallow tree intact, separately archives the nested untracked status file, promotes only a clean exact checkout, and preserves the empty `website` container as infrastructure.
