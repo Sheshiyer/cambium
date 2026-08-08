@@ -92,11 +92,16 @@ holds.
 
 ### Batch 4 — Internal programs and vault context
 
-- `thoughtseed-labs` remains R2/vault infrastructure context, not an active WorkObject folder.
-- `program:thoughtseed-vault` can receive evidence for vault/repository context only.
-- `website` remains a container; only `website/temperance-engine-landing-page` maps to `program:temperance-hermes`.
-- `plugins` remains deferred because it has no Git identity; founder must create/attach a repo or fold it into operator utilities.
-- Multi-bind internal capability rows need one idempotent receipt per WorkObject binding.
+Post-dispatch founder resolution: internal program evidence is reviewed and
+ready for future mapping receipts with explicit holds. Twelve executable
+repositories create sixteen WorkObject bindings across seven internal Program
+targets. `thoughtseed-labs` remains R2/vault infrastructure context, not an
+active WorkObject folder, and `program:thoughtseed-vault` is evidence-only.
+`website` remains a container; only `Sheshiyer/temperance_engine_landing_page`
+maps to `program:temperance-hermes`. Four repository names remain unavailable
+under the current authenticated GitHub principal, and `plugins` remains deferred
+because it has no Git identity; founder must create/attach a repo or fold it
+into operator utilities / engineering orchestration.
 
 ## Mutation gate
 

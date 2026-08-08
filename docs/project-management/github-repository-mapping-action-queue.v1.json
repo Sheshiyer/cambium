@@ -861,7 +861,7 @@
     },
     {
       "batchId": "github-batch-004-internal-programs-and-vault",
-      "status": "ready-for-founder-program-review",
+      "status": "founder-reviewed-internal-programs-ready-for-mapping-receipts-with-explicit-holds",
       "r2Boundary": "evidence-only; not live project state, code history, repository ownership, folder movement, planning authority, Goal Graph writes, or native session migration",
       "rows": [
         {
@@ -869,28 +869,105 @@
           "workIds": [
             "program:thoughtseed-vault"
           ],
-          "disposition": "evidence-only vault/R2 context"
+          "disposition": "evidence-only vault/R2 context",
+          "candidateRepos": [
+            "Sheshiyer/thoughtseed-labs",
+            "Sheshiyer/thoughtseed-vault"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "program:thoughtseed-vault",
+              "repositoryRefs": [
+                "Sheshiyer/thoughtseed-labs",
+                "Sheshiyer/thoughtseed-vault"
+              ],
+              "receiptScope": "evidence-only-vault-context"
+            }
+          ],
+          "boundary": "R2/vault context is evidence-only and does not become live project state, code history, repository ownership, or planning authority"
         },
         {
           "context": "ThoughtseedOS-Site, thoughtseed/thoughtseedlabs-web, archived-thoughtseedlabs-website, landingpage-ts-2026, thoughtseedos-website",
           "workIds": [
             "program:company-website"
           ],
-          "disposition": "company website/internal-site evidence"
+          "disposition": "company website/internal-site evidence",
+          "candidateRepos": [
+            "thoughtseed/ThoughtseedOS-Site",
+            "thoughtseed/thoughtseedlabs-web",
+            "Sheshiyer/website",
+            "Sheshiyer/landingpage-ts-2026",
+            "Sheshiyer/thoughtseedos-website"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "program:company-website",
+              "repositoryRefs": [
+                "thoughtseed/ThoughtseedOS-Site",
+                "thoughtseed/thoughtseedlabs-web",
+                "Sheshiyer/website"
+              ]
+            }
+          ],
+          "unavailableCandidateRepos": [
+            "Sheshiyer/landingpage-ts-2026",
+            "Sheshiyer/thoughtseedos-website"
+          ],
+          "holdReasons": [
+            "landingpage-ts-2026 and thoughtseedos-website are local shallow folders but do not expose retrievable immutable GitHub identities to the current authenticated account.",
+            "archived-thoughtseedlabs-website remains local/folder evidence and is not a repository receipt target."
+          ]
         },
         {
           "context": "website/temperance-engine-landing-page, Sheshiyer/temperance_engine_landing_page, hermes-aws-ts, thoughtseed-hermes, temperance_engine",
           "workIds": [
             "program:temperance-hermes"
           ],
-          "disposition": "map nested repo; do not create website WorkObject"
+          "disposition": "map nested repo; do not create website WorkObject",
+          "candidateRepos": [
+            "Sheshiyer/temperance_engine_landing_page",
+            "Sheshiyer/hermes-aws-ts",
+            "Sheshiyer/temperance_engine",
+            "Sheshiyer/thoughtseed-hermes",
+            "thoughtseed-labs/hermes-aws-ts"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "program:temperance-hermes",
+              "repositoryRefs": [
+                "Sheshiyer/temperance_engine_landing_page",
+                "Sheshiyer/hermes-aws-ts",
+                "Sheshiyer/temperance_engine"
+              ]
+            }
+          ],
+          "unavailableCandidateRepos": [
+            "Sheshiyer/thoughtseed-hermes",
+            "thoughtseed-labs/hermes-aws-ts"
+          ],
+          "holdReasons": [
+            "thoughtseed-hermes is a local shallow folder without retrievable immutable GitHub identity under the current authenticated account.",
+            "thoughtseed-labs/hermes-aws-ts is a stale owner/name form; the retrievable immutable repository is Sheshiyer/hermes-aws-ts.",
+            "website remains a container; only the nested Temperance Engine landing page repository maps to the existing internal-program row."
+          ]
         },
         {
           "context": "brandmint-oracle-aleph",
           "workIds": [
             "program:meristem-brand-system"
           ],
-          "disposition": "exact GitHub repo admit"
+          "disposition": "exact GitHub repo admit",
+          "candidateRepos": [
+            "Sheshiyer/brandmint-oracle-aleph"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "program:meristem-brand-system",
+              "repositoryRefs": [
+                "Sheshiyer/brandmint-oracle-aleph"
+              ]
+            }
+          ]
         },
         {
           "context": "motionsites-skills",
@@ -898,7 +975,24 @@
             "program:meristem-brand-system",
             "program:skill-clusters"
           ],
-          "disposition": "multi-bind brand and skills evidence"
+          "disposition": "multi-bind brand and skills evidence",
+          "candidateRepos": [
+            "Sheshiyer/motionsites-skills"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "program:meristem-brand-system",
+              "repositoryRefs": [
+                "Sheshiyer/motionsites-skills"
+              ]
+            },
+            {
+              "workId": "program:skill-clusters",
+              "repositoryRefs": [
+                "Sheshiyer/motionsites-skills"
+              ]
+            }
+          ]
         },
         {
           "context": "professional-headshot-suite",
@@ -906,7 +1000,24 @@
             "program:explee-capabilities",
             "program:skill-clusters"
           ],
-          "disposition": "capability and skill evidence"
+          "disposition": "capability and skill evidence",
+          "candidateRepos": [
+            "Sheshiyer/professional-headshot-suite"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "program:explee-capabilities",
+              "repositoryRefs": [
+                "Sheshiyer/professional-headshot-suite"
+              ]
+            },
+            {
+              "workId": "program:skill-clusters",
+              "repositoryRefs": [
+                "Sheshiyer/professional-headshot-suite"
+              ]
+            }
+          ]
         },
         {
           "context": "readme-skill",
@@ -915,7 +1026,30 @@
             "program:operator-utilities",
             "program:skill-clusters"
           ],
-          "disposition": "capability/operator utility evidence"
+          "disposition": "capability/operator utility evidence",
+          "candidateRepos": [
+            "Sheshiyer/readme-skill"
+          ],
+          "resolvedAssignments": [
+            {
+              "workId": "program:explee-capabilities",
+              "repositoryRefs": [
+                "Sheshiyer/readme-skill"
+              ]
+            },
+            {
+              "workId": "program:operator-utilities",
+              "repositoryRefs": [
+                "Sheshiyer/readme-skill"
+              ]
+            },
+            {
+              "workId": "program:skill-clusters",
+              "repositoryRefs": [
+                "Sheshiyer/readme-skill"
+              ]
+            }
+          ]
         },
         {
           "context": "plugins",
@@ -923,9 +1057,28 @@
             "program:operator-utilities",
             "program:engineering-orchestration"
           ],
-          "disposition": "defer until Git identity or fold decision"
+          "disposition": "defer until Git identity or fold decision",
+          "candidateRepos": [],
+          "resolvedAssignments": [],
+          "deferredNoGitIdentity": true,
+          "holdReasons": [
+            "plugins has no exact retrievable GitHub identity; founder must create or attach a repository, or explicitly fold it into existing operator utility / engineering orchestration infrastructure."
+          ]
         }
-      ]
+      ],
+      "summary": {
+        "contextsReviewed": 8,
+        "internalProgramTargets": 8,
+        "internalProgramTargetsWithRepositoryAssignments": 7,
+        "candidateRowsGrouped": 16,
+        "executableRepositoryRows": 12,
+        "receiptEligibleBindings": 16,
+        "blockedReceiptRows": 5,
+        "unavailableImmutableIdentityRows": 4,
+        "deferredNoGitIdentityRows": 1,
+        "r2BoundaryRows": 1,
+        "saplingPromotionsRecommended": 0
+      }
     },
     {
       "batchId": "github-batch-005-root-map-catalog-repair",

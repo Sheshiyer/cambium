@@ -162,6 +162,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-08-07T00:44:48Z"
   },
   {
+    "fullName": "Sheshiyer/brandmint-oracle-aleph",
+    "repositoryId": "R_kgDORM3pEQ",
+    "nodeId": "R_kgDORM3pEQ",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T03:17:14Z",
+    "updatedAt": "2026-06-18T07:02:16Z"
+  },
+  {
     "fullName": "Sheshiyer/brochure-py-heyzack",
     "repositoryId": "R_kgDOPnpaSQ",
     "nodeId": "R_kgDOPnpaSQ",
@@ -330,6 +340,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-08-07T00:45:43Z",
     "updatedAt": "2026-08-07T00:45:54Z"
+  },
+  {
+    "fullName": "Sheshiyer/hermes-aws-ts",
+    "repositoryId": "R_kgDOS6faAg",
+    "nodeId": "R_kgDOS6faAg",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T03:16:54Z",
+    "updatedAt": "2026-07-29T12:05:56Z"
   },
   {
     "fullName": "Sheshiyer/heyzack-builder-pitch-experience",
@@ -562,6 +582,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-08-07T00:45:06Z"
   },
   {
+    "fullName": "Sheshiyer/motionsites-skills",
+    "repositoryId": "R_kgDOS_VZjw",
+    "nodeId": "R_kgDOS_VZjw",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:45:17Z",
+    "updatedAt": "2026-08-07T00:45:29Z"
+  },
+  {
     "fullName": "Sheshiyer/newsense",
     "repositoryId": "R_kgDOSXaB2w",
     "nodeId": "R_kgDOSXaB2w",
@@ -652,6 +682,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2025-09-16T11:52:46Z"
   },
   {
+    "fullName": "Sheshiyer/professional-headshot-suite",
+    "repositoryId": "R_kgDOS5tCNQ",
+    "nodeId": "R_kgDOS5tCNQ",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-06-13T15:09:28Z",
+    "updatedAt": "2026-06-13T15:09:32Z"
+  },
+  {
     "fullName": "Sheshiyer/rasa",
     "repositoryId": "R_kgDOTONv-A",
     "nodeId": "R_kgDOTONv-A",
@@ -670,6 +710,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-08-07T00:44:46Z",
     "updatedAt": "2026-08-07T00:45:11Z"
+  },
+  {
+    "fullName": "Sheshiyer/readme-skill",
+    "repositoryId": "R_kgDORUPtDw",
+    "nodeId": "R_kgDORUPtDw",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-02-19T21:09:01Z",
+    "updatedAt": "2026-05-29T03:27:04Z"
   },
   {
     "fullName": "Sheshiyer/rork-klear-karma-mobile-app-frontend",
@@ -722,6 +772,26 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-08-06T06:21:24Z"
   },
   {
+    "fullName": "Sheshiyer/temperance_engine",
+    "repositoryId": "R_kgDOS4KUUg",
+    "nodeId": "R_kgDOS4KUUg",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T02:22:29Z",
+    "updatedAt": "2026-08-06T20:16:34Z"
+  },
+  {
+    "fullName": "Sheshiyer/temperance_engine_landing_page",
+    "repositoryId": "R_kgDOS6corQ",
+    "nodeId": "R_kgDOS6corQ",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T01:02:49Z",
+    "updatedAt": "2026-08-07T01:03:00Z"
+  },
+  {
     "fullName": "Sheshiyer/thoughtseed-brand-atlas",
     "repositoryId": "R_kgDOTq9alA",
     "nodeId": "R_kgDOTq9alA",
@@ -732,6 +802,16 @@ export const REPOSITORY_INVENTORY = [
     "updatedAt": "2026-08-06T03:19:09Z"
   },
   {
+    "fullName": "Sheshiyer/thoughtseed-labs",
+    "repositoryId": "R_kgDONimwZA",
+    "nodeId": "R_kgDONimwZA",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-08T16:37:29Z",
+    "updatedAt": "2026-07-28T00:37:44Z"
+  },
+  {
     "fullName": "Sheshiyer/thoughtseed-paperclip",
     "repositoryId": "R_kgDOSJvzpQ",
     "nodeId": "R_kgDOSJvzpQ",
@@ -740,6 +820,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-08-07T00:45:46Z",
     "updatedAt": "2026-08-07T00:46:03Z"
+  },
+  {
+    "fullName": "Sheshiyer/thoughtseed-vault",
+    "repositoryId": "R_kgDOSJs3dQ",
+    "nodeId": "R_kgDOSJs3dQ",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T03:17:02Z",
+    "updatedAt": "2026-08-06T22:39:27Z"
   },
   {
     "fullName": "Sheshiyer/tirak-backend-alpha01",
@@ -870,6 +960,16 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-01-03T05:45:18Z",
     "updatedAt": "2026-01-03T05:45:21Z"
+  },
+  {
+    "fullName": "Sheshiyer/website",
+    "repositoryId": "MDEwOlJlcG9zaXRvcnkzNzU1MDg0MDg=",
+    "nodeId": "MDEwOlJlcG9zaXRvcnkzNzU1MDg0MDg=",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2021-10-02T16:43:26Z",
+    "updatedAt": "2021-10-02T16:43:29Z"
   },
   {
     "fullName": "Sheshiyer/whspr-assist",
@@ -1050,6 +1150,26 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2020-10-05T14:51:50Z",
     "updatedAt": "2020-10-05T14:51:48Z"
+  },
+  {
+    "fullName": "thoughtseed/thoughtseedlabs-web",
+    "repositoryId": "R_kgDOOMP4gw",
+    "nodeId": "R_kgDOOMP4gw",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2025-05-19T17:20:30Z",
+    "updatedAt": "2025-05-19T17:20:33Z"
+  },
+  {
+    "fullName": "thoughtseed/ThoughtseedOS-Site",
+    "repositoryId": "R_kgDOOv6Kmg",
+    "nodeId": "R_kgDOOv6Kmg",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2026-08-07T00:45:48Z",
+    "updatedAt": "2026-08-07T00:45:52Z"
   },
   {
     "fullName": "thoughtseedlabs/AR-Video-Player",
