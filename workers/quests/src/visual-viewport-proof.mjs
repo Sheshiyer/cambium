@@ -1255,6 +1255,24 @@ function operatingFabricAllScenesAssertion(width) {
         : root.querySelector('[data-portfolio-context="' + sceneId + '"]');
       const selectionPersists = Boolean(selectedContext)
         && selectedContext.textContent.includes('Fitcheck');
+      const fitcheckReference = sceneId === 'canopy'
+        ? null
+        : selectedContext?.querySelector('[data-fitcheck-golden-path="cambium.fitcheck-golden-path.v1"]');
+      const fitcheckSceneTruth = sceneId === 'canopy' || (
+        Boolean(fitcheckReference)
+        && fitcheckReference.getAttribute('data-fitcheck-scene') === sceneId
+        && fitcheckReference.querySelector('[data-fitcheck-authority="packet-plan"]')
+        && fitcheckReference.textContent.includes('Supervised branch · not autonomous')
+        && !fitcheckReference.textContent.includes('autonomous branch · active')
+        && (sceneId !== 'mission' || fitcheckReference.textContent.includes('Qualified merchant demo · pending'))
+        && (sceneId !== 'flow' || (
+          fitcheckReference.querySelector('[data-fitcheck-stage="admitted"][data-fitcheck-stage-state="held"]')
+          && fitcheckReference.querySelector('[data-fitcheck-stage="executed"][data-fitcheck-stage-state="held"]')
+          && fitcheckReference.textContent.includes('signed Gate → D1 CAS')
+        ))
+        && (sceneId !== 'workforce' || fitcheckReference.textContent.includes('not live assignments'))
+        && (sceneId !== 'forge' || fitcheckReference.textContent.includes('never substitutes for a pinned loadout'))
+      );
       const organContext = sceneId === 'canopy'
         ? organPlan
         : root.querySelector('[data-organ-context="' + sceneId + '"][data-organ-active="none"]');
@@ -1275,11 +1293,13 @@ function operatingFabricAllScenesAssertion(width) {
           && tabLabelContained
           && targetsAtLeast44
           && selectionPersists
+          && fitcheckSceneTruth
           && organContextHonest,
         panelContained: Boolean(panelRect) && inViewport(panelRect),
         tabLabelContained,
         interactiveCount: interactiveTargets.length,
         selectionPersists,
+        fitcheckSceneTruth: Boolean(fitcheckSceneTruth),
         organContextHonest,
       };
     }

@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Issue mapping receipts and anchor the execution foldback loop"
-effort: E3
+task: "Restore the Fitcheck golden path across Telegram, Workbench, and doctrine"
+effort: E4
 effort_source: algorithm-classification
-phase: reflect
-progress: 995/1071
+phase: complete
+progress: 1051/1128
 mode: interactive
-iteration: 2026-08-09-portfolio-operational-anchors
+iteration: 2026-08-09-fitcheck-golden-path
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-09T03:53:04+05:30
+updated: 2026-08-09T04:58:22+05:30
 ---
 
 ## Problem
@@ -1425,6 +1425,66 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-1070: Anti: this iteration promotes a Sapling, invents a WorkObject/repository/loadout relation, or clears an evidence hold.
 - [x] ISC-1071: Anti: this iteration writes production R2, D1, Hermes, GitHub, Vault, registry, provider, traffic, or deployment state.
 
+### Fitcheck golden-path interface and doctrine synthesis
+
+- [x] ISC-1072: One shared contract identifies Fitcheck exactly as `sapling:fitcheck`.
+- [x] ISC-1073: The shared contract names `cambium` as canonical parent tenant.
+- [x] ISC-1074: Fitcheck aliases remain display-only across both interface projections.
+- [x] ISC-1075: The shared contract preserves Fitcheck's `supervised-branch` promotion state.
+- [x] ISC-1076: Packet evidence, runtime anchors, and receipt proof remain distinct.
+- [x] ISC-1077: Packet-derived content cites the canonical Fitcheck packet source path.
+- [x] ISC-1078: Runtime state appears only after exact canonical WorkObject matching.
+- [x] ISC-1079: Receipt-proven state appears only from authoritative immutable receipts.
+- [x] ISC-1080: Missing D1 anchors remain visible operational gaps, never positive state.
+- [x] ISC-1081: Shared contract parity fails when packet missions or gates drift.
+- [x] ISC-1082: Shared contract contains no secrets or machine-local absolute paths.
+- [x] ISC-1083: Telegram Canopy exposes a direct canonical Fitcheck focus control.
+- [x] ISC-1084: Fitcheck selection persists through all five operating-fabric scenes.
+- [x] ISC-1085: Telegram Mission renders Fitcheck story and packet mission controls.
+- [x] ISC-1086: Telegram Flow renders the single-change loop and foldback sequence.
+- [x] ISC-1087: Telegram Workforce renders owners without inventing live assignments.
+- [x] ISC-1088: Telegram Forge distinguishes packet routes from pinned runtime loadouts.
+- [x] ISC-1089: Telegram Gate renders blocked approvals without synthesizing actions.
+- [x] ISC-1090: Telegram Inspect renders source, identity, provenance, and anti-claims.
+- [x] ISC-1091: Every Fitcheck scene visibly labels its evidence authority level.
+- [x] ISC-1092: Telegram explicitly labels Fitcheck supervised and not autonomous.
+- [x] ISC-1093: Telegram renders both Fitcheck KPI control rows accurately.
+- [x] ISC-1094: Telegram shows Hermes foldback as proposed next-intent evidence only.
+- [x] ISC-1095: Workbench Fitcheck drawer includes a dedicated `Operate` view.
+- [x] ISC-1096: Non-Fitcheck drawers retain their existing four-tab interaction model.
+- [x] ISC-1097: Fitcheck Operate renders canonical identity and parent tenant.
+- [x] ISC-1098: Fitcheck Operate renders story, frontier, and anti-claims verbatim.
+- [x] ISC-1099: Fitcheck Operate renders every packet mission with gate and proof.
+- [x] ISC-1100: Fitcheck Operate renders both packet KPIs with current states.
+- [x] ISC-1101: Fitcheck Operate renders gate ledger statuses and required proofs.
+- [x] ISC-1102: Fitcheck Operate renders organ route and support rails distinctly.
+- [x] ISC-1103: Fitcheck Operate renders proof-foldback targets without claiming completion.
+- [x] ISC-1104: Workbench planning controls remain proposals outside Goal Graph authority.
+- [x] ISC-1105: Workbench never labels generic skill hints as assigned loadouts.
+- [x] ISC-1106: Fitcheck opens into Operate while other work opens Intake.
+- [x] ISC-1107: `ARCHITECTURE.md` describes current planes, authorities, and exact joins.
+- [x] ISC-1108: `INTEGRATION.md` distinguishes shipped rails from held live activation.
+- [x] ISC-1109: `INFINITE-GAME.md` describes the implemented iterative execution loop.
+- [x] ISC-1110: `HOMEOSTASIS.md` reconciles implemented I4 with remaining feedback gaps.
+- [x] ISC-1111: `ONBOARDING-OCTALYSIS.md` maps onboarding to current scene grammar.
+- [x] ISC-1112: Foundational documents use Fitcheck as one grounded worked trace.
+- [x] ISC-1113: Foundational documents distinguish doctrine, runtime, and historical plans.
+- [x] ISC-1114: Rendered documentation stays synchronized with Markdown sources.
+- [x] ISC-1115: Shared-contract and packet-parity tests exit successfully.
+- [x] ISC-1116: Focused Telegram portfolio and scene tests exit successfully.
+- [x] ISC-1117: Portfolio Cartographer test, lint, build, and smoke gates pass.
+- [x] ISC-1118: Telegram viewport proof validates Fitcheck across responsive scenes.
+- [ ] ISC-1119: Authenticated live UX review records observed production behavior accurately.
+- [x] ISC-1120: Full repository tests and release verification exit successfully.
+- [x] ISC-1121: Independent code audit finds no unresolved critical regressions.
+- [x] ISC-1122: A bounded handoff records implementation, evidence, and held boundaries.
+- [x] ISC-1123: Anti: packet fixtures are never presented as live merchant proof.
+- [x] ISC-1124: Anti: UI claims no Shopify approval, billing, or conversion lift.
+- [x] ISC-1125: Anti: this iteration changes no production, D1, R2, or Telegram state.
+- [x] ISC-1126: Anti: the Workbench becomes no second operational state writer.
+- [x] ISC-1127: Anti: browser login material is never inspected, stored, or recorded.
+- [x] ISC-1128: Anti: Fitcheck presentation does not imply Sapling promotion occurred.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1450,6 +1510,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-981..999 | Temperance Phase 2 live apply | exact approval, clean input commit, pre/post inodes and Git identity, local-state archive, atomic directory moves, empty container, unchanged root map, apply receipt, scoped/full tests, clean commit, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, SHA-256, `node`, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
 | ISC-1000..1035 | portfolio foundation reconciliation | derive counts and keys, validate referential integrity and digests, distinguish typed shared relationships from ambiguity, reject alias joins, reconcile active prose, run focused/full tests, and prove external/promotion boundaries held | deterministic Node audit/test, TypeScript catalog validators, `jq`, SHA-256, `rg`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-1036..1071 | mapping receipts and operational anchors | compile exact reviewed Batch 3 receipts, validate immutable replay, apply nullable D1 anchor migration locally, prove exact Mission Fabric edges and typed gaps, compile a terminal foldback preflight, run focused/full gates, and prove every external boundary stayed closed | deterministic Node tests, D1 migration/store tests, TypeScript, `jq`, SHA-256, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
+| ISC-1072..1128 | Fitcheck golden path | prove one packet-derived contract, two authority-honest UI projections, five reconciled doctrine documents, responsive browser behavior, full regression safety, and zero live mutation | packet-parity tests, Worker scene tests, Workbench checks, in-app browser observation, viewport proof, rendered-doc checks, independent review, `npm test`, `git diff --check` |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1854,7 +1915,14 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-08: The first all-portfolio root-header attempt exposed a partial-write hazard: Thoughtseed could be written before unrelated Tryambakam drift failed validation. The generator now validates every selected portfolio before writing and permits exact portfolio scoping; regression tests prove both properties.
 - 2026-08-08: Advisor preflight and post-deliverable review were unavailable because the local OAuth session expired and could not refresh. No substitute external mutation was attempted; deterministic repository, filesystem, digest, and boundary probes provide the completion evidence.
 
+- 2026-08-09 04:09: refined: Fitcheck is the single reference project for restoring the Telegram and Workbench execution experience; both surfaces consume one packet-derived read model while D1 and receipts remain the only operational and proof authorities.
+
 ## Changelog
+
+- 2026-08-09 | conjectured: restoring the planned Fitcheck UI meant presenting every mapped lifecycle stage as operationally ready
+  refuted by: exact catalog identity proves only identity parity, while admission requires a D1 WorkObject-to-task edge and execution, receipts, and foldback each retain separate authorities
+  learned: one shared packet-derived projection can make the loop legible across Workbench and Telegram without turning either interface into an operational writer
+  criterion now: ISC-1072..1128 bind exact Fitcheck identity, authority-honest lifecycle states, two responsive projections, five reconciled doctrine documents, independent browser and architecture review, and zero live mutation
 
 - 2026-08-09 | conjectured: a correct catalog and exact repository queue were sufficient to make the Workbench an executable control plane
   refuted by: the system still lacked durable mapping receipts, D1 WorkObject/loadout anchors, exact authority edges, and terminal Hermes foldback evidence
@@ -2024,6 +2092,14 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
 ## Verification
+
+- ISC-1072..1082 shared-contract proof — `shared/fitcheck-golden-path.ts` binds exact `sapling:fitcheck`, parent `cambium`, display-only aliases, supervised state, three packet missions, two KPIs, seven gates, organ/support routes, proof targets, and the one-change loop; parity tests reject packet drift and preserve the distinction between packet, D1, receipt, and foldback authority.
+- ISC-1083..1094 Telegram proof — all six operating scenes consume the Fitcheck projection; exact runtime identity and D1 task admission are separate predicates; missing admission, loadout, execution, and learning proof remains held; focused shared/scene tests pass 14/14 and the complete canonical viewport suite passes 47/47 with page digest `909fb8758ed8259b060b5be76949376b8d6916d71376ae2f0c4bbbf7158eea4f`.
+- ISC-1095..1106 Workbench proof — Fitcheck alone receives the five-tab model and default `Operate` view; exact identity, lifecycle, missions, KPIs, gates, organ routes, support rails, proof targets, and anti-claims render without mutation controls; other WorkObjects retain four tabs. Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, Vite build, deterministic bundle, audit, CSP, and smoke.
+- ISC-1107..1114 doctrine proof — the five requested root documents and `docs/architecture/fitcheck-golden-path.md` distinguish doctrine, local proof, production observation, held work, and retired plans; `render-docs:check` reports six synchronized pages and 91 components.
+- ISC-1115..1118,1120 release proof — independent real-browser QA passes desktop and 320/390/430 widths, exact ARIA tab relationships, arrow-key behavior, no body overflow, and no local browser errors; drift audit passes 4/4; full `npm test` passes 1603/1603; `git diff --check` passes.
+- ISC-1119 held production observation — the visible `curious.thoughtseed.space` tab reached Cloudflare Access rather than the product. No login material, cookies, storage, credentials, or session identifiers were inspected; authenticated production UX remains intentionally unclaimed.
+- ISC-1121..1128 review and boundary proof — the post-build Advisor returns APPROVE with no material blocker; `.project/HANDOFF.md` records the bounded checkpoint; no Sapling promotion, receipt issuance, D1/R2/Hermes/Telegram/GitHub/Vault/registry/provider/traffic/deployment, or physical-folder mutation occurred.
 
 - ISC-1036..1047 mapping-receipt proof — the deterministic compiler reproduces 38 unique receipts across 12 canonical WorkObjects at bundle digest `sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`; all four authority digests, immutable repository metadata, provenance splits, folderless contexts, replay, tamper rejection, and zero-write preparation validate.
 - ISC-1048..1053 Goal Graph proof — migration 0009 applies additively; compiler, identity, and store tests persist exact nullable WorkObject/kind/loadout anchors, reject invalid pairing and loadout identity, preserve legacy nodes, and retain approved CAS replay and stale-head behavior.

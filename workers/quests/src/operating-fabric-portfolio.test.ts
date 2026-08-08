@@ -326,20 +326,40 @@ test('selection contexts join only by exact canonical workId and expose unmapped
   const exactMission = renderPortfolioSceneContext('mission', PROJECTION, fitcheck);
   assert.match(exactMission, /data-portfolio-join="exact"/);
   assert.match(exactMission, /Mission Fabric identity exact match/);
+  assert.match(exactMission, /data-fitcheck-authority="packet-plan"/);
+  assert.match(exactMission, /Supervised branch · not autonomous/);
+  assert.match(exactMission, /fitcheck-shopify-qa/);
+  assert.match(exactMission, /Qualified merchant demo · pending/);
   assert.doesNotMatch(exactMission, /status|current state|ready|active/i);
 
-  assert.match(renderPortfolioSceneContext('flow', PROJECTION, fitcheck), /Idea → Proposal → Evidence/);
-  assert.match(renderPortfolioSceneContext('workforce', PROJECTION, fitcheck), /agent:fitcheck/);
+  const flow = renderPortfolioSceneContext('flow', PROJECTION, fitcheck);
+  assert.match(flow, /Idea → Proposal → Evidence/);
+  assert.match(flow, /data-fitcheck-stage="mapped" data-fitcheck-stage-state="evidenced"/);
+  assert.match(flow, /data-fitcheck-stage="admitted" data-fitcheck-stage-state="evidenced"/);
+  assert.match(flow, /D1 WorkObject admitted/);
+  assert.match(flow, /foldback → next-intent proposal → signed Gate → D1 CAS/);
+  const workforce = renderPortfolioSceneContext('workforce', PROJECTION, fitcheck);
+  assert.match(workforce, /agent:fitcheck/);
+  assert.match(workforce, /packet owners and dispatch targets · not live assignments/);
   const forge = renderPortfolioSceneContext('forge', PROJECTION, fitcheck);
   assert.match(forge, /cluster:fitcheck/);
   assert.match(forge, /loadout:fitcheck/);
+  assert.match(forge, /packet route · never substitutes for a pinned loadout/);
+  assert.match(forge, /Hermes<small>support · pending/);
   const inspect = renderPortfolioSceneContext('inspect', PROJECTION, fitcheck);
   assert.match(inspect, new RegExp(CATALOG.classificationDigest));
   assert.match(inspect, /vault:40-products\/fitcheck\/product-overview\.md/);
+  assert.match(inspect, /docs\/plans\/product-branches\/fitcheck\.md/);
+  assert.match(inspect, /Do not claim app-store approval/);
   assert.doesNotMatch(inspect, /never\/render|absolutePath/);
   const gate = renderPortfolioSceneContext('gate', PROJECTION, fitcheck);
   assert.match(gate, /read-only/);
-  assert.doesNotMatch(gate, /<button|data-action|approve/i);
+  assert.match(gate, /packet approval ledger · no Gate action synthesized/);
+  assert.match(gate, /data-fitcheck-gate-state="blocked"/);
+  assert.doesNotMatch(
+    gate,
+    /<button|data-action|data-signed-action|data-of-gate-entrypoint/i,
+  );
 
   const missingMission = renderPortfolioSceneContext('mission', PROJECTION, collision);
   assert.match(missingMission, /data-portfolio-join="missing"/);
@@ -349,6 +369,23 @@ test('selection contexts join only by exact canonical workId and expose unmapped
   assert.match(renderPortfolioSceneContext('forge', PROJECTION, collision), /loadout unmapped/);
   assert.equal(renderPortfolioSceneContext('canopy', PROJECTION, fitcheck), '');
   assert.equal(renderPortfolioSceneContext('unknown', PROJECTION, fitcheck), '');
+
+  const heldNormalized = normalizePortfolioPayload({
+    portfolioCatalog: CATALOG,
+    portfolioCatalogSummary: SUMMARY,
+    portfolioJoinReport: {
+      matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+    },
+  });
+  const heldFitcheck = heldNormalized.records.find((record) => record.canonicalId === 'sapling:fitcheck')!;
+  const identityOnlyProjection = structuredClone(PROJECTION) as unknown as MissionFabricProjectionV1;
+  identityOnlyProjection.edges = identityOnlyProjection.edges.filter(
+    (edge) => !(edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck' && edge.toId === 'task:fitcheck'),
+  );
+  const heldFlow = renderPortfolioSceneContext('flow', identityOnlyProjection, heldFitcheck);
+  assert.match(heldFlow, /data-portfolio-join="exact"/);
+  assert.match(heldFlow, /D1 admission held/);
+  assert.match(heldFlow, /data-fitcheck-stage="admitted" data-fitcheck-stage-state="held"/);
 });
 
 test('client rejects a legacy runtime workId even when a stale join report claims a match', () => {
@@ -420,6 +457,9 @@ test('boot consumes top-level catalog fields without weakening activation or nav
   assert.match(OPERATING_FABRIC_BOOT, /gateBody\.insertAdjacentHTML/);
   assert.doesNotMatch(OPERATING_FABRIC_BOOT, /gateBody\.innerHTML\s*\+=/);
   assert.match(PORTFOLIO_BROWSER_JS, /function ofNormalizePortfolioPayload/);
+  assert.match(PORTFOLIO_BROWSER_JS, /function ofRenderFitcheckReference/);
+  assert.match(PORTFOLIO_BROWSER_JS, /data-fitcheck-authority="packet-plan"/);
+  assert.match(PORTFOLIO_BROWSER_JS, /receipt proof absent/);
   assert.doesNotMatch(PORTFOLIO_BROWSER_JS, /\bimport\b|\bexport\b|\binterface\b|\btype\s+[A-Z]/);
   assert.equal([...OPERATING_FABRIC_SCENES.matchAll(/data-of-tab="/g)].length, 5);
 });

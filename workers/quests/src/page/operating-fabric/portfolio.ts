@@ -1,4 +1,5 @@
 import type { MissionFabricProjectionV1 } from '../../mission-fabric.ts';
+import { FITCHECK_GOLDEN_PATH } from '../../../../../shared/fitcheck-golden-path.ts';
 
 export type PortfolioZone = 'saplings' | 'clients' | 'programs' | 'review' | 'historical';
 export type PortfolioSceneContext = 'mission' | 'flow' | 'workforce' | 'forge' | 'inspect' | 'gate';
@@ -633,6 +634,22 @@ function scopedRuntimeIds(
   return ids;
 }
 
+function hasGoalGraphAdmission(
+  projection: MissionFabricProjectionV1,
+  record: PortfolioRecord,
+): boolean {
+  const runtimeWorkId = portfolioRuntimeWorkId(projection, record);
+  if (runtimeWorkId === null || !Array.isArray(projection.nodes) || !Array.isArray(projection.edges)) return false;
+  const taskIds = new Set(
+    projection.nodes
+      .filter((node) => node?.kind === 'task' && typeof node.value?.taskId === 'string')
+      .map((node) => node.value.taskId),
+  );
+  return projection.edges.some(
+    (edge) => edge?.kind === 'contains' && edge.fromId === runtimeWorkId && taskIds.has(edge.toId),
+  );
+}
+
 function explicitTargets(
   projection: MissionFabricProjectionV1,
   scopedIds: Set<string>,
@@ -647,6 +664,88 @@ function explicitTargets(
   )].sort();
 }
 
+function fitcheckReferenceMarkup(scene: PortfolioSceneContext, exact: boolean, admitted: boolean): string {
+  const fitcheck = FITCHECK_GOLDEN_PATH;
+  const authority = (
+    `<div class="of-fitcheck-authority" data-fitcheck-authority="packet-plan">` +
+    `<span class="of-badge">packet plan</span>` +
+    `<span class="of-badge ${admitted ? 'is-fresh' : 'is-unknown'}">${escapeHtml(admitted ? fitcheck.runtimeJoin.evidencedLabel : fitcheck.runtimeJoin.heldLabel)}</span>` +
+    `<span class="of-badge is-unknown">receipt proof absent</span>` +
+    `</div>`
+  );
+  let body = '';
+  if (scene === 'mission') {
+    body = (
+      `<p class="of-fitcheck-frontier">${escapeHtml(fitcheck.story.currentFrontier)}</p>` +
+      `<div class="of-fitcheck-rows">` +
+      fitcheck.missions.map((mission) => (
+        `<article><span>${escapeHtml(mission.type)}</span><code>${escapeHtml(mission.missionId)}</code>` +
+        `<strong>${escapeHtml(mission.title)}</strong>` +
+        `<small>${escapeHtml(mission.gate)} · ${escapeHtml(mission.proofRequired)}</small></article>`
+      )).join('') +
+      `</div>` +
+      `<div class="of-fitcheck-kpis">` +
+      fitcheck.kpis.map((kpi) => `<span>${escapeHtml(kpi.label)} · ${escapeHtml(kpi.currentState)}</span>`).join('') +
+      `</div>`
+    );
+  } else if (scene === 'flow') {
+    body = (
+      `<div class="of-fitcheck-ladder">` +
+      fitcheck.executionLadder.map((stage) => {
+        const evidenced = stage.current || (stage.stage === fitcheck.runtimeJoin.evidenceStage && admitted);
+        return (
+          `<span data-fitcheck-stage="${escapeHtml(stage.stage)}" data-fitcheck-stage-state="${evidenced ? 'evidenced' : 'held'}">` +
+          `${escapeHtml(stage.stage)}<small>${evidenced ? 'evidenced' : 'held'}</small></span>`
+        );
+      }).join('') +
+      `</div>` +
+      `<p class="of-fitcheck-loop"><strong>${escapeHtml(fitcheck.loop.title)}</strong><br>` +
+      `${escapeHtml(fitcheck.loop.oneChangeRule)}<br><small>foldback → next-intent proposal → signed Gate → D1 CAS</small></p>`
+    );
+  } else if (scene === 'workforce') {
+    body = (
+      `<p class="of-card-note">packet owners and dispatch targets · not live assignments</p>` +
+      `<div class="of-fitcheck-rows">` +
+      fitcheck.missions.map((mission) => (
+        `<article><span>${escapeHtml(mission.owner)}</span><strong>${escapeHtml(mission.title)}</strong>` +
+        `<small>${escapeHtml(mission.dispatchTarget)} · blocked by ${escapeHtml(mission.gate)}</small></article>`
+      )).join('') +
+      `</div>`
+    );
+  } else if (scene === 'forge') {
+    body = (
+      `<p class="of-card-note">packet route · never substitutes for a pinned loadout</p>` +
+      `<div class="of-fitcheck-organs">` +
+      fitcheck.organs.map((organ) => `<span>${escapeHtml(organ.name)}<small>${escapeHtml(organ.state)}</small></span>`).join('') +
+      fitcheck.supportRails.map((rail) => `<span class="is-support">${escapeHtml(rail.name)}<small>support · ${escapeHtml(rail.state)}</small></span>`).join('') +
+      `</div>`
+    );
+  } else if (scene === 'gate') {
+    body = (
+      `<p class="of-card-note">packet approval ledger · no Gate action synthesized</p>` +
+      `<div class="of-fitcheck-gates">` +
+      fitcheck.gates.map((gate) => (
+        `<article data-fitcheck-gate-state="${escapeHtml(gate.status)}"><strong>${escapeHtml(gate.gate)}</strong>` +
+        `<span>${escapeHtml(gate.status)}</span><small>${escapeHtml(gate.requiredProof)}</small></article>`
+      )).join('') +
+      `</div>`
+    );
+  } else {
+    body = (
+      `<dl class="of-card-facts">` +
+      `<div class="of-fact"><dt>packet</dt><dd>${escapeHtml(fitcheck.sources.packet)}</dd></div>` +
+      `<div class="of-fact"><dt>runtime</dt><dd>${escapeHtml(fitcheck.authority.runtime)}</dd></div>` +
+      `<div class="of-fact"><dt>proof</dt><dd>${escapeHtml(fitcheck.authority.proof)}</dd></div>` +
+      `</dl><p class="of-card-gap">${escapeHtml(fitcheck.story.antiClaims)}</p>`
+    );
+  }
+  return (
+    `<div class="of-fitcheck-reference" data-fitcheck-golden-path="${escapeHtml(fitcheck.schema)}" ` +
+    `data-fitcheck-scene="${scene}"><header><span>Fitcheck golden path</span>` +
+    `<strong>${escapeHtml(fitcheck.identity.autonomyLabel)}</strong></header>${authority}${body}</div>`
+  );
+}
+
 export function renderPortfolioSceneContext(
   scene: string,
   projection: MissionFabricProjectionV1,
@@ -655,6 +754,7 @@ export function renderPortfolioSceneContext(
   const allowed: PortfolioSceneContext[] = ['mission', 'flow', 'workforce', 'forge', 'inspect', 'gate'];
   if (!record || !allowed.includes(scene as PortfolioSceneContext)) return '';
   const exact = exactWorkNode(projection, record) !== null;
+  const admitted = exact && hasGoalGraphAdmission(projection, record);
   const scopedIds = scopedRuntimeIds(projection, record);
   const template = recordTemplate(record);
   let detail = '';
@@ -697,6 +797,9 @@ export function renderPortfolioSceneContext(
     `data-portfolio-join="${exact ? 'exact' : 'missing'}" aria-label="Selected portfolio context">` +
     `<strong>${escapeHtml(record.name)}</strong>` +
     `<p>${detail}</p>` +
+    (record.canonicalId === FITCHECK_GOLDEN_PATH.identity.workId
+      ? fitcheckReferenceMarkup(scene as PortfolioSceneContext, exact, admitted)
+      : '') +
     `</section>`
   );
 }
@@ -710,6 +813,7 @@ var OF_PORTFOLIO_TEMPLATES = {
   clients: 'Lead → Qualified outcome → Scope/proposal → Approval → Kickoff → Delivery → Acceptance → Handoff → close/renew/expand',
   programs: 'Proposed → Approved → Executing → Verifying → Complete/Retired'
 };
+var OF_FITCHECK_GOLDEN_PATH = ${JSON.stringify(FITCHECK_GOLDEN_PATH)};
 var OF_PORTFOLIO_PREVIEW_LIMIT = 2;
 var OF_PORTFOLIO_RECORD_LIMIT = 160;
 function ofPortfolioObject(value) {
@@ -1072,10 +1176,76 @@ function ofPortfolioTargets(projection, ids, kind) {
   }
   return result.sort();
 }
+function ofPortfolioGoalGraphAdmitted(projection, record) {
+  var runtimeWorkId = ofPortfolioRuntimeWorkId(projection, record);
+  if (!runtimeWorkId) return false;
+  var taskIds = Object.create(null);
+  var nodes = projection && Array.isArray(projection.nodes) ? projection.nodes : [];
+  for (var ni = 0; ni < nodes.length; ni += 1) {
+    var node = nodes[ni];
+    if (node && node.kind === 'task' && node.value && typeof node.value.taskId === 'string') taskIds[node.value.taskId] = true;
+  }
+  var edges = projection && Array.isArray(projection.edges) ? projection.edges : [];
+  for (var ei = 0; ei < edges.length; ei += 1) {
+    var edge = edges[ei];
+    if (edge && edge.kind === 'contains' && edge.fromId === runtimeWorkId && taskIds[edge.toId]) return true;
+  }
+  return false;
+}
+function ofRenderFitcheckReference(scene, exact, admitted) {
+  var fitcheck = OF_FITCHECK_GOLDEN_PATH;
+  var authority = '<div class="of-fitcheck-authority" data-fitcheck-authority="packet-plan">' +
+    '<span class="of-badge">packet plan</span><span class="of-badge ' + (admitted ? 'is-fresh' : 'is-unknown') + '">' +
+    ofEsc(admitted ? fitcheck.runtimeJoin.evidencedLabel : fitcheck.runtimeJoin.heldLabel) +
+    '</span><span class="of-badge is-unknown">receipt proof absent</span></div>';
+  var body = '';
+  if (scene === 'mission') {
+    body = '<p class="of-fitcheck-frontier">' + ofEsc(fitcheck.story.currentFrontier) + '</p><div class="of-fitcheck-rows">' +
+      fitcheck.missions.map(function (mission) {
+        return '<article><span>' + ofEsc(mission.type) + '</span><code>' + ofEsc(mission.missionId) + '</code><strong>' + ofEsc(mission.title) + '</strong><small>' +
+          ofEsc(mission.gate) + ' · ' + ofEsc(mission.proofRequired) + '</small></article>';
+      }).join('') + '</div><div class="of-fitcheck-kpis">' + fitcheck.kpis.map(function (kpi) {
+        return '<span>' + ofEsc(kpi.label) + ' · ' + ofEsc(kpi.currentState) + '</span>';
+      }).join('') + '</div>';
+  } else if (scene === 'flow') {
+    body = '<div class="of-fitcheck-ladder">' + fitcheck.executionLadder.map(function (stage) {
+      var evidenced = stage.current || (stage.stage === fitcheck.runtimeJoin.evidenceStage && admitted);
+      return '<span data-fitcheck-stage="' + ofEsc(stage.stage) + '" data-fitcheck-stage-state="' +
+        (evidenced ? 'evidenced' : 'held') + '">' + ofEsc(stage.stage) + '<small>' +
+        (evidenced ? 'evidenced' : 'held') + '</small></span>';
+    }).join('') + '</div><p class="of-fitcheck-loop"><strong>' + ofEsc(fitcheck.loop.title) + '</strong><br>' +
+      ofEsc(fitcheck.loop.oneChangeRule) + '<br><small>foldback → next-intent proposal → signed Gate → D1 CAS</small></p>';
+  } else if (scene === 'workforce') {
+    body = '<p class="of-card-note">packet owners and dispatch targets · not live assignments</p><div class="of-fitcheck-rows">' +
+      fitcheck.missions.map(function (mission) {
+        return '<article><span>' + ofEsc(mission.owner) + '</span><strong>' + ofEsc(mission.title) + '</strong><small>' +
+          ofEsc(mission.dispatchTarget) + ' · blocked by ' + ofEsc(mission.gate) + '</small></article>';
+      }).join('') + '</div>';
+  } else if (scene === 'forge') {
+    body = '<p class="of-card-note">packet route · never substitutes for a pinned loadout</p><div class="of-fitcheck-organs">' +
+      fitcheck.organs.map(function (organ) { return '<span>' + ofEsc(organ.name) + '<small>' + ofEsc(organ.state) + '</small></span>'; }).join('') +
+      fitcheck.supportRails.map(function (rail) { return '<span class="is-support">' + ofEsc(rail.name) + '<small>support · ' + ofEsc(rail.state) + '</small></span>'; }).join('') + '</div>';
+  } else if (scene === 'gate') {
+    body = '<p class="of-card-note">packet approval ledger · no Gate action synthesized</p><div class="of-fitcheck-gates">' +
+      fitcheck.gates.map(function (gate) {
+        return '<article data-fitcheck-gate-state="' + ofEsc(gate.status) + '"><strong>' + ofEsc(gate.gate) + '</strong><span>' +
+          ofEsc(gate.status) + '</span><small>' + ofEsc(gate.requiredProof) + '</small></article>';
+      }).join('') + '</div>';
+  } else {
+    body = '<dl class="of-card-facts"><div class="of-fact"><dt>packet</dt><dd>' + ofEsc(fitcheck.sources.packet) +
+      '</dd></div><div class="of-fact"><dt>runtime</dt><dd>' + ofEsc(fitcheck.authority.runtime) +
+      '</dd></div><div class="of-fact"><dt>proof</dt><dd>' + ofEsc(fitcheck.authority.proof) +
+      '</dd></div></dl><p class="of-card-gap">' + ofEsc(fitcheck.story.antiClaims) + '</p>';
+  }
+  return '<div class="of-fitcheck-reference" data-fitcheck-golden-path="' + ofEsc(fitcheck.schema) + '" data-fitcheck-scene="' +
+    scene + '"><header><span>Fitcheck golden path</span><strong>' + ofEsc(fitcheck.identity.autonomyLabel) + '</strong></header>' +
+    authority + body + '</div>';
+}
 function ofRenderPortfolioSceneContext(scene, projection, record) {
   var allowed = ['mission', 'flow', 'workforce', 'forge', 'inspect', 'gate'];
   if (!record || allowed.indexOf(scene) === -1) return '';
   var exact = !!ofPortfolioExactWork(projection, record);
+  var admitted = exact && ofPortfolioGoalGraphAdmitted(projection, record);
   var ids = ofPortfolioScopedIds(projection, record);
   var template = ofPortfolioTemplate(record);
   var detail = '';
@@ -1104,6 +1274,8 @@ function ofRenderPortfolioSceneContext(scene, projection, record) {
   }
   return '<section class="of-portfolio-context" data-portfolio-context="' + scene + '" data-portfolio-join="' +
     (exact ? 'exact' : 'missing') + '" aria-label="Selected portfolio context"><strong>' + ofEsc(record.name) +
-    '</strong><p>' + detail + '</p></section>';
+    '</strong><p>' + detail + '</p>' + (record.canonicalId === OF_FITCHECK_GOLDEN_PATH.identity.workId
+      ? ofRenderFitcheckReference(scene, exact, admitted)
+      : '') + '</section>';
 }
 `;

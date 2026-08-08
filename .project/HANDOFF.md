@@ -969,3 +969,51 @@ mutation has been performed by drafting this packet.
   or folder move occurred. Mapping-receipt issuance, the D1 migration/live
   canary, Sapling promotion, and quest deployment remain separate rollback-gated
   operations.
+
+### 2026-08-09 Fitcheck golden-path interface and doctrine checkpoint
+
+- Fitcheck is the single bounded reference trace for restoring the planned
+  Workbench and Telegram experience. Both projections consume
+  `shared/fitcheck-golden-path.ts`, whose exact operational identity is
+  `sapling:fitcheck`, parent tenant is `cambium`, and aliases `FitCheck` and
+  `getfitcheck` remain display-only.
+- The Workbench Fitcheck drawer now opens into a read-only `Operate` view with
+  exact identity, supervised-not-autonomous state, packet story, three missions,
+  two KPI targets, seven gates, five organs, Hermes and Garden support rails,
+  proof targets, and explicit anti-claims. Other WorkObjects retain their
+  existing four-tab model.
+- The Telegram operating fabric now carries the same Fitcheck projection across
+  Mission, Flow, Workforce, Forge, Gate, and Inspect. Exact catalog/runtime
+  identity is distinct from admission: `ADMITTED` becomes evidenced only when
+  the exact D1 WorkObject has a direct `contains` edge to a task. Pinned,
+  executed, and learned states retain independent held proof requirements.
+- `ARCHITECTURE.md`, `INTEGRATION.md`, `INFINITE-GAME.md`, `HOMEOSTASIS.md`, and
+  `ONBOARDING-OCTALYSIS.md` now distinguish doctrine, local proof, observed
+  production, held work, and retired plans. The detailed worked trace lives in
+  `docs/architecture/fitcheck-golden-path.md`.
+- Browser QA passed the local Workbench at desktop plus 320, 390, and 430 pixel
+  widths with no body overflow, console error, page error, or failed request.
+  Operate is the default selected tab, the five-tab model has correct ARIA
+  relationships and arrow-key behavior, and the Operate panel exposes no
+  execution, approval, or mutation controls.
+- The canonical Telegram viewport proof passes all 47 captures: 27 layout and
+  20 clickability cases. Its current page digest is
+  `909fb8758ed8259b060b5be76949376b8d6916d71376ae2f0c4bbbf7158eea4f`.
+  The Portfolio Cartographer check passes 70 active tests with one historical
+  skip plus lint, TypeScript, build, deterministic bundle, audit, CSP, and
+  smoke; full `npm test` passes 1603/1603; rendered docs, drift audit, and
+  `git diff --check` pass.
+- Independent post-build review approves the local checkpoint with no material
+  blockers. The authenticated production surface was not observed: the visible
+  `curious.thoughtseed.space` tab stopped at Cloudflare Access, and no login
+  material, cookies, storage, session identifiers, or credentials were
+  inspected or recorded.
+- The durable local commit subject is
+  `feat(cambium): add Fitcheck golden path`. This checkpoint does not promote a
+  Sapling, issue mapping receipts, apply the D1 migration, execute Hermes,
+  deploy quests, or mutate production, Telegram, R2, GitHub, Vault, registry,
+  provider, traffic, or physical project state.
+- Next gate: after an already-authorized founder browser session reaches the
+  product, record the authenticated production observation without widening
+  authority. Mapping-receipt issuance, live D1 anchors, the Hermes canary,
+  Sapling promotion, and quest deployment remain separately approved lanes.

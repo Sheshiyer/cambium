@@ -1,102 +1,95 @@
-# Integration roadmap — wiring the constellation
+# Integration roadmap — from mapped project to learning loop
 
-Cambium is the **composition layer** (the conductor-of-conductors). The organs stay separate repos;
-Cambium composes them as services along the pipeline in [`composition/CONTRACTS.md`](./composition/CONTRACTS.md).
-This file tracks the wires that take Cambium from *"composes in principle"* → *"runs a business
-end-to-end, on-brand, per tenant."*
+Cambium's next integration problem is no longer “can the organs be named and invoked?” It is “can one exact portfolio identity travel through planning, admission, skill selection, execution, evidence, and the next decision without changing meaning or gaining invented authority?”
 
-> **Status (2026-07-22):** the composition layer itself is **live** — `registry.json` (5 organs),
-> `composition/pipeline.json` (genesis→taste→build→ops + cortex), the contracts, and a zero-dep
-> conductor (`bin/compose.mjs`) can plan, validate, and run declared adapters behind spend gates.
-> **I1 (brand→GTM) and the bounded I2a/b/c invocation paths are shipped.** A separate Worker/runtime
-> plane now carries tenant, quest, lead, and review-only marketing contracts; that does not mean every
-> external organ is deployed as a continuously running service.
+Fitcheck is the reference project for answering that question. See the [golden-path contract](./docs/architecture/fitcheck-golden-path.md).
 
-## The composition layer (this is the home now)
+## Status vocabulary
 
-The composition layer remains the contract owner. The operational Worker and visual engine are maintained
-surfaces in this repository, while external organ repositories remain optional, separately governed adapters.
+Every integration statement uses one of five states:
 
-| Artifact | What it is |
+| State | Meaning |
 |---|---|
-| [`registry.json`](./registry.json) | the 5 organs — repo · role · entrypoint · tier (free/paid) |
-| [`composition/pipeline.json`](./composition/pipeline.json) | the ordered stages + the cross-cutting cortex |
-| [`composition/CONTRACTS.md`](./composition/CONTRACTS.md) | the stage I/O interfaces every wire implements against |
-| [`bin/compose.mjs`](./bin/compose.mjs) | the dry-run conductor — `compose plan <tenant>` / `compose validate` |
+| **Doctrine** | designed and bounded, but not implemented evidence |
+| **Local** | implemented and testable in this repository |
+| **Production** | deployed and observed through the governed production path |
+| **Held** | deliberately blocked pending named evidence or approval |
+| **Retired** | explicitly excluded; never silently revived |
 
-Run it: `node bin/compose.mjs plan acme`. Test it: `npm test` (or `node --test 'bin/*.test.mjs'`).
+“Local” is not “production.” A packet is not a task. A prepared receipt is not an applied receipt. A synthetic run is not a Hermes execution.
 
-### Desktop packaging boundary
+## The integration spine
 
-The R3F visual engine is packaged as a macOS-first Electron application without moving Worker
-authority into the client. Vite produces one relative-path renderer build; Electron loads that build
-through `cambium://app/` with context isolation, sandboxing, denied permissions, and no Node APIs in
-the renderer. The Worker URL remains a user-configured optional remote boundary, and no provider token
-is part of the renderer or packaged shell. Use `npm run desktop:dev` for local development and
-`npm run desktop:dist:mac:dir` for an unpacked macOS artifact; signing, notarization, and updates remain
-separately governed release concerns.
-
-### The invocation layer (I2 — live, fail-closed)
-
-`adapters.json` + `bin/lib/invoke.mjs` + `compose run` turn the *planned* stages into **calls the
-conductor actually makes** — gated on spend (constitution #4):
-
-| Artifact | Role |
-|---|---|
-| [`adapters.json`](./adapters.json) | per-organ invocation spec: `cmd` · `args` (with `{tenant}`/`{input}`) · `root_id` · `spend` (none/gated) |
-| [`bin/lib/invoke.mjs`](./bin/lib/invoke.mjs) | `resolveRoot` · `buildInvocation` (pure) · **`gateStage`** (the fail-closed gate) · `runStage` (injected runner — never spawns in tests) |
-| `compose run <tenant>` | dry-run prints the exact command per stage; **`--execute` spawns `spend: none` stages and ONLY approved spend-gated stages**; unapproved gated stages otherwise refuse (exit ≠ 0) |
-
-```
-node bin/compose.mjs run acme                       # dry-run — prints, spawns nothing
-node bin/compose.mjs run acme --stage genesis --execute --input /tmp/meristem-sidecar-proof
-                                                    # runs the no-spend Meristem Genesis shim
-node bin/compose.mjs run acme --execute             # runs no-spend stages; refuses unapproved spend-gated stages
-node bin/compose.mjs run acme --execute --approve taste   # the ONE path that spends (you, deliberately)
+```mermaid
+flowchart LR
+  A["Portfolio identity"] --> B["Reviewed packet"]
+  B --> C["D1 admission"]
+  C --> D["Skill/loadout pin"]
+  D --> E["Hermes execution"]
+  E --> F["Immutable receipt"]
+  F --> G["Foldback proposal"]
+  G -->|"signed Gate + D1 CAS"| C
 ```
 
-Roots resolve via `CAMBIUM_ORGAN_ROOTS` (JSON map override) → an adapter `local_dir` → the sibling-dir
-convention (the `local_dir`/env override matter on case-sensitive filesystems). `genesis` is now
-`spend: none`: Cambium runs the Meristem contract shim from the Cambium checkout and points it at an
-existing Meristem checkout. `taste` remains `spend: gated` because it embeds via the paid NIM, so paid
-work still requires explicit per-stage approval.
+| Stage | Contract | Fitcheck status | Exit proof |
+|---|---|---|---|
+| Map | exact canonical WorkObject plus typed provenance | **Local** | `sapling:fitcheck` resolves once; aliases stay non-authoritative |
+| Plan | reviewed branch packet with missions, KPIs, gates, and organ route | **Local** | packet validates and matches shared UI projection |
+| Admit | D1 task/node carries exact WorkObject anchor | **Held** | current graph version returns one exact Fitcheck anchor |
+| Pin | governed loadout is attached to the admitted task | **Held** | exact loadout identity and catalog state resolve without inference |
+| Execute | Hermes consumes one admitted directive | **Held** | single rollback-bounded canary returns a terminal result |
+| Preserve | immutable run and mapping evidence is written idempotently | **Held** | receipt digest, authority, subject, and source version verify |
+| Learn | terminal proof proposes the next bounded intent | **Local contract / held live proof** | `proves` and `informs-next-intent` reappear without direct mutation |
 
-**The pipeline hand-off (live).** `compose run` threads each stage's output → the next stage's `{input}`
-(`runPipeline`); a refused/gated stage breaks the chain (the next falls back to its `input_default`).
-Dry-run prints the declared contract flow `[idea → brand-dna → taste-brief → artifact → business]`. The
-**genesis** stage (`meristem-genesis-contract`, `spend: none`) and **hands** stage (`resolve-task`,
-`spend: none`) **run live with zero spend** —
-`compose run acme --stage build --execute --input examples/sample-tasks.md` executes a real organ
-end-to-end (exit 0). Flags: `--stage <id>` (one stage), `--input <value>` (seed stage 1). The full
-spend-bearing chain still needs `--approve` on gated stages such as `taste`.
+## What is integrated locally
 
-## Wires
+- The portfolio catalog and root map provide canonical WorkObject identities and explicit gaps.
+- Product packets carry canonical WorkObject IDs and validate index/file parity.
+- Mission Fabric is a deterministic, read-only projection over packet, Goal Graph, execution, skill, and portfolio facts.
+- The Workbench can reconcile portfolio provenance and prepare governed actions.
+- The Telegram Mini App can present Mission Fabric contexts and signed Gate entry points through the Worker boundary.
+- Goal Graph contracts use tenant scope, graph versions, approval digests, and compare-and-swap semantics.
+- Execution/foldback adapters preserve terminal evidence as proposals rather than direct operational writes.
+- The composition CLI can plan, validate, and invoke declared finite organ adapters behind spend gates.
 
-| # | Wire | From → To | State | Where |
-|---|---|---|---|---|
-| **I1** | brand-docs → GTM ICP | genesis brand-docs → `ops` (Explee) | ✅ **shipped** — [snow-gloves PR #4](https://github.com/Sheshiyer/snow-gloves-os/pull/4) | snow-gloves `004` |
-| **I2a** | genesis **as a service** | `idea` → `brand-dna` on demand | ✅ **wired** — Meristem is the active `adapters.genesis` implementation; `compose run` executes Cambium's no-spend Meristem contract shim and verifies the declared `brand_system`, `copy_system`, and `visual_system` groups | meristem ← Cambium shim |
-| **I2b** | hands **as a service** | `taste-brief` → `artifact` (resolve-task + ship-battery) | ✅ **wired** — resolve-task adapter (`spend: none`, **runs live**); the build *dispatch* is the gated extension, and it must consume / preserve `asset_plan`, `section_plan`, `interaction_plan`, `acceptance_checks` as structured variables | skill-clusters ← conductor |
-| **I2c** | taste **as a service** | `brand-dna` → `taste-brief` + on-brand verdict | 🟡 **wired (gated)** — `adapters.json` + `compose run`; spawn is `--approve`-gated, and the wiring should evolve to emit the documented variable contracts for downstream build / ops, not just an English brief | skill-clusters taste-resolve ← conductor |
-| **I3** | unify the NIM cortex | one aesthetic memory across all organs | 🟡 **interface shipped** — `bin/lib/cortex.mjs` (embed/search + variable-contract read/write + deviation write) behind an injectable transport; the why-handler writes through it; the real **CF Worker** (unifying `taste-nim` + `DESIGN_MEMORY_WORKER`) is the transport follow-up | cambium client + taste-nim Worker |
-| **I4** | **self-healing / homeostasis** | drift → classify error-vs-intent → reroll \| absorb → re-converge ([HOMEOSTASIS.md §12](./HOMEOSTASIS.md) · [tapestry](./docs/architecture.html) · [per-organ](./docs/organs.html)) | 🟢 **why-handler wired** — `verifyOutput` → `whyhandler.mjs` (classify/resolve/record) → ledger; `--intent <stage>` is the one-bit signal; the **cortex-write is stubbed** (deviations.jsonl) for **I3**. Today the runtime only checks JSON-shape drift for `json:*` outputs; full fail-closed variable-contract validation is planned for Task 3 / later work. | conductor + `whyhandler.mjs` + `AskUserQuestion` |
-| **B1** | name-validation gate | a name must be ownable before asset spend | ⏳ pending (Fitcheck lesson) | brandmint / skill-clusters |
-| **B2** | semantic visual-QA | gate renders on brief-match, not just palette | ⏳ pending (Fitcheck lesson) | skill-clusters reroll |
-| **B3** | reference-anchored campaigns | one brand character across the whole asset set | ⏳ pending (Fitcheck lesson) | skill-clusters / nanobanana |
+## The finite organ wires
 
-**I1** proved the pattern: a stage doesn't get crammed into snow-gloves — it stays its organ, and the
-wire is a thin contract (the Brief *is* the brand→GTM interface). **I2a/b/c** repeat that for genesis,
-the build hands, and the taste cortex: each becomes a callable service the conductor invokes, with wiring
-that should evolve to carry the canonical variable contracts forward as structured data. **I3** unifies
-the memory the paid tier is built on. **I4** currently catches `json:*` shape drift; fail-closed
-validation of required variable groups lands in Task 3 / later work. **B1–B3** are the engine lessons from
-the first real brand run
-([Fitcheck](https://github.com/Sheshiyer/skill-clusters/blob/main/docs/LESSONS-FITCHECK-RUN.md)).
+| Wire | From → To | State | Boundary |
+|---|---|---|---|
+| I1 · brand to GTM | genesis output → business/marketing context | **Local / external history exists** | no claim that every tenant is continuously deployed |
+| I2a · genesis | idea → brand system | **Local** | no-spend contract shim; source organ remains separately governed |
+| I2b · hands | admitted build brief → artifact | **Local** | dispatch beyond local resolver requires its own Gate |
+| I2c · taste | brand system → taste brief/verdict | **Local, spend-gated** | paid/provider execution requires explicit approval |
+| I3 · cortex | evidence → tenant-scoped retrieval/write contract | **Local interface** | hosted providers are adapters, not product identity |
+| I4 · why-handler | detected deviation → reroll or intent proposal | **Local seam** | current structural checks do not prove semantic contraction |
+| B1 · name validation | proposed name → ownability evidence | **Held** | Fitcheck lesson; no asset spend before evidence |
+| B2 · semantic visual QA | render → brief/claim match | **Held** | palette similarity alone is insufficient |
+| B3 · reference continuity | campaign set → coherent identity | **Held** | requires reference-anchored generation evidence |
 
-## Why not "wire everything into snow-gloves"
+## Surface integration
 
-snow-gloves is the **business-ops organ** (`will`) — C-suite + 61 business-advisory skills + GTM +
-multi-tenant. Its skills are *advisory/strategy*, **not** the 40 technical build clusters. Folding
-genesis + the hands + taste into it would overload its scope, duplicate skill-clusters' conductor, and
-collapse the self-similar separation. So the composition lives **here**, in Cambium; snow-gloves stays
-one organ that the `ops` stage resolves to.
+### Portfolio Workbench
+
+The Workbench owns project reconciliation and bounded proposal preparation. The Fitcheck Operate view now explains the canonical identity, packet missions, KPIs, organ route, gate ledger, six-stage lifecycle, and current missing anchors. Its job is to make the next safe action obvious without making the held stages look complete.
+
+### Telegram Mini App
+
+Mission, Flow, Workforce, Forge, Gate, and Inspect consume the same Fitcheck projection but answer different questions. Packet owners are shown as planning roles, not live assignees. Organ hints are shown as a candidate route, not a pinned loadout. Packet gates remain contextual until a real signed action exists.
+
+### Goal Graph and Hermes
+
+D1 owns operational intent. Hermes executes only an admitted, pinned directive. A terminal Hermes outcome may prove execution and inform the next intent, but cannot update the graph. The Worker's signed Gate and graph-head CAS are the only return path.
+
+## Next integration sequence
+
+1. Review the shared Fitcheck projection in both UIs against the authenticated live experience.
+2. Apply the operational-anchor migration through the separately governed D1 release path.
+3. Seed or read one exact `sapling:fitcheck` task and governed loadout pin.
+4. Issue the required mapping receipt with full root, classification, and catalog provenance.
+5. Run one execution-disabled Hermes canary using the reviewed preflight.
+6. Prove terminal evidence folds back as a proposal and requires a fresh Gate.
+7. Only then generalize the pattern to IVerif, DLOCK, or another Sapling.
+
+## Explicitly outside this document
+
+This roadmap does not authorize production deployment, D1/R2/GitHub writes, folder movement, skill promotion, Telegram topology changes, provider changes, paid execution, publication, outreach, or recurring schedules.

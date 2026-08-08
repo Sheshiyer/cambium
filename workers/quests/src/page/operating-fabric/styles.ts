@@ -81,6 +81,26 @@ export const OPERATING_FABRIC_STYLES = `<style>
 .of-portfolio-aliases{display:flex;flex-wrap:wrap;gap:.375rem}
 .of-portfolio-context{display:grid;gap:.375rem;margin-top:.75rem;padding:.75rem;border:1px dashed var(--line2);border-radius:var(--mc-radius-compact);color:var(--soft);font:11px/1.4 var(--mono)}
 .of-portfolio-context p{margin:0}
+.of-fitcheck-reference{display:grid;gap:.625rem;margin-top:.375rem;padding:.75rem;border:1px solid var(--line2);border-radius:var(--mc-radius);background:var(--glass)}
+.of-fitcheck-reference>header{display:grid;gap:.2rem}
+.of-fitcheck-reference>header>span{color:var(--accent);font:12px/1.2 var(--mono);font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.of-fitcheck-reference>header>strong{font-size:14px;color:var(--ink)}
+.of-fitcheck-authority{display:flex;flex-wrap:wrap;gap:.375rem}
+.of-fitcheck-frontier,.of-fitcheck-loop{padding:.625rem;border-left:2px solid var(--accent);color:var(--soft);font:13px/1.5 var(--mono)}
+.of-fitcheck-rows,.of-fitcheck-gates{display:grid;gap:.375rem}
+.of-fitcheck-rows article,.of-fitcheck-gates article{display:grid;gap:.25rem;padding:.625rem;border:1px solid var(--line);border-radius:var(--mc-radius-compact)}
+.of-fitcheck-rows article>span,.of-fitcheck-gates article>span{color:var(--warn);font:12px/1.2 var(--mono);text-transform:uppercase}
+.of-fitcheck-rows article>code{color:var(--soft);font:12px/1.3 var(--mono);overflow-wrap:anywhere}
+.of-fitcheck-rows article>strong,.of-fitcheck-gates article>strong{color:var(--ink);font-size:14px}
+.of-fitcheck-rows article>small,.of-fitcheck-gates article>small{color:var(--soft);font:12px/1.4 var(--mono)}
+.of-fitcheck-kpis,.of-fitcheck-organs{display:flex;flex-wrap:wrap;gap:.375rem}
+.of-fitcheck-kpis>span,.of-fitcheck-organs>span,.of-fitcheck-ladder>span{display:grid;gap:.2rem;padding:.5rem .625rem;border:1px solid var(--line);border-radius:var(--mc-radius-compact);color:var(--soft);font:12px/1.3 var(--mono)}
+.of-fitcheck-organs>span.is-support{border-style:dashed}
+.of-fitcheck-organs small,.of-fitcheck-ladder small{opacity:.64}
+.of-fitcheck-ladder{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.375rem}
+.of-fitcheck-ladder>span[data-fitcheck-stage-state="held"]{border-style:dashed;opacity:.7}
+.of-fitcheck-gates article{grid-template-columns:minmax(0,1fr) auto}
+.of-fitcheck-gates article>small{grid-column:1 / -1}
 .of-organ-plan{display:grid;gap:.625rem;margin-top:.75rem;padding:.75rem;border:1px solid var(--line);border-radius:var(--mc-radius);min-width:0}
 .of-organ-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;min-width:0}
 .of-organ-head h3{margin:.125rem 0 0;font-size:14px;color:var(--ink)}
@@ -104,6 +124,7 @@ export const OPERATING_FABRIC_STYLES = `<style>
   .of-portfolio-grid{grid-template-columns:1fr}
   .of-portfolio-card{padding:.625rem}
   .of-portfolio-lifecycle{font-size:10px}
+  .of-fitcheck-ladder{grid-template-columns:repeat(2,minmax(0,1fr))}
   .of-organ-head{align-items:stretch;flex-direction:column}
   .of-organ-grid{grid-template-columns:1fr}
 }

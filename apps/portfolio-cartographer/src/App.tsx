@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react'
+import { FITCHECK_GOLDEN_PATH } from '../../../shared/fitcheck-golden-path.ts'
 import {
   AlertTriangle,
   Archive,
@@ -105,7 +106,7 @@ const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v4'
 const V3_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v3'
 const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
-type DrawerTab = 'intake' | 'plan' | 'delivery' | 'closeout'
+type DrawerTab = 'operate' | 'intake' | 'plan' | 'delivery' | 'closeout'
 type ViewMode = 'family' | 'grid' | 'board'
 const PORTFOLIO_ACTION_ENDPOINT = '/v1/admin/portfolio/actions'
 type AdminActionState =
@@ -724,6 +725,125 @@ function HistoricalQueue() {
   )
 }
 
+function FitcheckOperate() {
+  const fitcheck = FITCHECK_GOLDEN_PATH
+  return (
+    <section className="drawer-section fitcheck-operate" data-fitcheck-golden-path={fitcheck.schema}>
+      <div className="fitcheck-hero">
+        <div>
+          <span>Golden path · packet plan</span>
+          <h3>{fitcheck.story.arcTitle}</h3>
+          <p>{fitcheck.story.currentFrontier}</p>
+        </div>
+        <strong>{fitcheck.identity.autonomyLabel}</strong>
+      </div>
+
+      <div className="fitcheck-authority" data-fitcheck-authority="packet-plan">
+        <ShieldCheck aria-hidden="true" />
+        <div>
+          <strong>Authority is visible at every step</strong>
+          <p>Mapped and planned are evidenced. D1 admission, a pinned loadout, execution, and learning remain held until their exact authorities exist.</p>
+        </div>
+      </div>
+
+      <ol className="fitcheck-ladder" aria-label="Fitcheck execution ladder">
+        {fitcheck.executionLadder.map((stage, index) => (
+          <li className={stage.current ? 'is-current' : 'is-held'} key={stage.stage}>
+            <i>{index + 1}</i>
+            <div><strong>{stage.stage}</strong><small>{stage.authority}</small></div>
+            <span>{stage.current ? 'evidenced' : 'held'}</span>
+          </li>
+        ))}
+      </ol>
+
+      <div className="fitcheck-story-grid">
+        <article><span>Vision</span><p>{fitcheck.story.vision}</p></article>
+        <article><span>ICP</span><p>{fitcheck.story.icp}</p></article>
+      </div>
+
+      <div className="fitcheck-section-head">
+        <div><span>Mission controls</span><h3>Three bounded next moves</h3></div>
+        <small>packet plan · not D1 tasks</small>
+      </div>
+      <div className="fitcheck-missions">
+        {fitcheck.missions.map((mission) => (
+          <article key={mission.missionId}>
+            <header><span>{mission.type}</span><code>{mission.missionId}</code></header>
+            <h4>{mission.title}</h4>
+            <dl>
+              <div><dt>Gate</dt><dd>{mission.gate}</dd></div>
+              <div><dt>Owner</dt><dd>{mission.owner}</dd></div>
+              <div><dt>Dispatch</dt><dd>{mission.dispatchTarget}</dd></div>
+              <div><dt>Proof</dt><dd>{mission.proofRequired}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+
+      <div className="fitcheck-section-head">
+        <div><span>Viability</span><h3>Survival before scale</h3></div>
+        <small>packet KPI controls</small>
+      </div>
+      <div className="fitcheck-kpis">
+        {fitcheck.kpis.map((kpi) => (
+          <article key={kpi.kpiId}>
+            <header><strong>{kpi.label}</strong><span>{kpi.currentState}</span></header>
+            <p><b>Survive</b>{kpi.survival}</p>
+            <p><b>Advance</b>{kpi.betterThanSurvival}</p>
+          </article>
+        ))}
+      </div>
+
+      <details className="fitcheck-disclosure" open>
+        <summary><span>Organ route</span><strong>5 organs · 2 support rails</strong></summary>
+        <div className="fitcheck-route">
+          {fitcheck.organs.map((organ) => (
+            <article key={organ.name}><b>{organ.name}</b><span>{organ.state}</span><p>{organ.role}</p><small>{organ.owner}</small></article>
+          ))}
+          {fitcheck.supportRails.map((rail) => (
+            <article className="is-support" key={rail.name}><b>{rail.name}</b><span>{rail.state}</span><p>{rail.role}</p><small>support rail · not an organ</small></article>
+          ))}
+        </div>
+      </details>
+
+      <details className="fitcheck-disclosure">
+        <summary><span>Gate ledger</span><strong>{fitcheck.gates.filter((gate) => gate.status === 'blocked').length} blocked</strong></summary>
+        <div className="fitcheck-gates">
+          {fitcheck.gates.map((gate) => (
+            <article key={gate.gate}><header><strong>{gate.gate}</strong><span>{gate.status}</span></header><p>{gate.requiredProof}</p></article>
+          ))}
+        </div>
+      </details>
+
+      <details className="fitcheck-disclosure">
+        <summary><span>Proof foldback</span><strong>future evidence</strong></summary>
+        <div className="fitcheck-proofs">
+          {fitcheck.proofs.map((proof) => (
+            <article key={proof.proofId}>
+              <code>{proof.proofId}</code>
+              <p><b>Validates</b>{proof.validates}</p>
+              <p><b>May unlock</b>{proof.promotes}</p>
+              <small>{proof.sourcePath}</small>
+            </article>
+          ))}
+        </div>
+      </details>
+
+      <div className="fitcheck-loop-card">
+        <header><span>One-change loop · {fitcheck.loop.boundaryColor}</span><strong>{fitcheck.loop.title}</strong></header>
+        <p>{fitcheck.loop.objective}</p>
+        <ol>{fitcheck.feedbackLoop.map((step) => <li key={step}>{step}</li>)}</ol>
+        <small>{fitcheck.loop.oneChangeRule}</small>
+      </div>
+
+      <div className="mapping-warning fitcheck-claim-boundary" role="note">
+        <AlertTriangle aria-hidden="true" />
+        <p>{fitcheck.story.antiClaims} Packet missions are not admitted Goal Graph tasks, and a planned Hermes route is not a dispatch receipt.</p>
+      </div>
+    </section>
+  )
+}
+
 function PlanDrawer({
   work,
   plan,
@@ -767,6 +887,9 @@ function PlanDrawer({
   const closeoutReady = closeoutReadiness(closeout)
   const terminalCloseout = isTerminalCloseout(closeout)
   const selectedRepository = repositoryEvidence.find((record) => record.sourceRef === reconciliation.repositorySourceRef)
+  const drawerTabs: readonly DrawerTab[] = work.workId === FITCHECK_GOLDEN_PATH.identity.workId
+    ? ['operate', 'intake', 'plan', 'delivery', 'closeout']
+    : ['intake', 'plan', 'delivery', 'closeout']
 
   useEffect(() => {
     closeRef.current?.focus()
@@ -819,6 +942,21 @@ function PlanDrawer({
     })
   }
 
+  function moveDrawerTab(event: ReactKeyboardEvent<HTMLButtonElement>, currentIndex: number) {
+    const lastIndex = drawerTabs.length - 1
+    let nextIndex: number | null = null
+    if (event.key === 'ArrowRight') nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1
+    if (event.key === 'ArrowLeft') nextIndex = currentIndex === 0 ? lastIndex : currentIndex - 1
+    if (event.key === 'Home') nextIndex = 0
+    if (event.key === 'End') nextIndex = lastIndex
+    if (nextIndex === null) return
+    event.preventDefault()
+    onTab(drawerTabs[nextIndex])
+    event.currentTarget.parentElement
+      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[nextIndex]
+      ?.focus()
+  }
+
   return (
     <aside className="plan-drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title">
       <header className="drawer-head">
@@ -833,21 +971,33 @@ function PlanDrawer({
         </button>
       </header>
 
-      <nav className="drawer-tabs" aria-label="Project detail views">
-        {(['intake', 'plan', 'delivery', 'closeout'] as const).map((drawerTab) => (
+      <nav className={drawerTabs.length === 5 ? 'drawer-tabs has-operate' : 'drawer-tabs'} aria-label="Project detail views" role="tablist">
+        {drawerTabs.map((drawerTab, tabIndex) => (
           <button
             type="button"
             key={drawerTab}
+            id={`drawer-tab-${drawerTab}`}
+            role="tab"
             className={tab === drawerTab ? 'is-active' : ''}
-            aria-current={tab === drawerTab ? 'page' : undefined}
+            aria-selected={tab === drawerTab}
+            aria-controls={`drawer-panel-${drawerTab}`}
+            tabIndex={tab === drawerTab ? 0 : -1}
             onClick={() => onTab(drawerTab)}
+            onKeyDown={(event) => moveDrawerTab(event, tabIndex)}
           >
             {label(drawerTab)}
           </button>
         ))}
       </nav>
 
-      <div className="drawer-body">
+      <div
+        className="drawer-body"
+        id={`drawer-panel-${tab}`}
+        role="tabpanel"
+        aria-labelledby={`drawer-tab-${tab}`}
+        tabIndex={0}
+      >
+        {tab === 'operate' && work.workId === FITCHECK_GOLDEN_PATH.identity.workId && <FitcheckOperate />}
         {tab === 'intake' && (
           <section className="drawer-section overview-section intake-section">
             <div className="intake-rule">
@@ -1240,7 +1390,9 @@ function App() {
   const [reconciliations, setReconciliations] = useState<Record<string, PortfolioReconciliation>>({ ...initial.reconciliations })
   const [closeouts, setCloseouts] = useState<Record<string, ProjectCloseout>>({ ...initial.closeouts })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
-  const [drawerTab, setDrawerTab] = useState<DrawerTab>('intake')
+  const [drawerTab, setDrawerTab] = useState<DrawerTab>(() => (
+    initial.focusedId === FITCHECK_GOLDEN_PATH.identity.workId ? 'operate' : 'intake'
+  ))
   const [projectCreationOpen, setProjectCreationOpen] = useState(false)
   const [projectCreation, setProjectCreation] = useState<ProjectCreationDraft>({ name: '', slug: '', origin: 'unknown', clientFamilyId: '' })
   const [activeView, setActiveView] = useState<SmartView>('all')
@@ -1472,9 +1624,9 @@ function App() {
     setNotice('Undid last bulk change · prior local plans restored')
   }
 
-  function openDrawer(id: string, tab: DrawerTab = 'intake') {
+  function openDrawer(id: string, tab?: DrawerTab) {
     setFocusedId(id)
-    setDrawerTab(tab)
+    setDrawerTab(tab ?? (id === FITCHECK_GOLDEN_PATH.identity.workId ? 'operate' : 'intake'))
   }
 
   function closeDrawer() {
