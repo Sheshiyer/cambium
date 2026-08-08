@@ -1,6 +1,6 @@
 # Temperance landing-page reconciliation evidence
 
-Status: Phase 2 preflight passed; no live filesystem apply is authorized.
+Status: Phase 2 reconciliation and live apply are complete and verified.
 
 ## Authority
 
@@ -54,12 +54,28 @@ It preserves the shallow tree intact, moves the nested untracked status file to
 a dedicated archive target, requires a clean Git authority, promotes that exact
 checkout, and preserves the empty `website` container.
 
-No operation above has been executed. The next gate requires this exact text:
+The founder supplied this exact text:
 
 `approve live apply phase 2 Temperance archive-first promote preserve website container`
 
+## Apply outcome
+
+The nested status file was moved first to its dedicated archive and retained
+SHA-256 `9ef2133d3e8a25ea9184ddc38f9d44979dbd03a9718d4c7e3a44b314d71ed9c3`.
+The nested authority then passed a clean-Git assertion. The shallow non-Git tree
+was moved intact to its archive with inode `30366279`, and the exact Git checkout
+was promoted into the shallow slot with inode `20463948`, origin
+`https://github.com/Sheshiyer/temperance_engine_landing_page.git`, branch `main`,
+and unchanged HEAD `488f8b7d945b7a8c07ce51a253e3f559149108e8`.
+
+The preserved `website` container retains inode `30575091` and is empty. Root
+membership remains 58/58 with the same accepted digest. The complete before,
+after, and rollback evidence is recorded in
+`docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json`.
+
 ## Boundaries
 
-No folder was moved, archived, created, deleted, or overwritten. No sensitive
-content, R2 object, GitHub state, registry row, Goal Graph row, provider setting,
-production deployment, Symphonics state, or `thoughtseed-labs` state changed.
+Only the exact approved archive directory and moves were performed. No content
+was deleted, overwritten, or merged. No sensitive content was inspected. No R2
+object, GitHub state, registry row, Goal Graph row, provider setting, production
+deployment, Symphonics state, or `thoughtseed-labs` state changed.

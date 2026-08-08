@@ -3,9 +3,10 @@
   "manifestId": "2026-08-08-thoughtseed-physical-lane",
   "capturedDate": "2026-08-08",
   "portfolioId": "thoughtseed",
-  "status": "phase-1-applied-phase-2-preflight-ready",
+  "status": "phase-1-and-phase-2-applied-phase-3-held",
   "preflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json",
   "phase1ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json",
+  "phase2ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json",
   "applyAuthorization": {
     "sourceControlledProposal": true,
     "cleanupDriftIgnoredByFounder": true,
@@ -13,7 +14,8 @@
     "liveApplyApproved": true,
     "phase1ApprovalConsumed": true,
     "phase2ReconciliationApproved": true,
-    "phase2LiveApplyApproved": false,
+    "phase2LiveApplyApproved": true,
+    "phase2ApprovalConsumed": true,
     "filesystemMutationAuthorized": false,
     "r2WriteAuthorized": false,
     "githubMutationAuthorized": false,
@@ -140,12 +142,13 @@
     {
       "phaseId": "phase-2-temperance-landing-page-promote-authority",
       "order": 2,
-      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
-      "liveApplyReady": true,
+      "status": "applied-verified",
+      "liveApplyReady": false,
       "decision": "archive-first-promote-preserve-website-container",
       "workObjectId": "program:temperance-hermes",
       "repositoryIdentity": "Sheshiyer/temperance_engine_landing_page",
       "preflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json",
+      "applyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json",
       "requiredApprovalText": "approve live apply phase 2 Temperance archive-first promote preserve website container",
       "observations": {
         "canonicalSlot": {
@@ -202,6 +205,32 @@
           "disposition": "infrastructure"
         }
       ],
+      "postApplyObservations": {
+        "canonicalSlot": {
+          "path": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+          "gitIdentity": "exact-root",
+          "remote": "https://github.com/Sheshiyer/temperance_engine_landing_page.git",
+          "branch": "main",
+          "head": "488f8b7d945b7a8c07ce51a253e3f559149108e8",
+          "inode": "20463948",
+          "workingTree": "clean"
+        },
+        "archivedShallowState": {
+          "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-pre-git-copy",
+          "inode": "30366279",
+          "disposition": "preserved-recoverable"
+        },
+        "archivedNestedLocalState": {
+          "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state",
+          "statusFileSha256": "9ef2133d3e8a25ea9184ddc38f9d44979dbd03a9718d4c7e3a44b314d71ed9c3"
+        },
+        "websiteContainer": {
+          "path": "$PROJECTS_ROOT/thoughtseed/website",
+          "inode": "30575091",
+          "children": []
+        },
+        "rootMapDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe"
+      },
       "mustNotDo": [
         "promote nested Git state before local-only artifacts are preserved",
         "copy the shallow .gitignore over the tracked authority policy during relocation",
@@ -229,6 +258,7 @@
     "sourceControlledOnly": false,
     "filesystemMutationPerformed": true,
     "phase1ApplyVerified": true,
+    "phase2ApplyVerified": true,
     "r2WritePerformed": false,
     "githubMutationPerformed": false,
     "productionDeployPerformed": false
