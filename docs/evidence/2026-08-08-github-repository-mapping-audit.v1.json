@@ -1,0 +1,300 @@
+{
+  "schema": "thoughtseed.github-repository-mapping-audit.v1",
+  "capturedDate": "2026-08-08",
+  "status": "read-only-review-evidence",
+  "scope": {
+    "authenticatedAccount": "Sheshiyer",
+    "explicitOwnersReviewed": [
+      "Sheshiyer",
+      "thoughtseedlabs",
+      "thoughtseed-labs"
+    ],
+    "portfolio": "thoughtseed",
+    "portfolioRootGrammar": "$PROJECTS_ROOT/thoughtseed/<repository>",
+    "catalogAuthority": "apps/portfolio-cartographer/src/portfolio-catalog-data.ts",
+    "rootMapAuthority": "docs/project-management/portfolio-roots.v1.json",
+    "priorPhysicalGapSettlement": "docs/project-management/project-r2-mapping-proposals.v1.json"
+  },
+  "sourceCommands": [
+    "gh auth status",
+    "gh repo list Sheshiyer --limit 1000 --json nameWithOwner,url,isPrivate,isFork,defaultBranchRef,pushedAt,description,owner",
+    "gh repo list thoughtseedlabs --limit 1000 --json nameWithOwner,url,isPrivate,isFork,defaultBranchRef,pushedAt,description,owner",
+    "gh repo list thoughtseed-labs --limit 1000 --json nameWithOwner,url,isPrivate,isFork,defaultBranchRef,pushedAt,description,owner",
+    "gh api --paginate /user/repos?per_page=100&affiliation=owner,collaborator,organization_member"
+  ],
+  "guardrails": [
+    "No GitHub issues, projects, labels, milestones, or repository settings were mutated.",
+    "No folder was moved, copied, nested, archived, deleted, or rewritten.",
+    "No R2 object, D1 Goal Graph row, registry row, provider setting, or production deployment was changed.",
+    "The complete private repository inventory is intentionally not committed; this artifact records bounded counts and candidate groups only.",
+    "Only Thoughtseed-originated ventures may become Saplings; client-originated work remains Client Branch even when new.",
+    "R2 remains immutable/idempotent evidence and durability, not live workflow authority."
+  ],
+  "counts": {
+    "affiliatedRepoCount": 303,
+    "explicitOwnersRepoCount": 259,
+    "combinedUniqueRepoCount": 312,
+    "mappedByCurrentEvidenceOrLocalCheckout": 27,
+    "unmappedCombined": 285,
+    "sourceNonForkUnmappedCombined": 268,
+    "explicitOwnersMapped": 27,
+    "explicitOwnersUnmapped": 232,
+    "explicitOwnersSourceUnmapped": 221,
+    "explicitOwnersForkUnmapped": 11,
+    "sourceUnmappedPushedSince2025": 204,
+    "thoughtseedOrgUnmapped": 20,
+    "localGithubCheckoutsObserved": 15,
+    "localGitCheckoutsObserved": 17,
+    "rootMapDanglingWorkIds": 1
+  },
+  "unmappedByOwner": {
+    "Sheshiyer": 212,
+    "thoughtseed-labs": 11,
+    "thoughtseedlabs": 9,
+    "Valoreventures": 6,
+    "pineappleinnovationlabs": 5,
+    "chazingpurple": 4,
+    "thoughtseed": 4,
+    "wholydrops": 4,
+    "youblockio": 4,
+    "psychon7": 3,
+    "Heyzack-ai": 2,
+    "MycobiomeLabs": 2,
+    "Pavun57": 2,
+    "realmetanft": 2,
+    "alphatreefund": 1,
+    "AXTECH-Shop": 1,
+    "brightmeio": 1,
+    "crowdbotics-apps": 1,
+    "dosafinance": 1,
+    "HeyZack-Domotique": 1,
+    "iampankajk": 1,
+    "magusarcanum39": 1,
+    "maximumprotocol": 1,
+    "Raheman-08": 1,
+    "Restofmyfamily": 1,
+    "Safeverse": 1,
+    "sol-occultus": 1,
+    "w3ragency": 1,
+    "youblock-io": 1
+  },
+  "rootMapDanglingWorkIds": [
+    {
+      "portfolioId": "thoughtseed",
+      "folder": "virtualtryon-3d",
+      "workId": "sapling:virtualtryon",
+      "problem": "root-map references a WorkObject id that is not present in the current portfolio catalog",
+      "safeDisposition": "needs-review until founder confirms Thoughtseed-originated Sapling versus client branch or historical evidence",
+      "candidateRepository": "Sheshiyer/virtualtryon"
+    }
+  ],
+  "thoughtseedOrgUnmappedRepos": [
+    {
+      "nameWithOwner": "thoughtseed-labs/Breathspectrum",
+      "isFork": false,
+      "pushedAt": "2020-10-05T14:53:42Z",
+      "suggestedDisposition": "historical-product-or-research-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/DeepAR-Unity",
+      "isFork": false,
+      "pushedAt": "2020-10-05T14:49:44Z",
+      "suggestedDisposition": "historical-product-or-research-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/DezinerAI",
+      "isFork": false,
+      "pushedAt": "2025-12-04T06:48:17Z",
+      "suggestedDisposition": "needs-review-active-or-historical"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/faceananlysisbeta",
+      "isFork": false,
+      "pushedAt": "2020-10-05T15:00:14Z",
+      "suggestedDisposition": "historical-product-or-research-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/JetScan",
+      "isFork": true,
+      "pushedAt": "2020-10-07T16:38:50Z",
+      "suggestedDisposition": "external-fork-reference-only"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/lockwell-portal",
+      "isFork": false,
+      "pushedAt": "2025-09-29T12:52:14Z",
+      "suggestedDisposition": "needs-review-active-or-client-branch"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/material_dump",
+      "isFork": false,
+      "pushedAt": "2020-05-21T22:54:49Z",
+      "suggestedDisposition": "archive-reference-only"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/museVR",
+      "isFork": false,
+      "pushedAt": "2021-07-08T17:34:38Z",
+      "suggestedDisposition": "historical-product-or-research-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/Sense.Play",
+      "isFork": false,
+      "pushedAt": "2021-03-09T21:01:57Z",
+      "suggestedDisposition": "historical-product:senseplay"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/TrueRNG-CMOS-Noise",
+      "isFork": false,
+      "pushedAt": "2020-10-05T15:21:47Z",
+      "suggestedDisposition": "historical-product-or-research-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseed-labs/Unity-Biosensors",
+      "isFork": false,
+      "pushedAt": "2020-10-05T14:51:50Z",
+      "suggestedDisposition": "historical-product-or-research-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/AR-Video-Player",
+      "isFork": true,
+      "pushedAt": "2022-01-31T11:43:20Z",
+      "suggestedDisposition": "external-fork-reference-only"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/asm_test",
+      "isFork": false,
+      "pushedAt": "2021-09-22T16:21:49Z",
+      "suggestedDisposition": "archive-reference-only"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/didactic-octo-carnival",
+      "isFork": false,
+      "pushedAt": "2021-10-02T21:41:49Z",
+      "suggestedDisposition": "historical-or-experiment-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/metaplex",
+      "isFork": true,
+      "pushedAt": "2021-10-12T06:15:59Z",
+      "suggestedDisposition": "external-fork-reference-only"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/Senselpay_Firmware",
+      "isFork": false,
+      "pushedAt": "2021-12-16T11:14:13Z",
+      "suggestedDisposition": "historical-product:senseplay"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/senseplay_dashboard_v0.01",
+      "isFork": false,
+      "pushedAt": "2021-10-11T21:41:15Z",
+      "suggestedDisposition": "historical-product:senseplay"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/solana-metaverse-test",
+      "isFork": false,
+      "pushedAt": "2021-09-24T17:31:00Z",
+      "suggestedDisposition": "historical-or-experiment-evidence"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/tomBTfirmware",
+      "isFork": false,
+      "pushedAt": "2022-02-24T07:17:26Z",
+      "suggestedDisposition": "historical-product:senseplay"
+    },
+    {
+      "nameWithOwner": "thoughtseedlabs/Vibrasonix-Website",
+      "isFork": true,
+      "pushedAt": "2022-09-29T10:19:58Z",
+      "suggestedDisposition": "historical-product:vibrasonix-or-fork-reference"
+    }
+  ],
+  "proposedBatches": [
+    {
+      "batchId": "github-batch-001-thoughtseed-org-history",
+      "status": "founder-review",
+      "goal": "Attach visible thoughtseedlabs/thoughtseed-labs repositories as historical, archived, or needs-review evidence instead of leaving them invisible.",
+      "defaultAction": "create repository-evidence receipts only; do not make active workflow rows unless founder confirms active work",
+      "candidateWorkIds": [
+        "historical-product:senseplay",
+        "sapling:vibrasonix",
+        "program:thoughtseed-vault"
+      ]
+    },
+    {
+      "batchId": "github-batch-002-client-branch-clusters",
+      "status": "founder-review",
+      "goal": "Attach client-originated repositories to existing Client Branch rows using repository-local planning as authority.",
+      "defaultAction": "map as Client Branch evidence; never promote to Sapling from newness alone",
+      "clientFamilies": [
+        "heyzack",
+        "tirak",
+        "valore-ventures",
+        "co-property",
+        "newsense",
+        "kacima",
+        "valmark",
+        "earthy-munchy",
+        "symphonics",
+        "ashwin-sheth-group"
+      ]
+    },
+    {
+      "batchId": "github-batch-003-sapling-provenance",
+      "status": "founder-review",
+      "goal": "Attach Thoughtseed-originated product repositories to existing Saplings or mark them needs-review where origin is ambiguous.",
+      "directSaplingCandidates": [
+        "sapling:10869-space",
+        "sapling:effort-glyph",
+        "sapling:fmrl",
+        "sapling:iverif",
+        "sapling:vantyx",
+        "sapling:vibrasonix",
+        "sapling:wanderfruit",
+        "sapling:whspr"
+      ],
+      "holdForFounderReview": [
+        "klear-karma",
+        "kristudios",
+        "parkarea",
+        "tirak"
+      ]
+    },
+    {
+      "batchId": "github-batch-004-internal-programs-and-vault",
+      "status": "founder-review",
+      "goal": "Attach company infrastructure and internal programs to existing program rows without treating vault sync as active WorkObject movement.",
+      "candidateWorkIds": [
+        "program:thoughtseed-vault",
+        "program:company-website",
+        "program:temperance-hermes",
+        "program:skill-clusters",
+        "program:engineering-orchestration",
+        "program:operator-utilities"
+      ]
+    },
+    {
+      "batchId": "github-batch-005-root-map-catalog-repair",
+      "status": "founder-review",
+      "goal": "Resolve root-map references that cannot be executed safely because the current catalog lacks the named WorkObject.",
+      "candidateRepairs": [
+        {
+          "folder": "virtualtryon-3d",
+          "currentWorkId": "sapling:virtualtryon",
+          "recommendedFirstStep": "move to needs-review or add a catalog WorkObject only after founder confirms Thoughtseed origin and current lifecycle",
+          "candidateRepository": "Sheshiyer/virtualtryon"
+        }
+      ]
+    }
+  ],
+  "nextExecutionGate": {
+    "requiredBeforeMutations": [
+      "Founder approves one batch at a time.",
+      "Each approved repository is resolved by immutable GitHub id where available.",
+      "Workbench action payload includes catalog digest, root-map digest, WorkObject id, repository identity, lifecycle, and R2 evidence prefix.",
+      "Client-originated candidates are blocked from Sapling promotion unless founder explicitly reclassifies origin.",
+      "Each close/completed candidate must include handoff, receipt, memory projection, and finished-index delta before leaving active workflow."
+    ]
+  }
+}
