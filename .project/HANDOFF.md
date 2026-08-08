@@ -112,6 +112,26 @@
   Vault/R2 copy, GitHub issue, production Worker, Goal Graph, provider,
   canonical registry, or deployment state was mutated by this checkpoint.
 
+### 2026-08-08 closeout discoverability production follow-up
+
+- Branch: `codex/portfolio-closeout-discoverability`, after PR #300 production
+  promotion.
+- Production browser readback proved the closeout workflow was present in the
+  shipped bundle, but founder-visible affordances were too hidden: `Closeout`
+  appeared only inside focused detail and `Completed / Closed` did not read as
+  project archive / finished work.
+- The Workbench now labels the terminal smart view as
+  `Project Archive / Finished Work`, labels the drawer tab as
+  `Finish / Closeout`, and shows a visible `Finish / close work` action on each
+  active WorkObject card. That action opens the existing receipt-backed
+  closeout drawer; it does not bypass handoff, R2 manifest, memory, active-index,
+  downstream-flow, or server-action readiness gates.
+- Verification: `pnpm --dir apps/portfolio-cartographer check` passed 49 active
+  tests with one historical skip, lint, build, bundle, standalone audit, CSP
+  smoke, and hosted artifact smoke. Generated hosted artifact is 359,330 bytes,
+  SHA-256 `d46076f15da758ccba7ab3edb863000a48b5057296079ae7550730c4e941ebea`,
+  and the generated Worker embed was refreshed from that bundle.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.

@@ -1043,6 +1043,7 @@ code {
 }
 
 .work-card-actions > span {
+  flex: 1 1 auto;
   overflow: hidden;
   color: var(--faint);
   font-size: 8px;
@@ -1067,6 +1068,19 @@ code {
 .quick-action:hover {
   color: var(--lime);
   border-color: var(--lime-dark);
+}
+
+.finish-action {
+  color: var(--amber);
+  border-color: rgb(255 196 99 / 28%);
+  background: rgb(255 196 99 / 6%);
+  white-space: nowrap;
+}
+
+.finish-action:hover {
+  color: var(--ink);
+  border-color: var(--amber);
+  background: rgb(255 196 99 / 14%);
 }
 
 .horizon-board {

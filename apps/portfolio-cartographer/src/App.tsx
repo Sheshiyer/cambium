@@ -161,7 +161,8 @@ interface LocalLoad extends WorkbenchState {
 
 function label(value: string): string {
   if (value === 'this-year') return 'This year'
-  if (value === 'completed-closed') return 'Completed / Closed'
+  if (value === 'completed-closed') return 'Project Archive / Finished Work'
+  if (value === 'closeout') return 'Finish / Closeout'
   return value.replaceAll('-', ' ').replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
@@ -348,6 +349,7 @@ function WorkCard({
   bulkSelected,
   onBulkToggle,
   onFocus,
+  onCloseout,
   onQuickSignal,
   unplannedTriage,
   reconciliation,
@@ -359,6 +361,7 @@ function WorkCard({
   bulkSelected: boolean
   onBulkToggle: () => void
   onFocus: () => void
+  onCloseout: () => void
   onQuickSignal: (signal: PortfolioSignal) => void
   unplannedTriage: boolean
   reconciliation?: PortfolioReconciliation
@@ -458,6 +461,11 @@ function WorkCard({
         {terminalCloseout && (
           <button type="button" className="quick-action intake-locked" onClick={onFocus} aria-label={`Open ${work.name} closeout`}>
             <Archive aria-hidden="true" /> Closeout
+          </button>
+        )}
+        {!terminalCloseout && (
+          <button type="button" className="quick-action finish-action" onClick={onCloseout} aria-label={`Finish, close, or archive ${work.name}`}>
+            <Archive aria-hidden="true" /> Finish / close work
           </button>
         )}
         {!terminalCloseout && !unplannedTriage && planningLocked && (
@@ -1452,9 +1460,9 @@ function App() {
     setNotice('Undid last bulk change · prior local plans restored')
   }
 
-  function openDrawer(id: string) {
+  function openDrawer(id: string, tab: DrawerTab = 'intake') {
     setFocusedId(id)
-    setDrawerTab('intake')
+    setDrawerTab(tab)
   }
 
   function closeDrawer() {
@@ -1623,6 +1631,7 @@ function App() {
         bulkSelected={bulkSelected.has(work.workId)}
         onBulkToggle={() => toggleBulk(work.workId)}
         onFocus={() => openDrawer(work.workId)}
+        onCloseout={() => openDrawer(work.workId, 'closeout')}
         onQuickSignal={(signal) => {
           updatePlan(work.workId, { signal })
           setNotice(`${work.name} · ${label(signal)} draft plan`)
@@ -1704,7 +1713,7 @@ function App() {
                 : activeView === 'historical'
                   ? 'Preserved product history stays separate from live WorkObjects.'
                   : activeView === 'completed-closed'
-                    ? 'Terminal closeout records stay searchable, but leave active planning lanes.'
+                    ? 'Project archive and finished-work receipts stay searchable, but leave active planning lanes.'
                     : activeView === 'needs-review'
                       ? 'Resolve uncertain identity and commercial boundaries before admission.'
                       : `A computed view of ${label(activeView).toLowerCase()} portfolio signals.`}

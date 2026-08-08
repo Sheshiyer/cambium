@@ -772,10 +772,14 @@ test('active Workbench is Thoughtseed-only and exposes governed project birth', 
   assert.doesNotMatch(source, /name="(?:path|destination)"/)
 })
 
-test('active Workbench exposes terminal closeout controls and hides them behind receipts', async () => {
+test('active Workbench exposes visible finish/archive controls backed by closeout receipts', async () => {
   const source = await readFile(new URL('./App.tsx', import.meta.url), 'utf8')
   const styles = await readFile(new URL('./index.css', import.meta.url), 'utf8')
   assert.match(source, /Completed \/ Closed/)
+  assert.match(source, /Project Archive \/ Finished Work/)
+  assert.match(source, /Finish \/ close work/)
+  assert.match(source, /Finish \/ Closeout/)
+  assert.match(source, /openDrawer\(work\.workId, 'closeout'\)/)
   assert.match(source, /Closeout/)
   assert.match(source, /Save closeout & move from active workflow/)
   assert.match(source, /kind: 'close-work-object'/)
@@ -786,6 +790,7 @@ test('active Workbench exposes terminal closeout controls and hides them behind 
   assert.match(source, /Downstream active flows stopped or transferred/)
   assert.match(source, /setActiveView\('completed-closed'\)/)
   assert.doesNotMatch(source, /Start project ingestion/)
+  assert.match(styles, /\.finish-action \{/)
   assert.match(styles, /\.drawer-tabs \{[\s\S]*?grid-template-columns: repeat\(4, minmax\(0, 1fr\)\);/)
 })
 
