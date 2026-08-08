@@ -162,6 +162,52 @@
   provider setting change, Goal Graph write, production deployment, or GitHub
   issue mutation was performed by this checkpoint.
 
+### 2026-08-08 project/R2 mapping first-batch evidence checkpoint
+
+- Executed Tasks 1–3 from
+  `docs/plans/2026-08-08-project-r2-mapping-execution.md` only, then stopped at
+  the plan's founder feedback gate.
+- Active checkout proof: branch `codex/project-r2-mapping-plan`, remote
+  `https://github.com/Sheshiyer/cambium.git`, local HEAD
+  `7578696d4f5a26772d696a46068f9cc45a151fa0`, and GitHub `main` HEAD
+  `9de273ebf4aefa24f037a0c87bf3194500066e67`.
+- Production Worker proof: `cambium-quests` newest deployment is 100% on
+  version `c30ee312-832b-47d5-843c-0372c143920c`; rollback version
+  `2b8ab00a-97ed-4160-a3ce-ecc5f87d722d` remains visible.
+- Authenticated Workbench browser proof: production
+  `/admin/portfolio/web` exposes `Portfolio Workbench`, `New Thoughtseed
+  project`, `Project Archive / Finished Work`, `Finish / close work`, and, in
+  the Unplanned view, 18 `Review repository & map` buttons and 18
+  `Finish / close work` buttons.
+- Root-map proof: root headers exist under the Thoughtseed project root,
+  `portfolio-map.v1.json` carries snapshot digest
+  `588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b`, and the
+  committed root-map file SHA-256 is
+  `f2f7385405754a913bcf4f11443ce86f6c3e18483f978c674e29180b68578aff`.
+- Exact Git top-level proof: the existing shallow `cambium` folder is not an
+  exact Git checkout and must not be silently treated as authoritative. The
+  temporary `cambium-authoritative` folder is an exact Git checkout, but remains
+  an unmapped physical gap until a founder-approved promotion/swap decision.
+- Folder inventory evidence:
+  `docs/evidence/2026-08-08-project-r2-folder-inventory.json` and
+  `docs/evidence/2026-08-08-project-r2-folder-inventory.md`.
+- Folder inventory counts: 59 depth-one physical folders, 47 mapped folders,
+  1 infrastructure folder, 8 exact Git roots, 0 linked-worktree Git files,
+  8 folders with nested repositories, 10 nested repositories, 43 non-Git
+  folders, 11 unmapped physical gaps, 1 mapped-folder identity gap, and 0
+  missing mapped folders.
+- Dispatch preflight evidence:
+  `docs/evidence/2026-08-08-temperance-dispatch-preflight.md`.
+- Dispatch result: `temperance-batch`, `temperance-claude`, `te-dispatch`, and
+  `clinepass` are missing. `omniroute`, `ollama`, `codex`, and `gh` are
+  available. No Temperance batch, ClinePass, OmniRoute, Ollama, or external
+  worker output was accepted because the governed batch rail and model-output
+  receipt gates were not satisfied.
+- No worker dispatch, R2 object write, folder move, registry transition,
+  provider setting change, OmniRoute setting change, Goal Graph write,
+  production deployment, or GitHub issue mutation was performed by this
+  evidence batch.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
