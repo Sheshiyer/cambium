@@ -5,7 +5,7 @@
     "portfolio": "thoughtseed",
     "pathGrammar": "$PROJECTS_ROOT/thoughtseed/<folder>",
     "sourceInventory": "docs/evidence/2026-08-08-project-r2-folder-inventory.json",
-    "rootMapDigest": "d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf"
+    "rootMapDigest": "a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445"
   },
   "policy": {
     "saplingRule": "only Thoughtseed-originated ventures may be Saplings",

@@ -1,0 +1,15 @@
+{
+  "schema": "thoughtseed.agent-aware-project-memory.v1",
+  "updatedAt": "2026-08-08T00:00:00.000Z",
+  "active": [],
+  "finished": [
+    {
+      "folder": "virtualtryon-3d",
+      "previousErroneousWorkObjectId": "sapling:virtualtryon",
+      "disposition": "retired-ignore",
+      "handoffMarkdownPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md",
+      "r2VaultPrefixProposal": "portfolio/thoughtseed/retired-folders/virtualtryon-3d/",
+      "memory": "VirtualTryOn was retired/ignored by founder decision on 2026-08-08. Do not create sapling:virtualtryon or active repository/R2 mapping receipts unless a future founder-gated reopen explicitly reverses this."
+    }
+  ]
+}

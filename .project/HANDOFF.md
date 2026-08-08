@@ -353,6 +353,37 @@
   deployment, Workbench runtime change, or catalog/generated UI change was
   performed by this dispatch.
 
+### 2026-08-08 VirtualTryOn retirement checkpoint
+
+- Founder approved ignoring and retiring `virtualtryon-3d` so repository/R2
+  mapping can proceed without inventing or repairing `sapling:virtualtryon`.
+- The Thoughtseed root map keeps the shallow folder accounted, but changes it
+  to `needs-review` / `empty-hold` with no active `workIds`.
+- New root-map digest:
+  `a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445`.
+- Generated local Workbench artifact refreshed from the new root map:
+  `apps/portfolio-cartographer/bundle.html`, 362,031 bytes, SHA-256
+  `417e9a007ff3a836cfbfe640508908f7e91e74d5cf0433205651610d47655921`;
+  the Worker embed was refreshed locally from the same bundle.
+- Retirement guardrail artifacts:
+  `docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md`,
+  `docs/project-management/closeouts/virtualtryon-3d-retirement.v1.json`, and
+  `docs/project-management/closeouts/virtualtryon-3d-retirement-agent-memory.v1.json`.
+- The GitHub mapping action queue now has no global VirtualTryOn block; its
+  Batch 5 row is resolved as `retired-ignore`, leaving Symphonics as the
+  remaining row for root-map/catalog repair review.
+- The relocation registry entry for `virtualtryon-3d` has a non-destructive
+  `retired-ignore` transition. No folder was moved, copied, deleted, or
+  reorganized.
+- Verification: edited JSON files pass `jq empty`; `pnpm --dir
+  apps/portfolio-cartographer check` passes 50 active tests with one
+  historical skip plus lint, bundle, standalone audit, CSP, and hosted smoke;
+  focused Worker portfolio/admin-action route tests pass 23/23; `git diff
+  --check` passes.
+- No R2 object write, GitHub issue mutation, GitHub Project mutation, registry
+  write, provider change, Goal Graph write, production deployment, or live
+  hosted Workbench mutation was performed by this retirement checkpoint.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
