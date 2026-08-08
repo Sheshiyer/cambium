@@ -5,7 +5,7 @@
     "portfolio": "thoughtseed",
     "pathGrammar": "$PROJECTS_ROOT/thoughtseed/<folder>",
     "sourceInventory": "docs/evidence/2026-08-08-project-r2-folder-inventory.json",
-    "rootMapDigest": "588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b"
+    "rootMapDigest": "d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf"
   },
   "policy": {
     "saplingRule": "only Thoughtseed-originated ventures may be Saplings",
@@ -19,7 +19,7 @@
     "admitAsInternalProgram": 5,
     "excludeFromWorkObjects": 4,
     "physicalFollowUpRequired": 2,
-    "founderReviewRequired": 2,
+    "founderReviewRequired": 1,
     "remainingUnmappedPhysicalFoldersAfterSettlement": 0
   },
   "proposals": [
@@ -277,7 +277,7 @@
     },
     {
       "folder": "safvr",
-      "settlement": "founder-review-required-client-candidate",
+      "settlement": "approved-closed-client-website-branch",
       "proposedKind": "client-branch",
       "accountId": "safvr",
       "workIds": [
@@ -294,10 +294,11 @@
         "safvr/Landingpage2.0/README.md",
         "safvr/Landingpage2.0/Docs/"
       ],
-      "rationale": "Prior classification evidence says SAFVR is not clearly Thoughtseed-owned and needs direct founder context. Under the grammar, it must not become a Sapling; if admitted, it should be a Client Branch.",
-      "workbenchAction": "hold for founder review as Client Branch candidate; do not activate as Sapling",
+      "rationale": "Founder approval on 2026-08-08 classifies SAFVR as a client website branch. Under the grammar, it must not become a Sapling, and it no longer requires active project tracking.",
+      "workbenchAction": "admit as branch:safvr-landing-page and seed a completed/closed closeout record so it leaves active workflow",
       "reviewNotes": [
-        "Current GitHub account could not resolve the remote repository via `gh repo view`, so repository authority is the observed git remote until access/ownership is confirmed."
+        "Current GitHub account could not resolve the remote repository via `gh repo view`, so repository authority remains the observed git remote until access/ownership is confirmed.",
+        "Closed/completed means no active Thoughtseed workflow remains; follow-up only reopens if the founder starts a new SAFVR branch."
       ]
     },
     {
@@ -332,7 +333,7 @@
   "nextActions": [
     "Review and approve the Cambium physical checkout promotion/swap separately; no folder move is authorized by this proposal.",
     "Decide whether `plugins` gets its own GitHub repository or is folded into existing operator utility infrastructure.",
-    "Confirm SAFVR relationship and GitHub access; admit only as Client Branch if approved.",
+    "SAFVR is approved as a completed/closed Client Branch; verify repository access later only if the relationship reopens.",
     "Resolve duplicate/overloaded Airdronauts and Temperance physical locations before generating Workbench action payloads.",
     "After approval, convert accepted rows into closed Workbench action payloads with root-map digest, catalog digest, repository identity, and R2 evidence prefix validation."
   ]

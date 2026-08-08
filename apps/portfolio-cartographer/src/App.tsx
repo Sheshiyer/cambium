@@ -42,6 +42,7 @@ import {
   PORTFOLIO_SIGNALS,
   REVIEW_RECORDS,
   SIGNAL_STATUSES,
+  SEEDED_PROJECT_CLOSEOUTS,
   SMART_VIEWS,
   SOURCE_GENERATED_AT,
   WORK_OBJECTS,
@@ -157,6 +158,16 @@ interface RepositoryEvidence {
 interface LocalLoad extends WorkbenchState {
   notice: string
   autosaveBlocked: boolean
+}
+
+function withSeededCloseouts(load: LocalLoad): LocalLoad {
+  return {
+    ...load,
+    closeouts: {
+      ...SEEDED_PROJECT_CLOSEOUTS,
+      ...load.closeouts,
+    },
+  }
 }
 
 function label(value: string): string {
@@ -1221,7 +1232,7 @@ function PlanDrawer({
 }
 
 function App() {
-  const initial = useMemo(loadLocalState, [])
+  const initial = useMemo(() => withSeededCloseouts(loadLocalState()), [])
   const [plans, setPlans] = useState<Record<string, WorkPlan>>({ ...initial.plans })
   const [reviewDecisions, setReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.reviewDecisions })
   const [retiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })

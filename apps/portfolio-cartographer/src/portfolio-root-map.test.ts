@@ -36,13 +36,15 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 47)
-  assert.equal(thoughtseed.folders.length, 47)
-  assert.deepEqual(thoughtseed.infrastructure, ['thoughtseed-labs'])
+  assert.equal(thoughtseed.folderCount, 54)
+  assert.equal(thoughtseed.folders.length, 54)
+  assert.deepEqual(thoughtseed.infrastructure, ['_home-cleanup-2026-08-08', 'cambium-authoritative', 'openfang', 'thoughtseed-labs', 'website'])
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.folders.length, 30)
   assert.deepEqual(noesis.infrastructure, ['selemene-engine-worktrees'])
   assert.equal(noesis.archiveContainer, '_archive')
+  assert.equal(thoughtseed.folders.some((entry: { folder: string }) => ['_home-cleanup-2026-08-08', 'cambium-authoritative', 'openfang', 'thoughtseed-labs', 'website'].includes(entry.folder)), false)
+  assert.equal(thoughtseed.folders.find((entry: { folder: string }) => entry.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
   assert.equal(noesis.folders.some((entry: { folder: string }) => ['.agents', '_archive', 'selemene-engine-worktrees'].includes(entry.folder)), false)
 })
 
@@ -95,7 +97,7 @@ test('root comparison fails closed on missing or unexpected shallow folders', as
   ]
 
   assert.equal(compareObservedDirectories(thoughtseed, exact).ok, true)
-  assert.deepEqual(compareObservedDirectories(thoughtseed, exact.slice(1)).missing, ['agentfount'])
+  assert.deepEqual(compareObservedDirectories(thoughtseed, exact.slice(1)).missing, ['Airdronauts'])
   assert.deepEqual(compareObservedDirectories(thoughtseed, [...exact, 'unexpected-folder']).unexpected, ['unexpected-folder'])
 })
 

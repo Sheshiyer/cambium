@@ -30,7 +30,7 @@ export function validateSnapshot(snapshot) {
     if (!Array.isArray(portfolio.folders) || portfolio.folders.length !== portfolio.folderCount) throw new TypeError(`${portfolio.portfolioId} folder count drift`)
     const folders = new Set()
     for (const entry of portfolio.folders) {
-      if (!entry || typeof entry.folder !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(entry.folder)) throw new TypeError(`unsafe relative folder in ${portfolio.portfolioId}`)
+      if (!entry || typeof entry.folder !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9-]*$/.test(entry.folder)) throw new TypeError(`unsafe relative folder in ${portfolio.portfolioId}`)
       if (folders.has(entry.folder)) throw new TypeError(`duplicate folder ${entry.folder}`)
       folders.add(entry.folder)
       if (!allowedKinds.has(entry.proposedKind)) throw new TypeError(`unsupported proposal kind ${entry.proposedKind}`)
@@ -39,8 +39,8 @@ export function validateSnapshot(snapshot) {
     }
   }
   const thoughtseed = snapshot.portfolios[0]
-  if (thoughtseed.folderCount !== 47) throw new TypeError('Thoughtseed folder count must remain 47')
-  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['thoughtseed-labs'])) throw new TypeError('Thoughtseed vault infrastructure exclusion drifted')
+  if (thoughtseed.folderCount !== 54) throw new TypeError('Thoughtseed folder count must remain 54')
+  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_home-cleanup-2026-08-08', 'cambium-authoritative', 'openfang', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
   const noesis = snapshot.portfolios[1]
   if (noesis.folderCount !== 30) throw new TypeError('Tryambakam-Noesis folder count must remain 30')
   if (JSON.stringify(noesis.infrastructure) !== JSON.stringify(['selemene-engine-worktrees'])) throw new TypeError('Tryambakam-Noesis infrastructure exclusions drifted')
@@ -93,7 +93,13 @@ export function renderPortfolioMarkdown(portfolio, digest) {
     for (const accountId of portfolio.missingClientAccounts) lines.push(`- \`client:${accountId}\``)
     lines.push('')
     lines.push('## Portfolio infrastructure', '')
-    for (const folder of portfolio.infrastructure) lines.push(`- \`${folder}\` — R2-synced vault copy; context source, not a WorkObject folder`)
+    for (const folder of portfolio.infrastructure) {
+      if (folder === 'thoughtseed-labs') {
+        lines.push(`- \`${folder}\` — R2-synced vault copy; context source, not a WorkObject folder`)
+      } else {
+        lines.push(`- \`${folder}\` — explicit local infrastructure/exclusion; not a WorkObject folder`)
+      }
+    }
     lines.push('')
   } else {
     lines.push('## Projects', '', '| Project folder | Intake status |', '|---|---|')

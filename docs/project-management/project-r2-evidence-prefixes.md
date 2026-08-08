@@ -41,9 +41,10 @@ portfolio/thoughtseed/workobjects/branch:airdronauts-panorama-viewer-delivery/ma
 portfolio/thoughtseed/workobjects/program:meristem-brand-system/mapping/
 portfolio/thoughtseed/workobjects/program:explee-capabilities/mapping/
 portfolio/thoughtseed/workobjects/branch:safvr-landing-page/mapping/
+portfolio/thoughtseed/workobjects/branch:safvr-landing-page/closeout/
 ```
 
-The SAFVR prefix is a future candidate only. It must not be written until founder review confirms the relationship and repository access.
+The SAFVR mapping prefix is founder-approved as a closed client branch. The closeout prefix is represented by source-controlled closeout seed files until a live R2 write records or reconciles the durable evidence object.
 
 ## Validation gates before any R2 write
 

@@ -32,7 +32,7 @@ This proposal does not move folders, write R2 objects, update vault registries, 
 | `plugins` | Defer Git identity | Internal Program candidate: `program:operator-utilities`; `program:engineering-orchestration` | no exact Git identity | `plugins/conducty-codex/README.md` | Founder decision: create/attach repo or fold into existing operator utility/skill-clusters infrastructure. |
 | `professional-headshot-suite` | Admit exact repository | Internal Program: `program:explee-capabilities`; `program:skill-clusters` | `Sheshiyer/professional-headshot-suite` | `professional-headshot-suite/skills/professional-headshot-suite/SKILL.md` | Attach as internal capability/skill repository. |
 | `readme-skill` | Admit exact repository | Internal Program: `program:explee-capabilities`; `program:operator-utilities`; `program:skill-clusters` | `Sheshiyer/readme-skill` | `readme-skill/SKILL.md` | Attach as internal capability/operator utility repository. |
-| `safvr` | Founder review required; Client Branch candidate | Client Branch candidate: `branch:safvr-landing-page` | observed remote `SAFVR-SG/Landingpage2.0`, not resolvable by current GitHub account | `docs/evidence/2026-08-06-classification-needed-findings.md`; `safvr/Landingpage2.0/README.md` | Confirm relationship and access. Do not admit as Sapling. |
+| `safvr` | Approved closed client website branch | Client Branch: `branch:safvr-landing-page` | observed remote `SAFVR-SG/Landingpage2.0`, not resolvable by current GitHub account | `docs/evidence/2026-08-06-classification-needed-findings.md`; `safvr/Landingpage2.0/README.md`; `docs/project-management/closeouts/safvr-landing-page-handoff.md` | Seed as completed/closed and remove from active workflow. Do not admit as Sapling. |
 | `website` | Exclude container; map nested repository | Internal Program: `program:temperance-hermes` | nested `Sheshiyer/temperance_engine_landing_page` | `website/temperance-engine-landing-page/ISA.md` | Bind nested repo to the existing Temperance internal-program row; later de-duplicate physical placement. |
 
 ## What is actually resolved
@@ -46,7 +46,8 @@ After this settlement, none of the 12 should be treated as unknown by Workbench:
 
 - 7 can be admitted or linked to existing WorkObjects with explicit grammar;
 - 4 are excluded from WorkObjects because they are cleanup, external reference, container, or temporary checkout;
-- 2 still require founder review before action payloads are generated: `plugins` and `safvr`.
+- 1 still requires founder review before action payloads are generated: `plugins`.
+- SAFVR is approved as a Client Branch and is seeded as completed/closed, so it should not appear in the active workflow.
 
 The apparent count is larger than 12 because `cambium` and `cambium-authoritative` are one identity problem expressed through two folders, and `website` is a container whose nested exact repository belongs to an existing Temperance program row.
 
@@ -54,7 +55,7 @@ The apparent count is larger than 12 because `cambium` and `cambium-authoritativ
 
 1. Cambium physical authority: should `cambium-authoritative` be promoted into the canonical `cambium` path, or should the stale `cambium` folder be archived separately first?
 2. Plugins: should `plugins/conducty-codex` get its own GitHub repo, or should it be folded into `skill-clusters` / operator utilities?
-3. SAFVR: confirm relationship type and GitHub access. If admitted, it should be a Client Branch, not a Sapling.
+3. SAFVR: closed/completed as a Client Branch. Verify GitHub access later only if the relationship reopens.
 4. Airdronauts: confirm whether `Airdronauts/website-alpha/airdronauts-nextjs` and `panaroma-webapp` are two WorkObjects or one overloaded client delivery record.
 5. Temperance landing page: confirm whether to promote the nested `website/temperance-engine-landing-page` exact repo to the existing shallow `temperance-engine-landing-page` mapped folder in a later filesystem-safe pass.
 
@@ -70,3 +71,5 @@ portfolio/thoughtseed/workobjects/<work-id>/finished-index/<receipt-id>.json
 ```
 
 R2 remains immutable/idempotent evidence and durability. It is not the live project state, code history, planning authority, Goal Graph writer, or source of truth for local folder moves.
+
+The SAFVR mapping prefix is approved for the closed client branch. The closeout prefix is represented by the source-controlled closeout seed until a live R2 write records or reconciles the durable evidence object.

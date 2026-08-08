@@ -33,7 +33,7 @@
 - Branch: `codex/portfolio-ingestion-headers`, based on merged repository-first main.
 - Thoughtseed WorkObjects now show proposal folder receipts; Unplanned cards expose one `Review repository & map` action and no horizon shortcuts.
 - Tryambakam · Noesis has a separate 30-card `Projects` header and intake-only drawer; it never uses Client Branch grammar.
-- Root map: `docs/project-management/portfolio-roots.v1.json`, SHA-256 `588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b`.
+- Root map: `docs/project-management/portfolio-roots.v1.json`, SHA-256 `d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf`.
 - Destination headers were written to both `<projects-root>/<portfolio>/` roots. Only `PORTFOLIO.md` and `portfolio-map.v1.json` were created per root; the directory/inode digest stayed identical before and after and no grouping directory was created.
 - `thoughtseed-labs` is recorded as the R2-synced vault infrastructure context, never as a WorkObject folder. Tryambakam `_archive` and `selemene-engine-worktrees` remain outside the 30 active Projects.
 - The offline Import/Copy/JSON/Markdown/Reset header is retired. Thoughtseed intake now exposes `Save & queue repository review`; Tryambakam Project intake exposes `Start project ingestion`.
@@ -49,7 +49,7 @@
 - Branch: `codex/portfolio-ingestion-headers`; pull request [#297](https://github.com/Sheshiyer/cambium/pull/297); governed-project-birth tracking [#298](https://github.com/Sheshiyer/cambium/issues/298) is In Progress in GitHub Project #14.
 - The visible `New Thoughtseed project` form fixes request source to `local-founder`, collects name, safe slug, explicit origin, and conditional client family, and displays the origin-derived Sapling, Internal Program, or Client Branch classification without a type override or caller-selected path.
 - Explicit local-founder intents may become execution-ready after closed validation. Agent, RBAC, dgchat, and system intents remain Founder-Gate-pending unless the Worker resolves `gate:thoughtseed:<receipt-id>` from its authoritative KV binding and verifies an active founder `approve` record whose subject is the exact normalized intent digest. Inline receipt claims are references, never authority.
-- The standalone executor is local-founder-only unless a trusted host injects the authoritative Gate resolver. It pins root map `588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b` and catalog `50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2`, derives only `thoughtseed/<slug>`, rejects symlink/existing/nested/traversal destinations, initializes Git without a remote, materializes the selected workflow, and cleans its exact new target after partial failure.
+- The standalone executor is local-founder-only unless a trusted host injects the authoritative Gate resolver. It pins root map `d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf` and catalog `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`, derives only `thoughtseed/<slug>`, rejects symlink/existing/nested/traversal destinations, initializes Git without a remote, materializes the selected workflow, and cleans its exact new target after partial failure.
 - Successful local execution creates the seven-document project/workflow packet plus `.project/project-ingestion-receipt.v1.json` and `.project/project-index-proposal.v1.json`, both honestly held at `pending-cambium-ingestion` until GitHub repository identity and Cambium index reconciliation occur.
 - `pnpm --dir apps/portfolio-cartographer check` passes 47 active tests with one historical skip plus lint, build, bundle, source audit, CSP, and hosted smoke. The exact hosted artifact is 347,261 bytes, SHA-256 `95c1ef259c3de88911ee02b983b3add23cbbdc099030e1a87a2f4e5c8140820e`, and matches the generated Worker embed.
 - Focused Worker/action-route verification passes 21/21; temporary-root executor verification passes 7/7, including authoritative Gate mismatch, stale digest, symlink, and rollback denial paths. The deterministic release gate passes across core, 37 integration, mobile viewport, 99 R3F, R3F build, and 5 desktop packaging tests.
@@ -173,7 +173,7 @@
   `Finish / close work` buttons.
 - Root-map proof: root headers exist under the Thoughtseed project root,
   `portfolio-map.v1.json` carries snapshot digest
-  `588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b`, and the
+  `d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf`, and the
   committed root-map file SHA-256 is
   `f2f7385405754a913bcf4f11443ce86f6c3e18483f978c674e29180b68578aff`.
 - Exact Git top-level proof: the existing shallow `cambium` folder is not an
@@ -232,15 +232,50 @@
   promote/swap handles the stale non-Git `cambium` folder.
 - Remaining founder-review decisions before action wiring: whether
   `plugins/conducty-codex` gets its own GitHub identity or folds into operator
-  utilities, whether SAFVR is admitted as a Client Branch and with what GitHub
-  access, how Airdronauts overlaps with `panaroma-webapp`, and how to
-  physically de-duplicate the nested Temperance landing page.
+  utilities, how Airdronauts overlaps with `panaroma-webapp`, and how to
+  physically de-duplicate the nested Temperance landing page. SAFVR is no
+  longer a founder-review item; it is approved as a closed Client Branch.
 - R2 remains immutable/idempotent evidence and durability only. No R2-primary
   or two-way-sync behavior is introduced by this checkpoint.
 - No folder move, registry write, R2 object write, GitHub issue mutation,
   provider setting change, OmniRoute setting change, Goal Graph write,
   production deployment, or Workbench runtime change was performed by this
   settlement batch.
+
+### 2026-08-08 project/R2 mapping execution checkpoint
+
+- Founder approval in the active Codex task executed the gap settlement into
+  repository-owned Workbench data. No physical folder move, live R2 write,
+  registry write, GitHub issue mutation, provider change, Goal Graph write, or
+  production deployment was performed by this local execution.
+- The Thoughtseed root map now accounts for all 59 depth-one physical folders:
+  54 WorkObject/proposal folders plus 5 explicit infrastructure/exclusion
+  folders (`_home-cleanup-2026-08-08`, `cambium-authoritative`, `openfang`,
+  `thoughtseed-labs`, and `website`).
+- Thoughtseed-only directory comparison against
+  `/Volumes/madara/2026/Projects/thoughtseed` passes with zero missing and zero
+  unexpected folders. Full root-header writing still stops on separate
+  Tryambakam-Noesis drift, which is intentionally outside this Workbench pass.
+- New root-map digest:
+  `d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf`.
+- New catalog/source digest:
+  `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`;
+  catalog summary is now 73 WorkObjects, including 38 client branches.
+- SAFVR is recorded as `branch:safvr-landing-page`, classified as a Client
+  Branch, and seeded as completed/closed with receipt
+  `pa_55d6162386ed202608080001`. It should stay out of active workflows unless
+  a new founder-gated SAFVR branch is opened.
+- Closeout seed files:
+  `docs/project-management/closeouts/safvr-landing-page-handoff.md`,
+  `docs/project-management/closeouts/safvr-landing-page-closeout.v1.json`, and
+  `docs/project-management/closeouts/safvr-landing-page-agent-memory.v1.json`.
+- Regenerated app and Worker embeds: `apps/portfolio-cartographer/bundle.html`
+  and `workers/quests/src/portfolio-workbench.generated.ts`.
+- Verification: `pnpm --dir apps/portfolio-cartographer test`,
+  `pnpm --dir apps/portfolio-cartographer lint`,
+  `pnpm --dir apps/portfolio-cartographer bundle`,
+  `pnpm --dir apps/portfolio-cartographer standalone:smoke`, and focused
+  Worker portfolio/admin-action/workbench route tests all pass.
 
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
