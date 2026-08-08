@@ -1,0 +1,199 @@
+{
+  "schema": "thoughtseed.physical-relocation-manifest.v1",
+  "manifestId": "2026-08-08-thoughtseed-physical-lane",
+  "capturedDate": "2026-08-08",
+  "portfolioId": "thoughtseed",
+  "status": "draft-awaiting-founder-live-apply-approval",
+  "applyAuthorization": {
+    "sourceControlledProposal": true,
+    "founderManifestApproval": false,
+    "liveApplyApproved": false,
+    "filesystemMutationAuthorized": false,
+    "r2WriteAuthorized": false,
+    "githubMutationAuthorized": false,
+    "productionDeployAuthorized": false
+  },
+  "scope": {
+    "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
+    "pathGrammar": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>",
+    "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+    "vaultBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder"
+  },
+  "digestPolicy": {
+    "draftObservedRootMapDigest": "20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc",
+    "draftObservedRootMapFileSha256": "752d3c047b07e55b73cc21ce0d0c634f3ca5c9b2059073227b037b8e43bf37ba",
+    "historicalEvidenceDigestDriftObserved": true,
+    "pinCurrentDraftDigestForLiveApply": false,
+    "liveApplyRequirement": "regenerate and record fresh root-map digest immediately before and after any live apply"
+  },
+  "globalPreflight": [
+    "re-run depth-one directory comparison for $PROJECTS_ROOT/thoughtseed",
+    "verify no operation touches $PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+    "verify Symphonics remains absent or explicitly founder-approved before any new folder is created",
+    "verify every source and target path in this manifest exists or is intentionally created by the approved operation",
+    "verify the active Git checkout that records the manifest is clean before any folder move",
+    "record rollback/archive target for every changed folder",
+    "regenerate root-map digest after accepted physical state"
+  ],
+  "observedDrift": [
+    {
+      "subject": "_home-cleanup-2026-08-08",
+      "status": "missing-from-disk-present-in-root-map-infrastructure",
+      "impact": "do not rely on the previous cleanup folder as the archive destination; create a new explicit relocation archive only if live apply is approved"
+    }
+  ],
+  "phases": [
+    {
+      "phaseId": "phase-1-cambium-archive-first-promote",
+      "order": 1,
+      "status": "ready-for-founder-live-apply-after-fresh-preflight",
+      "liveApplyReady": true,
+      "decision": "archive-first-promote",
+      "workObjectId": "sapling:cambium",
+      "repositoryIdentity": "Sheshiyer/cambium",
+      "observations": {
+        "canonicalSlot": {
+          "path": "$PROJECTS_ROOT/thoughtseed/cambium",
+          "gitIdentity": "not-a-git-repository",
+          "contentRelationToAuthority": "non-equivalent-local-state"
+        },
+        "temporaryAuthorityCheckout": {
+          "path": "$PROJECTS_ROOT/thoughtseed/cambium-authoritative",
+          "gitIdentity": "exact-root",
+          "remote": "https://github.com/Sheshiyer/cambium.git",
+          "branch": "codex/project-r2-mapping-plan"
+        }
+      },
+      "proposedOperations": [
+        {
+          "op": "create-archive-container",
+          "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08",
+          "reason": "the previous cleanup archive folder is absent on disk"
+        },
+        {
+          "op": "move",
+          "source": "$PROJECTS_ROOT/thoughtseed/cambium",
+          "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority",
+          "reason": "preserve the stale non-Git local state before promoting exact repository authority"
+        },
+        {
+          "op": "move",
+          "source": "$PROJECTS_ROOT/thoughtseed/cambium-authoritative",
+          "target": "$PROJECTS_ROOT/thoughtseed/cambium",
+          "reason": "promote the exact Git checkout into the canonical Cambium shallow slot"
+        },
+        {
+          "op": "root-map-update-after-apply",
+          "removeInfrastructureFolders": [
+            "cambium-authoritative"
+          ],
+          "addInfrastructureFolders": [
+            "_physical-relocation-archive-2026-08-08"
+          ],
+          "preserveWorkObjectFolder": "cambium"
+        }
+      ],
+      "rollbackPlan": [
+        {
+          "op": "move",
+          "source": "$PROJECTS_ROOT/thoughtseed/cambium",
+          "target": "$PROJECTS_ROOT/thoughtseed/cambium-authoritative",
+          "when": "post-apply Git identity or root-map compare fails before any further mutation"
+        },
+        {
+          "op": "move",
+          "source": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority",
+          "target": "$PROJECTS_ROOT/thoughtseed/cambium",
+          "when": "rollback restores the prior non-Git canonical slot"
+        }
+      ],
+      "mustNotDo": [
+        "overwrite $PROJECTS_ROOT/thoughtseed/cambium in place",
+        "delete the non-Git Cambium folder",
+        "create a second Cambium WorkObject",
+        "write R2 or registry state as part of filesystem apply"
+      ]
+    },
+    {
+      "phaseId": "phase-2-temperance-landing-page-promote-authority",
+      "order": 2,
+      "status": "blocked-content-and-local-state-reconciliation-required",
+      "liveApplyReady": false,
+      "decision": "defer-promote-authority",
+      "workObjectId": "program:temperance-hermes",
+      "repositoryIdentity": "Sheshiyer/temperance_engine_landing_page",
+      "observations": {
+        "canonicalSlot": {
+          "path": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+          "gitIdentity": "not-a-git-repository",
+          "contentRelationToAuthority": "near-duplicate-with-ignore-policy-drift"
+        },
+        "nestedAuthorityCheckout": {
+          "path": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page",
+          "gitIdentity": "exact-root",
+          "remote": "https://github.com/Sheshiyer/temperance_engine_landing_page.git",
+          "branch": "main",
+          "head": "488f8b7d945b7a8c07ce51a253e3f559149108e8",
+          "status": "dirty-untracked-project-status"
+        },
+        "container": {
+          "path": "$PROJECTS_ROOT/thoughtseed/website",
+          "role": "non-workobject-container"
+        }
+      },
+      "blockingPreflight": [
+        "review .gitignore delta between shallow copy and nested exact checkout",
+        "inventory and preserve local-only artifacts including _PROJECT-STATUS.md, .vercel, .codegraph, and generated static output",
+        "make nested authority checkout clean or explicitly archive untracked local state",
+        "choose whether website container remains as infrastructure or is removed after promotion",
+        "name exact archive/rollback target for the displaced shallow tree and any container state"
+      ],
+      "proposedOperationsWhenUnblocked": [
+        {
+          "op": "archive",
+          "source": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+          "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-pre-git-copy"
+        },
+        {
+          "op": "promote",
+          "source": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page",
+          "target": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page"
+        },
+        {
+          "op": "container-decision",
+          "path": "$PROJECTS_ROOT/thoughtseed/website",
+          "options": [
+            "preserve-empty-container-as-infrastructure",
+            "archive-container-after-founder-approval"
+          ]
+        }
+      ],
+      "mustNotDo": [
+        "promote nested Git state before local-only artifacts are preserved",
+        "weaken ignore policy without explicit review",
+        "delete website container state without a named archive target",
+        "create a website WorkObject"
+      ]
+    },
+    {
+      "phaseId": "phase-3-symphonics-held",
+      "order": 3,
+      "status": "held-not-a-physical-lane",
+      "liveApplyReady": false,
+      "workObjectId": "branch:symphonics",
+      "decision": "hold until future native SDK / Tuya React Native app role is exact",
+      "mustNotDo": [
+        "create $PROJECTS_ROOT/thoughtseed/symphonics during Cambium or Temperance relocation",
+        "generate active repository/R2 mapping receipts for Symphonics",
+        "remove Symphonics from missingClientAccounts before founder disposition"
+      ]
+    }
+  ],
+  "verification": {
+    "sourceControlledOnly": true,
+    "filesystemMutationPerformed": false,
+    "r2WritePerformed": false,
+    "githubMutationPerformed": false,
+    "productionDeployPerformed": false
+  }
+}

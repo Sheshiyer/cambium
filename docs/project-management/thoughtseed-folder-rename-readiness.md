@@ -2,6 +2,8 @@
 
 This is a planning artifact only. Batch 5 settles closeout and exclusion state; it does not rename, create, archive, move, or de-duplicate any physical folder.
 
+Active manifest proposal: `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json`.
+
 ## Boundary
 
 `$PROJECTS_ROOT/thoughtseed` is the shallow portfolio root. Active WorkObject folders live directly under `$PROJECTS_ROOT/thoughtseed/<folder>`.
@@ -19,8 +21,8 @@ The rename pass should not run during repository evidence mapping, Batch 5 close
 | Subject | State | Next physical action |
 | --- | --- | --- |
 | `thoughtseed-labs` | Infrastructure boundary is settled. | None for active WorkObject mapping. |
-| `cambium` / `cambium-authoritative` | Exact repository authority is temporary and separate from the canonical shallow slot. | Founder-approved promote/swap or archive-first manifest. |
-| `website` / `temperance-engine-landing-page` | Container plus nested exact repository maps to `program:temperance-hermes`. | Founder-approved de-duplication or preserve-container manifest. |
+| `cambium` / `cambium-authoritative` | Manifest drafted; archive-first promotion is the selected safe path. | Await founder manifest approval plus separate live-apply approval. |
+| `website` / `temperance-engine-landing-page` | Manifest drafted but blocked on local-state reconciliation. | Preserve local artifacts, review `.gitignore` drift, then choose promote or preserve-container. |
 | `symphonics` | Founder hold: missing shallow folder; repository evidence is planning/docs. | Defer until the future native SDK / Tuya React Native app role is exact. |
 | `safvr` | Completed/closed Client Branch. | None unless the client relationship reopens. |
 | `virtualtryon-3d` | Retired/ignored empty hold. | None unless founder-gated reopen reverses retirement. |
