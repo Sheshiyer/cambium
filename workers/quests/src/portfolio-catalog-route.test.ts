@@ -162,15 +162,15 @@ async function requestPortfolio(userId: string) {
 test('Cambium founder route serves the complete bounded catalog and exact join report', async () => {
   const result = await requestPortfolio(FOUNDER_ID);
   assert.equal(result.response.status, 200);
-  assert.equal(result.json.portfolioCatalogSummary.total, 72);
+  assert.equal(result.json.portfolioCatalogSummary.total, 73);
   assert.equal(result.json.portfolioCatalogSummary.saplings, 20);
-  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 37);
+  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 38);
   assert.equal(result.json.portfolioCatalogSummary.internalPrograms, 15);
   assert.equal(result.json.portfolioCatalogSummary.classificationReview, 0);
   assert.equal(result.json.portfolioCatalogSummary.historicalProducts, 20);
   assert.equal(result.json.portfolioCatalogSummary.operationalGaps, 48);
   assert.equal(result.json.portfolioCatalog.status, 'proposed-read-only');
-  assert.equal(result.json.portfolioCatalog.records.length, 72);
+  assert.equal(result.json.portfolioCatalog.records.length, 73);
   assert.equal(result.json.portfolioCatalog.classificationReview.length, 0);
   assert.equal(result.json.portfolioCatalog.historicalProducts.length, 20);
   assert.equal(result.json.portfolioCatalog.operationalGaps.length, 48);
@@ -180,7 +180,7 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
       catalogOrphans: result.json.portfolioJoinReport.catalogOrphanCount,
       runtimeOrphans: result.json.portfolioJoinReport.runtimeOrphanCount,
     },
-    { matched: 2, catalogOrphans: 70, runtimeOrphans: 0 },
+    { matched: 2, catalogOrphans: 71, runtimeOrphans: 0 },
   );
   const fitcheck = result.json.portfolioCatalog.records.find((record: { workId: string }) => record.workId === 'sapling:fitcheck');
   assert.equal(fitcheck.parentTenant, 'cambium');
@@ -216,7 +216,7 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
 test('allowlisted non-founder receives aggregate catalog proof but no identities or join detail', async () => {
   const result = await requestPortfolio(VIEWER_ID);
   assert.equal(result.response.status, 200);
-  assert.equal(result.json.portfolioCatalogSummary.total, 72);
+  assert.equal(result.json.portfolioCatalogSummary.total, 73);
   assert.match(result.json.portfolioCatalogSummary.catalogDigest, /^sha256:[0-9a-f]{64}$/);
   assert.match(result.json.delivery.portfolioPairDigest, /^sha256:[0-9a-f]{64}$/);
   assert.equal(result.response.headers.etag, result.json.delivery.portfolioPairDigest);

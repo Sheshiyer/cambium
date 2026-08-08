@@ -15,8 +15,8 @@ import {
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
 
-const ROOT_DIGEST = '588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b';
-const SOURCE_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2';
+const ROOT_DIGEST = 'd272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf';
+const SOURCE_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
 function thoughtseedInput(overrides: Record<string, unknown> = {}) {
   return {

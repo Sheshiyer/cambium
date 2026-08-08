@@ -91,6 +91,7 @@ export const RAW_PROGRAMS: readonly RawProgram[] = [
   ['branch:pongotrasteros', 'Pongotrasteros', 'client', 'executing', 'unresolved', null, ['vault:60-client-ecosystem/pongotrasteros/project-brief.md'], 'pongotrasteros'],
   ['branch:symphonics', 'Symphonics', 'client', 'executing', 'unresolved', null, ['vault:60-client-ecosystem/symphonics/project-brief.md'], 'symphonics'],
   ['branch:sandboxlife', 'SandBoxLife', 'client', 'approved', 'unresolved', null, ['vault:60-client-ecosystem/valore-ventures/project-brief.md'], 'valore-ventures', undefined, 'paused'],
+  ['branch:safvr-landing-page', 'SAFVR Landing Page', 'client', 'complete', 'unresolved', null, ['repo:SAFVR-SG/Landingpage2.0', 'cambium:docs/project-management/project-r2-mapping-proposals.md'], 'safvr'],
   ['branch:thaleos', 'Thaleos', 'client', 'complete', 'unresolved', null, ['vault:60-client-ecosystem/thaleos/project-brief.md'], 'thaleos', ['historical-product:thaleos']],
   ['branch:tirak', 'Tirak Client Partnership', 'client', 'executing', 'unresolved', null, ['vault:60-client-ecosystem/tirak/project-brief.md'], 'tirak', ['sapling:tirak']],
   ['branch:wattconnect', 'WattConnect', 'client', 'complete', 'unresolved', null, ['vault:60-client-ecosystem/wattconnect/project-brief.md'], 'wattconnect', ['historical-product:wattconnect']],

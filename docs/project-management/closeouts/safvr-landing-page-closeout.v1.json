@@ -1,0 +1,25 @@
+{
+  "schema": "thoughtseed.project-closeout.v1",
+  "workObjectId": "branch:safvr-landing-page",
+  "disposition": "closed",
+  "finalSummary": "SAFVR is a client website branch. Founder approval marks the landing-page delivery completed and closed, with no active Thoughtseed workflow remaining.",
+  "handoffMarkdownPath": "docs/project-management/closeouts/safvr-landing-page-handoff.md",
+  "closureReceiptJsonPath": "docs/project-management/closeouts/safvr-landing-page-closeout.v1.json",
+  "agentMemoryJsonPath": "docs/project-management/closeouts/safvr-landing-page-agent-memory.v1.json",
+  "r2VaultPrefix": "portfolio/thoughtseed/workobjects/branch:safvr-landing-page/closeout/",
+  "activeIndexDisposition": "remove-from-active",
+  "repositoryFinalStateReviewed": true,
+  "handoffDocumented": true,
+  "r2VaultRecorded": true,
+  "agentMemoryUpdated": true,
+  "activeIndexUpdated": true,
+  "downstreamFlowsStopped": true,
+  "successorWorkObjectId": "",
+  "receiptId": "pa_55d6162386ed202608080001",
+  "updatedAt": "2026-08-08T06:30:00.000Z",
+  "notes": [
+    "This is a source-controlled closeout seed for Workbench state until live R2 evidence is reconciled.",
+    "Do not classify SAFVR as a Sapling; it remains a closed client branch."
+  ]
+}
+

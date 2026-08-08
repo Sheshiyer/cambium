@@ -101,7 +101,14 @@
       "workId": "branch:safvr-landing-page",
       "receiptKind": "mapping",
       "examplePrefix": "portfolio/thoughtseed/workobjects/branch:safvr-landing-page/mapping/",
-      "status": "founder-review-required-before-write"
+      "status": "approved-closed-client-branch"
+    },
+    {
+      "folder": "safvr",
+      "workId": "branch:safvr-landing-page",
+      "receiptKind": "closeout",
+      "examplePrefix": "portfolio/thoughtseed/workobjects/branch:safvr-landing-page/closeout/",
+      "status": "source-controlled-closeout-seed"
     }
   ],
   "futureDecision": {

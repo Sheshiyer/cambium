@@ -19,6 +19,7 @@ import {
   V2_SCHEMA,
   ORGAN_WORKFLOWS,
   REVIEW_RECORDS,
+  SEEDED_PROJECT_CLOSEOUTS,
   WORK_OBJECTS,
   closeoutReadiness,
   createReusableIpProposal,
@@ -51,14 +52,14 @@ import {
 
 test('canonical portfolio coverage remains exact', () => {
   assert.deepEqual(CLASSIFICATION_COUNTS, {
-    total: 72,
+    total: 73,
     saplings: 20,
-    clientBranches: 37,
+    clientBranches: 38,
     internalPrograms: 15,
     review: 0,
     historical: 20,
   })
-  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 72)
+  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 73)
   assert.equal(REVIEW_RECORDS.length, 0)
   assert.equal(HISTORICAL_RECORDS.length, 20)
 })
@@ -87,9 +88,10 @@ test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake',
   const thoughtseed = portfolioRoot('thoughtseed')
   const noesis = portfolioRoot('tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 47)
+  assert.equal(thoughtseed.folderCount, 54)
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.itemLabel, 'Project')
+  assert.equal(thoughtseed.folders.find((folder) => folder.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
   assert.ok(noesis.folders.every((folder) => folder.proposedKind === 'project'))
   assert.equal(noesis.folders.find((folder) => folder.folder === 'polyhymnia')?.status, 'empty-hold')
 })
@@ -102,7 +104,7 @@ test('Thoughtseed family headers resolve mapped folders while preserving explici
 
   assert.deepEqual(portfolioFolderMappingsForGroup(heyzack).map((mapping) => mapping.path), ['thoughtseed/heyzack'])
   assert.deepEqual(portfolioFolderMappingsForGroup(axdis), [])
-  assert.deepEqual(portfolioFolderMappingsForGroup(airdronauts), [])
+  assert.deepEqual(portfolioFolderMappingsForGroup(airdronauts).map((mapping) => mapping.path), ['thoughtseed/Airdronauts'])
 })
 
 test('family signal summaries derive from effective source plus local plans', () => {
@@ -257,6 +259,20 @@ test('durable completed/closed closeout moves work out of active workflow', () =
   const markdown = toMarkdown(packet)
   assert.match(markdown, /## Completed \/ closed work/)
   assert.match(markdown, /project-closeouts\/v1\/thoughtseed\/sapling-cambium/)
+})
+
+test('SAFVR ships as a closed client website branch seed', () => {
+  const id = 'branch:safvr-landing-page'
+  const safvr = WORK_OBJECTS.find((work) => work.workId === id)!
+  assert.equal(safvr.classification, 'client-branch')
+  assert.equal(safvr.lifecycle, 'complete')
+  assert.equal(safvr.accountId, 'safvr')
+
+  const closeout = SEEDED_PROJECT_CLOSEOUTS[id]
+  assert.equal(closeoutReadiness(closeout).ready, true)
+  assert.equal(isTerminalCloseout(closeout), true)
+  assert.equal(filterWorkObjects('safvr', new Set(), 'all', {}, {}, SEEDED_PROJECT_CLOSEOUTS).length, 0)
+  assert.deepEqual(filterWorkObjects('safvr', new Set(), 'completed-closed', {}, {}, SEEDED_PROJECT_CLOSEOUTS).map((work) => work.workId), [id])
 })
 
 test('client-derived reusable IP becomes a separate linked Sapling proposal', () => {
