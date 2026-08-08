@@ -708,3 +708,29 @@ mutation has been performed by drafting this packet.
   reorganized. No R2 object, GitHub issue, GitHub Project item, registry row,
   provider setting, Goal Graph row, production deployment, or live hosted
   Workbench state was mutated.
+
+### 2026-08-08 Cambium Phase 1 preflight checkpoint
+
+- Founder approved treating `_home-cleanup-2026-08-08` as ignored,
+  non-blocking drift. It remains absent on disk and must not be used as an
+  archive target.
+- Fresh Phase 1 preflight is recorded at
+  `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json`.
+- The canonical `$PROJECTS_ROOT/thoughtseed/cambium` slot still exists and is
+  still not a Git repository. The temporary
+  `$PROJECTS_ROOT/thoughtseed/cambium-authoritative` checkout is the exact
+  `Sheshiyer/cambium` checkout at
+  `6e8eea6f0ba8ab1c966e2326b605a5ba79f47522`.
+- Root-map depth-one comparison has only the ignored cleanup drift. Symphonics
+  remains absent and held. `thoughtseed-labs` remains infrastructure and is not
+  a relocation target.
+- Next gate requires the exact approval text recorded in the preflight receipt:
+  `approve live apply phase 1 Cambium archive-first promote`.
+- Verification: relocation/readiness JSON parsed with `jq empty`; focused
+  queue tests passed 9/9; `pnpm --dir apps/portfolio-cartographer check`
+  passed and rebuilt the Workbench bundle with root-map digest
+  `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`;
+  worker portfolio/admin route tests passed 28/28; full `npm test` passed
+  1568/1568.
+- No filesystem move, archive creation, R2 write, GitHub mutation, folder
+  rename, or production deploy was performed.

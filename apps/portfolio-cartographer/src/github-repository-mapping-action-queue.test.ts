@@ -68,6 +68,7 @@ const physicalLaneManifest = JSON.parse(
   ),
 ) as {
   applyAuthorization: Record<string, boolean>;
+  observedDrift: Array<{ subject: string; status: string }>;
   phases: Array<{
     phaseId: string;
     order: number;
@@ -81,6 +82,30 @@ const physicalLaneManifest = JSON.parse(
     shallowPortfolioRoot: string;
     vaultContextRoot: string;
     vaultBoundary: string;
+  };
+  status: string;
+};
+const physicalLanePreflight = JSON.parse(
+  readFileSync(
+    new URL('../../../docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json', import.meta.url),
+    'utf8',
+  ),
+) as {
+  founderDecision: {
+    cleanupDrift: string;
+    liveApplyApproved: boolean;
+  };
+  nextGate: {
+    filesystemMutationAuthorized: boolean;
+    requiredApprovalText: string;
+  };
+  phase1CambiumProof: {
+    canonicalSlot: { exists: boolean; gitProbe: string };
+    temporaryAuthorityCheckout: { exists: boolean; gitProbe: string };
+  };
+  rootMapProof: {
+    depthOneCompareOnlyUnignoredDrift: boolean;
+    ignoredDrift: string[];
   };
   status: string;
 };
@@ -223,6 +248,7 @@ test('physical relocation manifest keeps live apply gated and ordered', () => {
   const manifestText = JSON.stringify(physicalLaneManifest);
 
   assert.equal(physicalLaneManifest.status, 'draft-awaiting-founder-live-apply-approval');
+  assert.equal(physicalLaneManifest.applyAuthorization.cleanupDriftIgnoredByFounder, true);
   assert.equal(physicalLaneManifest.applyAuthorization.liveApplyApproved, false);
   assert.equal(physicalLaneManifest.applyAuthorization.filesystemMutationAuthorized, false);
   assert.equal(physicalLaneManifest.scope.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
@@ -233,6 +259,7 @@ test('physical relocation manifest keeps live apply gated and ordered', () => {
 
   assert.equal(cambium?.order, 1);
   assert.equal(cambium?.liveApplyReady, true);
+  assert.equal(cambium?.status, 'preflight-passed-awaiting-explicit-live-apply-approval');
   assert.equal(cambium?.proposedOperations?.some(({ source, target }) =>
     source === '$PROJECTS_ROOT/thoughtseed/cambium' &&
     target === '$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority',
@@ -253,4 +280,22 @@ test('physical relocation manifest keeps live apply gated and ordered', () => {
   assert.equal(symphonics?.order, 3);
   assert.equal(symphonics?.liveApplyReady, false);
   assert.equal(symphonics?.mustNotDo?.some((rule) => rule.includes('create $PROJECTS_ROOT/thoughtseed/symphonics')), true);
+  assert.equal(physicalLaneManifest.observedDrift.find(({ subject }) => subject === '_home-cleanup-2026-08-08')?.status, 'ignored-nonblocking-by-founder');
+});
+
+test('physical relocation preflight records cleanup drift as nonblocking without authorizing moves', () => {
+  const preflightText = JSON.stringify(physicalLanePreflight);
+
+  assert.equal(physicalLanePreflight.status, 'phase-1-preflight-passed-awaiting-explicit-live-apply-approval');
+  assert.equal(physicalLanePreflight.founderDecision.cleanupDrift, 'ignore-nonblocking');
+  assert.equal(physicalLanePreflight.founderDecision.liveApplyApproved, false);
+  assert.equal(physicalLanePreflight.rootMapProof.depthOneCompareOnlyUnignoredDrift, true);
+  assert.deepEqual(physicalLanePreflight.rootMapProof.ignoredDrift, ['_home-cleanup-2026-08-08']);
+  assert.equal(physicalLanePreflight.phase1CambiumProof.canonicalSlot.exists, true);
+  assert.equal(physicalLanePreflight.phase1CambiumProof.canonicalSlot.gitProbe, 'not-a-git-repository');
+  assert.equal(physicalLanePreflight.phase1CambiumProof.temporaryAuthorityCheckout.exists, true);
+  assert.equal(physicalLanePreflight.phase1CambiumProof.temporaryAuthorityCheckout.gitProbe, 'exact-root');
+  assert.equal(physicalLanePreflight.nextGate.filesystemMutationAuthorized, false);
+  assert.equal(physicalLanePreflight.nextGate.requiredApprovalText, 'approve live apply phase 1 Cambium archive-first promote');
+  assert.equal(preflightText.includes('/Volumes/'), false);
 });

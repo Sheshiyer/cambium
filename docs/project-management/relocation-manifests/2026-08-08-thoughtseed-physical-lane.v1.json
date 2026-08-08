@@ -4,8 +4,10 @@
   "capturedDate": "2026-08-08",
   "portfolioId": "thoughtseed",
   "status": "draft-awaiting-founder-live-apply-approval",
+  "preflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json",
   "applyAuthorization": {
     "sourceControlledProposal": true,
+    "cleanupDriftIgnoredByFounder": true,
     "founderManifestApproval": false,
     "liveApplyApproved": false,
     "filesystemMutationAuthorized": false,
@@ -38,7 +40,7 @@
   "observedDrift": [
     {
       "subject": "_home-cleanup-2026-08-08",
-      "status": "missing-from-disk-present-in-root-map-infrastructure",
+      "status": "ignored-nonblocking-by-founder",
       "impact": "do not rely on the previous cleanup folder as the archive destination; create a new explicit relocation archive only if live apply is approved"
     }
   ],
@@ -46,7 +48,7 @@
     {
       "phaseId": "phase-1-cambium-archive-first-promote",
       "order": 1,
-      "status": "ready-for-founder-live-apply-after-fresh-preflight",
+      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
       "liveApplyReady": true,
       "decision": "archive-first-promote",
       "workObjectId": "sapling:cambium",
