@@ -53,7 +53,7 @@ Key rows:
 - `thoughtseedlabs/Vibrasonix-Website` → Vibrasonix historical/site evidence or fork reference.
 - `thoughtseed-labs/Breathspectrum`, `Unity-Biosensors`, `TrueRNG-CMOS-Noise`, `museVR`, `DeepAR-Unity`, `faceananlysisbeta` → historical research/product evidence.
 - `thoughtseed-labs/DezinerAI` → founder-resolved archive/vault evidence: the private non-fork repository exists, but no shallow local Project folder is present, so it stays out of active Projects.
-- `thoughtseed-labs/lockwell-portal` → needs-review because it has newer activity and still needs active/history/client-branch disposition.
+- `thoughtseed-labs/lockwell-portal` → founder-resolved DLOCK Sapling: map to `sapling:dlock` with the live landing page `https://dlock-lp.vercel.app/`, the DLOCK product-branch packet, and hardware/software resource evidence. No shallow root-map folder is present yet.
 - Forks such as `JetScan`, `AR-Video-Player`, and `metaplex` → external fork/reference only unless founder says they became owned delivery surfaces.
 
 ## Batch 2 — Client branch clusters

@@ -42,6 +42,7 @@ export type RawClassificationReview = readonly [
 
 export const RAW_SAPLINGS: readonly RawSapling[] = [
   ['sapling:cambium', 'Cambium', 'supervised-branch', 'canonical', 'cambium', ['vault:00-meta/entity-registry.md', 'vault:40-products/cambium/product-overview.md'], ['program:cambium-operating-fabric']],
+  ['sapling:dlock', 'DLOCK', 'proof-only', 'unresolved', null, ['repo:thoughtseed-labs/lockwell-portal', 'site:https://dlock-lp.vercel.app/', 'cambium:docs/plans/product-branches/dlock.md'], undefined, [['dlock', 'brand-alias'], ['Lockwell', 'legacy-repo-name']]],
   ['sapling:fitcheck', 'Fitcheck', 'supervised-branch', 'canonical-parent', 'cambium', ['repo:fitcheck-landing/README.md', 'cambium:docs/plans/product-branches/fitcheck.md'], undefined, [['FitCheck', 'legacy-product-name'], ['getfitcheck', 'brand-alias']]],
   ['sapling:iverif', 'IVerif', 'proof-only', 'unresolved', null, ['cambium:docs/plans/product-branches/iverif.md']],
   ['sapling:vantyx', 'Vantyx', 'supervised-branch', 'unresolved', null, ['cambium:docs/plans/product-branches/vantyx.md', 'repo:Panaroma-Webapp']],
@@ -146,6 +147,7 @@ export const RAW_CLASSIFICATION_REVIEW: readonly RawClassificationReview[] = [];
 
 export const RAW_OPERATIONAL_GAP_WORK_IDS = [
   'sapling:cambium',
+  'sapling:dlock',
   'sapling:fitcheck',
   'sapling:iverif',
   'sapling:vantyx',

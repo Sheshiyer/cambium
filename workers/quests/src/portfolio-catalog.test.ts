@@ -29,26 +29,26 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
   assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:a75464baff16c8876e4875fb79542524540d410f29cef8e3acc77a954c587f31');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:2afdfd8d8f5642546a75daa395c51a73e6fe032d84ddd5d19af3d08b7b93b45c');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
-    total: 73,
-    saplings: 20,
+    total: 74,
+    saplings: 21,
     clientBranches: 38,
     internalPrograms: 15,
     classificationReview: 0,
     historicalProducts: 20,
-    operationalGaps: 48,
+    operationalGaps: 49,
   });
-  assert.equal(PORTFOLIO_CATALOG.records.length, 73);
+  assert.equal(PORTFOLIO_CATALOG.records.length, 74);
   assert.equal(PORTFOLIO_CATALOG.historicalProducts.length, 20);
   assert.equal(PORTFOLIO_CATALOG.classificationReview.length, 0);
-  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 48);
+  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 49);
 });
 
 test('catalog identities are unique, canonical, type-correct, and enum bounded', () => {
   const ids = PORTFOLIO_CATALOG.records.map((record) => record.workId);
-  assert.equal(new Set(ids).size, 73);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 20);
+  assert.equal(new Set(ids).size, 74);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 21);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 38);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'internal-program').length, 15);
 
@@ -154,7 +154,7 @@ test('type-aware canonical joins accept only exact or allowed legacy wire forms'
   ]);
   assert.equal(report.matchedCount, 3);
   assert.deepEqual(report.runtimeOrphans, ['branch:parkarea']);
-  assert.equal(report.catalogOrphanCount, 70);
+  assert.equal(report.catalogOrphanCount, 71);
 });
 
 test('canonical join never falls back to matching names or aliases', () => {
@@ -182,7 +182,7 @@ test('unresolved, unverified, and tenant-mismatched records cannot create an ope
   assert.deepEqual(mismatched.runtimeOrphans, ['sapling:cambium', 'sapling:fitcheck']);
 });
 
-test('canonical Mission Fabric fixture dry-run yields 2 matches, 71 catalog orphans, and 0 runtime orphans', () => {
+test('canonical Mission Fabric fixture dry-run yields 2 matches, 72 catalog orphans, and 0 runtime orphans', () => {
   const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, {
     clock: { now: () => '2026-07-28T09:00:01.000Z' },
     tenantId: 'cambium-synthetic',
@@ -196,7 +196,7 @@ test('canonical Mission Fabric fixture dry-run yields 2 matches, 71 catalog orph
     'sapling:cambium',
   ]);
   assert.equal(wrappers.matchedCount, 2);
-  assert.equal(wrappers.catalogOrphanCount, 71);
+  assert.equal(wrappers.catalogOrphanCount, 72);
   assert.equal(wrappers.runtimeOrphanCount, 0);
 });
 

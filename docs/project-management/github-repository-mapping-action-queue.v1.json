@@ -41,16 +41,16 @@
   "batches": [
     {
       "batchId": "github-batch-001-thoughtseed-org-history",
-      "status": "ready-for-founder-row-review",
+      "status": "founder-reviewed-ready-for-mapping-receipts",
       "summary": {
         "reposReviewed": 20,
         "nonForks": 16,
         "forks": 4,
         "historicalProductOrResearch": 11,
-        "saplingEvidence": 1,
+        "saplingEvidence": 2,
         "externalForkReference": 3,
         "archiveOnly": 4,
-        "needsReview": 1
+        "needsReview": 0
       },
       "defaults": {
         "receiptKind": "mapping",
@@ -102,7 +102,8 @@
             "githubRepositoryFound": true,
             "githubRepositoryArchived": false,
             "localProjectFolderFound": false,
-            "nextQueueRow": "thoughtseed-labs/lockwell-portal"
+            "nextQueueRowAtResolution": "thoughtseed-labs/lockwell-portal",
+            "nextQueueRowCurrentStatus": "founder-resolved-new-sapling"
           }
         },
         {
@@ -137,10 +138,30 @@
           "visibility": "PRIVATE",
           "isFork": false,
           "pushedAt": "2025-09-29T12:52:14Z",
-          "classification": "needs-review-active-or-client-branch",
-          "targetWorkId": null,
-          "targetWorkIdStatus": "blocked",
-          "lifecycle": "needs-review"
+          "classification": "sapling",
+          "targetWorkId": "sapling:dlock",
+          "targetWorkIdStatus": "founder-resolved-new-sapling",
+          "lifecycle": "proof-only",
+          "founderResolution": {
+            "resolvedAt": "2026-08-08",
+            "instruction": "DLOCK is the new Sapling; map resources like Fitcheck and IVerif",
+            "disposition": "new-sapling-resource-map",
+            "productName": "DLOCK",
+            "liveUrl": "https://dlock-lp.vercel.app/",
+            "githubRepositoryFound": true,
+            "githubRepositoryArchived": false,
+            "localProjectFolderFound": false,
+            "rootMapState": "no-shallow-folder-row-yet",
+            "resourceFamilies": [
+              "landing-page",
+              "hardware-gallery:EKPL2",
+              "hardware-gallery:EKKB2-TY",
+              "hardware-gallery:SMKB2-BT",
+              "self-storage-imagery",
+              "TUYA-and-Bluetooth-access-foundation"
+            ],
+            "productBranchPacket": "docs/plans/product-branches/dlock.md"
+          }
         },
         {
           "repository": "thoughtseed-labs/material_dump",

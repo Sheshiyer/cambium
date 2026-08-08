@@ -10,7 +10,7 @@ import {
 
 export const PORTFOLIO_CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
-const EXPECTED_CATALOG_DIGEST = 'sha256:a75464baff16c8876e4875fb79542524540d410f29cef8e3acc77a954c587f31';
+const EXPECTED_CATALOG_DIGEST = 'sha256:2afdfd8d8f5642546a75daa395c51a73e6fe032d84ddd5d19af3d08b7b93b45c';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
@@ -109,13 +109,13 @@ export interface PortfolioOperationalGap {
 }
 
 export interface PortfolioCatalogSummary {
-  total: 73;
-  saplings: 20;
+  total: 74;
+  saplings: 21;
   clientBranches: 38;
   internalPrograms: 15;
   classificationReview: 0;
   historicalProducts: 20;
-  operationalGaps: 48;
+  operationalGaps: 49;
 }
 
 export interface PortfolioCatalogV1 {
@@ -177,13 +177,13 @@ const MISSING_MISSION_FIELDS = Object.freeze([
 ] as const);
 
 const SUMMARY: PortfolioCatalogSummary = Object.freeze({
-  total: 73,
-  saplings: 20,
+  total: 74,
+  saplings: 21,
   clientBranches: 38,
   internalPrograms: 15,
   classificationReview: 0,
   historicalProducts: 20,
-  operationalGaps: 48,
+  operationalGaps: 49,
 });
 
 function compact<T extends Record<string, unknown>>(value: T): T {
@@ -385,10 +385,10 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const historicalProducts = catalog.historicalProducts;
   const classificationReview = catalog.classificationReview;
   const operationalGaps = catalog.operationalGaps;
-  if (!Array.isArray(records) || records.length !== 73 || records.length > MAX_RECORDS) fail('record count drifted');
+  if (!Array.isArray(records) || records.length !== 74 || records.length > MAX_RECORDS) fail('record count drifted');
   if (!Array.isArray(historicalProducts) || historicalProducts.length !== 20 || historicalProducts.length > MAX_HISTORICAL) fail('historical count drifted');
   if (!Array.isArray(classificationReview) || classificationReview.length !== 0 || classificationReview.length > MAX_REVIEW) fail('classification review count drifted');
-  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 48 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
+  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 49 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
 
   records.forEach((record, index) => validateRecord(record as PortfolioCatalogRecord, index));
   const ids = records.map((record) => (record as PortfolioCatalogRecord).workId);
@@ -396,7 +396,7 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const saplings = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'sapling').length;
   const clients = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'client-branch').length;
   const programs = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'internal-program').length;
-  if (saplings !== 20 || clients !== 38 || programs !== 15) fail('classification counts drifted');
+  if (saplings !== 21 || clients !== 38 || programs !== 15) fail('classification counts drifted');
 
   const historicalIds = new Set<string>();
   for (const [index, value] of historicalProducts.entries()) {
@@ -439,13 +439,13 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
 
   const summary = catalog.summary;
   if (!isRecord(summary)
-    || summary.total !== 73
-    || summary.saplings !== 20
+    || summary.total !== 74
+    || summary.saplings !== 21
     || summary.clientBranches !== 38
     || summary.internalPrograms !== 15
     || summary.classificationReview !== 0
     || summary.historicalProducts !== 20
-    || summary.operationalGaps !== 48) fail('summary drifted');
+    || summary.operationalGaps !== 49) fail('summary drifted');
 
   const actualDigest = sha256(catalogHashPayload(catalog as unknown as PortfolioCatalogV1));
   if (actualDigest !== catalog.catalogDigest) fail('catalog digest does not match canonical content');

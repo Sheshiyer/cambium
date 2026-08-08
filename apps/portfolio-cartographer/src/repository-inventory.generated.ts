@@ -150,5 +150,15 @@ export const REPOSITORY_INVENTORY = [
     "archived": false,
     "pushedAt": "2026-08-07T00:45:46Z",
     "updatedAt": "2026-08-07T00:46:03Z"
+  },
+  {
+    "fullName": "thoughtseed-labs/lockwell-portal",
+    "repositoryId": "R_kgDOP5AZyQ",
+    "nodeId": "R_kgDOP5AZyQ",
+    "visibility": "PRIVATE",
+    "defaultBranch": "main",
+    "archived": false,
+    "pushedAt": "2025-09-29T12:52:14Z",
+    "updatedAt": "2025-09-29T12:52:21Z"
   }
 ] as const;
