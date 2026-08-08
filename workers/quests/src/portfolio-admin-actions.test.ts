@@ -68,6 +68,36 @@ function projectCreationInput(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function closeoutInput(overrides: Record<string, unknown> = {}) {
+  return {
+    schema: 'thoughtseed.portfolio-admin-action.v1',
+    kind: 'close-work-object',
+    portfolioId: 'thoughtseed',
+    idempotencyKey: 'close-cambium-1',
+    rootMapDigest: ROOT_DIGEST,
+    sourceDigest: SOURCE_DIGEST,
+    subject: { id: 'sapling:cambium', name: 'Cambium' },
+    proposal: {
+      closeoutSchema: 'thoughtseed.project-closeout.v1',
+      disposition: 'completed',
+      finalSummary: 'Founder reviewed final handoff, receipts, memory projection, and finished-index delta.',
+      handoffMarkdownPath: '.project/HANDOFF.md',
+      closureReceiptJsonPath: '.project/project-closeout-receipt.v1.json',
+      agentMemoryJsonPath: '.project/agent-memory-projection.v1.json',
+      r2VaultPrefix: 'project-closeouts/v1/thoughtseed/sapling-cambium',
+      activeIndexDisposition: 'remove-from-active',
+      repositoryFinalStateReviewed: true,
+      handoffDocumented: true,
+      r2VaultRecorded: true,
+      agentMemoryUpdated: true,
+      activeIndexUpdated: true,
+      downstreamFlowsStopped: true,
+      successorWorkObjectId: '',
+    },
+    ...overrides,
+  };
+}
+
 function fixtures() {
   const r2 = new Map<string, string>();
   const kv = new Map<string, string>();
@@ -279,6 +309,74 @@ test('explicit local-founder creation derives grammar and becomes execution-read
   assert.equal(trigger.portfolioId, 'thoughtseed');
   assert.equal(trigger.kind, 'create-thoughtseed-project');
   assert.equal(trigger.status, 'execution-ready');
+});
+
+test('closeout records immutable R2 evidence before queuing the project-closeout flow', async () => {
+  const fixture = fixtures();
+  const receipt = await recordPortfolioAdminAction(closeoutInput(), {
+    store: createPortfolioAdminActionStore(fixture.bucket),
+    queue: createPortfolioAdminActionQueue(fixture.queueKv),
+    actorId: 'plexus:pid_founder',
+    now: () => '2026-08-08T05:30:00.000Z',
+  });
+
+  assert.equal(receipt.status, 'queued');
+  assert.equal(receipt.nextFlow, 'project-closeout');
+  assert.equal(receipt.approvalStatus, null);
+  assert.equal(fixture.events[0].startsWith('r2:'), true);
+  assert.equal(fixture.events[1].startsWith('kv:'), true);
+
+  const evidence = JSON.parse([...fixture.r2.values()][0]);
+  assert.equal(evidence.nextFlow, 'project-closeout');
+  assert.equal(evidence.action.kind, 'close-work-object');
+  assert.equal(evidence.action.proposal.closeoutSchema, 'thoughtseed.project-closeout.v1');
+  assert.equal(evidence.action.proposal.agentMemoryJsonPath, '.project/agent-memory-projection.v1.json');
+  assert.equal(evidence.action.proposal.activeIndexDisposition, 'remove-from-active');
+
+  const trigger = JSON.parse([...fixture.kv.values()][0]);
+  assert.equal(trigger.kind, 'close-work-object');
+  assert.equal(trigger.status, 'pending-project-closeout');
+  assert.equal(trigger.nextFlow, 'project-closeout');
+  assert.equal('r2Key' in trigger, false);
+});
+
+test('incomplete closeout cannot write durable evidence or leave active workflow', async () => {
+  const fixture = fixtures();
+  const deps = {
+    store: createPortfolioAdminActionStore(fixture.bucket),
+    queue: createPortfolioAdminActionQueue(fixture.queueKv),
+    actorId: 'plexus:pid_founder',
+    now: () => '2026-08-08T05:30:00.000Z',
+  };
+
+  await assert.rejects(
+    () => recordPortfolioAdminAction(closeoutInput({
+      proposal: {
+        ...(closeoutInput().proposal as Record<string, unknown>),
+        handoffDocumented: false,
+      },
+    }), deps),
+    PortfolioAdminActionValidationError,
+  );
+  await assert.rejects(
+    () => recordPortfolioAdminAction(closeoutInput({
+      proposal: {
+        ...(closeoutInput().proposal as Record<string, unknown>),
+        r2VaultPrefix: '../escape',
+      },
+    }), deps),
+    PortfolioAdminActionValidationError,
+  );
+  await assert.rejects(
+    () => recordPortfolioAdminAction(closeoutInput({
+      proposal: {
+        ...(closeoutInput().proposal as Record<string, unknown>),
+        agentMemoryJsonPath: 'secret/memory.txt',
+      },
+    }), deps),
+    PortfolioAdminActionValidationError,
+  );
+  assert.equal(fixture.events.length, 0);
 });
 
 test('agent creation stays Founder-Gate-pending until exact intent approval', async () => {

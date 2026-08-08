@@ -20,8 +20,10 @@ import {
   ORGAN_WORKFLOWS,
   REVIEW_RECORDS,
   WORK_OBJECTS,
+  closeoutReadiness,
   createReusableIpProposal,
   createPacket,
+  defaultCloseout,
   defaultReconciliation,
   deriveClassificationFromOrigin,
   intakeReadiness,
@@ -32,6 +34,7 @@ import {
   groupWorkObjects,
   hasWhiteLabelReuse,
   hasLocalPlan,
+  isTerminalCloseout,
   normalizeTags,
   normalizeClientFamilyId,
   normalizeReviewNote,
@@ -224,6 +227,36 @@ test('legacy horizon intent cannot hide unresolved source-unplanned work', () =>
     legacyEvidenceReviewed: true,
   }
   assert.equal(smartViewCount('unplanned', { [work.workId]: plan }, { [work.workId]: ready }), withoutIntake - 1)
+})
+
+test('durable completed/closed closeout moves work out of active workflow', () => {
+  const id = 'sapling:cambium'
+  const closeout = {
+    ...defaultCloseout(id),
+    finalSummary: 'Project delivered and final handoff accepted by the founder.',
+    repositoryFinalStateReviewed: true,
+    handoffDocumented: true,
+    r2VaultRecorded: true,
+    agentMemoryUpdated: true,
+    activeIndexUpdated: true,
+    downstreamFlowsStopped: true,
+    receiptId: 'pa_0123456789abcdef01234567',
+    updatedAt: '2026-08-08T05:30:00.000Z',
+  }
+  assert.equal(closeoutReadiness(closeout).ready, true)
+  assert.equal(isTerminalCloseout(closeout), true)
+
+  const closeouts = { [id]: closeout }
+  assert.equal(filterWorkObjects('cambium', new Set(), 'all', {}, {}, closeouts).some((work) => work.workId === id), false)
+  assert.equal(filterWorkObjects('cambium', new Set(), 'completed-closed', {}, {}, closeouts).map((work) => work.workId).includes(id), true)
+  assert.equal(smartViewCount('completed-closed', {}, {}, closeouts), 1)
+
+  const packet = createPacket({ focusedId: id, plans: {}, closeouts })
+  const restored = parsePacket(packet)
+  assert.equal(restored.closeouts[id].receiptId, closeout.receiptId)
+  const markdown = toMarkdown(packet)
+  assert.match(markdown, /## Completed \/ closed work/)
+  assert.match(markdown, /project-closeouts\/v1\/thoughtseed\/sapling-cambium/)
 })
 
 test('client-derived reusable IP becomes a separate linked Sapling proposal', () => {
@@ -737,6 +770,23 @@ test('active Workbench is Thoughtseed-only and exposes governed project birth', 
   assert.match(source, /kind: 'create-thoughtseed-project'/)
   assert.match(source, /sourceDigest: CLASSIFICATION_DIGEST/)
   assert.doesNotMatch(source, /name="(?:path|destination)"/)
+})
+
+test('active Workbench exposes terminal closeout controls and hides them behind receipts', async () => {
+  const source = await readFile(new URL('./App.tsx', import.meta.url), 'utf8')
+  const styles = await readFile(new URL('./index.css', import.meta.url), 'utf8')
+  assert.match(source, /Completed \/ Closed/)
+  assert.match(source, /Closeout/)
+  assert.match(source, /Save closeout & move from active workflow/)
+  assert.match(source, /kind: 'close-work-object'/)
+  assert.match(source, /project-closeout/)
+  assert.match(source, /closeoutReadiness/)
+  assert.match(source, /isTerminalCloseout/)
+  assert.match(source, /closeout receipt/)
+  assert.match(source, /Downstream active flows stopped or transferred/)
+  assert.match(source, /setActiveView\('completed-closed'\)/)
+  assert.doesNotMatch(source, /Start project ingestion/)
+  assert.match(styles, /\.drawer-tabs \{[\s\S]*?grid-template-columns: repeat\(4, minmax\(0, 1fr\)\);/)
 })
 
 test('planning history is mutually exclusive and state replacement safe', () => {

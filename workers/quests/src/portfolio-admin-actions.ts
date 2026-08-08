@@ -7,6 +7,7 @@ export const PORTFOLIO_ADMIN_ACTION_EVIDENCE_SCHEMA = 'thoughtseed.portfolio-adm
 export const PORTFOLIO_ADMIN_ACTION_TRIGGER_SCHEMA = 'thoughtseed.portfolio-admin-action-trigger.v1' as const;
 export const PORTFOLIO_ADMIN_ACTION_RECEIPT_SCHEMA = 'thoughtseed.portfolio-admin-action-receipt.v1' as const;
 export const PROJECT_CREATION_INTENT_SCHEMA = 'thoughtseed.project-creation-intent.v1' as const;
+export const PROJECT_CLOSEOUT_SCHEMA = 'thoughtseed.project-closeout.v1' as const;
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const SHA256_REF = /^sha256:[0-9a-f]{64}$/;
@@ -15,13 +16,16 @@ const SAFE_SUBJECT_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,159}$/;
 const SAFE_SLUG = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
 const SAFE_CLIENT_FAMILY = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const SAFE_GATE_RECEIPT = /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
+const SAFE_REPO_DOC_PATH = /^(?:[.]project|docs)\/[A-Za-z0-9._/-]+\.(?:md|json)$/;
+const SAFE_R2_PREFIX = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{7,219}$/;
 const TEXT = new TextEncoder();
 const THOUGHTSEED_WORK_OBJECTS = new Map(PORTFOLIO_CATALOG.records.map((record) => [record.workId, record]));
 
 type PortfolioId = 'thoughtseed';
-type PortfolioAdminActionKind = 'reconcile-work-object' | 'create-thoughtseed-project';
-type NextFlow = 'repository-intake-review' | 'founder-gate-review' | 'project-creation-execution';
-type ApprovalStatus = 'pending-governed-intake' | 'founder-gate-pending' | 'execution-ready';
+type PortfolioAdminActionKind = 'reconcile-work-object' | 'create-thoughtseed-project' | 'close-work-object';
+type NextFlow = 'repository-intake-review' | 'founder-gate-review' | 'project-creation-execution' | 'project-closeout';
+type ApprovalStatus = 'pending-governed-intake' | 'founder-gate-pending' | 'execution-ready' | 'pending-project-closeout';
+type ReceiptApprovalStatus = 'founder-gate-pending' | 'execution-ready' | null;
 
 interface RepositoryPlanningAuthority {
   kind: 'repository';
@@ -66,6 +70,24 @@ interface ProjectCreationProposal {
   founderApproval: FounderApproval | null;
 }
 
+interface ProjectCloseoutProposal {
+  closeoutSchema: typeof PROJECT_CLOSEOUT_SCHEMA;
+  disposition: 'completed' | 'closed' | 'terminated';
+  finalSummary: string;
+  handoffMarkdownPath: string;
+  closureReceiptJsonPath: string;
+  agentMemoryJsonPath: string;
+  r2VaultPrefix: string;
+  activeIndexDisposition: 'remove-from-active' | 'mark-finished';
+  repositoryFinalStateReviewed: true;
+  handoffDocumented: true;
+  r2VaultRecorded: true;
+  agentMemoryUpdated: true;
+  activeIndexUpdated: true;
+  downstreamFlowsStopped: true;
+  successorWorkObjectId: string;
+}
+
 export type PortfolioAdminAction =
   | {
     schema: typeof PORTFOLIO_ADMIN_ACTION_SCHEMA;
@@ -86,6 +108,16 @@ export type PortfolioAdminAction =
     sourceDigest: string;
     subject: { id: string; name: string };
     proposal: ProjectCreationProposal;
+  }
+  | {
+    schema: typeof PORTFOLIO_ADMIN_ACTION_SCHEMA;
+    kind: 'close-work-object';
+    portfolioId: 'thoughtseed';
+    idempotencyKey: string;
+    rootMapDigest: string;
+    sourceDigest: string;
+    subject: { id: string; name: string };
+    proposal: ProjectCloseoutProposal;
   };
 
 export interface PortfolioAdminActionReceipt {
@@ -95,7 +127,7 @@ export interface PortfolioAdminActionReceipt {
   recordedAt: string;
   status: 'queued';
   nextFlow: NextFlow;
-  approvalStatus: Exclude<ApprovalStatus, 'pending-governed-intake'> | null;
+  approvalStatus: ReceiptApprovalStatus;
   duplicate: boolean;
 }
 
@@ -218,6 +250,11 @@ function bool(value: unknown, field: string): boolean {
   return value;
 }
 
+function confirmed(value: unknown, field: string): true {
+  if (value !== true) throw new PortfolioAdminActionValidationError(`${field} must be confirmed`);
+  return true;
+}
+
 function oneOf<T extends string>(value: unknown, field: string, allowed: readonly T[]): T {
   if (typeof value !== 'string' || !allowed.includes(value as T)) {
     throw new PortfolioAdminActionValidationError(`${field} is invalid`);
@@ -337,13 +374,70 @@ function projectCreationProposal(value: unknown): ProjectCreationProposal {
   };
 }
 
+function closeoutDocumentPath(value: unknown, field: string): string {
+  const normalized = boundedText(value, field, 160);
+  if (!SAFE_REPO_DOC_PATH.test(normalized) || normalized.includes('//') || normalized.includes('..')) {
+    throw new PortfolioAdminActionValidationError(`${field} is invalid`);
+  }
+  return normalized;
+}
+
+function closeoutProposal(value: unknown): ProjectCloseoutProposal {
+  if (!isRecord(value)) throw new PortfolioAdminActionValidationError('proposal must be an object');
+  exactFields(value, [
+    'closeoutSchema',
+    'disposition',
+    'finalSummary',
+    'handoffMarkdownPath',
+    'closureReceiptJsonPath',
+    'agentMemoryJsonPath',
+    'r2VaultPrefix',
+    'activeIndexDisposition',
+    'repositoryFinalStateReviewed',
+    'handoffDocumented',
+    'r2VaultRecorded',
+    'agentMemoryUpdated',
+    'activeIndexUpdated',
+    'downstreamFlowsStopped',
+    'successorWorkObjectId',
+  ], 'proposal');
+  if (value.closeoutSchema !== PROJECT_CLOSEOUT_SCHEMA) {
+    throw new PortfolioAdminActionValidationError('proposal.closeoutSchema is invalid');
+  }
+  const r2VaultPrefix = boundedText(value.r2VaultPrefix, 'proposal.r2VaultPrefix', 220);
+  if (!SAFE_R2_PREFIX.test(r2VaultPrefix) || r2VaultPrefix.includes('//') || r2VaultPrefix.includes('..')) {
+    throw new PortfolioAdminActionValidationError('proposal.r2VaultPrefix is invalid');
+  }
+  const successorWorkObjectId = boundedText(value.successorWorkObjectId, 'proposal.successorWorkObjectId', 160, false);
+  if (successorWorkObjectId && !SAFE_SUBJECT_ID.test(successorWorkObjectId)) {
+    throw new PortfolioAdminActionValidationError('proposal.successorWorkObjectId is invalid');
+  }
+  return {
+    closeoutSchema: PROJECT_CLOSEOUT_SCHEMA,
+    disposition: oneOf(value.disposition, 'proposal.disposition', ['completed', 'closed', 'terminated'] as const),
+    finalSummary: boundedText(value.finalSummary, 'proposal.finalSummary', 1200),
+    handoffMarkdownPath: closeoutDocumentPath(value.handoffMarkdownPath, 'proposal.handoffMarkdownPath'),
+    closureReceiptJsonPath: closeoutDocumentPath(value.closureReceiptJsonPath, 'proposal.closureReceiptJsonPath'),
+    agentMemoryJsonPath: closeoutDocumentPath(value.agentMemoryJsonPath, 'proposal.agentMemoryJsonPath'),
+    r2VaultPrefix,
+    activeIndexDisposition: oneOf(value.activeIndexDisposition, 'proposal.activeIndexDisposition', ['remove-from-active', 'mark-finished'] as const),
+    repositoryFinalStateReviewed: confirmed(value.repositoryFinalStateReviewed, 'proposal.repositoryFinalStateReviewed'),
+    handoffDocumented: confirmed(value.handoffDocumented, 'proposal.handoffDocumented'),
+    r2VaultRecorded: confirmed(value.r2VaultRecorded, 'proposal.r2VaultRecorded'),
+    agentMemoryUpdated: confirmed(value.agentMemoryUpdated, 'proposal.agentMemoryUpdated'),
+    activeIndexUpdated: confirmed(value.activeIndexUpdated, 'proposal.activeIndexUpdated'),
+    downstreamFlowsStopped: confirmed(value.downstreamFlowsStopped, 'proposal.downstreamFlowsStopped'),
+    successorWorkObjectId,
+  };
+}
+
 export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction {
   if (!isRecord(raw)) throw new PortfolioAdminActionValidationError('action must be an object');
-  const kind = oneOf(raw.kind, 'kind', ['reconcile-work-object', 'create-thoughtseed-project'] as const);
-  if (kind === 'reconcile-work-object') {
+  const kind = oneOf(raw.kind, 'kind', ['reconcile-work-object', 'create-thoughtseed-project', 'close-work-object'] as const);
+  if (kind === 'reconcile-work-object' || kind === 'close-work-object') {
     exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action');
     if (raw.schema !== PORTFOLIO_ADMIN_ACTION_SCHEMA || raw.portfolioId !== 'thoughtseed') {
-      throw new PortfolioAdminActionValidationError('reconcile-work-object action grammar is invalid');
+      throw new PortfolioAdminActionValidationError(`${kind} action grammar is invalid`);
     }
     if (!isRecord(raw.subject)) throw new PortfolioAdminActionValidationError('subject must be an object');
     exactFields(raw.subject, ['id', 'name'], 'subject');
@@ -372,8 +466,8 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
         id: subjectId,
         name: subjectName,
       },
-      proposal: workObjectProposal(raw.proposal),
-    };
+      proposal: kind === 'reconcile-work-object' ? workObjectProposal(raw.proposal) : closeoutProposal(raw.proposal),
+    } as Extract<PortfolioAdminAction, { kind: 'reconcile-work-object' | 'close-work-object' }>;
   }
 
   exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action');
@@ -446,6 +540,9 @@ async function approvalFor(
 }> {
   if (action.kind === 'reconcile-work-object') {
     return { status: 'pending-governed-intake', nextFlow: 'repository-intake-review', approvalStatus: null };
+  }
+  if (action.kind === 'close-work-object') {
+    return { status: 'pending-project-closeout', nextFlow: 'project-closeout', approvalStatus: null };
   }
   if (action.proposal.origin === 'unknown') {
     return { status: 'founder-gate-pending', nextFlow: 'founder-gate-review', approvalStatus: 'founder-gate-pending' };

@@ -3,12 +3,12 @@ project: Cambium
 task: "Expose portfolio ingestion headers and reconcile production controls"
 effort: E4
 effort_source: classifier
-phase: build
-progress: 789/851
+phase: verify
+progress: 809/871
 mode: interactive
-iteration: 2026-08-07-portfolio-ingestion-headers
+iteration: 2026-08-08-project-closeout-workflow
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-07T04:07:00Z
+updated: 2026-08-08T05:45:00Z
 ---
 
 ## Problem
@@ -160,6 +160,8 @@ For the client-family and review-triage iteration, make grouping the calm defaul
 For the repository-first intake iteration, replace the Unplanned scheduling shortcuts with a durable reconciliation flow: resolve the exact GitHub repository, record whether the origin is a Thoughtseed venture, Thoughtseed internal capability, client, or unknown, derive the only grammar-valid WorkObject type, name the repository or Cambium as planning authority, reconcile legacy tool/session evidence, and block horizon scheduling until every gate agrees. Preserve all existing local plan data through a v4 migration, publish a privacy-safe repository-evidence snapshot, export unresolved mapping proposals, capture the flow in plans and roadmap, and track execution in GitHub Issues plus a dedicated Project without relocating any file tree or deploying the Worker.
 
 For the portfolio-ingestion-header iteration, make the merged repository-first controls observable, add explicit Thoughtseed and Tryambakam · Noesis portfolio headers, map the 47 and 30 shallow destination folders without nesting them, label Tryambakam-Noesis items as Projects rather than Client Branches, write reversible root index files, and prepare an exact promotion candidate while preserving the reviewed-held production gate.
+
+For the project-closeout iteration, add a terminal `Completed / Closed` workflow for Thoughtseed work that no longer needs active tracking. Done means closeout is receipt-backed, complete records are prepared for final handoff, R2 vault archive, agent-aware active/finished memory, and active-to-finished index delta, downstream flows are stopped or transferred, active Workbench views exclude closed work, and all effects remain governed without relocating folders, mutating Vault/R2 directly, touching the Goal Graph, or deploying production.
 
 ## Criteria
 
@@ -1242,6 +1244,29 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 - [x] ISC-909: The local executor requires exact equality with the reviewed root-map and portfolio-catalog digests.
 - [x] ISC-910: The standalone CLI executes only local-founder intents; non-founder execution requires a trusted host-injected Gate resolver.
 
+### Thoughtseed project closeout workflow
+
+- [x] ISC-911: The Workbench exposes a `Completed / Closed` smart view.
+- [x] ISC-912: A WorkObject appears in `Completed / Closed` only after a complete closeout record has a durable receipt.
+- [x] ISC-913: Terminal closeouts are excluded from active Workbench views.
+- [x] ISC-914: A focused WorkObject exposes a `Closeout` drawer tab.
+- [x] ISC-915: The Closeout tab records exactly one disposition: `completed`, `closed`, or `terminated`.
+- [x] ISC-916: The Closeout tab records exactly one active-index disposition: `remove-from-active` or `mark-finished`.
+- [x] ISC-917: The Closeout tab requires a final outcome and handoff summary.
+- [x] ISC-918: The Closeout tab requires final handoff Markdown, closeout receipt JSON, agent memory JSON, and R2 vault prefix fields.
+- [x] ISC-919: The Closeout tab requires repository final review, handoff, R2 manifest, agent memory, active-index delta, and downstream-flow confirmations.
+- [x] ISC-920: The closeout save action stays disabled until all required closeout fields and confirmations are complete.
+- [x] ISC-921: A successful closeout receipt marks the card `Completed / Closed` with `closeout receipt` provenance.
+- [x] ISC-922: `thoughtseed.portfolio-admin-action.v1` accepts `close-work-object` only for the `thoughtseed` portfolio.
+- [x] ISC-923: `close-work-object` proposals use schema `thoughtseed.project-closeout.v1`.
+- [x] ISC-924: `close-work-object` validates exact shipped root-map and portfolio-catalog digests.
+- [x] ISC-925: `close-work-object` rejects incomplete confirmations, unsafe closeout document paths, and unsafe R2 prefixes before storage.
+- [x] ISC-926: A valid closeout action writes immutable/idempotent R2 evidence before queueing `project-closeout`.
+- [x] ISC-927: The project-closeout executor supports a dry-run plan that writes no project files.
+- [x] ISC-928: The project-closeout executor writes `.project/HANDOFF.md`, `.project/project-closeout-receipt.v1.json`, `.project/agent-memory-projection.v1.json`, and `.project/finished-index-delta.v1.json` only in execute mode.
+- [x] ISC-929: The closeout executor rejects stale digests, incomplete confirmations, unsafe paths, and symlink project roots.
+- [x] ISC-930: Anti: closeout implementation performs no filesystem relocation, GitHub issue closure, Vault/R2 copy mutation, Goal Graph write, deletion, or production deployment.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1345,6 +1370,7 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 | ISC-820..850 | portfolio ingestion headers | production drift is observed; 47 Thoughtseed and 30 Tryambakam-Noesis folders map through shallow headers; obsolete buttons remain absent; root headers are bounded; release stays governance-gated | authenticated browser DOM, focused domain/generator tests, temporary-root writer tests, `pnpm check`, route parity, release suite, filesystem before/after inventory, `gh` |
 | ISC-851..864 | hosted portfolio admin actions | export controls are retired; founder actions persist R2 evidence before a governed trigger; replay is safe; Goal Graph authority and promotion gates remain intact | focused action/store tests, authenticated route tests, CSP/source audit, bundle parity, browser action-state proof, release suite |
 | ISC-865..910 | Thoughtseed governed project birth | active UI is Thoughtseed-only; visible creation form emits origin-derived intent; authoritative founder Gate resolution controls non-founder execution; exact-snapshot local executor creates packet, registry-derived workflow stages, and pending-ingestion receipts | focused UI/action/executor tests, temporary roots, bundle parity, browser proof, release suite, independent audit |
+| ISC-911..930 | Thoughtseed project closeout | terminal Completed / Closed state removes receipt-backed work from active views, queues closeout evidence, writes handoff/memory/index records through the local executor, and preserves no-relocation/no-production boundaries | focused domain/action/executor tests, Portfolio Cartographer check, bundle parity, source audit, `git diff --check` |
 
 ## Features
 
@@ -1362,6 +1388,7 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 - `ThoughtseedOnlyWorkbench` | Remove Tryambakam from active rendering, preserve static evidence, and expose one bounded project-creation form | satisfies ISC-865..867, ISC-896..904 | depends_on PortfolioRootMap | parallelizable false
 - `ProjectCreationIntent` | Validate source, origin, derived grammar, relative destination, and Founder Gate binding | satisfies ISC-868..885, ISC-894, ISC-900..904 | depends_on HostedPortfolioActions | parallelizable false
 - `TrustedProjectExecutor` | Create a shallow local Git project packet, registry-derived workflow stages, and pending-ingestion/index-proposal receipts | satisfies ISC-886..895, ISC-905..906 | depends_on ProjectCreationIntent | parallelizable false
+- `ProjectCloseoutWorkflow` | Move receipt-backed finished work out of active tracking while producing handoff, R2 archive, memory, and finished-index records | satisfies ISC-911..930 | depends_on HostedPortfolioActions, ProjectCreationIntent | parallelizable false
 - `ActionRequestConsumption` | Implement the bounded queued-to-consumed lifecycle already promised by the public contract | satisfies ISC-66..71, ISC-80 | depends_on ActionRequestContract | parallelizable false
 - `AdditionalDriftGates` | Remove dead config, strictify release proof, cover Gate in CI, and retire R3F issue mirrors | satisfies ISC-72..79 | depends_on FixtureParity, RoutingGovernance | parallelizable true
 - `LeadStackConsolidation` | Merge the seven reviewed PRs and prove consolidated main | satisfies ISC-81..90 | depends_on AdditionalDriftGates | parallelizable false
@@ -1450,6 +1477,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-08 05:45: refined: `Completed / Closed` is a terminal workflow, not a normal local portfolio signal. A WorkObject can leave active views only when a receipt-backed closeout records final handoff, closeout JSON, R2 vault archive intent, agent-aware active/finished memory, active-index delta, and downstream-flow closure. The browser queues intent; the local executor prepares repo-local records; real Vault/R2 synchronization, GitHub issue closure, physical relocation, Goal Graph writes, deletion, and production deployment remain separate governed steps.
 - 2026-08-07 05:05: refined: Tryambakam · Noesis remains preserved in the reviewed root snapshot and external header files but is retired from the active Portfolio Workbench. The founder-facing surface now focuses only on Thoughtseed; the prior selector and Tryambakam active-action criteria remain stable-ID tombstones rather than being renumbered or silently rewritten.
 - 2026-08-07 05:05 refined after audit: explicit local founder commands may execute a validated Thoughtseed project creation immediately. Requests originating from agents, RBAC, dgchat, or any other system remain proposals until the Worker resolves an active founder approval from the authoritative Thoughtseed Gate store and binds its subject to the exact normalized intent digest. Inline receipt claims are references, never authority.
 - 2026-08-07 05:05: a hosted Worker records creation intent but cannot write the founder filesystem. A trusted local executor derives `<projects-root>/thoughtseed/<slug>`, creates the initial Git/project packet, and emits project-local `pending-cambium-ingestion` evidence; GitHub planning authority and canonical portfolio reconciliation remain later governed steps.
@@ -1606,6 +1634,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-03 13:33 UTC: Cloudflare Access policy read-back and policy tester both grant the founder email; the remaining denial is inside Cambium's downstream whoami handoff. The protected custom Plexus hostname returns a non-JSON Access-edge response to Worker-to-Worker fetch, so the resolver correctly floors to consultant. The read-only `PLEXUS_WHOAMI_URL` now uses TeamForge's workers.dev origin, where the same verified Access JWT is checked by Plexus without a second Access wall; no policy, identity, or secret mutation was needed.
 
 ## Changelog
+
+- 2026-08-08 | conjectured: a finished portfolio item could be represented by the existing `completed` or `archived` signal
+  refuted by: the founder clarified that closing work requires downstream effects: final handoff, R2 vault records, memory/index updates, stopped/transferred flows, and a handoff/completion/termination process comparable to onboarding
+  learned: terminal status needs its own receipt-backed closeout grammar, UI tab, admin action, executor, docs, and agent-readable active/finished projection rather than a passive card label
+  criterion now: ISC-911..930 require a terminal `Completed / Closed` flow with gated UI readiness, R2-before-queue action evidence, local handoff/memory/index records, and explicit no-relocation/no-production boundaries
 
 - 2026-08-07 | conjectured: one active Workbench should present both standalone portfolio roots and let each request source initiate its own project-creation behavior
   refuted by: the founder explicitly narrowed the active UI to Thoughtseed and approved one governed intent path where local founder execution is direct but every agent-originated request waits for Founder Gate approval
@@ -1779,6 +1812,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-07 tracking and preservation proof: GitHub issues #289..#293 separately own implementation, repository/origin audit, planning-authority migration, packet review, and later production promotion. Private GitHub Project #14 contains those issues plus the preserved unfinished-board and relocation-preparation issues. The primary dirty checkout was not edited; the work ran on clean branch `codex/portfolio-repository-first-intake` rooted at the recorded current `origin/main`. No repository was moved, copied, deleted, or nested, and no Vault registry, R2 copy, native client store, provider, Cloudflare Version, production traffic, or deployment state changed.
 - 2026-08-07 final ReReadCheck: the exact final ask was to apply all described portfolio changes, with the governing clarification that only internal Thoughtseed-originated projects may become Saplings and every client project is a Client Branch even when new. Source, tests, browser state, plans, roadmap, handoff, and GitHub tracking all implement that grammar; `new` no longer appears as a type or scheduling shortcut, repository-first reconciliation precedes planning, and relocation plus production promotion remain separately gated.
 - 2026-08-07 post-deliverable Advisor call was attempted before completion and failed closed because the local Claude OAuth session had expired and could not refresh. No approval was inferred. Completion instead rests on direct test/browser evidence and the clean independent re-audit; production remains blocked behind packet review #292 and promotion issue #293.
+- 2026-08-08 project-closeout verification: `pnpm --dir apps/portfolio-cartographer check` passed 49 active tests with one historical skip, lint, build, bundle, standalone audit, CSP smoke, and hosted artifact smoke. Generated bundle SHA-256 is `1d15866bbe085091b13a482e254a10094b49ea25f0c6c3c3af0a2d7a2d0e3540` at 358,803 bytes, with byte-matched Worker embed regeneration. `npm test` passed 1568/1568 and `git diff --check` passed. The closeout executor tests prove dry-run no-write behavior, execute-mode handoff/memory/index outputs in temporary roots, stale digest rejection, incomplete confirmation rejection, unsafe path rejection, and symlink-root rejection. No production Worker, physical project folder, GitHub issue, Vault/R2 copy, Goal Graph, provider, or deployment state was mutated.
 
 - 2026-07-28 ISC-390..394 Task 11 verification: commit `84dcf99` implements contextual Gate and Inspect sheets, reuses the signed-action client, preserves server-derived actor plus tenant/digest/nonce/expiry/head-version/fence bindings, restores origin scene and keyboard focus on close, and fails closed for replay/expiry/tenant/version/fence errors.
 - 2026-07-28 ISC-395..402 Task 12 verification: commit `04a2d93` plus canonical proof refresh `8dda155` prove the operating-fabric page, Gate sheet, and Inspect sheet at 320/390/430px with zero overflow, 44px interactive targets, correct focus/semantics/landmarks/headings, reduced-motion compliance, a linear graph fallback, and safe loading/empty/stale/unauthorized/error states; the text-density audit passes.

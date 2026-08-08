@@ -28,8 +28,8 @@ Founder browser / Telegram WebApp
   -> Cloudflare Access + Plexus founder OR Telegram signed-founder validation
   -> closed-schema validation and 16 KiB request ceiling
   -> immutable/idempotent R2 action evidence
-  -> pending-governed-intake queue trigger
-  -> later reviewed compiler/approval flow
+  -> bounded governed queue trigger
+  -> later reviewed compiler/approval/executor flow
   -> D1 Goal Graph (sole operational writer)
 ```
 
@@ -39,23 +39,36 @@ internal R2 object key. No Goal Graph mutation occurs in the action endpoint.
 
 ## Action grammar
 
-`thoughtseed.portfolio-admin-action.v1` permits two initial actions:
+`thoughtseed.portfolio-admin-action.v1` now permits three active Thoughtseed
+actions:
 
 - `reconcile-work-object` for a Thoughtseed WorkObject's repository-first intake
   proposal;
-- `start-project-ingestion` for a Tryambakam · Noesis Project folder.
+- `create-thoughtseed-project` for governed project birth;
+- `close-work-object` for final handoff, archive, memory projection, finished
+  index delta, and active-workflow removal.
 
 The server rejects unknown fields, invalid portfolio/kind combinations,
 unbounded text, missing client families, inconsistent repository authority,
 digests that differ from the shipped catalog/root map, Thoughtseed subjects
-absent from the shipped WorkObject catalog, Tryambakam subjects or paths absent
-from the reviewed shallow 30-Project map, status drift, oversized bodies,
-missing founder authentication, and absent R2 configuration before any action
-can be accepted.
+absent from the shipped WorkObject catalog, unsafe project-birth slugs, unsafe
+closeout document paths, unsafe R2 closeout prefixes, incomplete closeout
+confirmations, status drift, oversized bodies, missing founder authentication,
+and absent R2 configuration before any action can be accepted.
 
 Only Thoughtseed-originated ventures can become Saplings. Client work remains a
-Client Branch. Tryambakam · Noesis actions use Project grammar and never emit a
-Client Branch classification.
+Client Branch. Tryambakam · Noesis actions were retired from the active
+Workbench by the governed-project-birth refinement and remain preserved only as
+reviewed static root evidence.
+
+Closeout is terminal. A WorkObject leaves active workflow views only after a
+complete `thoughtseed.project-closeout.v1` proposal receives a durable receipt;
+the downstream `project-closeout` flow then prepares `.project/HANDOFF.md`,
+`.project/project-closeout-receipt.v1.json`,
+`.project/agent-memory-projection.v1.json`,
+`.project/finished-index-delta.v1.json`, and the corresponding R2 vault archive
+manifest. Contract:
+`docs/project-management/thoughtseed-project-closeout.v1.json`.
 
 ## Durability and replay
 
