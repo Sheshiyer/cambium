@@ -1,6 +1,6 @@
 # Thoughtseed physical lane manifest
 
-Status: Phase 1 applied and verified; Phase 2 preflight passed and awaits exact live-apply approval.
+Status: Phases 1 and 2 applied and verified; Phase 3 Symphonics remains held.
 
 Preflight receipt: `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json`.
 
@@ -49,8 +49,13 @@ counterpart and receives a dedicated archive target before a clean-Git
 assertion. After promotion, the now-empty `website` directory remains
 infrastructure, so the accepted 58-directory root map and digest stay unchanged.
 
-No live apply is authorized yet. It requires the exact approval text:
+The founder supplied the exact approval text
 `approve live apply phase 2 Temperance archive-first promote preserve website container`.
+The apply completed without copying, merging, overwriting, or deleting content.
+The exact Git authority now occupies the canonical shallow slot; the prior
+shallow state and nested status file remain in their named archive targets; the
+`website` container remains empty infrastructure. Apply receipt:
+`docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json`.
 
 ## Held
 

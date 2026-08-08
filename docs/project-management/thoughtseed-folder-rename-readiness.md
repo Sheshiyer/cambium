@@ -22,7 +22,7 @@ The rename pass should not run during repository evidence mapping, Batch 5 close
 | --- | --- | --- |
 | `thoughtseed-labs` | Infrastructure boundary is settled. | None for active WorkObject mapping. |
 | `cambium` / `cambium-authoritative` | Phase 1 applied and verified. The exact Git checkout now occupies `cambium`; stale non-Git state is preserved in `_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`. | None unless rollback is required; use the Phase 1 apply receipt. |
-| `website` / `temperance-engine-landing-page` | Phase 2 preflight passed. The plan archives the shallow copy and nested status file, promotes the clean exact checkout, and preserves `website` as infrastructure. | Await exact live-apply approval: `approve live apply phase 2 Temperance archive-first promote preserve website container`. |
+| `website` / `temperance-engine-landing-page` | Phase 2 applied and verified. The clean exact checkout now occupies the shallow slot; prior shallow state and nested status remain archived; `website` remains empty infrastructure. | None unless rollback is required; use the Phase 2 apply receipt. |
 | `symphonics` | Founder hold: missing shallow folder; repository evidence is planning/docs. | Defer until the future native SDK / Tuya React Native app role is exact. |
 | `safvr` | Completed/closed Client Branch. | None unless the client relationship reopens. |
 | `virtualtryon-3d` | Retired/ignored empty hold. | None unless founder-gated reopen reverses retirement. |
@@ -31,7 +31,7 @@ The rename pass should not run during repository evidence mapping, Batch 5 close
 ## Batch 5 Result
 
 Batch 5 is closeout/exclusion complete. Cambium Phase 1 is applied under its
-separate approved manifest and receipt. Temperance Phase 2 reconciliation is
-complete and now waits at its exact live-apply approval gate; `symphonics` stays
-in founder hold until a future founder-approved manifest creates or maps the
-exact shallow folder.
+separate approved manifest and receipt. Temperance Phase 2 is also applied and
+verified under its preflight and apply receipt. `symphonics` stays in founder
+hold until a future founder-approved manifest creates or maps the exact shallow
+folder.

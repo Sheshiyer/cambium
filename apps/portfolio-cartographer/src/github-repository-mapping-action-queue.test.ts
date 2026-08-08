@@ -39,6 +39,8 @@ type Batch = {
     cambiumPhase1ApplyReceipt?: string;
     temperancePhase2PreflightReady?: boolean;
     temperancePhase2PreflightReceipt?: string;
+    temperancePhase2Applied?: boolean;
+    temperancePhase2ApplyReceipt?: string;
     filesystemMutationAuthorized?: boolean;
     shallowPortfolioRoot?: string;
     vaultContextRoot?: string;
@@ -79,7 +81,15 @@ const physicalLaneManifest = JSON.parse(
     status: string;
     liveApplyReady: boolean;
     preflightReceipt?: string;
+    applyReceipt?: string;
     requiredApprovalText?: string;
+    postApplyObservations?: {
+      canonicalSlot: { gitIdentity: string; workingTree: string };
+      archivedShallowState: { disposition: string };
+      archivedNestedLocalState: { statusFileSha256: string };
+      websiteContainer: { children: string[] };
+      rootMapDigest: string;
+    };
     resolvedPreflight?: string[];
     proposedOperations?: Array<{ op: string; source?: string; target?: string; path?: string }>;
     proposedOperationsWhenUnblocked?: Array<{ op: string; source?: string; target?: string; path?: string }>;
@@ -163,6 +173,35 @@ const physicalLanePhase2Preflight = JSON.parse(
   };
   proposedOperationsAfterExactApproval: Array<{ op: string; order: number; path?: string; source?: string; target?: string }>;
   rollback: Record<string, string[]>;
+  status: string;
+};
+const physicalLanePhase2Receipt = JSON.parse(
+  readFileSync(
+    new URL('../../../docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json', import.meta.url),
+    'utf8',
+  ),
+) as {
+  approval: { consumed: boolean; matchedFounderMessage: boolean; requiredText: string; scope: string };
+  externalMutation: Record<string, boolean>;
+  heldBoundaries: {
+    shallowGitignoreMergedIntoAuthority: boolean;
+    symphonicsExists: boolean;
+    thoughtseedLabsInodeBeforeAndAfter: string;
+    websiteWorkObjectCreated: boolean;
+  };
+  operations: Array<{ op: string; order: number }>;
+  phaseId: string;
+  postApply: {
+    archivedNestedLocalState: { children: string[]; inode: string; statusFileSha256: string };
+    archivedShallowState: { disposition: string; gitIdentity: string; inode: string; regularFileCount: number };
+    canonicalSlot: { gitIdentity: string; inode: string; remote: string; workingTreeClean: boolean };
+    container: { children: string[]; inode: string; role: string };
+    depthOneComparison: { expectedCount: number; missing: string[]; observedCount: number; ok: boolean; unexpected: string[] };
+    formerNestedAuthorityPathExists: boolean;
+    rootMap: { changed: boolean; fileSha256: string; snapshotDigest: string };
+    sensitiveIgnoredState: { contentHashed: boolean; contentInspected: boolean; pathRecorded: boolean };
+  };
+  rollback: { available: boolean; steps: string[] };
   status: string;
 };
 
@@ -293,26 +332,29 @@ test('Batch 5 settles closeouts while holding physical renames behind a manifest
   assert.equal(batch5.renameReadiness?.filesystemMutationAuthorized, false);
   assert.equal(batch5.renameReadiness?.cambiumPhase1Applied, true);
   assert.match(batch5.renameReadiness?.cambiumPhase1ApplyReceipt ?? '', /phase-1-apply-receipt\.v1\.json$/);
-  assert.equal(batch5.renameReadiness?.temperancePhase2PreflightReady, true);
+  assert.equal(batch5.renameReadiness?.temperancePhase2PreflightReady, false);
   assert.match(batch5.renameReadiness?.temperancePhase2PreflightReceipt ?? '', /phase-2-preflight\.v1\.json$/);
+  assert.equal(batch5.renameReadiness?.temperancePhase2Applied, true);
+  assert.match(batch5.renameReadiness?.temperancePhase2ApplyReceipt ?? '', /phase-2-apply-receipt\.v1\.json$/);
   assert.equal(batch5.renameReadiness?.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
   assert.equal(batch5.renameReadiness?.vaultContextRoot, '$PROJECTS_ROOT/thoughtseed/thoughtseed-labs');
   assert.match(batch5.renameReadiness?.thoughtseedLabsBoundary ?? '', /never a WorkObject folder/);
 });
 
-test('physical relocation manifest records Phase 1 applied and Phase 2 ready only for exact approval', () => {
+test('physical relocation manifest records Phase 1 and Phase 2 applied with Phase 3 held', () => {
   const phases = new Map(physicalLaneManifest.phases.map((phase) => [phase.phaseId, phase]));
   const cambium = phases.get('phase-1-cambium-archive-first-promote');
   const temperance = phases.get('phase-2-temperance-landing-page-promote-authority');
   const symphonics = phases.get('phase-3-symphonics-held');
   const manifestText = JSON.stringify(physicalLaneManifest);
 
-  assert.equal(physicalLaneManifest.status, 'phase-1-applied-phase-2-preflight-ready');
+  assert.equal(physicalLaneManifest.status, 'phase-1-and-phase-2-applied-phase-3-held');
   assert.equal(physicalLaneManifest.applyAuthorization.cleanupDriftIgnoredByFounder, true);
   assert.equal(physicalLaneManifest.applyAuthorization.liveApplyApproved, true);
   assert.equal(physicalLaneManifest.applyAuthorization.phase1ApprovalConsumed, true);
   assert.equal(physicalLaneManifest.applyAuthorization.phase2ReconciliationApproved, true);
-  assert.equal(physicalLaneManifest.applyAuthorization.phase2LiveApplyApproved, false);
+  assert.equal(physicalLaneManifest.applyAuthorization.phase2LiveApplyApproved, true);
+  assert.equal(physicalLaneManifest.applyAuthorization.phase2ApprovalConsumed, true);
   assert.equal(physicalLaneManifest.applyAuthorization.filesystemMutationAuthorized, false);
   assert.equal(physicalLaneManifest.scope.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
   assert.equal(physicalLaneManifest.scope.vaultContextRoot, '$PROJECTS_ROOT/thoughtseed/thoughtseed-labs');
@@ -333,10 +375,11 @@ test('physical relocation manifest records Phase 1 applied and Phase 2 ready onl
   ), true);
 
   assert.equal(temperance?.order, 2);
-  assert.equal(temperance?.liveApplyReady, true);
-  assert.equal(temperance?.status, 'preflight-passed-awaiting-explicit-live-apply-approval');
+  assert.equal(temperance?.liveApplyReady, false);
+  assert.equal(temperance?.status, 'applied-verified');
   assert.equal(temperance?.requiredApprovalText, 'approve live apply phase 2 Temperance archive-first promote preserve website container');
   assert.match(temperance?.preflightReceipt ?? '', /phase-2-preflight\.v1\.json$/);
+  assert.match(temperance?.applyReceipt ?? '', /phase-2-apply-receipt\.v1\.json$/);
   assert.equal(temperance?.resolvedPreflight?.length, 6);
   assert.equal(temperance?.proposedOperationsWhenApproved?.some(({ source, target }) =>
     source === '$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page' &&
@@ -345,6 +388,12 @@ test('physical relocation manifest records Phase 1 applied and Phase 2 ready onl
   assert.equal(temperance?.proposedOperationsWhenApproved?.some(({ op, path }) =>
     op === 'preserve-empty-container' && path === '$PROJECTS_ROOT/thoughtseed/website',
   ), true);
+  assert.equal(temperance?.postApplyObservations?.canonicalSlot.gitIdentity, 'exact-root');
+  assert.equal(temperance?.postApplyObservations?.canonicalSlot.workingTree, 'clean');
+  assert.equal(temperance?.postApplyObservations?.archivedShallowState.disposition, 'preserved-recoverable');
+  assert.match(temperance?.postApplyObservations?.archivedNestedLocalState.statusFileSha256 ?? '', /^[0-9a-f]{64}$/);
+  assert.deepEqual(temperance?.postApplyObservations?.websiteContainer.children, []);
+  assert.match(temperance?.postApplyObservations?.rootMapDigest ?? '', /^[0-9a-f]{64}$/);
 
   assert.equal(symphonics?.order, 3);
   assert.equal(symphonics?.liveApplyReady, false);
@@ -438,4 +487,54 @@ test('Temperance Phase 2 preflight preserves local state and requires exact live
   assert.equal(Object.values(physicalLanePhase2Preflight.externalMutation).every((performed) => performed === false), true);
   assert.equal(preflightText.includes('/Volumes/'), false);
   assert.equal(preflightText.includes('.env'), false);
+});
+
+test('Temperance Phase 2 apply receipt proves archive-first promotion and preserved boundaries', () => {
+  const receiptText = JSON.stringify(physicalLanePhase2Receipt);
+
+  assert.equal(physicalLanePhase2Receipt.status, 'applied-verified');
+  assert.equal(physicalLanePhase2Receipt.phaseId, 'phase-2-temperance-landing-page-promote-authority');
+  assert.equal(physicalLanePhase2Receipt.approval.requiredText, 'approve live apply phase 2 Temperance archive-first promote preserve website container');
+  assert.equal(physicalLanePhase2Receipt.approval.matchedFounderMessage, true);
+  assert.equal(physicalLanePhase2Receipt.approval.scope, 'phase-2-only');
+  assert.equal(physicalLanePhase2Receipt.approval.consumed, true);
+  assert.deepEqual(physicalLanePhase2Receipt.operations.map(({ order }) => order), [1, 2, 3, 4, 5, 6]);
+  assert.equal(physicalLanePhase2Receipt.postApply.canonicalSlot.gitIdentity, 'exact-root');
+  assert.equal(physicalLanePhase2Receipt.postApply.canonicalSlot.remote, 'https://github.com/Sheshiyer/temperance_engine_landing_page.git');
+  assert.equal(physicalLanePhase2Receipt.postApply.canonicalSlot.inode, '20463948');
+  assert.equal(physicalLanePhase2Receipt.postApply.canonicalSlot.workingTreeClean, true);
+  assert.equal(physicalLanePhase2Receipt.postApply.archivedShallowState.gitIdentity, 'not-a-git-repository');
+  assert.equal(physicalLanePhase2Receipt.postApply.archivedShallowState.disposition, 'preserved-recoverable');
+  assert.equal(physicalLanePhase2Receipt.postApply.archivedShallowState.inode, '30366279');
+  assert.equal(physicalLanePhase2Receipt.postApply.archivedShallowState.regularFileCount, 54);
+  assert.equal(physicalLanePhase2Receipt.postApply.archivedNestedLocalState.inode, '30694077');
+  assert.deepEqual(physicalLanePhase2Receipt.postApply.archivedNestedLocalState.children, ['_PROJECT-STATUS.md']);
+  assert.match(physicalLanePhase2Receipt.postApply.archivedNestedLocalState.statusFileSha256, /^[0-9a-f]{64}$/);
+  assert.equal(physicalLanePhase2Receipt.postApply.container.role, 'infrastructure-container');
+  assert.equal(physicalLanePhase2Receipt.postApply.container.inode, '30575091');
+  assert.deepEqual(physicalLanePhase2Receipt.postApply.container.children, []);
+  assert.equal(physicalLanePhase2Receipt.postApply.formerNestedAuthorityPathExists, false);
+  assert.deepEqual(physicalLanePhase2Receipt.postApply.depthOneComparison, { expectedCount: 58, observedCount: 58, missing: [], unexpected: [], ok: true });
+  assert.equal(physicalLanePhase2Receipt.postApply.rootMap.changed, false);
+  assert.match(physicalLanePhase2Receipt.postApply.rootMap.snapshotDigest, /^[0-9a-f]{64}$/);
+  assert.match(physicalLanePhase2Receipt.postApply.rootMap.fileSha256, /^[0-9a-f]{64}$/);
+  assert.deepEqual(physicalLanePhase2Receipt.postApply.sensitiveIgnoredState, {
+    contentInspected: false,
+    contentHashed: false,
+    pathRecorded: false,
+    disposition: 'remains contained inside the promoted authority and archived shallow trees',
+  });
+  assert.equal(physicalLanePhase2Receipt.rollback.available, true);
+  assert.equal(physicalLanePhase2Receipt.rollback.steps.length, 4);
+  assert.equal(physicalLanePhase2Receipt.heldBoundaries.thoughtseedLabsInodeBeforeAndAfter, '30565745');
+  assert.equal(physicalLanePhase2Receipt.heldBoundaries.symphonicsExists, false);
+  assert.equal(physicalLanePhase2Receipt.heldBoundaries.websiteWorkObjectCreated, false);
+  assert.equal(physicalLanePhase2Receipt.heldBoundaries.shallowGitignoreMergedIntoAuthority, false);
+  assert.equal(physicalLanePhase2Receipt.externalMutation.filesystemMutationPerformed, true);
+  assert.equal(physicalLanePhase2Receipt.externalMutation.contentDeletionPerformed, false);
+  assert.equal(Object.entries(physicalLanePhase2Receipt.externalMutation)
+    .filter(([key]) => !['filesystemMutationPerformed', 'contentDeletionPerformed'].includes(key))
+    .every(([, performed]) => performed === false), true);
+  assert.equal(receiptText.includes('/Volumes/'), false);
+  assert.equal(receiptText.includes('.env'), false);
 });

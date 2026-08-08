@@ -33,7 +33,7 @@
     "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
     "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
     "boundary": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>; thoughtseed-labs remains R2/vault infrastructure context, never a WorkObject folder",
-    "nextPhysicalPass": "Temperance Phase 2 reconciliation is complete; live apply awaits the exact approval recorded by the Phase 2 preflight receipt"
+    "nextPhysicalPass": "Cambium and Temperance physical lanes are applied; Symphonics remains held with no authorized physical pass"
   },
   "globalBlocks": [],
   "resolvedFounderDecisions": [
@@ -1107,12 +1107,14 @@
         "filesystemMutationAuthorized": false,
         "cambiumPhase1Applied": true,
         "cambiumPhase1ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json",
-        "temperancePhase2PreflightReady": true,
+        "temperancePhase2PreflightReady": false,
         "temperancePhase2PreflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json",
+        "temperancePhase2Applied": true,
+        "temperancePhase2ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json",
         "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
         "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
         "thoughtseedLabsBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder",
-        "nextPhysicalPass": "await exact Phase 2 approval: approve live apply phase 2 Temperance archive-first promote preserve website container"
+        "nextPhysicalPass": "none authorized; Symphonics remains held until its native-app role is exact"
       },
       "rows": [
         {

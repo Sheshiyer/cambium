@@ -824,3 +824,54 @@ mutation has been performed by drafting this packet.
   setting, or production deployment changed.
 - Next gate requires this exact approval text:
   `approve live apply phase 2 Temperance archive-first promote preserve website container`.
+
+### 2026-08-08 Temperance Phase 2 archive-first promotion checkpoint
+
+- The founder supplied the exact Phase 2 approval text
+  `approve live apply phase 2 Temperance archive-first promote preserve website container`.
+  That approval was consumed for Phase 2 only.
+- The nested checkout's untracked `_PROJECT-STATUS.md` was moved first into
+  `$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state`.
+  Its SHA-256 remains
+  `9ef2133d3e8a25ea9184ddc38f9d44979dbd03a9718d4c7e3a44b314d71ed9c3`,
+  and the authority checkout was clean before promotion.
+- The former non-Git shallow tree was moved intact to
+  `$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-pre-git-copy`.
+  It preserved device `16777242`, inode `30366279`, 54 regular files, 14
+  directories, zero symbolic links, and approximately 27 MB of recoverable
+  state.
+- The exact `Sheshiyer/temperance_engine_landing_page` checkout was promoted
+  into `$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page`. It preserved
+  device `16777242`, inode `20463948`, origin
+  `https://github.com/Sheshiyer/temperance_engine_landing_page.git`, branch
+  `main`, and head `488f8b7d945b7a8c07ce51a253e3f559149108e8`; its working tree is clean.
+- `$PROJECTS_ROOT/thoughtseed/website` was deliberately preserved as an empty
+  infrastructure container with its original inode `30575091`. It was not
+  deleted or turned into a WorkObject.
+- Post-apply depth-one comparison remains exact at 58 expected and 58 observed,
+  with zero missing or unexpected directories. The root-map snapshot digest
+  remains `8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe`
+  and the root-map file SHA-256 remains
+  `b16c45ffabd5a463bc1c0f44d1664654860cc6a839bf5dc53b65b3b7826c483e`.
+- Apply receipt:
+  `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json`.
+  It records the six applied operations, preserved inode evidence, exact
+  reverse-order rollback, and held boundaries.
+- Sensitive ignored content was not inspected, hashed, or named in the
+  artifacts. Both containing trees remain intact and recoverable.
+- Verification: focused relocation invariants passed 12/12; `pnpm --dir
+  apps/portfolio-cartographer check` passed 64 active tests with one historical
+  skip plus lint, build, bundle, standalone audit, CSP, and smoke; focused
+  Worker portfolio routes passed 36/36; full `npm test` passed 1568/1568;
+  edited JSON parsed and `git diff --check` passed. The hosted artifact remains
+  393,182 bytes with SHA-256
+  `930a4583dcc337247aaa2f3521674f582be1d6855cb34c7e04b33d550499ceb9`.
+- The durable deliverable is committed under
+  `feat(portfolio): apply temperance phase 2 promotion`; the final post-commit
+  probe must show the Cambium checkout clean and all recorded physical
+  identities unchanged.
+- `thoughtseed-labs` retained inode `30565745`; Symphonics remains absent and
+  held. No content was deleted, and no R2 object, GitHub state, registry row,
+  Goal Graph row, provider setting, or production deployment was mutated.
+- No further physical lane is authorized. Phase 3 Symphonics remains held until
+  its native-app role and separate founder gate are exact.

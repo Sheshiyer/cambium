@@ -2,7 +2,7 @@
   "schema": "thoughtseed.folder-rename-readiness.v1",
   "capturedDate": "2026-08-08",
   "portfolioId": "thoughtseed",
-  "status": "phase-1-applied-phase-2-preflight-ready",
+  "status": "phase-1-and-phase-2-applied-phase-3-held",
   "activeManifest": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
   "scope": {
     "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
@@ -60,18 +60,17 @@
     {
       "id": "temperance-landing-page-dedupe",
       "subject": "website / temperance-engine-landing-page",
-      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
-      "decision": "archive the shallow non-Git tree intact, separately archive the nested untracked status file, promote only the clean exact checkout, and preserve website as an empty infrastructure container",
-      "possibleLiveApply": "execute the exact Phase 2 preflight operations only after the recorded approval phrase",
-      "blockedBy": [
-        "exact live-apply approval: approve live apply phase 2 Temperance archive-first promote preserve website container"
-      ],
+      "status": "applied-verified",
+      "decision": "the shallow non-Git tree and nested status file are archived, the clean exact checkout occupies the canonical slot, and website remains an empty infrastructure container",
+      "possibleLiveApply": "complete; any rollback must follow the Phase 2 apply receipt",
+      "blockedBy": [],
       "evidence": [
         "docs/project-management/project-r2-mapping-proposals.md",
         "docs/project-management/github-repository-mapping-action-queue.v1.json",
         ".project/HANDOFF.md",
         "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
         "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json",
         "docs/evidence/2026-08-08-temperance-landing-page-reconciliation.md"
       ]
     },
@@ -132,6 +131,7 @@
     "sourceControlledOnly": false,
     "filesystemMutationPerformed": true,
     "phase1ApplyVerified": true,
+    "phase2ApplyVerified": true,
     "r2WritePerformed": false,
     "githubMutationPerformed": false,
     "productionDeployPerformed": false
