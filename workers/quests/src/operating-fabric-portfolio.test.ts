@@ -196,15 +196,23 @@ test('the real checked-in catalog renders every mapped WorkObject and review sur
     portfolioCatalogSummary: PORTFOLIO_CATALOG.summary,
   });
   assert.equal(normalized.mode, 'detail');
-  assert.equal(normalized.records.filter((record) => ['saplings', 'clients', 'programs'].includes(record.zone)).length, 72);
-  assert.equal(normalized.records.filter((record) => record.zone === 'review').length, 0);
-  assert.equal(normalized.records.filter((record) => record.zone === 'historical').length, 20);
+  assert.equal(
+    normalized.records.filter((record) => ['saplings', 'clients', 'programs'].includes(record.zone)).length,
+    PORTFOLIO_CATALOG.summary.saplings + PORTFOLIO_CATALOG.summary.clientBranches + PORTFOLIO_CATALOG.summary.internalPrograms,
+  );
+  assert.equal(normalized.records.filter((record) => record.zone === 'review').length, PORTFOLIO_CATALOG.summary.classificationReview);
+  assert.equal(normalized.records.filter((record) => record.zone === 'historical').length, PORTFOLIO_CATALOG.summary.historicalProducts);
 
   const html = renderCanopy(PROJECTION, {
     portfolioCatalog: PORTFOLIO_CATALOG,
     portfolioCatalogSummary: PORTFOLIO_CATALOG.summary,
   });
-  assert.equal([...html.matchAll(/data-portfolio-card/g)].length, 92);
+  assert.equal(
+    [...html.matchAll(/data-portfolio-card/g)].length,
+    PORTFOLIO_CATALOG.summary.total
+      + PORTFOLIO_CATALOG.summary.classificationReview
+      + PORTFOLIO_CATALOG.summary.historicalProducts,
+  );
   for (const identity of [
     'sapling:fitcheck',
     'sapling:parkarea',

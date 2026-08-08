@@ -467,7 +467,8 @@
           "candidateRepos": [
             "Sheshiyer/workforce-automation-app-symphonics"
           ],
-          "requiresRootMapRepair": true
+          "requiresRootMapRepair": true,
+          "rootMapRepairStatus": "blocked-missing-shallow-folder"
         },
         {
           "clientFamily": "ashwin-sheth-group",
@@ -667,7 +668,7 @@
     },
     {
       "batchId": "github-batch-005-root-map-catalog-repair",
-      "status": "ready-for-symphonics-row-review",
+      "status": "reviewed-blocked-missing-shallow-folder",
       "rows": [
         {
           "folder": "virtualtryon-3d",
@@ -680,7 +681,34 @@
           "folder": "symphonics",
           "currentWorkId": "branch:symphonics",
           "candidateRepository": "Sheshiyer/workforce-automation-app-symphonics",
-          "recommendedAction": "repair root-map folder/account coverage after repository-local planning review"
+          "status": "blocked-missing-shallow-folder",
+          "rootMapState": "missing-client-account-without-shallow-folder",
+          "repositoryEvidence": {
+            "nameWithOwner": "Sheshiyer/workforce-automation-app-symphonics",
+            "repositoryId": "R_kgDOOM0pmw",
+            "databaseId": 952969627,
+            "isFork": false,
+            "visibility": "public",
+            "defaultBranchRef": "main",
+            "pushedAt": "2025-03-22T09:47:22Z",
+            "planningFiles": [
+              "README.md",
+              "overview.md"
+            ]
+          },
+          "reviewEvidence": {
+            "reviewedAt": "2026-08-08",
+            "requestedRail": "temperance-parallel-dispatch",
+            "acceptedComboRail": "te-dispatch-paid via Codex profile",
+            "acceptedWorkerTask": "queue-flow",
+            "timedOutWorkerTasks": [
+              "rootmap-symphonics",
+              "generator-impact"
+            ],
+            "physicalFolderProbe": "$PROJECTS_ROOT/thoughtseed/symphonics is absent",
+            "repoPlanningProbe": "README.md and overview.md describe a documentation/planning repository for the Workforce Automation App; implementation has not begun."
+          },
+          "recommendedAction": "keep symphonics in missingClientAccounts and do not add a root-map folder row, create a project folder, or generate active repository/R2 mapping receipts until founder approves an exact shallow-folder/repository disposition"
         }
       ]
     }
