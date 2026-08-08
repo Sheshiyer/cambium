@@ -591,3 +591,44 @@ mutation has been performed by drafting this packet.
 - No folder was created, moved, copied, deleted, or reorganized. No R2 object,
   GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
   row, production deployment, or live hosted Workbench state was mutated.
+
+### 2026-08-08 Batch 4 internal program mapping checkpoint
+
+- Reviewed the Batch 4 internal program/vault contexts and resolved them into
+  12 executable repository rows, 16 future WorkObject receipt bindings, and 5
+  blocked rows. No client or internal repository was promoted to a Sapling.
+- `program:thoughtseed-vault` now carries exact evidence-only refs for
+  `Sheshiyer/thoughtseed-labs` and `Sheshiyer/thoughtseed-vault`. This does
+  not make R2/vault context live project state, code history, repository
+  ownership, or planning authority.
+- `program:company-website` now carries exact refs for
+  `thoughtseed/ThoughtseedOS-Site`, `thoughtseed/thoughtseedlabs-web`, and
+  `Sheshiyer/website`; `landingpage-ts-2026` and `thoughtseedos-website`
+  remain local/unavailable Git identity holds.
+- `program:temperance-hermes` now carries exact refs for
+  `Sheshiyer/temperance_engine_landing_page`, `Sheshiyer/hermes-aws-ts`, and
+  `Sheshiyer/temperance_engine`; `thoughtseed-hermes` and stale
+  `thoughtseed-labs/hermes-aws-ts` remain holds.
+- `program:meristem-brand-system`, `program:skill-clusters`,
+  `program:explee-capabilities`, and `program:operator-utilities` now carry
+  bounded representative refs for the admitted brand/skill/capability repos.
+  `plugins` remains deferred until a Git identity is attached or the founder
+  approves folding it into existing internal-program infrastructure.
+- Generated repository inventory now contains 134 immutable identities.
+  Repository evidence regenerated at 106 refs with digest
+  `3b49cca4a9231d22a55e4f7660c4e5503ede61031811d69b6c0aa1027d7cc284`.
+- Final digests: root map
+  `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`;
+  portfolio catalog
+  `sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64`;
+  hosted artifact SHA-256
+  `6fbe984ffde89d51df4de05566da12d6ec2319628995d5d3e97d6fdccd0667be`.
+- Verification: Batch 2/4 queue invariant tests passed 6/6; catalog tests
+  passed 13/13; catalog route tests passed 5/5; `pnpm --dir
+  apps/portfolio-cartographer check` passed 56 active tests with one historical
+  skip plus lint, bundle, standalone audit, CSP, and hosted smoke; focused
+  Worker portfolio/admin route tests passed 23/23; full `npm test` passed
+  1568/1568.
+- No folder was created, moved, copied, deleted, or reorganized. No R2 object,
+  GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
+  row, production deployment, or live hosted Workbench state was mutated.

@@ -118,6 +118,15 @@ Recommended mappings:
 
 R2 rule: this batch may prepare evidence prefixes, but it does not make R2 the live workflow writer. Workbench actions should write immutable receipts to R2 and let the governed Goal Graph / action rail handle operational state.
 
+Resolved evidence state (2026-08-08):
+
+- Eight internal/vault contexts were reviewed and grouped into 12 executable repository rows, 16 future WorkObject receipt bindings, and 5 blocked rows.
+- `program:thoughtseed-vault` receives `Sheshiyer/thoughtseed-labs` and `Sheshiyer/thoughtseed-vault` as evidence-only vault/R2 context.
+- `program:company-website` receives `thoughtseed/ThoughtseedOS-Site`, `thoughtseed/thoughtseedlabs-web`, and `Sheshiyer/website`; local `landingpage-ts-2026` and `thoughtseedos-website` remain unavailable as GitHub identities.
+- `program:temperance-hermes` receives `Sheshiyer/temperance_engine_landing_page`, `Sheshiyer/hermes-aws-ts`, and `Sheshiyer/temperance_engine`; local `thoughtseed-hermes` and stale `thoughtseed-labs/hermes-aws-ts` remain held.
+- Brand, skill, Explee, and operator utility repositories are multi-bound only where the same exact repository is valid evidence for more than one internal Program.
+- `plugins` remains deferred until a Git identity is attached or the founder approves folding it into existing operator utility / engineering orchestration infrastructure.
+
 ## Batch 5 — Close/completed and exclusion handling
 
 Purpose: avoid active-work noise.
