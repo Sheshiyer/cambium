@@ -200,6 +200,48 @@
   production deployment, or GitHub issue mutation was performed by this
   evidence batch.
 
+### 2026-08-08 project/R2 mapping gap-settlement checkpoint
+
+- Continued from the first-batch evidence at founder request to review and
+  settle the 11 unmapped physical folders plus the 1 mapped identity gap.
+- Settlement artifacts:
+  `docs/project-management/project-r2-mapping-proposals.v1.json` and
+  `docs/project-management/project-r2-mapping-proposals.md`.
+- R2 evidence-prefix artifacts:
+  `docs/project-management/project-r2-evidence-prefixes.v1.json` and
+  `docs/project-management/project-r2-evidence-prefixes.md`.
+- Grammar applied: only Thoughtseed-originated ventures may become Saplings;
+  client-originated work remains Client Branch; shared capability tooling,
+  brand systems, and operator surfaces remain Internal Programs; cleanup
+  archives, temporary checkouts, external/vendor clones, and unowned dependency
+  references do not become WorkObjects.
+- Settled mapping decisions:
+  `Airdronauts` maps as nested client branch evidence for
+  `branch:airdronauts-panorama-viewer-delivery`;
+  `brandmint-oracle-aleph` maps to `program:meristem-brand-system`;
+  `motionsites-skills` maps to internal Meristem/skill capability programs;
+  `professional-headshot-suite` and `readme-skill` map to capability/operator
+  internal programs; `website` is only a container and its nested Temperance
+  landing page repo maps to `program:temperance-hermes`.
+- Settled exclusions: `_home-cleanup-2026-08-08` is a cleanup archive,
+  `openfang` is an external/vendor reference, and `cambium-authoritative` is a
+  temporary exact Cambium checkout, not a second WorkObject.
+- Mapped identity gap: `cambium` remains `sapling:cambium` /
+  `program:cambium-operating-fabric`, but physical authority is the exact
+  `cambium-authoritative` checkout until a separate founder-approved
+  promote/swap handles the stale non-Git `cambium` folder.
+- Remaining founder-review decisions before action wiring: whether
+  `plugins/conducty-codex` gets its own GitHub identity or folds into operator
+  utilities, whether SAFVR is admitted as a Client Branch and with what GitHub
+  access, how Airdronauts overlaps with `panaroma-webapp`, and how to
+  physically de-duplicate the nested Temperance landing page.
+- R2 remains immutable/idempotent evidence and durability only. No R2-primary
+  or two-way-sync behavior is introduced by this checkpoint.
+- No folder move, registry write, R2 object write, GitHub issue mutation,
+  provider setting change, OmniRoute setting change, Goal Graph write,
+  production deployment, or Workbench runtime change was performed by this
+  settlement batch.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
