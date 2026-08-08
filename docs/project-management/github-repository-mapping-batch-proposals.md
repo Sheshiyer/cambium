@@ -26,19 +26,20 @@ No GitHub issue, GitHub Project item, folder, R2 object, registry row, provider 
 | Non-fork unmapped repositories | 268 |
 | Non-fork unmapped repositories pushed since 2025-01-01 | 204 |
 | Thoughtseed org repositories currently unmapped | 20 |
-| Root-map dangling WorkObject ids | 1 |
+| Root-map dangling WorkObject ids | 0 after founder retirement decision |
 
 The high count does not mean "285 new active projects." It means the current Workbench cannot yet account for many GitHub repositories by exact repository identity. Many will become historical evidence, client-branch evidence, forks, experiments, or exclusions.
 
-## Immediate bug to settle before action wiring
+## Settled founder decision before action wiring
 
-`docs/project-management/portfolio-roots.v1.json` still maps `virtualtryon-3d` to `sapling:virtualtryon`, but the current catalog does not define `sapling:virtualtryon`.
+`docs/project-management/portfolio-roots.v1.json` previously mapped `virtualtryon-3d` to `sapling:virtualtryon`, but the current catalog does not define `sapling:virtualtryon`.
 
-Safe first action:
+Founder decision on 2026-08-08:
 
-1. do not execute a Workbench action for `virtualtryon-3d` yet;
-2. either add a real catalog WorkObject after founder confirms Thoughtseed origin and lifecycle, or move it to a needs-review classification;
-3. only then generate repository/R2 evidence receipts for `Sheshiyer/virtualtryon`.
+1. ignore and retire `virtualtryon-3d`;
+2. do not create a Sapling or catalog WorkObject for `sapling:virtualtryon`;
+3. keep the shallow folder accounted as `needs-review` / `empty-hold` with no active `workIds`;
+4. do not generate active repository/R2 mapping receipts for `Sheshiyer/virtualtryon` unless a future founder-gated branch explicitly reopens this surface.
 
 ## Batch 1 — Thoughtseed org history
 
@@ -109,6 +110,7 @@ R2 rule: this batch may prepare evidence prefixes, but it does not make R2 the l
 Purpose: avoid active-work noise.
 
 - SAFVR is approved as a closed/completed Client Branch and should stay out of active workflow.
+- `virtualtryon-3d` is retired/ignored by founder decision, not an active WorkObject and not a Sapling.
 - Forks, external vendor clones, and dependency references should become dependency/reference evidence, not WorkObjects.
 - Completed/terminated work needs the closeout packet: handoff Markdown, closeout receipt JSON, agent memory projection, finished-index delta, and immutable R2 evidence receipt.
 
@@ -120,5 +122,5 @@ Before any batch mutates Workbench state, GitHub issues, project folders, or R2:
 2. each repository resolves to an immutable GitHub identity where possible;
 3. each action payload includes catalog digest, root-map digest, WorkObject id, repository identity, lifecycle, and evidence prefix;
 4. client-originated rows remain Client Branches;
-5. close/completed rows produce the required handoff and memory artifacts before leaving active workflow.
-
+5. close/completed rows produce the required handoff and memory artifacts before leaving active workflow;
+6. VirtualTryOn remains retired/ignored and is not recreated as an active WorkObject during broad action wiring.

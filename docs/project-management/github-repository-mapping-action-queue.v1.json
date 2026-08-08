@@ -25,15 +25,17 @@
     ],
     "solFamilyUsed": false
   },
-  "globalBlocks": [
+  "globalBlocks": [],
+  "resolvedFounderDecisions": [
     {
-      "blockId": "rootmap-dangling-virtualtryon",
-      "severity": "blocking-for-broad-action-wiring",
+      "decisionId": "retire-virtualtryon-3d-2026-08-08",
       "folder": "virtualtryon-3d",
-      "currentWorkId": "sapling:virtualtryon",
+      "previousWorkId": "sapling:virtualtryon",
       "candidateRepository": "Sheshiyer/virtualtryon",
-      "reason": "portfolio root map references a WorkObject not present in the current catalog",
-      "safeNextAction": "hold as needs-review or add a catalog WorkObject only after founder confirms Thoughtseed origin and lifecycle"
+      "decision": "retired-ignore",
+      "rootMapState": "needs-review-empty-hold-without-workIds",
+      "reason": "founder instructed Cambium to ignore and retire virtualtryon-3d instead of creating or repairing a missing Sapling",
+      "safeNextAction": "do not create a WorkObject or active repository/R2 mapping receipt unless a future founder-gated branch explicitly reopens this surface"
     }
   ],
   "batches": [
@@ -52,7 +54,7 @@
       },
       "defaults": {
         "receiptKind": "mapping",
-        "rootMapDigest": "d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf",
+        "rootMapDigest": "a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445",
         "catalogDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
         "founderDecisionStatus": "founder-review",
         "evidencePrefixTemplate": "portfolio/thoughtseed/workobjects/<targetWorkId>/mapping/"
@@ -665,13 +667,14 @@
     },
     {
       "batchId": "github-batch-005-root-map-catalog-repair",
-      "status": "blocked-until-founder-origin-decision",
+      "status": "ready-for-symphonics-row-review",
       "rows": [
         {
           "folder": "virtualtryon-3d",
-          "currentWorkId": "sapling:virtualtryon",
+          "previousWorkId": "sapling:virtualtryon",
           "candidateRepository": "Sheshiyer/virtualtryon",
-          "recommendedAction": "do not create a Sapling automatically; move to needs-review or add a catalog WorkObject after founder confirms Thoughtseed origin and lifecycle"
+          "status": "resolved-retired-ignore",
+          "recommendedAction": "no Workbench action, no Sapling creation, and no active repository/R2 mapping receipt; keep as root-map empty-hold evidence only"
         },
         {
           "folder": "symphonics",

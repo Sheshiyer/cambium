@@ -35,7 +35,7 @@ No Sol-family model was used.
 | --- | --- | --- |
 | `batch_thoughtseed_org_history` | `thoughtseedlabs` / `thoughtseed-labs` history | Completed; 20 repos classified with immutable GitHub IDs |
 | `batch_client_branch_clusters` | Client branch clusters | Completed; 70 candidate client-branch rows grouped, 6 holds, zero Sapling promotions |
-| `batch_sapling_provenance` | Sapling provenance and root-map/catalog repair | Completed; direct Sapling candidates separated from ambiguous origin rows; VirtualTryOn blocked |
+| `batch_sapling_provenance` | Sapling provenance and root-map/catalog repair | Completed; direct Sapling candidates separated from ambiguous origin rows; VirtualTryOn later retired by founder decision |
 | `batch_internal_programs_vault` | Internal programs, vault context, R2 receipt boundary | Completed; internal program mappings and evidence-only R2 boundary confirmed |
 
 ## Accepted findings
@@ -82,7 +82,7 @@ Founder-review holds:
 - Klear Karma: current catalog says Sapling, but prior evidence found `snowglobe` contamination that belongs under `program:snow-gloves-os`.
 - Kristudios: prior evidence says a distinct legal entity may exist; likely Client Branch unless founder confirms Thoughtseed origin.
 - ParkArea and Tirak: split product/IP evidence from client-delivery evidence deliberately.
-- `virtualtryon-3d`: block mutation. The root map references missing `sapling:virtualtryon`; make it needs-review or create a real catalog WorkObject only after founder confirms origin/lifecycle.
+- `virtualtryon-3d`: post-dispatch founder decision retires/ignores the surface. Keep it as root-map empty-hold evidence with no active WorkObject id; do not create `sapling:virtualtryon`.
 
 ### Batch 4 — Internal programs and vault context
 
@@ -102,7 +102,7 @@ Before any Workbench runtime, catalog, R2, GitHub issue, or folder mutation:
 4. ambiguous origin rows stay `needs-review`;
 5. completed/closed rows produce handoff, closeout receipt, memory projection, and finished-index delta;
 6. each R2 receipt is immutable/idempotent and uses the WorkObject-specific prefix;
-7. VirtualTryOn dangling WorkObject is repaired or blocked before broad action wiring.
+7. VirtualTryOn remains retired/ignored and is not recreated as an active WorkObject during broad action wiring.
 
 ## Non-actions
 
@@ -113,4 +113,3 @@ This dispatch did not:
 - write R2, D1, Goal Graph, registry, provider, or deployment state;
 - modify Workbench runtime/catalog/generated UI;
 - accept any external Temperance batch output.
-

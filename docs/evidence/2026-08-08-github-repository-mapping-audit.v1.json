@@ -88,6 +88,17 @@
       "candidateRepository": "Sheshiyer/virtualtryon"
     }
   ],
+  "postAuditResolutions": [
+    {
+      "resolvedAt": "2026-08-08T00:00:00.000Z",
+      "folder": "virtualtryon-3d",
+      "previousWorkId": "sapling:virtualtryon",
+      "decision": "retired-ignore",
+      "currentRootMapState": "needs-review-empty-hold-without-workIds",
+      "rootMapDigest": "a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445",
+      "handoffMarkdownPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md"
+    }
+  ],
   "thoughtseedOrgUnmappedRepos": [
     {
       "nameWithOwner": "thoughtseed-labs/Breathspectrum",
@@ -276,13 +287,13 @@
     },
     {
       "batchId": "github-batch-005-root-map-catalog-repair",
-      "status": "founder-review",
+      "status": "post-audit-virtualtryon-retired",
       "goal": "Resolve root-map references that cannot be executed safely because the current catalog lacks the named WorkObject.",
       "candidateRepairs": [
         {
           "folder": "virtualtryon-3d",
-          "currentWorkId": "sapling:virtualtryon",
-          "recommendedFirstStep": "move to needs-review or add a catalog WorkObject only after founder confirms Thoughtseed origin and current lifecycle",
+          "previousWorkId": "sapling:virtualtryon",
+          "recommendedFirstStep": "retired-ignore by founder decision; do not create an active WorkObject unless a future founder-gated reopen reverses this",
           "candidateRepository": "Sheshiyer/virtualtryon"
         }
       ]

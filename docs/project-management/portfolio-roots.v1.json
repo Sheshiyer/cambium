@@ -500,12 +500,10 @@
         },
         {
           "folder": "virtualtryon-3d",
-          "proposedKind": "sapling",
+          "proposedKind": "needs-review",
           "accountId": null,
-          "workIds": [
-            "sapling:virtualtryon"
-          ],
-          "status": "mapping-proposal"
+          "workIds": [],
+          "status": "empty-hold"
         },
         {
           "folder": "whspr",

@@ -5,7 +5,7 @@ Ingest the shallow destination portfolio roots into repository-owned GitHub plan
 ## Frozen input
 
 - Root-map schema: `thoughtseed.portfolio-root-map.v1`
-- Digest: `d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf`
+- Digest: `a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445`
 - Thoughtseed: 54 mapped folder proposals; `thoughtseed-labs` is R2-synced vault infrastructure, while `_home-cleanup-2026-08-08`, `cambium-authoritative`, `openfang`, and `website` are explicit non-WorkObject infrastructure/exclusions.
 - Tryambakam · Noesis: 30 active Projects; four archived projects; one worktree-infrastructure folder.
 - Path grammar: `<projects-root>/<portfolio>/<repository>`.

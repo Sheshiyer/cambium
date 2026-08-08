@@ -70,6 +70,9 @@ test('ambiguous Thoughtseed origins remain review proposals and linked dual work
   assert.deepEqual(['klear-karma', 'kristudios', 'panaroma-webapp'].map((folder) => byFolder.get(folder)?.proposedKind), [
     'needs-review', 'needs-review', 'needs-review',
   ])
+  assert.equal(byFolder.get('virtualtryon-3d')?.proposedKind, 'needs-review')
+  assert.deepEqual(byFolder.get('virtualtryon-3d')?.workIds, [])
+  assert.equal(byFolder.get('virtualtryon-3d')?.status, 'empty-hold')
   assert.deepEqual(byFolder.get('parkarea')?.workIds, ['branch:parkarea', 'sapling:parkarea'])
   assert.deepEqual(byFolder.get('tirak')?.workIds, ['branch:tirak', 'sapling:tirak'])
 })

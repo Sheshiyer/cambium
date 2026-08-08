@@ -27,7 +27,7 @@ const TEAM_DOMAIN = 'red-queen-4dfa.cloudflareaccess.com';
 const ACCESS_AUD = '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200';
 const ACCESS_KID = 'portfolio-access-test-kid';
 const PORTFOLIO_BYTES_RE = /portfolio-workbench@v4; hosted-admin|data-bundled="portfolio-cartographer"/;
-const ROOT_DIGEST = 'd272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf';
+const ROOT_DIGEST = 'a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445';
 const SOURCE_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
 const { publicKey: accessPublicKey, privateKey: accessPrivateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
