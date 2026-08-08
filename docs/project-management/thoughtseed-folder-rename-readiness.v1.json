@@ -44,19 +44,19 @@
     {
       "id": "cambium-authoritative-promote-swap",
       "subject": "cambium / cambium-authoritative",
-      "status": "manifest-drafted-awaiting-live-apply-approval",
+      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
       "decision": "archive the stale non-Git cambium folder first, then promote cambium-authoritative into the canonical Cambium shallow slot; do not create a second Cambium WorkObject",
       "possibleLiveApply": "archive or rename the stale non-Git cambium folder, then promote/swap the exact checkout into the canonical cambium shallow slot",
       "blockedBy": [
-        "fresh preflight must pass",
-        "founder must approve the manifest",
+        "founder approved ignoring _home-cleanup-2026-08-08 as nonblocking drift",
         "live apply must be separately approved"
       ],
       "evidence": [
         "docs/evidence/2026-08-08-project-r2-folder-inventory.md",
         "docs/project-management/project-r2-mapping-proposals.md",
         ".project/HANDOFF.md",
-        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json"
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json"
       ]
     },
     {
