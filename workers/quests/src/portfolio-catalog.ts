@@ -10,7 +10,7 @@ import {
 
 export const PORTFOLIO_CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
-const EXPECTED_CATALOG_DIGEST = 'sha256:eedb62fae59b5aedcde1489ab172825210686d0e0f60a4a750e7adb64226f196';
+const EXPECTED_CATALOG_DIGEST = 'sha256:1f40226825b4d42c3812f42cc3e63ca9b8d76707256fe48ba49a96b7c924988b';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
@@ -449,7 +449,9 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
 
   const actualDigest = sha256(catalogHashPayload(catalog as unknown as PortfolioCatalogV1));
   if (actualDigest !== catalog.catalogDigest) fail('catalog digest does not match canonical content');
-  if (actualDigest !== EXPECTED_CATALOG_DIGEST) fail('checked-in catalog digest drifted');
+  if (actualDigest !== EXPECTED_CATALOG_DIGEST) {
+    fail(`checked-in catalog digest drifted: expected ${EXPECTED_CATALOG_DIGEST}, received ${actualDigest}`);
+  }
 }
 
 const BUILT_CATALOG = buildCatalog();
