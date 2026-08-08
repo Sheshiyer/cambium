@@ -40,7 +40,7 @@ export function validateSnapshot(snapshot) {
   }
   const thoughtseed = snapshot.portfolios[0]
   if (thoughtseed.folderCount !== 54) throw new TypeError('Thoughtseed folder count must remain 54')
-  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_home-cleanup-2026-08-08', 'cambium-authoritative', 'openfang', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
+  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_physical-relocation-archive-2026-08-08', 'openfang', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
   const noesis = snapshot.portfolios[1]
   if (noesis.folderCount !== 30) throw new TypeError('Tryambakam-Noesis folder count must remain 30')
   if (JSON.stringify(noesis.infrastructure) !== JSON.stringify(['selemene-engine-worktrees'])) throw new TypeError('Tryambakam-Noesis infrastructure exclusions drifted')
@@ -173,11 +173,17 @@ export async function generateBrowserModule({
   return { digest: snapshotDigest(snapshot), outputPath, workerOutputPath, snapshot }
 }
 
-export async function writeRootHeaders({ snapshot, projectsRoot, write = false }) {
+export async function writeRootHeaders({ snapshot, projectsRoot, write = false, portfolioIds = null }) {
   if (!path.isAbsolute(projectsRoot)) throw new TypeError('projectsRoot must be absolute')
+  const requestedPortfolioIds = portfolioIds ? new Set(portfolioIds) : null
+  const portfolios = requestedPortfolioIds
+    ? snapshot.portfolios.filter((portfolio) => requestedPortfolioIds.has(portfolio.portfolioId))
+    : snapshot.portfolios
+  if (requestedPortfolioIds && portfolios.length !== requestedPortfolioIds.size) throw new TypeError('unknown portfolio id')
   const digest = snapshotDigest(snapshot)
   const plans = []
-  for (const portfolio of snapshot.portfolios) {
+  const plannedWrites = []
+  for (const portfolio of portfolios) {
     const portfolioRoot = path.join(projectsRoot, portfolio.portfolioId)
     const stat = await lstat(portfolioRoot)
     if (!stat.isDirectory() || stat.isSymbolicLink()) throw new TypeError(`${portfolio.portfolioId} root must be a real directory`)
@@ -190,15 +196,18 @@ export async function writeRootHeaders({ snapshot, projectsRoot, write = false }
       { path: path.join(portfolioRoot, 'portfolio-map.v1.json'), content: renderPortfolioJson(portfolio, digest) },
     ]
     plans.push({ portfolioId: portfolio.portfolioId, observed: observed.length, outputs: outputs.map((output) => output.path) })
-    if (write) for (const output of outputs) await writeFile(output.path, output.content, 'utf8')
+    plannedWrites.push(...outputs)
   }
+  if (write) for (const output of plannedWrites) await writeFile(output.path, output.content, 'utf8')
   return { digest, write, plans }
 }
 
 function parseArgs(argv) {
   const projectsRootIndex = argv.indexOf('--projects-root')
+  const portfolioIndex = argv.indexOf('--portfolio')
   return {
     projectsRoot: projectsRootIndex >= 0 ? argv[projectsRootIndex + 1] : null,
+    portfolioIds: portfolioIndex >= 0 ? [argv[portfolioIndex + 1]] : null,
     write: argv.includes('--write-headers'),
   }
 }
@@ -208,7 +217,7 @@ if (isMain) {
   const args = parseArgs(process.argv.slice(2))
   const result = await generateBrowserModule()
   if (args.projectsRoot) {
-    const headers = await writeRootHeaders({ snapshot: result.snapshot, projectsRoot: args.projectsRoot, write: args.write })
+    const headers = await writeRootHeaders({ snapshot: result.snapshot, projectsRoot: args.projectsRoot, write: args.write, portfolioIds: args.portfolioIds })
     console.log(JSON.stringify(headers, null, 2))
   } else {
     console.log(`portfolio root map ok · sha256 ${result.digest}`)

@@ -3,13 +3,15 @@
   "manifestId": "2026-08-08-thoughtseed-physical-lane",
   "capturedDate": "2026-08-08",
   "portfolioId": "thoughtseed",
-  "status": "draft-awaiting-founder-live-apply-approval",
+  "status": "phase-1-applied-phase-2-blocked",
   "preflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json",
+  "phase1ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json",
   "applyAuthorization": {
     "sourceControlledProposal": true,
     "cleanupDriftIgnoredByFounder": true,
-    "founderManifestApproval": false,
-    "liveApplyApproved": false,
+    "founderManifestApproval": true,
+    "liveApplyApproved": true,
+    "phase1ApprovalConsumed": true,
     "filesystemMutationAuthorized": false,
     "r2WriteAuthorized": false,
     "githubMutationAuthorized": false,
@@ -26,7 +28,9 @@
     "draftObservedRootMapFileSha256": "752d3c047b07e55b73cc21ce0d0c634f3ca5c9b2059073227b037b8e43bf37ba",
     "historicalEvidenceDigestDriftObserved": true,
     "pinCurrentDraftDigestForLiveApply": false,
-    "liveApplyRequirement": "regenerate and record fresh root-map digest immediately before and after any live apply"
+    "liveApplyRequirement": "regenerate and record fresh root-map digest immediately before and after any live apply",
+    "phase1AcceptedRootMapDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe",
+    "phase1AcceptedRootMapFileSha256": "b16c45ffabd5a463bc1c0f44d1664654860cc6a839bf5dc53b65b3b7826c483e"
   },
   "globalPreflight": [
     "re-run depth-one directory comparison for $PROJECTS_ROOT/thoughtseed",
@@ -48,8 +52,8 @@
     {
       "phaseId": "phase-1-cambium-archive-first-promote",
       "order": 1,
-      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
-      "liveApplyReady": true,
+      "status": "applied-verified",
+      "liveApplyReady": false,
       "decision": "archive-first-promote",
       "workObjectId": "sapling:cambium",
       "repositoryIdentity": "Sheshiyer/cambium",
@@ -95,6 +99,21 @@
           "preserveWorkObjectFolder": "cambium"
         }
       ],
+      "applyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json",
+      "postApplyObservations": {
+        "canonicalSlot": {
+          "path": "$PROJECTS_ROOT/thoughtseed/cambium",
+          "gitIdentity": "exact-root",
+          "remote": "https://github.com/Sheshiyer/cambium.git",
+          "branch": "codex/project-r2-mapping-plan",
+          "applyInputHead": "0041a07c1db0cdf1c2d1210392c1237c9657eb53"
+        },
+        "archivedPreAuthorityState": {
+          "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority",
+          "gitIdentity": "not-a-git-repository",
+          "disposition": "preserved-recoverable"
+        }
+      },
       "rollbackPlan": [
         {
           "op": "move",
@@ -192,8 +211,9 @@
     }
   ],
   "verification": {
-    "sourceControlledOnly": true,
-    "filesystemMutationPerformed": false,
+    "sourceControlledOnly": false,
+    "filesystemMutationPerformed": true,
+    "phase1ApplyVerified": true,
     "r2WritePerformed": false,
     "githubMutationPerformed": false,
     "productionDeployPerformed": false

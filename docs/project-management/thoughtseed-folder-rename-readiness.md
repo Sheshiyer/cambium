@@ -1,6 +1,6 @@
 # Thoughtseed folder rename readiness
 
-This is a planning artifact only. Batch 5 settles closeout and exclusion state; it does not rename, create, archive, move, or de-duplicate any physical folder.
+This artifact now records one completed physical transition: Cambium Phase 1 archive-first promotion. Batch 5 itself remains source-controlled closeout/exclusion work and does not authorize later physical changes.
 
 Active manifest proposal: `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json`.
 
@@ -21,7 +21,7 @@ The rename pass should not run during repository evidence mapping, Batch 5 close
 | Subject | State | Next physical action |
 | --- | --- | --- |
 | `thoughtseed-labs` | Infrastructure boundary is settled. | None for active WorkObject mapping. |
-| `cambium` / `cambium-authoritative` | Phase 1 preflight passed; archive-first promotion is the selected safe path. | Await exact live-apply approval: `approve live apply phase 1 Cambium archive-first promote`. |
+| `cambium` / `cambium-authoritative` | Phase 1 applied and verified. The exact Git checkout now occupies `cambium`; stale non-Git state is preserved in `_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`. | None unless rollback is required; use the Phase 1 apply receipt. |
 | `website` / `temperance-engine-landing-page` | Manifest drafted but blocked on local-state reconciliation. | Preserve local artifacts, review `.gitignore` drift, then choose promote or preserve-container. |
 | `symphonics` | Founder hold: missing shallow folder; repository evidence is planning/docs. | Defer until the future native SDK / Tuya React Native app role is exact. |
 | `safvr` | Completed/closed Client Branch. | None unless the client relationship reopens. |
@@ -30,4 +30,4 @@ The rename pass should not run during repository evidence mapping, Batch 5 close
 
 ## Batch 5 Result
 
-Batch 5 can proceed as closeout/exclusion complete with rename-manifest holds. The remaining shallow-folder issue is no longer a global blocker: `symphonics` stays in founder hold until a founder-approved manifest creates or maps the exact shallow folder.
+Batch 5 is closeout/exclusion complete. Cambium Phase 1 is applied under its separate approved manifest and receipt. The next physical lane is Temperance local-state reconciliation; `symphonics` stays in founder hold until a future founder-approved manifest creates or maps the exact shallow folder.

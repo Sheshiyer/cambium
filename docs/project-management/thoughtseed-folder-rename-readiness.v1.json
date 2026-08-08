@@ -2,7 +2,7 @@
   "schema": "thoughtseed.folder-rename-readiness.v1",
   "capturedDate": "2026-08-08",
   "portfolioId": "thoughtseed",
-  "status": "proposal-only-no-filesystem-mutation",
+  "status": "phase-1-applied-phase-2-blocked",
   "activeManifest": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
   "scope": {
     "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
@@ -44,19 +44,17 @@
     {
       "id": "cambium-authoritative-promote-swap",
       "subject": "cambium / cambium-authoritative",
-      "status": "preflight-passed-awaiting-explicit-live-apply-approval",
-      "decision": "archive the stale non-Git cambium folder first, then promote cambium-authoritative into the canonical Cambium shallow slot; do not create a second Cambium WorkObject",
-      "possibleLiveApply": "archive or rename the stale non-Git cambium folder, then promote/swap the exact checkout into the canonical cambium shallow slot",
-      "blockedBy": [
-        "founder approved ignoring _home-cleanup-2026-08-08 as nonblocking drift",
-        "live apply must be separately approved"
-      ],
+      "status": "applied-verified",
+      "decision": "the stale non-Git cambium folder is preserved in the relocation archive and the exact Git checkout now occupies the canonical Cambium shallow slot; no second Cambium WorkObject was created",
+      "possibleLiveApply": "complete; any rollback must follow the Phase 1 apply receipt",
+      "blockedBy": [],
       "evidence": [
         "docs/evidence/2026-08-08-project-r2-folder-inventory.md",
         "docs/project-management/project-r2-mapping-proposals.md",
         ".project/HANDOFF.md",
         "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
-        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json"
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json"
       ]
     },
     {
@@ -131,8 +129,9 @@
     }
   ],
   "verification": {
-    "sourceControlledOnly": true,
-    "filesystemMutationPerformed": false,
+    "sourceControlledOnly": false,
+    "filesystemMutationPerformed": true,
+    "phase1ApplyVerified": true,
     "r2WritePerformed": false,
     "githubMutationPerformed": false,
     "productionDeployPerformed": false

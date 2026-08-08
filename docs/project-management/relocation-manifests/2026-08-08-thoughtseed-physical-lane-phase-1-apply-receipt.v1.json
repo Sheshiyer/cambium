@@ -1,0 +1,122 @@
+{
+  "schema": "thoughtseed.physical-relocation-apply-receipt.v1",
+  "manifestId": "2026-08-08-thoughtseed-physical-lane",
+  "phaseId": "phase-1-cambium-archive-first-promote",
+  "appliedDate": "2026-08-08",
+  "status": "applied-verified",
+  "approval": {
+    "requiredText": "approve live apply phase 1 Cambium archive-first promote",
+    "matchedFounderMessage": true,
+    "scope": "phase-1-only",
+    "consumed": true
+  },
+  "preApply": {
+    "batch2CommitAncestor": "ba56bef",
+    "applyInputHead": "0041a07c1db0cdf1c2d1210392c1237c9657eb53",
+    "branch": "codex/project-r2-mapping-plan",
+    "remote": "https://github.com/Sheshiyer/cambium.git",
+    "authorityWorkingTreeClean": true,
+    "canonicalSlot": {
+      "path": "$PROJECTS_ROOT/thoughtseed/cambium",
+      "gitIdentity": "not-a-git-repository",
+      "device": "16777242",
+      "inode": "30272996"
+    },
+    "temporaryAuthorityCheckout": {
+      "path": "$PROJECTS_ROOT/thoughtseed/cambium-authoritative",
+      "gitIdentity": "exact-root",
+      "device": "16777242",
+      "inode": "30620729"
+    },
+    "archiveTargetExisted": false,
+    "depthOneComparison": {
+      "expectedCount": 59,
+      "observedCount": 58,
+      "missing": [
+        "_home-cleanup-2026-08-08"
+      ],
+      "unexpected": [],
+      "onlyFounderIgnoredDrift": true
+    }
+  },
+  "operations": [
+    {
+      "op": "create-archive-container",
+      "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08"
+    },
+    {
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/cambium",
+      "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority"
+    },
+    {
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/cambium-authoritative",
+      "target": "$PROJECTS_ROOT/thoughtseed/cambium"
+    }
+  ],
+  "postApply": {
+    "canonicalSlot": {
+      "path": "$PROJECTS_ROOT/thoughtseed/cambium",
+      "gitIdentity": "exact-root",
+      "remote": "https://github.com/Sheshiyer/cambium.git",
+      "branch": "codex/project-r2-mapping-plan",
+      "headAtApply": "0041a07c1db0cdf1c2d1210392c1237c9657eb53",
+      "workingTreeCleanImmediatelyAfterMove": true,
+      "device": "16777242",
+      "inode": "30620729"
+    },
+    "archivedPreAuthorityState": {
+      "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority",
+      "gitIdentity": "not-a-git-repository",
+      "disposition": "preserved-recoverable",
+      "approximateSize": "2.3G",
+      "regularFileCount": 13658,
+      "symbolicLinkCount": 60,
+      "device": "16777242",
+      "inode": "30272996"
+    },
+    "temporaryAuthoritySiblingExists": false,
+    "depthOneComparison": {
+      "expectedCount": 58,
+      "observedCount": 58,
+      "missing": [],
+      "unexpected": [],
+      "ok": true
+    },
+    "rootMap": {
+      "snapshotDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe",
+      "fileSha256": "b16c45ffabd5a463bc1c0f44d1664654860cc6a839bf5dc53b65b3b7826c483e"
+    },
+    "thoughtseedRootHeaders": {
+      "portfolioMarkdownSha256": "6ee7aab39841ef065d6a1b5c9bf316c725b894f20c641a6a84979f655eedb6f4",
+      "portfolioMapSha256": "eaf1d7e52bf0f43b97243ded315e6f0ed086e726d3c6028c0ed760f896e2fd0c"
+    }
+  },
+  "rollback": {
+    "available": true,
+    "steps": [
+      "move $PROJECTS_ROOT/thoughtseed/cambium back to $PROJECTS_ROOT/thoughtseed/cambium-authoritative",
+      "move $PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority back to $PROJECTS_ROOT/thoughtseed/cambium",
+      "restore the pre-apply root-map snapshot and regenerate Thoughtseed headers"
+    ]
+  },
+  "heldBoundaries": {
+    "thoughtseedLabsInodeBeforeAndAfter": "30565745",
+    "symphonicsExists": false,
+    "temperanceMutationPerformed": false
+  },
+  "externalMutation": {
+    "r2WritePerformed": false,
+    "githubMutationPerformed": false,
+    "registryWritePerformed": false,
+    "goalGraphWritePerformed": false,
+    "providerChangePerformed": false,
+    "productionDeployPerformed": false
+  },
+  "nextGate": {
+    "phase": "phase-2-temperance-local-state-reconciliation",
+    "liveApplyAuthorized": false,
+    "symphonicsDisposition": "remain-held"
+  }
+}

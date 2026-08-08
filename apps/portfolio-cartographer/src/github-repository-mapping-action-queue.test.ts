@@ -35,6 +35,8 @@ type Batch = {
   clusters?: Cluster[];
   status?: string;
   renameReadiness?: {
+    cambiumPhase1Applied?: boolean;
+    cambiumPhase1ApplyReceipt?: string;
     filesystemMutationAuthorized?: boolean;
     shallowPortfolioRoot?: string;
     vaultContextRoot?: string;
@@ -106,6 +108,25 @@ const physicalLanePreflight = JSON.parse(
   rootMapProof: {
     depthOneCompareOnlyUnignoredDrift: boolean;
     ignoredDrift: string[];
+  };
+  status: string;
+};
+const physicalLanePhase1Receipt = JSON.parse(
+  readFileSync(
+    new URL('../../../docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json', import.meta.url),
+    'utf8',
+  ),
+) as {
+  approval: { consumed: boolean; matchedFounderMessage: boolean; requiredText: string; scope: string };
+  externalMutation: Record<string, boolean>;
+  heldBoundaries: { symphonicsExists: boolean; temperanceMutationPerformed: boolean; thoughtseedLabsInodeBeforeAndAfter: string };
+  phaseId: string;
+  postApply: {
+    archivedPreAuthorityState: { disposition: string; gitIdentity: string; inode: string };
+    canonicalSlot: { gitIdentity: string; inode: string; remote: string };
+    depthOneComparison: { missing: string[]; ok: boolean; unexpected: string[] };
+    rootMap: { fileSha256: string; snapshotDigest: string };
+    temporaryAuthoritySiblingExists: boolean;
   };
   status: string;
 };
@@ -235,21 +256,24 @@ test('Batch 5 settles closeouts while holding physical renames behind a manifest
   assert.equal(byFolder.get('symphonics')?.status, 'founder-hold-missing-shallow-folder');
   assert.equal(byFolder.get('symphonics')?.relocationGate?.requiresFounderApprovedManifest, true);
   assert.equal(batch5.renameReadiness?.filesystemMutationAuthorized, false);
+  assert.equal(batch5.renameReadiness?.cambiumPhase1Applied, true);
+  assert.match(batch5.renameReadiness?.cambiumPhase1ApplyReceipt ?? '', /phase-1-apply-receipt\.v1\.json$/);
   assert.equal(batch5.renameReadiness?.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
   assert.equal(batch5.renameReadiness?.vaultContextRoot, '$PROJECTS_ROOT/thoughtseed/thoughtseed-labs');
   assert.match(batch5.renameReadiness?.thoughtseedLabsBoundary ?? '', /never a WorkObject folder/);
 });
 
-test('physical relocation manifest keeps live apply gated and ordered', () => {
+test('physical relocation manifest records Phase 1 applied while keeping later phases gated', () => {
   const phases = new Map(physicalLaneManifest.phases.map((phase) => [phase.phaseId, phase]));
   const cambium = phases.get('phase-1-cambium-archive-first-promote');
   const temperance = phases.get('phase-2-temperance-landing-page-promote-authority');
   const symphonics = phases.get('phase-3-symphonics-held');
   const manifestText = JSON.stringify(physicalLaneManifest);
 
-  assert.equal(physicalLaneManifest.status, 'draft-awaiting-founder-live-apply-approval');
+  assert.equal(physicalLaneManifest.status, 'phase-1-applied-phase-2-blocked');
   assert.equal(physicalLaneManifest.applyAuthorization.cleanupDriftIgnoredByFounder, true);
-  assert.equal(physicalLaneManifest.applyAuthorization.liveApplyApproved, false);
+  assert.equal(physicalLaneManifest.applyAuthorization.liveApplyApproved, true);
+  assert.equal(physicalLaneManifest.applyAuthorization.phase1ApprovalConsumed, true);
   assert.equal(physicalLaneManifest.applyAuthorization.filesystemMutationAuthorized, false);
   assert.equal(physicalLaneManifest.scope.shallowPortfolioRoot, '$PROJECTS_ROOT/thoughtseed');
   assert.equal(physicalLaneManifest.scope.vaultContextRoot, '$PROJECTS_ROOT/thoughtseed/thoughtseed-labs');
@@ -258,8 +282,8 @@ test('physical relocation manifest keeps live apply gated and ordered', () => {
   assert.equal(manifestText.includes('thoughtseed-labs/'), false);
 
   assert.equal(cambium?.order, 1);
-  assert.equal(cambium?.liveApplyReady, true);
-  assert.equal(cambium?.status, 'preflight-passed-awaiting-explicit-live-apply-approval');
+  assert.equal(cambium?.liveApplyReady, false);
+  assert.equal(cambium?.status, 'applied-verified');
   assert.equal(cambium?.proposedOperations?.some(({ source, target }) =>
     source === '$PROJECTS_ROOT/thoughtseed/cambium' &&
     target === '$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/cambium-pre-git-authority',
@@ -298,4 +322,29 @@ test('physical relocation preflight records cleanup drift as nonblocking without
   assert.equal(physicalLanePreflight.nextGate.filesystemMutationAuthorized, false);
   assert.equal(physicalLanePreflight.nextGate.requiredApprovalText, 'approve live apply phase 1 Cambium archive-first promote');
   assert.equal(preflightText.includes('/Volumes/'), false);
+});
+
+test('Cambium Phase 1 apply receipt proves recoverable promotion and preserves held boundaries', () => {
+  const receiptText = JSON.stringify(physicalLanePhase1Receipt);
+
+  assert.equal(physicalLanePhase1Receipt.status, 'applied-verified');
+  assert.equal(physicalLanePhase1Receipt.phaseId, 'phase-1-cambium-archive-first-promote');
+  assert.equal(physicalLanePhase1Receipt.approval.requiredText, 'approve live apply phase 1 Cambium archive-first promote');
+  assert.equal(physicalLanePhase1Receipt.approval.matchedFounderMessage, true);
+  assert.equal(physicalLanePhase1Receipt.approval.scope, 'phase-1-only');
+  assert.equal(physicalLanePhase1Receipt.approval.consumed, true);
+  assert.equal(physicalLanePhase1Receipt.postApply.canonicalSlot.gitIdentity, 'exact-root');
+  assert.equal(physicalLanePhase1Receipt.postApply.canonicalSlot.remote, 'https://github.com/Sheshiyer/cambium.git');
+  assert.equal(physicalLanePhase1Receipt.postApply.canonicalSlot.inode, '30620729');
+  assert.equal(physicalLanePhase1Receipt.postApply.archivedPreAuthorityState.gitIdentity, 'not-a-git-repository');
+  assert.equal(physicalLanePhase1Receipt.postApply.archivedPreAuthorityState.disposition, 'preserved-recoverable');
+  assert.equal(physicalLanePhase1Receipt.postApply.archivedPreAuthorityState.inode, '30272996');
+  assert.equal(physicalLanePhase1Receipt.postApply.temporaryAuthoritySiblingExists, false);
+  assert.deepEqual(physicalLanePhase1Receipt.postApply.depthOneComparison, { expectedCount: 58, observedCount: 58, missing: [], unexpected: [], ok: true });
+  assert.match(physicalLanePhase1Receipt.postApply.rootMap.snapshotDigest, /^[0-9a-f]{64}$/);
+  assert.match(physicalLanePhase1Receipt.postApply.rootMap.fileSha256, /^[0-9a-f]{64}$/);
+  assert.equal(physicalLanePhase1Receipt.heldBoundaries.symphonicsExists, false);
+  assert.equal(physicalLanePhase1Receipt.heldBoundaries.temperanceMutationPerformed, false);
+  assert.equal(Object.values(physicalLanePhase1Receipt.externalMutation).every((performed) => performed === false), true);
+  assert.equal(receiptText.includes('/Volumes/'), false);
 });
