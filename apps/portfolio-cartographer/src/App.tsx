@@ -45,8 +45,10 @@ import {
   SMART_VIEWS,
   SOURCE_GENERATED_AT,
   WORK_OBJECTS,
+  closeoutReadiness,
   createPacket,
   boardHorizon,
+  defaultCloseout,
   defaultReconciliation,
   defaultPlan,
   deriveClassificationFromOrigin,
@@ -54,6 +56,7 @@ import {
   filterWorkObjects,
   groupWorkObjects,
   hasLocalPlan,
+  isTerminalCloseout,
   intakeReadiness,
   normalizeTag,
   normalizeTags,
@@ -72,6 +75,7 @@ import {
   type Classification,
   type Horizon,
   type OrganId,
+  type ProjectCloseout,
   type PortfolioSignal,
   type PortfolioOrigin,
   type PortfolioReconciliation,
@@ -99,7 +103,7 @@ const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v4'
 const V3_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v3'
 const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
-type DrawerTab = 'intake' | 'plan' | 'delivery'
+type DrawerTab = 'intake' | 'plan' | 'delivery' | 'closeout'
 type ViewMode = 'family' | 'grid' | 'board'
 const PORTFOLIO_ACTION_ENDPOINT = '/v1/admin/portfolio/actions'
 type AdminActionState =
@@ -111,8 +115,8 @@ type AdminActionState =
 interface AdminActionReceipt {
   receiptId: string
   status: 'queued'
-  nextFlow: 'repository-intake-review' | 'founder-gate-review' | 'project-creation-execution'
-  approvalStatus?: 'founder-gate-pending' | 'execution-ready'
+  nextFlow: 'repository-intake-review' | 'founder-gate-review' | 'project-creation-execution' | 'project-closeout'
+  approvalStatus?: 'founder-gate-pending' | 'execution-ready' | null
   duplicate: boolean
 }
 type ProjectCreationOrigin = 'thoughtseed-venture' | 'thoughtseed-internal' | 'client' | 'unknown'
@@ -157,6 +161,7 @@ interface LocalLoad extends WorkbenchState {
 
 function label(value: string): string {
   if (value === 'this-year') return 'This year'
+  if (value === 'completed-closed') return 'Completed / Closed'
   return value.replaceAll('-', ' ').replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
@@ -173,6 +178,7 @@ function loadLocalState(): LocalLoad {
           reviewDecisions: {},
           retiredReviewDecisions: {},
           reconciliations: {},
+          closeouts: {},
           notice: 'Autosave paused · unreadable v4 data remains untouched',
           autosaveBlocked: true,
         }
@@ -193,6 +199,7 @@ function loadLocalState(): LocalLoad {
           reviewDecisions: {},
           retiredReviewDecisions: {},
           reconciliations: {},
+          closeouts: {},
           notice: 'Autosave paused · unreadable v3 data remains untouched',
           autosaveBlocked: true,
         }
@@ -213,6 +220,7 @@ function loadLocalState(): LocalLoad {
           reviewDecisions: {},
           retiredReviewDecisions: {},
           reconciliations: {},
+          closeouts: {},
           notice: 'Autosave paused · unreadable v2 data remains untouched',
           autosaveBlocked: true,
         }
@@ -233,6 +241,7 @@ function loadLocalState(): LocalLoad {
           reviewDecisions: {},
           retiredReviewDecisions: {},
           reconciliations: {},
+          closeouts: {},
           notice: 'Autosave paused · unreadable v1 data remains untouched',
           autosaveBlocked: true,
         }
@@ -245,11 +254,12 @@ function loadLocalState(): LocalLoad {
       reviewDecisions: {},
       retiredReviewDecisions: {},
       reconciliations: {},
+      closeouts: {},
       notice: 'Local draft unavailable · server actions remain explicit',
       autosaveBlocked: true,
     }
   }
-  return { focusedId: null, plans: {}, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, notice: 'Ready · edit a record, then save its admin action', autosaveBlocked: false }
+  return { focusedId: null, plans: {}, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, closeouts: {}, notice: 'Ready · edit a record, then save its admin action', autosaveBlocked: false }
 }
 
 function hostedAdminActionsAvailable(): boolean {
@@ -341,6 +351,7 @@ function WorkCard({
   onQuickSignal,
   unplannedTriage,
   reconciliation,
+  closeout,
 }: {
   work: WorkObject
   plan?: WorkPlan
@@ -351,9 +362,11 @@ function WorkCard({
   onQuickSignal: (signal: PortfolioSignal) => void
   unplannedTriage: boolean
   reconciliation?: PortfolioReconciliation
+  closeout?: ProjectCloseout
 }) {
-  const signal = effectiveSignal(work, plan)
-  const provenance = signalProvenance(work, plan)
+  const terminalCloseout = isTerminalCloseout(closeout)
+  const signal = terminalCloseout ? 'archived' : effectiveSignal(work, plan)
+  const provenance = terminalCloseout ? 'closeout receipt' : signalProvenance(work, plan)
   const tags = plan?.tags ?? []
   const readiness = intakeReadiness(work, reconciliation ?? defaultReconciliation(work.workId))
   const planningLocked = sourceSignal(work) === 'unplanned' && !readiness.ready
@@ -404,7 +417,7 @@ function WorkCard({
       <div className="planning-summary">
         <span className={`signal-pill signal-pill-${signal}`}>
           {signalIcon(signal)}
-          {label(signal)}
+          {terminalCloseout ? 'Completed / Closed' : label(signal)}
           <small>{provenance}</small>
         </span>
         {plan && (
@@ -442,12 +455,17 @@ function WorkCard({
 
       <footer className="work-card-actions">
         <span>{work.accountId ? `account · ${work.accountId}` : `tenant · ${work.tenantId ?? work.tenantStatus}`}</span>
-        {!unplannedTriage && planningLocked && (
+        {terminalCloseout && (
+          <button type="button" className="quick-action intake-locked" onClick={onFocus} aria-label={`Open ${work.name} closeout`}>
+            <Archive aria-hidden="true" /> Closeout
+          </button>
+        )}
+        {!terminalCloseout && !unplannedTriage && planningLocked && (
           <button type="button" className="quick-action intake-locked" onClick={onFocus} aria-label={`Reconcile ${work.name} before planning`}>
             <ShieldCheck aria-hidden="true" /> Reconcile first
           </button>
         )}
-        {!unplannedTriage && !planningLocked && (
+        {!terminalCloseout && !unplannedTriage && !planningLocked && (
           <button
             type="button"
             className="quick-action"
@@ -690,29 +708,35 @@ function PlanDrawer({
   work,
   plan,
   reconciliation,
+  closeout,
   repositoryEvidence,
   planningLocked,
   tab,
   onTab,
   onChange,
   onReconciliationChange,
+  onCloseoutChange,
   actionState,
   actionsAvailable,
   onQueueReconciliation,
+  onQueueCloseout,
   onClose,
 }: {
   work: WorkObject
   plan: WorkPlan
   reconciliation: PortfolioReconciliation
+  closeout: ProjectCloseout
   repositoryEvidence: readonly RepositoryEvidence[]
   planningLocked: boolean
   tab: DrawerTab
   onTab: (tab: DrawerTab) => void
   onChange: (patch: Partial<WorkPlan>) => void
   onReconciliationChange: (patch: Partial<PortfolioReconciliation>) => void
+  onCloseoutChange: (patch: Partial<ProjectCloseout>) => void
   actionState: AdminActionState
   actionsAvailable: boolean
   onQueueReconciliation: () => void
+  onQueueCloseout: () => void
   onClose: () => void
 }) {
   const [tagDraft, setTagDraft] = useState('')
@@ -720,6 +744,8 @@ function PlanDrawer({
   const pipeline = resolvePipeline(work, plan)
   const workflow = ORGAN_WORKFLOWS.find((candidate) => candidate.id === plan.delivery.organ)!
   const readiness = intakeReadiness(work, reconciliation)
+  const closeoutReady = closeoutReadiness(closeout)
+  const terminalCloseout = isTerminalCloseout(closeout)
   const selectedRepository = repositoryEvidence.find((record) => record.sourceRef === reconciliation.repositorySourceRef)
 
   useEffect(() => {
@@ -788,7 +814,7 @@ function PlanDrawer({
       </header>
 
       <nav className="drawer-tabs" aria-label="Project detail views">
-        {(['intake', 'plan', 'delivery'] as const).map((drawerTab) => (
+        {(['intake', 'plan', 'delivery', 'closeout'] as const).map((drawerTab) => (
           <button
             type="button"
             key={drawerTab}
@@ -1108,6 +1134,79 @@ function PlanDrawer({
             </fieldset>
           </section>
         )}
+
+        {tab === 'closeout' && (
+          <section className="drawer-section closeout-section">
+            <div className="intake-rule closeout-rule">
+              <Archive aria-hidden="true" />
+              <div>
+                <strong>Completed / Closed is terminal</strong>
+                <p>This moves the project out of active workflow only after final handoff, R2 vault record, memory projection, finished-index delta, and downstream-flow closure are ready.</p>
+              </div>
+            </div>
+            {terminalCloseout && (
+              <div className="source-banner closeout-banner"><Check /> Closeout receipt {closeout.receiptId} · active tracking ended</div>
+            )}
+            <div className="field-grid">
+              <label>
+                <span>Closeout disposition</span>
+                <select value={closeout.disposition} onChange={(event) => onCloseoutChange({ disposition: event.target.value as ProjectCloseout['disposition'], receiptId: null })}>
+                  <option value="completed">Completed</option>
+                  <option value="closed">Closed</option>
+                  <option value="terminated">Terminated</option>
+                </select>
+              </label>
+              <label>
+                <span>Active index disposition</span>
+                <select value={closeout.activeIndexDisposition} onChange={(event) => onCloseoutChange({ activeIndexDisposition: event.target.value as ProjectCloseout['activeIndexDisposition'], receiptId: null })}>
+                  <option value="remove-from-active">Remove from active</option>
+                  <option value="mark-finished">Mark finished in place</option>
+                </select>
+              </label>
+            </div>
+            <label className="wide-field">
+              <span>Final outcome and handoff summary</span>
+              <textarea
+                rows={5}
+                maxLength={1200}
+                value={closeout.finalSummary}
+                onChange={(event) => onCloseoutChange({ finalSummary: event.target.value, receiptId: null })}
+                placeholder="What was completed, handed off, terminated, or intentionally closed? Include any follow-up owner if needed."
+              />
+            </label>
+            <div className="field-grid">
+              <label><span>Final handoff Markdown</span><input value={closeout.handoffMarkdownPath} maxLength={160} onChange={(event) => onCloseoutChange({ handoffMarkdownPath: event.target.value, receiptId: null })} /></label>
+              <label><span>Closeout receipt JSON</span><input value={closeout.closureReceiptJsonPath} maxLength={160} onChange={(event) => onCloseoutChange({ closureReceiptJsonPath: event.target.value, receiptId: null })} /></label>
+              <label><span>Agent memory JSON</span><input value={closeout.agentMemoryJsonPath} maxLength={160} onChange={(event) => onCloseoutChange({ agentMemoryJsonPath: event.target.value, receiptId: null })} /></label>
+              <label><span>R2 vault closeout prefix</span><input value={closeout.r2VaultPrefix} maxLength={220} onChange={(event) => onCloseoutChange({ r2VaultPrefix: event.target.value, receiptId: null })} /></label>
+            </div>
+            <label className="wide-field">
+              <span>Successor WorkObject · optional</span>
+              <input value={closeout.successorWorkObjectId} maxLength={160} onChange={(event) => onCloseoutChange({ successorWorkObjectId: event.target.value, receiptId: null })} placeholder="sapling:new-surface or branch:handoff-owner" />
+            </label>
+            <fieldset className="intake-checklist closeout-checklist">
+              <legend>Required closeout records</legend>
+              <label><input type="checkbox" checked={closeout.repositoryFinalStateReviewed} onChange={(event) => onCloseoutChange({ repositoryFinalStateReviewed: event.target.checked, receiptId: null })} /> Repository final state reviewed</label>
+              <label><input type="checkbox" checked={closeout.handoffDocumented} onChange={(event) => onCloseoutChange({ handoffDocumented: event.target.checked, receiptId: null })} /> Final handoff Markdown prepared</label>
+              <label><input type="checkbox" checked={closeout.r2VaultRecorded} onChange={(event) => onCloseoutChange({ r2VaultRecorded: event.target.checked, receiptId: null })} /> R2 vault closeout manifest prepared</label>
+              <label><input type="checkbox" checked={closeout.agentMemoryUpdated} onChange={(event) => onCloseoutChange({ agentMemoryUpdated: event.target.checked, receiptId: null })} /> Agent-aware active/finished memory JSON prepared</label>
+              <label><input type="checkbox" checked={closeout.activeIndexUpdated} onChange={(event) => onCloseoutChange({ activeIndexUpdated: event.target.checked, receiptId: null })} /> Active index removal and finished-index delta prepared</label>
+              <label><input type="checkbox" checked={closeout.downstreamFlowsStopped} onChange={(event) => onCloseoutChange({ downstreamFlowsStopped: event.target.checked, receiptId: null })} /> Downstream active flows stopped or transferred</label>
+            </fieldset>
+            <div className={closeoutReady.ready ? 'intake-readiness is-ready' : 'intake-readiness is-locked'}>
+              {closeoutReady.ready ? <Check aria-hidden="true" /> : <Target aria-hidden="true" />}
+              <div><strong>{closeoutReady.ready ? 'Ready to complete and close' : 'Closeout not ready'}</strong>{closeoutReady.blockers.map((blocker) => <p key={blocker}>{blocker}</p>)}</div>
+            </div>
+            <div className="admin-action-panel">
+              <div><ShieldCheck aria-hidden="true" /><span><strong>Save closeout action</strong><small>Immutable R2 evidence · project-closeout trigger</small></span></div>
+              <button type="button" className="primary-button" disabled={!actionsAvailable || actionState.status === 'saving' || !closeoutReady.ready} onClick={onQueueCloseout}>
+                <Archive aria-hidden="true" /> {actionState.status === 'saving' ? 'Saving…' : 'Save closeout & move from active workflow'}
+              </button>
+              {!actionsAvailable && <p>Hosted admin connection required. The local preview cannot write.</p>}
+              {actionState.status === 'queued' && <p role="status">Closeout queued · receipt {actionState.receiptId}</p>}
+            </div>
+          </section>
+        )}
       </div>
     </aside>
   )
@@ -1119,6 +1218,7 @@ function App() {
   const [reviewDecisions, setReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.reviewDecisions })
   const [retiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })
   const [reconciliations, setReconciliations] = useState<Record<string, PortfolioReconciliation>>({ ...initial.reconciliations })
+  const [closeouts, setCloseouts] = useState<Record<string, ProjectCloseout>>({ ...initial.closeouts })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('intake')
   const [projectCreationOpen, setProjectCreationOpen] = useState(false)
@@ -1149,8 +1249,8 @@ function App() {
     [focusedId],
   )
   const visible = useMemo(
-    () => filterWorkObjects(query, classifications, activeView, plans, reconciliations),
-    [query, classifications, activeView, plans, reconciliations],
+    () => filterWorkObjects(query, classifications, activeView, plans, reconciliations, closeouts),
+    [query, classifications, activeView, plans, reconciliations, closeouts],
   )
   const grouped = useMemo(
     () => Object.fromEntries(BOARD_HORIZONS.map((horizon) => [
@@ -1165,12 +1265,12 @@ function App() {
   useEffect(() => {
     if (autosaveBlocked) return
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations })))
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPacket({ focusedId, plans, reviewDecisions, retiredReviewDecisions, reconciliations, closeouts })))
       setNotice('Local draft updated · save the focused action when ready')
     } catch {
       setNotice('Local draft unavailable · use the explicit server action when ready')
     }
-  }, [autosaveBlocked, focusedId, plans, reconciliations, retiredReviewDecisions, reviewDecisions])
+  }, [autosaveBlocked, closeouts, focusedId, plans, reconciliations, retiredReviewDecisions, reviewDecisions])
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -1213,6 +1313,20 @@ function App() {
       },
     }))
     setNotice('Repository-first intake draft updated · save and queue it when ready')
+  }
+
+  function updateCloseout(id: string, patch: Partial<ProjectCloseout>) {
+    setPlanningHistory(emptyPlanningHistory())
+    setCloseouts((current) => ({
+      ...current,
+      [id]: {
+        ...(current[id] ?? defaultCloseout(id)),
+        ...patch,
+        workObjectId: id,
+        updatedAt: new Date().toISOString(),
+      },
+    }))
+    setNotice('Closeout draft updated · save and queue it when records are ready')
   }
 
   function toggleFamily(groupId: string) {
@@ -1437,6 +1551,68 @@ function App() {
     }
   }
 
+  async function queueWorkObjectCloseout(work: WorkObject, closeout: ProjectCloseout) {
+    const readiness = closeoutReadiness(closeout)
+    if (!readiness.ready) {
+      setDrawerTab('closeout')
+      setNotice(`${work.name} · closeout is not ready: ${readiness.blockers[0]}`)
+      return
+    }
+    setAdminAction({ status: 'saving', receiptId: null })
+    const proposal = {
+      closeoutSchema: 'thoughtseed.project-closeout.v1',
+      disposition: closeout.disposition,
+      finalSummary: closeout.finalSummary,
+      handoffMarkdownPath: closeout.handoffMarkdownPath,
+      closureReceiptJsonPath: closeout.closureReceiptJsonPath,
+      agentMemoryJsonPath: closeout.agentMemoryJsonPath,
+      r2VaultPrefix: closeout.r2VaultPrefix,
+      activeIndexDisposition: closeout.activeIndexDisposition,
+      repositoryFinalStateReviewed: closeout.repositoryFinalStateReviewed,
+      handoffDocumented: closeout.handoffDocumented,
+      r2VaultRecorded: closeout.r2VaultRecorded,
+      agentMemoryUpdated: closeout.agentMemoryUpdated,
+      activeIndexUpdated: closeout.activeIndexUpdated,
+      downstreamFlowsStopped: closeout.downstreamFlowsStopped,
+      successorWorkObjectId: closeout.successorWorkObjectId,
+    }
+    try {
+      const receipt = await postPortfolioAdminAction({
+        schema: 'thoughtseed.portfolio-admin-action.v1',
+        kind: 'close-work-object',
+        portfolioId: 'thoughtseed',
+        idempotencyKey: retrySafeActionKey(`close:${work.workId}`, proposal),
+        rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+        sourceDigest: CLASSIFICATION_DIGEST,
+        subject: { id: work.workId, name: work.name },
+        proposal,
+      })
+      pendingActionKeys.current.delete(`close:${work.workId}`)
+      setCloseouts((current) => ({
+        ...current,
+        [work.workId]: {
+          ...closeout,
+          receiptId: receipt.receiptId,
+          updatedAt: new Date().toISOString(),
+        },
+      }))
+      setPlans((current) => {
+        const next = { ...current }
+        const prior = next[work.workId] ?? defaultPlan()
+        writePlanned(next, work.workId, { ...prior, signal: 'archived', horizon: null, delivery: { ...prior.delivery, status: 'complete' } })
+        return next
+      })
+      setAdminAction({ status: 'queued', receiptId: receipt.receiptId })
+      setActiveView('completed-closed')
+      setNotice(`${work.name} · completed/closed and moved out of active workflow`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Portfolio action failed'
+      const durableReceipt = message.match(/Evidence (pa_[0-9a-f]+) is durable/)?.[1] ?? null
+      setAdminAction({ status: 'error', receiptId: durableReceipt })
+      setNotice(message)
+    }
+  }
+
   function renderCard(work: WorkObject) {
     return (
       <WorkCard
@@ -1453,6 +1629,7 @@ function App() {
         }}
         unplannedTriage={activeView === 'unplanned'}
         reconciliation={reconciliations[work.workId]}
+        closeout={closeouts[work.workId]}
       />
     )
   }
@@ -1489,11 +1666,12 @@ function App() {
               {view === 'paused' && <CirclePause />}
               {view === 'white-labelable' && <Sparkles />}
               {view === 'needs-review' && <AlertTriangle />}
+              {view === 'completed-closed' && <Archive />}
               {view === 'historical' && <History />}
               {view === 'unplanned' && <Target />}
               {view === 'all' && <Grid2X2 />}
               <span>{label(view)}</span>
-              <strong>{smartViewCount(view, plans, reconciliations)}</strong>
+              <strong>{smartViewCount(view, plans, reconciliations, closeouts)}</strong>
             </button>
           ))}
         </nav>
@@ -1518,16 +1696,18 @@ function App() {
             <span className="eyebrow">Portfolio / {label(activeView)}</span>
             <h1 ref={workspaceHeadingRef} tabIndex={-1}>
               {activeView === 'all' ? 'Plan the portfolio' : label(activeView)}
-              <em>{activeView === 'historical' ? HISTORICAL_RECORDS.length : activeView === 'needs-review' ? smartViewCount(activeView, plans, reconciliations) : visible.length}</em>
+              <em>{activeView === 'historical' ? HISTORICAL_RECORDS.length : activeView === 'needs-review' ? smartViewCount(activeView, plans, reconciliations, closeouts) : visible.length}</em>
             </h1>
             <p>
               {activeView === 'all'
                 ? 'Scan source truth, set local intent, and focus only when detail matters.'
                 : activeView === 'historical'
                   ? 'Preserved product history stays separate from live WorkObjects.'
-                  : activeView === 'needs-review'
-                    ? 'Resolve uncertain identity and commercial boundaries before admission.'
-                    : `A computed view of ${label(activeView).toLowerCase()} portfolio signals.`}
+                  : activeView === 'completed-closed'
+                    ? 'Terminal closeout records stay searchable, but leave active planning lanes.'
+                    : activeView === 'needs-review'
+                      ? 'Resolve uncertain identity and commercial boundaries before admission.'
+                      : `A computed view of ${label(activeView).toLowerCase()} portfolio signals.`}
             </p>
           </div>
           <div className="summary-pills" aria-label="Classification counts">
@@ -1541,7 +1721,7 @@ function App() {
         <div className="mobile-view-rail" aria-label="Mobile smart views">
           {SMART_VIEWS.map((view) => (
             <button type="button" key={view} className={activeView === view ? 'is-active' : ''} onClick={() => setView(view)}>
-              {label(view)} <strong>{smartViewCount(view, plans, reconciliations)}</strong>
+              {label(view)} <strong>{smartViewCount(view, plans, reconciliations, closeouts)}</strong>
             </button>
           ))}
         </div>
@@ -1658,17 +1838,23 @@ function App() {
           work={focusedWork}
           plan={plans[focusedWork.workId] ?? defaultPlan()}
           reconciliation={reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId)}
+          closeout={closeouts[focusedWork.workId] ?? defaultCloseout(focusedWork.workId)}
           repositoryEvidence={repositoryEvidenceForWork(focusedWork)}
           planningLocked={sourceSignal(focusedWork) === 'unplanned' && !intakeReadiness(focusedWork, reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId)).ready}
           tab={drawerTab}
           onTab={setDrawerTab}
           onChange={(patch) => updatePlan(focusedWork.workId, patch)}
           onReconciliationChange={(patch) => updateReconciliation(focusedWork.workId, patch)}
+          onCloseoutChange={(patch) => updateCloseout(focusedWork.workId, patch)}
           actionState={adminAction}
           actionsAvailable={actionsAvailable}
           onQueueReconciliation={() => void queueWorkObjectReconciliation(
             focusedWork,
             reconciliations[focusedWork.workId] ?? defaultReconciliation(focusedWork.workId),
+          )}
+          onQueueCloseout={() => void queueWorkObjectCloseout(
+            focusedWork,
+            closeouts[focusedWork.workId] ?? defaultCloseout(focusedWork.workId),
           )}
           onClose={closeDrawer}
         />

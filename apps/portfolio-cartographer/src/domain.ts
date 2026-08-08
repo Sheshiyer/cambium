@@ -24,7 +24,7 @@ export type Horizon = 'now' | 'next' | 'this-year' | 'later' | 'park'
 export type BoardHorizon = 'unscheduled' | Horizon
 export type Priority = 1 | 2 | 3 | 4 | 5
 export type PortfolioSignal = 'unplanned' | 'ongoing' | 'paused' | 'completed' | 'archived'
-export type SmartView = 'all' | 'ongoing' | 'paused' | 'white-labelable' | 'needs-review' | 'unplanned' | 'historical'
+export type SmartView = 'all' | 'ongoing' | 'paused' | 'white-labelable' | 'needs-review' | 'unplanned' | 'completed-closed' | 'historical'
 export type OrganId = 'genesis' | 'taste' | 'hands' | 'will' | 'cortex'
 export type SignalStatus = 'ready' | 'complete' | 'blocked' | 'failed' | 'drifted'
 export type Audience = 'internal' | 'client'
@@ -38,6 +38,8 @@ export type RepositoryDisposition = 'resolved' | 'no-repository' | 'unmatched' |
 export type PortfolioId = 'thoughtseed' | 'tryambakam-noesis'
 export type PortfolioFolderKind = 'client-branch' | 'sapling' | 'internal-program' | 'needs-review' | 'project'
 export type PortfolioFolderStatus = 'mapping-proposal' | 'awaiting-ingestion' | 'empty-hold'
+export type CloseoutDisposition = 'completed' | 'closed' | 'terminated'
+export type ActiveIndexDisposition = 'remove-from-active' | 'mark-finished'
 
 export interface PortfolioFolderMapping {
   portfolioId: PortfolioId
@@ -117,6 +119,7 @@ export interface WorkbenchState {
   reviewDecisions: Record<string, ReviewDecision>
   retiredReviewDecisions: Record<string, ReviewDecision>
   reconciliations: Record<string, PortfolioReconciliation>
+  closeouts: Record<string, ProjectCloseout>
 }
 
 export interface WorkbenchInput {
@@ -125,6 +128,7 @@ export interface WorkbenchInput {
   reviewDecisions?: Record<string, ReviewDecision>
   retiredReviewDecisions?: Record<string, ReviewDecision>
   reconciliations?: Record<string, PortfolioReconciliation>
+  closeouts?: Record<string, ProjectCloseout>
 }
 
 export interface PortfolioReconciliation {
@@ -141,10 +145,35 @@ export interface PortfolioReconciliation {
   updatedAt: string
 }
 
+export interface ProjectCloseout {
+  workObjectId: string
+  disposition: CloseoutDisposition
+  finalSummary: string
+  handoffMarkdownPath: string
+  closureReceiptJsonPath: string
+  agentMemoryJsonPath: string
+  r2VaultPrefix: string
+  activeIndexDisposition: ActiveIndexDisposition
+  repositoryFinalStateReviewed: boolean
+  handoffDocumented: boolean
+  r2VaultRecorded: boolean
+  agentMemoryUpdated: boolean
+  activeIndexUpdated: boolean
+  downstreamFlowsStopped: boolean
+  successorWorkObjectId: string
+  receiptId: string | null
+  updatedAt: string
+}
+
 export interface IntakeReadiness {
   ready: boolean
   derivedType: DerivedClassification
   classificationMismatch: boolean
+  blockers: string[]
+}
+
+export interface CloseoutReadiness {
+  ready: boolean
   blockers: string[]
 }
 
@@ -393,13 +422,15 @@ export const CLASSIFICATION_COUNTS = Object.freeze({
 export const HORIZONS: readonly Horizon[] = ['now', 'next', 'this-year', 'later', 'park']
 export const BOARD_HORIZONS: readonly BoardHorizon[] = ['unscheduled', ...HORIZONS]
 export const PORTFOLIO_SIGNALS: readonly PortfolioSignal[] = ['unplanned', 'ongoing', 'paused', 'completed', 'archived']
-export const SMART_VIEWS: readonly SmartView[] = ['all', 'ongoing', 'paused', 'white-labelable', 'needs-review', 'unplanned', 'historical']
+export const SMART_VIEWS: readonly SmartView[] = ['all', 'ongoing', 'paused', 'white-labelable', 'needs-review', 'unplanned', 'completed-closed', 'historical']
 export const SIGNAL_STATUSES: readonly SignalStatus[] = ['ready', 'complete', 'blocked', 'failed', 'drifted']
 export const CLASSIFICATIONS: readonly Classification[] = ['sapling', 'client-branch', 'internal-program']
 export const REVIEW_PROPOSALS: readonly ReviewProposal[] = ['sapling', 'client-branch', 'internal-program', 'needs-review']
 export const REVIEW_SUGGESTION_RULE_VERSION = 'thoughtseed.review-suggestion.v1' as const
 export const PORTFOLIO_ORIGINS: readonly PortfolioOrigin[] = ['thoughtseed-venture', 'thoughtseed-internal', 'client', 'unknown']
 export const REPOSITORY_DISPOSITIONS: readonly RepositoryDisposition[] = ['resolved', 'no-repository', 'unmatched', 'ambiguous']
+export const CLOSEOUT_DISPOSITIONS: readonly CloseoutDisposition[] = ['completed', 'closed', 'terminated']
+export const ACTIVE_INDEX_DISPOSITIONS: readonly ActiveIndexDisposition[] = ['remove-from-active', 'mark-finished']
 
 const workById = new Map(WORK_OBJECTS.map((work) => [work.workId, work]))
 const reviewById = new Map(REVIEW_RECORDS.map((record) => [record.canonicalId, record]))
@@ -533,6 +564,48 @@ export function defaultReconciliation(workObjectId: string): PortfolioReconcilia
     note: '',
     updatedAt: '',
   }
+}
+
+export function defaultCloseout(workObjectId: string): ProjectCloseout {
+  return {
+    workObjectId,
+    disposition: 'completed',
+    finalSummary: '',
+    handoffMarkdownPath: '.project/HANDOFF.md',
+    closureReceiptJsonPath: '.project/project-closeout-receipt.v1.json',
+    agentMemoryJsonPath: '.project/agent-memory-projection.v1.json',
+    r2VaultPrefix: `project-closeouts/v1/thoughtseed/${workObjectId.replace(/[^a-zA-Z0-9._-]+/g, '-')}`,
+    activeIndexDisposition: 'remove-from-active',
+    repositoryFinalStateReviewed: false,
+    handoffDocumented: false,
+    r2VaultRecorded: false,
+    agentMemoryUpdated: false,
+    activeIndexUpdated: false,
+    downstreamFlowsStopped: false,
+    successorWorkObjectId: '',
+    receiptId: null,
+    updatedAt: '',
+  }
+}
+
+export function closeoutReadiness(closeout: ProjectCloseout): CloseoutReadiness {
+  const blockers: string[] = []
+  if (!closeout.finalSummary.trim()) blockers.push('Write the final outcome and handoff summary.')
+  if (!closeout.handoffMarkdownPath.trim().endsWith('.md')) blockers.push('Name the final handoff Markdown path.')
+  if (!closeout.closureReceiptJsonPath.trim().endsWith('.json')) blockers.push('Name the closeout receipt JSON path.')
+  if (!closeout.agentMemoryJsonPath.trim().endsWith('.json')) blockers.push('Name the agent memory projection JSON path.')
+  if (!closeout.r2VaultPrefix.trim()) blockers.push('Name the R2 vault closeout prefix.')
+  if (!closeout.repositoryFinalStateReviewed) blockers.push('Review the repository final state.')
+  if (!closeout.handoffDocumented) blockers.push('Prepare the final handoff Markdown.')
+  if (!closeout.r2VaultRecorded) blockers.push('Prepare the R2 vault record manifest.')
+  if (!closeout.agentMemoryUpdated) blockers.push('Prepare the agent-aware active/finished memory JSON.')
+  if (!closeout.activeIndexUpdated) blockers.push('Prepare the active-index removal and finished-index delta.')
+  if (!closeout.downstreamFlowsStopped) blockers.push('Stop or transfer all downstream active flows.')
+  return { ready: blockers.length === 0, blockers }
+}
+
+export function isTerminalCloseout(closeout?: ProjectCloseout): boolean {
+  return Boolean(closeout?.receiptId && closeoutReadiness(closeout).ready)
 }
 
 export function intakeReadiness(
@@ -695,7 +768,11 @@ function matchesView(
   plan: WorkPlan | undefined,
   view: SmartView,
   reconciliations?: Readonly<Record<string, PortfolioReconciliation>>,
+  closeouts?: Readonly<Record<string, ProjectCloseout>>,
 ): boolean {
+  const terminalCloseout = isTerminalCloseout(closeouts?.[work.workId])
+  if (view === 'completed-closed') return terminalCloseout
+  if (terminalCloseout) return false
   if (view === 'all') return true
   if (view === 'white-labelable') return hasWhiteLabelReuse(work, plan)
   if (view === 'needs-review') return Boolean(plan?.tags.includes('needs-review'))
@@ -718,12 +795,13 @@ export function filterWorkObjects(
   view: SmartView,
   plans: Readonly<Record<string, WorkPlan>> = {},
   reconciliations?: Readonly<Record<string, PortfolioReconciliation>>,
+  closeouts?: Readonly<Record<string, ProjectCloseout>>,
 ): WorkObject[] {
   const needle = query.trim().toLowerCase()
   return WORK_OBJECTS.filter((work) => {
     const plan = plans[work.workId]
     if (classifications.size > 0 && !classifications.has(work.classification)) return false
-    if (!matchesView(work, plan, view, reconciliations)) return false
+    if (!matchesView(work, plan, view, reconciliations, closeouts)) return false
     if (!needle) return true
     return [
       work.name,
@@ -745,12 +823,13 @@ export function smartViewCount(
   view: SmartView,
   plans: Readonly<Record<string, WorkPlan>>,
   reconciliations?: Readonly<Record<string, PortfolioReconciliation>>,
+  closeouts?: Readonly<Record<string, ProjectCloseout>>,
 ): number {
   if (view === 'needs-review') {
-    return REVIEW_RECORDS.length + WORK_OBJECTS.filter((work) => plans[work.workId]?.tags.includes('needs-review')).length
+    return REVIEW_RECORDS.length + WORK_OBJECTS.filter((work) => !isTerminalCloseout(closeouts?.[work.workId]) && plans[work.workId]?.tags.includes('needs-review')).length
   }
   if (view === 'historical') return HISTORICAL_RECORDS.length
-  return WORK_OBJECTS.filter((work) => matchesView(work, plans[work.workId], view, reconciliations)).length
+  return WORK_OBJECTS.filter((work) => matchesView(work, plans[work.workId], view, reconciliations, closeouts)).length
 }
 
 export function resolvePipeline(work: WorkObject, plan: WorkPlan): Pipeline {
@@ -821,6 +900,11 @@ export function createPacket(state: WorkbenchInput, now = new Date()): ExportPac
     if (!workById.has(id)) continue
     reconciliations[id] = sanitizeReconciliation(raw, id)
   }
+  const closeouts: Record<string, ProjectCloseout> = {}
+  for (const [id, raw] of Object.entries(state.closeouts ?? {})) {
+    if (!workById.has(id)) continue
+    closeouts[id] = sanitizeCloseout(raw, id)
+  }
   const pipelines = Object.entries(plans).map(([id, plan]) => resolvePipeline(workById.get(id)!, plan))
   return {
     schema: WORKBENCH_SCHEMA,
@@ -841,6 +925,7 @@ export function createPacket(state: WorkbenchInput, now = new Date()): ExportPac
     reviewDecisions,
     retiredReviewDecisions,
     reconciliations,
+    closeouts,
     pipelines,
     exportedAt: now.toISOString(),
   }
@@ -1035,6 +1120,43 @@ function sanitizeReconciliation(value: unknown, id: string): PortfolioReconcilia
   }
 }
 
+function sanitizeCloseout(value: unknown, id: string): ProjectCloseout {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError(`Invalid closeout for ${id}`)
+  }
+  const raw = value as Partial<ProjectCloseout>
+  if (raw.workObjectId !== id) throw new TypeError(`Closeout WorkObject mismatch for ${id}`)
+  if (!CLOSEOUT_DISPOSITIONS.includes(raw.disposition as CloseoutDisposition)) {
+    throw new TypeError(`Invalid closeout disposition for ${id}`)
+  }
+  if (!ACTIVE_INDEX_DISPOSITIONS.includes(raw.activeIndexDisposition as ActiveIndexDisposition)) {
+    throw new TypeError(`Invalid active index disposition for ${id}`)
+  }
+  const receiptId = raw.receiptId === null || raw.receiptId === undefined ? null : safeText(raw.receiptId, 80)
+  if (receiptId !== null && !/^pa_[0-9a-f]{24}$/.test(receiptId)) {
+    throw new TypeError(`Invalid closeout receipt for ${id}`)
+  }
+  return {
+    workObjectId: id,
+    disposition: raw.disposition as CloseoutDisposition,
+    finalSummary: safeText(raw.finalSummary, 1200),
+    handoffMarkdownPath: safeText(raw.handoffMarkdownPath, 160),
+    closureReceiptJsonPath: safeText(raw.closureReceiptJsonPath, 160),
+    agentMemoryJsonPath: safeText(raw.agentMemoryJsonPath, 160),
+    r2VaultPrefix: safeText(raw.r2VaultPrefix, 220),
+    activeIndexDisposition: raw.activeIndexDisposition as ActiveIndexDisposition,
+    repositoryFinalStateReviewed: Boolean(raw.repositoryFinalStateReviewed),
+    handoffDocumented: Boolean(raw.handoffDocumented),
+    r2VaultRecorded: Boolean(raw.r2VaultRecorded),
+    agentMemoryUpdated: Boolean(raw.agentMemoryUpdated),
+    activeIndexUpdated: Boolean(raw.activeIndexUpdated),
+    downstreamFlowsStopped: Boolean(raw.downstreamFlowsStopped),
+    successorWorkObjectId: safeText(raw.successorWorkObjectId, 160),
+    receiptId,
+    updatedAt: safeText(raw.updatedAt, 64),
+  }
+}
+
 function parsePlans(packet: Record<string, unknown>, versionLabel: string): Pick<WorkbenchState, 'focusedId' | 'plans'> {
   if (!packet.plans || typeof packet.plans !== 'object' || Array.isArray(packet.plans)) {
     throw new TypeError('Plans are invalid')
@@ -1086,7 +1208,19 @@ function parseV4(packet: Record<string, unknown>): WorkbenchState {
     if (!workById.has(id)) throw new TypeError(`Unknown WorkObject in v4 reconciliation: ${id}`)
     reconciliations[id] = sanitizeReconciliation(value, id)
   }
-  return { ...parsed, reviewDecisions, retiredReviewDecisions, reconciliations }
+  if (packet.closeouts !== undefined && (
+    typeof packet.closeouts !== 'object' ||
+    packet.closeouts === null ||
+    Array.isArray(packet.closeouts)
+  )) {
+    throw new TypeError('Closeouts are invalid')
+  }
+  const closeouts: Record<string, ProjectCloseout> = {}
+  for (const [id, value] of Object.entries((packet.closeouts ?? {}) as Record<string, unknown>)) {
+    if (!workById.has(id)) throw new TypeError(`Unknown WorkObject in v4 closeout: ${id}`)
+    closeouts[id] = sanitizeCloseout(value, id)
+  }
+  return { ...parsed, reviewDecisions, retiredReviewDecisions, reconciliations, closeouts }
 }
 
 function parseV3(packet: Record<string, unknown>): WorkbenchState {
@@ -1105,12 +1239,13 @@ function parseV3(packet: Record<string, unknown>): WorkbenchState {
     reviewDecisions,
     retiredReviewDecisions,
     reconciliations: {},
+    closeouts: {},
   }
 }
 
 function parseV2(packet: Record<string, unknown>): WorkbenchState {
   if (packet.version !== 2) throw new TypeError('Packet version is not supported')
-  return { ...parsePlans(packet, 'v2'), reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {} }
+  return { ...parsePlans(packet, 'v2'), reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, closeouts: {} }
 }
 
 interface LegacyDecision {
@@ -1169,7 +1304,7 @@ function parseLegacy(packet: Record<string, unknown>): WorkbenchState {
     }
     plans[id] = plan
   }
-  return { focusedId: ids[0] ?? null, plans, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {} }
+  return { focusedId: ids[0] ?? null, plans, reviewDecisions: {}, retiredReviewDecisions: {}, reconciliations: {}, closeouts: {} }
 }
 
 export function parsePacket(value: unknown): WorkbenchState {
@@ -1202,7 +1337,8 @@ export function toMarkdown(packet: ExportPacket): string {
     '## Portfolio signals',
     '',
     ...PORTFOLIO_SIGNALS.map((signal) => `- ${signal}: ${counts[signal]}`),
-    `- white-labelable: ${smartViewCount('white-labelable', packet.plans)}`,
+    `- white-labelable: ${smartViewCount('white-labelable', packet.plans, packet.reconciliations, packet.closeouts)}`,
+    `- completed/closed: ${smartViewCount('completed-closed', packet.plans, packet.reconciliations, packet.closeouts)}`,
     `- classification review queue: ${REVIEW_RECORDS.length}`,
     '',
     '## Planned work',
@@ -1252,6 +1388,27 @@ export function toMarkdown(packet: ExportPacket): string {
       `- Mapping proposal: ${readiness.classificationMismatch ? `change canonical type from ${work.classification} to ${readiness.derivedType} after authority review` : '_none_'}`,
       `- Blockers: ${readiness.blockers.length ? readiness.blockers.join(' ') : '_none_'}`,
       `- Note: ${reconciliation.note || '_none_'}`,
+      '',
+    )
+  }
+  const closeoutRows = Object.entries(packet.closeouts).sort(([left], [right]) => left.localeCompare(right))
+  lines.push('## Completed / closed work', '')
+  if (closeoutRows.length === 0) lines.push('_No completed/closed closeout receipts._', '')
+  for (const [id, closeout] of closeoutRows) {
+    const work = workById.get(id)
+    lines.push(
+      `### ${work?.name ?? id}`,
+      '',
+      `- WorkObject: \`${id}\``,
+      `- Disposition: **${closeout.disposition}**`,
+      `- Durable receipt: ${closeout.receiptId ? '`' + closeout.receiptId + '`' : '_not yet recorded_'}`,
+      `- Final handoff: \`${closeout.handoffMarkdownPath}\``,
+      `- Closeout receipt: \`${closeout.closureReceiptJsonPath}\``,
+      `- Agent memory: \`${closeout.agentMemoryJsonPath}\``,
+      `- R2 vault prefix: \`${closeout.r2VaultPrefix}\``,
+      `- Active index disposition: \`${closeout.activeIndexDisposition}\``,
+      `- Downstream flows: ${closeout.downstreamFlowsStopped ? 'stopped or transferred' : 'not yet closed'}`,
+      `- Summary: ${closeout.finalSummary || '_not yet specified_'}`,
       '',
     )
   }

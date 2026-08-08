@@ -1,0 +1,92 @@
+{
+  "schema": "thoughtseed.project-closeout-contract.v1",
+  "portfolioId": "thoughtseed",
+  "status": "implemented-locally-production-held",
+  "activeWorkbenchPortfolios": [
+    "thoughtseed"
+  ],
+  "terminalStatus": "completed-closed",
+  "terminalDispositions": [
+    "completed",
+    "closed",
+    "terminated"
+  ],
+  "pathGrammar": "<projects-root>/thoughtseed/<repository>",
+  "reviewedSnapshots": {
+    "rootMapDigest": "588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b",
+    "portfolioCatalogDigest": "50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2",
+    "exactMatchRequiredForExecution": true
+  },
+  "adminAction": {
+    "schema": "thoughtseed.portfolio-admin-action.v1",
+    "kind": "close-work-object",
+    "proposalSchema": "thoughtseed.project-closeout.v1",
+    "nextFlow": "project-closeout",
+    "approvalStatus": "pending-project-closeout",
+    "r2EvidenceBeforeQueue": true,
+    "goalGraphWrite": false
+  },
+  "requiredCloseoutInputs": [
+    "workObjectId",
+    "disposition",
+    "finalSummary",
+    "handoffMarkdownPath",
+    "closureReceiptJsonPath",
+    "agentMemoryJsonPath",
+    "r2VaultPrefix",
+    "activeIndexDisposition"
+  ],
+  "requiredConfirmations": [
+    "repositoryFinalStateReviewed",
+    "handoffDocumented",
+    "r2VaultRecorded",
+    "agentMemoryUpdated",
+    "activeIndexUpdated",
+    "downstreamFlowsStopped"
+  ],
+  "activeIndexDispositions": {
+    "remove-from-active": {
+      "meaning": "Remove the WorkObject from active workflow views and emit a finished-index delta."
+    },
+    "mark-finished": {
+      "meaning": "Keep a finished marker in the index while removing the WorkObject from active workflow views."
+    }
+  },
+  "requiredLocalOutputs": [
+    ".project/HANDOFF.md",
+    ".project/project-closeout-receipt.v1.json",
+    ".project/agent-memory-projection.v1.json",
+    ".project/finished-index-delta.v1.json"
+  ],
+  "r2VaultObjects": [
+    "final-handoff.md",
+    "project-closeout-receipt.v1.json",
+    "agent-memory-projection.v1.json",
+    "finished-index-delta.v1.json"
+  ],
+  "downstreamEffects": [
+    "remove from active Workbench views after durable receipt",
+    "show only in Completed / Closed view after terminal receipt",
+    "queue project-closeout flow for trusted local execution",
+    "produce final handoff markdown",
+    "produce closeout receipt json",
+    "produce agent-aware memory projection json",
+    "produce active-to-finished index delta",
+    "prepare R2 vault manifest for synchronized archive copy",
+    "stop or transfer active downstream workflows"
+  ],
+  "memoryProjection": {
+    "activeProjects": "closed WorkObject is absent from active project memory",
+    "finishedProjects": "closed WorkObject is present with disposition, receipt, summary, successor, and closeout digest",
+    "agentAwareness": "future agents can distinguish active work from finished work without reading historical session logs first"
+  },
+  "prohibitedEffects": [
+    "automatic physical repository relocation",
+    "automatic GitHub repository creation",
+    "automatic GitHub issue closure",
+    "automatic canonical portfolio registry mutation",
+    "automatic production deployment",
+    "automatic Goal Graph mutation",
+    "automatic deletion of project files"
+  ]
+}

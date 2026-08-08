@@ -73,6 +73,45 @@
 - Production promotion remains governed by issue #293, exact Worker Version
   proof, binding parity, rollback preservation, and post-promotion readback.
 
+### 2026-08-08 Thoughtseed project-closeout workflow checkpoint
+
+- Branch: `codex/portfolio-closeout-workflow`, based on production `main` in
+  an isolated clean checkout.
+- The Workbench now includes terminal `Completed / Closed` workflow grammar.
+  Receipt-backed closeouts leave active views and remain visible only in the
+  `Completed / Closed` view.
+- Every focused Thoughtseed WorkObject has a `Closeout` tab for disposition,
+  final summary, handoff Markdown path, closeout receipt JSON path, agent
+  memory JSON path, R2 vault prefix, active-index disposition, optional
+  successor, and six required confirmations.
+- Hosted admin actions now accept `close-work-object`, validate
+  `thoughtseed.project-closeout.v1`, write immutable/idempotent R2 evidence
+  before the bounded `project-closeout` trigger, and preserve Goal Graph
+  isolation.
+- Local executor command: `npm run project:closeout`. It supports dry-run
+  planning and, in execute mode, writes `.project/HANDOFF.md`,
+  `.project/project-closeout-receipt.v1.json`,
+  `.project/agent-memory-projection.v1.json`, and
+  `.project/finished-index-delta.v1.json` for the selected project root.
+- Contract: `docs/project-management/thoughtseed-project-closeout.v1.json`.
+  Design and execution:
+  `docs/plans/2026-08-08-thoughtseed-project-closeout-workflow-design.md` and
+  `docs/plans/2026-08-08-thoughtseed-project-closeout-workflow-implementation.md`.
+- Verification: `pnpm --dir apps/portfolio-cartographer check` passed 49
+  active tests with one historical skip, lint, build, bundle, standalone audit,
+  CSP smoke, and hosted artifact smoke. Generated hosted artifact is 358,803
+  bytes, SHA-256
+  `1d15866bbe085091b13a482e254a10094b49ea25f0c6c3c3af0a2d7a2d0e3540`, and
+  the generated Worker embed was refreshed from that bundle.
+- Verification: `npm test` passed 1568/1568 and `git diff --check` passed.
+- The closeout executor tests prove dry-run no-write behavior, execute-mode
+  temporary-root handoff/memory/index outputs, stale digest rejection,
+  incomplete confirmation rejection, unsafe path rejection, and symlink-root
+  rejection.
+- No project folder was moved, copied, nested, deleted, or reorganized. No
+  Vault/R2 copy, GitHub issue, production Worker, Goal Graph, provider,
+  canonical registry, or deployment state was mutated by this checkpoint.
+
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
