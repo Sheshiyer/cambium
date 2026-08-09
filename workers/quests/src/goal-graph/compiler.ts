@@ -42,7 +42,7 @@ export function compileGoalGraph(input: GoalGraphCompileInput): GoalGraphCompile
   if (actualDigest !== input.expectedHeadDigest) return { status: 'stale', expectedHeadDigest: input.expectedHeadDigest, actualHeadDigest: actualDigest };
   const now = input.now ?? '1970-01-01T00:00:00.000Z';
   const proposed = normalizeNodes(input.proposedNodes, input.tenantId, now);
-  const validation = validateNodeSet(proposed);
+  const validation = validateNodeSet(proposed, input.loadoutAuthority);
   if (!validation.valid) throw new Error(validation.code);
   const current = [...input.currentNodes].sort((a, b) => a.nodeId.localeCompare(b.nodeId));
   const currentById = new Map(current.map((node) => [node.nodeId, node]));

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import type { GoalGraphLoadoutAuthority, GoalGraphLoadoutAuthorityRecord } from './goal-graph/types.ts';
 
 export const MISSION_FABRIC_CAPS = {
   MAX_NODES: 512,
@@ -699,6 +700,8 @@ export interface GoalGraphProjection {
   nodes: readonly unknown[];
   /** Exact catalog WorkObject IDs admitted by the composing authority. */
   workObjectIds?: readonly string[];
+  /** Exact governed registry used to resolve loadout eligibility and cluster authority. */
+  loadoutAuthority?: GoalGraphLoadoutAuthority;
 }
 
 const PROMOTION_STATES = new Set<SaplingWork['promotionState']>(['proof-only', 'supervised-branch', 'autonomous-branch']);
@@ -929,7 +932,14 @@ export function adaptGoalGraphAuthority(input: GoalGraphProjection): {
       && workObjectMatch[1] === workObjectKind
       && allowedWorkObjectIds !== null
       && allowedWorkObjectIds.has(workObjectId);
-    const loadoutValid = pinnedLoadoutId.length > 0 && loadoutPattern.test(pinnedLoadoutId);
+    const loadoutSyntaxValid = pinnedLoadoutId.length > 0 && loadoutPattern.test(pinnedLoadoutId);
+    const governedLoadout: GoalGraphLoadoutAuthorityRecord | null = loadoutSyntaxValid
+      ? (input.loadoutAuthority?.resolve(pinnedLoadoutId) ?? null)
+      : null;
+    const loadoutValid = governedLoadout !== null
+      && governedLoadout.loadoutId === pinnedLoadoutId
+      && governedLoadout.eligibleWorkObjectIds.includes(workObjectId);
+    const requiredClusterIds = loadoutValid ? [...governedLoadout.authorizedClusterIds].sort(compare) : [];
     const node: FabricTask = {
       taskId,
       missionId: parentStorageId.length > 0 ? (taskIdByStorageId.get(parentStorageId) ?? '') : '',
@@ -937,7 +947,7 @@ export function adaptGoalGraphAuthority(input: GoalGraphProjection): {
       status: (status === 'active' ? 'ready' : status === 'blocked' ? 'blocked' : status === 'retired' ? 'complete' : 'queued') as FabricTask['status'],
       dependencyIds: [],
       assignedAgentId: null,
-      requiredClusterIds: [],
+      requiredClusterIds,
       pinnedLoadoutId: anchorValid && loadoutValid ? pinnedLoadoutId : null,
       leaseId: null,
       proofRequirement: '',
@@ -983,7 +993,7 @@ export function adaptGoalGraphAuthority(input: GoalGraphProjection): {
         detail: `Goal Graph task ${taskId} is WorkObject-anchored but has no authoritative pinned loadout.`,
         evidenceRef: adaptString(raw.sourceRef) || null,
       });
-    } else if (!loadoutValid) {
+    } else if (!loadoutSyntaxValid) {
       gaps.push({
         gapId: `gap-goal-loadout-invalid-${taskId}`,
         kind: 'invalid-loadout-anchor',
@@ -991,11 +1001,22 @@ export function adaptGoalGraphAuthority(input: GoalGraphProjection): {
         detail: `Goal Graph task ${taskId} has an invalid pinned loadout identity; no pins-loadout edge was emitted.`,
         evidenceRef: adaptString(raw.sourceRef) || null,
       });
+    } else if (!loadoutValid) {
+      gaps.push({
+        gapId: `gap-goal-loadout-ungoverned-${taskId}`,
+        kind: 'missing-loadout-authority',
+        subjectId: taskId,
+        detail: `Goal Graph task ${taskId} pins ${pinnedLoadoutId}, but the governed registry does not authorize it for ${workObjectId}; no loadout or cluster edge was emitted.`,
+        evidenceRef: adaptString(raw.sourceRef) || null,
+      });
     } else {
       const pinIdentity = `${workObjectId}\u0000${pinnedLoadoutId}`;
       if (!emittedLoadoutPins.has(pinIdentity)) {
         emittedLoadoutPins.add(pinIdentity);
         edges.push({ kind: 'pins-loadout', fromId: workObjectId, toId: pinnedLoadoutId });
+      }
+      for (const clusterId of requiredClusterIds) {
+        edges.push({ kind: 'requires-cluster', fromId: taskId, toId: clusterId });
       }
     }
   }

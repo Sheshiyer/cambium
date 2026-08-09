@@ -10,7 +10,7 @@ import {
 
 export const PORTFOLIO_CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
-export const PORTFOLIO_CATALOG_DIGEST = 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64';
+export const PORTFOLIO_CATALOG_DIGEST = 'sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;

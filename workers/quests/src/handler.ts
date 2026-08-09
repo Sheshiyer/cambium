@@ -52,6 +52,7 @@ import {
   portfolioCatalogForViewer,
   portfolioPairDigest,
 } from './portfolio-catalog.ts';
+import { THREE_SAPLING_LOADOUT_AUTHORITY } from './portfolio-operational-cohort.ts';
 import {
   ORGAN_UPDATE_PLAN,
   ORGAN_UPDATE_SUMMARY,
@@ -3090,6 +3091,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       graphVersion: head.graphVersion,
       nodes,
       workObjectIds: PORTFOLIO_CATALOG.records.map((record) => record.workId),
+      loadoutAuthority: THREE_SAPLING_LOADOUT_AUTHORITY,
     });
     const goalGraphFabricNodes = goalGraphAuthority.nodes;
     const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;

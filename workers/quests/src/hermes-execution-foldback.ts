@@ -35,6 +35,23 @@ export interface HermesExecutionFoldbackInput {
     terminalProofDigest: string;
     recordedAt: string;
   };
+  /**
+   * Admission evidence is optional only to preserve v1 receipt compatibility.
+   * When present it is a closed, exact binding to the terminal execution; an
+   * unissued, stale, or substituted activation is never folded back.
+   */
+  activation?: {
+    activationId: string;
+    activationDigest: string;
+    mappingReceiptId: string;
+    mappingReceiptDigest: string;
+    issued: true;
+    staleFence: false;
+    workObjectId: string;
+    taskId: string;
+    pinnedLoadoutId: string;
+    fencingToken: string;
+  };
 }
 
 export interface HermesExecutionFoldbackReceipt extends HermesExecutionFoldbackInput {
@@ -46,12 +63,82 @@ export interface HermesExecutionFoldbackReceipt extends HermesExecutionFoldbackI
 
 export interface HermesExecutionFoldbackProjection {
   receipt: HermesExecutionFoldbackReceipt;
+  /** Present only when issued, exact activation evidence admits foldback. */
+  cortex?: HermesExecutionFoldbackCortexProjection;
+  /** Present only when issued, exact activation evidence admits foldback. */
+  agentMemory?: HermesExecutionFoldbackAgentMemoryProjection;
+  /** Present only when issued, exact activation evidence admits foldback. */
+  nextIntent?: HermesExecutionFoldbackNextIntentProposal;
   node: FabricNode;
   edges: readonly FabricEdge[];
 }
 
+/** A deliberately small, receipt-derived projection suitable for Cortex. */
+export interface HermesExecutionFoldbackCortexProjection {
+  schema: 'thoughtseed.cortex.terminal-receipt.v1';
+  receiptId: string;
+  receiptDigest: string;
+  workObjectId: string;
+  taskId: string;
+  executionId: string;
+  outcome: 'executed' | 'failed';
+  terminalProofDigest: string;
+  recordedAt: string;
+  r2Key: string;
+}
+
+/** A bounded memory record with the complete, exact WorkObject lineage. */
+export interface HermesExecutionFoldbackAgentMemoryProjection {
+  schema: 'thoughtseed.agent-memory.terminal-receipt.v1';
+  receiptId: string;
+  receiptDigest: string;
+  workObject: {
+    id: string;
+    kind: 'sapling' | 'branch' | 'program';
+  };
+  lineage: {
+    nodeId: string;
+    taskId: string;
+    graphVersion: number;
+    pinnedLoadoutId: string;
+    executionId: string;
+  };
+  outcome: 'executed' | 'failed';
+  terminalProofDigest: string;
+  recordedAt: string;
+  r2Key: string;
+}
+
+/**
+ * A proposal has no Goal Graph write capability. The authoritative graph must
+ * independently accept a later approval before it can create operational work.
+ */
+export interface HermesExecutionFoldbackNextIntentProposal {
+  schema: 'thoughtseed.next-intent-proposal.v1';
+  proposalId: string;
+  receiptId: string;
+  workObjectId: string;
+  taskId: string;
+  terminalProofDigest: string;
+  approvalRequired: true;
+  goalGraphAuthority: false;
+  status: 'proposal-only';
+}
+
 export interface HermesExecutionFoldbackStoreLike {
   record(receipt: HermesExecutionFoldbackReceipt): Promise<{ duplicate: boolean }>;
+}
+
+/**
+ * Implemented by the trusted orchestration boundary using immutable admission
+ * readback. Foldback never treats a caller-supplied activation envelope as
+ * authority on shape or digest self-consistency alone.
+ */
+export interface HermesExecutionFoldbackActivationVerifier {
+  readonly source: 'external-admission-readback';
+  verifyActivationAuthority(
+    activation: NonNullable<HermesExecutionFoldbackInput['activation']>,
+  ): boolean | Promise<boolean>;
 }
 
 export class HermesExecutionFoldbackValidationError extends Error {
@@ -87,6 +174,14 @@ function exactFields(value: Record<string, unknown>, fields: readonly string[], 
   }
 }
 
+function exactOptionalFields(value: Record<string, unknown>, fields: readonly string[], optional: readonly string[], label: string): void {
+  const actual = Object.keys(value).sort();
+  const allowed = [...fields, ...optional].sort();
+  if (actual.some((field) => !allowed.includes(field)) || fields.some((field) => !Object.hasOwn(value, field))) {
+    throw new HermesExecutionFoldbackValidationError(`${label} fields are invalid`);
+  }
+}
+
 function safeText(value: unknown, field: string): string {
   if (typeof value !== 'string' || !SAFE_ID.test(value)) {
     throw new HermesExecutionFoldbackValidationError(`${field} is invalid`);
@@ -118,7 +213,7 @@ async function sha256(value: string): Promise<string> {
 
 function validateInput(raw: unknown): HermesExecutionFoldbackInput {
   if (!isRecord(raw)) throw new HermesExecutionFoldbackValidationError('foldback input must be an object');
-  exactFields(raw, ['schema', 'tenantId', 'graphVersion', 'goalGraph', 'execution'], 'foldback input');
+  exactOptionalFields(raw, ['schema', 'tenantId', 'graphVersion', 'goalGraph', 'execution'], ['activation'], 'foldback input');
   if (raw.schema !== HERMES_EXECUTION_FOLDBACK_SCHEMA) throw new HermesExecutionFoldbackValidationError('foldback schema is invalid');
   const tenantId = safeText(raw.tenantId, 'tenantId');
   if (!Number.isSafeInteger(raw.graphVersion) || Number(raw.graphVersion) < 1) {
@@ -151,6 +246,39 @@ function validateInput(raw: unknown): HermesExecutionFoldbackInput {
   if (!Number.isSafeInteger(raw.execution.attempt) || Number(raw.execution.attempt) < 1) {
     throw new HermesExecutionFoldbackValidationError('execution.attempt is invalid');
   }
+  let activation: HermesExecutionFoldbackInput['activation'];
+  if (raw.activation !== undefined) {
+    if (!isRecord(raw.activation)) throw new HermesExecutionFoldbackValidationError('activation must be an object');
+    exactFields(raw.activation, [
+      'activationId', 'activationDigest', 'mappingReceiptId', 'mappingReceiptDigest', 'issued', 'staleFence', 'workObjectId', 'taskId', 'pinnedLoadoutId', 'fencingToken',
+    ], 'activation');
+    if (raw.activation.issued !== true) {
+      throw new HermesExecutionFoldbackValidationError('activation is not issued');
+    }
+    if (raw.activation.staleFence !== false) {
+      throw new HermesExecutionFoldbackValidationError('activation fence is stale');
+    }
+    activation = {
+      activationId: safeText(raw.activation.activationId, 'activation.activationId'),
+      activationDigest: digest(raw.activation.activationDigest, 'activation.activationDigest'),
+      mappingReceiptId: safeText(raw.activation.mappingReceiptId, 'activation.mappingReceiptId'),
+      mappingReceiptDigest: digest(raw.activation.mappingReceiptDigest, 'activation.mappingReceiptDigest'),
+      issued: true,
+      staleFence: false,
+      workObjectId: safeText(raw.activation.workObjectId, 'activation.workObjectId'),
+      taskId: safeText(raw.activation.taskId, 'activation.taskId'),
+      pinnedLoadoutId: safeText(raw.activation.pinnedLoadoutId, 'activation.pinnedLoadoutId'),
+      fencingToken: safeText(raw.activation.fencingToken, 'activation.fencingToken'),
+    };
+    if (
+      activation.workObjectId !== workObjectId
+      || activation.taskId !== taskId
+      || activation.pinnedLoadoutId !== pinnedLoadoutId
+      || activation.fencingToken !== raw.execution.fencingToken
+    ) {
+      throw new HermesExecutionFoldbackValidationError('activation does not bind the terminal execution');
+    }
+  }
   return {
     schema: HERMES_EXECUTION_FOLDBACK_SCHEMA,
     tenantId,
@@ -176,11 +304,89 @@ function validateInput(raw: unknown): HermesExecutionFoldbackInput {
       terminalProofDigest: digest(raw.execution.terminalProofDigest, 'execution.terminalProofDigest'),
       recordedAt,
     },
+    ...(activation ? { activation } : {}),
   };
 }
 
-export async function adaptHermesExecutionFoldback(raw: unknown): Promise<HermesExecutionFoldbackProjection> {
+function artifactPrefix(receipt: HermesExecutionFoldbackReceipt): string {
+  return `portfolio/thoughtseed/workobjects/${receipt.goalGraph.workObjectId}/foldback`;
+}
+
+/**
+ * Read only immutable receipt fields here. This intentionally has no access to
+ * an inbound prompt, response, provider payload, credentials, or caller data.
+ */
+export function deriveHermesExecutionFoldbackCortexProjection(
+  receipt: HermesExecutionFoldbackReceipt,
+): HermesExecutionFoldbackCortexProjection {
+  return {
+    schema: 'thoughtseed.cortex.terminal-receipt.v1',
+    receiptId: receipt.receiptId,
+    receiptDigest: receipt.contentDigest,
+    workObjectId: receipt.goalGraph.workObjectId,
+    taskId: receipt.goalGraph.taskId,
+    executionId: receipt.execution.executionId,
+    outcome: receipt.execution.status,
+    terminalProofDigest: receipt.execution.terminalProofDigest,
+    recordedAt: receipt.execution.recordedAt,
+    r2Key: `${artifactPrefix(receipt)}/cortex/${receipt.execution.executionId}.json`,
+  };
+}
+
+export function deriveHermesExecutionFoldbackAgentMemoryProjection(
+  receipt: HermesExecutionFoldbackReceipt,
+): HermesExecutionFoldbackAgentMemoryProjection {
+  return {
+    schema: 'thoughtseed.agent-memory.terminal-receipt.v1',
+    receiptId: receipt.receiptId,
+    receiptDigest: receipt.contentDigest,
+    workObject: {
+      id: receipt.goalGraph.workObjectId,
+      kind: receipt.goalGraph.workObjectKind,
+    },
+    lineage: {
+      nodeId: receipt.goalGraph.nodeId,
+      taskId: receipt.goalGraph.taskId,
+      graphVersion: receipt.graphVersion,
+      pinnedLoadoutId: receipt.goalGraph.pinnedLoadoutId,
+      executionId: receipt.execution.executionId,
+    },
+    outcome: receipt.execution.status,
+    terminalProofDigest: receipt.execution.terminalProofDigest,
+    recordedAt: receipt.execution.recordedAt,
+    r2Key: `${artifactPrefix(receipt)}/agent-memory/${receipt.execution.executionId}.json`,
+  };
+}
+
+export function deriveHermesExecutionFoldbackNextIntentProposal(
+  receipt: HermesExecutionFoldbackReceipt,
+): HermesExecutionFoldbackNextIntentProposal {
+  return {
+    schema: 'thoughtseed.next-intent-proposal.v1',
+    proposalId: `nip_${receipt.receiptId.slice(4)}`,
+    receiptId: receipt.receiptId,
+    workObjectId: receipt.goalGraph.workObjectId,
+    taskId: receipt.goalGraph.taskId,
+    terminalProofDigest: receipt.execution.terminalProofDigest,
+    approvalRequired: true,
+    goalGraphAuthority: false,
+    status: 'proposal-only',
+  };
+}
+
+export async function adaptHermesExecutionFoldback(
+  raw: unknown,
+  activationVerifier?: HermesExecutionFoldbackActivationVerifier,
+): Promise<HermesExecutionFoldbackProjection> {
   const input = validateInput(raw);
+  if (input.activation) {
+    if (!activationVerifier || activationVerifier.source !== 'external-admission-readback') {
+      throw new HermesExecutionFoldbackValidationError('activation requires an external admission readback verifier');
+    }
+    if (!await activationVerifier.verifyActivationAuthority(input.activation)) {
+      throw new HermesExecutionFoldbackValidationError('activation lacks external admission readback proof');
+    }
+  }
   const contentDigestHex = await sha256(canonicalHermesFoldbackJson(input));
   const receiptId = `hfb_${contentDigestHex.slice(0, 24)}`;
   const receipt: HermesExecutionFoldbackReceipt = {
@@ -190,6 +396,10 @@ export async function adaptHermesExecutionFoldback(raw: unknown): Promise<Hermes
     r2Key: `portfolio/thoughtseed/workobjects/${input.goalGraph.workObjectId}/foldback/${input.execution.executionId}.json`,
     status: 'prepared',
   };
+  const admitted = input.activation !== undefined;
+  const cortex = admitted ? deriveHermesExecutionFoldbackCortexProjection(receipt) : undefined;
+  const agentMemory = admitted ? deriveHermesExecutionFoldbackAgentMemoryProjection(receipt) : undefined;
+  const nextIntent = admitted ? deriveHermesExecutionFoldbackNextIntentProposal(receipt) : undefined;
   const node: FabricNode = {
     kind: 'receipt',
     value: {
@@ -211,19 +421,25 @@ export async function adaptHermesExecutionFoldback(raw: unknown): Promise<Hermes
   };
   return {
     receipt,
+    ...(cortex ? { cortex } : {}),
+    ...(agentMemory ? { agentMemory } : {}),
+    ...(nextIntent ? { nextIntent } : {}),
     node,
     edges: [
       { kind: 'proves', fromId: receiptId, toId: input.goalGraph.taskId },
-      { kind: 'informs-next-intent', fromId: receiptId, toId: input.goalGraph.workObjectId },
+      ...(nextIntent ? [{ kind: 'informs-next-intent' as const, fromId: receiptId, toId: input.goalGraph.workObjectId }] : []),
     ],
   };
 }
 
-export async function validateHermesExecutionFoldbackReceipt(raw: unknown): Promise<HermesExecutionFoldbackReceipt> {
+export async function validateHermesExecutionFoldbackReceipt(
+  raw: unknown,
+  activationVerifier?: HermesExecutionFoldbackActivationVerifier,
+): Promise<HermesExecutionFoldbackReceipt> {
   if (!isRecord(raw)) throw new HermesExecutionFoldbackValidationError('foldback receipt must be an object');
-  exactFields(raw, [
+  exactOptionalFields(raw, [
     'schema', 'tenantId', 'graphVersion', 'goalGraph', 'execution', 'receiptId', 'contentDigest', 'r2Key', 'status',
-  ], 'foldback receipt');
+  ], ['activation'], 'foldback receipt');
   const {
     receiptId: _receiptId,
     contentDigest: _contentDigest,
@@ -231,18 +447,21 @@ export async function validateHermesExecutionFoldbackReceipt(raw: unknown): Prom
     status: _status,
     ...input
   } = raw;
-  const expected = (await adaptHermesExecutionFoldback(input)).receipt;
+  const expected = (await adaptHermesExecutionFoldback(input, activationVerifier)).receipt;
   if (canonicalHermesFoldbackJson(raw) !== canonicalHermesFoldbackJson(expected)) {
     throw new HermesExecutionFoldbackValidationError('foldback receipt derivation is invalid');
   }
   return expected;
 }
 
-export function createHermesExecutionFoldbackStore(bucket: R2BucketLike): HermesExecutionFoldbackStoreLike {
+export function createHermesExecutionFoldbackStore(
+  bucket: R2BucketLike,
+  activationVerifier?: HermesExecutionFoldbackActivationVerifier,
+): HermesExecutionFoldbackStoreLike {
   if (!bucket.put) throw new HermesExecutionFoldbackStorageError('foldback R2 binding is not writable');
   return {
     async record(receipt) {
-      const validated = await validateHermesExecutionFoldbackReceipt(receipt);
+      const validated = await validateHermesExecutionFoldbackReceipt(receipt, activationVerifier);
       const body = canonicalHermesFoldbackJson(validated);
       const existing = await bucket.get(validated.r2Key);
       if (existing) {

@@ -29,7 +29,7 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
   assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
     total: 74,
     saplings: 20,
@@ -171,13 +171,17 @@ test('canonical join never falls back to matching names or aliases', () => {
   assert.deepEqual(report.runtimeOrphans, ['getfitcheck', 'sapling:not-fitcheck']);
 });
 
-test('unresolved, unverified, and tenant-mismatched records cannot create an operational join', () => {
-  const unresolved = buildPortfolioJoinReport(PORTFOLIO_CATALOG, [
+test('founder-bound cohort tenants join exactly while unresolved and mismatched records remain held', () => {
+  const cambium = buildPortfolioJoinReport(PORTFOLIO_CATALOG, [
     { kind: 'sapling', workId: 'sapling:iverif' },
+    { kind: 'sapling', workId: 'sapling:dlock' },
     { kind: 'program', programKind: 'client', workId: 'branch:mathis' },
   ], 'cambium');
-  assert.equal(unresolved.matchedCount, 0);
-  assert.deepEqual(unresolved.runtimeOrphans, ['branch:mathis', 'sapling:iverif']);
+  assert.deepEqual(cambium.matches, [
+    { canonicalId: 'sapling:dlock', runtimeWorkId: 'sapling:dlock' },
+    { canonicalId: 'sapling:iverif', runtimeWorkId: 'sapling:iverif' },
+  ]);
+  assert.deepEqual(cambium.runtimeOrphans, ['branch:mathis']);
 
   const mismatched = buildPortfolioJoinReport(PORTFOLIO_CATALOG, [
     { kind: 'sapling', workId: 'sapling:cambium' },

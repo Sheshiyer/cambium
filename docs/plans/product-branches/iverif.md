@@ -9,11 +9,23 @@ role: Compliance and proof product candidate
 promotion_state: proof-only
 current_gate: Claim/proof separation and live campaign reconciliation before automation
 packet_owner: cambium
+canonical_parent_tenant: cambium
+repository_planning_evidence: Sheshiyer/iverif-wiki@R_kgDOSwXJ7Q
 ---
 
 # IVerif Branch Packet
 
 IVerif is a proof-only Cambium product candidate for AI document validation in EU energy subsidy workflows. Current evidence supports a brand/wiki/research packet, not live product readiness, compliance readiness, or branch promotion readiness.
+
+## Cohort Identity Binding
+
+The founder-resolved canonical parent tenant is `cambium`. The exact prepared
+repository evidence is `Sheshiyer/iverif-wiki` with immutable GitHub identity
+`R_kgDOSwXJ7Q`; it is product-source and planning evidence only. This packet
+does not issue a mapping receipt, admit IVerif to a live operational tenant, or
+authorize a Goal Graph, R2, Hermes, Cortex, agent-memory, provider, or
+deployment write. The `iverif` names below remain packet-local context labels
+and never supersede the canonical parent tenant.
 
 ## Product Seed
 
@@ -60,7 +72,7 @@ IVerif is a proof-only Cambium product candidate for AI document validation in E
 
 ## Adapter / Service Map
 
-`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. IVerif's runtime tenant remains unresolved and no operational join may be inferred from the `iverif` label or repository name.
+`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. IVerif's canonical parent tenant is `cambium`; a runtime tenant admission remains unissued, and no operational join may be inferred from the `iverif` label or repository name.
 
 | Provider / Route | Inputs | Outputs | Failure Modes | Tenant Mapping | Privacy Boundary |
 | --- | --- | --- | --- | --- | --- |

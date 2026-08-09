@@ -1,6 +1,6 @@
 {
   "schema": "cambium.product_branch_evidence_inventory.v1",
-  "generated_at": "2026-07-23",
+  "generated_at": "2026-08-09",
   "purpose": "Evidence-only mapping of branch packets, Brandmint/wiki references, lead adapters, and fixed campaigns.",
   "source_policy": {
     "mode": "read_only_inventory",
@@ -90,6 +90,54 @@
         "Brandmint and wiki paths are declared by the packet/evidence but are not present as local checkout files in this repository.",
         "Provider reply labels and send counts do not establish qualified demand or product readiness.",
         "No campaign mutation, reply drafting, or outbound authorization is mapped."
+      ]
+    },
+    {
+      "key": "dlock",
+      "aliases": [
+        {
+          "value": "dlock",
+          "status": "mapped",
+          "branch_packet": "docs/plans/product-branches/dlock.md"
+        },
+        {
+          "value": "lockwell",
+          "status": "legacy-repository-name-only",
+          "reason": "A legacy repository name is not a tenant selector or shallow-folder authority."
+        }
+      ],
+      "mapping_status": "prepared-folderless-planning-authority",
+      "branch": {
+        "product_id": "dlock",
+        "branch_kind": "product",
+        "promotion_state": "proof-only",
+        "current_gate": "Map live landing, repository, hardware assets, and TUYA integration evidence before supervised launch work",
+        "packet": "docs/plans/product-branches/dlock.md"
+      },
+      "canonical_parent_tenant": "cambium",
+      "planning_authority": {
+        "kind": "repository",
+        "repository": "thoughtseed-labs/lockwell-portal",
+        "repository_id": "R_kgDOP5AZyQ",
+        "root_disposition": "folderless",
+        "shallow_folder": null,
+        "admission": "prepared-local-proof-only"
+      },
+      "evidence": [
+        {
+          "status": "verified",
+          "path": "docs/plans/product-branches/dlock.md",
+          "fact": "The packet binds DLOCK to Cambium and the immutable Lockwell repository identity without inventing a shallow project folder."
+        },
+        {
+          "status": "blocked",
+          "path": "docs/project-management/three-sapling-operational-cohort-preflight.v1.json",
+          "fact": "The prepared preflight has no issued mapping receipt, live admission, or operational write authority."
+        }
+      ],
+      "unmapped_or_uncertain": [
+        "No local DLOCK or Lockwell shallow project folder is admitted by this branch-map entry.",
+        "Repository build, hardware provenance, TUYA/native integration, payment/access safety, and pilot proof remain blocked."
       ]
     },
     {

@@ -147,7 +147,20 @@ test('approved CAS commit persists exact WorkObject and loadout anchors', async 
     workObjectKind: 'sapling',
     pinnedLoadoutId: 'loadout:cambium-runtime',
   });
-  const compiled = compileGoalGraph({ tenantId: TENANT, expectedHeadDigest: null, actualHead: null, currentNodes: [], proposedNodes: [root], graphVersion: 1, sourceRef: 'test:anchor', sourceDigest: root.sourceDigest, now: NOW });
+  const loadoutAuthority = {
+    resolve(loadoutId: string) {
+      return loadoutId === 'loadout:cambium-runtime'
+        ? {
+            loadoutId,
+            eligibleWorkObjectIds: ['sapling:cambium'],
+            authorizedClusterIds: ['cluster:cambium-runtime'],
+            authorityDigest: `sha256:${'a'.repeat(64)}`,
+            sourceRef: 'test:loadout-registry',
+          }
+        : null;
+    },
+  };
+  const compiled = compileGoalGraph({ tenantId: TENANT, expectedHeadDigest: null, actualHead: null, currentNodes: [], proposedNodes: [root], graphVersion: 1, sourceRef: 'test:anchor', sourceDigest: root.sourceDigest, now: NOW, loadoutAuthority });
   assert.equal(compiled.status, 'compiled');
   if (compiled.status !== 'compiled') return;
   assert.equal((await store.commit({ tenantId: TENANT, changeSet: compiled.changeSet, approval: approval(compiled.changeSet.changeDigest), now: NOW })).status, 'committed');

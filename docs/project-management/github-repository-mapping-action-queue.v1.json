@@ -37,7 +37,7 @@
   },
   "currentDigests": {
     "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
-    "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "catalogDigest": "sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e",
     "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542"
   },
   "globalBlocks": [],
@@ -70,7 +70,7 @@
       "defaults": {
         "receiptKind": "mapping",
         "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
-        "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+        "catalogDigest": "sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e",
         "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
         "founderDecisionStatus": "founder-reviewed",
         "evidencePrefixTemplate": "portfolio/thoughtseed/workobjects/<targetWorkId>/mapping/"

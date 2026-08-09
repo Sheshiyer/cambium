@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { GoalGraphInputNode, GoalGraphNode } from './types.ts';
+import type { GoalGraphInputNode, GoalGraphLoadoutAuthority, GoalGraphNode } from './types.ts';
 
 function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
@@ -40,7 +40,7 @@ export type IdentityValidation = {
 const WORK_OBJECT_ID = /^(sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const LOADOUT_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}$/;
 
-function validateOperationalAnchor(node: GoalGraphNode): IdentityValidation {
+function validateOperationalAnchor(node: GoalGraphNode, loadoutAuthority?: GoalGraphLoadoutAuthority): IdentityValidation {
   const workObjectId = node.workObjectId ?? null;
   const workObjectKind = node.workObjectKind ?? null;
   const pinnedLoadoutId = node.pinnedLoadoutId ?? null;
@@ -53,18 +53,24 @@ function validateOperationalAnchor(node: GoalGraphNode): IdentityValidation {
       return { valid: false, code: 'invalid_operational_anchor', message: `node ${node.nodeId} has a mismatched WorkObject anchor` };
     }
   }
-  if (pinnedLoadoutId !== null && (!workObjectId || !LOADOUT_ID.test(pinnedLoadoutId))) {
-    return { valid: false, code: 'invalid_operational_anchor', message: `node ${node.nodeId} has an invalid loadout anchor` };
+  if (pinnedLoadoutId !== null) {
+    if (!workObjectId || !LOADOUT_ID.test(pinnedLoadoutId)) {
+      return { valid: false, code: 'invalid_operational_anchor', message: `node ${node.nodeId} has an invalid loadout anchor` };
+    }
+    const governed = loadoutAuthority?.resolve(pinnedLoadoutId) ?? null;
+    if (!governed || governed.loadoutId !== pinnedLoadoutId || !governed.eligibleWorkObjectIds.includes(workObjectId)) {
+      return { valid: false, code: 'invalid_operational_anchor', message: `node ${node.nodeId} has an ungoverned or ineligible loadout anchor` };
+    }
   }
   return { valid: true };
 }
 
 /** Validate identity uniqueness and the singleton tenant-root invariant. */
-export function validateNodeSet(nodes: readonly GoalGraphNode[]): IdentityValidation {
+export function validateNodeSet(nodes: readonly GoalGraphNode[], loadoutAuthority?: GoalGraphLoadoutAuthority): IdentityValidation {
   const byId = new Map<string, GoalGraphNode>();
   const roots = new Map<string, string>();
   for (const node of nodes) {
-    const anchor = validateOperationalAnchor(node);
+    const anchor = validateOperationalAnchor(node, loadoutAuthority);
     if (!anchor.valid) return anchor;
     const existing = byId.get(node.nodeId);
     if (existing) {

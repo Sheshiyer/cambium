@@ -74,6 +74,20 @@ export interface GoalGraphCompileInput {
   sourceRef: string;
   sourceDigest: string;
   now?: string;
+  /** Required whenever a proposed node pins a governed operational loadout. */
+  loadoutAuthority?: GoalGraphLoadoutAuthority;
+}
+
+export interface GoalGraphLoadoutAuthorityRecord {
+  loadoutId: string;
+  eligibleWorkObjectIds: readonly string[];
+  authorizedClusterIds: readonly string[];
+  authorityDigest: string;
+  sourceRef: string;
+}
+
+export interface GoalGraphLoadoutAuthority {
+  resolve(loadoutId: string): GoalGraphLoadoutAuthorityRecord | null;
 }
 
 export type GoalGraphCompileResult =

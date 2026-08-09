@@ -1017,3 +1017,57 @@ mutation has been performed by drafting this packet.
   product, record the authenticated production observation without widening
   authority. Mapping-receipt issuance, live D1 anchors, the Hermes canary,
   Sapling promotion, and quest deployment remain separately approved lanes.
+
+### 2026-08-09 three-Sapling operational foundation checkpoint
+
+- Fitcheck, IVerif, and DLOCK are now the exact local prepared cohort under
+  parent tenant `cambium`. Their immutable repository identities are
+  `Sheshiyer/fitcheck-landing` / `R_kgDOSzF56w`,
+  `Sheshiyer/iverif-wiki` / `R_kgDOSwXJ7Q`, and
+  `thoughtseed-labs/lockwell-portal` / `R_kgDOP5AZyQ`. DLOCK remains explicitly
+  folderless; no shallow folder was invented.
+- The catalog digest is
+  `sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e`.
+  Generated repository evidence now contains 107 references: 97 resolved,
+  five unverified, and five unmatched, with digest
+  `afbbb9fbdebd4f40c6bebf3e2384fcca56c02405b519d109b96b7caa3f7e1f40`.
+- Batch 3 remains `prepared-not-issued`: 38 receipts across 12 WorkObjects and
+  38 immutable repositories. The regenerated bundle digest is
+  `sha256:bf9e87d25efc284959930bb835f675e11bafb31a8bd0e1241d542d7080bc7eec`.
+  No receipt was issued to R2.
+- `portfolio-operational-cohort.ts` provides a closed, deterministic held
+  activation manifest and one immutable no-spend loadout per cohort Sapling.
+  Activation digest is
+  `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`;
+  loadout-registry digest is
+  `sha256:b0db8792d37a855a8535cb67ea75bf2ece8b1f42f2e6bcf8165b3ff954bfb7c7`.
+  Delivery and external mutation remain disabled.
+- Goal Graph now rejects syntax-only loadout pins. Mission Fabric emits
+  `contains`, `pins-loadout`, and `requires-cluster` only from exact catalog and
+  governed-registry authority; missing or cross-Sapling authority remains a
+  typed gap.
+- Governed dispatch preparation requires an externally issued exact mapping
+  receipt, admitted activation evidence, exact D1 task/graph/loadout/cluster
+  lineage, and an unconsumed signed approval bound to the full dispatch
+  subject. Admission also binds the exact issued mapping receipt reference and
+  digest, preventing same-Sapling receipt substitution. Both authorities must
+  pass an injected immutable external readback verifier. The local compiler
+  neither consumes approval nor performs delivery.
+- Terminal foldback derives Cortex and agent-memory projections only from an
+  admitted terminal receipt accepted by an injected external admission
+  readback verifier. It emits an approval-required, proposal-only next intent
+  with no Goal Graph write authority. Three-Sapling tests prove receipt,
+  memory, R2-key, and next-intent isolation without cross-contamination.
+- The checked-in cohort preflight keeps every live flag false, every approval
+  unconsumed, and every mapping receipt unissued. The implementation performed
+  no production D1 migration or write, R2 write, Hermes execution, Cortex or
+  agent-memory write, provider mutation, deployment, traffic shift, GitHub
+  mutation, folder move, or Sapling promotion.
+- Verification passes: 417/417 focused authority and route tests; full
+  `npm test` 1617/1617; Portfolio Cartographer check with 70 active tests and
+  one historical skip plus lint, TypeScript, bundle, audit, CSP, and smoke;
+  six product packets; foundation validation; deterministic receipt check;
+  rendered docs; edited JSON parsing; and `git diff --check`.
+- The next operation is not automatic. Mapping-receipt issuance, live D1
+  Mission → Task anchors, any Hermes canary, Sapling promotion, and quests
+  deployment each retain their separate owner approval and rollback gate.

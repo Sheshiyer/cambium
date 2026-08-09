@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Restore the Fitcheck golden path across Telegram, Workbench, and doctrine"
-effort: E4
+task: "Build the governed three-Sapling operational activation foundation"
+effort: E3
 effort_source: algorithm-classification
 phase: complete
-progress: 1051/1128
+progress: 1099/1176
 mode: interactive
-iteration: 2026-08-09-fitcheck-golden-path
+iteration: 2026-08-09-three-sapling-operational-foundation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-09T04:58:22+05:30
+updated: 2026-08-09T06:45:00+05:30
 ---
 
 ## Problem
@@ -1485,6 +1485,57 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-1127: Anti: browser login material is never inspected, stored, or recorded.
 - [x] ISC-1128: Anti: Fitcheck presentation does not imply Sapling promotion occurred.
 
+### Three-Sapling operational activation foundation
+
+- [x] ISC-1129: IVerif binds to canonical parent tenant `cambium` by explicit founder decision.
+- [x] ISC-1130: DLOCK binds to canonical parent tenant `cambium` by explicit founder decision.
+- [x] ISC-1131: DLOCK names `thoughtseed-labs/lockwell-portal` as its folderless planning authority.
+- [x] ISC-1132: Catalog projections represent Fitcheck, IVerif, and DLOCK with exact canonical-parent tenant bindings.
+- [x] ISC-1133: Product packets agree with the canonical parent tenant and never treat packet namespaces as tenant authority.
+- [x] ISC-1134: The active branch-map projection includes DLOCK exactly once.
+- [x] ISC-1135: DLOCK folderless admission does not invent a shallow project folder.
+- [x] ISC-1136: Prepared mapping evidence covers the exact repositories for all three Saplings.
+- [x] ISC-1137: Prepared mapping evidence remains explicitly unissued and grants no operational authority.
+- [x] ISC-1138: A versioned activation-manifest schema is closed and deterministic.
+- [x] ISC-1139: The activation cohort contains exactly Fitcheck, IVerif, and DLOCK.
+- [x] ISC-1140: Every activation record binds immutable repository identity and repository role.
+- [x] ISC-1141: Every activation record binds canonical packet source and digest.
+- [x] ISC-1142: Every activation record binds exact root context, including DLOCK's folderless disposition.
+- [x] ISC-1143: Activation admission fails closed until its exact mapping receipt is issued.
+- [x] ISC-1144: A versioned governed-loadout registry schema is closed and deterministic.
+- [x] ISC-1145: The registry contains one exact no-spend loadout for each cohort WorkObject.
+- [x] ISC-1146: Every cohort loadout declares spend class `none`.
+- [x] ISC-1147: Every cohort loadout declares delivery disabled and external mutation forbidden.
+- [x] ISC-1148: Every cohort loadout binds explicit eligible skill-cluster identities.
+- [x] ISC-1149: Every cohort loadout binds an exact bounded command allowlist.
+- [x] ISC-1150: Loadout registry digest changes on any authority-bearing field change.
+- [x] ISC-1151: Loadout validation rejects unknown, duplicate, mismatched, or tampered records.
+- [x] ISC-1152: Goal Graph loadout validation resolves the authoritative registry rather than accepting syntax alone.
+- [x] ISC-1153: A pinned loadout must list the exact WorkObject as eligible.
+- [x] ISC-1154: Mission Fabric emits `pins-loadout` only after registry validation.
+- [x] ISC-1155: Mission Fabric emits `requires-cluster` only for clusters authorized by the pinned loadout.
+- [x] ISC-1156: A versioned governed-dispatch preparation schema is closed and deterministic.
+- [x] ISC-1157: Dispatch binds tenant, WorkObject, task, graph version, activation digest, and loadout digest exactly.
+- [x] ISC-1158: Dispatch requires an issued mapping receipt and admitted activation manifest.
+- [x] ISC-1159: Dispatch remains delivery-disabled, no-spend, and external-mutation-forbidden.
+- [x] ISC-1160: Dispatch carries an unconsumed signed approval reference without consuming it locally.
+- [x] ISC-1161: Dispatch rejects cross-Sapling WorkObject, repository, task, cluster, loadout, and receipt substitution.
+- [x] ISC-1162: Terminal foldback derives a bounded Cortex projection from immutable terminal receipt fields only.
+- [x] ISC-1163: Cortex projection contains no raw prompt, response, credential, identity, or provider payload.
+- [x] ISC-1164: Terminal foldback derives a bounded agent-memory projection with exact WorkObject lineage.
+- [x] ISC-1165: Receipt, Cortex, and agent-memory artifacts use deterministic WorkObject-scoped R2 keys.
+- [x] ISC-1166: Terminal foldback derives an approval-required next-intent proposal.
+- [x] ISC-1167: A next-intent proposal cannot directly write or masquerade as Goal Graph authority.
+- [x] ISC-1168: Non-terminal, stale-fence, mismatched-loadout, or unissued-activation evidence produces no memory or next intent.
+- [x] ISC-1169: Exact replay is idempotent and conflicting foldback evidence fails closed.
+- [x] ISC-1170: Three-Sapling end-to-end tests prove independent activation, dispatch, receipt, memory, and next-intent lineages.
+- [x] ISC-1171: Prepared per-Sapling preflight manifests keep every live flag false and every approval unconsumed.
+- [x] ISC-1172: Anti: this iteration issues no mapping receipt and writes no production R2, D1, Hermes, Cortex, or agent memory.
+- [x] ISC-1173: Focused authority, isolation, and foldback tests exit zero.
+- [x] ISC-1174: Full repository and Portfolio Cartographer verification exit zero.
+- [x] ISC-1175: Independent post-build review finds no unresolved material authority regression.
+- [x] ISC-1176: A bounded handoff and local commit preserve all promotion, deployment, provider, traffic, and external-write gates.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1511,6 +1562,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-1000..1035 | portfolio foundation reconciliation | derive counts and keys, validate referential integrity and digests, distinguish typed shared relationships from ambiguity, reject alias joins, reconcile active prose, run focused/full tests, and prove external/promotion boundaries held | deterministic Node audit/test, TypeScript catalog validators, `jq`, SHA-256, `rg`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-1036..1071 | mapping receipts and operational anchors | compile exact reviewed Batch 3 receipts, validate immutable replay, apply nullable D1 anchor migration locally, prove exact Mission Fabric edges and typed gaps, compile a terminal foldback preflight, run focused/full gates, and prove every external boundary stayed closed | deterministic Node tests, D1 migration/store tests, TypeScript, `jq`, SHA-256, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-1072..1128 | Fitcheck golden path | prove one packet-derived contract, two authority-honest UI projections, five reconciled doctrine documents, responsive browser behavior, full regression safety, and zero live mutation | packet-parity tests, Worker scene tests, Workbench checks, in-app browser observation, viewport proof, rendered-doc checks, independent review, `npm test`, `git diff --check` |
+| ISC-1129..1176 | three-Sapling operational foundation | prove exact tenant/repository/planning authority, deterministic activation and no-spend loadouts, registry-backed D1 joins, delivery-disabled dispatch, terminal memory/next-intent foldback, cross-Sapling isolation, held live manifests, and zero external mutation | catalog/packet validators, canonical digest tests, Goal Graph and Mission Fabric tests, dispatch/foldback store tests, three-Sapling E2E tests, `jq`, `pnpm check`, `npm test`, `git diff --check`, independent review |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1599,6 +1651,12 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 
 ## Features
 
+- `ThreeSaplingIdentityBinding` | Bind Fitcheck, IVerif, and DLOCK to exact tenant, repository, packet, and root-context evidence | satisfies ISC-1129..1137 | depends_on PortfolioFoundationReconciliation | parallelizable true
+- `ActivationManifestRegistry` | Compile deterministic receipt-gated activation records for the exact three-Sapling cohort | satisfies ISC-1138..1143 | depends_on ThreeSaplingIdentityBinding | parallelizable true
+- `GovernedNoSpendLoadouts` | Register one immutable no-spend loadout and authorized clusters per cohort WorkObject | satisfies ISC-1144..1155 | depends_on ActivationManifestRegistry, GoalGraphOperationalAnchors | parallelizable true
+- `CanonicalGovernedDispatch` | Compile exact approval-bound, delivery-disabled dispatch preparations from admitted activation authority | satisfies ISC-1156..1161 | depends_on GovernedNoSpendLoadouts | parallelizable true
+- `TerminalMemoryFoldback` | Derive immutable Cortex, agent-memory, and approval-required next-intent evidence from terminal receipts | satisfies ISC-1162..1169 | depends_on CanonicalGovernedDispatch, HermesExecutionFoldback | parallelizable true
+- `ThreeSaplingOperationalProof` | Prove isolation, held preflights, repository gates, review, handoff, and commit | satisfies ISC-1170..1176 | depends_on all three-Sapling foundation features | parallelizable false
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
 - `FixtureParity` | Remove fixture-only enrichments and add production-shape failure tests | satisfies ISC-16..25, ISC-63 | depends_on ActionRequestContract | parallelizable false
@@ -1711,6 +1769,18 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-09 06:45: full post-build review rejected locally synthesized authority, caller-asserted foldback admission, and the DLOCK role mismatch. Dispatch and foldback now require separately injected immutable external readback verifiers, local builders are explicitly unverified claims, and DLOCK is consistently `folderless-planning-authority`. Focused tests pass 417/417, full tests pass 1617/1617, and final independent review returns APPROVE with no remaining P0-P2 issue.
+- 2026-08-09 06:39: independent post-build review found a same-Sapling receipt-substitution seam: admission was WorkObject-bound but not bound to the exact issued mapping receipt. Admission now embeds and validates that receipt reference and digest; the exact replay vector has a regression test, focused tests pass 415/415, full tests pass 1615/1615, and the reviewer returns APPROVE with no remaining P0-P2 blocker.
+- 2026-08-09 06:31: implementation distinguishes prepared identity from operational admission. The checked-in cohort remains held and unissued; only externally supplied exact receipt/admission fixtures can compile a delivery-disabled dispatch, and terminal projections require that admitted lineage.
+- 2026-08-09 06:31: the full catalog digest advanced to `sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e`. Repository evidence advanced to 107 references at `afbbb9fbdebd4f40c6bebf3e2384fcca56c02405b519d109b96b7caa3f7e1f40`; the still-unissued Batch 3 bundle was deterministically regenerated to `sha256:bf9e87d25efc284959930bb835f675e11bafb31a8bd0e1241d542d7080bc7eec`.
+- 2026-08-09 06:31: two mandatory Forge subprocesses outlived their timed-out agent turns and continued writing the two cohort files. Their exact process trees were terminated; no other process was affected. The stable main-workspace implementation then passed focused and full tests. This operational failure is retained as evidence against treating an interrupted producer status as process termination.
+- 2026-08-09 06:31: `finishing-a-development-branch` resolves to keep the current branch and worktree as-is after one local commit. No merge, push, PR, cleanup, deployment, or promotion is authorized by this checkpoint.
+- 2026-08-09 06:03: refined: the founder explicitly resolved the two remaining identity decisions. `sapling:iverif` and `sapling:dlock` use canonical parent tenant `cambium`; `thoughtseed-labs/lockwell-portal` is DLOCK's exact folderless planning authority until a separately reviewed shallow checkout is attached.
+- 2026-08-09 06:03: “yes proceed” authorizes the local three-Sapling activation foundation, deterministic tests, documentation, bounded handoff, and local commit. It does not issue mapping receipts, apply D1 migrations, dispatch work, write R2/Cortex/agent memory, deploy quests, promote Saplings, mutate providers, or change production traffic.
+- 2026-08-09 06:03: root-cause-at-ingestion: the operational loop currently accepts a syntactically valid loadout identifier before a registry proves its WorkObject eligibility, clusters, commands, spend boundary, and immutable digest. Correcting this authority ingestion point removes the same ambiguity from Mission Fabric edges, dispatch preparation, receipt lineage, and memory foldback instead of patching each projection independently.
+- 2026-08-09 06:03: FirstPrinciples reconstruction makes activation a receipt-gated evidence bundle rather than a promotion synonym. SystemsThinking identifies the highest feasible leverage at the authority rule and information-flow layers: one deterministic activation/loadout registry feeds every downstream join, while every checked-in cohort remains held until immutable mapping receipts are issued.
+- 2026-08-09 06:03: capability ledger invokes ISA Append/CheckCompleteness, FirstPrinciples Reconstruct, SystemsThinking FindLeverage, RootCauseAnalysis FiveWhys, Advisor, ReReadCheck, Forge, and Temperance parallel dispatch. Skill execution logs outside this repository remain unwritten because the repository contract forbids cross-surface mutation.
+- 2026-08-09 06:12: the mandatory pre-build Advisor invocation failed because its OAuth session expired and could not refresh. No approval is inferred; the prior independent three-Sapling consensus, explicit ISA criteria, injected registry interfaces, TDD, post-build review, and full repository gates remain the operative evidence.
 - 2026-08-09 03:53: 38 Batch 3 repository assignments compile into deterministic, fully pinned receipts across 12 canonical WorkObjects. They remain `prepared-not-issued`; receipt storage re-derives the compiled identity and rejects tampering before any conditional R2 write.
 - 2026-08-09 03:53: migration 0009 is additive and legacy-safe: database columns stay nullable, while application validation enforces the stronger paired WorkObject/kind and loadout-with-WorkObject invariants. Mission Fabric admits exact catalog anchors only and deduplicates WorkObject-level loadout pins.
 - 2026-08-09 03:53: Hermes terminal foldback is evidence, not authority. A validated terminal receipt may prove the task and inform a bounded next-intent proposal, but it cannot mutate D1 or bypass the Founder Gate and CAS path.
@@ -1919,6 +1989,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-08-09 | conjectured: exact WorkObject, repository, activation, loadout, task, and approval hashes were sufficient to make the three-Sapling local cohort authority-safe
+  refuted by: independent review found same-Sapling receipt substitution, locally synthesized issued/admitted claims, caller-asserted foldback admission, and conflicting DLOCK repository roles
+  learned: operational admission must bind the exact issued receipt and pass immutable external readback; foldback requires the same independent verifier, while folderless planning authority must remain distinct from product source
+  criterion now: ISC-1129..1176 require three exact identities, externally verified receipt-bound admission, registry-backed no-spend lineage, delivery-disabled dispatch, verified bounded foldback, cross-Sapling and same-Sapling isolation, held live gates, independent approval, and a clean local commit
+
 - 2026-08-09 | conjectured: restoring the planned Fitcheck UI meant presenting every mapped lifecycle stage as operationally ready
   refuted by: exact catalog identity proves only identity parity, while admission requires a D1 WorkObject-to-task edge and execution, receipts, and foldback each retain separate authorities
   learned: one shared packet-derived projection can make the loop legible across Workbench and Telegram without turning either interface into an operational writer
@@ -2093,6 +2168,13 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Verification
 
+- ISC-1175 independent review proof — review found same-Sapling receipt substitution, locally forgeable authority claims, caller-asserted foldback admission, and a DLOCK role contradiction. Admission now binds the exact issued receipt; dispatch and foldback require injected external readback verifiers; DLOCK is consistently folderless planning authority. Negative-path regressions pass and final review returns APPROVE with no remaining P0-P2 issue.
+- ISC-1176 handoff/commit proof — `.project/HANDOFF.md` records exact identities, digests, tests, held live gates, and next separately approved operations. One local commit preserves the current branch and worktree without merge, push, PR, deployment, promotion, provider, traffic, or external write.
+- ISC-1129..1143 identity/activation proof — catalog, packets, branch map, architecture note, and held preflight bind exactly `sapling:fitcheck`, `sapling:iverif`, and `sapling:dlock` to tenant `cambium` and immutable repositories; DLOCK is folderless; activation manifest digest is `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`; every checked-in receipt/admission flag remains false.
+- ISC-1144..1155 loadout and D1 proof — governed registry digest is `sha256:b0db8792d37a855a8535cb67ea75bf2ece8b1f42f2e6bcf8165b3ff954bfb7c7`; three immutable records declare spend `none`, delivery false, mutation false, exact WorkObject eligibility, bounded clusters, and commands. Goal Graph rejects syntax-only/cross-WorkObject pins; Mission Fabric emits `pins-loadout` and `requires-cluster` only from the injected registry.
+- ISC-1156..1161 dispatch proof — the closed compiler binds tenant, WorkObject, repository, task, graph version, activation/record/manifest digests, mapping-receipt authority, loadout/cluster/command authority, and an unconsumed signed approval subject. Cross-Sapling substitutions fail; compiled output retains no-spend, delivery-disabled, external-mutation-forbidden state.
+- ISC-1162..1170 foldback/isolation proof — admitted terminal evidence derives bounded receipt-only Cortex and agent-memory records at deterministic WorkObject-scoped R2 keys plus an approval-required `goalGraphAuthority:false` next-intent proposal. Missing admission emits receipt/proof only; stale, unissued, non-terminal, mismatched, conflicting, and cross-Sapling evidence fails closed. The three-Sapling E2E test proves independent lineages.
+- ISC-1171..1174 held/release proof — cohort preflight flags are all false and approvals unconsumed; Batch 3 remains 38 `prepared-not-issued` receipts with bundle digest `sha256:bf9e87d25efc284959930bb835f675e11bafb31a8bd0e1241d542d7080bc7eec`. Focused authority/route tests pass 417/417; full `npm test` passes 1617/1617; Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, bundle, standalone audit, CSP, and smoke; six packets, foundation validation, receipt regeneration, docs sync, JSON parsing, and `git diff --check` pass.
 - ISC-1072..1082 shared-contract proof — `shared/fitcheck-golden-path.ts` binds exact `sapling:fitcheck`, parent `cambium`, display-only aliases, supervised state, three packet missions, two KPIs, seven gates, organ/support routes, proof targets, and the one-change loop; parity tests reject packet drift and preserve the distinction between packet, D1, receipt, and foldback authority.
 - ISC-1083..1094 Telegram proof — all six operating scenes consume the Fitcheck projection; exact runtime identity and D1 task admission are separate predicates; missing admission, loadout, execution, and learning proof remains held; focused shared/scene tests pass 14/14 and the complete canonical viewport suite passes 47/47 with page digest `909fb8758ed8259b060b5be76949376b8d6916d71376ae2f0c4bbbf7158eea4f`.
 - ISC-1095..1106 Workbench proof — Fitcheck alone receives the five-tab model and default `Operate` view; exact identity, lifecycle, missions, KPIs, gates, organ routes, support rails, proof targets, and anti-claims render without mutation controls; other WorkObjects retain four tabs. Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, Vite build, deterministic bundle, audit, CSP, and smoke.
