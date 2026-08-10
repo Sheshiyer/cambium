@@ -1460,3 +1460,38 @@ kind and branch identity registration.
   verifies both golden paths and sapling identifiers are present in the bundle.
 - Verification: `operational-packet-projection.test.ts` 4/4 pass;
   `portfolio-workbench-route.test.ts` 11/11 pass.
+
+### 2026-08-10 IVerif D1 anchor proposal validated (founder-held next lane)
+
+- Status: `proposal-validated`. Read-only ISA scaffold verified; CAS commit
+  remains deferred pending founder approval to issue IVerif's prepared mapping
+  receipt and admit `sapling:iverif`.
+- Validation script: `/tmp/iverif_proposal_validate.mjs` constructs the proposed
+  Mission node (`iverif-wiki-activation`) and Task node (`task:iverif-observer`)
+  using `buildNode` and validates them against `validateNodeSet` with
+  `THREE_SAPLING_LOADOUT_AUTHORITY`.
+- ISC-1 VERIFIED: IVerif receipt digest
+  `sha256:a8c7a566eb32790dffaf1d2a06ad21d0514ba9e4dd90d773d769ae4929e5abeb`
+  is recorded as `prepared-not-issued`; `receiptIssued: false`,
+  `readbackVerified: false`.
+- ISC-2 VERIFIED: Proposed Task node carries `externalId: 'task:iverif-observer'`,
+  `workObjectId: 'sapling:iverif'`, `workObjectKind: 'sapling'`, and
+  `pinnedLoadoutId: 'loadout:iverif-observer'`; `validateNodeSet` returns
+  `{ valid: true }`.
+- ISC-3 VERIFIED: Proposed Mission node (`iverif-wiki-activation`) has
+  `parentNodeId: null` and anchors `sapling:iverif`; singleton tenant-root
+  check passes for `tenantId: 'cambium'`.
+- ISC-4 VERIFIED: `IVERIF_GOLDEN_PATH` from `shared/iverif-golden-path.ts`
+  imports and compiles successfully through `compileOperationalPacketProjection`.
+- ISC-5 VERIFIED: `THREE_SAPLING_LOADOUT_AUTHORITY.resolve('loadout:iverif-observer')`
+  returns a record with `eligibleWorkObjectIds: ['sapling:iverif']`; the
+  proposed Task's loadout pin is governed and eligible.
+- ISC-6 VERIFIED: Validation was read-only — no D1 write, R2 write, Hermes
+  dispatch, deployment, or provider mutation. CAS commit deferred to founder
+  approval.
+- No D1 write, R2 write, Hermes dispatch, deployment, or tenant admission
+  occurred — only local validation against existing TypeScript modules.
+- Next gate: founder approval to (a) issue IVerif's prepared mapping receipt
+  `pmr_a8c7a566eb32790dffaf1d2a` with byte-identical R2 readback, then (b)
+  commit the D1 Mission → Task anchor. Both remain separate owner-approved
+  operations.
