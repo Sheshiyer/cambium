@@ -1518,3 +1518,35 @@ kind and branch identity registration.
   commit (both separate founder-approved gates).
 - No R2 write, D1 write, Hermes dispatch, deployment, or provider mutation
   occurred — foldback storage path is read-only preparation only.
+
+### 2026-08-10 Fitcheck D1 anchor ISA autonomously validated
+
+- Status: `proposal-validated`. Read-only ISA scaffolded on 2026-08-10;
+  autonomous ISCs now verified; CAS commit remains deferred pending live
+  D1 access and founder approval.
+- Validation script: `/tmp/fitcheck_proposal_validate.mjs` constructs the
+  proposed Mission node (`fitcheck-shopify-qa`) and Task node
+  (`task:fitcheck-launch`) using `buildNode` and validates them against
+  `validateNodeSet` with `THREE_SAPLING_LOADOUT_AUTHORITY`.
+- ISC-3 VERIFIED: `FITCHECK_GOLDEN_PATH` imports and compiles successfully;
+  `receiptIssued: true`, `readbackVerified: true`.
+- ISC-4 VERIFIED: Proposed Task node carries `externalId: 'task:fitcheck-launch'`,
+  `workObjectId: 'sapling:fitcheck'`, `workObjectKind: 'sapling'`,
+  `pinnedLoadoutId: 'loadout:fitcheck-launch'`; `validateNodeSet` returns
+  `{ valid: true }`.
+- ISC-5 VERIFIED: Proposed Mission node (`fitcheck-shopify-qa`) has
+  `parentNodeId: null` and anchors `sapling:fitcheck`; singleton tenant-root
+  check passes.
+- ISC-10 VERIFIED: No side-effects — no D1 write, Hermes dispatch, R2 write,
+  or deployment occurred.
+- ISC-1 CONFIRMED: Migration `0009` is in the governed D1 release path (not
+  in Cambium source tree).
+- ISC-2, ISC-6, ISC-7, ISC-8, ISC-9 BLOCKED: require live cambium-bridge D1
+  connection and founder approval/signature.
+- Updated `MEMORY/WORK/d1-fitcheck-anchor/ISA.md` with autonomous verification
+  evidence.
+- Full `npm test` passes 1629/1629.
+- Next gate: founder approval to commit the Fitcheck D1 Mission → Task anchor.
+  Fitcheck's mapping receipt `pmr_9de251ce89564f07f3e4c510` is already issued
+  and readback-verified, so the D1 anchor is the next sequential step per the
+  golden path lifecycle ladder.
