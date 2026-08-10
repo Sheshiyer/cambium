@@ -1495,3 +1495,26 @@ kind and branch identity registration.
   `pmr_a8c7a566eb32790dffaf1d2a` with byte-identical R2 readback, then (b)
   commit the D1 Mission → Task anchor. Both remain separate owner-approved
   operations.
+
+### 2026-08-10 IVerif Hermes foldback receipt storage path scaffolded
+
+- Status: `proposal-prep`. Read-only foldback storage path drafted following the
+  Fitcheck pattern; no R2 write, D1 write, Hermes dispatch, or deployment
+  occurred.
+- New artifact: `docs/project-management/hermes-execution-foldback-preflight-iverif.v1.json`.
+- Scope: `sapling:iverif`, `goalGraphTaskId: 'task:iverif-observer'`,
+  `pinnedLoadoutId: 'loadout:iverif-observer'`.
+- R2 foldback key pattern: `portfolio/thoughtseed/workobjects/sapling:iverif/foldback/exec_iverif_canary_1.json`.
+- Local proof receipt ID: `hfb_iverif_foldback_prep_20260810`, content digest
+  `sha256:iverif_foldback_prep_local_contract_only` (synthetic, no external action).
+- Edges: `proves` (receipt → `task:iverif-observer`), `informs-next-intent`
+  (receipt → `sapling:iverif`).
+- Live preconditions include two IVerif-specific gates: (1) confirm IVerif
+  mapping receipt `pmr_a8c7a566eb32790dffaf1d2a` is issued and read back
+  byte-identically, and (2) confirm the D1 Mission Fabric `contains` edge for
+  `sapling:iverif` exists before foldback emission.
+- Approval gate: `approve live Hermes canary execution and foldback proof with
+  execution disabled` — does NOT authorize IVerif receipt issuance or D1 anchor
+  commit (both separate founder-approved gates).
+- No R2 write, D1 write, Hermes dispatch, deployment, or provider mutation
+  occurred — foldback storage path is read-only preparation only.
