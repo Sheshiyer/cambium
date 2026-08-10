@@ -4,15 +4,66 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { route } from '../router.ts';
-import { ONBOARDING_SCRIPT, ONBOARDING_LENGTH, hatOf, brainOf } from './script.ts';
+import { ONBOARDING_SCRIPT, ONBOARDING_LENGTH, hatOf } from './script.ts';
 
 const KNOWN_KINDS = new Set(['calling', 'drift', 'tweak', 'redirect', 'objection', 'metric', 'reposition', 'probe']);
+
+function parseDoctrineRows() {
+  const markdown = readFileSync(new URL('../../../ONBOARDING-OCTALYSIS.md', import.meta.url), 'utf8');
+  return markdown
+    .split('\n')
+    .filter((line) => /^\|\s*\d+\s*\|/.test(line))
+    .map((line) => {
+      const cells = line.slice(1, line.lastIndexOf('|')).split('|').map((cell) => cell.trim());
+      assert.equal(cells.length, 6, `unexpected onboarding doctrine row: ${line}`);
+      const [n, title, founderExperience, driveText, layer, evidenceState] = cells;
+      return {
+        n: Number(n),
+        title,
+        founderExperience,
+        drives: driveText.split('·').map(Number),
+        layer,
+        evidenceState,
+      };
+    });
+}
+
+function expectedRouteClass(layer, n) {
+  if (layer.includes('noesis')) return 'midbrain';
+  if (layer === 'macro') return 'macro';
+  if (layer === 'micro') return 'micro';
+  if (layer === 'meso' || layer === 'macro→meso' || layer === 'cross-run') return 'meso';
+  assert.fail(`step ${n}: doctrine layer "${layer}" has no explicit RouteClass mapping`);
+}
 
 test('script · is exactly the 20 interactions, numbered 1..20 in order', () => {
   assert.equal(ONBOARDING_LENGTH, 20);
   assert.equal(ONBOARDING_SCRIPT.length, 20);
   ONBOARDING_SCRIPT.forEach((s, i) => assert.equal(s.n, i + 1, `step at index ${i} is n=${s.n}`));
+});
+
+test('doctrine parity · Markdown table and executable script match exactly', () => {
+  const doctrine = parseDoctrineRows();
+  assert.equal(doctrine.length, 20, 'ONBOARDING-OCTALYSIS.md must contain exactly 20 numbered interaction rows');
+
+  const runtime = ONBOARDING_SCRIPT.map((step) => ({
+    n: step.n,
+    title: step.title,
+    founderExperience: step.narration,
+    drives: [step.drive, ...(step.secondaryDrives ?? [])],
+    layer: step.doctrineLayer,
+    evidenceState: step.evidenceState,
+  }));
+
+  assert.deepEqual(runtime, doctrine);
+});
+
+test('doctrine routing · every documented layer has one deterministic runtime class', () => {
+  for (const step of ONBOARDING_SCRIPT) {
+    assert.equal(step.expect, expectedRouteClass(step.doctrineLayer, step.n), `step ${step.n}: doctrine layer → expect`);
+  }
 });
 
 test('script · every event kind is a known EventKind', () => {
@@ -45,19 +96,29 @@ test('octalysis · primary ∪ secondary drives cover 1..8', () => {
   for (let d = 1; d <= 8; d++) assert.ok(all.has(d), `drive ${d} never appears`);
 });
 
-test('hat / brain · are the pure functions of drive (the table cannot drift)', () => {
+test('hat / brain · hat follows motivation while mid-brain follows doctrine noesis', () => {
   for (const s of ONBOARDING_SCRIPT) {
     assert.equal(s.hat, hatOf(s.drive), `step ${s.n} hat`);
-    assert.equal(s.brain, brainOf(s.drive), `step ${s.n} brain`);
+    assert.equal(s.brain === 'mid', s.expect === 'midbrain', `step ${s.n} brain/noesis`);
+    if (s.expect !== 'midbrain') assert.notEqual(s.brain, 'mid', `step ${s.n} routine interaction`);
   }
 });
 
-test('mid-brain rule · brain==="mid" ⟺ drive ∈ {1,8} ⟺ expect==="midbrain" (noesis)', () => {
-  for (const s of ONBOARDING_SCRIPT) {
-    const isMid = s.drive === 1 || s.drive === 8;
-    assert.equal(s.brain === 'mid', isMid, `step ${s.n}: brain/drive mismatch`);
-    assert.equal(s.expect === 'midbrain', isMid, `step ${s.n}: a mid-brain drive must route to noesis`);
+test('noesis · only doctrine peaks 1, 18, and 20 bypass routine routing', () => {
+  const peaks = ONBOARDING_SCRIPT.filter((step) => step.expect === 'midbrain').map((step) => step.n);
+  assert.deepEqual(peaks, [1, 18, 20]);
+  for (const step of ONBOARDING_SCRIPT) {
+    assert.equal(route(step.event).noesis, [1, 18, 20].includes(step.n), `step ${step.n}: noesis doctrine`);
   }
+});
+
+test('noesis · motivational Drive 1 does not force routine story-reading into noesis', () => {
+  const story = ONBOARDING_SCRIPT[3];
+  assert.equal(story.title, 'Read the story');
+  assert.equal(story.drive, 1);
+  assert.equal(story.doctrineLayer, 'meso');
+  assert.equal(story.expect, 'meso');
+  assert.equal(route(story.event).noesis, false);
 });
 
 test('router fidelity · route(event).class === expect for ALL 20 (the real router)', () => {
@@ -84,9 +145,10 @@ test('arc · opens AND closes on White-Hat mid-brain Epic Meaning (drive 1) — 
   }
 });
 
-test('coverage · all five route classes are exercised across the tutorial', () => {
+test('coverage · all doctrine-required route classes are exercised', () => {
   const classes = new Set(ONBOARDING_SCRIPT.map((s) => s.expect));
-  for (const c of ['micro', 'meso', 'macro', 'midbrain', 'heartbeat']) assert.ok(classes.has(c), `route class "${c}" never taught`);
+  for (const c of ['micro', 'meso', 'macro', 'midbrain']) assert.ok(classes.has(c), `route class "${c}" never taught`);
+  assert.equal(classes.has('heartbeat'), false, 'the doctrine table has no heartbeat interaction');
 });
 
 test('white-hat dominant · grounded black hat stays the minority (the infinite-game shape)', () => {

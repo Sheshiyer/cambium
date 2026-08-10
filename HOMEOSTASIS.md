@@ -100,8 +100,10 @@ Fitcheck's current state is:
 
 ```text
 identity exact ✓
+systems graph exact ✓
 packet exact ✓
 UI projection exact ✓
+mapping receipt readback unproved
 live D1 task anchor unproved
 live loadout pin unproved
 Hermes execution unproved
@@ -110,12 +112,14 @@ terminal foldback unproved
 
 The first homeostatic proof is therefore not “the system autonomously healed Fitcheck.” It is:
 
-1. one exact Fitcheck task is admitted;
-2. one governed loadout is pinned;
-3. one bounded run returns a terminal receipt;
-4. the receipt is reconciled against the admitted criteria;
-5. any divergence becomes a new gated proposal;
-6. no surface skips or relabels a missing stage.
+1. Fitcheck's landing and HDILINT backend remain distinct, typed, and authority-bound;
+2. the exact Fitcheck mapping receipt is issued and read back;
+3. only then is one exact Fitcheck task admitted;
+4. one governed loadout is pinned;
+5. one bounded run returns a terminal receipt;
+6. the receipt is reconciled against the admitted criteria;
+7. any divergence becomes a new gated proposal;
+8. no surface skips or relabels a missing stage.
 
 ## 9. Implementation map
 

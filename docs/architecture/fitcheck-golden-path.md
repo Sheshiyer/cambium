@@ -11,6 +11,7 @@ The canonical WorkObject is `sapling:fitcheck`. `FitCheck` and `getfitcheck` are
 | Question | Authority | Current Fitcheck truth |
 |---|---|---|
 | What project is this? | portfolio catalog + root map | `sapling:fitcheck`, canonical parent `cambium` |
+| Which systems implement it? | typed operational packet projection | Fitcheck owns `Sheshiyer/fitcheck-landing`; it uses the separately-owned `program:hdilint` backend in `Sheshiyer/HDILINT-backend-aleph` |
 | What is the intended branch story? | reviewed product packet | supervised product branch with three missions, two KPIs, and seven explicit gates |
 | What should happen now? | D1 Goal Graph | no exact live Fitcheck WorkObject task anchor has been proved in this checkout |
 | Which skills may execute it? | governed loadout catalog + D1 task anchor | candidate organ route exists; no live loadout pin is claimed |
@@ -21,7 +22,9 @@ The canonical WorkObject is `sapling:fitcheck`. `FitCheck` and `getfitcheck` are
 
 ```mermaid
 flowchart LR
-  M["MAPPED\ncanonical identity"] --> P["PLANNED\nreviewed branch packet"]
+  I["IDENTIFIED\ncanonical identity"] --> S["SYSTEMS BOUND\ntyped repositories + infrastructure"]
+  S --> M["MAPPING VERIFIED\nissued receipt + readback"]
+  M --> P["PLANNED\nreviewed branch packet"]
   P --> A["ADMITTED\nD1 WorkObject anchor"]
   A --> L["PINNED\ngoverned loadout"]
   L --> E["EXECUTED\nHermes run + receipt"]
@@ -29,7 +32,7 @@ flowchart LR
   R -. "informs next intent" .-> P
 ```
 
-Fitcheck is presently **mapped and planned**. Admission, pinning, execution, and learning remain visibly held until their own authorities provide exact evidence.
+Fitcheck is presently **identified, systems-bound, and planned**. Mapping verification, admission, pinning, execution, and learning remain visibly held until their own authorities provide exact evidence.
 
 ## Product story
 
@@ -62,7 +65,7 @@ The return edge never mutates operational intent directly. A terminal Hermes res
 
 | Surface | It should do | It must not imply |
 |---|---|---|
-| Portfolio Workbench | reconcile identity, inspect packet truth, expose missing operational anchors, prepare bounded intent | that a packet is a live task or that a repository mapping executed |
+| Portfolio Workbench | reconcile identity, inspect typed repositories/infrastructure and packet truth, expose missing mapping and operational anchors, prepare bounded intent | that a linked backend is the same WorkObject, a packet is a live task, or a repository mapping executed |
 | Telegram Mini App | show current Mission Fabric state, adjudicate signed Gate proposals, inspect execution and evidence | that selecting Fitcheck starts work or that packet owners are live assignments |
 | D1 Goal Graph | own desired/current state, task lineage, approvals, and graph versions | repository or packet provenance it does not contain |
 | Hermes | execute an admitted, pinned directive and return terminal evidence | permission to rewrite the Goal Graph or promote a skill |
@@ -86,14 +89,19 @@ These are packet gates, not approved runtime actions. The UI may render them as 
 
 ## Current hold line
 
-The local schema and projection work can be reviewed now. The next operational proof still requires all of the following independently:
+The Fitcheck mapping receipt has now been issued to R2 and read back
+byte-identically. The next operational proof still requires all of the
+following independently:
 
-1. apply and verify the reviewed D1 operational-anchor migration through its governed release path;
-2. read one exact current Goal Graph task carrying `sapling:fitcheck`;
-3. read one exact governed Fitcheck loadout pinned to that task;
-4. issue the required repository/R2 mapping receipt without treating R2 as live state;
+1. compile one D1 Mission → Task → loadout proposal against the issued Fitcheck receipt;
+2. apply and verify the reviewed D1 operational-anchor migration through its governed release path;
+3. approve and read one exact current Goal Graph task carrying `sapling:fitcheck`;
+4. read one exact governed Fitcheck loadout pinned to that task;
 5. approve a single execution-disabled Hermes canary and preserve its terminal foldback receipt;
 6. re-read Mission Fabric and prove the evidence informs, but does not bypass, the next Gate.
+
+Receipt evidence:
+[`docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json`](../project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json).
 
 ## Canonical implementation references
 

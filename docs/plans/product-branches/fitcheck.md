@@ -15,6 +15,8 @@ packet_owner: cambium
 
 Fitcheck is the first Cambium product branch packet normalized from the existing proof packet at `docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. This file is the reusable Cambium packet view; the dated packet remains the source evidence trail.
 
+Fitcheck is one WorkObject implemented by several systems. `sapling:fitcheck` owns the product identity and supervised product plan; it does not absorb every repository or capability it uses. `program:hdilint` remains a separate Internal Program and owns the backend capability consumed by Fitcheck.
+
 ## Product Seed
 
 | Field | Value |
@@ -34,6 +36,20 @@ Fitcheck is the first Cambium product branch packet normalized from the existing
 | autonomy_boundary | Semi-autonomous routines can recommend and draft; founder approval gates remain required for submission, payments, customer contact, spend, and public claims. |
 | approvals | Shopify submission, privacy/legal wording, Dodo activation/refunds, customer outreach, live merchant install, public proof/case-study claims. |
 
+## System Topology
+
+| Component | Role | Owning WorkObject | Repository / Service | Authority | Current State |
+| --- | --- | --- | --- | --- | --- |
+| Fitcheck landing | experience surface | `sapling:fitcheck` | `Sheshiyer/fitcheck-landing` · `R_kgDOSzF56w` | Fitcheck product planning and frontend evidence | mapping receipt issued and read back |
+| HDILINT backend | backend capability | `program:hdilint` | `Sheshiyer/HDILINT-backend-aleph` · `R_kgDOS4jKmg` | HDILINT backend planning and implementation evidence | repository identity verified; linked operational access remains separately governed |
+| Shopify | commerce channel | external service | Shopify demo/storefront | merchant product-page and widget evidence | credentials and live QA held |
+| AWS App Runner | backend runtime | `program:hdilint` | deployed HDILINT API runtime | runtime health and upload-wrapper evidence | health proof exists; paid/live generation remains gated |
+| Vercel | frontend runtime | `sapling:fitcheck` | Fitcheck landing deployment | landing artifact and environment evidence | production artifact reconciliation pending |
+| Dodo Payments | payment service | external service | reservation/payment environment | payment intent and refund-policy evidence | activation held |
+| Cortex / R2 | evidence infrastructure | Cambium shared infrastructure | receipt and derived-memory projections | immutable evidence only; never product or D1 identity | Fitcheck mapping receipt written; foldback writes held |
+
+Typed relationship: `sapling:fitcheck --uses-backend--> program:hdilint`. This relationship does not merge the two WorkObjects, transfer tenant authority, or allow a Fitcheck receipt to stand in for HDILINT repository authority.
+
 ## Organ Routing
 
 | Organ | Owner | Input | Output | Proof Path | Current Gate |
@@ -43,7 +59,7 @@ Fitcheck is the first Cambium product branch packet normalized from the existing
 | Hands | Fitcheck landing/widget/backend repos | Scoped gates from Taste and QA | Code/docs patches with proof | Fitcheck PRs and command receipts | pending |
 | Will | Snow Gloves OS / GTM routines | Approved product and proof bundle | Outreach, CRM, payment, pilot reporting | Founder-approved action logs | blocked until outreach/payment approvals |
 | Cortex | Cambium/Cortex memory | Branch lessons and proof summaries | Searchable branch memory | Cortex ingestion targets | pending |
-| Hermes | Hermes/Paperclip routes | Founder-facing actions | Telegram/Plexus reports | Hermes/Paperclip proof receipts | pending, policy-aware recommendation only |
+| Hermes | Hermes routes | Founder-facing actions | Telegram/Plexus reports | Hermes proof receipts | pending, policy-aware recommendation only |
 | Garden | Branch health cadence | Branch evidence and outcomes | Daily/weekly pulses | Routine proof packet | blocked until pilot begins |
 
 ## Variable Contract Payload
@@ -66,7 +82,7 @@ Fitcheck is the first Cambium product branch packet normalized from the existing
 | --- | --- | --- | --- | --- | --- |
 | Vercel landing | Fitcheck source and env values | Public landing and serverless lead handler | Artifact drift, protected preview, missing reservation env | `fitcheck` | No provider secrets in packet |
 | Shopify demo store | Product page, widget assets, storefront access | Product-page try-on proof | Password page, App Store review pending | `fitcheck` | Customer media/consent wording requires approval |
-| AWS App Runner API | Upload intent and demo wrapper calls | Health, signed upload, demo API wrapper | Live generation cost or provider failure | `fitcheck` | Retention/deletion/no-training wording remains approval-gated |
+| HDILINT / AWS App Runner API | Upload intent and demo wrapper calls | Health, signed upload, demo API wrapper | Live generation cost, backend access, or provider failure | `program:hdilint` used by `sapling:fitcheck` | Retention/deletion/no-training wording remains approval-gated |
 | Dodo Payments | Reservation or pilot payment link | Paid pilot intent | Missing production env/payment link/refund policy | `fitcheck` | Payment activation and refund language require approval |
 | Composio | GitHub/Gmail/Google Calendar actions | Branch action portability | Local-only auth or missing EC2/broker route | `fitcheck` | App actions require approved runtime sessioning |
 
@@ -165,6 +181,7 @@ First real pilot proof: one merchant seed from intake to launch/garden with arch
 
 | proof_id | source_path | validates | promotes |
 | --- | --- | --- | --- |
+| fitcheck-mapping-readback | R2 thoughtseed-vault portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json | Fitcheck repository mapping receipt was issued and read back byte-identically | unlocks the separate D1 Mission to Task proposal gate |
 | fitcheck-shopify-widget-proof | future Shopify QA screenshot and event receipt | product-page try-on works under authenticated conditions | keeps supervised branch active; no autonomy promotion |
 | fitcheck-payment-proof | Dodo/Vercel env receipt plus checkout smoke | reservation/payment path is live enough for supervised pilot | unlocks customer-contact gate only after approval |
 | fitcheck-first-merchant-packet | future first merchant proof packet | real merchant pilot outcome | candidate for later autonomous review after app-action portability |

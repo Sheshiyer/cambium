@@ -9,7 +9,7 @@ import {
   createPortfolioMappingReceiptStore,
   preparePortfolioMappingReceipt,
 } from './portfolio-mapping-receipts.ts';
-import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
+import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
 import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
@@ -43,7 +43,7 @@ function input(overrides: Record<string, unknown> = {}) {
     },
     lifecycle: 'proposed',
     catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
-    classificationDigest: '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542',
+    classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
     rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
     repositoryEvidenceDigest: '5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f',
     ...overrides,

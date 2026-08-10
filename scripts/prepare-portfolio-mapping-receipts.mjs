@@ -42,7 +42,7 @@ function collectAssignments(batch) {
   }
   for (const split of batch.resolvedProvenanceSplits) {
     if (split.name === 'Klear Karma') {
-      addAssignment(assignments, split.targetWorkId, split.mappedRepos, 'thoughtseed-origin', 'product-source')
+      addAssignment(assignments, split.targetWorkId, split.mappedRepos, 'co-founded-venture', 'co-founded-venture-source')
     } else if (split.name === 'Kristudios') {
       addAssignment(assignments, split.targetWorkId, split.mappedRepos, 'client-origin', 'client-branch-source')
     } else if (split.name === 'ParkArea' || split.name === 'Tirak') {
@@ -95,7 +95,7 @@ export async function buildBatch3MappingReceiptBundle() {
   }
 
   const assignments = collectAssignments(batch)
-  if (assignments.length !== 38) fail(`expected 38 reviewed repository assignments, found ${assignments.length}`)
+  if (assignments.length !== 39) fail(`expected 39 reviewed repository assignments, found ${assignments.length}`)
   const repositoryNames = assignments.map((entry) => entry.nameWithOwner)
   if (new Set(repositoryNames).size !== repositoryNames.length) fail('a repository is assigned more than once')
   if (repositoryNames.includes('Sheshiyer/snow-gloves-os')) fail('Snow Gloves contamination entered Batch 3')

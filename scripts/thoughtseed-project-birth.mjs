@@ -10,7 +10,7 @@ import {
 } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
   REVIEWED_ACTION_CATALOG_DIGEST,
   REVIEWED_ACTION_SOURCE_DIGEST,
@@ -30,6 +30,11 @@ export {
 export const PROJECT_CREATION_INTENT_SCHEMA = 'thoughtseed.project-creation-intent.v1'
 export const PROJECT_INGESTION_RECEIPT_SCHEMA = 'thoughtseed.project-ingestion-receipt.v1'
 export const PROJECT_INDEX_PROPOSAL_SCHEMA = 'thoughtseed.project-index-proposal.v1'
+export const PROJECT_INTAKE_WORKFLOW_REGISTRY_SCHEMA = 'thoughtseed.project-intake-workflows.v1'
+export const DEFAULT_WORKFLOW_REGISTRY_PATH = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../docs/project-management/project-intake-workflows.v1.json',
+)
 
 const SAFE_SLUG = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/
 const SAFE_CLIENT_FAMILY = /^[a-z0-9][a-z0-9-]{0,63}$/
@@ -38,6 +43,7 @@ const SAFE_GATE_RECEIPT = /^gate_[A-Za-z0-9._:-]{8,120}$/
 const SHA256_REF = /^sha256:[0-9a-f]{64}$/
 const REQUEST_SOURCES = new Set(['local-founder', 'agent', 'rbac', 'dgchat', 'system'])
 const ORIGINS = new Set(['thoughtseed-venture', 'thoughtseed-internal', 'client', 'unknown'])
+const WORKFLOW_KINDS = new Set(['sapling', 'client-branch', 'internal-program'])
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -167,18 +173,47 @@ async function assertExecutionAuthority(action, founderGateResolver) {
   return { approvalStatus: 'execution-ready', approvalReceiptId: action.proposal.founderApproval.receiptId }
 }
 
-async function loadWorkflow(registryPath, workflowId) {
+async function loadWorkflow(registryPath, workflowId, derivedKind) {
   if (!isAbsolute(registryPath)) throw new Error('workflow_registry_must_be_absolute')
+  const registryStat = await lstat(registryPath)
+  if (!registryStat.isFile() || registryStat.isSymbolicLink()) throw new Error('workflow_registry_path_invalid')
   const registry = JSON.parse(await readFile(registryPath, 'utf8'))
-  if (!isRecord(registry) || !Array.isArray(registry.workflows)) throw new Error('workflow_registry_invalid')
-  const workflow = registry.workflows.find((candidate) => isRecord(candidate) && candidate.id === workflowId)
+  if (!isRecord(registry)
+    || registry.schema !== PROJECT_INTAKE_WORKFLOW_REGISTRY_SCHEMA
+    || !isRecord(registry.defaultWorkflowByKind)
+    || !Array.isArray(registry.workflows)) throw new Error('workflow_registry_invalid')
+  if (!WORKFLOW_KINDS.has(derivedKind)) throw new Error('workflow_kind_invalid')
+  const selectedWorkflowId = workflowId || registry.defaultWorkflowByKind[derivedKind]
+  if (typeof selectedWorkflowId !== 'string' || !selectedWorkflowId) throw new Error('workflow_default_not_found')
+  const workflow = registry.workflows.find((candidate) => isRecord(candidate) && candidate.id === selectedWorkflowId)
   if (!workflow || !Array.isArray(workflow.stages)) throw new Error('workflow_not_found')
+  if (!Array.isArray(workflow.compatibleKinds)
+    || !workflow.compatibleKinds.every((kind) => WORKFLOW_KINDS.has(kind))
+    || !workflow.compatibleKinds.includes(derivedKind)) throw new Error('workflow_kind_incompatible')
+  if (typeof workflow.lifecycleMeaning !== 'string' || !workflow.lifecycleMeaning.trim()) throw new Error('workflow_lifecycle_invalid')
   const stages = workflow.stages.map((stage) => {
     if (!isRecord(stage) || typeof stage.id !== 'string' || !SAFE_STAGE.test(stage.id)) throw new Error('workflow_stage_invalid')
-    return { id: stage.id, label: typeof stage.label === 'string' ? stage.label : stage.id }
+    if (typeof stage.label !== 'string' || !stage.label.trim()
+      || typeof stage.meaning !== 'string' || !stage.meaning.trim()
+      || !Array.isArray(stage.requiredEvidence)
+      || stage.requiredEvidence.length === 0
+      || !stage.requiredEvidence.every((item) => typeof item === 'string' && item.trim())) throw new Error('workflow_stage_contract_invalid')
+    return {
+      id: stage.id,
+      label: stage.label.trim(),
+      meaning: stage.meaning.trim(),
+      requiredEvidence: stage.requiredEvidence.map((item) => item.trim()),
+    }
   })
   if (stages.length === 0 || new Set(stages.map((stage) => stage.id)).size !== stages.length) throw new Error('workflow_stages_invalid')
-  return { id: workflowId, stages, digest: `sha256:${sha256(canonicalJson(workflow))}` }
+  return {
+    id: selectedWorkflowId,
+    lifecycleMeaning: workflow.lifecycleMeaning.trim(),
+    compatibleKinds: [...workflow.compatibleKinds],
+    stages,
+    digest: `sha256:${sha256(canonicalJson(workflow))}`,
+    registryDigest: `sha256:${sha256(canonicalJson(registry))}`,
+  }
 }
 
 function renderProjectPacket(action, workflow) {
@@ -195,6 +230,9 @@ function renderProjectPacket(action, workflow) {
     `packet_status: draft-held`,
     `client_family_id: ${proposal.clientFamilyId || 'null'}`,
     'planning_authority: pending-github-repository',
+    `workflow_id: ${workflow.id}`,
+    `workflow_digest: ${workflow.digest}`,
+    `workflow_registry_digest: ${workflow.registryDigest}`,
     '',
   ].join('\n')
   const commonBoundary = 'This packet is draft-held. Folder creation does not authorize registry, Vault, R2, Goal Graph, provider, or production changes.'
@@ -203,9 +241,9 @@ function renderProjectPacket(action, workflow) {
     'AGENTS.md': `# Agent operating contract\n\n1. Read \`PROJECT.md\` and \`.project/HANDOFF.md\` before work.\n2. Keep repository planning in GitHub after identity is established.\n3. Do not rewrite project classification; origin-derived kind is \`${proposal.derivedKind}\`.\n4. Agent-originated governed actions require Founder Gate approval.\n5. ${commonBoundary}\n`,
     'CLAUDE.md': `# Project context\n\nThis is a Thoughtseed \`${proposal.derivedKind}\` project. Treat \`.project/project-index-proposal.v1.json\` as pending ingestion evidence, not canonical portfolio authority.\n`,
     '.project/project.yaml': projectYaml,
-    '.project/CONTEXT.md': `# Project context\n\nCreated through \`${PROJECT_CREATION_INTENT_SCHEMA}\`. GitHub repository identity and repository-owned planning remain pending.\n`,
+    '.project/CONTEXT.md': `# Project context\n\nCreated through \`${PROJECT_CREATION_INTENT_SCHEMA}\`. GitHub repository identity and repository-owned planning remain pending. The selected \`${workflow.id}\` workflow is compatible with \`${proposal.derivedKind}\` and is pinned by digest in the packet receipts.\n`,
     '.project/HANDOFF.md': `# Project handoff\n\n- Status: \`draft-held\`\n- Ingestion: \`pending-cambium-ingestion\`\n- Workflow: \`${workflow.id}\`\n- Next: establish GitHub identity, review this packet, then reconcile the Cambium project index.\n`,
-    '.project/WORKFLOW.md': `# Workflow provenance\n\n- Workflow: \`${workflow.id}\`\n- Digest: \`${workflow.digest}\`\n\n${workflow.stages.map((stage) => `- \`${stage.id}\` — ${stage.label}`).join('\n')}\n`,
+    '.project/WORKFLOW.md': `# Workflow provenance\n\n- Workflow: \`${workflow.id}\`\n- Workflow digest: \`${workflow.digest}\`\n- Registry digest: \`${workflow.registryDigest}\`\n- Compatible kind: \`${proposal.derivedKind}\`\n- Lifecycle: ${workflow.lifecycleMeaning}\n\n${workflow.stages.map((stage) => `## \`${stage.id}\` — ${stage.label}\n\n${stage.meaning}\n\nRequired evidence:\n${stage.requiredEvidence.map((item) => `- ${item}`).join('\n')}`).join('\n\n')}\n`,
   }
 }
 
@@ -228,10 +266,10 @@ async function assertRootAndTarget(projectsRoot, slug) {
   return { resolvedRoot, portfolioRoot, target, relativePath: `thoughtseed/${slug}` }
 }
 
-export async function planProjectBirth({ action: rawAction, projectsRoot, workflowRegistryPath, workflowId, founderGateResolver }) {
+export async function planProjectBirth({ action: rawAction, projectsRoot, workflowRegistryPath = DEFAULT_WORKFLOW_REGISTRY_PATH, workflowId, founderGateResolver }) {
   const action = normalizeProjectCreationAction(rawAction)
   const authority = await assertExecutionAuthority(action, founderGateResolver)
-  const workflow = await loadWorkflow(workflowRegistryPath, workflowId)
+  const workflow = await loadWorkflow(workflowRegistryPath, workflowId, action.proposal.derivedKind)
   const destination = await assertRootAndTarget(projectsRoot, action.proposal.slug)
   return {
     schema: 'thoughtseed.project-birth-plan.v1',
@@ -282,6 +320,8 @@ export async function executeProjectBirth(options) {
       intentDigest: plan.intentDigest,
       workflowId: plan.workflow.id,
       workflowDigest: plan.workflow.digest,
+      workflowRegistryDigest: plan.workflow.registryDigest,
+      workflowStages: plan.workflow.stages.map((stage) => stage.id),
     }
     const indexProposal = {
       schema: PROJECT_INDEX_PROPOSAL_SCHEMA,
@@ -294,6 +334,10 @@ export async function executeProjectBirth(options) {
       workId: `${plan.derivedKind === 'client-branch' ? 'branch' : plan.derivedKind === 'internal-program' ? 'program' : 'sapling'}:${plan.slug}`,
       githubPlanningAuthority: 'pending',
       intentDigest: plan.intentDigest,
+      workflowId: plan.workflow.id,
+      workflowDigest: plan.workflow.digest,
+      workflowRegistryDigest: plan.workflow.registryDigest,
+      workflowStages: plan.workflow.stages.map((stage) => stage.id),
     }
     await writeFile(join(plan.target, '.project/project-ingestion-receipt.v1.json'), `${JSON.stringify(receipt, null, 2)}\n`, { mode: 0o600, flag: 'wx' })
     await writeFile(join(plan.target, '.project/project-index-proposal.v1.json'), `${JSON.stringify(indexProposal, null, 2)}\n`, { mode: 0o600, flag: 'wx' })
@@ -316,7 +360,7 @@ function parseArgs(argv) {
       values[argument.slice(2)] = value
     } else throw new Error(`unknown_argument:${argument}`)
   }
-  for (const required of ['intent', 'projects-root', 'workflow-registry', 'workflow-id']) {
+  for (const required of ['intent', 'projects-root']) {
     if (!values[required]) throw new Error(`missing_argument:--${required}`)
   }
   return values

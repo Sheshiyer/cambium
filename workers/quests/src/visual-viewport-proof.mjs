@@ -1257,11 +1257,11 @@ function operatingFabricAllScenesAssertion(width) {
         && selectedContext.textContent.includes('Fitcheck');
       const fitcheckReference = sceneId === 'canopy'
         ? null
-        : selectedContext?.querySelector('[data-fitcheck-golden-path="cambium.fitcheck-golden-path.v1"]');
+        : selectedContext?.querySelector('[data-operational-packet="cambium.fitcheck-golden-path.v1"]');
       const fitcheckSceneTruth = sceneId === 'canopy' || (
         Boolean(fitcheckReference)
         && fitcheckReference.getAttribute('data-fitcheck-scene') === sceneId
-        && fitcheckReference.querySelector('[data-fitcheck-authority="packet-plan"]')
+        && fitcheckReference.querySelector('[data-operational-authority="packet-plan"]')
         && fitcheckReference.textContent.includes('Supervised branch · not autonomous')
         && !fitcheckReference.textContent.includes('autonomous branch · active')
         && (sceneId !== 'mission' || fitcheckReference.textContent.includes('Qualified merchant demo · pending'))

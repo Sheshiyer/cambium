@@ -122,7 +122,7 @@ deployment.
 6. Define payment-state to access-state safety invariants.
 7. Approve pilot outreach only after claim review and privacy/security wording.
 
-Current frontier: resource mapping and proof separation, not supervised launch.
+Current frontier: obtain cofounder-granted authenticated Thoughtseed Labs GitHub access, then recheck repository authority and separate resource proofs before any mapping receipt or supervised launch.
 
 Garden cadence: weekly proof review after repository checkout and claim table exist.
 

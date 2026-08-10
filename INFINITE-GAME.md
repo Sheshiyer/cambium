@@ -103,24 +103,30 @@ Epic meaning and a genuine threat of dropping out sit outside the routine tick. 
 10. REST      do not create work merely to keep the loop active
 ```
 
-## The six-stage project lifecycle
+## The intake and execution lifecycle
 
 ```text
-MAPPED → PLANNED → ADMITTED → PINNED → EXECUTED → LEARNED
+DISCOVERED → ORIGIN VERIFIED → CLASSIFIED → IDENTITY BOUND → SYSTEMS BOUND
+→ MAPPING RECEIPT ISSUED → READBACK VERIFIED → PACKET REVIEWED → D1 ELIGIBLE
+→ ADMITTED → PINNED → EXECUTED → LEARNED → CLOSED
 ```
 
-- **Mapped**: exact portfolio identity and provenance exist.
-- **Planned**: a reviewed packet defines story, missions, KPIs, gates, and candidate organ route.
+- **Identity bound**: one canonical WorkObject exists; it may own or depend on multiple repositories and services.
+- **Systems bound**: each repository, dependent WorkObject, runtime, provider, and evidence service has a typed role and authority boundary.
+- **Mapping receipt issued**: repository-to-WorkObject evidence has been conditionally preserved; issuance alone is not admission authority.
+- **Readback verified**: immutable receipt bytes and every bound digest match current authority.
+- **Packet reviewed**: a reviewed packet defines story, missions, KPIs, gates, and candidate organ route.
+- **D1 eligible**: verified mapping and planning may produce an approval-bound proposal, but no graph state has changed.
 - **Admitted**: D1 contains the exact WorkObject task/node at a known graph version.
 - **Pinned**: that task points to a governed, available skill/loadout identity.
 - **Executed**: the admitted directive reaches a terminal run with immutable evidence.
 - **Learned**: the evidence is reconciled and may inform a new proposal.
 
-No stage is inferred from its neighbor. This is why Fitcheck can honestly be mapped and planned while execution remains held.
+No stage is inferred from its neighbor. Fitcheck can therefore be identified, systems-bound, and planned while mapping verification and every operational stage remain held.
 
 ## Fitcheck's one-change loop
 
-Fitcheck is a supervised validation branch, not an autonomous Shopify business. Its current frontier is to validate the merchant problem and prove a bounded virtual try-on journey without claiming app-store approval, native Shopify integration, billing readiness, conversion lift, or a 48-hour launch.
+Fitcheck is a Sapling represented by a supervised product-branch packet, not an autonomous Shopify business. Its current frontier is to validate the merchant problem and prove a bounded virtual try-on journey without claiming app-store approval, native Shopify integration, billing readiness, conversion lift, or a 48-hour launch.
 
 The intended loop is:
 

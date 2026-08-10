@@ -12,13 +12,13 @@ import {
   projectCreationIntentDigest,
   recordPortfolioAdminAction,
 } from './portfolio-admin-actions.ts';
-import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
+import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
 import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
 
 const ROOT_DIGEST = PORTFOLIO_ROOT_MAP_DIGEST;
-const SOURCE_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
+const SOURCE_DIGEST = PORTFOLIO_CLASSIFICATION_DIGEST;
 const CATALOG_DIGEST = PORTFOLIO_CATALOG.catalogDigest;
 
 function thoughtseedInput(overrides: Record<string, unknown> = {}) {

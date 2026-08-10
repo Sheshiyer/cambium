@@ -28,28 +28,28 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
     operational: 'd1-goal-graph',
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
-  assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e');
+  assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
-    total: 74,
-    saplings: 20,
-    clientBranches: 39,
+    total: 72,
+    saplings: 17,
+    clientBranches: 40,
     internalPrograms: 15,
     classificationReview: 0,
     historicalProducts: 20,
-    operationalGaps: 49,
+    operationalGaps: 48,
   });
-  assert.equal(PORTFOLIO_CATALOG.records.length, 74);
+  assert.equal(PORTFOLIO_CATALOG.records.length, 72);
   assert.equal(PORTFOLIO_CATALOG.historicalProducts.length, 20);
   assert.equal(PORTFOLIO_CATALOG.classificationReview.length, 0);
-  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 49);
+  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 48);
 });
 
 test('catalog identities are unique, canonical, type-correct, and enum bounded', () => {
   const ids = PORTFOLIO_CATALOG.records.map((record) => record.workId);
-  assert.equal(new Set(ids).size, 74);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 20);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 39);
+  assert.equal(new Set(ids).size, 72);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 17);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 40);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'internal-program').length, 15);
 
   for (const record of PORTFOLIO_CATALOG.records) {
@@ -102,18 +102,24 @@ test('catalog contains no absolute path and rejects path leakage', () => {
 
 test('Fitcheck keeps exact parent and aliases without tenant authority', () => {
   const fitcheck = PORTFOLIO_CATALOG.records.find((record) => record.workId === 'sapling:fitcheck')!;
+  const hdilint = PORTFOLIO_CATALOG.records.find((record) => record.workId === 'program:hdilint')!;
   assert.ok(fitcheck);
+  assert.ok(hdilint);
   assert.equal(fitcheck.parentTenant, 'cambium');
   assert.deepEqual(fitcheck.tenantIdentity, { status: 'canonical-parent', tenantId: 'cambium' });
   assert.deepEqual(fitcheck.aliases.map((alias) => alias.value), ['FitCheck', 'getfitcheck']);
   assert.ok(fitcheck.aliases.every((alias) => alias.tenantAuthority === false));
   assert.equal(PORTFOLIO_CATALOG.records.some((record) => record.workId === 'sapling:getfitcheck'), false);
+  assert.deepEqual(fitcheck.linkedCanonicalIds, ['program:hdilint']);
+  assert.deepEqual(hdilint.linkedCanonicalIds, ['sapling:fitcheck']);
+  assert.equal(hdilint.classification, 'internal-program');
+  assert.notEqual(fitcheck.workId, hdilint.workId);
 });
 
 test('mixed-source linked identities remain separate records', () => {
   for (const [left, right] of [
-    ['sapling:parkarea', 'branch:parkarea'],
-    ['sapling:tirak', 'branch:tirak'],
+    ['sapling:hostscale', 'branch:co-property'],
+    ['sapling:cambium', 'program:cambium-operating-fabric'],
     ['sapling:seedforge', 'program:teamforge-control-plane'],
   ]) {
     const leftRecord = PORTFOLIO_CATALOG.records.find((record) => record.workId === left)!;
@@ -158,7 +164,7 @@ test('type-aware canonical joins reject legacy, bare, and type-mismatched wire f
     'sapling-fitcheck',
     'teamforge-control-plane',
   ]);
-  assert.equal(report.catalogOrphanCount, 73);
+  assert.equal(report.catalogOrphanCount, 71);
   assert.equal(report.runtimeIdentityCollisionCount, 0);
 });
 
@@ -202,7 +208,7 @@ test('legacy Mission Fabric fixture remains unmapped until its source emits cano
   assert.deepEqual(wrappers, values, 'join accepts both FabricNode wrappers and their value objects');
   assert.deepEqual(wrappers.matches, []);
   assert.equal(wrappers.matchedCount, 0);
-  assert.equal(wrappers.catalogOrphanCount, 74);
+  assert.equal(wrappers.catalogOrphanCount, 72);
   assert.deepEqual(wrappers.runtimeOrphans, ['cambium-operating-fabric', 'sapling-cambium']);
   assert.equal(wrappers.runtimeIdentityCollisionCount, 0);
 });

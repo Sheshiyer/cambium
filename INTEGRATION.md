@@ -22,19 +22,26 @@ Every integration statement uses one of five states:
 
 ```mermaid
 flowchart LR
-  A["Portfolio identity"] --> B["Reviewed packet"]
+  A["Portfolio identity"] --> S["Typed systems graph"]
+  S --> M["Mapping receipt"]
+  M --> R["Immutable readback"]
+  R --> B["Reviewed packet"]
   B --> C["D1 admission"]
   C --> D["Skill/loadout pin"]
   D --> E["Hermes execution"]
-  E --> F["Immutable receipt"]
+  E --> F["Terminal receipt"]
   F --> G["Foldback proposal"]
   G -->|"signed Gate + D1 CAS"| C
 ```
 
 | Stage | Contract | Fitcheck status | Exit proof |
 |---|---|---|---|
-| Map | exact canonical WorkObject plus typed provenance | **Local** | `sapling:fitcheck` resolves once; aliases stay non-authoritative |
+| Identify | exact canonical WorkObject plus typed provenance | **Local** | `sapling:fitcheck` resolves once; aliases stay non-authoritative |
+| Bind systems | typed repositories, dependent WorkObjects, services, ownership, access, and mutation boundaries | **Local** | Fitcheck owns its experience surface and explicitly uses the separately-owned `program:hdilint` backend |
+| Issue mapping | immutable repository-to-WorkObject receipt | **Held** | the exact reviewed receipt is conditionally written once |
+| Verify mapping | authoritative receipt readback | **Held** | receipt bytes, repository ID, roles, roots, and catalog digests match current authority |
 | Plan | reviewed branch packet with missions, KPIs, gates, and organ route | **Local** | packet validates and matches shared UI projection |
+| Establish eligibility | verified mapping plus reviewed packet may form one D1 proposal | **Held** | no D1 action exists until receipt readback succeeds |
 | Admit | D1 task/node carries exact WorkObject anchor | **Held** | current graph version returns one exact Fitcheck anchor |
 | Pin | governed loadout is attached to the admitted task | **Held** | exact loadout identity and catalog state resolve without inference |
 | Execute | Hermes consumes one admitted directive | **Held** | single rollback-bounded canary returns a terminal result |
@@ -82,13 +89,15 @@ D1 owns operational intent. Hermes executes only an admitted, pinned directive. 
 
 ## Next integration sequence
 
-1. Review the shared Fitcheck projection in both UIs against the authenticated live experience.
-2. Apply the operational-anchor migration through the separately governed D1 release path.
-3. Seed or read one exact `sapling:fitcheck` task and governed loadout pin.
-4. Issue the required mapping receipt with full root, classification, and catalog provenance.
-5. Run one execution-disabled Hermes canary using the reviewed preflight.
-6. Prove terminal evidence folds back as a proposal and requires a fresh Gate.
-7. Only then generalize the pattern to IVerif, DLOCK, or another Sapling.
+1. Verify the shared Fitcheck projection and its typed Fitcheck → HDILINT systems graph in both UIs.
+2. Issue the exact Fitcheck mapping receipt with full root, classification, catalog, repository, and component-role provenance.
+3. Read the immutable receipt back and fail closed on any identity, role, access, or digest mismatch.
+4. Compile—but do not commit—one exact `sapling:fitcheck` D1 Mission → Task → governed-loadout proposal.
+5. Apply the operational-anchor migration only through the separately governed D1 release path.
+6. Approve and commit the current proposal through signed Gate plus graph-head compare-and-swap.
+7. Run one execution-disabled Hermes canary using the reviewed preflight.
+8. Prove terminal evidence folds back as a proposal and requires a fresh Gate.
+9. Reuse the generic contract for the next Sapling or Client Branch; DLOCK remains access-held.
 
 ## Explicitly outside this document
 

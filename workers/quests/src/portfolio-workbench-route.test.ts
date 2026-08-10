@@ -15,7 +15,7 @@ import type {
   PortfolioAdminActionQueueLike,
   PortfolioAdminActionStoreLike,
 } from './portfolio-admin-actions.ts';
-import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
+import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
 import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_SCENES } from './page/operating-fabric/scaffold.ts';
@@ -30,7 +30,7 @@ const ACCESS_AUD = '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977
 const ACCESS_KID = 'portfolio-access-test-kid';
 const PORTFOLIO_BYTES_RE = /portfolio-workbench@v4; hosted-admin|data-bundled="portfolio-cartographer"/;
 const ROOT_DIGEST = PORTFOLIO_ROOT_MAP_DIGEST;
-const SOURCE_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
+const SOURCE_DIGEST = PORTFOLIO_CLASSIFICATION_DIGEST;
 const CATALOG_DIGEST = PORTFOLIO_CATALOG.catalogDigest;
 
 const { publicKey: accessPublicKey, privateKey: accessPrivateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
@@ -533,6 +533,25 @@ test('browser portfolio route fails closed uniformly for missing, invalid, non-f
   assert.doesNotMatch(String(nonFounder.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(degraded.body), PORTFOLIO_BYTES_RE);
   assert.doesNotMatch(String(inactive.body), PORTFOLIO_BYTES_RE);
+});
+
+test('generated bundle embeds both Fitcheck and IVerif golden-path projections', () => {
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /cambium\.fitcheck-golden-path\.v1/,
+  );
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /cambium\.iverif-golden-path\.v1/,
+  );
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /sapling:fitcheck/,
+  );
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /sapling:iverif/,
+  );
 });
 
 test('operating fabric exposes the Workbench link only when founder detail exists', () => {

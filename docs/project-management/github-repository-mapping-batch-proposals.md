@@ -97,12 +97,12 @@ Direct Sapling candidates:
 - `sapling:wanderfruit` ← `wanderfruit-wiki-alpha`
 - `sapling:whspr` ← `whspr-*`
 
-Resolved provenance splits:
+Resolved provenance splits (post-2026-08-10 founder reclassification):
 
-- Klear Karma remains `sapling:klear-karma`; Snow Gloves contamination is excluded to `program:snow-gloves-os`.
+- Klear Karma is reclassified as a co-founded venture: `branch:klear-karma` + `co-founded-venture:klear-karma`. Snow Gloves contamination is excluded to `program:snow-gloves-os`.
 - Kristudios is promoted from the missing `sapling:kristudios` assumption to `branch:kristudios` because prior evidence identifies a separately incorporated company.
-- ParkArea keeps linked `sapling:parkarea` + `branch:parkarea`; exact repositories map to the client-delivery branch side.
-- Tirak keeps linked `sapling:tirak` + `branch:tirak`; exact repositories map to the client-delivery branch side.
+- ParkArea is collapsed to `branch:parkarea` only; founder determined ParkArea is not a Thoughtseed-originated Sapling.
+- Tirak is collapsed to `branch:tirak` only; founder determined Tirak is not a Thoughtseed-originated Sapling.
 - Founder holds remaining for this batch: 0.
 - Thirty-eight exact receipts across twelve WorkObjects are now compiled in
   `portfolio-mapping-receipts-batch-3.v1.json`. Their bundle status is

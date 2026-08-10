@@ -92,13 +92,14 @@ Each organ plays a finite game: run, verify, emit a receipt, stop. Cambium is th
 
 ## Fitcheck trace
 
-Fitcheck currently proves the first two lifecycle stages:
+Fitcheck currently proves identity, system topology, and planning. It does not yet prove an issued mapping receipt:
 
 ```text
-MAPPED ✓ → PLANNED ✓ → ADMITTED held → PINNED held → EXECUTED held → LEARNED held
+IDENTIFIED ✓ → SYSTEMS BOUND ✓ → MAPPING VERIFIED held → PLANNED ✓
+→ D1 ELIGIBLE held → ADMITTED held → PINNED held → EXECUTED held → LEARNED held
 ```
 
-The catalog and packet establish `sapling:fitcheck` and its supervised three-mission story. They do not prove a live D1 anchor, a governed loadout pin, a Hermes run, or a foldback receipt. Both UIs must show those absences rather than filling them with plausible-looking data.
+The catalog and packet establish `sapling:fitcheck`, its supervised three-mission story, and the typed dependency `sapling:fitcheck --uses-backend--> program:hdilint`. Fitcheck's landing and HDILINT's backend remain separately-owned repository components. None of this proves a mapping-receipt readback, live D1 anchor, governed loadout pin, Hermes run, or foldback receipt. Both UIs must show those absences rather than filling them with plausible-looking data.
 
 ## Deployment and mutation boundary
 

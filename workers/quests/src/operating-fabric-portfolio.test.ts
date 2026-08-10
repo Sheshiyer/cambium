@@ -215,10 +215,10 @@ test('the real checked-in catalog renders every mapped WorkObject and review sur
   );
   for (const identity of [
     'sapling:fitcheck',
-    'sapling:parkarea',
     'branch:parkarea',
-    'sapling:tirak',
+    'branch:kristudios',
     'branch:tirak',
+    'branch:klear-karma',
     'sapling:seedforge',
     'program:teamforge-control-plane',
     'branch:bwssb',
@@ -312,7 +312,7 @@ test('mixed linked records stay separate and classification remains read-only', 
   assert.match(html, /linked record · separate identity/);
 });
 
-test('selection contexts join only by exact canonical workId and expose unmapped states honestly', () => {
+test('selection contexts join only by exact canonical workId and expose mapping readback separately from D1', () => {
   const normalized = normalizePortfolioPayload({
     portfolioCatalog: CATALOG,
     portfolioCatalogSummary: SUMMARY,
@@ -350,6 +350,10 @@ test('selection contexts join only by exact canonical workId and expose unmapped
   assert.match(inspect, new RegExp(CATALOG.classificationDigest));
   assert.match(inspect, /vault:40-products\/fitcheck\/product-overview\.md/);
   assert.match(inspect, /docs\/plans\/product-branches\/fitcheck\.md/);
+  assert.match(inspect, /Sheshiyer\/fitcheck-landing/);
+  assert.match(inspect, /Sheshiyer\/HDILINT-backend-aleph/);
+  assert.match(inspect, /program:hdilint/);
+  assert.match(inspect, /one WorkObject · multiple explicitly-owned systems/);
   assert.match(inspect, /Do not claim app-store approval/);
   assert.doesNotMatch(inspect, /never\/render|absolutePath/);
   const gate = renderPortfolioSceneContext('gate', PROJECTION, fitcheck);
@@ -385,6 +389,7 @@ test('selection contexts join only by exact canonical workId and expose unmapped
   const heldFlow = renderPortfolioSceneContext('flow', identityOnlyProjection, heldFitcheck);
   assert.match(heldFlow, /data-portfolio-join="exact"/);
   assert.match(heldFlow, /D1 admission held/);
+  assert.match(heldFlow, /data-fitcheck-stage="mapped" data-fitcheck-stage-state="evidenced"/);
   assert.match(heldFlow, /data-fitcheck-stage="admitted" data-fitcheck-stage-state="held"/);
 });
 
@@ -457,7 +462,9 @@ test('boot consumes top-level catalog fields without weakening activation or nav
   assert.match(OPERATING_FABRIC_BOOT, /gateBody\.insertAdjacentHTML/);
   assert.doesNotMatch(OPERATING_FABRIC_BOOT, /gateBody\.innerHTML\s*\+=/);
   assert.match(PORTFOLIO_BROWSER_JS, /function ofNormalizePortfolioPayload/);
-  assert.match(PORTFOLIO_BROWSER_JS, /function ofRenderFitcheckReference/);
+  assert.match(PORTFOLIO_BROWSER_JS, /function ofRenderOperationalPacketReference/);
+  assert.match(PORTFOLIO_BROWSER_JS, /function ofOperationalPacketFor/);
+  assert.match(PORTFOLIO_BROWSER_JS, /mapping-receipt-verified/);
   assert.match(PORTFOLIO_BROWSER_JS, /data-fitcheck-authority="packet-plan"/);
   assert.match(PORTFOLIO_BROWSER_JS, /receipt proof absent/);
   assert.doesNotMatch(PORTFOLIO_BROWSER_JS, /\bimport\b|\bexport\b|\binterface\b|\btype\s+[A-Z]/);

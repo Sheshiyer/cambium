@@ -50,7 +50,7 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
 
 test('snapshot uses only relative unique folders and bounded proposal kinds', async () => {
   const snapshot = await readSnapshot()
-  const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
+  const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project', 'co-founded-venture'])
   for (const portfolio of snapshot.portfolios) {
     const folders = portfolio.folders.map((entry: { folder: string }) => entry.folder)
     assert.equal(new Set(folders).size, folders.length)
@@ -68,14 +68,14 @@ test('review holds and linked dual work stay explicit', async () => {
   const byFolder = new Map(thoughtseed.folders.map((entry: { folder: string }) => [entry.folder, entry]))
 
   assert.deepEqual(['klear-karma', 'kristudios', 'panaroma-webapp'].map((folder) => byFolder.get(folder)?.proposedKind), [
-    'sapling', 'client-branch', 'needs-review',
+    'co-founded-venture', 'client-branch', 'needs-review',
   ])
   assert.deepEqual(byFolder.get('kristudios')?.workIds, ['branch:kristudios'])
   assert.equal(byFolder.get('virtualtryon-3d')?.proposedKind, 'needs-review')
   assert.deepEqual(byFolder.get('virtualtryon-3d')?.workIds, [])
   assert.equal(byFolder.get('virtualtryon-3d')?.status, 'empty-hold')
-  assert.deepEqual(byFolder.get('parkarea')?.workIds, ['branch:parkarea', 'sapling:parkarea'])
-  assert.deepEqual(byFolder.get('tirak')?.workIds, ['branch:tirak', 'sapling:tirak'])
+  assert.deepEqual(byFolder.get('parkarea')?.workIds, ['branch:parkarea'])
+  assert.deepEqual(byFolder.get('tirak')?.workIds, ['branch:tirak'])
 })
 
 test('typed browser projection is generated from the reviewed snapshot', () => {

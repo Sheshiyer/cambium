@@ -20,8 +20,8 @@ const SHA256_REF = /^sha256:[0-9a-f]{64}$/;
 const CATALOG_BY_WORK_ID = new Map(PORTFOLIO_CATALOG.records.map((record) => [record.workId, record]));
 
 export type MappingWorkObjectKind = 'sapling' | 'branch' | 'program';
-export type MappingOriginAssertion = 'thoughtseed-origin' | 'client-origin' | 'linked-product-client-delivery';
-export type MappingRepositoryRole = 'product-source' | 'client-branch-source';
+export type MappingOriginAssertion = 'thoughtseed-origin' | 'client-origin' | 'linked-product-client-delivery' | 'co-founded-venture';
+export type MappingRepositoryRole = 'product-source' | 'client-branch-source' | 'co-founded-venture-source';
 
 export interface PortfolioMappingReceiptInput {
   schema: typeof PORTFOLIO_MAPPING_RECEIPT_SCHEMA;
@@ -44,6 +44,7 @@ export interface PortfolioMappingReceiptInput {
   rootMap: {
     folder: string | null;
     additionalFolders: string[];
+    proposedKind: 'sapling' | 'client-branch' | 'internal-program' | 'needs-review' | 'co-founded-venture' | null;
     proposedKind: 'sapling' | 'client-branch' | 'internal-program' | 'needs-review' | null;
     accountId: string | null;
     workIds: string[];
@@ -154,7 +155,7 @@ function validateRootMap(value: unknown, workObjectId: string): PortfolioMapping
   if (!['mapping-proposal', 'no-shallow-folder'].includes(String(status))) {
     throw new PortfolioMappingReceiptValidationError('rootMap.status is invalid');
   }
-  if (proposedKind !== null && !['sapling', 'client-branch', 'internal-program', 'needs-review'].includes(String(proposedKind))) {
+  if (proposedKind !== null && !['sapling', 'client-branch', 'internal-program', 'needs-review', 'co-founded-venture'].includes(String(proposedKind))) {
     throw new PortfolioMappingReceiptValidationError('rootMap.proposedKind is invalid');
   }
   if (status === 'mapping-proposal') {
@@ -200,16 +201,16 @@ export function validatePortfolioMappingReceiptInput(raw: unknown): PortfolioMap
   }
   const originAssertion = raw.originAssertion;
   const repositoryRole = raw.repositoryRole;
-  if (!['thoughtseed-origin', 'client-origin', 'linked-product-client-delivery'].includes(String(originAssertion))) {
+  if (!['thoughtseed-origin', 'client-origin', 'linked-product-client-delivery', 'co-founded-venture'].includes(String(originAssertion))) {
     throw new PortfolioMappingReceiptValidationError('originAssertion is invalid');
   }
-  if (!['product-source', 'client-branch-source'].includes(String(repositoryRole))) {
+  if (!['product-source', 'client-branch-source', 'co-founded-venture-source'].includes(String(repositoryRole))) {
     throw new PortfolioMappingReceiptValidationError('repositoryRole is invalid');
   }
   if (workObjectKind === 'sapling' && (originAssertion !== 'thoughtseed-origin' || repositoryRole !== 'product-source')) {
     throw new PortfolioMappingReceiptValidationError('Sapling receipt provenance is inconsistent');
   }
-  if (workObjectKind === 'branch' && repositoryRole !== 'client-branch-source') {
+  if (workObjectKind === 'branch' && (originAssertion === 'thoughtseed-origin' || repositoryRole === 'product-source')) {
     throw new PortfolioMappingReceiptValidationError('Client Branch receipt role is inconsistent');
   }
   if (!isRecord(raw.repository)) throw new PortfolioMappingReceiptValidationError('repository must be an object');

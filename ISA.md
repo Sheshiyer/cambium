@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Build the governed three-Sapling operational activation foundation"
+task: "Build reusable Fitcheck intake with typed multi-repository systems"
 effort: E3
 effort_source: algorithm-classification
 phase: complete
-progress: 1099/1176
+progress: 1123/1200
 mode: interactive
-iteration: 2026-08-09-three-sapling-operational-foundation
+iteration: 2026-08-09-fitcheck-reusable-intake
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-09T06:45:00+05:30
+updated: 2026-08-09T08:01:36+05:30
 ---
 
 ## Problem
@@ -1535,6 +1535,30 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-1174: Full repository and Portfolio Cartographer verification exit zero.
 - [x] ISC-1175: Independent post-build review finds no unresolved material authority regression.
 - [x] ISC-1176: A bounded handoff and local commit preserve all promotion, deployment, provider, traffic, and external-write gates.
+- [x] ISC-1177: The operational model treats a WorkObject as a governed system, never as a repository singleton.
+- [x] ISC-1178: `sapling:fitcheck` and `program:hdilint` remain distinct canonical WorkObjects with one symmetric dependency link.
+- [x] ISC-1179: Fitcheck declares multiple repository components with exact immutable identities, owners, roles, access state, and one planning authority.
+- [x] ISC-1180: Fitcheck declares typed infrastructure and service dependencies without promoting those dependencies into WorkObjects.
+- [x] ISC-1181: Identity, systems binding, mapping issuance, immutable readback, planning, and D1 eligibility are separate lifecycle facts.
+- [x] ISC-1182: The exact Fitcheck repository assignment compiles into one deterministic prepared mapping receipt candidate.
+- [x] ISC-1183: D1 eligibility and admission remain held until the exact issued mapping receipt passes immutable readback.
+- [x] ISC-1184: A versioned operational-packet registry lets any validated packet-backed WorkObject receive the same Operate projection.
+- [x] ISC-1185: Workbench exposes repository topology, WorkObject dependencies, infrastructure, receipt state, and held runtime authority.
+- [x] ISC-1186: Telegram consumes the same generic registry and cannot display pre-receipt D1 admission as evidenced.
+- [x] ISC-1187: A canonical workflow registry defines kind-compatible Sapling, Client Branch, and Internal Program intake lifecycles.
+- [x] ISC-1188: Project birth pins workflow identity, workflow digest, registry digest, and stages before folder creation.
+- [x] ISC-1189: Executable onboarding matches the governing twenty-row Octalysis Markdown contract exactly.
+- [x] ISC-1190: DLOCK remains access-held until the cofounder grants authenticated Thoughtseed Labs GitHub authority.
+- [x] ISC-1191: Focused, full, generated, documentation, and responsive visual proofs exit zero.
+- [x] ISC-1192: Anti: the reusable-intake build checkpoint performs no live receipt, D1, Hermes, Cortex, memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
+- [x] ISC-1193: Fitcheck mapping issuance preflight proves the exact remote R2 key is absent before write.
+- [x] ISC-1194: Exactly one Fitcheck mapping receipt object is written to the prepared WorkObject-scoped R2 key.
+- [x] ISC-1195: Fitcheck mapping readback is byte-identical to the locally canonicalized receipt object.
+- [x] ISC-1196: Fitcheck readback validates against the mapping receipt contract and binds `sapling:fitcheck` to `Sheshiyer/fitcheck-landing`.
+- [x] ISC-1197: Fitcheck mapping readback evidence records root-map, catalog, classification, and repository-evidence digests.
+- [x] ISC-1198: The operational packet marks Fitcheck mapped and mapping-readback verified while leaving D1 admission held.
+- [x] ISC-1199: The D1 Mission to Task proposal gate is unlocked but unapplied.
+- [x] ISC-1200: Anti: Fitcheck receipt issuance performs no D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
 
 ## Test Strategy
 
@@ -1563,6 +1587,7 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-1036..1071 | mapping receipts and operational anchors | compile exact reviewed Batch 3 receipts, validate immutable replay, apply nullable D1 anchor migration locally, prove exact Mission Fabric edges and typed gaps, compile a terminal foldback preflight, run focused/full gates, and prove every external boundary stayed closed | deterministic Node tests, D1 migration/store tests, TypeScript, `jq`, SHA-256, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-1072..1128 | Fitcheck golden path | prove one packet-derived contract, two authority-honest UI projections, five reconciled doctrine documents, responsive browser behavior, full regression safety, and zero live mutation | packet-parity tests, Worker scene tests, Workbench checks, in-app browser observation, viewport proof, rendered-doc checks, independent review, `npm test`, `git diff --check` |
 | ISC-1129..1176 | three-Sapling operational foundation | prove exact tenant/repository/planning authority, deterministic activation and no-spend loadouts, registry-backed D1 joins, delivery-disabled dispatch, terminal memory/next-intent foldback, cross-Sapling isolation, held live manifests, and zero external mutation | catalog/packet validators, canonical digest tests, Goal Graph and Mission Fabric tests, dispatch/foldback store tests, three-Sapling E2E tests, `jq`, `pnpm check`, `npm test`, `git diff --check`, independent review |
+| ISC-1177..1192 | reusable Fitcheck intake | prove multi-repository WorkObject topology, prepared receipt authority, receipt-gated D1 eligibility, generic Operate projections, kind-compatible workflows, onboarding parity, DLOCK access hold, and zero live mutation | projection/catalog/receipt/onboarding/birth tests, `jq`, `pnpm check`, viewport proof, rendered docs, `npm test`, `git diff --check`, independent review |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1657,6 +1682,9 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - `CanonicalGovernedDispatch` | Compile exact approval-bound, delivery-disabled dispatch preparations from admitted activation authority | satisfies ISC-1156..1161 | depends_on GovernedNoSpendLoadouts | parallelizable true
 - `TerminalMemoryFoldback` | Derive immutable Cortex, agent-memory, and approval-required next-intent evidence from terminal receipts | satisfies ISC-1162..1169 | depends_on CanonicalGovernedDispatch, HermesExecutionFoldback | parallelizable true
 - `ThreeSaplingOperationalProof` | Prove isolation, held preflights, repository gates, review, handoff, and commit | satisfies ISC-1170..1176 | depends_on all three-Sapling foundation features | parallelizable false
+- `ReusableOperationalIntake` | Model one WorkObject as typed repositories, dependencies, infrastructure, mapping authority, and reusable lifecycle | satisfies ISC-1177..1186 | depends_on PortfolioMappingReceipts, PortfolioWorkbenchDrawer, FitcheckGoldenPath | parallelizable false
+- `CanonicalIntakeWorkflows` | Select kind-compatible lifecycle templates and preserve exact workflow provenance at project birth | satisfies ISC-1187..1189 | depends_on ReusableOperationalIntake, ThoughtseedProjectBirth | parallelizable true
+- `FitcheckPreparedReceiptProof` | Prepare exact Fitcheck evidence while holding D1, DLOCK, and every external authority boundary | satisfies ISC-1182..1183, ISC-1190..1192 | depends_on ReusableOperationalIntake, CanonicalIntakeWorkflows | parallelizable false
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
 - `FixtureParity` | Remove fixture-only enrichments and add production-shape failure tests | satisfies ISC-16..25, ISC-63 | depends_on ActionRequestContract | parallelizable false
@@ -1769,6 +1797,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-09 07:37: a project is modeled as one canonical WorkObject plus a typed system graph, not as one repository. `sapling:fitcheck` owns the experience/frontend planning repository, while `program:hdilint` remains the separate backend WorkObject and owns the HDILINT repository; their symmetric link records dependency without identity collapse.
+- 2026-08-09 07:37: lifecycle authority is ordered and non-substitutable: identified → systems-bound → mapping receipt issued → immutable readback verified → planned → D1 eligible/admitted. Repository discovery, a prepared receipt, packet planning, or a D1-looking edge cannot skip the mapping-readback gate.
+- 2026-08-09 07:37: Fitcheck is the reusable reference fixture for Sapling and Client Branch intake. The generic packet registry, workflow registry, Workbench/Mini-App projections, and Markdown-parity onboarding must accept future validated WorkObjects without another product-name conditional.
+- 2026-08-09 07:37: DLOCK is removed from the immediate live lane. Its known repository identity remains held until the cofounder grants authenticated access to the Thoughtseed Labs GitHub account; no receipt issuance or authority inference occurs meanwhile.
+- 2026-08-09 08:01: the founder-approved live phase issued exactly the Fitcheck mapping receipt to R2 and proved byte-identical readback. This advances Fitcheck from prepared mapping evidence to mapping-readback verified and unlocks only the separate D1 Mission → Task proposal gate.
 - 2026-08-09 06:45: full post-build review rejected locally synthesized authority, caller-asserted foldback admission, and the DLOCK role mismatch. Dispatch and foldback now require separately injected immutable external readback verifiers, local builders are explicitly unverified claims, and DLOCK is consistently `folderless-planning-authority`. Focused tests pass 417/417, full tests pass 1617/1617, and final independent review returns APPROVE with no remaining P0-P2 issue.
 - 2026-08-09 06:39: independent post-build review found a same-Sapling receipt-substitution seam: admission was WorkObject-bound but not bound to the exact issued mapping receipt. Admission now embeds and validates that receipt reference and digest; the exact replay vector has a regression test, focused tests pass 415/415, full tests pass 1615/1615, and the reviewer returns APPROVE with no remaining P0-P2 blocker.
 - 2026-08-09 06:31: implementation distinguishes prepared identity from operational admission. The checked-in cohort remains held and unissued; only externally supplied exact receipt/admission fixtures can compile a delivery-disabled dispatch, and terminal projections require that admitted lineage.
@@ -2168,6 +2201,12 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Verification
 
+- ISC-1177..1181 system-topology proof — the versioned operational projection validates canonical WorkObject identity, multiple immutable repository components, exact owners and roles, one subject-owned planning authority, typed WorkObject dependencies, typed infrastructure/services, unique cross-references, and distinct lifecycle facts. Fitcheck owns `Sheshiyer/fitcheck-landing` / `R_kgDOSzF56w`; `program:hdilint` owns backend `Sheshiyer/HDILINT-backend-aleph` / `R_kgDOS4jKmg`.
+- ISC-1182..1183 mapping-boundary proof — Batch 3 deterministically contains 39 prepared receipts across 13 WorkObjects at bundle digest `sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f`. Fitcheck candidate `pmr_9de251ce89564f07f3e4c510` remains `prepared-not-issued`; its exact R2 key is recorded but unwritten, mapping readback is false, and D1 eligibility/admission remain held.
+- ISC-1184..1186 projection proof — Workbench and Telegram resolve the same generic operational-packet registry. The Operate view shows topology, infrastructure, lifecycle, mapping authority, missions, KPIs, gates, proofs, organs, and loop evidence; Telegram requires mapping-readback truth before presenting D1 admission as evidenced. Fitcheck is the first registry fixture, not a renderer conditional.
+- ISC-1187..1189 intake proof — the canonical workflow registry defines `sapling-product`, `client-delivery`, and `internal-capability`; project birth derives a kind-compatible default, rejects mismatches before folder creation, and pins workflow and registry digests. The executable twenty-step onboarding rows exactly match `ONBOARDING-OCTALYSIS.md` for title, experience, drives, doctrine layer, and evidence state.
+- ISC-1190..1192 release-boundary proof — DLOCK records `cofounder-grant-required`; all live flags remain false. Full `npm test` passes 1628/1628; Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, deterministic bundle, audit, CSP, and smoke; foundation, 39-receipt regeneration, six rendered docs, 47 Telegram viewport captures, JSON parsing, drift audit, and `git diff --check` pass. Independent browser QA passes Fitcheck Operate at desktop and 320/390/430 with exact topology, held mapping/D1 states, six infrastructure dependencies, no mutation controls, no overflow or browser errors, and all origin-to-workflow derivations. No mapping receipt was issued and no D1, R2, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation occurred.
+- ISC-1193..1200 live Fitcheck receipt proof — preflight found the exact R2 key absent, then one object was written to `thoughtseed-vault/portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json`. Remote readback SHA-256 was `0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5`; `validatePortfolioMappingReceipt` accepted the readback for `sapling:fitcheck`, `Sheshiyer/fitcheck-landing`, and `R_kgDOSzF56w`. Evidence is recorded in `docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json`. No D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation was performed.
 - ISC-1175 independent review proof — review found same-Sapling receipt substitution, locally forgeable authority claims, caller-asserted foldback admission, and a DLOCK role contradiction. Admission now binds the exact issued receipt; dispatch and foldback require injected external readback verifiers; DLOCK is consistently folderless planning authority. Negative-path regressions pass and final review returns APPROVE with no remaining P0-P2 issue.
 - ISC-1176 handoff/commit proof — `.project/HANDOFF.md` records exact identities, digests, tests, held live gates, and next separately approved operations. One local commit preserves the current branch and worktree without merge, push, PR, deployment, promotion, provider, traffic, or external write.
 - ISC-1129..1143 identity/activation proof — catalog, packets, branch map, architecture note, and held preflight bind exactly `sapling:fitcheck`, `sapling:iverif`, and `sapling:dlock` to tenant `cambium` and immutable repositories; DLOCK is folderless; activation manifest digest is `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`; every checked-in receipt/admission flag remains false.

@@ -31,7 +31,7 @@ The source classification digest is
 `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`.
 Cambium also computes a digest over its normalized, bounded catalog artifact.
 The current catalog digest is
-`sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64`.
+`sha256:0aa1e7a1b4bdfcd82571509b693fca90a0dc8a6901f539980ebe1c5b34be275a`.
 The route emits a pair digest over the served Mission Fabric graph digest and
 that catalog digest so a client never combines unpinned versions silently.
 
@@ -70,6 +70,10 @@ not labeled or treated as a Goal Graph match.
 Fitcheck is always `sapling:fitcheck` under canonical parent tenant `cambium`.
 `FitCheck` and `getfitcheck` are display aliases with
 `tenantAuthority: false`; neither may become a tenant selector.
+Fitcheck links to the distinct `program:hdilint` WorkObject because HDILINT
+owns its backend capability. The relationship does not merge their identities:
+`Sheshiyer/fitcheck-landing` remains Fitcheck planning authority, while
+`Sheshiyer/HDILINT-backend-aleph` remains HDILINT program authority.
 
 ParkArea and Tirak retain separately linked product and client WorkObjects.
 SeedForge retains separately linked Sapling and capability Program
@@ -77,12 +81,12 @@ WorkObjects. A linked pair never becomes one dual-kind record.
 
 ## Repository mapping receipts
 
-The Batch 3 compiler prepares 38 deterministic mapping receipts across 12
+The Batch 3 compiler prepares 39 deterministic mapping receipts across 13
 reviewed WorkObjects. Every receipt binds the full catalog digest,
 classification digest, root-map digest, repository-evidence digest, exact
 WorkObject identity, immutable GitHub repository identity, root context, and
 founder decision identifier. The checked-in bundle digest is
-`sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`.
+`sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f`.
 
 `prepared-not-issued` is an evidence state, not a mutation. The bundle writes
 no R2 object, admits no D1 row, activates no tenant, promotes no Sapling, and

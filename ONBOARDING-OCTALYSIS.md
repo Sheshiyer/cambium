@@ -37,14 +37,14 @@ All other interactions remain inside the normal micro/meso/macro control stack.
 
 | # | Interaction | Founder experience | Drive | Layer | State |
 |---|---|---|---|---|---|
-| 1 | The Calling | Choose one mapped project and state why it should continue. | 1 | macro/noesis | Doctrine |
+| 1 | The Calling | Choose one identified project and state why it should continue. | 1 | macro/noesis | Doctrine |
 | 2 | Confirm identity | See its canonical WorkObject, parent, aliases, and provenance. | 4 | macro | Local · Workbench |
 | 3 | Read the frontier | See the current problem without a fabricated task. | 7 | macro→meso | Local · Fitcheck packet |
 | 4 | Read the story | Inspect ICP, value hypothesis, and anti-claims together. | 1·4 | meso | Local · Fitcheck Operate |
 | 5 | See the missions | Reveal three bounded missions and their proof burden. | 2 | meso | Local · both UIs |
 | 6 | See target KPIs | Show target evidence separately from achieved metrics. | 2·4 | meso | Local · both UIs |
-| 7 | Inspect authority | Distinguish packet, D1, loadout, execution, and proof owners. | 4 | macro | Local · both UIs |
-| 8 | Find the hold | The first missing lifecycle stage becomes the next frontier. | 7 | meso | Local · both UIs |
+| 7 | Inspect authority | Distinguish WorkObject, repositories, dependent programs, services, packet, D1, execution, and proof owners. | 4 | macro | Local · both UIs |
+| 8 | Find the hold | Treat mapping-receipt readback or the first later missing stage as the next frontier. | 7 | meso | Local · both UIs |
 | 9 | Meet the merchant | Review a grounded Shopify merchant hypothesis. | 5 | meso | Doctrine / packet |
 | 10 | Ask what hurts | Capture a real conversation, not a simulated answer as truth. | 5·7 | meso | Held · external evidence |
 | 11 | Propose one change | Convert the signal into one falsifiable next-intent proposal. | 3 | meso | Local contract |

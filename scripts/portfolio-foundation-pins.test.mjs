@@ -30,8 +30,8 @@ test('shared foundation pins match generated root-map and validated catalog sour
   assert.equal(REVIEWED_ACTION_SOURCE_DIGEST, REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST)
   assert.equal(REVIEWED_ACTION_CATALOG_DIGEST, REVIEWED_PORTFOLIO_CATALOG_DIGEST)
   assert.notEqual(REVIEWED_ACTION_CATALOG_DIGEST, REVIEWED_ACTION_SOURCE_DIGEST)
-  assert.equal(REVIEWED_PORTFOLIO_WORK_IDS.length, 74)
-  assert.equal(new Set(REVIEWED_PORTFOLIO_WORK_IDS).size, 74)
+  assert.equal(REVIEWED_PORTFOLIO_WORK_IDS.length, 72)
+  assert.equal(new Set(REVIEWED_PORTFOLIO_WORK_IDS).size, 72)
   assert.ok(REVIEWED_PORTFOLIO_WORK_IDS.includes('sapling:fitcheck'))
 })
 

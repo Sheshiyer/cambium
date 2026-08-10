@@ -1463,6 +1463,58 @@ code {
   line-height: 1.5;
 }
 
+.operational-mapping-gate {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px dashed #c08a31;
+  border-radius: 12px;
+  color: #573d1d;
+  background: #f0e2c5;
+}
+
+.operational-mapping-gate svg {
+  margin-top: 2px;
+}
+
+.operational-mapping-gate span,
+.operational-mapping-gate strong,
+.operational-mapping-gate code {
+  display: block;
+}
+
+.operational-mapping-gate span,
+.operational-mapping-gate b {
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.operational-mapping-gate strong {
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.operational-mapping-gate p {
+  margin: 5px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.operational-mapping-gate code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.operational-mapping-gate b {
+  padding: 5px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: #e2c99c;
+}
+
 .fitcheck-ladder {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1532,6 +1584,119 @@ code {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 9px;
+}
+
+.operational-system-grid,
+.operational-infrastructure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.operational-system-grid article,
+.operational-infrastructure-grid article,
+.operational-dependency-list article {
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid #bcc4b5;
+  border-radius: 10px;
+  background: #e8ebe1;
+}
+
+.operational-system-grid header,
+.operational-infrastructure-grid header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.operational-system-grid header span,
+.operational-infrastructure-grid header span {
+  color: #8b6130;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.operational-system-grid code,
+.operational-infrastructure-grid code {
+  display: block;
+  margin-top: 7px;
+  color: #657164;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.operational-system-grid dl {
+  display: grid;
+  gap: 4px;
+  margin: 9px 0 0;
+}
+
+.operational-system-grid dl div {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.operational-system-grid dt {
+  color: #788177;
+}
+
+.operational-system-grid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.operational-dependency-list {
+  display: grid;
+  gap: 8px;
+}
+
+.operational-dependency-list article {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-color: #9bb8b8;
+  background: #d9e8e3;
+}
+
+.operational-dependency-list svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #28636d;
+}
+
+.operational-dependency-list strong,
+.operational-dependency-list span {
+  display: block;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.operational-dependency-list span {
+  margin-top: 3px;
+  color: #527128;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.operational-dependency-list p,
+.operational-infrastructure-grid p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.operational-infrastructure-grid small {
+  display: block;
+  margin-top: 7px;
+  color: #727c71;
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .fitcheck-story-grid article {
@@ -3202,7 +3367,9 @@ code {
   }
 
   .fitcheck-story-grid,
-  .fitcheck-route {
+  .fitcheck-route,
+  .operational-system-grid,
+  .operational-infrastructure-grid {
     grid-template-columns: 1fr;
   }
 

@@ -12,7 +12,7 @@ session migration, or provider change is implied by this packet.
 - Portfolio: `thoughtseed`
 - Repository: `cambium`
 - Registry WorkObject: `sapling:cambium` (`Cambium`, kind: sapling)
-- GitHub: `Sheshiyer/cambium` (identity_status: pending-teamforge-verification)
+- GitHub: `Sheshiyer/cambium` (identity_status: verified, portfolio-catalog-authority)
 - Knowledge authority: `00-meta/entity-registry.md`
 - Current packet checkpoint: `.project/HANDOFF.md`
 

@@ -2,21 +2,21 @@
   "schema": "thoughtseed.three-sapling-operational-cohort-preflight.v1",
   "version": 1,
   "preparedAt": "2026-08-09",
-  "status": "prepared-local-proof-not-admitted",
+  "status": "fitcheck-mapping-readback-verified-not-admitted",
   "digests": {
     "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
     "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
-    "preparedCatalogDigest": "sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e"
+    "preparedCatalogDigest": "sha256:0aa1e7a1b4bdfcd82571509b693fca90a0dc8a6901f539980ebe1c5b34be275a",
+    "preparedMappingBundleDigest": "sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f"
   },
   "authority": {
     "parentTenant": "cambium",
-    "scope": "local-prepared-identity-proof",
+    "scope": "fitcheck-mapping-readback-verified; iverif-and-dlock-held",
     "liveAdmission": false,
-    "mappingReceiptIssuance": false,
+    "mappingReceiptIssuance": "fitcheck-only",
     "notAuthorityFor": [
       "tenant-admission",
       "approval-consumption",
-      "R2-write",
       "D1-or-Goal-Graph-write",
       "Hermes-dispatch",
       "Cortex-or-agent-memory-write",
@@ -41,9 +41,16 @@
         "folderAdmission": false
       },
       "mappingEvidence": {
-        "state": "prepared-local",
-        "receiptIssued": false,
-        "receiptId": null
+        "state": "issued-readback-verified",
+        "preparedReceiptId": "pmr_9de251ce89564f07f3e4c510",
+        "preparedR2Key": "portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json",
+        "preparedContentDigest": "sha256:9de251ce89564f07f3e4c510c2bcc9e873a3cf758bfb5e30a8588e1db7e7cbf7",
+        "receiptIssued": true,
+        "receiptId": "pmr_9de251ce89564f07f3e4c510",
+        "issuedAt": "2026-08-09T08:01:36+05:30",
+        "readbackVerified": true,
+        "readbackEvidence": "docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json",
+        "objectSha256": "0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5"
       },
       "approval": {
         "state": "unconsumed",
@@ -65,7 +72,10 @@
         "folderAdmission": false
       },
       "mappingEvidence": {
-        "state": "prepared-local",
+        "state": "prepared-batch3-not-issued",
+        "preparedReceiptId": "pmr_a8c7a566eb32790dffaf1d2a",
+        "preparedR2Key": "portfolio/thoughtseed/workobjects/sapling:iverif/mapping/pmr_a8c7a566eb32790dffaf1d2a.json",
+        "preparedContentDigest": "sha256:a8c7a566eb32790dffaf1d2a06ad21d0514ba9e4dd90d773d769ae4929e5abeb",
         "receiptIssued": false,
         "receiptId": null
       },
@@ -80,7 +90,8 @@
       "repository": {
         "nameWithOwner": "thoughtseed-labs/lockwell-portal",
         "repositoryId": "R_kgDOP5AZyQ",
-        "role": "folderless-planning-authority"
+        "role": "folderless-planning-authority",
+        "accessState": "cofounder-grant-required"
       },
       "packet": "docs/plans/product-branches/dlock.md",
       "rootContext": {
@@ -90,9 +101,10 @@
         "mustNotInventShallowFolder": true
       },
       "mappingEvidence": {
-        "state": "prepared-local",
+        "state": "access-held",
         "receiptIssued": false,
-        "receiptId": null
+        "receiptId": null,
+        "holdReason": "Authenticated thoughtseed-labs GitHub access must be granted by the cofounder before authority recheck or receipt issuance."
       },
       "approval": {
         "state": "unconsumed",
@@ -101,10 +113,10 @@
     }
   ],
   "liveFlags": {
-    "mappingReceiptIssued": false,
+    "mappingReceiptIssued": "fitcheck-only",
     "tenantAdmissionGranted": false,
     "approvalConsumed": false,
-    "r2WriteEnabled": false,
+    "r2WriteEnabled": "fitcheck-mapping-receipt-complete-only",
     "d1OrGoalGraphWriteEnabled": false,
     "hermesDispatchEnabled": false,
     "cortexOrAgentMemoryWriteEnabled": false,

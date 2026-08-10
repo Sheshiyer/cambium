@@ -7,7 +7,7 @@ const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const defaultSnapshotPath = path.resolve(appRoot, '../../docs/project-management/portfolio-roots.v1.json')
 const defaultGeneratedPath = path.join(appRoot, 'src/portfolio-root-map.generated.ts')
 const defaultWorkerGeneratedPath = path.resolve(appRoot, '../../workers/quests/src/portfolio-root-map.generated.ts')
-const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
+const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project', 'co-founded-venture'])
 
 export function stableJson(value) {
   if (Array.isArray(value)) return value.map(stableJson)
