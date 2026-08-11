@@ -53,7 +53,7 @@ The repository now contains a maintained operational plane in addition to the co
 
 | Surface | Current truth | Primary source |
 |---|---|---|
-| `workers/quests` | Cloudflare Worker boundary with GitHub-backed routine knowledge, Vectorize retrieval, Plexus role resolution, KV, and separately scoped D1/R2 operational receipts | [`workers/quests/src/index.ts`](./workers/quests/src/index.ts) · [`workers/quests/wrangler.jsonc`](./workers/quests/wrangler.jsonc) |
+| `workers/quests` | Cloudflare Worker boundary with Plexus GitHub-App-gateway routine knowledge, Vectorize retrieval, KV, and separately scoped D1/R2 operational receipts; Cambium holds no GitHub credential | [`workers/quests/src/index.ts`](./workers/quests/src/index.ts) · [`github-backed-knowledge-plane.md`](./docs/architecture/github-backed-knowledge-plane.md) |
 | Goal Graph contract | Deterministic compiler/projections plus approval-bound D1 CAS store and bounded Telegram intake; Worker/Telegram route wiring remains deferred | [`docs/architecture/goal-graph-operating-model.md`](./docs/architecture/goal-graph-operating-model.md) |
 | Branch traversal map | D1 append-only transition receipts feed an authenticated GET projection and bounded Telegram sheet; live founder-device proof remains deferred | [`docs/architecture/branch-traversal-map.md`](./docs/architecture/branch-traversal-map.md) |
 | Lead runtime | Fixed-tenant manual IVerif capture/enrich proof; durable leases, spend receipts, immutable observations, no recurring schedules | [`docs/architecture/lead-runtime-spine.md`](./docs/architecture/lead-runtime-spine.md) |

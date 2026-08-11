@@ -37,7 +37,8 @@ Plexus resolves the verified TeamForge project repository, mints a short-lived
 GitHub App token scoped to that numeric repository, resolves one full Git commit
 SHA, and reads only exact routine-allowlisted Markdown paths at that revision.
 Cambium calls Plexus, never GitHub. The response carries repository, commit,
-file SHA, path, and bounded excerpts, but never a GitHub token or source response body.
+file SHA, path, and bounded excerpts, but never a GitHub token or an unbounded
+raw GitHub API response body.
 
 Required runtime configuration:
 

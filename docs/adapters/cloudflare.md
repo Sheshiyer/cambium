@@ -1,6 +1,6 @@
 # Cloudflare Adapter
 
-Cloudflare is an optional infrastructure adapter for Workers, Vectorize retrieval, static hosting, and scheduled operator surfaces. It is not required for local demos. Private company knowledge is sourced from GitHub, not R2 or D1.
+Cloudflare is an optional infrastructure adapter for Workers, Vectorize retrieval, static hosting, and scheduled operator surfaces. It is not required for local demos. Private company knowledge is sourced from GitHub through the Plexus GitHub-App gateway, not R2 or D1.
 
 ## Port
 
@@ -16,7 +16,7 @@ Cloudflare is an optional infrastructure adapter for Workers, Vectorize retrieva
 ## Outputs
 
 - Deployment evidence for quest arcs.
-- Vectorize retrieval index for policy-screened GitHub knowledge projections.
+- Vectorize retrieval index for policy-screened, Plexus-provenanced GitHub knowledge projections.
 - Optional scheduled wake loop infrastructure.
 
 ## Failure Mode

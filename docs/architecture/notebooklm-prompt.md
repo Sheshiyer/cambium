@@ -12,7 +12,7 @@ Do not invent providers, routes, credentials, production deployments, or user ou
 Use these source-backed sections:
 1. Product shape: composition/operator plane and runtime/visual plane.
 2. Composition contracts: registry, pipeline, adapters, spend gates, and the Quine/operator seam.
-3. Worker boundary: private GitHub knowledge reads, Vectorize retrieval, Plexus authorization-only role resolution, KV, and separately scoped D1/R2 actions and receipts.
+3. Worker boundary: Plexus GitHub-App-gateway knowledge reads, Vectorize retrieval, Plexus identity/repository authorization, KV, and separately scoped D1/R2 actions and receipts. Cambium never holds a GitHub credential.
 4. R3F boundary: desktop constellation surface, shared generated contract, MAP/SHEETS/WORKFORCE, and synthetic fallback.
 5. Lead runtime: durable task/lease/identity/observation/usage/foldback sequence.
 6. IVerif safety: fixed campaign, GET-only, redacted projections, and sendEligible=false.
