@@ -155,13 +155,14 @@ repository evidence. It was reviewed under GitHub issue #292 and moved to
   Worker has the fixed `daily-standup` routine policy, while Cambium has only
   the matching gateway bearer; neither worker holds a GitHub PAT.
 - Both Workers were deployed and a bearer-authenticated direct-origin probe
-  reached the gateway. It fails closed with `github_app_not_configured` until
-  the existing GitHub App private key and client secret are restored as Labs
-  Worker secrets. The secret values are neither recorded nor recoverable here.
+  now succeeds: it returns one allowlisted, bounded document from
+  `Sheshiyer/thoughtseed-labs` with a commit pin. The GitHub App private key,
+  client secret, webhook secret, and state-signing secret were restored as
+  Labs Worker secrets; their values are neither recorded nor recoverable here.
 - Hermes-to-Vectorize remains intentionally unstarted: it requires a separate
-  bounded ingestion implementation after the GitHub App probe returns a
-  provenance-bearing snapshot. R2 and D1 retain operational/evidence and
-  authorization roles only; neither is the company-knowledge source.
+  bounded ingestion implementation using the now-proven provenance-bearing
+  snapshot. R2 and D1 retain operational/evidence and authorization roles
+  only; neither is the company-knowledge source.
 
 ## Completed
 
