@@ -9,13 +9,28 @@ import {
 } from 'node:fs/promises'
 import { dirname, isAbsolute, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import {
+  isReviewedPortfolioWorkId,
+  reviewedPortfolioWorkName,
+  REVIEWED_ACTION_CATALOG_DIGEST,
+  REVIEWED_ACTION_SOURCE_DIGEST,
+  REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+  REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,
+  REVIEWED_ROOT_MAP_DIGEST,
+} from './portfolio-foundation-pins.mjs'
+
+export {
+  REVIEWED_ACTION_CATALOG_DIGEST,
+  REVIEWED_ACTION_SOURCE_DIGEST,
+  REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+  REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,
+  REVIEWED_ROOT_MAP_DIGEST,
+}
 
 export const PROJECT_CLOSEOUT_SCHEMA = 'thoughtseed.project-closeout.v1'
 export const PROJECT_CLOSEOUT_RECEIPT_SCHEMA = 'thoughtseed.project-closeout-receipt.v1'
 export const AGENT_MEMORY_PROJECTION_SCHEMA = 'thoughtseed.agent-memory-projection.v1'
 export const FINISHED_INDEX_DELTA_SCHEMA = 'thoughtseed.portfolio-finished-index-delta.v1'
-export const REVIEWED_ROOT_MAP_DIGEST = '588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b'
-export const REVIEWED_PORTFOLIO_CATALOG_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2'
 
 const SAFE_DOC_PATH = /^(?:[.]project|docs)\/[A-Za-z0-9._/-]+\.(?:md|json)$/
 const SAFE_R2_PREFIX = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{7,219}$/
@@ -116,16 +131,31 @@ function normalizeProposal(raw) {
   }
 }
 
+function validateCloseoutIdentityBinding(proposal, subjectId) {
+  if (!isReviewedPortfolioWorkId(subjectId)) throw new Error('closeout_subject_not_canonical')
+  const expectedSuffix = `/${subjectId.replaceAll(':', '-')}`
+  if (!proposal.r2VaultPrefix.endsWith(expectedSuffix)) throw new Error('r2_vault_prefix_subject_mismatch')
+  if (proposal.successorWorkObjectId && !isReviewedPortfolioWorkId(proposal.successorWorkObjectId)) {
+    throw new Error('successor_work_object_not_canonical')
+  }
+  if (proposal.successorWorkObjectId === subjectId) throw new Error('successor_work_object_matches_subject')
+}
+
 export function normalizeProjectCloseoutAction(raw) {
-  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action')
+  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'catalogDigest', 'subject', 'proposal'], 'action')
   if (raw.schema !== 'thoughtseed.portfolio-admin-action.v1' || raw.kind !== 'close-work-object' || raw.portfolioId !== 'thoughtseed') {
     throw new Error('project_closeout_action_invalid')
   }
   if (raw.rootMapDigest !== REVIEWED_ROOT_MAP_DIGEST) throw new Error('root_map_digest_not_reviewed')
-  if (raw.sourceDigest !== REVIEWED_PORTFOLIO_CATALOG_DIGEST) throw new Error('source_digest_not_reviewed')
+  if (raw.sourceDigest !== REVIEWED_ACTION_SOURCE_DIGEST) throw new Error('source_digest_not_reviewed')
+  if (raw.catalogDigest !== REVIEWED_ACTION_CATALOG_DIGEST) throw new Error('catalog_digest_not_reviewed')
   exactFields(raw.subject, ['id', 'name'], 'subject')
   const subjectId = text(raw.subject.id, 'subject_id', 160)
   if (!SAFE_SUBJECT_ID.test(subjectId)) throw new Error('subject_id_invalid')
+  const subjectName = text(raw.subject.name, 'subject_name', 160)
+  if (reviewedPortfolioWorkName(subjectId) !== subjectName) throw new Error('closeout_subject_not_canonical')
+  const proposal = normalizeProposal(raw.proposal)
+  validateCloseoutIdentityBinding(proposal, subjectId)
   return {
     schema: 'thoughtseed.portfolio-admin-action.v1',
     kind: 'close-work-object',
@@ -133,11 +163,12 @@ export function normalizeProjectCloseoutAction(raw) {
     idempotencyKey: text(raw.idempotencyKey, 'idempotency_key', 128),
     rootMapDigest: raw.rootMapDigest,
     sourceDigest: raw.sourceDigest,
+    catalogDigest: raw.catalogDigest,
     subject: {
       id: subjectId,
-      name: text(raw.subject.name, 'subject_name', 160),
+      name: subjectName,
     },
-    proposal: normalizeProposal(raw.proposal),
+    proposal,
   }
 }
 
@@ -145,6 +176,9 @@ export function projectCloseoutDigest(action) {
   return `sha256:${sha256(canonicalJson({
     portfolioId: action.portfolioId,
     kind: action.kind,
+    rootMapDigest: action.rootMapDigest,
+    sourceDigest: action.sourceDigest,
+    catalogDigest: action.catalogDigest,
     subject: action.subject,
     proposal: action.proposal,
   }))}`

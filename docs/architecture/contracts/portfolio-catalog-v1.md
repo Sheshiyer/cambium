@@ -1,12 +1,15 @@
 # Portfolio Catalog Projection Contract v1
 
-Date: 2026-07-29
+Date: 2026-08-09
 
 Schema: `cambium.portfolio-catalog.v1`
 
-Status: read-only candidate contract; no tenant activation or production traffic authority
+Status: active read-only projection contract; no tenant activation or production traffic authority
 
-Local verification: [`cambium-portfolio-catalog-2026-07-29.md`](../../plans/evidence/cambium-portfolio-catalog-2026-07-29.md)
+Local verification: run `npm run validate:portfolio-foundation` and read the
+[current foundation checkpoint](../../../.project/HANDOFF.md). The
+[`2026-07-29 evidence packet`](../../plans/evidence/cambium-portfolio-catalog-2026-07-29.md)
+is retained only as a historical snapshot.
 
 ## Purpose
 
@@ -15,18 +18,20 @@ Cambium Telegram Mini App without pretending that classification is live
 operational state. It is an additive sidecar to the Mission Fabric projection,
 not a new node source and not a workflow writer.
 
-The initial snapshot contains:
+The current checked-in snapshot contains:
 
-- 12 Saplings
-- 28 client Branches
-- 14 internal Programs
-- 16 classification-review records
-- 19 historical product surfaces
-- 47 explicit operational-admission gaps
+- 20 Saplings
+- 39 client Branches
+- 15 internal Programs
+- 0 classification-review records
+- 20 historical product surfaces
+- 49 known operational-admission gaps
 
 The source classification digest is
-`93b90ed7cee268ac7ee87321a88efefced7980349658cf3c640657a71c361281`.
+`18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`.
 Cambium also computes a digest over its normalized, bounded catalog artifact.
+The current catalog digest is
+`sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64`.
 The route emits a pair digest over the served Mission Fabric graph digest and
 that catalog digest so a client never combines unpinned versions silently.
 
@@ -47,18 +52,20 @@ completion. Missing live evidence is rendered as a gap.
 ## Identity and joins
 
 Catalog records join to Mission Fabric only through an exact canonical
-`workId`. The adapter may normalize the known legacy wire forms by WorkObject
-type:
-
-- Sapling `sapling-<slug>` becomes `sapling:<slug>`.
-- Client Program `<slug>` becomes `branch:<slug>`.
-- Internal Program `<slug>` becomes `program:<slug>`.
-- An already canonical identifier remains unchanged only when its prefix
-  matches its type.
+`workId`. Legacy, bare, or prefix-translated wire forms are rejected and
+reported as runtime-only gaps; the adapter does not normalize them into a
+canonical identity.
 
 Names, aliases, folder names, account labels, and unresolved tenant identities
 never participate in a join. Every response includes a bidirectional join
 report so catalog-only and runtime-only objects remain visible.
+
+The 49 checked-in gap rows are bounded, known-source evidence. Runtime join
+reports remain authoritative for whether an exact Mission Fabric work identity
+exists; catalog absence from that static list never proves operational
+admission. D1 operational admission additionally requires a typed D1
+WorkObject anchor. Until that anchor exists, a Mission Fabric identity match is
+not labeled or treated as a Goal Graph match.
 
 Fitcheck is always `sapling:fitcheck` under canonical parent tenant `cambium`.
 `FitCheck` and `getfitcheck` are display aliases with

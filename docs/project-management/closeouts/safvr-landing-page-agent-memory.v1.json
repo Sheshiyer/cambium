@@ -1,0 +1,18 @@
+{
+  "schema": "thoughtseed.agent-aware-project-memory.v1",
+  "updatedAt": "2026-08-08T06:30:00.000Z",
+  "active": [],
+  "finished": [
+    {
+      "workObjectId": "branch:safvr-landing-page",
+      "name": "SAFVR Landing Page",
+      "classification": "client-branch",
+      "accountId": "safvr",
+      "disposition": "closed",
+      "receiptId": "pa_55d6162386ed202608080001",
+      "handoffMarkdownPath": "docs/project-management/closeouts/safvr-landing-page-handoff.md",
+      "r2VaultPrefix": "portfolio/thoughtseed/workobjects/branch:safvr-landing-page/closeout/",
+      "memory": "SAFVR was approved as a client website branch and marked completed/closed. It should stay out of active Thoughtseed project workflows unless a new founder-gated branch is opened."
+    }
+  ]
+}

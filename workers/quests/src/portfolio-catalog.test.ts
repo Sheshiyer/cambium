@@ -28,28 +28,28 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
     operational: 'd1-goal-graph',
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
-  assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:95a903b358c8baa7938bb424d117e10b344a4340f2d080de439bd18a7dba1bf6');
+  assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
-    total: 72,
+    total: 74,
     saplings: 20,
-    clientBranches: 37,
+    clientBranches: 39,
     internalPrograms: 15,
     classificationReview: 0,
     historicalProducts: 20,
-    operationalGaps: 48,
+    operationalGaps: 49,
   });
-  assert.equal(PORTFOLIO_CATALOG.records.length, 72);
+  assert.equal(PORTFOLIO_CATALOG.records.length, 74);
   assert.equal(PORTFOLIO_CATALOG.historicalProducts.length, 20);
   assert.equal(PORTFOLIO_CATALOG.classificationReview.length, 0);
-  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 48);
+  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 49);
 });
 
 test('catalog identities are unique, canonical, type-correct, and enum bounded', () => {
   const ids = PORTFOLIO_CATALOG.records.map((record) => record.workId);
-  assert.equal(new Set(ids).size, 72);
+  assert.equal(new Set(ids).size, 74);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 20);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 37);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 39);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'internal-program').length, 15);
 
   for (const record of PORTFOLIO_CATALOG.records) {
@@ -136,7 +136,7 @@ test('viewer projection returns founder detail and aggregate-only viewer output'
   assert.doesNotMatch(JSON.stringify(viewer), /Fitcheck|ParkArea|SeedForge/);
 });
 
-test('type-aware canonical joins accept only exact or allowed legacy wire forms', () => {
+test('type-aware canonical joins reject legacy, bare, and type-mismatched wire forms', () => {
   const report = buildPortfolioJoinReport(PORTFOLIO_CATALOG, [
     { kind: 'work', value: { kind: 'sapling', workId: 'sapling-fitcheck' } },
     { kind: 'program', programKind: 'client', workId: 'parkarea' },
@@ -147,14 +147,19 @@ test('type-aware canonical joins accept only exact or allowed legacy wire forms'
     { kind: 'sapling', workId: 'fitcheck' },
     { kind: 'program', programKind: 'unknown', workId: 'operator-utilities' },
   ]);
-  assert.deepEqual(report.matches.map((match) => match.canonicalId), [
-    'program:teamforge-control-plane',
-    'sapling:cambium',
-    'sapling:fitcheck',
+  assert.deepEqual(report.matches, [{ canonicalId: 'sapling:cambium', runtimeWorkId: 'sapling:cambium' }]);
+  assert.equal(report.matchedCount, 1);
+  assert.deepEqual(report.runtimeOrphans, [
+    'branch:parkarea',
+    'fitcheck',
+    'operator-utilities',
+    'parkarea',
+    'program:cambium-operating-fabric',
+    'sapling-fitcheck',
+    'teamforge-control-plane',
   ]);
-  assert.equal(report.matchedCount, 3);
-  assert.deepEqual(report.runtimeOrphans, ['branch:parkarea']);
-  assert.equal(report.catalogOrphanCount, 69);
+  assert.equal(report.catalogOrphanCount, 73);
+  assert.equal(report.runtimeIdentityCollisionCount, 0);
 });
 
 test('canonical join never falls back to matching names or aliases', () => {
@@ -163,13 +168,13 @@ test('canonical join never falls back to matching names or aliases', () => {
     { kind: 'program', programKind: 'client', workId: 'getfitcheck', name: 'FitCheck' },
   ]);
   assert.equal(report.matchedCount, 0);
-  assert.deepEqual(report.runtimeOrphans, ['branch:getfitcheck', 'sapling:not-fitcheck']);
+  assert.deepEqual(report.runtimeOrphans, ['getfitcheck', 'sapling:not-fitcheck']);
 });
 
 test('unresolved, unverified, and tenant-mismatched records cannot create an operational join', () => {
   const unresolved = buildPortfolioJoinReport(PORTFOLIO_CATALOG, [
     { kind: 'sapling', workId: 'sapling:iverif' },
-    { kind: 'program', programKind: 'client', workId: 'mathis' },
+    { kind: 'program', programKind: 'client', workId: 'branch:mathis' },
   ], 'cambium');
   assert.equal(unresolved.matchedCount, 0);
   assert.deepEqual(unresolved.runtimeOrphans, ['branch:mathis', 'sapling:iverif']);
@@ -182,7 +187,7 @@ test('unresolved, unverified, and tenant-mismatched records cannot create an ope
   assert.deepEqual(mismatched.runtimeOrphans, ['sapling:cambium', 'sapling:fitcheck']);
 });
 
-test('canonical Mission Fabric fixture dry-run yields 2 matches, 70 catalog orphans, and 0 runtime orphans', () => {
+test('legacy Mission Fabric fixture remains unmapped until its source emits canonical workIds', () => {
   const projection = buildMissionFabricProjection(FABRIC_SOURCE_FIXTURE, {
     clock: { now: () => '2026-07-28T09:00:01.000Z' },
     tenantId: 'cambium-synthetic',
@@ -191,13 +196,25 @@ test('canonical Mission Fabric fixture dry-run yields 2 matches, 70 catalog orph
   const wrappers = buildPortfolioJoinReport(PORTFOLIO_CATALOG, runtimeWorkNodes);
   const values = buildPortfolioJoinReport(PORTFOLIO_CATALOG, runtimeWorkNodes.map((node) => node.value));
   assert.deepEqual(wrappers, values, 'join accepts both FabricNode wrappers and their value objects');
-  assert.deepEqual(wrappers.matches.map((match) => match.canonicalId), [
-    'program:cambium-operating-fabric',
-    'sapling:cambium',
+  assert.deepEqual(wrappers.matches, []);
+  assert.equal(wrappers.matchedCount, 0);
+  assert.equal(wrappers.catalogOrphanCount, 74);
+  assert.deepEqual(wrappers.runtimeOrphans, ['cambium-operating-fabric', 'sapling-cambium']);
+  assert.equal(wrappers.runtimeIdentityCollisionCount, 0);
+});
+
+test('duplicate runtime work identities fail closed and remain visible as collisions', () => {
+  const report = buildPortfolioJoinReport(PORTFOLIO_CATALOG, [
+    { kind: 'sapling', workId: 'sapling:cambium' },
+    { kind: 'work', value: { kind: 'sapling', workId: 'sapling:cambium' } },
   ]);
-  assert.equal(wrappers.matchedCount, 2);
-  assert.equal(wrappers.catalogOrphanCount, 70);
-  assert.equal(wrappers.runtimeOrphanCount, 0);
+
+  assert.equal(report.matchedCount, 0);
+  assert.deepEqual(report.matches, []);
+  assert.deepEqual(report.runtimeOrphans, ['sapling:cambium']);
+  assert.deepEqual(report.runtimeIdentityCollisions, [{ workId: 'sapling:cambium', occurrences: 2 }]);
+  assert.equal(report.runtimeIdentityCollisionCount, 1);
+  assert.ok(report.catalogOrphans.includes('sapling:cambium'));
 });
 
 test('pair digest deterministically binds graph and catalog digests', () => {

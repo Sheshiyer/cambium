@@ -1,6 +1,8 @@
 ---
 schema: cambium.product_branch_packet.v1
 product_id: vantyx
+canonical_work_id: sapling:vantyx
+identity_scope: canonical-work-object
 branch_kind: product
 name: Vantyx
 role: Tenant onboarding and publishing branch

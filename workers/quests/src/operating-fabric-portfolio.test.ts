@@ -196,15 +196,23 @@ test('the real checked-in catalog renders every mapped WorkObject and review sur
     portfolioCatalogSummary: PORTFOLIO_CATALOG.summary,
   });
   assert.equal(normalized.mode, 'detail');
-  assert.equal(normalized.records.filter((record) => ['saplings', 'clients', 'programs'].includes(record.zone)).length, 72);
-  assert.equal(normalized.records.filter((record) => record.zone === 'review').length, 0);
-  assert.equal(normalized.records.filter((record) => record.zone === 'historical').length, 20);
+  assert.equal(
+    normalized.records.filter((record) => ['saplings', 'clients', 'programs'].includes(record.zone)).length,
+    PORTFOLIO_CATALOG.summary.saplings + PORTFOLIO_CATALOG.summary.clientBranches + PORTFOLIO_CATALOG.summary.internalPrograms,
+  );
+  assert.equal(normalized.records.filter((record) => record.zone === 'review').length, PORTFOLIO_CATALOG.summary.classificationReview);
+  assert.equal(normalized.records.filter((record) => record.zone === 'historical').length, PORTFOLIO_CATALOG.summary.historicalProducts);
 
   const html = renderCanopy(PROJECTION, {
     portfolioCatalog: PORTFOLIO_CATALOG,
     portfolioCatalogSummary: PORTFOLIO_CATALOG.summary,
   });
-  assert.equal([...html.matchAll(/data-portfolio-card/g)].length, 92);
+  assert.equal(
+    [...html.matchAll(/data-portfolio-card/g)].length,
+    PORTFOLIO_CATALOG.summary.total
+      + PORTFOLIO_CATALOG.summary.classificationReview
+      + PORTFOLIO_CATALOG.summary.historicalProducts,
+  );
   for (const identity of [
     'sapling:fitcheck',
     'sapling:parkarea',
@@ -317,7 +325,7 @@ test('selection contexts join only by exact canonical workId and expose unmapped
 
   const exactMission = renderPortfolioSceneContext('mission', PROJECTION, fitcheck);
   assert.match(exactMission, /data-portfolio-join="exact"/);
-  assert.match(exactMission, /Goal Graph exact match/);
+  assert.match(exactMission, /Mission Fabric identity exact match/);
   assert.doesNotMatch(exactMission, /status|current state|ready|active/i);
 
   assert.match(renderPortfolioSceneContext('flow', PROJECTION, fitcheck), /Idea → Proposal → Evidence/);
@@ -335,7 +343,7 @@ test('selection contexts join only by exact canonical workId and expose unmapped
 
   const missingMission = renderPortfolioSceneContext('mission', PROJECTION, collision);
   assert.match(missingMission, /data-portfolio-join="missing"/);
-  assert.match(missingMission, /Goal Graph missing/);
+  assert.match(missingMission, /Mission Fabric identity missing/);
   assert.match(renderPortfolioSceneContext('workforce', PROJECTION, collision), /assignments unmapped/);
   assert.match(renderPortfolioSceneContext('forge', PROJECTION, collision), /skills unmapped/);
   assert.match(renderPortfolioSceneContext('forge', PROJECTION, collision), /loadout unmapped/);
@@ -343,7 +351,7 @@ test('selection contexts join only by exact canonical workId and expose unmapped
   assert.equal(renderPortfolioSceneContext('unknown', PROJECTION, fitcheck), '');
 });
 
-test('server join report maps canonical selection to an exact legacy runtime workId', () => {
+test('client rejects a legacy runtime workId even when a stale join report claims a match', () => {
   const legacyProjection = structuredClone(PROJECTION) as unknown as MissionFabricProjectionV1;
   for (const node of legacyProjection.nodes) {
     if (node.kind === 'work' && node.value.workId === 'sapling:fitcheck') {
@@ -367,19 +375,19 @@ test('server join report maps canonical selection to an exact legacy runtime wor
   const normalized = normalizePortfolioPayload(input);
   const fitcheck = normalized.records.find((record) => record.canonicalId === 'sapling:fitcheck')!;
 
-  assert.equal(fitcheck.runtimeWorkId, 'sapling-fitcheck');
+  assert.equal(fitcheck.runtimeWorkId, null);
   assert.match(
     renderCanopy(legacyProjection, input),
-    /data-portfolio-id="sapling:fitcheck"[^>]*data-portfolio-kind="saplings"[^>]*data-portfolio-join="exact"/,
+    /data-portfolio-id="sapling:fitcheck"[^>]*data-portfolio-kind="saplings"[^>]*data-portfolio-join="missing"/,
   );
-  assert.match(renderPortfolioSceneContext('mission', legacyProjection, fitcheck), /Goal Graph exact match/);
-  assert.match(renderPortfolioSceneContext('workforce', legacyProjection, fitcheck), /agent:fitcheck/);
+  assert.match(renderPortfolioSceneContext('mission', legacyProjection, fitcheck), /Mission Fabric identity missing/);
+  assert.match(renderPortfolioSceneContext('workforce', legacyProjection, fitcheck), /assignments unmapped/);
 
   const withoutReport = normalizePortfolioPayload({
     portfolioCatalog: CATALOG,
     portfolioCatalogSummary: SUMMARY,
   }).records.find((record) => record.canonicalId === 'sapling:fitcheck')!;
-  assert.match(renderPortfolioSceneContext('mission', legacyProjection, withoutReport), /Goal Graph missing/);
+  assert.match(renderPortfolioSceneContext('mission', legacyProjection, withoutReport), /Mission Fabric identity missing/);
 });
 
 test('aggregate-only non-founder response renders no detail cards or selection controls', () => {

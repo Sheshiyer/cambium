@@ -1,0 +1,1147 @@
+{
+  "schema": "thoughtseed.project-r2-folder-inventory.v1",
+  "observedDate": "2026-08-08",
+  "scope": {
+    "portfolio": "thoughtseed",
+    "pathGrammar": "$PROJECTS_ROOT/thoughtseed/<folder>"
+  },
+  "authority": {
+    "rootMapDigest": "588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b",
+    "rootMapFileSha256": "f2f7385405754a913bcf4f11443ce86f6c3e18483f978c674e29180b68578aff"
+  },
+  "counts": {
+    "physicalFolders": 59,
+    "mappedFolders": 47,
+    "infrastructureFoldersPresent": 1,
+    "exactGitRepositories": 8,
+    "linkedWorktreeGitFiles": 0,
+    "rootDotGitDirectories": 8,
+    "foldersWithNestedRepositories": 8,
+    "nestedRepositoriesObserved": 10,
+    "nonGitFolders": 43,
+    "unmappedPhysicalGaps": 11,
+    "mappedFolderIdentityGaps": 1,
+    "missingMappedGaps": 0,
+    "explicitGaps": 12
+  },
+  "gaps": {
+    "unmappedPhysical": [
+      "Airdronauts",
+      "_home-cleanup-2026-08-08",
+      "brandmint-oracle-aleph",
+      "cambium-authoritative",
+      "motionsites-skills",
+      "openfang",
+      "plugins",
+      "professional-headshot-suite",
+      "readme-skill",
+      "safvr",
+      "website"
+    ],
+    "mappedFolderIdentity": [
+      "cambium"
+    ],
+    "missingMapped": []
+  },
+  "folders": [
+    {
+      "folder": "Airdronauts",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "website-alpha/airdronauts-nextjs"
+        ]
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "_home-cleanup-2026-08-08",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "agents-backups/skills-archive/gstack"
+        ]
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "agentfount",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:agentfount"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "archived-thoughtseedlabs-website",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:company-website"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "landing-page",
+          "thoughtseed-2026/site"
+        ]
+      },
+      "gap": null
+    },
+    {
+      "folder": "ashwinsheth-group",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "ashwin-sheth-group",
+        "workIds": [
+          "branch:ashwinsheth-marina-one-mumbai",
+          "branch:ashwinsheth-marina-one-bangalore"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "brand-genesis",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:meristem-brand-system"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "brandmint",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:meristem-brand-system"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "brandmint-oracle-aleph",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/Sheshiyer/brandmint-oracle-aleph.git",
+        "branch": "main",
+        "head": "e5c8ca2d5b8d",
+        "nestedRepos": []
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "bwssb",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "spaceblanket-ai",
+        "workIds": [
+          "branch:bwssb"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "cambium",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:cambium",
+          "program:cambium-operating-fabric"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": "mapped-folder-not-exact-git-checkout"
+    },
+    {
+      "folder": "cambium-authoritative",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/Sheshiyer/cambium.git",
+        "branch": "codex/project-r2-mapping-plan",
+        "head": "7578696d4f5a",
+        "nestedRepos": []
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "coproperty",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "co-property",
+        "workIds": [
+          "branch:co-property",
+          "sapling:nimbus-gate",
+          "sapling:wanderfruit"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "earthy-munchy",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "yamuna-foods",
+        "workIds": [
+          "branch:earthy-munchy"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "fitcheck-landing",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:fitcheck"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "fmrl",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:fmrl"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "fmrl-reactnative",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:fmrl"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "gram-cli",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:operator-utilities"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "hdilint-backend-aleph",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:hdilint"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "hermes-aws-ts",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:temperance-hermes"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "heyzack",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "heyzack",
+        "workIds": [
+          "branch:heyzack",
+          "branch:heyzack-zackai",
+          "branch:heyzack-crm",
+          "branch:heyzack-estimate",
+          "branch:heyzack-partner-portal",
+          "branch:heyzack-customer-portal",
+          "branch:heyzack-panel-app",
+          "branch:heyzack-landing",
+          "branch:heyzack-tooling",
+          "branch:heyzack-proposal",
+          "branch:heyzack-veloren-cee-ai"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "hostscale",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:hostscale"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "insightreality",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "insight-realtors-legal-advisors",
+        "workIds": [
+          "branch:insight-realtors-legal-advisors"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "iverif",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:iverif"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "kacima",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "kacima",
+        "workIds": [
+          "branch:kacima"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "klear-karma",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "needs-review",
+        "accountId": null,
+        "workIds": [
+          "sapling:klear-karma"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "kkv2-wiki-v2/wiki-site"
+        ]
+      },
+      "gap": null
+    },
+    {
+      "folder": "kristudios",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "needs-review",
+        "accountId": null,
+        "workIds": [
+          "sapling:kristudios"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "landingpage-ts-2026",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:company-website"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "monthlymealprep",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:rasa"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "motionsites-export",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:meristem-brand-system"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "motionsites-skills",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/Sheshiyer/motionsites-skills.git",
+        "branch": "main",
+        "head": "42a0021bc4d6",
+        "nestedRepos": []
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "newsense",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "newsense",
+        "workIds": [
+          "branch:newsense"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "openfang",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/RightNow-AI/openfang.git",
+        "branch": "main",
+        "head": "acf2587e46be",
+        "nestedRepos": []
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "panaroma-webapp",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "needs-review",
+        "accountId": null,
+        "workIds": [
+          "sapling:vantyx",
+          "branch:airdronauts-panorama-viewer-delivery"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "parkarea",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "parkarea",
+        "workIds": [
+          "branch:parkarea",
+          "sapling:parkarea"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "parkarea-aleph",
+          "parkarea-aleph.pre-restore-20260807-0627/.claude/worktrees/production-test-data-scrub"
+        ]
+      },
+      "gap": null
+    },
+    {
+      "folder": "plexus-ts",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:plexus"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/Sheshiyer/plexus-ts.git",
+        "branch": "main",
+        "head": "be0dc2d6eb0f",
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "plugins",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "professional-headshot-suite",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/Sheshiyer/professional-headshot-suite.git",
+        "branch": "main",
+        "head": "f84663969021",
+        "nestedRepos": []
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "raycast-extensions",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:operator-utilities"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "noesis"
+        ]
+      },
+      "gap": null
+    },
+    {
+      "folder": "readme-skill",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/Sheshiyer/readme-skill.git",
+        "branch": "main",
+        "head": "fd1d0a2185a7",
+        "nestedRepos": []
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "reddit-cli",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:operator-utilities"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "safvr",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "Landingpage2.0"
+        ]
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "sandboxlife",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "valore-ventures",
+        "workIds": [
+          "branch:sandboxlife"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "skill-clusters",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:skill-clusters"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "skills",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:explee-capabilities",
+          "program:engineering-orchestration",
+          "program:skill-clusters"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "snow-gloves-os",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:snow-gloves-os"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "synchronized-universe-blog",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "harshita",
+        "workIds": [
+          "branch:harsh-truths"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "team-forge-ts",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:teamforge-control-plane"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "temperance-engine-landing-page",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:temperance-hermes"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "thoughtseed-brand-atlas",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:thoughtseed-brand-atlas",
+          "program:meristem-brand-system"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "thoughtseed-hermes",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:temperance-hermes"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "thoughtseed-labs",
+      "role": "infrastructure:r2-vault-context",
+      "mapping": null,
+      "git": {
+        "identity": "exact-root",
+        "dotGitDir": true,
+        "dotGitFile": false,
+        "remote": "https://github.com/Sheshiyer/thoughtseed-vault.git",
+        "branch": "main",
+        "head": "852eec797dcb",
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "thoughtseedos-website",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "internal-program",
+        "accountId": null,
+        "workIds": [
+          "program:company-website"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "tirak",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "tirak",
+        "workIds": [
+          "branch:tirak",
+          "sapling:tirak"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "valmark",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "valmark",
+        "workIds": [
+          "branch:valmark"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "vibrasonix",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:vibrasonix"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "virtualtryon-3d",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:virtualtryon"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "website",
+      "role": "workobject-folder",
+      "mapping": null,
+      "git": {
+        "identity": "nested-only",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": [
+          "temperance-engine-landing-page"
+        ]
+      },
+      "gap": "unmapped-physical-folder"
+    },
+    {
+      "folder": "whspr",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "sapling",
+        "accountId": null,
+        "workIds": [
+          "sapling:whspr"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    },
+    {
+      "folder": "wtfmedia",
+      "role": "workobject-folder",
+      "mapping": {
+        "proposedKind": "client-branch",
+        "accountId": "wtf-podcast",
+        "workIds": [
+          "branch:wtfmedia"
+        ],
+        "status": "mapping-proposal"
+      },
+      "git": {
+        "identity": "none",
+        "dotGitDir": false,
+        "dotGitFile": false,
+        "nestedRepos": []
+      },
+      "gap": null
+    }
+  ]
+}

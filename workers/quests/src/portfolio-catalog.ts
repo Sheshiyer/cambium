@@ -8,9 +8,9 @@ import {
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts';
 
-export const PORTFOLIO_CLASSIFICATION_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2';
+export const PORTFOLIO_CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542';
 
-const EXPECTED_CATALOG_DIGEST = 'sha256:95a903b358c8baa7938bb424d117e10b344a4340f2d080de439bd18a7dba1bf6';
+export const PORTFOLIO_CATALOG_DIGEST = 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
@@ -109,13 +109,13 @@ export interface PortfolioOperationalGap {
 }
 
 export interface PortfolioCatalogSummary {
-  total: 72;
+  total: 74;
   saplings: 20;
-  clientBranches: 37;
+  clientBranches: 39;
   internalPrograms: 15;
   classificationReview: 0;
   historicalProducts: 20;
-  operationalGaps: 48;
+  operationalGaps: 49;
 }
 
 export interface PortfolioCatalogV1 {
@@ -148,13 +148,20 @@ export interface PortfolioJoinMatch {
   runtimeWorkId: string;
 }
 
+export interface PortfolioRuntimeIdentityCollision {
+  workId: string;
+  occurrences: number;
+}
+
 export interface PortfolioJoinReport {
   matchedCount: number;
   catalogOrphanCount: number;
   runtimeOrphanCount: number;
+  runtimeIdentityCollisionCount: number;
   matches: readonly PortfolioJoinMatch[];
   catalogOrphans: readonly string[];
   runtimeOrphans: readonly string[];
+  runtimeIdentityCollisions: readonly PortfolioRuntimeIdentityCollision[];
 }
 
 export class PortfolioCatalogValidationError extends Error {
@@ -177,13 +184,13 @@ const MISSING_MISSION_FIELDS = Object.freeze([
 ] as const);
 
 const SUMMARY: PortfolioCatalogSummary = Object.freeze({
-  total: 72,
+  total: 74,
   saplings: 20,
-  clientBranches: 37,
+  clientBranches: 39,
   internalPrograms: 15,
   classificationReview: 0,
   historicalProducts: 20,
-  operationalGaps: 48,
+  operationalGaps: 49,
 });
 
 function compact<T extends Record<string, unknown>>(value: T): T {
@@ -385,10 +392,10 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const historicalProducts = catalog.historicalProducts;
   const classificationReview = catalog.classificationReview;
   const operationalGaps = catalog.operationalGaps;
-  if (!Array.isArray(records) || records.length !== 72 || records.length > MAX_RECORDS) fail('record count drifted');
+  if (!Array.isArray(records) || records.length !== 74 || records.length > MAX_RECORDS) fail('record count drifted');
   if (!Array.isArray(historicalProducts) || historicalProducts.length !== 20 || historicalProducts.length > MAX_HISTORICAL) fail('historical count drifted');
   if (!Array.isArray(classificationReview) || classificationReview.length !== 0 || classificationReview.length > MAX_REVIEW) fail('classification review count drifted');
-  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 48 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
+  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 49 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
 
   records.forEach((record, index) => validateRecord(record as PortfolioCatalogRecord, index));
   const ids = records.map((record) => (record as PortfolioCatalogRecord).workId);
@@ -396,7 +403,7 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const saplings = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'sapling').length;
   const clients = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'client-branch').length;
   const programs = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'internal-program').length;
-  if (saplings !== 20 || clients !== 37 || programs !== 15) fail('classification counts drifted');
+  if (saplings !== 20 || clients !== 39 || programs !== 15) fail('classification counts drifted');
 
   const historicalIds = new Set<string>();
   for (const [index, value] of historicalProducts.entries()) {
@@ -439,17 +446,19 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
 
   const summary = catalog.summary;
   if (!isRecord(summary)
-    || summary.total !== 72
+    || summary.total !== 74
     || summary.saplings !== 20
-    || summary.clientBranches !== 37
+    || summary.clientBranches !== 39
     || summary.internalPrograms !== 15
     || summary.classificationReview !== 0
     || summary.historicalProducts !== 20
-    || summary.operationalGaps !== 48) fail('summary drifted');
+    || summary.operationalGaps !== 49) fail('summary drifted');
 
   const actualDigest = sha256(catalogHashPayload(catalog as unknown as PortfolioCatalogV1));
   if (actualDigest !== catalog.catalogDigest) fail('catalog digest does not match canonical content');
-  if (actualDigest !== EXPECTED_CATALOG_DIGEST) fail('checked-in catalog digest drifted');
+  if (actualDigest !== PORTFOLIO_CATALOG_DIGEST) {
+    fail(`checked-in catalog digest drifted: expected ${PORTFOLIO_CATALOG_DIGEST}, received ${actualDigest}`);
+  }
 }
 
 const BUILT_CATALOG = buildCatalog();
@@ -467,16 +476,24 @@ export function portfolioCatalogForViewer(
   };
 }
 
-function normalizedRuntimeIdentity(value: unknown): { canonicalId: string; runtimeWorkId: string } | null {
+function runtimeWorkIdFrom(value: unknown): string | null {
   if (!isRecord(value)) return null;
   const candidate = value.kind === 'work' && isRecord(value.value) ? value.value : value;
   if (!isRecord(candidate) || typeof candidate.workId !== 'string') return null;
-  const runtimeWorkId = candidate.workId.trim();
+  const workId = candidate.workId.trim();
+  return /^[A-Za-z0-9_.:-]{1,160}$/.test(workId) ? workId : null;
+}
+
+function canonicalRuntimeIdentity(value: unknown): { canonicalId: string; runtimeWorkId: string } | null {
+  if (!isRecord(value)) return null;
+  const candidate = value.kind === 'work' && isRecord(value.value) ? value.value : value;
+  if (!isRecord(candidate)) return null;
+  const runtimeWorkId = runtimeWorkIdFrom(value);
+  if (runtimeWorkId === null) return null;
   const slug = '[a-z0-9]+(?:-[a-z0-9]+)*';
   if (candidate.kind === 'sapling') {
     if (new RegExp(`^sapling:${slug}$`).test(runtimeWorkId)) return { canonicalId: runtimeWorkId, runtimeWorkId };
-    const legacy = new RegExp(`^sapling-(${slug})$`).exec(runtimeWorkId);
-    return legacy ? { canonicalId: `sapling:${legacy[1]}`, runtimeWorkId } : null;
+    return null;
   }
   if (candidate.kind !== 'program') return null;
   const prefix = candidate.programKind === 'client' ? 'branch' : (
@@ -486,7 +503,6 @@ function normalizedRuntimeIdentity(value: unknown): { canonicalId: string; runti
   );
   if (!prefix) return null;
   if (new RegExp(`^${prefix}:${slug}$`).test(runtimeWorkId)) return { canonicalId: runtimeWorkId, runtimeWorkId };
-  if (new RegExp(`^${slug}$`).test(runtimeWorkId)) return { canonicalId: `${prefix}:${runtimeWorkId}`, runtimeWorkId };
   return null;
 }
 
@@ -509,25 +525,45 @@ export function buildPortfolioJoinReport(
       ))
       .map((record) => record.workId),
   );
-  const runtimeIdentities = new Map<string, string>();
+  const runtimeIdentities = new Map<string, { runtimeWorkId: string; occurrences: number }>();
+  const rejectedRuntimeIds = new Set<string>();
   for (const node of Array.isArray(runtimeWorkNodes) ? runtimeWorkNodes : []) {
-    const identity = normalizedRuntimeIdentity(node);
-    if (identity && !runtimeIdentities.has(identity.canonicalId)) runtimeIdentities.set(identity.canonicalId, identity.runtimeWorkId);
+    const identity = canonicalRuntimeIdentity(node);
+    if (!identity) {
+      const rejected = runtimeWorkIdFrom(node);
+      if (rejected !== null) rejectedRuntimeIds.add(rejected);
+      continue;
+    }
+    const existing = runtimeIdentities.get(identity.canonicalId);
+    runtimeIdentities.set(identity.canonicalId, {
+      runtimeWorkId: identity.runtimeWorkId,
+      occurrences: (existing?.occurrences ?? 0) + 1,
+    });
   }
+  const runtimeIdentityCollisions = [...runtimeIdentities.entries()]
+    .filter(([, identity]) => identity.occurrences > 1)
+    .map(([workId, identity]) => ({ workId, occurrences: identity.occurrences }))
+    .sort((a, b) => a.workId.localeCompare(b.workId));
+  const collisionIds = new Set(runtimeIdentityCollisions.map((collision) => collision.workId));
   const matches = [...runtimeIdentities.entries()]
-    .filter(([canonicalId]) => joinEligibleIds.has(canonicalId))
-    .map(([canonicalId, runtimeWorkId]) => ({ canonicalId, runtimeWorkId }))
+    .filter(([canonicalId]) => joinEligibleIds.has(canonicalId) && !collisionIds.has(canonicalId))
+    .map(([canonicalId, identity]) => ({ canonicalId, runtimeWorkId: identity.runtimeWorkId }))
     .sort((a, b) => a.canonicalId.localeCompare(b.canonicalId));
   const matchedIds = new Set(matches.map((match) => match.canonicalId));
   const catalogOrphans = [...catalogIds].filter((id) => !matchedIds.has(id)).sort();
-  const runtimeOrphans = [...runtimeIdentities.keys()].filter((id) => !joinEligibleIds.has(id)).sort();
+  const runtimeOrphans = [...new Set([
+    ...rejectedRuntimeIds,
+    ...[...runtimeIdentities.keys()].filter((id) => !joinEligibleIds.has(id) || collisionIds.has(id)),
+  ])].sort();
   return deepFreeze({
     matchedCount: matches.length,
     catalogOrphanCount: catalogOrphans.length,
     runtimeOrphanCount: runtimeOrphans.length,
+    runtimeIdentityCollisionCount: runtimeIdentityCollisions.length,
     matches,
     catalogOrphans,
     runtimeOrphans,
+    runtimeIdentityCollisions,
   });
 }
 

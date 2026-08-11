@@ -1,5 +1,9 @@
 import type { R2BucketLike } from './context-bindings.ts';
-import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
+import {
+  PORTFOLIO_CATALOG,
+  PORTFOLIO_CATALOG_DIGEST,
+  PORTFOLIO_CLASSIFICATION_DIGEST,
+} from './portfolio-catalog.ts';
 import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
 export const PORTFOLIO_ADMIN_ACTION_SCHEMA = 'thoughtseed.portfolio-admin-action.v1' as const;
@@ -96,6 +100,7 @@ export type PortfolioAdminAction =
     idempotencyKey: string;
     rootMapDigest: string;
     sourceDigest: string;
+    catalogDigest: string;
     subject: { id: string; name: string };
     proposal: WorkObjectProposal;
   }
@@ -106,6 +111,7 @@ export type PortfolioAdminAction =
     idempotencyKey: string;
     rootMapDigest: string;
     sourceDigest: string;
+    catalogDigest: string;
     subject: { id: string; name: string };
     proposal: ProjectCreationProposal;
   }
@@ -116,6 +122,7 @@ export type PortfolioAdminAction =
     idempotencyKey: string;
     rootMapDigest: string;
     sourceDigest: string;
+    catalogDigest: string;
     subject: { id: string; name: string };
     proposal: ProjectCloseoutProposal;
   };
@@ -236,6 +243,14 @@ function boundedText(value: unknown, field: string, max: number, required = true
 function digest(value: unknown, field: string): string {
   const normalized = boundedText(value, field, 64);
   if (!SHA256.test(normalized)) throw new PortfolioAdminActionValidationError(`${field} must be a sha256 hex digest`);
+  return normalized;
+}
+
+function digestRef(value: unknown, field: string): string {
+  const normalized = boundedText(value, field, 71);
+  if (!SHA256_REF.test(normalized)) {
+    throw new PortfolioAdminActionValidationError(`${field} must be a sha256:<hex> digest`);
+  }
   return normalized;
 }
 
@@ -431,11 +446,24 @@ function closeoutProposal(value: unknown): ProjectCloseoutProposal {
   };
 }
 
+function validateCloseoutIdentityBinding(proposal: ProjectCloseoutProposal, subjectId: string): void {
+  const expectedSuffix = `/${subjectId.replaceAll(':', '-')}`;
+  if (!proposal.r2VaultPrefix.endsWith(expectedSuffix)) {
+    throw new PortfolioAdminActionValidationError('proposal.r2VaultPrefix does not bind the closeout subject');
+  }
+  if (proposal.successorWorkObjectId && !THOUGHTSEED_WORK_OBJECTS.has(proposal.successorWorkObjectId)) {
+    throw new PortfolioAdminActionValidationError('proposal.successorWorkObjectId is not a canonical WorkObject');
+  }
+  if (proposal.successorWorkObjectId === subjectId) {
+    throw new PortfolioAdminActionValidationError('proposal.successorWorkObjectId cannot equal the closeout subject');
+  }
+}
+
 export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction {
   if (!isRecord(raw)) throw new PortfolioAdminActionValidationError('action must be an object');
   const kind = oneOf(raw.kind, 'kind', ['reconcile-work-object', 'create-thoughtseed-project', 'close-work-object'] as const);
   if (kind === 'reconcile-work-object' || kind === 'close-work-object') {
-    exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action');
+    exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'catalogDigest', 'subject', 'proposal'], 'action');
     if (raw.schema !== PORTFOLIO_ADMIN_ACTION_SCHEMA || raw.portfolioId !== 'thoughtseed') {
       throw new PortfolioAdminActionValidationError(`${kind} action grammar is invalid`);
     }
@@ -443,11 +471,15 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
     exactFields(raw.subject, ['id', 'name'], 'subject');
     const rootMapDigest = digest(raw.rootMapDigest, 'rootMapDigest');
     const sourceDigest = digest(raw.sourceDigest, 'sourceDigest');
+    const catalogDigest = digestRef(raw.catalogDigest, 'catalogDigest');
     if (rootMapDigest !== PORTFOLIO_ROOT_MAP_DIGEST) {
       throw new PortfolioAdminActionValidationError('rootMapDigest does not match the reviewed root map');
     }
     if (sourceDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
-      throw new PortfolioAdminActionValidationError('sourceDigest does not match the shipped portfolio catalog');
+      throw new PortfolioAdminActionValidationError('sourceDigest does not match the reviewed classification source');
+    }
+    if (catalogDigest !== PORTFOLIO_CATALOG_DIGEST || catalogDigest !== PORTFOLIO_CATALOG.catalogDigest) {
+      throw new PortfolioAdminActionValidationError('catalogDigest does not match the shipped portfolio catalog');
     }
     const subjectId = safeId(raw.subject.id, 'subject.id', SAFE_SUBJECT_ID);
     const subjectName = boundedText(raw.subject.name, 'subject.name', 160);
@@ -455,6 +487,8 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
     if (!catalogRecord || catalogRecord.name !== subjectName) {
       throw new PortfolioAdminActionValidationError('subject does not match the shipped portfolio catalog');
     }
+    const proposal = kind === 'reconcile-work-object' ? workObjectProposal(raw.proposal) : closeoutProposal(raw.proposal);
+    if (kind === 'close-work-object') validateCloseoutIdentityBinding(proposal as ProjectCloseoutProposal, subjectId);
     return {
       schema: PORTFOLIO_ADMIN_ACTION_SCHEMA,
       kind,
@@ -462,15 +496,16 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
       idempotencyKey: safeId(raw.idempotencyKey, 'idempotencyKey', SAFE_IDEMPOTENCY),
       rootMapDigest,
       sourceDigest,
+      catalogDigest,
       subject: {
         id: subjectId,
         name: subjectName,
       },
-      proposal: kind === 'reconcile-work-object' ? workObjectProposal(raw.proposal) : closeoutProposal(raw.proposal),
+      proposal,
     } as Extract<PortfolioAdminAction, { kind: 'reconcile-work-object' | 'close-work-object' }>;
   }
 
-  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'subject', 'proposal'], 'action');
+  exactFields(raw, ['schema', 'kind', 'portfolioId', 'idempotencyKey', 'rootMapDigest', 'sourceDigest', 'catalogDigest', 'subject', 'proposal'], 'action');
   if (raw.schema !== PORTFOLIO_ADMIN_ACTION_SCHEMA || raw.portfolioId !== 'thoughtseed') {
     throw new PortfolioAdminActionValidationError('create-thoughtseed-project action grammar is invalid');
   }
@@ -478,11 +513,15 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
   exactFields(raw.subject, ['id', 'name'], 'subject');
   const rootMapDigest = digest(raw.rootMapDigest, 'rootMapDigest');
   const sourceDigest = digest(raw.sourceDigest, 'sourceDigest');
+  const catalogDigest = digestRef(raw.catalogDigest, 'catalogDigest');
   if (rootMapDigest !== PORTFOLIO_ROOT_MAP_DIGEST) {
     throw new PortfolioAdminActionValidationError('rootMapDigest does not match the reviewed root map');
   }
   if (sourceDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
-    throw new PortfolioAdminActionValidationError('sourceDigest does not match the shipped portfolio catalog');
+    throw new PortfolioAdminActionValidationError('sourceDigest does not match the reviewed classification source');
+  }
+  if (catalogDigest !== PORTFOLIO_CATALOG_DIGEST || catalogDigest !== PORTFOLIO_CATALOG.catalogDigest) {
+    throw new PortfolioAdminActionValidationError('catalogDigest does not match the shipped portfolio catalog');
   }
   const proposal = projectCreationProposal(raw.proposal);
   const subjectId = boundedText(raw.subject.id, 'subject.id', 64);
@@ -497,6 +536,7 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
     idempotencyKey: safeId(raw.idempotencyKey, 'idempotencyKey', SAFE_IDEMPOTENCY),
     rootMapDigest,
     sourceDigest,
+    catalogDigest,
     subject: { id: subjectId, name: subjectName },
     proposal,
   };
@@ -519,7 +559,15 @@ async function sha256(value: string): Promise<string> {
 
 function projectIntentCore(action: Extract<PortfolioAdminAction, { kind: 'create-thoughtseed-project' }>): unknown {
   const { founderApproval: _approval, ...proposal } = action.proposal;
-  return { portfolioId: action.portfolioId, kind: action.kind, subject: action.subject, proposal };
+  return {
+    portfolioId: action.portfolioId,
+    kind: action.kind,
+    rootMapDigest: action.rootMapDigest,
+    sourceDigest: action.sourceDigest,
+    catalogDigest: action.catalogDigest,
+    subject: action.subject,
+    proposal,
+  };
 }
 
 export async function projectCreationIntentDigest(raw: unknown): Promise<string> {

@@ -1,0 +1,26 @@
+{
+  "schema": "thoughtseed.project-retirement-decision.v1",
+  "portfolioId": "thoughtseed",
+  "folder": "virtualtryon-3d",
+  "decision": "retired-ignore",
+  "previousErroneousWorkObjectId": "sapling:virtualtryon",
+  "currentWorkObjectIds": [],
+  "candidateRepository": "Sheshiyer/virtualtryon",
+  "rootMapState": {
+    "proposedKind": "needs-review",
+    "status": "empty-hold",
+    "rootMapDigest": "a9dc53459cefedf542e1a98cab68165ed694751c60d369c818410fc99f27e445"
+  },
+  "handoffMarkdownPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md",
+  "agentMemoryJsonPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-agent-memory.v1.json",
+  "r2VaultPrefixProposal": "portfolio/thoughtseed/retired-folders/virtualtryon-3d/",
+  "activeIndexDisposition": "exclude-from-active",
+  "downstreamFlowsStopped": true,
+  "founderDecisionAt": "2026-08-08T00:00:00.000Z",
+  "updatedAt": "2026-08-08T00:00:00.000Z",
+  "notes": [
+    "Founder instructed Cambium to ignore and retire virtualtryon-3d.",
+    "This decision intentionally does not create sapling:virtualtryon.",
+    "This source-controlled packet is a retirement guardrail; no live R2 object was written by this local repository change."
+  ]
+}

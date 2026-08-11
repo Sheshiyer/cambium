@@ -1,0 +1,117 @@
+{
+  "schema": "thoughtseed.project-r2-evidence-prefixes.v1",
+  "observedDate": "2026-08-08",
+  "scope": {
+    "portfolio": "thoughtseed",
+    "relatedProposal": "docs/project-management/project-r2-mapping-proposals.v1.json"
+  },
+  "authority": {
+    "r2Role": "immutable-idempotent-evidence-and-durability",
+    "notAuthorityFor": [
+      "live project state",
+      "code history",
+      "repository ownership",
+      "folder movement",
+      "planning authority",
+      "Goal Graph writes",
+      "native client session migration"
+    ]
+  },
+  "prefixTemplate": "portfolio/thoughtseed/workobjects/<work-id>/<receipt-kind>/<receipt-id>.json",
+  "receiptKinds": [
+    {
+      "kind": "mapping",
+      "prefix": "portfolio/thoughtseed/workobjects/<work-id>/mapping/",
+      "payload": [
+        "receipt id",
+        "root-map digest",
+        "catalog digest",
+        "folder proposal",
+        "repository identity",
+        "grammar disposition",
+        "founder decision status"
+      ]
+    },
+    {
+      "kind": "intake",
+      "prefix": "portfolio/thoughtseed/workobjects/<work-id>/intake/",
+      "payload": [
+        "receipt id",
+        "project birth or repository intake intent",
+        "source actor",
+        "Founder Gate status",
+        "handoff Markdown pointer",
+        "repository packet pointer"
+      ]
+    },
+    {
+      "kind": "closeout",
+      "prefix": "portfolio/thoughtseed/workobjects/<work-id>/closeout/",
+      "payload": [
+        "receipt id",
+        "closeout disposition",
+        "handoff Markdown pointer",
+        "agent-aware memory projection pointer",
+        "active-index delta",
+        "required confirmation checklist"
+      ]
+    },
+    {
+      "kind": "finished-index",
+      "prefix": "portfolio/thoughtseed/workobjects/<work-id>/finished-index/",
+      "payload": [
+        "receipt id",
+        "finished index delta",
+        "successor WorkObject id if any",
+        "archive visibility",
+        "review status"
+      ]
+    }
+  ],
+  "constraints": [
+    "No absolute local paths.",
+    "No credentials, tokens, or provider secret names.",
+    "No raw prompt or response bodies.",
+    "No large source corpora.",
+    "No R2 object is written by this proposal.",
+    "Every write must be idempotent by receipt id.",
+    "Workbench must validate root-map digest, catalog digest, WorkObject identity, repository identity, and receipt kind before storage."
+  ],
+  "gapSettlementExamples": [
+    {
+      "folder": "Airdronauts",
+      "workId": "branch:airdronauts-panorama-viewer-delivery",
+      "receiptKind": "mapping",
+      "examplePrefix": "portfolio/thoughtseed/workobjects/branch:airdronauts-panorama-viewer-delivery/mapping/"
+    },
+    {
+      "folder": "brandmint-oracle-aleph",
+      "workId": "program:meristem-brand-system",
+      "receiptKind": "mapping",
+      "examplePrefix": "portfolio/thoughtseed/workobjects/program:meristem-brand-system/mapping/"
+    },
+    {
+      "folder": "professional-headshot-suite",
+      "workId": "program:explee-capabilities",
+      "receiptKind": "mapping",
+      "examplePrefix": "portfolio/thoughtseed/workobjects/program:explee-capabilities/mapping/"
+    },
+    {
+      "folder": "safvr",
+      "workId": "branch:safvr-landing-page",
+      "receiptKind": "mapping",
+      "examplePrefix": "portfolio/thoughtseed/workobjects/branch:safvr-landing-page/mapping/",
+      "status": "approved-closed-client-branch"
+    },
+    {
+      "folder": "safvr",
+      "workId": "branch:safvr-landing-page",
+      "receiptKind": "closeout",
+      "examplePrefix": "portfolio/thoughtseed/workobjects/branch:safvr-landing-page/closeout/",
+      "status": "source-controlled-closeout-seed"
+    }
+  ],
+  "futureDecision": {
+    "r2PrimaryOrTwoWaySync": "out-of-scope until a separate founder-approved contract replaces the current evidence-only role"
+  }
+}

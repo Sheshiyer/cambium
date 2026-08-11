@@ -15,7 +15,8 @@ export const V3_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
 export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
-export const CLASSIFICATION_DIGEST = '50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2'
+export const CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542'
+export const PORTFOLIO_CATALOG_DIGEST = 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64'
 export const SOURCE_SCHEMA = 'thoughtseed.work-object-registry.v1'
 export const SOURCE_GENERATED_AT = '2026-07-29T06:46:00Z'
 
@@ -587,6 +588,28 @@ export function defaultCloseout(workObjectId: string): ProjectCloseout {
     updatedAt: '',
   }
 }
+
+export const SEEDED_PROJECT_CLOSEOUTS: Readonly<Record<string, ProjectCloseout>> = Object.freeze({
+  'branch:safvr-landing-page': Object.freeze({
+    workObjectId: 'branch:safvr-landing-page',
+    disposition: 'closed',
+    finalSummary: 'SAFVR is a client website branch. Founder approval marks the landing-page delivery completed and closed, with no active Thoughtseed workflow remaining.',
+    handoffMarkdownPath: 'docs/project-management/closeouts/safvr-landing-page-handoff.md',
+    closureReceiptJsonPath: 'docs/project-management/closeouts/safvr-landing-page-closeout.v1.json',
+    agentMemoryJsonPath: 'docs/project-management/closeouts/safvr-landing-page-agent-memory.v1.json',
+    r2VaultPrefix: 'portfolio/thoughtseed/workobjects/branch:safvr-landing-page/closeout/',
+    activeIndexDisposition: 'remove-from-active',
+    repositoryFinalStateReviewed: true,
+    handoffDocumented: true,
+    r2VaultRecorded: true,
+    agentMemoryUpdated: true,
+    activeIndexUpdated: true,
+    downstreamFlowsStopped: true,
+    successorWorkObjectId: '',
+    receiptId: 'pa_55d6162386ed202608080001',
+    updatedAt: '2026-08-08T06:30:00.000Z',
+  }),
+})
 
 export function closeoutReadiness(closeout: ProjectCloseout): CloseoutReadiness {
   const blockers: string[] = []

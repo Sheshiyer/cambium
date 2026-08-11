@@ -7,10 +7,19 @@
     "thoughtseed"
   ],
   "reviewedSnapshots": {
-    "rootMapDigest": "588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b",
-    "portfolioCatalogDigest": "50ba63b213debb1df57423c4edf97df79f29d5c77875245dbbc45251266902d2",
+    "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+    "classificationSourceDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+    "portfolioCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "actionSourceDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+    "actionCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "pinAuthority": "scripts/portfolio-foundation-pins.mjs",
     "exactMatchRequiredForExecution": true
   },
+  "requiredActionDigestFields": [
+    "rootMapDigest",
+    "sourceDigest",
+    "catalogDigest"
+  ],
   "founderGateAuthority": {
     "authoritativeStoreKey": "gate:thoughtseed:<receipt-id>",
     "requiredKind": "approve",

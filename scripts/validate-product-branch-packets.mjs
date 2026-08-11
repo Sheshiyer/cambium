@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -172,11 +172,52 @@ function validateMetadata({ metadata, schema, row, packetFile }) {
   if (metadata.product_id !== row.product_id) {
     throw new Error(`${packetFile}: product_id "${metadata.product_id}" does not match index row "${row.product_id}"`);
   }
+  if (metadata.canonical_work_id !== row.canonical_work_id) {
+    throw new Error(`${packetFile}: canonical_work_id "${metadata.canonical_work_id}" does not match index row "${row.canonical_work_id}"`);
+  }
+  if (metadata.identity_scope !== row.identity_scope) {
+    throw new Error(`${packetFile}: identity_scope "${metadata.identity_scope}" does not match index row "${row.identity_scope}"`);
+  }
   if (metadata.branch_kind !== row.branch_kind) {
     throw new Error(`${packetFile}: branch_kind "${metadata.branch_kind}" does not match index row "${row.branch_kind}"`);
   }
+  if (metadata.name !== row.name) {
+    throw new Error(`${packetFile}: name "${metadata.name}" does not match index row "${row.name}"`);
+  }
+  if (metadata.role !== row.role) {
+    throw new Error(`${packetFile}: role "${metadata.role}" does not match index row "${row.role}"`);
+  }
   if (metadata.promotion_state !== row.promotion_state) {
     throw new Error(`${packetFile}: promotion_state "${metadata.promotion_state}" does not match index row "${row.promotion_state}"`);
+  }
+  if (metadata.current_gate !== row.current_gate) {
+    throw new Error(`${packetFile}: current_gate "${metadata.current_gate}" does not match index row "${row.current_gate}"`);
+  }
+
+  if (!schema.identity_scopes?.includes(metadata.identity_scope)) {
+    throw new Error(`${packetFile}: unknown identity_scope "${metadata.identity_scope}"`);
+  }
+
+  if (metadata.identity_scope === 'template') {
+    if (metadata.canonical_work_id !== schema.non_canonical_work_id_value) {
+      throw new Error(`${packetFile}: template packet canonical_work_id must be "${schema.non_canonical_work_id_value}"`);
+    }
+    return;
+  }
+
+  if (!/^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.canonical_work_id)) {
+    throw new Error(`${packetFile}: canonical_work_id "${metadata.canonical_work_id}" is not canonical`);
+  }
+  const expectedPrefix = metadata.branch_kind === 'product'
+    ? 'sapling:'
+    : metadata.branch_kind === 'client'
+      ? 'branch:'
+      : 'program:';
+  if (!metadata.canonical_work_id.startsWith(expectedPrefix)) {
+    throw new Error(`${packetFile}: canonical_work_id "${metadata.canonical_work_id}" conflicts with branch_kind "${metadata.branch_kind}"`);
+  }
+  if (metadata.canonical_work_id.slice(expectedPrefix.length) !== metadata.product_id) {
+    throw new Error(`${packetFile}: canonical_work_id "${metadata.canonical_work_id}" must end with product_id "${metadata.product_id}"`);
   }
 }
 
@@ -493,12 +534,20 @@ function validatePacket({ packetFile, schema, row }) {
 
 function validateUniqueIndexRows(rows) {
   const productIds = new Set();
+  const canonicalWorkIds = new Set();
   const packetPaths = new Set();
   for (const row of rows) {
     if (productIds.has(row.product_id)) {
       throw new Error(`index contains duplicate product_id "${row.product_id}"`);
     }
     productIds.add(row.product_id);
+
+    if (row.identity_scope === 'canonical-work-object') {
+      if (canonicalWorkIds.has(row.canonical_work_id)) {
+        throw new Error(`index contains duplicate canonical_work_id "${row.canonical_work_id}"`);
+      }
+      canonicalWorkIds.add(row.canonical_work_id);
+    }
 
     if (packetPaths.has(row.packet)) {
       throw new Error(`index contains duplicate packet path "${row.packet}"`);
@@ -517,9 +566,28 @@ function validateRequiredBranches(schema, rows) {
     if (branch.branch_kind && row.branch_kind !== branch.branch_kind) {
       throw new Error(`index branch ${branch.product_id} has branch_kind ${row.branch_kind}, expected ${branch.branch_kind}`);
     }
+    if (branch.canonical_work_id && row.canonical_work_id !== branch.canonical_work_id) {
+      throw new Error(`index branch ${branch.product_id} has canonical_work_id ${row.canonical_work_id}, expected ${branch.canonical_work_id}`);
+    }
+    if (branch.identity_scope && row.identity_scope !== branch.identity_scope) {
+      throw new Error(`index branch ${branch.product_id} has identity_scope ${row.identity_scope}, expected ${branch.identity_scope}`);
+    }
     if (row.packet !== branch.packet) {
       throw new Error(`index branch ${branch.product_id} points at ${row.packet}, expected ${branch.packet}`);
     }
+  }
+}
+
+function validateNoOrphanPackets({ packetDir, rows, schema }) {
+  const supportFiles = new Set(schema.non_packet_markdown_files || []);
+  const indexedPacketFiles = new Set(rows.map((row) => row.packet));
+  const packetFiles = readdirSync(packetDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.md') && !supportFiles.has(entry.name))
+    .map((entry) => entry.name)
+    .sort();
+  const orphanPacketFiles = packetFiles.filter((packetFile) => !indexedPacketFiles.has(packetFile));
+  if (orphanPacketFiles.length) {
+    throw new Error(`packet directory contains unindexed packet file(s): ${orphanPacketFiles.join(', ')}`);
   }
 }
 
@@ -543,10 +611,11 @@ function main() {
   const rows = parseIndexTable(readText(indexFile), schema.required_index_columns);
   validateUniqueIndexRows(rows);
   validateRequiredBranches(schema, rows);
+  validateNoOrphanPackets({ packetDir, rows, schema });
 
   for (const row of rows) {
-    if (!row.product_id || !row.branch_kind || !row.packet) {
-      throw new Error('index rows must include product_id, branch_kind, and packet values');
+    if (!row.product_id || !row.canonical_work_id || !row.identity_scope || !row.branch_kind || !row.packet) {
+      throw new Error('index rows must include product_id, canonical_work_id, identity_scope, branch_kind, and packet values');
     }
     if (isAbsolute(row.packet) || row.packet.includes('..')) {
       throw new Error(`index branch ${row.product_id} has unsafe packet path: ${row.packet}`);

@@ -14,6 +14,7 @@
     "plan": "node bin/compose.mjs plan",
     "validate": "node bin/compose.mjs validate",
     "validate:product-branches": "node scripts/validate-product-branch-packets.mjs",
+    "validate:portfolio-foundation": "npm run validate:product-branches && node --test scripts/portfolio-foundation-pins.test.mjs scripts/validate-product-branch-packets.test.mjs bin/quine/hyphae/quests.test.ts && pnpm --dir apps/portfolio-cartographer test && node --test workers/quests/src/portfolio-catalog.test.ts workers/quests/src/operating-fabric-portfolio.test.ts workers/quests/src/portfolio-admin-actions.test.ts workers/quests/src/portfolio-workbench-route.test.ts workers/quests/src/mission-fabric.test.ts workers/quests/src/mission-fabric-integration.test.ts",
     "branch-loops:check": "node scripts/branch-loop-library.mjs --tenant cambium --write",
     "demo:tenant": "node scripts/demo-tenant-fixture.mjs",
     "demo:quests": "node scripts/demo-quest-ledger.mjs",

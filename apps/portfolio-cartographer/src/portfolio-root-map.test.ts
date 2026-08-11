@@ -36,13 +36,15 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 47)
-  assert.equal(thoughtseed.folders.length, 47)
-  assert.deepEqual(thoughtseed.infrastructure, ['thoughtseed-labs'])
+  assert.equal(thoughtseed.folderCount, 54)
+  assert.equal(thoughtseed.folders.length, 54)
+  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'thoughtseed-labs', 'website'])
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.folders.length, 30)
   assert.deepEqual(noesis.infrastructure, ['selemene-engine-worktrees'])
   assert.equal(noesis.archiveContainer, '_archive')
+  assert.equal(thoughtseed.folders.some((entry: { folder: string }) => ['_physical-relocation-archive-2026-08-08', 'openfang', 'thoughtseed-labs', 'website'].includes(entry.folder)), false)
+  assert.equal(thoughtseed.folders.find((entry: { folder: string }) => entry.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
   assert.equal(noesis.folders.some((entry: { folder: string }) => ['.agents', '_archive', 'selemene-engine-worktrees'].includes(entry.folder)), false)
 })
 
@@ -60,14 +62,18 @@ test('snapshot uses only relative unique folders and bounded proposal kinds', as
   }
 })
 
-test('ambiguous Thoughtseed origins remain review proposals and linked dual work stays explicit', async () => {
+test('review holds and linked dual work stay explicit', async () => {
   const snapshot = await readSnapshot()
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const byFolder = new Map(thoughtseed.folders.map((entry: { folder: string }) => [entry.folder, entry]))
 
   assert.deepEqual(['klear-karma', 'kristudios', 'panaroma-webapp'].map((folder) => byFolder.get(folder)?.proposedKind), [
-    'needs-review', 'needs-review', 'needs-review',
+    'sapling', 'client-branch', 'needs-review',
   ])
+  assert.deepEqual(byFolder.get('kristudios')?.workIds, ['branch:kristudios'])
+  assert.equal(byFolder.get('virtualtryon-3d')?.proposedKind, 'needs-review')
+  assert.deepEqual(byFolder.get('virtualtryon-3d')?.workIds, [])
+  assert.equal(byFolder.get('virtualtryon-3d')?.status, 'empty-hold')
   assert.deepEqual(byFolder.get('parkarea')?.workIds, ['branch:parkarea', 'sapling:parkarea'])
   assert.deepEqual(byFolder.get('tirak')?.workIds, ['branch:tirak', 'sapling:tirak'])
 })
@@ -95,7 +101,7 @@ test('root comparison fails closed on missing or unexpected shallow folders', as
   ]
 
   assert.equal(compareObservedDirectories(thoughtseed, exact).ok, true)
-  assert.deepEqual(compareObservedDirectories(thoughtseed, exact.slice(1)).missing, ['agentfount'])
+  assert.deepEqual(compareObservedDirectories(thoughtseed, exact.slice(1)).missing, ['Airdronauts'])
   assert.deepEqual(compareObservedDirectories(thoughtseed, [...exact, 'unexpected-folder']).unexpected, ['unexpected-folder'])
 })
 
@@ -168,5 +174,43 @@ test('root header writer refuses directory drift before writing either header', 
 
   await assert.rejects(() => writeRootHeaders({ snapshot, projectsRoot, write: true }), /folder drift/)
   assert.equal(existsSync(path.join(projectsRoot, 'thoughtseed/PORTFOLIO.md')), false)
+  assert.equal(existsSync(path.join(projectsRoot, 'tryambakam-noesis/PORTFOLIO.md')), false)
+})
+
+test('root header writer validates every selected portfolio before writing any header', async (t) => {
+  const snapshot = validateSnapshot(await readSnapshot())
+  const projectsRoot = await mkdtemp(path.join(os.tmpdir(), 'portfolio-root-late-drift-'))
+  t.after(() => rm(projectsRoot, { recursive: true, force: true }))
+  for (const portfolio of snapshot.portfolios) {
+    const portfolioRoot = path.join(projectsRoot, portfolio.portfolioId)
+    await mkdir(portfolioRoot, { recursive: true })
+    for (const name of [
+      ...portfolio.folders.map((entry: { folder: string }) => entry.folder),
+      ...(portfolio.infrastructure ?? []),
+      ...(portfolio.archiveContainer ? [portfolio.archiveContainer] : []),
+    ]) await mkdir(path.join(portfolioRoot, name))
+  }
+  await mkdir(path.join(projectsRoot, 'tryambakam-noesis/unexpected-folder'))
+
+  await assert.rejects(() => writeRootHeaders({ snapshot, projectsRoot, write: true }), /folder drift/)
+  assert.equal(existsSync(path.join(projectsRoot, 'thoughtseed/PORTFOLIO.md')), false)
+  assert.equal(existsSync(path.join(projectsRoot, 'tryambakam-noesis/PORTFOLIO.md')), false)
+})
+
+test('root header writer can scope a physical apply to one exact portfolio', async (t) => {
+  const snapshot = validateSnapshot(await readSnapshot())
+  const projectsRoot = await mkdtemp(path.join(os.tmpdir(), 'portfolio-root-scoped-'))
+  t.after(() => rm(projectsRoot, { recursive: true, force: true }))
+  const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
+  const thoughtseedRoot = path.join(projectsRoot, 'thoughtseed')
+  await mkdir(thoughtseedRoot, { recursive: true })
+  for (const name of [
+    ...thoughtseed.folders.map((entry: { folder: string }) => entry.folder),
+    ...(thoughtseed.infrastructure ?? []),
+  ]) await mkdir(path.join(thoughtseedRoot, name))
+
+  const written = await writeRootHeaders({ snapshot, projectsRoot, write: true, portfolioIds: ['thoughtseed'] })
+  assert.deepEqual(written.plans.map(({ portfolioId }) => portfolioId), ['thoughtseed'])
+  assert.equal(existsSync(path.join(thoughtseedRoot, 'PORTFOLIO.md')), true)
   assert.equal(existsSync(path.join(projectsRoot, 'tryambakam-noesis/PORTFOLIO.md')), false)
 })

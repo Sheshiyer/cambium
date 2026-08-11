@@ -1,5 +1,11 @@
 # Cambium Portfolio Catalog Local Evidence — 2026-07-29
 
+> Historical evidence snapshot. Counts, digests, proof totals, and candidate
+> branch details below describe the 2026-07-29 candidate only. The active
+> projection contract is
+> [`portfolio-catalog-v1.md`](../../architecture/contracts/portfolio-catalog-v1.md);
+> do not use this packet as current mapping or promotion authority.
+
 Lifecycle: local, zero-traffic candidate evidence. This record does not
 authorize Cloudflare deployment, Telegram configuration, tenant activation,
 data migration, or production traffic.

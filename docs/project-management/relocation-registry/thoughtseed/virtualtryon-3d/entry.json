@@ -9,6 +9,12 @@
       "type": "reconciling",
       "at": "2026-08-06T22:20:14.767Z",
       "actor": "vault-project-relocation-apply"
+    },
+    {
+      "type": "retired-ignore",
+      "at": "2026-08-08T00:00:00.000Z",
+      "actor": "founder-decision",
+      "note": "Do not create sapling:virtualtryon or active repository/R2 mapping receipts unless a future founder-gated reopen reverses this decision."
     }
   ]
 }

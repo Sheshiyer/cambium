@@ -1,0 +1,139 @@
+{
+  "schema": "thoughtseed.folder-rename-readiness.v1",
+  "capturedDate": "2026-08-08",
+  "portfolioId": "thoughtseed",
+  "status": "phase-1-and-phase-2-applied-phase-3-held",
+  "activeManifest": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
+  "scope": {
+    "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
+    "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+    "pathGrammar": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>",
+    "vaultBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder"
+  },
+  "whenRenamesHappen": {
+    "phase": "after the source-controlled mapping queue is settled and the founder approves an exact relocation manifest",
+    "notDuring": [
+      "repository evidence mapping",
+      "Batch 5 closeout/exclusion handling",
+      "R2 evidence prefix planning",
+      "Workbench digest regeneration"
+    ],
+    "requiredBeforeLiveApply": [
+      "founder-approved manifest with exact from/to paths",
+      "archive or rollback target for every changed folder",
+      "closed WorkObject disposition where applicable",
+      "dry-run compareObservedDirectories result before mutation",
+      "post-apply compareObservedDirectories result",
+      "root-map digest regeneration after accepted physical state",
+      "separate live-apply approval"
+    ]
+  },
+  "decisions": [
+    {
+      "id": "thoughtseed-labs-boundary",
+      "subject": "thoughtseed-labs",
+      "status": "infrastructure-no-rename",
+      "decision": "keep as R2/vault infrastructure context, not an active project folder and not a WorkObject folder",
+      "futureFilesystemAction": "none for active WorkObject mapping",
+      "evidence": [
+        "docs/project-management/portfolio-roots.v1.json",
+        "docs/evidence/2026-08-08-project-r2-folder-inventory.md",
+        ".project/HANDOFF.md"
+      ]
+    },
+    {
+      "id": "cambium-authoritative-promote-swap",
+      "subject": "cambium / cambium-authoritative",
+      "status": "applied-verified",
+      "decision": "the stale non-Git cambium folder is preserved in the relocation archive and the exact Git checkout now occupies the canonical Cambium shallow slot; no second Cambium WorkObject was created",
+      "possibleLiveApply": "complete; any rollback must follow the Phase 1 apply receipt",
+      "blockedBy": [],
+      "evidence": [
+        "docs/evidence/2026-08-08-project-r2-folder-inventory.md",
+        "docs/project-management/project-r2-mapping-proposals.md",
+        ".project/HANDOFF.md",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-preflight.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json"
+      ]
+    },
+    {
+      "id": "temperance-landing-page-dedupe",
+      "subject": "website / temperance-engine-landing-page",
+      "status": "applied-verified",
+      "decision": "the shallow non-Git tree and nested status file are archived, the clean exact checkout occupies the canonical slot, and website remains an empty infrastructure container",
+      "possibleLiveApply": "complete; any rollback must follow the Phase 2 apply receipt",
+      "blockedBy": [],
+      "evidence": [
+        "docs/project-management/project-r2-mapping-proposals.md",
+        "docs/project-management/github-repository-mapping-action-queue.v1.json",
+        ".project/HANDOFF.md",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json",
+        "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json",
+        "docs/evidence/2026-08-08-temperance-landing-page-reconciliation.md"
+      ]
+    },
+    {
+      "id": "symphonics-shallow-folder",
+      "subject": "symphonics",
+      "status": "founder-hold-missing-shallow-folder",
+      "decision": "do not create a project folder or active mapping receipt for the planning repository until the future custom native SDK / Tuya React Native app disposition is exact",
+      "possibleLiveApply": "create or map a shallow symphonics folder only after founder-approved manifest identifies the app/repository role",
+      "blockedBy": [
+        "shallow folder is absent",
+        "current repository evidence is planning/docs rather than implementation",
+        "future native app scope is intentionally ambiguous"
+      ],
+      "evidence": [
+        "docs/project-management/github-repository-mapping-action-queue.v1.json",
+        ".project/HANDOFF.md"
+      ]
+    },
+    {
+      "id": "safvr-closeout",
+      "subject": "safvr",
+      "status": "complete-closed-client-branch",
+      "decision": "keep mapped to branch:safvr-landing-page but out of active workflow",
+      "futureFilesystemAction": "none unless the client relationship reopens",
+      "evidence": [
+        "docs/project-management/closeouts/safvr-landing-page-handoff.md",
+        "docs/project-management/closeouts/safvr-landing-page-closeout.v1.json",
+        "docs/project-management/closeouts/safvr-landing-page-agent-memory.v1.json"
+      ]
+    },
+    {
+      "id": "virtualtryon-retirement",
+      "subject": "virtualtryon-3d",
+      "status": "complete-retired-ignore",
+      "decision": "keep as root-map empty-hold evidence only; do not create sapling:virtualtryon or active mapping receipts",
+      "futureFilesystemAction": "none unless a future founder-gated reopen reverses the retirement",
+      "evidence": [
+        "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md",
+        "docs/project-management/closeouts/virtualtryon-3d-retirement.v1.json",
+        "docs/project-management/closeouts/virtualtryon-3d-retirement-agent-memory.v1.json"
+      ]
+    },
+    {
+      "id": "plugins-git-identity",
+      "subject": "plugins",
+      "status": "deferred-git-identity-or-fold-decision",
+      "decision": "do not rename; either attach a Git repository or fold into existing operator utility / engineering orchestration infrastructure",
+      "futureFilesystemAction": "none until Git identity or fold decision is approved",
+      "evidence": [
+        "docs/project-management/project-r2-mapping-proposals.md",
+        "docs/project-management/github-repository-mapping-action-queue.v1.json",
+        ".project/HANDOFF.md"
+      ]
+    }
+  ],
+  "verification": {
+    "sourceControlledOnly": false,
+    "filesystemMutationPerformed": true,
+    "phase1ApplyVerified": true,
+    "phase2ApplyVerified": true,
+    "r2WritePerformed": false,
+    "githubMutationPerformed": false,
+    "productionDeployPerformed": false
+  }
+}

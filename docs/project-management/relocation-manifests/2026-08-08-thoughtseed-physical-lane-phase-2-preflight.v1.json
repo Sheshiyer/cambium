@@ -1,0 +1,206 @@
+{
+  "schema": "thoughtseed.physical-relocation-preflight.v1",
+  "manifestId": "2026-08-08-thoughtseed-physical-lane",
+  "phaseId": "phase-2-temperance-landing-page-promote-authority",
+  "capturedDate": "2026-08-08",
+  "status": "preflight-passed-awaiting-explicit-live-apply-approval",
+  "approval": {
+    "founderContinuation": "yes lets do temperance",
+    "reconciliationApproved": true,
+    "liveApplyApproved": false,
+    "filesystemMutationAuthorized": false,
+    "requiredText": "approve live apply phase 2 Temperance archive-first promote preserve website container"
+  },
+  "preApply": {
+    "shallowSlot": {
+      "path": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+      "kind": "real-directory",
+      "gitIdentity": "not-a-git-repository",
+      "device": "16777242",
+      "inode": "30366279",
+      "regularFileCount": 54,
+      "symbolicLinkCount": 0,
+      "directoryCount": 14,
+      "approximateSize": "27M"
+    },
+    "nestedAuthorityCheckout": {
+      "path": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page",
+      "gitIdentity": "exact-root",
+      "remote": "https://github.com/Sheshiyer/temperance_engine_landing_page.git",
+      "branch": "main",
+      "head": "488f8b7d945b7a8c07ce51a253e3f559149108e8",
+      "device": "16777242",
+      "inode": "20463948",
+      "regularFileCountExcludingGit": 53,
+      "symbolicLinkCountExcludingGit": 0,
+      "directoryCountExcludingGit": 14,
+      "approximateSizeIncludingGit": "40M",
+      "porcelainStatus": [
+        "?? _PROJECT-STATUS.md"
+      ]
+    },
+    "container": {
+      "path": "$PROJECTS_ROOT/thoughtseed/website",
+      "role": "infrastructure-container",
+      "device": "16777242",
+      "inode": "30575091",
+      "children": [
+        "temperance-engine-landing-page"
+      ]
+    },
+    "archiveTargets": {
+      "displacedShallowTree": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-pre-git-copy",
+      "nestedLocalState": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state",
+      "bothAbsent": true
+    },
+    "rootMap": {
+      "expectedCount": 58,
+      "observedCount": 58,
+      "missing": [],
+      "unexpected": [],
+      "snapshotDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe",
+      "fileSha256": "b16c45ffabd5a463bc1c0f44d1664654860cc6a839bf5dc53b65b3b7826c483e"
+    }
+  },
+  "contentReconciliation": {
+    "comparisonScope": "all regular files and symbolic links excluding .git; sensitive ignored content compared by metadata only",
+    "shallowEntryCount": 54,
+    "nestedEntryCount": 53,
+    "identicalNonSensitiveCount": 50,
+    "shallowOnlyNonSensitive": [
+      {
+        "path": "public/.DS_Store",
+        "size": 6148,
+        "sha256": "7ea4f6db9aaa0344b404968a3edf4f62330bff8b2a2db9aebb5142f5a1d143f6"
+      }
+    ],
+    "nestedOnlyNonSensitive": [],
+    "changedNonSensitive": [
+      {
+        "path": ".DS_Store",
+        "shallowSize": 6148,
+        "authoritySize": 6148,
+        "shallowSha256": "c6157915b35cf514cbd010693b78741e7627ffcfead5ca5eec26ece031891e21",
+        "authoritySha256": "793affd3267cf70b94def44514dd9fff9c48c8155993762dc19eaf5ebba8be47"
+      },
+      {
+        "path": ".gitignore",
+        "shallowSize": 2401,
+        "authoritySize": 44,
+        "shallowSha256": "6abf5a209913101e79c5292b5f02648ad76fc6f5fc6f96ba6e21fa2531911e96",
+        "authoritySha256": "1efe91a6dca729ea4a2e90c19e466a0b07d29394a41b5e989a9c19178b2f4da9"
+      }
+    ],
+    "sensitiveIgnoredState": {
+      "commonFileCount": 1,
+      "onlyOneSideCount": 0,
+      "metadataDifferenceCount": 0,
+      "contentInspected": false,
+      "contentHashed": false,
+      "pathRecorded": false,
+      "preservation": "both containing trees remain intact through archive-first movement"
+    },
+    "untrackedProjectStatus": {
+      "path": "_PROJECT-STATUS.md",
+      "size": 1103,
+      "sha256": "9ef2133d3e8a25ea9184ddc38f9d44979dbd03a9718d4c7e3a44b314d71ed9c3",
+      "identicalToShallowCounterpart": true,
+      "disposition": "move the nested copy to the dedicated local-state archive before requiring a clean authority checkout"
+    },
+    "ignorePolicyDecision": {
+      "authorityGitignoreTracked": true,
+      "authorityPolicyDisposition": "preserve unchanged as repository authority",
+      "shallowPolicyDisposition": "preserve inside displaced shallow-tree archive",
+      "mergeDuringRelocation": false,
+      "futureChangeBoundary": "any ignore-policy expansion belongs to a separate reviewed commit in the authority repository"
+    }
+  },
+  "containerDecision": {
+    "decision": "preserve-empty-container-as-infrastructure",
+    "reason": "the container has no content outside the nested checkout and already appears in the accepted root map",
+    "postApplyChildren": [],
+    "rootMapChangeExpected": false
+  },
+  "proposedOperationsAfterExactApproval": [
+    {
+      "order": 1,
+      "op": "create-directory",
+      "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state"
+    },
+    {
+      "order": 2,
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page/_PROJECT-STATUS.md",
+      "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state/_PROJECT-STATUS.md"
+    },
+    {
+      "order": 3,
+      "op": "assert-clean-git-authority",
+      "path": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page"
+    },
+    {
+      "order": 4,
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+      "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-pre-git-copy"
+    },
+    {
+      "order": 5,
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page",
+      "target": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page"
+    },
+    {
+      "order": 6,
+      "op": "preserve-empty-container",
+      "path": "$PROJECTS_ROOT/thoughtseed/website"
+    }
+  ],
+  "postApplyRequirements": {
+    "canonicalGitIdentity": "exact-root",
+    "canonicalRemote": "https://github.com/Sheshiyer/temperance_engine_landing_page.git",
+    "canonicalBranch": "main",
+    "canonicalHead": "488f8b7d945b7a8c07ce51a253e3f559149108e8",
+    "canonicalWorkingTree": "clean",
+    "displacedShallowTreeInode": "30366279",
+    "promotedAuthorityInode": "20463948",
+    "preservedContainerInode": "30575091",
+    "rootMapExpectedCount": 58,
+    "rootMapObservedCount": 58,
+    "rootMapDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe"
+  },
+  "rollback": {
+    "afterLocalStateArchive": [
+      "move the archived _PROJECT-STATUS.md back into the nested authority checkout",
+      "assert the dedicated local-state archive directory is empty, then remove that directory"
+    ],
+    "afterShallowArchive": [
+      "move the displaced shallow tree back to the canonical shallow slot",
+      "move the archived _PROJECT-STATUS.md back into the nested authority checkout",
+      "assert the dedicated local-state archive directory is empty, then remove that directory"
+    ],
+    "afterPromotion": [
+      "move the canonical Git authority back beneath the preserved website container",
+      "move the archived _PROJECT-STATUS.md back into the nested authority checkout",
+      "move the displaced shallow tree back to the canonical shallow slot",
+      "assert the dedicated local-state archive directory is empty, then remove that directory"
+    ]
+  },
+  "mustNotDo": [
+    "copy or merge the shallow .gitignore into the authority checkout during relocation",
+    "inspect or record sensitive ignored content",
+    "overwrite either archive target",
+    "delete the shallow tree or website container",
+    "move any folder before exact Phase 2 live-apply approval",
+    "create a website WorkObject"
+  ],
+  "externalMutation": {
+    "filesystemMutationPerformed": false,
+    "r2WritePerformed": false,
+    "githubMutationPerformed": false,
+    "registryWritePerformed": false,
+    "goalGraphWritePerformed": false,
+    "providerChangePerformed": false,
+    "productionDeployPerformed": false
+  }
+}

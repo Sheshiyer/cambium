@@ -19,6 +19,8 @@ No fields were flagged during drafting — every field in this packet came from 
 
 ## Relocation boundary
 
-This packet is reviewed-held. The move to a new destination outside the
-vault remains blocked until an exact manifest is approved and a separate
-live-apply approval exists.
+This packet is reviewed-held. The separately approved Cambium Phase 1 and
+Temperance Phase 2 archive-first promotions are complete and recorded by their
+apply receipts. Those consumed approvals do not authorize another move,
+rollback, or relocation; any further filesystem change remains blocked until an
+exact manifest and a new live-apply approval exist.

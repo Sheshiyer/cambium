@@ -20,9 +20,10 @@ test('repository evidence resolves registry aliases, qualified names, and unique
     { fullName: 'Sheshiyer/fitcheck-landing', repositoryId: 'R_1', nodeId: 'N_1', visibility: 'PRIVATE', defaultBranch: 'main', archived: false },
     { fullName: 'Coproperty/nimbus-gate', repositoryId: 'R_2' },
     { fullName: 'Sheshiyer/rasa', repositoryId: 'R_3' },
+    { fullName: 'Sheshiyer/Akshara-coauthor', repositoryId: 'R_4' },
   ]
   const records = resolveRepositoryEvidence(
-    ['repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate', 'repo:monthlymealprep'],
+    ['repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate', 'repo:monthlymealprep', 'repo:Sheshiyer/Akshara-coauthor'],
     relocationEntries,
     inventory,
   )
@@ -31,10 +32,11 @@ test('repository evidence resolves registry aliases, qualified names, and unique
     ['repo:Coproperty/nimbus-gate', 'resolved', 'qualified-name', 'Coproperty/nimbus-gate'],
     ['repo:fitcheck-landing', 'resolved', 'relocation-registry', 'Sheshiyer/fitcheck-landing'],
     ['repo:monthlymealprep', 'resolved', 'relocation-registry', 'Sheshiyer/rasa'],
+    ['repo:Sheshiyer/Akshara-coauthor', 'resolved', 'qualified-name', 'Sheshiyer/Akshara-coauthor'],
   ])
   assert.equal(records[1].repositoryId, 'R_1')
   assert.equal(repositoryEvidenceDigest(records), repositoryEvidenceDigest(resolveRepositoryEvidence(
-    ['repo:monthlymealprep', 'repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate'],
+    ['repo:monthlymealprep', 'repo:Sheshiyer/Akshara-coauthor', 'repo:fitcheck-landing', 'repo:Coproperty/nimbus-gate'],
     relocationEntries,
     inventory,
   )))
@@ -53,13 +55,14 @@ test('owner/name candidates without immutable GitHub metadata stay unverified', 
 
 test('repository evidence fails ambiguous, unmatched, malformed, and unsafe refs explicitly', () => {
   const records = resolveRepositoryEvidence(
-    ['repo:shared-name', 'repo:missing-repo', 'repo:', 'repo:https://github.com/secret/token'],
+    ['repo:shared-name', 'repo:missing-repo', 'repo:', 'repo:https://github.com/secret/token', 'repo:owner/oauth-token'],
     relocationEntries,
   )
   assert.deepEqual(records.map((record) => [record.sourceRef, record.status]), [
     ['repo:', 'malformed'],
     ['repo:https://github.com/secret/token', 'unsafe'],
     ['repo:missing-repo', 'unmatched'],
+    ['repo:owner/oauth-token', 'unsafe'],
     ['repo:shared-name', 'ambiguous'],
   ])
   assert.deepEqual(records.find((record) => record.sourceRef === 'repo:shared-name')?.candidates, [
@@ -88,4 +91,22 @@ test('repository evidence separates repository identity from source subpaths', (
     ['ashwinsheth-group/marina-one-KA', 'web', 'https://github.com/ashwinsheth-group/marina-one-KA'],
     ['Sheshiyer/fitcheck-landing', 'README.md', 'https://github.com/Sheshiyer/fitcheck-landing'],
   ])
+})
+
+test('unique inventory repository names resolve legacy unqualified references', () => {
+  const records = resolveRepositoryEvidence(
+    ['repo:plexus-ts', 'repo:shared-repository'],
+    relocationEntries,
+    [
+      { fullName: 'Sheshiyer/plexus-ts', repositoryId: 'R_PLEXUS' },
+      { fullName: 'First/shared-repository', repositoryId: 'R_FIRST' },
+      { fullName: 'Second/shared-repository', repositoryId: 'R_SECOND' },
+    ],
+  )
+
+  assert.deepEqual(records.map((record) => [record.sourceRef, record.status, record.matchMethod, record.fullName]), [
+    ['repo:plexus-ts', 'resolved', 'unique-name', 'Sheshiyer/plexus-ts'],
+    ['repo:shared-repository', 'ambiguous', null, null],
+  ])
+  assert.deepEqual(records[1].candidates, ['First/shared-repository', 'Second/shared-repository'])
 })

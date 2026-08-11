@@ -39,9 +39,11 @@ import {
   HORIZONS,
   ORGAN_WORKFLOWS,
   PORTFOLIO_ROOT_MAP_DIGEST,
+  PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_SIGNALS,
   REVIEW_RECORDS,
   SIGNAL_STATUSES,
+  SEEDED_PROJECT_CLOSEOUTS,
   SMART_VIEWS,
   SOURCE_GENERATED_AT,
   WORK_OBJECTS,
@@ -157,6 +159,16 @@ interface RepositoryEvidence {
 interface LocalLoad extends WorkbenchState {
   notice: string
   autosaveBlocked: boolean
+}
+
+function withSeededCloseouts(load: LocalLoad): LocalLoad {
+  return {
+    ...load,
+    closeouts: {
+      ...SEEDED_PROJECT_CLOSEOUTS,
+      ...load.closeouts,
+    },
+  }
 }
 
 function label(value: string): string {
@@ -1221,7 +1233,7 @@ function PlanDrawer({
 }
 
 function App() {
-  const initial = useMemo(loadLocalState, [])
+  const initial = useMemo(() => withSeededCloseouts(loadLocalState()), [])
   const [plans, setPlans] = useState<Record<string, WorkPlan>>({ ...initial.plans })
   const [reviewDecisions, setReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.reviewDecisions })
   const [retiredReviewDecisions] = useState<Record<string, ReviewDecision>>({ ...initial.retiredReviewDecisions })
@@ -1512,6 +1524,7 @@ function App() {
         idempotencyKey: retrySafeActionKey(work.workId, proposal),
         rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
         sourceDigest: CLASSIFICATION_DIGEST,
+        catalogDigest: PORTFOLIO_CATALOG_DIGEST,
         subject: { id: work.workId, name: work.name },
         proposal,
       })
@@ -1545,6 +1558,7 @@ function App() {
         idempotencyKey: retrySafeActionKey(`new:${projectCreation.slug}`, proposal),
         rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
         sourceDigest: CLASSIFICATION_DIGEST,
+        catalogDigest: PORTFOLIO_CATALOG_DIGEST,
         subject: { id: projectCreation.slug, name: projectCreation.name.trim() },
         proposal,
       })
@@ -1592,6 +1606,7 @@ function App() {
         idempotencyKey: retrySafeActionKey(`close:${work.workId}`, proposal),
         rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
         sourceDigest: CLASSIFICATION_DIGEST,
+        catalogDigest: PORTFOLIO_CATALOG_DIGEST,
         subject: { id: work.workId, name: work.name },
         proposal,
       })

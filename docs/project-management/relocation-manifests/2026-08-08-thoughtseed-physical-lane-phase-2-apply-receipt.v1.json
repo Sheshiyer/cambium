@@ -1,0 +1,185 @@
+{
+  "schema": "thoughtseed.physical-relocation-apply-receipt.v1",
+  "manifestId": "2026-08-08-thoughtseed-physical-lane",
+  "phaseId": "phase-2-temperance-landing-page-promote-authority",
+  "appliedDate": "2026-08-08",
+  "status": "applied-verified",
+  "approval": {
+    "requiredText": "approve live apply phase 2 Temperance archive-first promote preserve website container",
+    "matchedFounderMessage": true,
+    "scope": "phase-2-only",
+    "consumed": true
+  },
+  "preApply": {
+    "reconciliationCommitAncestor": "de31783fed5c140af94064d49c8fa07d2bcada0f",
+    "applyInputHead": "6edde71c0677545edae2ee465fc9a16469ca57ca",
+    "branch": "codex/project-r2-mapping-plan",
+    "cambiumWorkingTreeClean": true,
+    "shallowSlot": {
+      "path": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+      "gitIdentity": "not-a-git-repository",
+      "device": "16777242",
+      "inode": "30366279"
+    },
+    "nestedAuthorityCheckout": {
+      "path": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page",
+      "gitIdentity": "exact-root",
+      "remote": "https://github.com/Sheshiyer/temperance_engine_landing_page.git",
+      "branch": "main",
+      "head": "488f8b7d945b7a8c07ce51a253e3f559149108e8",
+      "porcelainStatus": [
+        "?? _PROJECT-STATUS.md"
+      ],
+      "device": "16777242",
+      "inode": "20463948"
+    },
+    "container": {
+      "path": "$PROJECTS_ROOT/thoughtseed/website",
+      "device": "16777242",
+      "inode": "30575091",
+      "children": [
+        "temperance-engine-landing-page"
+      ]
+    },
+    "archiveTargetsAbsent": true,
+    "depthOneComparison": {
+      "expectedCount": 58,
+      "observedCount": 58,
+      "missing": [],
+      "unexpected": [],
+      "ok": true
+    }
+  },
+  "operations": [
+    {
+      "order": 1,
+      "op": "create-directory",
+      "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state"
+    },
+    {
+      "order": 2,
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page/_PROJECT-STATUS.md",
+      "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state/_PROJECT-STATUS.md"
+    },
+    {
+      "order": 3,
+      "op": "assert-clean-git-authority",
+      "path": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page",
+      "result": "clean"
+    },
+    {
+      "order": 4,
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+      "target": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-pre-git-copy"
+    },
+    {
+      "order": 5,
+      "op": "move",
+      "source": "$PROJECTS_ROOT/thoughtseed/website/temperance-engine-landing-page",
+      "target": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page"
+    },
+    {
+      "order": 6,
+      "op": "preserve-empty-container",
+      "path": "$PROJECTS_ROOT/thoughtseed/website",
+      "result": "preserved-empty-infrastructure"
+    }
+  ],
+  "postApply": {
+    "canonicalSlot": {
+      "path": "$PROJECTS_ROOT/thoughtseed/temperance-engine-landing-page",
+      "gitIdentity": "exact-root",
+      "remote": "https://github.com/Sheshiyer/temperance_engine_landing_page.git",
+      "branch": "main",
+      "head": "488f8b7d945b7a8c07ce51a253e3f559149108e8",
+      "workingTreeClean": true,
+      "device": "16777242",
+      "inode": "20463948",
+      "regularFileCountExcludingGit": 52,
+      "symbolicLinkCountExcludingGit": 0,
+      "directoryCountExcludingGit": 14,
+      "approximateSizeIncludingGit": "40M"
+    },
+    "archivedShallowState": {
+      "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-pre-git-copy",
+      "gitIdentity": "not-a-git-repository",
+      "disposition": "preserved-recoverable",
+      "device": "16777242",
+      "inode": "30366279",
+      "regularFileCount": 54,
+      "symbolicLinkCount": 0,
+      "directoryCount": 14,
+      "approximateSize": "27M"
+    },
+    "archivedNestedLocalState": {
+      "path": "$PROJECTS_ROOT/thoughtseed/_physical-relocation-archive-2026-08-08/temperance-engine-landing-page-nested-local-state",
+      "device": "16777242",
+      "inode": "30694077",
+      "children": [
+        "_PROJECT-STATUS.md"
+      ],
+      "statusFileSize": 1103,
+      "statusFileSha256": "9ef2133d3e8a25ea9184ddc38f9d44979dbd03a9718d4c7e3a44b314d71ed9c3",
+      "approximateSize": "4.0K"
+    },
+    "container": {
+      "path": "$PROJECTS_ROOT/thoughtseed/website",
+      "role": "infrastructure-container",
+      "device": "16777242",
+      "inode": "30575091",
+      "children": [],
+      "approximateSize": "0B"
+    },
+    "formerNestedAuthorityPathExists": false,
+    "depthOneComparison": {
+      "expectedCount": 58,
+      "observedCount": 58,
+      "missing": [],
+      "unexpected": [],
+      "ok": true
+    },
+    "rootMap": {
+      "snapshotDigest": "8a3b3bb07018ebbf44f4ad13e88b3f48f616d43daa1b7faf7d03f4ddfc6dafbe",
+      "fileSha256": "b16c45ffabd5a463bc1c0f44d1664654860cc6a839bf5dc53b65b3b7826c483e",
+      "changed": false
+    },
+    "sensitiveIgnoredState": {
+      "contentInspected": false,
+      "contentHashed": false,
+      "pathRecorded": false,
+      "disposition": "remains contained inside the promoted authority and archived shallow trees"
+    }
+  },
+  "rollback": {
+    "available": true,
+    "steps": [
+      "move the canonical Git authority back beneath the preserved website container",
+      "move the archived _PROJECT-STATUS.md back into the nested authority checkout",
+      "move the archived shallow state back into the canonical shallow slot",
+      "assert the dedicated local-state archive directory is empty, then remove that directory"
+    ]
+  },
+  "heldBoundaries": {
+    "thoughtseedLabsInodeBeforeAndAfter": "30565745",
+    "symphonicsExists": false,
+    "websiteWorkObjectCreated": false,
+    "shallowGitignoreMergedIntoAuthority": false
+  },
+  "externalMutation": {
+    "filesystemMutationPerformed": true,
+    "contentDeletionPerformed": false,
+    "r2WritePerformed": false,
+    "githubMutationPerformed": false,
+    "registryWritePerformed": false,
+    "goalGraphWritePerformed": false,
+    "providerChangePerformed": false,
+    "productionDeployPerformed": false
+  },
+  "nextGate": {
+    "phase": "phase-3-symphonics-held",
+    "liveApplyAuthorized": false,
+    "disposition": "remain-held-until-native-app-role-is-exact"
+  }
+}
