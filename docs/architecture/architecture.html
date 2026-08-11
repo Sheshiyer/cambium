@@ -17,11 +17,11 @@
 </head>
 <body>
 <main>
-  <header><span class="dot" aria-hidden="true"></span><h1>Cambium · current architecture</h1><span class="meta">v0.3.0 Urania / main · refreshed 2026-07-22</span></header>
+  <header><span class="dot" aria-hidden="true"></span><h1>Cambium · current architecture</h1><span class="meta">v0.3.0 Urania / main · knowledge boundary refreshed 2026-08-11</span></header>
   <section class="diagram" aria-label="Cambium architecture diagram">
     <svg viewBox="0 0 1120 570" role="img" aria-labelledby="title desc">
       <title id="title">Cambium composition, runtime, and visual planes</title>
-      <desc id="desc">A contract-driven composition and operator plane feeds a tenant Worker and a desktop R3F visual engine. The Worker binds D1, KV, R2, and Vectorize and exposes bounded lead and marketing contracts.</desc>
+      <desc id="desc">A contract-driven composition and operator plane feeds a tenant Worker and a desktop R3F visual engine. The Worker gets bounded company knowledge through the Plexus GitHub-App gateway, retrieves through Vectorize, and keeps D1/R2 for separately scoped operational contracts.</desc>
       <defs>
         <marker id="arrow-cyan" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#22d3ee"/></marker>
         <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#34d399"/></marker>
@@ -34,15 +34,16 @@
       </g>
       <path d="M280 170 C430 170 470 170 570 170 S710 170 840 170" fill="none" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow-cyan)"/>
       <path d="M570 265 V370" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#arrow-green)"/>
+      <path d="M705 210 C760 210 760 245 810 245" fill="none" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrow-green)"/>
       <path d="M840 265 V370" fill="none" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow-amber)"/>
       <path d="M840 470 H720" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#arrow-green)"/>
 
       <g transform="translate(60 70)"><rect width="250" height="220" rx="10" fill="#0f172a" stroke="#22d3ee" stroke-width="1.5"/><text x="18" y="28" fill="#22d3ee" font-size="13">COMPOSITION / OPERATOR</text><text x="18" y="58" fill="#e2e8f0" font-size="12">registry + contracts</text><text x="18" y="82" fill="#94a3b8" font-size="11">bin/compose.mjs</text><text x="18" y="120" fill="#e2e8f0" font-size="12">tenant wake loop</text><text x="18" y="144" fill="#94a3b8" font-size="11">bin/operator/</text><text x="18" y="182" fill="#e2e8f0" font-size="12">Quine + Cortex seam</text><text x="18" y="206" fill="#94a3b8" font-size="11">local SQLite / Vectorize adapter</text></g>
-      <g transform="translate(435 70)"><rect width="270" height="220" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/><text x="18" y="28" fill="#34d399" font-size="13">QUESTS WORKER</text><text x="18" y="58" fill="#e2e8f0" font-size="12">tenant-scoped runtime boundary</text><text x="18" y="90" fill="#94a3b8" font-size="11">D1 · KV · R2 · Vectorize</text><text x="18" y="130" fill="#e2e8f0" font-size="12">RBAC + invite identity</text><text x="18" y="154" fill="#94a3b8" font-size="11">absence-based envelope filtering</text><text x="18" y="194" fill="#e2e8f0" font-size="12">actions, receipts, lead spine</text></g>
+      <g transform="translate(435 70)"><rect width="270" height="220" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/><text x="18" y="28" fill="#34d399" font-size="13">QUESTS WORKER</text><text x="18" y="58" fill="#e2e8f0" font-size="12">tenant-scoped runtime boundary</text><text x="18" y="90" fill="#94a3b8" font-size="11">Plexus gateway · KV · Vectorize</text><text x="18" y="130" fill="#e2e8f0" font-size="12">no GitHub credential in Cambium</text><text x="18" y="154" fill="#94a3b8" font-size="11">bounded commit-SHA provenance</text><text x="18" y="194" fill="#e2e8f0" font-size="12">actions, receipts, lead spine</text></g>
       <g transform="translate(810 70)"><rect width="250" height="220" rx="10" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="18" y="28" fill="#fbbf24" font-size="13">R3F VISUAL ENGINE</text><text x="18" y="58" fill="#e2e8f0" font-size="12">desktop constellation surface</text><text x="18" y="90" fill="#94a3b8" font-size="11">MAP · SHEETS · WORKFORCE</text><text x="18" y="130" fill="#e2e8f0" font-size="12">shared generated contract</text><text x="18" y="154" fill="#94a3b8" font-size="11">synthetic fallback when offline</text><text x="18" y="194" fill="#e2e8f0" font-size="12">signed-action UI + audit context</text></g>
 
       <g transform="translate(435 370)"><rect width="270" height="120" rx="10" fill="#0f172a" stroke="#a78bfa" stroke-width="1.5"/><text x="18" y="28" fill="#a78bfa" font-size="13">DURABLE DATA</text><text x="18" y="58" fill="#e2e8f0" font-size="12">identity · tasks · receipts</text><text x="18" y="82" fill="#94a3b8" font-size="11">immutable observation + usage</text><text x="18" y="104" fill="#94a3b8" font-size="11">tenant partitioning · fencing</text></g>
-      <g transform="translate(810 370)"><rect width="250" height="120" rx="10" fill="#0f172a" stroke="#fb7185" stroke-width="1.5"/><text x="18" y="28" fill="#fb7185" font-size="13">GOVERNED ADAPTERS</text><text x="18" y="58" fill="#e2e8f0" font-size="12">IVerif observer · GET only</text><text x="18" y="82" fill="#94a3b8" font-size="11">Marketing Create · draft only</text><text x="18" y="104" fill="#94a3b8" font-size="11">no send · no publish · no schedule</text></g>
+      <g transform="translate(810 370)"><rect width="250" height="120" rx="10" fill="#0f172a" stroke="#a78bfa" stroke-width="1.5"/><text x="18" y="28" fill="#a78bfa" font-size="13">PLEXUS GITHUB-APP GATEWAY</text><text x="18" y="58" fill="#e2e8f0" font-size="12">verified repo → thoughtseed-labs</text><text x="18" y="82" fill="#94a3b8" font-size="11">short-lived scoped token · one commit</text><text x="18" y="104" fill="#94a3b8" font-size="11">bounded excerpt + file-SHA provenance</text></g>
       <text x="40" y="540" fill="#94a3b8" font-size="10">cyan composition flow · green runtime/data · amber visual surface · rose safety boundary</text>
     </svg>
   </section>

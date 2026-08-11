@@ -2,13 +2,10 @@
 
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
 import {
-  DEFAULT_ROUTINE_CONTEXT_SLICES,
   createProviderEmbedder,
-  createRoutineContext,
   createSemanticRecall,
-  parseRoutineAllowlistJson,
 } from './context-bindings.ts';
-import { createContextProjectionStore } from './context-projections.ts';
+import { createPlexusRoutineContext } from './plexus-knowledge.ts';
 import { createPortfolioAdminActionQueue, createPortfolioAdminActionStore } from './portfolio-admin-actions.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
@@ -68,7 +65,6 @@ interface Env {
   };
   BRIDGE_DB?: D1DatabaseLike;
   THOUGHTSEED_VAULT?: R2BucketLike;
-  CONTEXT_PROJECTIONS?: R2BucketLike;
   CAMBIUM_CORTEX?: VectorizeIndexLike;
   QUESTS_PUSH_TOKEN?: string;
   GATE_BOT_ID?: string;
@@ -82,11 +78,11 @@ interface Env {
   HANDOFF_SECRET?: string;
   PROVIDER_BROKER_TOKEN?: string;
   CONTEXT_ROUTE_TOKEN?: string;
-  CONTEXT_PROJECTION_WRITE_TOKEN?: string;
   CONTEXT_ALLOWED_TENANTS?: string;
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
-  CONTEXT_ROUTINE_ALLOWLIST_JSON?: string;
+  PLEXUS_KNOWLEDGE_URL?: string;
+  PLEXUS_KNOWLEDGE_TOKEN?: string;
   GITHUB_AGENT_TOKEN?: string;
   GITHUB_AGENT_ALLOWED_REPOS?: string;
   OLLAMA_API_KEY?: string;
@@ -1333,7 +1329,7 @@ export default {
       fetch: fetch.bind(globalThis),
     } : undefined;
     let contextRoutes: ContextRouteDeps | undefined;
-    if (env.CONTEXT_ROUTE_TOKEN || env.CONTEXT_PROJECTION_WRITE_TOKEN) {
+    if (env.CONTEXT_ROUTE_TOKEN) {
       const embeddingProviderId = env.CONTEXT_EMBEDDING_PROVIDER?.trim() || 'nvidia';
       const embeddingProvider = providers[embeddingProviderId];
       const embed = createProviderEmbedder({
@@ -1343,18 +1339,8 @@ export default {
       });
       contextRoutes = {
         token: env.CONTEXT_ROUTE_TOKEN,
-        projectionWriteToken: env.CONTEXT_PROJECTION_WRITE_TOKEN,
-        projectionStore: env.CONTEXT_PROJECTIONS?.put
-          ? createContextProjectionStore({ bucket: env.CONTEXT_PROJECTIONS })
-          : undefined,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
-        routineContext: env.CONTEXT_ROUTE_TOKEN ? createRoutineContext({
-          bucket: env.CONTEXT_PROJECTIONS,
-          allowlist: {
-            ...DEFAULT_ROUTINE_CONTEXT_SLICES,
-            ...(parseRoutineAllowlistJson(env.CONTEXT_ROUTINE_ALLOWLIST_JSON) ?? {}),
-          },
-        }) : undefined,
+        routineContext: createPlexusRoutineContext({ url: env.PLEXUS_KNOWLEDGE_URL, token: env.PLEXUS_KNOWLEDGE_TOKEN, fetchImpl: workerFetch }),
         semanticRecall: embed && env.CAMBIUM_CORTEX
           ? createSemanticRecall({ embed, vectorIndex: env.CAMBIUM_CORTEX })
           : undefined,

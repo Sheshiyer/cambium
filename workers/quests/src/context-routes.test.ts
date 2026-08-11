@@ -39,7 +39,7 @@ test('context health returns bounded capability flags', async () => {
   assert.equal(payload.capabilities.semanticRecall, true);
 });
 
-test('projection writes require their dedicated configured token before store calls', async () => {
+test('projection writes are retired before any store call', async () => {
   let called = false;
   const projectionStore = {
     put: async () => {
@@ -64,7 +64,7 @@ test('projection writes require their dedicated configured token before store ca
     token: 'context-token',
     projectionStore,
   });
-  assert.equal(missingConfig.status, 503);
+  assert.equal(missingConfig.status, 410);
   assert.equal(missingConfig.headers['cache-control'], 'no-store');
   assert.equal(called, false);
 
@@ -73,12 +73,12 @@ test('projection writes require their dedicated configured token before store ca
     projectionWriteToken: 'projection-token',
     projectionStore,
   });
-  assert.equal(readToken.status, 401);
+  assert.equal(readToken.status, 410);
   assert.equal(readToken.headers['cache-control'], 'no-store');
   assert.equal(called, false);
 });
 
-test('projection write returns only the bounded store receipt', async () => {
+test('retired projection write never calls the legacy store', async () => {
   let stored: unknown;
   const body = {
     schema: CONTEXT_PROJECTION_SCHEMA,
@@ -109,18 +109,10 @@ test('projection write returns only the bounded store receipt', async () => {
     },
   });
 
-  assert.equal(r.status, 201);
+  assert.equal(r.status, 410);
   assert.equal(r.headers['cache-control'], 'no-store');
-  assert.deepEqual(stored, body);
-  assert.deepEqual(JSON.parse(r.body), {
-    schema: CONTEXT_PROJECTION_RECEIPT_SCHEMA,
-    key: CONTEXT_PROJECTION_KEY,
-    generation: 2,
-    contentDigest: body.contentDigest,
-    producedAt: body.producedAt,
-    expiresAt: body.expiresAt,
-  });
-  assert.doesNotMatch(r.body, /markdown|sourceRevision|bucket|metadata|Bounded evidence/i);
+  assert.equal(stored, undefined);
+  assert.match(r.body, /retired/i);
 });
 
 test('semantic recall rejects missing tenant and query', async () => {

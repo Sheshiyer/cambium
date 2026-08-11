@@ -8,6 +8,14 @@
 - Registry WorkObject: `sapling:cambium`
 - GitHub: `Sheshiyer/cambium`
 
+### 2026-08-11 Plexus GitHub-App knowledge-gateway checkpoint
+
+- Approved knowledge authority: private GitHub repository `Sheshiyer/thoughtseed-labs`; the local Labs checkout is not a runtime source.
+- Routine knowledge reads enter through Plexus's existing GitHub App control plane. The Worker validates one verified TeamForge project, mints a numeric-repository-scoped short-lived read token, resolves one commit, and fetches only exact routine-allowlisted paths.
+- Cambium receives only bounded excerpts and commit/file-SHA provenance through `PLEXUS_KNOWLEDGE_URL`; it holds no GitHub credential. Plexus D1 remains identity/repository authority, not a knowledge store or inference backend.
+- `CONTEXT_PROJECTIONS` R2 binding and its projection-write route are retired for the knowledge plane; `CAMBIUM_CORTEX` remains the Vectorize retrieval index. Existing `BRIDGE_DB` and `THOUGHTSEED_VAULT` bindings remain only for separately governed operational/evidence paths.
+- No deployment, Vectorize upsert, R2/D1 mutation, or secret provisioning was performed by this checkpoint. User-facing Plexus role enforcement for context retrieval remains a follow-up, fail-closed wiring task.
+
 ### 2026-08-07 repository-first intake checkpoint
 
 - Packet status remains `draft-held`; this checkpoint does not satisfy the human-review gate.
@@ -135,6 +143,26 @@
 This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
+
+### 2026-08-11 TeamForge GitHub knowledge-plane rollout checkpoint
+
+- The Labs Cloudflare account is now the deployment authority for both
+  `teamforge-api` and `cambium-quests`; the knowledge caller uses the direct
+  `teamforge-api.thoughtseedlabs.workers.dev` origin, never the Access-gated
+  custom hostname.
+- Labs D1 records the canonical `teamforge` project and its verified
+  `Sheshiyer/thoughtseed-labs` GitHub-App repository binding. The TeamForge
+  Worker has the fixed `daily-standup` routine policy, while Cambium has only
+  the matching gateway bearer; neither worker holds a GitHub PAT.
+- Both Workers were deployed and a bearer-authenticated direct-origin probe
+  now succeeds: it returns one allowlisted, bounded document from
+  `Sheshiyer/thoughtseed-labs` with a commit pin. The GitHub App private key,
+  client secret, webhook secret, and state-signing secret were restored as
+  Labs Worker secrets; their values are neither recorded nor recoverable here.
+- Hermes-to-Vectorize remains intentionally unstarted: it requires a separate
+  bounded ingestion implementation using the now-proven provenance-bearing
+  snapshot. R2 and D1 retain operational/evidence and authorization roles
+  only; neither is the company-knowledge source.
 
 ## Completed
 
