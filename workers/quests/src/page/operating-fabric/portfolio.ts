@@ -758,10 +758,35 @@ function operationalPacketReferenceMarkup(
       `</div><p class="of-card-gap">${escapeHtml(operational.story.antiClaims)}</p>`
     );
   }
+  // Pure L4 loop projection (no network) for Mini App Mission Fabric strip
+  let loopStrip = '';
+  try {
+    // Lazy require pattern avoided; dynamic import not available in pure template string builders.
+    // Inline minimal status from lifecycle ladder only if proactive helper is available on globalThis.
+    const proactive = (globalThis as { __CAMBIUM_PROACTIVE_LOOP__?: {
+      heldCount: number;
+      failedCount: number;
+      passedCount: number;
+      nextFounderAction: string | null;
+      ladder: Array<{ stage: string; exit: string; summary: string }>;
+    } }).__CAMBIUM_PROACTIVE_LOOP__;
+    if (proactive) {
+      loopStrip =
+        `<div class="of-fitcheck-loop" data-proactive-loop="cambium.proactive-loop-miniapp.v1">` +
+        `<span>Proactive L4 loops · pass ${proactive.passedCount} · held ${proactive.heldCount} · fail ${proactive.failedCount}</span>` +
+        (proactive.nextFounderAction
+          ? `<strong>Next founder action: ${escapeHtml(proactive.nextFounderAction)}</strong>`
+          : `<strong>No founder action queued</strong>`) +
+        `<small>Projection only · not D1 admission · Hermes owns Telegram transport</small></div>`;
+    }
+  } catch {
+    loopStrip = '';
+  }
+
   return (
     `<div class="of-fitcheck-reference" data-operational-packet="${escapeHtml(operational.schema)}" data-fitcheck-golden-path="${escapeHtml(operational.schema)}" ` +
     `data-fitcheck-scene="${scene}"><header><span>${escapeHtml(operational.identity.name)} operational packet</span>` +
-    `<strong>${escapeHtml(operational.identity.autonomyLabel)}</strong></header>${authority}${body}</div>`
+    `<strong>${escapeHtml(operational.identity.autonomyLabel)}</strong></header>${authority}${body}${loopStrip}</div>`
   );
 }
 

@@ -39,6 +39,7 @@ import type {
   SimpleRequest,
 } from './handler.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
+import type { CortexIngestionDeps } from './cortex-ingestion.ts';
 import type { R2BucketLike, VectorizeIndexLike } from './context-bindings.ts';
 
 export interface D1StatementLike {
@@ -83,6 +84,7 @@ interface Env {
   PROVIDER_BROKER_TOKEN?: string;
   CONTEXT_ROUTE_TOKEN?: string;
   CONTEXT_PROJECTION_WRITE_TOKEN?: string;
+  CORTEX_INGESTION_TOKEN?: string;
   CONTEXT_ALLOWED_TENANTS?: string;
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
@@ -1251,6 +1253,23 @@ async function resolveSecret(
 }
 
 export default {
+  /**
+   * Cloudflare Cron: run Fitcheck L4 + quest template tick, store Mini App projection
+   * and Hermes delivery intents. Does not send Telegram or write D1.
+   */
+  async scheduled(_event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
+    const { runAndStoreProactiveLoopTick } = await import('./proactive-loop-runtime.ts');
+    const kv = {
+      get: (key: string) => env.QUESTS.get(key),
+      put: (key: string, value: string) => env.QUESTS.put(key, value),
+    };
+    await runAndStoreProactiveLoopTick(kv, {
+      tenantId: 'cambium',
+      actor: 'cloudflare-cron',
+      nowIso: new Date().toISOString(),
+    });
+  },
+
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const headers: Record<string, string> = {};
@@ -1333,7 +1352,7 @@ export default {
       fetch: fetch.bind(globalThis),
     } : undefined;
     let contextRoutes: ContextRouteDeps | undefined;
-    if (env.CONTEXT_ROUTE_TOKEN || env.CONTEXT_PROJECTION_WRITE_TOKEN) {
+    if (env.CONTEXT_ROUTE_TOKEN || env.CONTEXT_PROJECTION_WRITE_TOKEN || env.CORTEX_INGESTION_TOKEN) {
       const embeddingProviderId = env.CONTEXT_EMBEDDING_PROVIDER?.trim() || 'nvidia';
       const embeddingProvider = providers[embeddingProviderId];
       const embed = createProviderEmbedder({
@@ -1341,12 +1360,17 @@ export default {
         model: env.CONTEXT_EMBEDDING_MODEL?.trim() || embeddingProvider?.defaultModel,
         fetchImpl: workerFetch,
       });
+      const cortexIngestionDeps: CortexIngestionDeps | undefined = env.CORTEX_INGESTION_TOKEN && embed && env.CAMBIUM_CORTEX
+        ? { embed, vectorIndex: env.CAMBIUM_CORTEX }
+        : undefined;
       contextRoutes = {
         token: env.CONTEXT_ROUTE_TOKEN,
         projectionWriteToken: env.CONTEXT_PROJECTION_WRITE_TOKEN,
         projectionStore: env.CONTEXT_PROJECTIONS?.put
           ? createContextProjectionStore({ bucket: env.CONTEXT_PROJECTIONS })
           : undefined,
+        cortexIngestionToken: env.CORTEX_INGESTION_TOKEN,
+        cortexIngestionDeps,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
         routineContext: env.CONTEXT_ROUTE_TOKEN ? createRoutineContext({
           bucket: env.CONTEXT_PROJECTIONS,
