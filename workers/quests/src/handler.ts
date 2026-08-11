@@ -4402,7 +4402,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const plan = await runAndStoreProactiveLoopTick(deps.kv, {
         tenantId,
         actor: String(body.actor || 'bridge-tick'),
-        nowIso,
+        nowIso: nowIso(),
       });
       return json(200, {
         ok: true,
@@ -4427,7 +4427,11 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const plan = await readProactiveLoopPlan(deps.kv, tenantId);
       if (!plan) {
         // Fail-open: compile ephemeral projection without store (no delivery queue)
-        const ephemeral = compileProactiveLoopPlan({ tenantId, observedAt: nowIso, actor: 'projection-read' });
+        const ephemeral = compileProactiveLoopPlan({
+          tenantId,
+          observedAt: nowIso(),
+          actor: 'projection-read',
+        });
         return json(200, {
           ok: true,
           stored: false,
@@ -4480,7 +4484,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ? body.deliveryIds.map((x) => String(x))
         : [];
       if (!ids.length) return json(400, { error: 'deliveryIds required' });
-      const result = await claimProactiveDeliveries(deps.kv, tenantId, ids, nowIso);
+      const result = await claimProactiveDeliveries(deps.kv, tenantId, ids, nowIso());
       return json(200, { ok: true, ...result });
     }
 
