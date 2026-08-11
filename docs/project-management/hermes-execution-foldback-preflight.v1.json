@@ -1,0 +1,108 @@
+{
+  "schema": "thoughtseed.hermes-execution-foldback-preflight.v1",
+  "preparedDate": "2026-08-09",
+  "status": "local-contract-proven-live-apply-held",
+  "scope": {
+    "portfolioId": "thoughtseed",
+    "tenantId": "cambium",
+    "workObjectId": "sapling:fitcheck",
+    "goalGraphTaskId": "task-fitcheck-launch",
+    "pinnedLoadoutId": "loadout:fitcheck-launch",
+    "command": "canary.record"
+  },
+  "currentIssueReadback": [
+    {
+      "repository": "Sheshiyer/cambium",
+      "issue": 249,
+      "state": "OPEN",
+      "updatedAt": "2026-08-06T19:42:28Z",
+      "invariant": "Preserve both unsupported 2026-07-14 role-task directives until their owning consumer records execution or supersession; never drain them through legacy ACK."
+    },
+    {
+      "repository": "Sheshiyer/cambium",
+      "issue": 283,
+      "state": "OPEN",
+      "updatedAt": "2026-08-06T19:45:27Z",
+      "invariant": "Runtime state outranks issue prose; re-probe flags, queues, schedules, D1, and the Worker version immediately before a live canary."
+    }
+  ],
+  "localProof": {
+    "synthetic": true,
+    "externalAction": "none",
+    "receiptId": "hfb_debd35fb58b4b22b1c00a7f0",
+    "contentDigest": "sha256:debd35fb58b4b22b1c00a7f08265b495e2b70a70a637ac179b2a70a8edfbbc02",
+    "receiptKey": "portfolio/thoughtseed/workobjects/sapling:fitcheck/foldback/exec_fitcheck_canary_1.json",
+    "edges": [
+      { "kind": "proves", "fromId": "hfb_debd35fb58b4b22b1c00a7f0", "toId": "task-fitcheck-launch" },
+      { "kind": "informs-next-intent", "fromId": "hfb_debd35fb58b4b22b1c00a7f0", "toId": "sapling:fitcheck" }
+    ],
+    "claim": "This proves deterministic local contract behavior only; it is not evidence that Hermes, D1, R2, ACK, or a production WorkObject changed."
+  },
+  "livePreconditions": [
+    "Record the current Worker version and immediate rollback version.",
+    "Take a private non-empty cambium-bridge D1 export and SHA-256 receipt outside the repository.",
+    "Verify bridge execution tables and all execution guard triggers exist without selecting attestation payloads.",
+    "Re-read the two preserved issue-249 directive IDs and prove they remain untouched by the canary.",
+    "Verify HERMES_RUNNER_EXECUTE_DIRECTIVES=false.",
+    "Verify HERMES_RUNNER_LEGACY_ACK_WITHOUT_EXECUTION=false.",
+    "Read one exact current Goal Graph task carrying sapling:fitcheck plus loadout:fitcheck-launch at a pinned graph version.",
+    "Confirm the foldback R2 key is absent or byte-identical before any conditional write."
+  ],
+  "liveSequence": [
+    {
+      "step": 1,
+      "action": "Queue exactly one delivery-disabled thoughtseed.hermes.native_execution.v1 canary.record directive bound to the pinned task identity.",
+      "expected": "One new directive with a unique idempotency key; preserved role-task directives remain unchanged."
+    },
+    {
+      "step": 2,
+      "action": "Poll and claim the canary with a future lease and server-issued claim plus fencing identity.",
+      "expected": "First claimant receives claimed; an overlapping second owner receives busy."
+    },
+    {
+      "step": 3,
+      "action": "Exercise an expired takeover and submit the prior claimant's outcome.",
+      "expected": "The fencing token rotates and the stale outcome receives HTTP 409 with no terminal write."
+    },
+    {
+      "step": 4,
+      "action": "Submit one redacted executed or failed terminal attestation from the current fenced claimant.",
+      "expected": "D1 records exactly one terminal outcome; identical replay is duplicate and conflicting replay is HTTP 409."
+    },
+    {
+      "step": 5,
+      "action": "Compile and conditionally persist the foldback receipt against the same task, WorkObject, graph version, and terminal proof digest.",
+      "expected": "One immutable foldback receipt projects proves and informs-next-intent edges; retryable or mismatched evidence is rejected."
+    },
+    {
+      "step": 6,
+      "action": "ACK the canary only after terminal outcome and foldback readback both succeed.",
+      "expected": "ACK succeeds once; D1 shows terminal=1 and a non-null acknowledged_at without selecting attestation JSON."
+    },
+    {
+      "step": 7,
+      "action": "Re-read Workbench Mission Fabric and the preserved pending directives.",
+      "expected": "The receipt informs the exact next-intent WorkObject; issue-249 directives remain pending until their separate owners resolve them."
+    }
+  ],
+  "rollback": {
+    "beforeWorkerRollback": [
+      "Stop hermes-runner.timer and hermes-runner.service.",
+      "Force both execution flags false on the Hermes host.",
+      "Redeploy the recorded prior Worker version only if the new Worker caused regression."
+    ],
+    "database": "Migration 0009 and execution-proof migrations are additive; do not drop nodes, outcomes, events, claims, ACK history, or foldback evidence during rollback.",
+    "receiptCorrection": "Never edit or delete immutable foldback evidence; append a separately approved superseding receipt that names the prior receipt."
+  },
+  "approvalGate": {
+    "status": "required-not-consumed",
+    "exactPhrase": "approve live Hermes canary execution and foldback proof with execution disabled",
+    "doesNotAuthorize": [
+      "enabling continuous Hermes execution",
+      "legacy ACK without execution",
+      "ACK or deletion of issue-249 directives",
+      "Sapling promotion",
+      "provider, schedule, traffic, or deployment changes beyond the separately reviewed canary manifest"
+    ]
+  }
+}

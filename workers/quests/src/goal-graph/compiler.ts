@@ -12,6 +12,9 @@ function stableNode(node: GoalGraphNode): GoalGraphNode {
 function normalizeNodes(input: readonly GoalGraphInputNode[], tenantId: string, now: string): GoalGraphNode[] {
   const nodes = input.map((node) => ({
     ...node,
+    workObjectId: node.workObjectId ?? null,
+    workObjectKind: node.workObjectKind ?? null,
+    pinnedLoadoutId: node.pinnedLoadoutId ?? null,
     tenantId,
     nodeId: node.nodeId ?? `goal_${sha256({ tenantId, namespace: node.namespace, externalId: node.externalId, sourceRef: node.sourceRef, sourceDigest: node.sourceDigest })}`,
     createdAt: node.createdAt ?? now,
@@ -39,7 +42,7 @@ export function compileGoalGraph(input: GoalGraphCompileInput): GoalGraphCompile
   if (actualDigest !== input.expectedHeadDigest) return { status: 'stale', expectedHeadDigest: input.expectedHeadDigest, actualHeadDigest: actualDigest };
   const now = input.now ?? '1970-01-01T00:00:00.000Z';
   const proposed = normalizeNodes(input.proposedNodes, input.tenantId, now);
-  const validation = validateNodeSet(proposed);
+  const validation = validateNodeSet(proposed, input.loadoutAuthority);
   if (!validation.valid) throw new Error(validation.code);
   const current = [...input.currentNodes].sort((a, b) => a.nodeId.localeCompare(b.nodeId));
   const currentById = new Map(current.map((node) => [node.nodeId, node]));

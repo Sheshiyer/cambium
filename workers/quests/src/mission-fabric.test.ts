@@ -273,6 +273,7 @@ import {
   adaptBranchStories,
   adaptCompanyPrograms,
   adaptGoalGraph,
+  adaptGoalGraphAuthority,
   adaptQuestExecutionFacts,
   redactMissionFabricProjection,
 } from './mission-fabric.ts';
@@ -592,6 +593,105 @@ test('adaptGoalGraph resolves parent storage IDs to canonical external mission I
   assert.equal(child.value.missionId, 'mission-one');
   assert.ok(orphan?.kind === 'task');
   assert.equal(orphan.value.missionId, '', 'missing parents fail closed instead of leaking a storage ID');
+});
+
+const FITCHECK_LOADOUT_AUTHORITY = {
+  resolve(loadoutId: string) {
+    return loadoutId === 'loadout:fitcheck-launch'
+      ? {
+          loadoutId,
+          eligibleWorkObjectIds: ['sapling:fitcheck'],
+          authorizedClusterIds: ['cluster:fitcheck-no-spend'],
+          authorityDigest: `sha256:${'a'.repeat(64)}`,
+          sourceRef: 'registry:three-sapling-loadouts',
+        }
+      : null;
+  },
+};
+
+test('adaptGoalGraphAuthority emits exact registry-backed WorkObject, loadout, and cluster edges', () => {
+  const result = adaptGoalGraphAuthority({
+    tenantId: 'cambium-synthetic',
+    graphVersion: 3,
+    workObjectIds: ['sapling:fitcheck'],
+    loadoutAuthority: FITCHECK_LOADOUT_AUTHORITY,
+    nodes: [{
+      nodeId: 'goal-storage-task', tenantId: 'cambium-synthetic', namespace: 'goal', externalId: 'task-fitcheck', parentNodeId: null,
+      workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:fitcheck-launch',
+      scope: 'micro', desiredState: 'launch', currentState: 'ready', owner: 'founder', nextAction: null,
+      waitCondition: null, proofRequired: true, reviewAt: null, status: 'active', sourceRef: 'goal-graph:fitcheck',
+      sourceDigest: 'sha256:abc', graphVersion: 3, metadata: {}, createdAt: '2026-07-28T09:00:00.000Z', updatedAt: '2026-07-28T09:00:00.000Z',
+    }],
+  });
+  assert.deepEqual(result.edges, [
+    { kind: 'contains', fromId: 'sapling:fitcheck', toId: 'task-fitcheck' },
+    { kind: 'pins-loadout', fromId: 'sapling:fitcheck', toId: 'loadout:fitcheck-launch' },
+    { kind: 'requires-cluster', fromId: 'task-fitcheck', toId: 'cluster:fitcheck-no-spend' },
+  ]);
+  assert.equal(result.gaps.length, 0);
+  assert.equal(result.nodes[0].kind === 'task' && result.nodes[0].value.pinnedLoadoutId, 'loadout:fitcheck-launch');
+});
+
+test('adaptGoalGraphAuthority emits one WorkObject loadout pin across multiple tasks', () => {
+  const base = {
+    tenantId: 'cambium-synthetic', namespace: 'goal', parentNodeId: null, scope: 'micro', desiredState: 'launch',
+    currentState: 'ready', owner: 'founder', nextAction: null, waitCondition: null, proofRequired: true, reviewAt: null,
+    status: 'active', sourceRef: 'goal-graph:fitcheck', sourceDigest: 'sha256:abc', graphVersion: 3, metadata: {},
+    workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:fitcheck-launch',
+    createdAt: '2026-07-28T09:00:00.000Z', updatedAt: '2026-07-28T09:00:00.000Z',
+  };
+  const result = adaptGoalGraphAuthority({
+    tenantId: 'cambium-synthetic', graphVersion: 3, workObjectIds: ['sapling:fitcheck'], loadoutAuthority: FITCHECK_LOADOUT_AUTHORITY,
+    nodes: [
+      { ...base, nodeId: 'one', externalId: 'task-fitcheck-one' },
+      { ...base, nodeId: 'two', externalId: 'task-fitcheck-two' },
+    ],
+  });
+  assert.equal(result.edges.filter((edge) => edge.kind === 'contains').length, 2);
+  assert.equal(result.edges.filter((edge) => edge.kind === 'pins-loadout').length, 1);
+  assert.equal(result.edges.filter((edge) => edge.kind === 'requires-cluster').length, 2);
+});
+
+test('adaptGoalGraphAuthority rejects syntax-only and cross-WorkObject loadout pins', () => {
+  const base = {
+    nodeId: 'one', externalId: 'task-fitcheck', tenantId: 'cambium', namespace: 'goal', parentNodeId: null,
+    scope: 'micro', desiredState: 'launch', currentState: 'ready', owner: 'founder', nextAction: null,
+    waitCondition: null, proofRequired: true, reviewAt: null, status: 'active', sourceRef: 'goal-graph:fitcheck',
+    sourceDigest: 'sha256:abc', graphVersion: 3, metadata: {}, workObjectId: 'sapling:fitcheck',
+    workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:fitcheck-launch',
+    createdAt: '2026-07-28T09:00:00.000Z', updatedAt: '2026-07-28T09:00:00.000Z',
+  };
+  const syntaxOnly = adaptGoalGraphAuthority({ tenantId: 'cambium', graphVersion: 3, workObjectIds: ['sapling:fitcheck'], nodes: [base] });
+  assert.equal(syntaxOnly.edges.some((edge) => edge.kind === 'pins-loadout' || edge.kind === 'requires-cluster'), false);
+  assert.equal(syntaxOnly.gaps.some((gap) => gap.kind === 'missing-loadout-authority'), true);
+  const wrongWorkObjectAuthority = {
+    resolve(loadoutId: string) {
+      return { loadoutId, eligibleWorkObjectIds: ['sapling:iverif'], authorizedClusterIds: ['cluster:iverif'], authorityDigest: `sha256:${'b'.repeat(64)}`, sourceRef: 'test:wrong' };
+    },
+  };
+  const mismatch = adaptGoalGraphAuthority({ tenantId: 'cambium', graphVersion: 3, workObjectIds: ['sapling:fitcheck'], loadoutAuthority: wrongWorkObjectAuthority, nodes: [base] });
+  assert.equal(mismatch.edges.some((edge) => edge.kind === 'pins-loadout' || edge.kind === 'requires-cluster'), false);
+  assert.equal(mismatch.gaps.some((gap) => gap.kind === 'missing-loadout-authority'), true);
+});
+
+test('adaptGoalGraphAuthority fails closed for missing, mismatched, and orphaned anchors', () => {
+  const base = {
+    tenantId: 'cambium-synthetic', namespace: 'goal', parentNodeId: null, scope: 'micro', desiredState: 'launch',
+    currentState: 'ready', owner: 'founder', nextAction: null, waitCondition: null, proofRequired: true, reviewAt: null,
+    status: 'active', sourceRef: 'goal-graph:test', sourceDigest: 'sha256:abc', graphVersion: 3, metadata: {},
+    createdAt: '2026-07-28T09:00:00.000Z', updatedAt: '2026-07-28T09:00:00.000Z',
+  };
+  const result = adaptGoalGraphAuthority({
+    tenantId: 'cambium-synthetic', graphVersion: 3, workObjectIds: ['sapling:fitcheck'],
+    nodes: [
+      { ...base, nodeId: 'one', externalId: 'task-missing' },
+      { ...base, nodeId: 'two', externalId: 'task-mismatch', workObjectId: 'sapling:fitcheck', workObjectKind: 'branch', pinnedLoadoutId: 'loadout:x' },
+      { ...base, nodeId: 'three', externalId: 'task-orphan', workObjectId: 'sapling:unknown', workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:x' },
+    ],
+  });
+  assert.equal(result.edges.length, 0);
+  assert.deepEqual(result.gaps.map((gap) => gap.kind).sort(), ['invalid-work-object-anchor', 'missing-work-object-anchor', 'missing-work-object-join']);
+  assert.equal(result.nodes.every((node) => node.kind === 'task' && node.value.pinnedLoadoutId === null), true);
 });
 
 test('redactMissionFabricProjection hides private client labels and raw evidence for unauthorized viewers', () => {
