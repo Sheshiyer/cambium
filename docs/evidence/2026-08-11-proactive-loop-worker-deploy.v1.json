@@ -1,20 +1,55 @@
 {
   "schema": "cambium.evidence.deploy.v1",
   "title": "Proactive loop Worker deploy (cron + Hermes pull routes)",
-  "observedAt": "2026-08-11T06:15:00.000Z",
+  "observedAt": "2026-08-11T08:52:00.000Z",
   "actor": "temperance-engine / grok-build",
   "production": {
     "cloudflareAccountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
     "accountName": "Thoughtseedlabs@gmail.com's Account",
     "config": "workers/quests/wrangler.labs.jsonc",
     "worker": "cambium-quests",
-    "versionId": "f8475204-475d-40e9-ac68-3f51986389a7",
+    "versionId": "9c1545ed-ce9a-433f-9cff-e9216ef27b31",
     "workersDevUrl": "https://cambium-quests.thoughtseedlabs.workers.dev",
     "customDomain": "curious.thoughtseed.space",
-    "triggers": { "crons": ["0 */6 * * *"] }
+    "triggers": {
+      "crons": [
+        "0 */6 * * *"
+      ]
+    },
+    "founderApproval": {
+      "status": "approved",
+      "founderId": "shesh",
+      "heldCount": 0,
+      "passedCount": 9,
+      "deliveries": 0,
+      "writesGoalGraph": false
+    },
+    "liveTelegramProof": {
+      "chatId": "-1002691202808",
+      "messages": [
+        {
+          "threadId": 802,
+          "messageId": 1379
+        },
+        {
+          "threadId": 797,
+          "messageId": 1380
+        },
+        {
+          "threadId": 798,
+          "messageId": 1381
+        }
+      ]
+    },
+    "notifyCooldownHours": 18,
+    "notesExtra": [
+      "Founder operational clearance applied 2026-08-11; ladder all pass; no D1 CAS.",
+      "Mini App inject shows heldCount=0 from stored plan.",
+      "Personal CF account cron disable skipped (OAuth is Labs-only)."
+    ]
   },
   "earlierPersonalAccountDeploy": {
-    "note": "Superseded for production — personal account was used before Thoughtseed OAuth re-login",
+    "note": "Superseded for production \u2014 personal account was used before Thoughtseed OAuth re-login",
     "cloudflareAccountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
     "versionId": "c43a61ec-6cb6-4c09-b8ca-7df646b9e98b",
     "workersDevUrl": "https://cambium-quests.sheshnarayan-iyer.workers.dev"
@@ -22,12 +57,17 @@
   "routesLive": {
     "GET /v1/bridge/proactive-loop/pending-deliveries": {
       "url": "https://cambium-quests.thoughtseedlabs.workers.dev/v1/bridge/proactive-loop/pending-deliveries",
-      "withoutToken": { "status": 401, "body": { "error": "bad or missing bridge credential" } }
+      "withoutToken": {
+        "status": 401,
+        "body": {
+          "error": "bad or missing bridge credential"
+        }
+      }
     }
   },
   "notes": [
     "Production cutover uses wrangler.labs.jsonc (Labs account + curious custom domain + cron).",
-    "curious.thoughtseed.space returns 302 without Cloudflare Access service-token headers — Hermes must use CF_ACCESS_CLIENT_ID/SECRET + BRIDGE_TOKEN.",
+    "curious.thoughtseed.space returns 302 without Cloudflare Access service-token headers \u2014 Hermes must use CF_ACCESS_CLIENT_ID/SECRET + BRIDGE_TOKEN.",
     "Hermes consumer on hermes-aws-ts main (1e32ecd); EC2 install blocked: safvr IAM keys InvalidClientTokenId; SSH to 32.199.4.57:22 times out (SG not opened from current IP)."
   ],
   "hermesHost": {

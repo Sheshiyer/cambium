@@ -8,7 +8,7 @@ progress: 809/871
 mode: interactive
 iteration: 2026-08-08-project-closeout-workflow
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-08T05:45:00Z
+updated: 2026-08-11T08:55:00Z
 ---
 
 ## Problem
@@ -1477,6 +1477,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-11: refined: Fitcheck L4 proactive path uses a **bounded Worker cron** (`0 */6`) only to recompile loop projections and Hermes *delivery intents*. Telegram transport remains Hermes-owned; Goal Graph CAS remains founder Gate-only. “Proactive” still means authority-chain delivery, not Cambium auto-admit. Founder may grant **operational clearance** (`proactive-loop:founder-approval`) to quiet held probes without writing D1.
+- 2026-08-11: founder operational clearance for Fitcheck L4 held stages is recorded via `POST /v1/bridge/proactive-loop/founder-approve` (admin bridge). This clears notify noise and materializes a Gate-shaped KV receipt; it is **not** D1 CAS and never sets `writesGoalGraph: true`.
 - 2026-08-08 05:45: refined: `Completed / Closed` is a terminal workflow, not a normal local portfolio signal. A WorkObject can leave active views only when a receipt-backed closeout records final handoff, closeout JSON, R2 vault archive intent, agent-aware active/finished memory, active-index delta, and downstream-flow closure. The browser queues intent; the local executor prepares repo-local records; real Vault/R2 synchronization, GitHub issue closure, physical relocation, Goal Graph writes, deletion, and production deployment remain separate governed steps.
 - 2026-08-07 05:05: refined: Tryambakam · Noesis remains preserved in the reviewed root snapshot and external header files but is retired from the active Portfolio Workbench. The founder-facing surface now focuses only on Thoughtseed; the prior selector and Tryambakam active-action criteria remain stable-ID tombstones rather than being renumbered or silently rewritten.
 - 2026-08-07 05:05 refined after audit: explicit local founder commands may execute a validated Thoughtseed project creation immediately. Requests originating from agents, RBAC, dgchat, or any other system remain proposals until the Worker resolves an active founder approval from the authoritative Thoughtseed Gate store and binds its subject to the exact normalized intent digest. Inline receipt claims are references, never authority.
@@ -1533,6 +1535,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-01 12:35 advisor degradation: both mandatory pre-build advisor invocations returned process session receipts without review content. No approval was inferred; implementation remains constrained by the architecture design, atomic ISC-601..640 probes, and independent Cato audit.
 - 2026-07-29 10:47 learned: Telegram proactivity is an authority chain, not a timer. A scoped assignment token cannot mint delivery intent; client Will delivery requires an exact founder Gate record; Cambium compiles one receipt-backed envelope; Hermes validates and transports it; the Mini App fails closed on unverified dynamic detail. This boundary closed both audit exploits without granting schedule, menu, tenant-activation, or production-traffic authority.
 - 2026-07-29 09:39 refined: “proactive” means event-driven receipt-to-topic delivery, not a new recurring cron. Existing Phase 7 scheduling gates remain authoritative.
+- 2026-08-11 refined: the Fitcheck L4 **compile** path may be schedule-armed on Worker cron as a projection refresh only; delivery remains event-driven for Hermes, with 18h notify cooldown per stage+exit+topic. This does not replace Phase 7 organ-update receipt authority for Will/Clients envelopes.
 - 2026-07-29 09:39 refined: Cambium compiles and displays delivery intent; Hermes validates the canonical topic and performs Telegram transport. This preserves one topology owner and prevents a second bot sender.
 - 2026-07-29 09:39 refined: the five default organ routes are Genesis→Inbox, Taste→Digests, Hands→Dev, Will→Clients, and Cortex→Agent Ops, with blocked/failed/drifted updates escalating to Alerts and never falling back to General.
 - 2026-07-29 09:44 root-cause-at-ingestion: the missing state enters between an authoritative receipt and Telegram delivery, where no typed organ-update envelope exists. The fix belongs at that boundary: validate and compile the receipt before rendering or transport. This removes the same drift class from Mini App copy, Hermes topic choice, and delivery receipts; the implementation traces authority database-up and renders display-down from the compiled envelope.

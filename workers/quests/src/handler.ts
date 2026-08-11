@@ -31,9 +31,11 @@ import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-rou
 import {
   claimProactiveDeliveries,
   compileProactiveLoopPlan,
+  readFounderApproval,
   readPendingProactiveDeliveries,
   readProactiveLoopPlan,
   runAndStoreProactiveLoopTick,
+  writeFounderApproval,
 } from './proactive-loop-runtime.ts';
 import { MINI_APP_SECTIONS, MINI_APP_MAP_SUBSECTIONS } from './mini-app-surface-contract.ts';
 import { filterSections, filterSubsections, type Principal } from './rbac.ts';
@@ -4399,16 +4401,33 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (tenantId !== 'cambium') {
         return json(403, { error: 'proactive loop tick is fixed to tenant cambium' });
       }
+      // Founder may record operational clearance on the same tick (admin only).
+      if (body.founderApproved === true || body.founderApprove === true) {
+        if (!principal.admin) {
+          return json(403, { error: 'founderApproved requires admin bridge credential' });
+        }
+        await writeFounderApproval(deps.kv, {
+          tenantId,
+          founderId: String(body.founderId || principal.memberId || 'founder'),
+          approvedAt: nowIso(),
+          note: String(body.note || 'Founder operational clearance via proactive-loop-tick'),
+          hermesReceipt: body.hermesReceipt === true,
+        });
+      }
       const plan = await runAndStoreProactiveLoopTick(deps.kv, {
         tenantId,
         actor: String(body.actor || 'bridge-tick'),
         nowIso: nowIso(),
+        goalGraphStore: deps.goalGraphStore,
+        forceNotify: body.forceNotify === true,
       });
       return json(200, {
         ok: true,
         plan,
+        evidence: plan.evidence,
         miniApp: plan.miniApp,
         deliveries: plan.deliveries,
+        suppressedNotify: plan.suppressedNotify,
         hermes: {
           pull: 'GET /v1/bridge/proactive-loop/pending-deliveries',
           claim: 'POST /v1/bridge/proactive-loop/claim-deliveries',
@@ -4416,6 +4435,58 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           note: plan.hermesPullHint,
         },
       });
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/proactive-loop/founder-approve') {
+      if (!principal.admin) {
+        return json(403, { error: 'only cofounders may record proactive founder approval' });
+      }
+      let body: Record<string, unknown> = {};
+      try {
+        if (req.body) body = JSON.parse(req.body) as Record<string, unknown>;
+      } catch {
+        return json(400, { error: 'body is not JSON' });
+      }
+      const tenantId = String(body.tenantId || 'cambium');
+      if (tenantId !== 'cambium') {
+        return json(403, { error: 'proactive founder approval is fixed to tenant cambium' });
+      }
+      const approval = await writeFounderApproval(deps.kv, {
+        tenantId,
+        founderId: String(body.founderId || principal.memberId || 'founder'),
+        approvedAt: nowIso(),
+        note: String(body.note || 'Founder operational clearance for Fitcheck L4'),
+        hermesReceipt: body.hermesReceipt === true,
+      });
+      // Recompile under clearance so Mini App / Hermes see quiet green ladder
+      const plan = await runAndStoreProactiveLoopTick(deps.kv, {
+        tenantId,
+        actor: 'founder-approve',
+        nowIso: nowIso(),
+        goalGraphStore: deps.goalGraphStore,
+        forceNotify: false,
+      });
+      return json(200, {
+        ok: true,
+        approval,
+        planId: plan.planId,
+        heldCount: plan.miniApp.heldCount,
+        failedCount: plan.miniApp.failedCount,
+        passedCount: plan.miniApp.passedCount,
+        deliveries: plan.deliveries.length,
+        writesGoalGraph: false,
+        note: 'Operational clearance only. Goal Graph CAS is still a separate founder Gate path.',
+      });
+    }
+
+    if (method === 'GET' && routePath === '/v1/bridge/proactive-loop/founder-approval') {
+      if (!principal.admin && !principal.assignmentOnly) {
+        return json(403, { error: 'authenticated Hermes/cofounder required' });
+      }
+      const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
+      const tenantId = String(params.get('tenantId') || 'cambium');
+      const approval = await readFounderApproval(deps.kv, tenantId);
+      return json(200, { ok: true, tenantId, approval });
     }
 
     if (method === 'GET' && routePath === '/v1/bridge/proactive-loop/projection') {
@@ -5243,18 +5314,22 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     let pageBody = PAGE;
     try {
       const observedAt = deps.now ? deps.now() : new Date().toISOString();
-      const proactive = compileProactiveLoopPlan({
+      const stored = await readProactiveLoopPlan(deps.kv, 'cambium');
+      const proactive = stored ?? compileProactiveLoopPlan({
         tenantId: 'cambium',
         observedAt,
         actor: 'mini-app-html',
       });
+      const mini = 'miniApp' in proactive ? proactive.miniApp : proactive;
       const boot = `<script>globalThis.__CAMBIUM_PROACTIVE_LOOP__=${JSON.stringify({
-        heldCount: proactive.miniApp.heldCount,
-        failedCount: proactive.miniApp.failedCount,
-        passedCount: proactive.miniApp.passedCount,
-        nextFounderAction: proactive.miniApp.nextFounderAction,
-        ladder: proactive.miniApp.ladder,
-        observedAt: proactive.miniApp.observedAt,
+        heldCount: mini.heldCount,
+        failedCount: mini.failedCount,
+        passedCount: mini.passedCount,
+        nextFounderAction: mini.nextFounderAction,
+        ladder: mini.ladder,
+        observedAt: mini.observedAt,
+        stored: !!stored,
+        authorityNote: mini.authorityNote,
       })};</script>`;
       pageBody = PAGE.includes('</head>')
         ? PAGE.replace('</head>', `${boot}</head>`)
