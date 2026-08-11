@@ -89,6 +89,7 @@ import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } fro
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
+import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
@@ -3099,6 +3100,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       graphVersion: head.graphVersion,
       nodes,
       workObjectIds: PORTFOLIO_CATALOG.records.map((record) => record.workId),
+      loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
     });
     const goalGraphFabricNodes = goalGraphAuthority.nodes;
     const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;

@@ -329,17 +329,36 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
   }
 
   async function readNodeRows(tenantId: string): Promise<NodeRow[]> {
-    const result = await db.prepare(`
-      SELECT tenant_id, node_id, namespace, external_id, parent_node_id,
-        work_object_id, work_object_kind, pinned_loadout_id,
-        scope, desired_state, current_state, owner, next_action, wait_condition,
-        proof_required, review_at, status, source_ref, source_digest,
-        graph_version, metadata_json, created_at, updated_at
-      FROM goal_graph_nodes
-      WHERE tenant_id = ?
-      ORDER BY node_id ASC
-    `).bind(tenantId).all<NodeRow>();
-    return result.results ?? [];
+    try {
+      const result = await db.prepare(`
+        SELECT tenant_id, node_id, namespace, external_id, parent_node_id,
+          work_object_id, work_object_kind, pinned_loadout_id,
+          scope, desired_state, current_state, owner, next_action, wait_condition,
+          proof_required, review_at, status, source_ref, source_digest,
+          graph_version, metadata_json, created_at, updated_at
+        FROM goal_graph_nodes
+        WHERE tenant_id = ?
+        ORDER BY node_id ASC
+      `).bind(tenantId).all<NodeRow>();
+      return result.results ?? [];
+    } catch (error) {
+      // Worker deployment and D1 migration are separate operations. Preserve the
+      // pre-0009 read path during that bounded rollout window; legacy rows have no
+      // operational anchors and are represented explicitly as null.
+      const message = error instanceof Error ? error.message : String(error);
+      if (!/no such column:\s*(?:work_object_id|work_object_kind|pinned_loadout_id)/i.test(message)) throw error;
+      const result = await db.prepare(`
+        SELECT tenant_id, node_id, namespace, external_id, parent_node_id,
+          NULL AS work_object_id, NULL AS work_object_kind, NULL AS pinned_loadout_id,
+          scope, desired_state, current_state, owner, next_action, wait_condition,
+          proof_required, review_at, status, source_ref, source_digest,
+          graph_version, metadata_json, created_at, updated_at
+        FROM goal_graph_nodes
+        WHERE tenant_id = ?
+        ORDER BY node_id ASC
+      `).bind(tenantId).all<NodeRow>();
+      return result.results ?? [];
+    }
   }
 
   async function readEvent(tenantId: string, changeDigest: string): Promise<EventRow | null> {

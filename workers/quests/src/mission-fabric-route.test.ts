@@ -282,6 +282,30 @@ test('route assembles D1 Goal Graph and KV quest facts without writes', async ()
   assert.ok(result.spies.kvReads > 0);
 });
 
+test('route resolves governed operational anchors into loadout and cluster edges', async () => {
+  const nodes = [goalNode('gg-fitcheck', 'task-fitcheck-launch', null, {
+    workObjectId: 'sapling:fitcheck',
+    workObjectKind: 'sapling',
+    pinnedLoadoutId: 'loadout:fitcheck-launch',
+  })];
+  const facts = {
+    ...questFacts(), tasks: [], fences: [], runs: [], receipts: [], agents: [],
+    skillClusters: [], taskClusterAssignments: [], gaps: [],
+  };
+  const result = await requestFabric({ nodes, facts, receipts: [] });
+  assert.equal(result.status, 200);
+  assert.ok(result.json.projection.edges.some((edge: { kind: string; fromId: string; toId: string }) => (
+    edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck' && edge.toId === 'task-fitcheck-launch'
+  )));
+  assert.ok(result.json.projection.edges.some((edge: { kind: string; fromId: string; toId: string }) => (
+    edge.kind === 'pins-loadout' && edge.fromId === 'sapling:fitcheck' && edge.toId === 'loadout:fitcheck-launch'
+  )));
+  assert.ok(result.json.projection.edges.some((edge: { kind: string; fromId: string; toId: string }) => (
+    edge.kind === 'requires-cluster' && edge.fromId === 'task-fitcheck-launch' && edge.toId === 'cluster:fitcheck-no-spend'
+  )));
+  assert.equal(result.json.projection.gaps.some((gap: { kind: string }) => gap.kind === 'missing-loadout-authority'), false);
+});
+
 test('duplicate authoritative task identities fail closed with no dangling edges', async () => {
   const nodes = [
     goalNode('gg-root', 'mission-root', null),
