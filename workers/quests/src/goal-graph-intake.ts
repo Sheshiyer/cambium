@@ -401,12 +401,21 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
     // convenience `now` argument is not part of the durable node, so discard
     // the helper-only property before returning/compiling the proposal.
     const { now: _helperNow, ...node } = buildNode({ ...nodeInput, now: compileInput.now });
+    // A Telegram intent is an additive/upsert proposal, not a full graph
+    // replacement. Preserve every current node except an exact same-ID node
+    // that this intent intentionally supersedes. Passing only `[node]` here
+    // would make the compiler correctly classify every unrelated current node
+    // as a removal, which is never authorized by this intake envelope.
+    const proposedNodes = [
+      ...compileInput.currentNodes.filter((current) => current.nodeId !== node.nodeId),
+      node,
+    ];
     const compile = compileGoalGraph({
       tenantId: value.tenantId,
       expectedHeadDigest: compileInput.expectedHeadDigest,
       actualHead: compileInput.actualHead,
       currentNodes: compileInput.currentNodes,
-      proposedNodes: [node],
+      proposedNodes,
       graphVersion: compileInput.graphVersion,
       sourceRef: sourceRefValue,
       sourceDigest: contentDigest,
