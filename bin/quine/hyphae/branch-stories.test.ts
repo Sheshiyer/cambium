@@ -44,12 +44,47 @@ test('loads branch loop controls from branch packets', () => {
   assert.ok(vantyx);
   assert.match(vantyx.loops[0].proofRequired, /`new-client` receipt/);
 
-  const clientDelivery = stories.find((story) => story.productId === 'client-delivery');
-  assert.ok(clientDelivery);
-  assert.equal(clientDelivery.branchKind, 'client');
-  assert.equal(clientDelivery.canonicalWorkId, undefined);
-  assert.equal(clientDelivery.loops[0].loopId, 'client-delivery-handoff-loop');
-  assert.equal(clientDelivery.loops[0].boundaryColor, 'yellow');
+  assert.equal(stories.some((story) => story.productId === 'client-delivery'), false);
+});
+
+test('excludes template packets from operational branch stories', () => {
+  const root = mkdtempSync(join(tmpdir(), 'cambium-branch-stories-template-'));
+  const packetDir = join(root, 'docs', 'plans', 'product-branches');
+  mkdirSync(packetDir, { recursive: true });
+  writeFileSync(join(packetDir, 'index.md'), [
+    '# Test Product Branch Packets',
+    '',
+    '| product_id | canonical_work_id | identity_scope | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| client-template | none | template | client | Client Template | Reusable template | supervised-branch | Bind identity | client-template.md |',
+    '',
+  ].join('\n'));
+  writeFileSync(join(packetDir, 'client-template.md'), '---\nproduct_id: client-template\n---\n');
+
+  assert.deepEqual(loadBranchStories({ root }, 'cambium'), []);
+});
+
+test('fails closed when packet frontmatter is template but its index row is stale', () => {
+  const root = mkdtempSync(join(tmpdir(), 'cambium-branch-stories-stale-template-index-'));
+  const packetDir = join(root, 'docs', 'plans', 'product-branches');
+  mkdirSync(packetDir, { recursive: true });
+  writeFileSync(join(packetDir, 'index.md'), [
+    '# Test Product Branch Packets',
+    '',
+    '| product_id | canonical_work_id | identity_scope | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| client-template | branch:client-template | canonical-work-object | client | Client Template | Stale index | supervised-branch | Bind identity | client-template.md |',
+    '',
+  ].join('\n'));
+  writeFileSync(join(packetDir, 'client-template.md'), [
+    '---',
+    'product_id: client-template',
+    'identity_scope: template',
+    '---',
+    '',
+  ].join('\n'));
+
+  assert.deepEqual(loadBranchStories({ root }, 'cambium'), []);
 });
 
 test('records blocked packet gaps without promoting weak evidence', () => {

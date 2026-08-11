@@ -1010,3 +1010,25 @@ mutation has been performed by drafting this packet.
   D1 migration 0009 to the verified Labs database, commit approval-bound
   Fitcheck/IVerif anchors, then deploy the Worker and Hermes caller with
   rollback proof. No production mutation is represented by this checkpoint.
+
+### 2026-08-11 Mini App page-wiring audit and template-exclusion checkpoint
+
+- Work is isolated on clean branch `codex/miniapp-page-wiring-plan`; the dirty
+  primary checkout remains untouched.
+- Root cause: production `/v1/mission-fabric/cambium` returns `403 mission
+  fabric tenant is not enabled`, so the classified Operating Fabric cannot
+  activate and the legacy Mission/Gate/Tools/Story/Inspect shell remains live.
+- The generic `client-delivery` packet is explicitly a non-canonical template.
+  The branch loader now retains `identity_scope` and excludes templates from
+  operational branch stories while preserving the authoring document.
+- Focused branch and quest tests pass 42/42. The corrected runtime projection
+  contains five operational branch stories instead of six and no client
+  delivery template loop. Full repository tests pass 1643/1643, packet
+  validation passes 6/6, and the independent final review verdict is PASS.
+- `docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md` defines page-level
+  Mission, Gate, Tools, Story, Inspect, Portfolio, rollout, ownership, and
+  verification contracts. Its machine execution map contains 80 schema-complete
+  tasks in `.planning/2026-08-11-mini-app-page-wiring.tasks.json`.
+- Live production is unchanged. Next gates are reviewed merge, ledger
+  republish receipt, explicit owner-approved `cambium` allowlist pilot, then
+  authenticated Telegram QA with immediate allowlist rollback available.

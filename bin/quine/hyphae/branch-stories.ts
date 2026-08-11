@@ -25,6 +25,7 @@ export type { BranchStoryArc, BranchStoryGap } from '../../operator/quests/branc
 interface PacketIndexRow {
   product_id: string;
   canonical_work_id: string;
+  identity_scope: string;
   branch_kind: string;
   name: string;
   role: string;
@@ -252,6 +253,7 @@ function parseIndex(root: string): PacketIndexRow[] {
     .map((row) => ({
       product_id: row.product_id,
       canonical_work_id: row.canonical_work_id,
+      identity_scope: row.identity_scope,
       branch_kind: row.branch_kind || 'product',
       name: row.name,
       role: row.role,
@@ -267,6 +269,13 @@ function safePacketPath(row: PacketIndexRow): string {
     throw new Error(`unsafe branch packet path for ${row.product_id || 'unknown'}: ${packet || '<missing>'}`);
   }
   return packet;
+}
+
+function isTemplatePacket(root: string, row: PacketIndexRow): boolean {
+  if (clean(row.identity_scope).toLowerCase() === 'template') return true;
+  const packetFile = join(root, PACKET_DIR, safePacketPath(row));
+  if (!existsSync(packetFile)) return false;
+  return clean(parseFrontmatter(readText(packetFile)).identity_scope).toLowerCase() === 'template';
 }
 
 function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): BranchStoryArc {
@@ -422,5 +431,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
 }
 
 export function loadBranchStories(ctx: { root: string }, tenant: string): BranchStoryArc[] {
-  return parseIndex(ctx.root).map((row) => storyFromPacket(ctx.root, tenant, row));
+  return parseIndex(ctx.root)
+    .filter((row) => !isTemplatePacket(ctx.root, row))
+    .map((row) => storyFromPacket(ctx.root, tenant, row));
 }
