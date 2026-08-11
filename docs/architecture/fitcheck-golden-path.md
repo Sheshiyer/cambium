@@ -103,11 +103,24 @@ following independently:
 Receipt evidence:
 [`docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json`](../project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json).
 
+## L4 loop pack (per stage, no live writes)
+
+Each lifecycle stage has a bounded loop with ISA-style probes. See
+[`shared/fitcheck-loop-pack.ts`](../../shared/fitcheck-loop-pack.ts) and
+[`contracts/fitcheck-loop-pack.v1.md`](./contracts/fitcheck-loop-pack.v1.md).
+
+```ts
+import { runFitcheckLoop } from '../../shared/fitcheck-loop-pack.ts';
+runFitcheckLoop('fitcheck-loop-admitted'); // exit: held until d1TaskReadback
+```
+
 ## Canonical implementation references
 
 - Product packet: [`docs/plans/product-branches/fitcheck.md`](../plans/product-branches/fitcheck.md)
 - Shared UI projection: [`shared/fitcheck-golden-path.ts`](../../shared/fitcheck-golden-path.ts)
+- L4 loop pack: [`shared/fitcheck-loop-pack.ts`](../../shared/fitcheck-loop-pack.ts)
 - Operating Fabric: [`docs/architecture/cambium-operating-fabric.md`](./cambium-operating-fabric.md)
 - Mission Fabric contract: [`docs/architecture/contracts/mission-fabric-v1.md`](./contracts/mission-fabric-v1.md)
 - Goal Graph model: [`docs/architecture/goal-graph-operating-model.md`](./goal-graph-operating-model.md)
+- Loops → graphs: [`loops-to-graphs.md`](./loops-to-graphs.md)
 - Hermes preflight: [`docs/project-management/hermes-execution-foldback-preflight.v1.json`](../project-management/hermes-execution-foldback-preflight.v1.json)

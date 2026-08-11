@@ -29,6 +29,16 @@ Read `AGENTS.md`, `CLAUDE.md`, `.project/CONTEXT.md`, and
 sessions, Paseo workspaces, provider stores, and credentials are
 intentionally outside this packet.
 
+### Doctrine & planning maps (additive indexes)
+
+| Map | Path |
+|---|---|
+| Root doctrine catalog | [`docs/doctrine/README.md`](./docs/doctrine/README.md) |
+| Docs discovery index | [`docs/README.md`](./docs/README.md) |
+| Lifecycle (current vs historical) | [`docs/LIFECYCLE.md`](./docs/LIFECYCLE.md) |
+| GSD `.planning/` map | [`.planning/README.md`](./.planning/README.md) |
+| Loops → graphs (quests) | [`docs/architecture/loops-to-graphs.md`](./docs/architecture/loops-to-graphs.md) |
+
 ## Local commands
 
 ```bash
