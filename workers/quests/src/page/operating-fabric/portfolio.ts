@@ -1,3 +1,4 @@
+import type { OperationalPacketProjection } from '../../../../../shared/operational-packet-projection.ts';
 import type { MissionFabricProjectionV1 } from '../../mission-fabric.ts';
 
 export type PortfolioZone = 'saplings' | 'clients' | 'programs' | 'review' | 'historical';
