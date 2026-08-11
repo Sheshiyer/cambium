@@ -144,6 +144,25 @@ This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
 
+### 2026-08-11 TeamForge GitHub knowledge-plane rollout checkpoint
+
+- The Labs Cloudflare account is now the deployment authority for both
+  `teamforge-api` and `cambium-quests`; the knowledge caller uses the direct
+  `teamforge-api.thoughtseedlabs.workers.dev` origin, never the Access-gated
+  custom hostname.
+- Labs D1 records the canonical `teamforge` project and its verified
+  `Sheshiyer/thoughtseed-labs` GitHub-App repository binding. The TeamForge
+  Worker has the fixed `daily-standup` routine policy, while Cambium has only
+  the matching gateway bearer; neither worker holds a GitHub PAT.
+- Both Workers were deployed and a bearer-authenticated direct-origin probe
+  reached the gateway. It fails closed with `github_app_not_configured` until
+  the existing GitHub App private key and client secret are restored as Labs
+  Worker secrets. The secret values are neither recorded nor recoverable here.
+- Hermes-to-Vectorize remains intentionally unstarted: it requires a separate
+  bounded ingestion implementation after the GitHub App probe returns a
+  provenance-bearing snapshot. R2 and D1 retain operational/evidence and
+  authorization roles only; neither is the company-knowledge source.
+
 ## Completed
 
 - Registry WorkObject matched via `sourceInventory`.
