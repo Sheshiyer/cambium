@@ -674,11 +674,53 @@ export interface SimpleResponse {
 const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
+const HERMES_QUEST_SUMMARY_SCHEMA = 'cambium.hermes.quest-summary.v1';
+const HERMES_QUEST_SUMMARY_PREFIX = '/v1/bridge/quests/';
+const HERMES_QUEST_STALE_AFTER_MS = 6 * 60 * 60 * 1000;
+const HERMES_QUEST_MAX_COUNT = 1_000_000;
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
 const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|rawInitData|initData|query_id|auth_date)\b=?|\b(?:token|user|id)=|hash=)/i;
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
+
+function boundedQuestCount(value: unknown): number {
+  const count = Math.floor(Number(value));
+  return Number.isFinite(count) && count > 0 ? Math.min(count, HERMES_QUEST_MAX_COUNT) : 0;
+}
+
+function hermesQuestSummaryTenant(routePath: string): string | null {
+  if (!routePath.startsWith(HERMES_QUEST_SUMMARY_PREFIX) || !routePath.endsWith('/summary')) return null;
+  const tenant = routePath.slice(HERMES_QUEST_SUMMARY_PREFIX.length, -'/summary'.length);
+  return VALID_TENANT.test(tenant) ? tenant : null;
+}
+
+function hermesQuestSummary(stored: string, tenant: string, nowMs: number): Record<string, unknown> | null {
+  const envelope = parseStoredEnvelope(stored);
+  if (!envelope || envelope.tenant !== tenant || !isRecord(envelope.ledger)) return null;
+  const total = boundedQuestCount(envelope.ledger.total);
+  const completed = Math.min(boundedQuestCount(envelope.ledger.completed), total);
+  const derivedAtMs = parsedTime(envelope.derivedAt);
+  const ageSeconds = derivedAtMs === null ? null : Math.max(0, Math.floor((nowMs - derivedAtMs) / 1000));
+  const freshnessState = ageSeconds === null
+    ? 'unknown'
+    : ageSeconds > HERMES_QUEST_STALE_AFTER_MS / 1000 ? 'stale' : 'fresh';
+  return {
+    schema: HERMES_QUEST_SUMMARY_SCHEMA,
+    tenant,
+    freshness: {
+      state: freshnessState,
+      derivedAt: derivedAtMs === null ? null : String(envelope.derivedAt),
+      ageSeconds,
+    },
+    counts: {
+      completed,
+      total,
+      remaining: total - completed,
+    },
+    status: total === 0 ? 'empty' : completed === total ? 'complete' : 'active',
+  };
+}
 
 const portfolioHtml = (status: number, body: string, contentSecurityPolicy: string): SimpleResponse => ({
   status,
@@ -3901,6 +3943,24 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (routePath.startsWith('/v1/context/')) {
     return handleContextRoute(req, deps.contextRoutes ?? {});
+  }
+
+  if (routePath.startsWith(HERMES_QUEST_SUMMARY_PREFIX)) {
+    if (method !== 'GET') {
+      return { ...json(405, { error: 'Hermes quest summary is GET-only' }), headers: { ...JSON_HEADERS, allow: 'GET' } };
+    }
+    const tenant = hermesQuestSummaryTenant(routePath);
+    if (!tenant) return json(400, { error: 'bad Hermes quest summary route' });
+    if (!deps.bridgeToken) return json(503, { error: 'bridge token not configured' });
+    if (req.headers.authorization !== `Bearer ${deps.bridgeToken}`) {
+      return json(401, { error: 'bad or missing bearer' });
+    }
+    const stored = await deps.kv.get(ledgerKey(tenant));
+    if (!stored) return json(404, { error: 'quest summary unavailable' });
+    const nowMs = parsedTime(deps.now ? deps.now() : Date.now()) ?? Date.now();
+    const summary = hermesQuestSummary(stored, tenant, nowMs);
+    if (!summary) return json(503, { error: 'quest summary unavailable' });
+    return json(200, summary);
   }
 
   if (routePath === '/v1/providers' || routePath === '/v1/providers/health' || routePath.startsWith('/v1/providers/')) {
