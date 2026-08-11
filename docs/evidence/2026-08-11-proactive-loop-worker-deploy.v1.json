@@ -5,7 +5,7 @@
   "actor": "temperance-engine / grok-build",
   "production": {
     "cloudflareAccountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
-    "accountName": "Thoughtseedlabs@gmail.com's Account",
+    "accountName": "Thoughtseed Labs account",
     "config": "workers/quests/wrangler.labs.jsonc",
     "worker": "cambium-quests",
     "versionId": "9c1545ed-ce9a-433f-9cff-e9216ef27b31",
@@ -52,7 +52,7 @@
     "note": "Superseded for production \u2014 personal account was used before Thoughtseed OAuth re-login",
     "cloudflareAccountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
     "versionId": "c43a61ec-6cb6-4c09-b8ca-7df646b9e98b",
-    "workersDevUrl": "https://cambium-quests.sheshnarayan-iyer.workers.dev"
+    "workersDevUrl": "[redacted personal-worker origin]"
   },
   "routesLive": {
     "GET /v1/bridge/proactive-loop/pending-deliveries": {

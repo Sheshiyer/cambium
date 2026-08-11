@@ -1,12 +1,12 @@
 {
   "schema": "temperance.project.v1",
   "name": "cambium",
-  "cwd": "/Volumes/madara/2026/Projects/thoughtseed/cambium",
+  "cwd": ".",
   "github": "Sheshiyer/cambium",
   "generated_at": "2026-08-11T05:34:52.656Z",
   "host_runtime": {
-    "temperance_home": "/Users/sheshnarayaniyer/.temperance_engine",
-    "opencode": "/Users/sheshnarayaniyer/.config/opencode",
+    "temperance_home": "host-managed",
+    "opencode": "host-managed",
     "omniroute": "http://127.0.0.1:20128",
     "proxy": "http://127.0.0.1:20129"
   },

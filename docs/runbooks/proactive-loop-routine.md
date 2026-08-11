@@ -55,7 +55,7 @@ Lives in `hermes-aws-ts` (not this repo):
 
 ```bash
 # Dry-run pull
-HERMES_CAMBIUM_BRIDGE_URL=https://curious.thoughtseed.space \
+HERMES_CAMBIUM_BRIDGE_URL=https://<configured-cambium-bridge-origin> \
 HERMES_CAMBIUM_BRIDGE_TOKEN=… \
 node scripts/proactive-loop-deliver.mjs --json
 
