@@ -10,6 +10,8 @@
     "CONTEXT_ALLOWED_TENANTS": "cambium",
     "CONTEXT_EMBEDDING_PROVIDER": "nvidia",
     "CONTEXT_EMBEDDING_MODEL": "nvidia/nv-embedqa-e5-v5",
+    "GITHUB_KNOWLEDGE_REPOSITORY": "Sheshiyer/thoughtseed-labs",
+    "GITHUB_KNOWLEDGE_REF": "main",
     "COMMAND_CODE_BASE_URL": "https://fd7cth5o4oyqwn6vne76wncxeu0ehmvc.lambda-url.us-east-1.on.aws/provider/v1",
     "TF_ACCESS_TEAM_DOMAIN": "red-queen-4dfa.cloudflareaccess.com",
     "TF_ACCESS_AUD": "027d9959d1bab2ffb291b294b2cf49427fe63608a44c228fd05c3c7731ee60d7,5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200,d3892b5d2a62027029b09b2fd015a9e8074d5efb38c443099f803517cb3feb51",
@@ -19,8 +21,7 @@
     { "binding": "QUESTS", "id": "10aaa6e0a8a545c1afb5ceee7ef61c14" }
   ],
   "r2_buckets": [
-    { "binding": "THOUGHTSEED_VAULT", "bucket_name": "thoughtseed-vault" },
-    { "binding": "CONTEXT_PROJECTIONS", "bucket_name": "thoughtseed-context-projections" }
+    { "binding": "THOUGHTSEED_VAULT", "bucket_name": "thoughtseed-vault" }
   ],
   "vectorize": [
     { "binding": "CAMBIUM_CORTEX", "index_name": "cambium-cortex" }

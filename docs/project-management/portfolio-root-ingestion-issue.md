@@ -6,7 +6,7 @@ Ingest the shallow destination portfolio roots into repository-owned GitHub plan
 
 - Root-map schema: `thoughtseed.portfolio-root-map.v1`
 - Digest: `588f136a14cac55dbba30b11394288943c56bfebba2b700b4c2d25590747c52b`
-- Thoughtseed: 47 mapped folder proposals; `thoughtseed-labs` is R2-synced vault infrastructure.
+- Thoughtseed: 47 mapped folder proposals; `thoughtseed-labs` is the private GitHub knowledge-source context, never a WorkObject folder.
 - Tryambakam · Noesis: 30 active Projects; four archived projects; one worktree-infrastructure folder.
 - Path grammar: `<projects-root>/<portfolio>/<repository>`.
 
@@ -24,7 +24,7 @@ Ingest the shallow destination portfolio roots into repository-owned GitHub plan
 - Each active folder has immutable GitHub repository identity or an explicit gap.
 - Each folder names its repository-local planning authority.
 - Ambiguous Thoughtseed proposals remain reviewable and are not silently rewritten.
-- The R2-synced vault contributes context without becoming a runtime dependency or project folder.
+- The private GitHub knowledge source contributes context without becoming a runtime dependency or project folder.
 - No `client-branches`, `saplings`, `programs`, or `projects` nesting directory is created.
 - No dirty or nested repository is relocated by this issue.
 

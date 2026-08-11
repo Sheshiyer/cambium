@@ -8,6 +8,14 @@
 - Registry WorkObject: `sapling:cambium`
 - GitHub: `Sheshiyer/cambium`
 
+### 2026-08-11 GitHub-backed knowledge-plane checkpoint
+
+- Approved knowledge authority: private GitHub repository `Sheshiyer/thoughtseed-labs`; the local Labs checkout is not a runtime source.
+- Routine knowledge reads resolve one Git revision and then fetch only exact, allowlisted Markdown paths. The read credential must be repository-scoped and distinct from the governed GitHub command credential.
+- Plexus's D1-backed `whoami` remains authorization-only. It is not a knowledge source, retrieval store, or inference backend.
+- `CONTEXT_PROJECTIONS` R2 binding and its projection-write route are retired for the knowledge plane; `CAMBIUM_CORTEX` remains the Vectorize retrieval index. Existing `BRIDGE_DB` and `THOUGHTSEED_VAULT` bindings remain only for separately governed operational/evidence paths.
+- No GitHub credential, deployment, Vectorize upsert, R2/D1 mutation, or Plexus change was performed by this checkpoint. User-facing Plexus role enforcement for context retrieval remains a follow-up, fail-closed wiring task.
+
 ### 2026-08-07 repository-first intake checkpoint
 
 - Packet status remains `draft-held`; this checkpoint does not satisfy the human-review gate.

@@ -1,6 +1,6 @@
 # Cloudflare Adapter
 
-Cloudflare is an optional infrastructure adapter for production memory, Workers, static hosting, and scheduled operator surfaces. It is not required for local demos.
+Cloudflare is an optional infrastructure adapter for Workers, Vectorize retrieval, static hosting, and scheduled operator surfaces. It is not required for local demos. Private company knowledge is sourced from GitHub, not R2 or D1.
 
 ## Port
 
@@ -16,7 +16,7 @@ Cloudflare is an optional infrastructure adapter for production memory, Workers,
 ## Outputs
 
 - Deployment evidence for quest arcs.
-- Optional semantic-memory backend for the cortex.
+- Vectorize retrieval index for policy-screened GitHub knowledge projections.
 - Optional scheduled wake loop infrastructure.
 
 ## Failure Mode
@@ -29,4 +29,4 @@ Use config to map account/project names to portable org slugs. Do not encode acc
 
 ## Privacy Boundary
 
-Never commit account IDs, API tokens, deploy logs with private hostnames, or captured request payloads. Public docs should use `cambium.example.com` and other `example.com` domains.
+Never commit account IDs, API tokens, deploy logs with private hostnames, captured request payloads, GitHub read tokens, or raw private-repository content. Public docs should use `cambium.example.com` and other `example.com` domains.
