@@ -3551,7 +3551,7 @@ async function intakeTelegramGoalGraphRoute(
   const receiptTenant = goalGraphIntakeReceiptTenant(raw);
   // The parser is the pure boundary: a malformed envelope is data, never an
   // exception, so a Telegram redelivery can never crash-loop this lane.
-  const initial = parseTelegramGoalGraphIntent(raw);
+  const initial = parseTelegramGoalGraphIntent(raw, { loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY });
   if (!initial.accepted) {
     // Bounded rejection receipt: the parser's bounded error shape only. No
     // payload, metadata value, or raw Telegram content is echoed back.
@@ -3599,6 +3599,7 @@ async function intakeTelegramGoalGraphRoute(
     currentNodes,
     graphVersion: (head?.graphVersion ?? 0) + 1,
     now: receivedAt,
+    loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   });
   if (!pinned.accepted) return { status: 500, body: { error: 'goal_graph_intake_context_failed' } };
   if (pinned.compile.status !== 'compiled') {

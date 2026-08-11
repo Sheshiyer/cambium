@@ -12628,6 +12628,31 @@ test('goal graph intake · acceptance persists one bounded PENDING task and writ
   assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
 });
 
+test('goal graph intake · governed operational anchor reaches pending approval unchanged', async () => {
+  const { kv, deps } = goalGraphIntakeHarness();
+  const intent = goalGraphIntakeIntent({
+    goal: {
+      desiredState: 'admit Fitcheck through its governed launch loadout',
+      externalId: 'task-fitcheck-launch',
+      status: 'active',
+      workObjectId: 'sapling:fitcheck',
+      workObjectKind: 'sapling',
+      pinnedLoadoutId: 'loadout:fitcheck-launch',
+    },
+  });
+  const response = await postGoalGraphIntake('bridge', intent, deps);
+  assert.equal(response.status, 200);
+  assert.equal(body(response).accepted, true);
+  const taskKey = [...kv.store.keys()].find((key) => key.startsWith('goal-graph-intake-task:cambium:'))!;
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  assert.equal(task.status, 'pending');
+  assert.equal(task.node.workObjectId, 'sapling:fitcheck');
+  assert.equal(task.node.workObjectKind, 'sapling');
+  assert.equal(task.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
+  assert.equal(task.changeSet.nodesToCreate[0].pinnedLoadoutId, 'loadout:fitcheck-launch');
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+});
+
 test('goal graph intake · Telegram redelivery collapses to the original task receipt', async () => {
   const { kv, deps } = goalGraphIntakeHarness();
   const intent = goalGraphIntakeIntent();
