@@ -49,6 +49,35 @@ node scripts/proactive-loop-tick.mjs --json
 CAMBIUM_BRIDGE_URL=… BRIDGE_TOKEN=… node scripts/proactive-loop-tick.mjs --post
 ```
 
+## Hermes consumer (production Telegram)
+
+Lives in `hermes-aws-ts` (not this repo):
+
+```bash
+# Dry-run pull
+HERMES_CAMBIUM_BRIDGE_URL=https://curious.thoughtseed.space \
+HERMES_CAMBIUM_BRIDGE_TOKEN=… \
+node scripts/proactive-loop-deliver.mjs --json
+
+# Live: tick → sendMessage → topic-assignment → claim
+node scripts/proactive-loop-deliver.mjs --tick --send --json
+```
+
+EC2: `ops/ec2/hermes-proactive-loop.timer` (every 6h at :15) +
+`docs/runbooks/proactive-loop-deliver.md`.
+
+## Deploy (Worker cron)
+
+```bash
+# account must match production (see docs/evidence/*-deploy.json)
+export CLOUDFLARE_ACCOUNT_ID=9d9d23b27f32e70ae3afb6a1aa2c0f10
+cd workers/quests
+wrangler deploy --config wrangler.jsonc --dry-run
+wrangler deploy --config wrangler.jsonc
+```
+
+Cron trigger: `0 */6 * * *` in `wrangler.jsonc` → `index.ts` `scheduled`.
+
 ## Mini App
 
 HTML boot injects `globalThis.__CAMBIUM_PROACTIVE_LOOP__` so the Fitcheck

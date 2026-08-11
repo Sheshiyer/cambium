@@ -1,0 +1,35 @@
+{
+  "schema": "cambium.evidence.deploy.v1",
+  "title": "Proactive loop Worker deploy (cron + Hermes pull routes)",
+  "observedAt": "2026-08-11T06:00:00.000Z",
+  "actor": "temperance-engine / grok-build",
+  "cloudflareAccountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+  "worker": "cambium-quests",
+  "versionId": "c43a61ec-6cb6-4c09-b8ca-7df646b9e98b",
+  "workersDevUrl": "https://cambium-quests.sheshnarayan-iyer.workers.dev",
+  "triggers": {
+    "crons": ["0 */6 * * *"]
+  },
+  "routesLive": {
+    "GET /v1/bridge/proactive-loop/pending-deliveries": {
+      "url": "https://cambium-quests.sheshnarayan-iyer.workers.dev/v1/bridge/proactive-loop/pending-deliveries",
+      "withoutToken": { "status": 401, "body": { "error": "bad or missing bridge credential" } }
+    }
+  },
+  "notes": [
+    "Deploy required CLOUDFLARE_ACCOUNT_ID=9d9d23b27f32e70ae3afb6a1aa2c0f10 (OAuth account); cached Thoughtseedlabs account id 9d7cec… rejects secrets/deploy with code 10000.",
+    "curious.thoughtseed.space returns 302 without Cloudflare Access service-token headers — Hermes must use CF_ACCESS_CLIENT_ID/SECRET + BRIDGE_TOKEN.",
+    "Hermes consumer implemented in hermes-aws-ts scripts/proactive-loop-deliver.mjs; local smoke passed; live TG send blocked until EC2 has TELEGRAM_BOT_TOKEN + bridge token run."
+  ],
+  "hermes": {
+    "script": "scripts/proactive-loop-deliver.mjs",
+    "smoke": "npm run smoke:proactive-loop",
+    "timer": "ops/ec2/hermes-proactive-loop.timer",
+    "runbook": "docs/runbooks/proactive-loop-deliver.md"
+  },
+  "safety": {
+    "workerSendsTelegram": false,
+    "workerWritesGoalGraph": false,
+    "hermesWritesGoalGraph": false
+  }
+}
