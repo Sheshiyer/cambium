@@ -16,4 +16,3 @@ SAFVR is a client website branch, not a Thoughtseed Sapling. Founder approval on
 ## Handoff note
 
 This record exists so Workbench can preserve the SAFVR folder mapping while keeping the work out of active planning views. If SAFVR work resumes later, create a new client branch or explicitly reopen this branch through the founder-gated closeout workflow.
-
