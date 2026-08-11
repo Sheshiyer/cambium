@@ -16,6 +16,7 @@ import type {
   GoalGraphCompileResult,
   GoalGraphHead,
   GoalGraphInputNode,
+  GoalGraphLoadoutAuthority,
   GoalGraphNode,
 } from './goal-graph/types.ts';
 
@@ -58,6 +59,9 @@ export interface TelegramGoalGraphFields {
   reviewAt: string | null;
   status: GoalGraphNode['status'];
   metadata: Record<string, TelegramGoalMetadataValue>;
+  workObjectId?: string;
+  workObjectKind?: GoalGraphNode['workObjectKind'];
+  pinnedLoadoutId?: string;
 }
 
 export interface TelegramGoalGraphIntent {
@@ -83,6 +87,7 @@ export interface TelegramGoalGraphCompileContext {
   currentNodes?: readonly GoalGraphNode[];
   graphVersion?: number;
   now?: string;
+  loadoutAuthority?: GoalGraphLoadoutAuthority;
 }
 
 export type TelegramGoalGraphIntakeErrorCode =
@@ -124,6 +129,7 @@ const SOURCE_KEYS = new Set(['kind', 'chatId', 'messageId', 'updateId', 'threadI
 const GOAL_KEYS = new Set([
   'namespace', 'externalId', 'parentNodeId', 'scope', 'desiredState', 'currentState',
   'owner', 'nextAction', 'waitCondition', 'proofRequired', 'reviewAt', 'status', 'metadata',
+  'workObjectId', 'workObjectKind', 'pinnedLoadoutId',
 ]);
 
 const FORBIDDEN_KEY_NAMES = new Set([
@@ -302,6 +308,21 @@ function normalizeInput(input: unknown): TelegramGoalGraphIntent {
     status,
     metadata: validateMetadata(goalInput.metadata),
   };
+  const workObjectId = optionalNullableString(goalInput.workObjectId, 'goal.workObjectId', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
+  const workObjectKind = optionalNullableString(goalInput.workObjectKind, 'goal.workObjectKind', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
+  const pinnedLoadoutId = optionalNullableString(goalInput.pinnedLoadoutId, 'goal.pinnedLoadoutId', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
+  const anchorFieldsPresent = workObjectId !== null || workObjectKind !== null || pinnedLoadoutId !== null;
+  if (anchorFieldsPresent && (workObjectId === null || workObjectKind === null || pinnedLoadoutId === null)) {
+    throw new Error('goal operational anchor fields must be supplied together');
+  }
+  if (workObjectKind !== null && workObjectKind !== 'sapling' && workObjectKind !== 'branch' && workObjectKind !== 'program') {
+    throw new Error('goal.workObjectKind is invalid');
+  }
+  if (workObjectId !== null && workObjectKind !== null && pinnedLoadoutId !== null) {
+    goal.workObjectId = workObjectId;
+    goal.workObjectKind = workObjectKind as GoalGraphNode['workObjectKind'];
+    goal.pinnedLoadoutId = pinnedLoadoutId;
+  }
   return { schema: TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA, version: TELEGRAM_GOAL_GRAPH_INTENT_VERSION, tenantId, source, goal };
 }
 
@@ -325,13 +346,14 @@ export function makeTelegramGoalGraphIdempotencyKey(tenantId: string, source: Te
 
 export const telegramGoalGraphIdempotencyKey = makeTelegramGoalGraphIdempotencyKey;
 
-function compileContext(context: TelegramGoalGraphCompileContext | undefined): Required<TelegramGoalGraphCompileContext> {
+function compileContext(context: TelegramGoalGraphCompileContext | undefined): Required<Omit<TelegramGoalGraphCompileContext, 'loadoutAuthority'>> & Pick<TelegramGoalGraphCompileContext, 'loadoutAuthority'> {
   return {
     expectedHeadDigest: context?.expectedHeadDigest ?? null,
     actualHead: context?.actualHead ?? null,
     currentNodes: context?.currentNodes ?? [],
     graphVersion: context?.graphVersion ?? 1,
     now: context?.now ?? '1970-01-01T00:00:00.000Z',
+    loadoutAuthority: context?.loadoutAuthority,
   };
 }
 
@@ -370,6 +392,9 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
       sourceDigest: contentDigest,
       graphVersion: compileContext(context).graphVersion,
       metadata: value.goal.metadata,
+      workObjectId: value.goal.workObjectId ?? null,
+      workObjectKind: value.goal.workObjectKind ?? null,
+      pinnedLoadoutId: value.goal.pinnedLoadoutId ?? null,
     };
     const compileInput = compileContext(context);
     // `buildNode` is the identity primitive used by every Goal Graph lane. Its
@@ -386,6 +411,7 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
       sourceRef: sourceRefValue,
       sourceDigest: contentDigest,
       now: compileInput.now,
+      loadoutAuthority: compileInput.loadoutAuthority,
     });
     return {
       accepted: true,

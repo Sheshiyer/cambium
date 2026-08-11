@@ -42,6 +42,39 @@ test('repeat delivery has byte-stable canonical form, digest, node, and idempote
   assert.equal(first.contentDigest, 'sha256:cb32bfc5cd647200a584be1a149a309a84dc79e46afceebaee6d3cc35b0c493c');
 });
 
+test('governed operational anchors compile only with exact loadout authority', () => {
+  const anchored = {
+    ...minimal,
+    goal: {
+      ...minimal.goal,
+      externalId: 'task-fitcheck-launch',
+      workObjectId: 'sapling:fitcheck',
+      workObjectKind: 'sapling',
+      pinnedLoadoutId: 'loadout:fitcheck-launch',
+    },
+  };
+  const loadoutAuthority = {
+    resolve(loadoutId: string) {
+      return loadoutId === 'loadout:fitcheck-launch' ? {
+        loadoutId,
+        eligibleWorkObjectIds: ['sapling:fitcheck'],
+        authorizedClusterIds: ['cluster:fitcheck-no-spend'],
+        authorityDigest: `sha256:${'a'.repeat(64)}`,
+        sourceRef: 'test:loadout-registry',
+      } : null;
+    },
+  };
+  const accepted = parseTelegramGoalGraphIntent(anchored, { loadoutAuthority });
+  assert.equal(accepted.accepted, true);
+  if (accepted.accepted) {
+    assert.equal(accepted.node.workObjectId, 'sapling:fitcheck');
+    assert.equal(accepted.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
+    assert.equal(accepted.compile.status, 'compiled');
+  }
+  assert.equal(parseTelegramGoalGraphIntent(anchored).accepted, false);
+  assert.equal(parseTelegramGoalGraphIntent({ ...anchored, goal: { ...anchored.goal, pinnedLoadoutId: undefined } }).accepted, false);
+});
+
 test('every malformed value returns an explicit rejection and never throws', () => {
   const cyclic: Record<string, unknown> = {};
   cyclic.self = cyclic;

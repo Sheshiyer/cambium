@@ -8,6 +8,10 @@ export interface GoalGraphNode {
   namespace: string;
   externalId: string | null;
   parentNodeId: string | null;
+  /** Additive nullable anchors; absent legacy values normalize to null. */
+  workObjectId?: string | null;
+  workObjectKind?: 'sapling' | 'branch' | 'program' | null;
+  pinnedLoadoutId?: string | null;
   scope: 'macro' | 'meso' | 'micro' | 'proof';
   desiredState: string;
   currentState: string;
@@ -70,6 +74,20 @@ export interface GoalGraphCompileInput {
   sourceRef: string;
   sourceDigest: string;
   now?: string;
+  /** Required whenever a proposed node pins a governed operational loadout. */
+  loadoutAuthority?: GoalGraphLoadoutAuthority;
+}
+
+export interface GoalGraphLoadoutAuthorityRecord {
+  loadoutId: string;
+  eligibleWorkObjectIds: readonly string[];
+  authorizedClusterIds: readonly string[];
+  authorityDigest: string;
+  sourceRef: string;
+}
+
+export interface GoalGraphLoadoutAuthority {
+  resolve(loadoutId: string): GoalGraphLoadoutAuthorityRecord | null;
 }
 
 export type GoalGraphCompileResult =

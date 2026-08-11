@@ -4,6 +4,20 @@ import { buildNode, resolveNodeId, validateNodeSet } from './identity.ts';
 import { classifyMigration, compileGoalGraph, makeGoalGraphHead } from './compiler.ts';
 import type { GoalGraphNode } from './types.ts';
 
+const LOADOUT_AUTHORITY = {
+  resolve(loadoutId: string) {
+    return loadoutId === 'loadout:cambium'
+      ? {
+          loadoutId,
+          eligibleWorkObjectIds: ['sapling:cambium'],
+          authorizedClusterIds: ['cluster:cambium'],
+          authorityDigest: `sha256:${'a'.repeat(64)}`,
+          sourceRef: 'test:loadout-registry',
+        }
+      : null;
+  },
+};
+
 const base = {
   tenantId: 'tenant-alpha', namespace: 'manual', externalId: 'root', parentNodeId: null,
   scope: 'macro' as const, desiredState: 'operate', currentState: 'draft', owner: 'founder',
@@ -26,6 +40,17 @@ test('identity validation rejects collisions, cross-tenant parents, and multiple
   assert.equal(validateNodeSet([root, { ...root, desiredState: 'different' }]).valid, false);
   assert.equal(validateNodeSet([root, node({ externalId: 'second' })]).valid, false);
   assert.equal(validateNodeSet([root, node({ externalId: 'child', parentNodeId: 'missing' })]).valid, false);
+});
+
+test('operational anchors require exact paired WorkObject identity and bounded loadout', () => {
+  assert.equal(validateNodeSet([node({ workObjectId: 'sapling:cambium', workObjectKind: null })]).valid, false);
+  assert.equal(validateNodeSet([node({ workObjectId: 'sapling:cambium', workObjectKind: 'branch' })]).valid, false);
+  assert.equal(validateNodeSet([node({ pinnedLoadoutId: 'loadout:cambium' })]).valid, false);
+  assert.equal(validateNodeSet([node({ workObjectId: 'sapling:cambium', workObjectKind: 'sapling', pinnedLoadoutId: 'unsafe loadout' })]).valid, false);
+  const governed = node({ workObjectId: 'sapling:cambium', workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:cambium' });
+  assert.equal(validateNodeSet([governed]).valid, false, 'syntax alone never establishes loadout authority');
+  assert.equal(validateNodeSet([governed], LOADOUT_AUTHORITY).valid, true);
+  assert.equal(validateNodeSet([{ ...governed, workObjectId: 'sapling:other' }], LOADOUT_AUTHORITY).valid, false);
 });
 
 test('unchanged replay is a deterministic no-op', () => {

@@ -42,6 +42,9 @@ fixed to `telegram`; it is not a provider or model selector.
     "proofRequired": false,
     "reviewAt": null,
     "status": "draft",
+    "workObjectId": "sapling:fitcheck",
+    "workObjectKind": "sapling",
+    "pinnedLoadoutId": "loadout:fitcheck-launch",
     "metadata": { "priority": "normal" }
   }
 }
@@ -50,6 +53,9 @@ fixed to `telegram`; it is not a provider or model selector.
 `namespace`, `scope`, `currentState`, `owner`, `proofRequired`, `reviewAt`,
 `status`, and `metadata` have conservative defaults. `goal.desiredState` is
 the only required goal field. The parser normalizes defaults before hashing.
+The three operational-anchor fields are optional as a group. When present,
+they must resolve through the server-owned loadout registry before the
+proposal can compile; caller-supplied syntax alone never grants authority.
 
 The envelope is deliberately not a Telegram update. Raw `initData`, message
 bodies, attachments, provider/model settings, credentials, routing hints,

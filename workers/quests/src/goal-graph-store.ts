@@ -120,6 +120,9 @@ interface NodeRow {
   namespace: string;
   external_id: string | null;
   parent_node_id: string | null;
+  work_object_id: string | null;
+  work_object_kind: GoalGraphNode['workObjectKind'];
+  pinned_loadout_id: string | null;
   scope: GoalGraphNode['scope'];
   desired_state: string;
   current_state: string;
@@ -220,6 +223,9 @@ function rowToNode(row: NodeRow): GoalGraphNode | null {
     namespace: row.namespace,
     externalId: row.external_id,
     parentNodeId: row.parent_node_id,
+    workObjectId: row.work_object_id,
+    workObjectKind: row.work_object_kind,
+    pinnedLoadoutId: row.pinned_loadout_id,
     scope: row.scope,
     desiredState: row.desired_state,
     currentState: row.current_state,
@@ -258,6 +264,9 @@ function nodeValues(node: GoalGraphNode): unknown[] {
     node.namespace,
     node.externalId,
     node.parentNodeId,
+    node.workObjectId ?? null,
+    node.workObjectKind ?? null,
+    node.pinnedLoadoutId ?? null,
     node.scope,
     node.desiredState,
     node.currentState,
@@ -320,16 +329,36 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
   }
 
   async function readNodeRows(tenantId: string): Promise<NodeRow[]> {
-    const result = await db.prepare(`
-      SELECT tenant_id, node_id, namespace, external_id, parent_node_id,
-        scope, desired_state, current_state, owner, next_action, wait_condition,
-        proof_required, review_at, status, source_ref, source_digest,
-        graph_version, metadata_json, created_at, updated_at
-      FROM goal_graph_nodes
-      WHERE tenant_id = ?
-      ORDER BY node_id ASC
-    `).bind(tenantId).all<NodeRow>();
-    return result.results ?? [];
+    try {
+      const result = await db.prepare(`
+        SELECT tenant_id, node_id, namespace, external_id, parent_node_id,
+          work_object_id, work_object_kind, pinned_loadout_id,
+          scope, desired_state, current_state, owner, next_action, wait_condition,
+          proof_required, review_at, status, source_ref, source_digest,
+          graph_version, metadata_json, created_at, updated_at
+        FROM goal_graph_nodes
+        WHERE tenant_id = ?
+        ORDER BY node_id ASC
+      `).bind(tenantId).all<NodeRow>();
+      return result.results ?? [];
+    } catch (error) {
+      // Worker deployment and D1 migration are separate operations. Preserve the
+      // pre-0009 read path during that bounded rollout window; legacy rows have no
+      // operational anchors and are represented explicitly as null.
+      const message = error instanceof Error ? error.message : String(error);
+      if (!/no such column:\s*(?:work_object_id|work_object_kind|pinned_loadout_id)/i.test(message)) throw error;
+      const result = await db.prepare(`
+        SELECT tenant_id, node_id, namespace, external_id, parent_node_id,
+          NULL AS work_object_id, NULL AS work_object_kind, NULL AS pinned_loadout_id,
+          scope, desired_state, current_state, owner, next_action, wait_condition,
+          proof_required, review_at, status, source_ref, source_digest,
+          graph_version, metadata_json, created_at, updated_at
+        FROM goal_graph_nodes
+        WHERE tenant_id = ?
+        ORDER BY node_id ASC
+      `).bind(tenantId).all<NodeRow>();
+      return result.results ?? [];
+    }
   }
 
   async function readEvent(tenantId: string, changeDigest: string): Promise<EventRow | null> {
@@ -543,7 +572,8 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
       const node = update.after;
       statements.push(db.prepare(`
         UPDATE goal_graph_nodes SET
-          namespace = ?, external_id = ?, parent_node_id = ?, scope = ?, desired_state = ?, current_state = ?,
+          namespace = ?, external_id = ?, parent_node_id = ?, work_object_id = ?, work_object_kind = ?,
+          pinned_loadout_id = ?, scope = ?, desired_state = ?, current_state = ?,
           owner = ?, next_action = ?, wait_condition = ?, proof_required = ?, review_at = ?, status = ?,
           source_ref = ?, source_digest = ?, graph_version = ?, metadata_json = ?, updated_at = ?
         WHERE tenant_id = ? AND node_id = ? AND ${guard}
@@ -551,6 +581,9 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
         node.namespace,
         node.externalId,
         node.parentNodeId,
+        node.workObjectId ?? null,
+        node.workObjectKind ?? null,
+        node.pinnedLoadoutId ?? null,
         node.scope,
         node.desiredState,
         node.currentState,
@@ -573,11 +606,12 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     for (const node of orderedCreates(changeSet.nodesToCreate)) {
       statements.push(db.prepare(`
         INSERT INTO goal_graph_nodes (
-          tenant_id, node_id, namespace, external_id, parent_node_id, scope, desired_state, current_state,
+          tenant_id, node_id, namespace, external_id, parent_node_id, work_object_id, work_object_kind,
+          pinned_loadout_id, scope, desired_state, current_state,
           owner, next_action, wait_condition, proof_required, review_at, status, source_ref, source_digest,
           graph_version, metadata_json, created_at, updated_at
         )
-        SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         WHERE ${guard}
       `).bind(...nodeValues(node), ...guardArgs));
     }

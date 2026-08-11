@@ -46,7 +46,7 @@ import {
   MISSION_FABRIC_CAPS,
   adaptBranchStories,
   adaptCompanyPrograms,
-  adaptGoalGraph,
+  adaptGoalGraphAuthority,
   adaptQuestExecutionFacts,
   projectionDigest as missionFabricProjectionDigest,
   redactMissionFabricProjection,
@@ -89,6 +89,7 @@ import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } fro
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
+import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
@@ -3094,7 +3095,14 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         entries.push(entry);
       }
     }
-    const goalGraphFabricNodes = adaptGoalGraph({ tenantId: tenant, graphVersion: head.graphVersion, nodes });
+    const goalGraphAuthority = adaptGoalGraphAuthority({
+      tenantId: tenant,
+      graphVersion: head.graphVersion,
+      nodes,
+      workObjectIds: PORTFOLIO_CATALOG.records.map((record) => record.workId),
+      loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+    });
+    const goalGraphFabricNodes = goalGraphAuthority.nodes;
     const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;
     if (isRecord(fabricFacts) && Array.isArray(fabricFacts.fences)) {
       for (const fenceRow of fabricFacts.fences) {
@@ -3123,11 +3131,11 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
     const taskReconciliation = reconcileFabricTaskNodes(goalGraphFabricNodes, execution.nodes);
     entries.push(...taskReconciliation.nodes);
-    const mergedEdges: FabricEdge[] = execution.edges.filter((edge) => (
+    const mergedEdges: FabricEdge[] = [...goalGraphAuthority.edges, ...execution.edges].filter((edge) => (
       !taskReconciliation.blockedTaskIds.has(edge.fromId)
       && !taskReconciliation.blockedTaskIds.has(edge.toId)
     ));
-    const mergedGaps: FabricGap[] = [...execution.gaps, ...taskReconciliation.gaps];
+    const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
 
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
@@ -3543,7 +3551,7 @@ async function intakeTelegramGoalGraphRoute(
   const receiptTenant = goalGraphIntakeReceiptTenant(raw);
   // The parser is the pure boundary: a malformed envelope is data, never an
   // exception, so a Telegram redelivery can never crash-loop this lane.
-  const initial = parseTelegramGoalGraphIntent(raw);
+  const initial = parseTelegramGoalGraphIntent(raw, { loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY });
   if (!initial.accepted) {
     // Bounded rejection receipt: the parser's bounded error shape only. No
     // payload, metadata value, or raw Telegram content is echoed back.
@@ -3591,6 +3599,7 @@ async function intakeTelegramGoalGraphRoute(
     currentNodes,
     graphVersion: (head?.graphVersion ?? 0) + 1,
     now: receivedAt,
+    loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   });
   if (!pinned.accepted) return { status: 500, body: { error: 'goal_graph_intake_context_failed' } };
   if (pinned.compile.status !== 'compiled') {

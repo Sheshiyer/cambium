@@ -8,6 +8,18 @@
 - Registry WorkObject: `sapling:cambium`
 - GitHub: `Sheshiyer/cambium`
 
+### 2026-08-11 operational-anchor source-reconciliation checkpoint
+
+- Branch `codex/cambium-operational-anchors` reconciles the bounded operational-anchor source lane onto `origin/main` `5609d59`; it does not transplant unrelated root ISA history, generated viewport artifacts, or stale host/provider configuration.
+- Additive migration `0009_goal_graph_operational_anchors.sql` introduces nullable `work_object_id`, `work_object_kind`, and `pinned_loadout_id` columns. Goal Graph types, compiler validation, identity normalization, D1 read/write storage, Branch Map validation, and the Mission Fabric route now carry these anchors without breaking legacy null rows.
+- Mission Fabric emits WorkObject edges only for exact canonical catalog identities. Syntax-only or cross-WorkObject loadout pins fail closed unless a governed loadout authority is supplied; missing, mismatched, orphaned, and ungoverned anchors remain typed gaps.
+- Governed portfolio mapping receipt preparation validates current catalog/classification/root-map/repository-evidence pins, canonical WorkObject identity, immutable repository identity, folderless root contexts, deterministic digests, and immutable/idempotent R2 storage semantics without performing an R2 write.
+- Fitcheck remains the readback-verified reference contract. IVerif is registered as a prepared-not-issued golden path with separate mapping, D1 admission, loadout, Hermes, and foldback gates. Hermes foldback accepts only terminal exact anchors, requires external admission readback before derived Cortex/agent-memory/next-intent projections, and stores immutable receipts with conflict detection.
+- Current DLOCK repository evidence is `thoughtseed-labs/lockwell-portal`, immutable ID `R_kgDOP5AZyQ`, private `main`, unarchived, with verified principal admin/push/pull access. DLOCK still lacks a reviewed shallow folder, issued operational mapping receipt, and Goal Graph WorkObject/loadout anchor; repository access does not satisfy those gates.
+- Read-only production preflight observed no pending D1 migrations because `0009` was absent from deployed source and the schema had zero operational-anchor columns. This checkpoint records the additive migration only; it did not apply D1, consume a recovery bookmark, deploy a Worker, or mutate R2/KV/AWS.
+- Verification: focused anchor/receipt/foldback/Mission Fabric suites pass 85/85; route/Branch Map/operational-packet suites pass 44/44; full `npm test` passes 1636/1636. Plexus GitHub-App knowledge boundaries, the Cortex ingest route, portfolio foundation, and proactive-loop routes remain present and unchanged outside the exact Mission Fabric join integration.
+- No production deployment, D1 migration apply, R2/KV/AWS write, provider mutation, GitHub push/PR operation, or external action was performed.
+
 ### 2026-08-11 Plexus GitHub-App knowledge-gateway checkpoint
 
 - Approved knowledge authority: private GitHub repository `Sheshiyer/thoughtseed-labs`; the local Labs checkout is not a runtime source.
