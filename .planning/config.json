@@ -21,11 +21,11 @@
     ]
   },
   "parallelization": {
-    "enabled": false,
+    "enabled": true,
     "plan_level": false,
-    "task_level": false,
+    "task_level": true,
     "skip_checkpoints": false,
-    "max_concurrent_agents": 1,
+    "max_concurrent_agents": 4,
     "min_plans_for_parallel": 2
   },
   "gates": {
@@ -45,5 +45,11 @@
   "hooks": {
     "context_warnings": true
   },
-  "agent_skills": {}
+  "agent_skills": {},
+  "temperance": {
+    "next_wave": true,
+    "fleet_combo": "te-dispatch-paid",
+    "host_runtime": "~/.temperance_engine",
+    "state_complete_gates_orphans": true
+  }
 }
