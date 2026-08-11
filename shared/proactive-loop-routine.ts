@@ -58,6 +58,8 @@ export interface ProactiveLoopDelivery {
   questId: string;
   workObjectId: string;
   stage: string;
+  /** held | failed — only non-pass stages emit deliveries */
+  exit: 'held' | 'failed';
   title: string;
   summary: string;
   /** plain text for Hermes to post — no secrets */
@@ -126,6 +128,8 @@ export interface ProactiveLoopPlan {
   loopResults: LoopRunResult[];
   miniApp: ProactiveMiniAppProjection;
   deliveries: ProactiveLoopDelivery[];
+  /** Deliveries suppressed by cooldown (not queued for Hermes). */
+  suppressedNotify: Array<{ deliveryId: string; reason: string }>;
   /** Admission proposal for arcs I–VII — still not a write */
   questAdmissionProposal: ReturnType<typeof compileQuestGraphAdmissionProposal>;
   hermesPullHint: string;
@@ -171,10 +175,11 @@ function topicForLoop(result: LoopRunResult): ProactiveTopicKey {
 function deliveryFromLoop(result: LoopRunResult, observedAt: string, workObjectId: string): ProactiveLoopDelivery | null {
   // Only notify on held/failed — pass stages stay silent (no spam)
   if (result.exit === 'passed') return null;
+  const exit = result.exit as 'held' | 'failed';
   const topicKey = topicForLoop(result);
   const route = PROACTIVE_TOPIC_ROUTES[topicKey];
-  const requiresFounderGate = result.operationalHeld && result.exit === 'held';
-  const title = `Fitcheck ${result.stage}: ${result.exit}`;
+  const requiresFounderGate = result.operationalHeld && exit === 'held';
+  const title = `Fitcheck ${result.stage}: ${exit}`;
   const probeBits = result.probes
     .filter((p) => p.status !== 'pass')
     .map((p) => `${p.probeId}=${p.status}`)
@@ -183,7 +188,7 @@ function deliveryFromLoop(result: LoopRunResult, observedAt: string, workObjectI
   const summary = `${result.summary}${probeBits ? ` · ${probeBits}` : ''}`;
   const messageText = [
     `Fitcheck proactive loop · ${result.stage}`,
-    `status: ${result.exit}`,
+    `status: ${exit}`,
     result.summary,
     probeBits ? `open probes: ${probeBits}` : '',
     requiresFounderGate
@@ -195,7 +200,8 @@ function deliveryFromLoop(result: LoopRunResult, observedAt: string, workObjectI
     .filter(Boolean)
     .join('\n');
 
-  const deliveryId = `pld_${shortId(`${result.loopId}:${result.exit}:${observedAt.slice(0, 13)}`)}`;
+  // Stable across ticks so Hermes/KV can dedupe the same stage+exit notify.
+  const deliveryId = `pld_${shortId(`${result.loopId}:${exit}`)}`;
   return {
     schema: PROACTIVE_LOOP_DELIVERY_SCHEMA,
     deliveryId,
@@ -203,10 +209,11 @@ function deliveryFromLoop(result: LoopRunResult, observedAt: string, workObjectI
     chatId: THOUGHTSEED_CHAT_ID,
     threadId: route.threadId,
     topicName: route.topicName,
-    priority: result.exit === 'failed' ? 'urgent' : route.priority,
+    priority: exit === 'failed' ? 'urgent' : route.priority,
     questId: route.questId,
     workObjectId,
     stage: result.stage,
+    exit,
     title,
     summary,
     messageText,
@@ -217,7 +224,7 @@ function deliveryFromLoop(result: LoopRunResult, observedAt: string, workObjectI
       chatId: THOUGHTSEED_CHAT_ID,
       summary,
       title,
-      priority: result.exit === 'failed' ? 'urgent' : route.priority,
+      priority: exit === 'failed' ? 'urgent' : route.priority,
       questId: route.questId,
       projectId: 'thoughtseed-ops',
       projectName: 'Thoughtseed Ops',
@@ -228,12 +235,78 @@ function deliveryFromLoop(result: LoopRunResult, observedAt: string, workObjectI
   };
 }
 
+/** Notify cooldown: same stage+exit+topic is not re-queued within this window. */
+export const PROACTIVE_NOTIFY_COOLDOWN_MS = 18 * 60 * 60 * 1000;
+
+export interface ProactiveNotifyState {
+  schema: 'cambium.proactive-loop-notify-state.v1';
+  tenantId: string;
+  updatedAt: string;
+  /** key = `${stage}:${exit}:${topicKey}` */
+  byKey: Record<string, { lastAt: string; deliveryId: string; title: string }>;
+}
+
+export function notifyKeyForDelivery(d: Pick<ProactiveLoopDelivery, 'stage' | 'topicKey' | 'exit'>): string {
+  return `${d.stage}:${d.exit}:${d.topicKey}`;
+}
+
+/** Drop deliveries already notified inside cooldown (or suppressed by caller). */
+export function filterDeliveriesForNotify(
+  deliveries: ProactiveLoopDelivery[],
+  state: ProactiveNotifyState | null | undefined,
+  nowIso: string,
+  cooldownMs: number = PROACTIVE_NOTIFY_COOLDOWN_MS,
+): { open: ProactiveLoopDelivery[]; suppressed: Array<{ deliveryId: string; reason: string }> } {
+  const now = Date.parse(nowIso);
+  const open: ProactiveLoopDelivery[] = [];
+  const suppressed: Array<{ deliveryId: string; reason: string }> = [];
+  for (const d of deliveries) {
+    const nk = notifyKeyForDelivery(d);
+    const prev = state?.byKey?.[nk];
+    if (prev) {
+      const last = Date.parse(prev.lastAt);
+      if (Number.isFinite(last) && Number.isFinite(now) && now - last < cooldownMs) {
+        suppressed.push({
+          deliveryId: d.deliveryId,
+          reason: `cooldown ${Math.round((cooldownMs - (now - last)) / 3600000)}h remaining for ${nk}`,
+        });
+        continue;
+      }
+    }
+    open.push(d);
+  }
+  return { open, suppressed };
+}
+
+export function mergeNotifyState(
+  prior: ProactiveNotifyState | null | undefined,
+  claimed: ProactiveLoopDelivery[],
+  tenantId: string,
+  nowIso: string,
+): ProactiveNotifyState {
+  const byKey = { ...(prior?.byKey ?? {}) };
+  for (const d of claimed) {
+    const nk = notifyKeyForDelivery(d);
+    byKey[nk] = { lastAt: nowIso, deliveryId: d.deliveryId, title: d.title };
+  }
+  return {
+    schema: 'cambium.proactive-loop-notify-state.v1',
+    tenantId,
+    updatedAt: nowIso,
+    byKey,
+  };
+}
+
 export function compileProactiveLoopPlan(input: {
   tenantId?: string;
   workObjectId?: string;
   observedAt?: string;
   evidence?: Partial<LoopEvidenceContext>;
   actor?: string;
+  /** Prior notify state for cooldown filtering (optional). */
+  notifyState?: ProactiveNotifyState | null;
+  /** When true, skip cooldown filter (admin force). */
+  forceNotify?: boolean;
 }): ProactiveLoopPlan {
   const tenantId = input.tenantId ?? 'cambium';
   const workObjectId = input.workObjectId ?? 'sapling:fitcheck';
@@ -250,7 +323,13 @@ export function compileProactiveLoopPlan(input: {
     const prev = byTopic.get(d.topicKey);
     if (!prev || rank[d.priority] > rank[prev.priority]) byTopic.set(d.topicKey, d);
   }
-  const capped = [...byTopic.values()].sort((a, b) => rank[b.priority] - rank[a.priority]);
+  let capped = [...byTopic.values()].sort((a, b) => rank[b.priority] - rank[a.priority]);
+  let suppressed: Array<{ deliveryId: string; reason: string }> = [];
+  if (!input.forceNotify && input.notifyState) {
+    const filtered = filterDeliveriesForNotify(capped, input.notifyState, observedAt);
+    capped = filtered.open;
+    suppressed = filtered.suppressed;
+  }
 
   const miniApp: ProactiveMiniAppProjection = {
     schema: PROACTIVE_LOOP_MINIAPP_SCHEMA,
@@ -304,6 +383,7 @@ export function compileProactiveLoopPlan(input: {
     loopResults,
     miniApp,
     deliveries: capped,
+    suppressedNotify: suppressed,
     questAdmissionProposal,
     hermesPullHint:
       'Hermes: POST each deliveries[].topicAssignment to /v1/bridge/topic-assignment then post messageText to topic thread. Do not claim graph admission.',

@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Build reusable Fitcheck intake with typed multi-repository systems"
-effort: E3
-effort_source: algorithm-classification
-phase: complete
-progress: 1123/1200
+task: "Build Temperance planning-sync hook that bridges Cambium planning docs to GitHub issues/projects/roadmaps, updates architecture docs with infrastructure spine, and generates visual flow diagrams using skill-cluster specialists"
+effort: E4
+effort_source: context-override
+phase: build
+progress: 0/5
 mode: interactive
-iteration: 2026-08-09-fitcheck-reusable-intake
-started: 2026-07-27T21:26:34Z
-updated: 2026-08-09T08:01:36+05:30
+iteration: 2026-08-11-planning-sync-hook
+started: 2026-08-11T12:00:00Z
+updated: 2026-08-11T12:15:00Z
 ---
 
 ## Problem
@@ -1797,6 +1797,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-11: refined: Fitcheck L4 proactive path uses a **bounded Worker cron** (`0 */6`) only to recompile loop projections and Hermes *delivery intents*. Telegram transport remains Hermes-owned; Goal Graph CAS remains founder Gate-only. “Proactive” still means authority-chain delivery, not Cambium auto-admit. Founder may grant **operational clearance** (`proactive-loop:founder-approval`) to quiet held probes without writing D1.
+- 2026-08-11: founder operational clearance for Fitcheck L4 held stages is recorded via `POST /v1/bridge/proactive-loop/founder-approve` (admin bridge). This clears notify noise and materializes a Gate-shaped KV receipt; it is **not** D1 CAS and never sets `writesGoalGraph: true`.
 - 2026-08-09 07:37: a project is modeled as one canonical WorkObject plus a typed system graph, not as one repository. `sapling:fitcheck` owns the experience/frontend planning repository, while `program:hdilint` remains the separate backend WorkObject and owns the HDILINT repository; their symmetric link records dependency without identity collapse.
 - 2026-08-09 07:37: lifecycle authority is ordered and non-substitutable: identified → systems-bound → mapping receipt issued → immutable readback verified → planned → D1 eligible/admitted. Repository discovery, a prepared receipt, packet planning, or a D1-looking edge cannot skip the mapping-readback gate.
 - 2026-08-09 07:37: Fitcheck is the reusable reference fixture for Sapling and Client Branch intake. The generic packet registry, workflow registry, Workbench/Mini-App projections, and Markdown-parity onboarding must accept future validated WorkObjects without another product-name conditional.
@@ -1915,6 +1917,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-01 12:35 advisor degradation: both mandatory pre-build advisor invocations returned process session receipts without review content. No approval was inferred; implementation remains constrained by the architecture design, atomic ISC-601..640 probes, and independent Cato audit.
 - 2026-07-29 10:47 learned: Telegram proactivity is an authority chain, not a timer. A scoped assignment token cannot mint delivery intent; client Will delivery requires an exact founder Gate record; Cambium compiles one receipt-backed envelope; Hermes validates and transports it; the Mini App fails closed on unverified dynamic detail. This boundary closed both audit exploits without granting schedule, menu, tenant-activation, or production-traffic authority.
 - 2026-07-29 09:39 refined: “proactive” means event-driven receipt-to-topic delivery, not a new recurring cron. Existing Phase 7 scheduling gates remain authoritative.
+- 2026-08-11 refined: the Fitcheck L4 **compile** path may be schedule-armed on Worker cron as a projection refresh only; delivery remains event-driven for Hermes, with 18h notify cooldown per stage+exit+topic. This does not replace Phase 7 organ-update receipt authority for Will/Clients envelopes.
 - 2026-07-29 09:39 refined: Cambium compiles and displays delivery intent; Hermes validates the canonical topic and performs Telegram transport. This preserves one topology owner and prevents a second bot sender.
 - 2026-07-29 09:39 refined: the five default organ routes are Genesis→Inbox, Taste→Digests, Hands→Dev, Will→Clients, and Cortex→Agent Ops, with blocked/failed/drifted updates escalating to Alerts and never falling back to General.
 - 2026-07-29 09:44 root-cause-at-ingestion: the missing state enters between an authoritative receipt and Telegram delivery, where no typed organ-update envelope exists. The fix belongs at that boundary: validate and compile the receipt before rendering or transport. This removes the same drift class from Mini App copy, Hermes topic choice, and delivery receipts; the implementation traces authority database-up and renders display-down from the compiled envelope.

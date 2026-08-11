@@ -52,7 +52,40 @@ test('external admission evidence reduces held noise without inventing TG spam o
       missionFabricHonest: true,
     },
   });
-  // some stages still held on static ladder flags
   assert.ok(cleared.loopResults.every((r) => r.exit !== 'failed'));
   assert.ok(cleared.miniApp.passedCount >= 4);
+});
+
+test('founder operational clearance clears held stages without claiming D1 write', () => {
+  const plan = compileProactiveLoopPlan({
+    observedAt: '2026-08-11T12:00:00.000Z',
+    evidence: { founderAuthorizedAdmission: true },
+  });
+  assert.equal(plan.writesGoalGraph, false);
+  assert.equal(plan.networkSend, false);
+  assert.equal(plan.miniApp.heldCount, 0);
+  assert.equal(plan.deliveries.length, 0);
+  assert.ok(plan.miniApp.passedCount >= 8);
+});
+
+test('notify cooldown suppresses repeat stage+exit+topic deliveries', () => {
+  const first = compileProactiveLoopPlan({ observedAt: '2026-08-11T12:00:00.000Z' });
+  assert.ok(first.deliveries.length >= 1);
+  const state = {
+    schema: 'cambium.proactive-loop-notify-state.v1' as const,
+    tenantId: 'cambium',
+    updatedAt: '2026-08-11T12:00:00.000Z',
+    byKey: Object.fromEntries(
+      first.deliveries.map((d) => [
+        `${d.stage}:${d.exit}:${d.topicKey}`,
+        { lastAt: '2026-08-11T12:00:00.000Z', deliveryId: d.deliveryId, title: d.title },
+      ]),
+    ),
+  };
+  const second = compileProactiveLoopPlan({
+    observedAt: '2026-08-11T13:00:00.000Z',
+    notifyState: state,
+  });
+  assert.equal(second.deliveries.length, 0);
+  assert.ok(second.suppressedNotify.length >= 1);
 });

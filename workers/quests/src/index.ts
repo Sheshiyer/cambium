@@ -1259,14 +1259,20 @@ export default {
    */
   async scheduled(_event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
     const { runAndStoreProactiveLoopTick } = await import('./proactive-loop-runtime.ts');
+    const { d1GoalGraphStore } = await import('./goal-graph-store.ts');
     const kv = {
       get: (key: string) => env.QUESTS.get(key),
       put: (key: string, value: string) => env.QUESTS.put(key, value),
+      list: async (opts: { prefix: string }) => {
+        const listed = await env.QUESTS.list({ prefix: opts.prefix });
+        return { keys: listed.keys.map((k) => ({ name: k.name })) };
+      },
     };
     await runAndStoreProactiveLoopTick(kv, {
       tenantId: 'cambium',
       actor: 'cloudflare-cron',
       nowIso: new Date().toISOString(),
+      goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
     });
   },
 

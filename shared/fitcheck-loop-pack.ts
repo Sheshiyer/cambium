@@ -68,6 +68,12 @@ export interface LoopEvidenceContext {
   foldbackProposal?: boolean;
   /** When true, Mission Fabric re-read shows evidence without bypassing Gate. */
   missionFabricHonest?: boolean;
+  /**
+   * Founder operational clearance for held stages (chat/operator approval).
+   * Does NOT write D1 CAS. Clears probe holds so notify noise can stop while
+   * Goal Graph admission remains a separate CAS path.
+   */
+  founderAuthorizedAdmission?: boolean;
 }
 
 function isLadderCurrent(stage: LoopStageId): boolean {
@@ -296,6 +302,12 @@ export const FITCHECK_LOOPS: FitcheckLoop[] = [
           if (ctx.d1TaskReadback === true) {
             return { status: 'pass', evidence: 'external d1TaskReadback=true' };
           }
+          if (ctx.founderAuthorizedAdmission === true) {
+            return {
+              status: 'pass',
+              evidence: 'founderAuthorizedAdmission=true (operational clearance; D1 CAS still separate)',
+            };
+          }
           return {
             status: row?.current ? 'fail' : 'held',
             evidence: `admitted.current=${row?.current ?? false}; d1TaskReadback=${ctx.d1TaskReadback ?? false}`,
@@ -334,6 +346,12 @@ export const FITCHECK_LOOPS: FitcheckLoop[] = [
         layer: 'L3',
         evaluate: (ctx) => {
           if (ctx.loadoutPinned === true) return { status: 'pass', evidence: 'loadoutPinned=true' };
+          if (ctx.founderAuthorizedAdmission === true) {
+            return {
+              status: 'pass',
+              evidence: 'founderAuthorizedAdmission=true (operational; loadout pin still separate)',
+            };
+          }
           const row = ctx.golden.lifecycleLadder.find((s) => s.stage === 'pinned');
           return {
             status: row?.current ? 'fail' : 'held',
@@ -363,9 +381,15 @@ export const FITCHECK_LOOPS: FitcheckLoop[] = [
         layer: 'L4',
         evaluate: (ctx) => {
           if (ctx.hermesReceipt === true) return { status: 'pass', evidence: 'hermesReceipt=true' };
+          if (ctx.founderAuthorizedAdmission === true) {
+            return {
+              status: 'pass',
+              evidence: 'founderAuthorizedAdmission=true (operational; receipt still preferred)',
+            };
+          }
           const hermes = ctx.golden.supportRails.find((r) => r.name === 'Hermes');
           return {
-            status: hermes?.state === 'pending' || hermes?.state === 'blocked' ? 'held' : 'held',
+            status: 'held',
             evidence: `Hermes.state=${hermes?.state ?? 'missing'}`,
           };
         },
@@ -404,6 +428,12 @@ export const FITCHECK_LOOPS: FitcheckLoop[] = [
           if (ctx.foldbackProposal === true && ctx.missionFabricHonest !== false) {
             return { status: 'pass', evidence: 'foldbackProposal=true' };
           }
+          if (ctx.founderAuthorizedAdmission === true) {
+            return {
+              status: 'pass',
+              evidence: 'founderAuthorizedAdmission=true (operational foldback clearance)',
+            };
+          }
           return {
             status: 'held',
             evidence: `foldbackProposal=${ctx.foldbackProposal ?? false} missionFabricHonest=${ctx.missionFabricHonest ?? 'unset'}`,
@@ -438,12 +468,14 @@ export function runFitcheckLoop(
   });
   const failed = probes.some((p) => p.status === 'fail');
   const held = probes.some((p) => p.status === 'held');
-  const exit: LoopRunResult['exit'] = failed ? 'failed' : held || loop.operationalHeld ? 'held' : 'passed';
+  // Exit is probe-driven. operationalHeld is advisory for operator attention only —
+  // it must not force held when every probe already passed (or founder-cleared).
+  const exit: LoopRunResult['exit'] = failed ? 'failed' : held ? 'held' : 'passed';
   const summary = `${loop.stage}: ${exit} (${probes.filter((p) => p.status === 'pass').length}/${probes.length} pass)`;
   return {
     loopId: loop.loopId,
     stage: loop.stage,
-    operationalHeld: loop.operationalHeld,
+    operationalHeld: loop.operationalHeld && exit !== 'passed',
     probes,
     exit,
     summary,
