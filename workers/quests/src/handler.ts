@@ -28,6 +28,13 @@ import {
 } from './marketing-renderer.ts';
 import type { MarketingRenderStoreLike } from './marketing-renderer.ts';
 import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-routing.ts';
+import {
+  claimProactiveDeliveries,
+  compileProactiveLoopPlan,
+  readPendingProactiveDeliveries,
+  readProactiveLoopPlan,
+  runAndStoreProactiveLoopTick,
+} from './proactive-loop-runtime.ts';
 import { MINI_APP_SECTIONS, MINI_APP_MAP_SUBSECTIONS } from './mini-app-surface-contract.ts';
 import { filterSections, filterSubsections, type Principal } from './rbac.ts';
 import { createInvite as createConsultantInvite, verifyInvite as verifyConsultantInvite } from './invites.ts';
@@ -4376,6 +4383,107 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       }
     }
 
+    // Proactive Fitcheck L4 loops + quest templates → KV projection + Hermes delivery intents.
+    // Never sends Telegram itself; never writes D1 Goal Graph.
+    if (method === 'POST' && routePath === '/v1/bridge/proactive-loop-tick') {
+      if (!principal.admin && !principal.assignmentOnly) {
+        return json(403, { error: 'only cofounders/Hermes may run proactive loop tick' });
+      }
+      let body: Record<string, unknown> = {};
+      try {
+        if (req.body) body = JSON.parse(req.body) as Record<string, unknown>;
+      } catch {
+        return json(400, { error: 'body is not JSON' });
+      }
+      const tenantId = String(body.tenantId || body.tenant || 'cambium');
+      if (tenantId !== 'cambium') {
+        return json(403, { error: 'proactive loop tick is fixed to tenant cambium' });
+      }
+      const plan = await runAndStoreProactiveLoopTick(deps.kv, {
+        tenantId,
+        actor: String(body.actor || 'bridge-tick'),
+        nowIso,
+      });
+      return json(200, {
+        ok: true,
+        plan,
+        miniApp: plan.miniApp,
+        deliveries: plan.deliveries,
+        hermes: {
+          pull: 'GET /v1/bridge/proactive-loop/pending-deliveries',
+          claim: 'POST /v1/bridge/proactive-loop/claim-deliveries',
+          topicAssignment: 'POST /v1/bridge/topic-assignment with deliveries[].topicAssignment',
+          note: plan.hermesPullHint,
+        },
+      });
+    }
+
+    if (method === 'GET' && routePath === '/v1/bridge/proactive-loop/projection') {
+      if (!principal.admin && !principal.assignmentOnly && !principal.memberId) {
+        return json(403, { error: 'authenticated principal required for proactive projection' });
+      }
+      const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
+      const tenantId = String(params.get('tenantId') || params.get('tenant') || 'cambium');
+      const plan = await readProactiveLoopPlan(deps.kv, tenantId);
+      if (!plan) {
+        // Fail-open: compile ephemeral projection without store (no delivery queue)
+        const ephemeral = compileProactiveLoopPlan({ tenantId, observedAt: nowIso, actor: 'projection-read' });
+        return json(200, {
+          ok: true,
+          stored: false,
+          miniApp: ephemeral.miniApp,
+          planId: ephemeral.planId,
+          observedAt: ephemeral.observedAt,
+        });
+      }
+      return json(200, {
+        ok: true,
+        stored: true,
+        miniApp: plan.miniApp,
+        planId: plan.planId,
+        planDigest: plan.planDigest,
+        observedAt: plan.observedAt,
+        heldCount: plan.miniApp.heldCount,
+        failedCount: plan.miniApp.failedCount,
+        nextFounderAction: plan.miniApp.nextFounderAction,
+      });
+    }
+
+    if (method === 'GET' && routePath === '/v1/bridge/proactive-loop/pending-deliveries') {
+      if (!principal.admin && !principal.assignmentOnly) {
+        return json(403, { error: 'only cofounders/Hermes may pull proactive deliveries' });
+      }
+      const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
+      const tenantId = String(params.get('tenantId') || params.get('tenant') || 'cambium');
+      const pending = await readPendingProactiveDeliveries(deps.kv, tenantId);
+      return json(200, {
+        ok: true,
+        tenantId,
+        pending: pending ?? { deliveries: [], networkSend: false, writesGoalGraph: false },
+        hermesNote:
+          'Post messageText to the topic thread, then enqueue topicAssignment via /v1/bridge/topic-assignment. Claim IDs after send.',
+      });
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/proactive-loop/claim-deliveries') {
+      if (!principal.admin && !principal.assignmentOnly) {
+        return json(403, { error: 'only cofounders/Hermes may claim proactive deliveries' });
+      }
+      let body: Record<string, unknown> = {};
+      try {
+        body = JSON.parse(req.body ?? '{}') as Record<string, unknown>;
+      } catch {
+        return json(400, { error: 'body is not JSON' });
+      }
+      const tenantId = String(body.tenantId || 'cambium');
+      const ids = Array.isArray(body.deliveryIds)
+        ? body.deliveryIds.map((x) => String(x))
+        : [];
+      if (!ids.length) return json(400, { error: 'deliveryIds required' });
+      const result = await claimProactiveDeliveries(deps.kv, tenantId, ids, nowIso);
+      return json(200, { ok: true, ...result });
+    }
+
     if (method === 'GET' && routePath === '/v1/bridge/action-requests') {
       if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may list action requests' });
       const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
@@ -5127,7 +5235,30 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   }
 
   if (method === 'GET' && (routePath === '/' || routePath === '/index.html')) {
-    return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body: PAGE };
+    // Inject pure proactive L4 loop projection for Mini App Fitcheck strip (no TG send, no D1 write)
+    let pageBody = PAGE;
+    try {
+      const observedAt = deps.now ? deps.now() : new Date().toISOString();
+      const proactive = compileProactiveLoopPlan({
+        tenantId: 'cambium',
+        observedAt,
+        actor: 'mini-app-html',
+      });
+      const boot = `<script>globalThis.__CAMBIUM_PROACTIVE_LOOP__=${JSON.stringify({
+        heldCount: proactive.miniApp.heldCount,
+        failedCount: proactive.miniApp.failedCount,
+        passedCount: proactive.miniApp.passedCount,
+        nextFounderAction: proactive.miniApp.nextFounderAction,
+        ladder: proactive.miniApp.ladder,
+        observedAt: proactive.miniApp.observedAt,
+      })};</script>`;
+      pageBody = PAGE.includes('</head>')
+        ? PAGE.replace('</head>', `${boot}</head>`)
+        : boot + PAGE;
+    } catch {
+      pageBody = PAGE;
+    }
+    return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body: pageBody };
   }
 
   return json(404, { error: 'not found' });

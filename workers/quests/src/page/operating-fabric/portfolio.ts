@@ -644,6 +644,128 @@ function explicitTargets(
   )].sort();
 }
 
+function operationalPacketReferenceMarkup(
+  scene: PortfolioSceneContext,
+  operational: OperationalPacketProjection,
+  exact: boolean,
+  admitted: boolean,
+): string {
+  const authority = (
+    `<div class="of-fitcheck-authority" data-operational-authority="packet-plan" data-fitcheck-authority="packet-plan">` +
+    `<span class="of-badge">packet plan</span>` +
+    `<span class="of-badge ${admitted ? 'is-fresh' : 'is-unknown'}">${escapeHtml(admitted ? operational.runtimeJoin.evidencedLabel : operational.runtimeJoin.heldLabel)}</span>` +
+    `<span class="of-badge is-unknown">receipt proof absent</span>` +
+    `</div>`
+  );
+  let body = '';
+  if (scene === 'mission') {
+    body = (
+      `<p class="of-fitcheck-frontier">${escapeHtml(operational.story.currentFrontier)}</p>` +
+      `<div class="of-fitcheck-rows">` +
+      operational.missions.map((mission) => (
+        `<article><span>${escapeHtml(mission.type)}</span><code>${escapeHtml(mission.missionId)}</code>` +
+        `<strong>${escapeHtml(mission.title)}</strong>` +
+        `<small>${escapeHtml(mission.gate)} · ${escapeHtml(mission.proofRequired)}</small></article>`
+      )).join('') +
+      `</div>` +
+      `<div class="of-fitcheck-kpis">` +
+      operational.kpis.map((kpi) => `<span>${escapeHtml(kpi.label)} · ${escapeHtml(kpi.currentState)}</span>`).join('') +
+      `</div>`
+    );
+  } else if (scene === 'flow') {
+    body = (
+      `<div class="of-fitcheck-ladder">` +
+      operational.executionLadder.map((stage) => {
+        const evidenced = stage.current || (stage.stage === operational.runtimeJoin.evidenceStage && admitted);
+        return (
+          `<span data-fitcheck-stage="${escapeHtml(stage.stage)}" data-fitcheck-stage-state="${evidenced ? 'evidenced' : 'held'}">` +
+          `${escapeHtml(stage.stage)}<small>${evidenced ? 'evidenced' : 'held'}</small></span>`
+        );
+      }).join('') +
+      `</div>` +
+      `<p class="of-fitcheck-loop"><strong>${escapeHtml(operational.loop.title)}</strong><br>` +
+      `${escapeHtml(operational.loop.oneChangeRule)}<br><small>foldback → next-intent proposal → signed Gate → D1 CAS</small></p>`
+    );
+  } else if (scene === 'workforce') {
+    body = (
+      `<p class="of-card-note">packet owners and dispatch targets · not live assignments</p>` +
+      `<div class="of-fitcheck-rows">` +
+      operational.missions.map((mission) => (
+        `<article><span>${escapeHtml(mission.owner)}</span><strong>${escapeHtml(mission.title)}</strong>` +
+        `<small>${escapeHtml(mission.dispatchTarget)} · blocked by ${escapeHtml(mission.gate)}</small></article>`
+      )).join('') +
+      `</div>`
+    );
+  } else if (scene === 'forge') {
+    body = (
+      `<p class="of-card-note">packet route · never substitutes for a pinned loadout</p>` +
+      `<div class="of-fitcheck-organs">` +
+      operational.organs.map((organ) => `<span>${escapeHtml(organ.name)}<small>${escapeHtml(organ.state)}</small></span>`).join('') +
+      operational.supportRails.map((rail) => `<span class="is-support">${escapeHtml(rail.name)}<small>support · ${escapeHtml(rail.state)}</small></span>`).join('') +
+      `</div>`
+    );
+  } else if (scene === 'gate') {
+    body = (
+      `<p class="of-card-note">packet approval ledger · no Gate action synthesized</p>` +
+      `<div class="of-fitcheck-gates">` +
+      operational.gates.map((gate) => (
+        `<article data-fitcheck-gate-state="${escapeHtml(gate.status)}"><strong>${escapeHtml(gate.gate)}</strong>` +
+        `<span>${escapeHtml(gate.status)}</span><small>${escapeHtml(gate.requiredProof)}</small></article>`
+      )).join('') +
+      `</div>`
+    );
+  } else {
+    body = (
+      `<dl class="of-card-facts">` +
+      `<div class="of-fact"><dt>packet</dt><dd>${escapeHtml(operational.sources.packet)}</dd></div>` +
+      `<div class="of-fact"><dt>runtime</dt><dd>${escapeHtml(operational.authority.runtime)}</dd></div>` +
+      `<div class="of-fact"><dt>proof</dt><dd>${escapeHtml(operational.authority.proof)}</dd></div>` +
+      `</dl><p class="of-card-note">one WorkObject · multiple explicitly-owned systems</p>` +
+      `<div class="of-fitcheck-rows">` +
+      operational.repositoryComponents.map((component) => (
+        `<article><span>${escapeHtml(component.roles.join(' · '))}</span><code>${escapeHtml(component.immutableRepositoryId ?? 'repository ID held')}</code>` +
+        `<strong>${escapeHtml(component.nameWithOwner)}</strong>` +
+        `<small>${escapeHtml(component.ownerWorkObjectId)} · ${escapeHtml(component.planningAuthority ? 'planning authority' : 'dependent component')}</small></article>`
+      )).join('') +
+      operational.workObjectDependencies.map((dependency) => (
+        `<article><span>${escapeHtml(dependency.kind)} dependency</span><code>${escapeHtml(dependency.workObjectId)}</code>` +
+        `<strong>${escapeHtml(dependency.purpose)}</strong><small>${dependency.required ? 'required' : 'optional'}</small></article>`
+      )).join('') +
+      `</div><p class="of-card-gap">${escapeHtml(operational.story.antiClaims)}</p>`
+    );
+  }
+  // Pure L4 loop projection (no network) for Mini App Mission Fabric strip
+  let loopStrip = '';
+  try {
+    // Lazy require pattern avoided; dynamic import not available in pure template string builders.
+    // Inline minimal status from lifecycle ladder only if proactive helper is available on globalThis.
+    const proactive = (globalThis as { __CAMBIUM_PROACTIVE_LOOP__?: {
+      heldCount: number;
+      failedCount: number;
+      passedCount: number;
+      nextFounderAction: string | null;
+      ladder: Array<{ stage: string; exit: string; summary: string }>;
+    } }).__CAMBIUM_PROACTIVE_LOOP__;
+    if (proactive) {
+      loopStrip =
+        `<div class="of-fitcheck-loop" data-proactive-loop="cambium.proactive-loop-miniapp.v1">` +
+        `<span>Proactive L4 loops · pass ${proactive.passedCount} · held ${proactive.heldCount} · fail ${proactive.failedCount}</span>` +
+        (proactive.nextFounderAction
+          ? `<strong>Next founder action: ${escapeHtml(proactive.nextFounderAction)}</strong>`
+          : `<strong>No founder action queued</strong>`) +
+        `<small>Projection only · not D1 admission · Hermes owns Telegram transport</small></div>`;
+    }
+  } catch {
+    loopStrip = '';
+  }
+
+  return (
+    `<div class="of-fitcheck-reference" data-operational-packet="${escapeHtml(operational.schema)}" data-fitcheck-golden-path="${escapeHtml(operational.schema)}" ` +
+    `data-fitcheck-scene="${scene}"><header><span>${escapeHtml(operational.identity.name)} operational packet</span>` +
+    `<strong>${escapeHtml(operational.identity.autonomyLabel)}</strong></header>${authority}${body}${loopStrip}</div>`
+  );
+}
+
 export function renderPortfolioSceneContext(
   scene: string,
   projection: MissionFabricProjectionV1,

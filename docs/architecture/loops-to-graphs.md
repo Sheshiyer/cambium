@@ -123,9 +123,11 @@ Do **not** “add more Opus instructions” for held stages — that is L1 failu
 |---|---|---|
 | Fitcheck L4 loops + ISA probes | [`shared/fitcheck-loop-pack.ts`](../../shared/fitcheck-loop-pack.ts) · [contract](./contracts/fitcheck-loop-pack.v1.md) | **No** |
 | Quest arcs I–VII templates | [`shared/quest-graph-templates.ts`](../../shared/quest-graph-templates.ts) · [contract](./contracts/quest-graph-templates.v1.md) | **No** (admission proposal only) |
+| Proactive routine (cron + Hermes + Mini App) | [`shared/proactive-loop-routine.ts`](../../shared/proactive-loop-routine.ts) · [runbook](../runbooks/proactive-loop-routine.md) | **No** (Hermes sends TG; Gate+CAS for D1) |
 
 ```bash
-node --test shared/fitcheck-loop-pack.test.ts shared/quest-graph-templates.test.ts
+node --test shared/fitcheck-loop-pack.test.ts shared/quest-graph-templates.test.ts shared/proactive-loop-routine.test.ts
+node scripts/proactive-loop-tick.mjs
 ```
 
 ## Related
