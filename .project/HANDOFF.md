@@ -1032,3 +1032,18 @@ mutation has been performed by drafting this packet.
 - Live production is unchanged. Next gates are reviewed merge, ledger
   republish receipt, explicit owner-approved `cambium` allowlist pilot, then
   authenticated Telegram QA with immediate allowlist rollback available.
+
+### 2026-08-11 Hermes bounded quest-summary checkpoint
+
+- Work is isolated on clean branch `codex/hermes-quest-summary-route`; the dirty
+  primary Cambium checkout remains untouched.
+- Added `GET /v1/bridge/quests/:tenant/summary` as a BRIDGE_TOKEN-only,
+  service-readable projection for Hermes routines. The existing human
+  `/api/quests/:tenant` Cloudflare Access boundary is unchanged.
+- The response is intentionally limited to schema, tenant, freshness, bounded
+  counts, and aggregate status. Quest rows, actions, Telegram identifiers,
+  source text, and authentication material are never projected.
+- Verification: focused route tests pass 7/7, handler tests pass 339/339, the
+  full repository suite passes 1650/1650, and `git diff --check` passes.
+- Production deployment and Hermes caller reconfiguration remain explicit
+  rollout steps with live route readback required after promotion.
