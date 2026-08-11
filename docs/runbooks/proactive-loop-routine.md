@@ -59,9 +59,15 @@ HERMES_CAMBIUM_BRIDGE_URL=https://curious.thoughtseed.space \
 HERMES_CAMBIUM_BRIDGE_TOKEN=… \
 node scripts/proactive-loop-deliver.mjs --json
 
+# Founder operational clearance (no D1 CAS; quiets held probes)
+node scripts/proactive-loop-deliver.mjs --founder-approve --json
+
 # Live: tick → sendMessage → topic-assignment → claim
 node scripts/proactive-loop-deliver.mjs --tick --send --json
 ```
+
+Notify **cooldown** is 18h per `stage:exit:topic` after Hermes claim.
+Founder approval is KV-only operational clearance — **not** Goal Graph CAS.
 
 EC2: `ops/ec2/hermes-proactive-loop.timer` (every 6h at :15) +
 `docs/runbooks/proactive-loop-deliver.md`.
