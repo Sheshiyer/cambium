@@ -36,6 +36,7 @@ import type {
   SimpleRequest,
 } from './handler.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
+import { createContextProjectionStore } from './context-projections.ts';
 import type { R2BucketLike, VectorizeIndexLike } from './context-bindings.ts';
 
 export interface D1StatementLike {
@@ -78,6 +79,7 @@ interface Env {
   HANDOFF_SECRET?: string;
   PROVIDER_BROKER_TOKEN?: string;
   CONTEXT_ROUTE_TOKEN?: string;
+  CONTEXT_PROJECTION_WRITE_TOKEN?: string;
   CONTEXT_ALLOWED_TENANTS?: string;
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
@@ -1247,6 +1249,29 @@ async function resolveSecret(
 }
 
 export default {
+  /**
+   * Cloudflare Cron: run Fitcheck L4 + quest template tick, store Mini App projection
+   * and Hermes delivery intents. Does not send Telegram or write D1.
+   */
+  async scheduled(_event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
+    const { runAndStoreProactiveLoopTick } = await import('./proactive-loop-runtime.ts');
+    const { d1GoalGraphStore } = await import('./goal-graph-store.ts');
+    const kv = {
+      get: (key: string) => env.QUESTS.get(key),
+      put: (key: string, value: string) => env.QUESTS.put(key, value),
+      list: async (opts: { prefix: string }) => {
+        const listed = await env.QUESTS.list({ prefix: opts.prefix });
+        return { keys: listed.keys.map((k) => ({ name: k.name })) };
+      },
+    };
+    await runAndStoreProactiveLoopTick(kv, {
+      tenantId: 'cambium',
+      actor: 'cloudflare-cron',
+      nowIso: new Date().toISOString(),
+      goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
+    });
+  },
+
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const headers: Record<string, string> = {};
@@ -1329,7 +1354,7 @@ export default {
       fetch: fetch.bind(globalThis),
     } : undefined;
     let contextRoutes: ContextRouteDeps | undefined;
-    if (env.CONTEXT_ROUTE_TOKEN) {
+    if (env.CONTEXT_ROUTE_TOKEN || env.CONTEXT_PROJECTION_WRITE_TOKEN) {
       const embeddingProviderId = env.CONTEXT_EMBEDDING_PROVIDER?.trim() || 'nvidia';
       const embeddingProvider = providers[embeddingProviderId];
       const embed = createProviderEmbedder({
@@ -1339,6 +1364,10 @@ export default {
       });
       contextRoutes = {
         token: env.CONTEXT_ROUTE_TOKEN,
+        projectionWriteToken: env.CONTEXT_PROJECTION_WRITE_TOKEN,
+        projectionStore: env.CONTEXT_PROJECTIONS?.put
+          ? createContextProjectionStore({ bucket: env.CONTEXT_PROJECTIONS })
+          : undefined,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
         routineContext: createPlexusRoutineContext({ url: env.PLEXUS_KNOWLEDGE_URL, token: env.PLEXUS_KNOWLEDGE_TOKEN, fetchImpl: workerFetch }),
         semanticRecall: embed && env.CAMBIUM_CORTEX

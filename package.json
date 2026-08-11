@@ -47,6 +47,8 @@
     "r3f:sync": "npm --prefix apps/cambium-r3f run sync:contracts",
     "r3f:meshy": "npm --prefix apps/cambium-r3f run meshy:assets --",
     "r3f:meshy:image": "npm --prefix apps/cambium-r3f run meshy:image-to-3d --",
-    "r3f:source-plates": "npm --prefix apps/cambium-r3f run source-plates --"
+    "r3f:source-plates": "npm --prefix apps/cambium-r3f run source-plates --",
+    "proactive:loop": "node scripts/proactive-loop-tick.mjs",
+    "proactive:loop:json": "node scripts/proactive-loop-tick.mjs --json"
   }
 }
