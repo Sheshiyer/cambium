@@ -16,8 +16,8 @@ outside this knowledge plane; they are not company knowledge stores.
 
 ```mermaid
 flowchart LR
-  User["Founder, team, or model request"] --> Plexus["Plexus: identity and role only"]
-  Plexus --> Policy["Role + source-path policy"]
+  User["Founder, team, or model request"] --> Plexus["Plexus: identity, authorization, GitHub-App broker"]
+  Plexus --> Policy["Verified source + routine-path policy"]
   Policy --> GitHub["Private GitHub: thoughtseed-labs"]
   GitHub --> Projection["Bounded markdown projection"]
   Projection --> Vectorize["Cloudflare Vectorize"]
@@ -25,30 +25,28 @@ flowchart LR
   Inference --> Tapestry["Cambium Fractal Tapestry"]
 ```
 
-Plexus does not store, curate, retrieve, or infer knowledge. Its existing D1
-resolver is retained solely to resolve an authenticated principal's role. The
-Worker's internal context routes retain their service-token and tenant checks;
+Plexus does not store, curate, or infer knowledge. Its existing D1 resolver
+retains identity and verified repository authority; its Worker is the only
+GitHub-App credential broker. The Worker's internal context routes retain their service-token and tenant checks;
 Plexus role enforcement for user-facing retrieval is a separate route-wiring
 task and must fail closed before exposure.
 
-## Direct-read contract
+## Plexus GitHub-App gateway contract
 
-The Worker resolves the configured branch/ref to one full Git commit SHA before
-reading any file. It then reads only exact, allowlisted Markdown paths at that
-revision through GitHub's Contents API. The response carries repository, commit,
-file SHA, and path provenance, but never raw documents, tokens, or source
-response bodies.
+Plexus resolves the verified TeamForge project repository, mints a short-lived
+GitHub App token scoped to that numeric repository, resolves one full Git commit
+SHA, and reads only exact routine-allowlisted Markdown paths at that revision.
+Cambium calls Plexus, never GitHub. The response carries repository, commit,
+file SHA, path, and bounded excerpts, but never a GitHub token or source response body.
 
 Required runtime configuration:
 
-- `GITHUB_KNOWLEDGE_TOKEN` — Worker secret with GitHub **Contents: read** access
-  to `Sheshiyer/thoughtseed-labs` only. It must be distinct from
-  `GITHUB_AGENT_TOKEN`, which is a governed command/write credential.
-- `GITHUB_KNOWLEDGE_REPOSITORY=Sheshiyer/thoughtseed-labs` — committed public
-  identifier.
-- `GITHUB_KNOWLEDGE_REF=main` — resolved to a full SHA per request.
-- `GITHUB_KNOWLEDGE_ROUTINE_ALLOWLIST_JSON` — exact routine-to-path mapping;
-  globbing, traversal, directories, and unlisted paths are rejected.
+- TeamForge: `TF_KNOWLEDGE_GATEWAY_TOKEN` secret, verified workspace/project
+  IDs, and `TF_KNOWLEDGE_ROUTINE_ALLOWLIST_JSON` policy. This is the sole
+  GitHub-App credential boundary.
+- Cambium: `PLEXUS_KNOWLEDGE_URL` and `PLEXUS_KNOWLEDGE_TOKEN`; this bearer
+  authorizes only the gateway and is not a GitHub credential.
+- `GITHUB_AGENT_TOKEN` remains separate and governed for command/write flows.
 
 Example allowlist value (provision as a Worker secret or encrypted deployment
 configuration; do not put sensitive paths in public artifacts):
@@ -67,8 +65,8 @@ configuration; do not put sensitive paths in public artifacts):
 
 ## Retrieval and inference
 
-Hermes owns the GitHub-to-Vectorize synchronization job. It reads the same
-allowlisted, policy-screened repository paths, projects bounded chunks with
+Hermes owns the Plexus-to-Vectorize synchronization job. It reads the same
+allowlisted, policy-screened gateway projection, projects bounded chunks with
 commit/file provenance, and upserts only those chunks to Vectorize. Inference
 queries Vectorize with tenant and kind filters; raw GitHub documents never go to
 the browser or Telegram client.
@@ -88,8 +86,9 @@ it is not a source of truth.
 
 ## Rollout
 
-1. Create the repository-scoped read token and configure the four values above.
-2. Start with a single reviewed allowlist path and verify provenance plus
+1. Configure the dedicated Plexus gateway bearer, verified project scope, and
+   one reviewed routine allowlist path.
+2. Configure Cambium's gateway URL/bearer and verify provenance plus
    `blocked-no-signal` failure behavior.
 3. Enable Hermes' policy-screened Vectorize synchronization.
 4. Wire Plexus role policy into user-facing retrieval before exposing it beyond

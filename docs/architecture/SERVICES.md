@@ -17,8 +17,8 @@
 | Boundary | Source/config | Authority and safety |
 |---|---|---|
 | NVIDIA context embeddings | Worker context bindings and `NVIDIA_API_KEY` | optional/provider-bound; tests use injected doubles and local fallbacks |
-| GitHub knowledge source | [`github-backed-knowledge-plane.md`](./github-backed-knowledge-plane.md) | private repository reads are exact-path allowlisted and commit-provenanced; `GITHUB_KNOWLEDGE_TOKEN` is read-only and distinct from GitHub command credentials |
-| Plexus identity resolver | Worker `PLEXUS_WHOAMI_URL` | authorization-only role resolver; not a knowledge source or retrieval store |
+| GitHub knowledge source | [`github-backed-knowledge-plane.md`](./github-backed-knowledge-plane.md) | Plexus Worker mints repository-scoped GitHub-App reads for exact allowlisted paths; Cambium holds no GitHub credential |
+| Plexus identity and knowledge gateway | Worker `PLEXUS_WHOAMI_URL` · `PLEXUS_KNOWLEDGE_URL` | D1 retains authorization/repository authority; Worker brokers bounded GitHub-App reads, never stores or infers knowledge |
 | Explee IVerif observer | [`docs/adapters/iverif-explee.md`](../adapters/iverif-explee.md) | fixed campaign, GET-only, redacted, `sendEligible=false` |
 | Marketing Create NVIDIA renderer | [`docs/architecture/marketing-create-worker-renderer.md`](./marketing-create-worker-renderer.md) | registered disabled, review-only draft output, not deployed |
 | GitHub and Cloudflare CI | [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) · [`.github/workflows/desktop.yml`](../../.github/workflows/desktop.yml) | deterministic release verification plus separate macOS packaging artifact and transient live-readiness evidence |

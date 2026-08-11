@@ -5,7 +5,7 @@ import {
   createProviderEmbedder,
   createSemanticRecall,
 } from './context-bindings.ts';
-import { createGithubRoutineContext, parseGithubKnowledgeAllowlistJson } from './github-knowledge.ts';
+import { createPlexusRoutineContext } from './plexus-knowledge.ts';
 import { createPortfolioAdminActionQueue, createPortfolioAdminActionStore } from './portfolio-admin-actions.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
@@ -81,10 +81,8 @@ interface Env {
   CONTEXT_ALLOWED_TENANTS?: string;
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
-  GITHUB_KNOWLEDGE_TOKEN?: string;
-  GITHUB_KNOWLEDGE_REPOSITORY?: string;
-  GITHUB_KNOWLEDGE_REF?: string;
-  GITHUB_KNOWLEDGE_ROUTINE_ALLOWLIST_JSON?: string;
+  PLEXUS_KNOWLEDGE_URL?: string;
+  PLEXUS_KNOWLEDGE_TOKEN?: string;
   GITHUB_AGENT_TOKEN?: string;
   GITHUB_AGENT_ALLOWED_REPOS?: string;
   OLLAMA_API_KEY?: string;
@@ -1342,13 +1340,7 @@ export default {
       contextRoutes = {
         token: env.CONTEXT_ROUTE_TOKEN,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
-        routineContext: createGithubRoutineContext({
-          token: env.GITHUB_KNOWLEDGE_TOKEN,
-          repository: env.GITHUB_KNOWLEDGE_REPOSITORY,
-          ref: env.GITHUB_KNOWLEDGE_REF,
-          allowlist: parseGithubKnowledgeAllowlistJson(env.GITHUB_KNOWLEDGE_ROUTINE_ALLOWLIST_JSON),
-          fetchImpl: workerFetch,
-        }),
+        routineContext: createPlexusRoutineContext({ url: env.PLEXUS_KNOWLEDGE_URL, token: env.PLEXUS_KNOWLEDGE_TOKEN, fetchImpl: workerFetch }),
         semanticRecall: embed && env.CAMBIUM_CORTEX
           ? createSemanticRecall({ embed, vectorIndex: env.CAMBIUM_CORTEX })
           : undefined,
