@@ -5,6 +5,13 @@ import {
   ContextProjectionValidationError,
   type ContextProjectionStoreLike,
 } from './context-projections.ts';
+import {
+  CORTEX_INGESTION_RECEIPT_SCHEMA,
+  CortexIngestionProviderError,
+  CortexIngestionValidationError,
+  ingestCortexContent,
+  type CortexIngestionDeps,
+} from './cortex-ingestion.ts';
 
 export interface SimpleRequest {
   method: string;
@@ -75,6 +82,8 @@ export interface ContextRouteDeps {
   token?: string;
   projectionWriteToken?: string;
   projectionStore?: ContextProjectionStoreLike;
+  cortexIngestionToken?: string;
+  cortexIngestionDeps?: CortexIngestionDeps;
   semanticRecall?: SemanticRecallLike;
   routineContext?: RoutineContextLike;
   allowedTenants?: string[];
@@ -88,6 +97,7 @@ const VALID_ROUTINE = /^[a-z0-9][a-z0-9_-]{1,119}$/;
 const VALID_SEMANTIC_KINDS = new Set(['decision', 'evidence', 'handoff', 'heartbeat', 'memory', 'note', 'routine', 'standup', 'task']);
 const MAX_BODY_LENGTH = 4096;
 const MAX_PROJECTION_BODY_BYTES = 40 * 1024;
+const MAX_CORTEX_BODY_BYTES = 520 * 1024;
 const MAX_QUERY_LENGTH = 500;
 const MAX_KIND_LENGTH = 40;
 const MAX_ROUTINE_SECTIONS = 8;
@@ -240,6 +250,52 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
     return json(410, { error: 'context projection writes are retired; knowledge is read from the configured GitHub source' });
   }
 
+  if (req.method === 'POST' && url.pathname === '/v1/context/cortex-ingest') {
+    if (!deps.cortexIngestionToken) {
+      return json(503, { error: 'cortex ingestion token not configured' });
+    }
+    if (!authorized(req, deps.cortexIngestionToken)) {
+      return json(401, { error: 'bad or missing cortex ingestion credential' });
+    }
+    if (!deps.cortexIngestionDeps?.embed || !deps.cortexIngestionDeps?.vectorIndex) {
+      return json(503, { error: 'cortex ingestion dependencies not configured' });
+    }
+    const rawBody = req.body ?? '';
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_CORTEX_BODY_BYTES) {
+      return json(400, { error: 'ingestion body is too large' });
+    }
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return json(400, { error: 'ingestion body is not JSON' });
+    }
+    try {
+      const receipt = await ingestCortexContent(body, deps.cortexIngestionDeps);
+      return json(receipt.status === 'empty' ? 200 : 201, {
+        schema: CORTEX_INGESTION_RECEIPT_SCHEMA,
+        inputDigest: receipt.inputDigest,
+        idempotencyKey: receipt.idempotencyKey,
+        tenant: receipt.tenant,
+        kind: receipt.kind,
+        source: receipt.source,
+        path: receipt.path,
+        chunkCount: receipt.chunkCount,
+        vectorIds: receipt.vectorIds,
+        ingestedAt: receipt.ingestedAt,
+        status: receipt.status,
+      });
+    } catch (error) {
+      if (error instanceof CortexIngestionValidationError) {
+        return json(400, { error: error.message });
+      }
+      if (error instanceof CortexIngestionProviderError) {
+        return json(502, { error: error.message });
+      }
+      return json(503, { error: 'cortex ingestion failed' });
+    }
+  }
+
   if (!deps.token) return json(503, { error: 'context route token not configured' });
   if (!authorized(req, deps.token)) return json(401, { error: 'bad or missing context route credential' });
 
@@ -254,6 +310,11 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
         routineSnapshot: Boolean(deps.routineContext),
         semanticRecall: Boolean(deps.semanticRecall),
         projectionWrite: false,
+        cortexIngestion: Boolean(
+          deps.cortexIngestionToken
+          && deps.cortexIngestionDeps?.embed
+          && deps.cortexIngestionDeps?.vectorIndex,
+        ),
       },
     });
   }

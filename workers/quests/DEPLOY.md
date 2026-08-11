@@ -1,5 +1,21 @@
 # Quest Worker Deployment
 
+## Production configuration authority
+
+The Labs production custom domain is deployed from the Thoughtseed Labs account
+with `workers/quests/wrangler.labs.jsonc`. Always verify `wrangler whoami`, the
+configured account id, and the `BRIDGE_DB` UUID before a production migration,
+upload, or traffic change. Procedures below that deliberately pin
+`workers/quests/wrangler.jsonc` describe the separately governed legacy
+installation and must not be substituted for the Labs production config.
+
+The Cortex ingestion route additionally requires a Worker secret named
+`CORTEX_INGESTION_TOKEN`. List secret names only; never record its value:
+
+```bash
+npx wrangler secret list --config workers/quests/wrangler.labs.jsonc
+```
+
 ## Telegram Signed Gate
 
 The signed Mini App gate is available only when both Cloudflare Worker bindings exist:

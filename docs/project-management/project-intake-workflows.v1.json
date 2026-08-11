@@ -1,0 +1,304 @@
+{
+  "schema": "thoughtseed.project-intake-workflows.v1",
+  "version": 1,
+  "status": "reviewed-local-authority",
+  "defaultWorkflowByKind": {
+    "sapling": "sapling-product",
+    "client-branch": "client-delivery",
+    "internal-program": "internal-capability"
+  },
+  "workflows": [
+    {
+      "id": "sapling-product",
+      "label": "Sapling product lifecycle",
+      "lifecycleMeaning": "Admit a Thoughtseed-originated venture only after origin, repository, mapping-receipt, onboarding, mission, execution, learning, and closeout evidence become explicit.",
+      "compatibleKinds": [
+        "sapling"
+      ],
+      "stages": [
+        {
+          "id": "0-intake",
+          "label": "Intake",
+          "meaning": "Capture the venture identity, just cause, intended beneficiaries, and accountable founder before authority is granted.",
+          "requiredEvidence": [
+            "origin declaration",
+            "canonical name and safe slug",
+            "founder or Founder Gate authority"
+          ]
+        },
+        {
+          "id": "1-provenance",
+          "label": "Provenance",
+          "meaning": "Verify Thoughtseed origin and distinguish product ownership from supporting repositories or shared infrastructure.",
+          "requiredEvidence": [
+            "origin classification",
+            "WorkObject kind compatibility",
+            "repository-role inventory"
+          ]
+        },
+        {
+          "id": "2-authority",
+          "label": "Repository and planning authority",
+          "meaning": "Bind every product, backend, application, planning, and infrastructure repository to an explicit role without collapsing the project into one repository.",
+          "requiredEvidence": [
+            "canonical WorkObject and tenant binding",
+            "immutable repository identities",
+            "repository roles and planning authority",
+            "infrastructure dependency edges"
+          ]
+        },
+        {
+          "id": "3-mapping",
+          "label": "Mapping receipt",
+          "meaning": "Issue immutable mapping evidence and read it back before D1 mission authority can open.",
+          "requiredEvidence": [
+            "prepared mapping receipt",
+            "immutable receipt identifier and digest",
+            "authoritative readback verification"
+          ]
+        },
+        {
+          "id": "4-onboarding",
+          "label": "Onboarding and Octalysis",
+          "meaning": "Teach the project identity, calling, frontier, rules, feedback loops, and approval boundaries through the governed onboarding experience.",
+          "requiredEvidence": [
+            "onboarding completion receipt",
+            "Octalysis motivation profile",
+            "operator role and approval-boundary acknowledgement"
+          ]
+        },
+        {
+          "id": "5-mission",
+          "label": "Mission and task lineage",
+          "meaning": "Translate the approved packet into an inspectable D1 Mission to Task lineage with explicit proof and spending boundaries.",
+          "requiredEvidence": [
+            "approved Mission intent",
+            "Mission to Task lineage",
+            "proof requirements",
+            "no-spend loadout edges"
+          ]
+        },
+        {
+          "id": "6-execute",
+          "label": "Governed execution",
+          "meaning": "Dispatch only pinned tasks and loadouts through governed rails while preserving terminal receipts.",
+          "requiredEvidence": [
+            "pinned execution loadout",
+            "governed dispatch receipt",
+            "terminal task receipt"
+          ]
+        },
+        {
+          "id": "7-learn",
+          "label": "Readback and learning",
+          "meaning": "Fold terminal evidence into Cortex, R2, and agent memory so the next intent is evidence-derived and approval-bound.",
+          "requiredEvidence": [
+            "receipt-derived foldback",
+            "Cortex projection",
+            "R2 evidence pointer",
+            "agent-memory projection",
+            "next approval-bound intent or terminal state"
+          ]
+        },
+        {
+          "id": "8-closeout",
+          "label": "Closeout or renewal",
+          "meaning": "Close, renew, or supersede the active loop without losing provenance, memory, or downstream ownership.",
+          "requiredEvidence": [
+            "closeout disposition",
+            "handoff and memory receipt",
+            "active-index disposition",
+            "successor linkage when applicable"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "client-delivery",
+      "label": "Client Branch delivery lifecycle",
+      "lifecycleMeaning": "Admit client-originated work as a Client Branch with explicit client-family ownership, delivery authority, repositories, infrastructure, acceptance, and closeout evidence.",
+      "compatibleKinds": [
+        "client-branch"
+      ],
+      "stages": [
+        {
+          "id": "0-intake",
+          "label": "Client intake",
+          "meaning": "Capture the client family, delivery identity, accountable owner, and request authority.",
+          "requiredEvidence": [
+            "client-family binding",
+            "canonical delivery name and safe slug",
+            "founder or Founder Gate authority"
+          ]
+        },
+        {
+          "id": "1-provenance",
+          "label": "Client provenance",
+          "meaning": "Verify client origin and prevent client work from being promoted into Sapling ownership.",
+          "requiredEvidence": [
+            "client-origin declaration",
+            "Client Branch classification",
+            "delivery ownership statement"
+          ]
+        },
+        {
+          "id": "2-authority",
+          "label": "Repository and delivery authority",
+          "meaning": "Bind all delivery, backend, application, content, and infrastructure repositories to explicit roles and identify the planning authority.",
+          "requiredEvidence": [
+            "canonical WorkObject and tenant binding",
+            "immutable repository identities",
+            "repository roles and planning authority",
+            "infrastructure dependency edges"
+          ]
+        },
+        {
+          "id": "3-mapping",
+          "label": "Mapping receipt",
+          "meaning": "Issue and read back immutable mapping evidence before delivery missions can be admitted.",
+          "requiredEvidence": [
+            "prepared mapping receipt",
+            "immutable receipt identifier and digest",
+            "authoritative readback verification"
+          ]
+        },
+        {
+          "id": "4-onboarding",
+          "label": "Delivery onboarding",
+          "meaning": "Align scope, participant roles, motivation, review cadence, approval boundaries, and definition of done.",
+          "requiredEvidence": [
+            "onboarding completion receipt",
+            "stakeholder and operator roles",
+            "review and approval cadence",
+            "acceptance criteria"
+          ]
+        },
+        {
+          "id": "5-plan",
+          "label": "Mission and delivery plan",
+          "meaning": "Compile the reviewed packet into D1 Mission and Task lineage with milestones, dependencies, proof, and cost boundaries.",
+          "requiredEvidence": [
+            "approved delivery Mission",
+            "Mission to Task lineage",
+            "milestones and dependencies",
+            "proof and spending boundaries"
+          ]
+        },
+        {
+          "id": "6-deliver",
+          "label": "Governed delivery",
+          "meaning": "Execute through pinned loadouts and retain reviewable terminal receipts for every governed task.",
+          "requiredEvidence": [
+            "pinned execution loadout",
+            "governed dispatch receipt",
+            "terminal task receipt"
+          ]
+        },
+        {
+          "id": "7-accept",
+          "label": "Acceptance and foldback",
+          "meaning": "Record client acceptance and fold delivery evidence into Cortex, R2, and agent memory before proposing more work.",
+          "requiredEvidence": [
+            "acceptance or exception receipt",
+            "receipt-derived foldback",
+            "R2 evidence pointer",
+            "agent-memory projection"
+          ]
+        },
+        {
+          "id": "8-closeout",
+          "label": "Client closeout",
+          "meaning": "Close or renew the Client Branch with a durable handoff, active-index disposition, and explicit successor responsibility.",
+          "requiredEvidence": [
+            "client closeout disposition",
+            "handoff and memory receipt",
+            "active-index disposition",
+            "successor linkage when applicable"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "internal-capability",
+      "label": "Internal Program capability lifecycle",
+      "lifecycleMeaning": "Admit shared Thoughtseed infrastructure or capability work as an Internal Program with explicit consumers, repository roles, operational proof, and stewardship.",
+      "compatibleKinds": [
+        "internal-program"
+      ],
+      "stages": [
+        {
+          "id": "0-intake",
+          "label": "Capability intake",
+          "meaning": "Define the shared capability, accountable steward, intended consumers, and authority.",
+          "requiredEvidence": [
+            "capability statement",
+            "steward identity",
+            "consumer inventory"
+          ]
+        },
+        {
+          "id": "1-authority",
+          "label": "Repository and infrastructure authority",
+          "meaning": "Bind source, runtime, infrastructure, and planning repositories to explicit roles.",
+          "requiredEvidence": [
+            "canonical WorkObject and tenant binding",
+            "immutable repository identities",
+            "repository roles and planning authority",
+            "consumer dependency edges"
+          ]
+        },
+        {
+          "id": "2-mapping",
+          "label": "Mapping receipt",
+          "meaning": "Issue and read back immutable mapping evidence before operational missions open.",
+          "requiredEvidence": [
+            "prepared mapping receipt",
+            "immutable receipt identifier and digest",
+            "authoritative readback verification"
+          ]
+        },
+        {
+          "id": "3-plan",
+          "label": "Capability mission",
+          "meaning": "Define Mission and Task lineage, service boundaries, consumers, proof, and cost constraints.",
+          "requiredEvidence": [
+            "approved capability Mission",
+            "Mission to Task lineage",
+            "service boundary",
+            "proof and spending boundaries"
+          ]
+        },
+        {
+          "id": "4-operate",
+          "label": "Operate and observe",
+          "meaning": "Run governed tasks and retain terminal, health, and consumer-impact evidence.",
+          "requiredEvidence": [
+            "pinned execution loadout",
+            "terminal task receipts",
+            "health and consumer-impact evidence"
+          ]
+        },
+        {
+          "id": "5-learn",
+          "label": "Learning and stewardship",
+          "meaning": "Fold evidence into memory and decide whether to continue, supersede, or close the capability.",
+          "requiredEvidence": [
+            "receipt-derived foldback",
+            "agent-memory projection",
+            "stewardship decision"
+          ]
+        },
+        {
+          "id": "6-closeout",
+          "label": "Program closeout",
+          "meaning": "Retire or supersede the capability without orphaning consumers or provenance.",
+          "requiredEvidence": [
+            "closeout disposition",
+            "consumer migration or hold plan",
+            "handoff and memory receipt"
+          ]
+        }
+      ]
+    }
+  ]
+}
