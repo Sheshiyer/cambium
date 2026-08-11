@@ -136,14 +136,14 @@ test('quests visual envelope exposes branch loop library without changing quest 
 
   assert.equal(ledgerWithBranches.completed, ledgerWithoutBranches.completed);
   assert.equal(visual.branchLoops.source, 'product-branch-packets@v1');
-  assert.equal(visual.branchLoops.total, 6);
+  assert.equal(visual.branchLoops.total, 5);
   assert.equal(visual.branchLoops.green, 1);
-  assert.equal(visual.branchLoops.yellow, 4);
+  assert.equal(visual.branchLoops.yellow, 3);
   assert.equal(visual.branchLoops.red, 1);
   assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'iverif-claim-proof-loop' && row.runMode === 'read-only'));
   assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'vantyx-second-tenant-loop' && row.branchKind === 'product'));
   assert.ok(visual.branchLoops.rows.some((row) => row.loopId === 'snow-gloves-os-approval-loop' && row.runMode === 'never-alone'));
-  assert.ok(visual.branchLoops.rows.some((row) => row.branchKind === 'client' && row.loopId === 'client-delivery-handoff-loop'));
+  assert.equal(visual.branchLoops.rows.some((row) => row.loopId === 'client-delivery-handoff-loop'), false);
 });
 
 test('quests priority-audit reports missing source without writing policy authority', () => {
@@ -294,16 +294,13 @@ test('quests priority-source rejects partial capture without creating policy aut
 test('gatherQuestInputs loads branch stories beside project evidence', () => {
   const inputs = gatherQuestInputs({ root: process.cwd(), vaultRoot: join(process.cwd(), 'vault') }, 'cambium');
   const fitcheck = inputs.branchStories?.find((story) => story.productId === 'fitcheck');
-  const clientDelivery = inputs.branchStories?.find((story) => story.productId === 'client-delivery');
   const iverif = inputs.branchStories?.find((story) => story.productId === 'iverif');
 
   assert.ok(inputs.branchStories);
-  assert.equal(inputs.branchStories.length, 6);
+  assert.equal(inputs.branchStories.length, 5);
   assert.ok(fitcheck);
-  assert.ok(clientDelivery);
   assert.ok(iverif);
-  assert.equal(clientDelivery.branchKind, 'client');
-  assert.equal(clientDelivery.canonicalWorkId, undefined);
+  assert.equal(inputs.branchStories.some((story) => story.productId === 'client-delivery'), false);
   assert.equal(fitcheck.canonicalWorkId, 'sapling:fitcheck');
   assert.equal(fitcheck.missions[0].missionId, 'fitcheck-shopify-qa');
   assert.equal(fitcheck.promotion.state, 'supervised-branch');
@@ -329,7 +326,7 @@ test('quests visual envelope exposes branchStories without changing quest ledger
   assert.equal(visual.branchStories.total, inputs.branchStories?.length);
   assert.equal(visual.branchStories.activeBranchId, 'fitcheck');
   assert.equal(visual.branchStories.rows.find((story) => story.productId === 'fitcheck')?.arcId, 'fitcheck-supervised-launch-hardening');
-  assert.equal(visual.branchStories.rows.find((story) => story.productId === 'client-delivery')?.branchKind, 'client');
+  assert.equal(visual.branchStories.rows.some((story) => story.productId === 'client-delivery'), false);
   assert.equal(visual.branchStories.rows.find((story) => story.productId === 'iverif')?.arcId, 'iverif-claim-proof-separation');
   assert.ok(visual.branchStories.gaps.some((gap) => gap.status === 'blocked'));
 });
