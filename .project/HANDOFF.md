@@ -260,9 +260,9 @@
   54 WorkObject/proposal folders plus 5 explicit infrastructure/exclusion
   folders (`_home-cleanup-2026-08-08`, `cambium-authoritative`, `openfang`,
   `thoughtseed-labs`, and `website`).
-- Thoughtseed-only directory comparison against
-  `/Volumes/madara/2026/Projects/thoughtseed` passes with zero missing and zero
-  unexpected folders. Full root-header writing still stops on separate
+- Thoughtseed-only directory comparison against the authoritative project
+  root passes with zero missing and zero unexpected folders. Full root-header
+  writing still stops on separate
   Tryambakam-Noesis drift, which is intentionally outside this Workbench pass.
 - New root-map digest:
   `d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf`.
