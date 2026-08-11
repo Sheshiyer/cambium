@@ -505,7 +505,6 @@ git status --short
 
 No registry, capsule, relocation, session, Paseo, provider, or deployment
 mutation has been performed by drafting this packet.
-
 ### 2026-08-08 DLOCK Sapling mapping checkpoint
 
 - Founder instruction resolved `thoughtseed-labs/lockwell-portal` as the new
@@ -954,3 +953,25 @@ mutation has been performed by drafting this packet.
 - Next gate: resolve or deliberately accept the explicit holds, then issue
   separately approved mapping receipts. Sapling promotion remains a later,
   separately approved operation.
+
+### 2026-08-11 Cortex ingestion source-reconciliation checkpoint
+
+- Clean branch `codex/cambium-activation-wave` is rooted at merged production
+  `origin/main` after PR #306; the unrelated dirty `codex/project-r2-mapping-plan`
+  checkout was not used as a release source.
+- Added the bounded `POST /v1/context/cortex-ingest` contract, deterministic
+  markdown chunking, provider embedding, idempotent Vectorize upsert IDs,
+  bounded receipts, dedicated token wiring, and health capability reporting.
+- Preserved the retired `/v1/context/projections` write boundary and the active
+  Plexus/GitHub routine-context path; unrelated dirty-tree reactivation changes
+  were deliberately excluded.
+- Restored the project-intake workflow registry required by
+  `scripts/thoughtseed-project-birth.mjs` and corrected the proactive deployment
+  runbook to the Labs Wrangler configuration without recording credentials.
+- Verification: focused context/Cortex tests pass 43/43; project-birth tests pass
+  7/7; `npm test` passes 1596/1596; `npm run verify:release` passes after locked
+  R3F dependencies are installed; `git diff --check` passes.
+- Production remains separately gated: publish the Cambium quest ledger, apply
+  D1 migration 0009 to the verified Labs database, commit approval-bound
+  Fitcheck/IVerif anchors, then deploy the Worker and Hermes caller with
+  rollback proof. No production mutation is represented by this checkpoint.

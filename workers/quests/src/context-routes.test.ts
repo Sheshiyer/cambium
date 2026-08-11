@@ -6,6 +6,7 @@ import {
   CONTEXT_PROJECTION_RECEIPT_SCHEMA,
   CONTEXT_PROJECTION_SCHEMA,
 } from './context-projections.ts';
+import { CORTEX_INGESTION_SCHEMA } from './cortex-ingestion.ts';
 
 const req = (method: string, path: string, body?: unknown, token?: string) => ({
   method,
@@ -37,6 +38,96 @@ test('context health returns bounded capability flags', async () => {
   assert.equal(payload.schema, 'thoughtseed.context-health.v1');
   assert.equal(payload.capabilities.routineSnapshot, true);
   assert.equal(payload.capabilities.semanticRecall, true);
+  assert.equal(payload.capabilities.cortexIngestion, false);
+});
+
+const cortexBody = {
+  schema: CORTEX_INGESTION_SCHEMA,
+  tenant: 'cambium',
+  kind: 'memory',
+  source: 'hermes',
+  path: 'handoffs/cambium.md',
+  content: '## Cambium\nThis content is intentionally long enough to produce one deterministic Cortex vector.',
+  idempotencyKey: 'cambium_handoff_1',
+};
+
+const cortexDeps = () => ({
+  embed: async () => [0.1, 0.2, 0.3],
+  vectorIndex: {
+    query: async () => ({ matches: [] }),
+    upsert: async (vectors: Array<{ id: string }>) => ({ ids: vectors.map((vector) => vector.id) }),
+  },
+});
+
+test('cortex ingestion requires its dedicated configured token', async () => {
+  const missing = await handleContextRoute(req('POST', '/v1/context/cortex-ingest', cortexBody), {});
+  assert.equal(missing.status, 503);
+
+  const unauthorized = await handleContextRoute(req('POST', '/v1/context/cortex-ingest', cortexBody, 'context-token'), {
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: cortexDeps(),
+  });
+  assert.equal(unauthorized.status, 401);
+});
+
+test('cortex ingestion fails closed when provider dependencies are absent', async () => {
+  const response = await handleContextRoute(req('POST', '/v1/context/cortex-ingest', cortexBody, 'cortex-token'), {
+    cortexIngestionToken: 'cortex-token',
+  });
+  assert.equal(response.status, 503);
+});
+
+test('cortex ingestion rejects malformed JSON and invalid inputs', async () => {
+  const malformed = await handleContextRoute({
+    method: 'POST',
+    path: '/v1/context/cortex-ingest',
+    headers: { authorization: 'Bearer cortex-token' },
+    body: '{',
+  }, {
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: cortexDeps(),
+  });
+  assert.equal(malformed.status, 400);
+
+  const invalid = await handleContextRoute(req('POST', '/v1/context/cortex-ingest', { ...cortexBody, tenant: '' }, 'cortex-token'), {
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: cortexDeps(),
+  });
+  assert.equal(invalid.status, 400);
+});
+
+test('cortex ingestion returns only its bounded receipt', async () => {
+  const response = await handleContextRoute(req('POST', '/v1/context/cortex-ingest', cortexBody, 'cortex-token'), {
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: cortexDeps(),
+  });
+  assert.equal(response.status, 201);
+  const payload = JSON.parse(response.body);
+  assert.equal(payload.tenant, 'cambium');
+  assert.equal(payload.status, 'ingested');
+  assert.ok(Array.isArray(payload.vectorIds));
+  assert.equal('content' in payload, false);
+});
+
+test('cortex ingestion maps provider failures to 502', async () => {
+  const response = await handleContextRoute(req('POST', '/v1/context/cortex-ingest', cortexBody, 'cortex-token'), {
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: {
+      ...cortexDeps(),
+      embed: async () => { throw new Error('provider unavailable'); },
+    },
+  });
+  assert.equal(response.status, 502);
+});
+
+test('context health reports configured Cortex ingestion capability', async () => {
+  const response = await handleContextRoute(req('GET', '/v1/context/health', undefined, 'context-token'), {
+    token: 'context-token',
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: cortexDeps(),
+  });
+  assert.equal(response.status, 200);
+  assert.equal(JSON.parse(response.body).capabilities.cortexIngestion, true);
 });
 
 test('projection writes are retired before any store call', async () => {

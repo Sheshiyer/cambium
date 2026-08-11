@@ -37,6 +37,7 @@ import type {
 } from './handler.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import { createContextProjectionStore } from './context-projections.ts';
+import type { CortexIngestionDeps } from './cortex-ingestion.ts';
 import type { R2BucketLike, VectorizeIndexLike } from './context-bindings.ts';
 
 export interface D1StatementLike {
@@ -80,6 +81,7 @@ interface Env {
   PROVIDER_BROKER_TOKEN?: string;
   CONTEXT_ROUTE_TOKEN?: string;
   CONTEXT_PROJECTION_WRITE_TOKEN?: string;
+  CORTEX_INGESTION_TOKEN?: string;
   CONTEXT_ALLOWED_TENANTS?: string;
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
@@ -1354,7 +1356,7 @@ export default {
       fetch: fetch.bind(globalThis),
     } : undefined;
     let contextRoutes: ContextRouteDeps | undefined;
-    if (env.CONTEXT_ROUTE_TOKEN || env.CONTEXT_PROJECTION_WRITE_TOKEN) {
+    if (env.CONTEXT_ROUTE_TOKEN || env.CONTEXT_PROJECTION_WRITE_TOKEN || env.CORTEX_INGESTION_TOKEN) {
       const embeddingProviderId = env.CONTEXT_EMBEDDING_PROVIDER?.trim() || 'nvidia';
       const embeddingProvider = providers[embeddingProviderId];
       const embed = createProviderEmbedder({
@@ -1362,12 +1364,17 @@ export default {
         model: env.CONTEXT_EMBEDDING_MODEL?.trim() || embeddingProvider?.defaultModel,
         fetchImpl: workerFetch,
       });
+      const cortexIngestionDeps: CortexIngestionDeps | undefined = env.CORTEX_INGESTION_TOKEN && embed && env.CAMBIUM_CORTEX
+        ? { embed, vectorIndex: env.CAMBIUM_CORTEX }
+        : undefined;
       contextRoutes = {
         token: env.CONTEXT_ROUTE_TOKEN,
         projectionWriteToken: env.CONTEXT_PROJECTION_WRITE_TOKEN,
         projectionStore: env.CONTEXT_PROJECTIONS?.put
           ? createContextProjectionStore({ bucket: env.CONTEXT_PROJECTIONS })
           : undefined,
+        cortexIngestionToken: env.CORTEX_INGESTION_TOKEN,
+        cortexIngestionDeps,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
         routineContext: createPlexusRoutineContext({ url: env.PLEXUS_KNOWLEDGE_URL, token: env.PLEXUS_KNOWLEDGE_TOKEN, fetchImpl: workerFetch }),
         semanticRecall: embed && env.CAMBIUM_CORTEX
