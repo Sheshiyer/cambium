@@ -75,6 +75,40 @@ test('governed operational anchors compile only with exact loadout authority', (
   assert.equal(parseTelegramGoalGraphIntent({ ...anchored, goal: { ...anchored.goal, pinnedLoadoutId: undefined } }).accepted, false);
 });
 
+test('single-intent compilation preserves unrelated current graph nodes', () => {
+  const current = parseTelegramGoalGraphIntent({
+    ...minimal,
+    source: { kind: 'telegram', chatId: '-100123', messageId: 'existing' },
+    goal: { desiredState: 'preserve the existing operational objective' },
+  });
+  assert.equal(current.accepted, true);
+  if (!current.accepted) return;
+  const head = {
+    tenantId: 'tenant-alpha',
+    graphVersion: 1,
+    graphDigest: 'a'.repeat(64),
+    nodeIds: [current.node.nodeId],
+    sourceRef: current.sourceRef,
+    sourceDigest: current.sourceDigest,
+    committedAt: '2026-08-11T00:00:00.000Z',
+  };
+  const additive = parseTelegramGoalGraphIntent({
+    ...minimal,
+    goal: { ...minimal.goal, parentNodeId: current.node.nodeId, scope: 'meso' },
+  }, {
+    expectedHeadDigest: head.graphDigest,
+    actualHead: head,
+    currentNodes: [current.node],
+    graphVersion: 2,
+    now: '2026-08-11T00:01:00.000Z',
+  });
+  assert.equal(additive.accepted, true);
+  if (!additive.accepted || additive.compile.status !== 'compiled') return;
+  assert.equal(additive.compile.changeSet.nodesToCreate.length, 1);
+  assert.equal(additive.compile.changeSet.nodesToUpdate.length, 0);
+  assert.deepEqual(additive.compile.changeSet.nodesToRemove, []);
+});
+
 test('every malformed value returns an explicit rejection and never throws', () => {
   const cyclic: Record<string, unknown> = {};
   cyclic.self = cyclic;

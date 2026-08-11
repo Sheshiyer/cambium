@@ -1,5 +1,28 @@
 # Project handoff
 
+### 2026-08-11 production activation-wave checkpoint
+
+- Source PRs #308 and #309 are merged on `main`; the production quest ledger
+  now contains 17 rows with `the-calling` active, and the Mini App empty-ledger
+  condition is no longer a publication blocker.
+- Labs D1 migration `0009_goal_graph_operational_anchors.sql` is applied with a
+  captured recovery bookmark. The three nullable anchor columns and both new
+  indexes were read back; no Sapling anchor is claimed before signed CAS.
+- Worker version `816beb76-bfe4-4909-9ec0-27da34ea7f36` is deployed with
+  rollback version `9c1545ed-ce9a-433f-9cff-e9216ef27b31`. The bounded Cortex
+  canary returned 201 and one deterministic Vectorize ID.
+- Fitcheck, IVerif, and DLOCK mapping receipts exist in R2 and were read back.
+  IVerif is `pmr_0866a507ab7b5e8ee16b6c64`; DLOCK is folderless by design at
+  `pmr_8d9ea70dd46536c8326e3ec5` rather than inventing a shallow folder.
+- Hermes Cortex delivery is installed on `i-056c5f1d3a9f74190`; focused remote
+  tests pass 41/41 and the timer is active. No terminal directive arrived, so
+  the real execution-to-Cortex end-to-end canary remains explicitly unclaimed.
+- Remaining activation is founder-signature bound and sequential: Fitcheck,
+  then IVerif, then DLOCK. Each later CAS proposal must be constructed from the
+  new D1 head after the prior Mini App Gate approval.
+- Full immutable identifiers, digests, rollback anchors, and anti-claims are in
+  `docs/evidence/2026-08-11-cambium-activation-wave.v1.json`.
+
 ## Checkpoint
 
 - Status: `reviewed-held`

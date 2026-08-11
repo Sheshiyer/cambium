@@ -1,18 +1,19 @@
 {
   "schema": "thoughtseed.three-sapling-operational-cohort-preflight.v1",
   "version": 1,
-  "preparedAt": "2026-08-09",
-  "status": "prepared-local-proof-not-admitted",
+  "preparedAt": "2026-08-11",
+  "status": "mapping-receipts-issued-d1-admission-pending",
   "digests": {
     "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
     "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
-    "preparedCatalogDigest": "sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e"
+    "preparedCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f"
   },
   "authority": {
     "parentTenant": "cambium",
-    "scope": "local-prepared-identity-proof",
+    "scope": "issued-mapping-proof-and-live-schema-readback",
     "liveAdmission": false,
-    "mappingReceiptIssuance": false,
+    "mappingReceiptIssuance": true,
     "notAuthorityFor": [
       "tenant-admission",
       "approval-consumption",
@@ -29,50 +30,22 @@
     {
       "workObjectId": "sapling:fitcheck",
       "canonicalParentTenant": "cambium",
-      "repository": {
-        "nameWithOwner": "Sheshiyer/fitcheck-landing",
-        "repositoryId": "R_kgDOSzF56w",
-        "role": "product-source"
-      },
+      "repository": { "nameWithOwner": "Sheshiyer/fitcheck-landing", "repositoryId": "R_kgDOSzF56w", "role": "product-source" },
       "packet": "docs/plans/product-branches/fitcheck.md",
-      "rootContext": {
-        "disposition": "existing-root-map-proposal",
-        "shallowFolder": "fitcheck-landing",
-        "folderAdmission": false
-      },
-      "mappingEvidence": {
-        "state": "prepared-local",
-        "receiptIssued": false,
-        "receiptId": null
-      },
-      "approval": {
-        "state": "unconsumed",
-        "consumed": false
-      }
+      "rootContext": { "disposition": "existing-root-map-proposal", "shallowFolder": "fitcheck-landing", "folderAdmission": false },
+      "mappingEvidence": { "state": "issued-readback-verified", "receiptIssued": true, "receiptId": "pmr_9de251ce89564f07f3e4c510" },
+      "goalGraphAnchor": { "workObjectAnchorCommitted": false, "loadoutAnchorCommitted": false },
+      "approval": { "state": "unconsumed", "consumed": false }
     },
     {
       "workObjectId": "sapling:iverif",
       "canonicalParentTenant": "cambium",
-      "repository": {
-        "nameWithOwner": "Sheshiyer/iverif-wiki",
-        "repositoryId": "R_kgDOSwXJ7Q",
-        "role": "product-source"
-      },
+      "repository": { "nameWithOwner": "Sheshiyer/iverif-wiki", "repositoryId": "R_kgDOSwXJ7Q", "role": "product-source" },
       "packet": "docs/plans/product-branches/iverif.md",
-      "rootContext": {
-        "disposition": "existing-root-map-proposal",
-        "shallowFolder": "iverif",
-        "folderAdmission": false
-      },
-      "mappingEvidence": {
-        "state": "prepared-local",
-        "receiptIssued": false,
-        "receiptId": null
-      },
-      "approval": {
-        "state": "unconsumed",
-        "consumed": false
-      }
+      "rootContext": { "disposition": "existing-root-map-proposal", "shallowFolder": "iverif", "folderAdmission": false },
+      "mappingEvidence": { "state": "issued-readback-verified", "receiptIssued": true, "receiptId": "pmr_0866a507ab7b5e8ee16b6c64" },
+      "goalGraphAnchor": { "workObjectAnchorCommitted": false, "loadoutAnchorCommitted": false },
+      "approval": { "state": "unconsumed", "consumed": false }
     },
     {
       "workObjectId": "sapling:dlock",
@@ -87,37 +60,27 @@
         "principalAccess": ["admin", "push", "pull"]
       },
       "packet": "docs/plans/product-branches/dlock.md",
-      "rootContext": {
-        "disposition": "folderless-planning-authority",
-        "shallowFolder": null,
-        "folderAdmission": false,
-        "mustNotInventShallowFolder": true
-      },
-      "mappingEvidence": {
-        "state": "missing-operational-receipt",
-        "receiptIssued": false,
-        "receiptId": null
-      },
-      "goalGraphAnchor": {
-        "workObjectAnchorCommitted": false,
-        "loadoutAnchorCommitted": false
-      },
-      "approval": {
-        "state": "unconsumed",
-        "consumed": false
-      }
+      "rootContext": { "disposition": "folderless-planning-authority", "shallowFolder": null, "folderAdmission": false, "mustNotInventShallowFolder": true },
+      "mappingEvidence": { "state": "issued-readback-verified", "receiptIssued": true, "receiptId": "pmr_8d9ea70dd46536c8326e3ec5" },
+      "goalGraphAnchor": { "workObjectAnchorCommitted": false, "loadoutAnchorCommitted": false },
+      "approval": { "state": "unconsumed", "consumed": false }
     }
   ],
   "liveFlags": {
-    "mappingReceiptIssued": false,
+    "mappingReceiptIssued": true,
     "tenantAdmissionGranted": false,
     "approvalConsumed": false,
-    "r2WriteEnabled": false,
+    "r2WriteEnabled": true,
     "d1OrGoalGraphWriteEnabled": false,
-    "hermesDispatchEnabled": false,
-    "cortexOrAgentMemoryWriteEnabled": false,
+    "hermesDispatchEnabled": true,
+    "cortexOrAgentMemoryWriteEnabled": true,
     "providerMutationEnabled": false,
-    "deploymentEnabled": false
+    "deploymentEnabled": true,
+    "mappingReceiptReadbackVerified": true,
+    "d1OperationalAnchorSchemaApplied": true,
+    "goalGraphAnchorCommitted": false,
+    "cortexIngestionCanaryPassed": true,
+    "hermesTerminalEndToEndCanaryPassed": false
   },
   "admissionRequirements": [
     "owner-approved-live-admission",
@@ -126,5 +89,11 @@
     "immutable-mapping-receipt-readback-verification",
     "immutable-admission-readback-verification",
     "approval-consumed-against-exact-mapping-evidence"
+  ],
+  "remainingAdmissionSequence": [
+    "founder-sign-fitcheck-mini-app-gate",
+    "construct-iverif-proposal-from-new-head-and-sign",
+    "review-dlock-loadout-registry-source-then-construct-and-sign",
+    "run-one-real-hermes-terminal-to-cortex-canary"
   ]
 }
