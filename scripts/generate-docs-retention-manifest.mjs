@@ -11,11 +11,19 @@ const defaultOutput = '.planning/2026-08-10-documentation-retention-manifest.per
 const output = process.argv.includes('--out')
   ? process.argv[process.argv.indexOf('--out') + 1]
   : defaultOutput;
-const generatedAt = process.argv.includes('--generated-at')
-  ? process.argv[process.argv.indexOf('--generated-at') + 1]
-  : new Date().toISOString().slice(0, 10);
 const outputPath = path.relative(root, path.resolve(root, output));
 const generatedManifestPaths = new Set([defaultOutput, outputPath]);
+const existingGeneratedAt = (() => {
+  try {
+    const existing = JSON.parse(fs.readFileSync(path.join(root, output), 'utf8'));
+    return typeof existing.generatedAt === 'string' ? existing.generatedAt : null;
+  } catch {
+    return null;
+  }
+})();
+const generatedAt = process.argv.includes('--generated-at')
+  ? process.argv[process.argv.indexOf('--generated-at') + 1]
+  : existingGeneratedAt || new Date().toISOString().slice(0, 10);
 const text = new Set(['.md', '.json', '.js', '.mjs', '.ts', '.tsx', '.html', '.css', '.yml', '.yaml']);
 const tracked = execFileSync('git', ['ls-files', '-z', '--', 'docs/plans'], { cwd: root, encoding: 'utf8' })
   .split('\0').filter(Boolean).sort();
