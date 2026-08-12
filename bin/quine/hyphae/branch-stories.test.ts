@@ -25,6 +25,66 @@ test('loads branch stories from branch packets without flattening controls', () 
   assert.match(fitcheck.controls.ui.currentFrontier, /supervised launch/i);
   assert.match(fitcheck.controls.ui.narrativeVoice, /operator voice/i);
   assert.match(fitcheck.controls.autonomyBoundary, /founder approval/i);
+  assert.equal(fitcheck.questline.length, 17);
+  assert.equal(fitcheck.questline.find((quest) => quest.id === 'fitcheck-shopify-listing-readback')?.status, 'external-wait');
+  assert.equal(fitcheck.questline.find((quest) => quest.id === 'fitcheck-outreach-pilot-approval')?.status, 'ready-for-review');
+  assert.equal(fitcheck.questline.find((quest) => quest.id === 'fitcheck-technical-search-baseline')?.status, 'proposed');
+  assert.equal(fitcheck.questline.find((quest) => quest.id === 'fitcheck-privacy-consent-review')?.status, 'blocked');
+  assert.equal(fitcheck.questline.some((quest) => quest.status === 'complete' || quest.status === 'superseded'), false);
+  assert.equal(fitcheck.controls.organRouting.find((organ) => organ.organ === 'Genesis')?.status, 'verified');
+  assert.equal(fitcheck.controls.organRouting.find((organ) => organ.organ === 'Taste')?.status, 'pending');
+  assert.equal(fitcheck.controls.organRouting.find((organ) => organ.organ === 'Hands')?.status, 'pending');
+  assert.equal(fitcheck.controls.organRouting.find((organ) => organ.organ === 'Will')?.status, 'blocked');
+  assert.equal(fitcheck.controls.organRouting.find((organ) => organ.organ === 'Cortex')?.status, 'pending');
+  assert.equal(fitcheck.controls.organRouting.find((organ) => organ.organ === 'Hermes')?.status, 'pending');
+  assert.equal(fitcheck.controls.organRouting.find((organ) => organ.organ === 'Garden')?.status, 'blocked');
+});
+
+test('preserves structured quest statuses and explicit organ statuses', () => {
+  const root = mkdtempSync(join(tmpdir(), 'cambium-branch-stories-quest-statuses-'));
+  const packetDir = join(root, 'docs', 'plans', 'product-branches');
+  mkdirSync(packetDir, { recursive: true });
+  writeFileSync(join(packetDir, 'index.md'), [
+    '# Test Product Branch Packets',
+    '',
+    '| product_id | branch_kind | name | role | promotion_state | current_gate | packet |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| fitcheck | product | Fitcheck | Supervised branch | supervised-branch | Founder review | fitcheck.md |',
+    '',
+  ].join('\n'));
+  writeFileSync(join(packetDir, 'fitcheck.md'), [
+    '---',
+    'product_id: fitcheck',
+    '---',
+    '',
+    '## Quest Queue',
+    '',
+    '| quest_id | title | status |',
+    '| --- | --- | --- |',
+    '| review | Review outreach packet | ready-for-review |',
+    '| provider | Await provider readback | external-wait |',
+    '| baseline | Propose search baseline | proposed |',
+    '',
+    '## Organ Routing',
+    '',
+    '| Organ | Owner | Input | Output | Proof Path | Current Gate | Status |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| Genesis | founder | brief | seed | receipt | historical wording | verified |',
+    '| Cortex | reviewer | receipt | candidate | contract | runtime held | pending |',
+    '',
+  ].join('\n'));
+
+  const [story] = loadBranchStories({ root }, 'cambium');
+
+  assert.deepEqual(story.questline.map(({ id, status }) => ({ id, status })), [
+    { id: 'review', status: 'ready-for-review' },
+    { id: 'provider', status: 'external-wait' },
+    { id: 'baseline', status: 'proposed' },
+  ]);
+  assert.deepEqual(story.controls.organRouting.map(({ organ, status }) => ({ organ, status })), [
+    { organ: 'Genesis', status: 'verified' },
+    { organ: 'Cortex', status: 'pending' },
+  ]);
 });
 
 test('loads branch loop controls from branch packets', () => {
