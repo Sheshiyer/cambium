@@ -12,7 +12,9 @@ function mcStateKind(raw){
   const state = String(raw || '').toLowerCase();
   if (/reduced/.test(state)) return 'reduced-motion';
   if (/selected|focus/.test(state)) return 'selected';
-  if (/verified|complete|ready|done/.test(state)) return 'complete';
+  if (/ready-for-review|external-wait|proposed|pending-review/.test(state)) return 'proof-needed';
+  if (/approved/.test(state)) return 'active';
+  if (/verified|complete|superseded|ready|done/.test(state)) return 'complete';
   if (/stale/.test(state)) return 'stale';
   if (/blocked|warning|gap|missing/.test(state)) return 'blocked';
   if (/proof|review|pending/.test(state)) return 'proof-needed';

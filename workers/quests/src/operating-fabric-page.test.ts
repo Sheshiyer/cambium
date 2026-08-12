@@ -41,7 +41,7 @@ import { ORGAN_UPDATE_PLAN } from './organ-update-delivery.ts';
 import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
 
 const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 'story', 'inspect'];
-const LEGACY_PAGE_DIGEST = '8268cadf03e55d569f4d41cc2d1ac9ca17ff036bc61b992154c9951fa719da1c';
+const LEGACY_PAGE_DIGEST = 'a11a787682cf713fe611cf256169bb9d19e462f168c6f8cae3e87a8605e747c1';
 
 function extractScriptBodies(source: string): string[] {
   return [...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]

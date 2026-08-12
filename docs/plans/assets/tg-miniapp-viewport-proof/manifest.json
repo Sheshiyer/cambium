@@ -1,7 +1,7 @@
 {
   "schema": "cambium.tg-viewport-proof-manifest.v1",
-  "generatedAt": "2026-08-12T02:48:08.919Z",
-  "pageSourceSha256": "f3a2ba66c32e113509c2d7c31245df926920a59040cb204897bcc4099810f371",
+  "generatedAt": "2026-08-12T05:44:39.824Z",
+  "pageSourceSha256": "13342eb18fef5d0dae37744fefcdc8276954da62657d935c71678e1c8d141f64",
   "chrome": "Google Chrome",
   "browserMode": "headless-new",
   "browserCandidates": [

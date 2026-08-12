@@ -1,5 +1,6 @@
 export type BranchPromotionState = 'proof-only' | 'supervised-branch' | 'autonomous-branch' | 'organ-service';
 export type BranchProofStatus = 'verified' | 'blocked' | 'pending' | 'no-signal';
+export type BranchQuestStatus = BranchProofStatus | 'queued' | 'proposed' | 'external-wait' | 'ready-for-review' | 'approved' | 'active' | 'complete' | 'superseded';
 export type BranchLoopBoundaryColor = 'green' | 'yellow' | 'red';
 
 export interface BranchVision {
@@ -22,7 +23,7 @@ export interface BranchKpi {
 export interface BranchQuestStage {
   id: string;
   title: string;
-  status: BranchProofStatus | 'queued';
+  status: BranchQuestStatus;
 }
 
 export interface BranchMission {
@@ -75,6 +76,7 @@ export interface BranchOrganRoute {
   output: string;
   proofPath: string;
   currentGate: string;
+  status: BranchQuestStatus;
 }
 
 export interface BranchVariableContractGroup {

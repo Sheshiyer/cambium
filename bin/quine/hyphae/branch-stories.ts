@@ -16,6 +16,7 @@ import type {
   BranchProofStatus,
   BranchPromotionState,
   BranchQuestStage,
+  BranchQuestStatus,
   BranchStoryArc,
   BranchStoryGap,
   BranchVariableContractGroup,
@@ -234,7 +235,59 @@ function ledgerGaps(rows: Array<{ status: BranchProofStatus; detail: string; sou
       }]);
 }
 
+const QUEST_STATUSES = new Set<BranchQuestStatus>([
+  'verified',
+  'blocked',
+  'pending',
+  'no-signal',
+  'queued',
+  'proposed',
+  'external-wait',
+  'ready-for-review',
+  'approved',
+  'active',
+  'complete',
+  'superseded',
+]);
+
+function normalizeQuestStatus(value: string): BranchQuestStatus {
+  const status = clean(value).toLowerCase().replace(/[\s_]+/g, '-');
+  return QUEST_STATUSES.has(status as BranchQuestStatus) ? status as BranchQuestStatus : 'pending';
+}
+
+function organRouteStatus(status: string, currentGate: string): BranchQuestStatus {
+  if (clean(status)) return normalizeQuestStatus(status);
+
+  const gate = clean(currentGate).toLowerCase().replace(/[\s_]+/g, '-');
+  const derived = [
+    'ready-for-review',
+    'external-wait',
+    'no-signal',
+    'superseded',
+    'complete',
+    'verified',
+    'blocked',
+    'proposed',
+    'approved',
+    'active',
+    'queued',
+    'pending',
+  ].find((candidate) => gate.includes(candidate));
+  return derived ? normalizeQuestStatus(derived) : 'pending';
+}
+
 function questlineFromSection(source: string): BranchQuestStage[] {
+  const rows = sectionRows(source, 'Quest Queue');
+  if (rows.some((row) => clean(row.quest_id))) {
+    return rows
+      .map((row): BranchQuestStage => ({
+        id: clean(row.quest_id),
+        title: clean(row.title || row.quest_id),
+        status: normalizeQuestStatus(row.status),
+      }))
+      .filter((stage) => stage.id);
+  }
+
   return extractSection(source, 'Quest Queue').split(/\r?\n/)
     .map((line) => line.match(/^\s*\d+\.\s+(.*)$/)?.[1])
     .filter((line): line is string => !!line)
@@ -336,6 +389,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
     output: clean(organ.output),
     proofPath: clean(organ.proof_path),
     currentGate: clean(organ.current_gate),
+    status: organRouteStatus(organ.status, organ.current_gate),
   })).filter((organ) => organ.organ);
   const variableContractPayloads = sectionRows(source, 'Variable Contract Payload').map((group): BranchVariableContractGroup => ({
     group: clean(group.group),
