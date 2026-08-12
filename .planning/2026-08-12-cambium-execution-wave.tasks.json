@@ -2,7 +2,7 @@
   {
     "id": "GIP-001",
     "title": "Apply reviewed GitHub issue hygiene",
-    "status": "ready",
+    "status": "completed",
     "dependsOn": [],
     "ownedFiles": ["docs/project-management/2026-08-12-github-issue-reconciliation.md"],
     "acceptance": "All 14 issues receive the reviewed close, rewrite, keep-open, or triage action and a comment linking the evidence record.",
@@ -74,7 +74,7 @@
   {
     "id": "GIP-007",
     "title": "Route non-Cambium enhancement captures",
-    "status": "ready-after-review",
+    "status": "completed",
     "dependsOn": ["GIP-001"],
     "ownedFiles": ["docs/project-management/2026-08-12-github-issue-reconciliation.md"],
     "acceptance": "Each raw capture is transferred to a named owning repository or closed as unscoped inspiration without becoming Cambium runtime authority.",

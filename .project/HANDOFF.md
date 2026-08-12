@@ -1075,3 +1075,21 @@ mutation has been performed by drafting this packet.
   `GIP-001` (apply and read back the 14 GitHub issue actions), followed by
   parallel `GIP-002`/`GIP-003`. Provider, deployment, Telegram, relocation,
   ledger, and mailbox mutations remain separately gated.
+
+### 2026-08-12 GitHub issue synchronization checkpoint
+
+- `GIP-001` and `GIP-007` are complete. All 14 reviewed issues were re-read
+  immediately before mutation; their states and body digests matched the frozen
+  transaction in `.planning/execution/2026-08-12-github-issue-sync.v1.json`.
+- Raw intake #275–#277 closed as not planned; stale umbrellas #285 and #287
+  closed as completed while their residual owners remain open. The project
+  board automatically moved #285 and #287 from Todo to Done.
+- #252 now follows the Plexus GitHub-App knowledge plane; #282 has corrected
+  continuity ownership; #284 records the live 17-row shared ledger without
+  inventing a company-website quest; #290 records ten exact holds; #291 is the
+  eight-wave execution epic.
+- Next parallel-safe repository wave is `GIP-002` plus `GIP-003` in isolated
+  worktrees. GitHub writes remain single-coordinator operations. `GIP-004`–
+  `GIP-006` remain runtime/content/approval gated.
+- No deployment, provider, credential, timer, mailbox, Telegram, ledger,
+  relocation, or production runtime state changed during synchronization.
