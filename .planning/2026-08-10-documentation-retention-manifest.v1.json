@@ -8,7 +8,7 @@
     {
       "path": "docs/plans/**/*.md",
       "kind": "plan",
-      "bytes": 538466,
+      "bytes": 541382,
       "retentionClass": "retain",
       "reason": "Dated decision and implementation history; non-operational under docs/LIFECYCLE.md.",
       "replacementPath": null,
@@ -20,7 +20,7 @@
     {
       "path": "docs/plans/**/*.json",
       "kind": "manifest",
-      "bytes": 77531,
+      "bytes": 77613,
       "retentionClass": "keep-with-manifest",
       "reason": "Structured proof and integrity context.",
       "replacementPath": null,
@@ -58,7 +58,7 @@
     {
       "path": "docs/plans/assets/**",
       "kind": "source-image",
-      "bytes": 110030979,
+      "bytes": 109947001,
       "retentionClass": "review-required",
       "reason": "Generated and reference proof assets have direct documentation, manifest, generated-organ, and test references.",
       "replacementPath": null,

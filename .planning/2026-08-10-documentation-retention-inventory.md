@@ -13,12 +13,12 @@ Do not delete, move, merge, externalize, or auto-deduplicate any documentation a
 
 | Surface | Evidence | Interpretation |
 | --- | --- | --- |
-| `docs/` | 404 tracked files, 112,756,527 bytes (107.53 MiB) | the documentation tree is not broadly text-bloated |
-| `docs/plans/` | 174 files, 110,474,183 bytes (105.36 MiB) | dominant historical/proof payload |
-| `docs/plans/assets/` | 127 files, 110,030,979 bytes (104.93 MiB) | generated/reference proof assets |
-| PNG files | 85 files, 109,858,186 bytes (99.44% of `docs/plans`) | primary future retention-review surface |
-| Markdown files | 78 files, 538,466 bytes | low-cost decision/history context |
-| JSON files | 11 files, 77,531 bytes | manifests and structured proof context |
+| `docs/` | 406 tracked files, 112,684,141 bytes (107.46 MiB) | the documentation tree is not broadly text-bloated |
+| `docs/plans/` | 175 files, 110,393,121 bytes (105.28 MiB) | dominant historical/proof payload |
+| `docs/plans/assets/` | 127 files, 109,947,001 bytes (104.85 MiB) | generated/reference proof assets |
+| PNG files | 85 files, 109,774,126 bytes (99.44% of `docs/plans`) | primary future retention-review surface |
+| Markdown files | 79 files, 541,382 bytes | low-cost decision/history context |
+| JSON files | 11 files, 77,613 bytes | manifests and structured proof context |
 
 Largest asset families are the Telegram Mini App viewport proof, Cambium R3F screenshots, Cambium R3F game-engine realignment, Telegram Mini App mission-control references, and constellation UI references.
 
