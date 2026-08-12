@@ -45,6 +45,8 @@
  "non_canonical_work_id_value": "none",
  "non_packet_markdown_files": [
   "ISA.md",
+  "fitcheck-build-closure.tasks.md",
+  "fitcheck-growth-quest-backlog.md",
   "index.md",
   "loop-library.md"
  ],

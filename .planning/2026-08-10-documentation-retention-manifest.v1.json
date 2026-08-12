@@ -8,7 +8,7 @@
     {
       "path": "docs/plans/**/*.md",
       "kind": "plan",
-      "bytes": 541382,
+      "bytes": 555095,
       "retentionClass": "retain",
       "reason": "Dated decision and implementation history; non-operational under docs/LIFECYCLE.md.",
       "replacementPath": null,
@@ -20,7 +20,7 @@
     {
       "path": "docs/plans/**/*.json",
       "kind": "manifest",
-      "bytes": 77613,
+      "bytes": 77688,
       "retentionClass": "keep-with-manifest",
       "reason": "Structured proof and integrity context.",
       "replacementPath": null,
