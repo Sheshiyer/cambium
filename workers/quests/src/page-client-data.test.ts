@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import vm from 'node:vm';
-import { PAGE } from '../index.ts';
+import { PAGE } from './page/index.ts';
 
 type FetchPlan =
   | { status: number; body: unknown; malformed?: boolean }
