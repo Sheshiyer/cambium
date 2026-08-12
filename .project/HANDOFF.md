@@ -1047,3 +1047,31 @@ mutation has been performed by drafting this packet.
   full repository suite passes 1650/1650, and `git diff --check` passes.
 - Production deployment and Hermes caller reconfiguration remain explicit
   rollout steps with live route readback required after promotion.
+
+### 2026-08-12 GitHub and planning first-batch checkpoint
+
+- Work is isolated on `codex/github-planning-execution-wave`, rooted at
+  `origin/main@1aab53d5fda1f886d7f7069e5ff847c193350936`; the dirty primary checkout
+  was not modified.
+- Reconciled all 14 open Cambium issues and all 80 Mini App task IDs. Dated
+  plans remain historical; current execution authority is reduced to the
+  eight typed `GIP-*` waves in
+  `.planning/2026-08-12-cambium-execution-wave.tasks.json`.
+- The reviewed issue proposal closes stale umbrellas `#285` and `#287`,
+  rewrites `#282`, keeps runtime/content/approval gates explicit, routes
+  `#275`–`#277` as intake, and preserves `#290`/`#291` as the active portfolio
+  authority lane. No GitHub issue mutation was performed in this batch.
+- The legacy quest client now distinguishes honest empty (`200` without a
+  ledger), authenticated access (`401`/`403`), missing route (`404`), service
+  failure (`5xx`), malformed JSON, network failure, and a real abortable
+  ten-second timeout without rendering response or authentication material.
+- Canonical viewport proof was regenerated from the real PAGE export: 47/47
+  browser proofs (27 layout, 20 clickability), PAGE SHA-256
+  `f3a2ba66c32e113509c2d7c31245df926920a59040cb204897bcc4099810f371`.
+- Verification: focused loader/Operating Fabric tests pass 248/248; handler
+  plus loader tests pass 349/349; full `npm test` passes 1650/1650; drift audit
+  and `git diff --check` pass; independent final review verdict is PASS.
+- First-batch stop reached per `executing-plans`. Next reviewed action is
+  `GIP-001` (apply and read back the 14 GitHub issue actions), followed by
+  parallel `GIP-002`/`GIP-003`. Provider, deployment, Telegram, relocation,
+  ledger, and mailbox mutations remain separately gated.

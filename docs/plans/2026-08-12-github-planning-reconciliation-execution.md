@@ -10,8 +10,9 @@
 ## Objective
 
 Reconcile all open GitHub issues and current planning authority, remove work
-already completed from the execution surface, convert only genuine residuals
-into task-shaped work, and correct the first confirmed user-facing defect.
+already completed from the execution surface, convert current residual,
+hygiene, and triage work into explicitly typed tasks, and correct the first
+confirmed user-facing defect.
 
 ## Authority order
 
@@ -37,7 +38,7 @@ or receipt. This task is read-only with respect to GitHub and runtime systems.
 
 Create `.planning/2026-08-12-cambium-execution-wave.tasks.json` and
 `docs/project-management/2026-08-12-github-issue-reconciliation.md` from Task
-1. Every residual task must name dependencies, file ownership, acceptance,
+1. Every current task must name its status, dependencies, file ownership, acceptance,
 verification, and authority limits. Proposed GitHub changes must cite evidence;
 do not call GitHub mutation APIs in this task.
 

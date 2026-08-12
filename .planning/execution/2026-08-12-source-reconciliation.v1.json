@@ -80,14 +80,14 @@
     {
       "id": "#285",
       "title": "continuity: preserve and close the unfinished brand/CF/Hermes board",
-      "state": "residual",
-      "missingAuthority": "Board closure is not present in merged issue-closure commits and remains as historical continuity context in planning documents."
+      "state": "historical",
+      "evidence": "The umbrella is decomposed into open child issues and its claimed canonical source file is absent; closing it preserves the children."
     },
     {
       "id": "#287",
       "title": "relocation: prepare Cambium Git-graph move and portfolio reconciliation",
-      "state": "blocked",
-      "missingAuthority": "Relocation execution requires explicit runbook approval and environment authority approvals; none are present in current merge set for this residual lane."
+      "state": "historical",
+      "evidence": "Recorded Cambium phase-one and Temperance phase-two relocation receipts supersede the preparation issue; residual mapping stays in #290/#291."
     },
     {
       "id": "#290",
