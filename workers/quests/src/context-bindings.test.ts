@@ -167,7 +167,7 @@ test('worker routine knowledge ignores legacy R2 bindings when GitHub is not con
   assert.deepEqual(payload.sections, []);
 });
 
-test('worker rejects retired R2 context projection writes', async () => {
+test('worker accepts authenticated context projection writes', async () => {
   let write: { key: string; value: Uint8Array; options: unknown } | undefined;
   const body = await projectionEnvelope();
   const response = await worker.fetch(new Request('https://worker.local/v1/context/projections', {
@@ -188,10 +188,18 @@ test('worker rejects retired R2 context projection writes', async () => {
     },
   }) as any);
 
-  assert.equal(response.status, 410);
+  assert.equal(response.status, 201);
   assert.equal(response.headers.get('cache-control'), 'no-store');
-  assert.equal(write, undefined);
-  assert.match(await response.text(), /retired/i);
+  assert.equal(write?.key, CONTEXT_PROJECTION_KEY);
+  assert.equal(new TextDecoder().decode(write?.value), JSON.stringify(body));
+  assert.deepEqual(write?.options, {
+    onlyIf: { etagDoesNotMatch: '*' },
+    httpMetadata: { contentType: 'application/json' },
+  });
+  const receipt = await response.json() as Record<string, unknown>;
+  assert.equal(receipt.key, CONTEXT_PROJECTION_KEY);
+  assert.equal(receipt.generation, body.generation);
+  assert.equal('markdown' in receipt, false);
 });
 
 test('routine adapter reads only explicit safe exact keys and blocks raw non-envelope objects', async () => {
