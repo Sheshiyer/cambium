@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Reconcile portfolio foundation before Sapling promotion"
+task: "Synchronize reconciled GitHub issues into executable Cambium waves"
 effort: E5
 effort_source: complexity-override
-phase: reflect
-progress: 959/1035
+phase: think
+progress: 0/9
 mode: interactive
-iteration: 2026-08-09-portfolio-foundation-reconciliation
+iteration: 2026-08-12-github-issue-sync
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-09T00:39:49+05:30
+updated: 2026-08-12T08:25:00+05:30
 ---
 
 ## Problem
@@ -2278,3 +2278,12 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-1055: all mutation workers use isolated clean worktrees rooted at the reviewed `origin/main` SHA; the dirty primary checkout remains untouched.
 - ISC-1056: GitHub issue mutations are applied from a reviewed reconciliation record and leave a replayable issue-number, action, and evidence receipt.
 - ISC-1057: deployment, Worker environment changes, Telegram sends, provider cleanup, registry writes, and relocation remain outside this execution wave.
+- ISC-1058: the GitHub sync reads all 14 target issues immediately before mutation and aborts any issue whose state or body changed materially after reconciliation.
+- ISC-1059: issues 285 and 287 close with comments preserving their independently open residual children and mapping authority.
+- ISC-1060: issue 282 records corrected source ownership before any Cloudflare provider action is considered executable.
+- ISC-1061: issues 249, 252, 280, 281, 283, and 284 remain open with exact missing approval, content, provider, or runtime acceptance probes.
+- ISC-1062: issues 275, 276, and 277 are visibly classified as intake triage and do not become Cambium implementation authority.
+- ISC-1063: issues 290 and 291 link the reviewed eight-wave execution manifest and preserve repository identity ambiguity as explicit holds.
+- ISC-1064: every GitHub mutation emits a replayable local receipt containing issue number, prior state, requested action, resulting state, and resulting update timestamp without issue-body secrets.
+- ISC-1065: post-mutation readback covers all 14 issues and matches the reviewed action matrix exactly.
+- ISC-1066: Anti: parallel workers call GitHub mutation APIs, close approval-gated work, deploy runtime code, or alter provider state.
