@@ -5,6 +5,9 @@ import {
   CONTEXT_PROJECTION_KEY,
   CONTEXT_PROJECTION_RECEIPT_SCHEMA,
   CONTEXT_PROJECTION_SCHEMA,
+  ContextProjectionGenerationError,
+  ContextProjectionStorageError,
+  ContextProjectionValidationError,
 } from './context-projections.ts';
 import { CORTEX_INGESTION_SCHEMA } from './cortex-ingestion.ts';
 
@@ -38,6 +41,7 @@ test('context health returns bounded capability flags', async () => {
   assert.equal(payload.schema, 'thoughtseed.context-health.v1');
   assert.equal(payload.capabilities.routineSnapshot, true);
   assert.equal(payload.capabilities.semanticRecall, true);
+  assert.equal(payload.capabilities.projectionWrite, false);
   assert.equal(payload.capabilities.cortexIngestion, false);
 });
 
@@ -75,6 +79,15 @@ test('cortex ingestion fails closed when provider dependencies are absent', asyn
     cortexIngestionToken: 'cortex-token',
   });
   assert.equal(response.status, 503);
+
+  const readOnlyIndex = await handleContextRoute(req('POST', '/v1/context/cortex-ingest', cortexBody, 'cortex-token'), {
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: {
+      embed: async () => [0.1, 0.2, 0.3],
+      vectorIndex: { query: async () => ({ matches: [] }) },
+    },
+  });
+  assert.equal(readOnlyIndex.status, 503);
 });
 
 test('cortex ingestion rejects malformed JSON and invalid inputs', async () => {
@@ -128,9 +141,19 @@ test('context health reports configured Cortex ingestion capability', async () =
   });
   assert.equal(response.status, 200);
   assert.equal(JSON.parse(response.body).capabilities.cortexIngestion, true);
+
+  const readOnlyIndex = await handleContextRoute(req('GET', '/v1/context/health', undefined, 'context-token'), {
+    token: 'context-token',
+    cortexIngestionToken: 'cortex-token',
+    cortexIngestionDeps: {
+      embed: async () => [0.1, 0.2, 0.3],
+      vectorIndex: { query: async () => ({ matches: [] }) },
+    },
+  });
+  assert.equal(JSON.parse(readOnlyIndex.body).capabilities.cortexIngestion, false);
 });
 
-test('projection writes are retired before any store call', async () => {
+test('projection writes require their dedicated configured token before store calls', async () => {
   let called = false;
   const projectionStore = {
     put: async () => {
@@ -155,7 +178,7 @@ test('projection writes are retired before any store call', async () => {
     token: 'context-token',
     projectionStore,
   });
-  assert.equal(missingConfig.status, 410);
+  assert.equal(missingConfig.status, 503);
   assert.equal(missingConfig.headers['cache-control'], 'no-store');
   assert.equal(called, false);
 
@@ -164,12 +187,34 @@ test('projection writes are retired before any store call', async () => {
     projectionWriteToken: 'projection-token',
     projectionStore,
   });
-  assert.equal(readToken.status, 410);
+  assert.equal(readToken.status, 401);
   assert.equal(readToken.headers['cache-control'], 'no-store');
   assert.equal(called, false);
 });
 
-test('retired projection write never calls the legacy store', async () => {
+test('projection write rejects malformed JSON before store calls', async () => {
+  let called = false;
+  const response = await handleContextRoute({
+    method: 'POST',
+    path: '/v1/context/projections',
+    headers: { authorization: 'Bearer projection-token' },
+    body: '{',
+  }, {
+    projectionWriteToken: 'projection-token',
+    projectionStore: {
+      put: async () => {
+        called = true;
+        throw new Error('must not be called');
+      },
+    },
+  });
+
+  assert.equal(response.status, 400);
+  assert.match(response.body, /not JSON/);
+  assert.equal(called, false);
+});
+
+test('projection write returns only the bounded store receipt', async () => {
   let stored: unknown;
   const body = {
     schema: CONTEXT_PROJECTION_SCHEMA,
@@ -200,10 +245,65 @@ test('retired projection write never calls the legacy store', async () => {
     },
   });
 
-  assert.equal(r.status, 410);
+  assert.equal(r.status, 201);
   assert.equal(r.headers['cache-control'], 'no-store');
-  assert.equal(stored, undefined);
-  assert.match(r.body, /retired/i);
+  assert.deepEqual(stored, body);
+  assert.deepEqual(JSON.parse(r.body), {
+    schema: CONTEXT_PROJECTION_RECEIPT_SCHEMA,
+    key: CONTEXT_PROJECTION_KEY,
+    generation: 2,
+    contentDigest: body.contentDigest,
+    producedAt: body.producedAt,
+    expiresAt: body.expiresAt,
+  });
+  assert.doesNotMatch(r.body, /markdown|sourceRevision|bucket|metadata|Bounded evidence/i);
+});
+
+test('projection write maps validation, generation, and storage failures', async () => {
+  const body = {
+    schema: CONTEXT_PROJECTION_SCHEMA,
+    key: CONTEXT_PROJECTION_KEY,
+    tenantId: 'cambium',
+    routine: 'daily-standup-digest',
+    generation: 2,
+    producedAt: '2026-07-28T08:00:00.000Z',
+    expiresAt: '2026-07-28T20:00:00.000Z',
+    sourceRevision: 'git:def456',
+    contentDigest: 'sha256:7d696bb44566df0ffec55bce3a17117aa397f923f92e26b91c0695f9fc9fd8e4',
+    markdown: '# Daily Standup\nBounded evidence',
+  };
+  const cases = [
+    [new ContextProjectionValidationError('invalid projection'), 400],
+    [new ContextProjectionGenerationError('generation conflict'), 409],
+    [new ContextProjectionStorageError('storage unavailable'), 503],
+    [new Error('unexpected'), 503],
+  ] as const;
+
+  for (const [error, status] of cases) {
+    const response = await handleContextRoute(req('POST', '/v1/context/projections', body, 'projection-token'), {
+      projectionWriteToken: 'projection-token',
+      projectionStore: { put: async () => { throw error; } },
+    });
+    assert.equal(response.status, status);
+    assert.equal(response.headers['cache-control'], 'no-store');
+  }
+});
+
+test('context health reports projection writes only with token and store', async () => {
+  const health = async (projectionWriteToken?: string, projectionStore?: { put: () => Promise<never> }) => {
+    const response = await handleContextRoute(req('GET', '/v1/context/health', undefined, 'context-token'), {
+      token: 'context-token',
+      projectionWriteToken,
+      projectionStore,
+    });
+    assert.equal(response.status, 200);
+    return JSON.parse(response.body).capabilities.projectionWrite;
+  };
+
+  const projectionStore = { put: async () => { throw new Error('unused'); } };
+  assert.equal(await health('projection-token'), false);
+  assert.equal(await health(undefined, projectionStore), false);
+  assert.equal(await health('projection-token', projectionStore), true);
 });
 
 test('semantic recall rejects missing tenant and query', async () => {
