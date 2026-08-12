@@ -1,0 +1,1632 @@
+{
+  "schema_version": "2026-08-12-source-reconciliation.v1",
+  "generated_at": "2026-08-12",
+  "scope": "reconcile 14 open GitHub issues with 80 mini-app tasks",
+  "source_authority": [
+    "origin/main@1aab53d5fda1f886d7f7069e5ff847c193350936",
+    "git log --oneline starting at 1aab53d1",
+    "ISA.md current project ISA",
+    ".project/HANDOFF.md",
+    "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+    "docs/plans/2026-08-12-github-planning-reconciliation-execution.md",
+    "gh issue list (open issues)",
+    "current contracts in working source"
+  ],
+  "counts": {
+    "issues": 14,
+    "tasks": 80
+  },
+  "issues": [
+    {
+      "id": "#249",
+      "title": "Reconcile preserved pending role-task directives before native runner enablement",
+      "state": "residual",
+      "missingAuthority": "Open issue still has no merged runtime, test, or receipt closure in source; remains unsatisfied in current contracts and ISA scope."
+    },
+    {
+      "id": "#252",
+      "title": "reporting: publish curated client-contract projections for weekly routines",
+      "state": "residual",
+      "missingAuthority": "No merged branch, API contract, or test output in origin/main implements the weekly projection output this issue requests."
+    },
+    {
+      "id": "#275",
+      "title": "[enhancement] One-line agency-grade website stack (Claude Code)",
+      "state": "inbox-triage",
+      "missingAuthority": "This is enhancement inventory text; no current execution authority links this to the active mini-app task ledger and requires scoped product triage before coding."
+    },
+    {
+      "id": "#276",
+      "title": "[enhancement] Reusable animation character-sheet prompt template",
+      "state": "inbox-triage",
+      "missingAuthority": "No accepted design/asset ownership ticket or runtime ticket maps this to current Cambium execution authority."
+    },
+    {
+      "id": "#277",
+      "title": "[enhancement] Design skills for AI agents (curated list + Refactoring UI plugin)",
+      "state": "inbox-triage",
+      "missingAuthority": "This appears as general enhancement backlog with no issue closure evidence or mapped implementation packet in current source."
+    },
+    {
+      "id": "#280",
+      "title": "continuity: prove approval-gated contact and mailbox operations",
+      "state": "approval-gated",
+      "missingAuthority": "Acceptance requires explicit contact/mailbox provider owner decisions and approval receipts; no approved external-provider proof exists in origin/main or `.project/HANDOFF.md`."
+    },
+    {
+      "id": "#281",
+      "title": "continuity: close founder brand truth → atlas → public site loop",
+      "state": "residual",
+      "missingAuthority": "The continuity brand loop is still tracked as residual and no merged issue-closure test or proof receipt is present in current merged source."
+    },
+    {
+      "id": "#282",
+      "title": "continuity: decide and prove Cloudflare ownership and hygiene cleanup",
+      "state": "blocked",
+      "missingAuthority": "Cloudflare ownership/hygiene tasks depend on approved account/zone decisions not yet represented in current operational contracts."
+    },
+    {
+      "id": "#283",
+      "title": "continuity: prove Hermes execute → outcome → ACK and restore signal",
+      "state": "blocked",
+      "missingAuthority": "No current route/action-receipt proof chain links execute→ACK for this continuity lane in merged code or verified acceptance records."
+    },
+    {
+      "id": "#284",
+      "title": "continuity: close company-website quest definition → ledger → delivery loop",
+      "state": "residual",
+      "missingAuthority": "No completed repository-linked implementation ticket exists for quest definition to ledger to delivery for this issue in merged source."
+    },
+    {
+      "id": "#285",
+      "title": "continuity: preserve and close the unfinished brand/CF/Hermes board",
+      "state": "historical",
+      "evidence": "The umbrella is decomposed into open child issues and its claimed canonical source file is absent; closing it preserves the children."
+    },
+    {
+      "id": "#287",
+      "title": "relocation: prepare Cambium Git-graph move and portfolio reconciliation",
+      "state": "historical",
+      "evidence": "Recorded Cambium phase-one and Temperance phase-two relocation receipts supersede the preparation issue; residual mapping stays in #290/#291."
+    },
+    {
+      "id": "#290",
+      "title": "portfolio: audit repository origin and classification mismatches",
+      "state": "residual",
+      "missingAuthority": "Mismatch audit exists as issue context in continuity planning but no merged remediation task set has been executed in origin/main."
+    },
+    {
+      "id": "#291",
+      "title": "planning: migrate project-local authority into GitHub repositories",
+      "state": "residual",
+      "missingAuthority": "No accepted migration command path or repository write authority is represented in merged code and acceptance artifacts."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T-001",
+      "title": "Freeze WorkObject identity kinds",
+      "area": "product",
+      "owner_role": "contract architect",
+      "est_hours": 3,
+      "dependencies": [],
+      "deliverable": "Identity taxonomy contract",
+      "acceptance": "Sapling Branch Program and template are unambiguous",
+      "validation": "Schema review and fixture matrix",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-002",
+      "title": "Freeze template exclusion rule",
+      "area": "data",
+      "owner_role": "data engineer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Operational ingestion rule",
+      "acceptance": "Templates never enter runtime envelopes",
+      "validation": "Template regression test",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "implemented",
+      "evidence": "Implemented in commit acde125 (fix(quests): exclude template branch stories): `bin/quine/hyphae/branch-stories.ts`, `bin/quine/hyphae/branch-stories.test.ts`, `bin/quine/hyphae/quests.test.ts`; change log and fixtures validate template exclusion."
+    },
+    {
+      "id": "T-003",
+      "title": "Inventory canonical Saplings",
+      "area": "data",
+      "owner_role": "data analyst",
+      "est_hours": 2,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Sapling reconciliation list",
+      "acceptance": "Every sapling has one disposition",
+      "validation": "Catalog-to-graph diff",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-004",
+      "title": "Inventory canonical client Branches",
+      "area": "data",
+      "owner_role": "data analyst",
+      "est_hours": 3,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Client Branch reconciliation list",
+      "acceptance": "Every branch has one disposition",
+      "validation": "Catalog-to-graph diff",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-005",
+      "title": "Inventory canonical Programs",
+      "area": "data",
+      "owner_role": "data analyst",
+      "est_hours": 2,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Program reconciliation list",
+      "acceptance": "Every program has one disposition",
+      "validation": "Catalog-to-graph diff",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-006",
+      "title": "Define portfolio join outcomes",
+      "area": "backend",
+      "owner_role": "backend architect",
+      "est_hours": 4,
+      "dependencies": [
+        "T-003",
+        "T-004",
+        "T-005"
+      ],
+      "deliverable": "Join outcome schema",
+      "acceptance": "Joined excluded and blocked reasons are exhaustive",
+      "validation": "Contract fixtures validate",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-007",
+      "title": "Define receipt-backed progress semantics",
+      "area": "product",
+      "owner_role": "product architect",
+      "est_hours": 3,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Progress state contract",
+      "acceptance": "Planned work cannot appear completed",
+      "validation": "Copy and state matrix review",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-008",
+      "title": "Define Story event schema",
+      "area": "data",
+      "owner_role": "event architect",
+      "est_hours": 4,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Typed Story event schema",
+      "acceptance": "Events carry identity source time and receipt",
+      "validation": "Schema fixtures validate",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-009",
+      "title": "Define command projection schema",
+      "area": "backend",
+      "owner_role": "backend architect",
+      "est_hours": 3,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Typed commands contract",
+      "acceptance": "Every Tools panel has source and freshness",
+      "validation": "Route contract tests",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-010",
+      "title": "Define Gate decision schema",
+      "area": "backend",
+      "owner_role": "security architect",
+      "est_hours": 4,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Decision and receipt contract",
+      "acceptance": "Expiry replay and consequence are explicit",
+      "validation": "Threat-model review",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "data-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-011",
+      "title": "Define global async states",
+      "area": "frontend",
+      "owner_role": "design systems engineer",
+      "est_hours": 3,
+      "dependencies": [],
+      "deliverable": "Loading empty stale error state contract",
+      "acceptance": "Every scene has terminal states",
+      "validation": "State coverage matrix",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-012",
+      "title": "Define WorkObject card anatomy",
+      "area": "frontend",
+      "owner_role": "product designer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-001"
+      ],
+      "deliverable": "Shared card design contract",
+      "acceptance": "Kinds differ without fragmenting structure",
+      "validation": "Design critique",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-013",
+      "title": "Define Sapling visual grammar",
+      "area": "frontend",
+      "owner_role": "product designer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-012"
+      ],
+      "deliverable": "Sapling tokens and lifecycle",
+      "acceptance": "Growth semantics are explicit",
+      "validation": "Component fixture review",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-014",
+      "title": "Define client Branch visual grammar",
+      "area": "frontend",
+      "owner_role": "product designer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-012"
+      ],
+      "deliverable": "Branch tokens and delivery lifecycle",
+      "acceptance": "Client identity is redacted by default",
+      "validation": "Privacy design review",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-015",
+      "title": "Define Program visual grammar",
+      "area": "frontend",
+      "owner_role": "product designer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-012"
+      ],
+      "deliverable": "Program tokens and service lifecycle",
+      "acceptance": "Programs avoid venture claims",
+      "validation": "Component fixture review",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-016",
+      "title": "Define navigation accessibility contract",
+      "area": "frontend",
+      "owner_role": "accessibility engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-011"
+      ],
+      "deliverable": "Tab and panel semantics",
+      "acceptance": "Keyboard and screen reader navigation is complete",
+      "validation": "Automated and manual accessibility checks",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-017",
+      "title": "Define gesture snapback contract",
+      "area": "frontend",
+      "owner_role": "interaction engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-011"
+      ],
+      "deliverable": "Carousel gesture state machine",
+      "acceptance": "Exactly one scene rests onscreen",
+      "validation": "Pointer cancellation tests",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-018",
+      "title": "Define responsive viewport contract",
+      "area": "frontend",
+      "owner_role": "responsive UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-012"
+      ],
+      "deliverable": "320 390 and desktop layouts",
+      "acceptance": "No clipped content or unreachable controls",
+      "validation": "Viewport screenshots",
+      "phase": "P1",
+      "wave": "W1",
+      "swarm": "ui-contract",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-019",
+      "title": "Audit mission-fabric activation route",
+      "area": "backend",
+      "owner_role": "backend engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-006"
+      ],
+      "deliverable": "Activation preflight report",
+      "acceptance": "Every fail-closed reason is observable safely",
+      "validation": "Route matrix tests",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "route",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-020",
+      "title": "Specify tenant pilot allowlist",
+      "area": "infra",
+      "owner_role": "release engineer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-019"
+      ],
+      "deliverable": "Pilot and rollback procedure",
+      "acceptance": "Only cambium can be enabled",
+      "validation": "Dry-run configuration diff",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "route",
+      "state": "approval-gated",
+      "missingAuthority": "Require approved `MISSION_FABRIC_TENANTS` allowlist decision and rollback authority before implementation can be promoted to pilot."
+    },
+    {
+      "id": "T-021",
+      "title": "Unify initial envelope hydration",
+      "area": "frontend",
+      "owner_role": "frontend architect",
+      "est_hours": 4,
+      "dependencies": [
+        "T-011"
+      ],
+      "deliverable": "Shared hydration lifecycle",
+      "acceptance": "Scenes paint from initial payload",
+      "validation": "Client lifecycle tests",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "route",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-022",
+      "title": "Define request timeout behavior",
+      "area": "frontend",
+      "owner_role": "frontend engineer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-021"
+      ],
+      "deliverable": "Timeout and retry contract",
+      "acceptance": "Loading always terminates visibly",
+      "validation": "Fake-timer tests",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "route",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-023",
+      "title": "Define auth boundary states",
+      "area": "frontend",
+      "owner_role": "security UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-019",
+        "T-021"
+      ],
+      "deliverable": "Telegram and Access error states",
+      "acceptance": "Browser users receive safe guidance",
+      "validation": "401 and 403 fixtures",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "route",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-024",
+      "title": "Define source freshness model",
+      "area": "backend",
+      "owner_role": "backend architect",
+      "est_hours": 3,
+      "dependencies": [
+        "T-009",
+        "T-011"
+      ],
+      "deliverable": "Per-source freshness contract",
+      "acceptance": "Global and local states cannot contradict",
+      "validation": "Contract invariant tests",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "route",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-025",
+      "title": "Create redacted page fixtures",
+      "area": "qa",
+      "owner_role": "test engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-006",
+        "T-008",
+        "T-009",
+        "T-010"
+      ],
+      "deliverable": "Fresh empty stale error fixtures",
+      "acceptance": "All pages have deterministic fixtures",
+      "validation": "Fixture schema validation",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "proof",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-026",
+      "title": "Create tenant isolation fixtures",
+      "area": "qa",
+      "owner_role": "security tester",
+      "est_hours": 3,
+      "dependencies": [
+        "T-025"
+      ],
+      "deliverable": "Cross-tenant negative fixtures",
+      "acceptance": "No foreign identity enters output",
+      "validation": "Isolation test suite",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "proof",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-027",
+      "title": "Create action replay fixtures",
+      "area": "qa",
+      "owner_role": "security tester",
+      "est_hours": 3,
+      "dependencies": [
+        "T-010",
+        "T-025"
+      ],
+      "deliverable": "Expiry and duplicate fixtures",
+      "acceptance": "Replay and expired actions fail closed",
+      "validation": "Signed-action tests",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "proof",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-028",
+      "title": "Record production baseline evidence",
+      "area": "qa",
+      "owner_role": "release verifier",
+      "est_hours": 2,
+      "dependencies": [
+        "T-019"
+      ],
+      "deliverable": "403 legacy and ledger baseline receipts",
+      "acceptance": "Before state is reproducible",
+      "validation": "Receipt digest check",
+      "phase": "P1",
+      "wave": "W2",
+      "swarm": "proof",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-029",
+      "title": "Assign page file ownership",
+      "area": "product",
+      "owner_role": "swarm orchestrator",
+      "est_hours": 2,
+      "dependencies": [
+        "T-011",
+        "T-018"
+      ],
+      "deliverable": "Collision-safe ownership map",
+      "acceptance": "Every file has one writer",
+      "validation": "Lock-zone review",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "page-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-030",
+      "title": "Create Mission implementation packet",
+      "area": "product",
+      "owner_role": "swarm orchestrator",
+      "est_hours": 2,
+      "dependencies": [
+        "T-007",
+        "T-012",
+        "T-029"
+      ],
+      "deliverable": "Mission handoff brief",
+      "acceptance": "Inputs outputs and tests are complete",
+      "validation": "Handoff checklist",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "page-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-031",
+      "title": "Create Gate implementation packet",
+      "area": "product",
+      "owner_role": "swarm orchestrator",
+      "est_hours": 2,
+      "dependencies": [
+        "T-010",
+        "T-029"
+      ],
+      "deliverable": "Gate handoff brief",
+      "acceptance": "Action boundaries are explicit",
+      "validation": "Handoff checklist",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "page-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-032",
+      "title": "Create Tools implementation packet",
+      "area": "product",
+      "owner_role": "swarm orchestrator",
+      "est_hours": 2,
+      "dependencies": [
+        "T-009",
+        "T-029"
+      ],
+      "deliverable": "Tools handoff brief",
+      "acceptance": "Panel sources are explicit",
+      "validation": "Handoff checklist",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "page-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-033",
+      "title": "Create Story implementation packet",
+      "area": "product",
+      "owner_role": "swarm orchestrator",
+      "est_hours": 2,
+      "dependencies": [
+        "T-008",
+        "T-029"
+      ],
+      "deliverable": "Story handoff brief",
+      "acceptance": "Event projection is explicit",
+      "validation": "Handoff checklist",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "page-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-034",
+      "title": "Create Inspect implementation packet",
+      "area": "product",
+      "owner_role": "swarm orchestrator",
+      "est_hours": 2,
+      "dependencies": [
+        "T-006",
+        "T-029"
+      ],
+      "deliverable": "Inspect handoff brief",
+      "acceptance": "Production and developer detail are separated",
+      "validation": "Handoff checklist",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "page-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-035",
+      "title": "Create Portfolio implementation packet",
+      "area": "product",
+      "owner_role": "swarm orchestrator",
+      "est_hours": 2,
+      "dependencies": [
+        "T-006",
+        "T-014",
+        "T-029"
+      ],
+      "deliverable": "Portfolio handoff brief",
+      "acceptance": "Zone and promotion semantics are explicit",
+      "validation": "Handoff checklist",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "page-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-036",
+      "title": "Build CI page matrix",
+      "area": "qa",
+      "owner_role": "test engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-025",
+        "T-030",
+        "T-031",
+        "T-032",
+        "T-033",
+        "T-034",
+        "T-035"
+      ],
+      "deliverable": "Page contract CI jobs",
+      "acceptance": "Every page state runs in CI",
+      "validation": "CI dry run",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "validation-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-037",
+      "title": "Build browser story matrix",
+      "area": "qa",
+      "owner_role": "browser tester",
+      "est_hours": 3,
+      "dependencies": [
+        "T-016",
+        "T-017",
+        "T-018"
+      ],
+      "deliverable": "Viewport gesture keyboard stories",
+      "acceptance": "Mobile and desktop journeys are covered",
+      "validation": "Story lint and dry run",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "validation-prep",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-038",
+      "title": "Build release evidence template",
+      "area": "qa",
+      "owner_role": "release verifier",
+      "est_hours": 2,
+      "dependencies": [
+        "T-020",
+        "T-028"
+      ],
+      "deliverable": "Pilot evidence packet",
+      "acceptance": "Rollback and Telegram proof fields exist",
+      "validation": "Release checklist review",
+      "phase": "P1",
+      "wave": "W3",
+      "swarm": "validation-prep",
+      "state": "approval-gated",
+      "missingAuthority": "Need owner-approved release/ledger republish receipt in runbook scope before KV publication evidence can be claimed."
+    },
+    {
+      "id": "T-039",
+      "title": "Exclude templates during packet load",
+      "area": "data",
+      "owner_role": "data engineer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-002"
+      ],
+      "deliverable": "Template filter implementation",
+      "acceptance": "Client Delivery leaves operational envelope",
+      "validation": "Focused loader tests",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "mission",
+      "state": "implemented",
+      "evidence": "Template packet-load exclusion was implemented in `bin/quine/hyphae/branch-stories.ts` via commit acde125 and backed by loader-focused regression coverage in adjacent quest tests."
+    },
+    {
+      "id": "T-040",
+      "title": "Label planned quest stages truthfully",
+      "area": "frontend",
+      "owner_role": "Mission UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-007",
+        "T-030"
+      ],
+      "deliverable": "Planned milestone presentation",
+      "acceptance": "No unsupported zero-progress claim",
+      "validation": "Mission snapshot tests",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "mission",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-041",
+      "title": "Render WorkObject kind badges",
+      "area": "frontend",
+      "owner_role": "Mission UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-013",
+        "T-014",
+        "T-015",
+        "T-030"
+      ],
+      "deliverable": "Kind-aware Mission cards",
+      "acceptance": "Sapling Branch Program differ visibly",
+      "validation": "Component fixtures",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "mission",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-042",
+      "title": "Simplify Mission resting hierarchy",
+      "area": "frontend",
+      "owner_role": "Mission UI engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-040",
+        "T-041"
+      ],
+      "deliverable": "Focused Mission hero",
+      "acceptance": "One action blocker and proof cue dominate",
+      "validation": "Design review",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "mission",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-043",
+      "title": "Constrain Mission milestone path",
+      "area": "frontend",
+      "owner_role": "Mission UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-042"
+      ],
+      "deliverable": "Four-stage responsive path",
+      "acceptance": "Labels do not fragment",
+      "validation": "320px screenshot",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "mission",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-044",
+      "title": "Persist canonical Mission selection",
+      "area": "frontend",
+      "owner_role": "Mission UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-006",
+        "T-041"
+      ],
+      "deliverable": "Identity-safe selection state",
+      "acceptance": "Selection survives navigation without tenant bleed",
+      "validation": "Client state tests",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "mission",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-045",
+      "title": "Test Mission state matrix",
+      "area": "qa",
+      "owner_role": "Mission QA engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-039",
+        "T-040",
+        "T-041",
+        "T-042",
+        "T-043",
+        "T-044"
+      ],
+      "deliverable": "Mission unit and visual suite",
+      "acceptance": "All Mission states pass",
+      "validation": "CI Mission gate",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "mission",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-046",
+      "title": "Paint Gate from initial envelope",
+      "area": "frontend",
+      "owner_role": "Gate UI engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-021",
+        "T-031"
+      ],
+      "deliverable": "Immediate Gate hydration",
+      "acceptance": "Visible Gate never waits for selection",
+      "validation": "Lifecycle tests",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "gate",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-047",
+      "title": "Separate Gate terminal states",
+      "area": "frontend",
+      "owner_role": "Gate UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-011",
+        "T-046"
+      ],
+      "deliverable": "Gate state renderer",
+      "acceptance": "Loading quiet empty and error never conflict",
+      "validation": "State snapshots",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "gate",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-048",
+      "title": "Render decision-focused Gate metrics",
+      "area": "frontend",
+      "owner_role": "Gate UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-010",
+        "T-047"
+      ],
+      "deliverable": "Decision queue summary",
+      "acceptance": "Ledger arcs no longer masquerade as decisions",
+      "validation": "Copy and fixture tests",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "gate",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-049",
+      "title": "Render expiry and consequence",
+      "area": "frontend",
+      "owner_role": "Gate UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-010",
+        "T-047"
+      ],
+      "deliverable": "Decision detail treatment",
+      "acceptance": "Expiry reversibility and proof are visible",
+      "validation": "Expired proposal fixture",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "gate",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-050",
+      "title": "Harden signed action idempotency UI",
+      "area": "frontend",
+      "owner_role": "Gate action engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-027",
+        "T-049"
+      ],
+      "deliverable": "Replay-safe action client",
+      "acceptance": "Duplicate taps show one receipt",
+      "validation": "Replay integration test",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "gate",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-051",
+      "title": "Add Gate auth guidance",
+      "area": "frontend",
+      "owner_role": "Gate UI engineer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-023",
+        "T-047"
+      ],
+      "deliverable": "Open-in-Telegram state",
+      "acceptance": "Unauthenticated users see actionable safe copy",
+      "validation": "401 and 403 snapshots",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "gate",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-052",
+      "title": "Test Gate state matrix",
+      "area": "qa",
+      "owner_role": "Gate QA engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-046",
+        "T-047",
+        "T-048",
+        "T-049",
+        "T-050",
+        "T-051"
+      ],
+      "deliverable": "Gate unit integration and visual suite",
+      "acceptance": "All Gate states pass",
+      "validation": "CI Gate gate",
+      "phase": "P2",
+      "wave": "W4",
+      "swarm": "gate",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-053",
+      "title": "Serve typed command projection",
+      "area": "backend",
+      "owner_role": "Tools backend engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-009",
+        "T-032"
+      ],
+      "deliverable": "Commands payload integration",
+      "acceptance": "All five panels have typed inputs",
+      "validation": "Route contract tests",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "tools",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-054",
+      "title": "Render per-panel freshness",
+      "area": "frontend",
+      "owner_role": "Tools UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-024",
+        "T-053"
+      ],
+      "deliverable": "Source-aware status badges",
+      "acceptance": "Panel and global freshness agree",
+      "validation": "Freshness invariant tests",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "tools",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-055",
+      "title": "Separate observational and action tools",
+      "area": "frontend",
+      "owner_role": "Tools UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-054"
+      ],
+      "deliverable": "Capability-aware Tools layout",
+      "acceptance": "Read-only labels never cover actions",
+      "validation": "Interaction review",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "tools",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-056",
+      "title": "Wire selected WorkObject into Tools",
+      "area": "frontend",
+      "owner_role": "Tools UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-044",
+        "T-053"
+      ],
+      "deliverable": "Contextual Tools panels",
+      "acceptance": "Tools retain exact selected identity",
+      "validation": "Navigation integration test",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "tools",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-057",
+      "title": "Route handoffs through Gate",
+      "area": "backend",
+      "owner_role": "Tools backend engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-010",
+        "T-055"
+      ],
+      "deliverable": "Handoff ActionRequest path",
+      "acceptance": "No direct handoff mutation occurs",
+      "validation": "Signed-action integration test",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "tools",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-058",
+      "title": "Test Tools state matrix",
+      "area": "qa",
+      "owner_role": "Tools QA engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-053",
+        "T-054",
+        "T-055",
+        "T-056",
+        "T-057"
+      ],
+      "deliverable": "Tools unit and visual suite",
+      "acceptance": "All Tools states pass",
+      "validation": "CI Tools gate",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "tools",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-059",
+      "title": "Project receipt-backed Story events",
+      "area": "data",
+      "owner_role": "Story data engineer",
+      "est_hours": 5,
+      "dependencies": [
+        "T-008",
+        "T-033"
+      ],
+      "deliverable": "Story event projector",
+      "acceptance": "Receipts decisions and transitions emit events",
+      "validation": "Projection tests",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "story",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-060",
+      "title": "Deduplicate Story events",
+      "area": "data",
+      "owner_role": "Story data engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-059"
+      ],
+      "deliverable": "Stable event identity logic",
+      "acceptance": "Replay creates no duplicate beat",
+      "validation": "Idempotency tests",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "story",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-061",
+      "title": "Render source-qualified Story timeline",
+      "area": "frontend",
+      "owner_role": "Story UI engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-059"
+      ],
+      "deliverable": "Evidence-backed timeline",
+      "acceptance": "Every beat names source and WorkObject",
+      "validation": "Story snapshots",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "story",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-062",
+      "title": "Add Story WorkObject filters",
+      "area": "frontend",
+      "owner_role": "Story UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-041",
+        "T-061"
+      ],
+      "deliverable": "Kind and identity filters",
+      "acceptance": "Filters preserve chronological truth",
+      "validation": "Filter interaction tests",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "story",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-063",
+      "title": "Explain first Story event",
+      "area": "frontend",
+      "owner_role": "Story UI engineer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-047",
+        "T-061"
+      ],
+      "deliverable": "Actionable empty state",
+      "acceptance": "Empty state names the first qualifying event",
+      "validation": "Empty fixture snapshot",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "story",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-064",
+      "title": "Test Story state matrix",
+      "area": "qa",
+      "owner_role": "Story QA engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-059",
+        "T-060",
+        "T-061",
+        "T-062",
+        "T-063"
+      ],
+      "deliverable": "Story unit integration and visual suite",
+      "acceptance": "All Story states pass",
+      "validation": "CI Story gate",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "story",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-065",
+      "title": "Lead Inspect with blockers",
+      "area": "frontend",
+      "owner_role": "Inspect UI engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-034"
+      ],
+      "deliverable": "Founder-first Inspect hierarchy",
+      "acceptance": "Blockers freshness and receipts appear first",
+      "validation": "Design review",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "inspect",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-066",
+      "title": "Render canonical lineage",
+      "area": "frontend",
+      "owner_role": "Inspect UI engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-006",
+        "T-065"
+      ],
+      "deliverable": "Catalog graph packet lineage view",
+      "acceptance": "Every mismatch has an exact reason",
+      "validation": "Join fixture snapshots",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "inspect",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-067",
+      "title": "Separate production diagnostics",
+      "area": "frontend",
+      "owner_role": "Inspect UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-065"
+      ],
+      "deliverable": "Development-only diagnostics disclosure",
+      "acceptance": "Production hides fixtures and source paths",
+      "validation": "Production bundle assertion",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "inspect",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-068",
+      "title": "Expose page readiness summary",
+      "area": "frontend",
+      "owner_role": "Inspect UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-024",
+        "T-065"
+      ],
+      "deliverable": "Per-page readiness panel",
+      "acceptance": "Readiness matches served API state",
+      "validation": "Cross-page invariant tests",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "inspect",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-069",
+      "title": "Add copy-safe proof identifiers",
+      "area": "frontend",
+      "owner_role": "security UI engineer",
+      "est_hours": 2,
+      "dependencies": [
+        "T-066"
+      ],
+      "deliverable": "Redacted copy controls",
+      "acceptance": "No secret or raw initData can render",
+      "validation": "Secret-pattern tests",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "inspect",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-070",
+      "title": "Test Inspect state matrix",
+      "area": "qa",
+      "owner_role": "Inspect QA engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-065",
+        "T-066",
+        "T-067",
+        "T-068",
+        "T-069"
+      ],
+      "deliverable": "Inspect unit and visual suite",
+      "acceptance": "All Inspect states pass",
+      "validation": "CI Inspect gate",
+      "phase": "P2",
+      "wave": "W5",
+      "swarm": "inspect",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-071",
+      "title": "Render classified portfolio zones",
+      "area": "frontend",
+      "owner_role": "Portfolio UI engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-006",
+        "T-035"
+      ],
+      "deliverable": "Saplings Clients Programs zones",
+      "acceptance": "Kinds never collapse into generic branches",
+      "validation": "Portfolio fixtures",
+      "phase": "P2",
+      "wave": "W6",
+      "swarm": "portfolio",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-072",
+      "title": "Render client delivery lifecycle",
+      "area": "frontend",
+      "owner_role": "Portfolio UI engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-014",
+        "T-071"
+      ],
+      "deliverable": "Scoped build acceptance handoff states",
+      "acceptance": "Only canonical branch identities use lifecycle",
+      "validation": "Branch fixture snapshots",
+      "phase": "P2",
+      "wave": "W6",
+      "swarm": "portfolio",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-073",
+      "title": "Render mapping conflict states",
+      "area": "frontend",
+      "owner_role": "Portfolio UI engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-006",
+        "T-071"
+      ],
+      "deliverable": "Catalog-only graph-only conflict UI",
+      "acceptance": "Every unmatched record has a reason",
+      "validation": "Join report tests",
+      "phase": "P2",
+      "wave": "W6",
+      "swarm": "portfolio",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-074",
+      "title": "Route promotions through Gate",
+      "area": "backend",
+      "owner_role": "Portfolio backend engineer",
+      "est_hours": 5,
+      "dependencies": [
+        "T-010",
+        "T-072",
+        "T-073"
+      ],
+      "deliverable": "Founder-gated promotion proposals",
+      "acceptance": "No UI toggle mutates lifecycle directly",
+      "validation": "Promotion integration tests",
+      "phase": "P2",
+      "wave": "W6",
+      "swarm": "portfolio",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-075",
+      "title": "Test Portfolio state matrix",
+      "area": "qa",
+      "owner_role": "Portfolio QA engineer",
+      "est_hours": 4,
+      "dependencies": [
+        "T-071",
+        "T-072",
+        "T-073",
+        "T-074"
+      ],
+      "deliverable": "Portfolio unit integration visual suite",
+      "acceptance": "All zones and states pass",
+      "validation": "CI Portfolio gate",
+      "phase": "P2",
+      "wave": "W6",
+      "swarm": "portfolio",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-076",
+      "title": "Integrate shared shell safely",
+      "area": "frontend",
+      "owner_role": "integration engineer",
+      "est_hours": 5,
+      "dependencies": [
+        "T-045",
+        "T-052",
+        "T-058",
+        "T-064",
+        "T-070",
+        "T-075"
+      ],
+      "deliverable": "Unified generated page bundle",
+      "acceptance": "Shared lock zones merge without contract drift",
+      "validation": "Full page test suite",
+      "phase": "P3",
+      "wave": "W7",
+      "swarm": "integration",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-077",
+      "title": "Verify accessibility and gestures",
+      "area": "qa",
+      "owner_role": "accessibility tester",
+      "est_hours": 4,
+      "dependencies": [
+        "T-016",
+        "T-017",
+        "T-018",
+        "T-076"
+      ],
+      "deliverable": "Keyboard reader gesture viewport evidence",
+      "acceptance": "All accessibility contracts pass",
+      "validation": "Automated plus manual audit",
+      "phase": "P3",
+      "wave": "W7",
+      "swarm": "validation",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-078",
+      "title": "Republish corrected quest ledger",
+      "area": "infra",
+      "owner_role": "release engineer",
+      "est_hours": 3,
+      "dependencies": [
+        "T-039",
+        "T-076"
+      ],
+      "deliverable": "KV publication receipt",
+      "acceptance": "Served branch stories total five without template",
+      "validation": "Before-after digest and API check",
+      "phase": "P3",
+      "wave": "W8",
+      "swarm": "release",
+      "state": "residual",
+      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+    },
+    {
+      "id": "T-079",
+      "title": "Run authenticated Telegram pilot",
+      "area": "qa",
+      "owner_role": "QATester",
+      "est_hours": 5,
+      "dependencies": [
+        "T-020",
+        "T-038",
+        "T-077",
+        "T-078"
+      ],
+      "deliverable": "Six-surface Telegram evidence packet",
+      "acceptance": "Operating Fabric activates for cambium only",
+      "validation": "Live screenshots console network and actions",
+      "phase": "P3",
+      "wave": "W8",
+      "swarm": "release",
+      "state": "approval-gated",
+      "missingAuthority": "Requires authenticated Telegram pilot runbook and evidence packet before this validation pass can execute."
+    },
+    {
+      "id": "T-080",
+      "title": "Close pilot or rollback",
+      "area": "infra",
+      "owner_role": "release owner",
+      "est_hours": 3,
+      "dependencies": [
+        "T-079"
+      ],
+      "deliverable": "Promotion or rollback receipt",
+      "acceptance": "Owner accepts evidence or allowlist is removed",
+      "validation": "Post-decision production probe",
+      "phase": "P3",
+      "wave": "W8",
+      "swarm": "release",
+      "state": "approval-gated",
+      "missingAuthority": "Requires founder decision and production rollback/removal evidence to close this pilot decision gate."
+    }
+  ]
+}

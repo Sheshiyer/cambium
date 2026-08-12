@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Reconcile portfolio foundation before Sapling promotion"
+task: "Synchronize reconciled GitHub issues into executable Cambium waves"
 effort: E5
 effort_source: complexity-override
-phase: reflect
-progress: 959/1035
+phase: complete
+progress: 9/9
 mode: interactive
-iteration: 2026-08-09-portfolio-foundation-reconciliation
+iteration: 2026-08-12-github-issue-sync
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-09T00:39:49+05:30
+updated: 2026-08-12T09:12:00+05:30
 ---
 
 ## Problem
@@ -2263,3 +2263,32 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-1043: the scene shell rests with exactly one page visible after pointer cancellation, pointer leave, visibility change, or blur and satisfies tablist, tabpanel, focus, target-size, zoom, and live-region accessibility contracts.
 - ISC-1044: Operating Fabric remains fail-closed until a reviewed `MISSION_FABRIC_TENANTS=cambium` pilot, rollback record, and authenticated Telegram evidence exist; direct browser proof cannot substitute for Telegram initData.
 - ISC-1045: the page-wiring execution plan contains 80 schema-complete tasks across contract, route, proof, page, integration, release, and rollback waves with one writer per lock zone.
+
+## 2026-08-12 GitHub and planning reconciliation wave
+
+- ISC-1046: all open Cambium GitHub issues receive exactly one evidence-backed disposition from current merged, runtime, owner, or provider authority.
+- ISC-1047: dated plans remain historical evidence and cannot create executable work unless a current GitHub issue, contract, runbook, active packet, or ISA criterion owns the residual intent.
+- ISC-1048: all 80 Mini App task identifiers receive one deterministic status, and every implemented status cites a merged commit, passing test, or production receipt.
+- ISC-1049: stale issues are closed only when their remaining acceptance is proven or preserved in explicit child issues; repository shape alone is insufficient closure evidence.
+- ISC-1050: blocked and approval-gated work names the exact missing owner decision, provider state, curated source, authenticated proof, or runtime receipt.
+- ISC-1051: intake-only issues are triaged without silently becoming Cambium implementation authority.
+- ISC-1052: every residual execution task names dependencies, owned files, acceptance checks, validation commands, and external-mutation boundaries.
+- ISC-1053: quest-client HTTP authorization, absence, server failure, malformed payload, timeout, and transport failure render as distinct terminal states.
+- ISC-1054: a 401 or 403 quest response never renders the honest-empty `no ledger yet` state and never exposes authentication material.
+- ISC-1055: all mutation workers use isolated clean worktrees rooted at the reviewed `origin/main` SHA; the dirty primary checkout remains untouched.
+- ISC-1056: GitHub issue mutations are applied from a reviewed reconciliation record and leave a replayable issue-number, action, and evidence receipt.
+- ISC-1057: deployment, Worker environment changes, Telegram sends, provider cleanup, registry writes, and relocation remain outside this execution wave.
+- ISC-1058: the GitHub sync reads all 14 target issues immediately before mutation and aborts any issue whose state or body changed materially after reconciliation.
+- ISC-1059: issues 285 and 287 close with comments preserving their independently open residual children and mapping authority.
+- ISC-1060: issue 282 records corrected source ownership before any Cloudflare provider action is considered executable.
+- ISC-1061: issues 249, 252, 280, 281, 283, and 284 remain open with exact missing approval, content, provider, or runtime acceptance probes.
+- ISC-1062: issues 275, 276, and 277 are visibly classified as intake triage and do not become Cambium implementation authority.
+- ISC-1063: issues 290 and 291 link the reviewed eight-wave execution manifest and preserve repository identity ambiguity as explicit holds.
+- ISC-1064: every GitHub mutation emits a replayable local receipt containing issue number, prior state, requested action, resulting state, and resulting update timestamp without issue-body secrets.
+- ISC-1065: post-mutation readback covers all 14 issues and matches the reviewed action matrix exactly.
+- ISC-1066: Anti: parallel workers call GitHub mutation APIs, close approval-gated work, deploy runtime code, or alter provider state.
+- GitHub synchronization proof: all 14 pre-mutation `updatedAt` values and body SHA-256 digests matched the frozen transaction immediately before execution. Thirty-two serialized `gh` operations completed successfully under one coordinator.
+- Readback proof: #249, #252, #280, #281, #282, #283, #284, #290, and #291 remain open; #275–#277 are `NOT_PLANNED`; #285 and #287 are `COMPLETED` and automatically moved to project status Done.
+- Ownership proof: #282 now owns B7/C1/C2/C4, shares C3 with #291, routes B4 to #281, and routes H7 to #283. #291 enumerates all eight GIP waves and explicitly permits parallel isolated repository work while retaining serialized GitHub mutation.
+- Authority proof: no provider, deployment, credential, runtime timer, mailbox, Telegram, ledger, relocation, or production mutation occurred.
+- Independent final audit verified the clean worktree, all 14 live issue results, project Done transitions, corrected ownership bodies, execution-wave statuses, and bounded authority with verdict PASS. Pull request #313 carries the reviewed branch for normal merge authority.
