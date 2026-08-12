@@ -1096,3 +1096,32 @@ mutation has been performed by drafting this packet.
 - Pull request #313 (`codex/github-planning-execution-wave` → `main`) carries
   the reviewed reconciliation, quest-client fix, mutation receipt, and wave
   manifest. Independent final audit returned PASS with no findings.
+
+### 2026-08-12 clean cross-repository merge checkpoint
+
+- Cambium PRs #313–#318 were independently reviewed, corrected where required,
+  rebased in dependency order, verified by deterministic release CI, and merged.
+  The resulting mainline includes GitHub planning reconciliation, documentation
+  retention/discovery authority, integration-spine documentation, the sanitized
+  Fitcheck Cortex quest contract, bounded context/Cortex write routes, and
+  truthful non-terminal Mini App quest-state projection.
+- The retention generator now covers the exact 177-file `docs/plans` corpus at
+  the Fitcheck contract checkpoint. Generated manifests are byte-deterministic;
+  subsequent planning changes must regenerate them in the same pull request.
+- Brandmint PR #182 was corrected to gate the Klear Karma scenario by eligible
+  brand and recursively remove `_brandmint` prompt metadata, then reviewed,
+  CI-verified, and merged. The unrelated Brandmint dirty checkout remains
+  separate from that bounded change.
+- Hermes PR #123 was rebased onto hardened current main, corrected to validate
+  exact worker acknowledgements and recover expired issue leases, given explicit
+  hosted OmniRoute test coverage, independently reviewed, and merged. Historical
+  operational evidence remains point-in-time rather than a live-state claim.
+- Meristem PR #1 contains the previously reviewed runner-directory hardening and
+  runtime regression test and is merged. The Cambium, Brandmint, Hermes, and
+  Meristem pull-request queues were empty immediately before this handoff-only
+  checkpoint pull request was opened.
+- The primary Cambium branch `codex/project-r2-mapping-plan` remains an isolated
+  dirty portfolio/mapping work surface with no staged changes. This checkpoint
+  does not authorize discarding, resetting, or implicitly merging that WIP.
+- No production deployment, provider, credential, timer, mailbox, Telegram,
+  ledger, or external runtime mutation was performed by this cleanup wave.
