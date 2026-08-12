@@ -1,0 +1,80 @@
+{
+  "schema": "cambium.docs-retention.v1",
+  "status": "reviewed-proposal",
+  "generatedAt": "2026-08-12",
+  "scopeRoot": "docs/plans",
+  "decision": "no-relocation-or-deletion",
+  "entries": [
+    {
+      "path": "docs/plans/**/*.md",
+      "kind": "plan",
+      "bytes": 541382,
+      "retentionClass": "retain",
+      "reason": "Dated decision and implementation history; non-operational under docs/LIFECYCLE.md.",
+      "replacementPath": null,
+      "restorationMethod": "Git history",
+      "owner": "Cambium owner review",
+      "decision": "retain",
+      "reviewedAt": "2026-08-10"
+    },
+    {
+      "path": "docs/plans/**/*.json",
+      "kind": "manifest",
+      "bytes": 77613,
+      "retentionClass": "keep-with-manifest",
+      "reason": "Structured proof and integrity context.",
+      "replacementPath": null,
+      "restorationMethod": "Git history",
+      "owner": "Cambium owner review",
+      "decision": "retain",
+      "reviewedAt": "2026-08-10"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-actions-mobile.png",
+      "kind": "screenshot",
+      "bytes": 977436,
+      "sha256": "8b33bddd4aecbee974e630f289340caf925b287702dfbee390f2976a467e61eb",
+      "retentionClass": "review-required",
+      "reason": "Byte-identical to the utilities capture but separately named in capture manifests and worker tests.",
+      "replacementPath": null,
+      "restorationMethod": "Git history and viewport-proof manifest",
+      "owner": "Cambium owner review",
+      "decision": "retain pending capture-contract change",
+      "reviewedAt": "2026-08-10"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-utilities-mobile.png",
+      "kind": "screenshot",
+      "bytes": 977436,
+      "sha256": "8b33bddd4aecbee974e630f289340caf925b287702dfbee390f2976a467e61eb",
+      "retentionClass": "review-required",
+      "reason": "Byte-identical to the actions capture but separately named in capture manifests and worker tests.",
+      "replacementPath": null,
+      "restorationMethod": "Git history and viewport-proof manifest",
+      "owner": "Cambium owner review",
+      "decision": "retain pending capture-contract change",
+      "reviewedAt": "2026-08-10"
+    },
+    {
+      "path": "docs/plans/assets/**",
+      "kind": "source-image",
+      "bytes": 109947001,
+      "retentionClass": "review-required",
+      "reason": "Generated and reference proof assets have direct documentation, manifest, generated-organ, and test references.",
+      "replacementPath": null,
+      "restorationMethod": "Git history plus validated manifest/replay path",
+      "owner": "Cambium owner review",
+      "decision": "inventory each asset before any proposed externalization or deduplication",
+      "reviewedAt": "2026-08-10"
+    }
+  ],
+  "nextGate": "Review the per-file SHA-256 and bounded-reference inventory, then obtain owner approval for any replacement-path proposal.",
+  "exclusions": [
+    ".planning",
+    ".project/HANDOFF.md",
+    "docs/runbooks",
+    "docs/architecture/contracts",
+    "docs/evidence",
+    "raw Cortex/provider/runtime state"
+  ]
+}
