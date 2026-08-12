@@ -3,6 +3,8 @@
 > Source-backed architecture inventory refreshed 2026-07-22. The release hook scans the root package only;
 > the nested Worker and R3F manifests are listed explicitly so the inventory does not hide runtime bindings.
 
+For the full 8-node infrastructure spine (Portfolio Workbench → Cambium → Filesystem → R2 → Hermes → Plexus → Telegram Mini App → MCP/plugin/agent adapters), see [`INTEGRATION.md`](../../INTEGRATION.md#the-8-node-infrastructure-spine) and the visual flow diagram at [`docs/visual/cambium-infra-spine-flow.html`](../visual/cambium-infra-spine-flow.html).
+
 ## Maintained runtime surfaces
 
 | Surface | Source/config | Resources or boundary | Status |

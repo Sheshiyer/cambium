@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cambium Infra Spine</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --base: #00272b;
+      --surface: #012f34;
+      --surface-2: #073a3f;
+      --lime: #e0ff4f;
+      --mint: #d6fff6;
+      --violet: #231651;
+      --peach: #ffc7a1;
+      --muted: #86a9a4;
+      --line: rgba(214,255,246,.2);
+      --grid: rgba(224,255,79,.055);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px;
+      color: var(--mint);
+      background:
+        radial-gradient(circle at 50% 28%, rgba(224,255,79,.06), transparent 32%),
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        var(--base);
+      background-size: auto, 32px 32px, 32px 32px, auto;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    .shell { width: min(1500px, 100%); margin: 0 auto; }
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .eyebrow { color: var(--lime); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; }
+    h1 {
+      margin: 5px 0 0;
+      color: var(--mint);
+      font: 700 clamp(28px, 4vw, 56px)/.95 "Arial Narrow", "Helvetica Neue", sans-serif;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      border: 1px solid rgba(224,255,79,.45);
+      border-radius: 999px;
+      color: var(--lime);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .status::before {
+      width: 8px;
+      height: 8px;
+      content: "";
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 0 5px rgba(224,255,79,.12);
+      animation: breathe 2.5s ease-in-out infinite;
+    }
+    .status-design {
+      border-color: rgba(255,199,161,.5);
+      color: var(--peach);
+    }
+    .status-design::before {
+      background: var(--peach);
+      box-shadow: 0 0 0 5px rgba(255,199,161,.14);
+    }
+    @keyframes breathe { 50% { opacity: .45; } }
+
+    .board {
+      overflow: hidden;
+      border: 1px solid rgba(214,255,246,.2);
+      border-radius: 18px;
+      background: rgba(1,47,52,.72);
+      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+    }
+    svg { display: block; width: 100%; height: auto; min-width: 1040px; }
+    .zone { fill: rgba(0,39,43,.72); stroke: rgba(214,255,246,.18); stroke-width: 1; }
+    .zone-lime { fill: rgba(224,255,79,.025); stroke: rgba(224,255,79,.35); }
+    .zone-peach { fill: rgba(255,199,161,.025); stroke: rgba(255,199,161,.32); }
+    .node {
+      fill: var(--surface);
+      stroke: rgba(214,255,246,.34);
+      stroke-width: 1.5;
+    }
+    .node.active { stroke: var(--lime); }
+    .node.blocked { stroke: var(--peach); stroke-dasharray: 6 4; }
+    .node.read { stroke: #8ccbc2; }
+    .hub {
+      fill: var(--surface-2);
+      stroke: var(--lime);
+      stroke-width: 2;
+    }
+    .halo { fill: none; stroke: rgba(224,255,79,.44); stroke-width: 1; stroke-dasharray: 4 6; }
+    .rail { fill: none; stroke: rgba(224,255,79,.62); stroke-width: 2; }
+    .rail-muted { fill: none; stroke: rgba(214,255,246,.28); stroke-width: 1.5; }
+    .rail-skill { fill: none; stroke: #b9a8ff; stroke-width: 1.5; stroke-dasharray: 3 5; }
+    .rail-proof { fill: none; stroke: var(--peach); stroke-width: 1.5; stroke-dasharray: 8 4; }
+    .packet { fill: var(--lime); }
+    .packet-peach { fill: var(--peach); }
+    text { dominant-baseline: middle; }
+    .label { fill: var(--mint); font-size: 15px; font-weight: 700; letter-spacing: .04em; }
+    .micro { fill: var(--muted); font-size: 9.5px; letter-spacing: .04em; }
+    .tiny { fill: var(--lime); font-size: 9px; letter-spacing: .12em; }
+    .edge-label { fill: var(--muted); font-size: 9px; letter-spacing: .04em; }
+    .zone-title { fill: var(--lime); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
+    .zone-sub { fill: var(--muted); font-size: 9px; letter-spacing: .08em; }
+    .warn { fill: var(--peach); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 14px;
+      border-top: 1px solid rgba(214,255,246,.14);
+    }
+    .card {
+      min-height: 104px;
+      padding: 14px;
+      border: 1px solid rgba(214,255,246,.14);
+      border-radius: 10px;
+      background: rgba(0,39,43,.72);
+    }
+    .card b {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--lime);
+      font: 700 13px "Arial Narrow", sans-serif;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .card p { margin: 0; color: #a8c7c2; font-size: 11px; line-height: 1.6; }
+
+    .noteline {
+      margin: 0 14px 14px;
+      padding: 12px 16px;
+      border: 1px dashed rgba(255,199,161,.45);
+      border-radius: 10px;
+      background: rgba(255,199,161,.03);
+      color: var(--peach);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .noteline b { color: var(--peach); }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 14px 4px 0;
+      color: #668984;
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+    @media (max-width: 900px) {
+      body { padding: 14px; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      header { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <div class="eyebrow">Integration roadmap · 8-node infrastructure spine</div>
+        <h1>Cambium Infra Spine</h1>
+      </div>
+      <div class="status status-design">status:doctrine · repository-scoped</div>
+    </header>
+
+    <section class="board" aria-label="Cambium infrastructure spine diagram">
+      <svg viewBox="0 0 1500 1300" role="img" aria-labelledby="diagramTitle diagramDescription">
+        <title id="diagramTitle">Cambium infrastructure spine</title>
+        <desc id="diagramDescription">Eight nodes across four planes carry one portfolio identity from the Portfolio Workbench through checked-in data, the local filesystem, R2 durability storage, Hermes, Plexus, the Telegram Mini App, and MCP/plugin/AWS execution. A dashed foldback edge returns Node 8 evidence to Node 2 checked-in data.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#e0ff4f"/>
+          </marker>
+          <marker id="arrowMuted" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#779b96"/>
+          </marker>
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r=".7" fill="rgba(214,255,246,.09)"/>
+          </pattern>
+        </defs>
+
+        <rect width="1500" height="1300" fill="url(#dots)"/>
+
+        <!-- arrows first: behind all nodes -->
+        <!-- zone 1 internal: node1 -> node2 -->
+        <path class="rail" marker-end="url(#arrow)" d="M730 220 L764 220"/>
+        <text class="edge-label" x="747" y="205" text-anchor="middle">digest</text>
+
+        <!-- zone1 -> zone2: node2 -> node3 -->
+        <path class="rail" marker-end="url(#arrow)" d="M1090 315 C1090 375 700 385 410 419"/>
+
+        <!-- zone2 internal: node3 -> node4 -->
+        <path class="rail" marker-end="url(#arrow)" d="M730 500 L764 500"/>
+        <text class="edge-label" x="747" y="485" text-anchor="middle">sync</text>
+
+        <!-- zone2 -> zone3: node4 -> node5 -->
+        <path class="rail" marker-end="url(#arrow)" d="M1090 595 C1090 655 700 665 410 699"/>
+
+        <!-- zone3 internal: node5 -> node6 -->
+        <path class="rail" marker-end="url(#arrow)" d="M730 780 L764 780"/>
+        <text class="edge-label" x="747" y="765" text-anchor="middle">whoami</text>
+
+        <!-- zone3 -> zone4: node6 -> node7 -->
+        <path class="rail" marker-end="url(#arrow)" d="M1090 875 C1090 935 700 945 410 979"/>
+
+        <!-- zone4 internal: node7 -> node8 -->
+        <path class="rail" marker-end="url(#arrow)" d="M730 1060 L764 1060"/>
+        <text class="edge-label" x="747" y="1045" text-anchor="middle">MCP</text>
+
+        <!-- foldback: node8 -> node2, dashed peach, routed along the bottom -->
+        <path class="rail-proof" marker-end="url(#arrow)" d="M1090 1155 C1090 1230 950 1252 650 1252 C300 1252 68 1240 52 1100 C38 960 38 500 52 280 C60 195 400 178 700 182 L764 195"/>
+        <circle class="packet-peach" cx="650" cy="1252" r="3.5"/>
+        <circle class="packet-peach" cx="45" cy="700" r="3.5"/>
+
+        <!-- packets on forward rails -->
+        <circle class="packet" cx="700" cy="390" r="3"/>
+        <circle class="packet" cx="700" cy="670" r="3"/>
+        <circle class="packet" cx="700" cy="950" r="3"/>
+
+        <!-- ================= ZONE 1 · PORTFOLIO PLANE ================= -->
+        <rect class="zone zone-lime" x="45" y="90" width="1410" height="250" rx="18"/>
+        <text class="zone-title" x="72" y="118">ZONE 1 · PORTFOLIO PLANE</text>
+        <text class="zone-sub" x="72" y="134">node 1 → node 2 · founder-facing identity source</text>
+
+        <rect class="node read" x="90" y="145" width="640" height="170" rx="14"/>
+        <text class="tiny" x="114" y="172">NODE 1</text>
+        <text class="label" x="114" y="194">Portfolio Workbench</text>
+        <text class="micro" x="114" y="222">Telegram Mini App / Web Admin</text>
+        <text class="micro" x="114" y="244">/admin/portfolio/web → generated founder-auth-gated bundle</text>
+        <text class="micro" x="114" y="266">Reads PORTFOLIO_CATALOG, portfolio-roots, golden paths</text>
+        <text class="warn micro" x="114" y="292">Authority: read-only. Write → /v1/admin/portfolio/actions</text>
+
+        <rect class="node active" x="770" y="145" width="640" height="170" rx="14"/>
+        <text class="tiny" x="794" y="172">NODE 2</text>
+        <text class="label" x="794" y="194">Cambium Checked-In Data</text>
+        <text class="micro" x="794" y="222">portfolio-catalog-data.ts → typed WorkObject catalog</text>
+        <text class="micro" x="794" y="244">portfolio-roots.v1.json → reviewed shallow-folder snapshot</text>
+        <text class="micro" x="794" y="266">operational-packet-registry.ts → FITCHECK/IVERIF golden paths</text>
+        <text class="micro" x="794" y="288">goal-graph-loadout-registry.ts → bounded loadout eligibility</text>
+
+        <!-- ================= ZONE 2 · DURABILITY PLANE ================= -->
+        <rect class="zone" x="45" y="370" width="1410" height="250" rx="18"/>
+        <text class="zone-title" x="72" y="398">ZONE 2 · DURABILITY PLANE</text>
+        <text class="zone-sub" x="72" y="414">node 3 → node 4 · filesystem and immutable storage</text>
+
+        <rect class="node" x="90" y="425" width="640" height="170" rx="14"/>
+        <text class="tiny" x="114" y="452">NODE 3</text>
+        <text class="label" x="114" y="474">Project Filesystem</text>
+        <text class="micro" x="114" y="502">Root location is host-configured; no machine path is canonical</text>
+        <text class="micro" x="114" y="524">portfolio-roots.v1.json proposes relative shallow folders</text>
+        <text class="micro" x="114" y="546">Exact Git identity is required before repository promotion</text>
+        <text class="micro" x="114" y="568">Vault infrastructure is context, never a WorkObject folder</text>
+
+        <rect class="node read" x="770" y="425" width="640" height="170" rx="14"/>
+        <text class="tiny" x="794" y="452">NODE 4</text>
+        <text class="label" x="794" y="474">R2 Cloudflare Storage</text>
+        <text class="micro" x="794" y="502">Account, bucket, endpoint, and credentials are host-managed</text>
+        <text class="micro" x="794" y="524">Cambium records bounded evidence contracts, never secrets</text>
+        <text class="micro" x="794" y="546">Role: immutable/idempotent evidence and durability ONLY</text>
+        <text class="warn micro" x="794" y="568">NOT live state, code history, repo ownership, Goal Graph writes</text>
+
+        <!-- ================= ZONE 3 · SIGNAL PLANE ================= -->
+        <rect class="zone" x="45" y="650" width="1410" height="250" rx="18"/>
+        <text class="zone-title" x="72" y="678">ZONE 3 · SIGNAL PLANE</text>
+        <text class="zone-sub" x="72" y="694">node 5 → node 6 · relay, cron, identity and access</text>
+
+        <rect class="node active" x="90" y="705" width="640" height="170" rx="14"/>
+        <text class="tiny" x="114" y="732">NODE 5</text>
+        <text class="label" x="114" y="754">Hermes</text>
+        <text class="micro" x="114" y="782">Proactive Relay + Cron Runner</text>
+        <text class="micro" x="114" y="804">hermes-execution-foldback.ts → adaptHermesExecutionFoldback()</text>
+        <text class="micro" x="114" y="826">Canary sequence: poll → claim → outcome → foldback → ACK</text>
+        <text class="micro" x="114" y="848">Authority: Telegram transport + topic topology owner</text>
+
+        <rect class="node read" x="770" y="705" width="640" height="170" rx="14"/>
+        <text class="tiny" x="794" y="732">NODE 6</text>
+        <text class="label" x="794" y="754">Plexus</text>
+        <text class="micro" x="794" y="782">Identity + Access Gateway</text>
+        <text class="micro" x="794" y="804">https://plexus-api.thoughtseed.space/v1/whoami</text>
+        <text class="micro" x="794" y="826">RBAC: founder (signed-action), team (chat), consultant (read)</text>
+        <text class="micro" x="794" y="848">KV cache: plexus:whoami:&lt;sha256(jwt)&gt;</text>
+
+        <!-- ================= ZONE 4 · SURFACE PLANE ================= -->
+        <rect class="zone zone-peach" x="45" y="930" width="1410" height="250" rx="18"/>
+        <text class="zone-title" x="72" y="958">ZONE 4 · SURFACE PLANE</text>
+        <text class="zone-sub" x="72" y="974">node 7 → node 8 · presented surface and tool execution</text>
+
+        <rect class="node" x="90" y="985" width="640" height="170" rx="14"/>
+        <text class="tiny" x="114" y="1012">NODE 7</text>
+        <text class="label" x="114" y="1034">Telegram Mini App</text>
+        <text class="micro" x="114" y="1062">Scenes: mission, gate, tools, story, inspect</text>
+        <text class="micro" x="114" y="1084">Mission Fabric, Flow, Workforce, Forge surfaces</text>
+        <text class="micro" x="114" y="1106">TG Channels: Hermes-owned topic topology</text>
+
+        <rect class="node blocked" x="770" y="985" width="640" height="170" rx="14"/>
+        <text class="tiny" x="794" y="1012">NODE 8</text>
+        <text class="label" x="794" y="1034">MCP, Plugin, and Agent Adapters</text>
+        <text class="micro" x="794" y="1062">Host runtime owns tools, model routing, and secrets</text>
+        <text class="micro" x="794" y="1084">Cambium owns checked-in contracts and acceptance evidence</text>
+        <text class="warn micro" x="794" y="1106">Plugins: held/deferred mapping, pending Git identity</text>
+
+        <text class="edge-label warn" x="750" y="1225" text-anchor="middle">FOLDBACK · NODE 8 → NODE 2 · EVIDENCE RETURNS TO CHECKED-IN DATA, NEVER MUTATES OPERATIONAL STATE DIRECTLY</text>
+      </svg>
+
+      <div class="cards">
+        <article class="card">
+          <b>Portfolio plane</b>
+          <p>The Workbench reads the catalog and roots; checked-in data stays the canonical source. Writes only travel through /v1/admin/portfolio/actions, never directly.</p>
+        </article>
+        <article class="card">
+          <b>Durability plane</b>
+          <p>The host-configured filesystem holds promoted and shallow folders. R2 holds immutable evidence only — never live state, code history, or Goal Graph writes.</p>
+        </article>
+        <article class="card">
+          <b>Signal plane</b>
+          <p>Hermes owns Telegram transport and cron delivery, compiling bounded intent. Plexus resolves identity and RBAC before any UI affordance is shown.</p>
+        </article>
+        <article class="card">
+          <b>Surface plane</b>
+          <p>Mini App scenes project the same facts across Mission, Flow, Workforce, and Forge. MCPs and plugins stay held/deferred pending Git identity.</p>
+        </article>
+      </div>
+
+      <div class="noteline">
+        <b>Status:</b> doctrine reference. It documents authority boundaries and grants no deployment, provider, storage, or operational-write authority.
+      </div>
+    </section>
+
+    <footer>
+      <span>Cambium · organic systems, precise data</span>
+      <span>Infra spine baseline · INTEGRATION.md</span>
+    </footer>
+  </main>
+</body>
+</html>
