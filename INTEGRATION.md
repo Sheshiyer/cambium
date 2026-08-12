@@ -27,7 +27,7 @@ that boundary.
 │ portfolio-catalog-data.ts → typed WorkObject catalog           │
 │ portfolio-roots.v1.json → reviewed shallow-folder snapshot     │
 │ operational-packet-registry.ts → FITCHECK/IVERIF golden paths   │
-│ goal-graph-loadout-registry.ts → bounded loadout eligibility   │
+│ checked-in loadout authority → bounded eligibility           │
 └──────────┬──────────────────────────────────────────────────────┘
            │ portfolio-roots / root-map → filesystem folders
            ▼
@@ -61,7 +61,8 @@ that boundary.
            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │ NODE 6: PLEXUS (Identity + Access Gateway)                      │
-│ Endpoint: https://plexus-api.thoughtseed.space/v1/whoami        │
+│ Default + Labs Wrangler:                                     │
+│ teamforge-api.thoughtseedlabs.workers.dev/v1/whoami           │
 │  - resolvePlexusPrincipal() → Access JWT → Plexus identity     │
 │  - RBAC: founder (signed-action), team (chat-command),          │
 │    consultant (read-only)                                       │
@@ -170,7 +171,7 @@ flowchart LR
 
 ### Portfolio Workbench
 
-The Workbench owns project reconciliation and bounded proposal preparation. The Fitcheck Operate view now explains the canonical identity, packet missions, KPIs, organ route, gate ledger, six-stage lifecycle, and current missing anchors. Its job is to make the next safe action obvious without making the held stages look complete.
+The Workbench owns project reconciliation and bounded proposal preparation. The Fitcheck Operate view now explains the canonical identity, packet missions, KPIs, organ route, gate ledger, and complete ten-stage `lifecycleLadder` from `identified` through `learned`, including current missing anchors. Its job is to make the next safe action obvious without making the held stages look complete.
 
 ### Telegram Mini App
 
