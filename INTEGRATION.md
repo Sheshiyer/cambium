@@ -61,8 +61,10 @@ that boundary.
            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │ NODE 6: PLEXUS (Identity + Access Gateway)                      │
-│ Default + Labs Wrangler:                                     │
-│ teamforge-api.thoughtseedlabs.workers.dev/v1/whoami           │
+│ Default (wrangler.jsonc):                                     │
+│ https://teamforge-api.sheshnarayan-iyer.workers.dev/v1/whoami │
+│ Labs (wrangler.labs.jsonc):                                   │
+│ https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami   │
 │  - resolvePlexusPrincipal() → Access JWT → Plexus identity     │
 │  - RBAC: founder (signed-action), team (chat-command),          │
 │    consultant (read-only)                                       │
