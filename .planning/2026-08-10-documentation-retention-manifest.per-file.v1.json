@@ -4,7 +4,7 @@
   "generatedAt": "2026-08-12",
   "scopeRoot": "docs/plans",
   "decision": "no-relocation-or-deletion",
-  "entryCount": 175,
+  "entryCount": 177,
   "entries": [
     {
       "path": "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
@@ -3183,13 +3183,51 @@
       "decision": "retain"
     },
     {
-      "path": "docs/plans/product-branches/fitcheck.md",
-      "bytes": 13318,
-      "sha256": "04d246adfc558538601929ae3082304572e1a9a115dcfa712e7f57e5d5a311d2",
+      "path": "docs/plans/product-branches/fitcheck-build-closure.tasks.md",
+      "bytes": 1275,
+      "sha256": "24a1cbaf032c23b156c962f95077b531c8165e2790232f8d8ff38f28cefe68ca",
       "gitTracked": true,
       "kind": "branch-packet",
       "inboundReferences": {
-        "count": 21,
+        "count": 2,
+        "samplePaths": [
+          "docs/evidence/2026-08-10-fitcheck-build-closure.v1.json",
+          "docs/plans/product-branches/schema.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/fitcheck-growth-quest-backlog.md",
+      "bytes": 3897,
+      "sha256": "2e5001c303534b7e91748b3ad5f753c4f25c7c60a1699bd73a07ef22017b1af7",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".planning/2026-08-12-cambium-execution-wave.tasks.json",
+          "docs/plans/product-branches/schema.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/fitcheck.md",
+      "bytes": 21859,
+      "sha256": "5be05cc3b3a53230da0601c5d8f4c88adb7606ce8b1b4b14a38ac74b52efad68",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 22,
         "samplePaths": [
           ".superpowers/sdd/task-1-report.md",
           "apps/portfolio-cartographer/bundle.html",
@@ -3200,6 +3238,7 @@
           "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
           "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
           "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/evidence/2026-08-10-fitcheck-build-closure.v1.json",
           "docs/plans/product-branches/ISA.md",
           "docs/plans/product-branches/branch-map.json",
           "docs/plans/product-branches/index.md",
@@ -3209,8 +3248,7 @@
           "scripts/generate-portfolio-catalog-data.test.mjs",
           "shared/fitcheck-golden-path.ts",
           "workers/quests/src/branch-map.test.ts",
-          "workers/quests/src/handler.test.ts",
-          "workers/quests/src/portfolio-catalog-data.ts"
+          "workers/quests/src/handler.test.ts"
         ],
         "truncated": true
       },
@@ -3304,8 +3342,8 @@
     },
     {
       "path": "docs/plans/product-branches/schema.json",
-      "bytes": 5461,
-      "sha256": "7b4372cb911d34ce97813674e364773a89762e9f65092f8fe9d4e36ab6b3f1e4",
+      "bytes": 5536,
+      "sha256": "2ebc32940a1134f941d9bf795c960517ee5a4423f406fbce21c58d367714b04d",
       "gitTracked": true,
       "kind": "branch-packet",
       "inboundReferences": {

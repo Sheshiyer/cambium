@@ -1,0 +1,62 @@
+{
+  "schema": "cambium.fitcheck-build-closure.v1",
+  "status": "historical-local-verification-receipt",
+  "recordedAt": "2026-08-10",
+  "workObject": "sapling:fitcheck",
+  "scope": "Hands closure for already-built product surfaces",
+  "verificationBoundary": "Commands and observations reported by the 2026-08-10 local closure; this documentation-only PR did not re-run external repository, listing, or deployment checks.",
+  "runtimeProjectionUpdated": false,
+  "taskManifest": "docs/plans/product-branches/fitcheck-build-closure.tasks.md",
+  "resolution": {
+    "resolver": "resolve-task",
+    "unresolved": 0,
+    "phantoms": 0,
+    "touchedClusters": ["conductor", "astro", "growth-sales-cro", "python-backend", "business-content"]
+  },
+  "artifacts": [
+    {
+      "name": "Fitcheck landing",
+      "owner": "sapling:fitcheck",
+      "repository": "Sheshiyer/fitcheck-landing",
+      "status": "reported-verified-local-build",
+      "verification": ["npm test: 7 passing", "ship-battery: typecheck, tests, and visual QA passed", "visual QA: 0 contrast failures across 106 text elements"]
+    },
+    {
+      "name": "Fitcheck private wiki",
+      "owner": "sapling:fitcheck",
+      "repository": "Sheshiyer/fitcheck-wiki",
+      "status": "reported-verified-static-build",
+      "verification": ["astro check: 0 errors, 0 warnings", "astro build: 13 static pages"]
+    },
+    {
+      "name": "Fitcheck Shopify App Store listing",
+      "owner": "external distribution surface",
+      "repository": null,
+      "status": "dated-public-listing-observation",
+      "verification": ["The 2026-08-10 receipt recorded a public listing observation.", "Current listing state and pricing require a fresh external readback."]
+    },
+    {
+      "name": "HDILINT backend dependency",
+      "owner": "program:hdilint",
+      "repository": "Sheshiyer/HDILINT-backend-aleph",
+      "relationship": "sapling:fitcheck --uses-backend--> program:hdilint",
+      "status": "declared-existing-build-dependency",
+      "verification": ["ownership boundary recorded; no fresh backend runtime test in this closure"]
+    }
+  ],
+  "deferred": [
+    "authenticated Shopify widget QA",
+    "consent and privacy review",
+    "payment activation",
+    "public-claim proof",
+    "Shopify listing pricing submission outcome"
+  ],
+  "deferredWereOutsideHistoricalClosure": true,
+  "claimBoundary": "This receipt does not verify current public claims, listing state, or pricing. Treat all external release gates as open until a fresh scoped readback exists.",
+  "sourcePaths": [
+    "docs/plans/product-branches/fitcheck.md",
+    "docs/architecture/fitcheck-golden-path.md",
+    "docs/plans/product-branches/fitcheck-build-closure.tasks.md",
+    "docs/runbooks/fitcheck-brand-to-wiki-flow.md"
+  ]
+}

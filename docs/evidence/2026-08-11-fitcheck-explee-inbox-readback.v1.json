@@ -1,0 +1,53 @@
+{
+  "schema": "cambium.fitcheck.explee-inbox-readback.v1",
+  "status": "historical-redacted-observation",
+  "observedAt": "2026-08-10T23:32:06.271Z",
+  "scope": {
+    "tenantId": "cambium",
+    "workObjectId": "sapling:fitcheck",
+    "campaignScope": "six Fitcheck campaign cohorts"
+  },
+  "method": {
+    "provider": "Explee AutoGTM provider API",
+    "operations": [
+      "GET /autogtm/campaigns/{campaign_id}/inbox?tab=need_reply",
+      "GET /autogtm/hot-leads"
+    ],
+    "mutationsPerformed": false
+  },
+  "observations": {
+    "needReplyTotal": 0,
+    "fitcheckCampaignCohortCount": 6,
+    "fitcheckScopedHotLeadTotal": 5,
+    "fitcheckHotLeadCohortCount": 3,
+    "accountWideHotLeadsExcludedFromFitcheckScope": 5
+  },
+  "redaction": {
+    "rawProviderPayloadStored": false,
+    "directLeadIdentifiersStored": false,
+    "messageBodiesStored": false,
+    "attachmentsStored": false,
+    "safeAggregateOnly": true
+  },
+  "interpretation": {
+    "measured": [
+      "No Fitcheck campaign conversation was returned in the need_reply queue at observation time.",
+      "Five hot-lead records matched Fitcheck campaign IDs; five account-wide records were excluded because they were outside Fitcheck scope."
+    ],
+    "notProven": [
+      "Lead identity, qualification, interest detail, consent, or next action.",
+      "Any product outcome, conversion lift, revenue, or customer intent beyond provider hot-lead classification."
+    ]
+  },
+  "verificationBoundary": "This repository receipt preserves a sanitized historical aggregate. This documentation-only PR did not re-probe the provider or establish current queue state.",
+  "nextIntent": {
+    "questId": "fitcheck-crm-minimum-viable-flow",
+    "status": "ready-for-review",
+    "action": "Review the CRM handoff contract, then request separate approval before any CRM configuration, contact export, lead-status change, or outbound response."
+  },
+  "receipt": {
+    "kind": "external-readback",
+    "digest": "sha256:ebde79e82b60b49a1869bec7d93739ff9fd6ca1043db0007063f9868208cf8f6",
+    "digestScope": "canonical JSON with receipt.digest omitted"
+  }
+}

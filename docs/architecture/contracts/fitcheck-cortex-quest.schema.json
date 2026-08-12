@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cambium:fitcheck-cortex-quest:v1",
+  "title": "Fitcheck Cortex Quest Candidate V1",
+  "description": "A redacted, receipt-bound candidate. It is not a Goal Graph write and cannot authorize an external action.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "candidateId", "tenantId", "workObjectId", "source", "observation", "quest", "redaction", "approval", "receipt"],
+  "properties": {
+    "schema": { "const": "cambium.fitcheck-cortex-quest.v1" },
+    "candidateId": { "$ref": "#/$defs/id" },
+    "tenantId": { "const": "cambium" },
+    "workObjectId": { "const": "sapling:fitcheck" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "readOnly", "observedAt", "sourceRef"],
+      "properties": {
+        "kind": { "enum": ["explee-campaign-analytics", "explee-inbox-summary", "explee-hot-lead-summary", "search-console-summary", "ga4-summary", "site-crawl-summary", "research-source", "merchant-proof-receipt"] },
+        "readOnly": { "const": true },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "sourceRef": { "type": "string", "minLength": 1, "maxLength": 512 }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "summary", "evidenceClass"],
+      "properties": {
+        "category": { "enum": ["reply-demand", "hot-lead", "campaign-performance", "search-discovery", "site-indexability", "content-performance", "merchant-proof", "operational-drift"] },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 800 },
+        "evidenceClass": { "enum": ["measured", "observed", "hypothesis", "external-wait"] },
+        "metric": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean", "null"] }, "maxProperties": 16 }
+      }
+    },
+    "quest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["questId", "domain", "title", "status", "owner", "nextAction", "proofRequired", "externalEffect"],
+      "properties": {
+        "questId": { "$ref": "#/$defs/id" },
+        "domain": { "enum": ["cortex", "seo", "content", "analytics", "crm", "shopify", "payment", "outreach"] },
+        "title": { "type": "string", "minLength": 1, "maxLength": 180 },
+        "status": { "enum": ["proposed", "external-wait", "ready-for-review", "approved", "active", "blocked", "complete", "superseded"] },
+        "owner": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "nextAction": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "proofRequired": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "externalEffect": { "enum": ["none", "read-only", "account-configuration", "publish", "contact", "spend"] },
+        "dependsOn": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true, "maxItems": 16 }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rawPayloadStored", "directIdentifiersStored", "messageBodiesStored", "safeSummary"],
+      "properties": {
+        "rawPayloadStored": { "const": false },
+        "directIdentifiersStored": { "const": false },
+        "messageBodiesStored": { "const": false },
+        "safeSummary": { "const": true }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "state", "scope"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "state": { "enum": ["not-required", "pending", "granted", "rejected", "expired"] },
+        "scope": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref", "digest"],
+      "properties": {
+        "kind": { "enum": ["local-observation", "external-readback", "execution", "foldback"] },
+        "ref": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "quest": {
+            "properties": {
+              "externalEffect": { "enum": ["account-configuration", "publish", "contact", "spend"] }
+            },
+            "required": ["externalEffect"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "approval": {
+            "properties": {
+              "required": { "const": true },
+              "state": { "enum": ["pending", "granted", "rejected", "expired"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "quest": {
+            "properties": { "status": { "enum": ["approved", "active"] } },
+            "required": ["status"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "approval": {
+            "properties": {
+              "required": { "const": true },
+              "state": { "const": "granted" }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9:-]{2,127}$" }
+  }
+}
