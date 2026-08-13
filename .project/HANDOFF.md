@@ -1156,3 +1156,36 @@ mutation has been performed by drafting this packet.
   exact-commit review, then one inert direct-API candidate upload, candidate
   route/binding/visibility probes, and promotion only with the recorded Version
   42 UUID available for immediate rollback. No second ledger push is authorized.
+
+### 2026-08-13 portfolio assimilation production repair checkpoint
+
+- Independent local and remote reviews passed exact released source commit
+  `a16d6033c658713b89ea14b5f7b4a854eb43b14e`. Direct Cloudflare API upload
+  produced inert Version 44 `575fc392-92ce-46d7-8849-fa84059435a3`; exact
+  Version 42 `86112412-2073-4f14-b215-599de0ed0eeb` remained at 100 percent
+  until the candidate probes and promotion review passed.
+- Version 44 was then promoted to 100 percent through deployment
+  `f84128db-ea9a-4e52-a88d-beac5ea8b26a`. Immediate and later readbacks prove
+  the exact commit and bundle, one-version traffic, 36 unchanged binding
+  identities, the custom domain, and the six-hour cron. Rollback was not
+  triggered; exact Version 42 remains the recorded rollback target.
+- Direct-origin probes return `200` for health, `401` for quests, Portfolio API,
+  and Workbench without identity, and the expected held-closed `403` for
+  Mission Fabric. All five custom-domain probes return `302` into the existing
+  Cloudflare Access application.
+- `MISSION_FABRIC_TENANTS` remains untouched. Production now contains the
+  reconciled Workbench/catalog/linkage code, but Operating Fabric activation
+  remains separately gated by owner-approved pilot scope and real Telegram
+  proof under ISC-1044; direct browser proof cannot replace that requirement.
+- The existing in-app browser session had expired to the Cloudflare Access
+  email-code screen. No email, login code, cookie, session store, token, or raw
+  Telegram initData was entered, extracted, or recorded, so no authenticated
+  founder-device readback is claimed.
+- Sanitized immutable evidence is recorded in
+  `docs/evidence/2026-08-13-portfolio-production-repair.v1.json`. No second
+  ledger push, D1/KV/R2/Vault write, binding change, Telegram action, provider
+  reconfiguration, filesystem relocation, or GitHub mutation occurred.
+- The final independent audit verdict is `PASS-WITH-P2`: production repair has
+  no P0/P1 finding; the retained rollback UUID was not rehearsed because no
+  trigger fired, and authenticated founder Workbench/Mini App visibility
+  remains correctly held rather than claimed.
