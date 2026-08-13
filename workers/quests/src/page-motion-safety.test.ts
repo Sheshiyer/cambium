@@ -59,6 +59,20 @@ async function renderScene(scene: string, state: string, options: { reducedMotio
   return roots.roots.map((id) => rendered.elements.get(id)!.innerHTML || rendered.elements.get(id)!.textContent).join('\n');
 }
 
+async function renderMissionWithBranch(branch: Record<string, unknown>) {
+  const envelope = productionEnvelope('mission', 'normal') as Record<string, unknown>;
+  const stories = envelope.branchStories as Record<string, unknown>;
+  const rendered = await renderPageFixtureContext({
+    ...envelope,
+    branchStories: { ...stories, rows: [branch] },
+  }, {
+    now: FIXTURE_NOW,
+    search: '?scene=mission',
+    reducedMotion: true,
+  });
+  return rendered.elements.get('stem')!.innerHTML;
+}
+
 test('T-027 · safe-area contract: viewport-fit cover, env insets, and chrome/scene/sheet usage', () => {
   assert.match(PAGE, /viewport-fit=cover/);
   assert.match(PAGE, /--sat:env\(safe-area-inset-top\)/);
@@ -98,6 +112,37 @@ test('T-027 · no fixed width beyond the 320px viewport floor in scene styles', 
     const px = Number(match[1]);
     assert.ok(px <= 320, `fixed width ${px}px exceeds the 320px viewport floor`);
   }
+});
+
+test('T-027 · Mission Control renders source-shaped Sapling and Program variants', async () => {
+  const fixture = productionEnvelope('mission', 'normal') as Record<string, unknown>;
+  const sourceBranch = ((fixture.branchStories as { rows: Array<Record<string, unknown>> }).rows[0])!;
+  const cases = [
+    { branchKind: 'product', expected: 'sapling', label: 'Sapling', glyph: 'genesis' },
+    { branchKind: 'client', expected: 'client-program', label: 'Client program', glyph: 'taste' },
+    { branchKind: 'internal-service', programKind: 'capability', expected: 'service-program', label: 'Capability program', glyph: 'cortex' },
+    { branchKind: 'internal-service', programKind: 'operations', expected: 'service-program', label: 'Operations program', glyph: 'ops' },
+    { branchKind: 'unmapped', expected: 'classification-gap', label: 'Classification needed', glyph: 'gate' },
+  ];
+  for (const variant of cases) {
+    const html = await renderMissionWithBranch({
+      ...sourceBranch,
+      branchId: `fx-${variant.expected}-${variant.glyph}`,
+      name: variant.label,
+      productId: variant.expected,
+      ...variant,
+    });
+    assert.match(html, new RegExp(`data-work-variant="${variant.expected}"`), `${variant.label} emits its explicit work variant`);
+    assert.match(html, new RegExp(`data-component="MissionCardEyebrow">${variant.label}<`), `${variant.label} is visible in the mission hero`);
+    assert.match(html, /class="mc-next-label">NEXT MISSION</, 'the next-mission cue remains independently visible');
+    assert.match(html, new RegExp(`data-glyph-kind="${variant.glyph}"`), `${variant.label} uses the semantic glyph`);
+  }
+});
+
+test('T-027 · Mission Control stacks the existing timeline under the 520px mobile boundary', () => {
+  assert.match(PAGE, /@media \(max-width:520px\)\{[\s\S]*?\.mc-timeline\{display:grid;grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(PAGE, /\.mc-timeline-station\{grid-template-columns:28px minmax\(0,1fr\)[^}]*min-height:44px/);
+  assert.match(PAGE, /\.mc-eyebrow,\.mc-card-head,\.mc-meta-grid,\.mc-info\{max-width:100%\}/);
 });
 
 test('T-027 · reduced-motion variants render state statically in every scene and state', async () => {

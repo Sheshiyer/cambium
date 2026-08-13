@@ -1125,3 +1125,34 @@ mutation has been performed by drafting this packet.
   does not authorize discarding, resetting, or implicitly merging that WIP.
 - No production deployment, provider, credential, timer, mailbox, Telegram,
   ledger, or external runtime mutation was performed by this cleanup wave.
+
+### 2026-08-13 portfolio assimilation candidate checkpoint
+
+- Work is isolated on `codex/portfolio-production-candidate`, rooted at exact
+  merged production source `origin/main@a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.
+  The dirty primary checkout remains untouched, and stale Version 43 is blocked
+  from promotion because its source lineage diverges from current main.
+- The reconciled root map accounts for all 62 depth-one Thoughtseed folders:
+  57 project/repository rows and five infrastructure exclusions, with no
+  physical relocation and no vault mutation. Its reviewed digest is
+  `e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259`.
+- Workbench and Worker consume one browser-safe catalog authority: 72 current
+  WorkObjects (17 Saplings, 40 client Branches, 15 internal Programs), plus 20
+  historical products and 48 explicit operational gaps. Their catalog data,
+  catalog module, and generated root-map mirrors have exact byte parity.
+- The read-only linkage audit maps every WorkObject to filesystem evidence,
+  Story Arc, Quest state, organ workflow availability, Mini App Canopy/Mission
+  visibility, and Hermes-only Telegram transport. Five WorkObjects have packet
+  arcs; 67 remain explicit unadmitted gaps rather than invented runtime state.
+- The Labs configuration preserves current main's Plexus knowledge/runtime
+  wiring and keeps the retired `CONTEXT_PROJECTIONS` R2 writer absent. A local
+  Wrangler 4.95.0 dry-run bundles successfully with all declared resources and
+  no remote mutation.
+- Verification: strict real-root census passes 62/62; `npm test` passes
+  1678/1678; canonical browser evidence passes 47/47 at 320/390/430 widths;
+  `npm run verify:release` passes, including R3F tests/build and Electron
+  packaging; `git diff --check` passes.
+- Production remains Version 42 at 100 percent. The next gate is independent
+  exact-commit review, then one inert direct-API candidate upload, candidate
+  route/binding/visibility probes, and promotion only with the recorded Version
+  42 UUID available for immediate rollback. No second ledger push is authorized.

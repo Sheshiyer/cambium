@@ -1,0 +1,175 @@
+{
+  "schema": "cambium.portfolio-workbench-observation.v1",
+  "observedAt": "2026-08-12T08:22:38.252Z",
+  "status": "drift-observed",
+  "liveWorkbench": {
+    "source": "authenticated-founder-workbench-dom",
+    "title": "Thoughtseed Portfolio Workbench",
+    "summaryClaim": {
+      "total": 73,
+      "saplings": 20,
+      "clientBranches": 39,
+      "internalPrograms": 15,
+      "arithmeticTotal": 74
+    },
+    "renderedCards": {
+      "total": 73,
+      "saplings": 20,
+      "clientBranches": 38,
+      "internalPrograms": 15
+    },
+    "autosavePaused": true,
+    "unreadableDraftPreserved": true,
+    "workIds": [
+      "branch:airdronauts-panorama-viewer-delivery",
+      "branch:ashwinsheth-marina-one-bangalore",
+      "branch:ashwinsheth-marina-one-mumbai",
+      "branch:axtech",
+      "branch:axtech-erp",
+      "branch:brightme",
+      "branch:bwssb",
+      "branch:co-property",
+      "branch:dorix",
+      "branch:earthy-munchy",
+      "branch:harsh-truths",
+      "branch:heyzack",
+      "branch:heyzack-crm",
+      "branch:heyzack-customer-portal",
+      "branch:heyzack-estimate",
+      "branch:heyzack-landing",
+      "branch:heyzack-panel-app",
+      "branch:heyzack-partner-portal",
+      "branch:heyzack-proposal",
+      "branch:heyzack-tooling",
+      "branch:heyzack-veloren-cee-ai",
+      "branch:heyzack-zackai",
+      "branch:insight-realtors-legal-advisors",
+      "branch:instal",
+      "branch:kacima",
+      "branch:kristudios",
+      "branch:mathis",
+      "branch:newsense",
+      "branch:parkarea",
+      "branch:pongotrasteros",
+      "branch:sandboxlife",
+      "branch:symphonics",
+      "branch:thaleos",
+      "branch:tirak",
+      "branch:valmark",
+      "branch:wattconnect",
+      "branch:wegrid-ai",
+      "branch:wtfmedia",
+      "program:cambium-operating-fabric",
+      "program:company-website",
+      "program:engineering-orchestration",
+      "program:explee-capabilities",
+      "program:hdilint",
+      "program:meristem-brand-system",
+      "program:operator-utilities",
+      "program:paperclip-retired",
+      "program:plexus",
+      "program:skill-clusters",
+      "program:snow-gloves-os",
+      "program:teamforge-control-plane",
+      "program:temperance-hermes",
+      "program:thoughtseed-brand-atlas",
+      "program:thoughtseed-vault",
+      "sapling:10869-space",
+      "sapling:agentfount",
+      "sapling:cambium",
+      "sapling:dlock",
+      "sapling:effort-glyph",
+      "sapling:fitcheck",
+      "sapling:fmrl",
+      "sapling:hostscale",
+      "sapling:iverif",
+      "sapling:klear-karma",
+      "sapling:nimbus-gate",
+      "sapling:parkarea",
+      "sapling:rasa",
+      "sapling:seedforge",
+      "sapling:tirak",
+      "sapling:vantyx",
+      "sapling:vibrasonix",
+      "sapling:wanderfruit",
+      "sapling:whatslegal",
+      "sapling:whspr"
+    ]
+  },
+  "localCatalog": {
+    "source": "cambium-portfolio-catalog",
+    "summary": {
+      "total": 72,
+      "saplings": 17,
+      "clientBranches": 40,
+      "internalPrograms": 15,
+      "classificationReview": 0,
+      "historicalProducts": 20,
+      "operationalGaps": 48
+    },
+    "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+    "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "rootMapDigest": "1807913a4faab9d55e29c146fbd829b6e058982f66de601d79b2f87120930134",
+    "liveDiff": {
+      "onlyLive": [
+        "sapling:klear-karma",
+        "sapling:parkarea",
+        "sapling:tirak"
+      ],
+      "onlyLocal": [
+        "branch:klear-karma",
+        "branch:safvr-landing-page"
+      ]
+    }
+  },
+  "reviewedFoundationPins": {
+    "catalogDigest": "sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24",
+    "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "rootMapDigest": "57436877fc82d480eae7eb35adc2bc9149c2a50e22619fb2bb346ee2a2acbe0a",
+    "catalogPinMatches": false,
+    "classificationPinMatches": true,
+    "rootMapPinMatches": false
+  },
+  "vaultReference": {
+    "source": "vault:00-meta/work-object-registry.v1.json",
+    "generatedAt": "2026-08-07T00:00:00Z",
+    "recordCount": 71,
+    "classificationDigest": "a9971e0a6a2ba044ed6df07beba2703dc85f14e6bbfdfeac9797fd2aa244f871",
+    "onlyVault": [
+      "sapling:klear-karma",
+      "sapling:kristudios",
+      "sapling:virtualtryon"
+    ],
+    "onlyLocal": [
+      "branch:klear-karma",
+      "branch:kristudios",
+      "branch:safvr-landing-page",
+      "sapling:dlock"
+    ],
+    "readOnly": true
+  },
+  "missionLedger": {
+    "observedFreshness": "stale-20h",
+    "lastDerivedAt": "2026-08-11T12:12:56.794Z",
+    "packetCount": 6,
+    "canonicalPacketWorkIds": [
+      "program:snow-gloves-os",
+      "sapling:dlock",
+      "sapling:fitcheck",
+      "sapling:iverif",
+      "sapling:vantyx"
+    ],
+    "templatePacketIds": [
+      "client-delivery"
+    ],
+    "firstObservableStaleBoundary": "before-active-production-ledger-acceptance"
+  },
+  "productionReadback": {
+    "latestDeploymentCreatedOn": "2026-08-11T15:20:59.000Z",
+    "latestVersionId": "86112412-2073-4f14-b215-599de0ed0eeb",
+    "activeQuestBindingDiffersFromCheckedInConfig": true,
+    "secretValuesRead": false,
+    "mutationsPerformed": []
+  },
+  "mutationsPerformed": []
+}

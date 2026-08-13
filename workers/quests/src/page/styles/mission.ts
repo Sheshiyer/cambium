@@ -110,14 +110,25 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   .mc-connector.is-dashed{background:repeating-linear-gradient(90deg,rgba(214,255,246,.35) 0 4px,transparent 4px 8px)}
   .mc-connector .mc-packet-dots{position:absolute;inset:-8px 0;min-height:0}
   .mc-connector .mc-packet{width:3px;height:3px}
-  /* ≤360px: compact stations (reference-board density) so up to 6 stations + connectors fit 320px. */
-  @media (max-width:360px){
-    .mc-timeline-station{gap:4px}
-    .mc-station{width:20px;height:20px}
-    .mc-station-icon,.mc-station-icon svg{width:12px;height:12px}
-    .mc-timeline-name{font-size:10px}
-    .mc-timeline-state{font-size:8.5px;white-space:nowrap;text-overflow:ellipsis}
-    .mc-connector{min-width:6px;margin-top:9px}
+  /* The previous six-column compression made a 320–430px timeline unreadable.
+     Mobile keeps the same stations and rail grammar, but stacks them so labels,
+     state, and actions retain their truthful, readable form. */
+  @media (max-width:520px){
+    .mc-mission-card{padding:14px}
+    .mc-mission-card::before{inset:0;opacity:.18}
+    .mc-constellation{width:48%;opacity:.2}
+    .mc-eyebrow,.mc-card-head,.mc-meta-grid,.mc-info{max-width:100%}
+    .mc-card-head{padding-right:38px}
+    .mc-timeline{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding-top:6px}
+    .mc-timeline-station{grid-template-columns:28px minmax(0,1fr);justify-items:start;align-items:center;gap:4px 10px;min-height:44px;text-align:left}
+    .mc-station{grid-row:span 2}
+    .mc-timeline-name,.mc-timeline-state{justify-self:start;max-width:100%;text-align:left}
+    .mc-timeline-name{display:block;-webkit-line-clamp:unset;white-space:nowrap;text-overflow:ellipsis}
+    .mc-timeline-state{white-space:nowrap;text-overflow:ellipsis}
+    .mc-connector{width:1px;min-width:1px;height:12px;margin:0 0 0 13px;background:transparent;justify-self:start}
+    .mc-connector.is-solid{background:var(--mc-chartreuse)}
+    .mc-connector.is-dashed{background:repeating-linear-gradient(180deg,rgba(214,255,246,.35) 0 4px,transparent 4px 8px)}
+    .mc-connector .mc-packet-dots{display:none}
   }
 
   /* ProofList rows (frozen/02 §6): dashed-ring icon + label + packet cluster + chevron */

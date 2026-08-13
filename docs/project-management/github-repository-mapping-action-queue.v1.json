@@ -36,9 +36,9 @@
     "nextPhysicalPass": "Cambium and Temperance physical lanes are applied; Symphonics remains held with no authorized physical pass"
   },
   "currentDigests": {
-    "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
-    "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
-    "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542"
+    "rootMapDigest": "e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259",
+    "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+    "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309"
   },
   "globalBlocks": [],
   "resolvedFounderDecisions": [
@@ -69,9 +69,9 @@
       },
       "defaults": {
         "receiptKind": "mapping",
-        "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
-        "catalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
-        "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+        "rootMapDigest": "e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259",
+        "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+        "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
         "founderDecisionStatus": "founder-reviewed",
         "evidencePrefixTemplate": "portfolio/thoughtseed/workobjects/<targetWorkId>/mapping/"
       },
@@ -745,15 +745,22 @@
             "Sheshiyer/effort-glyph-user-dashboard"
           ]
         },
-        {
-          "workId": "sapling:fmrl",
-          "candidateRepos": [
-            "Sheshiyer/fmrl",
-            "Sheshiyer/FMRLcam"
-          ]
-        },
-        {
-          "workId": "sapling:iverif",
+    {
+      "workId": "sapling:fmrl",
+      "candidateRepos": [
+        "Sheshiyer/fmrl",
+        "Sheshiyer/FMRLcam"
+      ]
+    },
+    {
+      "workId": "sapling:fitcheck",
+      "candidateRepos": [
+        "Sheshiyer/fitcheck-landing"
+      ],
+      "guardrail": "Fitcheck owns product planning; program:hdilint remains the separately mapped backend capability"
+    },
+    {
+      "workId": "sapling:iverif",
           "candidateRepos": [
             "Sheshiyer/iverif-wiki"
           ]
@@ -790,19 +797,20 @@
       ],
       "founderHolds": [],
       "summary": {
-        "directSaplingMappings": 8,
+    "directSaplingMappings": 9,
         "resolvedProvenanceSplits": 4,
         "remainingFounderHolds": 0,
         "clientBranchPromotions": 1,
-        "saplingProductReposMapped": 8,
+    "saplingProductReposMapped": 9,
         "branchRepoFamiliesMapped": 16,
-        "excludedContaminationRows": 1
+        "excludedContaminationRows": 1,
+        "reclassificationNote": "per 2026-08-10 founder decision: ParkArea and Tirak collapsed to client-branch-only; Klear Karma reclassified as co-founded-venture (branch:klear-karma + co-founded-venture:klear-karma). Summary counts above reflect the original prepared-batch state; post-reclassification counts awaiting full rebundle."
       },
       "resolvedProvenanceSplits": [
         {
           "name": "Klear Karma",
-          "disposition": "sapling-product-repos-with-snowglobe-contamination-excluded",
-          "targetWorkId": "sapling:klear-karma",
+          "disposition": "co-founded-venture-with-snowglobe-contamination-excluded",
+          "targetWorkId": "branch:klear-karma",
           "mappedRepos": [
             "Sheshiyer/klear-karma",
             "Sheshiyer/klear-karma-backend",
@@ -821,7 +829,7 @@
               "reason": "prior evidence says the nested snowglobe remote points to snow-gloves-os.git and is an internal ops automation tenant instance, not Klear Karma product source"
             }
           ],
-          "rootMapState": "folder-maps-to-sapling-klear-karma-with-snow-gloves-contamination-excluded"
+          "rootMapState": "folder-maps-to-co-founded-venture-klear-karma-with-snow-gloves-contamination-excluded"
         },
         {
           "name": "Kristudios",
@@ -840,20 +848,18 @@
         },
         {
           "name": "ParkArea",
-          "disposition": "linked-product-and-client-branch-with-branch-side-repositories",
-          "productWorkId": "sapling:parkarea",
+          "disposition": "client-branch-only",
           "clientWorkId": "branch:parkarea",
           "branchRepos": [
             "Sheshiyer/parkarea-aleph",
             "Sheshiyer/parkarea-wiki-v0"
           ],
-          "saplingRepoState": "no exact product-side repository in this batch; product evidence remains vault product overview only",
-          "rootMapState": "parkarea folder remains linked branch:parkarea plus sapling:parkarea"
+          "saplingRepoState": "none; founder reclassified ParkArea as client-branch only per 2026-08-10 decision",
+          "rootMapState": "parkarea folder maps to branch:parkarea as client-branch only"
         },
         {
           "name": "Tirak",
-          "disposition": "linked-product-and-client-branch-with-branch-side-repository-family",
-          "productWorkId": "sapling:tirak",
+          "disposition": "client-branch-only",
           "clientWorkId": "branch:tirak",
           "branchRepos": [
             "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
@@ -867,11 +873,11 @@
             "Sheshiyer/tirakplus0admin",
             "Sheshiyer/wikiv2-tirakapp"
           ],
-          "saplingRepoState": "no exact product-side repository in this batch; product evidence remains vault product overview only",
+          "saplingRepoState": "none; founder reclassified Tirak as client-branch only per 2026-08-10 decision",
           "excludedFalsePositiveRepos": [
             "pineappleinnovationlabs/chakra-shine-admin"
           ],
-          "rootMapState": "tirak folder remains linked branch:tirak plus sapling:tirak"
+          "rootMapState": "tirak folder maps to branch:tirak as client-branch only"
         }
       ]
     },

@@ -163,25 +163,25 @@ async function requestPortfolio(userId: string) {
 test('Cambium founder route serves the complete bounded catalog and exact join report', async () => {
   const result = await requestPortfolio(FOUNDER_ID);
   assert.equal(result.response.status, 200);
-  assert.equal(result.json.portfolioCatalogSummary.total, 74);
-  assert.equal(result.json.portfolioCatalogSummary.saplings, 20);
-  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 39);
+  assert.equal(result.json.portfolioCatalogSummary.total, 72);
+  assert.equal(result.json.portfolioCatalogSummary.saplings, 17);
+  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 40);
   assert.equal(result.json.portfolioCatalogSummary.internalPrograms, 15);
   assert.equal(result.json.portfolioCatalogSummary.classificationReview, 0);
   assert.equal(result.json.portfolioCatalogSummary.historicalProducts, 20);
-  assert.equal(result.json.portfolioCatalogSummary.operationalGaps, 49);
+  assert.equal(result.json.portfolioCatalogSummary.operationalGaps, 48);
   assert.equal(result.json.portfolioCatalog.status, 'proposed-read-only');
-  assert.equal(result.json.portfolioCatalog.records.length, 74);
+  assert.equal(result.json.portfolioCatalog.records.length, 72);
   assert.equal(result.json.portfolioCatalog.classificationReview.length, 0);
   assert.equal(result.json.portfolioCatalog.historicalProducts.length, 20);
-  assert.equal(result.json.portfolioCatalog.operationalGaps.length, 49);
+  assert.equal(result.json.portfolioCatalog.operationalGaps.length, 48);
   assert.deepEqual(
     {
       matched: result.json.portfolioJoinReport.matchedCount,
       catalogOrphans: result.json.portfolioJoinReport.catalogOrphanCount,
       runtimeOrphans: result.json.portfolioJoinReport.runtimeOrphanCount,
     },
-    { matched: 1, catalogOrphans: 73, runtimeOrphans: 1 },
+    { matched: 1, catalogOrphans: 71, runtimeOrphans: 1 },
   );
   assert.deepEqual(result.json.portfolioJoinReport.runtimeOrphans, ['cambium-operating-fabric']);
   assert.equal(result.json.portfolioJoinReport.runtimeIdentityCollisionCount, 0);
@@ -220,7 +220,7 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
 test('allowlisted non-founder receives aggregate catalog proof but no identities or join detail', async () => {
   const result = await requestPortfolio(VIEWER_ID);
   assert.equal(result.response.status, 200);
-  assert.equal(result.json.portfolioCatalogSummary.total, 74);
+  assert.equal(result.json.portfolioCatalogSummary.total, 72);
   assert.match(result.json.portfolioCatalogSummary.catalogDigest, /^sha256:[0-9a-f]{64}$/);
   assert.match(result.json.delivery.portfolioPairDigest, /^sha256:[0-9a-f]{64}$/);
   assert.equal(result.response.headers.etag, result.json.delivery.portfolioPairDigest);

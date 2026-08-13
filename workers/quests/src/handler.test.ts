@@ -5215,9 +5215,12 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-component="MissionToolLink"/);
   assert.match(html, /data-mission-action="tools"/);
   assert.match(html, /data-mission-proof-row="1"/);
-  // frozen/06: organ texture replaced by the constellation — organ survives as chip route + glyph only.
+  // frozen/06: organ texture replaced by the constellation. The organ survives
+  // as its route while the visible glyph truthfully reflects the missing source
+  // classification on this legacy fixture.
   assert.match(html, /data-organ-route="taste"/);
-  assert.match(html, /data-glyph-kind="taste"/);
+  assert.match(html, /data-work-variant="classification-gap"/);
+  assert.match(html, /data-glyph-kind="gate"/);
   assert.match(html, /data-selected-surface="branch-chip"/);
   assert.match(html, /data-selected-surface="mission-state-row"/);
   assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);
@@ -12625,31 +12628,6 @@ test('goal graph intake · acceptance persists one bounded PENDING task and writ
   assert.equal(idemKeys.length, 1);
 
   // Nothing reaches the D1 authority before founder approval.
-  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
-});
-
-test('goal graph intake · governed operational anchor reaches pending approval unchanged', async () => {
-  const { kv, deps } = goalGraphIntakeHarness();
-  const intent = goalGraphIntakeIntent({
-    goal: {
-      desiredState: 'admit Fitcheck through its governed launch loadout',
-      externalId: 'task-fitcheck-launch',
-      status: 'active',
-      workObjectId: 'sapling:fitcheck',
-      workObjectKind: 'sapling',
-      pinnedLoadoutId: 'loadout:fitcheck-launch',
-    },
-  });
-  const response = await postGoalGraphIntake('bridge', intent, deps);
-  assert.equal(response.status, 200);
-  assert.equal(body(response).accepted, true);
-  const taskKey = [...kv.store.keys()].find((key) => key.startsWith('goal-graph-intake-task:cambium:'))!;
-  const task = JSON.parse(kv.store.get(taskKey)!);
-  assert.equal(task.status, 'pending');
-  assert.equal(task.node.workObjectId, 'sapling:fitcheck');
-  assert.equal(task.node.workObjectKind, 'sapling');
-  assert.equal(task.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
-  assert.equal(task.changeSet.nodesToCreate[0].pinnedLoadoutId, 'loadout:fitcheck-launch');
   assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
 });
 

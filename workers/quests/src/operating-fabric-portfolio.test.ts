@@ -215,10 +215,9 @@ test('the real checked-in catalog renders every mapped WorkObject and review sur
   );
   for (const identity of [
     'sapling:fitcheck',
-    'sapling:parkarea',
     'branch:parkarea',
-    'sapling:tirak',
     'branch:tirak',
+    'branch:klear-karma',
     'sapling:seedforge',
     'program:teamforge-control-plane',
     'branch:bwssb',
