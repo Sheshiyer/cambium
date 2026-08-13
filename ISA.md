@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Assimilate the portfolio and complete rollback-gated production repair"
-effort: E4
-effort_source: complexity-override
+task: "Expose portfolio-to-Telegram linkage truth and assimilate the current working root"
+effort: E3
+effort_source: task-classification
 phase: complete
-progress: 20/20
+progress: 16/16
 mode: interactive
-iteration: 2026-08-13-portfolio-production-repair
+iteration: 2026-08-13-portfolio-tg-flow
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-13T14:06:26+05:30
+updated: 2026-08-13T16:07:33+05:30
 ---
 
 ## Problem
@@ -2385,3 +2385,24 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-1085: in-app browser DOM probe — the existing tab showed the Cloudflare Access email-code screen, so authenticated founder visibility remains explicitly unproven.
 - ISC-1086: Git/receipt probe — deployed source remains `a16d603…`; the evidence-only repository checkpoint is a separate second commit.
 - Final independent audit: `PASS-WITH-P2`, with no P0/P1/P3 finding. The P2 is evidence precision only: founder-visible authenticated synchronization remains unproven, and the retained Version 42 rollback target was not rehearsed because no rollback trigger fired.
+
+### 2026-08-13 authenticated Workbench and Telegram-flow linkage wave
+
+- [x] ISC-1087: An authenticated in-app browser probe reaches the governed Portfolio Workbench, renders the current portfolio, and reports no console warning or error.
+- [x] ISC-1088: The Workbench labels catalog totals separately from active-work totals so 72 catalogued and 71 active WorkObjects cannot be mistaken for drift.
+- [x] ISC-1089: The terminal `branch:safvr-landing-page` closeout remains absent from active planning and present in the finished-work view.
+- [x] ISC-1090: The new depth-one `temperance_engine` checkout is classified from its exact Git remote and mapped proposal-only to `program:temperance-hermes`; no repository is moved or edited.
+- [x] ISC-1091: The strict Thoughtseed root census accounts for 63 depth-one folders as 58 mapped project rows plus five infrastructure rows with no missing or unexpected folder.
+- [x] ISC-1092: One generated linkage manifest contains exactly 72 unique catalog WorkObjects and is reproducible from the canonical catalog, packet, root-map, and organ-plan authorities.
+- [x] ISC-1093: Every linkage row carries explicit filesystem, Story Arc, Quest, organ, Mini App, and Hermes dispositions; an absent relationship is an explicit gap, never an inferred join.
+- [x] ISC-1094: Every WorkObject drawer exposes the same read-only Linkage view, including folder evidence, packet/quest state, mission-data readiness, organ assignment, Mini App visibility, and Telegram transport boundary.
+- [x] ISC-1095: Portfolio summary controls expose active, catalog, finished, packet-backed Story Arc, and mission-data-gap counts from the same shipped state.
+- [x] ISC-1096: Packet-backed Story/Quest plans remain visibly distinct from D1 Goal Graph admission, and mission-data gaps never render as operationally admitted.
+- [x] ISC-1097: Hermes remains the only Telegram transport authority; the Workbench may compile/display a planned topic route but cannot send or claim a dispatch receipt.
+- [x] ISC-1098: Slash-command ownership remains Hermes-plugin-owned and is documented/displayed without inventing a Cambium command executor.
+- [x] ISC-1099: `MISSION_FABRIC_TENANTS` remains unchanged and the authenticated browser session is not treated as Telegram `initData` proof.
+- [x] ISC-1100: Focused domain, root-map, linkage, Workbench bundle, and browser checks pass against the exact candidate source.
+- [x] ISC-1101: The primary dirty checkout, Vault, D1, KV, R2, Cloudflare traffic/bindings, Telegram topics/messages, and external repositories receive no mutation in this local implementation wave.
+- [x] ISC-1102: The resulting candidate and exact separately approved durable-action queue are recorded in `.project/HANDOFF.md` without implying production deployment or all-72 operational admission.
+
+Verification: authenticated production Workbench readback; strict 63-root audit; local Cambium and Fitcheck browser probes; Workbench check 73 passed / one skipped; portfolio-foundation 45 + 73 + 108; release 1678 + 37 + 99 + 5; JSON and diff checks. Independent review's P1 (untracked essential files) and P3 (linkage lint omission) were closed before checkpointing.

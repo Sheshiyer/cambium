@@ -8,7 +8,7 @@
       "portfolioId": "thoughtseed",
       "label": "Thoughtseed",
       "itemLabel": "WorkObject",
-      "folderCount": 57,
+      "folderCount": 58,
       "infrastructure": [
         "_physical-relocation-archive-2026-08-08",
         "openfang",
@@ -459,6 +459,15 @@
         },
         {
           "folder": "temperance-engine-landing-page",
+          "proposedKind": "internal-program",
+          "accountId": null,
+          "workIds": [
+            "program:temperance-hermes"
+          ],
+          "status": "mapping-proposal"
+        },
+        {
+          "folder": "temperance_engine",
           "proposedKind": "internal-program",
           "accountId": null,
           "workIds": [

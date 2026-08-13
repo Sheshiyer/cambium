@@ -1,0 +1,125 @@
+{
+  "schema": "cambium.portfolio-tg-flow-linkage-receipt.v1",
+  "generatedAt": "2026-08-13T10:33:17Z",
+  "readOnlyEvidence": true,
+  "candidate": {
+    "branch": "codex/portfolio-tg-flow",
+    "baseCommit": "39617099c15d107495364e66a2e92820342c40ee",
+    "deploymentStatus": "not-uploaded-or-promoted",
+    "workbenchArtifactSha256": "dccf28e52cb93ae02a12b842bef65f4d6dd988344e794660e56aa05ffe583d32"
+  },
+  "authenticatedProductionProbe": {
+    "surface": "/admin/portfolio/web",
+    "founderWorkbenchVisible": true,
+    "renderedActiveWorkObjects": 71,
+    "consoleWarnings": 0,
+    "consoleErrors": 0,
+    "serverActionsInvoked": 0
+  },
+  "portfolioTruth": {
+    "cataloguedWorkObjects": 72,
+    "activeWorkObjects": 71,
+    "finishedWorkObjects": 1,
+    "finishedWorkId": "branch:safvr-landing-page",
+    "saplings": 17,
+    "clientBranches": 40,
+    "internalPrograms": 15,
+    "packetBackedStoryArcs": 5,
+    "explicitStoryArcGaps": 67,
+    "packetQuestRows": 48,
+    "missionDataGaps": 48,
+    "activeOrganAssignments": 0
+  },
+  "filesystemAssimilation": {
+    "status": "aligned",
+    "observedDepthOneFolders": 63,
+    "mappedProjectFolders": 58,
+    "infrastructureFolders": 5,
+    "missingFolders": [],
+    "unexpectedFolders": [],
+    "newMapping": {
+      "folder": "temperance_engine",
+      "workId": "program:temperance-hermes",
+      "status": "mapping-proposal"
+    },
+    "reviewedRootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351"
+  },
+  "authorityBoundaries": {
+    "catalogVisibilityGrantsD1Admission": false,
+    "storyPacketGrantsD1Admission": false,
+    "workbenchCanSendTelegram": false,
+    "telegramTransportAuthority": "hermes-only",
+    "slashCommandAuthority": "hermes-plugin-owned",
+    "missionFabricTenantAllowlistChanged": false,
+    "authenticatedBrowserCountsAsTelegramInitDataProof": false
+  },
+  "verification": {
+    "portfolioWorkbenchCheck": {
+      "passed": 73,
+      "failed": 0,
+      "skipped": 1
+    },
+    "portfolioFoundation": {
+      "passed": true,
+      "foundationTests": 45,
+      "workbenchTestsPassed": 73,
+      "workerTests": 108
+    },
+    "strictLinkageAudit": "aligned",
+    "localBrowser": {
+      "cambiumLinkageView": "passed",
+      "fitcheckOperateAndLinkageViews": "passed",
+      "consoleErrors": 0
+    },
+    "release": {
+      "passed": true,
+      "coreTests": 1678,
+      "telegramReadinessTests": 37,
+      "r3fTests": 99,
+      "desktopPackagingTests": 5,
+      "deterministicRelease": true
+    },
+    "gitDiffCheck": "passed"
+  },
+  "independentReview": {
+    "verdict": "PASS",
+    "highestFinding": null,
+    "reviewStage": "staged-exact-diff-after-p1-and-p3-closure",
+    "closedFindings": [
+      "essential linkage and evidence files staged",
+      "linkage source added to explicit lint gate"
+    ]
+  },
+  "mutationsPerformed": [],
+  "heldOperations": [
+    "production candidate upload and promotion",
+    "durable Portfolio Workbench action",
+    "D1 Goal Graph admission",
+    "Mission Fabric tenant activation",
+    "Hermes topic, channel, message, telemetry, or slash-command change",
+    "Cloudflare route or binding change",
+    "Vault write or filesystem relocation"
+  ],
+  "nextApprovalQueue": [
+    {
+      "order": 1,
+      "operation": "independently review and release the exact candidate with an explicit rollback target",
+      "receiptRequired": "exact Worker version, deployment, bindings, routes, and post-promotion probes"
+    },
+    {
+      "order": 2,
+      "operation": "select one exact WorkObject and one durable Workbench action",
+      "receiptRequired": "immutable R2 action receipt and governed queue acknowledgement"
+    },
+    {
+      "order": 3,
+      "operation": "admit one packet-backed WorkObject to D1 only after exact mission data and Founder Gate approval",
+      "receiptRequired": "Goal Graph anchor, fence, and admission receipt"
+    },
+    {
+      "order": 4,
+      "operation": "activate one Mission Fabric pilot from real Telegram in-app proof",
+      "receiptRequired": "redacted signed-action proof, Worker probe, rollback record, and Hermes acknowledgement"
+    }
+  ]
+}

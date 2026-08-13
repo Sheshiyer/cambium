@@ -547,6 +547,50 @@ code {
   gap: 7px;
 }
 
+.summary-stack {
+  max-width: 620px;
+  display: grid;
+  justify-items: end;
+  gap: 7px;
+}
+
+.summary-stack > small {
+  color: var(--faint);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.linkage-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.linkage-summary span {
+  min-height: 27px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 8px;
+  background: rgb(7 20 15 / 72%);
+}
+
+.linkage-summary b {
+  color: var(--ink);
+  font-family: "SFMono-Regular", monospace;
+}
+
+.linkage-summary .is-gap b {
+  color: #e5b673;
+}
+
 .summary-pills span {
   min-height: 32px;
   display: inline-flex;
@@ -1347,14 +1391,162 @@ code {
 
 .drawer-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   padding: 0 18px;
   border-bottom: 1px solid #c9cebd;
   background: #e9ecdf;
 }
 
 .drawer-tabs.has-operate {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.linkage-section {
+  gap: 16px;
+}
+
+.linkage-authority,
+.linkage-transport {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #aeb9aa;
+  border-radius: 12px;
+  color: #2d392f;
+  background: #e3e7db;
+}
+
+.linkage-authority svg,
+.linkage-transport svg {
+  width: 18px;
+  flex: 0 0 18px;
+  margin-top: 2px;
+  color: #536f37;
+}
+
+.linkage-authority strong,
+.linkage-transport strong {
+  font-size: 11px;
+}
+
+.linkage-authority p,
+.linkage-transport p {
+  margin: 4px 0 0;
+  color: #687369;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.linkage-chain {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkage-chain li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid #bbc2b5;
+  border-radius: 9px;
+  background: #ebeee5;
+}
+
+.linkage-chain li > span {
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-family: "SFMono-Regular", monospace;
+  font-size: 8px;
+  background: #778074;
+}
+
+.linkage-chain li.is-present > span { background: #52772f; }
+.linkage-chain li.is-planned > span { background: #66713e; }
+.linkage-chain li.is-gap > span { background: #9a6234; }
+.linkage-chain li.is-held > span { background: #6e716b; }
+
+.linkage-chain div,
+.linkage-delivery div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.linkage-chain b {
+  overflow: hidden;
+  color: #303a31;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linkage-chain small,
+.linkage-delivery small {
+  color: #747d72;
+  font-size: 7px;
+  line-height: 1.35;
+}
+
+.linkage-facts,
+.linkage-delivery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.linkage-facts article,
+.linkage-delivery > div {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 11px;
+  border: 1px solid #bbc2b5;
+  border-radius: 10px;
+  background: #eceee6;
+}
+
+.linkage-facts article.is-gap {
+  border-color: #c6a57c;
+  background: #eee7d8;
+}
+
+.linkage-facts span,
+.linkage-delivery span {
+  color: #747d72;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.linkage-facts strong,
+.linkage-delivery strong {
+  color: #263127;
+  font-size: 10px;
+}
+
+.linkage-facts code {
+  overflow-wrap: anywhere;
+  color: #647064;
+  font-size: 8px;
+}
+
+.linkage-facts small {
+  color: #747d72;
+  font-size: 8px;
+  line-height: 1.45;
 }
 
 .drawer-tabs button {
@@ -3359,7 +3551,18 @@ code {
 
   .drawer-tabs.has-operate {
     overflow-x: auto;
+    grid-template-columns: repeat(6, minmax(76px, 1fr));
+  }
+
+  .drawer-tabs:not(.has-operate) {
+    overflow-x: auto;
     grid-template-columns: repeat(5, minmax(76px, 1fr));
+  }
+
+  .linkage-chain,
+  .linkage-facts,
+  .linkage-delivery {
+    grid-template-columns: 1fr;
   }
 
   .fitcheck-ladder {

@@ -36,8 +36,12 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 57)
-  assert.equal(thoughtseed.folders.length, 57)
+  assert.equal(thoughtseed.folderCount, 58)
+  assert.deepEqual(
+    thoughtseed.folders.find((folder) => folder.folder === 'temperance_engine')?.workIds,
+    ['program:temperance-hermes'],
+  )
+  assert.equal(thoughtseed.folders.length, 58)
   assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.folders.length, 30)
@@ -50,6 +54,7 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
 
 test('snapshot uses only relative unique folders and bounded proposal kinds', async () => {
   const snapshot = await readSnapshot()
+  assert.doesNotThrow(() => validateSnapshot(snapshot))
   const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
   for (const portfolio of snapshot.portfolios) {
     const folders = portfolio.folders.map((entry: { folder: string }) => entry.folder)

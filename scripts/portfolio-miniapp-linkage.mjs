@@ -41,10 +41,26 @@ function normalizeCatalog(catalog) {
     'catalog_work_ids',
   )
   if (workIds.length !== records.length) throw new Error('catalog_work_ids_duplicate')
+  const catalogWorkIds = new Set(workIds)
+  const operationalGaps = (catalog.operationalGaps ?? []).map((gap, index) => {
+    if (!isRecord(gap)) throw new Error(`catalog_operational_gap_${index}_invalid`)
+    const workId = parseWorkId(gap.workId, `catalog_operational_gap_${index}_work_id`).workId
+    if (!catalogWorkIds.has(workId)) throw new Error(`catalog_operational_gap_${index}_unknown_work_id`)
+    if (gap.gapKind !== 'mission-data-needed') throw new Error(`catalog_operational_gap_${index}_kind_invalid`)
+    return {
+      workId,
+      gapKind: gap.gapKind,
+      missingFields: sortedUniqueStrings(gap.missingFields, `catalog_operational_gap_${index}_missing_fields`),
+    }
+  }).sort((left, right) => left.workId.localeCompare(right.workId))
+  if (new Set(operationalGaps.map((gap) => gap.workId)).size !== operationalGaps.length) {
+    throw new Error('catalog_operational_gap_work_ids_duplicate')
+  }
   return {
     workIds,
     records: [...records].sort((left, right) => left.workId.localeCompare(right.workId)),
     recordCount: workIds.length,
+    operationalGaps,
     catalogDigest: typeof catalog.catalogDigest === 'string' ? catalog.catalogDigest : null,
     classificationDigest: typeof catalog.classificationDigest === 'string' ? catalog.classificationDigest : null,
   }
@@ -310,6 +326,7 @@ export function buildPortfolioMiniappLinkageReport(input) {
   if (rootMap?.unexpected.length) releaseBlockers.push(...rootMap.unexpected.map((folder) => `unmapped-working-folder:${folder}`))
 
   const packetsByWorkId = new Map(branchStories.packets.map((packet) => [packet.workId, packet]))
+  const operationalGapsByWorkId = new Map(catalog.operationalGaps.map((gap) => [gap.workId, gap]))
   const foldersByWorkId = new Map()
   for (const entry of rootMap?.folders ?? []) {
     for (const workId of entry.workIds) {
@@ -326,6 +343,7 @@ export function buildPortfolioMiniappLinkageReport(input) {
   }
   const operatingCoverage = catalog.records.map((record) => {
     const packet = packetsByWorkId.get(record.workId)
+    const missionGap = operationalGapsByWorkId.get(record.workId)
     const folders = [...(foldersByWorkId.get(record.workId) ?? [])].sort()
     const organs = [...new Set(deliveriesByWorkId.get(record.workId) ?? [])].sort()
     return {
@@ -334,6 +352,9 @@ export function buildPortfolioMiniappLinkageReport(input) {
       filesystem: folders.length ? { state: 'mapped', folders } : { state: 'explicit-folderless-gap', folders: [] },
       storyArc: packet ? { state: 'packet-backed', arcId: packet.arcId } : { state: 'explicit-unadmitted-gap', arcId: null },
       quests: packet ? { state: 'packet-backed', count: packet.questCount } : { state: 'explicit-unadmitted-gap', count: 0 },
+      missionData: missionGap
+        ? { state: 'mission-data-needed', missingFields: [...missionGap.missingFields] }
+        : { state: 'catalog-fields-present', missingFields: [] },
       organs: organs.length ? { state: 'receipt-backed', linked: organs } : { state: 'workflow-available-unassigned', linked: [] },
       miniApp: { canopy: 'catalog-visible', mission: packet ? 'packet-projected' : 'explicit-gap' },
       telegramTransport: 'hermes-only',
@@ -405,6 +426,7 @@ export function buildPortfolioMiniappLinkageReport(input) {
       packetBackedStoryArcs: operatingCoverage.filter((row) => row.storyArc.state === 'packet-backed').length,
       explicitStoryArcGaps: operatingCoverage.filter((row) => row.storyArc.state === 'explicit-unadmitted-gap').length,
       packetBackedQuestRows: questCount,
+      missionDataGaps: operatingCoverage.filter((row) => row.missionData.state === 'mission-data-needed').length,
       organWorkflowIds: organPlan?.workflowIds ?? [],
       activeOrganAssignments: operatingCoverage.filter((row) => row.organs.state === 'receipt-backed').length,
       rows: operatingCoverage,

@@ -88,12 +88,60 @@ test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake',
   const thoughtseed = portfolioRoot('thoughtseed')
   const noesis = portfolioRoot('tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 57)
+  assert.equal(thoughtseed.folderCount, 58)
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.itemLabel, 'Project')
   assert.equal(thoughtseed.folders.find((folder) => folder.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
+  assert.deepEqual(
+    thoughtseed.folders.find((folder) => folder.folder === 'temperance_engine'),
+    {
+      folder: 'temperance_engine',
+      proposedKind: 'internal-program',
+      accountId: null,
+      workIds: ['program:temperance-hermes'],
+      status: 'mapping-proposal',
+    },
+  )
   assert.ok(noesis.folders.every((folder) => folder.proposedKind === 'project'))
   assert.equal(noesis.folders.find((folder) => folder.folder === 'polyhymnia')?.status, 'empty-hold')
+})
+
+test('portfolio linkage exposes exact all-object readiness without granting admission', async () => {
+  const linkage = await import('./linkage.ts').catch(() => null)
+  assert.ok(linkage, 'portfolio linkage module must exist')
+  if (!linkage) return
+
+  assert.deepEqual(linkage.PORTFOLIO_LINKAGE_SUMMARY, {
+    totalWorkObjects: 72,
+    packetBackedStoryArcs: 5,
+    explicitStoryArcGaps: 67,
+    packetBackedQuestRows: 48,
+    missionDataGaps: 48,
+    activeOrganAssignments: 0,
+  })
+  const fitcheck = linkage.portfolioLinkageFor('sapling:fitcheck')
+  assert.deepEqual(fitcheck.filesystem, {
+    state: 'mapped',
+    folders: ['fitcheck-landing', 'fitcheck-wiki'],
+  })
+  assert.deepEqual(fitcheck.storyArc, {
+    state: 'packet-backed',
+    arcId: 'fitcheck-supervised-launch-hardening',
+  })
+  assert.deepEqual(fitcheck.quests, { state: 'packet-backed', count: 17 })
+  assert.deepEqual(fitcheck.missionData, {
+    state: 'mission-data-needed',
+    missingFields: ['blocker', 'currentState', 'desiredState', 'goalGraphRef', 'nextAction', 'ownerId', 'proofRequired', 'reviewAt', 'sourceDigest'],
+  })
+  assert.deepEqual(fitcheck.organs, { state: 'workflow-available-unassigned', linked: [] })
+  assert.deepEqual(fitcheck.miniApp, { canopy: 'catalog-visible', mission: 'packet-projected' })
+  assert.equal(fitcheck.telegramTransport, 'hermes-only')
+
+  const temperance = linkage.portfolioLinkageFor('program:temperance-hermes')
+  assert.ok(temperance.filesystem.folders.includes('temperance_engine'))
+  assert.equal(temperance.storyArc.state, 'explicit-unadmitted-gap')
+  assert.equal(temperance.missionData.state, 'mission-data-needed')
+  assert.throws(() => linkage.portfolioLinkageFor('sapling:unknown'), /Unknown portfolio linkage/)
 })
 
 test('Thoughtseed family headers resolve mapped folders while preserving explicit gaps', () => {
@@ -795,7 +843,7 @@ test('packet-backed WorkObjects open one authority-honest reusable Operate view'
   const contract = await readFile(new URL('../../../shared/fitcheck-golden-path.ts', import.meta.url), 'utf8')
   const fitcheckStyles = styles.slice(styles.indexOf('.fitcheck-operate'), styles.indexOf('.authority-note'))
 
-  assert.match(source, /type DrawerTab = 'operate' \| 'intake' \| 'plan' \| 'delivery' \| 'closeout'/)
+  assert.match(source, /type DrawerTab = 'operate' \| 'linkage' \| 'intake' \| 'plan' \| 'delivery' \| 'closeout'/)
   assert.match(source, /function OperationalPacketOperate/)
   assert.match(source, /operationalPacketProjectionFor/)
   assert.match(source, /data-operational-authority="packet-plan"/)
@@ -812,9 +860,9 @@ test('packet-backed WorkObjects open one authority-honest reusable Operate view'
   assert.match(source, /role="tabpanel"/)
   assert.match(source, /event\.key === 'ArrowRight'/)
   assert.match(source, /event\.key === 'ArrowLeft'/)
-  assert.match(source, /operationalPacketProjectionFor\(id\) \? 'operate' : 'intake'/)
-  assert.match(source, /operationalPacketProjectionFor\(initial\.focusedId\) \? 'operate' : 'intake'/)
-  assert.match(styles, /\.drawer-tabs\.has-operate \{[\s\S]*?repeat\(5, minmax\(0, 1fr\)\)/)
+  assert.match(source, /operationalPacketProjectionFor\(id\) \? 'operate' : 'linkage'/)
+  assert.match(source, /operationalPacketProjectionFor\(initial\.focusedId\) \? 'operate' : 'linkage'/)
+  assert.match(styles, /\.drawer-tabs\.has-operate \{[\s\S]*?repeat\(6, minmax\(0, 1fr\)\)/)
   assert.match(styles, /\.fitcheck-ladder/)
   assert.doesNotMatch(fitcheckStyles, /font-size:\s*(?:[0-9](?:\.\d+)?|1[01](?:\.\d+)?)px/)
   assert.match(contract, /workId: 'sapling:fitcheck'/)
@@ -825,6 +873,20 @@ test('packet-backed WorkObjects open one authority-honest reusable Operate view'
   assert.match(contract, /stage: 'mapping-receipt-verified',[\s\S]*?current: false/)
   assert.match(contract, /D1 Goal Graph exact WorkObject anchor/)
   assert.doesNotMatch(source, /Shopify App Store approved|reducing returns|go live in 48 hours/i)
+})
+
+test('every WorkObject drawer renders the generated read-only linkage boundary', async () => {
+  const source = await readFile(new URL('./App.tsx', import.meta.url), 'utf8')
+  const styles = await readFile(new URL('./index.css', import.meta.url), 'utf8')
+  assert.match(source, /function PortfolioLinkageView/)
+  assert.match(source, /portfolioLinkageFor\(work\.workId\)/)
+  assert.match(source, /Portfolio → TG Mini App linkage/)
+  assert.match(source, /D1 Goal Graph admission/)
+  assert.match(source, /Hermes transport only/)
+  assert.match(source, /Slash commands remain Hermes-plugin-owned/)
+  assert.match(source, /tab === 'linkage'/)
+  assert.match(styles, /\.linkage-chain/)
+  assert.match(styles, /\.linkage-facts/)
 })
 
 test('active Workbench exposes visible finish/archive controls backed by closeout receipts', async () => {
@@ -846,7 +908,7 @@ test('active Workbench exposes visible finish/archive controls backed by closeou
   assert.match(source, /setActiveView\('completed-closed'\)/)
   assert.doesNotMatch(source, /Start project ingestion/)
   assert.match(styles, /\.finish-action \{/)
-  assert.match(styles, /\.drawer-tabs \{[\s\S]*?grid-template-columns: repeat\(4, minmax\(0, 1fr\)\);/)
+  assert.match(styles, /\.drawer-tabs \{[\s\S]*?grid-template-columns: repeat\(5, minmax\(0, 1fr\)\);/)
 })
 
 test('planning history is mutually exclusive and state replacement safe', () => {

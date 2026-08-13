@@ -1189,3 +1189,42 @@ mutation has been performed by drafting this packet.
   no P0/P1 finding; the retained rollback UUID was not rehearsed because no
   trigger fired, and authenticated founder Workbench/Mini App visibility
   remains correctly held rather than claimed.
+
+### 2026-08-13 authenticated portfolio-to-Telegram linkage checkpoint
+
+- The existing founder-authenticated Workbench was probed read-only. It rendered
+  71 active WorkObjects without console warnings or errors; no admin POST was
+  invoked. The 72-object catalog is intentionally 71 active plus the terminal
+  `branch:safvr-landing-page` closeout, not a synchronization loss.
+- The candidate on `codex/portfolio-tg-flow` gives all 72 WorkObjects one
+  generated Linkage view: working-folder evidence, Story Arc, Quest rows,
+  mission-data readiness, D1 admission hold, planned organ route, Mini App
+  visibility, and Hermes-only transport. Packet-backed plans remain distinct
+  from runtime admission and completion.
+- The current depth-one Thoughtseed census is now 63 folders: 58 mapped project
+  rows and five infrastructure rows. The clean `temperance_engine` checkout is
+  mapped proposal-only to `program:temperance-hermes`; no external checkout was
+  moved or edited. Reviewed root digest is
+  `e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351`.
+- The shipped summary states 72 catalogued, 71 active, one finished, five
+  packet-backed Story arcs, 48 packet quest rows, 67 explicit Story gaps, 48
+  mission-data gaps, and zero receipt-backed organ assignments. Absent links
+  remain visible gaps and never become inferred runtime authority.
+- Verification passes: Workbench check 73 passed / one skipped; portfolio
+  foundation 45 + 73 + 108 tests; strict 63-root linkage audit aligned; local
+  browser Cambium and Fitcheck Linkage probes with zero console errors; release
+  gate 1678 core + 37 Telegram readiness + 99 R3F + 5 desktop tests; deterministic
+  builds and `git diff --check` passed.
+- Evidence is recorded in
+  `docs/evidence/2026-08-13-portfolio-tg-flow-linkage.v1.json`. This checkpoint
+  performed no deployment, Workbench action, D1/KV/R2/Vault write, Telegram
+  send/topic/slash-command change, Cloudflare change, or filesystem relocation.
+- Independent staged re-review is `PASS` with no P0/P1/P2/P3 finding. Its first
+  pass correctly held the checkpoint until the essential generated/evidence
+  additions were staged and `src/linkage.ts` joined the explicit lint gate;
+  both findings were closed and the Workbench check was rerun before approval.
+- The next separately approved sequence is: independently review and release
+  this exact candidate with rollback; select one exact durable Workbench action;
+  admit one exact packet-backed WorkObject only with complete mission data and
+  Founder Gate approval; then prove one Mission Fabric pilot from real Telegram
+  in-app evidence and require the exact Hermes acknowledgement.
