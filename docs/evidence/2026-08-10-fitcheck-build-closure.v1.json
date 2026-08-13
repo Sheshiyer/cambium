@@ -1,0 +1,60 @@
+{
+  "schema": "cambium.fitcheck-build-closure.v1",
+  "status": "complete-with-deferred-release-work",
+  "recordedAt": "2026-08-10",
+  "workObject": "sapling:fitcheck",
+  "scope": "Hands closure for already-built product surfaces",
+  "taskManifest": "docs/plans/product-branches/fitcheck-build-closure.tasks.md",
+  "resolution": {
+    "resolver": "resolve-task",
+    "unresolved": 0,
+    "phantoms": 0,
+    "touchedClusters": ["conductor", "astro", "growth-sales-cro", "python-backend", "business-content"]
+  },
+  "artifacts": [
+    {
+      "name": "Fitcheck landing",
+      "owner": "sapling:fitcheck",
+      "repository": "Sheshiyer/fitcheck-landing",
+      "status": "verified-local-build",
+      "verification": ["npm test: 7 passing", "ship-battery: typecheck, tests, and visual QA passed", "visual QA: 0 contrast failures across 106 text elements"]
+    },
+    {
+      "name": "Fitcheck private wiki",
+      "owner": "sapling:fitcheck",
+      "repository": "Sheshiyer/fitcheck-wiki",
+      "status": "verified-static-build",
+      "verification": ["astro check: 0 errors, 0 warnings", "astro build: 13 static pages"]
+    },
+    {
+      "name": "Fitcheck Shopify App Store listing",
+      "owner": "external distribution surface",
+      "repository": null,
+      "status": "verified-public-listing",
+      "verification": ["public listing is live", "pricing change is externally submitted and in progress"]
+    },
+    {
+      "name": "HDILINT backend dependency",
+      "owner": "program:hdilint",
+      "repository": "Sheshiyer/HDILINT-backend-aleph",
+      "relationship": "sapling:fitcheck --uses-backend--> program:hdilint",
+      "status": "declared-existing-build-dependency",
+      "verification": ["ownership boundary recorded; no fresh backend runtime test in this closure"]
+    }
+  ],
+  "deferred": [
+    "authenticated Shopify widget QA",
+    "consent and privacy review",
+    "payment activation",
+    "public-claim proof",
+    "Shopify listing pricing submission outcome"
+  ],
+  "deferredAreBuildBlockers": false,
+  "claimBoundary": "Retain current public listing claims by founder direction. Do not represent the pending Shopify pricing submission as verified until the listing readback changes.",
+  "sourcePaths": [
+    "docs/plans/product-branches/fitcheck.md",
+    "docs/architecture/fitcheck-golden-path.md",
+    "docs/plans/product-branches/fitcheck-build-closure.tasks.md",
+    "docs/runbooks/fitcheck-brand-to-wiki-flow.md"
+  ]
+}

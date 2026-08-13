@@ -52,14 +52,14 @@ import {
 
 test('canonical portfolio coverage remains exact', () => {
   assert.deepEqual(CLASSIFICATION_COUNTS, {
-    total: 74,
-    saplings: 20,
-    clientBranches: 39,
+    total: 72,
+    saplings: 17,
+    clientBranches: 40,
     internalPrograms: 15,
     review: 0,
     historical: 20,
   })
-  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 74)
+  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 72)
   assert.equal(REVIEW_RECORDS.length, 0)
   assert.equal(HISTORICAL_RECORDS.length, 20)
 })
@@ -80,7 +80,7 @@ test('client families derive only from exact source account ids', () => {
   assert.ok(clients.every((work) => work.accountId && groups.some((group) => (
     group.groupId === `client:${work.accountId}` && group.members.includes(work)
   ))))
-  assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 20)
+  assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 17)
   assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 15)
 })
 
@@ -88,7 +88,7 @@ test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake',
   const thoughtseed = portfolioRoot('thoughtseed')
   const noesis = portfolioRoot('tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 54)
+  assert.equal(thoughtseed.folderCount, 57)
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.itemLabel, 'Project')
   assert.equal(thoughtseed.folders.find((folder) => folder.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')

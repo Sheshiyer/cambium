@@ -28,6 +28,39 @@ test('shared Fitcheck golden path stays exact with the canonical packet', () => 
     story.controls.organRouting.slice(5).map((organ) => organ.organ),
     FITCHECK_GOLDEN_PATH.supportRails.map((rail) => rail.name),
   );
+  assert.deepEqual(
+    FITCHECK_GOLDEN_PATH.organs.map((organ) => [organ.name, organ.state]),
+    [
+      ['Genesis', 'complete'],
+      ['Taste', 'complete'],
+      ['Hands', 'complete'],
+      ['Will', 'ready-for-review'],
+      ['Cortex', 'complete'],
+    ],
+  );
+  assert.deepEqual(
+    story.questline.map((quest) => [quest.id, quest.status]),
+    [
+      ['fitcheck-shopify-listing-price-submission', 'external-wait'],
+      ['fitcheck-shopify-widget-qa', 'blocked'],
+      ['fitcheck-privacy-consent-review', 'blocked'],
+      ['fitcheck-dodo-payment-activation', 'external-wait'],
+      ['fitcheck-public-claims-evidence', 'blocked'],
+      ['fitcheck-outreach-pilot-approval', 'ready-for-review'],
+      ['fitcheck-search-measurement-foundation', 'external-wait'],
+      ['fitcheck-technical-search-baseline', 'proposed'],
+      ['fitcheck-icp-query-evidence-map', 'proposed'],
+      ['fitcheck-answer-library', 'blocked'],
+      ['fitcheck-editorial-pilot', 'blocked'],
+      ['fitcheck-link-relationship-research', 'proposed'],
+      ['fitcheck-attribution-readback', 'external-wait'],
+      ['fitcheck-campaign-reply-triage', 'ready-for-review'],
+      ['fitcheck-crm-minimum-viable-flow', 'ready-for-review'],
+      ['fitcheck-campaign-learning-foldback', 'proposed'],
+      ['fitcheck-garden-health-pulse', 'blocked'],
+    ],
+  );
+  assert.equal(story.questline.every((quest) => !['complete', 'superseded'].includes(quest.status)), true);
   assert.equal(story.loops[0]?.loopId, FITCHECK_GOLDEN_PATH.loop.loopId);
   assert.equal(story.loops[0]?.oneChangeRule, FITCHECK_GOLDEN_PATH.loop.oneChangeRule);
   assert.equal(story.source.packetFile, FITCHECK_GOLDEN_PATH.sources.packet);

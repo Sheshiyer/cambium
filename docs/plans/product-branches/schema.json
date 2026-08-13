@@ -46,7 +46,9 @@
  "non_packet_markdown_files": [
   "ISA.md",
   "index.md",
-  "loop-library.md"
+  "loop-library.md",
+  "fitcheck-build-closure.tasks.md",
+  "fitcheck-growth-quest-backlog.md"
  ],
  "proof_statuses": [
   "verified",

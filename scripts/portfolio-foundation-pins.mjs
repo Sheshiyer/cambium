@@ -4,9 +4,9 @@ import { readFileSync } from 'node:fs'
 // scripts/portfolio-foundation-pins.test.mjs compares these explicit approval
 // pins with the generated root map and validated catalog, so later source drift
 // fails closed until the reviewed pin is intentionally advanced.
-export const REVIEWED_ROOT_MAP_DIGEST = '57436877fc82d480eae7eb35adc2bc9149c2a50e22619fb2bb346ee2a2acbe0a'
+export const REVIEWED_ROOT_MAP_DIGEST = 'e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259'
 export const REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST = '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309'
-export const REVIEWED_PORTFOLIO_CATALOG_DIGEST = 'sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24'
+export const REVIEWED_PORTFOLIO_CATALOG_DIGEST = 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca'
 
 export const REVIEWED_ACTION_SOURCE_DIGEST = REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST
 export const REVIEWED_ACTION_CATALOG_DIGEST = REVIEWED_PORTFOLIO_CATALOG_DIGEST

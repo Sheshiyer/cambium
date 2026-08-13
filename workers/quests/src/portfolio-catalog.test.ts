@@ -29,7 +29,7 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
   assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
     total: 72,
     saplings: 17,

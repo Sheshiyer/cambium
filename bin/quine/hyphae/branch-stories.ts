@@ -16,6 +16,7 @@ import type {
   BranchProofStatus,
   BranchPromotionState,
   BranchQuestStage,
+  BranchQuestStatus,
   BranchStoryArc,
   BranchStoryGap,
   BranchVariableContractGroup,
@@ -233,7 +234,25 @@ function ledgerGaps(rows: Array<{ status: BranchProofStatus; detail: string; sou
       }]);
 }
 
+function normalizeQuestStatus(value: string): BranchQuestStatus {
+  const status = clean(value).toLowerCase().replace(/\s+/g, '-');
+  if (['verified', 'blocked', 'pending', 'no-signal', 'queued', 'proposed', 'external-wait', 'ready-for-review', 'approved', 'active', 'complete', 'superseded'].includes(status)) {
+    return status as BranchQuestStatus;
+  }
+  return 'pending';
+}
+
 function questlineFromSection(source: string): BranchQuestStage[] {
+  const rows = sectionRows(source, 'Quest Queue');
+  if (rows.some((row) => clean(row.quest_id))) {
+    return rows
+      .map((row): BranchQuestStage => ({
+        id: clean(row.quest_id),
+        title: clean(row.title || row.quest_id),
+        status: normalizeQuestStatus(row.status),
+      }))
+      .filter((stage) => stage.id);
+  }
   return extractSection(source, 'Quest Queue').split(/\r?\n/)
     .map((line) => line.match(/^\s*\d+\.\s+(.*)$/)?.[1])
     .filter((line): line is string => !!line)
@@ -327,6 +346,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
     output: clean(organ.output),
     proofPath: clean(organ.proof_path),
     currentGate: clean(organ.current_gate),
+    status: normalizeQuestStatus(organ.status || organ.current_gate),
   })).filter((organ) => organ.organ);
   const variableContractPayloads = sectionRows(source, 'Variable Contract Payload').map((group): BranchVariableContractGroup => ({
     group: clean(group.group),

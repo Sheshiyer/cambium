@@ -61,6 +61,19 @@ const MC_SCENE_TOKEN_LABEL = {
 function mcSceneTokenLabel(state){
   return MC_SCENE_TOKEN_LABEL[mcStateKind(state)] || 'waiting';
 }
+/* Work kind is source-shaped, not an aesthetic guess. The primary glyph and
+   label make Saplings, client Programs, service Programs, and gaps visibly
+   distinct before the user opens Inspect. */
+function mcSceneWorkVariant(branch){
+  const branchKind = mcText(branch && branch.branchKind, '').toLowerCase();
+  if (branchKind === 'product') return { id:'sapling', label:'Sapling', glyph:'genesis' };
+  if (branchKind === 'client') return { id:'client-program', label:'Client program', glyph:'taste' };
+  if (branchKind === 'internal-service') {
+    const text = [branch && branch.programKind, branch && branch.role, branch && branch.arcTitle].filter(Boolean).join(' ');
+    return { id:'service-program', label:/capability/i.test(text) ? 'Capability program' : 'Operations program', glyph:/capability|cortex/i.test(text) ? 'cortex' : 'ops' };
+  }
+  return { id:'classification-gap', label:'Classification needed', glyph:'gate' };
+}
 function buildMissionSceneView(env){
   const branchEnv = branchEnvelope(env || {});
   const rows = branchRows(env || {});
@@ -103,12 +116,14 @@ function buildMissionSceneView(env){
       const organ = mcOrganMetaForBranch(row, active);
       const rawState = branchCardState(row);
       const stages = mcQuestline(row);
+      const variant = mcSceneWorkVariant(row);
       return {
         id:mcBranchId(row, index),
         name:mcText(row && (row.name || row.productId), 'Product Branch'),
         arcTitle:mcText(row && row.arcTitle, 'branch arc'),
         state:organ.neutral ? 'idle' : rawState,
         organ,
+        variant,
         nextMission:active ? mcText(active.title, 'Mission title missing') : 'mission queue missing',
         done:stages.filter(stage => stage.state === 'complete').length,
         total:stages.length,
@@ -129,6 +144,7 @@ function buildMissionSceneView(env){
       rule:mcText(promotion.rule, 'proof first; no promotion without foldback evidence'),
     },
     activeOrgan:mcOrganMetaForBranch(branch, mission),
+    workVariant:mcSceneWorkVariant(branch),
     controls,
     inspect:{
       source:mcText(branchEnv.source, 'product-branch-packets@v1'),
@@ -144,12 +160,14 @@ function buildMissionSceneView(env){
    State rides icon + color + border style — never color alone; the selected chip carries the halo. */
 function renderSceneChipRail(view){
   if (!view.branches.length) return '';
-  return '<div class="mc-branch-rail" role="tablist" aria-label="Product branches" data-horizontal-scroll="branch-rail" data-no-scene-drag="1">' + view.branches.map((branch, index) => {
+  const variants = [...new Set(view.branches.map(branch => branch.variant.id))];
+  const collectionLabel = variants.length === 1 && variants[0] === 'sapling' ? 'Saplings' : 'Work items';
+  return '<div class="mc-branch-rail" role="tablist" aria-label="' + esc(collectionLabel) + '" data-horizontal-scroll="branch-rail" data-no-scene-drag="1">' + view.branches.map((branch, index) => {
     const kind = mcStateKind(branch.state);
     const count = branch.total ? '<span class="mc-branch-count">' + branch.done + '/' + branch.total + '</span>' : '';
-    return '<button type="button" id="mission-branch-tab-' + index + '" role="tab" aria-selected="' + (branch.selected ? 'true' : 'false') + '" aria-controls="mission-branch-panel" aria-label="' + esc(branch.name + ' · ' + kind) + '" tabindex="' + (branch.selected ? '0' : '-1') + '" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-no-scene-drag="1" data-interaction-kind="tab" data-source="' + esc(view.source) + '">' +
-      mcGlyphSvg(branch.organ.glyph, branch.state) +
-      '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b></span>' + count +
+    return '<button type="button" id="mission-branch-tab-' + index + '" role="tab" aria-selected="' + (branch.selected ? 'true' : 'false') + '" aria-controls="mission-branch-panel" aria-label="' + esc(branch.variant.label + ' · ' + branch.name + ' · ' + kind) + '" tabindex="' + (branch.selected ? '0' : '-1') + '" class="' + mcClass('mc-branch-chip', branch.state, branch.selected ? 'is-selected mc-selected-halo' : '') + '" data-component="BranchArcChip" data-work-variant="' + esc(branch.variant.id) + '" data-selected-surface="' + (branch.selected ? 'branch-chip' : 'none') + '" data-mission-branch="' + index + '" data-organ-route="' + esc(branch.organ.glyph) + '" data-no-scene-drag="1" data-interaction-kind="tab" data-source="' + esc(view.source) + '">' +
+      mcGlyphSvg(branch.variant.glyph, branch.state) +
+      '<span class="mc-branch-copy"><b>' + esc(branch.name) + '</b><small>' + esc(branch.variant.label) + '</small></span>' + count +
       '<i class="mc-branch-state-icon is-' + kind + '" aria-hidden="true">' + (MC_STATE_ICON[kind] || MC_STATE_ICON.idle) + '</i>' +
     '</button>';
   }).join('') + '</div>';
@@ -222,9 +240,10 @@ function renderSceneHeroCard(view){
   const total = view.questline.length;
   const progress = total ? Math.round(100 * done / total) : 0;
   const selectedTabIndex = Math.max(0, view.branches.findIndex(branch => branch.selected));
-  return '<section id="mission-branch-panel" role="tabpanel" aria-labelledby="mission-branch-tab-' + selectedTabIndex + '" class="' + mcClass('mc-mission-card', mission.state) + '" data-component="MissionCard" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
+  return '<section id="mission-branch-panel" role="tabpanel" aria-labelledby="mission-branch-tab-' + selectedTabIndex + '" class="' + mcClass('mc-mission-card', mission.state) + '" data-component="MissionCard" data-work-variant="' + esc(view.workVariant.id) + '" data-interaction-kind="sheet" data-source="' + esc(view.source) + '">' +
     renderSceneConstellation(mission.state) +
-    '<span class="mc-eyebrow" data-component="MissionCardEyebrow">NEXT MISSION</span>' +
+    '<span class="mc-eyebrow" data-component="MissionCardEyebrow">' + esc(view.workVariant.label) + '</span>' +
+    '<span class="mc-next-label">NEXT MISSION</span>' +
     '<div class="mc-card-head"><div><h3 class="mc-card-title">' + esc(mission.title) + '</h3></div>' + mcOrbitProgress({ value:progress, state:mission.state, label:done + '/' + total, ariaLabel:'questline progress ' + done + ' of ' + total + ' · ' + mcStateKind(mission.state) }) + '</div>' +
     '<div class="mc-meta-grid">' +
       '<span class="mc-meta-row"><b>Owner:</b><span>' + esc(mission.owner) + '</span></span>' +

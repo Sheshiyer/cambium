@@ -7,7 +7,7 @@ const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const defaultSnapshotPath = path.resolve(appRoot, '../../docs/project-management/portfolio-roots.v1.json')
 const defaultGeneratedPath = path.join(appRoot, 'src/portfolio-root-map.generated.ts')
 const defaultWorkerGeneratedPath = path.resolve(appRoot, '../../workers/quests/src/portfolio-root-map.generated.ts')
-const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project', 'co-founded-venture'])
+const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
 
 export function stableJson(value) {
   if (Array.isArray(value)) return value.map(stableJson)
@@ -39,8 +39,8 @@ export function validateSnapshot(snapshot) {
     }
   }
   const thoughtseed = snapshot.portfolios[0]
-  if (thoughtseed.folderCount !== 54) throw new TypeError('Thoughtseed folder count must remain 54')
-  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_physical-relocation-archive-2026-08-08', 'openfang', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
+  if (thoughtseed.folderCount !== 57) throw new TypeError('Thoughtseed folder count must remain 57')
+  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
   const noesis = snapshot.portfolios[1]
   if (noesis.folderCount !== 30) throw new TypeError('Tryambakam-Noesis folder count must remain 30')
   if (JSON.stringify(noesis.infrastructure) !== JSON.stringify(['selemene-engine-worktrees'])) throw new TypeError('Tryambakam-Noesis infrastructure exclusions drifted')

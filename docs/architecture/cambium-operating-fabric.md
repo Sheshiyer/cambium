@@ -453,6 +453,19 @@ Palette remains the frozen Cambium system:
 - deep shadow `#231651`
 - warning peach `#FFC7A1`
 
+### Visual reconciliation rule [OF-C6.1]
+
+The visual system must preserve a separation that the current branch-first
+Mission renderer temporarily obscures: `product` branches are Saplings and use
+the Sapling silhouette plus promotion vocabulary; `client` and
+`internal-service` branches are Programs and use their client/capability or
+operations silhouette plus program vocabulary. A missing mapping is a visible
+gap, never a generic product card. Responsive composition changes placement,
+not this semantic distinction: 320/390/430px are first-class proof widths and
+desktop may add context only without changing reading order or hiding actions.
+The detailed implementation contract is
+`docs/plans/2026-08-12-mission-control-visual-reconciliation.md`.
+
 ## Error and empty states [OF-C7]
 
 - Missing program packet: show an explicit `program source missing` gap.

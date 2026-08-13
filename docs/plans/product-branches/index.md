@@ -4,7 +4,7 @@ This index lists Cambium branch packets that can enter the branch loop. A branch
 
 | product_id | canonical_work_id | identity_scope | branch_kind | name | role | promotion_state | current_gate | packet |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| fitcheck | sapling:fitcheck | canonical-work-object | product | Fitcheck | Supervised product branch | supervised-branch | Shopify Dodo privacy QA outreach and first merchant proof | fitcheck.md |
+| fitcheck | sapling:fitcheck | canonical-work-object | product | Fitcheck | Supervised product branch | supervised-branch | Shopify QA, pricing listing, privacy/payment, CRM destination, and approved distribution | fitcheck.md |
 | vantyx | sapling:vantyx | canonical-work-object | product | Vantyx | Tenant onboarding and publishing branch | supervised-branch | Tenant proof and rollback proof | vantyx.md |
 | snow-gloves-os | program:snow-gloves-os | canonical-work-object | internal-service | Snow Gloves OS | Will-organ service | organ-service | Service contract and GTM approval gate | snow-gloves-os.md |
 | iverif | sapling:iverif | canonical-work-object | product | IVerif | Compliance and proof product candidate | proof-only | Claim/proof separation and live campaign reconciliation before automation | iverif.md |

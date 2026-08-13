@@ -7,8 +7,8 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { basename, join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
 import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
@@ -50,6 +50,7 @@ const BROWSER_CANDIDATES = explicitChrome
 const CHROME = BROWSER_CANDIDATES[0] || DEFAULT_BROWSER_CANDIDATES[0];
 const CDP_TIMEOUT_MS = Number(process.env.CDP_TIMEOUT_MS || 30_000);
 const CDP_PROBE_TIMEOUT_MS = Number(process.env.CDP_PROBE_TIMEOUT_MS || 3_500);
+const CDP_OPERATION_TIMEOUT_MS = Number(process.env.CDP_OPERATION_TIMEOUT_MS || 15_000);
 const argv = new Set(process.argv.slice(2));
 const DIAGNOSE_BROWSER = argv.has('--diagnose-browser');
 const MOBILE_CONTRACT_ONLY = argv.has('--mobile-contract');
@@ -68,6 +69,13 @@ export function viewportProofArtifactDirectory({ proofPathFilter = '', mobileCon
   return shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly)
     ? outDir
     : join(diagnosticsDir, 'captures');
+}
+
+export function isDirectInvocation(argvEntry = process.argv[1], moduleUrl = import.meta.url) {
+  if (!argvEntry) return false;
+  const modulePath = fileURLToPath(moduleUrl);
+  return resolve(argvEntry) === modulePath
+    || basename(resolve(argvEntry)) === basename(modulePath);
 }
 const viewport = { width: 390, height: 844 };
 const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/telegram-web-app.js');
@@ -1168,7 +1176,16 @@ const operatingFabricQuestsFixture = {
 };
 
 function operatingFabricAllScenesAssertion(width) {
+  const expectedPortfolio = {
+    cardCount: PORTFOLIO_CATALOG.summary.total + PORTFOLIO_CATALOG.summary.historicalProducts,
+    saplings: String(PORTFOLIO_CATALOG.summary.saplings),
+    clients: String(PORTFOLIO_CATALOG.summary.clientBranches),
+    programs: String(PORTFOLIO_CATALOG.summary.internalPrograms),
+    review: String(PORTFOLIO_CATALOG.summary.classificationReview),
+    historical: String(PORTFOLIO_CATALOG.summary.historicalProducts),
+  };
   return `(() => {
+    const expectedPortfolio = ${JSON.stringify(expectedPortfolio)};
     const root = document.getElementById('operating-fabric');
     if (!root) return { ok:false, missing:'operating-fabric-root' };
     const portfolio = root.querySelector('[data-component="PortfolioCanopy"][data-portfolio-mode="detail"]');
@@ -1201,12 +1218,12 @@ function operatingFabricAllScenesAssertion(width) {
       && organPlan.textContent.includes('No recurring schedule');
     const portfolioOk = Boolean(portfolio)
       && portfolioZones.length === 4
-      && portfolioCards.length === 94
-      && portfolioCounts.saplings === '20'
-      && portfolioCounts.clients === '39'
-      && portfolioCounts.programs === '15'
-      && portfolioCounts.review === '0'
-      && portfolioCounts.historical === '20'
+      && portfolioCards.length === expectedPortfolio.cardCount
+      && portfolioCounts.saplings === expectedPortfolio.saplings
+      && portfolioCounts.clients === expectedPortfolio.clients
+      && portfolioCounts.programs === expectedPortfolio.programs
+      && portfolioCounts.review === expectedPortfolio.review
+      && portfolioCounts.historical === expectedPortfolio.historical
       && Boolean(fitcheck)
       && fitcheck.textContent.includes('cambium')
       && fitcheck.textContent.includes('aliases are display-only');
@@ -1499,7 +1516,7 @@ async function waitForDebugger(port, timeoutMs = 30_000, diagnostics = () => '')
     for (const host of debuggerHosts) {
       const endpoint = `http://${host}:${port}/json/list`;
       try {
-        const res = await fetch(endpoint);
+        const res = await fetch(endpoint, { signal: AbortSignal.timeout(CDP_OPERATION_TIMEOUT_MS) });
         attempts.set(host, `${endpoint} -> HTTP ${res.status}`);
         if (res.ok) return await res.json();
       } catch (error) {
@@ -1616,8 +1633,18 @@ async function cdpClient(wsUrl) {
   const pending = new Map();
   let nextId = 1;
   await new Promise((resolve, reject) => {
-    ws.addEventListener('open', resolve, { once: true });
-    ws.addEventListener('error', reject, { once: true });
+    const timeout = setTimeout(() => {
+      ws.close();
+      reject(new Error(`Timed out opening Chrome DevTools WebSocket after ${CDP_OPERATION_TIMEOUT_MS}ms`));
+    }, CDP_OPERATION_TIMEOUT_MS);
+    ws.addEventListener('open', () => {
+      clearTimeout(timeout);
+      resolve();
+    }, { once: true });
+    ws.addEventListener('error', (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    }, { once: true });
   });
   ws.addEventListener('message', (event) => {
     const msg = JSON.parse(String(event.data));
@@ -1632,7 +1659,22 @@ async function cdpClient(wsUrl) {
     send(method, params = {}) {
       const id = nextId++;
       ws.send(JSON.stringify({ id, method, params }));
-      return new Promise((resolve, reject) => pending.set(id, { resolve, reject }));
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          pending.delete(id);
+          reject(new Error(`Timed out waiting for Chrome DevTools ${method} after ${CDP_OPERATION_TIMEOUT_MS}ms`));
+        }, CDP_OPERATION_TIMEOUT_MS);
+        pending.set(id, {
+          resolve(value) {
+            clearTimeout(timeout);
+            resolve(value);
+          },
+          reject(error) {
+            clearTimeout(timeout);
+            reject(error);
+          },
+        });
+      });
     },
     close() {
       ws.close();
@@ -2005,7 +2047,8 @@ const captureSteps = selectViewportProofCaptureSteps({
 });
 if (captureSteps.length === 0) throw new Error(`No viewport proof path matched ${PROOF_PATH_FILTER}`);
 await withServer(async (base, metrics) => {
-  for (const proof of captureSteps) {
+  for (const [index, proof] of captureSteps.entries()) {
+    console.error(`[${index + 1}/${captureSteps.length}] ${proof.path}`);
     const file = join(artifactDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
@@ -2057,7 +2100,7 @@ if (WRITE_CANONICAL_PROOF_ARTIFACTS) writeFileSync(join(outDir, 'manifest.json')
 console.log(JSON.stringify(manifest, null, 2));
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.env.CAMBIUM_RUN_VIEWPORT_PROOF === '1' || isDirectInvocation()) {
   main().catch((error) => {
     writeFailureArtifact(error);
     console.error(error instanceof Error ? error.stack : String(error));

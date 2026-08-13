@@ -42,7 +42,7 @@ Snow Gloves OS is represented in Cambium as a Will-organ service packet, not a s
 | Taste | Cambium taste/operator review | Tenant-facing messages and GTM assets | Fit/reroll verdict | Future review packet | pending |
 | Hands | Snow Gloves OS repo | Service wiring and connector tasks | Code/tests/release changes | Repo tests and CI | pending clean test proof |
 | Will | Snow Gloves OS | Events, sources, approvals, tenant capabilities | Routed operations and GTM actions | Smoke, audit logs, approval proof | blocked by live approval proof |
-| Cortex | Cambium/Cortex memory | Tenant lessons and operational proof | Searchable operations memory | Future ingestion receipt | pending |
+| Cortex | Cambium/Cortex memory | Tenant lessons and operational proof | Searchable operations memory | `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json` | complete |
 | Hermes | Hermes local bus | Task/report events | Founder-facing proof and route summaries | Hermes proof receipts | pending |
 | Garden | Operating cadence | Tenant health and GTM outcomes | Follow-up routines | Future pulse log | pending |
 
@@ -75,6 +75,7 @@ Snow Gloves OS is represented in Cambium as a Will-organ service packet, not a s
 | verified | `snow-gloves-os/README.md`, `docs/explainer.md`, `config/snowgloves.yaml`, orchestration specs, AutoGTM specs, and tenant manifest were inspected read-only by the product-context agent. |
 | verified | Docs define `make doctor`, `make smoke`, `make test`, `make app-build`; CI references `pytest -q tests/` and `make smoke` with stub embeddings. |
 | verified | Specs show AutoGTM deterministic wiring has evidence, but not full live tenant operations. |
+| verified | Cortex receipt-derived read model records Snow Gloves OS among five canonical packets with semantic recall verified. Redacted summary: `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. |
 | pending | The commands were not run in this Cambium packet pass because the checkout reportedly had runtime/generated dirt. |
 | blocked | Runtime secret bind, live approval enforcement, clean smoke/test proof, and distribution OS proof remain open. |
 | no-signal | No proof supports autonomous standalone product readiness. |

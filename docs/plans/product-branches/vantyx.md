@@ -42,7 +42,7 @@ Vantyx is a supervised Cambium product-branch candidate for a multi-tenant immer
 | Taste | Cambium taste loop | Tour viewer, admin flow, developer-facing copy | Visual/copy QA and reroll list | Future Taste review | pending |
 | Hands | `Panaroma-Webapp` | Tenant onboarding and publish/rollback tasks | Code/config changes and deploy receipts | Product repo PRs and command receipts | pending second tenant proof |
 | Will | GTM/operator routines | Approved sales/demo packet | Outreach and follow-up tasks | Founder-approved action log | pending |
-| Cortex | Cambium/Cortex memory | Tenant proof, deploy health, rollback lessons | Searchable branch memory | Cortex ingestion target | pending |
+| Cortex | Cambium/Cortex memory | Tenant proof, deploy health, rollback lessons | Searchable branch memory | `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json` | complete |
 | Hermes | Hermes/Plexus reports | Health and next actions | Founder-visible recommendation and proof report | Future report packet | pending |
 | Garden | Branch cadence | Tenant health and proof outcomes | Branch health pulse | Future Garden routine | blocked until second tenant exists |
 
@@ -77,6 +77,7 @@ Vantyx is a supervised Cambium product-branch candidate for a multi-tenant immer
 | verified | `Panaroma-Webapp/docs/DEVELOPMENT.md` documents stack, commands, architecture, deploy, and secrets boundaries. |
 | verified | `Panaroma-Webapp/worker/wrangler.toml` names Worker `vantyx`. |
 | verified | Public probe reported `https://marina-one-ka.tryvantyx.space/` returned HTTP 200 and `/api/config` returned JSON with `schemaVersion: 1`, `version: 1`, and tenant `marina-one-ka`. |
+| verified | Cortex receipt-derived read model records Vantyx among five canonical packets with semantic recall verified. Redacted summary: `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. |
 | pending | Local `bun run typecheck`, `bun test`, deploy, and `bun run new-client ...` were documented but not run in this Cambium packet pass. |
 | blocked | Second-client dogfood, PostHog confirmation, Resend domain readiness, and Turnstile live-login checks remain unproven. |
 | no-signal | No Cambium/Plexus proof reporting integration is present in this packet yet. |

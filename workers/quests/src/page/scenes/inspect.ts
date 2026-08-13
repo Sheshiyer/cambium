@@ -478,7 +478,7 @@ function mcBranchEnvelopeStale(env, branchEnv){
 }
 function mcOrganMetaForBranch(branch, mission){
   const routes = mcList(branch && branch.controls && branch.controls.organRouting);
-  const route = routes.find(row => !/verified|complete|done/i.test(String((row && (row.currentGate || row.status)) || ''))) || routes[0] || null;
+  const route = routes.find(row => !/verified|complete|done/i.test(String((row && (row.status || row.currentGate)) || ''))) || routes[0] || null;
   const routed = route && mcOrganSlug(route.organ || route.owner || route.output || route.currentGate);
   const candidates = [
     routed,
@@ -496,7 +496,7 @@ function mcOrganMetaForBranch(branch, mission){
     label:mcText(label, stageTitle(glyph)),
     source,
     neutral,
-    state:neutral ? 'idle' : 'active',
+    state:neutral ? 'idle' : mcStateKind(route && (route.status || route.currentGate)),
     detail:neutral ? 'unknown arc; idle visual fallback' : (route ? mcText(route.currentGate || route.proofPath || route.owner, 'organ route pending') : mcText(branch && (branch.arcTitle || branch.role), 'branch organ inferred')),
   };
 }

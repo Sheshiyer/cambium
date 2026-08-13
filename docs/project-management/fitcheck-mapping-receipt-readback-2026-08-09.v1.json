@@ -1,0 +1,65 @@
+{
+  "schema": "thoughtseed.fitcheck-mapping-receipt-readback.v1",
+  "recordedAt": "2026-08-09T08:01:36+05:30",
+  "phase": "Fitcheck mapping-receipt issuance and immutable readback",
+  "portfolioId": "thoughtseed",
+  "workObjectId": "sapling:fitcheck",
+  "tenantId": "cambium",
+  "mutationPerformed": {
+    "r2Put": true,
+    "d1": false,
+    "hermes": false,
+    "cortex": false,
+    "agentMemory": false,
+    "deployment": false,
+    "promotion": false,
+    "provider": false,
+    "traffic": false,
+    "github": false,
+    "folder": false
+  },
+  "r2": {
+    "bucket": "thoughtseed-vault",
+    "key": "portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json",
+    "objectSha256": "0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5",
+    "contentType": "application/json",
+    "preflight": "key-absent-before-issuance",
+    "write": "owner-approved-single-object-put",
+    "readback": "byte-identical-readback-validated"
+  },
+  "receipt": {
+    "schema": "thoughtseed.portfolio-mapping-receipt.v1",
+    "receiptId": "pmr_9de251ce89564f07f3e4c510",
+    "contentDigest": "sha256:9de251ce89564f07f3e4c510c2bcc9e873a3cf758bfb5e30a8588e1db7e7cbf7",
+    "idempotencyKey": "thoughtseed:github-batch-003-sapling-provenance:sapling:fitcheck:R_kgDOSzF56w",
+    "status": "prepared",
+    "bundleRef": "docs/project-management/portfolio-mapping-receipts-batch-3.v1.json",
+    "bundleDigest": "sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f"
+  },
+  "authority": {
+    "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
+    "catalogDigest": "sha256:0aa1e7a1b4bdfcd82571509b693fca90a0dc8a6901f539980ebe1c5b34be275a",
+    "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
+    "repositoryEvidenceDigest": "afbbb9fbdebd4f40c6bebf3e2384fcca56c02405b519d109b96b7caa3f7e1f40"
+  },
+  "repository": {
+    "nameWithOwner": "Sheshiyer/fitcheck-landing",
+    "repositoryId": "R_kgDOSzF56w",
+    "databaseId": 1261533675,
+    "defaultBranchRef": "main"
+  },
+  "rootMap": {
+    "folder": "fitcheck-landing",
+    "proposedKind": "sapling",
+    "workIds": [
+      "sapling:fitcheck"
+    ],
+    "status": "mapping-proposal"
+  },
+  "nextGate": {
+    "name": "D1 Mission to Task proposal",
+    "unlocked": true,
+    "applied": false,
+    "requiresSeparateApproval": true
+  }
+}

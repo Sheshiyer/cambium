@@ -43,7 +43,7 @@ export type RawClassificationReview = readonly [
 export const RAW_SAPLINGS: readonly RawSapling[] = [
   ['sapling:cambium', 'Cambium', 'supervised-branch', 'canonical', 'cambium', ['vault:00-meta/entity-registry.md', 'vault:40-products/cambium/product-overview.md'], ['program:cambium-operating-fabric']],
   ['sapling:dlock', 'DLOCK', 'proof-only', 'canonical-parent', 'cambium', ['repo:thoughtseed-labs/lockwell-portal', 'repo-id:R_kgDOP5AZyQ', 'site:https://dlock-lp.vercel.app/', 'cambium:docs/plans/product-branches/dlock.md'], undefined, [['dlock', 'brand-alias'], ['Lockwell', 'legacy-repo-name']]],
-  ['sapling:fitcheck', 'Fitcheck', 'supervised-branch', 'canonical-parent', 'cambium', ['repo:fitcheck-landing/README.md', 'repo-id:R_kgDOSzF56w', 'cambium:docs/plans/product-branches/fitcheck.md'], ['program:hdilint'], [['FitCheck', 'legacy-product-name'], ['getfitcheck', 'brand-alias']]],
+  ['sapling:fitcheck', 'Fitcheck', 'supervised-branch', 'canonical-parent', 'cambium', ['repo:fitcheck-landing/README.md', 'repo-id:R_kgDOSzF56w', 'repo:Sheshiyer/fitcheck-wiki/README.md', 'repo-id:R_kgDOT0IfLQ', 'cambium:docs/plans/product-branches/fitcheck.md'], ['program:hdilint'], [['FitCheck', 'legacy-product-name'], ['getfitcheck', 'brand-alias']]],
   ['sapling:iverif', 'IVerif', 'proof-only', 'canonical-parent', 'cambium', ['repo:Sheshiyer/iverif-wiki', 'repo-id:R_kgDOSwXJ7Q', 'cambium:docs/plans/product-branches/iverif.md']],
   ['sapling:vantyx', 'Vantyx', 'supervised-branch', 'unresolved', null, ['cambium:docs/plans/product-branches/vantyx.md', 'repo:Panaroma-Webapp']],
   ['sapling:vibrasonix', 'Vibrasonix', 'proof-only', 'unresolved', null, ['vault:40-products/02-vibrasonix/product-overview.md']],

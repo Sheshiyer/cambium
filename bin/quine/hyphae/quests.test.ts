@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 import { questLedger } from '../../operator/quests/quests.ts';
-import { applySideQuestQueueDecisions, buildVisualEnvelope, gatherQuestInputs, storyBeatsWithSources } from './quests.ts';
+import { acceptedLedgerPushReceipt, applySideQuestQueueDecisions, buildVisualEnvelope, gatherQuestInputs, storyBeatsWithSources } from './quests.ts';
 import { auditPrioritySource, capturePrioritySource, prioritySourceTemplate, refreshPrioritySignals } from './priority-signals.ts';
 import type { QuineCtx } from '../types.ts';
 
@@ -17,6 +17,22 @@ function tmpCtx(): QuineCtx {
 
 const quietPaperclip = { reachable: false, agents: 0, issuesDone: 0, issuesOpen: 0, agentErrors: 0, pendingApprovals: 0 };
 const TEST_TELEGRAM_USER_ID = '1000000001';
+
+test('ledger push accepts only the serving Worker JSON receipt', () => {
+  assert.equal(acceptedLedgerPushReceipt(true, 'application/json', {
+    ok: true,
+    tenant: 'cambium',
+    bytes: 512,
+    derivedAt: '2026-08-12T06:00:00.000Z',
+  }, 'cambium'), true);
+  assert.equal(acceptedLedgerPushReceipt(true, 'text/html; charset=UTF-8', null, 'cambium'), false);
+  assert.equal(acceptedLedgerPushReceipt(true, 'application/json', {
+    ok: true,
+    tenant: 'other',
+    bytes: 512,
+    derivedAt: '2026-08-12T06:00:00.000Z',
+  }, 'cambium'), false);
+});
 
 const openItem = (overrides: Record<string, unknown> = {}) => ({
   id: 'THO-10',

@@ -25,6 +25,12 @@ test('loads branch stories from branch packets without flattening controls', () 
   assert.match(fitcheck.controls.ui.currentFrontier, /supervised launch/i);
   assert.match(fitcheck.controls.ui.narrativeVoice, /operator voice/i);
   assert.match(fitcheck.controls.autonomyBoundary, /founder approval/i);
+  assert.ok(fitcheck.questline.some((quest) => quest.id === 'fitcheck-shopify-listing-price-submission' && quest.status === 'external-wait'));
+  assert.ok(fitcheck.questline.some((quest) => quest.id === 'fitcheck-privacy-consent-review' && quest.status === 'blocked'));
+  assert.ok(fitcheck.questline.some((quest) => quest.id === 'fitcheck-crm-minimum-viable-flow' && quest.status === 'ready-for-review'));
+  assert.equal(fitcheck.questline.some((quest) => quest.status === 'complete'), false);
+  assert.ok(fitcheck.controls.organRouting.some((organ) => organ.organ === 'Will' && organ.status === 'ready-for-review'));
+  assert.ok(fitcheck.controls.organRouting.some((organ) => organ.organ === 'Cortex' && organ.status === 'complete'));
 });
 
 test('loads branch loop controls from branch packets', () => {
@@ -60,6 +66,28 @@ test('records blocked packet gaps without promoting weak evidence', () => {
   assert.equal(iverif.promotion.state, 'proof-only');
   assert.ok(iverif.gaps.some((gap) => gap.status === 'blocked' && /privacy|public claims|human approvals/i.test(gap.detail)));
   assert.equal(iverif.proofPaths.some((path) => /autonomous/i.test(path.promotes)), false);
+});
+
+test('projects the redacted Cortex ingestion receipt without changing unrelated branch gates', () => {
+  const stories = loadBranchStories({ root: process.cwd() }, 'cambium');
+  const expected = ['fitcheck', 'vantyx', 'snow-gloves-os', 'iverif', 'dlock'];
+
+  for (const branchId of expected) {
+    const story = stories.find((candidate) => candidate.branchId === branchId);
+    assert.ok(story, `missing canonical branch ${branchId}`);
+    const cortex = story.controls.organRouting.find((organ) => organ.organ === 'Cortex');
+    assert.ok(cortex, `missing Cortex organ for ${branchId}`);
+    assert.equal(cortex.status, 'complete');
+    assert.match(cortex.proofPath, /2026-08-12-cambium-branch-cortex-ingestion\.v1\.json/);
+    assert.ok(story.controls.evidenceLedger.some((row) =>
+      row.status === 'verified' && /Cortex receipt-derived read model/i.test(row.evidence),
+    ));
+  }
+
+  const fitcheck = stories.find((story) => story.branchId === 'fitcheck');
+  assert.ok(fitcheck);
+  assert.equal(fitcheck.gates.some((gate) => gate.gate === 'Credentials' && gate.status === 'blocked'), true);
+  assert.equal(fitcheck.promotion.state, 'supervised-branch');
 });
 
 test('fails soft when an indexed packet is missing required control sections', () => {

@@ -59,7 +59,7 @@ deployment.
 | Taste | Cambium taste/product review | Landing copy, hardware gallery, page hierarchy, trust claims | Copy and claim review | Future source-linked claim review | pending |
 | Hands | DLOCK repository and future native/TUYA work | Repo review, build proof, TUYA/native integration plan | Implementation proof and adapter boundary | Future repository commands and integration receipt | blocked |
 | Will | Founder/operator GTM | Approved pilot offer and lead workflow | Pilot outreach and waitlist follow-up | Future approval log | blocked |
-| Cortex | Cambium evidence memory | Resource map, claim table, pilot learnings | Searchable DLOCK proof memory | Future ingestion | pending |
+| Cortex | Cambium evidence memory | Resource map, claim table, pilot learnings | Searchable DLOCK proof memory | `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json` | complete |
 | Hermes | Founder-facing reports | Mapping decisions and action requests | Proof summary and next gate | Future report | pending |
 | Garden | Product cadence | Evidence state and pilot blockers | Weekly proof loop | Future pulse | pending |
 
@@ -96,6 +96,7 @@ deployment.
 | verified | Live page lists hardware/resource families `EKPL2`, `EKKB2-TY`, and `SMKB2-BT`, plus `/dlock/...` image resource paths and `/self-storage/...` imagery. |
 | verified | GitHub repository `thoughtseed-labs/lockwell-portal` resolves as private, non-fork, not GitHub-archived, default branch `main`, repository id `R_kgDOP5AZyQ`, pushed `2025-09-29T12:52:14Z`. |
 | verified | DLOCK's planning authority is intentionally folderless: no local shallow Project folder named `dlock` or `lockwell` is invented or admitted by this identity packet. |
+| verified | Cortex receipt-derived read model records DLOCK among five canonical packets with semantic recall verified. Redacted summary: `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. |
 | blocked | Repository build/test, lead-handler proof, TUYA integration proof, billing/payment proof, and access-control safety proof are not yet established. |
 | no-signal | No pilot facility proof, customer payment proof, or live lock-operation receipt exists in this packet pass. |
 

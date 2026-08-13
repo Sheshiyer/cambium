@@ -1,0 +1,117 @@
+{
+  "schema": "cambium.routing-binding-visibility-audit.v1",
+  "observedAt": "2026-08-12T10:18:00Z",
+  "tenant": "cambium",
+  "scope": "read-only routing, binding metadata, and authenticated visibility audit after the accepted one-shot ledger receipt",
+  "routing": {
+    "customHostname": {
+      "healthz": {
+        "status": 302,
+        "contentType": "text/html",
+        "locationClass": "cloudflare-access",
+        "workerIdentity": null,
+        "bodyBytes": 143
+      },
+      "questRead": {
+        "status": 302,
+        "contentType": "text/html",
+        "locationClass": "cloudflare-access",
+        "workerIdentity": null,
+        "bodyBytes": 143
+      }
+    },
+    "directWorkerOrigin": {
+      "originHost": "cambium-quests.sheshnarayan-iyer.workers.dev",
+      "healthz": {
+        "status": 200,
+        "contentType": "application/json",
+        "ok": true,
+        "worker": "cambium-quests",
+        "bodyBytes": 37
+      },
+      "questReadWithoutAccessIdentity": {
+        "status": 401,
+        "contentType": "application/json",
+        "error": "access_identity_required",
+        "bodyBytes": 99
+      }
+    },
+    "interpretation": "The custom hostname and direct Worker are distinct route surfaces. The protected hostname delegates unauthenticated requests to Access; the direct origin does not inherit that Access identity and fails closed for the quest read."
+  },
+  "checkedInBindings": {
+    "worker": "cambium-quests",
+    "workersDev": true,
+    "routes": [],
+    "questsNamespaceId": "10aaa6e0a8a545c1afb5ceee7ef61c14",
+    "bindingNamesRecorded": [
+      "QUESTS",
+      "THOUGHTSEED_VAULT",
+      "CONTEXT_PROJECTIONS",
+      "CAMBIUM_CORTEX",
+      "BRIDGE_DB"
+    ],
+    "secretValuesRead": false
+  },
+  "activeBindingReadback": {
+    "source": "prior-read-only-readback-preserved-by-no-deploy-boundary",
+    "activeVersionId": "86112412-2073-4f14-b215-599de0ed0eeb",
+    "activeTrafficPercentage": 100,
+    "activeVersionCount": 1,
+    "questsNamespaceId": "439547e617d9455fb752bfd651da9765",
+    "checkedInAndActiveQuestsIdsDiffer": true,
+    "currentWranglerReadback": "unavailable-cloudflare-oauth-authentication",
+    "repairStatus": "held-for-separate-rollback-gated-approval"
+  },
+  "visibility": {
+    "source": "authenticated-founder-observations-recorded-before-and-after-the-one-shot-receipt",
+    "workbench": {
+      "route": "custom-hostname/admin/portfolio/web",
+      "renderedCards": 73,
+      "renderedSplit": {
+        "saplings": 20,
+        "clientBranches": 38,
+        "internalPrograms": 15
+      },
+      "headerClaim": {
+        "saplings": 20,
+        "clientBranches": 39,
+        "internalPrograms": 15
+      },
+      "autosavePaused": true,
+      "unreadableDraftPreserved": true,
+      "auditMutation": false
+    },
+    "missionControl": {
+      "source": "push",
+      "derivedAt": "2026-08-11T12:12:56.794Z",
+      "freshnessLabel": "stale 22h",
+      "canonicalMissionTabs": 5,
+      "receiptDerivedAt": "2026-08-12T09:39:12.666Z",
+      "receiptTimestampIsNewer": true,
+      "receiptTimestampVisibleOnCustomRead": false,
+      "classification": "accepted-worker-write-not-yet-visible-on-custom-domain-read-path"
+    },
+    "browserSafety": {
+      "cookiesStorageSessionsInspected": false,
+      "browserActions": false,
+      "formsSubmitted": false
+    }
+  },
+  "heldBoundaries": [
+    "no second ledger push",
+    "no deployment or Worker upload",
+    "no traffic shift",
+    "no binding or configuration repair",
+    "no Access bypass or authentication weakening",
+    "no KV, D1, R2, vault, Hermes, or Telegram mutation",
+    "no credential repair"
+  ],
+  "verification": {
+    "routeProbe": "pass",
+    "checkedInManifestProbe": "pass",
+    "activeReadback": "prior evidence valid; current Wrangler auth unavailable",
+    "visibilityEvidence": "pass from redacted authenticated observations",
+    "evidenceRedaction": "pass",
+    "machineLocalPathsPresent": false
+  }
+}

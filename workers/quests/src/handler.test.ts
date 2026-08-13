@@ -5215,9 +5215,12 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-component="MissionToolLink"/);
   assert.match(html, /data-mission-action="tools"/);
   assert.match(html, /data-mission-proof-row="1"/);
-  // frozen/06: organ texture replaced by the constellation — organ survives as chip route + glyph only.
+  // frozen/06: organ texture replaced by the constellation. The organ survives
+  // as its route while the visible glyph truthfully reflects the missing source
+  // classification on this legacy fixture.
   assert.match(html, /data-organ-route="taste"/);
-  assert.match(html, /data-glyph-kind="taste"/);
+  assert.match(html, /data-work-variant="classification-gap"/);
+  assert.match(html, /data-glyph-kind="gate"/);
   assert.match(html, /data-selected-surface="branch-chip"/);
   assert.match(html, /data-selected-surface="mission-state-row"/);
   assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);

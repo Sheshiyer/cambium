@@ -309,7 +309,8 @@ test('Batch 3 Sapling provenance is referentially exact and collision-free', () 
 
   const thoughtseed = PORTFOLIO_ROOTS.find(({ portfolioId }) => portfolioId === 'thoughtseed')!;
   const roots = new Map(thoughtseed.folders.map((folder) => [folder.folder, folder]));
-  assert.equal(roots.get('klear-karma')?.proposedKind, 'co-founded-venture');
+  assert.equal(roots.get('klear-karma')?.proposedKind, 'client-branch');
+  assert.deepEqual(roots.get('klear-karma')?.workIds, ['branch:klear-karma']);
   assert.deepEqual(roots.get('kristudios')?.workIds, ['branch:kristudios']);
   assert.deepEqual(roots.get('parkarea')?.workIds, ['branch:parkarea']);
   assert.deepEqual(roots.get('tirak')?.workIds, ['branch:tirak']);

@@ -24,7 +24,7 @@ for (const marker of [
   'Save creation intent',
   'local-founder',
   '/v1/admin/portfolio/actions',
-  '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542',
+  '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309',
 ]) {
   assert.ok(html.includes(marker), `missing standalone contract marker: ${marker}`)
 }

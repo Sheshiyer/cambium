@@ -16,7 +16,7 @@ export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
 export const CLASSIFICATION_DIGEST = '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309'
-export const PORTFOLIO_CATALOG_DIGEST = 'sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24'
+export const PORTFOLIO_CATALOG_DIGEST = 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca'
 export const SOURCE_SCHEMA = 'thoughtseed.work-object-registry.v1'
 export const SOURCE_GENERATED_AT = '2026-07-29T06:46:00Z'
 
@@ -37,7 +37,7 @@ export type PortfolioOrigin = 'thoughtseed-venture' | 'thoughtseed-internal' | '
 export type DerivedClassification = Classification | 'needs-review'
 export type RepositoryDisposition = 'resolved' | 'no-repository' | 'unmatched' | 'ambiguous'
 export type PortfolioId = 'thoughtseed' | 'tryambakam-noesis'
-export type PortfolioFolderKind = 'client-branch' | 'sapling' | 'internal-program' | 'needs-review' | 'project' | 'co-founded-venture'
+export type PortfolioFolderKind = 'client-branch' | 'sapling' | 'internal-program' | 'needs-review' | 'project'
 export type PortfolioFolderStatus = 'mapping-proposal' | 'awaiting-ingestion' | 'empty-hold'
 export type CloseoutDisposition = 'completed' | 'closed' | 'terminated'
 export type ActiveIndexDisposition = 'remove-from-active' | 'mark-finished'

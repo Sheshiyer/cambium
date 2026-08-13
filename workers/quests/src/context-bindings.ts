@@ -45,6 +45,17 @@ export interface VectorizeQueryResultLike {
   matches?: VectorizeMatchLike[];
 }
 
+export interface VectorizeUpsertVector {
+  id: string;
+  values: number[] | Float32Array | Float64Array;
+  metadata?: Record<string, VectorizeMetadataValue>;
+}
+
+export interface VectorizeUpsertResultLike {
+  ids?: string[];
+  count?: number;
+}
+
 export interface VectorizeIndexLike {
   query(vector: number[] | Float32Array | Float64Array, options: {
     topK: number;
@@ -52,6 +63,10 @@ export interface VectorizeIndexLike {
     returnValues?: boolean;
     filter: Record<string, unknown>;
   }): Promise<VectorizeQueryResultLike>;
+  upsert?(vectors: VectorizeUpsertVector[], options?: {
+    allowDuplicates?: boolean;
+  }): Promise<VectorizeUpsertResultLike>;
+  deleteByIds?(ids: string[]): Promise<{ ids?: string[] }>;
 }
 
 export interface RoutineSlice {

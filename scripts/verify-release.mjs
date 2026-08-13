@@ -8,6 +8,11 @@ const gates = [
   ['core tests', 'npm', ['test']],
   ['generated docs', 'npm', ['run', 'render-docs:check']],
   ['product branch packets', 'npm', ['run', 'validate:product-branches']],
+  [
+    'Fitcheck organ and quest projection',
+    'node',
+    ['--test', 'bin/quine/hyphae/branch-stories.test.ts', 'workers/quests/src/fitcheck-golden-path.test.ts', 'workers/quests/src/fitcheck-mini-app-quest-states.test.ts'],
+  ],
   // Named explicitly (rather than left implicit inside "core tests") so
   // omission of the operating-fabric proof chain or its zero-gap shadow
   // report fails release verification with its own visible label.
