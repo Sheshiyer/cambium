@@ -1,6 +1,6 @@
 {
   "schema": "cambium.fitcheck-founder-evidence-pilot-receipt.v1",
-  "recordedAt": "2026-08-14T18:28:29Z",
+  "recordedAt": "2026-08-14T18:33:12Z",
   "authority": {
     "operation": "local candidate implementation and deterministic proof",
     "workerUploadAuthorized": false,
@@ -80,7 +80,7 @@
       ],
       "fixCommit": "32fca6008638a7b6e50d84596095c47e69677e26",
       "fixVerification": "focused RED reproduced both findings; GREEN and full repository tests passed",
-      "finalReReview": "required after this receipt is sealed"
+      "finalReReview": "PASS at sealed head 87c62d95cf599f11d246e6060dec53ff4a6b226a; both prior P1s addressed; no P0-P3 findings"
     },
     "remainingFinding": {
       "severity": "minor",
