@@ -87,7 +87,7 @@ import type {
 } from './portfolio-admin-actions.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
-import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
+import { parseTelegramGoalGraphIntent, parseTelegramGoalGraphIntentBoundary } from './goal-graph-intake.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
 import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
@@ -3591,17 +3591,14 @@ async function intakeTelegramGoalGraphRoute(
 ): Promise<GoalGraphIntakeRouteResult> {
   const receivedAt = nowIso();
   const receiptTenant = goalGraphIntakeReceiptTenant(raw);
-  // The parser is the pure boundary: a malformed envelope is data, never an
-  // exception, so a Telegram redelivery can never crash-loop this lane.
-  const initial = parseTelegramGoalGraphIntent(raw, { loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY });
-  if (!initial.accepted) {
+  const persistRejection = async (rejected: Extract<ReturnType<typeof parseTelegramGoalGraphIntentBoundary>, { accepted: false }>) => {
     // Bounded rejection receipt: the parser's bounded error shape only. No
     // payload, metadata value, or raw Telegram content is echoed back.
     const receipt = {
       schema: GOAL_GRAPH_INTAKE_REJECTION_SCHEMA,
       tenantId: receiptTenant,
-      code: initial.code,
-      errors: boundedIntakeErrors(initial.errors),
+      code: rejected.code,
+      errors: boundedIntakeErrors(rejected.errors),
       receivedAt,
     };
     const receiptId = `ggi-rej-${(await sha256hex(canonicalJson(receipt))).slice(0, 24)}`;
@@ -3615,15 +3612,33 @@ async function intakeTelegramGoalGraphRoute(
         status: 'rejected',
         schema: GOAL_GRAPH_INTAKE_REJECTION_SCHEMA,
         tenantId: receiptTenant,
-        code: initial.code,
+        code: rejected.code,
         errors: receipt.errors,
         receiptId,
       },
-    };
-  }
+    } satisfies GoalGraphIntakeRouteResult;
+  };
+  // Normalize and bind provenance before consulting D1. That boundary identity
+  // is enough to collapse an already-accepted Telegram redelivery even when
+  // the graph has since drifted or its authority is temporarily unavailable.
+  const initial = parseTelegramGoalGraphIntentBoundary(raw);
+  if (!initial.accepted) return persistRejection(initial);
+  const tenantId = initial.value.tenantId;
+  const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
+  const replayReceipt = async (): Promise<GoalGraphIntakeRouteResult | null> => {
+    const existingRecord = parseJsonObject(await deps.kv.get(idempotencyRecordKey));
+    if (!existingRecord) return null;
+    if (existingRecord.contentDigest !== initial.contentDigest) {
+      return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: initial.idempotencyKey } };
+    }
+    const existingTask = parseJsonObject(await deps.kv.get(String(existingRecord.taskKey ?? '')));
+    if (!existingTask) return { status: 409, body: { error: 'goal graph intake idempotency record missing task' } };
+    return goalGraphIntakeTaskReceipt(existingTask, true);
+  };
+  const replayBeforeGraph = await replayReceipt();
+  if (replayBeforeGraph) return replayBeforeGraph;
 
   if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal graph authority is not configured' } };
-  const tenantId = initial.value.tenantId;
   let head: GoalGraphHead | null;
   let currentNodes: GoalGraphNode[];
   try {
@@ -3643,7 +3658,10 @@ async function intakeTelegramGoalGraphRoute(
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   });
-  if (!pinned.accepted) return { status: 500, body: { error: 'goal_graph_intake_context_failed' } };
+  if (!pinned.accepted) return persistRejection(pinned);
+  if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
+    return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
+  }
   if (pinned.compile.status !== 'compiled') {
     return {
       status: 409,
@@ -3658,18 +3676,9 @@ async function intakeTelegramGoalGraphRoute(
   }
   const changeSet = pinned.compile.changeSet;
 
-  // Collapse Telegram redelivery on the canonical idempotency key: a replay
-  // returns the original task receipt and never writes a second record.
-  const idempotencyRecordKey = `goal-graph-intake-idem:${pinned.idempotencyKey}`;
-  const existingRecord = parseJsonObject(await deps.kv.get(idempotencyRecordKey));
-  if (existingRecord) {
-    if (existingRecord.contentDigest !== pinned.contentDigest) {
-      return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: pinned.idempotencyKey } };
-    }
-    const existingTask = parseJsonObject(await deps.kv.get(String(existingRecord.taskKey ?? '')));
-    if (!existingTask) return { status: 409, body: { error: 'goal graph intake idempotency record missing task' } };
-    return goalGraphIntakeTaskReceipt(existingTask, true);
-  }
+  // Close the race between the early replay read and first-time compilation.
+  const replayAfterGraph = await replayReceipt();
+  if (replayAfterGraph) return replayAfterGraph;
 
   // Server-issued approval descriptor, pinned at intake so approval never
   // derives nonce/expiry/fence from the request: the nonce format matches

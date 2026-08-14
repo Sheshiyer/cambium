@@ -12631,6 +12631,107 @@ test('goal graph intake · acceptance persists one bounded PENDING task and writ
   assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
 });
 
+test('goal graph intake · valid child loads the current graph before boundary compilation', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+
+  const rootIntake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(rootIntake.status, 200);
+  assert.equal(body(rootIntake).accepted, true);
+  const rootApproval = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(rootIntake).changeDigest, initData }),
+  }), deps);
+  assert.equal(rootApproval.status, 200);
+  const rootHead = await deps.goalGraphStore.readHead('cambium');
+  assert.ok(rootHead);
+  assert.equal(rootHead.nodeIds.length, 1);
+
+  const childIntent = goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4343', updateId: '90002' },
+    goal: {
+      namespace: 'cambium.fitcheck',
+      externalId: 'task-fitcheck-launch',
+      parentNodeId: rootHead.nodeIds[0],
+      scope: 'micro',
+      desiredState: 'admit one packet-backed Fitcheck supervised-launch mission',
+      owner: 'founder/codex',
+      proofRequired: true,
+      status: 'blocked',
+      workObjectId: 'sapling:fitcheck',
+      workObjectKind: 'sapling',
+      pinnedLoadoutId: 'loadout:fitcheck-launch',
+    },
+  });
+  const childIntake = await postGoalGraphIntake('assign-only', childIntent, deps);
+  assert.equal(childIntake.status, 200);
+  assert.equal(body(childIntake).accepted, true);
+  assert.equal(body(childIntake).status, 'pending');
+  assert.equal(body(childIntake).graphVersion, 2);
+  assert.equal(body(childIntake).expectedHeadDigest, rootHead.graphDigest);
+
+  const childTask = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${body(childIntake).changeDigest}`)!);
+  assert.equal(childTask.node.parentNodeId, rootHead.nodeIds[0]);
+  assert.equal(childTask.node.workObjectId, 'sapling:fitcheck');
+  assert.equal(childTask.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), rootHead, 'unsigned child intake never mutates D1');
+
+  let unavailableReads = 0;
+  const unavailableReplay = await postGoalGraphIntake('assign-only', childIntent, {
+    ...deps,
+    goalGraphStore: {
+      ...deps.goalGraphStore,
+      readHead: async () => { unavailableReads += 1; throw new Error('D1 temporarily unavailable'); },
+      readNodes: async () => { unavailableReads += 1; throw new Error('D1 temporarily unavailable'); },
+    },
+  });
+  assert.equal(unavailableReplay.status, 200);
+  assert.equal(body(unavailableReplay).accepted, true);
+  assert.equal(body(unavailableReplay).duplicate, true);
+  assert.equal(body(unavailableReplay).changeDigest, body(childIntake).changeDigest);
+  assert.equal(unavailableReads, 0, 'accepted child replay collapses before an unavailable D1 read');
+
+  let driftReads = 0;
+  const driftReplay = await postGoalGraphIntake('assign-only', childIntent, {
+    ...deps,
+    goalGraphStore: {
+      ...deps.goalGraphStore,
+      readHead: async () => { driftReads += 1; return rootHead; },
+      readNodes: async () => { driftReads += 1; return []; },
+    },
+  });
+  assert.equal(driftReplay.status, 200);
+  assert.equal(body(driftReplay).accepted, true);
+  assert.equal(body(driftReplay).duplicate, true);
+  assert.equal(body(driftReplay).changeDigest, body(childIntake).changeDigest);
+  assert.equal(driftReads, 0, 'accepted child replay collapses before graph drift is consulted');
+});
+
+test('goal graph intake · missing child parent is a bounded rejection after graph read', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const rootIntake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const rootApproval = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(rootIntake).changeDigest, initData }),
+  }), deps);
+  assert.equal(rootApproval.status, 200);
+  const headBefore = await deps.goalGraphStore.readHead('cambium');
+
+  const rejected = await postGoalGraphIntake('assign-only', goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4444' },
+    goal: {
+      desiredState: 'never admit a child whose parent is absent',
+      parentNodeId: `goal_${'f'.repeat(64)}`,
+    },
+  }), deps);
+  assert.equal(rejected.status, 200);
+  assert.equal(body(rejected).accepted, false);
+  assert.equal(body(rejected).rejected, true);
+  assert.equal(body(rejected).code, 'malformed_input');
+  assert.deepEqual(body(rejected).errors, ['missing_parent']);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-rejection:cambium:')).length, 1);
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), headBefore, 'missing-parent rejection never mutates D1');
+});
+
 test('goal graph intake · Telegram redelivery collapses to the original task receipt', async () => {
   const { kv, deps } = goalGraphIntakeHarness();
   const intent = goalGraphIntakeIntent();
