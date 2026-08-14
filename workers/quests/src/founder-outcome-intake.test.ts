@@ -192,6 +192,8 @@ test('proof slots enforce distinct screenshot and widget-event reference grammar
     validFounderOutcome({ screenshotRef: 'receipt:fitcheck-screenshot-001', widgetEventRef: 'receipt:fitcheck-screenshot-001' }),
     validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/widget-events/launch-001' }),
     validFounderOutcome({ widgetEventRef: 'https://evidence.example.com/fitcheck/screenshots/launch-proof-001' }),
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/widget-events/screenshot-proof-001' }),
+    validFounderOutcome({ widgetEventRef: 'https://evidence.example.com/fitcheck/screenshots/widget-event-001' }),
   ];
   for (const input of invalidSlots) assertRejected(input, 'unsafe_reference');
 });

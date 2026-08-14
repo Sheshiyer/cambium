@@ -144,9 +144,11 @@ function isHttpsReferenceKind(url: URL, kind: ProofReferenceKind): boolean {
   const path = decodedUrlComponent(url.pathname);
   if (!path) return false;
   const normalizedPath = path.toLowerCase();
+  const identifiesScreenshot = normalizedPath.includes('screenshot');
+  const identifiesWidgetEvent = normalizedPath.includes('widget') && normalizedPath.includes('event');
   return kind === 'screenshot'
-    ? normalizedPath.includes('screenshot')
-    : normalizedPath.includes('widget') && normalizedPath.includes('event');
+    ? identifiesScreenshot && !identifiesWidgetEvent
+    : identifiesWidgetEvent && !identifiesScreenshot;
 }
 
 function safeReference(value: string, kind: ProofReferenceKind): boolean {
