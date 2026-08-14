@@ -1289,6 +1289,9 @@ mutation has been performed by drafting this packet.
 - Independent sealed-head re-review is `PASS`: both prior P1s are addressed,
   combined parser/handler coverage passes 381/381, and no P0/P1/P2/P3 finding
   remains. This is local candidate approval only, not production promotion.
+- Mandatory local Chromium QA also passes 23 assertions through validation,
+  ambiguous retry, pending Gate, exact authenticated approval, committed quest
+  outcome, and shared Goal Graph head; no P0/P1/P2/P3 finding remains.
 - Held next sequence: fresh production control-plane readback; independent
   exact-candidate review; separately approved rollback-gated upload/promotion;
   then one real founder submission, exact Gate approval, and live refreshed

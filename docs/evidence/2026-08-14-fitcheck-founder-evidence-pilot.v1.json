@@ -1,6 +1,6 @@
 {
   "schema": "cambium.fitcheck-founder-evidence-pilot-receipt.v1",
-  "recordedAt": "2026-08-14T18:33:12Z",
+  "recordedAt": "2026-08-14T18:40:18Z",
   "authority": {
     "operation": "local candidate implementation and deterministic proof",
     "workerUploadAuthorized": false,
@@ -63,6 +63,14 @@
     "desktopPackagingTests": {
       "passed": 5,
       "failed": 0
+    },
+    "localChromiumQa": {
+      "sealedHead": "87c62d95cf599f11d246e6060dec53ff4a6b226a",
+      "assertionsPassed": 23,
+      "unexpectedPageErrors": 0,
+      "unexpectedNetworkErrors": 0,
+      "authenticatedQuestRefreshes": 6,
+      "verdict": "PASS"
     },
     "canonicalViewportProofPassed": true,
     "telegramMobileContractPassed": true,

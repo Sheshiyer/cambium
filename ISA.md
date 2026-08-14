@@ -8,7 +8,7 @@ progress: 54/54
 mode: interactive
 iteration: 2026-08-14-fitcheck-founder-evidence-pilot
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-15T00:03:12+05:30
+updated: 2026-08-15T00:10:18+05:30
 ---
 
 ## Problem
@@ -2566,3 +2566,8 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
   `87c62d95cf599f11d246e6060dec53ff4a6b226a` is `PASS` with both prior P1s
   addressed and no P0/P1/P2/P3 finding. It independently reran the combined
   parser and handler suites at 381/381.
+- Mandatory local Chromium QA at sealed head `87c62d9` passes 23 assertions
+  across founder actions, query-free guidance, focused validation, retained
+  values, same-ID ambiguous retry, pending Gate, exact authenticated descriptor,
+  preserved Fitcheck selection, committed outcome, six authenticated refreshes,
+  and shared Goal Graph head. P0/P1/P2/P3 are all zero.
