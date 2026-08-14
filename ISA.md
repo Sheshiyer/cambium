@@ -3,12 +3,12 @@ project: Cambium
 task: "Add the Fitcheck founder evidence-to-Gate pilot and prove Goal Graph readback"
 effort: E4
 effort_source: task-classification
-phase: learn
+phase: verify
 progress: 54/54
 mode: interactive
 iteration: 2026-08-14-fitcheck-founder-evidence-pilot
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-14T23:41:12+05:30
+updated: 2026-08-14T23:58:00+05:30
 ---
 
 ## Problem
@@ -2527,7 +2527,7 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 
 ### 2026-08-14 Fitcheck founder evidence pilot candidate
 
-- ISC-1166..1176 parser and authority proof: 14/14 pure contract tests accept
+- ISC-1166..1176 parser and authority proof: 15/15 pure contract tests accept
   only the exact Fitcheck identity, typed screenshot and widget-event receipt
   references, bounded outcomes, and server-derived transitions. Authentication
   material is removed before canonicalization and hostile references fail
@@ -2542,13 +2542,13 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
   readback. Canonical viewport and mobile-contract proofs pass at Telegram
   widths.
 - ISC-1200..1219 release and boundary proof: all repository tests pass
-  1722/1722; Mission Fabric integration/readiness passes 37/37; R3F passes
+  1723/1723; Mission Fabric integration/readiness passes 37/37; R3F passes
   99/99 plus build; desktop packaging passes 5/5; the deterministic release
   gate, standalone smoke, canonical viewport proof, mobile contract, and
   `git diff --check` exit zero.
 - The reviewed implementation is a local candidate lineage rooted at evidence
   checkpoint `20a816d17cf961d62fb50e1535c97ab984e8d4c3`; candidate code head is
-  `405664abfc9490529710c14e88d356f7f21ad602`. No Worker upload or promotion,
+  `6bfb4316bf88ce5206fc393f91f465a72d8edc6d`. No Worker upload or promotion,
   production traffic or binding change, D1/KV/R2/Vault write, Telegram send,
   Hermes execution, Mission Fabric activation, provider change, GitHub write,
   or primary-checkout mutation occurred.
@@ -2557,3 +2557,8 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
   review, followed by separately approved rollback-gated upload/promotion.
   Only after that release may the founder submit real references, approve the
   exact Gate transition, and collect live Goal Graph readback evidence.
+- Final whole-branch review initially blocked two P1s: the legacy Gate refresh
+  omitted Telegram founder authentication, and HTTPS references admitted
+  arbitrary query data. TDD fixes now route every quest/Gate read through one
+  authenticated refresh primitive and accept only query-free HTTPS or typed
+  opaque receipt references while rejecting obvious identifying material.

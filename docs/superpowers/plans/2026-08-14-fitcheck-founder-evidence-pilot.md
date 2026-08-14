@@ -11,7 +11,7 @@
 **Spec:** `docs/superpowers/specs/2026-08-14-fitcheck-founder-evidence-pilot-design.md`
 
 **Implementation status:** Tasks 1–4 are complete at candidate code head
-`405664abfc9490529710c14e88d356f7f21ad602`. Task 5 release proof is complete
+`6bfb4316bf88ce5206fc393f91f465a72d8edc6d`. Task 5 release proof is complete
 locally; upload, promotion, and a real founder submission remain separately
 authorized production operations.
 

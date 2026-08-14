@@ -1,6 +1,6 @@
 {
   "schema": "cambium.fitcheck-founder-evidence-pilot-receipt.v1",
-  "recordedAt": "2026-08-14T18:11:12Z",
+  "recordedAt": "2026-08-14T18:28:29Z",
   "authority": {
     "operation": "local candidate implementation and deterministic proof",
     "workerUploadAuthorized": false,
@@ -10,12 +10,14 @@
   "source": {
     "branch": "codex/fitcheck-founder-outcome-pilot",
     "evidenceCheckpoint": "20a816d17cf961d62fb50e1535c97ab984e8d4c3",
-    "candidateCodeHead": "405664abfc9490529710c14e88d356f7f21ad602",
-    "commitCountAboveCheckpoint": 10,
-    "founderOutcomeContractSha256": "9908f5672b96dfec259992dbc871fd0902e68ba24ca3364335b6c3a45687a985",
+    "candidateCodeHead": "6bfb4316bf88ce5206fc393f91f465a72d8edc6d",
+    "commitCountAboveCheckpoint": 13,
+    "founderOutcomeContractSha256": "5688b082f40f19ef7a636ece9f45744dd1356f8eeb08b2d926bcfb3d317b3ecf",
     "handlerSha256": "849378d10bc1067805e55bbcb7ad5b4fb6a6aafb8121055f2521090665c083d7",
-    "founderSheetSha256": "55d5d31d5167ecd382a5a0ca06ade7748a13edfdba92abfb00a530c9f4993e61",
-    "viewportManifestSha256": "38bef9ba4a73e5a653707dc9d2c84e23f1a3aa192293f93667216060c13a8065"
+    "questRefreshClientSha256": "9e6b9a5259fb6bf1af19bb786c41a0300476ee619a92ecdd94965f42488d82b6",
+    "founderSheetSha256": "ca007b416950895f454d9d3947eaf78f6e3cee166857597e708673f983338c95",
+    "signedActionClientSha256": "1bb45b32dc7bc68ccde7e097b90ea6fb3ce048a25e1799cf809ec8f9c97ef1ff",
+    "viewportManifestSha256": "88d62d998ed153532db3832ba6953f289dfd26c01d540d657719acd10484c08d"
   },
   "pilot": {
     "tenant": "cambium",
@@ -34,7 +36,7 @@
   },
   "verification": {
     "pureContractTests": {
-      "passed": 14,
+      "passed": 15,
       "failed": 0
     },
     "focusedFounderReadbackAndUiTests": {
@@ -46,7 +48,7 @@
       "failed": 0
     },
     "repositoryTests": {
-      "passed": 1722,
+      "passed": 1723,
       "failed": 0
     },
     "missionFabricChecks": {
@@ -70,6 +72,16 @@
   },
   "review": {
     "taskReviews": "passed after bounded fix loops",
+    "wholeBranchReview": {
+      "initialVerdict": "BLOCK",
+      "initialP1Findings": [
+        "quest and Gate refresh omitted runtime Telegram founder authentication",
+        "HTTPS evidence references admitted arbitrary identifying and signed query data"
+      ],
+      "fixCommit": "32fca6008638a7b6e50d84596095c47e69677e26",
+      "fixVerification": "focused RED reproduced both findings; GREEN and full repository tests passed",
+      "finalReReview": "required after this receipt is sealed"
+    },
     "remainingFinding": {
       "severity": "minor",
       "scope": "malformed debug principal can suppress founder-only projection for that request",

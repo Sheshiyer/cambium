@@ -52,18 +52,19 @@ The route is `POST /api/founder-outcomes/cambium`. The JSON body contains:
 - `schema: cambium.founder-outcome-intent.v1`
 - the five exact pilot identity fields above
 - `outcome`: `passed`, `failed`, `blocked`, or `needs-review`
-- `screenshotRef`: a bounded HTTPS or opaque receipt reference
-- `widgetEventRef`: a bounded HTTPS or opaque receipt reference
+- `screenshotRef`: a bounded query-free HTTPS or opaque receipt reference
+- `widgetEventRef`: a bounded query-free HTTPS or opaque receipt reference
 - `note`: optional bounded founder note
 - `clientRequestId`: bounded replay identity
 - `initData`: runtime Telegram authentication material, consumed only by the
   validator and excluded from canonical payloads, KV, D1, logs, responses, and
   markup
 
-References reject credentials, bearer material, raw Telegram data, query
-tokens, data URLs, JavaScript URLs, local file paths, absolute checkout paths,
-and raw event payloads. This surface records pointers, not binary screenshots
-or logs. The UI explains the accepted reference grammar. The candidate stores
+References reject credentials, bearer material, raw Telegram data, every URL
+query component, data URLs, JavaScript URLs, local file paths, absolute checkout
+paths, obvious identifying material, and raw event payloads. This surface records
+pointers, not binary screenshots or logs. The UI explains the accepted reference
+grammar. The candidate stores
 a canonical digest of each submitted reference string so Gate approval binds
 the exact reviewed pointers; this is chain-of-custody, not independent proof
 that a mutable remote artifact remained unchanged.
@@ -101,6 +102,9 @@ quest changed. Authentication, validation, authority, stale-head, and network
 failures render distinct no-write messages. Safe input values survive local
 validation failures and focus moves to the first invalid field. A browser
 reload reconstructs pending state from the founder-scoped server envelope.
+Every Mission and Gate quest-envelope refresh carries the runtime Telegram
+authentication header; an unauthenticated browser receives no founder outcome
+projection.
 Expired proposals leave the actionable Gate queue and provide an explicit
 refresh-and-resubmit path.
 

@@ -1254,7 +1254,7 @@ mutation has been performed by drafting this packet.
 
 - Local branch `codex/fitcheck-founder-outcome-pilot` now contains the bounded
   Fitcheck founder evidence vertical slice. Candidate code head is
-  `405664abfc9490529710c14e88d356f7f21ad602`, ten commits above evidence
+  `6bfb4316bf88ce5206fc393f91f465a72d8edc6d`, thirteen commits above evidence
   checkpoint `20a816d17cf961d62fb50e1535c97ab984e8d4c3`.
 - The exact authenticated Shopify QA quest exposes `Add proof` and
   `Report outcome`. The sheet accepts one screenshot receipt reference, one
@@ -1270,8 +1270,8 @@ mutation has been performed by drafting this packet.
   D1-success/KV-failure interval without duplicate candidates or graph commits.
   Forged `x-principal` or query principals reveal no candidate, pending count,
   evidence, or outcome data.
-- Verification passes: parser 14/14; focused founder/readback/UI 25/25;
-  complete handler 360/360; repository 1722/1722; Mission Fabric 37/37; R3F
+- Verification passes: parser 15/15; focused founder/readback/UI 25/25;
+  complete handler 360/360; repository 1723/1723; Mission Fabric 37/37; R3F
   99/99 plus build; desktop packaging 5/5; canonical viewport/mobile proofs,
   standalone smoke, deterministic release verification, and diff checks.
 - Durable local receipt:
@@ -1281,6 +1281,11 @@ mutation has been performed by drafting this packet.
   D1/KV/R2/Vault write, Telegram action, Hermes execution, Mission Fabric
   activation, provider change, GitHub mutation, or primary-checkout edit
   occurred from this candidate build.
+- A final whole-branch review exposed and blocked two P1s before release. The
+  corrected client sends runtime Telegram authentication on every Mission and
+  Gate quest-envelope refresh; the reference contract now rejects every URL
+  query and obvious identifying material. Focused RED reproduced both failures,
+  GREEN closes both, and the canonical viewport corpus was regenerated.
 - Held next sequence: fresh production control-plane readback; independent
   exact-candidate review; separately approved rollback-gated upload/promotion;
   then one real founder submission, exact Gate approval, and live refreshed
