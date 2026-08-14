@@ -2420,3 +2420,19 @@ Verification: authenticated production Workbench readback; strict 63-root audit;
 - [x] ISC-1111: Production remains Version 47 and the repair remains a local candidate pending separate rollback-gated upload and promotion authority.
 
 Verification: strict RED/GREEN behavior test; focused handler and operating-fabric suites; canonical `proof:tg-viewport`; full `verify:release`; exact browser and D1/KV readback. No production upload, traffic change, D1/KV/R2 write, Telegram message, Hermes activation, Mission Fabric allowlist, or execution occurred from this repair checkpoint.
+
+### 2026-08-14 inert Gate-repair candidate upload
+
+- [x] ISC-1112: The uploaded source is exact clean commit `a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165`, exactly one commit above production source `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`.
+- [x] ISC-1113: Fresh pre-upload control-plane readback proves deployment `33097935-611a-469e-940d-cb3fee252b0d` serves only Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35` at 100 percent.
+- [x] ISC-1114: The deterministic release gate passes before upload, including 1683 core tests, 37 integration checks, 99 R3F tests, five desktop packaging tests, and a Wrangler dry run.
+- [x] ISC-1115: The built Worker module is 1,867,927 bytes with SHA-256 `f0857aea59b5c35f293eea46c4e5dadd40fbc2a0b22e862e6eb2611a506ab84a`.
+- [x] ISC-1116: A rejected inheritance request creates no Version and changes no deployment; the corrected request proceeds only after an immediate readback proves literal `latest` still resolves to exact Version 47.
+- [x] ISC-1117: Exactly one successful Version mutation creates inert Version 48 `20a4d3f2-03bf-4b6d-8256-50a5a7ea26a3` with the full source tag and bounded preview alias.
+- [x] ISC-1118: Candidate readback proves exact 36/36 binding identity parity, identical compatibility date, flags, and usage model, and exactly one Version-list delta.
+- [x] ISC-1119: Candidate preview probes return `200/401/401/401/403` for health, quests, Portfolio API, Workbench, and Mission Fabric respectively.
+- [x] ISC-1120: Post-upload deployment readback retains exact Version 47 at 100 percent and assigns Version 48 zero production traffic.
+- [x] ISC-1121: No deployment, traffic, binding, D1, KV, R2, Vault, Telegram, Hermes, GitHub, registry, relocation, or provider-configuration mutation accompanies the candidate upload.
+- [x] ISC-1122: Promotion remains separately owner-approved and rollback-gated; candidate creation cannot imply production release, founder Telegram proof, Fitcheck admission, or Hermes execution.
+
+Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-candidate-upload.v1.json`; exact source/build gate; fresh Version 47 and deployment readbacks; direct Version 48 readback; canonical binding digest parity; five GET-only preview probes; production deployment re-read. No candidate promotion occurred.

@@ -1,5 +1,16 @@
 # Project handoff
 
+### 2026-08-14 inert Gate-repair candidate upload checkpoint
+
+- Owner authority covered one inert Worker Version upload of exact source `a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165`; it did not authorize promotion or a deployment change.
+- The isolated source was clean and exactly one commit above production source `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`. The full release gate passed, and the generated Worker module is 1,867,927 bytes with SHA-256 `f0857aea59b5c35f293eea46c4e5dadd40fbc2a0b22e862e6eb2611a506ab84a`.
+- Fresh control-plane readback found deployment `33097935-611a-469e-940d-cb3fee252b0d` serving only Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35` at 100 percent, with 36 bindings and the recorded runtime.
+- Cloudflare rejected the first request before Version creation because the live API accepted only literal `latest` for inherited bindings. Readback proved zero Version delta and unchanged production before the corrected request; an immediate guard then proved `latest` was still exact Version 47.
+- The corrected strict-inheritance request created inert Version 48 `20a4d3f2-03bf-4b6d-8256-50a5a7ea26a3`, tagged with the full source commit and preview alias `gate-a42a9e2e672d`.
+- Independent readback proves exactly one new Version, exact 36/36 binding identity parity, runtime parity, and preview statuses `200/401/401/401/403`. Production remains Version 47 at 100 percent; Version 48 has zero traffic.
+- No deployment, traffic, binding, D1, KV, R2, Vault, Telegram, Hermes, or GitHub mutation accompanied the single successful Version creation. Promotion remains separately owner-approved and rollback-gated.
+- Sanitized receipt: `docs/evidence/2026-08-14-gate-descriptor-inert-candidate-upload.v1.json`.
+
 ### 2026-08-14 Telegram Gate descriptor repair checkpoint
 
 - Production remains exact Worker Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35`, sourced from `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`; exact rollback Version 46 is `c6a9f979-6748-4b2c-ad48-4f94b9dec2da`. This checkpoint does not upload or promote a Worker.
