@@ -106,6 +106,7 @@ import {
   PORTFOLIO_LINKAGE_SUMMARY,
   portfolioLinkageFor,
 } from './linkage.ts'
+import { drawerTabsClassName } from './drawer-tabs.ts'
 
 const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v4'
 const V3_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v3'
@@ -1111,7 +1112,7 @@ function PlanDrawer({
         </button>
       </header>
 
-      <nav className={drawerTabs.length === 5 ? 'drawer-tabs has-operate' : 'drawer-tabs'} aria-label="Project detail views" role="tablist">
+      <nav className={drawerTabsClassName(drawerTabs.length)} aria-label="Project detail views" role="tablist">
         {drawerTabs.map((drawerTab, tabIndex) => (
           <button
             type="button"
