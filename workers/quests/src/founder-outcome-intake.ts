@@ -88,6 +88,9 @@ const SAFE_OPAQUE_REFERENCE = /^(?:receipt|event):[A-Za-z0-9][A-Za-z0-9._:/-]{0,
 const SAFE_PARENT_NODE_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,511}$/;
 const SECRET_MATERIAL = /(?:\bbearer\s+|\b(?:api[-_]?key|auth(?:orization)?|token|secret|password|signature|x-amz-signature)\s*[=:]|\binitdata\s*=|\bquery_id\s*=|\bhash\s*=)/i;
 const LOCAL_PATH = /(?:^|\s)(?:file:|\/private\/|\/users\/|\/tmp\/|[a-z]:[\\/])/i;
+const LOCAL_URL_PATH = /(?:file:|\/private\/|\/users\/|\/tmp\/|[a-z]:[\\/])/i;
+
+type ProofReferenceKind = 'screenshot' | 'widget-event';
 
 function rejected(code: FounderOutcomeRejected['code'], error: string): FounderOutcomeRejected {
   return { accepted: false, rejected: true, status: 'rejected', code, errors: [error] };
@@ -111,17 +114,53 @@ function unsafeText(value: string): boolean {
   return SECRET_MATERIAL.test(value) || LOCAL_PATH.test(value) || /^[{[]/.test(value);
 }
 
-function safeReference(value: string): boolean {
+function decodedUrlComponent(value: string): string | null {
+  let decoded = value;
+  for (let index = 0; index < 4; index += 1) {
+    try {
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) return next;
+      decoded = next;
+    } catch {
+      return null;
+    }
+  }
+  return decoded;
+}
+
+function unsafeUrlComponent(value: string): boolean {
+  const decoded = decodedUrlComponent(value);
+  return decoded === null || SECRET_MATERIAL.test(decoded) || LOCAL_URL_PATH.test(decoded) || /[{[]/.test(decoded);
+}
+
+function isOpaqueReferenceKind(value: string, kind: ProofReferenceKind): boolean {
+  if (!SAFE_OPAQUE_REFERENCE.test(value)) return false;
+  const opaque = value.toLowerCase();
+  if (kind === 'screenshot') return opaque.startsWith('receipt:') && opaque.includes('screenshot') && !opaque.includes('event');
+  return (opaque.startsWith('receipt:') || opaque.startsWith('event:')) && opaque.includes('widget') && opaque.includes('event');
+}
+
+function isHttpsReferenceKind(url: URL, kind: ProofReferenceKind): boolean {
+  const path = decodedUrlComponent(url.pathname);
+  if (!path) return false;
+  const normalizedPath = path.toLowerCase();
+  return kind === 'screenshot'
+    ? normalizedPath.includes('screenshot')
+    : normalizedPath.includes('widget') && normalizedPath.includes('event');
+}
+
+function safeReference(value: string, kind: ProofReferenceKind): boolean {
   if (unsafeText(value)) return false;
-  if (SAFE_OPAQUE_REFERENCE.test(value)) return true;
+  if (isOpaqueReferenceKind(value, kind)) return true;
   try {
     const url = new URL(value);
     if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || url.hash) return false;
+    if (unsafeUrlComponent(url.pathname)) return false;
     for (const [key, queryValue] of url.searchParams) {
       if (/(?:token|secret|password|signature|auth|key|hash|initdata|query_id|payload|event|user)/i.test(key)
-        || unsafeText(queryValue)) return false;
+        || unsafeUrlComponent(queryValue)) return false;
     }
-    return true;
+    return isHttpsReferenceKind(url, kind);
   } catch {
     return false;
   }
@@ -157,7 +196,7 @@ export function parseFounderOutcomeIntent(input: unknown): FounderOutcomeParseRe
     if (typeof screenshotRef !== 'string') return screenshotRef;
     const widgetEventRef = normalizedText(record.widgetEventRef, 'widgetEventRef', MAX_REFERENCE_LENGTH);
     if (typeof widgetEventRef !== 'string') return widgetEventRef;
-    if (!safeReference(screenshotRef) || !safeReference(widgetEventRef)) return rejected('unsafe_reference', 'references must be safe HTTPS or opaque receipt pointers');
+    if (!safeReference(screenshotRef, 'screenshot') || !safeReference(widgetEventRef, 'widget-event')) return rejected('unsafe_reference', 'references must be safe, correctly typed HTTPS or opaque receipt pointers');
     const clientRequestId = normalizedText(record.clientRequestId, 'clientRequestId', MAX_REQUEST_ID_LENGTH);
     if (typeof clientRequestId !== 'string') return clientRequestId;
     if (!SAFE_REQUEST_ID.test(clientRequestId)) return rejected('malformed_input', 'clientRequestId is not a safe opaque identifier');
@@ -200,6 +239,8 @@ export function deriveFounderOutcomeTransition(value: FounderOutcomeIntent, pare
   const parent = typeof parentNodeId === 'string' ? parentNodeId.trim() : '';
   if (!SAFE_PARENT_NODE_ID.test(parent) || parent.includes('..')) throw new TypeError('parentNodeId must be a bounded safe node identity');
   const status = value.outcome === 'passed' ? 'active' : value.outcome === 'needs-review' ? 'paused' : 'blocked';
+  const canonical = canonicalJson(value as unknown as Record<string, unknown>);
+  const contentDigest = `sha256:${createHash('sha256').update(canonical, 'utf8').digest('hex')}`;
   return {
     tenantId: 'cambium',
     namespace: 'fitcheck-founder-outcome',
@@ -211,7 +252,7 @@ export function deriveFounderOutcomeTransition(value: FounderOutcomeIntent, pare
     questId: 'fitcheck-shopify-widget-qa',
     pinnedLoadoutId: 'loadout:fitcheck-launch',
     parentNodeId: parent,
-    externalId: `founder-outcome:fitcheck-shopify-widget-qa:${value.clientRequestId}`,
+    externalId: `founder-outcome:fitcheck-shopify-widget-qa:${value.clientRequestId}:${contentDigest}`,
     desiredState: 'Record the founder-observed Fitcheck Shopify QA outcome.',
     nextAction: 'Review the founder-submitted evidence candidate in Gate.',
     waitCondition: 'Await founder-approved Goal Graph commit.',

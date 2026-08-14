@@ -126,7 +126,7 @@ test('deriveFounderOutcomeTransition maps every allowed outcome to the exact ser
     assert.equal(transition.parentNodeId, 'goal_parent_fitcheck_anchor');
     assert.equal(
       transition.externalId,
-      `founder-outcome:fitcheck-shopify-widget-qa:${parsed.value.clientRequestId}`,
+      `founder-outcome:fitcheck-shopify-widget-qa:${parsed.value.clientRequestId}:${parsed.contentDigest}`,
     );
     assert.equal(transition.desiredState, 'Record the founder-observed Fitcheck Shopify QA outcome.');
     assert.equal(transition.nextAction, 'Review the founder-submitted evidence candidate in Gate.');
@@ -153,7 +153,7 @@ test('rejects missing values, unsafe types, and clearly oversized payloads', () 
 
 test('accepts only bounded HTTPS pointers and conservative opaque receipt references', () => {
   const httpsAccepted = parseFounderOutcomeIntent(validFounderOutcome({
-    screenshotRef: 'https://evidence.example.com/fitcheck/proof?id=launch-001&view=full',
+    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/proof?id=launch-001&view=full',
     widgetEventRef: 'event:fitcheck_widget_launch_001',
   }));
   assert.equal(httpsAccepted.accepted, true);
@@ -179,6 +179,42 @@ test('accepts only bounded HTTPS pointers and conservative opaque receipt refere
   for (const input of rejectedRefs) assertRejected(input, 'unsafe_reference');
 });
 
+test('proof slots enforce distinct screenshot and widget-event reference grammars', () => {
+  const acceptedHttps = parseFounderOutcomeIntent(validFounderOutcome({
+    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/launch-proof-001',
+    widgetEventRef: 'https://evidence.example.com/fitcheck/widget-events/launch-001',
+  }));
+  assert.equal(acceptedHttps.accepted, true);
+
+  const invalidSlots = [
+    validFounderOutcome({ screenshotRef: 'receipt:fitcheck-widget-event-001' }),
+    validFounderOutcome({ widgetEventRef: 'receipt:fitcheck-screenshot-001' }),
+    validFounderOutcome({ screenshotRef: 'receipt:fitcheck-screenshot-001', widgetEventRef: 'receipt:fitcheck-screenshot-001' }),
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/widget-events/launch-001' }),
+    validFounderOutcome({ widgetEventRef: 'https://evidence.example.com/fitcheck/screenshots/launch-proof-001' }),
+  ];
+  for (const input of invalidSlots) assertRejected(input, 'unsafe_reference');
+});
+
+test('transition identity binds the canonical candidate, not only the replay request id', () => {
+  const first = parseFounderOutcomeIntent(validFounderOutcome());
+  const changed = parseFounderOutcomeIntent(validFounderOutcome({
+    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/launch-proof-002',
+  }));
+  const replay = parseFounderOutcomeIntent(validFounderOutcome());
+  assert.equal(first.accepted, true);
+  assert.equal(changed.accepted, true);
+  assert.equal(replay.accepted, true);
+  if (!first.accepted || !changed.accepted || !replay.accepted) return;
+  const firstTransition = deriveFounderOutcomeTransition(first.value, 'goal_parent_fitcheck_anchor');
+  const changedTransition = deriveFounderOutcomeTransition(changed.value, 'goal_parent_fitcheck_anchor');
+  const replayTransition = deriveFounderOutcomeTransition(replay.value, 'goal_parent_fitcheck_anchor');
+  assert.notEqual(first.contentDigest, changed.contentDigest);
+  assert.notEqual(firstTransition.externalId, changedTransition.externalId);
+  assert.equal(firstTransition.externalId, replayTransition.externalId);
+  assert.match(firstTransition.externalId, new RegExp(`${first.contentDigest}$`));
+});
+
 test('references and notes reject secret material, raw Telegram data, raw JSON payloads, and local machine paths', () => {
   const hostileInputs = [
     validFounderOutcome({ screenshotRef: 'query_id=AAE7&user=%7B%22id%22%3A1%7D&auth_date=1720000000&hash=deadbeef' }),
@@ -196,6 +232,16 @@ test('references and notes reject secret material, raw Telegram data, raw JSON p
     assert.equal(result.accepted, false);
     assert.match(result.code, /unsafe_reference|unsafe_note/);
   }
+});
+
+test('references reject percent-encoded raw payloads and local-machine path material', () => {
+  const hostileInputs = [
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/%2Fprivate%2Ftmp%2Fproof.png' }),
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/%7B%22event%22%3A%22raw%22%7D' }),
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/C%3A%5CUsers%5Cfounder%5Cproof.png' }),
+    validFounderOutcome({ widgetEventRef: 'https://evidence.example.com/fitcheck/widget-events/%257B%2522event%2522%253A%2522raw%2522%257D' }),
+  ];
+  for (const input of hostileInputs) assertRejected(input, 'unsafe_reference');
 });
 
 test('deriveFounderOutcomeTransition rejects invalid parent node identities', () => {
