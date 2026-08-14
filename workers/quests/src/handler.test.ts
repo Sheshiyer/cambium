@@ -3994,7 +3994,6 @@ test('page · gate chamber previews consequence, reversibility, evidence, and id
   assert.match(PAGE, /data-signed-action-entrypoint="reroll"/);
   assert.match(PAGE, /data-signed-action-entrypoint="confirm-action-request"/);
   assert.match(PAGE, /querySelectorAll\('\[data-kind\]'\)/);
-  assert.match(PAGE, /openGatePreflight\(kind, gateActionSubject\(kind, item\), node\)/);
 });
 
 test('page · empty gate names internal source and no open items', async () => {
@@ -4282,6 +4281,71 @@ test('page · goal-graph intake row renders, preflights, and submits a signed ap
   assert.match(resultSheet, /goal graph committed · receipt in Inspect/);
   assert.match(resultSheet, /queued action<\/b><span>gg_node_test/);
   assert.match(resultSheet, /data-gate-result-refresh="1"/);
+});
+
+test('page · legacy goal-graph Gate row passes the exact served descriptor to governed preflight', async () => {
+  const changeDigest = 'd'.repeat(64);
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [],
+    goalGraphIntake: {
+      schema: 'cambium.goal-graph-gate-row-list.v1',
+      ok: true,
+      tenantId: 'cambium',
+      count: 1,
+      rows: [{
+        schema: 'cambium.goal-graph-gate-row.v1',
+        kind: 'goal-graph-intake',
+        id: `goal-graph-intake:${changeDigest}`,
+        tenantId: 'cambium',
+        status: 'pending',
+        changeDigest,
+        nodeId: 'gg_node_descriptor',
+        title: 'Goal proposal · admit Fitcheck',
+        source: 'telegram-goal-graph-intake@v1',
+        evidence: 'packet-backed Fitcheck proposal pinned at intake',
+        consequence: 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+        reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph',
+        idempotencyHint: changeDigest,
+        graphVersion: 2,
+        receivedAt: '2026-08-14T09:46:02.530Z',
+        updatedAt: '2026-08-14T09:46:02.530Z',
+        approvalNonce: `goal-graph-approval:cambium:${changeDigest}`,
+        approvalExpiresAt: '2099-08-14T10:01:02.530Z',
+        expectedHeadVersion: 1,
+        fence: 2,
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
+  const calls: unknown[][] = [];
+  rendered.context.openGatePreflight = (...args: unknown[]) => { calls.push(args); };
+  const button = { dataset: { kind: 'approve-goal-graph' }, onclick: null as null | (() => void) };
+  const row = {
+    dataset: { i: '0' },
+    querySelectorAll: (selector: string) => selector === '[data-kind]' ? [button] : [],
+  };
+  const gate = {
+    innerHTML: '',
+    querySelectorAll: (selector: string) => selector === '.gitem' ? [row] : [],
+  };
+
+  (rendered.context.loadGateWire as (el: unknown, source: string) => void)(gate, '/internal/gate/cambium');
+  assert.equal(typeof button.onclick, 'function');
+  button.onclick!();
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0]![0], 'approve-goal-graph');
+  assert.equal(calls[0]![1], changeDigest);
+  assert.equal(calls[0]![2], row);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls[0]![3])), {
+    tenant: 'cambium',
+    changeDigest,
+    nonce: `goal-graph-approval:cambium:${changeDigest}`,
+    expiresAt: '2099-08-14T10:01:02.530Z',
+    graphVersion: 1,
+    fence: 2,
+  });
 });
 
 test('page · production ActionRequest projection renders message choice receipt and state-valid controls', async () => {

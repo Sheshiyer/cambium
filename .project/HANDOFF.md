@@ -1,5 +1,15 @@
 # Project handoff
 
+### 2026-08-14 Telegram Gate descriptor repair checkpoint
+
+- Production remains exact Worker Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35`, sourced from `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`; exact rollback Version 46 is `c6a9f979-6748-4b2c-ad48-4f94b9dec2da`. This checkpoint does not upload or promote a Worker.
+- The authenticated Cloudflare browser session was inspected but did not expose Telegram `initData`; it cannot substitute for a founder Telegram signature. The native Telegram Quest Log was opened, but its custom control was not programmatically activatable through the available accessibility surface.
+- One approved replacement Fitcheck proposal was created with change digest `7b897c36e61b6430bf27151e95a9de35293317d99e6330f7171b30657780958d`. It expired at `2026-08-14T10:01:02.530Z` while still pending. D1 remained at Goal Graph version 1, and no Fitcheck admission, Hermes directive, foldback, ACK, allowlist, or execution occurred.
+- Root cause: the legacy Gate row called the governed preflight without the exact server-issued descriptor even though its row already contained tenant, change digest, nonce, expiry, expected head version, and fence. The Operating Fabric bridge rejected that incomplete request fail-closed.
+- The isolated branch `codex/gate-row-descriptor-fix` now passes those six served fields only for `approve-goal-graph`; all other Gate actions remain unchanged, and the existing bridge retains digest, tenant, nonce, expiry, head-version, and fence validation.
+- Strict TDD reproduced the missing fourth argument before the fix and proves the exact six-field descriptor afterward. Focused handler and page tests pass; the canonical 47-scene Telegram viewport proof was regenerated; deterministic `pnpm verify:release` passes 1682 core tests, 37 integration checks, the mobile contract, 99 R3F tests/build, and five desktop packaging tests.
+- Next authority remains sequential and rollback-gated: review this exact clean commit, upload one inert candidate, verify UUID/binding/runtime/preview parity, and only then separately promote with immediate rollback to Version 47 on any mismatch. After promotion, a new Fitcheck intake requires renewed approval and immediate founder action in the real Telegram Quest Log.
+
 ### 2026-08-11 production activation-wave checkpoint
 
 - Source PRs #308 and #309 are merged on `main`; the production quest ledger

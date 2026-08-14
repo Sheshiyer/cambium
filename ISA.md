@@ -2406,3 +2406,17 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - [x] ISC-1102: The resulting candidate and exact separately approved durable-action queue are recorded in `.project/HANDOFF.md` without implying production deployment or all-72 operational admission.
 
 Verification: authenticated production Workbench readback; strict 63-root audit; local Cambium and Fitcheck browser probes; Workbench check 73 passed / one skipped; portfolio-foundation 45 + 73 + 108; release 1678 + 37 + 99 + 5; JSON and diff checks. Independent review's P1 (untracked essential files) and P3 (linkage lint omission) were closed before checkpointing.
+
+### 2026-08-14 Telegram Gate descriptor repair
+
+- [x] ISC-1103: A Cloudflare-authenticated browser session is distinguished from Telegram founder authentication; absent Telegram `initData` cannot authorize a Goal Graph admission.
+- [x] ISC-1104: The legacy Goal Graph Gate row carries the exact served tenant, change digest, nonce, expiry, expected head version, and fence into governed preflight.
+- [x] ISC-1105: Descriptor seeding is limited to `approve-goal-graph`; ordinary Gate actions preserve their prior call shape and authority.
+- [x] ISC-1106: Existing Operating Fabric validation remains fail-closed for missing, expired, mismatched, stale-head, or wrong-fence descriptors.
+- [x] ISC-1107: A behavior-level regression test executes the real legacy row wire path and asserts all six descriptor fields exactly.
+- [x] ISC-1108: Canonical Telegram viewport evidence is regenerated against the repaired page source and remains manifest-bound across 47 layout and clickability proofs.
+- [x] ISC-1109: Deterministic release verification passes 1682 core tests, 37 integration checks, the mobile contract, 99 R3F tests/build, and five desktop packaging tests.
+- [x] ISC-1110: The approved replacement Fitcheck intake expired while pending; D1 remained at Goal Graph version 1 and no Hermes, foldback, ACK, allowlist, Mission Fabric, or execution mutation occurred.
+- [x] ISC-1111: Production remains Version 47 and the repair remains a local candidate pending separate rollback-gated upload and promotion authority.
+
+Verification: strict RED/GREEN behavior test; focused handler and operating-fabric suites; canonical `proof:tg-viewport`; full `verify:release`; exact browser and D1/KV readback. No production upload, traffic change, D1/KV/R2 write, Telegram message, Hermes activation, Mission Fabric allowlist, or execution occurred from this repair checkpoint.
