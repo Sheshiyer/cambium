@@ -89,7 +89,7 @@ import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } fro
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { deriveFounderOutcomeTransition, parseFounderOutcomeIntent } from './founder-outcome-intake.ts';
 import { parseTelegramGoalGraphIntent, parseTelegramGoalGraphIntentBoundary } from './goal-graph-intake.ts';
-import { compileGoalGraph } from './goal-graph/compiler.ts';
+import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
 import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
@@ -134,7 +134,13 @@ function resolveSurfacePrincipal(req: SimpleRequest): Principal | null {
   return FOUNDER_FALLBACK_PRINCIPAL;
 }
 
-async function surfaceScopedQuestBody(deps: HandlerDeps, tenantId: string, stored: string, principal: Principal): Promise<string> {
+async function surfaceScopedQuestBody(
+  deps: HandlerDeps,
+  tenantId: string,
+  stored: string,
+  principal: Principal,
+  founderOutcomeAuthorized = false,
+): Promise<string> {
   const base = await publicQuestBody(deps.kv, tenantId, stored);
   try {
     const envelope = JSON.parse(base);
@@ -142,7 +148,9 @@ async function surfaceScopedQuestBody(deps: HandlerDeps, tenantId: string, store
       sections: filterSections(MINI_APP_SECTIONS, principal),
       subsections: filterSubsections(MINI_APP_MAP_SUBSECTIONS, principal),
     };
-    await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal);
+    if (founderOutcomeAuthorized) {
+      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal);
+    }
     return JSON.stringify(envelope);
   } catch {
     return base;
@@ -4283,6 +4291,9 @@ interface FounderOutcomeApprovalAttempt {
   expiresAt: string;
   approvalDigest: string;
   approvedAt: string;
+  commitHeadDigest: string;
+  commitGraphVersion: number;
+  committedAt: string;
 }
 
 function validFounderOutcomeApprovalAttempt(
@@ -4297,7 +4308,10 @@ function validFounderOutcomeApprovalAttempt(
       || attempt.nonce !== descriptor.approvalNonce
       || attempt.expiresAt !== descriptor.approvalExpiresAt
       || typeof attempt.approvedAt !== 'string'
-      || typeof attempt.approvalDigest !== 'string') return null;
+      || typeof attempt.approvalDigest !== 'string'
+      || !/^[a-f0-9]{64}$/.test(String(attempt.commitHeadDigest ?? ''))
+      || attempt.commitGraphVersion !== task.graphVersion
+      || attempt.committedAt !== attempt.approvedAt) return null;
   const core = {
     tenantId: String(task.tenantId),
     changeDigest: String(task.changeDigest),
@@ -4308,6 +4322,32 @@ function validFounderOutcomeApprovalAttempt(
   };
   if (goalGraphApprovalDigest(core) !== attempt.approvalDigest) return null;
   return attempt as unknown as FounderOutcomeApprovalAttempt;
+}
+
+function expectedFounderOutcomeCommitHead(
+  task: Record<string, unknown>,
+  currentNodes: readonly GoalGraphNode[],
+  committedAt: string,
+): GoalGraphHead | null {
+  const changeSet = task.changeSet as GoalChangeSet | undefined;
+  if (!changeSet
+      || !Array.isArray(changeSet.nodesToCreate)
+      || !Array.isArray(changeSet.nodesToUpdate)
+      || !Array.isArray(changeSet.nodesToRemove)
+      || changeSet.tenantId !== task.tenantId
+      || changeSet.graphVersion !== task.graphVersion) return null;
+  const target = new Map(currentNodes.map((node) => [node.nodeId, node]));
+  for (const node of changeSet.nodesToRemove) target.delete(node.nodeId);
+  for (const update of changeSet.nodesToUpdate) target.set(update.nodeId, update.after);
+  for (const node of changeSet.nodesToCreate) target.set(node.nodeId, node);
+  return makeGoalGraphHead(
+    String(task.tenantId),
+    [...target.values()],
+    changeSet.graphVersion,
+    committedAt,
+    changeSet.sourceRef,
+    changeSet.sourceDigest,
+  );
 }
 
 function founderOutcomeCommitFields(task: Record<string, unknown>): Record<string, unknown> {
@@ -4387,28 +4427,39 @@ function goalGraphCommitEvidenceResponse(
   };
 }
 
-function d1ContainsExactFounderOutcomeCommit(
+function originalFounderOutcomeCommitHead(
   task: Record<string, unknown>,
+  attempt: FounderOutcomeApprovalAttempt,
   head: GoalGraphHead | null,
   nodes: readonly GoalGraphNode[],
-): head is GoalGraphHead {
+): GoalGraphHead | null {
   const candidate = storedFounderOutcomeCandidate(task);
   if (!candidate || !head
       || head.tenantId !== task.tenantId
-      || head.graphVersion !== task.graphVersion
-      || !head.nodeIds.includes(String(task.nodeId))) return false;
+      || head.graphVersion < attempt.commitGraphVersion
+      || !head.nodeIds.includes(String(task.nodeId))
+      || (head.graphVersion === attempt.commitGraphVersion && head.graphDigest !== attempt.commitHeadDigest)) return null;
   const node = nodes.find((entry) => entry.nodeId === task.nodeId);
   if (!node || node.tenantId !== task.tenantId
       || node.sourceRef !== task.sourceRef
       || node.sourceDigest !== task.sourceDigest
-      || node.graphVersion !== task.graphVersion) return false;
+      || node.graphVersion !== attempt.commitGraphVersion) return null;
   const metadata = isRecord(node.metadata) ? node.metadata : {};
-  return metadata.candidateId === candidate.candidateId
+  if (!(metadata.candidateId === candidate.candidateId
     && metadata.branchId === candidate.branchId
     && metadata.missionId === candidate.missionId
     && metadata.questId === candidate.questId
     && metadata.outcome === candidate.outcome
-    && node.currentState === candidate.outcome;
+    && node.currentState === candidate.outcome)) return null;
+  return {
+    tenantId: String(task.tenantId),
+    graphVersion: attempt.commitGraphVersion,
+    graphDigest: attempt.commitHeadDigest,
+    nodeIds: [String(task.nodeId)],
+    sourceRef: typeof task.sourceRef === 'string' ? task.sourceRef : null,
+    sourceDigest: typeof task.sourceDigest === 'string' ? task.sourceDigest : null,
+    committedAt: attempt.committedAt,
+  };
 }
 
 async function approveGoalGraphIntakeRoute(
@@ -4498,22 +4549,23 @@ async function approveGoalGraphIntakeRoute(
   const candidate = storedFounderOutcomeCandidate(task);
   let approvalAttempt = candidate ? validFounderOutcomeApprovalAttempt(task, descriptor) : null;
   let currentHead: GoalGraphHead | null | undefined;
+  let currentNodes: GoalGraphNode[] | undefined;
 
   // A candidate approval can commit D1 and then lose the final KV write. The
   // pre-commit approval attempt plus the exact D1 node/head is sufficient to
   // reconcile the task without invoking the sole CAS writer a second time.
   if (candidate && approvalAttempt) {
-    let currentNodes: GoalGraphNode[];
     try {
       currentHead = await deps.goalGraphStore.readHead(tenant);
       currentNodes = await deps.goalGraphStore.readNodes(tenant);
     } catch {
       return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
     }
-    if (d1ContainsExactFounderOutcomeCommit(task, currentHead, currentNodes)) {
+    const committedHead = originalFounderOutcomeCommitHead(task, approvalAttempt, currentHead, currentNodes);
+    if (committedHead) {
       const reconciled = acceptedFounderOutcomeTask(
         task,
-        currentHead,
+        committedHead,
         approvalAttempt.approvalDigest,
         approvalAttempt.nonce,
         now,
@@ -4525,7 +4577,7 @@ async function approveGoalGraphIntakeRoute(
       }
       return goalGraphCommitEvidenceResponse(
         reconciled,
-        currentHead,
+        committedHead,
         approvalAttempt.approvalDigest,
         approvalAttempt.nonce,
         true,
@@ -4583,6 +4635,13 @@ async function approveGoalGraphIntakeRoute(
 
   const intentVersion = Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1;
   if (candidate && !approvalAttempt) {
+    try {
+      currentNodes ??= await deps.goalGraphStore.readNodes(tenant);
+    } catch {
+      return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+    }
+    const commitHead = expectedFounderOutcomeCommitHead(task, currentNodes, now);
+    if (!commitHead) return { status: 409, body: { error: 'goal_graph_commit_evidence_invalid' } };
     const core = {
       tenantId: tenant,
       changeDigest,
@@ -4598,6 +4657,9 @@ async function approveGoalGraphIntakeRoute(
       expiresAt: storedExpiresAt,
       approvalDigest: goalGraphApprovalDigest(core),
       approvedAt: now,
+      commitHeadDigest: commitHead.graphDigest,
+      commitGraphVersion: commitHead.graphVersion,
+      committedAt: commitHead.committedAt,
     };
     try {
       await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
@@ -4933,6 +4995,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return { status: 200, headers: { ...JSON_HEADERS }, body: await surfaceScopedQuestBody(deps, tenant, stored, result.principal) };
     }
     let principal: Principal | null = null;
+    let founderOutcomeAuthorized = false;
     if (deps.plexus) {
       const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
       if (resolved.kind === 'unauthenticated') {
@@ -4947,10 +5010,28 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       }
     }
     if (!principal) principal = resolveSurfacePrincipal(req);
+    const telegramInitData = (req.headers['x-telegram-init-data'] ?? '').trim();
+    if (telegramInitData && deps.gate) {
+      const verdict = await validateInitData(telegramInitData, deps.gate);
+      if (verdict.ok) {
+        founderOutcomeAuthorized = true;
+        principal ??= {
+          id: `telegram:${verdict.userId}`,
+          tenant,
+          role: 'founder',
+          allow: [],
+          createdBy: 'telegram-init-data',
+        };
+      }
+    }
     if (!principal) {
       return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
     }
-    return { status: 200, headers: { ...JSON_HEADERS }, body: await surfaceScopedQuestBody(deps, tenant, stored, { ...principal, tenant }) };
+    return {
+      status: 200,
+      headers: { ...JSON_HEADERS },
+      body: await surfaceScopedQuestBody(deps, tenant, stored, { ...principal, tenant }, founderOutcomeAuthorized),
+    };
   }
 
   if (method === 'POST' && routePath.startsWith('/internal/ledger/')) {

@@ -26,6 +26,7 @@ import type {
 import type { D1DatabaseLike, D1StatementLike } from './index.ts';
 import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
+import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { PAGE } from './page.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -13808,15 +13809,14 @@ async function founderOutcomeHarness(options: {
     for (const update of changeSet.nodesToUpdate ?? []) byId.set(String(update.nodeId), update.after);
     for (const node of changeSet.nodesToCreate ?? []) byId.set(String(node.nodeId), node);
     nodes = [...byId.values()];
-    head = {
-      tenantId: 'cambium',
-      graphVersion: changeSet.graphVersion,
-      graphDigest: 'b'.repeat(64),
-      nodeIds: nodes.map((node) => String(node.nodeId)).sort(),
-      sourceRef: changeSet.sourceRef,
-      sourceDigest: changeSet.sourceDigest,
+    head = makeGoalGraphHead(
+      'cambium',
+      nodes as any,
+      changeSet.graphVersion,
       committedAt,
-    };
+      changeSet.sourceRef,
+      changeSet.sourceDigest,
+    );
     return { ...head, nodeIds: [...head.nodeIds] };
   };
   const goalGraphStore = {
@@ -14132,10 +14132,19 @@ function founderOutcomePrincipal(role: 'founder' | 'team' | 'consultant', overri
 async function founderOutcomeQuestEnvelope(
   harness: Awaited<ReturnType<typeof founderOutcomeHarness>>,
   principal?: Record<string, unknown>,
+  options: { authenticateFounder?: boolean; principalTransport?: 'header' | 'query' } = {},
 ) {
   harness.kv.store.set('ledger:cambium', ENVELOPE);
-  const response = await handle(req('GET', '/api/quests/cambium', {
-    ...(principal ? { headers: { 'x-principal': JSON.stringify(principal) } } : {}),
+  const authenticateFounder = options.authenticateFounder ?? principal?.role === 'founder';
+  const principalJson = principal ? JSON.stringify(principal) : '';
+  const path = principal && options.principalTransport === 'query'
+    ? `/api/quests/cambium?principal=${encodeURIComponent(principalJson)}`
+    : '/api/quests/cambium';
+  const response = await handle(req('GET', path, {
+    headers: {
+      ...(principal && options.principalTransport !== 'query' ? { 'x-principal': principalJson } : {}),
+      ...(authenticateFounder ? { 'x-telegram-init-data': harness.initData } : {}),
+    },
   }), harness.deps);
   assert.equal(response.status, 200);
   return body(response);
@@ -14281,6 +14290,10 @@ test('founder outcome D1-success KV-failure replay reconciles original evidence 
   assert.equal(beforeReplayEnvelope.goalGraphOutcomes.rows[0].candidateId, receipt.candidate.candidateId);
   assert.equal(beforeReplayEnvelope.goalGraphIntake, undefined, 'committed D1 outcome outranks stale pending KV');
 
+  harness.advanceHead();
+  const laterGraph = harness.currentGraph();
+  assert.equal(laterGraph.head.graphVersion, 9, 'an unrelated D1 commit advances the shared head before replay');
+
   const replay = await handle(req('POST', '/api/gate/cambium', {
     body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
   }), harness.deps);
@@ -14294,11 +14307,51 @@ test('founder outcome D1-success KV-failure replay reconciles original evidence 
   assert.equal(replayEvidence.candidateId, receipt.candidate.candidateId);
   assert.equal(replayEvidence.questId, 'fitcheck-shopify-widget-qa');
   assert.equal(harness.commits.length, 1, 'approval replay performs zero second D1 commit calls');
-  assert.deepEqual(harness.currentGraph(), committedGraph);
+  assert.deepEqual(harness.currentGraph(), laterGraph, 'reconciliation leaves the later D1 head untouched');
 
   const reconciled = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${receipt.changeDigest}`)!);
   assert.equal(reconciled.status, 'committed');
   assert.equal(reconciled.candidate.status, 'accepted');
+});
+
+test('forged x-principal founder cannot reveal pending founder outcome existence or counts', async () => {
+  const harness = await founderOutcomeHarness();
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const candidateId = body(intake).candidate.candidateId;
+
+  const envelope = await founderOutcomeQuestEnvelope(
+    harness,
+    founderOutcomePrincipal('founder'),
+    { authenticateFounder: false },
+  );
+  assert.equal(envelope.goalGraphIntake, undefined);
+  assert.equal(envelope.goalGraphOutcomes, undefined);
+  assert.equal(envelope.founderOutcomeRecovery, undefined);
+  assert.doesNotMatch(JSON.stringify(envelope), new RegExp(candidateId));
+  assert.doesNotMatch(JSON.stringify(envelope), /founder-evidence-candidate|review_pending/);
+});
+
+test('forged principal query founder cannot reveal committed founder outcomes', async () => {
+  const harness = await founderOutcomeHarness({ commit: 'committed' });
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const receipt = body(intake);
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
+  }), harness.deps);
+  assert.equal(approved.status, 200);
+
+  const envelope = await founderOutcomeQuestEnvelope(
+    harness,
+    founderOutcomePrincipal('founder'),
+    { authenticateFounder: false, principalTransport: 'query' },
+  );
+  assert.equal(envelope.goalGraphIntake, undefined);
+  assert.equal(envelope.goalGraphOutcomes, undefined);
+  assert.equal(envelope.founderOutcomeRecovery, undefined);
+  assert.doesNotMatch(JSON.stringify(envelope), new RegExp(receipt.candidate.candidateId));
+  assert.doesNotMatch(JSON.stringify(envelope), /fitcheck-shopify-widget-qa|cambium.goal-graph-outcomes.v1/);
 });
 
 test('Goal Graph readback hides pending candidate existence from every non-founder projection', async () => {
