@@ -11,7 +11,13 @@ function founderOutcomeRequestIdentity(){
 }
 function openFounderOutcomeSheet(mode){
   const initial = { screenshotRef:'', widgetEventRef:'', outcome:mode === 'add-proof' ? 'passed' : 'needs-review', note:'' };
-  function showMessage(message){ sheetBody.innerHTML += '<div class="founder-outcome-status" aria-live="polite">' + esc(message) + '</div>'; }
+  function showMessage(message){
+    const status = sheetBody.querySelector('[data-founder-outcome-status]');
+    if (!status) return;
+    status.textContent = message;
+    status.setAttribute('data-founder-outcome-status-state', message ? 'error' : 'idle');
+    status.classList.toggle('is-error', !!message);
+  }
   function render(values, message){
     sheetBody.innerHTML = '<div class="arc">founder evidence · fitcheck</div><h2>' + (mode === 'add-proof' ? 'Add proof' : 'Report outcome') + '</h2><p class="nar">Submit two receipt references for the observed Shopify widget outcome.</p>' +
       '<label class="founder-outcome-field">Screenshot receipt reference<input type="text" aria-label="Screenshot receipt reference" placeholder="HTTPS URL or opaque receipt reference"></label><label class="founder-outcome-field">Widget-event receipt reference<input type="text" aria-label="Widget-event receipt reference" placeholder="HTTPS URL or opaque receipt reference"></label>' +
@@ -20,6 +26,7 @@ function openFounderOutcomeSheet(mode){
     const inputs = sheetBody.querySelectorAll('input'), outcome = sheetBody.querySelector('select'), note = sheetBody.querySelector('textarea');
     inputs[0].value = values.screenshotRef; inputs[1].value = values.widgetEventRef; outcome.value = values.outcome; note.value = values.note;
     const submit = sheetBody.querySelector('[data-founder-outcome-submit]');
+    function restoreSubmit(){ submit.disabled = false; submit.setAttribute('aria-busy', 'false'); }
     sheetBody._founderOutcomeSubmit = () => {
       const current = { screenshotRef:String(inputs[0].value || '').trim(), widgetEventRef:String(inputs[1].value || '').trim(), outcome:String(outcome.value || 'needs-review'), note:String(note.value || '').trim() };
       if (!current.screenshotRef) { showMessage('Screenshot reference is required'); inputs[0].focus(); return; }
@@ -28,12 +35,12 @@ function openFounderOutcomeSheet(mode){
       const payload = { schema:'cambium.founder-outcome-intent.v1', tenantId:'cambium', workObjectId:'sapling:fitcheck', branchId:'fitcheck', missionId:'fitcheck-shopify-qa', questId:'fitcheck-shopify-widget-qa', screenshotRef:current.screenshotRef, widgetEventRef:current.widgetEventRef, outcome:current.outcome, note:current.note, clientRequestId:founderOutcomeRequestIdentity(), initData:initData };
       Promise.resolve(fetch('/api/founder-outcomes/cambium', { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) }))
         .then(r => r.json().then(body => ({ ok:r.ok, body }))).then(result => {
-          if (!result.ok || !result.body || !result.body.candidate) { showMessage('worker refused · no write'); return; }
+          if (!result.ok || !result.body || !result.body.candidate) { restoreSubmit(); showMessage('worker refused · no write'); return; }
           founderOutcomeRequestId = '';
           sheetBody.innerHTML = '<div class="arc">founder evidence · fitcheck</div><h2>Pending Gate</h2><p class="nar">Your observed outcome awaits the existing Gate review.</p><button type="button" class="approve" data-founder-outcome-open-gate="1">Open Gate</button>';
           sheetBody._founderOutcomeOpenGate = () => { closeSheet(); go(1); };
           Promise.resolve(refresh()).then(loadGate);
-        }).catch(() => showMessage('network failure · no write'));
+        }).catch(() => { restoreSubmit(); showMessage('network failure · no write'); });
     };
   }
   render(initial, ''); veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');

@@ -5432,12 +5432,20 @@ test('Fitcheck founder outcome preserves safe fields, focuses validation, and re
   assert.equal(inputs[1].value, 'receipt:fitcheck-widget-event-001');
   assert.equal(note.value, 'Founder observed a blocked widget state.');
   assert.equal(inputs[0].focusCalls.length, 1);
-  assert.match(sheet.innerHTML, /Screenshot reference is required/);
+  assert.equal(sheet.querySelector('[data-founder-outcome-status]').textContent, 'Screenshot reference is required');
 
-  inputs[0].value = 'https://evidence.example.com/fitcheck/screenshot-001';
+  const afterValidationInputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
+  const afterValidationOutcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
+  const afterValidationNote = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
+  assert.equal(afterValidationInputs[1].value, 'receipt:fitcheck-widget-event-001');
+  assert.equal(afterValidationOutcome.value, 'blocked');
+  assert.equal(afterValidationNote.value, 'Founder observed a blocked widget state.');
+  assert.equal(sheet.querySelectorAll('[data-founder-outcome-status]').length, 1);
+
+  afterValidationInputs[0].value = 'https://evidence.example.com/fitcheck/screenshot-001';
   sheet.querySelector('[data-founder-outcome-submit]').click();
   await flushPageAsync();
-  assert.match(sheet.innerHTML, /network failure · no write/i);
+  assert.equal(sheet.querySelector('[data-founder-outcome-status]').textContent, 'network failure · no write');
   const first = rendered.fetchRequests.find((request) => request.method === 'POST')!;
   const firstPayload = JSON.parse(String(first.body));
   assert.deepEqual(Object.keys(firstPayload).sort(), ['branchId', 'clientRequestId', 'initData', 'missionId', 'note', 'outcome', 'questId', 'schema', 'screenshotRef', 'tenantId', 'widgetEventRef', 'workObjectId'].sort());
@@ -5445,6 +5453,15 @@ test('Fitcheck founder outcome preserves safe fields, focuses validation, and re
   assert.equal(firstPayload.outcome, 'blocked');
   assert.equal(firstPayload.screenshotRef, 'https://evidence.example.com/fitcheck/screenshot-001');
   assert.equal(firstPayload.widgetEventRef, 'receipt:fitcheck-widget-event-001');
+
+  const afterNetworkInputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
+  const afterNetworkOutcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
+  const afterNetworkNote = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
+  assert.equal(afterNetworkInputs[0].value, 'https://evidence.example.com/fitcheck/screenshot-001');
+  assert.equal(afterNetworkInputs[1].value, 'receipt:fitcheck-widget-event-001');
+  assert.equal(afterNetworkOutcome.value, 'blocked');
+  assert.equal(afterNetworkNote.value, 'Founder observed a blocked widget state.');
+  assert.equal(sheet.querySelectorAll('[data-founder-outcome-status]').length, 1);
 
   sheet.querySelector('[data-founder-outcome-submit]').click();
   await flushPageAsync();

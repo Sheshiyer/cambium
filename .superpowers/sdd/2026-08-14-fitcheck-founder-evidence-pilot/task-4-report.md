@@ -41,3 +41,25 @@ Only the fixed Fitcheck identity can render this action surface.
 ## Verification
 
 `git diff --check` passed for all Task 4 files.
+
+## Fix round 1 — live form recovery
+
+### RED
+
+The focused page test was revised to re-query the live controls after local
+validation and after an ambiguous network error. Before the fix it failed
+because `showMessage` appended through `sheetBody.innerHTML +=`, replacing the
+form while the submit closure still held detached controls.
+
+### GREEN
+
+`showMessage` now updates the sole existing live status region with
+`textContent`, an explicit status state, and a class. It never replaces the
+form. Non-receipt failures re-enable the existing submit control, preserving
+the form values and the stable `clientRequestId` for retry.
+
+```text
+node --test --test-name-pattern='Fitcheck founder outcome' workers/quests/src/handler.test.ts
+```
+
+Result: exit 0; 4 passed, 0 failed. `git diff --check` passed.
