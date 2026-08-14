@@ -92,7 +92,10 @@ function onFetchFailure(){
 function fetchQuestEnvelope(){
   const controller = typeof AbortController === 'function' ? new AbortController() : null;
   const timeout = setTimeout(() => { if (controller) controller.abort(); }, 10000);
-  const options = controller ? { signal: controller.signal } : undefined;
+  const options = {
+    ...(controller ? { signal: controller.signal } : {}),
+    headers: initData ? { 'x-telegram-init-data': initData } : {},
+  };
   return fetch(REFRESH_ROUTE, options).finally(() => clearTimeout(timeout));
 }
 function load(){

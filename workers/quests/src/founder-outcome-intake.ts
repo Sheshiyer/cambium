@@ -87,6 +87,7 @@ const SAFE_REQUEST_ID = /^[A-Za-z0-9][A-Za-z0-9._:@-]{0,191}$/;
 const SAFE_OPAQUE_REFERENCE = /^(?:receipt|event):[A-Za-z0-9][A-Za-z0-9._:/-]{0,1023}$/;
 const SAFE_PARENT_NODE_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,511}$/;
 const SECRET_MATERIAL = /(?:\bbearer\s+|\b(?:api[-_]?key|auth(?:orization)?|token|secret|password|signature|x-amz-signature)\s*[=:]|\binitdata\s*=|\bquery_id\s*=|\bhash\s*=)/i;
+const IDENTIFYING_MATERIAL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const LOCAL_PATH = /(?:^|\s)(?:file:|\/private\/|\/users\/|\/tmp\/|[a-z]:[\\/])/i;
 const LOCAL_URL_PATH = /(?:file:|\/private\/|\/users\/|\/tmp\/|[a-z]:[\\/])/i;
 
@@ -111,7 +112,7 @@ function normalizedText(value: unknown, field: string, maxLength: number): strin
 }
 
 function unsafeText(value: string): boolean {
-  return SECRET_MATERIAL.test(value) || LOCAL_PATH.test(value) || /^[{[]/.test(value);
+  return SECRET_MATERIAL.test(value) || IDENTIFYING_MATERIAL.test(value) || LOCAL_PATH.test(value) || /^[{[]/.test(value);
 }
 
 function decodedUrlComponent(value: string): string | null {
@@ -158,10 +159,7 @@ function safeReference(value: string, kind: ProofReferenceKind): boolean {
     const url = new URL(value);
     if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || url.hash) return false;
     if (unsafeUrlComponent(url.pathname)) return false;
-    for (const [key, queryValue] of url.searchParams) {
-      if (/(?:token|secret|password|signature|auth|key|hash|initdata|query_id|payload|event|user)/i.test(key)
-        || unsafeUrlComponent(queryValue)) return false;
-    }
+    if (url.search || IDENTIFYING_MATERIAL.test(url.pathname)) return false;
     return isHttpsReferenceKind(url, kind);
   } catch {
     return false;

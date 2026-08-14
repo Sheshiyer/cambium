@@ -5382,7 +5382,7 @@ test('Fitcheck founder outcome renders exact actions and an accessible bounded e
   assert.equal(sheet.querySelectorAll('textarea').length, 1);
   assert.match(sheet.innerHTML, /Screenshot receipt reference/);
   assert.match(sheet.innerHTML, /Widget-event receipt reference/);
-  assert.match(sheet.innerHTML, /HTTPS URL or opaque receipt reference/);
+  assert.match(sheet.innerHTML, /Query-free HTTPS URL or opaque receipt reference/);
   assert.match(sheet.innerHTML, /Observed outcome/);
   assert.match(sheet.innerHTML, /Founder note \(optional\)/);
   assert.match(sheet.innerHTML, /maxlength="500"/);
@@ -5526,7 +5526,17 @@ test('Fitcheck founder outcome Gate commit refreshes Mission and Gate while pres
   await flushPageAsync(8);
   assert.match(rendered.elements.get('stem')!.innerHTML, /Outcome · passed/);
   assert.match(rendered.elements.get('stem')!.innerHTML, /aria-selected="true"[^>]*[\s\S]*Fitcheck/);
-  assert.ok(rendered.fetchRequests.filter((request) => request.method === 'GET').length >= 2, 'served Mission and Gate envelopes were read');
+  const allReads = rendered.fetchRequests.filter((request) => request.method === 'GET');
+  assert.ok(allReads.length >= 2, 'served Mission and Gate envelopes were read');
+  const founderReads = allReads.filter((request) => request.url === '/api/quests/cambium');
+  assert.ok(founderReads.length >= 2, 'the founder quest envelope was refreshed after approval');
+  for (const request of founderReads) {
+    assert.equal(
+      (request.init.headers as Record<string, string> | undefined)?.['x-telegram-init-data'],
+      TEST_TELEGRAM_INIT_DATA,
+      `every founder quest refresh carries runtime Telegram authentication: ${JSON.stringify(founderReads.map((read) => read.init.headers))}`,
+    );
+  }
 });
 
 test('page · mission branch tab updates content in place and keeps the sheet closed', async () => {

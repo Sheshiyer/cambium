@@ -153,7 +153,7 @@ test('rejects missing values, unsafe types, and clearly oversized payloads', () 
 
 test('accepts only bounded HTTPS pointers and conservative opaque receipt references', () => {
   const httpsAccepted = parseFounderOutcomeIntent(validFounderOutcome({
-    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/proof?id=launch-001&view=full',
+    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/launch-001',
     widgetEventRef: 'event:fitcheck_widget_launch_001',
   }));
   assert.equal(httpsAccepted.accepted, true);
@@ -177,6 +177,17 @@ test('accepts only bounded HTTPS pointers and conservative opaque receipt refere
     validFounderOutcome({ screenshotRef: 'receipt:fitcheck-proof?token=secret' }),
   ];
   for (const input of rejectedRefs) assertRejected(input, 'unsafe_reference');
+});
+
+test('rejects every HTTPS query and obvious identifying reference material', () => {
+  const hostileInputs = [
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/proof?email=jane@example.com' }),
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/proof?customer=merchant-123' }),
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/proof?X-Goog-Credential=credential&X-Goog-Algorithm=GOOG4-RSA-SHA256' }),
+    validFounderOutcome({ screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/jane@example.com/proof' }),
+    validFounderOutcome({ widgetEventRef: 'https://evidence.example.com/fitcheck/widget-events/proof?view=full' }),
+  ];
+  for (const input of hostileInputs) assertRejected(input, 'unsafe_reference');
 });
 
 test('proof slots enforce distinct screenshot and widget-event reference grammars', () => {

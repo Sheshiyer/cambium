@@ -543,7 +543,7 @@ function setGateSubmitState(button, state, text){
 }
 function loadGate(){
   const el = $('gate');
-  fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
+  fetchQuestEnvelope().then(r => r.ok ? r.json() : {}).then(d => {
     const items = gateItemsFromEnvelope(d || {});
     GATE_ITEMS = items;
     const source = '/internal/gate/' + TENANT;
