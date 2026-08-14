@@ -1,0 +1,108 @@
+{
+  "schema": "cambium.fitcheck-founder-evidence-pilot-receipt.v1",
+  "recordedAt": "2026-08-14T18:11:12Z",
+  "authority": {
+    "operation": "local candidate implementation and deterministic proof",
+    "workerUploadAuthorized": false,
+    "productionPromotionAuthorized": false,
+    "liveFounderSubmissionAuthorized": false
+  },
+  "source": {
+    "branch": "codex/fitcheck-founder-outcome-pilot",
+    "evidenceCheckpoint": "20a816d17cf961d62fb50e1535c97ab984e8d4c3",
+    "candidateCodeHead": "405664abfc9490529710c14e88d356f7f21ad602",
+    "commitCountAboveCheckpoint": 10,
+    "founderOutcomeContractSha256": "9908f5672b96dfec259992dbc871fd0902e68ba24ca3364335b6c3a45687a985",
+    "handlerSha256": "849378d10bc1067805e55bbcb7ad5b4fb6a6aafb8121055f2521090665c083d7",
+    "founderSheetSha256": "55d5d31d5167ecd382a5a0ca06ade7748a13edfdba92abfb00a530c9f4993e61",
+    "viewportManifestSha256": "38bef9ba4a73e5a653707dc9d2c84e23f1a3aa192293f93667216060c13a8065"
+  },
+  "pilot": {
+    "tenant": "cambium",
+    "workObjectId": "sapling:fitcheck",
+    "branchId": "fitcheck",
+    "missionId": "fitcheck-shopify-qa",
+    "questId": "fitcheck-shopify-widget-qa",
+    "loadoutId": "loadout:fitcheck-launch",
+    "requiredReferenceKinds": [
+      "screenshot-receipt",
+      "widget-event-receipt"
+    ],
+    "pendingStore": "existing Goal Graph intake KV task",
+    "commitAuthority": "existing signed Gate approval and D1 CAS",
+    "executionAuthority": "Hermes, unchanged"
+  },
+  "verification": {
+    "pureContractTests": {
+      "passed": 14,
+      "failed": 0
+    },
+    "focusedFounderReadbackAndUiTests": {
+      "passed": 25,
+      "failed": 0
+    },
+    "handlerTests": {
+      "passed": 360,
+      "failed": 0
+    },
+    "repositoryTests": {
+      "passed": 1722,
+      "failed": 0
+    },
+    "missionFabricChecks": {
+      "passed": 37,
+      "failed": 0
+    },
+    "r3fTests": {
+      "passed": 99,
+      "failed": 0,
+      "buildPassed": true
+    },
+    "desktopPackagingTests": {
+      "passed": 5,
+      "failed": 0
+    },
+    "canonicalViewportProofPassed": true,
+    "telegramMobileContractPassed": true,
+    "standaloneSmokePassed": true,
+    "deterministicReleaseVerificationPassed": true,
+    "diffCheckPassed": true
+  },
+  "review": {
+    "taskReviews": "passed after bounded fix loops",
+    "remainingFinding": {
+      "severity": "minor",
+      "scope": "malformed debug principal can suppress founder-only projection for that request",
+      "impact": "denial of view only; no candidate or outcome disclosure"
+    }
+  },
+  "externalState": {
+    "workerVersionCreated": false,
+    "workerDeploymentChanged": false,
+    "productionTrafficChanged": false,
+    "bindingsChanged": false,
+    "d1Mutated": false,
+    "kvMutated": false,
+    "r2Mutated": false,
+    "vaultMutated": false,
+    "telegramAction": false,
+    "hermesExecution": false,
+    "missionFabricActivation": false,
+    "providerMutation": false,
+    "githubMutation": false,
+    "primaryCheckoutMutation": false
+  },
+  "liveProof": {
+    "founderSubmissionCompleted": false,
+    "gateApprovalCompleted": false,
+    "goalGraphProductionReadbackCompleted": false,
+    "reason": "candidate is not deployed; live production operations remain separately gated"
+  },
+  "heldOperations": [
+    "fresh production control-plane readback",
+    "independent exact-candidate upload review",
+    "rollback-gated Worker upload and promotion",
+    "one real founder evidence submission",
+    "one exact Gate approval and production Goal Graph readback"
+  ]
+}
