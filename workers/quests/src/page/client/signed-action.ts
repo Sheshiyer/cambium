@@ -649,7 +649,7 @@ function gateAct(submitButton){
         }
         setGateSubmitState(submitButton, 'queued', kind === 'approve-goal-graph' ? 'committed' : 'queued');
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
-        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph') setTimeout(loadGate, 350);
+        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph') Promise.resolve(refresh()).then(loadGate);
       } else {
         setGateSubmitState(submitButton, 'refused', 'refused · no write');
         const error = res.error || 'unknown';
@@ -969,7 +969,7 @@ export const OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS = String.raw`
         if (succeeded) {
           setGateSubmitState(submitButton, 'queued', 'committed');
           openGateResultSheet(kind, subject, res, { idempotencyKey: context.idempotencyKey, consequence: consequence, reversibility: reversibility }, item);
-          setTimeout(loadGate, 350);
+          Promise.resolve(refresh()).then(loadGate);
         } else {
           setGateSubmitState(submitButton, 'refused', 'refused · no write');
           var error = res.error || 'unknown';

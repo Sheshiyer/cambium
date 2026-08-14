@@ -5341,6 +5341,177 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
 });
 
+function fitcheckFounderOutcomePageEnvelope(overrides: Record<string, unknown> = {}) {
+  return {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        workObjectId: 'sapling:fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Shopify launch',
+        vision: { statement: 'Bind founder-observed Shopify widget QA to one reviewed proof transition.' },
+        questline: [{ id: 'fitcheck-shopify-widget-qa', title: 'Shopify widget QA', status: 'active' }],
+        missions: [{ missionId: 'fitcheck-shopify-qa', title: 'Run Shopify widget QA', owner: 'Founder', gate: 'Founder review', proofRequired: 'Screenshot and widget-event receipts', dispatchTarget: 'Gate' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Screenshot and widget-event receipts' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+        gaps: [],
+      }],
+    },
+    ...overrides,
+  };
+}
+
+test('Fitcheck founder outcome renders exact actions and an accessible bounded evidence sheet', async () => {
+  const rendered = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope(), {
+    search: '?tenant=cambium&scene=mission',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+  });
+  const stem = rendered.elements.get('stem')!;
+  const addProof = stem.querySelector('[data-founder-outcome-action="add-proof"]');
+  const reportOutcome = stem.querySelector('[data-founder-outcome-action="report-outcome"]');
+  assert.ok(addProof && reportOutcome);
+  addProof.click();
+
+  const sheet = rendered.elements.get('sheetBody')!;
+  assert.equal(sheet.querySelectorAll('input').length, 2);
+  assert.equal(sheet.querySelectorAll('select').length, 1);
+  assert.equal(sheet.querySelectorAll('textarea').length, 1);
+  assert.match(sheet.innerHTML, /Screenshot receipt reference/);
+  assert.match(sheet.innerHTML, /Widget-event receipt reference/);
+  assert.match(sheet.innerHTML, /HTTPS URL or opaque receipt reference/);
+  assert.match(sheet.innerHTML, /Observed outcome/);
+  assert.match(sheet.innerHTML, /Founder note \(optional\)/);
+  assert.match(sheet.innerHTML, /maxlength="500"/);
+  assert.match(sheet.innerHTML, /data-founder-outcome-claim-guard="1"/);
+  assert.match(sheet.innerHTML, /records an observed outcome; Gate and D1 decide the transition/i);
+  assert.match(sheet.innerHTML, /data-founder-outcome-submit="1"/);
+  assert.doesNotMatch(stem.innerHTML + sheet.innerHTML, new RegExp(TEST_TELEGRAM_INIT_DATA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+
+  const nonPilot = fitcheckFounderOutcomePageEnvelope({
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck', name: 'Fitcheck', arcTitle: 'Other arc',
+        questline: [{ id: 'fitcheck-other-quest', title: 'Other quest', status: 'active' }],
+        missions: [{ missionId: 'fitcheck-shopify-qa', title: 'Other mission', owner: 'Founder', gate: 'Founder review', proofRequired: 'Proof', dispatchTarget: 'Gate' }],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+      }],
+    },
+  });
+  const other = await renderPageFixtureContext(nonPilot, { search: '?tenant=cambium&scene=mission' });
+  assert.doesNotMatch(other.elements.get('stem')!.innerHTML, /data-founder-outcome-action/);
+});
+
+test('Fitcheck founder outcome preserves safe fields, focuses validation, and reuses request identity on ambiguous retry', async () => {
+  let postCount = 0;
+  const rendered = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope(), {
+    search: '?tenant=cambium&scene=mission',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => {
+      if (init.method !== 'POST') return undefined;
+      postCount += 1;
+      return postCount === 1
+        ? new Error('ambiguous network failure')
+        : { candidate: { candidateId: 'founder_candidate_' + 'b'.repeat(32), status: 'review_pending' }, changeDigest: 'c'.repeat(64), graphVersion: 7, gateRoute: '/api/gate/cambium', readbackRoute: '/v1/branch-map/cambium' };
+    },
+  });
+  rendered.elements.get('stem')!.querySelector('[data-founder-outcome-action="report-outcome"]').click();
+  const sheet = rendered.elements.get('sheetBody')!;
+  const inputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
+  const outcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
+  const note = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
+  inputs[1].value = 'receipt:fitcheck-widget-event-001';
+  outcome.value = 'blocked';
+  note.value = 'Founder observed a blocked widget state.';
+  sheet.querySelector('[data-founder-outcome-submit]').click();
+  assert.equal(rendered.fetchRequests.filter((request) => request.method === 'POST').length, 0);
+  assert.equal(inputs[1].value, 'receipt:fitcheck-widget-event-001');
+  assert.equal(note.value, 'Founder observed a blocked widget state.');
+  assert.equal(inputs[0].focusCalls.length, 1);
+  assert.match(sheet.innerHTML, /Screenshot reference is required/);
+
+  inputs[0].value = 'https://evidence.example.com/fitcheck/screenshot-001';
+  sheet.querySelector('[data-founder-outcome-submit]').click();
+  await flushPageAsync();
+  assert.match(sheet.innerHTML, /network failure · no write/i);
+  const first = rendered.fetchRequests.find((request) => request.method === 'POST')!;
+  const firstPayload = JSON.parse(String(first.body));
+  assert.deepEqual(Object.keys(firstPayload).sort(), ['branchId', 'clientRequestId', 'initData', 'missionId', 'note', 'outcome', 'questId', 'schema', 'screenshotRef', 'tenantId', 'widgetEventRef', 'workObjectId'].sort());
+  assert.equal(firstPayload.initData, TEST_TELEGRAM_INIT_DATA);
+  assert.equal(firstPayload.outcome, 'blocked');
+  assert.equal(firstPayload.screenshotRef, 'https://evidence.example.com/fitcheck/screenshot-001');
+  assert.equal(firstPayload.widgetEventRef, 'receipt:fitcheck-widget-event-001');
+
+  sheet.querySelector('[data-founder-outcome-submit]').click();
+  await flushPageAsync();
+  const posts = rendered.fetchRequests.filter((request) => request.method === 'POST');
+  assert.equal(posts.length, 2);
+  assert.equal(JSON.parse(String(posts[1].body)).clientRequestId, firstPayload.clientRequestId);
+  assert.match(sheet.innerHTML, /Pending Gate/);
+  assert.match(sheet.innerHTML, /data-founder-outcome-open-gate="1"/);
+  assert.doesNotMatch(sheet.innerHTML, new RegExp(TEST_TELEGRAM_INIT_DATA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});
+
+test('Fitcheck founder outcome restores pending, committed, and expired state from the server envelope', async () => {
+  const pending = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
+    goalGraphIntake: { rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', status: 'pending', changeDigest: 'e'.repeat(64), outcome: 'passed' }] },
+  }), { search: '?tenant=cambium&scene=mission' });
+  const pendingHtml = pending.elements.get('stem')!.innerHTML;
+  assert.match(pendingHtml, /Pending Gate/);
+  assert.match(pendingHtml, /data-founder-outcome-state="pending"/);
+  assert.match(pendingHtml, /data-founder-outcome-open-gate="1"/);
+  for (const action of pending.elements.get('stem')!.querySelectorAll('[data-founder-outcome-action]')) assert.equal(action.disabled, true);
+
+  const committed = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
+    goalGraphOutcomes: { headDigest: 'f'.repeat(64), graphVersion: 8, rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', outcome: 'passed', headDigest: 'f'.repeat(64), graphVersion: 8 }] },
+  }), { search: '?tenant=cambium&scene=mission' });
+  assert.match(committed.elements.get('stem')!.innerHTML, /Outcome · passed/);
+  assert.match(committed.elements.get('stem')!.innerHTML, /Head · f{12} · v8/);
+  assert.match(committed.elements.get('stem')!.innerHTML, /data-founder-outcome-state="committed"/);
+
+  const expired = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
+    founderOutcomeRecovery: { rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', status: 'expired', expiredAt: '2026-08-14T09:59:59.000Z', recovery: 'refresh-and-resubmit' }] },
+  }), { search: '?tenant=cambium&scene=mission' });
+  assert.match(expired.elements.get('stem')!.innerHTML, /Proposal expired/);
+  assert.match(expired.elements.get('stem')!.innerHTML, /data-founder-outcome-resubmit="1"[^>]*>Refresh and resubmit/);
+});
+
+test('Fitcheck founder outcome Gate commit refreshes Mission and Gate while preserving branch selection', async () => {
+  const pendingEnvelope = fitcheckFounderOutcomePageEnvelope({
+    goalGraphIntake: { rows: [{
+      id: 'goal-graph-intake:' + '1'.repeat(64), tenantId: 'cambium', candidateId: 'founder_candidate_' + '2'.repeat(32),
+      questId: 'fitcheck-shopify-widget-qa', missionId: 'fitcheck-shopify-qa', status: 'pending', changeDigest: '1'.repeat(64),
+      title: 'Fitcheck outcome · passed', evidence: 'screenshot receipt:a; widget event receipt:b', outcome: 'passed',
+      approvalNonce: 'nonce-1', approvalExpiresAt: '2026-08-14T10:30:00.000Z', expectedHeadVersion: 7, fence: 7,
+    }] },
+  });
+  const committedEnvelope = fitcheckFounderOutcomePageEnvelope({
+    goalGraphOutcomes: { headDigest: '3'.repeat(64), graphVersion: 8, rows: [{ candidateId: 'founder_candidate_' + '2'.repeat(32), questId: 'fitcheck-shopify-widget-qa', outcome: 'passed', headDigest: '3'.repeat(64), graphVersion: 8 }] },
+  });
+  let getCount = 0;
+  const rendered = await renderPageFixtureContext(pendingEnvelope, {
+    search: '?tenant=cambium&scene=mission', now: '2026-08-14T10:00:00.000Z', telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => {
+      if (init.method === 'POST') return { committed: true, candidateId: 'founder_candidate_' + '2'.repeat(32), questId: 'fitcheck-shopify-widget-qa', headDigest: '3'.repeat(64), graphVersion: 8 };
+      getCount += 1;
+      return getCount <= 2 ? pendingEnvelope : committedEnvelope;
+    },
+  } as never);
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'fitcheck'", rendered.context as vm.Context);
+  await (rendered.context.loadGate as () => Promise<void>)();
+  const approve = rendered.elements.get('gate')!.querySelector('[data-kind="approve-goal-graph"]');
+  approve.click();
+  rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm="approve-goal-graph"]').click();
+  await flushPageAsync(8);
+  assert.match(rendered.elements.get('stem')!.innerHTML, /Outcome · passed/);
+  assert.match(rendered.elements.get('stem')!.innerHTML, /aria-selected="true"[^>]*[\s\S]*Fitcheck/);
+  assert.ok(rendered.fetchRequests.filter((request) => request.method === 'GET').length >= 2, 'served Mission and Gate envelopes were read');
+});
+
 test('page · mission branch tab updates content in place and keeps the sheet closed', async () => {
   const branch = (branchId: string, name: string, title: string) => ({
     branchId,
