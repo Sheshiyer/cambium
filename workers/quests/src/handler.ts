@@ -3923,7 +3923,11 @@ async function handleFounderOutcomeRoute(
   if (!head || head.tenantId !== parsed.value.tenantId) {
     return { status: 409, body: { error: 'fitcheck_goal_graph_anchor_conflict' } };
   }
-  const anchors = currentNodes.filter((node) => node.workObjectId === FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT);
+  const anchors = currentNodes.filter((node) => (
+    node.tenantId === parsed.value.tenantId
+    && node.parentNodeId === null
+    && node.workObjectId === FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT
+  ));
   if (anchors.length !== 1) {
     return { status: 409, body: { error: 'fitcheck_goal_graph_anchor_conflict' } };
   }

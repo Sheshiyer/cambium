@@ -13944,7 +13944,40 @@ test('founder outcome refuses an absent Fitcheck anchor with zero writes', async
   assert.equal(harness.commits.length, 0);
 });
 
-test('founder outcome refuses ambiguous Fitcheck anchors with zero writes', async () => {
+test('founder outcome allows prior founder proof descendants beneath the single Fitcheck root', async () => {
+  const root = fitcheckAnchor();
+  const harness = await founderOutcomeHarness({
+    nodes: [
+      root,
+      fitcheckAnchor({
+        nodeId: 'goal_prior_founder_proof',
+        namespace: 'fitcheck-founder-outcome',
+        externalId: 'founder-outcome:fitcheck-shopify-widget-qa:prior-request',
+        parentNodeId: root.nodeId,
+        scope: 'proof',
+        desiredState: 'Record the prior founder-observed Fitcheck Shopify QA outcome.',
+        currentState: 'passed',
+        nextAction: 'Retain the approved proof.',
+        proofRequired: false,
+        sourceRef: 'founder-outcome:cambium:founder_candidate_prior',
+        sourceDigest: `sha256:${'3'.repeat(64)}`,
+        metadata: { candidateId: 'founder_candidate_prior', outcome: 'passed' },
+      }),
+    ],
+  });
+
+  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(response.status, 200);
+  const taskKey = [...harness.kv.store.keys()].find((key) => key.startsWith('goal-graph-intake-task:cambium:'));
+  assert.ok(taskKey);
+  const task = JSON.parse(harness.kv.store.get(taskKey)!);
+  assert.equal(task.node.parentNodeId, root.nodeId);
+  assert.equal(task.changeSet.nodesToCreate.length, 1);
+  assert.equal(task.changeSet.nodesToRemove.length, 0);
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome refuses duplicate Fitcheck roots with zero writes', async () => {
   const root = fitcheckAnchor();
   const harness = await founderOutcomeHarness({
     nodes: [
@@ -13952,8 +13985,7 @@ test('founder outcome refuses ambiguous Fitcheck anchors with zero writes', asyn
       fitcheckAnchor({
         nodeId: 'goal_fitcheck_anchor_duplicate',
         externalId: 'fitcheck-launch-anchor-duplicate',
-        parentNodeId: root.nodeId,
-        scope: 'meso',
+        parentNodeId: null,
       }),
     ],
   });
