@@ -87,7 +87,10 @@ import type {
 } from './portfolio-admin-actions.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
+import { deriveFounderOutcomeTransition, parseFounderOutcomeIntent } from './founder-outcome-intake.ts';
 import { parseTelegramGoalGraphIntent, parseTelegramGoalGraphIntentBoundary } from './goal-graph-intake.ts';
+import { compileGoalGraph } from './goal-graph/compiler.ts';
+import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
 import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
@@ -3450,6 +3453,107 @@ function goalGraphIntakeTaskKey(tenantId: string, changeDigest: string): string 
   return `goal-graph-intake-task:${tenantId}:${changeDigest}`;
 }
 
+type GoalGraphIntakePersistenceResult =
+  | { kind: 'missing' }
+  | { kind: 'conflict' }
+  | { kind: 'ready'; task: Record<string, unknown>; duplicate: boolean };
+
+interface GoalGraphIntakePersistenceInput {
+  tenantId: string;
+  idempotencyKey: string;
+  contentDigest: string;
+  idempotencyRecordKey: string;
+  taskKey?: string;
+  task?: Record<string, unknown>;
+}
+
+function matchingGoalGraphIntakeTask(
+  task: Record<string, unknown> | null,
+  input: GoalGraphIntakePersistenceInput,
+): task is Record<string, unknown> {
+  return task?.schema === GOAL_GRAPH_INTAKE_TASK_SCHEMA
+    && task.tenantId === input.tenantId
+    && task.idempotencyKey === input.idempotencyKey;
+}
+
+function goalGraphIntakeIdempotencyRecord(taskKey: string, task: Record<string, unknown>) {
+  return {
+    taskKey,
+    contentDigest: task.contentDigest,
+    changeDigest: task.changeDigest,
+  };
+}
+
+/**
+ * Shared task/index persistence primitive for every Goal Graph intake lane.
+ *
+ * KV cannot atomically write the task and its idempotency index. The task is
+ * therefore written first; a retry scans the sole existing intake-task store,
+ * repairs a missing index, and rejects semantic drift before creating another
+ * task. The inverse partial state (index without task) is also repaired after
+ * deterministic recompilation supplies the original task bytes.
+ */
+async function reconcileGoalGraphIntakePersistence(
+  kv: KvLike,
+  input: GoalGraphIntakePersistenceInput,
+): Promise<GoalGraphIntakePersistenceResult> {
+  const indexed = parseJsonObject(await kv.get(input.idempotencyRecordKey));
+  if (indexed) {
+    if (indexed.contentDigest !== input.contentDigest) return { kind: 'conflict' };
+    const indexedTaskKey = typeof indexed.taskKey === 'string' ? indexed.taskKey : '';
+    const indexedTask = indexedTaskKey ? parseJsonObject(await kv.get(indexedTaskKey)) : null;
+    if (matchingGoalGraphIntakeTask(indexedTask, input)) {
+      if (indexedTask.contentDigest !== input.contentDigest) return { kind: 'conflict' };
+      return { kind: 'ready', task: indexedTask, duplicate: true };
+    }
+    if (!input.task || !input.taskKey || indexedTaskKey !== input.taskKey) return { kind: 'missing' };
+    if (!matchingGoalGraphIntakeTask(input.task, input) || input.task.contentDigest !== input.contentDigest) {
+      return { kind: 'conflict' };
+    }
+    await kv.put(input.taskKey, JSON.stringify(input.task));
+    return { kind: 'ready', task: input.task, duplicate: true };
+  }
+
+  const taskKeys = await kv.list(`goal-graph-intake-task:${input.tenantId}:`);
+  let partial: { key: string; task: Record<string, unknown> } | null = null;
+  for (const key of taskKeys) {
+    const stored = parseJsonObject(await kv.get(key));
+    if (!matchingGoalGraphIntakeTask(stored, input)) continue;
+    if (stored.contentDigest !== input.contentDigest) return { kind: 'conflict' };
+    if (partial && partial.key !== key) return { kind: 'conflict' };
+    partial = { key, task: stored };
+  }
+  if (partial) {
+    await kv.put(
+      input.idempotencyRecordKey,
+      JSON.stringify(goalGraphIntakeIdempotencyRecord(partial.key, partial.task)),
+    );
+    return { kind: 'ready', task: partial.task, duplicate: true };
+  }
+
+  if (!input.task || !input.taskKey) return { kind: 'missing' };
+  if (!matchingGoalGraphIntakeTask(input.task, input) || input.task.contentDigest !== input.contentDigest) {
+    return { kind: 'conflict' };
+  }
+  const occupied = parseJsonObject(await kv.get(input.taskKey));
+  if (occupied) {
+    if (!matchingGoalGraphIntakeTask(occupied, input) || occupied.contentDigest !== input.contentDigest) {
+      return { kind: 'conflict' };
+    }
+    await kv.put(
+      input.idempotencyRecordKey,
+      JSON.stringify(goalGraphIntakeIdempotencyRecord(input.taskKey, occupied)),
+    );
+    return { kind: 'ready', task: occupied, duplicate: true };
+  }
+  await kv.put(input.taskKey, JSON.stringify(input.task));
+  await kv.put(
+    input.idempotencyRecordKey,
+    JSON.stringify(goalGraphIntakeIdempotencyRecord(input.taskKey, input.task)),
+  );
+  return { kind: 'ready', task: input.task, duplicate: false };
+}
+
 /** Best-effort bounded tenant for receipt scoping; never trusts the payload. */
 function goalGraphIntakeReceiptTenant(raw: unknown): string {
   if (isRecord(raw) && typeof raw.tenantId === 'string' && VALID_TENANT.test(raw.tenantId)) return raw.tenantId;
@@ -3625,18 +3729,21 @@ async function intakeTelegramGoalGraphRoute(
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
-  const replayReceipt = async (): Promise<GoalGraphIntakeRouteResult | null> => {
-    const existingRecord = parseJsonObject(await deps.kv.get(idempotencyRecordKey));
-    if (!existingRecord) return null;
-    if (existingRecord.contentDigest !== initial.contentDigest) {
-      return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: initial.idempotencyKey } };
-    }
-    const existingTask = parseJsonObject(await deps.kv.get(String(existingRecord.taskKey ?? '')));
-    if (!existingTask) return { status: 409, body: { error: 'goal graph intake idempotency record missing task' } };
-    return goalGraphIntakeTaskReceipt(existingTask, true);
-  };
-  const replayBeforeGraph = await replayReceipt();
-  if (replayBeforeGraph) return replayBeforeGraph;
+  let replayBeforeGraph: GoalGraphIntakePersistenceResult;
+  try {
+    replayBeforeGraph = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId,
+      idempotencyKey: initial.idempotencyKey,
+      contentDigest: initial.contentDigest,
+      idempotencyRecordKey,
+    });
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_intake_storage_unavailable' } };
+  }
+  if (replayBeforeGraph.kind === 'conflict') {
+    return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: initial.idempotencyKey } };
+  }
+  if (replayBeforeGraph.kind === 'ready') return goalGraphIntakeTaskReceipt(replayBeforeGraph.task, true);
 
   if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal graph authority is not configured' } };
   let head: GoalGraphHead | null;
@@ -3676,10 +3783,6 @@ async function intakeTelegramGoalGraphRoute(
   }
   const changeSet = pinned.compile.changeSet;
 
-  // Close the race between the early replay read and first-time compilation.
-  const replayAfterGraph = await replayReceipt();
-  if (replayAfterGraph) return replayAfterGraph;
-
   // Server-issued approval descriptor, pinned at intake so approval never
   // derives nonce/expiry/fence from the request: the nonce format matches
   // the historical safe default, the TTL matches the existing 15-minute
@@ -3714,13 +3817,243 @@ async function intakeTelegramGoalGraphRoute(
     fence,
   };
   const taskKey = goalGraphIntakeTaskKey(tenantId, changeSet.changeDigest);
-  await deps.kv.put(taskKey, JSON.stringify(task));
-  await deps.kv.put(idempotencyRecordKey, JSON.stringify({
-    taskKey,
-    contentDigest: pinned.contentDigest,
+  let persisted: GoalGraphIntakePersistenceResult;
+  try {
+    persisted = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId,
+      idempotencyKey: pinned.idempotencyKey,
+      contentDigest: pinned.contentDigest,
+      idempotencyRecordKey,
+      taskKey,
+      task,
+    });
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_intake_storage_unavailable' } };
+  }
+  if (persisted.kind === 'conflict') {
+    return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: pinned.idempotencyKey } };
+  }
+  if (persisted.kind !== 'ready') return { status: 503, body: { error: 'goal_graph_intake_storage_unavailable' } };
+  return goalGraphIntakeTaskReceipt(persisted.task, persisted.duplicate);
+}
+
+const FOUNDER_EVIDENCE_CANDIDATE_SCHEMA = 'cambium.founder-evidence-candidate.v1';
+const FITCHECK_FOUNDER_OUTCOME_TENANT = 'cambium';
+const FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT = 'sapling:fitcheck';
+
+function founderOutcomeCandidateReceipt(task: Record<string, unknown>): GoalGraphIntakeRouteResult | null {
+  const candidate = isRecord(task.candidate) ? task.candidate : null;
+  const candidateId = candidate ? shortText(candidate.candidateId, '', 160) : '';
+  const status = candidate ? shortText(candidate.status, '', 64) : '';
+  const changeDigest = shortText(task.changeDigest, '', 160);
+  const graphVersion = Number.isInteger(task.graphVersion) ? Number(task.graphVersion) : null;
+  if (!candidateId || status !== 'review_pending' || !/^(?:sha256:)?[a-f0-9]{64}$/.test(changeDigest) || graphVersion === null) {
+    return null;
+  }
+  return {
+    status: 200,
+    body: {
+      candidate: { candidateId, status },
+      changeDigest,
+      graphVersion,
+      gateRoute: `/api/gate/${FITCHECK_FOUNDER_OUTCOME_TENANT}`,
+      readbackRoute: `/v1/branch-map/${FITCHECK_FOUNDER_OUTCOME_TENANT}`,
+    },
+  };
+}
+
+async function handleFounderOutcomeRoute(
+  deps: HandlerDeps,
+  tenant: string,
+  rawBody: unknown,
+): Promise<GoalGraphIntakeRouteResult> {
+  if (tenant !== FITCHECK_FOUNDER_OUTCOME_TENANT) {
+    return { status: 403, body: { error: 'founder_outcome_pilot_identity_mismatch' } };
+  }
+  if (!deps.gate) return { status: 503, body: { error: 'founder_outcome_authentication_unavailable' } };
+  if (!isRecord(rawBody)) return { status: 400, body: { error: 'founder_outcome_invalid' } };
+
+  // Runtime authentication is deliberately consumed at the adapter boundary.
+  // The pure parser never sees, canonicalizes, persists, or echoes initData.
+  const { initData, ...intentInput } = rawBody;
+  const verdict = await validateInitData(typeof initData === 'string' ? initData : '', deps.gate);
+  if (!verdict.ok) return { status: 401, body: { error: 'founder_outcome_authentication_failed' } };
+
+  const parsed = parseFounderOutcomeIntent(intentInput);
+  if (!parsed.accepted) {
+    return {
+      status: 400,
+      body: {
+        error: 'founder_outcome_invalid',
+        code: parsed.code,
+        errors: boundedIntakeErrors(parsed.errors),
+      },
+    };
+  }
+
+  const idempotencyRecordKey = `goal-graph-intake-idem:${parsed.idempotencyKey}`;
+  let replay: GoalGraphIntakePersistenceResult;
+  try {
+    replay = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId: parsed.value.tenantId,
+      idempotencyKey: parsed.idempotencyKey,
+      contentDigest: parsed.contentDigest,
+      idempotencyRecordKey,
+    });
+  } catch {
+    return { status: 503, body: { error: 'founder_outcome_storage_unavailable' } };
+  }
+  if (replay.kind === 'conflict') {
+    return { status: 409, body: { error: 'founder_outcome_idempotency_conflict' } };
+  }
+  if (replay.kind === 'ready') {
+    return founderOutcomeCandidateReceipt(replay.task)
+      ?? { status: 409, body: { error: 'founder_outcome_replay_unavailable' } };
+  }
+
+  if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  let head: GoalGraphHead | null;
+  let currentNodes: GoalGraphNode[];
+  try {
+    head = await deps.goalGraphStore.readHead(parsed.value.tenantId);
+    currentNodes = await deps.goalGraphStore.readNodes(parsed.value.tenantId);
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  }
+  if (!head || head.tenantId !== parsed.value.tenantId) {
+    return { status: 409, body: { error: 'fitcheck_goal_graph_anchor_conflict' } };
+  }
+  const anchors = currentNodes.filter((node) => node.workObjectId === FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT);
+  if (anchors.length !== 1) {
+    return { status: 409, body: { error: 'fitcheck_goal_graph_anchor_conflict' } };
+  }
+
+  const transition = deriveFounderOutcomeTransition(parsed.value, anchors[0].nodeId);
+  const candidateId = `founder_candidate_${parsed.contentDigest.replace(/^sha256:/, '').slice(0, 32)}`;
+  const sourceRef = `founder-outcome:${parsed.value.tenantId}:${candidateId}`;
+  const graphVersion = head.graphVersion + 1;
+  const receivedAt = deps.now ? deps.now() : new Date().toISOString();
+  const node = buildNode({
+    tenantId: transition.tenantId,
+    namespace: transition.namespace,
+    externalId: transition.externalId,
+    parentNodeId: transition.parentNodeId,
+    workObjectId: transition.workObjectId,
+    workObjectKind: transition.workObjectKind,
+    pinnedLoadoutId: transition.pinnedLoadoutId,
+    scope: transition.scope,
+    desiredState: transition.desiredState,
+    currentState: transition.outcome,
+    owner: 'founder',
+    nextAction: transition.nextAction,
+    waitCondition: transition.waitCondition,
+    proofRequired: transition.proofRequired,
+    reviewAt: null,
+    status: transition.status,
+    sourceRef,
+    sourceDigest: parsed.contentDigest,
+    graphVersion,
+    metadata: {
+      ...transition.metadata,
+      candidateId,
+      branchId: transition.branchId,
+      missionId: transition.missionId,
+      questId: transition.questId,
+      outcome: transition.outcome,
+    },
+    now: receivedAt,
+  });
+
+  let compiled;
+  try {
+    compiled = compileGoalGraph({
+      tenantId: parsed.value.tenantId,
+      expectedHeadDigest: head.graphDigest,
+      actualHead: head,
+      currentNodes,
+      proposedNodes: [...currentNodes.filter((current) => current.nodeId !== node.nodeId), node],
+      graphVersion,
+      sourceRef,
+      sourceDigest: parsed.contentDigest,
+      now: receivedAt,
+      loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+    });
+  } catch {
+    return { status: 409, body: { error: 'founder_outcome_proposal_conflict' } };
+  }
+  if (compiled.status !== 'compiled') {
+    return { status: 409, body: { error: 'goal_graph_stale_head', status: 'stale' } };
+  }
+
+  const changeSet = compiled.changeSet;
+  const screenshotDigest = `sha256:${await sha256hex(parsed.value.screenshotRef)}`;
+  const widgetEventDigest = `sha256:${await sha256hex(parsed.value.widgetEventRef)}`;
+  const candidate = {
+    schema: FOUNDER_EVIDENCE_CANDIDATE_SCHEMA,
+    candidateId,
+    tenantId: transition.tenantId,
+    workObjectId: transition.workObjectId,
+    branchId: transition.branchId,
+    missionId: transition.missionId,
+    questId: transition.questId,
+    outcome: transition.outcome,
+    screenshotRef: parsed.value.screenshotRef,
+    screenshotDigest,
+    widgetEventRef: parsed.value.widgetEventRef,
+    widgetEventDigest,
+    ...(parsed.value.note === undefined ? {} : { note: parsed.value.note }),
+    status: 'review_pending',
+    reviewStatus: 'review_pending',
+    createdAt: receivedAt,
+  };
+  const approvalNonce = `goal-graph-approval:${parsed.value.tenantId}:${changeSet.changeDigest}`;
+  const approvalExpiresAt = new Date(Date.parse(receivedAt) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString();
+  const task = {
+    schema: GOAL_GRAPH_INTAKE_TASK_SCHEMA,
+    tenantId: parsed.value.tenantId,
+    status: 'pending',
+    idempotencyKey: parsed.idempotencyKey,
+    intentVersion: 1,
+    sourceRef,
+    sourceDigest: parsed.contentDigest,
+    contentDigest: parsed.contentDigest,
     changeDigest: changeSet.changeDigest,
-  }));
-  return goalGraphIntakeTaskReceipt(task, false);
+    graphVersion: changeSet.graphVersion,
+    expectedHeadDigest: changeSet.expectedHeadDigest,
+    nodeId: node.nodeId,
+    intent: parsed.value,
+    node,
+    changeSet,
+    candidate,
+    receivedAt,
+    updatedAt: receivedAt,
+    approvalNonce,
+    approvalExpiresAt,
+    expectedHeadVersion: head.graphVersion,
+    fence: changeSet.graphVersion,
+  };
+  const taskKey = goalGraphIntakeTaskKey(parsed.value.tenantId, changeSet.changeDigest);
+  let persisted: GoalGraphIntakePersistenceResult;
+  try {
+    persisted = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId: parsed.value.tenantId,
+      idempotencyKey: parsed.idempotencyKey,
+      contentDigest: parsed.contentDigest,
+      idempotencyRecordKey,
+      taskKey,
+      task,
+    });
+  } catch {
+    return { status: 503, body: { error: 'founder_outcome_storage_unavailable' } };
+  }
+  if (persisted.kind === 'conflict') {
+    return { status: 409, body: { error: 'founder_outcome_idempotency_conflict' } };
+  }
+  if (persisted.kind !== 'ready') {
+    return { status: 503, body: { error: 'founder_outcome_storage_unavailable' } };
+  }
+  return founderOutcomeCandidateReceipt(persisted.task)
+    ?? { status: 409, body: { error: 'founder_outcome_replay_unavailable' } };
 }
 
 async function approveGoalGraphIntakeRoute(
@@ -4140,6 +4473,19 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       secret: deps.inviteSecret,
     });
     return json(200, { token, principal, inviteUrl: `/app?invite=${token}` });
+  }
+
+  if (method === 'POST' && routePath.startsWith('/api/founder-outcomes/')) {
+    const tenant = tenantOf(routePath, '/api/founder-outcomes/');
+    if (!tenant) return json(400, { error: 'bad tenant' });
+    let founderOutcomeBody: unknown;
+    try {
+      founderOutcomeBody = JSON.parse(req.body ?? '');
+    } catch {
+      return json(400, { error: 'founder_outcome_body_not_json' });
+    }
+    const result = await handleFounderOutcomeRoute(deps, tenant, founderOutcomeBody);
+    return json(result.status, result.body);
   }
 
   if (method === 'GET' && routePath.startsWith('/api/quests/')) {
