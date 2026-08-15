@@ -14,11 +14,11 @@
   {
     "id": "GIP-002",
     "title": "Resolve repository origin and classification holds",
-    "status": "ready-after-review",
+    "status": "completed",
     "dependsOn": ["GIP-001"],
     "ownedFiles": ["docs/project-management/github-repository-mapping-action-queue.v1.json", "docs/project-management/github-repository-mapping-batch-proposals.md"],
     "acceptance": "Each remaining mapping row is resolved, routed to its owning repository, or held with one explicit founder decision.",
-    "validation": "Counts reconcile against the mapping audit; no inferred repository identity or folder mutation occurs.",
+    "validation": "The 2026-08-15 audit receipt reconciles all 10 residual rows as 2 resolved/reconciled plus 8 explicit holds; the separate reddit-flux assignment does not substitute for the unavailable reddit-cli identity, and no catalog admission or folder mutation occurs.",
     "authorityBoundary": "Read-only repository probes and proposal records; relocation and provider mutation require separate approval.",
     "githubIssues": ["#290", "#291"],
     "executionMode": "isolated-worktree"

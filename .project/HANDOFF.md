@@ -1370,3 +1370,40 @@ mutation has been performed by drafting this packet.
 - Verification passes: focused retention tests 3/3, complete repository suite
   1731/1731, compose validation, rendered-doc synchronization, and
   `git diff --check`.
+
+### 2026-08-15 protected-main and issue #290 reconciliation checkpoint
+
+- GitHub repository ruleset `main-pr-and-ci` (`20884840`) is active for the
+  default branch with no bypass actor. It blocks deletion and non-fast-forward
+  updates, requires pull requests, linear history, resolved conversations, a
+  branch strictly up to date with `main`, and exact GitHub Actions context
+  `deterministic release verification · node 26`.
+- Repository merge settings now permit squash only, reject merge commits and
+  rebases, and delete a merged head branch. These are live GitHub settings,
+  recorded here as point-in-time evidence rather than repository-controlled
+  configuration.
+- GIP-002 revalidated all ten residual #290 rows against exact qualified names,
+  authenticated GitHub metadata, relocation-registry identity, and bounded
+  local identity evidence. The receipt is
+  `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json`.
+- `Sheshiyer/reddit-cli` remains an explicit unavailable exact-identity hold.
+  The local package/README evidence assigns `Sheshiyer/reddit-flux` separately
+  to `program:operator-utilities` without substituting it for the held name.
+  `Sheshiyer/brandmint-showcase` is a
+  supporting repository of `program:meristem-brand-system`, based on the exact
+  relocation-registry identity plus `ARCHITECTURE.md`.
+- Symphonics is exact as a repository-only planning surface. Its absent shallow
+  WorkObject folder remains intentional; creating one or opening a distinct
+  native-app lane still requires a separate founder-approved relocation
+  manifest.
+- Eight residual rows stay explicit holds. GitHub 404 responses are recorded
+  only as not retrievable to the current principal; no unavailable repository
+  was treated as nonexistent and no near match was silently substituted.
+- This branch performs no catalog admission, folder move, Vault write, private
+  repository-content read, provider/deployment action, or production runtime
+  mutation. The dirty primary checkout and all pre-existing user worktrees stay
+  untouched.
+- Verification passes: focused audit and mapping tests 18/18, portfolio
+  foundation gate 227 passing with one historical skip, complete repository suite
+  1733/1733, composition validation, rendered-doc synchronization, JSON
+  parsing, and `git diff --check`.

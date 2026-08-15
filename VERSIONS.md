@@ -15,6 +15,14 @@ alphabetical march, but a chosen patron for each chapter.
 
 `v0.3.0 · Urania` remains the latest published release. Current `main` adds the fixed Public Agencies IVerif evidence contract, the final consolidation/documentation state, and a macOS-first Electron package for the R3F constellation renderer. The Electron shell is artifact-tested but signing, notarization, and automatic updates remain separately governed. The IVerif slice is an observe-only, redacted, GET-only contract with `sendEligible=false`; it is not a release or outreach-readiness claim.
 
+The unreleased governance wave also protects `main` with an active pull-request
+ruleset and reconciles portfolio-origin issue #290. The dated audit keeps the
+unavailable `Sheshiyer/reddit-cli` identity explicit while assigning the
+separate evidenced `Sheshiyer/reddit-flux` repository, assigns Brandmint
+Showcase to the Meristem program from registry and architecture evidence,
+makes the Symphonics repository-only role exact, and preserves eight unmatched
+rows as explicit holds without catalog or filesystem mutation.
+
 As of 2026-07-23, `main` also carries the Goal Graph authority slice: the Goal Graph core (`workers/quests/src/goal-graph/`), D1-backed branch-map receipt authority (`branch-map-receipt-store`, `branch-map-sheet`, the branch-map route, and goal-graph intake/store), D1 migrations `0007_goal_graph` and `0008_branch_transition_receipts`, and an authenticated read-only Telegram branch-map route, with supporting docs (`docs/architecture/branch-traversal-map.md`, `goal-graph-operating-model.md`, `docs/runbooks/goal-graph-telegram-lifecycle.md`). Verification at landing: 1023/1023 tests green, 18/18 D1 slice tests green, 8 branch packets, a 486-file audit, and docs sync across 6 pages / 91 components. This slice is landed authority work, not a published release.
 
 ### v0.3.0 · **Urania** — *the venture becomes a constellation*
