@@ -1328,9 +1328,12 @@ mutation has been performed by drafting this packet.
   equivalence. Recent delivery is merged through PR #320; no pull request was
   open at the time of reconciliation, and the exact `main` CI run for
   `71eba373` passed.
-- Local `main` had zero unique commits and was fast-forwarded from its stale
-  ancestor to exact `origin/main` `71eba373`. No push to `main`, force-push,
-  reset, rebase, stash, or feature-branch rewrite occurred.
+- Local `main` had zero unique commits and its branch ref was moved from its
+  stale ancestor to exact `origin/main` `71eba373`; the reflog records this as
+  `branch: Reset to origin/main`. Because `main` was not checked out, this
+  branch-ref synchronization changed no working-tree content and discarded no
+  local `main` commit. No push to `main`, force-push, rebase, stash, or
+  feature-branch rewrite occurred.
 - Ten registered temporary worktrees whose gitdir paths were independently
   absent were pruned from Git administrative metadata. The primary checkout
   and three surviving temporary worktrees remained dirty and were preserved;
@@ -1348,3 +1351,22 @@ mutation has been performed by drafting this packet.
   handoff evidence slices. Machine-local integration claims, expired/generated
   planning receipts, workflow deletions, and other mixed runtime artifacts
   remain excluded pending owner review.
+
+### 2026-08-15 post-merge audit correction checkpoint
+
+- Post-merge independent review found two issues in the reconciliation wave:
+  the retention generator's new absolute-output support could escape the
+  repository, and the branch checkpoint mislabeled the reflog-recorded `main`
+  branch-ref reset as a fast-forward with no reset.
+- The retention generator now permits relative or absolute outputs only when
+  their resolved parent remains inside the real repository root and rejects
+  both direct external paths and symlink escapes.
+- Regression coverage proves contained absolute output is deterministic across
+  a second run, preserves `generatedAt`, and rejects direct and symlinked
+  external targets.
+- The reconciliation checkpoint above now states the exact reflog operation and
+  distinguishes a branch-ref reset from a working-tree reset. No history was
+  rewritten to conceal the earlier wording.
+- Verification passes: focused retention tests 3/3, complete repository suite
+  1731/1731, compose validation, rendered-doc synchronization, and
+  `git diff --check`.
