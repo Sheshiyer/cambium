@@ -15,6 +15,8 @@ packet_owner: cambium
 
 Snow Gloves OS is represented in Cambium as a Will-organ service packet, not a standalone app autonomy packet. The inspected evidence supports a tenant-scoped operations service candidate with alpha/proof gates still open.
 
+Owning repository task: [`Sheshiyer/snow-gloves-os#8`](https://github.com/Sheshiyer/snow-gloves-os/issues/8). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
+
 ## Product Seed
 
 | Field | Value |

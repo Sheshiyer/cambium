@@ -104,7 +104,7 @@
       "id": "#291",
       "title": "planning: migrate project-local authority into GitHub repositories",
       "state": "residual",
-      "missingAuthority": "GIP-003 is reconciled into 28 evidence-backed executable tasks; GIP-008 repository-task migration and owner-gated GIP-004 through GIP-006 remain."
+      "missingAuthority": "GIP-002, GIP-003, and GIP-008 are completed; remaining runtime/content work is owned by issues #284, #283/#249, and #252 and stays separately gated under GIP-004 through GIP-006."
     }
   ],
   "tasks": [

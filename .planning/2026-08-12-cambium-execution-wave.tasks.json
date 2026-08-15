@@ -86,11 +86,11 @@
   {
     "id": "GIP-008",
     "title": "Convert active branch packets into owning-repository tasks",
-    "status": "ready-after-review",
+    "status": "completed",
     "dependsOn": ["GIP-002"],
     "ownedFiles": ["docs/plans/product-branches/fitcheck-growth-quest-backlog.md", "docs/plans/product-branches/vantyx.md", "docs/plans/product-branches/iverif.md", "docs/plans/product-branches/dlock.md", "docs/plans/product-branches/snow-gloves-os.md"],
     "acceptance": "Each active non-template packet maps residual quests to a named owning repository issue; client-delivery remains a template, not a WorkObject.",
-    "validation": "Every task preserves canonical identity, exact repository ownership, evidence gate, and founder boundary.",
+    "validation": "Five exact owning-repository issues were created after zero-match duplicate checks and read back OPEN; every packet now links its issue while preserving canonical identity, evidence gates, and founder boundaries.",
     "authorityBoundary": "Issue/task creation only; no branch promotion, provider action, ledger publication, or fabricated completion.",
     "githubIssues": ["#290", "#291"],
     "executionMode": "repository-task-migration"

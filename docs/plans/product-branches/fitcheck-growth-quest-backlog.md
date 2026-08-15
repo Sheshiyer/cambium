@@ -5,6 +5,8 @@ outreach, spend, or provider mutation authorized by this file.
 
 Contract: [`fitcheck-cortex-quest-flow.v1`](../../architecture/contracts/fitcheck-cortex-quest-flow.v1.md)
 
+Owning repository task: [`Sheshiyer/fitcheck-landing#2`](https://github.com/Sheshiyer/fitcheck-landing/issues/2). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
+
 The backlog turns known growth gaps into visible, proof-bound quests. It is not
 a claim roadmap: all commercial claims remain constrained by the Fitcheck
 branch packet and source-backed evidence.

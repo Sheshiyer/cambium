@@ -15,6 +15,8 @@ packet_owner: cambium
 
 IVerif is a proof-only Cambium product candidate for AI document validation in EU energy subsidy workflows. Current evidence supports a brand/wiki/research packet, not live product readiness, compliance readiness, or branch promotion readiness.
 
+Owning repository task: [`Sheshiyer/iverif-wiki#91`](https://github.com/Sheshiyer/iverif-wiki/issues/91). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
+
 ## Product Seed
 
 | Field | Value |
