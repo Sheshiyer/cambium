@@ -1,0 +1,90 @@
+{
+  "id": "cambium-fractal-ecosystem-hero",
+  "mode": "hero",
+  "title": "Cambium: the fractal operating ecosystem",
+  "job": "Explain how project identity, skill ownership, workflow gates, and evidence compose into a safe Moosh path.",
+  "watcher": "A project owner or operator deciding whether to approve evidence capture.",
+  "maxSeconds": 120,
+  "wordsToAvoid": [],
+  "shots": [
+    {
+      "id": "root",
+      "kind": "card",
+      "dur": 12,
+      "src": null,
+      "focus": "Cambium project root",
+      "route": "/",
+      "persona": "operator",
+      "see": "Project identity anchors every downstream projection.",
+      "why": "Without a root, a skill or plan cannot be safely scoped.",
+      "get": "A clear boundary for every later action.",
+      "vo": "Start with the project boundary: identity is the first safety mechanism."
+    },
+    {
+      "id": "planning",
+      "kind": "card",
+      "dur": 16,
+      "src": null,
+      "focus": "Planning spine",
+      "route": "/",
+      "persona": "operator",
+      "see": "GSD and next-wave planning map intent into work.",
+      "why": "A mapped wave gives operators a shared shape for the work.",
+      "get": "Coordination without mistaking a plan for execution.",
+      "vo": "Planning gives the work a shape, while the runtime still decides what is real."
+    },
+    {
+      "id": "skill-cluster",
+      "kind": "card",
+      "dur": 18,
+      "src": null,
+      "focus": "Product-guides cluster",
+      "route": "/",
+      "persona": "operator",
+      "see": "Two hubs resolve ownership before two Moosh spokes act.",
+      "why": "Ownership prevents a guide task from jumping to the wrong capability.",
+      "get": "A guide-first route with clear boundaries.",
+      "vo": "The cluster resolves who owns the work before the work can move."
+    },
+    {
+      "id": "workflow-gates",
+      "kind": "card",
+      "dur": 22,
+      "src": null,
+      "focus": "Six workflow stages",
+      "route": "/",
+      "persona": "operator",
+      "see": "Read-only inspection leads to gated evidence and downstream validation.",
+      "why": "Each stage makes its prerequisites visible before the next one begins.",
+      "get": "A predictable path that fails closed when evidence is missing.",
+      "vo": "The workflow is a sequence of gates: observe, resolve, prepare, prove, compose, validate."
+    },
+    {
+      "id": "evidence-boundary",
+      "kind": "card",
+      "dur": 20,
+      "src": null,
+      "focus": "Capture contract",
+      "route": "/",
+      "persona": "operator",
+      "see": "A bounded local route and synthetic persona define the capture envelope.",
+      "why": "A configuration file is preparation, not proof that capture occurred.",
+      "get": "Evidence that can be checked, reproduced, and attributed.",
+      "vo": "The capture envelope stays small so the resulting evidence stays trustworthy."
+    },
+    {
+      "id": "approval-stop",
+      "kind": "mark",
+      "dur": 18,
+      "src": null,
+      "focus": "Approval boundary",
+      "route": "/",
+      "persona": "operator",
+      "see": "The trigger must remain disabled until live readback finds a matching receipt.",
+      "why": "Evidence-producing work belongs to an explicit owner decision.",
+      "get": "A truthful next action: approve, then request, then validate.",
+      "vo": "Cambium stops at the approval boundary, preserving a truthful record of what has and has not run."
+    }
+  ],
+  "cta": "Review the gates, approve only the bounded run you intend, and validate its evidence."
+}

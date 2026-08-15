@@ -1,0 +1,28 @@
+{
+  "sourceVersion": "cambium-fractal-ecosystem-2026-08",
+  "baseUrl": "http://127.0.0.1:5173",
+  "outDir": ".artifacts/moosh/cambium-fractal-ecosystem",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "deviceScaleFactor": 1,
+  "format": "png",
+  "fullPage": false,
+  "waitSelector": "main",
+  "settleMs": 1400,
+  "hideSelectors": [],
+  "seed": {
+    "strategy": "none"
+  },
+  "personas": {
+    "operator": "synthetic-operator"
+  },
+  "shots": [
+    {
+      "file": "manifest-overview.png",
+      "route": "/",
+      "persona": "operator"
+    }
+  ]
+}

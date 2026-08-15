@@ -1297,3 +1297,26 @@ mutation has been performed by drafting this packet.
   then one real founder submission, exact Gate approval, and live refreshed
   quest plus Goal Graph readback. Do not claim the pilot is live before those
   gates complete.
+
+### 2026-08-15 Moosh guide-contract recovery checkpoint
+
+- Recovered the bounded Cambium Moosh guide packet from the preserved dirty
+  checkout onto a clean branch rooted at current `origin/main`; no unrelated
+  checkout state, planning receipts, runtime artifacts, or integration claims
+  were copied.
+- Added a 16-surface inventory, truth-tiered evidence model, multi-surface
+  operator runbook, guide manifest, capture envelope, and bounded 106-second
+  FilmSpec with documentation discovery links.
+- Rewrote session-specific bridge, browser, approval, and capture assertions as
+  time-safe contracts. Operators must re-read live freshness, capability,
+  approval, and access state before requesting evidence work.
+- Deliberately excluded the recovered Playwright dependency and package lock,
+  the unreferenced generated infrastructure HTML containing a machine-local
+  path, and all generated approval/request files.
+- Verification passes: Moosh contract tests cover exact surface parity,
+  evidence-lane and authority-tier references, film bounds, and checkout-path
+  hygiene; the complete repository suite passes 1726/1726; `npm run validate`,
+  `npm run render-docs:check`, JSON parsing, and `git diff --check` pass.
+- This checkpoint authorizes documentation review only. It does not prove or
+  authorize a current approval, capture, video, worker dispatch, deployment,
+  provider action, registry write, vault write, or external runtime mutation.
