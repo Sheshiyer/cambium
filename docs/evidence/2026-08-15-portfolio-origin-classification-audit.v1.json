@@ -18,8 +18,8 @@
   },
   "summary": {
     "rowsReviewed": 10,
-    "resolvedOrReconciled": 3,
-    "explicitHolds": 7,
+    "resolvedOrReconciled": 2,
+    "explicitHolds": 8,
     "inferredAssignments": 0,
     "catalogAdmissions": 0,
     "folderMutations": 0,
@@ -136,30 +136,32 @@
     {
       "sourceRef": "repo:Sheshiyer/reddit-cli",
       "workIds": ["program:operator-utilities"],
-      "candidateRepos": ["Sheshiyer/reddit-flux"],
+      "candidateRepos": ["Sheshiyer/reddit-cli"],
       "localEvidence": {
         "path": "$PROJECTS_ROOT/thoughtseed/reddit-cli",
         "folderPresent": true,
         "directGitIdentity": false,
         "packageName": "reddit-flux",
-        "readmeCloneTarget": "https://github.com/Sheshiyer/reddit-flux.git"
+        "readmeCloneTarget": "https://github.com/Sheshiyer/reddit-flux.git",
+        "relationshipConclusion": "The folder contains the reddit-flux package, but this does not prove that the unavailable Sheshiyer/reddit-cli repository was renamed."
       },
       "githubEvidence": {
-        "exactQualifiedName": "Sheshiyer/reddit-flux",
-        "retrievable": true,
-        "repositoryId": "R_kgDORabLLQ",
-        "databaseId": 1168558893,
-        "visibility": "public",
-        "defaultBranch": "main"
-      },
-      "resolvedAssignments": [
-        {
-          "workId": "program:operator-utilities",
-          "repositoryRefs": ["Sheshiyer/reddit-flux"]
+        "exactQualifiedName": "Sheshiyer/reddit-cli",
+        "retrievable": false,
+        "ownerVisible": true,
+        "separateCurrentRepository": {
+          "nameWithOwner": "Sheshiyer/reddit-flux",
+          "repositoryId": "R_kgDORabLLQ",
+          "databaseId": 1168558893,
+          "visibility": "public",
+          "defaultBranch": "main"
         }
-      ],
-      "disposition": "resolved-local-alias-to-live-immutable-identity",
-      "holdReasons": []
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-exact-identity-unavailable-current-repository-separated",
+      "holdReasons": [
+        "Sheshiyer/reddit-cli is not retrievable. Sheshiyer/reddit-flux is assigned separately from exact local package evidence and is not substituted for the unavailable identity."
+      ]
     },
     {
       "sourceRef": "relocation-registry:brandmint-showcase",
@@ -169,7 +171,8 @@
         "path": "$PROJECTS_ROOT/thoughtseed/brandmint/brandmint-showcase",
         "folderPresent": true,
         "registryIdentity": "Sheshiyer/brandmint-showcase",
-        "architectureRole": "product site for brandmint-oracle-aleph"
+        "architectureRole": "product site for brandmint-oracle-aleph",
+        "architectureEvidence": "ARCHITECTURE.md:20"
       },
       "githubEvidence": {
         "exactQualifiedName": "Sheshiyer/brandmint-showcase",

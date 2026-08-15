@@ -1386,15 +1386,17 @@ mutation has been performed by drafting this packet.
   authenticated GitHub metadata, relocation-registry identity, and bounded
   local identity evidence. The receipt is
   `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json`.
-- `reddit-cli` is confirmed as a local alias for `Sheshiyer/reddit-flux` and is
-  assigned to `program:operator-utilities`. `Sheshiyer/brandmint-showcase` is a
+- `Sheshiyer/reddit-cli` remains an explicit unavailable exact-identity hold.
+  The local package/README evidence assigns `Sheshiyer/reddit-flux` separately
+  to `program:operator-utilities` without substituting it for the held name.
+  `Sheshiyer/brandmint-showcase` is a
   supporting repository of `program:meristem-brand-system`, based on the exact
   relocation-registry identity plus `ARCHITECTURE.md`.
 - Symphonics is exact as a repository-only planning surface. Its absent shallow
   WorkObject folder remains intentional; creating one or opening a distinct
   native-app lane still requires a separate founder-approved relocation
   manifest.
-- Seven remaining rows stay explicit holds. GitHub 404 responses are recorded
+- Eight residual rows stay explicit holds. GitHub 404 responses are recorded
   only as not retrievable to the current principal; no unavailable repository
   was treated as nonexistent and no near match was silently substituted.
 - This branch performs no catalog admission, folder move, Vault write, private

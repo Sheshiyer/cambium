@@ -1208,10 +1208,10 @@
       "batchId": "github-batch-006-foundation-repository-reconciliation",
       "status": "foundation-reconciled-with-explicit-repository-holds",
       "summary": {
-        "rowsReviewed": 21,
+        "rowsReviewed": 22,
         "newResolvedAssignments": 10,
         "existingBatchAssignmentsReconciled": 4,
-        "explicitUnavailableIdentityHolds": 5,
+        "explicitUnavailableIdentityHolds": 6,
         "unassignedClassificationHolds": 0,
         "folderlessWorkObjectHolds": 2,
         "inferredAssignments": 0
@@ -1355,10 +1355,19 @@
         {
           "sourceRef": "repo:reddit-cli",
           "workIds": ["program:operator-utilities"],
+          "candidateRepos": ["Sheshiyer/reddit-cli"],
+          "unavailableCandidateRepos": ["Sheshiyer/reddit-cli"],
+          "resolvedAssignments": [],
+          "status": "explicit-hold-exact-identity-unavailable",
+          "holdReasons": ["Sheshiyer/reddit-cli is not retrievable. The local folder contains the reddit-flux package, but that evidence does not prove the unavailable repository was renamed; do not substitute identities."]
+        },
+        {
+          "sourceRef": "repo:Sheshiyer/reddit-flux",
+          "workIds": ["program:operator-utilities"],
           "candidateRepos": ["Sheshiyer/reddit-flux"],
           "resolvedAssignments": [{"workId": "program:operator-utilities", "repositoryRefs": ["Sheshiyer/reddit-flux"]}],
-          "status": "resolved-local-alias-to-live-immutable-identity",
-          "sourceRefDisposition": "The shallow folder and CLI entry point retain the reddit-cli alias; pyproject.toml and README identify the canonical package/repository as reddit-flux."
+          "status": "resolved-separate-live-immutable-identity",
+          "sourceRefDisposition": "The shallow reddit-cli folder's pyproject.toml names package reddit-flux and its README names the exact clone target; this assignment is separate from the unavailable Sheshiyer/reddit-cli hold."
         },
         {
           "sourceRef": "relocation-registry:brandmint-showcase",
@@ -1366,7 +1375,7 @@
           "candidateRepos": ["Sheshiyer/brandmint-showcase"],
           "resolvedAssignments": [{"workId": "program:meristem-brand-system", "repositoryRefs": ["Sheshiyer/brandmint-showcase"]}],
           "status": "resolved-supporting-repository-by-registry-and-architecture",
-          "sourceRefDisposition": "The relocation registry supplies the immutable repository identity and ARCHITECTURE.md identifies brandmint-showcase as the product site for brandmint-oracle-aleph; no separate WorkObject is admitted."
+          "sourceRefDisposition": "The relocation registry supplies the immutable repository identity and the ARCHITECTURE.md:20 Organ-to-repository row identifies brandmint-showcase as the product site for brandmint-oracle-aleph; no separate WorkObject is admitted."
         },
         {
           "sourceRef": "catalog-folder-hold:sapling:whatslegal",

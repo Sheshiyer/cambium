@@ -28,7 +28,7 @@
 | #284 | continuity: close company-website quest definition → ledger → delivery loop | residual | missingAuthority: No completed repository-linked implementation ticket exists for quest definition to ledger to delivery for this issue in merged source. |
 | #285 | continuity: preserve and close the unfinished brand/CF/Hermes board | historical | evidence: The umbrella is decomposed into open child issues and its claimed canonical source file is absent; closing it preserves the children. |
 | #287 | relocation: prepare Cambium Git-graph move and portfolio reconciliation | historical | evidence: Recorded Cambium phase-one and Temperance phase-two relocation receipts supersede the preparation issue; residual mapping stays in #290/#291. |
-| #290 | portfolio: audit repository origin and classification mismatches | implemented | evidence: `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json` reconciles all 10 rows as 3 resolved/reconciled and 7 explicit holds with no inferred assignment or folder mutation. |
+| #290 | portfolio: audit repository origin and classification mismatches | implemented | evidence: `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json` reconciles all 10 residual rows as 2 resolved/reconciled and 8 explicit holds; `reddit-flux` is assigned separately rather than substituted for unavailable `reddit-cli`. |
 | #291 | planning: migrate project-local authority into GitHub repositories | residual | missingAuthority: No accepted migration command path or repository write authority is represented in merged code and acceptance artifacts. |
 
 ## Task dispositions

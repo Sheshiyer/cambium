@@ -2454,8 +2454,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - [x] ISC-1220: `main` is governed by active repository ruleset `main-pr-and-ci` (`20884840`) with no bypass actor, pull-request-only changes, linear history, deletion and non-fast-forward blocking, and required conversation resolution.
 - [x] ISC-1221: the ruleset requires strict up-to-date success from exact GitHub Actions context `deterministic release verification · node 26`; repository merge settings allow squash only and delete merged branches.
-- [x] ISC-1222: the #290 evidence receipt contains exactly ten unique residual source references and reconciles them as three resolved/reconciled rows plus seven explicit holds.
-- [x] ISC-1223: bounded local package identity and README evidence resolve the `reddit-cli` folder/command alias to immutable repository `Sheshiyer/reddit-flux` for `program:operator-utilities`.
+- [x] ISC-1222: the #290 evidence receipt contains exactly ten unique residual source references and reconciles them as two resolved/reconciled rows plus eight explicit holds.
+- [x] ISC-1223: `Sheshiyer/reddit-cli` remains an explicit unavailable exact-identity hold; bounded local package and README evidence assign `Sheshiyer/reddit-flux` separately to `program:operator-utilities` without substitution.
 - [x] ISC-1224: relocation-registry identity plus `ARCHITECTURE.md` resolve `Sheshiyer/brandmint-showcase` as a supporting repository of `program:meristem-brand-system`, without admitting a separate WorkObject.
 - [x] ISC-1225: `Sheshiyer/workforce-automation-app-symphonics` is the exact repository-only planning surface for `branch:symphonics`; the absent shallow folder and any future native-app lane remain separately relocation-gated.
 - [x] ISC-1226: GitHub 404 responses remain `not retrievable` evidence, never proof of nonexistence, and every unavailable or ambiguous row retains a concrete hold reason.

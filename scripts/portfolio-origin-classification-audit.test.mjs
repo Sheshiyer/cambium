@@ -30,8 +30,8 @@ test('issue 290 audit accounts for every residual without inferred admission', a
   assert.deepEqual(audit.rows.map(({ sourceRef }) => sourceRef).sort(), expectedSourceRefs)
   assert.deepEqual(audit.summary, {
     rowsReviewed: 10,
-    resolvedOrReconciled: 3,
-    explicitHolds: 7,
+    resolvedOrReconciled: 2,
+    explicitHolds: 8,
     inferredAssignments: 0,
     catalogAdmissions: 0,
     folderMutations: 0,
@@ -62,11 +62,14 @@ test('issue 290 resolutions are projected into the governed mapping queue', asyn
   const auditBySourceRef = new Map(audit.rows.map((row) => [row.sourceRef, row]))
 
   assert.equal(batch6.status, 'foundation-reconciled-with-explicit-repository-holds')
+  assert.equal(batch6.summary.rowsReviewed, 22)
   assert.equal(batch6.summary.newResolvedAssignments, 10)
-  assert.equal(batch6.summary.explicitUnavailableIdentityHolds, 5)
+  assert.equal(batch6.summary.explicitUnavailableIdentityHolds, 6)
   assert.equal(batch6.summary.unassignedClassificationHolds, 0)
 
-  assert.deepEqual(bySourceRef.get('repo:reddit-cli').resolvedAssignments, [
+  assert.deepEqual(bySourceRef.get('repo:reddit-cli').resolvedAssignments, [])
+  assert.equal(bySourceRef.get('repo:reddit-cli').status, 'explicit-hold-exact-identity-unavailable')
+  assert.deepEqual(bySourceRef.get('repo:Sheshiyer/reddit-flux').resolvedAssignments, [
     { workId: 'program:operator-utilities', repositoryRefs: ['Sheshiyer/reddit-flux'] },
   ])
   assert.deepEqual(bySourceRef.get('relocation-registry:brandmint-showcase').resolvedAssignments, [
@@ -75,6 +78,10 @@ test('issue 290 resolutions are projected into the governed mapping queue', asyn
   assert.deepEqual(auditBySourceRef.get('root-map:branch:symphonics').resolvedAssignments, [
     { workId: 'branch:symphonics', repositoryRefs: ['Sheshiyer/workforce-automation-app-symphonics'] },
   ])
+  assert.equal(
+    auditBySourceRef.get('relocation-registry:brandmint-showcase').localEvidence.architectureEvidence,
+    'ARCHITECTURE.md:20',
+  )
 
   const symphonics = batch5.rows.find(({ folder }) => folder === 'symphonics')
   assert.equal(symphonics.status, 'resolved-repository-only-planning-surface-shallow-held')

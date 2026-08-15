@@ -349,7 +349,9 @@ test('Batch 6 covers every unresolved catalog repository without inference', () 
     }
   }
   assert.deepEqual(bySourceRef.get('relocation-registry:bwssb')?.workIds, ['branch:bwssb']);
-  assert.deepEqual(bySourceRef.get('repo:reddit-cli')?.resolvedAssignments, [
+  assert.deepEqual(bySourceRef.get('repo:reddit-cli')?.resolvedAssignments, []);
+  assert.equal(bySourceRef.get('repo:reddit-cli')?.status, 'explicit-hold-exact-identity-unavailable');
+  assert.deepEqual(bySourceRef.get('repo:Sheshiyer/reddit-flux')?.resolvedAssignments, [
     { workId: 'program:operator-utilities', repositoryRefs: ['Sheshiyer/reddit-flux'] },
   ]);
   assert.deepEqual(bySourceRef.get('relocation-registry:brandmint-showcase')?.workIds, ['program:meristem-brand-system']);

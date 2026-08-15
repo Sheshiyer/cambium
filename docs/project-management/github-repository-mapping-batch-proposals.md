@@ -149,9 +149,10 @@ work. Ten residual rows were checked against the relocation registry, exact
 qualified names, authenticated GitHub metadata, and bounded local identity
 evidence.
 
-- `repo:reddit-cli` is a local folder/command alias for the live immutable
-  repository `Sheshiyer/reddit-flux`, assigned to
-  `program:operator-utilities`.
+- `Sheshiyer/reddit-cli` remains an explicit unavailable exact-identity hold.
+  The local folder contains the `reddit-flux` package, so the live immutable
+  repository `Sheshiyer/reddit-flux` is assigned separately to
+  `program:operator-utilities`; it is not substituted for the held name.
 - `Sheshiyer/brandmint-showcase` is assigned to
   `program:meristem-brand-system` because the relocation registry supplies the
   exact identity and `ARCHITECTURE.md` names it as the Brandmint product site.
@@ -160,7 +161,7 @@ evidence.
 - The other seven rows remain explicit holds with exact reasons. A GitHub 404
   means not retrievable to the authenticated principal, never proven absent.
 
-Result: 3 resolved or reconciled rows, 7 explicit holds, 0 inferred
+Result: 2 resolved or reconciled residual rows, 8 explicit holds, 0 inferred
 assignments, 0 catalog admissions, and 0 folder mutations.
 
 ## Execution gate
