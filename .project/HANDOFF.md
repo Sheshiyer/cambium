@@ -1320,3 +1320,31 @@ mutation has been performed by drafting this packet.
 - This checkpoint authorizes documentation review only. It does not prove or
   authorize a current approval, capture, video, worker dispatch, deployment,
   provider action, registry write, vault write, or external runtime mutation.
+
+### 2026-08-15 branch, worktree, and GitHub Project reconciliation checkpoint
+
+- Fetched `origin` and classified every local branch against current
+  `origin/main` using GitHub PR state, ancestry, tree equality, and patch
+  equivalence. Recent delivery is merged through PR #320; no pull request was
+  open at the time of reconciliation, and the exact `main` CI run for
+  `71eba373` passed.
+- Local `main` had zero unique commits and was fast-forwarded from its stale
+  ancestor to exact `origin/main` `71eba373`. No push to `main`, force-push,
+  reset, rebase, stash, or feature-branch rewrite occurred.
+- Ten registered temporary worktrees whose gitdir paths were independently
+  absent were pruned from Git administrative metadata. The primary checkout
+  and three surviving temporary worktrees remained dirty and were preserved;
+  no live worktree directory or branch ref was deleted.
+- GitHub Project 14 was formally linked to `Sheshiyer/cambium`. Open issues
+  #249 and #252 were added as Todo items, so all nine then-open Cambium issues
+  were represented; the board contained 22 items, 13 Done and 9 Todo.
+- Strictly merged, patch-equivalent, tree-equivalent, and PR-#320-ancestor
+  branches required no replacement PR. The two stale overlapping histories
+  `codex/fitcheck-quests-release-candidate` and
+  `codex/project-r2-mapping-plan` remain preserved and must not be published
+  wholesale.
+- The primary dirty packet had to be split from a fresh `origin/main` into
+  retention documentation/tooling, Moosh documentation/contracts, and additive
+  handoff evidence slices. Machine-local integration claims, expired/generated
+  planning receipts, workflow deletions, and other mixed runtime artifacts
+  remain excluded pending owner review.
