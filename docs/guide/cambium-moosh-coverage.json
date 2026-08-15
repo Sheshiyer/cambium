@@ -33,7 +33,7 @@
     "cloudflare-runtime": "boundary-map-only",
     "cortex-memory": "boundary-map-only",
     "explee-iverif": "boundary-map-only",
-    "github-cloudflare-ci": "boundary-map-only",
+    "github-cloudflare-ci": "contract-and-terminal",
     "mcp-aws": "boundary-map-only"
   },
   "execution_contract": {
