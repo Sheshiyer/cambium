@@ -11,8 +11,20 @@ const defaultOutput = '.planning/2026-08-10-documentation-retention-manifest.per
 const output = process.argv.includes('--out')
   ? process.argv[process.argv.indexOf('--out') + 1]
   : defaultOutput;
-const outputFile = path.isAbsolute(output) ? output : path.join(root, output);
-const outputPath = path.relative(root, path.resolve(root, output));
+const outputFile = path.resolve(root, output);
+const rootReal = fs.realpathSync(root);
+const outputParentReal = (() => {
+  try {
+    return fs.realpathSync(path.dirname(outputFile));
+  } catch {
+    throw new Error('Retention manifest output parent must exist within the repository.');
+  }
+})();
+const isWithin = (base, candidate) => candidate === base || candidate.startsWith(`${base}${path.sep}`);
+if (!isWithin(rootReal, outputParentReal) || (fs.existsSync(outputFile) && fs.lstatSync(outputFile).isSymbolicLink())) {
+  throw new Error('Retention manifest output must stay within the repository.');
+}
+const outputPath = path.relative(root, outputFile);
 const generatedManifestPaths = new Set([defaultOutput, outputPath]);
 const existingGeneratedAt = (() => {
   try {
