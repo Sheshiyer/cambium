@@ -36,20 +36,25 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 54)
-  assert.equal(thoughtseed.folders.length, 54)
-  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'thoughtseed-labs', 'website'])
+  assert.equal(thoughtseed.folderCount, 58)
+  assert.deepEqual(
+    thoughtseed.folders.find((folder) => folder.folder === 'temperance_engine')?.workIds,
+    ['program:temperance-hermes'],
+  )
+  assert.equal(thoughtseed.folders.length, 58)
+  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.folders.length, 30)
   assert.deepEqual(noesis.infrastructure, ['selemene-engine-worktrees'])
   assert.equal(noesis.archiveContainer, '_archive')
-  assert.equal(thoughtseed.folders.some((entry: { folder: string }) => ['_physical-relocation-archive-2026-08-08', 'openfang', 'thoughtseed-labs', 'website'].includes(entry.folder)), false)
+  assert.equal(thoughtseed.folders.some((entry: { folder: string }) => ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'].includes(entry.folder)), false)
   assert.equal(thoughtseed.folders.find((entry: { folder: string }) => entry.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
   assert.equal(noesis.folders.some((entry: { folder: string }) => ['.agents', '_archive', 'selemene-engine-worktrees'].includes(entry.folder)), false)
 })
 
 test('snapshot uses only relative unique folders and bounded proposal kinds', async () => {
   const snapshot = await readSnapshot()
+  assert.doesNotThrow(() => validateSnapshot(snapshot))
   const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
   for (const portfolio of snapshot.portfolios) {
     const folders = portfolio.folders.map((entry: { folder: string }) => entry.folder)
@@ -68,19 +73,33 @@ test('review holds and linked dual work stay explicit', async () => {
   const byFolder = new Map(thoughtseed.folders.map((entry: { folder: string }) => [entry.folder, entry]))
 
   assert.deepEqual(['klear-karma', 'kristudios', 'panaroma-webapp'].map((folder) => byFolder.get(folder)?.proposedKind), [
-    'sapling', 'client-branch', 'needs-review',
+    'client-branch', 'client-branch', 'needs-review',
   ])
+  assert.deepEqual(byFolder.get('klear-karma')?.workIds, ['branch:klear-karma'])
+  assert.deepEqual(byFolder.get('meristem')?.workIds, ['program:meristem-brand-system'])
+  assert.equal(byFolder.get('meristem')?.status, 'awaiting-ingestion')
+  assert.deepEqual(byFolder.get('session-atlas')?.workIds, [])
+  assert.equal(byFolder.get('session-atlas')?.proposedKind, 'internal-program')
+  assert.equal(byFolder.get('session-atlas')?.status, 'awaiting-ingestion')
   assert.deepEqual(byFolder.get('kristudios')?.workIds, ['branch:kristudios'])
   assert.equal(byFolder.get('virtualtryon-3d')?.proposedKind, 'needs-review')
   assert.deepEqual(byFolder.get('virtualtryon-3d')?.workIds, [])
   assert.equal(byFolder.get('virtualtryon-3d')?.status, 'empty-hold')
-  assert.deepEqual(byFolder.get('parkarea')?.workIds, ['branch:parkarea', 'sapling:parkarea'])
-  assert.deepEqual(byFolder.get('tirak')?.workIds, ['branch:tirak', 'sapling:tirak'])
+  assert.deepEqual(byFolder.get('parkarea')?.workIds, ['branch:parkarea'])
+  assert.deepEqual(byFolder.get('tirak')?.workIds, ['branch:tirak'])
 })
 
 test('typed browser projection is generated from the reviewed snapshot', () => {
   assert.equal(existsSync(generatedModulePath), true)
   assert.equal(existsSync(workerGeneratedModulePath), true)
+})
+
+test('App and Worker generated root maps are byte-identical', async () => {
+  const [appGenerated, workerGenerated] = await Promise.all([
+    readFile(generatedModulePath, 'utf8'),
+    readFile(workerGeneratedModulePath, 'utf8'),
+  ])
+  assert.equal(workerGenerated, appGenerated)
 })
 
 test('Worker policy projection binds the reviewed digest and exact shallow Tryambakam paths', async () => {

@@ -30,7 +30,7 @@ export function validateSnapshot(snapshot) {
     if (!Array.isArray(portfolio.folders) || portfolio.folders.length !== portfolio.folderCount) throw new TypeError(`${portfolio.portfolioId} folder count drift`)
     const folders = new Set()
     for (const entry of portfolio.folders) {
-      if (!entry || typeof entry.folder !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9-]*$/.test(entry.folder)) throw new TypeError(`unsafe relative folder in ${portfolio.portfolioId}`)
+      if (!entry || typeof entry.folder !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(entry.folder)) throw new TypeError(`unsafe relative folder in ${portfolio.portfolioId}`)
       if (folders.has(entry.folder)) throw new TypeError(`duplicate folder ${entry.folder}`)
       folders.add(entry.folder)
       if (!allowedKinds.has(entry.proposedKind)) throw new TypeError(`unsupported proposal kind ${entry.proposedKind}`)
@@ -39,8 +39,8 @@ export function validateSnapshot(snapshot) {
     }
   }
   const thoughtseed = snapshot.portfolios[0]
-  if (thoughtseed.folderCount !== 54) throw new TypeError('Thoughtseed folder count must remain 54')
-  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_physical-relocation-archive-2026-08-08', 'openfang', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
+  if (thoughtseed.folderCount !== 58) throw new TypeError('Thoughtseed folder count must remain 58')
+  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
   const noesis = snapshot.portfolios[1]
   if (noesis.folderCount !== 30) throw new TypeError('Tryambakam-Noesis folder count must remain 30')
   if (JSON.stringify(noesis.infrastructure) !== JSON.stringify(['selemene-engine-worktrees'])) throw new TypeError('Tryambakam-Noesis infrastructure exclusions drifted')
@@ -169,7 +169,10 @@ export async function generateBrowserModule({
   await mkdir(path.dirname(outputPath), { recursive: true })
   await writeFile(outputPath, generated, 'utf8')
   await mkdir(path.dirname(workerOutputPath), { recursive: true })
-  await writeFile(workerOutputPath, renderWorkerPolicyModule(snapshot), 'utf8')
+  // Both runtimes consume the same generated authority. Keeping the complete
+  // module byte-identical proves mirror parity instead of inferring it from a
+  // shared digest embedded in intentionally different source projections.
+  await writeFile(workerOutputPath, generated, 'utf8')
   return { digest: snapshotDigest(snapshot), outputPath, workerOutputPath, snapshot }
 }
 

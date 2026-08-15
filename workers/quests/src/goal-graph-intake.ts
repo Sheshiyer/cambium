@@ -106,7 +106,7 @@ export interface TelegramGoalGraphRejected {
   errors: readonly string[];
 }
 
-export interface TelegramGoalGraphAccepted {
+export interface TelegramGoalGraphBoundaryAccepted {
   accepted: true;
   rejected: false;
   status: 'accepted';
@@ -118,10 +118,14 @@ export interface TelegramGoalGraphAccepted {
   sourceDigest: string;
   sourceRef: string;
   idempotencyKey: string;
+}
+
+export interface TelegramGoalGraphAccepted extends TelegramGoalGraphBoundaryAccepted {
   node: GoalGraphNode;
   compile: GoalGraphCompileResult;
 }
 
+export type TelegramGoalGraphBoundaryResult = TelegramGoalGraphBoundaryAccepted | TelegramGoalGraphRejected;
 export type TelegramGoalGraphIntakeResult = TelegramGoalGraphAccepted | TelegramGoalGraphRejected;
 
 const ROOT_KEYS = new Set(['schema', 'version', 'tenantId', 'source', 'goal']);
@@ -357,11 +361,20 @@ function compileContext(context: TelegramGoalGraphCompileContext | undefined): R
   };
 }
 
+function rejectionFromError(error: unknown): TelegramGoalGraphRejected {
+  const message = error instanceof Error && error.message ? error.message : 'malformed intent';
+  const code: TelegramGoalGraphIntakeErrorCode = message.includes('forbidden') ? 'forbidden_key'
+    : message.includes('not allowed') ? 'unknown_key'
+      : message.includes('exceeds') ? 'bounds_exceeded' : 'malformed_input';
+  return reject(code, [message]);
+}
+
 /**
- * Parse and compile one intent.  `context` is entirely in-memory and optional;
- * supplying D1 handles is impossible by type and unnecessary by design.
+ * Normalize and provenance-bind one Telegram intent without consulting graph
+ * context. This boundary identity is sufficient to collapse an already
+ * accepted redelivery before D1 is read; it never claims the proposal compiles.
  */
-export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramGoalGraphCompileContext): TelegramGoalGraphIntakeResult {
+export function parseTelegramGoalGraphIntentBoundary(input: unknown): TelegramGoalGraphBoundaryResult {
   try {
     if (projectionLike(input)) return reject('projection_input', ['goal-graph projection-shaped input cannot enter Telegram intake']);
     const rawCanonical = stableJson(input);
@@ -374,6 +387,31 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
     if (byteLength(canonical) > TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes) return reject('bounds_exceeded', [`normalized intent exceeds ${TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes} bytes`]);
     const contentDigest = `sha256:${sha256(canonical)}`;
     const sourceRefValue = sourceRef(value.tenantId, value.source);
+    return {
+      accepted: true,
+      rejected: false,
+      status: 'accepted',
+      value,
+      canonical,
+      contentDigest,
+      sourceDigest: contentDigest,
+      sourceRef: sourceRefValue,
+      idempotencyKey: makeTelegramGoalGraphIdempotencyKey(value.tenantId, value.source, contentDigest),
+    };
+  } catch (error) {
+    return rejectionFromError(error);
+  }
+}
+
+/**
+ * Parse and compile one intent.  `context` is entirely in-memory and optional;
+ * supplying D1 handles is impossible by type and unnecessary by design.
+ */
+export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramGoalGraphCompileContext): TelegramGoalGraphIntakeResult {
+  const boundary = parseTelegramGoalGraphIntentBoundary(input);
+  if (!boundary.accepted) return boundary;
+  try {
+    const { value, contentDigest, sourceRef: sourceRefValue } = boundary;
     const nodeInput: GoalGraphInputNode = {
       tenantId: value.tenantId,
       namespace: value.goal.namespace,
@@ -423,24 +461,12 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
       loadoutAuthority: compileInput.loadoutAuthority,
     });
     return {
-      accepted: true,
-      rejected: false,
-      status: 'accepted',
-      value,
-      canonical,
-      contentDigest,
-      sourceDigest: contentDigest,
-      sourceRef: sourceRefValue,
-      idempotencyKey: makeTelegramGoalGraphIdempotencyKey(value.tenantId, value.source, contentDigest),
+      ...boundary,
       node,
       compile,
     };
   } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : 'malformed intent';
-    const code: TelegramGoalGraphIntakeErrorCode = message.includes('forbidden') ? 'forbidden_key'
-      : message.includes('not allowed') ? 'unknown_key'
-        : message.includes('exceeds') ? 'bounds_exceeded' : 'malformed_input';
-    return reject(code, [message]);
+    return rejectionFromError(error);
   }
 }
 

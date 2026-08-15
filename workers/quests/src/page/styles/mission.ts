@@ -110,14 +110,25 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   .mc-connector.is-dashed{background:repeating-linear-gradient(90deg,rgba(214,255,246,.35) 0 4px,transparent 4px 8px)}
   .mc-connector .mc-packet-dots{position:absolute;inset:-8px 0;min-height:0}
   .mc-connector .mc-packet{width:3px;height:3px}
-  /* ≤360px: compact stations (reference-board density) so up to 6 stations + connectors fit 320px. */
-  @media (max-width:360px){
-    .mc-timeline-station{gap:4px}
-    .mc-station{width:20px;height:20px}
-    .mc-station-icon,.mc-station-icon svg{width:12px;height:12px}
-    .mc-timeline-name{font-size:10px}
-    .mc-timeline-state{font-size:8.5px;white-space:nowrap;text-overflow:ellipsis}
-    .mc-connector{min-width:6px;margin-top:9px}
+  /* The previous six-column compression made a 320–430px timeline unreadable.
+     Mobile keeps the same stations and rail grammar, but stacks them so labels,
+     state, and actions retain their truthful, readable form. */
+  @media (max-width:520px){
+    .mc-mission-card{padding:14px}
+    .mc-mission-card::before{inset:0;opacity:.18}
+    .mc-constellation{width:48%;opacity:.2}
+    .mc-eyebrow,.mc-card-head,.mc-meta-grid,.mc-info{max-width:100%}
+    .mc-card-head{padding-right:38px}
+    .mc-timeline{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding-top:6px}
+    .mc-timeline-station{grid-template-columns:28px minmax(0,1fr);justify-items:start;align-items:center;gap:4px 10px;min-height:44px;text-align:left}
+    .mc-station{grid-row:span 2}
+    .mc-timeline-name,.mc-timeline-state{justify-self:start;max-width:100%;text-align:left}
+    .mc-timeline-name{display:block;-webkit-line-clamp:unset;white-space:nowrap;text-overflow:ellipsis}
+    .mc-timeline-state{white-space:nowrap;text-overflow:ellipsis}
+    .mc-connector{width:1px;min-width:1px;height:12px;margin:0 0 0 13px;background:transparent;justify-self:start}
+    .mc-connector.is-solid{background:var(--mc-chartreuse)}
+    .mc-connector.is-dashed{background:repeating-linear-gradient(180deg,rgba(214,255,246,.35) 0 4px,transparent 4px 8px)}
+    .mc-connector .mc-packet-dots{display:none}
   }
 
   /* ProofList rows (frozen/02 §6): dashed-ring icon + label + packet cluster + chevron */
@@ -153,6 +164,11 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   .inspect-proof-summary>small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
   .mission-tool-link button,.tool-recommend button{appearance:none;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:var(--bg);font:800 12px inherit;padding:9px 10px;cursor:pointer}
   .mission-tool-link button{width:100%;min-height:44px}
+  .mc-founder-outcome{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;border:1px solid rgba(224,255,79,.36);border-radius:8px;padding:10px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono)}
+  .mc-founder-outcome b{color:var(--ink)} .mc-founder-outcome small{color:var(--mc-mint)}
+  .mc-founder-outcome button,.mc-founder-outcome-actions button{appearance:none;min-height:40px;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:transparent;color:var(--mc-chartreuse);font:700 12px inherit;padding:8px;cursor:pointer}
+  .mc-founder-outcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mc-founder-outcome-actions button:first-child{background:var(--ink);color:var(--bg)} .mc-founder-outcome-actions button:disabled{opacity:.5;cursor:default}
 
   /* legacy rules still consumed by the component gallery + legacy sheets (T-029 cleans up) */
   .mc-card-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}

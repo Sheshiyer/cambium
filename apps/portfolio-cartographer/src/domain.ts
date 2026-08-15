@@ -4,6 +4,10 @@ import {
   RAW_PROGRAMS,
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts'
+import {
+  PORTFOLIO_CATALOG_DIGEST as SHARED_PORTFOLIO_CATALOG_DIGEST,
+  PORTFOLIO_CLASSIFICATION_DIGEST as SHARED_CLASSIFICATION_DIGEST,
+} from '../../../shared/portfolio-catalog-authority.ts'
 import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts'
 import {
   PORTFOLIO_ROOT_MAP_DIGEST,
@@ -15,8 +19,8 @@ export const V3_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
 export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
-export const CLASSIFICATION_DIGEST = '18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542'
-export const PORTFOLIO_CATALOG_DIGEST = 'sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64'
+export const CLASSIFICATION_DIGEST = SHARED_CLASSIFICATION_DIGEST
+export const PORTFOLIO_CATALOG_DIGEST = SHARED_PORTFOLIO_CATALOG_DIGEST
 export const SOURCE_SCHEMA = 'thoughtseed.work-object-registry.v1'
 export const SOURCE_GENERATED_AT = '2026-07-29T06:46:00Z'
 

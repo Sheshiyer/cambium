@@ -1,0 +1,113 @@
+{
+  "schema": "cambium.worker-candidate-upload-receipt.v1",
+  "recordedAt": "2026-08-14T11:29:59Z",
+  "authority": {
+    "operation": "one inert candidate upload",
+    "promotionAuthorized": false,
+    "deploymentMutationAuthorized": false
+  },
+  "source": {
+    "commit": "a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165",
+    "parent": "fbd1bcf838da3ab46961f8842d51a4ca935d8f27",
+    "aheadBy": 1,
+    "behindBy": 0,
+    "cleanAtBuild": true,
+    "workerModuleSha256": "f0857aea59b5c35f293eea46c4e5dadd40fbc2a0b22e862e6eb2611a506ab84a",
+    "workerModuleBytes": 1867927
+  },
+  "preflight": {
+    "deploymentId": "33097935-611a-469e-940d-cb3fee252b0d",
+    "productionVersion": {
+      "number": 47,
+      "id": "bc990526-3588-44ad-8116-8d6ec9d9fa35",
+      "percentage": 100
+    },
+    "versionCount": 47,
+    "bindingCount": 36,
+    "runtime": {
+      "compatibilityDate": "2026-05-01",
+      "compatibilityFlags": [
+        "nodejs_compat"
+      ],
+      "usageModel": "standard"
+    },
+    "releaseGate": {
+      "status": "passed",
+      "coreTests": 1683,
+      "integrationChecks": 37,
+      "r3fTests": 99,
+      "desktopPackagingTests": 5,
+      "wranglerDryRun": true
+    }
+  },
+  "upload": {
+    "endpointKind": "worker-version-create",
+    "bindingsInheritMode": "strict",
+    "successfulVersionMutations": 1,
+    "preCreationRejection": {
+      "httpStatus": 400,
+      "cloudflareCode": 10057,
+      "reason": "the live API accepted only the literal latest inheritance selector",
+      "versionCreated": false,
+      "versionCountAfter": 47,
+      "productionDeploymentChanged": false
+    },
+    "correctedInheritance": {
+      "selector": "latest",
+      "resolvedImmediatelyBeforeUploadToVersion": "bc990526-3588-44ad-8116-8d6ec9d9fa35",
+      "resolvedImmediatelyBeforeUploadToNumber": 47
+    }
+  },
+  "candidate": {
+    "number": 48,
+    "id": "20a4d3f2-03bf-4b6d-8256-50a5a7ea26a3",
+    "createdOn": "2026-08-14T11:27:52.673119Z",
+    "tag": "git-a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165",
+    "alias": "gate-a42a9e2e672d",
+    "bindingCount": 36,
+    "bindingParity": {
+      "matched": 36,
+      "expected": 36,
+      "canonicalDigest": "6bc0636720e0a62b5c77048bd4a9ca9a30ef2a8536051bd0bde7ab459444ff97",
+      "secretValuesExcluded": true
+    },
+    "runtimeParity": true,
+    "versionDelta": 1,
+    "previewProbes": {
+      "/healthz": 200,
+      "/api/quests/cambium": 401,
+      "/v1/admin/portfolio": 401,
+      "/admin/portfolio/web": 401,
+      "/v1/mission-fabric/cambium": 403
+    }
+  },
+  "productionReadback": {
+    "delayedVerifiedAt": "2026-08-14T11:32:30Z",
+    "deploymentId": "33097935-611a-469e-940d-cb3fee252b0d",
+    "versionNumber": 47,
+    "versionId": "bc990526-3588-44ad-8116-8d6ec9d9fa35",
+    "percentage": 100,
+    "candidatePercentage": 0,
+    "unchanged": true
+  },
+  "externalState": {
+    "workerVersionCreated": true,
+    "workerDeploymentChanged": false,
+    "trafficChanged": false,
+    "bindingsChanged": false,
+    "runtimeSettingsChanged": false,
+    "d1Mutated": false,
+    "kvMutated": false,
+    "r2Mutated": false,
+    "vaultMutated": false,
+    "telegramAction": false,
+    "hermesExecution": false,
+    "githubMutation": false
+  },
+  "heldOperations": [
+    "candidate promotion",
+    "Fitcheck replacement intake",
+    "Telegram founder approval",
+    "Hermes execution and foldback"
+  ]
+}

@@ -154,6 +154,18 @@ function gateActionSubject(kind, it){
   if (kind === 'approve-goal-graph' && isGoalGraphGateItem(it)) return it.goalGraphChangeDigest || (it.goalGraphIntake && it.goalGraphIntake.changeDigest) || gateSubject(it);
   return kind === 'confirm-action-request' && isActionRequestGateItem(it) ? (it.actionRequestId || (it.actionRequest && it.actionRequest.id) || it.id || gateSubject(it)) : gateSubject(it);
 }
+function gateApprovalDescriptorSeed(kind, it){
+  if (kind !== 'approve-goal-graph' || !isGoalGraphGateItem(it)) return undefined;
+  const row = (it && it.goalGraphIntake) || it || {};
+  return {
+    tenant:row.tenantId,
+    changeDigest:row.changeDigest,
+    nonce:row.approvalNonce,
+    expiresAt:row.approvalExpiresAt,
+    graphVersion:row.expectedHeadVersion,
+    fence:row.fence,
+  };
+}
 function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evidence missing from handoff'; }
 function gateBranchId(it){ return mcText(it && (it.branchId || it.branch || it.productId || it.clientName), 'branch-not-served').toLowerCase().replace(/[^a-z0-9-]+/g, '-'); }
 function gateBranchFocus(it){ return gateBranchId(it); }
@@ -531,7 +543,7 @@ function setGateSubmitState(button, state, text){
 }
 function loadGate(){
   const el = $('gate');
-  fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
+  fetchQuestEnvelope().then(r => r.ok ? r.json() : {}).then(d => {
     const items = gateItemsFromEnvelope(d || {});
     GATE_ITEMS = items;
     const source = '/internal/gate/' + TENANT;
@@ -562,7 +574,7 @@ function loadGateWire(el, source){
     node.querySelectorAll('[data-kind]').forEach(button => button.onclick = () => {
       const item = GATE_ITEMS[Number(node.dataset.i)] || {};
       const kind = button.dataset.kind || 'approve';
-      openGatePreflight(kind, gateActionSubject(kind, item), node);
+      openGatePreflight(kind, gateActionSubject(kind, item), node, gateApprovalDescriptorSeed(kind, item));
     });
     node.querySelectorAll('[data-gate-detail]').forEach(detail => detail.onclick = () => go(4));
     node.querySelectorAll('[data-gate-proof]').forEach(proof => proof.onclick = () => go(4));
@@ -637,7 +649,7 @@ function gateAct(submitButton){
         }
         setGateSubmitState(submitButton, 'queued', kind === 'approve-goal-graph' ? 'committed' : 'queued');
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
-        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph') setTimeout(loadGate, 350);
+        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph') Promise.resolve(refresh()).then(loadGate);
       } else {
         setGateSubmitState(submitButton, 'refused', 'refused · no write');
         const error = res.error || 'unknown';
@@ -957,7 +969,7 @@ export const OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS = String.raw`
         if (succeeded) {
           setGateSubmitState(submitButton, 'queued', 'committed');
           openGateResultSheet(kind, subject, res, { idempotencyKey: context.idempotencyKey, consequence: consequence, reversibility: reversibility }, item);
-          setTimeout(loadGate, 350);
+          Promise.resolve(refresh()).then(loadGate);
         } else {
           setGateSubmitState(submitButton, 'refused', 'refused · no write');
           var error = res.error || 'unknown';

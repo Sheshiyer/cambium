@@ -4,6 +4,7 @@ import {
   TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA,
   TELEGRAM_GOAL_GRAPH_INTENT_VERSION,
   parseTelegramGoalGraphIntent,
+  parseTelegramGoalGraphIntentBoundary,
 } from './goal-graph-intake.ts';
 
 const minimal = {
@@ -107,6 +108,44 @@ test('single-intent compilation preserves unrelated current graph nodes', () => 
   assert.equal(additive.compile.changeSet.nodesToCreate.length, 1);
   assert.equal(additive.compile.changeSet.nodesToUpdate.length, 0);
   assert.deepEqual(additive.compile.changeSet.nodesToRemove, []);
+});
+
+test('child boundary identity is stable before graph context is available', () => {
+  const root = parseTelegramGoalGraphIntent(minimal);
+  assert.equal(root.accepted, true);
+  if (!root.accepted) return;
+  const child = {
+    ...minimal,
+    source: { kind: 'telegram', chatId: '-100123', messageId: 'child-42' },
+    goal: { ...minimal.goal, parentNodeId: root.node.nodeId, scope: 'micro' },
+  };
+  const boundary = parseTelegramGoalGraphIntentBoundary(child);
+  assert.equal(boundary.accepted, true);
+  if (!boundary.accepted) return;
+  const contextFree = parseTelegramGoalGraphIntent(child);
+  assert.equal(contextFree.accepted, false);
+  const head = {
+    tenantId: 'tenant-alpha',
+    graphVersion: 1,
+    graphDigest: 'b'.repeat(64),
+    nodeIds: [root.node.nodeId],
+    sourceRef: root.sourceRef,
+    sourceDigest: root.sourceDigest,
+    committedAt: '2026-08-14T00:00:00.000Z',
+  };
+  const contextual = parseTelegramGoalGraphIntent(child, {
+    expectedHeadDigest: head.graphDigest,
+    actualHead: head,
+    currentNodes: [root.node],
+    graphVersion: 2,
+    now: '2026-08-14T00:01:00.000Z',
+  });
+  assert.equal(contextual.accepted, true);
+  if (!contextual.accepted) return;
+  assert.equal(contextual.contentDigest, boundary.contentDigest);
+  assert.equal(contextual.sourceRef, boundary.sourceRef);
+  assert.equal(contextual.idempotencyKey, boundary.idempotencyKey);
+  assert.equal(contextual.compile.status, 'compiled');
 });
 
 test('every malformed value returns an explicit rejection and never throws', () => {

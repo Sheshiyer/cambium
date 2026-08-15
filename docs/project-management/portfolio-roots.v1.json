@@ -1,6 +1,6 @@
 {
   "schema": "thoughtseed.portfolio-root-map.v1",
-  "capturedAt": "2026-08-07T04:00:00Z",
+  "capturedAt": "2026-08-13T06:08:50Z",
   "authority": "proposal-only",
   "pathGrammar": "<projects-root>/<portfolio>/<repository>",
   "portfolios": [
@@ -8,10 +8,11 @@
       "portfolioId": "thoughtseed",
       "label": "Thoughtseed",
       "itemLabel": "WorkObject",
-      "folderCount": 54,
+      "folderCount": 58,
       "infrastructure": [
         "_physical-relocation-archive-2026-08-08",
         "openfang",
+        "scroll-world",
         "thoughtseed-labs",
         "website"
       ],
@@ -129,6 +130,15 @@
           "status": "mapping-proposal"
         },
         {
+          "folder": "fitcheck-wiki",
+          "proposedKind": "sapling",
+          "accountId": null,
+          "workIds": [
+            "sapling:fitcheck"
+          ],
+          "status": "mapping-proposal"
+        },
+        {
           "folder": "fmrl",
           "proposedKind": "sapling",
           "accountId": null,
@@ -230,10 +240,10 @@
         },
         {
           "folder": "klear-karma",
-          "proposedKind": "sapling",
-          "accountId": null,
+          "proposedKind": "client-branch",
+          "accountId": "klear-karma",
           "workIds": [
-            "sapling:klear-karma"
+            "branch:klear-karma"
           ],
           "status": "mapping-proposal"
         },
@@ -254,6 +264,15 @@
             "program:company-website"
           ],
           "status": "mapping-proposal"
+        },
+        {
+          "folder": "meristem",
+          "proposedKind": "internal-program",
+          "accountId": null,
+          "workIds": [
+            "program:meristem-brand-system"
+          ],
+          "status": "awaiting-ingestion"
         },
         {
           "folder": "monthlymealprep",
@@ -307,8 +326,7 @@
           "proposedKind": "client-branch",
           "accountId": "parkarea",
           "workIds": [
-            "branch:parkarea",
-            "sapling:parkarea"
+            "branch:parkarea"
           ],
           "status": "mapping-proposal"
         },
@@ -386,6 +404,13 @@
           "status": "mapping-proposal"
         },
         {
+          "folder": "session-atlas",
+          "proposedKind": "internal-program",
+          "accountId": null,
+          "workIds": [],
+          "status": "awaiting-ingestion"
+        },
+        {
           "folder": "skill-clusters",
           "proposedKind": "internal-program",
           "accountId": null,
@@ -442,6 +467,15 @@
           "status": "mapping-proposal"
         },
         {
+          "folder": "temperance_engine",
+          "proposedKind": "internal-program",
+          "accountId": null,
+          "workIds": [
+            "program:temperance-hermes"
+          ],
+          "status": "mapping-proposal"
+        },
+        {
           "folder": "thoughtseed-brand-atlas",
           "proposedKind": "internal-program",
           "accountId": null,
@@ -474,8 +508,7 @@
           "proposedKind": "client-branch",
           "accountId": "tirak",
           "workIds": [
-            "branch:tirak",
-            "sapling:tirak"
+            "branch:tirak"
           ],
           "status": "mapping-proposal"
         },

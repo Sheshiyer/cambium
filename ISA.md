@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Synchronize reconciled GitHub issues into executable Cambium waves"
-effort: E5
-effort_source: complexity-override
+task: "Add the Fitcheck founder evidence-to-Gate pilot and prove Goal Graph readback"
+effort: E4
+effort_source: task-classification
 phase: complete
-progress: 9/9
+progress: 54/54
 mode: interactive
-iteration: 2026-08-12-github-issue-sync
+iteration: 2026-08-14-fitcheck-founder-evidence-pilot
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-12T09:12:00+05:30
+updated: 2026-08-15T00:10:18+05:30
 ---
 
 ## Problem
@@ -29,6 +29,8 @@ The guided-triage iteration then made the opposite mistake for unresolved work: 
 
 The repository-first implementation is merged, but production still serves the v3 bundle and therefore still shows the obsolete horizon shortcuts. Meanwhile the standalone project roots now contain 47 Thoughtseed folders and 30 active Tryambakam-Noesis project folders awaiting ingestion. The shallow relocation grammar forbids solving navigation by nesting repositories under new client directories; the missing layer is a portable folder-to-portfolio map and a visible portfolio header that calls Thoughtseed client work `Client Branch` while calling Tryambakam-Noesis work `Project`.
 
+The Fitcheck Mission scene now names the correct authenticated Shopify QA quest and its two required proofs, while Gate already commits reviewed Goal Graph proposals through a pinned D1 CAS. The missing link is founder ingress: Mission and Inspect contain no editable evidence surface, the browser cannot create a bounded pending proposal, and a successful Gate commit does not refresh the quest projection. The founder is therefore shown the gate and proof requirements without any authority-honest way to supply the outcome that advances them.
+
 ## Vision
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
@@ -48,6 +50,8 @@ For client-family planning, the founder sees one expandable HeyZack family rathe
 For repository-first intake, every unresolved card begins with the exact GitHub repository evidence and an explicit origin decision. Only Thoughtseed-originated ventures or products may resolve to Saplings; all client-originated work resolves to a Client Branch even when newly started; shared Thoughtseed capability or operations work resolves to an Internal Program; unknown origin remains Needs Review. Scheduling unlocks only after repository evidence, origin, planning authority, and legacy-evidence reconciliation agree. Repository issues and plans own project-local intent; Cambium owns cross-portfolio coordination and honest unresolved gaps.
 
 For folder ingestion, the founder switches between two explicit portfolio headers. Thoughtseed keeps its Sapling, Client Branch, and Internal Program grammar and shows the shallow destination folder attached to each source-backed family. Tryambakam · Noesis shows one Project grammar, separates archives and worktree infrastructure from active project candidates, and gives every unresolved folder an intake action without pretending it is already a GitHub-backed WorkObject.
+
+For the Fitcheck pilot, the founder opens the exact authenticated Shopify QA quest, records screenshot and widget-event receipt references, and receives a pending evidence candidate without changing D1. Gate then shows the server-derived transition and commits it only after the existing Telegram signature and CAS checks succeed. Refresh makes the committed Goal Graph head and quest outcome visible without manufacturing a Hermes execution or rewriting the source branch packet.
 
 ## Out of Scope
 
@@ -78,6 +82,9 @@ For folder ingestion, the founder switches between two explicit portfolio header
 - No new directory depth beneath either standalone portfolio root; organization is expressed through headers and mapping records rather than repository nesting.
 - No repository, WorkObject, client-family, tenant, or planning-authority inference from the word "new", a folder name, a tool session, or a dated planning file alone.
 - No production Worker upload or traffic change while the Cambium packet remains `draft-held` rather than `reviewed-held`.
+- No binary screenshot, raw widget event log, customer data, Shopify credential, signed URL token, or local file path accepted by the founder evidence route.
+- No browser-selected Goal Graph parent, head, loadout, status, approval descriptor, route, execution result, or terminal receipt.
+- No production upload, promotion, D1/KV/R2 mutation, Telegram message, Hermes activation, Mission Fabric allowlist change, or provider action in this local pilot build.
 
 ## Principles
 
@@ -103,6 +110,9 @@ For folder ingestion, the founder switches between two explicit portfolio header
 - Repository-native issues and plans are project-local authority; Cambium is the cross-portfolio coordination authority.
 - Tool files, session notes, and date-stamped plans are evidence inputs to reconcile, never current planning authority by themselves.
 - Filesystem address, portfolio membership, WorkObject kind, client relationship, and repository identity are separate fields joined by evidence rather than encoded into one path.
+- Founder input is an intent plus evidence references; the server owns consequences and the existing Gate owns approval.
+- A pending candidate is visible but non-authoritative; only the D1 CAS commit may change the Goal Graph projection.
+- UI refresh is proof only when it reads the committed head and exact quest identity from server state.
 
 ## Constraints
 
@@ -132,6 +142,9 @@ For folder ingestion, the founder switches between two explicit portfolio header
 - The protected HTML is never served before founder authorization; the public route contains only a bounded authentication loader.
 - Source-backed client-family grouping may use exact `accountId` only; display-name or free-text matches cannot regroup canonical WorkObjects.
 - Classification-review decisions remain local proposal data and never admit a review record into the operational catalog.
+- The first founder outcome route is fixed to `cambium` / `sapling:fitcheck` / `fitcheck-shopify-qa` / `fitcheck-shopify-widget-qa` and fails closed on any identity drift.
+- Evidence inputs are bounded reference strings, never payload storage; runtime `initData` is consumed only by the existing validator and excluded from every canonical or durable record.
+- The Worker must resolve exactly one existing `sapling:fitcheck` Goal Graph anchor before it can compile a proposal.
 
 ### Browser access risks
 
@@ -164,6 +177,8 @@ For the repository-first intake iteration, replace the Unplanned scheduling shor
 For the portfolio-ingestion-header iteration, make the merged repository-first controls observable, add explicit Thoughtseed and Tryambakam · Noesis portfolio headers, map the 47 and 30 shallow destination folders without nesting them, label Tryambakam-Noesis items as Projects rather than Client Branches, write reversible root index files, and prepare an exact promotion candidate while preserving the reviewed-held production gate.
 
 For the project-closeout iteration, add a terminal `Completed / Closed` workflow for Thoughtseed work that no longer needs active tracking. Done means closeout is receipt-backed, complete records are prepared for final handoff, R2 vault archive, agent-aware active/finished memory, and active-to-finished index delta, downstream flows are stopped or transferred, active Workbench views exclude closed work, and all effects remain governed without relocating folders, mutating Vault/R2 directly, touching the Goal Graph, or deploying production.
+
+For the Fitcheck founder-evidence pilot, add one exact authenticated route and one exact Mission action space for `fitcheck-shopify-widget-qa`. Done means two bounded proof references create a replay-safe pending candidate, D1 remains unchanged until the existing Gate signs the exact server-derived proposal, the CAS commit updates one proof-scoped node, Mission and founder-only Goal Graph readback refresh from that committed head, and every Hermes, Telegram transport, deployment, and external mutation boundary remains held.
 
 ## Criteria
 
@@ -1389,6 +1404,123 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - [x] ISC-1034: Anti: foundation reconciliation guesses a mapping, promotes a Sapling, issues a mapping receipt, or converts a missing fact into operational truth.
 - [x] ISC-1035: Anti: foundation reconciliation writes R2, GitHub, Vault, registry, D1 Goal Graph, provider, production, or physical project-folder state.
 
+### Mini App page-wiring iteration
+
+- [x] ISC-1036: packets whose `identity_scope` is `template` remain authoring assets and are excluded from operational branch stories, loops, Mission cards, graph nodes, Gate subjects, and Story events.
+- [x] ISC-1037: Saplings, canonical Client Branches, and Programs retain distinct identity, lifecycle language, visual treatment, and founder-gated actions; promotion never silently changes WorkObject kind.
+- [x] ISC-1038: Markdown quest queues are presented as planned milestones until receipt-backed runtime status exists; planned counts never masquerade as completed progress.
+- [x] ISC-1039: Story accepts only source-qualified, tenant-bound events with canonical WorkObject identity, time, event kind, and evidence or receipt provenance; replay deduplicates deterministically.
+- [x] ISC-1040: Gate distinguishes loading, empty, review-ready, blocked, expired, submitting, committed, refused, unauthorized, and error states and never combines quiet copy with a loading placeholder.
+- [x] ISC-1041: Tools exposes typed, per-source freshness for status, services, agents, active work, and handoffs; observational and signed-action capabilities cannot share contradictory read-only labeling.
+- [x] ISC-1042: Inspect leads with founder-relevant blockers, freshness, receipts, and lineage; source paths and fixture diagnostics are hidden from production and secrets never render.
+- [x] ISC-1043: the scene shell rests with exactly one page visible after pointer cancellation, pointer leave, visibility change, or blur and satisfies tablist, tabpanel, focus, target-size, zoom, and live-region accessibility contracts.
+- [x] ISC-1044: Operating Fabric remains fail-closed until a reviewed `MISSION_FABRIC_TENANTS=cambium` pilot, rollback record, and authenticated Telegram evidence exist; direct browser proof cannot substitute for Telegram initData.
+- [x] ISC-1045: the page-wiring execution plan contains 80 schema-complete tasks across contract, route, proof, page, integration, release, and rollback waves with one writer per lock zone.
+
+### GitHub and planning reconciliation wave
+
+- [x] ISC-1046: all open Cambium GitHub issues receive exactly one evidence-backed disposition from current merged, runtime, owner, or provider authority.
+- [x] ISC-1047: dated plans remain historical evidence and cannot create executable work unless a current GitHub issue, contract, runbook, active packet, or ISA criterion owns the residual intent.
+- [x] ISC-1048: all 80 Mini App task identifiers receive one deterministic status, and every implemented status cites a merged commit, passing test, or production receipt.
+- [x] ISC-1049: stale issues are closed only when their remaining acceptance is proven or preserved in explicit child issues; repository shape alone is insufficient closure evidence.
+- [x] ISC-1050: blocked and approval-gated work names the exact missing owner decision, provider state, curated source, authenticated proof, or runtime receipt.
+- [x] ISC-1051: intake-only issues are triaged without silently becoming Cambium implementation authority.
+- [x] ISC-1052: every residual execution task names dependencies, owned files, acceptance checks, validation commands, and external-mutation boundaries.
+- [x] ISC-1053: quest-client HTTP authorization, absence, server failure, malformed payload, timeout, and transport failure render as distinct terminal states.
+- [x] ISC-1054: a 401 or 403 quest response never renders the honest-empty `no ledger yet` state and never exposes authentication material.
+- [x] ISC-1055: all mutation workers use isolated clean worktrees rooted at the reviewed `origin/main` SHA; the dirty primary checkout remains untouched.
+- [x] ISC-1056: GitHub issue mutations are applied from a reviewed reconciliation record and leave a replayable issue-number, action, and evidence receipt.
+- [x] ISC-1057: deployment, Worker environment changes, Telegram sends, provider cleanup, registry writes, and relocation remain outside this execution wave.
+- [x] ISC-1058: the GitHub sync reads all 14 target issues immediately before mutation and aborts any issue whose state or body changed materially after reconciliation.
+- [x] ISC-1059: issues 285 and 287 close with comments preserving their independently open residual children and mapping authority.
+- [x] ISC-1060: issue 282 records corrected source ownership before any Cloudflare provider action is considered executable.
+- [x] ISC-1061: issues 249, 252, 280, 281, 283, and 284 remain open with exact missing approval, content, provider, or runtime acceptance probes.
+- [x] ISC-1062: issues 275, 276, and 277 are visibly classified as intake triage and do not become Cambium implementation authority.
+- [x] ISC-1063: issues 290 and 291 link the reviewed eight-wave execution manifest and preserve repository identity ambiguity as explicit holds.
+- [x] ISC-1064: every GitHub mutation emits a replayable local receipt containing issue number, prior state, requested action, resulting state, and resulting update timestamp without issue-body secrets.
+- [x] ISC-1065: post-mutation readback covers all 14 issues and matches the reviewed action matrix exactly.
+- [x] ISC-1066: Anti: parallel workers call GitHub mutation APIs, close approval-gated work, deploy runtime code, or alter provider state.
+
+### Portfolio assimilation production repair
+
+- [x] ISC-1067: released Worker source is one clean commit above exact current `origin/main`, and the deployed bundle digest is recorded.
+- [x] ISC-1068: strict real-root census accounts for all 62 Thoughtseed depth-one folders as 57 project rows plus five infrastructure/exclusion rows.
+- [x] ISC-1069: one browser-safe catalog authority classifies all 72 WorkObjects as 17 Saplings, 40 Client Branches, and 15 internal Programs.
+- [x] ISC-1070: every WorkObject has an explicit filesystem, Story Arc, Quest, organ-availability, Mini App, and Hermes transport linkage result.
+- [x] ISC-1071: the five packet-backed arcs and 67 unadmitted WorkObject gaps remain distinct; missing operational truth is never synthesized.
+- [x] ISC-1072: Thoughtseed Labs remains reference-only knowledge authority and is neither copied into Cambium nor treated as runtime state.
+- [x] ISC-1073: Workbench and Worker consume byte-identical catalog and generated root-map mirrors with pinned digests.
+- [x] ISC-1074: full tests, deterministic release verification, strict census, viewport proof, and local Worker upload dry-run pass on the exact released commit.
+- [x] ISC-1075: one inert candidate upload is read back by exact Version 44 UUID before any traffic change.
+- [x] ISC-1076: candidate and rollback versions have exact 36-binding name/type/non-secret-identity and runtime parity with zero additions or removals.
+- [x] ISC-1077: independent review passes the exact local commit and exact remote candidate UUID before promotion.
+- [x] ISC-1078: production readback proves Version 44 at exactly 100 percent through one deployment and the exact released bundle digest.
+- [x] ISC-1079: the pre-promotion Version 42 UUID is preserved as the immediate rollback target and no tag, branch, or rebuilt artifact substitutes for it.
+- [x] ISC-1080: direct-origin post-promotion probes prove health `200`, protected Portfolio/quest routes `401`, and held-closed Mission Fabric `403`.
+- [x] ISC-1081: the custom domain, schedule, and Cloudflare Access boundary survive promotion; all bounded unauthenticated custom-domain probes redirect to Access.
+- [x] ISC-1082: `MISSION_FABRIC_TENANTS` remains unchanged; activation still requires separate owner-approved scope and real Telegram proof under ISC-1044.
+- [x] ISC-1083: Anti: production repair performs a second ledger push, binding write, D1/KV/R2/Vault write, Telegram action, provider reconfiguration, or filesystem relocation.
+- [x] ISC-1084: Anti: committed evidence contains control-plane credentials, Access URLs, cookies, session identifiers, login codes, or raw Telegram initData.
+- [x] ISC-1085: expired founder browser authentication is recorded as a held proof gate and is not mislabeled as authenticated Workbench visibility.
+- [x] ISC-1086: the immutable production receipt distinguishes the deployed source commit from the later evidence-only repository checkpoint.
+
+### Fitcheck founder evidence pilot
+
+- [x] ISC-1166: the founder outcome route requires fresh valid Telegram `initData` for an allowlisted founder; Cloudflare Access identity, a pasted value, or a non-founder never authorizes it.
+- [x] ISC-1167: one closed `cambium.founder-outcome-intent.v1` parser rejects unknown root keys and non-object, cyclic, oversized, or non-serializable input.
+- [x] ISC-1168: the accepted identity is exactly `cambium` / `sapling:fitcheck` / `fitcheck` / `fitcheck-shopify-qa` / `fitcheck-shopify-widget-qa`; every drifted field fails before durable writes.
+- [x] ISC-1169: an accepted intent requires both a screenshot receipt reference and a widget-event receipt reference plus one bounded observed outcome.
+- [x] ISC-1170: references and notes reject bearer or credential material, raw Telegram data, raw event payloads, signed query tokens, data or JavaScript URLs, local paths, and machine-local checkout paths.
+- [x] ISC-1171: `initData` is removed before canonicalization and is absent from KV, D1, response bodies, page markup, receipts, and committed evidence.
+- [x] ISC-1172: the Worker resolves exactly one current Goal Graph node anchored to `sapling:fitcheck`; zero or multiple anchors return a bounded conflict with no write.
+- [x] ISC-1173: the pending proposal is pinned to the current D1 Goal Graph head digest and version read by the Worker, never supplied by the browser.
+- [x] ISC-1174: node namespace, external identity, parent, WorkObject kind, loadout, desired state, next action, status, and proof requirement are entirely server-derived.
+- [x] ISC-1175: `passed`, `failed`, `blocked`, and `needs-review` map deterministically to active, blocked, blocked, and paused Goal Graph proposals with the documented proof requirement.
+- [x] ISC-1176: Anti: a founder outcome proposes `executed`, `failed` as a Hermes terminal receipt, `retired`, autonomy promotion, Telegram delivery, foldback, ACK, or provider action.
+- [x] ISC-1177: an exact replay returns the original candidate and change digest without a second task, proposal, or D1 write.
+- [x] ISC-1178: reusing a client replay identity with semantically different evidence returns a conflict and preserves the original candidate.
+- [x] ISC-1179: the persisted intake task contains a bounded `cambium.founder-evidence-candidate.v1` projection with exact quest, mission, outcome, reference, and review status fields.
+- [x] ISC-1180: a newly submitted evidence candidate is `review_pending`, visible to Gate, and causes zero Goal Graph commit calls and zero head/node changes.
+- [x] ISC-1181: Gate renders the exact candidate ID, outcome, both evidence references, derived consequence, reversibility, pinned graph version, and source without exposing hidden intent fields.
+- [x] ISC-1182: nonce, expiry, expected head version, and fence are server-issued once at intake and reused exactly by both the Gate row and approval route.
+- [x] ISC-1183: body-supplied candidate fields, consequence, evidence, status, parent, head, nonce, expiry, version, or fence cannot alter the stored proposal.
+- [x] ISC-1184: the existing `approve-goal-graph` path commits the stored change set only after founder signature and an exact current-head precheck plus D1 CAS.
+- [x] ISC-1185: expired descriptors, mismatched descriptors, stale heads, unavailable authority, or rejected commits return distinct bounded no-write responses.
+- [x] ISC-1186: a successful commit updates the stored candidate to accepted and returns exact head digest, graph version, approval digest, candidate ID, quest ID, and readback routes.
+- [x] ISC-1187: replaying a successful approval returns the original immutable commit evidence and performs no second D1 write.
+- [x] ISC-1188: the founder quest envelope contains a bounded D1-backed `goalGraphOutcomes` projection with head digest/version and exact Fitcheck outcome rows.
+- [x] ISC-1189: public, team, consultant, expired, and unauthorized quest envelopes omit founder evidence references and Goal Graph outcome detail.
+- [x] ISC-1190: only the selected exact Fitcheck authenticated Shopify QA quest exposes `Add proof` and `Report outcome`; other branches and missions remain unchanged.
+- [x] ISC-1191: the founder sheet contains exactly two required reference inputs, one outcome selector, one optional bounded note, and one submit action with accessible labels.
+- [x] ISC-1192: the sheet visibly states that it records references, creates a pending Gate candidate, and cannot prove Shopify approval, merchant outcome, or Hermes execution.
+- [x] ISC-1193: missing Telegram auth, validation refusal, anchor conflict, storage failure, stale head, server refusal, and network failure render distinguishable no-write states.
+- [x] ISC-1194: after successful intake, Mission renders `Pending Gate`, preserves the pre-approval quest state, and links to the exact Gate row.
+- [x] ISC-1195: after successful approval and refresh, the exact quest row reflects the D1-backed passed, blocked, failed, or needs-review state and shows the committed graph version.
+- [x] ISC-1196: successful Goal Graph approval refreshes both Gate and the quest envelope; it never relies on browser-local optimistic completion.
+- [x] ISC-1197: pure parser and transition tests cover valid cases, identity drift, every outcome, bounds, unknown keys, unsafe references, secrets, and deterministic canonical identity.
+- [x] ISC-1198: handler tests cover authentication, anchor resolution, replay/conflict, persistence, zero-write pending state, Gate descriptors, CAS commit, stale refusal, visibility, redaction, and refresh readback.
+- [x] ISC-1199: browser-harness, viewport, mobile, pointer, keyboard, and sheet tests prove the complete input → pending Gate → approval → refreshed Mission flow at Telegram widths.
+- [x] ISC-1200: focused tests, all repository tests, release verification, viewport proof, mobile contract, diff check, secret scan, and clean candidate status pass on the exact commit.
+- [x] ISC-1201: the reviewed implementation remains one local candidate lineage above evidence checkpoint `20a816d17cf961d62fb50e1535c97ab984e8d4c3`; upload and production promotion require separate rollback-gated approval.
+- [x] ISC-1202: Anti: this build changes production traffic, bindings, D1/KV/R2, Vault, Telegram messages/topics, Hermes flags, Mission Fabric allowlists, provider state, GitHub, or unrelated primary-checkout work.
+- [x] ISC-1203: each proof field explains accepted reference formats before founder entry.
+- [x] ISC-1204: validation failures preserve safe founder-entered values and focus the first error.
+- [x] ISC-1205: browser reload restores the exact pending candidate context from server state.
+- [x] ISC-1206: Gate approval refreshes the selected quest without requiring branch reselection.
+- [x] ISC-1207: the pilot introduces zero new lifecycle, transport, or execution writers.
+- [x] ISC-1208: existing Goal Graph intake KV records remain the sole pending store.
+- [x] ISC-1209: founder submission remains valid while Hermes and Telegram transport are offline.
+- [x] ISC-1210: the approved transition exactly equals its pre-signature Gate consequence.
+- [x] ISC-1211: refreshed quest and Goal Graph projections share one committed head digest.
+- [x] ISC-1212: non-founder envelopes reveal neither candidate existence nor pending outcome counts.
+- [x] ISC-1213: operational logs contain no initData, evidence references, or founder notes.
+- [x] ISC-1214: partial KV intake writes recover without duplicate candidate creation.
+- [x] ISC-1215: D1-success KV-failure replay reconciles acceptance without another graph write.
+- [x] ISC-1216: committed D1 outcomes supersede stale pending KV candidate projections.
+- [x] ISC-1217: expired candidates leave actionable Gate and expose founder resubmission recovery.
+- [x] ISC-1218: network-ambiguous retries retain one clientRequestId until receipt confirmation.
+- [x] ISC-1219: legacy Goal Graph intake tasks remain renderable and approvable unchanged.
+
 ## Test Strategy
 
 | ISC range | Type | Binary check | Tool |
@@ -1498,6 +1630,8 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 | ISC-851..864 | hosted portfolio admin actions | export controls are retired; founder actions persist R2 evidence before a governed trigger; replay is safe; Goal Graph authority and promotion gates remain intact | focused action/store tests, authenticated route tests, CSP/source audit, bundle parity, browser action-state proof, release suite |
 | ISC-865..910 | Thoughtseed governed project birth | active UI is Thoughtseed-only; visible creation form emits origin-derived intent; authoritative founder Gate resolution controls non-founder execution; exact-snapshot local executor creates packet, registry-derived workflow stages, and pending-ingestion receipts | focused UI/action/executor tests, temporary roots, bundle parity, browser proof, release suite, independent audit |
 | ISC-911..930 | Thoughtseed project closeout | terminal Completed / Closed state removes receipt-backed work from active views, queues closeout evidence, writes handoff/memory/index records through the local executor, and preserves no-relocation/no-production boundaries | focused domain/action/executor tests, Portfolio Cartographer check, bundle parity, source audit, `git diff --check` |
+| ISC-1067..1086 | portfolio production repair | exact source/bundle/version/rollback provenance, strict portfolio linkage, binding parity, protected routing, held activation, privacy, and zero unauthorized mutation | Git ancestry/status, full release gate, strict linkage audit, direct Cloudflare API readback, direct/custom route probes, independent Forge/Cato audits, committed evidence scan |
+| ISC-1166..1219 | Fitcheck founder evidence pilot | authenticate exact founder intent, persist and reconcile one pending evidence candidate, commit only through stored Gate CAS, refresh D1-backed quest state, and preserve all execution/deployment boundaries | pure parser tests, fault-injected handler and browser-harness tests, Goal Graph store probes, viewport/mobile proofs, full release gate, secret scan, `git diff --check`, clean status |
 
 ## Features
 
@@ -1513,6 +1647,12 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 - `GovernedPromotion` | Prove exact candidate readiness without bypassing reviewed-held status or rollback | satisfies ISC-820, ISC-846..850 | depends_on PortfolioSelector | parallelizable false
 - `HostedPortfolioActions` | Replace export packets with founder-authenticated R2 receipts and bounded pending-intake triggers | satisfies ISC-851..864 | depends_on PortfolioSelector | parallelizable false
 - `ThoughtseedOnlyWorkbench` | Remove Tryambakam from active rendering, preserve static evidence, and expose one bounded project-creation form | satisfies ISC-865..867, ISC-896..904 | depends_on PortfolioRootMap | parallelizable false
+- `PortfolioAssimilationRepair` | Reconcile all roots and WorkObjects into one truthful Workbench/Mini App linkage, then promote one exact rollback-safe Worker version | satisfies ISC-1067..1086 | depends_on PortfolioRootMap, HostedPortfolioActions | parallelizable false
+- `FounderOutcomeContract` | Parse one closed Fitcheck evidence-reference intent and derive the exact server-owned transition | satisfies ISC-1167..1176, ISC-1197 | depends_on GoalGraphAuthority | parallelizable true
+- `FounderOutcomeCandidate` | Authenticate the founder, resolve the Fitcheck anchor, and persist a replay-safe pending Gate candidate through one shared reconciliation primitive | satisfies ISC-1166, ISC-1172..1180, ISC-1214 | depends_on FounderOutcomeContract, TelegramGoalGraphIntake | parallelizable false
+- `FounderOutcomeGateCommit` | Render the stored consequence, reconcile interrupted acceptance, and commit only through the existing approval descriptor and D1 CAS | satisfies ISC-1181..1187, ISC-1215..1216 | depends_on FounderOutcomeCandidate | parallelizable false
+- `FounderOutcomeMissionReadback` | Add the exact Mission sheet, pending state, expiry recovery, refresh, and founder-only Goal Graph outcome projection | satisfies ISC-1188..1196, ISC-1203..1213, ISC-1217..1219 | depends_on FounderOutcomeGateCommit | parallelizable false
+- `FounderOutcomeReleaseProof` | Prove the local candidate across deterministic, mobile, redaction, reconciliation, and no-external-mutation gates | satisfies ISC-1198..1202 | depends_on FounderOutcomeMissionReadback | parallelizable false
 - `ProjectCreationIntent` | Validate source, origin, derived grammar, relative destination, and Founder Gate binding | satisfies ISC-868..885, ISC-894, ISC-900..904 | depends_on HostedPortfolioActions | parallelizable false
 - `TrustedProjectExecutor` | Create a shallow local Git project packet, registry-derived workflow stages, and pending-ingestion/index-proposal receipts | satisfies ISC-886..895, ISC-905..906 | depends_on ProjectCreationIntent | parallelizable false
 - `ProjectCloseoutWorkflow` | Move receipt-backed finished work out of active tracking while producing handoff, R2 archive, memory, and finished-index records | satisfies ISC-911..930 | depends_on HostedPortfolioActions, ProjectCreationIntent | parallelizable false
@@ -1589,6 +1729,8 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 
 ## Architecture
 
+The Fitcheck founder pilot is a thin authenticated adapter over the existing Goal Graph intake and Gate commit spine. A pure parser owns the closed evidence-reference grammar; the Worker owns exact identity, anchor resolution, transition derivation, head pinning, and pending-candidate persistence; Gate owns founder approval; D1 owns committed status; and the Mission scene consumes a founder-only bounded readback projection. No new sender, lifecycle writer, evidence blob store, or execution receipt authority is introduced.
+
 <!-- arch-assets:start -->
 
 _Maintained during the 2026-07-22 architecture refresh; source-backed inventory plus reviewed LLM-generated assets._
@@ -1606,6 +1748,9 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-14 21:12: refined: the first founder-input pilot reuses `approve-goal-graph` instead of adding a direct quest-status route. The browser submits two references and an observed outcome; the Worker fixes every authority-bearing field and stores one review-pending candidate inside the existing intake task. Gate signs the stored change set, D1 CAS remains the sole write, Mission refreshes from D1, and Hermes execution remains impossible from this path.
+- 2026-08-14 21:12: the user repeated the previously recommended Fitcheck Shopify QA pilot as the requested next sequence, satisfying the design approval gate. The implementation remains local and candidate-only because Worker upload and production promotion are separately rollback-gated operations.
 
 - 2026-08-11: refined: Fitcheck L4 proactive path uses a **bounded Worker cron** (`0 */6`) only to recompile loop projections and Hermes *delivery intents*. Telegram transport remains Hermes-owned; Goal Graph CAS remains founder Gate-only. “Proactive” still means authority-chain delivery, not Cambium auto-admit. Founder may grant **operational clearance** (`proactive-loop:founder-approval`) to quiet held probes without writing D1.
 - 2026-08-11: founder operational clearance for Fitcheck L4 held stages is recorded via `POST /v1/bridge/proactive-loop/founder-approve` (admin bridge). This clears notify noise and materializes a Gate-shaped KV receipt; it is **not** D1 CAS and never sets `writesGoalGraph: true`.
@@ -1803,7 +1948,14 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-08: The first all-portfolio root-header attempt exposed a partial-write hazard: Thoughtseed could be written before unrelated Tryambakam drift failed validation. The generator now validates every selected portfolio before writing and permits exact portfolio scoping; regression tests prove both properties.
 - 2026-08-08: Advisor preflight and post-deliverable review were unavailable because the local OAuth session expired and could not refresh. No substitute external mutation was attempted; deterministic repository, filesystem, digest, and boundary probes provide the completion evidence.
 
+- 2026-08-13 14:06: The required post-deliverable advisor call fired but the local OAuth session was expired and could not refresh. No substitute external mutation was attempted; exact production readbacks, independent Forge promotion review, mandatory Cato `PASS-WITH-P2`, strict ISA completeness, and the explicit founder-visibility/rollback-rehearsal holds remain the completion evidence.
+
 ## Changelog
+
+- 2026-08-14 | conjectured: showing proof requirements and an existing Gate would be enough for the founder to advance a quest
+  refuted by: the live UI contains no editable founder surface, the only evidence endpoint is admin-bearer scoped, and Gate can only approve proposals that already exist
+  learned: founder evidence needs a closed authenticated ingress that creates a non-authoritative pending candidate and reuses the existing server-owned Goal Graph consequence and CAS approval path
+  criterion now: ISC-1166..1219 bind exact Fitcheck identity, safe reference inputs, replay-safe pending/reconciliation semantics, stored Gate descriptors, D1-only commit, founder readback, mobile UI, release proof, and zero external mutation
 
 - 2026-08-09 | conjectured: existing green catalog, packet, and runtime tests proved the portfolio foundation was ready for Sapling promotion
   refuted by: stale executor pins, an orphan DLOCK packet, alias-derived joins, silent duplicate collapse, mislabeled catalog provenance, missing repository dispositions, and stale active documentation all passed their narrower checks
@@ -1871,6 +2023,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   refuted by: fetch does not install response CSP as document policy, so the loader's `connect-src 'self'` remained active after rendering
   learned: protected document bytes must carry their own early CSP meta when an authenticated loader installs them without a navigation boundary; a real browser must prove blocked egress never reaches the server
   criterion now: ISC-648..650 and ISC-654..658 require document/header CSP parity, a Chromium same-origin block probe, exact generated parity, and complete cryptographic gate configuration
+- 2026-08-13 | conjectured: exact Worker source and binding parity were sufficient to make the reconciled portfolio visible through every Mini App surface
+  refuted by: preview and production probes returned the correct held-closed `403` because `MISSION_FABRIC_TENANTS` is intentionally absent pending real Telegram proof
+  learned: production code repair and tenant activation are separate authority transactions; a truthful release can ship complete linkage while preserving a closed runtime surface
+  criterion now: ISC-1082 requires the allowlist to remain unchanged and authenticated Telegram activation to retain its separate approval and proof gate
+
 - 2026-07-13 | conjectured: Fresh proof screenshots and a page digest were sufficient to keep the Telegram closeout instructions trustworthy
   refuted by: production served a queued ActionRequest through `topic.sourceMessageId` while the renderer fixture depended on extra `telegram.messageId` and the open issue still requested the earlier confirmation state
   learned: proof freshness must cover the runtime data shape and state transition, not only the page source and viewport geometry
@@ -2292,3 +2449,125 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - Ownership proof: #282 now owns B7/C1/C2/C4, shares C3 with #291, routes B4 to #281, and routes H7 to #283. #291 enumerates all eight GIP waves and explicitly permits parallel isolated repository work while retaining serialized GitHub mutation.
 - Authority proof: no provider, deployment, credential, runtime timer, mailbox, Telegram, ledger, relocation, or production mutation occurred.
 - Independent final audit verified the clean worktree, all 14 live issue results, project Done transitions, corrected ownership bodies, execution-wave statuses, and bounded authority with verdict PASS. Pull request #313 carries the reviewed branch for normal merge authority.
+
+### 2026-08-13 portfolio assimilation production repair
+
+- ISC-1067: Git ancestry/status probe — released source `a16d6033c658713b89ea14b5f7b4a854eb43b14e` was clean and exactly one commit above base `a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.
+- ISC-1068: strict filesystem census — the production candidate gate reported all 62 depth-one folders accounted as 57 project rows and five infrastructure/exclusion rows.
+- ISC-1069: catalog import probe — shared authority materialized 72 WorkObjects: 17 Saplings, 40 Client Branches, and 15 internal Programs.
+- ISC-1070: strict linkage audit — every catalog identity received filesystem, Story Arc, Quest, organ, Mini App, and Hermes transport disposition.
+- ISC-1071: linkage report probe — five packet-backed arcs and 67 unadmitted gaps remained separate; 48 operational gaps remained explicit.
+- ISC-1072: source/receipt audit — the Vault was read as reference knowledge only and no Vault/runtime mutation occurred.
+- ISC-1073: byte/digest parity probe — app and Worker catalog/root-map mirrors and generated Workbench embed matched their pinned authorities.
+- ISC-1074: deterministic release probes — full tests passed 1678/1678, release verification passed, 47 viewport proofs passed, and local Wrangler upload dry-run exited zero.
+- ISC-1075: Cloudflare version readback — inert candidate Version 44 `575fc392-92ce-46d7-8849-fa84059435a3` existed while Version 42 retained 100 percent traffic.
+- ISC-1076: binding/runtime comparison — all 36 binding name/type/non-secret identities and compatibility settings matched with added `[]` and removed `[]`.
+- ISC-1077: independent review — Forge passed exact local source and later passed exact remote Version 44 for code-only promotion.
+- ISC-1078: deployment API readback — deployment `f84128db-ea9a-4e52-a88d-beac5ea8b26a` served exact Version 44 at 100 percent immediately and after nine minutes.
+- ISC-1079: rollback provenance — exact pre-promotion Version 42 `86112412-2073-4f14-b215-599de0ed0eeb` remains retained; no rollback trigger fired and no rehearsal is claimed.
+- ISC-1080: direct route probes — statuses remained `200/401/401/401/403` for health, quests, Portfolio API, Workbench, and Mission Fabric.
+- ISC-1081: domain/config probes — the custom domain and six-hour cron remained attached; all five custom-domain probes returned Access `302` boundaries.
+- ISC-1082: binding/route inspection — `MISSION_FABRIC_TENANTS` remained unchanged and the `403` activation hold matched ISC-1044.
+- ISC-1083: mutation receipt — second ledger push, binding, D1, KV, R2, Vault, Telegram, provider-config, and relocation fields are false.
+- ISC-1084: committed-evidence scan — token names/values, bearer text, Access login URLs, initData fields, emails, and machine-local paths are absent.
+- ISC-1085: in-app browser DOM probe — the existing tab showed the Cloudflare Access email-code screen, so authenticated founder visibility remains explicitly unproven.
+- ISC-1086: Git/receipt probe — deployed source remains `a16d603…`; the evidence-only repository checkpoint is a separate second commit.
+- Final independent audit: `PASS-WITH-P2`, with no P0/P1/P3 finding. The P2 is evidence precision only: founder-visible authenticated synchronization remains unproven, and the retained Version 42 rollback target was not rehearsed because no rollback trigger fired.
+
+### 2026-08-13 authenticated Workbench and Telegram-flow linkage wave
+
+- [x] ISC-1087: An authenticated in-app browser probe reaches the governed Portfolio Workbench, renders the current portfolio, and reports no console warning or error.
+- [x] ISC-1088: The Workbench labels catalog totals separately from active-work totals so 72 catalogued and 71 active WorkObjects cannot be mistaken for drift.
+- [x] ISC-1089: The terminal `branch:safvr-landing-page` closeout remains absent from active planning and present in the finished-work view.
+- [x] ISC-1090: The new depth-one `temperance_engine` checkout is classified from its exact Git remote and mapped proposal-only to `program:temperance-hermes`; no repository is moved or edited.
+- [x] ISC-1091: The strict Thoughtseed root census accounts for 63 depth-one folders as 58 mapped project rows plus five infrastructure rows with no missing or unexpected folder.
+- [x] ISC-1092: One generated linkage manifest contains exactly 72 unique catalog WorkObjects and is reproducible from the canonical catalog, packet, root-map, and organ-plan authorities.
+- [x] ISC-1093: Every linkage row carries explicit filesystem, Story Arc, Quest, organ, Mini App, and Hermes dispositions; an absent relationship is an explicit gap, never an inferred join.
+- [x] ISC-1094: Every WorkObject drawer exposes the same read-only Linkage view, including folder evidence, packet/quest state, mission-data readiness, organ assignment, Mini App visibility, and Telegram transport boundary.
+- [x] ISC-1095: Portfolio summary controls expose active, catalog, finished, packet-backed Story Arc, and mission-data-gap counts from the same shipped state.
+- [x] ISC-1096: Packet-backed Story/Quest plans remain visibly distinct from D1 Goal Graph admission, and mission-data gaps never render as operationally admitted.
+- [x] ISC-1097: Hermes remains the only Telegram transport authority; the Workbench may compile/display a planned topic route but cannot send or claim a dispatch receipt.
+- [x] ISC-1098: Slash-command ownership remains Hermes-plugin-owned and is documented/displayed without inventing a Cambium command executor.
+- [x] ISC-1099: `MISSION_FABRIC_TENANTS` remains unchanged and the authenticated browser session is not treated as Telegram `initData` proof.
+- [x] ISC-1100: Focused domain, root-map, linkage, Workbench bundle, and browser checks pass against the exact candidate source.
+- [x] ISC-1101: The primary dirty checkout, Vault, D1, KV, R2, Cloudflare traffic/bindings, Telegram topics/messages, and external repositories receive no mutation in this local implementation wave.
+- [x] ISC-1102: The resulting candidate and exact separately approved durable-action queue are recorded in `.project/HANDOFF.md` without implying production deployment or all-72 operational admission.
+
+Verification: authenticated production Workbench readback; strict 63-root audit; local Cambium and Fitcheck browser probes; Workbench check 73 passed / one skipped; portfolio-foundation 45 + 73 + 108; release 1678 + 37 + 99 + 5; JSON and diff checks. Independent review's P1 (untracked essential files) and P3 (linkage lint omission) were closed before checkpointing.
+
+### 2026-08-14 Telegram Gate descriptor repair
+
+- [x] ISC-1103: A Cloudflare-authenticated browser session is distinguished from Telegram founder authentication; absent Telegram `initData` cannot authorize a Goal Graph admission.
+- [x] ISC-1104: The legacy Goal Graph Gate row carries the exact served tenant, change digest, nonce, expiry, expected head version, and fence into governed preflight.
+- [x] ISC-1105: Descriptor seeding is limited to `approve-goal-graph`; ordinary Gate actions preserve their prior call shape and authority.
+- [x] ISC-1106: Existing Operating Fabric validation remains fail-closed for missing, expired, mismatched, stale-head, or wrong-fence descriptors.
+- [x] ISC-1107: A behavior-level regression test executes the real legacy row wire path and asserts all six descriptor fields exactly.
+- [x] ISC-1108: Canonical Telegram viewport evidence is regenerated against the repaired page source and remains manifest-bound across 47 layout and clickability proofs.
+- [x] ISC-1109: Deterministic release verification passes 1682 core tests, 37 integration checks, the mobile contract, 99 R3F tests/build, and five desktop packaging tests.
+- [x] ISC-1110: The approved replacement Fitcheck intake expired while pending; D1 remained at Goal Graph version 1 and no Hermes, foldback, ACK, allowlist, Mission Fabric, or execution mutation occurred.
+- [x] ISC-1111: Production remains Version 47 and the repair remains a local candidate pending separate rollback-gated upload and promotion authority.
+
+Verification: strict RED/GREEN behavior test; focused handler and operating-fabric suites; canonical `proof:tg-viewport`; full `verify:release`; exact browser and D1/KV readback. No production upload, traffic change, D1/KV/R2 write, Telegram message, Hermes activation, Mission Fabric allowlist, or execution occurred from this repair checkpoint.
+
+### 2026-08-14 inert Gate-repair candidate upload
+
+- [x] ISC-1112: The uploaded source is exact clean commit `a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165`, exactly one commit above production source `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`.
+- [x] ISC-1113: Fresh pre-upload control-plane readback proves deployment `33097935-611a-469e-940d-cb3fee252b0d` serves only Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35` at 100 percent.
+- [x] ISC-1114: The deterministic release gate passes before upload, including 1683 core tests, 37 integration checks, 99 R3F tests, five desktop packaging tests, and a Wrangler dry run.
+- [x] ISC-1115: The built Worker module is 1,867,927 bytes with SHA-256 `f0857aea59b5c35f293eea46c4e5dadd40fbc2a0b22e862e6eb2611a506ab84a`.
+- [x] ISC-1116: A rejected inheritance request creates no Version and changes no deployment; the corrected request proceeds only after an immediate readback proves literal `latest` still resolves to exact Version 47.
+- [x] ISC-1117: Exactly one successful Version mutation creates inert Version 48 `20a4d3f2-03bf-4b6d-8256-50a5a7ea26a3` with the full source tag and bounded preview alias.
+- [x] ISC-1118: Candidate readback proves exact 36/36 binding identity parity, identical compatibility date, flags, and usage model, and exactly one Version-list delta.
+- [x] ISC-1119: Candidate preview probes return `200/401/401/401/403` for health, quests, Portfolio API, Workbench, and Mission Fabric respectively.
+- [x] ISC-1120: Post-upload deployment readback retains exact Version 47 at 100 percent and assigns Version 48 zero production traffic.
+- [x] ISC-1121: No deployment, traffic, binding, D1, KV, R2, Vault, Telegram, Hermes, GitHub, registry, relocation, or provider-configuration mutation accompanies the candidate upload.
+- [x] ISC-1122: Promotion remains separately owner-approved and rollback-gated; candidate creation cannot imply production release, founder Telegram proof, Fitcheck admission, or Hermes execution.
+
+Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-candidate-upload.v1.json`; exact source/build gate; fresh Version 47 and deployment readbacks; direct Version 48 readback; canonical binding digest parity; five GET-only preview probes; production deployment re-read. No candidate promotion occurred.
+
+### 2026-08-14 Fitcheck founder evidence pilot candidate
+
+- ISC-1166..1176 parser and authority proof: 15/15 pure contract tests accept
+  only the exact Fitcheck identity, typed screenshot and widget-event receipt
+  references, bounded outcomes, and server-derived transitions. Authentication
+  material is removed before canonicalization and hostile references fail
+  closed.
+- ISC-1177..1189 persistence and Gate proof: focused handler coverage passes
+  21/21, legacy Goal Graph coverage passes 24/24, and the complete handler suite
+  passes 360/360. Fault injection proves partial KV intake recovery and
+  D1-success/KV-failure approval reconciliation without a second graph commit.
+- ISC-1190..1199 founder experience proof: browser-harness coverage passes 4/4
+  for the exact Fitcheck sheet, retained values, focused validation, ambiguous
+  retry, pending Gate state, signed approval refresh, and D1-backed quest
+  readback. Canonical viewport and mobile-contract proofs pass at Telegram
+  widths.
+- ISC-1200..1219 release and boundary proof: all repository tests pass
+  1723/1723; Mission Fabric integration/readiness passes 37/37; R3F passes
+  99/99 plus build; desktop packaging passes 5/5; the deterministic release
+  gate, standalone smoke, canonical viewport proof, mobile contract, and
+  `git diff --check` exit zero.
+- The reviewed implementation is a local candidate lineage rooted at evidence
+  checkpoint `20a816d17cf961d62fb50e1535c97ab984e8d4c3`; candidate code head is
+  `6bfb4316bf88ce5206fc393f91f465a72d8edc6d`. No Worker upload or promotion,
+  production traffic or binding change, D1/KV/R2/Vault write, Telegram send,
+  Hermes execution, Mission Fabric activation, provider change, GitHub write,
+  or primary-checkout mutation occurred.
+- The pilot is implementation-complete but not live. The next authority gate
+  is a fresh production control-plane readback and independent exact-candidate
+  review, followed by separately approved rollback-gated upload/promotion.
+  Only after that release may the founder submit real references, approve the
+  exact Gate transition, and collect live Goal Graph readback evidence.
+- Final whole-branch review initially blocked two P1s: the legacy Gate refresh
+  omitted Telegram founder authentication, and HTTPS references admitted
+  arbitrary query data. TDD fixes now route every quest/Gate read through one
+  authenticated refresh primitive and accept only query-free HTTPS or typed
+  opaque receipt references while rejecting obvious identifying material.
+- Final independent re-review of sealed head
+  `87c62d95cf599f11d246e6060dec53ff4a6b226a` is `PASS` with both prior P1s
+  addressed and no P0/P1/P2/P3 finding. It independently reran the combined
+  parser and handler suites at 381/381.
+- Mandatory local Chromium QA at sealed head `87c62d9` passes 23 assertions
+  across founder actions, query-free guidance, focused validation, retained
+  values, same-ID ambiguous retry, pending Gate, exact authenticated descriptor,
+  preserved Fitcheck selection, committed outcome, six authenticated refreshes,
+  and shared Goal Graph head. P0/P1/P2/P3 are all zero.

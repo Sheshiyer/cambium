@@ -1,5 +1,26 @@
 # Project handoff
 
+### 2026-08-14 inert Gate-repair candidate upload checkpoint
+
+- Owner authority covered one inert Worker Version upload of exact source `a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165`; it did not authorize promotion or a deployment change.
+- The isolated source was clean and exactly one commit above production source `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`. The full release gate passed, and the generated Worker module is 1,867,927 bytes with SHA-256 `f0857aea59b5c35f293eea46c4e5dadd40fbc2a0b22e862e6eb2611a506ab84a`.
+- Fresh control-plane readback found deployment `33097935-611a-469e-940d-cb3fee252b0d` serving only Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35` at 100 percent, with 36 bindings and the recorded runtime.
+- Cloudflare rejected the first request before Version creation because the live API accepted only literal `latest` for inherited bindings. Readback proved zero Version delta and unchanged production before the corrected request; an immediate guard then proved `latest` was still exact Version 47.
+- The corrected strict-inheritance request created inert Version 48 `20a4d3f2-03bf-4b6d-8256-50a5a7ea26a3`, tagged with the full source commit and preview alias `gate-a42a9e2e672d`.
+- Independent readback proves exactly one new Version, exact 36/36 binding identity parity, runtime parity, and preview statuses `200/401/401/401/403`. Production remains Version 47 at 100 percent; Version 48 has zero traffic.
+- No deployment, traffic, binding, D1, KV, R2, Vault, Telegram, Hermes, or GitHub mutation accompanied the single successful Version creation. Promotion remains separately owner-approved and rollback-gated.
+- Sanitized receipt: `docs/evidence/2026-08-14-gate-descriptor-inert-candidate-upload.v1.json`.
+
+### 2026-08-14 Telegram Gate descriptor repair checkpoint
+
+- Production remains exact Worker Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35`, sourced from `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`; exact rollback Version 46 is `c6a9f979-6748-4b2c-ad48-4f94b9dec2da`. This checkpoint does not upload or promote a Worker.
+- The authenticated Cloudflare browser session was inspected but did not expose Telegram `initData`; it cannot substitute for a founder Telegram signature. The native Telegram Quest Log was opened, but its custom control was not programmatically activatable through the available accessibility surface.
+- One approved replacement Fitcheck proposal was created with change digest `7b897c36e61b6430bf27151e95a9de35293317d99e6330f7171b30657780958d`. It expired at `2026-08-14T10:01:02.530Z` while still pending. D1 remained at Goal Graph version 1, and no Fitcheck admission, Hermes directive, foldback, ACK, allowlist, or execution occurred.
+- Root cause: the legacy Gate row called the governed preflight without the exact server-issued descriptor even though its row already contained tenant, change digest, nonce, expiry, expected head version, and fence. The Operating Fabric bridge rejected that incomplete request fail-closed.
+- The isolated branch `codex/gate-row-descriptor-fix` now passes those six served fields only for `approve-goal-graph`; all other Gate actions remain unchanged, and the existing bridge retains digest, tenant, nonce, expiry, head-version, and fence validation.
+- Strict TDD reproduced the missing fourth argument before the fix and proves the exact six-field descriptor afterward. Focused handler and page tests pass; the canonical 47-scene Telegram viewport proof was regenerated; deterministic `pnpm verify:release` passes 1682 core tests, 37 integration checks, the mobile contract, 99 R3F tests/build, and five desktop packaging tests.
+- Next authority remains sequential and rollback-gated: review this exact clean commit, upload one inert candidate, verify UUID/binding/runtime/preview parity, and only then separately promote with immediate rollback to Version 47 on any mismatch. After promotion, a new Fitcheck intake requires renewed approval and immediate founder action in the real Telegram Quest Log.
+
 ### 2026-08-11 production activation-wave checkpoint
 
 - Source PRs #308 and #309 are merged on `main`; the production quest ledger
@@ -1125,3 +1146,154 @@ mutation has been performed by drafting this packet.
   does not authorize discarding, resetting, or implicitly merging that WIP.
 - No production deployment, provider, credential, timer, mailbox, Telegram,
   ledger, or external runtime mutation was performed by this cleanup wave.
+
+### 2026-08-13 portfolio assimilation candidate checkpoint
+
+- Work is isolated on `codex/portfolio-production-candidate`, rooted at exact
+  merged production source `origin/main@a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.
+  The dirty primary checkout remains untouched, and stale Version 43 is blocked
+  from promotion because its source lineage diverges from current main.
+- The reconciled root map accounts for all 62 depth-one Thoughtseed folders:
+  57 project/repository rows and five infrastructure exclusions, with no
+  physical relocation and no vault mutation. Its reviewed digest is
+  `e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259`.
+- Workbench and Worker consume one browser-safe catalog authority: 72 current
+  WorkObjects (17 Saplings, 40 client Branches, 15 internal Programs), plus 20
+  historical products and 48 explicit operational gaps. Their catalog data,
+  catalog module, and generated root-map mirrors have exact byte parity.
+- The read-only linkage audit maps every WorkObject to filesystem evidence,
+  Story Arc, Quest state, organ workflow availability, Mini App Canopy/Mission
+  visibility, and Hermes-only Telegram transport. Five WorkObjects have packet
+  arcs; 67 remain explicit unadmitted gaps rather than invented runtime state.
+- The Labs configuration preserves current main's Plexus knowledge/runtime
+  wiring and keeps the retired `CONTEXT_PROJECTIONS` R2 writer absent. A local
+  Wrangler 4.95.0 dry-run bundles successfully with all declared resources and
+  no remote mutation.
+- Verification: strict real-root census passes 62/62; `npm test` passes
+  1678/1678; canonical browser evidence passes 47/47 at 320/390/430 widths;
+  `npm run verify:release` passes, including R3F tests/build and Electron
+  packaging; `git diff --check` passes.
+- Production remains Version 42 at 100 percent. The next gate is independent
+  exact-commit review, then one inert direct-API candidate upload, candidate
+  route/binding/visibility probes, and promotion only with the recorded Version
+  42 UUID available for immediate rollback. No second ledger push is authorized.
+
+### 2026-08-13 portfolio assimilation production repair checkpoint
+
+- Independent local and remote reviews passed exact released source commit
+  `a16d6033c658713b89ea14b5f7b4a854eb43b14e`. Direct Cloudflare API upload
+  produced inert Version 44 `575fc392-92ce-46d7-8849-fa84059435a3`; exact
+  Version 42 `86112412-2073-4f14-b215-599de0ed0eeb` remained at 100 percent
+  until the candidate probes and promotion review passed.
+- Version 44 was then promoted to 100 percent through deployment
+  `f84128db-ea9a-4e52-a88d-beac5ea8b26a`. Immediate and later readbacks prove
+  the exact commit and bundle, one-version traffic, 36 unchanged binding
+  identities, the custom domain, and the six-hour cron. Rollback was not
+  triggered; exact Version 42 remains the recorded rollback target.
+- Direct-origin probes return `200` for health, `401` for quests, Portfolio API,
+  and Workbench without identity, and the expected held-closed `403` for
+  Mission Fabric. All five custom-domain probes return `302` into the existing
+  Cloudflare Access application.
+- `MISSION_FABRIC_TENANTS` remains untouched. Production now contains the
+  reconciled Workbench/catalog/linkage code, but Operating Fabric activation
+  remains separately gated by owner-approved pilot scope and real Telegram
+  proof under ISC-1044; direct browser proof cannot replace that requirement.
+- The existing in-app browser session had expired to the Cloudflare Access
+  email-code screen. No email, login code, cookie, session store, token, or raw
+  Telegram initData was entered, extracted, or recorded, so no authenticated
+  founder-device readback is claimed.
+- Sanitized immutable evidence is recorded in
+  `docs/evidence/2026-08-13-portfolio-production-repair.v1.json`. No second
+  ledger push, D1/KV/R2/Vault write, binding change, Telegram action, provider
+  reconfiguration, filesystem relocation, or GitHub mutation occurred.
+- The final independent audit verdict is `PASS-WITH-P2`: production repair has
+  no P0/P1 finding; the retained rollback UUID was not rehearsed because no
+  trigger fired, and authenticated founder Workbench/Mini App visibility
+  remains correctly held rather than claimed.
+
+### 2026-08-13 authenticated portfolio-to-Telegram linkage checkpoint
+
+- The existing founder-authenticated Workbench was probed read-only. It rendered
+  71 active WorkObjects without console warnings or errors; no admin POST was
+  invoked. The 72-object catalog is intentionally 71 active plus the terminal
+  `branch:safvr-landing-page` closeout, not a synchronization loss.
+- The candidate on `codex/portfolio-tg-flow` gives all 72 WorkObjects one
+  generated Linkage view: working-folder evidence, Story Arc, Quest rows,
+  mission-data readiness, D1 admission hold, planned organ route, Mini App
+  visibility, and Hermes-only transport. Packet-backed plans remain distinct
+  from runtime admission and completion.
+- The current depth-one Thoughtseed census is now 63 folders: 58 mapped project
+  rows and five infrastructure rows. The clean `temperance_engine` checkout is
+  mapped proposal-only to `program:temperance-hermes`; no external checkout was
+  moved or edited. Reviewed root digest is
+  `e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351`.
+- The shipped summary states 72 catalogued, 71 active, one finished, five
+  packet-backed Story arcs, 48 packet quest rows, 67 explicit Story gaps, 48
+  mission-data gaps, and zero receipt-backed organ assignments. Absent links
+  remain visible gaps and never become inferred runtime authority.
+- Verification passes: Workbench check 73 passed / one skipped; portfolio
+  foundation 45 + 73 + 108 tests; strict 63-root linkage audit aligned; local
+  browser Cambium and Fitcheck Linkage probes with zero console errors; release
+  gate 1678 core + 37 Telegram readiness + 99 R3F + 5 desktop tests; deterministic
+  builds and `git diff --check` passed.
+- Evidence is recorded in
+  `docs/evidence/2026-08-13-portfolio-tg-flow-linkage.v1.json`. This checkpoint
+  performed no deployment, Workbench action, D1/KV/R2/Vault write, Telegram
+  send/topic/slash-command change, Cloudflare change, or filesystem relocation.
+- Independent staged re-review is `PASS` with no P0/P1/P2/P3 finding. Its first
+  pass correctly held the checkpoint until the essential generated/evidence
+  additions were staged and `src/linkage.ts` joined the explicit lint gate;
+  both findings were closed and the Workbench check was rerun before approval.
+- The next separately approved sequence is: independently review and release
+  this exact candidate with rollback; select one exact durable Workbench action;
+  admit one exact packet-backed WorkObject only with complete mission data and
+  Founder Gate approval; then prove one Mission Fabric pilot from real Telegram
+  in-app evidence and require the exact Hermes acknowledgement.
+
+### 2026-08-14 Fitcheck founder evidence-to-Gate candidate
+
+- Local branch `codex/fitcheck-founder-outcome-pilot` now contains the bounded
+  Fitcheck founder evidence vertical slice. Candidate code head is
+  `6bfb4316bf88ce5206fc393f91f465a72d8edc6d`, thirteen commits above evidence
+  checkpoint `20a816d17cf961d62fb50e1535c97ab984e8d4c3`.
+- The exact authenticated Shopify QA quest exposes `Add proof` and
+  `Report outcome`. The sheet accepts one screenshot receipt reference, one
+  widget-event receipt reference, one observed outcome, and an optional note;
+  the browser cannot choose graph identity, parent, head, loadout, descriptor,
+  status, transport, or execution authority.
+- `POST /api/founder-outcomes/cambium` requires validated Telegram founder
+  `initData`, derives one replay-safe existing Goal Graph intake task, and
+  performs zero D1 writes. Existing signed Gate approval and D1 CAS remain the
+  sole commit path. Founder-only projections refresh the same selected quest
+  from the committed D1 head.
+- Intake and approval reconciliation survive partial KV writes and the
+  D1-success/KV-failure interval without duplicate candidates or graph commits.
+  Forged `x-principal` or query principals reveal no candidate, pending count,
+  evidence, or outcome data.
+- Verification passes: parser 15/15; focused founder/readback/UI 25/25;
+  complete handler 360/360; repository 1723/1723; Mission Fabric 37/37; R3F
+  99/99 plus build; desktop packaging 5/5; canonical viewport/mobile proofs,
+  standalone smoke, deterministic release verification, and diff checks.
+- Durable local receipt:
+  `docs/evidence/2026-08-14-fitcheck-founder-evidence-pilot.v1.json`.
+  The design and execution plan are under `docs/superpowers/`.
+- No Worker upload or promotion, production traffic/binding mutation,
+  D1/KV/R2/Vault write, Telegram action, Hermes execution, Mission Fabric
+  activation, provider change, GitHub mutation, or primary-checkout edit
+  occurred from this candidate build.
+- A final whole-branch review exposed and blocked two P1s before release. The
+  corrected client sends runtime Telegram authentication on every Mission and
+  Gate quest-envelope refresh; the reference contract now rejects every URL
+  query and obvious identifying material. Focused RED reproduced both failures,
+  GREEN closes both, and the canonical viewport corpus was regenerated.
+- Independent sealed-head re-review is `PASS`: both prior P1s are addressed,
+  combined parser/handler coverage passes 381/381, and no P0/P1/P2/P3 finding
+  remains. This is local candidate approval only, not production promotion.
+- Mandatory local Chromium QA also passes 23 assertions through validation,
+  ambiguous retry, pending Gate, exact authenticated approval, committed quest
+  outcome, and shared Goal Graph head; no P0/P1/P2/P3 finding remains.
+- Held next sequence: fresh production control-plane readback; independent
+  exact-candidate review; separately approved rollback-gated upload/promotion;
+  then one real founder submission, exact Gate approval, and live refreshed
+  quest plus Goal Graph readback. Do not claim the pilot is live before those
+  gates complete.

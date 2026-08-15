@@ -26,6 +26,7 @@ import type {
 import type { D1DatabaseLike, D1StatementLike } from './index.ts';
 import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
+import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { PAGE } from './page.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -3994,7 +3995,6 @@ test('page · gate chamber previews consequence, reversibility, evidence, and id
   assert.match(PAGE, /data-signed-action-entrypoint="reroll"/);
   assert.match(PAGE, /data-signed-action-entrypoint="confirm-action-request"/);
   assert.match(PAGE, /querySelectorAll\('\[data-kind\]'\)/);
-  assert.match(PAGE, /openGatePreflight\(kind, gateActionSubject\(kind, item\), node\)/);
 });
 
 test('page · empty gate names internal source and no open items', async () => {
@@ -4282,6 +4282,71 @@ test('page · goal-graph intake row renders, preflights, and submits a signed ap
   assert.match(resultSheet, /goal graph committed · receipt in Inspect/);
   assert.match(resultSheet, /queued action<\/b><span>gg_node_test/);
   assert.match(resultSheet, /data-gate-result-refresh="1"/);
+});
+
+test('page · legacy goal-graph Gate row passes the exact served descriptor to governed preflight', async () => {
+  const changeDigest = 'd'.repeat(64);
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [],
+    goalGraphIntake: {
+      schema: 'cambium.goal-graph-gate-row-list.v1',
+      ok: true,
+      tenantId: 'cambium',
+      count: 1,
+      rows: [{
+        schema: 'cambium.goal-graph-gate-row.v1',
+        kind: 'goal-graph-intake',
+        id: `goal-graph-intake:${changeDigest}`,
+        tenantId: 'cambium',
+        status: 'pending',
+        changeDigest,
+        nodeId: 'gg_node_descriptor',
+        title: 'Goal proposal · admit Fitcheck',
+        source: 'telegram-goal-graph-intake@v1',
+        evidence: 'packet-backed Fitcheck proposal pinned at intake',
+        consequence: 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+        reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph',
+        idempotencyHint: changeDigest,
+        graphVersion: 2,
+        receivedAt: '2026-08-14T09:46:02.530Z',
+        updatedAt: '2026-08-14T09:46:02.530Z',
+        approvalNonce: `goal-graph-approval:cambium:${changeDigest}`,
+        approvalExpiresAt: '2099-08-14T10:01:02.530Z',
+        expectedHeadVersion: 1,
+        fence: 2,
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
+  const calls: unknown[][] = [];
+  rendered.context.openGatePreflight = (...args: unknown[]) => { calls.push(args); };
+  const button = { dataset: { kind: 'approve-goal-graph' }, onclick: null as null | (() => void) };
+  const row = {
+    dataset: { i: '0' },
+    querySelectorAll: (selector: string) => selector === '[data-kind]' ? [button] : [],
+  };
+  const gate = {
+    innerHTML: '',
+    querySelectorAll: (selector: string) => selector === '.gitem' ? [row] : [],
+  };
+
+  (rendered.context.loadGateWire as (el: unknown, source: string) => void)(gate, '/internal/gate/cambium');
+  assert.equal(typeof button.onclick, 'function');
+  button.onclick!();
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0]![0], 'approve-goal-graph');
+  assert.equal(calls[0]![1], changeDigest);
+  assert.equal(calls[0]![2], row);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls[0]![3])), {
+    tenant: 'cambium',
+    changeDigest,
+    nonce: `goal-graph-approval:cambium:${changeDigest}`,
+    expiresAt: '2099-08-14T10:01:02.530Z',
+    graphVersion: 1,
+    fence: 2,
+  });
 });
 
 test('page · production ActionRequest projection renders message choice receipt and state-valid controls', async () => {
@@ -5215,9 +5280,12 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(html, /data-component="MissionToolLink"/);
   assert.match(html, /data-mission-action="tools"/);
   assert.match(html, /data-mission-proof-row="1"/);
-  // frozen/06: organ texture replaced by the constellation — organ survives as chip route + glyph only.
+  // frozen/06: organ texture replaced by the constellation. The organ survives
+  // as its route while the visible glyph truthfully reflects the missing source
+  // classification on this legacy fixture.
   assert.match(html, /data-organ-route="taste"/);
-  assert.match(html, /data-glyph-kind="taste"/);
+  assert.match(html, /data-work-variant="classification-gap"/);
+  assert.match(html, /data-glyph-kind="gate"/);
   assert.match(html, /data-selected-surface="branch-chip"/);
   assert.match(html, /data-selected-surface="mission-state-row"/);
   assert.equal((html.match(/mc-selected-halo/g) || []).length, 2);
@@ -5271,6 +5339,204 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(proofSheet, /data-component="KpiPulse"[^>]*data-kpi-kind="survival"[\s\S]*data-component="OrbitProgress"[\s\S]*class="mc-kpi-bars" data-component="PacketFlow"/);
   assert.doesNotMatch(proofSheet, /mc-kpi-pulse/);
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
+});
+
+function fitcheckFounderOutcomePageEnvelope(overrides: Record<string, unknown> = {}) {
+  return {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck',
+        workObjectId: 'sapling:fitcheck',
+        name: 'Fitcheck',
+        arcTitle: 'Shopify launch',
+        vision: { statement: 'Bind founder-observed Shopify widget QA to one reviewed proof transition.' },
+        questline: [{ id: 'fitcheck-shopify-widget-qa', title: 'Shopify widget QA', status: 'active' }],
+        missions: [{ missionId: 'fitcheck-shopify-qa', title: 'Run Shopify widget QA', owner: 'Founder', gate: 'Founder review', proofRequired: 'Screenshot and widget-event receipts', dispatchTarget: 'Gate' }],
+        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Screenshot and widget-event receipts' }],
+        kpis: [],
+        proofPaths: [],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+        gaps: [],
+      }],
+    },
+    ...overrides,
+  };
+}
+
+test('Fitcheck founder outcome renders exact actions and an accessible bounded evidence sheet', async () => {
+  const rendered = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope(), {
+    search: '?tenant=cambium&scene=mission',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+  });
+  const stem = rendered.elements.get('stem')!;
+  const addProof = stem.querySelector('[data-founder-outcome-action="add-proof"]');
+  const reportOutcome = stem.querySelector('[data-founder-outcome-action="report-outcome"]');
+  assert.ok(addProof && reportOutcome);
+  addProof.click();
+
+  const sheet = rendered.elements.get('sheetBody')!;
+  assert.equal(sheet.querySelectorAll('input').length, 2);
+  assert.equal(sheet.querySelectorAll('select').length, 1);
+  assert.equal(sheet.querySelectorAll('textarea').length, 1);
+  assert.match(sheet.innerHTML, /Screenshot receipt reference/);
+  assert.match(sheet.innerHTML, /Widget-event receipt reference/);
+  assert.match(sheet.innerHTML, /Query-free HTTPS URL or opaque receipt reference/);
+  assert.match(sheet.innerHTML, /Observed outcome/);
+  assert.match(sheet.innerHTML, /Founder note \(optional\)/);
+  assert.match(sheet.innerHTML, /maxlength="500"/);
+  assert.match(sheet.innerHTML, /data-founder-outcome-claim-guard="1"/);
+  assert.match(sheet.innerHTML, /records an observed outcome; Gate and D1 decide the transition/i);
+  assert.match(sheet.innerHTML, /data-founder-outcome-submit="1"/);
+  assert.doesNotMatch(stem.innerHTML + sheet.innerHTML, new RegExp(TEST_TELEGRAM_INIT_DATA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+
+  const nonPilot = fitcheckFounderOutcomePageEnvelope({
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'fitcheck', name: 'Fitcheck', arcTitle: 'Other arc',
+        questline: [{ id: 'fitcheck-other-quest', title: 'Other quest', status: 'active' }],
+        missions: [{ missionId: 'fitcheck-shopify-qa', title: 'Other mission', owner: 'Founder', gate: 'Founder review', proofRequired: 'Proof', dispatchTarget: 'Gate' }],
+        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+      }],
+    },
+  });
+  const other = await renderPageFixtureContext(nonPilot, { search: '?tenant=cambium&scene=mission' });
+  assert.doesNotMatch(other.elements.get('stem')!.innerHTML, /data-founder-outcome-action/);
+});
+
+test('Fitcheck founder outcome preserves safe fields, focuses validation, and reuses request identity on ambiguous retry', async () => {
+  let postCount = 0;
+  const rendered = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope(), {
+    search: '?tenant=cambium&scene=mission',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => {
+      if (init.method !== 'POST') return undefined;
+      postCount += 1;
+      return postCount === 1
+        ? new Error('ambiguous network failure')
+        : { candidate: { candidateId: 'founder_candidate_' + 'b'.repeat(32), status: 'review_pending' }, changeDigest: 'c'.repeat(64), graphVersion: 7, gateRoute: '/api/gate/cambium', readbackRoute: '/v1/branch-map/cambium' };
+    },
+  });
+  rendered.elements.get('stem')!.querySelector('[data-founder-outcome-action="report-outcome"]').click();
+  const sheet = rendered.elements.get('sheetBody')!;
+  const inputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
+  const outcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
+  const note = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
+  inputs[1].value = 'receipt:fitcheck-widget-event-001';
+  outcome.value = 'blocked';
+  note.value = 'Founder observed a blocked widget state.';
+  sheet.querySelector('[data-founder-outcome-submit]').click();
+  assert.equal(rendered.fetchRequests.filter((request) => request.method === 'POST').length, 0);
+  assert.equal(inputs[1].value, 'receipt:fitcheck-widget-event-001');
+  assert.equal(note.value, 'Founder observed a blocked widget state.');
+  assert.equal(inputs[0].focusCalls.length, 1);
+  assert.equal(sheet.querySelector('[data-founder-outcome-status]').textContent, 'Screenshot reference is required');
+
+  const afterValidationInputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
+  const afterValidationOutcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
+  const afterValidationNote = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
+  assert.equal(afterValidationInputs[1].value, 'receipt:fitcheck-widget-event-001');
+  assert.equal(afterValidationOutcome.value, 'blocked');
+  assert.equal(afterValidationNote.value, 'Founder observed a blocked widget state.');
+  assert.equal(sheet.querySelectorAll('[data-founder-outcome-status]').length, 1);
+
+  afterValidationInputs[0].value = 'https://evidence.example.com/fitcheck/screenshot-001';
+  sheet.querySelector('[data-founder-outcome-submit]').click();
+  await flushPageAsync();
+  assert.equal(sheet.querySelector('[data-founder-outcome-status]').textContent, 'network failure · no write');
+  const first = rendered.fetchRequests.find((request) => request.method === 'POST')!;
+  const firstPayload = JSON.parse(String(first.body));
+  assert.deepEqual(Object.keys(firstPayload).sort(), ['branchId', 'clientRequestId', 'initData', 'missionId', 'note', 'outcome', 'questId', 'schema', 'screenshotRef', 'tenantId', 'widgetEventRef', 'workObjectId'].sort());
+  assert.equal(firstPayload.initData, TEST_TELEGRAM_INIT_DATA);
+  assert.equal(firstPayload.outcome, 'blocked');
+  assert.equal(firstPayload.screenshotRef, 'https://evidence.example.com/fitcheck/screenshot-001');
+  assert.equal(firstPayload.widgetEventRef, 'receipt:fitcheck-widget-event-001');
+
+  const afterNetworkInputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
+  const afterNetworkOutcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
+  const afterNetworkNote = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
+  assert.equal(afterNetworkInputs[0].value, 'https://evidence.example.com/fitcheck/screenshot-001');
+  assert.equal(afterNetworkInputs[1].value, 'receipt:fitcheck-widget-event-001');
+  assert.equal(afterNetworkOutcome.value, 'blocked');
+  assert.equal(afterNetworkNote.value, 'Founder observed a blocked widget state.');
+  assert.equal(sheet.querySelectorAll('[data-founder-outcome-status]').length, 1);
+
+  sheet.querySelector('[data-founder-outcome-submit]').click();
+  await flushPageAsync();
+  const posts = rendered.fetchRequests.filter((request) => request.method === 'POST');
+  assert.equal(posts.length, 2);
+  assert.equal(JSON.parse(String(posts[1].body)).clientRequestId, firstPayload.clientRequestId);
+  assert.match(sheet.innerHTML, /Pending Gate/);
+  assert.match(sheet.innerHTML, /data-founder-outcome-open-gate="1"/);
+  assert.doesNotMatch(sheet.innerHTML, new RegExp(TEST_TELEGRAM_INIT_DATA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});
+
+test('Fitcheck founder outcome restores pending, committed, and expired state from the server envelope', async () => {
+  const pending = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
+    goalGraphIntake: { rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', status: 'pending', changeDigest: 'e'.repeat(64), outcome: 'passed' }] },
+  }), { search: '?tenant=cambium&scene=mission' });
+  const pendingHtml = pending.elements.get('stem')!.innerHTML;
+  assert.match(pendingHtml, /Pending Gate/);
+  assert.match(pendingHtml, /data-founder-outcome-state="pending"/);
+  assert.match(pendingHtml, /data-founder-outcome-open-gate="1"/);
+  for (const action of pending.elements.get('stem')!.querySelectorAll('[data-founder-outcome-action]')) assert.equal(action.disabled, true);
+
+  const committed = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
+    goalGraphOutcomes: { headDigest: 'f'.repeat(64), graphVersion: 8, rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', outcome: 'passed', headDigest: 'f'.repeat(64), graphVersion: 8 }] },
+  }), { search: '?tenant=cambium&scene=mission' });
+  assert.match(committed.elements.get('stem')!.innerHTML, /Outcome · passed/);
+  assert.match(committed.elements.get('stem')!.innerHTML, /Head · f{12} · v8/);
+  assert.match(committed.elements.get('stem')!.innerHTML, /data-founder-outcome-state="committed"/);
+
+  const expired = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
+    founderOutcomeRecovery: { rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', status: 'expired', expiredAt: '2026-08-14T09:59:59.000Z', recovery: 'refresh-and-resubmit' }] },
+  }), { search: '?tenant=cambium&scene=mission' });
+  assert.match(expired.elements.get('stem')!.innerHTML, /Proposal expired/);
+  assert.match(expired.elements.get('stem')!.innerHTML, /data-founder-outcome-resubmit="1"[^>]*>Refresh and resubmit/);
+});
+
+test('Fitcheck founder outcome Gate commit refreshes Mission and Gate while preserving branch selection', async () => {
+  const pendingEnvelope = fitcheckFounderOutcomePageEnvelope({
+    goalGraphIntake: { rows: [{
+      id: 'goal-graph-intake:' + '1'.repeat(64), tenantId: 'cambium', candidateId: 'founder_candidate_' + '2'.repeat(32),
+      questId: 'fitcheck-shopify-widget-qa', missionId: 'fitcheck-shopify-qa', status: 'pending', changeDigest: '1'.repeat(64),
+      title: 'Fitcheck outcome · passed', evidence: 'screenshot receipt:a; widget event receipt:b', outcome: 'passed',
+      approvalNonce: 'nonce-1', approvalExpiresAt: '2026-08-14T10:30:00.000Z', expectedHeadVersion: 7, fence: 7,
+    }] },
+  });
+  const committedEnvelope = fitcheckFounderOutcomePageEnvelope({
+    goalGraphOutcomes: { headDigest: '3'.repeat(64), graphVersion: 8, rows: [{ candidateId: 'founder_candidate_' + '2'.repeat(32), questId: 'fitcheck-shopify-widget-qa', outcome: 'passed', headDigest: '3'.repeat(64), graphVersion: 8 }] },
+  });
+  let getCount = 0;
+  const rendered = await renderPageFixtureContext(pendingEnvelope, {
+    search: '?tenant=cambium&scene=mission', now: '2026-08-14T10:00:00.000Z', telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => {
+      if (init.method === 'POST') return { committed: true, candidateId: 'founder_candidate_' + '2'.repeat(32), questId: 'fitcheck-shopify-widget-qa', headDigest: '3'.repeat(64), graphVersion: 8 };
+      getCount += 1;
+      return getCount <= 2 ? pendingEnvelope : committedEnvelope;
+    },
+  } as never);
+  vm.runInContext("MISSION_BRANCH_FOCUS = 'fitcheck'", rendered.context as vm.Context);
+  await (rendered.context.loadGate as () => Promise<void>)();
+  const approve = rendered.elements.get('gate')!.querySelector('[data-kind="approve-goal-graph"]');
+  approve.click();
+  rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm="approve-goal-graph"]').click();
+  await flushPageAsync(8);
+  assert.match(rendered.elements.get('stem')!.innerHTML, /Outcome · passed/);
+  assert.match(rendered.elements.get('stem')!.innerHTML, /aria-selected="true"[^>]*[\s\S]*Fitcheck/);
+  const allReads = rendered.fetchRequests.filter((request) => request.method === 'GET');
+  assert.ok(allReads.length >= 2, 'served Mission and Gate envelopes were read');
+  const founderReads = allReads.filter((request) => request.url === '/api/quests/cambium');
+  assert.ok(founderReads.length >= 2, 'the founder quest envelope was refreshed after approval');
+  for (const request of founderReads) {
+    assert.equal(
+      (request.init.headers as Record<string, string> | undefined)?.['x-telegram-init-data'],
+      TEST_TELEGRAM_INIT_DATA,
+      `every founder quest refresh carries runtime Telegram authentication: ${JSON.stringify(founderReads.map((read) => read.init.headers))}`,
+    );
+  }
 });
 
 test('page · mission branch tab updates content in place and keeps the sheet closed', async () => {
@@ -12628,29 +12894,105 @@ test('goal graph intake · acceptance persists one bounded PENDING task and writ
   assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
 });
 
-test('goal graph intake · governed operational anchor reaches pending approval unchanged', async () => {
-  const { kv, deps } = goalGraphIntakeHarness();
-  const intent = goalGraphIntakeIntent({
+test('goal graph intake · valid child loads the current graph before boundary compilation', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+
+  const rootIntake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(rootIntake.status, 200);
+  assert.equal(body(rootIntake).accepted, true);
+  const rootApproval = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(rootIntake).changeDigest, initData }),
+  }), deps);
+  assert.equal(rootApproval.status, 200);
+  const rootHead = await deps.goalGraphStore.readHead('cambium');
+  assert.ok(rootHead);
+  assert.equal(rootHead.nodeIds.length, 1);
+
+  const childIntent = goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4343', updateId: '90002' },
     goal: {
-      desiredState: 'admit Fitcheck through its governed launch loadout',
+      namespace: 'cambium.fitcheck',
       externalId: 'task-fitcheck-launch',
-      status: 'active',
+      parentNodeId: rootHead.nodeIds[0],
+      scope: 'micro',
+      desiredState: 'admit one packet-backed Fitcheck supervised-launch mission',
+      owner: 'founder/codex',
+      proofRequired: true,
+      status: 'blocked',
       workObjectId: 'sapling:fitcheck',
       workObjectKind: 'sapling',
       pinnedLoadoutId: 'loadout:fitcheck-launch',
     },
   });
-  const response = await postGoalGraphIntake('bridge', intent, deps);
-  assert.equal(response.status, 200);
-  assert.equal(body(response).accepted, true);
-  const taskKey = [...kv.store.keys()].find((key) => key.startsWith('goal-graph-intake-task:cambium:'))!;
-  const task = JSON.parse(kv.store.get(taskKey)!);
-  assert.equal(task.status, 'pending');
-  assert.equal(task.node.workObjectId, 'sapling:fitcheck');
-  assert.equal(task.node.workObjectKind, 'sapling');
-  assert.equal(task.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
-  assert.equal(task.changeSet.nodesToCreate[0].pinnedLoadoutId, 'loadout:fitcheck-launch');
-  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+  const childIntake = await postGoalGraphIntake('assign-only', childIntent, deps);
+  assert.equal(childIntake.status, 200);
+  assert.equal(body(childIntake).accepted, true);
+  assert.equal(body(childIntake).status, 'pending');
+  assert.equal(body(childIntake).graphVersion, 2);
+  assert.equal(body(childIntake).expectedHeadDigest, rootHead.graphDigest);
+
+  const childTask = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${body(childIntake).changeDigest}`)!);
+  assert.equal(childTask.node.parentNodeId, rootHead.nodeIds[0]);
+  assert.equal(childTask.node.workObjectId, 'sapling:fitcheck');
+  assert.equal(childTask.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), rootHead, 'unsigned child intake never mutates D1');
+
+  let unavailableReads = 0;
+  const unavailableReplay = await postGoalGraphIntake('assign-only', childIntent, {
+    ...deps,
+    goalGraphStore: {
+      ...deps.goalGraphStore,
+      readHead: async () => { unavailableReads += 1; throw new Error('D1 temporarily unavailable'); },
+      readNodes: async () => { unavailableReads += 1; throw new Error('D1 temporarily unavailable'); },
+    },
+  });
+  assert.equal(unavailableReplay.status, 200);
+  assert.equal(body(unavailableReplay).accepted, true);
+  assert.equal(body(unavailableReplay).duplicate, true);
+  assert.equal(body(unavailableReplay).changeDigest, body(childIntake).changeDigest);
+  assert.equal(unavailableReads, 0, 'accepted child replay collapses before an unavailable D1 read');
+
+  let driftReads = 0;
+  const driftReplay = await postGoalGraphIntake('assign-only', childIntent, {
+    ...deps,
+    goalGraphStore: {
+      ...deps.goalGraphStore,
+      readHead: async () => { driftReads += 1; return rootHead; },
+      readNodes: async () => { driftReads += 1; return []; },
+    },
+  });
+  assert.equal(driftReplay.status, 200);
+  assert.equal(body(driftReplay).accepted, true);
+  assert.equal(body(driftReplay).duplicate, true);
+  assert.equal(body(driftReplay).changeDigest, body(childIntake).changeDigest);
+  assert.equal(driftReads, 0, 'accepted child replay collapses before graph drift is consulted');
+});
+
+test('goal graph intake · missing child parent is a bounded rejection after graph read', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const rootIntake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  const rootApproval = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(rootIntake).changeDigest, initData }),
+  }), deps);
+  assert.equal(rootApproval.status, 200);
+  const headBefore = await deps.goalGraphStore.readHead('cambium');
+
+  const rejected = await postGoalGraphIntake('assign-only', goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4444' },
+    goal: {
+      desiredState: 'never admit a child whose parent is absent',
+      parentNodeId: `goal_${'f'.repeat(64)}`,
+    },
+  }), deps);
+  assert.equal(rejected.status, 200);
+  assert.equal(body(rejected).accepted, false);
+  assert.equal(body(rejected).rejected, true);
+  assert.equal(body(rejected).code, 'malformed_input');
+  assert.deepEqual(body(rejected).errors, ['missing_parent']);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-rejection:cambium:')).length, 1);
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), headBefore, 'missing-parent rejection never mutates D1');
 });
 
 test('goal graph intake · Telegram redelivery collapses to the original task receipt', async () => {
@@ -13529,4 +13871,743 @@ test('goal graph gate envelope · legacy row with an unparseable timestamp is om
 
   const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
   assert.deepEqual(JSON.parse(listed.body).actions, []);
+});
+
+// ── Fitcheck founder outcome · authenticated pending candidate intake ───────
+
+const FOUNDER_OUTCOME_NOW = '2026-08-14T10:00:00.000Z';
+const FOUNDER_OUTCOME_HEAD_DIGEST = 'a'.repeat(64);
+
+function fitcheckAnchor(overrides: Record<string, unknown> = {}) {
+  return {
+    nodeId: 'goal_fitcheck_anchor',
+    tenantId: 'cambium',
+    namespace: 'cambium.fitcheck',
+    externalId: 'fitcheck-launch-anchor',
+    parentNodeId: null,
+    workObjectId: 'sapling:fitcheck',
+    workObjectKind: 'sapling',
+    pinnedLoadoutId: 'loadout:fitcheck-launch',
+    scope: 'macro',
+    desiredState: 'Operate the Fitcheck supervised launch.',
+    currentState: 'active',
+    owner: 'founder',
+    nextAction: 'Collect Shopify launch proof.',
+    waitCondition: null,
+    proofRequired: true,
+    reviewAt: null,
+    status: 'active',
+    sourceRef: 'test:fitcheck-anchor',
+    sourceDigest: `sha256:${'1'.repeat(64)}`,
+    graphVersion: 7,
+    metadata: {},
+    createdAt: FOUNDER_OUTCOME_NOW,
+    updatedAt: FOUNDER_OUTCOME_NOW,
+    ...overrides,
+  };
+}
+
+function validFounderOutcomeBody(initData: string, overrides: Record<string, unknown> = {}) {
+  return {
+    schema: 'cambium.founder-outcome-intent.v1',
+    tenantId: 'cambium',
+    workObjectId: 'sapling:fitcheck',
+    branchId: 'fitcheck',
+    missionId: 'fitcheck-shopify-qa',
+    questId: 'fitcheck-shopify-widget-qa',
+    outcome: 'passed',
+    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/founder-proof-001',
+    widgetEventRef: 'receipt:fitcheck-widget-event-001',
+    note: 'Founder observed the exact widget result.',
+    clientRequestId: 'fitcheck-founder-outcome-route-001',
+    initData,
+    ...overrides,
+  };
+}
+
+function postFounderOutcome(payload: unknown, deps: Parameters<typeof handle>[1], tenant = 'cambium') {
+  return handle(req('POST', `/api/founder-outcomes/${tenant}`, {
+    body: typeof payload === 'string' ? payload : JSON.stringify(payload),
+  }), deps);
+}
+
+function faultInjectedFounderOutcomeKv(boundary: 'task' | 'idempotency') {
+  const base = fakeKv();
+  let armed = true;
+  const successfulPuts = { task: 0, idempotency: 0 };
+  return {
+    ...base,
+    successfulPuts,
+    async put(key: string, value: string) {
+      const kind = key.startsWith('goal-graph-intake-task:')
+        ? 'task'
+        : key.startsWith('goal-graph-intake-idem:')
+          ? 'idempotency'
+          : null;
+      if (armed && kind === boundary) {
+        armed = false;
+        throw new Error(`injected ${boundary} KV write fault`);
+      }
+      if (kind) successfulPuts[kind] += 1;
+      base.store.set(key, value);
+    },
+  };
+}
+
+function faultInjectedFounderApprovalKv() {
+  const base = fakeKv();
+  let armed = true;
+  let committedTaskWriteFaults = 0;
+  return {
+    ...base,
+    get committedTaskWriteFaults() { return committedTaskWriteFaults; },
+    async put(key: string, value: string) {
+      const parsed = key.startsWith('goal-graph-intake-task:') ? JSON.parse(value) : null;
+      if (armed && parsed?.status === 'committed' && parsed?.candidate?.status === 'accepted') {
+        armed = false;
+        committedTaskWriteFaults += 1;
+        throw new Error('injected post-D1 candidate acceptance KV fault');
+      }
+      base.store.set(key, value);
+    },
+  };
+}
+
+async function founderOutcomeHarness(options: {
+  nodes?: Array<Record<string, unknown>>;
+  kv?: KvLike & { store: Map<string, string> };
+  userId?: string;
+  authAgeSeconds?: number;
+  tamper?: boolean;
+  commit?: 'committed' | 'unavailable';
+  pushToken?: string;
+} = {}) {
+  const signed = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: options.userId ?? TEST_FOUNDER_A,
+    authDate: NOW / 1000 - (options.authAgeSeconds ?? 10),
+    tamper: options.tamper,
+  });
+  let nodes = options.nodes ?? [fitcheckAnchor()];
+  let head = {
+    tenantId: 'cambium',
+    graphVersion: 7,
+    graphDigest: FOUNDER_OUTCOME_HEAD_DIGEST,
+    nodeIds: nodes.map((node) => String(node.nodeId)),
+    sourceRef: 'test:fitcheck-head',
+    sourceDigest: `sha256:${'2'.repeat(64)}`,
+    committedAt: FOUNDER_OUTCOME_NOW,
+  };
+  const commits: unknown[] = [];
+  let headReads = 0;
+  let nodeReads = 0;
+  const applyChangeSet = (changeSet: any, committedAt = FOUNDER_OUTCOME_NOW) => {
+    const byId = new Map(nodes.map((node) => [String(node.nodeId), node]));
+    for (const node of changeSet.nodesToRemove ?? []) byId.delete(String(node.nodeId));
+    for (const update of changeSet.nodesToUpdate ?? []) byId.set(String(update.nodeId), update.after);
+    for (const node of changeSet.nodesToCreate ?? []) byId.set(String(node.nodeId), node);
+    nodes = [...byId.values()];
+    head = makeGoalGraphHead(
+      'cambium',
+      nodes as any,
+      changeSet.graphVersion,
+      committedAt,
+      changeSet.sourceRef,
+      changeSet.sourceDigest,
+    );
+    return { ...head, nodeIds: [...head.nodeIds] };
+  };
+  const goalGraphStore = {
+    async readHead() { headReads += 1; return { ...head, nodeIds: [...head.nodeIds] }; },
+    async readNodes() { nodeReads += 1; return nodes.map((node) => ({ ...node, metadata: { ...(node.metadata as Record<string, unknown> ?? {}) } })) as any; },
+    async commit(input: any) {
+      commits.push(input);
+      if (options.commit === 'committed') {
+        return {
+          status: 'committed' as const,
+          replayed: false as const,
+          changeDigest: input.changeSet.changeDigest,
+          head: applyChangeSet(input.changeSet, input.now),
+        };
+      }
+      return { status: 'unavailable' as const, replayed: false as const, changeDigest: null, code: 'test_commit_forbidden' };
+    },
+  };
+  const kv = options.kv ?? fakeKv();
+  const deps = {
+    kv,
+    gate: gateCfg(signed.pubKeyHex),
+    goalGraphStore,
+    now: () => FOUNDER_OUTCOME_NOW,
+    ...(options.pushToken ? { pushToken: options.pushToken } : {}),
+  };
+  return {
+    deps,
+    kv,
+    initData: signed.initData,
+    commits,
+    initialHead: { ...head, nodeIds: [...head.nodeIds] },
+    initialNodes: nodes.map((node) => ({ ...node })),
+    currentGraph: () => ({
+      head: { ...head, nodeIds: [...head.nodeIds] },
+      nodes: nodes.map((node) => ({ ...node, metadata: { ...(node.metadata as Record<string, unknown> ?? {}) } })),
+    }),
+    applyChangeSet,
+    advanceHead() {
+      head = { ...head, graphVersion: head.graphVersion + 1, graphDigest: 'c'.repeat(64), committedAt: '2026-08-14T10:01:00.000Z' };
+    },
+    reads: () => ({ head: headReads, nodes: nodeReads }),
+  };
+}
+
+test('founder outcome creates one pending candidate with the existing Gate descriptor and zero D1 writes', async () => {
+  const harness = await founderOutcomeHarness();
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const response = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(response.status, 200);
+  const receipt = body(response);
+  assert.deepEqual(Object.keys(receipt).sort(), ['candidate', 'changeDigest', 'gateRoute', 'graphVersion', 'readbackRoute']);
+  assert.deepEqual(Object.keys(receipt.candidate).sort(), ['candidateId', 'status']);
+  assert.match(receipt.candidate.candidateId, /^founder_candidate_[a-f0-9]{32}$/);
+  assert.equal(receipt.candidate.status, 'review_pending');
+  assert.match(receipt.changeDigest, /^[a-f0-9]{64}$/);
+  assert.equal(receipt.graphVersion, 8);
+  assert.equal(receipt.gateRoute, '/api/gate/cambium');
+  assert.equal(receipt.readbackRoute, '/v1/branch-map/cambium');
+
+  const taskKeys = [...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:cambium:'));
+  const idemKeys = [...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:founder-outcome:v1:cambium:'));
+  assert.equal(taskKeys.length, 1);
+  assert.equal(idemKeys.length, 1);
+  const task = JSON.parse(harness.kv.store.get(taskKeys[0])!);
+  assert.equal(task.schema, 'cambium.goal-graph-intake-task.v1');
+  assert.equal(task.status, 'pending');
+  assert.equal(task.expectedHeadDigest, FOUNDER_OUTCOME_HEAD_DIGEST);
+  assert.equal(task.expectedHeadVersion, 7);
+  assert.equal(task.fence, 8);
+  assert.equal(task.approvalNonce, `goal-graph-approval:cambium:${task.changeDigest}`);
+  assert.equal(task.approvalExpiresAt, '2026-08-14T10:15:00.000Z');
+  assert.equal(task.candidate.schema, 'cambium.founder-evidence-candidate.v1');
+  assert.equal(task.candidate.candidateId, receipt.candidate.candidateId);
+  assert.equal(task.candidate.status, 'review_pending');
+  assert.equal(task.candidate.reviewStatus, 'review_pending');
+  assert.equal(task.candidate.missionId, 'fitcheck-shopify-qa');
+  assert.equal(task.candidate.questId, 'fitcheck-shopify-widget-qa');
+  assert.equal(task.candidate.outcome, 'passed');
+  assert.equal(task.candidate.screenshotRef, requestBody.screenshotRef);
+  assert.equal(task.candidate.widgetEventRef, requestBody.widgetEventRef);
+  assert.equal(task.candidate.note, requestBody.note);
+  assert.equal(task.node.parentNodeId, 'goal_fitcheck_anchor');
+  assert.equal(task.node.workObjectId, 'sapling:fitcheck');
+  assert.equal(task.node.workObjectKind, 'sapling');
+  assert.equal(task.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
+  assert.equal(task.node.namespace, 'fitcheck-founder-outcome');
+  assert.equal(task.node.scope, 'proof');
+  assert.equal(task.node.status, 'active');
+  assert.equal(task.node.proofRequired, false);
+  assert.equal(task.changeSet.nodesToCreate.length, 1);
+  assert.equal(task.changeSet.nodesToRemove.length, 0);
+  assert.equal(harness.commits.length, 0);
+  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 });
+  assert.deepEqual(harness.initialHead.nodeIds, ['goal_fitcheck_anchor']);
+
+  for (const secret of [
+    harness.initData,
+    String(requestBody.screenshotRef),
+    String(requestBody.widgetEventRef),
+    String(requestBody.note),
+    'goal_fitcheck_anchor',
+  ]) {
+    assert.doesNotMatch(response.body, new RegExp(secret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  const stored = [...harness.kv.store.values()].join('\n');
+  assert.doesNotMatch(stored, /query_id=|auth_date=|signature=|hash=deadbeef|initData/);
+});
+
+test('founder outcome rejects missing authentication before graph or KV access', async () => {
+  const harness = await founderOutcomeHarness();
+  const response = await postFounderOutcome(validFounderOutcomeBody(''), harness.deps);
+  assert.equal(response.status, 401);
+  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
+  assert.equal(harness.kv.store.size, 0);
+  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome rejects an invalid Telegram signature without durable writes', async () => {
+  const harness = await founderOutcomeHarness({ tamper: true });
+  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(response.status, 401);
+  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
+  assert.equal(harness.kv.store.size, 0);
+  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome rejects expired Telegram authentication without durable writes', async () => {
+  const harness = await founderOutcomeHarness({ authAgeSeconds: 4_000 });
+  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(response.status, 401);
+  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
+  assert.equal(harness.kv.store.size, 0);
+  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome rejects a valid non-founder identity without durable writes', async () => {
+  const harness = await founderOutcomeHarness({ userId: '555' });
+  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(response.status, 401);
+  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
+  assert.equal(harness.kv.store.size, 0);
+  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome rejects route tenant and pilot identity drift before durable writes', async () => {
+  const harness = await founderOutcomeHarness();
+  const routeDrift = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps, 'tenant-beta');
+  assert.equal(routeDrift.status, 403);
+  assert.equal(body(routeDrift).error, 'founder_outcome_pilot_identity_mismatch');
+
+  for (const overrides of [
+    { tenantId: 'tenant-beta' },
+    { workObjectId: 'sapling:other' },
+    { branchId: 'other' },
+    { missionId: 'other' },
+    { questId: 'other' },
+  ]) {
+    const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData, overrides), harness.deps);
+    assert.equal(response.status, 400);
+    assert.equal(body(response).error, 'founder_outcome_invalid');
+  }
+  assert.equal(harness.kv.store.size, 0);
+  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome refuses an absent Fitcheck anchor with zero writes', async () => {
+  const harness = await founderOutcomeHarness({
+    nodes: [fitcheckAnchor({ nodeId: 'goal_other_anchor', workObjectId: 'sapling:other', pinnedLoadoutId: null })],
+  });
+  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(response.status, 409);
+  assert.equal(body(response).error, 'fitcheck_goal_graph_anchor_conflict');
+  assert.equal(harness.kv.store.size, 0);
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome allows prior founder proof descendants beneath the single Fitcheck root', async () => {
+  const root = fitcheckAnchor();
+  const harness = await founderOutcomeHarness({
+    nodes: [
+      root,
+      fitcheckAnchor({
+        nodeId: 'goal_prior_founder_proof',
+        namespace: 'fitcheck-founder-outcome',
+        externalId: 'founder-outcome:fitcheck-shopify-widget-qa:prior-request',
+        parentNodeId: root.nodeId,
+        scope: 'proof',
+        desiredState: 'Record the prior founder-observed Fitcheck Shopify QA outcome.',
+        currentState: 'passed',
+        nextAction: 'Retain the approved proof.',
+        proofRequired: false,
+        sourceRef: 'founder-outcome:cambium:founder_candidate_prior',
+        sourceDigest: `sha256:${'3'.repeat(64)}`,
+        metadata: { candidateId: 'founder_candidate_prior', outcome: 'passed' },
+      }),
+    ],
+  });
+
+  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(response.status, 200);
+  const taskKey = [...harness.kv.store.keys()].find((key) => key.startsWith('goal-graph-intake-task:cambium:'));
+  assert.ok(taskKey);
+  const task = JSON.parse(harness.kv.store.get(taskKey)!);
+  assert.equal(task.node.parentNodeId, root.nodeId);
+  assert.equal(task.changeSet.nodesToCreate.length, 1);
+  assert.equal(task.changeSet.nodesToRemove.length, 0);
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome refuses duplicate Fitcheck roots with zero writes', async () => {
+  const root = fitcheckAnchor();
+  const harness = await founderOutcomeHarness({
+    nodes: [
+      root,
+      fitcheckAnchor({
+        nodeId: 'goal_fitcheck_anchor_duplicate',
+        externalId: 'fitcheck-launch-anchor-duplicate',
+        parentNodeId: null,
+      }),
+    ],
+  });
+  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(response.status, 409);
+  assert.equal(body(response).error, 'fitcheck_goal_graph_anchor_conflict');
+  assert.equal(harness.kv.store.size, 0);
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome exact replay returns the original bounded candidate receipt', async () => {
+  const harness = await founderOutcomeHarness();
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const first = await postFounderOutcome(requestBody, harness.deps);
+  const replay = await postFounderOutcome(JSON.parse(JSON.stringify(requestBody)), harness.deps);
+  assert.equal(first.status, 200);
+  assert.equal(replay.status, 200);
+  assert.deepEqual(body(replay), body(first));
+  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
+  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
+  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 }, 'exact replay reconciles before a second D1 read');
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome same clientRequestId with semantic drift conflicts and preserves the original', async () => {
+  const harness = await founderOutcomeHarness();
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const first = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(first.status, 200);
+  const drift = await postFounderOutcome(validFounderOutcomeBody(harness.initData, {
+    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/founder-proof-002',
+  }), harness.deps);
+  assert.equal(drift.status, 409);
+  assert.deepEqual(body(drift), { error: 'founder_outcome_idempotency_conflict' });
+  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
+  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
+  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 });
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome retry converges after the task KV write boundary fails', async () => {
+  const kv = faultInjectedFounderOutcomeKv('task');
+  const harness = await founderOutcomeHarness({ kv });
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const failed = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(failed.status, 503);
+  assert.deepEqual(body(failed), { error: 'founder_outcome_storage_unavailable' });
+  assert.equal(kv.store.size, 0);
+
+  const retry = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(retry.status, 200);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
+  assert.deepEqual(kv.successfulPuts, { task: 1, idempotency: 1 });
+  assert.deepEqual(harness.reads(), { head: 2, nodes: 2 });
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome retry reconciles a task-only partial KV write without duplicating candidate or task', async () => {
+  const kv = faultInjectedFounderOutcomeKv('idempotency');
+  const harness = await founderOutcomeHarness({ kv });
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const failed = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(failed.status, 503);
+  assert.deepEqual(body(failed), { error: 'founder_outcome_storage_unavailable' });
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 0);
+
+  const retry = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(retry.status, 200);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
+  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
+  assert.deepEqual(kv.successfulPuts, { task: 1, idempotency: 1 });
+  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 }, 'partial write replay repairs before another D1 read');
+  assert.equal(harness.commits.length, 0);
+});
+
+function founderOutcomePrincipal(role: 'founder' | 'team' | 'consultant', overrides: Record<string, unknown> = {}) {
+  return {
+    id: `${role}-reader`,
+    tenant: 'cambium',
+    role,
+    allow: role === 'consultant' ? ['inspect'] : [],
+    createdBy: 'handler-test',
+    ...overrides,
+  };
+}
+
+async function founderOutcomeQuestEnvelope(
+  harness: Awaited<ReturnType<typeof founderOutcomeHarness>>,
+  principal?: Record<string, unknown>,
+  options: { authenticateFounder?: boolean; principalTransport?: 'header' | 'query' } = {},
+) {
+  harness.kv.store.set('ledger:cambium', ENVELOPE);
+  const authenticateFounder = options.authenticateFounder ?? principal?.role === 'founder';
+  const principalJson = principal ? JSON.stringify(principal) : '';
+  const path = principal && options.principalTransport === 'query'
+    ? `/api/quests/cambium?principal=${encodeURIComponent(principalJson)}`
+    : '/api/quests/cambium';
+  const response = await handle(req('GET', path, {
+    headers: {
+      ...(principal && options.principalTransport !== 'query' ? { 'x-principal': principalJson } : {}),
+      ...(authenticateFounder ? { 'x-telegram-init-data': harness.initData } : {}),
+    },
+  }), harness.deps);
+  assert.equal(response.status, 200);
+  return body(response);
+}
+
+test('founder outcome Gate row renders only the persisted Fitcheck candidate descriptor', async () => {
+  const harness = await founderOutcomeHarness({ pushToken: 'push-token' });
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const intake = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(intake.status, 200);
+  const candidate = body(intake).candidate;
+  const changeDigest = body(intake).changeDigest;
+
+  const listed = await handle(req('GET', '/internal/gate/cambium', {
+    headers: { authorization: 'Bearer push-token' },
+  }), harness.deps);
+  assert.equal(listed.status, 200);
+  const rows = body(listed).actions.filter((row: { kind: string }) => row.kind === 'goal-graph-intake');
+  assert.equal(rows.length, 1);
+  const row = rows[0];
+  assert.equal(row.candidateId, candidate.candidateId);
+  assert.equal(row.questId, 'fitcheck-shopify-widget-qa');
+  assert.equal(row.outcome, 'passed');
+  assert.match(row.evidence, /screenshot .* widget event/);
+  assert.match(row.evidence, new RegExp(String(requestBody.screenshotRef).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(row.evidence, new RegExp(String(requestBody.widgetEventRef).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.equal(row.consequence.includes('Hermes execution'), true);
+  assert.equal(row.source, 'fitcheck-founder-outcome@v1');
+
+  const task = JSON.parse(harness.kv.store.get(`goal-graph-intake-task:cambium:${changeDigest}`)!);
+  assert.equal(row.approvalNonce, task.approvalNonce);
+  assert.equal(row.approvalExpiresAt, task.approvalExpiresAt);
+  assert.equal(row.expectedHeadVersion, task.expectedHeadVersion);
+  assert.equal(row.fence, task.fence);
+});
+
+test('founder outcome unsigned and stale approvals leave the D1 head and nodes unchanged', async () => {
+  const harness = await founderOutcomeHarness({ commit: 'committed' });
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const beforeUnsigned = harness.currentGraph();
+  const unsigned = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(intake).changeDigest }),
+  }), harness.deps);
+  assert.equal(unsigned.status, 401);
+  assert.deepEqual(harness.currentGraph(), beforeUnsigned);
+  assert.equal(harness.commits.length, 0);
+
+  harness.advanceHead();
+  const beforeStale = harness.currentGraph();
+  const stale = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(intake).changeDigest, initData: harness.initData }),
+  }), harness.deps);
+  assert.equal(stale.status, 409);
+  assert.equal(body(stale).error, 'goal_graph_stale_head');
+  assert.deepEqual(harness.currentGraph(), beforeStale);
+  assert.equal(harness.commits.length, 0);
+});
+
+test('founder outcome approval accepts the stored candidate and returns exact commit readback evidence', async () => {
+  const harness = await founderOutcomeHarness({ commit: 'committed' });
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const intake = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(intake.status, 200);
+  const receipt = body(intake);
+
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'approve-goal-graph',
+      subject: receipt.changeDigest,
+      initData: harness.initData,
+      candidateId: 'founder_candidate_attacker_controlled',
+      outcome: 'blocked',
+      evidence: 'attacker controlled evidence',
+      consequence: 'attacker controlled consequence',
+      parentNodeId: 'goal_attacker_controlled',
+    }),
+  }), harness.deps);
+  assert.equal(approved.status, 200);
+  const decision = body(approved);
+  assert.equal(decision.committed, true);
+  assert.equal(decision.candidateId, receipt.candidate.candidateId);
+  assert.equal(decision.questId, 'fitcheck-shopify-widget-qa');
+  assert.match(decision.headDigest, /^[a-f0-9]{64}$/);
+  assert.equal(decision.graphVersion, 8);
+  assert.match(decision.approvalDigest, /^[a-f0-9]{64}$/);
+  assert.deepEqual(decision.readbackRoutes, {
+    goalGraph: '/v1/branch-map/cambium',
+    quests: '/api/quests/cambium',
+  });
+
+  const task = JSON.parse(harness.kv.store.get(`goal-graph-intake-task:cambium:${receipt.changeDigest}`)!);
+  assert.equal(task.status, 'committed');
+  assert.equal(task.candidate.status, 'accepted');
+  assert.equal(task.candidate.reviewStatus, 'accepted');
+  assert.equal(task.candidate.candidateId, receipt.candidate.candidateId);
+  assert.equal(task.candidate.outcome, 'passed');
+  assert.equal(task.candidate.screenshotRef, requestBody.screenshotRef);
+  assert.equal(task.candidate.widgetEventRef, requestBody.widgetEventRef);
+
+  const graph = harness.currentGraph();
+  const node = graph.nodes.find((candidate) => candidate.nodeId === task.nodeId)!;
+  assert.equal(node.parentNodeId, 'goal_fitcheck_anchor');
+  assert.equal(node.currentState, 'passed');
+  assert.equal(node.metadata.candidateId, receipt.candidate.candidateId);
+  assert.equal(node.metadata.outcome, 'passed');
+
+  const envelope = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
+  assert.equal(envelope.goalGraphOutcomes.schema, 'cambium.goal-graph-outcomes.v1');
+  assert.equal(envelope.goalGraphOutcomes.headDigest, decision.headDigest);
+  assert.equal(envelope.goalGraphOutcomes.graphVersion, decision.graphVersion);
+  assert.equal(envelope.goalGraphOutcomes.count, 1);
+  assert.equal(envelope.goalGraphOutcomes.rows[0].questId, 'fitcheck-shopify-widget-qa');
+  assert.equal(envelope.goalGraphOutcomes.rows[0].candidateId, receipt.candidate.candidateId);
+  assert.equal(envelope.goalGraphOutcomes.rows[0].outcome, 'passed');
+  assert.equal(envelope.goalGraphOutcomes.rows[0].headDigest, decision.headDigest);
+  assert.equal(envelope.goalGraphOutcomes.rows[0].graphVersion, decision.graphVersion);
+});
+
+test('founder outcome D1-success KV-failure replay reconciles original evidence without a second commit', async () => {
+  const kv = faultInjectedFounderApprovalKv();
+  const harness = await founderOutcomeHarness({ kv, commit: 'committed' });
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const receipt = body(intake);
+
+  const firstApproval = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
+  }), harness.deps);
+  assert.equal(firstApproval.status, 503);
+  assert.equal(body(firstApproval).error, 'goal_graph_commit_reconciliation_required');
+  assert.equal(kv.committedTaskWriteFaults, 1);
+  assert.equal(harness.commits.length, 1, 'D1 CAS succeeds exactly once before the KV fault');
+  const committedGraph = harness.currentGraph();
+  assert.equal(committedGraph.head.graphVersion, 8);
+
+  const stalePending = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${receipt.changeDigest}`)!);
+  assert.equal(stalePending.status, 'pending');
+  assert.equal(stalePending.candidate.status, 'review_pending');
+  assert.match(stalePending.approvalAttempt.approvalDigest, /^[a-f0-9]{64}$/);
+
+  const beforeReplayEnvelope = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
+  assert.equal(beforeReplayEnvelope.goalGraphOutcomes.rows[0].candidateId, receipt.candidate.candidateId);
+  assert.equal(beforeReplayEnvelope.goalGraphIntake, undefined, 'committed D1 outcome outranks stale pending KV');
+
+  harness.advanceHead();
+  const laterGraph = harness.currentGraph();
+  assert.equal(laterGraph.head.graphVersion, 9, 'an unrelated D1 commit advances the shared head before replay');
+
+  const replay = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
+  }), harness.deps);
+  assert.equal(replay.status, 200);
+  const replayEvidence = body(replay);
+  assert.equal(replayEvidence.duplicate, true);
+  assert.equal(replayEvidence.replayed, true);
+  assert.equal(replayEvidence.headDigest, committedGraph.head.graphDigest);
+  assert.equal(replayEvidence.graphVersion, committedGraph.head.graphVersion);
+  assert.equal(replayEvidence.approvalDigest, stalePending.approvalAttempt.approvalDigest);
+  assert.equal(replayEvidence.candidateId, receipt.candidate.candidateId);
+  assert.equal(replayEvidence.questId, 'fitcheck-shopify-widget-qa');
+  assert.equal(harness.commits.length, 1, 'approval replay performs zero second D1 commit calls');
+  assert.deepEqual(harness.currentGraph(), laterGraph, 'reconciliation leaves the later D1 head untouched');
+
+  const reconciled = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${receipt.changeDigest}`)!);
+  assert.equal(reconciled.status, 'committed');
+  assert.equal(reconciled.candidate.status, 'accepted');
+});
+
+test('forged x-principal founder cannot reveal pending founder outcome existence or counts', async () => {
+  const harness = await founderOutcomeHarness();
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const candidateId = body(intake).candidate.candidateId;
+
+  const envelope = await founderOutcomeQuestEnvelope(
+    harness,
+    founderOutcomePrincipal('founder'),
+    { authenticateFounder: false },
+  );
+  assert.equal(envelope.goalGraphIntake, undefined);
+  assert.equal(envelope.goalGraphOutcomes, undefined);
+  assert.equal(envelope.founderOutcomeRecovery, undefined);
+  assert.doesNotMatch(JSON.stringify(envelope), new RegExp(candidateId));
+  assert.doesNotMatch(JSON.stringify(envelope), /founder-evidence-candidate|review_pending/);
+});
+
+test('forged principal query founder cannot reveal committed founder outcomes', async () => {
+  const harness = await founderOutcomeHarness({ commit: 'committed' });
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const receipt = body(intake);
+  const approved = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
+  }), harness.deps);
+  assert.equal(approved.status, 200);
+
+  const envelope = await founderOutcomeQuestEnvelope(
+    harness,
+    founderOutcomePrincipal('founder'),
+    { authenticateFounder: false, principalTransport: 'query' },
+  );
+  assert.equal(envelope.goalGraphIntake, undefined);
+  assert.equal(envelope.goalGraphOutcomes, undefined);
+  assert.equal(envelope.founderOutcomeRecovery, undefined);
+  assert.doesNotMatch(JSON.stringify(envelope), new RegExp(receipt.candidate.candidateId));
+  assert.doesNotMatch(JSON.stringify(envelope), /fitcheck-shopify-widget-qa|cambium.goal-graph-outcomes.v1/);
+});
+
+test('Goal Graph readback hides pending candidate existence from every non-founder projection', async () => {
+  const harness = await founderOutcomeHarness();
+  const requestBody = validFounderOutcomeBody(harness.initData);
+  const intake = await postFounderOutcome(requestBody, harness.deps);
+  assert.equal(intake.status, 200);
+  const candidateId = body(intake).candidate.candidateId;
+
+  const founder = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
+  assert.equal(founder.goalGraphIntake.count, 1);
+  assert.equal(founder.goalGraphIntake.rows[0].candidateId, candidateId);
+
+  const projections = [
+    await founderOutcomeQuestEnvelope(harness),
+    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('team')),
+    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('consultant')),
+    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder', { expiresAt: '2020-01-01T00:00:00.000Z' })),
+  ];
+  for (const envelope of projections) {
+    assert.equal(envelope.goalGraphIntake, undefined);
+    assert.equal(envelope.goalGraphOutcomes, undefined);
+    assert.equal(envelope.founderOutcomeRecovery, undefined);
+    const serialized = JSON.stringify(envelope);
+    assert.doesNotMatch(serialized, new RegExp(candidateId));
+    assert.doesNotMatch(serialized, /founder-evidence-candidate|review_pending/);
+    assert.doesNotMatch(serialized, /screenshots\/founder-proof-001|fitcheck-widget-event-001/);
+  }
+});
+
+test('Goal Graph readback removes expired candidates from actionable Gate but preserves founder recovery context', async () => {
+  const harness = await founderOutcomeHarness({ pushToken: 'push-token' });
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const receipt = body(intake);
+  const taskKey = `goal-graph-intake-task:cambium:${receipt.changeDigest}`;
+  const task = JSON.parse(harness.kv.store.get(taskKey)!);
+  harness.kv.store.set(taskKey, JSON.stringify({ ...task, approvalExpiresAt: '2026-08-14T09:59:59.000Z' }));
+
+  const gate = await handle(req('GET', '/internal/gate/cambium', {
+    headers: { authorization: 'Bearer push-token' },
+  }), harness.deps);
+  assert.equal(gate.status, 200);
+  assert.equal(body(gate).actions.filter((row: { candidateId?: string }) => row.candidateId === receipt.candidate.candidateId).length, 0);
+
+  const founder = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
+  assert.equal(founder.goalGraphIntake, undefined);
+  assert.equal(founder.founderOutcomeRecovery.schema, 'cambium.founder-outcome-recovery-list.v1');
+  assert.equal(founder.founderOutcomeRecovery.count, 1);
+  assert.deepEqual(founder.founderOutcomeRecovery.rows[0], {
+    candidateId: receipt.candidate.candidateId,
+    questId: 'fitcheck-shopify-widget-qa',
+    status: 'expired',
+    expiredAt: '2026-08-14T09:59:59.000Z',
+    recovery: 'refresh-and-resubmit',
+  });
+
+  const publicEnvelope = await founderOutcomeQuestEnvelope(harness);
+  assert.equal(publicEnvelope.founderOutcomeRecovery, undefined);
+  assert.doesNotMatch(JSON.stringify(publicEnvelope), new RegExp(receipt.candidate.candidateId));
 });

@@ -26,6 +26,7 @@
     "audit:text-density": "node scripts/text-density-audit.mjs",
     "retired-runtime:check": "node scripts/retired-runtime-surfaces.mjs",
     "verify:release": "node scripts/verify-release.mjs",
+    "verify:production-candidate": "node scripts/verify-production-candidate.mjs",
     "standalone:audit": "node scripts/standalone-audit.mjs",
     "standalone:smoke": "node scripts/standalone-smoke.mjs",
     "proof:tg-viewport": "node workers/quests/src/visual-viewport-proof.mjs",

@@ -7,11 +7,11 @@
     "thoughtseed"
   ],
   "reviewedSnapshots": {
-    "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
-    "classificationSourceDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
-    "portfolioCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
-    "actionSourceDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
-    "actionCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "rootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351",
+    "classificationSourceDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "portfolioCatalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+    "actionSourceDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "actionCatalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
     "pinAuthority": "scripts/portfolio-foundation-pins.mjs",
     "exactMatchRequiredForExecution": true
   },
@@ -89,9 +89,23 @@
     ".project/project-index-proposal.v1.json"
   ],
   "workflowMaterialization": {
-    "registryInputRequired": true,
+    "canonicalRegistry": "project-intake-workflows.v1.json",
+    "canonicalRegistryUsedByDefault": true,
+    "explicitRegistryMustBeAbsoluteRegularFile": true,
+    "workflowKindMustMatchOriginDerivedKind": true,
+    "defaultWorkflowByKind": {
+      "sapling": "sapling-product",
+      "client-branch": "client-delivery",
+      "internal-program": "internal-capability"
+    },
     "workflowDocument": ".project/WORKFLOW.md",
     "stageDirectories": "one safe project-local directory per selected registry stage",
+    "receiptFields": [
+      "workflowId",
+      "workflowDigest",
+      "workflowRegistryDigest",
+      "workflowStages"
+    ],
     "machineLocalRegistryPathCommitted": false
   },
   "indexLink": {

@@ -1,0 +1,128 @@
+{
+  "schema": "cambium.fitcheck-founder-evidence-pilot-receipt.v1",
+  "recordedAt": "2026-08-14T18:40:18Z",
+  "authority": {
+    "operation": "local candidate implementation and deterministic proof",
+    "workerUploadAuthorized": false,
+    "productionPromotionAuthorized": false,
+    "liveFounderSubmissionAuthorized": false
+  },
+  "source": {
+    "branch": "codex/fitcheck-founder-outcome-pilot",
+    "evidenceCheckpoint": "20a816d17cf961d62fb50e1535c97ab984e8d4c3",
+    "candidateCodeHead": "6bfb4316bf88ce5206fc393f91f465a72d8edc6d",
+    "commitCountAboveCheckpoint": 13,
+    "founderOutcomeContractSha256": "5688b082f40f19ef7a636ece9f45744dd1356f8eeb08b2d926bcfb3d317b3ecf",
+    "handlerSha256": "849378d10bc1067805e55bbcb7ad5b4fb6a6aafb8121055f2521090665c083d7",
+    "questRefreshClientSha256": "9e6b9a5259fb6bf1af19bb786c41a0300476ee619a92ecdd94965f42488d82b6",
+    "founderSheetSha256": "ca007b416950895f454d9d3947eaf78f6e3cee166857597e708673f983338c95",
+    "signedActionClientSha256": "1bb45b32dc7bc68ccde7e097b90ea6fb3ce048a25e1799cf809ec8f9c97ef1ff",
+    "viewportManifestSha256": "88d62d998ed153532db3832ba6953f289dfd26c01d540d657719acd10484c08d"
+  },
+  "pilot": {
+    "tenant": "cambium",
+    "workObjectId": "sapling:fitcheck",
+    "branchId": "fitcheck",
+    "missionId": "fitcheck-shopify-qa",
+    "questId": "fitcheck-shopify-widget-qa",
+    "loadoutId": "loadout:fitcheck-launch",
+    "requiredReferenceKinds": [
+      "screenshot-receipt",
+      "widget-event-receipt"
+    ],
+    "pendingStore": "existing Goal Graph intake KV task",
+    "commitAuthority": "existing signed Gate approval and D1 CAS",
+    "executionAuthority": "Hermes, unchanged"
+  },
+  "verification": {
+    "pureContractTests": {
+      "passed": 15,
+      "failed": 0
+    },
+    "focusedFounderReadbackAndUiTests": {
+      "passed": 25,
+      "failed": 0
+    },
+    "handlerTests": {
+      "passed": 360,
+      "failed": 0
+    },
+    "repositoryTests": {
+      "passed": 1723,
+      "failed": 0
+    },
+    "missionFabricChecks": {
+      "passed": 37,
+      "failed": 0
+    },
+    "r3fTests": {
+      "passed": 99,
+      "failed": 0,
+      "buildPassed": true
+    },
+    "desktopPackagingTests": {
+      "passed": 5,
+      "failed": 0
+    },
+    "localChromiumQa": {
+      "sealedHead": "87c62d95cf599f11d246e6060dec53ff4a6b226a",
+      "assertionsPassed": 23,
+      "unexpectedPageErrors": 0,
+      "unexpectedNetworkErrors": 0,
+      "authenticatedQuestRefreshes": 6,
+      "verdict": "PASS"
+    },
+    "canonicalViewportProofPassed": true,
+    "telegramMobileContractPassed": true,
+    "standaloneSmokePassed": true,
+    "deterministicReleaseVerificationPassed": true,
+    "diffCheckPassed": true
+  },
+  "review": {
+    "taskReviews": "passed after bounded fix loops",
+    "wholeBranchReview": {
+      "initialVerdict": "BLOCK",
+      "initialP1Findings": [
+        "quest and Gate refresh omitted runtime Telegram founder authentication",
+        "HTTPS evidence references admitted arbitrary identifying and signed query data"
+      ],
+      "fixCommit": "32fca6008638a7b6e50d84596095c47e69677e26",
+      "fixVerification": "focused RED reproduced both findings; GREEN and full repository tests passed",
+      "finalReReview": "PASS at sealed head 87c62d95cf599f11d246e6060dec53ff4a6b226a; both prior P1s addressed; no P0-P3 findings"
+    },
+    "remainingFinding": {
+      "severity": "minor",
+      "scope": "malformed debug principal can suppress founder-only projection for that request",
+      "impact": "denial of view only; no candidate or outcome disclosure"
+    }
+  },
+  "externalState": {
+    "workerVersionCreated": false,
+    "workerDeploymentChanged": false,
+    "productionTrafficChanged": false,
+    "bindingsChanged": false,
+    "d1Mutated": false,
+    "kvMutated": false,
+    "r2Mutated": false,
+    "vaultMutated": false,
+    "telegramAction": false,
+    "hermesExecution": false,
+    "missionFabricActivation": false,
+    "providerMutation": false,
+    "githubMutation": false,
+    "primaryCheckoutMutation": false
+  },
+  "liveProof": {
+    "founderSubmissionCompleted": false,
+    "gateApprovalCompleted": false,
+    "goalGraphProductionReadbackCompleted": false,
+    "reason": "candidate is not deployed; live production operations remain separately gated"
+  },
+  "heldOperations": [
+    "fresh production control-plane readback",
+    "independent exact-candidate upload review",
+    "rollback-gated Worker upload and promotion",
+    "one real founder evidence submission",
+    "one exact Gate approval and production Goal Graph readback"
+  ]
+}

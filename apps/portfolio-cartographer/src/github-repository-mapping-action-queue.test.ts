@@ -296,7 +296,11 @@ test('Batch 3 Sapling provenance is referentially exact and collision-free', () 
   assert.equal(batch3.founderHolds?.length, 0);
   assert.equal(batch3.directSaplingMappings?.length, batch3.summary.directSaplingMappings);
   assert.equal(batch3.resolvedProvenanceSplits?.length, batch3.summary.resolvedProvenanceSplits);
-  assert.equal(bindings.length, 39);
+  assert.equal(bindings.length, 40);
+  assert.deepEqual(
+    bindings.find(({ workId }) => workId === 'sapling:fitcheck'),
+    { workId: 'sapling:fitcheck', repository: 'Sheshiyer/fitcheck-landing' },
+  );
   assert.equal(new Set(bindings.map(({ repository }) => repository.toLowerCase())).size, bindings.length);
   for (const binding of bindings) {
     assert.equal(workIds.has(binding.workId), true, `${binding.workId} must exist in the catalog`);
@@ -305,10 +309,11 @@ test('Batch 3 Sapling provenance is referentially exact and collision-free', () 
 
   const thoughtseed = PORTFOLIO_ROOTS.find(({ portfolioId }) => portfolioId === 'thoughtseed')!;
   const roots = new Map(thoughtseed.folders.map((folder) => [folder.folder, folder]));
-  assert.equal(roots.get('klear-karma')?.proposedKind, 'sapling');
+  assert.equal(roots.get('klear-karma')?.proposedKind, 'client-branch');
+  assert.deepEqual(roots.get('klear-karma')?.workIds, ['branch:klear-karma']);
   assert.deepEqual(roots.get('kristudios')?.workIds, ['branch:kristudios']);
-  assert.deepEqual(roots.get('parkarea')?.workIds, ['branch:parkarea', 'sapling:parkarea']);
-  assert.deepEqual(roots.get('tirak')?.workIds, ['branch:tirak', 'sapling:tirak']);
+  assert.deepEqual(roots.get('parkarea')?.workIds, ['branch:parkarea']);
+  assert.deepEqual(roots.get('tirak')?.workIds, ['branch:tirak']);
 });
 
 test('Batch 6 covers every unresolved catalog repository without inference', () => {

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react'
+import { operationalPacketProjectionFor } from '../../../shared/operational-packet-registry.ts'
+import type { OperationalPacketProjection } from '../../../shared/operational-packet-projection.ts'
 import {
   AlertTriangle,
   Archive,
@@ -100,12 +102,17 @@ import {
   emptyPlanningHistory,
   recordBulkUndo,
 } from './planning-history.ts'
+import {
+  PORTFOLIO_LINKAGE_SUMMARY,
+  portfolioLinkageFor,
+} from './linkage.ts'
+import { drawerTabsClassName } from './drawer-tabs.ts'
 
 const STORAGE_KEY = 'thoughtseed.portfolio-workbench.v4'
 const V3_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v3'
 const V2_STORAGE_KEY = 'thoughtseed.portfolio-workbench.v2'
 const LEGACY_STORAGE_KEY = 'thoughtseed.portfolio-cartographer.v1'
-type DrawerTab = 'intake' | 'plan' | 'delivery' | 'closeout'
+type DrawerTab = 'operate' | 'linkage' | 'intake' | 'plan' | 'delivery' | 'closeout'
 type ViewMode = 'family' | 'grid' | 'board'
 const PORTFOLIO_ACTION_ENDPOINT = '/v1/admin/portfolio/actions'
 type AdminActionState =
@@ -136,6 +143,13 @@ function derivedProjectKind(origin: ProjectCreationOrigin): ProjectCreationKind 
   if (origin === 'thoughtseed-internal') return 'internal-program'
   if (origin === 'client') return 'client-branch'
   return 'needs-review'
+}
+
+function workflowTemplateFor(kind: ProjectCreationKind): string {
+  if (kind === 'sapling') return 'sapling-product'
+  if (kind === 'client-branch') return 'client-delivery'
+  if (kind === 'internal-program') return 'internal-capability'
+  return 'select origin evidence'
 }
 interface RepositoryEvidence {
   sourceRef: string
@@ -621,6 +635,8 @@ function ProjectCreationDrawer({
           <div className="project-evidence-list">
             <span><b>Request source</b><code>local-founder · locked</code></span>
             <span><b>Derived kind</b><code>{derivedKind}</code></span>
+            <span><b>Workflow template</b><code>{workflowTemplateFor(derivedKind)}</code></span>
+            <span><b>Systems model</b><code>one WorkObject · typed repositories + infrastructure</code></span>
             <span><b>Destination</b><code>thoughtseed/{draft.slug || '&lt;repository&gt;'}</code></span>
             <span><b>After creation</b><code>pending-cambium-ingestion</code></span>
           </div>
@@ -724,6 +740,250 @@ function HistoricalQueue() {
   )
 }
 
+function OperationalPacketOperate({ projection }: { projection: OperationalPacketProjection }) {
+  const operational = projection
+  return (
+    <section className="drawer-section fitcheck-operate" data-operational-packet={operational.schema} data-work-object-id={operational.identity.workId}>
+      <div className="fitcheck-hero">
+        <div>
+          <span>Operational packet · supervised plan</span>
+          <h3>{operational.story.arcTitle}</h3>
+          <p>{operational.story.currentFrontier}</p>
+        </div>
+        <strong>{operational.identity.autonomyLabel}</strong>
+      </div>
+
+      <div className="fitcheck-authority" data-operational-authority="packet-plan">
+        <ShieldCheck aria-hidden="true" />
+        <div>
+          <strong>Authority is visible at every step</strong>
+          <p>Identity, systems topology, mapping readback, planning, and D1 proposal eligibility are evidenced. D1 admission, execution, and learning remain held until their exact authorities exist.</p>
+        </div>
+      </div>
+
+      <div className="operational-mapping-gate" data-mapping-authority-state={operational.mappingAuthority.state}>
+        <ShieldCheck aria-hidden="true" />
+        <div>
+          <span>Mapping gate</span>
+          <strong>{label(operational.mappingAuthority.state)}</strong>
+          <p>{operational.mappingAuthority.issueAuthority}</p>
+          {operational.mappingAuthority.preparedReceiptId && <code>{operational.mappingAuthority.preparedReceiptId}</code>}
+        </div>
+        <b>{operational.mappingAuthority.readbackVerified ? 'readback verified' : 'D1 held'}</b>
+      </div>
+
+      <ol className="fitcheck-ladder" aria-label={`${operational.identity.name} intake and execution ladder`}>
+        {operational.lifecycleLadder.map((stage, index) => (
+          <li className={stage.current ? 'is-current' : 'is-held'} key={stage.stage}>
+            <i>{index + 1}</i>
+            <div><strong>{stage.stage}</strong><small>{stage.authority}</small></div>
+            <span>{stage.current ? 'evidenced' : 'held'}</span>
+          </li>
+        ))}
+      </ol>
+
+      <div className="fitcheck-section-head">
+        <div><span>System topology</span><h3>One identity · multiple governed systems</h3></div>
+        <small>ownership remains explicit</small>
+      </div>
+      <div className="operational-system-grid">
+        {operational.repositoryComponents.map((component) => (
+          <article key={component.componentId} data-component-id={component.componentId}>
+            <header><strong>{component.nameWithOwner}</strong><span>{component.roles.join(' · ')}</span></header>
+            <code>{component.immutableRepositoryId ?? 'repository ID held'}</code>
+            <dl>
+              <div><dt>Owner</dt><dd>{component.ownerWorkObjectId}</dd></div>
+              <div><dt>Authority</dt><dd>{component.planningAuthority ? 'planning authority' : 'dependent component'}</dd></div>
+              <div><dt>Access</dt><dd>{component.accessState}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+      <div className="operational-dependency-list">
+        {operational.workObjectDependencies.map((dependency) => (
+          <article key={dependency.dependencyId}>
+            <Network aria-hidden="true" />
+            <div><strong>{operational.identity.workId} → {dependency.workObjectId}</strong><span>{dependency.kind} · {dependency.required ? 'required' : 'optional'}</span><p>{dependency.purpose}</p></div>
+          </article>
+        ))}
+      </div>
+      <details className="fitcheck-disclosure" open>
+        <summary><span>Infrastructure and services</span><strong>{operational.infrastructureDependencies.length} typed dependencies</strong></summary>
+        <div className="operational-infrastructure-grid">
+          {operational.infrastructureDependencies.map((dependency) => (
+            <article key={dependency.dependencyId}>
+              <header><strong>{dependency.name}</strong><span>{dependency.accessState}</span></header>
+              <code>{dependency.kind}{dependency.ownerWorkObjectId ? ` · ${dependency.ownerWorkObjectId}` : ''}</code>
+              <p>{dependency.purpose}</p>
+              <small>{dependency.componentIds.length > 0 ? dependency.componentIds.join(' · ') : 'portfolio evidence rail'}</small>
+            </article>
+          ))}
+        </div>
+      </details>
+
+      <div className="fitcheck-story-grid">
+        <article><span>Vision</span><p>{operational.story.vision}</p></article>
+        <article><span>ICP</span><p>{operational.story.icp}</p></article>
+      </div>
+
+      <div className="fitcheck-section-head">
+        <div><span>Mission controls</span><h3>Three bounded next moves</h3></div>
+        <small>packet plan · not D1 tasks</small>
+      </div>
+      <div className="fitcheck-missions">
+        {operational.missions.map((mission) => (
+          <article key={mission.missionId}>
+            <header><span>{mission.type}</span><code>{mission.missionId}</code></header>
+            <h4>{mission.title}</h4>
+            <dl>
+              <div><dt>Gate</dt><dd>{mission.gate}</dd></div>
+              <div><dt>Owner</dt><dd>{mission.owner}</dd></div>
+              <div><dt>Dispatch</dt><dd>{mission.dispatchTarget}</dd></div>
+              <div><dt>Proof</dt><dd>{mission.proofRequired}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+
+      <div className="fitcheck-section-head">
+        <div><span>Viability</span><h3>Survival before scale</h3></div>
+        <small>packet KPI controls</small>
+      </div>
+      <div className="fitcheck-kpis">
+        {operational.kpis.map((kpi) => (
+          <article key={kpi.kpiId}>
+            <header><strong>{kpi.label}</strong><span>{kpi.currentState}</span></header>
+            <p><b>Survive</b>{kpi.survival}</p>
+            <p><b>Advance</b>{kpi.betterThanSurvival}</p>
+          </article>
+        ))}
+      </div>
+
+      <details className="fitcheck-disclosure" open>
+        <summary><span>Organ route</span><strong>{operational.organs.length} organs · {operational.supportRails.length} support rails</strong></summary>
+        <div className="fitcheck-route">
+          {operational.organs.map((organ) => (
+            <article key={organ.name}><b>{organ.name}</b><span>{organ.state}</span><p>{organ.role}</p><small>{organ.owner}</small></article>
+          ))}
+          {operational.supportRails.map((rail) => (
+            <article className="is-support" key={rail.name}><b>{rail.name}</b><span>{rail.state}</span><p>{rail.role}</p><small>support rail · not an organ</small></article>
+          ))}
+        </div>
+      </details>
+
+      <details className="fitcheck-disclosure">
+        <summary><span>Gate ledger</span><strong>{operational.gates.filter((gate) => gate.status === 'blocked').length} blocked</strong></summary>
+        <div className="fitcheck-gates">
+          {operational.gates.map((gate) => (
+            <article key={gate.gate}><header><strong>{gate.gate}</strong><span>{gate.status}</span></header><p>{gate.requiredProof}</p></article>
+          ))}
+        </div>
+      </details>
+
+      <details className="fitcheck-disclosure">
+        <summary><span>Proof foldback</span><strong>future evidence</strong></summary>
+        <div className="fitcheck-proofs">
+          {operational.proofs.map((proof) => (
+            <article key={proof.proofId}>
+              <code>{proof.proofId}</code>
+              <p><b>Validates</b>{proof.validates}</p>
+              <p><b>May unlock</b>{proof.promotes}</p>
+              <small>{proof.sourcePath}</small>
+            </article>
+          ))}
+        </div>
+      </details>
+
+      <div className="fitcheck-loop-card">
+        <header><span>One-change loop · {operational.loop.boundaryColor}</span><strong>{operational.loop.title}</strong></header>
+        <p>{operational.loop.objective}</p>
+        <ol>{operational.feedbackLoop.map((step) => <li key={step}>{step}</li>)}</ol>
+        <small>{operational.loop.oneChangeRule}</small>
+      </div>
+
+      <div className="mapping-warning fitcheck-claim-boundary" role="note">
+        <AlertTriangle aria-hidden="true" />
+        <p>{operational.story.antiClaims} Packet missions are not admitted Goal Graph tasks, and a planned Hermes route is not a dispatch receipt.</p>
+      </div>
+    </section>
+  )
+}
+
+function PortfolioLinkageView({ work, plan }: { work: WorkObject; plan: WorkPlan }) {
+  const linkage = portfolioLinkageFor(work.workId)
+  const pipeline = resolvePipeline(work, plan)
+  const storyBacked = linkage.storyArc.state === 'packet-backed'
+  const missionGap = linkage.missionData.state === 'mission-data-needed'
+  const organAssigned = linkage.organs.state === 'receipt-backed'
+
+  return (
+    <section className="drawer-section linkage-section" data-linkage-work-object={work.workId}>
+      <div className="linkage-authority">
+        <Network aria-hidden="true" />
+        <div>
+          <strong>Portfolio → TG Mini App linkage</strong>
+          <p>Read-only projection. Catalog visibility, Story packets, and planned delivery do not grant D1 Goal Graph admission.</p>
+        </div>
+      </div>
+
+      <ol className="linkage-chain" aria-label={`${work.name} operating linkage chain`}>
+        <li className="is-present"><span>1</span><div><b>Catalog</b><small>visible</small></div></li>
+        <li className={storyBacked ? 'is-present' : 'is-gap'}><span>2</span><div><b>Story / Quest</b><small>{storyBacked ? 'packet-backed' : 'explicit gap'}</small></div></li>
+        <li className="is-held"><span>3</span><div><b>D1 Goal Graph admission</b><small>approval + exact join required</small></div></li>
+        <li className={storyBacked ? 'is-planned' : 'is-gap'}><span>4</span><div><b>Mini App Mission</b><small>{linkage.miniApp.mission}</small></div></li>
+        <li className={organAssigned ? 'is-present' : 'is-held'}><span>5</span><div><b>Organ receipt</b><small>{organAssigned ? 'receipt-backed' : 'unassigned'}</small></div></li>
+        <li className="is-held"><span>6</span><div><b>Hermes</b><small>transport boundary</small></div></li>
+      </ol>
+
+      <div className="linkage-facts">
+        <article>
+          <span>Working folders</span>
+          <strong>{linkage.filesystem.state === 'mapped' ? `${linkage.filesystem.folders.length} mapped` : 'Folderless gap'}</strong>
+          {linkage.filesystem.folders.length > 0
+            ? linkage.filesystem.folders.map((folder) => <code key={folder}>thoughtseed/{folder}</code>)
+            : <small>No reviewed shallow folder is joined.</small>}
+        </article>
+        <article>
+          <span>Story Arc</span>
+          <strong>{storyBacked ? 'Packet-backed plan' : 'Explicit unadmitted gap'}</strong>
+          <code>{linkage.storyArc.arcId ?? 'no canonical packet'}</code>
+        </article>
+        <article>
+          <span>Quests</span>
+          <strong>{linkage.quests.count} packet rows</strong>
+          <small>{storyBacked ? 'Planned milestones; not runtime completion.' : 'No packet questline is joined.'}</small>
+        </article>
+        <article className={missionGap ? 'is-gap' : 'is-held'}>
+          <span>Mission data</span>
+          <strong>{missionGap ? 'Mission data needed' : 'Catalog fields present'}</strong>
+          <small>{missionGap ? linkage.missionData.missingFields.join(' · ') : 'D1 admission still requires exact runtime authority.'}</small>
+        </article>
+      </div>
+
+      <div className="linkage-delivery">
+        <div>
+          <span>Planned organ route</span>
+          <strong>{pipeline.organName} → {pipeline.topic}</strong>
+          <small>{organAssigned ? linkage.organs.linked.join(' · ') : 'Workflow available · no receipt-backed organ assignment'}</small>
+        </div>
+        <div>
+          <span>Mini App visibility</span>
+          <strong>{label(linkage.miniApp.canopy)}</strong>
+          <small>{storyBacked ? 'Story packet may project; Mission Fabric activation remains separately gated.' : 'Catalog-only Canopy visibility.'}</small>
+        </div>
+      </div>
+
+      <div className="linkage-transport" role="note">
+        <ShieldCheck aria-hidden="true" />
+        <div>
+          <strong>Hermes transport only</strong>
+          <p>{pipeline.topic} is a planned topic, not a send or dispatch receipt. Slash commands remain Hermes-plugin-owned; Cambium does not execute them.</p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function PlanDrawer({
   work,
   plan,
@@ -767,6 +1027,10 @@ function PlanDrawer({
   const closeoutReady = closeoutReadiness(closeout)
   const terminalCloseout = isTerminalCloseout(closeout)
   const selectedRepository = repositoryEvidence.find((record) => record.sourceRef === reconciliation.repositorySourceRef)
+  const operationalProjection = operationalPacketProjectionFor(work.workId)
+  const drawerTabs: readonly DrawerTab[] = operationalProjection
+    ? ['operate', 'linkage', 'intake', 'plan', 'delivery', 'closeout']
+    : ['linkage', 'intake', 'plan', 'delivery', 'closeout']
 
   useEffect(() => {
     closeRef.current?.focus()
@@ -819,6 +1083,21 @@ function PlanDrawer({
     })
   }
 
+  function moveDrawerTab(event: ReactKeyboardEvent<HTMLButtonElement>, currentIndex: number) {
+    const lastIndex = drawerTabs.length - 1
+    let nextIndex: number | null = null
+    if (event.key === 'ArrowRight') nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1
+    if (event.key === 'ArrowLeft') nextIndex = currentIndex === 0 ? lastIndex : currentIndex - 1
+    if (event.key === 'Home') nextIndex = 0
+    if (event.key === 'End') nextIndex = lastIndex
+    if (nextIndex === null) return
+    event.preventDefault()
+    onTab(drawerTabs[nextIndex])
+    event.currentTarget.parentElement
+      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[nextIndex]
+      ?.focus()
+  }
+
   return (
     <aside className="plan-drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title">
       <header className="drawer-head">
@@ -833,21 +1112,34 @@ function PlanDrawer({
         </button>
       </header>
 
-      <nav className="drawer-tabs" aria-label="Project detail views">
-        {(['intake', 'plan', 'delivery', 'closeout'] as const).map((drawerTab) => (
+      <nav className={drawerTabsClassName(drawerTabs.length)} aria-label="Project detail views" role="tablist">
+        {drawerTabs.map((drawerTab, tabIndex) => (
           <button
             type="button"
             key={drawerTab}
+            id={`drawer-tab-${drawerTab}`}
+            role="tab"
             className={tab === drawerTab ? 'is-active' : ''}
-            aria-current={tab === drawerTab ? 'page' : undefined}
+            aria-selected={tab === drawerTab}
+            aria-controls={`drawer-panel-${drawerTab}`}
+            tabIndex={tab === drawerTab ? 0 : -1}
             onClick={() => onTab(drawerTab)}
+            onKeyDown={(event) => moveDrawerTab(event, tabIndex)}
           >
             {label(drawerTab)}
           </button>
         ))}
       </nav>
 
-      <div className="drawer-body">
+      <div
+        className="drawer-body"
+        id={`drawer-panel-${tab}`}
+        role="tabpanel"
+        aria-labelledby={`drawer-tab-${tab}`}
+        tabIndex={0}
+      >
+        {tab === 'operate' && operationalProjection && <OperationalPacketOperate projection={operationalProjection} />}
+        {tab === 'linkage' && <PortfolioLinkageView work={work} plan={plan} />}
         {tab === 'intake' && (
           <section className="drawer-section overview-section intake-section">
             <div className="intake-rule">
@@ -1240,7 +1532,9 @@ function App() {
   const [reconciliations, setReconciliations] = useState<Record<string, PortfolioReconciliation>>({ ...initial.reconciliations })
   const [closeouts, setCloseouts] = useState<Record<string, ProjectCloseout>>({ ...initial.closeouts })
   const [focusedId, setFocusedId] = useState<string | null>(initial.focusedId)
-  const [drawerTab, setDrawerTab] = useState<DrawerTab>('intake')
+  const [drawerTab, setDrawerTab] = useState<DrawerTab>(() => (
+    initial.focusedId && operationalPacketProjectionFor(initial.focusedId) ? 'operate' : 'linkage'
+  ))
   const [projectCreationOpen, setProjectCreationOpen] = useState(false)
   const [projectCreation, setProjectCreation] = useState<ProjectCreationDraft>({ name: '', slug: '', origin: 'unknown', clientFamilyId: '' })
   const [activeView, setActiveView] = useState<SmartView>('all')
@@ -1472,9 +1766,9 @@ function App() {
     setNotice('Undid last bulk change · prior local plans restored')
   }
 
-  function openDrawer(id: string, tab: DrawerTab = 'intake') {
+  function openDrawer(id: string, tab?: DrawerTab) {
     setFocusedId(id)
-    setDrawerTab(tab)
+    setDrawerTab(tab ?? (operationalPacketProjectionFor(id) ? 'operate' : 'linkage'))
   }
 
   function closeDrawer() {
@@ -1694,7 +1988,7 @@ function App() {
               {view === 'historical' && <History />}
               {view === 'unplanned' && <Target />}
               {view === 'all' && <Grid2X2 />}
-              <span>{label(view)}</span>
+              <span>{view === 'all' ? 'Active' : label(view)}</span>
               <strong>{smartViewCount(view, plans, reconciliations, closeouts)}</strong>
             </button>
           ))}
@@ -1719,12 +2013,12 @@ function App() {
           <div>
             <span className="eyebrow">Portfolio / {label(activeView)}</span>
             <h1 ref={workspaceHeadingRef} tabIndex={-1}>
-              {activeView === 'all' ? 'Plan the portfolio' : label(activeView)}
+              {activeView === 'all' ? 'Plan active portfolio' : label(activeView)}
               <em>{activeView === 'historical' ? HISTORICAL_RECORDS.length : activeView === 'needs-review' ? smartViewCount(activeView, plans, reconciliations, closeouts) : visible.length}</em>
             </h1>
             <p>
               {activeView === 'all'
-                ? 'Scan source truth, set local intent, and focus only when detail matters.'
+                ? 'Scan active source truth, set local intent, and open Linkage before admitting runtime work.'
                 : activeView === 'historical'
                   ? 'Preserved product history stays separate from live WorkObjects.'
                   : activeView === 'completed-closed'
@@ -1734,18 +2028,28 @@ function App() {
                       : `A computed view of ${label(activeView).toLowerCase()} portfolio signals.`}
             </p>
           </div>
-          <div className="summary-pills" aria-label="Classification counts">
-            <span><Leaf />{CLASSIFICATION_COUNTS.saplings} Saplings</span>
-            <span><GitBranch />{CLASSIFICATION_COUNTS.clientBranches} Branches</span>
-            <span><Layers3 />{CLASSIFICATION_COUNTS.internalPrograms} Programs</span>
-            <span><ListChecks />{plannedCount} locally planned</span>
+          <div className="summary-stack">
+            <small>Catalog totals</small>
+            <div className="summary-pills" aria-label="Catalog totals">
+              <span><Leaf />{CLASSIFICATION_COUNTS.saplings} Saplings</span>
+              <span><GitBranch />{CLASSIFICATION_COUNTS.clientBranches} Branches</span>
+              <span><Layers3 />{CLASSIFICATION_COUNTS.internalPrograms} Programs</span>
+            </div>
+            <div className="linkage-summary" aria-label="Portfolio operating linkage summary">
+              <span><b>{CLASSIFICATION_COUNTS.total}</b> catalogued</span>
+              <span><b>{smartViewCount('all', plans, reconciliations, closeouts)}</b> active</span>
+              <span><b>{smartViewCount('completed-closed', plans, reconciliations, closeouts)}</b> finished</span>
+              <span><b>{PORTFOLIO_LINKAGE_SUMMARY.packetBackedStoryArcs}</b> Story arcs</span>
+              <span className="is-gap"><b>{PORTFOLIO_LINKAGE_SUMMARY.missionDataGaps}</b> mission gaps</span>
+              <span><ListChecks />{plannedCount} local plans</span>
+            </div>
           </div>
         </header>
 
         <div className="mobile-view-rail" aria-label="Mobile smart views">
           {SMART_VIEWS.map((view) => (
             <button type="button" key={view} className={activeView === view ? 'is-active' : ''} onClick={() => setView(view)}>
-              {label(view)} <strong>{smartViewCount(view, plans, reconciliations, closeouts)}</strong>
+              {view === 'all' ? 'Active' : label(view)} <strong>{smartViewCount(view, plans, reconciliations, closeouts)}</strong>
             </button>
           ))}
         </div>

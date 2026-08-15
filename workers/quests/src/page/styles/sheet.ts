@@ -18,6 +18,11 @@ export const STYLE_SHEET = `  /* ── sheet ───────────�
   .sheet .arc{font:12px var(--mono);color:var(--ink);opacity:.9}
   .sheet h2{font-size:19px;letter-spacing:0;margin:4px 0 8px;overflow-wrap:anywhere}
   .sheet .nar{opacity:.85;margin-bottom:12px;line-height:1.55}
+  .founder-outcome-field{display:grid;gap:5px;margin:10px 0;font:11px var(--mono);color:var(--ink)}
+  .founder-outcome-field input,.founder-outcome-field select,.founder-outcome-field textarea{width:100%;box-sizing:border-box;border:1px solid var(--line2);border-radius:8px;background:rgba(1,47,52,.35);color:var(--soft);padding:9px;font:12px/1.4 var(--mono)}
+  .founder-outcome-field textarea{min-height:72px;resize:vertical}
+  .founder-outcome-claim-guard{display:grid;gap:3px;margin:12px 0;padding:9px;border:1px dashed rgba(255,199,161,.42);border-radius:8px;background:rgba(255,199,161,.045);font:11px/1.45 var(--mono)}
+  .founder-outcome-claim-guard b{color:var(--warn)} .founder-outcome-status{min-height:18px;margin:8px 0;color:var(--mc-peach);font:11px/1.35 var(--mono)}
   .kv{display:grid;grid-template-columns:84px minmax(0,1fr);gap:7px 10px;font-size:13px}
   .kv b{font:11px var(--mono);opacity:.55;font-weight:500;letter-spacing:0;text-transform:uppercase;padding-top:2px}
   .kv span{min-width:0;font-family:var(--mono);font-size:12.5px;line-height:1.5;overflow-wrap:anywhere;word-break:break-word}
