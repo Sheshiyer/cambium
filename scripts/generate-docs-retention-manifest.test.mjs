@@ -35,3 +35,25 @@ test('retention manifest regeneration is deterministic and excludes itself from 
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('retention manifest accepts an absolute output path', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'cambium-retention-absolute-'));
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cambium-retention-output-'));
+  try {
+    fs.mkdirSync(path.join(root, 'docs', 'plans'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'docs', 'plans', 'example.md'), '# Example\n');
+    execFileSync('git', ['init', '--quiet'], { cwd: root });
+    execFileSync('git', ['add', 'docs/plans/example.md'], { cwd: root });
+
+    const output = path.join(outputDir, 'manifest.json');
+    execFileSync(process.execPath, [script, '--generated-at', '2026-08-15', '--out', output], { cwd: root });
+    const manifest = JSON.parse(fs.readFileSync(output, 'utf8'));
+
+    assert.equal(manifest.generatedAt, '2026-08-15');
+    assert.equal(manifest.entryCount, 1);
+    assert.equal(manifest.entries[0].path, 'docs/plans/example.md');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(outputDir, { recursive: true, force: true });
+  }
+});

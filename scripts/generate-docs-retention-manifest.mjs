@@ -11,11 +11,12 @@ const defaultOutput = '.planning/2026-08-10-documentation-retention-manifest.per
 const output = process.argv.includes('--out')
   ? process.argv[process.argv.indexOf('--out') + 1]
   : defaultOutput;
+const outputFile = path.isAbsolute(output) ? output : path.join(root, output);
 const outputPath = path.relative(root, path.resolve(root, output));
 const generatedManifestPaths = new Set([defaultOutput, outputPath]);
 const existingGeneratedAt = (() => {
   try {
-    const existing = JSON.parse(fs.readFileSync(path.join(root, output), 'utf8'));
+    const existing = JSON.parse(fs.readFileSync(outputFile, 'utf8'));
     return typeof existing.generatedAt === 'string' ? existing.generatedAt : null;
   } catch {
     return null;
@@ -83,5 +84,5 @@ const manifest = {
   entries,
   safeguards: ['tracked-files-only', 'no-reference-bodies', 'no-automatic-deletion-or-externalization', 'duplicate-groups-remain-review-required']
 };
-fs.writeFileSync(path.join(root, output), `${JSON.stringify(manifest, null, 2)}\n`);
+fs.writeFileSync(outputFile, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`${output}: ${entries.length} entries`);
