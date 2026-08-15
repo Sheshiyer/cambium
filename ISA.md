@@ -2450,6 +2450,21 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - Authority proof: no provider, deployment, credential, runtime timer, mailbox, Telegram, ledger, relocation, or production mutation occurred.
 - Independent final audit verified the clean worktree, all 14 live issue results, project Done transitions, corrected ownership bodies, execution-wave statuses, and bounded authority with verdict PASS. Pull request #313 carries the reviewed branch for normal merge authority.
 
+## 2026-08-15 protected-main governance and repository-origin reconciliation
+
+- [x] ISC-1220: `main` is governed by active repository ruleset `main-pr-and-ci` (`20884840`) with no bypass actor, pull-request-only changes, linear history, deletion and non-fast-forward blocking, and required conversation resolution.
+- [x] ISC-1221: the ruleset requires strict up-to-date success from exact GitHub Actions context `deterministic release verification · node 26`; repository merge settings allow squash only and delete merged branches.
+- [x] ISC-1222: the #290 evidence receipt contains exactly ten unique residual source references and reconciles them as three resolved/reconciled rows plus seven explicit holds.
+- [x] ISC-1223: bounded local package identity and README evidence resolve the `reddit-cli` folder/command alias to immutable repository `Sheshiyer/reddit-flux` for `program:operator-utilities`.
+- [x] ISC-1224: relocation-registry identity plus `ARCHITECTURE.md` resolve `Sheshiyer/brandmint-showcase` as a supporting repository of `program:meristem-brand-system`, without admitting a separate WorkObject.
+- [x] ISC-1225: `Sheshiyer/workforce-automation-app-symphonics` is the exact repository-only planning surface for `branch:symphonics`; the absent shallow folder and any future native-app lane remain separately relocation-gated.
+- [x] ISC-1226: GitHub 404 responses remain `not retrievable` evidence, never proof of nonexistence, and every unavailable or ambiguous row retains a concrete hold reason.
+- [x] ISC-1227: Client projects remain Client Branches, reusable Thoughtseed IP remains separate, and the audit performs zero inferred assignments, catalog admissions, folder mutations, private-content reads, Vault writes, or runtime mutations.
+- [x] ISC-1228: GIP-002 and source reconciliation now mark #290 implemented while #291 and the remaining planning/runtime/content waves stay explicit.
+- [x] ISC-1229: focused audit and mapping-queue tests pass and bind both corrected assignments, the exact Symphonics role, all ten source references, and every zero-mutation boundary.
+
+Verification source: `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json`, the governed mapping queue, authenticated GitHub metadata readback, bounded local identity probes, and the focused Node test receipts. Repository governance is live external state; this source checkpoint records its point-in-time verification without claiming GitHub settings are version-controlled by the repository.
+
 ### 2026-08-13 portfolio assimilation production repair
 
 - ISC-1067: Git ancestry/status probe — released source `a16d6033c658713b89ea14b5f7b4a854eb43b14e` was clean and exactly one commit above base `a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.

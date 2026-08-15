@@ -349,8 +349,14 @@ test('Batch 6 covers every unresolved catalog repository without inference', () 
     }
   }
   assert.deepEqual(bySourceRef.get('relocation-registry:bwssb')?.workIds, ['branch:bwssb']);
-  assert.deepEqual(bySourceRef.get('relocation-registry:brandmint-showcase')?.workIds, []);
-  assert.equal(bySourceRef.get('relocation-registry:brandmint-showcase')?.status, 'classification-hold-unassigned');
+  assert.deepEqual(bySourceRef.get('repo:reddit-cli')?.resolvedAssignments, [
+    { workId: 'program:operator-utilities', repositoryRefs: ['Sheshiyer/reddit-flux'] },
+  ]);
+  assert.deepEqual(bySourceRef.get('relocation-registry:brandmint-showcase')?.workIds, ['program:meristem-brand-system']);
+  assert.deepEqual(bySourceRef.get('relocation-registry:brandmint-showcase')?.resolvedAssignments, [
+    { workId: 'program:meristem-brand-system', repositoryRefs: ['Sheshiyer/brandmint-showcase'] },
+  ]);
+  assert.equal(bySourceRef.get('relocation-registry:brandmint-showcase')?.status, 'resolved-supporting-repository-by-registry-and-architecture');
   assert.deepEqual(bySourceRef.get('catalog-folder-hold:sapling:whatslegal')?.workIds, ['sapling:whatslegal']);
   assert.deepEqual(bySourceRef.get('catalog-folder-hold:sapling:seedforge')?.workIds, ['sapling:seedforge']);
   assert.equal(batch6.summary.folderlessWorkObjectHolds, 2);
@@ -463,14 +469,14 @@ test('Batch 5 settles closeouts while holding physical renames behind a manifest
   const rows = (batch5.rows ?? []) as unknown as Batch5Row[];
   const byFolder = new Map(rows.map((row) => [row.folder, row]));
 
-  assert.equal(batch5.status, 'founder-reviewed-source-controlled-closeout-exclusion-ready-with-symphonics-founder-hold');
+  assert.equal(batch5.status, 'founder-reviewed-source-controlled-closeout-exclusion-ready-with-symphonics-repository-role-resolved');
   assert.equal(batch5.summary.rowsReviewed, rows.length);
   assert.deepEqual([...byFolder.keys()].sort(), ['safvr', 'symphonics', 'virtualtryon-3d']);
   assert.equal(byFolder.get('virtualtryon-3d')?.status, 'complete-retired-ignore');
   assert.equal(byFolder.get('virtualtryon-3d')?.previousWorkId, 'sapling:virtualtryon');
   assert.equal(byFolder.get('safvr')?.status, 'complete-closed-client-branch');
   assert.equal(byFolder.get('safvr')?.closeoutArtifacts?.activeIndexDisposition, 'remove-from-active');
-  assert.equal(byFolder.get('symphonics')?.status, 'founder-hold-missing-shallow-folder');
+  assert.equal(byFolder.get('symphonics')?.status, 'resolved-repository-only-planning-surface-shallow-held');
   assert.equal(byFolder.get('symphonics')?.relocationGate?.requiresFounderApprovedManifest, true);
   assert.equal(batch5.renameReadiness?.filesystemMutationAuthorized, false);
   assert.equal(batch5.renameReadiness?.cambiumPhase1Applied, true);

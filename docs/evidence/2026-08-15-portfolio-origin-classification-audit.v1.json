@@ -1,0 +1,267 @@
+{
+  "schema": "thoughtseed.portfolio-origin-classification-audit.v1",
+  "capturedAt": "2026-08-15T07:40:56Z",
+  "githubIssue": "#290",
+  "sourceBaseline": "origin/main@582374cc297c693636c192e52ba92722e06cfcb7",
+  "authority": {
+    "catalog": "workers/quests/src/portfolio-catalog-data.ts",
+    "mappingQueue": "docs/project-management/github-repository-mapping-action-queue.v1.json",
+    "relocationRegistry": "docs/project-management/relocation-registry/thoughtseed",
+    "architecture": "ARCHITECTURE.md",
+    "localRootNotation": "$PROJECTS_ROOT/thoughtseed"
+  },
+  "probePolicy": {
+    "github": "authenticated repository metadata and public owner/name search only",
+    "local": "folder presence, Git metadata, and bounded product identity files only",
+    "vault": "path presence only; no content read or write",
+    "notFoundMeaning": "A GitHub 404 is recorded as not retrievable to the authenticated principal, never as proof of nonexistence."
+  },
+  "summary": {
+    "rowsReviewed": 10,
+    "resolvedOrReconciled": 3,
+    "explicitHolds": 7,
+    "inferredAssignments": 0,
+    "catalogAdmissions": 0,
+    "folderMutations": 0,
+    "privateContentReads": 0
+  },
+  "rows": [
+    {
+      "sourceRef": "repo:Coproperty/nimbus-gate",
+      "workIds": ["sapling:nimbus-gate"],
+      "candidateRepos": ["Coproperty/nimbus-gate"],
+      "localEvidence": {
+        "path": "$PROJECTS_ROOT/thoughtseed/coproperty/nimbus-gate",
+        "folderPresent": true,
+        "directGitIdentity": false
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "Coproperty/nimbus-gate",
+        "retrievable": false,
+        "ownerVisible": true,
+        "ownerPublicRepositoryCount": 0
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-immutable-identity-unavailable",
+      "holdReasons": [
+        "The exact owner/name returns 404 to the authenticated principal and the local folder has no direct Git identity; do not substitute Co.Property client repositories."
+      ]
+    },
+    {
+      "sourceRef": "repo:Coproperty/wanderfruit-docs",
+      "workIds": ["sapling:wanderfruit"],
+      "candidateRepos": ["Coproperty/wanderfruit-docs"],
+      "localEvidence": {
+        "path": "$PROJECTS_ROOT/thoughtseed/coproperty/wanderfruit-docs",
+        "folderPresent": true,
+        "directGitIdentity": false
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "Coproperty/wanderfruit-docs",
+        "retrievable": false,
+        "ownerVisible": true,
+        "ownerPublicRepositoryCount": 0,
+        "exactNamePublicSearchMatches": 0
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-immutable-identity-unavailable",
+      "holdReasons": [
+        "The exact owner/name is not retrievable and the local folder has no direct Git identity; Sheshiyer/wanderfruit-wiki-alpha remains a separate executable Sapling repository."
+      ]
+    },
+    {
+      "sourceRef": "repo:SAFVR-SG/Landingpage2.0",
+      "workIds": ["branch:safvr-landing-page"],
+      "candidateRepos": ["SAFVR-SG/Landingpage2.0"],
+      "localEvidence": {
+        "path": "$PROJECTS_ROOT/thoughtseed/safvr/Landingpage2.0",
+        "folderPresent": true,
+        "gitRemote": "https://github.com/SAFVR-SG/Landingpage2.0.git"
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "SAFVR-SG/Landingpage2.0",
+        "retrievable": false,
+        "ownerVisible": true,
+        "ownerPublicRepositoryCount": 0
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-closed-client-branch-live-identity-unavailable",
+      "holdReasons": [
+        "The qualified identity is preserved by the local Git remote, but live metadata is not retrievable; the closed Client Branch must not be reopened or remapped implicitly."
+      ]
+    },
+    {
+      "sourceRef": "repo:ashwinsheth-group/panaroma-v2",
+      "workIds": ["branch:ashwinsheth-marina-one-mumbai"],
+      "candidateRepos": ["ashwinsheth-group/panaroma-v2"],
+      "localEvidence": {
+        "path": "$PROJECTS_ROOT/thoughtseed/ashwinsheth-group/panaroma-v2",
+        "folderPresent": true,
+        "directGitIdentity": false
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "ashwinsheth-group/panaroma-v2",
+        "retrievable": false,
+        "ownerVisible": false
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-immutable-identity-unavailable",
+      "holdReasons": [
+        "Neither the exact repository nor its owner is retrievable; the existing Mumbai Client Branch repository assignments remain authoritative."
+      ]
+    },
+    {
+      "sourceRef": "repo:ashwinsheth-group/marina-one-KA/web",
+      "workIds": ["branch:ashwinsheth-marina-one-bangalore"],
+      "candidateRepos": ["ashwinsheth-group/marina-one-KA"],
+      "localEvidence": {
+        "path": "$PROJECTS_ROOT/thoughtseed/ashwinsheth-group/marina-one-KA",
+        "sourcePath": "web",
+        "folderPresent": true,
+        "directGitIdentity": false
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "ashwinsheth-group/marina-one-KA",
+        "retrievable": false,
+        "ownerVisible": false,
+        "exactNamePublicSearchMatches": 0,
+        "nearMatch": "Sheshiyer/marina1-k"
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-immutable-identity-unavailable",
+      "holdReasons": [
+        "The exact identity is not retrievable and the local container is not a Git root; the evidenced Sheshiyer/marina1-k assignment remains separate rather than being substituted."
+      ]
+    },
+    {
+      "sourceRef": "repo:Sheshiyer/reddit-cli",
+      "workIds": ["program:operator-utilities"],
+      "candidateRepos": ["Sheshiyer/reddit-flux"],
+      "localEvidence": {
+        "path": "$PROJECTS_ROOT/thoughtseed/reddit-cli",
+        "folderPresent": true,
+        "directGitIdentity": false,
+        "packageName": "reddit-flux",
+        "readmeCloneTarget": "https://github.com/Sheshiyer/reddit-flux.git"
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "Sheshiyer/reddit-flux",
+        "retrievable": true,
+        "repositoryId": "R_kgDORabLLQ",
+        "databaseId": 1168558893,
+        "visibility": "public",
+        "defaultBranch": "main"
+      },
+      "resolvedAssignments": [
+        {
+          "workId": "program:operator-utilities",
+          "repositoryRefs": ["Sheshiyer/reddit-flux"]
+        }
+      ],
+      "disposition": "resolved-local-alias-to-live-immutable-identity",
+      "holdReasons": []
+    },
+    {
+      "sourceRef": "relocation-registry:brandmint-showcase",
+      "workIds": ["program:meristem-brand-system"],
+      "candidateRepos": ["Sheshiyer/brandmint-showcase"],
+      "localEvidence": {
+        "path": "$PROJECTS_ROOT/thoughtseed/brandmint/brandmint-showcase",
+        "folderPresent": true,
+        "registryIdentity": "Sheshiyer/brandmint-showcase",
+        "architectureRole": "product site for brandmint-oracle-aleph"
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "Sheshiyer/brandmint-showcase",
+        "retrievable": true,
+        "repositoryId": "R_kgDOROEMxA",
+        "databaseId": 1155599556,
+        "visibility": "public",
+        "defaultBranch": "main"
+      },
+      "resolvedAssignments": [
+        {
+          "workId": "program:meristem-brand-system",
+          "repositoryRefs": ["Sheshiyer/brandmint-showcase"]
+        }
+      ],
+      "disposition": "resolved-supporting-repository-by-registry-and-architecture",
+      "holdReasons": []
+    },
+    {
+      "sourceRef": "catalog-folder-hold:sapling:whatslegal",
+      "workIds": ["sapling:whatslegal"],
+      "candidateRepos": [],
+      "localEvidence": {
+        "shallowPath": "$PROJECTS_ROOT/thoughtseed/whatslegal",
+        "shallowFolderPresent": false,
+        "vaultReferencePathPresent": true,
+        "directGitIdentity": false
+      },
+      "githubEvidence": {
+        "uniqueExactIdentityFound": false,
+        "publicSearchMatchesRelatedToPortfolio": 0
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-no-shallow-root-or-unique-repository",
+      "holdReasons": [
+        "Only a vault-context reference exists; there is no reviewed shallow WorkObject folder or unique repository identity, so the catalog entry is not admitted automatically."
+      ]
+    },
+    {
+      "sourceRef": "catalog-folder-hold:sapling:seedforge",
+      "workIds": ["sapling:seedforge"],
+      "candidateRepos": [],
+      "localEvidence": {
+        "shallowPath": "$PROJECTS_ROOT/thoughtseed/seedforge",
+        "shallowFolderPresent": false,
+        "vaultReferencePathPresent": true,
+        "directGitIdentity": false
+      },
+      "githubEvidence": {
+        "uniqueExactIdentityFound": false,
+        "publicNameIsAmbiguous": true
+      },
+      "resolvedAssignments": [],
+      "disposition": "explicit-hold-no-shallow-root-or-unique-repository",
+      "holdReasons": [
+        "Only a vault-context reference exists and the public name is non-unique; sapling:seedforge remains separate from program:seedforge without a repository claim."
+      ]
+    },
+    {
+      "sourceRef": "root-map:branch:symphonics",
+      "workIds": ["branch:symphonics"],
+      "candidateRepos": ["Sheshiyer/workforce-automation-app-symphonics"],
+      "localEvidence": {
+        "shallowPath": "$PROJECTS_ROOT/thoughtseed/symphonics",
+        "shallowFolderPresent": false,
+        "vaultReferencePathPresent": true,
+        "resolvedRole": "repository-only planning surface; no shallow WorkObject folder"
+      },
+      "githubEvidence": {
+        "exactQualifiedName": "Sheshiyer/workforce-automation-app-symphonics",
+        "retrievable": true,
+        "repositoryId": "R_kgDOOM0pmw",
+        "databaseId": 952969627,
+        "visibility": "public",
+        "defaultBranch": "main"
+      },
+      "resolvedAssignments": [
+        {
+          "workId": "branch:symphonics",
+          "repositoryRefs": ["Sheshiyer/workforce-automation-app-symphonics"]
+        }
+      ],
+      "disposition": "reconciled-exact-repository-role-shallow-held",
+      "holdReasons": []
+    }
+  ],
+  "boundaryReadback": {
+    "clientProjectsRemainClientBranches": true,
+    "reusableThoughtseedIpRemainsSeparate": true,
+    "vaultWritesPerformed": false,
+    "folderMovesPerformed": false,
+    "automaticCatalogAdmissionPerformed": false,
+    "externalRuntimeMutationPerformed": false
+  }
+}

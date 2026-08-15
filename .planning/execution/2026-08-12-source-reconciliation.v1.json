@@ -92,8 +92,8 @@
     {
       "id": "#290",
       "title": "portfolio: audit repository origin and classification mismatches",
-      "state": "residual",
-      "missingAuthority": "Mismatch audit exists as issue context in continuity planning but no merged remediation task set has been executed in origin/main."
+      "state": "implemented",
+      "evidence": "docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json reconciles all 10 residual rows and projects the two corrected assignments plus the exact Symphonics role into the governed mapping queue."
     },
     {
       "id": "#291",
