@@ -23,6 +23,12 @@ Showcase to the Meristem program from registry and architecture evidence,
 makes the Symphonics repository-only role exact, and preserves eight unmatched
 rows as explicit holds without catalog or filesystem mutation.
 
+The planning-authority wave also reconciles the dated 80-row Mini App map
+against current merged source. All task IDs remain as provenance, while the
+governed execution surface now contains only 28 evidence-backed residuals;
+44 implemented rows, four superseded rows, and four approval-gated rows are
+explicitly non-executable.
+
 As of 2026-07-23, `main` also carries the Goal Graph authority slice: the Goal Graph core (`workers/quests/src/goal-graph/`), D1-backed branch-map receipt authority (`branch-map-receipt-store`, `branch-map-sheet`, the branch-map route, and goal-graph intake/store), D1 migrations `0007_goal_graph` and `0008_branch_transition_receipts`, and an authenticated read-only Telegram branch-map route, with supporting docs (`docs/architecture/branch-traversal-map.md`, `goal-graph-operating-model.md`, `docs/runbooks/goal-graph-telegram-lifecycle.md`). Verification at landing: 1023/1023 tests green, 18/18 D1 slice tests green, 8 branch packets, a 486-file audit, and docs sync across 6 pages / 91 components. This slice is landed authority work, not a published release.
 
 ### v0.3.0 · **Urania** — *the venture becomes a constellation*

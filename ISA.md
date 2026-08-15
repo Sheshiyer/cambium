@@ -2465,6 +2465,17 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 Verification source: `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json`, the governed mapping queue, authenticated GitHub metadata readback, bounded local identity probes, and the focused Node test receipts. Repository governance is live external state; this source checkpoint records its point-in-time verification without claiming GitHub settings are version-controlled by the repository.
 
+## 2026-08-15 Mini App execution-map reconciliation
+
+- [x] ISC-1230: all 80 historical Mini App task IDs remain present exactly once and retain their original title, dependencies, acceptance, validation, phase, wave, and swarm provenance.
+- [x] ISC-1231: current merged source and tests classify the map as 44 implemented, four superseded, 28 executable residuals, and four non-executable approval-gated rows.
+- [x] ISC-1232: every executable residual names one exact repository file owner, current inspected source, dependencies, validation, and one missing acceptance.
+- [x] ISC-1233: implemented and superseded rows cite exact source/test evidence; approval-gated rows name missing authority and cannot enter automatic execution.
+- [x] ISC-1234: GIP-003 is complete while GIP-008 remains reviewable and GIP-004 through GIP-006 retain their runtime/content gates.
+- [x] ISC-1235: the reconciliation performs no deployment, allowlist, ledger, provider, Telegram, credential, Vault, folder, or external-repository mutation.
+
+Verification source: `.planning/2026-08-11-mini-app-page-wiring.tasks.json`, `.planning/execution/2026-08-12-source-reconciliation.v1.json`, and `scripts/mini-app-task-reconciliation.test.mjs`.
+
 ### 2026-08-13 portfolio assimilation production repair
 
 - ISC-1067: Git ancestry/status probe — released source `a16d6033c658713b89ea14b5f7b4a854eb43b14e` was clean and exactly one commit above base `a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.
