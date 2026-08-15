@@ -1315,7 +1315,7 @@ mutation has been performed by drafting this packet.
   path, and all generated approval/request files.
 - Verification passes: Moosh contract tests cover exact surface parity,
   evidence-lane and authority-tier references, film bounds, and checkout-path
-  hygiene; the complete repository suite passes 1726/1726; `npm run validate`,
+  hygiene; the complete repository suite passes 1729/1729; `npm run validate`,
   `npm run render-docs:check`, JSON parsing, and `git diff --check` pass.
 - This checkpoint authorizes documentation review only. It does not prove or
   authorize a current approval, capture, video, worker dispatch, deployment,

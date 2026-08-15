@@ -26,6 +26,9 @@ test('Moosh guide contracts cover every declared Cambium surface', () => {
   assert.equal(new Set(inventoryIds).size, inventoryIds.length);
   assert.deepEqual(modelIds.sort(), [...inventoryIds].sort());
   assert.deepEqual(Object.keys(coverage.surface_modes).sort(), [...inventoryIds].sort());
+  for (const surface of inventory.surfaces) {
+    assert.equal(coverage.surface_modes[surface.id], surface.moosh_mode, `${surface.id} has mismatched coverage mode`);
+  }
 
   const laneIds = new Set(Object.keys(model.evidence_lanes));
   const tierIds = new Set(Object.keys(model.authority_tiers));
@@ -48,4 +51,25 @@ test('Moosh contracts contain no machine-local checkout paths', () => {
     const body = fs.readFileSync(path.join(root, relativePath), 'utf8');
     assert.doesNotMatch(body, /\/(?:Users|Volumes|private)\//);
   }
+});
+
+test('boundary-map-only systems do not advertise live evidence by default', () => {
+  const inventory = readJson('docs/guide/cambium-surface-inventory.json');
+  for (const surface of inventory.surfaces.filter(({ moosh_mode }) => moosh_mode === 'boundary-map-only')) {
+    assert.equal(surface.evidence, 'boundary-map', `${surface.id} must default to boundary-map evidence`);
+  }
+});
+
+test('GitHub CI is terminal-verifiable without implying deployment authority', () => {
+  const inventory = readJson('docs/guide/cambium-surface-inventory.json');
+  const surface = inventory.surfaces.find(({ id }) => id === 'github-cloudflare-ci');
+  assert.equal(surface.moosh_mode, 'contract-and-terminal');
+  assert.equal(surface.evidence, 'terminal');
+  assert.match(surface.authority, /production remains separately approved/);
+});
+
+test('guide manifest does not invent unverified Manifest API routes', () => {
+  const manifest = readJson('docs/guide/guide-manifest.json');
+  const body = JSON.stringify(manifest);
+  assert.doesNotMatch(body, /\/(?:projects)\/\{project_id\}\//);
 });
