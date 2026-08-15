@@ -1,20 +1,25 @@
 {
   "schema_version": "2026-08-12-source-reconciliation.v1",
-  "generated_at": "2026-08-12",
-  "scope": "reconcile 14 open GitHub issues with 80 mini-app tasks",
+  "generated_at": "2026-08-15",
+  "scope": "Reconcile the 14-issue provenance set and all 80 Mini App task IDs against current merged source; expose only evidence-backed residuals as executable.",
   "source_authority": [
-    "origin/main@1aab53d5fda1f886d7f7069e5ff847c193350936",
-    "git log --oneline starting at 1aab53d1",
-    "ISA.md current project ISA",
+    "origin/main@f7e8795615e372323aaa24a5ae2d0255cb45aaec",
+    ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
+    "current merged source and focused tests",
+    "ISA.md",
     ".project/HANDOFF.md",
-    "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-    "docs/plans/2026-08-12-github-planning-reconciliation-execution.md",
-    "gh issue list (open issues)",
-    "current contracts in working source"
+    "GitHub issue and Project 14 readback on 2026-08-15"
   ],
   "counts": {
     "issues": 14,
-    "tasks": 80
+    "tasks": 80,
+    "executable_tasks": 28,
+    "dispositions": {
+      "implemented": 44,
+      "superseded": 4,
+      "residual": 28,
+      "approval-gated": 4
+    }
   },
   "issues": [
     {
@@ -99,7 +104,7 @@
       "id": "#291",
       "title": "planning: migrate project-local authority into GitHub repositories",
       "state": "residual",
-      "missingAuthority": "No accepted migration command path or repository write authority is represented in merged code and acceptance artifacts."
+      "missingAuthority": "GIP-003 is reconciled into 28 evidence-backed executable tasks; GIP-008 repository-task migration and owner-gated GIP-004 through GIP-006 remain."
     }
   ],
   "tasks": [
@@ -116,8 +121,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/portfolio-catalog.ts",
+      "evidence": "PR #320: portfolio-catalog.ts and portfolio-catalog.test.ts enforce Sapling, Client Branch, Program, and template identities."
     },
     {
       "id": "T-002",
@@ -134,8 +141,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "implemented",
-      "evidence": "Implemented in commit acde125 (fix(quests): exclude template branch stories): `bin/quine/hyphae/branch-stories.ts`, `bin/quine/hyphae/branch-stories.test.ts`, `bin/quine/hyphae/quests.test.ts`; change log and fixtures validate template exclusion."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "bin/quine/hyphae/branch-stories.ts",
+      "evidence": "PR #311 / acde125: branch-stories.ts and branch-stories.test.ts exclude template-scoped packets from runtime envelopes."
     },
     {
       "id": "T-003",
@@ -152,8 +161,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/portfolio-catalog.ts",
+      "evidence": "PR #320: portfolio-catalog.ts inventory and tests give every canonical Sapling one catalog disposition."
     },
     {
       "id": "T-004",
@@ -170,8 +181,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/portfolio-catalog.ts",
+      "evidence": "PRs #320 and #326: portfolio catalog plus the dated origin/classification audit reconcile canonical client Branches."
     },
     {
       "id": "T-005",
@@ -188,8 +201,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/portfolio-catalog.ts",
+      "evidence": "PR #320: portfolio-catalog.ts and tests inventory internal Programs without venture claims."
     },
     {
       "id": "T-006",
@@ -208,8 +223,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/portfolio-catalog.ts",
+      "evidence": "PR #320: portfolio-catalog.ts join report tests cover exact, missing, unexpected, excluded, and blocked outcomes."
     },
     {
       "id": "T-007",
@@ -226,8 +243,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "evidence": "PR #320: mission.ts and handler tests keep planned work non-terminal until receipt-backed evidence exists."
     },
     {
       "id": "T-008",
@@ -244,8 +263,11 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/story.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
+      "missingAcceptance": "No typed Story event authority ensures every event carries identity, source, time, and receipt."
     },
     {
       "id": "T-009",
@@ -262,8 +284,11 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/tools.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/tools.ts.",
+      "missingAcceptance": "No typed per-panel command projection contract enforces source and freshness."
     },
     {
       "id": "T-010",
@@ -280,8 +305,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/signed-action.ts",
+      "evidence": "PR #320: Gate scene contract and signed-action tests cover decision, expiry, replay, consequence, and receipts."
     },
     {
       "id": "T-011",
@@ -296,8 +323,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/data.ts",
+      "evidence": "PR #320: scene contracts and page-client-data tests distinguish loading, empty, stale, authorization, timeout, and failure."
     },
     {
       "id": "T-012",
@@ -314,8 +343,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/components/mission-control.ts",
+      "evidence": "PRs #318/#320: mission-control.ts provides the shared WorkObject card primitives used by Mission."
     },
     {
       "id": "T-013",
@@ -332,8 +363,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "evidence": "PR #318: mission.ts renders Sapling-specific kind and lifecycle grammar."
     },
     {
       "id": "T-014",
@@ -350,8 +383,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "evidence": "PR #320: mission.ts and route tests preserve redacted Client Branch identity and lifecycle."
     },
     {
       "id": "T-015",
@@ -368,8 +403,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "evidence": "PR #320: portfolio-catalog.ts and mission.ts distinguish Program classes without venture claims."
     },
     {
       "id": "T-016",
@@ -386,8 +423,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scaffold.ts",
+      "evidence": "PR #318: scaffold, Mission, Inspect, and handler tests cover keyboard and screen-reader navigation."
     },
     {
       "id": "T-017",
@@ -404,8 +443,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/gestures.ts",
+      "evidence": "PR #318: gestures.ts and handler tests prove pointer cancellation and bounded snap behavior."
     },
     {
       "id": "T-018",
@@ -422,8 +463,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "ui-contract",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page-motion-safety.test.ts",
+      "evidence": "PR #318: viewport proof and motion-safety tests cover mobile and desktop layout constraints."
     },
     {
       "id": "T-019",
@@ -440,8 +483,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "route",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/mission-fabric-route.test.ts",
+      "evidence": "mission-fabric-route.test.ts covers fail-closed activation, authorization, allowlist, and safe observable errors."
     },
     {
       "id": "T-020",
@@ -458,8 +503,11 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "route",
-      "state": "approval-gated",
-      "missingAuthority": "Require approved `MISSION_FABRIC_TENANTS` allowlist decision and rollback authority before implementation can be promoted to pilot."
+      "status": "approval-gated",
+      "executable": false,
+      "file_owner": "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
+      "current_evidence": "Current authority boundary recorded in docs/plans/evidence/cambium-operating-fabric-2026-07-29.md.",
+      "missingAuthority": "Founder approval and live rollback authority are required before changing MISSION_FABRIC_TENANTS."
     },
     {
       "id": "T-021",
@@ -476,8 +524,11 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "route",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/client/data.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/client/data.ts.",
+      "missingAcceptance": "The shell still boot-fetches the quest envelope; scenes do not paint from a served initial payload."
     },
     {
       "id": "T-022",
@@ -494,8 +545,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "route",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/data.ts",
+      "evidence": "PR #320: data.ts and page-client-data.test.ts enforce bounded timeout and visible retry behavior."
     },
     {
       "id": "T-023",
@@ -513,8 +566,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "route",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/data.ts",
+      "evidence": "PR #320: data.ts and route tests distinguish Telegram/Access authorization states with safe guidance."
     },
     {
       "id": "T-024",
@@ -532,8 +587,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "route",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/freshness.ts",
+      "evidence": "PR #320: freshness.ts and scene contracts keep global and source freshness semantics explicit."
     },
     {
       "id": "T-025",
@@ -553,8 +610,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "proof",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/visual-fixtures.ts",
+      "evidence": "PR #318: checked-in scene contracts/fixtures plus motion-safety tests cover deterministic page states."
     },
     {
       "id": "T-026",
@@ -571,8 +630,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "proof",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "superseded",
+      "executable": false,
+      "file_owner": "workers/quests/src/mission-fabric-route.test.ts",
+      "evidence": "Dedicated tenant-isolation fixtures were superseded by stronger route, redaction, and collision suites in mission-fabric-route.test.ts and portfolio-catalog.test.ts."
     },
     {
       "id": "T-027",
@@ -590,8 +651,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "proof",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "superseded",
+      "executable": false,
+      "file_owner": "workers/quests/src/handler.test.ts",
+      "evidence": "Static replay fixtures were superseded by the signed-action integration suite covering expiry, replay, and duplicate receipts."
     },
     {
       "id": "T-028",
@@ -608,8 +671,11 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "proof",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
+      "current_evidence": "Current source inspected at docs/plans/evidence/cambium-operating-fabric-2026-07-29.md.",
+      "missingAcceptance": "No reproducible pre-activation 403/ledger baseline receipt with verified digest is checked in."
     },
     {
       "id": "T-029",
@@ -627,8 +693,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "current_evidence": "Current source inspected at docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md.",
+      "missingAcceptance": "No collision-safe file ownership map proves every implementation file has one writer."
     },
     {
       "id": "T-030",
@@ -647,8 +716,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "current_evidence": "Current source inspected at docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md.",
+      "missingAcceptance": "No reviewed Mission implementation handoff brief records complete inputs, outputs, and tests."
     },
     {
       "id": "T-031",
@@ -666,8 +738,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "current_evidence": "Current source inspected at docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md.",
+      "missingAcceptance": "No reviewed Gate implementation handoff brief records explicit action boundaries."
     },
     {
       "id": "T-032",
@@ -685,8 +760,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "current_evidence": "Current source inspected at docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md.",
+      "missingAcceptance": "No reviewed Tools implementation handoff brief records typed panel sources."
     },
     {
       "id": "T-033",
@@ -704,8 +782,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "current_evidence": "Current source inspected at docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md.",
+      "missingAcceptance": "No reviewed Story implementation handoff brief records the event projection contract."
     },
     {
       "id": "T-034",
@@ -723,8 +804,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "current_evidence": "Current source inspected at docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md.",
+      "missingAcceptance": "No reviewed Inspect implementation handoff brief separates production and developer detail."
     },
     {
       "id": "T-035",
@@ -743,8 +827,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "current_evidence": "Current source inspected at docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md.",
+      "missingAcceptance": "No reviewed Portfolio implementation handoff brief fixes zone and promotion semantics."
     },
     {
       "id": "T-036",
@@ -767,8 +854,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "validation-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": ".github/workflows/ci.yml",
+      "current_evidence": "Current source inspected at .github/workflows/ci.yml.",
+      "missingAcceptance": "Broad CI exists, but no authoritative page-state matrix proves every state runs in CI."
     },
     {
       "id": "T-037",
@@ -787,8 +877,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "validation-prep",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page-motion-safety.test.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page-motion-safety.test.ts.",
+      "missingAcceptance": "Viewport and keyboard tests exist, but no browser-story matrix proves complete mobile and desktop journeys."
     },
     {
       "id": "T-038",
@@ -806,8 +899,11 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "validation-prep",
-      "state": "approval-gated",
-      "missingAuthority": "Need owner-approved release/ledger republish receipt in runbook scope before KV publication evidence can be claimed."
+      "status": "approval-gated",
+      "executable": false,
+      "file_owner": "docs/plans/evidence/cambium-operating-fabric-proof-template.md",
+      "current_evidence": "Current authority boundary recorded in docs/plans/evidence/cambium-operating-fabric-proof-template.md.",
+      "missingAuthority": "An owner-approved ledger republication and rollback receipt is required before pilot evidence can be claimed."
     },
     {
       "id": "T-039",
@@ -824,8 +920,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "state": "implemented",
-      "evidence": "Template packet-load exclusion was implemented in `bin/quine/hyphae/branch-stories.ts` via commit acde125 and backed by loader-focused regression coverage in adjacent quest tests."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "bin/quine/hyphae/branch-stories.ts",
+      "evidence": "PR #311 / acde125: branch-stories.ts excludes template packets and its focused regression tests pass."
     },
     {
       "id": "T-040",
@@ -843,8 +941,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "evidence": "handler tests prove planned quest stages render truthfully without unsupported zero-progress claims."
     },
     {
       "id": "T-041",
@@ -864,8 +964,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "evidence": "mission.ts and motion-safety tests render visibly distinct WorkObject kind badges."
     },
     {
       "id": "T-042",
@@ -883,8 +985,11 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/mission.ts.",
+      "missingAcceptance": "Mission ordering exists, but no reviewed design evidence proves one action blocker and proof cue dominate."
     },
     {
       "id": "T-043",
@@ -901,8 +1006,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "evidence": "mission.ts plus mobile tests constrain the responsive questline to four readable stages."
     },
     {
       "id": "T-044",
@@ -920,8 +1027,11 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/mission.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/mission.ts.",
+      "missingAcceptance": "Same-tenant selection persistence is tested; canonical selection isolation across tenants is not."
     },
     {
       "id": "T-045",
@@ -943,8 +1053,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "superseded",
+      "executable": false,
+      "file_owner": "workers/quests/src/handler.test.ts",
+      "evidence": "A Mission-only CI gate was superseded by the broader deterministic repository test and release-verification path."
     },
     {
       "id": "T-046",
@@ -962,8 +1074,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "gate",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/signed-action.ts",
+      "evidence": "signed-action.ts and handler tests hydrate Gate from the initial action envelope without selection."
     },
     {
       "id": "T-047",
@@ -981,8 +1095,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "gate",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/signed-action.ts",
+      "evidence": "handler tests keep Gate loading, quiet-empty, unauthorized, and error states mutually exclusive."
     },
     {
       "id": "T-048",
@@ -1000,8 +1116,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "gate",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/signed-action.ts",
+      "evidence": "handler tests render a decision-focused Gate queue rather than ledger arcs masquerading as decisions."
     },
     {
       "id": "T-049",
@@ -1019,8 +1137,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "gate",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/signed-action.ts",
+      "evidence": "signed-action.ts exposes expiry, reversibility, consequence, and proof in preflight/result flows."
     },
     {
       "id": "T-050",
@@ -1038,8 +1158,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "gate",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/signed-action.ts",
+      "evidence": "signed-action.ts and handler tests reuse one idempotent receipt across duplicate taps."
     },
     {
       "id": "T-051",
@@ -1057,8 +1179,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "gate",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/client/signed-action.ts",
+      "evidence": "signed-action.ts and handler tests provide safe Open-in-Telegram guidance for unauthenticated founders."
     },
     {
       "id": "T-052",
@@ -1080,8 +1204,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "gate",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "superseded",
+      "executable": false,
+      "file_owner": "workers/quests/src/handler.test.ts",
+      "evidence": "A Gate-only CI gate was superseded by the broader deterministic repository test and release-verification path."
     },
     {
       "id": "T-053",
@@ -1099,8 +1225,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "tools",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/tools.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/tools.ts.",
+      "missingAcceptance": "Tools still reads an ad-hoc command object; five typed panel inputs and route-contract tests are absent."
     },
     {
       "id": "T-054",
@@ -1118,8 +1247,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "tools",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/tools.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/tools.ts.",
+      "missingAcceptance": "Tools exposes global/coarse freshness, not per-panel freshness invariants."
     },
     {
       "id": "T-055",
@@ -1136,8 +1268,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "tools",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/tools.ts",
+      "evidence": "PR #320: tools.ts separates five surfaces and keeps observational tools read-only."
     },
     {
       "id": "T-056",
@@ -1155,8 +1289,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "tools",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/tools.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/tools.ts.",
+      "missingAcceptance": "Tools retains branch context, not the exact selected WorkObject identity and kind."
     },
     {
       "id": "T-057",
@@ -1174,8 +1311,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "tools",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/tools.ts",
+      "evidence": "PR #320: Tools handoffs route through the signed Gate client and return queued receipts."
     },
     {
       "id": "T-058",
@@ -1196,8 +1335,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "tools",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/fixtures/tools.fixture.json",
+      "evidence": "Tools fixtures and handler tests cover normal, blocked, empty, refusal, and handoff outcomes."
     },
     {
       "id": "T-059",
@@ -1215,8 +1356,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/story.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
+      "missingAcceptance": "No explicit projector proves receipts, decisions, and transitions become Story events."
     },
     {
       "id": "T-060",
@@ -1233,8 +1377,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/story.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
+      "missingAcceptance": "No stable Story event identity or replay-deduplication test is present."
     },
     {
       "id": "T-061",
@@ -1251,8 +1398,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/story.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
+      "missingAcceptance": "Story beats do not all expose exact source plus WorkObject provenance."
     },
     {
       "id": "T-062",
@@ -1270,8 +1420,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/story.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
+      "missingAcceptance": "Story filters by group and branch, not WorkObject kind plus identity."
     },
     {
       "id": "T-063",
@@ -1289,8 +1442,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/scenes/story.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
+      "missingAcceptance": "The Story empty state does not name the first qualifying event."
     },
     {
       "id": "T-064",
@@ -1311,8 +1467,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/scenes/fixtures/story.fixture.json",
+      "evidence": "Story fixtures, handler tests, and motion-safety tests cover the current Story rendering matrix."
     },
     {
       "id": "T-065",
@@ -1329,8 +1487,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/operating-fabric/inspect-sheet.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/operating-fabric/inspect-sheet.ts.",
+      "missingAcceptance": "Inspect renders provenance but lacks reviewed blocker/freshness/receipt-first hierarchy."
     },
     {
       "id": "T-066",
@@ -1348,8 +1509,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/mission.ts",
+      "evidence": "Mission lineage rendering and integration tests preserve exact Work → Mission → Task proof chains."
     },
     {
       "id": "T-067",
@@ -1366,8 +1529,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/inspect-sheet.ts",
+      "evidence": "Founder/detail and viewer/aggregate route tests keep production diagnostics behind authorization boundaries."
     },
     {
       "id": "T-068",
@@ -1385,8 +1550,11 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/operating-fabric/inspect-sheet.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/operating-fabric/inspect-sheet.ts.",
+      "missingAcceptance": "Freshness metadata exists, but no explicit per-page readiness summary panel is present."
     },
     {
       "id": "T-069",
@@ -1403,8 +1571,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/inspect-sheet.ts",
+      "evidence": "Inspect, Canopy, Portfolio, Mission, and route tests redact secrets and raw evidence references."
     },
     {
       "id": "T-070",
@@ -1425,8 +1595,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/inspect-sheet.ts",
+      "evidence": "Inspect sheet and operating-fabric tests cover exact identity, unknown selection, and fail-closed proof details."
     },
     {
       "id": "T-071",
@@ -1444,8 +1616,10 @@
       "phase": "P2",
       "wave": "W6",
       "swarm": "portfolio",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/portfolio.ts",
+      "evidence": "portfolio.ts and route tests render separate Saplings, Client Branches, and Programs zones."
     },
     {
       "id": "T-072",
@@ -1463,8 +1637,10 @@
       "phase": "P2",
       "wave": "W6",
       "swarm": "portfolio",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/portfolio.ts",
+      "evidence": "Portfolio and Canopy render classification-specific delivery and promotion lifecycle templates."
     },
     {
       "id": "T-073",
@@ -1482,8 +1658,10 @@
       "phase": "P2",
       "wave": "W6",
       "swarm": "portfolio",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/portfolio.ts",
+      "evidence": "Portfolio join reports and tests render exact, missing, unexpected, and promotion-blocked conflicts."
     },
     {
       "id": "T-074",
@@ -1502,8 +1680,11 @@
       "phase": "P2",
       "wave": "W6",
       "swarm": "portfolio",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/page/operating-fabric/portfolio.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/page/operating-fabric/portfolio.ts.",
+      "missingAcceptance": "Portfolio promotion remains advisory; no founder-gated promotion proposal path exists."
     },
     {
       "id": "T-075",
@@ -1523,8 +1704,11 @@
       "phase": "P2",
       "wave": "W6",
       "swarm": "portfolio",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "workers/quests/src/operating-fabric-portfolio.test.ts",
+      "current_evidence": "Current source inspected at workers/quests/src/operating-fabric-portfolio.test.ts.",
+      "missingAcceptance": "Portfolio route tests exist, but no dedicated zone/state fixture matrix proves all states."
     },
     {
       "id": "T-076",
@@ -1546,8 +1730,10 @@
       "phase": "P3",
       "wave": "W7",
       "swarm": "integration",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page/operating-fabric/scaffold.ts",
+      "evidence": "Operating Fabric scaffold/index compilation and motion-safety tests prove one integrated shared shell."
     },
     {
       "id": "T-077",
@@ -1567,8 +1753,10 @@
       "phase": "P3",
       "wave": "W7",
       "swarm": "validation",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "implemented",
+      "executable": false,
+      "file_owner": "workers/quests/src/page-motion-safety.test.ts",
+      "evidence": "gestures.ts, motion-safety tests, and handler tests cover keyboard, reduced motion, touch, and viewport behavior."
     },
     {
       "id": "T-078",
@@ -1586,8 +1774,11 @@
       "phase": "P3",
       "wave": "W8",
       "swarm": "release",
-      "state": "residual",
-      "missingAuthority": "Not implemented in current origin/main merge set; no matching commit/test/receipt exists. Keep in residual execution with explicit acceptance to be created."
+      "status": "residual",
+      "executable": true,
+      "file_owner": "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
+      "current_evidence": "Current source inspected at docs/plans/evidence/cambium-operating-fabric-2026-07-29.md.",
+      "missingAcceptance": "No reviewed KV republication receipt proves the served ledger contains five non-template branches."
     },
     {
       "id": "T-079",
@@ -1607,8 +1798,11 @@
       "phase": "P3",
       "wave": "W8",
       "swarm": "release",
-      "state": "approval-gated",
-      "missingAuthority": "Requires authenticated Telegram pilot runbook and evidence packet before this validation pass can execute."
+      "status": "approval-gated",
+      "executable": false,
+      "file_owner": "docs/plans/evidence/cambium-operating-fabric-proof-template.md",
+      "current_evidence": "Current authority boundary recorded in docs/plans/evidence/cambium-operating-fabric-proof-template.md.",
+      "missingAuthority": "An authenticated live Telegram pilot and six-surface evidence packet require explicit runtime authority."
     },
     {
       "id": "T-080",
@@ -1625,8 +1819,11 @@
       "phase": "P3",
       "wave": "W8",
       "swarm": "release",
-      "state": "approval-gated",
-      "missingAuthority": "Requires founder decision and production rollback/removal evidence to close this pilot decision gate."
+      "status": "approval-gated",
+      "executable": false,
+      "file_owner": "docs/plans/evidence/cambium-operating-fabric-proof-template.md",
+      "current_evidence": "Current authority boundary recorded in docs/plans/evidence/cambium-operating-fabric-proof-template.md.",
+      "missingAuthority": "A founder promotion-or-rollback decision and post-decision production probe are required."
     }
   ]
 }

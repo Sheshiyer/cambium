@@ -1407,3 +1407,23 @@ mutation has been performed by drafting this packet.
   foundation gate 227 passing with one historical skip, complete repository suite
   1733/1733, composition validation, rendered-doc synchronization, JSON
   parsing, and `git diff --check`.
+
+### 2026-08-15 Mini App task-map reconciliation checkpoint
+
+- GIP-003 re-read every one of the 80 dated Mini App task rows against merged
+  source `f7e8795615e372323aaa24a5ae2d0255cb45aaec`, focused tests, and current
+  authority boundaries. The historical plan remains provenance, not runtime
+  authority.
+- The governed task map now retains all 80 IDs while exposing only 28
+  evidence-backed residuals as executable. Forty-four rows are implemented,
+  four are superseded by broader verified coverage, and four live/runtime
+  decisions remain approval-gated and non-executable.
+- Every executable row retains dependencies and validation, names one exact
+  repository file owner, cites the current source inspected, and records one
+  missing acceptance. No historical checklist row is promoted merely because
+  its title resembles current code.
+- GIP-003 is complete. GIP-008 repository-task migration remains the next
+  reviewable planning wave; GIP-004 through GIP-006 remain runtime/content
+  gated and receive no mutation from this checkpoint.
+- This reconciliation performs no deployment, allowlist, KV/D1/R2/Vault,
+  Telegram, provider, credential, folder, or external-repository mutation.
