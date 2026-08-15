@@ -1427,3 +1427,23 @@ mutation has been performed by drafting this packet.
   gated and receive no mutation from this checkpoint.
 - This reconciliation performs no deployment, allowlist, KV/D1/R2/Vault,
   Telegram, provider, credential, folder, or external-repository mutation.
+
+### 2026-08-15 product-branch repository-task migration checkpoint
+
+- GIP-008 reviewed the five active non-template branch packets, resolved their
+  exact owning repositories, checked for exact-title duplicates, and created
+  one bounded planning issue in each owner: Fitcheck #2, Vantyx #1, IVerif
+  #91, DLOCK #1, and Snow Gloves OS #8.
+- Each issue preserves canonical WorkObject identity, residual quest proof,
+  repository ownership, and the packet's founder/provider boundary. Cambium
+  retains cross-portfolio sequencing and no longer acts as the local
+  implementation backlog for those repositories.
+- All five issues were read back OPEN with exact node identity and creation
+  time. The immutable mapping receipt is
+  `docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json`.
+- GIP-008 is complete. GIP-004 through GIP-006 remain separately owned by
+  Cambium issues #284, #283/#249, and #252 and retain their runtime/content
+  gates.
+- This wave creates issues only. It performs no branch promotion, provider or
+  credential action, deploy, ledger publication, contact, spend, Telegram,
+  folder, Vault, or production runtime mutation.

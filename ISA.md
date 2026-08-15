@@ -2476,6 +2476,18 @@ Verification source: `docs/evidence/2026-08-15-portfolio-origin-classification-a
 
 Verification source: `.planning/2026-08-11-mini-app-page-wiring.tasks.json`, `.planning/execution/2026-08-12-source-reconciliation.v1.json`, and `scripts/mini-app-task-reconciliation.test.mjs`.
 
+## 2026-08-15 product-branch repository-task migration
+
+- [x] ISC-1236: the five active non-template packets map to exact owning repositories and one unique open issue each.
+- [x] ISC-1237: each owning issue preserves canonical WorkObject identity, residual quest proof, and the packet's founder/provider boundary.
+- [x] ISC-1238: exact-title duplicate searches return zero matches immediately before issue creation, and all five created issues read back OPEN with stable node identity.
+- [x] ISC-1239: every Cambium packet links its owning issue while Cambium retains only cross-portfolio sequencing authority.
+- [x] ISC-1240: GIP-008 is complete; GIP-004 through GIP-006 remain runtime/content gated and stay owned by their existing Cambium issues.
+- [x] ISC-1241: the Client Delivery template remains excluded and receives no WorkObject or repository issue.
+- [x] ISC-1242: the migration performs no branch promotion, provider action, deployment, ledger publication, contact, spend, credential, Telegram, folder, Vault, or runtime mutation.
+
+Verification source: `docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json`, live GitHub issue readback, the five linked product-branch packets, and `scripts/product-branch-repository-task-migration.test.mjs`.
+
 ### 2026-08-13 portfolio assimilation production repair
 
 - ISC-1067: Git ancestry/status probe — released source `a16d6033c658713b89ea14b5f7b4a854eb43b14e` was clean and exactly one commit above base `a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.

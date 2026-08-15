@@ -18,6 +18,8 @@ management software. The current evidence supports a live landing page,
 hardware-resource catalog, and repository identity, not yet live product
 operations, billing readiness, access-control correctness, or customer proof.
 
+Owning repository task: [`thoughtseed-labs/lockwell-portal#1`](https://github.com/thoughtseed-labs/lockwell-portal/issues/1). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
+
 ## Product Seed
 
 | Field | Value |

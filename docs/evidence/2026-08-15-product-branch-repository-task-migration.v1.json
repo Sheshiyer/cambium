@@ -1,0 +1,71 @@
+{
+  "schema": "thoughtseed.product-branch-repository-task-migration.v1",
+  "githubIssue": "#291",
+  "wave": "GIP-008",
+  "observedAt": "2026-08-15T08:38:10Z",
+  "authority": "Issue/task creation only; no branch promotion, provider action, ledger publication, deployment, contact, spend, credential, or runtime mutation.",
+  "summary": {
+    "packetsReviewed": 5,
+    "duplicateExactTitleMatches": 0,
+    "owningRepositoryIssuesCreated": 5,
+    "openIssueReadbacks": 5,
+    "externalRuntimeMutations": 0
+  },
+  "migrations": [
+    {
+      "canonicalWorkId": "sapling:fitcheck",
+      "packet": "docs/plans/product-branches/fitcheck-growth-quest-backlog.md",
+      "repository": "Sheshiyer/fitcheck-landing",
+      "issueNumber": 2,
+      "issueNodeId": "I_kwDOSzF5688AAAABM3jJUg",
+      "url": "https://github.com/Sheshiyer/fitcheck-landing/issues/2",
+      "title": "planning: execute proof-bound Fitcheck growth quests",
+      "state": "OPEN",
+      "createdAt": "2026-08-15T08:38:01Z"
+    },
+    {
+      "canonicalWorkId": "sapling:vantyx",
+      "packet": "docs/plans/product-branches/vantyx.md",
+      "repository": "Sheshiyer/vantyx",
+      "issueNumber": 1,
+      "issueNodeId": "I_kwDOSzK35M8AAAABM3jJzg",
+      "url": "https://github.com/Sheshiyer/vantyx/issues/1",
+      "title": "planning: prove Vantyx second-tenant onboarding and rollback",
+      "state": "OPEN",
+      "createdAt": "2026-08-15T08:38:03Z"
+    },
+    {
+      "canonicalWorkId": "sapling:iverif",
+      "packet": "docs/plans/product-branches/iverif.md",
+      "repository": "Sheshiyer/iverif-wiki",
+      "issueNumber": 91,
+      "issueNodeId": "I_kwDOSwXJ7c8AAAABM3jKPA",
+      "url": "https://github.com/Sheshiyer/iverif-wiki/issues/91",
+      "title": "planning: separate IVerif claims from product proof",
+      "state": "OPEN",
+      "createdAt": "2026-08-15T08:38:05Z"
+    },
+    {
+      "canonicalWorkId": "sapling:dlock",
+      "packet": "docs/plans/product-branches/dlock.md",
+      "repository": "thoughtseed-labs/lockwell-portal",
+      "issueNumber": 1,
+      "issueNodeId": "I_kwDOP5AZyc8AAAABM3jKtQ",
+      "url": "https://github.com/thoughtseed-labs/lockwell-portal/issues/1",
+      "title": "planning: map DLOCK resources and integration boundaries",
+      "state": "OPEN",
+      "createdAt": "2026-08-15T08:38:08Z"
+    },
+    {
+      "canonicalWorkId": "program:snow-gloves-os",
+      "packet": "docs/plans/product-branches/snow-gloves-os.md",
+      "repository": "Sheshiyer/snow-gloves-os",
+      "issueNumber": 8,
+      "issueNodeId": "I_kwDOSgmVdM8AAAABM3jLHg",
+      "url": "https://github.com/Sheshiyer/snow-gloves-os/issues/8",
+      "title": "planning: prove Snow Gloves OS Will-organ service gate",
+      "state": "OPEN",
+      "createdAt": "2026-08-15T08:38:10Z"
+    }
+  ]
+}
