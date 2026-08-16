@@ -1,14 +1,13 @@
 {
   "schema": "cambium.docs-retention.v1",
   "status": "reviewed-proposal",
-  "generatedAt": "2026-08-12",
   "scopeRoot": "docs/plans",
   "decision": "no-relocation-or-deletion",
   "entries": [
     {
       "path": "docs/plans/**/*.md",
       "kind": "plan",
-      "bytes": 555095,
+      "bytes": 564347,
       "retentionClass": "retain",
       "reason": "Dated decision and implementation history; non-operational under docs/LIFECYCLE.md.",
       "replacementPath": null,
@@ -32,8 +31,8 @@
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-actions-mobile.png",
       "kind": "screenshot",
-      "bytes": 977436,
-      "sha256": "8b33bddd4aecbee974e630f289340caf925b287702dfbee390f2976a467e61eb",
+      "bytes": 977041,
+      "sha256": "2cb08a8b3ff54b8dea326926a0b9d4ec8606e8e6710a0db4fdfe795a4a06e646",
       "retentionClass": "review-required",
       "reason": "Byte-identical to the utilities capture but separately named in capture manifests and worker tests.",
       "replacementPath": null,
@@ -45,8 +44,8 @@
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-utilities-mobile.png",
       "kind": "screenshot",
-      "bytes": 977436,
-      "sha256": "8b33bddd4aecbee974e630f289340caf925b287702dfbee390f2976a467e61eb",
+      "bytes": 977041,
+      "sha256": "2cb08a8b3ff54b8dea326926a0b9d4ec8606e8e6710a0db4fdfe795a4a06e646",
       "retentionClass": "review-required",
       "reason": "Byte-identical to the actions capture but separately named in capture manifests and worker tests.",
       "replacementPath": null,
@@ -58,7 +57,7 @@
     {
       "path": "docs/plans/assets/**",
       "kind": "source-image",
-      "bytes": 109947001,
+      "bytes": 110387748,
       "retentionClass": "review-required",
       "reason": "Generated and reference proof assets have direct documentation, manifest, generated-organ, and test references.",
       "replacementPath": null,
@@ -68,7 +67,7 @@
       "reviewedAt": "2026-08-10"
     }
   ],
-  "nextGate": "Review the per-file SHA-256 and bounded-reference inventory, then obtain owner approval for any replacement-path proposal.",
+  "nextGate": "Generate per-file SHA-256, bounded inbound references, integrity-link status, and restoration method; then obtain owner approval for any replacement-path proposal.",
   "exclusions": [
     ".planning",
     ".project/HANDOFF.md",
@@ -76,5 +75,9 @@
     "docs/architecture/contracts",
     "docs/evidence",
     "raw Cortex/provider/runtime state"
-  ]
+  ],
+  "decisionOriginDate": "2026-08-10",
+  "inventoryAsOfRevision": "HEAD",
+  "inventoryAsOfCommitDate": "2026-08-16",
+  "entryCount": 177
 }

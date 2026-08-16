@@ -1,7 +1,9 @@
 {
   "schema": "cambium.docs-retention.per-file.v1",
   "status": "reviewed-inventory",
-  "generatedAt": "2026-08-12",
+  "decisionOriginDate": "2026-08-10",
+  "inventoryAsOfRevision": "HEAD",
+  "inventoryAsOfCommitDate": "2026-08-16",
   "scopeRoot": "docs/plans",
   "decision": "no-relocation-or-deletion",
   "entryCount": 177,
@@ -466,13 +468,14 @@
     },
     {
       "path": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-      "bytes": 13083,
-      "sha256": "f4ff56abfcd9e81cc8c8c958564006dd8dbb2148f16986e4f6c085b348f82b5b",
+      "bytes": 21240,
+      "sha256": "f97b2bd91a6d4d3ba1128b06eedc537dd74dc45c548163e8577e0d4c065efc2e",
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
-        "count": 3,
+        "count": 4,
         "samplePaths": [
+          ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
           ".planning/execution/2026-08-12-source-reconciliation.md",
           ".planning/execution/2026-08-12-source-reconciliation.v1.json",
           ".project/HANDOFF.md"
@@ -491,10 +494,8 @@
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
-        "count": 3,
+        "count": 1,
         "samplePaths": [
-          ".planning/execution/2026-08-12-source-reconciliation.md",
-          ".planning/execution/2026-08-12-source-reconciliation.v1.json",
           "docs/project-management/2026-08-12-github-issue-reconciliation.md"
         ],
         "truncated": false
@@ -2067,8 +2068,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/component-mission-components-mobile.png",
-      "bytes": 1037296,
-      "sha256": "ead4d1b28e967feee180c3718bcbb4dd1d25c2d2c45260423281d74fbdac0664",
+      "bytes": 1051725,
+      "sha256": "bc2f709f5961e410e1a9b6d02ee967e99b4db3fbd184b5a9c93eb90c5b956f01",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2085,8 +2086,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/component-motion-legend-mobile.png",
-      "bytes": 1020587,
-      "sha256": "8a386ef3e3012ee97c88723427a30d690fceca811102b46030bfe0da07ab648e",
+      "bytes": 1020593,
+      "sha256": "cbbc87c5514a690b911850e80b5fbb2a4f63d7b1b471754392b30c4ce3cbf98a",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2103,8 +2104,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-consequence-mobile.png",
-      "bytes": 1145079,
-      "sha256": "c87c96f1eedb57ad33c3d87ab68808efe41b001ccc2e8c9c6e97931fabf58e7f",
+      "bytes": 1144974,
+      "sha256": "682aefb60cf83429e2c711e4f1a507a397f5a4efc5d9b682e452d2ff76f05f2e",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2123,8 +2124,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-empty-mobile.png",
-      "bytes": 1137930,
-      "sha256": "d916ba3629c1d1591b99222d54e4893cf44ccfb2e501babc65929242a6d7de53",
+      "bytes": 1137812,
+      "sha256": "40b5c0bf9c4eac1836c27eb506566a3a7320c94aad72859fbdd167713c2eedeb",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2142,8 +2143,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-iverif-action-request-mobile.png",
-      "bytes": 1155328,
-      "sha256": "f3b4b8d88b23b2a6f85b5903d11a4c8a0f5f0752b949a8a4660a121b557672d3",
+      "bytes": 1155304,
+      "sha256": "b755dc5c2e0c8dad197ee458fc67e36309d3d2bee40c4fcf9ddcffc683dc9f5e",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2160,8 +2161,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-iverif-queued-proof-mobile.png",
-      "bytes": 1121235,
-      "sha256": "f813266d4a29de263196aa3eedf7258b945bda397a41dd20636f06ba741be73a",
+      "bytes": 1121347,
+      "sha256": "946bf4e95b5e13e844cb27bc57b8b77a8074ee96a86cc317da8e365b5cbe77b0",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2178,8 +2179,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-companions-mobile.png",
-      "bytes": 1122861,
-      "sha256": "1cc7decc2621bcc10b68163a5085feacd297f0dc4d4333ae4c29cc83f7ad868a",
+      "bytes": 1122748,
+      "sha256": "48cbf6eef184c0c87f2e381faf3b2b952664d8bb696b2fe78cf985c520df9287",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2196,8 +2197,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-gate-priority-mobile.png",
-      "bytes": 1180459,
-      "sha256": "9358639663225973d854e002f26bbfc417687a975534d44c7fd1990f75b6204e",
+      "bytes": 1180360,
+      "sha256": "73863c35a93a493757bacc2810b11e1dcb85bc921a131d0a9eac90a2d979fa73",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2214,8 +2215,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-iverif-action-request-mobile.png",
-      "bytes": 1139557,
-      "sha256": "3a5681578fb7f71a3644037d753d18c27dbe77b26857de29d09b97c0f8958b97",
+      "bytes": 1139560,
+      "sha256": "d0d71dbedba39d6e8687e7562184e8841de3429e0712774a65e3ff33170333b0",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2232,8 +2233,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-live-proof-mobile.png",
-      "bytes": 1133778,
-      "sha256": "4721ab0423e962467db60b69cc90f299ecd3c98f6cecdd5145d25d5633774ca9",
+      "bytes": 1133678,
+      "sha256": "1a6ce449bf9337af1bbee11e28bf9ee631d5c4d1616c8fdb52f7be8706a3d50f",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2250,8 +2251,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-mira-relationship-mobile.png",
-      "bytes": 221831,
-      "sha256": "3e93510d12ab65df93f8c6da7a709eba9fdf63762c235d787827b8fb4bf10d94",
+      "bytes": 219518,
+      "sha256": "894cd0362efca58407cbaf9e9b0e2562dfc188d517b020fb97a5598330c9434f",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2268,8 +2269,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-no-fake-progress-mobile.png",
-      "bytes": 1136272,
-      "sha256": "baa2a36590a54afee97a9434bef6521c92a9b33df2329dfcdedcff32b820557d",
+      "bytes": 1136162,
+      "sha256": "38f7c6fe8a8b2f508ba83ec02e83171b2539169a94f3b6773c50eaee7139e36b",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2286,8 +2287,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-policy-gap-mobile.png",
-      "bytes": 1180522,
-      "sha256": "4e71cc62fc7c1cebe789844c330e53eba224db80c28dd93c35bdcd4f5c0c18ff",
+      "bytes": 1180408,
+      "sha256": "f4123407a46e451b698fac2086f8ad7834e8873573827ac6d4aaf83ff8185e2a",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2304,8 +2305,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-proof-320-mobile.png",
-      "bytes": 931625,
-      "sha256": "4ce3bedb9c563e4cb003a4eeec294022f7177b24f4e178e0059f34d13da31747",
+      "bytes": 931587,
+      "sha256": "df4e104860fd28868b82c97bb0906df08eed6c261e592ff4d8795828dc0b5f88",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2322,8 +2323,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-skill-promotion-mobile.png",
-      "bytes": 1170379,
-      "sha256": "aaa606aef5afe0b23826fe1f76f9d65bc18f3bebdd24858064f18ee5219cffdf",
+      "bytes": 1170265,
+      "sha256": "a1f536ea0c8efdc81fdff71a35c51c65cddfd73cd820f5d5efce6d9b73f6d91c",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2340,8 +2341,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-system-overview-mobile.png",
-      "bytes": 1100487,
-      "sha256": "544fa7bf2e426eedf55903b9707d99ee5c7fb0934a14ddb30d75bf6b05a89dc7",
+      "bytes": 1100369,
+      "sha256": "05824edccb8d1742506d4fc2cee7b3db7d54584c9df8a2a6fc4254fef4899d56",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2358,8 +2359,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-tapestry-audit-mobile.png",
-      "bytes": 1101193,
-      "sha256": "0d87bfa5c9135e65c3e184f7de5a3751cf6289bbe35193db5fa8d2c3fd2eb3ac",
+      "bytes": 1101085,
+      "sha256": "ddff9be6e72bcb37b734986bd10238ca03cb5ebce91340d2d04c4578c09e3158",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2377,7 +2378,7 @@
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
       "bytes": 29603,
-      "sha256": "88ea919362197cc826ffd15120697c0756a71486850a632fd58e24e157353b39",
+      "sha256": "88d62d998ed153532db3832ba6953f289dfd26c01d540d657719acd10484c08d",
       "gitTracked": true,
       "kind": "manifest",
       "inboundReferences": {
@@ -2396,22 +2397,22 @@
         ],
         "truncated": false
       },
-      "integrityLink": "path-only",
+      "integrityLink": "both",
       "retentionClass": "retain-proof",
       "restorationMethod": "Git history",
       "decision": "retain"
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-actions-mobile.png",
-      "bytes": 977436,
-      "sha256": "8b33bddd4aecbee974e630f289340caf925b287702dfbee390f2976a467e61eb",
+      "bytes": 977041,
+      "sha256": "2cb08a8b3ff54b8dea326926a0b9d4ec8606e8e6710a0db4fdfe795a4a06e646",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
         "count": 2,
         "samplePaths": [
-          ".planning/2026-08-10-documentation-retention-manifest.v1.json",
-          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+          "scripts/generate-docs-retention-manifest.mjs"
         ],
         "truncated": false
       },
@@ -2423,8 +2424,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-control-320-mobile.png",
-      "bytes": 1047019,
-      "sha256": "b609fdca697799bf14f95efb9b4e6f110c38b3aa0ba48b9c762d513542605e3f",
+      "bytes": 1101240,
+      "sha256": "5f49b61d63f56b0edde7e17e608244e5cd5c9a8bda58849d60a887d806722f5d",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2441,8 +2442,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-control-430-mobile.png",
-      "bytes": 1345273,
-      "sha256": "a463aa0698bef9f5c7999ebe21eecc387d1530bf3c8de0ffd296d90d557d3ac6",
+      "bytes": 1422188,
+      "sha256": "7b7d03576e06540bdc5946da6b99de175c07d37080acdbedb4678815ade139fe",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2459,8 +2460,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-control-mobile.png",
-      "bytes": 1244868,
-      "sha256": "ddbe1c10ec16c56ba24d7c20116ec730886e439bf3e590482a64406247586db1",
+      "bytes": 1311050,
+      "sha256": "f305ede68470b47340bb5fbd87dd4b7038428ff02d2aa0c53e32ba527c60062a",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2479,15 +2480,15 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-utilities-mobile.png",
-      "bytes": 977436,
-      "sha256": "8b33bddd4aecbee974e630f289340caf925b287702dfbee390f2976a467e61eb",
+      "bytes": 977041,
+      "sha256": "2cb08a8b3ff54b8dea326926a0b9d4ec8606e8e6710a0db4fdfe795a4a06e646",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
         "count": 2,
         "samplePaths": [
-          ".planning/2026-08-10-documentation-retention-manifest.v1.json",
-          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+          "scripts/generate-docs-retention-manifest.mjs"
         ],
         "truncated": false
       },
@@ -2499,8 +2500,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-vantyx-selected-mobile.png",
-      "bytes": 1133012,
-      "sha256": "ed37276fc7a5c71849dc698eb95a08a6c129d3d82044cdfc5f5a742285fdaf37",
+      "bytes": 1145179,
+      "sha256": "c25f6dae1b9fac2b9f5180527917f2c9598ea6acdb76d5a42dd31bf8c08db56c",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2574,8 +2575,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-320-mobile.png",
-      "bytes": 218165,
-      "sha256": "c68742648fe64c86374bf127a7e0f43091d15e60e39dba3da39241b4b24fea0f",
+      "bytes": 247380,
+      "sha256": "4bf3cbe641bf17a7520ce4605af5f15fe1ce5011c678aed3e71181fb30516fd5",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2592,8 +2593,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-390-mobile.png",
-      "bytes": 90363,
-      "sha256": "52b7d375cab4062071ffa1044992736bcfd7238494a2af871b35439dad3183e1",
+      "bytes": 85853,
+      "sha256": "2be9dfa15ab9b370942819497ded61627ff1231569bb0a17648f5378157fd5b5",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2610,8 +2611,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-430-mobile.png",
-      "bytes": 274650,
-      "sha256": "9878c13997f09c130ec06b810c57e787a288f44e0fb0623ba5c0deb6c2638626",
+      "bytes": 337674,
+      "sha256": "3952e5eb07eebffd1aac2e602d31a6f43a9c6fe9173c083070bc73f8d733c05f",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2628,8 +2629,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-320-mobile.png",
-      "bytes": 343454,
-      "sha256": "60ba4095f690664f0fe5a03aaa76c4d81520c34a57b62a5d01f9d6f39b375ec2",
+      "bytes": 360007,
+      "sha256": "2f637d18647b7be0058644676ded836e954fd5d2e580f5211e2c5ac4fa183060",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2646,8 +2647,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-390-mobile.png",
-      "bytes": 148355,
-      "sha256": "bafa11277b863620fc7d30a6edef71c0e2c9322a7a06823cf07efb45e08da912",
+      "bytes": 147049,
+      "sha256": "cfe4c1170c0f90ccdd74a5df33daa9435a4f94c582a96d0db933a95deb75fa82",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2664,8 +2665,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-430-mobile.png",
-      "bytes": 404080,
-      "sha256": "2b6173cdb48ee03c4f535d2b5f7e6fb65fdb60452ca0fa281b70cb6b5e651c83",
+      "bytes": 452215,
+      "sha256": "a73ecf49bf007efb4d4e13c8877b23652e31841044c07b33f5c740f4249dbf13",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2737,8 +2738,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-queued-proof-detail-mobile.png",
-      "bytes": 1106472,
-      "sha256": "02c84f4bf9c500c25addb185274bdc89f4d2e6f5cc74736c5d3aed83c24a0bac",
+      "bytes": 1106506,
+      "sha256": "7d7f8d96cad69b65bac490257a96a339867ae437c3eee37d22c93c6dee1a09ef",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2773,8 +2774,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-reroll-preflight-mobile.png",
-      "bytes": 74793,
-      "sha256": "cb99b9b43f78228d784ac2ffe7f06a42a2c3b9bfba8e63be3a869b0fd91abd72",
+      "bytes": 75256,
+      "sha256": "a8974e51d5334cbe913c2de76e6e88f3645a07d0ad5254cba9fd75de2eeeea48",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2792,8 +2793,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-inspect-skill-promotion-mobile.png",
-      "bytes": 241525,
-      "sha256": "07397366bc95e62277f4a363dc8bc8d4d2763fce7888c85724789ee41646485d",
+      "bytes": 275008,
+      "sha256": "abda44618733d6351be1a4dc026c14393d62f13508e365dc2766d0183d6e7a59",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2810,8 +2811,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-open-proof-mobile.png",
-      "bytes": 452362,
-      "sha256": "4ea3ae0bf259cf2aa97a6d8c4b41562141ea08c7ab67e9518115f7b8309afcdc",
+      "bytes": 446930,
+      "sha256": "1b4447964745ef1b319ef9c4021c202623ab88b028d239b0d7add4d042030ec3",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2828,8 +2829,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-review-gate-mobile.png",
-      "bytes": 454067,
-      "sha256": "5ff2deeb023cdf305c811a6c3a13cb8dcae9ee07fd9a96947e1515abf30b0b6c",
+      "bytes": 495513,
+      "sha256": "60863023f58bfe1c6375528aa81b7ea8e655cdbba10d1923cdd92caad8a1a9b8",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2864,8 +2865,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/story-feed-mobile.png",
-      "bytes": 1095009,
-      "sha256": "a2c53e20f2ad63f3e35f91e07254e8e733bf5cbadb40be31eb62fe68a2c00169",
+      "bytes": 1094951,
+      "sha256": "00cd78c95f7cc937a362b3ec5939b6f2421c40fbeec3ac62cbcdea0d85f207c0",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2882,8 +2883,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/story-iverif-action-request-mobile.png",
-      "bytes": 1092913,
-      "sha256": "46b85d6aa4f50a6d88994d18eceb45c78b8af01ec36a0da2e77e9481d61b73fb",
+      "bytes": 1092886,
+      "sha256": "0d9f1a70f1fe33ca45d95d33c2fbda5e7d0340ad3965e2b3b4c5c9c71262d372",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2918,8 +2919,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/tools-mobile.png",
-      "bytes": 1119615,
-      "sha256": "982de225b4efed7b06a06076d0eb631b6f25716538b32294e65e909e6d4cd925",
+      "bytes": 1119571,
+      "sha256": "dce4f89c5747da4eb142bf85de3e92eff3c2ca3e9e7dbfc03449d4ec2a7cd089",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -3050,11 +3051,15 @@
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
-        "count": 0,
-        "samplePaths": [],
+        "count": 3,
+        "samplePaths": [
+          ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
+          ".planning/execution/2026-08-12-source-reconciliation.md",
+          ".planning/execution/2026-08-12-source-reconciliation.v1.json"
+        ],
         "truncated": false
       },
-      "integrityLink": "none",
+      "integrityLink": "path-only",
       "retentionClass": "retain-historical",
       "restorationMethod": "Git history",
       "decision": "retain"
@@ -3066,8 +3071,10 @@
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
-        "count": 2,
+        "count": 4,
         "samplePaths": [
+          ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
+          ".planning/execution/2026-08-12-source-reconciliation.v1.json",
           "docs/plans/2026-07-28-cambium-operating-fabric-implementation-plan.md",
           "workers/quests/src/live-proof-readiness.test.ts"
         ],
@@ -3155,12 +3162,12 @@
     },
     {
       "path": "docs/plans/product-branches/dlock.md",
-      "bytes": 15181,
-      "sha256": "f812bf11c91d6cc9ceaf6fdbff917e9ce0939ba4338d8edb3d7d6f6e23262b6b",
+      "bytes": 15416,
+      "sha256": "329f48ed5befb7f07d40f66d3e6fb04273cc3af1be0e46bf646846e5a674ee56",
       "gitTracked": true,
       "kind": "branch-packet",
       "inboundReferences": {
-        "count": 12,
+        "count": 13,
         "samplePaths": [
           ".planning/2026-08-12-cambium-execution-wave.tasks.json",
           ".project/HANDOFF.md",
@@ -3168,6 +3175,7 @@
           "apps/portfolio-cartographer/src/portfolio-catalog-data.ts",
           "docs/evidence/2026-08-08-github-repository-mapping-audit.v1.json",
           "docs/evidence/2026-08-08-temperance-github-mapping-dispatch.md",
+          "docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json",
           "docs/plans/product-branches/index.md",
           "docs/plans/product-branches/schema.json",
           "docs/project-management/github-repository-mapping-action-queue.v1.json",
@@ -3203,14 +3211,15 @@
     },
     {
       "path": "docs/plans/product-branches/fitcheck-growth-quest-backlog.md",
-      "bytes": 3897,
-      "sha256": "2e5001c303534b7e91748b3ad5f753c4f25c7c60a1699bd73a07ef22017b1af7",
+      "bytes": 4120,
+      "sha256": "1384a96476a34d32c094369978fe74ed61ef3eddc87b4fa6dab7fb8b865abeda",
       "gitTracked": true,
       "kind": "branch-packet",
       "inboundReferences": {
-        "count": 2,
+        "count": 3,
         "samplePaths": [
           ".planning/2026-08-12-cambium-execution-wave.tasks.json",
+          "docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json",
           "docs/plans/product-branches/schema.json"
         ],
         "truncated": false
@@ -3285,12 +3294,12 @@
     },
     {
       "path": "docs/plans/product-branches/iverif.md",
-      "bytes": 15507,
-      "sha256": "e00f4a875ec45cba323e36c4096e50907f11275a9e1d111196cbb1b8b912803f",
+      "bytes": 15722,
+      "sha256": "2234924cb9a7fd92d010060458263baae5687c71884af4452c2305e762d3af1b",
       "gitTracked": true,
       "kind": "branch-packet",
       "inboundReferences": {
-        "count": 18,
+        "count": 19,
         "samplePaths": [
           ".planning/2026-08-12-cambium-execution-wave.tasks.json",
           ".superpowers/sdd/task-1-report.md",
@@ -3300,6 +3309,7 @@
           "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
           "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
           "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json",
           "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
           "docs/plans/product-branches/ISA.md",
           "docs/plans/product-branches/branch-map.json",
@@ -3368,12 +3378,12 @@
     },
     {
       "path": "docs/plans/product-branches/snow-gloves-os.md",
-      "bytes": 13074,
-      "sha256": "85d96292f85daf49b6b16c8fa5a36911a2c73b1ca74ed4249e236d4f974024a5",
+      "bytes": 13293,
+      "sha256": "4db74d81898b8c3735b1a2b9a7576a6f70f7d553a602193b2821aab7e07a5877",
       "gitTracked": true,
       "kind": "branch-packet",
       "inboundReferences": {
-        "count": 13,
+        "count": 14,
         "samplePaths": [
           ".planning/2026-08-12-cambium-execution-wave.tasks.json",
           ".superpowers/sdd/task-1-report.md",
@@ -3383,6 +3393,7 @@
           "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
           "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
           "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json",
           "docs/plans/product-branches/ISA.md",
           "docs/plans/product-branches/index.md",
           "docs/plans/product-branches/schema.json",
@@ -3398,12 +3409,12 @@
     },
     {
       "path": "docs/plans/product-branches/vantyx.md",
-      "bytes": 13189,
-      "sha256": "cda1053dfc310729b347cc28f0ea55e17d4e9a6ae6b6c54145a6bc601bb55268",
+      "bytes": 13392,
+      "sha256": "aa13be55e4c4a79ddfc8831358c7c3a1a48d378cb146f773b8b6f87d99aff14a",
       "gitTracked": true,
       "kind": "branch-packet",
       "inboundReferences": {
-        "count": 13,
+        "count": 14,
         "samplePaths": [
           ".planning/2026-08-12-cambium-execution-wave.tasks.json",
           ".superpowers/sdd/task-1-report.md",
@@ -3413,6 +3424,7 @@
           "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
           "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
           "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json",
           "docs/plans/product-branches/ISA.md",
           "docs/plans/product-branches/index.md",
           "docs/plans/product-branches/schema.json",

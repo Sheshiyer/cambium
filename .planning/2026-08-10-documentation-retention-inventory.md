@@ -1,9 +1,12 @@
-# Documentation retention inventory — 2026-08-10
+<!-- retention-inventory:head:start -->
+# Documentation retention inventory — current HEAD inventory
 
 **Status:** evidence-safe inventory complete; no cleanup approved
+**Decision origin:** 2026-08-10 retention review
+**Inventory basis:** exact committed `HEAD` tree and blobs
+**Inventory as of HEAD commit date:** `2026-08-16`
 **Scope:** `docs/` and `.planning/` only
-**Snapshot refreshed:** 2026-08-12
-**Method:** read-only size, type, checksum, and inbound-reference review
+**Method:** deterministic size, type, checksum, and inbound-reference generation plus release-gated consistency verification
 
 ## Decision
 
@@ -13,14 +16,14 @@ Do not delete, move, merge, externalize, or auto-deduplicate any documentation a
 
 | Surface | Evidence | Interpretation |
 | --- | --- | --- |
-| `docs/` | 416 tracked files, 112,747,047 bytes (107.52 MiB) | the documentation tree is not broadly text-bloated |
-| `docs/plans/` | 177 files, 110,406,909 bytes (105.29 MiB) | dominant historical/proof payload |
-| `docs/plans/assets/` | 127 files, 109,947,001 bytes (104.85 MiB) | generated/reference proof assets |
-| PNG files | 85 files, 109,774,126 bytes (99.43% of `docs/plans`) | primary future retention-review surface |
-| Markdown files | 81 files, 555,095 bytes | low-cost decision/history context |
+| `docs/plans/` | 177 files, 110,856,908 bytes (105.72 MiB) | dominant historical/proof payload measured from HEAD |
+| `docs/plans/assets/` | 127 files, 110,387,748 bytes (105.27 MiB) | generated/reference proof assets |
+| PNG files | 85 files, 110,214,873 bytes (99.42% of `docs/plans`) | primary future retention-review surface |
+| Markdown files | 81 files, 564,347 bytes | low-cost decision/history context |
 | JSON files | 11 files, 77,688 bytes | manifests and structured proof context |
 
 Largest asset families are the Telegram Mini App viewport proof, Cambium R3F screenshots, Cambium R3F game-engine realignment, Telegram Mini App mission-control references, and constellation UI references.
+<!-- retention-inventory:head:end -->
 
 ## Reference safety findings
 
@@ -37,7 +40,9 @@ Create this before any cleanup; it is a proposal, not an action queue:
 ```json
 {
   "schema": "cambium.docs-retention.v1",
-  "generatedAt": "ISO-8601",
+  "decisionOriginDate": "2026-08-10",
+  "inventoryAsOfRevision": "HEAD",
+  "inventoryAsOfCommitDate": "YYYY-MM-DD",
   "scopeRoot": "docs/plans",
   "entries": [
     {
