@@ -3618,7 +3618,117 @@ test('page · provenance-shaped direct Story fixtures remain explicitly unqualif
   assert.match(storyHtml, /data-story-qualified-count="0"/);
   assert.match(storyHtml, /data-story-provenance="legacy-unqualified"/);
   assert.match(storyHtml, /data-component="StoryBeatCard"[^>]*data-source="mission-story@v1"/);
-  assert.doesNotMatch(storyHtml, /data-story-event-id=|data-story-work-object=|data-story-event-kind=/);
+  assert.doesNotMatch(storyHtml, /StoryWorkObjectFilters|data-story-work-object-kind-filter=|data-story-event-id=|data-story-work-object=|data-story-event-kind=/);
+});
+
+test('page · canonical Story filters by exact WorkObject kind and identity without reordering events', async () => {
+  const makeBeat = (eventId: string, eventAt: string, id: string, kind: 'sapling' | 'branch' | 'program') => ({
+    eventId,
+    eventKind: 'receipt' as const,
+    workObject: { id, kind },
+    source: 'story-filter-proof@v1',
+    eventAt,
+    receipt: { id: `receipt:${eventId}` },
+    text: `${eventId} retained`,
+    lane: 'quest',
+    group: 'Mission wins',
+    branchId: 'shared-alias-must-not-filter',
+    proof: 'receipt retained',
+  });
+  const beats = [
+    makeBeat('story:program:newest', '2026-08-16T09:03:00.000Z', 'program:portfolio', 'program'),
+    makeBeat('story:sapling:newer', '2026-08-16T09:02:00.000Z', 'sapling:cambium', 'sapling'),
+    makeBeat('story:sapling:older', '2026-08-16T09:01:00.000Z', 'sapling:fitcheck', 'sapling'),
+    makeBeat('story:branch:oldest', '2026-08-16T09:00:00.000Z', 'branch:iverif', 'branch'),
+  ];
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:04:00.000Z',
+    freshness: { state: 'fresh', detail: 'fresh' },
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    storyProjection: { schema: 'cambium.story-event-projection.v1' },
+    beats,
+  }, { now: '2026-08-16T09:05:00.000Z' });
+  const beatsElement = rendered.elements.get('beats')!;
+  const initialHtml = beatsElement.innerHTML;
+
+  assert.match(initialHtml, /data-component="StoryWorkObjectFilters"/);
+  assert.doesNotMatch(initialHtml, /data-component="StoryBranchFilterChips"/);
+  assert.match(initialHtml, /data-story-work-object-kind-filter="sapling"/);
+  assert.match(initialHtml, /data-story-work-object-id-filter="sapling:cambium"[^>]*data-story-work-object-kind="sapling"/);
+
+  const saplingKind = beatsElement.querySelectorAll('[data-story-work-object-kind-filter]').find((node) => node.dataset.storyWorkObjectKindFilter === 'sapling');
+  assert.ok(saplingKind);
+  assert.equal(typeof saplingKind.onclick, 'function');
+  (saplingKind.onclick as () => void)();
+  const saplingHtml = beatsElement.innerHTML;
+  const saplingCards = [...saplingHtml.matchAll(/<button type="button" class="[^"]*beat[^"]*"[^>]*data-story-event-id="([^"]+)"[^>]*>/g)].map((match) => match[1]);
+  assert.deepEqual(saplingCards, ['story:sapling:newer', 'story:sapling:older']);
+  assert.doesNotMatch(saplingHtml, /data-story-event-id="story:(?:program|branch):/);
+
+  const fitcheckIdentity = beatsElement.querySelectorAll('[data-story-work-object-id-filter]').find((node) => node.dataset.storyWorkObjectIdFilter === 'sapling:fitcheck');
+  assert.ok(fitcheckIdentity);
+  assert.equal(typeof fitcheckIdentity.onclick, 'function');
+  (fitcheckIdentity.onclick as () => void)();
+  const fitcheckHtml = beatsElement.innerHTML;
+  const fitcheckCards = [...fitcheckHtml.matchAll(/<button type="button" class="[^"]*beat[^"]*"[^>]*data-story-event-id="([^"]+)"[^>]*>/g)].map((match) => match[1]);
+  assert.deepEqual(fitcheckCards, ['story:sapling:older']);
+  assert.match(fitcheckHtml, /data-story-work-object-id-filter="sapling:fitcheck"[^>]*aria-pressed="true"/);
+});
+
+test('page · canonical Story rejects alias-shaped and kind-mismatched WorkObjects from filters and provenance', async () => {
+  const beat = (eventId: string, id: string, kind: string) => ({
+    eventId,
+    eventKind: 'receipt',
+    workObject: { id, kind },
+    source: 'story-filter-proof@v1',
+    eventAt: '2026-08-16T09:03:00.000Z',
+    receipt: { id: `receipt:${eventId}` },
+    text: `${eventId} retained`,
+    lane: 'quest',
+    group: 'Mission wins',
+    proof: 'receipt retained',
+  });
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:04:00.000Z',
+    freshness: { state: 'fresh', detail: 'fresh' },
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    storyProjection: { schema: 'cambium.story-event-projection.v1' },
+    beats: [
+      beat('story:valid', 'sapling:cambium', 'sapling'),
+      beat('story:alias', 'fitcheck-alias', 'client'),
+      beat('story:mismatch', 'program:portfolio', 'sapling'),
+    ],
+  }, { now: '2026-08-16T09:05:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /data-story-work-object-id-filter="sapling:cambium"/);
+  assert.match(storyHtml, /data-story-event-id="story:valid"/);
+  assert.doesNotMatch(storyHtml, /fitcheck-alias|data-story-event-id="story:alias"/);
+  assert.doesNotMatch(storyHtml, /program:portfolio|data-story-event-id="story:mismatch"/);
+});
+
+test('page · canonical empty Story names the first qualifying event without fabricating a beat', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:04:00.000Z',
+    freshness: { state: 'fresh', detail: 'fresh' },
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    storyProjection: { schema: 'cambium.story-event-projection.v1' },
+    beats: [],
+  }, { now: '2026-08-16T09:05:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /data-component="StoryEmptyState"/);
+  assert.match(storyHtml, /class="state" role="region"/);
+  assert.match(storyHtml, /data-story-first-qualifying-events="receipt decision transition"/);
+  assert.match(storyHtml, /First: receipt, decision, or completed transition\./);
+  assert.match(storyHtml, /aria-label="First Story event: receipt, founder decision, or completed lifecycle transition with exact WorkObject identity, time, and receipt\."/);
+  assert.doesNotMatch(storyHtml, /data-component="StoryBeatCard"|data-story-event-id=/);
 });
 
 test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () => {
@@ -4005,7 +4115,7 @@ test('page · story hero empty branch filter has no beat index', async () => {
   assert.doesNotMatch(digestSheet, /Only Branch A has a story beat/);
 });
 
-test('page · empty story names branch story wait state', async () => {
+test('page · empty story names the first qualifying Story events', async () => {
   const rendered = await renderPageFixtureContext({
     schema: 1,
     tenant: 'cambium',
@@ -4022,8 +4132,10 @@ test('page · empty story names branch story wait state', async () => {
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
 
   assert.match(storyHtml, /No branch story yet/);
-  // frozen/06 S8: empty body is the five-word token line, not the old narrative sentence.
-  assert.match(storyHtml, /beats land after branch evidence/);
+  // T-063: concise first-event guidance replaces the generic branch-evidence wait line.
+  assert.match(storyHtml, /First: receipt, decision, or completed transition/);
+  assert.match(storyHtml, /data-story-first-qualifying-events="receipt decision transition"/);
+  assert.doesNotMatch(storyHtml, /beats land after branch evidence/);
   assert.doesNotMatch(storyHtml, /Wins, signals, lessons, and drift appear here/);
   assert.match(storyHtml, />Open Mission</);
   assert.match(storyHtml, />Open Proof</);
@@ -4123,12 +4235,12 @@ test('page · story fixture blocked state codes contradiction as blocked tokens 
   assert.doesNotMatch(sheet, /<div class="kv">/);
 });
 
-test('page · story fixture empty state renders the frozen EMPTY panel (T-021)', async () => {
+test('page · story fixture empty state retains frozen controls with T-063 first-event guidance', async () => {
   const rendered = await renderPageFixtureContext(STORY_SCENE_FIXTURE.states.empty.envelope, { now: '2026-07-24T09:17:00.000Z' });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   assert.match(storyHtml, /data-component="StoryEmptyState"/);
   assert.match(storyHtml, /No branch story yet/);
-  assert.match(storyHtml, /beats land after branch evidence/);
+  assert.match(storyHtml, /First: receipt, decision, or completed transition/);
   assert.match(storyHtml, />Refresh</);
   assert.match(storyHtml, />Open Mission</);
   assert.match(storyHtml, />Open Proof</);
