@@ -57,7 +57,7 @@
     {
       "path": "docs/plans/assets/**",
       "kind": "source-image",
-      "bytes": 110321740,
+      "bytes": 110332987,
       "retentionClass": "review-required",
       "reason": "Generated and reference proof assets have direct documentation, manifest, generated-organ, and test references.",
       "replacementPath": null,

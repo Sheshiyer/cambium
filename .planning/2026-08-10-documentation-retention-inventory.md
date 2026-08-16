@@ -16,9 +16,9 @@ Do not delete, move, merge, externalize, or auto-deduplicate any documentation a
 
 | Surface | Evidence | Interpretation |
 | --- | --- | --- |
-| `docs/plans/` | 177 files, 110,795,264 bytes (105.66 MiB) | dominant historical/proof payload measured from HEAD |
-| `docs/plans/assets/` | 127 files, 110,321,740 bytes (105.21 MiB) | generated/reference proof assets |
-| PNG files | 85 files, 110,148,864 bytes (99.42% of `docs/plans`) | primary future retention-review surface |
+| `docs/plans/` | 177 files, 110,806,511 bytes (105.67 MiB) | dominant historical/proof payload measured from HEAD |
+| `docs/plans/assets/` | 127 files, 110,332,987 bytes (105.22 MiB) | generated/reference proof assets |
+| PNG files | 85 files, 110,160,111 bytes (99.42% of `docs/plans`) | primary future retention-review surface |
 | Markdown files | 81 files, 568,711 bytes | low-cost decision/history context |
 | JSON files | 11 files, 77,689 bytes | manifests and structured proof context |
 
