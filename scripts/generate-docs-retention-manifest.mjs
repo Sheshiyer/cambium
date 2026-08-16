@@ -7,18 +7,35 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
+const rootReal = fs.realpathSync(root);
 const output = process.argv.includes('--out')
   ? process.argv[process.argv.indexOf('--out') + 1]
   : '.planning/2026-08-10-documentation-retention-manifest.per-file.v1.json';
-const outputPath = path.isAbsolute(output) ? output : path.join(root, output);
+const outputPath = path.resolve(root, output);
+const outputDirReal = fs.realpathSync(path.dirname(outputPath));
+const guardedOutputPath = path.resolve(outputDirReal, path.basename(outputPath));
+if (guardedOutputPath !== rootReal && !guardedOutputPath.startsWith(`${rootReal}${path.sep}`)) {
+  throw new Error(`output path must stay within the repository: ${output}`);
+}
+const readExistingGeneratedAt = () => {
+  if (!fs.existsSync(guardedOutputPath)) return null;
+  try {
+    const existing = JSON.parse(fs.readFileSync(guardedOutputPath, 'utf8'));
+    return typeof existing.generatedAt === 'string' ? existing.generatedAt : null;
+  } catch {
+    return null;
+  }
+};
 const generatedAt = process.argv.includes('--generated-at')
   ? process.argv[process.argv.indexOf('--generated-at') + 1]
-  : new Date().toISOString().slice(0, 10);
+  : readExistingGeneratedAt() ?? new Date().toISOString().slice(0, 10);
 const text = new Set(['.md', '.json', '.js', '.mjs', '.ts', '.tsx', '.html', '.css', '.yml', '.yaml']);
 const tracked = execFileSync('git', ['ls-files', '-z', '--', 'docs/plans'], { cwd: root, encoding: 'utf8' })
   .split('\0').filter(Boolean).sort();
+const outputRepoPath = path.relative(root, guardedOutputPath);
 const textFiles = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
-  .split('\0').filter((file) => text.has(path.extname(file).toLowerCase()));
+  .split('\0')
+  .filter((file) => file && file !== outputRepoPath && text.has(path.extname(file).toLowerCase()));
 const readText = (file) => {
   try { return fs.readFileSync(path.join(root, file), 'utf8'); } catch { return ''; }
 };
@@ -73,5 +90,5 @@ const manifest = {
   entries,
   safeguards: ['tracked-files-only', 'no-reference-bodies', 'no-automatic-deletion-or-externalization', 'duplicate-groups-remain-review-required']
 };
-fs.writeFileSync(outputPath, `${JSON.stringify(manifest, null, 2)}\n`);
+fs.writeFileSync(guardedOutputPath, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`${output}: ${entries.length} entries`);
