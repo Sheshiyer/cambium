@@ -468,17 +468,18 @@
     },
     {
       "path": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-      "bytes": 21240,
-      "sha256": "f97b2bd91a6d4d3ba1128b06eedc537dd74dc45c548163e8577e0d4c065efc2e",
+      "bytes": 23502,
+      "sha256": "a6a104c61b1f7604849bac242f07edccee9f371571962f78077a65891e75de4d",
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
-        "count": 4,
+        "count": 5,
         "samplePaths": [
           ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
           ".planning/execution/2026-08-12-source-reconciliation.md",
           ".planning/execution/2026-08-12-source-reconciliation.v1.json",
-          ".project/HANDOFF.md"
+          ".project/HANDOFF.md",
+          "scripts/mini-app-task-reconciliation.test.mjs"
         ],
         "truncated": false
       },

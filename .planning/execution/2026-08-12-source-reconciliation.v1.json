@@ -13,12 +13,80 @@
   "counts": {
     "issues": 14,
     "tasks": 80,
-    "executable_tasks": 18,
+    "executable_tasks": 16,
     "dispositions": {
-      "implemented": 53,
+      "implemented": 55,
       "superseded": 4,
-      "residual": 18,
+      "residual": 16,
       "approval-gated": 5
+    }
+  },
+  "execution_scheduler": {
+    "ordered_stages": [
+      {
+        "stage": "planning",
+        "task_ids": ["T-032", "T-033"]
+      },
+      {
+        "stage": "mission",
+        "task_ids": ["T-044"]
+      },
+      {
+        "stage": "tools",
+        "task_ids": ["T-053", "T-054", "T-056"]
+      },
+      {
+        "stage": "story",
+        "task_ids": ["T-059", "T-060", "T-061", "T-062", "T-063"]
+      },
+      {
+        "stage": "inspect",
+        "task_ids": ["T-065", "T-068"]
+      },
+      {
+        "stage": "portfolio",
+        "task_ids": ["T-074", "T-075"]
+      },
+      {
+        "stage": "validation",
+        "task_ids": ["T-028", "T-036", "T-037"]
+      }
+    ],
+    "ready_task_ids": ["T-044"],
+    "backlog_task_ids": [
+      "T-028",
+      "T-036",
+      "T-037",
+      "T-044",
+      "T-053",
+      "T-054",
+      "T-056",
+      "T-059",
+      "T-060",
+      "T-061",
+      "T-062",
+      "T-063",
+      "T-065",
+      "T-068",
+      "T-074",
+      "T-075"
+    ],
+    "queue_policy": {
+      "backlog_rule": "executable=true enumerates the residual backlog, not immediate dispatch readiness.",
+      "ready_frontier_rule": "Only the earliest incomplete stage may contribute ready_task_ids.",
+      "stale_blocked_packet_rule": "Implemented packet tasks never remain executable or carry missingAcceptance blockers.",
+      "terminal_statuses": ["implemented", "superseded"],
+      "serialized_handler_task_ids": [
+        "T-044",
+        "T-053",
+        "T-059",
+        "T-074"
+      ],
+      "handler_serialization": {
+        "path": "workers/quests/src/handler.ts",
+        "policy": "serialized",
+        "task_ids": ["T-044", "T-053", "T-059", "T-074"]
+      }
     }
   },
   "issues": [
@@ -761,21 +829,10 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-      "current_evidence": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md §6.2 freezes Tools owners and integration locks without inventing the missing command contract.",
-      "missingAcceptance": "T-009 must merge the typed per-panel command projection contract before this packet can freeze inputs, freshness invariants, route fixtures, and authorize T-053/T-054/T-056.",
-      "implementation_owners": [
-        "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md"
-      ],
-      "test_owners": [
-        "scripts/mini-app-task-reconciliation.test.mjs"
-      ],
-      "integration_lock_zones": [
-        "workers/quests/src/page/scenes/tools.ts",
-        "workers/quests/src/handler.ts"
-      ]
+      "evidence": "Issue #331 slice 1: docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md §6.1-6.2 now freezes the merged T-009 Tools contract with panels status/services/agents/activeWork/handoffs, panelId mappings status/services/agents/active-work/handoffs, status-object plus panel-array data shapes, source/freshness/checkedAt invariants, normal/fail-closed/malformed/unexpected fixtures, the future write set for T-053/T-054/T-056, the serialized workers/quests/src/handler.ts boundary, and exact exclusions."
     },
     {
       "id": "T-033",
@@ -793,21 +850,10 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "page-prep",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-      "current_evidence": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md §6.2 freezes Story owners and integration locks without inventing the missing event contract.",
-      "missingAcceptance": "T-008 must merge the typed Story event identity and projection contract before this packet can freeze receipt, decision, transition, deduplication, and filter behavior for T-059 through T-063.",
-      "implementation_owners": [
-        "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md"
-      ],
-      "test_owners": [
-        "scripts/mini-app-task-reconciliation.test.mjs"
-      ],
-      "integration_lock_zones": [
-        "workers/quests/src/page/scenes/story.ts",
-        "workers/quests/src/handler.ts"
-      ]
+      "evidence": "Issue #331 slice 1: docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md §6.1-6.2 now freezes the merged T-008 Story contract with eventId, canonical workObject.id/workObject.kind, source, ISO eventAt, receipt.id, receipts/decisions/transitions projection, stable replay dedupe, kind-plus-identity filters, first-event empty guidance, the future write set for T-059/T-060/T-061/T-062/T-063, the serialized workers/quests/src/handler.ts boundary, and exact exclusions."
     },
     {
       "id": "T-034",
@@ -1678,8 +1724,8 @@
       "swarm": "inspect",
       "status": "residual",
       "executable": true,
-      "file_owner": "workers/quests/src/page/operating-fabric/inspect-sheet.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/operating-fabric/inspect-sheet.ts.",
+      "file_owner": "workers/quests/src/page/scenes/inspect.ts",
+      "current_evidence": "Founder-first readiness rendering is owned by workers/quests/src/page/scenes/inspect.ts; it consumes lower-level freshness evidence but still lacks the explicit per-page readiness summary required by T-068.",
       "missingAcceptance": "Freshness metadata exists, but no explicit per-page readiness summary panel is present.",
       "implementation_owners": [
         "workers/quests/src/page/scenes/inspect.ts"
