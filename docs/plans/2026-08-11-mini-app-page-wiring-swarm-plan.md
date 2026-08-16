@@ -153,7 +153,7 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. T-065 and T-068 now close the Inspect stage with exact lead hierarchy and per-page served-state assertions, so the ready frontier advances to exactly `T-074`.
+The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. T-074 now routes eligible Portfolio proposals through the founder Gate without local lifecycle mutation, so the ready frontier advances to exactly `T-075`.
 
 | Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
@@ -168,7 +168,7 @@ The machine-readable task map is authoritative for the full path arrays and now 
 Queue policy:
 - `executable=true` distinguishes the executable backlog from the ready frontier; backlog order alone never authorizes parallel dispatch.
 - `ready_task_ids` comes only from the earliest incomplete stage; later dependency-satisfied tasks stay blocked until the frontier stage completes.
-- `workers/quests/src/handler.ts` remains serialized in the exact order `T-044`, `T-053`, `T-059`, `T-074`; T-044, T-053, and T-059 are complete, leaving only T-074 in that shared-handler sequence.
+- `workers/quests/src/handler.ts` was serialized in the exact order `T-044`, `T-053`, `T-059`, `T-074`; all four tasks are complete and the shared-handler sequence is released.
 - Generated bundles, `page.ts`, `page/scaffold.ts`, shared client assembly, and Wrangler configuration remain orchestrator-only lock zones when a task actually needs them.
 
 ### 6.2 P0 implementation packets
@@ -227,10 +227,11 @@ Queue policy:
 - **Test owner:** `workers/quests/src/handler.test.ts`.
 - **Landed T-053 boundary:** `GET /api/quests/{tenant}` serves the validated `ToolsCommandProjection` directly at `commands`; the duplicate legacy alias is absent, and the real Tools renderer consumes only the five exact panel identities plus their typed data. Legacy command objects are normalized only at the Worker boundary; malformed, partial, or unexpected panels fail closed.
 - **Landed T-054/T-056 boundary:** every panel exposes source-aware freshness and checked-at detail, while the aggregate Tools state uses the strictest envelope/panel result. A recommendation cannot target a stale/unknown panel, and every stale panel sheet exposes Retry. The real Mission navigation control carries an exact selected WorkObject ID and explicit matching kind into the Tools context strip and sheets; malformed or mismatched identity pairs fail closed by demoting the complete branch/mission context and recommendation.
-- **Released integration:** T-059 now owns the receipt-backed Story projection boundary at the Worker and has released `workers/quests/src/handler.ts`; only T-074 remains in the shared-handler sequence.
+- **Released integration:** T-059 owns the receipt-backed Story projection boundary at the Worker, and T-074 closes the final shared-handler promotion slice; `workers/quests/src/handler.ts` is released.
 - **Landed T-065 boundary:** Inspect renders explicit blocker, freshness, and redacted-receipt cues before its pane switcher and every system-detail surface; the exact order is asserted in both Proof and System panes.
 - **Landed T-068 boundary:** the System pane lists Mission, Gate, Tools, Story, and Inspect in canonical order with a state and existing proof-sheet link derived from the exact served envelope. Global staleness overrides every local result, partial envelopes fail closed, and explicit copy prevents coverage from implying live Telegram readiness.
-- **Next write set:** the Inspect scene lock is released; T-074 owns the remaining serialized handler integration slice for Portfolio promotions.
+- **Landed T-074 boundary:** exact eligible Saplings expose an explicit founder-gated Portfolio promotion proposal only when canonical runtime identity, served promotion state, current Gate, source digest, and unpaused state all agree. The shared client opens the `promote-portfolio` preflight without changing local selection or lifecycle, and the Worker writes only an idempotent tenant-scoped Gate queue entry after signed confirmation.
+- **Next write set:** the shared handler lock is released; T-075 owns only the Portfolio state-matrix test surface and any narrowly required fixture support.
 - **Exclusions:** no founder-action mutation, no direct runtime writes, no invented panel, no hidden freshness coercion, and no bypass around Gate for mutations.
 
 #### Story packet — T-033 complete
@@ -246,8 +247,9 @@ Queue policy:
 - **Landed T-059 boundary:** the Worker projects only receipt-backed public facts into Story: ActionRequest receipts, founder decisions, and completed lifecycle transitions with exact WorkObject identity, canonical event time, source, and receipt identity. Ambiguous joins, missing receipts, malformed timestamps, unsafe public text, and secret-shaped identity segments fail closed; every ledger-bearing response carries the authoritative marker so the browser cannot add legacy ActionRequest or ledger duplicates.
 - **Landed T-060/T-061 boundary:** exact replay collapses by stable event identity plus canonical event fingerprint; conflicting reuse of one event identity fails closed. Only an authoritative `storyProjection` marker enables provenance: canonical timeline segments and Story cards then expose exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied. Direct fixtures remain visual-only without invented provenance.
 - **Landed T-062/T-063 boundary:** marker-qualified events expose separate exact WorkObject kind and identity controls; their intersection selects only the canonical pair and retains source chronology/indexes. Legacy branch aliases never enter the canonical filter surface. The bounded empty panel explicitly names receipt, decision, and completed transition as the first qualifying paths and binds the full WorkObject/time/receipt requirement accessibly without fabricating a beat.
-- **Next collision-safe slice:** Story is terminal through T-063 and Inspect is terminal through T-068. T-074 is now the sole ready Portfolio task.
-- **Remaining write set:** the Story and Inspect scene locks are released. The next owner is `workers/quests/src/page/operating-fabric/portfolio.ts` with `workers/quests/src/operating-fabric-portfolio.test.ts`; T-074 takes the final shared `workers/quests/src/handler.ts` lock before T-075.
+- **Landed T-074 boundary:** exact eligible Saplings expose an explicit founder-gated Portfolio promotion proposal; confirmation queues `promote-portfolio` through the existing Gate contract while lifecycle and catalog remain unchanged until operator consumption.
+- **Next collision-safe slice:** Story and Inspect are terminal, and Portfolio promotion routing is complete. T-075 is now the sole ready Portfolio task.
+- **Remaining write set:** T-075 owns `workers/quests/src/operating-fabric-portfolio.test.ts` and narrowly required fixture support for the all-zone/all-state matrix; `workers/quests/src/handler.ts` is released.
 - **Exclusions:** no synthetic success beats, no alias-derived WorkObject joins, no non-canonical timestamps, and no direct ledger mutation.
 
 ## 7. Verification Gates

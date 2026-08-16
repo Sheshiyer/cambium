@@ -9208,6 +9208,48 @@ test('gate · signed skill promotion queues an idempotent founder review action'
   assert.equal(actions[0].idempotencyKey, 'promote-skill:cambium:cambium-founder-review');
 });
 
+test('gate · signed Portfolio promotion queues only a founder review without lifecycle mutation', async () => {
+  const kv = fakeKv();
+  kv.store.set('portfolio:cambium:sapling:fitcheck', JSON.stringify({ lifecycle: 'proof-only' }));
+  const before = new Map(kv.store);
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_B, authDate: NOW / 1000 - 10 });
+  const deps = { kv, pushToken: 't', gate: gateCfg(pubKeyHex), uuid: () => 'portfolio-promote-uuid', now: () => '2026-08-16T00:00:00.000Z' };
+
+  const queued = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'promote-portfolio',
+      subject: 'sapling:fitcheck',
+      evidence: 'portfolio promotion proposal only · exact WorkObject sapling:fitcheck · served state proof-only · current Gate gate:fitcheck',
+      consequence: 'queue founder review for the next lifecycle state of sapling:fitcheck; no lifecycle or catalog mutation occurs until operator consumption',
+      reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
+      idempotencyKey: 'promote-portfolio:cambium:sapling:fitcheck:93b90ed7cee2',
+      initData,
+    }),
+  }), deps);
+  assert.equal(queued.status, 200);
+  assert.deepEqual(body(queued), {
+    queued: 'portfolio-promote-uuid',
+    duplicate: false,
+    kind: 'promote-portfolio',
+    subject: 'sapling:fitcheck',
+    idempotencyKey: 'promote-portfolio:cambium:sapling:fitcheck:93b90ed7cee2',
+    consequence: 'queue founder review for the next lifecycle state of sapling:fitcheck; no lifecycle or catalog mutation occurs until operator consumption',
+    reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
+  });
+  assert.equal(kv.store.get('portfolio:cambium:sapling:fitcheck'), before.get('portfolio:cambium:sapling:fitcheck'));
+  assert.deepEqual(
+    [...kv.store.keys()].filter((key) => !before.has(key)),
+    ['gate:cambium:portfolio-promote-uuid'],
+  );
+
+  const action = JSON.parse(kv.store.get('gate:cambium:portfolio-promote-uuid')!);
+  assert.equal(action.status, 'queued');
+  assert.equal(action.kind, 'promote-portfolio');
+  assert.equal(action.subject, 'sapling:fitcheck');
+  assert.match(action.consequence, /no lifecycle or catalog mutation/);
+  assert.match(action.reversibility, /lifecycle and catalog remain unchanged/);
+});
+
 test('gate · signed side quest action queues without mutating side quest history', async () => {
   const kv = fakeKv();
   const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_B, authDate: NOW / 1000 - 10 });

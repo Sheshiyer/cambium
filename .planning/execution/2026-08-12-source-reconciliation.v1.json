@@ -3,7 +3,7 @@
   "generated_at": "2026-08-15",
   "scope": "Reconcile the 14-issue provenance set and all 80 Mini App task IDs against current merged source; expose only evidence-backed residuals as executable.",
   "source_authority_role": "immutable 2026-08-15 reconciliation inputs; not the current execution head",
-  "evidence_reconciled_through": "origin/main@1b0fb3efc9a4d2203803e0bc270f6872481a131e",
+  "evidence_reconciled_through": "origin/main@38574bae0feb903606aea0e4eb3d3d30b88ed16b",
   "source_authority": [
     "origin/main@f7e8795615e372323aaa24a5ae2d0255cb45aaec",
     ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
@@ -15,11 +15,11 @@
   "counts": {
     "issues": 14,
     "tasks": 80,
-    "executable_tasks": 5,
+    "executable_tasks": 4,
     "dispositions": {
-      "implemented": 66,
+      "implemented": 67,
       "superseded": 4,
-      "residual": 5,
+      "residual": 4,
       "approval-gated": 5
     }
   },
@@ -54,12 +54,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-074"],
+    "ready_task_ids": ["T-075"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
       "T-037",
-      "T-074",
       "T-075"
     ],
     "queue_policy": {
@@ -77,7 +76,7 @@
         "path": "workers/quests/src/handler.ts",
         "policy": "serialized",
         "task_ids": ["T-044", "T-053", "T-059", "T-074"],
-        "remaining_task_ids": ["T-074"]
+        "remaining_task_ids": []
       }
     }
   },
@@ -1806,16 +1805,20 @@
       "phase": "P2",
       "wave": "W6",
       "swarm": "portfolio",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/operating-fabric/portfolio.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/operating-fabric/portfolio.ts.",
-      "missingAcceptance": "Portfolio promotion remains advisory; no founder-gated promotion proposal path exists.",
+      "evidence": "Issue #331 T-074 renders promotion controls only for exact unpaused Saplings with served promotion state, current Gate, and source digest; the browser routes the explicit promote-portfolio action through founder preflight without local lifecycle or catalog mutation, and handler integration tests prove confirmation adds only an idempotent tenant-scoped Gate queue entry.",
       "implementation_owners": [
-        "workers/quests/src/page/operating-fabric/portfolio.ts"
+        "workers/quests/src/page/operating-fabric/portfolio.ts",
+        "workers/quests/src/page/operating-fabric/client.ts",
+        "workers/quests/src/page/client/signed-action.ts",
+        "workers/quests/src/handler.ts"
       ],
       "test_owners": [
-        "workers/quests/src/operating-fabric-portfolio.test.ts"
+        "workers/quests/src/operating-fabric-portfolio.test.ts",
+        "workers/quests/src/operating-fabric-page.test.ts",
+        "workers/quests/src/handler.test.ts"
       ],
       "integration_lock_zones": [
         "workers/quests/src/handler.ts"

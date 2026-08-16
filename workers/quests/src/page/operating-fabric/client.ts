@@ -409,6 +409,96 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
         ofGateEntrypointBusy = false;
       });
   }
+  function ofPortfolioPromotionReady() {
+    return !!(latestDelivery && latestDelivery.freshness === 'fresh');
+  }
+  function ofPortfolioPromotionRecord(canonicalId) {
+    if (!canonicalId || !ofValidProjection(latestProjection)) return null;
+    var normalized = ofNormalizePortfolioPayload(latestPortfolioPayload || {});
+    for (var i = 0; i < normalized.records.length; i += 1) {
+      var record = normalized.records[i];
+      if (
+        record &&
+        record.canonical &&
+        record.canonicalId === canonicalId &&
+        record.runtimeWorkId === canonicalId &&
+        /^[0-9a-f]{64}$/.test(String(record.sourceDigest || '')) &&
+        ofPortfolioExactWork(latestProjection, record)
+      ) return record;
+    }
+    return null;
+  }
+  function ofPortfolioPromotionSeed(record) {
+    return record ? ofPortfolioPromotionProposal(latestProjection, record) : null;
+  }
+  function ofPortfolioPromotionFailure(btn, subject, error, fallback, item) {
+    if (btn) btn.setAttribute('data-of-portfolio-promote-state', error);
+    if (typeof openGateFailureSheet === 'function') {
+      openGateFailureSheet('promote-portfolio', subject || 'portfolio promotion', error, fallback || {}, item || {});
+    }
+  }
+  function handlePortfolioPromotionClick(btn) {
+    var subject = btn && btn.getAttribute ? btn.getAttribute('data-of-portfolio-promote') : '';
+    var record = ofPortfolioPromotionRecord(subject);
+    var seed = ofPortfolioPromotionSeed(record);
+    var fallback = seed || {
+      idempotencyKey: 'promote-portfolio:cambium:' + (subject || 'held'),
+      consequence: 'queue founder review for the next lifecycle state; no lifecycle or catalog mutation occurs until operator consumption',
+      reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged'
+    };
+    if (!ofPortfolioPromotionReady()) {
+      ofPortfolioPromotionFailure(btn, subject, 'stale', fallback, record || {});
+      return;
+    }
+    if (!record || !seed) {
+      ofPortfolioPromotionFailure(btn, subject, 'invalid', fallback, record || {});
+      return;
+    }
+    if (typeof openGatePreflight !== 'function') {
+      ofPortfolioPromotionFailure(btn, subject, 'unavailable', fallback, record);
+      return;
+    }
+    var originScene = currentScene;
+    var originFocus = btn;
+    openGatePreflight('promote-portfolio', seed.subject, btn, {
+      item: {
+        id: seed.subject,
+        title: record.name,
+        branchId: seed.subject,
+        branchLabel: record.name,
+        clientName: record.name,
+        evidence: seed.evidence,
+        consequence: seed.consequence,
+        reversibility: seed.reversibility,
+        idempotencyHint: seed.idempotencyKey,
+      },
+      evidence: seed.evidence,
+      consequence: seed.consequence,
+      reversibility: seed.reversibility,
+      idempotencyKey: seed.idempotencyKey,
+      note: seed.note,
+      originNode: btn,
+    });
+    btn.setAttribute('data-of-portfolio-promote-state', 'preflight');
+    var gateBody = document.getElementById('sheetBody');
+    if (gateBody && typeof gateBody.insertAdjacentHTML === 'function') {
+      gateBody.insertAdjacentHTML(
+        'beforeend',
+        ofRenderPortfolioSceneContext('gate', latestProjection, record) +
+          ofRenderOrganUpdateSceneContext(
+            'gate',
+            ofNormalizeOrganUpdateView(latestPortfolioPayload),
+            record.canonicalId
+          )
+      );
+    }
+    if (typeof sheet !== 'undefined' && sheet && sheet._ofSetReturnCallback) {
+      sheet._ofSetReturnCallback(function () {
+        navigate(originScene);
+        if (originFocus && typeof originFocus.focus === 'function') originFocus.focus();
+      });
+    }
+  }
   // openInspectForTarget: exact registry lookup only — an unknown token does
   // nothing. On a hit, calls the pure ofRenderInspectSheet(projection,
   // target) and places the returned HTML into the existing sheetBody,
@@ -672,6 +762,11 @@ ${CONTEXTUAL_SHEET_RETURN_BROWSER_JS}
         try { renderScenes(latestProjection, latestDelivery, latestPortfolioPayload); } catch (error) { /* keep the last good render */ }
         navigate('mission');
       }
+      return;
+    }
+    var portfolioPromoter = typeof target.closest === 'function' ? target.closest('[data-of-portfolio-promote]') : null;
+    if (portfolioPromoter) {
+      handlePortfolioPromotionClick(portfolioPromoter);
       return;
     }
     var opener = typeof target.closest === 'function' ? target.closest('[data-of-open-work]') : null;

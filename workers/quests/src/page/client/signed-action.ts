@@ -490,17 +490,18 @@ function gateNodeForSubmit(context){
   return null;
 }
 /* frozen/06 §2.4 — the preflight sheet renders ONLY these lines (served consequence strings are payload, not copy). */
-const GATE_PREFLIGHT_TITLES = { approve:'Approve gate item', reroll:'Reroll gate item', 'promote-skill':'Promote skill', 'queue-side-quest':'Queue side quest', 'confirm-action-request':'Confirm action request', 'approve-goal-graph':'Approve goal proposal' };
+const GATE_PREFLIGHT_TITLES = { approve:'Approve gate item', reroll:'Reroll gate item', 'promote-skill':'Promote skill', 'promote-portfolio':'Review Portfolio promotion', 'queue-side-quest':'Queue side quest', 'confirm-action-request':'Confirm action request', 'approve-goal-graph':'Approve goal proposal' };
 function gatePreflightLine(kind, subject, item, option){
   if (kind === 'approve') return 'Queues founder approval for ' + subject + '; nothing mutates until an operator consumes the queue.';
   if (kind === 'reroll') return 'Queues a reroll request for ' + subject + '; current work stays unchanged until operator consumption.';
   if (kind === 'promote-skill') return 'Queues skill promotion review for ' + subject + '; the registry changes only after operator consumption.';
+  if (kind === 'promote-portfolio') return 'Queues Portfolio promotion review for ' + subject + '; lifecycle and catalog remain unchanged until operator consumption.';
   if (kind === 'queue-side-quest') return 'Queues side quest ' + subject + ' for operator follow-up; nothing completes from this device.';
   if (kind === 'approve-goal-graph') return 'Signs founder approval for ' + ((item && item.title) || 'this goal proposal') + '; the goal graph commits only after this signature.';
   const optionToken = (option && (option.id || option.label)) || (item && item.selectedOptionId) || subject;
   return 'Queues signed confirmation for ' + optionToken + '; execution waits for operator consumption of the queue.';
 }
-/* One preflight sheet for every signed kind (approve / reroll / promote-skill / queue-side-quest / confirm-action-request / approve-goal-graph):
+/* One preflight sheet for every signed kind (approve / reroll / promote-skill / promote-portfolio / queue-side-quest / confirm-action-request / approve-goal-graph):
    glyph + title + ONE consequence line + reversibility state token + ONE Inspect link + Confirm/Cancel. No kv walls. */
 function openGatePreflight(kind, subject, node, seed){
   const seeded = seed && typeof seed === 'object';
