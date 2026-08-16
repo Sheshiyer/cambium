@@ -9,6 +9,7 @@
 // Every row derives from served beats / ActionRequest rows / completed ledger rows — no invented narrative.
 // Assembly order: page/index.ts (after scenes/mission.ts, which provides mcSceneClamp + mcSceneTokenLabel).
 export type StoryWorkObjectKind = 'sapling' | 'branch' | 'program';
+export type StoryEventKind = 'receipt' | 'decision' | 'transition';
 
 export interface StoryEventContract {
   eventId: string;
@@ -21,6 +22,7 @@ export interface StoryEventContract {
   receipt: {
     id: string;
   };
+  eventKind?: StoryEventKind;
   text?: string;
   lane?: string;
   group?: string;
@@ -43,6 +45,7 @@ export interface StoryEventContractIssue {
     | 'missing_source'
     | 'invalid_iso_time'
     | 'missing_receipt_identity'
+    | 'invalid_event_kind'
     | 'malformed_event';
 }
 
@@ -52,6 +55,8 @@ export type StoryEventContractParseResult =
 
 const STORY_IDENTITY = /^[a-z0-9][a-z0-9:._-]*$/i;
 const STORY_WORK_OBJECT_KINDS = new Set<StoryWorkObjectKind>(['sapling', 'branch', 'program']);
+const STORY_EVENT_KINDS = new Set<StoryEventKind>(['receipt', 'decision', 'transition']);
+const STORY_UNSAFE_PUBLIC_TEXT = /(?:bearer\s+|token=|secret=|initdata=|tgwebappdata|query_id=|auth_date=|private[ _-]?key)/i;
 
 function storyRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -99,6 +104,9 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
   if (!receipt || typeof receipt.id !== 'string' || !STORY_IDENTITY.test(receipt.id)) {
     issues.push({ path: 'receipt.id', code: 'missing_receipt_identity' });
   }
+  if (event.eventKind !== undefined && (typeof event.eventKind !== 'string' || !STORY_EVENT_KINDS.has(event.eventKind as StoryEventKind))) {
+    issues.push({ path: 'eventKind', code: 'invalid_event_kind' });
+  }
   if (issues.length) return { ok: false, issues };
 
   return {
@@ -112,6 +120,7 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
       source: (event.source as string).trim(),
       eventAt: event.eventAt as string,
       receipt: { id: receipt!.id as string },
+      ...(typeof event.eventKind === 'string' ? { eventKind: event.eventKind as StoryEventKind } : {}),
       ...(typeof event.text === 'string' ? { text: event.text } : {}),
       ...(typeof event.lane === 'string' ? { lane: event.lane } : {}),
       ...(typeof event.group === 'string' ? { group: event.group } : {}),
@@ -125,6 +134,166 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
       ...(typeof event.noesis === 'boolean' ? { noesis: event.noesis } : {}),
     },
   };
+}
+
+function storyProjectionIdentity(...parts: unknown[]): string | null {
+  const value = parts.map((part) => String(part ?? '').trim()).join(':');
+  return value.length > 0 && value.length <= 256 && STORY_IDENTITY.test(value) ? value : null;
+}
+
+function storyProjectionText(value: unknown, fallback: string, max = 240): string {
+  const text = typeof value === 'string' ? value.trim() : '';
+  const safe = text && !STORY_UNSAFE_PUBLIC_TEXT.test(text) && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)
+    ? text
+    : fallback;
+  return safe.slice(0, max);
+}
+
+function storyProjectionWorkObject(value: unknown): StoryEventContract['workObject'] | null {
+  const row = storyRecord(value);
+  if (!row) return null;
+  const nested = storyRecord(row.workObject);
+  const id = nested?.id ?? row.workObjectId;
+  const kind = nested?.kind ?? row.workObjectKind;
+  if (typeof id !== 'string' || typeof kind !== 'string' || !STORY_WORK_OBJECT_KINDS.has(kind as StoryWorkObjectKind)) return null;
+  if (!STORY_IDENTITY.test(id) || !id.startsWith(`${kind}:`)) return null;
+  return { id, kind: kind as StoryWorkObjectKind };
+}
+
+function storyBranchWorkObjects(envelope: Record<string, unknown>): Map<string, StoryEventContract['workObject'] | null> {
+  const branchStories = storyRecord(envelope.branchStories);
+  const rows = Array.isArray(branchStories?.rows) ? branchStories.rows : [];
+  const byBranch = new Map<string, StoryEventContract['workObject'] | null>();
+  for (const value of rows) {
+    const row = storyRecord(value);
+    const branchId = row && storyProjectionIdentity(row.branchId);
+    const workObject = storyProjectionWorkObject(row);
+    if (!branchId || !workObject) continue;
+    if (!byBranch.has(branchId)) {
+      byBranch.set(branchId, workObject);
+      continue;
+    }
+    const current = byBranch.get(branchId);
+    if (!current || current.id !== workObject.id || current.kind !== workObject.kind) byBranch.set(branchId, null);
+  }
+  return byBranch;
+}
+
+function storySourceWorkObject(row: Record<string, unknown>, byBranch: Map<string, StoryEventContract['workObject'] | null>): StoryEventContract['workObject'] | null {
+  const direct = storyProjectionWorkObject(row);
+  if (direct) return direct;
+  const branchId = storyProjectionIdentity(row.branchId);
+  return branchId && byBranch.has(branchId) ? byBranch.get(branchId) ?? null : null;
+}
+
+function storyActionRequestRows(envelope: Record<string, unknown>): unknown[] {
+  const actionRequests = envelope.actionRequests;
+  if (Array.isArray(actionRequests)) return actionRequests;
+  const record = storyRecord(actionRequests);
+  if (Array.isArray(record?.rows)) return record.rows;
+  return Array.isArray(record?.actionRequests) ? record.actionRequests : [];
+}
+
+/** Project only durable, receipt-backed public facts into the canonical Story event contract. */
+export function projectStoryEvents(input: unknown): StoryEventContract[] {
+  const envelope = storyRecord(input);
+  if (!envelope) return [];
+  const events: StoryEventContract[] = [];
+  const served = Array.isArray(envelope.beats) ? envelope.beats : [];
+  for (const value of served) {
+    const parsed = parseStoryEventContract(value);
+    if (parsed.ok) events.push(parsed.value);
+  }
+
+  const byBranch = storyBranchWorkObjects(envelope);
+  for (const value of storyActionRequestRows(envelope)) {
+    const row = storyRecord(value);
+    if (!row) continue;
+    const actionRequestId = storyProjectionIdentity(row.id);
+    const workObject = storySourceWorkObject(row, byBranch);
+    const receipts = storyRecord(row.receipts);
+    const latest = storyRecord(receipts?.latest);
+    const receiptKind = latest && storyProjectionIdentity(latest.kind);
+    const receiptAt = latest?.at;
+    if (!actionRequestId || !workObject || !receiptKind || !storyCanonicalIso(receiptAt)) continue;
+    const receiptId = storyProjectionIdentity('receipt', 'action-request', actionRequestId, receiptKind, receiptAt);
+    const receiptEventId = storyProjectionIdentity('story', 'receipt', actionRequestId, receiptKind, receiptAt);
+    if (receiptId && receiptEventId) {
+      events.push({
+        eventId: receiptEventId,
+        eventKind: 'receipt',
+        workObject,
+        source: 'cambium-action-requests@v1',
+        eventAt: receiptAt,
+        receipt: { id: receiptId },
+        text: storyProjectionText(latest.text, `ActionRequest ${receiptKind} receipt`),
+        lane: 'action-request',
+        group: receiptKind === 'complete' || receiptKind === 'consume' ? 'Mission wins' : 'New signals',
+        context: 'inspect',
+        branchId: storyProjectionText(row.branchId, ''),
+        proof: `${receiptKind} receipt`,
+        outcome: storyProjectionText(row.status, receiptKind, 80),
+        actionRequestId,
+      });
+    }
+
+    const selectedOptionId = storyProjectionIdentity(row.selectedOptionId);
+    const status = storyProjectionIdentity(row.status);
+    const updatedAt = row.updatedAt;
+    const decisionEventId = selectedOptionId && status && storyCanonicalIso(updatedAt)
+      ? storyProjectionIdentity('story', 'decision', actionRequestId, status, updatedAt)
+      : null;
+    if (decisionEventId && receiptId) {
+      events.push({
+        eventId: decisionEventId,
+        eventKind: 'decision',
+        workObject,
+        source: 'cambium-action-requests@v1',
+        eventAt: updatedAt as string,
+        receipt: { id: receiptId },
+        text: `Decision ${selectedOptionId} moved ${status}`,
+        lane: 'action-request',
+        group: status === 'completed' || status === 'consumed' ? 'Mission wins' : status === 'blocked' ? 'Drift' : 'New signals',
+        context: 'gate',
+        branchId: storyProjectionText(row.branchId, ''),
+        proof: `${receiptKind} receipt`,
+        outcome: status,
+        actionRequestId,
+      });
+    }
+  }
+
+  const ledger = storyRecord(envelope.ledger);
+  const transitions = Array.isArray(ledger?.rows) ? ledger.rows : [];
+  for (const value of transitions) {
+    const row = storyRecord(value);
+    if (!row || !/^(complete|completed|consumed)$/.test(String(row.status ?? ''))) continue;
+    const transitionId = storyProjectionIdentity(row.id ?? row.transitionId);
+    const eventAt = row.eventAt ?? row.completedAt ?? row.updatedAt;
+    const receipt = storyRecord(row.receipt);
+    const receiptId = storyProjectionIdentity(receipt?.id ?? row.receiptId);
+    const workObject = storySourceWorkObject(row, byBranch);
+    const eventId = transitionId && storyCanonicalIso(eventAt)
+      ? storyProjectionIdentity('story', 'transition', transitionId, row.status, eventAt)
+      : null;
+    if (!eventId || !receiptId || !workObject) continue;
+    events.push({
+      eventId,
+      eventKind: 'transition',
+      workObject,
+      source: storyProjectionText(row.source, 'quest-ledger@v1', 120),
+      eventAt: eventAt as string,
+      receipt: { id: receiptId },
+      text: storyProjectionText(row.title, 'Completed Story transition'),
+      lane: 'quest',
+      group: 'Mission wins',
+      context: 'mission',
+      branchId: storyProjectionText(row.branchId, ''),
+      proof: storyProjectionText(row.evidence, 'receipt retained'),
+      outcome: 'transition complete',
+    });
+  }
+  return events;
 }
 
 export const SCENE_STORY = `/* ── story scene — signal rows with state tokens + PacketFlow rails (T-021/T-022) ── */
@@ -430,11 +599,12 @@ function actionRequestStoryBeats(env){
   });
 }
 function renderStory(env){
-  const served = env.beats && env.beats.length;
-  const actionBeats = actionRequestStoryBeats(env || {});
+  const canonicalProjection = env.storyProjection && env.storyProjection.schema === 'cambium.story-event-projection.v1';
+  const served = Array.isArray(env.beats) && (canonicalProjection || env.beats.length);
+  const actionBeats = canonicalProjection ? [] : actionRequestStoryBeats(env || {});
   const beats = served ? env.beats.concat(actionBeats) :
     actionBeats.length ? actionBeats :
-      env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
+      canonicalProjection ? [] : env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
   STORY_BEATS = beats;
   if (!beats.length) {
     $('beats').innerHTML = renderStoryEmptyState(env);

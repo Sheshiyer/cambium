@@ -3,22 +3,21 @@
   "reconciled_at": "2026-08-15",
   "source_head": "f988d31922385d9352c4efac6abe14b6de4bb1d8",
   "source_head_role": "immutable 2026-08-15 task-map reconciliation baseline; not the current execution head",
-  "evidence_reconciled_through": "origin/main@24fc4603fd8e1957eca1c07bd27bd4a22281e41c",
+  "evidence_reconciled_through": "origin/main@e64bf1a7612437f97a90f868fded61f487178298",
   "historical_plan": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
   "authority": "Current merged source and tests outrank dated plan checklists. executable=true enumerates residual backlog; execution_scheduler.ready_task_ids alone governs immediate dispatch.",
   "counts": {
     "total": 80,
-    "executable": 12,
-    "implemented": 59,
+    "executable": 11,
+    "implemented": 60,
     "superseded": 4,
-    "residual": 12,
+    "residual": 11,
     "approval-gated": 5
   },
   "executable_task_ids": [
     "T-028",
     "T-036",
     "T-037",
-    "T-059",
     "T-060",
     "T-061",
     "T-062",
@@ -59,12 +58,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-059"],
+    "ready_task_ids": ["T-060", "T-061"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
       "T-037",
-      "T-059",
       "T-060",
       "T-061",
       "T-062",
@@ -89,7 +87,7 @@
         "path": "workers/quests/src/handler.ts",
         "policy": "serialized",
         "task_ids": ["T-044", "T-053", "T-059", "T-074"],
-        "remaining_task_ids": ["T-059", "T-074"]
+        "remaining_task_ids": ["T-074"]
       }
     }
   },
@@ -1350,13 +1348,13 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/story.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
-      "missingAcceptance": "No explicit projector proves receipts, decisions, and transitions become Story events.",
+      "evidence": "Issue #331 T-059 moves Story projection to the public Worker boundary. The projector emits only receipt, founder-decision, and completed-transition facts backed by exact WorkObject identity, canonical event time, source, and receipt identity; ambiguous branch joins and receipt-less transitions fail closed. The browser marks this canonical stream authoritative so ActionRequests cannot be re-projected into duplicate legacy beats.",
       "implementation_owners": [
-        "workers/quests/src/page/scenes/story.ts"
+        "workers/quests/src/page/scenes/story.ts",
+        "workers/quests/src/handler.ts"
       ],
       "test_owners": [
         "workers/quests/src/handler.test.ts"
