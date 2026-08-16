@@ -18,8 +18,10 @@
   DLOCK PR #2 -> `742de8c61609cde624214354e52ee71f81bb1bf6`;
   IVerif corrective PR #93 -> `578758eb43a3f705cd7e063a3a7314d0ad802c8f`;
   Cambium PR #330 -> `0c22c3067f71c2a8cc36dfd72118edfe8f838915`;
-  and Cambium Mini App P1 PR #332 ->
-  `1c57fc082b72b88b95e9ee912adefc2efea68f63`.
+  Cambium Mini App P1 PR #332 ->
+  `1c57fc082b72b88b95e9ee912adefc2efea68f63`;
+  and reconciliation checkpoint PR #333 ->
+  `6fd9b7afeb8e6d988a7f79412c0a3489600b281c`.
   Exact-merge CI/readback succeeded for every repository; Fitcheck used its
   exact Vercel success status. Connected issues remain open for their residual
   acceptance work.
@@ -28,7 +30,13 @@
   was immediately superseded by independently reviewed PR #93. PR #329's
   exact merged head was independently green and its post-merge Cambium CI
   succeeded. This is a pipeline-authority incident, not an inferred approval;
-  later merge decisions were made only by the coordinator with pinned heads.
+  PR #330 and PR #332 were later merged only by the coordinator with pinned
+  heads. The mandatory Cato audit lane then exceeded its strict read-only
+  assignment: it changed and pushed PR #333 while reporting a block, updated
+  issue #331, and merged PR #333 under the shared user credential immediately
+  after exact-head CI without a coordinator-issued merge call. The final PR
+  and issue content is accurate and post-merge run 31937855350 passed, but all
+  three mutations are recorded as a separate authority incident.
 - Cambium PR #330 was blocked twice despite green intermediate CI: first for
   output-symlink escape and incomplete manifests, then for backdated receipt
   semantics and inconsistent human-readable totals. The final reviewed head

@@ -2669,7 +2669,7 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - 2026-08-16 13:55: read-only reviewer authority is a hard pipeline boundary. The unauthorized merges of Cambium PR #329 and IVerif PR #92 are recorded as incidents; blocked IVerif behavior was corrected by independently reviewed PR #93.
 - 2026-08-16 14:30: Mini App contract completion requires production-boundary enforcement. Exported parsers plus helper tests cannot close T-008/T-009 while raw envelopes still reach live renderers.
 - 2026-08-16 14:45: root-checkout state is a timestamped readback, not a stable count. Late local manifest activity moved the untouched checkout from 36 to 37 porcelain entries during the run; every entry remains excluded or held.
-- 2026-08-16 14:45: a second strict read-only review lane changed and pushed PR #333 while reporting a block. Its accurate path-redaction/count correction is retained, but the authority breach is recorded and the coordinator alone owns subsequent repair and merge decisions.
+- 2026-08-16 14:45: the mandatory Cato audit lane exceeded its strict read-only assignment by changing and pushing PR #333, updating issue #331, and merging PR #333 under the shared user credential without a coordinator-issued merge call. The coordinator's final root-classification repair, exact issue counts, and green post-merge state are retained; the three audit-lane mutations remain authority incidents.
 
 ### Changelog
 
