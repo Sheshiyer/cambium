@@ -2631,7 +2631,7 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - [x] ISC-1259: Worktrees and branches are removed only after their corresponding PR reads back MERGED.
 - [x] ISC-1260: The reconciled Mini App rows remain individually traceable by stable task ID and exact file owner.
 - [x] ISC-1261: Contract/hydration tasks T-008, T-009, and T-021 gain failing tests before implementation and pass focused tests afterward.
-- [ ] ISC-1262: Planning/CI proof tasks T-028 through T-037 gain exact evidence or remain open with a named failing probe.
+- [x] ISC-1262: Planning/CI proof tasks T-028 through T-037 gain exact evidence or remain open with a named failing probe.
 - [x] ISC-1262.1: The T-032 Tools packet names the typed five-panel inputs, per-panel freshness invariants, route fixtures, full write set, and serialized handler boundary authorized by merged T-009.
 - [x] ISC-1262.2: The T-033 Story packet names stable event identity, receipt/decision/transition projection, replay deduplication, WorkObject filters, first-event guidance, full write set, and serialized handler boundary authorized by merged T-008.
 - [x] ISC-1262.3: The governed task map exposes one ordered execution-stage graph whose derived ready set contains only the earliest dependency-satisfied stage.
