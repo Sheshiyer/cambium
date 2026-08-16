@@ -2200,6 +2200,39 @@ test('story projector · ambiguous WorkObject joins and receipt-less transitions
   assert.match(rendered.elements.get('beats')!.innerHTML, /No branch story yet/);
 });
 
+test('story projector · partial ledger envelopes cannot reactivate receipt-less browser fallback', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:cambium', JSON.stringify({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:05:00.000Z',
+    source: 'quest-envelope@v1',
+    ledger: {
+      completed: 1,
+      total: 1,
+      current: null,
+      rows: [{
+        id: 'legacy-transition-without-receipt',
+        branchId: 'iverif',
+        title: 'Legacy completed row must stay hidden',
+        status: 'complete',
+        eventAt: '2026-08-16T09:03:00.000Z',
+      }],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{ branchId: 'iverif', workObjectId: 'sapling:iverif', workObjectKind: 'sapling' }],
+    },
+  }));
+
+  const envelope = JSON.parse((await handle(req('GET', '/api/quests/cambium'), { kv })).body);
+  assert.deepEqual(envelope.beats, []);
+  assert.equal(envelope.storyProjection.schema, 'cambium.story-event-projection.v1');
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:06:00.000Z' });
+  assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]').length, 0);
+  assert.doesNotMatch(rendered.elements.get('beats')!.innerHTML, /Legacy completed row must stay hidden/);
+});
+
 test('scene contracts · typed Tools projection survives the public route as the sole renderer input', async () => {
   const kv = fakeKv();
   const commands = {

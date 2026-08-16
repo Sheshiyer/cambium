@@ -2756,7 +2756,9 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
       : Array.isArray(actionRequestEnvelope?.actionRequests)
         ? actionRequestEnvelope.actionRequests
         : [];
-  if ('beats' in merged || projectedStoryEvents.length > 0 || actionRequestRows.length > 0) {
+  const ledgerEnvelope = isRecord(merged.ledger) ? merged.ledger : null;
+  const ledgerRows = Array.isArray(ledgerEnvelope?.rows) ? ledgerEnvelope.rows : [];
+  if ('beats' in merged || projectedStoryEvents.length > 0 || actionRequestRows.length > 0 || ledgerRows.length > 0) {
     merged.beats = projectedStoryEvents;
     merged.storyProjection = {
       schema: 'cambium.story-event-projection.v1',
