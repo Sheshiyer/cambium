@@ -4912,6 +4912,27 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   assert.doesNotMatch(summarySheet, /data-copy-proof-summary|Copy proof summary|Copy unavailable/);
 });
 
+test('page · Inspect leads with blocker freshness and receipt cues before system detail', async () => {
+  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+  });
+  const map = rendered.elements.get('mapwrap')!;
+  const proofHtml = map.innerHTML;
+  const summary = proofHtml.match(/<section class="inspect-proof-summary"[\s\S]*?<\/section>/)?.[0] ?? '';
+
+  assert.match(summary, /data-inspect-lead-order="blockers freshness receipts"/);
+  const blockerCue = summary.indexOf('data-inspect-lead-cue="blockers"');
+  const freshnessCue = summary.indexOf('data-inspect-lead-cue="freshness"');
+  const receiptCue = summary.indexOf('data-inspect-lead-cue="receipts"');
+  assert.ok(blockerCue >= 0 && blockerCue < freshnessCue && freshnessCue < receiptCue);
+  assert.ok(proofHtml.indexOf('data-component="InspectProofSummaryAction"') < proofHtml.indexOf('data-component="InspectPaneSwitcher"'));
+
+  selectInspectPane(rendered, 'system');
+  const systemHtml = map.innerHTML;
+  assert.ok(systemHtml.indexOf('data-component="InspectProofSummaryAction"') < systemHtml.indexOf('System map'));
+  assert.ok(systemHtml.indexOf('data-inspect-lead-cue="receipts"') < systemHtml.indexOf('Runtime state'));
+});
+
 test('page · visual tapestry layer exposes wake, lanes, stance, policy, decision context, live proof, branch stories, side quests, social, skills, companions, evidence boxes, and gaps', () => {
   for (const m of ['renderTapestryAudit', 'data-tapestry', 'completion definition · ', 'ACTIVE ORGAN', 'R3F CONTRACT', 'wakeSteps', 'wake', 'data-wake', 'wake step · ', 'wake history', 'operator wake events', 'latest snapshot, not a historical trace', 'renderLanes', 'lane · ', 'renderStance', 'tenant stance · ', 'renderPolicy', 'policy', 'POLICY GAP', 'caution ', 'renderDecisionContext', 'decision context', 'decision context · ', 'policy authority', 'renderLiveProof', 'live proof', 'data-live-proof', 'capture plan · not proof', 'proof only after', 'renderBranches', 'branch packets', 'missions', 'KPIs', 'gates', 'proof paths', 'openBranchMissionSheet', 'product-branch-packets@v1', 'product-branches', 'renderSideQuests', 'side quests', 'side quest · ', 'Queue side quest', 'queue-side-quest', 'side quest ledger remains unchanged', 'owner', 'action', 'target', 'lifetime', 'completion', 'trigger', 'proof', 'renderSocial', 'coordination', 'coordination · ', 'SOCIAL GAP', 'tenant-handoff-only', 'renderSenses', 'sense · ', 'senseEnv', 'renderInsightBoxes', 'evidence', 'insightEnv', 'no quest evidence rows served', 'source', 'skill labors', 'tierLabel', 'UNPROVEN', 'recentRate', 'promotion:', 'companions', 'companion · ', 'stage', 'scope', 'advice proof', 'history', 'no relationship events served', 'awaiting signal', 'explicit gap']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);

@@ -1615,15 +1615,16 @@ function inspectGroupDetailRows(id, env, L){
   return rows[id] || [['detail', 'no specific detail rows served']];
 }
 function renderInspectProofSummary(env, L){
-  /* frozen/06 §1.6 I6: 'N blockers · M packets · redacted receipts required' + Open proof —
-     the next: clause lives in the sheet (blocker names row), not on the card. */
+  /* T-065 / frozen/06 §1.6 I6: blocker, freshness, and receipt cues lead before packet/system
+     detail. The next: clause lives in the sheet (blocker names row), not on the card. */
   const liveRows = liveProofCards(env || { ledger:L });
   const blocked = liveRows.filter(row => row.state !== 'ready').length;
   const branchCount = branchRows(env || { ledger:L }).length;
   const lead = blocked ? blocked + (blocked === 1 ? ' blocker' : ' blockers') : 'no blockers';
+  const freshness = FRESHNESS_STATE.stale ? 'freshness stale' : 'freshness fresh';
   const packets = branchCount + (branchCount === 1 ? ' packet' : ' packets');
-  return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction">' +
-    '<b>Proof summary</b><small>' + esc(lead) + ' · ' + esc(packets) + ' · redacted receipts required</small>' +
+  return '<section class="inspect-proof-summary" data-component="InspectProofSummaryAction" data-inspect-lead-order="blockers freshness receipts">' +
+    '<b>Proof summary</b><small><span data-inspect-lead-cue="blockers">' + esc(lead) + '</span> · <span data-inspect-lead-cue="freshness">' + esc(freshness) + '</span> · <span data-inspect-lead-cue="receipts">redacted receipts required</span> · <span data-inspect-summary-packets="1">' + esc(packets) + '</span></small>' +
     '<div class="gbtns"><button type="button" data-inspect-summary="1">Open proof</button></div>' +
   '</section>';
 }
