@@ -65,15 +65,13 @@
   remain held. The relocation branch advanced beyond merged PR #286; stash
   refs are recovery data; the tooling branch has no reviewed PR. None was
   deleted or proposed wholesale.
-- Three formerly dirty temporary worktrees no longer exist:
-  `/private/tmp/cambium-gate-row.AcfUHn`,
-  `/private/tmp/cambium-release-sequence.2azwvQ`, and
-  `/private/tmp/cambium-sequence-evidence.8No11S`. Their committed branch refs
-  survive, but their earlier uncommitted workflow deletions and ISA delta are
-  unavailable and were not reviewed, merged, or represented as preserved.
+- Three formerly dirty temporary worktrees no longer exist: the gate-row,
+  release-sequence, and sequence-evidence checkouts. Their committed branch
+  refs survive, but their earlier uncommitted workflow deletions and ISA delta
+  are unavailable and were not reviewed, merged, or represented as preserved.
   Stale worktree administration records were pruned only after this mapping.
 - The primary checkout remains untouched on stale
-  `codex/project-r2-mapping-plan`. It still has 36 porcelain entries. Nine
+  `codex/project-r2-mapping-plan`. It still has 37 porcelain entries. Nine
   file-level paths are byte-identical to current main; the remaining local
   configs, planning receipts, `MEMORY/WORK` artifacts, generated media/docs,
   package files, HANDOFF/INTEGRATION edits, and `.brandmint-outputs` deletion

@@ -8,7 +8,7 @@ progress: 22/30
 mode: interactive
 iteration: 2026-08-16-portfolio-branch-reconciliation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-16T14:30:00+05:30
+updated: 2026-08-16T14:42:00+05:30
 ---
 
 ## Problem
@@ -2661,7 +2661,7 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 
 ### Decisions
 
-- 2026-08-16 11:55: refined: temporary worktree metadata is not evidence that its filesystem still exists. Three previously dirty `/private/tmp` worktrees now read as prunable with non-existent gitdirs, so their uncommitted workflow deletions cannot be reviewed or represented as recoverable; the surviving commits remain auditable through branch refs.
+- 2026-08-16 11:55: refined: temporary worktree metadata is not evidence that its filesystem still exists. Three previously dirty temporary worktrees now read as prunable with non-existent gitdirs, so their uncommitted workflow deletions cannot be reviewed or represented as recoverable; the surviving commits remain auditable through branch refs.
 - 2026-08-16 11:55: the dirty root checkout is evidence-bearing user state and remains outside the reconciliation branch. All new acceptance and handoff edits occur in an isolated worktree from exact `origin/main`.
 - 2026-08-16 13:55: “merge every branch” is refined to “give every branch a truthful disposition.” Squash-merged duplicates, stale recovery refs, generated/local state, and cumulative stacks are not valid wholesale PR candidates.
 - 2026-08-16 13:55: connected-repository governance uses active rulesets wherever GitHub supports them. Private DLOCK remains a documented procedural exception because the current plan rejects rulesets with HTTP 403.
