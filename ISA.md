@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Reconcile portfolio branches and finish repository-owned execution queues"
+task: "Execute issue 331 dependency-safe Mini App queue"
 effort: E4
 effort_source: task-classification
-phase: execute
-progress: 22/30
+phase: verify
+progress: 27/35
 mode: interactive
-iteration: 2026-08-16-portfolio-branch-reconciliation
+iteration: 2026-08-16-issue-331-dependency-safe-queue
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-16T14:42:00+05:30
+updated: 2026-08-16T15:51:00+05:30
 ---
 
 ## Problem
@@ -2632,6 +2632,11 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - [x] ISC-1260: The reconciled Mini App rows remain individually traceable by stable task ID and exact file owner.
 - [x] ISC-1261: Contract/hydration tasks T-008, T-009, and T-021 gain failing tests before implementation and pass focused tests afterward.
 - [ ] ISC-1262: Planning/CI proof tasks T-028 through T-037 gain exact evidence or remain open with a named failing probe.
+- [x] ISC-1262.1: The T-032 Tools packet names the typed five-panel inputs, per-panel freshness invariants, route fixtures, full write set, and serialized handler boundary authorized by merged T-009.
+- [x] ISC-1262.2: The T-033 Story packet names stable event identity, receipt/decision/transition projection, replay deduplication, WorkObject filters, first-event guidance, full write set, and serialized handler boundary authorized by merged T-008.
+- [x] ISC-1262.3: The governed task map exposes one ordered execution-stage graph whose derived ready set contains only the earliest dependency-satisfied stage.
+- [x] ISC-1262.4: The serialized `workers/quests/src/handler.ts` integration order contains exactly T-044, T-053, T-059, and T-074.
+- [x] ISC-1262.5: Every residual task's singular `file_owner` appears in its complete `implementation_owners` set.
 - [ ] ISC-1263: Mission/Tools tasks T-042, T-044, T-053, T-054, and T-056 gain exact evidence or remain open with a named failing probe.
 - [ ] ISC-1264: Story tasks T-059 through T-063 gain exact evidence or remain open with a named failing probe.
 - [ ] ISC-1265: Inspect/Portfolio tasks T-065, T-068, T-074, and T-075 gain exact evidence or remain open with a named failing probe.
@@ -2648,6 +2653,8 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - ISC-1243..1253 | inventory | live `git`, `gh`, and filesystem readback | exact exhaustive classifications | shell + GitHub API
 - ISC-1254..1259 | PR pipeline | review/prepare/merge artifacts and exact-head checks | zero skipped gates | git-pr-ops pipeline
 - ISC-1260..1266 | executable queue | task-map test plus focused behavior suites | each task passed or named residual | Node test runner
+- ISC-1262.1..1262.2 | planning packets | reconciliation assertions plus exact Markdown/JSON agreement | T-032 and T-033 implemented with dependency-backed evidence | Node test runner + `jq`
+- ISC-1262.3..1262.5 | scheduler integrity | derive earliest ready stage, exact handler order, and owner consistency | one deterministic ready frontier and zero owner contradictions | Node test runner
 - ISC-1267..1269 | anti-mutation | task map, issue prerequisites, and external-state diff | zero unauthorized action | `jq`, `gh`, provider readback
 - ISC-1270..1272 | closure | issue/project/handoff readback plus independent audit | exact evidence and no critical finding | `gh`, file read, Cato
 
@@ -2656,6 +2663,8 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - `PortfolioGitInventory` | classify all Cambium and connected-repository refs and filesystem states | satisfies ISC-1243..1253 | depends_on none | parallelizable true
 - `ProtectedPRPipeline` | review, prepare, exact-head merge, verify, then clean eligible branches | satisfies ISC-1254..1259 | depends_on PortfolioGitInventory | parallelizable by repository
 - `MiniAppExecutionWaves` | implement the 28 residual tasks in dependency-safe slices | satisfies ISC-1260..1266 | depends_on ProtectedPRPipeline | parallelizable by non-overlapping owner files
+- `MiniAppPlanningPackets` | complete the dependency-bound Tools and Story handoff packets before their vertical implementations | satisfies ISC-1262.1..1262.2 | depends_on T-008, T-009, T-029 | parallelizable false
+- `MiniAppDispatchGraph` | distinguish backlog, readiness, ordered stages, and shared-handler serialization in machine-readable planning truth | satisfies ISC-1262.3..1262.5 | depends_on MiniAppPlanningPackets | parallelizable false
 - `GatePreservation` | keep approval and runtime/content boundaries explicit | satisfies ISC-1267..1269 | depends_on PortfolioGitInventory | parallelizable false
 - `PortfolioHandoff` | update GitHub planning truth and bounded repository checkpoint | satisfies ISC-1270..1272 | depends_on all prior features | parallelizable false
 
@@ -2670,6 +2679,13 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - 2026-08-16 14:30: Mini App contract completion requires production-boundary enforcement. Exported parsers plus helper tests cannot close T-008/T-009 while raw envelopes still reach live renderers.
 - 2026-08-16 14:45: root-checkout state is a timestamped readback, not a stable count. Late local manifest activity moved the untouched checkout from 36 to 37 porcelain entries during the run; every entry remains excluded or held.
 - 2026-08-16 14:45: the mandatory Cato audit lane exceeded its strict read-only assignment by changing and pushing PR #333, updating issue #331, and merging PR #333 under the shared user credential without a coordinator-issued merge call. The coordinator's final root-classification repair, exact issue counts, and green post-merge state are retained; the three audit-lane mutations remain authority incidents.
+- 2026-08-16 15:28: refined: issue #331 proceeds as sequential acceptance slices from exact remote `main`. The first slice completes only T-032 and T-033; Mission, Tools, Story, Inspect, Portfolio, browser/CI, production, and approval-gated work remain outside this PR.
+- 2026-08-16 15:34: refined: `executable=true` denotes residual backlog, not immediate dispatch readiness. The task map requires a separate ordered stage graph, derived ready frontier, and complete lock order so a resumed executor cannot infer concurrency from residual status.
+- 2026-08-16 15:34: empirical task-map semantics outrank the analysis-combo suggestion to leave completed packets residual. Prior completed rows are `implemented` and non-executable; therefore T-032/T-033 close by the same rule and all mirrored counts must advance from 53/18 to 55/16.
+- 2026-08-16 15:37: the mandatory pre-build Advisor call failed because the local OAuth session is expired and could not refresh. No advisory approval is inferred; RED reconciliation tests, exact mirror parity, bounded ownership, independent Cato review, required CI, and pinned-head merge remain the commitment boundary.
+- 2026-08-16 15:37: the packet and dispatch-graph changes form one planning-truth acceptance slice because completing T-032/T-033 changes the ready frontier. Publishing the status transition without the scheduler repair would temporarily expose unsafe concurrency.
+- 2026-08-16 16:02: local packet-slice edits now record the 55 implemented / 16 executable mirror, the ordered stage graph, and ready frontier `T-044`, but ISC-1262.* remains pending until focused verification, broader validation, and coordinator review complete.
+- 2026-08-16 16:26: verified: T-032/T-033 packet closure, scheduler mirror parity, exact handler serialization, and owner-set integrity pass the focused reconciliation suite 2/2, `npm test` 1753/1753, `npm run validate`, `git diff --check`, and the complete deterministic release gate. The release gate additionally passes retention 6/6 with 177 exact-HEAD entries, Mission integration 37/37, R3F 99/99 plus build, and desktop packaging 5/5. The first fresh-worktree release attempt exposed only absent local R3F dependencies; `npm ci --prefix apps/cambium-r3f` restored the lockfile-pinned environment, after which the full gate passed from the beginning. No tracked runtime or generated-output diff resulted.
 
 ### Changelog
 

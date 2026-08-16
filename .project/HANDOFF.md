@@ -1,5 +1,14 @@
 # Project handoff
 
+### 2026-08-16 issue #331 first packet-slice candidate checkpoint
+
+- Branch `codex/331-planning-packets` carries the first issue #331 acceptance slice in planning truth only. No runtime source, CI workflow, generated bundle, deployment, GitHub state, or external system was changed.
+- T-032 and T-033 are now recorded as implemented and non-executable in both Mini App planning mirrors. Their packet prose is complete and derived from the merged T-009 Tools contract and merged T-008 Story contract rather than the prior partial/blocked placeholders.
+- The governed queue now reads 55 implemented, 4 superseded, 16 executable residuals, and 5 approval-gated rows. The machine-readable scheduler distinguishes ordered stages from backlog, mirrors exact parity across the task map and reconciliation ledger, and derives one ready frontier: `T-044`.
+- Queue policy remains fail-closed: `executable=true` is backlog only, `workers/quests/src/handler.ts` is serialized in exact order `T-044`, `T-053`, `T-059`, `T-074`, approval-gated rows remain `T-020`, `T-038`, `T-078`, `T-079`, and `T-080`, and `T-068` now points at `workers/quests/src/page/scenes/inspect.ts` so every residual `file_owner` is present in `implementation_owners`.
+- Next ready slice is `T-044` only. Tools, Story, Inspect, Portfolio, CI/browser validation, release, production, provider, Telegram, D1/KV/R2, and approval-gated work remain explicitly excluded from this candidate checkpoint.
+- This is a bounded local checkpoint only. No coordinator verification, commit, PR, merge, or final SHA is claimed here.
+
 ### 2026-08-16 portfolio branch reconciliation and governed PR checkpoint
 
 - GitHub Project 14 is formally linked to `Sheshiyer/cambium`. Its live queue

@@ -153,23 +153,23 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays. This table fixes the writer sequence for every shared surface; a task may start only when its dependencies are complete and its listed lock zones are free.
+The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After the T-032/T-033 packet completion, the ready frontier is exactly `T-044`.
 
-| Sequence | Task set | Sole implementation writer | Test owner | Serialized integration lock |
+| Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
-| 1 | T-008, then T-059, then T-060/T-061/T-062/T-063 | Story task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/story.ts`; `workers/quests/src/handler.ts` for T-008/T-059 integration |
-| 1 | T-009, then T-053, then T-054/T-056 | Tools task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/tools.ts`; `workers/quests/src/handler.ts` for T-009/T-053 integration |
-| 1 | T-021 | Hydration task worktree | `workers/quests/src/page-client-data.test.ts` | `workers/quests/src/handler.ts` |
-| 1 | T-028 | Baseline-proof task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | none; documentation-only evidence |
-| 2 | T-032 | Tools-packet task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | `workers/quests/src/page/scenes/tools.ts` and `workers/quests/src/handler.ts` remain frozen until T-009 merges |
-| 2 | T-033 | Story-packet task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | `workers/quests/src/page/scenes/story.ts` and `workers/quests/src/handler.ts` remain frozen until T-008 merges |
-| 2 | T-036 | CI-matrix task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | CI workflow merges after page packet dependencies |
-| 2 | T-037 | Browser-matrix task worktree | `workers/quests/src/page-motion-safety.test.ts` | none; test-only owner |
-| 3 | T-044 | Mission-selection task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/handler.ts` |
-| 3 | T-065, then T-068 | Inspect task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/inspect.ts` |
-| 3 | T-074, then T-075 | Portfolio task worktree | `workers/quests/src/operating-fabric-portfolio.test.ts` | `workers/quests/src/handler.ts`; T-075 waits for the T-074 source merge |
+| planning | T-032, T-033 | Packet worktree | `scripts/mini-app-task-reconciliation.test.mjs` | none after packet completion; these tasks only define the contract and queue truth |
+| mission | T-044 | Mission-selection task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/handler.ts` |
+| tools | T-053, T-054, T-056 | Tools task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/tools.ts`; `workers/quests/src/handler.ts` for T-053 |
+| story | T-059, T-060, T-061, T-062, T-063 | Story task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/story.ts`; `workers/quests/src/handler.ts` for T-059 |
+| inspect | T-065, T-068 | Inspect task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/inspect.ts` |
+| portfolio | T-074, T-075 | Portfolio task worktree | `workers/quests/src/operating-fabric-portfolio.test.ts` | `workers/quests/src/handler.ts` for T-074; `workers/quests/src/page/operating-fabric/portfolio.ts` for T-075 |
+| validation | T-028, T-036, T-037 | Evidence/CI/browser task worktrees | `scripts/mini-app-task-reconciliation.test.mjs`, `workers/quests/src/page-motion-safety.test.ts` | none; evidence and test-matrix surfaces only |
 
-No implementation task owns `handler.ts` directly. T-021, T-053, T-059, and T-074 must queue their handler integration through the orchestrator. Generated bundles, `page.ts`, `page/scaffold.ts`, shared client assembly, and Wrangler configuration remain orchestrator-only lock zones when a task actually needs them.
+Queue policy:
+- `executable=true` distinguishes the executable backlog from the ready frontier; backlog order alone never authorizes parallel dispatch.
+- `ready_task_ids` comes only from the earliest incomplete stage; later dependency-satisfied tasks stay blocked until the frontier stage completes.
+- `workers/quests/src/handler.ts` remains serialized in the exact order `T-044`, `T-053`, `T-059`, `T-074`.
+- Generated bundles, `page.ts`, `page/scaffold.ts`, shared client assembly, and Wrangler configuration remain orchestrator-only lock zones when a task actually needs them.
 
 ### 6.2 P0 implementation packets
 
@@ -215,13 +215,33 @@ No implementation task owns `handler.ts` directly. T-021, T-053, T-059, and T-07
 - **Acceptance probes:** every catalog entry is joined, excluded, or blocked with reason; templates never reach runtime nodes; promotion produces a founder-gated proposal and no UI toggle mutates lifecycle directly.
 - **Exclusions:** no folder relocation, repository creation, registry transition, direct Goal Graph mutation, or production promotion.
 
-#### Tools packet — T-032 partial, contract blocked
+#### Tools packet — T-032 complete
 
-Frozen now: Tools owns `workers/quests/src/page/scenes/tools.ts`, its route integration is serialized through `workers/quests/src/handler.ts`, and tests belong in `workers/quests/src/handler.test.ts`. The packet cannot freeze per-panel inputs, freshness invariants, or route fixtures until T-009 lands the typed command projection contract. T-032 therefore remains residual and must not authorize T-053/T-054/T-056 implementation before the T-009 contract PR merges.
+- **Contract authority:** merged T-009 public-envelope enforcement and handler-to-renderer proofs define the canonical Tools packet.
+- **Panels:** panels status/services/agents/activeWork/handoffs.
+- **Panel identity mapping:** panelId mappings status/services/agents/active-work/handoffs.
+- **Data shapes:** `status` is one object; every other panel is an array. Every panel entry carries `source`, `freshness`, and canonical ISO `checkedAt`.
+- **Freshness contract:** freshness state `fresh|stale|unknown`; stale or unknown data renders honest unavailable copy instead of implied readiness.
+- **Fixture contract:** handler-to-renderer normal/fail-closed/malformed/unexpected fixtures cover the exact projection boundary.
+- **Implementation owner:** `workers/quests/src/page/scenes/tools.ts`.
+- **Test owner:** `workers/quests/src/handler.test.ts`.
+- **Future write set:** `workers/quests/src/page/scenes/tools.ts`; `workers/quests/src/handler.ts` for coordinator-owned T-053 integration only; `workers/quests/src/handler.test.ts`; and the task map, source-reconciliation mirror, GIP manifest, ISA, and handoff only when verified closeout changes their planning truth. T-053 serves the typed projection, T-054 renders per-panel freshness, and T-056 wires the selected canonical WorkObject into Tools.
+- **Serialized integration:** `workers/quests/src/handler.ts` remains serialized; T-053 is the only Tools task in the shared handler order.
+- **Exclusions:** no founder-action mutation, no direct runtime writes, no invented panel, no hidden freshness coercion, and no bypass around Gate for mutations.
 
-#### Story packet — T-033 partial, contract blocked
+#### Story packet — T-033 complete
 
-Frozen now: Story owns `workers/quests/src/page/scenes/story.ts`, its projector integration is serialized through `workers/quests/src/handler.ts`, and tests belong in `workers/quests/src/handler.test.ts`. The packet cannot freeze event identity, receipt/decision/transition projection, replay deduplication, or WorkObject filters until T-008 lands the typed Story event contract. T-033 therefore remains residual and must not authorize T-059 through T-063 implementation before the T-008 contract PR merges.
+- **Contract authority:** merged T-008 public-envelope enforcement and handler-to-renderer proofs define the canonical Story packet.
+- **Event identity:** every event exposes `eventId`, canonical `workObject.id`, canonical `workObject.kind`, `source`, canonical ISO `eventAt`, and `receipt.id` when a receipt exists.
+- **Projection contract:** receipts, decisions, and transitions project into one Story event stream with stable replay dedupe.
+- **Filtering contract:** Story filters operate on exact `kind` + identity rather than inferred branch/group aliases.
+- **Empty-state contract:** the first qualifying event and empty guidance are explicit; empty state explains what exact event will create the first beat.
+- **Fixture contract:** handler-to-renderer normal/fail-closed/malformed/unexpected fixtures cover the exact event boundary.
+- **Implementation owner:** `workers/quests/src/page/scenes/story.ts`.
+- **Test owner:** `workers/quests/src/handler.test.ts`.
+- **Future write set:** `workers/quests/src/page/scenes/story.ts`; `workers/quests/src/handler.ts` for coordinator-owned T-059 integration only; `workers/quests/src/handler.test.ts`; and the task map, source-reconciliation mirror, GIP manifest, ISA, and handoff only when verified closeout changes their planning truth. T-059 projects receipt-backed events, T-060 enforces stable replay dedupe, T-061 renders source-qualified timeline rows, T-062 adds kind-and-identity filters, and T-063 explains the first qualifying event.
+- **Serialized integration:** `workers/quests/src/handler.ts` remains serialized; T-059 is the only Story task in the shared handler order.
+- **Exclusions:** no synthetic success beats, no alias-derived WorkObject joins, no non-canonical timestamps, and no direct ledger mutation.
 
 ## 7. Verification Gates
 
