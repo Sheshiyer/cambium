@@ -550,7 +550,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -6235,7 +6235,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
+    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
       return json(400, { error: 'need a supported gate kind and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
@@ -6320,6 +6320,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ? `approve ${subject}`
         : kind === 'promote-skill'
           ? `queue founder review to promote ${subject} to production`
+          : kind === 'promote-portfolio'
+            ? `queue founder review for the next lifecycle state of ${subject}; no lifecycle or catalog mutation occurs until operator consumption`
           : kind === 'queue-side-quest'
             ? `queue side quest ${subject} for operator review`
           : `reroll ${subject}`),
@@ -6327,6 +6329,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ? 'queued approval can be superseded until consumed'
         : kind === 'promote-skill'
           ? 'queued promotion can be superseded until consumed; registry remains unchanged until operator applies it'
+          : kind === 'promote-portfolio'
+            ? 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged'
           : kind === 'queue-side-quest'
             ? 'queued side quest can be superseded until consumed; side quest ledger remains unchanged until operator applies it'
           : 'reroll asks for revision before execution'),

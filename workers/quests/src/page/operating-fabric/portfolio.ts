@@ -15,6 +15,8 @@ const PORTFOLIO_RECORD_LIMIT = 160;
 const SECRET_MARKER = /query_id=|auth_date=|\bhash=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\bprompt\s*[:=]|prompt\s+injection/i;
 const CANONICAL_PORTFOLIO_ID = /^(?:sapling|branch|program|review|historical-product):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CANONICAL_RUNTIME_WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PORTFOLIO_SOURCE_DIGEST = /^[0-9a-f]{64}$/;
+const PORTFOLIO_PROPOSAL_GATE = /^[A-Za-z0-9][A-Za-z0-9 .,:/_()'&+-]{0,111}$/;
 
 export interface PortfolioCounts {
   saplings: number;
@@ -52,6 +54,16 @@ export interface PortfolioPayloadInput {
   portfolioJoinReport?: unknown;
 }
 
+export interface PortfolioPromotionProposal {
+  kind: 'promote-portfolio';
+  subject: string;
+  evidence: string;
+  consequence: string;
+  reversibility: string;
+  idempotencyKey: string;
+  note: string;
+}
+
 type UnknownRecord = Record<string, unknown>;
 
 const EMPTY_COUNTS: PortfolioCounts = {
@@ -85,6 +97,11 @@ function safeString(value: unknown, fallback: string, max = 120): string {
 function safeOptionalString(value: unknown, max = 120): string | null {
   const text = safeString(value, '', max);
   return text.length > 0 ? text : null;
+}
+
+function portfolioProposalGate(value: unknown): string | null {
+  const gate = safeOptionalString(value, 112);
+  return gate !== null && PORTFOLIO_PROPOSAL_GATE.test(gate) ? gate : null;
 }
 
 function escapeHtml(value: string): string {
@@ -418,6 +435,33 @@ function recordTemplate(record: PortfolioRecord): string | null {
   return null;
 }
 
+export function portfolioPromotionProposal(
+  projection: MissionFabricProjectionV1,
+  record: PortfolioRecord,
+): PortfolioPromotionProposal | null {
+  const node = exactWorkNode(projection, record);
+  const work = node?.kind === 'work' ? node.value : null;
+  const currentGate = portfolioProposalGate(work?.currentGate);
+  if (
+    work?.kind !== 'sapling' ||
+    record.runtimeWorkId !== record.canonicalId ||
+    record.paused ||
+    record.sourceDigest === null ||
+    !PORTFOLIO_SOURCE_DIGEST.test(record.sourceDigest) ||
+    currentGate === null ||
+    !['proof-only', 'supervised-branch', 'autonomous-branch'].includes(work.promotionState)
+  ) return null;
+  return {
+    kind: 'promote-portfolio',
+    subject: record.canonicalId,
+    evidence: `portfolio promotion proposal only · exact WorkObject ${record.canonicalId} · served state ${work.promotionState} · current Gate ${currentGate} · source digest ${record.sourceDigest}`,
+    consequence: `queue founder review for the next lifecycle state of ${record.canonicalId}; no lifecycle or catalog mutation occurs until operator consumption`,
+    reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
+    idempotencyKey: `promote-portfolio:cambium:${record.canonicalId}:${work.promotionState}:${currentGate}:${record.sourceDigest.slice(0, 12)}`,
+    note: `Portfolio proposal only · exact identity ${record.canonicalId} · served state ${work.promotionState} · current Gate ${currentGate}`,
+  };
+}
+
 function summaryMarkup(counts: PortfolioCounts): string {
   const count = (key: keyof PortfolioCounts, label: string) =>
     `<span class="of-portfolio-count"><strong data-portfolio-count="${key}">${counts[key]}</strong> ${label}</span>`;
@@ -473,6 +517,7 @@ function portfolioCard(
   selectedPortfolioId: string | null,
 ): string {
   const exact = exactWorkNode(projection, record) !== null;
+  const proposal = portfolioPromotionProposal(projection, record);
   const template = recordTemplate(record);
   const selected = selectedPortfolioId === record.canonicalId;
   const parent = record.parentTenant
@@ -497,6 +542,15 @@ function portfolioCard(
         `aria-pressed="${selected}" aria-label="Focus ${escapeHtml(record.name)}">Focus</button>`
       )
     : '';
+  const promote = proposal
+    ? (
+        `<p class="of-card-note">promotion proposal only · founder Gate review required</p>` +
+        `<button type="button" class="of-control of-portfolio-promote" ` +
+        `data-of-portfolio-promote="${escapeHtml(proposal.subject)}" ` +
+        `data-of-portfolio-promote-state="proposal-only" ` +
+        `aria-label="Request founder review for ${escapeHtml(record.name)} promotion">Request promotion review</button>`
+      )
+    : '';
   return (
     `<article class="of-card of-portfolio-card" data-portfolio-card ` +
     `data-portfolio-id="${escapeHtml(record.canonicalId)}" data-portfolio-kind="${record.zone}" ` +
@@ -512,6 +566,7 @@ function portfolioCard(
     linkedMarkup(record) +
     lifecycle +
     select +
+    promote +
     `</div></article>`
   );
 }
@@ -778,6 +833,7 @@ export function renderPortfolioSceneContext(
   const allowed: PortfolioSceneContext[] = ['mission', 'flow', 'workforce', 'forge', 'inspect', 'gate'];
   if (!record || !allowed.includes(scene as PortfolioSceneContext)) return '';
   const exact = exactWorkNode(projection, record) !== null;
+  const proposal = portfolioPromotionProposal(projection, record);
   const scopedIds = scopedRuntimeIds(projection, record);
   const template = recordTemplate(record);
   let detail = '';
@@ -811,9 +867,11 @@ export function renderPortfolioSceneContext(
     ].filter((value): value is string => value !== null);
     detail = provenance.join('<br>');
   } else {
-    detail = exact
-      ? 'read-only catalog context · exact runtime identity · no Gate action synthesized'
-      : 'read-only catalog context · runtime identity missing · no Gate action synthesized';
+    detail = proposal
+      ? 'read-only catalog context · exact runtime identity · promotion proposal only · founder review required'
+      : exact
+        ? 'read-only catalog context · exact runtime identity · promotion request unavailable'
+        : 'read-only catalog context · runtime identity missing · promotion request unavailable';
   }
   return (
     `<section class="of-portfolio-context" data-portfolio-context="${scene}" ` +
@@ -1069,6 +1127,34 @@ function ofPortfolioTemplate(record) {
     : record.zone === 'programs' ? OF_PORTFOLIO_TEMPLATES.programs
     : null;
 }
+function ofPortfolioProposalGate(value) {
+  var gate = ofPortfolioOptional(value, 112);
+  return gate && /^[A-Za-z0-9][A-Za-z0-9 .,:/_()'&+-]{0,111}$/.test(gate) ? gate : null;
+}
+function ofPortfolioPromotionProposal(projection, record) {
+  var node = ofPortfolioExactWork(projection, record);
+  var work = node && node.value;
+  var currentGate = ofPortfolioProposalGate(work && work.currentGate);
+  if (
+    !work ||
+    work.kind !== 'sapling' ||
+    !record ||
+    record.runtimeWorkId !== record.canonicalId ||
+    record.paused ||
+    !currentGate ||
+    ['proof-only', 'supervised-branch', 'autonomous-branch'].indexOf(work.promotionState) === -1 ||
+    !/^[0-9a-f]{64}$/.test(String(record.sourceDigest || ''))
+  ) return null;
+  return {
+    kind: 'promote-portfolio',
+    subject: record.canonicalId,
+    evidence: 'portfolio promotion proposal only · exact WorkObject ' + record.canonicalId + ' · served state ' + work.promotionState + ' · current Gate ' + currentGate + ' · source digest ' + record.sourceDigest,
+    consequence: 'queue founder review for the next lifecycle state of ' + record.canonicalId + '; no lifecycle or catalog mutation occurs until operator consumption',
+    reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
+    idempotencyKey: 'promote-portfolio:cambium:' + record.canonicalId + ':' + work.promotionState + ':' + currentGate + ':' + record.sourceDigest.slice(0, 12),
+    note: 'Portfolio proposal only · exact identity ' + record.canonicalId + ' · served state ' + work.promotionState + ' · current Gate ' + currentGate
+  };
+}
 function ofPortfolioSummaryMarkup(counts) {
   function count(key, label) {
     return '<span class="of-portfolio-count"><strong data-portfolio-count="' + key + '">' + counts[key] + '</strong> ' + label + '</span>';
@@ -1087,6 +1173,7 @@ function ofPortfolioFilters() {
 }
 function ofPortfolioCard(projection, record, selectedId) {
   var exact = !!ofPortfolioExactWork(projection, record);
+  var proposal = ofPortfolioPromotionProposal(projection, record);
   var template = ofPortfolioTemplate(record);
   var selected = selectedId === record.canonicalId;
   var parent = record.parentTenant
@@ -1112,13 +1199,18 @@ function ofPortfolioCard(projection, record, selectedId) {
     ? '<button type="button" class="of-control of-portfolio-open" data-of-open-portfolio="' + ofEsc(record.canonicalId) +
       '" aria-pressed="' + selected + '" aria-label="Focus ' + ofEsc(record.name) + '">Focus</button>'
     : '';
+  var promote = proposal
+    ? '<p class="of-card-note">promotion proposal only · founder Gate review required</p>' +
+      '<button type="button" class="of-control of-portfolio-promote" data-of-portfolio-promote="' + ofEsc(proposal.subject) +
+      '" data-of-portfolio-promote-state="proposal-only" aria-label="Request founder review for ' + ofEsc(record.name) + ' promotion">Request promotion review</button>'
+    : '';
   return '<article class="of-card of-portfolio-card" data-portfolio-card data-portfolio-id="' + ofEsc(record.canonicalId) +
     '" data-portfolio-kind="' + record.zone + '" data-portfolio-join="' + (exact ? 'exact' : 'missing') + '"' +
     (selected ? ' aria-current="true"' : '') + '><header class="of-card-head"><h4 class="of-card-title">' +
     ofEsc(record.name) + '</h4><span class="of-badge">' + ofEsc(record.classification) +
     '</span></header><div class="of-card-body"><dl class="of-card-facts"><div class="of-fact"><dt>classification · read-only</dt><dd>' +
     ofEsc(record.classification) + '</dd></div><div class="of-fact"><dt>Mission Fabric identity</dt><dd>' +
-    (exact ? 'exact match' : 'missing') + '</dd></div>' + parent + '</dl>' + aliases + links + lifecycle + select + '</div></article>';
+    (exact ? 'exact match' : 'missing') + '</dd></div>' + parent + '</dl>' + aliases + links + lifecycle + select + promote + '</div></article>';
 }
 function ofPortfolioZoneMarkup(projection, zone, records, counts, selectedId) {
   var zoneRecords = records.filter(function (record) {
@@ -1199,6 +1291,7 @@ function ofRenderPortfolioSceneContext(scene, projection, record) {
   var allowed = ['mission', 'flow', 'workforce', 'forge', 'inspect', 'gate'];
   if (!record || allowed.indexOf(scene) === -1) return '';
   var exact = !!ofPortfolioExactWork(projection, record);
+  var proposal = ofPortfolioPromotionProposal(projection, record);
   var ids = ofPortfolioScopedIds(projection, record);
   var template = ofPortfolioTemplate(record);
   var detail = '';
@@ -1221,9 +1314,11 @@ function ofRenderPortfolioSceneContext(scene, projection, record) {
     facts.push('classification · ' + ofEsc(record.classification));
     detail = facts.join('<br>');
   } else {
-    detail = exact
-      ? 'read-only catalog context · exact runtime identity · no Gate action synthesized'
-      : 'read-only catalog context · runtime identity missing · no Gate action synthesized';
+    detail = proposal
+      ? 'read-only catalog context · exact runtime identity · promotion proposal only · founder review required'
+      : exact
+        ? 'read-only catalog context · exact runtime identity · promotion request unavailable'
+        : 'read-only catalog context · runtime identity missing · promotion request unavailable';
   }
   return '<section class="of-portfolio-context" data-portfolio-context="' + scene + '" data-portfolio-join="' +
     (exact ? 'exact' : 'missing') + '" aria-label="Selected portfolio context"><strong>' + ofEsc(record.name) +

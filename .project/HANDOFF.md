@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-074 Portfolio Gate candidate
+
+- Branch `codex/331-t074-portfolio-gate` starts from exact verified main `38574bae0feb903606aea0e4eb3d3d30b88ed16b` and owns only the final serialized handler slice plus the bounded Portfolio proposal client surface.
+- RED proved no exact Portfolio promotion proposal or founder Gate route existed. GREEN exposes a proposal only for an exact, unpaused Sapling with a served promotion state, current Gate, canonical source digest, and exact runtime identity; every missing or contradictory descriptor fails closed.
+- The browser opens the explicit `promote-portfolio` preflight without changing local selection, lifecycle, or catalog state. Signed confirmation writes only an idempotent tenant-scoped Gate queue item; the integration test pins the existing Portfolio lifecycle record byte-for-byte and asserts that the Gate key is the only addition.
+- Focused Portfolio/handler checks, legacy-page digest verification, reconciliation 2/2, validation, rendered-doc parity, and diff checks pass. The governed queue candidate reads 67 implemented, 4 superseded, 4 executable residuals, and 5 approval-gated rows; T-075 is the sole ready frontier and the shared handler lock is released.
+- No deployment, provider, production Telegram, D1/KV/R2, credential, connected-repository, lifecycle, catalog, or approval-gated mutation is included.
+
 ### 2026-08-16 issue #331 T-068 Inspect page-readiness candidate
 
 - Branch `codex/331-t068-inspect-readiness` starts from exact verified main `1b0fb3efc9a4d2203803e0bc270f6872481a131e` and owns only the remaining T-068 Inspect scene lock.
