@@ -7,41 +7,18 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
-const defaultOutput = '.planning/2026-08-10-documentation-retention-manifest.per-file.v1.json';
 const output = process.argv.includes('--out')
   ? process.argv[process.argv.indexOf('--out') + 1]
-  : defaultOutput;
-const outputFile = path.resolve(root, output);
-const rootReal = fs.realpathSync(root);
-const outputParentReal = (() => {
-  try {
-    return fs.realpathSync(path.dirname(outputFile));
-  } catch {
-    throw new Error('Retention manifest output parent must exist within the repository.');
-  }
-})();
-const isWithin = (base, candidate) => candidate === base || candidate.startsWith(`${base}${path.sep}`);
-if (!isWithin(rootReal, outputParentReal) || (fs.existsSync(outputFile) && fs.lstatSync(outputFile).isSymbolicLink())) {
-  throw new Error('Retention manifest output must stay within the repository.');
-}
-const outputPath = path.relative(root, outputFile);
-const generatedManifestPaths = new Set([defaultOutput, outputPath]);
-const existingGeneratedAt = (() => {
-  try {
-    const existing = JSON.parse(fs.readFileSync(outputFile, 'utf8'));
-    return typeof existing.generatedAt === 'string' ? existing.generatedAt : null;
-  } catch {
-    return null;
-  }
-})();
+  : '.planning/2026-08-10-documentation-retention-manifest.per-file.v1.json';
+const outputPath = path.isAbsolute(output) ? output : path.join(root, output);
 const generatedAt = process.argv.includes('--generated-at')
   ? process.argv[process.argv.indexOf('--generated-at') + 1]
-  : existingGeneratedAt || new Date().toISOString().slice(0, 10);
+  : new Date().toISOString().slice(0, 10);
 const text = new Set(['.md', '.json', '.js', '.mjs', '.ts', '.tsx', '.html', '.css', '.yml', '.yaml']);
 const tracked = execFileSync('git', ['ls-files', '-z', '--', 'docs/plans'], { cwd: root, encoding: 'utf8' })
   .split('\0').filter(Boolean).sort();
 const textFiles = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
-  .split('\0').filter((file) => !generatedManifestPaths.has(file) && text.has(path.extname(file).toLowerCase()));
+  .split('\0').filter((file) => text.has(path.extname(file).toLowerCase()));
 const readText = (file) => {
   try { return fs.readFileSync(path.join(root, file), 'utf8'); } catch { return ''; }
 };
@@ -96,5 +73,5 @@ const manifest = {
   entries,
   safeguards: ['tracked-files-only', 'no-reference-bodies', 'no-automatic-deletion-or-externalization', 'duplicate-groups-remain-review-required']
 };
-fs.writeFileSync(outputFile, `${JSON.stringify(manifest, null, 2)}\n`);
+fs.writeFileSync(outputPath, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`${output}: ${entries.length} entries`);
