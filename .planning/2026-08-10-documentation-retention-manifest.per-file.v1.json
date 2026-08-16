@@ -1,7 +1,9 @@
 {
   "schema": "cambium.docs-retention.per-file.v1",
   "status": "reviewed-inventory",
-  "generatedAt": "2026-08-10",
+  "decisionOriginDate": "2026-08-10",
+  "inventoryAsOfRevision": "HEAD",
+  "inventoryAsOfCommitDate": "2026-08-16",
   "scopeRoot": "docs/plans",
   "decision": "no-relocation-or-deletion",
   "entryCount": 177,
@@ -2409,8 +2411,8 @@
       "inboundReferences": {
         "count": 2,
         "samplePaths": [
-          ".planning/2026-08-10-documentation-retention-manifest.v1.json",
-          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+          "scripts/generate-docs-retention-manifest.mjs"
         ],
         "truncated": false
       },
@@ -2485,8 +2487,8 @@
       "inboundReferences": {
         "count": 2,
         "samplePaths": [
-          ".planning/2026-08-10-documentation-retention-manifest.v1.json",
-          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+          "scripts/generate-docs-retention-manifest.mjs"
         ],
         "truncated": false
       },

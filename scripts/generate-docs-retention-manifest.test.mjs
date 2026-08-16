@@ -27,7 +27,14 @@ function writeFixtureFile(root, relativePath, content) {
 
 function commitAll(root, message) {
   execFileSync('git', ['add', '-A'], { cwd: root });
-  execFileSync('git', ['commit', '--quiet', '-m', message], { cwd: root });
+  execFileSync('git', ['commit', '--quiet', '-m', message], {
+    cwd: root,
+    env: {
+      ...process.env,
+      GIT_AUTHOR_DATE: '2026-08-16T00:00:00Z',
+      GIT_COMMITTER_DATE: '2026-08-16T00:00:00Z',
+    },
+  });
 }
 
 function runGenerator(root, args = []) {
@@ -51,7 +58,7 @@ test('retention manifest regeneration is deterministic and excludes itself from 
     writeFixtureFile(root, 'notes.md', 'See docs/plans/example.md.\n');
     commitAll(root, 'fixture');
 
-    runGenerator(root, ['--generated-at', '2026-08-12']);
+    runGenerator(root);
     const output = path.join(root, defaultOutput);
     commitAll(root, 'retention receipt');
     const first = fs.readFileSync(output, 'utf8');
@@ -62,7 +69,10 @@ test('retention manifest regeneration is deterministic and excludes itself from 
     const manifest = JSON.parse(second);
 
     assert.equal(second, first);
-    assert.equal(manifest.generatedAt, '2026-08-12');
+    assert.equal(Object.hasOwn(manifest, 'generatedAt'), false);
+    assert.equal(manifest.decisionOriginDate, '2026-08-10');
+    assert.equal(manifest.inventoryAsOfRevision, 'HEAD');
+    assert.equal(manifest.inventoryAsOfCommitDate, '2026-08-16');
     assert.equal(manifest.entryCount, 1);
     assert.deepEqual(manifest.entries[0].inboundReferences.samplePaths, ['notes.md']);
   } finally {
@@ -77,7 +87,7 @@ test('retention manifest accepts a repository-contained absolute output path det
     commitAll(root, 'fixture');
 
     const output = path.join(root, '.planning', 'manifest.json');
-    runGenerator(root, ['--generated-at', '2026-08-15', '--out', output]);
+    runGenerator(root, ['--out', output]);
     commitAll(root, 'absolute retention receipt');
     const first = fs.readFileSync(output, 'utf8');
 
@@ -86,7 +96,8 @@ test('retention manifest accepts a repository-contained absolute output path det
     const manifest = JSON.parse(second);
 
     assert.equal(second, first);
-    assert.equal(manifest.generatedAt, '2026-08-15');
+    assert.equal(Object.hasOwn(manifest, 'generatedAt'), false);
+    assert.equal(manifest.inventoryAsOfCommitDate, '2026-08-16');
     assert.equal(manifest.entryCount, 1);
     assert.equal(manifest.entries[0].path, 'docs/plans/example.md');
   } finally {
@@ -146,7 +157,7 @@ test('retention manifest output is derived from exact HEAD despite dirty and sta
     writeFixtureFile(root, 'notes.md', 'See docs/plans/example.md.\n');
     commitAll(root, 'fixture');
 
-    runGenerator(root, ['--generated-at', '2026-08-16']);
+    runGenerator(root);
     const output = path.join(root, defaultOutput);
     commitAll(root, 'retention receipt');
     const expected = fs.readFileSync(output, 'utf8');
@@ -165,6 +176,87 @@ test('retention manifest output is derived from exact HEAD despite dirty and sta
     assert.equal(manifest.entryCount, 1);
     assert.deepEqual(manifest.entries.map((entry) => entry.path), ['docs/plans/example.md']);
     assert.deepEqual(manifest.entries[0].inboundReferences.samplePaths, ['notes.md']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('canonical receipt check rejects stale Markdown counts and misleading generatedAt metadata', () => {
+  const root = createFixtureRepo('cambium-retention-canonical-check-');
+  try {
+    writeFixtureFile(root, 'docs/plans/example.md', '# Example\n');
+    writeFixtureFile(root, '.planning/2026-08-10-documentation-retention-manifest.v1.json', `${JSON.stringify({
+      schema: 'cambium.docs-retention.v1',
+      generatedAt: '2026-08-10',
+      entries: [
+        { path: 'docs/plans/**/*.md', bytes: 0 },
+        { path: 'docs/plans/**/*.json', bytes: 0 },
+        { path: 'docs/plans/assets/**', bytes: 0 },
+      ],
+    }, null, 2)}\n`);
+    writeFixtureFile(root, '.planning/2026-08-10-documentation-retention-inventory.md', `# Documentation retention inventory — 2026-08-10
+
+**Status:** stale fixture
+
+## Decision
+
+Retain the evidence.
+
+## Footprint
+
+| Surface | Evidence | Interpretation |
+| --- | --- | --- |
+| Markdown files | 0 files, 0 bytes | stale |
+
+## Reference safety findings
+
+Retain exact paths.
+
+\`\`\`json
+{
+  "generatedAt": "ISO-8601"
+}
+\`\`\`
+`);
+    commitAll(root, 'canonical fixture');
+
+    const backdatedOverride = spawnGenerator(root, ['--generated-at', '2026-08-10']);
+    assert.notEqual(backdatedOverride.status, 0);
+    assert.match(backdatedOverride.stderr, /inventoryAsOfCommitDate is derived from HEAD/);
+
+    runGenerator(root);
+    const check = spawnGenerator(root, ['--check']);
+    assert.equal(check.status, 0, check.stderr);
+    commitAll(root, 'generated canonical receipts');
+    runGenerator(root);
+    execFileSync('git', ['diff', '--exit-code'], { cwd: root });
+    const committedHeadCheck = spawnGenerator(root, ['--check']);
+    assert.equal(committedHeadCheck.status, 0, committedHeadCheck.stderr);
+
+    const perFile = JSON.parse(fs.readFileSync(path.join(root, defaultOutput), 'utf8'));
+    const aggregatePath = path.join(root, '.planning', '2026-08-10-documentation-retention-manifest.v1.json');
+    const inventoryPath = path.join(root, '.planning', '2026-08-10-documentation-retention-inventory.md');
+    const aggregate = JSON.parse(fs.readFileSync(aggregatePath, 'utf8'));
+    const inventory = fs.readFileSync(inventoryPath, 'utf8');
+    assert.equal(Object.hasOwn(perFile, 'generatedAt'), false);
+    assert.equal(Object.hasOwn(aggregate, 'generatedAt'), false);
+    assert.equal(perFile.inventoryAsOfCommitDate, '2026-08-16');
+    assert.equal(aggregate.inventoryAsOfCommitDate, '2026-08-16');
+    assert.doesNotMatch(inventory, /"generatedAt"/);
+    assert.match(inventory, /Markdown files \| 1 files, 10 bytes/);
+
+    fs.writeFileSync(inventoryPath, inventory.replace('Markdown files | 1 files, 10 bytes', 'Markdown files | 2 files, 999 bytes'));
+    const staleMarkdown = spawnGenerator(root, ['--check']);
+    assert.notEqual(staleMarkdown.status, 0);
+    assert.match(staleMarkdown.stderr, /retention receipt is stale/);
+
+    runGenerator(root);
+    const misleading = JSON.parse(fs.readFileSync(aggregatePath, 'utf8'));
+    misleading.generatedAt = '2026-08-10';
+    fs.writeFileSync(aggregatePath, `${JSON.stringify(misleading, null, 2)}\n`);
+    const staleMetadata = spawnGenerator(root, ['--check']);
+    assert.notEqual(staleMetadata.status, 0);
+    assert.match(staleMetadata.stderr, /retention receipt is stale/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

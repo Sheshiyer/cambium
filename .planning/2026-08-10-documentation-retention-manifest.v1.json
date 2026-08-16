@@ -1,7 +1,6 @@
 {
   "schema": "cambium.docs-retention.v1",
   "status": "reviewed-proposal",
-  "generatedAt": "2026-08-10",
   "scopeRoot": "docs/plans",
   "decision": "no-relocation-or-deletion",
   "entries": [
@@ -76,5 +75,9 @@
     "docs/architecture/contracts",
     "docs/evidence",
     "raw Cortex/provider/runtime state"
-  ]
+  ],
+  "decisionOriginDate": "2026-08-10",
+  "inventoryAsOfRevision": "HEAD",
+  "inventoryAsOfCommitDate": "2026-08-16",
+  "entryCount": 177
 }
