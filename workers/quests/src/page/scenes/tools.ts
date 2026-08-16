@@ -9,6 +9,129 @@
 // (T8), read-only token line (T5/N-06), empty tokens (T11), footer deleted (T12).
 // Data contract: docs/architecture/contracts/scenes/tools.json (fixtures: scenes/fixtures/tools.fixture.json).
 // Assembly order: page/index.ts.
+export const TOOLS_COMMAND_PANEL_IDS = ['status', 'services', 'agents', 'active-work', 'handoffs'] as const;
+export type ToolsCommandPanelId = typeof TOOLS_COMMAND_PANEL_IDS[number];
+export type ToolsCommandFreshnessState = 'fresh' | 'stale' | 'unknown';
+
+export interface ToolsCommandPanelProjection<TPanelId extends ToolsCommandPanelId = ToolsCommandPanelId> {
+  panelId: TPanelId;
+  source: string;
+  freshness: {
+    state: ToolsCommandFreshnessState;
+    checkedAt: string;
+  };
+}
+
+export interface ToolsCommandProjection {
+  status: ToolsCommandPanelProjection<'status'>;
+  services: ToolsCommandPanelProjection<'services'>;
+  agents: ToolsCommandPanelProjection<'agents'>;
+  activeWork: ToolsCommandPanelProjection<'active-work'>;
+  handoffs: ToolsCommandPanelProjection<'handoffs'>;
+}
+
+export interface ToolsCommandProjectionIssue {
+  path: string;
+  code:
+    | 'malformed_projection'
+    | 'missing_panel'
+    | 'unexpected_panel'
+    | 'wrong_panel_identity'
+    | 'missing_source'
+    | 'malformed_freshness'
+    | 'invalid_freshness_state'
+    | 'invalid_iso_time';
+}
+
+export type ToolsCommandProjectionParseResult =
+  | { ok: true; value: ToolsCommandProjection }
+  | { ok: false; issues: ToolsCommandProjectionIssue[] };
+
+const TOOLS_FRESHNESS_STATES = new Set<ToolsCommandFreshnessState>(['fresh', 'stale', 'unknown']);
+const TOOLS_PANEL_FIELDS = [
+  ['status', 'status'],
+  ['services', 'services'],
+  ['agents', 'agents'],
+  ['activeWork', 'active-work'],
+  ['handoffs', 'handoffs'],
+] as const;
+
+function toolsRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function toolsCanonicalIso(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)) return false;
+  return Number.isFinite(Date.parse(value));
+}
+
+export function parseToolsCommandProjection(input: unknown): ToolsCommandProjectionParseResult {
+  const projection = toolsRecord(input);
+  if (!projection) return { ok: false, issues: [{ path: '', code: 'malformed_projection' }] };
+
+  const issues: ToolsCommandProjectionIssue[] = [];
+  const parsedPanels: Partial<Record<keyof ToolsCommandProjection, ToolsCommandPanelProjection>> = {};
+  for (const [field, panelId] of TOOLS_PANEL_FIELDS) {
+    const panel = toolsRecord(projection[field]);
+    if (!panel) {
+      issues.push({ path: field, code: 'missing_panel' });
+      continue;
+    }
+    if (panel.panelId !== panelId) {
+      issues.push({ path: `${field}.panelId`, code: 'wrong_panel_identity' });
+    }
+    if (typeof panel.source !== 'string' || !panel.source.trim()) {
+      issues.push({ path: `${field}.source`, code: 'missing_source' });
+    }
+    const freshness = toolsRecord(panel.freshness);
+    if (!freshness) {
+      issues.push({ path: `${field}.freshness`, code: 'malformed_freshness' });
+      continue;
+    }
+    if (typeof freshness.state !== 'string' || !TOOLS_FRESHNESS_STATES.has(freshness.state as ToolsCommandFreshnessState)) {
+      issues.push({ path: `${field}.freshness.state`, code: 'invalid_freshness_state' });
+    }
+    if (!toolsCanonicalIso(freshness.checkedAt)) {
+      issues.push({ path: `${field}.freshness.checkedAt`, code: 'invalid_iso_time' });
+    }
+    if (
+      panel.panelId === panelId
+      && typeof panel.source === 'string'
+      && panel.source.trim()
+      && typeof freshness.state === 'string'
+      && TOOLS_FRESHNESS_STATES.has(freshness.state as ToolsCommandFreshnessState)
+      && toolsCanonicalIso(freshness.checkedAt)
+    ) {
+      parsedPanels[field] = {
+        panelId,
+        source: panel.source.trim(),
+        freshness: {
+          state: freshness.state as ToolsCommandFreshnessState,
+          checkedAt: freshness.checkedAt,
+        },
+      };
+    }
+  }
+  const expectedFields = new Set<string>(TOOLS_PANEL_FIELDS.map(([field]) => field));
+  for (const field of Object.keys(projection)) {
+    if (!expectedFields.has(field)) issues.push({ path: field, code: 'unexpected_panel' });
+  }
+  if (issues.length) return { ok: false, issues };
+
+  return {
+    ok: true,
+    value: {
+      status: parsedPanels.status as ToolsCommandPanelProjection<'status'>,
+      services: parsedPanels.services as ToolsCommandPanelProjection<'services'>,
+      agents: parsedPanels.agents as ToolsCommandPanelProjection<'agents'>,
+      activeWork: parsedPanels.activeWork as ToolsCommandPanelProjection<'active-work'>,
+      handoffs: parsedPanels.handoffs as ToolsCommandPanelProjection<'handoffs'>,
+    },
+  };
+}
+
 export const SCENE_TOOLS = `let CMDDATA = null;
 let TOOL_FOCUS = '';
 let TOOL_CONTEXT_BRANCH = '';

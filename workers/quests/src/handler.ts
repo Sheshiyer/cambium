@@ -8,6 +8,7 @@
 // green (the quest log's own arc VII — the feature gates itself).
 
 import { PAGE } from './page.ts';
+import { injectInitialQuestHydration } from './page/client/data.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
@@ -2709,6 +2710,21 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
   } catch {
     return stored;
   }
+}
+
+function scriptSafeJson(value: unknown): string {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) throw new TypeError('page bootstrap value is not JSON serializable');
+  return serialized
+    .replace(/</g, '\\u003c')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+function injectPageBootstrap(page: string, statements: string[]): string {
+  if (!statements.length) return page;
+  const boot = `<script>${statements.join('')}</script>`;
+  return page.includes('</head>') ? page.replace('</head>', `${boot}</head>`) : boot + page;
 }
 
 function parsedTime(value: unknown): number | null {
@@ -6327,7 +6343,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (method === 'GET' && (routePath === '/' || routePath === '/index.html')) {
     // Inject pure proactive L4 loop projection for Mini App Fitcheck strip (no TG send, no D1 write)
-    let pageBody = PAGE;
+    const bootstrap: string[] = [];
+    let hasInitialQuestEnvelope = false;
     try {
       const observedAt = deps.now ? deps.now() : new Date().toISOString();
       const stored = await readProactiveLoopPlan(deps.kv, 'cambium');
@@ -6337,7 +6354,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         actor: 'mini-app-html',
       });
       const mini = 'miniApp' in proactive ? proactive.miniApp : proactive;
-      const boot = `<script>globalThis.__CAMBIUM_PROACTIVE_LOOP__=${JSON.stringify({
+      bootstrap.push(`globalThis.__CAMBIUM_PROACTIVE_LOOP__=${scriptSafeJson({
         heldCount: mini.heldCount,
         failedCount: mini.failedCount,
         passedCount: mini.passedCount,
@@ -6346,13 +6363,31 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         observedAt: mini.observedAt,
         stored: !!stored,
         authorityNote: mini.authorityNote,
-      })};</script>`;
-      pageBody = PAGE.includes('</head>')
-        ? PAGE.replace('</head>', `${boot}</head>`)
-        : boot + PAGE;
-    } catch {
-      pageBody = PAGE;
+      })};`);
+    } catch { /* proactive projection is optional page bootstrap data */ }
+    const requestedTenant = queryParam(path, 'tenant') ?? 'cambium';
+    if (VALID_TENANT.test(requestedTenant)) {
+      try {
+        const storedEnvelope = await deps.kv.get(ledgerKey(requestedTenant));
+        if (storedEnvelope) {
+          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope));
+          if (
+            isRecord(initialEnvelope)
+            && initialEnvelope.schema === 1
+            && initialEnvelope.tenant === requestedTenant
+            && isRecord(initialEnvelope.ledger)
+            && Array.isArray(initialEnvelope.ledger.rows)
+          ) {
+            bootstrap.push(`globalThis.__CAMBIUM_INITIAL_QUEST_ENVELOPE__=${scriptSafeJson(initialEnvelope)};`);
+            hasInitialQuestEnvelope = true;
+          }
+        }
+      } catch { /* invalid or unavailable stored envelopes retain the fetch-first shell */ }
     }
+    const pageBody = injectPageBootstrap(
+      hasInitialQuestEnvelope ? injectInitialQuestHydration(PAGE) : PAGE,
+      bootstrap,
+    );
     return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body: pageBody };
   }
 

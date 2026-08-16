@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import vm from 'node:vm';
 import { PAGE } from './page/index.ts';
+import { injectInitialQuestHydration } from './page/client/data.ts';
+import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 
 type FetchPlan =
   | { status: number; body: unknown; malformed?: boolean }
@@ -67,6 +69,7 @@ function makeElement(id: string) {
     dispatchEvent: (event: Record<string, unknown>) => boolean;
     click: () => boolean;
     focus: () => void;
+    querySelectorAll: (selector: string) => Array<ReturnType<typeof makeElement>>;
   } = {
     id,
     nodeType: 1,
@@ -126,6 +129,7 @@ function makeElement(id: string) {
       return element.dispatchEvent({ type: 'click', bubbles: true, cancelable: true });
     },
     focus() {},
+    querySelectorAll() { return []; },
   };
   const queryCache = new Map<string, ReturnType<typeof makeElement>[]>();
   return element;
@@ -136,8 +140,18 @@ async function renderPageState({
   search = '',
   fetchPlan = [{ status: 200, body: { schema: 1, tenant } }],
   expireDeadline = false,
-}: { tenant?: string; search?: string; fetchPlan?: FetchPlan[]; expireDeadline?: boolean } = {}): Promise<RenderedPage> {
-  const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
+  holdDeadline = false,
+  initialEnvelope,
+}: {
+  tenant?: string;
+  search?: string;
+  fetchPlan?: FetchPlan[];
+  expireDeadline?: boolean;
+  holdDeadline?: boolean;
+  initialEnvelope?: unknown;
+} = {}): Promise<RenderedPage> {
+  const renderedPage = initialEnvelope === undefined ? PAGE : injectInitialQuestHydration(PAGE);
+  const scripts = [...renderedPage.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
     .filter((script) => script.trim() && !script.includes('telegram-web-app'));
   const bootScripts = scripts.filter((script) => script.includes('/v1/mission-fabric/'));
@@ -161,6 +175,7 @@ async function renderPageState({
   const requests: Array<{ url: string; init: RequestInit; index: number }> = [];
   const sequence = [...fetchPlan];
   const context: Record<string, unknown> = {
+    __CAMBIUM_INITIAL_QUEST_ENVELOPE__: initialEnvelope,
     document: { getElementById, querySelectorAll: () => [] },
     window: { Telegram: undefined, addEventListener() {}, innerWidth: 390 },
     location: { search: search || `?tenant=${tenant}` },
@@ -190,6 +205,7 @@ async function renderPageState({
     AbortController,
     console,
     setTimeout: (fn: (...args: unknown[]) => void, delay?: number, ...args: unknown[]) => {
+      if (holdDeadline && delay === 10000) return 1;
       if (expireDeadline && delay === 10000) {
         queueMicrotask(() => fn(...args));
         return 1;
@@ -221,6 +237,10 @@ function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function renderedEnvelopeSource(rendered: RenderedPage): string | null {
+  return vm.runInContext('ECOSYSTEM_ENV && ECOSYSTEM_ENV.source', rendered.context) as string | null;
+}
+
 test('page data load · 200 without ledger stays honest empty', async () => {
   const { elements, requests } = await renderPageState({ tenant: 'cambium', fetchPlan: [{ status: 200, body: { schema: 1, tenant: 'cambium' } }] });
   assert.equal(requests[0].url, '/api/quests/cambium');
@@ -228,6 +248,81 @@ test('page data load · 200 without ledger stays honest empty', async () => {
   assert.equal(elements.get('fresh')!.dataset.interactionKind, 'sheet');
   assert.match(elements.get('stem')!.innerHTML, /no ledger yet/);
   assert.match(elements.get('stem')!.innerHTML, /push --tenant cambium/);
+});
+
+test('page data load · paints a matching served envelope before background refresh settles', async () => {
+  const initialEnvelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:30:00.000Z',
+    source: 'served-initial@v1',
+    ledger: {
+      completed: 0,
+      total: 1,
+      current: null,
+      rows: [{ id: 'q-1', title: 'Served initial quest', status: 'planned', evidence: '' }],
+    },
+    beats: [{
+      text: 'Served initial beat',
+      lane: 'quest',
+      group: 'Mission wins',
+      outcome: 'Initial painted',
+      proof: 'Receipt ready',
+      branchId: 'branch:cambium',
+    }],
+  };
+  const rendered = await renderPageState({
+    initialEnvelope,
+    holdDeadline: true,
+    fetchPlan: [() => new Promise(() => {})],
+  });
+
+  assert.equal(rendered.requests.length, 1, 'background refresh still starts');
+  assert.equal(renderedEnvelopeSource(rendered), 'served-initial@v1');
+  assert.match(rendered.elements.get('beats')!.innerHTML, /data-component="StoryBeatCard"/);
+});
+
+test('page data load · ignores mismatched and ledger-less served envelopes', async () => {
+  const fetchedEnvelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:31:00.000Z',
+    source: 'refresh@v1',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+  };
+  for (const initialEnvelope of [
+    { ...fetchedEnvelope, tenant: 'other' },
+    { ...fetchedEnvelope, ledger: undefined },
+  ]) {
+    const rendered = await renderPageState({
+      initialEnvelope,
+      fetchPlan: [{ status: 200, body: fetchedEnvelope }],
+    });
+    assert.equal(renderedEnvelopeSource(rendered), 'refresh@v1');
+  }
+});
+
+test('page data load · older background refresh cannot replace newer served envelope', async () => {
+  const initialEnvelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:31:00.000Z',
+    source: 'served-initial@v1',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+  };
+  const rendered = await renderPageState({
+    initialEnvelope,
+    fetchPlan: [{
+      status: 200,
+      body: { ...initialEnvelope, derivedAt: '2026-08-16T08:30:00.000Z', source: 'older-refresh@v1' },
+    }],
+  });
+
+  assert.equal(renderedEnvelopeSource(rendered), 'served-initial@v1');
+  assert.equal(rendered.elements.get('fresh')!.textContent, 'stale · refresh skipped');
 });
 
 test('page data load · 401 / 403 both render bounded auth guidance', async () => {

@@ -18,10 +18,10 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
   assert.equal(new Set(taskMap.tasks.map(({ id }) => id)).size, 80)
   assert.deepEqual(taskMap.counts, {
     total: 80,
-    executable: 21,
-    implemented: 50,
+    executable: 18,
+    implemented: 53,
     superseded: 4,
-    residual: 21,
+    residual: 18,
     'approval-gated': 5,
   })
 
@@ -60,7 +60,11 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
   }
 
   const byId = new Map(taskMap.tasks.map((task) => [task.id, task]))
-  for (const id of ['T-021', 'T-053', 'T-059', 'T-074']) {
+  for (const id of ['T-008', 'T-009', 'T-021']) {
+    assert.equal(byId.get(id).status, 'implemented', `${id} must carry issue #331 P1 acceptance evidence`)
+    assert.match(byId.get(id).evidence, /Issue #331 P1/)
+  }
+  for (const id of ['T-053', 'T-059', 'T-074']) {
     assert.ok(byId.get(id).integration_lock_zones.includes('workers/quests/src/handler.ts'), `${id} must serialize handler.ts`)
   }
   for (const id of ['T-029', 'T-030', 'T-031', 'T-034', 'T-035', 'T-042']) {
@@ -85,12 +89,12 @@ test('source reconciliation and execution manifest agree with the governed queue
 
   assert.deepEqual(ledger.tasks, taskMap.tasks)
   assert.deepEqual(ledger.counts.dispositions, {
-    implemented: 50,
+    implemented: 53,
     superseded: 4,
-    residual: 21,
+    residual: 18,
     'approval-gated': 5,
   })
-  assert.equal(ledger.counts.executable_tasks, 21)
+  assert.equal(ledger.counts.executable_tasks, 18)
   assert.equal(gip003.status, 'completed')
   assert.match(gip003.validation, /50 implemented, 4 superseded, 21 executable residuals, and 5 non-executable approval-gated/)
 

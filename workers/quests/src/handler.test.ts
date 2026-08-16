@@ -28,6 +28,8 @@ import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { PAGE } from './page.ts';
+import { parseStoryEventContract } from './page/scenes/story.ts';
+import { parseToolsCommandProjection } from './page/scenes/tools.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
   IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE,
@@ -1840,6 +1842,177 @@ test('quests · 404 with push hint before any ledger exists', async () => {
   assert.match(r.body, /quine write quests push/);
 });
 
+test('story contract · accepts stable identity, canonical WorkObject identity, source, event time, and receipt identity', () => {
+  const parsed = parseStoryEventContract({
+    eventId: 'story:fitcheck:launch-proof',
+    workObject: {
+      id: 'sapling:cambium',
+      kind: 'sapling',
+    },
+    source: 'product-branch-packets@v1',
+    eventAt: '2026-08-16T08:30:00.000Z',
+    receipt: {
+      id: 'rcpt_fitcheck_launch_001',
+    },
+  });
+
+  assert.deepEqual(parsed, {
+    ok: true,
+    value: {
+      eventId: 'story:fitcheck:launch-proof',
+      workObject: {
+        id: 'sapling:cambium',
+        kind: 'sapling',
+      },
+      source: 'product-branch-packets@v1',
+      eventAt: '2026-08-16T08:30:00.000Z',
+      receipt: {
+        id: 'rcpt_fitcheck_launch_001',
+      },
+    },
+  });
+});
+
+test('story contract · rejects malformed identities, invalid WorkObject kind, invalid event time, and missing receipt identity', () => {
+  const parsed = parseStoryEventContract({
+    eventId: ' ',
+    workObject: {
+      id: 'sapling cambium',
+      kind: 'template',
+    },
+    source: '',
+    eventAt: '16-08-2026 08:30',
+    receipt: {},
+  });
+
+  assert.equal(parsed.ok, false);
+  if (parsed.ok) return;
+  assert.deepEqual(parsed.issues.map((issue) => `${issue.path}:${issue.code}`), [
+    'eventId:invalid_identity',
+    'workObject.id:invalid_identity',
+    'workObject.kind:invalid_work_object_kind',
+    'source:missing_source',
+    'eventAt:invalid_iso_time',
+    'receipt.id:missing_receipt_identity',
+  ]);
+});
+
+test('story contract · rejects a WorkObject identity whose prefix contradicts its kind', () => {
+  const parsed = parseStoryEventContract({
+    eventId: 'story:cambium:proof',
+    workObject: { id: 'branch:cambium', kind: 'sapling' },
+    source: 'quest-ledger@v1',
+    eventAt: '2026-08-16T08:30:00.000Z',
+    receipt: { id: 'receipt:cambium:proof' },
+  });
+
+  assert.equal(parsed.ok, false);
+  if (parsed.ok) return;
+  assert.deepEqual(parsed.issues, [{ path: 'workObject.id', code: 'work_object_kind_mismatch' }]);
+});
+
+test('tools contract · accepts exactly the five panels with source and freshness on each panel', () => {
+  const parsed = parseToolsCommandProjection({
+    status: {
+      panelId: 'status',
+      source: 'org-status@v1',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:30:00.000Z' },
+    },
+    services: {
+      panelId: 'services',
+      source: 'service-health@v1',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:31:00.000Z' },
+    },
+    agents: {
+      panelId: 'agents',
+      source: 'agent-roster@v1',
+      freshness: { state: 'stale', checkedAt: '2026-08-16T07:30:00.000Z' },
+    },
+    activeWork: {
+      panelId: 'active-work',
+      source: 'active-work@v1',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:32:00.000Z' },
+    },
+    handoffs: {
+      panelId: 'handoffs',
+      source: 'handoff-queue@v1',
+      freshness: { state: 'unknown', checkedAt: '2026-08-16T08:33:00.000Z' },
+    },
+  });
+
+  assert.deepEqual(parsed, {
+    ok: true,
+    value: {
+      status: {
+        panelId: 'status',
+        source: 'org-status@v1',
+        freshness: { state: 'fresh', checkedAt: '2026-08-16T08:30:00.000Z' },
+      },
+      services: {
+        panelId: 'services',
+        source: 'service-health@v1',
+        freshness: { state: 'fresh', checkedAt: '2026-08-16T08:31:00.000Z' },
+      },
+      agents: {
+        panelId: 'agents',
+        source: 'agent-roster@v1',
+        freshness: { state: 'stale', checkedAt: '2026-08-16T07:30:00.000Z' },
+      },
+      activeWork: {
+        panelId: 'active-work',
+        source: 'active-work@v1',
+        freshness: { state: 'fresh', checkedAt: '2026-08-16T08:32:00.000Z' },
+      },
+      handoffs: {
+        panelId: 'handoffs',
+        source: 'handoff-queue@v1',
+        freshness: { state: 'unknown', checkedAt: '2026-08-16T08:33:00.000Z' },
+      },
+    },
+  });
+});
+
+test('tools contract · rejects missing panels, empty sources, malformed freshness, invalid timestamps, and wrong panel identities', () => {
+  const parsed = parseToolsCommandProjection({
+    status: {
+      panelId: 'status',
+      source: '',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:30:00.000Z' },
+    },
+    services: {
+      panelId: 'service',
+      source: 'service-health@v1',
+      freshness: { state: 'fresh', checkedAt: 'not-a-time' },
+    },
+    agents: {
+      panelId: 'agents',
+      source: 'agent-roster@v1',
+      freshness: 'fresh',
+    },
+    handoffs: {
+      panelId: 'handoffs',
+      source: 'handoff-queue@v1',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:33:00.000Z' },
+    },
+    rogue: {
+      panelId: 'rogue',
+      source: 'unowned@v1',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:34:00.000Z' },
+    },
+  });
+
+  assert.equal(parsed.ok, false);
+  if (parsed.ok) return;
+  assert.deepEqual(parsed.issues.map((issue) => `${issue.path}:${issue.code}`), [
+    'status.source:missing_source',
+    'services.panelId:wrong_panel_identity',
+    'services.freshness.checkedAt:invalid_iso_time',
+    'agents.freshness:malformed_freshness',
+    'activeWork:missing_panel',
+    'rogue:unexpected_panel',
+  ]);
+});
+
 test('push · requires configured token', async () => {
   const r = await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE }), { kv: fakeKv() });
   assert.equal(r.status, 503);
@@ -2461,6 +2634,32 @@ test('page · serves the Living Blueprint shell at /', async () => {
   assert.doesNotMatch(PAGE, /every status derives|real world-state|no fake progress/i);
   assert.match(JSON.stringify(NO_FAKE_PROGRESS_VISUAL_FIXTURE), /visual-fixture:no-fake-progress/);
   assert.match(PAGE, /telegram-web-app\.js/);
+});
+
+test('page · embeds the selected tenant public quest envelope as script-safe initial data', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:acme', JSON.stringify({
+    schema: 1,
+    tenant: 'acme',
+    derivedAt: '2026-08-16T08:30:00.000Z',
+    source: '</script><script>globalThis.pwned=true</script>',
+    ledger: { completed: 0, total: 1, current: null, rows: [] },
+  }));
+
+  const response = await handle(req('GET', '/?tenant=acme'), { kv });
+
+  assert.equal(response.status, 200);
+  assert.match(response.body, /globalThis\.__CAMBIUM_INITIAL_QUEST_ENVELOPE__=/);
+  assert.match(response.body, /\"tenant\":\"acme\"/);
+  assert.match(response.body, /\\u003c\/script>\\u003cscript>/);
+  assert.doesNotMatch(response.body, /<script>globalThis\.pwned=true<\/script>/);
+});
+
+test('page · omits initial quest data when the selected tenant has no stored ledger', async () => {
+  const response = await handle(req('GET', '/?tenant=missing'), { kv: fakeKv() });
+
+  assert.equal(response.status, 200);
+  assert.doesNotMatch(response.body, /globalThis\.__CAMBIUM_INITIAL_QUEST_ENVELOPE__=/);
 });
 
 test('page · chrome copy scan keeps infrastructure terms out of visible shell copy', () => {
