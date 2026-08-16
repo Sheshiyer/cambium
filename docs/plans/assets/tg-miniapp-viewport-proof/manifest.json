@@ -1,7 +1,7 @@
 {
   "schema": "cambium.tg-viewport-proof-manifest.v1",
-  "generatedAt": "2026-08-16T11:36:03.545Z",
-  "pageSourceSha256": "73b643b77dec1daeb69585c1f7f13950377b1005eec45ff50af2a2cf0db158a0",
+  "generatedAt": "2026-08-16T12:40:07.263Z",
+  "pageSourceSha256": "d2b08b23cbb01b0505dd752114a24372f9bec3793cc2b3bfe3764c560b886bcc",
   "chrome": "Google Chrome",
   "browserMode": "headless-new",
   "browserCandidates": [
@@ -23,7 +23,7 @@
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "mission-control-320-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "exact-width-touch",
@@ -40,7 +40,7 @@
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "mission-control-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "exact-width-touch",
@@ -57,7 +57,7 @@
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "mission-control-430-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "exact-width-touch",
@@ -74,7 +74,7 @@
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "mission-actions-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -90,7 +90,7 @@
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "mission-utilities-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -107,7 +107,7 @@
     {
       "scene": "components",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=components&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=components&fixture=branch-stories",
       "path": "component-glyph-state-board-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -123,7 +123,7 @@
     {
       "scene": "components",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=components&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=components&fixture=branch-stories",
       "path": "component-mission-components-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -139,7 +139,7 @@
     {
       "scene": "components",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=components&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=components&fixture=branch-stories",
       "path": "component-motion-legend-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -155,7 +155,7 @@
     {
       "scene": "components",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=components&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=components&fixture=branch-stories",
       "path": "component-legend-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -171,7 +171,7 @@
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "sheet-mission-review-gate-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -188,13 +188,13 @@
       },
       "width": 780,
       "height": 1668,
-      "bytes": 446844,
-      "sha256": "3214375b733d3c1e1f5297d77fd1d70321853243a23770bb79ca45c3c771b391"
+      "bytes": 496141,
+      "sha256": "c9d3eede3e5e69697ea694eb3bff74554f516e66b766808a54fe26a4b0579e4c"
     },
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "sheet-mission-open-proof-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -211,13 +211,13 @@
       },
       "width": 780,
       "height": 1668,
-      "bytes": 439991,
-      "sha256": "cfcd250a68fb7c41298c71ed957888936d56122879a56a3dc972dd61b7d46a55"
+      "bytes": 439917,
+      "sha256": "fbe7eb803d814190d949b5114117b01e4f258d4feb6af120796bbc2894c03389"
     },
     {
       "scene": "mission",
       "fixture": "branch-stories",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=mission&fixture=branch-stories",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=mission&fixture=branch-stories",
       "path": "mission-vantyx-selected-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -231,13 +231,13 @@
       "clickTargetCount": 1,
       "width": 780,
       "height": 1688,
-      "bytes": 1145090,
-      "sha256": "6ad4c001a4035bf4c7b9079040c89cb05d8939f70a39182b24e1a448fd54d316"
+      "bytes": 1145252,
+      "sha256": "724b87ee0e1a0259742dc10be13e9bf91c76fbb4584af8749af771f858534b11"
     },
     {
       "scene": "story",
       "fixture": "fresh",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=story&fixture=fresh",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=story&fixture=fresh",
       "path": "story-feed-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -247,13 +247,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1095171,
-      "sha256": "31f12b15f5a2fc068e72ee8f99326942481a6c6d21fc86ea1645214b4029ea28"
+      "bytes": 1071585,
+      "sha256": "c14e69177dea6d7fec2f4af4685229c7fab4f875d6d6d5e289722f427868debe"
     },
     {
       "scene": "tools",
       "fixture": "fresh",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=tools&fixture=fresh",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=tools&fixture=fresh",
       "path": "tools-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -263,13 +263,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1119776,
-      "sha256": "ac378d82e9c79126595e13a73420084aefbbd7e94289670e947d4c449078a04b"
+      "bytes": 1102575,
+      "sha256": "76e296e94f2376faf8e8578d423c97e2512c5424c57b6ee7547800d825a9e7a3"
     },
     {
       "scene": "tools",
       "fixture": "fresh",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=tools&fixture=fresh",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=tools&fixture=fresh",
       "path": "sheet-tools-handoff-action-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -285,14 +285,14 @@
         "clipSelector": "#sheet"
       },
       "width": 780,
-      "height": 826,
-      "bytes": 71449,
-      "sha256": "afbceaa14774d35f52f2a0ac77bf7c9bfd09547b53e2135ad88361ae06aac639"
+      "height": 994,
+      "bytes": 102961,
+      "sha256": "6510575707718627cc1a1e0a5df1bf3cb54d025945809fb3a2393319415f87d5"
     },
     {
       "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect",
       "path": "inspect-proof-320-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "exact-width-touch",
@@ -303,13 +303,13 @@
       "browserAssertions": true,
       "width": 640,
       "height": 1688,
-      "bytes": 931753,
-      "sha256": "ba1952f9f6c10a73dbdcc17590e8f2849ccb2ed994fe8dd22c82e0b3f678894d"
+      "bytes": 931524,
+      "sha256": "51bc2d343d14421cc7924942ec1b37a2454473845c82eac428374a0639e5ca0d"
     },
     {
       "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect",
       "path": "inspect-system-overview-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -320,13 +320,13 @@
       "browserAssertions": true,
       "width": 780,
       "height": 1688,
-      "bytes": 1100641,
-      "sha256": "82e0541545973f8f078d97a85ff2fc1ffcb8ab6f61e001ccd3423a6eee3b7cbe"
+      "bytes": 1100314,
+      "sha256": "1b0347142691eaca869cf40db992f94edd60c4716d3ec840d97c64a3d41e5dd4"
     },
     {
       "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect",
       "path": "inspect-tapestry-audit-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -337,13 +337,13 @@
       "clickTargetCount": 14,
       "width": 780,
       "height": 1688,
-      "bytes": 1101346,
-      "sha256": "01ff5bc9097fae8c76dec1e3bc9b6ecfb6c7d5840dd00de0e10a1ac1386dd9fd"
+      "bytes": 1101034,
+      "sha256": "a8691cb98283b5384428a7e35674efdd3c07c25e01d50aaef1d838d1d3b29c8d"
     },
     {
       "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect",
       "path": "inspect-no-fake-progress-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -353,13 +353,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1136413,
-      "sha256": "9b5f3274bf86f70a8b09673b42da685505e381e8430f198ef38adc8b0f456c1f"
+      "bytes": 1136109,
+      "sha256": "4346da574b20cb3a51ad410163228fc7fa7fcd88247413a7c0f97dfeb46d05c1"
     },
     {
       "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect",
       "path": "inspect-policy-gap-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -369,13 +369,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1180664,
-      "sha256": "3fd9ae61efb404c5bc8aac28f72cf50012839d5aaed5bfc55da7bab767ab8f8d"
+      "bytes": 1180374,
+      "sha256": "9fd52ad68fd544ab4481a5ec526ab3c0390f799c76d200c0d08dd669510dcf29"
     },
     {
       "scene": "inspect",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect",
       "path": "inspect-live-proof-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -385,13 +385,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1133956,
-      "sha256": "7c77fd27703ccbdb3e39325709c4210c506dc6eef4bcf1076855e46918c02744"
+      "bytes": 1133630,
+      "sha256": "e73c4bf0ed415c42640dbc926021fa467ee3192accbdc7d1062d03c93d176be2"
     },
     {
       "scene": "inspect",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect&fixture=gate",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect&fixture=gate",
       "path": "inspect-gate-priority-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -401,13 +401,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1180589,
-      "sha256": "aa635f854a017e108424f645692f16e53c50eecededef7a39a09dfe8df10c618"
+      "bytes": 1180308,
+      "sha256": "6e49c0fd06a5b840dc33a6c544fe26ff25ec8cba93a62f8cec8329ad6c9f2d9b"
     },
     {
       "scene": "inspect",
       "fixture": "skill",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect&fixture=skill",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect&fixture=skill",
       "path": "inspect-skill-promotion-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -417,13 +417,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1170521,
-      "sha256": "ebf55a5f7fc892fdcc612ee22142ac8088554df89fc0521048128b49764ab445"
+      "bytes": 1170217,
+      "sha256": "55591ac7c7cdd9c1ae757d22ff2d89c468be9510c8587ebd1a819b4d69cfd294"
     },
     {
       "scene": "inspect",
       "fixture": "skill",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect&fixture=skill",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect&fixture=skill",
       "path": "sheet-inspect-skill-promotion-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -440,13 +440,13 @@
       },
       "width": 780,
       "height": 1510,
-      "bytes": 244316,
-      "sha256": "33a1dbc0b55fef251b9144980caffeb3b8616dc0742a44c6b73a5af590927010"
+      "bytes": 244252,
+      "sha256": "0ad632b3bb209c0712aafccaa6c9d3a62702439ead336dfc6ff9413d87ede805"
     },
     {
       "scene": "inspect",
       "fixture": "mira",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect&fixture=mira",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect&fixture=mira",
       "path": "inspect-mira-relationship-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -463,13 +463,13 @@
       },
       "width": 780,
       "height": 1516,
-      "bytes": 220319,
-      "sha256": "9ddc08df8118e5d7f3eca2ca8046f4c0f1cd2f9d804b9da1686f09ff8a2f8812"
+      "bytes": 252034,
+      "sha256": "56e5f4c633ceb9a2212ff966239e6c919229ba896f1d2299833c669bdb06e3c2"
     },
     {
       "scene": "inspect",
       "fixture": "mira",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect&fixture=mira",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect&fixture=mira",
       "path": "inspect-companions-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -479,13 +479,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1122990,
-      "sha256": "b9214eb0db253167c4e4622d979feaa3d86406cb168dfad63c52346686f7c181"
+      "bytes": 1122696,
+      "sha256": "0bd0f3079c78500da3a6c420ef34e602013f2746dacb92aa8a6ceb5f9e7bb0a1"
     },
     {
       "scene": "gate",
       "fixture": "no-fake-progress",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate",
       "path": "gate-empty-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -495,13 +495,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1138045,
-      "sha256": "4cf143a14664ce822363600e447ad345cf5dabdf8c5cc531a44dac84733e9402"
+      "bytes": 1137790,
+      "sha256": "36716e5c789f833de9f312cd5b8393a39e6df171c513bf56367311e8c974b4a4"
     },
     {
       "scene": "gate",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=gate",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=gate",
       "path": "gate-consequence-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -511,13 +511,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1145179,
-      "sha256": "6317ab51bc9a6aee44b97f3248325cc737de8b22a60f22b97f76af401b104d4c"
+      "bytes": 1144953,
+      "sha256": "281c8dbd1e846ec9f4f1755e4e542f0c6d29f8aec5844457ab74d00c4809b071"
     },
     {
       "scene": "gate",
       "fixture": "action-requests",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=action-requests",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=action-requests",
       "path": "gate-iverif-action-request-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -527,13 +527,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1155137,
-      "sha256": "022fe1c20bf38b23f1342c9818b8847413d8e5ba3b5511e6944e93ca1a049bac"
+      "bytes": 1155284,
+      "sha256": "e57b1df1c1de4587020bca7dd459252d3d9d40630dd68896c56ac05c8fe70f9a"
     },
     {
       "scene": "gate",
       "fixture": "action-request-queued",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=action-request-queued",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=action-request-queued",
       "path": "gate-iverif-queued-proof-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "exact-width-touch",
@@ -543,13 +543,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1121336,
-      "sha256": "ef3ae6e9022da46f0a5cf7e80568f9b016cb6d1d1e45d9136d5eee259ca7461b"
+      "bytes": 1121292,
+      "sha256": "de78d086c10dd9d977af69c96a26d4d31eace4a572bf5e1ae69efe9d3f2fdf4b"
     },
     {
       "scene": "gate",
       "fixture": "action-request-queued",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=action-request-queued",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=action-request-queued",
       "path": "sheet-gate-queued-result-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "exact-width-touch",
@@ -570,7 +570,7 @@
     {
       "scene": "gate",
       "fixture": "action-request-queued",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=action-request-queued",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=action-request-queued",
       "path": "sheet-gate-queued-proof-detail-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "exact-width-touch",
@@ -584,13 +584,13 @@
       "clickTargetCount": 1,
       "width": 780,
       "height": 1688,
-      "bytes": 1091713,
-      "sha256": "8adc3efa55258009f9cb78e2e658e8b9c4e0d086337f2dc31dbed215e0c2236d"
+      "bytes": 1091660,
+      "sha256": "e5324fbd73ab117f379c32492cbb40d49fbca42e16d77ecce92fefe95fa975a6"
     },
     {
       "scene": "story",
       "fixture": "action-requests",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=story&fixture=action-requests",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=story&fixture=action-requests",
       "path": "story-iverif-action-request-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -600,13 +600,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1092685,
-      "sha256": "25733c3f89a397bd7f0d52b5cfd0500eb72b5f6e9e28ca173f3c52918292eac5"
+      "bytes": 1092879,
+      "sha256": "c140503e51172a089833583883371691188d3294eb471a2d43e70ce40ca31c37"
     },
     {
       "scene": "inspect",
       "fixture": "action-requests",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=inspect&fixture=action-requests",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=inspect&fixture=action-requests",
       "path": "inspect-iverif-action-request-mobile.png",
       "intent": "layout-proof",
       "viewportMode": "mobile-emulation",
@@ -616,13 +616,13 @@
       },
       "width": 780,
       "height": 1688,
-      "bytes": 1139378,
-      "sha256": "cdfc21be0b63b4aab81cc676b2d84c976d8ffbff8ba20f444ec0092c05bddab3"
+      "bytes": 1139529,
+      "sha256": "69cc1d84f6bcef564dbcb0b304e2377b2ecfc5b121297c6976287de9fd6671de"
     },
     {
       "scene": "gate",
       "fixture": "action-requests",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=action-requests",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=action-requests",
       "path": "sheet-gate-confirm-action-request-preflight-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -639,13 +639,13 @@
       },
       "width": 780,
       "height": 554,
-      "bytes": 86791,
-      "sha256": "9d0176fb7855adb0b45d328895022323011dd6c9dc3031d186e85f16b6b7e0d7"
+      "bytes": 85667,
+      "sha256": "28d2b3284a6de0290c67c54a9cb2cd67c97a34a930005686125218a92ad11a07"
     },
     {
       "scene": "gate",
       "fixture": "action-requests",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=action-requests",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=action-requests",
       "path": "sheet-gate-confirm-action-request-request-sent-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -670,7 +670,7 @@
     {
       "scene": "gate",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=gate",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=gate",
       "path": "sheet-gate-approve-preflight-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -693,7 +693,7 @@
     {
       "scene": "gate",
       "fixture": "gate",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=gate&fixture=gate",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=gate&fixture=gate",
       "path": "sheet-gate-reroll-preflight-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -710,13 +710,13 @@
       },
       "width": 780,
       "height": 554,
-      "bytes": 75256,
-      "sha256": "a8974e51d5334cbe913c2de76e6e88f3645a07d0ad5254cba9fd75de2eeeea48"
+      "bytes": 74793,
+      "sha256": "cb99b9b43f78228d784ac2ffe7f06a42a2c3b9bfba8e63be3a869b0fd91abd72"
     },
     {
       "scene": "operating-canopy",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-canopy&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-canopy&fixture=operating-fabric",
       "path": "operating-fabric-320-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "exact-width-touch",
@@ -736,7 +736,7 @@
     {
       "scene": "operating-mission",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
       "path": "operating-fabric-gate-sheet-320-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "exact-width-touch",
@@ -759,7 +759,7 @@
     {
       "scene": "operating-mission",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
       "path": "operating-fabric-inspect-sheet-320-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "exact-width-touch",
@@ -776,13 +776,13 @@
       },
       "width": 640,
       "height": 826,
-      "bytes": 359106,
-      "sha256": "675615309809321c89acc1f84431017ed25dd9ca3f662a744f8835f81a65d4d0"
+      "bytes": 358939,
+      "sha256": "db5f88354a1680bce84f0b4d43b85dc315c3e78d8c0f4313727e1d24efa67f1d"
     },
     {
       "scene": "operating-canopy",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-canopy&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-canopy&fixture=operating-fabric",
       "path": "operating-fabric-390-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -802,7 +802,7 @@
     {
       "scene": "operating-mission",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
       "path": "operating-fabric-gate-sheet-390-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -819,13 +819,13 @@
       },
       "width": 780,
       "height": 554,
-      "bytes": 88280,
-      "sha256": "c44336745d79dfb9c820f31b8a9ddf3e901174ae2952ee457a9e7c49d2295b50"
+      "bytes": 88444,
+      "sha256": "fab877be5383790a650a8172f0af87dfc47c6f13f64d851dbabde13b8e728d78"
     },
     {
       "scene": "operating-mission",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
       "path": "operating-fabric-inspect-sheet-390-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "mobile-emulation",
@@ -842,13 +842,13 @@
       },
       "width": 780,
       "height": 736,
-      "bytes": 118876,
-      "sha256": "6f5de99bb5f2812fcbe806e11a0619a9fbb8fb424a8ab3e0f5c0232908558419"
+      "bytes": 140481,
+      "sha256": "c0f546cb6bb4410a9d8b1a23b03ccfbfca29d030129749a84aa72cea1f7998ab"
     },
     {
       "scene": "operating-canopy",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-canopy&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-canopy&fixture=operating-fabric",
       "path": "operating-fabric-430-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "exact-width-touch",
@@ -868,7 +868,7 @@
     {
       "scene": "operating-mission",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
       "path": "operating-fabric-gate-sheet-430-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "exact-width-touch",
@@ -885,13 +885,13 @@
       },
       "width": 860,
       "height": 554,
-      "bytes": 337674,
-      "sha256": "3952e5eb07eebffd1aac2e602d31a6f43a9c6fe9173c083070bc73f8d733c05f"
+      "bytes": 337728,
+      "sha256": "f5fb99a3f2e03664504da097d2aeeb6b879b1e98c1417833fe41637f4be55293"
     },
     {
       "scene": "operating-mission",
       "fixture": "operating-fabric",
-      "url": "http://127.0.0.1:62461/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
+      "url": "http://127.0.0.1:60373/?tenant=cambium&scene=operating-mission&fixture=operating-fabric",
       "path": "operating-fabric-inspect-sheet-430-mobile.png",
       "intent": "clickability-proof",
       "viewportMode": "exact-width-touch",
@@ -907,9 +907,9 @@
         "clipSelector": "#sheet"
       },
       "width": 860,
-      "height": 734,
-      "bytes": 449936,
-      "sha256": "45352f4633378aeb5d791bd5d9377eedb1ae236f078dad5e7f746ec24157370f"
+      "height": 736,
+      "bytes": 451403,
+      "sha256": "c6140838f93e4d3af63d9b06d27eec64a08aa53a68085545d7d1db936ada1ad3"
     }
   ],
   "invariant": "Screenshots use the real PAGE export, local API fixtures, mobile emulation, browser-asserted in-page interaction proof, and a clipped real sheet proof for bottom-sheet actions; queued component proofs additionally use exact-width touch emulation."

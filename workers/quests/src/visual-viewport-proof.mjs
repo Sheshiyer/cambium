@@ -258,6 +258,14 @@ function fixtureForCaptureStep(proof) {
   return 'no-fake-progress';
 }
 
+export function browserClockOverrideExpression(value) {
+  const timestamp = Date.parse(String(value));
+  if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString() !== value) {
+    throw new TypeError('browser proof clock must be a canonical ISO timestamp');
+  }
+  return `Object.defineProperty(Date, 'now', { configurable:true, value:() => ${timestamp} })`;
+}
+
 export function validateViewportProofManifest(manifest) {
   const issues = [];
   if (!isPlainObject(manifest)) return ['manifest must be an object'];
@@ -1851,6 +1859,11 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
     const cdp = await cdpClient(pageTarget.webSocketDebuggerUrl);
     try {
       await cdp.send('Page.enable');
+      if (options.fixture === 'fresh') {
+        await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
+          source: browserClockOverrideExpression(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock),
+        });
+      }
       const exactViewport = options.exactViewport === true;
       const mobileMetrics = {
         width: captureViewport.width,

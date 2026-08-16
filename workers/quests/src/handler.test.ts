@@ -3898,6 +3898,120 @@ test('page · Tools renders live action surfaces with state tokens', async () =>
   assert.doesNotMatch(toolsHtml, /\/ts-|Copy command|data-copy-command|chat syntax|payload preview|paperclipCommandsData|gateway|debug/i);
 });
 
+test('page · Tools panel freshness is source-aware and never outruns global freshness', async () => {
+  const mixedEnvelope = JSON.parse(JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE));
+  mixedEnvelope.commands.services.freshness = { state: 'stale', checkedAt: '2026-06-22T08:30:00.000Z' };
+  mixedEnvelope.commands.agents.freshness = { state: 'unknown', checkedAt: '2026-06-22T09:00:00.000Z' };
+  mixedEnvelope.commands.handoffs.source = 'Bearer should-never-render';
+  const mixed = await renderPageFixtureContext(mixedEnvelope, { now: '2026-06-22T10:00:00.000Z' });
+  (mixed.context.renderCommands as () => void)();
+
+  const cards = mixed.elements.get('cmds')!.querySelectorAll('[data-component="ToolActionCard"]');
+  const bySurface = (id: string) => cards.find((card) => card.dataset.toolSurface === id)!;
+  assert.equal(bySurface('status').dataset.toolPanelFreshness, 'fresh');
+  assert.equal(bySurface('status').dataset.toolPanelSource, 'visual-fixture:org-status');
+  assert.equal(bySurface('status').dataset.toolGlobalFreshness, 'fresh');
+  assert.equal(bySurface('status').dataset.interactionKind, 'sheet');
+  assert.equal(bySurface('hermes').dataset.toolPanelFreshness, 'stale');
+  assert.equal(bySurface('hermes').dataset.toolPanelSource, 'visual-fixture:service-health');
+  assert.equal(bySurface('hermes').dataset.interactionKind, 'read-only');
+  assert.equal(bySurface('agents').dataset.toolPanelFreshness, 'unknown');
+  assert.equal(bySurface('agents').dataset.interactionKind, 'read-only');
+  assert.equal(bySurface('handoffs').dataset.toolPanelSource, 'source unavailable');
+  assert.equal(mixed.elements.get('cmds')!.querySelector('[data-tool-aggregate-freshness]')!.dataset.toolAggregateFreshness, 'stale');
+  assert.match(mixed.elements.get('cmds')!.innerHTML, /data-component="ToolPanelFreshness"[^>]*data-tool-panel-freshness="fresh"/);
+  assert.match(mixed.elements.get('cmds')!.innerHTML, /visual-fixture:service-health/);
+  assert.doesNotMatch(mixed.elements.get('cmds')!.innerHTML, /should-never-render/);
+
+  (mixed.context.openToolSurfaceSheet as (id: string) => void)('hermes');
+  const sheet = mixed.elements.get('sheetBody')!.innerHTML;
+  assert.match(sheet, /data-component="ToolPanelFreshnessDetail"/);
+  assert.match(sheet, /visual-fixture:service-health/);
+  assert.match(sheet, /2026-06-22T08:30:00.000Z/);
+
+  const globallyStale = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, { now: '2026-06-22T16:00:00.000Z' });
+  (globallyStale.context.renderCommands as () => void)();
+  const staleCards = globallyStale.elements.get('cmds')!.querySelectorAll('[data-component="ToolActionCard"]');
+  assert.equal(staleCards.length, 5);
+  for (const card of staleCards) {
+    assert.equal(card.dataset.toolGlobalFreshness, 'stale');
+    assert.equal(card.dataset.interactionKind, 'read-only');
+    assert.match(card.getAttribute('class') ?? '', /is-stale/);
+  }
+  assert.equal(globallyStale.elements.get('cmds')!.querySelector('[data-tool-aggregate-freshness]')!.dataset.toolAggregateFreshness, 'stale');
+
+  (globallyStale.context.openToolSurfaceSheet as (id: string) => void)('handoffs');
+  const staleHandoffSheet = globallyStale.elements.get('sheetBody')!.innerHTML;
+  assert.match(staleHandoffSheet, /handoff data stale · refresh first/);
+  assert.match(staleHandoffSheet, /data-tool-retry="handoffs"/);
+  assert.doesNotMatch(staleHandoffSheet, /data-component="ToolHandoffActionRow"|data-tool-act=/);
+});
+
+test('page · Mission navigation retains the exact selected WorkObject identity and kind in Tools', async () => {
+  const branch = (branchId: string, name: string, workObjectId: string, workObjectKind: string, branchKind: string) => ({
+    branchId,
+    name,
+    branchKind,
+    workObjectId,
+    workObjectKind,
+    arcTitle: `${name} arc`,
+    vision: { statement: `${name} keeps its next move visible in Mission.` },
+    questline: [{ id: 'run', title: `Run ${name} proof`, status: 'pending' }],
+    missions: [{ missionId: `${branchId}-next`, title: `Run ${name} proof`, owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Hermes' }],
+    gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+    kpis: [],
+    proofPaths: [{ proofId: `${branchId}-proof`, validates: 'Viewport capture', promotes: 'reviewed work' }],
+    promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+    gaps: [],
+  });
+  const envelope = {
+    ...FRESH_ECOSYSTEM_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [
+        branch('fitcheck', 'Fitcheck', 'sapling:fitcheck', 'sapling', 'product'),
+        branch('vantyx-client', 'Vantyx client', 'program:vantyx-client', 'program', 'client'),
+      ],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission', now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
+  rendered.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[1].click();
+  rendered.elements.get('stem')!.querySelector('[data-mission-action="tools"]').click();
+
+  assert.equal(vm.runInContext('scene', rendered.context as vm.Context), 2);
+  const workContext = rendered.elements.get('cmds')!.querySelector('[data-component="ToolWorkObjectContext"]');
+  assert.ok(workContext);
+  assert.equal(workContext.dataset.toolWorkObjectId, 'program:vantyx-client');
+  assert.equal(workContext.dataset.toolWorkObjectKind, 'program');
+  assert.match(workContext.innerHTML, /program:vantyx-client/);
+  assert.match(workContext.innerHTML, /program/);
+
+  (rendered.context.openToolSurfaceSheet as (id: string) => void)('status');
+  const sheet = rendered.elements.get('sheetBody')!;
+  assert.equal(sheet.querySelector('[data-component="ToolWorkObjectContext"]')!.dataset.toolWorkObjectId, 'program:vantyx-client');
+  assert.equal(sheet.querySelector('[data-component="ToolWorkObjectContext"]')!.dataset.toolWorkObjectKind, 'program');
+
+  const mismatched = {
+    ...envelope,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [branch('mismatch', 'Mismatch', 'program:mismatch', 'sapling', 'product')],
+    },
+  };
+  const rejected = await renderPageFixtureContext(mismatched, { search: '?tenant=cambium&scene=tools', now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
+  (rejected.context.renderCommands as () => void)();
+  const rejectedContext = rejected.elements.get('cmds')!.querySelector('[data-component="ToolWorkObjectContext"]');
+  assert.equal(rejectedContext.dataset.toolWorkObjectState, 'missing');
+  assert.equal(rejectedContext.dataset.toolWorkObjectId, undefined);
+  assert.equal(rejectedContext.dataset.toolWorkObjectKind, undefined);
+  const rejectedHtml = rejected.elements.get('cmds')!.innerHTML;
+  assert.match(rejectedHtml, /work pending/);
+  assert.match(rejectedHtml, /Branch packets…/);
+  assert.match(rejectedHtml, /branch packet/);
+  assert.match(rejectedHtml, /data-tool-recommend-state="empty"/);
+  assert.doesNotMatch(rejectedHtml, /data-tool-recommend-surface=|data-tool-suggest="|Mismatch|Founder review/);
+});
+
 test('page · Tools live surface sheets stay read-only with result tokens', async () => {
   const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
     now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
@@ -12965,6 +13079,46 @@ test('tools fixture · blocked state degrades handoffs to on hold and suggests p
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /no handoffs waiting/);
   assert.doesNotMatch(sheet, /data-signed-action-entrypoint|\/ts-/i);
+});
+
+test('tools fixture · recommendations never outrun their target panel freshness', async () => {
+  const handoffsEnvelope = structuredClone(toolsFixtureEnvelope('normal'));
+  const statusEnvelope = structuredClone(toolsFixtureEnvelope('blocked'));
+  const workEnvelope = structuredClone(toolsFixtureEnvelope('normal'));
+  const workBranch = (workEnvelope.branchStories as { rows: Array<Record<string, unknown>> }).rows[0];
+  workBranch.gates = [];
+  workBranch.proof = [{ label: 'Release SHA', state: 'complete' }];
+  workBranch.missions = [{
+    missionId: 'fx-m-work',
+    title: 'Assign the next owner',
+    owner: 'build',
+    gate: 'ready',
+    proofRequired: '',
+    dispatchTarget: 'quine',
+    status: 'active',
+  }];
+
+  const cases = [
+    { envelope: handoffsEnvelope, field: 'handoffs', surface: 'handoffs' },
+    { envelope: statusEnvelope, field: 'status', surface: 'status' },
+    { envelope: workEnvelope, field: 'activeWork', surface: 'work' },
+  ] as const;
+
+  for (const scenario of cases) {
+    const fresh = await renderPageFixtureContext(scenario.envelope, { now: '2026-07-24T09:18:00.000Z' });
+    (fresh.context.renderCommands as () => void)();
+    assert.match(fresh.elements.get('cmds')!.innerHTML, new RegExp(`data-tool-recommend-surface="${scenario.surface}"`));
+
+    const staleEnvelope = structuredClone(scenario.envelope) as {
+      commands: Record<string, { freshness: { state: string; checkedAt: string } }>;
+    };
+    staleEnvelope.commands[scenario.field].freshness.state = 'stale';
+    const stale = await renderPageFixtureContext(staleEnvelope, { now: '2026-07-24T09:18:00.000Z' });
+    (stale.context.renderCommands as () => void)();
+    const staleHtml = stale.elements.get('cmds')!.innerHTML;
+    assert.match(staleHtml, /data-tool-recommend-state="empty"/);
+    assert.doesNotMatch(staleHtml, /data-tool-recommend-surface=|data-tool-suggest="/);
+  }
 });
 
 test('tools fixture · empty state renders stale surfaces, idle suggestion, and retry recovery', async () => {

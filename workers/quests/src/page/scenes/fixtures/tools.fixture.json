@@ -61,6 +61,8 @@
           "rows": [
             {
               "branchId": "fx-branch-fitcheck",
+              "workObjectId": "sapling:fitcheck",
+              "workObjectKind": "sapling",
               "name": "Fitcheck",
               "missions": [
                 { "missionId": "fx-m-02", "title": "Launch proof packet", "owner": "build", "gate": "proof gate", "proofRequired": "deploy URL + viewport capture", "dispatchTarget": "quine", "status": "active" }
@@ -122,6 +124,8 @@
           "rows": [
             {
               "branchId": "fx-branch-snowgloves",
+              "workObjectId": "sapling:snow-gloves-os",
+              "workObjectKind": "sapling",
               "name": "Snow Gloves",
               "missions": [
                 { "missionId": "fx-m-21", "title": "Proof of warmth claim", "owner": "build", "gate": "claim table", "proofRequired": "claim evidence row", "dispatchTarget": "quine", "status": "blocked" }
