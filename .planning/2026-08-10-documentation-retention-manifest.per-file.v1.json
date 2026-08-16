@@ -2162,8 +2162,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-iverif-queued-proof-mobile.png",
-      "bytes": 1121215,
-      "sha256": "6fb32aaf19524664eb94e9eae9acea00ab0328bd3a45ce6a698fd3c71566ce27",
+      "bytes": 1121400,
+      "sha256": "2a32877dce17d4404b81a509c6ff545e4b600f1af4baf6c36ec7550dfd239a5d",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2252,8 +2252,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-mira-relationship-mobile.png",
-      "bytes": 222644,
-      "sha256": "edbe21f7a2418326b1884cfa66b2c8e815670774d7e1b97a1f8fdbe8f420e646",
+      "bytes": 220340,
+      "sha256": "d6a9bd90fd389cdc1f75e74cba28996d4da274bdf392042cd84db8ffd077b9c6",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2379,7 +2379,7 @@
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
       "bytes": 29604,
-      "sha256": "31b20365d316ec6e22f21525f003d7969530069a88ca903d7d2ca2743115457c",
+      "sha256": "08cd9bd7d9d1ed027d27d8c587687673960389bd7e787e8f49f8f0e5a0d5c431",
       "gitTracked": true,
       "kind": "manifest",
       "inboundReferences": {
@@ -2501,8 +2501,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-vantyx-selected-mobile.png",
-      "bytes": 1145261,
-      "sha256": "628601b21d8869ada2ef2bdcc4ed12fbc7cafecef1a98542178b074ce371aecb",
+      "bytes": 1145211,
+      "sha256": "b3a60ab76bc7d2ea56e9f1e5ba74996a922cedb94289508faaf1db3d47feb4c1",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2594,8 +2594,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-390-mobile.png",
-      "bytes": 88271,
-      "sha256": "a023487c5d772d544f6fdb70a583e67780b9b1b887b50201d626cae4a0115c04",
+      "bytes": 86306,
+      "sha256": "443e3b43b359173eb6838f66de8528126641a9e8d19cebf0f1795a72939ca66b",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2666,8 +2666,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-430-mobile.png",
-      "bytes": 450708,
-      "sha256": "760ba31bc0b58bc5c8b6eedbcb48120212ce22bb704089d7003df67426c14a22",
+      "bytes": 450817,
+      "sha256": "d2e718362ec1e36b4e5eabcf277932e9979d5c4c939fb4a78503a0b7fb859fa2",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2739,8 +2739,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-queued-proof-detail-mobile.png",
-      "bytes": 1094244,
-      "sha256": "fdb3a76821c639e82330e8527a476d3a43634e4873e67f5618c1f7c465f57f0c",
+      "bytes": 1094643,
+      "sha256": "16343a278245961e444221ac5a95ec1c72312ff5539684f7c6b1f42b851bfb7d",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2794,8 +2794,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-inspect-skill-promotion-mobile.png",
-      "bytes": 244430,
-      "sha256": "bd264c80e29120e3e1385b4a0545b8e498caa8473b5b5a0784c87726e4066ca8",
+      "bytes": 241725,
+      "sha256": "b9c2ee9af8c76cf4d4e6592580ba0209e564831f155630db2a3e158942115034",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2812,8 +2812,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-open-proof-mobile.png",
-      "bytes": 445819,
-      "sha256": "c071347a636a0143d09714df1d60714271c3acdc2a08ab9348a66cbf28375a2e",
+      "bytes": 445064,
+      "sha256": "720ba80e96166dc6632f3d18d7e3a4360d06924e3e8efa1c01c16c37d77a0f16",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2830,8 +2830,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-review-gate-mobile.png",
-      "bytes": 496141,
-      "sha256": "c9d3eede3e5e69697ea694eb3bff74554f516e66b766808a54fe26a4b0579e4c",
+      "bytes": 495547,
+      "sha256": "f761aa0925805772442b1dd218dfd2d3ffe25be85fdb7b15d9e1d85784ac78bf",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
