@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-065 Inspect lead hierarchy candidate
+
+- Branch `codex/331-t065-inspect-proof` starts from exact verified main `c40c7a8deb3ad2c256f43e441626ef430cf92252` and owns only the T-065 Inspect scene lock.
+- RED proved the existing summary lacked an exact blocker/freshness/receipt ordering contract. GREEN renders those three explicit cues in that order before the pane switcher and before every Proof/System detail surface; packet count remains visible after the required lead cues.
+- The exact interaction test verifies the lead-order marker, visible cue order, Proof-pane placement, and System-pane placement. Inspect-focused tests pass 10/10, reconciliation 2/2, the complete suite 1770/1770, validation/rendered-doc checks, and the canonical viewport matrix 47/47; exact-head release, review, hosted CI, and merge proof remain required.
+- The governed queue candidate reads 65 implemented, 4 superseded, 6 executable residuals, and 5 approval-gated rows. T-068 becomes the only ready frontier; the Inspect scene lock stays serialized for that next slice.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, Portfolio, proof-matrix, or approval-gated mutation is included.
+
 ### 2026-08-16 issue #331 T-062/T-063 Story filters candidate
 
 - Branch `codex/331-t062-t063-story-filters` starts from exact verified main `2d2d2fae6f4b5908a05d4a6a5fa215452f6bee4c` and owns the released Story scene lock for T-062/T-063 only.

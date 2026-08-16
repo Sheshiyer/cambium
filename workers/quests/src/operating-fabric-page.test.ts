@@ -44,7 +44,7 @@ const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 's
 // This pin advances only through a reviewed legacy-surface evolution. It keeps
 // accidental shell drift release-blocking without pretending the pre-Task-6
 // bytes can never change under an explicit production repair.
-const LEGACY_PAGE_DIGEST = 'e4347d3f5f63c7136b6060c2c8cfcf305ea55325a316cd130f3f36b33fa608ca';
+const LEGACY_PAGE_DIGEST = 'dc3b2e38b53e066e821480461f4f22d7791327daa450c19694b70ea985395fff';
 
 function extractScriptBodies(source: string): string[] {
   return [...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]

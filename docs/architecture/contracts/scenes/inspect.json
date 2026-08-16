@@ -35,7 +35,8 @@
     "PacketFlow",
     "SignalRail",
     "OrbitProgress",
-    "SelectedHalo"
+    "SelectedHalo",
+    "InspectProofSummaryAction"
   ],
   "dataFields": [
     { "field": "ledger", "type": "object (rows, completed, total)", "source": "quest-envelope.ledger", "required": true, "fallback": "groups relying on ledger render 'proof-needed' / gap detail" },
@@ -66,6 +67,11 @@
       "idle": "groups with nothing waiting (gates idle, no action requests)",
       "reducedMotion": "static telemetry rows; reduced-motion proof row stays visible"
     }
+  },
+  "leadHierarchy": {
+    "order": ["blockers", "freshness", "redacted receipts"],
+    "placement": "InspectProofSummaryAction precedes the pane switcher and every Proof/System detail surface",
+    "fallback": "zero blockers remains explicit; missing freshness renders stale; receipt copy remains redaction-only and never invents a receipt"
   },
   "panelBehavior": {
     "loading": { "pattern": "frozen/04 LOADING (canonical)", "render": "'Synchronizing network / Please wait…' + linear progress bar", "words": "<= 12 + progress" },

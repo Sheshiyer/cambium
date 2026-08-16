@@ -3,22 +3,21 @@
   "reconciled_at": "2026-08-15",
   "source_head": "f988d31922385d9352c4efac6abe14b6de4bb1d8",
   "source_head_role": "immutable 2026-08-15 task-map reconciliation baseline; not the current execution head",
-  "evidence_reconciled_through": "origin/main@2d2d2fae6f4b5908a05d4a6a5fa215452f6bee4c",
+  "evidence_reconciled_through": "origin/main@c40c7a8deb3ad2c256f43e441626ef430cf92252",
   "historical_plan": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
   "authority": "Current merged source and tests outrank dated plan checklists. executable=true enumerates residual backlog; execution_scheduler.ready_task_ids alone governs immediate dispatch.",
   "counts": {
     "total": 80,
-    "executable": 7,
-    "implemented": 64,
+    "executable": 6,
+    "implemented": 65,
     "superseded": 4,
-    "residual": 7,
+    "residual": 6,
     "approval-gated": 5
   },
   "executable_task_ids": [
     "T-028",
     "T-036",
     "T-037",
-    "T-065",
     "T-068",
     "T-074",
     "T-075"
@@ -54,12 +53,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-065"],
+    "ready_task_ids": ["T-068"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
       "T-037",
-      "T-065",
       "T-068",
       "T-074",
       "T-075"
@@ -1513,11 +1511,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/inspect.ts",
-      "current_evidence": "Founder-first Inspect hierarchy source is workers/quests/src/page/scenes/inspect.ts; workers/quests/src/handler.test.ts proves the current proof-summary and group order but does not yet prove the full blocker/freshness/receipt-first acceptance sequence.",
-      "missingAcceptance": "Add one exact rendered-order assertion covering blocker, freshness, and receipt cues before system detail; the graph node/edge sheet is not this task owner.",
+      "evidence": "workers/quests/src/page/scenes/inspect.ts renders explicit blocker, freshness, and redacted-receipt lead cues before the pane switcher and system detail; workers/quests/src/handler.test.ts asserts their exact rendered order in both Proof and System panes.",
       "implementation_owners": [
         "workers/quests/src/page/scenes/inspect.ts"
       ],
