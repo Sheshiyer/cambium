@@ -213,6 +213,18 @@ function toolFocusSurface(){
 function toolEnv(){
   return ECOSYSTEM_ENV || { ledger: LEDGER || { rows: [] } };
 }
+function toolSafeMeta(value, fallback){
+  const text = mcText(value, '');
+  if (!text || text.length > 128 || /[\\u0000-\\u001f\\u007f]/.test(text) || /(?:bearer\\s+|token=|secret=|initdata=|private key)/i.test(text)) return fallback;
+  return text;
+}
+function toolWorkObjectIdentity(branch){
+  const id = toolSafeMeta(branch && branch.workObjectId, '');
+  const kind = toolSafeMeta(branch && branch.workObjectKind, '').toLowerCase();
+  if (!/^(sapling|branch|program)$/.test(kind)) return null;
+  if (!/^[a-z0-9][a-z0-9:._-]*$/i.test(id) || !id.startsWith(kind + ':')) return null;
+  return { id, kind };
+}
 function toolMissionContext(){
   const env = toolEnv();
   const view = buildMissionControlView(env);
@@ -223,6 +235,7 @@ function toolMissionContext(){
     proofRows:view.proofNeeded || [],
     blockers:view.blockers || [],
     stale:view.stale,
+    workObject:toolWorkObjectIdentity(view.selectedBranch),
   };
 }
 function toolClamp(text, max){
@@ -248,6 +261,61 @@ function toolPanel(id){
 function toolPanelData(id){
   const panel = toolPanel(id);
   return panel && Object.prototype.hasOwnProperty.call(panel, 'data') ? panel.data : null;
+}
+function toolGlobalFreshness(){
+  const env = toolEnv();
+  const age = minutesSince(env && env.derivedAt);
+  return {
+    state:age !== null && age <= 360 ? 'fresh' : 'stale',
+    source:toolSafeMeta(env && env.source, 'source unavailable'),
+    checkedAt:toolSafeMeta(env && env.derivedAt, 'time unavailable'),
+  };
+}
+function toolPanelFreshness(id){
+  const panel = toolPanel(id);
+  const global = toolGlobalFreshness();
+  if (!panel || !panel.freshness) return { state:'stale', declared:'unknown', source:'source unavailable', checkedAt:'time unavailable', global:global.state };
+  const declared = /^(fresh|stale|unknown)$/.test(String(panel.freshness.state)) ? String(panel.freshness.state) : 'unknown';
+  const checkedAt = toolSafeMeta(panel.freshness.checkedAt, 'time unavailable');
+  const checkedTime = Date.parse(checkedAt);
+  const envelopeTime = Date.parse(global.checkedAt);
+  const age = minutesSince(checkedAt);
+  const coherent = Number.isFinite(checkedTime) && Number.isFinite(envelopeTime) && checkedTime <= envelopeTime;
+  const state = global.state === 'fresh' && declared === 'fresh' && age !== null && age <= 360 && coherent
+    ? 'fresh'
+    : global.state === 'fresh' && declared === 'unknown'
+      ? 'unknown'
+      : 'stale';
+  return {
+    state,
+    declared,
+    source:toolSafeMeta(panel.source, 'source unavailable'),
+    checkedAt,
+    global:global.state,
+  };
+}
+function toolAggregateFreshness(){
+  if (!toolProjection()) return 'stale';
+  return TOOL_SURFACES.every(surface => toolPanelFreshness(surface.id).state === 'fresh') ? 'fresh' : 'stale';
+}
+function toolPanelFreshnessBadge(id){
+  const freshness = toolPanelFreshness(id);
+  return '<span class="tool-panel-freshness" data-component="ToolPanelFreshness" data-tool-panel-freshness="' + esc(freshness.state) + '" data-tool-panel-source="' + esc(freshness.source) + '">' +
+    '<b>' + esc(freshness.state) + '</b><small>' + esc(freshness.source) + '</small>' +
+  '</span>';
+}
+function toolPanelFreshnessDetail(id){
+  const freshness = toolPanelFreshness(id);
+  return '<div class="tool-freshness-detail" data-component="ToolPanelFreshnessDetail" data-tool-panel-freshness="' + esc(freshness.state) + '" data-tool-global-freshness="' + esc(freshness.global) + '">' +
+    '<b>' + esc(freshness.state) + '</b><span>' + esc(freshness.source) + '</span><time>' + esc(freshness.checkedAt) + '</time>' +
+  '</div>';
+}
+function toolWorkObjectContext(){
+  const workObject = toolMissionContext().workObject;
+  if (!workObject) return '<span class="tool-context-item" data-component="ToolWorkObjectContext" data-tool-work-object-state="missing"><b>work pending</b>' + mcStateToken('stale', toolTokenLabel('stale')) + '</span>';
+  return '<span class="tool-context-item" data-component="ToolWorkObjectContext" data-tool-work-object-state="selected" data-tool-work-object-id="' + esc(workObject.id) + '" data-tool-work-object-kind="' + esc(workObject.kind) + '">' +
+    '<b>' + esc(workObject.id) + '</b><small>' + esc(workObject.kind) + '</small>' + mcStateToken('selected', toolTokenLabel('selected')) +
+  '</span>';
 }
 /* frozen/05 §4.1 bans copy affordances app-wide; the Inspect proof summary now renders mono
    values inline, so the clipboard helpers that lived here for it are gone (P2-W3). */
@@ -276,6 +344,7 @@ function toolSurfaceEmpty(id){
    no waiting founder decision; active = live surface with fresh data. */
 function toolSurfaceState(id){
   if (!toolProjection()) return 'stale';
+  if (toolPanelFreshness(id).state !== 'fresh') return 'stale';
   if (id === 'handoffs') return toolHandoffs().length ? 'active' : 'locked';
   return 'active';
 }
@@ -308,9 +377,11 @@ function toolContextStrip(){
   const ctx = toolMissionContext();
   const branchState = ctx.stale ? 'stale' : 'active';
   const missionState = mcStateKind(ctx.mission.state || 'proof-needed');
-  const toolsState = toolProjection() ? 'active' : 'stale';
-  return '<div class="tool-context-strip" data-component="ToolContextChips">' +
+  const aggregateFreshness = toolAggregateFreshness();
+  const toolsState = aggregateFreshness === 'fresh' ? 'active' : 'stale';
+  return '<div class="tool-context-strip" data-component="ToolContextChips" data-tool-aggregate-freshness="' + esc(aggregateFreshness) + '">' +
     '<span class="tool-context-item"><b>' + esc(toolClamp(ctx.branchName, 2)) + '</b>' + mcStateToken(branchState, toolTokenLabel(branchState)) + '</span>' +
+    toolWorkObjectContext() +
     '<span class="tool-context-item"><b>' + esc(toolClamp(ctx.mission.gate, 2)) + '</b>' + mcStateToken(missionState, toolTokenLabel(missionState)) + '</span>' +
     '<span class="tool-context-item"><b>tools</b>' + mcStateToken(toolsState, toolTokenLabel(toolsState)) + '</span>' +
   '</div>';
@@ -321,14 +392,16 @@ function toolSurfaceCard(surface, focus){
   const state = toolSurfaceState(surface.id);
   const kind = mcStateKind(state);
   const count = toolSurfaceCount(surface.id);
+  const panelFreshness = toolPanelFreshness(surface.id);
   const interaction = kind === 'locked' || kind === 'stale' ? 'read-only' : 'sheet';
   return '<button type="button" class="' + mcClass('cmd live', state) + '" data-component="ToolActionCard"' +
     ' data-interaction-kind="' + interaction + '" data-source="mission-toolbelt-live@v1"' +
     ' data-inspect-target="tools" data-tool-surface="' + esc(surface.id) + '"' +
+    ' data-tool-panel-freshness="' + esc(panelFreshness.state) + '" data-tool-global-freshness="' + esc(panelFreshness.global) + '" data-tool-panel-source="' + esc(panelFreshness.source) + '"' +
     (focus === surface.id ? ' data-tool-focus="1"' : '') + '>' +
     mcGlyphSvg(surface.glyph, state) +
     '<span class="tool-body"><span class="cname">' + esc(surface.label) + '</span>' +
-      (count ? '<span class="tool-count">' + esc(count) + '</span>' : '') + '</span>' +
+      (count ? '<span class="tool-count">' + esc(count) + '</span>' : '') + toolPanelFreshnessBadge(surface.id) + '</span>' +
     mcStateToken(state, toolTokenLabel(state)) +
     '<span class="cgo">›</span>' +
   '</button>';
@@ -374,16 +447,18 @@ function openToolSurfaceSheet(id){
     result = toolResultLine('stale', 'live data unreachable · pull to refresh');
   } else if (surface.id === 'handoffs') {
     const rows = toolHandoffs();
-    result = rows.length
-      ? toolResultLine('active', rows.length + ' waiting') + rows.map(toolHandoffRow).join('')
-      : toolResultLine('locked', 'no handoffs waiting');
+    result = state === 'stale'
+      ? toolResultLine('stale', 'handoff data stale · refresh first')
+      : rows.length
+        ? toolResultLine('active', rows.length + ' waiting') + rows.map(toolHandoffRow).join('')
+        : toolResultLine('locked', 'no handoffs waiting');
   } else {
     const empty = toolSurfaceEmpty(surface.id);
     result = toolResultLine(state, surface.label + ' · ' + toolSurfaceCount(surface.id)) +
       (empty ? toolResultLine('idle', empty) : '');
   }
   $('sheetBody').innerHTML = '<div class="arc">tools · ' + esc(surface.id) + '</div><h2>' + esc(surface.label) + '</h2>' +
-    result + toolSafetyTokenLine() +
+    toolWorkObjectContext() + toolPanelFreshnessDetail(surface.id) + result + toolSafetyTokenLine() +
     '<div class="gbtns">' +
       (!toolProjection() ? '<button type="button" class="approve" data-tool-retry="' + esc(surface.id) + '">Retry</button>' : '') +
       '<button type="button" class="detail" data-tool-audit-link="tools">Inspect</button>' +

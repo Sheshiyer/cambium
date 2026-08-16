@@ -153,7 +153,7 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After T-053 closes the typed Tools route and renderer boundary, the ready frontier is exactly `T-054`, `T-056`.
+The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After T-054 and T-056 complete the Tools stage, the ready frontier is exactly `T-059`.
 
 | Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
@@ -226,7 +226,8 @@ Queue policy:
 - **Implementation owner:** `workers/quests/src/page/scenes/tools.ts`.
 - **Test owner:** `workers/quests/src/handler.test.ts`.
 - **Landed T-053 boundary:** `GET /api/quests/{tenant}` serves the validated `ToolsCommandProjection` directly at `commands`; the duplicate legacy alias is absent, and the real Tools renderer consumes only the five exact panel identities plus their typed data. Legacy command objects are normalized only at the Worker boundary; malformed, partial, or unexpected panels fail closed.
-- **Remaining write set:** T-054 and T-056 own `workers/quests/src/page/scenes/tools.ts`, `workers/quests/src/handler.test.ts`, their typed fixtures/contracts, and synchronized planning truth. T-054 renders per-panel freshness; T-056 wires the selected canonical WorkObject into Tools.
+- **Landed T-054/T-056 boundary:** every panel exposes source-aware freshness and checked-at detail, while the aggregate Tools state uses the strictest envelope/panel result. The real Mission navigation control carries an exact selected WorkObject ID and explicit matching kind into the Tools context strip and sheets; malformed or mismatched identity pairs fail closed.
+- **Next write set:** T-059 owns the next serialized `workers/quests/src/handler.ts` integration lock with `workers/quests/src/page/scenes/story.ts`, `workers/quests/src/handler.test.ts`, typed Story fixtures/contracts, and synchronized planning truth. T-060 through T-063 remain dependency-blocked behind that integration.
 - **Serialized integration:** T-053 has released `workers/quests/src/handler.ts`; the remaining shared-handler order is T-059 then T-074.
 - **Exclusions:** no founder-action mutation, no direct runtime writes, no invented panel, no hidden freshness coercion, and no bypass around Gate for mutations.
 

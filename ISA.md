@@ -4,11 +4,11 @@ task: "Execute issue 331 dependency-safe Mini App queue"
 effort: E4
 effort_source: task-classification
 phase: verify
-progress: 28/35
+progress: 33/35
 mode: interactive
 iteration: 2026-08-16-issue-331-dependency-safe-queue
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-16T17:02:00+05:30
+updated: 2026-08-16T17:49:00+05:30
 ---
 
 ## Problem
@@ -2690,6 +2690,9 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - 2026-08-16 16:58: T-044 persists only a bounded canonical branch ID under a tenant-scoped Mission key. Same-tenant reload and scene navigation preserve selection; mismatched-tenant, malformed, stale, and unavailable storage fail closed. The Mission stage is terminal in the scheduler, so the derived ready frontier advances to T-053 while T-054 and T-056 remain dependency-blocked.
 - 2026-08-16 17:08: the T-044 candidate passes the focused Mission persistence proof, handler 377/377, reconciliation 2/2, core 1754/1754, validation, diff checks, canonical viewport regeneration, and the complete deterministic release gate including R3F 99/99 plus build and desktop packaging 5/5. Exact committed-HEAD verification remains pending until the review candidate and retention receipts are committed.
 - 2026-08-16 17:02: T-053 removes the public route's legacy Tools downgrade and duplicate `commandProjection` alias. The validated status/services/agents/activeWork/handoffs projection now remains intact at `commands`, and the real Tools renderer fails closed unless exactly those five panel identities are present. RED reproduced the old downgrade; the focused contract/route proofs pass 5/5, handler tests pass 378/378, reconciliation passes 2/2, the full suite passes 1755/1755, validation and diff checks pass, and the pre-commit deterministic release gate passes. Exact committed-HEAD verification remains pending until the bounded candidate and retention receipts are committed.
+- 2026-08-16 17:24: T-054 and T-056 form one collision-safe Tools slice because both own `workers/quests/src/page/scenes/tools.ts`. Panel readiness now uses the strictest coherent result across its declared freshness, checked-at time, and global envelope age; the aggregate Tools token cannot outrun a stale/unknown panel. Mission's selected WorkObject crosses the real Tools navigation control only as an exact bounded ID plus explicit matching `sapling`, `branch`, or `program` kind. RED reproduced both missing surfaces; handler tests pass 380/380, while broader candidate verification remains pending.
+- 2026-08-16 17:44: verified candidate: stale Handoff data emits no signed action row, the browser proof clock is injected only for the explicit deterministic `fresh` fixture, and production freshness continues to use the real clock. Handler tests pass 380/380, reconciliation passes 2/2, the complete suite passes 1758/1758, validation and diff checks pass, and the canonical browser matrix passes 27 layout plus 20 clickability proofs. Exact committed-HEAD release verification, hosted review, and merge readback remain pending.
+- 2026-08-16 17:49: the complete pre-commit deterministic release gate passes after restoring only ignored, lockfile-pinned R3F dependencies in the fresh worktree: retention 177/177, core 1758/1758, readiness 38/38, mobile contract 15 captures, R3F 99/99 plus production build, and desktop packaging 5/5. Exact committed-HEAD regeneration and hosted CI remain pending.
 
 ### Changelog
 
