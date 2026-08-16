@@ -57,6 +57,7 @@ const STORY_IDENTITY = /^[a-z0-9][a-z0-9:._-]*$/i;
 const STORY_WORK_OBJECT_KINDS = new Set<StoryWorkObjectKind>(['sapling', 'branch', 'program']);
 const STORY_EVENT_KINDS = new Set<StoryEventKind>(['receipt', 'decision', 'transition']);
 const STORY_UNSAFE_PUBLIC_TEXT = /(?:bearer\s+|token=|secret=|initdata=|tgwebappdata|query_id=|auth_date=|private[ _-]?key)/i;
+const STORY_UNSAFE_IDENTITY_SEGMENT = /(?:^|[:._-])(?:bearer|secret|initdata|tgwebappdata|query[-_]?id|auth[-_]?date|private[-_]?key)(?:$|[:._-])/i;
 
 function storyRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -69,6 +70,13 @@ function storyCanonicalIso(value: unknown): value is string {
   return Number.isFinite(Date.parse(value));
 }
 
+function storyCanonicalIdentity(value: unknown): value is string {
+  return typeof value === 'string'
+    && value.length <= 256
+    && STORY_IDENTITY.test(value)
+    && !STORY_UNSAFE_IDENTITY_SEGMENT.test(value);
+}
+
 export function parseStoryEventContract(input: unknown): StoryEventContractParseResult {
   const event = storyRecord(input);
   if (!event) return { ok: false, issues: [{ path: '', code: 'malformed_event' }] };
@@ -76,10 +84,10 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
   const workObject = storyRecord(event.workObject);
   const receipt = storyRecord(event.receipt);
   const issues: StoryEventContractIssue[] = [];
-  if (typeof event.eventId !== 'string' || !STORY_IDENTITY.test(event.eventId)) {
+  if (!storyCanonicalIdentity(event.eventId)) {
     issues.push({ path: 'eventId', code: 'invalid_identity' });
   }
-  if (!workObject || typeof workObject.id !== 'string' || !STORY_IDENTITY.test(workObject.id)) {
+  if (!workObject || !storyCanonicalIdentity(workObject.id)) {
     issues.push({ path: 'workObject.id', code: 'invalid_identity' });
   }
   if (!workObject || typeof workObject.kind !== 'string' || !STORY_WORK_OBJECT_KINDS.has(workObject.kind as StoryWorkObjectKind)) {
@@ -88,7 +96,7 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
   if (
     workObject
     && typeof workObject.id === 'string'
-    && STORY_IDENTITY.test(workObject.id)
+    && storyCanonicalIdentity(workObject.id)
     && typeof workObject.kind === 'string'
     && STORY_WORK_OBJECT_KINDS.has(workObject.kind as StoryWorkObjectKind)
     && !workObject.id.startsWith(`${workObject.kind}:`)
@@ -101,7 +109,7 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
   if (!storyCanonicalIso(event.eventAt)) {
     issues.push({ path: 'eventAt', code: 'invalid_iso_time' });
   }
-  if (!receipt || typeof receipt.id !== 'string' || !STORY_IDENTITY.test(receipt.id)) {
+  if (!receipt || !storyCanonicalIdentity(receipt.id)) {
     issues.push({ path: 'receipt.id', code: 'missing_receipt_identity' });
   }
   if (event.eventKind !== undefined && (typeof event.eventKind !== 'string' || !STORY_EVENT_KINDS.has(event.eventKind as StoryEventKind))) {
@@ -138,7 +146,7 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
 
 function storyProjectionIdentity(...parts: unknown[]): string | null {
   const value = parts.map((part) => String(part ?? '').trim()).join(':');
-  return value.length > 0 && value.length <= 256 && STORY_IDENTITY.test(value) ? value : null;
+  return storyCanonicalIdentity(value) ? value : null;
 }
 
 function storyProjectionText(value: unknown, fallback: string, max = 240): string {
@@ -156,7 +164,7 @@ function storyProjectionWorkObject(value: unknown): StoryEventContract['workObje
   const id = nested?.id ?? row.workObjectId;
   const kind = nested?.kind ?? row.workObjectKind;
   if (typeof id !== 'string' || typeof kind !== 'string' || !STORY_WORK_OBJECT_KINDS.has(kind as StoryWorkObjectKind)) return null;
-  if (!STORY_IDENTITY.test(id) || !id.startsWith(`${kind}:`)) return null;
+  if (!storyCanonicalIdentity(id) || !id.startsWith(`${kind}:`)) return null;
   return { id, kind: kind as StoryWorkObjectKind };
 }
 

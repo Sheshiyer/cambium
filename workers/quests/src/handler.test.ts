@@ -28,7 +28,7 @@ import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { PAGE } from './page.ts';
-import { parseStoryEventContract } from './page/scenes/story.ts';
+import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { parseToolsCommandProjection } from './page/scenes/tools.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -1916,6 +1916,45 @@ test('story contract · rejects a WorkObject identity whose prefix contradicts i
   assert.equal(parsed.ok, false);
   if (parsed.ok) return;
   assert.deepEqual(parsed.issues, [{ path: 'workObject.id', code: 'work_object_kind_mismatch' }]);
+});
+
+test('story contract · secret-shaped identity fragments never enter projected public events', () => {
+  const parsed = parseStoryEventContract({
+    eventId: 'story:cambium:tgwebappdata',
+    workObject: { id: 'sapling:cambium', kind: 'sapling' },
+    source: 'quest-ledger@v1',
+    eventAt: '2026-08-16T08:30:00.000Z',
+    receipt: { id: 'private-key' },
+  });
+  assert.equal(parsed.ok, false);
+  if (!parsed.ok) {
+    assert.deepEqual(parsed.issues.map((issue) => `${issue.path}:${issue.code}`), [
+      'eventId:invalid_identity',
+      'receipt.id:missing_receipt_identity',
+    ]);
+  }
+
+  const projected = projectStoryEvents({
+    actionRequests: {
+      rows: [{
+        id: 'ar_safe_decision_boundary',
+        workObject: { id: 'sapling:cambium', kind: 'sapling' },
+        branchId: 'cambium',
+        selectedOptionId: 'private-key',
+        status: 'queued',
+        updatedAt: '2026-08-16T08:31:00.000Z',
+        receipts: {
+          latest: {
+            at: '2026-08-16T08:30:30.000Z',
+            kind: 'callback',
+            text: 'Founder decision receipt retained',
+          },
+        },
+      }],
+    },
+  });
+  assert.deepEqual(projected.map((event) => event.eventKind), ['receipt']);
+  assert.doesNotMatch(JSON.stringify(projected), /private-key|tgwebappdata/i);
 });
 
 test('tools contract · accepts exactly the five panels with source and freshness on each panel', () => {
