@@ -153,7 +153,7 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After the T-032/T-033 packet completion, the ready frontier is exactly `T-044`.
+The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After T-044 closes with tenant-isolated canonical Mission selection, the ready frontier is exactly `T-053`.
 
 | Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
@@ -168,7 +168,7 @@ The machine-readable task map is authoritative for the full path arrays and now 
 Queue policy:
 - `executable=true` distinguishes the executable backlog from the ready frontier; backlog order alone never authorizes parallel dispatch.
 - `ready_task_ids` comes only from the earliest incomplete stage; later dependency-satisfied tasks stay blocked until the frontier stage completes.
-- `workers/quests/src/handler.ts` remains serialized in the exact order `T-044`, `T-053`, `T-059`, `T-074`.
+- `workers/quests/src/handler.ts` remains serialized in the exact order `T-044`, `T-053`, `T-059`, `T-074`; T-044 is complete and the remaining lock order is `T-053`, `T-059`, `T-074`.
 - Generated bundles, `page.ts`, `page/scaffold.ts`, shared client assembly, and Wrangler configuration remain orchestrator-only lock zones when a task actually needs them.
 
 ### 6.2 P0 implementation packets
