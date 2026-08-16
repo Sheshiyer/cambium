@@ -173,12 +173,11 @@
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
-        "count": 5,
+        "count": 4,
         "samplePaths": [
           ".planning/ROADMAP-v0.4-continuation.md",
           "docs/architecture/cambium-operating-fabric.md",
           "docs/plans/assets/cambium-operating-fabric-moodboard/README.md",
-          "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
           "docs/plans/evidence/cambium-operating-fabric-proof-template.md"
         ],
         "truncated": false
@@ -468,8 +467,8 @@
     },
     {
       "path": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-      "bytes": 27299,
-      "sha256": "8179861e75bab0846e0c139caa8eb26e63a6ebb85b97868085e95c8711f791ae",
+      "bytes": 28544,
+      "sha256": "349a8c62fa26b92891d736c5674ded585f3abaf2ccacb91753da3cb77f47bea3",
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
@@ -3047,8 +3046,8 @@
     },
     {
       "path": "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
-      "bytes": 14959,
-      "sha256": "78bbbefc5ab906b45f9b6b89b28e4f171f1acd02bf40de8bb199d0c5ec39d9fc",
+      "bytes": 8903,
+      "sha256": "d6d2f963a5ea694224acc448ac302668216111f765486a0aea9347831482b9bc",
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
