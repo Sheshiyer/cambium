@@ -483,9 +483,18 @@ function renderStoryGroupControls(groups, rows){
     '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' <span class="mc-branch-count">' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</span></button>'
   ).join('') + '</div>';
 }
+function storyCanonicalWorkObject(beat){
+  const workObject = beat && beat.workObject;
+  const id = mcText(workObject && workObject.id, '');
+  const kind = mcText(workObject && workObject.kind, '');
+  if (!['sapling','branch','program'].includes(kind)) return null;
+  if (!id || id.length > 256 || !/^[a-z0-9][a-z0-9:._-]*$/i.test(id) || !id.startsWith(kind + ':')) return null;
+  if (/(?:^|[:._-])(?:bearer|secret|initdata|tgwebappdata|query[-_]?id|auth[-_]?date|private[-_]?key)(?:$|[:._-])/i.test(id)) return null;
+  return { id, kind };
+}
 function storyTimelineProvenance(beat, canonicalProjection){
   if (!canonicalProjection) return null;
-  const workObject = beat && beat.workObject;
+  const workObject = storyCanonicalWorkObject(beat);
   const receipt = beat && beat.receipt;
   const eventId = mcText(beat && beat.eventId, '');
   const eventKind = mcText(beat && beat.eventKind, '');

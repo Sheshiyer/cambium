@@ -3677,6 +3677,40 @@ test('page · canonical Story filters by exact WorkObject kind and identity with
   assert.match(fitcheckHtml, /data-story-work-object-id-filter="sapling:fitcheck"[^>]*aria-pressed="true"/);
 });
 
+test('page · canonical Story rejects alias-shaped and kind-mismatched WorkObjects from filters and provenance', async () => {
+  const beat = (eventId: string, id: string, kind: string) => ({
+    eventId,
+    eventKind: 'receipt',
+    workObject: { id, kind },
+    source: 'story-filter-proof@v1',
+    eventAt: '2026-08-16T09:03:00.000Z',
+    receipt: { id: `receipt:${eventId}` },
+    text: `${eventId} retained`,
+    lane: 'quest',
+    group: 'Mission wins',
+    proof: 'receipt retained',
+  });
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:04:00.000Z',
+    freshness: { state: 'fresh', detail: 'fresh' },
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    storyProjection: { schema: 'cambium.story-event-projection.v1' },
+    beats: [
+      beat('story:valid', 'sapling:cambium', 'sapling'),
+      beat('story:alias', 'fitcheck-alias', 'client'),
+      beat('story:mismatch', 'program:portfolio', 'sapling'),
+    ],
+  }, { now: '2026-08-16T09:05:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /data-story-work-object-id-filter="sapling:cambium"/);
+  assert.match(storyHtml, /data-story-event-id="story:valid"/);
+  assert.doesNotMatch(storyHtml, /fitcheck-alias|data-story-event-id="story:alias"/);
+  assert.doesNotMatch(storyHtml, /program:portfolio|data-story-event-id="story:mismatch"/);
+});
+
 test('page · canonical empty Story names the first qualifying event without fabricating a beat', async () => {
   const rendered = await renderPageFixtureContext({
     schema: 1,
