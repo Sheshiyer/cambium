@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-075 Portfolio state-matrix candidate
+
+- Branch `codex/331-t075-portfolio-matrix` starts from exact verified main `dcc79c90f46118d7fee4841e334670475269ae56` and owns the Portfolio QA matrix plus synchronized planning truth only.
+- The dedicated matrix proves Sapling, client Branch, Program, review, and historical record zones; exact/missing joins; selected, paused, lifecycle, and proposal states; and absent, aggregate-only, detail, and empty-detail response modes.
+- Canonical Node and composed browser renderers are byte-identical across every matrix case. Existing production behavior already satisfies the closed contract, so this slice changes no Portfolio or handler runtime source.
+- The governed queue candidate reads 68 implemented, 4 superseded, 3 executable residuals, and 5 approval-gated rows. Portfolio is terminal; T-028, T-036, and T-037 form the complete terminal validation frontier.
+- No deployment, provider, production Telegram, D1/KV/R2, credential, connected-repository, runtime, lifecycle, catalog, or approval-gated mutation is included.
+
 ### 2026-08-16 issue #331 T-074 Portfolio Gate candidate
 
 - Branch `codex/331-t074-portfolio-gate` starts from exact verified main `38574bae0feb903606aea0e4eb3d3d30b88ed16b` and owns only the final serialized handler slice plus the bounded Portfolio proposal client surface.

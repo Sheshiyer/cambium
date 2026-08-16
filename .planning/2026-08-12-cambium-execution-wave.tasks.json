@@ -30,7 +30,7 @@
     "dependsOn": ["GIP-001"],
     "ownedFiles": [".planning/2026-08-11-mini-app-page-wiring.tasks.json", ".planning/execution/2026-08-12-source-reconciliation.v1.json"],
     "acceptance": "All 80 task IDs retain provenance while implemented and superseded work is removed from the executable queue.",
-    "validation": "All 80 IDs are retained in the governed task map as 67 implemented, 4 superseded, 4 executable residuals, and 5 non-executable approval-gated rows; the source-reconciliation ledger carries the identical task array and execution scheduler, every residual row names complete implementation owners, test owners, serialized lock zones, current evidence, dependencies, and validation, the ready frontier is exactly T-075, and the serialized handler order T-044, T-053, T-059, T-074 is complete.",
+    "validation": "All 80 IDs are retained in the governed task map as 68 implemented, 4 superseded, 3 executable residuals, and 5 non-executable approval-gated rows; the source-reconciliation ledger carries the identical task array and execution scheduler, every residual row names complete implementation owners, test owners, serialized lock zones, current evidence, dependencies, and validation, the ready frontier is exactly T-028, T-036, and T-037, and the serialized handler order T-044, T-053, T-059, T-074 is complete.",
     "authorityBoundary": "Planning records only; no deployment, allowlist, ledger publication, or Telegram action.",
     "githubIssues": ["#291"],
     "executionMode": "isolated-worktree"
