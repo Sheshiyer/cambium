@@ -116,6 +116,13 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
   for (const id of serializedHandlerOrder) {
     assert.ok(byId.get(id).integration_lock_zones.includes('workers/quests/src/handler.ts'), `${id} must serialize handler.ts`)
   }
+  assert.deepEqual(
+    taskMap.tasks
+      .filter(({ status, integration_lock_zones }) => status === 'residual' && integration_lock_zones.includes('workers/quests/src/handler.ts'))
+      .map(({ id }) => id),
+    serializedHandlerOrder,
+    'every residual handler owner must appear in the exact serialized order',
+  )
   for (const id of ['T-029', 'T-030', 'T-031', 'T-034', 'T-035', 'T-042']) {
     assert.equal(byId.get(id).status, 'implemented', `${id} must carry exact completion evidence`)
   }

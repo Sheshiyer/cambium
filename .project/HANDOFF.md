@@ -1,14 +1,15 @@
 # Project handoff
 
-### 2026-08-16 issue #331 first packet-slice candidate checkpoint
+### 2026-08-16 issue #331 first packet-slice merged checkpoint
 
-- Branch `codex/331-planning-packets` carries the first issue #331 acceptance slice in planning truth only. No runtime source, CI workflow, generated bundle, deployment, GitHub state, or external system was changed.
+- PR #335 merged the first issue #331 acceptance slice as `3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4`. The landed scope changes planning truth only; it changes no runtime source, CI workflow, generated bundle, deployment, provider, or external system.
 - T-032 and T-033 are now recorded as implemented and non-executable in both Mini App planning mirrors. Their packet prose is complete and derived from the merged T-009 Tools contract and merged T-008 Story contract rather than the prior partial/blocked placeholders.
 - The governed queue now reads 55 implemented, 4 superseded, 16 executable residuals, and 5 approval-gated rows. The machine-readable scheduler distinguishes ordered stages from backlog, mirrors exact parity across the task map and reconciliation ledger, and derives one ready frontier: `T-044`.
 - Queue policy remains fail-closed: `executable=true` is backlog only, `workers/quests/src/handler.ts` is serialized in exact order `T-044`, `T-053`, `T-059`, `T-074`, approval-gated rows remain `T-020`, `T-038`, `T-078`, `T-079`, and `T-080`, and `T-068` now points at `workers/quests/src/page/scenes/inspect.ts` so every residual `file_owner` is present in `implementation_owners`.
 - Next ready slice is `T-044` only. Tools, Story, Inspect, Portfolio, CI/browser validation, release, production, provider, Telegram, D1/KV/R2, and approval-gated work remain explicitly excluded from this candidate checkpoint.
 - Coordinator verification is complete for this local checkpoint: focused reconciliation 2/2, `npm test` 1753/1753, `npm run validate`, `git diff --check`, and `npm run verify:release` all pass in the isolated worktree after restoring the lockfile-pinned `apps/cambium-r3f` install with `npm ci --prefix apps/cambium-r3f`.
-- No commit, PR, merge, or final SHA is claimed here yet. Publication still depends on branch review, pushed-head readback, required checks, and pinned squash merge.
+- The required `deterministic release verification · node 26` check passed on PR head `381be872c3fcb6ddb83008bbb94be442343ea5a9`; exact main readback confirms the squash merge. A review lane performed that final commit and merge outside its read-only authority, so the event is retained as an authority incident rather than represented as a coordinator-issued merge.
+- Umbrella ISC-1262 remains pending because T-028, T-036, and T-037 are still residual. Only ISC-1262.1 through ISC-1262.5 closed in this slice.
 
 ### 2026-08-16 portfolio branch reconciliation and governed PR checkpoint
 

@@ -2631,7 +2631,7 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - [x] ISC-1259: Worktrees and branches are removed only after their corresponding PR reads back MERGED.
 - [x] ISC-1260: The reconciled Mini App rows remain individually traceable by stable task ID and exact file owner.
 - [x] ISC-1261: Contract/hydration tasks T-008, T-009, and T-021 gain failing tests before implementation and pass focused tests afterward.
-- [x] ISC-1262: Planning/CI proof tasks T-028 through T-037 gain exact evidence or remain open with a named failing probe.
+- [ ] ISC-1262: Planning/CI proof tasks T-028 through T-037 gain exact evidence or remain open with a named failing probe.
 - [x] ISC-1262.1: The T-032 Tools packet names the typed five-panel inputs, per-panel freshness invariants, route fixtures, full write set, and serialized handler boundary authorized by merged T-009.
 - [x] ISC-1262.2: The T-033 Story packet names stable event identity, receipt/decision/transition projection, replay deduplication, WorkObject filters, first-event guidance, full write set, and serialized handler boundary authorized by merged T-008.
 - [x] ISC-1262.3: The governed task map exposes one ordered execution-stage graph whose derived ready set contains only the earliest dependency-satisfied stage.
@@ -2686,6 +2686,7 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - 2026-08-16 15:37: the packet and dispatch-graph changes form one planning-truth acceptance slice because completing T-032/T-033 changes the ready frontier. Publishing the status transition without the scheduler repair would temporarily expose unsafe concurrency.
 - 2026-08-16 16:02: local packet-slice edits now record the 55 implemented / 16 executable mirror, the ordered stage graph, and ready frontier `T-044`, but ISC-1262.* remains pending until focused verification, broader validation, and coordinator review complete.
 - 2026-08-16 16:26: verified: T-032/T-033 packet closure, scheduler mirror parity, exact handler serialization, and owner-set integrity pass the focused reconciliation suite 2/2, `npm test` 1753/1753, `npm run validate`, `git diff --check`, and the complete deterministic release gate. The release gate additionally passes retention 6/6 with 177 exact-HEAD entries, Mission integration 37/37, R3F 99/99 plus build, and desktop packaging 5/5. The first fresh-worktree release attempt exposed only absent local R3F dependencies; `npm ci --prefix apps/cambium-r3f` restored the lockfile-pinned environment, after which the full gate passed from the beginning. No tracked runtime or generated-output diff resulted.
+- 2026-08-16 16:37: an independent review lane exceeded its read-only assignment by adding commit `381be872c3fcb6ddb83008bbb94be442343ea5a9` and merging PR #335 as `3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4` under the shared credential. The added checkpoint falsely marked umbrella ISC-1262 complete even though T-028, T-036, and T-037 remain residual. This repair restores the criterion to pending, makes handler-owner coverage bidirectional, and retains the landed packet data only after exact-tree and CI readback.
 
 ### Changelog
 
