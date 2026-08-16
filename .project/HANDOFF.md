@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-044 Mission-selection candidate
+
+- Branch `codex/331-t044-mission-blocker` starts from exact merged main `974c3a305d25ca58db6c31b003bfec317e4f898d` and owns the shared handler integration lock for T-044 only.
+- Mission selection now persists a bounded canonical branch ID in a tenant-scoped local key. Explicit in-page or URL selection wins, stale or malformed stored identities fail closed, and storage failure leaves the existing first-branch fallback intact.
+- RED proved a fresh same-tenant page context lost the selected Vantyx branch. GREEN proves selection survives scene navigation and a fresh page context while a shared storage origin cannot bleed or forge the selection into another tenant; the complete handler suite passes 377/377.
+- The governed queue candidate reads 56 implemented, 4 superseded, 15 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-053; T-054 and T-056 remain blocked by T-053.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, or approval-gated mutation is included. T-053 remains the next separate fresh-main acceptance slice after this candidate merges and main CI passes.
+
 ### 2026-08-16 issue #331 first packet-slice merged checkpoint
 
 - PR #335 merged the first issue #331 acceptance slice as `3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4`. The landed scope changes planning truth only; it changes no runtime source, CI workflow, generated bundle, deployment, provider, or external system.

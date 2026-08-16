@@ -3,7 +3,7 @@
   "generated_at": "2026-08-15",
   "scope": "Reconcile the 14-issue provenance set and all 80 Mini App task IDs against current merged source; expose only evidence-backed residuals as executable.",
   "source_authority_role": "immutable 2026-08-15 reconciliation inputs; not the current execution head",
-  "evidence_reconciled_through": "origin/main@3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4",
+  "evidence_reconciled_through": "origin/main@974c3a305d25ca58db6c31b003bfec317e4f898d",
   "source_authority": [
     "origin/main@f7e8795615e372323aaa24a5ae2d0255cb45aaec",
     ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
@@ -15,11 +15,11 @@
   "counts": {
     "issues": 14,
     "tasks": 80,
-    "executable_tasks": 16,
+    "executable_tasks": 15,
     "dispositions": {
-      "implemented": 55,
+      "implemented": 56,
       "superseded": 4,
-      "residual": 16,
+      "residual": 15,
       "approval-gated": 5
     }
   },
@@ -54,12 +54,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-044"],
+    "ready_task_ids": ["T-053"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
       "T-037",
-      "T-044",
       "T-053",
       "T-054",
       "T-056",
@@ -87,7 +86,8 @@
       "handler_serialization": {
         "path": "workers/quests/src/handler.ts",
         "policy": "serialized",
-        "task_ids": ["T-044", "T-053", "T-059", "T-074"]
+        "task_ids": ["T-044", "T-053", "T-059", "T-074"],
+        "remaining_task_ids": ["T-053", "T-059", "T-074"]
       }
     }
   },
@@ -1109,20 +1109,10 @@
       "phase": "P2",
       "wave": "W4",
       "swarm": "mission",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/mission.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/mission.ts.",
-      "missingAcceptance": "Same-tenant selection persistence is tested; canonical selection isolation across tenants is not.",
-      "implementation_owners": [
-        "workers/quests/src/page/scenes/mission.ts"
-      ],
-      "test_owners": [
-        "workers/quests/src/handler.test.ts"
-      ],
-      "integration_lock_zones": [
-        "workers/quests/src/handler.ts"
-      ]
+      "evidence": "Issue #331 T-044 stores only a bounded canonical branch identity under a tenant-scoped Mission selection key; mismatched-tenant, malformed, stale, and unavailable storage fail closed. handler.test.ts proves the selected branch survives scene navigation and a fresh page context while a shared storage origin cannot bleed the selection into another tenant."
     },
     {
       "id": "T-045",

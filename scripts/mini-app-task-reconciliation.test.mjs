@@ -13,6 +13,7 @@ const schedulerStages = [
   ['validation', ['T-028', 'T-036', 'T-037']],
 ]
 const serializedHandlerOrder = ['T-044', 'T-053', 'T-059', 'T-074']
+const remainingHandlerOrder = ['T-053', 'T-059', 'T-074']
 const approvalGatedIds = ['T-020', 'T-038', 'T-078', 'T-079', 'T-080']
 const terminalStatuses = new Set(['implemented', 'superseded'])
 
@@ -50,22 +51,22 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
   assert.equal(taskMap.schema_version, '2026-08-16-mini-app-page-wiring-ownership.v2')
   assert.equal(taskMap.source_head, 'f988d31922385d9352c4efac6abe14b6de4bb1d8')
   assert.equal(taskMap.source_head_role, 'immutable 2026-08-15 task-map reconciliation baseline; not the current execution head')
-  assert.equal(taskMap.evidence_reconciled_through, 'origin/main@3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4')
+  assert.equal(taskMap.evidence_reconciled_through, 'origin/main@974c3a305d25ca58db6c31b003bfec317e4f898d')
   assert.deepEqual(taskMap.tasks.map(({ id }) => id), expectedIds)
   assert.equal(new Set(taskMap.tasks.map(({ id }) => id)).size, 80)
   assert.deepEqual(taskMap.counts, {
     total: 80,
-    executable: 16,
-    implemented: 55,
+    executable: 15,
+    implemented: 56,
     superseded: 4,
-    residual: 16,
+    residual: 15,
     'approval-gated': 5,
   })
 
   const executableIds = taskMap.tasks.filter(({ executable }) => executable).map(({ id }) => id)
   assert.deepEqual(taskMap.executable_task_ids, executableIds)
   assert.deepEqual(taskMap.execution_scheduler.ordered_stages, schedulerStages.map(([stage, task_ids]) => ({ stage, task_ids })))
-  assert.deepEqual(taskMap.execution_scheduler.ready_task_ids, ['T-044'])
+  assert.deepEqual(taskMap.execution_scheduler.ready_task_ids, ['T-053'])
   assert.deepEqual(taskMap.execution_scheduler.queue_policy.serialized_handler_task_ids, serializedHandlerOrder)
   assert.deepEqual(taskMap.execution_scheduler.backlog_task_ids, executableIds)
   assert.equal(taskMap.execution_scheduler.queue_policy.ready_frontier_rule, 'Only the earliest incomplete stage may contribute ready_task_ids.')
@@ -74,9 +75,10 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
   assert.deepEqual(taskMap.execution_scheduler.queue_policy.terminal_statuses, ['implemented', 'superseded'])
   assert.equal(taskMap.execution_scheduler.queue_policy.handler_serialization.path, 'workers/quests/src/handler.ts')
   assert.equal(taskMap.execution_scheduler.queue_policy.handler_serialization.policy, 'serialized')
+  assert.deepEqual(taskMap.execution_scheduler.queue_policy.handler_serialization.remaining_task_ids, remainingHandlerOrder)
   assert.deepEqual(derivedReady, {
-    stage: 'mission',
-    readyTaskIds: ['T-044'],
+    stage: 'tools',
+    readyTaskIds: ['T-053'],
   })
 
   for (const task of taskMap.tasks) {
@@ -115,14 +117,14 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
     assert.equal(byId.get(id).status, 'implemented', `${id} must carry issue #331 P1 acceptance evidence`)
     assert.match(byId.get(id).evidence, /Issue #331 P1/)
   }
-  for (const id of serializedHandlerOrder) {
+  for (const id of remainingHandlerOrder) {
     assert.ok(byId.get(id).integration_lock_zones.includes('workers/quests/src/handler.ts'), `${id} must serialize handler.ts`)
   }
   assert.deepEqual(
     taskMap.tasks
       .filter(({ status, integration_lock_zones }) => status === 'residual' && integration_lock_zones.includes('workers/quests/src/handler.ts'))
       .map(({ id }) => id),
-    serializedHandlerOrder,
+    remainingHandlerOrder,
     'every residual handler owner must appear in the exact serialized order',
   )
   for (const id of ['T-029', 'T-030', 'T-031', 'T-034', 'T-035', 'T-042']) {
@@ -134,6 +136,9 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
     assert.ok(byId.get(id).evidence)
     assert.equal('missingAcceptance' in byId.get(id), false, `${id} must not retain missingAcceptance once implemented`)
   }
+  assert.equal(byId.get('T-044').status, 'implemented')
+  assert.equal(byId.get('T-044').executable, false)
+  assert.match(byId.get('T-044').evidence, /tenant-scoped Mission selection key/)
   assert.equal(byId.get('T-065').file_owner, 'workers/quests/src/page/scenes/inspect.ts')
   assert.equal(byId.get('T-068').file_owner, 'workers/quests/src/page/scenes/inspect.ts')
   assert.deepEqual(taskMap.tasks.filter(({ status }) => status === 'approval-gated').map(({ id }) => id), approvalGatedIds)
@@ -151,18 +156,18 @@ test('source reconciliation and execution manifest agree with the governed queue
   assert.equal(ledger.source_authority_role, 'immutable 2026-08-15 reconciliation inputs; not the current execution head')
   assert.equal(ledger.evidence_reconciled_through, taskMap.evidence_reconciled_through)
   assert.deepEqual(ledger.counts.dispositions, {
-    implemented: 55,
+    implemented: 56,
     superseded: 4,
-    residual: 16,
+    residual: 15,
     'approval-gated': 5,
   })
-  assert.equal(ledger.counts.executable_tasks, 16)
+  assert.equal(ledger.counts.executable_tasks, 15)
   assert.equal(gip003.status, 'completed')
   assert.match(
     gip003.validation,
     new RegExp(`${taskMap.counts.implemented} implemented, ${taskMap.counts.superseded} superseded, ${taskMap.counts.residual} executable residuals, and ${taskMap.counts['approval-gated']} non-executable approval-gated`),
   )
-  assert.match(gip003.validation, /ready frontier is exactly T-044/)
+  assert.match(gip003.validation, /ready frontier is exactly T-053/)
   assert.match(gip003.validation, /serialized handler order is T-044, T-053, T-059, T-074/)
   assert.doesNotMatch(gip003.validation, /50 implemented|21 executable residuals|53 implemented|18 executable residuals/)
 

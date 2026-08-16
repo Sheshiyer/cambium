@@ -1134,6 +1134,7 @@ async function renderPageFixtureContext(
     fetchSequence?: unknown[];
     clipboard?: boolean;
     telegramInitData?: string;
+    storage?: Map<string, string>;
     onFetch?: (request: { url: string; init: RequestInit; index: number }) => void;
     fetchResponder?: (request: { url: string; init: RequestInit; index: number }) => unknown;
   } = {},
@@ -1164,6 +1165,7 @@ async function renderPageFixtureContext(
   const fetchCalls: string[] = [];
   const fetchRequests: Array<{ url: string; init: RequestInit; method: string; body?: BodyInit | null }> = [];
   const clipboardWrites: string[] = [];
+  const storage = options.storage ?? new Map<string, string>();
   const fetchSequence = [...(options.fetchSequence ?? [])];
   const fixedNow = options.now ? Date.parse(options.now) : null;
   const telegramWebApp = options.telegramInitData
@@ -1181,6 +1183,11 @@ async function renderPageFixtureContext(
     document: { getElementById, querySelectorAll: () => [] },
     window: { Telegram: telegramWebApp ? { WebApp: telegramWebApp } : undefined, addEventListener() {}, innerWidth: 390 },
     location: { search: options.search ?? '' },
+    localStorage: {
+      getItem: (key: string) => storage.get(String(key)) ?? null,
+      setItem: (key: string, value: string) => { storage.set(String(key), String(value)); },
+      removeItem: (key: string) => { storage.delete(String(key)); },
+    },
     matchMedia: () => ({ matches: true }),
     navigator: options.clipboard ? { clipboard: { writeText: async (text: string) => { clipboardWrites.push(String(text)); } } } : {},
     fetch: async (url: string, init: RequestInit = {}) => {
@@ -1208,7 +1215,7 @@ async function renderPageFixtureContext(
   vm.runInContext(appScripts[0], vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
-  return { elements, context, fetchCalls, fetchRequests, clipboardWrites };
+  return { elements, context, fetchCalls, fetchRequests, clipboardWrites, storage };
 }
 
 function selectInspectPane(
@@ -5928,6 +5935,51 @@ test('page · mission branch tab updates content in place and keeps the sheet cl
   assert.equal(fitcheckTab.dispatchEvent({ type:'keydown', key:'End', bubbles:true }), false);
   assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'vantyx');
   assert.equal(stem.querySelector('[data-mission-branch="1"]').focusCalls.length, 1);
+});
+
+test('page · canonical Mission selection persists per tenant without tenant bleed', async () => {
+  const branch = (branchId: string, name: string, title: string) => ({
+    branchId,
+    name,
+    arcTitle: `${name} arc`,
+    vision: { statement: `${name} keeps its next move visible in Mission.` },
+    questline: [
+      { id: 'confirm', title: `Confirm ${name} direction`, status: 'verified' },
+      { id: 'run', title, status: 'pending' },
+    ],
+    missions: [{ missionId: `${branchId}-next`, title, owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Hermes' }],
+    gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
+    kpis: [],
+    proofPaths: [{ proofId: `${branchId}-proof`, validates: 'Viewport capture', promotes: 'supervised branch' }],
+    promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
+    gaps: [],
+  });
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [
+        branch('fitcheck', 'Fitcheck', 'Run authenticated Shopify widget QA'),
+        branch('vantyx', 'Vantyx', 'Publish Vantyx proof packet'),
+      ],
+    },
+  };
+  const sharedStorage = new Map<string, string>();
+  const cambium = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission', storage: sharedStorage });
+  cambium.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[1].click();
+  assert.match(cambium.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Publish Vantyx proof packet<\/h3>/);
+  vm.runInContext('go(2); go(0);', cambium.context as vm.Context);
+  assert.match(cambium.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Publish Vantyx proof packet<\/h3>/);
+
+  const cambiumReload = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission', storage: sharedStorage });
+  assert.match(cambiumReload.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Publish Vantyx proof packet<\/h3>/);
+  assert.equal(cambiumReload.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[1].getAttribute('aria-selected'), 'true');
+
+  sharedStorage.set('cambium:mission-selection:v1:other', JSON.stringify({ tenant: 'cambium', branchId: 'vantyx' }));
+  const otherTenant = await renderPageFixtureContext(envelope, { search: '?tenant=other&scene=mission', storage: sharedStorage });
+  assert.match(otherTenant.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Run authenticated Shopify widget QA<\/h3>/);
+  assert.equal(otherTenant.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[0].getAttribute('aria-selected'), 'true');
+  assert.equal(sharedStorage.has('cambium:mission-selection:v1:other'), false);
 });
 
 test('page · mission questline is a horizontal station timeline with readable labels', async () => {
