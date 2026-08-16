@@ -1628,6 +1628,76 @@ function renderInspectProofSummary(env, L){
     '<div class="gbtns"><button type="button" data-inspect-summary="1">Open proof</button></div>' +
   '</section>';
 }
+function inspectPageReadinessRows(env, L){
+  /* T-068: page readiness is a read-only projection of the same served envelope each scene
+     consumes. Global staleness wins over every local result (T-024), so a fresh-looking local
+     panel cannot contradict the envelope clock. Live-proof status is kept separate from scene
+     coverage: rendering all five rows never claims a ready Telegram runtime. */
+  const envelope = env || { ledger:L };
+  const age = minutesSince(envelope.derivedAt);
+  const globallyStale = age === null || age > 360;
+  const branchEnvelope = envelope.branchStories && typeof envelope.branchStories === 'object' ? envelope.branchStories : null;
+  const branches = branchEnvelope && Array.isArray(branchEnvelope.rows) ? branchEnvelope.rows : null;
+  const actionEnvelope = envelope.actionRequests;
+  const actionEnvelopeServed = Array.isArray(actionEnvelope)
+    || !!(actionEnvelope && typeof actionEnvelope === 'object' && (Array.isArray(actionEnvelope.rows) || Array.isArray(actionEnvelope.actionRequests)));
+  const openItemsServed = Array.isArray(envelope.openItems);
+  const goalGraphEnvelope = envelope.goalGraphIntake && typeof envelope.goalGraphIntake === 'object' ? envelope.goalGraphIntake : null;
+  const goalGraphServed = !!(goalGraphEnvelope && Array.isArray(goalGraphEnvelope.rows));
+  const gateServed = openItemsServed || actionEnvelopeServed || goalGraphServed;
+  const gateSources = [];
+  if (openItemsServed) gateSources.push('quest-envelope.openItems');
+  if (actionEnvelopeServed) gateSources.push((actionEnvelope && actionEnvelope.source) || 'cambium-action-requests@v1');
+  if (goalGraphServed) gateSources.push(goalGraphEnvelope.source || 'telegram-goal-graph-intake@v1');
+  const gates = gateItemsFromEnvelope(envelope);
+  const toolsReady = !!toolProjection() && toolAggregateFreshness() === 'fresh';
+  const storyCanonical = !!(envelope.storyProjection && envelope.storyProjection.schema === 'cambium.story-event-projection.v1' && Array.isArray(envelope.beats));
+  const storyCount = storyCanonical ? envelope.beats.length : 0;
+  const live = envelope.liveProof && typeof envelope.liveProof === 'object' ? envelope.liveProof : null;
+  const liveRows = live && Array.isArray(live.rows) ? live.rows : [];
+  const liveBlocked = liveRows.filter(row => !row || row.state !== 'ready').length;
+  const liveReady = !!(live && live.status === 'ready' && liveRows.length > 0 && liveBlocked === 0);
+  const localRows = [
+    {
+      id:'mission', title:'Mission', glyph:'genesis', proof:'branch-packets', source:(branchEnvelope && branchEnvelope.source) || 'branchStories missing',
+      state:branches ? (branches.length ? 'active' : 'blocked') : 'blocked',
+      detail:branches ? (branches.length ? branches.length + ' branch packet' + (branches.length === 1 ? '' : 's') + ' served' : 'branch packets served empty') : 'branch packets not served',
+    },
+    {
+      id:'gate', title:'Gate', glyph:'gate', proof:'gates', source:gateSources.length ? [...new Set(gateSources)].join(' + ') : 'gate source missing',
+      state:gateServed ? (gates.length ? 'active' : 'complete') : 'blocked',
+      detail:gateServed ? (gates.length ? gates.length + ' founder decision' + (gates.length === 1 ? '' : 's') + ' waiting' : 'decision queue served empty') : 'decision queue not served',
+    },
+    {
+      id:'tools', title:'Tools', glyph:'ops', proof:'tools', source:toolsReady && envelope.commands && envelope.commands.status ? envelope.commands.status.source : 'commands unavailable',
+      state:toolsReady ? 'active' : 'stale',
+      detail:toolsReady ? 'five fresh command panels served' : 'command panels stale or incomplete',
+    },
+    {
+      id:'story', title:'Story', glyph:'taste', proof:'evidence', source:storyCanonical ? envelope.storyProjection.schema : 'story projection missing',
+      state:storyCanonical ? (storyCount ? 'active' : 'idle') : 'blocked',
+      detail:storyCanonical ? (storyCount ? storyCount + ' canonical event' + (storyCount === 1 ? '' : 's') + ' served' : 'canonical Story served empty') : 'canonical Story not served',
+    },
+    {
+      id:'inspect', title:'Inspect', glyph:'proof', proof:'live-proof', source:(live && live.source) || 'live proof missing',
+      state:live ? (liveReady ? 'complete' : 'proof-needed') : 'blocked',
+      detail:live ? (liveReady ? 'live proof rows served ready' : (liveBlocked ? liveBlocked + ' live proof blocker' + (liveBlocked === 1 ? '' : 's') : 'live proof status not ready')) : 'live proof not served',
+    },
+  ];
+  return localRows.map(row => globallyStale ? { ...row, state:'stale', detail:'envelope stale · refresh first' } : row);
+}
+function renderInspectPageReadiness(env, L){
+  return '<section class="inspect-page-readiness" data-component="InspectPageReadiness" data-live-telegram-readiness="not-implied">' +
+    '<div class="inspect-pane-heading">Page readiness</div><p>Coverage does not prove live Telegram readiness.</p>' +
+    '<div class="inspect-groups">' + inspectPageReadinessRows(env, L).map(row =>
+      '<button type="button" class="' + mcClass('inspect-group', row.state) + '" data-interaction-kind="sheet" data-inspect-readiness-page="' + esc(row.id) + '" data-inspect-readiness-state="' + esc(row.state) + '" data-inspect-readiness-proof="' + esc(row.proof) + '" data-source="' + esc(row.source) + '">' +
+        mcGlyphSvg(row.glyph, row.state) +
+        '<span><b>' + esc(row.title) + '</b><small>' + esc(row.detail) + '</small></span>' +
+        mcStateToken(row.state, mcSceneTokenLabel(row.state)) +
+      '</button>'
+    ).join('') + '</div>' +
+  '</section>';
+}
 function inspectRelatedPage(id){
   if (id === 'tools') return 'Tools';
   if (id === 'gates' || id === 'action-requests') return 'Gate';
@@ -1844,6 +1914,7 @@ function renderInspect(env){
   const systemPane =
     '<section id="inspect-system-panel" data-inspect-pane="system" class="inspect-pane is-active" role="tabpanel" aria-labelledby="inspect-system-tab">' +
       '<div class="inspect-pane-section"><div class="inspect-pane-heading">System map</div>' + renderInspectGroups(inspectEnv, L, ['tools','rails']) + '</div>' +
+      renderInspectPageReadiness(inspectEnv, L) +
       renderInspectSecondaryLinks(inspectEnv, L) +
       renderInspectDisclosure('Runtime state', '<div class="cmdgrp">freshness</div>' + renderTapestryAudit(inspectEnv) + '<div class="cmdgrp">wake</div>' + renderWake(inspectEnv) + '<div class="cmdgrp">lanes</div>' + renderLanes(inspectEnv) + '<div class="cmdgrp">stance</div>' + renderStance(inspectEnv) + '<div class="cmdgrp">policy</div>' + renderPolicy(inspectEnv) + '<div class="cmdgrp">decision context</div>' + renderDecisionContext(inspectEnv), false) +
       renderInspectDisclosure('Tapestry signals', '<div class="cmdgrp">side quests</div>' + renderSideQuests(inspectEnv) + '<div class="cmdgrp">coordination</div>' + renderSocial(inspectEnv) + '<div class="cmdgrp">senses</div>' + renderSenses(inspectEnv) + '<div class="stagegrid">' + stageCards + '</div><div class="cmdgrp">rails</div><div class="railgrid">' + railCards + '</div>', false) +
@@ -1866,6 +1937,7 @@ function renderInspect(env){
   });
   $('mapwrap').querySelectorAll('.mapbadge').forEach(el => el.onclick = () => openMapHeaderSheet(L));
   $('mapwrap').querySelectorAll('[data-inspect-group]').forEach(el => el.onclick = () => openInspectGroupSheet(el.dataset.inspectGroup, env.ledger ? env : { ledger:L }));
+  $('mapwrap').querySelectorAll('[data-inspect-readiness-proof]').forEach(el => el.onclick = () => openInspectGroupSheet(el.dataset.inspectReadinessProof, env.ledger ? env : { ledger:L }));
   $('mapwrap').querySelectorAll('[data-inspect-summary]').forEach(el => el.onclick = () => openInspectSummarySheet(env.ledger ? env : { ledger:L }));
   $('mapwrap').querySelectorAll('[data-inspect-branch-map]').forEach(el => el.onclick = () => openBranchMapSheet(env.ledger ? env : { ledger:L }));
   $('mapwrap').querySelectorAll('[data-branch-map-refresh]').forEach(el => el.onclick = () => refresh());

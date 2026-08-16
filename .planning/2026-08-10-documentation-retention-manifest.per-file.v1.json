@@ -468,8 +468,8 @@
     },
     {
       "path": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-      "bytes": 25800,
-      "sha256": "b3472c9c615bf28238815bf06dbdad3f954fff74b5d27740a845e3fdf42ae545",
+      "bytes": 26134,
+      "sha256": "ddacac2b70f95560d52cce29d5d2889784f9f62bbc0ee92a057a354bb70617a6",
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {
@@ -2144,8 +2144,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-iverif-action-request-mobile.png",
-      "bytes": 1155259,
-      "sha256": "58fa1bfb167f3ef4ea3ea7323a10006c678687bfa20767595b77205f6ce5b1c7",
+      "bytes": 1155283,
+      "sha256": "b3e5393887ec72227c283b87decd98261c3f7db5e53affab63f25bc11846ccee",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2162,8 +2162,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-iverif-queued-proof-mobile.png",
-      "bytes": 1121218,
-      "sha256": "376178ab471e0a2da7ae1eb82bec62f15d945ea33b37134a71cdf3103118273f",
+      "bytes": 1121400,
+      "sha256": "2a32877dce17d4404b81a509c6ff545e4b600f1af4baf6c36ec7550dfd239a5d",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2180,8 +2180,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-companions-mobile.png",
-      "bytes": 1122961,
-      "sha256": "3b60568107d5e21b3c8ca7f952a06a64079e436692fbe66e2c4a16ed927780e9",
+      "bytes": 1123523,
+      "sha256": "0dbcf96ac9cceaa549cee26784ab3033e71587029a7cd4446b7a500440455199",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2198,8 +2198,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-gate-priority-mobile.png",
-      "bytes": 1180555,
-      "sha256": "489ee33a102d4b0cf1d341dbe2ad39191383f534ca10119d0ed81b7728bd7fd0",
+      "bytes": 1180408,
+      "sha256": "0efce8ae2f2575a4fd9dacfcb2adf604911aa830f822f90e604f9a2b7b3a4c0f",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2216,8 +2216,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-iverif-action-request-mobile.png",
-      "bytes": 1139497,
-      "sha256": "8f7909a0074b81436ed384580a6730989ad18ef394b911128738d2224c00e418",
+      "bytes": 1139506,
+      "sha256": "1f0920a3501551463e69d1f991359fe6a29f1669cf48f3ef46907fe2ec93ced1",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2252,8 +2252,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-mira-relationship-mobile.png",
-      "bytes": 222543,
-      "sha256": "b6b3f96c683314c9170d8e4ced723c86a0022b1387be5d076fb22e6274fae043",
+      "bytes": 220340,
+      "sha256": "d6a9bd90fd389cdc1f75e74cba28996d4da274bdf392042cd84db8ffd077b9c6",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2270,8 +2270,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-no-fake-progress-mobile.png",
-      "bytes": 1136382,
-      "sha256": "fc11140cd2d26c587ebdaf5b3f90af95ec11ad476b8b283de09a46abbabdba0e",
+      "bytes": 1135997,
+      "sha256": "734b2e50502a7bd495a02aaa401eda29d4ef8435562e31d34b0d810b09bb4ef3",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2288,8 +2288,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-policy-gap-mobile.png",
-      "bytes": 1180629,
-      "sha256": "0795b09cc89faf8bf6c22564ebbf84ca9c973c53b392c6cb8c9471e28f9c4ffe",
+      "bytes": 1180419,
+      "sha256": "f6e110045f6eeeaa6788ac3dcd6d0d1a939a08d7ddf663fee661baa000584c1b",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2324,8 +2324,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-skill-promotion-mobile.png",
-      "bytes": 1170484,
-      "sha256": "f6034c00208764e5c7dc56e92c705c68eb6ff3d5d1b2170e6608b97788dbb4c5",
+      "bytes": 1170545,
+      "sha256": "3a70deca2f7ee8c65d21a8ddf14f3df1c4d8a6231344eeb0def3bddf31fe64d4",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2342,8 +2342,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-system-overview-mobile.png",
-      "bytes": 1103436,
-      "sha256": "8f37074328731e2509a9ed9b3b895434e9dc336dfda9557afa70b47fb2da054e",
+      "bytes": 1094168,
+      "sha256": "8ffee4d2b0491ce71f4fb104d30b3c884e4642424867fb60dc454573af19eca1",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2360,8 +2360,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-tapestry-audit-mobile.png",
-      "bytes": 1104090,
-      "sha256": "fd371e9d3cc2a6dcbd006a8f12db97d03c0a4a9cfb3a842717ebbe98a4be93a0",
+      "bytes": 1094882,
+      "sha256": "642aed163e336b9e9d8285511859043c7020aca5ed8f4348273bdb756fab4732",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2379,7 +2379,7 @@
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
       "bytes": 29604,
-      "sha256": "092796f945c0add06e5cf279cd1386be76dd429d2d7a06f7ade9bd25e6d83c5c",
+      "sha256": "08cd9bd7d9d1ed027d27d8c587687673960389bd7e787e8f49f8f0e5a0d5c431",
       "gitTracked": true,
       "kind": "manifest",
       "inboundReferences": {
@@ -2501,8 +2501,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-vantyx-selected-mobile.png",
-      "bytes": 1145199,
-      "sha256": "95e38e179ee70e4943a28bf98b2e551dd9a90879599aeb83600db7b872146384",
+      "bytes": 1145211,
+      "sha256": "b3a60ab76bc7d2ea56e9f1e5ba74996a922cedb94289508faaf1db3d47feb4c1",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2594,8 +2594,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-390-mobile.png",
-      "bytes": 88416,
-      "sha256": "c8fedd433fe89186098435f0106aecd6b0846683ba54944fa819d8a1a1c80419",
+      "bytes": 86306,
+      "sha256": "443e3b43b359173eb6838f66de8528126641a9e8d19cebf0f1795a72939ca66b",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2630,8 +2630,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-320-mobile.png",
-      "bytes": 359106,
-      "sha256": "675615309809321c89acc1f84431017ed25dd9ca3f662a744f8835f81a65d4d0",
+      "bytes": 357978,
+      "sha256": "9e37e79b665dce5cc4168b0109be7608e36e603a29277cabcfe12a0ae6584bd9",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2666,8 +2666,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-430-mobile.png",
-      "bytes": 450708,
-      "sha256": "760ba31bc0b58bc5c8b6eedbcb48120212ce22bb704089d7003df67426c14a22",
+      "bytes": 450817,
+      "sha256": "d2e718362ec1e36b4e5eabcf277932e9979d5c4c939fb4a78503a0b7fb859fa2",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2703,8 +2703,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-confirm-action-request-preflight-mobile.png",
-      "bytes": 86023,
-      "sha256": "c53d06d01e96a477eb44d52bb4a37c45424ed1cc4cd93a5c12d524255cb9ccb3",
+      "bytes": 85667,
+      "sha256": "28d2b3284a6de0290c67c54a9cb2cd67c97a34a930005686125218a92ad11a07",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2739,8 +2739,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-queued-proof-detail-mobile.png",
-      "bytes": 1094444,
-      "sha256": "d981767f797118610ae170962780acb4e5821b4a888d069341436d125a5fe9a5",
+      "bytes": 1094643,
+      "sha256": "16343a278245961e444221ac5a95ec1c72312ff5539684f7c6b1f42b851bfb7d",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2775,8 +2775,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-reroll-preflight-mobile.png",
-      "bytes": 75655,
-      "sha256": "ccf8fac09602c7aed1cf441746b4a4b7760e9fdf7e869ed8b29925a844706666",
+      "bytes": 74793,
+      "sha256": "cb99b9b43f78228d784ac2ffe7f06a42a2c3b9bfba8e63be3a869b0fd91abd72",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2794,8 +2794,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-inspect-skill-promotion-mobile.png",
-      "bytes": 242362,
-      "sha256": "db052923e1701273c1f14c1abb6f09ed73a1dffd2ad84df7d52ed4f1e7245cd7",
+      "bytes": 241725,
+      "sha256": "b9c2ee9af8c76cf4d4e6592580ba0209e564831f155630db2a3e158942115034",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2812,8 +2812,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-open-proof-mobile.png",
-      "bytes": 446012,
-      "sha256": "4cb6b9b961d8acfb3d0e616749f3e278f4d488a9e9d6908b74d84b34b4a35bf0",
+      "bytes": 445064,
+      "sha256": "720ba80e96166dc6632f3d18d7e3a4360d06924e3e8efa1c01c16c37d77a0f16",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2830,8 +2830,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-review-gate-mobile.png",
-      "bytes": 442691,
-      "sha256": "7c5e18f32bb3c87334313034a5ce68bd6c2b86d469c7c6844e96b131151b3f44",
+      "bytes": 495547,
+      "sha256": "f761aa0925805772442b1dd218dfd2d3ffe25be85fdb7b15d9e1d85784ac78bf",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
@@ -2884,8 +2884,8 @@
     },
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/story-iverif-action-request-mobile.png",
-      "bytes": 1092775,
-      "sha256": "2ff9fa138bf6cf4cf27f9c4920534a5e5b5762ed3aed0f97912b84a162935182",
+      "bytes": 1092846,
+      "sha256": "5867b2f239fc9719a44dd7ac3abfa01f37240e45e7308c758a02467a4f98d1dd",
       "gitTracked": true,
       "kind": "screenshot",
       "inboundReferences": {
