@@ -1,5 +1,14 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-053 typed Tools projection candidate
+
+- Branch `codex/331-t053-typed-tools-projection` starts from exact merged main `41aeeded8a2aaf51b906d87d953da6acfd765a4b` and owns the shared handler integration lock for T-053 only.
+- `GET /api/quests/{tenant}` now serves the validated five-panel `ToolsCommandProjection` directly at `commands`. The duplicate `commandProjection` alias is removed, legacy data is normalized only at the Worker boundary, and malformed or unexpected panels fail closed.
+- The real Tools scene consumes only exact status/services/agents/activeWork/handoffs panel identities and their typed data. Canonical scene and visual fixtures now exercise that same served shape rather than an ad-hoc browser-only object.
+- RED proved the public route downgraded the typed projection before rendering. GREEN proves legacy boundary normalization, exact already-typed projection preservation, five-panel renderer counts, and malformed/unexpected rejection; the complete handler suite passes 378/378.
+- The governed queue candidate reads 57 implemented, 4 superseded, 14 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-054 and T-056; the remaining shared-handler order is T-059 then T-074.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, or approval-gated mutation is included.
+
 ### 2026-08-16 issue #331 T-044 Mission-selection candidate
 
 - Branch `codex/331-t044-mission-blocker` starts from exact merged main `974c3a305d25ca58db6c31b003bfec317e4f898d` and owns the shared handler integration lock for T-044 only.

@@ -2061,14 +2061,14 @@ test('scene contracts · public envelope normalization feeds only validated Stor
 
   assert.equal(response.status, 200);
   assert.deepEqual(envelope.beats.map((beat: { eventId: string }) => beat.eventId), ['story:cambium:valid-proof']);
-  assert.equal(envelope.commandProjection.status.panelId, 'status');
-  assert.equal(envelope.commandProjection.status.source, 'quest-envelope@v1');
-  assert.deepEqual(envelope.commandProjection.status.freshness, {
+  assert.equal(envelope.commands.status.panelId, 'status');
+  assert.equal(envelope.commands.status.source, 'quest-envelope@v1');
+  assert.deepEqual(envelope.commands.status.freshness, {
     state: 'unknown',
     checkedAt: '2026-08-16T08:30:00.000Z',
   });
-  assert.deepEqual(envelope.commandProjection.activeWork.data, [{ id: 'T-008', status: 'complete' }]);
-  assert.deepEqual(envelope.commands.work, [{ id: 'T-008', status: 'complete' }]);
+  assert.deepEqual(envelope.commands.activeWork.data, [{ id: 'T-008', status: 'complete' }]);
+  assert.equal('commandProjection' in envelope, false);
 
   const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T08:31:00.000Z' });
   (rendered.context.renderCommands as () => void)();
@@ -2079,6 +2079,71 @@ test('scene contracts · public envelope normalization feeds only validated Stor
   assert.doesNotMatch(rendered.elements.get('sheetBody')!.innerHTML, /Malformed runtime beat must stay hidden/);
   assert.match(rendered.elements.get('cmds')!.innerHTML, /3 agents · 1 open/);
   assert.match(rendered.elements.get('cmds')!.innerHTML, /1 services/);
+});
+
+test('scene contracts · typed Tools projection survives the public route as the sole renderer input', async () => {
+  const kv = fakeKv();
+  const commands = {
+    status: {
+      panelId: 'status',
+      source: 'org-status@v2',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T09:00:00.000Z' },
+      data: { agents: 4, issuesOpen: 2 },
+    },
+    services: {
+      panelId: 'services',
+      source: 'service-health@v3',
+      freshness: { state: 'stale', checkedAt: '2026-08-16T08:30:00.000Z' },
+      data: [{ name: 'Cambium Worker', status: 'ready' }],
+    },
+    agents: {
+      panelId: 'agents',
+      source: 'agent-roster@v2',
+      freshness: { state: 'unknown', checkedAt: '2026-08-16T08:45:00.000Z' },
+      data: [],
+    },
+    activeWork: {
+      panelId: 'active-work',
+      source: 'active-work@v4',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:55:00.000Z' },
+      data: [{ id: 'T-053', status: 'active' }],
+    },
+    handoffs: {
+      panelId: 'handoffs',
+      source: 'handoff-queue@v2',
+      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:58:00.000Z' },
+      data: [],
+    },
+  };
+  await kv.put('ledger:cambium', JSON.stringify({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:00:00.000Z',
+    source: 'quest-envelope@v1',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [],
+    commands,
+  }));
+
+  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
+  const envelope = JSON.parse(response.body);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(envelope.commands, commands);
+  assert.equal('commandProjection' in envelope, false);
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:01:00.000Z' });
+  (rendered.context.renderCommands as () => void)();
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /4 agents · 2 open/);
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /1 services/);
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /1 open/);
+
+  const unexpected = await renderPageFixtureContext({
+    ...envelope,
+    commands: { ...commands, rogue: { panelId: 'rogue', data: ['unowned panel'] } },
+  }, { now: '2026-08-16T09:01:00.000Z' });
+  (unexpected.context.renderCommands as () => void)();
+  assert.match(unexpected.elements.get('cmds')!.innerHTML, /data-interaction-kind="read-only"/);
+  assert.doesNotMatch(unexpected.elements.get('cmds')!.innerHTML, /4 agents · 2 open/);
 });
 
 test('scene contracts · malformed command panels fail closed before Tools rendering', async () => {
@@ -2102,7 +2167,7 @@ test('scene contracts · malformed command panels fail closed before Tools rende
   const response = await handle(req('GET', '/api/quests/cambium'), { kv });
   const envelope = JSON.parse(response.body);
   assert.equal(envelope.commands, null);
-  assert.equal(envelope.commandProjection, null);
+  assert.equal('commandProjection' in envelope, false);
 
   const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T08:31:00.000Z' });
   (rendered.context.renderCommands as () => void)();
@@ -2128,7 +2193,7 @@ test('scene contracts · malformed command panels fail closed before Tools rende
   }));
   const unexpectedPanel = JSON.parse((await handle(req('GET', '/api/quests/acme'), { kv })).body);
   assert.equal(unexpectedPanel.commands, null);
-  assert.equal(unexpectedPanel.commandProjection, null);
+  assert.equal('commandProjection' in unexpectedPanel, false);
 });
 
 test('scene contracts · invalid stored envelope cannot bypass normalization as raw response data', async () => {

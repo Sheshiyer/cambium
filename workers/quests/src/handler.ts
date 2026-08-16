@@ -10,7 +10,7 @@
 import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
 import { parseStoryEventContract } from './page/scenes/story.ts';
-import { normalizeToolsCommandProjection, type ToolsCommandProjection } from './page/scenes/tools.ts';
+import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
@@ -2643,23 +2643,6 @@ function socialRowText(row: Record<string, unknown>): string {
   ].filter((item) => typeof item === 'string').join(' ');
 }
 
-function toolsProjectionData(projection: ToolsCommandProjection): Record<string, unknown> | null {
-  if (
-    !isRecord(projection.status.data)
-    || !Array.isArray(projection.services.data)
-    || !Array.isArray(projection.agents.data)
-    || !Array.isArray(projection.activeWork.data)
-    || !Array.isArray(projection.handoffs.data)
-  ) return null;
-  return {
-    status: projection.status.data,
-    services: projection.services.data,
-    agents: projection.agents.data,
-    work: projection.activeWork.data,
-    handoffs: projection.handoffs.data,
-  };
-}
-
 function normalizeMiniAppSceneContracts(envelope: unknown): Record<string, unknown> {
   if (!isRecord(envelope)) return {};
   const normalized: Record<string, unknown> = { ...envelope };
@@ -2674,7 +2657,6 @@ function normalizeMiniAppSceneContracts(envelope: unknown): Record<string, unkno
   }
   if ('commands' in envelope) {
     if (envelope.commands === null) {
-      normalized.commandProjection = null;
       normalized.commands = null;
     } else {
       const freshness = isRecord(envelope.freshness) ? envelope.freshness : null;
@@ -2683,9 +2665,7 @@ function normalizeMiniAppSceneContracts(envelope: unknown): Record<string, unkno
         checkedAt: envelope.derivedAt,
         state: freshness?.state ?? freshness?.status,
       });
-      const commandData = parsed.ok ? toolsProjectionData(parsed.value) : null;
-      normalized.commandProjection = commandData && parsed.ok ? parsed.value : null;
-      normalized.commands = commandData;
+      normalized.commands = parsed.ok ? parsed.value : null;
     }
   }
   return normalized;
