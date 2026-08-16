@@ -78,6 +78,8 @@
     "order": ["Mission", "Gate", "Tools", "Story", "Inspect"],
     "source": "the same quest envelope consumed by each scene",
     "proofLinks": { "Mission": "branch-packets", "Gate": "gates", "Tools": "tools", "Story": "evidence", "Inspect": "live-proof" },
+    "gateSourceInvariant": "the Gate row names every served decision source among openItems, actionRequests, and goalGraphIntake; a goal-graph-only envelope retains its own source marker",
+    "inspectReadyInvariant": "Inspect is complete only when liveProof.status is ready, at least one row is served, and every served row is ready",
     "globalInvariant": "an absent or older-than-360-minute envelope makes every page stale; no local state may contradict it",
     "partialEnvelope": "a page is blocked or stale unless its own served contract is present; a served empty Gate or Story contract stays explicitly complete or idle",
     "liveBoundary": "five-scene coverage and page readiness never imply live Telegram readiness"

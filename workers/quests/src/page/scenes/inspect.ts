@@ -1641,7 +1641,14 @@ function inspectPageReadinessRows(env, L){
   const actionEnvelope = envelope.actionRequests;
   const actionEnvelopeServed = Array.isArray(actionEnvelope)
     || !!(actionEnvelope && typeof actionEnvelope === 'object' && (Array.isArray(actionEnvelope.rows) || Array.isArray(actionEnvelope.actionRequests)));
-  const gateServed = Array.isArray(envelope.openItems) || actionEnvelopeServed || Array.isArray(envelope.goalGraphIntake && envelope.goalGraphIntake.rows);
+  const openItemsServed = Array.isArray(envelope.openItems);
+  const goalGraphEnvelope = envelope.goalGraphIntake && typeof envelope.goalGraphIntake === 'object' ? envelope.goalGraphIntake : null;
+  const goalGraphServed = !!(goalGraphEnvelope && Array.isArray(goalGraphEnvelope.rows));
+  const gateServed = openItemsServed || actionEnvelopeServed || goalGraphServed;
+  const gateSources = [];
+  if (openItemsServed) gateSources.push('quest-envelope.openItems');
+  if (actionEnvelopeServed) gateSources.push((actionEnvelope && actionEnvelope.source) || 'cambium-action-requests@v1');
+  if (goalGraphServed) gateSources.push(goalGraphEnvelope.source || 'telegram-goal-graph-intake@v1');
   const gates = gateItemsFromEnvelope(envelope);
   const toolsReady = !!toolProjection() && toolAggregateFreshness() === 'fresh';
   const storyCanonical = !!(envelope.storyProjection && envelope.storyProjection.schema === 'cambium.story-event-projection.v1' && Array.isArray(envelope.beats));
@@ -1649,6 +1656,7 @@ function inspectPageReadinessRows(env, L){
   const live = envelope.liveProof && typeof envelope.liveProof === 'object' ? envelope.liveProof : null;
   const liveRows = live && Array.isArray(live.rows) ? live.rows : [];
   const liveBlocked = liveRows.filter(row => !row || row.state !== 'ready').length;
+  const liveReady = !!(live && live.status === 'ready' && liveRows.length > 0 && liveBlocked === 0);
   const localRows = [
     {
       id:'mission', title:'Mission', glyph:'genesis', proof:'branch-packets', source:(branchEnvelope && branchEnvelope.source) || 'branchStories missing',
@@ -1656,7 +1664,7 @@ function inspectPageReadinessRows(env, L){
       detail:branches ? (branches.length ? branches.length + ' branch packet' + (branches.length === 1 ? '' : 's') + ' served' : 'branch packets served empty') : 'branch packets not served',
     },
     {
-      id:'gate', title:'Gate', glyph:'gate', proof:'gates', source:actionEnvelopeServed ? 'cambium-action-requests@v1' : 'quest-envelope.openItems',
+      id:'gate', title:'Gate', glyph:'gate', proof:'gates', source:gateSources.length ? [...new Set(gateSources)].join(' + ') : 'gate source missing',
       state:gateServed ? (gates.length ? 'active' : 'complete') : 'blocked',
       detail:gateServed ? (gates.length ? gates.length + ' founder decision' + (gates.length === 1 ? '' : 's') + ' waiting' : 'decision queue served empty') : 'decision queue not served',
     },
@@ -1672,8 +1680,8 @@ function inspectPageReadinessRows(env, L){
     },
     {
       id:'inspect', title:'Inspect', glyph:'proof', proof:'live-proof', source:(live && live.source) || 'live proof missing',
-      state:live ? ((live.status === 'ready' || (liveRows.length && !liveBlocked)) ? 'complete' : 'proof-needed') : 'blocked',
-      detail:live ? (liveBlocked ? liveBlocked + ' live proof blocker' + (liveBlocked === 1 ? '' : 's') : 'live proof rows served ready') : 'live proof not served',
+      state:live ? (liveReady ? 'complete' : 'proof-needed') : 'blocked',
+      detail:live ? (liveReady ? 'live proof rows served ready' : (liveBlocked ? liveBlocked + ' live proof blocker' + (liveBlocked === 1 ? '' : 's') : 'live proof status not ready')) : 'live proof not served',
     },
   ];
   return localRows.map(row => globallyStale ? { ...row, state:'stale', detail:'envelope stale · refresh first' } : row);

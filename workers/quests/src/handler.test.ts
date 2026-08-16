@@ -5009,6 +5009,34 @@ test('page · Inspect readiness matches the served state of all five scenes', as
   assert.match(partialPanel, /data-inspect-readiness-page="tools"[^>]*data-inspect-readiness-state="stale"/);
   assert.match(partialPanel, /data-inspect-readiness-page="story"[^>]*data-inspect-readiness-state="blocked"/);
   assert.match(partialPanel, /data-inspect-readiness-page="inspect"[^>]*data-inspect-readiness-state="blocked"/);
+
+  const goalGraphOnly = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    source: 'goal-graph-readiness-fixture',
+    derivedAt: FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt,
+    ledger: FRESH_ECOSYSTEM_VISUAL_FIXTURE.ledger,
+    goalGraphIntake: {
+      source: 'telegram-goal-graph-intake@v1',
+      rows: [{ id: 'goal-graph:readiness', status: 'pending', changeDigest: 'sha256:' + 'a'.repeat(64) }],
+    },
+  }, { now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
+  selectInspectPane(goalGraphOnly, 'system');
+  const goalGraphPanel = goalGraphOnly.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.match(goalGraphPanel, /data-inspect-readiness-page="gate"[^>]*data-inspect-readiness-state="active"[^>]*data-inspect-readiness-proof="gates"[^>]*data-source="telegram-goal-graph-intake@v1"/);
+
+  const contradictoryLiveProof = await renderPageFixtureContext({
+    ...envelope,
+    liveProof: {
+      source: 'tg-live-proof-readiness@v2',
+      status: 'ready',
+      rows: [{ id: 'contradiction', title: 'CONTRADICTORY ROW', state: 'blocked', detail: 'receipt missing' }],
+    },
+  }, { now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
+  selectInspectPane(contradictoryLiveProof, 'system');
+  const contradictoryPanel = contradictoryLiveProof.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.match(contradictoryPanel, /data-inspect-readiness-page="inspect"[^>]*data-inspect-readiness-state="proof-needed"/);
+  assert.doesNotMatch(contradictoryPanel, /data-inspect-readiness-page="inspect"[^>]*data-inspect-readiness-state="complete"/);
 });
 
 test('page · visual tapestry layer exposes wake, lanes, stance, policy, decision context, live proof, branch stories, side quests, social, skills, companions, evidence boxes, and gaps', () => {
