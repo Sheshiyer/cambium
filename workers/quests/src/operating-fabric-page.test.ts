@@ -31,7 +31,7 @@ import { renderGateSheetPreflight, GATE_SHEET_BROWSER_JS } from './page/operatin
 import { renderInspectSheet, INSPECT_SHEET_BROWSER_JS } from './page/operating-fabric/inspect-sheet.ts';
 import type { InspectTarget } from './page/operating-fabric/inspect-sheet.ts';
 import { CLIENT_SHEET } from './page/client/sheet.ts';
-import { CONTEXTUAL_SHEET_RETURN_BROWSER_JS, OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS } from './page/client/signed-action.ts';
+import { CLIENT_SIGNED_ACTION, CONTEXTUAL_SHEET_RETURN_BROWSER_JS, OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS } from './page/client/signed-action.ts';
 import { OPERATING_FABRIC_MARKUP, OPERATING_FABRIC_SCENES } from './page/operating-fabric/scaffold.ts';
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_STYLES } from './page/operating-fabric/styles.ts';
@@ -438,6 +438,9 @@ function bootOperatingFabricDocument(
     context.buzz = () => {};
     context.gateAct = () => {};
     context.loadGate = () => {};
+    context.TG = (context.window as any).Telegram.WebApp;
+    context.mcGlyphSvg = () => '<span data-fixture-glyph="gate"></span>';
+    context.mcStateToken = (_state: string, label: string) => `<span data-fixture-state="1">${label}</span>`;
   }
   context.Telegram = (context.window as { Telegram?: unknown }).Telegram;
   context.globalThis = context;
@@ -447,6 +450,7 @@ function bootOperatingFabricDocument(
   const vmContext = vm.createContext(context);
   if (options.withContextualSheet) {
     vm.runInContext(CLIENT_SHEET, vmContext);
+    vm.runInContext(CLIENT_SIGNED_ACTION, vmContext);
     vm.runInContext(
       'var __ofIntegrationCloseCount = 0; var __ofOriginalClose = closeSheet; closeSheet = function(){ __ofIntegrationCloseCount++; __ofOriginalClose(); };',
       vmContext,
@@ -6026,6 +6030,22 @@ function makeFabricFixture(): MissionFabricProjectionV1 {
 
 const FABRIC_FIXTURE = makeFabricFixture();
 
+function makePortfolioPromotionFixture(overrides: { currentGate?: string; promotionState?: string } = {}): MissionFabricProjectionV1 {
+  const fixture = makeFabricFixture();
+  const work = fixture.nodes.find((node) => node.kind === 'work');
+  assert.ok(work && work.kind === 'work');
+  work.value = {
+    ...work.value,
+    kind: 'sapling',
+    workId: 'sapling:fitcheck',
+    tenantId: 'cambium',
+    name: 'Fitcheck',
+    promotionState: overrides.promotionState ?? 'proof-only',
+    currentGate: overrides.currentGate ?? 'gate:fitcheck',
+  } as typeof work.value;
+  return fixture;
+}
+
 function findFixtureNode(kind: FabricNode['kind']): FabricNode {
   const found = FABRIC_FIXTURE.nodes.find((n) => n.kind === kind);
   assert.ok(found, `fixture must include a ${kind} node`);
@@ -6650,6 +6670,58 @@ for (const hostileWorkId of HOSTILE_WORK_IDS) {
     assert.equal(sceneInspectButtons(canopyScene).length, 0, 'no inspect control is created for a hostile work id');
   });
 }
+
+test('real boot Portfolio promotion click opens only the exact fresh preflight and refuses stale, hostile, or unavailable proposals', async () => {
+  const bootScenario = async (
+    freshness: string,
+    projection: MissionFabricProjectionV1,
+    disablePreflight = false,
+  ) => {
+    const booted = bootOperatingFabricDocument(
+      () => ({
+        kind: 'json',
+        value: {
+          delivery: { operatingFabricEnabled: true, freshness, servedAt: '2026-07-28T00:00:00Z' },
+          projection,
+          portfolioCatalog: PORTFOLIO_CATALOG,
+          portfolioJoinReport: {
+            matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+          },
+        },
+      }),
+      { withContextualSheet: true },
+    );
+    await flushBoot();
+    if (disablePreflight) vm.runInContext('openGatePreflight = undefined', booted.context);
+    const button = makeFabricElement('button');
+    button.setAttribute('data-of-portfolio-promote', 'sapling:fitcheck');
+    booted.dispatchClick({
+      closest: (selector: string) => (selector === '[data-of-portfolio-promote]' ? button : null),
+    });
+    return { booted, button };
+  };
+
+  const fresh = await bootScenario('fresh', makePortfolioPromotionFixture());
+  assert.equal(fresh.button.dataset.ofPortfolioPromoteState, 'preflight');
+  assert.equal(fresh.booted.sheet!.classList.contains('on'), true, 'fresh exact proposal opens the real Gate preflight sheet');
+  assert.match(fresh.booted.sheetBody!.innerHTML, /promote-portfolio/);
+  assert.match(fresh.booted.sheetBody!.innerHTML, /gate:fitcheck/);
+  assert.equal(fresh.booted.fetches.length, 1, 'the proposal click itself performs no write');
+
+  const stale = await bootScenario('stale', makePortfolioPromotionFixture());
+  assert.equal(stale.button.dataset.ofPortfolioPromoteState, 'stale');
+  assert.equal(stale.booted.sheetBody!.innerHTML.includes('gate:fitcheck'), false, 'stale proposal never reaches preflight');
+  assert.equal(stale.booted.fetches.length, 1);
+
+  const hostile = await bootScenario('fresh', makePortfolioPromotionFixture({ currentGate: 'gate initData=SECRET' }));
+  assert.equal(hostile.button.dataset.ofPortfolioPromoteState, 'invalid');
+  assert.equal(hostile.booted.sheetBody!.innerHTML.includes('SECRET'), false, 'hostile Gate text never reaches the failure sheet');
+  assert.equal(hostile.booted.fetches.length, 1);
+
+  const unavailable = await bootScenario('fresh', makePortfolioPromotionFixture(), true);
+  assert.equal(unavailable.button.dataset.ofPortfolioPromoteState, 'unavailable');
+  assert.equal(unavailable.booted.fetches.length, 1);
+});
 
 // ── OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS: direct executable tests ─────────
 // Honest legacy stubs standing in for the real openGatePreflight/gateAct

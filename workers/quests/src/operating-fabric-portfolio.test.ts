@@ -407,7 +407,7 @@ test('exact portfolio cards route promotion requests through Gate and fail close
     evidence: `portfolio promotion proposal only · exact WorkObject sapling:fitcheck · served state proof-only · current Gate gate:fitcheck · source digest ${CATALOG.classificationDigest}`,
     consequence: 'queue founder review for the next lifecycle state of sapling:fitcheck; no lifecycle or catalog mutation occurs until operator consumption',
     reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
-    idempotencyKey: 'promote-portfolio:cambium:sapling:fitcheck:93b90ed7cee2',
+    idempotencyKey: 'promote-portfolio:cambium:sapling:fitcheck:proof-only:gate:fitcheck:93b90ed7cee2',
     note: 'Portfolio proposal only · exact identity sapling:fitcheck · served state proof-only · current Gate gate:fitcheck',
   });
 
@@ -437,6 +437,36 @@ test('exact portfolio cards route promotion requests through Gate and fail close
   const missingGateProjection = structuredClone(PROJECTION) as any;
   missingGateProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.currentGate = '';
   assert.equal(portfolioPromotionProposal(missingGateProjection, fitcheckRecord), null);
+
+  const hostileGateProjection = structuredClone(PROJECTION) as any;
+  hostileGateProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.currentGate = 'gate initData=SECRET';
+  assert.equal(
+    portfolioPromotionProposal(hostileGateProjection, fitcheckRecord),
+    null,
+    'secret-shaped Gate text fails closed before it can enter evidence, note, or the signed request',
+  );
+  assert.doesNotMatch(
+    renderCanopy(hostileGateProjection, {
+      portfolioCatalog: CATALOG,
+      portfolioCatalogSummary: SUMMARY,
+      portfolioJoinReport: {
+        matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+      },
+    }),
+    /data-of-portfolio-promote=/,
+  );
+
+  const gateDriftProjection = structuredClone(PROJECTION) as any;
+  gateDriftProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.currentGate = 'gate:fitcheck-next';
+  const gateDriftProposal = portfolioPromotionProposal(gateDriftProjection, fitcheckRecord);
+  assert.ok(gateDriftProposal);
+  assert.notEqual(gateDriftProposal.idempotencyKey, proposal.idempotencyKey, 'Gate drift creates a distinct proposal key');
+
+  const stateDriftProjection = structuredClone(PROJECTION) as any;
+  stateDriftProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.promotionState = 'supervised-branch';
+  const stateDriftProposal = portfolioPromotionProposal(stateDriftProjection, fitcheckRecord);
+  assert.ok(stateDriftProposal);
+  assert.notEqual(stateDriftProposal.idempotencyKey, proposal.idempotencyKey, 'served-state drift creates a distinct proposal key');
 
   const pausedRecord = { ...fitcheckRecord, paused: true };
   assert.equal(portfolioPromotionProposal(PROJECTION, pausedRecord), null);

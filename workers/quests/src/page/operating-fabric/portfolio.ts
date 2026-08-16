@@ -16,6 +16,7 @@ const SECRET_MARKER = /query_id=|auth_date=|\bhash=|Bearer\s|bot_token|clientSec
 const CANONICAL_PORTFOLIO_ID = /^(?:sapling|branch|program|review|historical-product):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CANONICAL_RUNTIME_WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const PORTFOLIO_SOURCE_DIGEST = /^[0-9a-f]{64}$/;
+const PORTFOLIO_PROPOSAL_GATE = /^[A-Za-z0-9][A-Za-z0-9 .,:/_()'&+-]{0,111}$/;
 
 export interface PortfolioCounts {
   saplings: number;
@@ -96,6 +97,11 @@ function safeString(value: unknown, fallback: string, max = 120): string {
 function safeOptionalString(value: unknown, max = 120): string | null {
   const text = safeString(value, '', max);
   return text.length > 0 ? text : null;
+}
+
+function portfolioProposalGate(value: unknown): string | null {
+  const gate = safeOptionalString(value, 112);
+  return gate !== null && PORTFOLIO_PROPOSAL_GATE.test(gate) ? gate : null;
 }
 
 function escapeHtml(value: string): string {
@@ -435,23 +441,24 @@ export function portfolioPromotionProposal(
 ): PortfolioPromotionProposal | null {
   const node = exactWorkNode(projection, record);
   const work = node?.kind === 'work' ? node.value : null;
+  const currentGate = portfolioProposalGate(work?.currentGate);
   if (
     work?.kind !== 'sapling' ||
     record.runtimeWorkId !== record.canonicalId ||
     record.paused ||
     record.sourceDigest === null ||
     !PORTFOLIO_SOURCE_DIGEST.test(record.sourceDigest) ||
-    work.currentGate.trim().length === 0 ||
+    currentGate === null ||
     !['proof-only', 'supervised-branch', 'autonomous-branch'].includes(work.promotionState)
   ) return null;
   return {
     kind: 'promote-portfolio',
     subject: record.canonicalId,
-    evidence: `portfolio promotion proposal only · exact WorkObject ${record.canonicalId} · served state ${work.promotionState} · current Gate ${work.currentGate} · source digest ${record.sourceDigest}`,
+    evidence: `portfolio promotion proposal only · exact WorkObject ${record.canonicalId} · served state ${work.promotionState} · current Gate ${currentGate} · source digest ${record.sourceDigest}`,
     consequence: `queue founder review for the next lifecycle state of ${record.canonicalId}; no lifecycle or catalog mutation occurs until operator consumption`,
     reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
-    idempotencyKey: `promote-portfolio:cambium:${record.canonicalId}:${record.sourceDigest.slice(0, 12)}`,
-    note: `Portfolio proposal only · exact identity ${record.canonicalId} · served state ${work.promotionState} · current Gate ${work.currentGate}`,
+    idempotencyKey: `promote-portfolio:cambium:${record.canonicalId}:${work.promotionState}:${currentGate}:${record.sourceDigest.slice(0, 12)}`,
+    note: `Portfolio proposal only · exact identity ${record.canonicalId} · served state ${work.promotionState} · current Gate ${currentGate}`,
   };
 }
 
@@ -1120,27 +1127,32 @@ function ofPortfolioTemplate(record) {
     : record.zone === 'programs' ? OF_PORTFOLIO_TEMPLATES.programs
     : null;
 }
+function ofPortfolioProposalGate(value) {
+  var gate = ofPortfolioOptional(value, 112);
+  return gate && /^[A-Za-z0-9][A-Za-z0-9 .,:/_()'&+-]{0,111}$/.test(gate) ? gate : null;
+}
 function ofPortfolioPromotionProposal(projection, record) {
   var node = ofPortfolioExactWork(projection, record);
   var work = node && node.value;
+  var currentGate = ofPortfolioProposalGate(work && work.currentGate);
   if (
     !work ||
     work.kind !== 'sapling' ||
     !record ||
     record.runtimeWorkId !== record.canonicalId ||
     record.paused ||
-    !String(work.currentGate || '').trim() ||
+    !currentGate ||
     ['proof-only', 'supervised-branch', 'autonomous-branch'].indexOf(work.promotionState) === -1 ||
     !/^[0-9a-f]{64}$/.test(String(record.sourceDigest || ''))
   ) return null;
   return {
     kind: 'promote-portfolio',
     subject: record.canonicalId,
-    evidence: 'portfolio promotion proposal only · exact WorkObject ' + record.canonicalId + ' · served state ' + work.promotionState + ' · current Gate ' + work.currentGate + ' · source digest ' + record.sourceDigest,
+    evidence: 'portfolio promotion proposal only · exact WorkObject ' + record.canonicalId + ' · served state ' + work.promotionState + ' · current Gate ' + currentGate + ' · source digest ' + record.sourceDigest,
     consequence: 'queue founder review for the next lifecycle state of ' + record.canonicalId + '; no lifecycle or catalog mutation occurs until operator consumption',
     reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
-    idempotencyKey: 'promote-portfolio:cambium:' + record.canonicalId + ':' + record.sourceDigest.slice(0, 12),
-    note: 'Portfolio proposal only · exact identity ' + record.canonicalId + ' · served state ' + work.promotionState + ' · current Gate ' + work.currentGate
+    idempotencyKey: 'promote-portfolio:cambium:' + record.canonicalId + ':' + work.promotionState + ':' + currentGate + ':' + record.sourceDigest.slice(0, 12),
+    note: 'Portfolio proposal only · exact identity ' + record.canonicalId + ' · served state ' + work.promotionState + ' · current Gate ' + currentGate
   };
 }
 function ofPortfolioSummaryMarkup(counts) {
