@@ -96,9 +96,9 @@
     "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'story unreachable — pull to retry' + Retry outline button", "trigger": "GET /api/quests/{tenant} rejects" }
   },
   "timelineQualification": {
-    "canonical": "every timeline item exposes eventId, eventAt, workObject.id, workObject.kind, source, receipt.id, and eventKind when supplied through accessible labels and exact data attributes; legacy served rows without eventKind are explicitly labeled legacy event",
+    "canonical": "only the authoritative storyProjection marker enables provenance; every marked timeline item and card exposes eventId, eventAt, workObject.id, workObject.kind, source, receipt.id, and eventKind when supplied through accessible labels and exact data attributes",
     "replay": "identical eventId plus canonical event fingerprint renders once; conflicting fingerprints under one eventId render zero events",
-    "legacy": "unqualified direct fixtures retain visual compatibility only and carry no invented source or WorkObject provenance"
+    "legacy": "direct fixtures without the authoritative marker retain visual compatibility only and carry no invented source, event kind, or WorkObject provenance"
   },
   "fixtures": "workers/quests/src/page/scenes/fixtures/story.fixture.json"
 }

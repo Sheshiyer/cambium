@@ -480,7 +480,8 @@ function renderStoryGroupControls(groups, rows){
     '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' <span class="mc-branch-count">' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</span></button>'
   ).join('') + '</div>';
 }
-function storyTimelineProvenance(beat){
+function storyTimelineProvenance(beat, canonicalProjection){
+  if (!canonicalProjection) return null;
   const workObject = beat && beat.workObject;
   const receipt = beat && beat.receipt;
   const eventId = mcText(beat && beat.eventId, '');
@@ -493,10 +494,10 @@ function storyTimelineProvenance(beat){
   if (!eventId || !source || !eventAt || !workObjectId || !workObjectKind || !receiptId) return null;
   return { eventId, eventKind, source, eventAt, workObjectId, workObjectKind, receiptId };
 }
-function renderStoryTimeline(rows){
+function renderStoryTimeline(rows, canonicalProjection){
   let qualifiedCount = 0;
   const items = rows.slice(0, 12).map(row => {
-    const provenance = storyTimelineProvenance(row.beat);
+    const provenance = storyTimelineProvenance(row.beat, canonicalProjection);
     if (!provenance) {
       return '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '" data-story-provenance="legacy-unqualified" aria-hidden="true"></i>';
     }
@@ -579,7 +580,7 @@ function renderStoryPacketRail(a, b, focalUsed){
 }
 /* Signal row (T-021): MissionGlyph per group + evidence teaser (outcome · proof cue) + StateToken
    with the frozen/06 §2.3 canonical subtitle. State rides icon + color + rail style, never alone. */
-function renderStorySignalRow(row, group){
+function renderStorySignalRow(row, group, canonicalProjection){
   const b = row.beat;
   const i = row.index;
   const lane = b.lane || 'beat';
@@ -587,10 +588,10 @@ function renderStorySignalRow(row, group){
   const context = storyBeatContext(group, lane, b);
   const target = lane === 'action-request' ? storyBeatTarget(lane) : 'operator-narrative';
   const contradiction = /contradict/i.test(String(b.text || ''));
-  const provenance = storyTimelineProvenance(b);
+  const provenance = storyTimelineProvenance(b, canonicalProjection);
   const source = provenance ? provenance.source : 'mission-story@v1';
   const provenanceAttrs = provenance
-    ? ' data-story-event-id="' + esc(provenance.eventId) + '" data-story-work-object="' + esc(provenance.workObjectId) + '" data-story-work-object-kind="' + esc(provenance.workObjectKind) + '" data-story-event-at="' + esc(provenance.eventAt) + '" data-story-receipt="' + esc(provenance.receiptId) + '"'
+    ? ' data-story-event-id="' + esc(provenance.eventId) + '"' + (provenance.eventKind ? ' data-story-event-kind="' + esc(provenance.eventKind) + '"' : '') + ' data-story-work-object="' + esc(provenance.workObjectId) + '" data-story-work-object-kind="' + esc(provenance.workObjectKind) + '" data-story-event-at="' + esc(provenance.eventAt) + '" data-story-receipt="' + esc(provenance.receiptId) + '"'
     : '';
   return '<button type="button" class="' + mcClass('beat story-signal' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="' + esc(source) + '" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + provenanceAttrs + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
     mcGlyphSvg(storyBeatGlyph(group), state) +
@@ -722,7 +723,7 @@ function renderStory(env){
         focalUsed = focalUsed || rail.focal;
         body += rail.html;
       }
-      body += renderStorySignalRow(row, group);
+      body += renderStorySignalRow(row, group, canonicalProjection);
     });
     /* Inter-section rail: the packet flow continues across group boundaries, so consecutive
        rendered rows always connect — the rail sits between sections, never over text. */
@@ -735,7 +736,7 @@ function renderStory(env){
     sections.push('<section class="story-group" data-component="StoryGroup" data-story-group="' + slug + '">' +
       '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + body + '</div></section>');
   });
-  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? sections.join('') : '<div class="state"><b>No story beats in this group.</b><p>switch groups or refresh</p></div>');
+  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats, canonicalProjection) + (groups.some(row => row.beats.length) ? sections.join('') : '<div class="state"><b>No story beats in this group.</b><p>switch groups or refresh</p></div>');
   $('beats').querySelectorAll('[data-story-hero]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyHero));
   $('beats').querySelectorAll('[data-story-digest]').forEach(el => el.onclick = () => openStoryDigest());
   $('beats').querySelectorAll('[data-story-filter]').forEach(el => el.onclick = () => {

@@ -1407,7 +1407,7 @@
       "status": "implemented",
       "executable": false,
       "file_owner": "workers/quests/src/page/scenes/story.ts",
-      "evidence": "Issue #331 T-061 renders each canonical timeline item with its exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied in accessible labels and data attributes. Legacy served contract rows name themselves as legacy events without inventing a kind; raw unqualified fixtures remain visual-only compatibility markers rather than invented provenance.",
+      "evidence": "Issue #331 T-061 requires the authoritative storyProjection marker before rendering provenance. Each canonical timeline item and card then exposes exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied through accessible labels and data attributes. Legacy/direct rows remain visual-only compatibility markers without invented provenance.",
       "implementation_owners": [
         "workers/quests/src/page/scenes/story.ts"
       ],

@@ -163,7 +163,7 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
     assert.equal('missingAcceptance' in byId.get(id), false)
   }
   assert.match(byId.get('T-060').evidence, /stable eventId plus a canonical event fingerprint/)
-  assert.match(byId.get('T-061').evidence, /exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied/)
+  assert.match(byId.get('T-061').evidence, /authoritative storyProjection marker/)
   assert.equal(byId.get('T-065').file_owner, 'workers/quests/src/page/scenes/inspect.ts')
   assert.equal(byId.get('T-068').file_owner, 'workers/quests/src/page/scenes/inspect.ts')
   assert.deepEqual(taskMap.tasks.filter(({ status }) => status === 'approval-gated').map(({ id }) => id), approvalGatedIds)

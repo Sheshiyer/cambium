@@ -3576,8 +3576,10 @@ test('page · canonical Story timeline exposes exact source and WorkObject prove
   }, { now: '2026-08-16T08:33:00.000Z' });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   const timelineItems = [...storyHtml.matchAll(/<i class="is-[^"]+"[^>]*data-story-event-id="[^"]+"[^>]*><\/i>/g)].map((match) => match[0]);
+  const cards = [...storyHtml.matchAll(/<button type="button" class="[^"]*beat[^"]*"[^>]*data-story-event-id="[^"]+"[^>]*>/g)].map((match) => match[0]);
 
   assert.equal(timelineItems.length, beats.length);
+  assert.equal(cards.length, beats.length);
   for (const [index, item] of timelineItems.entries()) {
     const beat = beats[index];
     const kindLabel = beat.eventKind ?? 'legacy event';
@@ -3586,7 +3588,37 @@ test('page · canonical Story timeline exposes exact source and WorkObject prove
     assert.ok(item.includes(`data-story-work-object-kind="${beat.workObject.kind}"`));
     assert.ok(item.includes(`data-story-event-at="${beat.eventAt}"`));
     assert.ok(item.includes(`aria-label="${beat.eventAt} · ${kindLabel} · ${beat.workObject.kind} ${beat.workObject.id} · source ${beat.source} · receipt ${beat.receipt.id}"`));
+    assert.ok(cards[index].includes(`data-source="${beat.source}"`));
+    assert.ok(cards[index].includes(`data-story-work-object="${beat.workObject.id}"`));
+    if (beat.eventKind) assert.ok(cards[index].includes(`data-story-event-kind="${beat.eventKind}"`));
+    else assert.doesNotMatch(cards[index], /data-story-event-kind=/);
   }
+});
+
+test('page · provenance-shaped direct Story fixtures remain explicitly unqualified without the canonical marker', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:32:00.000Z',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [{
+      eventId: 'story:receipt:untrusted:2026-08-16T08:30:00.000Z',
+      eventKind: 'receipt',
+      workObject: { id: 'sapling:cambium', kind: 'sapling' },
+      source: 'untrusted-direct-fixture@v1',
+      eventAt: '2026-08-16T08:30:00.000Z',
+      receipt: { id: 'receipt:untrusted' },
+      text: 'Legacy direct fixture stays unqualified',
+      lane: 'quest',
+      group: 'Mission wins',
+    }],
+  }, { now: '2026-08-16T08:33:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /data-story-qualified-count="0"/);
+  assert.match(storyHtml, /data-story-provenance="legacy-unqualified"/);
+  assert.match(storyHtml, /data-component="StoryBeatCard"[^>]*data-source="mission-story@v1"/);
+  assert.doesNotMatch(storyHtml, /data-story-event-id=|data-story-work-object=|data-story-event-kind=/);
 });
 
 test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () => {
