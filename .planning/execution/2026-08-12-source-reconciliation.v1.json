@@ -3,7 +3,7 @@
   "generated_at": "2026-08-15",
   "scope": "Reconcile the 14-issue provenance set and all 80 Mini App task IDs against current merged source; expose only evidence-backed residuals as executable.",
   "source_authority_role": "immutable 2026-08-15 reconciliation inputs; not the current execution head",
-  "evidence_reconciled_through": "origin/main@38574bae0feb903606aea0e4eb3d3d30b88ed16b",
+  "evidence_reconciled_through": "origin/main@dcc79c90f46118d7fee4841e334670475269ae56",
   "source_authority": [
     "origin/main@f7e8795615e372323aaa24a5ae2d0255cb45aaec",
     ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
@@ -15,11 +15,11 @@
   "counts": {
     "issues": 14,
     "tasks": 80,
-    "executable_tasks": 4,
+    "executable_tasks": 3,
     "dispositions": {
-      "implemented": 67,
+      "implemented": 68,
       "superseded": 4,
-      "residual": 4,
+      "residual": 3,
       "approval-gated": 5
     }
   },
@@ -54,12 +54,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-075"],
+    "ready_task_ids": ["T-028", "T-036", "T-037"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
-      "T-037",
-      "T-075"
+      "T-037"
     ],
     "queue_policy": {
       "backlog_rule": "executable=true enumerates the residual backlog, not immediate dispatch readiness.",
@@ -1842,20 +1841,17 @@
       "phase": "P2",
       "wave": "W6",
       "swarm": "portfolio",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/operating-fabric-portfolio.test.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/operating-fabric-portfolio.test.ts.",
-      "missingAcceptance": "Portfolio route tests exist, but no dedicated zone/state fixture matrix proves all states.",
+      "evidence": "Issue #331 T-075 adds a dedicated all-zone and all-state matrix with exact Node/browser parity across Sapling, client Branch, Program, review, and historical records; exact and missing joins, selected, paused, lifecycle, and proposal states; plus absent, aggregate-only, detail, and empty-detail response modes.",
       "implementation_owners": [
         "workers/quests/src/operating-fabric-portfolio.test.ts"
       ],
       "test_owners": [
         "workers/quests/src/operating-fabric-portfolio.test.ts"
       ],
-      "integration_lock_zones": [
-        "workers/quests/src/page/operating-fabric/portfolio.ts"
-      ]
+      "integration_lock_zones": []
     },
     {
       "id": "T-076",

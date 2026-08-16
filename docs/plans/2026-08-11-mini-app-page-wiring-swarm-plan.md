@@ -153,7 +153,7 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. T-074 now routes eligible Portfolio proposals through the founder Gate without local lifecycle mutation, so the ready frontier advances to exactly `T-075`.
+The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. T-075 now proves the complete Portfolio zone/state surface with Node/browser parity, so the Portfolio stage is terminal and the ready frontier advances to exactly `T-028`, `T-036`, and `T-037`.
 
 | Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
@@ -231,7 +231,8 @@ Queue policy:
 - **Landed T-065 boundary:** Inspect renders explicit blocker, freshness, and redacted-receipt cues before its pane switcher and every system-detail surface; the exact order is asserted in both Proof and System panes.
 - **Landed T-068 boundary:** the System pane lists Mission, Gate, Tools, Story, and Inspect in canonical order with a state and existing proof-sheet link derived from the exact served envelope. Global staleness overrides every local result, partial envelopes fail closed, and explicit copy prevents coverage from implying live Telegram readiness.
 - **Landed T-074 boundary:** exact eligible Saplings expose an explicit founder-gated Portfolio promotion proposal only when canonical runtime identity, served promotion state, current Gate, source digest, and unpaused state all agree. The shared client opens the `promote-portfolio` preflight without changing local selection or lifecycle, and the Worker writes only an idempotent tenant-scoped Gate queue entry after signed confirmation.
-- **Next write set:** the shared handler lock is released; T-075 owns only the Portfolio state-matrix test surface and any narrowly required fixture support.
+- **Landed T-075 boundary:** the dedicated Portfolio matrix proves all five record zones, exact/missing joins, selected, paused, lifecycle, and proposal states, plus absent, aggregate-only, detail, and empty-detail modes with exact Node/browser parity.
+- **Next write set:** the shared handler and Portfolio locks are released; T-028, T-036, and T-037 own the terminal validation evidence, CI, and browser-story surfaces.
 - **Exclusions:** no founder-action mutation, no direct runtime writes, no invented panel, no hidden freshness coercion, and no bypass around Gate for mutations.
 
 #### Story packet — T-033 complete
@@ -248,8 +249,9 @@ Queue policy:
 - **Landed T-060/T-061 boundary:** exact replay collapses by stable event identity plus canonical event fingerprint; conflicting reuse of one event identity fails closed. Only an authoritative `storyProjection` marker enables provenance: canonical timeline segments and Story cards then expose exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied. Direct fixtures remain visual-only without invented provenance.
 - **Landed T-062/T-063 boundary:** marker-qualified events expose separate exact WorkObject kind and identity controls; their intersection selects only the canonical pair and retains source chronology/indexes. Legacy branch aliases never enter the canonical filter surface. The bounded empty panel explicitly names receipt, decision, and completed transition as the first qualifying paths and binds the full WorkObject/time/receipt requirement accessibly without fabricating a beat.
 - **Landed T-074 boundary:** exact eligible Saplings expose an explicit founder-gated Portfolio promotion proposal; confirmation queues `promote-portfolio` through the existing Gate contract while lifecycle and catalog remain unchanged until operator consumption.
-- **Next collision-safe slice:** Story and Inspect are terminal, and Portfolio promotion routing is complete. T-075 is now the sole ready Portfolio task.
-- **Remaining write set:** T-075 owns `workers/quests/src/operating-fabric-portfolio.test.ts` and narrowly required fixture support for the all-zone/all-state matrix; `workers/quests/src/handler.ts` is released.
+- **Landed T-075 boundary:** the dedicated Portfolio matrix proves all five record zones and every documented rendering state with exact Node/browser parity; no production source change was required.
+- **Next collision-safe slice:** the Portfolio stage is terminal. T-028, T-036, and T-037 are the complete dependency-ready validation frontier and can be split only where their evidence, CI, and browser-story file ownership remains disjoint.
+- **Remaining write set:** T-028, T-036, and T-037 own the terminal validation stage; `workers/quests/src/handler.ts` and the complete Portfolio surface are released.
 - **Exclusions:** no synthetic success beats, no alias-derived WorkObject joins, no non-canonical timestamps, and no direct ledger mutation.
 
 ## 7. Verification Gates

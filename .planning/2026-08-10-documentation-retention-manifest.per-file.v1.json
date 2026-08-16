@@ -468,8 +468,8 @@
     },
     {
       "path": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
-      "bytes": 26753,
-      "sha256": "af64c5866a4254c734c6c5a7dce6ee4b145a9e8ff604aa9be7bcc43f0ed62c4d",
+      "bytes": 27299,
+      "sha256": "8179861e75bab0846e0c139caa8eb26e63a6ebb85b97868085e95c8711f791ae",
       "gitTracked": true,
       "kind": "plan",
       "inboundReferences": {

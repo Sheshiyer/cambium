@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 
 import type { MissionFabricProjectionV1 } from './mission-fabric.ts';
 import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
@@ -8,6 +9,7 @@ import {
   portfolioPromotionProposal,
   PORTFOLIO_BROWSER_JS,
   PORTFOLIO_LIFECYCLE_TEMPLATES,
+  renderPortfolioCanopy,
   renderPortfolioSceneContext,
 } from './page/operating-fabric/portfolio.ts';
 import { renderCanopy } from './page/operating-fabric/canopy.ts';
@@ -163,6 +165,40 @@ const PROJECTION = {
   gaps: [],
 } as unknown as MissionFabricProjectionV1;
 
+function renderPortfolioBrowser(
+  projection: MissionFabricProjectionV1,
+  input: Record<string, unknown>,
+  selectedPortfolioId: string | null = null,
+): string {
+  const context = vm.createContext({
+    OF_SECRET_MARKER: /query_id=|auth_date=|\bhash=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\bprompt\s*[:=]|prompt\s+injection/i,
+    ofEsc(value: unknown) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    },
+    __projection: structuredClone(projection),
+    __input: structuredClone(input),
+    __selectedPortfolioId: selectedPortfolioId,
+  });
+  vm.runInContext(PORTFOLIO_BROWSER_JS, context);
+  return vm.runInContext(
+    'ofRenderPortfolioCanopy(__projection, ofNormalizePortfolioPayload(__input), __selectedPortfolioId)',
+    context,
+  );
+}
+
+function portfolioCardSlice(html: string, canonicalId: string): string {
+  const start = html.indexOf(`data-portfolio-id="${canonicalId}"`);
+  assert.notEqual(start, -1, `${canonicalId} card exists`);
+  const end = html.indexOf('</article>', start);
+  assert.notEqual(end, -1, `${canonicalId} card closes`);
+  return html.slice(start, end);
+}
+
 test('portfolio payload normalizes canonical records and exact aggregate counts', () => {
   const normalized = normalizePortfolioPayload({
     portfolioCatalog: CATALOG,
@@ -227,6 +263,124 @@ test('the real checked-in catalog renders every mapped WorkObject and review sur
     assert.match(html, new RegExp(`data-portfolio-id="${identity}"`));
   }
   assert.doesNotMatch(html, /\/Volumes\/|\/Users\/|file:\/\//);
+});
+
+test('Portfolio all-zone and all-state matrix has exact Node/browser parity', () => {
+  const input = {
+    portfolioCatalog: CATALOG,
+    portfolioCatalogSummary: SUMMARY,
+    portfolioJoinReport: {
+      matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+    },
+  };
+  const normalized = normalizePortfolioPayload(input);
+  const html = renderPortfolioCanopy(PROJECTION, normalized, 'sapling:fitcheck');
+  assert.equal(
+    renderPortfolioBrowser(PROJECTION, input, 'sapling:fitcheck'),
+    html,
+    'the browser renderer proves the same complete matrix as the canonical renderer',
+  );
+
+  const matrix = [
+    {
+      identity: 'sapling:fitcheck',
+      zone: 'saplings',
+      join: 'exact',
+      lifecycle: 'saplings',
+      selected: true,
+      paused: false,
+      promotable: true,
+    },
+    {
+      identity: 'sapling:name-collision',
+      zone: 'saplings',
+      join: 'missing',
+      lifecycle: 'saplings',
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+    {
+      identity: 'branch:parkarea-client',
+      zone: 'clients',
+      join: 'missing',
+      lifecycle: 'clients',
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+    {
+      identity: 'program:seedforge-capability',
+      zone: 'programs',
+      join: 'missing',
+      lifecycle: 'programs',
+      selected: false,
+      paused: true,
+      promotable: false,
+    },
+    {
+      identity: 'review:unclassified',
+      zone: 'review',
+      join: 'missing',
+      lifecycle: null,
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+    {
+      identity: 'historical-product:parkarea-product',
+      zone: 'historical',
+      join: 'missing',
+      lifecycle: null,
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+  ] as const;
+
+  for (const state of matrix) {
+    const card = portfolioCardSlice(html, state.identity);
+    assert.match(card, new RegExp(`data-portfolio-kind="${state.zone}"`), `${state.identity}: exact zone`);
+    assert.match(card, new RegExp(`data-portfolio-join="${state.join}"`), `${state.identity}: exact join state`);
+    assert.equal(card.includes('aria-current="true"'), state.selected, `${state.identity}: selection state`);
+    assert.equal(card.includes('data-lifecycle-overlay="paused"'), state.paused, `${state.identity}: paused overlay`);
+    assert.equal(card.includes('data-of-portfolio-promote='), state.promotable, `${state.identity}: proposal eligibility`);
+    if (state.lifecycle) assert.match(card, new RegExp(`data-lifecycle-kind="${state.lifecycle}"`));
+    else assert.doesNotMatch(card, /data-lifecycle-kind=/, `${state.identity}: review-only records have no invented lifecycle`);
+  }
+
+  assert.deepEqual(
+    [...html.matchAll(/data-portfolio-zone="([^"]+)"/g)].map((match) => match[1]),
+    ['saplings', 'clients', 'programs', 'review'],
+    'historical records remain a distinct state inside the explicit Review zone',
+  );
+  assert.equal([...html.matchAll(/data-of-portfolio-promote=/g)].length, 1, 'only the exact eligible Sapling is promotable');
+});
+
+test('Portfolio mode matrix covers absent, aggregate-only, detail, and empty-detail responses', () => {
+  assert.equal(normalizePortfolioPayload({}).mode, 'none');
+  assert.equal(renderCanopy(PROJECTION, {}), renderCanopy(PROJECTION), 'absent Portfolio material keeps the legacy Canopy');
+
+  const aggregateInput = { portfolioCatalogSummary: SUMMARY };
+  const aggregate = normalizePortfolioPayload(aggregateInput);
+  const aggregateHtml = renderPortfolioCanopy(PROJECTION, aggregate);
+  assert.equal(aggregate.mode, 'aggregate-only');
+  assert.equal(renderPortfolioBrowser(PROJECTION, aggregateInput), aggregateHtml);
+  assert.match(aggregateHtml, /data-portfolio-mode="aggregate-only"/);
+  assert.doesNotMatch(aggregateHtml, /data-portfolio-card|data-of-open-portfolio|data-of-portfolio-promote/);
+
+  const emptyInput = { portfolioCatalog: { records: [] }, portfolioCatalogSummary: {} };
+  const empty = normalizePortfolioPayload(emptyInput);
+  const emptyHtml = renderPortfolioCanopy(PROJECTION, empty);
+  assert.equal(empty.mode, 'detail');
+  assert.equal(empty.records.length, 0);
+  assert.equal(renderPortfolioBrowser(PROJECTION, emptyInput), emptyHtml);
+  assert.equal(
+    [...emptyHtml.matchAll(/No founder detail records in this zone\./g)].length,
+    4,
+    'every visible zone exposes its own honest empty state',
+  );
+  assert.doesNotMatch(emptyHtml, /data-portfolio-card|data-of-open-portfolio|data-of-portfolio-promote/);
 });
 
 test('Canopy renders four zones, exact counts, filters, and progressive disclosure', () => {
