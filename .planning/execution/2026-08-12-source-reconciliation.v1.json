@@ -2,6 +2,8 @@
   "schema_version": "2026-08-12-source-reconciliation.v1",
   "generated_at": "2026-08-15",
   "scope": "Reconcile the 14-issue provenance set and all 80 Mini App task IDs against current merged source; expose only evidence-backed residuals as executable.",
+  "source_authority_role": "immutable 2026-08-15 reconciliation inputs; not the current execution head",
+  "evidence_reconciled_through": "origin/main@3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4",
   "source_authority": [
     "origin/main@f7e8795615e372323aaa24a5ae2d0255cb45aaec",
     ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
