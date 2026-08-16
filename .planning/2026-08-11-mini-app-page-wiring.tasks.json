@@ -3,22 +3,21 @@
   "reconciled_at": "2026-08-15",
   "source_head": "f988d31922385d9352c4efac6abe14b6de4bb1d8",
   "source_head_role": "immutable 2026-08-15 task-map reconciliation baseline; not the current execution head",
-  "evidence_reconciled_through": "origin/main@974c3a305d25ca58db6c31b003bfec317e4f898d",
+  "evidence_reconciled_through": "origin/main@41aeeded8a2aaf51b906d87d953da6acfd765a4b",
   "historical_plan": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
   "authority": "Current merged source and tests outrank dated plan checklists. executable=true enumerates residual backlog; execution_scheduler.ready_task_ids alone governs immediate dispatch.",
   "counts": {
     "total": 80,
-    "executable": 15,
-    "implemented": 56,
+    "executable": 14,
+    "implemented": 57,
     "superseded": 4,
-    "residual": 15,
+    "residual": 14,
     "approval-gated": 5
   },
   "executable_task_ids": [
     "T-028",
     "T-036",
     "T-037",
-    "T-053",
     "T-054",
     "T-056",
     "T-059",
@@ -62,12 +61,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-053"],
+    "ready_task_ids": ["T-054", "T-056"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
       "T-037",
-      "T-053",
       "T-054",
       "T-056",
       "T-059",
@@ -95,7 +93,7 @@
         "path": "workers/quests/src/handler.ts",
         "policy": "serialized",
         "task_ids": ["T-044", "T-053", "T-059", "T-074"],
-        "remaining_task_ids": ["T-053", "T-059", "T-074"]
+        "remaining_task_ids": ["T-059", "T-074"]
       }
     }
   },
@@ -1228,21 +1226,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "tools",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/tools.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/tools.ts.",
-      "missingAcceptance": "Tools still reads an ad-hoc command object; five typed panel inputs and route-contract tests are absent.",
-      "implementation_owners": [
-        "workers/quests/src/page/scenes/tools.ts"
-      ],
-      "test_owners": [
-        "workers/quests/src/handler.test.ts"
-      ],
-      "integration_lock_zones": [
-        "workers/quests/src/page/scenes/tools.ts",
-        "workers/quests/src/handler.ts"
-      ]
+      "evidence": "Issue #331 T-053 makes GET /api/quests/{tenant} serve the validated five-panel ToolsCommandProjection directly at commands, removes the duplicate legacy commandProjection alias, and makes the real Tools renderer consume only exact typed panel identities and data. Route-contract tests prove legacy boundary normalization, exact already-typed projection preservation, renderer counts, and fail-closed malformed or unexpected panels."
     },
     {
       "id": "T-054",

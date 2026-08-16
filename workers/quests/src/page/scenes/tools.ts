@@ -194,6 +194,13 @@ const TOOL_SURFACES = [
   { id:'work', label:'Active work', glyph:'arc' },
   { id:'handoffs', label:'Handoffs', glyph:'gate' },
 ];
+const TOOL_PANEL_BY_SURFACE = {
+  status:['status', 'status'],
+  hermes:['services', 'services'],
+  agents:['agents', 'agents'],
+  work:['activeWork', 'active-work'],
+  handoffs:['handoffs', 'handoffs'],
+};
 const CMDS = [['Live', TOOL_SURFACES]];
 /* Legacy focus bridge: Mission/Story still set TOOL_FOCUS to retired chat names ('ts-status');
    normalize to a surface id without keeping the retired names in this scene. */
@@ -222,33 +229,53 @@ function toolClamp(text, max){
   const words = mcText(text, 'detail missing').split(/\\s+/).filter(Boolean);
   return words.length > max ? words.slice(0, max).join(' ') + '…' : words.join(' ');
 }
+function toolProjection(){
+  if (!CMDDATA || typeof CMDDATA !== 'object' || Array.isArray(CMDDATA)) return null;
+  const expectedFields = Object.values(TOOL_PANEL_BY_SURFACE).map(([field]) => field);
+  const fields = Object.keys(CMDDATA);
+  if (fields.length !== expectedFields.length || fields.some(field => !expectedFields.includes(field))) return null;
+  const valid = Object.values(TOOL_PANEL_BY_SURFACE).every(([field, panelId]) => {
+    const panel = CMDDATA[field];
+    return panel && typeof panel === 'object' && !Array.isArray(panel) && panel.panelId === panelId;
+  });
+  return valid ? CMDDATA : null;
+}
+function toolPanel(id){
+  const projection = toolProjection();
+  const identity = TOOL_PANEL_BY_SURFACE[id];
+  return projection && identity ? projection[identity[0]] : null;
+}
+function toolPanelData(id){
+  const panel = toolPanel(id);
+  return panel && Object.prototype.hasOwnProperty.call(panel, 'data') ? panel.data : null;
+}
 /* frozen/05 §4.1 bans copy affordances app-wide; the Inspect proof summary now renders mono
    values inline, so the clipboard helpers that lived here for it are gone (P2-W3). */
-function toolHandoffs(){ return CMDDATA && Array.isArray(CMDDATA.handoffs) ? CMDDATA.handoffs : []; }
+function toolHandoffs(){ const data = toolPanelData('handoffs'); return Array.isArray(data) ? data : []; }
 function toolSurfaceCount(id){
-  const d = CMDDATA;
-  if (!d) return '';
-  if (id === 'status') return d.status ? String(d.status.agents) + ' agents · ' + String(d.status.issuesOpen) + ' open' : 'status missing';
-  if (id === 'hermes') return String((d.services || []).length) + ' services';
-  if (id === 'agents') return String((d.agents || []).length) + ' agents';
-  if (id === 'work') return String((d.work || []).length) + ' open';
+  if (!toolProjection()) return '';
+  const data = toolPanelData(id);
+  if (id === 'status') return data && typeof data === 'object' && !Array.isArray(data) ? String(data.agents) + ' agents · ' + String(data.issuesOpen) + ' open' : 'status missing';
+  if (id === 'hermes') return String((Array.isArray(data) ? data : []).length) + ' services';
+  if (id === 'agents') return String((Array.isArray(data) ? data : []).length) + ' agents';
+  if (id === 'work') return String((Array.isArray(data) ? data : []).length) + ' open';
   if (id === 'handoffs') return String(toolHandoffs().length) + ' waiting';
   return '';
 }
 /* Empty-token lines (frozen/06 T11, ≤ 12 words, flat declaratives). */
 function toolSurfaceEmpty(id){
-  const d = CMDDATA;
-  if (!d) return '';
-  if (id === 'status') return d.status ? '' : 'status missing';
-  if (id === 'hermes') return (d.services || []).length ? '' : 'no services served';
-  if (id === 'agents') return (d.agents || []).length ? '' : 'no agents served';
-  if (id === 'work') return (d.work || []).length ? '' : 'no open work served';
+  if (!toolProjection()) return '';
+  const data = toolPanelData(id);
+  if (id === 'status') return data && typeof data === 'object' && !Array.isArray(data) ? '' : 'status missing';
+  if (id === 'hermes') return Array.isArray(data) && data.length ? '' : 'no services served';
+  if (id === 'agents') return Array.isArray(data) && data.length ? '' : 'no agents served';
+  if (id === 'work') return Array.isArray(data) && data.length ? '' : 'no open work served';
   return '';
 }
 /* Surface state (tools.json states.derivation): stale = commands envelope missing; locked =
    no waiting founder decision; active = live surface with fresh data. */
 function toolSurfaceState(id){
-  if (!CMDDATA) return 'stale';
+  if (!toolProjection()) return 'stale';
   if (id === 'handoffs') return toolHandoffs().length ? 'active' : 'locked';
   return 'active';
 }
@@ -258,7 +285,7 @@ function toolSuggestion(){
   if (!ctx.branchId || ctx.branchId === 'branch pending') return null;
   if (ctx.blockers.some(row => /gate|approval|founder/i.test(row.label || row.source || ''))) return { surface:'handoffs', reason:'a founder decision blocks this branch' };
   if (ctx.proofRows.length) return { surface:'status', reason:'proof rows need a progress receipt' };
-  if (ctx.stale || !CMDDATA) return { surface:'status', reason:'refresh status first' };
+  if (ctx.stale || !toolProjection()) return { surface:'status', reason:'refresh status first' };
   return { surface:'work', reason:'mission ready to assign' };
 }
 function toolSuggestionPanel(){
@@ -281,7 +308,7 @@ function toolContextStrip(){
   const ctx = toolMissionContext();
   const branchState = ctx.stale ? 'stale' : 'active';
   const missionState = mcStateKind(ctx.mission.state || 'proof-needed');
-  const toolsState = CMDDATA ? 'active' : 'stale';
+  const toolsState = toolProjection() ? 'active' : 'stale';
   return '<div class="tool-context-strip" data-component="ToolContextChips">' +
     '<span class="tool-context-item"><b>' + esc(toolClamp(ctx.branchName, 2)) + '</b>' + mcStateToken(branchState, toolTokenLabel(branchState)) + '</span>' +
     '<span class="tool-context-item"><b>' + esc(toolClamp(ctx.mission.gate, 2)) + '</b>' + mcStateToken(missionState, toolTokenLabel(missionState)) + '</span>' +
@@ -343,7 +370,7 @@ function openToolSurfaceSheet(id){
   const surface = TOOL_SURFACES.find(row => row.id === id) || TOOL_SURFACES[0];
   const state = toolSurfaceState(surface.id);
   let result;
-  if (!CMDDATA) {
+  if (!toolProjection()) {
     result = toolResultLine('stale', 'live data unreachable · pull to refresh');
   } else if (surface.id === 'handoffs') {
     const rows = toolHandoffs();
@@ -358,12 +385,12 @@ function openToolSurfaceSheet(id){
   $('sheetBody').innerHTML = '<div class="arc">tools · ' + esc(surface.id) + '</div><h2>' + esc(surface.label) + '</h2>' +
     result + toolSafetyTokenLine() +
     '<div class="gbtns">' +
-      (!CMDDATA ? '<button type="button" class="approve" data-tool-retry="' + esc(surface.id) + '">Retry</button>' : '') +
+      (!toolProjection() ? '<button type="button" class="approve" data-tool-retry="' + esc(surface.id) + '">Retry</button>' : '') +
       '<button type="button" class="detail" data-tool-audit-link="tools">Inspect</button>' +
       '<button type="button" class="reroll" data-tool-back="mission">Mission</button>' +
     '</div>';
   wireToolSheet(surface.id);
-  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(CMDDATA ? 'medium' : 'light');
+  veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz(toolProjection() ? 'medium' : 'light');
 }
 /* Legacy hook: Inspect's command-state row still calls openCmdSheet('status') until its rebuild. */
 function openCmdSheet(key){ openToolSurfaceSheet(key); }

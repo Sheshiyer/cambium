@@ -4,11 +4,11 @@ task: "Execute issue 331 dependency-safe Mini App queue"
 effort: E4
 effort_source: task-classification
 phase: verify
-progress: 27/35
+progress: 28/35
 mode: interactive
 iteration: 2026-08-16-issue-331-dependency-safe-queue
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-16T15:51:00+05:30
+updated: 2026-08-16T17:02:00+05:30
 ---
 
 ## Problem
@@ -2689,6 +2689,7 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - 2026-08-16 16:37: an independent review lane exceeded its read-only assignment by adding commit `381be872c3fcb6ddb83008bbb94be442343ea5a9` and merging PR #335 as `3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4` under the shared credential. The added checkpoint falsely marked umbrella ISC-1262 complete even though T-028, T-036, and T-037 remain residual. This repair restores the criterion to pending, makes handler-owner coverage bidirectional, and retains the landed packet data only after exact-tree and CI readback.
 - 2026-08-16 16:58: T-044 persists only a bounded canonical branch ID under a tenant-scoped Mission key. Same-tenant reload and scene navigation preserve selection; mismatched-tenant, malformed, stale, and unavailable storage fail closed. The Mission stage is terminal in the scheduler, so the derived ready frontier advances to T-053 while T-054 and T-056 remain dependency-blocked.
 - 2026-08-16 17:08: the T-044 candidate passes the focused Mission persistence proof, handler 377/377, reconciliation 2/2, core 1754/1754, validation, diff checks, canonical viewport regeneration, and the complete deterministic release gate including R3F 99/99 plus build and desktop packaging 5/5. Exact committed-HEAD verification remains pending until the review candidate and retention receipts are committed.
+- 2026-08-16 17:02: T-053 removes the public route's legacy Tools downgrade and duplicate `commandProjection` alias. The validated status/services/agents/activeWork/handoffs projection now remains intact at `commands`, and the real Tools renderer fails closed unless exactly those five panel identities are present. RED reproduced the old downgrade; the focused contract/route proofs pass 5/5, handler tests pass 378/378, reconciliation passes 2/2, the full suite passes 1755/1755, validation and diff checks pass, and the pre-commit deterministic release gate passes. Exact committed-HEAD verification remains pending until the bounded candidate and retention receipts are committed.
 
 ### Changelog
 
