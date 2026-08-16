@@ -153,7 +153,7 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. T-075 now proves the complete Portfolio zone/state surface with Node/browser parity, so the Portfolio stage is terminal and the ready frontier advances to exactly `T-028`, `T-036`, and `T-037`.
+The machine-readable task map is authoritative for the full path arrays and exposes the exact ordered execution-stage graph. `executable=true` distinguishes residual backlog from dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are implemented. Issue #331's implementation queue is now terminal at 71 implemented, four superseded, zero executable residuals, and five explicit approval-gated rows, so both the executable backlog and ready frontier are empty.
 
 | Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
@@ -163,7 +163,7 @@ The machine-readable task map is authoritative for the full path arrays and now 
 | story | T-059, T-060, T-061, T-062, T-063 | Story task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/story.ts`; `workers/quests/src/handler.ts` for T-059 |
 | inspect | T-065, T-068 | Inspect task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/inspect.ts` |
 | portfolio | T-074, T-075 | Portfolio task worktree | `workers/quests/src/operating-fabric-portfolio.test.ts` | `workers/quests/src/handler.ts` for T-074; `workers/quests/src/page/operating-fabric/portfolio.ts` for T-075 |
-| validation | T-028, T-036, T-037 | Evidence/CI/browser task worktrees | `scripts/mini-app-task-reconciliation.test.mjs`, `workers/quests/src/page-motion-safety.test.ts` | none; evidence and test-matrix surfaces only |
+| validation | T-028, T-036, T-037 | Evidence/CI/browser task worktree | `scripts/mini-app-task-reconciliation.test.mjs`, `workers/quests/src/page-motion-safety.test.ts`, `workers/quests/src/visual-viewport-proof.mjs` | none; evidence and test-matrix surfaces only |
 
 Queue policy:
 - `executable=true` distinguishes the executable backlog from the ready frontier; backlog order alone never authorizes parallel dispatch.
@@ -232,7 +232,10 @@ Queue policy:
 - **Landed T-068 boundary:** the System pane lists Mission, Gate, Tools, Story, and Inspect in canonical order with a state and existing proof-sheet link derived from the exact served envelope. Global staleness overrides every local result, partial envelopes fail closed, and explicit copy prevents coverage from implying live Telegram readiness.
 - **Landed T-074 boundary:** exact eligible Saplings expose an explicit founder-gated Portfolio promotion proposal only when canonical runtime identity, served promotion state, current Gate, source digest, and unpaused state all agree. The shared client opens the `promote-portfolio` preflight without changing local selection or lifecycle, and the Worker writes only an idempotent tenant-scoped Gate queue entry after signed confirmation.
 - **Landed T-075 boundary:** the dedicated Portfolio matrix proves all five record zones, exact/missing joins, selected, paused, lifecycle, and proposal states, plus absent, aggregate-only, detail, and empty-detail modes with exact Node/browser parity.
-- **Next write set:** the shared handler and Portfolio locks are released; T-028, T-036, and T-037 own the terminal validation evidence, CI, and browser-story surfaces.
+- **Landed T-028 boundary:** a reproducible pre-activation 403/ledger baseline records current direct-origin and Access behavior plus the authenticated read-only Workbench receipt under verified digest `23ad193fbad07b0d5b8c7d012e6c55d380568bf43ee4eba7cdcdc6c15ed46f3a`.
+- **Landed T-036 boundary:** CI runs the authoritative page-state matrix with six non-empty lanes, fails closed on a zero-match selector, and preserves the deterministic release check.
+- **Landed T-037 boundary:** the mobile and desktop browser-story matrix proves shipped viewport, gesture, keyboard, and pointer journeys; desktop runs six diagnostic 1280×900 PAGE captures without rewriting canonical mobile evidence.
+- **Next write set:** no implementation residual remains; the shared handler, scene, Portfolio, evidence, CI, and browser-story locks are released.
 - **Exclusions:** no founder-action mutation, no direct runtime writes, no invented panel, no hidden freshness coercion, and no bypass around Gate for mutations.
 
 #### Story packet — T-033 complete
@@ -250,8 +253,11 @@ Queue policy:
 - **Landed T-062/T-063 boundary:** marker-qualified events expose separate exact WorkObject kind and identity controls; their intersection selects only the canonical pair and retains source chronology/indexes. Legacy branch aliases never enter the canonical filter surface. The bounded empty panel explicitly names receipt, decision, and completed transition as the first qualifying paths and binds the full WorkObject/time/receipt requirement accessibly without fabricating a beat.
 - **Landed T-074 boundary:** exact eligible Saplings expose an explicit founder-gated Portfolio promotion proposal; confirmation queues `promote-portfolio` through the existing Gate contract while lifecycle and catalog remain unchanged until operator consumption.
 - **Landed T-075 boundary:** the dedicated Portfolio matrix proves all five record zones and every documented rendering state with exact Node/browser parity; no production source change was required.
-- **Next collision-safe slice:** the Portfolio stage is terminal. T-028, T-036, and T-037 are the complete dependency-ready validation frontier and can be split only where their evidence, CI, and browser-story file ownership remains disjoint.
-- **Remaining write set:** T-028, T-036, and T-037 own the terminal validation stage; `workers/quests/src/handler.ts` and the complete Portfolio surface are released.
+- **Landed T-028 boundary:** a reproducible pre-activation 403/ledger baseline records direct-origin and Access behavior, the authenticated read-only Workbench receipt, and one verified normalized digest.
+- **Landed T-036 boundary:** CI runs the authoritative page-state matrix with a non-empty fail-closed sentinel and the six-journey desktop browser job while preserving the required release check.
+- **Landed T-037 boundary:** the mobile and desktop browser-story matrix binds every shipped mobile proof path and runs real 1280×900 keyboard/pointer PAGE journeys for Mission, Gate, Tools, Story, Inspect, and Portfolio.
+- **Next collision-safe slice:** the executable Mini App queue is complete; only separately authorized approval/runtime work can create a future write slice.
+- **Remaining write set:** no implementation residuals remain; T-020, T-038, T-078, T-079, and T-080 stay explicitly approval-gated and non-executable.
 - **Exclusions:** no synthetic success beats, no alias-derived WorkObject joins, no non-canonical timestamps, and no direct ledger mutation.
 
 ## 7. Verification Gates
