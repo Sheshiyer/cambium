@@ -153,7 +153,7 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After the T-059 Worker projection boundary completes the first Story stage, the ready frontier is exactly `T-060` and `T-061`. Both tasks own the same Story scene lock, so readiness does not authorize parallel writers.
+The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After T-060/T-061 complete replay identity and source-qualified timeline rendering, the ready frontier is exactly `T-062` and `T-063`. Both tasks own the same Story scene lock, so readiness does not authorize parallel writers.
 
 | Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
@@ -228,7 +228,7 @@ Queue policy:
 - **Landed T-053 boundary:** `GET /api/quests/{tenant}` serves the validated `ToolsCommandProjection` directly at `commands`; the duplicate legacy alias is absent, and the real Tools renderer consumes only the five exact panel identities plus their typed data. Legacy command objects are normalized only at the Worker boundary; malformed, partial, or unexpected panels fail closed.
 - **Landed T-054/T-056 boundary:** every panel exposes source-aware freshness and checked-at detail, while the aggregate Tools state uses the strictest envelope/panel result. A recommendation cannot target a stale/unknown panel, and every stale panel sheet exposes Retry. The real Mission navigation control carries an exact selected WorkObject ID and explicit matching kind into the Tools context strip and sheets; malformed or mismatched identity pairs fail closed by demoting the complete branch/mission context and recommendation.
 - **Released integration:** T-059 now owns the receipt-backed Story projection boundary at the Worker and has released `workers/quests/src/handler.ts`; only T-074 remains in the shared-handler sequence.
-- **Next write set:** T-060 and T-061 share `workers/quests/src/page/scenes/story.ts` and must execute as one serialized Story worktree. T-062 and T-063 remain dependency-blocked behind T-061.
+- **Next write set:** T-062 and T-063 share `workers/quests/src/page/scenes/story.ts` and must execute as one serialized Story worktree. Inspect, Portfolio, and proof-matrix stages remain ordered behind the unfinished Story stage.
 - **Exclusions:** no founder-action mutation, no direct runtime writes, no invented panel, no hidden freshness coercion, and no bypass around Gate for mutations.
 
 #### Story packet — T-033 complete
@@ -242,7 +242,8 @@ Queue policy:
 - **Implementation owner:** `workers/quests/src/page/scenes/story.ts`.
 - **Test owner:** `workers/quests/src/handler.test.ts`.
 - **Landed T-059 boundary:** the Worker projects only receipt-backed public facts into Story: ActionRequest receipts, founder decisions, and completed lifecycle transitions with exact WorkObject identity, canonical event time, source, and receipt identity. Ambiguous joins, missing receipts, malformed timestamps, unsafe public text, and secret-shaped identity segments fail closed; every ledger-bearing response carries the authoritative marker so the browser cannot add legacy ActionRequest or ledger duplicates.
-- **Next collision-safe slice:** T-060 and T-061 share `workers/quests/src/page/scenes/story.ts`; implement stable replay deduplication and source-qualified timeline rows in one serialized worktree, then leave T-062/T-063 blocked until T-061 lands.
+- **Landed T-060/T-061 boundary:** exact replay collapses by stable event identity plus canonical event fingerprint; conflicting reuse of one event identity fails closed. Only an authoritative `storyProjection` marker enables provenance: canonical timeline segments and Story cards then expose exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied. Direct fixtures remain visual-only without invented provenance.
+- **Next collision-safe slice:** T-062 and T-063 share `workers/quests/src/page/scenes/story.ts`; implement exact WorkObject kind-plus-identity filters and first-event guidance together in one serialized Story worktree.
 - **Remaining write set:** `workers/quests/src/page/scenes/story.ts`, `workers/quests/src/handler.test.ts`, typed Story fixtures/contracts, and synchronized planning truth. `workers/quests/src/handler.ts` is released from Story work; only T-074 remains in its global serialized order.
 - **Exclusions:** no synthetic success beats, no alias-derived WorkObject joins, no non-canonical timestamps, and no direct ledger mutation.
 

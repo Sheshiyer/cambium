@@ -18,7 +18,7 @@
       "schema": "cambium.story-event-projection.v1 (receipt-backed StoryEvent rows)",
       "route": "GET /api/quests/{tenant}",
       "authority": "Public Worker projection boundary",
-      "consumedFor": "beat cards, hero latest-change, digest counts, timeline rail"
+      "consumedFor": "deduplicated beat cards, hero latest-change, digest counts, and source-qualified timeline rail"
     },
     {
       "name": "quest-envelope.actionRequests",
@@ -59,7 +59,7 @@
   ],
   "dataFields": [
     { "field": "beats[]", "type": "array<StoryEvent>", "source": "Worker-projected quest-envelope.beats", "required": false, "fallback": "canonical response fails closed to [] → EMPTY panel; legacy direct fixtures may use ActionRequest/ledger fallback only when no canonical marker exists" },
-    { "field": "beats[].eventId", "type": "bounded canonical identity", "source": "receipt/decision/transition identity tuple", "required": true, "fallback": "event omitted; secret-shaped identity segments are rejected" },
+    { "field": "beats[].eventId", "type": "bounded canonical identity", "source": "receipt/decision/transition identity tuple", "required": true, "fallback": "event omitted; secret-shaped identity segments are rejected; exact replay collapses to one event and conflicting identity reuse fails closed" },
     { "field": "beats[].eventKind", "type": "enum (receipt | decision | transition)", "source": "Worker projection", "required": false, "fallback": "required on newly projected facts; legacy served StoryEvent rows may omit it until their source migrates" },
     { "field": "beats[].workObject", "type": "{id, kind: sapling | branch | program}", "source": "exact direct identity or unambiguous branch packet join", "required": true, "fallback": "event omitted; aliases are never inferred" },
     { "field": "beats[].eventAt", "type": "canonical ISO 8601 timestamp", "source": "durable source fact", "required": true, "fallback": "event omitted" },
@@ -94,6 +94,11 @@
     "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing branch story / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
     "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + signal glyph; 'No branch story yet — wins, signals, lessons, drift appear after a branch has evidence' + Refresh (outline) [+ Open Mission / Open Proof]", "trigger": "no beats, no ActionRequest rows, no completed ledger rows" },
     "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'story unreachable — pull to retry' + Retry outline button", "trigger": "GET /api/quests/{tenant} rejects" }
+  },
+  "timelineQualification": {
+    "canonical": "only the authoritative storyProjection marker enables provenance; every marked timeline item and card exposes eventId, eventAt, workObject.id, workObject.kind, source, receipt.id, and eventKind when supplied through accessible labels and exact data attributes",
+    "replay": "identical eventId plus canonical event fingerprint renders once; conflicting fingerprints under one eventId render zero events",
+    "legacy": "direct fixtures without the authoritative marker retain visual compatibility only and carry no invented source, event kind, or WorkObject provenance"
   },
   "fixtures": "workers/quests/src/page/scenes/fixtures/story.fixture.json"
 }

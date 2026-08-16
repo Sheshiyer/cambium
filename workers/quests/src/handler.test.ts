@@ -1957,6 +1957,50 @@ test('story contract · secret-shaped identity fragments never enter projected p
   assert.doesNotMatch(JSON.stringify(projected), /private-key|tgwebappdata/i);
 });
 
+test('story projector · replay deduplicates stable event identity and conflicting reuse fails closed', () => {
+  const receiptEvent = {
+    eventId: 'story:receipt:ar_replay:complete:2026-08-16T08:30:00.000Z',
+    eventKind: 'receipt' as const,
+    workObject: { id: 'sapling:cambium', kind: 'sapling' as const },
+    source: 'cambium-action-requests@v1',
+    eventAt: '2026-08-16T08:30:00.000Z',
+    receipt: { id: 'receipt:action-request:ar_replay:complete:2026-08-16T08:30:00.000Z' },
+    text: 'Completion receipt retained',
+    lane: 'action-request',
+    group: 'Mission wins',
+    context: 'inspect',
+    branchId: 'cambium',
+    proof: 'complete receipt',
+    outcome: 'completed',
+    actionRequestId: 'ar_replay',
+  };
+  const actionRequest = {
+    id: 'ar_replay',
+    workObject: { id: 'sapling:cambium', kind: 'sapling' },
+    branchId: 'cambium',
+    status: 'completed',
+    receipts: {
+      latest: {
+        at: '2026-08-16T08:30:00.000Z',
+        kind: 'complete',
+        text: 'Completion receipt retained',
+      },
+    },
+  };
+
+  assert.deepEqual(projectStoryEvents({
+    beats: [receiptEvent, receiptEvent],
+    actionRequests: { rows: [actionRequest, actionRequest] },
+  }), [receiptEvent]);
+
+  assert.deepEqual(projectStoryEvents({
+    beats: [
+      receiptEvent,
+      { ...receiptEvent, source: 'conflicting-source@v1' },
+    ],
+  }), []);
+});
+
 test('tools contract · accepts exactly the five panels with source and freshness on each panel', () => {
   const parsed = parseToolsCommandProjection({
     status: {
@@ -3493,6 +3537,88 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.match(paperclipSheet, /Paperclip carried THO-9/);
   assert.match(paperclipSheet, /paperclip activity stays read-only/);
   assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
+});
+
+test('page · canonical Story timeline exposes exact source and WorkObject provenance for every event', async () => {
+  const beats = [
+    {
+      eventId: 'story:receipt:ar_timeline:complete:2026-08-16T08:30:00.000Z',
+      eventKind: 'receipt',
+      workObject: { id: 'sapling:cambium', kind: 'sapling' },
+      source: 'cambium-action-requests@v1',
+      eventAt: '2026-08-16T08:30:00.000Z',
+      receipt: { id: 'receipt:action-request:ar_timeline:complete:2026-08-16T08:30:00.000Z' },
+      text: 'Timeline receipt retained',
+      lane: 'action-request',
+      group: 'Mission wins',
+      proof: 'complete receipt',
+    },
+    {
+      eventId: 'story:transition:quest_timeline:completed:2026-08-16T08:31:00.000Z',
+      workObject: { id: 'branch:cambium', kind: 'branch' },
+      source: 'quest-ledger@v1',
+      eventAt: '2026-08-16T08:31:00.000Z',
+      receipt: { id: 'receipt:quest:timeline' },
+      text: 'Timeline transition retained',
+      lane: 'quest',
+      group: 'Mission wins',
+      proof: 'transition receipt',
+    },
+  ];
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:32:00.000Z',
+    freshness: { state: 'fresh', detail: 'fresh' },
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    storyProjection: { schema: 'cambium.story-event-projection.v1' },
+    beats,
+  }, { now: '2026-08-16T08:33:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+  const timelineItems = [...storyHtml.matchAll(/<i class="is-[^"]+"[^>]*data-story-event-id="[^"]+"[^>]*><\/i>/g)].map((match) => match[0]);
+  const cards = [...storyHtml.matchAll(/<button type="button" class="[^"]*beat[^"]*"[^>]*data-story-event-id="[^"]+"[^>]*>/g)].map((match) => match[0]);
+
+  assert.equal(timelineItems.length, beats.length);
+  assert.equal(cards.length, beats.length);
+  for (const [index, item] of timelineItems.entries()) {
+    const beat = beats[index];
+    const kindLabel = beat.eventKind ?? 'legacy event';
+    assert.ok(item.includes(`data-story-source="${beat.source}"`));
+    assert.ok(item.includes(`data-story-work-object="${beat.workObject.id}"`));
+    assert.ok(item.includes(`data-story-work-object-kind="${beat.workObject.kind}"`));
+    assert.ok(item.includes(`data-story-event-at="${beat.eventAt}"`));
+    assert.ok(item.includes(`aria-label="${beat.eventAt} · ${kindLabel} · ${beat.workObject.kind} ${beat.workObject.id} · source ${beat.source} · receipt ${beat.receipt.id}"`));
+    assert.ok(cards[index].includes(`data-source="${beat.source}"`));
+    assert.ok(cards[index].includes(`data-story-work-object="${beat.workObject.id}"`));
+    if (beat.eventKind) assert.ok(cards[index].includes(`data-story-event-kind="${beat.eventKind}"`));
+    else assert.doesNotMatch(cards[index], /data-story-event-kind=/);
+  }
+});
+
+test('page · provenance-shaped direct Story fixtures remain explicitly unqualified without the canonical marker', async () => {
+  const rendered = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:32:00.000Z',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [{
+      eventId: 'story:receipt:untrusted:2026-08-16T08:30:00.000Z',
+      eventKind: 'receipt',
+      workObject: { id: 'sapling:cambium', kind: 'sapling' },
+      source: 'untrusted-direct-fixture@v1',
+      eventAt: '2026-08-16T08:30:00.000Z',
+      receipt: { id: 'receipt:untrusted' },
+      text: 'Legacy direct fixture stays unqualified',
+      lane: 'quest',
+      group: 'Mission wins',
+    }],
+  }, { now: '2026-08-16T08:33:00.000Z' });
+  const storyHtml = rendered.elements.get('beats')!.innerHTML;
+
+  assert.match(storyHtml, /data-story-qualified-count="0"/);
+  assert.match(storyHtml, /data-story-provenance="legacy-unqualified"/);
+  assert.match(storyHtml, /data-component="StoryBeatCard"[^>]*data-source="mission-story@v1"/);
+  assert.doesNotMatch(storyHtml, /data-story-event-id=|data-story-work-object=|data-story-event-kind=/);
 });
 
 test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () => {

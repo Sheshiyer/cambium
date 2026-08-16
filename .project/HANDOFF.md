@@ -1,5 +1,14 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-060/T-061 Story timeline candidate
+
+- Branch `codex/331-t060-t061-story-timeline` starts from exact verified main `a296baea25722fe6d82983feee237ff7ebb07d69` and owns the shared Story scene lock for T-060/T-061 only.
+- T-060 folds exact replay by stable `eventId` plus a canonical event fingerprint. Identical served and projected facts render once; conflicting reuse of one identity fails closed instead of selecting an order-dependent winner.
+- T-061 requires the authoritative `storyProjection` marker before any provenance renders. Canonical timeline items and Story cards then name exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied using accessible labels and machine-readable attributes; direct fixtures keep visual compatibility without fabricated provenance.
+- RED reproduced four identical receipt events from served replay plus repeated ActionRequest projection and zero source-qualified timeline items. Independent review then reproduced two important gaps: provenance-shaped direct fixtures bypassed the marker boundary, and canonical cards omitted `eventKind`. GREEN now gates all provenance on the marker and covers both timeline and card attributes plus an unmarked fail-closed fixture; focused Story tests pass 35/35, handler 388/388, reconciliation 2/2, the complete suite 1766/1766, validation, rendered-doc parity, the refreshed canonical viewport proof, and `git diff --check`. Exact committed-head release, final independent review, hosted CI, and merge proof remain required.
+- The governed queue candidate reads 62 implemented, 4 superseded, 9 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-062 and T-063, which share the Story scene lock and must execute in the next serialized worktree after this candidate merges.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, filtering, first-event-guidance, or approval-gated mutation is included.
+
 ### 2026-08-16 issue #331 T-059 receipt-backed Story projector candidate
 
 - Branch `codex/331-t059-story-events` starts from exact merged main `e64bf1a7612437f97a90f868fded61f487178298` and owns the Story scene plus the T-059 shared-handler integration lock only.
