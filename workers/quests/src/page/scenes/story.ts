@@ -202,6 +202,50 @@ function storyActionRequestRows(envelope: Record<string, unknown>): unknown[] {
   return Array.isArray(record?.actionRequests) ? record.actionRequests : [];
 }
 
+function storyEventFingerprint(event: StoryEventContract): string {
+  return JSON.stringify({
+    eventId: event.eventId,
+    eventKind: event.eventKind ?? null,
+    workObject: { id: event.workObject.id, kind: event.workObject.kind },
+    source: event.source,
+    eventAt: event.eventAt,
+    receipt: { id: event.receipt.id },
+    text: event.text ?? null,
+    lane: event.lane ?? null,
+    group: event.group ?? null,
+    context: event.context ?? null,
+    branchId: event.branchId ?? null,
+    outcome: event.outcome ?? null,
+    proof: event.proof ?? null,
+    detail: event.detail ?? null,
+    followup: event.followup ?? null,
+    actionRequestId: event.actionRequestId ?? null,
+    noesis: event.noesis ?? null,
+  });
+}
+
+/** Keep exact replays once and fail closed when one eventId describes conflicting facts. */
+export function dedupeStoryEvents(events: StoryEventContract[]): StoryEventContract[] {
+  const unique = new Map<string, { event: StoryEventContract; fingerprint: string; index: number }>();
+  const conflicts = new Set<string>();
+  for (const [index, event] of events.entries()) {
+    if (conflicts.has(event.eventId)) continue;
+    const fingerprint = storyEventFingerprint(event);
+    const prior = unique.get(event.eventId);
+    if (!prior) {
+      unique.set(event.eventId, { event, fingerprint, index });
+      continue;
+    }
+    if (prior.fingerprint !== fingerprint) {
+      unique.delete(event.eventId);
+      conflicts.add(event.eventId);
+    }
+  }
+  return [...unique.values()]
+    .sort((left, right) => left.index - right.index)
+    .map(({ event }) => event);
+}
+
 /** Project only durable, receipt-backed public facts into the canonical Story event contract. */
 export function projectStoryEvents(input: unknown): StoryEventContract[] {
   const envelope = storyRecord(input);
@@ -301,7 +345,7 @@ export function projectStoryEvents(input: unknown): StoryEventContract[] {
       outcome: 'transition complete',
     });
   }
-  return events;
+  return dedupeStoryEvents(events);
 }
 
 export const SCENE_STORY = `/* ── story scene — signal rows with state tokens + PacketFlow rails (T-021/T-022) ── */
@@ -436,10 +480,33 @@ function renderStoryGroupControls(groups, rows){
     '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' <span class="mc-branch-count">' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</span></button>'
   ).join('') + '</div>';
 }
+function storyTimelineProvenance(beat){
+  const workObject = beat && beat.workObject;
+  const receipt = beat && beat.receipt;
+  const eventId = mcText(beat && beat.eventId, '');
+  const eventKind = mcText(beat && beat.eventKind, '');
+  const source = mcText(beat && beat.source, '');
+  const eventAt = mcText(beat && beat.eventAt, '');
+  const workObjectId = mcText(workObject && workObject.id, '');
+  const workObjectKind = mcText(workObject && workObject.kind, '');
+  const receiptId = mcText(receipt && receipt.id, '');
+  if (!eventId || !source || !eventAt || !workObjectId || !workObjectKind || !receiptId) return null;
+  return { eventId, eventKind, source, eventAt, workObjectId, workObjectKind, receiptId };
+}
 function renderStoryTimeline(rows){
-  return '<div class="story-timeline" data-component="StoryTimelineRail">' + rows.slice(0, 12).map(row =>
-    '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '"></i>'
-  ).join('') + '</div>';
+  let qualifiedCount = 0;
+  const items = rows.slice(0, 12).map(row => {
+    const provenance = storyTimelineProvenance(row.beat);
+    if (!provenance) {
+      return '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '" data-story-provenance="legacy-unqualified" aria-hidden="true"></i>';
+    }
+    qualifiedCount += 1;
+    const kindLabel = provenance.eventKind || 'legacy event';
+    const eventKindAttr = provenance.eventKind ? ' data-story-event-kind="' + esc(provenance.eventKind) + '"' : '';
+    const label = provenance.eventAt + ' · ' + kindLabel + ' · ' + provenance.workObjectKind + ' ' + provenance.workObjectId + ' · source ' + provenance.source + ' · receipt ' + provenance.receiptId;
+    return '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '" role="listitem" data-story-event-id="' + esc(provenance.eventId) + '"' + eventKindAttr + ' data-story-source="' + esc(provenance.source) + '" data-story-work-object="' + esc(provenance.workObjectId) + '" data-story-work-object-kind="' + esc(provenance.workObjectKind) + '" data-story-event-at="' + esc(provenance.eventAt) + '" data-story-receipt="' + esc(provenance.receiptId) + '" aria-label="' + esc(label) + '"></i>';
+  });
+  return '<div class="story-timeline" data-component="StoryTimelineRail" role="list" aria-label="Receipt-backed Story timeline" data-story-qualified-count="' + qualifiedCount + '">' + items.join('') + '</div>';
 }
 function renderStoryBranchFilters(env){
   const branches = branchRows(env || {});
@@ -520,7 +587,12 @@ function renderStorySignalRow(row, group){
   const context = storyBeatContext(group, lane, b);
   const target = lane === 'action-request' ? storyBeatTarget(lane) : 'operator-narrative';
   const contradiction = /contradict/i.test(String(b.text || ''));
-  return '<button type="button" class="' + mcClass('beat story-signal' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="mission-story@v1" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
+  const provenance = storyTimelineProvenance(b);
+  const source = provenance ? provenance.source : 'mission-story@v1';
+  const provenanceAttrs = provenance
+    ? ' data-story-event-id="' + esc(provenance.eventId) + '" data-story-work-object="' + esc(provenance.workObjectId) + '" data-story-work-object-kind="' + esc(provenance.workObjectKind) + '" data-story-event-at="' + esc(provenance.eventAt) + '" data-story-receipt="' + esc(provenance.receiptId) + '"'
+    : '';
+  return '<button type="button" class="' + mcClass('beat story-signal' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="' + esc(source) + '" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + provenanceAttrs + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
     mcGlyphSvg(storyBeatGlyph(group), state) +
     '<span class="story-signal-copy story-teaser">' + renderStoryTeaserSpans(b, group) + '</span>' +
     mcStateToken(state, mcSceneTokenLabel(state)) +

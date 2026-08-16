@@ -3,7 +3,7 @@
   "generated_at": "2026-08-15",
   "scope": "Reconcile the 14-issue provenance set and all 80 Mini App task IDs against current merged source; expose only evidence-backed residuals as executable.",
   "source_authority_role": "immutable 2026-08-15 reconciliation inputs; not the current execution head",
-  "evidence_reconciled_through": "origin/main@e64bf1a7612437f97a90f868fded61f487178298",
+  "evidence_reconciled_through": "origin/main@a296baea25722fe6d82983feee237ff7ebb07d69",
   "source_authority": [
     "origin/main@f7e8795615e372323aaa24a5ae2d0255cb45aaec",
     ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
@@ -15,11 +15,11 @@
   "counts": {
     "issues": 14,
     "tasks": 80,
-    "executable_tasks": 11,
+    "executable_tasks": 9,
     "dispositions": {
-      "implemented": 60,
+      "implemented": 62,
       "superseded": 4,
-      "residual": 11,
+      "residual": 9,
       "approval-gated": 5
     }
   },
@@ -54,13 +54,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-060", "T-061"],
+    "ready_task_ids": ["T-062", "T-063"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
       "T-037",
-      "T-060",
-      "T-061",
       "T-062",
       "T-063",
       "T-065",
@@ -1461,11 +1459,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/story.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
-      "missingAcceptance": "No stable Story event identity or replay-deduplication test is present.",
+      "evidence": "Issue #331 T-060 deduplicates exact Story replays by stable eventId plus a canonical event fingerprint. Identical served and newly projected facts collapse to one beat, while conflicting reuse of one eventId fails closed and is omitted regardless of later replay.",
       "implementation_owners": [
         "workers/quests/src/page/scenes/story.ts"
       ],
@@ -1491,11 +1488,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "story",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/story.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
-      "missingAcceptance": "Story beats do not all expose exact source plus WorkObject provenance.",
+      "evidence": "Issue #331 T-061 renders each canonical timeline item with its exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied in accessible labels and data attributes. Legacy served contract rows name themselves as legacy events without inventing a kind; raw unqualified fixtures remain visual-only compatibility markers rather than invented provenance.",
       "implementation_owners": [
         "workers/quests/src/page/scenes/story.ts"
       ],
