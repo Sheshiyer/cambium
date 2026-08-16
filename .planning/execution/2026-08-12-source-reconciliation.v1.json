@@ -3,7 +3,7 @@
   "generated_at": "2026-08-15",
   "scope": "Reconcile the 14-issue provenance set and all 80 Mini App task IDs against current merged source; expose only evidence-backed residuals as executable.",
   "source_authority_role": "immutable 2026-08-15 reconciliation inputs; not the current execution head",
-  "evidence_reconciled_through": "origin/main@dcc79c90f46118d7fee4841e334670475269ae56",
+  "evidence_reconciled_through": "origin/main@111c5f9423edd9878212627d20e268304a6acc31",
   "source_authority": [
     "origin/main@f7e8795615e372323aaa24a5ae2d0255cb45aaec",
     ".planning/2026-08-11-mini-app-page-wiring.tasks.json",
@@ -15,11 +15,11 @@
   "counts": {
     "issues": 14,
     "tasks": 80,
-    "executable_tasks": 3,
+    "executable_tasks": 0,
     "dispositions": {
-      "implemented": 68,
+      "implemented": 71,
       "superseded": 4,
-      "residual": 3,
+      "residual": 0,
       "approval-gated": 5
     }
   },
@@ -54,12 +54,8 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-028", "T-036", "T-037"],
-    "backlog_task_ids": [
-      "T-028",
-      "T-036",
-      "T-037"
-    ],
+    "ready_task_ids": [],
+    "backlog_task_ids": [],
     "queue_policy": {
       "backlog_rule": "executable=true enumerates the residual backlog, not immediate dispatch readiness.",
       "ready_frontier_rule": "Only the earliest incomplete stage may contribute ready_task_ids.",
@@ -726,18 +722,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "proof",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
-      "current_evidence": "Current source inspected at docs/plans/evidence/cambium-operating-fabric-2026-07-29.md.",
-      "missingAcceptance": "No reproducible pre-activation 403/ledger baseline receipt with verified digest is checked in.",
-      "implementation_owners": [
-        "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md"
-      ],
-      "test_owners": [
-        "scripts/mini-app-task-reconciliation.test.mjs"
-      ],
-      "integration_lock_zones": []
+      "evidence": "Issue #331 terminal validation: the reproducible pre-activation 403/ledger baseline records direct-origin 200/401/401/403 responses, custom-domain Access redirects, the authenticated read-only Workbench receipt, and canonical digest 23ad193fbad07b0d5b8c7d012e6c55d380568bf43ee4eba7cdcdc6c15ed46f3a."
     },
     {
       "id": "T-029",
@@ -909,20 +897,10 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "validation-prep",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": ".github/workflows/ci.yml",
-      "current_evidence": "Current source inspected at .github/workflows/ci.yml.",
-      "missingAcceptance": "Broad CI exists, but no authoritative page-state matrix proves every state runs in CI.",
-      "implementation_owners": [
-        ".github/workflows/ci.yml"
-      ],
-      "test_owners": [
-        "scripts/mini-app-task-reconciliation.test.mjs",
-        "workers/quests/src/handler.test.ts",
-        "workers/quests/src/page-motion-safety.test.ts"
-      ],
-      "integration_lock_zones": []
+      "evidence": "Issue #331 terminal validation: CI exposes an authoritative page-state matrix with non-empty Mission, Gate, Tools, Story, Inspect, and Portfolio lanes, fails closed when a selector matches zero governed tests, runs the six-journey desktop browser matrix, and preserves the required deterministic release check."
     },
     {
       "id": "T-037",
@@ -941,18 +919,10 @@
       "phase": "P1",
       "wave": "W3",
       "swarm": "validation-prep",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page-motion-safety.test.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page-motion-safety.test.ts.",
-      "missingAcceptance": "Viewport and keyboard tests exist, but no browser-story matrix proves complete mobile and desktop journeys.",
-      "implementation_owners": [
-        "workers/quests/src/page-motion-safety.test.ts"
-      ],
-      "test_owners": [
-        "workers/quests/src/page-motion-safety.test.ts"
-      ],
-      "integration_lock_zones": []
+      "evidence": "Issue #331 terminal validation: the mobile and desktop browser-story matrix binds every shipped PAGE viewport, gesture, and keyboard story; the diagnostic desktop harness runs six real 1280x900 Mission, Gate, Tools, Story, Inspect, and Portfolio journeys with CDP input plus visible-result assertions, and CI executes the same desktop matrix."
     },
     {
       "id": "T-038",

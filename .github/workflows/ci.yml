@@ -7,6 +7,111 @@ on:
     branches: [main]
 
 jobs:
+  miniapp-page-state-matrix:
+    name: governed Mini App page states · ${{ matrix.page }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - page: mission
+            command: >-
+              node --test
+              --test-reporter=tap
+              --test-name-pattern='^(page · mission |page · Mission |mission scene |mission lineage )'
+              workers/quests/src/handler.test.ts
+              workers/quests/src/operating-fabric-page.test.ts
+          - page: gate
+            command: >-
+              node --test
+              --test-reporter=tap
+              --test-name-pattern='^(page · gate |page · Gate |gate-action bridge:)'
+              workers/quests/src/handler.test.ts
+              workers/quests/src/operating-fabric-page.test.ts
+          - page: tools
+            command: >-
+              node --test
+              --test-reporter=tap
+              --test-name-pattern='^(page · Tools|tools fixture ·|page · Mission navigation retains the exact selected WorkObject identity and kind in Tools)'
+              workers/quests/src/handler.test.ts
+          - page: story
+            command: >-
+              node --test
+              --test-reporter=tap
+              --test-name-pattern='^(page · story |page · Story|story contract ·|story projector ·)'
+              workers/quests/src/handler.test.ts
+          - page: inspect
+            command: >-
+              node --test
+              --test-reporter=tap
+              --test-name-pattern='^(page · inspect |page · Inspect)'
+              workers/quests/src/handler.test.ts
+          - page: portfolio
+            command: >-
+              node --test
+              --test-reporter=tap
+              --test-name-pattern='^(Portfolio |portfolio )'
+              workers/quests/src/operating-fabric-portfolio.test.ts
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 26
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+
+      - name: Run governed Mini App page-state lane
+        run: |
+          set -euo pipefail
+          tap_output="$(mktemp)"
+          trap 'rm -f "$tap_output"' EXIT
+          bash -lc "${{ matrix.command }}" | tee "$tap_output"
+          pass_count="$(
+            awk '
+              /^# Subtest: / {
+                is_file_wrapper = ($0 ~ /\.test\.(ts|mjs)$/)
+                next
+              }
+              /^ok [0-9]+ / && !is_file_wrapper && $0 !~ / # (SKIP|TODO)( |$)/ { count++ }
+              END { print count + 0 }
+            ' "$tap_output"
+          )"
+          if [ "$pass_count" -le 0 ]; then
+            echo "No governed Mini App page-state tests matched for lane: ${{ matrix.page }}" >&2
+            exit 1
+          fi
+
+  miniapp-desktop-browser-stories:
+    name: governed Mini App browser stories · desktop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 26
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+
+      - name: Resolve Chromium
+        run: |
+          browser="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$browser" ]; then
+            echo "No Chromium-family browser is available" >&2
+            exit 1
+          fi
+          echo "CHROME_BIN=$browser" >> "$GITHUB_ENV"
+
+      - name: Run six governed desktop PAGE journeys
+        run: node workers/quests/src/visual-viewport-proof.mjs --desktop-page-browser
+
+      - name: Upload diagnostic desktop browser captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: miniapp-desktop-browser-stories-${{ github.sha }}
+          path: .artifacts/tg-miniapp-viewport/desktop-page-browser
+          if-no-files-found: error
+
   verify:
     name: deterministic release verification · node ${{ matrix.node }}
     runs-on: ubuntu-latest

@@ -1,5 +1,14 @@
 # Project handoff
 
+### 2026-08-16 issue #331 terminal validation candidate
+
+- Branch `codex/331-terminal-validation` starts from exact verified main `111c5f9423edd9878212627d20e268304a6acc31` and owns only T-028 evidence, T-036 CI, T-037 browser stories, synchronized planning truth, ISA, and this checkpoint.
+- T-028 records a current read-only pre-activation baseline: direct-origin 200/401/401/403 responses, custom-domain Access redirects, the checked-in authenticated Workbench receipt, and normalized digest `23ad193fbad07b0d5b8c7d012e6c55d380568bf43ee4eba7cdcdc6c15ed46f3a`.
+- T-036 adds explicit Mission, Gate, Tools, Story, Inspect, and Portfolio CI lanes whose sentinel fails when a selector matches zero governed tests. The required `deterministic release verification · node 26` check remains unchanged.
+- T-037 binds the shipped mobile viewport/gesture/keyboard stories and adds a diagnostic-only desktop PAGE harness. A real local Chrome dry run passes six 1280×900 keyboard/pointer journeys with browser-asserted visible outcomes; canonical mobile artifacts remain outside this write set.
+- The synchronized candidate queue reads 71 implemented, 4 superseded, 0 executable residuals, and 5 approval-gated rows. T-020, T-038, T-078, T-079, and T-080 remain non-executable; they require separate owner authority and are not part of issue #331's executable queue.
+- No deployment, provider, production Telegram, D1/KV/R2, credential, connected-repository, lifecycle, catalog, or approval-gated mutation is included. Exact-head release, independent review, hosted CI, guarded squash merge, exact-main CI, and issue/project closure remain required before this checkpoint is final.
+
 ### 2026-08-16 issue #331 T-075 Portfolio state-matrix candidate
 
 - Branch `codex/331-t075-portfolio-matrix` starts from exact verified main `dcc79c90f46118d7fee4841e334670475269ae56` and owns the Portfolio QA matrix plus synchronized planning truth only.
