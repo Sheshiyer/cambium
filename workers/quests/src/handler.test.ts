@@ -5308,6 +5308,11 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   const questlineIndex = html.indexOf('data-component="QuestlineTimeline"');
   const proofListIndex = html.indexOf('data-component="ProofList"');
   const toolLinkIndex = html.indexOf('data-component="MissionToolLink"');
+  const stateStackHtml = html.match(/<div data-component="MissionStateStack">[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
+  const stateRows = stateStackHtml.match(/data-mission-state-action="[^"]+"/g) ?? [];
+  assert.equal((html.match(/data-component="MissionStateStack"/g) ?? []).length, 1, 'resting Mission renders exactly one state stack');
+  assert.equal(stateRows.length, 4, 'the state stack remains a single bounded four-row decision summary');
+  assert.ok(stateStackHtml.indexOf('>Blocked by<') < stateStackHtml.indexOf('>Proof needed<'), 'the first blocker row must precede the first proof cue');
   assert.ok(cardIndex > -1 && cardIndex < questlineIndex, 'mission card should wrap the questline timeline');
   assert.ok(questlineIndex < stateStackIndex, 'timeline should precede the state stack');
   assert.ok(stateStackIndex < proofListIndex, 'state summary should lead into proof rows');

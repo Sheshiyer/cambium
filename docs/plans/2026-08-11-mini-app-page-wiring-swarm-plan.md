@@ -151,6 +151,78 @@ Exit: authenticated five-page walkthrough, no template leakage, accurate empty s
 
 Each implementation task gets one branch and one worktree. Agents must not revert concurrent changes. Integration lock zones are queued and merged by the orchestrator.
 
+### 6.1 Collision-safe residual ownership map (T-029)
+
+The machine-readable task map is authoritative for the full path arrays. This table fixes the writer sequence for every shared surface; a task may start only when its dependencies are complete and its listed lock zones are free.
+
+| Sequence | Task set | Sole implementation writer | Test owner | Serialized integration lock |
+| --- | --- | --- | --- | --- |
+| 1 | T-008, then T-059, then T-060/T-061/T-062/T-063 | Story task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/story.ts`; `workers/quests/src/handler.ts` for T-008/T-059 integration |
+| 1 | T-009, then T-053, then T-054/T-056 | Tools task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/tools.ts`; `workers/quests/src/handler.ts` for T-009/T-053 integration |
+| 1 | T-021 | Hydration task worktree | `workers/quests/src/page-client-data.test.ts` | `workers/quests/src/handler.ts` |
+| 1 | T-028 | Baseline-proof task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | none; documentation-only evidence |
+| 2 | T-032 | Tools-packet task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | `workers/quests/src/page/scenes/tools.ts` and `workers/quests/src/handler.ts` remain frozen until T-009 merges |
+| 2 | T-033 | Story-packet task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | `workers/quests/src/page/scenes/story.ts` and `workers/quests/src/handler.ts` remain frozen until T-008 merges |
+| 2 | T-036 | CI-matrix task worktree | `scripts/mini-app-task-reconciliation.test.mjs` | CI workflow merges after page packet dependencies |
+| 2 | T-037 | Browser-matrix task worktree | `workers/quests/src/page-motion-safety.test.ts` | none; test-only owner |
+| 3 | T-044 | Mission-selection task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/handler.ts` |
+| 3 | T-065, then T-068 | Inspect task worktree | `workers/quests/src/handler.test.ts` | `workers/quests/src/page/scenes/inspect.ts` |
+| 3 | T-074, then T-075 | Portfolio task worktree | `workers/quests/src/operating-fabric-portfolio.test.ts` | `workers/quests/src/handler.ts`; T-075 waits for the T-074 source merge |
+
+No implementation task owns `handler.ts` directly. T-021, T-053, T-059, and T-074 must queue their handler integration through the orchestrator. Generated bundles, `page.ts`, `page/scaffold.ts`, shared client assembly, and Wrangler configuration remain orchestrator-only lock zones when a task actually needs them.
+
+### 6.2 P0 implementation packets
+
+#### Mission packet — T-030 complete
+
+- **Inputs/contracts:** selected canonical WorkObject, branch-story packet, quest ledger, receipt/freshness summary, Mission state contract, and founder-action boundary.
+- **Implementation owner:** `workers/quests/src/page/scenes/mission.ts`.
+- **Test owner:** `workers/quests/src/handler.test.ts`.
+- **Integration locks:** `workers/quests/src/handler.ts`, `workers/quests/src/page.ts`, and `workers/quests/src/page/scaffold.ts`; orchestrator only.
+- **Required states:** loading, current mission, no mapped mission, blocked proof, stale head, and route/auth error.
+- **Acceptance probes:** canonical selection remains tenant-isolated; planned stages never appear completed; the resting hierarchy renders the hero before one state stack, with the blocker row before the proof cue; actions open reviewable sheets rather than mutating lifecycle.
+- **Exclusions:** no tenant allowlist change, ledger publication, synthetic progress, or generated-bundle ownership.
+
+#### Gate packet — T-031 complete
+
+- **Inputs/contracts:** redacted ActionRequests, proposal expiry, decision receipts, signed-action preflight, and authoritative founder identity.
+- **Implementation owners:** `workers/quests/src/page/client/signed-action.ts` and `workers/quests/src/page/operating-fabric/gate-sheet.ts`.
+- **Test owners:** `workers/quests/src/handler.test.ts` and `workers/quests/src/operating-fabric-page.test.ts`.
+- **Integration locks:** `workers/quests/src/handler.ts`, `workers/quests/src/page.ts`, and shared client assembly; orchestrator only.
+- **Required states:** loading, empty, ready, expired, blocked, submitting, accepted, rejected, and route/auth error.
+- **Action boundary:** every approve/reject path is founder-authenticated, expiry-checked, replay-protected, idempotent, and receipt-returning. No button writes Goal Graph or lifecycle state directly.
+- **Acceptance probes:** quiet never coexists with loading; expired proposals cannot submit; duplicate taps resolve to one receipt; blocked actions display an exact reason.
+- **Exclusions:** no fabricated ActionRequest, no stored Telegram initData, and no runtime allowlist or deployment mutation.
+
+#### Inspect packet — T-034 complete
+
+- **Inputs/contracts:** served Mission Control envelope, branch joins, readiness rows, freshness, redacted receipts, and source-qualified gaps.
+- **Implementation owner:** `workers/quests/src/page/scenes/inspect.ts`. The separate `workers/quests/src/page/operating-fabric/inspect-sheet.ts` remains the canonical graph node/edge sheet and is not the owner of the founder-first Mission Control hierarchy.
+- **Test owner:** `workers/quests/src/handler.test.ts`.
+- **Integration locks:** `workers/quests/src/handler.ts`, `workers/quests/src/page.ts`, and `workers/quests/src/page/scaffold.ts`; orchestrator only.
+- **Required states:** loading, healthy, partial, stale, blocked, source mismatch, and route/auth error.
+- **Acceptance probes:** proof summary and decision readiness lead; blocker/freshness/receipt cues precede system detail; source-code paths and fixture detail stay behind Inspect disclosures; secrets and raw Telegram authorization material never render.
+- **Exclusions:** read-only diagnostics only; no lifecycle action, config write, credential display, or direct graph mutation.
+
+#### Portfolio packet — T-035 complete
+
+- **Inputs/contracts:** portfolio catalog, canonical join report, mapping receipts, Goal Graph projection, promotion evidence, and founder Gate boundary.
+- **Implementation owner:** `workers/quests/src/page/operating-fabric/portfolio.ts`.
+- **Test owner:** `workers/quests/src/operating-fabric-portfolio.test.ts`.
+- **Integration locks:** `workers/quests/src/handler.ts`, `workers/quests/src/page.ts`, and `workers/quests/src/page/operating-fabric/scaffold.ts`; orchestrator only.
+- **Required states:** zone loading/empty, joined, catalog-only, graph-only, mapping conflict, promotion proposed, founder-approved, and rolled back.
+- **Zone semantics:** Saplings, Client Branches, Programs, Review, and Historical remain distinct; promotion changes capability, never canonical identity.
+- **Acceptance probes:** every catalog entry is joined, excluded, or blocked with reason; templates never reach runtime nodes; promotion produces a founder-gated proposal and no UI toggle mutates lifecycle directly.
+- **Exclusions:** no folder relocation, repository creation, registry transition, direct Goal Graph mutation, or production promotion.
+
+#### Tools packet — T-032 partial, contract blocked
+
+Frozen now: Tools owns `workers/quests/src/page/scenes/tools.ts`, its route integration is serialized through `workers/quests/src/handler.ts`, and tests belong in `workers/quests/src/handler.test.ts`. The packet cannot freeze per-panel inputs, freshness invariants, or route fixtures until T-009 lands the typed command projection contract. T-032 therefore remains residual and must not authorize T-053/T-054/T-056 implementation before the T-009 contract PR merges.
+
+#### Story packet — T-033 partial, contract blocked
+
+Frozen now: Story owns `workers/quests/src/page/scenes/story.ts`, its projector integration is serialized through `workers/quests/src/handler.ts`, and tests belong in `workers/quests/src/handler.test.ts`. The packet cannot freeze event identity, receipt/decision/transition projection, replay deduplication, or WorkObject filters until T-008 lands the typed Story event contract. T-033 therefore remains residual and must not authorize T-059 through T-063 implementation before the T-008 contract PR merges.
+
 ## 7. Verification Gates
 
 1. **Contract gate:** schemas validate; unknown types fail closed; template fixture excluded.
