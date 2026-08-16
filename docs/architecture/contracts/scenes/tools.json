@@ -53,11 +53,11 @@
     { "field": "commands.handoffs", "type": "ToolsCommandPanelProjection<'handoffs', array<{id, status, title, source, gateRelation}>>", "source": "quest-envelope.commands.handoffs", "required": true, "fallback": "the entire projection fails closed" },
     { "field": "openItems.length", "type": "number", "source": "quest-envelope.openItems (count)", "required": false, "fallback": "handoffs render locked when no waiting founder decision is served" },
     { "field": "branchStories.rows", "type": "array<BranchPacket>", "source": "quest-envelope.branchStories.rows (mission context via buildMissionControlView)", "required": false, "fallback": "context strip shows 'branch pending' / 'Branch packets pending'; recommendation panel EMPTY" },
-    { "field": "branchStories.rows[].{workObjectId,workObjectKind}", "type": "canonical WorkObject identity + sapling|branch|program", "source": "selected Mission branch packet", "required": false, "fallback": "Tools renders work pending and exposes no partial or inferred identity" },
+    { "field": "branchStories.rows[].{workObjectId,workObjectKind}", "type": "canonical WorkObject identity + sapling|branch|program", "source": "selected Mission branch packet", "required": false, "fallback": "Tools renders work pending, demotes the complete branch/mission context to pending, and exposes neither a partial identity nor a recommendation" },
     { "field": "nextMission.{title, gate, state}", "type": "derived object", "source": "derived from branchStories via buildMissionControlView", "required": false, "fallback": "blocked mission fallback drives ts-run to proof-needed: 'use Gate or Open Proof before acting'" },
     { "field": "proofNeeded[]", "type": "array<{label, state, detail}>", "source": "derived from branch packets (mcProofNeeded)", "required": false, "fallback": "digest commands (ts-standup/ts-digest) render active instead of proof-needed" },
     { "field": "catalog.CMDS", "type": "array<[group, ToolSurface[]]> (five panels)", "source": "client constant in scenes/tools.ts", "required": true, "fallback": "n/a — bundled constant" },
-    { "field": "commands.*.freshness + envelope.derivedAt", "type": "per-panel {state, checkedAt, source} plus strict aggregate", "source": "typed command panel and global quest envelope", "required": false, "fallback": "a stale/unknown panel or stale envelope demotes its card and the aggregate Tools token; unsafe source text renders source unavailable" }
+    { "field": "commands.*.freshness + envelope.derivedAt", "type": "per-panel {state, checkedAt, source} plus strict aggregate", "source": "typed command panel and global quest envelope", "required": false, "fallback": "a stale/unknown panel or stale envelope demotes its card and the aggregate Tools token, suppresses any recommendation targeting that panel, and exposes Retry in the stale sheet; unsafe source text renders source unavailable" }
   ],
   "states": {
     "renders": ["idle", "active", "blocked", "locked", "stale", "reducedMotion"],
@@ -74,7 +74,7 @@
   "panelBehavior": {
     "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing toolbelt / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
     "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + ops glyph; 'No mission recommendation yet — tools suggest after branch packets reach Mission' + Open Mission (outline)", "trigger": "no branch packets and no recommendation derivable" },
-    "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'Paperclip gateway unreachable — pull to refresh' + Retry outline button; no command results synthesized", "trigger": "commands envelope null after refresh" }
+    "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; stale result copy + Retry outline button; no command results or recommendations synthesized", "trigger": "commands envelope missing or the opened panel is stale/unknown/incoherent" }
   },
   "redesignNote": "frozen/05 §4 bans copy-paste command blocks and 'Copy command text' buttons in the redesign; P2 builders replace copy affordances with in-app actions or read-only sheets. This contract lists current-consumed fields so the replacement keeps data parity.",
   "fixtures": "workers/quests/src/page/scenes/fixtures/tools.fixture.json"

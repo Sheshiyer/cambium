@@ -3943,6 +3943,7 @@ test('page · Tools panel freshness is source-aware and never outruns global fre
   (globallyStale.context.openToolSurfaceSheet as (id: string) => void)('handoffs');
   const staleHandoffSheet = globallyStale.elements.get('sheetBody')!.innerHTML;
   assert.match(staleHandoffSheet, /handoff data stale · refresh first/);
+  assert.match(staleHandoffSheet, /data-tool-retry="handoffs"/);
   assert.doesNotMatch(staleHandoffSheet, /data-component="ToolHandoffActionRow"|data-tool-act=/);
 });
 
@@ -4003,7 +4004,12 @@ test('page · Mission navigation retains the exact selected WorkObject identity 
   assert.equal(rejectedContext.dataset.toolWorkObjectState, 'missing');
   assert.equal(rejectedContext.dataset.toolWorkObjectId, undefined);
   assert.equal(rejectedContext.dataset.toolWorkObjectKind, undefined);
-  assert.match(rejected.elements.get('cmds')!.innerHTML, /work pending/);
+  const rejectedHtml = rejected.elements.get('cmds')!.innerHTML;
+  assert.match(rejectedHtml, /work pending/);
+  assert.match(rejectedHtml, /Branch packets…/);
+  assert.match(rejectedHtml, /branch packet/);
+  assert.match(rejectedHtml, /data-tool-recommend-state="empty"/);
+  assert.doesNotMatch(rejectedHtml, /data-tool-recommend-surface=|data-tool-suggest="|Mismatch|Founder review/);
 });
 
 test('page · Tools live surface sheets stay read-only with result tokens', async () => {
@@ -13073,6 +13079,46 @@ test('tools fixture · blocked state degrades handoffs to on hold and suggests p
   const sheet = rendered.elements.get('sheetBody')!.innerHTML;
   assert.match(sheet, /no handoffs waiting/);
   assert.doesNotMatch(sheet, /data-signed-action-entrypoint|\/ts-/i);
+});
+
+test('tools fixture · recommendations never outrun their target panel freshness', async () => {
+  const handoffsEnvelope = structuredClone(toolsFixtureEnvelope('normal'));
+  const statusEnvelope = structuredClone(toolsFixtureEnvelope('blocked'));
+  const workEnvelope = structuredClone(toolsFixtureEnvelope('normal'));
+  const workBranch = (workEnvelope.branchStories as { rows: Array<Record<string, unknown>> }).rows[0];
+  workBranch.gates = [];
+  workBranch.proof = [{ label: 'Release SHA', state: 'complete' }];
+  workBranch.missions = [{
+    missionId: 'fx-m-work',
+    title: 'Assign the next owner',
+    owner: 'build',
+    gate: 'ready',
+    proofRequired: '',
+    dispatchTarget: 'quine',
+    status: 'active',
+  }];
+
+  const cases = [
+    { envelope: handoffsEnvelope, field: 'handoffs', surface: 'handoffs' },
+    { envelope: statusEnvelope, field: 'status', surface: 'status' },
+    { envelope: workEnvelope, field: 'activeWork', surface: 'work' },
+  ] as const;
+
+  for (const scenario of cases) {
+    const fresh = await renderPageFixtureContext(scenario.envelope, { now: '2026-07-24T09:18:00.000Z' });
+    (fresh.context.renderCommands as () => void)();
+    assert.match(fresh.elements.get('cmds')!.innerHTML, new RegExp(`data-tool-recommend-surface="${scenario.surface}"`));
+
+    const staleEnvelope = structuredClone(scenario.envelope) as {
+      commands: Record<string, { freshness: { state: string; checkedAt: string } }>;
+    };
+    staleEnvelope.commands[scenario.field].freshness.state = 'stale';
+    const stale = await renderPageFixtureContext(staleEnvelope, { now: '2026-07-24T09:18:00.000Z' });
+    (stale.context.renderCommands as () => void)();
+    const staleHtml = stale.elements.get('cmds')!.innerHTML;
+    assert.match(staleHtml, /data-tool-recommend-state="empty"/);
+    assert.doesNotMatch(staleHtml, /data-tool-recommend-surface=|data-tool-suggest="/);
+  }
 });
 
 test('tools fixture · empty state renders stale surfaces, idle suggestion, and retry recovery', async () => {

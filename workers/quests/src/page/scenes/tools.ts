@@ -228,14 +228,25 @@ function toolWorkObjectIdentity(branch){
 function toolMissionContext(){
   const env = toolEnv();
   const view = buildMissionControlView(env);
+  const fallbackMission = { title:'Mission queue missing', gate:'branch packet', proofRequired:'mission proof requirement missing', dispatchTarget:'inspect', state:'blocked' };
+  const workObject = toolWorkObjectIdentity(view.selectedBranch);
+  if (!workObject) return {
+    branchId:'branch pending',
+    branchName:'Branch packets pending',
+    mission:fallbackMission,
+    proofRows:[],
+    blockers:[],
+    stale:true,
+    workObject:null,
+  };
   return {
     branchId:TOOL_CONTEXT_BRANCH || view.selectedBranchId || 'branch pending',
     branchName:view.selectedBranch ? mcText(view.selectedBranch.name || view.selectedBranch.productId, view.selectedBranchId || 'Branch') : 'Branch packets pending',
-    mission:view.nextMission || { title:'Mission queue missing', gate:'branch packet', proofRequired:'mission proof requirement missing', dispatchTarget:'inspect', state:'blocked' },
+    mission:view.nextMission || fallbackMission,
     proofRows:view.proofNeeded || [],
     blockers:view.blockers || [],
     stale:view.stale,
-    workObject:toolWorkObjectIdentity(view.selectedBranch),
+    workObject,
   };
 }
 function toolClamp(text, max){
@@ -352,10 +363,11 @@ function toolSurfaceState(id){
 function toolSuggestion(){
   const ctx = toolMissionContext();
   if (!ctx.branchId || ctx.branchId === 'branch pending') return null;
-  if (ctx.blockers.some(row => /gate|approval|founder/i.test(row.label || row.source || ''))) return { surface:'handoffs', reason:'a founder decision blocks this branch' };
-  if (ctx.proofRows.length) return { surface:'status', reason:'proof rows need a progress receipt' };
-  if (ctx.stale || !toolProjection()) return { surface:'status', reason:'refresh status first' };
-  return { surface:'work', reason:'mission ready to assign' };
+  const freshSuggestion = (surface, reason) => toolSurfaceState(surface) === 'active' ? { surface, reason } : null;
+  if (ctx.blockers.some(row => /gate|approval|founder/i.test(row.label || row.source || ''))) return freshSuggestion('handoffs', 'a founder decision blocks this branch');
+  if (ctx.proofRows.some(row => /^(proof-needed|blocked|stale)$/.test(mcStateKind(row && row.state)))) return freshSuggestion('status', 'proof rows need a progress receipt');
+  if (ctx.stale || !toolProjection()) return null;
+  return freshSuggestion('work', 'mission ready to assign');
 }
 function toolSuggestionPanel(){
   const suggestion = toolSuggestion();
@@ -460,7 +472,7 @@ function openToolSurfaceSheet(id){
   $('sheetBody').innerHTML = '<div class="arc">tools · ' + esc(surface.id) + '</div><h2>' + esc(surface.label) + '</h2>' +
     toolWorkObjectContext() + toolPanelFreshnessDetail(surface.id) + result + toolSafetyTokenLine() +
     '<div class="gbtns">' +
-      (!toolProjection() ? '<button type="button" class="approve" data-tool-retry="' + esc(surface.id) + '">Retry</button>' : '') +
+      (state === 'stale' ? '<button type="button" class="approve" data-tool-retry="' + esc(surface.id) + '">Retry</button>' : '') +
       '<button type="button" class="detail" data-tool-audit-link="tools">Inspect</button>' +
       '<button type="button" class="reroll" data-tool-back="mission">Mission</button>' +
     '</div>';

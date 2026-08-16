@@ -1246,7 +1246,7 @@
       "status": "implemented",
       "executable": false,
       "file_owner": "workers/quests/src/page/scenes/tools.ts",
-      "evidence": "Issue #331 T-054 renders a source-aware freshness badge and checked-at detail for every typed Tools panel. Card availability and the aggregate Tools token use the strictest envelope/panel result, so a stale global envelope or stale/unknown panel can only demote readiness. Focused invariants cover mixed panel states, global staleness, source identity, and redacted unsafe source text."
+      "evidence": "Issue #331 T-054 renders a source-aware freshness badge and checked-at detail for every typed Tools panel. Card availability and the aggregate Tools token use the strictest envelope/panel result, so a stale global envelope or stale/unknown panel can only demote readiness. A recommendation cannot target a stale status, active-work, or handoff panel, and every stale sheet exposes Retry. Focused invariants cover mixed panel states, global staleness, source identity, target freshness, recovery, and redacted unsafe source text."
     },
     {
       "id": "T-055",
@@ -1287,7 +1287,7 @@
       "status": "implemented",
       "executable": false,
       "file_owner": "workers/quests/src/page/scenes/tools.ts",
-      "evidence": "Issue #331 T-056 carries Mission's selected canonical WorkObject ID and explicit kind through the real Mission-to-Tools navigation control into the Tools context strip and every panel sheet. Only bounded sapling, branch, or program identities whose prefix matches the served kind render; mismatched identity/kind pairs fail closed as work pending."
+      "evidence": "Issue #331 T-056 carries Mission's selected canonical WorkObject ID and explicit kind through the real Mission-to-Tools navigation control into the Tools context strip and every panel sheet. Only bounded sapling, branch, or program identities whose prefix matches the served kind render; mismatched identity/kind pairs fail closed by demoting the complete branch/mission context and recommendation to pending."
     },
     {
       "id": "T-057",
