@@ -49,6 +49,8 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
 
   assert.equal(taskMap.schema_version, '2026-08-16-mini-app-page-wiring-ownership.v2')
   assert.equal(taskMap.source_head, 'f988d31922385d9352c4efac6abe14b6de4bb1d8')
+  assert.equal(taskMap.source_head_role, 'immutable 2026-08-15 task-map reconciliation baseline; not the current execution head')
+  assert.equal(taskMap.evidence_reconciled_through, 'origin/main@3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4')
   assert.deepEqual(taskMap.tasks.map(({ id }) => id), expectedIds)
   assert.equal(new Set(taskMap.tasks.map(({ id }) => id)).size, 80)
   assert.deepEqual(taskMap.counts, {
@@ -116,6 +118,13 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
   for (const id of serializedHandlerOrder) {
     assert.ok(byId.get(id).integration_lock_zones.includes('workers/quests/src/handler.ts'), `${id} must serialize handler.ts`)
   }
+  assert.deepEqual(
+    taskMap.tasks
+      .filter(({ status, integration_lock_zones }) => status === 'residual' && integration_lock_zones.includes('workers/quests/src/handler.ts'))
+      .map(({ id }) => id),
+    serializedHandlerOrder,
+    'every residual handler owner must appear in the exact serialized order',
+  )
   for (const id of ['T-029', 'T-030', 'T-031', 'T-034', 'T-035', 'T-042']) {
     assert.equal(byId.get(id).status, 'implemented', `${id} must carry exact completion evidence`)
   }
@@ -139,6 +148,8 @@ test('source reconciliation and execution manifest agree with the governed queue
 
   assert.deepEqual(ledger.tasks, taskMap.tasks)
   assert.deepEqual(ledger.execution_scheduler, taskMap.execution_scheduler)
+  assert.equal(ledger.source_authority_role, 'immutable 2026-08-15 reconciliation inputs; not the current execution head')
+  assert.equal(ledger.evidence_reconciled_through, taskMap.evidence_reconciled_through)
   assert.deepEqual(ledger.counts.dispositions, {
     implemented: 55,
     superseded: 4,
