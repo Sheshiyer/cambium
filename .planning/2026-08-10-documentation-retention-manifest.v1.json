@@ -7,7 +7,7 @@
     {
       "path": "docs/plans/**/*.md",
       "kind": "plan",
-      "bytes": 564347,
+      "bytes": 566609,
       "retentionClass": "retain",
       "reason": "Dated decision and implementation history; non-operational under docs/LIFECYCLE.md.",
       "replacementPath": null,
