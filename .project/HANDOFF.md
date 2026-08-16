@@ -1,5 +1,15 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-059 receipt-backed Story projector candidate
+
+- Branch `codex/331-t059-story-events` starts from exact merged main `e64bf1a7612437f97a90f868fded61f487178298` and owns the Story scene plus the T-059 shared-handler integration lock only.
+- The public Worker boundary now projects ActionRequest receipts, founder decisions, and completed lifecycle transitions into the canonical Story event contract. Every projected event requires exact WorkObject identity, canonical event time, durable source, and receipt identity; ambiguous branch joins, missing receipts, malformed timestamps, and unsafe public text fail closed.
+- The browser treats `cambium.story-event-projection.v1` as authoritative, so it cannot re-project the same ActionRequest or ledger fact into a legacy duplicate. Legacy direct fixtures without the marker retain their compatibility fallback.
+- RED proved that the live route emitted no canonical events and the browser added a legacy duplicate. Review then reproduced a second fail-closed gap: a partial envelope with completed ledger rows but no `beats` field could reactivate the legacy browser fallback. GREEN marks any ledger-bearing response authoritative, rejects secret-shaped identity segments before projection, and passes focused Story contract/projector tests 7/7, the full handler suite 385/385, reconciliation 2/2, the complete suite 1763/1763, `npm run validate`, rendered-doc parity, `git diff --check`, and the refreshed canonical browser matrix with 27 layout plus 20 clickability proofs. The first release attempt stopped only because the fresh worktree lacked ignored R3F dependencies; `npm ci --prefix apps/cambium-r3f` restored the lockfile-pinned environment. The complete committed-candidate release gate must pass again on the repaired exact head before merge.
+- The governed queue candidate reads 60 implemented, 4 superseded, 11 executable residuals, and 5 approval-gated rows. The derived ready frontier is T-060 and T-061, which share the Story scene lock and must execute serially in one worktree. T-074 is the only remaining shared-handler task.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, approval-gated, replay-deduplication, filtering, or first-event-guidance mutation is included.
+- Independent review found no critical issue and three important findings. The partial-envelope fallback and secret-shaped identity leak are repaired with RED/GREEN regressions; the public contract now truthfully keeps `eventKind` optional only for legacy served events. Worker-side replay deduplication is not hidden or falsely closed: it remains the explicit next task T-060 and will execute with T-061 in the next shared-file Story slice.
+
 ### 2026-08-16 issue #331 T-054/T-056 Tools context candidate
 
 - Branch `codex/331-t054-t056-tools-actions` starts from exact merged main `24fc4603fd8e1957eca1c07bd27bd4a22281e41c` and combines the two ready Tools tasks because both own the same scene lock.
@@ -9,7 +19,7 @@
 - Post-review verification passes handler 381/381, reconciliation 2/2, the complete suite 1759/1759, `npm run validate`, `git diff --check`, and the refreshed canonical browser matrix with 27 layout plus 20 clickability proofs. The earlier complete pre-commit release gate passed retention 177/177, readiness 38/38, the 15-capture mobile contract, R3F 99/99 plus build, and desktop packaging 5/5; the complete gate must run again at the final committed review head before merge.
 - The governed queue candidate reads 59 implemented, 4 superseded, 12 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-059; the remaining shared-handler order remains T-059 then T-074.
 - No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, or approval-gated mutation is included.
-- Independent review found no critical issue and identified two important fail-closed gaps plus one minor recovery gap. RED reproduced all three; the candidate now rejects partial context after identity failure, refuses status/work/handoff recommendations whose target panel is not fresh, and offers Retry for panel-level staleness. The PR remains unmerged pending refreshed exact-head release proof and hosted CI.
+- Independent review found no critical issue and identified two important fail-closed gaps plus one minor recovery gap. RED reproduced all three; the merged candidate rejects partial context after identity failure, refuses status/work/handoff recommendations whose target panel is not fresh, and offers Retry for panel-level staleness. PR #339 squash-merged as `e64bf1a7612437f97a90f868fded61f487178298`; exact-merge main CI run `31948033074` passed.
 
 ### 2026-08-16 issue #331 T-053 typed Tools projection candidate
 

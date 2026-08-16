@@ -9,7 +9,7 @@
 
 import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
-import { parseStoryEventContract } from './page/scenes/story.ts';
+import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
@@ -2746,10 +2746,27 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
         rows: goalGraphRows,
       };
     }
-    return JSON.stringify(merged);
-  } catch {
-    return JSON.stringify(merged);
+  } catch {}
+  const projectedStoryEvents = projectStoryEvents(merged);
+  const actionRequestEnvelope = isRecord(merged.actionRequests) ? merged.actionRequests : null;
+  const actionRequestRows = Array.isArray(merged.actionRequests)
+    ? merged.actionRequests
+    : Array.isArray(actionRequestEnvelope?.rows)
+      ? actionRequestEnvelope.rows
+      : Array.isArray(actionRequestEnvelope?.actionRequests)
+        ? actionRequestEnvelope.actionRequests
+        : [];
+  const ledgerEnvelope = isRecord(merged.ledger) ? merged.ledger : null;
+  const ledgerRows = Array.isArray(ledgerEnvelope?.rows) ? ledgerEnvelope.rows : [];
+  if ('beats' in merged || projectedStoryEvents.length > 0 || actionRequestRows.length > 0 || ledgerRows.length > 0) {
+    merged.beats = projectedStoryEvents;
+    merged.storyProjection = {
+      schema: 'cambium.story-event-projection.v1',
+      eventCount: projectedStoryEvents.length,
+      sourceKinds: ['receipt', 'decision', 'transition'],
+    };
   }
+  return JSON.stringify(merged);
 }
 
 function scriptSafeJson(value: unknown): string {

@@ -153,7 +153,7 @@ Each implementation task gets one branch and one worktree. Agents must not rever
 
 ### 6.1 Collision-safe residual ownership map (T-029)
 
-The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After T-054 and T-056 complete the Tools stage, the ready frontier is exactly `T-059`.
+The machine-readable task map is authoritative for the full path arrays and now exposes the exact ordered execution-stage graph. `executable=true` is the residual backlog, not immediate dispatch readiness; `ready_task_ids` derives only from the earliest incomplete stage whose dependencies are already implemented. After the T-059 Worker projection boundary completes the first Story stage, the ready frontier is exactly `T-060` and `T-061`. Both tasks own the same Story scene lock, so readiness does not authorize parallel writers.
 
 | Stage | Task set | Sole implementation writer | Test owner | Serialized integration lock |
 | --- | --- | --- | --- | --- |
@@ -168,7 +168,7 @@ The machine-readable task map is authoritative for the full path arrays and now 
 Queue policy:
 - `executable=true` distinguishes the executable backlog from the ready frontier; backlog order alone never authorizes parallel dispatch.
 - `ready_task_ids` comes only from the earliest incomplete stage; later dependency-satisfied tasks stay blocked until the frontier stage completes.
-- `workers/quests/src/handler.ts` remains serialized in the exact order `T-044`, `T-053`, `T-059`, `T-074`; T-044 and T-053 are complete and the remaining lock order is `T-059`, `T-074`.
+- `workers/quests/src/handler.ts` remains serialized in the exact order `T-044`, `T-053`, `T-059`, `T-074`; T-044, T-053, and T-059 are complete, leaving only T-074 in that shared-handler sequence.
 - Generated bundles, `page.ts`, `page/scaffold.ts`, shared client assembly, and Wrangler configuration remain orchestrator-only lock zones when a task actually needs them.
 
 ### 6.2 P0 implementation packets
@@ -227,8 +227,8 @@ Queue policy:
 - **Test owner:** `workers/quests/src/handler.test.ts`.
 - **Landed T-053 boundary:** `GET /api/quests/{tenant}` serves the validated `ToolsCommandProjection` directly at `commands`; the duplicate legacy alias is absent, and the real Tools renderer consumes only the five exact panel identities plus their typed data. Legacy command objects are normalized only at the Worker boundary; malformed, partial, or unexpected panels fail closed.
 - **Landed T-054/T-056 boundary:** every panel exposes source-aware freshness and checked-at detail, while the aggregate Tools state uses the strictest envelope/panel result. A recommendation cannot target a stale/unknown panel, and every stale panel sheet exposes Retry. The real Mission navigation control carries an exact selected WorkObject ID and explicit matching kind into the Tools context strip and sheets; malformed or mismatched identity pairs fail closed by demoting the complete branch/mission context and recommendation.
-- **Next write set:** T-059 owns the next serialized `workers/quests/src/handler.ts` integration lock with `workers/quests/src/page/scenes/story.ts`, `workers/quests/src/handler.test.ts`, typed Story fixtures/contracts, and synchronized planning truth. T-060 through T-063 remain dependency-blocked behind that integration.
-- **Serialized integration:** T-053 has released `workers/quests/src/handler.ts`; the remaining shared-handler order is T-059 then T-074.
+- **Released integration:** T-059 now owns the receipt-backed Story projection boundary at the Worker and has released `workers/quests/src/handler.ts`; only T-074 remains in the shared-handler sequence.
+- **Next write set:** T-060 and T-061 share `workers/quests/src/page/scenes/story.ts` and must execute as one serialized Story worktree. T-062 and T-063 remain dependency-blocked behind T-061.
 - **Exclusions:** no founder-action mutation, no direct runtime writes, no invented panel, no hidden freshness coercion, and no bypass around Gate for mutations.
 
 #### Story packet — T-033 complete
@@ -241,8 +241,9 @@ Queue policy:
 - **Fixture contract:** handler-to-renderer normal/fail-closed/malformed/unexpected fixtures cover the exact event boundary.
 - **Implementation owner:** `workers/quests/src/page/scenes/story.ts`.
 - **Test owner:** `workers/quests/src/handler.test.ts`.
-- **Future write set:** `workers/quests/src/page/scenes/story.ts`; `workers/quests/src/handler.ts` for coordinator-owned T-059 integration only; `workers/quests/src/handler.test.ts`; and the task map, source-reconciliation mirror, GIP manifest, ISA, and handoff only when verified closeout changes their planning truth. T-059 projects receipt-backed events, T-060 enforces stable replay dedupe, T-061 renders source-qualified timeline rows, T-062 adds kind-and-identity filters, and T-063 explains the first qualifying event.
-- **Serialized integration:** `workers/quests/src/handler.ts` remains serialized; T-059 is the only Story task in the shared handler order.
+- **Landed T-059 boundary:** the Worker projects only receipt-backed public facts into Story: ActionRequest receipts, founder decisions, and completed lifecycle transitions with exact WorkObject identity, canonical event time, source, and receipt identity. Ambiguous joins, missing receipts, malformed timestamps, unsafe public text, and secret-shaped identity segments fail closed; every ledger-bearing response carries the authoritative marker so the browser cannot add legacy ActionRequest or ledger duplicates.
+- **Next collision-safe slice:** T-060 and T-061 share `workers/quests/src/page/scenes/story.ts`; implement stable replay deduplication and source-qualified timeline rows in one serialized worktree, then leave T-062/T-063 blocked until T-061 lands.
+- **Remaining write set:** `workers/quests/src/page/scenes/story.ts`, `workers/quests/src/handler.test.ts`, typed Story fixtures/contracts, and synchronized planning truth. `workers/quests/src/handler.ts` is released from Story work; only T-074 remains in its global serialized order.
 - **Exclusions:** no synthetic success beats, no alias-derived WorkObject joins, no non-canonical timestamps, and no direct ledger mutation.
 
 ## 7. Verification Gates

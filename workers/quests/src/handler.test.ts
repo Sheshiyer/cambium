@@ -28,7 +28,7 @@ import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { PAGE } from './page.ts';
-import { parseStoryEventContract } from './page/scenes/story.ts';
+import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { parseToolsCommandProjection } from './page/scenes/tools.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
@@ -1918,6 +1918,45 @@ test('story contract · rejects a WorkObject identity whose prefix contradicts i
   assert.deepEqual(parsed.issues, [{ path: 'workObject.id', code: 'work_object_kind_mismatch' }]);
 });
 
+test('story contract · secret-shaped identity fragments never enter projected public events', () => {
+  const parsed = parseStoryEventContract({
+    eventId: 'story:cambium:tgwebappdata',
+    workObject: { id: 'sapling:cambium', kind: 'sapling' },
+    source: 'quest-ledger@v1',
+    eventAt: '2026-08-16T08:30:00.000Z',
+    receipt: { id: 'private-key' },
+  });
+  assert.equal(parsed.ok, false);
+  if (!parsed.ok) {
+    assert.deepEqual(parsed.issues.map((issue) => `${issue.path}:${issue.code}`), [
+      'eventId:invalid_identity',
+      'receipt.id:missing_receipt_identity',
+    ]);
+  }
+
+  const projected = projectStoryEvents({
+    actionRequests: {
+      rows: [{
+        id: 'ar_safe_decision_boundary',
+        workObject: { id: 'sapling:cambium', kind: 'sapling' },
+        branchId: 'cambium',
+        selectedOptionId: 'private-key',
+        status: 'queued',
+        updatedAt: '2026-08-16T08:31:00.000Z',
+        receipts: {
+          latest: {
+            at: '2026-08-16T08:30:30.000Z',
+            kind: 'callback',
+            text: 'Founder decision receipt retained',
+          },
+        },
+      }],
+    },
+  });
+  assert.deepEqual(projected.map((event) => event.eventKind), ['receipt']);
+  assert.doesNotMatch(JSON.stringify(projected), /private-key|tgwebappdata/i);
+});
+
 test('tools contract · accepts exactly the five panels with source and freshness on each panel', () => {
   const parsed = parseToolsCommandProjection({
     status: {
@@ -2079,6 +2118,158 @@ test('scene contracts · public envelope normalization feeds only validated Stor
   assert.doesNotMatch(rendered.elements.get('sheetBody')!.innerHTML, /Malformed runtime beat must stay hidden/);
   assert.match(rendered.elements.get('cmds')!.innerHTML, /3 agents · 1 open/);
   assert.match(rendered.elements.get('cmds')!.innerHTML, /1 services/);
+});
+
+test('story projector · receipt, founder decision, and completed transition become canonical public events', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:cambium', JSON.stringify({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:05:00.000Z',
+    source: 'quest-envelope@v1',
+    beats: [],
+    ledger: {
+      completed: 1,
+      total: 1,
+      current: null,
+      rows: [{
+        id: 'transition-iverif-proof',
+        branchId: 'iverif',
+        title: 'Bearer raw-secret-must-not-render',
+        evidence: 'token=raw-secret-must-not-render',
+        status: 'complete',
+        eventAt: '2026-08-16T09:03:00.000Z',
+        source: 'private_key=raw-secret-must-not-render',
+        receipt: { id: 'receipt:iverif:proof-transition' },
+      }],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{
+        branchId: 'iverif',
+        workObjectId: 'sapling:iverif',
+        workObjectKind: 'sapling',
+        name: 'IVerif',
+      }],
+    },
+  }));
+  const created = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      ...iverifActionRequest(),
+      status: 'queued',
+      selectedOptionId: 'make-branch-task',
+      updatedAt: '2026-08-16T09:02:00.000Z',
+      receipts: [{ at: '2026-08-16T09:01:00.000Z', kind: 'callback', text: 'Queued: Make branch task.' }],
+    }),
+  }), { kv, bridgeToken: 'bridge', now: () => '2026-08-16T09:02:00.000Z' });
+  assert.equal(created.status, 200);
+
+  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
+  const envelope = JSON.parse(response.body);
+  assert.equal(response.status, 200);
+  assert.deepEqual(envelope.beats.map((event: { eventKind: string }) => event.eventKind).sort(), ['decision', 'receipt', 'transition']);
+  for (const event of envelope.beats) assert.equal(parseStoryEventContract(event).ok, true);
+
+  const receipt = envelope.beats.find((event: { eventKind: string }) => event.eventKind === 'receipt');
+  assert.equal(receipt.workObject.id, 'sapling:iverif');
+  assert.equal(receipt.workObject.kind, 'sapling');
+  assert.equal(receipt.eventAt, '2026-08-16T09:01:00.000Z');
+  assert.match(receipt.receipt.id, /^receipt:action-request:ar_iverif_autogtm_lead_gap:callback:/);
+  const decision = envelope.beats.find((event: { eventKind: string }) => event.eventKind === 'decision');
+  assert.equal(decision.actionRequestId, 'ar_iverif_autogtm_lead_gap');
+  assert.match(decision.text, /make-branch-task/);
+  const transition = envelope.beats.find((event: { eventKind: string }) => event.eventKind === 'transition');
+  assert.equal(transition.receipt.id, 'receipt:iverif:proof-transition');
+  assert.equal(transition.workObject.id, 'sapling:iverif');
+  assert.equal(transition.source, 'quest-ledger@v1');
+  assert.equal(transition.text, 'Completed Story transition');
+  assert.equal(transition.proof, 'receipt retained');
+  assert.doesNotMatch(JSON.stringify(transition), /raw-secret-must-not-render/);
+
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:06:00.000Z' });
+  const storyRows = rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]');
+  assert.equal(storyRows.length, 3, 'canonical ActionRequest events must not gain a legacy duplicate in the browser');
+});
+
+test('story projector · ambiguous WorkObject joins and receipt-less transitions fail closed', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:cambium', JSON.stringify({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:05:00.000Z',
+    source: 'quest-envelope@v1',
+    beats: [],
+    ledger: {
+      completed: 1,
+      total: 1,
+      current: null,
+      rows: [{
+        id: 'transition-without-receipt',
+        branchId: 'iverif',
+        title: 'Must not project',
+        status: 'complete',
+        eventAt: '2026-08-16T09:03:00.000Z',
+      }],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [
+        { branchId: 'iverif', workObjectId: 'sapling:iverif', workObjectKind: 'sapling' },
+        { branchId: 'iverif', workObjectId: 'program:iverif', workObjectKind: 'program' },
+      ],
+    },
+  }));
+  await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      ...iverifActionRequest(),
+      status: 'queued',
+      selectedOptionId: 'make-branch-task',
+      updatedAt: '2026-08-16T09:02:00.000Z',
+      receipts: [{ at: '2026-08-16T09:01:00.000Z', kind: 'callback', text: 'Queued: Make branch task.' }],
+    }),
+  }), { kv, bridgeToken: 'bridge', now: () => '2026-08-16T09:02:00.000Z' });
+
+  const envelope = JSON.parse((await handle(req('GET', '/api/quests/cambium'), { kv })).body);
+  assert.deepEqual(envelope.beats, []);
+  assert.equal(envelope.actionRequests.count, 1, 'Gate retains the ActionRequest even when Story cannot prove its WorkObject');
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:06:00.000Z' });
+  assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]').length, 0);
+  assert.match(rendered.elements.get('beats')!.innerHTML, /No branch story yet/);
+});
+
+test('story projector · partial ledger envelopes cannot reactivate receipt-less browser fallback', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:cambium', JSON.stringify({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T09:05:00.000Z',
+    source: 'quest-envelope@v1',
+    ledger: {
+      completed: 1,
+      total: 1,
+      current: null,
+      rows: [{
+        id: 'legacy-transition-without-receipt',
+        branchId: 'iverif',
+        title: 'Legacy completed row must stay hidden',
+        status: 'complete',
+        eventAt: '2026-08-16T09:03:00.000Z',
+      }],
+    },
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{ branchId: 'iverif', workObjectId: 'sapling:iverif', workObjectKind: 'sapling' }],
+    },
+  }));
+
+  const envelope = JSON.parse((await handle(req('GET', '/api/quests/cambium'), { kv })).body);
+  assert.deepEqual(envelope.beats, []);
+  assert.equal(envelope.storyProjection.schema, 'cambium.story-event-projection.v1');
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:06:00.000Z' });
+  assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]').length, 0);
+  assert.doesNotMatch(rendered.elements.get('beats')!.innerHTML, /Legacy completed row must stay hidden/);
 });
 
 test('scene contracts · typed Tools projection survives the public route as the sole renderer input', async () => {
