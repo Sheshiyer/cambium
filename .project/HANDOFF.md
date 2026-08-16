@@ -1,5 +1,14 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-062/T-063 Story filters candidate
+
+- Branch `codex/331-t062-t063-story-filters` starts from exact verified main `2d2d2fae6f4b5908a05d4a6a5fa215452f6bee4c` and owns the released Story scene lock for T-062/T-063 only.
+- T-062 derives filter options solely from marker-qualified Story provenance. Exact kind and identity controls compose as one canonical WorkObject pair, never infer from `branchId` or group aliases, and retain the original event order plus source index for every downstream hero, digest, timeline, card, and sheet.
+- T-063 retains the bounded empty-state title/actions while naming receipt, decision, and completed transition as the first qualifying event paths. Machine-readable and accessible guidance binds exact WorkObject identity, time, and receipt without adding a synthetic success beat.
+- RED proved both controls and first-event qualification were absent. GREEN passes the complete Story-focused set 37/37, handler 390/390, reconciliation 2/2, and the complete suite 1768/1768; validation, rendered-doc checks, and the canonical viewport matrix (47/47) also pass. Exact-head release, independent review, hosted CI, and merge proof remain required.
+- The governed queue candidate reads 64 implemented, 4 superseded, 7 executable residuals, and 5 approval-gated rows. The Story stage is terminal and the derived ready frontier advances to T-065; T-068 remains dependency-blocked behind it.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, Inspect, Portfolio, proof-matrix, or approval-gated mutation is included.
+
 ### 2026-08-16 issue #331 T-060/T-061 Story timeline candidate
 
 - Branch `codex/331-t060-t061-story-timeline` starts from exact verified main `a296baea25722fe6d82983feee237ff7ebb07d69` and owns the shared Story scene lock for T-060/T-061 only.
