@@ -3,22 +3,21 @@
   "reconciled_at": "2026-08-15",
   "source_head": "f988d31922385d9352c4efac6abe14b6de4bb1d8",
   "source_head_role": "immutable 2026-08-15 task-map reconciliation baseline; not the current execution head",
-  "evidence_reconciled_through": "origin/main@c40c7a8deb3ad2c256f43e441626ef430cf92252",
+  "evidence_reconciled_through": "origin/main@1b0fb3efc9a4d2203803e0bc270f6872481a131e",
   "historical_plan": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
   "authority": "Current merged source and tests outrank dated plan checklists. executable=true enumerates residual backlog; execution_scheduler.ready_task_ids alone governs immediate dispatch.",
   "counts": {
     "total": 80,
-    "executable": 6,
-    "implemented": 65,
+    "executable": 5,
+    "implemented": 66,
     "superseded": 4,
-    "residual": 6,
+    "residual": 5,
     "approval-gated": 5
   },
   "executable_task_ids": [
     "T-028",
     "T-036",
     "T-037",
-    "T-068",
     "T-074",
     "T-075"
   ],
@@ -53,12 +52,11 @@
         "task_ids": ["T-028", "T-036", "T-037"]
       }
     ],
-    "ready_task_ids": ["T-068"],
+    "ready_task_ids": ["T-074"],
     "backlog_task_ids": [
       "T-028",
       "T-036",
       "T-037",
-      "T-068",
       "T-074",
       "T-075"
     ],
@@ -1582,11 +1580,10 @@
       "phase": "P2",
       "wave": "W5",
       "swarm": "inspect",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/inspect.ts",
-      "current_evidence": "Founder-first readiness rendering is owned by workers/quests/src/page/scenes/inspect.ts; it consumes lower-level freshness evidence but still lacks the explicit per-page readiness summary required by T-068.",
-      "missingAcceptance": "Freshness metadata exists, but no explicit per-page readiness summary panel is present.",
+      "evidence": "workers/quests/src/page/scenes/inspect.ts renders a five-scene InspectPageReadiness panel from the exact served envelope, gives every Mission/Gate/Tools/Story/Inspect row a state and existing proof-sheet link, lets global staleness override every local state, and states that coverage does not prove live Telegram readiness; workers/quests/src/handler.test.ts covers fresh, stale, and partial envelopes.",
       "implementation_owners": [
         "workers/quests/src/page/scenes/inspect.ts"
       ],

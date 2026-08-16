@@ -36,7 +36,8 @@
     "SignalRail",
     "OrbitProgress",
     "SelectedHalo",
-    "InspectProofSummaryAction"
+    "InspectProofSummaryAction",
+    "InspectPageReadiness"
   ],
   "dataFields": [
     { "field": "ledger", "type": "object (rows, completed, total)", "source": "quest-envelope.ledger", "required": true, "fallback": "groups relying on ledger render 'proof-needed' / gap detail" },
@@ -72,6 +73,14 @@
     "order": ["blockers", "freshness", "redacted receipts"],
     "placement": "InspectProofSummaryAction precedes the pane switcher and every Proof/System detail surface",
     "fallback": "zero blockers remains explicit; missing freshness renders stale; receipt copy remains redaction-only and never invents a receipt"
+  },
+  "pageReadiness": {
+    "order": ["Mission", "Gate", "Tools", "Story", "Inspect"],
+    "source": "the same quest envelope consumed by each scene",
+    "proofLinks": { "Mission": "branch-packets", "Gate": "gates", "Tools": "tools", "Story": "evidence", "Inspect": "live-proof" },
+    "globalInvariant": "an absent or older-than-360-minute envelope makes every page stale; no local state may contradict it",
+    "partialEnvelope": "a page is blocked or stale unless its own served contract is present; a served empty Gate or Story contract stays explicitly complete or idle",
+    "liveBoundary": "five-scene coverage and page readiness never imply live Telegram readiness"
   },
   "panelBehavior": {
     "loading": { "pattern": "frozen/04 LOADING (canonical)", "render": "'Synchronizing network / Please wait…' + linear progress bar", "words": "<= 12 + progress" },

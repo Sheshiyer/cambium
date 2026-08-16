@@ -4933,6 +4933,84 @@ test('page · Inspect leads with blocker freshness and receipt cues before syste
   assert.ok(systemHtml.indexOf('data-inspect-lead-cue="receipts"') < systemHtml.indexOf('Runtime state'));
 });
 
+test('page · Inspect readiness matches the served state of all five scenes', async () => {
+  const envelope = {
+    ...FRESH_ECOSYSTEM_VISUAL_FIXTURE,
+    branchStories: {
+      source: 'product-branch-packets@v1',
+      rows: [{ branchId: 'cambium', name: 'Cambium', workObjectId: 'sapling:cambium', workObjectKind: 'sapling' }],
+    },
+    storyProjection: { schema: 'cambium.story-event-projection.v1', eventCount: 1 },
+    beats: [{
+      eventId: 'story:cambium:readiness',
+      eventKind: 'receipt',
+      workObject: { id: 'sapling:cambium', kind: 'sapling' },
+      eventAt: FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt,
+      source: 'quest-ledger@v1',
+      receipt: { id: 'receipt:cambium:readiness' },
+      text: 'Readiness receipt retained',
+    }],
+  };
+  const rendered = await renderPageFixtureContext(envelope, {
+    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
+  });
+  selectInspectPane(rendered, 'system');
+  const map = rendered.elements.get('mapwrap')!;
+  const html = map.innerHTML;
+  const panel = html.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
+
+  assert.match(panel, /data-component="InspectPageReadiness"/);
+  assert.match(panel, /data-live-telegram-readiness="not-implied"/);
+  assert.match(panel, /coverage does not prove live Telegram readiness/i);
+  const expected = [
+    ['mission', 'active', 'branch-packets'],
+    ['gate', 'complete', 'gates'],
+    ['tools', 'active', 'tools'],
+    ['story', 'active', 'evidence'],
+    ['inspect', 'proof-needed', 'live-proof'],
+  ];
+  let previous = -1;
+  for (const [scene, state, proof] of expected) {
+    const marker = `data-inspect-readiness-page="${scene}"`;
+    const index = panel.indexOf(marker);
+    assert.ok(index > previous, `${scene} keeps canonical scene order`);
+    previous = index;
+    assert.match(panel, new RegExp(`${marker}[^>]*data-inspect-readiness-state="${state}"[^>]*data-inspect-readiness-proof="${proof}"`));
+  }
+  assert.equal((panel.match(/data-inspect-readiness-page=/g) || []).length, 5);
+
+  const proofLinks = map.querySelectorAll('[data-inspect-readiness-proof]');
+  for (const [, , proof] of expected) {
+    const link = proofLinks.find((node) => node.dataset.inspectReadinessProof === proof);
+    assert.ok(link, `${proof} proof link renders`);
+    assert.equal(typeof link.onclick, 'function');
+    (link.onclick as () => void)();
+    assert.match(rendered.elements.get('sheetBody')!.innerHTML, new RegExp(`inspect · ${proof}`));
+  }
+
+  const stale = await renderPageFixtureContext(envelope, { now: '2026-06-22T16:00:00.000Z' });
+  selectInspectPane(stale, 'system');
+  const stalePanel = stale.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.equal((stalePanel.match(/data-inspect-readiness-state="stale"/g) || []).length, 5);
+  assert.doesNotMatch(stalePanel, /data-inspect-readiness-state="(?:active|complete)"/);
+
+  const partial = await renderPageFixtureContext({
+    schema: 1,
+    tenant: 'cambium',
+    source: 'partial-readiness-fixture',
+    derivedAt: FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt,
+    ledger: FRESH_ECOSYSTEM_VISUAL_FIXTURE.ledger,
+    openItems: [],
+  }, { now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
+  selectInspectPane(partial, 'system');
+  const partialPanel = partial.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.match(partialPanel, /data-inspect-readiness-page="mission"[^>]*data-inspect-readiness-state="blocked"/);
+  assert.match(partialPanel, /data-inspect-readiness-page="gate"[^>]*data-inspect-readiness-state="complete"/);
+  assert.match(partialPanel, /data-inspect-readiness-page="tools"[^>]*data-inspect-readiness-state="stale"/);
+  assert.match(partialPanel, /data-inspect-readiness-page="story"[^>]*data-inspect-readiness-state="blocked"/);
+  assert.match(partialPanel, /data-inspect-readiness-page="inspect"[^>]*data-inspect-readiness-state="blocked"/);
+});
+
 test('page · visual tapestry layer exposes wake, lanes, stance, policy, decision context, live proof, branch stories, side quests, social, skills, companions, evidence boxes, and gaps', () => {
   for (const m of ['renderTapestryAudit', 'data-tapestry', 'completion definition · ', 'ACTIVE ORGAN', 'R3F CONTRACT', 'wakeSteps', 'wake', 'data-wake', 'wake step · ', 'wake history', 'operator wake events', 'latest snapshot, not a historical trace', 'renderLanes', 'lane · ', 'renderStance', 'tenant stance · ', 'renderPolicy', 'policy', 'POLICY GAP', 'caution ', 'renderDecisionContext', 'decision context', 'decision context · ', 'policy authority', 'renderLiveProof', 'live proof', 'data-live-proof', 'capture plan · not proof', 'proof only after', 'renderBranches', 'branch packets', 'missions', 'KPIs', 'gates', 'proof paths', 'openBranchMissionSheet', 'product-branch-packets@v1', 'product-branches', 'renderSideQuests', 'side quests', 'side quest · ', 'Queue side quest', 'queue-side-quest', 'side quest ledger remains unchanged', 'owner', 'action', 'target', 'lifetime', 'completion', 'trigger', 'proof', 'renderSocial', 'coordination', 'coordination · ', 'SOCIAL GAP', 'tenant-handoff-only', 'renderSenses', 'sense · ', 'senseEnv', 'renderInsightBoxes', 'evidence', 'insightEnv', 'no quest evidence rows served', 'source', 'skill labors', 'tierLabel', 'UNPROVEN', 'recentRate', 'promotion:', 'companions', 'companion · ', 'stage', 'scope', 'advice proof', 'history', 'no relationship events served', 'awaiting signal', 'explicit gap']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);

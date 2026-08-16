@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-08-16 issue #331 T-068 Inspect page-readiness candidate
+
+- Branch `codex/331-t068-inspect-readiness` starts from exact verified main `1b0fb3efc9a4d2203803e0bc270f6872481a131e` and owns only the remaining T-068 Inspect scene lock.
+- RED proved no explicit cross-page readiness component existed. GREEN lists Mission, Gate, Tools, Story, and Inspect in canonical order, derives every state from the same served envelope each page consumes, and links each row to its existing Inspect proof sheet.
+- Global envelope staleness overrides all five local states, partial envelopes fail closed, served empty Gate/Story contracts remain explicit, and the panel says coverage does not prove live Telegram readiness.
+- The focused cross-page invariant covers fresh, stale, and partial envelopes. Focused Inspect/reconciliation checks pass 3/3 and 2/2, the complete suite passes 1771/1771, validation/rendered-doc checks pass, and the canonical viewport matrix passes 47/47. The governed queue candidate reads 66 implemented, 4 superseded, 5 executable residuals, and 5 approval-gated rows; T-074 becomes the sole ready frontier and the Inspect scene lock is released.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, Portfolio, proof-matrix, or approval-gated mutation is included.
+
 ### 2026-08-16 issue #331 T-065 Inspect lead hierarchy candidate
 
 - Branch `codex/331-t065-inspect-proof` starts from exact verified main `c40c7a8deb3ad2c256f43e441626ef430cf92252` and owns only the T-065 Inspect scene lock.
