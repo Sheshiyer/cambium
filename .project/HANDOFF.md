@@ -1,5 +1,105 @@
 # Project handoff
 
+### 2026-08-16 portfolio branch reconciliation and governed PR checkpoint
+
+- GitHub Project 14 is formally linked to `Sheshiyer/cambium`. Its live queue
+  includes open issues #249, #252, #280-#284, and Mini App execution owner
+  #331. Project membership is planning truth; it is not runtime authority.
+- Repository governance now uses squash-only merges and automatic head-branch
+  deletion for Cambium, Fitcheck, Vantyx, IVerif, DLOCK, and Snow Gloves.
+  Active `main-pr-and-ci` rulesets require PRs, linear history, resolved review
+  threads, and each repository's exact green check in Cambium, Fitcheck,
+  Vantyx, IVerif, and Snow Gloves. GitHub rejects rulesets for private DLOCK on
+  the current plan, so its CI-backed PR boundary remains procedural.
+- The clean cross-repository merge wave is on default branches:
+  Cambium PR #329 -> `3b642b82c939f4f48bac3e2f9123d49e629691dd`;
+  Fitcheck PR #3 -> `ce75208ba2f3e7011fb406b275acf1a7f8331d92`;
+  Vantyx PR #2 -> `05ee1a4c2deea9da241b96cee43d8122954b7f79`;
+  DLOCK PR #2 -> `742de8c61609cde624214354e52ee71f81bb1bf6`;
+  IVerif corrective PR #93 -> `578758eb43a3f705cd7e063a3a7314d0ad802c8f`;
+  Cambium PR #330 -> `0c22c3067f71c2a8cc36dfd72118edfe8f838915`;
+  and Cambium Mini App P1 PR #332 ->
+  `1c57fc082b72b88b95e9ee912adefc2efea68f63`.
+  Exact-merge CI/readback succeeded for every repository; Fitcheck used its
+  exact Vercel success status. Connected issues remain open for their residual
+  acceptance work.
+- IVerif PR #92 and Cambium PR #329 were merged by a review lane that exceeded
+  its explicit read-only authority. PR #92's false-green inventory verifier
+  was immediately superseded by independently reviewed PR #93. PR #329's
+  exact merged head was independently green and its post-merge Cambium CI
+  succeeded. This is a pipeline-authority incident, not an inferred approval;
+  later merge decisions were made only by the coordinator with pinned heads.
+- Cambium PR #330 was blocked twice despite green intermediate CI: first for
+  output-symlink escape and incomplete manifests, then for backdated receipt
+  semantics and inconsistent human-readable totals. The final reviewed head
+  `8eed1343f86c8e1ffabeabde92da53c2d8971ae4` fixes both classes, proves six
+  focused regressions and 1,740 core tests, and is byte-idempotent against 177
+  tracked `docs/plans` entries. Exact post-merge main CI run 31935619087 passed.
+- Snow Gloves PR #6 was closed unmerged at
+  `a3675600839427af93c890a0c4948f9ee883b3b3`. Its failed CI, behaviorful local
+  config, generated identity/operator material, and cross-language content
+  are not safe branch-wide inputs. Its six remaining remote topic branches are
+  held as recovery/salvage evidence, never merge candidates.
+- Eighteen local Cambium refs whose work was ancestor-equivalent,
+  patch-equivalent, superseded by merged PRs, or exact merged PR heads were
+  deleted after readback. The temporary worktrees for PR #329 and PR #330 were
+  clean and removed. Two provably empty remote refs were also removed:
+  IVerif `issue-syncing` (zero ahead/two behind, no code reference) and Cambium
+  `codex/command-code-provider-api` (zero ahead). Cambium
+  `codex/fix-labs-portfolio-plexus-origin` was removed at the exact merged PR
+  #288 head.
+- Nine local Cambium histories remain deliberately held because their unique
+  stacks are cumulative or collide with later squash merges:
+  `codex/fitcheck-founder-outcome-pilot`,
+  `codex/fitcheck-quests-release-candidate`,
+  `codex/gate-row-descriptor-fix`,
+  `codex/goal-intake-parent-context-fix`,
+  `codex/portfolio-drawer-tabs-fix`,
+  `codex/portfolio-production-candidate`,
+  `codex/portfolio-release-admission-pilot`, `codex/portfolio-tg-flow`, and
+  `codex/project-r2-mapping-plan`. No whole-branch PR should be opened from
+  these refs; independently useful hunks must be reconstructed on fresh main.
+- The live Cambium remote recovery refs
+  `project-management/relocation-records`, `stash-{0,1,2}-20260807`, their
+  three exact `stash-backup-*` duplicates, and `tooling/hands-cli-binding`
+  remain held. The relocation branch advanced beyond merged PR #286; stash
+  refs are recovery data; the tooling branch has no reviewed PR. None was
+  deleted or proposed wholesale.
+- Three formerly dirty temporary worktrees no longer exist:
+  `/private/tmp/cambium-gate-row.AcfUHn`,
+  `/private/tmp/cambium-release-sequence.2azwvQ`, and
+  `/private/tmp/cambium-sequence-evidence.8No11S`. Their committed branch refs
+  survive, but their earlier uncommitted workflow deletions and ISA delta are
+  unavailable and were not reviewed, merged, or represented as preserved.
+  Stale worktree administration records were pruned only after this mapping.
+- The primary checkout remains untouched on stale
+  `codex/project-r2-mapping-plan`. It still has 36 porcelain entries. Nine
+  file-level paths are byte-identical to current main; the remaining local
+  configs, planning receipts, `MEMORY/WORK` artifacts, generated media/docs,
+  package files, HANDOFF/INTEGRATION edits, and `.brandmint-outputs` deletion
+  remain user-owned holds. Never `git add -A`, stash, reset, rebase, or publish
+  that checkout wholesale.
+- PR #329 first reconciled the Mini App map to 50 implemented, four
+  superseded, 21 executable residuals, and five approval gates. Issue #331
+  records the safe dependency graph. PR #332 then completed T-008, T-009, and
+  T-021 through real public-envelope Story/Tools enforcement and synchronous
+  initial hydration, moving the governed queue to 53 implemented and 18
+  executable residuals. Its first green head was blocked because parsers only
+  had helper-test call sites and GIP-003 still claimed 50/21; exact head
+  `d2b5c5a0bb60e411370e0b948b9769d1e3b0d7f0` fixed both false greens, passed
+  1,753 tests, and received an independent PASS before pinned squash merge.
+  T-020, T-038, T-078, T-079, and T-080 remain approval gated; T-078 includes
+  production KV republication and is not automatic. The next slice is
+  dependency-bound T-032/T-033, followed by independent page verticals,
+  serialized handler/envelope integration, browser/CI proof, and release last.
+- Runtime/content boundaries remain unchanged: #249 must prove both preserved
+  task consumers and durable outcomes before ACK; #252 needs source-owner
+  approval for three exact safe paths; #283 follows #249 plus #252-safe or
+  fail-closed state and separately approved D1/AWS canary; #284 does not
+  authorize quest push, Hermes activation, or deployment. No provider,
+  credential, mailbox, Telegram, D1, KV, R2, Vault, registry, relocation, or
+  production deployment mutation occurred in this reconciliation wave.
+
 ### 2026-08-14 inert Gate-repair candidate upload checkpoint
 
 - Owner authority covered one inert Worker Version upload of exact source `a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165`; it did not authorize promotion or a deployment change.

@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Add the Fitcheck founder evidence-to-Gate pilot and prove Goal Graph readback"
+task: "Reconcile portfolio branches and finish repository-owned execution queues"
 effort: E4
 effort_source: task-classification
-phase: complete
-progress: 54/54
+phase: execute
+progress: 22/30
 mode: interactive
-iteration: 2026-08-14-fitcheck-founder-evidence-pilot
+iteration: 2026-08-16-portfolio-branch-reconciliation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-15T00:10:18+05:30
+updated: 2026-08-16T14:30:00+05:30
 ---
 
 ## Problem
@@ -2609,3 +2609,81 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
   values, same-ID ambiguous retry, pending Gate, exact authenticated descriptor,
   preserved Fitcheck selection, committed outcome, six authenticated refreshes,
   and shared Goal Graph head. P0/P1/P2/P3 are all zero.
+
+## 2026-08-16 portfolio branch reconciliation and execution wave
+
+- [x] ISC-1243: `gh auth status` proves repository, workflow, project, and organization access before GitHub mutation.
+- [x] ISC-1244: Cambium local branches are enumerated with exact head SHA, upstream, worktree, ahead/behind count, patch-equivalence count, and PR disposition.
+- [x] ISC-1245: Cambium remote branches are enumerated with exact head SHA and owning or historical PR disposition.
+- [x] ISC-1246: Every extant Cambium worktree has a captured porcelain status before any cleanup or integration.
+- [x] ISC-1247: Prunable worktree metadata is distinguished from recoverable filesystem content and is not represented as preserved uncommitted work.
+- [x] ISC-1248: Root checkout changes remain byte-for-byte untouched by reconciliation work.
+- [x] ISC-1249: Each root uncommitted path receives a reviewed disposition: already merged, candidate PR, generated/local-only, or explicit hold.
+- [x] ISC-1250: No workflow deletion enters a PR unless its exact source diff is independently justified and tested.
+- [x] ISC-1251: Fitcheck, Vantyx, IVerif, DLOCK, and Snow Gloves repositories each have live default-branch, open-PR, remote-branch, and issue readback evidence.
+- [x] ISC-1252: Non-git portfolio folders are treated as evidence inputs and never silently promoted as repository checkouts.
+- [x] ISC-1253: Every connected-repository remote branch maps to an open/merged PR, an exact patch-equivalent main state, a candidate PR, or an explicit hold.
+- [x] ISC-1254: Snow Gloves PR #6 completes read-only review before prepare or merge.
+- [ ] ISC-1255: Each candidate PR has `.local/review.md` and `.local/review.json` against its exact merge base.
+- [ ] ISC-1256: Each prepared PR resolves every BLOCKER and IMPORTANT finding and records `.local/prep.env` with the exact pushed head.
+- [ ] ISC-1257: Every merge is squash-only, required-check green, and pinned to `PREP_HEAD_SHA`.
+- [x] ISC-1258: Post-merge default-branch CI succeeds at each exact merge commit before cleanup.
+- [x] ISC-1259: Worktrees and branches are removed only after their corresponding PR reads back MERGED.
+- [x] ISC-1260: The reconciled Mini App rows remain individually traceable by stable task ID and exact file owner.
+- [x] ISC-1261: Contract/hydration tasks T-008, T-009, and T-021 gain failing tests before implementation and pass focused tests afterward.
+- [ ] ISC-1262: Planning/CI proof tasks T-028 through T-037 gain exact evidence or remain open with a named failing probe.
+- [ ] ISC-1263: Mission/Tools tasks T-042, T-044, T-053, T-054, and T-056 gain exact evidence or remain open with a named failing probe.
+- [ ] ISC-1264: Story tasks T-059 through T-063 gain exact evidence or remain open with a named failing probe.
+- [ ] ISC-1265: Inspect/Portfolio tasks T-065, T-068, T-074, and T-075 gain exact evidence or remain open with a named failing probe.
+- [x] ISC-1266: Release task T-078 remains approval-gated because acceptance requires a separately authorized production KV republication receipt.
+- [x] ISC-1267: Approval-gated T-020, T-038, T-078, T-079, and T-080 never enter automatic execution.
+- [x] ISC-1268: Runtime/content issues #284, #283 after #249, and #252 remain gated unless live prerequisites independently pass.
+- [x] ISC-1269: No deployment, provider, credential, mailbox, Telegram, D1, KV, R2, Vault, registry, or relocation mutation occurs without separate exact authority.
+- [x] ISC-1270: Cambium issues and Project 14 reflect only verified merged or explicitly held outcomes.
+- [x] ISC-1271: `.project/HANDOFF.md` records every merged PR, held branch, vanished worktree, connected-repository disposition, and next executable slice.
+- [ ] ISC-1272: Independent E4 review finds no unreviewed head, lost recoverable change, skipped required check, or false completion claim.
+
+### Test strategy
+
+- ISC-1243..1253 | inventory | live `git`, `gh`, and filesystem readback | exact exhaustive classifications | shell + GitHub API
+- ISC-1254..1259 | PR pipeline | review/prepare/merge artifacts and exact-head checks | zero skipped gates | git-pr-ops pipeline
+- ISC-1260..1266 | executable queue | task-map test plus focused behavior suites | each task passed or named residual | Node test runner
+- ISC-1267..1269 | anti-mutation | task map, issue prerequisites, and external-state diff | zero unauthorized action | `jq`, `gh`, provider readback
+- ISC-1270..1272 | closure | issue/project/handoff readback plus independent audit | exact evidence and no critical finding | `gh`, file read, Cato
+
+### Features
+
+- `PortfolioGitInventory` | classify all Cambium and connected-repository refs and filesystem states | satisfies ISC-1243..1253 | depends_on none | parallelizable true
+- `ProtectedPRPipeline` | review, prepare, exact-head merge, verify, then clean eligible branches | satisfies ISC-1254..1259 | depends_on PortfolioGitInventory | parallelizable by repository
+- `MiniAppExecutionWaves` | implement the 28 residual tasks in dependency-safe slices | satisfies ISC-1260..1266 | depends_on ProtectedPRPipeline | parallelizable by non-overlapping owner files
+- `GatePreservation` | keep approval and runtime/content boundaries explicit | satisfies ISC-1267..1269 | depends_on PortfolioGitInventory | parallelizable false
+- `PortfolioHandoff` | update GitHub planning truth and bounded repository checkpoint | satisfies ISC-1270..1272 | depends_on all prior features | parallelizable false
+
+### Decisions
+
+- 2026-08-16 11:55: refined: temporary worktree metadata is not evidence that its filesystem still exists. Three previously dirty `/private/tmp` worktrees now read as prunable with non-existent gitdirs, so their uncommitted workflow deletions cannot be reviewed or represented as recoverable; the surviving commits remain auditable through branch refs.
+- 2026-08-16 11:55: the dirty root checkout is evidence-bearing user state and remains outside the reconciliation branch. All new acceptance and handoff edits occur in an isolated worktree from exact `origin/main`.
+- 2026-08-16 13:55: “merge every branch” is refined to “give every branch a truthful disposition.” Squash-merged duplicates, stale recovery refs, generated/local state, and cumulative stacks are not valid wholesale PR candidates.
+- 2026-08-16 13:55: connected-repository governance uses active rulesets wherever GitHub supports them. Private DLOCK remains a documented procedural exception because the current plan rejects rulesets with HTTP 403.
+- 2026-08-16 13:55: T-078 is approval-gated despite its earlier executable classification because its acceptance contract includes a production KV republication receipt.
+- 2026-08-16 13:55: read-only reviewer authority is a hard pipeline boundary. The unauthorized merges of Cambium PR #329 and IVerif PR #92 are recorded as incidents; blocked IVerif behavior was corrected by independently reviewed PR #93.
+- 2026-08-16 14:30: Mini App contract completion requires production-boundary enforcement. Exported parsers plus helper tests cannot close T-008/T-009 while raw envelopes still reach live renderers.
+
+### Changelog
+
+- 2026-08-16 | conjectured: the three held temporary worktrees still preserved reviewable uncommitted workflow deletions
+  refuted by: `git worktree list --porcelain` reports each gitdir prunable and the exact filesystem paths no longer exist
+  learned: branch refs preserve committed lineage, but vanished temporary directories cannot preserve uncommitted bytes and must be reported as lost evidence rather than held work
+  criterion now: ISC-1247 distinguishes prunable metadata from recoverable filesystem content, while ISC-1250 prevents inferred workflow deletions from entering any PR
+- 2026-08-16 | conjectured: a green retention-receipt PR was safe after fixing symlink containment and manifest completeness
+  refuted by: independent exact-head recomputation found backdated current-state receipts and contradictory Markdown totals
+  learned: receipt validity includes semantic time truth and agreement across human- and machine-readable forms, not merely deterministic bytes
+  criterion now: PR #330's named release gate checks exact-HEAD metadata, all canonical receipt totals, self-reference exclusion, symlink safety, and post-commit byte idempotence
+- 2026-08-16 | conjectured: all live remote branches were represented by the checkout's configured `origin/*` tracking refs
+  refuted by: the clone's narrow fetch configuration omitted ten live GitHub branches and retained stale tracking refs no longer present remotely
+  learned: branch reconciliation must use the hosting API as live authority and treat local remote-tracking refs as cached evidence only
+  criterion now: ISC-1245 requires live GitHub branch enumeration plus exact PR/recovery disposition before deletion
+- 2026-08-16 | conjectured: passing parser unit tests were enough to complete Mini App Story and Tools contract tasks
+  refuted by: exact-head review found zero production parser references and raw `beats`/`commands` still reaching live render paths
+  learned: contract acceptance belongs at the public envelope boundary and must be exercised through the handler-to-renderer path
+  criterion now: ISC-1261 requires RED/GREEN production-path tests, fail-closed normalization, cross-ledger agreement, exact-head CI, and independent review
