@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 const gates = [
   ['retired runtime guard', 'npm', ['run', 'retired-runtime:check']],
   ['drift audit', 'npm', ['run', 'drift:audit']],
+  ['retention manifest focused tests', 'node', ['--test', 'scripts/generate-docs-retention-manifest.test.mjs']],
   ['core tests', 'npm', ['test']],
   ['generated docs', 'npm', ['run', 'render-docs:check']],
   ['product branch packets', 'npm', ['run', 'validate:product-branches']],
