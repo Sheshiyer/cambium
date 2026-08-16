@@ -2013,6 +2013,132 @@ test('tools contract · rejects missing panels, empty sources, malformed freshne
   ]);
 });
 
+test('scene contracts · public envelope normalization feeds only validated Story and Tools data into real renderers', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:cambium', JSON.stringify({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:30:00.000Z',
+    source: 'quest-envelope@v1',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [
+      {
+        eventId: 'story:cambium:valid-proof',
+        workObject: { id: 'sapling:cambium', kind: 'sapling' },
+        source: 'quest-ledger@v1',
+        eventAt: '2026-08-16T08:29:00.000Z',
+        receipt: { id: 'receipt:cambium:valid-proof' },
+        text: 'Validated proof reached the Story scene',
+        lane: 'quest',
+      },
+      {
+        eventId: 'story:cambium:missing-receipt',
+        workObject: { id: 'sapling:cambium', kind: 'sapling' },
+        source: 'quest-ledger@v1',
+        eventAt: '2026-08-16T08:29:30.000Z',
+        text: 'Malformed runtime beat must stay hidden',
+        lane: 'quest',
+      },
+    ],
+    commands: {
+      status: { agents: 3, issuesOpen: 1 },
+      services: [{ name: 'Cambium Worker', status: 'ready' }],
+      agents: [{ name: 'Noesis', model: 'operator' }],
+      work: [{ id: 'T-008', status: 'complete' }],
+      handoffs: [],
+    },
+  }));
+
+  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
+  const envelope = JSON.parse(response.body);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(envelope.beats.map((beat: { eventId: string }) => beat.eventId), ['story:cambium:valid-proof']);
+  assert.equal(envelope.commandProjection.status.panelId, 'status');
+  assert.equal(envelope.commandProjection.status.source, 'quest-envelope@v1');
+  assert.deepEqual(envelope.commandProjection.status.freshness, {
+    state: 'unknown',
+    checkedAt: '2026-08-16T08:30:00.000Z',
+  });
+  assert.deepEqual(envelope.commandProjection.activeWork.data, [{ id: 'T-008', status: 'complete' }]);
+  assert.deepEqual(envelope.commands.work, [{ id: 'T-008', status: 'complete' }]);
+
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T08:31:00.000Z' });
+  (rendered.context.renderCommands as () => void)();
+  const storyRows = rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]');
+  assert.equal(storyRows.length, 1);
+  (rendered.context.openStoryBeat as (index: number) => void)(0);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /Validated proof reached the Story scene/);
+  assert.doesNotMatch(rendered.elements.get('sheetBody')!.innerHTML, /Malformed runtime beat must stay hidden/);
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /3 agents · 1 open/);
+  assert.match(rendered.elements.get('cmds')!.innerHTML, /1 services/);
+});
+
+test('scene contracts · malformed command panels fail closed before Tools rendering', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:cambium', JSON.stringify({
+    schema: 1,
+    tenant: 'cambium',
+    derivedAt: '2026-08-16T08:30:00.000Z',
+    source: 'quest-envelope@v1',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [],
+    commands: {
+      status: { agents: 99, issuesOpen: 99 },
+      services: 'not-an-array',
+      agents: [],
+      work: [],
+      handoffs: [],
+    },
+  }));
+
+  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
+  const envelope = JSON.parse(response.body);
+  assert.equal(envelope.commands, null);
+  assert.equal(envelope.commandProjection, null);
+
+  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T08:31:00.000Z' });
+  (rendered.context.renderCommands as () => void)();
+  const toolsHtml = rendered.elements.get('cmds')!.innerHTML;
+  assert.match(toolsHtml, /data-interaction-kind="read-only"/);
+  assert.doesNotMatch(toolsHtml, /99 agents/);
+
+  await kv.put('ledger:acme', JSON.stringify({
+    schema: 1,
+    tenant: 'acme',
+    derivedAt: '2026-08-16T08:30:00.000Z',
+    source: 'quest-envelope@v1',
+    ledger: { completed: 0, total: 0, current: null, rows: [] },
+    beats: [],
+    commands: {
+      status: { agents: 1, issuesOpen: 0 },
+      services: [],
+      agents: [],
+      work: [],
+      handoffs: [],
+      rogue: [{ name: 'unowned panel' }],
+    },
+  }));
+  const unexpectedPanel = JSON.parse((await handle(req('GET', '/api/quests/acme'), { kv })).body);
+  assert.equal(unexpectedPanel.commands, null);
+  assert.equal(unexpectedPanel.commandProjection, null);
+});
+
+test('scene contracts · invalid stored envelope cannot bypass normalization as raw response data', async () => {
+  const kv = fakeKv();
+  await kv.put('ledger:cambium', '{"beats":[{"text":"unvalidated runtime data"}]');
+
+  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(JSON.parse(response.body), {
+    schema: 1,
+    tenant: 'cambium',
+    source: 'stored-envelope-validation',
+    error: 'stored_envelope_invalid',
+  });
+});
+
 test('push · requires configured token', async () => {
   const r = await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE }), { kv: fakeKv() });
   assert.equal(r.status, 503);

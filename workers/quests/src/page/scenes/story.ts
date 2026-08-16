@@ -21,6 +21,17 @@ export interface StoryEventContract {
   receipt: {
     id: string;
   };
+  text?: string;
+  lane?: string;
+  group?: string;
+  context?: string;
+  branchId?: string;
+  outcome?: string;
+  proof?: string;
+  detail?: string;
+  followup?: string;
+  actionRequestId?: string;
+  noesis?: boolean;
 }
 
 export interface StoryEventContractIssue {
@@ -101,6 +112,17 @@ export function parseStoryEventContract(input: unknown): StoryEventContractParse
       source: (event.source as string).trim(),
       eventAt: event.eventAt as string,
       receipt: { id: receipt!.id as string },
+      ...(typeof event.text === 'string' ? { text: event.text } : {}),
+      ...(typeof event.lane === 'string' ? { lane: event.lane } : {}),
+      ...(typeof event.group === 'string' ? { group: event.group } : {}),
+      ...(typeof event.context === 'string' ? { context: event.context } : {}),
+      ...(typeof event.branchId === 'string' ? { branchId: event.branchId } : {}),
+      ...(typeof event.outcome === 'string' ? { outcome: event.outcome } : {}),
+      ...(typeof event.proof === 'string' ? { proof: event.proof } : {}),
+      ...(typeof event.detail === 'string' ? { detail: event.detail } : {}),
+      ...(typeof event.followup === 'string' ? { followup: event.followup } : {}),
+      ...(typeof event.actionRequestId === 'string' ? { actionRequestId: event.actionRequestId } : {}),
+      ...(typeof event.noesis === 'boolean' ? { noesis: event.noesis } : {}),
     },
   };
 }

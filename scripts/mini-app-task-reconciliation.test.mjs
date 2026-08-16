@@ -96,7 +96,11 @@ test('source reconciliation and execution manifest agree with the governed queue
   })
   assert.equal(ledger.counts.executable_tasks, 18)
   assert.equal(gip003.status, 'completed')
-  assert.match(gip003.validation, /50 implemented, 4 superseded, 21 executable residuals, and 5 non-executable approval-gated/)
+  assert.match(
+    gip003.validation,
+    new RegExp(`${taskMap.counts.implemented} implemented, ${taskMap.counts.superseded} superseded, ${taskMap.counts.residual} executable residuals, and ${taskMap.counts['approval-gated']} non-executable approval-gated`),
+  )
+  assert.doesNotMatch(gip003.validation, /50 implemented|21 executable residuals/)
 
   const serialized = JSON.stringify({ taskMap, ledger, manifest })
   assert.equal(serialized.includes('/Volumes/'), false)

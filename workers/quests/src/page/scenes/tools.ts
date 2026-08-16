@@ -20,6 +20,7 @@ export interface ToolsCommandPanelProjection<TPanelId extends ToolsCommandPanelI
     state: ToolsCommandFreshnessState;
     checkedAt: string;
   };
+  data?: unknown;
 }
 
 export interface ToolsCommandProjection {
@@ -40,7 +41,8 @@ export interface ToolsCommandProjectionIssue {
     | 'missing_source'
     | 'malformed_freshness'
     | 'invalid_freshness_state'
-    | 'invalid_iso_time';
+    | 'invalid_iso_time'
+    | 'invalid_panel_data';
 }
 
 export type ToolsCommandProjectionParseResult =
@@ -56,6 +58,12 @@ const TOOLS_PANEL_FIELDS = [
   ['handoffs', 'handoffs'],
 ] as const;
 
+export interface ToolsCommandProjectionAuthority {
+  source: unknown;
+  checkedAt: unknown;
+  state?: unknown;
+}
+
 function toolsRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -65,6 +73,10 @@ function toolsRecord(value: unknown): Record<string, unknown> | null {
 function toolsCanonicalIso(value: unknown): value is string {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)) return false;
   return Number.isFinite(Date.parse(value));
+}
+
+function toolsPanelDataValid(panelId: ToolsCommandPanelId, value: unknown): boolean {
+  return panelId === 'status' ? toolsRecord(value) !== null : Array.isArray(value);
 }
 
 export function parseToolsCommandProjection(input: unknown): ToolsCommandProjectionParseResult {
@@ -96,6 +108,9 @@ export function parseToolsCommandProjection(input: unknown): ToolsCommandProject
     if (!toolsCanonicalIso(freshness.checkedAt)) {
       issues.push({ path: `${field}.freshness.checkedAt`, code: 'invalid_iso_time' });
     }
+    if ('data' in panel && !toolsPanelDataValid(panelId, panel.data)) {
+      issues.push({ path: `${field}.data`, code: 'invalid_panel_data' });
+    }
     if (
       panel.panelId === panelId
       && typeof panel.source === 'string'
@@ -103,6 +118,7 @@ export function parseToolsCommandProjection(input: unknown): ToolsCommandProject
       && typeof freshness.state === 'string'
       && TOOLS_FRESHNESS_STATES.has(freshness.state as ToolsCommandFreshnessState)
       && toolsCanonicalIso(freshness.checkedAt)
+      && (!('data' in panel) || toolsPanelDataValid(panelId, panel.data))
     ) {
       parsedPanels[field] = {
         panelId,
@@ -111,6 +127,7 @@ export function parseToolsCommandProjection(input: unknown): ToolsCommandProject
           state: freshness.state as ToolsCommandFreshnessState,
           checkedAt: freshness.checkedAt,
         },
+        ...('data' in panel ? { data: panel.data } : {}),
       };
     }
   }
@@ -130,6 +147,35 @@ export function parseToolsCommandProjection(input: unknown): ToolsCommandProject
       handoffs: parsedPanels.handoffs as ToolsCommandPanelProjection<'handoffs'>,
     },
   };
+}
+
+export function normalizeToolsCommandProjection(
+  input: unknown,
+  authority: ToolsCommandProjectionAuthority,
+): ToolsCommandProjectionParseResult {
+  const strict = parseToolsCommandProjection(input);
+  if (strict.ok) return strict;
+
+  const legacy = toolsRecord(input);
+  const source = typeof authority.source === 'string' ? authority.source.trim() : '';
+  const checkedAt = authority.checkedAt;
+  const state = typeof authority.state === 'string' && TOOLS_FRESHNESS_STATES.has(authority.state as ToolsCommandFreshnessState)
+    ? authority.state as ToolsCommandFreshnessState
+    : 'unknown';
+  if (!legacy || !source || !toolsCanonicalIso(checkedAt)) return strict;
+  const legacyFields = new Set(['status', 'services', 'agents', 'work', 'handoffs']);
+  if (Object.keys(legacy).length !== legacyFields.size || Object.keys(legacy).some((field) => !legacyFields.has(field))) {
+    return strict;
+  }
+
+  const candidate = {
+    status: { panelId: 'status', source, freshness: { state, checkedAt }, data: legacy.status },
+    services: { panelId: 'services', source, freshness: { state, checkedAt }, data: legacy.services },
+    agents: { panelId: 'agents', source, freshness: { state, checkedAt }, data: legacy.agents },
+    activeWork: { panelId: 'active-work', source, freshness: { state, checkedAt }, data: legacy.work },
+    handoffs: { panelId: 'handoffs', source, freshness: { state, checkedAt }, data: legacy.handoffs },
+  };
+  return parseToolsCommandProjection(candidate);
 }
 
 export const SCENE_TOOLS = `let CMDDATA = null;

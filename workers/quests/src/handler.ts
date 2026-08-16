@@ -9,6 +9,8 @@
 
 import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
+import { parseStoryEventContract } from './page/scenes/story.ts';
+import { normalizeToolsCommandProjection, type ToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
@@ -2641,9 +2643,57 @@ function socialRowText(row: Record<string, unknown>): string {
   ].filter((item) => typeof item === 'string').join(' ');
 }
 
+function toolsProjectionData(projection: ToolsCommandProjection): Record<string, unknown> | null {
+  if (
+    !isRecord(projection.status.data)
+    || !Array.isArray(projection.services.data)
+    || !Array.isArray(projection.agents.data)
+    || !Array.isArray(projection.activeWork.data)
+    || !Array.isArray(projection.handoffs.data)
+  ) return null;
+  return {
+    status: projection.status.data,
+    services: projection.services.data,
+    agents: projection.agents.data,
+    work: projection.activeWork.data,
+    handoffs: projection.handoffs.data,
+  };
+}
+
+function normalizeMiniAppSceneContracts(envelope: unknown): Record<string, unknown> {
+  if (!isRecord(envelope)) return {};
+  const normalized: Record<string, unknown> = { ...envelope };
+  delete normalized.commandProjection;
+  if ('beats' in envelope) {
+    normalized.beats = Array.isArray(envelope.beats)
+      ? envelope.beats.flatMap((row) => {
+          const parsed = parseStoryEventContract(row);
+          return parsed.ok ? [parsed.value] : [];
+        })
+      : [];
+  }
+  if ('commands' in envelope) {
+    if (envelope.commands === null) {
+      normalized.commandProjection = null;
+      normalized.commands = null;
+    } else {
+      const freshness = isRecord(envelope.freshness) ? envelope.freshness : null;
+      const parsed = normalizeToolsCommandProjection(envelope.commands, {
+        source: envelope.source,
+        checkedAt: envelope.derivedAt,
+        state: freshness?.state ?? freshness?.status,
+      });
+      const commandData = parsed.ok ? toolsProjectionData(parsed.value) : null;
+      normalized.commandProjection = commandData && parsed.ok ? parsed.value : null;
+      normalized.commands = commandData;
+    }
+  }
+  return normalized;
+}
+
 function sanitizeQuestEnvelope(envelope: any): any {
   const social = envelope?.social;
-  if (!social || typeof social !== 'object' || Array.isArray(social)) return envelope;
+  if (!social || typeof social !== 'object' || Array.isArray(social)) return normalizeMiniAppSceneContracts(envelope);
   const rows = Array.isArray(social.rows) ? social.rows : [];
   const safeRows = rows.filter((row) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
@@ -2673,8 +2723,8 @@ function sanitizeQuestEnvelope(envelope: any): any {
       typeof value === 'string' && SOCIAL_UNSAFE_RE.test(value),
     );
   });
-  if (safeRows.length === rows.length && !metadataRejected && !rowMetadataRejected) return envelope;
-  return {
+  if (safeRows.length === rows.length && !metadataRejected && !rowMetadataRejected) return normalizeMiniAppSceneContracts(envelope);
+  return normalizeMiniAppSceneContracts({
     ...envelope,
     social: {
       source: 'coordination-evidence@v1',
@@ -2683,13 +2733,23 @@ function sanitizeQuestEnvelope(envelope: any): any {
       rows: safeRows.length ? safeRows : [fallbackSocialRow()],
       gap: 'coordination evidence sanitized',
     },
-  };
+  });
 }
 
 async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Promise<string> {
+  let envelope: Record<string, unknown>;
   try {
-    const envelope = sanitizeQuestEnvelope(JSON.parse(stored));
-    const merged: Record<string, unknown> = { ...envelope };
+    envelope = sanitizeQuestEnvelope(JSON.parse(stored));
+  } catch {
+    return JSON.stringify({
+      schema: 1,
+      tenant: tenantId,
+      source: 'stored-envelope-validation',
+      error: 'stored_envelope_invalid',
+    });
+  }
+  const merged: Record<string, unknown> = { ...envelope };
+  try {
     const actionRequests = await listActionRequestRecords(kv, { tenantId, limit: 50 });
     if (actionRequests.status === 200 && Number(actionRequests.body.count) >= 1) {
       merged.actionRequests = actionRequests.body;
@@ -2708,7 +2768,7 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
     }
     return JSON.stringify(merged);
   } catch {
-    return stored;
+    return JSON.stringify(merged);
   }
 }
 

@@ -191,7 +191,7 @@
       "status": "implemented",
       "executable": false,
       "file_owner": "workers/quests/src/page/scenes/story.ts",
-      "evidence": "Issue #331 P1: parseStoryEventContract and focused handler tests enforce stable event identity, canonical WorkObject identity and kind, source, ISO event time, and receipt identity while rejecting malformed contract rows."
+      "evidence": "Issue #331 P1: the public quest-envelope boundary calls parseStoryEventContract before Story rendering; real-path handler-to-renderer tests prove stable event identity, canonical WorkObject identity and kind, source, ISO event time, and receipt identity while malformed rows fail closed."
     },
     {
       "id": "T-009",
@@ -211,7 +211,7 @@
       "status": "implemented",
       "executable": false,
       "file_owner": "workers/quests/src/page/scenes/tools.ts",
-      "evidence": "Issue #331 P1: parseToolsCommandProjection and focused handler tests require the exact status, services, agents, active-work, and handoffs panel identities with a non-empty source and validated freshness on every panel."
+      "evidence": "Issue #331 P1: the public quest-envelope boundary calls normalizeToolsCommandProjection, which invokes parseToolsCommandProjection; real-path handler-to-renderer tests prove exact panel identities, source, freshness, honest legacy normalization, and fail-closed malformed data."
     },
     {
       "id": "T-010",
