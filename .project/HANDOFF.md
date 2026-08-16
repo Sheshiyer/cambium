@@ -71,12 +71,18 @@
   are unavailable and were not reviewed, merged, or represented as preserved.
   Stale worktree administration records were pruned only after this mapping.
 - The primary checkout remains untouched on stale
-  `codex/project-r2-mapping-plan`. It still has 37 porcelain entries. Nine
-  file-level paths are byte-identical to current main; the remaining local
-  configs, planning receipts, `MEMORY/WORK` artifacts, generated media/docs,
-  package files, HANDOFF/INTEGRATION edits, and `.brandmint-outputs` deletion
-  remain user-owned holds. Never `git add -A`, stash, reset, rebase, or publish
-  that checkout wholesale.
+  `codex/project-r2-mapping-plan`. The final checkpoint readback has 37
+  top-level porcelain entries after `.temperance/project.json` changed during
+  this run. Exactly three tracked dirty paths are byte-identical to current
+  main: `docs/README.md`, `docs/archive/README.md`, and
+  `docs/runbooks/README.md`; they are still not reset in the stale checkout.
+  The empty untracked file `0` is classified local-only/accidental. The
+  untracked JSON file literally named `<absolute path>` is a stale generated
+  176-entry retention manifest and is classified generated/local-only; neither
+  enters a PR. All remaining local configs, planning receipts, `MEMORY/WORK`
+  artifacts, generated media/docs, package files, HANDOFF/INTEGRATION edits,
+  and `.brandmint-outputs` deletion remain user-owned holds. Never
+  `git add -A`, stash, reset, rebase, or publish that checkout wholesale.
 - PR #329 first reconciled the Mini App map to 50 implemented, four
   superseded, 21 executable residuals, and five approval gates. Issue #331
   records the safe dependency graph. PR #332 then completed T-008, T-009, and
