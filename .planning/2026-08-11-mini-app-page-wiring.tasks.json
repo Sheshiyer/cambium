@@ -6,16 +6,13 @@
   "authority": "Current merged source and tests outrank dated plan checklists. Only rows with executable=true belong to the repository execution queue.",
   "counts": {
     "total": 80,
-    "executable": 21,
-    "implemented": 50,
+    "executable": 18,
+    "implemented": 53,
     "superseded": 4,
-    "residual": 21,
+    "residual": 18,
     "approval-gated": 5
   },
   "executable_task_ids": [
-    "T-008",
-    "T-009",
-    "T-021",
     "T-028",
     "T-032",
     "T-033",
@@ -191,20 +188,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/story.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/story.ts.",
-      "missingAcceptance": "No typed Story event authority ensures every event carries identity, source, time, and receipt.",
-      "implementation_owners": [
-        "workers/quests/src/page/scenes/story.ts"
-      ],
-      "test_owners": [
-        "workers/quests/src/handler.test.ts"
-      ],
-      "integration_lock_zones": [
-        "workers/quests/src/handler.ts"
-      ]
+      "evidence": "Issue #331 P1: the public quest-envelope boundary calls parseStoryEventContract before Story rendering; real-path handler-to-renderer tests prove stable event identity, canonical WorkObject identity and kind, source, ISO event time, and receipt identity while malformed rows fail closed."
     },
     {
       "id": "T-009",
@@ -221,20 +208,10 @@
       "phase": "P1",
       "wave": "W1",
       "swarm": "data-contract",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/scenes/tools.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/scenes/tools.ts.",
-      "missingAcceptance": "No typed per-panel command projection contract enforces source and freshness.",
-      "implementation_owners": [
-        "workers/quests/src/page/scenes/tools.ts"
-      ],
-      "test_owners": [
-        "workers/quests/src/handler.test.ts"
-      ],
-      "integration_lock_zones": [
-        "workers/quests/src/handler.ts"
-      ]
+      "evidence": "Issue #331 P1: the public quest-envelope boundary calls normalizeToolsCommandProjection, which invokes parseToolsCommandProjection; real-path handler-to-renderer tests prove exact panel identities, source, freshness, honest legacy normalization, and fail-closed malformed data."
     },
     {
       "id": "T-010",
@@ -470,20 +447,10 @@
       "phase": "P1",
       "wave": "W2",
       "swarm": "route",
-      "status": "residual",
-      "executable": true,
+      "status": "implemented",
+      "executable": false,
       "file_owner": "workers/quests/src/page/client/data.ts",
-      "current_evidence": "Current source inspected at workers/quests/src/page/client/data.ts.",
-      "missingAcceptance": "The shell still boot-fetches the quest envelope; scenes do not paint from a served initial payload.",
-      "implementation_owners": [
-        "workers/quests/src/page/client/data.ts"
-      ],
-      "test_owners": [
-        "workers/quests/src/page-client-data.test.ts"
-      ],
-      "integration_lock_zones": [
-        "workers/quests/src/handler.ts"
-      ]
+      "evidence": "Issue #331 P1: handler and page-client-data tests prove the selected tenant's script-safe public envelope paints synchronously before refresh, mismatched or ledger-less payloads fail closed, and an older refresh cannot replace newer served state."
     },
     {
       "id": "T-022",

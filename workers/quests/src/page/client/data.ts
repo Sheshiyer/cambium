@@ -1,6 +1,31 @@
 // cambium-quests · miniapp page chunk — data load, gate gauge, boot, </script></body></html>
 // Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
 // Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+const CLIENT_DATA_BOOT_MARKER = 'go(START_SCENE, true);\nload();';
+
+export const CLIENT_INITIAL_QUEST_HYDRATION = `function takeInitialQuestEnvelope(){
+  const env = globalThis.__CAMBIUM_INITIAL_QUEST_ENVELOPE__;
+  globalThis.__CAMBIUM_INITIAL_QUEST_ENVELOPE__ = undefined;
+  if (!env || typeof env !== 'object' || Array.isArray(env)) return null;
+  if (env.schema !== 1 || env.tenant !== TENANT) return null;
+  if (typeof env.derivedAt !== 'string' || !Number.isFinite(Date.parse(env.derivedAt))) return null;
+  if (!env.ledger || typeof env.ledger !== 'object' || Array.isArray(env.ledger) || !Array.isArray(env.ledger.rows)) return null;
+  return env;
+}
+const INITIAL_QUEST_ENVELOPE = takeInitialQuestEnvelope();
+if (INITIAL_QUEST_ENVELOPE) paint(INITIAL_QUEST_ENVELOPE);`;
+
+export function injectInitialQuestHydration(page: string): string {
+  const markerIndex = page.indexOf(CLIENT_DATA_BOOT_MARKER);
+  if (markerIndex < 0 || markerIndex !== page.lastIndexOf(CLIENT_DATA_BOOT_MARKER)) {
+    throw new Error('quest page must contain exactly one client data boot marker');
+  }
+  return page.replace(
+    CLIENT_DATA_BOOT_MARKER,
+    `go(START_SCENE, true);\n${CLIENT_INITIAL_QUEST_HYDRATION}\nload();`,
+  );
+}
+
 export const CLIENT_DATA = `/* ── data ── */
 // radial 270deg gauge of real progress (arcs grown / total) — the gate's evidence dial
 function renderGauge(L){

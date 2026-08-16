@@ -8,6 +8,125 @@
 // Data contract: docs/architecture/contracts/scenes/story.json (fixtures: scenes/fixtures/story.fixture.json).
 // Every row derives from served beats / ActionRequest rows / completed ledger rows — no invented narrative.
 // Assembly order: page/index.ts (after scenes/mission.ts, which provides mcSceneClamp + mcSceneTokenLabel).
+export type StoryWorkObjectKind = 'sapling' | 'branch' | 'program';
+
+export interface StoryEventContract {
+  eventId: string;
+  workObject: {
+    id: string;
+    kind: StoryWorkObjectKind;
+  };
+  source: string;
+  eventAt: string;
+  receipt: {
+    id: string;
+  };
+  text?: string;
+  lane?: string;
+  group?: string;
+  context?: string;
+  branchId?: string;
+  outcome?: string;
+  proof?: string;
+  detail?: string;
+  followup?: string;
+  actionRequestId?: string;
+  noesis?: boolean;
+}
+
+export interface StoryEventContractIssue {
+  path: string;
+  code:
+    | 'invalid_identity'
+    | 'work_object_kind_mismatch'
+    | 'invalid_work_object_kind'
+    | 'missing_source'
+    | 'invalid_iso_time'
+    | 'missing_receipt_identity'
+    | 'malformed_event';
+}
+
+export type StoryEventContractParseResult =
+  | { ok: true; value: StoryEventContract }
+  | { ok: false; issues: StoryEventContractIssue[] };
+
+const STORY_IDENTITY = /^[a-z0-9][a-z0-9:._-]*$/i;
+const STORY_WORK_OBJECT_KINDS = new Set<StoryWorkObjectKind>(['sapling', 'branch', 'program']);
+
+function storyRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function storyCanonicalIso(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)) return false;
+  return Number.isFinite(Date.parse(value));
+}
+
+export function parseStoryEventContract(input: unknown): StoryEventContractParseResult {
+  const event = storyRecord(input);
+  if (!event) return { ok: false, issues: [{ path: '', code: 'malformed_event' }] };
+
+  const workObject = storyRecord(event.workObject);
+  const receipt = storyRecord(event.receipt);
+  const issues: StoryEventContractIssue[] = [];
+  if (typeof event.eventId !== 'string' || !STORY_IDENTITY.test(event.eventId)) {
+    issues.push({ path: 'eventId', code: 'invalid_identity' });
+  }
+  if (!workObject || typeof workObject.id !== 'string' || !STORY_IDENTITY.test(workObject.id)) {
+    issues.push({ path: 'workObject.id', code: 'invalid_identity' });
+  }
+  if (!workObject || typeof workObject.kind !== 'string' || !STORY_WORK_OBJECT_KINDS.has(workObject.kind as StoryWorkObjectKind)) {
+    issues.push({ path: 'workObject.kind', code: 'invalid_work_object_kind' });
+  }
+  if (
+    workObject
+    && typeof workObject.id === 'string'
+    && STORY_IDENTITY.test(workObject.id)
+    && typeof workObject.kind === 'string'
+    && STORY_WORK_OBJECT_KINDS.has(workObject.kind as StoryWorkObjectKind)
+    && !workObject.id.startsWith(`${workObject.kind}:`)
+  ) {
+    issues.push({ path: 'workObject.id', code: 'work_object_kind_mismatch' });
+  }
+  if (typeof event.source !== 'string' || !event.source.trim()) {
+    issues.push({ path: 'source', code: 'missing_source' });
+  }
+  if (!storyCanonicalIso(event.eventAt)) {
+    issues.push({ path: 'eventAt', code: 'invalid_iso_time' });
+  }
+  if (!receipt || typeof receipt.id !== 'string' || !STORY_IDENTITY.test(receipt.id)) {
+    issues.push({ path: 'receipt.id', code: 'missing_receipt_identity' });
+  }
+  if (issues.length) return { ok: false, issues };
+
+  return {
+    ok: true,
+    value: {
+      eventId: event.eventId as string,
+      workObject: {
+        id: workObject!.id as string,
+        kind: workObject!.kind as StoryWorkObjectKind,
+      },
+      source: (event.source as string).trim(),
+      eventAt: event.eventAt as string,
+      receipt: { id: receipt!.id as string },
+      ...(typeof event.text === 'string' ? { text: event.text } : {}),
+      ...(typeof event.lane === 'string' ? { lane: event.lane } : {}),
+      ...(typeof event.group === 'string' ? { group: event.group } : {}),
+      ...(typeof event.context === 'string' ? { context: event.context } : {}),
+      ...(typeof event.branchId === 'string' ? { branchId: event.branchId } : {}),
+      ...(typeof event.outcome === 'string' ? { outcome: event.outcome } : {}),
+      ...(typeof event.proof === 'string' ? { proof: event.proof } : {}),
+      ...(typeof event.detail === 'string' ? { detail: event.detail } : {}),
+      ...(typeof event.followup === 'string' ? { followup: event.followup } : {}),
+      ...(typeof event.actionRequestId === 'string' ? { actionRequestId: event.actionRequestId } : {}),
+      ...(typeof event.noesis === 'boolean' ? { noesis: event.noesis } : {}),
+    },
+  };
+}
+
 export const SCENE_STORY = `/* ── story scene — signal rows with state tokens + PacketFlow rails (T-021/T-022) ── */
 let STORY_BEATS = [];
 let STORY_GROUP_FILTER = 'all';
