@@ -7,7 +7,7 @@
     {
       "path": "docs/plans/**/*.md",
       "kind": "plan",
-      "bytes": 568412,
+      "bytes": 568711,
       "retentionClass": "retain",
       "reason": "Dated decision and implementation history; non-operational under docs/LIFECYCLE.md.",
       "replacementPath": null,
@@ -57,7 +57,7 @@
     {
       "path": "docs/plans/assets/**",
       "kind": "source-image",
-      "bytes": 110367746,
+      "bytes": 110321740,
       "retentionClass": "review-required",
       "reason": "Generated and reference proof assets have direct documentation, manifest, generated-organ, and test references.",
       "replacementPath": null,
