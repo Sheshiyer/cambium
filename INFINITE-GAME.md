@@ -1,5 +1,7 @@
 # The Infinite Game — Cambium as a viable, evolving, never-terminating operator
 
+> **Canonical anchors.** [`VISION.md`](./VISION.md) owns Cambium's enduring Vision and [`MISSION.md`](./MISSION.md) owns the renewable Repository Mission. This retained document is supporting theory only: it explains the infinite-game frame and does not replace either anchor or the ISA/GSD authority split.
+
 > *Companion to [HOMEOSTASIS.md](./HOMEOSTASIS.md). Where Homeostasis gives the math of a **single
 > finite run** (converge to the brand-DNA fixed point and stop), this document gives the math of the
 > **layer above it**: the unbounded game of keeping a business alive and evolving — forever.*

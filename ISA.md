@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Execute issue 331 dependency-safe Mini App queue"
+task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: verify
-progress: 33/35
+phase: execute
+progress: 2/4
 mode: interactive
-iteration: 2026-08-16-issue-331-dependency-safe-queue
+iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-16T17:49:00+05:30
+updated: 2026-08-18T01:55:43+05:30
 ---
 
 ## Problem
@@ -32,6 +32,8 @@ The repository-first implementation is merged, but production still serves the v
 The Fitcheck Mission scene now names the correct authenticated Shopify QA quest and its two required proofs, while Gate already commits reviewed Goal Graph proposals through a pinned D1 CAS. The missing link is founder ingress: Mission and Inspect contain no editable evidence surface, the browser cannot create a bounded pending proposal, and a successful Gate commit does not refresh the quest projection. The founder is therefore shown the gate and proof requirements without any authority-honest way to supply the outcome that advances them.
 
 ## Vision
+
+> **Historical iteration vision and acceptance evidence (issue #331 and earlier).** The retained material below records earlier implementation intent; canonical repository doctrine now lives in [`VISION.md`](./VISION.md) and [`MISSION.md`](./MISSION.md).
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
 
@@ -156,6 +158,10 @@ For the Fitcheck pilot, the founder opens the exact authenticated Shopify QA que
 
 ## Goal
 
+Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.
+
+### Historical goals and acceptance evidence (issue #331 and earlier)
+
 Make operational drift mechanically difficult by aligning the ActionRequest runtime contract, renderer, fixtures, tests, runbooks, configuration ownership, GitHub state, and release evidence. The cleanup is complete only when production-shaped tests fail on the exact former mismatch, stale actionable instructions are removed from operational surfaces, deferred roadmap work is explicit, and current main can be released without touching unrelated local work.
 
 For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a successful CI run for the consolidated main SHA, and ship a tested durable runtime that proves one bounded Iverif Explee capture/enrich path while engagement, media generation, and recurring schedules remain fail-closed.
@@ -181,6 +187,15 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 For the Fitcheck founder-evidence pilot, add one exact authenticated route and one exact Mission action space for `fitcheck-shopify-widget-qa`. Done means two bounded proof references create a replay-safe pending candidate, D1 remains unchanged until the existing Gate signs the exact server-derived proposal, the CAS commit updates one proof-scoped node, Mission and founder-only Goal Graph readback refresh from that committed head, and every Hermes, Telegram transport, deployment, and external mutation boundary remains held.
 
 ## Criteria
+
+### Active Phase 3 acceptance
+
+- [x] ISC-1273: ANCHOR-01 proves the singular near-invariant root Vision through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [x] ISC-1274: ANCHOR-02 proves the singular renewable root Repository Mission through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [ ] ISC-1275: ANCHOR-03 proves the Repository Mission and bounded `FabricMission` authority distinction through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [ ] ISC-1276: ANCHOR-04 proves reference-only discovery of both canonical anchors through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+
+### Historical acceptance evidence (issue #331 and earlier)
 
 ### Protected execution boundary
 
@@ -1523,6 +1538,8 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Test Strategy
 
+- ISC-1273..1276 | canonical infinite-game anchors | stable headings, direct paths, authority boundaries, coherent ISA state, and preserved Mission Fabric terminology | each criterion is binary and provenance-preserving | `node --test scripts/infinite-game-anchors.test.mjs`
+
 | ISC range | Type | Binary check | Tool |
 |---|---|---|---|
 | ISC-1..4, ISC-61 | preservation | before/after digests and worktree count match | `git status`, `git stash list`, `git worktree list`, `shasum` |
@@ -1634,6 +1651,8 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 | ISC-1166..1219 | Fitcheck founder evidence pilot | authenticate exact founder intent, persist and reconcile one pending evidence candidate, commit only through stored Gate CAS, refresh D1-backed quest state, and preserve all execution/deployment boundaries | pure parser tests, fault-injected handler and browser-harness tests, Goal Graph store probes, viewport/mobile proofs, full release gate, secret scan, `git diff --check`, clean status |
 
 ## Features
+
+- `CanonicalInfiniteGameAnchors` | establish singular root Vision and renewable Repository Mission without creating a second planner | satisfies ISC-1273..1276 | depends_on none | parallelizable false
 
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
@@ -1748,6 +1767,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-08-18 01:48: refined: the exact v0.4 infinite-game goal and ISC-1273..1276 are the active Phase 3 acceptance contract; all retained issue #331 and earlier Vision, Goal, Criteria, Decision, Changelog, and Verification material remains historical evidence and is neither rewritten nor treated as current doctrine.
 
 - 2026-08-14 21:12: refined: the first founder-input pilot reuses `approve-goal-graph` instead of adding a direct quest-status route. The browser submits two references and an observed outcome; the Worker fixes every authority-bearing field and stores one review-pending candidate inside the existing intake task. Gate signs the stored change set, D1 CAS remains the sole write, Mission refreshes from D1, and Hermes execution remains impossible from this path.
 - 2026-08-14 21:12: the user repeated the previously recommended Fitcheck Shopify QA pilot as the requested next sequence, satisfying the design approval gate. The implementation remains local and candidate-only because Worker upload and production promotion are separately rollback-gated operations.
@@ -2125,6 +2146,9 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
 ## Verification
+
+- ISC-1273: binary probe `node --test scripts/infinite-game-anchors.test.mjs`; focused command `node --test --test-name-pattern='canonical root anchors' scripts/infinite-game-anchors.test.mjs` passed the canonical Vision contract on 2026-08-18.
+- ISC-1274: binary probe `node --test scripts/infinite-game-anchors.test.mjs`; focused command `node --test --test-name-pattern='canonical root anchors' scripts/infinite-game-anchors.test.mjs` passed the renewable Repository Mission contract on 2026-08-18.
 
 - ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
 - ISC-1010..1019 root/repository proof — the 58-folder physical dry-run is exact; current root-map digest is `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`; repository evidence contains 106 references, 96 resolved, 5 unmatched, and 5 unverified at digest `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`; every unresolved reference has an assignment, explicit hold, or exclusion.
