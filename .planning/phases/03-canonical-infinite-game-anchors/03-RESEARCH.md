@@ -385,22 +385,17 @@ These examples intentionally avoid testing a digest or parsing generated project
 
 All implementation recommendations derive from locked context and inspected repository sources; no unverified external package, compliance rule, or runtime capability is assumed.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **ISA binding is an execution precondition, not a new design decision.**
-   - What we know: The planning state says ISA owns the approved infinite-game goal, but this worktree's ISA still names issue 331. [VERIFIED: codebase `ISA.md`; `.planning/STATE.md`]
-   - What's unclear: The exact approved goal text is not stored in this clean worktree. [VERIFIED: codebase search]
-   - Recommendation: The orchestrator must provide/bind the already approved text before implementation; the executor must not infer it from planning summaries.
+1. **ISA binding — resolved by supplied approved goal.**
+   - Exact active text: “Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.”
+   - Resolution: Phase 3 binds this text byte-for-byte in ISA frontmatter and as the leading active Goal; issue-331 and earlier ISA material remains explicitly labeled historical acceptance evidence. The executor must not infer, shorten, or paraphrase the supplied text.
 
-2. **The first Repository Mission horizon needs exact wording.**
-   - What we know: It must be finite, evidence-driven, renewable, and not a task plan. [VERIFIED: codebase context D-02–D-03]
-   - What's unclear: No calendar end date is locked.
-   - Recommendation: Use the observable event “reviewed verification and release completion of milestone v0.4” as the horizon; record a date only as review metadata, not as the sole completion rule.
+2. **First Repository Mission horizon — resolved as event-bounded v0.4 completion.**
+   - Resolution: The horizon is reviewed verification and release completion of milestone v0.4, not a date-only deadline. Dates may appear as review metadata but cannot independently close or renew Repository Mission. [VERIFIED: context D-02–D-03]
 
-3. **No runtime comment is required.**
-   - What we know: `FabricMission` is already an exact exported identifier and the v1 contract is frozen. [VERIFIED: codebase runtime and contract]
-   - What's unclear: Whether future maintainers would benefit from a code comment.
-   - Recommendation: Keep Phase 3 documentation-only at the runtime boundary; add a code comment only if the planner can prove documentation cannot carry the distinction, which current evidence does not support.
+3. **Runtime comment — resolved as documentation-only.**
+   - Resolution: Phase 3 adds the `Repository Mission` / `FabricMission` / Mission scene distinction only to the two Mission Fabric documentation surfaces. It does not edit runtime source, routes, UI modules, schemas, D1 state, or frozen projection shapes. [VERIFIED: runtime and contract boundary]
 
 ## Environment Availability
 
@@ -444,7 +439,7 @@ All implementation recommendations derive from locked context and inspected repo
 ### Wave 0 Gaps
 
 - [ ] `scripts/infinite-game-anchors.test.mjs` — covers ANCHOR-01 through ANCHOR-04.
-- [ ] ISA goal binding — supplied by the orchestrator before the anchor assertions can represent the approved state.
+- [x] ISA goal input — exact approved text is now supplied verbatim in `03-01-PLAN.md`; implementation binding remains Task 2 work.
 
 No test framework installation is required. [VERIFIED: codebase `package.json`]
 
@@ -471,7 +466,7 @@ No test framework installation is required. [VERIFIED: codebase `package.json`]
 
 ## Dependency-Aware Suggested Plan
 
-Use one sequential executable plan because every later task depends on the exact anchor vocabulary established earlier and the phase has one shared semantic contract. Parallelizing these edits would increase merge and terminology drift without shortening the critical path.
+Use two dependent plans because the exact anchor/ISA foundation must be committed and deterministically read back before documentation can close the remaining Mission terminology and provenance criteria. The plans remain strictly sequential (`03-01 → 03-02`); this split creates an evidence boundary, not parallel semantic authorship.
 
 ### Plan 03-01: Establish and prove canonical anchors
 
@@ -481,27 +476,31 @@ Use one sequential executable plan because every later task depends on the exact
    - Verify the focused test fails only for the missing/misaligned Phase 3 contract.
 
 2. **Bind acceptance and write canonical anchors**
-   - Own: `ISA.md`, `VISION.md`, `MISSION.md`, `INFINITE-GAME.md`.
+   - Own: `ISA.md`, `VISION.md`, `MISSION.md`, `INFINITE-GAME.md`, `PROJECT.md`.
    - Bind the exact already approved v0.4 goal in ISA.
    - Create concise root anchors using the templates above.
-   - Add only a provenance/scoping note to `INFINITE-GAME.md` and ISA's iteration Vision language.
+   - Add only provenance/scoping references to `INFINITE-GAME.md` and `PROJECT.md`.
+   - Check ISC-1273/1274 only after focused GREEN plus deterministic ISA readback, then commit Wave 1.
 
-3. **Add discoverability and lifecycle references**
-   - Own: `PROJECT.md`, `docs/doctrine/README.md`, `docs/README.md`, `docs/LIFECYCLE.md`.
+### Plan 03-02: Complete references, terminology, and ISA evidence
+
+1. **Add discoverability and lifecycle references**
+   - Own: `docs/doctrine/README.md`, `docs/README.md`, `docs/LIFECYCLE.md`.
    - Link; do not quote anchor bodies.
    - Preserve existing doctrine files and history.
 
-4. **Clarify the Mission terminology boundary**
+2. **Clarify the Mission terminology boundary**
    - Own: `docs/architecture/cambium-operating-fabric.md`, `docs/architecture/contracts/mission-fabric-v1.md`.
    - Add one matching terminology table/note to each.
-   - Confirm `git diff -- workers/quests/src/mission-fabric.ts` is empty.
+   - Confirm the committed merge-base→HEAD range contains no `workers/quests/src/mission-fabric.ts` change.
 
-5. **Verify and review scope**
+3. **Verify, close ISA, and review committed scope**
    - Run `node --test scripts/infinite-game-anchors.test.mjs`.
    - Run `npm test`.
    - Run `npm run drift:audit`.
    - Run `npm run render-docs:check`.
-   - Audit the diff for anchor-body duplication, unchecked task lists, absolute machine paths, runtime/schema edits, document moves, and out-of-phase generated artifacts.
+   - After full gates, check ISC-1275/1276, set `phase: verify` and `progress: 4/4`, append evidence, then rerun focused and deterministic ISA readback before the atomic Wave 2 commit.
+   - Audit the committed merge-base→HEAD range for anchor-body duplication, absolute machine paths, secrets, runtime/schema edits, document moves, and out-of-phase generated artifacts.
 
 ## What Might Have Been Missed
 
