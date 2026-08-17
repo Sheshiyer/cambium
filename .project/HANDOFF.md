@@ -1668,3 +1668,32 @@ mutation has been performed by drafting this packet.
 - This wave creates issues only. It performs no branch promotion, provider or
   credential action, deploy, ledger publication, contact, spend, Telegram,
   folder, Vault, or production runtime mutation.
+
+### 2026-08-18 canonical infinite-game anchors checkpoint
+
+- GSD Phase 3 establishes one canonical near-invariant root `VISION.md` and
+  one renewable root `MISSION.md`; ISA and GSD remain the only goal and
+  planning authorities.
+- Repository Mission, bounded `FabricMission` records, and the Mini App
+  Mission scene now have explicit, reference-only terminology boundaries.
+  D1 Goal Graph ownership and Mission Fabric's read-only projection remain
+  unchanged.
+- The semantic contract was committed RED at `604aae0`, turned GREEN by the
+  two bounded implementation commits `db852c6` and `59e677f`, and independently
+  verified in the Phase 3 verification report. All 1,240 historical ISA
+  checkbox rows remain byte-identical to `origin/main`.
+- Committed-head verification passes: focused anchor contract 4/4, complete
+  repository suite 1785/1785, drift audit, rendered-document synchronization
+  for 6 pages and 91 components, scoped diff checks, and local-path scans.
+- Release-gate follow-up replaces commit-date-derived retention metadata with
+  a SHA-256 over the exact inventory content. The receipt is now stable across
+  a PR head, GitHub's synthetic merge commit, and a later squash commit while
+  remaining stale whenever the governed inventory actually changes. Focused
+  retention regression coverage proves different HEAD commit metadata cannot
+  alter identical inventory output.
+- GSD records Phase 3 as 2/2 complete with ANCHOR-01 through ANCHOR-04
+  satisfied. The clean continuation is `/gsd:plan-phase 4` for the
+  provenance-preserving intent graph.
+- This checkpoint performs no runtime, package, lockfile, provider,
+  deployment, credential, `.temperance`, connected-repository, relocation,
+  or destructive corpus mutation.

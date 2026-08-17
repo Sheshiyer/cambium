@@ -29,6 +29,15 @@ Read `AGENTS.md`, `CLAUDE.md`, `.project/CONTEXT.md`, and
 sessions, Paseo workspaces, provider stores, and credentials are
 intentionally outside this packet.
 
+### Canonical doctrine anchors
+
+| Anchor | Path | Authority |
+|---|---|---|
+| Enduring Vision | [`VISION.md`](./VISION.md) | Canonical near-invariant doctrine |
+| Current Repository Mission | [`MISSION.md`](./MISSION.md) | Canonical renewable doctrine horizon |
+
+The root anchors own doctrine only. [`ISA.md`](./ISA.md) owns approved goals and acceptance; GSD under [`.planning/`](./.planning/) owns finite planning state. Supporting and generated surfaces link to those authorities rather than copying them.
+
 ### Doctrine & planning maps (additive indexes)
 
 | Map | Path |

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Cambium is the operator-facing projection and durable Cloudflare control plane for Thoughtseed managerial workflows. This recovery milestone proves one real business flow—a synthetic, internal-only service-agreement draft—from typed intake through D1 leasing, Hermes execution, Temperance policy and rendering, durable artifact storage, and authenticated readback.
+Cambium is the operator-facing projection and durable control plane for Thoughtseed's living venture system. Milestone v0.3 proved one synthetic, internal-only service-agreement flow from typed intake through D1 leasing, Hermes execution, Temperance rendering, durable storage, and authenticated readback. The next milestone makes the enduring vision, renewable mission, finite goals, and evidence feedback loop explicit without creating another operational writer.
 
 ## Core Value
 
@@ -16,6 +16,7 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ Hermes polls the Worker on a durable timer and persists local attempt state — native execution proof release.
 - ✓ REQ-01–REQ-06 prove one replay-safe D1-leased synthetic service-agreement draft from strict intake through immutable artifact readback.
 - ✓ REQ-07–REQ-11 expose that same slice through feature-gated Telegram intake and a redacted D1 status projection, with live replay, rollback, allowlist, and access-revocation proof.
+- ✓ ANCHOR-01–ANCHOR-04 establish canonical root `VISION.md` and renewable `MISSION.md`, distinguish repository Mission from bounded `FabricMission` records, and make supporting doctrine reference rather than duplicate those authorities — Phase 3 verification.
 
 ### Out of Scope
 
@@ -27,6 +28,51 @@ An operator action counts only when its authoritative task, lease, artifact, out
 ## Context
 
 The July ecosystem audit found that direct agent and CLI primitives work while the operator path breaks at routing, state, renderer selection, and proof foldback. Native D1 claim/outcome and a route-only Temperance release are already live; this milestone connects the next bounded business command across those existing seams.
+
+## Current State
+
+- **Shipped:** v0.3 Managerial Control Loop on 2026-08-17.
+- **Historical proof:** two completed phases, two plans, and eleven checked requirements.
+- **Accepted process debt:** the historical phases predate current GSD `VERIFICATION.md` files; their live evidence remains summary-attested and is archived in the milestone audit.
+- **Active authority:** the root `ISA.md` owns the approved infinite-game documentation goal. This planning file does not replace it.
+- **Phase 3 complete:** canonical Vision and Mission anchors, inherited doctrine overlays, Mission terminology boundaries, and deterministic anchor validation shipped on 2026-08-18.
+- **Next:** Phase 4 projects those anchors through a provenance-preserving intent graph without adding an operational writer.
+
+## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
+
+**Goal:** Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical `VISION.md` and renewable `MISSION.md`, with ISA and GSD remaining the only goal and planning authorities.
+
+**Target features:**
+
+- Establish canonical root vision and mission anchors with explicit renewal rules and a clear distinction between repository Mission and bounded `FabricMission` nodes.
+- Project vision → mission → finite goals → tasks → evidence → learning as a deterministic, provenance-preserving graph.
+- Expose Ralph next actions, GSD transitions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into generated manifests.
+- Consolidate the named root, `MEMORY/`, and `docs/` corpus through an authority and lifecycle map that preserves historical evidence.
+- Add deterministic validation that rejects duplicated doctrine, a third operational writer, stale projections, secrets, and machine-local paths.
+
+## Active Requirements
+
+- Keep ISA and GSD as the only goal and planning authorities.
+- Model vision → mission → finite goals → tasks → evidence → learning as a provenance-preserving fractal graph.
+- Expose Ralph next actions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into the manifest.
+- Consolidate and reorganize the named root, `MEMORY/`, and `docs/` corpus without deleting historical evidence or promoting plans into current instructions.
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition:**
+1. Move invalidated requirements to Out of Scope with a reason.
+2. Move validated requirements to Validated with a phase reference.
+3. Add newly discovered requirements to Active.
+4. Record material decisions in Key Decisions.
+5. Recheck that What This Is still describes the product truthfully.
+
+**After each milestone:**
+1. Review every section against shipped evidence.
+2. Recheck that Core Value remains the right priority.
+3. Re-audit Out of Scope and its reasons.
+4. Update Context and Current State from durable proof.
 
 ## Constraints
 
@@ -46,6 +92,9 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 | Store bytes in `thoughtseed-vault` R2 and receipts in D1 | Separates artifact storage from transactional authority | ✓ Proven |
 | Keep legacy `.planning` GSD for this milestone | Matches existing project and recovery architecture | ✓ Proven |
 | Treat Telegram as an adapter over the existing D1 loop | Avoids creating another orchestrator or execution authority | ✓ Proven |
+| Root-anchor plus inherited-overlay doctrine | Keeps one canonical vision and mission while allowing bounded contexts to inherit without copying authority | Approved for v0.4 |
+| ISA and GSD remain the only goal/planning authorities | Prevents the manifest, Ralph loop, or documentation graph from becoming a third writer | Approved for v0.4 |
+| Continue roadmap numbering at Phase 3 | Preserves the historical v0.3 phase lineage and avoids deleting retained phase evidence | Approved for v0.4 |
 
 ---
-*Last updated: 2026-07-17 after Telegram operator-intake proof*
+*Last updated: 2026-08-18 after Phase 3 verification*

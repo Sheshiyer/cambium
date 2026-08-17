@@ -29,6 +29,22 @@ The model has three separate planes:
 
 The Mission Fabric joins these planes as a versioned, read-only projection. It never becomes a second workflow engine.
 
+### Mission terminology boundary
+
+These three meanings share a word but do not share content, lifecycle, or
+authority:
+
+| Term | Scope and source | Authority and inheritance |
+| --- | --- | --- |
+| **Repository Mission** | Cambium's singular renewable doctrine horizon in root [`MISSION.md`](../../MISSION.md) | Doctrine only. It does not own tasks, plans, D1 state, routes, or UI state. |
+| **`FabricMission`** | An outcome-bounded D1 Goal Graph child record inside exactly one `WorkObject` | D1 Goal Graph owns its operational state. Mission Fabric only compiles and serves it read-only. |
+| **Mission scene** | The UI destination that renders the selected WorkObject's projection | It has no doctrine or write authority and cannot create, revise, or close either meaning above. |
+
+There is no automatic content or authority inheritance among these meanings.
+A `FabricMission` does not inherit, replace, rewrite, or close the Repository Mission.
+Mission Fabric is neither a planner nor a writer; the signed Gate and
+D1 boundaries below remain unchanged.
+
 ## Why the current branch-first model is insufficient
 
 The shipped Mission scene is truthful for proof-bound branch packets. It shows a branch's next mission, gate, proof, questline, promotion state, and KPIs. That model is deliberately optimized for venture launch:

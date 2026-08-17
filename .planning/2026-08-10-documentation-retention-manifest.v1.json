@@ -78,6 +78,6 @@
   ],
   "decisionOriginDate": "2026-08-10",
   "inventoryAsOfRevision": "HEAD",
-  "inventoryAsOfCommitDate": "2026-08-16",
-  "entryCount": 177
+  "entryCount": 177,
+  "inventoryContentSha256": "44ba46a7d9612b61e448a777e31e5ca27deef31f543422a2f06bb802b189cba7"
 }

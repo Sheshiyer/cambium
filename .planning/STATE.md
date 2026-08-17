@@ -1,31 +1,47 @@
+---
+gsd_state_version: 1.0
+milestone: v0.4
+milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
+status: ready_to_plan
+stopped_at: Phase 3 complete (2/2) — ready to discuss Phase 4
+last_updated: 2026-08-17T20:49:43.281Z
+last_activity: 2026-08-18 -- Phase 3 verified complete; Phase 4 is ready for discussion
+progress:
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 2
+  completed_plans: 2
+  percent: 20
+---
+
 # Project State
 
-> This planning slice is complete and historical. Use the root `ISA.md`, `README.md`, and current
-> architecture/runbook surfaces for present acceptance and runtime truth; do not treat this file as a
-> current feature backlog.
+> The root `ISA.md` remains the acceptance source of record. GSD tracks finite execution state and does not become a third goal authority.
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17)
+See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
-**Current focus:** Telegram Operator Intake
+**Current focus:** Phase 4 — Provenance-Preserving Intent Graph
 
 ## Current Position
 
-Phase: 2 of 2 (Telegram Operator Intake)
-Plan: 1 of 1 in current phase
-Status: Complete
-Last activity: 2026-07-17 — feature-gated Telegram intake and redacted D1 status passed live replay, rollback, health, allowlist, and access-revocation proof.
+Phase: 4 of 7 (Provenance-Preserving Intent Graph)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-18 -- Phase 3 verified complete; Phase 4 is ready for discussion
 
-Progress: [██████████] 100%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 39 min
-- Total execution time: 0.65 hours
+
+- Historical plans completed: 2
+- v0.4 plans completed: 0
+- Historical average duration: 39 min
+- Historical execution time: 0.65 hours
 
 ## Accumulated Context
 
@@ -33,20 +49,33 @@ Progress: [██████████] 100%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
-- D1 remains lease and terminal-state authority.
-- Hermes remains the durable EC2 poller and supervisor.
-- The live canary is synthetic and stops at awaiting human approval.
+- Root `VISION.md` and renewable root `MISSION.md` are the canonical doctrine anchors.
+- Repository Mission and bounded `FabricMission` nodes have distinct authority and inheritance semantics.
+- ISA and GSD remain the only goal and planning authorities.
+- Historical v0.3 phases remain read-only evidence; v0.4 preserves their numbering and continues with Phase 4.
 
 ### Pending Todos
 
-- Founder may perform one human-typed command as a user acceptance tap; the engineering path is already live-proven through the installed handler and gateway authorization/registration surface.
+- Plan Phase 4's provenance-preserving intent graph from the verified canonical anchors.
 
 ### Blockers/Concerns
 
-- None. The capability remains intentionally synthetic-only.
+- Historical v0.3 phases predate current GSD `VERIFICATION.md` packaging; the archived audit retains this process debt.
+- Runtime, provider, deployment, connected-repository, and destructive document mutations remain outside v0.4 authority.
+
+## Deferred Items
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| Connected repositories | Inherit canonical anchors through pinned repository-specific contracts | Future | v0.4 initialization |
+| Corpus relocation | Relocate or archive documents only after inventory review | Future | v0.4 initialization |
 
 ## Session Continuity
 
-Last session: 2026-07-17 10:21 UTC
-Stopped at: Phase 2 complete with deployed operator intake, replay-safe D1 receipt, rollback proof, and revoked SSH.
-Resume file: .planning/phases/02-telegram-operator-intake/02-01-SUMMARY.md
+Last session: 2026-08-18
+Stopped at: Phase 3 verified complete; Phase 4 ready to plan
+Resume file: .planning/STATE.md
+
+## Operator Next Step
+
+`/gsd:plan-phase 4`
