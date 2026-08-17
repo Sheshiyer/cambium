@@ -20,7 +20,7 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-17)
+See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
 **Current focus:** Phase 4 — Provenance-Preserving Intent Graph
@@ -52,11 +52,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Root `VISION.md` and renewable root `MISSION.md` are the canonical doctrine anchors.
 - Repository Mission and bounded `FabricMission` nodes have distinct authority and inheritance semantics.
 - ISA and GSD remain the only goal and planning authorities.
-- Historical v0.3 phases remain read-only evidence; v0.4 continues at Phase 3.
+- Historical v0.3 phases remain read-only evidence; v0.4 preserves their numbering and continues with Phase 4.
 
 ### Pending Todos
 
-- Execute Phase 3 plans 03-01 then 03-02 from the clean worktree.
+- Plan Phase 4's provenance-preserving intent graph from the verified canonical anchors.
 
 ### Blockers/Concerns
 
@@ -72,10 +72,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-08-17T19:33:27.000Z
-Stopped at: Phase 3 plans 03-01 and 03-02 ready for dependency-ordered execution
-Resume file: .planning/phases/03-canonical-infinite-game-anchors/03-01-PLAN.md
+Last session: 2026-08-18
+Stopped at: Phase 3 verified complete; Phase 4 ready to plan
+Resume file: .planning/STATE.md
 
 ## Operator Next Step
 
-`/gsd:execute-phase 3`
+`/gsd:plan-phase 4`
