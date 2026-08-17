@@ -62,30 +62,30 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANCHOR-01 | TBD | Pending |
-| ANCHOR-02 | TBD | Pending |
-| ANCHOR-03 | TBD | Pending |
-| ANCHOR-04 | TBD | Pending |
-| GRAPH-01 | TBD | Pending |
-| GRAPH-02 | TBD | Pending |
-| GRAPH-03 | TBD | Pending |
-| GRAPH-04 | TBD | Pending |
-| GRAPH-05 | TBD | Pending |
-| FLOW-01 | TBD | Pending |
-| FLOW-02 | TBD | Pending |
-| FLOW-03 | TBD | Pending |
-| FLOW-04 | TBD | Pending |
-| DOCS-01 | TBD | Pending |
-| DOCS-02 | TBD | Pending |
-| DOCS-03 | TBD | Pending |
-| DOCS-04 | TBD | Pending |
-| SAFE-01 | TBD | Pending |
-| SAFE-02 | TBD | Pending |
-| SAFE-03 | TBD | Pending |
-| SAFE-04 | TBD | Pending |
+| ANCHOR-01 | Phase 3 | Pending |
+| ANCHOR-02 | Phase 3 | Pending |
+| ANCHOR-03 | Phase 3 | Pending |
+| ANCHOR-04 | Phase 3 | Pending |
+| GRAPH-01 | Phase 4 | Pending |
+| GRAPH-02 | Phase 4 | Pending |
+| GRAPH-03 | Phase 4 | Pending |
+| GRAPH-04 | Phase 4 | Pending |
+| GRAPH-05 | Phase 4 | Pending |
+| FLOW-01 | Phase 5 | Pending |
+| FLOW-02 | Phase 5 | Pending |
+| FLOW-03 | Phase 5 | Pending |
+| FLOW-04 | Phase 5 | Pending |
+| DOCS-01 | Phase 6 | Pending |
+| DOCS-02 | Phase 6 | Pending |
+| DOCS-03 | Phase 6 | Pending |
+| DOCS-04 | Phase 6 | Pending |
+| SAFE-01 | Phase 7 | Pending |
+| SAFE-02 | Phase 7 | Pending |
+| SAFE-03 | Phase 7 | Pending |
+| SAFE-04 | Phase 7 | Pending |
 
-**Coverage:** 0/21 mapped (roadmap pending)
+**Coverage:** 21/21 mapped ✓
 
 ---
 *Requirements defined: 2026-08-17*
-*Last updated: 2026-08-17 after approved infinite-game architecture synthesis*
+*Last updated: 2026-08-18 after v0.4 roadmap creation*

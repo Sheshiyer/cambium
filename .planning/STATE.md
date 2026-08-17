@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
 status: planning
-last_updated: "2026-08-17T18:28:40.446Z"
-last_activity: 2026-08-17
+last_updated: "2026-08-18T00:00:00.000Z"
+last_activity: 2026-08-18
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -15,30 +15,32 @@ progress:
 
 # Project State
 
-> Milestone v0.4 is active. The root `ISA.md` remains the acceptance source of record; this file tracks
-> GSD execution state and must not become a third goal authority.
+> The root `ISA.md` remains the acceptance source of record. GSD tracks finite execution state and does not become a third goal authority.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-08-17)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
-**Current focus:** Planning the Cambium Infinite-Game Doctrine and Intent Graph milestone
+**Current focus:** Phase 3 — Canonical Infinite-Game Anchors
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-08-17 — Milestone v0.4 started
+Phase: 3 of 7 (Canonical Infinite-Game Anchors)
+Plan: — (phase discussion pending)
+Status: Ready to discuss
+Last activity: 2026-08-18 — v0.4 roadmap mapped all 21 requirements across Phases 3–7
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 2
-- Average duration: 39 min
-- Total execution time: 0.65 hours
+- Historical plans completed: 2
+- v0.4 plans completed: 0
+- Historical average duration: 39 min
+- Historical execution time: 0.65 hours
 
 ## Accumulated Context
 
@@ -46,25 +48,33 @@ Last activity: 2026-08-17 — Milestone v0.4 started
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
-- D1 remains lease and terminal-state authority.
-- Hermes remains the durable EC2 poller and supervisor.
-- The live canary is synthetic and stops at awaiting human approval.
+- Root `VISION.md` and renewable root `MISSION.md` are the canonical doctrine anchors.
+- Repository Mission and bounded `FabricMission` nodes have distinct authority and inheritance semantics.
+- ISA and GSD remain the only goal and planning authorities.
+- Historical v0.3 phases remain read-only evidence; v0.4 continues at Phase 3.
 
 ### Pending Todos
 
-- Founder may perform one human-typed command as a user acceptance tap; the engineering path is already live-proven through the installed handler and gateway authorization/registration surface.
+- Discuss Phase 3 assumptions before creating executable plans.
 
 ### Blockers/Concerns
 
-- The v0.3 phases predate current GSD `VERIFICATION.md` packaging; the milestone audit retains this as historical process debt.
-- Historical v0.3 phase directories remain in place and are read-only evidence; v0.4 continues numbering at Phase 3.
+- Historical v0.3 phases predate current GSD `VERIFICATION.md` packaging; the archived audit retains this process debt.
+- Runtime, provider, deployment, connected-repository, and destructive document mutations remain outside v0.4 authority.
+
+## Deferred Items
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| Connected repositories | Inherit canonical anchors through pinned repository-specific contracts | Future | v0.4 initialization |
+| Corpus relocation | Relocate or archive documents only after inventory review | Future | v0.4 initialization |
 
 ## Session Continuity
 
-Last session: 2026-07-17 10:21 UTC
-Stopped at: Phase 2 complete with deployed operator intake, replay-safe D1 receipt, rollback proof, and revoked SSH.
-Resume file: .planning/phases/02-telegram-operator-intake/02-01-SUMMARY.md
+Last session: 2026-08-18
+Stopped at: v0.4 roadmap created; Phase 3 is ready for assumptions discussion
+Resume file: None
 
-## Operator Next Steps
+## Operator Next Step
 
-- Define v0.4 requirements and roadmap, then run `/gsd:discuss-phase 3`.
+`/gsd:discuss-phase 3`
