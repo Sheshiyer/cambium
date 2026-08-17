@@ -25,14 +25,14 @@ function writeFixtureFile(root, relativePath, content) {
   fs.writeFileSync(filePath, content);
 }
 
-function commitAll(root, message) {
+function commitAll(root, message, commitDate = '2026-08-16T00:00:00Z') {
   execFileSync('git', ['add', '-A'], { cwd: root });
   execFileSync('git', ['commit', '--quiet', '-m', message], {
     cwd: root,
     env: {
       ...process.env,
-      GIT_AUTHOR_DATE: '2026-08-16T00:00:00Z',
-      GIT_COMMITTER_DATE: '2026-08-16T00:00:00Z',
+      GIT_AUTHOR_DATE: commitDate,
+      GIT_COMMITTER_DATE: commitDate,
     },
   });
 }
@@ -51,7 +51,7 @@ function spawnGenerator(root, args = []) {
   });
 }
 
-test('retention manifest regeneration is deterministic and excludes itself from HEAD references', () => {
+test('retention manifest is content-stable across different HEAD commit metadata and excludes itself', () => {
   const root = createFixtureRepo('cambium-retention-manifest-');
   try {
     writeFixtureFile(root, 'docs/plans/example.md', '# Example\n');
@@ -60,7 +60,7 @@ test('retention manifest regeneration is deterministic and excludes itself from 
 
     runGenerator(root);
     const output = path.join(root, defaultOutput);
-    commitAll(root, 'retention receipt');
+    commitAll(root, 'retention receipt', '2026-08-17T00:00:00Z');
     const first = fs.readFileSync(output, 'utf8');
 
     writeFixtureFile(root, defaultOutput, '{"generatedAt":"2099-01-01"}\n');
@@ -70,9 +70,10 @@ test('retention manifest regeneration is deterministic and excludes itself from 
 
     assert.equal(second, first);
     assert.equal(Object.hasOwn(manifest, 'generatedAt'), false);
+    assert.equal(Object.hasOwn(manifest, 'inventoryAsOfCommitDate'), false);
     assert.equal(manifest.decisionOriginDate, '2026-08-10');
     assert.equal(manifest.inventoryAsOfRevision, 'HEAD');
-    assert.equal(manifest.inventoryAsOfCommitDate, '2026-08-16');
+    assert.match(manifest.inventoryContentSha256, /^[a-f0-9]{64}$/);
     assert.equal(manifest.entryCount, 1);
     assert.deepEqual(manifest.entries[0].inboundReferences.samplePaths, ['notes.md']);
   } finally {
@@ -97,7 +98,8 @@ test('retention manifest accepts a repository-contained absolute output path det
 
     assert.equal(second, first);
     assert.equal(Object.hasOwn(manifest, 'generatedAt'), false);
-    assert.equal(manifest.inventoryAsOfCommitDate, '2026-08-16');
+    assert.equal(Object.hasOwn(manifest, 'inventoryAsOfCommitDate'), false);
+    assert.match(manifest.inventoryContentSha256, /^[a-f0-9]{64}$/);
     assert.equal(manifest.entryCount, 1);
     assert.equal(manifest.entries[0].path, 'docs/plans/example.md');
   } finally {
@@ -222,7 +224,7 @@ Retain exact paths.
 
     const backdatedOverride = spawnGenerator(root, ['--generated-at', '2026-08-10']);
     assert.notEqual(backdatedOverride.status, 0);
-    assert.match(backdatedOverride.stderr, /inventoryAsOfCommitDate is derived from HEAD/);
+    assert.match(backdatedOverride.stderr, /metadata is derived from committed HEAD content/);
 
     runGenerator(root);
     const check = spawnGenerator(root, ['--check']);
@@ -240,8 +242,10 @@ Retain exact paths.
     const inventory = fs.readFileSync(inventoryPath, 'utf8');
     assert.equal(Object.hasOwn(perFile, 'generatedAt'), false);
     assert.equal(Object.hasOwn(aggregate, 'generatedAt'), false);
-    assert.equal(perFile.inventoryAsOfCommitDate, '2026-08-16');
-    assert.equal(aggregate.inventoryAsOfCommitDate, '2026-08-16');
+    assert.equal(Object.hasOwn(perFile, 'inventoryAsOfCommitDate'), false);
+    assert.equal(Object.hasOwn(aggregate, 'inventoryAsOfCommitDate'), false);
+    assert.match(perFile.inventoryContentSha256, /^[a-f0-9]{64}$/);
+    assert.equal(aggregate.inventoryContentSha256, perFile.inventoryContentSha256);
     assert.doesNotMatch(inventory, /"generatedAt"/);
     assert.match(inventory, /Markdown files \| 1 files, 10 bytes/);
 

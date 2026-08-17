@@ -1685,6 +1685,12 @@ mutation has been performed by drafting this packet.
 - Committed-head verification passes: focused anchor contract 4/4, complete
   repository suite 1785/1785, drift audit, rendered-document synchronization
   for 6 pages and 91 components, scoped diff checks, and local-path scans.
+- Release-gate follow-up replaces commit-date-derived retention metadata with
+  a SHA-256 over the exact inventory content. The receipt is now stable across
+  a PR head, GitHub's synthetic merge commit, and a later squash commit while
+  remaining stale whenever the governed inventory actually changes. Focused
+  retention regression coverage proves different HEAD commit metadata cannot
+  alter identical inventory output.
 - GSD records Phase 3 as 2/2 complete with ANCHOR-01 through ANCHOR-04
   satisfied. The clean continuation is `/gsd:plan-phase 4` for the
   provenance-preserving intent graph.

@@ -113,7 +113,7 @@ const canonicalInventory = '.planning/2026-08-10-documentation-retention-invento
 const output = readOptionValue('--out', canonicalOutput);
 const checkOnly = process.argv.includes('--check');
 if (process.argv.includes('--generated-at')) {
-  throw new Error('--generated-at is not supported; inventoryAsOfCommitDate is derived from HEAD');
+  throw new Error('--generated-at is not supported; metadata is derived from committed HEAD content');
 }
 const { outputPath, guardedOutputPath } = resolveGuardedOutputPath(output);
 const outputRepoPaths = new Set([
@@ -123,10 +123,6 @@ const outputRepoPaths = new Set([
 outputRepoPaths.add(canonicalAggregate);
 outputRepoPaths.add(canonicalInventory);
 const headFiles = listHeadFiles();
-const inventoryAsOfCommitDate = runGit(['show', '-s', '--format=%cs', 'HEAD']).trim();
-if (!/^\d{4}-\d{2}-\d{2}$/.test(inventoryAsOfCommitDate)) {
-  throw new Error(`HEAD commit date must use YYYY-MM-DD: ${inventoryAsOfCommitDate}`);
-}
 const tracked = listHeadFiles('docs/plans');
 const corpus = headFiles
   .filter((file) => isTextFile(file) && !outputRepoPaths.has(file))
@@ -180,13 +176,14 @@ const entries = tracked.map((file) => {
     ...(duplicate ? { duplicateSha256Group: true } : {}),
   };
 });
+const inventoryContentSha256 = sha256(Buffer.from(JSON.stringify(entries)));
 
 const manifest = {
   schema: 'cambium.docs-retention.per-file.v1',
   status: 'reviewed-inventory',
   decisionOriginDate: '2026-08-10',
   inventoryAsOfRevision: 'HEAD',
-  inventoryAsOfCommitDate,
+  inventoryContentSha256,
   scopeRoot: 'docs/plans',
   decision: 'no-relocation-or-deletion',
   entryCount: entries.length,
@@ -213,7 +210,7 @@ function replaceInventoryHeader(source) {
 **Status:** evidence-safe inventory complete; no cleanup approved
 **Decision origin:** 2026-08-10 retention review
 **Inventory basis:** exact committed \`HEAD\` tree and blobs
-**Inventory as of HEAD commit date:** \`${inventoryAsOfCommitDate}\`
+**Inventory content SHA-256:** \`${inventoryContentSha256}\`
 **Scope:** \`docs/\` and \`.planning/\` only
 **Method:** deterministic size, type, checksum, and inbound-reference generation plus release-gated consistency verification
 
@@ -251,7 +248,7 @@ ${end}`;
   }
   return updated.replace(
     /  "generatedAt": "ISO-8601",?/,
-    '  "decisionOriginDate": "2026-08-10",\n  "inventoryAsOfRevision": "HEAD",\n  "inventoryAsOfCommitDate": "YYYY-MM-DD",',
+    '  "decisionOriginDate": "2026-08-10",\n  "inventoryAsOfRevision": "HEAD",\n  "inventoryContentSha256": "SHA-256",',
   );
 }
 
@@ -263,9 +260,10 @@ function renderAggregate(source) {
     throw new Error(`HEAD aggregate receipt must be valid JSON: ${canonicalAggregate}`);
   }
   delete aggregate.generatedAt;
+  delete aggregate.inventoryAsOfCommitDate;
   aggregate.decisionOriginDate = '2026-08-10';
   aggregate.inventoryAsOfRevision = 'HEAD';
-  aggregate.inventoryAsOfCommitDate = inventoryAsOfCommitDate;
+  aggregate.inventoryContentSha256 = inventoryContentSha256;
   aggregate.entryCount = entries.length;
 
   const lookup = new Map(aggregate.entries.map((entry) => [entry.path, entry]));
