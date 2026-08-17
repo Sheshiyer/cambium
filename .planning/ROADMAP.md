@@ -21,7 +21,7 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 
 ### v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
-- [ ] **Phase 3: Canonical Infinite-Game Anchors** - Establish one enduring vision, one renewable mission, and unambiguous Mission terminology.
+- [x] **Phase 3: Canonical Infinite-Game Anchors** - Establish one enduring vision, one renewable mission, and unambiguous Mission terminology. (completed 2026-08-17)
 - [ ] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority.
 - [ ] **Phase 5: Ralph and Temperance Flow Projection** - Derive dependency-safe next actions, routes, gates, freshness, and stopping conditions from durable sources.
 - [ ] **Phase 6: Documentation Stewardship** - Inventory and connect the doctrine corpus through a non-destructive authority and lifecycle map.
@@ -43,10 +43,10 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 Plans:
 
 **Wave 1**
-- [ ] 03-01-PLAN.md — Commit the RED contract, bind the exact active ISA goal, and establish the canonical root Vision and Mission.
+- [x] 03-01-PLAN.md — Commit the RED contract, bind the exact active ISA goal, and establish the canonical root Vision and Mission.
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 03-02-PLAN.md — Link both anchors through documentation and close Mission terminology plus ISA evidence from committed gates.
+- [x] 03-02-PLAN.md — Link both anchors through documentation and close Mission terminology plus ISA evidence from committed gates.
 
 ### Phase 4: Provenance-Preserving Intent Graph
 **Goal**: Operators can inspect a deterministic intent graph whose references preserve authority from enduring purpose through verified learning.
@@ -102,7 +102,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. D1-Leased Service-Agreement Draft | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 2. Telegram Operator Intake | v0.3 | 1/1 | Complete | 2026-07-17 |
-| 3. Canonical Infinite-Game Anchors | v0.4 | 0/2 | Planned | - |
+| 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
 | 4. Provenance-Preserving Intent Graph | v0.4 | 0/TBD | Not started | - |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 0/TBD | Not started | - |
 | 6. Documentation Stewardship | v0.4 | 0/TBD | Not started | - |

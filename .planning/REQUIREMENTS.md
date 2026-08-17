@@ -7,10 +7,10 @@
 
 ### Canonical Anchors
 
-- [ ] **ANCHOR-01**: A maintainer can read one canonical root `VISION.md` that states Cambium's enduring Just Cause, infinite-game commitments, and non-goals without prescribing a finite product endpoint.
-- [ ] **ANCHOR-02**: A maintainer can read one canonical root `MISSION.md` that states the current renewable mission, its horizon, evidence of progress, renewal triggers, and conditions for retirement or replacement.
-- [ ] **ANCHOR-03**: A maintainer can distinguish repository-level Mission from bounded `FabricMission` records through explicit naming, scope, inheritance, and authority rules.
-- [ ] **ANCHOR-04**: A maintainer can trace every normative vision and mission claim to its canonical anchor instead of encountering copied doctrine in generated or operational files.
+- [x] **ANCHOR-01**: A maintainer can read one canonical root `VISION.md` that states Cambium's enduring Just Cause, infinite-game commitments, and non-goals without prescribing a finite product endpoint.
+- [x] **ANCHOR-02**: A maintainer can read one canonical root `MISSION.md` that states the current renewable mission, its horizon, evidence of progress, renewal triggers, and conditions for retirement or replacement.
+- [x] **ANCHOR-03**: A maintainer can distinguish repository-level Mission from bounded `FabricMission` records through explicit naming, scope, inheritance, and authority rules.
+- [x] **ANCHOR-04**: A maintainer can trace every normative vision and mission claim to its canonical anchor instead of encountering copied doctrine in generated or operational files.
 
 ### Intent Graph
 
@@ -62,10 +62,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANCHOR-01 | Phase 3 | Pending |
-| ANCHOR-02 | Phase 3 | Pending |
-| ANCHOR-03 | Phase 3 | Pending |
-| ANCHOR-04 | Phase 3 | Pending |
+| ANCHOR-01 | Phase 3 | Complete |
+| ANCHOR-02 | Phase 3 | Complete |
+| ANCHOR-03 | Phase 3 | Complete |
+| ANCHOR-04 | Phase 3 | Complete |
 | GRAPH-01 | Phase 4 | Pending |
 | GRAPH-02 | Phase 4 | Pending |
 | GRAPH-03 | Phase 4 | Pending |
