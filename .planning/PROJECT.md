@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Cambium is the operator-facing projection and durable Cloudflare control plane for Thoughtseed managerial workflows. This recovery milestone proves one real business flow—a synthetic, internal-only service-agreement draft—from typed intake through D1 leasing, Hermes execution, Temperance policy and rendering, durable artifact storage, and authenticated readback.
+Cambium is the operator-facing projection and durable control plane for Thoughtseed's living venture system. Milestone v0.3 proved one synthetic, internal-only service-agreement flow from typed intake through D1 leasing, Hermes execution, Temperance rendering, durable storage, and authenticated readback. The next milestone makes the enduring vision, renewable mission, finite goals, and evidence feedback loop explicit without creating another operational writer.
 
 ## Core Value
 
@@ -28,6 +28,22 @@ An operator action counts only when its authoritative task, lease, artifact, out
 
 The July ecosystem audit found that direct agent and CLI primitives work while the operator path breaks at routing, state, renderer selection, and proof foldback. Native D1 claim/outcome and a route-only Temperance release are already live; this milestone connects the next bounded business command across those existing seams.
 
+## Current State
+
+- **Shipped:** v0.3 Managerial Control Loop on 2026-08-17.
+- **Historical proof:** two completed phases, two plans, and eleven checked requirements.
+- **Accepted process debt:** the historical phases predate current GSD `VERIFICATION.md` files; their live evidence remains summary-attested and is archived in the milestone audit.
+- **Active authority:** the root `ISA.md` owns the approved infinite-game documentation goal. This planning file does not replace it.
+
+## Next Milestone Goals
+
+- Establish canonical root `VISION.md` and renewable root `MISSION.md`.
+- Keep ISA and GSD as the only goal and planning authorities.
+- Model vision → mission → finite goals → tasks → evidence → learning as a provenance-preserving fractal graph.
+- Distinguish the repository-level Mission from bounded `FabricMission` nodes.
+- Expose Ralph next actions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into the manifest.
+- Consolidate and reorganize the named root, `MEMORY/`, and `docs/` corpus without deleting historical evidence or promoting plans into current instructions.
+
 ## Constraints
 
 - **Authority**: D1 owns task identity, lease, fencing, and terminal status.
@@ -48,4 +64,4 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 | Treat Telegram as an adapter over the existing D1 loop | Avoids creating another orchestrator or execution authority | ✓ Proven |
 
 ---
-*Last updated: 2026-07-17 after Telegram operator-intake proof*
+*Last updated: 2026-08-17 after v0.3 milestone archival*
