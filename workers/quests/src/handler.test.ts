@@ -9693,8 +9693,8 @@ test('bridge · resolves low-risk iVerif callback to queued with meaningful rece
     body: JSON.stringify({
       tenantId: 'cambium',
       optionId: 'make-branch-task',
-      founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+      founderTelegramUserId: TEST_FOUNDER_B,
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
     }),
   }), deps);
 
@@ -9749,8 +9749,8 @@ test('bridge · escalates high-risk iVerif callback and rejects wrong topic acto
     body: JSON.stringify({
       tenantId: 'cambium',
       optionId: 'draft-follow-up',
-      founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+      founderTelegramUserId: TEST_FOUNDER_B,
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
     }),
   }), deps);
 
@@ -9780,8 +9780,8 @@ test('gate · signed Mini App confirmation queues high-risk iVerif ActionRequest
     body: JSON.stringify({
       tenantId: 'cambium',
       optionId: 'draft-follow-up',
-      founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+      founderTelegramUserId: TEST_FOUNDER_B,
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
     }),
   }), deps);
   assert.equal(body(escalated).actionRequest.status, 'needs_signed_confirmation');
@@ -11445,6 +11445,82 @@ test('IVerif malformed thread ids and non-GET methods stop before provider acces
   assert.equal(mutation.status, 405);
   assert.equal(mutation.headers.allow, 'GET');
   assert.equal(calls, 0);
+});
+
+test('bridge · monthly workflow learning exposes Ralph replay proposals without auto-mutation', async () => {
+  const deps = { kv: fakeKv(), bridgeToken: 'bridge' };
+  const recorded = await handle(req('POST', '/v1/bridge/workflow-learning/events', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'thoughtseed.workflow-learning-event.v1', id: 'evt-render-timeout', tenantId: 'cambium',
+      workflowId: 'thoughtseed.hr.monthly-payroll.v1', at: '2026-08-18T10:00:00.000Z',
+      kind: 'retry_exhausted', rootCause: 'renderer_timeout', summary: 'Renderer timed out after bounded retries.',
+      retryable: true, source: 'hermes',
+    }),
+  }), deps);
+  assert.equal(recorded.status, 200);
+
+  const summary = await handle(req('GET', '/v1/bridge/workflow-learning/monthly?tenantId=cambium&month=2026-08', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(summary.status, 200);
+  assert.equal(body(summary).eventCount, 1);
+  assert.equal(body(summary).automaticChanges, false);
+  assert.equal(body(summary).replayCases[0].proposedOnly, true);
+});
+
+test('bridge · HR reply approval is founder-allowlisted and bound to one pending card', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    gate: { botId: '1', pubKeyHex: '0'.repeat(64), founderIds: [TEST_FOUNDER_A, TEST_FOUNDER_B] },
+    now: () => '2026-08-18T10:10:00.000Z',
+  };
+  const actionRequest = {
+    schema: 'thoughtseed.action-request.v1',
+    id: 'ar_hr_imran_exit_packet',
+    idempotencyKey: 'hr:imran:exit-packet:2026-08-18',
+    tenantId: 'cambium', status: 'proposed', source: 'hermes-founder-intent',
+    createdAt: '2026-08-18T10:00:00.000Z', updatedAt: '2026-08-18T10:00:00.000Z',
+    branchId: 'thoughtseed-hr', branchLabel: 'ThoughtSeed HR',
+    projectId: 'thoughtseed-hr', projectName: 'ThoughtSeed People Operations', questId: 'living-org',
+    topic: { chatId: '-1002691202808', topicKey: 'agent-ops', threadId: 802, sourceMessageId: '5512' },
+    title: 'Approve Imran separation packet', summary: 'Render official documents without sending email.',
+    why: 'Official employee documents require founder approval.',
+    approval: { mode: 'telegram-reply-or-button', expiresAt: '2026-08-18T10:30:00.000Z', workObjectId: 'program:thoughtseed-vault' },
+    options: [
+      { id: 'approve-final-render', label: 'Approve final render', consequence: 'queue bounded rendering only', risk: 'high', requiresSignedConfirmation: false, acceptsVerbalApproval: true, resultKind: 'queue_task' },
+      { id: 'hold', label: 'Hold', consequence: 'retain preview', risk: 'low', requiresSignedConfirmation: false, resultKind: 'hold' },
+    ],
+    receipts: [], redaction: 'redacted',
+  };
+  const created = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(actionRequest),
+  }), deps);
+  assert.equal(created.status, 200);
+
+  const denied = await handle(req('POST', '/v1/bridge/action-requests/ar_hr_imran_exit_packet/resolve-reply', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium', phrase: 'yes', founderTelegramUserId: '999',
+      actor: { telegramUserId: '999', chatId: '-1002691202808', threadId: 802 },
+      reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
+    }),
+  }), deps);
+  assert.equal(denied.status, 403);
+
+  const approved = await handle(req('POST', '/v1/bridge/action-requests/ar_hr_imran_exit_packet/resolve-reply', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium', phrase: 'approve', founderTelegramUserId: TEST_FOUNDER_A,
+      actor: { telegramUserId: TEST_FOUNDER_A, chatId: '-1002691202808', threadId: 802 },
+      reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
+    }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  assert.equal(body(approved).actionRequest.status, 'queued');
+  assert.equal(body(approved).actionRequest.receipts.at(-1).kind, 'reply');
 });
 
 test('IVerif observer reads never create ActionRequests', async () => {
