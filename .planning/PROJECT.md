@@ -16,6 +16,7 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ Hermes polls the Worker on a durable timer and persists local attempt state — native execution proof release.
 - ✓ REQ-01–REQ-06 prove one replay-safe D1-leased synthetic service-agreement draft from strict intake through immutable artifact readback.
 - ✓ REQ-07–REQ-11 expose that same slice through feature-gated Telegram intake and a redacted D1 status projection, with live replay, rollback, allowlist, and access-revocation proof.
+- ✓ ANCHOR-01–ANCHOR-04 establish canonical root `VISION.md` and renewable `MISSION.md`, distinguish repository Mission from bounded `FabricMission` records, and make supporting doctrine reference rather than duplicate those authorities — Phase 3 verification.
 
 ### Out of Scope
 
@@ -34,6 +35,8 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Historical proof:** two completed phases, two plans, and eleven checked requirements.
 - **Accepted process debt:** the historical phases predate current GSD `VERIFICATION.md` files; their live evidence remains summary-attested and is archived in the milestone audit.
 - **Active authority:** the root `ISA.md` owns the approved infinite-game documentation goal. This planning file does not replace it.
+- **Phase 3 complete:** canonical Vision and Mission anchors, inherited doctrine overlays, Mission terminology boundaries, and deterministic anchor validation shipped on 2026-08-18.
+- **Next:** Phase 4 projects those anchors through a provenance-preserving intent graph without adding an operational writer.
 
 ## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
@@ -49,10 +52,8 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 
 ## Active Requirements
 
-- Establish canonical root `VISION.md` and renewable root `MISSION.md`.
 - Keep ISA and GSD as the only goal and planning authorities.
 - Model vision → mission → finite goals → tasks → evidence → learning as a provenance-preserving fractal graph.
-- Distinguish the repository-level Mission from bounded `FabricMission` nodes.
 - Expose Ralph next actions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into the manifest.
 - Consolidate and reorganize the named root, `MEMORY/`, and `docs/` corpus without deleting historical evidence or promoting plans into current instructions.
 
@@ -96,4 +97,4 @@ This document evolves at phase transitions and milestone boundaries.
 | Continue roadmap numbering at Phase 3 | Preserves the historical v0.3 phase lineage and avoids deleting retained phase evidence | Approved for v0.4 |
 
 ---
-*Last updated: 2026-08-17 for v0.4 milestone initialization*
+*Last updated: 2026-08-18 after Phase 3 verification*
