@@ -1,24 +1,22 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.3
-milestone_name: milestone
-status: Awaiting next milestone
-stopped_at: Phase 2 complete with deployed operator intake, replay-safe D1 receipt, rollback proof, and revoked SSH.
-last_updated: "2026-08-17T18:22:26.690Z"
-last_activity: 2026-08-17 — Milestone v0.3 completed and archived
+milestone: v0.4
+milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
+status: planning
+last_updated: "2026-08-17T18:28:40.446Z"
+last_activity: 2026-08-17
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
-> This planning slice is complete and historical. Use the root `ISA.md`, `README.md`, and current
-> architecture/runbook surfaces for present acceptance and runtime truth; do not treat this file as a
-> current feature backlog.
+> Milestone v0.4 is active. The root `ISA.md` remains the acceptance source of record; this file tracks
+> GSD execution state and must not become a third goal authority.
 
 ## Project Reference
 
@@ -29,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-08-17)
 
 ## Current Position
 
-Phase: Milestone v0.3 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-17 — Milestone v0.3 completed and archived
+Status: Defining requirements
+Last activity: 2026-08-17 — Milestone v0.4 started
 
 ## Performance Metrics
 
@@ -59,7 +57,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ### Blockers/Concerns
 
 - The v0.3 phases predate current GSD `VERIFICATION.md` packaging; the milestone audit retains this as historical process debt.
-- A new milestone must define requirements and phases before execution can begin.
+- Historical v0.3 phase directories remain in place and are read-only evidence; v0.4 continues numbering at Phase 3.
 
 ## Session Continuity
 
@@ -69,4 +67,4 @@ Resume file: .planning/phases/02-telegram-operator-intake/02-01-SUMMARY.md
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Define v0.4 requirements and roadmap, then run `/gsd:discuss-phase 3`.

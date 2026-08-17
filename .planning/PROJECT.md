@@ -35,7 +35,19 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Accepted process debt:** the historical phases predate current GSD `VERIFICATION.md` files; their live evidence remains summary-attested and is archived in the milestone audit.
 - **Active authority:** the root `ISA.md` owns the approved infinite-game documentation goal. This planning file does not replace it.
 
-## Next Milestone Goals
+## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
+
+**Goal:** Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical `VISION.md` and renewable `MISSION.md`, with ISA and GSD remaining the only goal and planning authorities.
+
+**Target features:**
+
+- Establish canonical root vision and mission anchors with explicit renewal rules and a clear distinction between repository Mission and bounded `FabricMission` nodes.
+- Project vision → mission → finite goals → tasks → evidence → learning as a deterministic, provenance-preserving graph.
+- Expose Ralph next actions, GSD transitions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into generated manifests.
+- Consolidate the named root, `MEMORY/`, and `docs/` corpus through an authority and lifecycle map that preserves historical evidence.
+- Add deterministic validation that rejects duplicated doctrine, a third operational writer, stale projections, secrets, and machine-local paths.
+
+## Active Requirements
 
 - Establish canonical root `VISION.md` and renewable root `MISSION.md`.
 - Keep ISA and GSD as the only goal and planning authorities.
@@ -43,6 +55,23 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - Distinguish the repository-level Mission from bounded `FabricMission` nodes.
 - Expose Ralph next actions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into the manifest.
 - Consolidate and reorganize the named root, `MEMORY/`, and `docs/` corpus without deleting historical evidence or promoting plans into current instructions.
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition:**
+1. Move invalidated requirements to Out of Scope with a reason.
+2. Move validated requirements to Validated with a phase reference.
+3. Add newly discovered requirements to Active.
+4. Record material decisions in Key Decisions.
+5. Recheck that What This Is still describes the product truthfully.
+
+**After each milestone:**
+1. Review every section against shipped evidence.
+2. Recheck that Core Value remains the right priority.
+3. Re-audit Out of Scope and its reasons.
+4. Update Context and Current State from durable proof.
 
 ## Constraints
 
@@ -62,6 +91,9 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 | Store bytes in `thoughtseed-vault` R2 and receipts in D1 | Separates artifact storage from transactional authority | ✓ Proven |
 | Keep legacy `.planning` GSD for this milestone | Matches existing project and recovery architecture | ✓ Proven |
 | Treat Telegram as an adapter over the existing D1 loop | Avoids creating another orchestrator or execution authority | ✓ Proven |
+| Root-anchor plus inherited-overlay doctrine | Keeps one canonical vision and mission while allowing bounded contexts to inherit without copying authority | Approved for v0.4 |
+| ISA and GSD remain the only goal/planning authorities | Prevents the manifest, Ralph loop, or documentation graph from becoming a third writer | Approved for v0.4 |
+| Continue roadmap numbering at Phase 3 | Preserves the historical v0.3 phase lineage and avoids deleting retained phase evidence | Approved for v0.4 |
 
 ---
-*Last updated: 2026-08-17 after v0.3 milestone archival*
+*Last updated: 2026-08-17 for v0.4 milestone initialization*
