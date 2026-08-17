@@ -38,7 +38,15 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
   2. A maintainer can read one root `MISSION.md` that states the current mission horizon, progress evidence, renewal triggers, and retirement or replacement conditions.
   3. A maintainer can distinguish repository Mission from bounded `FabricMission` records by their names, scopes, inheritance rules, and authority.
   4. A maintainer can trace normative vision and mission claims to the two root anchors while generated and operational artifacts use references or digests instead of copied doctrine.
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+
+**Wave 1**
+- [ ] 03-01-PLAN.md — Commit the RED contract, bind the exact active ISA goal, and establish the canonical root Vision and Mission.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 03-02-PLAN.md — Link both anchors through documentation and close Mission terminology plus ISA evidence from committed gates.
 
 ### Phase 4: Provenance-Preserving Intent Graph
 **Goal**: Operators can inspect a deterministic intent graph whose references preserve authority from enduring purpose through verified learning.
@@ -94,7 +102,7 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 |-------|-----------|----------------|--------|-----------|
 | 1. D1-Leased Service-Agreement Draft | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 2. Telegram Operator Intake | v0.3 | 1/1 | Complete | 2026-07-17 |
-| 3. Canonical Infinite-Game Anchors | v0.4 | 0/TBD | Not started | - |
+| 3. Canonical Infinite-Game Anchors | v0.4 | 0/2 | Planned | - |
 | 4. Provenance-Preserving Intent Graph | v0.4 | 0/TBD | Not started | - |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 0/TBD | Not started | - |
 | 6. Documentation Stewardship | v0.4 | 0/TBD | Not started | - |
