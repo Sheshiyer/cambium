@@ -8,6 +8,8 @@ Root doctrine files are catalogued under [`doctrine/`](doctrine/) so they stay a
 
 | Need | Canonical location |
 | --- | --- |
+| Enduring Just Cause | [`../VISION.md`](../VISION.md) |
+| Current Repository Mission | [`../MISSION.md`](../MISSION.md) |
 | Six planes / organs | [`../ARCHITECTURE.md`](../ARCHITECTURE.md) |
 | Infinite operator | [`../INFINITE-GAME.md`](../INFINITE-GAME.md) |
 | Finite-run coherence | [`../HOMEOSTASIS.md`](../HOMEOSTASIS.md) |

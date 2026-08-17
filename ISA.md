@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: execute
-progress: 2/4
+phase: verify
+progress: 4/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-18T01:55:43+05:30
+updated: 2026-08-18T02:04:32+05:30
 ---
 
 ## Problem
@@ -192,8 +192,8 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 - [x] ISC-1273: ANCHOR-01 proves the singular near-invariant root Vision through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 - [x] ISC-1274: ANCHOR-02 proves the singular renewable root Repository Mission through the binary probe `scripts/infinite-game-anchors.test.mjs`.
-- [ ] ISC-1275: ANCHOR-03 proves the Repository Mission and bounded `FabricMission` authority distinction through the binary probe `scripts/infinite-game-anchors.test.mjs`.
-- [ ] ISC-1276: ANCHOR-04 proves reference-only discovery of both canonical anchors through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [x] ISC-1275: ANCHOR-03 proves the Repository Mission and bounded `FabricMission` authority distinction through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [x] ISC-1276: ANCHOR-04 proves reference-only discovery of both canonical anchors through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
@@ -2149,6 +2149,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - ISC-1273: binary probe `node --test scripts/infinite-game-anchors.test.mjs`; focused command `node --test --test-name-pattern='canonical root anchors' scripts/infinite-game-anchors.test.mjs` passed the canonical Vision contract on 2026-08-18.
 - ISC-1274: binary probe `node --test scripts/infinite-game-anchors.test.mjs`; focused command `node --test --test-name-pattern='canonical root anchors' scripts/infinite-game-anchors.test.mjs` passed the renewable Repository Mission contract on 2026-08-18.
+- ISC-1275: pre-closure `node --test scripts/infinite-game-anchors.test.mjs` passed 4/4 with exit 0; pre-closure `npm test` passed 1785/1785 with exit 0 on 2026-08-18, proving the Repository Mission / `FabricMission` / Mission scene authority boundary without runtime mutation.
+- ISC-1276: pre-closure `npm test` passed 1785/1785 with exit 0; `npm run drift:audit` passed with exit 0; `npm run render-docs:check` passed with exit 0 and reported 6 pages / 91 components in sync on 2026-08-18, proving reference-only discovery and lifecycle consistency.
 
 - ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
 - ISC-1010..1019 root/repository proof — the 58-folder physical dry-run is exact; current root-map digest is `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`; repository evidence contains 106 references, 96 resolved, 5 unmatched, and 5 unverified at digest `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`; every unresolved reference has an assignment, explicit hold, or exclusion.
