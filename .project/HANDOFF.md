@@ -1717,3 +1717,44 @@ mutation has been performed by drafting this packet.
 - This checkpoint performs no runtime, package, lockfile, provider,
   deployment, credential, `.temperance`, connected-repository, relocation,
   or destructive corpus mutation.
+
+### 2026-08-18 Phase 4 D1 intent-projection foldback correction checkpoint
+
+- The prior Phase 4 green claim was false at the verified gap head: the
+  compiler-local foldback check passed, but the executable D1 authority guard
+  still accepted both valid-shaped and malformed
+  `cambium.intent-graph-projection.v1` inputs. The immutable
+  `04-VERIFICATION.md` records that original `gaps_found` diagnosis.
+- RED commit `44f35026eee8267c18999f30b844741c5cf97301` reopens only
+  ISC-1280 and binds the shared contract, pure intake/source wiring, and
+  authenticated pre-D1 route behavior. GREEN commit
+  `f5a58505544e024069a451fbcc44a20da66c30ec` adds the Intent Graph family
+  discriminator and wires `validateAuthoritativeInput` before
+  canonicalization or normalization.
+- The bounded change set is the shared projection contract, Telegram intake,
+  their contract/route tests, the ISA lifecycle test, ISA evidence, and this
+  handoff. It adds no handler production edit, D1 schema or migration, package,
+  lockfile, generated graph, root-anchor, provider, deployment, or connected
+  repository change.
+- Both HTTP fixtures reject with `projection_input` before any D1 read or
+  task/idempotency persistence. Each request may persist only one bounded
+  redacted `cambium.goal-graph-intake-rejection.v1` receipt; raw nodes, edges,
+  digests, and payload markers are absent. The in-memory D1 head and nodes are
+  byte-equivalent before and after each rejection.
+- Verification passes: shared contract/intake 20/20, intake/approval 18/18,
+  combined anchor/compiler/generator 27/27, complete repository suite
+  1812/1812, double generator checks at graph digest
+  `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45`
+  and source-set digest
+  `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`,
+  drift audit, rendered-doc synchronization, immutable report/root/generated
+  readbacks, allowed-path and deletion gates, forbidden-category scan, and
+  added-line privacy scan.
+- ISA is returned to verification evidence state, not phase completion. The
+  execute-phase orchestrator must apply its verification hold, run code review,
+  and then invoke the built-in independent `gsd-verifier`; only a fresh
+  `status: passed` verdict may complete Phase 4. `/gsd:verify-work 4` remains
+  optional manual re-verification, not a normal gap-cycle prerequisite.
+- No D1/KV/R2/Telegram/provider state, production deployment, external
+  repository, credential, registry, Vault, or generated projection was
+  mutated by this correction.

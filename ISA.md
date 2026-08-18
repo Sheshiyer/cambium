@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: execute
-progress: 4/5
+phase: verify
+progress: 5/5
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-18T10:56:31+05:30
+updated: 2026-08-18T14:01:31Z
 ---
 
 ## Problem
@@ -200,7 +200,7 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 - [x] ISC-1277: GRAPH-01 proves one deterministic projection with stable node and labeled-edge semantics for Vision → Mission → finite goals → tasks → evidence → learning.
 - [x] ISC-1278: GRAPH-02 proves every projected node exposes an exact repository-relative source path, named source authority, lifecycle state, and content digest.
 - [x] ISC-1279: GRAPH-03 proves inherited overlays reference canonical root anchors and cannot declare themselves Vision or Repository Mission authorities.
-- [ ] ISC-1280: GRAPH-04 proves evidence and learning edges close or renew finite goals without mutating `VISION.md` or silently rewriting `MISSION.md`.
+- [x] ISC-1280: GRAPH-04 proves evidence and learning edges close or renew finite goals without mutating `VISION.md` or silently rewriting `MISSION.md`.
 - [x] ISC-1281: GRAPH-05 proves approval gates, freshness, stop conditions, and blocked states remain explicit, with blocked work never projected as complete.
 
 ### Historical acceptance evidence (issue #331 and earlier)
@@ -2165,7 +2165,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-1277: focused `GRAPH-01 / ISC-1277: semantic input order produces byte-stable IDs, ordering, and digests` passed in `node --test scripts/intent-graph.test.mjs scripts/generate-intent-graph.test.mjs` (22/22); `node scripts/generate-intent-graph.mjs --check` passed twice; committed readbacks agree on graph digest `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45` and source-set digest `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`.
 - ISC-1278: focused `GRAPH-02 / ISC-1278` provenance and fail-closed source tests passed, including exact repository-relative path, authority, lifecycle, digest, selector ambiguity, unsafe path, and stale-digest behavior; both generated readbacks passed `node scripts/generate-intent-graph.mjs --check` twice at the same graph/source-set digests.
 - ISC-1279: focused `GRAPH-03 / ISC-1279: overlays reference only canonical root anchors without copied authority` and projection-foldback tests passed; normalized anchor-paragraph rejection and rendered-doc checks passed, while D1, ISA, GSD, Vision, Mission, and the read-only intent projection remain distinct authorities.
-- ISC-1280: REOPENED by `.planning/phases/04-provenance-preserving-intent-graph/04-VERIFICATION.md` (`status: gaps_found`): the D1 intake shared guard accepted both valid-shaped and malformed/future intent-graph projection identities as fresh authoritative input. Compiler-local foldback rejection remains defense in depth, not closure evidence.
+- ISC-1280: RED commit `44f35026eee8267c18999f30b844741c5cf97301` binds valid and malformed Intent Graph fixtures across the shared contract, pure intake, source wiring, and authenticated route; GREEN commit `f5a58505544e024069a451fbcc44a20da66c30ec` makes `validateAuthoritativeInput` the single early projection-family guard. Focused contract/intake passed 20/20 and intake/approval passed 18/18; the route proved zero D1 reads, zero task/idempotency writes, unchanged D1 head/nodes, and one bounded redacted rejection receipt. The direct probe rejects both fixtures while accepting an unrelated command; compiler-local foldback remains defense in depth. The complete gate passed 27/27 anchor/compiler/generator tests, `npm test` 1812/1812, double generator checks at graph digest `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45` and source-set digest `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`, drift audit, rendered-doc synchronization (6 pages / 91 components), immutable verification/root/generated readbacks, path/deletion/category gates, and added-line privacy scan.
 - ISC-1281: focused `GRAPH-05 / ISC-1281: approval, freshness, stop, blocked, and completion contradictions fail closed` and JSON/Markdown parity passed; no node combines `completion: satisfied` with a blocked reason. The pre-closure gate passed 27/27 combined anchor/intent tests, `npm test` 1808/1808, drift audit, rendered-doc synchronization (6 pages / 91 components), diff hygiene, added-line privacy, deletion/rename, allowed-range, and forbidden runtime/provider/deployment category checks.
 
 - ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
