@@ -22,7 +22,7 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 ### v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
 - [x] **Phase 3: Canonical Infinite-Game Anchors** - Establish one enduring vision, one renewable mission, and unambiguous Mission terminology. (completed 2026-08-17)
-- [ ] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority.
+- [x] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority. (completed 2026-08-18)
 - [ ] **Phase 5: Ralph and Temperance Flow Projection** - Derive dependency-safe next actions, routes, gates, freshness, and stopping conditions from durable sources.
 - [ ] **Phase 6: Documentation Stewardship** - Inventory and connect the doctrine corpus through a non-destructive authority and lifecycle map.
 - [ ] **Phase 7: Deterministic Safety and Handoff** - Reject authority drift, stale or sensitive projections, and leave a reviewed continuation boundary.
@@ -69,7 +69,7 @@ Plans:
 - [x] 04-02-PLAN.md — Compile one repository source model into deterministic machine and human readbacks with stale-output checks.
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 04-03-PLAN.md — Publish discovery and D1 distinctions, then close ISA evidence and the bounded handoff from full gates.
+- [x] 04-03-PLAN.md — Publish discovery and D1 distinctions, then close ISA evidence and the bounded handoff from full gates.
 
 ### Phase 5: Ralph and Temperance Flow Projection
 **Goal**: Operators and fresh iterations can derive one dependency-safe next action and its execution route from durable planning sources.
@@ -114,7 +114,7 @@ Plans:
 | 1. D1-Leased Service-Agreement Draft | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 2. Telegram Operator Intake | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
-| 4. Provenance-Preserving Intent Graph | v0.4 | 2/3 | In Progress|  |
+| 4. Provenance-Preserving Intent Graph | v0.4 | 3/3 | Complete   | 2026-08-18 |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 0/TBD | Not started | - |
 | 6. Documentation Stewardship | v0.4 | 0/TBD | Not started | - |
 | 7. Deterministic Safety and Handoff | v0.4 | 0/TBD | Not started | - |
