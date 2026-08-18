@@ -22,7 +22,7 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 ### v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
 - [x] **Phase 3: Canonical Infinite-Game Anchors** - Establish one enduring vision, one renewable mission, and unambiguous Mission terminology. (completed 2026-08-17)
-- [x] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority. (completed 2026-08-18; delivery pending)
+- [x] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority. (shipped 2026-08-18)
 - [ ] **Phase 5: Ralph and Temperance Flow Projection** - Derive dependency-safe next actions, routes, gates, freshness, and stopping conditions from durable sources.
 - [ ] **Phase 6: Documentation Stewardship** - Inventory and connect the doctrine corpus through a non-destructive authority and lifecycle map.
 - [ ] **Phase 7: Deterministic Safety and Handoff** - Reject authority drift, stale or sensitive projections, and leave a reviewed continuation boundary.
@@ -74,7 +74,7 @@ Plans:
 **Wave 4** *(blocked on Wave 3 execution and the Phase 4 verification gap)*
 - [x] 04-04-PLAN.md — Enforce the shared D1 Intent Graph foldback guard, prove production intake rejection, and repair ISC-1280 evidence. Execute with `/gsd:execute-phase 4 --gaps-only`; the built-in verifier owns passed-only phase completion, then `/gsd:ship 4` owns current-main ancestry, exact-head PR checks, squash merge, and main readback before Phase 5.
 
-**Delivery gate:** The Phase 4 stack is rebased onto PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd`. A passed local phase is not yet proof of delivery: Phase 5 remains blocked until the verified exact head is shipped through `main-pr-and-ci`, squash-merged, and read back from `origin/main` with successful main CI.
+**Delivery receipt:** PR #351 exact head `892e6480d910da8e13ef6d86cd37e07c02d9e5aa` passed required CI and squash-merged through `main-pr-and-ci` as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`. The merge tree matched the reviewed head, and main CI run `32152942949` passed all eight jobs. Phase 5 is unblocked.
 
 ### Phase 5: Ralph and Temperance Flow Projection
 **Goal**: Operators and fresh iterations can derive one dependency-safe next action and its execution route from durable planning sources.

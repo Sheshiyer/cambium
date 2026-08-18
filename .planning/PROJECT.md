@@ -37,8 +37,8 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Accepted process debt:** the historical phases predate current GSD `VERIFICATION.md` files; their live evidence remains summary-attested and is archived in the milestone audit.
 - **Active authority:** the root `ISA.md` owns the approved infinite-game documentation goal. This planning file does not replace it.
 - **Phase 3 complete:** canonical Vision and Mission anchors, inherited doctrine overlays, Mission terminology boundaries, and deterministic anchor validation shipped on 2026-08-18.
-- **Phase 4 complete locally:** the provenance-preserving Intent Graph and shared projection foldback boundary passed independent verification 5/5 on 2026-08-18.
-- **Delivery hold:** `/gsd:ship 4` must land the exact verified head through the protected main PR and CI gate before Phase 5 planning begins.
+- **Phase 4 shipped:** the provenance-preserving Intent Graph and shared projection foldback boundary passed independent verification 5/5, landed through protected PR #351 as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`, and passed exact-main CI run `32152942949` on 2026-08-18.
+- **Next phase:** Phase 5 planning may begin with `/gsd:plan-phase 5`.
 
 ## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
@@ -100,4 +100,4 @@ This document evolves at phase transitions and milestone boundaries.
 | Reject Goal Graph and Intent Graph projections at the shared fresh-authority boundary | Prevents derived evidence from folding back as a new operational command while ordinary authoritative intake remains accepted | ✓ Proven in Phase 4 |
 
 ---
-*Last updated: 2026-08-18 after Phase 4 independent verification*
+*Last updated: 2026-08-18 after Phase 4 protected delivery and exact-main CI proof*
