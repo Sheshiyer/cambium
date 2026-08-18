@@ -9,6 +9,7 @@
 
 export const GOAL_GRAPH_PROJECTION_SCHEMA = 'cambium.goal-graph-projection.v1' as const;
 export const GOAL_GRAPH_PROJECTION_SCHEMA_VERSION = 'goal-graph-projection@1.0.0' as const;
+export const INTENT_GRAPH_PROJECTION_SCHEMA = 'cambium.intent-graph-projection.v1' as const;
 
 /** Origins are intentionally extensible: adapters name themselves, while the
  * schema and provenance fields remain closed and versioned. */
@@ -38,10 +39,13 @@ export interface ProjectionValidationResult<TPayload = Record<string, unknown>> 
 }
 
 export interface AuthoritativeInputValidationResult<TInput = unknown> {
-  /** False for every goal-graph projection, including a malformed envelope. */
+  /** False for every derived graph projection, including a malformed envelope. */
   accepted: boolean;
   value?: TInput;
-  reason?: 'goal_graph_projection_is_not_authoritative' | 'invalid_projection_envelope';
+  reason?:
+    | 'goal_graph_projection_is_not_authoritative'
+    | 'intent_graph_projection_is_not_authoritative'
+    | 'invalid_projection_envelope';
   errors: readonly string[];
 }
 
@@ -122,13 +126,31 @@ export function isGoalGraphProjection(input: unknown): boolean {
   const origin = typeof input.origin === 'string'
     ? input.origin.toLowerCase().replace(/[_\s]+/g, '-')
     : '';
-  if (schema.includes('goal-graph') || schema.includes('goalgraph')) return true;
+  const namesGoalGraph = schema.includes('goal-graph') || schema.includes('goalgraph');
+  if (namesGoalGraph && schema.includes('projection')) return true;
   if (origin.includes('goal-graph') || origin.includes('goalgraph') || origin.includes('d1-goal')) return true;
   // A future projection schema or a malformed envelope still carries the
   // distinctive graph provenance tuple.  Keep it out of the writer while the
   // projection validator reports the precise schema/field failures.
   return Boolean(origin) && (origin.includes('projection') || origin.includes('foldback'))
     && ('graph_version' in input || 'graph_digest' in input || 'source_ref' in input);
+}
+
+/** Intent Graph read models are also derived projections. An exact or future
+ * schema marker is sufficient to keep even malformed envelopes out of D1. */
+export function isIntentGraphProjection(input: unknown): boolean {
+  if (!isRecord(input)) return false;
+  if (input.schema === INTENT_GRAPH_PROJECTION_SCHEMA) return true;
+  const schema = typeof input.schema === 'string'
+    ? input.schema.toLowerCase().replace(/[_\s]+/g, '-')
+    : '';
+  const namesIntentGraph = schema.includes('intent-graph') || schema.includes('intentgraph');
+  return namesIntentGraph && schema.includes('projection');
+}
+
+/** One family discriminator shared by every fresh-authority boundary. */
+export function isDerivedGraphProjection(input: unknown): boolean {
+  return isGoalGraphProjection(input) || isIntentGraphProjection(input);
 }
 
 /**
@@ -150,6 +172,13 @@ export function validateAuthoritativeInput<TInput = unknown>(
       errors: projection.valid
         ? ['goal-graph projections cannot be accepted as fresh authoritative input']
         : [...projection.errors, 'goal-graph projection cannot enter the authoritative writer'],
+    };
+  }
+  if (isIntentGraphProjection(input)) {
+    return {
+      accepted: false,
+      reason: 'intent_graph_projection_is_not_authoritative',
+      errors: ['intent graph projection cannot be accepted as fresh authoritative input'],
     };
   }
   return { accepted: true, value: input, errors: [] };
