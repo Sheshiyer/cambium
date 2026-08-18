@@ -1,5 +1,14 @@
 # Project handoff
 
+### 2026-08-18 Phase 4 planning-ready checkpoint
+
+- Branch `codex/phase-4-intent-graph-plan-20260818` starts from exact `origin/main` `8747d24d6581edb0184404f9e81fc09b0a7f2ae0` and owns only the Phase 4 planning packet: `.planning/STATE.md`, `.planning/ROADMAP.md`, `.planning/phases/04-provenance-preserving-intent-graph/{04-01-PLAN.md,04-02-PLAN.md,04-03-PLAN.md}`, `ISA.md`, this checkpoint, and the coherent-state guard in `scripts/infinite-game-anchors.test.mjs`.
+- The planning packet defines three dependency-ordered execution waves for `GRAPH-01` through `GRAPH-05`: Wave 1 commits the adversarial compiler contract and pure read-only compiler boundary, Wave 2 binds one repository source model to deterministic JSON/Markdown readbacks, and Wave 3 publishes discovery, preserves the D1/ISA/GSD authority split, and closes Phase 4 only from committed evidence.
+- `ISA.md` now preserves completed Phase 3 acceptance as historical-verified evidence and binds active Phase 4 acceptance `ISC-1277` through `ISC-1281` at coherent plan state `phase: plan`, `progress: 0/5`. The advisor boundary is explicit: the required advisor invocation could not authenticate because the local OAuth session expired, so no advisory approval is inferred.
+- Planner and checker convergence completed at revision `3/3`. The resulting Roadmap and State both point to the same next step: `/gsd:execute-phase 4`. Execution remains separately approval-gated and must still honor the Temperance paid-dispatch boundary.
+- Verification on this planning branch is green: `node --test scripts/infinite-game-anchors.test.mjs`, `npm test` (`1786/1786`), `npm run render-docs:check`, `git diff --check`, and GSD gap analysis confirming this packet covers `GRAPH-01` through `GRAPH-05` only while Phases 5-7 remain intentionally uncovered.
+- No deployment, provider, Telegram, D1/KV/R2, connected-repository, runtime, generated projection, or root-worktree mutation is included. The user-owned primary checkout and the intentionally held older worktrees remain untouched.
+
 ### 2026-08-16 issue #331 terminal validation candidate
 
 - Branch `codex/331-terminal-validation` starts from exact verified main `111c5f9423edd9878212627d20e268304a6acc31` and owns only T-028 evidence, T-036 CI, T-037 browser stories, synchronized planning truth, ISA, and this checkpoint.

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
-status: ready_to_plan
-stopped_at: Phase 3 complete (2/2) — ready to discuss Phase 4
-last_updated: 2026-08-17T20:49:43.281Z
-last_activity: 2026-08-18 -- Phase 3 verified complete; Phase 4 is ready for discussion
+status: executing
+stopped_at: Phase 4 planning complete; next /gsd:execute-phase 4
+last_updated: "2026-08-18T01:58:39.282Z"
+last_activity: 2026-08-18 -- Phase 4 planning complete
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 2
+  total_plans: 5
   completed_plans: 2
   percent: 20
 ---
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 ## Current Position
 
 Phase: 4 of 7 (Provenance-Preserving Intent Graph)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-08-18 -- Phase 3 verified complete; Phase 4 is ready for discussion
+Plan: 0 of 3 (revision 3/3; plan-checker passed)
+Status: Ready to execute
+Last activity: 2026-08-18 -- Phase 4 planning complete
 
 Progress: [██░░░░░░░░] 20%
 
@@ -56,7 +56,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Plan Phase 4's provenance-preserving intent graph from the verified canonical anchors.
+- Execute Phase 4 only after explicit next-wave approval and the required Temperance paid-dispatch gate.
 
 ### Blockers/Concerns
 
@@ -73,9 +73,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-08-18
-Stopped at: Phase 3 verified complete; Phase 4 ready to plan
+Stopped at: Phase 4 planning complete; next `/gsd:execute-phase 4`
 Resume file: .planning/STATE.md
 
 ## Operator Next Step
 
-`/gsd:plan-phase 4`
+`/gsd:execute-phase 4`
+
+The independent plan checker passed revision 3/3 with zero blockers. Execution remains separately approval-gated and must preserve the three dependency-ordered waves.

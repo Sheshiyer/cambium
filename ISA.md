@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: verify
-progress: 4/4
+phase: plan
+progress: 0/5
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-18T02:04:32+05:30
+updated: 2026-08-18T06:25:56+05:30
 ---
 
 ## Problem
@@ -188,12 +188,20 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Criteria
 
-### Active Phase 3 acceptance
+### Completed Phase 3 acceptance
 
 - [x] ISC-1273: ANCHOR-01 proves the singular near-invariant root Vision through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 - [x] ISC-1274: ANCHOR-02 proves the singular renewable root Repository Mission through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 - [x] ISC-1275: ANCHOR-03 proves the Repository Mission and bounded `FabricMission` authority distinction through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 - [x] ISC-1276: ANCHOR-04 proves reference-only discovery of both canonical anchors through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+
+### Active Phase 4 acceptance
+
+- [ ] ISC-1277: GRAPH-01 proves one deterministic projection with stable node and labeled-edge semantics for Vision → Mission → finite goals → tasks → evidence → learning.
+- [ ] ISC-1278: GRAPH-02 proves every projected node exposes an exact repository-relative source path, named source authority, lifecycle state, and content digest.
+- [ ] ISC-1279: GRAPH-03 proves inherited overlays reference canonical root anchors and cannot declare themselves Vision or Repository Mission authorities.
+- [ ] ISC-1280: GRAPH-04 proves evidence and learning edges close or renew finite goals without mutating `VISION.md` or silently rewriting `MISSION.md`.
+- [ ] ISC-1281: GRAPH-05 proves approval gates, freshness, stop conditions, and blocked states remain explicit, with blocked work never projected as complete.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
@@ -1539,6 +1547,7 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 ## Test Strategy
 
 - ISC-1273..1276 | canonical infinite-game anchors | stable headings, direct paths, authority boundaries, coherent ISA state, and preserved Mission Fabric terminology | each criterion is binary and provenance-preserving | `node --test scripts/infinite-game-anchors.test.mjs`
+- ISC-1277..1281 | provenance-preserving intent graph | deterministic manifest, stable node/edge semantics, exact source metadata, overlay-reference guards, learning boundaries, and fail-closed gated/blocked state | each criterion maps one-to-one to GRAPH-01..05 and one named binary test | Phase 4 focused contract test plus generated-manifest check
 
 | ISC range | Type | Binary check | Tool |
 |---|---|---|---|
@@ -1653,6 +1662,7 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 ## Features
 
 - `CanonicalInfiniteGameAnchors` | establish singular root Vision and renewable Repository Mission without creating a second planner | satisfies ISC-1273..1276 | depends_on none | parallelizable false
+- `ProvenancePreservingIntentGraph` | compile a deterministic read-only projection from canonical doctrine, ISA/GSD planning, evidence, and learning without creating another authority | satisfies ISC-1277..1281 | depends_on CanonicalInfiniteGameAnchors | parallelizable false
 
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
@@ -1768,6 +1778,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-08-18 06:25: refined: Phase 4 is a deterministic, content-addressed read projection over existing authorities, not a new graph database, planner, or D1 writer. A machine-readable contract and generated readback must share one source model; copied anchor authority, projection foldback, stale digests, unlabeled edges, and blocked-as-complete coercion are fail-closed test cases. The required pre-commit and post-deliverable Advisor invocations could not authenticate because the local OAuth session expired, so no advisory approval is inferred; independent GSD plan checking and deterministic repository probes remain mandatory before execution.
 - 2026-08-18 01:48: refined: the exact v0.4 infinite-game goal and ISC-1273..1276 are the active Phase 3 acceptance contract; all retained issue #331 and earlier Vision, Goal, Criteria, Decision, Changelog, and Verification material remains historical evidence and is neither rewritten nor treated as current doctrine.
 
 - 2026-08-14 21:12: refined: the first founder-input pilot reuses `approve-goal-graph` instead of adding a direct quest-status route. The browser submits two references and an observed outcome; the Worker fixes every authority-bearing field and stores one review-pending candidate inside the existing intake task. Gate signs the stored change set, D1 CAS remains the sole write, Mission refreshes from D1, and Hermes execution remains impossible from this path.
