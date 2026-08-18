@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
 status: verifying
-stopped_at: "Completed 04-03-PLAN.md; next /gsd:verify-work 4"
-last_updated: "2026-08-18T05:35:43.459Z"
+stopped_at: "Phase 4 verification found a D1 foldback gap; next /gsd:plan-phase 4 --gaps"
+last_updated: "2026-08-18T05:55:43Z"
 last_activity: 2026-08-18
 progress:
   total_phases: 5
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 
 Phase: 4 of 7 (Provenance-Preserving Intent Graph)
 Plan: 3 of 3 (revision 3/3; plan-checker passed)
-Status: Ready to verify
+Status: Verification gap found
 Last activity: 2026-08-18
 
 Progress: [██████████] 100%
@@ -63,7 +63,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Independently verify the committed Phase 4 implementation before beginning Phase 5 planning.
+- Close the D1 authoritative-input foldback gap recorded in `04-VERIFICATION.md` before beginning Phase 5 planning.
 
 ### Blockers/Concerns
 
@@ -83,11 +83,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-08-18T05:34:55.844Z
-Stopped at: Completed 04-03-PLAN.md; next /gsd:verify-work 4
+Stopped at: Phase 4 verification found a D1 foldback gap; next /gsd:plan-phase 4 --gaps
 Resume file: None
 
 ## Operator Next Step
 
-`/gsd:verify-work 4`
+`/gsd:plan-phase 4 --gaps`
 
-All three dependency-ordered plans are committed with acceptance at ISA `verify` / `5/5`; independent phase verification is the remaining completion gate.
+All three dependency-ordered plans are committed, but independent verification is `gaps_found` at 4/5. The D1 authoritative-input guard must reject valid and malformed intent-graph projections before Phase 4 can complete.
