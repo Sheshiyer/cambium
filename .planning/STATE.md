@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
-status: "Phase 4 shipping — PR #351 checks pending"
-stopped_at: "Phase 4 verified 5/5; delivery gate pending /gsd:ship 4"
-last_updated: "2026-08-18T15:07:57.525Z"
-last_activity: "2026-08-18 -- Phase 4 PR #351 opened; exact-head checks pending"
+status: ready_to_plan
+stopped_at: "Phase 4 shipped through PR #351 at f1da858618bae5e15f4ac9a5fdd2141cabf76b6d; main CI 32152942949 passed"
+last_updated: "2026-08-18T15:16:03Z"
+last_activity: "2026-08-18 -- Phase 4 shipped through the protected PR gate with exact-main CI proof"
 progress:
   total_phases: 5
   completed_phases: 2
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
-**Current focus:** Phase 4 — verified delivery through the protected main PR gate
+**Current focus:** Phase 5 — Ralph and Temperance Flow Projection
 
 ## Current Position
 
-Phase: 4 of 7 (Provenance-Preserving Intent Graph)
-Plan: 4 of 4 (verified)
-Status: Phase 4 shipping — PR #351 checks pending
-Last activity: 2026-08-18 -- Phase 4 PR #351 opened; exact-head checks pending
+Phase: 5 of 7 (Ralph and Temperance Flow Projection)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-18 -- Phase 4 shipped through the protected PR gate with exact-main CI proof
 
 Progress: [██████████] 100%
 
@@ -64,7 +64,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ### Pending Todos
 
 - Phase 4 passed independent verification 5/5 and GRAPH-04 is complete.
-- Hold delivery at `/gsd:ship 4`: fetch and require current `origin/main` ancestry, rerun the full verifier if any post-verification rebase is required, run the exact release gate, create a PR, push the ship receipt, require exact-head CI, squash-merge through `main-pr-and-ci`, and prove the merge tree plus main CI before Phase 5 planning.
+- Delivery receipt: PR #351 exact head `892e6480d910da8e13ef6d86cd37e07c02d9e5aa` squash-merged as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`; the PR-head and merge trees matched, and main CI run `32152942949` passed all eight jobs.
 
 ### Blockers/Concerns
 
@@ -84,13 +84,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-08-18T05:34:55.844Z
-Stopped at: Phase 4 verified 5/5; delivery gate pending /gsd:ship 4
+Stopped at: Phase 4 shipped; Phase 5 ready to plan
 Resume file: None
 
 ## Operator Next Step
 
-`/gsd:ship 4`
+`/gsd:plan-phase 5`
 
-All four Phase 4 plans and summaries are committed. The independent verifier replaced the held report with `status: passed`, scored the phase 5/5, and closed GRAPH-04. Phase 5 remains blocked on the delivery gate.
-
-The Phase 4 branch is rebased cleanly onto PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd`; its twelve patches are range-diff equivalent and share no changed path with PR #350. After a passed verifier, do not begin Phase 5 until `/gsd:ship 4` completes the exact-head PR, squash merge, remote-tree readback, and main-CI proof described by `04-04-PLAN.md`.
+All four Phase 4 plans and summaries are committed. The independent verifier recorded `status: passed`, scored the phase 5/5, and closed GRAPH-04. PR #351 then passed exact-head CI, squash-merged through `main-pr-and-ci`, preserved exact tree identity at `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`, and passed main CI run `32152942949`. Phase 5 planning may now begin.
