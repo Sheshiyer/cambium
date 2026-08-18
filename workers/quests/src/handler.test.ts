@@ -14245,6 +14245,66 @@ test('goal graph intake · rejection persists a bounded receipt with no payload 
   assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-rejection:unknown:')).length, 1);
 });
 
+test('goal graph intake · intent projections reject before D1 reads or task persistence', async () => {
+  const digestA = `sha256:${'a'.repeat(64)}`;
+  const digestB = `sha256:${'b'.repeat(64)}`;
+  const fixtures = [
+    {
+      schema: 'cambium.intent-graph-projection.v1',
+      projectionAuthority: 'read_only',
+      sourceSetDigest: digestA,
+      graphDigest: digestB,
+      nodes: [{ id: 'raw-node-marker' }],
+      edges: [{ from: 'raw-node-marker', to: 'raw-edge-marker' }],
+    },
+    { schema: 'cambium.intent-graph-projection.v1', payload: { marker: 'raw-payload-marker' } },
+  ];
+
+  for (const fixture of fixtures) {
+    const { kv, deps } = goalGraphIntakeHarness();
+    const authoritativeStore = deps.goalGraphStore;
+    const headBefore = await authoritativeStore.readHead('cambium');
+    const nodesBefore = await authoritativeStore.readNodes('cambium');
+    const keysBefore = new Set(kv.store.keys());
+    let headReads = 0;
+    let nodeReads = 0;
+    const response = await postGoalGraphIntake('bridge', fixture, {
+      ...deps,
+      goalGraphStore: {
+        ...authoritativeStore,
+        readHead: async (tenantId: string) => {
+          headReads += 1;
+          return authoritativeStore.readHead(tenantId);
+        },
+        readNodes: async (tenantId: string) => {
+          nodeReads += 1;
+          return authoritativeStore.readNodes(tenantId);
+        },
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(body(response).accepted, false);
+    assert.equal(body(response).rejected, true);
+    assert.equal(body(response).code, 'projection_input');
+    assert.equal(headReads, 0);
+    assert.equal(nodeReads, 0);
+    assert.deepEqual(await authoritativeStore.readHead('cambium'), headBefore);
+    assert.deepEqual(await authoritativeStore.readNodes('cambium'), nodesBefore);
+
+    const newKeys = [...kv.store.keys()].filter((key) => !keysBefore.has(key));
+    assert.equal(newKeys.filter((key) => key.startsWith('goal-graph-intake-task:')).length, 0);
+    assert.equal(newKeys.filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 0);
+    const rejectionKeys = newKeys.filter((key) => key.startsWith('goal-graph-intake-rejection:unknown:'));
+    assert.equal(rejectionKeys.length, 1);
+    const stored = kv.store.get(rejectionKeys[0])!;
+    assert.equal(JSON.parse(stored).schema, 'cambium.goal-graph-intake-rejection.v1');
+    assert.ok(JSON.parse(stored).errors.length <= 8);
+    assert.doesNotMatch(stored, /raw-node-marker|raw-edge-marker|raw-payload-marker|sha256:[ab]{64}/);
+    assert.doesNotMatch(response.body, /raw-node-marker|raw-edge-marker|raw-payload-marker|sha256:[ab]{64}/);
+  }
+});
+
 test('goal graph approval · founder signature commits the pending proposal; branch map reads it back', async () => {
   const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
   const { deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
