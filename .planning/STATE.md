@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
-status: ready_to_ship
+status: "Phase 4 shipping — PR #351 checks pending"
 stopped_at: "Phase 4 verified 5/5; delivery gate pending /gsd:ship 4"
-last_updated: 2026-08-18T14:27:00.000Z
-last_activity: 2026-08-18 -- Phase 4 independently verified 5/5; delivery pending
+last_updated: "2026-08-18T15:07:57.525Z"
+last_activity: "2026-08-18 -- Phase 4 PR #351 opened; exact-head checks pending"
 progress:
   total_phases: 5
   completed_phases: 2
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 
 Phase: 4 of 7 (Provenance-Preserving Intent Graph)
 Plan: 4 of 4 (verified)
-Status: Ready to ship
-Last activity: 2026-08-18 -- independent verifier passed 5/5
+Status: Phase 4 shipping — PR #351 checks pending
+Last activity: 2026-08-18 -- Phase 4 PR #351 opened; exact-head checks pending
 
 Progress: [██████████] 100%
 
