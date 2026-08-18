@@ -1,4 +1,4 @@
-import { readFile, readdir, writeFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 import { loadBranchStories } from '../bin/quine/hyphae/branch-stories.ts'
@@ -10,6 +10,7 @@ import {
   REVIEWED_ROOT_MAP_DIGEST,
 } from './portfolio-foundation-pins.mjs'
 import { buildPortfolioMiniappLinkageReport } from './portfolio-miniapp-linkage.mjs'
+import { expectedDirectoryNames, observePortfolioFolders } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
 
 const ROOT_MAP_DIGEST = /PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
 
@@ -70,8 +71,14 @@ const vaultRegistry = await jsonFile(optionValue('--vault-registry'))
 const rootMap = await jsonFile(fileURLToPath(new URL('../docs/project-management/portfolio-roots.v1.json', import.meta.url)))
 const projectsRoot = optionValue('--projects-root')
 if (process.argv.includes('--strict') && !projectsRoot) throw new Error('strict_projects_root_required')
+const thoughtseedPortfolio = Array.isArray(rootMap?.portfolios)
+  ? rootMap.portfolios.find((entry) => entry && typeof entry === 'object' && !Array.isArray(entry) && entry.portfolioId === 'thoughtseed')
+  : undefined
 const observedFolders = projectsRoot
-  ? (await readdir(projectsRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => entry.name)
+  ? await observePortfolioFolders(
+    projectsRoot,
+    thoughtseedPortfolio ? expectedDirectoryNames(thoughtseedPortfolio) : [],
+  )
   : undefined
 const report = buildPortfolioMiniappLinkageReport({
   catalog: PORTFOLIO_CATALOG,

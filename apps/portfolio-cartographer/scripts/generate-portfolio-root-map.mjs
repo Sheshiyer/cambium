@@ -48,11 +48,36 @@ export function validateSnapshot(snapshot) {
   return snapshot
 }
 
+export const SKILL_NEST = 'skills'
+
 export function expectedDirectoryNames(portfolio) {
   const expected = portfolio.folders.map((entry) => entry.folder)
   if (portfolio.infrastructure) expected.push(...portfolio.infrastructure)
   if (portfolio.archiveContainer) expected.push(portfolio.archiveContainer)
   return expected.sort((left, right) => left.localeCompare(right))
+}
+
+export async function observePortfolioFolders(workingRoot, expectedNames = []) {
+  if (!path.isAbsolute(workingRoot)) throw new TypeError('workingRoot must be absolute')
+  const expected = new Set(expectedNames)
+  const entries = await readdir(workingRoot, { withFileTypes: true })
+  const observed = []
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue
+    observed.push(entry.name)
+  }
+  try {
+    const nested = await readdir(path.join(workingRoot, SKILL_NEST), { withFileTypes: true })
+    for (const entry of nested) {
+      if (!entry.isDirectory()) continue
+      if (!expected.has(entry.name)) continue
+      if (observed.includes(entry.name)) continue
+      observed.push(entry.name)
+    }
+  } catch (error) {
+    if (error && error.code !== 'ENOENT') throw error
+  }
+  return observed.sort((left, right) => left.localeCompare(right))
 }
 
 export function compareObservedDirectories(portfolio, observed) {
@@ -190,8 +215,7 @@ export async function writeRootHeaders({ snapshot, projectsRoot, write = false, 
     const portfolioRoot = path.join(projectsRoot, portfolio.portfolioId)
     const stat = await lstat(portfolioRoot)
     if (!stat.isDirectory() || stat.isSymbolicLink()) throw new TypeError(`${portfolio.portfolioId} root must be a real directory`)
-    const entries = await readdir(portfolioRoot, { withFileTypes: true })
-    const observed = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name)
+    const observed = await observePortfolioFolders(portfolioRoot, expectedDirectoryNames(portfolio))
     const comparison = compareObservedDirectories(portfolio, observed)
     if (!comparison.ok) throw new TypeError(`${portfolio.portfolioId} folder drift: missing=${comparison.missing.join(',')} unexpected=${comparison.unexpected.join(',')}`)
     const outputs = [
