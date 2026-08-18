@@ -22,7 +22,7 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 ### v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
 - [x] **Phase 3: Canonical Infinite-Game Anchors** - Establish one enduring vision, one renewable mission, and unambiguous Mission terminology. (completed 2026-08-17)
-- [ ] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority. (verification gap closure planned)
+- [x] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority. (verification gap closure planned) (completed 2026-08-18)
 - [ ] **Phase 5: Ralph and Temperance Flow Projection** - Derive dependency-safe next actions, routes, gates, freshness, and stopping conditions from durable sources.
 - [ ] **Phase 6: Documentation Stewardship** - Inventory and connect the doctrine corpus through a non-destructive authority and lifecycle map.
 - [ ] **Phase 7: Deterministic Safety and Handoff** - Reject authority drift, stale or sensitive projections, and leave a reviewed continuation boundary.
@@ -72,7 +72,7 @@ Plans:
 - [x] 04-03-PLAN.md — Publish discovery and D1 distinctions, then close ISA evidence and the bounded handoff from full gates.
 
 **Wave 4** *(blocked on Wave 3 execution and the Phase 4 verification gap)*
-- [ ] 04-04-PLAN.md — Enforce the shared D1 Intent Graph foldback guard, prove production intake rejection, and repair ISC-1280 evidence. Execute with `/gsd:execute-phase 4 --gaps-only`; the built-in verifier owns passed-only phase completion, then `/gsd:ship 4` owns current-main ancestry, exact-head PR checks, squash merge, and main readback before Phase 5.
+- [x] 04-04-PLAN.md — Enforce the shared D1 Intent Graph foldback guard, prove production intake rejection, and repair ISC-1280 evidence. Execute with `/gsd:execute-phase 4 --gaps-only`; the built-in verifier owns passed-only phase completion, then `/gsd:ship 4` owns current-main ancestry, exact-head PR checks, squash merge, and main readback before Phase 5.
 
 **Delivery gate:** The Phase 4 stack is rebased onto PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd`. A passed local phase is not yet proof of delivery: Phase 5 remains blocked until the verified exact head is shipped through `main-pr-and-ci`, squash-merged, and read back from `origin/main` with successful main CI.
 
@@ -119,7 +119,7 @@ Plans:
 | 1. D1-Leased Service-Agreement Draft | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 2. Telegram Operator Intake | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
-| 4. Provenance-Preserving Intent Graph | v0.4 | 3/4 | Gap closure ready | - |
+| 4. Provenance-Preserving Intent Graph | v0.4 | 4/4 | Complete   | 2026-08-18 |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 0/TBD | Not started | - |
 | 6. Documentation Stewardship | v0.4 | 0/TBD | Not started | - |
 | 7. Deterministic Safety and Handoff | v0.4 | 0/TBD | Not started | - |
