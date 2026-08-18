@@ -25,6 +25,31 @@ function checkbox(source, id) {
   return match[1] === 'x';
 }
 
+function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks) {
+  const phase3Complete = Object.values(phase3Checks).every(Boolean);
+  const phase4Pending = Object.values(phase4Checks).every((value) => !value);
+  const phase4Complete = Object.values(phase4Checks).every(Boolean);
+  return (
+    (/^phase: verify$/m.test(frontmatter) && /^progress: 4\/4$/m.test(frontmatter) && phase3Complete && phase4Pending)
+    || (/^(?:phase: plan|phase: execute)$/m.test(frontmatter) && /^progress: 0\/5$/m.test(frontmatter) && phase3Complete && phase4Pending)
+    || (/^phase: verify$/m.test(frontmatter) && /^progress: 5\/5$/m.test(frontmatter) && phase3Complete && phase4Complete)
+  );
+}
+
+test('ISA lifecycle accepts only coherent completed Phase 3 and Phase 4 states', () => {
+  const phase3Complete = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, true]));
+  const phase4Pending = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, false]));
+  const phase4Complete = Object.fromEntries(Object.keys(phase4Pending).map((id) => [id, true]));
+
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/5', phase3Complete, phase4Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/5', phase3Complete, phase4Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 5/5', phase3Complete, phase4Complete), true);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete), false);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 1/5', phase3Complete, phase4Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 5/5', phase3Complete, phase4Pending), false);
+});
+
 // ANCHOR-01 and ANCHOR-02: one enduring Vision and one renewable Mission.
 test('canonical root anchors declare singular doctrine and authority', () => {
   const vision = read('VISION.md');
@@ -81,15 +106,12 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
   assert.match(isa, /ISC-1273\.\.1276[\s\S]*scripts\/infinite-game-anchors\.test\.mjs/i);
   assert.match(isa, /CanonicalInfiniteGameAnchors[\s\S]*ISC-1273\.\.1276/);
 
-  const checks = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, checkbox(isa, id)]));
-  const executeState = /^phase: execute$/m.test(frontmatter)
-    && /^progress: 2\/4$/m.test(frontmatter)
-    && checks['ISC-1273'] && checks['ISC-1274']
-    && !checks['ISC-1275'] && !checks['ISC-1276'];
-  const verifyState = /^phase: verify$/m.test(frontmatter)
-    && /^progress: 4\/4$/m.test(frontmatter)
-    && Object.values(checks).every(Boolean);
-  assert.ok(executeState || verifyState, 'ISA must be coherent at execute 2/4 or verify 4/4');
+  const phase3Checks = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, checkbox(isa, id)]));
+  const phase4Checks = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, checkbox(isa, id)]));
+  assert.ok(
+    isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks),
+    'ISA must be coherent at completed Phase 3, active Phase 4, or verified Phase 4',
+  );
 });
 
 // ANCHOR-04: discovery surfaces reference canonical anchors without copying them.
