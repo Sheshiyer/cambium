@@ -66,7 +66,7 @@ Plans:
 - [x] 04-01-PLAN.md — Commit the RED adversarial contract, then implement the pure content-addressed compiler and authority boundary.
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 04-02-PLAN.md — Compile one repository source model into deterministic machine and human readbacks with stale-output checks.
+- [x] 04-02-PLAN.md — Compile one repository source model into deterministic machine and human readbacks with stale-output checks.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 04-03-PLAN.md — Publish discovery and D1 distinctions, then close ISA evidence and the bounded handoff from full gates.
@@ -114,7 +114,7 @@ Plans:
 | 1. D1-Leased Service-Agreement Draft | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 2. Telegram Operator Intake | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
-| 4. Provenance-Preserving Intent Graph | v0.4 | 1/3 | In Progress|  |
+| 4. Provenance-Preserving Intent Graph | v0.4 | 2/3 | In Progress|  |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 0/TBD | Not started | - |
 | 6. Documentation Stewardship | v0.4 | 0/TBD | Not started | - |
 | 7. Deterministic Safety and Handoff | v0.4 | 0/TBD | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
 status: executing
-stopped_at: Completed 04-01-PLAN.md; dependency-safe next plan is 04-02
-last_updated: "2026-08-18T04:57:32.814Z"
+stopped_at: Completed 04-02-PLAN.md; dependency-safe next plan is 04-03
+last_updated: "2026-08-18T05:15:23.814Z"
 last_activity: 2026-08-18
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
   percent: 20
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 ## Current Position
 
 Phase: 4 of 7 (Provenance-Preserving Intent Graph)
-Plan: 1 of 3 (revision 3/3; plan-checker passed)
+Plan: 2 of 3 (revision 3/3; plan-checker passed)
 Status: Ready to execute
 Last activity: 2026-08-18
 
-Progress: [██████░░░░] 60%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -55,6 +55,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Historical v0.3 phases remain read-only evidence; v0.4 preserves their numbering and continues with Phase 4.
 - [Phase 04]: Intent graph node identity excludes mutable content; exact selected-source digests carry revision. — Stable semantic references must not hide source revision.
 - [Phase 04]: The intent projection remains read_only and cannot fold back into ISA, GSD, doctrine, or the D1 Goal Graph. — Projection output is evidence for inspection, never fresh authority or an operational command.
+- [Phase 04]: One declared repository source model feeds one compiler invocation and both committed readbacks.
+- [Phase 04]: D1 Goal Graph remains the sole operational writer; generated intent-graph outputs remain read_only projections.
+- [Phase 04]: Mutable Roadmap and ISA tracking fields are excluded while exact Phase Goal, ISA task, and reviewed-decision selectors remain content-addressed.
 
 ### Pending Todos
 
@@ -72,12 +75,13 @@ Decisions are logged in PROJECT.md Key Decisions table.
 | Connected repositories | Inherit canonical anchors through pinned repository-specific contracts | Future | v0.4 initialization |
 | Corpus relocation | Relocate or archive documents only after inventory review | Future | v0.4 initialization |
 | Phase 04 P01 | 18min | 2 tasks | 3 files |
+| Phase 04 P02 | 9min | 2 tasks | 5 files |
 
 ## Session Continuity
 
-Last session: 2026-08-18T04:57:32.807Z
-Stopped at: Completed 04-01-PLAN.md; dependency-safe next plan is 04-02
-Resume file: .planning/STATE.md
+Last session: 2026-08-18T05:15:23.808Z
+Stopped at: Completed 04-02-PLAN.md; dependency-safe next plan is 04-03
+Resume file: None
 
 ## Operator Next Step
 
