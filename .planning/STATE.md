@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
-status: verifying
-stopped_at: "Phase 4 verification found a D1 foldback gap; next /gsd:plan-phase 4 --gaps"
-last_updated: "2026-08-18T05:55:43Z"
-last_activity: 2026-08-18
+status: ready
+stopped_at: "Phase 4 gap plan 04-04 ready; next /gsd:execute-phase 4 --gaps-only"
+last_updated: "2026-08-18T12:51:18.003Z"
+last_activity: 2026-08-18 -- Phase 4 planning complete
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 5
+  completed_phases: 1
+  total_plans: 6
   completed_plans: 5
-  percent: 40
+  percent: 20
 ---
 
 # Project State
@@ -28,18 +28,18 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 ## Current Position
 
 Phase: 4 of 7 (Provenance-Preserving Intent Graph)
-Plan: 3 of 3 (revision 3/3; plan-checker passed)
-Status: Verification gap found
-Last activity: 2026-08-18
+Plan: 3 of 4 (04-04 gap closure planned)
+Status: ready
+Last activity: 2026-08-18 -- Phase 4 planning complete
 
-Progress: [██████████] 100%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
 **Velocity:**
 
 - Historical plans completed: 2
-- v0.4 plans completed: 0
+- v0.4 plans completed: 5
 - Historical average duration: 39 min
 - Historical execution time: 0.65 hours
 
@@ -63,7 +63,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Close the D1 authoritative-input foldback gap recorded in `04-VERIFICATION.md` before beginning Phase 5 planning.
+- Execute only gap plan 04-04 with `/gsd:execute-phase 4 --gaps-only`; the built-in gsd-verifier then replaces the Phase 4 report. A passed verdict advances through `phase.complete`; `gaps_found` returns to gap planning.
 
 ### Blockers/Concerns
 
@@ -83,11 +83,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-08-18T05:34:55.844Z
-Stopped at: Phase 4 verification found a D1 foldback gap; next /gsd:plan-phase 4 --gaps
+Stopped at: Phase 4 gap plan 04-04 ready; next /gsd:execute-phase 4 --gaps-only
 Resume file: None
 
 ## Operator Next Step
 
-`/gsd:plan-phase 4 --gaps`
+`/gsd:execute-phase 4 --gaps-only`
 
-All three dependency-ordered plans are committed, but independent verification is `gaps_found` at 4/5. The D1 authoritative-input guard must reject valid and malformed intent-graph projections before Phase 4 can complete.
+Plans 04-01 through 04-03 remain shipped evidence. Plan 04-04 is the only pending execution unit. Gap-only execution must leave Phase 4 and GRAPH-04 open through executor SUMMARY/metadata, after which execute-phase's built-in independent gsd-verifier owns the replacement report. `status: passed` may advance through `phase.complete`; `gaps_found` routes back to `/gsd:plan-phase 4 --gaps`. `/gsd:verify-work 4` remains an optional manual re-verification command.
